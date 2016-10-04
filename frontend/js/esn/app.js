@@ -59,6 +59,7 @@ angular.module('esnApp', [
   'esn.oembed.codepen',
   'esn.oembed.gist',
   'esn.oembed.twitter',
+  'esn.oembed.image',
   'esn.injection',
   'esn.collaboration',
   'esn.company',
@@ -73,15 +74,36 @@ angular.module('esnApp', [
   'esn.beforeunload',
   'esn.configuration',
   'awesome-angular-swipe',
-  'esn.dropdownList'
-].concat(angularInjections)).config(function(routeResolver, $urlRouterProvider, $stateProvider) {
+  'esn.dropdownList',
+  'esn.resource-link',
+  'esn.like',
+  'esn.timeline',
+  'esn.follow',
+  'awesome-angular-swipe',
+  'esn.file-preview',
+  'esn.file-preview.image',
+  'esn.login',
+  'uuid4',
+  'luegg.directives',
+  'esn.touchscreen-detector',
+  'esn.previous-state'
+].concat(angularInjections))
+
+.config(function(routeResolver, $urlRouterProvider, $stateProvider) {
 
   // don't remove $injector, otherwise $location is not correctly injected...
   $urlRouterProvider.otherwise(function($injector, $location) {
-    return $location.search().continue || '/unifiedinbox/inbox';
+    return $location.search().continue || '/';
+  });
+
+  $urlRouterProvider.when('/', function(esnRouterHelper) {
+    esnRouterHelper.goToHomePage();
   });
 
   $stateProvider
+  .state('home', {
+    url: '/'
+  })
   .state('controlcenter.domainInviteMembers', {
     url: '/domains/:id/members/invite',
     templateUrl: '/views/esn/partials/domains/invite',
@@ -124,6 +146,16 @@ angular.module('esnApp', [
     resolve: {
       applications: routeResolver.api('applicationAPI', 'created', 'undefined')
     }
+  })
+  .state('controlcenter.changepassword', {
+    url: '/changepassword',
+    templateUrl: '/views/modules/login/changepassword',
+    controller: 'changePasswordController'
+  })
+  .state('controlcenter.timeline', {
+    url: '/timeline',
+    templateUrl: '/views/modules/timeline/index',
+    controller: 'esnTimelineEntriesController'
   })
   .state('/applications/:application_id', {
     url: '/applications/:application_id',
@@ -182,7 +214,8 @@ angular.module('esnApp', [
       q: {
         value: '',
         squash: true
-      }
+      },
+      filters: null
     },
     views: {
       'search-desktop-sidebar': {

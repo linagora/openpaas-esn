@@ -61,6 +61,7 @@ services:
   selenium-grid:
     image: elgalu/selenium:2.53.0p
     container_name: selenium-grid
+    privileged: true
     ports:
      - "4444:24444"
      - "5900:25900"
@@ -73,3 +74,4 @@ services:
       - james:jmap
     volumes:
       - ${VIDEO_DIR}:/videos
+      - /dev/shm:/dev/shm

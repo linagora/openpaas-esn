@@ -10,6 +10,8 @@ describe('The WebSockets server module', function() {
 
   beforeEach(function(done) {
     this.testEnv.initCore(done);
+    // Do not remove this. ./events is required inside email-templates
+    mockery.registerMock('email-templates', {});
     mockery.registerMock('./events', function() {});
 
     connectionTopic = {
@@ -86,7 +88,7 @@ describe('The WebSockets server module', function() {
     describe('when webserver port and wsserver port are equal', function() {
 
       it('should call socket.io listen with the express server as an argument', function(done) {
-
+        var wsserver;
         var webserverMock = {
           webserver: {
             port: 8080,
@@ -103,7 +105,7 @@ describe('The WebSockets server module', function() {
         mockery.registerMock('socket.io', ioMock);
         mockery.registerMock('../webserver', webserverMock);
 
-        var wsserver = this.helpers.requireBackend('wsserver').wsserver;
+        wsserver = this.helpers.requireBackend('wsserver').wsserver;
 
         wsserver.start(8080, function() {});
       });
@@ -112,7 +114,7 @@ describe('The WebSockets server module', function() {
     describe('when webserver ssl_port and wsserver port are equal', function() {
 
       it('should call socket.io listen with the express sslserver as an argument', function(done) {
-
+        var wsserver;
         var webserverMock = {
           webserver: {
             ssl_port: 443,
@@ -129,7 +131,7 @@ describe('The WebSockets server module', function() {
         mockery.registerMock('socket.io', ioMock);
         mockery.registerMock('../webserver', webserverMock);
 
-        var wsserver = this.helpers.requireBackend('wsserver').wsserver;
+        wsserver = this.helpers.requireBackend('wsserver').wsserver;
 
         wsserver.start(443, function() {});
       });

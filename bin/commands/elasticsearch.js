@@ -3,7 +3,7 @@
 var q = require('q');
 var commons = require('../commons');
 var EsnConfig = require('esn-elasticsearch-configuration');
-var indexes = ['users', 'contacts'];
+var indexes = ['users', 'contacts', 'events'];
 
 function exec(host, port, index) {
   host = host || 'localhost';

@@ -8,9 +8,6 @@ sub-header
         i.mdi.mdi-reply
         | #{__(' Back')}
       ul.actions.flex-space-around
-        li.contact-dropdown.dropdown
-          a(href='', data-toggle="dropdown" aria-expanded="false" aria-haspopup="true")
-            i.mdi.mdi-dots-vertical
         li
           button.btn.btn-primary(ng-if='displayShell.isWritable()', ng-disabled='calling || !loaded', type='button', ng-click='edit()')
             i.mdi.mdi-pencil
@@ -25,7 +22,7 @@ sub-header
 
   .contact-content.visible-xs.fadeIn200ms(ng-if='loaded && !error')
     .contact-avatar.p-relative
-      img(ng-src='{{displayShell.getAvatar(avatarSize)}}')
+      img(ng-src='{{displayShell.getAvatar(avatarSize)}}', alt='#{__("Avatar")}')
       i.mdi.i-contact-mobile(ng-class="displayShell.getOverlayIcon()")
     .contact-error-container
       div.contact-fn

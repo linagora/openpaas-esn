@@ -5,7 +5,7 @@ var mockery = require('mockery');
 var expect = chai.expect;
 
 describe('The Facebook strategy', function() {
-  var deps, passportMocks, configMocks;
+  var deps, passportMocks, configMocks, helpersMock;
   var logger = {
     debug: function() {},
     info: function() {}
@@ -30,7 +30,16 @@ describe('The Facebook strategy', function() {
       use: function() {}
     };
 
+    helpersMock = {
+      upsertUserAccount: function(user, account, callback) {
+        return callback();
+      }
+    };
+
     deps = {
+      oauth: {
+        helpers: helpersMock
+      },
       logger: logger,
       'esn-config': function() {
         return configMocks;

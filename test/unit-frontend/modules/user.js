@@ -38,7 +38,7 @@ describe('The User Angular module', function() {
       }));
 
       it('should send a request to /api/user', function() {
-        this.$httpBackend.expectGET('/api/user').respond(this.response);
+        this.$httpBackend.expectGET(/\/api\/user\?_=[0-9]+$/).respond(this.response);
         this.userAPI.currentUser();
         this.$httpBackend.flush();
       });

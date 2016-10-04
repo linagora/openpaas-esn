@@ -3,6 +3,7 @@
 var expect = require('chai').expect;
 var request = require('supertest');
 var async = require('async');
+var ObjectId = require('bson').ObjectId;
 
 describe('The communities API', function() {
 
@@ -25,14 +26,16 @@ describe('The communities API', function() {
 
     this.mongoose = require('mongoose');
     this.testEnv.initCore(function() {
-      Community = helpers.requireBackend('core/db/mongo/models/community');
-      User = helpers.requireBackend('core/db/mongo/models/user');
-      Domain = helpers.requireBackend('core/db/mongo/models/domain');
-      fixtures = helpers.requireFixture('models/users.js')(User);
-      webserver = helpers.requireBackend('webserver').webserver;
-      userDomainModule = helpers.requireBackend('core/user/domain');
+      helpers.elasticsearch.saveTestConfiguration(function() {
+        Community = helpers.requireBackend('core/db/mongo/models/community');
+        User = helpers.requireBackend('core/db/mongo/models/user');
+        Domain = helpers.requireBackend('core/db/mongo/models/domain');
+        fixtures = helpers.requireFixture('models/users.js')(User);
+        webserver = helpers.requireBackend('webserver').webserver;
+        userDomainModule = helpers.requireBackend('core/user/domain');
 
-      saveUser(user = fixtures.newDummyUser([email], password), done);
+        saveUser(user = fixtures.newDummyUser([email], password), done);
+      });
     });
   });
 
@@ -76,7 +79,7 @@ describe('The communities API', function() {
       var domain = {
         name: 'MyDomain',
         company_name: 'open-paas.org',
-        administrator: user._id
+        administrators: [{ user_id: user._id }]
       };
       var domain2 = {
         name: 'MyDomain2',
@@ -133,7 +136,7 @@ describe('The communities API', function() {
       var domain = {
         name: 'MyDomain',
         company_name: 'open-paas.org',
-        administrator: user._id
+        administrators: [{ user_id: user._id }]
       };
 
       var title = 'test1';
@@ -186,7 +189,7 @@ describe('The communities API', function() {
       var domain = {
         name: 'MyDomain',
         company_name: 'open-paas.org',
-        administrator: user._id
+        administrators: [{ user_id: user._id }]
       };
       var user2 = fixtures.newDummyUser(['user2@linagora.com'], 'pwd');
       var title = 'C1';
@@ -225,6 +228,99 @@ describe('The communities API', function() {
                 var community = res.body[0];
                 expect(community.title).to.equal(title);
                 expect(community.creator).to.equal(user._id.toString());
+                done();
+              });
+            });
+          }],
+        function(err) {
+          done(err);
+        }
+      );
+    });
+
+    it('should return list and filter communities according to their type', function(done) {
+      var domain = {
+        name: 'MyDomain',
+        company_name: 'open-paas.org',
+        administrators: [{ user_id: user._id }]
+      };
+      var title = 'C1';
+      var type = 'confidential';
+      var members = [{member: {objectType: 'user', id: String(user._id)}, status: 'joined'}];
+
+      async.series([
+          function(callback) {
+            saveDomain(domain, callback);
+          },
+          function(callback) {
+            userDomainModule.joinDomain(user, domain, callback);
+          },
+          function(callback) {
+            saveCommunity({title: title, domain_ids: [domain._id], creator: user._id, type: type, members: members}, callback);
+          },
+          function(callback) {
+            saveCommunity({title: 'C2', domain_ids: [domain._id], creator: user._id, type: 'open', members: members}, callback);
+          },
+          function(callback) {
+            saveCommunity({title: 'C3', domain_ids: [domain._id], creator: user._id, type: 'private', members: members}, callback);
+          },
+          function() {
+            helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+              if (err) {
+                return done(err);
+              }
+              var req = loggedInAsUser(request(webserver.application).get('/api/communities?domain_id=' + domain._id + '&creator=' + user._id + '&type=' + type));
+              req.expect(200);
+              req.end(function(err, res) {
+                expect(err).to.not.exist;
+                expect(res.body).to.exist;
+                expect(res.body).to.be.an.array;
+                expect(res.body.length).to.equal(1);
+                var community = res.body[0];
+                expect(community.title).to.equal(title);
+                expect(community.creator).to.equal(user._id.toString());
+                done();
+              });
+            });
+          }],
+        function(err) {
+          done(err);
+        }
+      );
+    });
+
+    it('should not return confidential communities if not creator', function(done) {
+      var domain = {
+        name: 'MyDomain',
+        company_name: 'open-paas.org',
+        administrators: [{ user_id: user._id }]
+      };
+      var user2 = fixtures.newDummyUser(['user2@linagora.com'], 'pwd');
+      var title = 'C1';
+
+      async.series([
+          function(callback) {
+            saveUser(user2, callback);
+          },
+          function(callback) {
+            saveDomain(domain, callback);
+          },
+          function(callback) {
+            userDomainModule.joinDomain(user, domain, callback);
+          },
+          function(callback) {
+            saveCommunity({title: title, domain_ids: [domain._id], creator: user2._id, type: 'confidential'}, callback);
+          },
+          function() {
+            helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+              if (err) {
+                return done(err);
+              }
+              var req = loggedInAsUser(request(webserver.application).get('/api/communities?domain_id=' + domain._id));
+              req.expect(200);
+              req.end(function(err, res) {
+                expect(err).to.not.exist;
+                expect(res.body).to.deep.equal([]);
                 done();
               });
             });
@@ -346,7 +442,7 @@ describe('The communities API', function() {
 
       async.series([
         function(callback) {
-          domain.administrator = user._id;
+          domain.administrators = [{ user_id: user._id }];
           saveDomain(domain, callback);
         },
         function() {
@@ -363,7 +459,7 @@ describe('The communities API', function() {
               expect(err).to.not.exist;
               expect(res.body).to.exist;
               expect(res.body.creator).to.exist;
-              expect(res.body.creator).to.equal(user._id + '');
+              expect(res.body.creator).to.equal(user.id);
               expect(res.body.title).to.equal(community.title);
               expect(res.body.description).to.equal(community.description);
 
@@ -375,8 +471,8 @@ describe('The communities API', function() {
                 expect(result.length).to.equal(1);
                 expect(result[0].title).to.equal(community.title);
                 expect(result[0].description).to.equal(community.description);
-                expect(result[0].creator + '').to.equal(user._id + '');
-                expect(result[0].members[0].member.id + '').to.equal(user._id + '');
+                expect(result[0].creator + '').to.equal(user.id);
+                expect(result[0].members[0].member.id + '').to.equal(user.id);
                 done();
               });
             });
@@ -400,10 +496,11 @@ describe('The communities API', function() {
 
       async.series([
         function(callback) {
-          domain.administrator = user._id;
+          domain.administrators = [{ user_id: user._id }];
           saveDomain(domain, callback);
         },
         function(callback) {
+          community.domain_ids = [domain._id];
           saveCommunity(community, callback);
         },
         function() {
@@ -413,8 +510,8 @@ describe('The communities API', function() {
             }
             var req = loggedInAsUser(request(webserver.application).post('/api/communities'));
             req.send(community);
-            req.expect(400);
-            req.end(function(err, res) {
+            req.expect(403);
+            req.end(function(err) {
               expect(err).to.not.exist;
 
               Community.find(function(err, result) {
@@ -423,6 +520,54 @@ describe('The communities API', function() {
                 }
                 expect(result).to.exist;
                 expect(result.length).to.equal(1);
+                done();
+              });
+            });
+          });
+        }
+      ], function(err) {
+        if (err) {
+          return done(err);
+        }
+      });
+    });
+
+    it('should store a community with existing name if noTitleCheck param exists', function(done) {
+      var community = {
+        title: 'Node.js',
+        description: 'This is the community description'
+      };
+      var domain = {
+        name: 'MyDomain',
+        company_name: 'MyAwesomeCompany'
+      };
+
+      async.series([
+        function(callback) {
+          domain.administrators = [{ user_id: user._id }];
+          saveDomain(domain, callback);
+        },
+        function(callback) {
+          community.domain_ids = [domain._id];
+          saveCommunity(community, callback);
+        },
+        function() {
+          helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+            if (err) {
+              return done(err);
+            }
+            var req = loggedInAsUser(request(webserver.application).post('/api/communities?noTitleCheck=true'));
+            req.send(community);
+            req.expect(201);
+            req.end(function(err, res) {
+              expect(err).to.not.exist;
+
+              Community.find(function(err, result) {
+                if (err) {
+                  return done(err);
+                }
+                expect(result).to.exist;
+                expect(result.length).to.equal(2);
                 done();
               });
             });
@@ -474,7 +619,7 @@ describe('The communities API', function() {
           saveUser(foouser, callback);
         },
         function(callback) {
-          domain.administrator = foouser._id;
+          domain.administrators = [{ user_id: foouser._id }];
           saveDomain(domain, callback);
         },
         function(callback) {
@@ -490,6 +635,52 @@ describe('The communities API', function() {
             var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + community._id));
             req.expect(200);
             req.end(function(err, res) {
+              expect(err).to.not.exist;
+              done();
+            });
+          });
+        }
+      ], function(err) {
+        if (err) {
+          return done(err);
+        }
+      });
+    });
+
+    it('should not get the community information if the community is confidential', function(done) {
+      var confidentialCommunity = {
+        title: 'Node.js',
+        description: 'This is the community description',
+        type: 'confidential'
+      };
+
+      var domain = {
+        name: 'MyDomain',
+        company_name: 'MyAwesomeCompany'
+      };
+      var foouser = fixtures.newDummyUser(['foo@bar.com'], 'secret');
+
+      async.series([
+        function(callback) {
+          saveUser(foouser, callback);
+        },
+        function(callback) {
+          domain.administrators = [{ user_id: foouser._id }];
+          saveDomain(domain, callback);
+        },
+        function(callback) {
+          confidentialCommunity.creator = foouser._id;
+          confidentialCommunity.domain_ids = [domain._id];
+          saveCommunity(confidentialCommunity, callback);
+        },
+        function() {
+          helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+            if (err) {
+              return done(err);
+            }
+            var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + confidentialCommunity._id));
+            req.expect(403);
+            req.end(function(err) {
               expect(err).to.not.exist;
               done();
             });
@@ -518,7 +709,7 @@ describe('The communities API', function() {
           saveUser(foouser, callback);
         },
         function(callback) {
-          domain.administrator = user._id;
+          domain.administrators = [{ user_id: user._id }];
           saveDomain(domain, callback);
         },
         function(callback) {
@@ -612,4 +803,111 @@ describe('The communities API', function() {
     });
   });
 
+  describe('PUT /api/communities/:id', function() {
+
+    beforeEach(function(done) {
+      var self = this;
+      saveUser(self.userInCommunity = fixtures.newDummyUser(['user2@open-paas.org'], password), function() {
+        var domain = {
+          name: 'MyDomain',
+          company_name: 'open-paas.org',
+          administrators: [{ user_id: user._id }]
+        };
+
+        self.title = 'toto';
+        self.avatar = new ObjectId();
+        self.newUser = new ObjectId();
+        self.userToRemove = self.userInCommunity._id;
+        self.body = {
+          title: self.title,
+          avatar: self.avatar,
+          newMembers: [self.newUser],
+          deleteMembers: [self.userToRemove]
+        };
+
+        self.community = {
+          creator: user._id,
+          title: 'test',
+          domain_ids: [domain._id],
+          members:
+            {member: {objectType: 'user', id: self.userInCommunity._id}}
+        };
+
+        async.series([
+            function(callback) {
+              saveDomain(domain, callback);
+            },
+            function(callback) {
+              userDomainModule.joinDomain(user, domain, callback);
+            },
+            function(callback) {
+              saveCommunity(self.community, callback);
+            }
+            ], function(err) {
+              if (err) {
+                return done(err);
+              }
+            });
+        done();
+      });
+    });
+
+    it('should return 200 if updated changed', function(done) {
+      var self = this;
+      this.helpers.api.loginAsUser(webserver.application, user.emails[0], 'secret', function(err, loggedInAsUser) {
+        if (err) { return done(err); }
+        var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + self.community._id));
+        req.send(self.body);
+        req.expect(200);
+        req.end(function(err, res) {
+          expect(err).to.not.exist;
+          Community.find({_id: self.community._id}, function(err, document) {
+            if (err) {
+              return done(err);
+            }
+            expect(document[0].title).to.equal(self.title);
+            expect(document[0].avatar.toString()).to.equal(self.avatar.toString());
+            expect(document[0].members.length).to.equal(1);
+            done();
+          });
+        });
+      });
+    });
+
+    it('should return 400 if no body', function(done) {
+      var self = this;
+      this.helpers.api.loginAsUser(webserver.application, user.emails[0], 'secret', function(err, loggedInAsUser) {
+        if (err) { return done(err); }
+        var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + self.community._id));
+        req.expect(400);
+        req.end(function(err, res) {
+          expect(err).to.not.exist;
+          done();
+        });
+      });
+    });
+
+    it('should return 401 user not connected', function(done) {
+      var self = this;
+      this.helpers.api.requireLogin(webserver.application, 'put', '/api/communities/' + self.community._id, function(err, res) {
+        if (err) { done(err); }
+        expect(res.status).to.be.equal(401);
+        done();
+      });
+    });
+
+    it('should return 403 if user not in community', function(done) {
+      var self = this;
+      this.helpers.api.loginAsUser(webserver.application, self.userInCommunity.emails[0], 'secret', function(err, loggedInAsUser) {
+        if (err) { return done(err); }
+        var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + self.community._id));
+        req.send(self.body);
+        req.expect(403);
+        req.end(function(err, res) {
+          expect(err).to.not.exist;
+          done();
+        });
+      });
+    });
+  });
 });

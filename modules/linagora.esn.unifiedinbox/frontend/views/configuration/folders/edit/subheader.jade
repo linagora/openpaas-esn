@@ -1,5 +1,9 @@
-.inbox-subheader.configuration.add-folder.row
-  inbox-subheader-close-button(ui-sref='unifiedinbox.configuration')
-  button.btn.btn-link.submit.button(esn-submit='editFolder()')
-    span #{__('Save')}
-    i.mdi.mdi-check
+extends ../../../layout/responsive-subheader
+
+block left
+  inbox-subheader-close-button
+  span.title.ellipsis.extra-title
+    | {{ ::mailbox.name }}
+
+block right
+  inbox-subheader-save-button(esn-submit="editFolder()")

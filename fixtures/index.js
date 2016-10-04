@@ -24,7 +24,7 @@ module.exports = function(done) {
       console.log('Success ! You have a working ESN !');
       done(true);
     })
-    .catch (function(err) {
+    .catch(function(err) {
       console.log('[ERROR] Cannot inject fixtures, aborting...');
       console.log('[ERROR] ', err.message);
       done(false);

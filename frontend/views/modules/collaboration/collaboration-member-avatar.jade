@@ -1,4 +1,4 @@
 a(ng-href="#/profile/{{member.user._id}}", href="#", data-toggle="tooltip", data-original-title='{{tooltip.title}}')
-  img(ng-src="/api/users/{{member.user._id}}/profile/avatar", src="/images/user.png")
+  img(ng-src="/api/users/{{member.user._id}}/profile/avatar", src="/images/user.png", alt='#{__("Member Avatar")}')
   span.esn-members-badge(title='Creator', ng-show='creator')
     i.mdi.mdi-trophy

@@ -33,7 +33,7 @@ angular.module('linagora.esn.contact')
     };
 
     ContactDisplayShell.prototype.isWritable = function() {
-      return this.addressbook && this.addressbook.editable ? true : false;
+      return Boolean(this.addressbook && this.addressbook.editable);
     };
 
     ContactDisplayShell.prototype.getAvatar = function(size) {

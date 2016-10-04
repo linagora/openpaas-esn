@@ -5,17 +5,16 @@ module.exports = function() {
   var noreply = process.env.MAIL_NO_REPLY || 'noreply@open-paas.org';
 
   return {
-    'mail': {
-      'noreply': noreply
+    mail: {
+      noreply: noreply
     },
-    'transport': {
-    'module': 'nodemailer-browser',
-      'type': 'MailBrowser',
-      'config': {
-        'dir': '/tmp',
-        'browser': true
+    transport: {
+      module: 'nodemailer-browser',
+      type: 'MailBrowser',
+      config: {
+        dir: '/tmp',
+        browser: true
       }
     }
   };
 };
-

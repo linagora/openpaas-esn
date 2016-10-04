@@ -1,14 +1,8 @@
 sub-header
-  view-email-subheader.hidden-md
+  view-email-subheader
 
 .email-view
-  .thread-header.visible-md
-    .flex-start
-      inbox-header-back-button
-      .header-label {{ ::email.subject }}
+  h4.thread-title {{ ::email.subject }}
 
-  .thread-title.visible-xs
-    h4 {{ ::email.subject }}
-    
-  email(email='email')
-  inbox-email-footer(email='email')
+  email(email='::email')
+  inbox-email-footer(email='::email')

@@ -4,43 +4,58 @@ var mongoose = require('mongoose');
 var Domain = mongoose.model('Domain');
 var User = mongoose.model('User');
 var userDomain = require('../../core/user/domain');
+var userIndex = require('../../core/user/index');
 var logger = require('../../core').logger;
 var async = require('async');
+var q = require('q');
 var pubsub = require('../../core/pubsub').local;
-var utils = require('./utils');
+var denormalizeUser = require('../denormalize/user').denormalize;
+var _ = require('lodash');
 
 function createDomain(req, res) {
   var data = req.body;
   var company_name = data.company_name;
   var name = data.name;
 
-  if (!data.administrator) {
-    return res.send(400, { error: { status: 400, message: 'Bad Request', details: 'An administrator is required'}});
+  if (!data.administrators || !data.administrators.length) {
+    return res.status(400).send({ error: { status: 400, message: 'Bad Request', details: 'An administrator is required'}});
   }
 
-  var u = new User(data.administrator);
+  var users = data.administrators.map(function(administrator) {
+    return new User(administrator);
+  });
 
-  if (u.emails.length === 0) {
-    return res.send(400, { error: { status: 400, message: 'Bad Request', details: 'At least one administrator email address is required'}});
+  var missEmailsField = users.some(function(user) {
+    return !user.emails || user.emails.length === 0;
+  });
+
+  if (missEmailsField) {
+    return res.status(400).send({ error: { status: 400, message: 'Bad Request', details: 'One of administrator does not have any email address'}});
   }
+
+  var administrators = users.map(function(user) {
+    return {
+      user_id: user
+    };
+  });
 
   var domainJson = {
     name: name,
     company_name: company_name,
-    administrator: u
+    administrators: administrators
   };
 
   var domain = new Domain(domainJson);
 
   domain.save(function(err, saved) {
     if (err) {
-      return res.send(500, { error: { status: 500, message: 'Server Error', details: 'Can not create domains ' + name + '. ' + err.message}});
+      return res.status(500).send({ error: { status: 500, message: 'Server Error', details: 'Can not create domains ' + name + '. ' + err.message}});
     }
     if (saved) {
-      return res.send(201);
+      return res.status(201).end();
     }
 
-    return res.send(404);
+    return res.status(404).end();
   });
 }
 
@@ -55,41 +70,49 @@ module.exports.createDomain = createDomain;
 function getMembers(req, res) {
   var uuid = req.params.uuid;
   if (!uuid) {
-    return res.json(400, {error: {code: 400, message: 'Bad parameters', details: 'Domain ID is missing'}});
+    return res.status(400).json({error: {code: 400, message: 'Bad parameters', details: 'Domain ID is missing'}});
   }
 
   var query = {
-    limit: req.param('limit') || 50,
-    offset: req.param('offset') || 0,
-    search: req.param('search') || null
+    limit: req.query.limit || 50,
+    offset: req.query.offset || 0,
+    search: req.query.search || null
   };
 
   Domain.loadFromID(uuid, function(err, domain) {
     if (err) {
-      return res.json(500, { error: { status: 500, message: 'Server error', details: 'Can not load domain: ' + err.message}});
+      return res.status(500).json({ error: { status: 500, message: 'Server error', details: 'Can not load domain: ' + err.message}});
     }
 
     if (!domain) {
-      return res.json(404, { error: { status: 404, message: 'Not Found', details: 'Domain ' + uuid + ' has not been found'}});
+      return res.status(404).json({ error: { status: 404, message: 'Not Found', details: 'Domain ' + uuid + ' has not been found'}});
     }
 
     if (query.search) {
       userDomain.getUsersSearch([domain], query, function(err, result) {
         if (err) {
-          return res.json(500, { error: { status: 500, message: 'Server error', details: 'Error while searching members: ' + err.message}});
+          return res.status(500).json({ error: { status: 500, message: 'Server error', details: 'Error while searching members: ' + err.message}});
         }
 
-        res.header('X-ESN-Items-Count', result.total_count);
-        return res.json(200, result.list.map(utils.sanitizeUser));
+        q.all(result.list.map(function(user) {
+          return denormalizeUser(user);
+        })).then(function(denormalized) {
+          res.header('X-ESN-Items-Count', result.total_count);
+          res.status(200).json(denormalized);
+        });
       });
     } else {
       userDomain.getUsersList([domain], query, function(err, result) {
         if (err) {
-          return res.json(500, { error: { status: 500, message: 'Server error', details: 'Error while listing members: ' + err.message}});
+          return res.status(500).json({ error: { status: 500, message: 'Server error', details: 'Error while listing members: ' + err.message}});
         }
 
-        res.header('X-ESN-Items-Count', result.total_count);
-        return res.json(200, result.list.map(utils.sanitizeUser));
+        q.all(result.list.map(function(user) {
+          return denormalizeUser(user);
+        })).then(function(denormalized) {
+          res.header('X-ESN-Items-Count', result.total_count);
+          res.status(200).json(denormalized);
+        });
       });
     }
   });
@@ -104,7 +127,7 @@ module.exports.getMembers = getMembers;
  */
 function sendInvitations(req, res) {
   if (!req.body || !(req.body instanceof Array)) {
-    return res.json(400, { error: { status: 400, message: 'Bad request', details: 'Missing input emails'}});
+    return res.status(400).json({ error: { status: 400, message: 'Bad request', details: 'Missing input emails'}});
   }
 
   var emails = req.body;
@@ -115,7 +138,7 @@ function sendInvitations(req, res) {
   var getInvitationURL = require('./invitation').getInvitationURL;
   var sent = [];
 
-  res.send(202);
+  res.status(202).end();
 
   var sendInvitation = function(email, callback) {
 
@@ -166,8 +189,92 @@ module.exports.sendInvitations = sendInvitations;
 
 function getDomain(req, res) {
   if (req.domain) {
-    return res.json(200, req.domain);
+    return res.status(200).json(req.domain);
   }
-  return res.json(404, {error: 404, message: 'Not found', details: 'Domain not found'});
+  return res.status(404).json({error: 404, message: 'Not found', details: 'Domain not found'});
 }
 module.exports.getDomain = getDomain;
+
+function createMember(req, res) {
+  if (!req.body || _.isEmpty(req.body)) {
+    return res.status(400).json({ error: { code: 400, message: 'Bad request', details: 'Missing input member' } });
+  }
+
+  userIndex.recordUser(req.body, function(err, user) {
+    if (err) {
+      return res.status(500).json({ error: { code: 500, message: 'Server Error', details: 'Can not create member. ' + err.message } });
+    }
+
+    return res.status(201).json(user);
+  });
+}
+module.exports.createMember = createMember;
+
+function getDomainAdministrators(req, res) {
+  userDomain.getAdministrators(req.domain, function(err, administrators) {
+    if (err || !administrators) {
+      logger.error('Can not get domain administrators : %s', err);
+
+      return res.status(500).json({ error: { code: 500, message: 'Server Error', details: 'Can not get domain administrators. ' + err.message } });
+    }
+
+    q.all(administrators.map(function(administrator) {
+        return denormalizeUser(administrator).then(function(denormalized) {
+          denormalized.role = administrator.role;
+          return denormalized;
+        });
+      }))
+      .then(function(denormalizeds) {
+        res.status(200).json(denormalizeds);
+      });
+  });
+}
+module.exports.getDomainAdministrators = getDomainAdministrators;
+
+function addDomainAdministrator(req, res) {
+  var domain = req.domain;
+  var userIds = req.body;
+
+  if (!Array.isArray(userIds)) {
+    return res.status(400).json({
+      error: { code: 400, message: 'Bad request', details: 'body should be an array of user\'s ID'}
+    });
+  }
+
+  userDomain.addDomainAdministrator(domain, userIds, function(err) {
+    if (err) {
+      logger.error('Error while adding domain administrators:', err);
+
+      return res.status(500).json({
+        error: { code: 500, message: 'Server Error', details: 'Error while adding domain administrators' }
+      });
+    }
+
+    res.status(204).end();
+  });
+}
+module.exports.addDomainAdministrator = addDomainAdministrator;
+
+function removeDomainAdministrator(req, res) {
+  var domain = req.domain;
+  var administratorId = req.params.administratorId;
+
+  if (req.user._id.equals(administratorId)) {
+    return res.status(403).json({
+      error: { code: 403, message: 'Forbidden', details: 'You cannot remove yourself' }
+    });
+  }
+
+  userDomain.removeDomainAdministrator(domain, administratorId, function(err) {
+    if (err) {
+      logger.error('Error while removing domain administrator:', err);
+
+      return res.status(500).json({
+        error: { code: 500, message: 'Server Error', details: 'Error while removing domain administrator' }
+      });
+    }
+
+    res.status(204).end();
+  });
+}
+module.exports.removeDomainAdministrator = removeDomainAdministrator;

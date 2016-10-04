@@ -1,39 +1,31 @@
 'use strict';
 
+var q = require('q');
+
 var messagePage = new (require('../pages/message'))();
 var inboxAside = new (require('../pages/inbox-aside'))();
 var inboxAddFolder = new (require('../pages/inbox-add-folder'))();
-
-var SENDING_MESSAGE = 'Sending of your message in progress...',
-    SUCCEED_MESSAGE = 'Sending of your message succeeded';
+var configurationPage = require('../pages/configuration')();
+var subheaderPage = require('../pages/subheader')();
 
 module.exports = function() {
 
   this.When('I press "Send" button and wait for the message to be sent', function(next) {
-    messagePage.composerSendButton.click();
+    var self = this;
+    var succeededMessage = 'Sending of your message succeeded';
+    messagePage.composerSendButton.click()
+      .then(check)
+      .then(next);
 
-    this.notifications.messages.each(function(message) {
-      message.getText().then(function(notificationMessage) {
-        if (notificationMessage !== SENDING_MESSAGE && notificationMessage !== SUCCEED_MESSAGE) {
-          next(new Error('Unexpected notification message: ' + notificationMessage));
-        }
-        if (notificationMessage === SUCCEED_MESSAGE) {
-          next();
-        }
-      });
-    });
-  });
-
-  this.When('I click on the "$page" label', function(page) {
-    var cssAttribute;
-
-    if (page === 'New folder') {
-      cssAttribute = '[ui-sref="unifiedinbox.configuration.folders-add"]';
+    function check() {
+      return q.all(self.notifications.messages.map(function(message) {
+        return message.getText().then(function(notificationMessage) {
+          if (notificationMessage === succeededMessage) {
+            return q.reject();
+          }
+        });
+      })).then(q.reject, q.when);
     }
-
-    inboxAside.aside.element(by.css(cssAttribute)).click();
-
-    return this.expect(inboxAddFolder.addFolderConfiguration.isPresent()).to.eventually.equal(true);
   });
 
   this.When('I write "$value" in the Name field', function(value) {
@@ -49,7 +41,39 @@ module.exports = function() {
     return this.expect(inboxAddFolder.addFolderParentName.getText()).to.eventually.contain(value);
   });
 
-  this.When('I press "Create" button', function() {
-    return inboxAddFolder.createButton.click();
+  this.When('I click on the "$label" item on Inbox sidebar', function(label) {
+    var cssAttribute;
+
+    if (label === 'Configuration') {
+      cssAttribute = '[ui-sref="unifiedinbox.configuration"]';
+    } else if (label === 'New folder') {
+      cssAttribute = '[ui-sref="unifiedinbox.configuration.folders.add"]';
+    } else {
+      throw new Error('No such item on Inbox sidebar: ' + label);
+    }
+
+    return inboxAside.aside.element(by.css(cssAttribute)).click();
+  });
+
+  this.When('I go to "$label" configuration tab', function(label) {
+    return configurationPage.goToTab(label);
+  });
+
+  this.When('I fill start date with "$startDate" and message body with "$body"', function(startDate, body) {
+    return configurationPage.vacationTab.toggleEnable(true)
+      .then(function() {
+        return q.all([
+          configurationPage.vacationTab.fillStartDate(startDate),
+          configurationPage.vacationTab.fillBody(body)
+        ]);
+      });
+  });
+
+  this.When('I press "$label" button on Inbox subheader', function(label) {
+    return subheaderPage.clickButton(label);
+  });
+
+  this.When('I go to "$folder" folder', function(folder) {
+    return inboxAside.aside.element(by.css('div[title="' + folder + '"]')).click();
   });
 };

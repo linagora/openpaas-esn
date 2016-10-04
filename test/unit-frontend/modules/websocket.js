@@ -492,17 +492,17 @@ describe('The esn.websocket Angular module', function() {
       describe('message style IoAction', function() {
         it('should propagate namespace and broadcast properties to socketIO', function() {
           var ns = null, broadcast = false;
-          var ioSocketConnectionMock = {
-            getSio: function(namespace) {
-              ns = namespace;
-              return sioMock;
-            }
-          };
           var sioMock = {
             broadcast: {
               emit: function(evt, data) {
                 broadcast = true;
               }
+            }
+          };
+          var ioSocketConnectionMock = {
+            getSio: function(namespace) {
+              ns = namespace;
+              return sioMock;
             }
           };
 
@@ -514,17 +514,17 @@ describe('The esn.websocket Angular module', function() {
         });
         it('should call socketIO emit method', function() {
           var event = null, data = false;
-          var ioSocketConnectionMock = {
-            getSio: function(namespace) {
-              return sioMock;
-            }
-          };
           var sioMock = {
             broadcast: {
               emit: function(e, d) {
                 event = e;
                 data = d;
               }
+            }
+          };
+          var ioSocketConnectionMock = {
+            getSio: function(namespace) {
+              return sioMock;
             }
           };
 
@@ -538,17 +538,17 @@ describe('The esn.websocket Angular module', function() {
       describe('subscription style IoAction', function() {
         it('should propagate namespace and broadcast properties to socketIO', function() {
           var ns = null, broadcast = false;
-          var ioSocketConnectionMock = {
-            getSio: function(namespace) {
-              ns = namespace;
-              return sioMock;
-            }
-          };
           var sioMock = {
             broadcast: {
               on: function(evt, data) {
                 broadcast = true;
               }
+            }
+          };
+          var ioSocketConnectionMock = {
+            getSio: function(namespace) {
+              ns = namespace;
+              return sioMock;
             }
           };
 
@@ -560,17 +560,17 @@ describe('The esn.websocket Angular module', function() {
         });
         it('should call socketIO on method', function() {
           var event = null, data = false;
-          var ioSocketConnectionMock = {
-            getSio: function(namespace) {
-              return sioMock;
-            }
-          };
           var sioMock = {
             broadcast: {
               on: function(e, d) {
                 event = e;
                 data = d;
               }
+            }
+          };
+          var ioSocketConnectionMock = {
+            getSio: function(namespace) {
+              return sioMock;
             }
           };
 
@@ -584,15 +584,15 @@ describe('The esn.websocket Angular module', function() {
       describe('unsubscription style IoAction', function() {
         it('should call SocketIO removeListener with the ioOfflineBuffer buffered action', function() {
           var event, data;
-          var ioSocketConnectionMock = {
-            getSio: function(namespace) {
-              return sioMock;
-            }
-          };
           var sioMock = {
             removeListener: function(e, d) {
               event = e;
               data = d;
+            }
+          };
+          var ioSocketConnectionMock = {
+            getSio: function(namespace) {
+              return sioMock;
             }
           };
           var ioOfflineBufferMock = {
@@ -1025,9 +1025,10 @@ describe('The esn.websocket Angular module', function() {
     });
   });
   describe('ioConnectionManager service', function() {
+    var self = this;
+
     beforeEach(function() {
-      var self = this;
-      this.isc = {
+      self.isc = {
         sio: null,
         callbacks: {},
         getSio: function() {return this.sio; },
@@ -1040,17 +1041,17 @@ describe('The esn.websocket Angular module', function() {
           this.callbacks.connect = cb;
         }
       };
-      this.ioaction = function IoAction() {
+      self.ioaction = function IoAction() {
         this.applyToSocketIO = IoAction.applyToSocketIO;
         this.isSubscription = IoAction.isSubscription;
         this.isUnsubscribe = IoAction.isUnsubscribe;
         this.emit = function() {};
       };
-      this.ioaction.applyToSocketIO = function() {};
-      this.ioaction.isSubscription = function() {};
-      this.ioaction.isUnsubscribe = function() { return false; };
+      self.ioaction.applyToSocketIO = function() {};
+      self.ioaction.isSubscription = function() {};
+      self.ioaction.isUnsubscribe = function() { return false; };
 
-      this.tokenAPI = {
+      self.tokenAPI = {
         getNewToken: function() {
           return {
             then: function(callback) {
@@ -1060,15 +1061,19 @@ describe('The esn.websocket Angular module', function() {
         }
       };
 
-      this.io = function() {
+      self.io = function() {
         return self.ioMock;
       };
-      this.ioMock = function() {};
-      this.ioMock.managers = {};
+      self.ioMock = function() {};
+      self.ioMock.managers = {};
 
-      this.sessionMock = {
+      self.sessionMock = {
         user: {
           _id: 'user1'
+        },
+        domain: {},
+        ready: {
+          then: function() {}
         }
       };
 
@@ -1082,102 +1087,105 @@ describe('The esn.websocket Angular module', function() {
       });
     });
     beforeEach(inject(function(ioOfflineBuffer, ioSocketProxy, ioConnectionManager) {
-      this.ioOfflineBuffer = ioOfflineBuffer;
-      this.ioSocketProxy = ioSocketProxy;
-      this.icm = ioConnectionManager;
+      self.ioOfflineBuffer = ioOfflineBuffer;
+      self.ioSocketProxy = ioSocketProxy;
+      self.icm = ioConnectionManager;
     }));
     it('should expose a connect method', function() {
-      expect(this.icm.connect).to.be.a('function');
+      expect(self.icm.connect).to.be.a('function');
     });
     it('should add a connect callback to ioSocketConnection', function() {
-      expect(this.isc.callbacks.connect).to.be.a('function');
+      expect(self.isc.callbacks.connect).to.be.a('function');
     });
     it('should add a disconnect callback to ioSocketConnection', function() {
-      expect(this.isc.callbacks.disconnect).to.be.a('function');
+      expect(self.isc.callbacks.disconnect).to.be.a('function');
     });
     describe('connect method', function() {
       it('should call tokenAPI.getNewToken()', function() {
-        expect(this.tokenAPI.callback).to.be.not.ok;
-        this.icm.connect();
-        expect(this.tokenAPI.callback).to.be.a('function');
+        expect(self.tokenAPI.callback).to.be.not.ok;
+        self.icm.connect();
+        expect(self.tokenAPI.callback).to.be.a('function');
       });
     });
     describe('tokenAPI.getNewToken() callback', function() {
+
       it('should call socketIO connect method, with token in arguments', function(done) {
-        this.ioMock = function(ns, options) {
+        self.ioMock = function(ns, options) {
           expect(options.query).to.contain('token=token1');
           expect(options.query).to.contain('user=user1');
           done();
         };
-        this.icm.connect();
-        this.tokenAPI.callback({data: {token: 'token1'}});
+        self.icm.connect();
+        self.tokenAPI.callback({data: {token: 'token1'}});
       });
+
       it('should set socketIO connect method response in ioSocketConnection', function(done) {
-        this.ioMock = function(ns, options) { return {io: true}; };
-        this.icm.connect();
-        this.isc.setSio = function(sio) {
+        self.ioMock = function(ns, options) { return {io: true}; };
+        self.icm.connect();
+        self.isc.setSio = function(sio) {
           expect(sio).to.deep.equal({io: true});
           done();
         };
-        this.tokenAPI.callback({data: {token: 'token1'}});
+        self.tokenAPI.callback({data: {token: 'token1'}});
       });
+
     });
     describe('disconnect callback', function() {
       it('should try to reconnect', function(done) {
-        this.ioMock = function(ns, options) { return {io: true}; };
-        this.ioMock.managers = {};
-        this.icm.connect();
-        this.tokenAPI.callback({data: {token: 'token1'}});
-        this.isc.isConnected = function() { return false; };
-        this.tokenAPI.getNewToken = function() {
+        self.ioMock = function(ns, options) { return {io: true}; };
+        self.ioMock.managers = {};
+        self.icm.connect();
+        self.tokenAPI.callback({data: {token: 'token1'}});
+        self.isc.isConnected = function() { return false; };
+        self.tokenAPI.getNewToken = function() {
           done();
           return {then: function() {}};
         };
-        this.isc.callbacks.disconnect();
+        self.isc.callbacks.disconnect();
       });
     });
     describe('connect callback', function() {
       it('should call ioOfflineBuffer.flushBuffer()', function(done) {
-        this.ioOfflineBuffer.flushBuffer = done;
-        this.ioMock = function(ns, options) { return {io: true}; };
-        this.icm.connect();
-        this.tokenAPI.callback({data: {token: 'token1'}});
-        this.isc.callbacks.connect();
+        self.ioOfflineBuffer.flushBuffer = done;
+        self.ioMock = function(ns, options) { return {io: true}; };
+        self.icm.connect();
+        self.tokenAPI.callback({data: {token: 'token1'}});
+        self.isc.callbacks.connect();
       });
       it('should apply the buffered messages to socketio', function() {
         var appliedActions = [];
-        this.ioaction.applyToSocketIO = function() {
+        self.ioaction.applyToSocketIO = function() {
           appliedActions.push(this);
         };
-        var a1 = new this.ioaction();
+        var a1 = new self.ioaction();
         a1.id = 'action1';
-        var a2 = new this.ioaction();
+        var a2 = new self.ioaction();
         a2.id = 'action2';
-        this.ioOfflineBuffer.push(a1);
-        this.ioOfflineBuffer.push(a2);
-        this.ioMock = function(ns, options) { return {io: true}; };
-        this.icm.connect();
-        this.tokenAPI.callback({data: {token: 'token1'}});
-        this.isc.callbacks.connect();
+        self.ioOfflineBuffer.push(a1);
+        self.ioOfflineBuffer.push(a2);
+        self.ioMock = function(ns, options) { return {io: true}; };
+        self.icm.connect();
+        self.tokenAPI.callback({data: {token: 'token1'}});
+        self.isc.callbacks.connect();
         expect(appliedActions).to.have.length(2);
         expect(appliedActions[0].id).to.equal('action1');
         expect(appliedActions[1].id).to.equal('action2');
       });
       it('should apply the buffered subscriptions to socketio', function() {
         var appliedActions = [];
-        this.ioaction.applyToSocketIO = function() {
+        self.ioaction.applyToSocketIO = function() {
           appliedActions.push(this);
         };
-        var a1 = new this.ioaction();
+        var a1 = new self.ioaction();
         a1.id = 'action1';
-        var a2 = new this.ioaction();
+        var a2 = new self.ioaction();
         a2.id = 'action2';
-        this.ioOfflineBuffer.handleSubscription(a1);
-        this.ioOfflineBuffer.handleSubscription(a2);
-        this.ioMock = function(ns, options) { return {io: true}; };
-        this.icm.connect();
-        this.tokenAPI.callback({data: {token: 'token1'}});
-        this.isc.callbacks.connect();
+        self.ioOfflineBuffer.handleSubscription(a1);
+        self.ioOfflineBuffer.handleSubscription(a2);
+        self.ioMock = function(ns, options) { return {io: true}; };
+        self.icm.connect();
+        self.tokenAPI.callback({data: {token: 'token1'}});
+        self.isc.callbacks.connect();
         expect(appliedActions).to.have.length(2);
         expect(appliedActions[0].id).to.equal('action1');
         expect(appliedActions[1].id).to.equal('action2');

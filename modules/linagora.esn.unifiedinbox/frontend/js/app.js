@@ -32,10 +32,63 @@ angular.module('linagora.esn.unifiedinbox', [
   'esn.configuration',
   'esn.core',
   'linagora.esn.graceperiod',
-  'ngAnimate'
+  'ngAnimate',
+  'esn.escape-html',
+  'esn.search',
+  'esn.async-action',
+  'esn.user'
 ])
 
   .config(function($stateProvider, dynamicDirectiveServiceProvider) {
+    function toggleHeaderVisibility(visible) {
+      return function($rootScope, HEADER_VISIBILITY_EVENT, HEADER_DISABLE_SCROLL_LISTENER_EVENT) {
+        $rootScope.$broadcast(HEADER_DISABLE_SCROLL_LISTENER_EVENT, !visible);
+        $rootScope.$broadcast(HEADER_VISIBILITY_EVENT, visible);
+      };
+    }
+
+    function stateOpeningListItem(state) {
+      function toggleElementOpened(opening) {
+        return function($rootScope, esnPreviousState) {
+          $rootScope.inbox.list.isElementOpened = opening;
+
+          if (opening) {
+            esnPreviousState.set();
+          }
+        };
+      }
+
+      state.onEnter = toggleElementOpened(true);
+      state.onExit = toggleElementOpened(false);
+
+      state.params = state.params || {};
+      state.params.item = undefined;
+
+      return state;
+    }
+
+    function stateOpeningModal(state, templateUrl, controller) {
+      state.resolve = {
+        modalHolder: function() {
+          return {};
+        }
+      };
+      state.onEnter = function($modal, modalHolder) {
+        modalHolder.modal = $modal({
+          templateUrl: templateUrl,
+          controller: controller,
+          controllerAs: 'ctrl',
+          backdrop: 'static',
+          placement: 'center'
+        });
+      };
+      state.onExit = function(modalHolder) {
+        modalHolder.modal.hide();
+      };
+
+      return state;
+    }
+
     $stateProvider
       .state('unifiedinbox', {
         url: '/unifiedinbox',
@@ -54,7 +107,10 @@ angular.module('linagora.esn.unifiedinbox', [
             template: '<composer />'
           }
         },
-        params: { email: {}, compositionOptions: {}, composition: null, previousState: { name: 'unifiedinbox.inbox' } }
+        params: { email: {}, compositionOptions: {}, composition: null },
+        onEnter: function(esnPreviousState) {
+          esnPreviousState.set();
+        }
       })
       .state('unifiedinbox.compose.recipients', {
         url: '/:recipientsType',
@@ -65,19 +121,39 @@ angular.module('linagora.esn.unifiedinbox', [
           }
         },
         params: { composition: null },
-        data: { ignoreSaveAsDraft: true }
+        data: { ignoreSaveAsDraft: true },
+        onEnter: toggleHeaderVisibility(false),
+        onExit: toggleHeaderVisibility(true)
       })
       .state('unifiedinbox.configuration', {
         url: '/configuration',
+        deepStateRedirect: {
+          default: 'unifiedinbox.configuration.folders',
+          fn: function(touchscreenDetectorService) {
+            return { state: touchscreenDetectorService.hasTouchscreen() ? 'unifiedinbox.configuration.folders' : 'unifiedinbox.configuration.vacation' };
+          }
+        },
         views: {
           'main@unifiedinbox': {
             templateUrl: '/unifiedinbox/views/configuration/index',
-            controller: 'configurationController'
+            controller: 'inboxConfigurationIndexController'
+          }
+        },
+        onEnter: function(esnPreviousState) {
+          esnPreviousState.set();
+        }
+      })
+      .state('unifiedinbox.configuration.folders', {
+        url: '/folders',
+        views: {
+          'configuration@unifiedinbox.configuration': {
+            templateUrl: '/unifiedinbox/views/configuration/folders/index',
+            controller: 'inboxConfigurationFolderController'
           }
         }
       })
-      .state('unifiedinbox.configuration.folders-add', {
-        url: '/folders/add',
+      .state('unifiedinbox.configuration.folders.add', {
+        url: '/add',
         views: {
           'main@unifiedinbox': {
             templateUrl: '/unifiedinbox/views/configuration/folders/add/index',
@@ -85,14 +161,27 @@ angular.module('linagora.esn.unifiedinbox', [
           }
         }
       })
-      .state('unifiedinbox.configuration.folders-edit', {
-        url: '/folders/edit/:mailbox',
+      .state('unifiedinbox.configuration.folders.folder', {
+        url: '/:mailbox',
         views: {
           'main@unifiedinbox': {
             templateUrl: '/unifiedinbox/views/configuration/folders/edit/index',
             controller: 'editFolderController'
           }
         }
+      })
+      .state('unifiedinbox.configuration.folders.folder.delete', stateOpeningModal({
+        url: '/delete'
+      }, '/unifiedinbox/views/configuration/folders/delete/index', 'inboxDeleteFolderController'))
+      .state('unifiedinbox.configuration.vacation', {
+        url: '/vacation',
+        views: {
+          'configuration@unifiedinbox.configuration': {
+            templateUrl: '/unifiedinbox/views/configuration/vacation/index',
+            controller: 'inboxConfigurationVacationController as ctrl'
+          }
+        },
+        params: { vacation: null }
       })
       .state('unifiedinbox.inbox', {
         url: '/inbox',
@@ -103,6 +192,25 @@ angular.module('linagora.esn.unifiedinbox', [
           }
         }
       })
+      .state('unifiedinbox.inbox.move', stateOpeningModal({
+        url: '/move',
+        params: {
+          item: undefined,
+          selection: false
+        }
+      }, '/unifiedinbox/views/email/view/move/index', 'inboxMoveItemController'))
+      .state('unifiedinbox.inbox.message', stateOpeningListItem({
+        url: '/:emailId',
+        views: {
+          'preview-pane@unifiedinbox.inbox': {
+            templateUrl: '/unifiedinbox/views/email/view/index',
+            controller: 'viewEmailController as ctrl'
+          }
+        }
+      }))
+      .state('unifiedinbox.inbox.message.move', stateOpeningModal({
+        url: '/move'
+      }, '/unifiedinbox/views/email/view/move/index', 'inboxMoveItemController'))
       .state('unifiedinbox.twitter', {
         url: '/twitter/:username',
         views: {
@@ -135,15 +243,25 @@ angular.module('linagora.esn.unifiedinbox', [
           hostedMailProvider: 'inboxHostedMailMessagesProvider'
         }
       })
-      .state('unifiedinbox.list.messages.message', {
+      .state('unifiedinbox.list.messages.move', stateOpeningModal({
+        url: '/move',
+        params: {
+          item: undefined,
+          selection: false
+        }
+      }, '/unifiedinbox/views/email/view/move/index', 'inboxMoveItemController'))
+      .state('unifiedinbox.list.messages.message', stateOpeningListItem({
         url: '/:emailId',
         views: {
-          'main@unifiedinbox': {
+          'preview-pane@unifiedinbox.list.messages': {
             templateUrl: '/unifiedinbox/views/email/view/index',
             controller: 'viewEmailController as ctrl'
           }
         }
-      })
+      }))
+      .state('unifiedinbox.list.messages.message.move', stateOpeningModal({
+        url: '/move'
+      }, '/unifiedinbox/views/email/view/move/index', 'inboxMoveItemController'))
       .state('unifiedinbox.list.threads', {
         url: '/threads',
         views: {
@@ -156,15 +274,25 @@ angular.module('linagora.esn.unifiedinbox', [
           hostedMailProvider: 'inboxHostedMailThreadsProvider'
         }
       })
-      .state('unifiedinbox.list.threads.thread', {
+      .state('unifiedinbox.list.threads.move', stateOpeningModal({
+        url: '/move',
+        params: {
+          item: undefined,
+          selection: false
+        }
+      }, '/unifiedinbox/views/email/view/move/index', 'inboxMoveItemController'))
+      .state('unifiedinbox.list.threads.thread', stateOpeningListItem({
         url: '/:threadId',
         views: {
-          'main@unifiedinbox': {
+          'preview-pane@unifiedinbox.list.threads': {
             templateUrl: '/unifiedinbox/views/thread/view/index',
             controller: 'viewThreadController as ctrl'
           }
         }
-      });
+      }))
+      .state('unifiedinbox.list.threads.thread.move', stateOpeningModal({
+        url: '/move'
+      }, '/unifiedinbox/views/email/view/move/index', 'inboxMoveItemController'));
 
     var inbox = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-inbox', {priority: 45}),
         attachmentDownloadAction = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'attachment-download-action');
@@ -174,7 +302,7 @@ angular.module('linagora.esn.unifiedinbox', [
   })
 
   .run(function($q, inboxConfig, inboxProviders, inboxHostedMailMessagesProvider, inboxHostedMailThreadsProvider,
-                inboxTwitterProvider, session, DEFAULT_VIEW) {
+                inboxTwitterProvider, session, DEFAULT_VIEW, searchProviders) {
 
     $q.all([
       inboxConfig('view', DEFAULT_VIEW),
@@ -191,10 +319,12 @@ angular.module('linagora.esn.unifiedinbox', [
         });
       }
     });
+
+    searchProviders.add(inboxHostedMailMessagesProvider);
   })
 
-  .run(function(newComposerService, listenToPrefixedWindowMessage, MAILTO_URL_MESSAGE_PREFIX) {
-    listenToPrefixedWindowMessage(MAILTO_URL_MESSAGE_PREFIX, function(emailAddress) {
+  .run(function(newComposerService, listenToPrefixedWindowMessage, IFRAME_MESSAGE_PREFIXES) {
+    listenToPrefixedWindowMessage(IFRAME_MESSAGE_PREFIXES.MAILTO, function(emailAddress) {
       newComposerService.open({
           to: [{
             email: emailAddress,
@@ -203,4 +333,12 @@ angular.module('linagora.esn.unifiedinbox', [
         }
       );
     });
+  })
+
+  .run(function($rootScope) {
+    $rootScope.inbox = {
+      list: {
+        isElementOpened: false
+      }
+    };
   });

@@ -73,7 +73,7 @@ describe('The notification API', function() {
       }
 
       function saveDomain(domain, user, cb) {
-        domain.administrator = user;
+        domain.administrators = [{ user_id: user }];
         domain.save(function(err, saved) {
           domain._id = saved._id;
           return cb(err, saved);
@@ -236,7 +236,7 @@ describe('The notification API', function() {
             .end(function(err, res) {
               expect(err).to.not.exist;
               expect(res.body).to.exist;
-              expect(res.body._id).to.equal('' + _n._id);
+              expect(res.body._id).to.equal(_n.id);
               done();
             });
         });

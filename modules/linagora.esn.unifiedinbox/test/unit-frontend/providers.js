@@ -7,7 +7,7 @@ var expect = chai.expect;
 describe('The Unified Inbox Angular module providers', function() {
 
   var $rootScope, inboxProviders, inboxTwitterProvider, inboxHostedMailMessagesProvider, inboxHostedMailThreadsProvider,
-    $httpBackend, jmapClient, ELEMENTS_PER_PAGE, ELEMENTS_PER_REQUEST;
+      $httpBackend, jmapClient, ELEMENTS_PER_PAGE, ELEMENTS_PER_REQUEST;
 
   function elements(id, length, offset) {
     var array = [], start = offset || 0;
@@ -15,7 +15,9 @@ describe('The Unified Inbox Angular module providers', function() {
     for (var i = start; i < (start + length); i++) {
       array.push({
         id: id + '_' + i,
-        date: new Date(2016, 1, 1, 1, 1, 1, 999 - i)
+        date: new Date(2016, 1, 1, 1, 1, 1, 999 - i),
+        mailboxIds: ['id_inbox'],
+        threadId: 'thread_' + i
       });
     }
 
@@ -47,6 +49,8 @@ describe('The Unified Inbox Angular module providers', function() {
       $provide.value('withJmapClient', function(cb) {
         return cb(jmapClient);
       });
+
+      $provide.constant('ELEMENTS_PER_PAGE', ELEMENTS_PER_PAGE = 20);
     });
   });
 
@@ -60,7 +64,6 @@ describe('The Unified Inbox Angular module providers', function() {
     $httpBackend = _$httpBackend_;
 
     ELEMENTS_PER_REQUEST = _ELEMENTS_PER_REQUEST_;
-    ELEMENTS_PER_PAGE = _ELEMENTS_PER_PAGE_;
   }));
 
   describe('The inboxHostedMailMessagesProvider factory', function() {
@@ -323,6 +326,16 @@ describe('The Unified Inbox Angular module providers', function() {
         expect(context).to.deep.equal({
           inMailboxes: ['id_inbox'],
           isUnread: true
+        });
+      });
+
+      $rootScope.$digest();
+    });
+
+    it('should build search context when query is passed as an option', function() {
+      inboxJmapProviderContextBuilder({ query: 'query' }).then(function(context) {
+        expect(context).to.deep.equal({
+          text: 'query'
         });
       });
 

@@ -17,6 +17,7 @@ describe('The Contacts ui module', function() {
 
     beforeEach(function() {
       var self = this;
+
       self.$alert = function(args) {
         return alertMock(args);
       };
@@ -33,6 +34,7 @@ describe('The Contacts ui module', function() {
     it('should call the $alert service', function() {
       alertMock = sinon.spy();
       var err = 'This is the error';
+
       this.displayContactError(err);
       expect(alertMock).to.have.been.calledWith({
         content: err,
@@ -51,8 +53,7 @@ describe('The Contacts ui module', function() {
     var ContactListScrollingService, sharedContactDataService, listScroller;
     var angularFind;
     var letterOffset = 0,
-      contactHeaderOffset = 0,
-      contactControlOffset = 0;
+      contactHeaderOffset = 0;
 
     var angularFindResult = {
       h2: {
@@ -68,17 +69,10 @@ describe('The Contacts ui module', function() {
           return [angularFindResult.h2];
         }
       },
-      contactControl: {
-        getBoundingClientRect: function() {
-          return {
-            bottom: contactHeaderOffset
-          };
-        }
-      },
       contactHeader: {
         getBoundingClientRect: function() {
           return {
-            bottom: contactControlOffset
+            bottom: contactHeaderOffset
           };
         }
       }
@@ -94,11 +88,8 @@ describe('The Contacts ui module', function() {
       // Simulate angular.element.find and restore after
       angularFind = angular.element.find;
       angular.element.find = function(value) {
-        switch (value) {
-          case '.contact-controls':
-            return [angularFindResult.contactControl];
-          case '.contacts-list-header':
-            return [angularFindResult.contactHeader];
+        if (value === '.contact-list-subheader') {
+          return [angularFindResult.contactHeader];
         }
       };
 
@@ -160,6 +151,7 @@ describe('The Contacts ui module', function() {
 
     it('should return the function to remove scroll listener', function(done) {
       var angularElement = angular.element;
+
       angular.element = function() {
         return {
           off: function() {
@@ -180,12 +172,8 @@ describe('The Contacts ui module', function() {
   });
 
   describe('The ContactListToggleDisplayService', function() {
-    var $rootScope,
-      $cacheFactory,
-      ContactListToggleDisplayService,
-      ContactListToggleEventService,
-      CONTACT_LIST_DISPLAY,
-      CONTACT_LIST_DISPLAY_EVENTS;
+    var ContactListToggleDisplayService,
+      CONTACT_LIST_DISPLAY;
 
     var ContactListToggleEventServiceMock = {
       broadcast: function() {},
@@ -197,13 +185,9 @@ describe('The Contacts ui module', function() {
       module(function($provide) {
         $provide.value('ContactListToggleEventService', ContactListToggleEventServiceMock);
       });
-      inject(function(_$rootScope_, _ContactListToggleDisplayService_, _ContactListToggleEventService_, _CONTACT_LIST_DISPLAY_, _CONTACT_LIST_DISPLAY_EVENTS_, _$cacheFactory_) {
-        $rootScope = _$rootScope_;
+      inject(function(_ContactListToggleDisplayService_, _CONTACT_LIST_DISPLAY_) {
         ContactListToggleDisplayService = _ContactListToggleDisplayService_;
-        ContactListToggleEventService = _ContactListToggleEventService_;
         CONTACT_LIST_DISPLAY = _CONTACT_LIST_DISPLAY_;
-        CONTACT_LIST_DISPLAY_EVENTS = _CONTACT_LIST_DISPLAY_EVENTS_;
-        $cacheFactory = _$cacheFactory_;
       });
     });
 
@@ -215,6 +199,7 @@ describe('The Contacts ui module', function() {
 
       it('should return the data from cache when current is not defined', function() {
         var value = CONTACT_LIST_DISPLAY.cards;
+
         ContactListToggleDisplayService._cacheValue(value);
         expect(ContactListToggleDisplayService.getInitialDisplay()).to.equal(value);
       });
@@ -229,6 +214,7 @@ describe('The Contacts ui module', function() {
 
       it('should return the current value', function() {
         var value = 'foo';
+
         ContactListToggleDisplayService.setCurrentDisplay(value);
         expect(ContactListToggleDisplayService.getCurrentDisplay()).to.equal(value);
       });
@@ -238,24 +224,28 @@ describe('The Contacts ui module', function() {
     describe('The setCurrentDisplay function', function() {
       it('should cache value', function() {
         var value = 'foo';
+
         ContactListToggleDisplayService.setCurrentDisplay(value);
         expect(ContactListToggleDisplayService._getCacheValue()).to.equal(value);
       });
 
       it('should cache value', function() {
         var value = 'foo';
+
         ContactListToggleDisplayService.setCurrentDisplay(value);
         expect(ContactListToggleDisplayService._getCacheValue()).to.equal(value);
       });
 
       it('should set current value', function() {
         var value = 'foo';
+
         ContactListToggleDisplayService.setCurrentDisplay(value);
         expect(ContactListToggleDisplayService.getCurrentDisplay()).to.equal(value);
       });
 
       it('should broadcast event', function(done) {
         var value = 'foo';
+
         ContactListToggleEventServiceMock.broadcast = function() {
           done();
         };
@@ -274,6 +264,7 @@ describe('The Contacts ui module', function() {
     describe('The cache value functions', function() {
       it('should be able to get a cached value', function() {
         var value = 'foobar';
+
         ContactListToggleDisplayService._cacheValue(value);
         expect(ContactListToggleDisplayService._getCacheValue()).to.equal(value);
       });
@@ -295,8 +286,8 @@ describe('The Contacts ui module', function() {
 
     describe('The broadcast function', function() {
       it('should call $rootScope.$broadcast with toggle event', function(done) {
-
         var data = 'My event';
+
         $rootScope.$on(CONTACT_LIST_DISPLAY_EVENTS.toggle, function(evt, value) {
           expect(value).to.equal(data);
           done();
@@ -308,7 +299,6 @@ describe('The Contacts ui module', function() {
 
     describe('The listen function', function() {
       it('should listen to toggle event', function(done) {
-
         var eventCallback = function() {};
         var scope = {
           $on: function(event, callback) {
@@ -317,12 +307,14 @@ describe('The Contacts ui module', function() {
             done();
           }
         };
+
         ContactListToggleEventService.listen(scope, eventCallback);
       });
 
       it('should call event callback', function(done) {
         var event = 'My event';
         var scope = $rootScope.$new();
+
         function callback(evt, data) {
           expect(data).to.equal(event);
           done();

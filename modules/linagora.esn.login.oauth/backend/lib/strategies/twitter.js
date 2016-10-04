@@ -1,32 +1,16 @@
 'use strict';
 
-var OAUTH_CONFIG_KEY = 'oauth';
 var q = require('q');
 var passport = require('passport');
 var TwitterStrategy = require('passport-twitter').Strategy;
+var OAUTH_CONFIG_KEY = 'oauth';
+var TYPE = 'twitter';
 
 module.exports = function(dependencies) {
 
   var config = dependencies('esn-config');
   var logger = dependencies('logger');
-  var user = dependencies('user');
-  var helpers = dependencies('helpers');
-
-  function getCallbackEndpoint() {
-    var defer = q.defer();
-    helpers.config.getBaseUrl(function(err, baseURL) {
-      if (err) {
-        return defer.reject(err);
-      }
-
-      if (!baseURL) {
-        return defer.reject(new Error('Can not retrieve baseURL'));
-      }
-
-      defer.resolve(baseURL + '/login-oauth/twitter/auth/callback');
-    });
-    return defer.promise;
-  }
+  var commons = require('./commons')(dependencies);
 
   function getTwitterConfiguration() {
     var defer = q.defer();
@@ -48,31 +32,15 @@ module.exports = function(dependencies) {
 
     logger.info('Configuring Twitter OAuth login');
 
-    q.spread([getCallbackEndpoint(), getTwitterConfiguration()], function(url, oauth) {
+    q.spread([commons.getCallbackEndpoint(TYPE), getTwitterConfiguration()], function(url, oauth) {
 
       passport.use('twitter-login', new TwitterStrategy({
-          consumerKey: oauth.consumer_key,
-          consumerSecret: oauth.consumer_secret,
-          passReqToCallback: true,
-          callbackURL: url
-        },
-        function(req, accessToken, tokenSecret, profile, callback) {
-
-          if (!req.user) {
-            return user.find({'accounts.type': 'oauth', 'accounts.data.provider': 'twitter', 'accounts.data.id': profile.id}, function(err, user) {
-              if (err) {
-                return callback(err);
-              }
-
-              if (user) {
-                req.user = user;
-                return callback(null, user);
-              }
-
-              callback();
-            });
-          }
-        }));
+        consumerKey: oauth.consumer_key,
+        consumerSecret: oauth.consumer_secret,
+        passReqToCallback: true,
+        callbackURL: url,
+        includeEmail: true
+      }, commons.handleResponse(TYPE)));
       callback();
     }, callback);
   }

@@ -1,4 +1,6 @@
 @subHeaderBackground: darken(@primaryColor, 3%);
+@subHeaderShadow: rgba(0, 0, 0, 0.3);
+@headerAvatarShadow: rgba(0, 0, 0, 0.2);
 
 #header {
   background-color: @primaryColor;
@@ -46,11 +48,6 @@
           font-size: 2em;
           color: @textPrimaryColor;
         }
-        &:hover {
-          i.mdi {
-            color: @accentColor;
-          }
-        }
       }
     }
 
@@ -78,7 +75,7 @@
       width: 30px;
       background: #fff;
       border-radius: 3px;
-      box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 1px 1px @headerAvatarShadow;
       cursor: pointer;
     }
   }
@@ -133,11 +130,25 @@
   margin-top: @sub-header-height;
 }
 
+body.header-hidden {
+  padding-top: 0;
+}
+
 /* Small devices (tablets, 768px and up) */
 @media (min-width: @screen-sm-min) {
 
-  #sub-header {
-    background-color: @subHeaderBackground;
-  }
+  #header {
+    li.hover-scale-animation > a {
+      &:hover {
+        i.mdi {
+          color: @accentColor;
+        }
+      }
+    }
 
+    #sub-header {
+      background-color: @subHeaderBackground;
+      box-shadow: 0 1px 4px @subHeaderShadow;
+    }
+  }
 }

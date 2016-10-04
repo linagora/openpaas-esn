@@ -1,6 +1,6 @@
 div
   a.pull-left(ng-href='#/profile/{{::message.author._id}}')
-    img.media-object.w-128(src='/images/user.png', ng-src='/api/users/{{::message.author._id}}/profile/avatar')
+    img.media-object.w-128(src='/images/user.png', ng-src='/api/users/{{::message.author._id}}/profile/avatar', alt='#{__("Message Author")}')
   div
     h4.media-heading
       a(ng-href='#/profile/{{::message.author._id}}') {{::message.author.firstname}} {{::message.author.lastname}} #{__('has shared an email')}
@@ -13,7 +13,7 @@ div
 
       .row.header
         a(href='#', title='{{::message.parsedHeaders.from.name}} <{{::message.parsedHeaders.from.address}}>')
-          img(src='/images/user.png', ng-src="/api/avatars?objectType=user&email={{::message.parsedHeaders.from.address}}")
+          img(src='/images/user.png', ng-src="/api/avatars?objectType=user&email={{::message.parsedHeaders.from.address}}", alt='#{__("From")}')
           span.label.label-danger.emaillabel From
 
         .from

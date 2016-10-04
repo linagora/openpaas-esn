@@ -253,7 +253,11 @@ module.exports = function(mixin, testEnv) {
           setTimeout(function() {
             request
               .get(elasticsearchURL + '/' + index + '/' + type + '/_search?q=_id:' + id)
-              .end(function(res) {
+              .end(function(err, res) {
+                if (err) {
+                  return callback(err);
+                }
+
                 if (check(res)) {
                   finish = true;
                   return callback();
@@ -293,10 +297,26 @@ module.exports = function(mixin, testEnv) {
     },
 
     saveTestConfiguration: function(callback) {
-      mixin.mongo.saveDoc('configuration', {
-        _id: 'elasticsearch',
+      mixin.requireBackend('core/esn-config')('elasticsearch').store({
         host: testEnv.serversConfig.host + ':' + testEnv.serversConfig.elasticsearch.port
       }, callback);
+    }
+  };
+
+  mixin.davserver = {
+    saveTestConfiguration: function(callback) {
+      mixin.requireBackend('core/esn-config')('davserver').store({
+        backend: {
+          url: 'http://' + testEnv.serversConfig.host + ':' + testEnv.serversConfig.davserver.port
+        }
+      }, callback);
+    },
+    runServer: function(servedData) {
+      return require('express')()
+        .get('/*', function(req, res) {
+          res.status(200).send(servedData);
+        })
+        .listen(testEnv.serversConfig.davserver.port);
     }
   };
 
@@ -370,14 +390,47 @@ module.exports = function(mixin, testEnv) {
     }
   };
 
+  mixin.express = {
+    response: function(callback) {
+      return {
+        status: function(code) {
+          callback && callback(code);
+
+          return {
+            end: function() {},
+            send: function() {}
+          };
+        }
+      };
+    },
+    jsonResponse: function(callback) {
+      var _headers = {};
+
+      return {
+        header: function(key, value) {
+          _headers[key] = value;
+        },
+        status: function(code) {
+          return {
+            json: function(data) {
+              return callback && callback(code, data, _headers);
+            }
+          };
+        }
+      };
+    }
+  };
+
   mixin.toComparableObject = function(object) {
     return JSON.parse(JSON.stringify(typeof object.toObject === 'function' ? object.toObject() : object));
   };
 
   mixin.mail = {
+    saveConfiguration: function(configuration, callback) {
+      mixin.requireBackend('core/esn-config')('mail').store(configuration, callback);
+    },
     saveTestConfiguration: function(callback) {
-      mixin.mongo.saveDoc('configuration', {
-        _id: 'mail',
+      mixin.requireBackend('core/esn-config')('mail').store({
         mail: {
           noreply: 'noreply@open-paas.org'
         },
@@ -402,7 +455,12 @@ module.exports = function(mixin, testEnv) {
 
   mixin.redis = {
     publishConfiguration: function() {
+      mixin.requireBackend('core/esn-config')('redis').store({
+        url: testEnv.redisUrl
+      });
+
       var pubsub = mixin.requireBackend('core/pubsub');
+
       pubsub.local.topic('redis:configurationAvailable').publish({
         host: testEnv.serversConfig.host,
         port: testEnv.serversConfig.redis.port

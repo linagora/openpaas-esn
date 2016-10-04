@@ -1,0 +1,14 @@
+.row.event-date-consultation
+  .col-xs-12
+    .flex-start.flex-vertical-centered
+      i.mdi.mdi-clock
+      .date
+        span {{vm.start}}
+      .to(ng-if='!vm.event.allDay')
+        | #{__('To')}
+      .separator(ng-if='vm.event.allDay')
+        | -
+      .date
+        span {{vm.end}}
+      .allday(ng-if='vm.event.allDay')
+        | #{__('All day')}

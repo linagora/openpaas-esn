@@ -2,7 +2,7 @@
   
   .col-lg-2.col-md-3.col-xs-4
     a(href='#/appstore/apps/{{::application._id}}')
-      img.thumbnail.nopadding(ng-src='/appstore/api/apps/{{::application._id}}/avatar', src='/appstore/images/application.png')
+      img.thumbnail.nopadding(ng-src='/appstore/api/apps/{{::application._id}}/avatar', src='/appstore/images/application.png', alt='#{__("Application")}')
 
   .col-lg-10.col-md-9.col-xs-8
     .row

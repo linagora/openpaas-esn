@@ -4,7 +4,6 @@ var util = require('util');
 var q = require('q');
 var url = require('url');
 
-var NOREPLY = 'noreply@openpaas.org';
 var TEMPLATE = 'digest.daily';
 
 function _prune(header, collaboration, message) {
@@ -90,7 +89,7 @@ function _buildContent(user, data, baseUrl) {
 
   data.forEach(function(element) {
     var collaboration = {
-      id: element.collaboration._id + '',
+      id: element.collaboration.id,
       title: element.collaboration.title,
       objectType: element.collaboration.objectType,
       messages: [],
@@ -123,13 +122,9 @@ function _buildContent(user, data, baseUrl) {
 }
 
 function process(dependencies, user, digest) {
-  var contentSender = dependencies('content-sender');
+  var emailModule = dependencies('email');
   var esnconfig = dependencies('esn-config');
   var staticConfig = dependencies('config')('default');
-
-  function getMailConfig() {
-    return q.ninvoke(esnconfig('mail'), 'get', 'mail');
-  }
 
   function getBaseUrl() {
     return q.ninvoke(esnconfig('web'), 'get').then(function(web) {
@@ -137,27 +132,20 @@ function process(dependencies, user, digest) {
         return q(web.base_url);
       }
       var port = staticConfig.webserver.port || '8080';
+
       return q('http://localhost:' + port);
     });
   }
 
-  return getMailConfig().then(function(mail) {
-    return getBaseUrl().then(function(baseUrl) {
+  return getBaseUrl().then(function(baseUrl) {
+    var content = _buildContent(user, digest, baseUrl);
+    var message = {
+      to: user.emails[0],
+      subject: content.subject
+    };
+    var templateName = TEMPLATE;
 
-      var noreply = mail.noreply || NOREPLY;
-      var from = { objectType: 'email', id: 'OpenPaaS <' + noreply + '>' };
-      var to = { objectType: 'email', id: user.emails[0] };
-
-      var content = _buildContent(user, digest, baseUrl);
-
-      var options = {
-        message: {
-          subject: content.subject
-        },
-        template: TEMPLATE
-      };
-      return contentSender.send(from, to, content, options, 'email');
-    });
+    return emailModule.getMailer().sendHTML(message, templateName, content);
   });
 }
 

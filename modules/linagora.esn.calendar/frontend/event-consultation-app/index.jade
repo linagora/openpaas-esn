@@ -1,0 +1,79 @@
+doctype html
+html
+  head
+    meta(charset='utf8')
+    base(href='/')
+    title OpenPaas
+    meta(name="viewport", content="width=device-width, initial-scale=1")
+    link(rel='icon', type='image/png', href='images/logo-tiny.png')
+    link(rel='stylesheet', href='/generated/css/esn/styles.css', media='all')
+    link(rel='stylesheet', href='/components/mdi/css/materialdesignicons.min.css', media='all')
+    link(rel='stylesheet', href='/components/ng-tags-input/ng-tags-input.min.css')
+    link(rel='stylesheet', href='/components/roboto-fontface/css/roboto-fontface.css')
+    link(rel='stylesheet', href='/components/animate.css/animate.css')
+    script(src='/components/jquery/dist/jquery.min.js')
+    script(src='/components/lodash/dist/lodash.min.js')
+    script(src='/components/bootstrap/dist/js/bootstrap.min.js')
+    script(src='/components/angular/angular.min.js')
+    script(src='/components/angular-ui-router/release/angular-ui-router.min.js')
+    script(src='/components/moment/min/moment.min.js')
+    script(src='/components/angular-strap/dist/angular-strap.min.js')
+    script(src='/components/angular-strap/dist/angular-strap.tpl.min.js')
+    script(src='/components/angular-moment/angular-moment.min.js')
+    script(src='/components/fullcalendar/dist/fullcalendar.min.js')
+    script(src='/components/angular-uuid4/angular-uuid4.min.js')
+    script(src='/components/angular-jstz/angular-jstz.js')
+    script(src='/components/jstzdetect/jstz.min.js')
+    script(src='js/material.js')
+    script(src='/components/material-admin/js/modules/form.js')
+    script(src='/components/dynamic-directive/dist/dynamic-directive.min.js')
+    script(src='/components/ical.js/build/ical.js')
+    script(src='js/modules/core.js')
+    script(src='js/modules/lodash-wrapper.js')
+    script(src='js/modules/application-menu.js')
+    script(src='calendar/event-consultation-app/app.js')
+    script(src='calendar/event-consultation-app/event-consult-form-external-user.directive.js')
+    script(src='calendar/app/event-consult-form/event-consult-form-body.directive.js')
+    script(src='calendar/app/event-consult-form/event-consult-form-sub-header.directive.js')
+    script(src='calendar/app/event-consult-form/event-consult-form.directive.js')
+    script(src='calendar/app/components/attendees-list/attendees-list.js')
+    script(src='calendar/app/components/attendee-list-item/attendee-list-item.js')
+    script(src='calendar/app/components/calendar-community-button-toolbar/calendar-community-button-toolbar.directive.js')
+    script(src='calendar/app/core/auto-size-and-update.directive.js')
+    script(src='calendar/app/core/toggle-calendar-view.directive.js')
+    script(src='calendar/app/core/toggle-calendar-today.directive.js')
+    script(src='calendar/app/core/toggle-mini-calendar.directive.js')
+    script(src='calendar/app/core/calendar-view-translation.directive.js')
+    script(src='calendar/app/core/application-menu-calendar.directive.js')
+    script(src='calendar/app/core/calendar-date-indicator.directive.js')
+    script(src='calendar/app/services/calendar-utils.js')
+    script(src='calendar/app/core/partstat.filter.js')
+    script(src='calendar/app/constants.js')
+    script(src='calendar/app/services/shells/calendar-shell.js')
+    script(src='calendar/app/services/ical.js')
+    script(src='calendar/app/services/fc-moment.js')
+    script(src='calendar/app/calendar/calendar-view/calendar-view..directive.js')
+    script(src='calendar/app/calendar/calendar-header/calendar-header-mobile.directive.js')
+    script(src='calendar/app/calendar/calendar-header/calendar-header-content.directive.js')
+    script(src='calendar/app/calendar/calendar-left-pane/calendar-left-pane.directive.js')
+    
+    script.
+      angular.module('esn.calendar.event-consultation').controller('eventController', function($scope) {
+         $scope.eventJSON = "#{eventJSON}";
+         $scope.attendeeEmail = "#{attendeeEmail}";
+         $scope.yesLink = "#{links.yes}";
+         $scope.maybeLink = "#{links.maybe}";
+         $scope.noLink = "#{links.no}";
+      });
+  body(ng-app='esn.calendar.event-consultation')
+    header#header
+      div.header-inner.flex-vertical-centered.flex-space-between
+        ul.list-inline.all-centered
+          li.logo
+            a(href='#')
+                img.openpaas-logo(src="/images/white-logo.svg", alt='#{__("OpenPaas Logo")}')
+        ul.list-inline.all-centered
+          li.hover-scale-animation
+            application-menu-toggler
+    .consultation-body(ng-view ng-cloak)
+      event-consult-form-external-user

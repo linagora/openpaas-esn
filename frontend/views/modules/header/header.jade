@@ -1,12 +1,12 @@
 div
   header#header
-    div(ng-if='enableScrollListener && !disableByEvent', scroll-listener, data-on-scroll-down='hide', data-on-scroll-top='show', data-on-scroll-up='show', data-on-destroy='show', data-disabled='isDisabled')
+    div(ng-if='enableScrollListener && !disableByEvent', scroll-listener, data-on-scroll-down='hide()', data-on-scroll-top='show()', data-on-scroll-up='show()', data-on-destroy='!disableByEvent && show()', data-disabled='isDisabled')
 
     div.header-inner.flex-vertical-centered.flex-space-between
       ul.list-inline.all-centered
         li.logo
-          a(href='#')
-            img.openpaas-logo(src="/images/white-logo.svg")
+          a(href='', ui-sref='home')
+            img.openpaas-logo(src="/images/white-logo.svg", alt='#{__("OpenPaas Logo")}')
       ul.list-inline.all-centered.header-actions
         li.hover-scale-animation
           a(href='')
@@ -16,8 +16,8 @@ div
             i.md.mdi.mdi-fullscreen
         li.hover-scale-animation
           application-menu-toggler
-        li.avatar-container(ng-controller='avatarController' ui-sref='controlcenter.profile')
-          img.header-avatar(ng-src="{{avatarURL}}")
+        li.avatar-container(ng-controller='avatarController' ui-sref='profile')
+          img.header-avatar(ng-src="{{avatarURL}}", alt='#{__("Avatar")}')
     sub-header-container
   sidebar
   api-notification

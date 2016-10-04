@@ -8,22 +8,22 @@ module.exports = function(lib, dependencies) {
     logger.debug('Cancelling task');
     var task = req.task;
     if (!task) {
-      return res.json(404, {error: {code: 404, message: 'Not found', details: 'Task not found'}});
+      return res.status(404).json({error: {code: 404, message: 'Not found', details: 'Task not found'}});
     }
 
     task.cancel();
-    return res.send(204);
+    return res.status(204).end();
   }
 
   function flush(req, res) {
     logger.debug('Flushing task');
     var task = req.task;
     if (!task) {
-      return res.json(404, {error: {code: 404, message: 'Not found', details: 'Task not found'}});
+      return res.status(404).json({error: {code: 404, message: 'Not found', details: 'Task not found'}});
     }
 
     task.flush();
-    return res.send(204);
+    return res.status(204).end();
   }
 
   return {

@@ -49,7 +49,7 @@ angular.module('esn.actionList', [])
             html: false,
             placement: 'bottom-right',
             animation: 'am-fade',
-            container: $element
+            container: 'body'
           });
 
           dialogOpened.scope = $scope;

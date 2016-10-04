@@ -1,6 +1,7 @@
 @autocompleteFontSize: 10px;
 @attachments-zone-min-height: 80px;
 @composer-header-min-height: 65px;
+@summernotePlaceholderZIndex: 10;
 
 /* Extra small devices (phones, less than 768px) */
 /* No media query since this is the default in Bootstrap */
@@ -13,55 +14,56 @@ composer, composer-desktop {
     .flex-shorthand(1);
 
     .compose-header {
-      min-height: @composer-header-min-height;
-      background-color: @body-bg;
+      .flex-space-between;
+      .flex-vertical-centered;
+
+      background-color: @m-white;
 
       .row {
         margin: 0;
       }
 
-      input {
-        background-color: inherit;
-        height: 27px;
-      }
+      .fields {
+        .flex-column;
+        .flex-shorthand(1);
 
-      .form-group {
-        margin-bottom: 0;
-      }
-
-      .picture {
-        .text-center;
-        padding: 5px 5px 0 5px;
-
-        img {
-          .esn-avatar;
-        }
-      }
-
-      .recipients {
         padding-right: 0;
 
         .form-group {
           .flex-vertical-centered;
 
-          opacity: 1;
-          transition: opacity 0.2s ease-out;
+          margin: 0;
 
-          &.ng-hide {
-            opacity: 0;
+          > .inbox-recipients {
+            .flex-shorthand(1);
+
+            width: 10px;
+          }
+
+          > .control-label {
+            min-width: 50px;
+            margin: 0;
+            padding: 0 0 0 10px;
+            text-align: left;
+            color: @secondaryTextColor
           }
         }
       }
 
-      .more-recipients {
-        font-size: 2em;
+      .inbox-more-recipients {
+        color: @secondaryTextColor;
         cursor: pointer;
         padding-left: 0;
-        text-align: end;
-        transition: transform 0.2s ease-out;
+        text-align: center;
+        min-width: 40px;
+        margin: 0 0 auto 0;
 
-        a > i {
-          font-size: 0.6em;
+        &.active, &:hover {
+          color: @text-color;
+        }
+
+        i {
+          font-size: 2em;
         }
       }
 
@@ -73,25 +75,18 @@ composer, composer-desktop {
     }
 
     .compose-subject {
-      padding: 0 5px 0 5px;
-      height: auto;
+      padding: 0 10px;
+      height: 32px;
+      border-top: 1px solid lighten(@m-gray, 30%);
+      color: @text-color;
     }
 
     .compose-body {
       .flex-column;
       .flex-shorthand(1);
 
-      padding: 5px;
+      padding: 5px 10px;
       border: none;
-    }
-
-    .panel-heading.note-toolbar .note-alignment .dropdown-menu {
-      min-width: 190px;
-      background-color: @primaryColor;
-    }
-
-    .note-placeholder {
-      z-index: 10;
     }
 
     .note-editor {
@@ -100,91 +95,118 @@ composer, composer-desktop {
 
       border: 0;
 
-      .note-editing-area {
-        .flex-shorthand(1);
+      p {
+        margin-bottom: 0;
+      }
 
-        .note-editable {
-          p {
-            margin-bottom: 0;
+      .panel-heading.note-toolbar {
+        background-color: inherit;
+        border: 0;
+
+        .dropdown-menu {
+          overflow-y: auto;
+          z-index: @summernotePlaceholderZIndex + 1;
+
+          &.dropdown-style {
+            .flex-space-around;
+            .flex-flow(row wrap);
+            .flex-vertical-centered;
+
+            width: @overlayMinWidth - 15px; // Makes the dropdown fit the composer when it's at its min-width
+          }
+        }
+
+        .note-alignment .dropdown-menu {
+          min-width: 141px;
+          padding: 5px;
+        }
+
+        .btn-group {
+          box-shadow: none;
+
+          .btn-default {
+            background-color: @body-bg;
+            color: @secondaryTextColor;
+            border: 0;
+            border-radius: 0;
+
+            &.active, &:hover {
+              background-color: @darkenBgColor;
+              color: @text-color;
+            }
           }
         }
       }
 
-      &.fullscreen {
+      .note-placeholder {
+        z-index: @summernotePlaceholderZIndex;
+      }
 
-        .note-editing-area .note-editable {
-          position: relative;
-        }
-
+      .note-editing-area {
+        .flex-shorthand(1);
       }
 
       .note-resizebar {
         display: none;
       }
 
-      .note-popover .note-image-popover {
-        background-color: @primaryColor ;
-      }
-
-      .btn-group:not(.dropdown-menu) .btn-default {
-        color: @textPrimaryColor;
-        background-color: @primaryColor;
-        border: 0;
-        border-radius: 0;
-        .caret {
-          border-top-color:  @textPrimaryColor;
-        }
-        &.active {
-          background-color: lighten(@primaryColor, 10%);
-          color: @primaryColor;
-          z-index: 0;
-        }
-      }
-      .open > .dropdown-toggle {
-        background-color: lighten(@primaryColor, 10%);
-        color: @textPrimaryColor;
-        &.btn-default:hover, &.btn-default:focus {
-          background-color: lighten(@primaryColor, 10%);
-          color: @textPrimaryColor;
-        }
-      }
       &.panel.panel-default {
         margin-bottom: 0;
       }
-    }
-    .compose-body .panel-default > .panel-heading {
-      padding: 5px;
-      background-color: @primaryColor ;
-      border-radius: 0;
-      &.note-toolbar > .btn-group {
-        margin-top: 0;
-      }
-    }
-
-    .btn-group:not(.bootstrap-select) {
-      box-shadow: none;
-    }
-
-    .tooltip .fade .bottom .in {
-      background-color: lighten(@primaryColor, 10%);
     }
 
     .compose-footer {
       .align-self(flex-end);
 
-      margin-right: 5px;
+      width: 100%;
+      padding: 2px;
 
       .btn {
         box-shadow: none;
       }
 
+      .compose-right-footer {
+        margin-left: auto;
+      }
+
+      .badge-container {
+        padding-right: 0;
+
+        .composer-badge {
+          background: @primaryColor;
+          top: 8px;
+          right: 11px;
+          font-weight: bold;
+          line-height: 16px;
+          height: 16px;
+          min-width: 16px;
+
+          &.error {
+            background: @m-red;
+          }
+        }
+
+        .uploading {
+          animation: flashing-desktop 2.5s infinite linear;
+        }
+      }
+
       .btn-default {
         padding-left: 5px;
         padding-right: 5px;
+        color: @secondaryTextColor;
+
+        &.active, &:hover {
+          color: @text-color;
+        }
+
+        .mdi {
+          font-size: 1.5em;
+        }
       }
 
-      .mdi-paperclip, .mdi-delete {
-        font-size: 1.5em;
+      .btn-with-badge {
+        padding-left: 20px;
       }
 
       .mdi-send {
@@ -237,6 +259,10 @@ composer {
 
 composer-desktop {
 
+  .compose-header {
+    margin: 3px 0;
+  }
+
   .compose {
 
     .note-editor {
@@ -255,28 +281,6 @@ composer-desktop {
             margin: 10px 0;
           }
         }
-      }
-
-    }
-
-  }
-
-}
-
-/* Small devices (tablets, 768px and up) */
-@media (min-width: @screen-sm-min) {
-
-  composer, composer-desktop {
-
-    .note-editor {
-
-      .btn-group:not(.dropdown-menu) .btn-default {
-
-        &:hover {
-          background-color: lighten(@primaryColor, 10%);
-          color: @primaryColor;
-        }
-
       }
 
     }

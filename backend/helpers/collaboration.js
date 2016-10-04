@@ -10,6 +10,7 @@ function UserMember(object) {
   this.building_location = object.building_location;
   this.office_location = object.office_location;
   this.main_phone = object.main_phone;
+  this.description = object.description;
   this.domains = object.domains;
   this.currentAvatar = object.currentAvatar;
 }

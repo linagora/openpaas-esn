@@ -53,7 +53,7 @@ Pubsub.prototype._createInterface = function(topic) {
       if (!self.client) {
         return self._addCache(topic, 'publish', data);
       }
-      logger.debug(self.name + '/PUBLISH into', topic, 'DATA', data);
+
       self.client.emit(topic, data);
     },
     forward: function(pubsub, data) {

@@ -2,6 +2,7 @@
 
 var expect = require('chai').expect;
 var mockery = require('mockery');
+var sinon = require('sinon');
 var VCARD_JSON = 'application/vcard+json';
 
 describe('The contact client APIs', function() {
@@ -18,7 +19,7 @@ describe('The contact client APIs', function() {
       },
       davserver: {
         utils: {
-          getDavEndpoint: function(callback) {
+          getDavEndpoint: function(user, callback) {
             callback(DAV_PREFIX);
           }
         }
@@ -35,6 +36,39 @@ describe('The contact client APIs', function() {
   function getModule() {
     return require('../../../../backend/lib/client/index')(dependencies);
   }
+
+  it('should not call getDavEndpoint if davserver option is provided', function() {
+    var clientOptions = {
+      ESNToken: '1111',
+      davserver: 'http://localhost:80'
+    };
+
+    deps.davserver.utils.getDavEndpoint = sinon.spy();
+
+    getModule()(clientOptions).addressbookHome().addressbook().create();
+
+    expect(deps.davserver.utils.getDavEndpoint).to.not.have.been.called;
+  });
+
+  it('should call getDavEndpoint to get DAV endpoint and cache it if davserver option is not provided', function() {
+    var clientOptions = {
+      ESNToken: '1111',
+      user: { _id: '1', preferredDomainId: 'domain123' }
+    };
+
+    deps.davserver.utils.getDavEndpoint = sinon.spy(function(user, callback) {
+      expect(user).to.equal(clientOptions.user);
+      callback('http://localhost:80');
+    });
+
+    var client = getModule()(clientOptions);
+
+    client.addressbookHome().addressbook().create();
+    client.addressbookHome().addressbook().create();
+
+    expect(deps.davserver.utils.getDavEndpoint).to.have.been.calledOnce;
+    expect(deps.davserver.utils.getDavEndpoint).to.have.been.calledWith(clientOptions.user, sinon.match.func);
+  });
 
   describe('The addressbookHome fn', function() {
     var CLIENT_OPTIONS = { ESNToken: '1111' };

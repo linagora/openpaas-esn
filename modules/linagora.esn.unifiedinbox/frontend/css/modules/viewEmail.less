@@ -1,23 +1,21 @@
-@avatarSize: 70px;
+@avatarSize: 65px;
+@avatarCollapsedSize: 40px;
 
 .email-view {
 
   .card {
-    .avatarify {
-      .from, .to, .cc {
-        .flex-start;
-      }
-    }
 
     &.isCollapsed {
-      .from span.line-header,
-      .to,
-      .cc,
+      inbox-emailer-display .flex,
       .email-header-right .actions,
       .email-header-right .flex-space-between.horiz-space inbox-star,
       .email-body,
       .lv-footer {
         display: none;
+      }
+
+      .email-header .sender-avatar img {
+        .avatar(@avatarCollapsedSize);
       }
     }
 
@@ -41,12 +39,12 @@
     border-bottom: 1px @body-bg solid;
 
     .sender-avatar {
+      .flex-noshrink;
+
       margin-right: 10px;
 
       img {
-        width: @avatarSize;
-        min-width: @avatarSize;
-        height: @avatarSize;
+        .avatar(@avatarSize);
       }
     }
 
@@ -54,6 +52,7 @@
       .flex-shorthand(1, 1);
 
       height: 100%;
+      min-width: 0; // https://bugzilla.mozilla.org/show_bug.cgi?id=1086218#c4
 
       .preview {
         min-height: 20px;
@@ -71,14 +70,20 @@
       .aligner-items-end;
       .flex-noshrink;
 
-      .action-item {
-        padding-left: 5px;
+      margin-top: -8px;
 
-        & > a > .mdi {
-          font-size: 2em;
-          vertical-align: sub;
+      .responsive-actions {
+        .flex-column;
+
+        .action-item {
+          margin: -2px 0;
+          padding-left: 5px;
+
+          & > a > .mdi {
+            font-size: 2em;
+            vertical-align: sub;
+          }
         }
-
       }
     }
   }
@@ -135,25 +140,11 @@
     border: none;
   }
 
-  .thread-header {
-    .block-header;
-
-    margin-bottom: 10px;
-
-    .header-label {
-      color: @m-gray;
-      font-size: 18px;
-      margin: 0;
-      padding: 0 15px;
-    }
-  }
-
   .thread-title {
-    padding: 10px;
+    word-break: break-all;
 
-    h4 {
-      font-weight: 400;
-    }
+    padding: 10px;
+    font-weight: 400;
   }
 
   .card {
@@ -162,10 +153,22 @@
 
 }
 
-@media (min-width: @screen-sm-min) {
+.inbox-modal.inbox-move-item {
+  .menu-items(25px);
 
-  .email-view .card .avatarify{
-    width: 75%;
+  .clickable {
+    padding: 2px;
   }
+}
 
+@media (min-width: @screen-md-min) {
+  .email-view .email-header {
+    .email-header-right {
+      margin-top: 0;
+
+      .responsive-actions {
+        .flex-row;
+      }
+    }
+  }
 }

@@ -116,7 +116,7 @@ angular.module('esn.activitystreams-tracker', [
       ASTrackerNotificationService.removeAllListeners();
     });
 
-    $rootScope.$on('activitystream:updated', function(evt, data) {
+    var unregister = $rootScope.$on('activitystream:updated', function(evt, data) {
       if (data && data.activitystreamUuid) {
         // Usage of $timeout is to wait the tracker update in database
         $timeout(function() {
@@ -127,6 +127,10 @@ angular.module('esn.activitystreams-tracker', [
           );
         }, 1000);
       }
+    });
+
+    $scope.$on('$destroy', function() {
+      unregister();
     });
 
     var joinHandler = $rootScope.$on('collaboration:join', function(evt, data) {
@@ -175,7 +179,7 @@ angular.module('esn.activitystreams-tracker', [
 
   })
   .factory('ASTrackerNotificationService',
-  function($rootScope, $log, $timeout, AStrackerHelpers, ASTrackerAPI, livenotification, session) {
+  function($rootScope, $log, $timeout, AStrackerHelpers, ASTrackerAPI, livenotification, session, _) {
 
     this.notifications = {};
     this.activityStreams = [];
@@ -245,12 +249,7 @@ angular.module('esn.activitystreams-tracker', [
     }
 
     function removeItem(streamId) {
-      for (var i in self.activityStreams) {
-        if (self.activityStreams[i].uuid === streamId) {
-          self.activityStreams.splice(i, 1);
-          break;
-        }
-      }
+      _.remove(self.activityStreams, { uuid: streamId });
     }
 
     return {

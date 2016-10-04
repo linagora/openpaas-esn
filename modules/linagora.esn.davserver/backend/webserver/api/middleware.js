@@ -5,8 +5,9 @@ module.exports = function(dependencies) {
   var utils = require('../../lib/utils')(dependencies);
 
   function getDavEndpoint(req, res, next) {
-    utils.getDavEndpoint(function(davServerURL) {
+    utils.getDavEndpoint(req.user, function(davServerURL) {
       req.davserver = davServerURL;
+
       return next();
     });
   }

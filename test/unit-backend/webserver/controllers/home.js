@@ -67,14 +67,13 @@ describe('The home controller', function() {
     mockery.registerMock('../../core/esn-config', coreMock);
     var index = this.helpers.requireBackend('webserver/controllers/home.js').index;
 
-    var res = {
-      json: function(code, data) {
+    var res = this.helpers.express.jsonResponse(
+      function(code, data) {
         expect(code).to.equal(500);
         expect(data.message).to.equal('Server Error');
         done();
-      },
-      render: function() {}
-    };
+      }
+    );
 
     index({}, res);
   });

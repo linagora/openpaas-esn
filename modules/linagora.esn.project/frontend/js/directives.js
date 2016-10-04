@@ -24,10 +24,10 @@ function(WidgetWizard, selectionService, projectCreationService, $timeout, $loca
     $scope.createProject = function() {
         $scope.wizard.nextStep();
         $scope.project.avatar = {
-          exists: function() { return selectionService.getImage() ? true : false; },
+          exists: function() { return !!selectionService.getImage(); },
           getBlob: function(mime, callback) { return selectionService.getBlob(mime, callback); }
         };
-        $scope.create =  { step: 'post', percent: 1 };
+        $scope.create = { step: 'post', percent: 1 };
         projectCreationService($scope.project)
         .then(onSuccess, onFailure, onNotification);
       };

@@ -5,6 +5,10 @@ var mockery = require('mockery');
 
 describe('The domains controller', function() {
 
+  beforeEach(function() {
+    mockery.registerMock('./login', {});
+  });
+
   describe('The getDomain fn', function() {
 
     it('should return HTTP 404 when domain is not available in the request', function(done) {
@@ -12,12 +16,12 @@ describe('The domains controller', function() {
       }});
       var req = {
       };
-      var res = {
-        json: function(status) {
+      var res = this.helpers.express.jsonResponse(
+        function(status) {
           expect(status).to.equal(404);
           done();
         }
-      };
+      );
       var controller = this.helpers.requireBackend('webserver/controllers/domains');
       controller.getDomain(req, res);
     });
@@ -27,13 +31,13 @@ describe('The domains controller', function() {
       var req = {
         domain: {}
       };
-      var res = {
-        json: function(status, domain) {
+      var res = this.helpers.express.jsonResponse(
+        function(status, domain) {
           expect(status).to.equal(200);
           expect(domain).to.exist;
           done();
         }
-      };
+      );
       var controller = this.helpers.requireBackend('webserver/controllers/domains');
       controller.getDomain(req, res);
     });
@@ -48,12 +52,12 @@ describe('The domains controller', function() {
       };
       mockery.registerMock('mongoose', mock);
       var req = {};
-      var res = {
-        json: function(status) {
+      var res = this.helpers.express.jsonResponse(
+        function(status) {
           expect(status).to.equal(400);
           done();
         }
-      };
+      );
       var controller = this.helpers.requireBackend('webserver/controllers/domains');
       controller.sendInvitations(req, res);
     });
@@ -68,12 +72,12 @@ describe('The domains controller', function() {
       var req = {
         body: {}
       };
-      var res = {
-        json: function(status) {
+      var res = this.helpers.express.jsonResponse(
+        function(status) {
           expect(status).to.equal(400);
           done();
         }
-      };
+      );
       var controller = this.helpers.requireBackend('webserver/controllers/domains');
       controller.sendInvitations(req, res);
     });
@@ -96,12 +100,12 @@ describe('The domains controller', function() {
           _id: 456
         }
       };
-      var res = {
-        send: function(status) {
+      var res = this.helpers.express.response(
+        function(status) {
           expect(status).to.equal(202);
           done();
         }
-      };
+      );
       var controller = this.helpers.requireBackend('webserver/controllers/domains');
       controller.sendInvitations(req, res);
     });
@@ -146,10 +150,7 @@ describe('The domains controller', function() {
         }
       };
 
-      var res = {
-        send: function() {
-        }
-      };
+      var res = this.helpers.express.response();
 
       var pubsub = this.helpers.requireBackend('core/pubsub').local;
       pubsub.topic('domain:invitations:sent').subscribe(function(message) {
@@ -196,10 +197,7 @@ describe('The domains controller', function() {
         }
       };
 
-      var res = {
-        send: function() {
-        }
-      };
+      var res = this.helpers.express.response();
 
       var pubsub = this.helpers.requireBackend('core/pubsub').local;
       pubsub.topic('domain:invitations:sent').subscribe(function(message) {
@@ -254,10 +252,7 @@ describe('The domains controller', function() {
         }
       };
 
-      var res = {
-        send: function() {
-        }
-      };
+      var res = this.helpers.express.response();
 
       var pubsub = this.helpers.requireBackend('core/pubsub').local;
       pubsub.topic('domain:invitations:sent').subscribe(function(message) {

@@ -1,6 +1,10 @@
 'use strict';
 
-angular.module('esn.ui', ['op.dynamicDirective', 'esn.autolinker-wrapper'])
+angular.module('esn.ui', [
+    'op.dynamicDirective',
+    'mgcrea.ngStrap.modal',
+    'esn.autolinker-wrapper'
+  ])
 
   .constant('DEFAULT_COLOR_CLASS', 'accent')
   .constant('FAB_ICONS', {
@@ -31,14 +35,17 @@ angular.module('esn.ui', ['op.dynamicDirective', 'esn.autolinker-wrapper'])
   .directive('fabScrollTop', function($window, elementScrollService) {
     return {
       restrict: 'E',
-      template: '<fab class="no-animation" icon="up" scroll-listener data-on-scroll-down="hide" data-on-scroll-top="hide" data-on-scroll-up="show" />',
+      template: '<fab class="no-animation" icon="up" scroll-listener data-on-scroll-down="hide()" data-on-scroll-top="hide()" data-on-scroll-up="show()" />',
       link: function(scope, element) {
 
         function _scrollIsTwiceScreenHeight() {
           return ($window.innerHeight * 2) < $window.scrollY;
         }
 
-        scope.hide = element.addClass.bind(element, 'hidden');
+        scope.hide = function() {
+          element.addClass('hidden');
+        };
+
         scope.show = function() {
           if (_scrollIsTwiceScreenHeight()) {
             element.removeClass('hidden');
@@ -172,5 +179,33 @@ angular.module('esn.ui', ['op.dynamicDirective', 'esn.autolinker-wrapper'])
       return function() {
         $window.removeEventListener('message', handler, false);
       };
+    };
+  })
+
+  .directive('esnModalLauncher', function($modal) {
+    function link(scope, element, attrs) {
+      var templateUrl = attrs.esnModalLauncher;
+      var options = ['animation', 'backdropAnimation', 'placement', 'backdrop', 'container', 'controller', 'controllerAs'];
+      var modalOptions = {
+        templateUrl: templateUrl,
+        placement: 'center',
+        scope: scope
+      };
+
+      options.forEach(function(option) {
+        if (attrs.hasOwnProperty(option)) {
+          modalOptions[option] = attrs[option];
+        }
+      });
+
+      element.click(function(event) {
+        event.stopPropagation();
+        $modal(modalOptions);
+      });
+    }
+
+    return {
+      restrict: 'A',
+      link: link
     };
   });

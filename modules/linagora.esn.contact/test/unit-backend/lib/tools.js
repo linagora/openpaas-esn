@@ -34,10 +34,10 @@ describe('The contacts tools Module', function() {
     }
   };
   var usersMock = [
-    { _id: 1},
-    { _id: 2},
-    { _id: 3}
-  ];
+    { _id: 1, id: '1'},
+    { _id: 2, id: '2'},
+    { _id: 3, id: '3'}
+    ];
   var searchClientMock = {
     indexContact: function() {}
   };
@@ -91,7 +91,7 @@ describe('The contacts tools Module', function() {
         return searchClientMock;
       });
 
-      deps.user.list = function(callback) { return callback(null, [{ _id: 1}]); };
+      deps.user.list = function(callback) { return callback(null, [{ _id: 1, id: '1'}]); };
     });
 
     it('should list all users', function(done) {

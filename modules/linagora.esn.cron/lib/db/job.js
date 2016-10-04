@@ -5,11 +5,10 @@ var JOB_STATES = require('../constants').JOB_STATES;
 var Schema = mongoose.Schema;
 
 var states = [];
-for (var stateKey in JOB_STATES) {
-  if (JOB_STATES.hasOwnProperty(stateKey)) {
-    states.push(JOB_STATES[stateKey]);
-  }
-}
+
+Object.keys(JOB_STATES).forEach(function(stateKey) {
+  states.push(JOB_STATES[stateKey]);
+});
 
 var JobSchema = new Schema({
   jobId: {type: String, required: true},

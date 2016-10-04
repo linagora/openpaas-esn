@@ -7,7 +7,8 @@ var logger = require('../logger');
 var permission = require('./permission');
 var collaborationModule = require('../collaboration');
 var tuple = require('../tuple');
-var pubsub = require('../pubsub').local;
+var localpubsub = require('../pubsub').local;
+var globalpubsub = require('../pubsub').global;
 var CONSTANTS = require('./constants');
 
 var communityObjectType = CONSTANTS.OBJECT_TYPE;
@@ -17,6 +18,52 @@ var MEMBERSHIP_TYPE_INVITATION = 'invitation';
 
 module.exports.MEMBERSHIP_TYPE_REQUEST = MEMBERSHIP_TYPE_REQUEST;
 module.exports.MEMBERSHIP_TYPE_INVITATION = MEMBERSHIP_TYPE_INVITATION;
+
+module.exports.update = function(community, modifications, callback) {
+  if (!community) {
+    return callback(new Error('Community is required'));
+  }
+
+  if (modifications.title) {
+    community.title = modifications.title;
+  }
+
+  if (modifications.avatar) {
+    community.avatar = modifications.avatar;
+  }
+
+  if (modifications.newMembers) {
+    modifications.newMembers.forEach(function(member) {
+      community.members.push({
+        member: {
+          id: member._id || member,
+          objectType: 'user'
+        }
+      });
+    });
+  }
+
+  if (modifications.deleteMembers) {
+    modifications.deleteMembers.forEach(function(member) {
+      var idMember = member._id || member;
+
+      community.members = community.members.filter(function(memberCommunity) {
+        return memberCommunity.member.id.toString() !== idMember.toString();
+      });
+    });
+  }
+
+  community.save(function(err, community) {
+    if (!err) {
+      localpubsub.topic(CONSTANTS.EVENTS.communityUpdate).forward(globalpubsub, {
+        modifications: modifications,
+        community: community
+      });
+    }
+
+    callback.apply(null, arguments);
+  });
+};
 
 module.exports.updateAvatar = function(community, avatar, callback) {
   if (!community) {
@@ -42,24 +89,17 @@ module.exports.save = function(community, callback) {
     return callback(new Error('Can not save community without at least a domain'));
   }
 
-  Community.testTitleDomain(community.title, community.domain_ids, function(err, result) {
-    if (err) {
-      return callback(new Error('Unable to lookup title/domain: ' + community.title + '/' + community.domain_id + ' : ' + err));
-    }
-    if (result) {
-      return callback(new Error('Title/domain: ' + community.title + '/' + community.domain_id + ' already exist.'));
+  var com = new Community(community);
+
+  com.save(function(err, response) {
+    if (!err) {
+      logger.info('Added new community:', { _id: response._id });
+      localpubsub.topic(CONSTANTS.EVENTS.communityCreated).publish(response);
+    } else {
+      logger.error('Error while trying to add a new community:', err.message);
     }
 
-    var com = new Community(community);
-    com.save(function(err, response) {
-      if (!err) {
-        logger.info('Added new community:', { _id: response._id });
-      } else {
-        logger.info('Error while trying to add a new community:', err.message);
-      }
-      pubsub.topic(CONSTANTS.EVENTS.communityCreated).publish(response);
-      return callback(err, response);
-    });
+    return callback(err, response);
   });
 };
 
@@ -69,6 +109,7 @@ module.exports.load = function(community, callback) {
   }
 
   var id = community._id || community;
+
   return Community.findOne({_id: id}, callback);
 };
 
@@ -77,6 +118,7 @@ module.exports.loadWithDomains = function(community, callback) {
     return callback(new Error('Community is required'));
   }
   var id = community._id || community;
+
   return Community.findOne({_id: id}).populate('domain_ids', null, 'Domain').exec(callback);
 };
 
@@ -89,6 +131,7 @@ module.exports.delete = function(community, callback) {
   if (!community) {
     return callback(new Error('Community is required'));
   }
+
   return callback(new Error('Not implemented'));
 };
 
@@ -110,11 +153,12 @@ module.exports.isMember = function(community, tuple, callback) {
 
 module.exports.userToMember = function(document) {
   var result = {};
+
   if (!document || !document.member) {
     return result;
   }
 
-  if (typeof document.member.toObject  === 'function') {
+  if (typeof document.member.toObject === 'function') {
     result.user = document.member.toObject();
   } else {
     result.user = document.member;
@@ -132,20 +176,25 @@ module.exports.userToMember = function(document) {
 };
 
 module.exports.getMembers = function(community, query, callback) {
-  query = query ||  {};
+  query = query || {};
   var id = community._id || community;
+
   Community.findById(id, function(err, community) {
     if (err) { return callback(err); }
 
     var members = community.members.slice().splice(query.offset || CONSTANTS.DEFAULT_OFFSET, query.limit || CONSTANTS.DEFAULT_LIMIT);
+
     var memberIds = members.map(function(member) { return member.member.id; });
+
     User.find({_id: {$in: memberIds}}, function(err, users) {
       if (err) { return callback(err); }
       var hash = {};
+
       users.forEach(function(u) { hash[u._id] = u; });
       members.forEach(function(m) {
         m.member = hash[m.member.id];
       });
+
       return callback(null, members);
     });
   });
@@ -155,6 +204,7 @@ module.exports.getManagers = function(community, query, callback) {
   var id = community._id || community;
 
   var q = Community.findById(id);
+
   // TODO Right now creator is the only manager. It will change in the futur.
   // query = query ||  {};
   // q.slice('managers', [query.offset || DEFAULT_OFFSET, query.limit || DEFAULT_LIMIT]);
@@ -163,12 +213,14 @@ module.exports.getManagers = function(community, query, callback) {
     if (err) {
       return callback(err);
     }
+
     return callback(null, community ? [community.creator] : []);
   });
 };
 
 function getUserCommunities(user, options, callback) {
   var q = options || {};
+
   if (typeof options === 'function') {
     callback = options;
     q = {};

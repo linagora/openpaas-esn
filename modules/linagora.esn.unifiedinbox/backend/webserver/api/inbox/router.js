@@ -9,14 +9,14 @@ module.exports = function(dependencies) {
       authorizationMW = dependencies('authorizationMW');
 
   var router = express.Router();
-  router.post('/api/inbox/sendemail', sendEmail.sendEmailToRecipients);
+  router.post('/api/inbox/sendemail', authorizationMW.requiresAPILogin, sendEmail.sendEmailToRecipients);
   router.get('/api/inbox/jmap-config', authorizationMW.requiresAPILogin, function(req, res) {
     esnConfig('jmap').get(function(err, config) {
 
       if (err) {
-        res.send(500, err);
+        res.status(500).send(err);
       } else if (!config) {
-        res.send(404, 'the "jmap" config cannot be found');
+        res.status(404).send('the "jmap" config cannot be found');
       } else {
         delete config._id;
         res.send(config);

@@ -1,6 +1,6 @@
 div(ng-class="{'timeline-view-liner': parentMessage, 'just-posted': message._id === lastPost.messageId, 'esn-panel': parentMessage, 'thread': parentMessage}")
   a.pull-left(ng-href='#/profile/{{::message.author._id}}')
-    img.media-object(src='/images/user.png', ng-src='/api/users/{{::message.author._id}}/profile/avatar')
+    img.media-object(src='/images/user.png', ng-src='/api/users/{{::message.author._id}}/profile/avatar', alt='#{__("Message Author")}')
   div.esn-email
     h4.media-heading
       a(ng-href='#/profile/{{::message.author._id}}') {{message.author.firstname}} {{message.author.lastname}} #{__('has shared an email')}
@@ -12,7 +12,7 @@ div(ng-class="{'timeline-view-liner': parentMessage, 'just-posted': message._id 
 
       .row.header
         a(href='#', title='{{message.parsedHeaders.from.name}} <{{message.parsedHeaders.from.address}}>')
-          img(src='/images/user.png', ng-src="/api/avatars?objectType=user&email={{message.parsedHeaders.from.address}}")
+          img(src='/images/user.png', ng-src="/api/avatars?objectType=user&email={{message.parsedHeaders.from.address}}", alt='#{__("From")}')
           span.label.label-danger.emaillabel From
 
         .from

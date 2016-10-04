@@ -4,17 +4,17 @@ var request = require('supertest'),
     expect = require('chai').expect;
 
 describe('The profile API', function() {
-  var app, foouser, baruser, baruserExpectedKeys, baruserForbiddenKeys, WCUtils, checkKeys, imagePath, domain_id, mongoose, User;
+  var app, foouser, baruser, baruserExpectedKeys, baruserForbiddenKeys, WCUtils, checkKeys, imagePath, domain_id, mongoose;
   var password = 'secret';
 
   beforeEach(function(done) {
     var self = this;
+
     imagePath = this.helpers.getFixturePath('image.png');
 
     this.testEnv.initCore(function() {
       app = self.helpers.requireBackend('webserver/application');
       mongoose = require('mongoose');
-      User = self.helpers.requireBackend('core/db/mongo/models/user');
 
       WCUtils = self.helpers.rewireBackend('webserver/controllers/utils');
 
@@ -39,9 +39,7 @@ describe('The profile API', function() {
           }
         });
 
-        self.helpers.api.addFeature(domain_id, 'core', 'my-feature', function() {
-          self.helpers.api.addFeature('4edd40c86762e0fb12000003', 'core', 'my-other-feature', done);
-        });
+        done();
       });
     });
 
@@ -71,7 +69,7 @@ describe('The profile API', function() {
     });
 
     it('should create a profile link when authenticated user looks at a user profile', function(done) {
-      var Link = mongoose.model('Link');
+      var Link = mongoose.model('ResourceLink');
       this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
@@ -80,14 +78,21 @@ describe('The profile API', function() {
         req.expect(200)
           .end(function(err) {
             expect(err).to.not.exist;
-            Link.find({user: foouser._id}, function(err, links) {
+            Link.find({}, function(err, links) {
               expect(err).to.not.exist;
-              expect(links).to.exist;
-              expect(links.length).to.equal(1);
-              expect(links[0].type).to.equal('profile');
-              expect(links[0].target).to.exist;
-              expect(links[0].target.resource).to.deep.equal(baruser._id);
-              expect(links[0].target.type).to.equal('User');
+              expect(links).to.shallowDeepEqual([
+                {
+                  type: 'profile',
+                  source: {
+                    id: String(foouser._id),
+                    objectType: 'user'
+                  },
+                  target: {
+                    id: String(baruser._id),
+                    objectType: 'user'
+                  }
+                }
+              ]);
               done();
             });
           });
@@ -100,8 +105,8 @@ describe('The profile API', function() {
         if (err) {
           return done(err);
         }
-        var req = loggedInAsUser(request(app).get('/api/users/notauserid/profile'));
-        req.expect(404).end(self.helpers.callbacks.error(done));
+        var req = loggedInAsUser(request(app).get('/api/users/577cfa973dfc55eb231bba37/profile'));
+        req.expect(404).end(self.helpers.callbacks.noError(done));
       });
     });
 
@@ -157,69 +162,78 @@ describe('The profile API', function() {
 
   });
 
-  describe('PUT /api/users/profile/:parameter route', function() {
+  describe('PUT /api/user/profile', function() {
 
     it('should return 401 if not authenticated', function(done) {
-      this.helpers.api.requireLogin(app, 'put', '/api/user/profile/firstname', done);
-    });
-
-    it('should return 400 if the request body is not well formed', function(done) {
-      var self = this;
-      this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
-        if (err) {
-          return done(err);
-        }
-        var req = loggedInAsUser(request(app).put('/api/user/profile/firstname'));
-        req.send({pipo: 'oho'}).expect(400).end(self.helpers.callbacks.error(done));
-      });
-    });
-
-    it('should return 400 if the parameter does not exist', function(done) {
-      var self = this;
-      this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
-        if (err) {
-          return done(err);
-        }
-        var req = loggedInAsUser(request(app).put('/api/user/profile/notarealparameter'));
-        req.send({value: 'firstname'}).expect(400).end(self.helpers.callbacks.noError(done));
-      });
+      this.helpers.api.requireLogin(app, 'put', '/api/user/profile', done);
     });
 
     it('should return 200 and update his profile', function(done) {
       var User = mongoose.model('User');
-      var firstname = 'foobarbaz';
+      var profile = {
+        firstname: 'James',
+        lastname: 'Amaly',
+        job_title: 'Engineer',
+        service: 'IT',
+        building_location: 'Tunis',
+        office_location: 'France',
+        main_phone: '123456789',
+        description: 'This is my description'
+      };
 
       this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
-        var req = loggedInAsUser(request(app).put('/api/user/profile/firstname'));
-        req.send({value: firstname}).expect(200).end(function(err) {
+
+        var req = loggedInAsUser(request(app).put('/api/user/profile'));
+
+        req.send(profile).expect(200).end(function(err) {
           expect(err).to.not.exist;
-          User.findOne({_id: foouser._id}, function(err, user) {
+
+          User.findOne({ _id: foouser._id }, function(err, user) {
             if (err) {
               return done(err);
             }
-            expect(user.firstname).to.equal(firstname);
+            expect({
+              firstname: user.firstname,
+              lastname: user.lastname,
+              job_title: user.job_title,
+              service: user.service,
+              building_location: user.building_location,
+              office_location: user.office_location,
+              main_phone: user.main_phone,
+              description: user.description
+            })
+            .to.deep.equal(profile);
             done();
           });
         });
       });
     });
 
-    it('should return 200 and erase property if the request has no body', function(done) {
+    it('should not return an error even if some of sent profile attributes are undefined', function(done) {
+      var User = mongoose.model('User');
+      var profile = {
+        firstname: 'John'
+      };
+
       this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
-        var req = loggedInAsUser(request(app).put('/api/user/profile/firstname'));
-        req.send().expect(200).end(function(err) {
+
+        var req = loggedInAsUser(request(app).put('/api/user/profile'));
+
+        req.send(profile).expect(200).end(function(err) {
           expect(err).to.not.exist;
-          User.findOne({_id: foouser._id}, function(err, user) {
+
+          User.findOne({ _id: foouser._id }, function(err, user) {
             if (err) {
               return done(err);
             }
-            expect(user.firstname).to.equal('');
+
+            expect(user.firstname).to.equal('John');
             done();
           });
         });
@@ -240,8 +254,8 @@ describe('The profile API', function() {
         if (err) {
           return done(err);
         }
-        var req = loggedInAsUser(request(app).get('/api/users/notauserid'));
-        req.expect(404).end(self.helpers.callbacks.error(done));
+        var req = loggedInAsUser(request(app).get('/api/users/577cfa973dfc55eb231bba37'));
+        req.expect(404).end(self.helpers.callbacks.noError(done));
       });
     });
 
@@ -295,13 +309,84 @@ describe('The profile API', function() {
       });
     });
 
+    describe('Follow tests', function() {
+
+      it('should send back empty follow stats when user does not follow or is not followed', function(done) {
+        this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
+          if (err) {
+            return done(err);
+          }
+          loggedInAsUser(request(app).get('/api/users/' + foouser._id))
+            .expect(200)
+            .end(function(err, res) {
+              expect(err).to.not.exist;
+              expect(res.body).to.shallowDeepEqual({
+                followers: 0,
+                followings: 0
+              });
+              expect(res.body.following).not.to.exist;
+              done();
+            });
+        });
+      });
+
+      it('should send back nb of followers of the current user', function(done) {
+        var self = this;
+
+        function test() {
+          self.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
+            if (err) {
+              return done(err);
+            }
+            loggedInAsUser(request(app).get('/api/users/' + foouser._id))
+              .expect(200)
+              .end(function(err, res) {
+                expect(err).to.not.exist;
+                expect(res.body).to.shallowDeepEqual({
+                  followers: 0,
+                  followings: 1
+                });
+                expect(res.body.following).to.not.exists;
+                done();
+              });
+          });
+        }
+
+        self.helpers.requireBackend('core/user/follow').follow(foouser, baruser).then(test, done);
+      });
+
+      it('should send back stats when logged in user follow another user', function(done) {
+        var self = this;
+
+        function test() {
+          self.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
+            if (err) {
+              return done(err);
+            }
+            loggedInAsUser(request(app).get('/api/users/' + baruser._id))
+              .expect(200)
+              .end(function(err, res) {
+                expect(err).to.not.exist;
+                expect(res.body).to.shallowDeepEqual({
+                  followers: 1,
+                  followings: 0
+                });
+                expect(res.body.following).to.be.true;
+                done();
+              });
+          });
+        }
+
+        self.helpers.requireBackend('core/user/follow').follow(foouser, baruser).then(test, done);
+      });
+    });
   });
 
   describe('GET /api/users/:uuid/profile/avatar route', function() {
 
     it('should return 404 if the user does not exist', function(done) {
       var self = this;
-      var req = request(app).get('/api/users/notauserid/profile/avatar');
+      var req = request(app).get('/api/users/577cfa973dfc55eb231bba37/profile/avatar');
       req.expect(404).end(self.helpers.callbacks.noError(done));
     });
 
@@ -468,28 +553,69 @@ describe('The profile API', function() {
   describe('GET /api/user route', function() {
 
     it('should return 200 with the profile of the user, including his features', function(done) {
+      var self = this;
+
       this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
 
-        var req = loggedInAsUser(request(app).get('/api/user'));
+        var moduleName = 'some_module';
+        var configName = 'my-feature';
+        var configValue = true;
 
-        req.expect(200).end(function(err, res) {
-          expect(err).to.not.exist;
-          expect(res.body.features).to.shallowDeepEqual({
-            domain_id: domain_id.toString(),
-            modules: [{
-              name: 'core',
-              features: [{
-                name: 'my-feature',
-                value: true
-              }]
-            }]
+        self.helpers.requireBackend('core/esn-config')(configName)
+          .inModule(moduleName)
+          .forUser({ preferredDomainId: domain_id })
+          .set(configValue, function(err) {
+            expect(err).to.not.exist;
+            var req = loggedInAsUser(request(app).get('/api/user'));
+
+            req.expect(200).end(function(err, res) {
+              expect(err).to.not.exist;
+              expect(res.body.features).to.shallowDeepEqual({
+                domain_id: domain_id.toString(),
+                modules: [{
+                  name: moduleName,
+                  configurations: [{
+                    name: configName,
+                    value: configValue
+                  }]
+                }]
+              });
+
+              done();
+            });
           });
+      });
+    });
 
-          done();
-        });
+    it('should return 200 with the profile of the user, including his preferences', function(done) {
+      var self = this;
+
+      this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
+        if (err) {
+          return done(err);
+        }
+
+        var configName = 'homePage';
+        var configValue = 'unifiedinbox';
+
+        self.helpers.requireBackend('core/esn-config')(configName)
+          .forUser({ preferredDomainId: domain_id })
+          .set(configValue, function(err) {
+            expect(err).to.not.exist;
+            var req = loggedInAsUser(request(app).get('/api/user'));
+
+            req.expect(200).end(function(err, res) {
+              expect(err).to.not.exist;
+              expect(res.body.preferences).to.deep.equal({
+                homePage: configValue
+              });
+
+              done();
+            });
+          });
       });
     });
 

@@ -38,44 +38,6 @@ var emitter = new AsyncEventEmitter();
 emitter.setMaxListeners(0);
 
 function start(callback) {
-  function listenCallback(server, err) {
-    if (server === webserver.server) { states.http4 = STARTED; }
-    if (server === webserver.sslserver) { states.ssl4 = STARTED; }
-    if (server === webserver.server6) { states.http6 = STARTED; }
-    if (server === webserver.sslserver6) { states.ssl6 = STARTED; }
-    var address = server.address();
-    if (address) {
-      console.log('Webserver listening on ' + address.address + ' port ' +
-                  address.port + ' (' + address.family + ')');
-    }
-
-    server.removeListener('listening', listenCallback);
-    server.removeListener('error', listenCallback);
-
-    // If an error occurred or all servers are listening, call the callback
-    if (!callbackFired) {
-      if (err || inState(STOPPED, true)) {
-        callbackFired = true;
-        callback(err);
-      }
-    }
-  }
-
-  function inState(state, invert) {
-    for (var k in states) {
-      if (invert && states[k] === state) {
-        return false;
-      } else if (!invert && states[k] !== state) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  function setupEventListeners(server) {
-    server.on('listening', listenCallback.bind(null, server));
-    server.on('error', listenCallback.bind(null, server));
-  }
 
   if (!webserver.port && !webserver.ssl_port) {
     console.error('The webserver needs to be configured before it is started');
@@ -153,6 +115,48 @@ function start(callback) {
     webserver.sslserver6 = https.createServer({key: sslkey, cert: sslcert}, webserver.application).listen(webserver.ssl_port, webserver.ssl_ipv6);
     setupEventListeners(webserver.sslserver6);
   }
+
+  function listenCallback(server, err) {
+    if (server === webserver.server) { states.http4 = STARTED; }
+    if (server === webserver.sslserver) { states.ssl4 = STARTED; }
+    if (server === webserver.server6) { states.http6 = STARTED; }
+    if (server === webserver.sslserver6) { states.ssl6 = STARTED; }
+    var address = server.address();
+    if (address) {
+      console.log('Webserver listening on ' + address.address + ' port ' +
+                  address.port + ' (' + address.family + ')');
+    }
+
+    server.removeListener('listening', listenCallback);
+    server.removeListener('error', listenCallback);
+
+    // If an error occurred or all servers are listening, call the callback
+    if (!callbackFired) {
+      if (err || inState(STOPPED, true)) {
+        callbackFired = true;
+        callback(err);
+      }
+    }
+  }
+
+  function inState(state, invert) {
+    var isInState = true;
+
+    Object.keys(states).forEach(function(k) {
+      if (invert && states[k] === state) {
+        isInState = false;
+      } else if (!invert && states[k] !== state) {
+        isInState = false;
+      }
+    });
+
+    return isInState;
+  }
+
+  function setupEventListeners(server) {
+    server.on('listening', listenCallback.bind(null, server));
+    server.on('error', listenCallback.bind(null, server));
+  }
 }
 
 webserver.start = start;
@@ -190,6 +194,20 @@ function addAngularModulesInjection(moduleName, files, angularModulesNames, inne
 }
 
 webserver.addAngularModulesInjection = addAngularModulesInjection;
+
+function addAngularAppModulesInjection(moduleName, jsfiles, angularModulesNames, innerApps) {
+  injections[moduleName] = injections[moduleName] || {};
+  innerApps.forEach(function(innerApp) {
+    injections[moduleName][innerApp] = injections[moduleName][innerApp] || {};
+    injections[moduleName][innerApp].app = injections[moduleName][innerApp].app || {};
+    injections[moduleName][innerApp].app.js = injections[moduleName][innerApp].app.js || [];
+    injections[moduleName][innerApp].app.js = injections[moduleName][innerApp].app.js.concat(jsfiles);
+    injections[moduleName][innerApp].angular = injections[moduleName][innerApp].angular || [];
+    injections[moduleName][innerApp].angular = injections[moduleName][innerApp].angular.concat(angularModulesNames);
+  });
+}
+
+webserver.addAngularAppModulesInjection = addAngularAppModulesInjection;
 
 function getInjections() {
   return injections;

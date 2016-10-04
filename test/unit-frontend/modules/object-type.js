@@ -6,23 +6,25 @@ var expect = chai.expect;
 
 describe('The ObjectType Angular module', function() {
 
+  var self = this;
+
   beforeEach(angular.mock.module('esn.object-type'));
 
   describe('objectTypeResolver service', function() {
 
     beforeEach(angular.mock.inject(function(objectTypeResolver, $rootScope) {
-      this.objectTypeResolver = objectTypeResolver;
-      this.$rootScope = $rootScope;
+      self.objectTypeResolver = objectTypeResolver;
+      self.$rootScope = $rootScope;
     }));
 
     describe('register() function', function() {
       it('should send back error if inputs are not defined', function() {
-        expect(this.objectTypeResolver.register).to.throw(Error);
+        expect(self.objectTypeResolver.register).to.throw(Error);
       });
 
       it('should send back error if objectType is not defined', function(done) {
         try {
-          this.objectTypeResolver.register(null, function() {});
+          self.objectTypeResolver.register(null, function() {});
         } catch (err) {
           return done();
         }
@@ -31,7 +33,7 @@ describe('The ObjectType Angular module', function() {
 
       it('should send back error if resolver is not defined', function(done) {
         try {
-          this.objectTypeResolver.register('user1', null);
+          self.objectTypeResolver.register('user1', null);
         } catch (err) {
           return done();
         }
@@ -40,7 +42,7 @@ describe('The ObjectType Angular module', function() {
 
       it('should send be ok when parameters are valid', function(done) {
         try {
-          this.objectTypeResolver.register('user3', function() {});
+          self.objectTypeResolver.register('user3', function() {});
         } catch (err) {
           return done(new Error());
         }
@@ -52,33 +54,33 @@ describe('The ObjectType Angular module', function() {
   describe('resolve fn', function() {
 
     it('should get a promise reject when objectType is not defined', function(done) {
-      this.objectTypeResolver.resolve(null, 1).then(function() {
+      self.objectTypeResolver.resolve(null, 1).then(function() {
         return done(new Error());
       }, function(err) {
         expect(err).to.exist;
         return done();
       });
-      this.$rootScope.$digest();
+      self.$rootScope.$digest();
     });
 
     it('should get a promise reject when id is not defined', function(done) {
-      this.objectTypeResolver.resolve('user4', null).then(function() {
+      self.objectTypeResolver.resolve('user4', null).then(function() {
         return done(new Error());
       }, function(err) {
         expect(err).to.exist;
         return done();
       });
-      this.$rootScope.$digest();
+      self.$rootScope.$digest();
     });
 
     it('should get a promise reject when resolver does not exist', function(done) {
-      this.objectTypeResolver.resolve('user5', 1).then(function() {
+      self.objectTypeResolver.resolve('user5', 1).then(function() {
         return done(new Error());
       }, function(err) {
         expect(err).to.exist;
         return done();
       });
-      this.$rootScope.$digest();
+      self.$rootScope.$digest();
     });
   });
 
@@ -98,8 +100,8 @@ describe('The ObjectType Angular module', function() {
       var objectType = 'user';
       var id = 123;
 
-      this.objectTypeResolver.register(objectType, resolver);
-      this.objectTypeResolver.resolve(objectType, id).then(function(result) {
+      self.objectTypeResolver.register(objectType, resolver);
+      self.objectTypeResolver.resolve(objectType, id).then(function(result) {
 
         expect(result).to.exist;
         expect(result).to.deep.equal(resolved);
@@ -109,7 +111,20 @@ describe('The ObjectType Angular module', function() {
       }, function(err) {
         return done(err);
       });
-      this.$rootScope.$digest();
+      self.$rootScope.$digest();
+    });
+
+    it('should support multiple ids', function(done) {
+      var resolver = function(id1, id2, id3) {
+        return $q.when({id1: id1, id2: id2, id3: id3});
+      };
+
+      self.objectTypeResolver.register('user', resolver);
+      self.objectTypeResolver.resolve('user', '1', '2', '3').then(function(result) {
+        expect(result).to.deep.equal({id1: '1', id2: '2', id3: '3'});
+        done();
+      }, done);
+      self.$rootScope.$digest();
     });
   });
 });

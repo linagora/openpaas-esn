@@ -55,11 +55,11 @@ module.exports.getUserIds = function(targets, callback) {
       return callback(err);
     }
     var usersResult = [];
-    for (var userId in usersFound) {
-      if (Object.hasOwnProperty.call(usersFound, userId)) {
-        usersResult.push({_id: userId, context: usersFound[userId]});
-      }
-    }
+
+    Object.keys(usersFound).forEach(function(userId) {
+      usersResult.push({_id: userId, context: usersFound[userId]});
+    });
+
     return callback(null, usersResult);
   });
 };

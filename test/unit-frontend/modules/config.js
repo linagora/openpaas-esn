@@ -14,13 +14,13 @@ describe('The esn.configuration Angular module', function() {
         features: {
           modules: [{
             name: 'core',
-            features: [{
+            configurations: [{
               name: 'projects',
               value: false
             }]
           }, {
             name: 'module.1',
-            features: [{
+            configurations: [{
               name: 'feature',
               value: true
             }, {
@@ -30,6 +30,7 @@ describe('The esn.configuration Angular module', function() {
           }]
         }
       },
+      domain: {},
       ready: {
         then: function(callback) { return $q.when().then(callback); }
       }

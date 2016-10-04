@@ -2,18 +2,24 @@
 
 angular.module('linagora.esn.unifiedinbox')
 
-  .directive('inboxDraggableListItem', function() {
+  .directive('inboxDraggableListItem', function(inboxSelectionService) {
     return {
       restrict: 'A',
       link: function(scope) {
-        scope.onDragEnd = function($dropped) {
-          if ($dropped) {
-            scope.groups.removeElement(scope.item);
+        scope.getDragData = function() {
+          if (inboxSelectionService.isSelecting()) {
+            scope.$apply(function() {
+              inboxSelectionService.toggleItemSelection(scope.item, true);
+            });
+
+            return inboxSelectionService.getSelectedItems();
           }
+
+          return [scope.item];
         };
 
-        scope.onDropFailure = function() {
-          return scope.groups.addElement(scope.item);
+        scope.getDragMessage = function($dragData) {
+          return $dragData.length > 1 ? $dragData.length + ' items' : $dragData[0].subject;
         };
       }
     };
@@ -40,7 +46,8 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('inboxMessageListItem', function($state, $q, $stateParams, newComposerService, _, inboxEmailService, inboxSwipeHelper) {
+  .directive('inboxMessageListItem', function($state, $stateParams, newComposerService, _, inboxJmapItemService,
+                                              inboxSwipeHelper, infiniteListService, inboxSelectionService) {
     return {
       restrict: 'E',
       controller: function($scope) {
@@ -49,32 +56,46 @@ angular.module('linagora.esn.unifiedinbox')
         // need this scope value for action list
         $scope.email = $scope.item;
 
+        self.select = function(item, $event) {
+          $event.stopPropagation();
+          $event.preventDefault();
+
+          inboxSelectionService.toggleItemSelection(item);
+        };
+
         self.openEmail = function(email) {
           if (email.isDraft) {
             newComposerService.openDraft(email.id);
           } else {
-            $state.go('unifiedinbox.list.messages.message', {
-              mailbox: $stateParams.mailbox || ($scope.mailbox && $scope.mailbox.id) || _.first(email.mailboxIds),
-              emailId: email.id
+            // Used to fallback to the absolute state name if the transition to a relative state does not work
+            // This allows us to plug '.message' states where we want and guarantee the email can still be opened
+            // when coming from a state that does not get a .message child state (like search for instance)
+            var unregisterStateNotFoundListener = $scope.$on('$stateNotFound', function(event, redirect) {
+              redirect.to = 'unifiedinbox.list.messages.message';
             });
+
+            $state.go('.message', {
+              mailbox: $stateParams.mailbox || ($scope.mailbox && $scope.mailbox.id) || _.first(email.mailboxIds),
+              emailId: email.id,
+              item: email
+            }).finally(unregisterStateNotFoundListener);
           }
         };
 
         ['reply', 'replyAll', 'forward', 'markAsUnread', 'markAsRead', 'markAsFlagged', 'unmarkAsFlagged'].forEach(function(action) {
           self[action] = function() {
-            inboxEmailService[action]($scope.item);
+            inboxJmapItemService[action]($scope.item);
           };
         });
 
+        self.move = function() {
+          $state.go('.move', { item: $scope.item });
+        };
+
         self.moveToTrash = function() {
-          $scope.groups.removeElement($scope.item);
-
-          return inboxEmailService.moveToTrash($scope.item, { silent: true })
-            .catch(function(err) {
-              $scope.groups.addElement($scope.item);
-
-              return $q.reject(err);
-            });
+          return infiniteListService.actionRemovingElement(function() {
+            return inboxJmapItemService.moveToTrash($scope.item, { silent: true });
+          }, $scope.item);
         };
 
         $scope.onSwipeRight = inboxSwipeHelper.createSwipeRightHandler($scope, {
@@ -87,7 +108,8 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('inboxThreadListItem', function($state, $q, $stateParams, newComposerService, _, inboxThreadService, inboxSwipeHelper) {
+  .directive('inboxThreadListItem', function($state, $stateParams, newComposerService, _, inboxJmapItemService,
+                                             inboxSwipeHelper, infiniteListService, inboxSelectionService) {
     return {
       restrict: 'E',
       controller: function($scope) {
@@ -96,33 +118,40 @@ angular.module('linagora.esn.unifiedinbox')
         // need this scope value for action list
         $scope.thread = $scope.item;
 
+        self.select = function(item, $event) {
+          $event.stopPropagation();
+          $event.preventDefault();
+
+          inboxSelectionService.toggleItemSelection(item);
+        };
+
         self.openThread = function(thread) {
           if (thread.email.isDraft) {
             newComposerService.openDraft(thread.email.id);
           } else {
-            $state.go('unifiedinbox.list.threads.thread', {
+            $state.go('.thread', {
               mailbox: $stateParams.mailbox || ($scope.mailbox && $scope.mailbox.id) || _.first(thread.email.mailboxIds),
-              threadId: thread.id
+              threadId: thread.id,
+              item: thread
             });
           }
         };
 
         self.moveToTrash = function() {
-          $scope.groups.removeElement($scope.item);
-
-          return inboxThreadService.moveToTrash($scope.item, { silent: true })
-            .catch(function(err) {
-              $scope.groups.addElement($scope.item);
-
-              return $q.reject(err);
-            });
+          return infiniteListService.actionRemovingElement(function() {
+            return inboxJmapItemService.moveToTrash($scope.item, { silent: true });
+          }, $scope.item);
         };
 
         ['markAsUnread', 'markAsRead', 'markAsFlagged', 'unmarkAsFlagged'].forEach(function(action) {
           self[action] = function() {
-            inboxThreadService[action]($scope.item);
+            inboxJmapItemService[action]($scope.item);
           };
         });
+
+        self.move = function() {
+          $state.go('.move', { item: $scope.item });
+        };
 
         $scope.onSwipeRight = inboxSwipeHelper.createSwipeRightHandler($scope, {
           markAsRead: self.markAsRead,
@@ -138,5 +167,34 @@ angular.module('linagora.esn.unifiedinbox')
     return {
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/twitter/list/list-item.html'
+    };
+  })
+
+  .directive('inboxGroupToggleSelection', function(inboxSelectionService, _, INBOX_EVENTS) {
+    return {
+      restrict: 'A',
+      link: function(scope, element) {
+        function getSelectableElements() {
+          return _.filter(scope.group.elements, { selectable: true });
+        }
+
+        scope.selected = false;
+
+        element.on('click', function() {
+          scope.$apply(function() {
+            var selected = !scope.selected;
+
+            getSelectableElements().forEach(function(item) {
+              inboxSelectionService.toggleItemSelection(item, selected);
+            });
+          });
+        });
+
+        scope.$on(INBOX_EVENTS.ITEM_SELECTION_CHANGED, function() {
+          var selectableElements = getSelectableElements();
+
+          scope.selected = selectableElements.length > 0 && _.all(selectableElements, { selected: true });
+        });
+      }
     };
   });

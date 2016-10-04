@@ -8,7 +8,8 @@ var expect = chai.expect;
 describe('The esn.provider module', function() {
 
   var nowDate = new Date('2015-08-20T04:00:00Z'),
-      localTimeZone = 'Europe/Paris';
+      localTimeZone = 'Europe/Paris',
+      uuid4;
 
   beforeEach(function() {
     angular.mock.module('angularMoment');
@@ -20,27 +21,53 @@ describe('The esn.provider module', function() {
     $provide.constant('moment', function(argument) {
       return moment.tz(argument || nowDate, localTimeZone);
     });
+    $provide.value('uuid4', uuid4 = {});
   }));
 
   describe('The Providers factory', function() {
-    var $rootScope, providers;
+    var $rootScope, providers, newProvider;
 
-    beforeEach(inject(function(_$rootScope_, _Providers_) {
+    beforeEach(inject(function(_$rootScope_, _Providers_, _newProvider_) {
       $rootScope = _$rootScope_;
       providers = new _Providers_();
+      newProvider = _newProvider_;
     }));
 
-    describe('The getAllProviderNames function', function() {
+    describe('The newProvider factory', function() {
+      it('should generate an id with uuid4 for a provider without an id', function() {
+        uuid4.generate = sinon.spy(function() { return '123'; });
 
-      it('should return an array containing all names of added providers', function() {
-        providers.add($q.when({name: 'provider1'}));
-        providers.add({name: 'provider2'});
+        var provider = newProvider({ name: 'provider', type: 'type1' });
 
+        expect(provider.id).to.equal('123');
+        expect(uuid4.generate).to.have.been.calledWith;
+      });
+
+      it('should not generate any id for a provider with existing id', function() {
+        uuid4.generate = sinon.spy();
+
+        var provider = newProvider({ name: 'provider', type: 'type1', id: '456' });
+
+        expect(provider.id).to.equal('456');
+        expect(uuid4.generate).to.not.have.been.called;
+      });
+    });
+
+    describe('The getAllProviderDefinitions function', function() {
+
+      it('should return an array containing names and ids of added providers', function() {
         var spy = sinon.spy();
-        providers.getAllProviderNames().then(spy);
 
+        providers.add($q.when({ id: 1, name: 'provider1', property: 'value' }));
+        providers.add({ id: 2, name: 'provider2', another: 'value2' });
+
+        providers.getAllProviderDefinitions().then(spy);
         $rootScope.$digest();
-        expect(spy).to.have.been.calledWith(['provider1', 'provider2']);
+
+        expect(spy).to.have.been.calledWith([
+          { id: 1, name: 'provider1' },
+          { id: 2, name: 'provider2' }
+        ]);
       });
 
     });
@@ -79,6 +106,23 @@ describe('The esn.provider module', function() {
 
         providers.getAll({acceptedTypes: ['type1']}).then(function(resolvedProviders) {
           expect(resolvedProviders).to.shallowDeepEqual([{ name: 'provider', type: 'type1'}]);
+        });
+
+        $rootScope.$digest();
+      });
+
+      it('should filter providers that are not in the acceptedIds array', function() {
+        providers.add({ name: 'provider', type: 'type1', id: '123',
+          buildFetchContext: sinon.stub().returns($q.when()),
+          fetch: sinon.stub().returns($q.when())
+        });
+        providers.add({ name: 'provider2', type: 'type2', id: '456',
+          buildFetchContext: sinon.stub().returns($q.when()),
+          fetch: sinon.stub().returns($q.when())
+        });
+
+        providers.getAll({acceptedIds: ['456']}).then(function(resolvedProviders) {
+          expect(resolvedProviders).to.shallowDeepEqual([{ name: 'provider2', type: 'type2', id: '456'}]);
         });
 
         $rootScope.$digest();
@@ -339,8 +383,8 @@ describe('The esn.provider module', function() {
 
       it('should remove the element from group', function() {
         var element1 = { date: '2015-05-31T04:00:00Z' },
-          element2 = { date: '2015-07-31T04:00:00Z' },
-          elementGroupingTool = new ByDateElementGroupingTool([element1, element2]);
+            element2 = { date: '2015-07-31T04:00:00Z' },
+            elementGroupingTool = new ByDateElementGroupingTool([element1, element2]);
 
         elementGroupingTool.removeElement(element2);
 
@@ -348,10 +392,25 @@ describe('The esn.provider module', function() {
       });
 
     });
+
+    describe('The removeElements method', function() {
+
+      it('should remove all elements from group', function() {
+        var element1 = { date: '2015-05-31T04:00:00Z' },
+            element2 = { date: '2015-07-31T04:00:00Z' },
+            elementGroupingTool = new ByDateElementGroupingTool([element1, element2]);
+
+        elementGroupingTool.removeElements([element2, element1]);
+
+        expect(elementGroupingTool.getGroupedElements()).to.deep.equal(groups(null, null, null, null, null));
+      });
+
+    });
+
   });
 
   function iteratorToList(iterator, betweenEachStep) {
-    return $q(function(resolve, reject) {
+    return $q(function(resolve) {
       var result = [];
 
       function step() {
@@ -360,7 +419,7 @@ describe('The esn.provider module', function() {
           betweenEachStep && betweenEachStep();
 
           return step();
-        }, function(error) {
+        }, function() {
           resolve(result);
         });
       }
@@ -370,7 +429,7 @@ describe('The esn.provider module', function() {
   }
 
   describe('infiniteScrollHelper', function() {
-    var ELEMENTS_PER_PAGE, infiniteScrollHelper, $q, $rootScope;
+    var ELEMENTS_PER_PAGE, INFINITE_LIST_EVENTS, $timeout, infiniteScrollHelper, $q, $rootScope;
 
     beforeEach(function() {
       ELEMENTS_PER_PAGE = 3;
@@ -379,17 +438,19 @@ describe('The esn.provider module', function() {
       });
     });
 
-    beforeEach(inject(function(_infiniteScrollHelper_, _$q_, _$rootScope_) {
+    beforeEach(inject(function(_infiniteScrollHelper_, _$q_, _$rootScope_, _$timeout_, _INFINITE_LIST_EVENTS_) {
       infiniteScrollHelper = _infiniteScrollHelper_;
       $q = _$q_;
       $rootScope = _$rootScope_;
+      $timeout = _$timeout_;
+      INFINITE_LIST_EVENTS = _INFINITE_LIST_EVENTS_;
     }));
 
     describe('The return iterator', function() {
       var sourceIterator, resultingIterator, scope;
 
       beforeEach(function() {
-        scope = {};
+        scope = $rootScope.$new();
         sourceIterator = sinon.stub();
 
         sourceIterator.onCall(0).returns($q.when([1, 2, 3]))
@@ -425,31 +486,122 @@ describe('The esn.provider module', function() {
         $rootScope.$digest();
         expect(scope.infiniteScrollDisabled).to.be.false;
       });
+
+      it('should complete the infinite scroll and reject if there is an error fetching more data', function(done) {
+        infiniteScrollHelper(scope, function() {
+          return $q.reject();
+        })().then(null, function() {
+          expect(scope.infiniteScrollCompleted).to.equal(true);
+
+          done();
+        });
+        $rootScope.$digest();
+      });
+
+      it('should $emit INFINITE_LIST_EVENTS.LOAD_MORE_ELEMENTS when it fetches some data', function() {
+        var spy = sinon.spy();
+
+        scope.$on(INFINITE_LIST_EVENTS.LOAD_MORE_ELEMENTS, spy);
+
+        resultingIterator();
+        $rootScope.$digest();
+        resultingIterator();
+        $rootScope.$digest();
+        $timeout.flush();
+
+        expect(spy).to.have.been.calledTwice;
+      });
+
     });
 
   });
 
   describe('infiniteScrollOnGroupsHelper', function() {
-    var ELEMENTS_PER_PAGE, infiniteScrollOnGroupsHelper, $q, $rootScope;
+    var ELEMENTS_PER_PAGE, INFINITE_LIST_EVENTS, infiniteScrollOnGroupsHelper, $timeout, $q, $rootScope, elementGroupingTool;
 
     beforeEach(function() {
+      elementGroupingTool = {
+        getGroupedElements: angular.noop,
+        addElement: sinon.spy(),
+        addAll: sinon.spy(),
+        removeElement: sinon.spy(),
+        removeElements: sinon.spy(),
+        reset: sinon.spy()
+      };
       ELEMENTS_PER_PAGE = 3;
       angular.mock.module(function($provide) {
         $provide.constant('ELEMENTS_PER_PAGE', ELEMENTS_PER_PAGE);
       });
     });
 
-    beforeEach(inject(function(_infiniteScrollOnGroupsHelper_, _$q_, _$rootScope_) {
+    beforeEach(inject(function(_infiniteScrollOnGroupsHelper_, _$q_, _$rootScope_, _$timeout_, _INFINITE_LIST_EVENTS_) {
       infiniteScrollOnGroupsHelper = _infiniteScrollOnGroupsHelper_;
       $q = _$q_;
       $rootScope = _$rootScope_;
+      $timeout = _$timeout_;
+      INFINITE_LIST_EVENTS = _INFINITE_LIST_EVENTS_;
     }));
+
+    it('should call groups.addElement when ADD_ELEMENTS is received', function() {
+      var scope = $rootScope.$new(), item = { id: 'item' };
+
+      infiniteScrollOnGroupsHelper(scope, null, elementGroupingTool);
+      scope.$emit(INFINITE_LIST_EVENTS.ADD_ELEMENTS, [item]);
+
+      expect(scope.groups.addAll).to.have.been.calledWith([item]);
+    });
+
+    it('should call groups.removeElement when REMOVE_ELEMENTS is received', function(done) {
+      var scope = $rootScope.$new(), item = { id: 'item' };
+
+      infiniteScrollOnGroupsHelper(scope, null, elementGroupingTool);
+      scope.$on(INFINITE_LIST_EVENTS.LOAD_MORE_ELEMENTS, done.bind(null, null));
+      scope.$emit(INFINITE_LIST_EVENTS.REMOVE_ELEMENTS, [item]);
+
+      expect(scope.groups.removeElements).to.have.been.calledWith([item]);
+
+      $timeout.flush();
+    });
+
+    describe('The destroy function', function() {
+
+      it('should reset the groups', function() {
+        var scope = $rootScope.$new(),
+            helper = infiniteScrollOnGroupsHelper(scope, null, elementGroupingTool);
+
+        helper.destroy();
+        expect(scope.groups.reset).to.have.been.calledWith();
+      });
+
+      it('should unregister the ADD_ELEMENTS listener', function() {
+        var scope = $rootScope.$new(),
+            item = { a: 'b' },
+            helper = infiniteScrollOnGroupsHelper(scope, null, elementGroupingTool);
+
+        helper.destroy();
+        scope.$emit(INFINITE_LIST_EVENTS.ADD_ELEMENTS, item);
+
+        expect(scope.groups.addAll).to.have.not.been.calledWith();
+      });
+
+      it('should unregister the REMOVE_ELEMENTS listener', function() {
+        var scope = $rootScope.$new(),
+            item = { a: 'b' },
+            helper = infiniteScrollOnGroupsHelper(scope, null, elementGroupingTool);
+
+        helper.destroy();
+        scope.$emit(INFINITE_LIST_EVENTS.REMOVE_ELEMENTS, item);
+
+        expect(scope.groups.removeElements).to.have.not.been.calledWith();
+      });
+
+    });
 
     describe('The return iterator', function() {
       var sourceIterator, resultingIterator, scope, elementGroupingTool, getGroupedElementsResult;
 
       beforeEach(function() {
-        scope = {};
+        scope = $rootScope.$new();
         sourceIterator = sinon.stub();
         getGroupedElementsResult = {};
 

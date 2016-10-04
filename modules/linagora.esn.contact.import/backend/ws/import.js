@@ -25,7 +25,7 @@ function init(dependencies) {
       logger.warn('Notifing %s to unknown user', eventName);
       return;
     }
-    var userId = data.user._id + '';
+    var userId = data.user.id;
     importNamespace.to(userId).emit(eventName, {
       room: userId,
       data: {

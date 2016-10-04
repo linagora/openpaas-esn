@@ -1,7 +1,6 @@
 @inboxConfigurationFontSize: 1.6em;
 
-.inbox-main-content {
-
+.inbox-root .inbox-main-content {
   &.configuration {
 
     .clickable {
@@ -18,13 +17,10 @@
     }
 
     .mailboxes-list {
+      .menu-items(20px);
 
       .clickable {
         margin-bottom: 10px;
-      }
-
-      .mailbox-name {
-        .ellipsis;
       }
     }
 
@@ -34,20 +30,34 @@
       padding: 10px 10px 10px 0;
     }
 
-    .other-actions, .actions {
-      input {
-        margin-left: 10px;
+    .configuration-header {
+      // to fill horizontal width since .inbox-main-content has padding 15px
+      margin: -15px -15px 20px -15px;
+    }
+
+    .form-group.select {
+      &::before {
+        right: 0;
+      }
+
+      .form-control {
+        height: 30px;
       }
     }
   }
-
 }
 
 @media(min-width: @screen-md-min) {
 
-  .inbox-main-content {
+  .inbox-root .inbox-main-content {
     &.configuration {
-      .form-group {
+      margin-top: 45px;
+
+      .configuration-header {
+        margin: 0 0 20px 0;
+      }
+
+      .form-group:not(.full-width) {
         width: 40%;
       }
     }

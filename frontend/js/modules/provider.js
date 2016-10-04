@@ -1,9 +1,14 @@
 'use strict';
 
-angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
+angular.module('esn.provider', [
+  'esn.aggregator',
+  'esn.lodash-wrapper',
+  'esn.infinite-list',
+  'uuid4'
+])
 
   .constant('ELEMENTS_PER_REQUEST', 200)
-  .constant('ELEMENTS_PER_PAGE', 20)
+  .constant('ELEMENTS_PER_PAGE', 1)
 
   .factory('Providers', function($q, _, toAggregatorSource, ELEMENTS_PER_PAGE) {
 
@@ -22,6 +27,7 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
        *   {
        *     query: 'keyword to search for',
        *     acceptedTypes: ['providerType1', 'providerType2'],
+       *     acceptedIds: ['id1', 'id2',...],
        *     filterByType: {
        *       providerType1: { custom: 'object' },
        *       providerType2: { custom: 'object' }
@@ -36,6 +42,9 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
             .filter(function(provider) {
               return !provider.type || !options.acceptedTypes || options.acceptedTypes.indexOf(provider.type) >= 0;
             })
+            .filter(function(provider) {
+              return !provider.id || !options.acceptedIds || _.contains(options.acceptedIds, provider.id);
+            })
             .map(function(provider) {
               options.filterByType = options.filterByType || {};
 
@@ -47,9 +56,14 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
             }));
         });
       },
-      getAllProviderNames: function() {
+      getAllProviderDefinitions: function() {
         return $q.all(this.providersPromises).then(function(providers) {
-          return _.map(_.flatten(providers), 'name');
+          return _.map(_.flatten(providers), function(provider) {
+            return {
+              id: provider.id,
+              name: provider.name
+            };
+          });
         });
       }
     };
@@ -67,9 +81,11 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
     };
   })
 
-  .factory('newProvider', function(PageAggregatorService, toAggregatorSource, _, ELEMENTS_PER_REQUEST, ELEMENTS_PER_PAGE) {
+  .factory('newProvider', function(PageAggregatorService, toAggregatorSource, _, uuid4, ELEMENTS_PER_REQUEST,
+                                   ELEMENTS_PER_PAGE) {
     return function(provider) {
       return {
+        id: provider.id || uuid4.generate(),
         type: provider.type,
         name: provider.name,
         fetch: function(context) {
@@ -141,7 +157,7 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
     return ByTypeElementGroupingTool;
   })
 
-  .factory('ByDateElementGroupingTool', function(moment) {
+  .factory('ByDateElementGroupingTool', function(moment, _) {
 
     function ByDateElementGroupingTool(elements) {
       this.todayElements = [];
@@ -187,12 +203,16 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
 
     ByDateElementGroupingTool.prototype.removeElement = function(element) {
       angular.forEach(this.allElements, function(group) {
-        var index = group.elements.indexOf(element);
+        var index = _.findIndex(group.elements, element);
 
         if (index > -1) {
           group.elements.splice(index, 1);
         }
       });
+    };
+
+    ByDateElementGroupingTool.prototype.removeElements = function(elements) {
+      elements.forEach(this.removeElement, this);
     };
 
     ByDateElementGroupingTool.prototype._isToday = function(currentMoment, targetMoment) {
@@ -223,8 +243,11 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
 
     return ByDateElementGroupingTool;
   })
-  .factory('infiniteScrollHelperBuilder', function($q, ELEMENTS_PER_PAGE) {
-    return function(scope, loadNextItems, updateScope) {
+  .factory('infiniteScrollHelperBuilder', function($q, $timeout, defaultConfiguration, infiniteListService,
+                                                   ELEMENTS_PER_PAGE) {
+    return function(scope, loadNextItems, updateScope, elements_per_page) {
+      elements_per_page = elements_per_page || ELEMENTS_PER_PAGE;
+
       return function() {
         if (scope.infiniteScrollDisabled || scope.infiniteScrollCompleted) {
           return $q.reject();
@@ -243,11 +266,22 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
             updateScope(elements);
 
             elements = elements || [];
-            if (elements.length < ELEMENTS_PER_PAGE) {
+            if (elements.length < elements_per_page) {
               scope.infiniteScrollCompleted = true;
             }
 
             return elements;
+          }, function(err) {
+            scope.infiniteScrollCompleted = true;
+
+            return $q.reject(err);
+          })
+          .then(function(result) {
+            $timeout(function() {
+              infiniteListService.loadMoreElements();
+            }, defaultConfiguration.throttle, false);
+
+            return result;
           })
           .finally(function() {
             scope.infiniteScrollDisabled = false;
@@ -255,6 +289,7 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
       };
     };
   })
+
   .factory('infiniteScrollHelper', function(infiniteScrollHelperBuilder) {
     return function(scope, loadNextItems) {
 
@@ -267,15 +302,35 @@ angular.module('esn.provider', ['esn.aggregator', 'esn.lodash-wrapper'])
       });
     };
   })
-  .factory('infiniteScrollOnGroupsHelper', function(infiniteScrollHelperBuilder) {
+
+  .factory('infiniteScrollOnGroupsHelper', function($timeout, infiniteScrollHelperBuilder, infiniteListService,
+                                                    INFINITE_LIST_EVENTS) {
     return function(scope, loadNextItems, elementGroupingTool) {
       var groups = elementGroupingTool;
+
+      var unregisterAddElementListener = scope.$on(INFINITE_LIST_EVENTS.ADD_ELEMENTS, function(event, elements) {
+        scope.groups.addAll(elements);
+      });
+      var unregisterRemoveElementListener = scope.$on(INFINITE_LIST_EVENTS.REMOVE_ELEMENTS, function(event, elements) {
+        scope.groups.removeElements(elements);
+
+        $timeout(infiniteListService.loadMoreElements, 0);
+      });
+
+      var helper = infiniteScrollHelperBuilder(scope, loadNextItems, function(newElements) {
+        groups.addAll(newElements);
+      });
+
+      helper.destroy = function() {
+        unregisterAddElementListener();
+        unregisterRemoveElementListener();
+
+        scope.groups.reset();
+      };
 
       scope.groups = groups;
       scope.groupedElements = groups.getGroupedElements();
 
-      return infiniteScrollHelperBuilder(scope, loadNextItems, function(newElements) {
-        groups.addAll(newElements);
-      });
+      return helper;
     };
   });

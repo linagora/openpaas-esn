@@ -1,12 +1,9 @@
 {
-  "from": {
-    "objectType": "email",
-    "id": "OpenPaaS <noreply@open-paas.org>"
+  "message": {
+    "to": "johndoe@anonymous.net",
+    "subject": "There are 10 new messages in your communities in domainA"
   },
-  "to": {
-    "objectType": "email",
-    "id": "johndoe@anonymous.net"
-  },
+  "templateName": "digest.daily",
   "content": {
     "subject": "There are 10 new messages in your communities in domainA",
     "header": {
@@ -226,11 +223,5 @@
 
     ],
     "footer": {}
-  },
-  "options": {
-    "message": {
-      "subject": "There are 10 new messages in your communities in domainA"
-    },
-    "template": "digest.daily"
   }
 }

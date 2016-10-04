@@ -5,21 +5,27 @@ angular.module('linagora.esn.unifiedinbox')
   .directive('unifiedViewSubheader', function() {
     return {
       restrict: 'E',
-      templateUrl: '/unifiedinbox/views/unified-inbox/subheader.html'
+      templateUrl: '/unifiedinbox/views/unified-inbox/subheader.html',
+      controller: 'inboxListSubheaderController',
+      controllerAs: 'ctrl'
     };
   })
 
   .directive('listTwitterSubheader', function() {
     return {
       restrict: 'E',
-      templateUrl: '/unifiedinbox/views/twitter/list/subheader.html'
+      templateUrl: '/unifiedinbox/views/twitter/list/subheader.html',
+      controller: 'inboxListSubheaderController',
+      controllerAs: 'ctrl'
     };
   })
 
   .directive('listEmailsSubheader', function() {
     return {
       restrict: 'E',
-      templateUrl: '/unifiedinbox/views/email/list/subheader.html'
+      templateUrl: '/unifiedinbox/views/email/list/subheader.html',
+      controller: 'inboxListSubheaderController',
+      controllerAs: 'ctrl'
     };
   })
 
@@ -44,10 +50,17 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('configurationIndexSubheader', function() {
+  .directive('inboxConfigurationFolderSubheader', function() {
     return {
       restrict: 'E',
-      templateUrl: '/unifiedinbox/views/configuration/subheader.html'
+      templateUrl: '/unifiedinbox/views/configuration/folders/subheader.html'
+    };
+  })
+
+  .directive('inboxConfigurationVacationSubheader', function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/unifiedinbox/views/configuration/vacation/subheader.html'
     };
   })
 
@@ -90,5 +103,19 @@ angular.module('linagora.esn.unifiedinbox')
     return {
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/partials/subheader/back-button.html'
+    };
+  })
+
+  .directive('inboxSubheaderMoreButton', function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/unifiedinbox/views/partials/subheader/more-button.html'
+    };
+  })
+
+  .directive('inboxSubheaderSaveButton', function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/unifiedinbox/views/partials/subheader/save-button.html'
     };
   });

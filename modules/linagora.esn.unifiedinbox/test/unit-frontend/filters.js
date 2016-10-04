@@ -118,94 +118,6 @@ describe('The Unified Inbox Angular module filters', function() {
     });
   });
 
-  describe('The inlineImages filter', function() {
-
-    it('should do nothing if there is no attachments', function() {
-      expect($filter('inlineImages')('Text')).to.equal('Text');
-    });
-
-    it('should do nothing if attachments is not an array', function() {
-      expect($filter('inlineImages')('Text', 'Attachments')).to.equal('Text');
-    });
-
-    it('should do nothing if attachments is zerolength', function() {
-      expect($filter('inlineImages')('Text', [])).to.equal('Text');
-    });
-
-    it('should not change the src of images if the attachment is not found', function() {
-      var html = '<html><body><img src="cid:abcd" /></body></html>';
-
-      expect($filter('inlineImages')(html, [{ cid: 'noMatch', url: 'http://attachment.url' }])).to.equal(html);
-    });
-
-    it('should not change the src of images if the scheme is not "cid:"', function() {
-      var html = '<html><body><img src="http://localhost/attach.ment" /></body></html>';
-
-      expect($filter('inlineImages')(html, [{ cid: 'noMatch', url: 'http://attachment.url' }])).to.equal(html);
-    });
-
-    it('should change the src of images if the attachment is not found', function() {
-      expect($filter('inlineImages')(
-        '<html><body><img src="cid:abcd" /></body></html>', [{ cid: 'abcd', url: 'http://attachment.url' }]
-      )).to.equal('<html><body><img src="http://attachment.url" /></body></html>');
-    });
-
-    it('should work with multiple inline images and multiple attachments', function() {
-      expect($filter('inlineImages')(
-        '<html>' +
-        '  <body>' +
-        '    <img src="cid:abc" />' +
-        '    <img src="cid:def" />' +
-        '    <img \n alt="test" src="cid:ghi" title="Title" />' +
-        '  </body>' +
-        '</html>', [{ cid: 'def', url: 'http://url.2' }, { cid: 'abc', url: 'http://url.1' }, { cid: 'ghi', url: 'http://url.3' }]
-      )).to.equal(
-        '<html>' +
-        '  <body>' +
-        '    <img src="http://url.1" />' +
-        '    <img src="http://url.2" />' +
-        '    <img \n alt="test" src="http://url.3" title="Title" />' +
-        '  </body>' +
-        '</html>'
-      );
-    });
-
-    it('should work with multiple inline images having the same cid', function() {
-      expect($filter('inlineImages')(
-        '<html>' +
-        '  <body>' +
-        '    <img src="cid:abc" />' +
-        '    <img src="cid:abc" />' +
-        '  </body>' +
-        '</html>', [{ cid: 'abc', url: 'http://url.1' }]
-      )).to.equal(
-        '<html>' +
-        '  <body>' +
-        '    <img src="http://url.1" />' +
-        '    <img src="http://url.1" />' +
-        '  </body>' +
-        '</html>'
-      );
-    });
-
-    it('should perfect match the cid', function() {
-      expect($filter('inlineImages')(
-        '<html>' +
-        '  <body>' +
-        '    <img src="cid:abc" />' +
-        '  </body>' +
-        '</html>', [{ cid: 'a', url: 'http://url.a' }, { cid: 'abcd', url: 'http://url.abcd' }, { cid: 'abc', url: 'http://url.abc' }]
-      )).to.equal(
-        '<html>' +
-        '  <body>' +
-        '    <img src="http://url.abc" />' +
-        '  </body>' +
-        '</html>'
-      );
-    });
-
-  });
-
   describe('The loadImagesAsync filter', function() {
 
     it('should transform the "img" tags so that they load asynchronously, using AsyncImageLoader', function() {
@@ -278,6 +190,79 @@ describe('The Unified Inbox Angular module filters', function() {
       expect(filter(items)).to.deep.equal([]);
     });
 
+  });
+
+  describe('The inboxFilterDescendantMailboxes filter', function() {
+
+    var _, filter, cache;
+
+    beforeEach(inject(function(Mailbox, inboxFilterDescendantMailboxesFilter, inboxMailboxesCache, ___) {
+      filter = inboxFilterDescendantMailboxesFilter;
+      cache = inboxMailboxesCache;
+      _ = ___;
+
+      [
+        Mailbox({ id: '1', name: '1' }),
+        Mailbox({ id: '2', name: '2', parentId: '1' }),
+        Mailbox({ id: '3', name: '3', parentId: '2' }),
+        Mailbox({ id: '4', name: '4' }),
+        Mailbox({ id: '5', name: '5', parentId: '4' })
+      ].forEach(function(mailbox) {
+        cache.push(mailbox);
+      });
+    }));
+
+    it('should return mailboxes as-is when not defined', function() {
+      expect(filter()).to.equal(undefined);
+    });
+
+    it('should return mailboxes as-is when null given', function() {
+      expect(filter(null)).to.equal(null);
+    });
+
+    it('should return mailboxes as-is when no id is given', function() {
+      expect(filter([])).to.deep.equal([]);
+    });
+
+    it('should return mailboxes as-is when the mailbox is not found', function() {
+      expect(filter(cache, '0')).to.deep.equal(cache);
+    });
+
+    it('should filter out the mailbox and its descendants', function() {
+      expect(_.map(filter(cache, '1'), 'id')).to.deep.equal(['4', '5']);
+    });
+
+    it('should filter out the mailbox only when there is no descendants', function() {
+      expect(_.map(filter(cache, '5'), 'id')).to.deep.equal(['1', '2', '3', '4']);
+    });
+
+    it('should filter out the mailbox only when there is descendants but filterOnlyParentMailbox=true', function() {
+      expect(_.map(filter(cache, '1', true), 'id')).to.deep.equal(['2', '3', '4', '5']);
+    });
+
+  });
+
+  describe('The inboxFilterRestrictedMailboxes filter', function() {
+
+    var inboxFilterRestrictedMailboxesFilter;
+
+    beforeEach(inject(function(_inboxFilterRestrictedMailboxesFilter_) {
+      inboxFilterRestrictedMailboxesFilter = _inboxFilterRestrictedMailboxesFilter_;
+    }));
+
+    it('should filter RestrictMailboxes', function() {
+      var mailboxes = [
+          { role: { value: 'outbox' }},
+          { role: { value: 'drafts' }},
+          { role: { value: undefined }},
+          { role: { value: 'inbox' }}
+        ],
+        expectedMailboxes = [
+          { role: { value: undefined }},
+          { role: { value: 'inbox' }}
+        ];
+     expect(inboxFilterRestrictedMailboxesFilter(mailboxes)).to.deep.equal(expectedMailboxes);
+    });
   });
 
 });

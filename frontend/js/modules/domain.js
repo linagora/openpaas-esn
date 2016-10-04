@@ -50,10 +50,78 @@ angular.module('esn.domain', ['esn.http', 'ngTagsInput', 'op.dynamicDirective', 
       return esnRestangular.one('domains', id).get();
     }
 
+    /**
+    * Create domain's member
+    *
+    * @param {String} domainId - The domain id
+    * @param {Object} user - The user object
+    */
+    function createMember(domainId, user) {
+      return esnRestangular.one('domains', domainId).one('members').customPOST(user);
+    }
+
+    /**
+     * Add domain administrators
+     * @param {String} domainId The domain ID
+     * @param {Array} userIds   An array of user ID to set as domain administrators
+     * @return {Promise}        Resolve on success
+     */
+    function addAdministrators(domainId, userIds) {
+      return esnRestangular.one('domains', domainId).one('administrators').customPOST(userIds);
+    }
+
+    /**
+     * Get domain administrators
+     * @param {String} domainId The domain ID
+     */
+    function getAdministrators(domainId) {
+      return esnRestangular.one('domains', domainId).one('administrators').get();
+    }
+
+    /**
+     * Remove a administrator from a domain
+     * @param  {String} domainId        The domain ID
+     * @param  {String} administratorId The administrator ID
+     * @return {Promise}                Resolve on success
+     */
+    function removeAdministrator(domainId, administratorId) {
+      return esnRestangular.one('domains', domainId).one('administrators', administratorId).remove();
+    }
+
     return {
       getMembers: getMembers,
       inviteUsers: inviteUsers,
       isManager: isManager,
+      get: get,
+      createMember: createMember,
+      getAdministrators: getAdministrators,
+      addAdministrators: addAdministrators,
+      removeAdministrator: removeAdministrator
+    };
+  })
+
+  .service('domainSearchMembersProvider', function($q, $log, domainAPI, userUtils) {
+    function get(domainId) {
+      return {
+        searchAttendee: function(query, limit) {
+          var memberQuery = {search: query, limit: limit};
+          return domainAPI.getMembers(domainId, memberQuery).then(function(response) {
+            response.data.forEach(function(user) {
+              user.id = user._id;
+              user.email = user.preferredEmail;
+              user.displayName = userUtils.displayNameOf(user);
+              user.photo = '/api/users/' + user.id + '/profile/avatar';
+            });
+            return response.data;
+          }, function(error) {
+            $log.error('Error while searching users:', error);
+            return $q.when([]);
+          });
+        }
+      };
+    }
+
+    return {
       get: get
     };
   })
@@ -96,7 +164,7 @@ angular.module('esn.domain', ['esn.http', 'ngTagsInput', 'op.dynamicDirective', 
         // regexp as string, single \ are \\ escaped, doubles \ are \\\ escaped
         // original regexp is
         // var regex = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-        $scope.pattern = '^(([^<>()[\\\]\\\\\.,;:\\\s@\\\"]+(\\\.[^<>()[\\\]\\\\\.,;:\\\s@\\\"]+)*)|(\\\".+\\\"))@((\\\[[0-9]{1,3}\\\.[0-9]{1,3}\\\.[0-9]{1,3}\\\.[0-9]{1,3}\\\])|(([a-zA-Z\-0-9]+\\\.)+[a-zA-Z]{2,}))$'; // jshint ignore:line
+        $scope.pattern = '^(([^<>()[\\\]\\\\\.,;:\\\s@\\\"]+(\\\.[^<>()[\\\]\\\\\.,;:\\\s@\\\"]+)*)|(\\\".+\\\"))@((\\\[[0-9]{1,3}\\\.[0-9]{1,3}\\\.[0-9]{1,3}\\\.[0-9]{1,3}\\\])|(([a-zA-Z\-0-9]+\\\.)+[a-zA-Z]{2,}))$'; // eslint-disable-line no-useless-escape
         $scope.step = 0;
         $scope.running = 0;
         $scope.emails = [];
@@ -142,23 +210,9 @@ angular.module('esn.domain', ['esn.http', 'ngTagsInput', 'op.dynamicDirective', 
   .controller('inviteMembers', function($scope, domain) {
     $scope.domain = domain;
   })
-  .run(function($q, $log, attendeeService, domainAPI, session, userUtils) {
-    var attendeeProvider = {
-      searchAttendee: function(query, limit) {
-        var memberQuery = {search: query, limit: limit};
-        return domainAPI.getMembers(session.domain._id, memberQuery).then(function(response) {
-          response.data.forEach(function(user) {
-            user.id = user._id;
-            user.email = user.preferredEmail;
-            user.displayName = userUtils.displayNameOf(user);
-            user.photo = '/api/users/' + user.id + '/profile/avatar';
-          });
-          return response.data;
-        }, function(error) {
-          $log.error('Error while searching users:', error);
-          return $q.when([]);
-        });
-      }
-    };
-    attendeeService.addProvider(attendeeProvider);
+  .run(function(domainSearchMembersProvider, attendeeService, session) {
+    session.ready.then(function() {
+      var attendeeProvider = domainSearchMembersProvider.get(session.domain._id);
+      attendeeService.addProvider(attendeeProvider);
+    });
   });

@@ -82,7 +82,7 @@ describe('The contact import module', function() {
       contact: contactModuleMock
     };
 
-    account =  {
+    account = {
       data: {
         provider: type,
         id: id
@@ -93,6 +93,7 @@ describe('The contact import module', function() {
       domains: [
         {domain_id: domainId}
       ],
+      preferredDomainId: domainId,
       accounts: [
         account,
         {
@@ -618,6 +619,7 @@ describe('The contact import module', function() {
         esnToken: 123,
         user: {
           _id: 'myId',
+          id: 'myId',
           accounts: [
             {
               type: 'oauth',
@@ -627,7 +629,8 @@ describe('The contact import module', function() {
                 token_secret: 'abc'
               }
             }
-          ]
+          ],
+          preferredDomainId: domainId
         }
       };
     });
@@ -644,6 +647,30 @@ describe('The contact import module', function() {
         });
         done();
       });
+    });
+
+    it('should create contact client with the right paramters', function(done) {
+      contactModuleMock.lib.client = function(options) {
+        expect(options).to.deep.equal({
+          ESNToken: optionsMock.esnToken,
+          user: optionsMock.user
+        });
+        done();
+
+        return {
+          addressbookHome: function() {
+            return {
+              addressbook: function() {
+                return {
+                  vcard: function() { return contactClientMock; }
+                };
+              }
+            };
+          }
+        };
+      };
+
+      getModule().createContact(vcardMock, optionsMock);
     });
 
     it('should forward correct object when contact client resolve', function(done) {

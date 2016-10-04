@@ -1,0 +1,8 @@
+extends ../../layout/responsive-subheader
+
+block left
+  inbox-subheader-close-button.hidden-md
+  .title #{__('Vacation settings')}
+
+block right
+  inbox-subheader-save-button(esn-submit="ctrl.updateVacation()")

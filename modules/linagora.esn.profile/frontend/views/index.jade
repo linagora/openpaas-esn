@@ -1,0 +1,21 @@
+.container.full-width.no-padding-xs
+  .block-header
+    h2(ng-if="me") #{__('My Account')}
+    h2(ng-if="!me") {{::user.firstname}} {{::user.lastname}}
+    ul.actions.flex-space-around
+      button.btn.btn-primary(ng-if="me", ui-sref="profileEdit")
+        i.mdi.mdi-pencil
+        | #{__('Edit')}
+  #profile-main.card
+    .pm-overview.c-overflow
+      .pmo-pic
+        .p-relative(ng-controller='avatarController')
+          a
+            img(ng-src="{{avatarURL}}", alt='#{__("Avatar")}')
+        .pmo-stat.p-t-15
+          h3.m-0.c-white.ellipsis {{::user.firstname}} {{::user.lastname}}
+          span.m-0.c-white.ellipsis {{::user.job_title}}
+      .pmo-block
+        follow-card(ng-if='!me', user='user')
+    .pm-body.clearfix
+      .ui-view(name="main")

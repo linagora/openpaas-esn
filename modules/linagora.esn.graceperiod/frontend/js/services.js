@@ -153,14 +153,14 @@ angular.module('linagora.esn.graceperiod')
         return gracePeriodAPI
           .one('tasks')
           .one(id)
-          .withHttpConfig({timeout:task.justBeforeEnd})
+          .withHttpConfig({timeout: task.justBeforeEnd})
           .remove()
           .catch(function(error) {
             $log.error('Could not cancel graceperiod, we will try again at the end of the graceperiod', error);
             var cancelPromiseFactory = gracePeriodAPI
               .one('tasks')
               .one(id)
-              .withHttpConfig({timeout:HTTP_LAG_UPPER_BOUND}).remove;
+              .withHttpConfig({timeout: HTTP_LAG_UPPER_BOUND}).remove;
 
             return retryBeforeEnd(task, error, cancelPromiseFactory);
           });

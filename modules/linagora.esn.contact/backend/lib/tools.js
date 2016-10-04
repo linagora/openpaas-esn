@@ -24,7 +24,7 @@ module.exports = function(dependencies) {
           var contact = {
             id: contactId,
             contactId: contactId,
-            bookId:  bookId,
+            bookId: bookId,
             user: { _id: userId },
             bookName: bookName,
             vcard: davItem.data
@@ -54,7 +54,7 @@ module.exports = function(dependencies) {
   function reIndexContacts(options) {
     return q.nfbind(userModule.list)().then(function(users) {
       return q.all(users.map(function(user) {
-          var userId = user._id + '';
+          var userId = user.id;
           var addressBookHomeClient = contactClient(options).addressbookHome(userId);
           return indexUserContacts(addressBookHomeClient, userId);
         })

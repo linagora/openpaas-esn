@@ -5,7 +5,10 @@ var esnConfig = require('../esn-config');
 
 var PRIVATE_KEY = 'privateKey',
     PUBLIC_KEY = 'publicKey',
-    ALGORITHM = 'algorithm';
+    ALGORITHM = 'algorithm',
+    EXPIRESIN = 'expiresIn';
+
+var DEFAULT_EXPIRESIN = '2 days';
 
 function WebTokenConfig(config) {
   if (!config[PRIVATE_KEY]) { throw new Error(PRIVATE_KEY + ' is missing in the jwt configuration'); }
@@ -15,6 +18,7 @@ function WebTokenConfig(config) {
   this.privateKey = config[PRIVATE_KEY];
   this.publicKey = config[PUBLIC_KEY];
   this.algorithm = config[ALGORITHM];
+  this.expiresIn = config[EXPIRESIN] || DEFAULT_EXPIRESIN;
 }
 
 function getWebTokenConfig(callback) {
@@ -37,8 +41,8 @@ function generateWebToken(payload, callback) {
     if (err) {
       return callback(err);
     }
-    jwt.sign(payload, config.privateKey, {algorithm: config.algorithm}, function(token) {
-      return callback(null, token);
+    jwt.sign(payload, config.privateKey, {algorithm: config.algorithm}, function(err, token) {
+      return callback(err, token);
     });
   });
 }

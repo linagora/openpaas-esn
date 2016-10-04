@@ -7,6 +7,7 @@ config/runtime.json
 frontend/components/*
 frontend/components
 tmp/*
+e2e-videos/*
 *.log
 .idea
 db.json
@@ -14,5 +15,3 @@ frontend/**/*.css
 frontend/**/*.css.map
 modules/**/*.css
 modules/**/*.css.map
-gjslint.xml
-jshint.xml

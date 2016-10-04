@@ -1,78 +1,46 @@
 'use strict';
 
+var mockery = require('mockery');
 var chai = require('chai');
 var expect = chai.expect;
 
 describe('The davserver middleware', function() {
 
-  var deps, dependencies;
+  var utilsMock;
 
   beforeEach(function() {
-    dependencies = {
-      auth: {
-        token: {}
-      },
-      logger: {
-        error: function() {
-        }
-      }
-    };
-    deps = function(name) {
-      return dependencies[name];
-    };
+    utilsMock = {};
+
+    mockery.registerMock('../../lib/utils', function() {
+      return utilsMock;
+    });
   });
 
   describe('The getDavEndpoint function', function() {
 
-    it('should send back a dav endpoint even on config error', function(done) {
-      var req = {};
-      dependencies['esn-config'] = function() {
-        return {
-          get: function(callback) {
-            return callback(new Error());
-          }
-        };
-      };
-      var middleware = require('../../../backend/webserver/api/middleware')(deps).getDavEndpoint;
-      middleware(req, null, function() {
-        expect(req.davserver).to.exist;
-        done();
-      });
+    var middleware;
+
+    beforeEach(function() {
+      middleware = require('../../../backend/webserver/api/middleware')().getDavEndpoint;
     });
 
-    it('should send back a dav endpoint even when config result is undefined', function(done) {
-      dependencies['esn-config'] = function() {
-        return {
-          get: function(callback) {
-            return callback();
-          }
-        };
+    it('should set req.davserver then call next', function(done) {
+      var req = {
+        user: { preferredDomainId: 'domain123' }
+      };
+      var davServerUrl = 'http://localhost';
+
+      utilsMock.getDavEndpoint = function(user, callback) {
+        expect(user).to.equal(req.user);
+        callback(davServerUrl);
       };
 
-      var req = {};
-      var middleware = require('../../../backend/webserver/api/middleware')(deps).getDavEndpoint;
-      middleware(req, null, function() {
-        expect(req.davserver).to.exist;
+      var next = function() {
+        expect(req.davserver).to.equal(davServerUrl);
         done();
-      });
-    });
-
-    it('should send back the defined dav endpoint', function(done) {
-      var endpoint = 'http://davserver:83838';
-      dependencies['esn-config'] = function() {
-        return {
-          get: function(callback) {
-            return callback(null, {backend: {url: endpoint}});
-          }
-        };
       };
 
-      var req = {};
-      var middleware = require('../../../backend/webserver/api/middleware')(deps).getDavEndpoint;
-      middleware(req, null, function() {
-        expect(req.davserver).to.equal(endpoint);
-        done();
-      });
+      middleware(req, {}, next);
     });
 
   });

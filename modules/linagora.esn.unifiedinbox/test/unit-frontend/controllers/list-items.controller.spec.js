@@ -8,10 +8,10 @@ var expect = chai.expect;
 describe('The linagora.esn.unifiedinbox listItemsController', function() {
 
   // Injected
-  var scope, $controller, jmap, inboxHostedMailMessagesProvider, inboxHostedMailThreadsProvider,
-    ELEMENTS_PER_REQUEST, JMAP_GET_MESSAGES_LIST;
+  var scope, $controller, jmap, inboxHostedMailMessagesProvider, inboxHostedMailThreadsProvider, inboxSelectionService,
+      ELEMENTS_PER_REQUEST, JMAP_GET_MESSAGES_LIST;
   // Mocked
-  var $stateParams, jmapClient, mailboxIdsFilter, resolvedProvider;
+  var $stateParams, jmapClient, mailboxIdsFilter, resolvedProvider, ELEMENTS_PER_PAGE;
 
   beforeEach(module('linagora.esn.unifiedinbox', function($provide) {
     $stateParams = {
@@ -38,10 +38,11 @@ describe('The linagora.esn.unifiedinbox listItemsController', function() {
     $provide.service('hostedMailProvider', function() {
       return resolvedProvider;
     });
+    $provide.constant('ELEMENTS_PER_PAGE', 2);
   }));
 
   beforeEach(inject(function(_$rootScope_, _$controller_, _jmap_,
-       _inboxHostedMailMessagesProvider_, _inboxHostedMailThreadsProvider_,
+       _inboxHostedMailMessagesProvider_, _inboxHostedMailThreadsProvider_, _inboxSelectionService_,
        _ELEMENTS_PER_REQUEST_, _JMAP_GET_MESSAGES_LIST_) {
 
     scope = _$rootScope_.$new();
@@ -49,6 +50,7 @@ describe('The linagora.esn.unifiedinbox listItemsController', function() {
     jmap = _jmap_;
     inboxHostedMailMessagesProvider = _inboxHostedMailMessagesProvider_;
     inboxHostedMailThreadsProvider = _inboxHostedMailThreadsProvider_;
+    inboxSelectionService = _inboxSelectionService_;
     resolvedProvider = inboxHostedMailMessagesProvider;
 
     ELEMENTS_PER_REQUEST = _ELEMENTS_PER_REQUEST_;
@@ -68,9 +70,18 @@ describe('The linagora.esn.unifiedinbox listItemsController', function() {
     expect(scope.mailbox.id).to.equal('chosenMailbox');
   });
 
+  it('should reset selection', function() {
+    inboxSelectionService.toggleItemSelection({});
+
+    initController('listItemsController');
+
+    expect(inboxSelectionService.isSelecting()).to.equal(false);
+  });
+
   it('should call jmapClient.getMailboxes with the expected mailbox id and properties', function(done) {
     jmapClient.getMailboxes = function(options) {
-      expect(options).to.deep.equal({ids: ['chosenMailbox']});
+      expect(options).to.deep.equal({ ids: ['chosenMailbox'] });
+
       done();
     };
 
@@ -79,7 +90,7 @@ describe('The linagora.esn.unifiedinbox listItemsController', function() {
 
   it('should call jmapClient.getMailboxes then find the mailbox role and name', function() {
     jmapClient.getMailboxes = function() {
-      return $q.when([{role: 'expected role', name: 'expected name'}]);
+      return $q.when([{ id: 'chosenMailbox', role: 'expected role', name: 'expected name' }]);
     };
 
     initController('listItemsController');
@@ -244,7 +255,7 @@ describe('The linagora.esn.unifiedinbox listItemsController', function() {
 
       it('should add email and date for each thread', function() {
         var thread1 = {id: 'thread1', messageIds: ['msg1']},
-          thread2 = {id: 'thread2', messageIds: ['msg2']};
+            thread2 = {id: 'thread2', messageIds: ['msg2']};
         var messageListResult = {
           threadIds: [1, 2],
           getMessages: sinon.spy(function() { return [{id: 'msg1', threadId: 'thread1', date: '2016-03-21T10:16:22.628Z'}, {id: 'msg2', threadId: 'thread2', date: '2016-03-22T10:16:22.628Z'}];}),

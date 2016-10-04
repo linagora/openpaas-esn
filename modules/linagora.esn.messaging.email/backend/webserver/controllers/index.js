@@ -6,10 +6,10 @@ module.exports = function(dependencies, lib) {
 
   function getUser(req, res) {
     if (!req.user) {
-      return res.json(404, {error: {code: 404, message: 'Not found', details: 'User not found'}});
+      return res.status(404).json({error: {code: 404, message: 'Not found', details: 'User not found'}});
     }
 
-    return res.json(200, req.user);
+    return res.status(200).json(req.user);
   }
 
   function replyMessageFromEmail(req, res) {
@@ -18,7 +18,7 @@ module.exports = function(dependencies, lib) {
     var replyTo = req.replyTo;
 
     if (!user || !replyTo) {
-      return res.json(400, {error: {code: 400, message: 'Bad request', details: 'User or message data not found'}});
+      return res.status(400).json({error: {code: 400, message: 'Bad request', details: 'User or message data not found'}});
     }
 
     async.waterfall([
@@ -30,9 +30,9 @@ module.exports = function(dependencies, lib) {
       }
     ], function(err, result) {
       if (err) {
-        return res.json(500, {error: {code: 500, message: 'Server Error', details: err.message}});
+        return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.message}});
       }
-      return res.json(201, result);
+      return res.status(201).json(result);
     });
   }
 

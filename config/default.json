@@ -29,13 +29,24 @@
   },
   "log": {
     "file": {
-      "enabled": true,
+      "enabled": false,
       "filename": "./log/application.log",
       "level": "info",
       "handleExceptions": true,
       "json": false,
       "prettyPrint": true,
       "colorize": false
+    },
+    "rotate": {
+      "enabled": false,
+      "file": "./log/application.log",
+      "level": "info",
+      "handleExceptions": true,
+      "json": false,
+      "prettyPrint": true,
+      "colorize": false,
+      "size": "10m",
+      "skip": 5
     },
     "console": {
       "enabled": true,
@@ -72,7 +83,8 @@
     "linagora.esn.project",
     "linagora.esn.profile",
     "linagora.esn.controlcenter",
-    "linagora.esn.unifiedinbox"
+    "linagora.esn.unifiedinbox",
+    "linagora.esn.admin"
   ],
   "email": {
     "templatesDir": "./templates/email"

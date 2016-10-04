@@ -1,5 +1,8 @@
-@import './modules/listEmails';
-@import './modules/listThreads';
+@import './modules/commons';
+
+@import './modules/listItems';
+@import './modules/listTwitter';
+
 @import './modules/viewEmail';
 @import './modules/composer';
 @import './modules/header';
@@ -7,143 +10,121 @@
 @import './modules/aside';
 @import './modules/tags-input';
 @import './modules/attachment';
-@import './modules/listTwitter';
 @import './modules/filter';
+@import './modules/vacation';
+@import './modules/emailer';
+@import './modules/search';
 
-.comma {
-  margin-right: 2px;
-}
+.inbox-root {
 
-.emailer {
-  display: inline-block;
-  word-break: break-word;
-
-  .email {
-    margin-left: 5px;
-  }
-
-}
-
-.actions {
-  a {
-    cursor: pointer;
-  }
-}
-
-.inbox-main {
-  width: 100%;
-
-  .email-status-icon {
-    font-size: 20px;
-    vertical-align: middle;
-
-    margin-left: 10px;
-
-    &.mdi-star {
-      color: @primaryColor;
-    }
-
-    &.mdi-star-outline {
-      color: lighten(@m-gray, 10%);
-    }
-
-    &.mdi-star-off {
-      color: @m-gray;
+  .actions {
+    a {
+      cursor: pointer;
     }
   }
 
-  .list-image {
-    float: left;
-    height: 40px;
+  .inbox-main {
+    width: 100%;
 
-    img {
-      height: 40px;
-      width: 40px;
+    .email-status-icon {
+      font-size: 20px;
+      vertical-align: middle;
+
+      margin-left: 5px;
+
+      &.mdi-star {
+        color: @primaryColor;
+      }
+
+      &.mdi-star-outline {
+        color: lighten(@m-gray, 10%);
+      }
+
+      &.mdi-star-off {
+        color: @m-gray;
+      }
+    }
+
+    .indicators {
+      .mdi-paperclip {
+        font-size: 18px;
+      }
     }
   }
 
-  .indicators {
-    margin-top: 5px;
+  .inbox-main-content {
+    color: @secondaryTextColor;
+    width: 100%;
+    padding: 15px;
 
-    .mdi-paperclip {
-      font-size: 18px;
+    hr {
+      border-color: @secondaryTextColor;
+    }
+
+    .clickable {
+      position: relative;
     }
   }
-}
 
-.inbox-main-content {
-  color: @secondaryTextColor;
-  font-size: 1.4em;
-
-  width: 100%;
-  padding: 15px;
-
-  hr {
-    border-color: @secondaryTextColor;
+  .inbox-icon {
+    margin-right: 5px;
   }
-
-  .clickable {
-    position: relative;
-  }
-}
-
-.inbox-icon {
-  margin-right: 5px;
-}
-
-.inbox-main-col {
-  margin-top: 0;
 
   .card {
     margin-bottom: 20px;
   }
 
   .block-header {
+    .inbox-ng-leave;
+    .flex-space-between;
+
     margin: 20px 0 10px 0;
     padding: 0 15px;
+    color: lighten(@secondaryTextColor, 20%);
 
     h2 {
       font-size: 1em;
-      color: lighten(@secondaryTextColor, 20%);
       text-transform: capitalize;
     }
+
+    .block-header-actions {
+      .flex-start;
+
+      .mdi {
+        font-size: 1.5em;
+
+        &.selected {
+          color: @primaryColor;
+        }
+      }
+    }
+  }
+
+  .inbox-list-item {
+    .inbox-ng-leave;
+
+    max-height: 250px;
   }
 }
 
-@media (min-width: @screen-sm-min) {
+.inbox-root, .inbox-aside, .inbox-modal {
+  .inbox-item-with-icon {
+    .flex-start;
+    .flex-vertical-centered;
+  }
+}
 
-  .inbox-main-content, .inbox-desktop-menu {
-
+@media (min-width: @screen-md-min) {
+  .inbox-root {
     .clickable:hover {
       color: @text-color;
     }
-
   }
-
-  .inbox-main-col {
-    margin-top: 25px;
-  }
-
 }
 
 // iOS workaround to disable auto-zoom on input fields
 .inbox-root {
   input:not([type="button"]):not([type="submit"]):not([type="file"]), select, textarea, tags-input .tags .input {
     font-size: 16px;
-  }
-}
-
-.inbox-list-item {
-  max-height: 250px;
-
-  &.ng-leave {
-    .transition(0.2s ease-out all);
-
-    opacity: 1;
-
-    &.ng-leave-active {
-      max-height: 0;
-      opacity: 0;
-    }
   }
 }

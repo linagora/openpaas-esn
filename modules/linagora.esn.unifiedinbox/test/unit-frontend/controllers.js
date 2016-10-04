@@ -9,10 +9,10 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
   var $stateParams, $rootScope, scope, $controller,
       jmapClient, jmap, notificationFactory, draftService, Offline = {},
-      Composition, newComposerService = {}, $state, $modal,
-      mailboxesService, inboxThreadService, _, windowMock, fileUploadMock, config;
-  var JMAP_GET_MESSAGES_VIEW, JMAP_GET_MESSAGES_LIST,
-      DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD, ELEMENTS_PER_REQUEST;
+      Composition, newComposerService = {}, $state, $modal, navigateTo,
+      mailboxesService, inboxJmapItemService, _, fileUploadMock, config, moment, Mailbox, inboxMailboxesCache,
+      touchscreenDetectorService, Thread, esnPreviousState, inboxFilterDescendantMailboxesFilter, inboxSelectionService;
+  var JMAP_GET_MESSAGES_VIEW, INBOX_EVENTS, INFINITE_LIST_EVENTS, DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD;
 
   beforeEach(function() {
     $stateParams = {
@@ -21,23 +21,22 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     };
     notificationFactory = {
       weakSuccess: sinon.spy(),
-      weakError: sinon.spy(),
-      strongInfo: function() { return { close: sinon.spy() }; }
+      weakError: sinon.spy(function() { return { setCancelAction: sinon.spy() }; }),
+      strongInfo: sinon.spy(function() { return { close: sinon.spy() }; })
     };
     $state = {
       go: sinon.spy()
-    };
-    windowMock = {
-      open: sinon.spy()
     };
     $modal = sinon.spy();
 
     angular.mock.module('esn.core');
     angular.mock.module('esn.notification');
+    angular.mock.module('esn.previous-state');
 
     module('linagora.esn.unifiedinbox', function($provide) {
       jmapClient = {};
       config = {};
+      inboxFilterDescendantMailboxesFilter = sinon.spy();
       config['linagora.esn.unifiedinbox.uploadUrl'] = 'http://jmap';
       config['linagora.esn.unifiedinbox.maxSizeUpload'] = DEFAULT_MAX_SIZE_UPLOAD;
       fileUploadMock = {
@@ -45,14 +44,12 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           return {
             defer: $q.defer()
           };
-        }
+        },
+        start: sinon.spy()
       };
 
       $provide.value('withJmapClient', function(callback) {
         return callback(jmapClient);
-      });
-      $provide.decorator('$window', function($delegate) {
-        return angular.extend($delegate, windowMock);
       });
       $provide.value('$stateParams', $stateParams);
       $provide.value('notificationFactory', notificationFactory);
@@ -74,28 +71,42 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       });
       $provide.value('filter', { filter: 'condition' });
       $provide.value('searchService', { searchByEmail: function() { return $q.when(); }});
+      $provide.value('navigateTo', navigateTo = sinon.spy());
+      $provide.value('touchscreenDetectorService', touchscreenDetectorService = {});
+      $provide.value('inboxFilterDescendantMailboxesFilter', inboxFilterDescendantMailboxesFilter);
     });
   });
 
   beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _jmap_,
                                           _Composition_, _mailboxesService_, ___, _JMAP_GET_MESSAGES_VIEW_,
-                                          _JMAP_GET_MESSAGES_LIST_, _DEFAULT_FILE_TYPE_,
-                                          _DEFAULT_MAX_SIZE_UPLOAD_, _ELEMENTS_PER_REQUEST_, _inboxThreadService_) {
+                                          _DEFAULT_FILE_TYPE_, _moment_, _DEFAULT_MAX_SIZE_UPLOAD_, _inboxJmapItemService_,
+                                          _INBOX_EVENTS_, _Mailbox_, _inboxMailboxesCache_, _Thread_, _esnPreviousState_,
+                                          _INFINITE_LIST_EVENTS_, _inboxSelectionService_) {
     $rootScope = _$rootScope_;
     $controller = _$controller_;
     jmap = _jmap_;
     Composition = _Composition_;
     mailboxesService = _mailboxesService_;
-    inboxThreadService = _inboxThreadService_;
+    inboxJmapItemService = _inboxJmapItemService_;
+    inboxMailboxesCache = _inboxMailboxesCache_;
     _ = ___;
     JMAP_GET_MESSAGES_VIEW = _JMAP_GET_MESSAGES_VIEW_;
-    JMAP_GET_MESSAGES_LIST = _JMAP_GET_MESSAGES_LIST_;
     DEFAULT_FILE_TYPE = _DEFAULT_FILE_TYPE_;
     DEFAULT_MAX_SIZE_UPLOAD = _DEFAULT_MAX_SIZE_UPLOAD_;
-    ELEMENTS_PER_REQUEST = _ELEMENTS_PER_REQUEST_;
+    INBOX_EVENTS = _INBOX_EVENTS_;
+    INFINITE_LIST_EVENTS = _INFINITE_LIST_EVENTS_;
+    moment = _moment_;
+    Mailbox = _Mailbox_;
+    Thread = _Thread_;
+    esnPreviousState = _esnPreviousState_;
+    inboxSelectionService = _inboxSelectionService_;
 
     scope = $rootScope.$new();
   }));
+
+  beforeEach(function() {
+    esnPreviousState.go = sinon.spy();
+  });
 
   function initController(ctrl) {
     var controller = $controller(ctrl, {
@@ -135,6 +146,14 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           JMAP: {}
         }
       });
+    });
+
+    it('should reset selection', function() {
+      inboxSelectionService.toggleItemSelection({});
+
+      initController('unifiedInboxController');
+
+      expect(inboxSelectionService.isSelecting()).to.equal(false);
     });
 
     it('should call our inbox provider as expected when loadMoreElements is called twice', function() {
@@ -237,7 +256,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     });
 
     it('should initialize the controller when a Composition instance is given in state params', function() {
-      $stateParams.composition = { getEmail: angular.noop };
+      $stateParams.composition = { getEmail: function() { return {}; } };
 
       var ctrl = initController('composerController');
 
@@ -275,21 +294,19 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       var ctrl;
 
       beforeEach(function() {
-        fileUploadMock = {
-          addFile: function() {
-            var defer = $q.defer();
+        fileUploadMock.addFile = function() {
+          var defer = $q.defer();
 
-            defer.resolve({
-              response: {
-                blobId: '1234',
-                url: 'http://jmap/1234'
-              }
-            });
+          defer.resolve({
+            response: {
+              blobId: '1234',
+              url: 'http://jmap/1234'
+            }
+          });
 
-            return {
-              defer: defer
-            };
-          }
+          return {
+            defer: defer
+          };
         };
 
         ctrl = initController('composerController');
@@ -357,6 +374,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       });
 
       it('should save the composition each time that and upload succeeds', function() {
+        config['linagora.esn.unifiedinbox.drafts'] = true;
         ctrl.onAttachmentsSelect([{ name: 'name', size: 1 }]);
         ctrl.onAttachmentsSelect([{ name: 'name', size: 1 }]);
         $rootScope.$digest();
@@ -382,26 +400,21 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         expect(ctrl.getComposition().saveDraftSilently).to.have.not.been.called;
       });
 
-      it('should set attachment.error if upload fails', function() {
-        fileUploadMock = {
-          addFile: function() {
-            var defer = $q.defer();
+      it('should set attachment.status to "error" if upload fails', function() {
+        fileUploadMock.addFile = function() {
+          var defer = $q.defer();
 
-            defer.reject('WTF');
+          defer.reject('WTF');
 
-            return {
-              defer: defer
-            };
-          }
+          return {
+            defer: defer
+          };
         };
 
         ctrl.onAttachmentsSelect([{ name: 'name', size: 1 }]);
         $rootScope.$digest();
 
-        expect(scope.email.attachments[0]).to.shallowDeepEqual({
-          error: 'WTF',
-          status: 'error'
-        });
+        expect(scope.email.attachments[0]).to.shallowDeepEqual({ status: 'error' });
       });
 
       it('should resolve the upload promise with nothing when upload succeeds', function(done) {
@@ -413,16 +426,14 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       });
 
       it('should resolve the upload promise with nothing when upload fails', function(done) {
-        fileUploadMock = {
-          addFile: function() {
-            var defer = $q.defer();
+        fileUploadMock.addFile = function() {
+          var defer = $q.defer();
 
-            defer.reject('WTF');
+          defer.reject('WTF');
 
-            return {
-              defer: defer
-            };
-          }
+          return {
+            defer: defer
+          };
         };
 
         ctrl.onAttachmentsSelect([{ name: 'name', size: 1 }]).then(function() {
@@ -451,32 +462,35 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         $rootScope.$digest();
       });
 
-      describe('The attachment.startUpload function', function() {
+    });
 
-        it('should restore upload and status properties of the attachment', function() {
-          fileUploadMock = {
-            addFile: function() {
-              var defer = $q.defer();
+    describe('The upload function', function() {
 
-              defer.reject('WTF');
+      it('should restore upload and status properties of the attachment', function() {
+        var attachment = {
+          name: 'name',
+          getFile: function() {
+            return { size: 0 };
+          }
+        };
 
-              return {
-                defer: defer
-              };
-            }
-          };
+        initController('composerController').upload(attachment);
 
-          ctrl.onAttachmentsSelect([{ name: 'name', size: 1 }]);
-          $rootScope.$digest();
+        expect(attachment.upload.progress).to.equal(0);
+        expect(attachment.status).to.equal('uploading');
+      });
 
-          var attachment = scope.email.attachments[0];
+      it('should start the upload', function() {
+        var attachment = {
+          name: 'name',
+          getFile: function() {
+            return { size: 0 };
+          }
+        };
 
-          attachment.startUpload();
+        initController('composerController').upload(attachment);
 
-          expect(attachment.upload.progress).to.equal(0);
-          expect(attachment.status).to.equal('uploading');
-        });
-
+        expect(fileUploadMock.start).to.have.been.calledWith();
       });
 
     });
@@ -531,6 +545,115 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
     });
 
+    describe('the attachmentStatus functionality', function() {
+      var expectedAttachmentStatus;
+
+      beforeEach(function() {
+        expectedAttachmentStatus = {
+          number: 0,
+          uploading: false,
+          error: false
+        };
+        fileUploadMock.addFile = function() {
+          var defer = $q.defer();
+
+          defer.resolve({
+            response: {
+              blobId: '1234'
+            }
+          });
+
+          return {
+            defer: defer
+          };
+        };
+      });
+
+      it('should not update attachmentStatus if email is empty', function() {
+        initCtrl({});
+
+        expect(scope.attachmentStatus).to.deep.equal(expectedAttachmentStatus);
+      });
+
+      it('should not update attachmentStatus if email has no attachments', function() {
+        initCtrl({ to: [], subject: '' });
+
+        expect(scope.attachmentStatus).to.deep.equal(expectedAttachmentStatus);
+      });
+
+      it('should update attachmentStatus once the controller is initialized with an email that has attachments', function() {
+        expectedAttachmentStatus.number = 2;
+
+        initCtrl({
+          attachments: [
+            { isInline: false },
+            { isInline: false },
+            { isInline: true }
+          ]
+        });
+
+        expect(scope.attachmentStatus).to.deep.equal(expectedAttachmentStatus);
+      });
+
+      it('should update attachmentStatus after starting an attachment upload', function(done) {
+        expectedAttachmentStatus.number = 1;
+        expectedAttachmentStatus.uploading = true;
+
+        initCtrl({}).onAttachmentsSelect([{ name: 'name', size: 1 }]).then(function() {
+          expect(scope.attachmentStatus).to.deep.equal(expectedAttachmentStatus);
+
+          done();
+        });
+
+        $rootScope.$digest();
+      });
+
+      it('should update attachmentStatus when the attachment upload is successfully uploaded', function() {
+        expectedAttachmentStatus.number = 1;
+
+        initCtrl({}).onAttachmentsSelect([{ name: 'name', size: 1 }]);
+        $rootScope.$digest();
+
+        expect(scope.attachmentStatus).to.deep.equal(expectedAttachmentStatus);
+      });
+
+      it('should update attachmentStatus when there is an error in attachment upload', function() {
+        fileUploadMock.addFile = function() {
+          var defer = $q.defer();
+
+          defer.reject('reject');
+
+          return {
+            defer: defer
+          };
+        };
+        expectedAttachmentStatus.number = 1;
+        expectedAttachmentStatus.error = true;
+
+        initCtrl({}).onAttachmentsSelect([{ name: 'name', size: 1 }]);
+        $rootScope.$digest();
+
+        expect(scope.attachmentStatus).to.deep.equal(expectedAttachmentStatus);
+      });
+
+      it('should update attachmentStatus when an attachment is removed', function() {
+        var attachment = { isInline: false },
+            ctrl = initCtrl({
+              attachments: [attachment]
+            });
+
+        expectedAttachmentStatus = {
+          number: 0,
+          uploading: false,
+          error: false
+        };
+
+        ctrl.removeAttachment(attachment);
+
+        expect(scope.attachmentStatus).to.deep.equal(expectedAttachmentStatus);
+      });
+    });
+
   });
 
   describe('The viewEmailController', function() {
@@ -541,16 +664,10 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       jmapMessage = new jmap.Message(jmapClient, 'messageId1', 'threadId1', [$stateParams.mailbox], {
         isUnread: false
       });
-      jmapMessage.setIsUnread = sinon.stub().returns($q.when());
 
       jmapClient.getMessages = function() { return $q.when([jmapMessage]); };
-    });
-
-    it('should set $scope.mailbox and $scope.emailId from the route parameters', function() {
-      initController('viewEmailController');
-
-      expect(scope.mailbox).to.equal('chosenMailbox');
-      expect(scope.emailId).to.equal('4');
+      jmapClient.setMessages = function() { return $q.when(new jmap.SetResponse()); };
+      jmapClient.updateMessage = function() { return $q.when(); };
     });
 
     it('should call jmapClient.getMessages with correct arguments', function(done) {
@@ -574,7 +691,27 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       initController('viewEmailController');
 
       scope.$watch('email', function(before, after) {
-        expect(after).to.shallowDeepEqual({ isUnread: false, property: 'property', mailboxIds: [] });
+        expect(after).to.shallowDeepEqual({ isUnread: false, property: 'property', mailboxIds: [], loaded: true });
+
+        done();
+      });
+
+      scope.$digest();
+    });
+
+    it('should update $scope.email if it exists (opening an item from the list)', function(done) {
+      $stateParams.item = new jmap.Message(jmapClient, 'messageId1', 'threadId1', [$stateParams.mailbox], {
+        id: 'id',
+        isFlagged: false
+      });
+      jmapClient.getMessages = function() {
+        return $q.when([{ isFlagged: true, textBody: 'textBody', htmlBody: 'htmlBody', attachments: [] }]);
+      };
+
+      initController('viewEmailController');
+
+      scope.$watch('email', function(before, after) {
+        expect(after).to.shallowDeepEqual({ id: 'messageId1', isUnread: false, isFlagged: true, textBody: 'textBody', htmlBody: 'htmlBody', attachments: [], loaded: true });
 
         done();
       });
@@ -587,8 +724,111 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       initController('viewEmailController');
 
-      expect(jmapMessage.setIsUnread).to.have.been.calledWith(false);
       expect(jmapMessage.isUnread).to.equal(false);
+    });
+
+    it('should expose move to the controller', function() {
+      var email = { to: [] };
+      var controller = initController('viewEmailController');
+      scope.email = email;
+
+      controller.move();
+
+      expect($state.go).to.have.been.calledWith('.move', { item: email });
+    });
+
+    describe('The markAsUnread fn', function() {
+      it('should mark email as unread then update location to parent state', inject(function($state) {
+        scope.email = {};
+        $state.go = sinon.spy();
+        var controller = initController('viewEmailController');
+
+        controller.markAsUnread();
+        scope.$digest();
+
+        expect($state.go).to.have.been.calledWith('^');
+        expect(scope.email.isUnread).to.equal(true);
+      }));
+    });
+
+    describe('The moveToTrash fn', function() {
+      it('should delete the email then update location to parent state if the email is deleted successfully', function() {
+        inboxJmapItemService.moveToTrash = sinon.spy(function() {
+          return $q.when({});
+        });
+        var controller = initController('viewEmailController');
+
+        controller.moveToTrash();
+        scope.$digest();
+
+        expect($state.go).to.have.been.calledWith('^');
+        expect(inboxJmapItemService.moveToTrash).to.have.been.called;
+      });
+
+      it('should not update location if the email is not deleted', function() {
+        inboxJmapItemService.moveToTrash = sinon.spy(function() {
+          return $q.reject({});
+        });
+        var controller = initController('viewEmailController');
+
+        controller.moveToTrash();
+        scope.$digest();
+
+        expect($state.go).to.have.not.been.called;
+        expect(inboxJmapItemService.moveToTrash).to.have.been.called;
+      });
+    });
+
+  });
+
+  describe('The inboxMoveItemController controller', function() {
+    var mailbox;
+
+    beforeEach(function() {
+      mailbox = {
+        mailboxId: 'id'
+      };
+      $stateParams.mailbox = '$stateParams mailbox';
+      $stateParams.item = {};
+
+      mailboxesService.assignMailboxesList = sinon.spy();
+
+      inboxJmapItemService.moveMultipleItems = sinon.spy(function() {
+        return $q.when();
+      });
+    });
+
+    it('should call mailboxesService.assignMailboxesList', function() {
+      initController('inboxMoveItemController');
+
+      expect(mailboxesService.assignMailboxesList).to.have.been.calledWith(scope);
+    });
+
+    describe('The moveTo function', function() {
+
+      it('should call esnPreviousState.go', function() {
+        initController('inboxMoveItemController').moveTo(mailbox);
+
+        expect(esnPreviousState.go).to.have.been.calledWith();
+      });
+
+      it('should delegate to inboxJmapItemService.moveMultipleItems with the selection if selection=true', function() {
+        var item = { id: 1 };
+
+        $stateParams.selection = true;
+        inboxSelectionService.toggleItemSelection(item);
+
+        initController('inboxMoveItemController').moveTo(mailbox);
+
+        expect(inboxJmapItemService.moveMultipleItems).to.have.been.calledWith([item], mailbox);
+      });
+
+      it('should delegate to inboxJmapItemService.moveMultipleItems with the item if selection=false', function() {
+        initController('inboxMoveItemController').moveTo(mailbox);
+
+        expect(inboxJmapItemService.moveMultipleItems).to.have.been.calledWith([$stateParams.item], mailbox);
+      });
+
     });
 
   });
@@ -606,7 +846,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
     beforeEach(function() {
       jmapThread = new jmap.Thread(jmapClient, threadId);
-      jmapThread.setIsUnread = sinon.stub().returns($q.when());
+
       mockGetThreadAndMessages([{
         id: 'email1',
         mailboxIds: [threadId],
@@ -622,12 +862,16 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       jmapClient.getThreads = function() {
         return $q.when([jmapThread]);
       };
+      jmapClient.setMessages = function() {
+        return $q.when(new jmap.SetResponse());
+      };
     });
 
     it('should search for message ids of the given thread id', function(done) {
       $stateParams.threadId = 'expectedThreadId';
       jmapClient.getThreads = function(options) {
-        expect(options).to.deep.equal({ids: ['expectedThreadId'], fetchMessages: false});
+        expect(options).to.deep.equal({ids: ['expectedThreadId'] });
+
         done();
       };
 
@@ -654,7 +898,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       jmapClient.getThreads = function() {
         return $q.when([{
           getMessages: function() {
-            return [{id: 'email1', subject: 'thread subject'}];
+            return [{ mailboxIds: ['inbox'], id: 'email1', subject: 'thread subject' }];
           }
         }]);
       };
@@ -662,7 +906,26 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       initController('viewThreadController');
 
       expect(scope.thread.emails).to.shallowDeepEqual([
-        {id: 'email1', subject: 'thread subject'}
+        { mailboxIds: ['inbox'], id: 'email1', subject: 'thread subject', loaded: true }
+      ]);
+    });
+
+    it('should update $scope.thread if it exists (opening an item from the list)', function() {
+      $stateParams.item = Thread(jmapThread);
+
+      jmapClient.getThreads = function() {
+        return $q.when([{
+          getMessages: function() {
+            return [{ mailboxIds: ['inbox'], id: 'email1', subject: 'thread subject' }, { mailboxIds: ['inbox'], id: 'email2', subject: 'thread subject' }];
+          }
+        }]);
+      };
+
+      initController('viewThreadController');
+
+      expect(scope.thread.emails).to.shallowDeepEqual([
+        { mailboxIds: ['inbox'], id: 'email1', subject: 'thread subject', loaded: true },
+        { mailboxIds: ['inbox'], id: 'email2', subject: 'thread subject', loaded: true }
       ]);
     });
 
@@ -671,9 +934,9 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         return $q.when([{
           getMessages: function() {
             return [
-              {id: 'email1', subject: 'thread subject1'},
-              {id: 'email2', subject: 'thread subject2'},
-              {id: 'email3', subject: 'thread subject3'}
+              { mailboxIds: ['inbox'], id: 'email1', subject: 'thread subject1' },
+              { mailboxIds: ['inbox'], id: 'email2', subject: 'thread subject2' },
+              { mailboxIds: ['inbox'], id: 'email3', subject: 'thread subject3' }
             ];
           }
         }]);
@@ -687,7 +950,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     it('should mark the thread as read once it\'s loaded', function() {
       initController('viewThreadController');
 
-      expect(scope.thread.setIsUnread).to.have.been.calledWith(false);
+      expect(scope.thread.isUnread).to.equal(false);
       expect(scope.thread.emails).to.shallowDeepEqual([{
         id: 'email1',
         mailboxIds: [threadId],
@@ -703,7 +966,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
     it('should set isCollapsed=false for the only one email in a thread', function() {
       mockGetThreadAndMessages([
-        {id: 'email1', mailboxIds: [threadId], subject: 'thread subject1'}
+        { id: 'email1', mailboxIds: [threadId], subject: 'thread subject1'}
       ]);
 
       initController('viewThreadController');
@@ -755,13 +1018,13 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         scope.$digest();
 
         expect($state.go).to.have.been.calledWith('^');
-        expect(scope.thread.setIsUnread).to.have.been.calledWith(true);
+        expect(scope.thread.isUnread).to.equal(true);
       });
     });
 
     describe('The moveToTrash fn', function() {
       it('should delete the thread then update location to parent state if the thread is deleted successfully', function() {
-        inboxThreadService.moveToTrash = sinon.spy(function() {
+        inboxJmapItemService.moveToTrash = sinon.spy(function() {
           return $q.when({});
         });
         var controller = initController('viewThreadController');
@@ -770,11 +1033,11 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         scope.$digest();
 
         expect($state.go).to.have.been.calledWith('^');
-        expect(inboxThreadService.moveToTrash).to.have.been.called;
+        expect(inboxJmapItemService.moveToTrash).to.have.been.called;
       });
 
       it('should not update location if the thread is not deleted', function() {
-        inboxThreadService.moveToTrash = sinon.spy(function() {
+        inboxJmapItemService.moveToTrash = sinon.spy(function() {
           return $q.reject({});
         });
         var controller = initController('viewThreadController');
@@ -783,13 +1046,40 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         scope.$digest();
 
         expect($state.go).to.have.not.been.called;
-        expect(inboxThreadService.moveToTrash).to.have.been.called;
+        expect(inboxJmapItemService.moveToTrash).to.have.been.called;
       });
+    });
+
+    it('should expose move to the controller', function() {
+      var thread = { mailboxIds: [] };
+      var controller = initController('viewThreadController');
+      scope.thread = thread;
+
+      controller.move();
+
+      expect($state.go).to.have.been.calledWith('.move', { item: thread });
     });
 
   });
 
-  describe('The configurationController', function() {
+  describe('The inboxConfigurationIndexController', function() {
+
+    it('should initiate hasTouchscreen to true if service responds true', function() {
+      touchscreenDetectorService.hasTouchscreen = sinon.stub().returns(true);
+      initController('inboxConfigurationIndexController');
+
+      expect(scope.hasTouchscreen).to.be.true;
+    });
+
+    it('should initiate hasTouchscreen to false if service responds false', function() {
+      touchscreenDetectorService.hasTouchscreen = sinon.stub().returns(false);
+      initController('inboxConfigurationIndexController');
+
+      expect(scope.hasTouchscreen).to.be.false;
+    });
+  });
+
+  describe('The inboxConfigurationFolderController', function() {
 
     it('should set $scope.mailboxes to the qualified list of non-system mailboxes', function() {
       jmapClient.getMailboxes = function() {
@@ -799,7 +1089,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         ]);
       };
 
-      initController('configurationController');
+      initController('inboxConfigurationFolderController');
 
       expect(scope.mailboxes).to.deep.equal([{ id: 2, name: '2', qualifiedName: '2', level: 1, role: {} }]);
     });
@@ -836,17 +1126,17 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
     describe('The addFolder method', function() {
 
-      it('should go to unifiedinbox', function() {
+      it('should go to previous eligible state', function() {
         jmapClient.getMailboxes = function() { return $q.when([]); };
         jmapClient.createMailbox = function() { return $q.when([]); };
 
         initController('addFolderController');
 
-        scope.mailbox = { name: 'Name' };
+        scope.mailbox = new Mailbox({ name: 'Name' });
         scope.addFolder();
         scope.$digest();
 
-        expect($state.go).to.have.been.calledWith('unifiedinbox');
+        expect(esnPreviousState.go).to.have.been.calledWith('unifiedinbox');
       });
 
       it('should do nothing and reject promise if mailbox.name is not defined', function(done) {
@@ -855,10 +1145,10 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
         initController('addFolderController');
 
-        scope.mailbox = { };
+        scope.mailbox = new Mailbox({ });
         scope.addFolder().then(done.bind(null, 'should reject'), function(err) {
           expect(err.message).to.equal('Please enter a valid folder name');
-          expect($state.go).to.not.have.been.called;
+          expect(esnPreviousState.go).to.not.have.been.called;
           expect(jmapClient.createMailbox).to.not.have.been.called;
           done();
         });
@@ -870,24 +1160,9 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
   });
 
   describe('The editFolderController', function() {
+    var chosenMailbox;
 
-    it('should set $scope.mailboxes to the qualified list of mailboxes', function() {
-      jmapClient.getMailboxes = function() {
-        return $q.when([
-          { id: 1, name: '1', role: { value: 'inbox' } },
-          { id: 2, name: '2', role: {} }
-        ]);
-      };
-
-      initController('editFolderController');
-
-      expect(scope.mailboxes).to.deep.equal([
-        { id: 1, name: '1', qualifiedName: '1', level: 1, role: { value: 'inbox' } },
-        { id: 2, name: '2', qualifiedName: '2', level: 1, role: {} }
-      ]);
-    });
-
-    it('should set $scope.mailbox to the found mailbox', function() {
+    beforeEach(function() {
       jmapClient.getMailboxes = function() {
         return $q.when([
           { id: 'chosenMailbox', name: '1', role: { value: 'inbox' } },
@@ -897,12 +1172,27 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       initController('editFolderController');
 
-      expect(scope.mailbox).to.deep.equal({ id: 'chosenMailbox', name: '1', qualifiedName: '1', level: 1, role: { value: 'inbox' } });
+      chosenMailbox = _.find(scope.mailboxes, { id: $stateParams.mailbox });
+    });
+
+    it('should set $scope.mailboxes to the qualified list of mailboxes', function() {
+      expect(scope.mailboxes).to.deep.equal([
+        { id: 'chosenMailbox', name: '1', qualifiedName: '1', level: 1, role: { value: 'inbox' } },
+        { id: 2, name: '2', qualifiedName: '2', level: 1, role: {} }
+      ]);
+    });
+
+    it('should set $scope.mailbox to the found mailbox', function() {
+      expect(scope.mailbox).to.deep.equal(chosenMailbox);
+    });
+
+    it('should clone $scope.mailbox from the matched mailbox of $scope.mailboxes', function() {
+      expect(scope.mailbox).to.not.equal(chosenMailbox);
     });
 
     describe('The editFolder method', function() {
 
-      it('should support the adaptive user interface concept: it goes to unifiedinbox if updateMailbox is resolved', function() {
+      it('should support the adaptive user interface concept: it goes to previous state if updateMailbox is resolved', function() {
         jmapClient.getMailboxes = function() { return $q.when([]); };
         jmapClient.updateMailbox = function() { return $q.when([]); };
 
@@ -912,10 +1202,10 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         scope.editFolder();
         scope.$digest();
 
-        expect($state.go).to.have.been.calledWith('unifiedinbox');
+        expect(esnPreviousState.go).to.have.been.calledWith('unifiedinbox');
       });
 
-      it('should support the adaptive user interface concept: it goes to unifiedinbox if updateMailbox is rejected', function() {
+      it('should support the adaptive user interface concept: it goes to previous state if updateMailbox is rejected', function() {
         jmapClient.getMailboxes = function() { return $q.when([]); };
         jmapClient.updateMailbox = function() { return $q.reject([]); };
 
@@ -925,7 +1215,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         scope.editFolder();
         scope.$digest();
 
-        expect($state.go).to.have.been.calledWith('unifiedinbox');
+        expect(esnPreviousState.go).to.have.been.calledWith('unifiedinbox');
       });
 
       it('should do nothing and reject promise if mailbox.name is not defined', function(done) {
@@ -937,7 +1227,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         scope.mailbox = {};
         scope.editFolder().then(done.bind(null, 'should reject'), function(err) {
           expect(err.message).to.equal('Please enter a valid folder name');
-          expect($state.go).to.not.have.been.called;
+          expect(esnPreviousState.go).to.not.have.been.called;
           expect(jmapClient.updateMailbox).to.not.have.been.called;
           done();
         });
@@ -946,70 +1236,472 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
     });
 
-    describe('the deleteFolder method', function() {
-      var weakSuccessSpy, weakErrorSpy, weakInfoSpy;
+  });
 
+  describe('The inboxDeleteFolderController', function() {
+
+    it('should initialize $scope.message containing to-be-deleted mailboxes', function() {
+      inboxMailboxesCache.push(new Mailbox({ id: '1', name: '1' }));
+      inboxMailboxesCache.push(new Mailbox({ id: '2', name: '2', parentId: '1' }));
+      inboxMailboxesCache.push(new Mailbox({ id: '3', name: '3', parentId: '2' }));
+      inboxMailboxesCache.push(new Mailbox({ id: '4', name: '4', parentId: '2' }));
+      inboxMailboxesCache.push(new Mailbox({ id: '5', name: '5', parentId: '2' }));
+      jmapClient.setMailboxes = sinon.spy(function() { return $q.when(new jmap.SetResponse()); });
+      $stateParams.mailbox = '1';
+
+      initController('inboxDeleteFolderController');
+      scope.$digest();
+
+      expect(scope.message).to.equal('You are about to remove folder 1 and its descendants including 2, 3, 4 and 5');
+    });
+
+    it('should initialize $scope.message with "and x more" when more than 4 mailbox descendants are going to be deleted', function() {
+      inboxMailboxesCache.push(new Mailbox({ id: '1', name: '1' }));
+      inboxMailboxesCache.push(new Mailbox({ id: '2', name: '2', parentId: '1' }));
+      inboxMailboxesCache.push(new Mailbox({ id: '3', name: '3', parentId: '2' }));
+      inboxMailboxesCache.push(new Mailbox({ id: '4', name: '4', parentId: '2' }));
+      inboxMailboxesCache.push(new Mailbox({ id: '5', name: '5', parentId: '2' }));
+      inboxMailboxesCache.push(new Mailbox({ id: '6', name: '6', parentId: '2' }));
+      jmapClient.setMailboxes = sinon.spy(function() { return $q.when(new jmap.SetResponse()); });
+      $stateParams.mailbox = '1';
+
+      initController('inboxDeleteFolderController');
+      scope.$digest();
+
+      expect(scope.message).to.equal('You are about to remove folder 1 and its descendants including 2, 3, 4 and 2 more');
+    });
+
+    it('should initialize $scope.message properly when the mailbox has no descendant', function() {
+      inboxMailboxesCache.push(new Mailbox({ id: '1', name: '1' }));
+      jmapClient.setMailboxes = sinon.spy(function() { return $q.when(new jmap.SetResponse()); });
+      $stateParams.mailbox = '1';
+
+      initController('inboxDeleteFolderController');
+      scope.$digest();
+
+      expect(scope.message).to.equal('You are about to remove folder 1');
+    });
+
+    describe('The deleteFolder method', function() {
+
+      it('should call client.setMailboxes with an array of mailbox descendant IDs as the "destroy" option', function() {
+        inboxMailboxesCache.push(new Mailbox({ id: '1', name: '1' }));
+        inboxMailboxesCache.push(new Mailbox({ id: '2', name: '2', parentId: '1' }));
+        inboxMailboxesCache.push(new Mailbox({ id: '3', name: '3', parentId: '2' }));
+        jmapClient.setMailboxes = sinon.spy(function() { return $q.when(new jmap.SetResponse()); });
+        $stateParams.mailbox = '1';
+
+        var ctrl = initController('inboxDeleteFolderController');
+
+        ctrl.deleteFolder();
+        scope.$digest();
+
+        expect(jmapClient.setMailboxes).to.have.been.calledWith({ destroy: ['3', '2', '1'] });
+      });
+
+      it('should support the adaptive user interface concept: it goes to previous state if destroyMailbox is resolved', function() {
+        inboxMailboxesCache.push(new Mailbox({ id: '3', name: '3' }));
+        jmapClient.setMailboxes = sinon.spy(function() { return $q.when(new jmap.SetResponse()); });
+        $stateParams.mailbox = '3';
+
+        var ctrl = initController('inboxDeleteFolderController');
+
+        ctrl.deleteFolder();
+        scope.$digest();
+
+        expect(esnPreviousState.go).to.have.been.calledWith('unifiedinbox');
+      });
+
+      it('should support the adaptive user interface concept: it goes to previous state if destroyMailbox is rejected', function() {
+        inboxMailboxesCache.push(new Mailbox({ id: '3', name: '3' }));
+        jmapClient.setMailboxes = sinon.spy(function() { return $q.reject(); });
+        $stateParams.mailbox = '3';
+
+        var ctrl = initController('inboxDeleteFolderController');
+
+        ctrl.deleteFolder();
+        scope.$digest();
+
+        expect(esnPreviousState.go).to.have.been.calledWith('unifiedinbox');
+      });
+
+    });
+
+  });
+
+  describe('The inboxConfigurationVacationController', function() {
+    var vacation, ctrl;
+
+    beforeEach(function() {
+      vacation = ctrl = {};
+
+      jmapClient.getVacationResponse = sinon.spy(function() {
+        return $q.when(vacation);
+      });
+    });
+
+    it('should listen on vacation status update so as to update vacation.isEnabled correspondingly', function() {
+      vacation.isEnabled = true;
+      initController('inboxConfigurationVacationController');
+
+      expect(jmapClient.getVacationResponse).to.have.been.calledOnce;
+      scope.$broadcast(INBOX_EVENTS.VACATION_STATUS);
+
+      expect(jmapClient.getVacationResponse).to.have.been.calledTwice;
+      expect(scope.vacation.isEnabled).to.equal(vacation.isEnabled);
+    });
+
+    it('should use Vacation instance from state parameters if defined', function() {
+      $stateParams.vacation = { a: 'b' };
+
+      initController('inboxConfigurationVacationController');
+
+      expect(scope.vacation).to.deep.equal({ a: 'b' });
+    });
+
+    it('should init to a default vacation textBody if none has been specified and vacation disabled', function(done) {
+      vacation = {
+        isEnabled: false,
+        textBody: null
+      };
+      scope.defaultTextBody = 'defaultTextBody';
+
+      initController('inboxConfigurationVacationController');
+      jmapClient.getVacationResponse().then(function() {
+        expect(scope.vacation.textBody).to.equal(scope.defaultTextBody);
+
+        done();
+      });
+      scope.$digest();
+    });
+
+    it('should init to an empty textBody if none has been specified and vacation enabled', function(done) {
+      vacation = {
+        isEnabled: true,
+        textBody: ''
+      };
+
+      initController('inboxConfigurationVacationController');
+      jmapClient.getVacationResponse().then(function() {
+        expect(scope.vacation.textBody).to.equal('');
+
+        done();
+      });
+      scope.$digest();
+    });
+
+    it('should init to the existing textBody if set and vacation enabled', function(done) {
+      vacation = {
+        isEnabled: true,
+        textBody: 'existing textBody'
+      };
+
+      initController('inboxConfigurationVacationController');
+      jmapClient.getVacationResponse().then(function() {
+        expect(scope.vacation.textBody).to.equal('existing textBody');
+
+        done();
+      });
+      scope.$digest();
+    });
+
+    it('should init to the existing textBody if set and vacation disabled', function(done) {
+      vacation = {
+        isEnabled: false,
+        textBody: 'existing textBody'
+      };
+
+      initController('inboxConfigurationVacationController');
+      jmapClient.getVacationResponse().then(function() {
+        expect(scope.vacation.textBody).to.equal('existing textBody');
+
+        done();
+      });
+      scope.$digest();
+    });
+
+    describe('the toDateIsInvalid function', function() {
+      it('should return true if vacation.fromDate > vacation.toDate', function() {
+        vacation = {
+          fromDate: new Date(2016, 9, 23),
+          toDate: new Date(2016, 9, 22)
+        };
+        ctrl = initController('inboxConfigurationVacationController');
+
+        expect(ctrl.toDateIsInvalid()).to.be.true;
+      });
+
+      it('should return undefined if vacation.toDate is undefined', function() {
+        vacation = {
+          fromDate: new Date(2016, 9, 23),
+          toDate: undefined
+        };
+        ctrl = initController('inboxConfigurationVacationController');
+
+        expect(ctrl.toDateIsInvalid()).to.be.undefined;
+      });
+
+      it('should return undefined if vacation.toDate is null', function() {
+        vacation = {
+          fromDate: new Date(2016, 9, 23),
+          toDate: null
+        };
+        ctrl = initController('inboxConfigurationVacationController');
+
+        expect(ctrl.toDateIsInvalid()).to.be.undefined;
+      });
+
+      it('should return false if vacation.fromDate < vacation.toDate', function() {
+        vacation = {
+          fromDate: new Date(2016, 9, 22),
+          toDate: new Date(2016, 9, 23)
+        };
+        ctrl = initController('inboxConfigurationVacationController');
+
+        expect(ctrl.toDateIsInvalid()).to.be.false;
+      });
+
+      it('should return false if vacation.fromDate = vacation.toDate', function() {
+        vacation = {
+          fromDate: new Date(2016, 9, 22),
+          toDate: new Date(2016, 9, 22)
+        };
+        ctrl = initController('inboxConfigurationVacationController');
+
+        expect(ctrl.toDateIsInvalid()).to.be.false;
+      });
+
+      it('should return false if vacation.hasToDate is false', function() {
+        vacation = {
+          fromDate: new Date(2016, 9, 22),
+          toDate: new Date(2016, 9, 20)
+        };
+        ctrl = initController('inboxConfigurationVacationController');
+        scope.vacation.hasToDate = false;
+
+        expect(ctrl.toDateIsInvalid()).to.be.false;
+      });
+    });
+
+    describe('the enableVacation function', function() {
+      it('should set vacation.isEnabled attribute', function() {
+        ctrl = initController('inboxConfigurationVacationController');
+        ctrl.enableVacation(true);
+
+        expect(scope.vacation.isEnabled).to.be.true;
+        ctrl.enableVacation(false);
+
+        expect(scope.vacation.isEnabled).to.be.false;
+      });
+    });
+
+    describe('the updateVacation function', function() {
       beforeEach(function() {
-        jmapClient.getMailboxes = function() {return $q.when([]);};
-        weakSuccessSpy = sinon.spy();
-        weakErrorSpy = sinon.spy();
-        weakInfoSpy = sinon.spy();
-        notificationFactory.weakSuccess = weakSuccessSpy;
-        notificationFactory.weakError = weakErrorSpy;
-        notificationFactory.weakInfo = weakInfoSpy;
+        jmapClient.setVacationResponse = sinon.spy(function() {
+          return $q.when();
+        });
       });
 
-      it('should call client.destroyMailbox', function() {
-        jmapClient.destroyMailbox = sinon.spy(function() {return $q.when([]);});
-        initController('editFolderController');
-
-        scope.mailbox = {
-          id: 123
+      it('should not create vacation if fromDate is not set', function(done) {
+        vacation = {
+          isEnabled: true
         };
-        scope.deleteFolder();
+        ctrl = initController('inboxConfigurationVacationController');
+        scope.vacation.fromDate = null;
+        ctrl.updateVacation().then(done.bind(null, 'should reject'), function(err) {
+          expect(err.message).to.equal('Please enter a valid start date');
+          expect(esnPreviousState.go).to.not.have.been.called;
+          expect(jmapClient.setVacationResponse).to.not.have.been.called;
+
+          done();
+        });
+        scope.$digest();
+      });
+
+      it('should not create vacation if toDate < fromDate', function(done) {
+        vacation = {
+          isEnabled: true,
+          fromDate: new Date(2016, 9, 22),
+          toDate: new Date(2016, 9, 21)
+        };
+        ctrl = initController('inboxConfigurationVacationController');
+        ctrl.updateVacation().then(done.bind(null, 'should reject'), function(err) {
+          expect(err.message).to.equal('End date must be greater than start date');
+          expect(esnPreviousState.go).to.not.have.been.called;
+          expect(jmapClient.setVacationResponse).to.not.have.been.called;
+
+          done();
+        });
+        scope.$digest();
+      });
+
+      it('should create vacation if it passes the logic verification', function() {
+        vacation = {
+          isEnabled: true,
+          fromDate: new Date(2016, 9, 22),
+          toDate: new Date(2016, 9, 24)
+        };
+        ctrl = initController('inboxConfigurationVacationController');
+        ctrl.updateVacation();
         scope.$digest();
 
-        expect(jmapClient.destroyMailbox).to.have.been.calledWith(123);
+        expect(esnPreviousState.go).to.have.been.calledWith('unifiedinbox');
+        expect(jmapClient.setVacationResponse).to.have.been.calledWith();
+        expect(notificationFactory.weakSuccess).to.have.been.calledWith('', 'Modification of vacation settings succeeded');
       });
 
-      it('should support the adaptive user interface concept: it goes to unifiedinbox if destroyMailbox is resolved', function() {
-        jmapClient.destroyMailbox = sinon.spy(function() {return $q.when([]);});
-        initController('editFolderController');
-
-        scope.mailbox = {
-          id: 123
+      it('should unset toDate while creating vacation message if hasToDate is false', function() {
+        vacation = {
+          isEnabled: true,
+          fromDate: new Date(2016, 9, 22),
+          toDate: new Date(2016, 9, 24)
         };
-        scope.deleteFolder();
+        ctrl = initController('inboxConfigurationVacationController');
+        scope.vacation.hasToDate = false;
+        ctrl.updateVacation();
         scope.$digest();
 
-        expect($state.go).to.have.been.calledWith('unifiedinbox');
+        expect(esnPreviousState.go).to.have.been.calledWith('unifiedinbox');
+        expect(scope.vacation.toDate).to.be.null;
+        expect(jmapClient.setVacationResponse).to.have.been.calledWith();
       });
 
-      it('should support the adaptive user interface concept: it goes to unifiedinbox if destroyMailbox is rejected', function() {
-        jmapClient.destroyMailbox = sinon.spy(function() {return $q.reject([]);});
-        initController('editFolderController');
-
-        scope.mailbox = {
-          id: 123
+      it('should $broadcast the vacation.isEnabled attribute if the corresponding vacation is created successfully', function(done) {
+        vacation = {
+          isEnabled: true,
+          fromDate: new Date(2016, 9, 22),
+          toDate: new Date(2016, 9, 24)
         };
-        scope.deleteFolder();
+        ctrl = initController('inboxConfigurationVacationController');
+        scope.$on(INBOX_EVENTS.VACATION_STATUS, done.bind(this, null));
+        ctrl.updateVacation();
+        scope.$digest();
+      });
+
+      it('should not $broadcast the vacation.isEnabled attribute if the corresponding vacation is not created', function() {
+        var listener = sinon.spy();
+
+        vacation = {
+          isEnabled: true,
+          fromDate: new Date(2016, 9, 22),
+          toDate: new Date(2016, 9, 24)
+        };
+        jmapClient.setVacationResponse = sinon.spy(function() {
+          return $q.reject();
+        });
+
+        ctrl = initController('inboxConfigurationVacationController');
+        scope.$on(INBOX_EVENTS.VACATION_STATUS, listener);
+        ctrl.updateVacation();
         scope.$digest();
 
-        expect($state.go).to.have.been.calledWith('unifiedinbox');
+        expect(jmapClient.setVacationResponse).to.have.been.calledWith();
+        expect(listener).to.not.have.been.called;
+        expect(notificationFactory.weakError).to.have.been.calledWith('Error', 'Modification of vacation settings failed');
       });
 
+      it('should set vacation.loadedSuccessfully to false when an error occurs', function(done) {
+        jmapClient.setVacationResponse = sinon.spy(function() {
+          return $q.reject();
+        });
+
+        initController('inboxConfigurationVacationController')
+          .updateVacation()
+          .then(done.bind(null, 'should reject'), function() {
+            expect(scope.vacation.loadedSuccessfully).to.be.false;
+
+            done();
+          });
+        scope.$digest();
+      });
     });
 
-    describe('the confirmationDialog method', function() {
-      it('should leverage $modal service', function() {
-        jmapClient.getMailboxes = function() { return $q.when([]); };
-        initController('editFolderController');
+    describe('the initialization block', function() {
+      it('should initialize scope.vacation', function() {
+        initController('inboxConfigurationVacationController');
 
-        scope.confirmationDialog();
-        expect($modal).to.have.been.called;
+        expect(jmapClient.getVacationResponse).to.have.been.calledWith();
+        expect(scope.vacation).to.deep.equal(vacation);
+      });
+
+      it('should set vacation.fromDate from the object returned by getVacationResponse()', function() {
+        vacation.fromDate = new Date(2016, 9, 22);
+        ctrl = initController('inboxConfigurationVacationController');
+
+        expect(moment.isMoment(scope.vacation.fromDate)).to.be.true;
+        expect(scope.vacation.fromDate.isSame(vacation.fromDate)).to.be.true;
+        expect(ctrl.momentTimes.fromDate.fixed).to.be.true;
+      });
+
+      it('should set vacation.fromDate to today if the object returned by getVacationResponse() does not have a fromDate attribute', function() {
+        var expectedDate = moment().set({
+          hour: 0,
+          minute: 0,
+          second: 0
+        });
+
+        ctrl = initController('inboxConfigurationVacationController');
+
+        expect(moment.isMoment(scope.vacation.fromDate)).to.be.true;
+        expect(scope.vacation.fromDate.isSame(expectedDate, 'second')).to.be.true;
+        expect(ctrl.momentTimes.fromDate.fixed).to.be.false;
+      });
+
+      it('should set vacation.toDate to true if the object returned by getVacationResponse() has a toDate attribute', function() {
+        vacation.toDate = new Date(2016, 9, 22);
+        ctrl = initController('inboxConfigurationVacationController');
+
+        expect(scope.vacation.hasToDate).to.be.true;
+        expect(moment.isMoment(scope.vacation.toDate)).to.be.true;
+        expect(scope.vacation.toDate.isSame(vacation.toDate)).to.be.true;
+        expect(ctrl.momentTimes.toDate.fixed).to.be.true;
+      });
+
+      it('should set vacation.loadedSuccessfully to true when getVacationResponse is resolved', function() {
+        ctrl = initController('inboxConfigurationVacationController');
+
+        expect(scope.vacation.loadedSuccessfully).to.be.true;
       });
     });
 
+    describe('the updateDateAndTime function', function() {
+      it('should do nothing if corresponding date is falsy', function() {
+        ctrl = initController('inboxConfigurationVacationController');
+        ctrl.updateDateAndTime('toDate');
+
+        expect(scope.vacation.toDate).to.be.undefined;
+      });
+
+      it('should moment the given date', function() {
+        vacation.fromDate = new Date(2016, 9, 22);
+        ctrl = initController('inboxConfigurationVacationController');
+        ctrl.updateDateAndTime('fromDate');
+
+        expect(moment.isMoment(scope.vacation.fromDate)).to.be.true;
+        expect(scope.vacation.fromDate.isSame(moment(new Date(2016, 9, 22)))).to.be.true;
+      });
+
+      it('should set time to default if it is not fixed', function() {
+        vacation.toDate = new Date(2016, 9, 22);
+        ctrl = initController('inboxConfigurationVacationController');
+        ctrl.momentTimes.toDate.fixed = false;
+        ctrl.updateDateAndTime('toDate');
+
+        expect(moment.isMoment(scope.vacation.toDate)).to.be.true;
+        expect(scope.vacation.toDate.isSame(new Date(2016, 9, 22, 23, 59, 59))).to.be.true;
+      });
+    });
+
+    describe('the fixTime function', function() {
+      it('should fix the given time', function() {
+        ctrl = initController('inboxConfigurationVacationController');
+
+        expect(ctrl.momentTimes.toDate.fixed).to.be.false;
+        ctrl.fixTime('toDate');
+
+        expect(ctrl.momentTimes.toDate.fixed).to.be.true;
+      });
+    });
   });
 
   describe('The recipientsFullscreenEditFormController', function() {
@@ -1063,28 +1755,56 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       expect($state.go).to.have.been.calledWith('^', { composition: $stateParams.composition });
     });
 
+    it('should go to the selected recipientsType when goToRecipientsType is called', function() {
+      initController('recipientsFullscreenEditFormController');
+
+      scope.goToRecipientsType('recipientsType');
+
+      expect($state.go).to.have.been.calledWith('.', { recipientsType: 'recipientsType', composition: $stateParams.composition });
+    });
   });
 
   describe('The attachmentController', function() {
 
-    describe('the download function', function() {
+    describe('The download function', function() {
 
-      it('should call $window.open', function() {
-        initController('attachmentController').download({url: 'url'});
+      it('should notify if the attachment cannot be downloaded', function() {
+        initController('attachmentController').download({
+          getSignedDownloadUrl: function() {
+            return $q.reject();
+          }
+        });
 
-        expect(windowMock.open).to.have.been.calledWith('url');
+        $rootScope.$digest();
+        expect(notificationFactory.weakError).to.have.been.calledWith();
       });
+
+      it('should navigate to signed URL once it is known', function() {
+        initController('attachmentController').download({
+          getSignedDownloadUrl: function() {
+            return $q.when('signedUrl');
+          }
+        });
+        $rootScope.$digest();
+
+        expect(navigateTo).to.have.been.calledWith('signedUrl');
+      });
+
     });
 
   });
 
   describe('The listTwitterController', function() {
 
+    var inboxFilters;
+
     beforeEach(function() {
       $stateParams.username = 'AwesomePaas';
     });
 
-    beforeEach(inject(function(session) {
+    beforeEach(inject(function(session, _inboxFilters_) {
+      inboxFilters = _inboxFilters_;
+
       session.user.accounts = [{
         data: {
           id: 'idAwesomePaas',
@@ -1104,6 +1824,14 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       initController('listTwitterController');
 
       expect(scope.username).to.equal('AwesomePaas');
+    });
+
+    it('should uncheck all filters, no filtering is provided to the user', function() {
+      inboxFilters[0].checked = true;
+
+      initController('listTwitterController');
+
+      expect(_.filter(inboxFilters, { checked: true })).to.deep.equal([]);
     });
 
   });
@@ -1168,6 +1896,177 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       initController('inboxSidebarTwitterController');
 
       expect(scope.twitterAccounts).to.deep.equal([]);
+    });
+
+  });
+
+  describe('The inboxListSubheaderController controller', function() {
+
+    var controller, inboxJmapItemService, item1, item2;
+
+    beforeEach(function() {
+      item1 = { id: 1 };
+      item2 = { id: 2 };
+
+      controller = $controller('inboxListSubheaderController', {
+        inboxJmapItemService: inboxJmapItemService = {
+          markAsUnread: sinon.spy(),
+          markAsRead: sinon.spy(),
+          unmarkAsFlagged: sinon.spy(),
+          markAsFlagged: sinon.spy(),
+          moveMultipleItems: sinon.spy()
+        }
+      });
+    });
+
+    it('should expose some utility functions from inboxSelectionService', function() {
+      ['isSelecting', 'getSelectedItems', 'unselectAllItems'].forEach(function(method) {
+        expect(controller[method]).to.be.a('Function');
+      });
+    });
+
+    describe('The markAsUnread function', function() {
+
+      it('should call inboxJmapItemService.markAsUnread for selected items', function() {
+        inboxSelectionService.toggleItemSelection(item1);
+        inboxSelectionService.toggleItemSelection(item2);
+        controller.markAsUnread();
+
+        expect(inboxJmapItemService.markAsUnread).to.have.been.calledWith([item1, item2]);
+      });
+
+      it('should unselect all items', function() {
+        inboxSelectionService.toggleItemSelection(item1);
+        inboxSelectionService.toggleItemSelection(item2);
+        controller.markAsUnread();
+
+        expect(item1.selected).to.equal(false);
+        expect(item2.selected).to.equal(false);
+      });
+
+    });
+
+    describe('The markAsRead function', function() {
+
+      it('should call inboxJmapItemService.markAsRead for all selected items', function() {
+        inboxSelectionService.toggleItemSelection(item1);
+        inboxSelectionService.toggleItemSelection(item2);
+        controller.markAsRead();
+
+        expect(inboxJmapItemService.markAsRead).to.have.been.calledWith([item1, item2]);
+      });
+
+      it('should unselect all items', function() {
+        inboxSelectionService.toggleItemSelection(item1);
+        inboxSelectionService.toggleItemSelection(item2);
+        controller.markAsRead();
+
+        expect(item1.selected).to.equal(false);
+        expect(item2.selected).to.equal(false);
+      });
+
+    });
+
+    describe('The markAsFlagged function', function() {
+
+      it('should call inboxJmapItemService.markAsFlagged for all selected items', function() {
+        inboxSelectionService.toggleItemSelection(item1);
+        inboxSelectionService.toggleItemSelection(item2);
+        controller.markAsFlagged();
+
+        expect(inboxJmapItemService.markAsFlagged).to.have.been.calledWith([item1, item2]);
+      });
+
+      it('should unselect all items', function() {
+        inboxSelectionService.toggleItemSelection(item1);
+        inboxSelectionService.toggleItemSelection(item2);
+        controller.markAsFlagged();
+
+        expect(item1.selected).to.equal(false);
+        expect(item2.selected).to.equal(false);
+      });
+
+    });
+
+    describe('The unmarkAsFlagged function', function() {
+
+      it('should call inboxJmapItemService.unmarkAsFlagged for all selected items', function() {
+        inboxSelectionService.toggleItemSelection(item1);
+        inboxSelectionService.toggleItemSelection(item2);
+        controller.unmarkAsFlagged();
+
+        expect(inboxJmapItemService.unmarkAsFlagged).to.have.been.calledWith([item1, item2]);
+      });
+
+      it('should unselect all items', function() {
+        inboxSelectionService.toggleItemSelection(item1);
+        inboxSelectionService.toggleItemSelection(item2);
+        controller.unmarkAsFlagged();
+
+        expect(item1.selected).to.equal(false);
+        expect(item2.selected).to.equal(false);
+      });
+
+    });
+
+    describe('The moveToTrash function', function() {
+
+      var trash;
+
+      beforeEach(function() {
+        trash = { id: 'trash', name: 'Trash' };
+
+        jmapClient.getMailboxWithRole = sinon.spy(function() {
+          return $q.when(trash);
+        });
+      });
+
+      it('should fetch the "Trash" mailbox', function(done) {
+        controller.moveToTrash().then(function() {
+          expect(jmapClient.getMailboxWithRole).to.have.been.calledWith(jmap.MailboxRole.TRASH);
+
+          done();
+        });
+        $rootScope.$digest();
+      });
+
+      it('should wrap the "Trash" mailbox into a Mailbox model', function(done) {
+        inboxSelectionService.toggleItemSelection(item1);
+
+        controller.moveToTrash().then(function() {
+          expect(inboxJmapItemService.moveMultipleItems).to.have.been.calledWith([item1], sinon.match({
+            id: 'trash',
+            name: 'Trash',
+            displayName: 'Trash'
+          }));
+
+          done();
+        });
+        $rootScope.$digest();
+      });
+
+      it('should delegate to infiniteListService.actionRemovingElement calling moveMultipleItems with selected items', function(done) {
+        inboxSelectionService.toggleItemSelection(item1);
+        inboxSelectionService.toggleItemSelection(item2);
+
+        controller.moveToTrash().then(function() {
+          expect(inboxJmapItemService.moveMultipleItems).to.have.been.calledWith([item1, item2], trash);
+
+          done();
+        });
+        $rootScope.$digest();
+      });
+
+    });
+
+    describe('The move function', function() {
+
+      it('should call $state.go', function() {
+        controller.move();
+
+        expect($state.go).to.have.been.calledWith('.move', { selection: true });
+      });
+
     });
 
   });

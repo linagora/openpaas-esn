@@ -59,13 +59,13 @@ module.exports = function(dependencies) {
 
   function importAccountContactsByJobQueue(user, account) {
     var workerName = ['contact', account.data.provider, 'import'].join('-');
-    var jobName = [workerName, user._id + '', account.data.id, Date.now()].join('-');
+    var jobName = [workerName, user.id, account.data.id, Date.now()].join('-');
     return jobQueue.lib.submitJob(workerName, jobName, { user: user, account: account });
   }
 
   function synchronizeAccountContactsByJobQueue(user, account) {
     var workerName = ['contact', account.data.provider, 'sync'].join('-');
-    var jobName = [workerName, user._id + '', account.data.id, Date.now()].join('-');
+    var jobName = [workerName, user.id, account.data.id, Date.now()].join('-');
     return jobQueue.lib.submitJob(workerName, jobName, { user: user, account: account });
   }
 
@@ -86,7 +86,11 @@ module.exports = function(dependencies) {
   function createContact(vcard, options) {
     var contactId = vcard.getFirstPropertyValue('uid');
     var jsonCard = vcard.toJSON();
-    return contactModule.lib.client({ ESNToken: options.esnToken })
+
+    return contactModule.lib.client({
+        ESNToken: options.esnToken,
+        user: options.user
+      })
       .addressbookHome(options.user._id)
       .addressbook(options.addressbook.id)
       .vcard(contactId)
@@ -95,9 +99,9 @@ module.exports = function(dependencies) {
         localpubsub.topic(CONSTANTS.NOTIFICATIONS.CONTACT_ADDED).forward(globalpubsub, {
           mode: CONSTANTS.MODE.IMPORT,
           contactId: contactId,
-          bookHome: options.user._id + '',
+          bookHome: options.user.id,
           bookName: options.addressbook.id,
-          bookId: options.user._id + '',
+          bookId: options.user.id,
           vcard: jsonCard,
           user: { _id: options.user._id }
         });

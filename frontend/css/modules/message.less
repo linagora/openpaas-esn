@@ -120,6 +120,13 @@
     .display-current-position {
       padding-left: 20px;
     }
+
+    .attachment img {
+      height: auto;
+      width: auto;
+      max-width: 100%;
+      max-height: 250px;
+    }
   }
 }
 
@@ -262,6 +269,26 @@
 
     &:before {
       width: 68px;
+    }
+  }
+}
+
+message-bottom-links {
+
+  .actions > li {
+    font-size: 18px;
+
+    a {
+      width: 28px;
+      height: 28px;
+      line-height: 28px;
+    }
+  }
+
+  like-button {
+    .actions;
+    a.liked > i {
+      color: @brand-success;
     }
   }
 }

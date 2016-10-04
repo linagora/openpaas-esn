@@ -60,8 +60,8 @@ angular.module('esn.community', [
       return esnRestangular.one('communities', id).remove();
     }
 
-    function create(body) {
-      return esnRestangular.all('communities').post(body);
+    function create(body, query) {
+      return esnRestangular.all('communities').post(body, query);
     }
 
     function uploadAvatar(id, blob, mime) {
@@ -75,8 +75,16 @@ angular.module('esn.community', [
       });
     }
 
+    function getMembers(id) {
+      return esnRestangular.one('collaborations').one('community', id).one('members').get();
+    }
+
     function getMember(id, member) {
       return esnRestangular.one('communities', id).one('members', member).get();
+    }
+
+    function update(id, body) {
+      return esnRestangular.one('communities', id).customPUT(body);
     }
 
     return {
@@ -85,7 +93,9 @@ angular.module('esn.community', [
       del: del,
       create: create,
       uploadAvatar: uploadAvatar,
-      getMember: getMember
+      getMember: getMember,
+      getMembers: getMembers,
+      update: update
     };
   })
   .factory('communityCreationService', function($q, $log, $timeout, communityAPI) {
@@ -186,10 +196,10 @@ angular.module('esn.community', [
       $scope.createCommunity = function() {
         $scope.wizard.nextStep();
         $scope.community.avatar = {
-          exists: function() { return selectionService.getImage() ? true : false; },
+          exists: function() { return !!selectionService.getImage(); },
           getBlob: function(mime, callback) { return selectionService.getBlob(mime, callback); }
         };
-        $scope.create =  { step: 'post', percent: 1 };
+        $scope.create = { step: 'post', percent: 1 };
         communityCreationService($scope.community)
         .then(onSuccess, onFailure, onNotification);
       };

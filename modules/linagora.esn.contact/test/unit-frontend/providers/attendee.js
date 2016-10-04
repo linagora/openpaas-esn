@@ -14,7 +14,10 @@ describe('The Contacts Angular Attendee Provider module', function() {
     };
 
     session = {
-      user: user
+      user: user,
+      ready: {
+        then: function() {}
+      }
     };
 
     ContactAPIClient = {

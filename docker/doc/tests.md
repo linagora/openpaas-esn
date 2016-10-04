@@ -60,6 +60,11 @@ Available variables are:
 - VIDEO_FILE_NAME: what will be the name of the generated file suffixed by .mkv, default is _open-paas.e2e_
 - VIDEO_DIR: where will be located the generated file, default is under _videos_ of _your OS tmp directory_. So _/tmp/videos_ on Linux.
 
+You may not be able to move backward or forward the video, if you have such problem,
+try converting it to other format by `ffmpeg`, for example:
+
+`ffmpeg -i input.mkv -vcodec copy -acodec copy output.mp4`
+
 ### E2E test in development
 
 ##### ESN code has changed

@@ -67,7 +67,6 @@ describe('The davserver API', function() {
       var self = this;
 
       var caldavConfiguration = {
-        _id: 'caldav',
         backend: {
           url: 'backendUrl'
         },
@@ -76,7 +75,7 @@ describe('The davserver API', function() {
         }
       };
 
-      this.helpers.mongo.saveDoc('configuration', caldavConfiguration, function(err) {
+      self.helpers.requireBackend('core/esn-config')('davserver').store(caldavConfiguration, function(err) {
         if (err) {
           done(err);
         }

@@ -159,18 +159,24 @@
   display: -webkit-flex;
 }
 
+.flex-direction(@direction) {
+  flex-direction: @direction;
+  -webkit-flex-direction: @direction;
+}
+
 .flex-column {
   .flex;
-
-  flex-direction: column;
-  -webkit-flex-direction: column;
+  .flex-direction(column);
 }
 
 .flex-row {
   .flex;
+  .flex-direction(row);
+}
 
-  flex-direction: row;
-  -webkit-flex-direction: row;
+.flex-row-reverse {
+  .flex;
+  .flex-direction(row-reverse);
 }
 
 .flex-shorthand(@grow, @shrink: 0, @basis: auto) {
@@ -353,6 +359,24 @@
   animation: zoomIn .25s ease-out forwards;
 }
 
+.flashing-keyframes (@className; @firstColor; @secondColor) {
+
+  @-webkit-keyframes @className {
+    0%, 20%, 60%, 100%  { color: @firstColor }
+    40%, 80%  { color: @secondColor }
+  }
+
+  @-moz-keyframes @className {
+    0%, 20%, 60%, 100%  { color: @firstColor }
+    40%, 80%  { color: @secondColor }
+  }
+
+  @-ie-keyframes  @className {
+    0%, 20%, 60%, 100%  { color: @firstColor }
+    40%, 80%  { color: @secondColor }
+  }
+}
+
 @keyframes zoomIn {
   0% {
     transform: scale3d(0,0,0);
@@ -494,8 +518,15 @@ textarea {
 html:not(.ie9) .select::before, .select::before {
   background-image: url('../../../components/material-admin/img/select.png');
 }
+
 .inline-flex {
   display: -webkit-inline-flex; /* iOS, Safari */
   display: -ms-inline-flexbox; /* IE */
   display: inline-flex;
+}
+
+@media (min-width: @screen-xl-min) {
+  .hidden-xl {
+    display: none !important; // As every other BS hidden classes
+  }
 }

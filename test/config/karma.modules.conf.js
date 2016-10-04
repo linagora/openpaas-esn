@@ -42,14 +42,13 @@ module.exports = function(config) {
       'frontend/components/angular-touch/angular-touch.min.js',
       'frontend/components/angular-leaflet-directive/dist/angular-leaflet-directive.js',
       'frontend/components/ngGeolocation/ngGeolocation.min.js',
-      'frontend/components/angular-ui-calendar/src/calendar.js',
       'frontend/components/angular-recursion/angular-recursion.min.js',
       'frontend/components/fullcalendar/dist/fullcalendar.min.js',
       'frontend/components/ical.js/build/ical.js',
       'frontend/components/angular-uuid4/angular-uuid4.min.js',
       'frontend/components/localforage/dist/localforage.min.js',
       'frontend/components/angular-localforage/dist/angular-localForage.js',
-      'node_modules/async/lib/async.js',
+      'node_modules/async/dist/async.js',
       'node_modules/chai-jquery/chai-jquery.js',
       'frontend/components/angular-bootstrap-switch/dist/angular-bootstrap-switch.js',
       'frontend/components/showdown/compressed/showdown.js',
@@ -75,15 +74,23 @@ module.exports = function(config) {
       'frontend/components/angular-auto-focus/angular-auto-focus.js',
       'frontend/components/awesome-angular-swipe/lib/awesome-angular-swipe.js',
       'frontend/components/Autolinker.js/dist/Autolinker.js',
+      'frontend/components/angular-component/dist/angular-component.min.js',
       'frontend/js/**/*.js',
+
       'modules/**/frontend/js/**/*.js',
+      'modules/**/frontend/app/**/*.js',
+
       'modules/**/test/unit-frontend/**/*.js',
+
       'modules/**/frontend/views/**/*.jade',
+      'modules/**/frontend/app/**/*.jade',
+
       'frontend/views/modules/**/*.jade',
 
       // fixtures
       {pattern: 'frontend/images/**/*.png', watched: false, included: false, served: true},
-      'modules/**/unit-frontend/fixtures/**'
+      'modules/**/unit-frontend/fixtures/**',
+      'modules/**/app/fixtures/**'
     ],
     proxies: {
       '/images/': 'frontend/images/',
@@ -100,7 +107,8 @@ module.exports = function(config) {
     preprocessors: {
       'modules/**/frontend/js/**/*.js': ['coverage'],
       '**/*.jade': ['ng-jade2module'],
-      'modules/**/unit-frontend/fixtures/**': ['raw2js']
+      'modules/**/unit-frontend/fixtures/**': ['raw2js'],
+      'modules/**/app/fixtures/**': ['raw2js']
     },
 
     plugins: [
@@ -124,6 +132,7 @@ module.exports = function(config) {
     ngJade2ModulePreprocessor: {
       cacheIdFromPath: function(filepath) {
         var cacheId = '';
+
         if (filepath.match(/^frontend*/)) {
           cacheId = filepath.substr(8).replace('.jade', '.html');
         } else if (filepath.match(/^modules*/)) {
@@ -131,6 +140,7 @@ module.exports = function(config) {
                             .replace('frontend/', '')
                             .replace('.jade', '.html');
         }
+
         return cacheId;
       },
       // setting this option will create only a single module that contains templates

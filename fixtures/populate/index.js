@@ -34,9 +34,9 @@ function _populateAdmin() {
 
 function _populateDomain(admin) {
   console.log('[INFO] POPULATE domain');
-  var object = extend({}, DOMAIN_OBJECT);
-  object.administrator = admin[0];
-  var domain = new Domain(DOMAIN_OBJECT);
+  var object = extend({}, DOMAIN_OBJECT, { administrators: [{ user_id: admin[0] }] });
+  var domain = new Domain(object);
+
   return q.ninvoke(domain, 'save')
     .then(function(domain) {
       return [admin[0], domain[0]];
@@ -55,7 +55,7 @@ function _joinDomain(user, domain) {
 function _buildMember(id) {
   return {
     member: {
-      objectType:'user',
+      objectType: 'user',
       id: id
     },
     status: 'joined'
@@ -92,28 +92,31 @@ function _createUser(index, community, domain) {
       return user[0];
     })
     .then(function(user) {
-      return _joinDomain(user, domain)
+      return _joinDomain(user, domain);
     })
     .spread(function(user) {
-       return q.ninvoke(
-          Community, 'update',
-          {
-            _id: community._id,
-            'members.user': {$ne: user._id}
-          },
-          {
-            $push: { members: _buildMember(user._id) }
-          });
+      return q.ninvoke(
+        Community, 'update',
+        {
+          _id: community._id,
+          'members.user': {$ne: user._id}
+        },
+        {
+          $push: { members: _buildMember(user._id) }
+        });
     });
 }
 
 function _populateMembers(community, domain) {
   console.log('[INFO] POPULATE members');
   var createUsers = [];
-  for(var i = 0; i < 20; i++) {
-    var promise = _createUser(i, community, domain)
-    createUsers.push(promise)
+
+  for (var i = 0; i < 20; i++) {
+    var promise = _createUser(i, community, domain);
+
+    createUsers.push(promise);
   }
+
   return q.allSettled(createUsers);
 }
 
@@ -121,9 +124,9 @@ function _populateConfiguration(host, admin, domain) {
   console.log('[INFO] POPULATE Configuration');
 
   var technicalUsers = require('./data/technical-users');
-  var features = require('./data/features');
+  var configuration = require('./data/configuration');
 
-  return q.all([technicalUsers([domain]), features([domain], host)])
+  return q.all([technicalUsers([domain]), configuration([domain], host)])
     .then(function() {
       return q([admin, domain]);
     });
@@ -136,5 +139,5 @@ module.exports = function(host) {
     .spread(_populateConfiguration.bind(null, host))
     .spread(_joinDomain)
     .spread(_populateCommunity)
-    .spread(_populateMembers)
+    .spread(_populateMembers);
 };

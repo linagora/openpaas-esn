@@ -72,9 +72,7 @@
   "Add a new calendar": "Add a new calendar",
   "Mail to Attendees": "Mail to Attendees",
   "Return to calendar": "Return to calendar",
-  "is a repeating event": "is a repeating event",
-  "Edit just this occurence": "Edit just this occurence",
-  "Free/Busy": "Free/Busy",
+  "Free/Buzy": "Free/Buzy",
   "Read Only": "Read Only",
   "None": "None",
   "Public read": "Public read",
@@ -85,5 +83,6 @@
   "All events in the serie": "All events in the serie",
   "Add users and groups delegation": "Add users and groups delegation",
   "Administration": "Administration",
-  "Read and Write": "Read and Write"
+  "Read and Write": "Read and Write",
+  "Delegation on this calendar": "Delegation on this calendar"
 }

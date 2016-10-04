@@ -15,10 +15,23 @@ angular.module('esn.session', ['esn.user', 'esn.domain'])
         }).map(function(account) {
           return account.data;
         });
+    },
+    userIsDomainAdministrator: function() {
+      if (session.domain.administrator === session.user._id) {
+        return true;
+      }
+
+      if (!Array.isArray(session.domain.administrators)) {
+        return false;
+      }
+
+      return session.domain.administrators.some(function(administrator) {
+        return administrator.user_id === session.user._id;
+      });
     }
   };
-
   var sessionIsBootstraped = false;
+
   function checkBootstrap() {
     if (sessionIsBootstraped) {
       return;
@@ -34,6 +47,7 @@ angular.module('esn.session', ['esn.user', 'esn.domain'])
     angular.copy(user, session.user);
 
     var emailMap = session.user.emailMap = Object.create(null);
+
     session.user.emails.forEach(function(em) {
       emailMap[em] = true;
     });

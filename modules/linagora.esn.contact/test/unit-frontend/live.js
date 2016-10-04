@@ -22,7 +22,10 @@ describe('The Contact Live module', function() {
 
     beforeEach(function() {
       session = {
-        user: {_id: 1}
+        user: {_id: 1},
+        ready: {
+          then: function() {}
+        }
       };
 
       ContactLiveUpdateMock = {
@@ -74,11 +77,15 @@ describe('The Contact Live module', function() {
   describe('The ContactLiveUpdate service', function() {
     var liveMock, getMock, liveNotificationMock, ContactAPIClientMock, ContactShellBuilderMock, onFn, removeListenerFn, namespace;
     var $rootScope, ContactLiveUpdate, CONTACT_WS, CONTACT_EVENTS;
-    var session = {};
+    var session;
 
     beforeEach(function() {
       getMock = function() {};
-      session = {};
+      session = {
+        ready: {
+          then: function() {}
+        }
+      };
       onFn = function() {};
       removeListenerFn = sinon.spy();
 

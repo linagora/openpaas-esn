@@ -12,6 +12,7 @@ describe('The ldap-mongo passport strategy', function() {
       }
     };
     mockery.registerMock('mongoose', mockgoose);
+    mockery.registerMock('./login', {});
   });
 
   describe('handleAuthentication', function() {

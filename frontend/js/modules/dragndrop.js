@@ -1,8 +1,11 @@
 'use strict';
 
-angular.module('esn.dragndrop', ['ng.deviceDetector'])
+angular.module('esn.dragndrop', [
+  'ng.deviceDetector',
+  'esn.escape-html'
+])
 
-.constant('ESN_DRAG_ANIMATION_CLASS', 'esn-drag-tooltip')
+.constant('ESN_DRAG_ANIMATION_CLASS', 'esn-drag-tooltip-animation')
 .constant('ESN_DRAG_ANIMATION_DURATION', 500)
 .constant('ESN_DRAG_DISTANCE_THRESHOLD', 10)
 
@@ -47,14 +50,14 @@ angular.module('esn.dragndrop', ['ng.deviceDetector'])
  *
  * @example
  * <div
- * 	esn-draggable
- * 	esn-drag-message="This message is dragging"
- * 	esn-drag-data="data"
- * 	esn-drag-class="dragging"
- * 	esn-on-drag-start="onDragStart()"
- * 	esn-on-drag-end="onDragEnd($dropped)"
- * 	esn-on-drop-success="onDropSuccess()
- * 	esn-on-drop-failure="onDropFailure()">
+ *   esn-draggable
+ *   esn-drag-message="computeDragMessage($dragData)"
+ *   esn-drag-data="computeDragData()"
+ *   esn-drag-class="dragging"
+ *   esn-on-drag-start="onDragStart()"
+ *   esn-on-drag-end="onDragEnd($dropped)"
+ *   esn-on-drop-success="onDropSuccess()
+ *   esn-on-drop-failure="onDropFailure()">
  * </div>
  */
 .directive('esnDraggable', function(
@@ -65,6 +68,7 @@ angular.module('esn.dragndrop', ['ng.deviceDetector'])
   $rootScope,
   deviceDetector,
   esnDragService,
+  escapeHtmlUtils,
   ESN_DRAG_ANIMATION_CLASS,
   ESN_DRAG_ANIMATION_DURATION,
   ESN_DRAG_DISTANCE_THRESHOLD) {
@@ -76,19 +80,24 @@ angular.module('esn.dragndrop', ['ng.deviceDetector'])
     var startX, startY;
     var centerX, centerY;
 
-    var esnDragData = $parse(attrs.esnDragData)(scope);
+    var esnDragData = $parse(attrs.esnDragData);
+    var esnDragMessage = $parse(attrs.esnDragMessage);
     var esnDragClass = attrs.esnDragClass;
     var esnOnDragStart = $parse(attrs.esnOnDragStart);
     var esnOnDragEnd = $parse(attrs.esnOnDragEnd);
     var esnOnDropSuccess = $parse(attrs.esnOnDropSuccess);
     var esnOnDropFailure = $parse(attrs.esnOnDropFailure);
 
-    // Exposed so that we can prevent clicks, mousover effect, etc. throughout OP
-    $rootScope.esnIsDragging = false;
+    $rootScope.esnIsDragging = false; // Exposed so that we can prevent clicks, mousover effect, etc. throughout OP
 
-    function initTooltip(content) {
+    element.attr('draggable', false); // disable native HTML5 drag
+    element.on('mousedown', onMouseDown);
+
+    function initTooltip($dragData) {
+      var content = escapeHtmlUtils.escapeHTML(esnDragMessage(scope, { $dragData: $dragData }));
+
       tooltipElement = angular.element(
-        '<div class="tooltip right">' +
+        '<div class="tooltip right esn-drag-tooltip">' +
           '<div class="tooltip-arrow"></div>' +
           '<div class="tooltip-inner">' + content + '</div>' +
         '</div>');
@@ -119,9 +128,12 @@ angular.module('esn.dragndrop', ['ng.deviceDetector'])
     }
 
     function onDragStart() {
+      var $dragData = esnDragData(scope);
+
+      initTooltip($dragData);
       addDragClass();
-      esnOnDragStart(scope);
-      esnDragService.onDragStart(esnDragData);
+      esnOnDragStart(scope, { $dragData: $dragData });
+      esnDragService.onDragStart($dragData);
 
       var offset = element.offset();
 
@@ -136,8 +148,6 @@ angular.module('esn.dragndrop', ['ng.deviceDetector'])
     }
 
     function onDragEnd() {
-      removeDragClass();
-
       var dropped = esnDragService.onDragEnd({
         onDropSuccess: esnOnDropSuccess.bind(null, scope),
         onDropFailure: esnOnDropFailure.bind(null, scope)
@@ -156,7 +166,7 @@ angular.module('esn.dragndrop', ['ng.deviceDetector'])
         return $timeout(function() {
           tooltipElement.removeClass(ESN_DRAG_ANIMATION_CLASS);
           hideTooltip();
-        }, ESN_DRAG_ANIMATION_DURATION, false);
+        }, ESN_DRAG_ANIMATION_DURATION);
       }
 
     }
@@ -164,13 +174,13 @@ angular.module('esn.dragndrop', ['ng.deviceDetector'])
     function onMouseMove(event) {
       if ($rootScope.esnIsDragging) {
         onDrag(event);
-      } else {
-        if (Math.abs(event.clientX - startX) > ESN_DRAG_DISTANCE_THRESHOLD ||
-            Math.abs(event.clientY - startY) > ESN_DRAG_DISTANCE_THRESHOLD) {
+      } else if (Math.abs(event.clientX - startX) > ESN_DRAG_DISTANCE_THRESHOLD || Math.abs(event.clientY - startY) > ESN_DRAG_DISTANCE_THRESHOLD) {
+        $rootScope.$apply(function() {
           $rootScope.esnIsDragging = true;
-          onDragStart();
-          onDrag(event);
-        }
+        });
+
+        onDragStart();
+        onDrag(event);
       }
     }
 
@@ -181,6 +191,8 @@ angular.module('esn.dragndrop', ['ng.deviceDetector'])
 
       if ($rootScope.esnIsDragging) {
         onDragEnd().then(function() {
+          removeDragClass();
+
           $rootScope.esnIsDragging = false;
         });
       }
@@ -203,11 +215,6 @@ angular.module('esn.dragndrop', ['ng.deviceDetector'])
       $document.on('mousemove', onMouseMove);
       $document.on('mouseup', onMouseUp);
     }
-
-    initTooltip(attrs.esnDragMessage);
-
-    element.attr('draggable', false); // disable native HTML5 drag
-    element.on('mousedown', onMouseDown);
   }
 
   return {
@@ -219,12 +226,12 @@ angular.module('esn.dragndrop', ['ng.deviceDetector'])
 /**
  * @example
  * <div
- * 	esn-droppable
- * 	esn-droptarget-class="droptarget",
- * 	esn-on-drag-enter="onDragEnter()"
- * 	esn-on-drag-exit="onDragExit()"
- * 	esn-on-drop="onDrop($dragData)",
- * 	esn-is-drop-zone="isDropZone($dragData)">
+ *   esn-droppable
+ *   esn-droptarget-class="droptarget",
+ *   esn-on-drag-enter="onDragEnter()"
+ *   esn-on-drag-exit="onDragExit()"
+ *   esn-on-drop="onDrop($dragData)",
+ *   esn-is-drop-zone="isDropZone($dragData)">
  * </div>
  */
 .directive('esnDroppable', function(
@@ -253,13 +260,13 @@ angular.module('esn.dragndrop', ['ng.deviceDetector'])
       esnDroptargetClass && element.removeClass(esnDroptargetClass);
     }
 
-    function onMouseEnter(event) {
+    function onMouseEnter() {
       addDroptargetClass();
       esnOnDragEnter(scope);
       isDropCandidate = true;
     }
 
-    function onMouseLeave(event) {
+    function onMouseLeave() {
       removeDroptargetClass();
       esnOnDragExit(scope);
       isDropCandidate = false;

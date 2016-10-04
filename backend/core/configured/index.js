@@ -12,7 +12,7 @@ function isConfigured() {
   try {
     dbConfig = core.config('db');
   } catch (e) {
-    console.error(e);
+    // Do nothing
   }
 
   if (dbConfig && dbConfig.connectionString) {

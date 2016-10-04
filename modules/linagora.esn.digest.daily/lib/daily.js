@@ -23,7 +23,7 @@ module.exports = function(dependencies) {
     setReadAndInvolvedFlags: function(message, thread, user) {
       // If thread.read is undefined then the message is read
       message.read = !('read' in thread) || thread.read;
-      message.involved = message.author && message.author._id + '' === user._id + '' ? true : false;
+      message.involved = Boolean(message.author && message.author.id === user.id);
 
       if (!arrayHelper.isNullOrEmpty(message.responses)) {
         message.responses.forEach(function(messageResponse) {
@@ -31,7 +31,7 @@ module.exports = function(dependencies) {
           if (!arrayHelper.isNullOrEmpty(thread.responses)) {
             // Find the response with the same id in the thread responses array and init the read field
             thread.responses.some(function(threadResponse) {
-              if (threadResponse.message && messageResponse._id + '' === threadResponse.message._id + '') {
+              if (threadResponse.message && messageResponse.id === threadResponse.message.id) {
                 messageResponse.read = threadResponse.read;
                 return true;
               } else {
@@ -44,7 +44,7 @@ module.exports = function(dependencies) {
           }
 
           // Check involvement
-          if (messageResponse.author && messageResponse.author._id + '' === user._id + '') {
+          if (messageResponse.author && messageResponse.author.id === user.id) {
             message.involved = true;
           }
         });

@@ -2,34 +2,84 @@ contact-show-subheader, contact-edit-subheader, contact-list-subheader, contact-
   width: 100%;
 }
 
-contact-list-subheader {
-  contact-search-form {
-    flex-grow: 1;
-    margin-right: 5%;
-  }
+#sub-header {
+  .contact-list-subheader {
+    .all-centered;
 
-  .contact-show-aside {
-    padding-left: 10px;
-    padding-right: 10px;
-    cursor: pointer;
-  }
-}
+    height: 100%;
+    color: @m-white;
 
-.contact-subheader {
-  & > .contact-controls-wrapper {
-    z-index: 7;
-    width: 100%;
+    .contact-show-aside {
+      padding-left: 10px;
+      padding-right: 10px;
+      cursor: pointer;
+    }
 
-    .row > .dropdown {
-      text-align: right;
+    .contact-list-subheader-title {
+      padding-left: 0;
+
+      h2 {
+        font-size: 15px;
+        color: @m-white;
+        margin: 0 0 0 15px;
+        font-weight: 400;
+        text-transform: uppercase;
+
+        small {
+          display: block;
+          text-transform: none;
+          margin-top: 3px;
+          color: @accentColor;
+          font-weight: bold;
+          line-height: 140%;
+        }
+
+        .contact-categories-letter {
+          display: inline-table;
+        }
+      }
+    }
+
+    .contacts-list-toolbar {
+      .flex-end;
+
+      .actions {
+        margin-right: 10px;
+      }
+
+      .contacts-search {
+        width: 100%;
+      }
+
+      .contacts-toggle {
+        min-width: @contact-toolbar-switch-width * 2;
+
+        button {
+          height: @contact-toolbar-item-height;
+          width: @contact-toolbar-switch-width;
+        }
+
+        .contact-toggle-switch {
+          .toggle-active {
+            color: @accentColor;
+          }
+        }
+      }
+    }
+
+    .mdi {
+      color: @m-white;
+      font-size: xx-large;
     }
   }
-  img {
-    width: 100%;
-    border-bottom: 1px solid @gray;
-  }
 }
 
-.contact-categories-letter {
-  display: inline-table;
+@media (min-width: @screen-md-min) {
+  #sub-header {
+    .contact-list-subheader .contacts-list-toolbar {
+      .contacts-search {
+        width: auto;
+      }
+    }
+  }
 }

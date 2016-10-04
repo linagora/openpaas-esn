@@ -23,6 +23,7 @@ describe('the file-watcher module', function() {
   it('should call fs.stat when started', function(done) {
     var fsMock = {stat: done};
     mockery.registerMock('fs', fsMock);
+    mockery.registerMock('chokidar', {});
     var fw = require(this.modulePath);
     fw()();
   });
@@ -33,6 +34,7 @@ describe('the file-watcher module', function() {
       done();
     }};
     mockery.registerMock('fs', fsMock);
+    mockery.registerMock('chokidar', {});
     var fw = require(this.modulePath);
     fw(this.logger, '/tmp/test.js')();
   });

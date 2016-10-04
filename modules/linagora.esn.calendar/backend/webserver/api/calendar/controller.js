@@ -14,15 +14,15 @@ var MAX_TRY_NUMBER = 12;
 
 function dispatchEvent(req, res) {
   if (!req.user) {
-    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'You must be logged in to access this resource'}});
+    return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'You must be logged in to access this resource'}});
   }
 
   if (!req.collaboration) {
-    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Collaboration id is missing'}});
+    return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'Collaboration id is missing'}});
   }
 
   if (!req.body.event_id) {
-    return res.json(400, {error: {code: 400, message: 'Bad Request', details: 'Event id is missing'}});
+    return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'Event id is missing'}});
   }
 
   calendar.dispatch({
@@ -33,14 +33,14 @@ function dispatchEvent(req, res) {
     if (err) {
       logger.error('Event creation error', err);
 
-      return res.json(500, { error: { code: 500, message: 'Event creation error', details: err.message }});
+      return res.status(500).json({ error: { code: 500, message: 'Event creation error', details: err.message }});
     } else if (!result) {
-      return res.json(403, { error: { code: 403, message: 'Forbidden', details: 'You may not create the calendar event' }});
+      return res.status(403).json({ error: { code: 403, message: 'Forbidden', details: 'You may not create the calendar event' }});
     }
 
     result = { _id: result._id, objectType: result.objectType };
 
-    return res.json(req.body.type === 'created' ? 201 : 200, result);
+    return res.status(req.body.type === 'created' ? 201 : 200).json(result);
   });
 }
 
@@ -100,7 +100,7 @@ function changeParticipationSuccess(res, vcalendar, eventData) {
         calendar.generateActionLinks(baseUrl, eventData).then(function(links) {
           var eventJSON = JSON.stringify(vcalendar.toJSON());
 
-          return res.status(200).render('../event-consultation-app/views/index', {eventJSON: eventJSON, attendeeEmail: attendeeEmail, links: links});
+          return res.status(200).render('../event-consultation-app/index', {eventJSON: eventJSON, attendeeEmail: attendeeEmail, links: links});
         });
       });
     } else {
@@ -112,7 +112,7 @@ function changeParticipationSuccess(res, vcalendar, eventData) {
 function tryUpdateParticipation(url, ESNToken, res, eventData, numTry) {
   numTry = numTry ? numTry + 1 : 1;
   if (numTry > MAX_TRY_NUMBER) {
-    return res.status(500).json({error: {code: 500, message:'Exceeded max number of try for atomic update of event'}});
+    return res.status(500).json({error: {code: 500, message: 'Exceeded max number of try for atomic update of event'}});
   }
 
   request({method: 'GET', url: url, headers: {ESNToken: ESNToken}}, function(err, response) {

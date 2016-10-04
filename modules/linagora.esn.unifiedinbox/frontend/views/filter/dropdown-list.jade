@@ -1,6 +1,6 @@
 .dropdown-list(ng-repeat="filter in filters")
   .checkbox
     label.dropdown-item
-      input(type="checkbox", ng-model="filter.checked", ng-change="ctrl.dropdownItemClicked($index)")
+      input.dropdown-item-checkbox(type="checkbox", ng-model="filter.checked", ng-change="ctrl.dropdownItemClicked($index)")
       i.input-helper
       | {{ filter.displayName }}

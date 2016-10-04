@@ -14,7 +14,7 @@ describe('The feedback module', function() {
 
   beforeEach(function(done) {
     this.mongoose = require('mongoose');
-    this.mongoose.connect(this.testEnv.mongoUrl, done);
+    this.connectMongoose(this.mongoose, done);
   });
 
   afterEach(function(done) {

@@ -15,29 +15,31 @@ describe('The Sidebar Angular module', function() {
 
   describe('contextualSidebar directive', function() {
     var toggle;
-    var destroy;
+    var hide;
     var options;
 
     beforeEach(function() {
       toggle = sinon.spy();
-      destroy = sinon.spy();
+      hide = sinon.spy();
       var contextualSidebarService = function(opt) {
         options = opt;
         return {
           toggle: toggle,
-          destroy: destroy
+          hide: hide
         };
       };
       angular.mock.module(function($provide) {
         $provide.value('contextualSidebarService', contextualSidebarService);
       });
+      angular.mock.module('esn.application-menu');
     });
 
-    beforeEach(angular.mock.inject(function(_$compile_, _$rootScope_, _$timeout_) {
+    beforeEach(angular.mock.inject(function(_$compile_, _$rootScope_, _$timeout_, _APP_MENU_OPEN_EVENT_) {
       this.$compile = _$compile_;
       this.$rootScope = _$rootScope_;
       this.$scope = this.$rootScope.$new();
       this.$timeout = _$timeout_;
+      this.APP_MENU_OPEN_EVENT = _APP_MENU_OPEN_EVENT_;
 
       this.initDirective = function(html, scope) {
         this.element = this.$compile(html)(scope);
@@ -135,13 +137,32 @@ describe('The Sidebar Angular module', function() {
       expect(toggle).to.have.been.called;
     });
 
-    it('should call destroy on $destroy', function() {
+    it('should call hide on $destroy', function() {
       var element = this.initDirective(
         '<div contextual-sidebar/>',
         this.$scope
       );
       element.scope().$destroy();
-      expect(destroy).to.have.been.called;
+      expect(hide).to.have.been.called;
+    });
+
+    it('should call hide if sidebar is open and application menu is clicked', function() {
+      var element = this.initDirective('<div contextual-sidebar />', this.$scope);
+
+      element.click();
+      this.$rootScope.$broadcast(this.APP_MENU_OPEN_EVENT);
+
+      expect(hide).to.have.been.calledOnce;
+    });
+
+    it('should not call hide if sidebar is closed and application menu is clicked', function() {
+      var element = this.initDirective('<div contextual-sidebar />', this.$scope);
+      element.click();
+      element.click();
+
+      this.$rootScope.$broadcast(this.APP_MENU_OPEN_EVENT);
+
+      expect(hide).to.have.been.calledOnce;
     });
 
   });

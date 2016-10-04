@@ -43,10 +43,9 @@ angular.module('linagora.esn.contact')
       }
 
       function onScroll() {
-        var contactControlOffset = angular.element.find('.contact-controls')[0].getBoundingClientRect().bottom;
-        var contactHeaderOffset = angular.element.find('.contacts-list-header')[0].getBoundingClientRect().bottom;
-        var offset = Math.max(contactControlOffset, contactHeaderOffset);
-        updateCategoryLetter(offset);
+        var contactHeaderOffset = angular.element.find('.contact-list-subheader')[0].getBoundingClientRect().bottom;
+
+        updateCategoryLetter(contactHeaderOffset);
       }
 
       angular.element($window).scroll(onScroll);

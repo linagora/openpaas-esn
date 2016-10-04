@@ -18,7 +18,7 @@ module.exports = function(lib, dependencies) {
       data.url = context.url;
     }
 
-    return mail.sendHTML(from, user.emails[0], message.title || 'New Message', 'new-message-notification', data, callback);
+    return mail.sendHTML(from, user.emails[0], message.title || 'New Message', 'core.new-message-notification', data, callback);
   }
 
   function sendResponseAsEmail(from, user, message, callback) {

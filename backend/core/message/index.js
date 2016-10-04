@@ -7,8 +7,8 @@ var emailMessageModule = require('./email');
 var whatsupMessageModule = require('./whatsup');
 var pollMessageModule = require('./poll');
 var pubsub = require('../').pubsub.local;
-
-var MESSAGES_COLLECTION = 'messages';
+var role = require('./role');
+var CONSTANTS = require('./constants');
 
 var objectTypeToSchemaName = {
   email: 'EmailMessage',
@@ -115,7 +115,7 @@ function getWithAuthors(uuid, callback) {
 function copy(id, sharerId, resource, target, callback) {
 
   function getOriginal(callback) {
-    mongoose.connection.db.collection(MESSAGES_COLLECTION, function(err, collection) {
+    mongoose.connection.db.collection(CONSTANTS.MESSAGES_COLLECTION, function(err, collection) {
       var query = {
         $or: [
           {_id: mongoose.Types.ObjectId(id)},
@@ -207,11 +207,11 @@ function findByIds(ids, callback) {
   };
 
   function getMessage(message) {
-    if (ids.indexOf(message._id + '') >= 0) {
+    if (ids.indexOf(message.id) >= 0) {
       return message;
     }
     var result = message.responses.filter(function(response) {
-      return ids.indexOf(response._id + '') >= 0;
+      return ids.indexOf(response.id) >= 0;
     }).pop();
 
     if (result) {
@@ -304,6 +304,30 @@ function typeSpecificReplyPermission(message, user, replyData, callback) {
 }
 
 function filterReadableResponses(message, user, callback) {
+  filterReadableResponsesFromObjectType(message, user, function(err, result) {
+    if (err) {
+      return callback(err);
+    }
+    filterReadableResponsesFromStatus(result, user, callback);
+  });
+}
+
+function filterReadableResponsesFromStatus(message, user, callback) {
+  var responses = [];
+  async.each(message.responses, function(response, done) {
+    canReadMessageFromStatus(response, user, function(err, result) {
+      if (!err && result) {
+        responses.push(response);
+      }
+      done();
+    });
+  }, function() {
+    message.responses = responses;
+    return callback(null, message);
+  });
+}
+
+function filterReadableResponsesFromObjectType(message, user, callback) {
   var objectType = message.objectType;
   if (!objectType || !type[objectType] || !type[objectType].filterReadableResponses) {
     return callback(null, message);
@@ -312,10 +336,20 @@ function filterReadableResponses(message, user, callback) {
   }
 }
 
+function canReadMessageFromStatus(message, user, callback) {
+  role.canReadMessage(message, user).then(function(result) {
+    callback(null, result);
+  }, function() {
+    callback(null, false);
+  });
+}
+
 module.exports = {
   type: type,
   permission: require('./permission'),
+  role: role,
   attachments: attachments,
+  like: require('./like'),
   get: getWithAuthors,
   dryGet: get,
   copy: copy,
@@ -327,5 +361,8 @@ module.exports = {
   setAttachmentsReferences: setAttachmentsReferences,
   specificModelCheckForObjectType: specificModelCheckForObjectType,
   typeSpecificReplyPermission: typeSpecificReplyPermission,
-  filterReadableResponses: filterReadableResponses
+  filterReadableResponses: filterReadableResponses,
+  filterReadableResponsesFromObjectType: filterReadableResponsesFromObjectType,
+  filterReadableResponsesFromStatus: filterReadableResponsesFromStatus,
+  canReadMessageFromStatus: canReadMessageFromStatus
 };

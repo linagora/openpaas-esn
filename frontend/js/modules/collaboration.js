@@ -331,8 +331,13 @@ angular.module('esn.collaboration', ['esn.http', 'esn.notification'])
           });
         };
 
-        $rootScope.$on('collaboration:request:declined', removeRequestEntry);
-        $rootScope.$on('collaboration:request:accepted', removeRequestEntry);
+        var unregisterDeclined = $rootScope.$on('collaboration:request:declined', removeRequestEntry);
+        var unregisterAccepted = $rootScope.$on('collaboration:request:accepted', removeRequestEntry);
+
+        $scope.$on('$destroy', function() {
+          unregisterDeclined();
+          unregisterAccepted();
+        });
       }
     };
   })

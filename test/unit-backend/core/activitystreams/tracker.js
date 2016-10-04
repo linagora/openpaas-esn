@@ -184,7 +184,7 @@ describe('The activity streams tracker core module', function() {
         query: function(options, callback) {
           callback(null, {
             on: function(event, handler) {
-              if (event === 'close') {
+              if (event === 'end') {
                 handlerClose = handler;
               }
             }
@@ -238,7 +238,7 @@ describe('The activity streams tracker core module', function() {
           expect(options.after).to.not.exist;
           callback(null, {
             on: function(event, handler) {
-              if (event === 'close') {
+              if (event === 'end') {
                 handlerClose = handler;
               }
             }
@@ -280,7 +280,7 @@ describe('The activity streams tracker core module', function() {
           callback(null, {
             on: function(event, handler) {
 
-              if (event === 'close') {
+              if (event === 'end') {
                 handlerClose = handler;
               }
 
@@ -329,7 +329,7 @@ describe('The activity streams tracker core module', function() {
           callback(null, {
             on: function(event, handler) {
 
-              if (event === 'close') {
+              if (event === 'end') {
                 handlerClose = handler;
               }
 
@@ -378,7 +378,7 @@ describe('The activity streams tracker core module', function() {
           callback(null, {
             on: function(event, handler) {
 
-              if (event === 'close') {
+              if (event === 'end') {
                 handlerClose = handler;
               }
 
@@ -441,7 +441,7 @@ describe('The activity streams tracker core module', function() {
           callback(null, {
             on: function(event, handler) {
 
-              if (event === 'close') {
+              if (event === 'end') {
                 handlerClose = handler;
               }
 

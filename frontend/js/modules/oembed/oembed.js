@@ -36,13 +36,13 @@ angular.module('esn.oembed', [])
     function getLinks(text) {
       var source = (text || '').toString();
       var urlArray = [];
-      var matchArray;
-
       var regexToken = /(((https?):\/\/)[\-\w@:%_\+.~#?,&\/\/=]+)/g;
+      var matchArray = regexToken.exec(source);
 
-      while ((matchArray = regexToken.exec(source)) !== null) {
+      while (matchArray !== null) {
         var token = matchArray[0];
         urlArray.push(token);
+        matchArray = regexToken.exec(source);
       }
 
       return urlArray;
@@ -59,22 +59,24 @@ angular.module('esn.oembed', [])
 
     function getProvider(url) {
       var providers = oembedRegistry.getProviders();
-      for (var key in providers) {
-        if (validate(url, providers[key].regexps)) {
-          return providers[key];
+      var provider = null;
+
+      angular.forEach(providers, function(value, key) {
+        if (validate(url, value.regexps)) {
+          provider = value;
         } else {
           $log.debug('URL ' + url + ' does not match the provider ' + key);
         }
-      }
-      return null;
+      });
+
+      return provider;
     }
 
     function fixHttpLinks(fragment) {
       if (!fragment) {
         return;
       }
-      var find = 'https?:\/\/';
-      var re = new RegExp(find, 'g');
+      var re = new RegExp('https?:\\/\\/', 'g');
       return fragment.replace(re, '//');
     }
 

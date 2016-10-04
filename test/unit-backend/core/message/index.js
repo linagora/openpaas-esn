@@ -2,10 +2,12 @@
 
 var expect = require('chai').expect;
 var mockery = require('mockery');
+var q = require('q');
 
 describe('The message core module', function() {
   beforeEach(function() {
     this.helpers.requireBackend('core/db/mongo/models/user');
+    this.helpers.requireBackend('core/db/mongo/models/resource-link');
     this.helpers.requireBackend('core/db/mongo/models/emailmessage');
     this.helpers.requireBackend('core/db/mongo/models/whatsup');
     this.helpers.requireBackend('core/db/mongo/models/community');
@@ -405,10 +407,10 @@ describe('The message core module', function() {
     });
 
     it('should search for messages and their responses', function(done) {
-      var response = {_id: '5', author: '1'};
-      var messageA = {_id: '1', author: '1', responses: []};
-      var messageB = {_id: '2', author: '1', responses: []};
-      var messageC = {_id: '4', author: '1', responses: [response]};
+      var response = {_id: '5', id: '5', author: '1'};
+      var messageA = {_id: '1', id: '1', author: '1', responses: []};
+      var messageB = {_id: '2', id: '2', author: '1', responses: []};
+      var messageC = {_id: '4', id: '4', author: '1', responses: [response]};
 
       var messageModule = this.helpers.requireBackend('core/message');
       this.mongoose.model = function(modelName) {
@@ -469,7 +471,7 @@ describe('The message core module', function() {
             find: function() {
               return {
                 toArray: function(callback) {
-                  callback(null, [{_id: '1', author: '3'}, {_id: '2', author: '4'}]);
+                  callback(null, [{_id: '1', id: '1', author: '3'}, {_id: '2', id: '2', author: '4'}]);
                 }
               };
             }
@@ -501,7 +503,7 @@ describe('The message core module', function() {
             find: function() {
               return {
                 toArray: function(callback) {
-                  callback(null, [{_id: '1', author: '3'}, {_id: '2', author: '4'}]);
+                  callback(null, [{_id: '1', id: '1', author: '3'}, {_id: '2', id: '2', author: '4'}]);
                 }
               };
             }
@@ -518,10 +520,12 @@ describe('The message core module', function() {
       var messageModule = this.helpers.requireBackend('core/message');
       var user3 = {
         _id: '3',
+        id: '3',
         name: 'user3'
       };
       var user4 = {
         _id: '4',
+        id: '4',
         name: 'user4'
       };
       this.mongoose.model = function(modelName) {
@@ -553,8 +557,8 @@ describe('The message core module', function() {
             find: function() {
               return {
                 toArray: function(callback) {
-                  callback(null, [{_id: '1', author: '3', objectType: 'whatsup', responses: [{_id: '5', author: '4'}]},
-                    {_id: '2', author: '4', objectType: 'email'}]);
+                  callback(null, [{_id: '1', id: '1', author: '3', objectType: 'whatsup', responses: [{_id: '5', id: '5', author: '4'}]},
+                    {_id: '2', id: '2', author: '4', objectType: 'email'}]);
                 }
               };
             }
@@ -577,6 +581,73 @@ describe('The message core module', function() {
       });
     });
 
+  });
+
+  describe('The filterReadableResponsesFromObjectType function', function() {
+    it('should ', function() {
+
+    });
+  });
+
+  describe('The canReadMessageFromStatus function', function() {
+    it('should return the value of the role.canReadMessage call', function(done) {
+      var result = 'My result';
+
+      mockery.registerMock('./role', {
+        canReadMessage: function() {
+          return q(result);
+        }
+      });
+
+      var module = this.helpers.requireBackend('core/message');
+      module.canReadMessageFromStatus(null, null, function(err, r) {
+        if (err) {
+          return done(err);
+        }
+        expect(r).to.equal(result);
+        done();
+      });
+    });
+
+    it('should return false when role.cabReadMessage fails', function(done) {
+      mockery.registerMock('./role', {
+        canReadMessage: function() {
+          return q.reject(new Error());
+        }
+      });
+
+      var module = this.helpers.requireBackend('core/message');
+      module.canReadMessageFromStatus(null, null, function(err, r) {
+        if (err) {
+          return done(err);
+        }
+        expect(r).to.be.false;
+        done();
+      });
+    });
+  });
+
+  describe('The filterReadableResponsesFromStatus function', function() {
+    it('should keep only the responses which can be read by user', function(done) {
+      var message = {
+        responses: [{_id: 1}, {_id: 2}]
+      };
+      mockery.registerMock('./role', {
+        canReadMessage: function(message) {
+          return q(message._id === 1);
+        }
+      });
+
+      var module = this.helpers.requireBackend('core/message');
+      module.filterReadableResponsesFromStatus(message, null, function(err, result) {
+        if (err) {
+          return done(err);
+        }
+
+        expect(result).to.deep.equals({responses: [{_id: 1}]});
+        done();
+      });
+    });
   });
 
 });

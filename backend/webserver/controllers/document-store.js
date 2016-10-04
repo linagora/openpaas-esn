@@ -15,31 +15,31 @@ function store(req, res) {
   var data = req.body;
 
   if (!data.hostname || !data.port || !data.dbname) {
-    return res.json(400, { error: { status: 400, message: 'Bad Request', details: 'hostname, port and dbname are required'}});
+    return res.status(400).json({ error: { status: 400, message: 'Bad Request', details: 'hostname, port and dbname are required'}});
   }
 
   if ((data.username && !data.password) || (!data.username && data.password)) {
-    return res.json(400, { error: { status: 400, message: 'Bad Request', details: 'username and password should both be set or both left empty'}});
+    return res.status(400).json({ error: { status: 400, message: 'Bad Request', details: 'username and password should both be set or both left empty'}});
   }
 
   var port = data.port;
 
   if (port !== parseInt(port, 10)) {
-    return res.json(400, { error: { status: 400, message: 'Bad Request', details: 'port is not a number'}});
+    return res.status(400).json({ error: { status: 400, message: 'Bad Request', details: 'port is not a number'}});
   }
 
   var p = parseInt(port, 10);
 
   if (p <= 0) {
-    return res.json(400, { error: { status: 400, message: 'Bad Request', details: 'port must be greater than 0'}});
+    return res.status(400).json({ error: { status: 400, message: 'Bad Request', details: 'port must be greater than 0'}});
   }
 
   data.connectionOptions = mongodb.getDefaultOptions();
   mongodb.storeConfiguration(data, function(err, mongoConfig) {
     if (err) {
-      return res.json(500, { error: { status: 500, message: 'Server Error', details: err.message}});
+      return res.status(500).json({ error: { status: 500, message: 'Server Error', details: err.message}});
     }
-    res.json(201, mongoConfig);
+    res.status(201).json(mongoConfig);
     mongodb.init();
   });
 }
@@ -64,9 +64,9 @@ function test(req, res) {
   }
   mongodb.validateConnection(hostname, port, dbname, username, password, function(err) {
     if (err) {
-      res.json(503, { error: { code: 503, message: 'Connection error', details: err.message}});
+      res.status(503).json({ error: { code: 503, message: 'Connection error', details: err.message}});
     } else {
-      res.json(200);
+      res.status(200).end();
     }
   });
 }

@@ -1,7 +1,8 @@
 'use strict';
 
-var expect = require('chai').expect,
-    mockery = require('mockery');
+var expect = require('chai').expect;
+var q = require('q');
+var mockery = require('mockery');
 
 describe('The messages controller', function() {
 
@@ -30,13 +31,13 @@ describe('The messages controller', function() {
     });
 
     it('should return 500 if the user is not set in the request', function(done) {
-      var res = {
-        json: function(code, message) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, message) {
           expect(code).to.equal(500);
           expect(message.error.details).to.contain('User');
           done();
         }
-      };
+      );
 
       mockery.registerMock('../../core/message/email', {});
       mockery.registerMock('../../core/message', {});
@@ -51,13 +52,13 @@ describe('The messages controller', function() {
           emails: ['aEmail']
         }
       };
-      var res = {
-        json: function(code, message) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, message) {
           expect(code).to.equal(400);
           expect(message).to.contain('Missing');
           done();
         }
-      };
+      );
 
       mockery.registerMock('../../core/message/email', {});
       mockery.registerMock('../../core/message', {});
@@ -67,13 +68,13 @@ describe('The messages controller', function() {
     });
 
     it('should return 500 if it cannot save the message in the database', function(done) {
-      var res = {
-        json: function(code, message) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, message) {
           expect(code).to.equal(500);
           expect(message.error.details).to.contain('Cannot');
           done();
         }
-      };
+      );
 
       var messageModuleMocked = {
         getInstance: function() {
@@ -97,13 +98,13 @@ describe('The messages controller', function() {
     });
 
     it('should return 201 and the id of the newly created message', function(done) {
-      var res = {
-        json: function(code, message) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, message) {
           expect(code).to.equal(201);
           expect(message._id).to.equal('a new id');
           done();
         }
-      };
+      );
 
       var messageModuleMocked = {
         getInstance: function() {
@@ -130,15 +131,15 @@ describe('The messages controller', function() {
       var localstub = {};
       var globalstub = {};
 
-      var res = {
-        json: function() {
+      var res = this.helpers.express.jsonResponse(
+        function() {
           expect(localstub.topics['message:activity']).to.exist;
           expect(globalstub.topics['message:activity']).to.exist;
           expect(localstub.topics['message:activity'].data).to.exist;
           expect(globalstub.topics['message:activity'].data).to.exist;
           done();
         }
-      };
+      );
 
       var messageModuleMocked = {
         getInstance: function() {
@@ -169,8 +170,8 @@ describe('The messages controller', function() {
       var globalstub = {};
       var id = 234;
 
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(201);
           expect(localstub.topics['message:stored']).to.exist;
           expect(localstub.topics['message:stored'].data).to.be.an.array;
@@ -181,7 +182,7 @@ describe('The messages controller', function() {
           expect(globalstub.topics['message:stored'].data[0]._id).to.equal(id);
           done();
         }
-      };
+      );
 
       mockery.registerMock('../../core/message/email', {});
       mockery.registerMock('../../core/message', {
@@ -201,12 +202,12 @@ describe('The messages controller', function() {
     });
 
     it('should return 404 otherwise', function(done) {
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.response(
+        function(code) {
           expect(code).to.equal(404);
           done();
         }
-      };
+      );
 
       var messageModuleMocked = {
         getInstance: function() {
@@ -253,13 +254,13 @@ describe('The messages controller', function() {
     });
 
     it('should return 500 if it cannot save the comment in the database', function(done) {
-      var res = {
-        json: function(code, message) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, message) {
           expect(code).to.equal(500);
           expect(message.error.details).to.contain('Cannot');
           done();
         }
-      };
+      );
 
       mockery.registerMock('../../core/message/email', {});
       mockery.registerMock('../../core/message', {
@@ -274,12 +275,12 @@ describe('The messages controller', function() {
     });
 
     it('should return 400 if message type is not supported', function(done) {
-      var res = {
-        json: function(code, message) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, message) {
           expect(code).to.equal(400);
           done();
         }
-      };
+      );
 
       var messageModuleMocked = {
         addNewComment: function(message, inReplyTo, callback) {
@@ -298,14 +299,14 @@ describe('The messages controller', function() {
     });
 
     it('should return 201 with the _id of the new comment and the parentId', function(done) {
-      var res = {
-        json: function(code, data) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, data) {
           expect(code).to.equal(201);
           expect(data._id).to.equal('an id');
           expect(data.parentId).to.equal('a parent id');
           done();
         }
-      };
+      );
 
       var messageModuleMocked = {
         getInstance: function() { return {}; },
@@ -321,10 +322,10 @@ describe('The messages controller', function() {
     });
 
     it('should inherits target from its parent', function(done) {
-      var res = {
-        json: function(code, data) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, data) {
         }
-      };
+      );
 
       var messageModuleMocked = {
         getInstance: function() { return {}; },
@@ -354,15 +355,15 @@ describe('The messages controller', function() {
       var localstub = {};
       var globalstub = {};
 
-      var res = {
-        json: function() {
+      var res = this.helpers.express.jsonResponse(
+        function() {
           expect(localstub.topics[0]).to.equal('message:activity');
           expect(globalstub.topics[0]).to.equal('message:activity');
           expect(localstub.topics['message:activity'].data).to.exist;
           expect(globalstub.topics['message:activity'].data).to.exist;
           done();
         }
-      };
+      );
 
       var messageModuleMocked = {
         getInstance: function() { return {}; },
@@ -395,14 +396,22 @@ describe('The messages controller', function() {
       };
     });
 
+    beforeEach(function() {
+      mockery.registerMock('./messages.denormalize', {
+        denormalize: function(message) {
+          return q(message);
+        }
+      });
+    });
+
     it('should return 500 if the user is not set in the request', function(done) {
-      var res = {
-        json: function(code, message) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, message) {
           expect(code).to.equal(500);
           expect(message.error.details).to.contain('User');
           done();
         }
-      };
+      );
 
       mockery.registerMock('../../core/message/email', {});
       mockery.registerMock('../../core/message', {});
@@ -417,13 +426,13 @@ describe('The messages controller', function() {
           emails: ['aEmail']
         }
       };
-      var res = {
-        json: function(code, message) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, message) {
           expect(code).to.equal(400);
           expect(message).to.contain('Missing');
           done();
         }
-      };
+      );
 
       mockery.registerMock('../../core/message/email', {});
       mockery.registerMock('../../core/message', {});
@@ -433,13 +442,13 @@ describe('The messages controller', function() {
     });
 
     it('should return 500 if it cannot findByIds the messages in the database', function(done) {
-      var res = {
-        json: function(code, message) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, message) {
           expect(code).to.equal(500);
           expect(message.error.details).to.contain('Cannot');
           done();
         }
-      };
+      );
 
       var mongooseMock = {
         model: function() {}
@@ -449,6 +458,9 @@ describe('The messages controller', function() {
       var messageModuleMocked = {
         findByIds: function(ids, callback) {
           callback(new Error('an error has occured'));
+        },
+        canReadMessageFromStatus: function(message, user, callback) {
+          return callback(null, true);
         }
       };
       mockery.registerMock('../../core/message', messageModuleMocked);
@@ -459,22 +471,20 @@ describe('The messages controller', function() {
     });
 
     it('should return 200 and the messages found by ids, also not found ones', function(done) {
-      var res = {
-        json: function(code, message) {
-          expect(code).to.equal(200);
-          expect(message[0]._id.toString()).to.equal('1');
-          expect(message[1]).to.deep.equal(
-            {
-              error: {
-                code: 404,
-                message: 'Not Found',
-                details: 'The message 2 can not be found'
-              }
-            });
-          expect(message.length).to.equal(2);
-          done();
-        }
-      };
+      var res = this.helpers.express.jsonResponse(function(code, message) {
+        expect(code).to.equal(200);
+        expect(message[0]._id.toString()).to.equal('1');
+        expect(message[1]).to.deep.equal(
+          {
+            error: {
+              code: 404,
+              message: 'Not Found',
+              details: 'The message 2 can not be found'
+            }
+          });
+        expect(message.length).to.equal(2);
+        done();
+      });
 
       var mongooseMock = {
         model: function() {}
@@ -501,6 +511,9 @@ describe('The messages controller', function() {
           canRead: function(message, tuple, callback) {
             return callback(null, true);
           }
+        },
+        canReadMessageFromStatus: function(message, user, callback) {
+          return callback(null, true);
         }
       };
       mockery.registerMock('../../core/message', messageModuleMocked);
@@ -511,15 +524,15 @@ describe('The messages controller', function() {
     });
 
     it('should return 200 and only the messages found by ids', function(done) {
-      var res = {
-        json: function(code, message) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, message) {
           expect(code).to.equal(200);
           expect(message[0]._id.toString()).to.equal('1');
           expect(message[1]._id.toString()).to.equal('2');
           expect(message.length).to.equal(2);
           done();
         }
-      };
+      );
 
       var mongooseMock = {
         model: function() {}
@@ -553,6 +566,63 @@ describe('The messages controller', function() {
           canRead: function(message, tuple, callback) {
             return callback(null, true);
           }
+        },
+        canReadMessageFromStatus: function(message, user, callback) {
+          return callback(null, true);
+        }
+      };
+      mockery.registerMock('../../core/message', messageModuleMocked);
+      mockery.registerMock('../../core/message/email', {});
+
+      var messages = this.helpers.requireBackend('webserver/controllers/messages');
+      messages.getMessages(validReq, res);
+    });
+
+    it('should not return message when status is not valid', function(done) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, message) {
+          expect(code).to.equal(200);
+          expect(message[0]._id.toString()).to.equal('1');
+          expect(message.length).to.equal(1);
+          done();
+        }
+      );
+
+      var mongooseMock = {
+        model: function() {}
+      };
+      mockery.registerMock('mongoose', mongooseMock);
+
+      var messageModuleMocked = {
+        findByIds: function(ids, callback) {
+          expect(ids).to.deep.equal(['1', '2']);
+          callback(null, [
+            {
+              _id: {
+                toString: function() {
+                  return '1';
+                }
+              }
+            },
+            {
+              _id: {
+                toString: function() {
+                  return '2';
+                }
+              }
+            }
+          ]);
+        },
+        filterReadableResponses: function(message, user, callback) {
+          return callback(null, message);
+        },
+        permission: {
+          canRead: function(message, tuple, callback) {
+            return callback(null, true);
+          }
+        },
+        canReadMessageFromStatus: function(message, user, callback) {
+          return callback(null, message._id.toString() === '1');
         }
       };
       mockery.registerMock('../../core/message', messageModuleMocked);
@@ -569,17 +639,17 @@ describe('The messages controller', function() {
       mockery.registerMock('../../core/message', {});
 
       var req = {
-        param: function() {
-          return null;
+        params: {
+          id: null
         }
       };
 
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(400);
           done();
         }
-      };
+      );
 
       var messages = this.helpers.requireBackend('webserver/controllers/messages');
       messages.getMessage(req, res);
@@ -595,20 +665,20 @@ describe('The messages controller', function() {
       mockery.registerMock('../../core/message', mock);
 
       var req = {
-        param: function() {
-          return '1234';
+        params: {
+          id: '1234'
         },
         user: {
           _id: '123'
         }
       };
 
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(500);
           done();
         }
-      };
+      );
 
       var messages = this.helpers.requireBackend('webserver/controllers/messages');
       messages.getMessage(req, res);
@@ -624,20 +694,20 @@ describe('The messages controller', function() {
       mockery.registerMock('../../core/message', mock);
 
       var req = {
-        param: function() {
-          return '1234';
+        params: {
+          id: '1234'
         },
         user: {
           _id: '123'
         }
       };
 
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(404);
           done();
         }
-      };
+      );
 
       var messages = this.helpers.requireBackend('webserver/controllers/messages');
       messages.getMessage(req, res);
@@ -655,26 +725,29 @@ describe('The messages controller', function() {
           canRead: function(message, tuple, callback) {
             return callback(null, true);
           }
+        },
+        canReadMessageFromStatus: function(message, user, callback) {
+          callback(null, true);
         }
       };
       mockery.registerMock('../../core/message/email', {});
       mockery.registerMock('../../core/message', mock);
 
       var req = {
-        param: function() {
-          return '1234';
+        params: {
+          id: '1234'
         },
         user: {
           _id: '123'
         }
       };
 
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(200);
           done();
         }
-      };
+      );
 
       var messages = this.helpers.requireBackend('webserver/controllers/messages');
       messages.getMessage(req, res);
@@ -693,12 +766,12 @@ describe('The messages controller', function() {
         }
       };
 
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(400);
           done();
         }
-      };
+      );
 
       var messages = this.helpers.requireBackend('webserver/controllers/messages');
       messages.createMessageFromEmail(req, res);
@@ -714,12 +787,12 @@ describe('The messages controller', function() {
         }
       };
 
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(400);
           done();
         }
-      };
+      );
 
       var messages = this.helpers.requireBackend('webserver/controllers/messages');
       messages.createMessageFromEmail(req, res);
@@ -740,12 +813,12 @@ describe('The messages controller', function() {
         }
       };
 
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(500);
           done();
         }
-      };
+      );
 
       var messages = this.helpers.requireBackend('webserver/controllers/messages');
       messages.createMessageFromEmail(req, res);
@@ -766,12 +839,12 @@ describe('The messages controller', function() {
         }
       };
 
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(201);
           done();
         }
-      };
+      );
 
       var messages = this.helpers.requireBackend('webserver/controllers/messages');
       messages.createMessageFromEmail(req, res);
@@ -782,8 +855,8 @@ describe('The messages controller', function() {
       var globalstub = {};
       var id = 234;
 
-      var res = {
-        json: function() {
+      var res = this.helpers.express.jsonResponse(
+        function() {
           expect(localstub.topics[0]).to.equal('message:activity');
           expect(globalstub.topics[0]).to.equal('message:activity');
           expect(localstub.topics['message:activity'].data).to.exist;
@@ -795,7 +868,7 @@ describe('The messages controller', function() {
           expect(localstub.topics['message:activity'].data[0].object._id).to.equal(id);
           done();
         }
-      };
+      );
 
       mockery.registerMock('../../core/message', {});
       mockery.registerMock('../../core/message/email', {

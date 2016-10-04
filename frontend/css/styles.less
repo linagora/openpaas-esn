@@ -141,6 +141,9 @@
 @import './modules/notifications';
 @import './modules/search';
 @import './modules/dragndrop';
+@import './modules/tabs';
+@import './modules/timeline';
+@import './modules/follow';
 
 /*
  * Widgets
@@ -154,6 +157,21 @@
 html, body {
   height: 100%;
   min-height: 100%; // material admin set this property to 100vh. It does not work well on iOs.
+}
+
+body {
+  word-wrap: break-word;
+
+  .modal.center .modal-dialog {
+    margin: 0;
+    min-width: 300px;
+    top: 50%;
+
+    .modal-body {
+      max-height: 60vh;
+      overflow: auto;
+    }
+  }
 }
 
 @media (min-width: @screen-lg-min) {
@@ -189,7 +207,12 @@ header.topbar {
 }
 
 @media (min-width: @screen-sm-min) {
-
+  fab-scroll-top {
+    .btn-float {
+      right: 40px;
+      left: inherit;
+    }
+  }
   .pull-right-sm {
     .pull-right;
   }
@@ -217,14 +240,18 @@ input[type='radio'][disabled] {
   background-color: lighten(@body-bg, 1%);
 }
 
+.avatar(@size, @border-radius: 3px) {
+  .RoundedShape(@border-radius);
+
+  width: @size !important; /* Override material-admin  */
+  min-width: @size !important; // Both attributes are mandatory for Firefox or the img is distorted (width is set to 1px)
+  height: @size;
+}
+
 .esn-avatar {
-  width: 35px;
-  height: 35px;
-  border-radius: 3px;
+ .avatar(35px);
 }
 
 .esn-avatar-lg {
-  height: 45px;
-  width: 45px !important; /* override material-admin  */
-  border-radius: 3px;
+  .avatar(45px);
 }

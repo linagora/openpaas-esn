@@ -134,7 +134,7 @@ module.exports.getTracker = function(type) {
           var sum = results.reduce(function(prev, current) {
             return prev + current;
           });
-          return q(sum ? true : false);
+          return q(!!sum);
         });
     }
 
@@ -173,7 +173,7 @@ module.exports.getTracker = function(type) {
 
         var hash = {};
         stream.on('data', function(doc) {
-          if ((doc.actor._id + '') !== (userId + '')) {
+          if ((doc.actor.id) !== (userId + '')) {
             hash[doc.object._id] = hash[doc.object._id] || [];
             hash[doc.object._id].push({verb: doc.verb, id: doc._id});
           }
@@ -181,7 +181,7 @@ module.exports.getTracker = function(type) {
 
         stream.on('error', callback);
 
-        stream.on('close', function() {
+        stream.on('end', function() {
           var elligibleEntries = removeDeletedActivities(hash);
           countObjectsUpdate(elligibleEntries, callback);
         });
@@ -240,7 +240,7 @@ module.exports.getTracker = function(type) {
 
         stream.on('error', callback);
 
-        stream.on('close', function() {
+        stream.on('end', function() {
           return callback(null, hash);
         });
       });

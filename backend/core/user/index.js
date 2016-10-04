@@ -11,12 +11,13 @@ var trim = require('trim');
 var User = mongoose.model('User');
 var emailAddresses = require('email-addresses');
 var CONSTANTS = require('./constants');
+var moderation = require('./moderation');
 
 var TYPE = CONSTANTS.TYPE;
 module.exports.TYPE = TYPE;
 
 function getUserTemplate(callback) {
-  esnConfig('user', 'templates').get(callback);
+  esnConfig('user').get(callback);
 }
 
 function extendUserTemplate(template, data) {
@@ -27,11 +28,11 @@ function recordUser(userData, callback) {
   var userAsModel = userData instanceof User ? userData : new User(userData);
   userAsModel.save(function(err, resp) {
     if (!err) {
+      pubsub.topic(CONSTANTS.EVENTS.userCreated).publish(resp);
       logger.info('User provisioned in datastore:', userAsModel.emails.join(','));
     } else {
       logger.warn('Error while trying to provision user in database:', err.message);
     }
-    pubsub.topic(CONSTANTS.EVENTS.userCreated).publish(resp);
     callback(err, resp);
   });
 }
@@ -43,7 +44,6 @@ module.exports.provisionUser = function(data, callback) {
     if (err) {
       return callback(err);
     }
-    delete user._id;
     extendUserTemplate(user, data);
     recordUser(user, callback);
   });
@@ -85,20 +85,36 @@ module.exports.list = function(callback) {
   User.find(callback);
 };
 
-module.exports.updateProfile = function(user, parameter, value, callback) {
-  //unlike user and parameter, value cannot be null but can be empty
-  if (!user || !parameter || value === undefined) {
-    return callback(new Error('User, parameter and value are required'));
+module.exports.updateProfile = function(user, profile, callback) {
+  if (!user || !profile) {
+    return callback(new Error('User and profile are required'));
   }
 
   var id = user._id || user;
-  var update = {};
-  update[parameter] = value;
-  User.update({_id: id}, {$set: update}, function(err, saved) {
+
+  User.findOneAndUpdate({ _id: id }, { $set: profile || {} }, { new: true }, function(err, user) {
     if (!err) {
       pubsub.topic(CONSTANTS.EVENTS.userUpdated).publish(user);
     }
-    callback(err, saved);
+    callback(err, user);
+  });
+};
+
+module.exports.checkPassword = function(user, password, callback) {
+  user.comparePassword(password, function(err, isMatch) {
+    return callback(err || isMatch ? null : new Error('Unmatched password'));
+  });
+};
+
+module.exports.updatePassword = function(user, password, callback) {
+  // OR-128 - Do not use findOneAndUpdate here because mongoose 3.x does not
+  // support pre hook on update. We must use pre fook on save to crypt the password
+  User.findOne({ _id: user._id || user }, function(err, user) {
+    if (err) {
+      return callback(err);
+    }
+    user.password = password;
+    user.save(callback);
   });
 };
 
@@ -154,4 +170,15 @@ function find(query, callback) {
 }
 module.exports.find = find;
 
+function init() {
+  moderation.init();
+}
+module.exports.init = init;
+
 module.exports.domain = require('./domain');
+
+module.exports.follow = require('./follow');
+
+module.exports.login = require('./login');
+
+module.exports.moderation = moderation;

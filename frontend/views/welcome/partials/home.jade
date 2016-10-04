@@ -6,9 +6,12 @@
       h3.m-t-0.m-b-15 #{__('Login')}
       include ../../modules/login/login
       ul.login-oauth(dynamic-directive='esn-login-oauth')
-    .signup(ng-controller='signup' data-ng-if='step === 2')
+    .signup(ng-controller='signup', data-ng-if='step === 2')
       h3.m-t-0.m-b-15 #{__('Register')}
       include ./signup
+    .forgot-password(ng-controller='forgotPassword', data-ng-if='step === 3')
+      h3.m-t-0.m-b-15 #{__('Reset password')}
+      include ./forgot
     .actions-footer.m-t-20.pull-right
       ul.tab-nav(class="tab-nav", tabindex="2")
         li(data-ng-click="tab(1);", ng-class="{active: isLogin}")

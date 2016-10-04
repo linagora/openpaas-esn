@@ -2,6 +2,7 @@
 
 var expect = require('chai').expect;
 var mockery = require('mockery');
+var q = require('q');
 
 describe('The User controller', function() {
 
@@ -59,30 +60,35 @@ describe('The User controller', function() {
         user: {
         }
       };
-      var res = {
-        send: function(status) {
+      var res = this.helpers.express.response(
+        function(status) {
           expect(status).to.equal(500);
           done();
         }
-      };
+      );
       users.logmein(req, res);
     });
 
     it('should return HTTP 500 if user is not set in request', function(done) {
       var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {};
-      var res = {
-        send: function(status) {
+      var res = this.helpers.express.response(
+        function(status) {
           expect(status).to.equal(500);
           done();
         }
-      };
+      );
       users.logmein(req, res);
     });
   });
 
   describe('The user fn', function() {
     it('should return the request user if available', function(done) {
+      mockery.registerMock('../denormalize/user', {
+        denormalize: function(user) {
+          return q(user);
+        }
+      });
       var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {
         user: {
@@ -92,22 +98,14 @@ describe('The User controller', function() {
           }]
         }
       };
-      var res = {
-        json: function(code, data) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, data) {
           expect(code).to.equal(200);
-          expect(data).to.shallowDeepEqual({
-            preferredEmail: 'foo@bar.com',
-            emails: ['foo@bar.com'],
-            accounts: [{
-              type: 'email',
-              emails: ['foo@bar.com'],
-              hosted: false,
-              preferredEmailIndex: 0
-            }]
-          });
+          expect(data).to.shallowDeepEqual(req.user);
+
           done();
         }
-      };
+      );
       users.user(req, res);
     });
 
@@ -115,12 +113,12 @@ describe('The User controller', function() {
       var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {
       };
-      var res = {
-        json: function(status) {
+      var res = this.helpers.express.jsonResponse(
+        function(status) {
           expect(status).to.equal(404);
           done();
         }
-      };
+      );
       users.user(req, res);
     });
   });
@@ -130,7 +128,7 @@ describe('The User controller', function() {
     beforeEach(function() {
       var mock = {
         user: {
-          updateProfile: function(user, parameter, value, callback) {
+          updateProfile: function(user, profile, callback) {
             return callback();
           }
         }
@@ -143,693 +141,61 @@ describe('The User controller', function() {
       var req = {
       };
       var res = {
-        json: function(code, error) {
+        json: function() {
+          done();
+        },
+        status: function(code, error) {
           expect(code).to.equal(404);
-          done();
+          return this;
         }
       };
       users.updateProfile(req, res);
     });
 
-    it('should send back error if parameter is not set', function(done) {
+    it('should not send back error if profile is not set', function(done) {
       var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {
-        params: {},
+        profile: {},
         user: {
           emails: ['foo@bar.com']
         }
       };
       var res = {
-        json: function(code, error) {
+        json: function() {
+          done();
+        },
+        status: function(code) {
           expect(code).to.equal(400);
-          expect(error).to.exist;
-          done();
+          return this;
         }
       };
       users.updateProfile(req, res);
     });
 
-    it('should send back error if parameter is unknown', function(done) {
+    it('should be OK if profile is set with valid values', function(done) {
       var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {
-        params: {
-          attribute: 'foobarbazqix'
+        body: {
+          firstname: 'James',
+          lastname: 'Amaly',
+          job_title: 'Engineer',
+          service: 'IT',
+          building_location: 'Tunis',
+          office_location: 'France',
+          main_phone: '123456789',
+          decription: 'This is my description'
         },
-        user: {
-          emails: ['foo@bar.com']
-        }
-      };
-      var res = {
-        json: function(code, error) {
-          expect(code).to.equal(400);
-          expect(error).to.exist;
-          expect(error.error).to.exist;
-          expect(error.error.details).to.match(/No value defined/);
-          done();
-        }
-      };
-      users.updateProfile(req, res);
-    });
-
-    it('should send back error if firstname is not set in body', function(done) {
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-
-      var req = {
-        params: {
-          attribute: 'firstname'
-        },
-        body: undefined,
-        user: {
-          emails: ['foo@bar.com']
-        }
-      };
-      var res = {
-        json: function(code, error) {
-          expect(code).to.equal(400);
-          expect(error).to.exist;
-          expect(error.error).to.exist;
-          expect(error.error.details).to.match(/No value defined/);
-          done();
-        }
-      };
-      users.updateProfile(req, res);
-    });
-
-    it('should not send back error if firstname is empty', function(done) {
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-
-      var req = {
-        params: {
-          attribute: 'firstname'
-        },
-        body: {value: ''},
-        user: {
-          emails: ['foo@bar.com']
-        }
-      };
-      var res = {
-        json: function(code, error) {
-          expect(code).to.equal(200);
-          done();
-        }
-      };
-      users.updateProfile(req, res);
-    });
-
-    it('should not send back error if firstname is too long', function(done) {
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-
-      var req = {
-        params: {
-          attribute: 'firstname'
-        },
-        body: {value: new Array(1000).join('a')},
-        user: {
-          emails: ['foo@bar.com']
-        },
-        query: {
-        }
-      };
-      var res = {
-        json: function(code, error) {
-          expect(code).to.equal(200);
-          done();
-        }
-      };
-      users.updateProfile(req, res);
-    });
-
-    it('should be OK if firstname is set with valid value', function(done) {
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-
-      var req = {
-        params: {
-          attribute: 'firstname'
-        },
-        body: {value: 'John'},
         user: {
           emails: ['foo@bar.com']
         }
       };
       var res = {
         json: function(code) {
+          done();
+        },
+        status: function(code) {
           expect(code).to.equal(200);
-          done();
-        }
-      };
-      users.updateProfile(req, res);
-    });
-
-    // lastname
-
-    it('should send back error if lastname is not set in body', function(done) {
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-
-      var req = {
-        params: {
-          attribute: 'lastname'
-        },
-        body: undefined,
-        user: {
-          emails: ['foo@bar.com']
-        }
-      };
-      var res = {
-        json: function(code, error) {
-          expect(code).to.equal(400);
-          expect(error).to.exist;
-          expect(error.error).to.exist;
-          expect(error.error.details).to.match(/No value defined/);
-          done();
-        }
-      };
-      users.updateProfile(req, res);
-    });
-
-    it('should not send back error if lastname is empty', function(done) {
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-
-      var req = {
-        params: {
-          attribute: 'lastname'
-        },
-        body: {value: ''},
-        user: {
-          emails: ['foo@bar.com']
-        }
-      };
-      var res = {
-        json: function(code, error) {
-          expect(code).to.equal(200);
-          done();
-        }
-      };
-      users.updateProfile(req, res);
-    });
-
-    it('should not send back error if lastname is too long', function(done) {
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-
-      var req = {
-        params: {
-          attribute: 'lastname'
-        },
-        body: {value: new Array(1000).join('a')},
-        user: {
-          emails: ['foo@bar.com']
-        }
-      };
-      var res = {
-        json: function(code, error) {
-          expect(code).to.equal(200);
-          done();
-        }
-      };
-      users.updateProfile(req, res);
-    });
-
-    it('should be OK if lastname is set with valid value', function(done) {
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-
-      var req = {
-        params: {
-          attribute: 'lastname'
-        },
-        body: {value: 'Doe'},
-        user: {
-          emails: ['foo@bar.com']
-        }
-      };
-      var res = {
-        json: function(code) {
-          expect(code).to.equal(200);
-          done();
-        }
-      };
-      users.updateProfile(req, res);
-    });
-
-    it('should be OK if lastname is set with special characters in it', function(done) {
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-
-      var req = {
-        params: {
-          attribute: 'lastname'
-        },
-        body: {value: 'Doe Big\'Last-Name_'},
-        user: {
-          emails: ['foo@bar.com']
-        }
-      };
-      var res = {
-        json: function(code) {
-          expect(code).to.equal(200);
-          done();
-        }
-      };
-      users.updateProfile(req, res);
-    });
-
-    // job_title
-
-    it('should send back error if job_title is not set in body', function(done) {
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-
-      var req = {
-        params: {
-          attribute: 'job_title'
-        },
-        body: undefined,
-        user: {
-          emails: ['foo@bar.com']
-        }
-      };
-      var res = {
-        json: function(code, error) {
-          expect(code).to.equal(400);
-          expect(error).to.exist;
-          expect(error.error).to.exist;
-          expect(error.error.details).to.match(/No value defined/);
-          done();
-        }
-      };
-      users.updateProfile(req, res);
-    });
-
-    it('should not send back error if job_title is empty', function(done) {
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-
-      var req = {
-        params: {
-          attribute: 'job_title'
-        },
-        body: {value: ''},
-        user: {
-          emails: ['foo@bar.com']
-        }
-      };
-      var res = {
-        json: function(code, error) {
-          expect(code).to.equal(200);
-          done();
-        }
-      };
-      users.updateProfile(req, res);
-    });
-
-    it('should not send back error if job_title is too long', function(done) {
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-
-      var req = {
-        params: {
-          attribute: 'job_title'
-        },
-        body: {value: new Array(1000).join('a')},
-        user: {
-          emails: ['foo@bar.com']
-        }
-      };
-      var res = {
-        json: function(code, error) {
-          expect(code).to.equal(200);
-          done();
-        }
-      };
-      users.updateProfile(req, res);
-    });
-
-    it('should be OK if job_title is set with valid value', function(done) {
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-
-      var req = {
-        params: {
-          attribute: 'job_title'
-        },
-        body: {value: 'Node Hacker'},
-        user: {
-          emails: ['foo@bar.com']
-        }
-      };
-      var res = {
-        json: function(code) {
-          expect(code).to.equal(200);
-          done();
-        }
-      };
-      users.updateProfile(req, res);
-    });
-
-    // service
-
-    it('should send back error if service is not set in body', function(done) {
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-
-      var req = {
-        params: {
-          attribute: 'service'
-        },
-        body: undefined,
-        user: {
-          emails: ['foo@bar.com']
-        }
-      };
-      var res = {
-        json: function(code, error) {
-          expect(code).to.equal(400);
-          expect(error).to.exist;
-          expect(error.error).to.exist;
-          expect(error.error.details).to.match(/No value defined/);
-          done();
-        }
-      };
-      users.updateProfile(req, res);
-    });
-
-    it('should not send back error if service is empty', function(done) {
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-
-      var req = {
-        params: {
-          attribute: 'service'
-        },
-        body: {value: ''},
-        user: {
-          emails: ['foo@bar.com']
-        }
-      };
-      var res = {
-        json: function(code, error) {
-          expect(code).to.equal(200);
-          done();
-        }
-      };
-      users.updateProfile(req, res);
-    });
-
-    it('should not send back error if service is too long', function(done) {
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-
-      var req = {
-        params: {
-          attribute: 'service'
-        },
-        body: {value: new Array(1000).join('a')},
-        user: {
-          emails: ['foo@bar.com']
-        }
-      };
-      var res = {
-        json: function(code, error) {
-          expect(code).to.equal(200);
-          done();
-        }
-      };
-      users.updateProfile(req, res);
-    });
-
-    it('should be OK if service is set with valid value', function(done) {
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-
-      var req = {
-        params: {
-          attribute: 'service'
-        },
-        body: {value: 'Development Team'},
-        user: {
-          emails: ['foo@bar.com']
-        }
-      };
-      var res = {
-        json: function(code) {
-          expect(code).to.equal(200);
-          done();
-        }
-      };
-      users.updateProfile(req, res);
-    });
-
-    // building_location
-
-    it('should send back error if building_location is not set in body', function(done) {
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-
-      var req = {
-        params: {
-          attribute: 'building_location'
-        },
-        body: undefined,
-        user: {
-          emails: ['foo@bar.com']
-        }
-      };
-      var res = {
-        json: function(code, error) {
-          expect(code).to.equal(400);
-          expect(error).to.exist;
-          expect(error.error).to.exist;
-          expect(error.error.details).to.match(/No value defined/);
-          done();
-        }
-      };
-      users.updateProfile(req, res);
-    });
-
-    it('should not send back error if building_location is empty', function(done) {
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-
-      var req = {
-        params: {
-          attribute: 'building_location'
-        },
-        body: {value: ''},
-        user: {
-          emails: ['foo@bar.com']
-        }
-      };
-      var res = {
-        json: function(code, error) {
-          expect(code).to.equal(200);
-          done();
-        }
-      };
-      users.updateProfile(req, res);
-    });
-
-    it('should not send back error if building_location is too long', function(done) {
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-
-      var req = {
-        params: {
-          attribute: 'building_location'
-        },
-        body: {value: new Array(1000).join('a')},
-        user: {
-          emails: ['foo@bar.com']
-        }
-      };
-      var res = {
-        json: function(code, error) {
-          expect(code).to.equal(200);
-          done();
-        }
-      };
-      users.updateProfile(req, res);
-    });
-
-    it('should be OK if building_location is set with valid value', function(done) {
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-
-      var req = {
-        params: {
-          attribute: 'building_location'
-        },
-        body: {value: '80, rue Roque de Fillol - 92800 Puteaux'},
-        user: {
-          emails: ['foo@bar.com']
-        }
-      };
-      var res = {
-        json: function(code) {
-          expect(code).to.equal(200);
-          done();
-        }
-      };
-      users.updateProfile(req, res);
-    });
-
-    // office_location
-
-    it('should not back error if office_location is not set in body', function(done) {
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-
-      var req = {
-        params: {
-          attribute: 'office_location'
-        },
-        body: undefined,
-        user: {
-          emails: ['foo@bar.com']
-        }
-      };
-      var res = {
-        json: function(code, error) {
-          expect(code).to.equal(400);
-          expect(error).to.exist;
-          expect(error.error).to.exist;
-          expect(error.error.details).to.match(/No value defined/);
-          done();
-        }
-      };
-      users.updateProfile(req, res);
-    });
-
-    it('should not send back error if office_location is empty', function(done) {
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-
-      var req = {
-        params: {
-          attribute: 'office_location'
-        },
-        body: {value: ''},
-        user: {
-          emails: ['foo@bar.com']
-        }
-      };
-      var res = {
-        json: function(code, error) {
-          expect(code).to.equal(200);
-          done();
-        }
-      };
-      users.updateProfile(req, res);
-    });
-
-    it('should not send back error if office_location is too long', function(done) {
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-
-      var req = {
-        params: {
-          attribute: 'office_location'
-        },
-        body: {value: new Array(1000).join('a')},
-        user: {
-          emails: ['foo@bar.com']
-        }
-      };
-      var res = {
-        json: function(code, error) {
-          expect(code).to.equal(200);
-          done();
-        }
-      };
-      users.updateProfile(req, res);
-    });
-
-    it('should be OK if office_location is set with valid value', function(done) {
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-
-      var req = {
-        params: {
-          attribute: 'building_location'
-        },
-        body: {value: 'First floor, Room 123456789'},
-        user: {
-          emails: ['foo@bar.com']
-        }
-      };
-      var res = {
-        json: function(code) {
-          expect(code).to.equal(200);
-          done();
-        }
-      };
-      users.updateProfile(req, res);
-    });
-
-    // main_phone
-
-    it('should not send back error if main_phone is not set in body', function(done) {
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-
-      var req = {
-        params: {
-          attribute: 'main_phone'
-        },
-        body: undefined,
-        user: {
-          emails: ['foo@bar.com']
-        }
-      };
-      var res = {
-        json: function(code, error) {
-          expect(code).to.equal(400);
-          expect(error).to.exist;
-          expect(error.error).to.exist;
-          expect(error.error.details).to.match(/No value defined/);
-          done();
-        }
-      };
-      users.updateProfile(req, res);
-    });
-
-    it('should not send back error if main_phone is empty', function(done) {
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-
-      var req = {
-        params: {
-          attribute: 'main_phone'
-        },
-        body: {value: ''},
-        user: {
-          emails: ['foo@bar.com']
-        }
-      };
-      var res = {
-        json: function(code, error) {
-          expect(code).to.equal(200);
-          done();
-        }
-      };
-      users.updateProfile(req, res);
-    });
-
-    it('should not send back error if main_phone is too long', function(done) {
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-
-      var req = {
-        params: {
-          attribute: 'main_phone'
-        },
-        body: {value: new Array(1000).join('a')},
-        user: {
-          emails: ['foo@bar.com']
-        }
-      };
-      var res = {
-        json: function(code, error) {
-          expect(code).to.equal(200);
-          done();
-        }
-      };
-      users.updateProfile(req, res);
-    });
-
-    it('should be OK if main_phone is set with valid value', function(done) {
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-
-      var req = {
-        params: {
-          attribute: 'building_location'
-        },
-        body: {value: '+33645560000'},
-        user: {
-          emails: ['foo@bar.com']
-        }
-      };
-      var res = {
-        json: function(code) {
-          expect(code).to.equal(200);
-          done();
+          return this;
         }
       };
       users.updateProfile(req, res);
@@ -840,75 +206,75 @@ describe('The User controller', function() {
     it('should return 404 if the user is not actually logged in', function(done) {
       var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {};
-      var res = {
-        json: function(code, data) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, data) {
           expect(code).to.equal(404);
           expect(data.error).to.equal(404);
           expect(data.message).to.equal('Not found');
           expect(data.details).to.equal('User not found');
           done();
         }
-      };
+      );
       users.postProfileAvatar(req, res);
     });
 
     it('should return 400 if the mimetype argument is not set', function(done) {
       var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {user: {}, query: {}};
-      var res = {
-        json: function(code, data) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, data) {
           expect(code).to.equal(400);
           expect(data.error).to.equal(400);
           expect(data.message).to.equal('Parameter missing');
           expect(data.details).to.equal('mimetype parameter is required');
           done();
         }
-      };
+      );
       users.postProfileAvatar(req, res);
     });
 
     it('should return 400 if the mimetype argument is not an image mimetype', function(done) {
       var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {user: {}, query: {mimetype: 'application/yolo'}};
-      var res = {
-        json: function(code, data) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, data) {
           expect(code).to.equal(400);
           expect(data.error).to.equal(400);
           expect(data.message).to.equal('Bad parameter');
           expect(data.details).to.equal('mimetype application/yolo is not acceptable');
           done();
         }
-      };
+      );
       users.postProfileAvatar(req, res);
     });
 
     it('should return 400 if the size argument is not set', function(done) {
       var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {user: {}, query: {mimetype: 'image/png'}};
-      var res = {
-        json: function(code, data) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, data) {
           expect(code).to.equal(400);
           expect(data.error).to.equal(400);
           expect(data.message).to.equal('Parameter missing');
           expect(data.details).to.equal('size parameter is required');
           done();
         }
-      };
+      );
       users.postProfileAvatar(req, res);
     });
 
     it('should return 400 if the size argument is not an integer', function(done) {
       var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {user: {}, query: {mimetype: 'image/png', size: 'yolo'}};
-      var res = {
-        json: function(code, data) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, data) {
           expect(code).to.equal(400);
           expect(data.error).to.equal(400);
           expect(data.message).to.equal('Bad parameter');
           expect(data.details).to.equal('size parameter should be an integer');
           done();
         }
-      };
+      );
       users.postProfileAvatar(req, res);
     });
 
@@ -962,15 +328,15 @@ describe('The User controller', function() {
       mockery.registerMock('./image', imageMock);
       var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {user: {}, query: {mimetype: 'image/png', size: 42}};
-      var res = {
-        json: function(code, data) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, data) {
           expect(code).to.equal(500);
           expect(data.error).to.equal(500);
           expect(data.message).to.equal('Datastore failure');
           expect(data.details).to.equal('yolo');
           done();
         }
-      };
+      );
       users.postProfileAvatar(req, res);
     });
 
@@ -985,15 +351,15 @@ describe('The User controller', function() {
       mockery.registerMock('./image', imageMock);
       var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {user: {}, query: {mimetype: 'image/png', size: 42}};
-      var res = {
-        json: function(code, data) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, data) {
           expect(code).to.equal(500);
           expect(data.error).to.equal(500);
           expect(data.message).to.equal('Image processing failure');
           expect(data.details).to.equal('yolo');
           done();
         }
-      };
+      );
       users.postProfileAvatar(req, res);
     });
 
@@ -1007,15 +373,15 @@ describe('The User controller', function() {
       mockery.registerMock('./image', imageMock);
       var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {user: {}, query: {mimetype: 'image/png', size: 42}};
-      var res = {
-        json: function(code, data) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, data) {
           expect(code).to.equal(500);
           expect(data.error).to.equal(500);
           expect(data.message).to.equal('Internal server error');
           expect(data.details).to.equal('yolo');
           done();
         }
-      };
+      );
       users.postProfileAvatar(req, res);
     });
 
@@ -1028,18 +394,22 @@ describe('The User controller', function() {
       mockery.registerMock('./image', imageMock);
       var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {user: {}, query: {mimetype: 'image/png', size: 42}};
-      var res = {
-        json: function(code, data) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, data) {
           expect(code).to.equal(412);
           expect(data.error).to.equal(412);
           expect(data.message).to.equal('Image size does not match');
           done();
         }
-      };
+      );
       users.postProfileAvatar(req, res);
     });
 
     it('should call the recordUser function of the user model', function(done) {
+      var usermock = {
+        avatars: [],
+        currentAvatar: undefined
+      };
       var moduleMock = {
         user: {
           recordUser: function() {
@@ -1057,16 +427,11 @@ describe('The User controller', function() {
       mockery.registerMock('../../core', moduleMock);
 
       var users = this.helpers.requireBackend('webserver/controllers/users');
-
-      var usermock = {
-        avatars: [],
-        currentAvatar: undefined
-      };
       var req = {user: usermock, query: {mimetype: 'image/png', size: 42}};
-      var res = {
-        json: function(code, data) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, data) {
         }
-      };
+      );
       users.postProfileAvatar(req, res);
     });
 
@@ -1093,15 +458,15 @@ describe('The User controller', function() {
         currentAvatar: undefined
       };
       var req = {user: usermock, query: {mimetype: 'image/png', size: 42}};
-      var res = {
-        json: function(code, data) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, data) {
           expect(code).to.equal(500);
           expect(data.error).to.equal(500);
           expect(data.message).to.equal('Datastore failure');
           expect(data.details).to.equal('yolo');
           done();
         }
-      };
+      );
       users.postProfileAvatar(req, res);
     });
 
@@ -1127,14 +492,14 @@ describe('The User controller', function() {
         currentAvatar: undefined
       };
       var req = {user: usermock, query: {mimetype: 'image/png', size: 42}};
-      var res = {
-        json: function(code, data) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, data) {
           expect(code).to.equal(200);
           expect(data._id).to.exist;
           expect(data._id).to.have.property('toHexString');
           done();
         }
-      };
+      );
       users.postProfileAvatar(req, res);
     });
   });
@@ -1143,13 +508,13 @@ describe('The User controller', function() {
     it('should return 404 if the user is not logged in', function(done) {
       var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {};
-      var res = {
-        json: function(code, data) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, data) {
           expect(code).to.equal(404);
           expect(data).to.deep.equal({error: 404, message: 'Not found', details: 'User not found'});
           done();
         }
-      };
+      );
       users.getProfileAvatar(req, res);
     });
 
@@ -1321,12 +686,12 @@ describe('The User controller', function() {
         query: {
         }
       };
-      var res = {
-        send: function(code) {
+      var res = this.helpers.express.response(
+        function(code) {
           expect(code).to.equal(304);
           done();
         }
-      };
+      );
 
       users.getProfileAvatar(req, res);
     });

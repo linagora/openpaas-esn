@@ -26,7 +26,7 @@ describe('The Contacts controller module', function() {
       build: function(shell) {return shell;}
     };
 
-    ContactShell =  function() {};
+    ContactShell = function() {};
     ContactLiveUpdate = {
       startListen: function() {},
       stopListen: function() {}
@@ -37,8 +37,7 @@ describe('The Contacts controller module', function() {
       strongError: sinon.spy()
     };
     $location = {
-      path: function()
-      {},
+      path: function() {},
       url: function() {},
       search: function() {
         return {
@@ -1251,6 +1250,15 @@ describe('The Contacts controller module', function() {
   });
 
   describe('The contactsListController controller', function() {
+
+    it('should display contacts as list by default', inject(function(CONTACT_LIST_DISPLAY) {
+      $controller('contactsListController', {
+        $scope: scope,
+        user: { _id: '123' }
+      });
+
+      expect(scope.displayAs).to.equal(CONTACT_LIST_DISPLAY.list);
+    }));
 
     it('should store the search query when user switches to contact view', function() {
       scope.contactSearch = {
@@ -2533,27 +2541,6 @@ describe('The Contacts controller module', function() {
 
     });
 
-    describe('The getContactTitleDisplayCondition fn', function() {
-      it('should return correct value ', function() {
-        $controller('contactsListController', {
-          $scope: scope,
-          user: {
-            _id: '123'
-          }
-        });
-        var testGetContactTitleDisplayCondition = function(headerDisplayLetterExists, displayAs, searchInput, returnValue) {
-          scope.headerDisplay = {letterExists: headerDisplayLetterExists};
-          scope.displayAs = displayAs;
-          scope.contactSearch.searchInput = searchInput;
-          expect(scope.getContactTitleDisplayCondition()).to.equal(returnValue);
-        };
-        testGetContactTitleDisplayCondition(false, 'cards', '', true);
-        testGetContactTitleDisplayCondition(true, 'list', '', false);
-        testGetContactTitleDisplayCondition(false, 'list', '', true);
-        testGetContactTitleDisplayCondition(false, 'cards', 'a', false);
-      });
-    });
-
   });
 
   describe('The contactItemController controller', function() {
@@ -2810,6 +2797,29 @@ describe('The Contacts controller module', function() {
       expect(this.scope.headerDisplay).to.deep.equal({
         categoryLetter: 'A',
         letterExists: true
+      });
+    });
+
+    describe('The getContactTitleDisplayCondition fn', function() {
+      it('should return correct value ', function() {
+        $controller('contactCategoryLetterController', {
+          $scope: scope,
+          user: {
+            _id: '123'
+          }
+        });
+
+        function testGetContactTitleDisplayCondition(headerDisplayLetterExists, displayAs, searchInput, returnValue) {
+          scope.headerDisplay = {letterExists: headerDisplayLetterExists};
+          scope.displayAs = displayAs;
+          scope.contactSearch = { searchInput: searchInput };
+          expect(scope.getContactTitleDisplayCondition()).to.equal(returnValue);
+        }
+
+        testGetContactTitleDisplayCondition(false, 'cards', '', true);
+        testGetContactTitleDisplayCondition(true, 'list', '', false);
+        testGetContactTitleDisplayCondition(false, 'list', '', true);
+        testGetContactTitleDisplayCondition(false, 'cards', 'a', false);
       });
     });
 

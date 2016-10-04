@@ -22,8 +22,8 @@ angular.module('esn.aggregator', [])
         return {id: self.source.id, lastPage: self.lastPage, data: result.data || []};
       }, function(err) {
         self.lastPage = true;
-        $log.error('Fail to load new items', err);
-        return $q.reject(new Error('Fail to load data from source ' + self.source.id));
+
+        return $q.reject(err);
       });
     };
 
@@ -107,8 +107,7 @@ angular.module('esn.aggregator', [])
             Array.prototype.push.apply(wrappedSource.data, result.data);
           }
           return $q.when({data: wrappedSource.data});
-        }, function(err) {
-          $log.debug(err.message || err);
+        }, function() {
           return $q.when({data: []});
         });
       }));

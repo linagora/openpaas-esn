@@ -168,6 +168,10 @@ describe('The Unified Inbox Angular module models', function() {
       expect(new Email({ id: 'id' }).from).to.equal(undefined);
     });
 
+    it('should return a Selectable', function() {
+      expect(new Email({ id: 'id' }).selectable).to.equal(true);
+    });
+
     describe('The hasReplyAll attribute', function() {
 
       var recipients;
@@ -181,13 +185,13 @@ describe('The Unified Inbox Angular module models', function() {
       it('should allow replying all if there are more than one recipient', function() {
         var email = new Email({ id: 'id', to: [recipients[0]], cc: [recipients[1]] });
 
-        expect(email.hasReplyAll).to.be.true;
+        expect(email.hasReplyAll).to.equal(true);
       });
 
       it('should not allow replying all if there is only one recipient', function() {
         var email = new Email({ id: 'id', to: [recipients[0]], cc: [] });
 
-        expect(email.hasReplyAll).to.be.false;
+        expect(email.hasReplyAll).to.equal(false);
       });
 
     });
@@ -201,11 +205,12 @@ describe('The Unified Inbox Angular module models', function() {
       Thread = _Thread_;
     }));
 
-    it('should have id, subject and emails properties', function() {
-      var thread = new Thread({ id: 'threadId' }, [{ subject: 'firstEmailSubject' }, { subject: 'secondSubject' }]);
+    it('should have id, mailboxIds, subject and emails properties', function() {
+      var thread = new Thread({ id: 'threadId' }, [{ subject: 'firstEmailSubject', mailboxIds: ['1'] }, { subject: 'secondSubject' }]);
 
       expect(thread).to.shallowDeepEqual({
         id: 'threadId',
+        mailboxIds: ['1'],
         subject: 'firstEmailSubject',
         emails: [{ subject: 'firstEmailSubject' }, { subject: 'secondSubject' }]
       });
@@ -217,6 +222,10 @@ describe('The Unified Inbox Angular module models', function() {
 
     it('should have emails set to an empty array when null is given', function() {
       expect(new Thread({ id: 'threadId' }, null).emails).to.deep.equal([]);
+    });
+
+    it('should have mailboxIds set to an empty array when no emails are given', function() {
+      expect(new Thread({ id: 'threadId' }, null).mailboxIds).to.deep.equal([]);
     });
 
     it('should have subject set to an empty string when no emails are given', function() {
@@ -259,6 +268,83 @@ describe('The Unified Inbox Angular module models', function() {
       expect(new Thread({}, [{ hasAttachment: false }, { hasAttachment: true }]).hasAttachment).to.equal(true);
     });
 
+    it('should return a Selectable', function() {
+      expect(new Thread({ id: 'id' }).selectable).to.equal(true);
+    });
+
+    describe('The setEmails function', function() {
+
+      it('should replace thread.emails', function() {
+        var thread = new Thread({});
+
+        expect(thread.emails.length).to.equal(0);
+        thread.setEmails([{ hasAttachment: false }, { hasAttachment: true }]);
+        expect(thread.emails.length).to.equal(2);
+      });
+
+      it('should replace thread.subject', function() {
+        var thread = new Thread({}, [{ subject: 'subject1' }]);
+
+        expect(thread.subject).to.equal('subject1');
+        thread.setEmails([{ subject: 'subject2' }]);
+        expect(thread.subject).to.equal('subject2');
+      });
+
+      it('should replace thread.lastEmail', function() {
+        var thread = new Thread({}, [{ id: '1' }, { id: '2' }]);
+
+        expect(thread.lastEmail.id).to.equal('2');
+        thread.setEmails([{ id: '3' }]);
+        expect(thread.lastEmail.id).to.equal('3');
+      });
+
+      it('should replace thread.hasAttachment', function() {
+        var thread = new Thread({}, [{ hasAttachment: false }, { hasAttachment: true }]);
+
+        expect(thread.hasAttachment).to.equal(true);
+        thread.setEmails([{ hasAttachment: false }]);
+        expect(thread.hasAttachment).to.equal(false);
+      });
+
+    });
+
+  });
+
+  describe('The Selectable factory', function() {
+
+    var $rootScope, Selectable, INBOX_EVENTS;
+
+    beforeEach(inject(function(_$rootScope_, _Selectable_, _INBOX_EVENTS_) {
+      $rootScope = _$rootScope_;
+      Selectable = _Selectable_;
+      INBOX_EVENTS = _INBOX_EVENTS_;
+    }));
+
+    it('should set selectable=true on the source item', function() {
+      expect(new Selectable({}).selectable).to.equal(true);
+    });
+
+    it('should broadcast a ITEM_SELECTION_CHANGED event when selected flag changes on the item', function(done) {
+      var selectable = new Selectable({});
+
+      $rootScope.$on(INBOX_EVENTS.ITEM_SELECTION_CHANGED, function(event, item) {
+        expect(item).to.deep.equal({ selected: true, selectable: true });
+
+        done();
+      });
+
+      selectable.selected = true;
+    });
+
+    it('should not broadcast a ITEM_SELECTION_CHANGED event when selected flag does not change on the item', function(done) {
+      var selectable = new Selectable({});
+
+      $rootScope.$on(INBOX_EVENTS.ITEM_SELECTION_CHANGED, done);
+
+      selectable.selected = false;
+      done();
+    });
+
   });
 
   describe('The Emailer factory', function() {
@@ -290,6 +376,119 @@ describe('The Unified Inbox Angular module models', function() {
       $rootScope.$digest();
     });
 
+  });
+
+  describe('The Mailbox factory', function() {
+
+    var Mailbox, inboxMailboxesCache, INBOX_DISPLAY_NAME_SIZE, _;
+
+    beforeEach(module(function($provide) {
+      $provide.constant('INBOX_DISPLAY_NAME_SIZE', INBOX_DISPLAY_NAME_SIZE = 10);
+    }));
+
+    beforeEach(inject(function(_Mailbox_, _inboxMailboxesCache_, _INBOX_DISPLAY_NAME_SIZE_, ___) {
+      Mailbox = _Mailbox_;
+      inboxMailboxesCache = _inboxMailboxesCache_;
+      INBOX_DISPLAY_NAME_SIZE = _INBOX_DISPLAY_NAME_SIZE_;
+      _ = ___;
+    }));
+
+    describe('mailbox.displayName property', function() {
+
+      it('should leverage name property', function() {
+        expect(Mailbox({ name: 'm1' }).displayName).to.equal('m1');
+      });
+
+      it('should return undefined when name.length is 0', function() {
+        expect(Mailbox({}).displayName).to.be.undefined;
+      });
+
+      it('should be ellipsesed when name.length > INBOX_DISPLAY_NAME_SIZE', function() {
+        expect(Mailbox({ name: '112233445566778899' }).displayName).to.equal('1122334455...');
+      });
+
+      it('should be configurable', function() {
+        var mailbox = Mailbox({ name: 'm1' });
+
+        delete mailbox.displayName;
+        expect(mailbox.displayName).to.be.undefined;
+      });
+
+    });
+
+    describe('mailbox.descendants property', function() {
+      it('should be configurable', function() {
+        var mailbox = Mailbox({ name: 'm1' });
+
+        delete mailbox.descendants;
+        expect(mailbox.descendants).to.be.undefined;
+      });
+
+      it('mailbox.descendants should return empty array if the cache is empty', function() {
+        expect(Mailbox({ id: 'm1' }).descendants).to.deep.equal([]);
+      });
+
+      it('mailbox.descendants should return empty array if the mailbox has no child', function() {
+        inboxMailboxesCache.push({ parentId: 'm2' });
+
+        expect(Mailbox({ id: 'm1' }).descendants).to.deep.equal([]);
+      });
+
+      it('mailbox.descendants should return an array of descendants in the right order', function() {
+        var mailboxId = 'm1';
+        var descendants = [{
+          id: 'c1',
+          parentId: mailboxId
+        }, {
+          id: 'c3',
+          parentId: mailboxId
+        }, {
+          id: 'c11',
+          parentId: 'c1'
+        }, {
+          id: 'c12',
+          parentId: 'c1'
+        }, {
+          id: 'c31',
+          parentId: 'c3'
+        }];
+
+        inboxMailboxesCache.push({ parentId: 'm2' });
+        descendants.forEach(Array.prototype.push.bind(inboxMailboxesCache));
+
+        expect(Mailbox({ id: mailboxId }).descendants).to.deep.equal(descendants);
+      });
+
+      it('mailbox.descendants should cache the results of the computation', function() {
+        var mailboxId = 'm1';
+        var descendants = [{
+          id: 'c1',
+          parentId: mailboxId
+        }, {
+          id: 'c3',
+          parentId: mailboxId
+        }, {
+          id: 'c11',
+          parentId: 'c1'
+        }, {
+          id: 'c12',
+          parentId: 'c1'
+        }, {
+          id: 'c31',
+          parentId: 'c3'
+        }];
+        var mailbox = Mailbox({ id: mailboxId });
+
+        inboxMailboxesCache.push({ parentId: 'm2' });
+        descendants.forEach(Array.prototype.push.bind(inboxMailboxesCache));
+
+        expect(mailbox.descendants).to.deep.equal(descendants);
+
+        inboxMailboxesCache.length = 0;
+
+        expect(mailbox.descendants).to.deep.equal(descendants);
+      });
+    });
   });
 
 });

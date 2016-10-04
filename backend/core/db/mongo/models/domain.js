@@ -6,10 +6,18 @@ var Schema = mongoose.Schema;
 var injection = require('../schemas/injection');
 var Injection = injection.Injection;
 
+var AdminOfDomainSchema = new mongoose.Schema({
+  user_id: {type: Schema.ObjectId, ref: 'User', required: true},
+  timestamps: {
+    creation: {type: Date, default: Date.now}
+  }
+}, { _id: false });
+
 var DomainSchema = new Schema({
   name: {type: String, required: true, lowercase: true, trim: true},
   company_name: {type: String, required: true, lowercase: true, trim: true},
-  administrator: {type: Schema.ObjectId, ref: 'User'},
+  administrator: {type: Schema.ObjectId, ref: 'User'}, // deprecated
+  administrators: [AdminOfDomainSchema],
   timestamps: {
     creation: {type: Date, default: Date.now}
   },

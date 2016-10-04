@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.sidebar', ['esn.activitystreams-tracker'])
+angular.module('esn.sidebar', ['esn.activitystreams-tracker', 'esn.application-menu'])
 
   .constant('CONTEXTUAL_SIDEBAR', {
     animation: 'am-fade-and-slide-left',
@@ -24,7 +24,7 @@ angular.module('esn.sidebar', ['esn.activitystreams-tracker'])
     return contextualSidebarService;
   })
 
-  .directive('contextualSidebar', function($timeout, contextualSidebarService) {
+  .directive('contextualSidebar', function($timeout, contextualSidebarService, APP_MENU_OPEN_EVENT) {
     function link(scope, element, attr) {
       var options = {scope: scope},
         placementToAnimationMap = {
@@ -50,9 +50,13 @@ angular.module('esn.sidebar', ['esn.activitystreams-tracker'])
       });
 
       scope.$on('$destroy', function() {
-        if (sidebar) { sidebar.destroy(); }
+        if (sidebar) { sidebar.hide(); }
         options = null;
         sidebar = null;
+      });
+
+      scope.$on(APP_MENU_OPEN_EVENT, function() {
+        sidebar && sidebar.hide();
       });
     }
 

@@ -9,13 +9,12 @@ describe('The google contact importer mapping function', function() {
   describe('The toVcard function', function() {
     function compareShell(shell, ical) {
       var vcard = getModule().toVcard(shell);
-      for (var propName in ical) {
-        if (Object.hasOwnProperty.call(ical, propName)) {
-          var prop = vcard.getFirstProperty(propName);
-          var value = prop.toICAL();
-          expect(value).to.equal(ical[propName].toString());
-        }
-      }
+
+      Object.keys(ical).forEach(function(propName) {
+        var prop = vcard.getFirstProperty(propName);
+        var value = prop.toICAL();
+        expect(value).to.equal(ical[propName].toString());
+      });
     }
     it('should correctly create card from a Google following with all props', function() {
       var following = {
@@ -59,7 +58,7 @@ describe('The google contact importer mapping function', function() {
             href: 'http://schemas.google.com'
           }
         }],
-        'gd:structuredPostalAddress':[{
+        'gd:structuredPostalAddress': [{
           $: {
             rel: 'http://schemas.google.com/g/2005#home'
           },

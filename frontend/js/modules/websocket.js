@@ -122,8 +122,19 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
   })
   .factory('ioInterface', function(IoAction) {
     function ioInterface(callback) {
-
       var ioAction = new IoAction();
+      var terminate = {
+        emit: emit,
+        of: of,
+        on: on,
+        removeListener: removeListener,
+        broadcast: {
+          emit: function() {
+            ioAction.broadcast = true;
+            return emit(arguments);
+          }
+        }
+      };
 
       function buildCallbackResponse() {
         var completeAction = ioAction;
@@ -154,18 +165,6 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
         callback(buildCallbackResponse());
       }
 
-      var terminate = {
-        emit: emit,
-        of: of,
-        on: on,
-        removeListener: removeListener,
-        broadcast: {
-          emit: function() {
-            ioAction.broadcast = true;
-            return emit(arguments);
-          }
-        }
-      };
       return terminate;
     }
 

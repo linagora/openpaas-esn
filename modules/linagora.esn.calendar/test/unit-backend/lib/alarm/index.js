@@ -8,11 +8,16 @@ var ICAL = require('ical.js');
 var moment = require('moment');
 
 describe('alarm module', function() {
-  var contentSender, helpers, localstub, cron;
+  var emailModule, sendHTMLMock, helpers, localstub, cron;
 
   beforeEach(function() {
     this.calendarModulePath = this.moduleHelpers.modulesPath + 'linagora.esn.calendar';
-    contentSender = { send: sinon.stub().returns(q.when({})) };
+    sendHTMLMock = sinon.stub().returns(q.when({}));
+    emailModule = {
+      getMailer: function() {
+        return { sendHTML: sendHTMLMock };
+      }
+    };
     helpers = {
       config: {
         getBaseUrl: function(callback) {
@@ -22,7 +27,7 @@ describe('alarm module', function() {
     };
     localstub = {};
     cron = { submit: sinon.spy(), abortAll: sinon.spy() };
-    this.moduleHelpers.addDep('content-sender', contentSender);
+    this.moduleHelpers.addDep('email', emailModule);
     this.moduleHelpers.addDep('helpers', helpers);
     this.moduleHelpers.addDep('pubsub', this.helpers.mock.pubsub('', localstub, {}));
     this.moduleHelpers.addDep('cron', cron);
@@ -40,15 +45,13 @@ describe('alarm module', function() {
       }),
       sinon.match(function(job) {
         job();
-        expect(contentSender.send).to.have.been.calledWith(
-          { id: 'noreply@open-paas.org', objectType: 'email' },
-          { id: 'slemaistre@gmail.com', objectType: 'email' },
-          sinon.match.has('alarm'),
-          {
-            message: { subject: 'Pending event! Event: Victor Sanders' },
-            template: 'event.alarm'
-          },
-          'email'
+        expect(sendHTMLMock).to.have.been.calledWith(
+          sinon.match({
+            to: 'slemaistre@gmail.com',
+            subject: 'Pending event! Event: Victor Sanders'
+          }),
+          'event.alarm',
+          sinon.match.has('alarm')
         );
         return true;
       }),

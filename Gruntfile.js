@@ -1,17 +1,18 @@
 'use strict';
 
-var util = require('util'),
-    os = require('os');
+/* eslint-disable no-process-env, no-console */
 
+var os = require('os');
+var timeGrunt = require('time-grunt');
 var conf_path = './test/config/';
 var servers = require(conf_path + 'servers-conf');
 var config = require('./config/default.json');
 var dockerodeConfig = require('./docker/config/dockerode');
 var GruntfileUtils = require('./tasks/utils/Gruntfile-utils');
-var fixtures = require('./fixtures');
 
 module.exports = function(grunt) {
-  var CI = grunt.option('ci');
+  // must be run at the top
+  timeGrunt(grunt);
 
   var gruntfileUtils = new GruntfileUtils(grunt, servers);
   var shell = gruntfileUtils.shell();
@@ -28,7 +29,7 @@ module.exports = function(grunt) {
     },
     eslint: {
       all: {
-        src: ['Gruntfile.js', 'Gruntfile-tests.js', 'tasks/**/*.js', 'test/**/**/*.js', 'backend/**/*.js', 'frontend/js/**/*.js', 'modules/**/*.js', 'bin/**/*.js']
+        src: ['Gruntfile.js', 'Gruntfile-tests.js', 'tasks/**/*.js', 'test/**/**/*.js', 'backend/**/*.js', 'frontend/js/**/*.js', 'modules/**/*.js', 'bin/**/*.js', 'fixtures/**/*.js']
       },
       quick: {
         src: [],
@@ -40,34 +41,6 @@ module.exports = function(grunt) {
         quiet: true
       }
 
-    },
-    jshint: {
-      options: {
-        jshintrc: '.jshintrc',
-        ignores: ['test/frontend/karma-include/*', 'frontend/js/modules/modernizr.js', 'modules/**/thirdparty/*.js'],
-        reporter: CI && 'checkstyle',
-        reporterOutput: CI && 'jshint.xml'
-      },
-      all: {
-        src: ['<%= eslint.all.src %>']
-      },
-      quick: {
-        // You must run the prepare-quick-lint target before jshint:quick,
-        // files are filled in dynamically.
-        src: ['<%= eslint.quick.src %>']
-      }
-    },
-    jscs: {
-      options: {
-        config: '.jscsrc'
-      },
-      all: {
-
-        src: ['<%= eslint.all.src %>', '!test/frontend/karma-include/*', '!frontend/js/modules/modernizr.js', '!modules/**/thirdparty/*.js']
-      },
-      quick: {
-        src: ['<%= eslint.quick.src %>']
-      }
     },
     lint_pattern: {
       options: {
@@ -95,8 +68,7 @@ module.exports = function(grunt) {
     },
     shell: {
       redis: shell.newShell(command.redis, /on port/, 'Redis server is started.'),
-      mongo: shell.newShell(command.mongo(false), new RegExp('connections on port ' + servers.mongodb.port), 'MongoDB server is started.'),
-      mongo_replSet: shell.newShell(command.mongo(true), new RegExp('connections on port ' + servers.mongodb.port), 'MongoDB server is started.'),
+      mongo: shell.newShell(command.mongo(), new RegExp('connections on port ' + servers.mongodb.port), 'MongoDB server is started.'),
       ldap: shell.newShell(command.ldap, /LDAP server up at/, 'Ldap server is started.'),
       elasticsearch: shell.newShell(command.elasticsearch, /started/, 'Elasticsearch server is started.')
     },
@@ -115,7 +87,7 @@ module.exports = function(grunt) {
 
       esn_full_up: container.newEsnFullContainer({
           name: 'docker-compose-esn-full-up',
-          command: ['up'],
+          command: ['up', '--no-build'],
           env: [
             'DOCKER_IP=' + servers.host,
             'ESN_PATH=' + __dirname,
@@ -150,17 +122,6 @@ module.exports = function(grunt) {
           Cmd: ['mongod', '--nojournal']
         }, {
           PortBindings: { '27017/tcp': [{ HostPort: servers.mongodb.port + '' }] }
-        }, {}, {
-          regex: new RegExp('connections on port 27017'),
-          info: 'MongoDB server is started.'
-        }),
-      mongo_replSet: container.newContainer({
-          Image: servers.mongodb.container.image,
-          name: servers.mongodb.container.name,
-          Cmd: util.format('mongod --replSet %s --smallfiles --oplogSize 128', servers.mongodb.replicat_set_name).split(' ')
-        }, {
-          PortBindings: { '27017/tcp': [{ HostPort: servers.mongodb.port + '' }] },
-          ExtraHosts: ['mongo:127.0.0.1']
         }, {}, {
           regex: new RegExp('connections on port 27017'),
           info: 'MongoDB server is started.'
@@ -220,10 +181,6 @@ module.exports = function(grunt) {
       modules_frontend: runGrunt.newProcess(['test-modules-frontend']),
       e2e: runGrunt.newProcess(['test-e2e'])
     },
-    watch: {
-      files: ['<%= jshint.files %>'],
-      tasks: ['jshint']
-    },
     'node-inspector': {
       dev: {
         options: {
@@ -237,7 +194,6 @@ module.exports = function(grunt) {
   });
 
   grunt.loadNpmTasks('grunt-contrib-uglify');
-  grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-clean');
@@ -249,29 +205,27 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-node-inspector');
   grunt.loadNpmTasks('grunt-lint-pattern');
   grunt.loadNpmTasks('grunt-docker-spawn');
-  grunt.loadNpmTasks('grunt-jscs');
   grunt.loadNpmTasks('grunt-eslint');
   grunt.loadNpmTasks('grunt-wait-server');
 
   grunt.loadTasks('tasks');
 
-  grunt.registerTask('spawn-containers', 'spawn servers', ['container:redis', 'container:mongo_replSet', 'container:elasticsearch']);
-  grunt.registerTask('pull-containers', 'pull containers', ['container:redis:pull', 'container:mongo_replSet:pull', 'container:elasticsearch:pull']);
-  grunt.registerTask('kill-containers', 'kill servers', ['container:redis:remove', 'container:mongo_replSet:remove', 'container:elasticsearch:remove']);
-  grunt.registerTask('setup-mongo-es-docker', ['spawn-containers', 'continue:on', 'mongoReplicationMode:docker', 'setupElasticsearchUsersIndex', 'setupElasticsearchContactsIndex', 'setupElasticsearchEventsIndex']);
+  grunt.registerTask('spawn-containers', 'spawn servers', ['container:redis', 'container:mongo', 'container:elasticsearch']);
+  grunt.registerTask('pull-containers', 'pull containers', ['container:redis:pull', 'container:mongo:pull', 'container:elasticsearch:pull']);
+  grunt.registerTask('kill-containers', 'kill servers', ['container:redis:remove', 'container:mongo:remove', 'container:elasticsearch:remove']);
+  grunt.registerTask('setup-mongo-es-docker', ['spawn-containers', 'continue:on', 'setupElasticsearchUsersIndex', 'setupElasticsearchContactsIndex', 'setupElasticsearchEventsIndex']);
 
-  grunt.registerTask('spawn-servers', 'spawn servers', ['shell:redis', 'shell:mongo_replSet', 'shell:elasticsearch']);
-  grunt.registerTask('kill-servers', 'kill servers', ['shell:redis:kill', 'shell:mongo_replSet:kill', 'shell:elasticsearch:kill']);
+  grunt.registerTask('spawn-servers', 'spawn servers', ['shell:redis', 'shell:mongo', 'shell:elasticsearch']);
+  grunt.registerTask('kill-servers', 'kill servers', ['shell:redis:kill', 'shell:mongo:kill', 'shell:elasticsearch:kill']);
   grunt.registerTask('setup-environment', 'create temp folders and files for tests', gruntfileUtils.setupEnvironment());
   grunt.registerTask('clean-environment', 'remove temp folder for tests', gruntfileUtils.cleanEnvironment());
-  grunt.registerTask('mongoReplicationMode', 'setup mongo replica set', gruntfileUtils.setupMongoReplSet());
   grunt.registerTask('setupElasticsearchUsersIndex', 'setup elasticsearch users index', gruntfileUtils.setupElasticsearchUsersIndex());
   grunt.registerTask('setupElasticsearchContactsIndex', 'setup elasticsearch contacts index', gruntfileUtils.setupElasticsearchContactsIndex());
   grunt.registerTask('setupElasticsearchEventsIndex', 'setup elasticsearch events index', gruntfileUtils.setupElasticsearchEventsIndex());
 
   grunt.registerTask('dev', ['nodemon:dev']);
   grunt.registerTask('debug', ['node-inspector:dev']);
-  grunt.registerTask('setup-mongo-es', ['spawn-servers', 'continue:on', 'mongoReplicationMode', 'setupElasticsearchUsersIndex', 'setupElasticsearchContactsIndex', 'setupElasticsearchEventsIndex']);
+  grunt.registerTask('setup-mongo-es', ['spawn-servers', 'continue:on', 'setupElasticsearchUsersIndex', 'setupElasticsearchContactsIndex', 'setupElasticsearchEventsIndex']);
 
   grunt.registerTask('test-e2e', ['test-e2e-up', 'continue:on', 'run_grunt:e2e', 'test-e2e-down', 'continue:off', 'continue:fail-on-warning']);
   grunt.registerTask('test-e2e-quick', ['test-e2e-up', 'run_grunt:e2e']);
@@ -279,11 +233,13 @@ module.exports = function(grunt) {
   grunt.registerTask('test-e2e-prepare', ['container:esn_full_pull:pull', 'container:esn_full_build:pull', 'container:esn_full_up:pull', 'container:esn_full_down:pull', 'test-e2e-pull', 'test-e2e-build']);
 
   grunt.registerTask('test-e2e-pull', ['container:esn_full_pull', 'container:esn_full_pull:remove']);
-  grunt.registerTask('test-e2e-build', ['test-e2e-build-esn_base', 'container:esn_full_build', 'container:esn_full_build:remove']);
+  grunt.registerTask('test-e2e-build', ['continue:on', 'test-e2e-remove-esn_base', 'test-e2e-remove-esn', 'continue:off', 'test-e2e-build-esn_base', 'container:esn_full_build', 'container:esn_full_build:remove']);
   grunt.registerTask('test-e2e-up', ['continue:on', 'container:esn_full_up', 'container:esn_full_up:remove', 'continue:off', 'continue:fail-on-warning', 'test-e2e-wait-servers']);
   grunt.registerTask('test-e2e-down', ['container:esn_full_down', 'container:esn_full_down:remove']);
   grunt.registerTask('test-e2e-clean', 'Clean all compose containers', ['continue:on', 'container:esn_full_pull:remove', 'container:esn_full_build:remove', 'container:esn_full_up:remove', 'container:esn_full_down:remove', 'continue:off']);
   grunt.registerTask('test-e2e-build-esn_base', gruntfileUtils.buildEsnBaseImage());
+  grunt.registerTask('test-e2e-remove-esn_base', gruntfileUtils.removeEsnBaseImage());
+  grunt.registerTask('test-e2e-remove-esn', gruntfileUtils.removeEsnImage());
 
   grunt.registerTask('test-midway-backend', ['setup-environment', 'setup-mongo-es', 'run_grunt:midway_backend', 'kill-servers', 'clean-environment']);
   grunt.registerTask('test-unit-backend', ['setup-environment', 'run_grunt:unit_backend', 'clean-environment']);
@@ -297,18 +253,20 @@ module.exports = function(grunt) {
   grunt.registerTask('docker-test-unit-storage', ['setup-environment', 'setup-mongo-es-docker', 'run_grunt:unit_storage', 'kill-containers', 'clean-environment']);
   grunt.registerTask('docker-test-midway-backend', ['setup-environment', 'setup-mongo-es-docker', 'run_grunt:midway_backend', 'kill-containers', 'clean-environment']);
   grunt.registerTask('docker-test-modules-midway', ['setup-environment', 'setup-mongo-es-docker', 'run_grunt:modules_midway_backend', 'kill-containers', 'clean-environment']);
-  grunt.registerTask('linters', 'Check code for lint', ['eslint:all', 'jscs:all', 'lint_pattern']);
+  grunt.registerTask('linters', 'Check code for lint', ['eslint:all', 'lint_pattern']);
 
   /**
    * Usage:
    *   grunt linters-dev              # Run linters against files changed in git
    *   grunt linters-dev -r 51c1b6f   # Run linters against a specific changeset
    */
-  grunt.registerTask('linters-dev', 'Check changed files for lint', ['prepare-quick-lint', 'eslint:quick', 'jscs:quick', 'lint_pattern:quick']);
+  grunt.registerTask('linters-dev', 'Check changed files for lint', ['prepare-quick-lint', 'eslint:quick', 'lint_pattern:quick']);
 
   grunt.registerTask('default', ['test']);
   grunt.registerTask('fixtures', 'Launch the fixtures injection', function() {
     var done = this.async();
+    var fixtures = require('./fixtures');
+
     fixtures(done);
   });
 };

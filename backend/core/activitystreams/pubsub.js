@@ -43,10 +43,8 @@ function updateTimelineEntriesTracker(data, callback) {
   callback = callback || function(err, saved) {
     if (err) {
       logger.warn('Error while adding timeline entry tracker : ', +err.message);
-    } else {
-      if (saved) {
-        logger.debug('Timeline entries tracker has been created / updated into database : ' + saved._id);
-      }
+    } else if (saved) {
+      logger.debug('Timeline entries tracker has been created / updated into database : ' + saved._id);
     }
   };
 

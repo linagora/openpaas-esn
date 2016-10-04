@@ -16,13 +16,16 @@ angular.module('esn.user', ['esn.http', 'esn.object-type'])
         }
         return user;
       };
+      model.__id = function(user) {
+        return user._id || user;
+      };
       return model;
     });
   })
   .factory('userAPI', function(esnRestangular) {
 
     function currentUser() {
-      return esnRestangular.one('user').get();
+      return esnRestangular.one('user').get({_: Date.now()});
     }
 
     function user(uuid) {

@@ -22,7 +22,7 @@ describe('The mongo-based authentication module', function() {
     email2 = 'bar@linagora.com';
 
     this.mongoose = require('mongoose');
-    this.mongoose.connect(this.testEnv.mongoUrl, done);
+    this.connectMongoose(this.mongoose, done);
   });
 
   afterEach(function(done) {

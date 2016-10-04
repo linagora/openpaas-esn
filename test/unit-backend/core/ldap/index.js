@@ -2,99 +2,79 @@
 
 var expect = require('chai').expect;
 var mockery = require('mockery');
+var sinon = require('sinon');
+var q = require('q');
 
 describe('The ldap core module', function() {
 
   describe('findLDAPForUser fn', function() {
-    it('should fail if LDAP query send back error', function(done) {
 
-      var mockgoose = {
-        model: function() {
-          return {
-            find: function(query, callback) {
-              return callback(new Error());
-            }
-          };
-        }
+    var ldap;
+    var esnConfigMock, ldapConfigsMock;
+
+    beforeEach(function() {
+      ldapConfigsMock = [];
+      esnConfigMock = {
+        getFromAllDomains: sinon.spy(function() {
+          return q(ldapConfigsMock);
+        })
       };
-      mockery.registerMock('mongoose', mockgoose);
 
-      var ldap = this.helpers.requireBackend('core/ldap');
-      ldap.findLDAPForUser('foo@bar.com', function(err, ldaps) {
-        expect(err).to.exist;
-        done();
+      mockery.registerMock('../esn-config', function(configName) {
+        expect(configName).to.equal('ldap');
+
+        return esnConfigMock;
       });
-    });
-
-    it('should fail if LDAP query does not return result', function(done) {
-
-      var mockgoose = {
-        model: function() {
-          return {
-            find: function(query, callback) {
-              return callback();
-            }
-          };
-        }
-      };
-      mockery.registerMock('mongoose', mockgoose);
-
-      var ldap = this.helpers.requireBackend('core/ldap');
-      ldap.findLDAPForUser('foo@bar.com', function(err, ldaps) {
-        expect(err).to.exist;
-        done();
-      });
-    });
-
-    it('should fail if LDAP query send empty result', function(done) {
-
-      var mockgoose = {
-        model: function() {
-          return {
-            find: function(query, callback) {
-              return callback(null, []);
-            }
-          };
-        }
-      };
-      mockery.registerMock('mongoose', mockgoose);
-
-      var ldap = this.helpers.requireBackend('core/ldap');
-      ldap.findLDAPForUser('foo@bar.com', function(err, ldaps) {
-        expect(err).to.exist;
-        done();
-      });
-    });
-
-    it('should send back the ldap where user is available in', function(done) {
-
-      var ldaps = [{_id: 1, configuration: {}}, {_id: 2, configuration: {include: true}}, {_id: 3, configuration: {include: true}}];
-      var mockgoose = {
-        model: function() {
-          return {
-            find: function(query, callback) {
-              return callback(null, ldaps);
-            }
-          };
-        }
-      };
-      mockery.registerMock('mongoose', mockgoose);
-
-      var ldapmock = function(ldap) {
+      mockery.registerMock('ldapauth-fork', function(ldap) {
         return {
           _findUser: function(email, callback) {
             if (ldap.include === true) {
               return callback(null, {});
             }
+
             return callback();
           }
         };
-      };
-      mockery.registerMock('ldapauth-fork', ldapmock);
+      });
+      ldap = this.helpers.requireBackend('core/ldap');
+    });
 
-      var ldap = this.helpers.requireBackend('core/ldap');
+    it('should send back error if Ldap configuration is empty', function(done) {
+      ldap.findLDAPForUser('foo@bar.com', function(err, ldaps) {
+        expect(err).to.exist;
+        expect(esnConfigMock.getFromAllDomains).to.have.been.calledOnce;
+        done();
+      });
+    });
+
+    it('should send back error if LDAP configuration have been not returned', function(done) {
+      ldapConfigsMock = null;
+
+      ldap.findLDAPForUser('foo@bar.com', function(err, ldaps) {
+        expect(err).to.exist;
+        expect(esnConfigMock.getFromAllDomains).to.have.been.calledOnce;
+        done();
+      });
+    });
+
+    it('should send back the ldap if LDAP configuration have been return as array of arrays where user is available in', function(done) {
+      ldapConfigsMock = [[{configuration: {}}], [{configuration: {include: true}}], [{configuration: {include: true}}]];
+
       ldap.findLDAPForUser('foo@bar.com', function(err, ldaps) {
         expect(err).to.not.exist;
+        expect(esnConfigMock.getFromAllDomains).to.have.been.calledOnce;
+        expect(ldaps).to.exist;
+        expect(ldaps.length).to.equal(2);
+        done();
+      });
+    });
+
+    it('should send back the ldap if LDAP configuration have been return as array of objects where user is available in', function(done) {
+      ldapConfigsMock = [{configuration: {}}, {configuration: {include: true}}, {configuration: {include: true}}];
+
+      ldap.findLDAPForUser('foo@bar.com', function(err, ldaps) {
+        expect(err).to.not.exist;
+        expect(esnConfigMock.getFromAllDomains).to.have.been.calledOnce;
         expect(ldaps).to.exist;
         expect(ldaps.length).to.equal(2);
         done();
@@ -270,121 +250,6 @@ describe('The ldap core module', function() {
       ldap.authenticate('me', 'secret', {}, function(err, user) {
         expect(err).to.exist;
         expect(user).to.not.exist;
-        done();
-      });
-    });
-  });
-
-  describe('findLDAPForDomain fn', function() {
-
-    it('should send back error if domain is not set', function(done) {
-      var mockgoose = {
-        model: function() {
-        }
-      };
-      mockery.registerMock('mongoose', mockgoose);
-
-      var ldap = this.helpers.requireBackend('core/ldap');
-      ldap.findLDAPForDomain(null, function(err) {
-        expect(err).to.exist;
-        done();
-      });
-    });
-
-    it('should call find with the domain id', function(done) {
-      var domain = {_id: 123};
-      var mockgoose = {
-        model: function() {
-          return {
-            find: function(query, callback) {
-              expect(query.domain_id).to.equals(domain._id);
-              done();
-            }
-          };
-        }
-      };
-      mockery.registerMock('mongoose', mockgoose);
-
-      var ldap = this.helpers.requireBackend('core/ldap');
-      ldap.findLDAPForDomain(domain);
-    });
-
-    it('should call find with an id', function(done) {
-      var domain = 123;
-      var mockgoose = {
-        model: function() {
-          return {
-            find: function(query, callback) {
-              expect(query.domain_id).to.equals(domain);
-              done();
-            }
-          };
-        }
-      };
-      mockery.registerMock('mongoose', mockgoose);
-
-      var ldap = this.helpers.requireBackend('core/ldap');
-      ldap.findLDAPForDomain(domain);
-    });
-  });
-
-  describe('save fn', function() {
-
-    it('should send back error if ldap is not set', function(done) {
-      var mockgoose = {
-        model: function() {
-        }
-      };
-      mockery.registerMock('mongoose', mockgoose);
-
-      var ldap = this.helpers.requireBackend('core/ldap');
-      ldap.save(null, function(err) {
-        expect(err).to.exist;
-        done();
-      });
-    });
-
-    it('should send back error if ldap configuration is not set', function(done) {
-      var mockgoose = {
-        model: function() {
-        }
-      };
-      mockery.registerMock('mongoose', mockgoose);
-
-      var ldap = this.helpers.requireBackend('core/ldap');
-      ldap.save({domain: 123}, function(err) {
-        expect(err).to.exist;
-        done();
-      });
-    });
-
-    it('should send back error if ldap domain is not set', function(done) {
-      var mockgoose = {
-        model: function() {
-        }
-      };
-      mockery.registerMock('mongoose', mockgoose);
-
-      var ldap = this.helpers.requireBackend('core/ldap');
-      ldap.save({configuration: 123}, function(err) {
-        expect(err).to.exist;
-        done();
-      });
-    });
-  });
-
-  describe('loadFromID fn', function() {
-
-    it('should send back error if ID is not set', function(done) {
-      var mockgoose = {
-        model: function() {
-        }
-      };
-      mockery.registerMock('mongoose', mockgoose);
-
-      var ldap = this.helpers.requireBackend('core/ldap');
-      ldap.loadFromID(null, function(err) {
-        expect(err).to.exist;
         done();
       });
     });

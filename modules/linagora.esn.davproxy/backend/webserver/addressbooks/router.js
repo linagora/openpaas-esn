@@ -47,6 +47,7 @@ module.exports = function(dependencies) {
     '/:bookHome/:bookName.json',
     authorizationMW.requiresAPILogin,
     middleware.generateNewToken,
+    davMiddleware.getDavEndpoint,
     controller.getAddressbook
   );
 
@@ -54,6 +55,7 @@ module.exports = function(dependencies) {
     '/:bookHome.json',
     authorizationMW.requiresAPILogin,
     middleware.generateNewToken,
+    davMiddleware.getDavEndpoint,
     controller.getAddressbooks
   );
 

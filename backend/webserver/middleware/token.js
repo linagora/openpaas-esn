@@ -13,7 +13,7 @@ module.exports.generateNewToken = function(ttl) {
         if (err) {
           logger.error('Can not generate new token', err);
         }
-        return res.json(500, {error: {code: 500, message: 'Server Error', details: 'Can not generate token'}});
+        return res.status(500).json({error: {code: 500, message: 'Server Error', details: 'Can not generate token'}});
       }
 
       req.token = token;

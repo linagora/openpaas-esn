@@ -8,7 +8,7 @@ var expect = chai.expect;
 describe('The esn.dragndrop Angular module', function() {
 
   var $compile, $rootScope;
-  var esnDragService, ESN_DRAG_DISTANCE_THRESHOLD;
+  var esnDragService, ESN_DRAG_DISTANCE_THRESHOLD, ESN_DRAG_ANIMATION_DURATION;
   var deviceDetectorMock;
 
   beforeEach(module('esn.dragndrop'));
@@ -23,11 +23,12 @@ describe('The esn.dragndrop Angular module', function() {
     });
   });
 
-  beforeEach(inject(function(_$compile_, _$rootScope_, _esnDragService_, _ESN_DRAG_DISTANCE_THRESHOLD_) {
+  beforeEach(inject(function(_$compile_, _$rootScope_, _esnDragService_, _ESN_DRAG_DISTANCE_THRESHOLD_, _ESN_DRAG_ANIMATION_DURATION_) {
     $compile = _$compile_;
     $rootScope = _$rootScope_;
     esnDragService = _esnDragService_;
     ESN_DRAG_DISTANCE_THRESHOLD = _ESN_DRAG_DISTANCE_THRESHOLD_;
+    ESN_DRAG_ANIMATION_DURATION = _ESN_DRAG_ANIMATION_DURATION_;
   }));
 
   function compileDirective(html, scope) {
@@ -70,10 +71,12 @@ describe('The esn.dragndrop Angular module', function() {
   describe('The esnDraggable directive', function() {
 
     var $document, $timeout;
+    var ESN_DRAG_ANIMATION_CLASS;
 
-    beforeEach(inject(function(_$document_, _$timeout_) {
+    beforeEach(inject(function(_$document_, _$timeout_, _ESN_DRAG_ANIMATION_CLASS_) {
       $document = _$document_;
       $timeout = _$timeout_;
+      ESN_DRAG_ANIMATION_CLASS = _ESN_DRAG_ANIMATION_CLASS_;
     }));
 
     afterEach(function() {
@@ -149,10 +152,11 @@ describe('The esn.dragndrop Angular module', function() {
       expect(onDragStartSpy).to.not.have.been.called;
     });
 
-    it('should add tooltip to after current element on drag start', function() {
-      var dragMessage = 'a message';
-      var element = compileDirective(
-        '<div esn-draggable esn-drag-message="' + dragMessage + '"></div>');
+    it('should add tooltip element to body on drag start', function() {
+      var scope = $rootScope.$new();
+
+      scope.dragMessage = 'a message';
+      var element = compileDirective('<div esn-draggable esn-drag-message="dragMessage"></div>', scope);
 
       mouseDownOn(element, 0, 0);
       mouseMoveOn($document, 11, 11);
@@ -160,7 +164,21 @@ describe('The esn.dragndrop Angular module', function() {
       var tooltipElement = angular.element(document.body).find('.tooltip');
 
       expect(tooltipElement.length).to.equal(1);
-      expect(tooltipElement.html()).to.contain(dragMessage);
+      expect(tooltipElement.html()).to.contain('a message');
+    });
+
+    it('should escape drag message in tooltip element', function() {
+      var scope = $rootScope.$new();
+
+      scope.dragMessage = '<b>test</b>';
+      var element = compileDirective('<div esn-draggable esn-drag-message="dragMessage"></div>', scope);
+
+      mouseDownOn(element, 0, 0);
+      mouseMoveOn($document, 11, 11);
+
+      var tooltipElement = angular.element(document.body).find('.tooltip');
+
+      expect(tooltipElement.html()).to.contain('&lt;b&gt;test&lt;/b&gt;');
     });
 
     it('should move tooltip to near mouse position on dragging', function() {
@@ -238,7 +256,7 @@ describe('The esn.dragndrop Angular module', function() {
       mouseMoveOn($document, 11, 11);
       mouseUpOn($document);
 
-      expect(angular.element(document.body).find('.tooltip').hasClass('esn-drag-tooltip')).to.be.true;
+      expect(angular.element(document.body).find('.tooltip').hasClass(ESN_DRAG_ANIMATION_CLASS)).to.be.true;
 
       $timeout.flush();
 
@@ -287,17 +305,23 @@ describe('The esn.dragndrop Angular module', function() {
 
     });
 
-    it('should add CSS on drag start and remove it on drag end if esnDragClass is provided', function() {
+    it('should add CSS on drag start and remove it on drag end if esnDragClass is provided', function(done) {
       var element = compileDirective('<div esn-draggable esn-drag-class="dragging"></div>');
 
       mouseDownOn(element, 0, 0);
       mouseMoveOn($document, 11, 11);
 
-      expect(element.hasClass('dragging')).to.be.true;
+      expect(element.hasClass('dragging')).to.equal(true);
 
       mouseUpOn($document);
 
-      expect(element.hasClass('dragging')).to.be.false;
+      $timeout(angular.noop, ESN_DRAG_ANIMATION_DURATION + 1)
+        .then(function() {
+          expect(element.hasClass('dragging')).to.equal(false);
+        })
+        .then(done);
+
+      $timeout.flush();
     });
 
   });

@@ -198,7 +198,6 @@ describe('The invitation controller', function() {
     beforeEach(function(done) {
       var self = this;
       var mailTransport = {
-        _id: 'mail',
         mail: { noreply: 'noreply@linagora.com' },
         transport: {
           module: 'nodemailer-pickup-transport',
@@ -209,7 +208,7 @@ describe('The invitation controller', function() {
       fs.copySync(this.testEnv.fixtures + '/default.mongoAuth.json', this.testEnv.tmp + '/default.json');
       var core = this.testEnv.initCore(function() {
         core.pubsub.local.topic('mongodb:connectionAvailable').subscribe(function() {
-          self.helpers.mongo.saveDoc('configuration', mailTransport, function(err) {
+          self.helpers.mail.saveConfiguration(mailTransport, function(err) {
             if (err) { return done(err); }
             self.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
               if (err) { return done(err); }
@@ -254,7 +253,11 @@ describe('The invitation controller', function() {
         var req = loginAsUser0(request(app).post('/api/domains/' + self.models.domain._id + '/invitations'));
         req.send(['foo@bar.com']);
         req.expect(202);
-        req.end(function() {});
+        req.end(function(err, res) {
+          if (err) {
+            done(err);
+          }
+        });
       });
 
     });

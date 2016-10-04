@@ -82,8 +82,8 @@ describe('The twitter contact importer', function() {
 
     beforeEach(function() {
 
-      followingIdList = '{\"ids\": [123, 234, 345], \"next_cursor\": 0}';
-      longIdList = '{\"ids\": [123, 234, 345, 567, 789, 890], \"next_cursor\": 2345}';
+      followingIdList = '{"ids": [123, 234, 345], "next_cursor": 0}';
+      longIdList = '{"ids": [123, 234, 345, 567, 789, 890], "next_cursor": 2345}';
       followingInfoList =
         [
           {

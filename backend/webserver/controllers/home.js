@@ -13,7 +13,7 @@ function index(req, res) {
     config.get(function(err, recaptcha) {
       if (err) {
         logger.error('Could not get recaptcha keys in esn config.', err.message);
-        return res.json(500, {
+        return res.status(500).json({
           error: 500,
           message: 'Server Error',
           details: 'Internal server error'

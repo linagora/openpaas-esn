@@ -47,7 +47,7 @@ describe('The activitystreams core module', function() {
       User = this.mongoose.model('User');
       Community = this.mongoose.model('Community');
 
-      this.mongoose.connect(this.testEnv.mongoUrl, done);
+      this.connectMongoose(this.mongoose, done);
     });
 
     it('should return all the entries with the given target', function(done) {

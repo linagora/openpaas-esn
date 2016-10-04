@@ -19,12 +19,10 @@ describe('The token middleware', function() {
       var middleware = require('../../../../backend/webserver/middleware/token').generateNewToken();
       middleware(
         {query: {}, user: {_id: 123}},
-        {
-          json: function(code) {
-            expect(code).to.equal(500);
-            done();
-          }
-        },
+        this.helpers.express.jsonResponse(function(code) {
+          expect(code).to.equal(500);
+          done();
+        }),
         function() {
           done(new Error());
         });
@@ -40,12 +38,10 @@ describe('The token middleware', function() {
       var middleware = require('../../../../backend/webserver/middleware/token').generateNewToken();
       middleware(
         {query: {}, user: {_id: 123}},
-        {
-          json: function(code) {
-            expect(code).to.equal(500);
-            done();
-          }
-        },
+        this.helpers.express.jsonResponse(function(code) {
+          expect(code).to.equal(500);
+          done();
+        }),
         function() {
           done(new Error());
         });

@@ -59,6 +59,23 @@ $ node ./bin/cli elasticsearch --host localhost --port 9200 --index contacts
 - port: default is 9200
 - index: Defines the index to create. When not set, it will create all the required indexes.
 
+**reindex**
+
+It will index or reindex data from the DB to ES.
+Reindexing users will fetch all required information from the DB, so the only required parameters are --db-*.
+Reindexing contacts will only perform ES queries, so the only required parameters are --es-*.
+
+```bash
+$ node ./bin/cli reindex --db-host localhost --db-port 27017 --db-name esn --type users
+```
+
+- db-host: default is localhost
+- db-port: default is 27017
+- db-name: default is esn
+- es-host: default is localhost
+- es-port: default is 9200
+- type: the data type to reindex. Possible values: users, contacts
+
 **populate**
 
 It will populate the mongodb database defined from CLI options with initial required data to use OpenPaaS.

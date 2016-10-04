@@ -26,12 +26,12 @@ describe('The activitystreams controller module', function() {
       params: {}
     };
 
-    var res = {
-      json: function(code) {
+    var res = this.helpers.express.jsonResponse(
+      function(code) {
         expect(code).to.equal(400);
         done();
       }
-    };
+    );
 
     activitystreams.get(req, res);
   });
@@ -64,12 +64,12 @@ describe('The activitystreams controller module', function() {
       activity_stream: {}
     };
 
-    var res = {
-      json: function(code) {
+    var res = this.helpers.express.jsonResponse(
+      function(code) {
         expect(code).to.equal(500);
         done();
       }
-    };
+    );
     activitystreams.get(req, res);
   });
 
@@ -142,12 +142,12 @@ describe('The activitystreams controller module', function() {
       activity_stream: {}
     };
 
-    var res = {
-      json: function(code) {
+    var res = this.helpers.express.jsonResponse(
+      function(code) {
         expect(code).to.equal(400);
         done();
       }
-    };
+    );
 
     activitystreams.get(req, res);
   });
@@ -174,12 +174,12 @@ describe('The activitystreams controller module', function() {
       activity_stream: {}
     };
 
-    var res = {
-      json: function(code) {
+    var res = this.helpers.express.jsonResponse(
+      function(code) {
         expect(code).to.equal(400);
         done();
       }
-    };
+    );
 
     activitystreams.get(req, res);
   });
@@ -194,12 +194,12 @@ describe('The activitystreams controller module', function() {
       }
     };
 
-    var res = {
-      json: function(code) {
+    var res = this.helpers.express.jsonResponse(
+      function(code) {
         expect(code).to.equal(400);
         done();
       }
-    };
+    );
 
     activitystreams.getMine(req, res);
   });
@@ -220,12 +220,12 @@ describe('The activitystreams controller module', function() {
       }
     };
 
-    var res = {
-      json: function(code) {
+    var res = this.helpers.express.jsonResponse(
+      function(code) {
         expect(code).to.equal(500);
         done();
       }
-    };
+    );
     activitystreams.getMine(req, res);
   });
 
@@ -245,14 +245,14 @@ describe('The activitystreams controller module', function() {
       }
     };
 
-    var res = {
-      json: function(code, result) {
+    var res = this.helpers.express.jsonResponse(
+      function(code, result) {
         expect(code).to.equal(200);
         expect(result).to.exist;
         expect(result.length).to.equal(1);
         done();
       }
-    };
+    );
     activitystreams.getMine(req, res);
   });
 
@@ -272,14 +272,14 @@ describe('The activitystreams controller module', function() {
       }
     };
 
-    var res = {
-      json: function(code, result) {
+    var res = this.helpers.express.jsonResponse(
+      function(code, result) {
         expect(code).to.equal(200);
         expect(result).to.exist;
         expect(result.length).to.equal(0);
         done();
       }
-    };
+    );
     activitystreams.getMine(req, res);
   });
 

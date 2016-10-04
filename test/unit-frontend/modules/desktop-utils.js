@@ -82,14 +82,14 @@ describe('The esn.desktop-utils angular module', function() {
 
     it('should pass "hover=true" to the angular expression if the mouse is over', function() {
       compile('<div desktop-hover="isHover = hover" />');
-      element.trigger('mouseover');
+      element.trigger('mouseenter');
 
       expect($scope.isHover).to.equal(true);
     });
 
     it('should pass "hover=false" to the angular expression if the mouse is out', function() {
       compile('<div desktop-hover="isHover = hover" />');
-      element.trigger('mouseout');
+      element.trigger('mouseleave');
 
       expect($scope.isHover).to.equal(false);
     });
@@ -98,7 +98,7 @@ describe('The esn.desktop-utils angular module', function() {
       isMobile = true;
 
       compile('<div desktop-hover="isHover = true" />');
-      element.trigger('mouseover');
+      element.trigger('mouseenter');
 
       expect($scope.isHover).to.equal(undefined);
     });

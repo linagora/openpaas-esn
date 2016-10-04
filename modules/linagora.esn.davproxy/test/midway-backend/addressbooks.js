@@ -12,6 +12,7 @@ describe('The addressbooks dav proxy', function() {
   var domain;
   var user;
   var password = 'secret';
+  var dav, davServer;
 
   beforeEach(function(done) {
     var self = this;
@@ -52,15 +53,12 @@ describe('The addressbooks dav proxy', function() {
   beforeEach(function() {
     var self = this;
 
-    self.dav = express();
-    self.dav.use(bodyParser.json());
+    dav = express();
+    dav.use(bodyParser.json());
 
     self.createDavServer = function(done) {
-      var self = this;
-
       var port = self.testEnv.serversConfig.express.port;
       var caldavConfiguration = {
-        _id: 'davserver',
         backend: {
           url: 'http://localhost:' + port
         },
@@ -69,18 +67,18 @@ describe('The addressbooks dav proxy', function() {
         }
       };
 
-      self.davServer = self.dav.listen(port, function() {
-        self.helpers.mongo.saveDoc('configuration', caldavConfiguration, done);
+      davServer = dav.listen(port, function() {
+        self.helpers.requireBackend('core/esn-config')('davserver').store(caldavConfiguration, done);
       });
     };
 
     self.shutdownDav = function(done) {
-      if (!self.davServer) {
+      if (!davServer) {
         return done();
       }
 
       try {
-        self.davServer.close(function() {
+        davServer.close(function() {
           done();
         });
       } catch (e) {
@@ -117,11 +115,11 @@ describe('The addressbooks dav proxy', function() {
           var called = false;
 
           // only contact update and deletion proxy the header
-          self.dav.delete(path, function(req, res) {
+          dav.delete(path, function(req, res) {
             expect(req.headers.yo).to.equal(yo);
             expect(req.headers.lo).to.equal(lo);
             called = true;
-            return res.send(200);
+            return res.status(200).end();
           });
 
           self.createDavServer(function(err) {
@@ -157,9 +155,9 @@ describe('The addressbooks dav proxy', function() {
         var path = '/addressbooks/123/contacts.json';
 
         var result = [{foo: 'bar'}];
-        self.dav.get(path, function(req, res) {
+        dav.get(path, function(req, res) {
           called = true;
-          return res.json(200, result);
+          return res.status(200).json(result);
         });
 
         self.createDavServer(function(err) {
@@ -303,9 +301,9 @@ describe('The addressbooks dav proxy', function() {
         var path = '/addressbooks/123/contacts.json';
         var result = {_id: '123'};
 
-        self.dav.put(path, function(req, res) {
+        dav.put(path, function(req, res) {
           called = true;
-          return res.json(201, result);
+          return res.status(201).json(result);
         });
 
         self.createDavServer(function(err) {
@@ -338,9 +336,9 @@ describe('The addressbooks dav proxy', function() {
 
         var path = '/addressbooks/123/contacts.json';
 
-        self.dav.delete(path, function(req, res) {
+        dav.delete(path, function(req, res) {
           called = true;
-          return res.send(204);
+          return res.status(204).end();
         });
 
         self.createDavServer(function(err) {
@@ -379,9 +377,9 @@ describe('The addressbooks dav proxy', function() {
 
         var path = '/addressbooks/123/contacts/456.vcf';
 
-        self.dav.delete(path, function(req, res) {
+        dav.delete(path, function(req, res) {
           called = true;
-          return res.send(204);
+          return res.status(204).end();
         });
 
         self.createDavServer(function(err) {
@@ -420,9 +418,9 @@ describe('The addressbooks dav proxy', function() {
 
         var path = '/addressbooks/123/contacts/456.vcf?graceperiod=10000';
 
-        self.dav.delete(path, function(req, res) {
+        dav.delete(path, function(req, res) {
           called = true;
-          return res.send(204);
+          return res.status(204).end();
         });
 
         self.createDavServer(function(err) {
@@ -456,9 +454,9 @@ describe('The addressbooks dav proxy', function() {
         var path = '/addressbooks/123/contacts';
         var result = {_id: '123'};
 
-        self.dav.post(path, function(req, res) {
+        dav.post(path, function(req, res) {
           called = true;
-          return res.json(201, result);
+          return res.status(201).json(result);
         });
 
         self.createDavServer(function(err) {

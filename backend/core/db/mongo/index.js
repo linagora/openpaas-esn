@@ -1,5 +1,5 @@
 'use strict';
-//
+
 // MongoDB utilities
 
 var MongoClient = require('mongodb').MongoClient;
@@ -230,6 +230,8 @@ function mongooseConnect(reinit) {
   }
 
   try {
+    mongoose.Promise = require('q').Promise; // http://mongoosejs.com/docs/promises.html
+
     logger.debug('launch mongoose.connect on ' + connectionInfos.url);
     mongoose.connect(connectionInfos.url, connectionInfos.options);
   } catch (e) {

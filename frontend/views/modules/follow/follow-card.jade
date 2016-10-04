@@ -1,0 +1,7 @@
+.follow-card.text-center
+  ul
+    li(ng-if='user.followers === 1') {{user.followers}} #{__('follower')}
+    li(ng-if='user.followers !== 1') {{user.followers}} #{__('followers')}
+    li(ng-if='user.followings === 1') {{user.followings}} #{__('following')}
+    li(ng-if='user.followings !== 1') {{user.followings}} #{__('followings')}
+  follow-button.text-center(ng-if='!me', user='user', following='user.following', on-followed='addFollower()', on-unfollowed='removeFollower()')

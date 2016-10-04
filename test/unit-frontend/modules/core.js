@@ -1,5 +1,7 @@
 'use strict';
-/* global chai: false */
+
+/* global chai, sinon: false */
+
 var expect = chai.expect;
 
 describe('The Angular core module', function() {
@@ -305,6 +307,121 @@ describe('The Angular core module', function() {
       body.append(element);
       element.find('.findme').click();
       done();
+    });
+  });
+
+  describe('The navigateTo factory', function() {
+
+    var $window, navigateTo;
+
+    beforeEach(function() {
+      angular.mock.module('esn.core', function($provide) {
+        $provide.value('$window', $window = {});
+      });
+    });
+
+    beforeEach(inject(function(_$window_, _navigateTo_) {
+      $window = _$window_;
+      navigateTo = _navigateTo_;
+    }));
+
+    it('should set $window.location to the target URL', function() {
+      navigateTo('https://open-paas.org');
+
+      expect($window.location).to.equal('https://open-paas.org');
+    });
+
+  });
+
+  describe('esnWithPromiseResult', function() {
+    var deferred, $q, promise, esnWithPromiseResult, $rootScope;
+
+    beforeEach(inject(function(_$q_, _esnWithPromiseResult_, _$rootScope_) {
+      $q = _$q_;
+      deferred = $q.defer();
+      promise = deferred.promise;
+      esnWithPromiseResult = _esnWithPromiseResult_;
+      $rootScope = _$rootScope_;
+    }));
+
+    it('should create a function that call the success callback if the promess succeed with the promise result plus the argument gived to the callback', function() {
+      var spy = sinon.spy();
+      var errorSpy = sinon.spy();
+      var callback = esnWithPromiseResult(promise, spy, errorSpy);
+
+      callback(1, 2, 3, 4, 5);
+      expect(spy).to.have.not.been.called;
+      deferred.resolve(0);
+      $rootScope.$digest();
+      expect(spy).to.have.been.calledWith(0, 1, 2, 3, 4, 5);
+      expect(errorSpy).to.have.not.been.called;
+    });
+
+    it('should create a function that call the error callback if the promess fail with the promise result plus the argument gived to the callback', function() {
+      var spy = sinon.spy();
+      var errorSpy = sinon.spy();
+      var callback = esnWithPromiseResult(promise, spy, errorSpy);
+
+      callback(1, 2, 3, 4, [5, 6]);
+      expect(errorSpy).to.have.not.been.called;
+      deferred.reject(0);
+      $rootScope.$digest();
+      expect(errorSpy).to.have.been.calledWith(0, 1, 2, 3, 4, [5, 6]);
+      expect(spy).to.have.not.been.called;
+    });
+
+    it('should not fail if the error callback is undefined or null if the promise success', function() {
+      var spy = sinon.spy();
+      var callback = esnWithPromiseResult(promise, spy, null);
+
+      callback(1);
+      deferred.resolve(0);
+      $rootScope.$digest();
+      expect(spy).to.have.been.calledWith(0, 1);
+    });
+
+    it('should not fail if the error callback is undefined or null if the promise success', function() {
+      var spy = sinon.spy();
+      var callback = esnWithPromiseResult(promise, spy, null);
+
+      callback(1);
+      deferred.resolve(0);
+      $rootScope.$digest();
+      expect(spy).to.have.been.calledWith(0, 1);
+    });
+
+    it('should not fail and do nothing if the error callback is undefined or null if the promise fail', function() {
+      var spy = sinon.spy();
+      var callback = esnWithPromiseResult(promise, spy, null);
+
+      callback(1);
+      deferred.reject(0);
+      $rootScope.$digest();
+      expect(spy).to.not.have.been.called;
+    });
+
+    it('should not fail if the success callback is undefined or null if the promise fail', function() {
+      [null, undefined].forEach(function(nullable) {
+        var errorSpy = sinon.spy();
+        var callback = esnWithPromiseResult(promise, nullable, errorSpy);
+
+        callback(1);
+        deferred.reject(0);
+        $rootScope.$digest();
+        expect(errorSpy).to.have.been.calledWith(0, 1);
+      });
+    });
+
+    it('should not fail and do nothing if the success callback is undefined or null if the promise success', function() {
+      [null, undefined].forEach(function(nullable) {
+        var errorSpy = sinon.spy();
+        var callback = esnWithPromiseResult(promise, nullable, errorSpy);
+
+        callback(1);
+        deferred.resolve(0);
+        $rootScope.$digest();
+        expect(errorSpy).to.not.have.been.called;
+      });
     });
   });
 });

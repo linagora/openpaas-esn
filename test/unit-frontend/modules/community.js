@@ -95,8 +95,67 @@ describe('The Community Angular module', function() {
         this.$httpBackend.flush();
       });
 
+      it('should send a POST to /api/communities with given query parameters ', function() {
+        var community = {};
+        this.$httpBackend.expectPOST('/api/communities?pipo1=pipo2&pipo3=pipo4', community).respond(202);
+        this.communityAPI.create(community, {pipo1: 'pipo2', pipo3: 'pipo4'});
+        this.$httpBackend.flush();
+      });
+
       it('should return a promise', function() {
         var promise = this.communityAPI.create({});
+        expect(promise.then).to.be.a.function;
+      });
+    });
+
+    describe('update() function', function() {
+
+      beforeEach(angular.mock.inject(function(communityAPI, $httpBackend) {
+        this.communityAPI = communityAPI;
+        this.$httpBackend = $httpBackend;
+        this.communityId = '123';
+        this.body = {
+          title: 'toto',
+          avatar: 'cc',
+          newUsers: ['aa'],
+          deleteUsers: ['bb']
+        };
+      }));
+
+      it('should send a PUT request to /api/communities/:id/title', function() {
+        this.$httpBackend.expectPUT('/api/communities/' + this.communityId).respond(200);
+        this.communityAPI.update(this.communityId, this.body);
+        this.$httpBackend.flush();
+      });
+
+      it('should send a PUT to /api/communities/:id/title with given query parameters ', function() {
+        this.$httpBackend.expectPUT('/api/communities/' + this.communityId).respond(200);
+        this.communityAPI.update(this.communityId, this.body);
+        this.$httpBackend.flush();
+      });
+
+      it('should return a promise', function() {
+        var promise = this.communityAPI.update('', {});
+        expect(promise.then).to.be.a.function;
+      });
+    });
+
+    describe('getMembers() function', function() {
+
+      beforeEach(angular.mock.inject(function(communityAPI, $httpBackend) {
+        this.communityAPI = communityAPI;
+        this.$httpBackend = $httpBackend;
+        this.communityId = '123';
+      }));
+
+      it('should send a GET request to /api/collaborations/community/:id/members', function() {
+        this.$httpBackend.expectGET('/api/collaborations/community/' + this.communityId + '/members').respond(200, {});
+        this.communityAPI.getMembers(this.communityId);
+        this.$httpBackend.flush();
+      });
+
+      it('should return a promise', function() {
+        var promise = this.communityAPI.getMembers(123);
         expect(promise.then).to.be.a.function;
       });
     });

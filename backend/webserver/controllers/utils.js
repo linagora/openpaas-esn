@@ -16,7 +16,7 @@ var mongoose = require('mongoose'),
       'building_location',
       'office_location',
       'main_phone',
-      'features'
+      'description'
     ],
     privateKeys = ['accounts'];
 

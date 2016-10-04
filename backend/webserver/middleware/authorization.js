@@ -2,6 +2,8 @@
 
 var passport = require('passport');
 var config = require('../../core').config('default');
+var userModule = require('../../core/user');
+var domainModule = require('../../core/domain');
 
 //
 // Authorization middleware
@@ -30,7 +32,7 @@ exports.requiresAPILogin = function(req, res, next) {
   if (config.auth && config.auth.strategies && config.auth.strategies.indexOf('bearer') !== -1) {
     return passport.authenticate('bearer', { session: false })(req, res, next);
   } else {
-    return res.json(401, {
+    return res.status(401).json({
       error: {
         code: 401,
         message: 'Login error',
@@ -43,60 +45,89 @@ exports.requiresAPILogin = function(req, res, next) {
 /**
  * Checks that the current request user is the current request domain manager
  *
- * @param {Requets} req
+ * @param {Request} req
  * @param {Response} res
  * @param {Function} next
  */
 exports.requiresDomainManager = function(req, res, next) {
-  if (!req.user || !req.domain || !req.user._id || !req.domain.administrator) {
-    return res.json(400, {error: 400, message: 'Bad request', details: 'Missing user or domain'});
+  if (!req.user || !req.domain || !req.user._id) {
+    return res.status(400).json({error: 400, message: 'Bad request', details: 'Missing user or domain'});
   }
 
-  if (!req.domain.administrator.equals(req.user._id)) {
-    return res.json(403, {error: 403, message: 'Forbidden', details: 'User is not the domain manager'});
-  }
-  next();
-};
+  domainModule.userIsDomainAdministrator(req.user, req.domain, function(err, isDomainAdministrator) {
+    if (err) {
+      return res.status(500).json({
+        error: {
+          status: 500, message: 'Server Error', details: err.message
+        }
+      });
+    }
 
-var requiresDomainMember = function(req, res, next) {
-  if (!req.user || !req.domain) {
-    return res.json(400, {error: 400, message: 'Bad request', details: 'Missing user or domain'});
-  }
+    if (isDomainAdministrator) {
+      return next();
+    }
 
-  if (req.domain.administrator && req.domain.administrator.equals(req.user._id)) {
-    return next();
-  }
-
-  if (!req.user.domains || req.user.domains.length === 0) {
-    return res.json(403, {error: 403, message: 'Forbidden', details: 'User does not belongs to the domain'});
-  }
-
-  var belongs = req.user.domains.some(function(domain) {
-    return domain.domain_id.equals(req.domain._id);
+    return res.status(403).json({error: 403, message: 'Forbidden', details: 'User is not the domain manager'});
   });
-
-  if (!belongs) {
-    return res.json(403, {error: 403, message: 'Forbidden', details: 'User does not belongs to the domain'});
-  }
-  next();
 };
-module.exports.requiresDomainMember = requiresDomainMember;
+
+module.exports.requiresDomainMember = function(req, res, next) {
+  if (!req.user || !req.domain) {
+    return res.status(400).json({error: 400, message: 'Bad request', details: 'Missing user or domain'});
+  }
+
+  domainModule.userIsDomainMember(req.user, req.domain, function(err, isDomainMember) {
+    if (err) {
+      return res.status(500).json({
+        error: {
+          status: 500, message: 'Server Error', details: err.message
+        }
+      });
+    }
+
+    if (isDomainMember) {
+      return next();
+    }
+
+    return res.status(403).json({error: 403, message: 'Forbidden', details: 'User does not belongs to the domain'});
+  });
+};
 
 exports.requiresCommunityCreator = function(req, res, next) {
   if (!req.community) {
-    return res.json(400, {error: 400, message: 'Bad request', details: 'Missing community'});
+    return res.status(400).json({error: 400, message: 'Bad request', details: 'Missing community'});
   }
 
   if (!req.user) {
-    return res.json(400, {error: 400, message: 'Bad request', details: 'Missing user'});
+    return res.status(400).json({error: 400, message: 'Bad request', details: 'Missing user'});
   }
 
   if (!req.community.creator.equals(req.user._id)) {
-    return res.json(403, {error: 403, message: 'Forbidden', details: 'User is not the community creator'});
+    return res.status(403).json({error: 403, message: 'Forbidden', details: 'User is not the community creator'});
   }
   next();
 };
 
 exports.requiresJWT = function(req, res, next) {
   return passport.authenticate('jwt', {session: false})(req, res, next);
+};
+
+exports.decodeJWTandLoadUser = function(req, res, next) {
+  var payload = req.user;
+
+  if (!payload.email) {
+    return res.status(400).json({error: {code: 400, message: 'Bad request', details: 'Email is required'}});
+  }
+
+  userModule.findByEmail(payload.email, function(err, user) {
+    if (err) {
+      return res.status(500).json({error: {code: 500, message: 'Internal Server Error', details: 'Error while searching for the user'}});
+    }
+    if (!user) {
+      return res.status(404).json({error: {code: 404, message: 'Not Found', details: 'Email is not valid.'}});
+    }
+    req.user = user;
+
+    return next();
+  });
 };

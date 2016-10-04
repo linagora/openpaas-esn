@@ -6,21 +6,24 @@ var path = require('path');
 var async = require('async');
 var MongoClient = require('mongodb').MongoClient;
 var Server = require('mongodb').Server;
-var request = require('superagent');
 var extend = require('extend');
 var EsnConfig = require('esn-elasticsearch-configuration');
 var Docker = require('dockerode');
-var dockerodeConfig = require('../../docker/config/dockerode.js');
+var dockerodeConfig = require('../../docker/config/dockerode');
+var DOCKER_IMAGES = require('../../docker/images.json');
 
 function _args(grunt) {
   var opts = ['test', 'chunk', 'ci', 'reporter'];
   var args = {};
+
   opts.forEach(function(optName) {
     var opt = grunt.option(optName);
+
     if (opt) {
       args[optName] = '' + opt;
     }
   });
+
   return args;
 }
 
@@ -73,16 +76,12 @@ GruntfileUtils.prototype.command = function command() {
       (servers.redis.pwd ? '--requirepass' + servers.redis.pwd : ''),
       (servers.redis.conf_file ? servers.redis.conf_file : ''));
 
-  commandObject.mongo = function(repl) {
-    var replset = repl ?
-      util.format('--replSet \'%s\' --smallfiles --oplogSize 128', servers.mongodb.replicat_set_name) :
-      '--nojournal';
-
+  commandObject.mongo = function() {
     return util.format('%s --dbpath %s --port %s %s',
       servers.mongodb.cmd,
       servers.mongodb.dbpath,
       (servers.mongodb.port ? servers.mongodb.port : '23456'),
-      replset);
+      '--nojournal');
   };
 
   commandObject.elasticsearch = servers.elasticsearch.cmd +
@@ -149,7 +148,7 @@ GruntfileUtils.prototype.container = function container() {
         WorkingDir: '/compose',
         Env: containerOptions.env || [],
         HostConfig: {
-          Binds: [path.normalize(__dirname + '../../..') + ':/compose', '/var/run/docker.sock:/var/run/docker.sock']
+          Binds: [path.normalize(__dirname + '/../..') + ':/compose', '/var/run/docker.sock:/var/run/docker.sock']
         }
       }, {}, {}, taskOptions);
   }
@@ -201,9 +200,40 @@ GruntfileUtils.prototype.buildEsnBaseImage = function() {
     context: path.normalize(__dirname + '/../../'),
     src: ['package.json', 'bower.json', dockerfilePath]
   }, {
-    t: 'linagora/esn-base',
-    dockerfile: dockerfilePath
+    t: DOCKER_IMAGES.esn_base,
+    dockerfile: dockerfilePath,
+    nocache: true,
+    pull: true
   });
+};
+
+GruntfileUtils.prototype.removeDockerImage = function(imageName) {
+  var grunt = this.grunt;
+
+  return function() {
+    var done = this.async();
+    var docker = new Docker(dockerodeConfig()[grunt.option('docker')]);
+
+    docker
+      .getImage(imageName)
+      .remove({ force: true }, function(err) {
+        if (err) {
+          grunt.fail.warn('The ' + imageName + ' image has not been removed, reason: ' + err.reason);
+          done(false);
+        } else {
+          grunt.log.oklns('The ' + imageName + ' image has well been removed');
+          done(true);
+        }
+      });
+  };
+};
+
+GruntfileUtils.prototype.removeEsnBaseImage = function() {
+  return this.removeDockerImage(DOCKER_IMAGES.esn_base);
+};
+
+GruntfileUtils.prototype.removeEsnImage = function() {
+  return this.removeDockerImage(DOCKER_IMAGES.esn);
 };
 
 GruntfileUtils.prototype.runGrunt = function runGrunt() {
@@ -294,88 +324,6 @@ GruntfileUtils.prototype.cleanEnvironment = function cleanEnvironment() {
 
     var done = this.async();
     done(true);
-  };
-};
-
-GruntfileUtils.prototype.setupMongoReplSet = function setupMongoReplSet() {
-  var grunt = this.grunt;
-  var servers = this.servers;
-
-  return function() {
-    var done = this.async();
-    var command = this.args[0];
-
-    var _doReplSet = function() {
-      var client = new MongoClient(new Server(servers.host, servers.mongodb.port), {native_parser: true});
-      client.open(function(err, mongoClient) {
-        if (err) {
-          grunt.log.error('MongoDB - Error when open a mongodb connection : ' + err);
-          return done(false);
-        }
-        var db = client.db('admin');
-        var replSetCommand = {
-          _id: servers.mongodb.replicat_set_name,
-          members: [
-            {_id: 0, host: ('127.0.0.1:' + servers.mongodb.port)}
-          ]
-        };
-        // Use replica set default config if run inside a docker container
-        if (command === 'docker') {
-          replSetCommand = null;
-        }
-        db.command({
-          replSetInitiate: replSetCommand
-        }, function(err, response) {
-          if (err) {
-            grunt.log.error('MongoDB - Error when executing rs.initiate() : ' + err);
-            return done(false);
-          }
-          if (response && response.ok === 1) {
-            grunt.log.writeln('MongoDB - rs.initiate() done');
-
-            var nbExecuted = 0;
-            var finish = false;
-            async.doWhilst(function(callback) {
-              setTimeout(function() {
-
-                db.command({isMaster: 1}, function(err, response) {
-                  if (err) {
-                    grunt.log.error('MongoDB - Error when executing db.isMaster() : ' + err);
-                    return done(false);
-                  }
-                  if (response.ismaster) {
-                    finish = true;
-                    return callback();
-                  }
-                  nbExecuted++;
-                  if (nbExecuted >= servers.mongodb.tries_replica_set) {
-                    return callback(new Error(
-                      'Number of tries of check if the replica set is launch and have a master reached the maximum allowed. ' +
-                      'Increase the number of tries or check if the mongodb "rs.initiate()" works'));
-                  }
-                  return callback();
-                });
-              }, servers.mongodb.interval_replica_set);
-
-            }, function() {
-              return (!finish) && nbExecuted < servers.mongodb.tries_replica_set;
-            }, function(err) {
-              if (err) {
-                return done(false);
-              }
-              grunt.log.write('MongoDB - replica set launched and master is ready');
-              done(true);
-            });
-
-          } else {
-            grunt.log.writeln('MongoDB - rs.initiate() done but there are problems : ' + response);
-            done(false);
-          }
-        });
-      });
-    };
-
-    _doReplSet();
   };
 };
 

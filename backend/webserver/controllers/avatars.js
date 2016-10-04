@@ -19,7 +19,7 @@ function getUserAvatarFromEmail(req, res) {
 
 function getCollaborationAvatar(req, res) {
   if (!req.query.id) {
-    return res.json(400, { error: { code: 400, message: 'Bad request', details: 'Collaboration id is mandatory'}});
+    return res.status(400).json({ error: { code: 400, message: 'Bad request', details: 'Collaboration id is mandatory'}});
   }
 
   req.params.id = req.query.id;
@@ -27,7 +27,7 @@ function getCollaborationAvatar(req, res) {
 
   collaborationMiddleware.load(req, res, function(err) {
     if (err) {
-      return res.json(500, { error: { code: 500, message: 'Server Error', details: 'Error while getting avatar'}});
+      return res.status(500).json({ error: { code: 500, message: 'Server Error', details: 'Error while getting avatar'}});
     }
     return collaborationController.getAvatar(req, res);
   });
@@ -35,7 +35,7 @@ function getCollaborationAvatar(req, res) {
 
 function getAvatar(req, res) {
   if (!req.query.id) {
-    return res.json(400, { error: { code: 400, message: 'Bad request', details: 'Avatar id is mandatory'}});
+    return res.status(400).json({ error: { code: 400, message: 'Bad request', details: 'Avatar id is mandatory'}});
   }
 
   imageModule.getAvatar(req.query.id, req.query.format, function(err, fileStoreMeta, readable) {
@@ -48,7 +48,7 @@ function getAvatar(req, res) {
     }
 
     if (req.headers['if-modified-since'] && Number(new Date(req.headers['if-modified-since']).setMilliseconds(0)) === Number(fileStoreMeta.uploadDate.setMilliseconds(0))) {
-      return res.send(304);
+      return res.status(304).end();
     } else {
       res.header('Last-Modified', fileStoreMeta.uploadDate);
       res.status(200);
@@ -58,8 +58,8 @@ function getAvatar(req, res) {
 }
 
 function getGeneratedAvatar(req, res) {
-  if (!req.query.email || typeof req.query.email !== 'string' ||  req.query.email.length === 0) {
-    return res.json(400, { error: { code: 400, message: 'Bad request', details: 'Email is mandatory and must be a non-empty string'}});
+  if (!req.query.email || typeof req.query.email !== 'string' || req.query.email.length === 0) {
+    return res.status(400).json({ error: { code: 400, message: 'Bad request', details: 'Email is mandatory and must be a non-empty string'}});
   }
   var options = {
     text: req.query.email.charAt(0)
@@ -78,12 +78,12 @@ avatarModule.registerProvider('user', {
 module.exports.get = function(req, res) {
   if (!req.query.objectType) {
     if (!req.query.email || typeof req.query.email !== 'string' || req.query.email.length === 0) {
-      return res.json(400, { error: { code: 400, message: 'Bad request', details: 'When no objectType is provided, email is mandatory and must be a non-empty string'}});
+      return res.status(400).json({ error: { code: 400, message: 'Bad request', details: 'When no objectType is provided, email is mandatory and must be a non-empty string'}});
     }
 
     return avatarModule.getAvatarFromEmail(req.query.email, function(error, object, controller) {
       if (error) {
-        return res.json(500, { error: { code: 500, message: 'Server Error', details: 'Error while getting avatar'}});
+        return res.status(500).json({ error: { code: 500, message: 'Server Error', details: 'Error while getting avatar'}});
       }
       if (!object) {
         return getGeneratedAvatar(req, res);
@@ -108,5 +108,5 @@ module.exports.get = function(req, res) {
     return getGeneratedAvatar(req, res);
   }
 
-  return res.json(400, { error: { code: 400, message: 'Bad request', details: 'Unknown objectType parameter'}});
+  return res.status(400).json({ error: { code: 400, message: 'Bad request', details: 'Unknown objectType parameter'}});
 };

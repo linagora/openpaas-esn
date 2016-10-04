@@ -79,7 +79,7 @@ describe('The user domain core module', function() {
       var user = {
         domains: []
       };
-      model.findOneAndUpdate = function(query, update, callback) {
+      model.findOneAndUpdate = function(query, update, options, callback) {
         user.domains.push({domain_id: id});
         return callback(null, user);
       };

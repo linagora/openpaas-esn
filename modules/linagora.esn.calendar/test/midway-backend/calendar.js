@@ -9,6 +9,7 @@ describe('The calendars API', function() {
   var user, user2, user3, domain, community;
   var password = 'secret';
   var moduleName = 'linagora.esn.calendar';
+  var davserver;
 
   beforeEach(function(done) {
     var self = this;
@@ -28,14 +29,21 @@ describe('The calendars API', function() {
         domain = models.domain;
         community = models.communities[1];
         self.models = models;
-        done();
+
+        self.helpers.davserver.saveTestConfiguration(function() {
+          davserver = self.helpers.davserver.runServer('An event !');
+
+          done();
+        });
       });
     });
 
   });
 
   afterEach(function(done) {
-    this.helpers.api.cleanDomainDeployment(this.models, done);
+    this.helpers.api.cleanDomainDeployment(this.models, function() {
+      davserver.close(done);
+    });
   });
 
   describe('POST /api/calendars/:objectType/:id/events', function() {

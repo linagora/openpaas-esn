@@ -31,17 +31,15 @@ module.exports = function(dependencies) {
           if (options.onSuccess) {
             return options.onSuccess(rsp, data, req, res, callback);
           }
-        } else {
-          if (options.onError) {
-            return options.onError(rsp, data, req, res, callback);
-          }
+        } else if (options.onError) {
+          return options.onError(rsp, data, req, res, callback);
         }
 
         callback(null, data);
       }
     })(req, res, function(err) {
       logger.error('Error while sending request to service', err);
-      return res.json(500, {error: {code: 500, message: 'Server Error', details: 'Error while sending request to service'}});
+      return res.status(500).json({error: {code: 500, message: 'Server Error', details: 'Error while sending request to service'}});
     });
   }
 

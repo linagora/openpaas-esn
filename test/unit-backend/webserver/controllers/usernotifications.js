@@ -23,10 +23,8 @@ describe('The user notifications controller', function() {
         user: {
           _id: 1
         },
-        param: function(name) {
-          if (name === 'limit') {
-            return '' + limit;
-          }
+        query: {
+          limit: limit
         }
       };
       controller.list(req, {});
@@ -48,10 +46,8 @@ describe('The user notifications controller', function() {
         user: {
           _id: 1
         },
-        param: function(name) {
-          if (name === 'limit') {
-            return '' + limit;
-          }
+        query: {
+          limit: limit
         }
       };
       controller.list(req, {});
@@ -73,10 +69,8 @@ describe('The user notifications controller', function() {
         user: {
           _id: 1
         },
-        param: function(name) {
-          if (name === 'offset') {
-            return '' + offset;
-          }
+        query: {
+          offset: offset
         }
       };
       controller.list(req, {});
@@ -98,10 +92,8 @@ describe('The user notifications controller', function() {
         user: {
           _id: 1
         },
-        param: function(name) {
-          if (name === 'offset') {
-            return '' + offset;
-          }
+        query: {
+          offset: offset
         }
       };
       controller.list(req, {});
@@ -122,10 +114,8 @@ describe('The user notifications controller', function() {
         user: {
           _id: 1
         },
-        param: function(name) {
-          if (name === 'read') {
-            return 'true';
-          }
+        query: {
+          read: 'true'
         }
       };
       controller.list(req, {});
@@ -146,10 +136,8 @@ describe('The user notifications controller', function() {
         user: {
           _id: 1
         },
-        param: function(name) {
-          if (name === 'read') {
-            return 'false';
-          }
+        query: {
+          read: 'false'
         }
       };
       controller.list(req, {});
@@ -170,10 +158,8 @@ describe('The user notifications controller', function() {
         user: {
           _id: 1
         },
-        param: function(name) {
-          if (name === 'read') {
-            return '123';
-          }
+        query: {
+          read: '123'
         }
       };
       controller.list(req, {});
@@ -192,16 +178,15 @@ describe('The user notifications controller', function() {
         user: {
           _id: 1
         },
-        param: function() {
-        }
+        query: {}
       };
 
-      var res = {
-        json: function(code) {
+      var res = this.helpers.express.jsonResponse(
+        function(code) {
           expect(code).to.equal(500);
           done();
         }
-      };
+      );
 
       controller.list(req, res);
     });
@@ -222,8 +207,7 @@ describe('The user notifications controller', function() {
         user: {
           _id: 1
         },
-        param: function() {
-        }
+        query: {}
       };
 
       controller.list(req, {});
@@ -247,20 +231,16 @@ describe('The user notifications controller', function() {
         user: {
           _id: 1
         },
-        param: function() {
-        }
+        query: {}
       };
 
-      var res = {
-        json: function() {
-          done();
-        },
+      var res = this.helpers.express.jsonResponse(function(name, value, headers) {
+        expect(headers).to.deep.equal({
+          'X-ESN-Items-Count': notifications.length
+        });
 
-        header: function(name, value) {
-          expect(name).to.equal('X-ESN-Items-Count');
-          expect(value).to.equal(notifications.length);
-        }
-      };
+        done();
+      });
       controller.list(req, res);
     });
 
@@ -282,22 +262,18 @@ describe('The user notifications controller', function() {
         user: {
           _id: 1
         },
-        param: function() {
-        }
+        query: {}
       };
 
-      var res = {
-        json: function(code, value) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, value) {
           expect(code).to.equal(200);
           expect(value).to.exist;
           expect(value).to.be.an.array;
           expect(value.length).to.equal(0);
           done();
-        },
-
-        header: function(name, value) {
         }
-      };
+      );
       controller.list(req, res);
     });
 
@@ -320,24 +296,18 @@ describe('The user notifications controller', function() {
         user: {
           _id: 1
         },
-        param: function() {
-        }
+        query: {}
       };
 
-      var res = {
-        json: function(code, value) {
-          expect(code).to.equal(200);
-          expect(value).to.exist;
-          expect(value).to.be.an.array;
-          expect(value).to.deep.equal(notifications);
-          done();
-        },
+      var res = this.helpers.express.jsonResponse(function(code, value, headers) {
+        expect(code).to.equal(200);
+        expect(value).to.deep.equal(notifications);
+        expect(headers).to.deep.equal({
+          'X-ESN-Items-Count': total
+        });
 
-        header: function(name, value) {
-          expect(name).to.equal('X-ESN-Items-Count');
-          expect(value).to.equal(total);
-        }
-      };
+        done();
+      });
       controller.list(req, res);
     });
   });
@@ -348,15 +318,15 @@ describe('The user notifications controller', function() {
       var req = {
         params: {}
       };
-      var res = {
-        json: function(code, message) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, message) {
           expect(code).to.equal(400);
           expect(message.error).to.exists;
           expect(message.error.status).to.equal(400);
           expect(message.error.details).to.exists;
           done();
         }
-      };
+      );
       var userNotificationModuleMocked = {};
       mockery.registerMock('../../core/notification/usernotification', userNotificationModuleMocked);
       var controller = this.helpers.requireBackend('webserver/controllers/usernotifications');
@@ -376,15 +346,15 @@ describe('The user notifications controller', function() {
           id: 123456
         }
       };
-      var res = {
-        json: function(code, message) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, message) {
           expect(code).to.equal(404);
           expect(message.error).to.exists;
           expect(message.error.status).to.equal(404);
           expect(message.error.details).to.exists;
           done();
         }
-      };
+      );
       controller.load(req, res, {});
     });
 
@@ -401,15 +371,15 @@ describe('The user notifications controller', function() {
           id: 123456
         }
       };
-      var res = {
-        json: function(code, message) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, message) {
           expect(code).to.equal(500);
           expect(message.error).to.exists;
           expect(message.error.status).to.equal(500);
           expect(message.error.details).to.exists;
           done();
         }
-      };
+      );
       controller.load(req, res, {});
     });
 
@@ -438,15 +408,15 @@ describe('The user notifications controller', function() {
 
     it('should return 400 if req.query is not defined', function(done) {
       var req = {};
-      var res = {
-        json: function(code, message) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, message) {
           expect(code).to.equal(400);
           expect(message.error).to.exists;
           expect(message.error.status).to.equal(400);
           expect(message.error.details).to.exists;
           done();
         }
-      };
+      );
       var userNotificationModuleMocked = {};
       mockery.registerMock('../../core/notification/usernotification', userNotificationModuleMocked);
       var controller = this.helpers.requireBackend('webserver/controllers/usernotifications');
@@ -457,15 +427,15 @@ describe('The user notifications controller', function() {
       var req = {
         query: {}
       };
-      var res = {
-        json: function(code, message) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, message) {
           expect(code).to.equal(400);
           expect(message.error).to.exists;
           expect(message.error.status).to.equal(400);
           expect(message.error.details).to.exists;
           done();
         }
-      };
+      );
       var userNotificationModuleMocked = {};
       mockery.registerMock('../../core/notification/usernotification', userNotificationModuleMocked);
       var controller = this.helpers.requireBackend('webserver/controllers/usernotifications');
@@ -473,6 +443,11 @@ describe('The user notifications controller', function() {
     });
 
     it('should change req.query.ids to array if it is not', function(done) {
+      var req = {
+        query: {
+          ids: '123'
+        }
+      };
       var userNotificationModuleMocked = {
         getAll: function() {
           expect(req.query.ids).to.deep.equal(['123']);
@@ -481,11 +456,7 @@ describe('The user notifications controller', function() {
       };
       mockery.registerMock('../../core/notification/usernotification', userNotificationModuleMocked);
       var controller = this.helpers.requireBackend('webserver/controllers/usernotifications');
-      var req = {
-        query: {
-          ids: '123'
-        }
-      };
+
       controller.loadAll(req, {}, {});
     });
 
@@ -502,15 +473,15 @@ describe('The user notifications controller', function() {
           ids: 123456
         }
       };
-      var res = {
-        json: function(code, message) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, message) {
           expect(code).to.equal(404);
           expect(message.error).to.exists;
           expect(message.error.status).to.equal(404);
           expect(message.error.details).to.exists;
           done();
         }
-      };
+      );
       controller.loadAll(req, res, {});
     });
 
@@ -527,15 +498,15 @@ describe('The user notifications controller', function() {
           ids: 123456
         }
       };
-      var res = {
-        json: function(code, message) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, message) {
           expect(code).to.equal(500);
           expect(message.error).to.exists;
           expect(message.error.status).to.equal(500);
           expect(message.error.details).to.exists;
           done();
         }
-      };
+      );
       controller.loadAll(req, res, {});
     });
 
@@ -571,15 +542,15 @@ describe('The user notifications controller', function() {
       var req = {
         usernotification: 'usernotification'
       };
-      var res = {
-        json: function(code, message) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, message) {
           expect(code).to.equal(400);
           expect(message.error).to.exists;
           expect(message.error.status).to.equal(400);
           expect(message.error.details).to.exists;
           done();
         }
-      };
+      );
       controller.setRead(req, res);
     });
 
@@ -590,15 +561,15 @@ describe('The user notifications controller', function() {
         usernotification: 'usernotification',
         body: {}
       };
-      var res = {
-        json: function(code, message) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, message) {
           expect(code).to.equal(400);
           expect(message.error).to.exists;
           expect(message.error.status).to.equal(400);
           expect(message.error.details).to.exists;
           done();
         }
-      };
+      );
       controller.setRead(req, res);
     });
 
@@ -616,15 +587,15 @@ describe('The user notifications controller', function() {
           value: true
         }
       };
-      var res = {
-        json: function(code, message) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, message) {
           expect(code).to.equal(500);
           expect(message.error).to.exists;
           expect(message.error.status).to.equal(500);
           expect(message.error.details).to.exists;
           done();
         }
-      };
+      );
       controller.setRead(req, res);
     });
 
@@ -644,13 +615,13 @@ describe('The user notifications controller', function() {
           value: true
         }
       };
-      var res = {
-        send: function(code) {
+      var res = this.helpers.express.response(
+        function(code) {
           expect(code).to.equal(205);
           expect(readArgs).to.be.true;
           done();
         }
-      };
+      );
       controller.setRead(req, res);
     });
   });
@@ -663,15 +634,15 @@ describe('The user notifications controller', function() {
       var req = {
         usernotifications: 'usernotifications'
       };
-      var res = {
-        json: function(code, message) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, message) {
           expect(code).to.equal(400);
           expect(message.error).to.exists;
           expect(message.error.status).to.equal(400);
           expect(message.error.details).to.exists;
           done();
         }
-      };
+      );
       controller.setAllRead(req, res);
     });
 
@@ -682,15 +653,15 @@ describe('The user notifications controller', function() {
         usernotifications: 'usernotifications',
         body: {}
       };
-      var res = {
-        json: function(code, message) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, message) {
           expect(code).to.equal(400);
           expect(message.error).to.exists;
           expect(message.error.status).to.equal(400);
           expect(message.error.details).to.exists;
           done();
         }
-      };
+      );
       controller.setAllRead(req, res);
     });
 
@@ -708,15 +679,15 @@ describe('The user notifications controller', function() {
           value: true
         }
       };
-      var res = {
-        json: function(code, message) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, message) {
           expect(code).to.equal(500);
           expect(message.error).to.exists;
           expect(message.error.status).to.equal(500);
           expect(message.error.details).to.exists;
           done();
         }
-      };
+      );
       controller.setAllRead(req, res);
     });
 
@@ -736,13 +707,13 @@ describe('The user notifications controller', function() {
           value: true
         }
       };
-      var res = {
-        send: function(code) {
+      var res = this.helpers.express.response(
+        function(code) {
           expect(code).to.equal(205);
           expect(readArgs).to.be.true;
           done();
         }
-      };
+      );
       controller.setAllRead(req, res);
     });
   });
@@ -755,15 +726,15 @@ describe('The user notifications controller', function() {
       var req = {
         usernotification: 'usernotification'
       };
-      var res = {
-        json: function(code, message) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, message) {
           expect(code).to.equal(400);
           expect(message.error).to.exists;
           expect(message.error.status).to.equal(400);
           expect(message.error.details).to.exists;
           done();
         }
-      };
+      );
       controller.setAcknowledged(req, res);
     });
 
@@ -774,15 +745,15 @@ describe('The user notifications controller', function() {
         usernotification: 'usernotification',
         body: {}
       };
-      var res = {
-        json: function(code, message) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, message) {
           expect(code).to.equal(400);
           expect(message.error).to.exists;
           expect(message.error.status).to.equal(400);
           expect(message.error.details).to.exists;
           done();
         }
-      };
+      );
       controller.setAcknowledged(req, res);
     });
 
@@ -800,15 +771,15 @@ describe('The user notifications controller', function() {
           value: true
         }
       };
-      var res = {
-        json: function(code, message) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, message) {
           expect(code).to.equal(500);
           expect(message.error).to.exists;
           expect(message.error.status).to.equal(500);
           expect(message.error.details).to.exists;
           done();
         }
-      };
+      );
       controller.setAcknowledged(req, res);
     });
 
@@ -828,13 +799,13 @@ describe('The user notifications controller', function() {
           value: true
         }
       };
-      var res = {
-        send: function(code) {
+      var res = this.helpers.express.response(
+        function(code) {
           expect(code).to.equal(205);
           expect(readArgs).to.be.true;
           done();
         }
-      };
+      );
       controller.setAcknowledged(req, res);
     });
   });
@@ -849,15 +820,15 @@ describe('The user notifications controller', function() {
       };
       mockery.registerMock('../../core/notification/usernotification', userNotificationModuleMocked);
       var controller = this.helpers.requireBackend('webserver/controllers/usernotifications');
-      var res = {
-        json: function(code, message) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, message) {
           expect(code).to.equal(500);
           expect(message.error).to.exists;
           expect(message.error.status).to.equal(500);
           expect(message.error.details).to.exists;
           done();
         }
-      };
+      );
       controller.getUnreadCount({
         user: {
           _id: {
@@ -875,13 +846,13 @@ describe('The user notifications controller', function() {
       };
       mockery.registerMock('../../core/notification/usernotification', userNotificationModuleMocked);
       var controller = this.helpers.requireBackend('webserver/controllers/usernotifications');
-      var res = {
-        json: function(code, body) {
+      var res = this.helpers.express.jsonResponse(
+        function(code, body) {
           expect(code).to.equal(200);
           expect(body.unread_count).to.equal(42);
           done();
         }
-      };
+      );
       controller.getUnreadCount({
         user: {
           _id: {

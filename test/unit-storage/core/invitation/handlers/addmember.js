@@ -5,6 +5,12 @@ var mockery = require('mockery');
 
 describe('The addmember handler', function() {
 
+  beforeEach(function() {
+    mockery.registerMock('../../email/system/addMember', function(email, callback) {
+      callback(null, {});
+    });
+  });
+
   describe('The validate fn', function() {
 
     it('should fail if invitation data is not set', function(done) {
@@ -123,7 +129,7 @@ describe('The addmember handler', function() {
 
     beforeEach(function(done) {
       this.mongoose = require('mongoose');
-      this.mongoose.connect(this.testEnv.mongoUrl);
+      this.connectMongoose(this.mongoose);
 
       Domain = this.helpers.requireBackend('core/db/mongo/models/domain');
       User = this.helpers.requireBackend('core/db/mongo/models/user');
@@ -229,7 +235,7 @@ describe('The addmember handler', function() {
         var dom = {
           name: 'ESN',
           company_name: 'Linagora',
-          administrator: savedUser
+          administrators: [{ user_id: savedUser }]
         };
 
         var domain = new Domain(dom);
@@ -258,7 +264,10 @@ describe('The addmember handler', function() {
             };
 
             addmember.finalize(saved, data, function(err, result) {
-              expect(err).to.not.exist;
+              if (err) {
+                return done(err);
+              }
+
               expect(result).to.exist;
               expect(result.status).to.equal(201);
 
@@ -266,6 +275,7 @@ describe('The addmember handler', function() {
                 if (err) {
                   return done(err);
                 }
+
                 expect(user).to.exist;
                 expect(userDomainModule.isMemberOfDomain(user, result.result.resources.domain)).to.be.true;
                 done();

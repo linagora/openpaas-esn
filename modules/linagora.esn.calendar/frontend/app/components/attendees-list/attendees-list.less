@@ -1,0 +1,57 @@
+.attendees-list {
+  .flex;
+
+  font-size: 15px;
+  margin: 0;
+  .col-sm-1:first-child, .col-xs-2:first-child {
+    margin-bottom: 5px;
+  }
+
+  .fg-line.pl-body {
+    .flex-start;
+    .flex-wrap;
+    .flex-column;
+  }
+
+  .attendees-bin {
+    .flex-horizontal-centered;
+
+    background: @darkenBgColor;
+  }
+
+  .trash {
+    .flex-vertical-centered;
+
+    color: @m-red;
+    cursor: pointer;
+
+    :hover, :focus {
+      color: darken(@m-red, 10%);
+    }
+  }
+
+  .accepted  {
+    color: @m-green;
+  }
+
+  .undecided {
+    color: @m-blue;
+  }
+
+  .declined {
+    color: @m-red;
+  }
+}
+
+@media (min-width: @screen-sm-min) {
+  .attendees-list {
+  }
+}
+
+@media (min-width: @screen-md-min) {
+  .attendees-list {
+    .fg-line.pl-body {
+      .flex-row;
+    }
+  }
+}

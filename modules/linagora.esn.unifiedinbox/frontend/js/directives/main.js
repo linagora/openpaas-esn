@@ -102,31 +102,26 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('mailboxDisplay', function(MAILBOX_ROLE_ICONS_MAPPING, inboxThreadService, inboxEmailService, mailboxesService) {
+  .directive('mailboxDisplay', function(MAILBOX_ROLE_ICONS_MAPPING, inboxJmapItemService, mailboxesService, _) {
     return {
       restrict: 'E',
       replace: true,
       scope: {
-        mailbox: '='
+        mailbox: '=',
+        hideBadge: '@'
       },
       templateUrl: '/unifiedinbox/views/sidebar/email/menu-item.html',
-      link: function(scope, element) {
+      link: function(scope) {
         scope.mailboxIcons = MAILBOX_ROLE_ICONS_MAPPING[scope.mailbox.role.value || 'default'];
 
-        function isThread($dragData) {
-          return $dragData.hasOwnProperty('messageIds');
-        }
-
         scope.onDrop = function($dragData) {
-          if (isThread($dragData)) {
-            return inboxThreadService.moveToMailbox($dragData, scope.mailbox);
-          } else {
-            return inboxEmailService.moveToMailbox($dragData, scope.mailbox);
-          }
+          return inboxJmapItemService.moveMultipleItems($dragData, scope.mailbox);
         };
 
         scope.isDropZone = function($dragData) {
-          return mailboxesService.canMoveMessage($dragData.email || $dragData, scope.mailbox);
+          return _.all($dragData, function(item) {
+            return mailboxesService.canMoveMessage(item, scope.mailbox);
+          });
         };
       }
     };
@@ -143,15 +138,21 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('inboxEmailer', function() {
+  .directive('inboxEmailer', function(session) {
     return {
       restrict: 'E',
       replace: true,
       controller: 'resolveEmailerController',
       scope: {
-        emailer: '='
+        emailer: '=',
+        hideEmail: '=?'
       },
-      templateUrl: '/unifiedinbox/views/partials/emailer/inbox-emailer.html'
+      templateUrl: '/unifiedinbox/views/partials/emailer/inbox-emailer.html',
+      link: function(scope) {
+        scope.$watch('emailer', function(emailer) {
+          scope.me = emailer && emailer.email && emailer.email === session.user.preferredEmail;
+        });
+      }
     };
   })
 
@@ -177,7 +178,55 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('htmlEmailBody', function($timeout, iFrameResize, inlineImagesFilter, loadImagesAsyncFilter, IFRAME_MESSAGE_PREFIX) {
+  .directive('inboxEmailerDisplay', function(emailSendingService, _, session) {
+    function link(scope) {
+      var groupLabels = { to: 'To', cc: 'CC', bcc: 'BCC'},
+          groups = _.keys(groupLabels);
+
+      _init();
+
+      function findAndAssignPreviewEmailer(find) {
+        for (var i = 0; i < groups.length; i++) {
+          var group = groups[i],
+              emailer = find(scope.email[group]);
+
+          if (emailer) {
+            scope.previewEmailer = emailer;
+            scope.previewEmailerGroup = groupLabels[group];
+
+            break;
+          }
+        }
+      }
+
+      function _init() {
+        findAndAssignPreviewEmailer(function(emailers) {
+          return _.find(emailers, { email: session.user.preferredEmail });
+        });
+
+        // Defaulting to the first recipient if I am not in the recipients
+        if (!scope.previewEmailer) {
+          findAndAssignPreviewEmailer(_.head);
+        }
+
+        scope.collapsed = true;
+        scope.numberOfHiddenEmailer = emailSendingService.countRecipients(scope.email) - 1;
+        scope.showMoreButton = scope.numberOfHiddenEmailer > 0;
+      }
+    }
+
+    return {
+      restrict: 'E',
+      scope: {
+        email: '='
+      },
+      templateUrl: '/unifiedinbox/views/partials/emailer/inbox-emailer-display.html',
+      link: link
+    };
+  })
+
+  .directive('htmlEmailBody', function($timeout, iFrameResize, loadImagesAsyncFilter, listenToPrefixedWindowMessage, _,
+                                       IFRAME_MESSAGE_PREFIXES) {
     return {
       restrict: 'E',
       scope: {
@@ -185,16 +234,18 @@ angular.module('linagora.esn.unifiedinbox')
       },
       templateUrl: '/unifiedinbox/views/partials/html-email-body.html',
       link: function(scope, element) {
-        var iFrames;
+        var iFrames, unregisterWindowListener = listenToPrefixedWindowMessage(IFRAME_MESSAGE_PREFIXES.INLINE_ATTACHMENT, function(cid) {
+          scope.$emit('wm:' + IFRAME_MESSAGE_PREFIXES.INLINE_ATTACHMENT, cid);
+        });
 
         element.find('iframe').load(function(event) {
           scope.$emit('iframe:loaded', event.target);
         });
 
         scope.$on('iframe:loaded', function(event, iFrame) {
-          var iFrameContent = loadImagesAsyncFilter(inlineImagesFilter(scope.email.htmlBody, scope.email.attachments));
+          var iFrameContent = loadImagesAsyncFilter(scope.email.htmlBody, scope.email.attachments);
 
-          iFrame.contentWindow.postMessage(IFRAME_MESSAGE_PREFIX + iFrameContent, '*');
+          iFrame.contentWindow.postMessage(IFRAME_MESSAGE_PREFIXES.CHANGE_DOCUMENT + iFrameContent, '*');
 
           iFrames = iFrameResize({
             checkOrigin: false,
@@ -212,6 +263,18 @@ angular.module('linagora.esn.unifiedinbox')
             }, 0);
           }
         });
+
+        scope.$on('wm:' + IFRAME_MESSAGE_PREFIXES.INLINE_ATTACHMENT, function(event, cid) {
+          var attachment = _.find(scope.email.attachments, { cid: cid });
+
+          if (attachment) {
+            attachment.getSignedDownloadUrl().then(function(url) {
+              iFrames[0].contentWindow.postMessage(IFRAME_MESSAGE_PREFIXES.INLINE_ATTACHMENT + cid + ' ' + url, '*');
+            });
+          }
+        });
+
+        scope.$on('$destroy', unregisterWindowListener);
       }
     };
   })
@@ -220,7 +283,7 @@ angular.module('linagora.esn.unifiedinbox')
     return {
       restrict: 'E',
       replace: true,
-      templateUrl:'/unifiedinbox/views/attachment/attachment-download-action.html'
+      templateUrl: '/unifiedinbox/views/attachment/attachment-download-action.html'
     };
   })
 
@@ -237,31 +300,14 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('composer', function($rootScope, $state, $timeout, $window, elementScrollService, emailBodyService, autosize, $stateParams) {
+  .directive('composer', function($rootScope, $state, $timeout, elementScrollService, emailBodyService, autosize, esnPreviousState) {
     return {
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/composer/composer.html',
       controller: 'composerController',
       controllerAs: 'ctrl',
       link: function(scope, element, attrs, controller) {
-
         scope.isBoxed = function() {return false;};
-
-        function backToLastLocation() {
-          $state.go($stateParams.previousState.name, $stateParams.previousState.params);
-        }
-
-        function quit(action) {
-          disableOnBackAutoSave();
-
-          if (action) {
-            action();
-          }
-        }
-
-        function quitAsSaveDraft() {
-          quit(controller.saveDraft);
-        }
 
         var disableOnBackAutoSave = $rootScope.$on('$stateChangeSuccess', function(event, toState) {
           if (toState && toState.data && toState.data.ignoreSaveAsDraft) {
@@ -272,10 +318,7 @@ angular.module('linagora.esn.unifiedinbox')
         });
 
         scope.hide = quit.bind(null, backToLastLocation);
-        scope.close = function() {
-          quitAsSaveDraft();
-          backToLastLocation();
-        };
+        scope.close = quitAsSaveDraft;
 
         scope.editQuotedMail = function() {
           var emailBody = element.find('.compose-body'),
@@ -315,6 +358,22 @@ angular.module('linagora.esn.unifiedinbox')
           });
         };
 
+        function backToLastLocation() {
+          esnPreviousState.go('unifiedinbox');
+        }
+
+        function quit(action) {
+          disableOnBackAutoSave();
+
+          if (action) {
+            action();
+          }
+        }
+
+        function quitAsSaveDraft() {
+          quit(controller.saveDraft);
+        }
+
       }
     };
   })
@@ -327,20 +386,59 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('composerDesktop', function($timeout, $compile) {
+  .directive('composerDesktop', function($timeout, $compile, KEYCODES) {
     return {
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/composer/composer-desktop.html',
       controller: 'composerController',
       controllerAs: 'ctrl',
       link: function(scope, element, attrs, controller) {
+        scope.email && scope.$updateTitle(scope.email.subject);
 
         scope.isBoxed = function() {return true;};
 
-        scope.onInit = function() {
+        function focusOnRightField(email) {
+          $timeout(function() {
+            if (!email || !email.to || email.to.length === 0) {
+              element.find('.recipients-to input').focus();
+            } else {
+              element.find('.summernote').summernote('focus');
+            }
+          }, 0);
+        }
+
+        function _getEventKey(event) {
+          return event.which || event.keyCode;
+        }
+
+        scope.onInit = function(event) {
+          focusOnRightField(scope.email);
+
           element
             .find('.note-editable')
+            .keydown(function(event) {
+              if (_getEventKey(event) === KEYCODES.TAB_KEY && event.shiftKey) {
+                element.find('.compose-subject').focus();
+                event.preventDefault();
+              }
+            })
             .after($compile('<composer-attachments></composer-attachments>')(scope));
+
+          element
+            .find('.compose-subject')
+            .keydown(function(event) {
+              if (_getEventKey(event) === KEYCODES.TAB_KEY && !event.shiftKey) {
+                scope.focusEmailBody();
+                event.preventDefault();
+              }
+            });
+
+          // We initialize our Composition instance with the summernote representation of the body
+          // which allows us to later compare it with the current body, to detect user changes.
+          scope.email.htmlBody = event.note.summernote('code');
+          $timeout(function() {
+            controller.initCtrl(scope.email, scope.compositionOptions);
+          }, 0);
         };
 
         scope.focusEmailBody = function() {
@@ -350,18 +448,6 @@ angular.module('linagora.esn.unifiedinbox')
             element.find('.summernote').summernote('focus');
             element.find('.note-editable').focusEnd();
           }, 0);
-        };
-
-        // The onChange callback will be initially called by summernote when it is initialized
-        // either with an empty body (compose from scratch) or with an existing body (reply, forward, etc.)
-        // So we intercept this to initialize our Composition instance with the summernote representation of the body
-        // which allows us to later compare it with the current body, to detect user changes.
-        scope.onChange = function() {
-          $timeout(function() {
-            controller.initCtrl(scope.email, scope.compositionOptions);
-          }, 0);
-
-          scope.onChange = angular.noop;
         };
 
         scope.hide = scope.$hide;
@@ -399,6 +485,7 @@ angular.module('linagora.esn.unifiedinbox')
           }
         }
 
+        scope.tags = scope.tags || [];
         scope.search = searchService.searchRecipients;
 
         scope.onTagAdding = function($tag) {
@@ -426,12 +513,12 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('inboxStar', function(jmapEmailService) {
+  .directive('inboxStar', function(inboxJmapItemService) {
     return {
       restrict: 'E',
       controller: function($scope) {
         this.setIsFlagged = function(state) {
-          jmapEmailService.setFlag($scope.item, 'isFlagged', state);
+          inboxJmapItemService.setFlag($scope.item, 'isFlagged', state);
         };
       },
       controllerAs: 'ctrl',
@@ -442,21 +529,13 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('email', function($state, inboxEmailService) {
+  .directive('email', function(inboxJmapItemService) {
     return {
       restrict: 'E',
       controller: function($scope) {
-        ['reply', 'replyAll', 'forward', 'markAsRead', 'markAsFlagged', 'unmarkAsFlagged'].forEach(function(action) {
+        ['reply', 'replyAll', 'forward'].forEach(function(action) {
           this[action] = function() {
-            inboxEmailService[action]($scope.email);
-          };
-        }.bind(this));
-
-        ['markAsUnread', 'moveToTrash'].forEach(function(action) {
-          this[action] = function() {
-            inboxEmailService[action]($scope.email).then(function() {
-              $state.go('^');
-            });
+            inboxJmapItemService[action]($scope.email);
           };
         }.bind(this));
 
@@ -486,7 +565,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('inboxEmailFooter', function(inboxEmailService) {
+  .directive('inboxEmailFooter', function(inboxJmapItemService) {
     return {
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/partials/email-footer.html',
@@ -496,7 +575,7 @@ angular.module('linagora.esn.unifiedinbox')
       controller: function($scope) {
         ['reply', 'replyAll', 'forward'].forEach(function(action) {
           this[action] = function() {
-            inboxEmailService[action]($scope.email);
+            inboxJmapItemService[action]($scope.email);
           };
         }.bind(this));
       },
@@ -504,7 +583,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('inboxFilterButton', function($rootScope, _) {
+  .directive('inboxFilterButton', function($rootScope, _, INBOX_EVENTS) {
     return {
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/filter/filter-button.html',
@@ -515,8 +594,6 @@ angular.module('linagora.esn.unifiedinbox')
       controllerAs: 'ctrl',
       controller: function($scope) {
         var defaultPlaceholder = $scope.placeholder || 'Filters';
-
-        $scope.dropdownList = {};
 
         function updateDropdownList() {
           var checkedItems = _.filter($scope.filters, { checked: true });
@@ -530,14 +607,86 @@ angular.module('linagora.esn.unifiedinbox')
           }
         }
 
+        $scope.dropdownList = {};
+        $scope.$on(INBOX_EVENTS.FILTER_CHANGED, updateDropdownList);
+
         this.dropdownItemClicked = function() {
           updateDropdownList();
 
-          $rootScope.$broadcast('inboxFilterChanged');
+          $rootScope.$broadcast(INBOX_EVENTS.FILTER_CHANGED);
         };
 
         // Define proper initial state of the button
         updateDropdownList();
       }
+    };
+  })
+
+  .directive('inboxVacationIndicator', function($rootScope, withJmapClient, asyncJmapAction, jmap, INBOX_EVENTS) {
+    return {
+      restrict: 'E',
+      scope: {},
+      controller: function($scope) {
+        function _updateVacationStatus() {
+          withJmapClient(function(client) {
+            client.getVacationResponse().then(function(vacation) {
+              $scope.vacationActivated = vacation.isActivated;
+            });
+          });
+        }
+
+        this.disableVacation = function() {
+          $scope.vacationActivated = false;
+
+          return asyncJmapAction('Modification of vacation settings', function(client) {
+            return client.setVacationResponse(new jmap.VacationResponse(client, { isEnabled: false }))
+              .then(function() {
+                $rootScope.$broadcast(INBOX_EVENTS.VACATION_STATUS);
+              });
+          }).catch(function() {
+            $scope.vacationActivated = true;
+          });
+        };
+
+        $scope.$on(INBOX_EVENTS.VACATION_STATUS, _updateVacationStatus);
+
+        _updateVacationStatus();
+      },
+      controllerAs: 'ctrl',
+      templateUrl: '/unifiedinbox/views/partials/inbox-vacation-indicator.html'
+    };
+  })
+
+  .directive('inboxEmptyContainerMessage', function(inboxFilteringService, jmap, INBOX_EMPTY_MESSAGE_MAPPING) {
+    return {
+      restrict: 'E',
+      scope: {
+        mailbox: '=?',
+        role: '@?'
+      },
+      templateUrl: '/unifiedinbox/views/partials/empty-messages/index.html',
+      link: function(scope) {
+        var role = scope.role || (scope.mailbox && scope.mailbox.role && scope.mailbox.role.value);
+
+        scope.isCustomMailbox = scope.mailbox && jmap.MailboxRole.UNKNOWN === scope.mailbox.role;
+        scope.isFilteringActive = inboxFilteringService.isAnyFilterSelected;
+        scope.containerTemplateUrl = (role && INBOX_EMPTY_MESSAGE_MAPPING[role]) || INBOX_EMPTY_MESSAGE_MAPPING.default;
+      }
+    };
+  })
+
+  .directive('inboxClearFiltersButton', function($rootScope, inboxFilteringService, INBOX_EVENTS) {
+    return {
+      restrict: 'E',
+      scope: {},
+      controller: function() {
+        this.clearFilters = function() {
+          inboxFilteringService.uncheckFilters();
+
+          $rootScope.$broadcast(INBOX_EVENTS.FILTER_CHANGED);
+        };
+      },
+      controllerAs: 'ctrl',
+      templateUrl: '/unifiedinbox/views/filter/inbox-clear-filters-button.html'
     };
   });

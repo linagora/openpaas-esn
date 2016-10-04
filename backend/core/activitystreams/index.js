@@ -55,7 +55,7 @@ function query(options, cb) {
 
   var getEntries = function(q, callback) {
     if (options.stream) {
-      return callback(null, q.stream());
+      return callback(null, q.cursor());
     }
 
     q.exec(function(err, results) {
@@ -68,7 +68,7 @@ function query(options, cb) {
 
   var q = TimelineEntry.find().where('target.objectType').equals(options.target.objectType).where('target._id').equals(options.target._id);
   if (options.limit) {
-    q.limit(options.limit);
+    q.limit(+options.limit);
   }
 
   if (options.after) {
@@ -107,6 +107,64 @@ function query(options, cb) {
   }
 }
 module.exports.query = query;
+
+function getTimelineEntries(options, callback) {
+  options = options || {};
+
+  function getQuery() {
+    var query = {};
+    if (options.verb) {
+      query.verb = options.verb;
+    }
+
+    var q = TimelineEntry.find(query);
+    var or = [];
+
+    if (options.actor) {
+      or.push({'actor._id': options.actor._id, 'actor.objectType': options.actor.objectType});
+    }
+
+    if (options.target) {
+      or.push({'target._id': options.target._id, 'target.objectType': options.target.objectType});
+    }
+
+    q = q.or(or);
+
+    if (options.excludeVerbs) {
+      var and = options.excludeVerbs.map(function(verb) {
+        return { verb: { $ne: verb } };
+      });
+
+      q = q.where('verb').and(and);
+    }
+
+    return q;
+  }
+
+  getQuery().count().exec(function(err, count) {
+    if (err) {
+      return callback(err);
+    }
+
+    var timelineQuery = getQuery();
+
+    if (options.offset > 0) {
+      timelineQuery = timelineQuery.skip(+options.offset);
+    }
+
+    if (options.limit > 0) {
+      timelineQuery = timelineQuery.limit(+options.limit);
+    }
+
+    timelineQuery.sort('-published').exec(function(err, results) {
+      if (err) {
+        return callback(err);
+      }
+      return callback(null, {total_count: count, list: results});
+    });
+  });
+}
+module.exports.getTimelineEntries = getTimelineEntries;
 
 /**
  * Add an timeline entry

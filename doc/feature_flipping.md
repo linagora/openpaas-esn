@@ -1,7 +1,7 @@
 # Feature flipping
 
 OpenPaas supports features flipping. Currently by editing a Mongo document in the database directly.
-The list of features is per-domain and resides in the `features` collection.
+The list of features is per-domain and resides in the `configurations` collection.
 
 ## Document structure
 
@@ -13,7 +13,7 @@ The document has the following structure:
     "modules" : [
         {
             "name" : "module_name",
-            "features" : [
+            "configurations" : [
                 {
                     "name" : "feature_name",
                     "value" : Any
@@ -70,6 +70,12 @@ The following features are supported for the `linagora.esn.unifiedinbox` module:
 ```
 ```
 {
+    "name" : "composer.attachments",
+    "value" : false
+}
+```
+```
+{
     "name" : "maxSizeUpload",
     "value" : 20971520
 }
@@ -77,6 +83,12 @@ The following features are supported for the `linagora.esn.unifiedinbox` module:
 ```
 {
     "name" : "twitter.tweets",
+    "value" : false
+}
+```
+```
+{
+    "name" : "drafts",
     "value" : false
 }
 ```

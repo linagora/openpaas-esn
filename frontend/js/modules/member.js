@@ -1,6 +1,9 @@
 'use strict';
 
-angular.module('esn.member', ['esn.router', 'esn.domain', 'esn.search', 'esn.infinite-list', 'openpaas-logo'])
+angular.module('esn.member', ['esn.router', 'esn.domain', 'esn.search', 'esn.infinite-list', 'openpaas-logo', 'esn.provider'])
+  .run(function(searchProviders, memberSearchProvider) {
+    searchProviders.add(memberSearchProvider);
+  })
   .config(function(dynamicDirectiveServiceProvider) {
     var memberAppMenu = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-member', {priority: 15});
     dynamicDirectiveServiceProvider.addInjection('esn-application-menu', memberAppMenu);
@@ -108,5 +111,77 @@ angular.module('esn.member', ['esn.router', 'esn.domain', 'esn.search', 'esn.inf
       link: function(scope) {
         scope.domain = session.domain;
       }
+    };
+  })
+  .factory('memberSearchProvider', function($q, newProvider, domainAPI, session, ELEMENTS_PER_REQUEST) {
+
+    var name = 'Members';
+
+    return newProvider({
+      name: name,
+      fetch: function(query) {
+        var offset = 0;
+
+        return function() {
+          return domainAPI.getMembers(session.domain._id, {
+            search: query,
+            offset: offset,
+            limit: ELEMENTS_PER_REQUEST
+          }).then(function(members) {
+            offset += members.data.length;
+            return members.data.map(function(member) {
+              member.type = name;
+              return member;
+            });
+          });
+        };
+      },
+      buildFetchContext: function(options) {
+        return $q.when(options.query);
+      },
+      templateUrl: '/views/modules/member/member-search-item.html'
+    });
+  })
+
+  .factory('MemberPaginationProvider', function(session, domainAPI, memberSearchConfiguration) {
+
+    function MemberPaginationProvider(options) {
+      this.options = angular.extend({limit: memberSearchConfiguration.searchLimit, offset: 0}, options);
+    }
+
+    MemberPaginationProvider.prototype.loadNextItems = function() {
+      var self = this;
+      return domainAPI.getMembers(session.domain._id, self.options).then(function(response) {
+        var result = {
+          data: response.data,
+          lastPage: (response.data.length < self.options.limit)
+        };
+
+        if (!result.lastPage) {
+          self.options.offset += self.options.limit;
+        }
+
+        return result;
+      });
+    };
+    return MemberPaginationProvider;
+  })
+
+  .factory('MemberScrollBuilder', function(infiniteScrollHelperBuilder, PageAggregatorService, MemberPaginationProvider, _, ELEMENTS_PER_PAGE) {
+
+    function build($scope, updateScope, options) {
+
+      var aggregator;
+
+      function loadNextItems() {
+        aggregator = aggregator || new PageAggregatorService('members', [new MemberPaginationProvider(options)], {results_per_page: ELEMENTS_PER_PAGE});
+        return aggregator.loadNextItems().then(_.property('data'), _.constant([]));
+      }
+
+      return infiniteScrollHelperBuilder($scope, loadNextItems, updateScope);
+    }
+
+    return {
+      build: build
     };
   });

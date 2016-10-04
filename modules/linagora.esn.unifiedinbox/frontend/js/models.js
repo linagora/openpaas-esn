@@ -23,7 +23,7 @@ angular.module('linagora.esn.unifiedinbox')
     return Emailer;
   })
 
-  .factory('Email', function(mailboxesService, emailSendingService, Emailer, _) {
+  .factory('Email', function(mailboxesService, emailSendingService, Emailer, _, Selectable) {
 
     function Email(email) {
       var isUnread = email.isUnread;
@@ -44,13 +44,13 @@ angular.module('linagora.esn.unifiedinbox')
       email.cc = _.map(email.cc, Emailer);
       email.bcc = _.map(email.bcc, Emailer);
 
-      return email;
+      return Selectable(email);
     }
 
     return Email;
   })
 
-  .factory('Thread', function(_) {
+  .factory('Thread', function(_, Selectable) {
 
     function _defineFlagProperty(object, flag) {
       Object.defineProperty(object, flag, {
@@ -66,17 +66,105 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     function Thread(thread, emails) {
-      thread.subject = emails && emails[0] ? emails[0].subject : '';
-      thread.emails = emails || [];
-      thread.lastEmail = _.last(thread.emails);
-      thread.hasAttachment = !!(thread.lastEmail && thread.lastEmail.hasAttachment);
-
       _defineFlagProperty(thread, 'isUnread');
       _defineFlagProperty(thread, 'isFlagged');
 
-      return thread;
+      thread.setEmails = function(emails) {
+        thread.emails = emails || [];
+
+        thread.mailboxIds = thread.emails.length ? thread.emails[0].mailboxIds : [];
+        thread.subject = thread.emails.length ? thread.emails[0].subject : '';
+        thread.lastEmail = _.last(thread.emails);
+        thread.hasAttachment = !!(thread.lastEmail && thread.lastEmail.hasAttachment);
+      };
+
+      thread.setEmails(emails);
+
+      return Selectable(thread);
     }
 
     return Thread;
 
+  })
+
+  .factory('Selectable', function($rootScope, INBOX_EVENTS) {
+    function Selectable(item) {
+      var isSelected = false;
+
+      item.selectable = true;
+
+      Object.defineProperty(item, 'selected', {
+        enumerable: true,
+        get: function() { return isSelected; },
+        set: function(selected) {
+          if (isSelected !== selected) {
+            isSelected = selected;
+            $rootScope.$broadcast(INBOX_EVENTS.ITEM_SELECTION_CHANGED, item);
+          }
+        }
+      });
+
+      return item;
+    }
+
+    return Selectable;
+  })
+
+  .factory('Mailbox', function($filter, inboxMailboxesCache, _, INBOX_DISPLAY_NAME_SIZE) {
+
+    function getMailboxDescendants(mailboxId) {
+      var descendants = [];
+      var toScanMailboxIds = [mailboxId];
+      var scannedMailboxIds = [];
+
+      function pushDescendant(mailbox) {
+        descendants.push(mailbox);
+
+        if (scannedMailboxIds.indexOf(mailbox.id) === -1) {
+          toScanMailboxIds.push(mailbox.id);
+        }
+      }
+
+      while (toScanMailboxIds.length) {
+        var toScanMailboxId = toScanMailboxIds.shift();
+        var mailboxChildren = _.filter(inboxMailboxesCache, { parentId: toScanMailboxId });
+
+        scannedMailboxIds.push(toScanMailboxId);
+        mailboxChildren.forEach(pushDescendant);
+      }
+
+      return _.uniq(descendants);
+    }
+
+    function Mailbox(mailbox) {
+      var descendants;
+
+      Object.defineProperty(mailbox, 'descendants', {
+        configurable: true,
+        get: function() {
+          if (!descendants) {
+            descendants = getMailboxDescendants(mailbox.id);
+          }
+
+          return descendants;
+        }
+      });
+
+      Object.defineProperty(mailbox, 'displayName', {
+        configurable: true,
+        get: function() {
+          var displayName = $filter('limitTo')(this.name, INBOX_DISPLAY_NAME_SIZE);
+
+          if (this.name && this.name.length > INBOX_DISPLAY_NAME_SIZE) {
+            displayName = displayName + '...';
+          }
+
+          return displayName;
+        }
+      });
+
+      return mailbox;
+    }
+
+    return Mailbox;
   });

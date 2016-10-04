@@ -43,14 +43,18 @@ module.exports = function(dependencies) {
 
     return getCreationToken()
       .then(function(token) {
-        return contactModule.lib.client({ ESNToken: token.token })
-          .addressbookHome(user._id)
+        var contactClient = contactModule.lib.client({
+          ESNToken: token.token,
+          user: user
+        });
+
+        return contactClient.addressbookHome(user._id)
           .addressbook(addressbook.id)
           .get()
           .catch(function() {
             logger.debug('Creating import addressbook', addressbook);
-            return contactModule.lib.client({ESNToken: token.token})
-              .addressbookHome(user._id)
+
+            return contactClient.addressbookHome(user._id)
               .addressbook()
               .create(addressbook);
           });
@@ -68,7 +72,7 @@ module.exports = function(dependencies) {
       user: user
     };
 
-    technicalUser.findByTypeAndDomain(TECHNICAL_USER_TYPE, user.domains[0].domain_id, function(err, users) {
+    technicalUser.findByTypeAndDomain(TECHNICAL_USER_TYPE, user.preferredDomainId, function(err, users) {
       if (err) {
         return defer.reject(err);
       }
@@ -100,14 +104,17 @@ module.exports = function(dependencies) {
    * Note:
    * - Sabre use `lastmodified` timestamp in seconds
    * @param  {Object} options           Contains:
-   *                                    	+ user
-   *                                    	+ addressbook
-   *                                    	+ esnToken
+   *                                      + user
+   *                                      + addressbook
+   *                                      + esnToken
    * @param  {Number} contactSyncTimeStamp Timestamp in miliseconds
    * @return {Promise}                   Resolve a list of removed contact IDs
    */
   function cleanOutdatedContacts(options, contactSyncTimeStamp) {
-    return contactModule.lib.client({ ESNToken: options.esnToken })
+    return contactModule.lib.client({
+        ESNToken: options.esnToken,
+        user: options.user
+      })
       .addressbookHome(options.user._id)
       .addressbook(options.addressbook.id)
       .vcard()

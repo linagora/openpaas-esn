@@ -90,7 +90,7 @@ module.exports.initHelper = function(invitation, data) {
       var domain = {
         name: data.domain,
         company_name: data.company,
-        administrator: user
+        administrators: [{ user_id: user }]
       };
       var domainObject = new Domain(domain);
       domainObject.save(function(err, saved) {

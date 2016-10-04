@@ -34,10 +34,8 @@ angular.module('esn.alphalist', ['duScroll', 'esn.array-helper', 'esn.core', 'es
 
         if (this.categories[letter]) {
           this.categories[letter].push(items[i]);
-        } else {
-          if (this.keepAll) {
-            this.categories[this.keepAllKey].push(items[i]);
-          }
+        } else if (this.keepAll) {
+          this.categories[this.keepAllKey].push(items[i]);
         }
       }
     };

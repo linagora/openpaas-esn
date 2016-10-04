@@ -10,7 +10,8 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
   var $compile, $rootScope, $scope, $timeout, element, jmapClient, jmap,
       iFrameResize = angular.noop, elementScrollService, $stateParams, $dropdown,
       isMobile, searchService, autosize, windowMock, fakeNotification, $state,
-      sendEmailFakePromise, cancellationLinkAction, inboxConfigMock, inboxEmailService, _;
+      sendEmailFakePromise, cancellationLinkAction, inboxConfigMock, inboxJmapItemService, _, INBOX_EVENTS,
+      notificationFactory, esnPreviousState, IFRAME_MESSAGE_PREFIXES;
 
   beforeEach(function() {
     angular.module('esn.iframe-resizer-wrapper', []);
@@ -20,6 +21,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
     angular.mock.module('esn.session');
     angular.mock.module('esn.configuration');
     angular.mock.module('esn.dropdownList');
+    angular.mock.module('esn.previous-state');
     angular.mock.module('linagora.esn.unifiedinbox');
     module('jadeTemplates');
   });
@@ -27,7 +29,10 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
   beforeEach(module(function($provide) {
     isMobile = false;
     windowMock = {
-      open: sinon.spy()
+      open: sinon.spy(),
+      history: {
+        back: angular.noop()
+      }
     };
     inboxConfigMock = {};
 
@@ -55,7 +60,6 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
     $provide.value('Fullscreen', {});
     $provide.value('ASTrackerController', {});
     $provide.value('deviceDetector', { isMobile: function() { return isMobile;} });
-    $provide.value('autolinker', { link: function() { return null;} });
     $provide.value('searchService', searchService = { searchRecipients: angular.noop });
     $provide.value('autosize', autosize = sinon.spy());
     $provide.value('inboxConfig', function(key, defaultValue) {
@@ -65,11 +69,6 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
     fakeNotification = { update: function() {}, setCancelAction: sinon.spy() };
     $provide.value('notifyService', function() { return fakeNotification; });
     $provide.value('sendEmail', sinon.spy(function() { return sendEmailFakePromise; }));
-    $provide.decorator('newComposerService', function($delegate) {
-      $delegate.open = sinon.spy(); // overwrite newComposerService.open() with a mock
-
-      return $delegate;
-    });
     $provide.decorator('$state', function($delegate) {
       $delegate.go = sinon.spy();
 
@@ -77,15 +76,20 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
     });
   }));
 
-  beforeEach(inject(function(_$compile_, _$rootScope_, _$timeout_, _$stateParams_, session, _inboxEmailService_, _$state_, _jmap_, ___) {
+  beforeEach(inject(function(_$compile_, _$rootScope_, _$timeout_, _$stateParams_, session, _inboxJmapItemService_, _$state_,
+                             _jmap_, ___, _INBOX_EVENTS_, _notificationFactory_, _esnPreviousState_, _IFRAME_MESSAGE_PREFIXES_) {
     $compile = _$compile_;
     $rootScope = _$rootScope_;
     $timeout = _$timeout_;
     $stateParams = _$stateParams_;
-    inboxEmailService = _inboxEmailService_;
+    inboxJmapItemService = _inboxJmapItemService_;
     $state = _$state_;
     jmap = _jmap_;
     _ = ___;
+    esnPreviousState = _esnPreviousState_;
+    INBOX_EVENTS = _INBOX_EVENTS_;
+    notificationFactory = _notificationFactory_;
+    IFRAME_MESSAGE_PREFIXES = _IFRAME_MESSAGE_PREFIXES_;
 
     session.user = {
       preferredEmail: 'user@open-paas.org',
@@ -108,11 +112,9 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
     element.appendTo(document.body);
 
     if (data) {
-      for (var key in data) {
-        if (data.hasOwnProperty(key)) {
-          element.data(key, data[key]);
-        }
-      }
+      Object.keys(data).forEach(function(key) {
+        element.data(key, data[key]);
+      });
     }
 
     $compile(element)($scope);
@@ -155,7 +157,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
       emailElement.click();
       expect(newComposerService.open).to.have.been.calledWith({
-        to:[{
+        to: [{
           email: 'SOMEONE',
           name: 'SOMETHING'
         }]
@@ -168,7 +170,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
       emailElement.click();
       expect(newComposerService.open).to.have.been.calledWith({
-        to:[{
+        to: [{
           email: 'SOMEONE',
           name: 'SOMETHING'
         }]
@@ -223,7 +225,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       emailElement.click();
 
       expect(newComposerService.open).to.have.been.calledWith({
-        to:[{
+        to: [{
           email: 'SOMEONE',
           name: 'SOMEONE'
         }]
@@ -237,7 +239,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       emailElement.click();
 
       expect(newComposerService.open).to.have.been.calledWith({
-        to:[{
+        to: [{
           email: 'SOMEONE',
           name: 'SOMEONE'
         }]
@@ -250,7 +252,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
       emailElement.click();
       expect(newComposerService.open).to.have.been.calledWith({
-        to:[{
+        to: [{
           email: 'SOMEONE1',
           name: 'SOMEONE1'
         },
@@ -290,6 +292,17 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       expect(element.isolateScope().mailboxIcons).to.equal('testclass');
     });
 
+    it('should define $scope.hideBadge to the correct value', function() {
+      $scope.mailbox = {
+        role: {
+          value: null
+        }
+      };
+      compileDirective('<mailbox-display mailbox="mailbox" hide-badge=true />');
+
+      expect(element.isolateScope().hideBadge).to.equal('true');
+    });
+
     describe('The dragndrop feature', function() {
 
       var isolateScope;
@@ -311,40 +324,23 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       });
 
       describe('The onDrop function', function() {
-        var inboxThreadService, inboxEmailService;
+        var inboxJmapItemService;
 
-        beforeEach(inject(function(_inboxThreadService_, _inboxEmailService_) {
-          inboxThreadService = _inboxThreadService_;
-          inboxEmailService = _inboxEmailService_;
+        beforeEach(inject(function(_inboxJmapItemService_) {
+          inboxJmapItemService = _inboxJmapItemService_;
 
-          inboxThreadService.moveToMailbox = sinon.spy();
-          inboxEmailService.moveToMailbox = sinon.spy();
+          inboxJmapItemService.moveMultipleItems = sinon.spy(function() {
+            return $q.when();
+          });
         }));
 
-        it('should move thread to mailbox if dragData is a thread', function() {
-          var thread = {
-            messageIds: ['m1'],
-            email: {
-              mailboxIds: ['2']
-            }
-          };
+        it('should delegate to inboxJmapItemService.moveMultipleItems', function() {
+          var item1 = { id: 1 },
+              item2 = { id: 2 };
 
-          isolateScope.onDrop(thread);
+          isolateScope.onDrop([item1, item2]);
 
-          expect(inboxThreadService.moveToMailbox).to.have.been.calledOnce;
-          expect(inboxThreadService.moveToMailbox).to.have.been.calledWith(thread, $scope.mailbox);
-        });
-
-        it('should move message to mailbox if dragData is a message', function() {
-          var message = {
-            id: 'm1',
-            mailboxIds: ['2']
-          };
-
-          isolateScope.onDrop(message);
-
-          expect(inboxEmailService.moveToMailbox).to.have.been.calledOnce;
-          expect(inboxEmailService.moveToMailbox).to.have.been.calledWith(message, $scope.mailbox);
+          expect(inboxJmapItemService.moveMultipleItems).to.have.been.calledWith([item1, item2], $scope.mailbox);
         });
 
       });
@@ -355,33 +351,39 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
         beforeEach(inject(function(_mailboxesService_) {
           mailboxesService = _mailboxesService_;
-          mailboxesService.canMoveMessage = sinon.spy();
+          mailboxesService.canMoveMessage = sinon.spy(function() {
+            return true;
+          });
         }));
 
-        it('should check result from mailboxesService.canMoveMessage if $dragData is thread', function() {
-          var thread = {
-            messageIds: ['m1'],
-            email: {
-              mailboxIds: ['2']
-            }
-          };
-
-          isolateScope.isDropZone(thread);
-
-          expect(mailboxesService.canMoveMessage).to.have.been.calledOnce;
-          expect(mailboxesService.canMoveMessage).to.have.been.calledWith(thread.email);
-        });
-
-        it('should check result from mailboxesService.canMoveMessage if $dragData is message', function() {
-          var message = {
+        it('should check result from mailboxesService.canMoveMessage for a single item', function() {
+          var item = {
             mailboxIds: ['2']
           };
 
-          isolateScope.isDropZone(message);
+          isolateScope.isDropZone([item]);
 
           expect(mailboxesService.canMoveMessage).to.have.been.calledOnce;
-          expect(mailboxesService.canMoveMessage).to.have.been.calledWith(message);
+          expect(mailboxesService.canMoveMessage).to.have.been.calledWith(item, $scope.mailbox);
         });
+
+        it('should check result from mailboxesService.canMoveMessage for multiple items', function() {
+          var item = {
+            id: '1',
+            mailboxIds: ['2']
+          };
+          var item2 = {
+            id: '2',
+            mailboxIds: ['3']
+          };
+
+          isolateScope.isDropZone([item, item2]);
+
+          expect(mailboxesService.canMoveMessage).to.have.been.calledTwice;
+          expect(mailboxesService.canMoveMessage).to.have.been.calledWith(item, $scope.mailbox);
+          expect(mailboxesService.canMoveMessage).to.have.been.calledWith(item2, $scope.mailbox);
+        });
+
       });
 
     });
@@ -425,21 +427,23 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
     describe('its controller', function() {
 
-      var directive, ctrl;
+      var directive, ctrl, toState = { name: 'toStateName' };
 
       beforeEach(function() {
         $stateParams.previousState = {
           name: 'previousStateName',
           params: 'previousStateParams'
         };
+
         directive = compileDirective('<composer />');
         ctrl = directive.controller('composer');
         ctrl.saveDraft = sinon.spy();
         $state.go = sinon.spy();
+        esnPreviousState.go = sinon.spy();
       });
 
       it('should save draft when state has successfully changed', function() {
-        $rootScope.$broadcast('$stateChangeSuccess');
+        $rootScope.$broadcast('$stateChangeSuccess', toState);
 
         expect(ctrl.saveDraft).to.have.been.calledOnce;
       });
@@ -452,14 +456,14 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
       it('should disable the listener when state has successfully changed to a state with ignoreSaveAsDraft=true', function() {
         $rootScope.$broadcast('$stateChangeSuccess', { data: { ignoreSaveAsDraft: true } });
-        $rootScope.$broadcast('$stateChangeSuccess');
+        $rootScope.$broadcast('$stateChangeSuccess', toState);
 
         expect(ctrl.saveDraft).to.have.not.been.calledWith();
       });
 
       it('should save draft only once when close is called, then location has successfully changed', function() {
         $scope.close();
-        $rootScope.$broadcast('$stateChangeSuccess');
+        $rootScope.$broadcast('$stateChangeSuccess', toState);
 
         expect(ctrl.saveDraft).to.have.been.calledOnce;
       });
@@ -468,12 +472,6 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
         $scope.close();
 
         expect(ctrl.saveDraft).to.have.been.calledOnce;
-      });
-
-      it('should back to previous state with correct parameters when the composer is closed', function() {
-        $scope.close();
-        expect($state.go).to.have.been.calledOnce;
-        expect($state.go).to.have.been.calledWith('previousStateName', 'previousStateParams');
       });
 
       it('should not save a draft when the composer is hidden', function() {
@@ -485,8 +483,8 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       it('should back to previous state with correct parameters when the composer is hidden', function() {
         $scope.hide();
 
-        expect($state.go).to.have.been.calledOnce;
-        expect($state.go).to.have.been.calledWith('previousStateName', 'previousStateParams');
+        expect(esnPreviousState.go).to.have.been.calledOnce;
+        expect(esnPreviousState.go).to.have.been.calledWith('unifiedinbox');
       });
 
       function sendDraftWhileOffline(email) {
@@ -501,7 +499,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
       it('should notify of error featuring a resume action when sending offline', function() {
         var aFakeEmail = {
-          to: [{ name: 'bob@example.com', email: 'bob@example.com'}], cc:[], bcc:[],
+          to: [{ name: 'bob@example.com', email: 'bob@example.com'}], cc: [], bcc: [],
           subject: 'le sujet', htmlBody: '<p>Le contenu</p>'
         };
 
@@ -515,9 +513,11 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
       it('should reopen composer when resuming after sending failed', inject(function(newComposerService) {
         var aFakeEmail = {
-          to: [{ name: 'bob@example.com', email: 'bob@example.com'}], cc:[], bcc:[],
-          subject: 'le sujet', htmlBody: '<p>Le contenu</p>'
+          to: [{ name: 'bob@example.com', email: 'bob@example.com'}], cc: [], bcc: [],
+          subject: 'le sujet', htmlBody: '<p>Le contenu</p>',
+          attachments: []
         };
+        newComposerService.open = sinon.spy();
 
         sendDraftWhileOffline(aFakeEmail);
 
@@ -525,10 +525,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
         // act
         cancellationLinkAction();
         // assert
-        expect(newComposerService.open).to.have.been.calledWithMatch(
-          aFakeEmail,
-          'Resume message composition'
-        );
+        expect(newComposerService.open).to.have.been.calledWithMatch(aFakeEmail);
       }));
     });
 
@@ -546,7 +543,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       it('should bind the send button to the scope method', function() {
         $scope.send = sinon.spy();
 
-        mainHeader.find('.inbox-subheader.composer .send').click();
+        mainHeader.find('.inbox-subheader .send').click();
 
         expect($scope.send).to.have.been.called;
       });
@@ -554,7 +551,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       it('should bind the close button to the scope method', function() {
         $scope.close = sinon.spy();
 
-        mainHeader.find('.inbox-subheader.composer .close.button').click();
+        mainHeader.find('.inbox-subheader .close.button').click();
 
         expect($scope.close).to.have.been.called;
       });
@@ -687,6 +684,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       });
 
       it('should still save a draft if the user changes body then presses on Edit Quoted Mail', function() {
+        inboxConfigMock.drafts = true;
         jmapClient.saveAsDraft = sinon.spy(function() {
           return $q.when({});
         });
@@ -705,6 +703,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       });
 
       it('should still save a draft if the user changes recipients then presses on Edit Quoted Mail', function() {
+        inboxConfigMock.drafts = true;
         jmapClient.saveAsDraft = sinon.spy(function() {
           return $q.when({});
         });
@@ -730,6 +729,9 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
   });
 
   describe('The composer-desktop directive', function() {
+    beforeEach(function() {
+      $scope.$updateTitle = angular.noop;
+    });
 
     it('should return true when isBoxed is called', function() {
       compileDirective('<composer-desktop />');
@@ -783,7 +785,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       $scope.email = {
         htmlBody: '<p><br /></p>Hey'
       };
-      controller = compileDirective('<composer-desktop/>').controller('composerDesktop');
+      controller = compileDirective('<composer-desktop />').controller('composerDesktop');
 
       controller.initCtrl = sinon.spy();
       $timeout.flush();
@@ -801,6 +803,109 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
     it('should add a new composer-desktop-attachments element', function() {
       expect(compileDirective('<composer-desktop />').find('composer-attachments')).to.have.length(1);
+    });
+
+    it('should expose updateTile method inside scope', function() {
+      compileDirective('<button new-composer />');
+
+      expect($scope.$updateTitle).to.be.a.function;
+    });
+
+    it('should focus on email body without adding tab when tab is pressed while editing subject', function() {
+      compileDirective('<composer-desktop/>');
+
+      var composerSubject = element.find('.compose-subject'),
+          event = {
+            type: 'keydown',
+            which: 9,
+            preventDefault: sinon.spy()
+          };
+
+      composerSubject.trigger(event);
+      $timeout.flush();
+
+      expect(document.activeElement).to.equal(element.find('.note-editable')[0]);
+      expect(event.preventDefault).to.have.been.calledOnce;
+    });
+
+    it('should focus back on subject field without adding tab when shift + tab is pressed while in the body', function() {
+      compileDirective('<composer-desktop/>');
+
+      var composerBody = element.find('.note-editable'),
+          event = {
+            type: 'keydown',
+            which: 9,
+            shiftKey: true,
+            preventDefault: sinon.spy()
+          };
+
+      composerBody.trigger(event);
+
+      expect(document.activeElement).to.equal(element.find('.compose-subject')[0]);
+      expect(event.preventDefault).to.have.been.calledOnce;
+    });
+
+    it('should not change focus when only tab is pressed while in the body', function() {
+      compileDirective('<composer-desktop/>');
+
+      var composerBody = element.find('.note-editable'),
+          event = {
+            type: 'keydown',
+            which: 9
+          };
+
+      composerBody.focus();
+      composerBody.trigger(event);
+
+      expect(document.activeElement).to.equal(element.find('.note-editable')[0]);
+    });
+
+    it('should not change focus when non-tab key is pressed inside subject or body', function() {
+      compileDirective('<composer-desktop/>');
+
+      var composerBody = element.find('.note-editable'),
+          composerSubject = element.find('.compose-subject'),
+          event = {
+            type: 'keydown',
+            which: 13
+          };
+
+      composerBody.focus();
+      composerBody.trigger(event);
+
+      expect(document.activeElement).to.equal(element.find('.note-editable')[0]);
+
+      composerSubject.focus();
+      composerSubject.trigger(event);
+
+      expect(document.activeElement).to.equal(element.find('.compose-subject')[0]);
+    });
+
+    describe('The focusOnRightField function', function() {
+
+      it('should focus on To field when email is empty', function() {
+        $scope.email = {};
+        compileDirective('<composer-desktop />');
+        $timeout.flush();
+
+        expect(document.activeElement).to.equal(element.find('.recipients-to input').get(0));
+      });
+
+      it('should focus on To field when To field is empty', function() {
+        $scope.email = {to: [] };
+        compileDirective('<composer-desktop />');
+        $timeout.flush();
+
+        expect(document.activeElement).to.equal(element.find('.recipients-to input').get(0));
+      });
+
+      it('should focus on note editing field when To field is not empty', function() {
+        $scope.email = {to: [{email: 'SOMEONE', name: 'SOMEONE'}] };
+        compileDirective('<composer-desktop />');
+        $timeout.flush();
+
+        expect(document.activeElement).to.equal(element.find('email-body-editor .note-editable').get(0));
+      });
     });
 
   });
@@ -856,10 +961,9 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       $timeout.flush();
     });
 
-    it('should post html content after having filtered it with inlineImages then loadImagesAsync filters', function(done) {
+    it('should post html content after having filtered it with loadImagesAsync filters', function(done) {
       $scope.email = {
-        htmlBody: '<html><body><img src="remote.png" /><img src="cid:1" /></body></html>',
-        attachments: [{ cid: '1', url: 'http://expected-url' }]
+        htmlBody: '<html><body><img src="remote.png" /><img src="cid:1" /></body></html>'
       };
 
       compileDirective('<html-email-body email="email" />');
@@ -873,13 +977,31 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
             expect(contentWithoutRandomPort).to.equal(
               '[linagora.esn.unifiedinbox.changeDocument]<html><body>' +
                 '<img src="http://localhost:PORT/images/throbber-amber.svg" data-async-src="remote.png" />' +
-                '<img src="http://localhost:PORT/images/throbber-amber.svg" data-async-src="http://expected-url" />' +
+                '<img src="http://localhost:PORT/images/throbber-amber.svg" data-async-src="cid:1" />' +
               '</body></html>');
 
             done();
           }
         }
       });
+    });
+
+    it('should get a signed download URL for inline attachments, when asked by the iFrame', function(done) {
+      $scope.email = {
+        htmlBody: '<html><body><img src="cid:1" /></body></html>',
+        attachments: [{
+          cid: '1',
+          getSignedDownloadUrl: function() {
+            done();
+
+            return $q.when('signedUrl');
+          }
+        }]
+      };
+
+      compileDirective('<html-email-body email="email" />');
+
+      $scope.$broadcast('wm:' + IFRAME_MESSAGE_PREFIXES.INLINE_ATTACHMENT, '1');
     });
 
   });
@@ -980,13 +1102,6 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       }).to.throw(Error, 'This directive requires a template attribute');
     });
 
-    it('should bring up email keyboard when editing', function() {
-      compileDirective('<div><recipients-auto-complete ng-model="model" template="recipients-auto-complete"></recipients-auto-complete></div>');
-      var recipientInput = element.find('recipients-auto-complete tags-input');
-
-      expect(recipientInput.attr('type')).to.equal('email');
-    });
-
     it('should bring up email keyboard when editing using fullscreen template', function() {
       compileDirective('<div><recipients-auto-complete ng-model="model" template="fullscreen-recipients-auto-complete"></recipients-auto-complete></div>');
       var recipientInput = element.find('recipients-auto-complete tags-input');
@@ -1068,6 +1183,16 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       expect(recipient).to.deep.equal({ name: 'a@a.com', email: 'a@a.com' });
     });
 
+    it('should initialize the model if none given', function() {
+      expect(compileDirectiveThenGetScope().tags).to.deep.equal([]);
+    });
+
+    it('should use the model if one given', function() {
+      $scope.model = [{ a: '1' }];
+
+      expect(compileDirectiveThenGetScope().tags).to.deep.equal([{ a: '1' }]);
+    });
+
   });
 
   describe('The emailBodyEditor', function() {
@@ -1089,6 +1214,24 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
   describe('The email directive', function() {
 
+    describe('the exposed functions from inboxJmapItemService', function() {
+      beforeEach(function() {
+        ['reply', 'replyAll', 'forward'].forEach(function(action) {
+          inboxJmapItemService[action] = sinon.spy();
+        });
+      });
+
+      it('should expose several functions to the element controller', function() {
+        compileDirective('<email email="email"/>');
+
+        ['reply', 'replyAll', 'forward'].forEach(function(action) {
+          element.controller('email')[action]();
+
+          expect(inboxJmapItemService[action]).to.have.been.called;
+        });
+      });
+    });
+
     it('should show reply button and hide replyAll button if email.hasReplyAll is false', function() {
       $scope.email = { id: 'id', hasReplyAll: false };
       compileDirective('<email email="email"/>');
@@ -1105,46 +1248,25 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       expect(element.find('.mdi-reply-all').length).to.equal(1);
     });
 
-    describe('The markAsUnread fn', function() {
-      it('should mark email as unread then update location to parent state', inject(function($state) {
-        $scope.email = { setIsUnread: sinon.stub().returns($q.when()) };
-        $state.go = sinon.spy();
-        compileDirective('<email email="email" />');
+    it('should escape HTML in plain text body', function() {
+      $scope.email = {
+        id: 'id',
+        textBody: 'Body <i>with</i> weird <hu>HTML</hu>'
+      };
+      compileDirective('<email email="email"/>');
 
-        element.controller('email').markAsUnread();
-        $scope.$digest();
-
-        expect($state.go).to.have.been.calledWith('^');
-        expect($scope.email.setIsUnread).to.have.been.calledWith(true);
-      }));
+      expect(element.find('.email-body').html()).to.contain('Body &lt;i&gt;with&lt;/i&gt; weird &lt;hu&gt;HTML&lt;/hu&gt;');
     });
 
-    describe('The moveToTrash fn', function() {
-      it('should delete the email then update location to parent state if the email is deleted successfully', function() {
-        inboxEmailService.moveToTrash = sinon.spy(function() {
-          return $q.when({});
-        });
-        compileDirective('<email/>');
+    it('should autolink links in plain text body', function() {
+      $scope.email = {
+        id: 'id',
+        textBody: 'Body with me@open-paas.org and open-paas.org'
+      };
+      compileDirective('<email email="email"/>');
 
-        element.controller('email').moveToTrash();
-        $scope.$digest();
-
-        expect($state.go).to.have.been.calledWith('^');
-        expect(inboxEmailService.moveToTrash).to.have.been.called;
-      });
-
-      it('should not update location if the email is not deleted', function() {
-        inboxEmailService.moveToTrash = sinon.spy(function() {
-          return $q.reject({});
-        });
-        compileDirective('<email/>');
-
-        element.controller('email').moveToTrash();
-        $scope.$digest();
-
-        expect($state.go).to.have.not.been.called;
-        expect(inboxEmailService.moveToTrash).to.have.been.called;
-      });
+      expect(element.find('.email-body a[href="http://open-paas.org"]')).to.have.length(1);
+      expect(element.find('.email-body a[href="mailto:me@open-paas.org"]')).to.have.length(1);
     });
 
     describe('The toggleIsCollapsed function', function() {
@@ -1196,34 +1318,20 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
   describe('The inboxStar directive', function() {
 
-    describe('The setIsFlagged function', function() {
-
-      it('should call item.setIsFlagged, passing the flag', function(done) {
-        $scope.email = {
-          setIsFlagged: function(state) {
-            expect(state).to.equal(true);
-
-            done();
-          }
-        };
-
-        compileDirective('<inbox-star item="email" />').controller('inboxStar').setIsFlagged(true);
-      });
-
+    beforeEach(function() {
+      inboxJmapItemService.setFlag = sinon.spy();
     });
 
-  });
+    describe('The setIsFlagged function', function() {
 
-  describe('The inboxAttachment directive', function() {
+      it('should call inboxJmapItemService.setFlag, passing the flag', function() {
+        $scope.email = {};
 
-    it('should call $window.open once clicked', function() {
-      $scope.attachment = {
-        url: 'url'
-      };
+        compileDirective('<inbox-star item="email" />').controller('inboxStar').setIsFlagged(true);
 
-      compileDirective('<inbox-attachment attachment="attachment"/>').click();
+        expect(inboxJmapItemService.setFlag).to.have.been.calledWith($scope.email, 'isFlagged', true);
+      });
 
-      expect(windowMock.open).to.have.been.calledWith('url');
     });
 
   });
@@ -1296,9 +1404,21 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
       expect(scope.dropdownList.placeholder).to.equal('2 selected');
     });
+
+    it('should refresh the dropdown when inbox.filterChanged event is broadcasted', function() {
+      scope.filters[0].checked = true;
+      scope.filters[1].checked = true;
+      $rootScope.$broadcast(INBOX_EVENTS.FILTER_CHANGED);
+
+      expect(scope.dropdownList.placeholder).to.equal('2 selected');
+    });
+
   });
 
   describe('The composerAttachments directive', function() {
+    beforeEach(function() {
+      $scope.$updateTitle = angular.noop;
+    });
 
     it('should focus the body when clicked, on desktop', function() {
       compileDirective('<composer-desktop />');
@@ -1386,33 +1506,39 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       });
 
       it('should expose a "reply" function', function() {
-        inboxEmailService.reply = sinon.spy();
+        inboxJmapItemService.reply = sinon.spy();
 
         controller.reply();
 
-        expect(inboxEmailService.reply).to.have.been.calledWith($scope.email);
+        expect(inboxJmapItemService.reply).to.have.been.calledWith($scope.email);
       });
 
       it('should expose a "replyAll" function', function() {
-        inboxEmailService.replyAll = sinon.spy();
+        inboxJmapItemService.replyAll = sinon.spy();
 
         controller.replyAll();
 
-        expect(inboxEmailService.replyAll).to.have.been.calledWith($scope.email);
+        expect(inboxJmapItemService.replyAll).to.have.been.calledWith($scope.email);
       });
 
       it('should expose a "forward" function', function() {
-        inboxEmailService.forward = sinon.spy();
+        inboxJmapItemService.forward = sinon.spy();
 
         controller.forward();
 
-        expect(inboxEmailService.forward).to.have.been.calledWith($scope.email);
+        expect(inboxJmapItemService.forward).to.have.been.calledWith($scope.email);
       });
     });
 
   });
 
   describe('The inboxEmailer directive', function() {
+
+    var session;
+
+    beforeEach(inject(function(_session_) {
+      session = _session_;
+    }));
 
     it('should resolve the emailer', function() {
       $scope.emailer = {
@@ -1433,6 +1559,63 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       $scope.$digest();
 
       expect($scope.emailer.resolve).to.have.been.calledWith();
+    });
+
+    it('should not display the "me" message when the emailer is me', function() {
+      session.user = { preferredEmail: 'me@linagora.com' };
+      $scope.emailer = {
+        email: 'another-one@linagora.com',
+        resolve: angular.noop
+      };
+
+      compileDirective('<inbox-emailer emailer="emailer"/>');
+
+      expect(element.find('.me')).to.have.length(0);
+    });
+
+    it('should display the "me" message when the emailer is me', function() {
+      session.user = { preferredEmail: 'me@linagora.com' };
+      $scope.emailer = {
+        email: 'me@linagora.com',
+        resolve: angular.noop
+      };
+
+      compileDirective('<inbox-emailer emailer="emailer"/>');
+
+      expect(element.find('.me')).to.have.length(1);
+    });
+
+    it('should not display the email address if hide-email=true', function() {
+      $scope.emailer = {
+        email: 'me@linagora.com',
+        resolve: angular.noop
+      };
+
+      compileDirective('<inbox-emailer emailer="emailer" hide-email="true" />');
+
+      expect(element.find('.email')).to.have.length(0);
+    });
+
+    it('should display the email address if hide-email=false', function() {
+      $scope.emailer = {
+        email: 'me@linagora.com',
+        resolve: angular.noop
+      };
+
+      compileDirective('<inbox-emailer emailer="emailer" hide-email="false" />');
+
+      expect(element.find('.email')).to.have.length(1);
+    });
+
+    it('should display the email address if hide-email is not defined', function() {
+      $scope.emailer = {
+        email: 'me@linagora.com',
+        resolve: angular.noop
+      };
+
+      compileDirective('<inbox-emailer emailer="emailer" />');
+
+      expect(element.find('.email')).to.have.length(1);
     });
 
   });
@@ -1458,6 +1641,368 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       $scope.$digest();
 
       expect($scope.emailer.resolve).to.have.been.calledWith();
+    });
+
+  });
+
+  describe('The inboxVacationIndicator directive', function() {
+    beforeEach(function() {
+      notificationFactory.weakSuccess = sinon.spy();
+      notificationFactory.weakError = sinon.spy();
+      notificationFactory.strongInfo = sinon.spy();
+    });
+
+    it('should display the message when vacation is activated', function() {
+      jmapClient.getVacationResponse = function() {
+        return $q.when({ isActivated: true });
+      };
+
+      compileDirective('<inbox-vacation-indicator />');
+
+      expect(element.find('.inbox-vacation-indicator')).to.have.length(1);
+    });
+
+    it('should not display the message when vacation is disabled', function() {
+      jmapClient.getVacationResponse = function() {
+        return $q.when({ isActivated: false });
+      };
+
+      compileDirective('<inbox-vacation-indicator />');
+
+      expect(element.find('.inbox-vacation-indicator')).to.have.length(0);
+    });
+
+    it('should not display the message when we cannot fetch the vacation status', function() {
+      jmapClient.getVacationResponse = function() {
+        return $q.reject();
+      };
+
+      compileDirective('<inbox-vacation-indicator />');
+
+      expect(element.find('.inbox-vacation-indicator')).to.have.length(0);
+    });
+
+    it('should provide a button that removes the message and disables the vacation when clicked', function() {
+      var isActivated = true;
+
+      jmapClient.getVacationResponse = function() {
+        return $q.when({ isActivated: isActivated });
+      };
+      jmapClient.setVacationResponse = sinon.spy(function(vacation) {
+        expect(vacation).to.shallowDeepEqual({
+          isEnabled: false
+        });
+        isActivated = false;
+
+        return $q.when();
+      });
+
+      compileDirective('<inbox-vacation-indicator />').find('.inbox-disable-vacation').click();
+
+      expect(jmapClient.setVacationResponse).to.have.been.calledWith();
+      expect(element.find('.inbox-vacation-indicator')).to.have.length(0);
+      expect(notificationFactory.weakSuccess).to.have.been.calledWith('', 'Modification of vacation settings succeeded');
+    });
+
+    it('should broadcast VACATION_STATUS when vacation is set successfully', function(done) {
+      jmapClient.getVacationResponse = function() {
+        return $q.when({ isActivated: true });
+      };
+      jmapClient.setVacationResponse = sinon.spy(function() {
+        return $q.when();
+      });
+
+      compileDirective('<inbox-vacation-indicator />');
+
+      element.isolateScope().$on(INBOX_EVENTS.VACATION_STATUS, done.bind(this, null));
+
+      element.find('.inbox-disable-vacation').click();
+    });
+
+    it('should listen on VACATION_STATUS to update vacationActivated correspondingly', function() {
+      var isActivated = true;
+
+      jmapClient.getVacationResponse = sinon.spy(function() {
+        return $q.when({ isActivated: isActivated });
+      });
+
+      element = compileDirective('<inbox-vacation-indicator />');
+
+      expect(jmapClient.getVacationResponse).to.have.been.calledOnce;
+      $scope.$broadcast(INBOX_EVENTS.VACATION_STATUS);
+
+      expect(jmapClient.getVacationResponse).to.have.been.calledTwice;
+      expect(element.isolateScope().vacationActivated).to.equal(isActivated);
+    });
+
+    it('should show the message if vacation cannot be disabled', function() {
+      jmapClient.getVacationResponse = function() {
+        return $q.when({ isActivated: true });
+      };
+      jmapClient.setVacationResponse = function() {
+        return $q.reject();
+      };
+
+      compileDirective('<inbox-vacation-indicator />').find('.inbox-disable-vacation').click();
+
+      expect(element.find('.inbox-vacation-indicator')).to.have.length(1);
+      expect(notificationFactory.weakError).to.have.been.calledWith('Error', 'Modification of vacation settings failed');
+    });
+
+  });
+
+  describe('The inboxClearFiltersButton directive', function() {
+
+    var filters;
+
+    beforeEach(inject(function(inboxFilters) {
+      filters = inboxFilters;
+    }));
+
+    it('should clear filters when clicked', function() {
+      filters[0].checked = true;
+      filters[1].checked = true;
+
+      compileDirective('<inbox-clear-filters-button />').children().first().click();
+
+      expect(_.filter(filters, { checked: true })).to.deep.equal([]);
+    });
+
+    it('should broadcast inbox.filterChanged when clicked', function(done) {
+      $scope.$on(INBOX_EVENTS.FILTER_CHANGED, function() {
+        done();
+      });
+
+      compileDirective('<inbox-clear-filters-button />').children().first().click();
+    });
+
+  });
+
+  describe('The inboxEmptyContainerMessage directive', function() {
+
+    var filters;
+
+    beforeEach(inject(function(inboxFilters) {
+      filters = inboxFilters;
+    }));
+
+    it('should expose a isFilteringActive function, returning true if at least one fiter is checked', function() {
+      filters[0].checked = true;
+
+      compileDirective('<inbox-empty-container-message />');
+
+      expect(element.isolateScope().isFilteringActive()).to.equal(true);
+    });
+
+    it('should expose a isFilteringActive function, returning false if no fiter is checked', function() {
+      compileDirective('<inbox-empty-container-message />');
+
+      expect(element.isolateScope().isFilteringActive()).to.equal(false);
+    });
+
+    it('should expose a isCustomMailbox attribute, true if the container is a custom mailbox', function() {
+      $scope.mailbox = {
+        role: jmap.MailboxRole.UNKNOWN
+      };
+      compileDirective('<inbox-empty-container-message mailbox="mailbox"/>');
+
+      expect(!!element.isolateScope().isCustomMailbox).to.equal(true);
+    });
+
+    it('should expose a isCustomMailbox attribute, falsy if the container is not a custom mailbox', function() {
+      $scope.mailbox = {
+        role: jmap.MailboxRole.INBOX
+      };
+      compileDirective('<inbox-empty-container-message mailbox="mailbox"/>');
+
+      expect(!!element.isolateScope().isCustomMailbox).to.equal(false);
+    });
+
+    it('should expose a isCustomMailbox attribute, falsy if the container is not a mailbox', function() {
+      compileDirective('<inbox-empty-container-message />');
+
+      expect(!!element.isolateScope().isCustomMailbox).to.equal(false);
+    });
+
+    it('should use role if defined', function() {
+      compileDirective('<inbox-empty-container-message role="twitter"/>');
+
+      expect(element.isolateScope().containerTemplateUrl).to.match(/twitter.html/);
+    });
+
+    it('should compute role if not defined, based on the mailbox role', function() {
+      $scope.mailbox = {
+        role: jmap.MailboxRole.INBOX
+      };
+      compileDirective('<inbox-empty-container-message mailbox="mailbox"/>');
+
+      expect(element.isolateScope().containerTemplateUrl).to.match(/inbox.html/);
+    });
+
+    it('should use default role if mailbox is not a custom one', function() {
+      $scope.mailbox = {
+        role: jmap.MailboxRole.UNKNOWN
+      };
+      compileDirective('<inbox-empty-container-message mailbox="mailbox"/>');
+
+      expect(element.isolateScope().containerTemplateUrl).to.match(/default.html/);
+    });
+
+  });
+
+  describe('The inboxEmailerDisplay directive', function() {
+
+    var email, session, _;
+
+    beforeEach(function() {
+      email = {
+        from: { name: 'Bob', email: 'bob@email', resolve: angular.noop },
+        to: [{ name: 'Alice', email: 'alice@email', resolve: angular.noop }],
+        cc: [{ name: 'Clark', email: 'clark@email', resolve: angular.noop }],
+        bcc: [{ name: 'John', email: 'john@email', resolve: angular.noop }]
+      };
+    });
+
+    beforeEach(inject(function(_session_, ___) {
+      session = _session_;
+      _ = ___;
+    }));
+
+    it('should initialize by exposing scope attributes properly', function() {
+      $scope.email = email;
+      compileDirective('<inbox-emailer-display email="email" />');
+
+      var isolateScope = element.isolateScope();
+
+      expect(isolateScope.previewEmailer).to.deep.equal(email.to[0]);
+      expect(isolateScope.previewEmailerGroup).to.deep.equal('To');
+      expect(isolateScope.numberOfHiddenEmailer).to.equal(2);
+      expect(isolateScope.showMoreButton).to.equal(true);
+    });
+
+    it('should display myself if I am in "To" recipients', function() {
+      $scope.email = email;
+      session.user = { preferredEmail: 'bob@email' };
+
+      compileDirective('<inbox-emailer-display email="email" />');
+
+      var isolateScope = element.isolateScope();
+
+      expect(isolateScope.previewEmailer.email).to.deep.equal('alice@email');
+      expect(isolateScope.previewEmailerGroup).to.deep.equal('To');
+    });
+
+    it('should display myself if I am in "CC" recipients', function() {
+      $scope.email = email;
+      session.user = { preferredEmail: 'clark@email' };
+
+      compileDirective('<inbox-emailer-display email="email" />');
+
+      var isolateScope = element.isolateScope();
+
+      expect(isolateScope.previewEmailer.email).to.deep.equal('clark@email');
+      expect(isolateScope.previewEmailerGroup).to.deep.equal('CC');
+    });
+
+    it('should display myself if I am in "BCC" recipients', function() {
+      $scope.email = email;
+      session.user = { preferredEmail: 'john@email' };
+
+      compileDirective('<inbox-emailer-display email="email" />');
+
+      var isolateScope = element.isolateScope();
+
+      expect(isolateScope.previewEmailer.email).to.deep.equal('john@email');
+      expect(isolateScope.previewEmailerGroup).to.deep.equal('BCC');
+    });
+
+    it('should display the first "To" recipient if I am not a recipient myself', function() {
+      $scope.email = email;
+
+      compileDirective('<inbox-emailer-display email="email" />');
+
+      var isolateScope = element.isolateScope();
+
+      expect(isolateScope.previewEmailer.email).to.deep.equal('alice@email');
+      expect(isolateScope.previewEmailerGroup).to.deep.equal('To');
+    });
+
+    it('should display the first "CC" recipient if I am not a recipient myself and there is no "To" recipients', function() {
+      $scope.email = _.omit(email, 'to');
+
+      compileDirective('<inbox-emailer-display email="email" />');
+
+      var isolateScope = element.isolateScope();
+
+      expect(isolateScope.previewEmailer.email).to.deep.equal('clark@email');
+      expect(isolateScope.previewEmailerGroup).to.deep.equal('CC');
+    });
+
+    it('should display the first "BCC" recipient if I am not a recipient myself and there is neither "To" nor "CC" recipients', function() {
+      $scope.email = _.omit(email, 'to', 'cc');
+
+      compileDirective('<inbox-emailer-display email="email" />');
+
+      var isolateScope = element.isolateScope();
+
+      expect(isolateScope.previewEmailer.email).to.deep.equal('john@email');
+      expect(isolateScope.previewEmailerGroup).to.deep.equal('BCC');
+    });
+
+    it('should be collapsed by default', function() {
+      $scope.email = email;
+      compileDirective('<inbox-emailer-display email="email" />');
+
+      expect(element.find('.recipients .collapsed, .more .collapsed').length).to.equal(2);
+      expect(element.find('.recipients .expanded, .more .expanded').length).to.equal(0);
+    });
+
+    it('should be expanded after a click on more button then collapsed when click again', function() {
+      $scope.email = email;
+      compileDirective('<inbox-emailer-display email="email" />');
+
+      element.find('.more').click();
+
+      expect(element.find('.recipients .collapsed, .more .collapsed').length).to.equal(0);
+      expect(element.find('.recipients .expanded, .more .expanded').length).to.equal(2);
+
+      element.find('.more').click();
+
+      expect(element.find('.recipients .collapsed, .more .collapsed').length).to.equal(2);
+      expect(element.find('.recipients .expanded, .more .expanded').length).to.equal(0);
+    });
+
+    it('should not show more button when there is only 1 recipient', function() {
+      $scope.email = {
+        from: { name: 'Bob', email: 'bob@email', resolve: angular.noop },
+        to: [{ name: 'Alice', email: 'alice@email', resolve: angular.noop }],
+        cc: []
+      };
+      compileDirective('<inbox-emailer-display email="email" />');
+
+      expect(element.find('.more').css('display')).to.equal('none');
+    });
+
+    it('should show both name and email if there is only 1 recipient and it is not current user', function() {
+      $scope.email = {
+        from: { name: 'Bob', email: 'bob@email', resolve: angular.noop },
+        to: [{ name: 'Alice', email: 'alice@email', resolve: angular.noop }],
+        cc: []
+      };
+
+      compileDirective('<inbox-emailer-display email="email" />');
+
+      expect(element.find('.to').html()).to.contain(email.to[0].name);
+      expect(element.find('.to').html()).to.contain(email.to[0].email);
+    });
+
+    it('should not display any recipients if there is no recipients', function() {
+      $scope.email = _.omit(email, 'to', 'cc', 'bcc');
+
+      compileDirective('<inbox-emailer-display email="email" />');
+
+      expect(element.find('.recipients .collapsed').length).to.equal(0);
+      expect(element.find('.recipients .expanded').length).to.equal(0);
     });
 
   });

@@ -17,8 +17,8 @@ module.exports.getForUser = function(user, query, callback) {
   }
 
   var mq = UserNotification.find(q);
-  mq.limit(query.limit || DEFAULT_LIMIT);
-  mq.skip(query.offset || DEFAULT_OFFSET);
+  mq.limit(+query.limit || DEFAULT_LIMIT);
+  mq.skip(+query.offset || DEFAULT_OFFSET);
   mq.sort('-timestamps.creation');
   mq.exec(callback);
 };

@@ -70,11 +70,13 @@ var UserSchema = new mongoose.Schema({
   building_location: {type: String, trim: true},
   office_location: {type: String, trim: true},
   main_phone: {type: String, trim: true},
+  description: {type: String, trim: true},
   timestamps: {
     creation: {type: Date, default: Date.now}
   },
   domains: {type: [MemberOfDomainSchema]},
   login: {
+    disabled: {type: Boolean, default: false},
     failures: {
       type: [Date]
     },
@@ -98,6 +100,10 @@ UserSchema.virtual('preferredEmail').get(function() {
     .reduce(function(foundPreferredEmail, account) {
       return foundPreferredEmail || account.emails[account.preferredEmailIndex];
     }, null);
+});
+
+UserSchema.virtual('preferredDomainId').get(function() {
+  return this.domains.length ? this.domains[0].domain_id : '';
 });
 
 UserSchema.virtual('emails').get(function() {

@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.core', [])
+angular.module('esn.core', ['esn.lodash-wrapper'])
   .config(function($compileProvider) {
     $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|skype):/);
   })
@@ -185,5 +185,27 @@ angular.module('esn.core', [])
           }
         });
       }
+    };
+  })
+
+  .factory('esnWithPromiseResult', function(_) {
+    return withPromiseResult;
+
+    function buildThenCallback(arg, callback) {
+      return callback ? _.partialRight.apply(_, [callback].concat(arg)) : null;
+    }
+
+    function withPromiseResult(promise, successCallback, errorCallback) {
+      return function() {
+        var args = Array.prototype.slice.call(arguments);
+
+        return promise.then(buildThenCallback(args, successCallback), buildThenCallback(args, errorCallback));
+      };
+    }
+  })
+
+  .factory('navigateTo', function($window) {
+    return function(url) {
+      $window.location = url;
     };
   });

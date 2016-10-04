@@ -31,11 +31,16 @@ describe('The Unified Inbox Angular module', function() {
     });
   });
 
-  function expectSingleProvider(name, done) {
-    inject(function($rootScope, inboxProviders) {
+  function expectSingleProvider(name, done, specificProvider) {
+    inject(function($rootScope, inboxProviders, searchProviders) {
       $rootScope.$digest();
+      var providers = {
+        inboxProviders: inboxProviders,
+        searchProviders: searchProviders
+      };
+      specificProvider = specificProvider || 'inboxProviders';
 
-      inboxProviders.getAll().then(function(providers) {
+      providers[specificProvider].getAll().then(function(providers) {
         expect(providers.length).to.equal(1);
         expect(providers[0].name).to.equal(name);
 
@@ -45,6 +50,16 @@ describe('The Unified Inbox Angular module', function() {
     });
   }
 
+  it('should register a search provider', function(done) {
+    module(function($provide) {
+      $provide.value('esnConfig', function() {
+        return $q.when();
+      });
+    });
+
+    expectSingleProvider('Emails', done, 'searchProviders');
+  });
+
   it('should register a provider for messages, if there is no configuration', function(done) {
     module(function($provide) {
       $provide.value('esnConfig', function(key, defaultValue) {
@@ -52,7 +67,7 @@ describe('The Unified Inbox Angular module', function() {
       });
     });
 
-    expectSingleProvider('inboxHostedMailMessagesProvider', done);
+    expectSingleProvider('Emails', done);
   });
 
   it('should register a provider for messages, if view=messages', function(done) {
@@ -62,7 +77,7 @@ describe('The Unified Inbox Angular module', function() {
       });
     });
 
-    expectSingleProvider('inboxHostedMailMessagesProvider', done);
+    expectSingleProvider('Emails', done);
   });
 
   it('should register a provider for threads, if view=threads', function(done) {

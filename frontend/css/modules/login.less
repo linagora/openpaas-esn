@@ -1,5 +1,5 @@
 body.login {
-  background: url('/images/background-login.jpg') no-repeat right center;
+  background: url('/images/login-360.jpg') no-repeat right center;
   -webkit-background-size: cover;
   background-size: cover;
   &:before {
@@ -87,5 +87,29 @@ ul.login-oauth {
   100% {
     transform: scale3d(1,1,1);
     opacity: 1;
+  }
+}
+
+@media screen and (min-width: 361px) and (max-width: 600px) {
+  body.login {
+    background: url('/images/login-600.jpg') no-repeat right center;
+    -webkit-background-size: cover;
+    background-size: cover;
+  }
+}
+
+@media screen and (min-width: 601px) and (max-width: 1366px) {
+  body.login {
+    background: url('/images/login-1366.jpg') no-repeat right center;
+    -webkit-background-size: cover;
+    background-size: cover;
+  }
+}
+
+@media screen and (min-width: 1367px) {
+  body.login {
+    background: url('/images/login-1920.jpg') no-repeat right center;
+    -webkit-background-size: cover;
+    background-size: cover;
   }
 }

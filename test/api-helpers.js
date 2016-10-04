@@ -127,18 +127,24 @@ module.exports = function(mixin, testEnv) {
 
     function createDomain() {
       var domain = extend(true, {}, deployment.domain);
-      delete domain.administrator;
+
+      delete domain.administrators;
+
       return q.npost(new Domain(domain), 'save').spread(function(domain) {
         deployment.models.domain = domain;
       });
     }
 
     function updateDomainAdministrator() {
+      // set the first user as domain administrator
       var domain = deployment.models.domain;
-      var administrator = deployment.models.users.filter(function(u) { return u.emails.indexOf(deployment.domain.administrator) >= 0; });
-      if (administrator.length) {
-        domain.administrator = administrator[0]._id;
+
+      if (deployment.models.users.length === 0) {
+        return q();
       }
+
+      domain.administrators = [{ user_id: deployment.models.users[0]._id }];
+
       return q.npost(domain, 'save').spread(function(domain) {
         deployment.models.domain = domain;
       });
@@ -146,28 +152,30 @@ module.exports = function(mixin, testEnv) {
 
     function createUsers() {
       var domainModule = require('../backend/core/user/domain');
+
       return q.all(deployment.users.map(function(user) {
         return self.createUser(user);
       }))
       .then(function(users) {
         return q.all(
-          users.map(function(u) {
-            return q.ninvoke(domainModule, 'joinDomain', u, deployment.models.domain)
-            .then(function() {
-              return q(u);
-            });
+          users.map(function(user) {
+            return q.ninvoke(domainModule, 'joinDomain', user, deployment.models.domain)
+              .then(function() {
+                return q(user);
+              });
           })
         );
       })
       .then(function(users) {
         deployment.models.users = users;
+
         return q(deployment);
       });
     }
 
     function createCommunities() {
-      deployment.communities = deployment.communities ||  [];
-      deployment.models.communities = deployment.models.communities ||  [];
+      deployment.communities = deployment.communities || [];
+      deployment.models.communities = deployment.models.communities || [];
 
       return deployment.communities.reduce(function(sofar, c) {
         return sofar.then(function() {
@@ -179,8 +187,8 @@ module.exports = function(mixin, testEnv) {
     }
 
     function createProjects() {
-      deployment.projects = deployment.projects ||  [];
-      deployment.models.projects = deployment.models.projects ||  [];
+      deployment.projects = deployment.projects || [];
+      deployment.models.projects = deployment.models.projects || [];
 
       return deployment.projects.reduce(function(sofar, p) {
         return sofar.then(function() {
@@ -204,7 +212,7 @@ module.exports = function(mixin, testEnv) {
     }
 
     setupConfiguration()
-      .then(createDomain(deployment))
+      .then(createDomain)
       .then(createUsers)
       .then(updateDomainAdministrator)
       .then(createCommunities)
@@ -499,20 +507,5 @@ module.exports = function(mixin, testEnv) {
   api.requireLogin = function(app, method, apiUrl, done) {
     request(app)[method](apiUrl)
       .expect(401, done);
-  };
-
-  api.addFeature = function(domain_id, module, feature, callback) {
-    var Features = require('mongoose').model('Features');
-
-    new Features({
-      domain_id: domain_id,
-      modules: [{
-        name: module,
-        features: [{
-          name: feature,
-          value: true
-        }]
-      }]
-    }).save(callback);
   };
 };

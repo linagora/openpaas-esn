@@ -126,6 +126,22 @@ describe('The Login Angular module', function() {
         this.scope.login(this.scope.form);
         this.scope.$digest();
       });
+
+      it('should display an error message when account has been disabled', function(done) {
+        this.scope.form = {$invalid: false};
+
+        this.notificationFactory.weakError = function(message, text) {
+          expect(message).to.match(/Login disabled/);
+          expect(text).to.match(/This account has been disabled/);
+          done();
+        };
+
+        this.loginAPI.login = function() {
+          return $q.reject({data: {error: {details: 'The specified account is disabled'}}});
+        };
+        this.scope.login(this.scope.form);
+        this.scope.$digest();
+      });
     });
   });
 

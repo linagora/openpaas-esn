@@ -10,5 +10,5 @@ div(activity-stream-notification)
           ul.media-list
             li.media(ng-repeat="thread in threads | filter: filterMessagesInSelectedStream" ng-init='parentMessage=true')
               message-template-displayer(message='thread' activitystream='thread.mainActivityStream' last-post='lastPost' parent-message='parentMessage')
-      .text-center
+      .text-center(ng-if="updateMessagesActive")
         div.throbber(openpaas-logo-spinner, spinner-key='activityStreamSpinner')

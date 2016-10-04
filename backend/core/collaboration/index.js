@@ -109,7 +109,7 @@ function fetchMember(tuple, callback) {
 }
 
 function getMembers(collaboration, objectType, query, callback) {
-  query = query ||  {};
+  query = query || {};
 
   var id = collaboration._id || collaboration;
 
@@ -183,16 +183,16 @@ function addMembershipRequest(objectType, collaboration, userAuthor, userTarget,
   if (!topic) {
     var errorMessage = 'Invalid workflow, must be ';
     var isFirstLoop = true;
-    for (var key in WORKFLOW_NOTIFICATIONS_TOPIC) {
-      if (WORKFLOW_NOTIFICATIONS_TOPIC.hasOwnProperty(key)) {
-        if (isFirstLoop) {
-          errorMessage += '"' + key + '"';
-          isFirstLoop = false;
-        } else {
-          errorMessage += ' or "' + key + '"';
-        }
+
+    Object.keys(WORKFLOW_NOTIFICATIONS_TOPIC).forEach(function(key) {
+      if (isFirstLoop) {
+        errorMessage += '"' + key + '"';
+        isFirstLoop = false;
+      } else {
+        errorMessage += ' or "' + key + '"';
       }
-    }
+    });
+
     return callback(new Error(errorMessage));
   }
 
@@ -334,27 +334,23 @@ function isIndirectMember(collaboration, tuple, callback) {
   }
 
   function isInnerMember(members, tupleToFind, callback) {
-    async.some(members, function(tuple, found) {
+    async.some(members, function(tuple, callback) {
 
       var member = tuple.member;
       if (!isCollaboration(member)) {
-        return found(member.id + '' === tupleToFind.id + '' && member.objectType === tupleToFind.objectType);
+        return callback(null, member.id + '' === tupleToFind.id + '' && member.objectType === tupleToFind.objectType);
       }
 
       queryOne(member.objectType, {_id: member.id}, function(err, collaboration) {
         if (err) {
-          return found(false);
+          return callback(null, false);
         }
 
-        isInnerMember(collaboration.members, tupleToFind, function(err, result) {
-          return found(result);
-        });
-
+        isInnerMember(collaboration.members, tupleToFind, callback);
       });
-    }, function(result) {
-      return callback(null, result);
-    });
+    }, callback);
   }
+
   return isInnerMember(collaboration.members, tuple, callback);
 }
 
@@ -396,21 +392,17 @@ function findCollaborationFromActivityStreamID(id, callback) {
     });
   }
 
-  for (var key in collaborationModels) {
-    if (Object.hasOwnProperty.call(collaborationModels, key)) {
-      finders.push(async.apply(finder, key));
-    }
-  }
+  Object.keys(collaborationModels).forEach(function(key) {
+    finders.push(async.apply(finder, key));
+  });
 
   async.parallel(finders, function(err, results) {
     if (err) {
       return callback(err);
     }
     async.filter(results, function(item, callback) {
-      return callback(!!item);
-    }, function(results) {
-      return callback(null, results);
-    });
+      return callback(null, !!item);
+    }, callback);
   });
 }
 
@@ -439,11 +431,9 @@ function getCollaborationsForTuple(tuple, callback) {
     });
   }
 
-  for (var key in collaborationModels) {
-    if (Object.hasOwnProperty.call(collaborationModels, key)) {
-      finders.push(async.apply(finder, key));
-    }
-  }
+  Object.keys(collaborationModels).forEach(function(key) {
+    finders.push(async.apply(finder, key));
+  });
 
   async.parallel(finders, function(err, results) {
     if (err) {
@@ -471,11 +461,11 @@ function getStreamsForUser(userId, options, callback) {
     });
   }
 
-  for (var type in collaborationLibs) {
+  Object.keys(collaborationLibs).forEach(function(type) {
     if (collaborationLibs[type] && collaborationLibs[type].getStreamsForUser) {
       finders.push(async.apply(finder, type));
     }
-  }
+  });
 
   async.parallel(finders, function(err) {
     if (err) {
@@ -501,11 +491,11 @@ function getCollaborationsForUser(userId, options, callback) {
     });
   }
 
-  for (var type in collaborationLibs) {
+  Object.keys(collaborationLibs).forEach(function(type) {
     if (collaborationLibs[type] && collaborationLibs[type].getCollaborationsForUser) {
       finders.push(async.apply(finder, type));
     }
-  }
+  });
 
   async.parallel(finders, function(err) {
     return callback(err, results);
@@ -690,6 +680,7 @@ module.exports.findCollaborationFromActivityStreamID = findCollaborationFromActi
 module.exports.getStreamsForUser = getStreamsForUser;
 module.exports.getCollaborationsForUser = getCollaborationsForUser;
 module.exports.permission = require('./permission');
+module.exports.CONSTANTS = require('./constants');
 module.exports.hasDomain = hasDomain;
 module.exports.join = join;
 module.exports.leave = leave;

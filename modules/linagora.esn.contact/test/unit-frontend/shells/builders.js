@@ -357,14 +357,12 @@ describe('ContactShell Builders', function() {
           '   found: ' + propkeys;
         expect(properties.length).to.equal(icalkeys.length, message);
 
-        for (var propName in ical) {
-          if (Object.hasOwnProperty.call(ical, propName)) {
-            var prop = vcard.getFirstProperty(propName);
-            expect(prop, 'Missing: ' + propName).to.be.ok;
-            var value = prop.toICAL();
-            expect(value).to.equal(ical[propName].toString());
-          }
-        }
+        Object.keys(ical).forEach(function(propName) {
+          var prop = vcard.getFirstProperty(propName);
+          expect(prop, 'Missing: ' + propName).to.be.ok;
+          var value = prop.toICAL();
+          expect(value).to.equal(ical[propName].toString());
+        });
       }
 
       it('should correctly create a card with display name', function() {
