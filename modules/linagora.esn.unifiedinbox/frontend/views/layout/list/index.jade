@@ -9,7 +9,7 @@ infinite-list(ng-class="{ offscreen: inbox.list.isElementOpened }", keep-scroll-
     .block-header(ng-if="visibleItemsInGroup.length > 0")
       h2 {{ ::group.name }}
       .block-header-actions
-        i.clickable.mdi.mdi-checkbox-marked-outline(inbox-group-toggle-selection, ng-class="{ selected: selected }", title="#{__('Select all items in this group')}")
+        i.clickable.mdi.mdi-checkbox-marked-outline(inbox-group-toggle-selection, ng-hide="!hasSelectableItems", ng-class="{ selected: selected }", title="#{__('Select all items in this group')}")
 
     .card.listview.lv-bordered.lv-lg
       .lv-body
