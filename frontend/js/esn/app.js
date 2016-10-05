@@ -96,7 +96,11 @@ angular.module('esnApp', [
     return $location.search().continue || '/';
   });
 
-  $urlRouterProvider.when('/', function(esnRouterHelper) {
+  $urlRouterProvider.when('/', function($location, esnRouterHelper) {
+    if ($location.search().continue) {
+      return $location.search().continue;
+    }
+
     esnRouterHelper.goToHomePage();
   });
 
