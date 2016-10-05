@@ -29,6 +29,12 @@ angular.module('esn.async-action', ['esn.notification'])
     return message;
   }
 
+  function _getMessage(messages, type, arg) {
+    var stringOrFunction = messages[type];
+
+    return angular.isString(stringOrFunction) ? stringOrFunction : stringOrFunction(arg);
+  }
+
   return function(message, action, options) {
     var isSilent = options && options.silent;
     var notification;
@@ -37,18 +43,18 @@ angular.module('esn.async-action', ['esn.notification'])
 
     if (!isSilent) {
       timeoutPromise = $timeout(function() {
-        notification = notificationFactory.strongInfo('', messages.progressing);
+        notification = notificationFactory.strongInfo('', _getMessage(messages, 'progressing'));
       }, ASYNC_ACTION_LONG_TASK_DURATION, false);
     }
 
     return action()
       .then(function(value) {
-        !isSilent && notificationFactory.weakSuccess('', messages.success);
+        !isSilent && notificationFactory.weakSuccess('', _getMessage(messages, 'success', value));
 
         return value;
       }, function(err) {
         $log.error(err);
-        rejectWithErrorNotification(messages.failure, options && options.onFailure);
+        rejectWithErrorNotification(_getMessage(messages, 'failure', err), options && options.onFailure);
 
         return $q.reject(err);
       })

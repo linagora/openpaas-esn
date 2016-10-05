@@ -227,6 +227,74 @@ describe('The esn.async-action Angular module', function() {
         });
       $timeout.flush();
     });
+
+    it('should support a function as the success message, to dynamically compute the message', function() {
+      asyncAction({
+        success: function() {
+          return 'From a function !';
+        }
+      }, qNoop);
+      $rootScope.$digest();
+
+      expect(notificationFactory.weakSuccess).to.have.been.calledWith('', 'From a function !');
+    });
+
+    it('should support a function as the progressing message, to dynamically compute the message', function(done) {
+      asyncAction({
+        progressing: function() {
+          return 'Hey there, I am a custom progressing message !';
+        },
+        failure: 'Error'
+      }, function() {
+        return $timeout(angular.noop, ASYNC_ACTION_LONG_TASK_DURATION + 1).then(qReject);
+      })
+        .then(null, function() {
+          expect(notificationFactory.strongInfo).to.have.been.calledWith('', 'Hey there, I am a custom progressing message !');
+
+          done();
+        });
+      $timeout.flush();
+    });
+
+    it('should support a function as the failure message, to dynamically compute the message', function() {
+      asyncAction({
+        failure: function() {
+          return 'From a function !';
+        }
+      }, qReject);
+      $rootScope.$digest();
+
+      expect(notificationFactory.weakError).to.have.been.calledWith('Error', 'From a function !');
+    });
+
+    it('should pass the error to the function as the failure message', function() {
+      asyncAction({
+        failure: function(err) {
+          return err.myCustomErrorMessage;
+        }
+      }, function() {
+        return $q.reject({
+          myCustomErrorMessage: 'From a function !'
+        });
+      });
+      $rootScope.$digest();
+
+      expect(notificationFactory.weakError).to.have.been.calledWith('Error', 'From a function !');
+    });
+
+    it('should pass the resolved value to the function as the success message', function() {
+      asyncAction({
+        success: function(value) {
+          return 'Success ' + value;
+        }
+      }, function() {
+        return $q.when(10);
+      });
+      $rootScope.$digest();
+
+      expect(notificationFactory.weakSuccess).to.have.been.calledWith('', 'Success 10');
+    });
+
   });
 
   describe('The rejectWithErrorNotification factory', function() {
