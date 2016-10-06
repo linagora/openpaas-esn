@@ -3,8 +3,9 @@
 angular.module('esn.aggregator', [])
 
   .constant('AGGREGATOR_DEFAULT_RESULTS_PER_PAGE', 5)
+  .constant('AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE', 40)
 
-  .factory('PageAggregatorSourceWrapper', function($q, $log) {
+  .factory('PageAggregatorSourceWrapper', function($q) {
     function PageAggregatorSourceWrapper(source) {
       this.source = source;
       this.lastPage = false;
@@ -19,7 +20,8 @@ angular.module('esn.aggregator', [])
 
       return this.source.loadNextItems(options).then(function(result) {
         self.lastPage = !!result.lastPage;
-        return {id: self.source.id, lastPage: self.lastPage, data: result.data || []};
+
+        return { id: self.source.id, lastPage: self.lastPage, data: result.data || [] };
       }, function(err) {
         self.lastPage = true;
 
@@ -34,18 +36,24 @@ angular.module('esn.aggregator', [])
     return PageAggregatorSourceWrapper;
   })
 
-  .factory('PageAggregatorService', function($q, $log, PageAggregatorSourceWrapper, AGGREGATOR_DEFAULT_RESULTS_PER_PAGE) {
+  .factory('PageAggregatorService', function($q, $log, PageAggregatorSourceWrapper, AGGREGATOR_DEFAULT_RESULTS_PER_PAGE,
+                                             AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE) {
 
     function PageAggregatorService(id, sources, options) {
       this.id = id;
       this.sources = sources;
-      this.options = options || {results_per_page: AGGREGATOR_DEFAULT_RESULTS_PER_PAGE};
+      this.options = options || {};
+      this.isFirstPage = true;
+
       if (!this.options.results_per_page) {
         this.options.results_per_page = AGGREGATOR_DEFAULT_RESULTS_PER_PAGE;
       }
+      if (!this.options.first_page_size) {
+        this.options.first_page_size = AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE;
+      }
 
       this.wrappedSources = sources.map(function(source) {
-        return {source: new PageAggregatorSourceWrapper(source), data: []};
+        return { source: new PageAggregatorSourceWrapper(source), data: [] };
       });
     }
 
@@ -66,8 +74,8 @@ angular.module('esn.aggregator', [])
       }
 
       firstItems.reduce(function(previous, current, index) {
-
         var out;
+
         if (!current && previous) {
           return previous;
         }
@@ -78,6 +86,7 @@ angular.module('esn.aggregator', [])
 
         if (current && !previous) {
           lowerIndex = index;
+
           return current;
         }
 
@@ -89,6 +98,7 @@ angular.module('esn.aggregator', [])
           out = current;
           lowerIndex = index;
         }
+
         return out;
       });
 
@@ -106,6 +116,7 @@ angular.module('esn.aggregator', [])
           if (result.data && result.data.length) {
             Array.prototype.push.apply(wrappedSource.data, result.data);
           }
+
           return $q.when({data: wrappedSource.data});
         }, function() {
           return $q.when({data: []});
@@ -117,6 +128,8 @@ angular.module('esn.aggregator', [])
 
       var self = this;
       var result = [];
+      var isFirstPage = self.isFirstPage;
+      var pageSize = isFirstPage ? self.options.first_page_size : self.options.results_per_page;
 
       if (!this.hasNext()) {
         return $q.reject(new Error('No more data to fetch'));
@@ -124,22 +137,26 @@ angular.module('esn.aggregator', [])
 
       function load() {
         return self._loadItemsFromSources().then(function() {
-
           var item = self._getSmallerItem();
+
           if (item) {
             result.push(item);
           }
 
-          if (!self.hasNext() || result.length === self.options.results_per_page) {
-            return $q.when({data: result});
+          if (!self.hasNext() || result.length === pageSize) {
+            return $q.when({ data: result });
           }
+
           return load();
         });
       }
 
       return load().then(function() {
+        self.isFirstPage = false;
+
         return $q.when({
           id: self.id,
+          firstPage: isFirstPage,
           lastPage: !self.hasNext(),
           data: result
         });

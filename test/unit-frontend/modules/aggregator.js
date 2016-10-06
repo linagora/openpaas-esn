@@ -176,27 +176,48 @@ describe('The Aggregator module', function() {
 
     describe('the constructor', function() {
       beforeEach(function() {
-        inject(function(PageAggregatorService, AGGREGATOR_DEFAULT_RESULTS_PER_PAGE, _$rootScope_) {
+        inject(function(PageAggregatorService, AGGREGATOR_DEFAULT_RESULTS_PER_PAGE, AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE, _$rootScope_) {
           this.PageAggregatorService = PageAggregatorService;
           this.AGGREGATOR_DEFAULT_RESULTS_PER_PAGE = AGGREGATOR_DEFAULT_RESULTS_PER_PAGE;
+          this.AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE = AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE;
+
           $rootScope = _$rootScope_;
         });
       });
 
       it('should wrap the sources', function() {
         var aggregator = new this.PageAggregatorService('test', [1, 2], {});
+
         expect(aggregator.wrappedSources.length).to.equal(2);
       });
 
       it('should set default options when undefined', function() {
         var aggregator = new this.PageAggregatorService('test', []);
-        expect(aggregator.options).to.deep.equal({results_per_page: this.AGGREGATOR_DEFAULT_RESULTS_PER_PAGE});
+
+        expect(aggregator.options).to.deep.equal({
+          results_per_page: this.AGGREGATOR_DEFAULT_RESULTS_PER_PAGE,
+          first_page_size: this.AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE
+        });
       });
 
       it('should set the results_per_page options when not defined', function() {
-        var aggregator = new this.PageAggregatorService('test', [], {});
-        expect(aggregator.options).to.deep.equal({results_per_page: this.AGGREGATOR_DEFAULT_RESULTS_PER_PAGE});
+        var aggregator = new this.PageAggregatorService('test', [], { first_page_size: 5 });
+
+        expect(aggregator.options).to.deep.equal({
+          results_per_page: this.AGGREGATOR_DEFAULT_RESULTS_PER_PAGE,
+          first_page_size: 5
+        });
       });
+
+      it('should support results_per_page and first_page_size options', function() {
+        var aggregator = new this.PageAggregatorService('test', [], { results_per_page: 1, first_page_size: 5 });
+
+        expect(aggregator.options).to.deep.equal({
+          results_per_page: 1,
+          first_page_size: 5
+        });
+      });
+
     });
 
     describe('the _sourcesHaveData function', function() {
@@ -490,8 +511,10 @@ describe('The Aggregator module', function() {
       });
 
       it('should resolve when sources does not have any more data', function(done) {
-        var item = {foo: 'bar'}, hasNext = false;
-        var aggregator = new this.PageAggregatorService(name, [], {compare: compare});
+        var item = {foo: 'bar'},
+            hasNext = false,
+            aggregator = new this.PageAggregatorService(name, [], {compare: compare});
+
         aggregator.hasNext = function() {
           return (hasNext = !hasNext);
         };
@@ -509,15 +532,21 @@ describe('The Aggregator module', function() {
         };
 
         aggregator.loadNextItems().then(function(result) {
-          expect(result).to.deep.equal({id: name, lastPage: false, data: [item]});
+          expect(result).to.deep.equal({
+            id: name,
+            firstPage: true,
+            lastPage: false,
+            data: [item]
+          });
           done();
         }, done);
         $rootScope.$apply();
       });
 
-      it('should resolve when page size is reached', function(done) {
-        var item = {foo: 'bar'};
-        var aggregator = new this.PageAggregatorService(name, [], {compare: compare, results_per_page: 2});
+      it('should resolve when first page size is reached', function(done) {
+        var item = {foo: 'bar'},
+            aggregator = new this.PageAggregatorService(name, [], { compare: compare, first_page_size: 3 });
+
         aggregator.hasNext = function() {
           return true;
         };
@@ -535,7 +564,49 @@ describe('The Aggregator module', function() {
         };
 
         aggregator.loadNextItems().then(function(result) {
-          expect(result).to.deep.equal({id: name, lastPage: false, data: [item, item]});
+          expect(result).to.deep.equal({
+            id: name,
+            firstPage: true,
+            lastPage: false,
+            data: [item, item, item]
+          });
+          done();
+        }, done);
+
+        $rootScope.$apply();
+      });
+
+      it('should resolve when page size is reached', function(done) {
+        var item = {foo: 'bar'},
+            aggregator = new this.PageAggregatorService(name, [], { compare: compare, results_per_page: 2 });
+
+        aggregator.hasNext = function() {
+          return true;
+        };
+
+        aggregator._loadItemsFromSources = function() {
+          return $q.when();
+        };
+
+        aggregator._getSmallerItem = function() {
+          return item;
+        };
+
+        aggregator._sourcesHaveData = function() {
+          return true;
+        };
+
+        // Consume first page
+        aggregator.loadNextItems();
+        $rootScope.$apply();
+
+        aggregator.loadNextItems().then(function(result) {
+          expect(result).to.deep.equal({
+            id: name,
+            firstPage: false,
+            lastPage: false,
+            data: [item, item]
+          });
           done();
         }, done);
 
@@ -564,11 +635,11 @@ describe('The Aggregator module', function() {
             new SourceMock(5, [[a], [f], [y, z]])
           ];
 
-          var aggregator = new this.PageAggregatorService('test', sources, {compare: compare, results_per_page: 5});
+          var aggregator = new this.PageAggregatorService('test', sources, {compare: compare, first_page_size: 5, results_per_page: 5});
 
           aggregator.loadNextItems().then(function(results) {
             expect(results).to.deep.equal({
-              id: 'test', lastPage: false, data: [
+              id: 'test', firstPage: true, lastPage: false, data: [
                 {id: 1, value: 'A'},
                 {id: 1, value: 'A'},
                 {id: 2, value: 'B'},
@@ -580,7 +651,7 @@ describe('The Aggregator module', function() {
             aggregator.loadNextItems().then(function(results) {
 
               expect(results).to.deep.equal({
-                id: 'test', lastPage: false, data: [
+                id: 'test', firstPage: false, lastPage: false, data: [
                   {id: 6, value: 'F'},
                   {id: 7, value: 'G'},
                   {id: 8, value: 'H'},
@@ -591,7 +662,7 @@ describe('The Aggregator module', function() {
 
               aggregator.loadNextItems().then(function(results) {
                 expect(results).to.deep.equal({
-                  id: 'test', lastPage: true, data: [
+                  id: 'test', firstPage: false, lastPage: true, data: [
                     {id: 26, value: 'Z'},
                     {id: 26, value: 'Z'}
                   ]
@@ -621,11 +692,11 @@ describe('The Aggregator module', function() {
             new SourceMock(2, [[d, x]])
           ];
 
-          var aggregator = new this.PageAggregatorService('test', sources, {compare: compare, results_per_page: 20});
+          var aggregator = new this.PageAggregatorService('test', sources, {compare: compare, first_page_size: 20, results_per_page: 20});
 
           aggregator.loadNextItems().then(function(results) {
             expect(results).to.deep.equal({
-              id: 'test', lastPage: true, data: [
+              id: 'test', firstPage: true, lastPage: true, data: [
                 {id: 1, value: 'A'},
                 {id: 2, value: 'B'},
                 {id: 4, value: 'D'},

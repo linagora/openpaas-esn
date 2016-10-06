@@ -136,6 +136,7 @@ describe('The Search Form Angular module', function() {
       angular.mock.module('esn.search', function($provide) {
         $provide.value('$stateParams', $stateParams);
         $provide.value('searchProviders', searchProviders);
+        $provide.constant('AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE', 2);
         $provide.constant('ELEMENTS_PER_PAGE', ELEMENTS_PER_PAGE = 2);
       });
     });
