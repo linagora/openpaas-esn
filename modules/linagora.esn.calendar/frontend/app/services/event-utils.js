@@ -9,10 +9,11 @@
     'escapeHtmlUtils',
     'session',
     'CALENDAR_DEDAULT_EVENT_COLOR',
-    'SIGNIFICANT_CHANGE_KEYS'
+    'SIGNIFICANT_CHANGE_KEYS',
+    'CALENDAR_MAX_DURATION_OF_SMALL_EVENT'
   ];
 
-  function eventUtils(_, escapeHtmlUtils, session, CALENDAR_DEDAULT_EVENT_COLOR, SIGNIFICANT_CHANGE_KEYS) {
+  function eventUtils(_, escapeHtmlUtils, session, CALENDAR_DEDAULT_EVENT_COLOR, SIGNIFICANT_CHANGE_KEYS, CALENDAR_MAX_DURATION_OF_SMALL_EVENT) {
     var editedEvent = null;
     var newAttendees = null;
 
@@ -41,6 +42,11 @@
     function render(event, element) {
       var timeSpan = element.find('.fc-time span');
       var title = element.find('.fc-title');
+      var eventDurationInMinute = event.end.diff(event.start, 'minutes');
+
+      if ((eventDurationInMinute <= CALENDAR_MAX_DURATION_OF_SMALL_EVENT) && element.find('.fc-time').length) {
+        element.find('.fc-time').attr('data-start', event.title);
+      }
 
       if (event.location) {
         title.append(angular.element('<div class="fc-location"><i class="mdi mdi-map-marker"/>' + escapeHtmlUtils.escapeHTML(event.location) + '</div>'));

@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('The eventUtils service', function() {
-  var element, fcTitle, fcTime, fcContent, event, calendarService, self;
+  var element, fcTitle, fcTimeSpan, fcTime, fcContent, event, calendarService, self;
 
   function Element() {
     this.innerElements = {};
@@ -86,10 +86,12 @@ describe('The eventUtils service', function() {
     element = new Element();
     fcContent = new Element();
     fcTitle = new Element();
+    fcTimeSpan = new Element();
     fcTime = new Element();
     element.innerElements['.fc-content'] = fcContent;
     element.innerElements['.fc-title'] = fcTitle;
-    element.innerElements['.fc-time span'] = fcTime;
+    element.innerElements['.fc-time span'] = fcTimeSpan;
+    element.innerElements['.fc-time'] = fcTime;
 
     this.escapeHTMLMockResult = {};
     this.escapeHTMLMock = {
@@ -101,11 +103,13 @@ describe('The eventUtils service', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function(eventUtils, $rootScope, fcMoment, CalendarShell) {
+  beforeEach(angular.mock.inject(function(eventUtils, $rootScope, fcMoment, CalendarShell, CALENDAR_MAX_DURATION_OF_SMALL_EVENT) {
     this.eventUtils = eventUtils;
     this.$rootScope = $rootScope;
     this.fcMoment = fcMoment;
     this.CalendarShell = CalendarShell;
+    event.start = fcMoment('2016-10-06 09:00:00');
+    event.end = event.start.add(CALENDAR_MAX_DURATION_OF_SMALL_EVENT, 'minutes');
   }));
 
   describe('applyReply', function() {
@@ -206,6 +210,14 @@ describe('The eventUtils service', function() {
       this.eventUtils.render(event, element);
       expect(element.class).to.include('event-is-instance');
     });
+
+    it('should display event title instead of time if the event duration under the max duration of a small event', angular.mock.inject(function(fcMoment) {
+      element.innerElements['.fc-time'].length = 1;
+      fcTime.attr = sinon.spy();
+      this.eventUtils.render(event, element);
+
+      expect(fcTime.attr).to.have.been.calledWith('data-start', event.title);
+    }));
 
     it('should keep startEditable and durationEditable to undefined if the user is the organizer', function() {
       event.organizer = {
