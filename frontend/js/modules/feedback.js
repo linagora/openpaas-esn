@@ -1,9 +1,6 @@
 'use strict';
 
 angular.module('esn.feedback', ['esn.http'])
-
-  .constant('ESN_FEEDBACK_DEFAULT_SUBJECT', '[OpenPaas] New feedback')
-
   .factory('feedbackAPI', function(esnRestangular) {
 
     /**
@@ -11,15 +8,15 @@ angular.module('esn.feedback', ['esn.http'])
      *
      * @param {string} content - the feedback content
      */
-    function post(subject, content) {
-      return esnRestangular.one('feedback').customPOST({ subject: subject, content: content });
+    function post(content) {
+      return esnRestangular.one('feedback').customPOST({ content: content });
     }
 
     return {
       post: post
     };
   })
-  .controller('feedback', function($scope, feedbackAPI, ESN_FEEDBACK_DEFAULT_SUBJECT) {
+  .controller('feedback', function($scope, feedbackAPI) {
 
     $scope.error = false;
 
@@ -36,8 +33,8 @@ angular.module('esn.feedback', ['esn.http'])
     $scope.submit = function() {
       $scope.feedbackTask.running = true;
       $scope.feedbackButton.label = $scope.feedbackButton.running;
-      var subject = $scope.subject || ESN_FEEDBACK_DEFAULT_SUBJECT;
-      feedbackAPI.post(subject, $scope.content).then(
+
+      feedbackAPI.post($scope.feedback).then(
         function(response) {
           $scope.feedbackTask.running = false;
           $scope.feedbackTask.done = true;
