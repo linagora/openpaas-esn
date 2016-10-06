@@ -71,7 +71,6 @@ instance can have only 1 system-wide configuration._
   "value": {
     "mail": {
       "noreply": "noreply@open-paas.org",
-      "feedback": "feedback@open-paas.org",
       "reply": {
         "domain": "open-paas.org",
         "name": "OpenPaaS Bot"
@@ -125,7 +124,6 @@ Basic dev config to save mail in `/tmp` and open it with your default browser.
   "name": "mail",
   "value": {
     "mail": {
-      "feedback": "feedback@open-paas.org",
       "noreply": "noreply@open-paas.org"
     },
     "transport": {
@@ -146,7 +144,6 @@ Basic smtp configuration. Replace the host config by your smtp server.
   "name": "mail",
   "value": {
     "mail": {
-      "feedback": "feedback@open-paas.org",
       "noreply": "noreply@open-paas.org"
     },
     "transport": {
@@ -174,7 +171,6 @@ Basic smtp configuration using Google smtp using a Gmail account.
   "name": "mail",
   "value": {
     "mail" : {
-      "feedback": "feedback@open-paas.org",
       "noreply" : "noreply@open-paas.org"
     },
     "transport" : {

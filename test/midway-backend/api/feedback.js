@@ -60,7 +60,6 @@ describe('The feedback API', function() {
 
   it('should be able to send a feedback when logged', function(done) {
     var feedback = {
-      subject: 'A feedback subject',
       content: 'A feedback content'
     };
 
@@ -72,7 +71,6 @@ describe('The feedback API', function() {
         expect(err).to.be.null;
         expect(res.body).to.be.not.null;
         expect(res.body.content).to.deep.equal(feedback.content);
-        expect(res.body.subject).to.deep.equal(feedback.subject);
         expect(res.body.author).to.deep.equal(user._id.toString());
         done();
       });
