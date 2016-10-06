@@ -10,18 +10,18 @@ angular.module('esn.router', ['ui.router', 'esn.session'])
     $urlMatcherFactoryProvider.strictMode(false);
   })
 
-  .factory('esnRouterHelper', function($state, session, ESN_ROUTER_DEFAULT_HOME_PAGE) {
+  .factory('esnRouterHelper', function($state, esnConfig, session, ESN_ROUTER_DEFAULT_HOME_PAGE) {
     function goToHomePage() {
       return session.ready.then(function() {
-        var homePage = session.user.preferences.homePage;
+        return esnConfig('core.homePage').then(function(homePage) {
+          var isValidState = $state.href(String(homePage));
 
-        var isValidState = $state.href(String(homePage));
+          if (isValidState) {
+            return $state.go(homePage);
+          }
 
-        if (isValidState) {
-          return $state.go(homePage);
-        }
-
-        return $state.go(ESN_ROUTER_DEFAULT_HOME_PAGE);
+          return $state.go(ESN_ROUTER_DEFAULT_HOME_PAGE);
+        });
       });
     }
 

@@ -11,7 +11,7 @@ describe('The esn.configuration Angular module', function() {
   beforeEach(module('esn.configuration', function($provide) {
     $provide.value('session', {
       user: {
-        features: {
+        configurations: {
           modules: [{
             name: 'core',
             configurations: [{
