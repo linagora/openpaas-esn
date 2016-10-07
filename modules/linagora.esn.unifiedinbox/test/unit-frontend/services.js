@@ -1869,9 +1869,8 @@ describe('The Unified Inbox Angular module services', function() {
 
   describe('The Composition factory', function() {
 
-    var Composition, draftService, emailSendingService, session, $timeout, Offline,
-        notificationFactory, closeNotificationSpy, notificationTitle, notificationText,
-        jmap, jmapClient, firstSaveAck, $rootScope, newComposerService,
+    var Composition, draftService, emailSendingService, $timeout, Offline,
+        notificationFactory, jmap, jmapClient, firstSaveAck, $rootScope, newComposerService,
         notifyOfGracedRequest, graceRequestResult;
 
     beforeEach(module(function($provide) {
@@ -1901,11 +1900,10 @@ describe('The Unified Inbox Angular module services', function() {
       }));
     }));
 
-    beforeEach(inject(function(_draftService_, _notificationFactory_, _session_, _Offline_,
+    beforeEach(inject(function(_draftService_, _notificationFactory_, _Offline_,
          _Composition_, _emailSendingService_, _$timeout_, _jmap_, _$rootScope_, _newComposerService_) {
       draftService = _draftService_;
       notificationFactory = _notificationFactory_;
-      session = _session_;
       Offline = _Offline_;
       Composition = _Composition_;
       emailSendingService = _emailSendingService_;
@@ -1915,29 +1913,12 @@ describe('The Unified Inbox Angular module services', function() {
       newComposerService = _newComposerService_;
 
       Offline.state = 'up';
-      notificationTitle = '';
-      notificationText = '';
 
       emailSendingService.sendEmail = sinon.stub().returns($q.when());
-      closeNotificationSpy = sinon.spy();
 
-      notificationFactory.weakSuccess = function(callTitle, callText) {
-        notificationTitle = callTitle;
-        notificationText = callText;
-      };
-
-      notificationFactory.weakError = function(callTitle, callText) {
-        notificationTitle = callTitle;
-        notificationText = callText;
-      };
-
-      notificationFactory.notify = function() {
-        notificationTitle = 'Info';
-        notificationText = 'Sending';
-        return {
-          close: closeNotificationSpy
-        };
-      };
+      notificationFactory.weakSuccess = sinon.spy(notificationFactory.weakSuccess);
+      notificationFactory.weakError = sinon.spy(notificationFactory.weakError);
+      notificationFactory.strongInfo = sinon.spy(notificationFactory.strongInfo);
     }));
 
     it('should create empty recipient array when instantiated with none', function() {
@@ -1966,6 +1947,7 @@ describe('The Unified Inbox Angular module services', function() {
 
     function saveDraftTest(compositionMethod, done) {
       var composition = new Composition({});
+
       composition.email.htmlBody = 'modified';
       composition.email.to.push({email: '1@linagora.com'});
 
@@ -1984,6 +1966,7 @@ describe('The Unified Inbox Angular module services', function() {
       config['linagora.esn.unifiedinbox.drafts'] = false;
 
       var composition = new Composition({});
+
       composition.email.htmlBody = 'modified';
       composition.email.to.push({email: '1@linagora.com'});
 
@@ -2008,6 +1991,7 @@ describe('The Unified Inbox Angular module services', function() {
       var message = new jmap.Message(jmapClient, 'not expected id', 'threadId', ['box1'], {});
 
       var composition = new Composition(message);
+
       composition.email.htmlBody = 'new content';
 
       composition.saveDraft().then(function() {
@@ -2020,6 +2004,7 @@ describe('The Unified Inbox Angular module services', function() {
 
     it('should not save incomplete attachments in the drafts', function(done) {
       var composition = new Composition(new jmap.Message(jmapClient, 'not expected id', 'threadId', ['box1']));
+
       composition.email.attachments = [
         { blobId: '1', upload: { promise: $q.when() } },
         { blobId: '', upload: { promise: $q.when() } },
@@ -2038,6 +2023,7 @@ describe('The Unified Inbox Angular module services', function() {
 
     it('should renew the original jmap message with the second ack id when saveDraft is called twice, after the debouce delay', function(done) {
       var message = new jmap.Message(jmapClient, 'not expected id', 'threadId', ['box1'], {});
+
       message.destroy = sinon.stub().returns($q.when());
       var secondSaveAck = new jmap.CreateMessageAck(jmapClient, {
         id: 'another id',
@@ -2046,6 +2032,7 @@ describe('The Unified Inbox Angular module services', function() {
       });
 
       var composition = new Composition(message);
+
       composition.email.htmlBody = 'new content';
 
       composition.saveDraft().then(function() {
@@ -2084,9 +2071,11 @@ describe('The Unified Inbox Angular module services', function() {
 
     it('should update the original message in the composition, with the email state used to save the draft', function(done) {
       var message = new jmap.Message(jmapClient, 'not expected id', 'threadId', ['box1'], {});
+
       message.destroy = sinon.stub().returns($q.when());
 
       var composition = new Composition(message);
+
       composition.email.htmlBody = 'saving body';
       composition.email.to = [{displayName: '1', email: 'saving@domain.org'}];
 
@@ -2108,6 +2097,7 @@ describe('The Unified Inbox Angular module services', function() {
 
     it('"saveDraft" should cancel a delayed draft save', function(done) {
       var composition = new Composition(new jmap.Message(jmapClient, 'not expected id', 'threadId', ['box1'], {}));
+
       composition.email.subject = 'subject';
 
       jmapClient.saveAsDraft = sinon.spy(function() {
@@ -2134,8 +2124,7 @@ describe('The Unified Inbox Angular module services', function() {
       var result = new Composition(email).canBeSentOrNotify();
 
       expect(result).to.equal(false);
-      expect(notificationTitle).to.equal('Note');
-      expect(notificationText).to.equal('Your email should have at least one recipient');
+      expect(notificationFactory.weakError).to.have.been.calledWith('Note', 'Your email should have at least one recipient');
     });
 
     it('"canBeSentOrNotify" fn should returns false when the network connection is down', function() {
@@ -2149,8 +2138,7 @@ describe('The Unified Inbox Angular module services', function() {
       var result = new Composition(email).canBeSentOrNotify();
 
       expect(result).to.equal(false);
-      expect(notificationTitle).to.equal('Note');
-      expect(notificationText).to.equal('Your device loses its Internet connection. Try later!');
+      expect(notificationFactory.weakError).to.have.been.calledWith('Note', 'Your device loses its Internet connection. Try later!');
     });
 
     it('"send" fn should successfully send an email even if only bcc is used', function() {
@@ -2264,6 +2252,46 @@ describe('The Unified Inbox Angular module services', function() {
       });
 
       $timeout.flush();
+    });
+
+    it('"send" fn should notify on success', function() {
+      new Composition({
+        destroy: angular.noop,
+        to: [{displayName: '1', email: '1@linagora.com'}]
+      }).send();
+      $timeout.flush();
+
+      expect(notificationFactory.weakSuccess).to.have.been.calledWith('', 'Message sent');
+    });
+
+    it('"send" fn should notify on failure', function() {
+      emailSendingService.sendEmail = function() {
+        return $q.reject();
+      };
+
+      new Composition({
+        destroy: angular.noop,
+        to: [{displayName: '1', email: '1@linagora.com'}]
+      }).send();
+      $timeout.flush();
+
+      expect(notificationFactory.weakError).to.have.been.calledWith('Error', 'Your message cannot be sent');
+    });
+
+    it('"send" fn should notify on failure with a custom error message if the network connection is down', function() {
+      emailSendingService.sendEmail = function() {
+        Offline.state = 'down';
+
+        return $q.reject();
+      };
+
+      new Composition({
+        destroy: angular.noop,
+        to: [{displayName: '1', email: '1@linagora.com'}]
+      }).send();
+      $timeout.flush();
+
+      expect(notificationFactory.weakError).to.have.been.calledWith('Error', 'You have been disconnected. Please check if the message was sent before retrying');
     });
 
     describe('The "destroyDraft" function', function() {

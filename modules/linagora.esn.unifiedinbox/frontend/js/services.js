@@ -586,7 +586,17 @@ angular.module('linagora.esn.unifiedinbox')
 
       emailSendingService.removeDuplicateRecipients(this.email);
 
-      return backgroundAction('Sending of your message', function() {
+      return backgroundAction({
+        progressing: 'Your message is being sent...',
+        success: 'Message sent',
+        failure: function() {
+          if (!Offline.state || Offline.state === 'down') {
+            return 'You have been disconnected. Please check if the message was sent before retrying';
+          }
+
+          return 'Your message cannot be sent';
+        }
+      }, function() {
         return waitUntilMessageIsComplete(this.email)
           .then(quoteOriginalEmailIfNeeded.bind(null, this.email))
           .then(function(email) {
