@@ -7,6 +7,7 @@ var AwesomeModuleManager = require('awesome-module-manager');
 var AwesomeModule = require('awesome-module');
 var ESN_MODULE_PREFIX = 'linagora.esn.core.';
 var ESN_MIDDLEWARE_PREFIX = ESN_MODULE_PREFIX + 'webserver.middleware.';
+var ESN_DENORMALIZE_PREFIX = ESN_MODULE_PREFIX + 'webserver.denormalize.';
 var setupServer = require('./server');
 
 var manager = new AwesomeModuleManager(core.logger);
@@ -59,6 +60,26 @@ function mockCore() {
   });
   mockPubsub('local');
   mockPubsub('global');
+}
+
+function mockDenormalize() {
+  var denormalizePath = __dirname + '/../webserver/denormalize';
+  var denormalize = [
+    'user'
+  ];
+
+  denormalize.forEach(function(name) {
+    var moduleName = ESN_DENORMALIZE_PREFIX + name;
+    var mock = new AwesomeModule(moduleName, {
+      states: {
+        lib: function(deps, callback) {
+          return callback(null, require(denormalizePath + '/' + name));
+        }
+      }
+    });
+    var loader = manager.loaders.code(mock, true);
+    manager.appendLoader(loader);
+  });
 }
 
 function mockMiddlewares() {
@@ -119,6 +140,7 @@ function setupManager() {
   mockHelpers();
   mockCore();
   mockMiddlewares();
+  mockDenormalize();
   core.moduleManager = manager;
   return manager;
 }
@@ -130,6 +152,7 @@ function setupServerEnvironment() {
 module.exports.setupManager = setupManager;
 module.exports.ESN_MODULE_PREFIX = ESN_MODULE_PREFIX;
 module.exports.ESN_MIDDLEWARE_PREFIX = ESN_MIDDLEWARE_PREFIX;
+module.exports.ESN_DENORMALIZE_PREFIX = ESN_DENORMALIZE_PREFIX;
 module.exports.manager = manager;
 module.exports.mockModule = mockModule;
 module.exports.setupServerEnvironment = setupServerEnvironment;
