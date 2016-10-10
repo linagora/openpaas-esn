@@ -5,10 +5,12 @@ var handlers = {
   '[linagora.esn.unifiedinbox.inlineAttachment]': replaceInlineImageUrl
 };
 
-function createHtmlElement(tag, attribute, value) {
+function createHtmlElement(tag) {
   var element = document.createElement(tag);
 
-  element.setAttribute(attribute, value);
+  for (var i = 1; i < arguments.length; i += 2) {
+    element.setAttribute(arguments[i], arguments[i + 1]);
+  }
 
   return element;
 }
@@ -23,17 +25,20 @@ function setDocument(newDocument) {
     absoluteUrl('/unifiedinbox/js/helpers/load-images-async.js'), // This one must come first, see the script for details
     absoluteUrl('/components/iframe-resizer/js/iframeResizer.contentWindow.js')
   ];
+  var cssToInclude = [
+    absoluteUrl('/unifiedinbox/css/static/iframe.css')
+  ];
 
   document.documentElement.innerHTML = newDocument;
   document.head.appendChild(createHtmlElement('base', 'target', '_blank'));
+
   scriptsToInclude.forEach(function(script) {
     document.head.appendChild(createHtmlElement('script', 'src', script));
   });
 
-  var cssToInclude = createHtmlElement('link', 'rel', 'stylesheet');
-  cssToInclude.setAttribute('href', absoluteUrl('/unifiedinbox/css/static/iframe.css'));
-
-  document.head.appendChild(cssToInclude);
+  cssToInclude.forEach(function(link) {
+    document.head.appendChild(createHtmlElement('link', 'rel', 'stylesheet', 'href', link));
+  });
 
   // mailto: URLs will open a composer
   Array.prototype.forEach.call(document.querySelectorAll('a[href^="mailto"]'), function(element) {

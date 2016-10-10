@@ -1004,6 +1004,189 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       $scope.$broadcast('wm:' + IFRAME_MESSAGE_PREFIXES.INLINE_ATTACHMENT, '1');
     });
 
+    it('should scale the iframe if the computed width is larger than the parent', function() {
+      var iFrame = {
+        contentWindow: {
+          postMessage: angular.noop
+        },
+        style: {}
+      };
+
+      iFrameResize = function(options) {
+        options.resizedCallback({
+          iframe: iFrame,
+          width: 1280,
+          height: 800
+        });
+
+        return [{
+          iFrameResizer: {
+            resize: angular.noop
+          }
+        }];
+      };
+
+      compileDirective('' +
+        '<div class="parent" style="position: absolute; width: 640px; height: 480px">' +
+          '<html-email-body email="email" />' +
+        '</div>'
+      );
+      $rootScope.$broadcast('iframe:loaded', iFrame);
+
+      expect(iFrame.style.transform).to.equal('scale3d(0.5, 0.5, 1)');
+      expect(element.height()).to.equal(440); // 800 / 2 + 40
+      expect(element.css('overflow')).to.equal('hidden');
+
+      $scope.$digest();
+
+      expect($scope.email.scaled).to.equal(true);
+    });
+
+    it('should display a message to the user when message is auto-scaled', function() {
+      var iFrame = {
+        contentWindow: {
+          postMessage: angular.noop
+        },
+        style: {}
+      };
+
+      iFrameResize = function(options) {
+        options.resizedCallback({
+          iframe: iFrame,
+          width: 1280,
+          height: 800
+        });
+
+        return [{
+          iFrameResizer: {
+            resize: angular.noop
+          }
+        }];
+      };
+
+      compileDirective('' +
+        '<div class="parent" style="position: absolute; width: 640px; height: 480px">' +
+        '<html-email-body email="email" />' +
+        '</div>'
+      );
+      $rootScope.$broadcast('iframe:loaded', iFrame);
+      $scope.$digest();
+
+      expect(element.find('.inbox-html-body-autoscale')).to.have.length(1);
+    });
+
+    it('should not scale the iframe and allow scrolling if the computed width is smaller than the parent', function() {
+      var iFrame = {
+        contentWindow: {
+          postMessage: angular.noop
+        },
+        style: {}
+      };
+
+      iFrameResize = function(options) {
+        options.resizedCallback({
+          iframe: iFrame,
+          width: 600
+        });
+
+        return [{
+          iFrameResizer: {
+            resize: angular.noop
+          }
+        }];
+      };
+
+      compileDirective('' +
+        '<div class="parent" style="position: absolute; width: 640px;">' +
+          '<html-email-body email="email" />' +
+        '</div>'
+      );
+      $rootScope.$broadcast('iframe:loaded', iFrame);
+
+      expect(iFrame.style.transform).to.equal('');
+      expect(element.css('overflow')).to.equal('auto');
+
+      $scope.$digest();
+
+      expect($scope.email.scaled).to.equal(false);
+    });
+
+    it('should not display a message to the user when message is full size', function() {
+      var iFrame = {
+        contentWindow: {
+          postMessage: angular.noop
+        },
+        style: {}
+      };
+
+      iFrameResize = function(options) {
+        options.resizedCallback({
+          iframe: iFrame,
+          width: 200,
+          height: 200
+        });
+
+        return [{
+          iFrameResizer: {
+            resize: angular.noop
+          }
+        }];
+      };
+
+      compileDirective('' +
+        '<div class="parent" style="position: absolute; width: 640px; height: 480px">' +
+        '<html-email-body email="email" />' +
+        '</div>'
+      );
+      $rootScope.$broadcast('iframe:loaded', iFrame);
+      $scope.$digest();
+
+      expect(element.find('.inbox-html-body-autoscale')).to.have.length(0);
+    });
+
+    it('should resize the iframe and remove transform when auto-scaling is canceled by the user', function() {
+      var iFrame = {
+        contentWindow: {
+          postMessage: angular.noop
+        },
+        style: {}
+      };
+
+      iFrameResize = function(options) {
+        function resize() {
+          options.resizedCallback({
+            iframe: iFrame,
+            width: 1280,
+            height: 800
+          });
+        }
+
+        resize();
+
+        return [{
+          iFrameResizer: {
+            resize: resize
+          }
+        }];
+      };
+
+      compileDirective('' +
+        '<div class="parent" style="position: absolute; width: 640px; height: 480px">' +
+        '<html-email-body email="email" />' +
+        '</div>'
+      );
+      $rootScope.$broadcast('iframe:loaded', iFrame);
+      $scope.$digest();
+
+      element.find('.inbox-html-body-autoscale-disable').click();
+      $timeout.flush();
+      $scope.$digest();
+
+      expect(iFrame.style.transform).to.equal('');
+      expect(element.css('overflow')).to.equal('auto');
+      expect($scope.email.scaled).to.equal(false);
+    });
+
   });
 
   describe('The inboxFab directive', function() {
