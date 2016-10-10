@@ -7,7 +7,7 @@ var expect = chai.expect;
 describe('The Unified Inbox Angular module providers', function() {
 
   var $rootScope, inboxProviders, inboxTwitterProvider, inboxHostedMailMessagesProvider, inboxHostedMailThreadsProvider,
-      $httpBackend, jmapClient, ELEMENTS_PER_PAGE, ELEMENTS_PER_REQUEST;
+      $httpBackend, jmapClient, ELEMENTS_PER_PAGE, ELEMENTS_PER_REQUEST, AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE;
 
   function elements(id, length, offset) {
     var array = [], start = offset || 0;
@@ -55,7 +55,8 @@ describe('The Unified Inbox Angular module providers', function() {
   });
 
   beforeEach(angular.mock.inject(function(_$rootScope_, _inboxProviders_, _inboxTwitterProvider_, _inboxHostedMailMessagesProvider_,
-                                          _inboxHostedMailThreadsProvider_, _$httpBackend_, _ELEMENTS_PER_PAGE_, _ELEMENTS_PER_REQUEST_) {
+                                          _inboxHostedMailThreadsProvider_, _$httpBackend_, _ELEMENTS_PER_PAGE_, _ELEMENTS_PER_REQUEST_,
+                                          _AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE_) {
     $rootScope = _$rootScope_;
     inboxProviders = _inboxProviders_;
     inboxTwitterProvider = _inboxTwitterProvider_;
@@ -64,6 +65,7 @@ describe('The Unified Inbox Angular module providers', function() {
     $httpBackend = _$httpBackend_;
 
     ELEMENTS_PER_REQUEST = _ELEMENTS_PER_REQUEST_;
+    AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE = _AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE_;
   }));
 
   describe('The inboxHostedMailMessagesProvider factory', function() {
@@ -73,9 +75,9 @@ describe('The Unified Inbox Angular module providers', function() {
       var fetcher = inboxHostedMailMessagesProvider.fetch(filter);
 
       fetcher().then(function(messages) {
-        expect(messages.length).to.equal(ELEMENTS_PER_PAGE);
-        expect(messages[ELEMENTS_PER_PAGE - 1]).to.shallowDeepEqual({
-          id: 'message_19',
+        expect(messages.length).to.equal(AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE);
+        expect(messages[AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE - 1]).to.shallowDeepEqual({
+          id: 'message_39',
           templateUrl: '/unifiedinbox/views/unified-inbox/elements/message'
         });
       });
@@ -84,7 +86,7 @@ describe('The Unified Inbox Angular module providers', function() {
       fetcher().then(function(messages) {
         expect(messages.length).to.equal(ELEMENTS_PER_PAGE);
         expect(messages[ELEMENTS_PER_PAGE - 1]).to.shallowDeepEqual({
-          id: 'message_39',
+          id: 'message_59',
           templateUrl: '/unifiedinbox/views/unified-inbox/elements/message'
         });
 
@@ -98,9 +100,9 @@ describe('The Unified Inbox Angular module providers', function() {
       var fetcher = inboxHostedMailMessagesProvider.fetch(filter);
 
       fetcher().then(function(messages) {
-        expect(messages.length).to.equal(ELEMENTS_PER_PAGE);
-        expect(messages[ELEMENTS_PER_PAGE - 1]).to.shallowDeepEqual({
-          id: 'message_19',
+        expect(messages.length).to.equal(AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE);
+        expect(messages[AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE - 1]).to.shallowDeepEqual({
+          id: 'message_39',
           templateUrl: '/unifiedinbox/views/unified-inbox/elements/message'
         });
       });
@@ -114,7 +116,7 @@ describe('The Unified Inbox Angular module providers', function() {
       fetcher().then(function(messages) {
         expect(messages.length).to.equal(ELEMENTS_PER_PAGE);
         expect(messages[ELEMENTS_PER_PAGE - 1]).to.shallowDeepEqual({
-          id: 'message_219',
+          id: 'message_239',
           templateUrl: '/unifiedinbox/views/unified-inbox/elements/message'
         });
 
@@ -145,9 +147,9 @@ describe('The Unified Inbox Angular module providers', function() {
       var fetcher = inboxHostedMailThreadsProvider.fetch(filter);
 
       fetcher().then(function(threads) {
-        expect(threads.length).to.equal(ELEMENTS_PER_PAGE);
-        expect(threads[ELEMENTS_PER_PAGE - 1]).to.shallowDeepEqual({
-          id: 'thread_19',
+        expect(threads.length).to.equal(AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE);
+        expect(threads[AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE - 1]).to.shallowDeepEqual({
+          id: 'thread_39',
           templateUrl: '/unifiedinbox/views/unified-inbox/elements/thread'
         });
       });
@@ -156,7 +158,7 @@ describe('The Unified Inbox Angular module providers', function() {
       fetcher().then(function(threads) {
         expect(threads.length).to.equal(ELEMENTS_PER_PAGE);
         expect(threads[ELEMENTS_PER_PAGE - 1]).to.shallowDeepEqual({
-          id: 'thread_39',
+          id: 'thread_59',
           templateUrl: '/unifiedinbox/views/unified-inbox/elements/thread'
         });
 
@@ -170,9 +172,9 @@ describe('The Unified Inbox Angular module providers', function() {
       var fetcher = inboxHostedMailThreadsProvider.fetch(filter);
 
       fetcher().then(function(threads) {
-        expect(threads.length).to.equal(ELEMENTS_PER_PAGE);
-        expect(threads[ELEMENTS_PER_PAGE - 1]).to.shallowDeepEqual({
-          id: 'thread_19',
+        expect(threads.length).to.equal(AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE);
+        expect(threads[AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE - 1]).to.shallowDeepEqual({
+          id: 'thread_39',
           templateUrl: '/unifiedinbox/views/unified-inbox/elements/thread'
         });
       });
@@ -186,7 +188,7 @@ describe('The Unified Inbox Angular module providers', function() {
       fetcher().then(function(threads) {
         expect(threads.length).to.equal(ELEMENTS_PER_PAGE);
         expect(threads[ELEMENTS_PER_PAGE - 1]).to.shallowDeepEqual({
-          id: 'thread_219',
+          id: 'thread_239',
           templateUrl: '/unifiedinbox/views/unified-inbox/elements/thread'
         });
 
@@ -205,9 +207,9 @@ describe('The Unified Inbox Angular module providers', function() {
       $httpBackend.expectGET('/unifiedinbox/api/inbox/tweets?account_id=myTwitterAccount&count=200').respond(200, elements('tweet', ELEMENTS_PER_REQUEST));
 
       fetcher().then(function(tweets) {
-        expect(tweets.length).to.equal(ELEMENTS_PER_PAGE);
-        expect(tweets[ELEMENTS_PER_PAGE - 1]).to.shallowDeepEqual({
-          id: 'tweet_19',
+        expect(tweets.length).to.equal(AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE);
+        expect(tweets[AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE - 1]).to.shallowDeepEqual({
+          id: 'tweet_39',
           templateUrl: '/unifiedinbox/views/unified-inbox/elements/tweet'
         });
       });
@@ -216,7 +218,7 @@ describe('The Unified Inbox Angular module providers', function() {
       fetcher().then(function(tweets) {
         expect(tweets.length).to.equal(ELEMENTS_PER_PAGE);
         expect(tweets[ELEMENTS_PER_PAGE - 1]).to.shallowDeepEqual({
-          id: 'tweet_39',
+          id: 'tweet_59',
           templateUrl: '/unifiedinbox/views/unified-inbox/elements/tweet'
         });
 
@@ -233,7 +235,7 @@ describe('The Unified Inbox Angular module providers', function() {
       fetcher();
       $httpBackend.flush();
 
-      for (var i = ELEMENTS_PER_PAGE; i < ELEMENTS_PER_REQUEST; i += ELEMENTS_PER_PAGE) {
+      for (var i = AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE; i < ELEMENTS_PER_REQUEST; i += ELEMENTS_PER_PAGE) {
         fetcher();
         $rootScope.$digest();
       }

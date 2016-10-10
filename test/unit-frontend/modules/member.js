@@ -34,10 +34,12 @@ describe('The Member Angular module', function() {
             '<a href="mailto:%Email" class="ng-binding">%Email</a></span></div><div class="col-lg-3 col-sm-4 col-xs-12">' +
             '<div class="col-sm-12 col-xs-6"><button class="btn btn-primary">Contact</button>' +
             '</div><div class="col-sm-12 col-xs-6"><button class="btn btn-primary">Add</button></div></div></div>';
+
         templateAsHtmlString = templateAsHtmlString.replace(/%FirstName/g, firstName);
         templateAsHtmlString = templateAsHtmlString.replace(/%LastName/g, lastName);
         templateAsHtmlString = templateAsHtmlString.replace(/%Email/g, email);
         templateAsHtmlString = templateAsHtmlString.replace(/%Id/g, id);
+
         return templateAsHtmlString;
       };
     });
@@ -60,6 +62,7 @@ describe('The Member Angular module', function() {
     it('should display the empty template if the provided user does not exist in the scope', function() {
       var html = '<member-display member="ghostuser"></member-display>';
       var element = this.$compile(html)(this.$rootScope);
+
       this.$rootScope.$digest();
       expect(element.html()).to.equal(this.defaultHtml);
     });
@@ -106,6 +109,7 @@ describe('The Member Angular module', function() {
           count: this.searchConf.searchLimit * (this.maxCount + 1)
         };
         var self = this;
+
         this.domainAPI.getMembers = function(domain_id, opts) {
           self.callCount++;
 
@@ -127,12 +131,13 @@ describe('The Member Angular module', function() {
 
           //do maxCount calls
           if (self.callCount < self.maxCount) {
-            var promise = {then: function(callback, errorCallBack) {
-              self.scope.search.count = self.searchConf.searchLimit * (self.maxCount + 1);
-              self.scope.restActive = false;
-              self.scope.loadMoreElements();
-            }};
-            return promise;
+            return {
+              then: function() {
+                self.scope.search.count = self.searchConf.searchLimit * (self.maxCount + 1);
+                self.scope.restActive = false;
+                self.scope.loadMoreElements();
+              }
+            };
           } else if (self.callCount === self.maxCount) {
             done();
           }
@@ -142,17 +147,18 @@ describe('The Member Angular module', function() {
 
       it('should spin when running and stop when finished', function(done) {
         var isSpinning = false;
+
         this.usSpinnerService.spin = function(id) {
           expect(id).to.equal('memberSpinner');
           isSpinning = true;
         };
         this.usSpinnerService.stop = function(id) {
-          expect(isSpinning).to.be.true;
+          expect(isSpinning).to.equal(true);
           expect(id).to.equal('memberSpinner');
           done();
         };
 
-        this.domainAPI.getMembers = function(domain_id, opts) {
+        this.domainAPI.getMembers = function() {
           return $q.when({
             headers: function() {}
           });
@@ -163,17 +169,18 @@ describe('The Member Angular module', function() {
 
       it('should spin when running and stop when error', function(done) {
         var isSpinning = false;
+
         this.usSpinnerService.spin = function(id) {
           expect(id).to.equal('memberSpinner');
           isSpinning = true;
         };
         this.usSpinnerService.stop = function(id) {
-          expect(isSpinning).to.be.true;
+          expect(isSpinning).to.equal(true);
           expect(id).to.equal('memberSpinner');
           done();
         };
 
-        this.domainAPI.getMembers = function(domain_id, opts) {
+        this.domainAPI.getMembers = function() {
           return $q.reject({});
         };
         this.scope.loadMoreElements();
@@ -187,6 +194,7 @@ describe('The Member Angular module', function() {
         this.scope.searchInput = 'testQuery';
 
         var self = this;
+
         this.domainAPI.getMembers = function(domain_id, opts) {
           expect(domain_id).to.equal(self.domainId);
           expect(opts.limit).to.equal(self.searchConf.searchLimit);
@@ -203,22 +211,20 @@ describe('The Member Angular module', function() {
 
   describe('The memberSearchProvider factory', function() {
 
-    var $rootScope, memberSearchProvider, ELEMENTS_PER_REQUEST, ELEMENTS_PER_PAGE, domainAPI;
+    var $rootScope, memberSearchProvider, domainAPI;
 
     beforeEach(module(function($provide) {
       domainAPI = {};
       $provide.value('domainAPI', domainAPI);
     }));
 
-    beforeEach(angular.mock.inject(function(_$rootScope_, _memberSearchProvider_, _ELEMENTS_PER_REQUEST_, _ELEMENTS_PER_PAGE_, _domainAPI_) {
+    beforeEach(angular.mock.inject(function(_$rootScope_, _memberSearchProvider_, _domainAPI_) {
       $rootScope = _$rootScope_;
       memberSearchProvider = _memberSearchProvider_;
-      ELEMENTS_PER_REQUEST = _ELEMENTS_PER_REQUEST_;
-      ELEMENTS_PER_PAGE = _ELEMENTS_PER_PAGE_;
       domainAPI = _domainAPI_;
     }));
 
-    it('should search members from domain, adapt the result and paginate next request', function(done) {
+    it('should search members from domain and adapt the result', function(done) {
 
       var members = [
         {_id: 1, firstname: 'Nicolas', lastname: 'Cage'},
@@ -232,7 +238,7 @@ describe('The Member Angular module', function() {
       };
 
       function check(result) {
-        expect(result.length).to.equal(ELEMENTS_PER_PAGE);
+        expect(result.length).to.equal(2);
 
         members.forEach(function(member) {
           expect(member).to.have.ownProperty('type');
@@ -242,6 +248,7 @@ describe('The Member Angular module', function() {
       }
 
       var fetcher = memberSearchProvider.fetch('abcd');
+
       fetcher().then(check, done);
 
       $rootScope.$digest();
