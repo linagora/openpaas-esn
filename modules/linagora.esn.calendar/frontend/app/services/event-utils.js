@@ -73,11 +73,11 @@
       if (userAsAttendee) {
         if (userAsAttendee.partstat === 'NEEDS-ACTION') {
           element.addClass('event-needs-action');
-        } else if (userAsAttendee.partstat === 'TENTATIVE' && !event.allDay) {
+        } else if (userAsAttendee.partstat === 'TENTATIVE' && timeSpan.length) {
           element.addClass('event-tentative');
           angular.element('<i class="mdi mdi-help-circle"/>').insertBefore(timeSpan);
-        } else if (userAsAttendee.partstat === 'TENTATIVE' && event.allDay) {
-          element.addClass('event-allDay-tentative');
+        } else if (userAsAttendee.partstat === 'TENTATIVE' && !timeSpan.length) {
+          element.addClass('event-tentative');
           title.prepend(angular.element('<i class="mdi mdi-help-circle"/>'));
         } else if (userAsAttendee.partstat === 'ACCEPTED') {
           element.addClass('event-accepted');

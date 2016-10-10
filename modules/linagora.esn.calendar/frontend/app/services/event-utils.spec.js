@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('The eventUtils service', function() {
-  var element, fcTitle, fcContent, event, calendarService, self;
+  var element, fcTitle, fcTime, fcContent, event, calendarService, self;
 
   function Element() {
     this.innerElements = {};
@@ -86,8 +86,10 @@ describe('The eventUtils service', function() {
     element = new Element();
     fcContent = new Element();
     fcTitle = new Element();
+    fcTime = new Element();
     element.innerElements['.fc-content'] = fcContent;
     element.innerElements['.fc-title'] = fcTitle;
+    element.innerElements['.fc-time span'] = fcTime;
 
     this.escapeHTMLMockResult = {};
     this.escapeHTMLMock = {
@@ -176,29 +178,30 @@ describe('The eventUtils service', function() {
       expect(element.class).to.deep.equal(['event-needs-action']);
     });
 
-    it('should add event-tentative class if current user is found in the TENTATIVE attendees in not allDay event', function() {
+    it('should add event-tentative class if current user is found in the TENTATIVE attendees and event card with the time part', function() {
       event.attendees.push({
         email: userEmail,
         partstat: 'TENTATIVE'
       });
-      event.allDay = false;
       this.eventUtils.render(event, element);
+
       expect(element.class).to.deep.equal(['event-tentative']);
     });
 
-    it('should add event-tentative class if current user is found in the TENTATIVE attendees in allDay event', function() {
+    it('should add event-tentative class if current user is found in the TENTATIVE attendees and  event card without the time part', function() {
       event.attendees.push({
         email: userEmail,
         partstat: 'TENTATIVE'
       });
-      event.allDay = true;
       fcTitle.prepend = sinon.spy();
       this.eventUtils.render(event, element);
-      expect(element.class).to.deep.equal(['event-allDay-tentative']);
+
+      expect(element.class).to.deep.equal(['event-tentative']);
       expect(fcTitle.prepend).to.have.been.calledOnce;
     });
 
     it('should add the event-is-instance class for instances', function() {
+      delete element.innerElements['.fc-time span'];
       event.isInstance = function() { return true; };
       this.eventUtils.render(event, element);
       expect(element.class).to.include('event-is-instance');
