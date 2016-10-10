@@ -89,6 +89,7 @@ describe('The module manager', function() {
         'linagora.esn.core.timeline',
         'linagora.esn.core.tuple',
         'linagora.esn.core.user',
+        'linagora.esn.core.webserver.denormalize.user',
         'linagora.esn.core.webserver.middleware.activitystream',
         'linagora.esn.core.webserver.middleware.authentication',
         'linagora.esn.core.webserver.middleware.authorization',
