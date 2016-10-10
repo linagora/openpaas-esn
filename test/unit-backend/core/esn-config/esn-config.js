@@ -1,21 +1,23 @@
 'use strict';
 
-var mockery = require('mockery');
-var expect = require('chai').expect;
+const q = require('q');
+const sinon = require('sinon');
+const mockery = require('mockery');
+const expect = require('chai').expect;
 
 describe('The core/esn-config/esn-config.js module', function() {
 
-  var DOMAIN_ID = 'domain123';
-  var MODULE_NAME = 'some_module';
+  const DOMAIN_ID = 'domain123';
+  const MODULE_NAME = 'some_module';
   var esnConfig;
-  var confModuleMock, ConfigurationModelMock;
+  var confModuleMock, fallbackModuleMock;
 
   beforeEach(function() {
     confModuleMock = {};
-    ConfigurationModelMock = function() {};
+    fallbackModuleMock = {};
 
     mockery.registerMock('../configuration', confModuleMock);
-    mockery.registerMock('../db/mongo/models/configuration', ConfigurationModelMock);
+    mockery.registerMock('./fallback', fallbackModuleMock);
 
     var EsnConfig = this.helpers.requireBackend('core/esn-config/esn-config');
 
@@ -24,6 +26,7 @@ describe('The core/esn-config/esn-config.js module', function() {
 
   function createConfiguration(moduleName, configs) {
     return {
+      domain_id: DOMAIN_ID,
       modules: [{
         name: moduleName,
         configurations: configs
@@ -52,22 +55,17 @@ describe('The core/esn-config/esn-config.js module', function() {
         value: 'val2'
       };
 
-      confModuleMock.findByDomainId = function(domainId, callback) {
-        expect(domainId).to.equal(DOMAIN_ID);
-        callback(null, createConfiguration(MODULE_NAME, [config1, config2]));
-      };
+      fallbackModuleMock.findByDomainId = sinon.stub().returns(q(createConfiguration(MODULE_NAME, [config1, config2])));
 
       esnConfig.getMultiple(['key1', 'key2', 'key3']).then(function(data) {
+        expect(fallbackModuleMock.findByDomainId).to.have.been.calledWith(DOMAIN_ID);
         expect(data).to.deep.equal([config1, config2]);
         done();
       }, done.bind(null, 'should resolve'));
     });
 
     it('should resolve an empty array of no configuration found', function(done) {
-      confModuleMock.findByDomainId = function(domainId, callback) {
-        expect(domainId).to.equal(DOMAIN_ID);
-        callback(null, createConfiguration(MODULE_NAME, []));
-      };
+      fallbackModuleMock.findByDomainId = sinon.stub().returns(q(createConfiguration(MODULE_NAME, [])));
 
       esnConfig.getMultiple(['key1', 'key2', 'key3']).then(function(data) {
         expect(data).to.deep.equal([]);
@@ -76,10 +74,7 @@ describe('The core/esn-config/esn-config.js module', function() {
     });
 
     it('should resolve an empty array if no configuration document found from database', function(done) {
-      confModuleMock.findByDomainId = function(domainId, callback) {
-        expect(domainId).to.equal(DOMAIN_ID);
-        callback(null, null);
-      };
+      fallbackModuleMock.findByDomainId = sinon.stub().returns(q(null));
 
       esnConfig.getMultiple(['key1', 'key2', 'key3']).then(function(data) {
         expect(data).to.deep.equal([]);
@@ -97,10 +92,7 @@ describe('The core/esn-config/esn-config.js module', function() {
         value: 'val2'
       };
 
-      confModuleMock.findByDomainId = function(domainId, callback) {
-        expect(domainId).to.equal(DOMAIN_ID);
-        callback(null, createConfiguration('another_module'), [config1, config2]);
-      };
+      fallbackModuleMock.findByDomainId = sinon.stub().returns(q(createConfiguration('another_module'), [config1, config2]));
 
       esnConfig.getMultiple(['key1', 'key2', 'key3']).then(function(data) {
         expect(data).to.deep.equal([]);
@@ -109,10 +101,7 @@ describe('The core/esn-config/esn-config.js module', function() {
     });
 
     it('should reject if there is error while getting configuration from database', function(done) {
-      confModuleMock.findByDomainId = function(domainId, callback) {
-        expect(domainId).to.equal(DOMAIN_ID);
-        callback(new Error('some_error'));
-      };
+      fallbackModuleMock.findByDomainId = sinon.stub().returns(q.reject(new Error('some_error')));
 
       esnConfig.getMultiple(['key1', 'key2', 'key3'])
         .then(done.bind(null, 'should reject'), function(err) {
@@ -135,10 +124,7 @@ describe('The core/esn-config/esn-config.js module', function() {
         value: 'val2'
       };
 
-      confModuleMock.findByDomainId = function(domainId, callback) {
-        expect(domainId).to.equal(DOMAIN_ID);
-        callback(null, createConfiguration(MODULE_NAME, [config1, config2]));
-      };
+      fallbackModuleMock.findByDomainId = sinon.stub().returns(q(createConfiguration(MODULE_NAME, [config1, config2])));
 
       esnConfig.get(config1.name).then(function(data) {
         expect(data).to.equal(config1.value);
@@ -156,10 +142,7 @@ describe('The core/esn-config/esn-config.js module', function() {
         value: 'val2'
       };
 
-      confModuleMock.findByDomainId = function(domainId, callback) {
-        expect(domainId).to.equal(DOMAIN_ID);
-        callback(null, createConfiguration(MODULE_NAME, [config1, config2]));
-      };
+      fallbackModuleMock.findByDomainId = sinon.stub().returns(q(createConfiguration(MODULE_NAME, [config1, config2])));
 
       esnConfig.get(config1.name).then(function(data) {
         expect(data).to.equal(config1.value);
@@ -177,10 +160,7 @@ describe('The core/esn-config/esn-config.js module', function() {
         value: 'val2'
       };
 
-      confModuleMock.findByDomainId = function(domainId, callback) {
-        expect(domainId).to.equal(DOMAIN_ID);
-        callback(null, createConfiguration(MODULE_NAME, [config1, config2]));
-      };
+      fallbackModuleMock.findByDomainId = sinon.stub().returns(q(createConfiguration(MODULE_NAME, [config1, config2])));
 
       esnConfig.get('key3').then(function(data) {
         expect(data).to.not.be.defined;

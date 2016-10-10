@@ -18,7 +18,9 @@ function update(configuration, callback) {
     return callback(new Error('configuration cannot be null'));
   }
 
-  configuration.save(callback);
+  var configurationAsModel = configuration instanceof Configuration ? configuration : new Configuration(configuration);
+
+  configurationAsModel.save(callback);
 }
 
 function getAll(callback) {

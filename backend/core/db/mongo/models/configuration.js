@@ -2,13 +2,18 @@
 
 var mongoose = require('mongoose');
 
-module.exports = mongoose.model('Configuration', new mongoose.Schema({
-  domain_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Domain' },
-  modules: [{
+var moduleSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  configurations: [{
     name: { type: String, required: true },
-    configurations: [{
-      name: { type: String, required: true },
-      value: mongoose.Schema.Types.Mixed
-    }]
+    value: mongoose.Schema.Types.Mixed,
+    _id: false
   }]
-}, { collection: 'configurations' }));
+}, { _id: false, minimize: false });
+
+var configurationSchema = new mongoose.Schema({
+  domain_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Domain' },
+  modules: [moduleSchema]
+}, { collection: 'configurations', minimize: false });
+
+module.exports = mongoose.model('Configuration', configurationSchema);

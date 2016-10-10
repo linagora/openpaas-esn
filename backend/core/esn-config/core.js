@@ -1,49 +1,8 @@
 'use strict';
 
-var dotty = require('dotty');
-var q = require('q');
-var EsnConfig = require('./esn-config');
-var constants = require('./constants');
-var deprecatedApi = require('./deprecated');
-
-function _getDomainWideConfig(esnConfig, configName) {
-  if (esnConfig.domainId === constants.DEFAULT_DOMAIN_ID) {
-    return q.reject(new Error('domainId should be set'));
-  }
-
-  return esnConfig.get(configName)
-    .then(function(config) {
-      if (typeof config === 'undefined') {
-        return q.reject(new Error('No domain-wide configuration found for: ' + configName));
-      }
-
-      return config;
-    })
-    .catch(function() {
-      return deprecatedApi.features.get(esnConfig.moduleName, esnConfig.domainId, configName);
-    });
-}
-
-function _getSystemWideConfig(moduleName, configName) {
-  var esnConfig = new EsnConfig(moduleName, constants.DEFAULT_DOMAIN_ID);
-  // only fallback to mongoconfig when it is default(core) module
-  var isDefaultModule = moduleName === constants.DEFAULT_MODULE;
-
-  return esnConfig.get(configName)
-    .then(function(config) {
-      if (typeof config === 'undefined' && isDefaultModule) {
-        return deprecatedApi.mongoconfig.get(configName);
-      }
-
-      return config;
-    }, function(err) {
-      if (isDefaultModule) {
-        return deprecatedApi.mongoconfig.get(configName);
-      }
-
-      return q.reject(err);
-    });
-}
+const dotty = require('dotty');
+const q = require('q');
+const _ = require('lodash');
 
 function get(esnConfig, configName, key, callback) {
   if (!callback && typeof key === 'function') {
@@ -53,10 +12,7 @@ function get(esnConfig, configName, key, callback) {
 
   callback = callback || function() {};
 
-  return _getDomainWideConfig(esnConfig, configName)
-    .catch(function() {
-      return _getSystemWideConfig(esnConfig.moduleName, configName);
-    })
+  return esnConfig.get(configName)
     .then(function(config) {
       if (key) {
         config = dotty.get(config, key);
@@ -124,13 +80,17 @@ function getFromAllDomains(esnConfig, configName, callback) {
   return esnConfig.getConfigsFromAllDomains(configName)
     .then(function(configs) {
       if (!configs || !configs.length) {
-        return q.reject();
+        // try to any possible configuration
+        return get(esnConfig, configName).then(function(config) {
+          if (!_.isUndefined(config)) {
+            return [config];
+          }
+
+          return [];
+        });
       }
 
       return configs;
-    })
-    .catch(function() {
-      return deprecatedApi.features.getFromAllDomains(esnConfig.moduleName, configName);
     })
     .then(function(configs) {
       callback(null, configs);
@@ -145,8 +105,8 @@ function getFromAllDomains(esnConfig, configName, callback) {
 }
 
 module.exports = {
-  get: get,
-  set: set,
-  store: store,
-  getFromAllDomains: getFromAllDomains
+  get,
+  set,
+  store,
+  getFromAllDomains
 };
