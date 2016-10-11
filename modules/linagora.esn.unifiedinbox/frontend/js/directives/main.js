@@ -72,14 +72,12 @@ angular.module('linagora.esn.unifiedinbox')
         }
 
         function disableFab() {
-          var button = findButton();
-          button.removeClass('btn-accent');
+          findButton().removeClass('btn-accent');
           scope.isDisabled = true;
         }
 
         function enableFab() {
-          var button = findButton();
-          button.addClass('btn-accent');
+          findButton().addClass('btn-accent');
           scope.isDisabled = false;
         }
 
@@ -232,9 +230,24 @@ angular.module('linagora.esn.unifiedinbox')
       scope: {
         email: '='
       },
+      controller: function() {
+        var self = this;
+
+        this.resize = function() {
+          $timeout(function() {
+            self.iFrames[0].iFrameResizer.resize();
+          }, 0);
+        };
+
+        this.disableAutoScale = function() {
+          this.autoScaleDisabled = true;
+          this.resize();
+        };
+      },
+      controllerAs: 'ctrl',
       templateUrl: '/unifiedinbox/views/partials/html-email-body.html',
-      link: function(scope, element) {
-        var iFrames, unregisterWindowListener = listenToPrefixedWindowMessage(IFRAME_MESSAGE_PREFIXES.INLINE_ATTACHMENT, function(cid) {
+      link: function(scope, element, attrs, ctrl) {
+        var unregisterWindowListener = listenToPrefixedWindowMessage(IFRAME_MESSAGE_PREFIXES.INLINE_ATTACHMENT, function(cid) {
           scope.$emit('wm:' + IFRAME_MESSAGE_PREFIXES.INLINE_ATTACHMENT, cid);
         });
 
@@ -243,22 +256,44 @@ angular.module('linagora.esn.unifiedinbox')
         });
 
         scope.$on('iframe:loaded', function(event, iFrame) {
-          var iFrameContent = loadImagesAsyncFilter(scope.email.htmlBody, scope.email.attachments);
+          var parent = angular.element(element).parent(),
+              iFrameContent = loadImagesAsyncFilter(scope.email.htmlBody, scope.email.attachments),
+              AUTO_SCALE_MESSAGE_HEIGHT = 40;
 
           iFrame.contentWindow.postMessage(IFRAME_MESSAGE_PREFIXES.CHANGE_DOCUMENT + iFrameContent, '*');
 
-          iFrames = iFrameResize({
+          ctrl.iFrames = iFrameResize({
             checkOrigin: false,
             inPageLinks: true,
-            heightCalculationMethod: 'grow'
+            heightCalculationMethod: 'max',
+            sizeWidth: true,
+            resizedCallback: function(data) {
+              var ratio = ctrl.autoScaleDisabled ? 1 : parent.width() / data.width;
+
+              if (ratio < 1) {
+                parent.css({
+                  height: (Math.ceil(data.height * ratio) + AUTO_SCALE_MESSAGE_HEIGHT) + 'px',
+                  overflow: 'hidden'
+                });
+                data.iframe.style.transform = 'scale3d(' + ratio + ', ' + ratio + ', 1)';
+              } else {
+                parent.css({
+                  height: 'auto',
+                  overflow: 'auto'
+                });
+                data.iframe.style.transform = '';
+              }
+
+              scope.$apply(function() {
+                scope.email.scaled = ratio < 1;
+              });
+            }
           }, iFrame);
         });
 
         scope.$on('email:collapse', function(event, isCollapsed) {
           if (!isCollapsed) {
-            $timeout(function() {
-              iFrames[0].iFrameResizer.resize();
-            }, 0);
+            ctrl.resize();
           }
         });
 
@@ -267,7 +302,7 @@ angular.module('linagora.esn.unifiedinbox')
 
           if (attachment) {
             attachment.getSignedDownloadUrl().then(function(url) {
-              iFrames[0].contentWindow.postMessage(IFRAME_MESSAGE_PREFIXES.INLINE_ATTACHMENT + cid + ' ' + url, '*');
+              ctrl.iFrames[0].contentWindow.postMessage(IFRAME_MESSAGE_PREFIXES.INLINE_ATTACHMENT + cid + ' ' + url, '*');
             });
           }
         });
