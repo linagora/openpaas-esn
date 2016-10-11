@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = function() {
-  var subheader = element(by.css('.inbox-subheader'));
+  var subheader = element(by.css('.module-subheader'));
   var saveButton = subheader.element(by.css('inbox-subheader-save-button'));
 
   function clickButton(label) {
