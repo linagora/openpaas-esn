@@ -11,8 +11,9 @@ var subheaderPage = require('../pages/subheader')();
 module.exports = function() {
 
   this.When('I press "Send" button and wait for the message to be sent', function(next) {
-    var self = this;
-    var succeededMessage = 'Sending of your message succeeded';
+    var self = this,
+        succeededMessage = 'Message sent';
+
     messagePage.composerSendButton.click()
       .then(check)
       .then(next);
