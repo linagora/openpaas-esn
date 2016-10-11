@@ -134,7 +134,7 @@
     "karma-html2js-preprocessor": "1.0.0",
     "karma-jasmine": "1.0.2",
     "karma-mocha": "1.1.1",
-    "karma-ng-jade2module-preprocessor": "git+https://ci.open-paas.org/stash/scm/or/karma-ng-jade2module-preprocessor.git",
+    "karma-ng-jade2module-preprocessor": "git+https://ci.open-paas.org/stash/scm/or/karma-ng-jade2module-preprocessor.git#v0.1.0",
     "karma-phantomjs-launcher": "1.0.2",
     "karma-rawfixtures-preprocessor": "git+https://ci.open-paas.org/stash/scm/or/karma-rawfixtures-preprocessor.git",
     "karma-requirejs": "1.0.0",

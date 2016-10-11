@@ -148,7 +148,8 @@ module.exports = function(config) {
       jadeRenderConfig: {
         __: function(str) {
           return str;
-        }
+        },
+        basedir: require('path').resolve(__dirname, '../../frontend/views')
       },
       moduleName: 'jadeTemplates'
     }

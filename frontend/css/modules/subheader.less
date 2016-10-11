@@ -1,0 +1,27 @@
+#header {
+
+  #sub-header > * {
+    width: 100%;
+  }
+
+  .module-subheader {
+
+    .module-subheader-inner {
+      padding: 0 10px;
+    }
+  }
+}
+
+@media (min-width: @screen-md-min) {
+  #header {
+    .module-subheader:not(.module-subheader-fullwidth) {
+      .title:not(.extra-title) {
+        margin-left: 0; // Because the padding of the 'inner' class below is now enough
+      }
+
+      .module-subheader-inner {
+        padding: 0 25px;
+      }
+    }
+  }
+}

@@ -543,7 +543,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       it('should bind the send button to the scope method', function() {
         $scope.send = sinon.spy();
 
-        mainHeader.find('.inbox-subheader .send').click();
+        mainHeader.find('.module-subheader .send').click();
 
         expect($scope.send).to.have.been.called;
       });
@@ -551,7 +551,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       it('should bind the close button to the scope method', function() {
         $scope.close = sinon.spy();
 
-        mainHeader.find('.inbox-subheader .close.button').click();
+        mainHeader.find('.module-subheader .close.button').click();
 
         expect($scope.close).to.have.been.called;
       });

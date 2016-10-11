@@ -7,7 +7,7 @@
     width: 100%;
   }
 
-  .inbox-subheader {
+  .module-subheader {
     .button {
       opacity: 1;
     }
@@ -88,8 +88,7 @@
       }
     }
 
-    .inbox-subheader-inner {
-      padding: 0 10px;
+    .module-subheader-inner {
 
       & > .left-container {
         // See http://stackoverflow.com/questions/26465745/ellipsis-in-flexbox-container
@@ -105,20 +104,6 @@
       .flex-vertical-centered;
 
       min-width: 0;
-    }
-  }
-}
-
-@media (min-width: @screen-md-min) {
-  #header {
-    .inbox-subheader:not(.inbox-subheader-fullwidth) {
-      .title:not(.extra-title) {
-        margin-left: 0; // Because the padding of the 'inner' class below is now enough
-      }
-
-      .inbox-subheader-inner {
-        padding: 0 25px;
-      }
     }
   }
 }
