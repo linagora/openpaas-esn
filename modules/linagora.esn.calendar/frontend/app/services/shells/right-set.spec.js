@@ -210,7 +210,7 @@ describe('RightSet', function() {
     it('should not fail and return false for undefined method', function() {
       var set = new RightSet();
 
-      [undefined, {}, {a:2}].forEach(function(badData) {
+      [undefined, {}, {a: 2}].forEach(function(badData) {
         expect(set.equals(badData)).to.be.false;
       });
     });

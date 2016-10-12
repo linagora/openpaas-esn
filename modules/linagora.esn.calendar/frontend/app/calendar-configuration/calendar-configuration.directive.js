@@ -21,28 +21,28 @@
     return directive;
   }
 
-  CalendarConfigurationController.$inject = [
-    '$log',
-    '$modal',
-    '$scope',
-    '$state',
-    'screenSize',
-    'uuid4',
-    'CalendarCollectionShell',
-    'calendarService',
-    'notificationFactory',
-    'CALENDAR_MODIFY_COMPARE_KEYS',
-    'CALENDAR_RIGHT',
-    'CalendarRightShell',
-    '$q',
-    'userAPI',
-    '_',
-    'userUtils'
-  ];
-
-  function CalendarConfigurationController($log, $modal, $scope, $state, screenSize, uuid4, CalendarCollectionShell, calendarService, notificationFactory, CALENDAR_MODIFY_COMPARE_KEYS, CALENDAR_RIGHT, CalendarRightShell, $q, userAPI, _, userUtils) {
+  function CalendarConfigurationController(
+    $log,
+    $modal,
+    $scope,
+    $state,
+    screenSize,
+    uuid4,
+    CalendarCollectionShell,
+    calendarService,
+    notificationFactory,
+    CALENDAR_MODIFY_COMPARE_KEYS,
+    CALENDAR_RIGHT,
+    CalendarRightShell,
+    DelegationEditionHelper,
+    $q,
+    userAPI,
+    _,
+    userUtils
+  ) {
     var self = this;
     var calendarRight, originalCalendarRight;
+    var delegationEditionHelperInstance = new DelegationEditionHelper();
 
     self.newCalendar = !self.calendar;
     self.calendar = self.calendar || {};
@@ -90,12 +90,10 @@
         name: 'Read only',
         access: 'all'
       }, {
-        value:CALENDAR_RIGHT.FREE_BUSY,
+        value: CALENDAR_RIGHT.FREE_BUSY,
         name: 'Free/Busy',
         access: 'all'
       }];
-
-      var delegationEditionHelperInstance = new DelegationEditionHelper();
 
       calendarRight.then(function(calendarRightShell) {
         self.publicSelection = calendarRightShell.getPublicRight();
@@ -153,7 +151,7 @@
           });
 
           var rightChanged = !calendarRight.equals(originalCalendarRight);
-          var calendarChanged = hasModifications(self.oldCalendar, self.calendar);
+          var calendarChanged = _hasModifications(self.oldCalendar, self.calendar);
           var updateActions = [];
 
           if (!rightChanged && !calendarChanged) {
@@ -240,5 +238,4 @@
       $state.go('calendar.edit');
     }
   }
-
 })();

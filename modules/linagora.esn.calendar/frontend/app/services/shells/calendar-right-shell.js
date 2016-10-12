@@ -158,11 +158,11 @@
       }, this);
 
       return result;
-    };
+    }
 
     function removeUserRight(id) {
-      delete(this._userEmails[id]);
-      delete(this._userRight[id]);
+      delete this._userEmails[id];
+      delete this._userRight[id];
     }
 
     function toJson() {

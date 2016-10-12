@@ -337,7 +337,7 @@ describe.skip('The calendarEditionController controller', function() {
         expect(this.calendarRight.removeUserRight).to.have.been.calledWith('1');
         expect(this.calendarRight.update).to.have.been.calledWith('id', 'preferredEmail', 'selection');
         expect(this.stateMock.go).to.have.been.called;
-        expect(this.calendarService.modifyRights).to.have.been.calledWith(this.$scope.calendarHomeId, sinon.match({href:  '/calendars/12345/00000000-0000-4000-a000-000000000000.json'}), sinon.match.same(this.calendarRight), sinon.match.same(clone));
+        expect(this.calendarService.modifyRights).to.have.been.calledWith(this.$scope.calendarHomeId, sinon.match({href: '/calendars/12345/00000000-0000-4000-a000-000000000000.json'}), sinon.match.same(this.calendarRight), sinon.match.same(clone));
         expect(this.calendarService.modifyCalendar).to.not.have.been.calledWith;
       });
 
@@ -365,7 +365,7 @@ describe.skip('The calendarEditionController controller', function() {
 
         expect(this.notificationFactoryMock.weakInfo).to.have.been.called;
         expect(this.stateMock.go).to.have.been.called;
-        expect(this.calendarService.modifyRights).to.have.been.calledWith(this.$scope.calendarHomeId, sinon.match({href:  '/calendars/12345/00000000-0000-4000-a000-000000000000.json'}), sinon.match.same(this.calendarRight), sinon.match.same(clone));
+        expect(this.calendarService.modifyRights).to.have.been.calledWith(this.$scope.calendarHomeId, sinon.match({href: '/calendars/12345/00000000-0000-4000-a000-000000000000.json'}), sinon.match.same(this.calendarRight), sinon.match.same(clone));
         expect(this.calendarService.modifyCalendar).to.have.been.calledWith('12345', sinon.match({
           href: '/calendars/12345/00000000-0000-4000-a000-000000000000.json',
           name: modifiedName
