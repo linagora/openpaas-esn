@@ -9,7 +9,7 @@
         li.btn-wave(ng-class="{'active': vm.selectedTab === 'main'}")
           a(href="", ng-click="vm.getMainView()")
             | #{__('Main')}
-        li.btn-wave(ng-class="{'active': vm.selectedTab === 'delegation'}")
+        li.btn-wave(ng-class="{'active': vm.selectedTab === 'delegation'}", ng-show='isAdmin && !newCalendar')
           a(href="", ng-click="vm.getDelegationView()")
             | #{__('Delegation')}
       .card-body.m-t-25
@@ -41,7 +41,7 @@
                   span(ng-if='vm.newCalendar') #{__('Create')}
                   span(ng-if='!vm.newCalendar') #{__('Save')}
               .clearfix
-          div.delegation(ng-show='vm.selectedTab === "delegation"')
+          .delegation(ng-show='selectedTab === "delegation"')
             .row.public.flex-wrap.flex-vertical-centered
               .col-sm-6.col-xs-12
                 i.mdi.mdi-account-multiple.vertical-align.big
@@ -52,13 +52,49 @@
                   .input-group
                     span.input-group-addon
                       i.mdi.mdi-eye
-                    div.fg-line
-                      div.select
-                        select.form-control
-                          option(value="none")
-                            i.mdi.mdi-lock
-                            | #{__('None')}
-                          option(value="readonly")
-                            | #{__('Read only')}
-                          option(value="freebuzy")
-                            | #{__('Free/Buzy')}
+                    .fg-line
+                      .select
+                        select.form-control(ng-model='publicSelection')
+                          option(ng-repeat="delegationType in ::delegationTypes" value="{{delegationType.value}}" ng-selected="none" ng-if="delegationType.access==='all'") {{ delegationType.name }}
+            .row.public.flex-wrap.flex-vertical-centered.hidden-md
+                .col-sm-6.col-xs-12
+                  .btn-group.btn-addusers
+                    button.btn.btn-primary.dropdown-toggle(type="button", data-toggle="dropdown", aria-expanded="false")
+                      i.mdi.mdi-account-multiple-plus
+                      | #{__('Add users and groups delegation')}
+                    ul.dropdown-menu(role="menu")
+                      li(ng-repeat="delegationType in ::delegationTypes" ng-if="delegationType.access==='all'")
+                        a(ng-click="goToEditDelegation()")
+                          | {{delegationType.name}}
+            hr
+            .row.hidden-xs
+              .col-sm-12.col-xs-12
+                span #{__('Delegation on this calendar')}
+            .row.hidden-xs
+              .col-sm-6.col-xs-12
+                users-autocomplete-input(mutable-users='newUsersGroups')
+              .col-sm-4.col-xs-8
+                span
+                  .select
+                    select.addDelegation.form-control(ng-model='selection')
+                      option(ng-repeat="delegationType in ::delegationTypes" value="{{delegationType.value}}" ng-selected="none") {{delegationType.name}}
+               .col-sm-2.col-xs-4
+                .btn.btn-primary.btn-sm(ng-click="addUserGroup()") #{__('Add')}
+
+            hr
+            .row.hidden-xs(ng-repeat="delegation in delegations")
+              .row.no-margin
+                .col-sm-offset-1.col-sm-1.col-xs-2
+                  a.attendee-avatar(href="", ng-attr-title='delegation.user.displayName')
+                    img(src='/images/user.png', fallback-src='/images/user.png', ng-src='/api/avatars?email={{ delegation.user.email | urlencode }}')
+                .col-sm-4.col-xs-4.name
+                  span {{ delegation.user.displayName }}
+                .col-sm-4.col-xs-4
+                  span
+                    .select
+                      select.form-control(ng-model='delegation.selection')
+                        option(ng-repeat="delegationType in ::delegationTypes" value="{{delegationType.value}}" ng-selected="delegationType.value === delegation.selection") {{delegationType.name}}
+                .col-sm-2
+                  a(href="", ng-click='removeUserGroup(delegation)')
+                    i.mdi.mdi-delete
+              hr

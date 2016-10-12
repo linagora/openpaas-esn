@@ -92,6 +92,8 @@
       deleteInstance: deleteInstance,
       deleteAllException: deleteAllException,
       expand: expand,
+      _computeNonExceptionnalInstance: _computeNonExceptionnalInstance,
+      isRealException: isRealException,
       removeAlarm: removeAlarm,
       changeParticipation: changeParticipation,
       setOrganizerPartStat: setOrganizerPartStat,
@@ -422,6 +424,20 @@
       }, this);
     }
 
+    function _computeNonExceptionnalInstance(instanceDetails) {
+      var instance = this.clone();
+
+      instance.deleteAllException();
+      instance.vevent.removeProperty('rrule');
+      instance.vevent.removeProperty('exdate');
+
+      _setDatetimePropertyFromIcalTime(instance.vevent, 'recurrence-id', instanceDetails.recurrenceId.convertToZone(ICAL.Timezone.utcTimezone));
+      _setDatetimePropertyFromIcalTime(instance.vevent, 'dtstart', instanceDetails.startDate);
+      _setDatetimePropertyFromIcalTime(instance.vevent, 'dtend', instanceDetails.endDate);
+
+      return instance;
+    }
+
     function expand(startDate, endDate, maxElement) {
       if (!this.icalEvent.isRecurring()) {
         return [];
@@ -474,14 +490,7 @@
           if (currentEvent) {
             currentEvent = new CalendarShell(new ICAL.Component(currentEvent.component.toJSON()), _getExtendedProperties(this));
           } else {
-            currentEvent = this.clone();
-            currentEvent.deleteAllException();
-            currentEvent.vevent.removeProperty('rrule');
-            currentEvent.vevent.removeProperty('exdate');
-
-            _setDatetimePropertyFromIcalTime(currentEvent.vevent, 'recurrence-id', currentDetails.recurrenceId.convertToZone(ICAL.Timezone.utcTimezone));
-            _setDatetimePropertyFromIcalTime(currentEvent.vevent, 'dtstart', currentDetails.startDate);
-            _setDatetimePropertyFromIcalTime(currentEvent.vevent, 'dtend', currentDetails.endDate);
+            currentEvent = this._computeNonExceptionnalInstance(currentDetails);
           }
 
           result.push(currentEvent);
@@ -662,6 +671,13 @@
       }.bind(this));
     }
 
+    function isRealException(instance) {
+      var currentDetails = this.icalEvent.getOccurrenceDetails(instance.vevent.getFirstPropertyValue('recurrence-id'));
+      var regularException = this._computeNonExceptionnalInstance(currentDetails);
+
+      return !instance.equals(regularException);
+    }
+
     /**
      * For a master shell, modifies a specific instance so it appears as a
      * modified occurrence in the vcalendar. Can not be called on instances.
@@ -672,6 +688,10 @@
     function modifyOccurrence(instance, notRefreshCache) {
       if (this.isInstance()) {
         throw new Error('Cannot modify occurrence on an instance');
+      }
+
+      if (!this.isRealException(instance)) {
+        return;
       }
 
       _removeOccurenceFromVcalendar(this, instance);
@@ -723,5 +743,4 @@
       return newShell;
     }
   }
-
 })();

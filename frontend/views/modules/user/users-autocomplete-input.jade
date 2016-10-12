@@ -1,0 +1,3 @@
+.col-xs-12
+  tags-input.form-control(ng-model='mutableUsers', display-property='displayName', key-property='_id', placeholder='#{__("Users")}', on-tag-adding='onAddingUser($tag)', replace-spaces-with-dashes='false')
+    auto-complete(source='getUsers($query)', min-length='1', debounce-delay='200', template="/views/modules/auto-complete/users.html")

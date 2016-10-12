@@ -31,11 +31,18 @@
     'CalendarCollectionShell',
     'calendarService',
     'notificationFactory',
-    'CALENDAR_MODIFY_COMPARE_KEYS'
+    'CALENDAR_MODIFY_COMPARE_KEYS',
+    'CALENDAR_RIGHT',
+    'CalendarRightShell',
+    '$q',
+    'userAPI',
+    '_',
+    'userUtils'
   ];
 
-  function CalendarConfigurationController($log, $modal, $scope, $state, screenSize, uuid4, CalendarCollectionShell, calendarService, notificationFactory, CALENDAR_MODIFY_COMPARE_KEYS) {
+  function CalendarConfigurationController($log, $modal, $scope, $state, screenSize, uuid4, CalendarCollectionShell, calendarService, notificationFactory, CALENDAR_MODIFY_COMPARE_KEYS, CALENDAR_RIGHT, CalendarRightShell, $q, userAPI, _, userUtils) {
     var self = this;
+    var calendarRight, originalCalendarRight;
 
     self.newCalendar = !self.calendar;
     self.calendar = self.calendar || {};
@@ -48,13 +55,65 @@
     self.cancelMobile = cancelMobile;
     self.getMainView = getMainView;
     self.getDelegationView = getDelegationView;
+    self.addUserGroup = addUserGroup;
+    self.removeUserGroup = removeUserGroup;
+    self.goToEditDelegation = goToEditDelegation;
+    self.goToCalendarEdit = goToCalendarEdit;
 
     activate();
 
     ////////////
 
     function activate() {
+      if (self.newCalendar) {
+        calendarRight = $q.when(new CalendarRightShell());
+      } else {
+        calendarRight = calendarService.getRight(self.calendarHomeId, self.calendar);
+      }
       angular.copy(self.calendar, self.oldCalendar);
+      self.delegations = [];
+      self.selection = 'none';
+      self.delegationTypes = [{
+        value: CALENDAR_RIGHT.NONE,
+        name: 'None',
+        access: 'all'
+      }, {
+        value: CALENDAR_RIGHT.ADMIN,
+        name: 'Administration',
+        access: 'users'
+      }, {
+        value: CALENDAR_RIGHT.READ_WRITE,
+        name: 'Read and Write',
+        access: 'users'
+      }, {
+        value: CALENDAR_RIGHT.READ,
+        name: 'Read only',
+        access: 'all'
+      }, {
+        value:CALENDAR_RIGHT.FREE_BUSY,
+        name: 'Free/Busy',
+        access: 'all'
+      }];
+
+      var delegationEditionHelperInstance = new DelegationEditionHelper();
+
+      calendarRight.then(function(calendarRightShell) {
+        self.publicSelection = calendarRightShell.getPublicRight();
+        self.isAdmin = calendarRightShell.getUserRight(self.calendarHomeId) === CALENDAR_RIGHT.ADMIN;
+        var usersRight = calendarRightShell.getAllUserRight().filter(function(usersRight) {
+          return usersRight.userId !== self.calendarHomeId;
+        });
+
+        $q.all(_.chain(usersRight).map('userId').map(userAPI.user).values()).then(function(users) {
+          _.chain(users).map('data').zip(usersRight).forEach(function(array) {
+            var user = array[0];
+            var right = array[1].right;
+
+            user.displayName = userUtils.displayNameOf(user);
+            self.delegations = delegationEditionHelperInstance.addUserGroup([user], right);
+          });
+        });
+      });
       if (self.newCalendar) {
         self.calendar.href = CalendarCollectionShell.buildHref(self.calendarHomeId, uuid4.generate());
         self.calendar.color = '#' + Math.random().toString(16).substr(-6);
@@ -85,20 +144,41 @@
             $state.go('calendar.main');
           });
       } else {
-        if (!_hasModifications(self.oldCalendar, self.calendar)) {
-          if (screenSize.is('xs, sm')) {
-            $state.go('calendar.list');
-          } else {
-            $state.go('calendar.main');
+        calendarRight.then(function(calendarRight) {
+          originalCalendarRight = calendarRight.clone();
+          delegationEditionHelperInstance.getAllRemovedUsersId().map(calendarRight.removeUserRight.bind(calendarRight));
+
+          self.delegations.forEach(function(line) {
+            calendarRight.update(line.user._id, line.user.preferredEmail, line.selection);
+          });
+
+          var rightChanged = !calendarRight.equals(originalCalendarRight);
+          var calendarChanged = hasModifications(self.oldCalendar, self.calendar);
+          var updateActions = [];
+
+          if (!rightChanged && !calendarChanged) {
+            if (screenSize.is('xs, sm')) {
+              $state.go('calendar.list');
+            } else {
+              $state.go('calendar.main');
+            }
+
+            return;
           }
 
-          return;
-        }
-        calendarService.modifyCalendar(self.calendarHomeId, shell)
-          .then(function() {
+          if (calendarChanged) {
+            updateActions.push(calendarService.modifyCalendar(self.calendarHomeId, shell, calendarRight));
+          }
+
+          if (rightChanged) {
+            updateActions.push(calendarService.modifyRights(self.calendarHomeId, shell, calendarRight, originalCalendarRight));
+          }
+
+          $q.all(updateActions).then(function() {
             notificationFactory.weakInfo('Calendar - ', self.calendar.name + ' has been modified.');
             $state.go('calendar.main');
           });
+        });
       }
     }
 
@@ -113,6 +193,23 @@
         backdrop: 'static',
         placement: 'center'
       });
+    }
+
+     function addUserGroup() {
+      self.delegations = delegationEditionHelperInstance.addUserGroup(self.newUsersGroups, self.selection);
+      if (self.newCalendar) {
+        throw new Error('edition of right on new calendar are not implemented yet');
+      }
+      reset();
+    }
+
+    function removeUserGroup(delegationSelected) {
+      self.delegations = delegationEditionHelperInstance.removeUserGroup(delegationSelected);
+    }
+
+    function reset() {
+      self.newUsersGroups = [];
+      self.selection = CALENDAR_RIGHT.NONE;
     }
 
     function deleteCalendar() {
@@ -133,6 +230,14 @@
 
     function getDelegationView() {
       self.selectedTab = 'delegation';
+    }
+
+    function goToEditDelegation() {
+      $state.go('calendar.edit-delegation');
+    }
+
+    function goToCalendarEdit(isCancel) {
+      $state.go('calendar.edit');
     }
   }
 

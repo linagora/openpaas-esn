@@ -1,0 +1,64 @@
+{
+  "acl": [
+    {
+      "privilege": "{DAV:}share",
+      "principal": "principals/users/me",
+      "protected": true
+    },
+    {
+      "privilege": "{DAV:}share",
+      "principal": "principals/users/me/calendar-proxy-write",
+      "protected": true
+    },
+    {
+      "privilege": "{DAV:}write",
+      "principal": "principals/users/me",
+      "protected": true
+    },
+    {
+      "privilege": "{DAV:}write-properties",
+      "principal": "principals/users/me",
+      "protected": true
+    },
+    {
+      "privilege": "{DAV:}read",
+      "principal": "principals/users/me",
+      "protected": true
+    },
+    {
+      "privilege": "{urn:ietf:params:xml:ns:caldav}read-free-busy",
+      "principal": "{DAV:}authenticated",
+      "protected": true
+    }
+  ],
+  "invite": [
+    {
+      "href": "principals/users/me",
+      "principal": "principals/users/me",
+      "properties": [],
+      "access": 1,
+      "comment": null,
+      "inviteStatus": 2
+    },
+    {
+      "href": "mailto:user2@open-paas.org",
+      "principal": "principals/users/tom",
+      "properties": {
+        "{DAV:}displayname": "Joe2 Doe2"
+      },
+      "access": 3,
+      "comment": null,
+      "inviteStatus": 2
+    },
+    {
+      "href": "mailto:user3@open-paas.org",
+      "principal": "principals/users/jerry",
+      "properties": {
+        "{DAV:}displayname": "Joe3 Doe3"
+      },
+      "access": 2,
+      "comment": null,
+      "inviteStatus": 2
+    }
+  ]
+}

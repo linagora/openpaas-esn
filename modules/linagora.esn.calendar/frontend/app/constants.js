@@ -61,6 +61,15 @@
 
     .constant('CALENDAR_AVAILABLE_VIEWS', ['agendaWeek', 'agendaDay', 'month', 'agendaThreeDays'])
 
+    .constant('CALENDAR_RIGHT', {
+      NONE: 'none',
+      FREE_BUSY: 'free busy',
+      READ: 'read',
+      READ_WRITE: 'read write',
+      ADMIN: 'admin',
+      CUSTOM: 'custom'
+    })
+
     .constant('MAX_CALENDAR_RESIZE_HEIGHT', 1107)
 
     .constant('CALENDAR_DEDAULT_EVENT_COLOR', '#2196f3')
@@ -126,7 +135,8 @@
         REMOVE: 'calendar:calendars:remove',
         TOGGLE_VIEW: 'calendar:calendars:toggleView',
         TOGGLE_VIEW_MODE: 'calendar:calendars:toggleViewMode',
-        TODAY: 'calendar:calendars:today'
+        TODAY: 'calendar:calendars:today',
+        RIGHTS_UPDATE: 'calendar:calendars:rightsUpdate'
       },
       MINI_CALENDAR: {
         DATE_CHANGE: 'calendar:mini:dateChange',

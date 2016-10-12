@@ -80,6 +80,9 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
         'services/shells/calendar-shell.js',
         'services/shells/rrule-shell.js',
         'services/shells/valarm-shell.js',
+        'services/shells/calendar-right-shell.js',
+        'services/shells/calendar-collection-shell.js',
+        'services/shells/right-set.js',
         'services/cached-event-source.js',
         'services/calendar-attendee-service.js',
         'services/calendar-current-view.js',
@@ -92,6 +95,7 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
         'services/calendar-service.js',
         'services/calendar-utils.js',
         'services/calendar-visibility-service.js',
+        'services/delegation-edition-helper.js',
         'services/event-api.js',
         'services/event-service.js',
         'services/event-store.js',
@@ -149,7 +153,6 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
         'event-message/event-message.service.js',
 
         'event-quick-form/event-quick-form.directive.js'
-
       ];
 
       webserverWrapper.injectLess('calendar', [path.resolve(__dirname, '../frontend/app/styles.less')], 'esn');

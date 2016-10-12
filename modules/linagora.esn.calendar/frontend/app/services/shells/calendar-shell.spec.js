@@ -826,11 +826,12 @@ describe('CalendarShell factory', function() {
     });
 
     it('should return the cached master if it exists', function(done) {
+      var date = fcMoment('1999-05-19 01:01');
       var shell = CalendarShell.fromIncompleteShell({
-        recurrenceId: fcMoment()
+        recurrenceId: date
       });
 
-      var masterFromCache = CalendarShell.fromIncompleteShell({});
+      var masterFromCache = CalendarShell.fromIncompleteShell({start: date});
 
       this.masterEventCache.get = sinon.stub().returns(masterFromCache);
       this.masterEventCache.save = sinon.spy();
@@ -849,7 +850,8 @@ describe('CalendarShell factory', function() {
 
     it('should fetch the master on the server if not already cached', function(done) {
       var path = 'this is a path';
-      var vcalendar = CalendarShell.fromIncompleteShell({}).vcalendar;
+      var date = fcMoment('2005-05-19 01:01');
+      var vcalendar = CalendarShell.fromIncompleteShell({start: date}).vcalendar;
       var gracePeriodTaskId = 'gracePeriodID';
       var etag = 'eta';
 
@@ -936,12 +938,12 @@ describe('CalendarShell factory', function() {
 
     it('should add the modified occurence in the vcalendar of the master shell if not already there', function() {
       var nonMasterEvent = CalendarShell.fromIncompleteShell({
-        recurrenceId: fcMoment()
+        recurrenceId: fcMoment('1983-05-25 01:01')
       });
 
       this.masterEventCache.save = sinon.spy();
 
-      var masterEvent = CalendarShell.fromIncompleteShell({});
+      var masterEvent = CalendarShell.fromIncompleteShell({start: fcMoment('2015-08-21 01:01')});
 
       masterEvent.modifyOccurrence(nonMasterEvent);
 
@@ -959,8 +961,7 @@ describe('CalendarShell factory', function() {
     });
 
     it('should replace the modified occurence in the vcalendar of the master shell if already there', function() {
-      var recurrenceId = fcMoment();
-
+      var recurrenceId = fcMoment('1999-05-19 01:01');
       this.masterEventCache.save = sinon.spy();
 
       var nonMasterEvent = CalendarShell.fromIncompleteShell({
@@ -969,11 +970,10 @@ describe('CalendarShell factory', function() {
 
       var nonMasterEventModified = CalendarShell.fromIncompleteShell({
         recurrenceId: recurrenceId,
-        start: fcMoment()
+        start: fcMoment('1983-05-25 01:01')
       });
 
-      var masterEvent = CalendarShell.fromIncompleteShell({});
-
+      var masterEvent = CalendarShell.fromIncompleteShell({start: fcMoment('1983-05-25 01:01')});
       masterEvent.modifyOccurrence(nonMasterEvent);
 
       masterEvent.modifyOccurrence(nonMasterEventModified);
@@ -992,17 +992,54 @@ describe('CalendarShell factory', function() {
     });
 
     it('should not register the masterShell in the masterEventCache if notRefreshCache is true', function() {
-      var recurrenceId = fcMoment();
+      var recurrenceId = fcMoment('1977-05-27 01:01');
       var nonMasterEvent = CalendarShell.fromIncompleteShell({
         recurrenceId: recurrenceId
       });
 
       this.masterEventCache.save = sinon.spy();
 
-      var masterEvent = CalendarShell.fromIncompleteShell({});
-
+      var masterEvent = CalendarShell.fromIncompleteShell({start: fcMoment('1983-05-25 01:01')});
       masterEvent.modifyOccurrence(nonMasterEvent, true);
       expect(this.masterEventCache.save).to.not.have.been.called;
+    });
+  });
+
+  describe('isRealException function', function() {
+
+    it('should return true if the instance is an exception', function() {
+      var recurrenceId = fcMoment('1977-05-27 01:01');
+      var start = fcMoment('1980-05-17 01:01');
+      var nonMasterEventModified = CalendarShell.fromIncompleteShell({
+        recurrenceId: recurrenceId,
+        start: start
+      });
+
+      var masterEvent = CalendarShell.fromIncompleteShell({start: recurrenceId});
+
+      expect(masterEvent.isRealException(nonMasterEventModified)).to.be.true;
+    });
+
+    it('should return false if the instance is not an exception', function() {
+      var start = fcMoment('2002-05-16 01:01');
+      var nonMasterEventNonModified = CalendarShell.fromIncompleteShell({
+        recurrenceId: start,
+        start: start
+      });
+
+      var masterEvent = CalendarShell.fromIncompleteShell({start: start});
+
+      expect(masterEvent.isRealException(nonMasterEventNonModified)).to.be.false;
+    });
+
+    it('should return false if the event is not an exception and has a recurrent id with another timezone', function() {
+      var vcalendar = new ICAL.Component(ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/test/unit-frontend/fixtures/calendar/reventWithDiffTz.ics']));
+      var shell = new CalendarShell(vcalendar);
+      var instance = shell.vcalendar.getAllSubcomponents('vevent');
+
+      var event = new CalendarShell(instance[1]);
+
+      expect(shell.isRealException(event)).to.be.false;
     });
   });
 

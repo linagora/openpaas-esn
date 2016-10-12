@@ -115,8 +115,7 @@ describe('The eventService service', function() {
       var data = {
         match: { start: '20140101T000000', end: '20140102T000000' }
       };
-
-      self.$httpBackend.expectPOST('/dav/api/calendars/uid/events.json', data).respond({
+      this.$httpBackend.expect('REPORT', '/dav/api/calendars/uid/events.json', data).respond({
         _links: {
           self: { href: '/prepath/path/to/calendar.json' }
         },
@@ -167,8 +166,7 @@ describe('The eventService service', function() {
       var data = {
         match: { start: '20140101T000000', end: '20140103T000000' }
       };
-
-      self.$httpBackend.expectPOST('/dav/api/calendars/uid/events.json', data).respond({
+      this.$httpBackend.expect('REPORT', '/dav/api/calendars/uid/events.json', data).respond({
         _links: {
           self: { href: '/prepath/path/to/calendar.json' }
         },
@@ -735,10 +733,11 @@ describe('The eventService service', function() {
       expect(self.masterEventCache.save).to.have.been.calledWith(self.event);
     });
 
-    it('should be able to modify an instance', function(done) {
-      var occShell = self.event.clone();
+    it('should be able to modify an instance', function() {
+      var occShell = this.event.clone();
 
-      occShell.recurrenceId = self.fcMoment();
+      occShell.recurrenceId = this.fcMoment([2017, 1, 1, 1, 1]);
+      occShell.start = occShell.start.add(30, 'minutes');
 
       var headers = { ETag: 'etag' };
       var vcalendar = _.cloneDeep(self.vcalendar.toJSON());
@@ -748,31 +747,24 @@ describe('The eventService service', function() {
         return $q.when({ cancelled: false });
       };
 
-      self.gracePeriodService.remove = function(taskId) {
-        expect(taskId).to.equal('123456789');
-      };
+      this.gracePeriodService.remove = sinon.spy();
 
       flushContext = {id: self.event.id};
 
-      self.eventService.modifyEvent('/path/to/uid.ics', occShell, occShell, 'etag', angular.noop, {notifyFullcalendar: true}).then(
-        function(completed) {
-          expect(completed).to.be.true;
-          done();
-        }, unexpected.bind(null, done)
-      );
+      var modifyEventThen = sinon.spy();
+      this.eventService.modifyEvent('/path/to/uid.ics', occShell, occShell, 'etag', angular.noop, {notifyFullcalendar: true}).then(modifyEventThen);
 
       function checkPUT(data) {
         vcalendar = new ICAL.Component(JSON.parse(data));
-        expect(vcalendar.getAllSubcomponents('vevent')).to.have.length(2);
-
-        return true;
+        return vcalendar.getAllSubcomponents('vevent').length === 2;
       }
 
       $httpBackend.whenGET('/dav/api/path/to/uid.ics').respond(200, vcalendar, headers);
       $httpBackend.expectPUT('/dav/api/path/to/uid.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY, checkPUT).respond(202, {id: '123456789'});
       $httpBackend.flush();
-      self.$rootScope.$apply();
-      $httpBackend.flush();
+      this.$rootScope.$apply();
+      expect(this.gracePeriodService.remove).to.have.been.calledWith('123456789');
+      expect(modifyEventThen).to.have.been.calledWith(true);
     });
 
     it('should send etag as If-Match header', function(done) {

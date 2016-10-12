@@ -11,11 +11,29 @@
     'pathBuilder',
     'request',
     'CALENDAR_ACCEPT_HEADER',
-    'CALENDAR_DAV_DATE_FORMAT'
+    'CALENDAR_DAV_DATE_FORMAT',
+    'CALENDAR_PREFER_HEADER',
+    'CALENDAR_CONTENT_TYPE_HEADER',
+    'CALENDAR_GRACE_DELAY'
   ];
 
-  function calendarAPI(calendarRestangular, pathBuilder, request, CALENDAR_ACCEPT_HEADER, CALENDAR_DAV_DATE_FORMAT) {
-    var service = {
+  var JSON_CONTENT_TYPE_HEADER = {'Content-Type': 'application/json'};
+
+  function calendarAPI(
+    calendarRestangular,
+    pathBuilder,
+    request,
+    CALENDAR_ACCEPT_HEADER,
+    CALENDAR_DAV_DATE_FORMAT,
+    CALENDAR_PREFER_HEADER,
+    CALENDAR_CONTENT_TYPE_HEADER,
+    CALENDAR_GRACE_DELAY
+  ) {
+
+    return {
+      create: create,
+      modify: modify,
+      remove: remove,
       listEvents: listEvents,
       searchEvents: searchEvents,
       listCalendars: listCalendars,
@@ -23,11 +41,11 @@
       listEventsForCalendar: listEventsForCalendar,
       listAllCalendars: listAllCalendars,
       createCalendar: createCalendar,
-      modifyCalendar: modifyCalendar
+      getRight: getRight,
+      modifyCalendar: modifyCalendar,
+      modifyShares: modifyShares,
+      changeParticipation: changeParticipation
     };
-
-    return service;
-
     ////////////
 
     /**
@@ -45,7 +63,7 @@
         }
       };
 
-      return request('post', calendarHref, null, body)
+      return request('report', calendarHref, JSON_CONTENT_TYPE_HEADER, body)
         .then(function(response) {
           if (response.status !== 200) {
             return $q.reject(response);
@@ -96,7 +114,7 @@
       };
       var path = pathBuilder.forCalendarId(calendarHomeId, calendarId);
 
-      return request('post', path, null, body)
+      return request('report', path, JSON_CONTENT_TYPE_HEADER, body)
         .then(function(response) {
           if (response.status !== 200) {
             return $q.reject(response);
@@ -207,6 +225,142 @@
           return response;
         });
     }
-  }
 
+    /**
+     * Get right of this calendar
+     * @param  {String}         calendarHomeId   The calendar home id in which to create a new calendar
+     * @param  {ICAL.Component} calendar      A dav:calendar object, with an additional member "id" which specifies the id to be used in the calendar url.
+     * @return {Object}                        the http response body.
+     */
+    function getRight(calendarHomeId, calendar) {
+      var path = pathBuilder.forCalendarId(calendarHomeId, calendar.id);
+
+      return request('propfind', path, null, {
+        prop: ['cs:invite', 'acl']
+      }).then(function(response) {
+        if (response.status !== 200) {
+          return $q.reject(response);
+        }
+
+        return response.data;
+      });
+    }
+
+    /**
+     * Modify the rights for a calendar in the specified calendar home.
+     * @param  {String} calendarHomeId  The calendar home id in which to create a new calendar
+     * @param  {String} calendarId  The id of the calendar which will be modified
+     * @param  {Object} rights
+     * @return {Object} the http response.
+     */
+    function modifyShares(calendarHomeId, calendarId, rights) {
+      var path = pathBuilder.forCalendarId(calendarHomeId, calendarId);
+
+      return request('post', path, null, rights)
+        .then(function(response) {
+          if (response.status !== 200) {
+            return $q.reject(response);
+          }
+
+          return response;
+        });
+    }
+
+    /**
+     * PUT request used to create a new event in a specific calendar.
+     * @param  {String}         eventPath path of the event. The form is /<calendar_path>/<uuid>.ics
+     * @param  {ICAL.Component} vcalendar a vcalendar object including the vevent to create.
+     * @param  {Object}         options   {graceperiod: true||false} specify if we want to use the graceperiod or not.
+     * @return {String||Object}           a taskId if with use the graceperiod, the http response otherwise.
+     */
+    function create(eventPath, vcalendar, options) {
+      var headers = {'Content-Type': CALENDAR_CONTENT_TYPE_HEADER};
+      var body = vcalendar.toJSON();
+      if (options.graceperiod) {
+        return request('put', eventPath, headers, body, {graceperiod: CALENDAR_GRACE_DELAY})
+          .then(function(response) {
+            if (response.status !== 202) {
+              return $q.reject(response);
+            }
+            return response.data.id;
+          });
+      }
+      return request('put', eventPath, headers, body)
+        .then(function(response) {
+          if (response.status !== 201) {
+            return $q.reject(response);
+          }
+          return response;
+        });
+    }
+
+    /**
+     * PUT request used to modify an event in a specific calendar.
+     * @param  {String}         eventPath path of the event. The form is /<calendar_path>/<uuid>.ics
+     * @param  {ICAL.Component} vcalendar a vcalendar object including the vevent to create.
+     * @param  {String}         etag      set the If-Match header to this etag before sending the request
+     * @return {String}                   the taskId which will be used to create the grace period.
+     */
+    function modify(eventPath, vcalendar, etag) {
+      var headers = {
+        'Content-Type': CALENDAR_CONTENT_TYPE_HEADER,
+        Prefer: CALENDAR_PREFER_HEADER
+      };
+      if (etag) {
+        headers['If-Match'] = etag;
+      }
+      var body = vcalendar.toJSON();
+      return request('put', eventPath, headers, body, { graceperiod: CALENDAR_GRACE_DELAY })
+        .then(function(response) {
+          if (response.status !== 202) {
+            return $q.reject(response);
+          }
+          return response.data.id;
+        });
+    }
+
+    /**
+     * DELETE request used to remove an event in a specific calendar.
+     * @param  {String} eventPath path of the event. The form is /<calendar_path>/<uuid>.ics
+     * @param  {String} etag      set the If-Match header to this etag before sending the request
+     * @return {String}           the taskId which will be used to create the grace period.
+     */
+    function remove(eventPath, etag) {
+      var headers = {'If-Match': etag};
+      return request('delete', eventPath, headers, null, { graceperiod: CALENDAR_GRACE_DELAY })
+        .then(function(response) {
+          if (response.status !== 202) {
+            return $q.reject(response);
+          }
+          return response.data.id;
+        });
+    }
+
+    /**
+     * PUT request used to change the participation status of an event
+     * @param  {String}         eventPath path of the event. The form is /<calendar_path>/<uuid>.ics
+     * @param  {ICAL.Component} vcalendar a vcalendar object including the vevent to create.
+     * @param  {String}         etag      set the If-Match header to this etag before sending the request
+     * @return {Object}                   the http response.
+     */
+    function changeParticipation(eventPath, vcalendar, etag) {
+      var headers = {
+        'Content-Type': CALENDAR_CONTENT_TYPE_HEADER,
+        Prefer: CALENDAR_PREFER_HEADER
+      };
+
+      if (etag) {
+        headers['If-Match'] = etag;
+      }
+      var body = vcalendar.toJSON();
+
+      return request('put', eventPath, headers, body)
+        .then(function(response) {
+          if (response.status !== 200 && response.status !== 204) {
+            return $q.reject(response);
+          }
+          return response;
+        });
+    }
+  }
 })();

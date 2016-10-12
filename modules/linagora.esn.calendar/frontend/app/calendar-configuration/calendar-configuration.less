@@ -1,4 +1,4 @@
-.calendar-configuration-header, .calendars-configuration-header {
+.calendar-configuration-header, .calendars-configuration-header, .calendar-edit-header, .calendars-edit-header, .calendar-edit-delegation-header {
   .btn {
     box-shadow: none;
   }
@@ -61,17 +61,42 @@
 
   .delegation {
     .mdi {
-      font-size: 40px;
+      font-size: 1.5em;
     }
 
     .public {
-      .mdi.big {
-        font-size: 60px;
-        margin-right: 25px;
+      .mdi {
+        margin-right: 5px;
+      }
+
+      span {
+        font-size: 15px;
       }
 
       span.vertical-align, i.vertical-align {
         vertical-align: middle;
+      }
+    }
+
+    .btn {
+      margin-top: 10px;
+    }
+
+    .addDelegation {
+      margin-top: 12px;
+    }
+
+    .name {
+      margin-top: 12px;
+    }
+
+    .no-margin {
+      margin: 0;
+    }
+    .btn-addusers {
+      margin-top: 10px;
+      .mdi {
+        margin-right: 5px;
       }
     }
   }

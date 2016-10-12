@@ -1,11 +1,15 @@
 'use strict';
 
-/* global chai, sinon */
+/* global chai, sinon: false */
 
 var expect = chai.expect;
 
 describe('The calendarService service', function() {
-  var CalendarCollectionShellMock, CalendarCollectionShellFuncMock, self;
+  var CalendarCollectionShellMock,
+    CalendarCollectionShellFuncMock,
+    CalendarRightShellMock,
+    self,
+    CalendarRightShellResult;
 
   beforeEach(function() {
     self = this;
@@ -14,9 +18,13 @@ describe('The calendarService service', function() {
       return CalendarCollectionShellFuncMock.apply(this, arguments);
     };
 
+    CalendarRightShellResult = {};
+    CalendarRightShellMock = sinon.stub().returns(CalendarRightShellResult);
+
     angular.mock.module('esn.calendar');
     angular.mock.module(function($provide) {
       $provide.value('CalendarCollectionShell', CalendarCollectionShellMock);
+      $provide.value('CalendarRightShell', CalendarRightShellMock);
     });
   });
 
@@ -126,7 +134,28 @@ describe('The calendarService service', function() {
       });
 
       this.$httpBackend.flush();
+    });
+  });
 
+  describe('The get right calendar fn', function() {
+    it('should wrap the returning server response in  a CalendarRightShell', function() {
+      var calendar = {id: 'calId'};
+
+      var body = {
+        acl: 'acl',
+        invite: 'invite'
+      };
+
+      this.$httpBackend.expect('PROPFIND', '/dav/api/calendars/homeId/calId.json', {
+        prop: ['cs:invite', 'acl']
+      }).respond(200, body);
+
+      var thenSpy = sinon.spy();
+
+      this.calendarService.getRight('homeId', calendar).then(thenSpy);
+      this.$httpBackend.flush();
+      expect(thenSpy).to.have.been.calledWith(sinon.match.same(CalendarRightShellResult));
+      expect(CalendarRightShellMock).to.have.been.calledWith(body.acl, body.invite);
     });
   });
 
@@ -238,6 +267,22 @@ describe('The calendarService service', function() {
 
       this.$httpBackend.flush();
       this.$rootScope.$digest();
+    });
+  });
+
+  describe('The modify rights fn', function() {
+    it('should compute sharee dav diff and send it to sabre', function() {
+      var davDiff = 'davDiff';
+      var newCalendarShell = {
+        toDAVShareRightsUpdate: sinon.stub().returns(davDiff)
+      };
+      var oldCalendarShell = {};
+
+      this.calendarService.modifyRights('homeId', {id: 'calId'}, newCalendarShell, oldCalendarShell);
+
+      expect(newCalendarShell.toDAVShareRightsUpdate).to.have.been.calledWith(sinon.match.same(oldCalendarShell));
+      this.$httpBackend.expect('POST', '/dav/api/calendars/homeId/calId.json', davDiff).respond(200, {});
+      this.$httpBackend.flush();
     });
   });
 
