@@ -120,13 +120,24 @@ describe('The calendarCurrentView factory', function() {
       expect(view.start.format('YYYY-MM-DD')).to.equals(validDate);
     });
 
-    it('should ignore invalid date from get param in keep defaultDate of calendar config', function() {
-      locationMock.search = sinon.stub().returns({start: 'this is not a date'});
+    describe('comportement with invalid date', function() {
+      /* global moment: false */
+      beforeEach(function() {
+        moment.suppressDeprecationWarnings = true;
+      });
 
-      var view = calendarCurrentView.get();
+      it('should ignore invalid date from get param in keep defaultDate of calendar config', function() {
+        locationMock.search = sinon.stub().returns({start: 'this is not a date'});
 
-      expect(locationMock.search).to.have.been.calledOnce;
-      expect(view.start).to.be.undefined;
+        var view = calendarCurrentView.get();
+
+        expect(locationMock.search).to.have.been.calledOnce;
+        expect(view.start).to.be.undefined;
+      });
+
+      afterEach(function() {
+        moment.suppressDeprecationWarnings = false;
+      });
     });
 
     it('should force 3days view on mobile if viewMode is not defined', function() {

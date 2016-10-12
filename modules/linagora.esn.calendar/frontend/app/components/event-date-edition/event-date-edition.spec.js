@@ -184,21 +184,33 @@ describe('The event-date-edition component', function() {
         expect(isSame).to.be.true;
       });
 
-      it('should ignore null date and invalid date', function() {
-        var end = this.fcMoment('2013-02-08 13:30');
+      describe('comportment for null date and invalid date', function() {
+        /* global moment: false */
 
-        this.$scope.event = {
-          start: this.fcMoment('2013-02-08 09:30'),
-          end: end.clone()
-        };
-        this.initDirective(this.$scope);
-        [null, this.fcMoment('invalid date')].forEach(function(date) {
-          this.$scope.event.start = date;
-          this.eleScope.vm.onStartDateChange();
-          var isSame = end.isSame(this.$scope.event.end);
+        beforeEach(function() {
+          moment.suppressDeprecationWarnings = true;
+        });
 
-          expect(isSame).to.be.true;
-        }, this);
+        it('should ignore null date and invalid date', function() {
+          var end = this.fcMoment('2013-02-08 13:30');
+
+          this.$scope.event = {
+            start: this.fcMoment('2013-02-08 09:30'),
+            end: end.clone()
+          };
+          this.initDirective(this.$scope);
+          [null, this.fcMoment('invalid date')].forEach(function(date) {
+            this.$scope.event.start = date;
+            this.eleScope.vm.onStartDateChange();
+            var isSame = end.isSame(this.$scope.event.end);
+
+            expect(isSame).to.be.true;
+          }, this);
+        });
+
+        afterEach(function() {
+          moment.suppressDeprecationWarnings = false;
+        });
       });
     });
 
@@ -265,7 +277,7 @@ describe('The event-date-edition component', function() {
     it('should have a first formatters that output the date -1 day if event is a allday', function() {
       this.$scope.event = {
         allDay: true,
-        end: this.fcMoment('2015/07/03')
+        end: this.fcMoment([2015, 6, 3])
       };
       var element = this.initDirective(this.$scope);
       var controller = element.controller('ngModel');
@@ -291,7 +303,7 @@ describe('The event-date-edition component', function() {
       var element = this.initDirective(this.$scope);
       var parser = element.controller('ngModel').$parsers[0];
 
-      expect(parser(this.fcMoment('2015/07/03')).format('YYYY/MM/DD')).to.deep.equal(this.fcMoment('2015/07/04').format('YYYY/MM/DD'));
+      expect(parser(this.fcMoment([2015, 6, 3])).format('YYYY/MM/DD')).to.deep.equal(this.fcMoment([2015, 6, 4]).format('YYYY/MM/DD'));
     });
 
     it('should have a last parsers that do nothing if event is not allday', function() {
@@ -301,7 +313,7 @@ describe('The event-date-edition component', function() {
       var element = this.initDirective(this.$scope);
       var parser = element.controller('ngModel').$parsers[0];
 
-      expect(parser(this.fcMoment('2015/07/03')).format('YYYY/MM/DD')).to.deep.equal(this.fcMoment('2015/07/03').format('YYYY/MM/DD'));
+      expect(parser(this.fcMoment([2015, 6, 3])).format('YYYY/MM/DD')).to.deep.equal(this.fcMoment([2015, 6, 3]).format('YYYY/MM/DD'));
     });
   });
 
@@ -343,14 +355,26 @@ describe('The event-date-edition component', function() {
       expect(parser('2015-07-03 10:30').hasTime()).to.be.true;
     });
 
-    it('should return undefined for invalid date', function() {
-      this.$scope.event = {
-        allDay: false
-      };
-      var element = this.initDirective(this.$scope);
-      var parser = element.controller('ngModel').$parsers[0];
+    describe('comportment for invalid date', function() {
+      /* global moment: false */
 
-      expect(parser('this is a bad date')).to.be.undefined;
+      beforeEach(function() {
+        moment.suppressDeprecationWarnings = true;
+      });
+
+      it('should return undefined for invalid date', function() {
+        this.$scope.event = {
+          allDay: false
+        };
+        var element = this.initDirective(this.$scope);
+        var parser = element.controller('ngModel').$parsers[0];
+
+        expect(parser('this is a bad date')).to.be.undefined;
+      });
+
+      afterEach(function() {
+        moment.suppressDeprecationWarnings = false;
+      });
     });
   });
 
