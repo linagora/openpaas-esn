@@ -2,8 +2,9 @@
   .inbox-list-item-content
     .inbox-item-with-icon
       .list-image.badge-container
-        img(ng-src='{{ ::item.author.avatar }}', alt='#{__("Author Avatar")}')
-        i.mdi.mdi-twitter-box.twitter-icon-overlay
+        .inbox-image-with-overlay
+          img(ng-src='{{ ::item.author.avatar }}', alt='#{__("Author Avatar")}')
+          img.inbox-overlay(src="/unifiedinbox/images/Twitter_Logo_White_On_Blue.png")
       .media-body
         .inbox-list-item-subject-and-from
           .inbox-subject
