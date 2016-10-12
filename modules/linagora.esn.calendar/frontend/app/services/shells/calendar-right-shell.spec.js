@@ -98,7 +98,7 @@ describe('CalendarRightShell factory', function() {
 
   describe('the equal method', function() {
     it('should not fail for bad object', function() {
-      [null, undefined, {}, [], {users:{}, public: {}}].forEach(function(badData) {
+      [null, undefined, {}, [], {users: {}, public: {}}].forEach(function(badData) {
         expect(calendarRightShell.equals(badData)).to.be.false;
       });
     });

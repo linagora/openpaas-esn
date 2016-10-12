@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.user', ['esn.http', 'esn.object-type'])
+angular.module('esn.user', ['esn.http', 'esn.object-type', 'esn.lodash-wrapper'])
   .run(function(objectTypeResolver, userAPI, esnRestangular) {
     objectTypeResolver.register('user', userAPI.user);
     esnRestangular.extendModel('users', function(model) {

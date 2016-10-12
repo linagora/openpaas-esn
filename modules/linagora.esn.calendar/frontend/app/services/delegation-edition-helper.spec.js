@@ -16,7 +16,7 @@ describe('The delegation service', function() {
 
   describe('addUserGroup function', function() {
     it('should add multiple users to the delegation if newUsersGroups.length>0', function() {
-      var newUsersGroups = [{_id: 'a', displayName: 'El toto'}, {_id:'b', displayName: 'El Mariachi'}];
+      var newUsersGroups = [{_id: 'a', displayName: 'El toto'}, {_id: 'b', displayName: 'El Mariachi'}];
       var selection = 'free/busy';
 
       expect(this.delegationEditionHelperInstance.addUserGroup(newUsersGroups, selection).length).to.be.equal(2);
@@ -34,7 +34,7 @@ describe('The delegation service', function() {
     });
 
     it('should not add a user if the user already added', function() {
-      var newUsersGroups = [{_id:'a', displayName: 'El toto'}, {_id: 'b', displayName: 'El Mariachi'}];
+      var newUsersGroups = [{_id: 'a', displayName: 'El toto'}, {_id: 'b', displayName: 'El Mariachi'}];
       var selection = 'free/busy';
 
       expect(this.delegationEditionHelperInstance.addUserGroup(newUsersGroups, selection).length).to.be.equal(2);
