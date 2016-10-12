@@ -41,3 +41,13 @@
 @import './services/open-event-form/edit-instance-or-serie';
 
 @import '../event-consultation-app/consultation-app.less';
+
+.calendar-event-form() {
+  .btn:not(.btn-link):not(.btn-float):not(.command-edit):not(.command-delete):not(.selectpicker) {
+    box-shadow: none;
+
+    &:hover, &:focus {
+      box-shadow: 0 5px 11px 0 rgba(0,0,0,0.18),0 4px 15px 0 rgba(0,0,0,0.15);
+    }
+  }
+}
