@@ -151,6 +151,8 @@
         EVENT_DELETED: 'calendar:ws:event:deleted',
         EVENT_REPLY: 'calendar:ws:event:reply'
       }
-    });
+    })
+
+    .constant('CALENDAR_MAX_DURATION_OF_SMALL_EVENT', 45);
 
 })();
