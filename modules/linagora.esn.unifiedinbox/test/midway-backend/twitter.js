@@ -341,7 +341,7 @@ describe('The twitter API', function() {
                   expect(err).to.not.exist;
                   expect(res.body).to.deep.equal([{
                     author: {
-                      avatar: 'https://si0.twimg.com/profile_images/1751506047/dead_sexy.JPG',
+                      avatar: 'https://si0.twimg.com/profile_images/1751506047/dead_sexy_normal.JPG',
                       displayName: 'Sean Cook',
                       id: 38895958,
                       screenName: '@theSeanCook'
@@ -349,7 +349,7 @@ describe('The twitter API', function() {
                     date: '2012-08-27T17:21:03.000Z',
                     id: 240136858829479940,
                     rcpt: {
-                      avatar: 'https://si0.twimg.com/profile_images/2550226257/y0ef5abcx5yrba8du0sk.jpeg',
+                      avatar: 'https://si0.twimg.com/profile_images/2550226257/y0ef5abcx5yrba8du0sk_normal.jpeg',
                       displayName: 'Mick Jagger',
                       id: 776627022,
                       screenName: '@s0c1alm3dia'
@@ -357,7 +357,7 @@ describe('The twitter API', function() {
                     text: 'booyakasha'
                   }, {
                     author: {
-                      avatar: 'https://si0.twimg.com/profile_images/1751506047/dead_sexy.JPG',
+                      avatar: 'https://si0.twimg.com/profile_images/1751506047/dead_sexy_normal.JPG',
                       displayName: 'Captain Crochet',
                       id: 4242,
                       screenName: '@CallMeCaptain'

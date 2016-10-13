@@ -7,7 +7,7 @@ function _getUserObjectFrom(object) {
   return (object && {
     id: object.id,
     displayName: object.name,
-    avatar: object.profile_image_url_https.replace('_normal.', '.'),
+    avatar: object.profile_image_url_https,
     screenName: '@' + object.screen_name
   }) || undefined;
 }

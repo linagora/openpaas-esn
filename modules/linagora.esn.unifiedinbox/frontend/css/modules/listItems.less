@@ -102,6 +102,18 @@
             .avatar(40px);
           }
 
+          .inbox-image-with-overlay {
+            position: relative;
+
+            .inbox-overlay {
+              .avatar(14px);
+
+              position: absolute;
+              bottom: 0;
+              right: 0;
+            }
+          }
+
           .checkbox {
             .input-helper::before, .input-helper::after {
               top: 10px;
@@ -178,6 +190,12 @@
 
             img {
               .avatar(28px);
+            }
+
+            .inbox-image-with-overlay {
+              .inbox-overlay {
+                .avatar(12px);
+              }
             }
 
             .checkbox {
