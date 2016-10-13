@@ -42,7 +42,7 @@ describe('The calEventService service', function() {
     };
 
     self.gracePeriodLiveNotification = {
-      registerListeners: function() {}
+      registerListeners: sinon.spy()
     };
 
     self.uuid4 = {
@@ -407,6 +407,47 @@ describe('The calEventService service', function() {
       self.$httpBackend.flush();
     });
 
+    it('should fail if an error is returned during the graceperiod and revert the event creation', function(done) {
+      var vcalendar = new ICAL.Component('vcalendar');
+      var vevent = new ICAL.Component('vevent');
+
+      vevent.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
+      vevent.addPropertyWithValue('dtstart', '2015-05-25T08:56:29+00:00');
+      vevent.addPropertyWithValue('dtend', '2015-05-25T09:56:29+00:00');
+      vcalendar.addSubcomponent(vevent);
+
+      var event = new self.CalendarShell(vcalendar);
+      var gracePeriodTaskId = '123456789';
+
+      self.gracePeriodService.grace = function() {
+        expect(self.gracePeriodLiveNotification.registerListeners).to.have.been.calledWith(gracePeriodTaskId, sinon.match.func.and(sinon.match(function(errorFunc) {
+          errorFunc();
+
+          return true;
+        })));
+
+        return $q.when({});
+      };
+      self.gracePeriodService.cancel = function() {
+        return $q.when({});
+      };
+
+      var headers = { ETag: 'etag' };
+
+      self.$httpBackend.expectPUT('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY).respond(202, {id: gracePeriodTaskId});
+      self.$httpBackend.expectGET('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(200, vcalendar.toJSON(), headers);
+
+      self.calEventService.createEvent('calId', '/path/to/calendar', event, { graceperiod: true }).catch(
+        function(error) {
+          expect(error.statusText).to.exist;
+          done();
+        }
+      );
+
+      self.$rootScope.$apply();
+      self.$httpBackend.flush();
+    });
+
     it('should succeed calling gracePeriodService.cancel and return false', function(done) {
       var vcalendar = new ICAL.Component('vcalendar');
       var vevent = new ICAL.Component('vevent');
@@ -622,7 +663,6 @@ describe('The calEventService service', function() {
       self.$rootScope.$apply();
       self.$httpBackend.flush();
     });
-
   });
 
   describe('The modify fn', function() {

@@ -195,8 +195,10 @@
        * @return {Mixed}                           true if success, false if cancelled, the http response if no graceperiod is used.
        */
       function createEvent(calendarId, calendarPath, event, options) {
-        event.path = calendarPath.replace(/\/$/, '') + '/' + event.uid + '.ics';
         var taskId = null;
+        var error = false;
+
+        event.path = calendarPath.replace(/\/$/, '') + '/' + event.uid + '.ics';
 
         function onTaskSuccess() {
           gracePeriodService.remove(taskId);
@@ -208,6 +210,11 @@
           event.isRecurring() && calMasterEventCache.remove(event);
         }
 
+        function onTaskError() {
+          error = true;
+          onTaskCancel();
+        }
+
         return calEventAPI.create(event.path, event.vcalendar, options)
           .then(function(response) {
             if (typeof response !== 'string') {
@@ -217,9 +224,13 @@
               event.isRecurring() && calMasterEventCache.save(event);
               calCachedEventSource.registerAdd(event);
               calendarEventEmitter.fullcalendar.emitCreatedEvent(event);
-
+              gracePeriodLiveNotification.registerListeners(taskId, onTaskError);
               return gracePeriodService.grace(taskId, 'You are about to create a new event (' + event.title + ').', 'Cancel it', CALENDAR_GRACE_DELAY, {id: event.uid})
                 .then(function(task) {
+                  if (error) {
+                    return $q.reject({statusText: 'Could not create the event, a problem occured on the CalDAV server'});
+                  }
+
                   return _handleTask(taskId, task, onTaskSuccess, onTaskCancel);
                 })
                 .catch($q.reject);
