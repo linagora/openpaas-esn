@@ -70,6 +70,8 @@
       CUSTOM: 'custom'
     })
 
+    .constant('MAX_RRULE_COUNT', 3499)
+
     .constant('MAX_CALENDAR_RESIZE_HEIGHT', 1107)
 
     .constant('CALENDAR_DEDAULT_EVENT_COLOR', '#2196f3')
