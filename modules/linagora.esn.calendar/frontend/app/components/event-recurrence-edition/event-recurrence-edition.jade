@@ -15,7 +15,7 @@
         span.col-xs-3 #{__('Interval')}:
         .col-xs-9
           .fg-line.recurrence-interval-input
-            input.input-sm.form-control(type="number", min="1", ng-model="vm.event.rrule.interval", ng-disabled="vm.readOnly")
+            input.input-sm.form-control(type="number", min="1", max="999", ng-model="vm.event.rrule.interval", ng-disabled="vm.readOnly")
           div(ng-switch="vm.event.rrule.freq")
             span(ng-switch-default) #{__('days')}
             span(ng-switch-when="WEEKLY") #{__('weeks')}
@@ -41,7 +41,7 @@
               .input-group.force-absolute-center
                 span.input-group-addon #{__('After')}
                 .fg-line
-                  input.input-sm.form-control(type="number", min="1", ng-model="vm.event.rrule.count", ng-focus="selectEndRadioButton(1)", ng-disabled="vm.readOnly")
+                  input.input-sm.form-control(type="number", min="1", max="{{vm.MAX_RRULE_COUNT}}", ng-model="vm.event.rrule.count", ng-focus="selectEndRadioButton(1)", ng-disabled="vm.readOnly")
                 span.input-group-addon.last #{__('occurrences')}
             label.radio.radio-inline
               input.force-position-initial.form-control(type="radio", name="inlineRadioEndOptions", ng-click="vm.resetCount();", ng-checked="vm.event.rrule.until", ng-disabled="vm.readOnly")

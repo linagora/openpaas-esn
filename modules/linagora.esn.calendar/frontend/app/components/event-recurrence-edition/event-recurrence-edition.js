@@ -42,12 +42,7 @@
     }
   }
 
-  EventRecurrenceEditionController.$inject = [
-    'RECUR_FREQ',
-    'WEEK_DAYS'
-  ];
-
-  function EventRecurrenceEditionController(RECUR_FREQ, WEEK_DAYS) {
+  function EventRecurrenceEditionController(RECUR_FREQ, WEEK_DAYS, MAX_RRULE_COUNT) {
     var self = this;
 
     self.RECUR_FREQ = RECUR_FREQ;
@@ -56,6 +51,7 @@
     self.resetUntil = resetUntil;
     self.resetCount = resetCount;
     self.setRRULE = setRRULE;
+    self.MAX_RRULE_COUNT = MAX_RRULE_COUNT;
 
     activate();
 
