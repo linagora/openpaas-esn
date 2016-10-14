@@ -52,7 +52,7 @@ describe.skip('The calendarEditionController controller', function() {
       user: sinon.spy()
     };
 
-    this.DelegationEditionHelperMock = sinon.spy(function() {
+    this.CalDelegationEditionHelperMock = sinon.spy(function() {
       this.addUserGroup = self.addUserGroup;
       this.removeUserGroup = self.removeUserGroup;
       this.getAllRemovedUsersId = self.getAllRemovedUsersId;
@@ -74,7 +74,7 @@ describe.skip('The calendarEditionController controller', function() {
       $provide.value('screenSize', self.screenSize);
       $provide.value('uuid4', self.uuid4);
       $provide.value('calendarService', self.calendarService);
-      $provide.value('DelegationEditionHelper', self.DelegationEditionHelperMock);
+      $provide.value('CalDelegationEditionHelper', self.CalDelegationEditionHelperMock);
       $provide.value('notificationFactory', self.notificationFactoryMock);
       $provide.value('$state', self.stateMock);
       $provide.value('calendar', self.calendarMock);
@@ -387,7 +387,7 @@ describe.skip('The calendarEditionController controller', function() {
     });
 
     describe('scope.removeUserGroup', function() {
-      it('should call the removeUserGroup from delegationEditionHelper', function() {
+      it('should call the removeUserGroup from CalDelegationEditionHelper', function() {
         this.initController();
         this.$scope.removeUserGroup();
         expect(this.removeUserGroup).to.have.been.calledOnce;

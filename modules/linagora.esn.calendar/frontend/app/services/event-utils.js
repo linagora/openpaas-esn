@@ -2,9 +2,9 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .factory('eventUtils', eventUtils);
+         .factory('calEventUtils', calEventUtils);
 
-  eventUtils.$inject = [
+  calEventUtils.$inject = [
     '_',
     'escapeHtmlUtils',
     'session',
@@ -13,7 +13,7 @@
     'CALENDAR_MAX_DURATION_OF_SMALL_EVENT'
   ];
 
-  function eventUtils(_, escapeHtmlUtils, session, CALENDAR_DEDAULT_EVENT_COLOR, SIGNIFICANT_CHANGE_KEYS, CALENDAR_MAX_DURATION_OF_SMALL_EVENT) {
+  function calEventUtils(_, escapeHtmlUtils, session, CALENDAR_DEDAULT_EVENT_COLOR, SIGNIFICANT_CHANGE_KEYS, CALENDAR_MAX_DURATION_OF_SMALL_EVENT) {
     var editedEvent = null;
     var newAttendees = null;
 

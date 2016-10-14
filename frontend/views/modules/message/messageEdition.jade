@@ -4,7 +4,7 @@
     .tab-content.p-0(data-ng-switch='type')
       whatsup-edition(data-ng-switch-when='whatsup', type="type")
       poll-edition(data-ng-switch-when='poll', type="type")
-      event-message-edition(data-ng-switch-when='event')
+      cal-event-message-edition(data-ng-switch-when='event')
       injections-widget(injection-anchor-id="messageEditionMessageTypeSwitch", injection-subject="community")
 
   ul.list-unstyled.clearfix.wpb-actions
@@ -16,6 +16,5 @@
         li
           a(data-wpba="video", data-toggle="tab", href="", ng-click='show("poll")')
             i.mdi.mdi-chart-bar
-        event-message-edition-button
+        cal-event-message-edition-button
         injections-widget(injection-anchor-id="messageEditionMessageTypeButton", injection-subject="community")
-

@@ -9,7 +9,7 @@
     '$q',
     '$scope',
     '$log',
-    'fcMoment',
+    'calMoment',
     'UI_CONFIG',
     'CALENDAR_EVENTS',
     'calendarEventSource',
@@ -17,7 +17,7 @@
     'miniCalendarService',
     'notificationFactory',
     'calendarCurrentView',
-    'cachedEventSource',
+    'calCachedEventSource',
     '_'
   ];
 
@@ -26,7 +26,7 @@
     $q,
     $scope,
     $log,
-    fcMoment,
+    calMoment,
     UI_CONFIG,
     CALENDAR_EVENTS,
     calendarEventSource,
@@ -34,7 +34,7 @@
     miniCalendarService,
     notificationFactory,
     calendarCurrentView,
-    cachedEventSource,
+    calCachedEventSource,
     _) {
 
       var calendarDeffered = $q.defer();
@@ -58,7 +58,7 @@
       $scope.swipeRight = prev;
 
       function selectPeriod(_day, calendar) {
-        var day = fcMoment(_day).stripTime();
+        var day = calMoment(_day).stripTime();
 
         calendar.fullCalendar('gotoDate', day);
         switch ($scope.homeCalendarViewMode) {
@@ -68,7 +68,7 @@
             calendar.fullCalendar('select', week.firstWeekDay, week.nextFirstWeekDay);
             break;
           case 'agendaDay':
-            var nextDay = fcMoment(day).add(1, 'days');
+            var nextDay = calMoment(day).add(1, 'days');
 
             calendar.fullCalendar('select', day, nextDay);
             break;
@@ -80,7 +80,7 @@
         }
       }
 
-      calendarPromise.then(selectPeriod.bind(null, currentView.start || fcMoment()));
+      calendarPromise.then(selectPeriod.bind(null, currentView.start || calMoment()));
 
       $scope.miniCalendarConfig.select = function(start, end, jsEvent) { // eslint-disable-line
         if (jsEvent) {
@@ -110,7 +110,7 @@
             $log.error('Could not retrieve event sources', error);
           });
 
-          return cachedEventSource.wrapEventSource(cal.id, rawSource);
+          return calCachedEventSource.wrapEventSource(cal.id, rawSource);
         });
 
         return miniCalendarService.miniCalendarWrapper(resolved.calendar, _.flatten(eventSources));
@@ -134,7 +134,7 @@
         $rootScope.$on(CALENDAR_EVENTS.REVERT_MODIFICATION, rerenderMiniCalendar),
         $rootScope.$on(CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE, function(event, view) { // eslint-disable-line
           $scope.homeCalendarViewMode = view.name;
-          var start = view.name === 'month' ? fcMoment(view.start).add(15, 'days') : view.start;
+          var start = view.name === 'month' ? calMoment(view.start).add(15, 'days') : view.start;
 
           calendarPromise.then(selectPeriod.bind(null, start));
         }),

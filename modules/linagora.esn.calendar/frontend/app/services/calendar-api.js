@@ -8,7 +8,7 @@
 
   calendarAPI.$inject = [
     'calendarRestangular',
-    'pathBuilder',
+    'calPathBuilder',
     'request',
     'CALENDAR_ACCEPT_HEADER',
     'CALENDAR_DAV_DATE_FORMAT',
@@ -21,7 +21,7 @@
 
   function calendarAPI(
     calendarRestangular,
-    pathBuilder,
+    calPathBuilder,
     request,
     CALENDAR_ACCEPT_HEADER,
     CALENDAR_DAV_DATE_FORMAT,
@@ -51,8 +51,8 @@
     /**
      * Query one or more calendars for events in a specific range. The dav:calendar resources will include their dav:item resources.
      * @param  {String}   calendarHref The href of the calendar.
-     * @param  {fcMoment} start        fcMoment type of Date, specifying the start of the range.
-     * @param  {fcMoment} end          fcMoment type of Date, specifying the end of the range.
+     * @param  {calMoment} start        calMoment type of Date, specifying the start of the range.
+     * @param  {calMoment} end          calMoment type of Date, specifying the end of the range.
      * @return {Object}                An array of dav:items items.
      */
     function listEvents(calendarHref, start, end) {
@@ -101,8 +101,8 @@
      * Query one or more calendars for events. The dav:calendar resources will include their dav:item resources.
      * @param  {String}   calendarHomeId The calendarHomeId.
      * @param  {String}   calendarId     The calendarId.
-     * @param  {fcMoment} start          fcMoment type of Date, specifying the start of the range.
-     * @param  {fcMoment} end            fcMoment type of Date, specifying the end of the range.
+     * @param  {calMoment} start          calMoment type of Date, specifying the start of the range.
+     * @param  {calMoment} end            calMoment type of Date, specifying the end of the range.
      * @return {Object}                  An array of dav:item items.
      */
     function listEventsForCalendar(calendarHomeId, calendarId, start, end) {
@@ -112,7 +112,7 @@
           end: end.format(CALENDAR_DAV_DATE_FORMAT)
         }
       };
-      var path = pathBuilder.forCalendarId(calendarHomeId, calendarId);
+      var path = calPathBuilder.forCalendarId(calendarHomeId, calendarId);
 
       return request('report', path, JSON_CONTENT_TYPE_HEADER, body)
         .then(function(response) {
@@ -133,7 +133,7 @@
      * @return {Object}            An array of dav:home items
      */
     function listAllCalendars() {
-      var path = pathBuilder.rootPath();
+      var path = calPathBuilder.rootPath();
 
       return request('get', path + '/.json', {Accept: CALENDAR_ACCEPT_HEADER})
         .then(function(response) {
@@ -154,7 +154,7 @@
      * @return {Object}                An array of dav:calendar
      */
     function listCalendars(calendarId) {
-      var path = pathBuilder.forCalendarHomeId(calendarId);
+      var path = calPathBuilder.forCalendarHomeId(calendarId);
 
       return request('get', path, {Accept: CALENDAR_ACCEPT_HEADER})
         .then(function(response) {
@@ -176,7 +176,7 @@
      * @return {Object} An array of dav:calendar
      */
     function getCalendar(calendarHomeId, calendarId) {
-      var path = pathBuilder.forCalendarId(calendarHomeId, calendarId);
+      var path = calPathBuilder.forCalendarId(calendarHomeId, calendarId);
 
       return request('get', path, {Accept: CALENDAR_ACCEPT_HEADER})
         .then(function(response) {
@@ -195,7 +195,7 @@
      * @return {Object}                        the http response.
      */
     function createCalendar(calendarHomeId, calendar) {
-      var path = pathBuilder.forCalendarHomeId(calendarHomeId);
+      var path = calPathBuilder.forCalendarHomeId(calendarHomeId);
 
       return request('post', path, null, calendar)
         .then(function(response) {
@@ -214,7 +214,7 @@
      * @return {Object}                        the http response.
      */
     function modifyCalendar(calendarHomeId, calendar) {
-      var path = pathBuilder.forCalendarId(calendarHomeId, calendar.id);
+      var path = calPathBuilder.forCalendarId(calendarHomeId, calendar.id);
 
       return request('proppatch', path, null, calendar)
         .then(function(response) {
@@ -233,7 +233,7 @@
      * @return {Object}                        the http response body.
      */
     function getRight(calendarHomeId, calendar) {
-      var path = pathBuilder.forCalendarId(calendarHomeId, calendar.id);
+      var path = calPathBuilder.forCalendarId(calendarHomeId, calendar.id);
 
       return request('propfind', path, null, {
         prop: ['cs:invite', 'acl']
@@ -254,7 +254,7 @@
      * @return {Object} the http response.
      */
     function modifyShares(calendarHomeId, calendarId, rights) {
-      var path = pathBuilder.forCalendarId(calendarHomeId, calendarId);
+      var path = calPathBuilder.forCalendarId(calendarHomeId, calendarId);
 
       return request('post', path, null, rights)
         .then(function(response) {

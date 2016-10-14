@@ -2,9 +2,9 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .directive('attendeesAutocompleteInput', attendeesAutocompleteInput);
+         .directive('calAttendeesAutocompleteInput', calAttendeesAutocompleteInput);
 
-  function attendeesAutocompleteInput() {
+  function calAttendeesAutocompleteInput() {
     var directive = {
       restrict: 'E',
       templateUrl: '/calendar/app/components/attendees-autocomplete-input/attendees-autocomplete-input.html',

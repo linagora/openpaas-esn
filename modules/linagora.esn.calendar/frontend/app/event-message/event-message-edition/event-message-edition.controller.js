@@ -2,7 +2,7 @@
 'use strict';
 
 angular.module('esn.calendar')
-.controller('eventMessageEditionController', function($scope, CalendarShell, calendarUtils, calendarService, eventService, calendarEventEmitter, notificationFactory, EVENT_FORM, DEFAULT_CALENDAR_ID) {
+.controller('calEventMessageEditionController', function($scope, CalendarShell, calendarUtils, calendarService, calEventService, calendarEventEmitter, notificationFactory, EVENT_FORM, DEFAULT_CALENDAR_ID) {
 
   function _initFormData() {
     $scope.event = CalendarShell.fromIncompleteShell({
@@ -47,7 +47,7 @@ angular.module('esn.calendar')
     var path = '/calendars/' + calendarHomeId + '/' + DEFAULT_CALENDAR_ID;
 
     $scope.restActive = true;
-    eventService.createEvent(calendarHomeId, path, event, { graceperiod: false })
+    calEventService.createEvent(calendarHomeId, path, event, { graceperiod: false })
       .then(function(response) {
         _emitPostedMessage(response);
         _resetEvent();

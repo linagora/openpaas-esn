@@ -7,14 +7,14 @@
    * have a see: https://github.com/jackmoore/autosize/issues/248
    */
   angular.module('esn.calendar')
-         .directive('autoSizeAndUpdate', autoSizeAndUpdate);
+         .directive('calAutoSizeAndUpdate', calAutoSizeAndUpdate);
 
-  autoSizeAndUpdate.$inject = [
+  calAutoSizeAndUpdate.$inject = [
     '$timeout',
     'autosize'
   ];
 
-  function autoSizeAndUpdate($timeout, autosize) {
+  function calAutoSizeAndUpdate($timeout, autosize) {
     var directive = {
       restrict: 'A',
       scope: true,

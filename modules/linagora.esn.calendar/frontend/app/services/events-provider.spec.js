@@ -6,7 +6,7 @@ var expect = chai.expect;
 
 describe('The events-providers', function() {
 
-  var $rootScope, eventsProviders, $httpBackend, calendarService;
+  var $rootScope, calEventsProviders, $httpBackend, calendarService;
   var calendarHomeId = 'calendarHomeId';
 
   beforeEach(function() {
@@ -19,9 +19,9 @@ describe('The events-providers', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function(_$rootScope_, _$httpBackend_, _eventsProviders_, _calendarService_) {
+  beforeEach(angular.mock.inject(function(_$rootScope_, _$httpBackend_, _calEventsProviders_, _calendarService_) {
     $rootScope = _$rootScope_;
-    eventsProviders = _eventsProviders_;
+    calEventsProviders = _calEventsProviders_;
     $httpBackend = _$httpBackend_;
     calendarService = _calendarService_;
   }));
@@ -77,7 +77,7 @@ describe('The events-providers', function() {
         }
       });
 
-      eventsProviders.getAll().then(function(providers) {
+      calEventsProviders.getAll().then(function(providers) {
         providers.forEach(testEventProvider);
       }, done);
       $rootScope.$digest();
@@ -89,7 +89,7 @@ describe('The events-providers', function() {
         return $q.reject();
       };
 
-      eventsProviders.getAll().then(function(providers) {
+      calEventsProviders.getAll().then(function(providers) {
         expect(providers).to.deep.equal([]);
         done();
       }, done);

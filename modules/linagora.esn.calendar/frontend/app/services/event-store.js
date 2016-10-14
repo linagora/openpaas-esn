@@ -2,14 +2,14 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .factory('eventStore', eventStore);
+         .factory('calEventStore', calEventStore);
 
-  eventStore.$inject = [
+  calEventStore.$inject = [
     '_',
-    'fcMoment'
+    'calMoment'
   ];
 
-  function eventStore(_, fcMoment) {
+  function calEventStore(_, calMoment) {
     var calStores = {};
 
     var service = {
@@ -57,7 +57,7 @@
       var indexOfFirstInEnlargedPeriod = _.sortedIndex(
           store.eventsSortedByStart,
           {
-            start: period.start.clone().subtract(fcMoment.duration(store.maxEventsDuration).add(1, 'day'))
+            start: period.start.clone().subtract(calMoment.duration(store.maxEventsDuration).add(1, 'day'))
           },
           function(event) {
             return event.start.unix();

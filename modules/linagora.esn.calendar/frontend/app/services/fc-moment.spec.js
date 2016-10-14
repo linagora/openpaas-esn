@@ -4,7 +4,7 @@
 /* global sinon: false */
 var expect = chai.expect;
 
-describe('fcMoment factory', function() {
+describe('calMoment factory', function() {
 
   beforeEach(function() {
     this.window = {
@@ -38,8 +38,8 @@ describe('fcMoment factory', function() {
   });
 
   beforeEach(function() {
-    angular.mock.inject(function(fcMoment, ICAL) {
-      this.fcMoment = fcMoment;
+    angular.mock.inject(function(calMoment, ICAL) {
+      this.calMoment = calMoment;
       this.ICAL = ICAL;
     });
   });
@@ -49,7 +49,7 @@ describe('fcMoment factory', function() {
       expect(arguments.length).to.equal(0);
       done();
     };
-    this.fcMoment();
+    this.calMoment();
   });
 
   it('call fullCalendar.moment directly if the argument is not an ICAL.Time', function(done) {
@@ -59,7 +59,7 @@ describe('fcMoment factory', function() {
       expect(arguments[0]).to.deep.equal(date);
       done();
     };
-    this.fcMoment(date);
+    this.calMoment(date);
   });
 
   it('call fullCalendar.moment with the result of toJSDate of ical', function() {
@@ -76,12 +76,12 @@ describe('fcMoment factory', function() {
         stripTime: stripTimeFunc
       };
     };
-    this.fcMoment(icalTime);
+    this.calMoment(icalTime);
     expect(stripTimeFunc).to.have.been.called;
   });
 
   it('has a duration method which is like moment.duration', function() {
-    expect(this.fcMoment.duration).to.equal(this.moment.duration);
+    expect(this.calMoment.duration).to.equal(this.moment.duration);
   });
 
 });

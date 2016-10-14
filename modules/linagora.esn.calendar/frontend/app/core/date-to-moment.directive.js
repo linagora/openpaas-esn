@@ -3,11 +3,11 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .directive('dateToMoment', dateToMoment);
+         .directive('calDateToMoment', calDateToMoment);
 
-  dateToMoment.$inject = ['$parse', 'fcMoment'];
+  calDateToMoment.$inject = ['$parse', 'calMoment'];
 
-  function dateToMoment($parse, fcMoment) {
+  function calDateToMoment($parse, calMoment) {
     var directive = {
       restrict: 'A',
       require: 'ngModel',
@@ -20,15 +20,15 @@
 
     function link(scope, element, attrs, ngModel) { // eslint-disable-line
       /**
-       * Ensure that we only are using fcMoment type of date in our code.
+       * Ensure that we only are using calMoment type of date in our code.
        * It only strip the time if we are dealing with an allday event,
        * because angular-strap date-picker only send back a datetime date format
        * like "Sun Oct 11 2015 02:00:00 GMT+0200 (CEST)"
        */
-      ngModel.$parsers.unshift(ensureFCMomentToModel);
+      ngModel.$parsers.unshift(ensureModelHasCalMoment);
 
-      function ensureFCMomentToModel(value) {
-        var result = $parse(attrs.isAllDay)(scope) ? fcMoment(value).stripTime() : fcMoment(value);
+      function ensureModelHasCalMoment(value) {
+        var result = $parse(attrs.isAllDay)(scope) ? calMoment(value).stripTime() : calMoment(value);
 
         return result.isValid() ? result : undefined;
       }

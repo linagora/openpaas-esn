@@ -6,12 +6,12 @@
 
   calendarCurrentView.$inject = [
     '$location',
-    'fcMoment',
+    'calMoment',
     'screenSize',
     'CALENDAR_AVAILABLE_VIEWS'
   ];
 
-  function calendarCurrentView($location, fcMoment, screenSize, CALENDAR_AVAILABLE_VIEWS) {
+  function calendarCurrentView($location, calMoment, screenSize, CALENDAR_AVAILABLE_VIEWS) {
     var currentView = null;
 
     var service = {
@@ -27,7 +27,7 @@
 
     function set(view) {
       currentView = view;
-      var firstDayOfView = view.name === 'month' ? fcMoment(view.start).add(7, 'days').startOf('month') : view.start;
+      var firstDayOfView = view.name === 'month' ? calMoment(view.start).add(7, 'days').startOf('month') : view.start;
 
       $location.search({
         viewMode: view.name,
@@ -49,7 +49,7 @@
         view.name = CALENDAR_AVAILABLE_VIEWS[3];
       }
 
-      var day = fcMoment(getParam.start);
+      var day = calMoment(getParam.start);
 
       if (getParam.start && day.isValid()) {
         view.start = day;

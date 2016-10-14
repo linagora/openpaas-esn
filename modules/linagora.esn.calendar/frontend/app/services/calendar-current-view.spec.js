@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('The calendarCurrentView factory', function() {
-  var locationMock, screenSizeMock, fcMoment, calendarCurrentView, CALENDAR_AVAILABLE_VIEWS;
+  var locationMock, screenSizeMock, calMoment, calendarCurrentView, CALENDAR_AVAILABLE_VIEWS;
 
   beforeEach(function() {
     locationMock = {};
@@ -21,8 +21,8 @@ describe('The calendarCurrentView factory', function() {
       $provide.value('screenSize', screenSizeMock);
     });
 
-    angular.mock.inject(function(_fcMoment_, _calendarCurrentView_, _CALENDAR_AVAILABLE_VIEWS_) {
-      fcMoment = _fcMoment_;
+    angular.mock.inject(function(_calMoment_, _calendarCurrentView_, _CALENDAR_AVAILABLE_VIEWS_) {
+      calMoment = _calMoment_;
       calendarCurrentView = _calendarCurrentView_;
       CALENDAR_AVAILABLE_VIEWS = _CALENDAR_AVAILABLE_VIEWS_;
     });
@@ -41,7 +41,7 @@ describe('The calendarCurrentView factory', function() {
           });
         });
         calendarCurrentView.set({
-          start: fcMoment(date),
+          start: calMoment(date),
           name: name
         });
 
@@ -60,7 +60,7 @@ describe('The calendarCurrentView factory', function() {
       });
 
       calendarCurrentView.set({
-        start: fcMoment('2015-11-30'),
+        start: calMoment('2015-11-30'),
         name: 'month'
       });
 
@@ -73,7 +73,7 @@ describe('The calendarCurrentView factory', function() {
 
       calendarCurrentView.set({
         name: 'month',
-        start: fcMoment('2015-11-30')
+        start: calMoment('2015-11-30')
       });
 
       var resGet = calendarCurrentView.get();
@@ -83,7 +83,7 @@ describe('The calendarCurrentView factory', function() {
         start: '2015-12-01'
       });
       expect(resGet.name).to.equal('month');
-      expect(resGet.start.isSame(fcMoment('2015-11-30'), 'day')).to.be.true;
+      expect(resGet.start.isSame(calMoment('2015-11-30'), 'day')).to.be.true;
     });
   });
 
@@ -157,7 +157,7 @@ describe('The calendarCurrentView factory', function() {
       var resGet = calendarCurrentView.get();
 
       expect(resGet.name).to.equal('month');
-      expect(resGet.start.isSame(fcMoment('2015-12-01'))).to.be.true;
+      expect(resGet.start.isSame(calMoment('2015-12-01'))).to.be.true;
     });
   });
 });

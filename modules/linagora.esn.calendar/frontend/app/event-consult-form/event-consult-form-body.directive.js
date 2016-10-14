@@ -7,13 +7,13 @@
            ATTENDEES: 'attendees',
            MORE: 'more'
          })
-         .directive('eventConsultFormBody', eventConsultFormBody);
+         .directive('calEventConsultFormBody', calEventConsultFormBody);
 
-  eventConsultFormBody.$inject = [
+  calEventConsultFormBody.$inject = [
     'CONSULT_FORM_TABS'
   ];
 
-  function eventConsultFormBody(CONSULT_FORM_TABS) {
+  function calEventConsultFormBody(CONSULT_FORM_TABS) {
     var directive = {
       restrict: 'E',
       templateUrl: '/calendar/app/event-consult-form/event-consult-form-body.html',

@@ -23,9 +23,9 @@
     return directive;
   }
 
-  EventDateEditionController.$inject = ['fcMoment'];
+  EventDateEditionController.$inject = ['calMoment'];
 
-  function EventDateEditionController(fcMoment) {
+  function EventDateEditionController(calMoment) {
     var self = this;
 
     self.dateOnBlurFn = dateOnBlurFn;
@@ -57,7 +57,7 @@
 
     function getMinDate() {
       if (self.allDay) {
-        return fcMoment(self.event.start).subtract(1, 'days').format('YYYY-MM-DD');
+        return calMoment(self.event.start).subtract(1, 'days').format('YYYY-MM-DD');
       }
 
       return null;
@@ -76,7 +76,7 @@
         start = self.previousStart;
         end = self.previousEnd;
       } else {
-        var nextHour = fcMoment().startOf('hour').add(1, 'hour').hour();
+        var nextHour = calMoment().startOf('hour').add(1, 'hour').hour();
 
         // We need to set back the utc flag to false here.
         // See Ambiguously-timed Moments http://fullcalendar.io/docs/utilities/Moment/
@@ -92,7 +92,7 @@
       if (!self.event.start || !self.event.start.isValid()) {
         return;
       }
-      self.event.end = fcMoment(self.event.start).add(self.diff / 1000, 'seconds');
+      self.event.end = calMoment(self.event.start).add(self.diff / 1000, 'seconds');
     }
 
     function onEndDateChange() {
@@ -100,7 +100,7 @@
         return;
       }
       if (self.event.end.isBefore(self.event.start)) {
-        self.event.end = fcMoment(self.event.start).add(1, 'hours');
+        self.event.end = calMoment(self.event.start).add(1, 'hours');
       }
       self.diff = self.event.end.diff(self.event.start);
     }

@@ -6,7 +6,7 @@
 
 var expect = chai.expect;
 
-describe('The event-message Angular module directives', function() {
+describe('The cal-event-message Angular module directives', function() {
 
   var self = this;
 
@@ -14,7 +14,7 @@ describe('The event-message Angular module directives', function() {
     angular.mock.module('esn.calendar', 'linagora.esn.graceperiod', 'jadeTemplates');
   });
 
-  describe('The eventMessageEditionController', function() {
+  describe('The calEventMessageEditionController', function() {
     beforeEach(function() {
       angular.mock.module('esn.calendar', 'linagora.esn.graceperiod');
       self.CalendarShellMock = {
@@ -34,7 +34,7 @@ describe('The event-message Angular module directives', function() {
         calendarHomeId: 'calendarHomeId'
       };
 
-      self.eventServiceMock = {
+      self.calEventServiceMock = {
         createEvent: sinon.spy(function() {
           return self.$q.when({
             headers: function() {
@@ -58,13 +58,13 @@ describe('The event-message Angular module directives', function() {
         $provide.value('CalendarShell', self.CalendarShellMock);
         $provide.value('calendarUtils', self.calendarUtilsMock);
         $provide.value('calendarService', self.calendarServiceMock);
-        $provide.value('eventService', self.eventServiceMock);
+        $provide.value('calEventService', self.calEventServiceMock);
         $provide.value('notificationFactory', self.notificationFactoryMock);
         $provide.value('calendarEventEmitter', self.calendarEventEmitterMock);
       });
     });
 
-    beforeEach(angular.mock.inject(function($controller, $rootScope, fcMoment, EVENT_FORM, $q) {
+    beforeEach(angular.mock.inject(function($controller, $rootScope, calMoment, EVENT_FORM, $q) {
       self.activitystream = {
         activity_stream: {
           uuid: 'uuid'
@@ -77,11 +77,11 @@ describe('The event-message Angular module directives', function() {
       self.$parentScope.activitystream = self.activitystream;
       self.$parentScope.show = angular.noop;
       self.$scope = self.$parentScope.$new();
-      self.fcMoment = fcMoment;
-      self.EVENT_FORM = EVENT_FORM; self.start = fcMoment('2015-08-17 08:00');
-      self.end = fcMoment('2015-08-17 09:00');
+      self.calMoment = calMoment;
+      self.EVENT_FORM = EVENT_FORM; self.start = calMoment('2015-08-17 08:00');
+      self.end = calMoment('2015-08-17 09:00');
       self.initController = function() {
-        $controller('eventMessageEditionController', { $scope: self.$scope });
+        $controller('calEventMessageEditionController', { $scope: self.$scope });
       };
       self.$q = $q;
     }));
@@ -128,26 +128,26 @@ describe('The event-message Angular module directives', function() {
         expect(self.$scope.event.title).to.equal(title);
       });
 
-      it('should call eventService.createEvent with $scope.calendarHomeId if defined', function() {
+      it('should call calEventService.createEvent with $scope.calendarHomeId if defined', function() {
         self.$scope.calendarHomeId = 'et';
         self.$scope.submit();
-        expect(self.eventServiceMock.createEvent).to.have.been.calledWith(self.$scope.calendarHomeId);
+        expect(self.calEventServiceMock.createEvent).to.have.been.calledWith(self.$scope.calendarHomeId);
       });
 
-      it('should call eventService.createEvent with calendarService.calendarHomeId if $scope.calendarHomeId is not defined', function() {
+      it('should call calEventService.createEvent with calendarService.calendarHomeId if $scope.calendarHomeId is not defined', function() {
         self.$scope.submit();
-        expect(self.eventServiceMock.createEvent).to.have.been.calledWith(self.calendarServiceMock.calendarHomeId);
+        expect(self.calEventServiceMock.createEvent).to.have.been.calledWith(self.calendarServiceMock.calendarHomeId);
       });
 
       it('should give path to default calendars "/events"', function() {
         self.$scope.submit();
-        expect(self.eventServiceMock.createEvent).to.have.been.calledWith(sinon.match.any, '/calendars/calendarHomeId/events');
+        expect(self.calEventServiceMock.createEvent).to.have.been.calledWith(sinon.match.any, '/calendars/calendarHomeId/events');
       });
 
       it('should path the event and option that disable graceperiod', function() {
         self.$scope.event = { title: 'telephon maison' };
         self.$scope.submit();
-        expect(self.eventServiceMock.createEvent).to.have.been.calledWith(sinon.match.any, sinon.match.any, self.$scope.event, { graceperiod: false });
+        expect(self.calEventServiceMock.createEvent).to.have.been.calledWith(sinon.match.any, sinon.match.any, self.$scope.event, { graceperiod: false });
       });
 
       it('should not call createEvent and display an error if no activity_stream.uuid', function() {
@@ -156,17 +156,17 @@ describe('The event-message Angular module directives', function() {
           self.$scope.activitystream = activitystream;
           self.$scope.submit();
           expect(self.$scope.displayError).to.have.been.calledOnce;
-          expect(self.eventServiceMock.createEvent).to.have.not.been.called;
+          expect(self.calEventServiceMock.createEvent).to.have.not.been.called;
 
         }, this);
       });
 
-      it('should set $scope.restActive to true only meanwhile eventService.createEvent resolve', function() {
+      it('should set $scope.restActive to true only meanwhile calEventService.createEvent resolve', function() {
         expect(self.$scope.restActive).to.be.false;
 
         var defer = self.$q.defer();
 
-        self.eventServiceMock.createEvent = _.constant(defer.promise);
+        self.calEventServiceMock.createEvent = _.constant(defer.promise);
         self.$scope.submit();
         expect(self.$scope.restActive).to.be.true;
         defer.resolve(null);
@@ -174,8 +174,8 @@ describe('The event-message Angular module directives', function() {
         expect(self.$scope.restActive).to.be.false;
       });
 
-      it('should call notificationFactory.weakError if eventService.createEvent fail', function() {
-        self.eventServiceMock.createEvent = function() {
+      it('should call notificationFactory.weakError if calEventService.createEvent fail', function() {
+        self.calEventServiceMock.createEvent = function() {
           return self.$q.reject({});
         };
         self.$scope.submit();

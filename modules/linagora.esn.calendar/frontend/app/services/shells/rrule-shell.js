@@ -2,22 +2,22 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .factory('RRuleShell', RRuleShellFactory);
+         .factory('CalRRuleShell', CalRRuleShellFactory);
 
-  RRuleShellFactory.$inject = [
-    'fcMoment',
+  CalRRuleShellFactory.$inject = [
+    'calMoment',
     'ICAL',
     'RRULE_MODIFY_COMPARE_KEYS'
   ];
 
-  function RRuleShellFactory(fcMoment, ICAL, RRULE_MODIFY_COMPARE_KEYS) {
-    function RRuleShell(rrule, vevent) {
+  function CalRRuleShellFactory(calMoment, ICAL, RRULE_MODIFY_COMPARE_KEYS) {
+    function CalRRuleShell(rrule, vevent) {
       this.rrule = rrule;
       this.vevent = vevent;
       this.updateParentEvent();
     }
 
-    RRuleShell.prototype = {
+    CalRRuleShell.prototype = {
       equals: equals,
       isValid: isValid,
       updateParentEvent: updateParentEvent,
@@ -48,7 +48,7 @@
         if (!this.rrule || !this.rrule.until) {
           return null;
         }
-        this.__until = this.__until || fcMoment(this.rrule.until.toJSDate());
+        this.__until = this.__until || calMoment(this.rrule.until.toJSDate());
 
         return this.__until;
       },
@@ -86,7 +86,7 @@
       }
     };
 
-    return RRuleShell;
+    return CalRRuleShell;
 
     ////////////
 

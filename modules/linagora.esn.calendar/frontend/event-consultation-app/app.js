@@ -9,7 +9,7 @@
     'esn.calendar',
     'esn.header',
     'esn.ical',
-    'esn.fcmoment',
+    'esn.calMoment',
     'esn.application-menu',
     'op.dynamicDirective',
     'mgcrea.ngStrap.popover'
@@ -22,8 +22,8 @@
 
   //mock parent calendars to be able to use the consult-form-directive
   angular.module('esn.calendar', [])
-    .service('eventAPI', angular.noop)
-    .service('masterEventCache', angular.noop);
+    .service('calEventAPI', angular.noop)
+    .service('calMasterEventCache', angular.noop);
 
   angular.module('esn.header', []).service('headerService', function() {});
 })();

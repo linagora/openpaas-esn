@@ -4,7 +4,7 @@
 
 var expect = chai.expect;
 
-describe('The eventUtils service', function() {
+describe('The calEventUtils service', function() {
   var element, fcTitle, fcTimeSpan, fcTime, fcContent, event, calendarService, self;
 
   function Element() {
@@ -103,12 +103,12 @@ describe('The eventUtils service', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function(eventUtils, $rootScope, fcMoment, CalendarShell, CALENDAR_MAX_DURATION_OF_SMALL_EVENT) {
-    this.eventUtils = eventUtils;
+  beforeEach(angular.mock.inject(function(calEventUtils, $rootScope, calMoment, CalendarShell, CALENDAR_MAX_DURATION_OF_SMALL_EVENT) {
+    this.calEventUtils = calEventUtils;
     this.$rootScope = $rootScope;
-    this.fcMoment = fcMoment;
+    this.calMoment = calMoment;
     this.CalendarShell = CalendarShell;
-    event.start = fcMoment('2016-10-06 09:00:00');
+    event.start = calMoment('2016-10-06 09:00:00');
     event.end = event.start.add(CALENDAR_MAX_DURATION_OF_SMALL_EVENT, 'minutes');
   }));
 
@@ -131,7 +131,7 @@ describe('The eventUtils service', function() {
         partstat: 'DECLINED'
       }];
 
-      this.eventUtils.applyReply(origEvent, reply);
+      this.calEventUtils.applyReply(origEvent, reply);
 
       expect(origEvent.attendees).to.shallowDeepEqual({
         0: {
@@ -150,7 +150,7 @@ describe('The eventUtils service', function() {
   describe('render function', function() {
     it('should add a title attribute if description is defined', function() {
       event.description = 'aDescription';
-      this.eventUtils.render(event, element);
+      this.calEventUtils.render(event, element);
       expect(this.escapeHTMLMock.escapeHTML).to.have.been.calledWith(event.description);
       expect(element.attributes.title).to.equal(this.escapeHTMLMockResult);
     });
@@ -160,7 +160,7 @@ describe('The eventUtils service', function() {
         email: userEmail,
         partstat: 'DECLINED'
       });
-      this.eventUtils.render(event, element);
+      this.calEventUtils.render(event, element);
       expect(element.class).to.deep.equal(['event-declined']);
     });
 
@@ -169,7 +169,7 @@ describe('The eventUtils service', function() {
         email: userEmail,
         partstat: 'ACCEPTED'
       });
-      this.eventUtils.render(event, element);
+      this.calEventUtils.render(event, element);
       expect(element.class).to.deep.equal(['event-accepted']);
     });
 
@@ -178,7 +178,7 @@ describe('The eventUtils service', function() {
         email: userEmail,
         partstat: 'NEEDS-ACTION'
       });
-      this.eventUtils.render(event, element);
+      this.calEventUtils.render(event, element);
       expect(element.class).to.deep.equal(['event-needs-action']);
     });
 
@@ -187,7 +187,7 @@ describe('The eventUtils service', function() {
         email: userEmail,
         partstat: 'TENTATIVE'
       });
-      this.eventUtils.render(event, element);
+      this.calEventUtils.render(event, element);
 
       expect(element.class).to.deep.equal(['event-tentative']);
     });
@@ -198,7 +198,7 @@ describe('The eventUtils service', function() {
         partstat: 'TENTATIVE'
       });
       fcTitle.prepend = sinon.spy();
-      this.eventUtils.render(event, element);
+      this.calEventUtils.render(event, element);
 
       expect(element.class).to.deep.equal(['event-tentative']);
       expect(fcTitle.prepend).to.have.been.calledOnce;
@@ -207,14 +207,14 @@ describe('The eventUtils service', function() {
     it('should add the event-is-instance class for instances', function() {
       delete element.innerElements['.fc-time span'];
       event.isInstance = function() { return true; };
-      this.eventUtils.render(event, element);
+      this.calEventUtils.render(event, element);
       expect(element.class).to.include('event-is-instance');
     });
 
-    it('should display event title instead of time if the event duration under the max duration of a small event', angular.mock.inject(function(fcMoment) {
+    it('should display event title instead of time if the event duration under the max duration of a small event', angular.mock.inject(function(calMoment) {
       element.innerElements['.fc-time'].length = 1;
       fcTime.attr = sinon.spy();
-      this.eventUtils.render(event, element);
+      this.calEventUtils.render(event, element);
 
       expect(fcTime.attr).to.have.been.calledWith('data-start', event.title);
     }));
@@ -223,7 +223,7 @@ describe('The eventUtils service', function() {
       event.organizer = {
         email: userEmail
       };
-      this.eventUtils.render(event, element);
+      this.calEventUtils.render(event, element);
       expect(event.startEditable).to.not.exist;
       expect(event.durationEditable).to.not.exist;
     });
@@ -235,7 +235,7 @@ describe('The eventUtils service', function() {
       event.attendees.push({
         email: userEmail
       });
-      this.eventUtils.render(event, element);
+      this.calEventUtils.render(event, element);
       expect(event.startEditable).to.be.false;
       expect(event.durationEditable).to.be.false;
     });
@@ -249,7 +249,7 @@ describe('The eventUtils service', function() {
         }
       };
 
-      expect(this.eventUtils.isOrganizer(event)).to.be.true;
+      expect(this.calEventUtils.isOrganizer(event)).to.be.true;
     });
 
     it('should return false when the event organizer is not the current user', function() {
@@ -259,11 +259,11 @@ describe('The eventUtils service', function() {
         }
       };
 
-      expect(this.eventUtils.isOrganizer(event)).to.be.false;
+      expect(this.calEventUtils.isOrganizer(event)).to.be.false;
     });
 
     it('should return true when the event is undefined', function() {
-      expect(this.eventUtils.isOrganizer(null)).to.be.true;
+      expect(this.calEventUtils.isOrganizer(null)).to.be.true;
     });
 
     it('should return true when the event organizer is undefined', function() {
@@ -271,166 +271,166 @@ describe('The eventUtils service', function() {
         organizer: null
       };
 
-      expect(this.eventUtils.isOrganizer(event)).to.be.true;
+      expect(this.calEventUtils.isOrganizer(event)).to.be.true;
     });
   });
 
   describe('hasSignificantChange function', function() {
     it('should return true when the events do not have the same start date', function() {
       var newEvent = this.CalendarShell.fromIncompleteShell({
-        start: this.fcMoment('2015-01-01 09:00:00'),
-        end: this.fcMoment('2015-01-01 10:00:00')
+        start: this.calMoment('2015-01-01 09:00:00'),
+        end: this.calMoment('2015-01-01 10:00:00')
       });
       var oldEvent = this.CalendarShell.fromIncompleteShell({
-        start: this.fcMoment('2015-01-01 08:00:00'),
-        end: this.fcMoment('2015-01-01 10:00:00')
+        start: this.calMoment('2015-01-01 08:00:00'),
+        end: this.calMoment('2015-01-01 10:00:00')
       });
 
-      expect(this.eventUtils.hasSignificantChange(oldEvent, newEvent)).to.be.true;
+      expect(this.calEventUtils.hasSignificantChange(oldEvent, newEvent)).to.be.true;
     });
 
     it('should return true when the events do not have the same end date', function() {
       var newEvent = this.CalendarShell.fromIncompleteShell({
-        start: this.fcMoment('2015-01-01 09:00:00'),
-        end: this.fcMoment('2015-01-01 10:00:00')
+        start: this.calMoment('2015-01-01 09:00:00'),
+        end: this.calMoment('2015-01-01 10:00:00')
       });
       var oldEvent = this.CalendarShell.fromIncompleteShell({
-        start: this.fcMoment('2015-01-01 09:00:00'),
-        end: this.fcMoment('2015-01-01 11:00:00')
+        start: this.calMoment('2015-01-01 09:00:00'),
+        end: this.calMoment('2015-01-01 11:00:00')
       });
 
-      expect(this.eventUtils.hasSignificantChange(oldEvent, newEvent)).to.be.true;
+      expect(this.calEventUtils.hasSignificantChange(oldEvent, newEvent)).to.be.true;
     });
 
     it('should return true when the events do not have the same due property', function() {
       var newEvent = this.CalendarShell.fromIncompleteShell({
-        start: this.fcMoment('2015-01-01 09:00:00'),
-        end: this.fcMoment('2015-01-01 11:00:00'),
+        start: this.calMoment('2015-01-01 09:00:00'),
+        end: this.calMoment('2015-01-01 11:00:00'),
         due: 'due1'
       });
       var oldEvent = this.CalendarShell.fromIncompleteShell({
-        start: this.fcMoment('2015-01-01 09:00:00'),
-        end: this.fcMoment('2015-01-01 11:00:00'),
+        start: this.calMoment('2015-01-01 09:00:00'),
+        end: this.calMoment('2015-01-01 11:00:00'),
         due: 'due2'
       });
 
-      expect(this.eventUtils.hasSignificantChange(oldEvent, newEvent)).to.be.true;
+      expect(this.calEventUtils.hasSignificantChange(oldEvent, newEvent)).to.be.true;
     });
 
     it('should return true when the events do not have the same rrule', function() {
       var newEvent = this.CalendarShell.fromIncompleteShell({
-        start: this.fcMoment('2015-01-01 09:00:00'),
-        end: this.fcMoment('2015-01-01 11:00:00'),
+        start: this.calMoment('2015-01-01 09:00:00'),
+        end: this.calMoment('2015-01-01 11:00:00'),
         due: 'due',
         rrule: {
-          until: this.fcMoment('2015-01-03 11:00:00').toDate()
+          until: this.calMoment('2015-01-03 11:00:00').toDate()
         }
       });
       var oldEvent = this.CalendarShell.fromIncompleteShell({
-        start: this.fcMoment('2015-01-01 09:00:00'),
-        end: this.fcMoment('2015-01-01 11:00:00'),
+        start: this.calMoment('2015-01-01 09:00:00'),
+        end: this.calMoment('2015-01-01 11:00:00'),
         due: 'due',
         rrule: {
-          until: this.fcMoment('2015-01-02 11:00:00').toDate()
+          until: this.calMoment('2015-01-02 11:00:00').toDate()
         }
       });
 
-      expect(this.eventUtils.hasSignificantChange(oldEvent, newEvent)).to.be.true;
+      expect(this.calEventUtils.hasSignificantChange(oldEvent, newEvent)).to.be.true;
     });
 
     it('should return true when the events do not have the same exdate', function() {
       var newEvent = this.CalendarShell.fromIncompleteShell({
-        start: this.fcMoment('2015-01-01 09:00:00'),
-        end: this.fcMoment('2015-01-01 11:00:00'),
+        start: this.calMoment('2015-01-01 09:00:00'),
+        end: this.calMoment('2015-01-01 11:00:00'),
         due: 'due',
         rrule: {
           frequency: 1
         },
         exdate: [
-          this.fcMoment('2015-01-02 11:00:00')
+          this.calMoment('2015-01-02 11:00:00')
         ]
       });
       var oldEvent = this.CalendarShell.fromIncompleteShell({
-        start: this.fcMoment('2015-01-01 09:00:00'),
-        end: this.fcMoment('2015-01-01 11:00:00'),
+        start: this.calMoment('2015-01-01 09:00:00'),
+        end: this.calMoment('2015-01-01 11:00:00'),
         due: 'due',
         rrule: {
           frequency: 1
         },
         exdate: [
-          this.fcMoment('2015-01-03 11:00:00')
+          this.calMoment('2015-01-03 11:00:00')
         ]
       });
 
-      expect(this.eventUtils.hasSignificantChange(oldEvent, newEvent)).to.be.true;
+      expect(this.calEventUtils.hasSignificantChange(oldEvent, newEvent)).to.be.true;
     });
 
     it('should return true when the events do not have the same status', function() {
       var newEvent = this.CalendarShell.fromIncompleteShell({
-        start: this.fcMoment('2015-01-01 09:00:00'),
-        end: this.fcMoment('2015-01-01 11:00:00'),
+        start: this.calMoment('2015-01-01 09:00:00'),
+        end: this.calMoment('2015-01-01 11:00:00'),
         due: 'due',
         rrule: {
           frequency: 1
         },
         exdate: [
-          this.fcMoment('2015-01-02 11:00:00')
+          this.calMoment('2015-01-02 11:00:00')
         ],
         status: 'REFUSED'
       });
       var oldEvent = this.CalendarShell.fromIncompleteShell({
-        start: this.fcMoment('2015-01-01 09:00:00'),
-        end: this.fcMoment('2015-01-01 11:00:00'),
+        start: this.calMoment('2015-01-01 09:00:00'),
+        end: this.calMoment('2015-01-01 11:00:00'),
         due: 'due',
         rrule: {
           frequency: 1
         },
         exdate: [
-          this.fcMoment('2015-01-02 11:00:00')
+          this.calMoment('2015-01-02 11:00:00')
         ],
         status: 'ACCEPTED'
       });
 
-      expect(this.eventUtils.hasSignificantChange(oldEvent, newEvent)).to.be.true;
+      expect(this.calEventUtils.hasSignificantChange(oldEvent, newEvent)).to.be.true;
     });
 
     it('should return false when the events are the same', function() {
       var newEvent = this.CalendarShell.fromIncompleteShell({
-        start: this.fcMoment('2015-01-01 09:00:00'),
-        end: this.fcMoment('2015-01-01 11:00:00'),
+        start: this.calMoment('2015-01-01 09:00:00'),
+        end: this.calMoment('2015-01-01 11:00:00'),
         due: 'due',
         rrule: {
           frequency: 1
         },
         exdate: [
-          this.fcMoment('2015-01-02 11:00:00')
+          this.calMoment('2015-01-02 11:00:00')
         ],
         status: 'ACCEPTED'
       });
       var oldEvent = this.CalendarShell.fromIncompleteShell({
-        start: this.fcMoment('2015-01-01 09:00:00'),
-        end: this.fcMoment('2015-01-01 11:00:00'),
+        start: this.calMoment('2015-01-01 09:00:00'),
+        end: this.calMoment('2015-01-01 11:00:00'),
         due: 'due',
         rrule: {
           frequency: 1
         },
         exdate: [
-          this.fcMoment('2015-01-02 11:00:00')
+          this.calMoment('2015-01-02 11:00:00')
         ],
         status: 'ACCEPTED'
       });
 
-      expect(this.eventUtils.hasSignificantChange(oldEvent, newEvent)).to.be.false;
+      expect(this.calEventUtils.hasSignificantChange(oldEvent, newEvent)).to.be.false;
     });
   });
 
   describe('isNew function', function() {
     it('should return true if event.id is undefined', function() {
-      expect(this.eventUtils.isNew({})).to.be.true;
+      expect(this.calEventUtils.isNew({})).to.be.true;
     });
 
     it('should return false if event.etag is defined', function() {
-      expect(this.eventUtils.isNew({etag: '123'})).to.be.false;
+      expect(this.calEventUtils.isNew({etag: '123'})).to.be.false;
     });
   });
 
@@ -444,24 +444,24 @@ describe('The eventUtils service', function() {
 
       var calendars = [{id: 'woodstock', color: 'pink'}, {id: 'altamont', color: 'black'}];
 
-      expect(this.eventUtils.setBackgroundColor(event, calendars)).to.equal(event);
+      expect(this.calEventUtils.setBackgroundColor(event, calendars)).to.equal(event);
       expect(event.backgroundColor).to.equal('black');
     });
   });
 
   describe('hasAttendees fn', function() {
     it('should return false when undefined', function() {
-      expect(this.eventUtils.hasAttendees({})).to.be.false;
+      expect(this.calEventUtils.hasAttendees({})).to.be.false;
     });
 
     it('should return false when = 0 ', function() {
-      expect(this.eventUtils.hasAttendees({
+      expect(this.calEventUtils.hasAttendees({
         attendees: []
       })).to.be.false;
     });
 
     it('should return true when > 0', function() {
-      expect(this.eventUtils.hasAttendees({
+      expect(this.calEventUtils.hasAttendees({
         attendees: ['1']
       })).to.be.true;
     });

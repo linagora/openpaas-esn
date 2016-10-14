@@ -5,20 +5,20 @@
          .constant('CACHED_EVENT_SOURCE_ADD', 'add')
          .constant('CACHED_EVENT_SOURCE_DELETE', 'delete')
          .constant('CACHED_EVENT_SOURCE_UPDATE', 'update')
-         .factory('cachedEventSource', cachedEventSource);
+         .factory('calCachedEventSource', calCachedEventSource);
 
-  cachedEventSource.$inject = [
+  calCachedEventSource.$inject = [
     '$q',
     '_',
     'calendarExploredPeriodService',
-    'eventStore',
+    'calEventStore',
     'CACHED_EVENT_SOURCE_ADD',
     'CACHED_EVENT_SOURCE_DELETE',
     'CACHED_EVENT_SOURCE_UPDATE',
     'CALENDAR_GRACE_DELAY'
   ];
 
-  function cachedEventSource($q, _, calendarExploredPeriodService, eventStore, CACHED_EVENT_SOURCE_ADD, CACHED_EVENT_SOURCE_DELETE, CACHED_EVENT_SOURCE_UPDATE) {
+  function calCachedEventSource($q, _, calendarExploredPeriodService, calEventStore, CACHED_EVENT_SOURCE_ADD, CACHED_EVENT_SOURCE_DELETE, CACHED_EVENT_SOURCE_UPDATE) {
     var changes = {};
 
     var service = {
@@ -132,11 +132,11 @@
       var period = {start: start, end: end};
 
       if (calendarExploredPeriodService.getUnexploredPeriodsInPeriod(calId, period).length === 0) {
-        defer.resolve(eventStore.getInPeriod(calId, period));
+        defer.resolve(calEventStore.getInPeriod(calId, period));
       } else {
         calendarSource(start, end, timezone, function(events) {
           calendarExploredPeriodService.registerExploredPeriod(calId, period);
-          events.map(eventStore.save);
+          events.map(calEventStore.save);
           defer.resolve(events);
         });
       }
@@ -154,7 +154,7 @@
 
     function resetCache() {
       changes = {};
-      eventStore.reset();
+      calEventStore.reset();
       calendarExploredPeriodService.reset();
     }
   }

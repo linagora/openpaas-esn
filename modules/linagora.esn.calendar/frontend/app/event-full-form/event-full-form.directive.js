@@ -2,14 +2,14 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .directive('eventFullForm', eventFullForm);
+         .directive('calEventFullForm', calEventFullForm);
 
-  eventFullForm.$inject = [
+  calEventFullForm.$inject = [
     '$timeout',
-    'eventUtils'
+    'calEventUtils'
   ];
 
-  function eventFullForm($timeout, eventUtils) {
+  function calEventFullForm($timeout, calEventUtils) {
     var directive = {
       restrict: 'E',
       templateUrl: '/calendar/app/event-full-form/event-full-form.html',
@@ -18,7 +18,7 @@
       },
       link: link,
       replace: true,
-      controller: 'eventFormController'
+      controller: 'calEventFormController'
     };
 
     return directive;
@@ -27,7 +27,7 @@
 
     function link(scope, element) { // eslint-disable-line
       $timeout(focusTitle, 0);
-      element.on('$destroy', eventUtils.resetStoredEvents);
+      element.on('$destroy', calEventUtils.resetStoredEvents);
 
       ////////////
 

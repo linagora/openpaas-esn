@@ -5,10 +5,10 @@
          .factory('calendarUtils', calendarUtils);
 
   calendarUtils.$inject = [
-    'fcMoment'
+    'calMoment'
   ];
 
-  function calendarUtils(fcMoment) {
+  function calendarUtils(calMoment) {
     var service = {
       prependMailto: prependMailto,
       removeMailto: removeMailto,
@@ -58,10 +58,10 @@
     }
 
     /**
-     * Return a fcMoment representing (the next half hour) starting from Date.now()
+     * Return a calMoment representing (the next half hour) starting from Date.now()
      */
     function getNewStartDate() {
-      var now = fcMoment();
+      var now = calMoment();
       var minute = now.minute();
 
       now.endOf('hour');
@@ -74,7 +74,7 @@
     }
 
     /**
-     * Return a fcMoment representing the result of getNewStartDate + one hour
+     * Return a calMoment representing the result of getNewStartDate + one hour
      */
     function getNewEndDate() {
       return getNewStartDate().add(1, 'hours');
@@ -87,7 +87,7 @@
      */
     function getDateOnCalendarSelect(start, end) {
       if (end.diff(start, 'minutes') === 30) {
-        var newEnd = fcMoment(start).add(1, 'hours');
+        var newEnd = calMoment(start).add(1, 'hours');
 
         return { start: start, end: newEnd };
       } else {

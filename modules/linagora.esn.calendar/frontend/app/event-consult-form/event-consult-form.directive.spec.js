@@ -5,15 +5,15 @@
 
 var expect = chai.expect;
 
-describe('The event-consult-form Angular module directives', function() {
+describe('The cal-event-consult-form Angular module directives', function() {
   var updateAlarmSpy;
 
-  describe('the eventConsultForm directive', function() {
+  describe('the calEventConsultForm directive', function() {
     beforeEach(function() {
       module('jadeTemplates');
       angular.mock.module('esn.calendar');
       updateAlarmSpy = sinon.spy(function() {});
-      this.eventFormControllerMock = function($scope) {
+      this.calEventFormControllerMock = function($scope) {
         $scope.initFormData = function() {
         };
         $scope.updateAlarm = updateAlarmSpy;
@@ -22,16 +22,16 @@ describe('The event-consult-form Angular module directives', function() {
       var self = this;
 
       angular.mock.module(function($provide, $controllerProvider) {
-        $controllerProvider.register('eventFormController', self.eventFormControllerMock);
+        $controllerProvider.register('calEventFormController', self.calEventFormControllerMock);
         $provide.factory('eventAlarmConsultationDirective', function() { return {}; });
       });
     });
 
-    beforeEach(angular.mock.inject(function($compile, $rootScope, $window, fcMoment, CONSULT_FORM_TABS, CalendarShell, moment) {
+    beforeEach(angular.mock.inject(function($compile, $rootScope, $window, calMoment, CONSULT_FORM_TABS, CalendarShell, moment) {
       this.$compile = $compile;
       this.$rootScope = $rootScope;
       this.$scope = this.$rootScope.$new();
-      this.fcMoment = fcMoment;
+      this.calMoment = calMoment;
       this.$window = $window;
       this.TABS = CONSULT_FORM_TABS;
       this.CalendarShell = CalendarShell;
@@ -39,13 +39,13 @@ describe('The event-consult-form Angular module directives', function() {
 
       this.$scope.event = {
         allDay: true,
-        start: this.fcMoment('2013-02-08 12:30'),
-        end: this.fcMoment('2013-02-08 13:30'),
+        start: this.calMoment('2013-02-08 12:30'),
+        end: this.calMoment('2013-02-08 13:30'),
         location: 'aLocation'
       };
 
       this.initDirective = function(scope) {
-        var html = '<event-consult-form event="event"/>';
+        var html = '<cal-event-consult-form event="event"/>';
         var element = this.$compile(html)(scope);
 
         scope.$digest();

@@ -2,14 +2,14 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .directive('toggleCalendarView', toggleCalendarView);
+         .directive('calToggleView', calToggleView);
 
-  toggleCalendarView.$inject = [
+  calToggleView.$inject = [
     'CALENDAR_EVENTS',
     '$rootScope'
   ];
 
-  function toggleCalendarView(CALENDAR_EVENTS, $rootScope) {
+  function calToggleView(CALENDAR_EVENTS, $rootScope) {
     var directive = {
       restrict: 'A',
       scope: true,
@@ -23,7 +23,7 @@
 
     function link(scope, element, attrs) { // eslint-disable-line
       element.on('click', function() {
-        $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW_MODE, attrs.toggleCalendarView);
+        $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW_MODE, attrs.calToggleView);
       });
     }
   }

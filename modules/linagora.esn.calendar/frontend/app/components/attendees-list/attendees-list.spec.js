@@ -11,7 +11,7 @@ describe('The attendees-list component', function() {
     angular.mock.module('esn.calendar');
   });
 
-  describe('attendeesList directive', function() {
+  describe('calAttendeesList directive', function() {
     beforeEach(angular.mock.inject(function($rootScope, $compile, moment, CALENDAR_EVENTS) {
       this.$rootScope = $rootScope;
       this.$scope = this.$rootScope.$new();
@@ -30,7 +30,7 @@ describe('The attendees-list component', function() {
       this.$scope.organizer = { email: 'organizer@openpaas.org' };
 
       this.initDirective = function(scope) {
-        var html = '<attendees-list attendees="attendees" organizer="organizer"/>';
+        var html = '<cal-attendees-list attendees="attendees" organizer="organizer"/>';
         var element = this.$compile(html)(scope);
 
         scope.$digest();

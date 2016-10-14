@@ -2,22 +2,22 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .factory('eventsProviders', eventsProviders);
+         .factory('calEventsProviders', calEventsProviders);
 
-  eventsProviders.$inject = [
+  calEventsProviders.$inject = [
     '$log',
     '$q',
     '$rootScope',
     'calendarHomeService',
     'calendarService',
-    'eventService',
+    'calEventService',
     'newProvider',
     'searchProviders',
     'CALENDAR_EVENTS',
     'ELEMENTS_PER_REQUEST'
   ];
 
-  function eventsProviders($log, $q, $rootScope, calendarHomeService, calendarService, eventService, newProvider, searchProviders, CALENDAR_EVENTS, ELEMENTS_PER_REQUEST) {
+  function calEventsProviders($log, $q, $rootScope, calendarHomeService, calendarService, calEventService, newProvider, searchProviders, CALENDAR_EVENTS, ELEMENTS_PER_REQUEST) {
     var service = {
       setUpSearchProviders: setUpSearchProviders,
       getAll: getAll,
@@ -47,7 +47,7 @@
               limit: ELEMENTS_PER_REQUEST
             };
 
-            return eventService.searchEvents(calendar.id, context)
+            return calEventService.searchEvents(calendar.id, context)
               .then(function(events) {
                 offset += events.length;
 

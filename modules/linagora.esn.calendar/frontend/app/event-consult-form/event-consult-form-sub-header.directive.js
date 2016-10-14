@@ -2,9 +2,9 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .directive('eventConsultFormSubheader', eventConsultFormSubheader);
+         .directive('calEventConsultFormSubheader', calEventConsultFormSubheader);
 
-  function eventConsultFormSubheader() {
+  function calEventConsultFormSubheader() {
     var directive = {
       restrict: 'E',
       templateUrl: '/calendar/app/event-consult-form/event-consult-form-sub-header.html',

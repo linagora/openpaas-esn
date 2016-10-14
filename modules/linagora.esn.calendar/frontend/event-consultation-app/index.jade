@@ -56,7 +56,7 @@ html
     script(src='calendar/app/calendar/calendar-header/calendar-header-mobile.directive.js')
     script(src='calendar/app/calendar/calendar-header/calendar-header-content.directive.js')
     script(src='calendar/app/calendar/calendar-left-pane/calendar-left-pane.directive.js')
-    
+
     script.
       angular.module('esn.calendar.event-consultation').controller('eventController', function($scope) {
          $scope.eventJSON = "#{eventJSON}";
@@ -71,9 +71,9 @@ html
         ul.list-inline.all-centered
           li.logo
             a(href='#')
-                img.openpaas-logo(src="/images/white-logo.svg", alt='#{__("OpenPaas Logo")}')
+              img.openpaas-logo(src="/images/white-logo.svg", alt='#{__("OpenPaas Logo")}')
         ul.list-inline.all-centered
           li.hover-scale-animation
             application-menu-toggler
     .consultation-body(ng-view ng-cloak)
-      event-consult-form-external-user
+      cal-event-consult-form-external-user

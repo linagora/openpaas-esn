@@ -2,14 +2,14 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .factory('masterEventCache', masterEventCache);
+         .factory('calMasterEventCache', calMasterEventCache);
 
-  masterEventCache.$inject = [
+  calMasterEventCache.$inject = [
     '$timeout',
     'MASTER_EVENT_CACHE_TTL'
   ];
 
-  function masterEventCache($timeout, MASTER_EVENT_CACHE_TTL) {
+  function calMasterEventCache($timeout, MASTER_EVENT_CACHE_TTL) {
     var map = {};
     var service = {
       save: save,

@@ -2,9 +2,9 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .factory('eventMessageService', eventMessageService);
+         .factory('calEventMessageService', calEventMessageService);
 
-  function eventMessageService() {
+  function calEventMessageService() {
     var service = {
       computeAttendeeStats: computeAttendeeStats
     };

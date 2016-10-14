@@ -4,7 +4,7 @@
 
 var expect = chai.expect;
 
-describe('The event-message Angular module directives', function() {
+describe('The cal-event-message Angular module directives', function() {
 
   var self = this;
 
@@ -13,13 +13,13 @@ describe('The event-message Angular module directives', function() {
   });
 
   describe('The event message service', function() {
-    beforeEach(angular.mock.inject(function(eventMessageService) {
-      self.eventMessageService = eventMessageService;
+    beforeEach(angular.mock.inject(function(calEventMessageService) {
+      self.calEventMessageService = calEventMessageService;
     }));
 
     it('should not fail for empty and null attendee', function() {
       [null, [], undefined].forEach(function(nullAttendees) {
-        expect(self.eventMessageService.computeAttendeeStats(nullAttendees)).to.deep.equal({
+        expect(self.calEventMessageService.computeAttendeeStats(nullAttendees)).to.deep.equal({
           'NEEDS-ACTION': 0,
           ACCEPTED: 0,
           TENTATIVE: 0,
@@ -39,7 +39,7 @@ describe('The event-message Angular module directives', function() {
       var other3 = { partstat: 'eless' };
       var attendees = [needAction, other1, accepted, other2, tentative, other3, declined, accepted, tentative];
 
-      expect(self.eventMessageService.computeAttendeeStats(attendees)).to.deep.equal({
+      expect(self.calEventMessageService.computeAttendeeStats(attendees)).to.deep.equal({
         'NEEDS-ACTION': 1,
         ACCEPTED: 2,
         TENTATIVE: 2,

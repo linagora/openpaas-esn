@@ -2,64 +2,62 @@
   'use strict';
 
   angular.module('esn.calendar')
-    .factory('RightSet', RightSet);
+    .factory('CalRightSet', CalRightSetFactory);
 
-  RightSet.$inject = [];
-
-  function RightSet() {
+  function CalRightSetFactory() {
     var webdavStringToConstantDict, calendarShareeRightConstantToRightConstantDict;
 
-    RightSet.FREE_BUSY = 1;
-    RightSet.READ = 2;
-    RightSet.WRITE = 4;
-    RightSet.WRITE_PROPERTIES = 8;
-    RightSet.SHARE = 16;
-    RightSet.SHAREE_READ = 32;
-    RightSet.SHAREE_READWRITE = 64;
-    RightSet.SHAREE_SHAREDOWNER = 128;
+    CalRightSet.FREE_BUSY = 1;
+    CalRightSet.READ = 2;
+    CalRightSet.WRITE = 4;
+    CalRightSet.WRITE_PROPERTIES = 8;
+    CalRightSet.SHARE = 16;
+    CalRightSet.SHAREE_READ = 32;
+    CalRightSet.SHAREE_READWRITE = 64;
+    CalRightSet.SHAREE_SHAREDOWNER = 128;
 
-    RightSet.calendarShareeIntToConstant = calendarShareeIntToConstant;
-    RightSet.webdavStringToConstant = webdavStringToConstant;
+    CalRightSet.calendarShareeIntToConstant = calendarShareeIntToConstant;
+    CalRightSet.webdavStringToConstant = webdavStringToConstant;
 
-    RightSet.prototype.addPermission = addPermission;
-    RightSet.prototype.addPermissions = addPermissions;
-    RightSet.prototype.clone = clone;
-    RightSet.prototype.equals = equals;
-    RightSet.prototype.hasAtLeastAllOfThosePermissions = hasAtLeastAllOfThosePermissions;
-    RightSet.prototype.hasAtLeastOneOfThosePermissions = hasAtLeastOneOfThosePermissions;
-    RightSet.prototype.hasNoneOfThosePermissions = hasNoneOfThosePermissions;
-    RightSet.prototype.hasOnlyThosePermissions = hasOnlyThosePermissions;
-    RightSet.prototype.hasPermission = hasPermission;
-    RightSet.prototype.isEmpty = isEmpty;
-    RightSet.prototype.removePermission = removePermission;
-    RightSet.prototype.removePermissions = removePermissions;
-    RightSet.prototype.toJson = toJson;
-    RightSet.prototype.toString = toString;
+    CalRightSet.prototype.addPermission = addPermission;
+    CalRightSet.prototype.addPermissions = addPermissions;
+    CalRightSet.prototype.clone = clone;
+    CalRightSet.prototype.equals = equals;
+    CalRightSet.prototype.hasAtLeastAllOfThosePermissions = hasAtLeastAllOfThosePermissions;
+    CalRightSet.prototype.hasAtLeastOneOfThosePermissions = hasAtLeastOneOfThosePermissions;
+    CalRightSet.prototype.hasNoneOfThosePermissions = hasNoneOfThosePermissions;
+    CalRightSet.prototype.hasOnlyThosePermissions = hasOnlyThosePermissions;
+    CalRightSet.prototype.hasPermission = hasPermission;
+    CalRightSet.prototype.isEmpty = isEmpty;
+    CalRightSet.prototype.removePermission = removePermission;
+    CalRightSet.prototype.removePermissions = removePermissions;
+    CalRightSet.prototype.toJson = toJson;
+    CalRightSet.prototype.toString = toString;
 
     initConstant();
 
-    return RightSet;
+    return CalRightSet;
 
     /////////////////
 
     function initConstant() {
       webdavStringToConstantDict = {
-        '{DAV:}share': RightSet.SHARE,
-        '{DAV:}read': RightSet.READ,
-        '{DAV:}write': RightSet.WRITE,
-        '{DAV:}write-properties': RightSet.WRITE_PROPERTIES,
-        '{urn:ietf:params:xml:ns:caldav}read-free-busy': RightSet.FREE_BUSY
+        '{DAV:}share': CalRightSet.SHARE,
+        '{DAV:}read': CalRightSet.READ,
+        '{DAV:}write': CalRightSet.WRITE,
+        '{DAV:}write-properties': CalRightSet.WRITE_PROPERTIES,
+        '{urn:ietf:params:xml:ns:caldav}read-free-busy': CalRightSet.FREE_BUSY
       };
 
       calendarShareeRightConstantToRightConstantDict = {
-        1: RightSet.SHAREE_SHAREDOWNER,
-        2: RightSet.SHAREE_READ,
-        3: RightSet.SHAREE_READWRITE
+        1: CalRightSet.SHAREE_SHAREDOWNER,
+        2: CalRightSet.SHAREE_READ,
+        3: CalRightSet.SHAREE_READWRITE
       };
     }
 
     /* eslint-disable no-bitwise */
-    function RightSet(initialPermission) {
+    function CalRightSet(initialPermission) {
       this.bitVector = 0;
       if (initialPermission || initialPermission === 0) {
         this.addPermission(initialPermission);
@@ -76,8 +74,6 @@
       var result = webdavStringToConstantDict[string];
 
       if (!result) {
-        console.log('string', string);
-        console.log('webdavStringToConstantDict', webdavStringToConstantDict);
         throw new Error('Unknown webdavString : ' + string);
       }
 
@@ -98,14 +94,14 @@
       var result = [];
       var constToString = {};
 
-      constToString[RightSet.FREE_BUSY] = 'FREE_BUSY';
-      constToString[RightSet.READ] = 'READ';
-      constToString[RightSet.WRITE] = 'WRITE';
-      constToString[RightSet.WRITE_PROPERTIES] = 'WRITE_PROPERTIES';
-      constToString[RightSet.SHARE] = 'SHARE';
-      constToString[RightSet.SHAREE_READ] = 'SHAREE_READ';
-      constToString[RightSet.SHAREE_READWRITE] = 'SHAREE_READWRITE';
-      constToString[RightSet.SHAREE_SHAREDOWNER] = 'SHAREE_SHAREDOWNER';
+      constToString[CalRightSet.FREE_BUSY] = 'FREE_BUSY';
+      constToString[CalRightSet.READ] = 'READ';
+      constToString[CalRightSet.WRITE] = 'WRITE';
+      constToString[CalRightSet.WRITE_PROPERTIES] = 'WRITE_PROPERTIES';
+      constToString[CalRightSet.SHARE] = 'SHARE';
+      constToString[CalRightSet.SHAREE_READ] = 'SHAREE_READ';
+      constToString[CalRightSet.SHAREE_READWRITE] = 'SHAREE_READWRITE';
+      constToString[CalRightSet.SHAREE_SHAREDOWNER] = 'SHAREE_SHAREDOWNER';
 
       angular.forEach(constToString, function(string, constant) {
         if (this.hasAtLeastAllOfThosePermissions([parseInt(constant, 10)])) {
@@ -113,7 +109,7 @@
         }
       }, this);
 
-      return 'RightSet(' + (result.length ? result.join(', ') : 'no right') + ')';
+      return 'CalRightSet(' + (result.length ? result.join(', ') : 'no right') + ')';
     }
 
     function addPermission(permission) {
@@ -180,7 +176,7 @@
     }
 
     function clone() {
-      var clone = new RightSet();
+      var clone = new CalRightSet();
       clone.bitVector = this.bitVector;
 
       return clone;

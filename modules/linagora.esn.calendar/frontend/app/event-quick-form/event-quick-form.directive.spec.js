@@ -5,38 +5,38 @@
 
 var expect = chai.expect;
 
-describe('The event-quick-form Angular module directives', function() {
+describe('The cal-event-quick-form Angular module directives', function() {
   beforeEach(function() {
     module('jadeTemplates');
     angular.mock.module('esn.calendar');
-    this.eventUtilsMock = {};
-    this.eventFormControllerMock = function($scope) {
+    this.calEventUtilsMock = {};
+    this.calEventFormControllerMock = function($scope) {
       $scope.initFormData = function() {};
     };
     var self = this;
 
     angular.mock.module(function($provide, $controllerProvider) {
-      $controllerProvider.register('eventFormController', self.eventFormControllerMock);
-      $provide.value('eventUtils', self.eventUtilsMock);
+      $controllerProvider.register('calEventFormController', self.calEventFormControllerMock);
+      $provide.value('calEventUtils', self.calEventUtilsMock);
     });
   });
 
-  beforeEach(angular.mock.inject(function($timeout, $compile, $rootScope, fcMoment) {
+  beforeEach(angular.mock.inject(function($timeout, $compile, $rootScope, calMoment) {
     this.$timeout = $timeout;
     this.$compile = $compile;
     this.$rootScope = $rootScope;
     this.$scope = this.$rootScope.$new();
-    this.fcMoment = fcMoment;
+    this.calMoment = calMoment;
 
     this.$scope.editedEvent = {
       allDay: true,
-      start: this.fcMoment('2013-02-08 12:30'),
-      end: this.fcMoment('2013-02-08 13:30'),
+      start: this.calMoment('2013-02-08 12:30'),
+      end: this.calMoment('2013-02-08 13:30'),
       location: 'aLocation'
     };
 
     this.initDirective = function(scope) {
-      var html = '<event-quick-form/>';
+      var html = '<cal-event-quick-form/>';
       var element = this.$compile(html)(scope);
 
       scope.$digest();
@@ -45,8 +45,8 @@ describe('The event-quick-form Angular module directives', function() {
     };
   }));
 
-  it('should reset eventUtils events by calling resetStoredEvents on element $destroy', function(done) {
-    this.eventUtilsMock.resetStoredEvents = function() {
+  it('should reset calEventUtils events by calling resetStoredEvents on element $destroy', function(done) {
+    this.calEventUtilsMock.resetStoredEvents = function() {
       done();
     };
     var element = this.initDirective(this.$scope);

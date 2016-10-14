@@ -22,7 +22,7 @@
     'esn.authentication',
     'esn.form.helper',
     'esn.ical',
-    'esn.fcmoment',
+    'esn.calMoment',
     'esn.community',
     'esn.notification',
     'esn.widget.helper',
@@ -138,10 +138,10 @@
           }
         },
         resolve: {
-          event: function($stateParams, $state, pathBuilder, eventService, eventUtils, notificationFactory) {
-            var eventPath = pathBuilder.forEventId($stateParams.calendarHomeId, $stateParams.eventId);
+          event: function($stateParams, $state, calPathBuilder, calEventService, calEventUtils, notificationFactory) {
+            var eventPath = calPathBuilder.forEventId($stateParams.calendarHomeId, $stateParams.eventId);
 
-            return eventUtils.getEditedEvent() || eventService.getEvent(eventPath).catch(function(error) {
+            return calEventUtils.getEditedEvent() || calEventService.getEvent(eventPath).catch(function(error) {
               if (error.status !== 404) {
                 notificationFactory.weakError('Cannot display the requested event, an error occured: ', error.statusText);
               }
@@ -154,7 +154,7 @@
         url: '/form',
         views: {
           content: {
-            template: '<event-full-form event="event"/>',
+            template: '<cal-event-full-form event="event"/>',
             controller: function($scope, event) {
               $scope.event = event;
             }
@@ -165,7 +165,7 @@
         url: '/consult',
         views: {
           content: {
-            template: '<event-consult-form event="event"/>',
+            template: '<cal-event-consult-form event="event"/>',
             controller: function($scope, event) {
               $scope.event = event;
             }
@@ -177,8 +177,8 @@
 
       dynamicDirectiveServiceProvider.addInjection('esn-application-menu', calendar);
     })
-    .run(function(eventsProviders, registerTimezones) {
-      registerTimezones();
-      eventsProviders.setUpSearchProviders();
+    .run(function(calEventsProviders, calRegisterTimezones) {
+      calRegisterTimezones();
+      calEventsProviders.setUpSearchProviders();
     });
 })();

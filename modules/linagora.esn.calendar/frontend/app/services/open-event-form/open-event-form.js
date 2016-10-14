@@ -10,19 +10,19 @@
    * This service will open the correct form corresponding to the event and the screen size.
    */
   angular.module('esn.calendar')
-         .factory('openEventForm', openEventForm);
+         .factory('calOpenEventForm', calOpenEventForm);
 
-  openEventForm.$inject = [
+  calOpenEventForm.$inject = [
     '$modal',
     '$state',
     'screenSize',
     'calendarService',
-    'eventUtils'
+    'calEventUtils'
   ];
 
-  function openEventForm($modal, $state, screenSize, calendarService, eventUtils) {
+  function calOpenEventForm($modal, $state, screenSize, calendarService, calEventUtils) {
 
-    return function openEventForm(event) {
+    return function calOpenEventForm(event) {
       if (!event.isInstance()) {
         _openForm(event);
       } else {
@@ -33,9 +33,9 @@
     ////////////
 
     function _openForm(event) {
-      eventUtils.setEditedEvent(event);
+      calEventUtils.setEditedEvent(event);
       if (screenSize.is('xs, sm')) {
-        if (eventUtils.isOrganizer(event)) {
+        if (calEventUtils.isOrganizer(event)) {
           $state.go('calendar.event.form', {calendarId: calendarService.calendarHomeId, eventId: event.id});
         } else {
           $state.go('calendar.event.consult', {calendarId: calendarService.calendarHomeId, eventId: event.id});
@@ -44,8 +44,8 @@
         $modal({
           templateUrl: '/calendar/app/services/open-event-form/event-quick-form-view',
           resolve: {
-            event: function(eventUtils) {
-              return eventUtils.getEditedEvent();
+            event: function(calEventUtils) {
+              return calEventUtils.getEditedEvent();
             }
           },
           controller: function($scope, event) {

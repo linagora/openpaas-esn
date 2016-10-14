@@ -6,7 +6,7 @@
 
 var expect = chai.expect;
 
-describe('The event-message Angular module directives', function() {
+describe('The cal-event-message Angular module directives', function() {
 
   var self = this;
 
@@ -35,7 +35,7 @@ describe('The event-message Angular module directives', function() {
         }
       };
 
-      self.eventServiceMock = {
+      self.calEventServiceMock = {
         getEvent: sinon.spy(function() {
           return $q.when(self.event);
         }),
@@ -53,15 +53,15 @@ describe('The event-message Angular module directives', function() {
         OTHER: 42
       };
 
-      self.eventMessageServiceMock = {
+      self.calEventMessageServiceMock = {
         computeAttendeeStats: sinon.stub().returns(self.partstat)
       };
 
       angular.mock.module(function($provide) {
-        $provide.value('eventMessageService', self.eventMessageServiceMock);
-        $provide.value('eventService', self.eventServiceMock);
+        $provide.value('calEventMessageService', self.calEventMessageServiceMock);
+        $provide.value('calEventService', self.calEventServiceMock);
         $provide.value('session', self.sessionMock);
-        $provide.factory('eventsProviders', function() {
+        $provide.factory('calEventsProviders', function() {
           return {
             setUpSearchProviders: function() {}
           };
@@ -78,7 +78,7 @@ describe('The event-message Angular module directives', function() {
       };
 
       self.initDirective = function() {
-        var html = '<event-message message="message"></event-message>';
+        var html = '<cal-event-message message="message"></cal-event-message>';
 
         self.element = self.$compile(html)(self.$scope);
         self.$scope.$digest();
@@ -89,14 +89,14 @@ describe('The event-message Angular module directives', function() {
     }));
 
     it('should fetch event and his getInvitedAttendees correctly', function() {
-      expect(self.eventServiceMock.getEvent).to.have.been.calledWith(self.$scope.message.eventId);
-      expect(self.eventServiceMock.getInvitedAttendees).to.have.been.calledWith(self.eleScope.vm.event.vcalendar, self.sessionMock.user.emails);
+      expect(self.calEventServiceMock.getEvent).to.have.been.calledWith(self.$scope.message.eventId);
+      expect(self.calEventServiceMock.getInvitedAttendees).to.have.been.calledWith(self.eleScope.vm.event.vcalendar, self.sessionMock.user.emails);
     });
 
     it('should remove loading and set error if getEvent failed', function() {
       var statusText = 'status are made of stone';
 
-      self.eventServiceMock.getEvent = function() {
+      self.calEventServiceMock.getEvent = function() {
         return $q.reject({
           statusText: statusText
         });
@@ -117,13 +117,13 @@ describe('The event-message Angular module directives', function() {
     it('should take partstat of organizer if any', function() {
       var orgPartstat = 'orgPartstat';
 
-      self.eventServiceMock.getInvitedAttendees = sinon.stub().returns([{}, { name: 'organizer', getParameter: _.constant(orgPartstat) }]);
+      self.calEventServiceMock.getInvitedAttendees = sinon.stub().returns([{}, { name: 'organizer', getParameter: _.constant(orgPartstat) }]);
       self.initDirective();
       expect(self.eleScope.vm.partstat).to.equal(orgPartstat);
     });
 
     it('should compute partstat', function() {
-      expect(self.eventMessageServiceMock.computeAttendeeStats).to.have.been.calledWith(self.event.attendees);
+      expect(self.calEventMessageServiceMock.computeAttendeeStats).to.have.been.calledWith(self.event.attendees);
       expect(self.eleScope.vm.attendeesPerPartstat).to.equal(self.partstat);
     });
 
@@ -135,11 +135,11 @@ describe('The event-message Angular module directives', function() {
     });
 
     describe('scope.changeParticipation ', function() {
-      it('should call eventService.changeParticipation correctly', function() {
+      it('should call calEventService.changeParticipation correctly', function() {
         var partstat = 'ACCEPTED';
 
         self.eleScope.vm.changeParticipation(partstat);
-        expect(self.eventServiceMock.changeParticipation).to.have.been.calledWith(self.event.path, self.event, self.sessionMock.user.emails, partstat);
+        expect(self.calEventServiceMock.changeParticipation).to.have.been.calledWith(self.event.path, self.event, self.sessionMock.user.emails, partstat);
       });
 
       it('should update event ', function() {
@@ -155,7 +155,7 @@ describe('The event-message Angular module directives', function() {
 
         self.eleScope.vm.changeParticipation(partstat);
         self.$rootScope.$digest();
-        expect(self.eventMessageServiceMock.computeAttendeeStats).to.have.been.calledWith(self.eventAfterChangePart.attendees);
+        expect(self.calEventMessageServiceMock.computeAttendeeStats).to.have.been.calledWith(self.eventAfterChangePart.attendees);
         expect(self.eleScope.vm.attendeesPerPartstat.ACCEPTED).to.equal(1);
       });
     });
