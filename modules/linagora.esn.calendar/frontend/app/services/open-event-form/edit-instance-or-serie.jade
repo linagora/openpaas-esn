@@ -2,11 +2,11 @@
   .modal-dialog
     .modal-content
       .modal-header
-        h4.modal-title #{__('Edit')}:
+        h4.modal-title #{__('What do you want to edit?')}
       .modal-body.flex-column
-        button.btn.btn-default.waves-effect(ng-click='editInstance()')
+        button.btn.btn-default.effect(ng-click='editInstance()')
           | #{__('Only this event')}
-        button.btn.btn-default.waves-effect(ng-click='editAllInstances()')
+        button.btn.btn-default.effect(ng-click='editAllInstances()')
           | #{__('All events in the serie')}
-        button.btn.btn-default.cancel.pull-right.waves-effect(ng-click='$hide()')
+        button.btn.btn-default.cancel(ng-click='$hide()')
           | #{__('Cancel')}
