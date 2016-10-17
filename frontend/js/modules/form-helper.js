@@ -44,7 +44,8 @@ angular.module('esn.form.helper', [])
     templateUrl: '/views/modules/form/toggle-switch.html',
     scope: {
       ngModel: '=?',
-      color: '@?'
+      color: '@?',
+      form: '=?'
     },
     link: function(scope) {
       if (scope.ngModel === undefined) {
@@ -52,6 +53,10 @@ angular.module('esn.form.helper', [])
       }
       scope.toggle = function() {
         scope.ngModel = !scope.ngModel;
+
+        if (scope.form && scope.form.$setDirty) {
+          scope.form.$setDirty();
+        }
       };
       scope.color = scope.color || 'blue';
     }
