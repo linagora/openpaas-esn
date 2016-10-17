@@ -122,7 +122,7 @@ angular.module('linagora.esn.contact')
   .factory('ContactShellComparator', function() {
 
     function getAsAlpha(str) {
-      return /^[ a-z]+$/i.test(str) ? str.toLowerCase() : '#';
+      return (str && /^[ a-z]+$/i.test(str)) ? str.toLowerCase() : '#';
     }
 
     function byDisplayName(contact1, contact2) {
