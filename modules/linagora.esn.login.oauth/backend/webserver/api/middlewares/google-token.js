@@ -11,6 +11,10 @@ module.exports = function(dependencies) {
   ////////////
 
   function getAccessToken(req, res, next) {
+    if (req.body.access_token) {
+      return next();
+    }
+
     getAccessTokenFn(req.body.serverAuthCode).then(accessToken => {
       req.body.access_token = accessToken;
       next();
