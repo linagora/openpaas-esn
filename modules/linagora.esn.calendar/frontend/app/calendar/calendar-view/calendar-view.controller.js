@@ -112,6 +112,7 @@
       $scope.uiConfig.calendar.eventDrop = $scope.eventDropAndResize.bind(null, true);
       $scope.uiConfig.calendar.select = select;
       $scope.uiConfig.calendar.loading = loading;
+      $scope.uiConfig.calendar.nextDayThreshold = '00:00';
       $scope.calendarReady = calendarDeffered.resolve.bind(calendarDeffered);
 
       activate();
