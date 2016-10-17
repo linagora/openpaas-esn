@@ -6,12 +6,12 @@
 
   CalendarRightShell.$inject = [
     'CALENDAR_RIGHT',
-    'RightSet',
+    'CalRightSet',
     '_',
     'calendarUtils'
   ];
 
-  function CalendarRightShell(CALENDAR_RIGHT, RightSet, _, calendarUtils) {
+  function CalendarRightShell(CALENDAR_RIGHT, CalRightSet, _, calendarUtils) {
 
     //the idea here is that there is a multitude of possible combinaison of webdav right and webdav sharing right
     //I will suppose that right are only settle by OpenPaas and that the only possible combinaison are the following
@@ -44,19 +44,19 @@
     function CalendarRightShell(acl, invite) {
       this._userRight = {};
       this._userEmails = {};
-      this._public = new RightSet();
+      this._public = new CalRightSet();
 
       acl && acl.forEach(function(line) {
-        var userRightSet, userId, match = line.principal && line.principal.match(principalRegexp);
+        var userCalRightSet, userId, match = line.principal && line.principal.match(principalRegexp);
 
         if (match) {
           userId = match[1];
-          userRightSet = this._getUserSet(userId);
+          userCalRightSet = this._getUserSet(userId);
         } else if (line.principal === '{DAV:}authenticated') {
-          userRightSet = this._public;
+          userCalRightSet = this._public;
         }
 
-        userRightSet && userRightSet.addPermission(RightSet.webdavStringToConstant(line.privilege));
+        userCalRightSet && userCalRightSet.addPermission(CalRightSet.webdavStringToConstant(line.privilege));
       }, this);
 
       invite && invite.forEach(function(line) {
@@ -64,22 +64,22 @@
 
         if (match) {
           userId = match[1];
-          this._getUserSet(userId).addPermission(RightSet.calendarShareeIntToConstant(line.access));
+          this._getUserSet(userId).addPermission(CalRightSet.calendarShareeIntToConstant(line.access));
           this._userEmails[userId] = calendarUtils.removeMailto(line.href);
         }
       }, this);
     }
 
-    function setProfile(rightSet, newRole) {
-      rightSet.addPermissions(matrix[newRole].shouldHave);
-      rightSet.removePermissions(matrix[newRole].shouldNotHave);
+    function setProfile(calRightSet, newRole) {
+      calRightSet.addPermissions(matrix[newRole].shouldHave);
+      calRightSet.removePermissions(matrix[newRole].shouldNotHave);
     }
 
-    function sumupRight(rightSet) {
+    function sumupRight(calRightSet) {
       var result;
 
       _.forEach(matrix, function(matrix, right) {
-        if (rightSet.hasAtLeastAllOfThosePermissions(matrix.shouldHave) && rightSet.hasNoneOfThosePermissions(matrix.shouldNotHave)) {
+        if (calRightSet.hasAtLeastAllOfThosePermissions(matrix.shouldHave) && calRightSet.hasNoneOfThosePermissions(matrix.shouldNotHave)) {
           result = right;
 
           return false;
@@ -90,22 +90,22 @@
     }
 
     function _getUserSet(userId) {
-      this._userRight[userId] = this._userRight[userId] || new RightSet();
+      this._userRight[userId] = this._userRight[userId] || new CalRightSet();
 
       return this._userRight[userId];
     }
 
     function getUserRight(userId) {
-      var rightSet = this._userRight[userId];
+      var calRightSet = this._userRight[userId];
 
-      return rightSet && sumupRight(rightSet);
+      return calRightSet && sumupRight(calRightSet);
     }
 
     function getAllUserRight() {
-      return _.map(this._userRight, function(rightSet, userId) {
+      return _.map(this._userRight, function(calRightSet, userId) {
         return {
           userId: userId,
-          right: sumupRight(rightSet)
+          right: sumupRight(calRightSet)
         };
       });
     }
@@ -132,13 +132,13 @@
         }
       };
 
-      _.forEach(this._userRight, function(rightSet, userId) {
-        if (rightSet.hasPermission(RightSet.SHAREE_READ)) {
+      _.forEach(this._userRight, function(calRightSet, userId) {
+        if (calRightSet.hasPermission(CalRightSet.SHAREE_READ)) {
           result.share.set.push({
             'dav:href': HREF_PREFIX + this._userEmails[userId],
             'dav:read': true
           });
-        } else if (rightSet.hasPermission(RightSet.SHAREE_READWRITE)) {
+        } else if (calRightSet.hasPermission(CalRightSet.SHAREE_READWRITE)) {
           result.share.set.push({
             'dav:href': HREF_PREFIX + this._userEmails[userId],
             'dav:read-write': true
@@ -146,11 +146,11 @@
         }
       }, this);
 
-      _.forEach(oldCalendarRight._userRight, function(oldRightSet, userId) {
-        var newRightSet = this._userRight[userId] || new RightSet();
-        var SHAREE_PERMISSION = [RightSet.SHAREE_SHAREDOWNER, RightSet.SHAREE_READ, RightSet.SHAREE_READWRITE];
+      _.forEach(oldCalendarRight._userRight, function(oldCalRightSet, userId) {
+        var newCalRightSet = this._userRight[userId] || new CalRightSet();
+        var SHAREE_PERMISSION = [CalRightSet.SHAREE_SHAREDOWNER, CalRightSet.SHAREE_READ, CalRightSet.SHAREE_READWRITE];
 
-        if (newRightSet.hasNoneOfThosePermissions(SHAREE_PERMISSION) && oldRightSet.hasAtLeastOneOfThosePermissions(SHAREE_PERMISSION)) {
+        if (newCalRightSet.hasNoneOfThosePermissions(SHAREE_PERMISSION) && oldCalRightSet.hasAtLeastOneOfThosePermissions(SHAREE_PERMISSION)) {
           result.share.remove.push({
             'dav:href': HREF_PREFIX + oldCalendarRight._userEmails[userId]
           });
@@ -193,8 +193,8 @@
     function clone() {
       var clone = new CalendarRightShell();
 
-      clone._userRight = _.mapValues(this._userRight, function(rightSet) {
-        return rightSet.clone();
+      clone._userRight = _.mapValues(this._userRight, function(calRightSet) {
+        return calRightSet.clone();
       });
 
       clone._userEmails = _.clone(this._userEmails);
@@ -208,62 +208,62 @@
 
       matrix[CALENDAR_RIGHT.ADMIN] = {
         shouldHave: [
-          RightSet.SHARE,
-          RightSet.READ,
-          RightSet.WRITE,
-          RightSet.WRITE_PROPERTIES
+          CalRightSet.SHARE,
+          CalRightSet.READ,
+          CalRightSet.WRITE,
+          CalRightSet.WRITE_PROPERTIES
         ],
         shouldNotHave: []
       };
 
       matrix[CALENDAR_RIGHT.READ_WRITE] = {
         shouldHave: [
-          RightSet.SHAREE_READWRITE
+          CalRightSet.SHAREE_READWRITE
         ],
         shouldNotHave: [
-          RightSet.SHARE,
-          RightSet.WRITE_PROPERTIES,
-          RightSet.SHAREE_READ
+          CalRightSet.SHARE,
+          CalRightSet.WRITE_PROPERTIES,
+          CalRightSet.SHAREE_READ
         ]
       };
 
       matrix[CALENDAR_RIGHT.READ] = {
         shouldHave: [
-          RightSet.SHAREE_READ
+          CalRightSet.SHAREE_READ
         ],
         shouldNotHave: [
-          RightSet.SHAREE_READWRITE,
-          RightSet.SHARE,
-          RightSet.WRITE_PROPERTIES,
-          RightSet.WRITE
+          CalRightSet.SHAREE_READWRITE,
+          CalRightSet.SHARE,
+          CalRightSet.WRITE_PROPERTIES,
+          CalRightSet.WRITE
         ]
       };
 
       matrix[CALENDAR_RIGHT.FREE_BUSY] = {
         shouldHave: [
-          RightSet.FREE_BUSY
+          CalRightSet.FREE_BUSY
         ],
         shouldNotHave: [
-          RightSet.READ,
-          RightSet.SHAREE_READ,
-          RightSet.SHAREE_READWRITE,
-          RightSet.SHARE,
-          RightSet.WRITE_PROPERTIES,
-          RightSet.WRITE
+          CalRightSet.READ,
+          CalRightSet.SHAREE_READ,
+          CalRightSet.SHAREE_READWRITE,
+          CalRightSet.SHARE,
+          CalRightSet.WRITE_PROPERTIES,
+          CalRightSet.WRITE
         ]
       };
 
       matrix[CALENDAR_RIGHT.NONE] = {
         shouldHave: [],
         shouldNotHave: [
-          RightSet.FREE_BUSY,
-          RightSet.READ,
-          RightSet.SHAREE_READ,
-          RightSet.SHAREE_READWRITE,
-          RightSet.SHARE,
-          RightSet.WRITE_PROPERTIES,
-          RightSet.WRITE,
-          RightSet.SHAREE_SHAREDOWNER
+          CalRightSet.FREE_BUSY,
+          CalRightSet.READ,
+          CalRightSet.SHAREE_READ,
+          CalRightSet.SHAREE_READWRITE,
+          CalRightSet.SHARE,
+          CalRightSet.WRITE_PROPERTIES,
+          CalRightSet.WRITE,
+          CalRightSet.SHAREE_SHAREDOWNER
         ]
       };
 

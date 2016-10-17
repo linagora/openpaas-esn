@@ -2,20 +2,20 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .directive('eventConsultForm', eventConsultForm);
+         .directive('calEventConsultForm', calEventConsultForm);
 
-eventConsultForm.$inject = ['$injector'];
+calEventConsultForm.$inject = ['$injector'];
 
-  function eventConsultForm($injector) {
+  function calEventConsultForm($injector) {
     var directive = {
       restrict: 'E',
-      template: '<div><sub-header><event-consult-form-subheader class="hidden-md" /></sub-header><event-consult-form-body/></div>',
+      template: '<div><sub-header><cal-event-consult-form-subheader class="hidden-md" /></sub-header><cal-event-consult-form-body/></div>',
       scope: {
         event: '='
       },
       link: link,
       replace: true,
-      controller: 'eventFormController'
+      controller: 'calEventFormController'
     };
 
     return directive;

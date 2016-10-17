@@ -6,15 +6,15 @@
 
   calendarEventSource.$inject = [
     '$log',
-    'eventService'
+    'calEventService'
   ];
 
-  function calendarEventSource($log, eventService) {
+  function calendarEventSource($log, calEventService) {
     return function(calendarPath, errorCallback) {
       return function(start, end, timezone, callback) {
         $log.debug('Getting events for %s', calendarPath);
 
-        return eventService.listEvents(calendarPath, start, end, timezone).then(
+        return calEventService.listEvents(calendarPath, start, end, timezone).then(
           function(events) {
             callback(events.filter(function(calendarShell) {
               return !calendarShell.status || calendarShell.status !== 'CANCELLED';

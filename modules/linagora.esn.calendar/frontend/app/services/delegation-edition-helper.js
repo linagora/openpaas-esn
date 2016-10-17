@@ -2,21 +2,21 @@
   'use strict';
 
   angular.module('esn.calendar')
-    .factory('DelegationEditionHelper', DelegationEditionHelper);
+    .factory('CalDelegationEditionHelper', CalDelegationEditionHelper);
 
-  DelegationEditionHelper.$inject = [];
+  CalDelegationEditionHelper.$inject = [];
 
-  function DelegationEditionHelper() {
+  function CalDelegationEditionHelper() {
 
-    DelegationEditionHelper.prototype.getAllRemovedUsersId = getAllRemovedUsersId;
-    DelegationEditionHelper.prototype.addUserGroup = addUserGroup;
-    DelegationEditionHelper.prototype.removeUserGroup = removeUserGroup;
+    CalDelegationEditionHelper.prototype.getAllRemovedUsersId = getAllRemovedUsersId;
+    CalDelegationEditionHelper.prototype.addUserGroup = addUserGroup;
+    CalDelegationEditionHelper.prototype.removeUserGroup = removeUserGroup;
 
-    return DelegationEditionHelper;
+    return CalDelegationEditionHelper;
 
     //////////////////////////////
 
-    function DelegationEditionHelper() {
+    function CalDelegationEditionHelper() {
       this._delegations = [];
       this.removedId = {};
     }

@@ -1,7 +1,7 @@
 .row
   .col-xs-12.no-padding-xs
     sub-header
-      event-full-form-subheader.hidden-md
+      cal-event-full-form-subheader.hidden-md
     .nopadding.card.event-full-form.zoomIn(keep-scroll-position, ng-class="{ 'readonly': !isOrganizer }")
       .card-header.hidden-xs
         .row.flex-vertical-centered(ng-if='isOrganizer')
@@ -57,10 +57,10 @@
                         input.input.location.form-control(type="text", ng-model='editedEvent.location', ng-model-options="{getterSetter: true}", maxlength="{{::EVENT_FORM.location.maxlength}}",placeholder="#{__('Location')}", ng-readonly="!isOrganizer")
 
               .row.visible-xs
-                attendees-autocomplete-input(ng-show='isOrganizer || isNew(editedEvent)', original-attendees='editedEvent.attendees', mutable-attendees='newAttendees')
+                cal-attendees-autocomplete-input(ng-show='isOrganizer || isNew(editedEvent)', original-attendees='editedEvent.attendees', mutable-attendees='newAttendees')
 
               .row.visible-xs
-                attendees-list(attendees='editedEvent.attendees', read-only='::!isOrganizer', organizer='editedEvent.organizer', mode='edition')
+                cal-attendees-list(attendees='editedEvent.attendees', read-only='::!isOrganizer', organizer='editedEvent.organizer', mode='edition')
 
               event-recurrence-edition(event="editedEvent", is-organizer="isOrganizer")
               event-alarm-edition(event="editedEvent")
@@ -88,10 +88,10 @@
                   .row
                     hr
               .row.hidden-xs
-                attendees-autocomplete-input(ng-show='isOrganizer || isNew(editedEvent)', original-attendees='editedEvent.attendees', mutable-attendees='newAttendees')
+                cal-attendees-autocomplete-input(ng-show='isOrganizer || isNew(editedEvent)', original-attendees='editedEvent.attendees', mutable-attendees='newAttendees')
 
               .row.hidden-xs
-                attendees-list(attendees='editedEvent.attendees', read-only='::!isOrganizer', organizer='editedEvent.organizer', mode='edition')
+                cal-attendees-list(attendees='editedEvent.attendees', read-only='::!isOrganizer', organizer='editedEvent.organizer', mode='edition')
 
               .row
                 .col-xs-12
@@ -100,4 +100,4 @@
                       span.input-group-addon.textarea-icon
                         i.mdi.mdi-format-align-justify
                       .fg-line
-                        textarea.form-control(auto-size-and-update, type="text", ng-model='editedEvent.description', placeholder="#{__('Notes...')}", ng-readonly="!isOrganizer")
+                        textarea.form-control(cal-auto-size-and-update, type="text", ng-model='editedEvent.description', placeholder="#{__('Notes...')}", ng-readonly="!isOrganizer")

@@ -2,14 +2,14 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .directive('toggleMiniCalendar', toggleMiniCalendar);
+         .directive('calToggleMiniCalendar', calToggleMiniCalendar);
 
-  toggleMiniCalendar.$inject = [
+  calToggleMiniCalendar.$inject = [
     '$rootScope',
     'CALENDAR_EVENTS'
   ];
 
-  function toggleMiniCalendar($rootScope, CALENDAR_EVENTS) {
+  function calToggleMiniCalendar($rootScope, CALENDAR_EVENTS) {
     var directive = {
       restrict: 'A',
       scope: true,

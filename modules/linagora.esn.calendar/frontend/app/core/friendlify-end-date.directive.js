@@ -2,11 +2,11 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .directive('friendlifyEndDate', friendlifyEndDate);
+         .directive('calFriendlifyEndDate', calFriendlifyEndDate);
 
-  friendlifyEndDate.$inject = ['$parse', 'fcMoment'];
+  calFriendlifyEndDate.$inject = ['$parse', 'calMoment'];
 
-  function friendlifyEndDate($parse, fcMoment) {
+  function calFriendlifyEndDate($parse, calMoment) {
     var directive = {
       restrict: 'A',
       require: 'ngModel',
@@ -44,7 +44,7 @@
 
       function subtractOneDayToView(value) {
         if (value && $parse(attrs.isAllDay)(scope)) {
-          var valueToMoment = fcMoment(new Date(value));
+          var valueToMoment = calMoment(new Date(value));
 
           value = valueToMoment.subtract(1, 'days').format('YYYY/MM/DD');
         }

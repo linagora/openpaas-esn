@@ -12,28 +12,28 @@ describe('The calendarUtils service', function() {
 
     angular.mock.module('esn.calendar');
     angular.mock.module('esn.ical');
-    self.fcMomentMock = null;
+    self.calMomentMock = null;
 
     angular.mock.module(function($provide) {
-      $provide.decorator('fcMoment', function($delegate) {
+      $provide.decorator('calMoment', function($delegate) {
         return function() {
-          return (self.fcMomentMock || $delegate).apply(this, arguments);
+          return (self.calMomentMock || $delegate).apply(this, arguments);
         };
       });
     });
   });
 
-  beforeEach(angular.mock.inject(function(calendarUtils, fcMoment) {
+  beforeEach(angular.mock.inject(function(calendarUtils, calMoment) {
     self.calendarUtils = calendarUtils;
-    self.fcMoment = fcMoment;
+    self.calMoment = calMoment;
   }));
 
   describe('the getDateOnCalendarSelect function', function() {
     it('should add 30 minutes to end if diff is 30 minutes and start is an hour', function() {
-      var start = self.fcMoment('2013-02-08 09:00:00');
-      var end = self.fcMoment('2013-02-08 09:30:00');
-      var expectedStart = self.fcMoment('2013-02-08 09:00:00');
-      var expectedEnd = self.fcMoment('2013-02-08 10:00:00');
+      var start = self.calMoment('2013-02-08 09:00:00');
+      var end = self.calMoment('2013-02-08 09:30:00');
+      var expectedStart = self.calMoment('2013-02-08 09:00:00');
+      var expectedEnd = self.calMoment('2013-02-08 10:00:00');
       var date = self.calendarUtils.getDateOnCalendarSelect(start, end);
 
       expect(expectedStart.isSame(date.start)).to.be.true;
@@ -41,10 +41,10 @@ describe('The calendarUtils service', function() {
     });
 
     it('should add 30 minutes to end if diff is 30 minutes and start is an half hour', function() {
-      var start = self.fcMoment('2013-02-08 09:30:00');
-      var end = self.fcMoment('2013-02-08 10:00:00');
-      var expectedStart = self.fcMoment('2013-02-08 09:30:00');
-      var expectedEnd = self.fcMoment('2013-02-08 10:30:00');
+      var start = self.calMoment('2013-02-08 09:30:00');
+      var end = self.calMoment('2013-02-08 10:00:00');
+      var expectedStart = self.calMoment('2013-02-08 09:30:00');
+      var expectedEnd = self.calMoment('2013-02-08 10:30:00');
       var date = self.calendarUtils.getDateOnCalendarSelect(start, end);
 
       expect(expectedStart.isSame(date.start)).to.be.true;
@@ -52,10 +52,10 @@ describe('The calendarUtils service', function() {
     });
 
     it('should return same start and end if the diff is not 30 minutes', function() {
-      var start = self.fcMoment('2013-02-08 09:00:00');
-      var end = self.fcMoment('2013-02-08 11:30:00');
-      var expectedStart = self.fcMoment('2013-02-08 09:00:00');
-      var expectedEnd = self.fcMoment('2013-02-08 11:30:00');
+      var start = self.calMoment('2013-02-08 09:00:00');
+      var end = self.calMoment('2013-02-08 11:30:00');
+      var expectedStart = self.calMoment('2013-02-08 09:00:00');
+      var expectedEnd = self.calMoment('2013-02-08 11:30:00');
       var date = self.calendarUtils.getDateOnCalendarSelect(start, end);
 
       expect(expectedStart.isSame(date.start)).to.be.true;
@@ -73,14 +73,14 @@ describe('The calendarUtils service', function() {
         {input: '12:30', output: '13:00'}
       ].map(function(obj) {
           return _.mapValues(obj, function(hour) {
-            return self.fcMoment('1991-10-03 ' + hour);
+            return self.calMoment('1991-10-03 ' + hour);
           });
         }).forEach(function(obj) {
-          self.fcMomentMock = sinon.stub().returns(obj.input);
+          self.calMomentMock = sinon.stub().returns(obj.input);
           var result = self.calendarUtils.getNewStartDate();
 
           expect(result.isSame(obj.output, 'second')).to.be.true;
-          expect(self.fcMomentMock).to.have.been.calledOnce;
+          expect(self.calMomentMock).to.have.been.calledOnce;
         }, this);
     });
   });
@@ -95,14 +95,14 @@ describe('The calendarUtils service', function() {
         {input: '12:30', output: '14:00'}
       ].map(function(obj) {
           return _.mapValues(obj, function(hour) {
-            return self.fcMoment('1991-10-03 ' + hour);
+            return self.calMoment('1991-10-03 ' + hour);
           });
         }).forEach(function(obj) {
-          self.fcMomentMock = sinon.stub().returns(obj.input);
+          self.calMomentMock = sinon.stub().returns(obj.input);
           var result = self.calendarUtils.getNewEndDate();
 
           expect(result.isSame(obj.output, 'second')).to.be.true;
-          expect(self.fcMomentMock).to.have.been.calledOnce;
+          expect(self.calMomentMock).to.have.been.calledOnce;
         }, this);
     });
   });

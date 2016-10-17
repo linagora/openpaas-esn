@@ -5,12 +5,12 @@
         button.btn.btn-primary.waves-effect
           i.mdi.mdi-menu
 
-      a.flex-vertical-centered(toggle-mini-calendar)
+      a.flex-vertical-centered(cal-toggle-mini-calendar)
         .date-indicator(calendar-date-indicator) {{vm.dateIndicator}}
         button.mini-calendar-caret.btn.btn-primary.waves-effect
           i.mdi.mdi-menu-down
     .right.flex
-      a(toggle-calendar-today)
+      a(cal-toggle-today)
         button.btn.btn-primary.waves-effect
           | #{__('Today')}
           i.mdi.mdi-calendar-today

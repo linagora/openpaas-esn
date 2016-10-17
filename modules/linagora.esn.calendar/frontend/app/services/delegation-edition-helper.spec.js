@@ -10,8 +10,8 @@ describe('The delegation service', function() {
     angular.mock.module('esn.calendar');
   });
 
-  beforeEach(angular.mock.inject(function(DelegationEditionHelper) {
-    this.delegationEditionHelperInstance = new DelegationEditionHelper();
+  beforeEach(angular.mock.inject(function(CalDelegationEditionHelper) {
+    this.delegationEditionHelperInstance = new CalDelegationEditionHelper();
   }));
 
   describe('addUserGroup function', function() {

@@ -4,8 +4,8 @@
 
 var expect = chai.expect;
 
-describe('The eventService service', function() {
-  var ICAL, cachedEventSourceMock, flushContext, self;
+describe('The calEventService service', function() {
+  var ICAL, calCachedEventSourceMock, flushContext, self;
 
   beforeEach(function() {
     self = this;
@@ -19,7 +19,7 @@ describe('The eventService service', function() {
       }
     };
 
-    cachedEventSourceMock = {
+    calCachedEventSourceMock = {
       registerAdd: sinon.spy(),
       registerDelete: sinon.spy(),
       registerUpdate: sinon.spy(),
@@ -84,26 +84,26 @@ describe('The eventService service', function() {
       $provide.value('gracePeriodService', self.gracePeriodService);
       $provide.value('gracePeriodLiveNotification', self.gracePeriodLiveNotification);
       $provide.value('$modal', self.$modal);
-      $provide.value('cachedEventSource', cachedEventSourceMock);
+      $provide.value('calCachedEventSource', calCachedEventSourceMock);
       $provide.value('calendarEventEmitter', self.calendarEventEmitterMock);
-      $provide.decorator('masterEventCache', function($delegate) {
-        self.masterEventCache = {
+      $provide.decorator('calMasterEventCache', function($delegate) {
+        self.calMasterEventCache = {
           get: $delegate.get,
           remove: sinon.spy($delegate.remove),
           save: sinon.spy($delegate.save)
         };
 
-        return self.masterEventCache;
+        return self.calMasterEventCache;
       });
     });
   });
 
-  beforeEach(angular.mock.inject(function(eventService, $httpBackend, $rootScope, _ICAL_, CalendarShell, fcMoment, CALENDAR_EVENTS, CALENDAR_GRACE_DELAY) {
+  beforeEach(angular.mock.inject(function(calEventService, $httpBackend, $rootScope, _ICAL_, CalendarShell, calMoment, CALENDAR_EVENTS, CALENDAR_GRACE_DELAY) {
     self.$httpBackend = $httpBackend;
     self.$rootScope = $rootScope;
-    self.eventService = eventService;
+    self.calEventService = calEventService;
     self.CalendarShell = CalendarShell;
-    self.fcMoment = fcMoment;
+    self.calMoment = calMoment;
     ICAL = _ICAL_;
     self.CALENDAR_EVENTS = CALENDAR_EVENTS;
     self.CALENDAR_GRACE_DELAY = CALENDAR_GRACE_DELAY;
@@ -140,18 +140,18 @@ describe('The eventService service', function() {
         }
       });
 
-      var start = self.fcMoment(new Date(2014, 0, 1));
-      var end = self.fcMoment(new Date(2014, 0, 2));
+      var start = self.calMoment(new Date(2014, 0, 1));
+      var end = self.calMoment(new Date(2014, 0, 2));
 
-      self.eventService.listEvents('/calendars/uid/events.json', start, end, false).then(function(events) {
+      self.calEventService.listEvents('/calendars/uid/events.json', start, end, false).then(function(events) {
         expect(events).to.be.an.array;
         expect(events.length).to.equal(1);
         expect(events[0].id).to.equal('myuid');
         expect(events[0].uid).to.equal('myuid');
         expect(events[0].title).to.equal('title');
         expect(events[0].location).to.equal('location');
-        expect(events[0].start.toDate()).to.equalDate(self.fcMoment('2014-01-01 02:03:04').toDate());
-        expect(events[0].end.toDate()).to.equalDate(self.fcMoment('2014-01-01 03:03:04').toDate());
+        expect(events[0].start.toDate()).to.equalDate(self.calMoment('2014-01-01 02:03:04').toDate());
+        expect(events[0].end.toDate()).to.equalDate(self.calMoment('2014-01-01 03:03:04').toDate());
         expect(events[0].vcalendar).to.be.an('object');
         expect(events[0].vevent).to.be.an('object');
         expect(events[0].etag).to.equal('"123123"');
@@ -200,17 +200,17 @@ describe('The eventService service', function() {
         }
       });
 
-      var start = self.fcMoment(new Date(2014, 0, 1));
-      var end = self.fcMoment(new Date(2014, 0, 3));
+      var start = self.calMoment(new Date(2014, 0, 1));
+      var end = self.calMoment(new Date(2014, 0, 3));
 
-      self.eventService.listEvents('/calendars/uid/events.json', start, end, false).then(function(events) {
+      self.calEventService.listEvents('/calendars/uid/events.json', start, end, false).then(function(events) {
         expect(events).to.be.an.array;
         expect(events.length).to.equal(2);
         expect(events[0].uid).to.equal('myuid');
         expect(events[0].isInstance()).to.be.true;
         expect(events[0].id).to.equal('myuid_2014-01-01T02:03:04Z');
-        expect(events[0].start.toDate()).to.equalDate(self.fcMoment('2014-01-01 02:03:04').toDate());
-        expect(events[0].end.toDate()).to.equalDate(self.fcMoment('2014-01-01 03:03:04').toDate());
+        expect(events[0].start.toDate()).to.equalDate(self.calMoment('2014-01-01 02:03:04').toDate());
+        expect(events[0].end.toDate()).to.equalDate(self.calMoment('2014-01-01 03:03:04').toDate());
         expect(events[0].vcalendar).to.be.an('object');
         expect(events[0].vevent).to.be.an('object');
         expect(events[0].etag).to.equal('"123123"');
@@ -219,8 +219,8 @@ describe('The eventService service', function() {
         expect(events[1].uid).to.equal('myuid');
         expect(events[1].isInstance()).to.be.true;
         expect(events[1].id).to.equal('myuid_2014-01-02T02:03:04Z');
-        expect(events[1].start.toDate()).to.equalDate(self.fcMoment('2014-01-02 02:03:04').toDate());
-        expect(events[1].end.toDate()).to.equalDate(self.fcMoment('2014-01-02 03:03:04').toDate());
+        expect(events[1].start.toDate()).to.equalDate(self.calMoment('2014-01-02 02:03:04').toDate());
+        expect(events[1].end.toDate()).to.equalDate(self.calMoment('2014-01-02 03:03:04').toDate());
         expect(events[1].vcalendar).to.be.an('object');
         expect(events[1].vevent).to.be.an('object');
         expect(events[1].etag).to.equal('"123123"');
@@ -255,7 +255,7 @@ describe('The eventService service', function() {
         { ETag: 'testing-tag' }
       );
 
-      self.eventService.getEvent('/path/to/event.ics').then(function(event) {
+      self.calEventService.getEvent('/path/to/event.ics').then(function(event) {
         expect(event).to.be.an('object');
         expect(event.id).to.equal('myuid');
         expect(event.title).to.equal('title');
@@ -326,7 +326,7 @@ describe('The eventService service', function() {
         });
       };
 
-      self.eventService.createEvent('calId', '/path/to/calendar', event, { graceperiod: true }).then(
+      self.calEventService.createEvent('calId', '/path/to/calendar', event, { graceperiod: true }).then(
         unexpected.bind(null, done), function(response) {
           expect(response.status).to.equal(500);
           done();
@@ -353,7 +353,7 @@ describe('The eventService service', function() {
 
       self.$httpBackend.expectPUT('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY).respond(200, '');
 
-      self.eventService.createEvent('calId', '/path/to/calendar', event, { graceperiod: true }).then(
+      self.calEventService.createEvent('calId', '/path/to/calendar', event, { graceperiod: true }).then(
         unexpected.bind(null, done), function(response) {
           expect(response.status).to.equal(200);
           done();
@@ -395,7 +395,7 @@ describe('The eventService service', function() {
       self.$httpBackend.expectPUT('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY).respond(202, {id: gracePeriodTaskId});
       self.$httpBackend.expectGET('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(200, vcalendar.toJSON(), headers);
 
-      self.eventService.createEvent('calId', '/path/to/calendar', calendarShell, { graceperiod: true, notifyFullcalendar: true }).then(
+      self.calEventService.createEvent('calId', '/path/to/calendar', calendarShell, { graceperiod: true, notifyFullcalendar: true }).then(
         function(completed) {
           expect(self.calendarEventEmitterMock.fullcalendar.emitCreatedEvent).to.have.been.called;
           expect(completed).to.be.true;
@@ -434,7 +434,7 @@ describe('The eventService service', function() {
       self.$httpBackend.expectPUT('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY).respond(202, {id: '123456789'});
       self.$httpBackend.expectGET('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(200, vcalendar.toJSON(), headers);
 
-      self.eventService.createEvent('calId', '/path/to/calendar', event, { graceperiod: true }).then(
+      self.calEventService.createEvent('calId', '/path/to/calendar', event, { graceperiod: true }).then(
         function(completed) {
           expect(self.calendarEventEmitterMock.fullcalendar.emitRemovedEvent).to.have.been.called;
           expect(successSpy).to.have.been.called;
@@ -447,7 +447,7 @@ describe('The eventService service', function() {
       self.$httpBackend.flush();
     });
 
-    it('should call cachedEventSource.registerAdd', function(done) {
+    it('should call calCachedEventSource.registerAdd', function(done) {
       var vcalendar = new ICAL.Component('vcalendar');
       var vevent = new ICAL.Component('vevent');
 
@@ -466,9 +466,9 @@ describe('The eventService service', function() {
       self.$httpBackend.expectPUT('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY).respond(202, {id: '123456789'});
       self.$httpBackend.expectGET('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(200, vcalendar.toJSON(), {ETag: 'etag'});
 
-      self.eventService.createEvent('calId', '/path/to/calendar', event, { graceperiod: true }).then(
+      self.calEventService.createEvent('calId', '/path/to/calendar', event, { graceperiod: true }).then(
         function() {
-          expect(cachedEventSourceMock.registerAdd).to.have.been.calledWith(event);
+          expect(calCachedEventSourceMock.registerAdd).to.have.been.calledWith(event);
           done();
         }
       );
@@ -477,7 +477,7 @@ describe('The eventService service', function() {
       self.$httpBackend.flush();
     });
 
-    it('should call masterEventCache.save if and only if it is a recurring event', function() {
+    it('should call calMasterEventCache.save if and only if it is a recurring event', function() {
       var vcalendar = new ICAL.Component('vcalendar');
       var vevent = new ICAL.Component('vevent');
 
@@ -496,7 +496,7 @@ describe('The eventService service', function() {
       self.gracePeriodService.cancel = $q.when.bind(null, {});
 
       self.$httpBackend.expectPUT('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY).respond(202, {id: '123456789'});
-      self.eventService.createEvent('calId', '/path/to/calendar', event, { graceperiod: true });
+      self.calEventService.createEvent('calId', '/path/to/calendar', event, { graceperiod: true });
 
       self.$rootScope.$apply();
       self.$httpBackend.flush();
@@ -504,16 +504,16 @@ describe('The eventService service', function() {
       event.isRecurring = _.constant(false);
 
       self.$httpBackend.expectPUT('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY).respond(202, {id: '123456789'});
-      self.eventService.createEvent('calId', '/path/to/calendar', event, { graceperiod: true });
+      self.calEventService.createEvent('calId', '/path/to/calendar', event, { graceperiod: true });
 
       self.$rootScope.$apply();
       self.$httpBackend.flush();
 
-      expect(self.masterEventCache.save).to.have.been.calledOnce;
-      expect(self.masterEventCache.save).to.have.been.calledWith(event);
+      expect(self.calMasterEventCache.save).to.have.been.calledOnce;
+      expect(self.calMasterEventCache.save).to.have.been.calledWith(event);
     });
 
-    it('should call cachedEventSource.deleteRegistration if the creation is cancelled', function(done) {
+    it('should call calCachedEventSource.deleteRegistration if the creation is cancelled', function(done) {
       var vcalendar = new ICAL.Component('vcalendar');
       var vevent = new ICAL.Component('vevent');
 
@@ -529,7 +529,7 @@ describe('The eventService service', function() {
 
       self.gracePeriodService.cancel = $q.when.bind(null, {});
 
-      cachedEventSourceMock.deleteRegistration = function(_event) {
+      calCachedEventSourceMock.deleteRegistration = function(_event) {
         expect(_event).to.equal(event);
         done();
       };
@@ -537,12 +537,12 @@ describe('The eventService service', function() {
       self.$httpBackend.expectPUT('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY).respond(202, {id: '123456789'});
       self.$httpBackend.expectGET('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(200, vcalendar.toJSON(), {ETag: 'etag'});
 
-      self.eventService.createEvent('calId', '/path/to/calendar', event, { graceperiod: true });
+      self.calEventService.createEvent('calId', '/path/to/calendar', event, { graceperiod: true });
       self.$rootScope.$apply();
       self.$httpBackend.flush();
     });
 
-    it('should call masterEventCache.remove if the creation is cancelled and if and only if event is a recurring event', function() {
+    it('should call calMasterEventCache.remove if the creation is cancelled and if and only if event is a recurring event', function() {
       var vcalendar = new ICAL.Component('vcalendar');
       var vevent = new ICAL.Component('vevent');
 
@@ -561,19 +561,19 @@ describe('The eventService service', function() {
       self.$httpBackend.expectPUT('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY).respond(202, {id: '123456789'});
 
       event.isRecurring = _.constant(true);
-      self.eventService.createEvent('calId', '/path/to/calendar', event, { graceperiod: true });
+      self.calEventService.createEvent('calId', '/path/to/calendar', event, { graceperiod: true });
       self.$rootScope.$apply();
       self.$httpBackend.flush();
 
       self.$httpBackend.expectPUT('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY).respond(202, {id: '123456789'});
 
       event.isRecurring = _.constant(false);
-      self.eventService.createEvent('calId', '/path/to/calendar', event, { graceperiod: true });
+      self.calEventService.createEvent('calId', '/path/to/calendar', event, { graceperiod: true });
       self.$rootScope.$apply();
       self.$httpBackend.flush();
 
-      expect(self.masterEventCache.remove).to.have.been.calledOnce;
-      expect(self.masterEventCache.remove).to.have.been.calledWith(event);
+      expect(self.calMasterEventCache.remove).to.have.been.calledOnce;
+      expect(self.calMasterEventCache.remove).to.have.been.calledWith(event);
     });
 
     it('should transmit an error message to grace task even if the error message from the backend is empty', function(done) {
@@ -611,7 +611,7 @@ describe('The eventService service', function() {
       self.$httpBackend.expectPUT('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY).respond(202, {id: '123456789'});
       self.$httpBackend.expectGET('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics').respond(200, vcalendar.toJSON(), headers);
 
-      self.eventService.createEvent('calId', '/path/to/calendar', event, { graceperiod: true, notifyFullcalendar: true }).catch(
+      self.calEventService.createEvent('calId', '/path/to/calendar', event, { graceperiod: true, notifyFullcalendar: true }).catch(
         function() {
           expect(self.calendarEventEmitterMock.fullcalendar.emitCreatedEvent).to.have.been.called;
           expect(errorSpy).to.have.been.called;
@@ -669,7 +669,7 @@ describe('The eventService service', function() {
     it('should fail if status is not 202', function(done) {
       self.$httpBackend.expectPUT('/dav/api/path/to/uid.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY).respond(200);
 
-      self.eventService.modifyEvent('/path/to/uid.ics', self.event, self.event, 'etag', angular.noop, {notifyFullcalendar: true}).then(
+      self.calEventService.modifyEvent('/path/to/uid.ics', self.event, self.event, 'etag', angular.noop, {notifyFullcalendar: true}).then(
         unexpected.bind(null, done), function(response) {
           expect(response.status).to.equal(200);
           done();
@@ -693,7 +693,7 @@ describe('The eventService service', function() {
         expect(taskId).to.equal('123456789');
       };
 
-      self.eventService.modifyEvent('/path/to/uid.ics', self.event, self.event, 'etag', angular.noop, {notifyFullcalendar: true}).then(
+      self.calEventService.modifyEvent('/path/to/uid.ics', self.event, self.event, 'etag', angular.noop, {notifyFullcalendar: true}).then(
         function(completed) {
           expect(completed).to.be.true;
           expect(self.calendarEventEmitterMock.fullcalendar.emitModifiedEvent).to.have.been.called;
@@ -705,7 +705,7 @@ describe('The eventService service', function() {
       self.$httpBackend.flush();
     });
 
-    it('should save event on masterEventCache if and only if it is a recurring event', function() {
+    it('should save event on calMasterEventCache if and only if it is a recurring event', function() {
       self.gracePeriodService.grace = function() {
         return $q.when({
           cancelled: false
@@ -718,25 +718,25 @@ describe('The eventService service', function() {
 
       self.event.isRecurring = _.constant(true);
       self.$httpBackend.expectPUT('/dav/api/path/to/uid.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY).respond(202, { id: '123456789' });
-      self.eventService.modifyEvent('/path/to/uid.ics', self.event, self.event, 'etag', angular.noop, {notifyFullcalendar: true});
+      self.calEventService.modifyEvent('/path/to/uid.ics', self.event, self.event, 'etag', angular.noop, {notifyFullcalendar: true});
 
       self.$rootScope.$apply();
       self.$httpBackend.flush();
 
       self.event.isRecurring = _.constant(false);
       self.$httpBackend.expectPUT('/dav/api/path/to/uid.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY).respond(202, { id: '123456789' });
-      self.eventService.modifyEvent('/path/to/uid.ics', self.event, self.event, 'etag', angular.noop, {notifyFullcalendar: true});
+      self.calEventService.modifyEvent('/path/to/uid.ics', self.event, self.event, 'etag', angular.noop, {notifyFullcalendar: true});
 
       self.$rootScope.$apply();
       self.$httpBackend.flush();
-      expect(self.masterEventCache.save).to.have.been.calledOnce;
-      expect(self.masterEventCache.save).to.have.been.calledWith(self.event);
+      expect(self.calMasterEventCache.save).to.have.been.calledOnce;
+      expect(self.calMasterEventCache.save).to.have.been.calledWith(self.event);
     });
 
     it('should be able to modify an instance', function() {
       var occShell = this.event.clone();
 
-      occShell.recurrenceId = this.fcMoment([2017, 1, 1, 1, 1]);
+      occShell.recurrenceId = this.calMoment([2017, 1, 1, 1, 1]);
       occShell.start = occShell.start.add(30, 'minutes');
 
       var headers = { ETag: 'etag' };
@@ -752,7 +752,7 @@ describe('The eventService service', function() {
       flushContext = {id: self.event.id};
 
       var modifyEventThen = sinon.spy();
-      this.eventService.modifyEvent('/path/to/uid.ics', occShell, occShell, 'etag', angular.noop, {notifyFullcalendar: true}).then(modifyEventThen);
+      this.calEventService.modifyEvent('/path/to/uid.ics', occShell, occShell, 'etag', angular.noop, {notifyFullcalendar: true}).then(modifyEventThen);
 
       function checkPUT(data) {
         vcalendar = new ICAL.Component(JSON.parse(data));
@@ -788,7 +788,7 @@ describe('The eventService service', function() {
         expect(taskId).to.equal('123456789');
       };
 
-      self.eventService.modifyEvent('/path/to/uid.ics', self.event, self.event, 'etag', angular.noop, {notifyFullcalendar: true}).then(
+      self.calEventService.modifyEvent('/path/to/uid.ics', self.event, self.event, 'etag', angular.noop, {notifyFullcalendar: true}).then(
         function() { done(); }, unexpected.bind(null, done)
       );
 
@@ -821,7 +821,7 @@ describe('The eventService service', function() {
         expect(taskId).to.equal('123456789');
       };
 
-      self.eventService.modifyEvent('/path/to/uid.ics', self.event, self.oldEvent, 'etag', angular.noop, {notifyFullcalendar: true}).then(
+      self.calEventService.modifyEvent('/path/to/uid.ics', self.event, self.oldEvent, 'etag', angular.noop, {notifyFullcalendar: true}).then(
         function() {
           done();
         }, unexpected.bind(null, done)
@@ -853,7 +853,7 @@ describe('The eventService service', function() {
         expect(taskId).to.equal('123456789');
       };
 
-      self.eventService.modifyEvent('/path/to/uid.ics', self.event, self.oldEvent, 'etag', angular.noop, {notifyFullcalendar: true}).then(
+      self.calEventService.modifyEvent('/path/to/uid.ics', self.event, self.oldEvent, 'etag', angular.noop, {notifyFullcalendar: true}).then(
         function() {
           done();
         }, unexpected.bind(null, done)
@@ -885,7 +885,7 @@ describe('The eventService service', function() {
       self.$httpBackend.expectPUT('/dav/api/path/to/calendar/uid.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY).respond(202, {id: '123456789'});
       self.$httpBackend.expectGET('/dav/api/path/to/calendar/uid.ics').respond(200, self.vcalendar.toJSON(), headers);
 
-      self.eventService.modifyEvent('/path/to/calendar/uid.ics', self.event, self.event, 'etag', angular.noop, {notifyFullcalendar: true}).then(
+      self.calEventService.modifyEvent('/path/to/calendar/uid.ics', self.event, self.event, 'etag', angular.noop, {notifyFullcalendar: true}).then(
         function(response) {
           expect(self.calendarEventEmitterMock.fullcalendar.emitModifiedEvent).to.have.been.called;
           expect(successSpy).to.have.been.called;
@@ -903,7 +903,7 @@ describe('The eventService service', function() {
       var event = self.event.clone();
 
       event.gracePeriodTaskId = '12345';
-      self.eventService.modifyEvent('/path/to/calendar/uid.ics', event, event, 'etag', angular.noop, {notifyFullcalendar: true});
+      self.calEventService.modifyEvent('/path/to/calendar/uid.ics', event, event, 'etag', angular.noop, {notifyFullcalendar: true});
       self.$rootScope.$apply();
       self.$httpBackend.flush();
     });
@@ -934,13 +934,13 @@ describe('The eventService service', function() {
 
       var onCancel = sinon.spy();
 
-      self.eventService.modifyEvent('/path/to/calendar/uid.ics', self.event, self.event, 'etag', onCancel, {notifyFullcalendar: true});
+      self.calEventService.modifyEvent('/path/to/calendar/uid.ics', self.event, self.event, 'etag', onCancel, {notifyFullcalendar: true});
 
       self.$rootScope.$apply();
       self.$httpBackend.flush();
     });
 
-    it('should call cachedEventSource.registerUpdate', function(done) {
+    it('should call calCachedEventSource.registerUpdate', function(done) {
 
       self.gracePeriodService.grace = $q.when.bind(null, {
         cancelled: true,
@@ -954,9 +954,9 @@ describe('The eventService service', function() {
 
       var event = self.event;
 
-      self.eventService.modifyEvent('/path/to/calendar/uid.ics', event, event, 'etag', angular.noop, {notifyFullcalendar: true}).then(
+      self.calEventService.modifyEvent('/path/to/calendar/uid.ics', event, event, 'etag', angular.noop, {notifyFullcalendar: true}).then(
         function() {
-          expect(cachedEventSourceMock.registerUpdate).to.have.been.calledWith(event);
+          expect(calCachedEventSourceMock.registerUpdate).to.have.been.calledWith(event);
           done();
         }
       );
@@ -965,7 +965,7 @@ describe('The eventService service', function() {
       self.$httpBackend.flush();
     });
 
-    it('should call cachedEventSource.registerUpdate again with the oldEvent if the modification is cancelled', function(done) {
+    it('should call calCachedEventSource.registerUpdate again with the oldEvent if the modification is cancelled', function(done) {
 
       self.gracePeriodService.grace = $q.when.bind(null, {
         cancelled: true,
@@ -983,7 +983,7 @@ describe('The eventService service', function() {
 
       var first = true;
 
-      cachedEventSourceMock.registerUpdate = function(_event) {
+      calCachedEventSourceMock.registerUpdate = function(_event) {
         if (first) {
           expect(_event).to.equal(event);
           first = false;
@@ -993,13 +993,13 @@ describe('The eventService service', function() {
         }
       };
 
-      self.eventService.modifyEvent('/path/to/calendar/uid.ics', event, oldEvent, 'etag', angular.noop, {notifyFullcalendar: true});
+      self.calEventService.modifyEvent('/path/to/calendar/uid.ics', event, oldEvent, 'etag', angular.noop, {notifyFullcalendar: true});
 
       self.$rootScope.$apply();
       self.$httpBackend.flush();
     });
 
-    it('should call masterEventCache.save on old event if the creation is cancelled if and only if oldEvent is recurring', function() {
+    it('should call calMasterEventCache.save on old event if the creation is cancelled if and only if oldEvent is recurring', function() {
 
       self.gracePeriodService.grace = $q.when.bind(null, {
         cancelled: true,
@@ -1012,18 +1012,18 @@ describe('The eventService service', function() {
 
       oldEvent.isRecurring = _.constant(true);
       self.$httpBackend.expectPUT('/dav/api/path/to/calendar/uid.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY).respond(202, {id: '123456789'});
-      self.eventService.modifyEvent('/path/to/calendar/uid.ics', self.event, oldEvent, 'etag', angular.noop, {notifyFullcalendar: true});
+      self.calEventService.modifyEvent('/path/to/calendar/uid.ics', self.event, oldEvent, 'etag', angular.noop, {notifyFullcalendar: true});
       self.$rootScope.$apply();
       self.$httpBackend.flush();
 
       oldEvent.isRecurring = _.constant(false);
       self.$httpBackend.expectPUT('/dav/api/path/to/calendar/uid.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY).respond(202, {id: '123456789'});
-      self.eventService.modifyEvent('/path/to/calendar/uid.ics', self.event, oldEvent, 'etag', angular.noop, {notifyFullcalendar: true});
+      self.calEventService.modifyEvent('/path/to/calendar/uid.ics', self.event, oldEvent, 'etag', angular.noop, {notifyFullcalendar: true});
       self.$rootScope.$apply();
       self.$httpBackend.flush();
 
-      expect(self.masterEventCache.save).to.have.been.calledWith(sinon.match.same(oldEvent));
-      expect(self.masterEventCache.save).to.have.been.calledOnce;
+      expect(self.calMasterEventCache.save).to.have.been.calledWith(sinon.match.same(oldEvent));
+      expect(self.calMasterEventCache.save).to.have.been.calledOnce;
     });
 
     it('should never transmit empty error message to grace task even if the error message from the backend is empty', function(done) {
@@ -1052,7 +1052,7 @@ describe('The eventService service', function() {
       self.$httpBackend.expectPUT('/dav/api/path/to/calendar/uid.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY).respond(202, {id: '123456789'});
       self.$httpBackend.expectGET('/dav/api/path/to/calendar/uid.ics').respond(200, self.vcalendar.toJSON(), headers);
 
-      self.eventService.modifyEvent('/path/to/calendar/uid.ics', self.event, self.event, 'etag', angular.noop, {notifyFullcalendar: true}).catch(
+      self.calEventService.modifyEvent('/path/to/calendar/uid.ics', self.event, self.event, 'etag', angular.noop, {notifyFullcalendar: true}).catch(
         function() {
           expect(self.calendarEventEmitterMock.fullcalendar.emitModifiedEvent).to.have.been.called;
           expect(errorSpy).to.have.been.called;
@@ -1075,7 +1075,7 @@ describe('The eventService service', function() {
         self.oldEvent = self.event.clone();
         self.$httpBackend.expectPUT('/dav/api/path/to/calendar/uid.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY).respond(202, {id: '123456789'});
 
-        self.eventService.modifyEvent('/path/to/calendar/uid.ics', self.event, self.oldEvent, 'etag', angular.noop, {notifyFullcalendar: true});
+        self.calEventService.modifyEvent('/path/to/calendar/uid.ics', self.event, self.oldEvent, 'etag', angular.noop, {notifyFullcalendar: true});
 
         self.$rootScope.$apply();
         self.$httpBackend.flush();
@@ -1085,14 +1085,14 @@ describe('The eventService service', function() {
         expect(handler).to.not.be.undefined;
       });
 
-      it('should save oldEvent on masterEventCache if and only if it is a recurring event', function() {
+      it('should save oldEvent on calMasterEventCache if and only if it is a recurring event', function() {
         self.oldEvent.isRecurring = _.constant(true);
         handler();
         self.oldEvent.isRecurring = _.constant(false);
         handler();
 
-        expect(self.masterEventCache.save).to.have.been.calledOnce;
-        expect(self.masterEventCache.save).to.have.been.calledWith(self.oldEvent);
+        expect(self.calMasterEventCache.save).to.have.been.calledOnce;
+        expect(self.calMasterEventCache.save).to.have.been.calledWith(self.oldEvent);
       });
 
       it('should emitModifiedEvent with the old event', function() {
@@ -1121,8 +1121,8 @@ describe('The eventService service', function() {
       self.event = {
         id: '00000000-0000-4000-a000-000000000000',
         title: 'test event',
-        start: self.fcMoment(),
-        end: self.fcMoment(),
+        start: self.calMoment(),
+        end: self.calMoment(),
         isInstance: _.constant(false)
       };
 
@@ -1147,7 +1147,7 @@ describe('The eventService service', function() {
     it('should fail if status is not 202', function(done) {
       self.$httpBackend.expectDELETE('/dav/api/path/to/00000000-0000-4000-a000-000000000000.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY).respond(201);
 
-      self.eventService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', self.event, 'etag').then(
+      self.calEventService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', self.event, 'etag').then(
         unexpected.bind(null, done), function(response) {
           expect(response.status).to.equal(201);
           done();
@@ -1171,11 +1171,11 @@ describe('The eventService service', function() {
 
       var thenSpy = sinon.spy();
 
-      self.eventService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', self.event).then(thenSpy);
+      self.calEventService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', self.event).then(thenSpy);
 
       self.$rootScope.$apply();
       expect(thenSpy).to.have.been.calledWith(true);
-      expect(cachedEventSourceMock.deleteRegistration).to.have.been.calledWith(self.event);
+      expect(calCachedEventSourceMock.deleteRegistration).to.have.been.calledWith(self.event);
       expect(self.calendarEventEmitterMock.fullcalendar.emitRemovedEvent).to.have.been.calledWith(self.event.id);
     });
 
@@ -1184,7 +1184,7 @@ describe('The eventService service', function() {
       var event = angular.copy(self.event);
 
       event.gracePeriodTaskId = '12345';
-      self.eventService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', event, 'etag');
+      self.calEventService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', event, 'etag');
       self.$rootScope.$apply();
       self.$httpBackend.flush();
     });
@@ -1203,7 +1203,7 @@ describe('The eventService service', function() {
 
       self.$httpBackend.expectDELETE('/dav/api/path/to/00000000-0000-4000-a000-000000000000.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY).respond(202, {id: '123456789'});
 
-      self.eventService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', self.event, 'etag').then(
+      self.calEventService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', self.event, 'etag').then(
         function(completed) {
           expect(self.calendarEventEmitterMock.fullcalendar.emitRemovedEvent).to.have.been.called;
           expect(completed).to.be.true;
@@ -1215,7 +1215,7 @@ describe('The eventService service', function() {
       self.$httpBackend.flush();
     });
 
-    it('should call cachedEventSource.registerDelete', function(done) {
+    it('should call calCachedEventSource.registerDelete', function(done) {
 
       self.gracePeriodService.grace = $q.when.bind(null, {
         cancelled: true,
@@ -1228,9 +1228,9 @@ describe('The eventService service', function() {
 
       var event = self.event;
 
-      self.eventService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', self.event, 'etag').then(
+      self.calEventService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', self.event, 'etag').then(
         function() {
-          expect(cachedEventSourceMock.registerDelete).to.have.been.calledWith(event);
+          expect(calCachedEventSourceMock.registerDelete).to.have.been.calledWith(event);
           done();
         }
       );
@@ -1239,7 +1239,7 @@ describe('The eventService service', function() {
       self.$httpBackend.flush();
     });
 
-    it('should call cachedEventSource.deleteRegistration if the creation is cancelled', function(done) {
+    it('should call calCachedEventSource.deleteRegistration if the creation is cancelled', function(done) {
 
       self.gracePeriodService.grace = $q.when.bind(null, {
         cancelled: true,
@@ -1250,14 +1250,14 @@ describe('The eventService service', function() {
 
       var event = self.event;
 
-      cachedEventSourceMock.deleteRegistration = function(_event) {
+      calCachedEventSourceMock.deleteRegistration = function(_event) {
         expect(_event).to.equal(event);
         done();
       };
 
       self.$httpBackend.expectDELETE('/dav/api/path/to/00000000-0000-4000-a000-000000000000.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY).respond(202, {id: '123456789'});
 
-      self.eventService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', self.event, 'etag');
+      self.calEventService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', self.event, 'etag');
       self.$rootScope.$apply();
       self.$httpBackend.flush();
     });
@@ -1277,7 +1277,7 @@ describe('The eventService service', function() {
 
       self.$httpBackend.expectDELETE('/dav/api/path/to/00000000-0000-4000-a000-000000000000.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY).respond(202, {id: '123456789'});
 
-      self.eventService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', self.event, 'etag').then(
+      self.calEventService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', self.event, 'etag').then(
         function(response) {
           expect(self.calendarEventEmitterMock.fullcalendar.emitCreatedEvent).to.have.been.called;
           expect(successSpy).to.have.been.called;
@@ -1313,7 +1313,7 @@ describe('The eventService service', function() {
 
       self.$httpBackend.expectDELETE('/dav/api/path/to/00000000-0000-4000-a000-000000000000.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY).respond(202, {id: '123456789'});
 
-      self.eventService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', self.event, 'etag').catch(
+      self.calEventService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', self.event, 'etag').catch(
         function() {
           expect(self.calendarEventEmitterMock.fullcalendar.emitRemovedEvent).to.have.been.called;
           expect(errorSpy).to.have.been.called;
@@ -1345,7 +1345,7 @@ describe('The eventService service', function() {
 
       self.$httpBackend.expectDELETE('/dav/api/path/to/00000000-0000-4000-a000-000000000000.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY).respond(202, {id: taskId});
 
-      self.eventService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', self.event, 'etag').then(
+      self.calEventService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', self.event, 'etag').then(
         function(response) {
           expect(self.calendarEventEmitterMock.fullcalendar.emitRemovedEvent).to.have.been.called;
           expect(registerSpy).to.have.been.called;
@@ -1382,7 +1382,7 @@ describe('The eventService service', function() {
 
       self.$httpBackend.expectDELETE('/dav/api/path/to/00000000-0000-4000-a000-000000000000.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY).respond(202, {id: taskId});
 
-      self.eventService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', self.event, 'etag').then(
+      self.calEventService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', self.event, 'etag').then(
         function(response) {
           expect(response).to.be.true;
           done();
@@ -1405,8 +1405,8 @@ describe('The eventService service', function() {
 
       var errorCallback = sinon.spy();
 
-      self.eventService.modifyEvent = sinon.stub().returns($q.when(modifyEventAnswer));
-      self.eventService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', self.instanceEvent, 'etag').then(
+      self.calEventService.modifyEvent = sinon.stub().returns($q.when(modifyEventAnswer));
+      self.calEventService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', self.instanceEvent, 'etag').then(
         successCallback, errorCallback
       );
 
@@ -1415,7 +1415,7 @@ describe('The eventService service', function() {
       self.instanceEvent.getModifiedMaster.reset();
       self.master.clone.reset();
 
-      self.eventService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', self.instanceEvent).then(
+      self.calEventService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', self.instanceEvent).then(
         successCallback, errorCallback
       );
 
@@ -1442,7 +1442,7 @@ describe('The eventService service', function() {
 
       self.$httpBackend.expectDELETE('/dav/api/path/to/00000000-0000-4000-a000-000000000000.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY).respond(202, {id: taskId});
 
-      self.eventService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', self.instanceEvent, 'etag').then(
+      self.calEventService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', self.instanceEvent, 'etag').then(
         function(response) {
           expect(response).to.be.true;
           done();
@@ -1468,7 +1468,7 @@ describe('The eventService service', function() {
 
       self.$httpBackend.expectDELETE('/dav/api/path/to/00000000-0000-4000-a000-000000000000.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY).respond(202, {id: taskId});
 
-      self.eventService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', self.instanceEvent, 'etag', true).then(
+      self.calEventService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', self.instanceEvent, 'etag', true).then(
         function(response) {
           expect(response).to.be.true;
           done();
@@ -1492,8 +1492,8 @@ describe('The eventService service', function() {
 
       vevent.addPropertyWithValue('uid', '00000000-0000-4000-a000-000000000000');
       vevent.addPropertyWithValue('summary', 'test event');
-      vevent.addPropertyWithValue('dtstart', ICAL.Time.fromJSDate(self.fcMoment().toDate())).setParameter('tzid', self.jstz.determine().name());
-      vevent.addPropertyWithValue('dtend', ICAL.Time.fromJSDate(self.fcMoment().toDate())).setParameter('tzid', self.jstz.determine().name());
+      vevent.addPropertyWithValue('dtstart', ICAL.Time.fromJSDate(self.calMoment().toDate())).setParameter('tzid', self.jstz.determine().name());
+      vevent.addPropertyWithValue('dtend', ICAL.Time.fromJSDate(self.calMoment().toDate())).setParameter('tzid', self.jstz.determine().name());
       vevent.addPropertyWithValue('transp', 'OPAQUE');
       vevent.addPropertyWithValue('location', 'test location');
       vcalendar.addSubcomponent(vevent);
@@ -1506,7 +1506,7 @@ describe('The eventService service', function() {
 
       self.event.attendees = [];
 
-      self.eventService.changeParticipation('/path/to/uid.ics', self.event, emails, 'ACCEPTED').then(function(response) {
+      self.calEventService.changeParticipation('/path/to/uid.ics', self.event, emails, 'ACCEPTED').then(function(response) {
         expect(response).to.be.null;
         done();
       }, unexpected.bind(null, done));
@@ -1528,7 +1528,7 @@ describe('The eventService service', function() {
       self.event.attendees = [{emails: emails}];
       self.$httpBackend.expectPUT('/dav/api/path/to/uid.ics', copy.toJSON()).respond(200, new ICAL.Component('vcalendar').jCal);
 
-      self.eventService.changeParticipation('/path/to/uid.ics', self.event, emails, 'ACCEPTED').then(
+      self.calEventService.changeParticipation('/path/to/uid.ics', self.event, emails, 'ACCEPTED').then(
         function(response) {
           expect(response).to.exist;
           done();
@@ -1545,7 +1545,7 @@ describe('The eventService service', function() {
       var promiseSpy = sinon.spy();
 
       self.event.attendees = [{emails: emails, partstat: 'DECLINED'}];
-      self.eventService.changeParticipation('/path/to/uid.ics', self.event, emails, 'DECLINED').then(promiseSpy);
+      self.calEventService.changeParticipation('/path/to/uid.ics', self.event, emails, 'DECLINED').then(promiseSpy);
 
       self.$rootScope.$apply();
       expect(promiseSpy).to.have.been.calledWith(null);
@@ -1585,7 +1585,7 @@ describe('The eventService service', function() {
       self.$httpBackend.expectGET('/dav/api/path/to/uid.ics').respond(200, self.vcalendar.toJSON(), conflictHeaders);
       self.$httpBackend.expectPUT('/dav/api/path/to/uid.ics', copy.toJSON(), successRequestHeaders).respond(200, self.vcalendar.toJSON(), successHeaders);
 
-      self.eventService.changeParticipation('/path/to/uid.ics', self.event, emails, 'ACCEPTED', 'etag').then(
+      self.calEventService.changeParticipation('/path/to/uid.ics', self.event, emails, 'ACCEPTED', 'etag').then(
         function(shell) {
           expect(shell.etag).to.equal('success');
           done();
@@ -1635,7 +1635,7 @@ describe('The eventService service', function() {
         return icsComponent.toString() === copy.toString();
       }).respond(200, new ICAL.Component('vcalendar').jCal);
 
-      self.eventService.changeParticipation('/path/to/uid.ics', instance, emails, 'ACCEPTED').then(
+      self.calEventService.changeParticipation('/path/to/uid.ics', instance, emails, 'ACCEPTED').then(
         function(response) {
           expect(response).to.exist;
           done();

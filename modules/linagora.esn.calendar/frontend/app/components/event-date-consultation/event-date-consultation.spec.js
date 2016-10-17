@@ -10,11 +10,11 @@ describe('the eventDateConsultation directive', function() {
     angular.mock.module('esn.calendar');
   });
 
-  beforeEach(angular.mock.inject(function($compile, $rootScope, fcMoment) {
+  beforeEach(angular.mock.inject(function($compile, $rootScope, calMoment) {
     this.$compile = $compile;
     this.$rootScope = $rootScope;
     this.$scope = this.$rootScope.$new();
-    this.fcMoment = fcMoment;
+    this.calMoment = calMoment;
 
     this.initDirective = function(scope) {
       var html = '<event-date-consultation event="event"/>';
@@ -30,8 +30,8 @@ describe('the eventDateConsultation directive', function() {
     it('should set scope.start and scope.end to well formatted days of scope.event start and end (no hours nor minutes)', function() {
       this.$scope.event = {
         allDay: true,
-        start: this.fcMoment('2013-02-08 12:30'),
-        end: this.fcMoment('2013-02-09 13:30'),
+        start: this.calMoment('2013-02-08 12:30'),
+        end: this.calMoment('2013-02-09 13:30'),
         location: 'aLocation'
       };
       var isolateScope = this.initDirective(this.$scope);
@@ -46,8 +46,8 @@ describe('the eventDateConsultation directive', function() {
       it('should set scope.start to formatted value of scope.event.start and scope.event to scope.event.edn hours & minutes', function() {
         this.$scope.event = {
           allDay: false,
-          start: this.fcMoment('2013-02-08 12:30'),
-          end: this.fcMoment('2013-02-08 13:30'),
+          start: this.calMoment('2013-02-08 12:30'),
+          end: this.calMoment('2013-02-08 13:30'),
           location: 'aLocation'
         };
         var isolateScope = this.initDirective(this.$scope);
@@ -61,8 +61,8 @@ describe('the eventDateConsultation directive', function() {
       it('should set scope.start to formatted value of scope.event.start and scope.event to scope.event.edn hours & minutes', function() {
         this.$scope.event = {
           allDay: false,
-          start: this.fcMoment('2013-02-08 12:30'),
-          end: this.fcMoment('2013-02-09 13:30'),
+          start: this.calMoment('2013-02-08 12:30'),
+          end: this.calMoment('2013-02-09 13:30'),
           location: 'aLocation'
         };
         var isolateScope = this.initDirective(this.$scope);

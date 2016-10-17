@@ -4,13 +4,13 @@
 
 var expect = chai.expect;
 
-describe('The registerTimezones factory', function() {
+describe('The calRegisterTimezones factory', function() {
   var ICAL, TIMEZONES;
 
   beforeEach(function() {
     angular.mock.module('esn.calendar');
-    angular.mock.inject(function(registerTimezones, _ICAL_, _TIMEZONES_) {
-      registerTimezones();
+    angular.mock.inject(function(calRegisterTimezones, _ICAL_, _TIMEZONES_) {
+      calRegisterTimezones();
       ICAL = _ICAL_;
       TIMEZONES = _TIMEZONES_;
     });

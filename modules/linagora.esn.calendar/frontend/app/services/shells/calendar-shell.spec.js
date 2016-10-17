@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('CalendarShell factory', function() {
-  var CalendarShell, fcMoment, ICAL, $rootScope, eventService;
+  var CalendarShell, calMoment, ICAL, $rootScope, calEventService;
 
   beforeEach(function() {
     this.uuid4 = {
@@ -16,9 +16,9 @@ describe('CalendarShell factory', function() {
       }
     };
 
-    this.eventApiMock = {};
+    this.calEventAPIMock = {};
 
-    this.masterEventCache = {
+    this.calMasterEventCache = {
       save: angular.noop
     };
 
@@ -35,19 +35,19 @@ describe('CalendarShell factory', function() {
     angular.mock.module('esn.calendar');
     angular.mock.module(function($provide) {
       $provide.value('uuid4', self.uuid4);
-      $provide.value('eventAPI', self.eventApiMock);
-      $provide.value('masterEventCache', self.masterEventCache);
+      $provide.value('calEventAPI', self.calEventAPIMock);
+      $provide.value('calMasterEventCache', self.calMasterEventCache);
       $provide.value('jstz', self.jstzMock);
     });
   });
 
   beforeEach(function() {
-    angular.mock.inject(function(_CalendarShell_, _fcMoment_, _ICAL_, _$rootScope_, _eventService_) {
+    angular.mock.inject(function(_CalendarShell_, _calMoment_, _ICAL_, _$rootScope_, _calEventService_) {
       CalendarShell = _CalendarShell_;
-      fcMoment = _fcMoment_;
+      calMoment = _calMoment_;
       ICAL = _ICAL_;
       $rootScope = _$rootScope_;
-      eventService = _eventService_;
+      calEventService = _calEventService_;
     });
   });
 
@@ -55,18 +55,18 @@ describe('CalendarShell factory', function() {
     it('should convert date to localTimezone', function() {
       var shell = CalendarShell.fromIncompleteShell({});
 
-      shell.start = fcMoment.tz([2015, 11, 11, 19, 0, 0], 'Europe/Paris');
+      shell.start = calMoment.tz([2015, 11, 11, 19, 0, 0], 'Europe/Paris');
       expect(shell.vevent.getFirstProperty('dtstart').getParameter('tzid')).to.equal(this.localTimezone);
       expect(shell.vevent.getFirstPropertyValue('dtstart').toString()).to.equal('2015-12-12T01:00:00');
 
-      shell.end = fcMoment.utc([2015, 11, 11, 19, 0, 0]);
+      shell.end = calMoment.utc([2015, 11, 11, 19, 0, 0]);
       expect(shell.vevent.getFirstProperty('dtend').getParameter('tzid')).to.equal(this.localTimezone);
       expect(shell.vevent.getFirstPropertyValue('dtend').toString()).to.equal('2015-12-12T02:00:00');
     });
 
     it('should not lose allday', function() {
-      var shell, start = fcMoment(new Date(2014, 11, 29));
-      var end = fcMoment(new Date(2014, 11, 29));
+      var shell, start = calMoment(new Date(2014, 11, 29));
+      var end = calMoment(new Date(2014, 11, 29));
 
       start.stripTime();
       end.stripTime();
@@ -84,7 +84,7 @@ describe('CalendarShell factory', function() {
         var vcalendar = new ICAL.Component(ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/frontend/app/fixtures/calendar/reventWithTz.ics']));
         var shell = new CalendarShell(vcalendar);
 
-        shell[date] = fcMoment([2015, 1, 6, 10, 40]);
+        shell[date] = calMoment([2015, 1, 6, 10, 40]);
         expect(shell.vcalendar.getAllSubcomponents('vevent').length).to.equal(1);
       });
     });
@@ -93,13 +93,13 @@ describe('CalendarShell factory', function() {
       var vcalendar = new ICAL.Component(ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/frontend/app/fixtures/calendar/reventWithTz.ics']));
       var shell = new CalendarShell(vcalendar);
 
-      shell.start = fcMoment.utc([2016, 2, 7, 15, 0]);
-      shell.end = fcMoment.utc([2016, 2, 7, 16, 0]);
+      shell.start = calMoment.utc([2016, 2, 7, 15, 0]);
+      shell.end = calMoment.utc([2016, 2, 7, 16, 0]);
       expect(shell.vcalendar.getAllSubcomponents('vevent').length).to.equal(2);
     });
 
     it('if recurrent it should remove exception if start pass to allDay', function() {
-      var midnight = fcMoment.utc([2016, 2, 7, 17, 0]);
+      var midnight = calMoment.utc([2016, 2, 7, 17, 0]);
       var vcalendar = new ICAL.Component(ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/frontend/app/fixtures/calendar/reventWithTz.ics']));
 
       vcalendar.getFirstSubcomponent('vevent').updatePropertyWithValue('dtstart', ICAL.Time.fromJSDate(midnight.toDate(), true).convertToZone(ICAL.TimezoneService.get(this.localTimezone)));
@@ -134,11 +134,11 @@ describe('CalendarShell factory', function() {
 
       editEvent.location = 'bLocation';
 
-      this.eventApiMock.modify = function() {
+      this.calEventAPIMock.modify = function() {
         return $q.when({});
       };
 
-      eventService.modifyEvent('/path/to/event', editEvent, event, 'etag', angular.noop);
+      calEventService.modifyEvent('/path/to/event', editEvent, event, 'etag', angular.noop);
       expect(event.vcalendar.getAllSubcomponents('vtimezone').length).to.equal(1);
     });
   });
@@ -146,8 +146,8 @@ describe('CalendarShell factory', function() {
   describe('Attendees', function() {
     it('should allow several attendee properties', function() {
       var shell = {
-        start: fcMoment(new Date(2014, 11, 29, 18, 0, 0)),
-        end: fcMoment(new Date(2014, 11, 29, 19, 0, 0)),
+        start: calMoment(new Date(2014, 11, 29, 18, 0, 0)),
+        end: calMoment(new Date(2014, 11, 29, 19, 0, 0)),
         title: 'non-allday event'
       };
 
@@ -267,8 +267,8 @@ describe('CalendarShell factory', function() {
 
     it('should correctly create a recurrent event : daily + interval + count', function() {
       var shell = {
-        start: fcMoment.utc([2014, 11, 29, 18, 0, 0]),
-        end: fcMoment.utc([2014, 11, 29, 19, 0, 0]),
+        start: calMoment.utc([2014, 11, 29, 18, 0, 0]),
+        end: calMoment.utc([2014, 11, 29, 19, 0, 0]),
         title: 'non-allday event',
         rrule: {
           freq: 'DAILY',
@@ -293,8 +293,8 @@ describe('CalendarShell factory', function() {
 
     it('should correctly create a recurrent event: weekly + byday', function() {
       var shell = {
-        start: fcMoment.utc([2014, 11, 29, 18, 0, 0]),
-        end: fcMoment.utc([2014, 11, 29, 19, 0, 0]),
+        start: calMoment.utc([2014, 11, 29, 18, 0, 0]),
+        end: calMoment.utc([2014, 11, 29, 19, 0, 0]),
         title: 'non-allday event',
         rrule: {
           freq: 'WEEKLY',
@@ -318,8 +318,8 @@ describe('CalendarShell factory', function() {
 
     it('should correctly create a recurrent event: monthly', function() {
       var shell = {
-        start: fcMoment.utc([2014, 11, 29, 18, 0, 0]),
-        end: fcMoment.utc([2014, 11, 29, 19, 0, 0]),
+        start: calMoment.utc([2014, 11, 29, 18, 0, 0]),
+        end: calMoment.utc([2014, 11, 29, 19, 0, 0]),
         title: 'non-allday event',
         rrule: {
           freq: 'MONTHLY'
@@ -341,8 +341,8 @@ describe('CalendarShell factory', function() {
 
     it('should correctly create a recurrent event: yearly + until', function() {
       var shell = {
-        start: fcMoment.utc([2014, 11, 29, 18, 0, 0]),
-        end: fcMoment.utc([2014, 11, 29, 19, 0, 0]),
+        start: calMoment.utc([2014, 11, 29, 18, 0, 0]),
+        end: calMoment.utc([2014, 11, 29, 19, 0, 0]),
         title: 'non-allday event',
         rrule: {
           freq: 'YEARLY',
@@ -366,8 +366,8 @@ describe('CalendarShell factory', function() {
 
     it('should create a recurrent event with a method isRecurring returning true', function() {
       var shell = {
-        start: fcMoment(new Date(2014, 11, 29, 18, 0, 0)),
-        end: fcMoment(new Date(2014, 11, 29, 19, 0, 0)),
+        start: calMoment(new Date(2014, 11, 29, 18, 0, 0)),
+        end: calMoment(new Date(2014, 11, 29, 19, 0, 0)),
         title: 'non-allday event',
         rrule: {
           freq: 'DAILY',
@@ -385,8 +385,8 @@ describe('CalendarShell factory', function() {
   describe('isRecurring method', function() {
     it('should return true for reccuring event', function() {
       var shell = {
-        start: fcMoment(new Date(2014, 11, 29, 18, 0, 0)),
-        end: fcMoment(new Date(2014, 11, 29, 19, 0, 0)),
+        start: calMoment(new Date(2014, 11, 29, 18, 0, 0)),
+        end: calMoment(new Date(2014, 11, 29, 19, 0, 0)),
         rrule: {
           freq: 'DAILY',
           interval: 2,
@@ -400,8 +400,8 @@ describe('CalendarShell factory', function() {
 
     it('should return false for non reccuring event', function() {
       var shell = {
-        start: fcMoment(new Date(2014, 11, 29, 18, 0, 0)),
-        end: fcMoment(new Date(2014, 11, 29, 19, 0, 0))
+        start: calMoment(new Date(2014, 11, 29, 18, 0, 0)),
+        end: calMoment(new Date(2014, 11, 29, 19, 0, 0))
       };
 
       shell = CalendarShell.fromIncompleteShell(shell);
@@ -421,8 +421,8 @@ describe('CalendarShell factory', function() {
 
     it('should return an empty array for non recurring event', function() {
       var shell = {
-        start: fcMoment(new Date(2014, 11, 29, 18, 0, 0)),
-        end: fcMoment(new Date(2014, 11, 29, 19, 0, 0))
+        start: calMoment(new Date(2014, 11, 29, 18, 0, 0)),
+        end: calMoment(new Date(2014, 11, 29, 19, 0, 0))
       };
 
       shell = CalendarShell.fromIncompleteShell(shell);
@@ -431,8 +431,8 @@ describe('CalendarShell factory', function() {
 
     it('should fail if called without end date and max element if the event have a infinity of sub event', function() {
       var shell = {
-        start: fcMoment(new Date(2014, 11, 29, 18, 0, 0)),
-        end: fcMoment(new Date(2014, 11, 29, 19, 0, 0)),
+        start: calMoment(new Date(2014, 11, 29, 18, 0, 0)),
+        end: calMoment(new Date(2014, 11, 29, 19, 0, 0)),
         rrule: {
           freq: 'DAILY',
           interval: 2
@@ -445,8 +445,8 @@ describe('CalendarShell factory', function() {
 
     it('should not fail if called with end date and max element if the event has count', function() {
       var shell = {
-        start: fcMoment(new Date(2014, 11, 29, 18, 0, 0)),
-        end: fcMoment(new Date(2014, 11, 29, 19, 0, 0)),
+        start: calMoment(new Date(2014, 11, 29, 18, 0, 0)),
+        end: calMoment(new Date(2014, 11, 29, 19, 0, 0)),
         rrule: {
           freq: 'DAILY',
           interval: 2,
@@ -460,8 +460,8 @@ describe('CalendarShell factory', function() {
 
     it('should not fail if called with end date and max element if the event has until', function() {
       var shell = {
-        start: fcMoment(new Date(2014, 11, 29, 18, 0, 0)),
-        end: fcMoment(new Date(2014, 11, 29, 19, 0, 0)),
+        start: calMoment(new Date(2014, 11, 29, 18, 0, 0)),
+        end: calMoment(new Date(2014, 11, 29, 19, 0, 0)),
         rrule: {
           freq: 'DAILY',
           interval: 2,
@@ -475,8 +475,8 @@ describe('CalendarShell factory', function() {
 
     it('should compute correctly recurrenceId in UTC Timezone', function() {
       var shell = {
-        start: fcMoment.tz('2015-01-01 18:01', 'America/Toronto'),
-        end: fcMoment.tz('2015-01-01 19:01', 'America/Toronto'),
+        start: calMoment.tz('2015-01-01 18:01', 'America/Toronto'),
+        end: calMoment.tz('2015-01-01 19:01', 'America/Toronto'),
         backgroundColor: 'red',
         title: 'reccurent',
         rrule: {
@@ -517,8 +517,8 @@ describe('CalendarShell factory', function() {
 
     it('should expand correctly all subevent if no start and end date specified', function() {
       var shell = {
-        start: fcMoment.utc('2015-01-01 18:01'),
-        end: fcMoment.utc('2015-01-01 19:01'),
+        start: calMoment.utc('2015-01-01 18:01'),
+        end: calMoment.utc('2015-01-01 19:01'),
         backgroundColor: 'red',
         title: 'reccurent',
         rrule: {
@@ -567,8 +567,8 @@ describe('CalendarShell factory', function() {
 
     it('should take mutation of subevent into consideration', function() {
       var shell = {
-        start: fcMoment.utc('2015-01-01 18:01'),
-        end: fcMoment.utc('2015-01-01 19:01'),
+        start: calMoment.utc('2015-01-01 18:01'),
+        end: calMoment.utc('2015-01-01 19:01'),
         backgroundColor: 'red',
         title: 'reccurent',
         rrule: {
@@ -582,7 +582,7 @@ describe('CalendarShell factory', function() {
 
       var subevents = shell.expand();
 
-      subevents[0].start = fcMoment.utc('2015-01-01T18:30:00');
+      subevents[0].start = calMoment.utc('2015-01-01T18:30:00');
       subevents[0].title = 'benjen stark is alive';
       shell.modifyOccurrence(subevents[0]);
 
@@ -640,8 +640,8 @@ describe('CalendarShell factory', function() {
 
     it('should expand correctly all subevent before enddate if no startDate given', function() {
       var shell = {
-        start: fcMoment.utc('2015-01-01 18:01'),
-        end: fcMoment.utc('2015-01-01 19:01'),
+        start: calMoment.utc('2015-01-01 18:01'),
+        end: calMoment.utc('2015-01-01 19:01'),
         backgroundColor: 'red',
         title: 'reccurent',
         rrule: {
@@ -653,7 +653,7 @@ describe('CalendarShell factory', function() {
 
       shell = CalendarShell.fromIncompleteShell(shell);
 
-      expect(shell.expand(null, fcMoment.utc('2015-01-02 00:00')).map(formatDates)).to.shallowDeepEqual({
+      expect(shell.expand(null, calMoment.utc('2015-01-02 00:00')).map(formatDates)).to.shallowDeepEqual({
         0: {
           title: 'reccurent',
           formattedStart: '2015-01-01T18:01:00Z',
@@ -667,8 +667,8 @@ describe('CalendarShell factory', function() {
 
     it('should expand correctly all subevent after start if no end date given', function() {
       var shell = {
-        start: fcMoment.utc('2015-01-01 18:01'),
-        end: fcMoment.utc('2015-01-01 19:01'),
+        start: calMoment.utc('2015-01-01 18:01'),
+        end: calMoment.utc('2015-01-01 19:01'),
         backgroundColor: 'red',
         title: 'reccurent',
         rrule: {
@@ -680,7 +680,7 @@ describe('CalendarShell factory', function() {
 
       shell = CalendarShell.fromIncompleteShell(shell);
 
-      expect(shell.expand(fcMoment.utc('2015-01-04 00:00')).map(formatDates)).to.shallowDeepEqual({
+      expect(shell.expand(calMoment.utc('2015-01-04 00:00')).map(formatDates)).to.shallowDeepEqual({
         0: {
           title: 'reccurent',
           formattedStart: '2015-01-05T18:01:00Z',
@@ -694,8 +694,8 @@ describe('CalendarShell factory', function() {
 
     it('should expand correctly all subevent between start date and end date', function() {
       var shell = {
-        start: fcMoment.utc('2015-01-01 18:01'),
-        end: fcMoment.utc('2015-01-01 19:01'),
+        start: calMoment.utc('2015-01-01 18:01'),
+        end: calMoment.utc('2015-01-01 19:01'),
         backgroundColor: 'red',
         title: 'reccurent',
         rrule: {
@@ -706,7 +706,7 @@ describe('CalendarShell factory', function() {
 
       shell = CalendarShell.fromIncompleteShell(shell);
 
-      expect(shell.expand(fcMoment.utc('2015-01-02 00:00'), fcMoment.utc('2015-01-04 00:00')).map(formatDates)).to.shallowDeepEqual({
+      expect(shell.expand(calMoment.utc('2015-01-02 00:00'), calMoment.utc('2015-01-04 00:00')).map(formatDates)).to.shallowDeepEqual({
         0: {
           title: 'reccurent',
           formattedStart: '2015-01-03T18:01:00Z',
@@ -720,8 +720,8 @@ describe('CalendarShell factory', function() {
 
     it('should expand correctly all subevent between start time stripTime date and end stripTime date', function() {
       var shell = {
-        start: fcMoment.utc('2015-01-01 18:01'),
-        end: fcMoment.utc('2015-01-01 19:01'),
+        start: calMoment.utc('2015-01-01 18:01'),
+        end: calMoment.utc('2015-01-01 19:01'),
         backgroundColor: 'red',
         title: 'reccurent',
         rrule: {
@@ -732,7 +732,7 @@ describe('CalendarShell factory', function() {
 
       shell = CalendarShell.fromIncompleteShell(shell);
 
-      expect(shell.expand(fcMoment.utc('2015-01-02').stripTime(), fcMoment.utc('2015-01-04').stripTime()).map(formatDates)).to.shallowDeepEqual({
+      expect(shell.expand(calMoment.utc('2015-01-02').stripTime(), calMoment.utc('2015-01-04').stripTime()).map(formatDates)).to.shallowDeepEqual({
         0: {
           title: 'reccurent',
           formattedStart: '2015-01-03T18:01:00Z',
@@ -746,8 +746,8 @@ describe('CalendarShell factory', function() {
 
     it('should expand no more event than given maxElement', function() {
       var shell = {
-        start: fcMoment.utc('2015-01-01 18:01'),
-        end: fcMoment.utc('2015-01-01 19:01'),
+        start: calMoment.utc('2015-01-01 18:01'),
+        end: calMoment.utc('2015-01-01 19:01'),
         backgroundColor: 'red',
         title: 'reccurent',
         rrule: {
@@ -826,22 +826,22 @@ describe('CalendarShell factory', function() {
     });
 
     it('should return the cached master if it exists', function(done) {
-      var date = fcMoment('1999-05-19 01:01');
+      var date = calMoment('1999-05-19 01:01');
       var shell = CalendarShell.fromIncompleteShell({
         recurrenceId: date
       });
 
       var masterFromCache = CalendarShell.fromIncompleteShell({start: date});
 
-      this.masterEventCache.get = sinon.stub().returns(masterFromCache);
-      this.masterEventCache.save = sinon.spy();
+      this.calMasterEventCache.get = sinon.stub().returns(masterFromCache);
+      this.calMasterEventCache.save = sinon.spy();
 
       var self = this;
 
       shell.getModifiedMaster().then(function(masterShell) {
         expect(masterShell).to.equal(masterFromCache);
-        expect(self.masterEventCache.get).to.have.been.calledWith(shell.path);
-        expect(self.masterEventCache.save).to.have.been.calledWith(masterFromCache);
+        expect(self.calMasterEventCache.get).to.have.been.calledWith(shell.path);
+        expect(self.calMasterEventCache.save).to.have.been.calledWith(masterFromCache);
         done();
       }, done);
 
@@ -850,22 +850,22 @@ describe('CalendarShell factory', function() {
 
     it('should fetch the master on the server if not already cached', function(done) {
       var path = 'this is a path';
-      var date = fcMoment('2005-05-19 01:01');
+      var date = calMoment('2005-05-19 01:01');
       var vcalendar = CalendarShell.fromIncompleteShell({start: date}).vcalendar;
       var gracePeriodTaskId = 'gracePeriodID';
       var etag = 'eta';
 
       var shell = CalendarShell.fromIncompleteShell({
-        recurrenceId: fcMoment(),
+        recurrenceId: calMoment(),
         path: path,
         etag: etag,
         gracePeriodTaskId: gracePeriodTaskId
       });
 
-      this.masterEventCache.get = sinon.stub().returns(null);
-      this.masterEventCache.save = sinon.spy();
+      this.calMasterEventCache.get = sinon.stub().returns(null);
+      this.calMasterEventCache.save = sinon.spy();
 
-      this.eventApiMock.get = function(_path) {
+      this.calEventAPIMock.get = function(_path) {
         expect(_path).to.equal(path);
 
         return $q.when({data: vcalendar.toJSON()});
@@ -877,8 +877,8 @@ describe('CalendarShell factory', function() {
         expect(masterShell.vcalendar.toJSON()).to.deep.equal(vcalendar.toJSON());
         expect(masterShell.etag).to.equal(etag);
         expect(masterShell.gracePeriodTaskId).to.equal(gracePeriodTaskId);
-        expect(self.masterEventCache.get).to.have.been.calledWith(shell.path);
-        expect(self.masterEventCache.save).to.have.been.calledWith(masterShell);
+        expect(self.calMasterEventCache.get).to.have.been.calledWith(shell.path);
+        expect(self.calMasterEventCache.save).to.have.been.calledWith(masterShell);
         done();
       }, done);
 
@@ -889,15 +889,15 @@ describe('CalendarShell factory', function() {
 
       var error = {};
 
-      this.eventApiMock.get = function() {
+      this.calEventAPIMock.get = function() {
         return $q.reject(error);
       };
 
       var shell = CalendarShell.fromIncompleteShell({
-        recurrenceId: fcMoment()
+        recurrenceId: calMoment()
       });
 
-      this.masterEventCache.get = function(path) {
+      this.calMasterEventCache.get = function(path) {
         expect(path).to.equal(shell.path);
       };
 
@@ -925,7 +925,7 @@ describe('CalendarShell factory', function() {
 
     it('should failed if called on a non master event', function(done) {
       var nonMasterEvent = CalendarShell.fromIncompleteShell({
-        recurrenceId: fcMoment()
+        recurrenceId: calMoment()
       });
 
       try {
@@ -938,12 +938,12 @@ describe('CalendarShell factory', function() {
 
     it('should add the modified occurence in the vcalendar of the master shell if not already there', function() {
       var nonMasterEvent = CalendarShell.fromIncompleteShell({
-        recurrenceId: fcMoment('1983-05-25 01:01')
+        recurrenceId: calMoment('1983-05-25 01:01')
       });
 
-      this.masterEventCache.save = sinon.spy();
+      this.calMasterEventCache.save = sinon.spy();
 
-      var masterEvent = CalendarShell.fromIncompleteShell({start: fcMoment('2015-08-21 01:01')});
+      var masterEvent = CalendarShell.fromIncompleteShell({start: calMoment('2015-08-21 01:01')});
 
       masterEvent.modifyOccurrence(nonMasterEvent);
 
@@ -957,12 +957,12 @@ describe('CalendarShell factory', function() {
         numSame += angular.equals(vevent.toJSON(), nonMasterEvent.vevent.toJSON()) ? 1 : 0;
       });
       expect(numSame).to.equal(1);
-      expect(this.masterEventCache.save).to.have.been.calledWith(masterEvent);
+      expect(this.calMasterEventCache.save).to.have.been.calledWith(masterEvent);
     });
 
     it('should replace the modified occurence in the vcalendar of the master shell if already there', function() {
-      var recurrenceId = fcMoment('1999-05-19 01:01');
-      this.masterEventCache.save = sinon.spy();
+      var recurrenceId = calMoment('1999-05-19 01:01');
+      this.calMasterEventCache.save = sinon.spy();
 
       var nonMasterEvent = CalendarShell.fromIncompleteShell({
         recurrenceId: recurrenceId
@@ -970,10 +970,10 @@ describe('CalendarShell factory', function() {
 
       var nonMasterEventModified = CalendarShell.fromIncompleteShell({
         recurrenceId: recurrenceId,
-        start: fcMoment('1983-05-25 01:01')
+        start: calMoment('1983-05-25 01:01')
       });
 
-      var masterEvent = CalendarShell.fromIncompleteShell({start: fcMoment('1983-05-25 01:01')});
+      var masterEvent = CalendarShell.fromIncompleteShell({start: calMoment('1983-05-25 01:01')});
       masterEvent.modifyOccurrence(nonMasterEvent);
 
       masterEvent.modifyOccurrence(nonMasterEventModified);
@@ -988,28 +988,28 @@ describe('CalendarShell factory', function() {
       });
 
       expect(numSame).to.equal(1);
-      expect(this.masterEventCache.save).to.have.been.calledWith(masterEvent);
+      expect(this.calMasterEventCache.save).to.have.been.calledWith(masterEvent);
     });
 
-    it('should not register the masterShell in the masterEventCache if notRefreshCache is true', function() {
-      var recurrenceId = fcMoment('1977-05-27 01:01');
+    it('should not register the masterShell in the calMasterEventCache if notRefreshCache is true', function() {
+      var recurrenceId = calMoment('1977-05-27 01:01');
       var nonMasterEvent = CalendarShell.fromIncompleteShell({
         recurrenceId: recurrenceId
       });
 
-      this.masterEventCache.save = sinon.spy();
+      this.calMasterEventCache.save = sinon.spy();
 
-      var masterEvent = CalendarShell.fromIncompleteShell({start: fcMoment('1983-05-25 01:01')});
+      var masterEvent = CalendarShell.fromIncompleteShell({start: calMoment('1983-05-25 01:01')});
       masterEvent.modifyOccurrence(nonMasterEvent, true);
-      expect(this.masterEventCache.save).to.not.have.been.called;
+      expect(this.calMasterEventCache.save).to.not.have.been.called;
     });
   });
 
   describe('isRealException function', function() {
 
     it('should return true if the instance is an exception', function() {
-      var recurrenceId = fcMoment('1977-05-27 01:01');
-      var start = fcMoment('1980-05-17 01:01');
+      var recurrenceId = calMoment('1977-05-27 01:01');
+      var start = calMoment('1980-05-17 01:01');
       var nonMasterEventModified = CalendarShell.fromIncompleteShell({
         recurrenceId: recurrenceId,
         start: start
@@ -1021,7 +1021,7 @@ describe('CalendarShell factory', function() {
     });
 
     it('should return false if the instance is not an exception', function() {
-      var start = fcMoment('2002-05-16 01:01');
+      var start = calMoment('2002-05-16 01:01');
       var nonMasterEventNonModified = CalendarShell.fromIncompleteShell({
         recurrenceId: start,
         start: start
@@ -1046,14 +1046,14 @@ describe('CalendarShell factory', function() {
   describe('equals method', function() {
     it('should return call isSame for start, end and recurrenceId properties', function() {
       var eventA = CalendarShell.fromIncompleteShell({
-        start: fcMoment('2015-01-01 18:00'),
-        end: fcMoment('2015-01-01 18:00'),
-        recurrendId: fcMoment('2015-01-01 18:00')
+        start: calMoment('2015-01-01 18:00'),
+        end: calMoment('2015-01-01 18:00'),
+        recurrendId: calMoment('2015-01-01 18:00')
       });
       var eventB = CalendarShell.fromIncompleteShell({
-        start: fcMoment('2015-01-01 18:00'),
-        end: fcMoment('2015-01-01 18:00'),
-        recurrendId: fcMoment('2015-01-01 18:00')
+        start: calMoment('2015-01-01 18:00'),
+        end: calMoment('2015-01-01 18:00'),
+        recurrendId: calMoment('2015-01-01 18:00')
       });
 
       eventA.start.foo = 'bar';
@@ -1064,15 +1064,15 @@ describe('CalendarShell factory', function() {
 
     it('should not fail if that.rrule is undefined', function() {
       var eventA = CalendarShell.fromIncompleteShell({
-        start: fcMoment('2015-01-01 18:00'),
-        end: fcMoment('2015-01-01 18:00'),
-        recurrendId: fcMoment('2015-01-01 18:00'),
+        start: calMoment('2015-01-01 18:00'),
+        end: calMoment('2015-01-01 18:00'),
+        recurrendId: calMoment('2015-01-01 18:00'),
         rrule: 'isdefined'
       });
       var eventB = CalendarShell.fromIncompleteShell({
-        start: fcMoment('2015-01-01 18:00'),
-        end: fcMoment('2015-01-01 18:00'),
-        recurrendId: fcMoment('2015-01-01 18:00')
+        start: calMoment('2015-01-01 18:00'),
+        end: calMoment('2015-01-01 18:00'),
+        recurrendId: calMoment('2015-01-01 18:00')
       });
 
       expect(eventA.equals(eventB)).to.be.false;
@@ -1080,8 +1080,8 @@ describe('CalendarShell factory', function() {
 
     it('should return true if alarm are equals', function() {
       var eventA = CalendarShell.fromIncompleteShell({
-        start: fcMoment('2015-01-01 18:00'),
-        end: fcMoment('2015-01-01 18:00'),
+        start: calMoment('2015-01-01 18:00'),
+        end: calMoment('2015-01-01 18:00'),
         alarm: {
           action: 'EMAIL',
           summary: 'summary',
@@ -1091,8 +1091,8 @@ describe('CalendarShell factory', function() {
         }
       });
       var eventB = CalendarShell.fromIncompleteShell({
-        start: fcMoment('2015-01-01 18:00'),
-        end: fcMoment('2015-01-01 18:00'),
+        start: calMoment('2015-01-01 18:00'),
+        end: calMoment('2015-01-01 18:00'),
         alarm: {
           action: 'EMAIL',
           summary: 'summary',
@@ -1107,8 +1107,8 @@ describe('CalendarShell factory', function() {
 
     it('should return false if alarm are not equals', function() {
       var eventA = CalendarShell.fromIncompleteShell({
-        start: fcMoment('2015-01-01 18:00'),
-        end: fcMoment('2015-01-01 18:00'),
+        start: calMoment('2015-01-01 18:00'),
+        end: calMoment('2015-01-01 18:00'),
         alarm: {
           action: 'EMAIL',
           summary: 'summary',
@@ -1118,8 +1118,8 @@ describe('CalendarShell factory', function() {
         }
       });
       var eventB = CalendarShell.fromIncompleteShell({
-        start: fcMoment('2015-01-01 18:00'),
-        end: fcMoment('2015-01-01 18:00'),
+        start: calMoment('2015-01-01 18:00'),
+        end: calMoment('2015-01-01 18:00'),
         alarm: {
           action: 'EMAIL',
           summary: 'summary',
@@ -1134,12 +1134,12 @@ describe('CalendarShell factory', function() {
 
     it('should return true if both of eventA.alarm and eventB.alarm is undefined', function() {
       var eventA = CalendarShell.fromIncompleteShell({
-        start: fcMoment('2015-01-01 18:00'),
-        end: fcMoment('2015-01-01 18:00')
+        start: calMoment('2015-01-01 18:00'),
+        end: calMoment('2015-01-01 18:00')
       });
       var eventB = CalendarShell.fromIncompleteShell({
-        start: fcMoment('2015-01-01 18:00'),
-        end: fcMoment('2015-01-01 18:00')
+        start: calMoment('2015-01-01 18:00'),
+        end: calMoment('2015-01-01 18:00')
       });
 
       expect(eventA.equals(eventB)).to.be.true;
@@ -1147,13 +1147,13 @@ describe('CalendarShell factory', function() {
 
     it('should return false if one of alarms is undefined', function() {
       var eventA = CalendarShell.fromIncompleteShell({
-        start: fcMoment('2015-01-01 18:00'),
-        end: fcMoment('2015-01-01 18:00')
+        start: calMoment('2015-01-01 18:00'),
+        end: calMoment('2015-01-01 18:00')
       });
 
       var eventB = CalendarShell.fromIncompleteShell({
-        start: fcMoment('2015-01-01 18:00'),
-        end: fcMoment('2015-01-01 18:00'),
+        start: calMoment('2015-01-01 18:00'),
+        end: calMoment('2015-01-01 18:00'),
         alarm: {
           action: 'EMAIL',
           summary: 'summary',
@@ -1168,9 +1168,9 @@ describe('CalendarShell factory', function() {
 
     it('should return false if change from recurrent event to non-recurrent', function() {
       var eventA = CalendarShell.fromIncompleteShell({
-        start: fcMoment('2015-01-01 18:00'),
-        end: fcMoment('2015-01-01 18:00'),
-        recurrendId: fcMoment('2015-01-01 18:00'),
+        start: calMoment('2015-01-01 18:00'),
+        end: calMoment('2015-01-01 18:00'),
+        recurrendId: calMoment('2015-01-01 18:00'),
         rrule: {
           freq: 'DAILY',
           interval: 2
@@ -1187,9 +1187,9 @@ describe('CalendarShell factory', function() {
   describe('Alarm', function() {
     it('should create a valarm component with trigger, action, summary, description and attendee', function() {
       var eventA = CalendarShell.fromIncompleteShell({
-        start: fcMoment('2015-01-01 18:00'),
-        end: fcMoment('2015-01-01 18:00'),
-        recurrendId: fcMoment('2015-01-01 18:00')
+        start: calMoment('2015-01-01 18:00'),
+        end: calMoment('2015-01-01 18:00'),
+        recurrendId: calMoment('2015-01-01 18:00')
       });
 
       eventA.alarm = {
@@ -1205,9 +1205,9 @@ describe('CalendarShell factory', function() {
 
     it('should not create 2 alarms but delete/create again', function() {
       var eventA = CalendarShell.fromIncompleteShell({
-        start: fcMoment('2015-01-01 18:00'),
-        end: fcMoment('2015-01-01 18:00'),
-        recurrendId: fcMoment('2015-01-01 18:00')
+        start: calMoment('2015-01-01 18:00'),
+        end: calMoment('2015-01-01 18:00'),
+        recurrendId: calMoment('2015-01-01 18:00')
       });
 
       eventA.alarm = {
@@ -1228,9 +1228,9 @@ describe('CalendarShell factory', function() {
 
     it('should fail if trigger is undefined', function(done) {
       var eventA = CalendarShell.fromIncompleteShell({
-        start: fcMoment('2015-01-01 18:00'),
-        end: fcMoment('2015-01-01 18:00'),
-        recurrendId: fcMoment('2015-01-01 18:00')
+        start: calMoment('2015-01-01 18:00'),
+        end: calMoment('2015-01-01 18:00'),
+        recurrendId: calMoment('2015-01-01 18:00')
       });
 
       try {
@@ -1242,9 +1242,9 @@ describe('CalendarShell factory', function() {
 
     it('should fail if attendeeEmail is undefined', function(done) {
       var eventA = CalendarShell.fromIncompleteShell({
-        start: fcMoment('2015-01-01 18:00'),
-        end: fcMoment('2015-01-01 18:00'),
-        recurrendId: fcMoment('2015-01-01 18:00')
+        start: calMoment('2015-01-01 18:00'),
+        end: calMoment('2015-01-01 18:00'),
+        recurrendId: calMoment('2015-01-01 18:00')
       });
 
       try {
@@ -1258,8 +1258,8 @@ describe('CalendarShell factory', function() {
   describe('getOrganizerPartStat', function() {
     it('should return null if shell has no organizer', function() {
       var shell = {
-        start: fcMoment(new Date(2014, 11, 29, 18, 0, 0)),
-        end: fcMoment(new Date(2014, 11, 29, 19, 0, 0))
+        start: calMoment(new Date(2014, 11, 29, 18, 0, 0)),
+        end: calMoment(new Date(2014, 11, 29, 19, 0, 0))
       };
 
       shell = CalendarShell.fromIncompleteShell(shell);
@@ -1268,8 +1268,8 @@ describe('CalendarShell factory', function() {
 
     it('should return the organizer partstat if it exists', function() {
       var data = {
-        start: fcMoment(new Date(2014, 11, 29, 18, 0, 0)),
-        end: fcMoment(new Date(2014, 11, 29, 19, 0, 0))
+        start: calMoment(new Date(2014, 11, 29, 18, 0, 0)),
+        end: calMoment(new Date(2014, 11, 29, 19, 0, 0))
       };
       var shell = CalendarShell.fromIncompleteShell(data);
 
@@ -1297,8 +1297,8 @@ describe('CalendarShell factory', function() {
   describe('setOrganizerPartStat', function() {
     it('should do nothing if the shell has no organizer', function() {
       var shell = {
-        start: fcMoment(new Date(2014, 11, 29, 18, 0, 0)),
-        end: fcMoment(new Date(2014, 11, 29, 19, 0, 0))
+        start: calMoment(new Date(2014, 11, 29, 18, 0, 0)),
+        end: calMoment(new Date(2014, 11, 29, 19, 0, 0))
       };
 
       shell = CalendarShell.fromIncompleteShell(shell);
@@ -1309,8 +1309,8 @@ describe('CalendarShell factory', function() {
 
     it('should add an attendee with specified partstat for organizer if there was none', function() {
       var shell = {
-        start: fcMoment(new Date(2014, 11, 29, 18, 0, 0)),
-        end: fcMoment(new Date(2014, 11, 29, 19, 0, 0))
+        start: calMoment(new Date(2014, 11, 29, 18, 0, 0)),
+        end: calMoment(new Date(2014, 11, 29, 19, 0, 0))
       };
 
       shell = CalendarShell.fromIncompleteShell(shell);
@@ -1330,8 +1330,8 @@ describe('CalendarShell factory', function() {
 
     it('should replace the attendee for organizer with a new one with specified partstat', function() {
       var shell = {
-        start: fcMoment(new Date(2014, 11, 29, 18, 0, 0)),
-        end: fcMoment(new Date(2014, 11, 29, 19, 0, 0))
+        start: calMoment(new Date(2014, 11, 29, 18, 0, 0)),
+        end: calMoment(new Date(2014, 11, 29, 19, 0, 0))
       };
 
       shell = CalendarShell.fromIncompleteShell(shell);

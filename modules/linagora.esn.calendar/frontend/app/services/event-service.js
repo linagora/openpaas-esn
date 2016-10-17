@@ -2,39 +2,39 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .service('eventService', eventService);
+         .service('calEventService', calEventService);
 
-  eventService.$inject = [
+  calEventService.$inject = [
     '$q',
     'ICAL',
-    'cachedEventSource',
+    'calCachedEventSource',
     'calendarAPI',
     'calendarEventEmitter',
     'CalendarShell',
     'calendarUtils',
-    'eventAPI',
-    'eventUtils',
+    'calEventAPI',
+    'calEventUtils',
     'gracePeriodLiveNotification',
     'gracePeriodService',
-    'masterEventCache',
+    'calMasterEventCache',
     'notifyService',
     'CALENDAR_ERROR_DISPLAY_DELAY',
     'CALENDAR_GRACE_DELAY'
   ];
 
-  function eventService(
+  function calEventService(
     $q,
     ICAL,
-    cachedEventSource,
+    calCachedEventSource,
     calendarAPI,
     calendarEventEmitter,
     CalendarShell,
     calendarUtils,
-    eventAPI,
-    eventUtils,
+    calEventAPI,
+    calEventUtils,
     gracePeriodLiveNotification,
     gracePeriodService,
-    masterEventCache,
+    calMasterEventCache,
     notifyService,
     CALENDAR_ERROR_DISPLAY_DELAY,
     CALENDAR_GRACE_DELAY) {
@@ -55,8 +55,8 @@
       /**
        * List all events between a specific range [start..end] in a calendar defined by its path.<
        * @param  {String}   calendarPath the calendar path. it should be something like /calendars/<homeId>/<id>.json
-       * @param  {fcMoment} start        start date
-       * @param  {fcMoment} end          end date (inclusive)
+       * @param  {calMoment} start        start date
+       * @param  {calMoment} end          end date (inclusive)
        * @param  {String}   timezone     the timezone in which we want the returned events to be in
        * @return {[CalendarShell]}       an array of CalendarShell or an empty array if no events have been found
        */
@@ -142,7 +142,7 @@
        * @return {CalendarShell}           the found event wrap into a CalendarShell
        */
       function getEvent(eventPath) {
-        return eventAPI.get(eventPath)
+        return calEventAPI.get(eventPath)
           .then(function(response) {
             return CalendarShell.from(response.data, {path: eventPath, etag: response.headers('ETag')});
           })
@@ -203,19 +203,19 @@
         }
 
         function onTaskCancel() {
-          cachedEventSource.deleteRegistration(event);
+          calCachedEventSource.deleteRegistration(event);
           calendarEventEmitter.fullcalendar.emitRemovedEvent(event.uid);
-          event.isRecurring() && masterEventCache.remove(event);
+          event.isRecurring() && calMasterEventCache.remove(event);
         }
 
-        return eventAPI.create(event.path, event.vcalendar, options)
+        return calEventAPI.create(event.path, event.vcalendar, options)
           .then(function(response) {
             if (typeof response !== 'string') {
               return response;
             } else {
               event.gracePeriodTaskId = taskId = response;
-              event.isRecurring() && masterEventCache.save(event);
-              cachedEventSource.registerAdd(event);
+              event.isRecurring() && calMasterEventCache.save(event);
+              calCachedEventSource.registerAdd(event);
               calendarEventEmitter.fullcalendar.emitCreatedEvent(event);
 
               return gracePeriodService.grace(taskId, 'You are about to create a new event (' + event.title + ').', 'Cancel it', CALENDAR_GRACE_DELAY, {id: event.uid})
@@ -245,7 +245,7 @@
           // we then should only remove the event from fullcalendar
           // and cancel the taskid corresponding on the event.
           return gracePeriodService.cancel(event.gracePeriodTaskId).then(function() {
-            cachedEventSource.deleteRegistration(event);
+            calCachedEventSource.deleteRegistration(event);
             calendarEventEmitter.fullcalendar.emitRemovedEvent(event.id);
 
             return true;
@@ -261,20 +261,20 @@
         }
 
         function onTaskCancel() {
-          cachedEventSource.deleteRegistration(event);
+          calCachedEventSource.deleteRegistration(event);
           calendarEventEmitter.fullcalendar.emitCreatedEvent(event);
         }
 
         function onTaskError() {
-          cachedEventSource.deleteRegistration(event);
+          calCachedEventSource.deleteRegistration(event);
           calendarEventEmitter.fullcalendar.emitCreatedEvent(event);
         }
 
         function performRemove() {
-          return eventAPI.remove(eventPath, etag)
+          return calEventAPI.remove(eventPath, etag)
             .then(function(id) {
               event.gracePeriodTaskId = taskId = id;
-              cachedEventSource.registerDelete(event);
+              calCachedEventSource.registerDelete(event);
               calendarEventEmitter.fullcalendar.emitRemovedEvent(event.id);
             })
             .then(function() {
@@ -333,7 +333,7 @@
           });
         }
 
-        if (eventUtils.hasSignificantChange(event, oldEvent)) {
+        if (calEventUtils.hasSignificantChange(event, oldEvent)) {
           event.changeParticipation('NEEDS-ACTION');
           // see https://github.com/fruux/sabre-vobject/blob/0ae191a75a53ad3fa06e2ea98581ba46f1f18d73/lib/ITip/Broker.php#L69
           // see RFC 5546 https://tools.ietf.org/html/rfc5546#page-11
@@ -352,8 +352,8 @@
         }
 
         function onTaskError() {
-          cachedEventSource.registerUpdate(oldEvent);
-          oldEvent.isRecurring() && masterEventCache.save(oldEvent);
+          calCachedEventSource.registerUpdate(oldEvent);
+          oldEvent.isRecurring() && calMasterEventCache.save(oldEvent);
           calendarEventEmitter.fullcalendar.emitModifiedEvent(oldEvent);
         }
 
@@ -362,11 +362,11 @@
           onTaskError();
         }
 
-        return eventAPI.modify(path, event.vcalendar, etag)
+        return calEventAPI.modify(path, event.vcalendar, etag)
           .then(function(id) {
             event.gracePeriodTaskId = taskId = id;
-            cachedEventSource.registerUpdate(event);
-            event.isRecurring() && masterEventCache.save(event);
+            calCachedEventSource.registerUpdate(event);
+            event.isRecurring() && calMasterEventCache.save(event);
             calendarEventEmitter.fullcalendar.emitModifiedEvent(event);
           })
           .then(function() {
@@ -411,7 +411,7 @@
           });
         }
 
-        return eventAPI.changeParticipation(eventPath, event.vcalendar, etag)
+        return calEventAPI.changeParticipation(eventPath, event.vcalendar, etag)
           .then(function(response) {
             if (response.status === 200) {
               return CalendarShell.from(response.data, {path: eventPath, etag: response.headers('ETag')});

@@ -2,13 +2,13 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .factory('pathBuilder', pathBuilder);
+         .factory('calPathBuilder', calPathBuilder);
 
-  pathBuilder.$inject = [
+  calPathBuilder.$inject = [
     'DEFAULT_CALENDAR_ID'
   ];
 
-  function pathBuilder(DEFAULT_CALENDAR_ID) {
+  function calPathBuilder(DEFAULT_CALENDAR_ID) {
     var service = {
       rootPath: rootPath,
       forCalendarHomeId: forCalendarHomeId,

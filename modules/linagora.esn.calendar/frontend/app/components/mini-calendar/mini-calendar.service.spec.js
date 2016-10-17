@@ -17,10 +17,10 @@ describe('The mini-calendar service', function() {
     moment.tz.setDefault(null);
   });
 
-  var fcMoment, miniCalenderService, $rootScope;
+  var calMoment, miniCalenderService, $rootScope;
 
-  beforeEach(angular.mock.inject(function(_fcMoment_, _miniCalendarService_, _$rootScope_) {
-    fcMoment = _fcMoment_;
+  beforeEach(angular.mock.inject(function(_calMoment_, _miniCalendarService_, _$rootScope_) {
+    calMoment = _calMoment_;
     miniCalenderService = _miniCalendarService_;
     $rootScope = _$rootScope_;
   }));
@@ -29,15 +29,15 @@ describe('The mini-calendar service', function() {
 
     it('should return the week around a day depending of the miniCalendarConfig', function() {
       function forEachDayInEachPossibleWeek(callback) {
-        var start = fcMoment('2015-11-16');
+        var start = calMoment('2015-11-16');
         var nextWeekStart, day, i, j;
 
         for (i = 0; i < 7; i++) {
-          nextWeekStart = fcMoment(start);
+          nextWeekStart = calMoment(start);
           nextWeekStart.add(7, 'days');
           for (j = 0; j < 7; j++) {
-            day = fcMoment(start);
-            callback(fcMoment(day), fcMoment(start), fcMoment(nextWeekStart));
+            day = calMoment(start);
+            callback(calMoment(day), calMoment(start), calMoment(nextWeekStart));
             day.add(1, 'days');
           }
           start.add(1, 'days');
@@ -61,8 +61,8 @@ describe('The mini-calendar service', function() {
     var event, aDay, spy;
 
     beforeEach(function() {
-      aDay = fcMoment('2015-11-30T11:39:00.376Z');
-      event = {start: fcMoment(aDay)};
+      aDay = calMoment('2015-11-30T11:39:00.376Z');
+      event = {start: calMoment(aDay)};
 
       spy = sinon.spy(function(day) {
         expect(day.isSame(aDay, 'day')).to.be.true;
@@ -72,7 +72,7 @@ describe('The mini-calendar service', function() {
     });
 
     it('should iter on each day where the event is present', function() {
-      event.end = fcMoment('2015-12-02T11:39:00.376Z');
+      event.end = calMoment('2015-12-02T11:39:00.376Z');
       miniCalenderService.forEachDayOfEvent(event, spy);
       expect(spy).to.have.been.calledThrice;
     });
@@ -83,8 +83,8 @@ describe('The mini-calendar service', function() {
     });
 
     it('should exclude the technical end date for allday events', function() {
-      event.start = fcMoment('2015-11-30');
-      event.end = fcMoment('2015-12-01');
+      event.start = calMoment('2015-11-30');
+      event.end = calMoment('2015-12-01');
       event.allDay = true;
 
       miniCalenderService.forEachDayOfEvent(event, spy);
@@ -117,22 +117,22 @@ describe('The mini-calendar service', function() {
     });
 
     it('should aggregate event from event sources in a event per day with the number of real event as title', function(done) {
-      var start = fcMoment('2015-01-01');
-      var end = fcMoment('2015-01-30');
+      var start = calMoment('2015-01-01');
+      var end = calMoment('2015-01-30');
       var timezone = 'tm';
 
       var sourceEvents = [{
         id: 'a',
-        start: fcMoment('2015-01-01T14:31:25.724Z'),
-        end: fcMoment('2015-01-01T15:31:25.724Z')
+        start: calMoment('2015-01-01T14:31:25.724Z'),
+        end: calMoment('2015-01-01T15:31:25.724Z')
       }, {
         id: 'b',
-        start: fcMoment('2015-01-01T17:31:25.724Z'),
-        end: fcMoment('2015-01-01T18:31:25.724Z')
+        start: calMoment('2015-01-01T17:31:25.724Z'),
+        end: calMoment('2015-01-01T18:31:25.724Z')
       }, {
         id: 'c',
-        start: fcMoment('2015-01-01T14:31:25.724Z'),
-        end: fcMoment('2015-01-02T15:31:25.724Z')
+        start: calMoment('2015-01-01T14:31:25.724Z'),
+        end: calMoment('2015-01-02T15:31:25.724Z')
       }];
 
       eventSources = [function(_start, _end, _timezone, callback) {
@@ -168,14 +168,14 @@ describe('The mini-calendar service', function() {
     });
 
     it('should not recount event twice when event source is called twice on the same period', function(done) {
-      var start = fcMoment('2015-01-01');
-      var end = fcMoment('2015-01-30');
+      var start = calMoment('2015-01-01');
+      var end = calMoment('2015-01-30');
       var timezone = 'who cares';
 
       var sourceEvents = [{
         id: 'a',
-        start: fcMoment('2015-01-01T14:31:25.724Z'),
-        end: fcMoment('2015-01-01T15:31:25.724Z')
+        start: calMoment('2015-01-01T14:31:25.724Z'),
+        end: calMoment('2015-01-01T15:31:25.724Z')
       }];
 
       eventSources = [function(_start, _end, _timezone, callback) { // eslint-disable-line

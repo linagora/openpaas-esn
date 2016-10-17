@@ -4,9 +4,9 @@
   angular.module('esn.calendar')
          .constant('CALENDAR_CONTENT_TYPE_HEADER', 'application/calendar+json')
          .constant('CALENDAR_PREFER_HEADER', 'return=representation')
-         .factory('eventAPI', eventAPI);
+         .factory('calEventAPI', calEventAPI);
 
-  eventAPI.$inject = [
+  calEventAPI.$inject = [
     '$q',
     'request',
     'CALENDAR_ACCEPT_HEADER',
@@ -15,7 +15,7 @@
     'CALENDAR_PREFER_HEADER'
   ];
 
-  function eventAPI($q, request, CALENDAR_ACCEPT_HEADER, CALENDAR_CONTENT_TYPE_HEADER, CALENDAR_GRACE_DELAY, CALENDAR_PREFER_HEADER) {
+  function calEventAPI($q, request, CALENDAR_ACCEPT_HEADER, CALENDAR_CONTENT_TYPE_HEADER, CALENDAR_GRACE_DELAY, CALENDAR_PREFER_HEADER) {
     var service = {
       get: get,
       create: create,

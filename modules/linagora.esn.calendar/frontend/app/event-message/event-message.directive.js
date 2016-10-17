@@ -2,9 +2,9 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .directive('eventMessage', eventMessage);
+         .directive('calEventMessage', calEventMessage);
 
-  function eventMessage() {
+  function calEventMessage() {
     var directive = {
       restrict: 'E',
       templateUrl: '/calendar/app/event-message/event-message.html',
@@ -25,12 +25,12 @@
 
   EventMessageController.$inject = [
     '$log',
-    'eventMessageService',
-    'eventService',
+    'calEventMessageService',
+    'calEventService',
     'session'
   ];
 
-  function EventMessageController($log, eventMessageService, eventService, session) {
+  function EventMessageController($log, calEventMessageService, calEventService, session) {
     var self = this;
 
     self.changeParticipation = changeParticipation;
@@ -42,14 +42,14 @@
     ////////////
 
     function activate() {
-      eventService.getEvent(self.message.eventId).then(function(event) {
+      calEventService.getEvent(self.message.eventId).then(function(event) {
         // Set up dom nodes
         self.event = event;
 
         // Load participation status
         var vcalendar = event.vcalendar;
         var emails = session.user.emails;
-        var attendees = eventService.getInvitedAttendees(vcalendar, emails);
+        var attendees = calEventService.getInvitedAttendees(vcalendar, emails);
         var organizer = attendees.filter(function(att) {
           return att.name === 'organizer' && att.getParameter('partstat');
         });
@@ -75,7 +75,7 @@
       var etag = self.event.etag;
       var emails = session.user.emails;
 
-      eventService.changeParticipation(path, event, emails, partstat, etag, false)
+      calEventService.changeParticipation(path, event, emails, partstat, etag, false)
         .then(function(shell) {
           self.partstat = partstat;
           if (shell) {
@@ -86,7 +86,7 @@
     }
 
     function _updateAttendeeStats() {
-      self.attendeesPerPartstat = eventMessageService.computeAttendeeStats(self.event.attendees);
+      self.attendeesPerPartstat = calEventMessageService.computeAttendeeStats(self.event.attendees);
       self.hasAttendees = !!self.event.attendees;
     }
   }

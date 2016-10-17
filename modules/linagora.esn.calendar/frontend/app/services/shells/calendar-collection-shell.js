@@ -5,12 +5,12 @@
          .factory('CalendarCollectionShell', CalendarCollectionShellFactory);
 
   CalendarCollectionShellFactory.$inject = [
-    'pathBuilder',
+    'calPathBuilder',
     'CALENDAR_DEDAULT_EVENT_COLOR',
     'DEFAULT_CALENDAR_ID'
   ];
 
-  function CalendarCollectionShellFactory(pathBuilder, CALENDAR_DEDAULT_EVENT_COLOR, DEFAULT_CALENDAR_ID) {
+  function CalendarCollectionShellFactory(calPathBuilder, CALENDAR_DEDAULT_EVENT_COLOR, DEFAULT_CALENDAR_ID) {
     /**
      * A shell that wraps an caldav calendar component.
      * Note that href is the unique identifier and id is the calendarId inside the calendarHomeId
@@ -68,7 +68,7 @@
     }
 
     function buildHref(calendarHomeId, calendarId) {
-      return pathBuilder.forCalendarId(calendarHomeId, calendarId);
+      return calPathBuilder.forCalendarId(calendarHomeId, calendarId);
     }
   }
 

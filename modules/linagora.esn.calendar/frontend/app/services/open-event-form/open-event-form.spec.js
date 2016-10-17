@@ -11,7 +11,7 @@ describe('The open-event-form service', function() {
   beforeEach(function() {
     self = this;
     this.screenSize = {};
-    this.eventUtils = {
+    this.calEventUtils = {
       setEditedEvent: sinon.spy()
     };
     this.$modal = sinon.spy();
@@ -38,25 +38,25 @@ describe('The open-event-form service', function() {
     angular.mock.module('linagora.esn.graceperiod', 'esn.calendar');
     angular.mock.module(function($provide) {
       $provide.value('screenSize', self.screenSize);
-      $provide.value('eventUtils', self.eventUtils);
+      $provide.value('calEventUtils', self.calEventUtils);
       $provide.value('$modal', self.$modal);
       $provide.value('$state', self.$state);
       $provide.value('calendarService', self.calendarService);
     });
   });
 
-  beforeEach(angular.mock.inject(function(openEventForm, $q, $rootScope) {
-    this.openEventForm = openEventForm;
+  beforeEach(angular.mock.inject(function(calOpenEventForm, $q, $rootScope) {
+    this.calOpenEventForm = calOpenEventForm;
     this.$q = $q;
     this.$rootScope = $rootScope;
   }));
 
-  describe('openEventForm', function() {
+  describe('calOpenEventForm', function() {
     it('should call $modal if screensize is md', function() {
       this.screenSize.is = sinon.stub().returns(false);
       this.$state.go = sinon.spy();
 
-      this.openEventForm(this.regularEvent);
+      this.calOpenEventForm(this.regularEvent);
       expect(this.screenSize.is).to.have.been.calledWith('xs, sm');
       expect(this.$modal).to.have.been.called;
       expect(this.$state.go).to.not.have.been;
@@ -70,29 +70,29 @@ describe('The open-event-form service', function() {
     it('should call $state to calendar.event.form if screensize is xs or sm and isOrganizer', function() {
       this.screenSize.is = sinon.stub().returns(true);
       this.$state.go = sinon.spy();
-      this.eventUtils.isOrganizer = sinon.stub().returns(true);
+      this.calEventUtils.isOrganizer = sinon.stub().returns(true);
 
-      this.openEventForm(this.regularEvent);
+      this.calOpenEventForm(this.regularEvent);
       expect(this.screenSize.is).to.have.been.calledWith('xs, sm');
       expect(this.$modal).to.have.not.been.called;
       expect(this.$state.go).to.have.been.calledWith('calendar.event.form', {calendarId: '123', eventId: '456'});
-      expect(this.eventUtils.isOrganizer).to.have.been.called;
+      expect(this.calEventUtils.isOrganizer).to.have.been.called;
     });
 
     it('should call $state to calendar.event.consult if screensize is xs or sm and not isOrganizer', function() {
       this.screenSize.is = sinon.stub().returns(true);
       this.$state.go = sinon.spy();
-      this.eventUtils.isOrganizer = sinon.stub().returns(false);
+      this.calEventUtils.isOrganizer = sinon.stub().returns(false);
 
-      this.openEventForm(this.regularEvent);
+      this.calOpenEventForm(this.regularEvent);
       expect(this.screenSize.is).to.have.been.calledWith('xs, sm');
       expect(this.$modal).to.have.not.been.called;
       expect(this.$state.go).to.have.been.calledWith('calendar.event.consult', {calendarId: '123', eventId: '456'});
-      expect(this.eventUtils.isOrganizer).to.have.been.called;
+      expect(this.calEventUtils.isOrganizer).to.have.been.called;
     });
 
     it('if event is a recurring event, it should ask for editting master or instance', function() {
-      this.openEventForm(this.instance);
+      this.calOpenEventForm(this.instance);
       expect(this.$modal).to.have.been.calledWith(sinon.match({
         templateUrl: '/calendar/app/services/open-event-form/edit-instance-or-serie',
         resolve: {

@@ -10,8 +10,8 @@ describe('the calendarExploredPeriodService service', function() {
 
   function buildPeriod(start, end) {
     return {
-      start: self.fcMoment([2000, 1, start]).stripTime(),
-      end: self.fcMoment([2000, 1, end]).stripTime()
+      start: self.calMoment([2000, 1, start]).stripTime(),
+      end: self.calMoment([2000, 1, end]).stripTime()
     };
   }
 
@@ -27,9 +27,9 @@ describe('the calendarExploredPeriodService service', function() {
     angular.mock.module('esn.calendar');
   });
 
-  beforeEach(angular.mock.inject(function(fcMoment, calendarExploredPeriodService) {
+  beforeEach(angular.mock.inject(function(calMoment, calendarExploredPeriodService) {
     self.calendarExploredPeriodService = calendarExploredPeriodService;
-    self.fcMoment = fcMoment;
+    self.calMoment = calMoment;
     self.aPeriod = buildPeriod(1, 15);
   }));
 

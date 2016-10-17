@@ -21,9 +21,9 @@
     return directive;
   }
 
-  EventCreateButtonController.$inject = ['CalendarShell', 'calendarUtils', 'openEventForm'];
+  EventCreateButtonController.$inject = ['CalendarShell', 'calendarUtils', 'calOpenEventForm'];
 
-  function EventCreateButtonController(CalendarShell, calendarUtils, openEventForm) {
+  function EventCreateButtonController(CalendarShell, calendarUtils, calOpenEventForm) {
     var self = this;
 
     self.openEventForm = _openEventForm;
@@ -31,7 +31,7 @@
     ////////////
 
     function _openEventForm() {
-      openEventForm(CalendarShell.fromIncompleteShell({
+      calOpenEventForm(CalendarShell.fromIncompleteShell({
         start: calendarUtils.getNewStartDate(),
         end: calendarUtils.getNewEndDate()
       }));

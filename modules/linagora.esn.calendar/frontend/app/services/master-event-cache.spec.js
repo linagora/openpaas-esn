@@ -4,8 +4,8 @@
 
 var expect = chai.expect;
 
-describe('the masterEventCache service', function() {
-  var masterEventCache, CalendarShell, fcMoment, timeoutMock, MASTER_EVENT_CACHE_TTL, path, shell, timeoutMockReturn;
+describe('the calMasterEventCache service', function() {
+  var calMasterEventCache, CalendarShell, calMoment, timeoutMock, MASTER_EVENT_CACHE_TTL, path, shell, timeoutMockReturn;
 
   beforeEach(function() {
     angular.mock.module('esn.calendar');
@@ -18,10 +18,10 @@ describe('the masterEventCache service', function() {
     timeoutMock = sinon.stub().returns(timeoutMockReturn);
     timeoutMock.cancel = sinon.spy();
 
-    angular.mock.inject(function(_masterEventCache_, _CalendarShell_, _fcMoment_, _MASTER_EVENT_CACHE_TTL_) {
-      masterEventCache = _masterEventCache_;
+    angular.mock.inject(function(_calMasterEventCache_, _CalendarShell_, _calMoment_, _MASTER_EVENT_CACHE_TTL_) {
+      calMasterEventCache = _calMasterEventCache_;
       CalendarShell = _CalendarShell_;
-      fcMoment = _fcMoment_;
+      calMoment = _calMoment_;
       MASTER_EVENT_CACHE_TTL = _MASTER_EVENT_CACHE_TTL_;
     });
 
@@ -32,36 +32,36 @@ describe('the masterEventCache service', function() {
   });
 
   it('should not save an instance', function() {
-    masterEventCache.save(CalendarShell.fromIncompleteShell({
-      recurrenceId: fcMoment(),
+    calMasterEventCache.save(CalendarShell.fromIncompleteShell({
+      recurrenceId: calMoment(),
       path: path
     }));
-    expect(masterEventCache.get(path)).to.not.exist;
+    expect(calMasterEventCache.get(path)).to.not.exist;
   });
 
   it('should save a master event', function() {
-    masterEventCache.save(shell);
-    expect(masterEventCache.get(path)).to.equal(shell);
-    expect(masterEventCache.get('randomPath')).to.not.exist;
+    calMasterEventCache.save(shell);
+    expect(calMasterEventCache.get(path)).to.equal(shell);
+    expect(calMasterEventCache.get('randomPath')).to.not.exist;
   });
 
   it('should unregister previous timeout if replacing a master by an other', function() {
-    masterEventCache.save(shell);
-    masterEventCache.save(shell);
+    calMasterEventCache.save(shell);
+    calMasterEventCache.save(shell);
     expect(timeoutMock.cancel).to.have.been.calledWith(timeoutMockReturn);
   });
 
   it('should allow deletion of master event element', function() {
-    masterEventCache.save(shell);
-    masterEventCache.remove(shell);
+    calMasterEventCache.save(shell);
+    calMasterEventCache.remove(shell);
     expect(timeoutMock.cancel).to.have.been.calledWith(timeoutMockReturn);
-    expect(masterEventCache.get(shell.path)).to.be.undefined;
+    expect(calMasterEventCache.get(shell.path)).to.be.undefined;
   });
 
   it('should create a deletion task when saving', function() {
-    masterEventCache.save(shell);
+    calMasterEventCache.save(shell);
     expect(timeoutMock).to.have.been.calledWith(sinon.match(function(deleteFunction) {
-      return _.isFunction(deleteFunction) && !(deleteFunction(), masterEventCache.get(path));
+      return _.isFunction(deleteFunction) && !(deleteFunction(), calMasterEventCache.get(path));
     }), MASTER_EVENT_CACHE_TTL);
   });
 });

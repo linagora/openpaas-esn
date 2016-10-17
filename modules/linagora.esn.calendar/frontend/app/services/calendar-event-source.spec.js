@@ -28,10 +28,10 @@ describe('The calendarEventSource', function() {
   });
 
   it('should use the correct path', function(done) {
-    angular.mock.inject(function(calendarEventSource, $httpBackend, fcMoment) {
+    angular.mock.inject(function(calendarEventSource, $httpBackend, calMoment) {
       this.$httpBackend = $httpBackend;
       this.calendarEventSource = calendarEventSource;
-      this.fcMoment = fcMoment;
+      this.calMoment = calMoment;
     });
 
     var data = {
@@ -42,8 +42,8 @@ describe('The calendarEventSource', function() {
       _embedded: {'dav:item': []}
     });
 
-    var start = this.fcMoment(new Date(2014, 0, 1));
-    var end = this.fcMoment(new Date(2014, 0, 2));
+    var start = this.calMoment(new Date(2014, 0, 1));
+    var end = this.calMoment(new Date(2014, 0, 2));
 
     var source = this.calendarEventSource('/dav/api/calendars/test/events.json', function() {
     });
@@ -57,10 +57,10 @@ describe('The calendarEventSource', function() {
   });
 
   it('should filter cancelled events', function(done) {
-    angular.mock.inject(function(calendarEventSource, $httpBackend, fcMoment) {
+    angular.mock.inject(function(calendarEventSource, $httpBackend, calMoment) {
       this.$httpBackend = $httpBackend;
       this.calendarEventSource = calendarEventSource;
-      this.fcMoment = fcMoment;
+      this.calMoment = calMoment;
     });
 
     var data = {
@@ -92,8 +92,8 @@ describe('The calendarEventSource', function() {
       }
     });
 
-    var start = this.fcMoment(new Date(2014, 0, 1));
-    var end = this.fcMoment(new Date(2014, 0, 2));
+    var start = this.calMoment(new Date(2014, 0, 1));
+    var end = this.calMoment(new Date(2014, 0, 2));
 
     var source = this.calendarEventSource('/dav/api/calendars/test/events.json');
 
@@ -106,13 +106,13 @@ describe('The calendarEventSource', function() {
 
   it('should propagate an error if calendar events cannot be retrieved', function(done) {
 
-    var start = this.fcMoment('2015-01-01 09:00:00');
-    var end = this.fcMoment('2015-01-01 09:30:00');
+    var start = this.calMoment('2015-01-01 09:00:00');
+    var end = this.calMoment('2015-01-01 09:30:00');
     var calendarId = 'test';
     var localTimezone = 'local';
 
     angular.mock.module(function($provide) {
-      $provide.factory('eventService', function() {
+      $provide.factory('calEventService', function() {
         return {
           listEvents: function(id, startMoment, endMoment, timezone) {
             expect(id).to.equals('test');

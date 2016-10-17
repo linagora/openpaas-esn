@@ -34,7 +34,7 @@
     CALENDAR_MODIFY_COMPARE_KEYS,
     CALENDAR_RIGHT,
     CalendarRightShell,
-    DelegationEditionHelper,
+    CalDelegationEditionHelper,
     $q,
     userAPI,
     _,
@@ -42,7 +42,7 @@
   ) {
     var self = this;
     var calendarRight, originalCalendarRight;
-    var delegationEditionHelperInstance = new DelegationEditionHelper();
+    var CaldelegationEditionHelperInstance = new CalDelegationEditionHelper();
 
     self.newCalendar = !self.calendar;
     self.calendar = self.calendar || {};
@@ -108,7 +108,7 @@
             var right = array[1].right;
 
             user.displayName = userUtils.displayNameOf(user);
-            self.delegations = delegationEditionHelperInstance.addUserGroup([user], right);
+            self.delegations = CaldelegationEditionHelperInstance.addUserGroup([user], right);
           });
         });
       });
@@ -144,7 +144,7 @@
       } else {
         calendarRight.then(function(calendarRight) {
           originalCalendarRight = calendarRight.clone();
-          delegationEditionHelperInstance.getAllRemovedUsersId().map(calendarRight.removeUserRight.bind(calendarRight));
+          CaldelegationEditionHelperInstance.getAllRemovedUsersId().map(calendarRight.removeUserRight.bind(calendarRight));
 
           self.delegations.forEach(function(line) {
             calendarRight.update(line.user._id, line.user.preferredEmail, line.selection);
@@ -194,7 +194,7 @@
     }
 
      function addUserGroup() {
-      self.delegations = delegationEditionHelperInstance.addUserGroup(self.newUsersGroups, self.selection);
+      self.delegations = CaldelegationEditionHelperInstance.addUserGroup(self.newUsersGroups, self.selection);
       if (self.newCalendar) {
         throw new Error('edition of right on new calendar are not implemented yet');
       }
@@ -202,7 +202,7 @@
     }
 
     function removeUserGroup(delegationSelected) {
-      self.delegations = delegationEditionHelperInstance.removeUserGroup(delegationSelected);
+      self.delegations = CaldelegationEditionHelperInstance.removeUserGroup(delegationSelected);
     }
 
     function reset() {

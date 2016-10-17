@@ -28,16 +28,16 @@
     'jstz',
     'uuid4',
     'calendarUtils',
-    'eventAPI',
-    'fcMoment',
-    'masterEventCache',
-    'RRuleShell',
-    'VAlarmShell',
+    'calEventAPI',
+    'calMoment',
+    'calMasterEventCache',
+    'CalRRuleShell',
+    'CalVAlarmShell',
     'EVENT_MODIFY_COMPARE_KEYS',
     'ICAL_PROPERTIES'
   ];
 
-  function CalendarShellFactory($q, _, ICAL, jstz, uuid4, calendarUtils, eventAPI, fcMoment, masterEventCache, RRuleShell, VAlarmShell, EVENT_MODIFY_COMPARE_KEYS, ICAL_PROPERTIES) {
+  function CalendarShellFactory($q, _, ICAL, jstz, uuid4, calendarUtils, calEventAPI, calMoment, calMasterEventCache, CalRRuleShell, CalVAlarmShell, EVENT_MODIFY_COMPARE_KEYS, ICAL_PROPERTIES) {
     var localTimezone = jstz.determine().name();
 
     function CalendarShell(vcomponent, extendedProperties) {
@@ -131,7 +131,7 @@
 
       get start() {
         if (!this.__start) {
-          this.__start = fcMoment(this.icalEvent.startDate);
+          this.__start = calMoment(this.icalEvent.startDate);
         }
 
         return this.__start;
@@ -153,7 +153,7 @@
 
       get end() {
         if (!this.__end) {
-          this.__end = fcMoment(this.icalEvent.endDate);
+          this.__end = calMoment(this.icalEvent.endDate);
         }
 
         return this.__end;
@@ -180,7 +180,7 @@
           var recurrenceId = this.vevent.getFirstPropertyValue('recurrence-id');
 
           if (recurrenceId) {
-            this.__recurrenceId = fcMoment(recurrenceId);
+            this.__recurrenceId = calMoment(recurrenceId);
           }
         }
 
@@ -200,7 +200,7 @@
         var rrule = this.vevent.getFirstPropertyValue('rrule');
 
         if (rrule && !this.__rrule) {
-          this.__rrule = new RRuleShell(rrule, this.vevent);
+          this.__rrule = new CalRRuleShell(rrule, this.vevent);
         }
 
         return this.__rrule;
@@ -302,7 +302,7 @@
           var valarm = this.vevent.getFirstSubcomponent('valarm');
 
           if (valarm) {
-            this.__alarm = new VAlarmShell(valarm, this.vevent);
+            this.__alarm = new CalVAlarmShell(valarm, this.vevent);
           }
         }
 
@@ -339,7 +339,7 @@
             summary: this.summary,
             start: this.start,
             end: this.end,
-            diffStart: fcMoment(new Date()).to(this.start),
+            diffStart: calMoment(new Date()).to(this.start),
             location: this.location,
             calendarId: this.calendarId,
             eventId: this.id
@@ -653,7 +653,7 @@
         return $q.when(this);
       }
 
-      var fromCache = masterEventCache.get(this.path);
+      var fromCache = calMasterEventCache.get(this.path);
 
       if (fromCache) {
         fromCache.modifyOccurrence(this);
@@ -662,7 +662,7 @@
       }
 
       // Not found, we need to retrieve the event
-      return eventAPI.get(this.path).then(function(response) {
+      return calEventAPI.get(this.path).then(function(response) {
         var mastershell = new CalendarShell(new ICAL.Component(response.data), _getExtendedProperties(this));
 
         mastershell.modifyOccurrence(this);
@@ -696,7 +696,7 @@
 
       _removeOccurenceFromVcalendar(this, instance);
       this.vcalendar.addSubcomponent(instance.clone().vevent);
-      !notRefreshCache && masterEventCache.save(this);
+      !notRefreshCache && calMasterEventCache.save(this);
     }
 
     /**

@@ -2,19 +2,19 @@
   'use strict';
 
   angular.module('esn.calendar.event-consultation')
-         .directive('eventConsultFormExternalUser', eventConsultFormExternalUser);
+         .directive('calEventConsultFormExternalUser', calEventConsultFormExternalUser);
 
-  eventConsultFormExternalUser.$inject = [
+  calEventConsultFormExternalUser.$inject = [
     '$http',
     'CalendarShell',
     'CALENDAR_EVENTS',
     'ICAL_PROPERTIES'
   ];
 
-  function eventConsultFormExternalUser($http, CalendarShell, CALENDAR_EVENTS, ICAL_PROPERTIES) {
+  function calEventConsultFormExternalUser($http, CalendarShell, CALENDAR_EVENTS, ICAL_PROPERTIES) {
     var directive = {
       restrict: 'E',
-      template: '<div><event-consult-form-body/></div>',
+      template: '<div><cal-event-consult-form-body/></div>',
       link: link,
       replace: true,
       controller: 'eventController'

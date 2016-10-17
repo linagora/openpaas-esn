@@ -2,9 +2,9 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .directive('attendeeListItemEdition', attendeeListItemEdition);
+         .directive('calAttendeeListItemEdition', calAttendeeListItemEdition);
 
-  function attendeeListItemEdition() {
+  function calAttendeeListItemEdition() {
     var directive = {
       restrict: 'E',
       templateUrl: '/calendar/app/components/attendee-list-item-edition/attendee-list-item-edition.html',

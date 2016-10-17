@@ -19,14 +19,14 @@ describe('The calendarViewController', function() {
 
     var calendarUtilsMock = {
       getNewStartDate: function() {
-        return self.fcMoment('2013-02-08 09:30');
+        return self.calMoment('2013-02-08 09:30');
       },
       getNewEndDate: function() {
-        return self.fcMoment('2013-02-08 10:30');
+        return self.calMoment('2013-02-08 10:30');
       }
     };
 
-    this.cachedEventSourceMock = {
+    this.calCachedEventSourceMock = {
       wrapEventSource: sinon.spy(function(id, eventSource) { // eslint-disable-line
         return eventSource;
       }),
@@ -35,7 +35,7 @@ describe('The calendarViewController', function() {
       registerDelete: sinon.spy()
     };
 
-    this.masterEventCacheMock = {
+    this.calMasterEventCacheMock = {
       save: sinon.spy(),
       remove: sinon.spy()
     };
@@ -43,7 +43,7 @@ describe('The calendarViewController', function() {
     this.CalendarShellConstMock = function(vcalendar, event) { // eslint-disable-line
       this.etag = event.etag;
       this.path = event.path;
-      this.end = self.fcMoment();
+      this.end = self.calMoment();
       this.clone = function() {
         return this;
       };
@@ -73,7 +73,7 @@ describe('The calendarViewController', function() {
       color: 'color2'
     }];
 
-    this.eventServiceMock = {
+    this.calEventServiceMock = {
       createEvent: function() {
         return $q.when({});
       },
@@ -123,7 +123,7 @@ describe('The calendarViewController', function() {
 
     this.gracePeriodService = {};
     this.userMock = {};
-    this.eventUtilsMock = {
+    this.calEventUtilsMock = {
       applyReply: sinon.spy(),
       setBackgroundColor: sinon.spy(angular.identity)
     };
@@ -145,17 +145,17 @@ describe('The calendarViewController', function() {
       $provide.decorator('calendarUtils', function($delegate) {
         return angular.extend($delegate, calendarUtilsMock);
       });
-      $provide.value('eventService', self.eventServiceMock);
+      $provide.value('calEventService', self.calEventServiceMock);
       $provide.value('calendarService', self.calendarServiceMock);
       $provide.value('livenotification', liveNotificationMock);
       $provide.value('gracePeriodService', self.gracePeriodService);
-      $provide.value('eventUtils', self.eventUtilsMock);
+      $provide.value('calEventUtils', self.calEventUtilsMock);
       $provide.value('user', self.userMock);
-      $provide.value('cachedEventSource', self.cachedEventSourceMock);
+      $provide.value('calCachedEventSource', self.calCachedEventSourceMock);
       $provide.value('calendarCurrentView', self.calendarCurrentViewMock);
       $provide.value('calendarEventEmitter', self.calendarEventEmitterMock);
       $provide.value('CalendarShell', self.CalendarShellMock);
-      $provide.value('masterEventCache', self.masterEventCacheMock);
+      $provide.value('calMasterEventCache', self.calMasterEventCacheMock);
       $provide.value('calendarVisibilityService', self.calendarVisibilityServiceMock);
       $provide.value('usSpinnerService', self.usSpinnerServiceMock);
       $provide.factory('calendarEventSource', function() {
@@ -176,7 +176,7 @@ describe('The calendarViewController', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function($controller, $rootScope, $compile, $timeout, $window, UI_CONFIG, moment, CalendarShell, fcMoment, CALENDAR_EVENTS, eventUtils) {
+  beforeEach(angular.mock.inject(function($controller, $rootScope, $compile, $timeout, $window, UI_CONFIG, moment, CalendarShell, calMoment, CALENDAR_EVENTS, calEventUtils) {
     this.rootScope = $rootScope;
     this.scope = $rootScope.$new();
     this.controller = $controller;
@@ -186,9 +186,9 @@ describe('The calendarViewController', function() {
     this.UI_CONFIG = UI_CONFIG;
     this.moment = moment;
     this.CalendarShell = CalendarShell;
-    this.fcMoment = fcMoment;
+    this.calMoment = calMoment;
     this.CALENDAR_EVENTS = CALENDAR_EVENTS;
-    this.eventUtils = eventUtils;
+    this.calEventUtils = calEventUtils;
   }));
 
   afterEach(function() {
@@ -226,18 +226,18 @@ describe('The calendarViewController', function() {
     expect(handler).to.equal('aHandler');
   });
 
-  it('should cachedEventSource.resetCache $on(\'$destroy\')', function() {
+  it('should calCachedEventSource.resetCache $on(\'$destroy\')', function() {
     this.gracePeriodService.flushAllTasks = angular.noop;
-    this.cachedEventSourceMock.resetChange = sinon.spy();
+    this.calCachedEventSourceMock.resetChange = sinon.spy();
     this.controller('calendarViewController', {$scope: this.scope});
     this.scope.$destroy();
-    expect(this.cachedEventSourceMock.resetCache).to.have.been.called;
+    expect(this.calCachedEventSourceMock.resetCache).to.have.been.called;
   });
 
   it('should be created and its scope initialized', function() {
     this.controller('calendarViewController', {$scope: this.scope});
 
-    expect(this.scope.uiConfig.calendar.eventRender).to.equal(this.eventUtils.render);
+    expect(this.scope.uiConfig.calendar.eventRender).to.equal(this.calEventUtils.render);
     expect(this.scope.uiConfig.calendar.eventAfterAllRender).to.equal(this.scope.resizeCalendarHeight);
   });
 
@@ -330,14 +330,14 @@ describe('The calendarViewController', function() {
     expect(fullCalendarSpy).to.have.been.calledOnce;
   });
 
-  it('should have wrap each calendar with cachedEventSource.wrapEventSource', function() {
+  it('should have wrap each calendar with calCachedEventSource.wrapEventSource', function() {
     this.controller('calendarViewController', {$scope: this.scope});
     this.scope.calendarReady(this.calendar);
     this.scope.$digest();
-    expect(this.cachedEventSourceMock.wrapEventSource).to.have.been.calledTwice;
-    expect(this.cachedEventSourceMock.wrapEventSource).to.have.been.calledWithExactly('id', sinon.match.array);
+    expect(this.calCachedEventSourceMock.wrapEventSource).to.have.been.calledTwice;
+    expect(this.calCachedEventSourceMock.wrapEventSource).to.have.been.calledWithExactly('id', sinon.match.array);
 
-    expect(this.cachedEventSourceMock.wrapEventSource).to.have.been.calledWithExactly('id2', sinon.match.array);
+    expect(this.calCachedEventSourceMock.wrapEventSource).to.have.been.calledWithExactly('id2', sinon.match.array);
   });
 
   it('should emit addEventSource on CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW and eventData.hidden is false', function() {
@@ -494,7 +494,7 @@ describe('The calendarViewController', function() {
   });
 
   it('should restore view from calendarCurrentView during initialization', function() {
-    var date = this.fcMoment('1953-03-16');
+    var date = this.calMoment('1953-03-16');
 
     this.calendarCurrentViewMock.get = sinon.spy(function() {
       return {
@@ -553,8 +553,8 @@ describe('The calendarViewController', function() {
       var oldEvent = {
         path: 'aPath',
         etag: 'anEtag',
-        start: this.fcMoment('2016-01-01 09:00'),
-        end: this.fcMoment('2016-01-01 10:10'),
+        start: this.calMoment('2016-01-01 09:00'),
+        end: this.calMoment('2016-01-01 10:10'),
         clone: function() {
           return newEvent; // eslint-disable-line
         }
@@ -563,8 +563,8 @@ describe('The calendarViewController', function() {
       var newEvent = {
         path: 'aPath',
         etag: 'anEtag',
-        start: this.fcMoment('2016-01-01 09:00'),
-        end: this.fcMoment('2016-01-01 10:10'),
+        start: this.calMoment('2016-01-01 09:00'),
+        end: this.calMoment('2016-01-01 10:10'),
         clone: function() {
           return oldEvent;
         }
@@ -573,28 +573,28 @@ describe('The calendarViewController', function() {
       var event = {
         path: 'aPath',
         etag: 'anEtag',
-        start: this.fcMoment('2016-01-01 09:00'),
-        end: this.fcMoment('2016-01-01 10:10'),
+        start: this.calMoment('2016-01-01 09:00'),
+        end: this.calMoment('2016-01-01 10:10'),
         clone: function() {
           return newEvent;
         }
       };
 
       this.controller('calendarViewController', {$scope: this.scope});
-      var delta = this.fcMoment.duration(10, 'minutes');
+      var delta = this.calMoment.duration(10, 'minutes');
 
       this.scope.eventDropAndResize(false, event, delta);
-      expect(oldEvent.start.isSame(this.fcMoment('2016-01-01 09:00'))).to.be.true;
-      expect(oldEvent.end.isSame(this.fcMoment('2016-01-01 10:00'))).to.be.true;
-      expect(this.eventServiceMock.modifyEvent).to.have.been.calledWith(newEvent.path, newEvent, oldEvent, newEvent.etag);
+      expect(oldEvent.start.isSame(this.calMoment('2016-01-01 09:00'))).to.be.true;
+      expect(oldEvent.end.isSame(this.calMoment('2016-01-01 10:00'))).to.be.true;
+      expect(this.calEventServiceMock.modifyEvent).to.have.been.calledWith(newEvent.path, newEvent, oldEvent, newEvent.etag);
     });
 
     it('should call calendarService.modifyEvent with the correct argument if drop', function() {
       var oldEvent = {
         path: 'aPath',
         etag: 'anEtag',
-        start: this.fcMoment('2016-01-01 09:00'),
-        end: this.fcMoment('2016-01-01 10:10'),
+        start: this.calMoment('2016-01-01 09:00'),
+        end: this.calMoment('2016-01-01 10:10'),
         clone: function() {
           return newEvent; // eslint-disable-line
         }
@@ -603,8 +603,8 @@ describe('The calendarViewController', function() {
       var newEvent = {
         path: 'aPath',
         etag: 'anEtag',
-        start: this.fcMoment('2016-01-01 09:00'),
-        end: this.fcMoment('2016-01-01 10:10'),
+        start: this.calMoment('2016-01-01 09:00'),
+        end: this.calMoment('2016-01-01 10:10'),
         clone: function() {
           return oldEvent;
         }
@@ -613,28 +613,28 @@ describe('The calendarViewController', function() {
       var event = {
         path: 'aPath',
         etag: 'anEtag',
-        start: this.fcMoment('2016-01-01 09:00'),
-        end: this.fcMoment('2016-01-01 10:10'),
+        start: this.calMoment('2016-01-01 09:00'),
+        end: this.calMoment('2016-01-01 10:10'),
         clone: function() {
           return newEvent;
         }
       };
 
-      var delta = this.fcMoment.duration(10, 'minutes');
+      var delta = this.calMoment.duration(10, 'minutes');
 
       this.controller('calendarViewController', {$scope: this.scope});
       this.scope.eventDropAndResize(true, event, delta);
 
-      expect(oldEvent.start.isSame(this.fcMoment('2016-01-01 08:50'))).to.be.true;
-      expect(oldEvent.end.isSame(this.fcMoment('2016-01-01 10:00'))).to.be.true;
-      expect(this.eventServiceMock.modifyEvent).to.have.been.calledWith(newEvent.path, newEvent, oldEvent, newEvent.etag);
+      expect(oldEvent.start.isSame(this.calMoment('2016-01-01 08:50'))).to.be.true;
+      expect(oldEvent.end.isSame(this.calMoment('2016-01-01 10:00'))).to.be.true;
+      expect(this.calEventServiceMock.modifyEvent).to.have.been.calledWith(newEvent.path, newEvent, oldEvent, newEvent.etag);
     });
 
     it('should send a CALENDAR_EVENTS.REVERT_MODIFICATION with the event after calling fullcalendar revert when the drap and drop if reverted', function(done) {
       var event = {
         path: 'aPath',
         etag: 'anEtag',
-        end: this.fcMoment(),
+        end: this.calMoment(),
         clone: function() {
           return event;
         }
@@ -649,7 +649,7 @@ describe('The calendarViewController', function() {
         done();
       });
 
-      this.eventServiceMock.modifyEvent = function(path, e, _oldEvent, etag, revertFunc) { // eslint-disable-line
+      this.calEventServiceMock.modifyEvent = function(path, e, _oldEvent, etag, revertFunc) { // eslint-disable-line
         oldEvent = _oldEvent;
         revertFunc();
 
@@ -659,15 +659,15 @@ describe('The calendarViewController', function() {
       this.controller('calendarViewController', {$scope: this.scope});
       var fcRevert = sinon.spy();
 
-      this.scope.eventDropAndResize(false, event, this.fcMoment.duration(10), fcRevert);
-      expect(this.eventUtilsMock.setBackgroundColor).to.have.been.calledWith(event, this.calendars);
+      this.scope.eventDropAndResize(false, event, this.calMoment.duration(10), fcRevert);
+      expect(this.calEventUtilsMock.setBackgroundColor).to.have.been.calledWith(event, this.calendars);
       expect(fcRevert).to.have.been.calledOnce;
     });
 
     it('should call calendarService.modifyEvent with a built path if scope.event.path does not exist', function(done) {
       var event = {
         etag: 'anEtag',
-        end: this.fcMoment(),
+        end: this.calMoment(),
         clone: function() {
           return event;
         }
@@ -677,13 +677,13 @@ describe('The calendarViewController', function() {
       this.scope.calendarHomeId = calendarHomeId;
       this.scope.event = event;
 
-      this.eventServiceMock.modifyEvent = function(path, e, oldEvent, etag) { // eslint-disable-line
+      this.calEventServiceMock.modifyEvent = function(path, e, oldEvent, etag) { // eslint-disable-line
         expect(path).to.equal('/calendars/' + calendarHomeId + '/events');
         expect(etag).to.equal(event.etag);
         done();
       };
       this.controller('calendarViewController', {$scope: this.scope});
-      this.scope.eventDropAndResize(false, event, this.fcMoment.duration(10, 'seconds'));
+      this.scope.eventDropAndResize(false, event, this.calMoment.duration(10, 'seconds'));
     });
 
     it('should broadcast CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE when the view change', function(done) {
@@ -704,7 +704,7 @@ describe('The calendarViewController', function() {
 
     it('should receive CALENDAR_EVENTS.MINI_CALENDAR.DATE_CHANGE and change view if needed', function(done) {
       this.controller('calendarViewController', {$scope: this.scope});
-      var date = this.fcMoment('2015-01-13');
+      var date = this.calMoment('2015-01-13');
       var first = true;
 
       self = this;
@@ -716,8 +716,8 @@ describe('The calendarViewController', function() {
           }
 
           return {
-            start: self.fcMoment('2015-01-01'),
-            end: self.fcMoment('2015-01-10')
+            start: self.calMoment('2015-01-01'),
+            end: self.calMoment('2015-01-10')
           };
         }
         if (name === 'gotoDate') {
@@ -727,7 +727,7 @@ describe('The calendarViewController', function() {
         }
       });
 
-      this.rootScope.$broadcast(this.CALENDAR_EVENTS.MINI_CALENDAR.DATE_CHANGE, this.fcMoment('2015-01-13'));
+      this.rootScope.$broadcast(this.CALENDAR_EVENTS.MINI_CALENDAR.DATE_CHANGE, this.calMoment('2015-01-13'));
       this.scope.calendarReady(this.calendar);
       this.scope.$digest();
     });
@@ -736,7 +736,7 @@ describe('The calendarViewController', function() {
 
   describe('the ws event listener', function() {
 
-    var wsEventCreateListener, wsEventModifyListener, wsEventDeleteListener, wsEventRequestListener, wsEventReplyListener, wsEventCancelListener, testUpdateCachedEventSourceAndFcEmit, testUpdateMasterEventCache;
+    var wsEventCreateListener, wsEventModifyListener, wsEventDeleteListener, wsEventRequestListener, wsEventReplyListener, wsEventCancelListener, testUpdateCalCachedEventSourceAndFcEmit, testUpdateCalMasterEventCache;
 
     beforeEach(function() {
       liveNotification = function(namespace) {
@@ -778,7 +778,7 @@ describe('The calendarViewController', function() {
         $scope: this.scope
       });
 
-      testUpdateCachedEventSourceAndFcEmit = function(wsCallback, expectedCacheMethod, expectedEmitMethod) {
+      testUpdateCalCachedEventSourceAndFcEmit = function(wsCallback, expectedCacheMethod, expectedEmitMethod) {
         var event = {id: 'id', calendarId: 'calId'};
         var path = 'path';
         var etag = 'etag';
@@ -791,10 +791,10 @@ describe('The calendarViewController', function() {
         self.scope.$digest();
         expect(self.CalendarShellMock.from).to.have.been.calledWith(event, {path: path, etag: etag});
         expect(self.calendarEventEmitterMock.fullcalendar[expectedEmitMethod]).to.have.been.calledWith(resultingEvent);
-        expect(self.cachedEventSourceMock[expectedCacheMethod]).to.have.been.calledWith(resultingEvent);
+        expect(self.calCachedEventSourceMock[expectedCacheMethod]).to.have.been.calledWith(resultingEvent);
       };
 
-      testUpdateMasterEventCache = function(wsCallback, expectedCacheMethod) {
+      testUpdateCalMasterEventCache = function(wsCallback, expectedCacheMethod) {
         var event = {id: 'id', calendarId: 'calId'};
         var path = 'path';
         var etag = 'etag';
@@ -806,57 +806,57 @@ describe('The calendarViewController', function() {
         wsCallback({event: event, eventPath: path, etag: etag});
         self.scope.$digest();
         expect(self.CalendarShellMock.from).to.have.been.calledWith(event, {path: path, etag: etag});
-        expect(self.masterEventCacheMock[expectedCacheMethod]).to.have.been.calledWith(resultingEvent);
+        expect(self.calMasterEventCacheMock[expectedCacheMethod]).to.have.been.calledWith(resultingEvent);
       };
 
     });
 
-    it('should update event on cachedEventSource and emit a fullCalendar event for a modification on EVENT_CREATED', function() {
-      testUpdateCachedEventSourceAndFcEmit(wsEventCreateListener, 'registerUpdate', 'emitModifiedEvent');
+    it('should update event on calCachedEventSource and emit a fullCalendar event for a modification on EVENT_CREATED', function() {
+      testUpdateCalCachedEventSourceAndFcEmit(wsEventCreateListener, 'registerUpdate', 'emitModifiedEvent');
     });
 
-    it('should update event on cachedEventSource and broadcast emit a fullCalendar event for a modification on EVENT_REQUEST', function() {
-      testUpdateCachedEventSourceAndFcEmit(wsEventRequestListener, 'registerUpdate', 'emitModifiedEvent');
+    it('should update event on calCachedEventSource and broadcast emit a fullCalendar event for a modification on EVENT_REQUEST', function() {
+      testUpdateCalCachedEventSourceAndFcEmit(wsEventRequestListener, 'registerUpdate', 'emitModifiedEvent');
     });
 
-    it('should update event on cachedEventSource and broadcast emit a fullCalendar event for a modification on EVENT_UPDATED', function() {
-      testUpdateCachedEventSourceAndFcEmit(wsEventModifyListener, 'registerUpdate', 'emitModifiedEvent');
+    it('should update event on calCachedEventSource and broadcast emit a fullCalendar event for a modification on EVENT_UPDATED', function() {
+      testUpdateCalCachedEventSourceAndFcEmit(wsEventModifyListener, 'registerUpdate', 'emitModifiedEvent');
     });
 
-    it('should update event on cachedEventSource and broadcast emit a fullCalendar event for a modification on EVENT_REPLY', function() {
-      testUpdateCachedEventSourceAndFcEmit(wsEventReplyListener, 'registerUpdate', 'emitModifiedEvent');
+    it('should update event on calCachedEventSource and broadcast emit a fullCalendar event for a modification on EVENT_REPLY', function() {
+      testUpdateCalCachedEventSourceAndFcEmit(wsEventReplyListener, 'registerUpdate', 'emitModifiedEvent');
     });
 
-    it('should remove event on cachedEventSource and broadcast emit a fullCalendar event for a deletion on EVENT_DELETED', function() {
-      testUpdateCachedEventSourceAndFcEmit(wsEventDeleteListener, 'registerDelete', 'emitRemovedEvent');
+    it('should remove event on calCachedEventSource and broadcast emit a fullCalendar event for a deletion on EVENT_DELETED', function() {
+      testUpdateCalCachedEventSourceAndFcEmit(wsEventDeleteListener, 'registerDelete', 'emitRemovedEvent');
     });
 
-    it('should remove event on cachedEventSource and broadcast emit a fullClaendar event for a deletion on EVENT_CANCEL', function() {
-      testUpdateCachedEventSourceAndFcEmit(wsEventCancelListener, 'registerDelete', 'emitRemovedEvent');
+    it('should remove event on calCachedEventSource and broadcast emit a fullClaendar event for a deletion on EVENT_CANCEL', function() {
+      testUpdateCalCachedEventSourceAndFcEmit(wsEventCancelListener, 'registerDelete', 'emitRemovedEvent');
     });
 
-    it('should update event on masterEventCache or a modification on EVENT_CREATED', function() {
-      testUpdateMasterEventCache(wsEventCreateListener, 'save');
+    it('should update event on calMasterEventCache or a modification on EVENT_CREATED', function() {
+      testUpdateCalMasterEventCache(wsEventCreateListener, 'save');
     });
 
-    it('should update event on masterEventCache for a modification on EVENT_REQUEST', function() {
-      testUpdateMasterEventCache(wsEventRequestListener, 'save');
+    it('should update event on calMasterEventCache for a modification on EVENT_REQUEST', function() {
+      testUpdateCalMasterEventCache(wsEventRequestListener, 'save');
     });
 
-    it('should update event on masterEventCache for a modification on EVENT_UPDATED', function() {
-      testUpdateMasterEventCache(wsEventModifyListener, 'save');
+    it('should update event on calMasterEventCache for a modification on EVENT_UPDATED', function() {
+      testUpdateCalMasterEventCache(wsEventModifyListener, 'save');
     });
 
-    it('should update event on masterEventCache for a modification on EVENT_REPLY', function() {
-      testUpdateMasterEventCache(wsEventReplyListener, 'save');
+    it('should update event on calMasterEventCache for a modification on EVENT_REPLY', function() {
+      testUpdateCalMasterEventCache(wsEventReplyListener, 'save');
     });
 
-    it('should remove event on masterEventCache for a deletion on EVENT_DELETED', function() {
-      testUpdateMasterEventCache(wsEventDeleteListener, 'remove');
+    it('should remove event on calMasterEventCache for a deletion on EVENT_DELETED', function() {
+      testUpdateCalMasterEventCache(wsEventDeleteListener, 'remove');
     });
 
-    it('should remove event on masterEventCache for a deletion on EVENT_CANCEL', function() {
-      testUpdateMasterEventCache(wsEventCancelListener, 'remove');
+    it('should remove event on calMasterEventCache for a deletion on EVENT_CANCEL', function() {
+      testUpdateCalMasterEventCache(wsEventCancelListener, 'remove');
     });
   });
 });

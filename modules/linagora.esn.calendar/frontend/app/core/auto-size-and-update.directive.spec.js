@@ -11,7 +11,7 @@ describe('The calendar module directives', function() {
     angular.mock.module('linagora.esn.graceperiod', 'esn.calendar');
   });
 
-  describe('autoSizeAndUpdate directive', function() {
+  describe('calAutoSizeAndUpdate directive', function() {
     var autosizeSpy;
 
     beforeEach(function() {
@@ -27,7 +27,7 @@ describe('The calendar module directives', function() {
       });
 
       this.initDirective = function(scope) {
-        var element = this.$compile('<div auto-size-and-update/>')(scope);
+        var element = this.$compile('<div cal-auto-size-and-update/>')(scope);
 
         scope.$digest();
 

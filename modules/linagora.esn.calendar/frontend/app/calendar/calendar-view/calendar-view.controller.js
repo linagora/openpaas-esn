@@ -13,21 +13,21 @@
     '$timeout',
     '$window',
     'usSpinnerService',
-    'cachedEventSource',
+    'calCachedEventSource',
     'calendarCurrentView',
     'calendarEventSource',
     'calendarService',
     'CalendarShell',
     'calendarVisibilityService',
-    'eventService',
-    'masterEventCache',
+    'calEventService',
+    'calMasterEventCache',
     'calendarEventEmitter',
     'calendarUtils',
-    'eventUtils',
+    'calEventUtils',
     'gracePeriodService',
     'livenotification',
     'notificationFactory',
-    'openEventForm',
+    'calOpenEventForm',
     'CALENDAR_EVENTS',
     'DEFAULT_CALENDAR_ID',
     'MAX_CALENDAR_RESIZE_HEIGHT',
@@ -43,21 +43,21 @@
     $timeout,
     $window,
     usSpinnerService,
-    cachedEventSource,
+    calCachedEventSource,
     calendarCurrentView,
     calendarEventSource,
     calendarService,
     CalendarShell,
     calendarVisibilityService,
-    eventService,
-    masterEventCache,
+    calEventService,
+    calMasterEventCache,
     calendarEventEmitter,
     calendarUtils,
-    eventUtils,
+    calEventUtils,
     gracePeriodService,
     livenotification,
     notificationFactory,
-    openEventForm,
+    calOpenEventForm,
     CALENDAR_EVENTS,
     DEFAULT_CALENDAR_ID,
     MAX_CALENDAR_RESIZE_HEIGHT,
@@ -73,7 +73,7 @@
       $scope.$state = $state;
       $scope.eventClick = eventClick;
       $scope.eventDropAndResize = eventDropAndResize;
-      $scope.uiConfig.calendar.eventRender = eventUtils.render;
+      $scope.uiConfig.calendar.eventRender = calEventUtils.render;
       $scope.displayCalendarError = displayCalendarError;
       $scope.resizeCalendarHeight = withCalendar(function(calendar) {
         var height = windowJQuery.height() - calendar.offset().top;
@@ -128,7 +128,7 @@
             $scope.calendars = calendars || [];
             $scope.calendars.forEach(function(calendar) {
               $scope.eventSourcesMap[calendar.href] = {
-                events: cachedEventSource.wrapEventSource(calendar.id, calendarEventSource(calendar.href, $scope.displayCalendarError)),
+                events: calCachedEventSource.wrapEventSource(calendar.id, calendarEventSource(calendar.href, $scope.displayCalendarError)),
                 backgroundColor: calendar.color
               };
 
@@ -146,7 +146,7 @@
       }
 
       function eventClick(event) {
-        openEventForm(event.clone());
+        calOpenEventForm(event.clone());
       }
 
       function eventDropAndResize(drop, event, delta, revert) {
@@ -167,7 +167,7 @@
           $rootScope.$broadcast(CALENDAR_EVENTS.REVERT_MODIFICATION, oldEvent);
         }
 
-        eventService.modifyEvent(newEvent.path, newEvent, oldEvent, newEvent.etag, revertFunc, { graceperiod: true, notifyFullcalendar: true })
+        calEventService.modifyEvent(newEvent.path, newEvent, oldEvent, newEvent.etag, revertFunc, { graceperiod: true, notifyFullcalendar: true })
           .then(function(completed) {
             if (completed) {
               notificationFactory.weakInfo('Calendar - ', newEvent.title + ' has been modified.');
@@ -202,7 +202,7 @@
           end: date.end
         });
 
-        openEventForm(event);
+        calOpenEventForm(event);
       }
 
       function loading(isLoading) {
@@ -286,23 +286,23 @@
           unregisterFunction();
         });
         gracePeriodService.flushAllTasks();
-        cachedEventSource.resetCache();
+        calCachedEventSource.resetCache();
         windowJQuery.off('resize', $scope.resizeCalendarHeight);
       });
 
       function _liveNotificationHandlerOnCreateRequestandUpdate(msg) {
         var event = CalendarShell.from(msg.event, {etag: msg.etag, path: msg.eventPath});
 
-        cachedEventSource.registerUpdate(event);
-        masterEventCache.save(event);
+        calCachedEventSource.registerUpdate(event);
+        calMasterEventCache.save(event);
         calendarEventEmitter.fullcalendar.emitModifiedEvent(event);
       }
 
       function _liveNotificationHandlerOnDelete(msg) {
         var event = CalendarShell.from(msg.event, {etag: msg.etag, path: msg.eventPath});
 
-        cachedEventSource.registerDelete(event);
-        masterEventCache.remove(event);
+        calCachedEventSource.registerDelete(event);
+        calMasterEventCache.remove(event);
         calendarEventEmitter.fullcalendar.emitRemovedEvent(event);
       }
   }

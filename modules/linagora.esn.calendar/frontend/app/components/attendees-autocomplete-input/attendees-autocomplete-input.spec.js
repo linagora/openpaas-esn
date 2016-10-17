@@ -4,7 +4,7 @@
 
 var expect = chai.expect;
 
-describe('The attendees-autocomplete-input component', function() {
+describe('The cal-attendees-autocomplete-input component', function() {
 
   var attendeeServiceMock, asSession, autoCompleteMax;
 
@@ -42,7 +42,7 @@ describe('The attendees-autocomplete-input component', function() {
     angular.mock.module(function($provide) {
       $provide.value('calendarAttendeeService', attendeeServiceMock);
       $provide.value('session', asSession);
-      $provide.factory('eventsProviders', function() {
+      $provide.factory('calEventsProviders', function() {
         return {
           setUpSearchProviders: function() {}
         };
@@ -59,7 +59,7 @@ describe('The attendees-autocomplete-input component', function() {
     this.$compile = $compile;
 
     this.initDirective = function(scope) {
-      var html = '<attendees-autocomplete-input original-attendees="attendees" mutable-attendees="newAttendees"/>';
+      var html = '<cal-attendees-autocomplete-input original-attendees="attendees" mutable-attendees="newAttendees"/>';
       var element = this.$compile(html)(scope);
 
       scope.$digest();

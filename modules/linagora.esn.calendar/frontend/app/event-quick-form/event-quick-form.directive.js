@@ -2,20 +2,20 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .directive('eventQuickForm', eventQuickForm);
+         .directive('calEventQuickForm', calEventQuickForm);
 
-  eventQuickForm.$inject = [
+  calEventQuickForm.$inject = [
     '$timeout',
-    'eventUtils'
+    'calEventUtils'
   ];
 
-  function eventQuickForm($timeout, eventUtils) {
+  function calEventQuickForm($timeout, calEventUtils) {
     var directive = {
       restrict: 'E',
       templateUrl: '/calendar/app/event-quick-form/event-quick-form.html',
       link: link,
       replace: true,
-      controller: 'eventFormController'
+      controller: 'calEventFormController'
     };
 
     return directive;
@@ -24,7 +24,7 @@
 
     function link(scope, element) {
       $timeout(focusTitle, 0);
-      element.on('$destroy', eventUtils.resetStoredEvents);
+      element.on('$destroy', calEventUtils.resetStoredEvents);
       scope.$on('$locationChangeStart', hideModal);
 
       ////////////

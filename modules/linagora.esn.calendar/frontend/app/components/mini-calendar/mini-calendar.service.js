@@ -8,11 +8,11 @@
   miniCalendarService.$inject = [
     '$q',
     '_',
-    'fcMoment',
+    'calMoment',
     'MINI_CALENDAR_DAY_FORMAT'
   ];
 
-  function miniCalendarService($q, _, fcMoment, MINI_CALENDAR_DAY_FORMAT) {
+  function miniCalendarService($q, _, calMoment, MINI_CALENDAR_DAY_FORMAT) {
     var service = {
       forEachDayOfEvent: forEachDayOfEvent,
       getWeekAroundDay: getWeekAroundDay,
@@ -24,14 +24,14 @@
     ////////////
 
     function forEachDayOfEvent(event, callback) {
-      var day = fcMoment(event.start);
-      var end = fcMoment(event.end || event.start);
+      var day = calMoment(event.start);
+      var end = calMoment(event.end || event.start);
 
       if (!(event.allDay && event.end)) {
         end.add(1, 'days');
       }
       while (!day.isSame(end, 'day')) {
-        callback(fcMoment(day));
+        callback(calMoment(day));
         day.add(1, 'days');
       }
     }
@@ -42,13 +42,13 @@
       //if no firstDay default in config, I assume local of moment
       //is the same as fullcalendar local for first day of the week
       var firstWeekDay = firstDay ?
-        fcMoment(day).isoWeekday(firstDay) : fcMoment(day).weekday(0);
+        calMoment(day).isoWeekday(firstDay) : calMoment(day).weekday(0);
 
       if (firstWeekDay.isAfter(day)) {
         firstWeekDay.subtract(7, 'days');
       }
 
-      var nextFirstWeekDay = fcMoment(firstWeekDay).add(7, 'days');
+      var nextFirstWeekDay = calMoment(firstWeekDay).add(7, 'days');
 
       return {
         firstWeekDay: firstWeekDay,
@@ -65,8 +65,8 @@
         if (add) {
           originalEvents[event.id] = {
             id: event.id,
-            start: fcMoment(event.start),
-            end: event.end && fcMoment(event.end),
+            start: calMoment(event.start),
+            end: event.end && calMoment(event.end),
             allDay: event.allDay
           };
         } else {

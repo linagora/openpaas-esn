@@ -2,19 +2,19 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .factory('VAlarmShell', VAlarmShellFactory);
+         .factory('CalVAlarmShell', CalVAlarmShellFactory);
 
-  VAlarmShellFactory.$inject = [
+  CalVAlarmShellFactory.$inject = [
     'ALARM_MODIFY_COMPARE_KEYS'
   ];
 
-  function VAlarmShellFactory(ALARM_MODIFY_COMPARE_KEYS) {
-    function VAlarmShell(valarm, vevent) {
+  function CalVAlarmShellFactory(ALARM_MODIFY_COMPARE_KEYS) {
+    function CalVAlarmShell(valarm, vevent) {
       this.valarm = valarm;
       this.vevent = vevent;
     }
 
-    VAlarmShell.prototype = {
+    CalVAlarmShell.prototype = {
       get action() { return this.valarm.getFirstPropertyValue('action'); },
       get trigger() { return this.valarm.getFirstPropertyValue('trigger'); },
       get description() { return this.valarm.getFirstPropertyValue('description'); },
@@ -23,7 +23,7 @@
       equals: equals
     };
 
-    return VAlarmShell;
+    return CalVAlarmShell;
 
     ////////////
 
