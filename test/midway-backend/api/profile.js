@@ -574,7 +574,6 @@ describe('The profile API', function() {
             req.expect(200).end(function(err, res) {
               expect(err).to.not.exist;
               expect(res.body.features).to.shallowDeepEqual({
-                domain_id: domain_id.toString(),
                 modules: [{
                   name: moduleName,
                   configurations: [{

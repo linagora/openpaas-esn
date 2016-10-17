@@ -1,23 +1,15 @@
 'use strict';
 
-var q = require('q');
-var _ = require('lodash');
-var dotty = require('dotty');
-var confModule = require('../configuration');
-var mongoose = require('mongoose');
-var constants = require('./constants');
-var Configuration;
-
-try {
-  Configuration = mongoose.model('Configuration');
-} catch (e) {
-  Configuration = require('../db/mongo/models/configuration');
-}
+const q = require('q');
+const _ = require('lodash');
+const dotty = require('dotty');
+const confModule = require('../configuration');
+const constants = require('./constants');
+const fallbackModule = require('./fallback');
 
 function EsnConfig(moduleName, domainId) {
   this.moduleName = moduleName || constants.DEFAULT_MODULE;
   this.domainId = domainId || constants.DEFAULT_DOMAIN_ID;
-  this.confModule = confModule;
 }
 
 EsnConfig.prototype.setModuleName = function(name) {
@@ -26,10 +18,6 @@ EsnConfig.prototype.setModuleName = function(name) {
 
 EsnConfig.prototype.setDomainId = function(id) {
   this.domainId = id;
-};
-
-EsnConfig.prototype.setConfModule = function(confModule) {
-  this.confModule = confModule;
 };
 
 EsnConfig.prototype.getMultiple = function(configNames) {
@@ -56,7 +44,6 @@ EsnConfig.prototype.get = function(configName) {
 EsnConfig.prototype.setMultiple = function(configsToUpdate) {
   var moduleName = this.moduleName;
   var domainId = this.domainId;
-  var confModule = this.confModule;
 
   return q.ninvoke(confModule, 'findByDomainId', domainId)
     .then(function(configuration) {
@@ -65,10 +52,10 @@ EsnConfig.prototype.setMultiple = function(configsToUpdate) {
         configurations: []
       };
 
-      configuration = configuration || new Configuration({
+      configuration = configuration || {
         domain_id: domainId,
         modules: [moduleTemplate]
-      });
+      };
 
       var module = _.find(configuration.modules, { name: moduleName });
 
@@ -106,7 +93,6 @@ EsnConfig.prototype.set = function(config) {
 
 EsnConfig.prototype.getConfigsFromAllDomains = function(configName) {
   var moduleName = this.moduleName;
-  var confModule = this.confModule;
   var self = this;
 
   return q.ninvoke(confModule, 'getAll')
@@ -140,10 +126,8 @@ EsnConfig.prototype._extractModuleConfigs = function(modulName, confObj) {
 
 EsnConfig.prototype._getModuleConfigsForDomain = function(moduleName, domainId) {
   var self = this;
-  var confModule = this.confModule;
 
-  return q.ninvoke(confModule, 'findByDomainId', domainId)
-    .then(function(configuration) {
+  return fallbackModule.findByDomainId(domainId).then(function(configuration) {
       return self._extractModuleConfigs(moduleName, configuration);
     });
 };
