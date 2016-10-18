@@ -120,6 +120,21 @@ describe('The esn.form.helper Angular module', function() {
       expect(this.isolateScope.color).to.equal(color);
     });
 
+    it('should change form.$dirty to true when toggle is called', function() {
+      var self = this;
+
+      self.$scope.form = {
+        $dirty: false,
+        $setDirty: function() {
+          self.$scope.form.$dirty = true;
+        }
+      };
+
+      this.initDirective('<toggle-switch form="form"/>');
+      this.isolateScope.toggle();
+      expect(this.isolateScope.form.$dirty).to.equal(true);
+    });
+
   });
 
   describe('The esnSubmit directive', function() {
