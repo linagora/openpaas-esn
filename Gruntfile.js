@@ -180,16 +180,6 @@ module.exports = function(grunt) {
       modules_unit_backend: runGrunt.newProcess(['test-modules-unit-backend']),
       modules_frontend: runGrunt.newProcess(['test-modules-frontend']),
       e2e: runGrunt.newProcess(['test-e2e'])
-    },
-    'node-inspector': {
-      dev: {
-        options: {
-          'web-host': 'localhost',
-          'web-port': config.webserver.debugPort || 8081,
-          'save-live-edit': true,
-          'no-preload': true
-        }
-      }
     }
   });
 
@@ -202,7 +192,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-shell-spawn');
   grunt.loadNpmTasks('grunt-continue');
   grunt.loadNpmTasks('grunt-run-grunt');
-  grunt.loadNpmTasks('grunt-node-inspector');
   grunt.loadNpmTasks('grunt-lint-pattern');
   grunt.loadNpmTasks('grunt-docker-spawn');
   grunt.loadNpmTasks('grunt-eslint');
@@ -224,7 +213,6 @@ module.exports = function(grunt) {
   grunt.registerTask('setupElasticsearchEventsIndex', 'setup elasticsearch events index', gruntfileUtils.setupElasticsearchEventsIndex());
 
   grunt.registerTask('dev', ['nodemon:dev']);
-  grunt.registerTask('debug', ['node-inspector:dev']);
   grunt.registerTask('setup-mongo-es', ['spawn-servers', 'continue:on', 'setupElasticsearchUsersIndex', 'setupElasticsearchContactsIndex', 'setupElasticsearchEventsIndex']);
 
   grunt.registerTask('test-e2e', ['test-e2e-up', 'continue:on', 'run_grunt:e2e', 'test-e2e-down', 'continue:off', 'continue:fail-on-warning']);
