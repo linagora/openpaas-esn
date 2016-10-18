@@ -67,6 +67,13 @@ describe('The addressbooks module', function() {
             };
           }
         }
+      },
+      helpers: {
+        config: {
+          getBaseUrl: function(user, callback) {
+            callback(null, 'http://localhost:8080');
+          }
+        }
       }
     };
     deps = function(name) {
@@ -699,7 +706,7 @@ describe('The addressbooks module', function() {
         status: function() {
           return {
             json: function() {
-              avatarHelper().injectTextAvatar(123, 456, req.body).then(function() {
+              avatarHelper().injectTextAvatar(req.user, 123, 456, req.body).then(function() {
                 expect(called).to.be.true;
                 done();
               });
@@ -1111,7 +1118,7 @@ describe('The addressbooks module', function() {
 
       mockery.registerMock('./avatarHelper', function() {
         return {
-          injectTextAvatar: function(_bookId, _bookName, _vcard) {
+          injectTextAvatar: function(user, _bookId, _bookName, _vcard) {
             expect(_bookId).to.equal(bookId);
             expect(_bookName).to.equal(bookName);
             var deferred = q.defer();

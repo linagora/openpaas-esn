@@ -13,7 +13,7 @@ var PasswordReset = require('mongoose').model('PasswordReset');
 function _sendConfirmation(user, template, callback) {
   var mailer = emailModule.getMailer(user.preferredDomainId);
 
-  configHelper.getBaseUrl(function(err, url) {
+  configHelper.getBaseUrl(user, function(err, url) {
     if (err) {
       return callback(err);
     }

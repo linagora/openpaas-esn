@@ -23,30 +23,6 @@ describe('The daily digest mail builder', function() {
           }
         };
       }
-    },
-    'esn-config': function(id) {
-      function EsnConfigInstance(id) {
-        this.id = id;
-      }
-      EsnConfigInstance.prototype.get = function(key, callback) {
-        if (typeof key === 'function') {
-          callback = key;
-          key = null;
-        }
-        if (this.id === 'mail') {
-          return callback(null, { noreply: 'noreply@open-paas.org' });
-        } else if (this.id === 'web') {
-          return callback(null, { base_url: 'http://test:12345' });
-        } else {
-          return callback(new Error('id must be mail or web'));
-        }
-      };
-      return new EsnConfigInstance(id);
-    },
-    config: function() {
-      return {
-        webserver: {port: 8080}
-      };
     }
   };
 
@@ -55,10 +31,32 @@ describe('The daily digest mail builder', function() {
   };
 
   describe('The process function', function() {
+    var digest = require('../fixtures/digest.json');
+    var user = require('../fixtures/user.json');
+
+    it('should reject if configHelpers cannot get base_url', function(done) {
+      deps.helpers = {
+        config: {
+          getBaseUrl: function(user, callback) {
+            callback(new Error('something error'));
+          }
+        }
+      };
+      module = require('../../../lib/mail')(dependencies);
+      module.process(user, digest).catch(function(err) {
+        expect(err.message).to.equal('something error');
+        done();
+      });
+    });
 
     it('should transform digest json into a proper content send by om-email', function() {
-      var digest = require('../fixtures/digest.json');
-      var user = require('../fixtures/user.json');
+      deps.helpers = {
+        config: {
+          getBaseUrl: function(user, callback) {
+            callback(null, 'http://test:12345');
+          }
+        }
+      };
       module = require('../../../lib/mail')(dependencies);
       return module.process(user, digest).then(function() {
         return expect(
@@ -66,6 +64,5 @@ describe('The daily digest mail builder', function() {
           JSON.stringify(require('../fixtures/expected-digest-job-result.json')));
       });
     });
-
   });
 });

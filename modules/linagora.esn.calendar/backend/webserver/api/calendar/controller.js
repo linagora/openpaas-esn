@@ -93,10 +93,11 @@ function changeParticipationSuccess(res, vcalendar, eventData) {
     if (err) {
       return res.status(500).json({error: {code: 500, message: 'Error while redirecting after participation change', details: err.message}});
     } else if (!found) {
-      configHelpers.getBaseUrl(function(err, baseUrl) {
+      configHelpers.getBaseUrl(null, function(err, baseUrl) {
         if (err) {
           return res.status(500).json({error: {code: 500, message: 'Error while rendering event consultation page', details: err.message}});
         }
+
         calendar.generateActionLinks(baseUrl, eventData).then(function(links) {
           var eventJSON = JSON.stringify(vcalendar.toJSON());
 

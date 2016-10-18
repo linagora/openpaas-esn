@@ -101,7 +101,6 @@ function mockMiddlewares() {
     'request',
     'setup-routes',
     'setup-sessions',
-    'setup-settings',
     'startup-buffer',
     'templates',
     'token',

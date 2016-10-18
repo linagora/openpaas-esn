@@ -45,6 +45,18 @@ describe('The domains controller', function() {
 
   describe('The sendInvitations fn', function() {
 
+    beforeEach(function() {
+      var helpersMock = {
+        config: {
+          getBaseUrl: function(user, callback) {
+            callback(null, 'http://localhost:8080');
+          }
+        }
+      };
+
+      mockery.registerMock('../../helpers', helpersMock);
+    });
+
     it('should fail if request body is empty', function(done) {
       var mock = {
         model: function() {
@@ -132,6 +144,7 @@ describe('The domains controller', function() {
           return cb(null, true);
         }
       };
+
       mockery.registerMock('../../core/invitation', handlerMock);
 
       var req = {
@@ -144,9 +157,6 @@ describe('The domains controller', function() {
         },
         get: function() {
           return '';
-        },
-        openpaas: {
-          getBaseURL: function() {return '';}
         }
       };
 
@@ -191,9 +201,6 @@ describe('The domains controller', function() {
         },
         get: function() {
           return '';
-        },
-        openpaas: {
-          getBaseURL: function() {return '';}
         }
       };
 
@@ -246,9 +253,6 @@ describe('The domains controller', function() {
         },
         get: function() {
           return '';
-        },
-        openpaas: {
-          getBaseURL: function() {return '';}
         }
       };
 

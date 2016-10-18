@@ -23,7 +23,7 @@ module.exports = function(dependencies) {
 
   function getCallbackEndpoint(type) {
     var defer = q.defer();
-    helpers.config.getBaseUrl(function(err, baseURL) {
+    helpers.config.getBaseUrl(null, function(err, baseURL) {
       if (err) {
         return defer.reject(err);
       }

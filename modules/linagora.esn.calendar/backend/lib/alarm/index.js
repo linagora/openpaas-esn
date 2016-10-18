@@ -13,7 +13,7 @@ var cron;
 function _sendAlarmEmail(ics, email) {
   var defer = q.defer();
 
-  helpers.config.getBaseUrl(function(err, baseUrl) {
+  helpers.config.getBaseUrl(null, function(err, baseUrl) {
     if (err) {
       return defer.reject(err);
     }

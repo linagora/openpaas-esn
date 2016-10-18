@@ -245,7 +245,7 @@ function inviteAttendees(editor, attendeeEmails, notify, method, ics, calendarUR
 
   var mailer = emailModule.getMailer(editor);
 
-  return configHelpers.getBaseUrl(function(err, baseUrl) {
+  return configHelpers.getBaseUrl(editor, function(err, baseUrl) {
     if (err) {
       return q.reject(err).nodeify(callback);
     }
