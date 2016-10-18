@@ -1,35 +1,34 @@
 'use strict';
 
-var core = require('../core'),
-  mongo = core.db.mongo,
-  topic = core.pubsub.local.topic('mongodb:connectionAvailable'),
-  logger = core.logger;
+const core = require('../core');
+const esnConfig = require('../core/esn-config');
+const mongo = core.db.mongo;
+const topic = core.pubsub.local.topic('mongodb:connectionAvailable');
+const logger = core.logger;
 
 module.exports = function(application) {
-  var setConfiguration = function() {
+  if (mongo.isConnected()) {
+    setConfiguration();
+  }
+
+  topic.subscribe(setConfiguration);
+
+  function setConfiguration() {
     logger.info('MongoDB is connected, setting up express configuration');
 
-    var esnConf = require('../core/esn-config');
-    esnConf('web').get(function(err, config) {
+    esnConfig('webserver').get(function(err, config) {
       if (err) {
-        logger.warn('Can not set express configuration : ' + err);
-        return;
+        return logger.warn('Can not get webserver configuration : ' + err);
       }
 
       if (!config) {
-        logger.info('ESN does not have any web settings');
-        return;
+        return logger.info('ESN does not have any webserver settings');
       }
 
-      if (config && config.proxy && config.proxy.trust && config.proxy.trust === true) {
+      if (config && config.proxy && config.proxy.trust) {
         logger.info('Setting up trust proxy an express application');
         application.enable('trust proxy');
       }
     });
-  };
-
-  if (mongo.isConnected()) {
-    setConfiguration();
   }
-  topic.subscribe(setConfiguration);
 };
