@@ -133,6 +133,7 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
         'calendar/calendar-left-pane/calendar-left-pane.directive.js',
         'calendar/calendar-view/calendar-view.controller.js',
         'calendar/calendar-view/calendar-view.directive.js',
+        'calendar/calendar-header/calendar-header-mobile.controller.js',
 
         'calendar-configuration/calendar-configuration-header/calendar-configuration-header.directive.js',
         'calendar-configuration/calendars-configuration-header/calendars-configuration-header.directive.js',
