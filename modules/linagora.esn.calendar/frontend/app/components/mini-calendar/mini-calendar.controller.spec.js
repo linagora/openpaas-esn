@@ -264,6 +264,23 @@ describe('The mini-calendar controller', function() {
       $scope.$digest();
     });
 
+    it('should select the good period on CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE event with three days as viewMode', function(done) {
+      var day = calMoment().stripTime();
+
+      $scope.calendarReady(calendar);
+      $scope.$digest();
+
+      fcMethodMock.select = function(start, end) {
+        expect(day.isSame(start, 'days')).to.be.true;
+        day.add(3, 'days');
+        expect(day.isSame(end, 'days')).to.be.true;
+        done();
+      };
+
+      $rootScope.$broadcast(CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE, {name: 'agendaThreeDays', start: day});
+      $scope.$digest();
+    });
+
     it('should select the good period when user select a day in the small calendar and when the big calendar is in day view', function() {
       $scope.calendarReady(calendar);
       $scope.$digest();

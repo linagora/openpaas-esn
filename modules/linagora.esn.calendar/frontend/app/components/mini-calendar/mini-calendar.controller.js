@@ -75,6 +75,11 @@
           case 'month':
             calendar.fullCalendar('unselect');
             break;
+          case 'agendaThreeDays':
+            var nextThreeDays = calMoment(day).add(3, 'days');
+
+            calendar.fullCalendar('select', day, nextThreeDays);
+            break;
           default:
             throw new Error('unknown view mode : ' + $scope.homeCalendarViewMode);
         }
