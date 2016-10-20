@@ -389,14 +389,12 @@ describe('The message core module', function() {
       var messageModule = this.helpers.requireBackend('core/message');
       this.mongoose.model = function() {
         return {
-          collection: {
-            find: function() {
-              return {
-                toArray: function(callback) {
-                  callback(new Error('error'));
-                }
-              };
-            }
+          find: function() {
+            return {
+              exec: function(callback) {
+                callback(new Error('error'));
+              }
+            };
           }
         };
       };
@@ -426,14 +424,12 @@ describe('The message core module', function() {
           };
         }
         return {
-          collection: {
-            find: function() {
-              return {
-                toArray: function(callback) {
-                  callback(null, [messageA, messageB, messageC]);
-                }
-              };
-            }
+          find: function() {
+            return {
+              exec: function(callback) {
+                callback(null, [messageA, messageB, messageC]);
+              }
+            };
           }
         };
       };
@@ -467,14 +463,12 @@ describe('The message core module', function() {
           };
         }
         return {
-          collection: {
-            find: function() {
-              return {
-                toArray: function(callback) {
-                  callback(null, [{_id: '1', id: '1', author: '3'}, {_id: '2', id: '2', author: '4'}]);
-                }
-              };
-            }
+          find: function() {
+            return {
+              exec: function(callback) {
+                callback(null, [{_id: '1', id: '1', author: '3'}, {_id: '2', id: '2', author: '4'}]);
+              }
+            };
           }
         };
       };
@@ -499,14 +493,12 @@ describe('The message core module', function() {
           };
         }
         return {
-          collection: {
-            find: function() {
-              return {
-                toArray: function(callback) {
-                  callback(null, [{_id: '1', id: '1', author: '3'}, {_id: '2', id: '2', author: '4'}]);
-                }
-              };
-            }
+          find: function() {
+            return {
+              exec: function(callback) {
+                callback(null, [{_id: '1', id: '1', author: '3'}, {_id: '2', id: '2', author: '4'}]);
+              }
+            };
           }
         };
       };
@@ -553,15 +545,13 @@ describe('The message core module', function() {
               }
             };
           };
-          messageModel.collection = {
-            find: function() {
-              return {
-                toArray: function(callback) {
-                  callback(null, [{_id: '1', id: '1', author: '3', objectType: 'whatsup', responses: [{_id: '5', id: '5', author: '4'}]},
-                    {_id: '2', id: '2', author: '4', objectType: 'email'}]);
-                }
-              };
-            }
+          messageModel.find = function() {
+            return {
+              exec: function(callback) {
+                callback(null, [{_id: '1', id: '1', author: '3', objectType: 'whatsup', responses: [{_id: '5', id: '5', author: '4'}]},
+                  {_id: '2', id: '2', author: '4', objectType: 'email'}]);
+              }
+            };
           };
           return messageModel;
         }
