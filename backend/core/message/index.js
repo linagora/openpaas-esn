@@ -220,7 +220,7 @@ function findByIds(ids, callback) {
     return result;
   }
 
-  whatsupModel.collection.find(query).toArray(function(err, foundMessages) {
+  whatsupModel.find(query).exec(function(err, foundMessages) {
     if (err) {
       return callback(err);
     }
