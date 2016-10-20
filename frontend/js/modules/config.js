@@ -4,15 +4,15 @@ angular.module('esn.configuration', ['esn.session', 'feature-flags'])
 
   .factory('esnConfig', function(session, featureFlags) {
     var sessionReady = session.ready.then(function() {
-      var features = session.user.features;
+      var configurations = session.user.configurations;
 
-      if (features) {
-        featureFlags.set(features.modules.reduce(function(list, module) {
-          return list.concat(module.configurations.map(function(feature) {
+      if (configurations) {
+        featureFlags.set(configurations.modules.reduce(function(list, module) {
+          return list.concat(module.configurations.map(function(config) {
             return {
-              key: module.name + '.' + feature.name,
-              name: feature.name,
-              active: feature.value
+              key: module.name + '.' + config.name,
+              name: config.name,
+              active: config.value
             };
           }));
         }, []));
@@ -21,9 +21,9 @@ angular.module('esn.configuration', ['esn.session', 'feature-flags'])
 
     return function(key, defaultValue) {
       return sessionReady.then(function() {
-        var feature = featureFlags.isOn(key);
+        var config = featureFlags.isOn(key);
 
-        return angular.isDefined(feature) ? feature : defaultValue;
+        return angular.isDefined(config) ? config : defaultValue;
       });
     };
   });

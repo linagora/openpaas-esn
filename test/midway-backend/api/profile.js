@@ -552,7 +552,7 @@ describe('The profile API', function() {
 
   describe('GET /api/user route', function() {
 
-    it('should return 200 with the profile of the user, including his features', function(done) {
+    it('should return 200 with the profile of the user, including his configurations', function(done) {
       var self = this;
 
       this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
@@ -560,8 +560,8 @@ describe('The profile API', function() {
           return done(err);
         }
 
-        var moduleName = 'some_module';
-        var configName = 'my-feature';
+        var moduleName = 'core';
+        var configName = 'homePage';
         var configValue = true;
 
         self.helpers.requireBackend('core/esn-config')(configName)
@@ -573,7 +573,7 @@ describe('The profile API', function() {
 
             req.expect(200).end(function(err, res) {
               expect(err).to.not.exist;
-              expect(res.body.features).to.shallowDeepEqual({
+              expect(res.body.configurations).to.shallowDeepEqual({
                 modules: [{
                   name: moduleName,
                   configurations: [{
@@ -581,35 +581,6 @@ describe('The profile API', function() {
                     value: configValue
                   }]
                 }]
-              });
-
-              done();
-            });
-          });
-      });
-    });
-
-    it('should return 200 with the profile of the user, including his preferences', function(done) {
-      var self = this;
-
-      this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
-        if (err) {
-          return done(err);
-        }
-
-        var configName = 'homePage';
-        var configValue = 'unifiedinbox';
-
-        self.helpers.requireBackend('core/esn-config')(configName)
-          .forUser({ preferredDomainId: domain_id })
-          .set(configValue, function(err) {
-            expect(err).to.not.exist;
-            var req = loggedInAsUser(request(app).get('/api/user'));
-
-            req.expect(200).end(function(err, res) {
-              expect(err).to.not.exist;
-              expect(res.body.preferences).to.deep.equal({
-                homePage: configValue
               });
 
               done();

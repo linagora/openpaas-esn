@@ -7,7 +7,10 @@ var expect = chai.expect;
 
 describe('The esn.router Angular module', function() {
 
-  beforeEach(module('esn.router'));
+  beforeEach(function() {
+    angular.mock.module('esn.router');
+    angular.mock.module('esn.configuration');
+  });
 
   describe('The esnRouterHelper service', function() {
 
@@ -15,7 +18,7 @@ describe('The esn.router Angular module', function() {
 
       var $rootScope, $state, session, esnRouterHelper, ESN_ROUTER_DEFAULT_HOME_PAGE;
 
-      beforeEach(inject(function(_$rootScope_, _$state_, _session_, _esnRouterHelper_, _ESN_ROUTER_DEFAULT_HOME_PAGE_) {
+      beforeEach(angular.mock.inject(function(_$rootScope_, _$state_, _session_, _esnRouterHelper_, _ESN_ROUTER_DEFAULT_HOME_PAGE_) {
         $rootScope = _$rootScope_;
         $state = _$state_;
         session = _session_;
@@ -31,8 +34,16 @@ describe('The esn.router Angular module', function() {
         session.setUser({
           _id: 'user123',
           emails: [],
-          preferences: {
-            homePage: homePage
+          configurations: {
+            domain_id: 'domain123',
+              modules: [
+                { name: 'core',
+                  configurations: [
+                    { name: 'homePage', value: homePage },
+                    { name: 'config2', value: 'value2' }
+                  ]
+              }
+            ]
           }
         });
         $state.href = sinon.stub().returns('/valid/url');
@@ -51,8 +62,16 @@ describe('The esn.router Angular module', function() {
         session.setUser({
           _id: 'user123',
           emails: [],
-          preferences: {
-            homePage: homePage
+          configurations: {
+            domain_id: 'domain123',
+            modules: [
+              { name: 'core',
+                configurations: [
+                  { name: 'homePage', value: homePage },
+                  { name: 'config2', value: 'value2' }
+                ]
+              }
+            ]
           }
         });
         // $state.href returns null when state is invalid
