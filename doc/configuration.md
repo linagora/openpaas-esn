@@ -250,18 +250,31 @@ Defines the general Web settings for the ESN deployment.
 {
   "name": "web",
   "value": {
-    "proxy": {
-      "trust": true
-    },
     "base_url": "http://localhost"
   }
 }
 ```
 
-- proxy: Activate or not the expressjs 'trust proxy' flag (application.enable('trust proxy')).
 - base_url: Defines the baseURL of the application. This parameter is optional and is used to define the public URL of the application.
 
 **base_url** may be used when the ESN is deployed behind a proxy/load balancer. This setting helps to build several URLs in the application.
+
+### Webserver
+
+Defines the webserver settings for the ESN deployment.
+
+```JSON
+{
+  "name": "webserver",
+  "value": {
+    "proxy": {
+      "trust": true
+    }
+  }
+}
+```
+
+- proxy: Activate or not the ExpressJS 'trust proxy' flag (application.enable('trust proxy')).
 
 ### JWT
 

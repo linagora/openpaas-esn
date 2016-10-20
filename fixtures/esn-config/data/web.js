@@ -5,9 +5,6 @@ module.exports = function() {
   var port = process.env.WEB_PORT || '8080';
 
   return {
-    proxy: {
-      trust: true
-    },
     base_url: 'http://' + host + ':' + port
   };
 };
