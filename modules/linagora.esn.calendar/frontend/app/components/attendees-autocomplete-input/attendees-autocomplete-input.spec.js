@@ -137,18 +137,23 @@ describe('The cal-attendees-autocomplete-input component', function() {
   });
 
   describe('onAddingAttendee', function() {
-    it('should bail on invalid emails', function() {
+    it('should work with attendee having an email', function() {
       var att, res;
 
       this.initDirective(this.$scope);
-
-      att = { id: 1, displayName: 'aaaaaaaaaarrrggghhhh' };
+      att = { id: 1, displayName: 'yolo', email: 'yolo@open-paas.org' };
       res = this.eleScope.vm.onAddingAttendee(att);
-      expect(res).to.be.false;
+      expect(res).to.be.true;
+    });
 
-      att = { email: 'wooooohooooooooo', displayName: 'world' };
+    it('should work with attendee without an email', function() {
+      var att, res;
+
+      this.initDirective(this.$scope);
+      att = { displayName: 'eric cartman' };
       res = this.eleScope.vm.onAddingAttendee(att);
-      expect(res).to.be.false;
+      expect(res).to.be.true;
+      expect(att.email).to.be.equal('eric cartman');
     });
 
     describe('adding plain email attendee', function() {
