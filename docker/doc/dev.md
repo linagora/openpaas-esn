@@ -41,8 +41,16 @@ node ./bin/cli.js docker-dev --host <YOUR_DOCKER_IP> --port <PORT> --database <D
 - DBNAME is the database name to use (default to esn which is the one defined by docker-compose above)
 
 Now that all is configured and provisioned, you can run your local ESN as usual:
- 
+
  ```bash
  npm start
  ```
- 
+
+## Working on esn-sabre code
+
+If you also working on esn-sabre and you do not want to have to rebuild linagora/esn-sabre and restart docker-compose each time you change
+the code, you can run the following command. However if you edit the composer.json, you will have to rebuild the image.
+
+```
+ESN_HOST=<YOUR_ESN_IP> ESN_SABRE_PATH=/path/to/esn-sabre ESN_PATH=$PWD docker-compose -f ./docker/dockerfiles/dev/docker-compose-sabre-dav.yml up
+```

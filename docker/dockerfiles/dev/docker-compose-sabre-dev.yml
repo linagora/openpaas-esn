@@ -1,0 +1,51 @@
+version: '2'
+
+services:
+
+  redis:
+    extends:
+      file: ../docker-compose-commons.yml
+      service: redis
+
+  mongo:
+    extends:
+      file: ../docker-compose-commons.yml
+      service: mongo
+
+  elasticsearch:
+    extends:
+      file: ../docker-compose-commons.yml
+      service: elasticsearch
+
+  sabre:
+    extends:
+      file: ../docker-compose-commons.yml
+      service: sabre
+    links:
+      - mongo
+    environment:
+      - ESN_MONGO_DBNAME=esn
+      - ESN_HOST=${ESN_HOST}
+    volumes:
+      - ${ESN_SABRE_PATH}/esn.php:/var/www/server.php
+      - ${ESN_SABRE_PATH}/config.json:/var/www/config.json
+      - ${ESN_SABRE_PATH}/lib:/var/www/lib
+      - ${ESN_SABRE_PATH}/tests:/var/www/tests
+
+  james:
+    extends:
+      file: ../docker-compose-commons.yml
+      service: james
+    links:
+      - cassandra:cassandra
+      - james_elastic:elasticsearch
+
+  james_elastic:
+    extends:
+      file: ../docker-compose-commons.yml
+      service: james_elastic
+
+  cassandra:
+    extends:
+      file: ../docker-compose-commons.yml
+      service: cassandra
