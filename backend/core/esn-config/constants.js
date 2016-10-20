@@ -36,6 +36,9 @@ module.exports = {
       web: {
         public: false
       },
+      webserver: {
+        public: false
+      },
       user: {
         public: false
       },
