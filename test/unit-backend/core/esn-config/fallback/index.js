@@ -13,12 +13,10 @@ describe('The core/esn-config/fallback module', function() {
   beforeEach(function() {
     getModule = this.helpers.requireBackend.bind(this.helpers, 'core/esn-config/fallback');
 
-    mongoConfigMock = function(key) {
-      return {
-        get: function(callback) {
-          return callback(null, key);
-        }
-      };
+    mongoConfigMock = {
+      findByDomainId: function() {
+        return q();
+      }
     };
     mongoConfigMock.setDefaultMongoose = function() {};
     FeaturesMock = {};
@@ -28,7 +26,7 @@ describe('The core/esn-config/fallback module', function() {
       }
     };
 
-    mockery.registerMock('mongoconfig', mongoConfigMock);
+    mockery.registerMock('./mongoconfig', mongoConfigMock);
     mockery.registerMock('../../db/mongo/models/features', FeaturesMock);
     mockery.registerMock('./configuration', confModuleMock);
 
@@ -64,6 +62,74 @@ describe('The core/esn-config/fallback module', function() {
           });
       })
       .catch(done.bind(null, 'should resolve'));
+    });
+
+    it('should not cache configuration of other domain', function(done) {
+      var execSpyFn = sinon.stub().returns(q({}));
+
+      FeaturesMock.findOne = function() {
+        return {
+          lean: function() {
+            return {
+              exec: execSpyFn
+            };
+          }
+        };
+      };
+
+      getModule()
+      .findByDomainId('domain1')
+      .then(function() {
+        // called twice to get both system-wide and domain-wide
+        expect(execSpyFn).to.have.been.calledTwice;
+
+        return getModule()
+          .findByDomainId('domain2')
+          .then(function() {
+            // different domains so the data is not cached
+            expect(execSpyFn).to.have.been.calledThrice;
+
+            done();
+          });
+      })
+      .catch(done.bind(null, 'should resolve'));
+    });
+
+    it('should clone deeply the configuration to avoid mutating cache', function(done) {
+      var cachedConfigurations = {
+        modules: [{
+          name: 'configurations',
+          configurations: [{
+            name: 'mail',
+            value: 'mail_config'
+          }]
+        }]
+      };
+
+      mongoConfigMock.findByDomainId = function() {
+        return q(cachedConfigurations);
+      };
+
+      FeaturesMock.findOne = function() {
+        return {
+          lean: function() {
+            return {
+              exec: function() { return q.reject(); }
+            };
+          }
+        };
+      };
+
+      getModule()
+        .findByDomainId()
+        .then(function(configuration) {
+          configuration.modules[0].configurations.push({});
+          // still have length 1
+          expect(cachedConfigurations.modules[0].configurations).to.have.length(1);
+
+          done();
+        })
+        .catch(done.bind(null, 'should resolve'));
     });
 
   });

@@ -36,7 +36,7 @@ function findByDomainId(domainId) {
     var mergedDoc = Object.create(null);
 
     fulFilledDocuments.forEach(function(doc) {
-      mergeDocument(mergedDoc, doc);
+      mergeDocument(mergedDoc, _.cloneDeep(doc));
     });
 
     return mergedDoc;

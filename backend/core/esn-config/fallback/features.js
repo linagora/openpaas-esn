@@ -2,9 +2,8 @@
 
 // DEPRECATED: only be used as fallback for configurations collection
 
-const q = require('q');
+const _ = require('lodash');
 let Features;
-const cacheFeatures = {};
 
 try {
   Features = require('mongoose').model('Features');
@@ -13,19 +12,10 @@ try {
 }
 
 function findByDomainId(domainId) {
-  if (cacheFeatures[domainId]) {
-    return q(cacheFeatures[domainId]);
-  }
-
   return Features.findOne({ domain_id: domainId })
     .lean()
     .exec()
-    .then(_qualifyFeature)
-    .then(function(feature) {
-      cacheFeatures[domainId] = feature;
-
-      return feature;
-    });
+    .then(_qualifyFeature);
 }
 
 function _qualifyFeature(feature) {
@@ -48,5 +38,5 @@ function _qualifyFeature(feature) {
 }
 
 module.exports = {
-  findByDomainId
+  findByDomainId: _.memoize(findByDomainId)
 };
