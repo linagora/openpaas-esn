@@ -51,7 +51,7 @@ PROVISION=true DOCKER_IP=<YOUR_DOCKER_IP> ESN_PATH=$PWD docker-compose -f ./dock
 In both cases, environment variables are defined like:
 
 - PROVISION (Required on first launch only): Tell OpenPaaS to initialize configuration and provision some users/domains/communities so that once launched, you can log in into OpenPaaS.
-- DOCKER_IP: localhost (or 127.0.0.1) on Linux-based system or the docker-machine IP on OS X and Windows (default machine is accessible at 192.168.99.100, type 'docker-machine ip default' to check the value). It is required to set this IP so that the configuration is generated from the right value. If not set, the webserver may not provide some assets correctly.
+- DOCKER_IP: Must be the docker-machine IP (default machine is accessible at 192.168.99.100 on OS X and Windows, 172.17.0.1 on Linux, type 'docker-machine ip default' to check the value). It is required to set this IP so that the configuration is generated from the right value. If not set, the webserver may not provide some assets correctly.
 - ESN_PATH: Should always be the absolute path of your ESN sources. This variable is used to interpolate some paths in the docker-compose file.
 
 Launching the platform may take some time (1-2 minutes), grab a coffee and be ready for the next steps!
