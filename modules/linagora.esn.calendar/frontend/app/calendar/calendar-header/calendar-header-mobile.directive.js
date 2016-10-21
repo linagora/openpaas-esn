@@ -8,10 +8,10 @@
     var directive = {
       restrict: 'E',
       templateUrl: '/calendar/app/calendar/calendar-header/calendar-header-mobile.html',
-      replace: true
+      replace: true,
+      controller: 'calendarHeaderMobileController'
     };
 
     return directive;
   }
-
 })();

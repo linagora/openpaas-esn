@@ -11,7 +11,7 @@
           i.mdi.mdi-menu-down
     .right.flex
       a(cal-toggle-today)
-        button.btn.btn-primary.waves-effect
+        button.btn.btn-primary.waves-effect(ng-disabled='isCurrentViewAroundToday()')
           | #{__('Today')}
           i.mdi.mdi-calendar-today
       a(calendar-view-translation='prev')

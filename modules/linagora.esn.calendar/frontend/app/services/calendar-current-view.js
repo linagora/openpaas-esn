@@ -18,7 +18,8 @@
       set: set,
       get: get,
       getMiniCalendarView: getMiniCalendarView,
-      setMiniCalendarView: setMiniCalendarView
+      setMiniCalendarView: setMiniCalendarView,
+      isCurrentViewAroundDay: isCurrentViewAroundDay
     };
 
     return service;
@@ -39,7 +40,6 @@
       var view = {};
 
       var getParam = currentView || $location.search();
-
       if (getParam.viewMode && CALENDAR_AVAILABLE_VIEWS.indexOf(getParam.viewMode) !== -1) {
         view.name = getParam.viewMode;
       } else if (getParam.name) {
@@ -56,6 +56,7 @@
       }
 
       view.title = getParam.title;
+      view.end = getParam.end;
 
       return view;
     }
@@ -68,6 +69,21 @@
 
     function getMiniCalendarView() {
       return miniCalendarView;
+    }
+
+    function isCurrentViewAroundDay(day) {
+      var view = get();
+
+      if (view.start && view.end) {
+        var start = view.start;
+        var end = view.end;
+
+        //becarefull the end property of the view object returned by fullCalendar
+        //is exclusive https://fullcalendar.io/docs/views/View_Object/
+        return day.isBetween(start, end, 'day', '[)');
+      }
+
+      return false;
     }
   }
 })();
