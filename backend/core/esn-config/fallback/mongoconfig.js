@@ -5,7 +5,7 @@
 const mongoconfig = require('mongoconfig');
 const mongoose = require('mongoose');
 const q = require('q');
-let cacheConfiguration;
+const _ = require('lodash');
 
 mongoconfig.setDefaultMongoose(mongoose);
 
@@ -14,10 +14,6 @@ function get(configName) {
 }
 
 function findByDomainId() {
-  if (cacheConfiguration) {
-    return q(cacheConfiguration);
-  }
-
   const keys = [
     'mail',
     'session',
@@ -45,10 +41,8 @@ function findByDomainId() {
   })).then(function(configs) {
     var configurations = configs.filter(Boolean);
 
-    cacheConfiguration = {};
-
     if (configurations.length) {
-      cacheConfiguration = {
+      return {
         modules: [{
           name: 'core',
           configurations: configurations
@@ -56,10 +50,10 @@ function findByDomainId() {
       };
     }
 
-    return cacheConfiguration;
+    return {};
   });
 }
 
 module.exports = {
-  findByDomainId
+  findByDomainId: _.memoize(findByDomainId)
 };
