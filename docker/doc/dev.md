@@ -12,7 +12,7 @@ This is useful when working on non Linux host since docker containers can not re
 
 **Note** that services may be accessible at different IPs based on the platform you are running docker-compose on:
 
-- localhost on Linux-based systems
+- 172.17.0.1 on Linux-based systems
 - The docker-machine IP on OS X and Windows (default machine is accessible at 192.168.99.100).
 
 Once started, you have to add some configuration so that OpenPaaS will know how to access services. This is possible with the OpenPaaS CLI:
@@ -23,7 +23,7 @@ Generate the *config/db.json* file first. This will be use to connect to the Mon
 node ./bin/cli.js db --host <YOUR_DOCKER_IP> --port <PORT> --database <DBNAME>
 ```
 
-- YOUR_DOCKER_IP is the IP where MongoDB launched by docker-compose above can be reached (default to localhost, check the note above)
+- YOUR_DOCKER_IP is the IP where MongoDB launched by docker-compose above can be reached (check the note above)
 - PORT is the MongoDB port (default to 27017 which is the one defined by docker-compose above)
 - DBNAME is the database name to use (default to esn which is the one defined by docker-compose above)
 
@@ -36,7 +36,7 @@ Now that the database is configured, you can setup configuration and provision s
 node ./bin/cli.js docker-dev --host <YOUR_DOCKER_IP> --port <PORT> --database <DBNAME>
 ```
 
-- YOUR_DOCKER_IP is the IP where MongoDB launched by docker-compose above can be reached (default to localhost, check the note above)
+- YOUR_DOCKER_IP is the IP where MongoDB launched by docker-compose above can be reached (check the note above)
 - PORT is the MongoDB port (default to 27017 which is the one defined by docker-compose above)
 - DBNAME is the database name to use (default to esn which is the one defined by docker-compose above)
 
