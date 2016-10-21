@@ -53,6 +53,7 @@ after(function() {
 // https://github.com/mfncooper/mockery/issues/34
 before(function() {
   require('canvas');
+  require('ursa');
 });
 
 beforeEach(function() {
