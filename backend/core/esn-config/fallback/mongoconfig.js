@@ -24,7 +24,9 @@ function findByDomainId() {
     'jwt',
     'oauth',
     'web',
-    'user'
+    'user',
+    'elasticsearch',
+    'login'
   ];
 
   return q.all(keys.map(function(key) {

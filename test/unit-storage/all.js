@@ -55,6 +55,12 @@ before(function() {
   };
 });
 
+// https://github.com/mfncooper/mockery/issues/34
+before(function() {
+  require('canvas');
+  require('ursa');
+});
+
 after(function(done) {
   delete process.env.NODE_CONFIG;
   fs.unlinkSync(this.testEnv.tmp + '/default.json');
