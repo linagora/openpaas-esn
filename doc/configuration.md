@@ -221,6 +221,19 @@ Defines the Redis configuration using the standard Redis options defined in the 
 }
 ```
 
+### Elasticsearch
+
+Defines the Elasticsearch configuration using the standard options defined in [Elasticsearch node client](https://github.com/elastic/elasticsearch-js)
+
+```
+{
+  "name": "elasticsearch",
+  "value": {
+    "host": "localhost:9200"
+  }
+}
+```
+
 ### CalDAV
 
 Defines the CalDAV server configuration:
@@ -301,5 +314,20 @@ Valid values are ui-router states available in ESN.
 {
   "name": "homePage",
   "value": "unifiedinbox"
+}
+```
+
+### Login
+
+Defines login options for ESN instance.
+
+```
+{
+  "name": "login",
+  "value": {
+    "failure": {
+      "size": 5
+    }
+  }
 }
 ```
