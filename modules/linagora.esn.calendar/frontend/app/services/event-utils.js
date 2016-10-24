@@ -39,7 +39,7 @@
 
     ////////////
 
-    function render(event, element) {
+    function render(event, element, view) {
       var timeSpan = element.find('.fc-time span');
       var title = element.find('.fc-title');
       var eventDurationInMinute = event.end.diff(event.start, 'minutes');
@@ -54,6 +54,10 @@
 
       if (event.description) {
         element.attr('title', escapeHtmlUtils.escapeHTML(event.description));
+      }
+
+      if ((view.name === 'agendaThreeDays') || (view.name === 'agendaWeek') || (view.name === 'agendaDay')) {
+        timeSpan.addClass('fc-time-hide');
       }
 
       var userAsAttendee = null;

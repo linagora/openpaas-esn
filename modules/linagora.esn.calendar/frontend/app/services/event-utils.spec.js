@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('The calEventUtils service', function() {
-  var element, fcTitle, fcTimeSpan, fcTime, fcContent, event, calendarService, self;
+  var element, fcTitle, fcTimeSpan, fcTime, fcContent, event, calendarService, view, self;
 
   function Element() {
     this.innerElements = {};
@@ -88,6 +88,7 @@ describe('The calEventUtils service', function() {
     fcTitle = new Element();
     fcTimeSpan = new Element();
     fcTime = new Element();
+    view = {};
     element.innerElements['.fc-content'] = fcContent;
     element.innerElements['.fc-title'] = fcTitle;
     element.innerElements['.fc-time span'] = fcTimeSpan;
@@ -150,7 +151,7 @@ describe('The calEventUtils service', function() {
   describe('render function', function() {
     it('should add a title attribute if description is defined', function() {
       event.description = 'aDescription';
-      this.calEventUtils.render(event, element);
+      this.calEventUtils.render(event, element, view);
       expect(this.escapeHTMLMock.escapeHTML).to.have.been.calledWith(event.description);
       expect(element.attributes.title).to.equal(this.escapeHTMLMockResult);
     });
@@ -160,7 +161,7 @@ describe('The calEventUtils service', function() {
         email: userEmail,
         partstat: 'DECLINED'
       });
-      this.calEventUtils.render(event, element);
+      this.calEventUtils.render(event, element, view);
       expect(element.class).to.deep.equal(['event-declined']);
     });
 
@@ -169,7 +170,7 @@ describe('The calEventUtils service', function() {
         email: userEmail,
         partstat: 'ACCEPTED'
       });
-      this.calEventUtils.render(event, element);
+      this.calEventUtils.render(event, element, view);
       expect(element.class).to.deep.equal(['event-accepted']);
     });
 
@@ -178,7 +179,7 @@ describe('The calEventUtils service', function() {
         email: userEmail,
         partstat: 'NEEDS-ACTION'
       });
-      this.calEventUtils.render(event, element);
+      this.calEventUtils.render(event, element, view);
       expect(element.class).to.deep.equal(['event-needs-action']);
     });
 
@@ -187,7 +188,7 @@ describe('The calEventUtils service', function() {
         email: userEmail,
         partstat: 'TENTATIVE'
       });
-      this.calEventUtils.render(event, element);
+      this.calEventUtils.render(event, element, view);
 
       expect(element.class).to.deep.equal(['event-tentative']);
     });
@@ -198,7 +199,7 @@ describe('The calEventUtils service', function() {
         partstat: 'TENTATIVE'
       });
       fcTitle.prepend = sinon.spy();
-      this.calEventUtils.render(event, element);
+      this.calEventUtils.render(event, element, view);
 
       expect(element.class).to.deep.equal(['event-tentative']);
       expect(fcTitle.prepend).to.have.been.calledOnce;
@@ -207,14 +208,14 @@ describe('The calEventUtils service', function() {
     it('should add the event-is-instance class for instances', function() {
       delete element.innerElements['.fc-time span'];
       event.isInstance = function() { return true; };
-      this.calEventUtils.render(event, element);
+      this.calEventUtils.render(event, element, view);
       expect(element.class).to.include('event-is-instance');
     });
 
     it('should display event title instead of time if the event duration under the max duration of a small event', angular.mock.inject(function(calMoment) {
       element.innerElements['.fc-time'].length = 1;
       fcTime.attr = sinon.spy();
-      this.calEventUtils.render(event, element);
+      this.calEventUtils.render(event, element, view);
 
       expect(fcTime.attr).to.have.been.calledWith('data-start', event.title);
     }));
@@ -223,7 +224,7 @@ describe('The calEventUtils service', function() {
       event.organizer = {
         email: userEmail
       };
-      this.calEventUtils.render(event, element);
+      this.calEventUtils.render(event, element, view);
       expect(event.startEditable).to.not.exist;
       expect(event.durationEditable).to.not.exist;
     });
@@ -235,9 +236,27 @@ describe('The calEventUtils service', function() {
       event.attendees.push({
         email: userEmail
       });
-      this.calEventUtils.render(event, element);
+      this.calEventUtils.render(event, element, view);
       expect(event.startEditable).to.be.false;
       expect(event.durationEditable).to.be.false;
+    });
+
+    it('should hide the time div in mobile on three days view', function() {
+      view.name = 'agendaThreeDays';
+      this.calEventUtils.render(event, element, view);
+      expect(fcTimeSpan.class).to.include('fc-time-hide');
+    });
+
+    it('should hide the time div in mobile on week view', function() {
+      view.name = 'agendaWeek';
+      this.calEventUtils.render(event, element, view);
+      expect(fcTimeSpan.class).to.include('fc-time-hide');
+    });
+
+    it('should hide the time div in mobile on day view', function() {
+      view.name = 'agendaDay';
+      this.calEventUtils.render(event, element, view);
+      expect(fcTimeSpan.class).to.include('fc-time-hide');
     });
   });
 
