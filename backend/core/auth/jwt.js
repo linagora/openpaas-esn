@@ -1,5 +1,6 @@
 'use strict';
 
+var ursa = require('ursa');
 var jwt = require('jsonwebtoken');
 var esnConfig = require('../esn-config');
 
@@ -29,6 +30,7 @@ function getWebTokenConfig(callback) {
     if (!config) {
       return callback(new Error('No "jwt" configuration has been found'));
     }
+
     return callback(null, new WebTokenConfig(config));
   });
 }
@@ -47,8 +49,25 @@ function generateWebToken(payload, callback) {
   });
 }
 
+function generateKeyPair(callback) {
+  try {
+    var key = ursa.generatePrivateKey();
+    var privateKey = key.toPrivatePem().toString('ascii');
+    var publicKey = key.toPublicPem().toString('ascii');
+
+    return callback(null, {
+      privateKey,
+      publicKey
+    });
+  } catch (err) {
+    return callback(err);
+  }
+
+}
+
 module.exports = {
-  WebTokenConfig: WebTokenConfig,
-  getWebTokenConfig: getWebTokenConfig,
-  generateWebToken: generateWebToken
+  WebTokenConfig,
+  getWebTokenConfig,
+  generateWebToken,
+  generateKeyPair
 };

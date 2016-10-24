@@ -88,6 +88,7 @@
     "trim": "0.0.1",
     "twitter-node-client": "git+https://github.com/linagora/TwitterJSClient.git",
     "url-join": "1.1.0",
+    "ursa": "0.9.4",
     "valid-url": "1.0.9",
     "winston": "2.2.0",
     "xml2js": "0.4.17"
