@@ -59,7 +59,7 @@
       }
     })
 
-    .constant('CALENDAR_AVAILABLE_VIEWS', ['agendaWeek', 'agendaDay', 'month', 'agendaThreeDays'])
+    .constant('CALENDAR_AVAILABLE_VIEWS', ['agendaWeek', 'agendaDay', 'month', 'agendaThreeDays', 'basicDay'])
 
     .constant('CALENDAR_RIGHT', {
       NONE: 'none',
