@@ -58,17 +58,18 @@ See also [General installation instructions](https://ci.open-paas.org/stash/proj
 
 5.Install node.js
 
- Please note that your version of node.js must be greater than version 0.10.28 but less than or equal to 0.10.36. We highly recommend that you use [nvm](https://github.com/creationix/nvm) to install a specific version of node.
+Please note that your version of node.js must be 6.x.x
+We highly recommend that you use [nvm](https://github.com/creationix/nvm) to install a specific version of node.
 
-        curl https://raw.githubusercontent.com/creationix/nvm/v0.11.1/install.sh | bash
+        curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.32.1/install.sh | bash
 
  You will have to reopen your terminal or run source ~/.profile
 
-        nvm install 0.10.36
+        nvm install 6
 
  Usually, nvm will switch to use the most recently installed version. You can explicitly tell nvm to use the version we just downloaded by typing:
 
-        nvm use 0.10.36
+        nvm use 6
 
  For a system-wide install, run this command now and **any time you change your node version**
 
@@ -78,36 +79,40 @@ See also [General installation instructions](https://ci.open-paas.org/stash/proj
 
         sudo apt-get install build-essential redis-server python-setuptools graphicsmagick graphicsmagick-imagemagick-compat libcairo2-dev libpango1.0-dev libgif-dev
 
-7.Install the npm dependencies
+7.Install the npm dependency
 
-        sudo npm install -g mocha grunt-cli bower karma-cli #node-gyp
-    
-8.Install the gjslint dependency
-
-        sudo easy_install http://closure-linter.googlecode.com/files/closure_linter-latest.tar.gz
-
-    more informations [can be found here](https://developers.google.com/closure/utilities/docs/linter_howto)
+    npm install -g bower
    
-9.Go into the project directory and install project dependencies (not as an administrator)
+8.Go into the project directory and install project dependencies (not as an administrator)
 
         cd rse
         npm install
 
- This may fail with EACCESS and you may need to remove ~/.npm and repeat step 10
+ This may fail with EACCESS and you may need to remove ~/.npm and repeat step 9
 
 If you have any problem relating to `node-canvas` during the dependencies installation,
 make sure your system has installed [Cairo](http://cairographics.org/). Documentation [can be found here](https://github.com/Automattic/node-canvas).
 
-10.Install Sabre/dav
+If during further manipulations you encounter errors with node modules, try to reinstall them
+
+    rm -rf node_modules/
+    npm install
+
+9.Install Sabre/dav
 
 Follow [sabre installation instructions](https://ci.open-paas.org/stash/projects/OR/repos/esn-sabre/browse/README.md).
 
 ## Testing
 
-You can check that everything works by launching the test suite:
+You must install npm dependency first
 
-    grunt
+    npm install -g grunt-cli
 
+You can check that everything works by launching the test suite (this may be long):
+
+    grunt --chunk=1
+
+Note that, due to the large amount of tests, you eventually need the `--chunk 1` option. It will create one new nodejs process per js test file. It prevents the memory to be overused by mocha, which would lead to tests failures.
 If you want to launch tests from a single test, you can specify the file as command line argument.
 For example, you can launch the backend tests on the test/unit-backend/webserver/index.js file like this:
 
@@ -115,7 +120,7 @@ For example, you can launch the backend tests on the test/unit-backend/webserver
 
 Note: This works for backend and midway tests.
 
-Some specialized Grunt tasks are available :
+Some specialized Grunt tasks are available, check the Gruntfile.js for more:
 
     grunt linters # launch hinter and linter against the codebase
     grunt test-frontend # only run the fontend unit tests
@@ -129,3 +134,4 @@ Fixtures can be configured in the fixtures folder and injected in the system usi
 
     grunt fixtures
 
+Note that you must configure contents of files inside **fixtures/config/data** and **fixtures/esn-config/data/** to match your environment, particularly **fixtures/config/data/db.js** in which the host of the mongodb database is defined. Also note that this will override all the current configuration resources with the fixtures ones.
