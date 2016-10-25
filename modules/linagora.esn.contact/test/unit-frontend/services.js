@@ -24,14 +24,12 @@ describe('The Contacts service module', function() {
       var self = this;
       this.notificationFactory = {};
       this.gracePeriodService = {};
-      this.gracePeriodLiveNotification = {};
 
       contact = { id: '00000000-0000-4000-a000-000000000000', lastName: 'Last'};
 
       angular.mock.module(function($provide) {
         $provide.value('notificationFactory', self.notificationFactory);
         $provide.value('gracePeriodService', self.gracePeriodService);
-        $provide.value('gracePeriodLiveNotification', self.gracePeriodLiveNotification);
       });
     });
 
@@ -58,19 +56,13 @@ describe('The Contacts service module', function() {
     beforeEach(function() {
       this.notificationFactory.weakInfo = function() {};
       this.notificationFactory.weakError = function() {};
-      this.gracePeriodLiveNotification.registerListeners = function() {};
     });
 
-    it('should display correct title and link during the grace period', function(done) {
-      this.gracePeriodService.grace = function(taskId, text, linkText, delay) {
-        expect(taskId).to.equals('myTaskId');
-        expect(text).to.equals('You have just deleted a contact (Foo Bar).');
-        expect(linkText).to.equals('Cancel');
-        expect(delay).to.not.exist;
-        done();
-      };
+    it('should call gracePeriodService with correct data', function() {
+      this.gracePeriodService.grace = sinon.spy($q.when.bind(null));
 
       var expectPath = this.getVCardUrl(bookId, bookName, contact.id) + '?graceperiod=' + this.GRACE_DELAY;
+
       this.$httpBackend.expectDELETE(expectPath).respond(function(method, url, data, headers) {
         return [204, '', {'X-ESN-TASK-ID': 'myTaskId'}];
       });
@@ -79,17 +71,22 @@ describe('The Contacts service module', function() {
 
       this.$rootScope.$apply();
       this.$httpBackend.flush();
+      expect(this.gracePeriodService.grace).to.have.been.calledWith({
+        id: 'myTaskId',
+        performedAction: 'You have just deleted a contact (Foo Bar)',
+        cancelFaild: 'Cannot cancel contact deletion, the contact might be deleted permanently',
+        cancelTooLate: 'It is too late to cancel the contact deletion, the contact might be deleted permanently',
+        successText: ''
+      });
     });
 
-    it('should display error when on remove failure', function(done) {
-      this.notificationFactory.weakError = function() {
-        done();
-      };
+    it('should display error when on remove failure', function() {
+      this.notificationFactory.weakError = sinon.spy();
 
       // make the remove failure by passing undefined contact ID
       this.deleteContact(bookId, bookName, { firstName: 'I have no id' });
       this.$rootScope.$apply();
-      done(new Error());
+      expect(this.notificationFactory.weakError).to.have.been.calledOnce;
     });
 
     it('should not grace the request on failure', function() {
@@ -99,11 +96,12 @@ describe('The Contacts service module', function() {
       this.deleteContact(bookId, bookName, { firstName: 'I have no id' });
       this.$rootScope.$apply();
 
-      expect(this.gracePeriodService.grace.callCount).to.equal(0);
+      expect(this.gracePeriodService.grace).to.have.not.been.called;
     });
 
     it('should grace the request using the default delay on success', function(done) {
       var expectPath = this.getVCardUrl(bookId, bookName, contact.id) + '?graceperiod=' + this.GRACE_DELAY;
+
       this.$httpBackend.expectDELETE(expectPath).respond(function(method, url, data, headers) {
         return [204, '', {'X-ESN-TASK-ID': 'myTaskId'}];
       });
@@ -118,122 +116,42 @@ describe('The Contacts service module', function() {
       this.$httpBackend.flush();
     });
 
-    it('should register grace live notification on success', function(done) {
-      var expectPath = this.getVCardUrl(bookId, bookName, contact.id) + '?graceperiod=' + this.GRACE_DELAY;
-      this.$httpBackend.expectDELETE(expectPath).respond(function(method, url, data, headers) {
-        return [204, '', {'X-ESN-TASK-ID': 'myTaskId'}];
-      });
-
-      this.notificationFactory.strongError = sinon.spy();
-      var onCancelDeleteSpy = sinon.spy();
-      this.$rootScope.$on(CONTACT_EVENTS.CANCEL_DELETE, onCancelDeleteSpy);
-
-      var self = this;
-
-      this.gracePeriodLiveNotification.registerListeners = function(taskId, onError) {
-        expect(taskId).to.equal('myTaskId');
-        onError();
-        expect(self.notificationFactory.strongError.callCount).to.equal(1);
-        expect(onCancelDeleteSpy.callCount).to.equal(1);
-        done();
-      };
-
-      this.deleteContact(bookId, bookName, contact);
-      this.$rootScope.$apply();
-      this.$httpBackend.flush();
-    });
-
-    it('should cancel the request if the user cancels during the grace period', function(done) {
+    it('should broadcast CONTACT_EVENTS.DELETED when contact is deleted successful', function() {
       this.gracePeriodService.grace = function() {
-        return $q.when({
-          cancelled: true,
-          success: function() {},
-          error: function() {}
-        });
-      };
-
-      this.gracePeriodService.cancel = function(taskId) {
-        expect(taskId).to.equal('myTaskId');
-        done();
-      };
-
-      var expectPath = this.getVCardUrl(bookId, bookName, contact.id) + '?graceperiod=' + this.GRACE_DELAY;
-      this.$httpBackend.expectDELETE(expectPath).respond(function(method, url, data, headers) {
-        return [204, '', {'X-ESN-TASK-ID': 'myTaskId'}];
-      });
-
-      this.deleteContact(bookId, bookName, contact);
-      this.$rootScope.$apply();
-      this.$httpBackend.flush();
-
-    });
-
-    it('should notify the user that the contact deletion cannot be cancelled', function(done) {
-      this.gracePeriodService.grace = function() {
-        return $q.when({
-          cancelled: true,
-          success: function() {},
-          error: function() { done(); }
-        });
-      };
-
-      this.gracePeriodService.cancel = function(taskId) {
-        expect(taskId).to.equal('myTaskId');
-        return $q.reject();
-      };
-
-      var expectPath = this.getVCardUrl(bookId, bookName, contact.id) + '?graceperiod=' + this.GRACE_DELAY;
-      this.$httpBackend.expectDELETE(expectPath).respond(function(method, url, data, headers) {
-        return [204, '', {'X-ESN-TASK-ID': 'myTaskId'}];
-      });
-
-      this.deleteContact(bookId, bookName, contact);
-      this.$rootScope.$apply();
-      this.$httpBackend.flush();
-    });
-
-    it('should broadcast CONTACT_EVENTS.DELETED when contact is deleted successful', function(done) {
-      var expectPath = this.getVCardUrl(bookId, bookName, contact.id) + '?graceperiod=' + this.GRACE_DELAY;
-      this.$httpBackend.expectDELETE(expectPath).respond(function(method, url, data, headers) {
-        return [204, '', {'X-ESN-TASK-ID': 'myTaskId'}];
-      });
-
-      this.$rootScope.$on(CONTACT_EVENTS.DELETED, function(evt, data) {
-        expect(data).to.eql(contact);
-        done();
-      });
-
-      this.deleteContact(bookId, bookName, contact);
-      this.$rootScope.$apply();
-      this.$httpBackend.flush();
-    });
-
-    it('should broadcast CONTACT_EVENTS.CANCEL_DELETE on successful cancellation of a request', function(done) {
-      this.gracePeriodService.grace = function() {
-        return $q.when({
-          cancelled: true,
-          success: function() {},
-          error: function(textToDisplay) {}
-        });
-      };
-      this.gracePeriodService.cancel = function() {
         return $q.when();
       };
 
       var expectPath = this.getVCardUrl(bookId, bookName, contact.id) + '?graceperiod=' + this.GRACE_DELAY;
+
       this.$httpBackend.expectDELETE(expectPath).respond(function(method, url, data, headers) {
         return [204, '', {'X-ESN-TASK-ID': 'myTaskId'}];
       });
 
-      this.$rootScope.$on(CONTACT_EVENTS.CANCEL_DELETE, function(evt, data) {
-        expect(data).to.eql(contact);
-        done();
-      });
+      var spy = sinon.spy();
+      this.$rootScope.$on(CONTACT_EVENTS.DELETED, spy);
 
       this.deleteContact(bookId, bookName, contact);
       this.$rootScope.$apply();
       this.$httpBackend.flush();
+      expect(spy).to.have.been.calledWith(sinon.match.any, sinon.match.same(contact));
+    });
 
+    it('should broadcast CONTACT_EVENTS.CANCEL_DELETE on successful cancellation of a request', function() {
+      this.gracePeriodService.grace = function() {
+        return $q.reject();
+      };
+      var expectPath = this.getVCardUrl(bookId, bookName, contact.id) + '?graceperiod=' + this.GRACE_DELAY;
+      this.$httpBackend.expectDELETE(expectPath).respond(function(method, url, data, headers) {
+        return [204, '', {'X-ESN-TASK-ID': 'myTaskId'}];
+      });
+
+      var spy = sinon.spy();
+      this.$rootScope.$on(CONTACT_EVENTS.CANCEL_DELETE, spy);
+
+      this.deleteContact(bookId, bookName, contact);
+      this.$rootScope.$apply();
+      this.$httpBackend.flush();
+      expect(spy).to.have.been.calledWith(sinon.match.any, sinon.match.same(contact));
     });
 
   });

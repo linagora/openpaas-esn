@@ -47,7 +47,6 @@ describe('The cal-attendees-autocomplete-input component', function() {
           setUpSearchProviders: function() {}
         };
       });
-      $provide.value('gracePeriodService', {});
       $provide.constant('AUTOCOMPLETE_MAX_RESULTS', autoCompleteMax);
     });
   });

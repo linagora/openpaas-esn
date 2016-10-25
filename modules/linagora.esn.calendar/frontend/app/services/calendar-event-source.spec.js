@@ -23,7 +23,6 @@ describe('The calendarEventSource', function() {
     angular.mock.module('esn.ical');
     angular.mock.module(function($provide) {
       $provide.value('tokenAPI', self.tokenAPI);
-      $provide.value('gracePeriodService', {});
     });
   });
 

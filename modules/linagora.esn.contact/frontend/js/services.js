@@ -220,12 +220,12 @@ angular.module('linagora.esn.contact')
                               $q,
                               ContactAPIClient,
                               gracePeriodService,
-                              gracePeriodLiveNotification,
                               notificationFactory,
                               GRACE_DELAY,
                               CONTACT_EVENTS) {
     return function(bookId, bookName, contact) {
       var options = { graceperiod: GRACE_DELAY };
+
       if (contact.etag) {
         options.etag = contact.etag;
       }
@@ -237,31 +237,19 @@ angular.module('linagora.esn.contact')
         .remove(options)
         .then(function(taskId) {
           $rootScope.$broadcast(CONTACT_EVENTS.DELETED, contact);
-          gracePeriodLiveNotification.registerListeners(
-            taskId,
-            function() {
-              notificationFactory.strongError('', 'Failed to delete contact (' + contact.displayName + '), please try again later');
-              // add the contact to the list again
-              $rootScope.$broadcast(CONTACT_EVENTS.CANCEL_DELETE, contact);
-            }
-          );
 
-          return gracePeriodService.grace(taskId, 'You have just deleted a contact (' + contact.displayName + ').', 'Cancel')
-            .then(function(data) {
-              if (data.cancelled) {
-                return gracePeriodService.cancel(taskId).then(function() {
-                  data.success();
-                  $rootScope.$broadcast(CONTACT_EVENTS.CANCEL_DELETE, contact);
-                }, function(err) {
-                  data.error('Cannot cancel contact deletion, the contact might be deleted permanently');
-                  return $q.reject(err);
-                });
-              } else {
-                gracePeriodService.remove(taskId);
-              }
-            });
+          return gracePeriodService.grace({
+            id: taskId,
+            performedAction: 'You have just deleted a contact (' + contact.displayName + ')',
+            cancelFailed: 'Cannot cancel contact deletion, the contact might be deleted permanently',
+            cancelTooLate: 'It is too late to cancel the contact deletion, the contact might be deleted permanently',
+            successText: ''
+          }).catch(function() {
+            $rootScope.$broadcast(CONTACT_EVENTS.CANCEL_DELETE, contact);
+          });
         }, function(err) {
           notificationFactory.weakError('Contact Delete', 'The contact cannot be deleted, please retry later');
+
           return $q.reject(err);
         });
     };
