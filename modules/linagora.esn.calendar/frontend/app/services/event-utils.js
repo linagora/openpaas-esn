@@ -39,7 +39,7 @@
 
     ////////////
 
-    function render(event, element, view) {
+    function render(event, element) {
       var timeSpan = element.find('.fc-time span');
       var title = element.find('.fc-title');
       var eventDurationInMinute = event.end.diff(event.start, 'minutes');
