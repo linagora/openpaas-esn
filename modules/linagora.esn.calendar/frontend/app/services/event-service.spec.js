@@ -256,21 +256,24 @@ describe('The calEventService service', function() {
             email: 'test@example.com',
             name: 'name',
             partstat: 'ACCEPTED',
-            displayName: 'name'
+            displayName: 'name',
+            id: undefined
           },
           {
             fullmail: 'noname@example.com',
             email: 'noname@example.com',
             name: 'noname@example.com',
             partstat: 'DECLINED',
-            displayName: 'noname@example.com'
+            displayName: 'noname@example.com',
+            id: undefined
           },
           {
             fullmail: 'yolo@example.com',
             email: 'yolo@example.com',
             name: 'yolo@example.com',
             partstat: 'YOLO',
-            displayName: 'yolo@example.com'
+            displayName: 'yolo@example.com',
+            id: undefined
           }
         ]);
 

@@ -168,16 +168,36 @@ describe('The cal-attendees-autocomplete-input component', function() {
         });
       });
 
-      it('should still return true when there is duplicate email from user/contact attendees', function() {
-        var duplicateEmail = 'duplicate@email.com';
-
-        this.eleScope.vm.originalAttendees = [{
+      it('should return false when trying to add duplicate contact as attendee', function() {
+        var duplicateContact = {
           id: '1',
-          email: duplicateEmail
-        }];
-        expect(this.eleScope.vm.onAddingAttendee({ displayName: duplicateEmail })).to.be.true;
+          email: 'duplicate@email.com'
+        };
+
+        this.eleScope.vm.originalAttendees = [duplicateContact];
+        expect(this.eleScope.vm.onAddingAttendee(duplicateContact)).to.be.false;
 
       });
+
+      it('should return false when adding contact with existent id as attendee', function() {
+        var duplicateContact = {
+          id: '1'
+        };
+
+        this.eleScope.vm.originalAttendees = [duplicateContact];
+        expect(this.eleScope.vm.onAddingAttendee(duplicateContact)).to.be.false;
+
+      });
+      it('should return false when adding contact with existent email as attendee', function() {
+        var duplicateContact = {
+          email: 'duplicate@email.com'
+        };
+
+        this.eleScope.vm.originalAttendees = [duplicateContact];
+        expect(this.eleScope.vm.onAddingAttendee(duplicateContact)).to.be.false;
+
+      });
+
     });
   });
 

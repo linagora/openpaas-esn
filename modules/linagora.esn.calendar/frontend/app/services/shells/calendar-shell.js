@@ -252,27 +252,27 @@
         if (this.__attendees) {
           return this.__attendees;
         }
-        var attendees = [];
 
-        this.vevent.getAllProperties('attendee').forEach(function(attendee) {
-          var id = attendee.getFirstValue();
+        this.__attendees = this.vevent.getAllProperties('attendee').map(function(attendee) {
+          var attendeeEmail = attendee.getFirstValue();
 
-          if (!id) {
+          if (!attendeeEmail) {
             return;
           }
           var cn = attendee.getParameter('cn');
-          var mail = calendarUtils.removeMailto(id);
+          var mail = calendarUtils.removeMailto(attendeeEmail);
           var partstat = attendee.getParameter('partstat');
+          var id = attendee.getParameter('id');
 
-          attendees.push({
+          return {
             fullmail: calendarUtils.fullmailOf(cn, mail),
             email: mail,
             name: cn || mail,
             partstat: partstat,
-            displayName: cn || mail
-          });
+            displayName: cn || mail,
+            id: id
+          };
         });
-        this.__attendees = attendees;
 
         return this.__attendees;
       },
@@ -288,6 +288,7 @@
           var mailto = calendarUtils.prependMailto(mail);
           var property = this.vevent.addPropertyWithValue('attendee', mailto);
 
+          property.setParameter('id', attendee.id);
           property.setParameter('partstat', attendee.partstat || (isOrganizer ? ICAL_PROPERTIES.partstat.accepted : ICAL_PROPERTIES.partstat.needsaction));
           property.setParameter('rsvp', isOrganizer ? ICAL_PROPERTIES.rsvp.false : ICAL_PROPERTIES.rsvp.true);
           property.setParameter('role', isOrganizer ? ICAL_PROPERTIES.role.chair : ICAL_PROPERTIES.role.reqparticipant);
