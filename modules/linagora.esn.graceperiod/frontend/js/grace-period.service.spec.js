@@ -7,7 +7,7 @@ var expect = chai.expect;
 
 describe('The gracePeriodService service', function() {
 
-  var gracePeriodService, $httpBackend, $rootScope, gracePeriodLiveNotificationMock,
+  var gracePeriodService, $httpBackend, $rootScope, gracePeriodLiveNotificationServiceMock,
       notifyServiceMock, taskDeferred, timeoutMock, GRACE_DELAY, HTTP_LAG_UPPER_BOUND,
       httpSpy, notificationMock, notificationCancelCallback,
       errorMessage, id;
@@ -40,11 +40,11 @@ describe('The gracePeriodService service', function() {
 
     module(function($provide) {
 
-      $provide.factory('gracePeriodLiveNotification', function($q) {
+      $provide.factory('gracePeriodLiveNotificationService', function($q) {
         taskDeferred = $q.defer();
-        gracePeriodLiveNotificationMock = {registerListeners: sinon.stub().returns(taskDeferred.promise)};
+        gracePeriodLiveNotificationServiceMock = {registerListeners: sinon.stub().returns(taskDeferred.promise)};
 
-        return gracePeriodLiveNotificationMock;
+        return gracePeriodLiveNotificationServiceMock;
       });
 
       $provide.value('notifyService', notifyServiceMock);
@@ -232,7 +232,7 @@ describe('The gracePeriodService service', function() {
 
     it('should register listener for the given id', function() {
       gracePeriodService.grace({id: id});
-      expect(gracePeriodLiveNotificationMock.registerListeners).to.have.been.calledWith(id);
+      expect(gracePeriodLiveNotificationServiceMock.registerListeners).to.have.been.calledWith(id);
     });
 
     it('should not resolve the promise when the delay elapses if the task did not success yet', function() {

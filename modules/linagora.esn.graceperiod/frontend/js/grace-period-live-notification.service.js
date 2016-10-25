@@ -3,7 +3,7 @@
 
   angular.module('linagora.esn.graceperiod')
 
-    .factory('gracePeriodLiveNotification', gracePeriodLiveNotification);
+    .factory('gracePeriodLiveNotificationService', gracePeriodLiveNotification);
 
   function gracePeriodLiveNotification($log, $q, livenotification, GRACE_EVENTS, _) {
 

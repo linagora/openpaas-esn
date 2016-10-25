@@ -1,10 +1,13 @@
 'use strict';
 
-var AwesomeModule = require('awesome-module');
-var Dependency = AwesomeModule.AwesomeModuleDependency;
-var path = require('path');
+const AwesomeModule = require('awesome-module');
+const Dependency = AwesomeModule.AwesomeModuleDependency;
+const path = require('path');
+const glob = require('glob-all');
+const FRONTEND_JS_PATH = __dirname + '/frontend/js';
+const MODULE_NAME = 'graceperiod';
 
-var graceModule = new AwesomeModule('linagora.esn.graceperiod', {
+const graceModule = new AwesomeModule('linagora.esn.graceperiod', {
 
   dependencies: [
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.logger', 'logger'),
@@ -16,20 +19,27 @@ var graceModule = new AwesomeModule('linagora.esn.graceperiod', {
   ],
   states: {
     lib: function(dependencies, callback) {
-      var lib = require('./lib')(dependencies);
+      const lib = require('./lib')(dependencies);
+
       return callback(null, lib);
     },
 
     deploy: function(dependencies, callback) {
-      var app = require('./backend/webserver/application')();
-      var api = require('./backend/webserver/api')(this, dependencies);
+      const app = require('./backend/webserver/application')();
+      const api = require('./backend/webserver/api')(this, dependencies);
+
       app.use('/api', api);
 
-      var webserverWrapper = dependencies('webserver-wrapper');
-      webserverWrapper.injectAngularModules('graceperiod', ['app.js', 'constants.js', 'gracePeriodAPI.js', 'gracePeriodService.js', 'gracePeriodLiveNotificationService.js', 'directives.js'], 'linagora.esn.graceperiod', ['esn']);
-      var lessFile = path.resolve(__dirname, './frontend/css/styles.less');
-      webserverWrapper.injectLess('graceperiod', [lessFile], 'esn');
-      webserverWrapper.addApp('graceperiod', app);
+      const webserverWrapper = dependencies('webserver-wrapper');
+      const frontendFiles = glob.sync([
+        FRONTEND_JS_PATH + '**/!(*spec).js'
+      ]).map(filepath => filepath.replace(FRONTEND_JS_PATH, ''));
+
+      webserverWrapper.injectAngularModules(MODULE_NAME, frontendFiles, 'linagora.esn.graceperiod', ['esn']);
+      const lessFile = path.resolve(__dirname, './frontend/css/styles.less');
+
+      webserverWrapper.injectLess(MODULE_NAME, [lessFile], 'esn');
+      webserverWrapper.addApp(MODULE_NAME, app);
 
       return callback();
     },
@@ -40,4 +50,5 @@ var graceModule = new AwesomeModule('linagora.esn.graceperiod', {
     }
   }
 });
+
 module.exports = graceModule;

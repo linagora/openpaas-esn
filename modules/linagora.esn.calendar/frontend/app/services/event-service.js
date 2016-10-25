@@ -145,11 +145,7 @@
 
         event.path = calendarPath.replace(/\/$/, '') + '/' + event.uid + '.ics';
 
-        function onTaskSuccess(data) {
-          return true;
-        }
-
-        function onTaskCancel(data) {
+        function onTaskCancel() {
           calCachedEventSource.deleteRegistration(event);
           calendarEventEmitter.fullcalendar.emitRemovedEvent(event.uid);
           event.isRecurring() && calMasterEventCache.remove(event);
@@ -175,7 +171,7 @@
                 cancelFailed: 'An error has occured, the creation could not been reverted',
                 cancelTooLate: 'It is too late to cancel the creation',
                 successText: 'Calendar - ' + event.title + ' has been created.'
-              }).then(onTaskSuccess, onTaskCancel);
+              }).then(_.constant(true), onTaskCancel);
             }
           })
           .finally(function() {

@@ -5,7 +5,7 @@
 
 var expect = chai.expect;
 
-describe('The gracePeriodLiveNotification service', function() {
+describe('The gracePeriodLiveNotificationService service', function() {
 
   beforeEach(function() {
     module('esn.websocket');
@@ -15,7 +15,7 @@ describe('The gracePeriodLiveNotification service', function() {
 
   describe('Functions tests', function() {
 
-    var gracePeriodLiveNotification, $rootScope, $q;
+    var gracePeriodLiveNotificationService, $rootScope, $q;
     var liveNotificationMock, onFn, removeListenerFn;
 
     beforeEach(function() {
@@ -30,22 +30,22 @@ describe('The gracePeriodLiveNotification service', function() {
         $provide.value('livenotification', liveNotificationMock);
       });
 
-      inject(function(_$rootScope_, _gracePeriodLiveNotification_, _$q_) {
+      inject(function(_$rootScope_, _gracePeriodLiveNotificationService_, _$q_) {
         $q = _$q_;
         $rootScope = _$rootScope_;
-        gracePeriodLiveNotification = _gracePeriodLiveNotification_;
+        gracePeriodLiveNotificationService = _gracePeriodLiveNotificationService_;
       });
     });
 
     describe('The start function', function() {
       it('should register listener once', function() {
-        gracePeriodLiveNotification.start();
-        gracePeriodLiveNotification.start();
+        gracePeriodLiveNotificationService.start();
+        gracePeriodLiveNotificationService.start();
         expect(onFn.callCount).to.equal(2);
       });
 
       it('should register listeners for error and done events', function() {
-        gracePeriodLiveNotification.start();
+        gracePeriodLiveNotificationService.start();
         expect(onFn.firstCall.calledWith('graceperiod:error')).to.be.true;
         expect(onFn.secondCall.calledWith('graceperiod:done')).to.be.true;
       });
@@ -53,13 +53,13 @@ describe('The gracePeriodLiveNotification service', function() {
 
     describe('The stop function', function() {
       it('should do nothing when not started', function() {
-        gracePeriodLiveNotification.stop();
+        gracePeriodLiveNotificationService.stop();
         expect(removeListenerFn.called).to.be.false;
       });
 
       it('should remove listeners for error and done', function() {
-        gracePeriodLiveNotification.start();
-        gracePeriodLiveNotification.stop();
+        gracePeriodLiveNotificationService.start();
+        gracePeriodLiveNotificationService.stop();
         expect(removeListenerFn.firstCall.calledWith('graceperiod:error')).to.be.true;
         expect(removeListenerFn.secondCall.calledWith('graceperiod:done')).to.be.true;
       });
@@ -68,44 +68,44 @@ describe('The gracePeriodLiveNotification service', function() {
     describe('The registerListeners function', function() {
       it('should fail when not given a id', function() {
         expect(function() {
-          gracePeriodLiveNotification.registerListeners();
+          gracePeriodLiveNotificationService.registerListeners();
         }).to.throw(Error);
-        expect(gracePeriodLiveNotification.getListeners()).to.be.empty;
+        expect(gracePeriodLiveNotificationService.getListeners()).to.be.empty;
       });
 
       it('should save listeners', function() {
-        gracePeriodLiveNotification.registerListeners('foo');
-        expect(gracePeriodLiveNotification.getListeners().foo).to.exist;
+        gracePeriodLiveNotificationService.registerListeners('foo');
+        expect(gracePeriodLiveNotificationService.getListeners().foo).to.exist;
       });
 
       it('should save listeners as many times as called', function() {
-        gracePeriodLiveNotification.registerListeners('foo');
-        gracePeriodLiveNotification.registerListeners('foo');
-        gracePeriodLiveNotification.registerListeners('bar');
-        expect(gracePeriodLiveNotification.getListeners().foo.length).to.equal(2);
-        expect(gracePeriodLiveNotification.getListeners().bar.length).to.equal(1);
+        gracePeriodLiveNotificationService.registerListeners('foo');
+        gracePeriodLiveNotificationService.registerListeners('foo');
+        gracePeriodLiveNotificationService.registerListeners('bar');
+        expect(gracePeriodLiveNotificationService.getListeners().foo.length).to.equal(2);
+        expect(gracePeriodLiveNotificationService.getListeners().bar.length).to.equal(1);
       });
 
     });
 
     describe('The unregisterListeners function', function() {
       it('should fail when task is null', function() {
-        gracePeriodLiveNotification.registerListeners('foo');
-        expect(gracePeriodLiveNotification.unregisterListeners).to.throw(Error);
-        expect(gracePeriodLiveNotification.getListeners().foo.length).to.equal(1);
+        gracePeriodLiveNotificationService.registerListeners('foo');
+        expect(gracePeriodLiveNotificationService.unregisterListeners).to.throw(Error);
+        expect(gracePeriodLiveNotificationService.getListeners().foo.length).to.equal(1);
       });
 
       it('should remove listeners for given task', function() {
-        gracePeriodLiveNotification.registerListeners('foo');
-        gracePeriodLiveNotification.unregisterListeners('foo');
-        expect(gracePeriodLiveNotification.getListeners().foo).to.not.exist;
+        gracePeriodLiveNotificationService.registerListeners('foo');
+        gracePeriodLiveNotificationService.unregisterListeners('foo');
+        expect(gracePeriodLiveNotificationService.getListeners().foo).to.not.exist;
       });
     });
   });
 
   describe('Events tests', function() {
 
-    var gracePeriodLiveNotification, $rootScope;
+    var gracePeriodLiveNotificationService, $rootScope;
     var liveNotificationMock;
 
     beforeEach(function() {
@@ -138,9 +138,9 @@ describe('The gracePeriodLiveNotification service', function() {
         $provide.value('livenotification', liveNotificationMock);
       });
 
-      inject(function(_$rootScope_, _gracePeriodLiveNotification_) {
+      inject(function(_$rootScope_, _gracePeriodLiveNotificationService_) {
         $rootScope = _$rootScope_;
-        gracePeriodLiveNotification = _gracePeriodLiveNotification_;
+        gracePeriodLiveNotificationService = _gracePeriodLiveNotificationService_;
       });
     });
 
@@ -149,15 +149,15 @@ describe('The gracePeriodLiveNotification service', function() {
       describe('on error event', function() {
         it('should make corresponding promise fail', function() {
 
-          var sio = gracePeriodLiveNotification.start();
+          var sio = gracePeriodLiveNotificationService.start();
 
           var id = 'foo';
           var spyThatShouldBeCalled = sinon.spy();
           var spyThatShouldNotBeCalled = sinon.spy();
 
-          gracePeriodLiveNotification.registerListeners(id).then(spyThatShouldNotBeCalled, spyThatShouldBeCalled);
-          gracePeriodLiveNotification.registerListeners(id).then(spyThatShouldNotBeCalled);
-          gracePeriodLiveNotification.registerListeners('bar', spyThatShouldNotBeCalled);
+          gracePeriodLiveNotificationService.registerListeners(id).then(spyThatShouldNotBeCalled, spyThatShouldBeCalled);
+          gracePeriodLiveNotificationService.registerListeners(id).then(spyThatShouldNotBeCalled);
+          gracePeriodLiveNotificationService.registerListeners('bar', spyThatShouldNotBeCalled);
 
           $rootScope.$digest();
           sio.emit('graceperiod:error', {id: id});
@@ -168,14 +168,14 @@ describe('The gracePeriodLiveNotification service', function() {
         });
 
         it('should make corresponding promise fail only once', function() {
-          var sio = gracePeriodLiveNotification.start();
+          var sio = gracePeriodLiveNotificationService.start();
           var id = 'foo';
 
           var errorSpy1 = sinon.spy();
           var errorSpy2 = sinon.spy();
 
-          gracePeriodLiveNotification.registerListeners(id).catch(errorSpy1);
-          gracePeriodLiveNotification.registerListeners(id).catch(errorSpy2);
+          gracePeriodLiveNotificationService.registerListeners(id).catch(errorSpy1);
+          gracePeriodLiveNotificationService.registerListeners(id).catch(errorSpy2);
 
           $rootScope.$digest();
           sio.emit('graceperiod:error', {id: id});
@@ -190,14 +190,14 @@ describe('The gracePeriodLiveNotification service', function() {
 
       describe('on done event', function() {
         it('should run all the registered done listeners', function() {
-          var sio = gracePeriodLiveNotification.start();
+          var sio = gracePeriodLiveNotificationService.start();
           var id = 'foo';
           var spyThatShouldBeCalled = sinon.spy();
           var spyThatShouldNotBeCalled = sinon.spy();
 
-          gracePeriodLiveNotification.registerListeners(id).then(spyThatShouldBeCalled, spyThatShouldNotBeCalled);
-          gracePeriodLiveNotification.registerListeners(id).catch(spyThatShouldNotBeCalled);
-          gracePeriodLiveNotification.registerListeners('bar').catch(spyThatShouldNotBeCalled, spyThatShouldNotBeCalled);
+          gracePeriodLiveNotificationService.registerListeners(id).then(spyThatShouldBeCalled, spyThatShouldNotBeCalled);
+          gracePeriodLiveNotificationService.registerListeners(id).catch(spyThatShouldNotBeCalled);
+          gracePeriodLiveNotificationService.registerListeners('bar').catch(spyThatShouldNotBeCalled, spyThatShouldNotBeCalled);
 
           $rootScope.$digest();
           sio.emit('graceperiod:done', {id: id});
@@ -208,14 +208,14 @@ describe('The gracePeriodLiveNotification service', function() {
         });
 
         it('should run all the registered done listeners once', function() {
-          var sio = gracePeriodLiveNotification.start();
+          var sio = gracePeriodLiveNotificationService.start();
 
           var id = 'foo';
           var spy1 = sinon.spy();
           var spy2 = sinon.spy();
 
-          gracePeriodLiveNotification.registerListeners(id).then(spy1);
-          gracePeriodLiveNotification.registerListeners(id).then(spy2);
+          gracePeriodLiveNotificationService.registerListeners(id).then(spy1);
+          gracePeriodLiveNotificationService.registerListeners(id).then(spy2);
 
           $rootScope.$digest();
           sio.emit('graceperiod:done', {id: id});

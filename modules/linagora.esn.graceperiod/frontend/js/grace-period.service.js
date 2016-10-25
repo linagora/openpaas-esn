@@ -1,19 +1,21 @@
 (function() {
   'use strict';
 
-  angular.module('linagora.esn.graceperiod').factory('gracePeriodService', gracePeriodService);
+  angular.module('linagora.esn.graceperiod')
+    .factory('gracePeriodService', gracePeriodService);
 
   function gracePeriodService(
     $timeout,
     $log,
     $q,
     notifyService,
-    gracePeriodAPI,
+    gracePeriodRestangularService,
     HTTP_LAG_UPPER_BOUND,
     GRACE_DELAY,
     ERROR_DELAY,
     $rootScope,
-    gracePeriodLiveNotification
+    gracePeriodLiveNotificationService,
+    DEFAULT_GRACE_MESSAGE
   ) {
     var tasks = {};
 
@@ -40,7 +42,7 @@
 
     function retryCancelBeforeEnd(id, task, previousError) {
       return task.justBeforeEnd.then(function() {
-        return gracePeriodAPI
+        return gracePeriodRestangularService
           .one('tasks')
           .one(id)
           .withHttpConfig({timeout: HTTP_LAG_UPPER_BOUND}).remove();
@@ -57,7 +59,7 @@
         return $q.reject('Canceling invalid task id: ' + id);
       }
 
-      return gracePeriodAPI
+      return gracePeriodRestangularService
         .one('tasks')
         .one(id)
         .withHttpConfig({timeout: task.justBeforeEnd})
@@ -74,7 +76,7 @@
         return $q.reject('Flushing invalid task id: ' + id);
       }
 
-      return gracePeriodAPI.one('tasks').one(id).put();
+      return gracePeriodRestangularService.one('tasks').one(id).put();
     }
 
     function flushAllTasks() {
@@ -122,15 +124,7 @@
     }
 
     function grace(options) {
-      options = angular.extend({}, {
-        delay: GRACE_DELAY,
-        performedAction: 'You are about to perform an action',
-        cancelText: 'Cancel it',
-        successText: 'The action has been done successfully',
-        cancelFailed: 'An error has occured, cannot cancel this action',
-        cancelTooLate: 'It is too late to cancel the action',
-        graceperiodFail: 'The action has failed'
-      }, options);
+      options = angular.extend({delay: GRACE_DELAY}, DEFAULT_GRACE_MESSAGE, options);
 
       if (!options.id) {
         throw new Error('You should at least provide an id');
@@ -143,7 +137,7 @@
 
       addTask(options.id, options.context, userAskNotification.notification, options.delay);
 
-      var taskPromise = gracePeriodLiveNotification.registerListeners(options.id);
+      var taskPromise = gracePeriodLiveNotificationService.registerListeners(options.id);
       var resolved = false;
       var cancelInTry = false;
 
