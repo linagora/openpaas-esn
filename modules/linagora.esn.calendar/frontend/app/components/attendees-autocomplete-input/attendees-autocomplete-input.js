@@ -44,7 +44,7 @@
         att.email = att.displayName;
       }
 
-      return !_isDuplicateAttendee(att, _getAddedAttendeeIds()) && emailService.isValidEmail(att.email);
+      return !_isDuplicateAttendee(att, _getAddedAttendeeIds());
     }
 
     function getInvitableAttendees(query) {
