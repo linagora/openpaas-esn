@@ -86,7 +86,9 @@
 }
 
 @media (max-width: @swipe-arrows-max) {
-  .fc-time-hide {
-    display: none;
+  .fc-agendaWeek-view, .fc-agendaThreeDays-view, .fc-agendaDay-view {
+     & .fc-time {
+        display: none;
+     }
   }
 }

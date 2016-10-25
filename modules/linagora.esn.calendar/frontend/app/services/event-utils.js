@@ -56,10 +56,6 @@
         element.attr('title', escapeHtmlUtils.escapeHTML(event.description));
       }
 
-      if ((view.name === 'agendaThreeDays') || (view.name === 'agendaWeek') || (view.name === 'agendaDay')) {
-        timeSpan.addClass('fc-time-hide');
-      }
-
       var userAsAttendee = null;
 
       if (event.attendees) {
