@@ -13,7 +13,6 @@
 
     return {
       start: start,
-      stop: stop,
       registerListeners: registerListeners,
       unregisterListeners: unregisterListeners,
       getListeners: getListeners
@@ -85,20 +84,6 @@
       $log.debug('Start listening graceperiod live events');
 
       return sio;
-    }
-
-    function stop() {
-      if (!listening) {
-        return;
-      }
-
-      if (sio) {
-        sio.removeListener(GRACE_EVENTS.error, onError);
-        sio.removeListener(GRACE_EVENTS.done, onDone);
-      }
-
-      listening = false;
-      $log.debug('Stop listening graceperiod live events');
     }
 
     function registerListeners(taskId) {

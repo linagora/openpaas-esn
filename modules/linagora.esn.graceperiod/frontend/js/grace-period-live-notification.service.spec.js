@@ -51,20 +51,6 @@ describe('The gracePeriodLiveNotificationService service', function() {
       });
     });
 
-    describe('The stop function', function() {
-      it('should do nothing when not started', function() {
-        gracePeriodLiveNotificationService.stop();
-        expect(removeListenerFn.called).to.be.false;
-      });
-
-      it('should remove listeners for error and done', function() {
-        gracePeriodLiveNotificationService.start();
-        gracePeriodLiveNotificationService.stop();
-        expect(removeListenerFn.firstCall.calledWith('graceperiod:error')).to.be.true;
-        expect(removeListenerFn.secondCall.calledWith('graceperiod:done')).to.be.true;
-      });
-    });
-
     describe('The registerListeners function', function() {
       it('should fail when not given a id', function() {
         expect(function() {
