@@ -42,7 +42,10 @@ describe('The gracePeriodService service', function() {
 
       $provide.factory('gracePeriodLiveNotificationService', function($q) {
         taskDeferred = $q.defer();
-        gracePeriodLiveNotificationServiceMock = {registerListeners: sinon.stub().returns(taskDeferred.promise)};
+        gracePeriodLiveNotificationServiceMock = {
+          registerListeners: sinon.stub().returns(taskDeferred.promise),
+          start: sinon.spy()
+        };
 
         return gracePeriodLiveNotificationServiceMock;
       });

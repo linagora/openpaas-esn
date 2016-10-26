@@ -72,6 +72,7 @@ describe('The calEventService service', function() {
       $provide.value('$modal', self.$modal);
       $provide.value('calCachedEventSource', calCachedEventSourceMock);
       $provide.value('calendarEventEmitter', self.calendarEventEmitterMock);
+      $provide.value('gracePeriodLiveNotificationService', {start: angular.noop});
       $provide.decorator('calMasterEventCache', function($delegate) {
         self.calMasterEventCache = {
           get: $delegate.get,

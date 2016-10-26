@@ -153,7 +153,11 @@ describe('The Contacts controller module', function() {
       $provide.value('gracePeriodService', gracePeriodService);
       $provide.value('contactUpdateDataService', contactUpdateDataService);
       $provide.value('usSpinnerService', usSpinnerService);
-      $provide.value('$window', $window);
+      $provide.decorator('$window', function($delegate) {
+        $window._ = $delegate._;
+
+        return $window;
+      });
       $provide.value('ContactShell', ContactShell);
       $provide.value('ContactAPIClient', ContactAPIClient);
       $provide.value('AddressBookPaginationService', AddressBookPaginationService);
