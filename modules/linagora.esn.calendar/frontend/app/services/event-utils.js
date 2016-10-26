@@ -46,6 +46,7 @@
       var eventDurationInMinute = event.end.diff(event.start, 'minutes');
       var userAsAttendee = null;
 
+      addTooltipToEvent();
       changeEventColorWhenMonthView();
       adaptTitleWhenShortEvent();
       appendLocation();
@@ -54,6 +55,10 @@
       addIconInEventInstance();
       checkUserIsOrganizer();
       addIconForAttendees();
+
+      function addTooltipToEvent() {
+          element.find('.fc-content').attr('title', event.title);
+      }
 
       function changeEventColorWhenMonthView() {
         if ((view.name === 'month') && !event.allDay) {

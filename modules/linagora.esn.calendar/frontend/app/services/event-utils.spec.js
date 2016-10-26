@@ -258,6 +258,13 @@ describe('The calEventUtils service', function() {
       expect(element.css).to.have.been.calledWith('background-color', 'transparent');
       expect(fcTime.css).to.have.been.calledWith('background-color', 'transparent');
     });
+
+    it('should add a tooltip in all views', function() {
+      fcContent.attr = sinon.spy();
+      this.calEventUtils.render(event, element, view);
+
+      expect(fcContent.attr).to.have.been.calledWith('title', event.title);
+    });
   });
 
   describe('isOrganizer function', function() {
