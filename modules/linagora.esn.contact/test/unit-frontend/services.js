@@ -74,7 +74,7 @@ describe('The Contacts service module', function() {
       expect(this.gracePeriodService.grace).to.have.been.calledWith({
         id: 'myTaskId',
         performedAction: 'You have just deleted a contact (Foo Bar)',
-        cancelFaild: 'Cannot cancel contact deletion, the contact might be deleted permanently',
+        cancelFailed: 'Cannot cancel contact deletion, the contact might be deleted permanently',
         cancelTooLate: 'It is too late to cancel the contact deletion, the contact might be deleted permanently',
         successText: ''
       });
