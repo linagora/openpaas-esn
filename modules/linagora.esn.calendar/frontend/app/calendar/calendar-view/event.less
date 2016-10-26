@@ -1,5 +1,6 @@
 @event-border-color: rgba(255,255,255,0.5);
 @event-fade: 0.7;
+@remainingSpaceToAllowDnD: 7px;
 
 .fc-event {
   min-height: 1.5em;
@@ -8,8 +9,6 @@
 
 .fc-view:not(.fc-month-view) {
   .fc-event {
-    margin-right: 7px;
-
     .fc-content {
       .flex-column();
       height: 100%;
@@ -42,6 +41,10 @@
 @media (min-width: @screen-md-min) {
   .fc-view:not(.fc-month-view) .fc-event .fc-resizer {
     display: block;
+  }
+
+  .fc-event {
+    margin-right: @remainingSpaceToAllowDnD;
   }
 }
 
