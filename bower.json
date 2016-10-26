@@ -96,7 +96,8 @@
     "angular-web-notification": "^0.0.66",
     "awesome-angular-swipe": "https://github.com/linagora/awesome-angular-swipe.git#0.0.12",
     "angular-scroll-glue": "^2.0.7",
-    "angular-messages": "1.3.16"
+    "angular-messages": "1.3.16",
+    "angular-file-saver": "1.1.2"
   },
   "resolutions": {
     "jquery": "2.1.1",
