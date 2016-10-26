@@ -90,6 +90,17 @@ describe('The mini-calendar service', function() {
       miniCalenderService.forEachDayOfEvent(event, spy);
       expect(spy).to.have.been.calledOnce;
     });
+
+    it('should not add a day to end da if the end day equals 00:00 or 12 am', function() {
+      aDay = calMoment('2016-10-25 09:00');
+      event = {
+        start: calMoment(aDay),
+        end: calMoment('2016-10-26 00:00')
+      };
+
+      miniCalenderService.forEachDayOfEvent(event, spy);
+      expect(spy).to.have.been.calledOnce;
+    });
   });
 
   describe('miniCalendarWrapper', function() {

@@ -30,6 +30,12 @@
       if (!(event.allDay && event.end)) {
         end.add(1, 'days');
       }
+
+      //subtract one minute if the event finish at midnight to fix the condition day.isSame(end, 'day')
+      if (!event.allDay && event.end && event.end.hour() === 0 && event.end.minute() === 0) {
+        end.subtract(1, 'minutes');
+      }
+
       while (!day.isSame(end, 'day')) {
         callback(calMoment(day));
         day.add(1, 'days');
