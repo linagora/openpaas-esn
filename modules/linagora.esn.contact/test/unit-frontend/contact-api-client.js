@@ -21,8 +21,6 @@ describe('The contact Angular module contactapis', function() {
         }
       };
       this.notificationFactory = {};
-      this.gracePeriodService = {};
-      this.gracePeriodLiveNotification = {};
       this.contactUpdateDataService = {
         contactUpdatedIds: []
       };
@@ -46,8 +44,6 @@ describe('The contact Angular module contactapis', function() {
       angular.mock.module(function($provide) {
         $provide.value('notificationFactory', self.notificationFactory);
         $provide.value('uuid4', self.uuid4);
-        $provide.value('gracePeriodService', self.gracePeriodService);
-        $provide.value('gracePeriodLiveNotification', self.gracePeriodLiveNotification);
         $provide.value('contactUpdateDataService', self.contactUpdateDataService);
         $provide.value('ContactShellBuilder', self.ContactShellBuilder);
       });

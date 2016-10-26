@@ -466,7 +466,7 @@ angular.module('linagora.esn.unifiedinbox')
 
   .factory('Composition', function($q, $timeout, draftService, emailSendingService, notificationFactory, Offline,
                                    backgroundAction, emailBodyService, waitUntilMessageIsComplete, newComposerService,
-                                   DRAFT_SAVING_DEBOUNCE_DELAY, notifyOfGracedRequest, _, inboxConfig) {
+                                   DRAFT_SAVING_DEBOUNCE_DELAY, gracePeriodService, _, inboxConfig) {
 
     function prepareEmail(email) {
       var clone = angular.copy(email = email || {});
@@ -613,7 +613,7 @@ angular.module('linagora.esn.unifiedinbox')
         self._cancelDelayedDraftSave();
 
         if (!self.isEmailEmpty()) {
-          return notifyOfGracedRequest('This draft has been discarded', 'Reopen').promise
+          return gracePeriodService.askUserForCancel('This draft has been discarded', 'Reopen').promise
             .then(function(result) {
               if (result.cancelled) {
                 _makeReopenComposerFn(self.email)({ fromDraft: self.draft });

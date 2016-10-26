@@ -9,7 +9,7 @@ describe('The Contacts controller module', function() {
 
   var $rootScope, $controller, $timeout, scope, ContactShell, AddressBookPaginationService, AddressBookPaginationRegistryMock,
     notificationFactory, usSpinnerService, $location, $stateParams, selectionService, $alert, gracePeriodService, sharedContactDataService,
-    sortedContacts, ContactLiveUpdate, gracePeriodLiveNotification, contactUpdateDataService, $window, CONTACT_EVENTS, CONTACT_LIST_DISPLAY_MODES,
+    sortedContacts, ContactLiveUpdate, contactUpdateDataService, $window, CONTACT_EVENTS, CONTACT_LIST_DISPLAY_MODES,
     ContactAPIClient, VcardBuilder, ContactLocationHelper, closeContactForm, closeContactFormMock, openContactForm, openContactFormMock, addressbooks,
     ContactShellDisplayBuilder;
 
@@ -57,10 +57,8 @@ describe('The Contacts controller module', function() {
       alert: function() {}
     };
     gracePeriodService = {
-      clientGrace: function() {
-        return {
-          then: function() {}
-        };
+      askUserForCancel: function() {
+        return {promise: $q.when({})};
       },
       grace: function() {
         return {
@@ -69,10 +67,6 @@ describe('The Contacts controller module', function() {
       },
       cancel: function() {},
       flush: function() {}
-    };
-
-    gracePeriodLiveNotification = {
-      registerListeners: function() {}
     };
 
     $window = {
@@ -110,6 +104,7 @@ describe('The Contacts controller module', function() {
       if (this.pagination && this.pagination.loadNextItems) {
         return this.pagination.loadNextItems(options);
       }
+
       return $q.when({data: []});
     };
 
@@ -156,10 +151,13 @@ describe('The Contacts controller module', function() {
       $provide.value('$stateParams', $stateParams);
       $provide.value('$alert', function(options) { $alert.alert(options); });
       $provide.value('gracePeriodService', gracePeriodService);
-      $provide.value('gracePeriodLiveNotification', gracePeriodLiveNotification);
       $provide.value('contactUpdateDataService', contactUpdateDataService);
       $provide.value('usSpinnerService', usSpinnerService);
-      $provide.value('$window', $window);
+      $provide.decorator('$window', function($delegate) {
+        $window._ = $delegate._;
+
+        return $window;
+      });
       $provide.value('ContactShell', ContactShell);
       $provide.value('ContactAPIClient', ContactAPIClient);
       $provide.value('AddressBookPaginationService', AddressBookPaginationService);
@@ -415,7 +413,7 @@ describe('The Contacts controller module', function() {
       it('should grace the request using the default delay on success', function(done) {
         scope.contact = {firstName: 'Foo', lastName: 'Bar'};
 
-        gracePeriodService.clientGrace = function(taskId, text, linkText, delay) {
+        gracePeriodService.askUserForCancel = function(taskId, text, linkText, delay) {
           expect(delay).to.not.exist;
           done();
         };
@@ -432,15 +430,12 @@ describe('The Contacts controller module', function() {
         scope.$digest();
       });
 
-      it('should display correct title and link during the grace period', function(done) {
+      it('should display correct title and link during the grace period', function() {
         scope.contact = {firstName: 'Foo', lastName: 'Bar', id: 'myTaskId'};
 
-        gracePeriodService.clientGrace = function(text, linkText, delay) {
-          expect(text).to.equals('You have just created a new contact (Foo Bar).');
-          expect(linkText).to.equals('Cancel and back to edition');
-          expect(delay).to.not.exist;
-          done();
-        };
+        gracePeriodService.askUserForCancel = sinon.spy(function() {
+          return {promise: $q.when({})};
+        });
 
         createVcardMock(function() {
           return {
@@ -452,6 +447,7 @@ describe('The Contacts controller module', function() {
 
         scope.accept();
         scope.$digest();
+        expect(gracePeriodService.askUserForCancel).to.have.been.calledWith('You have just created a new contact (Foo Bar).', 'Cancel it');
       });
 
       it('should not grace the request on contact create failure', function(done) {
@@ -473,43 +469,50 @@ describe('The Contacts controller module', function() {
         done();
       });
 
-      it('should delete the contact if the user cancels during the grace period', function(done) {
+      it('should delete the contact if the user cancels during the grace period', function() {
         scope.contact = {firstName: 'Foo', lastName: 'Bar'};
 
-        gracePeriodService.clientGrace = function() {
-          return $q.when({
+        gracePeriodService.askUserForCancel = function() {
+          var promise = $q.when({
             cancelled: true,
             success: angular.noop,
             error: angular.noop
           });
+
+          return {promise: promise};
         };
+
+        var removeSpy = sinon.spy($q.when.bind());
+
         createVcardMock(function() {
           return {
             create: function() {
               return $q.when();
             },
-            remove: function() {
-              done();
-            }
+            remove: removeSpy
           };
         });
 
         scope.accept();
         scope.$digest();
+        expect(removeSpy).to.have.been.calledWith();
       });
 
-      it('should notice the user that the contact creation can\'t be cancelled', function(done) {
+      it('should notice the user that the contact creation can\'t be cancelled', function() {
         scope.contact = {firstName: 'Foo', lastName: 'Bar'};
 
-        gracePeriodService.clientGrace = function() {
-          return $q.when({
+        var errorSpy = sinon.spy();
+
+        gracePeriodService.askUserForCancel = function() {
+          var promise = $q.when({
             cancelled: true,
             success: angular.noop,
-            error: function(textToDisplay) {
-              done();
-            }
+            error: errorSpy
           });
+
+          return {promise: promise};
         };
+
         createVcardMock(function() {
           return {
             create: function() {
@@ -523,21 +526,22 @@ describe('The Contacts controller module', function() {
 
         scope.accept();
         scope.$digest();
+        expect(errorSpy).to.have.been.called;
       });
 
-      it('should go back to the editing form if the user cancels during the grace period, saving the contact', function(done) {
+      it('should go back to the editing form if the user cancels during the grace period, saving the contact', function() {
         scope.contact = {firstName: 'Foo', lastName: 'Bar', title: 'PDG'};
 
-        openContactFormMock = function() {
-          done();
-        };
+        openContactFormMock = sinon.spy();
 
-        gracePeriodService.clientGrace = function() {
-          return $q.when({
+        gracePeriodService.askUserForCancel = function() {
+          var promise = $q.when({
             cancelled: true,
             success: angular.noop,
             error: angular.noop
           });
+
+          return {promise: promise};
         };
 
         createVcardMock(function() {
@@ -553,7 +557,7 @@ describe('The Contacts controller module', function() {
 
         scope.accept();
         scope.$digest();
-        done(new Error('Should not happen'));
+        expect(openContactFormMock).to.have.been.calledOnce;
       });
 
     });
@@ -1017,11 +1021,12 @@ describe('The Contacts controller module', function() {
     });
 
     describe('The save function', function() {
-
       it('should call ContactAPIClient with the right bookId and cardId', function(done) {
         var originalContact = { id: 123, firstName: 'Foo', lastName: 'Bar' };
+
         createVcardMock(function(cardId) {
           expect(cardId).to.equal(scope.contact.id);
+
           return {
             update: function(contact) {
               expect(contact).to.deep.equal(scope.contact);
@@ -1040,7 +1045,7 @@ describe('The Contacts controller module', function() {
         scope.save();
       });
 
-      it('should call gracePeriodService.grace with the right taskId', function(done) {
+      it('should call gracePeriodService.grace with the right taskId', function() {
         createVcardMock(function() {
           return {
             update: function() {
@@ -1052,10 +1057,7 @@ describe('The Contacts controller module', function() {
           };
         });
 
-        gracePeriodService.grace = function(taskId) {
-          expect(taskId).to.equal('a taskId');
-          done();
-        };
+        gracePeriodService.grace = sinon.spy($q.when.bind(null));
 
         scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
         this.initController();
@@ -1064,33 +1066,11 @@ describe('The Contacts controller module', function() {
 
         scope.save();
         scope.$digest();
-      });
-
-      it('should register graceperiod live notification with the right taskId', function(done) {
-        gracePeriodLiveNotification.registerListeners = function(taskId) {
-          expect(taskId).to.equal('a taskId');
-          done();
-        };
-
-        createVcardMock(function() {
-          return {
-            update: function() {
-              return $q.when('a taskId');
-            },
-            get: function() {
-              return $q.when(contactFromDAV);
-            }
-          };
-        });
-        scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar' };
-        this.initController();
-        scope.$digest();
-        scope.contact = { id: 1, firstName: 'FooX', lastName: 'BarX' };
-        scope.save();
-        scope.$digest();
+        expect(gracePeriodService.grace).to.have.been.calledWith(sinon.match({id: 'a taskId'}));
       });
 
       it('should save updated contact, contactUpdatedIds and taskId contactUpdateDataService', function() {
+        gracePeriodService.grace = sinon.spy($q.when.bind(null));
         createVcardMock(function() {
           return {
             update: function() {
@@ -1119,7 +1099,7 @@ describe('The Contacts controller module', function() {
         expect(contactUpdateDataService.contactUpdatedIds).to.eql([1]);
       });
 
-      it('should broadcast CONTACT_EVENTS.CANCEL_UPDATE on cancel', function(done) {
+      it('should broadcast CONTACT_EVENTS.CANCEL_UPDATE on graceperiod fail', function() {
         createVcardMock(function() {
           return {
             update: function() {
@@ -1132,53 +1112,17 @@ describe('The Contacts controller module', function() {
         });
 
         gracePeriodService.grace = function() {
-          return $q.when({
-            cancelled: true,
-            success: function() {}
-          });
-        };
-
-        gracePeriodService.cancel = function() {
-          return $q.when();
+          return $q.reject();
         };
 
         this.initController();
         scope.contact = { id: 1, firstName: 'FooX', lastName: 'BarX', vcard: 'vcard' };
 
-        $rootScope.$on(CONTACT_EVENTS.CANCEL_UPDATE, function() {
-          done();
-        });
-
+        var spy = sinon.spy();
+        $rootScope.$on(CONTACT_EVENTS.CANCEL_UPDATE, spy);
         scope.save();
         scope.$digest();
-      });
-
-      it('should broadcast CONTACT_EVENTS.CANCEL_UPDATE on task failure', function(done) {
-        createVcardMock(function() {
-          return {
-            update: function() {
-              return $q.when('a taskId');
-            },
-            get: function() {
-              return $q.when(contactFromDAV);
-            }
-          };
-        });
-
-        gracePeriodLiveNotification.registerListeners = function(taskId, onError) {
-          expect(taskId).to.equal('a taskId');
-          onError();
-        };
-
-        this.initController();
-        scope.contact = { id: 1, firstName: 'FooX', lastName: 'BarX' };
-
-        $rootScope.$on(CONTACT_EVENTS.CANCEL_UPDATE, function() {
-          done();
-        });
-
-        scope.save();
-        scope.$digest();
+        expect(spy).to.have.been.calledOnce;
       });
 
       it('should not change page if the contact is invalid', function(done) {
@@ -1217,7 +1161,6 @@ describe('The Contacts controller module', function() {
         expect(ContactLocationHelper.contact.show).to.have.been.calledWith(bookId, bookName, cardId);
         expect(updateSpy).to.not.have.been.called;
       });
-
     });
 
     describe('The deleteContact function', function() {
@@ -2822,7 +2765,5 @@ describe('The Contacts controller module', function() {
         testGetContactTitleDisplayCondition(false, 'cards', 'a', false);
       });
     });
-
   });
-
 });

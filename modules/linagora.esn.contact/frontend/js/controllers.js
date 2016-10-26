@@ -29,9 +29,9 @@ angular.module('linagora.esn.contact')
         displayContactError(err);
         return $q.reject(err);
       }).then(function() {
-        return gracePeriodService.clientGrace(
-            'You have just created a new contact (' + $scope.contact.displayName + ').', 'Cancel and back to edition'
-          ).then(function(data) {
+        return gracePeriodService.askUserForCancel(
+            'You have just created a new contact (' + $scope.contact.displayName + ').', 'Cancel it'
+          ).promise.then(function(data) {
             if (data.cancelled) {
               ContactAPIClient
                 .addressbookHome($scope.bookId)
@@ -155,7 +155,7 @@ angular.module('linagora.esn.contact')
   })
   .controller('editContactController', function($scope, $q, displayContactError, closeContactForm, $rootScope, $timeout,
                                                 $location, notificationFactory, sendContactToBackend, $stateParams, gracePeriodService,
-                                                deleteContact, ContactShell, GRACE_DELAY, gracePeriodLiveNotification, CONTACT_EVENTS,
+                                                deleteContact, ContactShell, GRACE_DELAY, CONTACT_EVENTS,
                                                 contactUpdateDataService, ContactAPIClient, VcardBuilder, ContactLocationHelper, REDIRECT_PAGE_TIMEOUT) {
     $scope.loaded = false;
     $scope.bookId = $stateParams.bookId;
@@ -219,34 +219,26 @@ angular.module('linagora.esn.contact')
             contactUpdateDataService.contact = $scope.contact;
             contactUpdateDataService.contactUpdatedIds.push($scope.contact.id);
             contactUpdateDataService.taskId = taskId;
-            gracePeriodLiveNotification.registerListeners(taskId, function() {
-              notificationFactory.strongError(
-                '', 'Failed to update contact, please try again later');
-              $rootScope.$broadcast(
-                CONTACT_EVENTS.CANCEL_UPDATE,
-                new ContactShell($scope.contact.vcard, $scope.contact.etag));
-            });
-
             $scope.close();
 
-            return gracePeriodService.grace(taskId, 'You have just updated a contact.', 'Cancel')
-              .then(function(data) {
-                if (data.cancelled) {
-                  return gracePeriodService.cancel(taskId).then(function() {
-                    data.success();
-                    $rootScope.$broadcast(
-                      CONTACT_EVENTS.CANCEL_UPDATE,
-                      new ContactShell($scope.contact.vcard, $scope.contact.etag, $scope.contact.href)
-                    );
-                  }, function(err) {
-                    data.error('Cannot cancel contact update');
-                  });
-                } else {
-                  gracePeriodService.remove(taskId);
-                }
-              });
-          }).then(null, function(err) {
+            return gracePeriodService.grace({
+              id: taskId,
+              performedAction: 'The contact has been updated',
+              cancelFailed: 'Cannot cancel contact update',
+              cancelTooLate: 'It is too late to cancel the contact update',
+              graceperiodFail: 'Failed to update contact, please try later',
+              successText: ''
+            }).catch(function(err) {
+              $rootScope.$broadcast(
+                CONTACT_EVENTS.CANCEL_UPDATE,
+                new ContactShell($scope.contact.vcard, $scope.contact.etag, $scope.contact.href)
+              );
+
+              return $q.reject(err);
+            });
+          }, function(err) {
             displayContactError('The contact cannot be edited, please retry later');
+
             return $q.reject(err);
           });
       });
@@ -258,7 +250,6 @@ angular.module('linagora.esn.contact')
         deleteContact($scope.bookId, $scope.bookName, $scope.contact);
       }, 200);
     };
-
   })
   .controller('contactsListController', function($log, $scope, $q, usSpinnerService, $location, AlphaCategoryService, ALPHA_ITEMS, user, displayContactError, openContactForm, ContactsHelper, gracePeriodService, $window, searchResultSizeFormatter, CONTACT_EVENTS, CONTACT_LIST_DISPLAY, sharedContactDataService, contactUpdateDataService, AddressBookPagination, addressbooks, CONTACT_LIST_DISPLAY_MODES) {
     var requiredKey = 'displayName';

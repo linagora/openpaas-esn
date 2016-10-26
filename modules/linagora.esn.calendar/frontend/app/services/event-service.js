@@ -4,26 +4,9 @@
   angular.module('esn.calendar')
          .service('calEventService', calEventService);
 
-  calEventService.$inject = [
-    '$q',
-    'ICAL',
-    'calCachedEventSource',
-    'calendarAPI',
-    'calendarEventEmitter',
-    'CalendarShell',
-    'calendarUtils',
-    'calEventAPI',
-    'calEventUtils',
-    'gracePeriodLiveNotification',
-    'gracePeriodService',
-    'calMasterEventCache',
-    'notifyService',
-    'CALENDAR_ERROR_DISPLAY_DELAY',
-    'CALENDAR_GRACE_DELAY'
-  ];
-
   function calEventService(
     $q,
+    _,
     ICAL,
     calCachedEventSource,
     calendarAPI,
@@ -32,7 +15,6 @@
     calendarUtils,
     calEventAPI,
     calEventUtils,
-    gracePeriodLiveNotification,
     gracePeriodService,
     calMasterEventCache,
     notifyService,
@@ -149,42 +131,6 @@
           .catch($q.reject);
       }
 
-      function _handleTask(taskId, task, onTaskSuccess, onTaskCancel) {
-        if (task.cancelled) {
-          return gracePeriodService.cancel(taskId).then(function() {
-            onTaskCancel();
-            task.success();
-
-            return false;
-          }, function(error) {
-            task.error('An error has occured, cannot cancel this action', error.statusTask);
-
-            return $q.reject('An error has occured, cannot cancel this action ' + error.statusTask);
-          });
-        } else {
-          onTaskSuccess();
-
-          return true;
-        }
-      }
-
-      function _registerTaskListener(taskId, errorMessage, onTaskError) {
-        gracePeriodLiveNotification.registerListeners(taskId, function() {
-          gracePeriodService.remove(taskId);
-          notifyService({
-            message: errorMessage
-          }, {
-            type: 'danger',
-            placement: {
-              from: 'bottom',
-              align: 'center'
-            },
-            delay: CALENDAR_ERROR_DISPLAY_DELAY
-          });
-          onTaskError();
-        });
-      }
-
       /**
        * Create a new event in the calendar defined by its path. If options.graceperiod is true, the request will be handled by the grace
        * period service.
@@ -195,17 +141,16 @@
        * @return {Mixed}                           true if success, false if cancelled, the http response if no graceperiod is used.
        */
       function createEvent(calendarId, calendarPath, event, options) {
-        event.path = calendarPath.replace(/\/$/, '') + '/' + event.uid + '.ics';
         var taskId = null;
 
-        function onTaskSuccess() {
-          gracePeriodService.remove(taskId);
-        }
+        event.path = calendarPath.replace(/\/$/, '') + '/' + event.uid + '.ics';
 
         function onTaskCancel() {
           calCachedEventSource.deleteRegistration(event);
           calendarEventEmitter.fullcalendar.emitRemovedEvent(event.uid);
           event.isRecurring() && calMasterEventCache.remove(event);
+
+          return false;
         }
 
         return calEventAPI.create(event.path, event.vcalendar, options)
@@ -218,11 +163,15 @@
               calCachedEventSource.registerAdd(event);
               calendarEventEmitter.fullcalendar.emitCreatedEvent(event);
 
-              return gracePeriodService.grace(taskId, 'You are about to create a new event (' + event.title + ').', 'Cancel it', CALENDAR_GRACE_DELAY, {id: event.uid})
-                .then(function(task) {
-                  return _handleTask(taskId, task, onTaskSuccess, onTaskCancel);
-                })
-                .catch($q.reject);
+              return gracePeriodService.grace({
+                id: taskId,
+                delay: CALENDAR_GRACE_DELAY,
+                context: {id: event.uid},
+                performedAction: 'You are about to create a new event (' + event.title + ').',
+                cancelFailed: 'An error has occured, the creation could not been reverted',
+                cancelTooLate: 'It is too late to cancel the creation',
+                successText: 'Calendar - ' + event.title + ' has been created.'
+              }).then(_.constant(true), onTaskCancel);
             }
           })
           .finally(function() {
@@ -256,16 +205,7 @@
 
         var taskId = null;
 
-        function onTaskSuccess() {
-          gracePeriodService.remove(taskId);
-        }
-
         function onTaskCancel() {
-          calCachedEventSource.deleteRegistration(event);
-          calendarEventEmitter.fullcalendar.emitCreatedEvent(event);
-        }
-
-        function onTaskError() {
           calCachedEventSource.deleteRegistration(event);
           calendarEventEmitter.fullcalendar.emitCreatedEvent(event);
         }
@@ -276,20 +216,24 @@
               event.gracePeriodTaskId = taskId = id;
               calCachedEventSource.registerDelete(event);
               calendarEventEmitter.fullcalendar.emitRemovedEvent(event.id);
-            })
-            .then(function() {
-              return _registerTaskListener(taskId, 'Could not find the event to delete. Please refresh your calendar.', onTaskError);
-            })
-            .then(function() {
-              return gracePeriodService.grace(taskId, 'You are about to delete the event (' + event.title + ').', 'Cancel it', CALENDAR_GRACE_DELAY, event);
-            })
-            .then(function(task) {
-              return _handleTask(taskId, task, onTaskSuccess, onTaskCancel);
+
+              return gracePeriodService.grace({
+                id: taskId,
+                delay: CALENDAR_GRACE_DELAY,
+                context: {id: event.uid},
+                performedAction: 'You are about to delete the event (' + event.title + ').',
+                cancelFailed: 'An error has occurred, the deletion could not been reverted',
+                cancelTooLate: 'It is too late to cancel the deletion',
+                successText: 'Calendar - ' + event.title + ' has been deleted.'
+              }).then(_.constant(true), function() {
+                onTaskCancel();
+
+                return false;
+              });
             })
             .finally(function() {
               event.gracePeriodTaskId = undefined;
-            })
-            .catch($q.reject);
+            });
         }
 
         if (event.isInstance()) {
@@ -299,13 +243,13 @@
 
               if (removeAllInstance || oldMaster.expand(null, null, 2).length < 2) {
                 return performRemove();
-              } else {
-                newMaster.deleteInstance(event);
-
-                //we use self.modifyEvent and not modifyEvent for ease of testing
-                //this is also the reason why this is a service and not a factory so we can mock modifyEvent
-                return self.modifyEvent(eventPath, newMaster, oldMaster, etag);
               }
+
+              newMaster.deleteInstance(event);
+
+              //we use self.modifyEvent and not modifyEvent for ease of testing
+              //this is also the reason why this is a service and not a factory so we can mock modifyEvent
+              return self.modifyEvent(eventPath, newMaster, oldMaster, etag);
             });
         } else {
           return performRemove();
@@ -347,19 +291,11 @@
 
         var taskId = null;
 
-        function onTaskSuccess() {
-          gracePeriodService.remove(taskId);
-        }
-
-        function onTaskError() {
+        function onTaskCancel() {
+          onCancel && onCancel(); //order matter, onCancel should be called before emitModifiedEvent because it can mute oldEvent
           calCachedEventSource.registerUpdate(oldEvent);
           oldEvent.isRecurring() && calMasterEventCache.save(oldEvent);
           calendarEventEmitter.fullcalendar.emitModifiedEvent(oldEvent);
-        }
-
-        function onTaskCancel() {
-          (onCancel || angular.noop)(); //order matter, onCancel should be called before emitModifiedEvent because it can mute oldEvent
-          onTaskError();
         }
 
         return calEventAPI.modify(path, event.vcalendar, etag)
@@ -368,15 +304,20 @@
             calCachedEventSource.registerUpdate(event);
             event.isRecurring() && calMasterEventCache.save(event);
             calendarEventEmitter.fullcalendar.emitModifiedEvent(event);
-          })
-          .then(function() {
-            return _registerTaskListener(taskId, 'Could not modify the event, a problem occurred on the CalDAV server. Please refresh your calendar.', onTaskError);
-          })
-          .then(function() {
-            return gracePeriodService.grace(taskId, 'You are about to modify the event (' + event.title + ').', 'Cancel it', CALENDAR_GRACE_DELAY, event);
-          })
-          .then(function(task) {
-            return _handleTask(taskId, task, onTaskSuccess, onTaskCancel);
+
+            return gracePeriodService.grace({
+              id: taskId,
+              delay: CALENDAR_GRACE_DELAY,
+              context: {id: event.uid},
+              performedAction: 'You are about to modify an event (' + event.title + ').',
+              cancelFailed: 'An error has occured, the modification could not been reverted',
+              cancelTooLate: 'It is too late to cancel the modification',
+              successText: 'Calendar - ' + event.title + ' has been modified.'
+            }).then(_.constant(true), function() {
+              onTaskCancel();
+
+              return false;
+            });
           })
           .finally(function() {
             event.gracePeriodTaskId = undefined;
@@ -433,11 +374,10 @@
                 // response, so we can retry the request with this data.
                 return changeParticipation(eventPath, shell, emails, status, shell.etag);
               });
-            } else {
-              return $q.reject(response);
             }
+
+            return $q.reject(response);
           });
       }
   }
-
 })();

@@ -1871,7 +1871,7 @@ describe('The Unified Inbox Angular module services', function() {
 
     var Composition, draftService, emailSendingService, $timeout, Offline,
         notificationFactory, jmap, jmapClient, firstSaveAck, $rootScope, newComposerService,
-        notifyOfGracedRequest, graceRequestResult;
+        gracePeriodService, graceRequestResult;
 
     beforeEach(module(function($provide) {
       config['linagora.esn.unifiedinbox.drafts'] = true;
@@ -1892,12 +1892,16 @@ describe('The Unified Inbox Angular module services', function() {
         success: sinon.spy()
       };
 
+      gracePeriodService = {
+        askUserForCancel: sinon.spy(function() {
+          return {promise: $q.when(graceRequestResult)};
+        })
+      };
+
       $provide.value('withJmapClient', function(callback) {
         return callback(jmapClient);
       });
-      $provide.value('notifyOfGracedRequest', notifyOfGracedRequest = sinon.spy(function() {
-        return {promise: $q.when(graceRequestResult)};
-      }));
+      $provide.value('gracePeriodService', gracePeriodService);
     }));
 
     beforeEach(inject(function(_draftService_, _notificationFactory_, _Offline_,
@@ -2300,7 +2304,7 @@ describe('The Unified Inbox Angular module services', function() {
         config['linagora.esn.unifiedinbox.drafts'] = false;
 
         new Composition({subject: 'a subject'}).destroyDraft().then(done.bind(null, 'should not resolved'), function() {
-          expect(notifyOfGracedRequest).to.not.have.been.called;
+          expect(gracePeriodService.askUserForCancel).to.not.have.been.called;
 
           done();
         });
@@ -2310,7 +2314,7 @@ describe('The Unified Inbox Angular module services', function() {
 
       it('should generate expected notification when called', function(done) {
         new Composition({subject: 'a subject'}).destroyDraft().then(function() {
-          expect(notifyOfGracedRequest).to.have.been.calledWith('This draft has been discarded', 'Reopen');
+          expect(gracePeriodService.askUserForCancel).to.have.been.calledWith('This draft has been discarded', 'Reopen');
         }).then(done, done);
 
         $timeout.flush();
@@ -2319,7 +2323,7 @@ describe('The Unified Inbox Angular module services', function() {
       it('should not generate notification when called with empty email', function() {
         new Composition({}).destroyDraft();
 
-        expect(notifyOfGracedRequest).to.have.not.been.called;
+        expect(gracePeriodService.askUserForCancel).to.have.not.been.called;
       });
 
       it('should destroy an existing draft even if email is empty', function(done) {

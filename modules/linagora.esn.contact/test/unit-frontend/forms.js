@@ -29,7 +29,7 @@ describe('The Contacts forms module', function() {
     it('should change path to /contact', function() {
       this.state.go = sinon.spy();
       this.closeContactForm();
-      expect(this.state.go).to.have.been.calledWith(('/contact'));
+      expect(this.state.go).to.have.been.calledWith('contact');
     });
   });
 
