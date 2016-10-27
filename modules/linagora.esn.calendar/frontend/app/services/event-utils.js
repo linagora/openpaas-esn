@@ -39,56 +39,88 @@
 
     ////////////
 
-    function render(event, element) {
+    function render(event, element, view) {
+      var timeDiv = element.find('.fc-time');
       var timeSpan = element.find('.fc-time span');
       var title = element.find('.fc-title');
       var eventDurationInMinute = event.end.diff(event.start, 'minutes');
-
-      if ((eventDurationInMinute <= CALENDAR_MAX_DURATION_OF_SMALL_EVENT) && element.find('.fc-time').length) {
-        element.find('.fc-time').attr('data-start', event.title);
-      }
-
-      if (event.location) {
-        title.append(angular.element('<div class="fc-location"><i class="mdi mdi-map-marker"/>' + escapeHtmlUtils.escapeHTML(event.location) + '</div>'));
-      }
-
-      if (event.description) {
-        element.attr('title', escapeHtmlUtils.escapeHTML(event.description));
-      }
-
       var userAsAttendee = null;
 
-      if (event.attendees) {
-        event.attendees.forEach(function(att) {
-          if (att.email in session.user.emailMap) {
-            userAsAttendee = att;
+      changeEventColorWhenMonthView();
+      adaptTitleWhenShortEvent();
+      appendLocation();
+      appendDescription();
+      setUserAsAttendee();
+      addIconInEventInstance();
+      checkUserIsOrganizer();
+      addIconForAttendees();
+
+      function changeEventColorWhenMonthView() {
+        if ((view.name === 'month') && !event.allDay) {
+          var eventColor = element.css('background-color');
+          element.css('color', eventColor);
+          timeDiv.css('background-color', 'transparent');
+          element.css('background-color', 'transparent');
+        }
+      }
+
+      function adaptTitleWhenShortEvent() {
+        if ((eventDurationInMinute <= CALENDAR_MAX_DURATION_OF_SMALL_EVENT) && element.find('.fc-time').length) {
+          element.find('.fc-time').attr('data-start', event.title);
+        }
+      }
+
+      function appendLocation() {
+        if (event.location) {
+          title.append(angular.element('<div class="fc-location"><i class="mdi mdi-map-marker"/>' + escapeHtmlUtils.escapeHTML(event.location) + '</div>'));
+        }
+      }
+
+      function appendDescription() {
+        if (event.description) {
+          element.attr('title', escapeHtmlUtils.escapeHTML(event.description));
+        }
+      }
+
+      function setUserAsAttendee() {
+        if (event.attendees) {
+          event.attendees.forEach(function(att) {
+            if (att.email in session.user.emailMap) {
+              userAsAttendee = att;
+            }
+          });
+        }
+      }
+
+      function addIconInEventInstance() {
+        if (event.isInstance()) {
+          element.addClass('event-is-instance');
+          angular.element('<i class="mdi mdi-sync"/>').insertBefore(timeSpan);
+        }
+      }
+
+      function checkUserIsOrganizer() {
+        if (!isOrganizer(event)) {
+          event.startEditable = false;
+          event.durationEditable = false;
+        }
+      }
+
+      function addIconForAttendees() {
+        if (userAsAttendee) {
+          if (userAsAttendee.partstat === 'NEEDS-ACTION') {
+            element.addClass('event-needs-action');
+          } else if (userAsAttendee.partstat === 'TENTATIVE' && timeSpan.length) {
+            element.addClass('event-tentative');
+            angular.element('<i class="mdi mdi-help-circle"/>').insertBefore(timeSpan);
+          } else if (userAsAttendee.partstat === 'TENTATIVE' && !timeSpan.length) {
+            element.addClass('event-tentative');
+            title.prepend(angular.element('<i class="mdi mdi-help-circle"/>'));
+          } else if (userAsAttendee.partstat === 'ACCEPTED') {
+            element.addClass('event-accepted');
+          } else if (userAsAttendee.partstat === 'DECLINED') {
+            element.addClass('event-declined');
           }
-        });
-      }
-
-      if (event.isInstance()) {
-        element.addClass('event-is-instance');
-        angular.element('<i class="mdi mdi-sync"/>').insertBefore(timeSpan);
-      }
-
-      if (!isOrganizer(event)) {
-        event.startEditable = false;
-        event.durationEditable = false;
-      }
-
-      if (userAsAttendee) {
-        if (userAsAttendee.partstat === 'NEEDS-ACTION') {
-          element.addClass('event-needs-action');
-        } else if (userAsAttendee.partstat === 'TENTATIVE' && timeSpan.length) {
-          element.addClass('event-tentative');
-          angular.element('<i class="mdi mdi-help-circle"/>').insertBefore(timeSpan);
-        } else if (userAsAttendee.partstat === 'TENTATIVE' && !timeSpan.length) {
-          element.addClass('event-tentative');
-          title.prepend(angular.element('<i class="mdi mdi-help-circle"/>'));
-        } else if (userAsAttendee.partstat === 'ACCEPTED') {
-          element.addClass('event-accepted');
-        } else if (userAsAttendee.partstat === 'DECLINED') {
-          element.addClass('event-declined');
         }
       }
     }
