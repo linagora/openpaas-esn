@@ -3,7 +3,8 @@
 var passport = require('passport'),
   util = require('util'),
   ldap = require('../../ldap'),
-  usermodule = require('../../user');
+  usermodule = require('../../user'),
+  _ = require('lodash');
 
 /**
  * Strategy constructor
@@ -158,20 +159,19 @@ var handleAuthentication = function(req, options) {
           var ldap = ldaps[0];
 
           if (ldap.configuration && ldap.configuration.mapping) {
-            var mapping = ldap.configuration.mapping;
+            var mappings = ldap.configuration.mapping;
 
-            if (mapping && mapping.firstname) {
-              provision_user.firstname = ldapuser[mapping.firstname];
-            }
-            if (mapping && mapping.lastname) {
-              provision_user.lastname = ldapuser[mapping.lastname];
-            }
-            if (mapping && mapping.email) {
-              var email = ldapuser[mapping.email];
-              if (provision_user.accounts[0].emails.indexOf(email) === -1) {
-                provision_user.accounts[0].emails.push(email);
+            _.forEach(mappings, function(value, key) {
+              if (key === 'email') {
+                var email = ldapuser[value];
+
+                if (provision_user.accounts[0].emails.indexOf(email) === -1) {
+                  provision_user.accounts[0].emails.push(email);
+                }
+              } else {
+                provision_user[key] = ldapuser[value];
               }
-            }
+            });
           }
 
           usermodule.provisionUser(provision_user, function(err, saved) {
