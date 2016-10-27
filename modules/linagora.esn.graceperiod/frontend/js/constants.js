@@ -7,10 +7,11 @@
     .constant('DEFAULT_GRACE_MESSAGE', {
       performedAction: 'You are about to perform an action',
       cancelText: 'Cancel it',
-      successText: 'The action has been done successfully',
+      successText: null,
+      cancelSuccess: null,
       cancelFailed: 'An error has occured, cannot cancel this action',
       cancelTooLate: 'It is too late to cancel the action',
-      graceperiodFail: 'The action has failed'
+      gracePeriodFail: 'The action has failed'
     })
     .constant('GRACE_EVENTS', {
       error: 'graceperiod:error',

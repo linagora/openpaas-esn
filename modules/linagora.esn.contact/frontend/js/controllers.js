@@ -226,8 +226,7 @@ angular.module('linagora.esn.contact')
               performedAction: 'The contact has been updated',
               cancelFailed: 'Cannot cancel contact update',
               cancelTooLate: 'It is too late to cancel the contact update',
-              graceperiodFail: 'Failed to update contact, please try later',
-              successText: ''
+              gracePeriodFail: 'Failed to update contact, please try later'
             }).catch(function(err) {
               $rootScope.$broadcast(
                 CONTACT_EVENTS.CANCEL_UPDATE,

@@ -17,7 +17,7 @@
     calEventUtils,
     gracePeriodService,
     calMasterEventCache,
-    notifyService,
+    notificationFactory,
     CALENDAR_ERROR_DISPLAY_DELAY,
     CALENDAR_GRACE_DELAY) {
 
@@ -170,9 +170,14 @@
                 performedAction: 'You are about to create a new event (' + event.title + ').',
                 cancelFailed: 'An error has occured, the creation could not been reverted',
                 cancelTooLate: 'It is too late to cancel the creation',
+                gracePeriodFail: 'Event creation failed. Please refresh your calendar',
                 successText: 'Calendar - ' + event.title + ' has been created.'
               }).then(_.constant(true), onTaskCancel);
             }
+          }, function(err) {
+            notificationFactory.weakError('Event creation failed', (err.statusText || err) + '. Please refresh your calendar');
+
+            return $q.reject(err);
           })
           .finally(function() {
             event.gracePeriodTaskId = undefined;
@@ -223,13 +228,19 @@
                 context: {id: event.uid},
                 performedAction: 'You are about to delete the event (' + event.title + ').',
                 cancelFailed: 'An error has occurred, the deletion could not been reverted',
+                cancelSuccess: 'Calendar - Suppression of ' + event.tile + ' has been cancelled',
                 cancelTooLate: 'It is too late to cancel the deletion',
-                successText: 'Calendar - ' + event.title + ' has been deleted.'
+                successText: 'Calendar - ' + event.title + ' has been deleted.',
+                gracePeriodFail: 'Event deletion failed. Please refresh your calendar'
               }).then(_.constant(true), function() {
                 onTaskCancel();
 
                 return false;
               });
+            }, function(err) {
+              notificationFactory.weakError('Event deletion failed', (err.statusText || err) + '. Please refresh your calendar');
+
+              return $q.reject(err);
             })
             .finally(function() {
               event.gracePeriodTaskId = undefined;
@@ -263,10 +274,13 @@
        * @param  {CalendarShell}     oldEvent          the old event from fullcalendar. It is used in case of rollback and hasSignificantChange computation.
        * @param  {String}            etag              the etag
        * @param  {Function}          onCancel          callback called in case of rollback, ie when we cancel the task
-       * @param  {Object}            options           options needed for the creation. The structure is {graceperiod: Boolean, notifyFullcalendar: Boolean}
+       * @param  {Object}            options           options needed for the creation. The structure is
+       *   {graceperiod: Boolean, notifyFullcalendar: Boolean, graceperiodMessage: Object}
+       *                                               graceperiodMessage allow to override message displayed during the graceperiod
        * @return {Boolean}                             true on success, false if cancelled
        */
       function modifyEvent(path, event, oldEvent, etag, onCancel, options) {
+        options = options || {};
         if (event.isInstance()) {
           return event.getModifiedMaster().then(function(newMasterEvent) {
             var oldMasterEvent = newMasterEvent.clone();
@@ -305,24 +319,29 @@
             event.isRecurring() && calMasterEventCache.save(event);
             calendarEventEmitter.fullcalendar.emitModifiedEvent(event);
 
-            return gracePeriodService.grace({
+            return gracePeriodService.grace(angular.extend({
               id: taskId,
               delay: CALENDAR_GRACE_DELAY,
               context: {id: event.uid},
               performedAction: 'You are about to modify an event (' + event.title + ').',
               cancelFailed: 'An error has occured, the modification could not been reverted',
               cancelTooLate: 'It is too late to cancel the modification',
+              cancelSuccess: 'Calendar - Modification of ' + event.title + ' has been canceled.',
+              gracePeriodFail: 'Event modification failed, please refresh your calendar',
               successText: 'Calendar - ' + event.title + ' has been modified.'
-            }).then(_.constant(true), function() {
+            }, options.graceperiodMessage)).then(_.constant(true), function() {
               onTaskCancel();
 
               return false;
             });
+          }, function(err) {
+            notificationFactory.weakError('Event modification failed ', (err.statusText || err) + ', Please refresh your calendar');
+
+            return $q.reject(err);
           })
           .finally(function() {
             event.gracePeriodTaskId = undefined;
-          })
-          .catch($q.reject);
+          });
       }
 
       /**

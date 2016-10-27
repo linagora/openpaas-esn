@@ -242,8 +242,7 @@ angular.module('linagora.esn.contact')
             id: taskId,
             performedAction: 'You have just deleted a contact (' + contact.displayName + ')',
             cancelFailed: 'Cannot cancel contact deletion, the contact might be deleted permanently',
-            cancelTooLate: 'It is too late to cancel the contact deletion, the contact might be deleted permanently',
-            successText: ''
+            cancelTooLate: 'It is too late to cancel the contact deletion, the contact might be deleted permanently'
           }).catch(function() {
             $rootScope.$broadcast(CONTACT_EVENTS.CANCEL_DELETE, contact);
           });

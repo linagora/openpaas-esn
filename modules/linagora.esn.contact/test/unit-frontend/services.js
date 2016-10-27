@@ -75,8 +75,7 @@ describe('The Contacts service module', function() {
         id: 'myTaskId',
         performedAction: 'You have just deleted a contact (Foo Bar)',
         cancelFailed: 'Cannot cancel contact deletion, the contact might be deleted permanently',
-        cancelTooLate: 'It is too late to cancel the contact deletion, the contact might be deleted permanently',
-        successText: ''
+        cancelTooLate: 'It is too late to cancel the contact deletion, the contact might be deleted permanently'
       });
     });
 
