@@ -87,3 +87,11 @@
     text-decoration: line-through;
   }
 }
+
+@media (max-width: @swipe-arrows-max) {
+  .fc-agendaWeek-view, .fc-agendaThreeDays-view, .fc-agendaDay-view {
+     & .fc-event .fc-time{
+        display: none;
+    }
+  }
+}
