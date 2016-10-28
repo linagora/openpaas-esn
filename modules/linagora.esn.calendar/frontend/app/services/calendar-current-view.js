@@ -4,14 +4,7 @@
   angular.module('esn.calendar')
          .factory('calendarCurrentView', calendarCurrentView);
 
-  calendarCurrentView.$inject = [
-    '$location',
-    'calMoment',
-    'screenSize',
-    'CALENDAR_AVAILABLE_VIEWS'
-  ];
-
-  function calendarCurrentView($location, calMoment, screenSize, CALENDAR_AVAILABLE_VIEWS, $log) {
+  function calendarCurrentView($location, $log, calMoment, screenSize, CALENDAR_AVAILABLE_VIEWS) {
     var currentView = null;
 
     var service = {
