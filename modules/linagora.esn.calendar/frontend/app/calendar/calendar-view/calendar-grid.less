@@ -3,3 +3,9 @@
 .fc-day.ui-widget-content.fc-today {
   background: @table-today-cell-color;
 }
+
+//to delete the scrollbar when a user zoom-out
+.fc-time-grid-container.fc-scroller {
+  height: auto !important; /* override parent !important property */
+  overflow: hidden !important; /* override parent !important property */
+}
