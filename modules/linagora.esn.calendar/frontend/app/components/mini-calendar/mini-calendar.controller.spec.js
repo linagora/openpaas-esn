@@ -204,7 +204,7 @@ describe('The mini-calendar controller', function() {
         done();
       });
 
-      $scope.miniCalendarConfig.select(day, null, true, null);
+      $scope.miniCalendarConfig.dayClick(day);
     });
 
     it('should broadcast CALENDAR_EVENTS.MINI_CALENDAR.TOGGLE when a day is selected', function(done) {
@@ -217,7 +217,7 @@ describe('The mini-calendar controller', function() {
         done();
       });
 
-      $scope.miniCalendarConfig.select(day, null, true, null);
+      $scope.miniCalendarConfig.dayClick(day);
     });
 
     it('should broadcast CALENDAR_EVENTS.MINI_CALENDAR.DATE_CHANGE, when a event is clicked, the day sent with this event should be the day where the event is', function(done) {
@@ -288,7 +288,7 @@ describe('The mini-calendar controller', function() {
 
       $scope.homeCalendarViewMode = 'agendaDay';
 
-      $scope.miniCalendarConfig.select(day, null, true, null);
+      $scope.miniCalendarConfig.dayClick(day);
       $scope.$digest();
       expect(fcMethodMock.select).to.have.been.calledWith(sinon.match(sameDayMatcher(day)), sinon.match(sameDayMatcher(day.clone().add(1, 'day'))));
     });
@@ -305,7 +305,7 @@ describe('The mini-calendar controller', function() {
         return {firstWeekDay: firstWeekDay, nextFirstWeekDay: lastWeekDay};
       });
 
-      $scope.miniCalendarConfig.select(dayInWeek, null, true, null);
+      $scope.miniCalendarConfig.dayClick(dayInWeek);
       $scope.$digest();
       expect(fcMethodMock.select).to.have.been.calledWith(sinon.match(sameDayMatcher(firstWeekDay)), sinon.match(sameDayMatcher(lastWeekDay)));
       expect(miniCalendarServiceMock.getWeekAroundDay).to.have.been.called;
@@ -350,7 +350,7 @@ describe('The mini-calendar controller', function() {
 
       $scope.homeCalendarViewMode = 'month';
 
-      $scope.miniCalendarConfig.select(day, null, true, null);
+      $scope.miniCalendarConfig.dayClick(day);
       $scope.$digest();
       expect(fcMethodMock.unselect).to.have.been.called;
     });

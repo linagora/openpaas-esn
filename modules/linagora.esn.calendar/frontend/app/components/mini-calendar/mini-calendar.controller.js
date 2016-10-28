@@ -92,12 +92,13 @@
 
       calendarPromise.then(selectPeriod.bind(null, currentView.start || calMoment()));
 
-      $scope.miniCalendarConfig.select = function(start, end, jsEvent) { // eslint-disable-line
-        if (jsEvent) {
-          calendarPromise.then(selectPeriod.bind(null, start));
-          $rootScope.$broadcast(CALENDAR_EVENTS.MINI_CALENDAR.DATE_CHANGE, start);
-          $rootScope.$broadcast(CALENDAR_EVENTS.MINI_CALENDAR.TOGGLE);
-        }
+      //this is because of a fullCalendar bug about dayClick on touch that block swipe
+      //https://github.com/fullcalendar/fullcalendar/issues/3332
+      $scope.miniCalendarConfig.longPressDelay = 0;
+      $scope.miniCalendarConfig.dayClick = function(day) { // eslint-disable-line
+        calendarPromise.then(selectPeriod.bind(null, day));
+        $rootScope.$broadcast(CALENDAR_EVENTS.MINI_CALENDAR.DATE_CHANGE, day);
+        $rootScope.$broadcast(CALENDAR_EVENTS.MINI_CALENDAR.TOGGLE);
       };
 
       $scope.miniCalendarConfig.viewRender = function(view) {
