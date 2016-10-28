@@ -67,8 +67,7 @@ describe('The ldap-mongo passport strategy', function() {
       s.authenticate(req, options);
     });
 
-    it('should provision the user on authenticate if user is not available in storage', function(done) {
-
+    it('should provision the user on authenticate with ldap mapping configured contain email if user is not available in storage', function(done) {
       var ldapuser = {
         firstname: 'foo',
         lastname: 'bar',
@@ -83,10 +82,14 @@ describe('The ldap-mongo passport strategy', function() {
         },
         provisionUser: function(user) {
           expect(user.accounts[0].emails.length).to.equal(2);
+          expect(user.firstname).to.equal('foo');
+          expect(user).to.include.keys('firstname', 'lastname');
+          expect(user).to.not.include.keys('email');
 
           done();
         }
       };
+
       mockery.registerMock('../../user', usermodule);
       var ldapmock = {
         findLDAPForUser: function(username, callback) {
@@ -105,12 +108,14 @@ describe('The ldap-mongo passport strategy', function() {
               }
             }
           };
+
           return callback(null, [ldap]);
         },
         authenticate: function(email, password, ldap, callback) {
           return callback(null, ldapuser);
         }
       };
+
       mockery.registerMock('../../ldap', ldapmock);
 
       Strategy = this.helpers.requireBackend('core/passport/ldap-mongo/strategy');
@@ -124,6 +129,72 @@ describe('The ldap-mongo passport strategy', function() {
       };
       var options = {
       };
+
+      s.authenticate(req, options);
+    });
+
+    it('should provision the user on authenticate with ldap mapping configured not contain email if user is not available in storage', function(done) {
+      var ldapuser = {
+        firstname: 'foo',
+        lastname: 'bar',
+        mail: 'foo@bar.com',
+        mailAlias: 'foo@baz.com',
+        userPassword: 'baz'
+      };
+
+      var usermodule = {
+        findByEmail: function(user, callback) {
+          return callback(null, null);
+        },
+        provisionUser: function(user) {
+          expect(user.accounts[0].emails.length).to.equal(1);
+          expect(user.firstname).to.equal('foo');
+          expect(user).to.include.keys('firstname', 'lastname', 'description');
+
+          done();
+        }
+      };
+
+      mockery.registerMock('../../user', usermodule);
+      var ldapmock = {
+        findLDAPForUser: function(username, callback) {
+          var ldap = {
+            domain: '222222',
+            configuration: {
+              url: 'ldap://localhost:1389',
+              adminDn: 'uid=admin,ou=passport-ldapauth',
+              adminPassword: 'secret',
+              searchBase: 'ou=passport-ldapauth',
+              searchFilter: '(mail={{username}})',
+              mapping: {
+                firstname: 'firstname',
+                lastname: 'lastname',
+                description: 'bio'
+              }
+            }
+          };
+
+          return callback(null, [ldap]);
+        },
+        authenticate: function(email, password, ldap, callback) {
+          return callback(null, ldapuser);
+        }
+      };
+
+      mockery.registerMock('../../ldap', ldapmock);
+
+      Strategy = this.helpers.requireBackend('core/passport/ldap-mongo/strategy');
+      var s = new Strategy({});
+
+      var req = {
+        body: {
+          username: 'foo@bar.com',
+          password: 'baz'
+        }
+      };
+      var options = {
+      };
+
       s.authenticate(req, options);
     });
 
@@ -137,6 +208,7 @@ describe('The ldap-mongo passport strategy', function() {
           done(new Error());
         }
       };
+
       mockery.registerMock('../../user', usermodule);
       var ldapmock = {
         findLDAPForUser: function(username, callback) {
@@ -149,13 +221,16 @@ describe('The ldap-mongo passport strategy', function() {
               searchFilter: '(mail={{username}})'
             }
           };
+
           return callback(null, [ldap]);
         },
         authenticate: function(email, password, ldap, callback) {
           var user = {};
+
           return callback(null, user);
         }
       };
+
       mockery.registerMock('../../ldap', ldapmock);
 
       Strategy = this.helpers.requireBackend('core/passport/ldap-mongo/strategy');
