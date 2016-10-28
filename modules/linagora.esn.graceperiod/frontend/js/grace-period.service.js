@@ -154,7 +154,7 @@
         displaySuccess(options.successText);
         deferred.resolve(cancelInTry ? {cancelled: true, cancelFailed: true} : {cancelled: false});
       }), checkNotResolved(function(error) {
-        displayError(options.graceperiodFail);
+        displayError(options.gracePeriodFail);
         deferred.reject(cancelInTry ? {cancelled: true, cancelFailed: false} : {cancelled: false});
       }));
 
@@ -169,6 +169,7 @@
         } else {
           cancelInTry = true;
           cancel(options.id).then(checkNotResolved(function() {
+            displaySuccess(options.cancelSuccess);
             deferred.reject({cancelled: true, cancelFailed: false});
             result.success();
           }), checkNotResolved(function(error) {

@@ -4,36 +4,6 @@
   angular.module('esn.calendar')
          .controller('calendarViewController', calendarViewController);
 
-  calendarViewController.$inject = [
-    '$alert',
-    '$q',
-    '$rootScope',
-    '$scope',
-    '$state',
-    '$timeout',
-    '$window',
-    'usSpinnerService',
-    'calCachedEventSource',
-    'calendarCurrentView',
-    'calendarEventSource',
-    'calendarService',
-    'CalendarShell',
-    'calendarVisibilityService',
-    'calEventService',
-    'calMasterEventCache',
-    'calendarEventEmitter',
-    'calendarUtils',
-    'calEventUtils',
-    'gracePeriodService',
-    'livenotification',
-    'notificationFactory',
-    'calOpenEventForm',
-    'CALENDAR_EVENTS',
-    'DEFAULT_CALENDAR_ID',
-    'MAX_CALENDAR_RESIZE_HEIGHT',
-    'esnWithPromiseResult'
-  ];
-
   function calendarViewController(
     $alert,
     $q,
@@ -168,14 +138,7 @@
           $rootScope.$broadcast(CALENDAR_EVENTS.REVERT_MODIFICATION, oldEvent);
         }
 
-        calEventService.modifyEvent(newEvent.path, newEvent, oldEvent, newEvent.etag, revertFunc, { graceperiod: true, notifyFullcalendar: true })
-          .then(function(completed) {
-            if (completed) {
-              notificationFactory.weakInfo('Calendar - ', newEvent.title + ' has been modified.');
-            } else {
-              notificationFactory.weakInfo('Calendar - ', 'Modification of ' + newEvent.title + ' has been cancelled.');
-            }
-          });
+        calEventService.modifyEvent(newEvent.path, newEvent, oldEvent, newEvent.etag, revertFunc, { graceperiod: true, notifyFullcalendar: true });
       }
 
       function displayCalendarError(err, errorMessage) {

@@ -132,14 +132,9 @@
         _hideModal();
         calEventService.createEvent($scope.calendar.id, path, $scope.editedEvent, { graceperiod: true, notifyFullcalendar: $state.is('calendar.main') })
           .then(function(completed) {
-            if (completed) {
-              notificationFactory.weakInfo('Calendar - ', $scope.editedEvent.title + ' has been created.');
-            } else {
+            if (!completed) {
               calOpenEventForm($scope.editedEvent);
             }
-          })
-          .catch(function(err) {
-            _displayNotification(notificationFactory.weakError, 'Event creation failed', (err.statusText || err) + ', Please refresh your calendar');
           })
           .finally(function() {
             $scope.restActive = false;
@@ -152,20 +147,9 @@
         }
         $scope.restActive = true;
         _hideModal();
-        calEventService.removeEvent($scope.event.path, $scope.event, $scope.event.etag)
-          .then(function(completed) {
-            if (completed) {
-              notificationFactory.weakInfo('Calendar - ', $scope.event.title + ' has been deleted.');
-            } else {
-              notificationFactory.weakInfo('Calendar - ', 'Suppression of ' + $scope.event.title + ' has been cancelled.');
-            }
-          })
-          .catch(function(err) {
-            _displayNotification(notificationFactory.weakError, 'Event deletion failed', (err.statusText || err) + ', Please refresh your calendar');
-          })
-          .finally(function() {
-            $scope.restActive = false;
-          });
+        calEventService.removeEvent($scope.event.path, $scope.event, $scope.event.etag).finally(function() {
+          $scope.restActive = false;
+        });
       }
 
       function _changeParticipationAsAttendee() {
@@ -220,16 +204,6 @@
         }
 
         calEventService.modifyEvent(path, $scope.editedEvent, $scope.event, $scope.event.etag, angular.noop, { graceperiod: true, notifyFullcalendar: $state.is('calendar.main') })
-          .then(function(completed) {
-            if (completed) {
-              notificationFactory.weakInfo('Calendar - ', $scope.event.title + ' has been modified.');
-            } else {
-              notificationFactory.weakInfo('Calendar - ', 'Modification of ' + $scope.event.title + ' has been cancelled.');
-            }
-          })
-          .catch(function(err) {
-            _displayNotification(notificationFactory.weakError, 'Event modification failed', (err.statusText || err) + ', Please refresh your calendar');
-          })
           .finally(function() {
             $scope.restActive = false;
           });
@@ -247,18 +221,14 @@
         var path = $scope.editedEvent.path || '/calendars/' + $scope.calendarHomeId + '/' + $scope.calendar.id;
 
         $scope.restActive = true;
-        calEventService.modifyEvent(path, $scope.editedEvent, $scope.event, $scope.event.etag, angular.noop)
-          .then(function(completed) {
-            if (completed) {
-              notificationFactory.weakInfo('Alarm of ', $scope.event.title + ' has been modified.');
-            } else {
-              notificationFactory.weakInfo('Modification of ' + $scope.event.title + ' has been cancelled.');
-            }
-          })
-          .catch(function(err) {
-            _displayNotification(notificationFactory.weakError, 'Alarm modification failed', (err.statusText || err) + ', Please refresh your calendar');
-          })
-          .finally(function() {
+        var gracePeriodMessage = {
+          performedAction: 'You are about to modify alarm of ' + $scope.event.title + ' has been modified',
+          cancelSuccess: 'Modification of ' + $scope.event.title + ' has been cancelled.',
+          gracePeriodFail: 'Modification of ' + $scope.event.title + ' failed. Please refresh your calendar',
+          successText: 'Alarm of ' + $scope.event.title + ' has been modified.'
+        };
+
+        calEventService.modifyEvent(path, $scope.editedEvent, $scope.event, $scope.event.etag, angular.noop, gracePeriodMessage).finally(function() {
             $scope.restActive = false;
           });
       }
