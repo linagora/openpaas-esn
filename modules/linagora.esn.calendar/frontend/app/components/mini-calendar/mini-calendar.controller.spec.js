@@ -331,6 +331,19 @@ describe('The mini-calendar controller', function() {
       expect(fcMethodMock.unselect).to.have.been.called;
     });
 
+    it('should select the good period on CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE event with planning as viewMode', function() {
+      var day = calMoment().stripTime();
+
+      $scope.calendarReady(calendar);
+      $scope.$digest();
+
+      fcMethodMock.select = sinon.spy();
+
+      $rootScope.$broadcast(CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE, {name: 'basicDay', start: day});
+      $scope.$digest();
+      expect(fcMethodMock.select).to.have.been.calledWith(sinon.match(sameDayMatcher(day)), sinon.match(sameDayMatcher(day.clone().add(1, 'day'))));
+    });
+
     it('should select the good period when user select a day in the small calendar and when the big calendar is in month view', function() {
       $scope.calendarReady(calendar);
       var day = calMoment();

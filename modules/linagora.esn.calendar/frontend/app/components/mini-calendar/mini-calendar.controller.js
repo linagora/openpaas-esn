@@ -80,6 +80,11 @@
 
             calendar.fullCalendar('select', day, nextThreeDays);
             break;
+          case 'basicDay':
+            var nextPlanningDay = calMoment(day).add(1, 'days');
+
+            calendar.fullCalendar('select', day, nextPlanningDay);
+            break;
           default:
             throw new Error('unknown view mode : ' + $scope.homeCalendarViewMode);
         }
