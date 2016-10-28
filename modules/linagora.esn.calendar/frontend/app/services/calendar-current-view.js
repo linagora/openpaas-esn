@@ -4,14 +4,7 @@
   angular.module('esn.calendar')
          .factory('calendarCurrentView', calendarCurrentView);
 
-  calendarCurrentView.$inject = [
-    '$location',
-    'calMoment',
-    'screenSize',
-    'CALENDAR_AVAILABLE_VIEWS'
-  ];
-
-  function calendarCurrentView($location, calMoment, screenSize, CALENDAR_AVAILABLE_VIEWS) {
+  function calendarCurrentView($location, $log, calMoment, screenSize, CALENDAR_AVAILABLE_VIEWS) {
     var currentView = null;
 
     var service = {
@@ -26,39 +19,56 @@
 
     ////////////
 
+    /**
+     * Save the view of fullCalendar. It will save the intervalStart and intervalEnd of it because start and end are not revelant for us
+     * @param {ViewObject} - See https://fullcalendar.io/docs/views/View_Object/
+     */
     function set(view) {
-      currentView = view;
-      var firstDayOfView = view.name === 'month' ? calMoment(view.start).add(7, 'days').startOf('month') : view.start;
+      currentView = {
+        start: view.intervalStart,
+        end: view.intervalEnd,
+        name: view.name
+      };
 
+      saveCurrentViewInUrl();
+    }
+
+    function saveCurrentViewInUrl() {
       $location.search({
-        viewMode: view.name,
-        start: firstDayOfView.format('YYYY-MM-DD')
+        viewMode: currentView.name,
+        start: currentView.start.format('YYYY-MM-DD'),
+        end: currentView.end.format('YYYY-MM-DD')
       });
     }
 
-    function get() {
+    function restoreCurrentViewFromUrl() {
+      var getParam = $location.search();
       var view = {};
 
-      var getParam = currentView || $location.search();
       if (getParam.viewMode && CALENDAR_AVAILABLE_VIEWS.indexOf(getParam.viewMode) !== -1) {
         view.name = getParam.viewMode;
-      } else if (getParam.name) {
-        view.name = getParam.name;
       } else if (screenSize.is('xs, sm')) {
-        // on mobile we force the 'agendaThreeDays' view
         view.name = CALENDAR_AVAILABLE_VIEWS[3];
       }
 
-      var day = calMoment(getParam.start);
-
-      if (getParam.start && day.isValid()) {
-        view.start = day;
-      }
-
-      view.title = getParam.title;
-      view.end = getParam.end;
+      ['start', 'end'].forEach(function(name) {
+        if (getParam[name]) {
+          var day = calMoment(getParam[name]);
+          if (day.isValid()) {
+            view[name] = day;
+          }
+        }
+      });
 
       return view;
+    }
+
+    /**
+     * Return the previous view saved if there were not, it try to restore it from the URL
+     * @return {start: moment, end: moment, name: String} - (the start date is inclusive whereas the end date is exclusive like on FullCalendar view object)
+     */
+    function get() {
+      return currentView || restoreCurrentViewFromUrl();
     }
 
     var miniCalendarView;
@@ -82,6 +92,8 @@
         //is exclusive https://fullcalendar.io/docs/views/View_Object/
         return day.isBetween(start, end, 'day', '[)');
       }
+
+      $log.warn('view information is incomplete return false by convention');
 
       return false;
     }

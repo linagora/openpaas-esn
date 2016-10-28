@@ -29,89 +29,79 @@ describe('The calendarCurrentView factory', function() {
   });
 
   describe('isCurrentViewAroundDay', function() {
-    var periodStart, periodEnd, aDay;
+    var periodStart, periodEnd, aDay, intervalStart, intervalEnd;
 
     //becarefull the end property of the view object returned by fullCalendar
     //is exclusive https://fullcalendar.io/docs/views/View_Object/
 
     beforeEach(function() {
       periodStart = calMoment([2016, 0, 10]);
+      intervalStart = calMoment([2016, 0, 12]);
+      intervalEnd = calMoment([2016, 0, 17]);
       periodEnd = calMoment([2016, 0, 20]);
       calendarCurrentView.set({
         start: periodStart,
+        intervalStart: intervalStart,
+        intervalEnd: intervalEnd,
         end: periodEnd
       });
     });
 
     it('should return false if the day given as a argument is before the current view', function() {
-      aDay = periodStart.clone().subtract(42, 'day');
+      aDay = intervalStart.clone().subtract(42, 'day');
       expect(calendarCurrentView.isCurrentViewAroundDay(aDay)).to.be.false;
     });
 
     it('should return false if the day given as a argument is after the current view', function() {
-      aDay = periodStart.clone().add(42, 'day');
+      aDay = intervalEnd.clone().add(1, 'day');
       expect(calendarCurrentView.isCurrentViewAroundDay(aDay)).to.be.false;
     });
 
     it('should return true if the day given as a argument is the first day in the current view', function() {
-      aDay = periodStart.clone();
+      aDay = intervalStart.clone();
       expect(calendarCurrentView.isCurrentViewAroundDay(aDay)).to.be.true;
     });
 
     it('should return true if the day given as a argument is last day in the current view', function() {
-      aDay = periodEnd.clone().subtract(1, 'day');
+      aDay = intervalEnd.clone().subtract(1, 'day');
       expect(calendarCurrentView.isCurrentViewAroundDay(aDay)).to.be.true;
     });
   });
 
   describe('the set function', function() {
 
-    it('should set start and name of current view in get parameter for day and weekView', function() {
-      var date = '2015-12-01';
+    it('should set intervalStart and name of current view in get parameter', function() {
+      var intervalStart = '2015-12-01';
+      var intervalEnd = '2015-12-31';
+      var name = 'aViewMode';
 
-      ['agendaWeek', 'agendaDay'].forEach(function(name) {
-        locationMock.search = sinon.spy(function(param) {
-          expect(param).to.deep.equals({
-            viewMode: name,
-            start: date
-          });
-        });
-        calendarCurrentView.set({
-          start: calMoment(date),
-          name: name
-        });
+      locationMock.search = sinon.spy();
 
-        expect(locationMock.search).to.have.been.calledOnce;
+      calendarCurrentView.set({
+        start: calMoment(calMoment(intervalStart).subtract(2, 'day')),
+        intervalStart: calMoment(intervalStart),
+        intervalEnd: calMoment(intervalEnd),
+        end: calMoment(intervalEnd).add(1, 'day'),
+        name: name
+      });
+
+      expect(locationMock.search).to.have.been.calledWith({
+        viewMode: name,
+        start: intervalStart,
+        end: intervalEnd
       });
     });
 
-    it('should make get return the end of the view if set register a view that has a end parameter', function() {
-      var end = calMoment([2016, 9, 9]);
+    it('should make get return the intervalEnd of the view if set register a view that has a end parameter', function() {
+      var intervalEnd = calMoment([2016, 9, 9]);
 
       calendarCurrentView.set({
-        start: calMoment([2016, 9, 8]),
-        end: end
+        intervalStart: calMoment([2016, 9, 8]),
+        end: intervalEnd.clone().add(3, 'day'),
+        intervalEnd: intervalEnd
       });
 
-      expect(calendarCurrentView.get().end).to.equal(end);
-    });
-
-    it('should compute first day of month when saving a month view even if the day given is just before this month', function() {
-      var firstDayOfMonthDate = '2015-12-01';
-
-      locationMock.search = sinon.spy(function(param) {
-        expect(param).to.deep.equals({
-          viewMode: 'month',
-          start: firstDayOfMonthDate
-        });
-      });
-
-      calendarCurrentView.set({
-        start: calMoment('2015-11-30'),
-        name: 'month'
-      });
-
-      expect(locationMock.search).to.have.been.calledOnce;
+      expect(calendarCurrentView.get().end).to.equal(intervalEnd);
     });
 
     it('should save the value of the current view in the url and in RAM', function() {
@@ -120,14 +110,17 @@ describe('The calendarCurrentView factory', function() {
 
       calendarCurrentView.set({
         name: 'month',
-        start: calMoment('2015-11-30')
+        intervalStart: calMoment('2015-11-30'),
+        intervalEnd: calMoment('2015-12-30'),
+        start: calMoment('2015-11-29')
       });
 
       var resGet = calendarCurrentView.get();
 
       expect(locationMock.search).to.have.been.calledWith({
         viewMode: 'month',
-        start: '2015-12-01'
+        start: '2015-11-30',
+        end: '2015-12-30'
       });
       expect(resGet.name).to.equal('month');
       expect(resGet.start.isSame(calMoment('2015-11-30'), 'day')).to.be.true;
