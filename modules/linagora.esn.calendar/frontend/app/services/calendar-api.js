@@ -6,20 +6,10 @@
          .constant('CALENDAR_DAV_DATE_FORMAT', 'YYYYMMDD[T]HHmmss')
          .factory('calendarAPI', calendarAPI);
 
-  calendarAPI.$inject = [
-    'calendarRestangular',
-    'calPathBuilder',
-    'request',
-    'CALENDAR_ACCEPT_HEADER',
-    'CALENDAR_DAV_DATE_FORMAT',
-    'CALENDAR_PREFER_HEADER',
-    'CALENDAR_CONTENT_TYPE_HEADER',
-    'CALENDAR_GRACE_DELAY'
-  ];
-
   var JSON_CONTENT_TYPE_HEADER = {'Content-Type': 'application/json'};
 
   function calendarAPI(
+    $q,
     calendarRestangular,
     calPathBuilder,
     request,
