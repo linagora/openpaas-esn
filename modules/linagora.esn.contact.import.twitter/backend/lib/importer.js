@@ -2,10 +2,11 @@
 
 var OAUTH_CONFIG_KEY = 'oauth';
 var q = require('q');
-var Twitter = require('twitter-node-client').Twitter;
+var Twitter = require('twit');
 var TWITTER_LIMIT_ID_REQUEST = 18000;
 var MAX_ID_PER_STACK = 100;
 var TWITTER = 'twitter';
+var TIMEOUT = 60 * 1000;
 
 module.exports = function(dependencies) {
 
@@ -20,23 +21,19 @@ module.exports = function(dependencies) {
   var IMPORT_API_CLIENT_ERROR = CONTACT_IMPORT_ERROR.API_CLIENT_ERROR;
 
   function sendFollowingToDAV(twitterClient, options, ids) {
-    var defer = q.defer();
-    twitterClient.getCustomApiCall('/users/lookup.json', {user_id: ids}, function(err) {
-      return defer.reject(importContactClient.buildErrorMessage(IMPORT_API_CLIENT_ERROR, err));
-    }, function(data) {
-      var userList = JSON.parse(data);
-      q.all(userList.map(function(userJson) {
-        var vcard = twitterToVcard.toVcard(userJson);
-        return importContactClient.createContact(vcard, options);
-      })).then(defer.resolve, defer.reject);
-    });
-    return defer.promise;
+    return q.ninvoke(twitterClient, 'get', '/users/lookup', {user_id: ids})
+      .then(data => {
+        var userList = data[0];
+        return q.all(userList.map(userJson => importContactClient.createContact(twitterToVcard.toVcard(userJson), options)));
+      },
+      err => q.reject(importContactClient.buildErrorMessage(IMPORT_API_CLIENT_ERROR, err))
+    );
   }
 
   /**
    * Divide id list to a stack of 100 (twitter API limit) and create contact
    * @param  {Object} followingIdsList  Array of following id
-   * @param  {Object} twitterClient     A twitter-node-client
+   * @param  {Object} twitterClient     A twit client
    * @param  {Object} options           Contains user from the request and token from middleware
    */
 
@@ -64,30 +61,28 @@ module.exports = function(dependencies) {
   /**
    * Get all following id of twitter account, to be called recursively because we can get only 5000 following per request
    * @param  {Object} followingIdsList  Array of following id
-   * @param  {Object} twitterClient     A twitter-node-client
+   * @param  {Object} twitterClient     A twit client
    * @param  {Object} next_cursor       next_cursor in the respond of twitter API
    * @return {Promise}  An array of following id (max 18000)
    */
 
-  function getFollowingsIds(followingIdsList, twitterClient, next_cursor) {
+  function getFollowingsIds(followingIdsList, twitterClient, nextCursor) {
     if (followingIdsList.length >= TWITTER_LIMIT_ID_REQUEST) {
       followingIdsList = followingIdsList.slice(0, TWITTER_LIMIT_ID_REQUEST - 1);
       return q.resolve(followingIdsList);
     } else {
-      var defer = q.defer();
-      twitterClient.getCustomApiCall('/friends/ids.json', {cursor: next_cursor}, function(err) {
-        defer.reject(importContactClient.buildErrorMessage(IMPORT_API_CLIENT_ERROR, err));
-      }, function(data) {
-        var result = JSON.parse(data);
-        Array.prototype.push.apply(followingIdsList, result.ids);
-        if (result.next_cursor === 0) {
-          defer.resolve(followingIdsList);
-        } else {
-          getFollowingsIds(followingIdsList, twitterClient, result.next_cursor)
-            .then(defer.resolve, defer.reject);
-        }
-      });
-      return defer.promise;
+      return q.ninvoke(twitterClient, 'get', '/friends/ids', { next_cursor: nextCursor })
+        .then(data => {
+          data = data[0];
+          Array.prototype.push.apply(followingIdsList, data.ids);
+          if (data.next_cursor > 0) {
+            return getFollowingsIds(followingIdsList, twitterClient, data.next_cursor);
+          } else {
+            return q.resolve(followingIdsList);
+          }
+        },
+        err => q.reject(importContactClient.buildErrorMessage(IMPORT_API_CLIENT_ERROR, err))
+      );
     }
   }
 
@@ -104,18 +99,18 @@ module.exports = function(dependencies) {
     var followingIdsList = [];
 
     config(OAUTH_CONFIG_KEY).get(function(err, oauth) {
-
       if (!(oauth && oauth.twitter)) {
         return defer.reject('Can not get oauth configuration for twitter importer');
       }
 
       var twitterConfig = {
-        consumerKey: oauth.twitter.consumer_key,
-        consumerSecret: oauth.twitter.consumer_secret,
-        accessToken: account.data.token,
-        accessTokenSecret: account.data.token_secret,
-        callBackUrl: ''
+        consumer_key: oauth.twitter.consumer_key,
+        consumer_secret: oauth.twitter.consumer_secret,
+        access_token: account.data.token,
+        access_token_secret: account.data.token_secret,
+        timeout_ms: TIMEOUT
       };
+
       var twitterClient = new Twitter(twitterConfig);
       getFollowingsIds(followingIdsList, twitterClient, -1)
         .then(function(followingIdsList) {

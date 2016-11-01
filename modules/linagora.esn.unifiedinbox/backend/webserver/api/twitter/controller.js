@@ -2,6 +2,7 @@
 
 var twitter = require('./core');
 var q = require('q');
+var TIMEOUT = 60 * 1000;
 
 module.exports = function(dependencies) {
   var esnconfig = dependencies('esn-config');
@@ -21,13 +22,12 @@ module.exports = function(dependencies) {
         }
 
         var twitterConfig = {
-          consumerKey: oauth.twitter.consumer_key,
-          consumerSecret: oauth.twitter.consumer_secret,
-          accessToken: account.data.token,
-          accessTokenSecret: account.data.token_secret,
-          callBackUrl: ''
+          consumer_key: oauth.twitter.consumer_key,
+          consumer_secret: oauth.twitter.consumer_secret,
+          access_token: account.data.token,
+          access_token_secret: account.data.token_secret,
+          timeout_ms: TIMEOUT
         };
-
         return twitter.getTweets(twitterConfig, options);
       })
       .then(function(tweets) {
