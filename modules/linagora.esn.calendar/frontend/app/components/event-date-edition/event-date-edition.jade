@@ -10,7 +10,9 @@
           .fg-line
             input.input.form-control(type="text", size="10", ng-model="vm.event.start", data-autoclose="1", data-start-week="1", data-date-format="yyyy/MM/dd", placeholder="#{__('Start date')}", ng-change="vm.onStartDateChange()", ng-blur="vm.dateOnBlurFn()", bs-datepicker, aria-expanded="false", ng-disabled="vm.disabled", cal-date-to-moment)
           .fg-line(ng-if='!vm.allDay')
-            input.input.form-control(type="text", size="10", ng-model="vm.event.start", data-autoclose="0", placeholder="#{__('Time')}", ng-change="vm.onStartDateChange()", ng-blur="vm.dateOnBlurFn()", lng-clockpicker, lng-clockpicker-options="{twelvehour: false}", aria-expanded="false", ng-disabled="vm.disabled")
+            input.input.form-control(type="text", size="10", ng-model="vm.event.start", data-autoclose="0", placeholder="#{__('Time')}", ng-change="vm.onStartDateChange()", ng-blur="vm.dateOnBlurFn()", lng-clockpicker, lng-clockpicker-options="{twelvehour: false}", aria-expanded="false", ng-disabled="vm.allDay || vm.disabled")
+          .fg-line(ng-if='vm.allDay')
+            input.input.form-control(type="text", size="10", ng-model="vm.previousStart", data-autoclose="0", placeholder="#{__('Time')}", ng-change="vm.onStartDateChange()", ng-blur="vm.dateOnBlurFn()", lng-clockpicker, lng-clockpicker-options="{twelvehour: false}", aria-expanded="false", ng-disabled="vm.allDay || vm.disabled")
     .row.nomargin
       .col-xs-3.col-sm-2
         .form-group
@@ -21,7 +23,9 @@
           .fg-line
             input.input.form-control(type="text", size="10", class="form-control", ng-model="vm.event.end", data-autoclose="1", data-start-week="1", data-date-format="yyyy/MM/dd", data-min-date="{{vm.getMinDate()}}", placeholder="#{__('End date')}", ng-change="vm.onEndDateChange()", aria-expanded="false", ng-disabled="vm.disabled", ng-blur="vm.dateOnBlurFn()", bs-datepicker, cal-date-to-moment, cal-friendlify-end-date, data-is-all-day="vm.allDay")
           .fg-line(ng-if='!vm.allDay')
-            input.input(type="text", size="10", class="form-control", ng-model="vm.event.end", data-autoclose="0", placeholder="#{__('Time')}", ng-change="vm.onEndDateChange()", aria-expanded="false", ng-disabled="vm.disabled", ng-blur="vm.dateOnBlurFn()", lng-clockpicker, lng-clockpicker-options="{twelvehour: false}")
+            input.input(type="text", size="10", class="form-control", ng-model="vm.event.end", data-autoclose="0", placeholder="#{__('Time')}", ng-change="vm.onEndDateChange()", aria-expanded="false", ng-disabled="vm.allDay || vm.disabled", ng-blur="vm.dateOnBlurFn()", lng-clockpicker, lng-clockpicker-options="{twelvehour: false}")
+          .fg-line(ng-if='vm.allDay')
+            input.input(type="text", size="10", class="form-control", ng-model="vm.previousEnd", data-autoclose="0", placeholder="#{__('Time')}", ng-change="vm.onEndDateChange()", aria-expanded="false", ng-disabled="vm.allDay || vm.disabled", ng-blur="vm.dateOnBlurFn()", lng-clockpicker, lng-clockpicker-options="{twelvehour: false}")
   .hidden-xs
     .col-xs-3.col-sm-2
       .form-group
@@ -32,7 +36,9 @@
         .fg-line
           input.input.form-control(type="text", size="10", ng-model="vm.event.start", data-autoclose="1", data-start-week="1", data-date-format="yyyy/MM/dd", placeholder="#{__('Start date')}", ng-change="vm.onStartDateChange()", ng-blur="vm.dateOnBlurFn()", bs-datepicker, aria-expanded="false", ng-disabled="vm.disabled", cal-date-to-moment)
         .fg-line(ng-if='!vm.allDay')
-          input.input.form-control(type="text", size="10", ng-model="vm.event.start", data-autoclose="0", placeholder="#{__('Time')}", ng-change="vm.onStartDateChange()", ng-blur="vm.dateOnBlurFn()", lng-clockpicker, lng-clockpicker-options="{twelvehour: false}", aria-expanded="false", ng-disabled="vm.disabled")
+          input.input.form-control(type="text", size="10", ng-model="vm.event.start", data-autoclose="0", placeholder="#{__('Time')}", ng-change="vm.onStartDateChange()", ng-blur="vm.dateOnBlurFn()", lng-clockpicker, lng-clockpicker-options="{twelvehour: false}", aria-expanded="false", ng-disabled="vm.allDay || vm.disabled")
+        .fg-line(ng-if='vm.allDay')
+          input.input(type="text", size="10", class="form-control", ng-model="vm.previousStart", data-autoclose="0", placeholder="#{__('Time')}", ng-change="vm.onEndDateChange()", aria-expanded="false", ng-disabled="vm.allDay || vm.disabled", ng-blur="vm.dateOnBlurFn()", lng-clockpicker, lng-clockpicker-options="{twelvehour: false}")
     .col-xs-3.col-sm-2
       .form-group
         .fg-line
@@ -42,7 +48,9 @@
         .fg-line
           input.input.form-control(type="text", size="10", class="form-control", ng-model="vm.event.end", data-autoclose="1", data-start-week="1", data-date-format="yyyy/MM/dd", data-min-date="{{vm.getMinDate()}}", placeholder="#{__('End date')}", ng-change="vm.onEndDateChange()", aria-expanded="false", ng-disabled="vm.disabled", ng-blur="vm.dateOnBlurFn()", bs-datepicker, cal-date-to-moment, cal-friendlify-end-date, data-is-all-day="vm.allDay")
         .fg-line(ng-if='!vm.allDay')
-          input.input(type="text", size="10", class="form-control", ng-model="vm.event.end", data-autoclose="0", placeholder="#{__('Time')}", ng-change="vm.onEndDateChange()", aria-expanded="false", ng-disabled="vm.disabled", ng-blur="vm.dateOnBlurFn()", lng-clockpicker, lng-clockpicker-options="{twelvehour: false}")
+          input.input(type="text", size="10", class="form-control", ng-model="vm.event.end", data-autoclose="0", placeholder="#{__('Time')}", ng-change="vm.onEndDateChange()", aria-expanded="false", ng-disabled="vm.allDay || vm.disabled", ng-blur="vm.dateOnBlurFn()", lng-clockpicker, lng-clockpicker-options="{twelvehour: false}")
+        .fg-line(ng-if='vm.allDay')
+          input.input(type="text", size="10", class="form-control", ng-model="vm.previousEnd", data-autoclose="0", placeholder="#{__('Time')}", ng-change="vm.onEndDateChange()", aria-expanded="false", ng-disabled="vm.allDay || vm.disabled", ng-blur="vm.dateOnBlurFn()", lng-clockpicker, lng-clockpicker-options="{twelvehour: false}")
   .col-xs-12.col-sm-2
     .form-group
       .fg-line
