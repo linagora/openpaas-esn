@@ -22,7 +22,7 @@ module.exports = function(mixin, testEnv) {
   mixin.modules = modules;
 
   modules.initMidway = function(moduleName, done) {
-    var moduleManager = require('../backend/module-manager');
+    var moduleManager = testEnv.moduleManager || require('../backend/module-manager');
     var logger = new TestLogger();
     moduleManager.manager.logger = logger;
     moduleManager.manager.stateManager.logger = logger;
@@ -43,7 +43,7 @@ module.exports = function(mixin, testEnv) {
   };
 
   modules.getDeps = function(moduleName) {
-    var moduleManager = require('../backend/module-manager');
+    var moduleManager = testEnv.moduleManager || require('../backend/module-manager');
     var moduleStore = moduleManager.manager.moduleStore;
     var module = moduleStore.get(moduleName);
     if (!module) {
@@ -53,7 +53,7 @@ module.exports = function(mixin, testEnv) {
   };
 
   modules.getLib = function(moduleName) {
-    var moduleManager = require('../backend/module-manager');
+    var moduleManager = testEnv.moduleManager || require('../backend/module-manager');
     var moduleStore = moduleManager.manager.moduleStore;
     var module = moduleStore.get(moduleName);
     if (!module) {
@@ -69,7 +69,7 @@ module.exports = function(mixin, testEnv) {
   };
 
   modules.start = function(moduleName, done) {
-    var moduleManager = require('../backend/module-manager');
+    var moduleManager = testEnv.moduleManager || require('../backend/module-manager');
     moduleManager.manager.fire('start', moduleName).then(function(data) {
       done();
     }, function(err) {

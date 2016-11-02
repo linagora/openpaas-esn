@@ -127,7 +127,6 @@ module.exports = function(mixin, testEnv) {
 
     function createDomain() {
       var domain = extend(true, {}, deployment.domain);
-
       delete domain.administrators;
 
       return q.npost(new Domain(domain), 'save').spread(function(domain) {
@@ -202,12 +201,16 @@ module.exports = function(mixin, testEnv) {
 
     function setupConfiguration() {
       var defer = q.defer();
-      mixin.elasticsearch.saveTestConfiguration(function(err) {
-        if (err) {
-          return defer.reject(err);
-        }
-        return defer.resolve(true);
-      });
+      if (!testEnv.serversConfig.elasticsearch) {
+        defer.resolve(true);
+      } else {
+        mixin.elasticsearch.saveTestConfiguration(function(err) {
+          if (err) {
+            return defer.reject(err);
+          }
+          return defer.resolve(true);
+        });
+      }
       return defer.promise;
     }
 
