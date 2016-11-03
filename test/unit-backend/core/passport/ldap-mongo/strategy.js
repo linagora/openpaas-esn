@@ -1,6 +1,7 @@
 'use strict';
 
 var mockery = require('mockery');
+var sinon = require('sinon');
 var expect = require('chai').expect;
 
 describe('The ldap-mongo passport strategy', function() {
@@ -15,7 +16,7 @@ describe('The ldap-mongo passport strategy', function() {
     mockery.registerMock('./login', {});
   });
 
-  describe('handleAuthentication', function() {
+  describe('The authenticate method', function() {
 
     it('should fail if username and password are not set', function(done) {
       Strategy = this.helpers.requireBackend('core/passport/ldap-mongo/strategy');
@@ -67,196 +68,7 @@ describe('The ldap-mongo passport strategy', function() {
       s.authenticate(req, options);
     });
 
-    it('should provision the user on authenticate with ldap mapping configured contain email if user is not available in storage', function(done) {
-      var ldapuser = {
-        firstname: 'foo',
-        lastname: 'bar',
-        mail: 'foo@bar.com',
-        mailAlias: 'foo@baz.com',
-        userPassword: 'baz'
-      };
-
-      var usermodule = {
-        findByEmail: function(user, callback) {
-          return callback(null, null);
-        },
-        provisionUser: function(user) {
-          expect(user.accounts[0].emails.length).to.equal(2);
-          expect(user.firstname).to.equal('foo');
-          expect(user).to.include.keys('firstname', 'lastname');
-          expect(user).to.not.include.keys('email');
-
-          done();
-        }
-      };
-
-      mockery.registerMock('../../user', usermodule);
-      var ldapmock = {
-        findLDAPForUser: function(username, callback) {
-          var ldap = {
-            domain: '222222',
-            configuration: {
-              url: 'ldap://localhost:1389',
-              adminDn: 'uid=admin,ou=passport-ldapauth',
-              adminPassword: 'secret',
-              searchBase: 'ou=passport-ldapauth',
-              searchFilter: '(mail={{username}})',
-              mapping: {
-                firstname: 'firstname',
-                lastname: 'lastname',
-                email: 'mailAlias'
-              }
-            }
-          };
-
-          return callback(null, [ldap]);
-        },
-        authenticate: function(email, password, ldap, callback) {
-          return callback(null, ldapuser);
-        }
-      };
-
-      mockery.registerMock('../../ldap', ldapmock);
-
-      Strategy = this.helpers.requireBackend('core/passport/ldap-mongo/strategy');
-      var s = new Strategy({});
-
-      var req = {
-        body: {
-          username: 'foo@bar.com',
-          password: 'baz'
-        }
-      };
-      var options = {
-      };
-
-      s.authenticate(req, options);
-    });
-
-    it('should provision the user on authenticate with ldap mapping configured not contain email if user is not available in storage', function(done) {
-      var ldapuser = {
-        firstname: 'foo',
-        lastname: 'bar',
-        mail: 'foo@bar.com',
-        mailAlias: 'foo@baz.com',
-        userPassword: 'baz'
-      };
-
-      var usermodule = {
-        findByEmail: function(user, callback) {
-          return callback(null, null);
-        },
-        provisionUser: function(user) {
-          expect(user.accounts[0].emails.length).to.equal(1);
-          expect(user.firstname).to.equal('foo');
-          expect(user).to.include.keys('firstname', 'lastname', 'description');
-
-          done();
-        }
-      };
-
-      mockery.registerMock('../../user', usermodule);
-      var ldapmock = {
-        findLDAPForUser: function(username, callback) {
-          var ldap = {
-            domain: '222222',
-            configuration: {
-              url: 'ldap://localhost:1389',
-              adminDn: 'uid=admin,ou=passport-ldapauth',
-              adminPassword: 'secret',
-              searchBase: 'ou=passport-ldapauth',
-              searchFilter: '(mail={{username}})',
-              mapping: {
-                firstname: 'firstname',
-                lastname: 'lastname',
-                description: 'bio'
-              }
-            }
-          };
-
-          return callback(null, [ldap]);
-        },
-        authenticate: function(email, password, ldap, callback) {
-          return callback(null, ldapuser);
-        }
-      };
-
-      mockery.registerMock('../../ldap', ldapmock);
-
-      Strategy = this.helpers.requireBackend('core/passport/ldap-mongo/strategy');
-      var s = new Strategy({});
-
-      var req = {
-        body: {
-          username: 'foo@bar.com',
-          password: 'baz'
-        }
-      };
-      var options = {
-      };
-
-      s.authenticate(req, options);
-    });
-
-    it('should not provision the user on authenticate if user is not available in storage', function(done) {
-
-      var usermodule = {
-        findByEmail: function(user, callback) {
-          return callback(null, {_id: 123});
-        },
-        provisionUser: function() {
-          done(new Error());
-        }
-      };
-
-      mockery.registerMock('../../user', usermodule);
-      var ldapmock = {
-        findLDAPForUser: function(username, callback) {
-          var ldap = {
-            configuration: {
-              url: 'ldap://localhost:1389',
-              adminDn: 'uid=admin,ou=passport-ldapauth',
-              adminPassword: 'secret',
-              searchBase: 'ou=passport-ldapauth',
-              searchFilter: '(mail={{username}})'
-            }
-          };
-
-          return callback(null, [ldap]);
-        },
-        authenticate: function(email, password, ldap, callback) {
-          var user = {};
-
-          return callback(null, user);
-        }
-      };
-
-      mockery.registerMock('../../ldap', ldapmock);
-
-      Strategy = this.helpers.requireBackend('core/passport/ldap-mongo/strategy');
-      var s = new Strategy({});
-      s._finalize = function() {
-        done();
-      };
-
-      var req = {
-        body: {
-          username: 'foo@bar.com',
-          password: 'baz'
-        }
-      };
-      var options = {
-      };
-      s.authenticate(req, options);
-    });
-
     it('should call passport#fail when user is not found in any LDAP', function(done) {
-      var usermodule = {
-        findByEmail: function(user, callback) {
-          return callback();
-        }
-      };
-      mockery.registerMock('../../user', usermodule);
       var ldapmock = {
         findLDAPForUser: function(username, callback) {
           return callback();
@@ -286,12 +98,6 @@ describe('The ldap-mongo passport strategy', function() {
     });
 
     it('should call passport#fail when LDAP search send back an error', function(done) {
-      var usermodule = {
-        findByEmail: function(user, callback) {
-          return callback();
-        }
-      };
-      mockery.registerMock('../../user', usermodule);
       var ldapmock = {
         findLDAPForUser: function(username, callback) {
           return callback(new Error());
@@ -317,12 +123,6 @@ describe('The ldap-mongo passport strategy', function() {
     });
 
     it('should call passport#error when LDAP authenticate send back an error', function(done) {
-      var usermodule = {
-        findByEmail: function(user, callback) {
-          return callback();
-        }
-      };
-      mockery.registerMock('../../user', usermodule);
       var ldapmock = {
         findLDAPForUser: function(username, callback) {
           return callback(null, [{configuration: {}}]);
@@ -351,12 +151,6 @@ describe('The ldap-mongo passport strategy', function() {
     });
 
     it('should call passport#fail when LDAP authenticate send back an auth error', function(done) {
-      var usermodule = {
-        findByEmail: function(user, callback) {
-          return callback();
-        }
-      };
-      mockery.registerMock('../../user', usermodule);
       var ldapmock = {
         findLDAPForUser: function(username, callback) {
           return callback(null, [{}]);
@@ -387,12 +181,6 @@ describe('The ldap-mongo passport strategy', function() {
     });
 
     it('should call passport#fail when LDAP authenticate does not return valid user information', function(done) {
-      var usermodule = {
-        findByEmail: function(user, callback) {
-          return callback();
-        }
-      };
-      mockery.registerMock('../../user', usermodule);
       var ldapmock = {
         findLDAPForUser: function(username, callback) {
           return callback(null, [{}]);
@@ -420,41 +208,204 @@ describe('The ldap-mongo passport strategy', function() {
       s.authenticate(req, options);
     });
 
-    it('should call passport#error if user can not be provisionned', function(done) {
-      var usermodule = {
-        findByEmail: function(user, callback) {
-          return callback();
-        },
-        provisionUser: function(user, callback) {
-          return callback(new Error());
-        }
+    it('should call passport#success with LDAP payload when the user is authenticated successfully (no verify)', function() {
+      var domainId = 'domain1';
+      var ldapUser = { _id: '1' };
+      var ldapConfig = {
+        domainId: domainId,
+        configuration: { key: 'value' }
       };
-      mockery.registerMock('../../user', usermodule);
       var ldapmock = {
         findLDAPForUser: function(username, callback) {
-          return callback(null, [{}]);
+          return callback(null, [ldapConfig]);
         },
         authenticate: function(email, password, ldap, callback) {
-          return callback(null, {});
+          return callback(null, ldapUser);
         }
       };
+
       mockery.registerMock('../../ldap', ldapmock);
 
       Strategy = this.helpers.requireBackend('core/passport/ldap-mongo/strategy');
-      var s = new Strategy({});
-      s.error = function() {
-        done();
-      };
 
+      var strategy = new Strategy({});
       var req = {
         body: {
           username: 'foo@bar.com',
           password: 'baz'
         }
       };
-      var options = {
-      };
-      s.authenticate(req, options);
+
+      strategy.success = sinon.spy();
+
+      strategy.authenticate(req);
+
+      expect(strategy.success).to.have.been.calledOnce;
+      expect(strategy.success).to.have.been.calledWith({
+        username: req.body.username,
+        user: ldapUser,
+        config: ldapConfig.configuration,
+        domainId: domainId
+      });
     });
+
+    it('should call verify fn with LDAP payload when the user is authenticated successfully', function() {
+      var domainId = 'domain1';
+      var ldapUser = { _id: '1' };
+      var ldapConfig = {
+        domainId: domainId,
+        configuration: { key: 'value' }
+      };
+      var ldapmock = {
+        findLDAPForUser: function(username, callback) {
+          return callback(null, [ldapConfig]);
+        },
+        authenticate: function(email, password, ldap, callback) {
+          return callback(null, ldapUser);
+        }
+      };
+
+      mockery.registerMock('../../ldap', ldapmock);
+
+      Strategy = this.helpers.requireBackend('core/passport/ldap-mongo/strategy');
+
+      var verifyFn = sinon.spy();
+      var strategy = new Strategy({}, verifyFn);
+      var req = {
+        body: {
+          username: 'foo@bar.com',
+          password: 'baz'
+        }
+      };
+
+      strategy.authenticate(req);
+
+      expect(verifyFn).to.have.been.calledOnce;
+      expect(verifyFn).to.have.been.calledWith({
+        username: req.body.username,
+        user: ldapUser,
+        config: ldapConfig.configuration,
+        domainId: domainId
+      }, sinon.match.func);
+    });
+
+    it('should call pass req to verify fn with LDAP payload when the user is authenticated successfully and options.passReqToCallback is true', function() {
+      var domainId = 'domain1';
+      var ldapUser = { _id: '1' };
+      var ldapConfig = {
+        domainId: domainId,
+        configuration: { key: 'value' }
+      };
+      var ldapmock = {
+        findLDAPForUser: function(username, callback) {
+          return callback(null, [ldapConfig]);
+        },
+        authenticate: function(email, password, ldap, callback) {
+          return callback(null, ldapUser);
+        }
+      };
+
+      mockery.registerMock('../../ldap', ldapmock);
+
+      Strategy = this.helpers.requireBackend('core/passport/ldap-mongo/strategy');
+
+      var verifyFn = sinon.spy();
+      var strategy = new Strategy({ passReqToCallback: true }, verifyFn);
+      var req = {
+        body: {
+          username: 'foo@bar.com',
+          password: 'baz'
+        }
+      };
+
+      strategy.authenticate(req);
+
+      expect(verifyFn).to.have.been.calledOnce;
+      expect(verifyFn).to.have.been.calledWith(req, {
+        username: req.body.username,
+        user: ldapUser,
+        config: ldapConfig.configuration,
+        domainId: domainId
+      }, sinon.match.func);
+    });
+
+    it('should call passport#error when verify fn has error', function() {
+      var domainId = 'domain1';
+      var ldapUser = { _id: '1' };
+      var ldapConfig = {
+        domainId: domainId,
+        configuration: { key: 'value' }
+      };
+      var ldapmock = {
+        findLDAPForUser: function(username, callback) {
+          return callback(null, [ldapConfig]);
+        },
+        authenticate: function(email, password, ldap, callback) {
+          return callback(null, ldapUser);
+        }
+      };
+
+      mockery.registerMock('../../ldap', ldapmock);
+
+      Strategy = this.helpers.requireBackend('core/passport/ldap-mongo/strategy');
+
+      var error = new Error('some_error');
+      var verifyFn = function(payload, callback) {
+        callback(error);
+      };
+      var strategy = new Strategy({}, verifyFn);
+      var req = {
+        body: {
+          username: 'foo@bar.com',
+          password: 'baz'
+        }
+      };
+
+      strategy.error = sinon.spy();
+
+      strategy.authenticate(req);
+
+      expect(strategy.error).to.have.been.calledWith(error);
+    });
+
+    it('should call passport#success when verify fn succeeds', function() {
+      var domainId = 'domain1';
+      var ldapUser = { _id: '1' };
+      var ldapConfig = {
+        domainId: domainId,
+        configuration: { key: 'value' }
+      };
+      var ldapmock = {
+        findLDAPForUser: function(username, callback) {
+          return callback(null, [ldapConfig]);
+        },
+        authenticate: function(email, password, ldap, callback) {
+          return callback(null, ldapUser);
+        }
+      };
+
+      mockery.registerMock('../../ldap', ldapmock);
+
+      Strategy = this.helpers.requireBackend('core/passport/ldap-mongo/strategy');
+
+      var verifyFn = function(payload, callback) {
+        callback(null, ldapUser);
+      };
+      var strategy = new Strategy({}, verifyFn);
+      var req = {
+        body: {
+          username: 'foo@bar.com',
+          password: 'baz'
+        }
+      };
+
+      strategy.success = sinon.spy();
+
+      strategy.authenticate(req);
+
+      expect(strategy.success).to.have.been.calledWith(ldapUser);
+    });
+
   });
+
 });
