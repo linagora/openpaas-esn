@@ -13,6 +13,7 @@
         timezone: 'local',
         nowIndicator: true,
         defaultTimedEventDuration: '00:30:00',
+        forceEventDuration: true,
         weekNumbers: true,
         firstDay: 1,
         header: {

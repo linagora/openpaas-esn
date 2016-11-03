@@ -61,7 +61,15 @@
       }
 
       function render() {
+        var oldDataValue = ngModel.$dateValue;
+
         ngModel.$dateValue = new Date(ngModel.$viewValue);
+
+        if (oldDataValue) {
+          ngModel.$dateValue.setHours(oldDataValue.getHours());
+          ngModel.$dateValue.setMinutes(oldDataValue.getMinutes());
+        }
+
         element.val(ngModel.$viewValue);
       }
     }
