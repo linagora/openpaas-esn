@@ -1,9 +1,7 @@
 'use strict';
 
 var passport = require('passport'),
-  ldap = require('../../ldap'),
-  usermodule = require('../../user'),
-  _ = require('lodash');
+  ldap = require('../../ldap');
 
 /**
  * Strategy constructor
@@ -77,7 +75,8 @@ class Strategy extends passport.Strategy {
   }
 
   _handleAuthentication(req, options) {
-    var username, password, self;
+    var self = this;
+    var username, password;
 
     options || (options = {});
 
@@ -88,92 +87,53 @@ class Strategy extends passport.Strategy {
       return this.fail('Missing credentials');
     }
 
-    self = this;
-    usermodule.findByEmail(username, function(err, user) {
-      var provision = false;
-
-      if (err || !user) {
-        provision = true;
+    ldap.findLDAPForUser(username, function(err, ldaps) {
+      if (err) {
+        return self.fail('LDAP is not configured for this user :' + err);
       }
 
-      ldap.findLDAPForUser(username, function(err, ldaps) {
+      if (!ldaps || ldaps.length === 0) {
+        return self.fail('Can not find any LDAP for this user');
+      }
+
+      // authenticate user on the first LDAP for now
+      ldap.authenticate(username, password, ldaps[0].configuration, function(err, ldapuser) {
         if (err) {
-          return self.fail('LDAP is not configured for this user :' + err);
+          // Invalid credentials / user not found are not errors but login failures
+          if (err.name === 'InvalidCredentialsError' || err.name === 'NoSuchObjectError' || (typeof err === 'string' && err.match(/no such user/i))) {
+            return self.fail('Invalid username/password');
+          }
+
+          // Other errors are (most likely) real errors
+          return self.error(err);
         }
 
-        if (!ldaps || ldaps.length === 0) {
-          return self.fail('Can not find any LDAP for this user');
+        if (!ldapuser) {
+          return self.fail('User information not found');
         }
 
-        // authenticate user on the first LDAP for now
-        ldap.authenticate(username, password, ldaps[0].configuration, function(err, ldapuser) {
-          if (err) {
-            // Invalid credentials / user not found are not errors but login failures
-            if (err.name === 'InvalidCredentialsError' || err.name === 'NoSuchObjectError' || (typeof err === 'string' && err.match(/no such user/i))) {
-              return self.fail('Invalid username/password');
-            }
+        var payload = {
+          username: username,
+          user: ldapuser,
+          config: ldaps[0],
+          domainId: 'we must have domain info here'
+        };
 
-            // Other errors are (most likely) real errors
-            return self.error(err);
-          }
-
-          if (!ldapuser) {
-            return self.fail('User information not found');
-          }
-
-          if (provision) {
-            var provision_user = {
-              accounts: [{
-                type: 'email',
-                hosted: true,
-                emails: [username]
-              }],
-              domains: [{
-                domain_id: ldaps[0].domain_id
-              }]
-            };
-            var ldap = ldaps[0];
-
-            if (ldap.configuration && ldap.configuration.mapping) {
-              var mappings = ldap.configuration.mapping;
-
-              _.forEach(mappings, function(value, key) {
-                if (key === 'email') {
-                  var email = ldapuser[value];
-
-                  if (provision_user.accounts[0].emails.indexOf(email) === -1) {
-                    provision_user.accounts[0].emails.push(email);
-                  }
-                } else {
-                  provision_user[key] = ldapuser[value];
-                }
-              });
-            }
-
-            usermodule.provisionUser(provision_user, function(err, saved) {
-              if (err) {
-                return self.error(new Error('Can not provision user'));
-              }
-              self._finalize(saved, req);
-            });
-          } else {
-            self._finalize(user, req);
-          }
-        });
+        return self._finalize(payload, req);
       });
     });
   }
 
-  _finalize(user, req) {
+  _finalize(payload, req) {
     if (this.verify) {
       if (this.options.passReqToCallback) {
-        return this.verify(req, user, this._verify());
+        return this.verify(req, payload, this._verify());
       }
 
-      return this.verify(user, this._verify());
+      return this.verify(payload, this._verify());
     }
 
-    return this.success(user);
+    return this.success(payload);
   }
 
   /**
@@ -186,16 +146,16 @@ class Strategy extends passport.Strategy {
     var self = this;
 
     // Callback given to user given verify function.
-    return function(err, user, info) {
+    return function(err, payload, info) {
       if (err) {
         return self.error(err);
       }
 
-      if (!user) {
+      if (!payload) {
         return self.fail(info);
       }
 
-      return self.success(user, info);
+      return self.success(payload, info);
     };
   }
 
