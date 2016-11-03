@@ -5,6 +5,10 @@ const async = require('async');
 const _ = require('lodash');
 const esnConfig = require('../esn-config');
 const logger = require('../logger');
+const utils = require('./utils');
+const q = require('q');
+
+const LDAP_DEFAULT_LIMIT = 50;
 
 /**
  * Check if the email exists in the given ldap
@@ -182,9 +186,117 @@ function translate(baseUser, ldapPayload) {
   return provisionUser;
 }
 
+/**
+ * Search ldap's users on each ldap's configuration
+ *
+ * @param {String} domainId   - Domain's identifier that ldap's configuration belong to
+ * @param {Object} ldapConf   - Ldap's configuratin
+ * @param {object} query      - Query object: {search: 'keyword', limit: 20}
+ */
+function ldapSearch(domainId, ldapConf, query) {
+  const deferred = q.defer();
+  const ldapauth = new LdapAuth(ldapConf);
+
+  ldapauth.on('error', err => {
+    if (err) {
+      return deferred.reject(err);
+    }
+  });
+
+  const uniqueAttr = utils.getUniqueAttr(ldapauth.opts.searchFilter);
+
+  if (!uniqueAttr) {
+    return deferred.reject(new Error('Parsing searchFilter error'));
+  }
+
+  const searchFilter = utils.buildSearchFilter(ldapConf.mapping, query.search);
+  const opts = {
+    filter: searchFilter,
+    scope: ldapauth.opts.searchScope
+  };
+
+  if (ldapauth.opts.searchAttributes) {
+    opts.attributes = ldapauth.opts.searchAttributes;
+  }
+
+  ldapauth._search(ldapauth.opts.searchBase, opts, (err, users) => {
+    if (err) {
+      return deferred.reject(err);
+    }
+
+    const ldapPayloads = users.map(user => {
+      const ldapPayload = {
+        username: user[uniqueAttr],
+        domainId: domainId,
+        user: user,
+        config: {
+          mapping: ldapConf.mapping
+        }
+      };
+
+      return ldapPayload;
+    });
+
+    return deferred.resolve(ldapPayloads);
+  });
+
+  return deferred.promise;
+}
+
+/**
+ * Search ldap's users on list ldap's configurations of a domain
+ *
+ * @param {Object} user       - User object who are searching ldap users
+ * @param {Object} query      - Query object: {search: 'keyword', limit: 20}
+ * @return {Object}           - {total_count: 20, list: [user1, user2]} where:
+ *                              total_count: is total of users without limited,
+ *                              list: is an array of users is limited by query.limit
+ */
+function search(user, query) {
+  if (!query || !user) {
+    return q.reject(new Error('Can not authenticate from null values'));
+  }
+
+  query.limit = query.limit || LDAP_DEFAULT_LIMIT;
+
+  const domainId = user.preferredDomainId;
+
+  return esnConfig('ldap').forUser(user).get().then(ldaps => {
+    const promises = ldaps.map(ldap => ldapSearch(domainId, ldap.configuration, query));
+    let totalCount = 0;
+
+    return q.all(promises).then(ldapSearchResults => {
+      const ldapsUsers = [];
+
+      ldapSearchResults.map(ldapPayloads => {
+        const ldapUsers = ldapPayloads.map(ldapPayload => {
+          const user = translate(null, ldapPayload);
+
+          user._id = ldapPayload.username;
+          user.emails = _.find(user.accounts, { type: 'email' }).emails;
+          user.preferredEmail = user.emails[0];
+
+          return user;
+        });
+
+        totalCount += ldapUsers.length;
+        ldapsUsers.push(ldapUsers);
+      });
+
+      const users = utils.aggregate(ldapsUsers, query.limit);
+
+      return {
+        total_count: totalCount,
+        list: users
+      };
+    });
+  });
+}
+
 module.exports = {
   findLDAPForUser,
   emailExists,
   authenticate,
-  translate
+  translate,
+  search
 };
