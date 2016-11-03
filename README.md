@@ -22,7 +22,7 @@ You can install dependencies yourself, or use the Docker environment as describe
 
 3.Install node.js
 
-You can install [nvm](https://github.com/creationix/nvm) to install Node.js. Type the following commands in the directory of your project :
+You can use [nvm](https://github.com/creationix/nvm) to install Node.js. Once `nvm` is installed, type the following commands in the directory of your project :
 
 ```
 nvm install `cat .nvmrc`
