@@ -1,0 +1,27 @@
+.has-error(ng-messages="$ctrl.error")
+  .help-block(ng-message="email")
+    | {{ $ctrl.options.email.message.error || '#{__("Invalid email")}' }}
+  .help-block(ng-message="required")
+    | {{ $ctrl.options.required.message.error || '#{__("This is required")}' }}
+  .help-block(ng-message="url")
+    | {{ $ctrl.options.url.message.error || '#{__("This is a invalid url")}' }}
+  .help-block(ng-message="date")
+    | {{ $ctrl.options.date.message.error || '#{__("This is a invalid date")}' }}
+  .help-block(ng-message="datetimelocal")
+    | {{ $ctrl.options.datetimelocal.message.error || '#{__("This is a invalid date time")}' }}
+  .help-block(ng-message="time")
+    | {{ $ctrl.options.time.message.error || '#{__("This is a invalid time")}' }}
+  .help-block(ng-message="week")
+    | {{ $ctrl.options.week.message.error || '#{__("This is a invalid date")}' }}
+  .help-block(ng-message="month")
+    | {{ $ctrl.options.month.message.error || '#{__("This is a invalid date")}' }}
+  .help-block(ng-message="max")
+    | {{ $ctrl.options.max.message.error || '#{__("This must be less than or equal to")} ' + $ctrl.options.max.value }}
+  .help-block(ng-message="min")
+    | {{ $ctrl.options.min.message.error || '#{__("This must be greater than or equal to")} ' + $ctrl.options.min.value }}
+  .help-block(ng-message="maxlength")
+    | {{ $ctrl.options.maxlength.message.error || '#{__("Length must be less than or equal to")} ' + $ctrl.options.maxlength.value }}
+  .help-block(ng-message="minlength")
+    | {{ $ctrl.options.minlength.message.error || '#{__("Length must be greater than or equal to")} ' + $ctrl.options.minlength.value }}
+  .help-block(ng-message="pattern")
+    | {{ $ctrl.options.pattern.message.error || '#{__("Please match requested format")}' }}
