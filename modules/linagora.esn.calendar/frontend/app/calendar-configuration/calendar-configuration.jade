@@ -15,10 +15,10 @@
       .card-body.m-t-25
         form(ng-submit='vm.submit()')
           div(ng-show='vm.selectedTab === "main"')
-            .form-group.fg-line(ng-class='{"has-error": vm.calendar.name.length < 1}')
+            .form-group.fg-line(ng-class='{"has-error": !vm.calendar.name}')
               .field-name #{__('Name')}
               input.form-control(type="text", placeholder="#{__('Enter a name')}", ng-model="vm.calendar.name", maxlength="255")
-              span.help-block(ng-show="vm.calendar.name.length < 1")
+              span.help-block(ng-if="!vm.calendar.name")
                 | #{__('Please input a name if you want to save this calendar')}
             .form-group.flex-vertical-centered
               .field-name #{__('Color')}
