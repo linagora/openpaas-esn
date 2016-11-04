@@ -5,11 +5,11 @@
 var expect = chai.expect;
 
 describe('The calendarCurrentView factory', function() {
-  var locationMock, screenSizeMock, calMoment, calendarCurrentView, CALENDAR_AVAILABLE_VIEWS;
+  var locationMock, matchmediaMock, calMoment, calendarCurrentView, CALENDAR_AVAILABLE_VIEWS, SM_XS_MEDIA_QUERY;
 
   beforeEach(function() {
     locationMock = {search: sinon.spy()};
-    screenSizeMock = {
+    matchmediaMock = {
       is: function() {
         return false;
       }
@@ -18,13 +18,14 @@ describe('The calendarCurrentView factory', function() {
 
     angular.mock.module(function($provide) {
       $provide.value('$location', locationMock);
-      $provide.value('screenSize', screenSizeMock);
+      $provide.value('matchmedia', matchmediaMock);
     });
 
-    angular.mock.inject(function(_calMoment_, _calendarCurrentView_, _CALENDAR_AVAILABLE_VIEWS_) {
+    angular.mock.inject(function(_calMoment_, _calendarCurrentView_, _CALENDAR_AVAILABLE_VIEWS_, _SM_XS_MEDIA_QUERY_) {
       calMoment = _calMoment_;
       calendarCurrentView = _calendarCurrentView_;
       CALENDAR_AVAILABLE_VIEWS = _CALENDAR_AVAILABLE_VIEWS_;
+      SM_XS_MEDIA_QUERY = _SM_XS_MEDIA_QUERY_;
     });
   });
 
@@ -182,12 +183,12 @@ describe('The calendarCurrentView factory', function() {
 
     it('should force 3days view on mobile if viewMode is not defined', function() {
       locationMock.search = sinon.stub().returns({});
-      screenSizeMock.is = sinon.stub().returns(true);
+      matchmediaMock.is = sinon.stub().returns(true);
 
       var view = calendarCurrentView.get();
 
       expect(locationMock.search).to.have.been.calledOnce;
-      expect(screenSizeMock.is).to.have.been.calledWith('xs, sm');
+      expect(matchmediaMock.is).to.have.been.calledWith(SM_XS_MEDIA_QUERY);
       expect(view.name).to.equal('agendaThreeDays');
     });
 

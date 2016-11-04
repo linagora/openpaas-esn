@@ -1,8 +1,8 @@
 'use strict';
 
-angular.module('esn.actionList', [])
+angular.module('esn.actionList', ['esn.media.query'])
 
-  .directive('actionList', function($modal, $popover, screenSize) {
+  .directive('actionList', function($modal, $popover, matchmedia, SM_XS_MEDIA_QUERY) {
     var dialogOpened;
 
     return {
@@ -56,7 +56,7 @@ angular.module('esn.actionList', [])
         }
 
         self.open = function() {
-          boundOpenFn = screenSize.is('xs, sm') ? openForMobile : openForDesktop;
+          boundOpenFn = (matchmedia.is(SM_XS_MEDIA_QUERY)) ? openForMobile : openForDesktop;
 
           if (isDialogOpened()) {
             dialogOpened.hide();
@@ -66,15 +66,16 @@ angular.module('esn.actionList', [])
 
           dialogLock = dialogOpened;
 
-          screenSize.onChange(dialogLock.$scope, 'xs, sm', function(match) {
-            if (match) {
+          var unregister = matchmedia.on(SM_XS_MEDIA_QUERY, function(mediaQueryList) {
+            if (mediaQueryList.matches) {
               boundOpenFn = openForMobile;
               handleWindowResizement();
             } else {
               boundOpenFn = openForDesktop;
               handleWindowResizement();
             }
-          });
+          }, dialogLock.scope);
+          dialogLock.scope.$on('$destroy', unregister);
         };
 
         self.hide = function() {

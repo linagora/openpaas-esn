@@ -17,7 +17,6 @@ angular.module('linagora.esn.unifiedinbox', [
   'op.dynamicDirective',
   'esn.header',
   'esn.offline-wrapper',
-  'matchMedia',
   'esn.lodash-wrapper',
   'esn.settings-overlay',
   'esn.desktop-utils',

@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.subheader', ['matchMedia'])
+angular.module('esn.subheader', ['esn.media.query'])
 
   .constant('SUBHEADER_VISIBLE_EVENT', 'subHeaderVisible')
 
@@ -86,7 +86,7 @@ angular.module('esn.subheader', ['matchMedia'])
     };
   })
 
-  .directive('subHeaderContainer', function(subHeaderService, screenSize) {
+  .directive('subHeaderContainer', function(subHeaderService, matchmedia, SM_XS_MEDIA_QUERY) {
     return {
       restrict: 'E',
       templateUrl: '/views/modules/subheader/sub-header-container.html',
@@ -96,11 +96,12 @@ angular.module('esn.subheader', ['matchMedia'])
         subHeaderService.registerContainer(injectHandler, destroyHandler);
         ensureVisible();
 
-        screenSize.onChange(scope, 'xs, sm', function() {
+        var unregister = matchmedia.on(SM_XS_MEDIA_QUERY, function() {
           ensureVisible();
-        });
+        }, scope);
 
         scope.$on('$destroy', function() {
+          unregister();
           subHeaderService.unregisterContainer();
         });
 

@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.header', ['esn.sidebar', 'esn.subheader', 'matchMedia'])
+angular.module('esn.header', ['esn.sidebar', 'esn.subheader', 'matchmedia-ng', 'esn.media.query'])
 
   .constant('MAIN_HEADER', 'main-header-middle-content')
 
@@ -88,8 +88,9 @@ angular.module('esn.header', ['esn.sidebar', 'esn.subheader', 'matchMedia'])
     };
   })
 
-  .directive('mainHeader', function(screenSize, headerService, Fullscreen,
-                                    SUB_HEADER_HAS_INJECTION_EVENT, SUB_HEADER_VISIBLE_MD_EVENT, HEADER_VISIBILITY_EVENT, HEADER_DISABLE_SCROLL_LISTENER_EVENT) {
+  .directive('mainHeader', function(matchmedia, headerService, Fullscreen,
+                                    SUB_HEADER_HAS_INJECTION_EVENT, SUB_HEADER_VISIBLE_MD_EVENT,
+                                    HEADER_VISIBILITY_EVENT, HEADER_DISABLE_SCROLL_LISTENER_EVENT, SM_XS_MEDIA_QUERY) {
     return {
       restrict: 'E',
       replace: true,
@@ -99,7 +100,7 @@ angular.module('esn.header', ['esn.sidebar', 'esn.subheader', 'matchMedia'])
           element.find('#header').toggleClass('hide-top', !visible);
         }
 
-        // We need this second variable because screenSize.on is called to many times,
+        // We need this second variable because matchmedia.on is called too many times,
         // for instance when top or bottom bars of mobiles finish moving.
         scope.disableByEvent = false;
 
@@ -118,9 +119,10 @@ angular.module('esn.header', ['esn.sidebar', 'esn.subheader', 'matchMedia'])
         scope.hide = toggleHeaderVisibility.bind(null, false);
         scope.show = toggleHeaderVisibility.bind(null, true);
 
-        scope.enableScrollListener = screenSize.on('xs,sm', function(isMatching) {
-          scope.enableScrollListener = isMatching;
+        var unregister = matchmedia.on(SM_XS_MEDIA_QUERY, function(mediaQueryList) {
+          scope.enableScrollListener = mediaQueryList.matches;
         }, scope);
+        scope.$on('$destroy', unregister);
 
         scope.hasSubHeaderGotInjections = headerService.subHeader.hasInjections();
 

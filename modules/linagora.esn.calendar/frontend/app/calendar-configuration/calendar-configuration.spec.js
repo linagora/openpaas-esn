@@ -66,12 +66,12 @@ describe.skip('The calendarEditionController controller', function() {
       go: sinon.spy()
     };
     this.calendarMock = null;
-    this.screenSize = {};
+    this.matchmedia = {};
 
     module('jadeTemplates');
     angular.mock.module('esn.calendar', 'linagora.esn.graceperiod');
     angular.mock.module(function($provide) {
-      $provide.value('screenSize', self.screenSize);
+      $provide.value('matchmedia', self.matchmedia);
       $provide.value('uuid4', self.uuid4);
       $provide.value('calendarService', self.calendarService);
       $provide.value('CalDelegationEditionHelper', self.CalDelegationEditionHelperMock);
@@ -83,12 +83,13 @@ describe.skip('The calendarEditionController controller', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function($rootScope, $controller, CalendarCollectionShell, $q, CALENDAR_RIGHT) {
+  beforeEach(angular.mock.inject(function($rootScope, $controller, CalendarCollectionShell, $q, CALENDAR_RIGHT, SM_XS_MEDIA_QUERY) {
     this.$rootScope = $rootScope;
     this.$scope = this.$rootScope.$new();
     this.CalendarCollectionShell = CalendarCollectionShell;
     this.$scope.calendarHomeId = '12345';
     this.CALENDAR_RIGHT = CALENDAR_RIGHT;
+    this.SM_XS_MEDIA_QUERY = SM_XS_MEDIA_QUERY;
     this.$q = $q;
 
     this.initController = function() {
@@ -219,7 +220,7 @@ describe.skip('The calendarEditionController controller', function() {
 
     describe('when newCalendar is false', function() {
       it('should return to calendar.list if the calendar and his right has not been modified and if screensize is xs or sm', function() {
-        this.screenSize.is = sinon.stub().returns(true);
+        this.matchmedia.is = sinon.stub().returns(true);
 
         this.stateMock.go = sinon.spy(function(path) {
           expect(path).to.equal('calendar.list');
@@ -235,13 +236,13 @@ describe.skip('The calendarEditionController controller', function() {
         this.$scope.submit();
         this.$rootScope.$digest();
 
-        expect(this.screenSize.is).to.have.been.calledWith('xs, sm');
+        expect(this.matchmedia.is).to.have.been.calledWith(this.SM_XS_MEDIA_QUERY);
         expect(this.stateMock.go).to.have.been.called;
         expect(this.calendarService.modifyCalendar).to.have.not.been.called;
       });
 
       it('should return to calendar.main if the calendar and his right has not been modified and if screensize is md', function() {
-        this.screenSize.is = sinon.stub().returns(false);
+        this.matchmedia.is = sinon.stub().returns(false);
 
         this.stateMock.go = sinon.spy(function(path) {
           expect(path).to.equal('calendar.main');
@@ -260,7 +261,7 @@ describe.skip('The calendarEditionController controller', function() {
         this.$scope.submit();
         this.$rootScope.$digest();
 
-        expect(this.screenSize.is).to.have.been.calledWith('xs, sm');
+        expect(this.matchmedia.is).to.have.been.calledWith(this.SM_XS_MEDIA_QUERY);
         expect(this.stateMock.go).to.have.been.called;
         expect(this.calendarService.modifyCalendar).to.have.not.been.called;
       });

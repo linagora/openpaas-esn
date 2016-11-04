@@ -102,6 +102,8 @@ html
     script(src='/components/angular-scroll-glue/src/scrollglue.js')
     script(src='/components/angular-messages/angular-messages.min.js')
     script(src='/components/angular-file-saver/dist/angular-file-saver.bundle.min.js')
+    script(src='/components/matchmedia/matchMedia.js')
+    script(src='/components/matchmedia-ng/matchmedia-ng.js')
     +injectAngularFromModules('esn', injections)
     +injectJSFromModules('esn', injections)
     +injectJSAppFromModules('esn', injections)
@@ -205,6 +207,7 @@ html
     script(src='js/modules/touchscreen-detector.js')
     script(src='js/modules/previous-state.js')
     script(src='js/modules/file-saver.js')
+    script(src='js/modules/media-query.js')
 
   body.ng-cloak(ng-app="esnApp", ng-controller="sessionInitESNController", header-aware)
     #wrap(ng-include='session.template')
