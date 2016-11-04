@@ -115,7 +115,7 @@ class Strategy extends passport.Strategy {
         var payload = {
           username: username,
           user: ldapuser,
-          config: ldaps[0],
+          config: ldaps[0].configuration,
           domainId: 'we must have domain info here'
         };
 

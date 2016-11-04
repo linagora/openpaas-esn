@@ -1,9 +1,9 @@
 'use strict';
 
-var LdapAuth = require('ldapauth-fork');
-var async = require('async');
-var mongoose = require('mongoose');
-var esnConfig = require('../esn-config');
+const LdapAuth = require('ldapauth-fork');
+const async = require('async');
+const _ = require('lodash');
+const esnConfig = require('../esn-config');
 
 /**
  * Check if the email exists in the given ldap
@@ -12,14 +12,15 @@ var esnConfig = require('../esn-config');
  * @param {hash} ldap - LDAP configuration
  * @param {Function} callback - as fn(err, username) where username is defined if found
  */
-var emailExists = function(email, ldap, callback) {
+function emailExists(email, ldap, callback) {
   if (!email || !ldap) {
     return callback(new Error('Missing parameters'));
   }
+
   var ldapauth = new LdapAuth(ldap);
+
   return ldapauth._findUser(email, callback);
-};
-module.exports.emailExists = emailExists;
+}
 
 /**
  * Try to find a user in all the registered LDAPs.
@@ -45,7 +46,6 @@ function findLDAPForUser(email, callback) {
     }, callback);
   });
 }
-module.exports.findLDAPForUser = findLDAPForUser;
 
 /**
  * Authenticate a user on the given LDAP
@@ -55,12 +55,13 @@ module.exports.findLDAPForUser = findLDAPForUser;
  * @param {hash} ldap - LDAP configuration
  * @param {function} callback - as function(err, user) where user is not null when authenticated
  */
-var authenticate = function(email, password, ldap, callback) {
+function authenticate(email, password, ldap, callback) {
   if (!email || !password || !ldap) {
     return callback(new Error('Can not authenticate from null values'));
   }
 
   var ldapauth = new LdapAuth(ldap);
+
   ldapauth.authenticate(email, password, function(err, user) {
     ldapauth.close(function() {});
     if (err) {
@@ -73,5 +74,47 @@ var authenticate = function(email, password, ldap, callback) {
 
     return callback(null, user);
   });
+}
+
+/**
+ * Translate ldapPayload to OpenPaaS user
+ * @param  {Object} ldapPayload The LDAP payload returned by LDAP strategy
+ * @return {Object}             The OpenPaaS user object
+ */
+function translate(ldapPayload) {
+  var email = ldapPayload.username; // we use email as username to authenticate LDAP
+  var domainId = ldapPayload.domainId;
+  var ldapUser = ldapPayload.user;
+  var mapping = ldapPayload.config.mapping;
+  var provisionUser = {
+    accounts: [{
+      type: 'email',
+      hosted: true,
+      emails: [email]
+    }],
+    domains: [{
+      domain_id: domainId
+    }]
+  };
+
+  _.forEach(mapping, function(value, key) {
+    if (key === 'email') {
+      var email = ldapUser[value];
+
+      if (provisionUser.accounts[0].emails.indexOf(email) === -1) {
+        provisionUser.accounts[0].emails.push(email);
+      }
+    } else {
+      provisionUser[key] = ldapUser[value];
+    }
+  });
+
+  return provisionUser;
+}
+
+module.exports = {
+  findLDAPForUser,
+  emailExists,
+  authenticate,
+  translate
 };
-module.exports.authenticate = authenticate;

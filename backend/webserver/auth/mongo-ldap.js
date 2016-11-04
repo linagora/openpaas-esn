@@ -1,8 +1,8 @@
 'use strict';
 
 const q = require('q');
-const _ = require('lodash');
 const userModule = require('../../core/user');
+const ldapModule = require('../../core/ldap');
 const MongoLDAPStrategy = require('../../core/passport/ldap-mongo').Strategy;
 
 module.exports = {
@@ -21,49 +21,14 @@ module.exports = {
 };
 
 function provisionUser(ldapPayload) {
-  var email = ldapPayload.username;
-
-  return q.nfcall(userModule.findByEmail, email)
+  return q.nfcall(userModule.findByEmail, ldapPayload.username)
     .then(function(user) {
       if (user) { // user is already provisioned
         return user;
       }
 
-      user = translate(ldapPayload);
+      var provisionUser = ldapModule.translate(ldapPayload);
 
-      return q.nfcall(userModule.provisionUser, user);
+      return q.nfcall(userModule.provisionUser, provisionUser);
     });
-}
-
-function translate(ldapPayload) {
-  var email = ldapPayload.username;
-  var ldapConfig = ldapPayload.config;
-  var ldapUser = ldapPayload.user;
-  var domainId = ldapPayload.domainId;
-  var provision_user = {
-    accounts: [{
-      type: 'email',
-      hosted: true,
-      emails: [email]
-    }],
-    domains: [{
-      domain_id: domainId
-    }]
-  };
-
-  if (ldapConfig.configuration && ldapConfig.configuration.mapping) {
-    _.forEach(ldapConfig.configuration.mapping, function(value, key) {
-      if (key === 'email') {
-        var email = ldapUser[value];
-
-        if (provision_user.accounts[0].emails.indexOf(email) === -1) {
-          provision_user.accounts[0].emails.push(email);
-        }
-      } else {
-        provision_user[key] = ldapUser[value];
-      }
-    });
-  }
-
-  return provision_user;
 }
