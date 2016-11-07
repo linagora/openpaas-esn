@@ -340,7 +340,10 @@ describe('The esn-config module', function() {
         getModule()('mail')
           .getFromAllDomains()
           .then(function(configs) {
-            expect(configs).to.deep.equal([configInFeatures]);
+            expect(configs).to.deep.equal([{
+              domainId: null,
+              config: configInFeatures
+            }]);
             done();
           }, done.bind(null, 'should resolve'));
       });

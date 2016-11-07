@@ -24,9 +24,9 @@ describe('The core/esn-config/esn-config.js module', function() {
     esnConfig = new EsnConfig(MODULE_NAME, DOMAIN_ID);
   });
 
-  function createConfiguration(moduleName, configs) {
+  function createConfiguration(moduleName, configs, domainId) {
     return {
-      domain_id: DOMAIN_ID,
+      domain_id: domainId || DOMAIN_ID,
       modules: [{
         name: moduleName,
         configurations: configs
@@ -310,14 +310,23 @@ describe('The core/esn-config/esn-config.js module', function() {
 
       confModuleMock.getAll = function(callback) {
         callback(null, [
-          createConfiguration(MODULE_NAME, [config1]),
-          createConfiguration(MODULE_NAME, [config2]),
-          createConfiguration(MODULE_NAME, [config3])
+          createConfiguration(MODULE_NAME, [config1], 'domain1'),
+          createConfiguration(MODULE_NAME, [config2], 'domain2'),
+          createConfiguration(MODULE_NAME, [config3], 'domain3')
         ]);
       };
 
       esnConfig.getConfigsFromAllDomains(configName).then(function(data) {
-        expect(data).to.deep.equal([config1.value, config2.value, config3.value]);
+        expect(data).to.deep.equal([{
+          domainId: 'domain1',
+          config: config1.value
+        }, {
+          domainId: 'domain2',
+          config: config2.value
+        }, {
+          domainId: 'domain3',
+          config: config3.value
+        }]);
         done();
       }, done.bind(null, 'should resolve'));
     });

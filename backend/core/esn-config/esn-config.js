@@ -102,17 +102,16 @@ EsnConfig.prototype.getConfigsFromAllDomains = function(configName) {
       }
 
       return configurations.map(function(configuration) {
-        return self._extractModuleConfigs(moduleName, configuration);
-      }).filter(Boolean);
-    })
-    .then(function(configurations) {
-      return configurations.map(function(configuration) {
-        var config = _.find(configuration, { name: configName });
+        var configs = self._extractModuleConfigs(moduleName, configuration);
+        var config = _.find(configs, { name: configName });
 
-        return config && config.value;
-      }).filter(function(value) {
-        return !_.isUndefined(value);
-      });
+        if (config && !_.isUndefined(config.value)) {
+          return {
+            domainId: configuration.domain_id,
+            config: config.value
+          };
+        }
+      }).filter(Boolean);
     });
 };
 
