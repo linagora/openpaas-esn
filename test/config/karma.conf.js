@@ -8,6 +8,7 @@ module.exports = function(config) {
       'frontend/components/jquery/dist/jquery.js',
       'frontend/components/angular/angular.js',
       'frontend/components/angular-mocks/angular-mocks.js',
+      'frontend/components/angular-messages/angular-messages.min.js',
       'test/frontend/karma-include/*.js',
       'frontend/components/angular-route/angular-route.js',
       'frontend/components/angular-ui-router/release/angular-ui-router.js',

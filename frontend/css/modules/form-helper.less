@@ -1,0 +1,46 @@
+@inputBorderColor: #e0e0e0;
+@errorColor: #f44336;
+
+esn-form-group {
+  .form-control.ng-pristine.ng-invalid {
+    border-bottom: 1px solid @inputBorderColor;
+  }
+
+  .fg-line::after {
+    background: none;
+  }
+
+  .esn-form-validate-message-container {
+    height: 20px;
+    padding-top: 5px;
+
+    .help-block {
+      margin-top: 0;
+      font-size: 11px;
+    }
+  }
+}
+
+esn-form-group.has-required {
+  .fg-label::after {
+    content: " *";
+  }
+}
+
+esn-form-group.has-focus.has-required {
+  .fg-label::after {
+    color: @errorColor;
+  }
+}
+
+esn-form-group:not(.has-focus).has-invalid {
+  .fg-label {
+    color: @errorColor;
+  }
+}
+
+form:not(.ng-submitted) {
+  esn-form-validate-message.pristine {
+    display: none;
+  }
+}

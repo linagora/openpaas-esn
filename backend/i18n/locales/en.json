@@ -333,5 +333,16 @@
   "User Picture": "User Picture",
   "Activity Stream": "Activity Stream",
   "Mail": "Mail",
-  "You received a feedback on OpenPaas": "You received a feedback on OpenPaas"
+  "You received a feedback on OpenPaas": "You received a feedback on OpenPaas",
+  "Invalid email": "Invalid email",
+  "This is required": "This is required",
+  "This is a invalid url": "This is a invalid url",
+  "This is a invalid date": "This is a invalid date",
+  "This is a invalid date time": "This is a invalid date time",
+  "This is a invalid time": "This is a invalid time",
+  "This must be less than or equal to": "This must be less than or equal to",
+  "This must be greater than or equal to": "This must be greater than or equal to",
+  "Length must be less than or equal to": "Length must be less than or equal to",
+  "Length must be greater than or equal to": "Length must be greater than or equal to",
+  "Please match requested format": "Please match requested format"
 }
