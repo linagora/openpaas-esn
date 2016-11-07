@@ -66,7 +66,7 @@
 
       function adaptTitleWhenShortEvent() {
         if ((eventDurationInMinute <= CALENDAR_MAX_DURATION_OF_SMALL_EVENT) && element.find('.fc-time').length) {
-          element.find('.fc-time').attr('data-start', event.title);
+          element.find('.fc-time').attr('data-start', event.start.format('hh:mm') + ' - ' + event.title);
         }
       }
 
