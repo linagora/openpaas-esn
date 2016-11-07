@@ -1324,8 +1324,31 @@ describe('CalendarShell factory', function() {
         email: 'user1@demo.open-paas.org',
         name: 'user1@demo.open-paas.org',
         partstat: 'ACCEPTED',
-        displayName: 'user1@demo.open-paas.org'
+        displayName: 'user1@demo.open-paas.org',
+        id: undefined
       }]);
+    });
+
+    it('should add an attendee when id is not undefined ', function() {
+      var attendee = {
+        id: '123',
+        email: 'disisemail'
+      };
+      var shell = {
+        start: calMoment(new Date(2014, 11, 29, 18, 0, 0)),
+        end: calMoment(new Date(2014, 11, 29, 19, 0, 0))
+      };
+
+      shell = CalendarShell.fromIncompleteShell(shell);
+      shell.attendees = [attendee];
+
+      expect(shell.attendees).to.deep.equal([{
+        fullmail: 'disisemail',
+        email: 'disisemail',
+        name: 'disisemail',
+        partstat: 'NEEDS-ACTION',
+        displayName: 'disisemail',
+        id: '123'}]);
     });
 
     it('should replace the attendee for organizer with a new one with specified partstat', function() {
@@ -1352,7 +1375,8 @@ describe('CalendarShell factory', function() {
         email: 'user1@demo.open-paas.org',
         name: 'user1@demo.open-paas.org',
         partstat: 'DECLINED',
-        displayName: 'user1@demo.open-paas.org'
+        displayName: 'user1@demo.open-paas.org',
+        id: undefined
       }]);
     });
   });
