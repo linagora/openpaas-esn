@@ -219,7 +219,7 @@ describe('The calEventUtils service', function() {
       fcTime.attr = sinon.spy();
       this.calEventUtils.render(event, element, view);
 
-      expect(fcTime.attr).to.have.been.calledWith('data-start', event.title);
+      expect(fcTime.attr).to.have.been.calledWith('data-start', event.start.format('hh:mm') + ' - ' + event.title);
     }));
 
     it('should keep startEditable and durationEditable to undefined if the user is the organizer', function() {
