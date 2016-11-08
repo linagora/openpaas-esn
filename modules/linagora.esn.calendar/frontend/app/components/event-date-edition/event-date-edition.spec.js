@@ -256,67 +256,6 @@ describe('The event-date-edition component', function() {
     });
   });
 
-  describe('The calFriendlifyEndDate directive', function() {
-
-    beforeEach(inject(['$compile', '$rootScope', 'calMoment', function($c, $r, calMoment) {
-      this.$compile = $c;
-      this.$rootScope = $r;
-      this.$scope = this.$rootScope.$new();
-      this.calMoment = calMoment;
-
-      this.initDirective = function(scope) {
-        var html = '<input ng-model="event.end" data-is-all-day="event.allDay" cal-friendlify-end-date/>';
-        var element = this.$compile(html)(scope);
-
-        scope.$digest();
-
-        return element;
-      };
-    }]));
-
-    it('should have a first formatters that output the date -1 day if event is a allday', function() {
-      this.$scope.event = {
-        allDay: true,
-        end: this.calMoment([2015, 6, 3])
-      };
-      var element = this.initDirective(this.$scope);
-      var controller = element.controller('ngModel');
-
-      expect(controller.$viewValue).to.deep.equal('2015/07/02');
-    });
-
-    it('should have a first formatters that do nothing if event is not allday', function() {
-      this.$scope.event = {
-        allDay: false
-      };
-      var element = this.initDirective(this.$scope);
-      var formatter = element.controller('ngModel').$formatters[0];
-
-      expect(formatter('2015/07/03')).to.deep.equal('2015/07/03');
-    });
-
-    it('should have a last parsers that add 1 day if event is allday', function() {
-      this.$scope.event = {
-        allDay: true,
-        end: this.calMoment('2015-07-03')
-      };
-      var element = this.initDirective(this.$scope);
-      var parser = element.controller('ngModel').$parsers[0];
-
-      expect(parser(this.calMoment([2015, 6, 3])).format('YYYY/MM/DD')).to.deep.equal(this.calMoment([2015, 6, 4]).format('YYYY/MM/DD'));
-    });
-
-    it('should have a last parsers that do nothing if event is not allday', function() {
-      this.$scope.event = {
-        allDay: false
-      };
-      var element = this.initDirective(this.$scope);
-      var parser = element.controller('ngModel').$parsers[0];
-
-      expect(parser(this.calMoment([2015, 6, 3])).format('YYYY/MM/DD')).to.deep.equal(this.calMoment([2015, 6, 3]).format('YYYY/MM/DD'));
-    });
-  });
-
   describe('The calDateToMoment directive', function() {
 
     beforeEach(inject(['$compile', '$rootScope', 'calMoment', function($c, $r, calMoment) {
