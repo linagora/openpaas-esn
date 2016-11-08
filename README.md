@@ -22,11 +22,16 @@ You can install dependencies yourself, or use the Docker environment as describe
 
 3.Install node.js
 
-Please note that your version of node.js must be greater than version 0.10.28 but less than or equal to 0.10.36. We highly recommend that you use [nvm](https://github.com/creationix/nvm) to install a specific version of node.
+You can use [nvm](https://github.com/creationix/nvm) to install Node.js. Once `nvm` is installed, type the following commands in the directory of your project :
+
+```
+nvm install `cat .nvmrc`
+nvm use
+```
 
 4.You may need some additional packages. For example with a Debian installation, as an administrator you should use the following command:
 
-    apt-get install build-essential redis-server npm python-setuptools graphicsmagick graphicsmagick-imagemagick-compat
+    apt-get install build-essential redis-server python-setuptools graphicsmagick graphicsmagick-imagemagick-compat libjpeg-dev
 
 5.Install Sabre/dav
 
