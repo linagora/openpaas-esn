@@ -2063,43 +2063,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       expect(isolateScope.showMoreButton).to.equal(true);
     });
 
-    it('should display myself if I am in "To" recipients', function() {
-      $scope.email = email;
-      session.user = { preferredEmail: 'bob@email' };
-
-      compileDirective('<inbox-emailer-display email="email" />');
-
-      var isolateScope = element.isolateScope();
-
-      expect(isolateScope.previewEmailer.email).to.deep.equal('alice@email');
-      expect(isolateScope.previewEmailerGroup).to.deep.equal('To');
-    });
-
-    it('should display myself if I am in "CC" recipients', function() {
-      $scope.email = email;
-      session.user = { preferredEmail: 'clark@email' };
-
-      compileDirective('<inbox-emailer-display email="email" />');
-
-      var isolateScope = element.isolateScope();
-
-      expect(isolateScope.previewEmailer.email).to.deep.equal('clark@email');
-      expect(isolateScope.previewEmailerGroup).to.deep.equal('CC');
-    });
-
-    it('should display myself if I am in "BCC" recipients', function() {
-      $scope.email = email;
-      session.user = { preferredEmail: 'john@email' };
-
-      compileDirective('<inbox-emailer-display email="email" />');
-
-      var isolateScope = element.isolateScope();
-
-      expect(isolateScope.previewEmailer.email).to.deep.equal('john@email');
-      expect(isolateScope.previewEmailerGroup).to.deep.equal('BCC');
-    });
-
-    it('should display the first "To" recipient if I am not a recipient myself', function() {
+    it('should display the first "To" recipient', function() {
       $scope.email = email;
 
       compileDirective('<inbox-emailer-display email="email" />');
@@ -2110,7 +2074,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       expect(isolateScope.previewEmailerGroup).to.deep.equal('To');
     });
 
-    it('should display the first "CC" recipient if I am not a recipient myself and there is no "To" recipients', function() {
+    it('should display the first "CC" recipient', function() {
       $scope.email = _.omit(email, 'to');
 
       compileDirective('<inbox-emailer-display email="email" />');
@@ -2121,7 +2085,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       expect(isolateScope.previewEmailerGroup).to.deep.equal('CC');
     });
 
-    it('should display the first "BCC" recipient if I am not a recipient myself and there is neither "To" nor "CC" recipients', function() {
+    it('should display the first "BCC" recipient', function() {
       $scope.email = _.omit(email, 'to', 'cc');
 
       compileDirective('<inbox-emailer-display email="email" />');

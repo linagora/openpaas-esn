@@ -198,14 +198,7 @@ angular.module('linagora.esn.unifiedinbox')
       }
 
       function _init() {
-        findAndAssignPreviewEmailer(function(emailers) {
-          return _.find(emailers, { email: session.user.preferredEmail });
-        });
-
-        // Defaulting to the first recipient if I am not in the recipients
-        if (!scope.previewEmailer) {
-          findAndAssignPreviewEmailer(_.head);
-        }
+        findAndAssignPreviewEmailer(_.head);
 
         scope.collapsed = true;
         scope.numberOfHiddenEmailer = emailSendingService.countRecipients(scope.email) - 1;
