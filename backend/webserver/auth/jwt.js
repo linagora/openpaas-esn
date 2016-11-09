@@ -14,7 +14,8 @@ function optionsResolver(foundCallback) {
       foundCallback(null, {
         secretOrKey: config.publicKey,
         tokenQueryParameterName: 'jwt',
-        algorithms: [config.algorithm]
+        algorithms: [config.algorithm],
+        ignoreExpiration: true
       });
     }
   });

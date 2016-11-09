@@ -80,8 +80,7 @@ describe('The JWT based authentication module', function() {
       var expectedConfig = {
         privateKey: 'private key',
         publicKey: 'public key',
-        algorithm: 'algo',
-        expiresIn: '2 days'
+        algorithm: 'algo'
       };
       var esnConfigMock = function(key) {
         expect(key).to.equal('jwt');
