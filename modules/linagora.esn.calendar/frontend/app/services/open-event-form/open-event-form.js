@@ -21,7 +21,7 @@
   ];
 
   function calOpenEventForm($modal, $state, screenSize, calendarService, calEventUtils) {
-
+    var modalIsOpen = false;
     return function calOpenEventForm(event) {
       if (!event.isInstance()) {
         _openForm(event);
@@ -40,7 +40,8 @@
         } else {
           $state.go('calendar.event.consult', {calendarId: calendarService.calendarHomeId, eventId: event.id});
         }
-      } else {
+      } else if (modalIsOpen === false) {
+        modalIsOpen = true;
         $modal({
           templateUrl: '/calendar/app/services/open-event-form/event-quick-form-view',
           resolve: {
@@ -49,6 +50,12 @@
             }
           },
           controller: function($scope, event) {
+            var _$hide = $scope.$hide;
+
+            $scope.$hide = function() {
+              _$hide.apply(this, arguments);
+              modalIsOpen = false;
+            };
             $scope.event = event;
           },
           backdrop: 'static',

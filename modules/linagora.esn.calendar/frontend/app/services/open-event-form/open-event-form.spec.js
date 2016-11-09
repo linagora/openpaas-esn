@@ -67,6 +67,34 @@ describe('The open-event-form service', function() {
       }));
     });
 
+    it('should call $modal only once even if clicking several times', function() {
+      this.screenSize.is = sinon.stub().returns(false);
+      this.calOpenEventForm(this.regularEvent);
+      this.calOpenEventForm(this.regularEvent);
+      expect(this.$modal).to.have.been.calledOnce;
+    });
+
+    it('should recall $modal if closed before', function() {
+      this.screenSize.is = sinon.stub().returns(false);
+      this.calOpenEventForm(this.regularEvent);
+      expect(this.$modal).to.have.been.calledWith(sinon.match({
+        controller: sinon.match.func.and(sinon.match(function(controller) {
+          var openForm = sinon.spy();
+          var $hide = sinon.spy();
+          var $scope = {
+            $hide: $hide
+          };
+
+          controller($scope, self.instance, openForm);
+          $scope.$hide();
+          expect($hide).to.have.been.called;
+          return true;
+        }))
+      }));
+      this.calOpenEventForm(this.regularEvent);
+      expect(this.$modal).to.have.been.calledTwice;
+    });
+
     it('should call $state to calendar.event.form if screensize is xs or sm and isOrganizer', function() {
       this.screenSize.is = sinon.stub().returns(true);
       this.$state.go = sinon.spy();
