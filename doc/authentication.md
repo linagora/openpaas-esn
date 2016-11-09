@@ -6,8 +6,7 @@ The current document describes how the system have to be configured to use the d
 
 ## Automatic user provisioning
 
-The web application can be configured to auto provision users on their first login.
-In order to achieve that, the application has to use a specific strategy which will authenticate user on an external system, and then create the user once first authentication is successful.
+The application will auto provision users on their first login.
 
 The current strategy allows to authenticate the user on a LDAP instance and to create a user instance on the storage layer (MongoDB).
 
