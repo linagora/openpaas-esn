@@ -52,5 +52,39 @@ If you also working on esn-sabre and you do not want to have to rebuild linagora
 the code, you can run the following command. However if you edit the composer.json, you will have to rebuild the image.
 
 ```
-ESN_HOST=<YOUR_ESN_IP> ESN_SABRE_PATH=/path/to/esn-sabre ESN_PATH=$PWD docker-compose -f ./docker/dockerfiles/dev/docker-compose-sabre-dav.yml up
+ESN_HOST=<YOUR_ESN_IP> ESN_SABRE_PATH=/path/to/esn-sabre ESN_PATH=$PWD docker-compose -f ./docker/dockerfiles/dev/docker-compose-sabre-dev.yml up
 ```
+
+If you also need to modify library code for debugging purpose, you will need to install composer in order to build the esn-sabre dependencies on your machine and not inside docker. On ubuntu that will be
+
+```
+sudo apt-get install composer
+```
+
+Then you will need to fetch the esn-sabre dependencies:
+```
+cd /path/to/esn-sabre
+composer install --ignore-platform-reqs
+```
+
+Then you will need to modify the following lines in `docker/dockerfiles/dev/docker-compose-sabre-dev.yml` (of the esn repository) from:
+
+```
+      - ${ESN_SABRE_PATH}/esn.php:/var/www/server.php
+      - ${ESN_SABRE_PATH}/config.json:/var/www/config.json
+      - ${ESN_SABRE_PATH}/lib:/var/www/lib
+      - ${ESN_SABRE_PATH}/tests:/var/www/tests
+```
+
+to:
+
+```
+      - ${ESN_SABRE_PATH}/esn.php:/var/www/server.php
+      - ${ESN_SABRE_PATH}/config.json:/var/www/config.json
+      - ${ESN_SABRE_PATH}/lib:/var/www/lib
+      - ${ESN_SABRE_PATH}/tests:/var/www/tests
+
+      - ${ESN_SABRE_PATH}/vendor:/var/www/vendor
+```
+
+Now, when you edit the esn-sabre dependencies, changes are reflected inside the container.
