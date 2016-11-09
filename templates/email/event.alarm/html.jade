@@ -44,6 +44,7 @@ html.mail
               p #{content.event.start.date}
               if (!content.event.allDay)
                 p #{content.event.start.time}
+                p #{content.event.start.timezone}
             if (content.event.end)
               td
                 if (content.event.allDay && content.event.end.date == content.event.start.date)
@@ -55,6 +56,7 @@ html.mail
                   p #{content.event.end.date}
                   if (!content.event.allDay)
                     p #{content.event.end.time}
+                    p #{content.event.end.timezone}
             else
               td(colspan="2")
             td.recurrence
