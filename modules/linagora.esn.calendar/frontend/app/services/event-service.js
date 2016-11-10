@@ -198,6 +198,7 @@
           // This is a noop and the event is not created yet in sabre/dav,
           // we then should only remove the event from fullcalendar
           // and cancel the taskid corresponding on the event.
+          notificationFactory.weakInfo('Calendar', event.title + ' has been deleted.');
           return gracePeriodService.cancel(event.gracePeriodTaskId).then(function() {
             calCachedEventSource.deleteRegistration(event);
             calendarEventEmitter.fullcalendar.emitRemovedEvent(event.id);
@@ -228,7 +229,7 @@
                 context: {id: event.uid},
                 performedAction: 'You are about to delete the event (' + event.title + ').',
                 cancelFailed: 'An error has occurred, the deletion could not been reverted',
-                cancelSuccess: 'Calendar - Suppression of ' + event.tile + ' has been cancelled',
+                cancelSuccess: 'Calendar - Suppression of ' + event.title + ' has been cancelled',
                 cancelTooLate: 'It is too late to cancel the deletion',
                 successText: 'Calendar - ' + event.title + ' has been deleted.',
                 gracePeriodFail: 'Event deletion failed. Please refresh your calendar'
