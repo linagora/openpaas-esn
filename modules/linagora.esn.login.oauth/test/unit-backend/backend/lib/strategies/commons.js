@@ -6,31 +6,37 @@ var q = require('q');
 var mockery = require('mockery');
 
 describe('The commons oauth login module', function() {
+  var deps, type = 'facebook';
+  var logger = {
+    debug: function() {},
+    error: function() {},
+    info: function() {}
+  };
+
+  var dependencies = function(name) {
+    return deps[name];
+  };
+
+  beforeEach(function() {
+    deps = {
+      logger: logger,
+      oauth: {
+      },
+      helpers: {
+        config: {
+          getBaseUrl: function(user, callback) {
+            callback(null, 'http://localhost:8080');
+          }
+        }
+      }
+    };
+  });
+
+  function getModule() {
+    return require('../../../../../backend/lib/strategies/commons')(dependencies);
+  }
 
   describe('The handleResponse function', function() {
-
-    var deps, type = 'facebook';
-    var logger = {
-      debug: function() {},
-      error: function() {},
-      info: function() {}
-    };
-
-    var dependencies = function(name) {
-      return deps[name];
-    };
-
-    function getModule() {
-      return require('../../../../../backend/lib/strategies/commons')(dependencies);
-    }
-
-    beforeEach(function() {
-      deps = {
-        logger: logger,
-        oauth: {
-        }
-      };
-    });
 
     describe('When req.user is not defined', function() {
       it('should fail when userModule.find fails', function(done) {
@@ -192,6 +198,34 @@ describe('The commons oauth login module', function() {
           expect(u).to.deep.equals(user);
           done();
         });
+      });
+    });
+  });
+
+  describe('The getCallbackEndpoint fn', function() {
+
+    it('should reject when configHelpers cannot get base_url', function(done) {
+      deps.helpers = {
+        config: {
+          getBaseUrl: function(user, callback) {
+            callback(new Error('something error'));
+          }
+        }
+      };
+
+      getModule().getCallbackEndpoint(type).catch(function(err) {
+        expect(err.message).to.equals('something error');
+        done();
+      });
+    });
+
+    it('should get url when configHelpers get baseURL successfully', function(done) {
+      var baseURL = 'http://localhost:8080';
+      var expectedUrl = baseURL + '/login-oauth/' + type + '/auth/callback';
+
+      getModule().getCallbackEndpoint(type).then(function(url) {
+        expect(url).to.equals(expectedUrl);
+        done();
       });
     });
   });

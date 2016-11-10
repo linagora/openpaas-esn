@@ -60,7 +60,7 @@ describe('The calendar core module', function() {
         }
       },
       config: {
-        getBaseUrl: function(callback) {
+        getBaseUrl: function(user, callback) {
           callback();
         }
       }
@@ -450,7 +450,7 @@ describe('The calendar core module', function() {
       });
 
       it('should return an error it cannot retrieve ', function(done) {
-        helpersMock.config.getBaseUrl = function(callback) {
+        helpersMock.config.getBaseUrl = function(user, callback) {
           callback(new Error('cannot get base_url'));
         };
 
@@ -572,7 +572,7 @@ describe('The calendar core module', function() {
       });
 
       it('should send HTML email with correct parameters', function(done) {
-        helpersMock.config.getBaseUrl = function(callback) {
+        helpersMock.config.getBaseUrl = function(user, callback) {
           callback(null, 'http://localhost:8888');
         };
         mockery.registerMock('../../../lib/helpers/jcal', {
@@ -827,7 +827,7 @@ describe('The calendar core module', function() {
     describe('The filter method of the inviteAttendees fn', function() {
       beforeEach(function() {
         this.getFilter = function(event, callback) {
-          helpersMock.config.getBaseUrl = function(callback) {
+          helpersMock.config.getBaseUrl = function(user, callback) {
             callback();
           };
 

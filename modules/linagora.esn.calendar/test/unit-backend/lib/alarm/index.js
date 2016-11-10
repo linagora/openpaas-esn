@@ -20,7 +20,7 @@ describe('alarm module', function() {
     };
     helpers = {
       config: {
-        getBaseUrl: function(callback) {
+        getBaseUrl: function(user, callback) {
           callback(null, 'http://localhost:8080/');
         }
       }

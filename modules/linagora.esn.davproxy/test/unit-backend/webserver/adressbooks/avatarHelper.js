@@ -25,8 +25,16 @@ describe('The avatarHelper module', function() {
             callback(null, null);
           }
         };
+      },
+      helpers: {
+        config: {
+          getBaseUrl: function(user, callback) {
+            callback(null, 'http://localhost:8080');
+          }
+        }
       }
     };
+
     deps = function(name) {
       return dependencies[name];
     };
@@ -41,6 +49,15 @@ describe('The avatarHelper module', function() {
   }
 
   describe('The injectTextAvatar function', function() {
+    var user;
+
+    beforeEach(function() {
+      user = {
+        _id: '123',
+        firstname: 'foo',
+        lastname: 'bar'
+      };
+    });
 
     it('should inject text avatar url to vcard using DEFAULT_BASE_URL', function(done) {
       var vcardData = ['vcard', [
@@ -48,7 +65,7 @@ describe('The avatarHelper module', function() {
         ['uid', {}, 'text', cardId]
       ]];
 
-      getModule().injectTextAvatar(bookId, bookName, vcardData).then(function(output) {
+      getModule().injectTextAvatar(user, bookId, bookName, vcardData).then(function(output) {
         expect(output).to.eql(['vcard', [
           ['version', {}, 'text', '4.0'],
           ['uid', {}, 'text', cardId],
@@ -58,14 +75,14 @@ describe('The avatarHelper module', function() {
       });
     });
 
-    it('should have text avatar url based on base_url of esnconfig', function(done) {
+    it('should have text avatar url based on base_url of web config', function(done) {
       var baseUrl = 'http://dev.open-paas.org';
-      dependencies['esn-config'] = function() {
-        return {
-          get: function(callback) {
-            callback(null, { base_url: baseUrl });
+      dependencies.helpers = {
+        config: {
+          getBaseUrl: function(user, callback) {
+            callback(null, baseUrl);
           }
-        };
+        }
       };
       var vcardData = ['vcard', [
           ['version', {}, 'text', '4.0'],
@@ -73,7 +90,8 @@ describe('The avatarHelper module', function() {
         ]
       ];
       var avatarUrl = baseUrl + '/contact/api/contacts/' + bookId + '/' + bookName + '/' + cardId + '/avatar';
-      getModule().injectTextAvatar(bookId, bookName, vcardData).then(function(output) {
+
+      getModule().injectTextAvatar(user, bookId, bookName, vcardData).then(function(output) {
         expect(output).to.eql(['vcard', [
           ['version', {}, 'text', '4.0'],
           ['uid', {}, 'text', cardId],
@@ -90,7 +108,7 @@ describe('The avatarHelper module', function() {
         ['photo', {}, 'uri', 'some data here']
       ]];
 
-      getModule().injectTextAvatar(bookId, bookName, vcardData).then(function(output) {
+      getModule().injectTextAvatar(user, bookId, bookName, vcardData).then(function(output) {
         expect(output).to.eql(vcardData);
         done();
       });
@@ -104,22 +122,23 @@ describe('The avatarHelper module', function() {
       });
       var vcardData = 'an invalid vcard data';
 
-      getModule().injectTextAvatar(bookId, bookName, vcardData).then(function(output) {
+      getModule().injectTextAvatar(user, bookId, bookName, vcardData).then(function(output) {
         expect(output).to.eql(vcardData);
         done();
       });
     });
 
     it('should resolve original vcard when getTextAvatarUrl rejects', function(done) {
-      dependencies['esn-config'] = function() {
-        return {
-          get: function(callback) {
-            callback('some error');
+      dependencies.helpers = {
+        config: {
+          getBaseUrl: function(user, callback) {
+            callback(new Error());
           }
-        };
+        }
       };
       var vcardData = 'some vcard data';
-      getModule().injectTextAvatar(bookId, bookName, vcardData).then(function(output) {
+
+      getModule().injectTextAvatar(user, bookId, bookName, vcardData).then(function(output) {
         expect(output).to.eql(vcardData);
         done();
       });

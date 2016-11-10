@@ -141,7 +141,6 @@ function sendInvitations(req, res) {
   res.status(202).end();
 
   var sendInvitation = function(email, callback) {
-
     var payload = {
       type: 'addmember',
       data: {
@@ -164,14 +163,19 @@ function sendInvitations(req, res) {
           return callback();
         }
 
-        saved.data.url = getInvitationURL(req, saved);
-        handler.init(saved, function(err, result) {
-          if (err || !result) {
-            logger.error('Invitation can not be initialized %s : %s', saved, err ? err.message : result);
-          } else {
-            sent.push(email);
-          }
-          return callback();
+        getInvitationURL(req, saved).then(function(url) {
+          saved.data.url = url;
+          handler.init(saved, function(err, result) {
+            if (err || !result) {
+              logger.error('Invitation can not be initialized %s : %s', saved, err ? err.message : result);
+            } else {
+              sent.push(email);
+            }
+            return callback();
+          });
+        }, function(err) {
+          logger.error('Cannot get invitation url with error : %s', err);
+          return callback(err);
         });
       });
     });

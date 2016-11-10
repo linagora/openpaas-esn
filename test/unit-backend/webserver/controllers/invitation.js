@@ -4,17 +4,25 @@ var mockery = require('mockery');
 var expect = require('chai').expect;
 
 describe('the invitation controller', function() {
+  beforeEach(function() {
+    this.mongoose = this.helpers.requireFixture('mongoose').mongoose();
+    mockery.registerMock('mongoose', this.mongoose);
+
+    this.handlerMock = {
+      isStillValid: function() {}
+    };
+    this.helpersMock = {
+      config: {
+        getBaseUrl: function(user, callback) {
+          callback(null, 'http://localhost:8080');
+        }
+      }
+    };
+    mockery.registerMock('../../helpers', this.helpersMock);
+    mockery.registerMock('../../core/invitation', this.handlerMock);
+  });
+
   describe('load method', function() {
-    beforeEach(function() {
-      this.mongoose = this.helpers.requireFixture('mongoose').mongoose();
-      mockery.registerMock('mongoose', this.mongoose);
-
-      this.handlerMock = {
-        isStillValid: function() {}
-      };
-      mockery.registerMock('../../core/invitation', this.handlerMock);
-
-    });
 
     it('should call Invitation.loadFromUUID', function(done) {
       var invitationId = 'BADA55';
@@ -173,6 +181,65 @@ describe('the invitation controller', function() {
         );
         this.callback(null, true);
       });
+    });
+  });
+
+  describe('The getInvitationURL fn', function() {
+    var reqMock, invitationMock;
+
+    beforeEach(function() {
+      reqMock = {
+        user: {
+          _id: '123',
+          firstname: 'name'
+        }
+      };
+
+      invitationMock = { uuid: 'BADA55'};
+
+    });
+
+    it('should reject if configHelpers cannot get base_url', function(done) {
+      this.helpersMock = {
+        config: {
+          getBaseUrl: function(user, callback) {
+            callback(new Error('something error'));
+          }
+        }
+      };
+
+      mockery.registerMock('../../helpers', this.helpersMock);
+
+      var middleware = this.helpers.requireBackend('webserver/controllers/invitation');
+
+      middleware.getInvitationURL(reqMock, invitationMock)
+        .catch(function(err) {
+          expect(err.message).to.equal('something error');
+          done();
+        });
+    });
+
+    it('should call configHelpers.getBaseUrl to get base_url', function(done) {
+      var baseUrl = 'http://localhost:8080';
+      var expectedUrl = baseUrl + '/invitation/' + invitationMock.uuid;
+
+      this.helpersMock = {
+        config: {
+          getBaseUrl: function(user, callback) {
+            callback(null, baseUrl);
+          }
+        }
+      };
+
+      mockery.registerMock('../../helpers', this.helpersMock);
+
+      var middleware = this.helpers.requireBackend('webserver/controllers/invitation');
+
+      middleware.getInvitationURL(reqMock, invitationMock)
+        .then(function(url) {
+          expect(url).to.equal(expectedUrl);
+          done();
+        });
     });
   });
 });

@@ -106,7 +106,6 @@ describe('The module manager', function() {
         'linagora.esn.core.webserver.middleware.request',
         'linagora.esn.core.webserver.middleware.setup-routes',
         'linagora.esn.core.webserver.middleware.setup-sessions',
-        'linagora.esn.core.webserver.middleware.setup-settings',
         'linagora.esn.core.webserver.middleware.startup-buffer',
         'linagora.esn.core.webserver.middleware.templates',
         'linagora.esn.core.webserver.middleware.token',

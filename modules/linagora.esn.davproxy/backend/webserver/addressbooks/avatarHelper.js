@@ -2,38 +2,12 @@
 
 var ICAL = require('ical.js');
 var q = require('q');
-var DEFAULT_BASE_URL = 'http://localhost:8080';
 
 module.exports = function(dependencies) {
 
   var logger = dependencies('logger');
   var esnconfig = dependencies('esn-config');
-
-  /**
-   * Get base_url configuration from esnconfig. DEFAULT_BASE_URL will be used
-   * when the configuration is not present.
-   *
-   * @return {Promise}
-   */
-  function getBaseUrl() {
-    var baseUrl;
-    var deferred = q.defer();
-
-    esnconfig('web').get(function(err, web) {
-      if (err) {
-        logger.error('Error while getting esn-config', err);
-        return deferred.reject(err);
-      }
-      if (web && web.base_url) {
-        baseUrl = web.base_url;
-      } else {
-        baseUrl = DEFAULT_BASE_URL;
-      }
-      deferred.resolve(baseUrl);
-    });
-
-    return deferred.promise;
-  }
+  var configHelpers = dependencies('helpers').config;
 
   function buildTextAvatarUrl(baseUrl, addressBookId, addressbookName, contactId) {
     return [
@@ -46,10 +20,18 @@ module.exports = function(dependencies) {
     ].join('/');
   }
 
-  function getTextAvatarUrl(addressBookId, addressbookName, contactId) {
-    return getBaseUrl().then(function(baseUrl) {
-      return buildTextAvatarUrl(baseUrl, addressBookId, addressbookName, contactId);
+  function getTextAvatarUrl(user, addressBookId, addressbookName, contactId) {
+    var deferred = q.defer();
+
+    configHelpers.getBaseUrl(user, function(err, baseUrl) {
+      if (err) {
+        return deferred.reject(err);
+      }
+
+      deferred.resolve(buildTextAvatarUrl(baseUrl, addressBookId, addressbookName, contactId));
     });
+
+    return deferred.promise;
   }
 
   /**
@@ -57,20 +39,21 @@ module.exports = function(dependencies) {
    * that this will always resolve promise, if it gets getTextAvatarUrl rejected,
    * the original vcardData will be resolved.
    *
+   * @param  {Object} user
    * @param  {String} addressBookId Address book ID
    * @param  {String} addressBookName Address book name
    * @param  {Object} vcardData     vcard data in json
    * @return {Promise}              resolve vcard with avatar injected or the
    *                                  original vcard if the contact has avatar already.
    */
-  function injectTextAvatar(addressBookId, addressbookName, vcardData) {
+  function injectTextAvatar(user, addressBookId, addressbookName, vcardData) {
     try {
       var vcard = new ICAL.Component(vcardData);
 
       if (!vcard.getFirstPropertyValue('photo')) {
         var contactId = vcard.getFirstPropertyValue('uid');
 
-        return getTextAvatarUrl(addressBookId, addressbookName, contactId)
+        return getTextAvatarUrl(user, addressBookId, addressbookName, contactId)
           .then(function(avatarUrl) {
             vcard.addPropertyWithValue('photo', avatarUrl);
             return vcard.toJSON();

@@ -1,11 +1,23 @@
 'use strict';
 
+var q = require('q');
 var mongoose = require('mongoose');
 var Invitation = mongoose.model('Invitation');
 var handler = require('../../core/invitation');
+var helpers = require('../../helpers');
 
 var getInvitationURL = function(req, invitation) {
-  return req.openpaas.getBaseURL() + '/invitation/' + invitation.uuid;
+  var deferred = q.defer();
+
+  helpers.config.getBaseUrl(req.user, function(err, baseUrl) {
+    if (err) {
+      return deferred.reject(err);
+    }
+
+    deferred.resolve(baseUrl + '/invitation/' + invitation.uuid);
+  });
+
+  return deferred.promise;
 };
 module.exports.getInvitationURL = getInvitationURL;
 
@@ -102,13 +114,17 @@ module.exports.create = function(req, res) {
         return res.status(400).json({ error: { status: 400, message: 'Bad request', details: err.message}});
       }
 
-      saved.data.url = getInvitationURL(req, saved);
+      getInvitationURL(req, saved).then(function(url) {
+        saved.data.url = url;
 
-      handler.init(saved, function(err, result) {
-        if (err) {
-          return res.status(500).json({ error: { status: 500, message: 'Server error', details: err.message}});
-        }
-        return res.status(201).json(result);
+        handler.init(saved, function(err, result) {
+          if (err) {
+            return res.status(500).json({ error: { status: 500, message: 'Server error', details: err.message}});
+          }
+          return res.status(201).json(result);
+        });
+      }, function(err) {
+        return res.status(500).json({ error: { status: 500, message: 'Server error', details: err.message}});
       });
     });
   });

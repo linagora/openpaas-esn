@@ -36,7 +36,7 @@ module.exports = function(dependencies) {
         // inject text avatar if there's no avatar
         if (body && body._embedded && body._embedded['dav:item']) {
           q.all(body._embedded['dav:item'].map(function(davItem) {
-            return avatarHelper.injectTextAvatar(req.params.bookHome, req.params.bookName, davItem.data)
+            return avatarHelper.injectTextAvatar(req.user, req.params.bookHome, req.params.bookName, davItem.data)
               .then(function(newData) {
                 davItem.data = newData;
               });
@@ -69,7 +69,7 @@ module.exports = function(dependencies) {
       .vcard(req.params.contactId)
       .get()
       .then(function(data) {
-        avatarHelper.injectTextAvatar(req.params.bookHome, req.params.bookName, data.body).then(function(newBody) {
+        avatarHelper.injectTextAvatar(req.user, req.params.bookHome, req.params.bookName, data.body).then(function(newBody) {
           res.set('ETag', data.response.headers.etag);
 
           return res.status(data.response.statusCode).json(newBody);
@@ -108,7 +108,7 @@ module.exports = function(dependencies) {
         .vcard(req.params.contactId)
         .create(req.body)
         .then(function(data) {
-          avatarHelper.injectTextAvatar(req.params.bookHome, req.params.bookName, req.body).then(function(newBody) {
+          avatarHelper.injectTextAvatar(req.user, req.params.bookHome, req.params.bookName, req.body).then(function(newBody) {
             localpubsub.topic(CONSTANTS.NOTIFICATIONS.CONTACT_ADDED).forward(globalpubsub, {
               contactId: req.params.contactId,
               bookId: req.params.bookHome,
@@ -231,7 +231,7 @@ module.exports = function(dependencies) {
         });
 
         q.all(dataCleanResult.map(function(result, index) {
-          return avatarHelper.injectTextAvatar(result.bookId, result.bookName, result.body)
+          return avatarHelper.injectTextAvatar(req.user, result.bookId, result.bookName, result.body)
             .then(function(newVcard) {
               json._embedded['dav:item'][index] = {
                 _links: {

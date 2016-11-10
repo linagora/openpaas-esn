@@ -123,30 +123,19 @@ function _buildContent(user, data, baseUrl) {
 
 function process(dependencies, user, digest) {
   var emailModule = dependencies('email');
-  var esnconfig = dependencies('esn-config');
-  var staticConfig = dependencies('config')('default');
+  var configHelpers = dependencies('helpers').config;
 
-  function getBaseUrl() {
-    return q.ninvoke(esnconfig('web'), 'get').then(function(web) {
-      if (web && web.base_url) {
-        return q(web.base_url);
-      }
-      var port = staticConfig.webserver.port || '8080';
+  return q.nfcall(configHelpers.getBaseUrl, user)
+    .then(function(baseUrl) {
+      var content = _buildContent(user, digest, baseUrl);
+      var message = {
+        to: user.emails[0],
+        subject: content.subject
+      };
+      var templateName = TEMPLATE;
 
-      return q('http://localhost:' + port);
+      return emailModule.getMailer().sendHTML(message, templateName, content);
     });
-  }
-
-  return getBaseUrl().then(function(baseUrl) {
-    var content = _buildContent(user, digest, baseUrl);
-    var message = {
-      to: user.emails[0],
-      subject: content.subject
-    };
-    var templateName = TEMPLATE;
-
-    return emailModule.getMailer().sendHTML(message, templateName, content);
-  });
 }
 
 module.exports = function(dependencies) {

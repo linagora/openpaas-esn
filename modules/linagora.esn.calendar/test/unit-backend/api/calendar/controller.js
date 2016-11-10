@@ -22,7 +22,7 @@ describe('The calendar controller', function() {
     });
     helpers = {
       config: {
-        getBaseUrl: function(callback) { callback(null, 'baseUrl'); }
+        getBaseUrl: function(user, callback) { callback(null, 'baseUrl'); }
       }
     };
     this.moduleHelpers.addDep('helpers', helpers);
@@ -321,7 +321,7 @@ describe('The calendar controller', function() {
           });
 
           it('should send 500 if the esn baseUrl cannot be retrieved form the config', function(done) {
-            helpers.config.getBaseUrl = sinon.spy(function(callback) {
+            helpers.config.getBaseUrl = sinon.spy(function(user, callback) {
               callback(new Error());
             });
 
