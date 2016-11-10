@@ -85,6 +85,12 @@ module.exports.list = function(callback) {
   User.find(callback);
 };
 
+module.exports.update = function(user, callback) {
+  // because Model.update calls callback with 3 params (err, saved, rowAffected)
+  // so we work around to make it compatible when we use with q.ninvoke
+  user.save((err, savedUser) => callback(err, savedUser));
+};
+
 module.exports.updateProfile = function(user, profile, callback) {
   if (!user || !profile) {
     return callback(new Error('User and profile are required'));

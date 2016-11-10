@@ -23,12 +23,9 @@ module.exports = {
 function provisionUser(ldapPayload) {
   return q.nfcall(userModule.findByEmail, ldapPayload.username)
     .then(function(user) {
-      if (user) { // user is already provisioned
-        return user;
-      }
+      var method = user ? 'update' : 'provisionUser';
+      var provisionUser = ldapModule.translate(user, ldapPayload);
 
-      var provisionUser = ldapModule.translate(ldapPayload);
-
-      return q.nfcall(userModule.provisionUser, provisionUser);
+      return q.ninvoke(userModule, method, provisionUser);
     });
 }

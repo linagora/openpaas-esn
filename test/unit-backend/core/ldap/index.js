@@ -47,7 +47,7 @@ describe('The ldap core module', function() {
       });
     });
 
-    it('should send back error if LDAP configuration have been not returned', function(done) {
+    it('should send back error if LDAP configuration is null', function(done) {
       ldapConfigsMock = null;
 
       ldap.findLDAPForUser('foo@bar.com', function(err, ldaps) {
@@ -58,19 +58,41 @@ describe('The ldap core module', function() {
     });
 
     it('should send back the ldap if LDAP configuration have been return as array of arrays where user is available in', function(done) {
-      ldapConfigsMock = [[{configuration: {}}], [{configuration: {include: true}}], [{configuration: {include: true}}]];
+      ldapConfigsMock = [{
+        config: [{
+          configuration: {}
+        }]
+      }, {
+        config: [{
+          configuration: { include: true }
+        }, {
+          configuration: { include: true }
+        }]
+      }];
 
       ldap.findLDAPForUser('foo@bar.com', function(err, ldaps) {
         expect(err).to.not.exist;
         expect(esnConfigMock.getFromAllDomains).to.have.been.calledOnce;
         expect(ldaps).to.exist;
         expect(ldaps.length).to.equal(2);
-        done();
+        done(err);
       });
     });
 
     it('should send back the ldap if LDAP configuration have been return as array of objects where user is available in', function(done) {
-      ldapConfigsMock = [{configuration: {}}, {configuration: {include: true}}, {configuration: {include: true}}];
+      ldapConfigsMock = [{
+        config: {
+          configuration: {}
+        }
+      }, {
+        config: {
+          configuration: { include: true }
+        }
+      }, {
+        config: {
+          configuration: { include: true }
+        }
+      }];
 
       ldap.findLDAPForUser('foo@bar.com', function(err, ldaps) {
         expect(err).to.not.exist;

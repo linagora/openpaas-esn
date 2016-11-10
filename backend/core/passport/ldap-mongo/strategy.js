@@ -1,7 +1,8 @@
 'use strict';
 
 var passport = require('passport'),
-  ldap = require('../../ldap');
+  ldap = require('../../ldap'),
+  logger = require('../../logger');
 
 /**
  * Strategy constructor
@@ -97,7 +98,9 @@ class Strategy extends passport.Strategy {
       }
 
       // authenticate user on the first LDAP for now
-      ldap.authenticate(username, password, ldaps[0].configuration, function(err, ldapuser) {
+      var ldapConfig = ldaps[0];
+
+      ldap.authenticate(username, password, ldapConfig.configuration, (err, ldapuser) => {
         if (err) {
           // Invalid credentials / user not found are not errors but login failures
           if (err.name === 'InvalidCredentialsError' || err.name === 'NoSuchObjectError' || (typeof err === 'string' && err.match(/no such user/i))) {
@@ -112,11 +115,15 @@ class Strategy extends passport.Strategy {
           return self.fail('User information not found');
         }
 
+        if (!ldapConfig.domainId) {
+          logger.warn(`LDAP directory ${ldapConfig.name} does not have domain information, user provision could be failed`);
+        }
+
         var payload = {
           username: username,
           user: ldapuser,
-          config: ldaps[0].configuration,
-          domainId: 'we must have domain info here'
+          config: ldapConfig.configuration,
+          domainId: ldapConfig.domainId
         };
 
         return self._finalize(payload, req);

@@ -29,19 +29,38 @@ function emailExists(email, ldap, callback) {
  * @param {Function} callback - as fn(err, ldap) where ldap is the first LDAP entry where the user has been found
  */
 function findLDAPForUser(email, callback) {
-  return esnConfig('ldap').getFromAllDomains().then(function(ldaps) {
-    if (!ldaps || ldaps.length === 0) {
+  return esnConfig('ldap').getFromAllDomains().then(configs => {
+    if (!configs || configs.length === 0) {
       return callback(new Error('No configured LDAP'));
     }
 
-    // ldaps could be an array of arrays OR an array of objects so we make it flat
-    var ldapConfigs = [].concat.apply([], ldaps).filter(Boolean);
+    var ldapConfigs = configs.map(data => {
+      if (!data || !data.config) {
+        return;
+      }
+
+      var domainId = data.domainId;
+      // each domain can have more than one LDAP directory
+      var ldaps = Array.isArray(data.config) ? data.config : [data.config];
+
+      // provide domainId for all LDAP configurations
+      ldaps.forEach(ldap => {
+        if (!ldap.domainId) {
+          ldap.domainId = domainId;
+        }
+      });
+
+      return ldaps;
+    }).filter(Boolean);
+
+    // make the array flat
+    ldapConfigs = [].concat.apply([], ldapConfigs);
 
     if (!ldapConfigs || ldapConfigs.length === 0) {
       return callback(new Error('No configured LDAP'));
     }
 
-    async.filter(ldapConfigs, function(ldap, callback) {
+    async.filter(ldapConfigs, (ldap, callback) => {
       emailExists(email, ldap.configuration, callback);
     }, callback);
   });
@@ -78,31 +97,56 @@ function authenticate(email, password, ldap, callback) {
 
 /**
  * Translate ldapPayload to OpenPaaS user
+ *
+ * @param  {Object} baseUser    The base user object to be extended
  * @param  {Object} ldapPayload The LDAP payload returned by LDAP strategy
  * @return {Object}             The OpenPaaS user object
  */
-function translate(ldapPayload) {
-  var email = ldapPayload.username; // we use email as username to authenticate LDAP
+function translate(baseUser, ldapPayload) {
+  var userEmail = ldapPayload.username; // we use email as username to authenticate LDAP
   var domainId = ldapPayload.domainId;
   var ldapUser = ldapPayload.user;
   var mapping = ldapPayload.config.mapping;
-  var provisionUser = {
-    accounts: [{
+  var provisionUser = baseUser || {};
+
+  // provision domain
+  if (!provisionUser.domains) {
+    provisionUser.domains = [];
+  }
+
+  var domain = _.find(provisionUser.domains, domain => String(domain.domain_id) === String(domainId));
+
+  if (!domain) {
+    provisionUser.domains.push({ domain_id: domainId });
+  }
+
+  // provision email account
+  if (!provisionUser.accounts) {
+    provisionUser.accounts = [];
+  }
+
+  var emailAccount = _.find(provisionUser.accounts, { type: 'email' });
+
+  if (!emailAccount) {
+    emailAccount = {
       type: 'email',
       hosted: true,
-      emails: [email]
-    }],
-    domains: [{
-      domain_id: domainId
-    }]
-  };
+      emails: []
+    };
+    provisionUser.accounts.push(emailAccount);
+  }
 
-  _.forEach(mapping, function(value, key) {
+  if (emailAccount.emails.indexOf(userEmail) === -1) {
+    emailAccount.emails.push(userEmail);
+  }
+
+  // provision other fields basing on mapping
+  _.forEach(mapping, (value, key) => {
     if (key === 'email') {
       var email = ldapUser[value];
 
-      if (provisionUser.accounts[0].emails.indexOf(email) === -1) {
-        provisionUser.accounts[0].emails.push(email);
+      if (emailAccount.emails.indexOf(email) === -1) {
+        emailAccount.emails.push(email);
       }
     } else {
       provisionUser[key] = ldapUser[value];
