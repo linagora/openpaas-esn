@@ -1,9 +1,8 @@
 'use strict';
 
-angular.module('esn.aggregator', [])
-
-  .constant('AGGREGATOR_DEFAULT_RESULTS_PER_PAGE', 5)
-  .constant('AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE', 40)
+angular.module('esn.aggregator', [
+  'esn.constants'
+])
 
   .factory('PageAggregatorSourceWrapper', function($q) {
     function PageAggregatorSourceWrapper(source) {

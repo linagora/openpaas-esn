@@ -1,9 +1,10 @@
 'use strict';
 
-angular.module('esn.cache', [])
+angular.module('esn.cache', [
+  'esn.constants'
+])
 
   .constant('CACHE_NO_TTL', -1)
-  .constant('CACHE_DEFAULT_TTL', 60000)
 
   .factory('CacheEntry', function($q, CACHE_NO_TTL) {
 

@@ -1,8 +1,10 @@
 'use strict';
 
-angular.module('esn.router', ['ui.router', 'esn.session'])
-
-  .constant('ESN_ROUTER_DEFAULT_HOME_PAGE', 'unifiedinbox')
+angular.module('esn.router', [
+  'esn.session',
+  'esn.constants',
+  'ui.router'
+])
 
   .config(function($urlMatcherFactoryProvider) {
     // This option allows to have trailing slash at the end of the browser url.

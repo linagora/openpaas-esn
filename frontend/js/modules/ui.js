@@ -1,12 +1,12 @@
 'use strict';
 
 angular.module('esn.ui', [
-    'op.dynamicDirective',
-    'mgcrea.ngStrap.modal',
-    'esn.autolinker-wrapper'
-  ])
+  'esn.autolinker-wrapper',
+  'esn.constants',
+  'op.dynamicDirective',
+  'mgcrea.ngStrap.modal'
+])
 
-  .constant('DEFAULT_COLOR_CLASS', 'accent')
   .constant('FAB_ICONS', {
     default: 'mdi mdi-plus',
     create: 'mdi mdi-plus',

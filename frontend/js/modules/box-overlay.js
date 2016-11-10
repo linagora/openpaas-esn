@@ -1,8 +1,10 @@
 'use strict';
 
-angular.module('esn.box-overlay', ['esn.back-detector', 'ng.deviceDetector'])
-
-  .constant('MAX_BOX_COUNT', 2)
+angular.module('esn.box-overlay', [
+  'esn.constants',
+  'esn.back-detector',
+  'ng.deviceDetector'
+])
 
   .service('boxOverlayOpener', function($boxOverlay) {
 

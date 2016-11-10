@@ -1,8 +1,9 @@
 'use strict';
 
-angular.module('esn.async-action', ['esn.notification'])
-
-.constant('ASYNC_ACTION_LONG_TASK_DURATION', 1000)
+angular.module('esn.async-action', [
+  'esn.notification',
+  'esn.constants'
+])
 
 .factory('rejectWithErrorNotification', function($q, notificationFactory) {
   return function(message, cancelAction) {

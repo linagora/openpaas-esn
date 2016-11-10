@@ -42,6 +42,9 @@ module.exports = {
       user: {
         public: false
       },
+      constants: {
+        public: false
+      },
       'application-menu.profile': {
         public: true
       },
