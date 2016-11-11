@@ -72,7 +72,7 @@ module.exports.sendPasswordReset = function(user, callback) {
   function getConfiguration(callback) {
     async.parallel([
       helpers.config.getNoReply,
-      helpers.config.getBaseUrl
+      helpers.config.getBaseUrl.bind(null, user)
     ], callback);
   }
 

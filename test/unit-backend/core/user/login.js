@@ -301,4 +301,74 @@ describe('The user login module', function() {
     });
 
   });
+
+  describe('The sendPasswordReset function', function() {
+    var user, helpersMock, errorMessage, data;
+
+    beforeEach(function() {
+      user = {
+        _id: '123',
+        firstname: 'name',
+        preferredEmail: 'mailto@email.com'
+      };
+      errorMessage = 'somthing wrong';
+      data = {message: 'send successfully'};
+
+      mockModels({
+        User: {
+          loadFromEmail: function(email, callback) {
+            callback(null, null);
+          }
+        },
+        PasswordReset: {
+          find: function(email, callback) {
+            callback(null, [{_id: '123', email: 'email@mail.com', url: 'http://localhost:8080/passwordreset'}]);
+          }
+        }
+      });
+      var email = {
+        getMailer: function(user) {
+          return {
+            sendHTML: function(message, templateName, context, callback) {
+              callback(null, data);
+            }
+          };
+        }
+      };
+      helpersMock = {
+        config: {
+          getBaseUrl: function(user, callback) {
+            callback(new Error(errorMessage));
+          },
+          getNoReply: function(callback) {
+            callback(null, 'no-reply@openpaas.org');
+          }
+        }
+      };
+      mockery.registerMock('../../helpers', helpersMock);
+      mockery.registerMock('../email', email);
+    });
+
+    it('should fail if configHelpers.getBaseUrl get error', function(done) {
+      var login = require('../../../../backend/core/user/login');
+
+      login.sendPasswordReset(user, function(err) {
+        expect(err.message).to.equal(errorMessage);
+        done();
+      });
+    });
+
+    it('should return noreply address and baseUrl if configHelpers.getBaseUrl run successfully', function(done) {
+      helpersMock.config.getBaseUrl = function(user, callback) {
+        callback(null, 'http://openpaas.org');
+      };
+      var login = require('../../../../backend/core/user/login');
+
+      login.sendPasswordReset(user, function(err, message) {
+        expect(err).to.not.exist;
+        expect(message).to.deep.equal(data);
+        done();
+      });
+    });
+  });
 });
