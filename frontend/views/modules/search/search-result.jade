@@ -4,6 +4,8 @@
       .lv-body
         .lv-item.media(ng-repeat="item in elements | orderBy: '-date'" ng-if="elements.length > 0")
           ng-include(src="item.templateUrl")
-
+    .search-empty-result(ng-if="!elements.length")
+      .search-empty-icon.mdi.mdi-magnify
+      .message #{__("There is no result matching your query")}
     ul.nav.nav-pills.nav-stacked(ng-if='infiniteScrollDisabled')
       li.text-center(openpaas-logo-spinner, spinner-start-active='1', spinner-size='0.5')
