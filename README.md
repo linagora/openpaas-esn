@@ -37,7 +37,7 @@ nvm use
 
 Follow [sabre installation instructions](https://ci.open-paas.org/stash/projects/OR/repos/esn-sabre/browse/README.md).
 
-6.Install the npm dependencies (as an administrator)
+6.Install the npm dependency
 
     npm install -g bower
 
@@ -48,21 +48,20 @@ Follow [sabre installation instructions](https://ci.open-paas.org/stash/projects
 If you have any problem relating to `node-canvas` during the dependencies installation,
 make sure your system has installed [Cairo](http://cairographics.org/). Documentation [can be found here](https://github.com/Automattic/node-canvas).
 
+If during further manipulations you encounter errors with node modules, try to reinstall them
+
+    rm -rf node_modules/
+    npm install
+
 ## Testing
 
-First you must install some npm dependencies (as an administrator)
+You must install npm dependency first
 
-    npm install -g mocha grunt-cli karma-cli
+    npm install -g grunt-cli
 
-Then install the gjslint dependency (as an administrator)
+You can check that everything works by launching the test suite (this may be long):
 
-    easy_install http://closure-linter.googlecode.com/files/closure_linter-latest.tar.gz
-
-More informations [can be found here](https://developers.google.com/closure/utilities/docs/linter_howto).
-
-Finally, you can check that everything works by launching the test suite (this may be long):
-
-    grunt --chunk 1
+    grunt --chunk=1
 
 Note that, due to the large amount of tests, you eventually need the `--chunk 1` option. It will create one new nodejs process per js test file. It prevents the memory to be overused by mocha, which would lead to tests failures.
 If you want to launch tests from a single test, you can specify the file as command line argument.
@@ -77,7 +76,7 @@ Some specialized Grunt tasks are available, check the Gruntfile.js for more:
     grunt linters # launch hinter and linter against the codebase
     grunt test-frontend # only run the fontend unit tests
     grunt test-unit-backend # only run the unit backend tests
-    grunt test-midway-bakend # only run the midway backend tests
+    grunt test-midway-backend # only run the midway backend tests
     grunt test # launch all the testsuite
 
 ## Fixtures
