@@ -40,6 +40,11 @@ describe('The calEventService service', function() {
       }
     };
 
+    self.notificationFactoryMock = {
+      weakInfo: sinon.spy(),
+      weakError: sinon.spy()
+    };
+
     self.jstz = {
       determine: function() {
         return {
@@ -67,6 +72,7 @@ describe('The calEventService service', function() {
       $provide.value('tokenAPI', self.tokenAPI);
       $provide.value('jstz', self.jstz);
       $provide.value('uuid4', self.uuid4);
+      $provide.value('notificationFactory', self.notificationFactoryMock);
       $provide.value('socket', self.socket);
       $provide.value('gracePeriodService', self.gracePeriodService);
       $provide.value('$modal', self.$modal);
@@ -909,6 +915,7 @@ describe('The calEventService service', function() {
       expect(calCachedEventSourceMock.deleteRegistration).to.have.been.calledWith(self.event);
       expect(self.calendarEventEmitterMock.fullcalendar.emitRemovedEvent).to.have.been.calledWith(self.event.id);
       expect(self.gracePeriodService.cancel).to.have.been.calledWith(self.event.gracePeriodTaskId);
+      expect(self.notificationFactoryMock.weakInfo).to.have.been.calledWith('Calendar', self.event.title + ' has been deleted.');
     });
 
     it('should cancel the task if event is involved in a graceperiod', function() {
@@ -921,7 +928,6 @@ describe('The calEventService service', function() {
       self.$rootScope.$apply();
       self.$httpBackend.flush();
       expect(self.gracePeriodService.cancel).to.have.been.calledWith(gracePeriodId);
-
     });
 
     it('should succeed on 202 and send a websocket event', function() {
