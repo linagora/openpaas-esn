@@ -109,31 +109,28 @@ module.exports = function(grunt) {
 
       redis: container.newContainer({
           Image: servers.redis.container.image,
-          name: servers.redis.container.name
-        }, {
+          name: servers.redis.container.name,
           PortBindings: { '6379/tcp': [{ HostPort: servers.redis.port + '' }] }
-        }, {}, {
+        }, {}, {}, {
           regex: null,
           info: 'Redis server is started.'
         }),
       mongo: container.newContainer({
           Image: servers.mongodb.container.image,
           name: servers.mongodb.container.name,
-          Cmd: ['mongod', '--nojournal']
-        }, {
+          Cmd: ['mongod', '--nojournal'],
           PortBindings: { '27017/tcp': [{ HostPort: servers.mongodb.port + '' }] }
-        }, {}, {
+        }, {}, {}, {
           regex: new RegExp('connections on port 27017'),
           info: 'MongoDB server is started.'
         }),
       elasticsearch: container.newContainer({
           Image: servers.elasticsearch.container.image,
           name: servers.elasticsearch.container.name,
-          Cmd: ['elasticsearch', '-Des.discovery.zen.ping.multicast.enabled=false']
-        }, {
+          Cmd: ['elasticsearch', '-Des.discovery.zen.ping.multicast.enabled=false'],
           PortBindings: { '9200/tcp': [{ HostPort: servers.elasticsearch.port + '' }] },
           Links: [servers.mongodb.container.name + ':mongo']
-        }, {}, {
+        }, {}, {}, {
           regex: /started/,
           info: 'Elasticsearch server is started.'
         })
