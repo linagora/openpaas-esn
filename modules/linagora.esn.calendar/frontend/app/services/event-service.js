@@ -22,6 +22,7 @@
     CALENDAR_GRACE_DELAY) {
 
       var self = this;
+      var oldEventStore = {};
 
       self.changeParticipation = changeParticipation;
       self.getInvitedAttendees = getInvitedAttendees;
@@ -281,6 +282,7 @@
        * @return {Boolean}                             true on success, false if cancelled
        */
       function modifyEvent(path, event, oldEvent, etag, onCancel, options) {
+        oldEvent = oldEventStore[event.uid] = oldEventStore[event.uid] || oldEvent;
         options = options || {};
         if (event.isInstance()) {
           return event.getModifiedMaster().then(function(newMasterEvent) {
@@ -307,6 +309,7 @@
         var taskId = null;
 
         function onTaskCancel() {
+          delete oldEventStore[event.uid];
           onCancel && onCancel(); //order matter, onCancel should be called before emitModifiedEvent because it can mute oldEvent
           calCachedEventSource.registerUpdate(oldEvent);
           oldEvent.isRecurring() && calMasterEventCache.save(oldEvent);
@@ -341,6 +344,7 @@
             return $q.reject(err);
           })
           .finally(function() {
+            delete oldEventStore[event.uid];
             event.gracePeriodTaskId = undefined;
           });
       }
