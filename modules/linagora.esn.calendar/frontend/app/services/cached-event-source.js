@@ -108,6 +108,7 @@
           delete notAppliedChange[event.id];
           if (change.event.isRecurring()) {
             change.instances.forEach(function(instance) {
+              delete notAppliedChange[instance.id];
               previousCleanedEvents.push(instance);
             });
           } else {
