@@ -83,7 +83,10 @@ function getFromAllDomains(esnConfig, configName, callback) {
         // try to any possible configuration
         return get(esnConfig, configName).then(function(config) {
           if (!_.isUndefined(config)) {
-            return [config];
+            return [{
+              domainId: null,
+              config
+            }];
           }
 
           return [];

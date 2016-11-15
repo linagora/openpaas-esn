@@ -124,6 +124,7 @@ describe('The core/esn-config module', function() {
     it('should get configurations from all documents in configurations collection', function(done) {
       confModuleMock.getAll = function(callback) {
         callback(null, [{
+          domain_id: 'domain1',
           modules: [{
             name: 'inbox',
             configurations: [{
@@ -132,6 +133,7 @@ describe('The core/esn-config module', function() {
             }]
           }]
         }, {
+          domain_id: 'domain2',
           modules: [{
             name: 'inbox',
             configurations: [{
@@ -144,7 +146,13 @@ describe('The core/esn-config module', function() {
 
       this.getModule()('inbox1').inModule('inbox').getFromAllDomains(function(err, data) {
         expect(err).to.not.exist;
-        expect(data).to.deep.equal(['domain1', 'domain2']);
+        expect(data).to.deep.equal([{
+          domainId: 'domain1',
+          config: 'domain1'
+        }, {
+          domainId: 'domain2',
+          config: 'domain2'
+        }]);
         done();
       });
     });

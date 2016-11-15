@@ -1,10 +1,8 @@
 'use strict';
 
 var passport = require('passport'),
-  util = require('util'),
   ldap = require('../../ldap'),
-  usermodule = require('../../user'),
-  _ = require('lodash');
+  logger = require('../../logger');
 
 /**
  * Strategy constructor
@@ -34,91 +32,60 @@ var passport = require('passport'),
  *     ));
  */
 
-var addDefaults = function(options) {
-  options.usernameField || (options.usernameField = 'username');
-  options.passwordField || (options.passwordField = 'password');
-  return options;
-};
+class Strategy extends passport.Strategy {
 
-var Strategy = function(options, verify) {
-  this.options = null;
-  this.getOptions = null;
+  constructor(options, verify) {
+    super();
 
-  if (!options) {
-    throw new Error('LDAP Mongo authentication strategy requires options');
-  }
+    this.name = 'ldap-mongo';
+    this.options = null;
+    this.getOptions = null;
+    this.verify = verify;
 
-  if (typeof options === 'object') {
-    this.options = addDefaults(options);
-  } else if (typeof options === 'function') {
-    this.getOptions = options;
-  }
-
-  passport.Strategy.call(this);
-
-  this.name = 'ldap-mongo';
-  this.verify = verify;
-
-  if (typeof options === 'object') {
-    this.options.usernameField || (this.options.usernameField = 'username');
-    this.options.passwordField || (this.options.passwordField = 'password');
-  }
-};
-
-util.inherits(Strategy, passport.Strategy);
-
-/**
- * Get value for given field from given object. Taken from passport-local
- */
-var lookup = function(obj, field) {
-  var i, len, chain, prop;
-  if (!obj) { return null; }
-  chain = field.split(']').join('').split('[');
-  for (i = 0, len = chain.length; i < len; i++) {
-    prop = obj[chain[i]];
-    if (typeof prop === 'undefined') { return null; }
-    if (typeof prop !== 'object') { return prop; }
-    obj = prop;
-  }
-  return null;
-};
-
-/**
- * Verify the outcome of caller verify function - even if authentication (and
- * usually authorization) is taken care by LDAP there may be reasons why
- * a verify callback is provided, and again reasons why it may reject login
- * for a valid user.
- */
-var verify = function(self) {
-  // Callback given to user given verify function.
-  return function(err, user, info) {
-    if (err) {
-      return self.error(err);
+    if (!options) {
+      throw new Error('LDAP Mongo authentication strategy requires options');
     }
-    if (!user) {
-      return self.fail(info);
+
+    if (typeof options === 'object') {
+      this.options = addDefaults(options);
+    } else if (typeof options === 'function') {
+      this.getOptions = options;
+    } else {
+      throw new Error('options must be an object or a function');
     }
-    return self.success(user, info);
-  };
-};
-
-var handleAuthentication = function(req, options) {
-  var username, password, self;
-  options || (options = {});
-
-  username = lookup(req.body, this.options.usernameField) || lookup(req.query, this.options.usernameField);
-  password = lookup(req.body, this.options.passwordField) || lookup(req.query, this.options.passwordField);
-
-  if (!username || !password) {
-    return this.fail('Missing credentials');
   }
 
-  self = this;
-  usermodule.findByEmail(username, function(err, user) {
-    var provision = false;
+  /**
+   * Authenticate the request coming from a form or such.
+   */
+  authenticate(req) {
+    var self = this;
 
-    if (err || !user) {
-      provision = true;
+    if ((typeof self.options === 'object') && (!self.getOptions)) {
+      return self._handleAuthentication(req, self.options);
+    }
+
+    self.getOptions(function(err, configuration) {
+      if (err) {
+        return self.fail(err);
+      }
+
+      self.options = addDefaults(configuration);
+      self._handleAuthentication(req, self.options);
+    });
+  }
+
+  _handleAuthentication(req, options) {
+    var self = this;
+    var username, password;
+
+    options || (options = {});
+
+    username = lookup(req.body, this.options.usernameField) || lookup(req.query, this.options.usernameField);
+    password = lookup(req.body, this.options.passwordField) || lookup(req.query, this.options.passwordField);
+
+    if (!username || !password) {
+      return this.fail('Missing credentials');
     }
 
     ldap.findLDAPForUser(username, function(err, ldaps) {
@@ -131,12 +98,15 @@ var handleAuthentication = function(req, options) {
       }
 
       // authenticate user on the first LDAP for now
-      ldap.authenticate(username, password, ldaps[0].configuration, function(err, ldapuser) {
+      var ldapConfig = ldaps[0];
+
+      ldap.authenticate(username, password, ldapConfig.configuration, (err, ldapuser) => {
         if (err) {
           // Invalid credentials / user not found are not errors but login failures
           if (err.name === 'InvalidCredentialsError' || err.name === 'NoSuchObjectError' || (typeof err === 'string' && err.match(/no such user/i))) {
             return self.fail('Invalid username/password');
           }
+
           // Other errors are (most likely) real errors
           return self.error(err);
         }
@@ -145,76 +115,82 @@ var handleAuthentication = function(req, options) {
           return self.fail('User information not found');
         }
 
-        if (provision) {
-          var provision_user = {
-            accounts: [{
-              type: 'email',
-              hosted: true,
-              emails: [username]
-            }],
-            domains: [{
-              domain_id: ldaps[0].domain_id
-            }]
-          };
-          var ldap = ldaps[0];
-
-          if (ldap.configuration && ldap.configuration.mapping) {
-            var mappings = ldap.configuration.mapping;
-
-            _.forEach(mappings, function(value, key) {
-              if (key === 'email') {
-                var email = ldapuser[value];
-
-                if (provision_user.accounts[0].emails.indexOf(email) === -1) {
-                  provision_user.accounts[0].emails.push(email);
-                }
-              } else {
-                provision_user[key] = ldapuser[value];
-              }
-            });
-          }
-
-          usermodule.provisionUser(provision_user, function(err, saved) {
-            if (err) {
-              return self.error(new Error('Can not provision user'));
-            }
-            self._finalize(saved, req);
-          });
-        } else {
-          self._finalize(user, req);
+        if (!ldapConfig.domainId) {
+          logger.warn(`LDAP directory ${ldapConfig.name} does not have domain information, user provision could be failed`);
         }
+
+        var payload = {
+          username: username,
+          user: ldapuser,
+          config: ldapConfig.configuration,
+          domainId: ldapConfig.domainId
+        };
+
+        return self._finalize(payload, req);
       });
     });
-  });
-};
-
-Strategy.prototype._finalize = function(user, req) {
-  if (this.verify) {
-    if (this.options.passReqToCallback) {
-      return this.verify(req, user, verify(this));
-    } else {
-      return this.verify(user, verify(this));
-    }
-  } else {
-    return this.success(user);
   }
-};
+
+  _finalize(payload, req) {
+    if (this.verify) {
+      if (this.options.passReqToCallback) {
+        return this.verify(req, payload, this._verify());
+      }
+
+      return this.verify(payload, this._verify());
+    }
+
+    return this.success(payload);
+  }
+
+  /**
+   * Verify the outcome of caller verify function - even if authentication (and
+   * usually authorization) is taken care by LDAP there may be reasons why
+   * a verify callback is provided, and again reasons why it may reject login
+   * for a valid user.
+   */
+  _verify() {
+    var self = this;
+
+    // Callback given to user given verify function.
+    return function(err, payload, info) {
+      if (err) {
+        return self.error(err);
+      }
+
+      if (!payload) {
+        return self.fail(info);
+      }
+
+      return self.success(payload, info);
+    };
+  }
+
+}
 
 /**
- * Authenticate the request coming from a form or such.
+ * Get value for given field from given object. Taken from passport-local
  */
-Strategy.prototype.authenticate = function(req, options) {
-  if ((typeof this.options === 'object') && (!this.getOptions)) {
-    return handleAuthentication.call(this, req, options);
+function lookup(obj, field) {
+  var i, len, chain, prop;
+
+  if (!obj) { return null; }
+  chain = field.split(']').join('').split('[');
+  for (i = 0, len = chain.length; i < len; i++) {
+    prop = obj[chain[i]];
+    if (typeof prop === 'undefined') { return null; }
+    if (typeof prop !== 'object') { return prop; }
+    obj = prop;
   }
 
-  this.getOptions(function(err, configuration) {
-    if (err) {
-      return this.fail(err);
-    }
-    this.options = addDefaults(configuration);
-    handleAuthentication.call(this, req, options);
-  }.bind(this));
-};
+  return null;
+}
+
+function addDefaults(options) {
+  options.usernameField || (options.usernameField = 'username');
+  options.passwordField || (options.passwordField = 'password');
+
+  return options;
+}
 
 module.exports = Strategy;

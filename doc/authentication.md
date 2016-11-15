@@ -26,49 +26,38 @@ The passport strategy will look at all the available LDAP settings and will try 
 
 As an example, In a `configurations` document containing domain configurations, an array of LDAP connection settings looks like:
 
-    {
-      "_id": ObjectId("537c8c67c690f1ae5f5c0a6f"),      
-      "domain_id": ObjectId("5375de4bd684db7f6fbd4f98"),
-      "modules": [
-        {
-          "name": "configurations",
-          "configurations": [
-            {
-              "name": "ldap",
-              "value": [{
-                "name": "linagora",
-                "configuration": {
-                  "url": "ldap://localhost:389",
-                  "adminDn": "uid=admin,ou=sysusers,dc=lng",
-                  "adminPassword": "supersecret",
-                  "searchBase": "ou=users,dc=linagora.com,dc=lng",
-                  "searchFilter": "(mail={{username}})",
-                  "mapping": {
-                    "firstname": "firstname",
-                    "lastname": "lastname",
-                    "email": "mailAlias"
-                    }
-                  }
-              },
-              {
-                "name": "OpenPaas",
-                "configuration": {
-                  "url": "ldap://localhost:1389",
-                  "searchBase": "ou=users,dc=linagora.com,dc=lng",
-                  "searchFilter": "(mail={{username}})",
-                  "mapping": {
-                    "firstname": "firstname",
-                    "lastname": "lastname",
-                    "email": "mailAlias"
-                  }
-                }
-              }
-            ]
-          ]
-      ]
-    }
+```
+{
+  "name": "configurations",
+  "configurations": [{
+    "name": "ldap",
+    "value": [{
+      "name": "linagora",
+      "domainId": ObjectId("5375de4bd684db7f6fbd4f98"),
+      "configuration": {
+        "url": "ldap://localhost:389",
+        "adminDn": "uid=admin,ou=sysusers,dc=lng",
+        "adminPassword": "supersecret",
+        "searchBase": "ou=users,dc=linagora.com,dc=lng",
+        "searchFilter": "(mail={{username}})",
+        "mapping": {
+          "firstname": "firstname",
+          "lastname": "lastname",
+          "email": "mailAlias"
+        }
+      }
+    }, {
+      ...
+    }]
+  }]
+}
+```
 
 - You can also define value of LDAP connection setting as an object if there is only one configuration which's set up
+- The `domainId` is the ID of the domain that the authenticated user will join
+after he is provisioned. If `domainId` is omitted, the domain that contains the
+configuration will be used. If the configuration is system-wide, the `domainId`
+must be present.
 - The 'searchFilter' value is used to define where to find the user login in the LDAP entry.
 In the example above, it means that we want to authenticate using the email attribute in the LDAP entry (username is the passport attribute name).
 - The mapping hash is used to add additional attributes when provisioning the user.
