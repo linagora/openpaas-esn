@@ -63,7 +63,7 @@ You can check that everything works by launching the test suite (this may be lon
 
     grunt --chunk=1
 
-Note that, due to the large amount of tests, you eventually need the `--chunk 1` option. It will create one new nodejs process per js test file. It prevents the memory to be overused by mocha, which would lead to tests failures.
+Note that, due to the large amount of tests, you eventually need the `--chunk=1` option. It will create one new nodejs process per js test file. It prevents the memory to be overused by mocha, which would lead to tests failures.
 If you want to launch tests from a single test, you can specify the file as command line argument.
 For example, you can launch the backend tests on the test/unit-backend/webserver/index.js file like this:
 
