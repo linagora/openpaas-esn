@@ -1,6 +1,9 @@
 'use strict';
 
-angular.module('esn.infinite-list', ['infinite-scroll'])
+angular.module('esn.infinite-list', [
+  'esn.constants',
+  'infinite-scroll'
+])
 
   .constant('INFINITE_LIST_EVENTS', {
     LOAD_MORE_ELEMENTS: 'infiniteList:loadMoreElements',
@@ -8,15 +11,8 @@ angular.module('esn.infinite-list', ['infinite-scroll'])
     ADD_ELEMENTS: 'infiniteList:addElements'
   })
 
-  .constant('defaultConfiguration', {
-    scrollDistance: 0.5,
-    scrollDisabled: false,
-    scrollImmediateCheck: 'true',
-    throttle: 10
-  })
-
-  .config(function($provide, defaultConfiguration) {
-    $provide.value('THROTTLE_MILLISECONDS', defaultConfiguration.throttle);
+  .config(function($provide, INFINITE_LIST_THROTTLE) {
+    $provide.value('THROTTLE_MILLISECONDS', INFINITE_LIST_THROTTLE);
   })
 
   .factory('infiniteListService', function($rootScope, $q, INFINITE_LIST_EVENTS) {
@@ -69,7 +65,8 @@ angular.module('esn.infinite-list', ['infinite-scroll'])
     };
   })
 
-  .directive('infiniteList', function(defaultConfiguration, INFINITE_LIST_EVENTS) {
+  .directive('infiniteList', function(INFINITE_LIST_EVENTS, INFINITE_LIST_IMMEDIATE_CHECK, INFINITE_LIST_DISTANCE,
+                                      INFINITE_LIST_DISABLED) {
     return {
       restrict: 'E',
       transclude: true,
@@ -94,9 +91,9 @@ angular.module('esn.infinite-list', ['infinite-scroll'])
       compile: function() {
         return {
           pre: function(scope, element) {
-            scope.infiniteScrollDistance = angular.isDefined(scope.infiniteScrollDistance) ? scope.infiniteScrollDistance : defaultConfiguration.scrollDistance;
-            scope.infiniteScrollDisabled = angular.isDefined(scope.infiniteScrollDisabled) ? scope.infiniteScrollDisabled : defaultConfiguration.scrollDisabled;
-            scope.infiniteScrollImmediateCheck = angular.isDefined(scope.infiniteScrollImmediateCheck) ? scope.infiniteScrollImmediateCheck : defaultConfiguration.scrollImmediateCheck;
+            scope.infiniteScrollDistance = angular.isDefined(scope.infiniteScrollDistance) ? scope.infiniteScrollDistance : INFINITE_LIST_DISTANCE;
+            scope.infiniteScrollDisabled = angular.isDefined(scope.infiniteScrollDisabled) ? scope.infiniteScrollDisabled : INFINITE_LIST_DISABLED;
+            scope.infiniteScrollImmediateCheck = angular.isDefined(scope.infiniteScrollImmediateCheck) ? scope.infiniteScrollImmediateCheck : INFINITE_LIST_IMMEDIATE_CHECK;
             scope.infiniteScrollContainer = scope.scrollInsideContainer ? element.parent() : null;
             scope.infiniteScrollListenForEvent = INFINITE_LIST_EVENTS.LOAD_MORE_ELEMENTS;
             scope.marker = 'test';

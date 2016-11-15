@@ -1,17 +1,18 @@
 'use strict';
 
 angular.module('esn.follow', [
-    'esn.resource-link',
-    'esn.timeline',
-    'esn.session',
-    'esn.http',
-    'esn.aggregator',
-    'esn.infinite-list',
-    'openpaas-logo'
-  ])
+  'esn.resource-link',
+  'esn.timeline',
+  'esn.session',
+  'esn.http',
+  'esn.aggregator',
+  'esn.infinite-list',
+  'esn.constants',
+  'openpaas-logo'
+])
+
   .constant('FOLLOW_LINK_TYPE', 'follow')
   .constant('UNFOLLOW_LINK_TYPE', 'unfollow')
-  .constant('FOLLOW_PAGE_SIZE', 10)
 
   .run(function(esnTimelineEntryProviders, FOLLOW_LINK_TYPE, UNFOLLOW_LINK_TYPE) {
     esnTimelineEntryProviders.register({

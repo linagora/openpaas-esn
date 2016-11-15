@@ -40,6 +40,9 @@ exports = module.exports = function(application) {
   var cssController = require('./controllers/css');
   application.get('/generated/css/:app/:foo.css', cssController.getCss);
 
+  var generatedJavascript = require('./controllers/generated-javascript');
+  application.get('/js/constants.js', generatedJavascript.constants);
+
   var apiModule = require('./api');
   apiModule.setupAPI(application);
 };

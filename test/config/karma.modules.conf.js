@@ -76,6 +76,7 @@ module.exports = function(config) {
       'frontend/components/awesome-angular-swipe/lib/awesome-angular-swipe.js',
       'frontend/components/Autolinker.js/dist/Autolinker.js',
       'frontend/components/angular-component/dist/angular-component.min.js',
+      'test/fixtures/code-generation/constants.js',
       'frontend/js/**/*.js',
 
       'modules/**/frontend/js/**/*.js',

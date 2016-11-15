@@ -36,19 +36,15 @@ describe('The Infinite-list Angular module', function() {
     }));
 
     it('should fill the isolated scope with values from attribute', function() {
-      $rootScope.infiniteScrollDistance = 10;
-      $rootScope.infiniteScrollDisabled = true;
-      $rootScope.infiniteScrollImmediateCheck = false;
-
       compileDirective('<infinite-list infinite-scroll-distance="10" infinite-scroll-disabled="true" infinite-scroll-immediate-check="false"><span>Inner Element</span></infinite-list>');
 
       checkGeneratedElement(element, 10, true, 'false');
     });
 
-    it('should fill the template with default values if no values were defined in the scope', inject(function(defaultConfiguration) {
+    it('should fill the template with default values if no values were defined in the scope', inject(function(INFINITE_LIST_DISTANCE, INFINITE_LIST_DISABLED, INFINITE_LIST_IMMEDIATE_CHECK) {
       compileDirective('<infinite-list scroll-inside-container="true"><span>Inner Element</span></infinite-list>');
 
-      checkGeneratedElement(element, defaultConfiguration.scrollDistance, defaultConfiguration.scrollDisabled, defaultConfiguration.scrollImmediateCheck);
+      checkGeneratedElement(element, INFINITE_LIST_DISTANCE, INFINITE_LIST_DISABLED, INFINITE_LIST_IMMEDIATE_CHECK + '');
     }));
 
     describe('The controller', function() {

@@ -6,11 +6,11 @@ angular.module('esn.timeline', [
   'esn.infinite-list',
   'esn.provider',
   'esn.aggregator',
-  'openpaas-logo'])
+  'openpaas-logo',
+  'esn.constants'
+])
 
   .constant('DEFAULT_TIMELINE_ELEMENT', '/views/modules/timeline/default-timeline-element.html')
-
-  .constant('TIMELINE_PAGE_SIZE', 10)
 
   .config(function(dynamicDirectiveServiceProvider) {
     var timelineControlCenterMenu = new dynamicDirectiveServiceProvider.DynamicDirective(

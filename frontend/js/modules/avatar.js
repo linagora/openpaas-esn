@@ -1,8 +1,14 @@
 'use strict';
 
-angular.module('esn.avatar', ['mgcrea.ngStrap', 'ngAnimate', 'mgcrea.ngStrap.modal', 'angularFileUpload', 'mgcrea.ngStrap.alert', 'ng.deviceDetector'])
-  .constant('AVATAR_MIN_SIZE_PX', 256)
-  .constant('AVATAR_MAX_SIZE_MB', 5)
+angular.module('esn.avatar', [
+  'esn.constants',
+  'mgcrea.ngStrap',
+  'ngAnimate',
+  'mgcrea.ngStrap.modal',
+  'angularFileUpload',
+  'mgcrea.ngStrap.alert',
+  'ng.deviceDetector'
+])
   .constant('AVATAR_OFFSET', 10)
   .provider('avatarDefaultUrl', function() {
     var url = '/images/community.png';

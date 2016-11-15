@@ -1,13 +1,12 @@
 'use strict';
 
 angular.module('esn.dragndrop', [
-  'ng.deviceDetector',
-  'esn.escape-html'
+  'esn.constants',
+  'esn.escape-html',
+  'ng.deviceDetector'
 ])
 
 .constant('ESN_DRAG_ANIMATION_CLASS', 'esn-drag-tooltip-animation')
-.constant('ESN_DRAG_ANIMATION_DURATION', 500)
-.constant('ESN_DRAG_DISTANCE_THRESHOLD', 10)
 
 .factory('esnDragService', function() {
   var listeners = {};

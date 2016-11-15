@@ -1,10 +1,14 @@
 'use strict';
 
-angular.module('esn.scroll', ['esn.header', 'ng.deviceDetector'])
+angular.module('esn.scroll', [
+  'esn.constants',
+  'esn.header',
+  'ng.deviceDetector'
+])
+
   .constant('SCROLL_EVENTS', {
     RESET_SCROLL: 'scroll:reset'
   })
-  .constant('SCROLL_DIFF_DELTA', 30) // in px
   .constant('SCROLL_CACHE_KEY', 'scrollPosition')
 
   .directive('keepScrollPosition', function($cacheFactory, $location, $document, $timeout, SCROLL_EVENTS, SCROLL_CACHE_KEY) {

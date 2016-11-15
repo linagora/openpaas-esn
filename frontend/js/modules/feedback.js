@@ -1,8 +1,9 @@
 'use strict';
 
-angular.module('esn.feedback', ['esn.http'])
-
-  .constant('ESN_FEEDBACK_DEFAULT_SUBJECT', '[OpenPaas] New feedback')
+angular.module('esn.feedback', [
+  'esn.http',
+  'esn.constants'
+])
 
   .factory('feedbackAPI', function(esnRestangular) {
 

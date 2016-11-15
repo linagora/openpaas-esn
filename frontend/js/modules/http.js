@@ -1,6 +1,9 @@
 'use strict';
 
-angular.module('esn.http', ['restangular'])
+angular.module('esn.http', [
+  'esn.constants',
+  'restangular'
+])
 
   .factory('esnRestangular', function(Restangular, httpErrorHandler) {
     return Restangular.withConfig(function(RestangularConfigurer) {
@@ -24,8 +27,6 @@ angular.module('esn.http', ['restangular'])
       }
     };
   })
-
-  .constant('HTTP_LAG_UPPER_BOUND', 500)
 
   .factory('httpErrorHandler', function($window, $location, $log) {
 

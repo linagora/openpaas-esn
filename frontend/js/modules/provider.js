@@ -1,14 +1,12 @@
 'use strict';
 
 angular.module('esn.provider', [
+  'esn.constants',
   'esn.aggregator',
   'esn.lodash-wrapper',
   'esn.infinite-list',
   'uuid4'
 ])
-
-  .constant('ELEMENTS_PER_REQUEST', 200)
-  .constant('ELEMENTS_PER_PAGE', 1)
 
   .factory('Providers', function($q, _, toAggregatorSource, ELEMENTS_PER_PAGE) {
 
@@ -243,7 +241,7 @@ angular.module('esn.provider', [
 
     return ByDateElementGroupingTool;
   })
-  .factory('infiniteScrollHelperBuilder', function($q, $timeout, defaultConfiguration, infiniteListService,
+  .factory('infiniteScrollHelperBuilder', function($q, $timeout, infiniteListService, INFINITE_LIST_THROTTLE,
                                                    ELEMENTS_PER_PAGE) {
     return function(scope, loadNextItems, updateScope, elements_per_page) {
       elements_per_page = elements_per_page || ELEMENTS_PER_PAGE;
@@ -279,7 +277,7 @@ angular.module('esn.provider', [
           .then(function(result) {
             $timeout(function() {
               infiniteListService.loadMoreElements();
-            }, defaultConfiguration.throttle, false);
+            }, INFINITE_LIST_THROTTLE, false);
 
             return result;
           })
