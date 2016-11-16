@@ -28,7 +28,6 @@ services:
       - ESN_HOST=${ESN_HOST}
     volumes:
       - ${ESN_SABRE_PATH}/esn.php:/var/www/server.php
-      - ${ESN_SABRE_PATH}/config.json:/var/www/config.json
       - ${ESN_SABRE_PATH}/lib:/var/www/lib
       - ${ESN_SABRE_PATH}/tests:/var/www/tests
 
