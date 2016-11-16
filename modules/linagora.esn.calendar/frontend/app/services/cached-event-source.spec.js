@@ -332,6 +332,74 @@ describe('The calCachedEventSource service', function() {
         expect(self.originalCallback).to.have.been.calledWithExactly(self.events.concat(correctSubEvent));
       });
 
+      it('should correctly reexpand an event if it was not expanded in this full period the first time and if it was a modification of a event that was not a recurring before', function() {
+        var aDate = self.start.clone().add(3, 'days');
+
+        var inFirstPeriod = {
+          id: '1',
+          calendarId: self.calendarId,
+          start: aDate.clone().subtract(2, 'days'),
+          end: aDate.clone().subtract(2, 'days'),
+          isRecurring: _.constant(false),
+          _period: [aDate.clone().subtract(4, 'day'), aDate.clone()]
+        };
+
+        var inSecondPeriod = {
+          id: '2_2',
+          calendarId: self.calendarId,
+          start: aDate.clone().add(2, 'days'),
+          end: aDate.clone().add(2, 'days'),
+          isRecurring: _.constant(false),
+          _period: [aDate.clone(), aDate.clone().add(7, 'day')]
+        };
+
+        var inThirdPeriod = {
+          id: '2_3',
+          calendarId: self.calendarId,
+          start: aDate.clone().add(9, 'days'),
+          end: aDate.clone().add(9, 'days'),
+          isRecurring: _.constant(false),
+          _period: [aDate.clone().add(7, 'day'), aDate.clone().add(14, 'day')]
+        };
+
+        self.events = [self.events[1]];
+        self.modifiedEvent.id = 2;
+        self.modifiedEvent.isRecurring = sinon.stub().returns(true);
+        self.modifiedEvent.expand = sinon.spy(function(start, end) {
+          var result = [];
+
+          [inFirstPeriod, inSecondPeriod, inThirdPeriod].forEach(function(event) {
+            if (event.start.isBefore(end) && event.start.isAfter(start)) {
+              result.push(event);
+            }
+          });
+
+          return result;
+        });
+
+        //meta-testing start (powa)
+        expect(self.modifiedEvent.expand(inFirstPeriod._period[0], inFirstPeriod._period[1])).to.deep.equals([inFirstPeriod]);
+        expect(self.modifiedEvent.expand(inSecondPeriod._period[0], inThirdPeriod._period[1])).to.deep.equals([inSecondPeriod, inThirdPeriod]);
+        expect(self.modifiedEvent.expand(inFirstPeriod._period[0], inThirdPeriod._period[1])).to.deep.equals([inFirstPeriod, inSecondPeriod, inThirdPeriod]);
+        //meta-testing end
+
+        var wrapEventSource = self.calCachedEventSource.wrapEventSource(self.calendarId, self.eventSource);
+
+        self.calCachedEventSource.registerUpdate(self.modifiedEvent);
+
+        wrapEventSource(inSecondPeriod._period[0], inSecondPeriod._period[1], self.timezone, self.originalCallback);
+        self.$rootScope.$apply();
+        expect(self.originalCallback.firstCall).to.have.been.calledWithExactly([inSecondPeriod]);
+
+        wrapEventSource(inSecondPeriod._period[0], inThirdPeriod._period[1], self.timezone, self.originalCallback);
+        self.$rootScope.$apply();
+        expect(self.originalCallback.secondCall).to.have.been.calledWithExactly([inSecondPeriod, inThirdPeriod]);
+
+        wrapEventSource(inFirstPeriod._period[0], inThirdPeriod._period[1], self.timezone, self.originalCallback);
+        self.$rootScope.$apply();
+        expect(self.originalCallback.thirdCall).to.have.been.calledWithExactly([inFirstPeriod, inSecondPeriod, inThirdPeriod]);
+      });
+
       it('should correctly reexpand an event if it was not expanded in this full period the first time', function() {
         var aDate = self.calMoment([2017, 11, 8, 21, 0]);
 
