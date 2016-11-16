@@ -2,11 +2,12 @@
 
 angular.module('esn.resource-link', ['esn.http'])
   .factory('ResourceLinkAPI', function(esnRestangular) {
-    function create(source, target, type) {
+    function create(source, target, type, value) {
       return esnRestangular.all('resource-links').customPOST({
         source: source,
         target: target,
-        type: type
+        type: type,
+        value: value
       });
     }
 
