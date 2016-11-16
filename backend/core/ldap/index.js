@@ -103,21 +103,23 @@ function authenticate(email, password, ldap, callback) {
  * @return {Object}             The OpenPaaS user object
  */
 function translate(baseUser, ldapPayload) {
-  var userEmail = ldapPayload.username; // we use email as username to authenticate LDAP
-  var domainId = ldapPayload.domainId;
-  var ldapUser = ldapPayload.user;
-  var mapping = ldapPayload.config.mapping;
-  var provisionUser = baseUser || {};
+  const userEmail = ldapPayload.username; // we use email as username to authenticate LDAP
+  const domainId = ldapPayload.domainId;
+  const ldapUser = ldapPayload.user;
+  const mapping = ldapPayload.config.mapping;
+  const provisionUser = baseUser || {};
 
   // provision domain
   if (!provisionUser.domains) {
     provisionUser.domains = [];
   }
 
-  var domain = _.find(provisionUser.domains, domain => String(domain.domain_id) === String(domainId));
+  if (domainId) {
+    const domain = _.find(provisionUser.domains, domain => String(domain.domain_id) === String(domainId));
 
-  if (!domain) {
-    provisionUser.domains.push({ domain_id: domainId });
+    if (!domain) {
+      provisionUser.domains.push({ domain_id: domainId });
+    }
   }
 
   // provision email account
@@ -125,7 +127,7 @@ function translate(baseUser, ldapPayload) {
     provisionUser.accounts = [];
   }
 
-  var emailAccount = _.find(provisionUser.accounts, { type: 'email' });
+  let emailAccount = _.find(provisionUser.accounts, { type: 'email' });
 
   if (!emailAccount) {
     emailAccount = {
@@ -143,7 +145,7 @@ function translate(baseUser, ldapPayload) {
   // provision other fields basing on mapping
   _.forEach(mapping, (value, key) => {
     if (key === 'email') {
-      var email = ldapUser[value];
+      const email = ldapUser[value];
 
       if (emailAccount.emails.indexOf(email) === -1) {
         emailAccount.emails.push(email);
