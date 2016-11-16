@@ -21,7 +21,7 @@ describe('The amqp module', function() {
 
   function testingEsnConfig() {
     return key => ({
-      get: callback => callback(null, { url: 'amqp://testing-url' })
+      get: () => q.when({ url: 'amqp://testing-url' })
     });
   }
 
@@ -43,7 +43,7 @@ describe('The amqp module', function() {
         expect(key).to.equal('amqp');
         done();
 
-        return { get: callback => callback(new Error()) };
+        return { get: () => q.reject(new Error()) };
       });
 
       getClient();
@@ -51,7 +51,7 @@ describe('The amqp module', function() {
 
     it('should trigger an error if no config available from esnconfig', function(done) {
       mockEsnConfig(key => ({
-        get: callback => callback(new Error())
+        get: () => q.reject(new Error())
       }));
 
       getClient()

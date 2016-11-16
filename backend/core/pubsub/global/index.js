@@ -1,18 +1,14 @@
 'use strict';
 
-var Pubsub = require('../pubsub');
-var redisPubsub = new Pubsub('global');
-var localPubsub = require('../').local;
-var AwesomeNodeRedisPubsub = require('awesome-node-redis-pubsub');
-var logger = require('../../logger');
+const Pubsub = require('../pubsub');
+const localPubsub = require('../').local;
+const rabbitPubsub = new Pubsub('global');
+const amqpClientProvider = require('../../amqp');
 
-module.exports = redisPubsub;
-
-localPubsub.topic('redis:configurationAvailable').subscribe(function(config) {
-  config.onRedisError = function(err) {
-    logger.error('Got an error on redis pubsub : ' + err);
-    logger.debug('Redis pubsub error stack: ' + err.stack);
-  };
-  var client = new AwesomeNodeRedisPubsub(config);
-  redisPubsub.setClient(client);
+localPubsub.topic('mongodb:connectionAvailable').subscribe(function() {
+  amqpClientProvider
+    .getClient()
+    .then(client => rabbitPubsub.setClient(client));
 });
+
+module.exports = rabbitPubsub;

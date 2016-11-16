@@ -25,7 +25,7 @@ class AmqpClient {
 
   constructor(channel) {
     this.channel = channel;
-    this._subscribeCallbackToConsumerTag = new Map();
+    this._subscribeCallbackToConsumerTags = new Map();
   }
 
   dispose(callback) {
@@ -46,24 +46,30 @@ class AmqpClient {
       .then(() => this.channel.assertQueue(SUBSCRIBER.queueName, SUBSCRIBER.queueOptions))
       .then(res => this.channel.bindQueue(res.queue, topic).then(() => res))
       .then(res => this.channel.consume(res.queue, msg => callback(JSON.parse(msg.content)), SUBSCRIBER.consumeOptions))
-      .then(res => {
-        this._subscribeCallbackToConsumerTag.set(callback, res.consumerTag);
-        logger.info('AMQP: A new consumer has been created: ' + res.consumerTag);
-      });
+      .then(res => this._registerNewConsumerTag(callback, res.consumerTag));
   }
 
   unsubscribe(topic, callback) {
-    const consumerTag = this._subscribeCallbackToConsumerTag.get(callback);
+    const consumerTags = this._subscribeCallbackToConsumerTags.get(callback);
 
-    if (consumerTag) {
-      logger.info('AMQP: About removing the consumer: ' + consumerTag);
+    if (Array.isArray(consumerTags)) {
+      logger.info('AMQP: About removing the consumer(s): ' + consumerTags);
 
-      return this.channel.cancel(consumerTag);
+      return q.all(consumerTags.map(c => this.channel.cancel(c)));
     }
 
     logger.warn('AMQP: No consumerTag found to unsubscribe a consumer from: ' + topic);
 
     return q.when();
+  }
+
+  _registerNewConsumerTag(callback, consumerTag) {
+    const sameCallbackTags = this._subscribeCallbackToConsumerTags.get(callback) || [];
+
+    sameCallbackTags.push(consumerTag);
+    this._subscribeCallbackToConsumerTags.set(callback, sameCallbackTags);
+
+    logger.info('AMQP: A new consumer has been created: ' + consumerTag);
   }
 
   // aliases to fit the EventEmitter API

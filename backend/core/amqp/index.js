@@ -2,7 +2,6 @@
 
 const q = require('q');
 const logger = require('../../core/logger');
-const amqpEsnConfig = require('../../core/esn-config')('amqp');
 const AmqpClient = require('./client');
 
 function connect(options) {
@@ -12,10 +11,14 @@ function connect(options) {
 }
 
 function createClient() {
-  return amqpEsnConfig.get()
+  return require('../../core/esn-config')('amqp').get()
     .then(connect)
     .then(conn => conn.createChannel())
-    .then(channel => new AmqpClient(channel));
+    .then(channel => new AmqpClient(channel))
+    .catch(err => {
+      logger.error('Unable to create the AMQP client: ', err);
+      throw err;
+    });
 }
 
 let clientInstancePromise;
