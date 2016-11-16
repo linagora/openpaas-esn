@@ -378,6 +378,40 @@ describe('The ldap core module', function() {
       expect(ldap.translate(baseUser, ldapPayload)).to.deep.equal(expectedUser);
     });
 
+    it('should not add null domain to based user', function() {
+      var ldap = this.helpers.requireBackend('core/ldap');
+      var ldapPayload = {
+        username: 'user@email',
+        user: {
+          name: 'Alice'
+        },
+        config: {
+          mapping: {
+            firsname: 'name'
+          }
+        },
+        domainId: null
+      };
+      var baseUser = {
+        domains: [{
+          domain_id: 'domain123'
+        }]
+      };
+      var expectedUser = {
+        firsname: ldapPayload.user.name,
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: [ldapPayload.username]
+        }],
+        domains: [{
+          domain_id: 'domain123'
+        }]
+      };
+
+      expect(ldap.translate(baseUser, ldapPayload)).to.deep.equal(expectedUser);
+    });
+
     it('should add email to based user account if it is not included', function() {
       var ldap = this.helpers.requireBackend('core/ldap');
       var ldapPayload = {
