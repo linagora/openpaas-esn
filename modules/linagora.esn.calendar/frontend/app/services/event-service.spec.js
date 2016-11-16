@@ -819,6 +819,41 @@ describe('The calEventService service', function() {
       expect(calCachedEventSourceMock.registerUpdate.secondCall).to.have.been.calledWith(sinon.match.same(oldEvent));
     });
 
+    it('should call calCachedEventSource.registerUpdate again with the first oldEvent if the event has been modified multiple times during the graceperiod and is cancelled', function() {
+
+      self.gracePeriodService.grace = sinon.stub();
+      self.gracePeriodService.grace.onCall(0).returns($q.defer().promise);
+      self.gracePeriodService.grace.onCall(1).returns($q.reject());
+      calCachedEventSourceMock.registerUpdate = sinon.spy();
+      self.gracePeriodService.cancel = sinon.spy();
+
+      self.$httpBackend.expectPUT('/dav/api/path/to/calendar/uid.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY).respond(202, {id: '123456789'});
+
+      var event = self.event.clone();
+      event.start = self.calMoment(new Date(2016, 1, 1));
+      var firstOldEvent = self.event.clone();
+
+      self.calEventService.modifyEvent('/path/to/calendar/uid.ics', event, firstOldEvent, 'etag', angular.noop, {notifyFullcalendar: true});
+
+      self.$rootScope.$apply();
+      self.$httpBackend.flush();
+      self.$httpBackend.expectPUT('/dav/api/path/to/calendar/uid.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY).respond(202, {id: '123456789'});
+
+      var secondEvent = event.clone();
+      secondEvent.start = self.calMoment(new Date(2016, 1, 3));
+
+      self.calEventService.modifyEvent('/path/to/calendar/uid.ics', secondEvent, event, 'etag', angular.noop, {notifyFullcalendar: true});
+
+      self.$rootScope.$apply();
+      self.$httpBackend.flush();
+
+      expect(calCachedEventSourceMock.registerUpdate).to.have.been.calledThrice;
+      expect(calCachedEventSourceMock.registerUpdate.firstCall).to.have.been.calledWith(sinon.match.same(event));
+      expect(calCachedEventSourceMock.registerUpdate.secondCall).to.have.been.calledWith(sinon.match.same(secondEvent));
+      expect(calCachedEventSourceMock.registerUpdate.thirdCall).to.have.been.calledWith(sinon.match.same(firstOldEvent));
+      expect(self.gracePeriodService.cancel).to.have.been.calledOnce;
+    });
+
     it('should call calMasterEventCache.save on old event if the creation is cancelled if and only if oldEvent is recurring', function() {
 
       self.gracePeriodService.grace = $q.reject.bind(null);
