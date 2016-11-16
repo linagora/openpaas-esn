@@ -1,4 +1,4 @@
-.event-search-item
+cal-open-event-on-click.event-search-item(event="item")
   .pull-left
     i.mdi.mdi-calendar
   .media-body
@@ -15,5 +15,3 @@
         span(ng-bind-html="::item.title | esnHighlight: query")
         span &nbsp;-&nbsp;
         span(ng-bind-html="::item.location | esnHighlight: query")
-      .lv-title
-        | show more details
