@@ -66,6 +66,19 @@ class AmqpClient {
     return q.when();
   }
 
+  // aliases to fit the EventEmitter API
+  emit(topic, data) {
+    return this.publish(topic, data);
+  }
+
+  on(topic, callback) {
+    return this.subscribe(topic, callback);
+  }
+
+  removeListener(topic, callback) {
+    return this.unsubscribe(topic, callback);
+  }
+
 }
 
 module.exports = AmqpClient;
