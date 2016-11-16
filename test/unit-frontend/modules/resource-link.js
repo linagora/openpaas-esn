@@ -30,12 +30,15 @@ describe('The esn.resource-link Angular module', function() {
 
         var type = 'like';
 
+        var value = '+1';
+
         this.$httpBackend.expectPOST('/api/resource-links', {
           source: source,
           target: target,
-          type: type
+          type: type,
+          value: value
         }).respond();
-        this.ResourceLinkAPI.create(source, target, type);
+        this.ResourceLinkAPI.create(source, target, type, value);
         this.$httpBackend.flush();
       });
     });
