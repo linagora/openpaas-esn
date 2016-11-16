@@ -99,6 +99,7 @@ function mockMiddlewares() {
     'message',
     'notification',
     'request',
+    'resource-link',
     'setup-routes',
     'setup-sessions',
     'startup-buffer',

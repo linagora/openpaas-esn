@@ -1205,6 +1205,48 @@ describe.skip('The messages API', function() {
         }));
       });
 
+      it('should be able to like a message with a value', function(done) {
+        var self = this;
+        var link = {
+          type: 'like',
+          source: {objectType: 'user', id: String(testuser._id)},
+          target: {objectType: 'esn.message', id: String(message1._id)},
+          value: '+1'
+        };
+
+        self.helpers.api.loginAsUser(app, email, password, self.helpers.callbacks.noErrorAnd(function(loggedInAsUser) {
+          loggedInAsUser(request(app)
+            .post(ENDPOINT))
+            .send(link)
+            .expect(201)
+            .end(self.helpers.callbacks.noErrorAnd(function(res) {
+              expect(res.body).to.shallowDeepEqual(link);
+              done();
+            }));
+        }));
+      });
+
+      it('should be able to like a message with an object value', function(done) {
+        var self = this;
+        var link = {
+          type: 'like',
+          source: {objectType: 'user', id: String(testuser._id)},
+          target: {objectType: 'esn.message', id: String(message1._id)},
+          value: {foo: 'bar'}
+        };
+
+        self.helpers.api.loginAsUser(app, email, password, self.helpers.callbacks.noErrorAnd(function(loggedInAsUser) {
+          loggedInAsUser(request(app)
+            .post(ENDPOINT))
+            .send(link)
+            .expect(201)
+            .end(self.helpers.callbacks.noErrorAnd(function(res) {
+              expect(res.body).to.shallowDeepEqual(link);
+              done();
+            }));
+        }));
+      });
+
       it('should not be able to like the same message several times', function(done) {
         var self = this;
         var link = {
