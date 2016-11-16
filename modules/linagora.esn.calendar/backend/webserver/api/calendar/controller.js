@@ -170,7 +170,7 @@ function searchEvents(req, res) {
     offset: req.query.offset,
     sortKey: req.query.sortKey,
     sortOrder: req.query.sortOrder,
-    userId: req.user._id,
+    userId: req.user.id,
     calendarId: req.params.calendarId
   };
 
