@@ -59,7 +59,7 @@
     function expandRecurringChange(start, end) {
       angular.forEach(changes, function(change) {
         if (change.event.isRecurring() && (!change.expandedUntil || change.expandedUntil.isBefore(end) || !change.expandedFrom || change.expandedFrom.isAfter(start))) {
-
+          change.instances = [];
           change.event.expand(start.clone().subtract(1, 'day'), end.clone().add(1, 'day')).forEach(function(subEvent) {
             saveChange(change.action, subEvent);
             change.instances.push(subEvent);
