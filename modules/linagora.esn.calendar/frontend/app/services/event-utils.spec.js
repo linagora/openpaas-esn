@@ -82,7 +82,8 @@ describe('The calEventUtils service', function() {
       description: 'description',
       vcalendar: vcalendar,
       attendees: [],
-      isInstance: function() { return false; }
+      isInstance: function() { return false; },
+      isOverOneDayOnly: sinon.spy()
     };
 
     element = new Element();
@@ -243,20 +244,56 @@ describe('The calEventUtils service', function() {
       expect(event.durationEditable).to.be.false;
     });
 
-    it('should change CSS if we have in month vue and the event id not allDay event', function() {
-      var backgroundColor = 'blue';
+    describe('changeEventColorWhenMonthView function', function(calMoment) {
+      it('should change CSS if we are in month view and the event is not allDay and event.isOverOneDayOnly() return true', function() {
+        var backgroundColor = 'blue';
 
-      element.css = sinon.spy(function(attr) {
-        if (attr === 'background-color') {
-          return backgroundColor;
-        }
+        element.css = sinon.spy(function(attr) {
+          if (attr === 'background-color') {
+            return backgroundColor;
+          }
+        });
+
+        event.isOverOneDayOnly = sinon.stub().returns(true);
+
+        this.calEventUtils.render(event, element, view);
+
+        expect(element.css).to.have.been.calledWith('color', backgroundColor);
+        expect(element.css).to.have.been.calledWith('background-color', 'transparent');
+        expect(fcTime.css).to.have.been.calledWith('background-color', 'transparent');
+        expect(element.css).to.have.been.calledWith('border', '0');
       });
 
-      this.calEventUtils.render(event, element, view);
+      it('should not change CSS if we are in month vue and the event is not allDay and event.isOverOneDayOnly() return false', angular.mock.inject(function(calMoment) {
+        var backgroundColor = 'blue';
 
-      expect(element.css).to.have.been.calledWith('color', backgroundColor);
-      expect(element.css).to.have.been.calledWith('background-color', 'transparent');
-      expect(fcTime.css).to.have.been.calledWith('background-color', 'transparent');
+        element.css = sinon.spy(function(attr) {
+          if (attr === 'background-color') {
+            return backgroundColor;
+          }
+        });
+
+        event.isOverOneDayOnly = sinon.stub().returns(false);
+
+        this.calEventUtils.render(event, element, view);
+
+        expect(element.css).to.have.not.been.called;
+      }));
+
+      it('should not change CSS if we are in month view and the event is allDay', function() {
+        var backgroundColor = 'blue';
+
+        event.allDay = true;
+
+        element.css = sinon.spy(function(attr) {
+          if (attr === 'background-color') {
+            return backgroundColor;
+          }
+        });
+        this.calEventUtils.render(event, element, view);
+
+        expect(element.css).to.have.not.been.called;
+      });
     });
   });
 

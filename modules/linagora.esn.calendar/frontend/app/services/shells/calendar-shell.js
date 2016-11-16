@@ -104,6 +104,7 @@
       getModifiedMaster: getModifiedMaster,
       modifyOccurrence: modifyOccurrence,
       isMeeting: isMeeting,
+      isOverOneDayOnly: isOverOneDayOnly,
 
       get uid() { return this.vevent.getFirstPropertyValue('uid'); },
       get id() { return this.recurrenceId ? this.uid + '_' + this.vevent.getFirstPropertyValue('recurrence-id').convertToZone(ICAL.Timezone.utcTimezone) : this.uid; },
@@ -747,6 +748,15 @@
 
     function isMeeting() {
       return this.attendees.length > 1;
+    }
+
+    function isOverOneDayOnly() {
+      var startDay = parseInt(this.start.format('D'), 10);
+      var endDay = parseInt(this.end.format('D'), 10);
+      var endHour = this.end.format('HH:mm');
+
+      //for the second condition it is necessary to consider the event that finish at the next day at 12 am is over one day only
+      return this.start.isSame(this.end, 'day') || (((startDay + 1) === endDay) && (endHour === '00:00'));
     }
   }
 })();
