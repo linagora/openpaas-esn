@@ -153,6 +153,30 @@ describe('The calCachedEventSource service', function() {
         expect(self.originalCallback).to.have.been.calledWithExactly(self.events.concat(self.modifiedEvent));
       });
 
+      it('should take a modification that transform a normal event in a recurring event and apply it correctly', function() {
+
+        var subEvent = {
+          id: 'subevent',
+          uid: self.modifiedEvent.id,
+          start: self.start.clone().add(1, 'hour'),
+          calendarId: self.calendarId,
+          end: self.end.clone().subtract(1, 'hour'),
+          isInstance: _.constant(true),
+          isRecurring: _.constant(false)
+        };
+
+        self.modifiedEvent.isRecurring = sinon.stub().returns(true);
+        self.modifiedEvent.expand = sinon.stub().returns([subEvent]);
+
+        self.calCachedEventSource.registerUpdate(self.modifiedEvent);
+        self.calCachedEventSource.wrapEventSource(self.calendarId, self.eventSource)(self.start, self.end, self.timezone, self.originalCallback);
+        self.$rootScope.$apply();
+
+        expect(self.modifiedEvent.isRecurring).to.have.been.called;
+        expect(self.modifiedEvent.expand).to.have.been.calledWith(self.start.clone().subtract(1, 'day'), self.end.clone().add(1, 'day'));
+        expect(self.originalCallback).to.have.been.calledWithExactly(self.events.slice(0, self.events.length - 1).concat([subEvent]));
+      });
+
       it('should take a recurring event modification that delete an instance and apply it correctly', function() {
         var invariantSubEvent = {
           id: 'subevent',
