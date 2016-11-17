@@ -207,16 +207,20 @@ function findByIds(ids, callback) {
   };
 
   function getMessage(message) {
-    if (ids.indexOf(message.id) >= 0) {
+    if (typeof message.toObject === 'function') {
+      message = message.toObject();
+    }
+    if (ids.indexOf(String(message._id)) >= 0) {
       return message;
     }
     var result = message.responses.filter(function(response) {
-      return ids.indexOf(response.id) >= 0;
+      return ids.indexOf(String(response._id)) >= 0;
     }).pop();
 
     if (result) {
       result.shares = message.shares;
     }
+
     return result;
   }
 
@@ -226,7 +230,6 @@ function findByIds(ids, callback) {
     }
 
     var messages = foundMessages.map(getMessage);
-
     var authorsMap = collectAuthors(messages);
     var ids = Object.keys(authorsMap).map(function(id) {
       return mongoose.Types.ObjectId(id);
