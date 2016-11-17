@@ -26,7 +26,8 @@
     $modal,
     $scope,
     $state,
-    screenSize,
+    matchmedia,
+    SM_XS_MEDIA_QUERY,
     uuid4,
     CalendarCollectionShell,
     calendarService,
@@ -155,7 +156,7 @@
           var updateActions = [];
 
           if (!rightChanged && !calendarChanged) {
-            if (screenSize.is('xs, sm')) {
+            if (matchmedia.is(SM_XS_MEDIA_QUERY)) {
               $state.go('calendar.list');
             } else {
               $state.go('calendar.main');

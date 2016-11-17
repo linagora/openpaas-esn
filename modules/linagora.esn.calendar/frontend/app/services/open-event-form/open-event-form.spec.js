@@ -10,7 +10,7 @@ describe('The open-event-form service', function() {
 
   beforeEach(function() {
     self = this;
-    this.screenSize = {};
+    this.matchmedia = {};
     this.calEventUtils = {
       setEditedEvent: sinon.spy()
     };
@@ -37,7 +37,7 @@ describe('The open-event-form service', function() {
 
     angular.mock.module('linagora.esn.graceperiod', 'esn.calendar');
     angular.mock.module(function($provide) {
-      $provide.value('screenSize', self.screenSize);
+      $provide.value('matchmedia', self.matchmedia);
       $provide.value('calEventUtils', self.calEventUtils);
       $provide.value('$modal', self.$modal);
       $provide.value('$state', self.$state);
@@ -45,19 +45,20 @@ describe('The open-event-form service', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function(calOpenEventForm, $q, $rootScope) {
+  beforeEach(angular.mock.inject(function(calOpenEventForm, $q, $rootScope, SM_XS_MEDIA_QUERY) {
+    this.SM_XS_MEDIA_QUERY = SM_XS_MEDIA_QUERY;
     this.calOpenEventForm = calOpenEventForm;
     this.$q = $q;
     this.$rootScope = $rootScope;
   }));
 
   describe('calOpenEventForm', function() {
-    it('should call $modal if screensize is md', function() {
-      this.screenSize.is = sinon.stub().returns(false);
+    it('should call $modal if matchmedia is md', function() {
+      this.matchmedia.is = sinon.stub().returns(false);
       this.$state.go = sinon.spy();
 
       this.calOpenEventForm(this.regularEvent);
-      expect(this.screenSize.is).to.have.been.calledWith('xs, sm');
+      expect(this.matchmedia.is).to.have.been.calledWith(this.SM_XS_MEDIA_QUERY);
       expect(this.$modal).to.have.been.called;
       expect(this.$state.go).to.not.have.been;
       expect(this.$modal).to.have.been.calledWith(sinon.match({
@@ -68,14 +69,14 @@ describe('The open-event-form service', function() {
     });
 
     it('should call $modal only once even if clicking several times', function() {
-      this.screenSize.is = sinon.stub().returns(false);
+      this.matchmedia.is = sinon.stub().returns(false);
       this.calOpenEventForm(this.regularEvent);
       this.calOpenEventForm(this.regularEvent);
       expect(this.$modal).to.have.been.calledOnce;
     });
 
     it('should recall $modal if closed before', function() {
-      this.screenSize.is = sinon.stub().returns(false);
+      this.matchmedia.is = sinon.stub().returns(false);
       this.calOpenEventForm(this.regularEvent);
       expect(this.$modal).to.have.been.calledWith(sinon.match({
         controller: sinon.match.func.and(sinon.match(function(controller) {
@@ -95,25 +96,25 @@ describe('The open-event-form service', function() {
       expect(this.$modal).to.have.been.calledTwice;
     });
 
-    it('should call $state to calendar.event.form if screensize is xs or sm and isOrganizer', function() {
-      this.screenSize.is = sinon.stub().returns(true);
+    it('should call $state to calendar.event.form if matchmedia is xs or sm and isOrganizer', function() {
+      this.matchmedia.is = sinon.stub().returns(true);
       this.$state.go = sinon.spy();
       this.calEventUtils.isOrganizer = sinon.stub().returns(true);
 
       this.calOpenEventForm(this.regularEvent);
-      expect(this.screenSize.is).to.have.been.calledWith('xs, sm');
+      expect(this.matchmedia.is).to.have.been.calledWith(this.SM_XS_MEDIA_QUERY);
       expect(this.$modal).to.have.not.been.called;
       expect(this.$state.go).to.have.been.calledWith('calendar.event.form', {calendarId: '123', eventId: '456'});
       expect(this.calEventUtils.isOrganizer).to.have.been.called;
     });
 
-    it('should call $state to calendar.event.consult if screensize is xs or sm and not isOrganizer', function() {
-      this.screenSize.is = sinon.stub().returns(true);
+    it('should call $state to calendar.event.consult if matchmedia is xs or sm and not isOrganizer', function() {
+      this.matchmedia.is = sinon.stub().returns(true);
       this.$state.go = sinon.spy();
       this.calEventUtils.isOrganizer = sinon.stub().returns(false);
 
       this.calOpenEventForm(this.regularEvent);
-      expect(this.screenSize.is).to.have.been.calledWith('xs, sm');
+      expect(this.matchmedia.is).to.have.been.calledWith(this.SM_XS_MEDIA_QUERY);
       expect(this.$modal).to.have.not.been.called;
       expect(this.$state.go).to.have.been.calledWith('calendar.event.consult', {calendarId: '123', eventId: '456'});
       expect(this.calEventUtils.isOrganizer).to.have.been.called;

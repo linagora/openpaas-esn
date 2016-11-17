@@ -6,16 +6,17 @@ var expect = chai.expect;
 
 describe('The esn.subheader Angular module', function() {
 
-  var $rootScope, $compile, $scope;
+  var $rootScope, $compile, $scope, SM_XS_MEDIA_QUERY;
 
   beforeEach(function() {
     module('jadeTemplates');
     module('esn.subheader');
   });
 
-  beforeEach(inject(function(_$rootScope_, _$compile_) {
+  beforeEach(inject(function(_$rootScope_, _$compile_, _SM_XS_MEDIA_QUERY_) {
     $rootScope = _$rootScope_;
     $compile = _$compile_;
+    SM_XS_MEDIA_QUERY = _SM_XS_MEDIA_QUERY_;
   }));
 
   function compileDirective(htmlContent, scope) {
@@ -82,11 +83,11 @@ describe('The esn.subheader Angular module', function() {
 
   describe('The directive visibility', function() {
 
-    var subHeaderService, screenSize, oldChildrenFn;
+    var subHeaderService, matchmedia, oldChildrenFn;
 
-    beforeEach(inject(function(_subHeaderService_, _screenSize_) {
+    beforeEach(inject(function(_subHeaderService_, _matchmedia_) {
       subHeaderService = _subHeaderService_;
-      screenSize = _screenSize_;
+      matchmedia = _matchmedia_;
 
       oldChildrenFn = null;
     }));
@@ -139,11 +140,11 @@ describe('The esn.subheader Angular module', function() {
 
       var ensureVisible;
 
-      screenSize.onChange = function(scope, sizes, callback) {
+      matchmedia.on = function(query, callback, scope) {
         ensureVisible = callback;
 
         expect(scope).to.be.defined;
-        expect(sizes).to.equal('xs, sm');
+        expect(query).to.equal(SM_XS_MEDIA_QUERY);
         expect(callback).to.be.a.function;
       };
 

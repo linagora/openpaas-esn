@@ -13,7 +13,7 @@
     'materialAdmin',
     'AngularJstz',
     'angularMoment',
-    'matchMedia',
+    'esn.media.query',
     'linagora.esn.graceperiod',
     'op.dynamicDirective',
     'esn.router',

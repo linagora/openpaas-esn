@@ -70,7 +70,7 @@ describe('The esn.header Angular module', function() {
   describe('The mainHeader directive', function() {
 
     var hasInjectionsSpy = sinon.spy(),
-        screenSizeMedia, screenSizeCallback;
+        matchmediaQuery, matchmediaCallback;
 
     beforeEach(module(function($provide) {
       $provide.provider('sidebarDirective', function() {
@@ -79,13 +79,17 @@ describe('The esn.header Angular module', function() {
       $provide.provider('apiNotificationDirective', function() {
         this.$get = function() { return {}; };
       });
-      $provide.value('screenSize', {
-        on: function(media, callback) {
-          screenSizeMedia = media;
-          screenSizeCallback = callback;
-          return true;
-        },
-        onChange: angular.noop
+
+      // the block below is meant to get the right callback mock for matchmediaCallback
+      // since we have two callbacks called in subheader and header.
+      matchmediaCallback = null;
+      $provide.value('matchmedia', {
+        on: function(query, callback, scope) {
+          matchmediaQuery = query;
+          if (!matchmediaCallback) {
+            matchmediaCallback = callback;
+          }
+        }
       });
       $provide.value('headerService', {
         subHeader: {
@@ -94,12 +98,13 @@ describe('The esn.header Angular module', function() {
       });
     }));
 
-    beforeEach(inject(function($compile, $rootScope, SUB_HEADER_VISIBLE_MD_EVENT, HEADER_VISIBILITY_EVENT) {
+    beforeEach(inject(function($compile, $rootScope, SUB_HEADER_VISIBLE_MD_EVENT, HEADER_VISIBILITY_EVENT, _SM_XS_MEDIA_QUERY_) {
       this.$compile = $compile;
       this.$rootScope = $rootScope;
       this.$scope = this.$rootScope.$new();
       this.SUB_HEADER_VISIBLE_MD_EVENT = SUB_HEADER_VISIBLE_MD_EVENT;
       this.HEADER_VISIBILITY_EVENT = HEADER_VISIBILITY_EVENT;
+      this.SM_XS_MEDIA_QUERY = _SM_XS_MEDIA_QUERY_;
 
       var html = '<main-header></main-header>';
       this.element = this.$compile(html)(this.$scope);
@@ -131,18 +136,20 @@ describe('The esn.header Angular module', function() {
     describe('the enableScrollListener var', function() {
 
       it('should be called with xs and sm size when the directive is linked', function() {
-        expect(screenSizeMedia).to.equal('xs,sm');
+        expect(matchmediaQuery).to.equal(this.SM_XS_MEDIA_QUERY);
+        matchmediaCallback({matches: true});
         expect(this.$scope.enableScrollListener).to.equal(true);
       });
 
       it('should set enableScrollListener to false when screenSize update to not match media', function() {
-        screenSizeCallback(false);
+        matchmediaCallback({matches: true});
+        matchmediaCallback({matches: false});
         expect(this.$scope.enableScrollListener).to.equal(false);
       });
 
       it('should set enableScrollListener to true when screenSize update to match media', function() {
-        screenSizeCallback(false);
-        screenSizeCallback(true);
+        matchmediaCallback({matches: false});
+        matchmediaCallback({matches: true});
         expect(this.$scope.enableScrollListener).to.equal(true);
       });
 

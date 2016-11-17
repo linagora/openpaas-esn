@@ -15,12 +15,13 @@
   calOpenEventForm.$inject = [
     '$modal',
     '$state',
-    'screenSize',
+    'matchmedia',
     'calendarService',
-    'calEventUtils'
+    'calEventUtils',
+    'SM_XS_MEDIA_QUERY'
   ];
 
-  function calOpenEventForm($modal, $state, screenSize, calendarService, calEventUtils) {
+  function calOpenEventForm($modal, $state, matchmedia, calendarService, calEventUtils, SM_XS_MEDIA_QUERY) {
     var modalIsOpen = false;
     return function calOpenEventForm(event) {
       if (!event.isInstance()) {
@@ -34,7 +35,7 @@
 
     function _openForm(event) {
       calEventUtils.setEditedEvent(event);
-      if (screenSize.is('xs, sm')) {
+      if (matchmedia.is(SM_XS_MEDIA_QUERY)) {
         if (calEventUtils.isOrganizer(event)) {
           $state.go('calendar.event.form', {calendarId: calendarService.calendarHomeId, eventId: event.id});
         } else {

@@ -69,7 +69,7 @@ module.exports = function(config) {
       'frontend/components/angular-summernote/dist/angular-summernote.min.js',
       'frontend/components/autosize/dist/autosize.min.js',
       'frontend/components/offline/offline.min.js',
-      'frontend/components/angular-media-queries/match-media.js',
+      'frontend/components/matchmedia-ng/matchmedia-ng.js',
       'frontend/components/angular-feature-flags/dist/featureFlags.js',
       'frontend/components/angular-auto-focus/angular-auto-focus.js',
       'frontend/components/awesome-angular-swipe/lib/awesome-angular-swipe.js',
