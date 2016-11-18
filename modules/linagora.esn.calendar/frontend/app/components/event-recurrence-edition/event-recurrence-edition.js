@@ -103,7 +103,7 @@
       } else {
         self.event.rrule = {
           freq: self.freq,
-          interval: null
+          interval: self.event.rrule && self.event.rrule.interval || 1
         };
       }
     }

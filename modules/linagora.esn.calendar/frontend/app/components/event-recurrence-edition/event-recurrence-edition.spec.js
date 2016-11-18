@@ -102,6 +102,10 @@ describe('The event-recurrence-edition component', function() {
   });
 
   describe('scope.setRRULE', function() {
+    beforeEach(function() {
+      this.initDirective(this.$scope);
+    });
+
     it('should set rrule to undefined if scope.freq equal undefined', function() {
       this.eleScope.vm.freq = undefined;
       this.eleScope.vm.setRRULE();
@@ -112,6 +116,26 @@ describe('The event-recurrence-edition component', function() {
       this.eleScope.vm.freq = 'WEEKLY';
       this.eleScope.vm.setRRULE();
       expect(this.eleScope.vm.event.rrule.freq).to.be.equal('WEEKLY');
+    });
+
+    it('should set the interval to one if it was not previously defined', function() {
+      this.eleScope.vm.freq = 'WEEKLY';
+      this.eleScope.vm.setRRULE();
+      expect(this.eleScope.vm.event.rrule.interval).to.be.equal(1);
+      this.eleScope.vm.event.rrule.interval = undefined;
+      this.eleScope.vm.setRRULE();
+      expect(this.eleScope.vm.event.rrule.interval).to.be.equal(1);
+    });
+
+    it('should keep previous interval if it was defined and more than 0', function() {
+      this.eleScope.vm.event.rrule = {freq: 'WEEKLY', interval: 42};
+      this.eleScope.vm.freq = 'YEARLY';
+      this.eleScope.vm.setRRULE();
+      expect(this.eleScope.vm.event.rrule).to.be.deep.equals({freq: 'YEARLY', interval: 42});
+      this.eleScope.vm.event.rrule.interval = 0;
+      this.eleScope.vm.freq = 'WEEKLY';
+      this.eleScope.vm.setRRULE();
+      expect(this.eleScope.vm.event.rrule).to.be.deep.equals({freq: 'WEEKLY', interval: 1});
     });
   });
 });
