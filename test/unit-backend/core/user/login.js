@@ -303,7 +303,7 @@ describe('The user login module', function() {
   });
 
   describe('The sendPasswordReset function', function() {
-    var user, helpersMock, errorMessage, data;
+    var user, helpersMock, errorMessage, data, emailMock, baseUrl;
 
     beforeEach(function() {
       user = {
@@ -311,8 +311,9 @@ describe('The user login module', function() {
         firstname: 'name',
         preferredEmail: 'mailto@email.com'
       };
-      errorMessage = 'somthing wrong';
-      data = {message: 'send successfully'};
+      baseUrl = 'http://open-pass.org:8080';
+      errorMessage = 'something wrong';
+      data = { message: 'send successfully', url: baseUrl + '/passwordreset'};
 
       mockModels({
         User: {
@@ -322,11 +323,11 @@ describe('The user login module', function() {
         },
         PasswordReset: {
           find: function(email, callback) {
-            callback(null, [{_id: '123', email: 'email@mail.com', url: 'http://localhost:8080/passwordreset'}]);
+            callback(null, [{_id: '123', email: 'email@mail.com', url: baseUrl + '/passwordreset'}]);
           }
         }
       });
-      var email = {
+      emailMock = {
         getMailer: function(user) {
           return {
             sendHTML: function(message, templateName, context, callback) {
@@ -345,8 +346,9 @@ describe('The user login module', function() {
           }
         }
       };
+
       mockery.registerMock('../../helpers', helpersMock);
-      mockery.registerMock('../email', email);
+      mockery.registerMock('../email', emailMock);
     });
 
     it('should fail if configHelpers.getBaseUrl get error', function(done) {
@@ -360,13 +362,112 @@ describe('The user login module', function() {
 
     it('should return noreply address and baseUrl if configHelpers.getBaseUrl run successfully', function(done) {
       helpersMock.config.getBaseUrl = function(user, callback) {
-        callback(null, 'http://openpaas.org');
+        callback(null, baseUrl);
       };
       var login = require('../../../../backend/core/user/login');
 
       login.sendPasswordReset(user, function(err, message) {
         expect(err).to.not.exist;
         expect(message).to.deep.equal(data);
+        done();
+      });
+    });
+
+    it('should fail if email.getMailer().sendHTML get error', function(done) {
+      emailMock.getMailer = function(user) {
+        return {
+          sendHTML: function(message, templateName, context, callback) {
+            callback(new Error(errorMessage));
+          }
+        };
+      };
+      var login = require('../../../../backend/core/user/login');
+
+      login.sendPasswordReset(user, function(err) {
+        expect(err.message).to.equal(errorMessage);
+        done();
+      });
+    });
+
+    it('should return data if email.getMailer(user).sendHTML send mail successfully', function(done) {
+      helpersMock.config.getBaseUrl = function(user, callback) {
+        callback(null, baseUrl);
+      };
+      emailMock.getMailer = function(user) {
+        return {
+          sendHTML: function(message, templateName, context, callback) {
+            callback(null, data);
+          }
+        };
+      };
+      var login = require('../../../../backend/core/user/login');
+
+      login.sendPasswordReset(user, function(err, message) {
+        expect(err).to.not.exist;
+        expect(message).to.deep.equal(data);
+        done();
+      });
+    });
+
+    it('should send url with baseUrl of url in passwordreset of user if the baseUrl equal baseUrl of web config', function(done) {
+      helpersMock.config.getBaseUrl = function(user, callback) {
+        callback(null, baseUrl);
+      };
+      emailMock.getMailer = function(user) {
+        return {
+          sendHTML: function(message, templateName, context, callback) {
+            callback(null, data);
+          }
+        };
+      };
+      var login = require('../../../../backend/core/user/login');
+
+      login.sendPasswordReset(user, function(err, message) {
+        expect(err).to.not.exist;
+        expect(message.url).to.equal(baseUrl + '/passwordreset');
+        done();
+      });
+    });
+
+    it('should send url with baseUrl of web config if the baseUrl equal baseUrl of url in passwordreset of user', function(done) {
+      var newBaseUrl = 'http://abc.com:8080';
+
+      helpersMock.config.getBaseUrl = function(user, callback) {
+        callback(null, newBaseUrl);
+      };
+
+      data.url = newBaseUrl + '/passwordreset';
+      emailMock.getMailer = function(user) {
+        return {
+          sendHTML: function(message, templateName, context, callback) {
+            callback(null, data);
+          }
+        };
+      };
+      var auth = {
+        jwt: {
+          generateWebToken: function(payload, callback) {
+            callback(null, newBaseUrl + '/passwordreset');
+          }
+        }
+      };
+      mockery.registerMock('../auth', auth);
+      mockModels({
+        PasswordReset: {
+          find: function(email, callback) {
+            callback(null, [{_id: '123', email: 'email@mail.com', url: baseUrl + '/passwordreset'}]);
+          },
+          findOneAndUpdate: function(email, command, callback) {
+            callback(null, [{email: 'email@mail.com', url: newBaseUrl + '/passwordreset'}]);
+          }
+        }
+      });
+
+      var login = require('../../../../backend/core/user/login');
+
+      login.sendPasswordReset(user, function(err, message) {
+        expect(err).to.not.exist;
+        expect(message.url).to.equal(newBaseUrl + '/passwordreset');
         done();
       });
     });
