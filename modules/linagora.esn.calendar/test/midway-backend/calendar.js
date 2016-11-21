@@ -235,7 +235,7 @@ describe('The calendars API', function() {
 
     it('should send 400 if the request body has no "method" property', function(done) {
       testError400({
-        emails: ['email1@domain1', 'email2@domain1'],
+        email: 'email1@domain1',
         event: 'ICS',
         calendarURI: 'calId'
       }, this.helpers, this.app, done);
@@ -243,7 +243,7 @@ describe('The calendars API', function() {
 
     it('should send 400 if the request body has no "event" property', function(done) {
       testError400({
-        emails: ['email1@domain1', 'email2@domain1'],
+        email: 'email1@domain1',
         method: 'REQUEST',
         calendarURI: 'calId'
       }, this.helpers, this.app, done);
@@ -251,7 +251,7 @@ describe('The calendars API', function() {
 
     it('should send 400 if the request body has no "calendarURI" property', function(done) {
       testError400({
-        emails: ['email1@domain1', 'email2@domain1'],
+        email: 'email1@domain1',
         method: 'REQUEST',
         event: 'ICS'
       }, this.helpers, this.app, done);
@@ -259,7 +259,7 @@ describe('The calendars API', function() {
 
     it('should send 400 if the request body "emails" property is invalid', function(done) {
       testError400({
-        emails: 123,
+        email: null,
         method: 'REQUEST',
         event: 'ICS',
         calendarURI: 'calId'
@@ -268,7 +268,7 @@ describe('The calendars API', function() {
 
     it('should send 400 if the request body "method" property is invalid', function(done) {
       testError400({
-        emails: ['email1@domain1', 'email2@domain1'],
+        email: 'email1@domain1',
         method: 123,
         event: 'ICS',
         calendarURI: 'calId'
@@ -277,7 +277,7 @@ describe('The calendars API', function() {
 
     it('should send 400 if the request body "event" property is invalid', function(done) {
       testError400({
-        emails: ['email1@domain1', 'email2@domain1'],
+        email: 'email1@domain1',
         method: 'REQUEST',
         event: 123,
         calendarURI: 'calId'
@@ -286,7 +286,7 @@ describe('The calendars API', function() {
 
     it('should send 400 if the request body "calendarURI" property is invalid', function(done) {
       testError400({
-        emails: ['email1@domain1', 'email2@domain1'],
+        email: 'email1@domain1',
         method: 'REQUEST',
         event: 'ICS',
         calendarURI: 123
@@ -301,7 +301,7 @@ describe('The calendars API', function() {
         }
         var req = requestAsMember(request(self.app).post('/api/calendars/inviteattendees'));
         req.send({
-          emails: ['email1@domain1', 'email2@domain1'],
+          email: 'email1@domain1',
           method: 'REQUEST',
           event: 'ICS',
           calendarURI: 'calId'

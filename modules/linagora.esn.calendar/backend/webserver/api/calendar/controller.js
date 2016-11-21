@@ -49,9 +49,9 @@ function inviteAttendees(req, res) {
     return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'You must be logged in to access this resource'}});
   }
 
-  var emails = req.body.emails;
+  var email = req.body.email;
 
-  if (!emails || arrayHelpers.isNullOrEmpty(emails)) {
+  if (!email) {
     return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'The "emails" array is required and must contain at least one element'}});
   }
 
@@ -75,7 +75,7 @@ function inviteAttendees(req, res) {
     return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'Calendar Id is required and must be a string'}});
   }
 
-  calendar.inviteAttendees(req.user, emails, notify, method, event, calendarURI, function(err) {
+  calendar.inviteAttendees(req.user, email, notify, method, event, calendarURI, function(err) {
     if (err) {
       logger.error('Error when trying to send invitations to attendees', err);
 

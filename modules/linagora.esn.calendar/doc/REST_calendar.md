@@ -70,7 +70,7 @@ Note: It send user notification and email to attendees if notify is set to true.
 
 **Request JSON Object:**
 
-- emails: an array of emails of the invited attendees
+- email: email of invited attendee
 - notify: whether to notify the attendee or not
 - method: the method of the ICS (REQUEST, CANCEL, REPLY, etc.)
 - event: String which contains a calendar event in ICS format
