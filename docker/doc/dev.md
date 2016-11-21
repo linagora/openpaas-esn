@@ -88,3 +88,13 @@ to:
 ```
 
 Now, when you edit the esn-sabre dependencies, changes are reflected inside the container.
+
+If you want to watch log of Sabre, you can do it with the following command:
+```
+docker exec -it dev_sabre_1 tail -f /var/log/nginx/error.log
+```
+
+where `dev_sabre_1` is the container name that run Sabre, you can check it with:
+```
+docker ps
+```
