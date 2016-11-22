@@ -385,14 +385,14 @@ describe('The calendar core module', function() {
         'attendee1@open-paas.org'
       ]
     };
-    var attendee2 = {
+    var otherAttendee = {
       firstname: 'attendee2Firstname',
       lastname: 'attendee2Lastname',
       emails: [
         'attendee2@open-paas.org'
       ]
     };
-    var attendeeEmails = [attendee1.emails[0], attendee2.emails[0]];
+    var attendeeEmail = attendee1.emails[0];
 
     var ics = ['BEGIN:VCALENDAR',
       'BEGIN:VEVENT',
@@ -402,7 +402,7 @@ describe('The calendar core module', function() {
       'DTEND:20150101T020202',
       'ORGANIZER;CN="' + organizer.firstname + ' ' + organizer.lastname + '":mailto:' + organizer.emails[0],
       'ATTENDEE;CN="' + attendee1.firstname + ' ' + attendee1.lastname + '":mailto:' + attendee1.emails[0],
-      'ATTENDEE;CN="' + attendee2.firstname + ' ' + attendee2.lastname + '":mailto:' + attendee2.emails[0],
+      'ATTENDEE;CN="' + otherAttendee.firstname + ' ' + otherAttendee.lastname + '":mailto:' + otherAttendee.emails[0],
       'END:VEVENT',
       'END:VCALENDAR'
     ].join('\r\n');
@@ -411,6 +411,7 @@ describe('The calendar core module', function() {
       beforeEach(function() {
         this.module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
       });
+
       it('should return with success if notify is false', function(done) {
         this.module.inviteAttendees({}, ['foo@bar.com'], false, 'REQUEST', 'ICS', 'calendarURI', this.helpers.callbacks.noError(done));
       });
@@ -446,7 +447,7 @@ describe('The calendar core module', function() {
           return callback(new Error('Error in findByEmail'));
         };
 
-        this.module.inviteAttendees(organizer, attendeeEmails, true, method, ics, 'calendarURI', this.helpers.callbacks.error(done));
+        this.module.inviteAttendees(organizer, attendeeEmail, true, method, ics, 'calendarURI', this.helpers.callbacks.error(done));
       });
 
       it('should return an error it cannot retrieve ', function(done) {
@@ -456,7 +457,7 @@ describe('The calendar core module', function() {
 
         var method = 'REQUEST';
         this.module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
-        this.module.inviteAttendees(organizer, attendeeEmails, true, method, ics, 'calendarURI', this.helpers.callbacks.error(done));
+        this.module.inviteAttendees(organizer, attendeeEmail, true, method, ics, 'calendarURI', this.helpers.callbacks.error(done));
       });
 
       it('should return an error if an error happens during links generation', function(done) {
@@ -466,7 +467,7 @@ describe('The calendar core module', function() {
           if (email === attendee1.emails[0]) {
             return callback(null, attendee1);
           } else {
-            return callback(null, attendee2);
+            return callback(null, otherAttendee);
           }
         };
 
@@ -474,7 +475,7 @@ describe('The calendar core module', function() {
           return callback(new Error());
         };
 
-        this.module.inviteAttendees(organizer, attendeeEmails, true, method, ics, 'calendarURI', this.helpers.callbacks.error(done));
+        this.module.inviteAttendees(organizer, attendeeEmail, true, method, ics, 'calendarURI', this.helpers.callbacks.error(done));
       });
 
       it('should generate a token with proper information', function(done) {
@@ -484,7 +485,7 @@ describe('The calendar core module', function() {
           if (email === attendee1.emails[0]) {
             return callback(null, attendee1);
           } else {
-            return callback(null, attendee2);
+            return callback(null, otherAttendee);
           }
         };
 
@@ -492,7 +493,7 @@ describe('The calendar core module', function() {
           callback('a_token');
         });
 
-        this.module.inviteAttendees(organizer, attendeeEmails, true, method, ics, 'calendarURI', function() {
+        this.module.inviteAttendees(organizer, attendeeEmail, true, method, ics, 'calendarURI', function() {
           function testTokenWith(action, attendeeEmail) {
             expect(authMock.jwt.generateWebToken).to.have.been.calledWith({
               action: action,
@@ -504,7 +505,7 @@ describe('The calendar core module', function() {
           }
 
           ['ACCEPTED', 'DECLINED', 'TENTATIVE'].forEach(function(action) {
-            attendeeEmails.forEach(testTokenWith.bind(null, action));
+            testTokenWith(action, attendeeEmail);
           });
 
           done();
@@ -518,7 +519,7 @@ describe('The calendar core module', function() {
           if (email === attendee1.emails[0]) {
             return callback(null, attendee1);
           } else {
-            return callback(null, attendee2);
+            return callback(null, otherAttendee);
           }
         };
 
@@ -530,12 +531,11 @@ describe('The calendar core module', function() {
           };
         };
 
-        this.module.inviteAttendees(organizer, attendeeEmails, true, method, ics, 'calendarURI', this.helpers.callbacks.error(done));
+        this.module.inviteAttendees(organizer, attendeeEmail, true, method, ics, 'calendarURI', this.helpers.callbacks.error(done));
       });
 
       it('should work even if findByEmail doesn\'t find the attendee', function(done) {
         var method = 'REQUEST';
-        var called = 0;
 
         userMock.findByEmail = function(email, callback) {
           if (email === attendee1.emails[0]) {
@@ -549,14 +549,8 @@ describe('The calendar core module', function() {
         emailMock.getMailer = function() {
           return {
             sendHTML: function(email, template, locals) {
-              called++;
               expect(email.from).to.equal(organizer.emails[0]);
-              if (called === 1) {
-                expect(email.to).to.equal(attendee1.emails[0]);
-              } else {
-                expect(email.to).to.equal(attendee2.emails[0]);
-              }
-
+              expect(email.to).to.equal(attendee1.emails[0]);
               expect(template).to.be.a.string;
               expect(locals).to.be.an('object');
 
@@ -565,7 +559,7 @@ describe('The calendar core module', function() {
           };
         };
 
-        this.module.inviteAttendees(organizer, attendeeEmails, true, method, ics, 'calendarURI', function(err) {
+        this.module.inviteAttendees(organizer, attendeeEmail, true, method, ics, 'calendarURI', function(err) {
           expect(err).to.not.exist;
           done();
         });
@@ -586,23 +580,16 @@ describe('The calendar core module', function() {
           if (email === attendee1.emails[0]) {
             return callback(null, attendee1);
           } else {
-            return callback(null, attendee2);
+            return callback(null, otherAttendee);
           }
         };
-
-        var called = 0;
 
         emailMock.getMailer = function() {
           return {
             sendHTML: function(email, template, locals) {
-              called++;
               expect(email.from).to.equal(organizer.emails[0]);
 
-              if (called === 1) {
-                expect(email.to).to.equal(attendee1.emails[0]);
-              } else {
-                expect(email.to).to.equal(attendee2.emails[0]);
-              }
+              expect(email.to).to.equal(attendee1.emails[0]);
               expect(email).to.shallowDeepEqual({
                 subject: 'New event from ' + organizer.firstname + ' ' + organizer.lastname + ': description',
                 encoding: 'base64',
@@ -630,9 +617,8 @@ describe('The calendar core module', function() {
         };
 
         this.module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
-        this.module.inviteAttendees(organizer, attendeeEmails, true, method, ics, 'calendarURI', function(err) {
+        this.module.inviteAttendees(organizer, attendeeEmail, true, method, ics, 'calendarURI', function(err) {
           expect(err).to.not.exist;
-          expect(called).to.equal(2);
           done();
         });
       });
@@ -663,7 +649,7 @@ describe('The calendar core module', function() {
           };
         };
 
-        this.module.inviteAttendees(organizer, attendeeEmails, true, method, ics, 'calendarURI', function(err) {
+        this.module.inviteAttendees(organizer, attendeeEmail, true, method, ics, 'calendarURI', function(err) {
           expect(err).to.not.exist;
           done();
         });
@@ -688,7 +674,7 @@ describe('The calendar core module', function() {
           };
         };
 
-        this.module.inviteAttendees(organizer, attendeeEmails, true, method, ics, 'calendarURI', function(err) {
+        this.module.inviteAttendees(organizer, attendeeEmail, true, method, ics, 'calendarURI', function(err) {
           expect(err).to.not.exist;
           done();
         });
@@ -716,7 +702,7 @@ describe('The calendar core module', function() {
         };
 
         this.module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
-        this.module.inviteAttendees(organizer, attendeeEmails, true, method, ics, 'calendarURI', function(err) {
+        this.module.inviteAttendees(organizer, attendeeEmail, true, method, ics, 'calendarURI', function(err) {
           expect(err).to.not.exist;
           done();
         });
@@ -749,7 +735,7 @@ describe('The calendar core module', function() {
         };
 
         this.module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
-        this.module.inviteAttendees(attendee1, attendeeEmails, true, method, ics, 'calendarURI', function(err) {
+        this.module.inviteAttendees(attendee1, attendeeEmail, true, method, ics, 'calendarURI', function(err) {
           expect(err).to.not.exist;
           done();
         });
@@ -763,7 +749,7 @@ describe('The calendar core module', function() {
           if (email === 'attendee1@open-paas.org') {
             return callback(null, attendee1);
           } else {
-            return callback(null, attendee2);
+            return callback(null, otherAttendee);
           }
         };
 
@@ -788,7 +774,7 @@ describe('The calendar core module', function() {
         };
 
         this.module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
-        this.module.inviteAttendees(attendee1, attendeeEmails, true, method, ics, 'calendarURI', function(err) {
+        this.module.inviteAttendees(attendee1, attendeeEmail, true, method, ics, 'calendarURI', function(err) {
           expect(err).to.not.exist;
           expect(called).to.equal(1);
           done();
@@ -817,7 +803,7 @@ describe('The calendar core module', function() {
         };
 
         this.module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
-        this.module.inviteAttendees(organizer, attendeeEmails, true, method, ics, 'calendarURI', function(err) {
+        this.module.inviteAttendees(organizer, attendeeEmail, true, method, ics, 'calendarURI', function(err) {
           expect(err).to.not.exist;
           done();
         });
@@ -843,7 +829,7 @@ describe('The calendar core module', function() {
             if (email === attendee1.emails[0]) {
               return callback(null, attendee1);
             } else {
-              return callback(null, attendee2);
+              return callback(null, otherAttendee);
             }
           };
 
@@ -857,7 +843,7 @@ describe('The calendar core module', function() {
           };
 
           this.module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
-          this.module.inviteAttendees(organizer, attendeeEmails, true, method, ics, 'calendarURI', callback);
+          this.module.inviteAttendees(organizer, attendeeEmail, true, method, ics, 'calendarURI', callback);
         };
 
       });

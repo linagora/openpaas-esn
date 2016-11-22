@@ -10,7 +10,6 @@ var eventMessage,
     userModule,
     collaborationModule,
     messageHelpers,
-    arrayHelpers,
     activityStreamHelper,
     localpubsub,
     globalpubsub,
@@ -200,7 +199,7 @@ function generateActionLinks(baseUrl, jwtPayload) {
   });
 }
 
-function inviteAttendees(editor, attendeeEmails, notify, method, ics, calendarURI, callback) {
+function inviteAttendees(editor, attendeeEmail, notify, method, ics, calendarURI, callback) {
   if (!notify) {
     return q({}).nodeify(callback);
   }
@@ -209,7 +208,7 @@ function inviteAttendees(editor, attendeeEmails, notify, method, ics, calendarUR
     return q.reject(new Error('Organizer must be an User object')).nodeify(callback);
   }
 
-  if (arrayHelpers.isNullOrEmpty(attendeeEmails)) {
+  if (!attendeeEmail) {
     return q.reject(new Error('AttendeeEmails must an array with at least one email')).nodeify(callback);
   }
 
@@ -221,27 +220,11 @@ function inviteAttendees(editor, attendeeEmails, notify, method, ics, calendarUR
     return q.reject(new Error('The ics is required')).nodeify(callback);
   }
 
-  if (!calendarURI) {
-    return q.reject(new Error('The calendar id is required')).nodeify(callback);
-  }
-
   function userDisplayName(user) {
     return user.firstname + ' ' + user.lastname;
   }
 
-  var getAllUsersAttendees = attendeeEmails.map(function(attendeeEmail) {
-    var deferred = q.defer();
-
-    userModule.findByEmail(attendeeEmail, function(err, found) {
-      if (err) {
-        deferred.reject(err);
-      } else {
-        deferred.resolve(found || { emails: [attendeeEmail] });
-      }
-    });
-
-    return deferred.promise;
-  });
+  var attendeePromise = q.nfbind(userModule.findByEmail)(attendeeEmail);
 
   var mailer = emailModule.getMailer(editor);
 
@@ -250,7 +233,11 @@ function inviteAttendees(editor, attendeeEmails, notify, method, ics, calendarUR
       return q.reject(err).nodeify(callback);
     }
 
-    return q.all(getAllUsersAttendees).then(function(users) {
+    return attendeePromise.then(function(attendee) {
+      if (!attendee) {
+        return $q.when();
+      }
+
       var editorEmail = editor.email || editor.emails[0];
       var event = jcal2content(ics, baseUrl);
       var inviteMessage;
@@ -305,6 +292,7 @@ function inviteAttendees(editor, attendeeEmails, notify, method, ics, calendarUR
         },
         calendarHomeId: editor._id
       };
+
       var filter = function(filename) {
         switch (filename) {
           case 'map-marker.png':
@@ -320,41 +308,34 @@ function inviteAttendees(editor, attendeeEmails, notify, method, ics, calendarUR
         }
       };
 
-      var involvedUsers = users.filter(function(user) {
-        var attendeeEmail = user.email || user.emails[0];
+      var userIsInvolved = !event.attendees || !event.attendees[attendeeEmail] || event.attendees[attendeeEmail].partstat !== 'DECLINED';
 
-        if (event.attendees) {
-          return event.attendees[attendeeEmail] ? event.attendees[attendeeEmail].partstat !== 'DECLINED' : true;
-        }
+      if (!userIsInvolved) {
+        return $q.when();
+      }
 
-        return true;
-      });
-      var sendMailToAllAttendees = involvedUsers.map(function(user) {
-        var attendeeEmail = user.email || user.emails[0];
-        var jwtPayload = {
-          attendeeEmail: attendeeEmail,
-          organizerEmail: event.organizer.email,
-          uid: event.uid,
-          calendarURI: calendarURI
+      var attendeePreferedEmail = attendee.email || attendee.emails[0];
+      var jwtPayload = {
+        attendeeEmail: attendeePreferedEmail,
+        organizerEmail: event.organizer.email,
+        uid: event.uid,
+        calendarURI: calendarURI
+      };
+
+      return generateActionLinks(baseUrl, jwtPayload).then(function(links) {
+        var contentWithLinks = {};
+        var email = {};
+
+        extend(true, contentWithLinks, content, links);
+        extend(true, email, message, { to: attendeeEmail });
+
+        var locals = {
+          content: contentWithLinks,
+          filter: filter
         };
 
-        return generateActionLinks(baseUrl, jwtPayload).then(function(links) {
-          var contentWithLinks = {};
-          var email = {};
-
-          extend(true, contentWithLinks, content, links);
-          extend(true, email, message, { to: attendeeEmail });
-
-          var locals = {
-            content: contentWithLinks,
-            filter: filter
-          };
-
-          return mailer.sendHTML(email, template, locals);
-        });
+        return mailer.sendHTML(email, template, locals);
       });
-
-      return q.all(sendMailToAllAttendees);
     }).nodeify(callback);
   });
 }
@@ -402,7 +383,6 @@ module.exports = function(dependencies) {
   userModule = dependencies('user');
   collaborationModule = dependencies('collaboration');
   messageHelpers = dependencies('helpers').message;
-  arrayHelpers = dependencies('helpers').array;
   configHelpers = dependencies('helpers').config;
   activityStreamHelper = dependencies('activitystreams').helpers;
   localpubsub = dependencies('pubsub').local;
