@@ -1,8 +1,11 @@
+sub-header
+  profile-show-subheader.hidden-md
+
 .container.full-width.no-padding-xs
   .block-header
     h2(ng-if="me") #{__('My Account')}
     h2(ng-if="!me") {{::user.firstname}} {{::user.lastname}}
-    ul.actions.flex-space-around
+    ul.actions.flex-space-around.hidden-xs
       button.btn.btn-primary(ng-if="me", ui-sref="profileEdit")
         i.mdi.mdi-pencil
         | #{__('Edit')}

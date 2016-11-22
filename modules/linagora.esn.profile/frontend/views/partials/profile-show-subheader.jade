@@ -1,0 +1,7 @@
+.row
+  a.flex-first(href='', ng-click='back()')
+    i.mdi.mdi-arrow-left.m-l-5.m-r-5
+    | #{__('Back')}
+  .right-action.flex-end
+    a.p-l-5.p-r-10(ng-if="me", ui-sref="profileEdit")
+      i.mdi.mdi-pencil
