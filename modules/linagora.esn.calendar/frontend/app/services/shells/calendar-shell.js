@@ -103,6 +103,7 @@
       equals: equals,
       getModifiedMaster: getModifiedMaster,
       modifyOccurrence: modifyOccurrence,
+      isMeeting: isMeeting,
 
       get uid() { return this.vevent.getFirstPropertyValue('uid'); },
       get id() { return this.recurrenceId ? this.uid + '_' + this.vevent.getFirstPropertyValue('recurrence-id').convertToZone(ICAL.Timezone.utcTimezone) : this.uid; },
@@ -742,6 +743,10 @@
       });
 
       return newShell;
+    }
+
+    function isMeeting() {
+      return this.attendees.length > 1;
     }
   }
 })();

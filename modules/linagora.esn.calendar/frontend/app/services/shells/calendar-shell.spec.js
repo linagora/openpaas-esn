@@ -1538,4 +1538,36 @@ describe('CalendarShell factory', function() {
       expect(shell.rrule).to.be.undefined;
     });
   });
+
+  describe('isMeeting function', function() {
+    var shell;
+
+    beforeEach(function() {
+      shell = CalendarShell.fromIncompleteShell({});
+    });
+
+    it('should return true if the event has attendees', function() {
+      shell.attendees = [{
+        email: 'organizer@demo.open-paas.org',
+        partstat: 'ACCEPTED'
+      }, {
+        email: 'user1@demo.open-paas.org',
+        partstat: 'NEEDS-ACTION'
+      }, {
+        email: 'user2@demo.open-paas.org',
+        partstat: 'ACCEPTED'
+      }];
+
+      expect(shell.isMeeting()).to.be.true;
+    });
+
+    it('should return false if the event has not any attendees', function() {
+      shell.attendees = [{
+        email: 'organizer@demo.open-paas.org',
+        partstat: 'ACCEPTED'
+      }];
+
+      expect(shell.isMeeting()).to.be.false;
+    });
+  });
 });
