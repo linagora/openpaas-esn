@@ -31,6 +31,7 @@ function waitForUrlToChangeTo(urlRegex, timeout) {
 
 function logoutAndGoToLoginPage() {
   browser.get('/logout');
+  browser.get('/');
 
   return waitForUrlToChangeTo(/\/#\/$/, 5000);
 }
