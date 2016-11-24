@@ -7,7 +7,7 @@ angular.module('linagora.esn.profile')
     $scope.me = session.user._id === $scope.user._id;
     $scope.back = function() {
       $window.history.back();
-    }
+    };
   })
   .controller('profileEditionController', function($scope, $log, user, session, profileAPI, notificationFactory) {
     $scope.user = user;

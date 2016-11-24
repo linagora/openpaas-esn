@@ -20,6 +20,5 @@ angular.module('linagora.esn.profile')
     return {
       restrict: 'E',
       templateUrl: '/profile/views/partials/profile-show-subheader'
-    }
-  })
-;
+    };
+  });
