@@ -89,6 +89,12 @@ module.exports.sendPasswordReset = function(user, callback) {
     });
   }
 
+  function updatePasswordResetUrl(url, callback) {
+    PasswordReset.findOneAndUpdate({ email: to }, { $set: { url: url } }, function(err, saved) {
+      callback(err, { email: to, url: url });
+    });
+  }
+
   function sendEmail(noreply, passwordreset, callback) {
     var message = {
       from: noreply,
@@ -102,7 +108,7 @@ module.exports.sendPasswordReset = function(user, callback) {
       url: passwordreset.url
     };
 
-    email.getMailer().sendHTML(message, templateName, context, callback);
+    email.getMailer(user).sendHTML(message, templateName, context, callback);
   }
 
   getConfiguration(function(err, results) {
@@ -110,14 +116,29 @@ module.exports.sendPasswordReset = function(user, callback) {
       return callback(err);
     }
 
+    var noreply = results[0];
+    var baseUrl = results[1];
+
     PasswordReset.find({email: to}, function(err, result) {
       if (result && result.length) {
-        sendEmail(results[0], result[0], callback);
+        var url = result[0].url;
+        var baseJwtUrl = url.substring(0, url.indexOf('/passwordreset'));
+
+        if (baseJwtUrl !== baseUrl) {
+          // make a new jwturl with baseUrl of webConfig and update url of PasswordReset
+          async.waterfall([
+            generateJWTurl.bind(null, baseUrl),
+            updatePasswordResetUrl,
+            sendEmail.bind(null, noreply)
+          ], callback);
+        } else {
+          sendEmail(noreply, result[0], callback);
+        }
       } else {
         async.waterfall([
-          generateJWTurl.bind(null, results[1]),
+          generateJWTurl.bind(null, baseUrl),
           createNewPasswordReset,
-          sendEmail.bind(null, results[0])
+          sendEmail.bind(null, noreply)
         ], callback);
       }
     });
