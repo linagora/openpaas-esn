@@ -166,28 +166,22 @@ GruntfileUtils.prototype.buildDockerImage = function(source, buildOptions) {
     var done = this.async();
     var docker = new Docker(dockerodeConfig()[grunt.option('docker')]);
 
-    docker.buildImage(source, buildOptions, function(err, stream) {
+    docker.buildImage(source, buildOptions, (err, stream) => {
+      stream.setEncoding('utf8');
+
       if (err) {
         grunt.fail.fatal('Failed to build image, reason: ' + err);
       } else {
-        stream.setEncoding('utf8');
+        docker.modem.followProgress(stream, (err, output) => {
+          if (err) {
+            grunt.fail.warn(err);
 
-        stream.on('data', function(data) {
-          var jsonData = JSON.parse(data);
+            return done(false);
+          }
 
-          jsonData.stream && grunt.log.write(jsonData.stream);
-          jsonData.error && grunt.fail.warn(jsonData.error);
-        });
-
-        stream.on('error', function(err) {
-          grunt.fail.warn(err);
-          done(false);
-        });
-
-        stream.on('end', function() {
           grunt.log.oklns('Build image successful!');
           done(true);
-        });
+        }, event => grunt.log.write(event.status || event.stream));
       }
     });
   };
