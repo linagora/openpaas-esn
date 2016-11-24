@@ -47,23 +47,24 @@ function logIn(account) {
 }
 
 function tryUntilSuccess(task, options) {
-  var maxTryCount = options.maxTryCount || 10;
-  var waitBeforeRetry = options.waitBeforeRetry;
-  var runBeforeRetry = options.runBeforeRetry || q.when;
-  var deferred = q.defer();
+  const maxTryCount = options.maxTryCount || 10;
+  const waitBeforeRetry = options.waitBeforeRetry;
+  const runBeforeRetry = options.runBeforeRetry || q.when;
+  const deferred = q.defer();
+  const failures = [];
 
   _try(1);
 
   function _try(tryCount) {
-    return task().then(function() {
-      deferred.resolve();
-    }, function() {
+    return task().then(() => deferred.resolve(), err => {
+      failures.push(err);
+
       if (tryCount < maxTryCount) {
         _wait(waitBeforeRetry)
           .then(runBeforeRetry)
           .then(_try.bind(null, tryCount + 1));
       } else {
-        deferred.reject(new Error(`Maximum number of tries exceeded: ${maxTryCount}`));
+        deferred.reject(new Error(`Maximum number of tries exceeded: ${maxTryCount}\n${failures.join('\n')}`));
       }
     });
   }
