@@ -45,17 +45,19 @@ module.exports = function() {
         waitBeforeRetry: 2000,
         maxTryCount: 5
       })
-      .then(next.bind(null, null));
+      .then(() => next(), err => next(err || 'should resolve'));
 
     function check() {
-      return q.all(self.notifications.messages.map(checkNotification)).then(q.reject, q.when);
+      return q.all(self.notifications.messages.map(checkNotification)).then(messages => q.reject(`No notifications matched, only found ${messages.length} notifications: ${messages}`), q);
     }
 
     function checkNotification(notification) {
       return notification.getText().then(function(text) {
         if (text === message) {
-          return $q.reject();
+          return q.reject();
         }
+
+        return text;
       });
     }
   });
