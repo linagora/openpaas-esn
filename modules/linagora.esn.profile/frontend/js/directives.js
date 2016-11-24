@@ -14,4 +14,12 @@ angular.module('linagora.esn.profile')
       restrict: 'E',
       templateUrl: '/profile/views/partials/profile-edition-form.html'
     };
-  });
+  })
+
+  .directive('profileShowSubheader', function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/profile/views/partials/profile-show-subheader'
+    }
+  })
+;
