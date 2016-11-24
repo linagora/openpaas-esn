@@ -24,8 +24,10 @@ module.exports = function() {
           if (notificationMessage === succeededMessage) {
             return q.reject();
           }
+
+          return notificationMessage;
         });
-      })).then(q.reject, q.when);
+      })).then(messages => q.reject(`No notifications matched, only found ${messages.length} notifications: ${messages}`), q);
     }
   });
 
