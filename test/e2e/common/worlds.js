@@ -63,7 +63,7 @@ function tryUntilSuccess(task, options) {
           .then(runBeforeRetry)
           .then(_try.bind(null, tryCount + 1));
       } else {
-        deferred.reject();
+        deferred.reject(new Error(`Maximum number of tries exceeded: ${maxTryCount}`));
       }
     });
   }
