@@ -101,7 +101,7 @@
     "chai-shallow-deep-equal": "1.4.0",
     "cookie": "0.3.1",
     "cucumber": "1.3.0",
-    "dockerode": "git+https://github.com/linagora/dockerode.git#1538354437a",
+    "dockerode": "git+https://github.com/linagora/dockerode.git#12ff3e46f0bac834b7411a6cf0344c0c079208f9",
     "eslint": "3.6.0",
     "eslint-config-airbnb-base": "8.0.0",
     "eslint-config-linagora-esn": "1.0.2",
