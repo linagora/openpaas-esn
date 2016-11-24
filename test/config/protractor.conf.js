@@ -26,5 +26,6 @@ exports.config = {
     ],
     format: 'pretty',
     tags: process.env.TAGS
-  }
+  },
+  ignoreUncaughtExceptions: true // https://github.com/mattfritz/protractor-cucumber-framework/issues/56
 };
