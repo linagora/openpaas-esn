@@ -10,4 +10,5 @@ module.exports = function() {
   this.actionLink = this.container.element(by.css('a[data-notify="url"]'));
   this.dismiss = this.container.element(by.css('a[data-notify="dismiss"]'));
 
+  this.hasText = text => browser.wait(protractor.ExpectedConditions.textToBePresentInElement(this.firstMessage, text), 5000, 'The expected notification message was not found: ' + text);
 };

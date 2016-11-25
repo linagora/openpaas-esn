@@ -37,29 +37,8 @@ module.exports = function() {
     ]);
   });
 
-  this.Then('I see a notification with message "$message"', { timeout: 60 * 1000 }, function(message, next) {
-
-    var self = this;
-
-    self.tryUntilSuccess(check, {
-        waitBeforeRetry: 2000,
-        maxTryCount: 5
-      })
-      .then(() => next(), err => next(err || 'should resolve'));
-
-    function check() {
-      return q.all(self.notifications.messages.map(checkNotification)).then(messages => q.reject(`No notifications matched, only found ${messages.length} notifications: ${messages}`), q);
-    }
-
-    function checkNotification(notification) {
-      return notification.getText().then(function(text) {
-        if (text === message) {
-          return q.reject();
-        }
-
-        return text;
-      });
-    }
+  this.Then('I see a notification with message "$message"', function(message) {
+    return this.notifications.hasText(message);
   });
 
   this.Then('I have "$folder" in the sidebar at the root level', function(folder) {

@@ -11,11 +11,9 @@ var subheaderPage = require('../pages/subheader')();
 module.exports = function() {
 
   this.When('I press "Send" button and wait for the message to be sent', function() {
-    const self = this,
-        succeededMessage = 'Message sent';
-
     messagePage.composerSendButton.click();
-    return browser.wait(protractor.ExpectedConditions.textToBePresentInElement(self.notifications.firstMessage, succeededMessage), 5000);
+
+    return this.notifications.hasText('Message sent');
   });
 
   this.When('I write "$value" in the Name field', function(value) {
