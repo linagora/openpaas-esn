@@ -70,53 +70,32 @@ module.exports = function() {
     return this.expect(indicatorPage.isPresent()).to.eventually.equal(true);
   });
 
-  this.Then('I see a message from "$from" with subject "$subject" and preview contains "$preview"', { timeout: 60 * 1000 }, function(from, subject, preview, done) {
+  this.Then('I see a message from "$from" with subject "$subject" and preview contains "$preview"', { timeout: 60 * 1000 }, function(from, subject, preview) {
 
-    var self = this;
+    const self = this;
+    const EC = protractor.ExpectedConditions;
 
-    this.tryUntilSuccess(_check, {
-      waitBeforeRetry: 2000,
-      runBeforeRetry: function() {
-        return inboxAside.aside.element(by.css('div[title="All Mail"]')).click();
+    const messagesWithExpectedValues = messagePage.allMessages.filter((elem, index) => {
+      var messageSubject = elem.element(by.css('.inbox-subject-inline'));
+      var messageFrom = elem.element(by.css('.emailer'));
+      var messagePreview = elem.element(by.css('.inbox-preview-inline.preview'));
+
+      return EC.and(
+        EC.textToBePresentInElement(messageSubject, subject),
+        EC.textToBePresentInElement(messageFrom, self.USERS[from].displayName),
+        EC.textToBePresentInElement(messagePreview, preview)
+      )();
+    });
+
+    return browser.wait(messagesWithExpectedValues.count().then(count => {
+      if (count === 0) {
+        return inboxAside.aside.element(by.css('div[title="All Mail"]')).click()
+          .then(() => {
+            var deferred = protractor.promise.defer();
+            deferred.reject(new Error('No such mail'));
+            return deferred.promise;
+          });
       }
-    }).then(done.bind(null, null), done.bind(null, new Error('Cannot find the message')));
-
-    function _check() {
-      return messagePage.allMessages.then(function(messages) {
-        return q.all(messages.map(_checkMessage)).then(q.reject, q.when);
-      });
-    }
-
-    function _checkMessage(message) {
-      var messageSubject = message.element(by.css('.inbox-subject-inline'));
-      var messageFrom = message.element(by.css('.emailer'));
-      var messagePreview = message.element(by.css('.inbox-preview-inline.preview'));
-
-      return q.all([
-        _checkTextContain(messageFrom, self.USERS[from].displayName),
-        _checkTextEqual(messageSubject, subject),
-        _checkTextContain(messagePreview, preview)
-      ]).then(q.reject, q.when);
-    }
-
-    function _checkTextContain(element, str) {
-      return element.getText().then(function(text) {
-        if (text.indexOf(str) > -1) {
-          return q.when();
-        }
-
-        return q.reject();
-      });
-    }
-
-    function _checkTextEqual(element, str) {
-      return element.getText().then(function(text) {
-        if (str === text) {
-          return q.when();
-        }
-
-        return q.reject();
-      });
-    }
+    }), 10000);
   });
 };
