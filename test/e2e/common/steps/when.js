@@ -14,8 +14,8 @@ module.exports = function() {
     return browser.get(url);
   });
 
-  this.When('I wait for the url redirection', function(callback) {
-    this.waitUrlToBeRedirected().thenFinally(callback);
+  this.When('I wait for the url redirection', function() {
+    return this.waitUrlToBeRedirected();
   });
 
 };

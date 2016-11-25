@@ -1,3 +1,4 @@
+@login
 Feature: As a user of Open-Paas,
   I want to be able to interact with the login page
 
