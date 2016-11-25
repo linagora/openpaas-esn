@@ -10,32 +10,12 @@ var subheaderPage = require('../pages/subheader')();
 
 module.exports = function() {
 
-  this.When('I press "Send" button and wait for the message to be sent', function(next) {
+  this.When('I press "Send" button and wait for the message to be sent', function() {
     const self = this,
-        succeededMessage = 'Message sent',
-        waitBeforeRetry = 2000,
-        maxTryCount = 5;
+        succeededMessage = 'Message sent';
 
-    messagePage.composerSendButton.click()
-      .then(() =>
-        this.tryUntilSuccess(check, {
-            waitBeforeRetry,
-            maxTryCount
-          })
-      )
-      .then(() => next(), err => next(err || 'should resolve'));
-
-    function check() {
-      return q.all(self.notifications.messages.map(function(message) {
-        return message.getText().then(function(notificationMessage) {
-          if (notificationMessage === succeededMessage) {
-            return q.reject();
-          }
-
-          return notificationMessage;
-        });
-      })).then(messages => q.reject(`No notifications matched, only found ${messages.length} notifications: ${messages}`), q);
-    }
+    messagePage.composerSendButton.click();
+    return browser.wait(protractor.ExpectedConditions.textToBePresentInElement(self.notifications.firstMessage, succeededMessage), 5000);
   });
 
   this.When('I write "$value" in the Name field', function(value) {
