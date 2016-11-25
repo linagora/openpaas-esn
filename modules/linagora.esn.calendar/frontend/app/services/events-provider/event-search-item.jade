@@ -7,9 +7,9 @@ cal-open-event-on-click.event-search-item(event="item")
         .lv-title
           event-date-consultation(event="item")
       .flex
-        i.mdi.mdi-account-multiple-plus
-        i.mdi.mdi-alarm
-        i.mdi.mdi-refresh
+        i.mdi.mdi-account-multiple-plus(ng-if="item.isMeeting()")
+        i.mdi.mdi-alarm(ng-if="item.alarm")
+        i.mdi.mdi-refresh(ng-if="item.isRecurring()")
     .flex-space-between
       .lv-title
         span(ng-bind-html="::item.title | esnHighlight: query")
