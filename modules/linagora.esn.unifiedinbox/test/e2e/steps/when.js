@@ -1,7 +1,5 @@
 'use strict';
 
-var q = require('q');
-
 var messagePage = new (require('../pages/message'))();
 var inboxAside = new (require('../pages/inbox-aside'))();
 var inboxAddFolder = new (require('../pages/inbox-add-folder'))();
@@ -49,12 +47,10 @@ module.exports = function() {
 
   this.When('I fill start date with "$startDate" and message body with "$body"', function(startDate, body) {
     return configurationPage.vacationTab.toggleEnable(true)
-      .then(function() {
-        return q.all([
-          configurationPage.vacationTab.fillStartDate(startDate),
-          configurationPage.vacationTab.fillBody(body)
-        ]);
-      });
+      .then(() => protractor.promise.all([
+        configurationPage.vacationTab.fillStartDate(startDate),
+        configurationPage.vacationTab.fillBody(body)
+      ]));
   });
 
   this.When('I press "$label" button on Inbox subheader', function(label) {

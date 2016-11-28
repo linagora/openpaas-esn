@@ -1,7 +1,5 @@
 'use strict';
 
-var q = require('q');
-
 var mainPanel = new (require('../pages/inbox-panel'))().mainPanel;
 
 module.exports = function() {
@@ -25,9 +23,9 @@ module.exports = function() {
     return hasToDateCheckbox.getAttribute('checked').then(function(checked) {
       if (checked) {
         return hasToDateCheckbox.click();
-      } else {
-        return q.when();
       }
+
+      return protractor.promise.fulfilled();
     });
   }
 

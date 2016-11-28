@@ -8,7 +8,8 @@ module.exports = function() {
   this.menuButton = element(by.css('#header .application-menu-toggler'));
   this.unifiedInboxButton = element(by.css('#header .application-menu a[href="/#/unifiedinbox"]'));
   this.clickOnModuleInMenu = function() {
-    return this.menuButton.click().then(this.unifiedInboxButton.click);
+    this.menuButton.click();
+    return this.unifiedInboxButton.click();
   }.bind(this);
 
   // MESSAGE
