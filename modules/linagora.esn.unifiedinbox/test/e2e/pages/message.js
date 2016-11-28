@@ -13,10 +13,9 @@ module.exports = function() {
 
   // MESSAGE
   this.allMessages = element.all(by.css('.inbox-list-item'));
-  this.firstMessage = element.all(by.css('.inbox-list-item')).first();
-  this.firstMessageSubject = this.firstMessage.element(by.css('.inbox-subject'));
-  this.firstMessageFrom = this.firstMessage.element(by.css('.emailer'));
-  this.firstMessagePreview = this.firstMessage.element(by.css('.preview'));
+  this.subjectElementOf = messageElement => messageElement.element(by.css('.inbox-subject-inline'));
+  this.fromElementOf = messageElement => messageElement.element(by.css('.emailer'));
+  this.previewElementOf = messageElement => messageElement.element(by.css('.inbox-preview-inline.preview'));
 
   // COMPOSER RELATED ELEMENTS
   this.openComposerFab = element(by.css('inbox-fab button'));
