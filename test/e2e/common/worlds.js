@@ -1,6 +1,5 @@
 'use strict';
 
-var q = require('q');
 var chai = require('chai');
 var chaiAsPromised = require('chai-as-promised');
 
@@ -46,44 +45,6 @@ function logIn(account) {
     });
 }
 
-function tryUntilSuccess(task, options) {
-  const maxTryCount = options.maxTryCount || 10;
-  const waitBeforeRetry = options.waitBeforeRetry;
-  const runBeforeRetry = options.runBeforeRetry || q.when;
-  const deferred = q.defer();
-  const failures = [];
-
-  _try(1);
-
-  function _try(tryCount) {
-    return task().then(() => deferred.resolve(), err => {
-      failures.push(err);
-
-      if (tryCount < maxTryCount) {
-        _wait(waitBeforeRetry)
-          .then(runBeforeRetry)
-          .then(_try.bind(null, tryCount + 1));
-      } else {
-        deferred.reject(new Error(`Maximum number of tries exceeded: ${maxTryCount}\n${failures.join('\n')}`));
-      }
-    });
-  }
-
-  function _wait(timeout) {
-    if (!timeout) { return q.when(); }
-
-    var deferred = q.defer();
-
-    setTimeout(function() {
-      deferred.resolve();
-    }, timeout);
-
-    return deferred.promise;
-  }
-
-  return deferred.promise;
-}
-
 function World() {
   this.expect = chai.expect;
 
@@ -91,7 +52,6 @@ function World() {
   this.waitUrlToBeRedirected = waitUrlToBeRedirected;
   this.logoutAndGoToLoginPage = logoutAndGoToLoginPage;
   this.logIn = logIn;
-  this.tryUntilSuccess = tryUntilSuccess;
 }
 
 World.prototype.USERS = {

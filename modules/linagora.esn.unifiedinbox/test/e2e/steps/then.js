@@ -1,33 +1,10 @@
 'use strict';
 
-var q = require('q');
-
 var messagePage = new (require('../pages/message'))();
 var inboxAside = new (require('../pages/inbox-aside'))();
 var indicatorPage = require('../pages/indicator')();
 
 module.exports = function() {
-
-  this.Then('I have at least $count message', { timeout: 60 * 1000 }, function(messageCount) {
-    var self = this,
-        expectedMessageCount = parseInt(messageCount, 10),
-        maxTryCount = 10;
-
-    function _try(tryCount) {
-      return browser.refresh()
-        .then(messagePage.clickOnModuleInMenu.bind(messagePage))
-        .then(function() { return messagePage.allMessages.count(); })
-        .then(function(messageCount) {
-          if (messageCount < expectedMessageCount && tryCount <= maxTryCount) {
-            return _try(tryCount + 1);
-          }
-
-          return self.expect(messageCount).to.be.at.least(expectedMessageCount);
-        });
-    }
-
-    return _try(1);
-  });
 
   this.Then('I see a notification with message "$message"', function(message) {
     return this.notifications.hasText(message);
