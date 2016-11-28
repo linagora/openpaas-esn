@@ -241,4 +241,26 @@ describe('The Scroll Angular module', function() {
 
   });
 
+  describe('The scrollTopOnClick directive', function() {
+    var $scope, $window, $timeout, element;
+
+    beforeEach(function() {
+      module('esn.scroll');
+    });
+
+    beforeEach(inject(function(_$compile_, _$rootScope_, _$window_) {
+      $window = _$window_;
+      $scope = _$rootScope_.$new();
+      element = _$compile_('<div scroll-to-on-click></div>')($scope);
+      $scope.$digest();
+    }));
+
+    it('should scroll to top when the element is clicked', function() {
+      var windowElt = angular.element($window);
+      $window.scrollTo(500);
+      element.click();
+      expect(windowElt.scrollTop()).to.equal(0);
+    });
+  });
+
 });

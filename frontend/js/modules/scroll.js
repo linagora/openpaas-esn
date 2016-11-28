@@ -118,4 +118,13 @@ angular.module('esn.scroll', ['esn.header', 'ng.deviceDetector'])
       scrollDownToElement: scrollDownToElement,
       scrollToTop: scrollToTop
     };
+  })
+
+  .directive('scrollTopOnClick', function(elementScrollService) {
+    return {
+      restrict: 'A',
+      link: function(scope, element) {
+        element.on('click', elementScrollService.scrollToTop);
+      }
+    };
   });
