@@ -122,4 +122,13 @@ angular.module('esn.scroll', [
       scrollDownToElement: scrollDownToElement,
       scrollToTop: scrollToTop
     };
+  })
+
+  .directive('scrollTopOnClick', function(elementScrollService) {
+    return {
+      restrict: 'A',
+      link: function(scope, element) {
+        element.on('click', elementScrollService.scrollToTop);
+      }
+    };
   });
