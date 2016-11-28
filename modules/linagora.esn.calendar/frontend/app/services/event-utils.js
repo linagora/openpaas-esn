@@ -56,9 +56,11 @@
       addIconForAttendees();
 
       function changeEventColorWhenMonthView() {
-        if ((view.name === 'month') && !event.allDay) {
+        if ((view.name === 'month') && !event.allDay && event.isOverOneDayOnly()) {
           var eventColor = element.css('background-color');
+
           element.css('color', eventColor);
+          element.css('border', '0');
           timeDiv.css('background-color', 'transparent');
           element.css('background-color', 'transparent');
         }
