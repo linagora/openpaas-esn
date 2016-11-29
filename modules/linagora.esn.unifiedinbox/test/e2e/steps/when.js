@@ -1,7 +1,5 @@
 'use strict';
 
-var q = require('q');
-
 var messagePage = new (require('../pages/message'))();
 var inboxAside = new (require('../pages/inbox-aside'))();
 var inboxAddFolder = new (require('../pages/inbox-add-folder'))();
@@ -10,32 +8,10 @@ var subheaderPage = require('../pages/subheader')();
 
 module.exports = function() {
 
-  this.When('I press "Send" button and wait for the message to be sent', function(next) {
-    const self = this,
-        succeededMessage = 'Message sent',
-        waitBeforeRetry = 2000,
-        maxTryCount = 5;
+  this.When('I press "Send" button and wait for the message to be sent', function() {
+    messagePage.composerSendButton.click();
 
-    messagePage.composerSendButton.click()
-      .then(() =>
-        this.tryUntilSuccess(check, {
-            waitBeforeRetry,
-            maxTryCount
-          })
-      )
-      .then(() => next(), err => next(err || 'should resolve'));
-
-    function check() {
-      return q.all(self.notifications.messages.map(function(message) {
-        return message.getText().then(function(notificationMessage) {
-          if (notificationMessage === succeededMessage) {
-            return q.reject();
-          }
-
-          return notificationMessage;
-        });
-      })).then(messages => q.reject(`No notifications matched, only found ${messages.length} notifications: ${messages}`), q);
-    }
+    return this.notifications.hasText('Message sent');
   });
 
   this.When('I write "$value" in the Name field', function(value) {
@@ -71,12 +47,10 @@ module.exports = function() {
 
   this.When('I fill start date with "$startDate" and message body with "$body"', function(startDate, body) {
     return configurationPage.vacationTab.toggleEnable(true)
-      .then(function() {
-        return q.all([
-          configurationPage.vacationTab.fillStartDate(startDate),
-          configurationPage.vacationTab.fillBody(body)
-        ]);
-      });
+      .then(() => protractor.promise.all([
+        configurationPage.vacationTab.fillStartDate(startDate),
+        configurationPage.vacationTab.fillBody(body)
+      ]));
   });
 
   this.When('I press "$label" button on Inbox subheader', function(label) {

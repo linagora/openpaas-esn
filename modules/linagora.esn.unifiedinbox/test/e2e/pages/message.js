@@ -8,15 +8,15 @@ module.exports = function() {
   this.menuButton = element(by.css('#header .application-menu-toggler'));
   this.unifiedInboxButton = element(by.css('#header .application-menu a[href="/#/unifiedinbox"]'));
   this.clickOnModuleInMenu = function() {
-    return this.menuButton.click().then(this.unifiedInboxButton.click);
+    this.menuButton.click();
+    return this.unifiedInboxButton.click();
   }.bind(this);
 
   // MESSAGE
   this.allMessages = element.all(by.css('.inbox-list-item'));
-  this.firstMessage = element.all(by.css('.inbox-list-item')).first();
-  this.firstMessageSubject = this.firstMessage.element(by.css('.inbox-subject'));
-  this.firstMessageFrom = this.firstMessage.element(by.css('.emailer'));
-  this.firstMessagePreview = this.firstMessage.element(by.css('.preview'));
+  this.subjectElementOf = messageElement => messageElement.element(by.css('.inbox-subject-inline'));
+  this.fromElementOf = messageElement => messageElement.element(by.css('.emailer'));
+  this.previewElementOf = messageElement => messageElement.element(by.css('.inbox-preview-inline.preview'));
 
   // COMPOSER RELATED ELEMENTS
   this.openComposerFab = element(by.css('inbox-fab button'));

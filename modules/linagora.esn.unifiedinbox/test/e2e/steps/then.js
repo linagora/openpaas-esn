@@ -1,65 +1,13 @@
 'use strict';
 
-var q = require('q');
-
 var messagePage = new (require('../pages/message'))();
 var inboxAside = new (require('../pages/inbox-aside'))();
 var indicatorPage = require('../pages/indicator')();
 
 module.exports = function() {
 
-  this.Then('I have at least $count message', { timeout: 60 * 1000 }, function(messageCount) {
-    var self = this,
-        expectedMessageCount = parseInt(messageCount, 10),
-        maxTryCount = 10;
-
-    function _try(tryCount) {
-      return browser.refresh()
-        .then(messagePage.clickOnModuleInMenu.bind(messagePage))
-        .then(function() { return messagePage.allMessages.count(); })
-        .then(function(messageCount) {
-          if (messageCount < expectedMessageCount && tryCount <= maxTryCount) {
-            return _try(tryCount + 1);
-          }
-
-          return self.expect(messageCount).to.be.at.least(expectedMessageCount);
-        });
-    }
-
-    return _try(1);
-  });
-
-  this.Then('My first message is from "$from" with subject "$subject" and preview contains "$preview"', function(from, subject, preview) {
-    return q.all([
-      this.expect(messagePage.firstMessageFrom.getText()).to.eventually.contain(this.USERS[from].email),
-      this.expect(messagePage.firstMessageSubject.getText()).to.eventually.equal(subject),
-      this.expect(messagePage.firstMessagePreview.getText()).to.eventually.contain(preview)
-    ]);
-  });
-
-  this.Then('I see a notification with message "$message"', { timeout: 60 * 1000 }, function(message, next) {
-
-    var self = this;
-
-    self.tryUntilSuccess(check, {
-        waitBeforeRetry: 2000,
-        maxTryCount: 5
-      })
-      .then(() => next(), err => next(err || 'should resolve'));
-
-    function check() {
-      return q.all(self.notifications.messages.map(checkNotification)).then(messages => q.reject(`No notifications matched, only found ${messages.length} notifications: ${messages}`), q);
-    }
-
-    function checkNotification(notification) {
-      return notification.getText().then(function(text) {
-        if (text === message) {
-          return q.reject();
-        }
-
-        return text;
-      });
-    }
+  this.Then('I see a notification with message "$message"', function(message) {
+    return this.notifications.hasText(message);
   });
 
   this.Then('I have "$folder" in the sidebar at the root level', function(folder) {
@@ -70,53 +18,32 @@ module.exports = function() {
     return this.expect(indicatorPage.isPresent()).to.eventually.equal(true);
   });
 
-  this.Then('I see a message from "$from" with subject "$subject" and preview contains "$preview"', { timeout: 60 * 1000 }, function(from, subject, preview, done) {
+  this.Then('I see a message from "$from" with subject "$subject" and preview contains "$preview"', function(from, subject, preview) {
 
-    var self = this;
+    const self = this;
+    const EC = protractor.ExpectedConditions;
 
-    this.tryUntilSuccess(_check, {
-      waitBeforeRetry: 2000,
-      runBeforeRetry: function() {
-        return inboxAside.aside.element(by.css('div[title="All Mail"]')).click();
-      }
-    }).then(done.bind(null, null), done.bind(null, new Error('Cannot find the message')));
-
-    function _check() {
-      return messagePage.allMessages.then(function(messages) {
-        return q.all(messages.map(_checkMessage)).then(q.reject, q.when);
-      });
+    function messageHasExpectedFields(message) {
+      return EC.and(
+        EC.textToBePresentInElement(messagePage.subjectElementOf(message), subject),
+        EC.textToBePresentInElement(messagePage.fromElementOf(message), self.USERS[from].displayName),
+        EC.textToBePresentInElement(messagePage.previewElementOf(message), preview)
+      )();
     }
 
-    function _checkMessage(message) {
-      var messageSubject = message.element(by.css('.inbox-subject-inline'));
-      var messageFrom = message.element(by.css('.emailer'));
-      var messagePreview = message.element(by.css('.inbox-preview-inline.preview'));
+    function check() {
+      return messagePage.allMessages
+        .filter(messageHasExpectedFields)
+        .count()
+        .then(count => {
+          if (count > 0) {
+            return protractor.promise.fulfilled(true);
+          }
 
-      return q.all([
-        _checkTextContain(messageFrom, self.USERS[from].displayName),
-        _checkTextEqual(messageSubject, subject),
-        _checkTextContain(messagePreview, preview)
-      ]).then(q.reject, q.when);
+          return inboxAside.allMail.click().then(() => protractor.promise.fulfilled(false));
+        });
     }
 
-    function _checkTextContain(element, str) {
-      return element.getText().then(function(text) {
-        if (text.indexOf(str) > -1) {
-          return q.when();
-        }
-
-        return q.reject();
-      });
-    }
-
-    function _checkTextEqual(element, str) {
-      return element.getText().then(function(text) {
-        if (str === text) {
-          return q.when();
-        }
-
-        return q.reject();
-      });
-    }
+    return browser.wait(check, 10000, 'The expected email can\'t be found');
   });
 };
