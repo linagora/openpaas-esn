@@ -1,8 +1,6 @@
 'use strict';
 
-/* global chai: false */
-/* global moment: false */
-/* global sinon: false */
+/* global chai, moment, sinon, _: false */
 var expect = chai.expect;
 
 describe('The esn.provider module', function() {
@@ -155,6 +153,72 @@ describe('The esn.provider module', function() {
 
     });
 
+    describe('The remove method', function() {
+      var provider1, provider2, provider3, provider4, provider5;
+
+      beforeEach(function() {
+        provider1 = {id: 1, name: '1'};
+        provider2 = {id: 2, name: '2'};
+        provider3 = {id: 3, name: '3'};
+        provider4 = {id: 4, name: '4'};
+        provider5 = {id: 5, name: '5'};
+
+        [provider1, provider2, [provider3, provider4], provider5].forEach(function(provider) {
+          providers.add(provider);
+        });
+      });
+
+      it('should not remove any provider if any match', function() {
+        var thenSpy = sinon.spy();
+
+        providers.remove(_.constant(false));
+        $rootScope.$digest();
+
+        providers.getAllProviderDefinitions().then(thenSpy);
+
+        $rootScope.$digest();
+        expect(thenSpy).to.have.been.calledWith(_.flatten([provider1, provider2, provider3, provider4, provider5]));
+      });
+
+      it('should correctly remove top level provider', function() {
+        var thenSpy = sinon.spy();
+
+        providers.remove(function(provider) {
+          return provider.id === 1;
+        });
+        $rootScope.$digest();
+
+        providers.getAllProviderDefinitions().then(thenSpy);
+
+        $rootScope.$digest();
+        expect(thenSpy.firstCall).to.have.been.calledWith(_.flatten([provider2, provider3, provider4, provider5]));
+
+        providers.remove(function(provider) {
+          return provider.id === 5;
+        });
+        $rootScope.$digest();
+
+        providers.getAllProviderDefinitions().then(thenSpy);
+        $rootScope.$digest();
+
+        expect(thenSpy.secondCall).to.have.been.calledWith(_.flatten([provider2, provider3, provider4]));
+        $rootScope.$digest();
+      });
+
+      it('should correctly remove not top level provider', function() {
+        var thenSpy = sinon.spy();
+
+        providers.remove(function(provider) {
+          return provider.id === 3;
+        });
+        $rootScope.$digest();
+
+        providers.getAllProviderDefinitions().then(thenSpy);
+
+        $rootScope.$digest();
+        expect(thenSpy.firstCall).to.have.been.calledWith(_.flatten([provider1, provider2, provider4, provider5]));
+      });
+    });
   });
 
   describe('The ByTypeElementGroupingTool factory', function() {
@@ -262,14 +326,14 @@ describe('The esn.provider module', function() {
 
     it('should put a received element in the week group if it is 2 days old, but in the same week', function() {
       var element = { date: '2015-08-18T04:00:00Z' },
-        elementGroupingTool = new ByDateElementGroupingTool([element]);
+          elementGroupingTool = new ByDateElementGroupingTool([element]);
 
       expect(elementGroupingTool.getGroupedElements()).to.deep.equal(groups(null, null, element));
     });
 
     it('should put a received element in the week group if it is 4 days old, but in the same week', function() {
       var element = { date: '2015-08-16T04:00:00Z' },
-        elementGroupingTool = new ByDateElementGroupingTool([element]);
+          elementGroupingTool = new ByDateElementGroupingTool([element]);
 
       expect(elementGroupingTool.getGroupedElements()).to.deep.equal(groups(null, null, element));
     });
@@ -374,7 +438,7 @@ describe('The esn.provider module', function() {
 
     it('should put a received element in the older group if its date is the last day of the previous month', function() {
       var element = { date: '2015-07-31T04:00:00Z' },
-        elementGroupingTool = new ByDateElementGroupingTool([element]);
+          elementGroupingTool = new ByDateElementGroupingTool([element]);
 
       expect(elementGroupingTool.getGroupedElements()).to.deep.equal(groups(null, null, null, null, element));
     });

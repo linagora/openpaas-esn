@@ -32,6 +32,39 @@ angular.module('esn.provider', [
        *     }
        *   }
        */
+      remove: function(predicate) {
+        var defer = $q.defer();
+        var resolved = false;
+        var numProviderPromiseNotResolved = this.providersPromises.length;
+        var self = this;
+
+        this.providersPromises.forEach(function(providerPromise) {
+          providerPromise.then(function(provider) {
+            if (resolved) return;
+
+            numProviderPromiseNotResolved--;
+            if (_.isArray(provider) && _.any(provider, predicate)) {
+              var newProviders = _.reject(provider, predicate).map($q.when);
+
+              for (var i = 0; i < self.providersPromises.length; i++) {
+                if (self.providersPromises[i] === providerPromise) {
+                  Array.prototype.splice.bind(self.providersPromises, i, 1).apply(null, newProviders);
+                }
+              }
+            } else if (predicate(provider)) {
+              resolved = true;
+              defer.resolve(!!_.remove(self.providersPromises, function(_providerPromise_) {
+                return _providerPromise_ === providerPromise;
+              }));
+            } else if (!numProviderPromiseNotResolved) {
+              resolved = true;
+              defer.resolve(false);
+            }
+          });
+        });
+
+        return defer.promise;
+      },
       getAll: function(options) {
         options = options || {};
 
