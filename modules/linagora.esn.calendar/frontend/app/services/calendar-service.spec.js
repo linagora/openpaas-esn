@@ -159,6 +159,58 @@ describe('The calendarService service', function() {
     });
   });
 
+  describe('The remove calendar fn', function() {
+    it('should send a delete request to the correct URL', function() {
+      this.$httpBackend.expectDELETE('/dav/api/calendars/homeId/cal.json').respond(204, 'response');
+
+      var promiseSpy = sinon.spy();
+
+      this.calendarService.removeCalendar('homeId', {id: 'cal'}).then(promiseSpy);
+
+      this.$httpBackend.flush();
+      this.$rootScope.$digest();
+
+      expect(promiseSpy).to.have.been.calledWith(sinon.match({data: 'response'}));
+    });
+
+    it('should sync cache of list calendars', function() {
+      CalendarCollectionShellFuncMock = angular.identity;
+
+      this.$httpBackend.expectGET('/dav/api/calendars/homeId.json').respond({_embedded: {
+        'dav:calendar': [{id: 1}, {id: 2}]
+      }});
+
+      this.$httpBackend.expectDELETE('/dav/api/calendars/homeId/2.json').respond(204, 'response');
+
+      var thenSpy = sinon.spy();
+      this.calendarService.listCalendars('homeId').then(function() {
+        self.calendarService.removeCalendar('homeId', {id: 2}).then(function() {
+          self.calendarService.listCalendars('homeId').then(thenSpy);
+        });
+      });
+
+      this.$httpBackend.flush();
+      this.$rootScope.$digest();
+      expect(thenSpy).to.have.been.calledWith(sinon.match({
+        length: 1,
+        0: {id: 1}
+      }));
+    });
+
+    it('should broadcast a CALENDARS.REMOVE event when the calendar has been created', function() {
+      var calendar = {id: 'calId'};
+
+      this.$httpBackend.expectDELETE('/dav/api/calendars/homeId/calId.json').respond(204, 'response');
+      this.$rootScope.$broadcast = sinon.stub().returns({});
+      this.calendarService.removeCalendar('homeId', calendar);
+
+      this.$httpBackend.flush();
+      this.$rootScope.$digest();
+
+      expect(self.$rootScope.$broadcast).to.have.been.calledWith(this.CALENDAR_EVENTS.CALENDARS.REMOVE, calendar);
+    });
+  });
+
   describe('The create calendar fn', function() {
     it('should send a post request to the correct URL', function() {
       var calendar = {id: 'calId'};

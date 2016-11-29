@@ -4,20 +4,20 @@
   angular.module('esn.calendar')
          .service('calendarService', calendarService);
 
-  calendarService.$inject = [
-    '$q',
-    '$rootScope',
-    'calendarAPI',
-    'CalendarCollectionShell',
-    'CALENDAR_EVENTS',
-    'CalendarRightShell'
-  ];
-
-    function calendarService($q, $rootScope, calendarAPI, CalendarCollectionShell, CALENDAR_EVENTS, CalendarRightShell) {
+  function calendarService(
+    $q,
+    $rootScope,
+    _,
+    calendarAPI,
+    CalendarCollectionShell,
+    CALENDAR_EVENTS,
+    CalendarRightShell
+  ) {
     var calendarsCache = {};
     var promiseCache = {};
 
     this.createCalendar = createCalendar;
+    this.removeCalendar = removeCalendar;
     this.getCalendar = getCalendar;
     this.listCalendars = listCalendars;
     this.modifyCalendar = modifyCalendar;
@@ -63,6 +63,20 @@
         });
     }
 
+   /**
+    * Delete a calendar
+    * @param  {String}     calendarHomeId  The calendar home id
+    * @param  {String}     calendarId      The calendar id
+    */
+    function removeCalendar(calendarHomeId, calendar) {
+      return calendarAPI.removeCalendar(calendarHomeId, calendar.id).then(function(response) {
+        _.remove(calendarsCache[calendarHomeId], {id: calendar.id});
+        $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.REMOVE, calendar);
+
+        return response;
+      });
+    }
+
     /**
      * Create a new calendar in the calendar home defined by its id.
      * @param  {String}                   calendarHomeId the id of the calendar in which we will create a new calendar
@@ -88,7 +102,8 @@
       });
     }
 
-    /** * Modify a calendar in the calendar home defined by its id.
+    /**
+     * Modify a calendar in the calendar home defined by its id.
      * @param  {String}                   calendarHomeId the id of the calendar in which is the calendar we want to modify
      * @param  {CalendarCollectionShell}  calendar       the calendar to modify
      * @return {Object}                                  the http response
@@ -103,7 +118,8 @@
         });
     }
 
-    /** * Fetch the right on the server
+    /**
+     * Fetch the right on the server
      * @param  {String}                   calendarHomeId the id of the calendar in which is the calendar we want to fetch the right
      * @param  {CalendarCollectionShell}  calendar       the calendar for which we want the right
      * @return {Object}                                  the http response

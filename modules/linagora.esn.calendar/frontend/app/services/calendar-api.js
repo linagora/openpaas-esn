@@ -31,6 +31,7 @@
       listEventsForCalendar: listEventsForCalendar,
       listAllCalendars: listAllCalendars,
       createCalendar: createCalendar,
+      removeCalendar: removeCalendar,
       getRight: getRight,
       modifyCalendar: modifyCalendar,
       modifyShares: modifyShares,
@@ -190,6 +191,25 @@
       return request('post', path, null, calendar)
         .then(function(response) {
           if (response.status !== 201) {
+            return $q.reject(response);
+          }
+
+          return response;
+        });
+    }
+
+    /**
+     * Delete a calendar in the specified calendar home.
+     * @param  {String}         calendarHomeId   The calendar home id in which to delete a new calendar
+     * @param  {ICAL.Component} calendarId      A dav:calendar object, with an additional member "id" which specifies the id to be used in the calendar url.
+     * @return {Object}                        the http response.
+     */
+    function removeCalendar(calendarHomeId, calendarId) {
+      var path = calPathBuilder.forCalendarId(calendarHomeId, calendarId);
+
+      return request('delete', path)
+        .then(function(response) {
+          if (response.status !== 204) {
             return $q.reject(response);
           }
 
