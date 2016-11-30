@@ -48,6 +48,7 @@
     self.newCalendar = !self.calendar;
     self.calendar = self.calendar || {};
     self.oldCalendar = {};
+    self.newUsersGroups = [];
     self.selectedTab = 'main';
     self.submit = submit;
     self.openDeleteConfirmationDialog = openDeleteConfirmationDialog;
