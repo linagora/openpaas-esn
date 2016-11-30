@@ -209,7 +209,7 @@ function inviteAttendees(editor, attendeeEmail, notify, method, ics, calendarURI
   }
 
   if (!attendeeEmail) {
-    return q.reject(new Error('AttendeeEmails must an array with at least one email')).nodeify(callback);
+    return q.reject(new Error('AttendeeEmails is required')).nodeify(callback);
   }
 
   if (!method) {
@@ -234,9 +234,7 @@ function inviteAttendees(editor, attendeeEmail, notify, method, ics, calendarURI
     }
 
     return attendeePromise.then(function(attendee) {
-      if (!attendee) {
-        return $q.when();
-      }
+      var attendeePreferedEmail = attendee ? attendee.email || attendee.emails[0] : attendeeEmail;
 
       var editorEmail = editor.email || editor.emails[0];
       var event = jcal2content(ics, baseUrl);
@@ -308,13 +306,16 @@ function inviteAttendees(editor, attendeeEmail, notify, method, ics, calendarURI
         }
       };
 
-      var userIsInvolved = !event.attendees || !event.attendees[attendeeEmail] || event.attendees[attendeeEmail].partstat !== 'DECLINED';
+      var userIsInvolved = false;
 
-      if (!userIsInvolved) {
-        return $q.when();
+      if (event.attendees && event.attendees[attendeeEmail]) {
+        userIsInvolved = event.attendees[attendeeEmail].partstat ? event.attendees[attendeeEmail].partstat !== 'DECLINED' : true;
       }
 
-      var attendeePreferedEmail = attendee.email || attendee.emails[0];
+      if (!userIsInvolved) {
+        return q.reject(new Error('The user is not involved in the event')).nodeify(callback);
+      }
+
       var jwtPayload = {
         attendeeEmail: attendeePreferedEmail,
         organizerEmail: event.organizer.email,
