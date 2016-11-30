@@ -237,6 +237,7 @@
             }
           });
         }),
+        $rootScope.$on(CALENDAR_EVENTS.CALENDAR_REFRESH, _rerenderCalendar),
         $rootScope.$on(CALENDAR_EVENTS.MINI_CALENDAR.TOGGLE, function() {
           miniCalendarHidden = !miniCalendarHidden;
         }),

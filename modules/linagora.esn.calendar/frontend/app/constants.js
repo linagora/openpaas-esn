@@ -126,6 +126,7 @@
 
     .constant('CALENDAR_EVENTS', {
       CALENDAR_HEIGHT: 'calendar:height',
+      CALENDAR_REFRESH: 'calendar:refresh',
       EVENT_ATTENDEES_UPDATE: 'calendar:eventAttendeesUpdate',
       HOME_CALENDAR_VIEW_CHANGE: 'calendar:homeViewChange',
       ITEM_ADD: 'calendar:itemAdd',

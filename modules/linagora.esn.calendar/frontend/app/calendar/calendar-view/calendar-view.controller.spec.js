@@ -291,6 +291,9 @@ describe('The calendarViewController', function() {
       expect(this.scope.calendars).to.be.deep.equal([{id: 1}, newCal]);
     });
   });
+  describe('The CALENDAR_EVENTS.CALENDAR_REFRESH listener', function() {
+    testRefetchEvent('should refresh the calendar', 'CALENDAR_REFRESH');
+  });
 
   describe('The CALENDAR_EVENTS.CALENDARS.REMOVE listener', function() {
     it('should remove the calendar on $scope.calendars correctly', function() {
