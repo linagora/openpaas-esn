@@ -3,7 +3,7 @@
 angular.module('esn.markdown-parser', ['btford.markdown', 'ngSanitize'])
   .config(function(markdownConverterProvider) {
     markdownConverterProvider.config({
-      extensions: ['table']
+      tables: true
     });
   })
   .run(function(parserResolver, $q, markdownConverter, $sanitize) {
