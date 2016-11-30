@@ -51,7 +51,7 @@
     self.selectedTab = 'main';
     self.submit = submit;
     self.openDeleteConfirmationDialog = openDeleteConfirmationDialog;
-    self.delete = deleteCalendar;
+    self.delete = removeCalendar;
     self.cancel = cancel;
     self.cancelMobile = cancelMobile;
     self.getMainView = getMainView;
@@ -185,9 +185,7 @@
       self.modal = $modal({
         templateUrl: '/calendar/app/calendar-configuration/calendar-configuration-delete-confirmation.html',
         controller: function($scope) {
-          $scope.delete = function deleteCalendar() {
-            $log.debug('Delete calendar not implemented yet');
-          };
+          $scope.delete = removeCalendar;
         },
         backdrop: 'static',
         placement: 'center'
@@ -211,8 +209,9 @@
       self.selection = CALENDAR_RIGHT.NONE;
     }
 
-    function deleteCalendar() {
-      $log.debug('Delete calendar not implemented yet');
+    function removeCalendar() {
+      calendarService.removeCalendar(self.calendarHomeId, self.calendar);
+      $state.go('calendar.main');
     }
 
     function cancel() {
