@@ -225,7 +225,7 @@
     function getRight(calendarHomeId, calendar) {
       var path = calPathBuilder.forCalendarId(calendarHomeId, calendar.id);
 
-      return request('propfind', path, null, {
+      return request('propfind', path, JSON_CONTENT_TYPE_HEADER, {
         prop: ['cs:invite', 'acl']
       }).then(function(response) {
         if (response.status !== 200) {
