@@ -13,6 +13,7 @@ angular.module('esn.ui', [
     pen: 'mdi mdi-pencil',
     'new-user': 'mdi mdi-account-plus',
     next: 'mdi mdi-arrow-right',
+    like: 'mdi mdi-heart',
     up: 'mdi mdi-arrow-up'
   })
 
