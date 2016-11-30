@@ -563,7 +563,7 @@ describe('The calendar module apis', function() {
       });
 
       it('should return an Error if response.status is not 202', function() {
-        this.$httpBackend.expect('PROPFIND', '/dav/api/calendars/calendars/id.json', bodyRequest).respond(500, 'Error');
+        this.$httpBackend.expect('PROPFIND', '/dav/api/calendars/calendars/id.json', bodyRequest, headerContentTypeJsonChecker).respond(500, 'Error');
 
         var catchSpy = sinon.spy();
 
@@ -574,7 +574,7 @@ describe('The calendar module apis', function() {
       });
 
       it('should return server body response if success', function() {
-        this.$httpBackend.expect('PROPFIND', '/dav/api/calendars/calendars/id.json', bodyRequest).respond(200, 'body');
+        this.$httpBackend.expect('PROPFIND', '/dav/api/calendars/calendars/id.json', bodyRequest, headerContentTypeJsonChecker).respond(200, 'body');
 
         var catchSpy = sinon.spy();
 
