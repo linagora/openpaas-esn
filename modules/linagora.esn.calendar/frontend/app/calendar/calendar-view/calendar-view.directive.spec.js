@@ -1,6 +1,7 @@
 'use strict';
 
-/* global chai: false */
+/* global chai, sinon: false */
+
 var expect = chai.expect;
 
 describe('calendarView directive', function() {
@@ -15,7 +16,7 @@ describe('calendarView directive', function() {
     };
 
     module('jadeTemplates');
-    angular.mock.module('linagora.esn.graceperiod', 'esn.calendar', function($provide) {
+    angular.mock.module('linagora.esn.graceperiod', 'esn.calendar', 'esn.scroll', function($provide) {
       $provide.constant('calendarService', self.calendarService);
       $provide.factory('miniCalendarMobileDirective', function() { return {}; });
       $provide.factory('eventCreateButtonDirective', function() { return {}; });
@@ -26,10 +27,11 @@ describe('calendarView directive', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function(_$compile_, _$rootScope_) {
+  beforeEach(angular.mock.inject(function(_$compile_, _$rootScope_, _elementScrollService_) {
     this.$compile = _$compile_;
     this.$rootScope = _$rootScope_;
     this.$scope = this.$rootScope.$new();
+    this.elementScrollService = _elementScrollService_;
     this.$scope.uiConfig = {
       calendar: {}
     };
