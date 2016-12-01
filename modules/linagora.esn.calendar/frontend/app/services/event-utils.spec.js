@@ -295,6 +295,13 @@ describe('The calEventUtils service', function() {
         expect(element.css).to.have.not.been.called;
       });
     });
+
+    it('should add a tooltip in all views', function() {
+      fcContent.attr = sinon.spy();
+      this.calEventUtils.render(event, element, view);
+
+      expect(fcContent.attr).to.have.been.calledWith('title', event.title);
+    });
   });
 
   describe('isOrganizer function', function() {

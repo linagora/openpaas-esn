@@ -4,6 +4,7 @@
 
 .fc-event {
   min-height: 1.5em;
+  min-width: 0.5em;
   border: solid 1px @event-border-color;
 }
 
@@ -22,13 +23,14 @@
         content: "";
       }
       .fc-title {
+        .ellipsis();
         padding: 2px;
         overflow: hidden;
       }
       .fc-location {
+        .ellipsis();
         font-size: 0.85em;
         margin-top: 2px;
-        .ellipsis();
       }
     }
     .fc-resizer {
