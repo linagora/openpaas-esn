@@ -1,0 +1,3 @@
+#! /bin/sh -e
+
+adduser --system --group --no-create-home openpaas
