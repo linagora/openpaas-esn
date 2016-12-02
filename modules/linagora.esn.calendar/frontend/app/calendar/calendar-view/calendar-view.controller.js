@@ -28,6 +28,7 @@
     livenotification,
     notificationFactory,
     calOpenEventForm,
+    elementScrollService,
     CALENDAR_EVENTS,
     DEFAULT_CALENDAR_ID,
     MAX_CALENDAR_RESIZE_HEIGHT,
@@ -37,6 +38,8 @@
       var calendarDeffered = $q.defer();
       var calendarPromise = calendarDeffered.promise;
       var spinnerKey = 'calendar';
+
+      elementScrollService.scrollToTop();
 
       $scope.eventSourcesMap = {};
       $scope.eventSources = [];

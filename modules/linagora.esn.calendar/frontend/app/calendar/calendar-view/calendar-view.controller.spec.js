@@ -26,6 +26,10 @@ describe('The calendarViewController', function() {
       }
     };
 
+    this.elementScrollServiceMock = {
+      scrollToTop: sinon.spy()
+    };
+
     this.calCachedEventSourceMock = {
       wrapEventSource: sinon.spy(function(id, eventSource) { // eslint-disable-line
         return eventSource;
@@ -145,6 +149,7 @@ describe('The calendarViewController', function() {
       $provide.decorator('calendarUtils', function($delegate) {
         return angular.extend($delegate, calendarUtilsMock);
       });
+      $provide.value('elementScrollService', self.elementScrollServiceMock);
       $provide.value('calEventService', self.calEventServiceMock);
       $provide.value('calendarService', self.calendarServiceMock);
       $provide.value('livenotification', liveNotificationMock);
@@ -176,7 +181,7 @@ describe('The calendarViewController', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function($controller, $rootScope, $compile, $timeout, $window, UI_CONFIG, moment, CalendarShell, calMoment, CALENDAR_EVENTS, calEventUtils) {
+  beforeEach(angular.mock.inject(function($controller, $rootScope, $compile, $timeout, $window, UI_CONFIG, moment, CalendarShell, calMoment, CALENDAR_EVENTS, calEventUtils, elementScrollService) {
     this.rootScope = $rootScope;
     this.scope = $rootScope.$new();
     this.controller = $controller;
@@ -189,6 +194,7 @@ describe('The calendarViewController', function() {
     this.calMoment = calMoment;
     this.CALENDAR_EVENTS = CALENDAR_EVENTS;
     this.calEventUtils = calEventUtils;
+    this.elementScrollService = elementScrollService;
   }));
 
   afterEach(function() {
@@ -203,6 +209,14 @@ describe('The calendarViewController', function() {
   afterEach(function() {
     this.gracePeriodService.flushAllTasks = function() {};
     this.scope.$destroy();
+  });
+
+  it('should scroll to top when calling calendarViewController)', function() {
+    this.gracePeriodService.flushAllTasks = sinon.spy();
+    this.controller('calendarViewController', {$scope: this.scope});
+    this.scope.$destroy();
+
+    expect(this.elementScrollService.scrollToTop).to.have.been.called;
   });
 
   it('should gracePeriodService.flushAllTasks $on(\'$destroy\')', function() {
