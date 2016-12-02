@@ -9,13 +9,11 @@ describe('The twitter contact importer', function() {
 
   var deps, dependencies;
   var twitterClient = {
-    getCustomApiCall: function() {
+    get: function() {
     }
   };
-  var twitterClientMocks = {
-    Twitter: function() {
+  var twitterClientMocks = function() {
       return twitterClient;
-    }
   };
 
   beforeEach(function() {
@@ -82,10 +80,10 @@ describe('The twitter contact importer', function() {
 
     beforeEach(function() {
 
-      followingIdList = '{"ids": [123, 234, 345], "next_cursor": 0}';
-      longIdList = '{"ids": [123, 234, 345, 567, 789, 890], "next_cursor": 2345}';
+      followingIdList = [{ids: [123, 234, 345], next_cursor: 0}];
+      longIdList = [{ids: [123, 234, 345, 567, 789, 890], next_cursor: 2345}];
       followingInfoList =
-        [
+        [[
           {
             name: 'Twitter User1',
             location: 'San Francisco, CA',
@@ -110,7 +108,7 @@ describe('The twitter contact importer', function() {
             id: 345,
             description: 'Description 3'
           }
-        ];
+        ]];
       options = {
         addressbook: {
           id: 1234
@@ -128,75 +126,78 @@ describe('The twitter contact importer', function() {
         user: { _id: 'myId' }
       };
 
-      mockery.registerMock('twitter-node-client', twitterClientMocks);
+      mockery.registerMock('twit', twitterClientMocks);
     });
 
     it('should return promise reject if can not get oauth config', function(done) {
       dependencies['esn-config'] = function() {
         return {
           get: function(callback) {
-            callback(null, null);
+           return callback(null, null);
           }
         };
       };
       getImporter().importContact(options).then(null, function(err) {
           expect(err).to.deep.equal('Can not get oauth configuration for twitter importer');
-          done();
+          return done();
         });
     });
 
     it('should get following ids for the first step', function(done) {
-      twitterClient.getCustomApiCall = function(value) {
-        if (value === '/friends/ids.json') {
-          done();
+      twitterClient.get = function(value) {
+        if (value === '/friends/ids') {
+          return done();
+        } else {
+          return done(new Error());
         }
       };
       getImporter().importContact(options);
     });
 
     it('should lookup for following info for the 2nd step', function(done) {
-      twitterClient.getCustomApiCall = function(value, option, onError, onSuccess) {
-        if (value === '/friends/ids.json') {
-          onSuccess(followingIdList);
+      twitterClient.get = function(value, option, callback) {
+        if (value === '/friends/ids') {
+          return callback(null, followingIdList);
         }
-        if (value === '/users/lookup.json') {
-          done();
+        if (value === '/users/lookup') {
+          return done();
         }
+        return done(new Error('Bad value', value));
       };
       getImporter().importContact(options);
     });
 
     it('should get at most 18000 following ids', function(done) {
       var count = 0;
-      twitterClient.getCustomApiCall = function(value, option, onError, onSuccess) {
-        if (value === '/friends/ids.json') {
+      twitterClient.get = function(value, option, callback) {
+        if (value === '/friends/ids') {
           count++;
-          onSuccess(longIdList);
+          return callback(null, longIdList);
         } else {
-          onError();
+          return callback(new Error());
         }
       };
       getImporter().importContact(options).then(null, function() {
         expect(count).to.equal(3000);
-        done();
+        return done();
       });
     });
 
     it('should create contact when following info is received', function(done) {
       var count = 0;
-      twitterClient.getCustomApiCall = function(value, option, onError, onSuccess) {
-        if (value === '/friends/ids.json') {
-          onSuccess(followingIdList);
+      twitterClient.get = function(value, option, callback) {
+        if (value === '/friends/ids') {
+          return callback(null, followingIdList);
         }
-        if (value === '/users/lookup.json') {
-          onSuccess(JSON.stringify(followingInfoList));
+        if (value === '/users/lookup') {
+          return callback(null, followingInfoList);
         }
       };
 
       dependencies['contact-import'].lib.import.createContact = function() {
         count++;
         if (count === 3) {
-          done();
+          return done();
         }
       };
       getImporter().importContact(options);

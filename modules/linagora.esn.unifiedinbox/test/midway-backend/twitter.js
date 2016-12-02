@@ -51,6 +51,14 @@ describe('The twitter API', function() {
     this.helpers.api.cleanDomainDeployment(modelsFixture, done);
   });
 
+  var twitter = {
+    get: function() {
+    }
+  };
+  var twitterClientMocks = function(config) {
+      return twitter;
+  };
+
   describe('GET /api/inbox/tweets', function() {
 
     var ENDPOINT = '/api/inbox/tweets';
@@ -170,17 +178,13 @@ describe('The twitter API', function() {
       it('should return 500 when the mentions request is rejected', function(done) {
         self = this;
 
-        mockery.registerMock('twitter-node-client', {
-          Twitter: function(config) {
-            this.getMentionsTimeline = function(options, reject, callback) {
-              reject(new Error('expected message'));
-            };
-            this.getCustomApiCall = function(url, options, reject, callback) {
-              callback('[]');
-            };
+        twitter.get = function(value, options, callback) {
+          if (value === '/statuses/mentions_timeline') {
+            return callback(new Error('expected message'));
           }
-        });
+        };
 
+        mockery.registerMock('twit', twitterClientMocks);
         initMidway(function() {
 
           var conf = self.helpers.modules.current.deps('esn-config')('oauth');
@@ -212,17 +216,13 @@ describe('The twitter API', function() {
       it('should return 500 when the dm request is rejected', function(done) {
         self = this;
 
-        mockery.registerMock('twitter-node-client', {
-          Twitter: function(config) {
-            this.getMentionsTimeline = function(options, reject, callback) {
-              callback('[]');
-            };
-            this.getCustomApiCall = function(url, options, reject, callback) {
-              reject(new Error('expected message'));
-            };
+        twitter.get = function(value, options, callback) {
+          if (value === '/direct_messages') {
+            return callback(new Error('expected message'));
           }
-        });
+        };
 
+        mockery.registerMock('twit', twitterClientMocks);
         initMidway(function() {
 
           var conf = self.helpers.modules.current.deps('esn-config')('oauth');
@@ -254,16 +254,11 @@ describe('The twitter API', function() {
       it('should return 200 when mentions and dm return nothing', function(done) {
         self = this;
 
-        mockery.registerMock('twitter-node-client', {
-          Twitter: function(config) {
-            this.getMentionsTimeline = function(options, reject, callback) {
-              callback('[]');
-            };
-            this.getCustomApiCall = function(url, options, reject, callback) {
-              callback('[]');
-            };
-          }
-        });
+        twitter.get = function(value, options, callback) {
+            return callback(null, [[]]);
+        };
+
+        mockery.registerMock('twit', twitterClientMocks);
 
         initMidway(function() {
 
@@ -290,10 +285,10 @@ describe('The twitter API', function() {
       it('should return 200 when mentions and dm return data', function(done) {
         self = this;
 
-        mockery.registerMock('twitter-node-client', {
-          Twitter: function(config) {
-            this.getMentionsTimeline = function(options, reject, callback) {
-              callback(JSON.stringify([{
+        twitter.get = function(value, options, callback) {
+
+            if (value === '/statuses/mentions_timeline') {
+              return callback(null, [[{
                 created_at: 'Mon Aug 27 17:21:03 +0000 2012',
                 id: 240136858829479936,
                 recipient: {
@@ -309,10 +304,10 @@ describe('The twitter API', function() {
                   screen_name: 'theSeanCook'
                 },
                 text: 'booyakasha'
-              }]));
-            };
-            this.getCustomApiCall = function(url, options, reject, callback) {
-              callback(JSON.stringify([{
+              }]]);
+            }
+            if (value === '/direct_messages') {
+              return callback(null, [[{
                 created_at: 'Mon Aug 20 17:21:03 +0000 2012',
                 id: 420136858829479936,
                 user: {
@@ -322,10 +317,12 @@ describe('The twitter API', function() {
                   screen_name: 'CallMeCaptain'
                 },
                 text: 'Hey @me'
-              }]));
-            };
-          }
-        });
+              }]]);
+            }
+
+        };
+
+        mockery.registerMock('twit', twitterClientMocks);
 
         initMidway(function() {
 

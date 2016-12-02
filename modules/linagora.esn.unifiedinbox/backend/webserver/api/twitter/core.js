@@ -1,6 +1,6 @@
 'use strict';
 
-var Twitter = require('twitter-node-client').Twitter;
+var Twitter = require('twit');
 var q = require('q');
 
 function _getUserObjectFrom(object) {
@@ -24,33 +24,16 @@ function _pruneTweets(tweets) {
   });
 }
 
-function _onSuccess(defer) {
-  return function(data) {
-    var tweets = _pruneTweets(JSON.parse(data));
-
-    defer.resolve(tweets);
-  };
-}
-
 function _getMentionsTimelinePromise(client, options) {
-  var defer = q.defer();
-
-  client.getMentionsTimeline(options, defer.reject, _onSuccess(defer));
-
-  return defer.promise;
+  return q.ninvoke(client, 'get', '/statuses/mentions_timeline', options).then(data => _pruneTweets(data[0]));
 }
 
 function _getDirectMessagesPromise(client, options) {
-  var defer = q.defer();
-
-  client.getCustomApiCall('/direct_messages.json', options, defer.reject, _onSuccess(defer));
-
-  return defer.promise;
+  return q.ninvoke(client, 'get', '/direct_messages', options).then(data => _pruneTweets(data[0]));
 }
 
 function getTweets(twitterConfig, options) {
   var twitter = new Twitter(twitterConfig);
-
   return q.all([
     _getMentionsTimelinePromise(twitter, options),
     _getDirectMessagesPromise(twitter, options)

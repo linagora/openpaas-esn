@@ -86,7 +86,7 @@
     "tar": "2.2.1",
     "toobusy-js": "0.5.1",
     "trim": "0.0.1",
-    "twitter-node-client": "git+https://github.com/linagora/TwitterJSClient.git",
+    "twit": "2.2.5",
     "url-join": "1.1.0",
     "ursa": "0.9.4",
     "valid-url": "1.0.9",
