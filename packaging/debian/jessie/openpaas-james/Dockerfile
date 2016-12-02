@@ -12,6 +12,7 @@ ARG ITERATION=1
 ADD package /package
 ADD openpaas-james.preinst /root/
 ADD openpaas-james.postinst /root/
+ADD openpaas-james.postrm /root/
 
 WORKDIR /package
 RUN fpm \
@@ -32,6 +33,7 @@ RUN fpm \
   --depends james \
   --before-install /root/openpaas-james.preinst \
   --after-install /root/openpaas-james.postinst \
+  --after-remove /root/openpaas-james.postrm \
   .
 
 VOLUME /result

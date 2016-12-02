@@ -1,0 +1,3 @@
+#! /bin/sh -e
+
+sed -i '/james.openpaas.local/d' /etc/hosts

@@ -22,6 +22,7 @@ RUN git clone --no-single-branch --depth=1 https://ci.open-paas.org/stash/scm/or
 ADD package /package
 ADD openpaas.preinst /root/
 ADD openpaas.postinst /root/
+ADD openpaas.postrm /root/
 ADD openpaas.service /root/
 
 WORKDIR /package/usr/share/openpaas
@@ -60,6 +61,7 @@ RUN fpm \
   --deb-systemd /root/openpaas.service \
   --before-install /root/openpaas.preinst \
   --after-install /root/openpaas.postinst \
+  --after-remove /root/openpaas.postrm \
   .
 
 VOLUME /result

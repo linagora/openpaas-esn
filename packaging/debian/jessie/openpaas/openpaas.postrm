@@ -1,0 +1,3 @@
+#! /bin/sh -e
+
+sed -i '/\sopenpaas.local/d' /etc/hosts

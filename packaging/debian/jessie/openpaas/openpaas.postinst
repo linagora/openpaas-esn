@@ -1,5 +1,7 @@
 #! /bin/sh -e
 
+echo "127.0.0.1 openpaas.local" | tee -a /etc/hosts
+
 rm /etc/nginx/sites-enabled/default -f
 
 service nginx reload
