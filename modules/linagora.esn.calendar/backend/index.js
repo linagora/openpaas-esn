@@ -75,6 +75,7 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
         'core/toggle-mini-calendar.directive.js',
 
         'services/events-provider/events-provider.js',
+        'services/events-provider/event-search-card.component.js',
         'services/open-event-form/open-event-form.js',
         'services/open-event-form/open-event-on-click.component.js',
         'services/shells/calendar-collection-shell.js',

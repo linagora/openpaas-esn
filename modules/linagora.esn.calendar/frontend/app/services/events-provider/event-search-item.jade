@@ -5,13 +5,14 @@ cal-open-event-on-click.event-search-item(event="item")
     .flex-space-between
       .flex-start
         .lv-title
-          event-date-consultation(event="item")
+          span(ng-bind-html="::item.title | esnHighlight: query")
+          span(ng-if="item.location") &nbsp;-&nbsp;
+          span(ng-bind-html="::item.location | esnHighlight: query")
       .flex
+        i.mdi.mdi-calendar(ng-if="item.allDay")
         i.mdi.mdi-account-multiple-plus(ng-if="item.isMeeting()")
         i.mdi.mdi-alarm(ng-if="item.alarm")
         i.mdi.mdi-refresh(ng-if="item.isRecurring()")
     .flex-space-between
       .lv-title
-        span(ng-bind-html="::item.title | esnHighlight: query")
-        span &nbsp;-&nbsp;
-        span(ng-bind-html="::item.location | esnHighlight: query")
+        event-date-consultation(event="item")

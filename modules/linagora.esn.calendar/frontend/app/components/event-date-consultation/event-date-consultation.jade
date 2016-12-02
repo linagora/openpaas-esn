@@ -1,14 +1,4 @@
 .row.event-date-consultation
   .col-xs-12
-    .flex-start.flex-vertical-centered
-      i.mdi.mdi-clock
-      .date
-        span {{vm.start}}
-      .to(ng-if='!vm.event.allDay')
-        | #{__('To')}
-      .separator(ng-if='vm.event.allDay')
-        | -
-      .date
-        span {{vm.end}}
-      .allday(ng-if='vm.event.allDay')
-        | #{__('All day')}
+    cal-event-search-card.hidden-xs(event='vm.event', start='vm.startVerbose', end='vm.endVerbose')
+    cal-event-search-card.hidden-md(event='vm.event', start='vm.start', end='vm.end')

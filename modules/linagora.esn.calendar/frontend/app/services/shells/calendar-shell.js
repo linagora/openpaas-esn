@@ -755,8 +755,12 @@
       var endDay = parseInt(this.end.format('D'), 10);
       var endHour = this.end.format('HH:mm');
 
-      //for the second condition it is necessary to consider the event that finish at the next day at 12 am is over one day only
-      return this.start.isSame(this.end, 'day') || (((startDay + 1) === endDay) && (endHour === '00:00'));
+      if (this.allDay) {
+        return this.end.clone().subtract(1, 'day').isSame(this.start, 'day');
+      } else {
+        //for the second condition it is necessary to consider the event that finish at the next day at 12 am is over one day only
+        return this.start.isSame(this.end, 'day') || (((startDay + 1) === endDay) && (endHour === '00:00'));
+      }
     }
   }
 })();

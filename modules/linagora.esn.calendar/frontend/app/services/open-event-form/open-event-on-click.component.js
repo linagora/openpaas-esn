@@ -2,16 +2,16 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .component('calOpenEventOnClick', {
-           controller: function($element, calOpenEventForm) {
-             var self = this;
+     .component('calOpenEventOnClick', {
+       controller: function($element, calOpenEventForm) {
+         var self = this;
 
-             $element.on('click', function() {
-               calOpenEventForm(self.event);
-             });
-           },
-           bindings: {
-             event: '='
-           }
-        });
+         $element.on('click', function() {
+           calOpenEventForm(self.event);
+         });
+       },
+       bindings: {
+         event: '='
+       }
+    });
 })();
