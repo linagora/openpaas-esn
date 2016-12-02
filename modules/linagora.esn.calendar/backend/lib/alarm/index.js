@@ -11,38 +11,26 @@ var logger;
 var cron;
 
 function _sendAlarmEmail(ics, email) {
-  var defer = q.defer();
+  return q.nfcall(helpers.config.getBaseUrl, null)
+    .then(function(baseUrl) {
 
-  helpers.config.getBaseUrl(null, function(err, baseUrl) {
-    if (err) {
-      return defer.reject(err);
-    }
+      var event = jcalHelper.jcal2content(ics, baseUrl);
+      var alarm = event.alarm;
+      var message = {
+        to: email,
+        subject: alarm.summary
+      };
+      var templateName = 'event.alarm';
 
-    var event;
-
-    try {
-      event = jcalHelper.jcal2content(ics, baseUrl);
-    } catch (err) {
-      return defer.reject(err);
-    }
-
-    var alarm = event.alarm;
-    var message = {
-      to: email,
-      subject: alarm.summary
-    };
-    var templateName = 'event.alarm';
-    var content = {
-      baseUrl: baseUrl,
-      event: event,
-      alarm: alarm
-    };
-
-    emailModule.getMailer().sendHTML(message, templateName, content).then(defer.resolve, defer.reject);
-  });
-
-  return defer.promise;
-}
+      return emailModule.getMailer().sendHTML(message, templateName, {
+       content: {
+         baseUrl: baseUrl,
+         event: event,
+         alarm: alarm
+       }
+     });
+   });
+  }
 
 function _registerNewAlarm(context, dbStorage) {
   function job(callback) {
