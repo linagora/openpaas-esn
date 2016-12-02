@@ -1,0 +1,5 @@
+#! /bin/sh -e
+
+rm /etc/nginx/sites-enabled/default -f
+
+service nginx reload
