@@ -206,7 +206,7 @@
     function modifyCalendar(calendarHomeId, calendar) {
       var path = calPathBuilder.forCalendarId(calendarHomeId, calendar.id);
 
-      return request('proppatch', path, null, calendar)
+      return request('proppatch', path, JSON_CONTENT_TYPE_HEADER, calendar)
         .then(function(response) {
           if (response.status !== 204) {
             return $q.reject(response);
