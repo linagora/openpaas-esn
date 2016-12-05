@@ -24,23 +24,18 @@ var DOMAIN_OBJECT = populateObjects.DOMAIN;
 
 var COMMUNITY_OBJECT = populateObjects.COMMUNITY;
 
-function _populateAdmin() {
+function _populateAdmin(adminObject) {
   console.log('[INFO] POPULATE admin');
-  var admin = new User(ADMIN_OBJECT);
-  var deferred = q.defer();
-  admin.save(deferred.makeNodeResolver());
-  return deferred.promise;
+
+  return q.ninvoke(new User(adminObject || ADMIN_OBJECT), 'save');
 }
 
-function _populateDomain(admin) {
+function _populateDomain(domainObject, admin) {
   console.log('[INFO] POPULATE domain');
-  var object = extend({}, DOMAIN_OBJECT, { administrators: [{ user_id: admin[0] }] });
-  var domain = new Domain(object);
 
-  return q.ninvoke(domain, 'save')
-    .then(function(domain) {
-      return [admin[0], domain[0]];
-    }, q.reject);
+  var object = extend({}, domainObject || DOMAIN_OBJECT, { administrators: [{ user_id: admin[0] }] });
+
+  return q.ninvoke(new Domain(object), 'save').then(domain => [admin[0], domain[0]]);
 }
 
 function _joinDomain(user, domain) {
@@ -132,12 +127,43 @@ function _populateConfiguration(host, admin, domain) {
     });
 }
 
-module.exports = function(host) {
+function populateAll(host) {
   console.log('[INFO] POPULATE the ESN');
+
   return _populateAdmin()
-    .then(_populateDomain)
+    .then(_populateDomain.bind(null, null))
     .spread(_populateConfiguration.bind(null, host))
     .spread(_joinDomain)
     .spread(_populateCommunity)
     .spread(_populateMembers);
+}
+
+function provisionDomainAndAdministrator(email) {
+  const parts = email.split('@'),
+        login = parts[0],
+        domainName = parts[1],
+        admin = {
+          firstname: 'Admin',
+          lastname: 'Admin',
+          password: login,
+          accounts: [{
+            type: 'email',
+            hosted: true,
+            emails: [email]
+          }]
+        },
+        domain = {
+          name: domainName,
+          company_name: domainName
+        };
+
+  return _populateAdmin(admin)
+    .then(_populateDomain.bind(null, domain))
+    .spread(_populateConfiguration.bind(null, null))
+    .spread(_joinDomain);
+}
+
+module.exports = {
+  populateAll,
+  provisionDomainAndAdministrator
 };
