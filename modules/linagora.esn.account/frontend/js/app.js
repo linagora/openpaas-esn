@@ -7,8 +7,7 @@ angular.module('linagora.esn.account', [
   'op.dynamicDirective',
   'esn.core',
   'esn.ui',
-  'linagora.esn.oauth',
-  'linagora.esn.contact.import'])
+  'linagora.esn.oauth'])
   .config(function($stateProvider, routeResolver, dynamicDirectiveServiceProvider) {
     $stateProvider.state('controlcenter.accounts', {
       url: '/accounts',
