@@ -413,31 +413,31 @@ describe('The calendar core module', function() {
       });
 
       it('should return with success if notify is false', function(done) {
-        this.module.inviteAttendees({}, ['foo@bar.com'], false, 'REQUEST', 'ICS', 'calendarURI', this.helpers.callbacks.noError(done));
+        this.module.inviteAttendees({}, 'foo@bar.com', false, 'REQUEST', 'ICS', 'calendarURI', this.helpers.callbacks.noError(done));
       });
 
       it('should return an error if organizer is undefined', function(done) {
-        this.module.inviteAttendees(null, ['foo@bar.com'], true, 'REQUEST', 'ICS', 'calendarURI', this.helpers.callbacks.error(done));
+        this.module.inviteAttendees(null, 'foo@bar.com', true, 'REQUEST', 'ICS', 'calendarURI', this.helpers.callbacks.error(done));
       });
 
-      it('should return an error if attendeeEmails is not an array', function(done) {
+      it('should return an error if attendeeEmails is not an email string', function(done) {
         this.module.inviteAttendees({}, {}, true, 'REQUEST', 'ICS', 'calendarURI', this.helpers.callbacks.error(done));
       });
 
-      it('should return an error if attendeeEmails is an empty array', function(done) {
-        this.module.inviteAttendees({}, [], true, 'REQUEST', 'ICS', 'calendarURI', this.helpers.callbacks.error(done));
+      it('should return an error if attendeeEmails is null object', function(done) {
+        this.module.inviteAttendees(organizer, null, true, 'REQUEST', 'ICS', 'calendarURI', this.helpers.callbacks.error(done));
       });
 
       it('should return an error if method is undefined', function(done) {
-        this.module.inviteAttendees({}, ['foo@bar.com'], true, null, 'ICS', 'calendarURI', this.helpers.callbacks.error(done));
+        this.module.inviteAttendees({}, 'foo@bar.com', true, null, 'ICS', 'calendarURI', this.helpers.callbacks.error(done));
       });
 
       it('should return an error if ics is undefined', function(done) {
-        this.module.inviteAttendees({}, ['foo@bar.com'], true, 'REQUEST', null, 'calendarURI', this.helpers.callbacks.error(done));
+        this.module.inviteAttendees({}, 'foo@bar.com', true, 'REQUEST', null, 'calendarURI', this.helpers.callbacks.error(done));
       });
 
       it('should return an error if calendarURI is undefined', function(done) {
-        this.module.inviteAttendees({}, ['foo@bar.com'], true, 'REQUEST', 'ICS', null, this.helpers.callbacks.error(done));
+        this.module.inviteAttendees({}, 'foo@bar.com', true, 'REQUEST', 'ICS', null, this.helpers.callbacks.error(done));
       });
 
       it('should return an error if findByEmail return an error', function(done) {
@@ -565,11 +565,31 @@ describe('The calendar core module', function() {
         });
       });
 
+      it('should not send an email if the attendee is not involved in the event', function(done) {
+        var method = 'REQUEST';
+        var emailAttendeeNotInvited = 'toto@open-paas.org';
+
+        userMock.findByEmail = function(email, callback) {
+          return callback(null, null);
+        };
+
+        emailMock.getMailer = function() {
+          return {
+            sendHTML: () => q()
+          };
+        };
+
+        this.module.inviteAttendees(organizer, emailAttendeeNotInvited, true, method, ics, 'calendarURI', function(err) {
+          expect(err).to.exist;
+          done();
+        });
+      });
+
       it('should send HTML email with correct parameters', function(done) {
         helpersMock.config.getBaseUrl = function(user, callback) {
           callback(null, 'http://localhost:8888');
         };
-        mockery.registerMock('../../../lib/helpers/jcal', {
+        mockery.registerMock('../../../lib/helpers/jcal.js', {
           jcal2content: function() {
             return {};
           }
@@ -819,7 +839,7 @@ describe('The calendar core module', function() {
 
           var method = 'REQUEST';
 
-          mockery.registerMock('../../../lib/helpers/jcal', {
+          mockery.registerMock('../../../lib/helpers/jcal.js', {
             jcal2content: function() {
               return event;
             }
