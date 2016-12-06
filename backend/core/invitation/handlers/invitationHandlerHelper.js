@@ -107,6 +107,16 @@ module.exports.initHelper = function(invitation, data) {
       });
     },
 
+    loadSingleDomain: function(user, callback) {
+      Domain.findOne({}, (err, domain) => {
+        if (err || !domain) {
+          return callback(err || new Error('No domain found !'));
+        }
+
+        return callback(null, domain, user);
+      });
+    },
+
     addUserToDomain: function(domain, user, callback) {
       userModule.domain.joinDomain(user, domain, function(err, update) {
         if (err) {
