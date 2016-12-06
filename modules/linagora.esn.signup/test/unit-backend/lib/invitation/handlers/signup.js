@@ -1,17 +1,28 @@
 'use strict';
 
 var expect = require('chai').expect;
-var mockery = require('mockery');
 
 describe('The signup invitation handler', function() {
 
+  var signup,
+      dependencies = {
+        email: {
+          system: {
+            signupConfirmation: {}
+          }
+        },
+        logger: {}
+      },
+      deps = function(name) {
+        return dependencies[name];
+      };
+
   beforeEach(function() {
-    mockery.registerMock('../../email/system/signupConfirmation', {});
+    signup = require('../../../../../backend/lib/invitation/handlers/signup')(deps);
   });
 
   describe('isStillValid method', function() {
     it('should return true is the invitation creation date is less than 7 days old', function(done) {
-      var signup = this.helpers.requireBackend('core/invitation/handlers/signup');
       var sixDays = new Date();
       sixDays.setDate(sixDays.getDate() - 6);
       var invitation = {
@@ -27,7 +38,6 @@ describe('The signup invitation handler', function() {
     });
 
     it('should return false is the invitation creation date is more than 7 days old', function(done) {
-      var signup = this.helpers.requireBackend('core/invitation/handlers/signup');
       var eightDays = new Date();
       eightDays.setDate(eightDays.getDate() - 8);
       var invitation = {

@@ -18,16 +18,6 @@ describe('The welcome app', function() {
 
   describe('route provider', function() {
 
-    it('should load the finalize page when routing to /signup/anId', function() {
-      var anId = 'testId';
-      httpBackend.expectGET('/api/invitations/' + anId).respond(200);
-      httpBackend.expectGET('/views/modules/invitation/finalize').respond(200);
-      location.path('/signup/' + anId);
-      rootScope.$digest();
-      expect(route.current.originalPath).to.equal('/signup/:id');
-      expect(route.current.pathParams).to.deep.equal({id: anId});
-    });
-
     it('should load the home page when routing to /login', function() {
       httpBackend.expectGET('/views/welcome/partials/home').respond(200);
       location.path('/login');
@@ -41,14 +31,6 @@ describe('The welcome app', function() {
       location.path('/');
       rootScope.$digest();
       expect(route.current.originalPath).to.equal('/');
-      expect(route.current.params).to.deep.equal({});
-    });
-
-    it('should load the confirm page when routing to /confirm', function() {
-      httpBackend.expectGET('/views/welcome/partials/confirm').respond(200);
-      location.path('/confirm');
-      rootScope.$digest();
-      expect(route.current.originalPath).to.equal('/confirm');
       expect(route.current.params).to.deep.equal({});
     });
 

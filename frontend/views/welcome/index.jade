@@ -12,6 +12,7 @@ html.login-content
     link(rel='stylesheet', href='/components/animate.css/animate.css')
     link(rel='stylesheet', href='/generated/css/welcome/styles.css')
     +injectCSSFromModules('welcome', injections)
+    +injectCSSAppFromModules('welcome', injections)
     script(src='/components/jquery/dist/jquery.min.js')
     script(src='/components/lodash/dist/lodash.min.js')
     script(src='/components/bootstrap/dist/js/bootstrap.min.js')
@@ -32,6 +33,7 @@ html.login-content
     script(src='/components/material-admin/js/modules/form.js')
     script(src='/components/dynamic-directive/dist/dynamic-directive.min.js')
     +injectJSFromModules('welcome', injections)
+    +injectJSAppFromModules('welcome', injections)
     +injectAngularFromModules('welcome', injections)
     script(src='js/welcome/app.js')
     script(src='js/constants.js')
@@ -45,6 +47,7 @@ html.login-content
     script(src='js/modules/ui.js')
     script(src='js/modules/http.js')
     script(src='js/modules/esn.autolinker-wrapper.js')
+    script(src='js/modules/lodash-wrapper.js')
 
   body.login(ng-app='welcomeApp', ng-init="recaptchaPublicKey='#{recaptchaPublicKey}'")
     .aligner(ng-view ng-cloak)

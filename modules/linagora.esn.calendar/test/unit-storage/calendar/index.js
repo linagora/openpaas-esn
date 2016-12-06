@@ -2,7 +2,7 @@
 
 var expect = require('chai').expect;
 
-describe('The calendar core module', function() {
+describe.skip('The calendar core module', function() {
   var domain;
   var community;
   var user, user2;
