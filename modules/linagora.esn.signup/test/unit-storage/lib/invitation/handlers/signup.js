@@ -1,10 +1,31 @@
 'use strict';
 
 var expect = require('chai').expect,
-    mongodb = require('mongodb'),
-    mockery = require('mockery');
+    mongodb = require('mongodb');
 
 describe('The signup handler', function() {
+
+  var signup,
+      dependencies,
+      deps;
+
+  beforeEach(function() {
+    dependencies = {
+      email: {
+        system: {
+          signupConfirmation: function(invitation, callback) {
+            callback();
+          }
+        }
+      },
+      logger: this.helpers.requireBackend('core/logger'),
+      invitation: this.helpers.requireBackend('core/invitation')
+    };
+    deps = function(name) {
+      return dependencies[name];
+    };
+    signup = require('../../../../../backend/lib/invitation/handlers/signup')(deps);
+  });
 
   describe('The validate fn', function() {
 
@@ -13,7 +34,6 @@ describe('The signup handler', function() {
     });
 
     it('should fail if invitation data is not set', function(done) {
-      var signup = this.helpers.requireBackend('core/invitation/handlers/signup');
       signup.validate({}, function(err, result) {
         expect(result).to.be.false;
         done();
@@ -21,7 +41,6 @@ describe('The signup handler', function() {
     });
 
     it('should fail if email is not set', function(done) {
-      var signup = this.helpers.requireBackend('core/invitation/handlers/signup');
       signup.validate({data: {foo: 'bar'}}, function(err, result) {
         expect(result).to.be.false;
         done();
@@ -29,7 +48,6 @@ describe('The signup handler', function() {
     });
 
     it('should fail if firstname is not set', function(done) {
-      var signup = this.helpers.requireBackend('core/invitation/handlers/signup');
       signup.validate({data: {foo: 'bar'}}, function(err, result) {
         expect(result).to.be.false;
         done();
@@ -37,7 +55,6 @@ describe('The signup handler', function() {
     });
 
     it('should fail if lastname is not set', function(done) {
-      var signup = this.helpers.requireBackend('core/invitation/handlers/signup');
       signup.validate({data: {foo: 'bar'}}, function(err, result) {
         expect(result).to.be.false;
         done();
@@ -45,7 +62,6 @@ describe('The signup handler', function() {
     });
 
     it('should be ok if required data is set', function(done) {
-      var signup = this.helpers.requireBackend('core/invitation/handlers/signup');
       signup.validate({data: {firstname: 'foo', lastname: 'bar', email: 'baz@me.org'}}, function(err, result) {
         expect(result).to.be.true;
         done();
@@ -53,7 +69,6 @@ describe('The signup handler', function() {
     });
 
     it('should fail is email is not an email', function(done) {
-      var signup = this.helpers.requireBackend('core/invitation/handlers/signup');
       signup.validate({data: {firstname: 'foo', lastname: 'bar', email: 'baz'}}, function(err, result) {
         expect(result).to.be.false;
         done();
@@ -68,7 +83,6 @@ describe('The signup handler', function() {
     });
 
     it('should fail if invitation uuid is not set', function(done) {
-      var signup = this.helpers.requireBackend('core/invitation/handlers/signup');
       signup.init({}, function(err, result) {
         expect(err).to.exist;
         done();
@@ -76,7 +90,6 @@ describe('The signup handler', function() {
     });
 
     it('should fail if invitation.data.url is not set', function(done) {
-      var signup = this.helpers.requireBackend('core/invitation/handlers/signup');
       signup.init({uuid: 123, data: {}}, function(err, result) {
         expect(err).to.exist;
         done();
@@ -93,16 +106,8 @@ describe('The signup handler', function() {
           url: 'http://localhost:8080/invitation/123456789'
         }
       };
-      var called = false;
-      var signupEmailMocked = function(invitation, callback) {
-        called = true;
-        callback();
-      };
-      mockery.registerMock('../../email/system/signupConfirmation', signupEmailMocked);
 
-      var signup = this.helpers.requireBackend('core/invitation/handlers/signup');
-      signup.init(invitation, function(err, response) {
-        expect(called).to.be.true;
+      signup.init(invitation, function() {
         done();
       });
     });
@@ -115,8 +120,6 @@ describe('The signup handler', function() {
     });
 
     it('should redirect to the invitation app if invitation is found', function(done) {
-      var signup = this.helpers.requireBackend('core/invitation/handlers/signup');
-
       var invitation = {
         uuid: 12345678
       };
@@ -130,7 +133,6 @@ describe('The signup handler', function() {
     });
 
     it('should send back error if invitation is not set', function(done) {
-      var signup = this.helpers.requireBackend('core/invitation/handlers/signup');
       signup.process(null, {}, function(err) {
         expect(err).to.exist;
         done();
@@ -171,7 +173,6 @@ describe('The signup handler', function() {
     });
 
     it('should send back error if invitation is not set', function(done) {
-      var signup = this.helpers.requireBackend('core/invitation/handlers/signup');
       signup.finalize(null, null, function(err) {
         expect(err).to.exist;
         done();
@@ -179,7 +180,6 @@ describe('The signup handler', function() {
     });
 
     it('should send back error if data is not set', function(done) {
-      var signup = this.helpers.requireBackend('core/invitation/handlers/signup');
       signup.finalize({}, null, function(err) {
         expect(err).to.exist;
         done();
@@ -187,7 +187,6 @@ describe('The signup handler', function() {
     });
 
     it('should send back error when domain / company exist', function(done) {
-      var signup = this.helpers.requireBackend('core/invitation/handlers/signup');
       var emails = ['toto@foo.com'];
       var u = userFixtures.newDummyUser(emails);
 
@@ -236,7 +235,6 @@ describe('The signup handler', function() {
 
     it('should create a user if invitation and form data are set', function(done) {
       var mongoUrl = this.testEnv.mongoUrl;
-      var signup = this.helpers.requireBackend('core/invitation/handlers/signup');
       var invitation = {
         type: 'test',
         data: {
@@ -297,8 +295,6 @@ describe('The signup handler', function() {
     });
 
     it('should send back error if invitation is already finalized', function(done) {
-      var signup = this.helpers.requireBackend('core/invitation/handlers/signup');
-
       var invitation = {
         type: 'test',
         timestamps: {

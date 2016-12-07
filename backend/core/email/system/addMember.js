@@ -1,7 +1,5 @@
 'use strict';
 
-var email = require('../index');
-var i18n = require('../../../i18n');
 var properties = {
   subject: 'You are invited to join OpenPaas',
   template: 'core.add-member'
@@ -18,8 +16,8 @@ module.exports = function(invitation, done) {
 
   var message = {
     to: invitation.data.email,
-    subject: i18n.__(properties.subject)
+    subject: require('../../../i18n').__(properties.subject)
   };
 
-  email.getMailer(invitation.data.user).sendHTML(message, properties.template, invitation.data, done);
+  require('../index').getMailer(invitation.data.user).sendHTML(message, properties.template, invitation.data, done);
 };

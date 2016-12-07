@@ -52,5 +52,6 @@ function getMailConfig(user) {
 
 module.exports = {
   getMailer: getMailer,
-  mailSenderBuilder: mailSenderBuilder
+  mailSenderBuilder: mailSenderBuilder,
+  system: require('./system')
 };

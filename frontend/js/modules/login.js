@@ -19,6 +19,7 @@ angular.module('esn.login', ['esn.notification', 'esn.http', 'op.dynamicDirectiv
         scope.autofill = function() {
           element.find('input').each(function() {
             var $this = angular.element(this);
+
             if ($this.attr('ng-model') && $this.attr('type') !== 'checkbox') {
               angular.element(this).controller('ngModel').$setViewValue($this.val());
             }
@@ -27,7 +28,8 @@ angular.module('esn.login', ['esn.notification', 'esn.http', 'op.dynamicDirectiv
       }
     };
   })
-  .controller('login', function($scope, $log, $location, $window, loginAPI, loginErrorService, vcRecaptchaService, notificationFactory) {
+  .controller('login', function($scope, $log, $location, $window, loginAPI, loginErrorService, vcRecaptchaService,
+                                notificationFactory, dynamicDirectiveService) {
     $scope.step = 1;
     $scope.loginIn = false;
     $scope.recaptcha = {
@@ -38,6 +40,7 @@ angular.module('esn.login', ['esn.notification', 'esn.http', 'op.dynamicDirectiv
     $scope.credentials.recaptcha = $scope.recaptcha;
     $scope.error = loginErrorService.getError();
     $scope.autocomplete = ($location.path() === '/') ? 'on' : 'off';
+    $scope.signupIsEnabled = dynamicDirectiveService.getInjections('esn-signup-form').length > 0;
 
     $scope.loginTask = {
       running: false
@@ -174,6 +177,7 @@ angular.module('esn.login', ['esn.notification', 'esn.http', 'op.dynamicDirectiv
     this.data = {};
 
     var self = this;
+
     $rootScope.$on('$stateChangeSuccess', function() {
       if ($location.path() === '/') {
         self.data = {};

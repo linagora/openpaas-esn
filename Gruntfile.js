@@ -172,9 +172,10 @@ module.exports = function(grunt) {
       unit_backend: runGrunt.newProcess(['test-unit-backend']),
       frontend: runGrunt.newProcess(['test-frontend']),
       unit_storage: runGrunt.newProcess(['test-unit-storage']),
-      all_with_storage: runGrunt.newProcess(['test-unit-storage', 'test-midway-backend', 'test-modules-midway-backend']),
+      all_with_storage: runGrunt.newProcess(['test-unit-storage', 'test-modules-unit-storage', 'test-midway-backend', 'test-modules-midway-backend']),
       modules_midway_backend: runGrunt.newProcess(['test-modules-midway-backend']),
       modules_unit_backend: runGrunt.newProcess(['test-modules-unit-backend']),
+      modules_unit_storage: runGrunt.newProcess(['test-modules-unit-storage']),
       modules_frontend: runGrunt.newProcess(['test-modules-frontend']),
       e2e: runGrunt.newProcess(['test-e2e'])
     }
@@ -230,6 +231,7 @@ module.exports = function(grunt) {
   grunt.registerTask('test-unit-backend', ['setup-environment', 'run_grunt:unit_backend', 'clean-environment']);
   grunt.registerTask('test-modules-unit-backend', ['setup-environment', 'run_grunt:modules_unit_backend', 'clean-environment']);
   grunt.registerTask('test-unit-storage', ['setup-environment', 'setup-mongo-es', 'run_grunt:unit_storage', 'kill-servers', 'clean-environment']);
+  grunt.registerTask('test-modules-unit-storage', ['setup-environment', 'setup-mongo-es', 'run_grunt:modules_unit_storage', 'kill-servers', 'clean-environment']);
   grunt.registerTask('test-frontend', ['run_grunt:frontend']);
   grunt.registerTask('test-modules-frontend', ['run_grunt:modules_frontend']);
   grunt.registerTask('test-modules-midway', ['setup-environment', 'setup-mongo-es', 'run_grunt:modules_midway_backend', 'kill-servers', 'clean-environment']);

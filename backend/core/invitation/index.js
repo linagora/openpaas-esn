@@ -1,10 +1,12 @@
 'use strict';
 
-var pubsub = require('../pubsub').local;
+const pubsub = require('../pubsub').local;
+const registry = {};
 
 function getHandler(name) {
   name = name.replace(/[^A-Za-z0-9]+/, '');
-  return require('./handlers/' + name);
+
+  return registry[name] || require('./handlers/' + name);
 }
 
 /**
@@ -115,3 +117,9 @@ module.exports.finalize = function(invitation, data, done) {
     return done(err, result);
   });
 };
+
+module.exports.registerHandler = (type, handler) => {
+  registry[type] = handler;
+};
+
+module.exports.initHelper = (invitation, data) => require('./handlers/invitationHandlerHelper').initHelper(invitation, data);
