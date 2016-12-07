@@ -85,3 +85,15 @@ $ node ./bin/cli populate --host localhost --port 27017 --database esn
 ```
 
 Once populated, you should be able to log into the OpenPaaS instance using user 'admin@open-paas.org' and password 'secret'.
+
+**init**
+
+Performs the initial setup of an OpenPaas instance, by configuring a domain and an administrator 
+along with the associated default configurations. Also configures the various storage servers. 
+This reads environment variables to know what to configure, as per the *populate*, *elasticsearch* and *configure* commands.
+
+```bash
+$ node ./bin/cli init --email admin@domain.org
+```
+
+- email: required, the email address of the domain administrator. The OpenPaas domain name is taken from the email address

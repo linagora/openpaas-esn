@@ -6,8 +6,8 @@ var EsnConfig = require('esn-elasticsearch-configuration');
 var indexes = ['users', 'contacts', 'events'];
 
 function exec(host, port, index) {
-  host = host || 'localhost';
-  port = port || 9200;
+  host = host || process.env.ELASTICSEARCH_HOST || 'localhost';
+  port = port || +process.env.ELASTICSEARCH_PORT || 9200;
 
   var esnConf = new EsnConfig({host: host, port: port});
   if (index) {

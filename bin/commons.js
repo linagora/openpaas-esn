@@ -8,11 +8,23 @@ var request = require('request'),
 
 var readdir = q.denodeify(fs.readdir);
 
+function log(level, message) {
+  console.log('[CLI] ' + level + ' ' + message);
+}
+
+function logInfo(message) {
+  log('INFO', message);
+}
+
+function logError(message) {
+  log('ERROR', message);
+}
+
 module.exports.getDBOptions = function(host, port, dbName) {
 
-  host = host || 'localhost';
-  port = port || 27017;
-  dbName = dbName || 'esn';
+  host = host || process.env.MONGO_HOST || 'localhost';
+  port = port || +process.env.MONGO_PORT || 27017;
+  dbName = dbName || process.env.MONGO_DBNAME || 'esn';
 
   return {connectionString: 'mongodb://' + host + ':' + port + '/' + dbName};
 };
@@ -21,8 +33,21 @@ module.exports.getESConfiguration = function(host, port) {
   return new ESConfiguration({ host: host || 'localhost', port: port || 9200 });
 };
 
-module.exports.exit = function() {
-  process.exit();
+function exit(code) {
+  process.exit(code);
+}
+module.exports.exit = exit;
+
+module.exports.runCommand = (name, command) => {
+  return command().then(() => {
+    logInfo(`Command "${name}" terminated successfully`);
+
+    exit();
+  }, err => {
+    logError(`Command "${name}" returned an error: ${err}`);
+
+    exit(1);
+  });
 };
 
 module.exports.loginAsUser = function(baseUrl, email, password, done) {
@@ -43,17 +68,8 @@ module.exports.loginAsUser = function(baseUrl, email, password, done) {
   });
 };
 
-function log(level, message) {
-  console.log('[CLI] ' + level + ' ' + message);
-}
-
-module.exports.logInfo = function(message) {
-  log('INFO', message);
-};
-
-module.exports.logError = function(message) {
-  log('ERROR', message);
-};
+module.exports.logInfo = logInfo;
+module.exports.logError = logError;
 
 module.exports.loadMongooseModels = function loadMongooseModels() {
   var ESN_ROOT = Path.resolve(__dirname, '../');

@@ -17,7 +17,7 @@ function exec(host, port, dbName) {
 
   return db.connect(commons.getDBOptions(host, port, dbName))
     .then(configFixture)
-    .then(populateFixture.bind(populateFixture, host))
+    .then(() => populateFixture.populateAll(host))
     .then(db.disconnect)
     .finally(function() {
       console.log('Docker data initialized!');

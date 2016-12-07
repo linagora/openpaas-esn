@@ -6,7 +6,7 @@ var db = require('../../fixtures/db');
 
 function exec(host, port, dbName) {
   return db.connect(commons.getDBOptions(host, port, dbName))
-    .then(populateFixture)
+    .then(populateFixture.populateAll)
     .then(db.disconnect)
     .finally(function() {
       console.log('Populated!');
