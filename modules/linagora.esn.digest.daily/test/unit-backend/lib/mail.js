@@ -64,5 +64,64 @@ describe('The daily digest mail builder', function() {
           JSON.stringify(require('../fixtures/expected-digest-job-result.json')));
       });
     });
+
+    it('should reject if email.getMailer(user).sendHTML get error', function(done) {
+      var errorMessage = 'something error';
+
+      deps.helpers = {
+        config: {
+          getBaseUrl: function(user, callback) {
+            callback(null, 'http://test:12345');
+          }
+        }
+      };
+      deps.email = {
+        getMailer: function(user) {
+          return {
+            sendHTML: function(message, templateName, context, callback) {
+              throw new Error(errorMessage);
+            }
+          };
+        }
+      };
+
+      module = require('../../../lib/mail')(dependencies);
+      module.process(user, digest).catch(function(err) {
+        expect(err.message).to.equal(errorMessage);
+        done();
+      });
+    });
+
+    it('should return data if email.getMailer(user).sendHTML send mail successfully', function() {
+      deps.helpers = {
+        config: {
+          getBaseUrl: function(user, callback) {
+            callback(null, 'http://test:12345');
+          }
+        }
+      };
+      deps.email = {
+        getMailer: function(user) {
+          return {
+            sendHTML: function(message, templateName, content) {
+              resultedJson = {
+                message: message,
+                templateName: templateName,
+                content: content
+              };
+
+              return q();
+            }
+          };
+        }
+      };
+
+      module = require('../../../lib/mail')(dependencies);
+      return module.process(user, digest).then(function(message) {
+        return expect(
+          JSON.stringify(resultedJson)).to.deep.equal(
+          JSON.stringify(require('../fixtures/expected-digest-job-result.json')));
+      });
+    });
   });
 });
