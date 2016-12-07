@@ -38,17 +38,15 @@ function exit(code) {
 }
 module.exports.exit = exit;
 
-module.exports.runCommand = (name, command) => {
-  return command().then(() => {
-    logInfo(`Command "${name}" terminated successfully`);
+module.exports.runCommand = (name, command) => command().then(() => {
+  logInfo(`Command "${name}" terminated successfully`);
 
-    exit();
-  }, err => {
-    logError(`Command "${name}" returned an error: ${err}`);
+  exit();
+}, err => {
+  logError(`Command "${name}" returned an error: ${err}`);
 
-    exit(1);
-  });
-};
+  exit(1);
+});
 
 module.exports.loginAsUser = function(baseUrl, email, password, done) {
   request({
