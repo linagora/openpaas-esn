@@ -44,15 +44,16 @@ describe('alarm module', function() {
         return isSame;
       }),
       sinon.match(function(job) {
-        job();
-        expect(sendHTMLMock).to.have.been.calledWith(
-          sinon.match({
-            to: 'slemaistre@gmail.com',
-            subject: 'Pending event! Event: Victor Sanders'
-          }),
-          'event.alarm',
-          sinon.match.has('alarm')
-        );
+        job(function() {
+          expect(sendHTMLMock).to.have.been.calledWith(
+            sinon.match({
+              to: 'slemaistre@gmail.com',
+              subject: 'Pending event! Event: Victor Sanders'
+            }),
+            'event.alarm',
+            sinon.match.has('alarm')
+          );
+        });
         return true;
       }),
       sinon.match(function(context) {
