@@ -14,32 +14,32 @@ html.mail
 
         table
           tr.table-header
-            td(colspan='2').logo
+            td.logo(colspan="2")
               div
                 a(href="#{content.baseUrl}")
-                  img(src="cid:logo", alt='#{__("OpenPaas Logo")}')
-            td(colspan='2').organizer
+                  img(src="cid:logo", alt="OpenPaas Logo")
+            td.organizer(colspan="2")
               h5
                 p
                   | #{content.event.organizer.cn} (
                   span.small
                     a(href='mailto:#{content.event.organizer.email}')
-                      img(src="cid:email", alt='#{__("Organizer mail")}')
+                      img(src="cid:email", alt="Organizer mail")
                     | )
                 p.big Event Reminder
-            td(colspan='2').avatar.indent-right
-              img(src="#{content.event.organizer.avatar}", alt='#{__("Organizer Avatar")}', width="45px", height="42px")
+            td.avatar.indent-right(colspan="2")
+              img(src="#{content.event.organizer.avatar}", alt="Organizer Avatar", width="45px", height="42px")
           tr
-            td(colspan='6').indent
+            td(colspan="6").indent
               span.title #{content.event.summary}
               span will start in #{content.alarm.triggerDisplay}
 
           tr
             td.indent
               if (content.event.end)
-                img(src="cid:clock", alt='#{__("From")}')
+                img(src="cid:clock", alt="From")
               else
-                img(src="cid:clock", alt='#{__("At")}')
+                img(src="cid:clock", alt="At")
             td
               p #{content.event.start.date}
               if (!content.event.allDay)
@@ -50,7 +50,7 @@ html.mail
                 if (content.event.allDay && content.event.end.date == content.event.start.date)
                   p all day
                 else
-                  img.check-transform(src="cid:check", alt='#{__("To")}')
+                  img.check-transform(src="cid:check", alt="To")
               td
                 if (!content.event.allDay || (content.event.allDay && content.event.end.date != content.event.start.date))
                   p #{content.event.end.date}
@@ -65,9 +65,9 @@ html.mail
 
           if (content.event.location)
             tr
-              td(colspan='1').indent
-                img(src="cid:map-marker", alt='#{__("Location")}')
-              td(colspan='3').indent
+              td(colspan="1").indent
+                img(src="cid:map-marker", alt="Location")
+              td(colspan="3").indent
                 | #{content.event.location}
 
 
