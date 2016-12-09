@@ -1,5 +1,4 @@
 .mini-calendar {
-  text-align: center;
 
   .dp-inline {
     box-shadow: none;
@@ -10,6 +9,10 @@
     margin-top: 10px;
   }
 
+  .fc-ltr .fc-basic-view .fc-day-top .fc-day-number {
+    float: none;
+  }
+
   .fc-head-container .fc-day-header, .fc-head-container .ui-widget-header .fc-week-number {
     padding: 3px 2px 1px 2px;
     border-width: 0;
@@ -18,9 +21,36 @@
     background-color: @darkPrimaryColor;
   }
 
+  .fc-rigid .fc-content-skeleton {
+    top: 17px;
+  }
+
   .fc td, .fc th {
-    border-width: 0;
     color: lighten(@text-color, 20%);
+    text-align: center;
+    border-style: none;
+  }
+
+  .fc-highlight {
+    background: @text-color;
+    opacity: 0.05;
+  }
+
+  .fc-today {
+    color: @m-white !important; /* override parent !important property */
+  }
+
+  .fc-day.ui-widget-content.fc-today {
+    border-radius: 50%;
+    background-color: @primaryColor;
+    display: list-item;
+    height: 3em;
+    margin-top: 20%;
+    width: 3em;
+  }
+
+  .fc-event-color {
+    background-color: @m-white !important; /* override parent !important property */
   }
 
   .fc-ltr .fc-basic-view .fc-day-number {
@@ -31,12 +61,12 @@
     color: lighten(@text-color, 65%);
   }
 
-  .fc-highlight {
-    background: lighten(@text-color, 70%);
-  }
-
   .fc-event {
-    border-radius: 2px;
+    min-height: 0.5em;
+    border-radius: 50%;
+    width: 5px;
+    height: 6px;
+    margin-left: 40%;
     background-color: @primaryColor;
   }
 
@@ -90,6 +120,10 @@
 
   .dp-table tbody > tr td:last-child {
     padding-right: 0;
+  }
+
+  tr:first-child>td>.fc-day-grid-event {
+    margin-top: 0;
   }
 
   .dp-table tbody > tr:last-child > td {

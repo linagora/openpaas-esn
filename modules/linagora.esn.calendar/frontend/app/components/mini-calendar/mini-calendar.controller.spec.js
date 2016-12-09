@@ -8,13 +8,21 @@ describe('The mini-calendar controller', function() {
 
   var $scope, $rootScope, $controller, $q, $window, calMoment, fcMethodMock, calendarServiceMock, initController,
     miniCalendarServiceMock, calendarEventSourceMock, UI_CONFIG_MOCK, calendar, calendarCurrentViewMock,
-      CALENDAR_EVENTS, calCachedEventSourceMock, calWrapper;
+      CALENDAR_EVENTS, calCachedEventSourceMock, calWrapper, element, event;
 
   function sameDayMatcher(day) {
     return function(_day) {
       return _day && _day.isSame(day, 'day');
     };
   }
+
+  function Element() {
+    this.class = [];
+  }
+
+  Element.prototype.addClass = function(aClass) {
+    this.class.push(aClass);
+  };
 
   beforeEach(function() {
     angular.mock.module('esn.calendar', 'linagora.esn.graceperiod');
@@ -393,5 +401,34 @@ describe('The mini-calendar controller', function() {
     it('should call calWrapper.rerender on CALENDAR_EVENTS.ITEM_REMOVE', testRerender('ITEM_MODIFICATION'));
 
     it('should call calWrapper.rerender on CALENDAR_EVENTS.ITEM_ADD', testRerender('ITEM_ADD'));
+  });
+
+  describe('the eventRender function', function() {
+
+    it('should change the dot color when the current day is the same then the event day', function() {
+      element = new Element();
+      event = {
+        start: calMoment()
+      };
+
+      initController();
+
+      $scope.miniCalendarConfig.eventRender(event, element);
+
+      expect(element.class).to.include('fc-event-color');
+    });
+
+    it('should not change the dot color when the current day and the event day are different', function() {
+      element = new Element();
+      event = {
+        start: calMoment('2016-08-29')
+      };
+
+      initController();
+
+      $scope.miniCalendarConfig.eventRender(event, element);
+
+      expect(element.class).to.not.include('fc-event-color');
+    });
   });
 });
