@@ -7,7 +7,7 @@ const glob = require('glob-all');
 const _ = require('lodash');
 
 const NAME = 'user-status';
-const APP_ENTRY_POINT = `${NAME}.app.js`;
+const APP_ENTRY_POINT = 'app.js';
 const MODULE_NAME = `linagora.esn.${NAME}`;
 const FRONTEND_JS_PATH = `${__dirname}/frontend/app/`;
 
@@ -52,6 +52,7 @@ const userStatusModule = new AwesomeModule(MODULE_NAME, {
     },
 
     start: function(dependencies, callback) {
+      require('./backend/websocket').init(dependencies, this.lib);
       this.lib.start(callback);
     }
   }

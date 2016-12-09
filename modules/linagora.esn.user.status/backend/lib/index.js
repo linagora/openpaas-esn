@@ -12,6 +12,7 @@ module.exports = function(dependencies) {
   const userStatus = require('./user-status')(dependencies);
 
   function start(callback) {
+    userStatus.init();
     listener.start();
   }
 
