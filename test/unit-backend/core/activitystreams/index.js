@@ -4,10 +4,16 @@ var expect = require('chai').expect;
 var mockery = require('mockery');
 
 describe('The activity streams core module', function() {
+
+  function mock(self, models = {}) {
+    self.helpers.mock.models(models);
+    self.helpers.mock.pubsub('../pubsub', {});
+  }
+
   describe('The getUserStreams fn', function() {
 
     it('should send back error when user is null', function(done) {
-      this.helpers.mock.models({});
+      mock(this);
 
       var module = this.helpers.requireBackend('core/activitystreams/index');
       module.getUserStreams(null, {}, function(err) {
@@ -17,7 +23,7 @@ describe('The activity streams core module', function() {
     });
 
     it('should not fail when domain.getUserDomains and community.getUserCommunities fail', function(done) {
-      this.helpers.mock.models({});
+      mock(this);
       mockery.registerMock('../user/domain', {
         getUserDomains: function(user, cb) {
           return cb(new Error());
@@ -47,7 +53,7 @@ describe('The activity streams core module', function() {
           uuid: 444
         }
       ];
-      this.helpers.mock.models({});
+      mock(this);
       mockery.registerMock('../user/domain', {
         getUserDomains: function(user, cb) {
           return cb();
@@ -77,7 +83,7 @@ describe('The activity streams core module', function() {
           uuid: 444
         }
       ];
-      this.helpers.mock.models({});
+      mock(this);
       mockery.registerMock('../collaboration', {
         getStreamsForUser: function(user, options, cb) {
           return cb(null, streams);
@@ -96,7 +102,7 @@ describe('The activity streams core module', function() {
 
   describe('getTimelineEntryFromStreamMessage', function() {
     it('should send back error when activitystream is undefined', function(done) {
-      this.helpers.mock.models({});
+      mock(this);
       var module = this.helpers.requireBackend('core/activitystreams/index');
       module.getTimelineEntryFromStreamMessage(null, {}, function(err) {
         expect(err).to.exist;
@@ -105,7 +111,7 @@ describe('The activity streams core module', function() {
     });
 
     it('should send back error when message is undefined', function(done) {
-      this.helpers.mock.models({});
+      mock(this);
       var module = this.helpers.requireBackend('core/activitystreams/index');
       module.getTimelineEntryFromStreamMessage({}, null, function(err) {
         expect(err).to.exist;
@@ -128,7 +134,7 @@ describe('The activity streams core module', function() {
         }
       };
 
-      this.helpers.mock.models({
+      mock(this, {
         TimelineEntry: {
           findOne: function(query) {
             expect(query).to.deep.equal(expected);
