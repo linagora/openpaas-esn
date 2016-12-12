@@ -18,9 +18,6 @@ module.exports = {
       davserver: {
         public: false
       },
-      amqp: {
-        public: false
-      },
       redis: {
         public: false
       },

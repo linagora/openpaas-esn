@@ -68,7 +68,6 @@ module.exports = function(grunt) {
     },
     shell: {
       redis: shell.newShell(command.redis, /on port/, 'Redis server is started.'),
-      rabbitmq: shell.newShell(command.rabbitmq, /completed with/, 'Rabbitmq server is started.'),
       mongo: shell.newShell(command.mongo(), new RegExp('connections on port ' + servers.mongodb.port), 'MongoDB server is started.'),
       ldap: shell.newShell(command.ldap, /LDAP server up at/, 'Ldap server is started.'),
       elasticsearch: shell.newShell(command.elasticsearch, /started/, 'Elasticsearch server is started.')
@@ -116,14 +115,6 @@ module.exports = function(grunt) {
           regex: null,
           info: 'Redis server is started.'
         }),
-      rabbitmq: container.newContainer({
-          Image: servers.rabbitmq.container.image,
-          name: servers.rabbitmq.container.name,
-          PortBindings: { '5672/tcp': [{ HostPort: servers.rabbitmq.port + '' }] }
-        }, {}, {}, {
-          regex: null,
-          info: 'Rabbit server is started.'
-        }),
       mongo: container.newContainer({
           Image: servers.mongodb.container.image,
           name: servers.mongodb.container.name,
@@ -149,7 +140,6 @@ module.exports = function(grunt) {
       esn: { options: { req: { url: 'http://' + servers.host + ':8080', method: 'GET' } } },
       mongo: { options: { net: { port: 27017 } } },
       redis: { options: { net: { port: 6379 } } },
-      rabbitmq: { options: { net: { port: 5672 } } },
       elasticsearch: { options: { req: { url: 'http://' + servers.host + ':9200', method: 'GET' } } },
       jmap: { options: { req: { url: 'http://' + servers.host + ':1080', method: 'OPTIONS' } } },
       cassandra: { options: { net: { port: 9042 } } }
@@ -207,13 +197,13 @@ module.exports = function(grunt) {
 
   grunt.loadTasks('tasks');
 
-  grunt.registerTask('spawn-containers', 'spawn servers', ['container:redis', 'container:rabbitmq', 'container:mongo', 'container:elasticsearch']);
-  grunt.registerTask('pull-containers', 'pull containers', ['container:redis:pull', 'container:rabbitmq:pull', 'container:mongo:pull', 'container:elasticsearch:pull']);
-  grunt.registerTask('kill-containers', 'kill servers', ['container:redis:remove', 'container:rabbitmq:remove', 'container:mongo:remove', 'container:elasticsearch:remove']);
+  grunt.registerTask('spawn-containers', 'spawn servers', ['container:redis', 'container:mongo', 'container:elasticsearch']);
+  grunt.registerTask('pull-containers', 'pull containers', ['container:redis:pull', 'container:mongo:pull', 'container:elasticsearch:pull']);
+  grunt.registerTask('kill-containers', 'kill servers', ['container:redis:remove', 'container:mongo:remove', 'container:elasticsearch:remove']);
   grunt.registerTask('setup-mongo-es-docker', ['spawn-containers', 'continue:on', 'setupElasticsearchUsersIndex', 'setupElasticsearchContactsIndex', 'setupElasticsearchEventsIndex']);
 
-  grunt.registerTask('spawn-servers', 'spawn servers', ['shell:redis', 'shell:rabbitmq', 'shell:mongo', 'shell:elasticsearch']);
-  grunt.registerTask('kill-servers', 'kill servers', ['shell:redis:kill', 'shell:rabbitmq:kill', 'shell:mongo:kill', 'shell:elasticsearch:kill']);
+  grunt.registerTask('spawn-servers', 'spawn servers', ['shell:redis', 'shell:mongo', 'shell:elasticsearch']);
+  grunt.registerTask('kill-servers', 'kill servers', ['shell:redis:kill', 'shell:mongo:kill', 'shell:elasticsearch:kill']);
   grunt.registerTask('setup-environment', 'create temp folders and files for tests', gruntfileUtils.setupEnvironment());
   grunt.registerTask('clean-environment', 'remove temp folder for tests', gruntfileUtils.cleanEnvironment());
   grunt.registerTask('setupElasticsearchUsersIndex', 'setup elasticsearch users index', gruntfileUtils.setupElasticsearchUsersIndex());

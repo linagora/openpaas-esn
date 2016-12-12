@@ -8,15 +8,13 @@ var DEFAULT_PORTS = {
   ldap: 23458,
   elasticsearch: 23459,
   elasticsearch_comm: 23460,
-  davserver: 23461,
-  rabbitmq: 5672
+  davserver: 23461
 };
 
 var images = require('../../docker/images.json');
 var host = process.env.HOSTNAME || process.env.DOCKER_HOST || 'localhost';
 var dbName = 'tests';
 var mongoPort = process.env.PORT_MONGODB || DEFAULT_PORTS.mongo;
-var rabbitmqPort = process.env.PORT_RABBITMQ || DEFAULT_PORTS.rabbitmq;
 
 module.exports = {
   tmp: tmp,
@@ -55,16 +53,6 @@ module.exports = {
     container: {
       image: images.redis,
       name: 'redis_for_esn_test'
-    }
-  },
-
-  rabbitmq: {
-    cmd: process.env.CMD_RABBITMQ || 'rabbitmq-server',
-    port: rabbitmqPort,
-    url: 'amqp://' + host + ':' + rabbitmqPort,
-    container: {
-      image: images.rabbitmq,
-      name: 'rabbitmq_for_esn_test'
     }
   },
 

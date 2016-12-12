@@ -20,8 +20,6 @@ services:
       - MONGO_TIMEOUT=100000
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - AMQP_HOST=rabbitmq
-      - AMQP_PORT=5672
       - WEB_HOST=${DOCKER_IP}
       - WEB_PORT=8080
       - DAV_SERVER_HOST=sabre
@@ -36,13 +34,6 @@ services:
     image: redis:latest
     ports:
       - "6379:6379"
-
-  rabbitmq:
-    image: rabbitmq:3.6.5-management
-    hostname: esn-rabbit
-    ports:
-      - 5672:5672
-      - 15672:15672
 
   mongo:
     image: mongo:2.6.5
@@ -72,8 +63,6 @@ services:
       - ESN_PORT=8080
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - AMQP_HOST=rabbitmq
-      - AMQP_PORT=5672
 
   james:
     entrypoint: bash -c "java -Dworking.directory=/root/ -jar james-server.jar"

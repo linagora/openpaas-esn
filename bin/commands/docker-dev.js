@@ -10,7 +10,6 @@ function exec(host, port, dbName) {
   host = host || 'localhost';
   process.env.MONGO_HOST = host;
   process.env.REDIS_HOST = host;
-  process.env.AMQP_HOST = host;
   process.env.ELASTICSEARCH_HOST = host;
   process.env.DAV_SERVER_HOST = host;
   process.env.DAV_SERVER_PORT = 8001;

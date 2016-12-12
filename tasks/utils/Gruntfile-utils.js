@@ -69,7 +69,6 @@ GruntfileUtils.prototype.command = function command() {
   var commandObject = {};
 
   commandObject.ldap = servers.ldap.cmd;
-  commandObject.rabbitmq = servers.rabbitmq.cmd;
 
   commandObject.redis = util.format('%s --port %s %s %s',
       servers.redis.cmd,
