@@ -220,18 +220,6 @@ Defines the Redis configuration using the standard Redis options defined in the 
   }
 }
 ```
-### AMQP
-
-Defines the AMQP server url:
-
-```
-{
-  "name": "amqp",
-  "value": {
-    "url": "amqp://localhost:5672"
-  }
-}
-```
 
 ### Elasticsearch
 

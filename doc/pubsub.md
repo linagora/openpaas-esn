@@ -3,7 +3,7 @@
 The ESN comes with two types of publish/subscribe feature:
 
 - Local: Inside an ESN instance (using event emitter)
-- Remote: Between several ESN nodes (using amqp with rabbitmq)
+- Remote: Between several ESN nodes (using redis)
 
 ## API
 
