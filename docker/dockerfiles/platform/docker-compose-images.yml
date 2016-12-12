@@ -10,7 +10,6 @@ services:
     links:
       - redis
       - mongo
-      - rabbitmq
       - sabre
       - elasticsearch
 
@@ -18,11 +17,6 @@ services:
     extends:
       file: ../docker-compose-commons.yml
       service: redis
-
-  rabbitmq:
-    extends:
-      file: ../docker-compose-commons.yml
-      service: rabbitmq
 
   mongo:
     extends:

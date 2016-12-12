@@ -7,11 +7,6 @@ services:
       file: ../docker-compose-commons.yml
       service: redis
 
-  rabbitmq:
-    extends:
-      file: ../docker-compose-commons.yml
-      service: rabbitmq
-
   mongo:
     extends:
       file: ../docker-compose-commons.yml
