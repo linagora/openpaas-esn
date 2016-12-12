@@ -134,7 +134,7 @@ function process(dependencies, user, digest) {
       };
       var templateName = TEMPLATE;
 
-      return emailModule.getMailer().sendHTML(message, templateName, content);
+      return emailModule.getMailer(user).sendHTML(message, templateName, content);
     });
 }
 
