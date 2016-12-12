@@ -3,20 +3,20 @@
 var expect = require('chai').expect;
 
 describe('The global Pubsub object', function() {
-  var GlobalPubsub = null;
+  var RedisPubsub = null;
 
   beforeEach(function() {
-    GlobalPubsub = this.helpers.requireBackend('core/pubsub/pubsub');
+    RedisPubsub = this.helpers.requireBackend('core/pubsub/pubsub');
   });
 
   it('should have a topic method', function() {
-    expect(GlobalPubsub).to.respondTo('topic');
+    expect(RedisPubsub).to.respondTo('topic');
   });
 
   describe('topic method result', function() {
 
     it('should have publish, subscribe and unsubscribe methods', function() {
-      var pubsub = new GlobalPubsub();
+      var pubsub = new RedisPubsub();
       var topic = pubsub.topic('test');
       expect(topic).to.respondTo('publish');
       expect(topic).to.respondTo('subscribe');
@@ -34,7 +34,7 @@ describe('The global Pubsub object', function() {
 
     var handler = function() { /*nothing*/ };
 
-    var pubsub = new GlobalPubsub('global', client);
+    var pubsub = new RedisPubsub('global', client);
     var topic = pubsub.topic('test');
     topic.subscribe(handler);
   });
@@ -49,7 +49,7 @@ describe('The global Pubsub object', function() {
       }
     };
 
-    var pubsub = new GlobalPubsub('global', client);
+    var pubsub = new RedisPubsub('global', client);
     var topic = pubsub.topic('test');
     topic.publish(data);
   });
@@ -63,7 +63,7 @@ describe('The global Pubsub object', function() {
       done();
     };
 
-    var pubsub = new GlobalPubsub('global', client);
+    var pubsub = new RedisPubsub('global', client);
     var topic = pubsub.topic('test');
     topic.subscribe(handler);
     topic.publish(data);
@@ -94,7 +94,7 @@ describe('The global Pubsub object', function() {
       counter++;
     };
 
-    var pubsub = new GlobalPubsub('global', client);
+    var pubsub = new RedisPubsub('global', client);
     var topic = pubsub.topic('test');
     topic.subscribe(handler1);
     topic.subscribe(handler2);
@@ -125,7 +125,7 @@ describe('The global Pubsub object', function() {
       }
     };
 
-    var pubsub = new GlobalPubsub(null);
+    var pubsub = new RedisPubsub(null);
     var topic = pubsub.topic('test');
     topic.subscribe(subscribeHandler);
     topic.subscribe(subscribeHandler2);

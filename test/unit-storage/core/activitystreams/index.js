@@ -10,13 +10,8 @@ describe('The activitystreams core module', function() {
     this.helpers.mongo.dropDatabase(done);
   });
 
-  function mock(self) {
-    self.helpers.mock.models({});
-    self.helpers.mock.pubsub('../pubsub', {});
-  }
-
   it('query should send back error when options is undefined', function(done) {
-    mock(this);
+    this.helpers.mock.models({});
 
     var timeline = this.helpers.requireBackend('core/activitystreams');
     timeline.query(null, function(err) {
@@ -26,7 +21,7 @@ describe('The activitystreams core module', function() {
   });
 
   it('query should send back error when options.target is undefined', function(done) {
-    mock(this);
+    this.helpers.mock.models({});
 
     var timeline = this.helpers.requireBackend('core/activitystreams');
     timeline.query({}, function(err) {
@@ -501,7 +496,7 @@ describe('The activitystreams core module', function() {
   describe('The addTimelineEntry fn', function() {
 
     it('should send back error when event is not set', function(done) {
-      mock(this);
+      this.helpers.mock.models({});
 
       var timeline = this.helpers.requireBackend('core/activitystreams');
       timeline.addTimelineEntry(null, function(err) {
