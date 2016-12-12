@@ -5,7 +5,6 @@
   "james": "linagora/james-project",
   "mongodb": "mongo:2.6.5",
   "redis": "redis:latest",
-  "rabbitmq": "rabbitmq:3.6.5-management",
   "sabre": "linagora/esn-sabre",
   "esn": "linagora/esn",
   "esn_base": "linagora/esn-base"

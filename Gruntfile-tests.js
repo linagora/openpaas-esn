@@ -67,7 +67,6 @@ module.exports = function(grunt) {
     },
     mochacli: {
       options: {
-        debug: false,
         require: ['chai', 'mockery'],
         reporter: 'spec',
         timeout: process.env.TEST_TIMEOUT || 20000,

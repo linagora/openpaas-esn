@@ -4,7 +4,6 @@
   "description": "Linagora RSE",
   "main": "index.js",
   "dependencies": {
-    "amqplib": "0.5.0",
     "async": "2.0.1",
     "async-eventemitter": "0.2.2",
     "awesome-module": "1.0.0",
