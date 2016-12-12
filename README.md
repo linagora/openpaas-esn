@@ -19,6 +19,7 @@ You can install dependencies yourself, or use the Docker environment as describe
 - ElasticSearch v2.2.1
 - MongoDB v2.6.5
 - Redis 3.x
+- RabbitMQ 3.6.x
 
 3.Install node.js
 
@@ -102,7 +103,7 @@ Your ESN can be reached at the following address: http://localhost:8080. Now sim
 
 Running `grunt dev` will start the server in development mode. Whenever you
 make changes to server files, the server will be restarted. Make sure you have
-started the mongo, redis and elasticsearch servers beforehand.
+started the mongo, redis, rabbitmq and elasticsearch servers beforehand.
 
 In addition, you can run `grunt debug` to start the node-inspector debugger
 server. Visit the displayed URL in Chrome or Opera to start the graphical
