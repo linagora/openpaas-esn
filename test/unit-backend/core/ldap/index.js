@@ -7,6 +7,12 @@ var q = require('q');
 
 describe('The ldap core module', function() {
 
+  let getModule;
+
+  before(function() {
+    getModule = () => this.helpers.requireBackend('core/ldap');
+  });
+
   describe('findLDAPForUser fn', function() {
 
     var ldap;
@@ -27,6 +33,7 @@ describe('The ldap core module', function() {
       });
       mockery.registerMock('ldapauth-fork', function(ldap) {
         return {
+          on: function() {},
           _findUser: function(email, callback) {
             if (ldap.include === true) {
               return callback(null, {});
@@ -102,112 +109,136 @@ describe('The ldap core module', function() {
         done();
       });
     });
+
+    it('should send back all LDAP configurations that contain user even when one of LDAP configuration causes error', function(done) {
+      ldapConfigsMock = [{
+        config: {
+          name: 'config1'
+        }
+      }, {
+        config: {
+          name: 'config2',
+          configuration: { include: true }
+        }
+      }, {
+        config: {
+          name: 'config3',
+          configuration: { include: true }
+        }
+      }];
+
+      ldap.findLDAPForUser('foo@bar.com', (err, ldaps) => {
+        expect(err).to.not.exist;
+        expect(ldaps).to.shallowDeepEqual([ldapConfigsMock[1].config, ldapConfigsMock[2].config]);
+        done();
+      });
+    });
   });
 
-  describe('emailExists fn', function() {
+  describe('The emailExists fn', function() {
 
-    it('should send back error if email is not set', function(done) {
-      var mockgoose = {
-        model: function() {
-        }
+    let ldapAuthMock;
+
+    beforeEach(function() {
+      ldapAuthMock = {
+        on: function() {}
       };
-      mockery.registerMock('mongoose', mockgoose);
-
-      var ldap = this.helpers.requireBackend('core/ldap');
-      ldap.emailExists(null, 'secret', function(err) {
-        expect(err).to.exist;
-        done();
+      mockery.registerMock('ldapauth-fork', function() {
+        Object.assign(this, ldapAuthMock);
       });
+
     });
 
-    it('should send back error if ldap is not set', function(done) {
-      var mockgoose = {
-        model: function() {
-        }
-      };
-      mockery.registerMock('mongoose', mockgoose);
+    it('should send back error if email is not set', function() {
+      const callbackSpy = sinon.spy();
 
-      var ldap = this.helpers.requireBackend('core/ldap');
-      ldap.emailExists('foo@bar.com', null, function(err) {
-        expect(err).to.exist;
-        done();
-      });
+      getModule().emailExists(null, 'secret', callbackSpy);
+
+      expect(callbackSpy).to.have.been.calledWith(sinon.match.instanceOf(Error));
     });
 
-    it('should call the callback', function(done) {
-      var mockgoose = {
-        model: function() {
-        }
-      };
-      mockery.registerMock('mongoose', mockgoose);
+    it('should send back error if ldap is not set', function() {
+      const callbackSpy = sinon.spy();
 
-      var ldapmock = function() {
-        return {
-          _findUser: function(email, callback) {
-            return callback();
-          }
-        };
-      };
-      mockery.registerMock('ldapauth-fork', ldapmock);
+      getModule().emailExists('foo@bar.com', null, callbackSpy);
 
-      var ldap = this.helpers.requireBackend('core/ldap');
-      ldap.emailExists('foo@bar.com', {}, function() {
-        done();
-      });
+      expect(callbackSpy).to.have.been.calledWith(sinon.match.instanceOf(Error));
     });
+
+    it('should call the callback with data when find user successfully', function() {
+      const callbackSpy = sinon.spy();
+      const user = {};
+
+      ldapAuthMock._findUser = (email, callback) => callback(null, user);
+
+      getModule().emailExists('foo@bar.com', {}, callbackSpy);
+
+      expect(callbackSpy).to.have.been.calledWith(null, user);
+    });
+
+    it('should handle error of _findUser function by calling callback with error object', function() {
+      const callbackSpy = sinon.spy();
+
+      ldapAuthMock._findUser = (email, callback) => callback(new Error());
+
+      getModule().emailExists('foo@bar.com', {}, callbackSpy);
+
+      expect(callbackSpy).to.have.been.calledWith(sinon.match.instanceOf(Error));
+    });
+
+    it('should handle error event of the LdapAuth by calling callback with error object', function() {
+      const callbackSpy = sinon.spy();
+
+      ldapAuthMock._findUser = function() {};
+      ldapAuthMock.on = (evt, listener) => listener(new Error());
+
+      getModule().emailExists('foo@bar.com', {}, callbackSpy);
+
+      expect(callbackSpy).to.have.been.calledWith(sinon.match.instanceOf(Error));
+    });
+
+    it('should call callback only once even when error event is fired more than one time', function() {
+      const callbackSpy = sinon.spy();
+      let listener;
+
+      ldapAuthMock._findUser = function() {};
+      ldapAuthMock.on = (evt, _listener) => { listener = _listener; };
+
+      getModule().emailExists('foo@bar.com', {}, callbackSpy);
+
+      listener();
+      listener();
+      listener();
+
+      expect(callbackSpy).to.have.been.calledOnce;
+    });
+
   });
 
   describe('authenticate fn', function() {
 
     it('should send back error if email is not set', function(done) {
-      var mockgoose = {
-        model: function() {
-        }
-      };
-      mockery.registerMock('mongoose', mockgoose);
-
-      var ldap = this.helpers.requireBackend('core/ldap');
-      ldap.authenticate(null, 'secret', {}, function(err) {
+      getModule().authenticate(null, 'secret', {}, function(err) {
         expect(err).to.exist;
         done();
       });
     });
 
     it('should send back error if password is not set', function(done) {
-      var mockgoose = {
-        model: function() {
-        }
-      };
-      mockery.registerMock('mongoose', mockgoose);
-
-      var ldap = this.helpers.requireBackend('core/ldap');
-      ldap.authenticate('me', null, {}, function(err) {
+      getModule().authenticate('me', null, {}, function(err) {
         expect(err).to.exist;
         done();
       });
     });
 
     it('should send back error if ldap is not set', function(done) {
-      var mockgoose = {
-        model: function() {
-        }
-      };
-      mockery.registerMock('mongoose', mockgoose);
-
-      var ldap = this.helpers.requireBackend('core/ldap');
-      ldap.authenticate('me', 'secret', null, function(err) {
+      getModule().authenticate('me', 'secret', null, function(err) {
         expect(err).to.exist;
         done();
       });
     });
 
     it('should send back the user if auth is OK', function(done) {
-      var mockgoose = {
-        model: function() {
-        }
-      };
-      mockery.registerMock('mongoose', mockgoose);
-
       var ldapmock = function() {
         return {
           authenticate: function(email, password, callback) {
@@ -216,10 +247,10 @@ describe('The ldap core module', function() {
           close: function() {}
         };
       };
+
       mockery.registerMock('ldapauth-fork', ldapmock);
 
-      var ldap = this.helpers.requireBackend('core/ldap');
-      ldap.authenticate('me', 'secret', {}, function(err, user) {
+      getModule().authenticate('me', 'secret', {}, function(err, user) {
         expect(err).to.not.exist;
         expect(user).to.exist;
         done();
@@ -227,12 +258,6 @@ describe('The ldap core module', function() {
     });
 
     it('should send back error if auth fails', function(done) {
-      var mockgoose = {
-        model: function() {
-        }
-      };
-      mockery.registerMock('mongoose', mockgoose);
-
       var ldapmock = function() {
         return {
           authenticate: function(email, password, callback) {
@@ -241,10 +266,10 @@ describe('The ldap core module', function() {
           close: function() {}
         };
       };
+
       mockery.registerMock('ldapauth-fork', ldapmock);
 
-      var ldap = this.helpers.requireBackend('core/ldap');
-      ldap.authenticate('me', 'secret', {}, function(err, user) {
+      getModule().authenticate('me', 'secret', {}, function(err, user) {
         expect(err).to.exist;
         expect(user).to.not.exist;
         done();
@@ -252,12 +277,6 @@ describe('The ldap core module', function() {
     });
 
     it('should send back error if auth does not return user', function(done) {
-      var mockgoose = {
-        model: function() {
-        }
-      };
-      mockery.registerMock('mongoose', mockgoose);
-
       var ldapmock = function() {
         return {
           authenticate: function(email, password, callback) {
@@ -266,10 +285,10 @@ describe('The ldap core module', function() {
           close: function() {}
         };
       };
+
       mockery.registerMock('ldapauth-fork', ldapmock);
 
-      var ldap = this.helpers.requireBackend('core/ldap');
-      ldap.authenticate('me', 'secret', {}, function(err, user) {
+      getModule().authenticate('me', 'secret', {}, function(err, user) {
         expect(err).to.exist;
         expect(user).to.not.exist;
         done();
@@ -280,7 +299,6 @@ describe('The ldap core module', function() {
   describe('The translate fn', function() {
 
     it('should translate LDAP user to OpenPaaS user', function() {
-      var ldap = this.helpers.requireBackend('core/ldap');
       var ldapPayload = {
         username: 'user@email',
         user: {
@@ -305,11 +323,10 @@ describe('The ldap core module', function() {
         }]
       };
 
-      expect(ldap.translate(null, ldapPayload)).to.deep.equal(expectedUser);
+      expect(getModule().translate(null, ldapPayload)).to.deep.equal(expectedUser);
     });
 
     it('should add domain to based user if it is not included', function() {
-      var ldap = this.helpers.requireBackend('core/ldap');
       var ldapPayload = {
         username: 'user@email',
         user: {
@@ -341,11 +358,10 @@ describe('The ldap core module', function() {
         }]
       };
 
-      expect(ldap.translate(baseUser, ldapPayload)).to.deep.equal(expectedUser);
+      expect(getModule().translate(baseUser, ldapPayload)).to.deep.equal(expectedUser);
     });
 
     it('should not domain to based user if it is already included', function() {
-      var ldap = this.helpers.requireBackend('core/ldap');
       var ldapPayload = {
         username: 'user@email',
         user: {
@@ -375,11 +391,10 @@ describe('The ldap core module', function() {
         }]
       };
 
-      expect(ldap.translate(baseUser, ldapPayload)).to.deep.equal(expectedUser);
+      expect(getModule().translate(baseUser, ldapPayload)).to.deep.equal(expectedUser);
     });
 
     it('should not add null domain to based user', function() {
-      var ldap = this.helpers.requireBackend('core/ldap');
       var ldapPayload = {
         username: 'user@email',
         user: {
@@ -409,11 +424,10 @@ describe('The ldap core module', function() {
         }]
       };
 
-      expect(ldap.translate(baseUser, ldapPayload)).to.deep.equal(expectedUser);
+      expect(getModule().translate(baseUser, ldapPayload)).to.deep.equal(expectedUser);
     });
 
     it('should add email to based user account if it is not included', function() {
-      var ldap = this.helpers.requireBackend('core/ldap');
       var ldapPayload = {
         username: 'user@email',
         user: {
@@ -445,11 +459,10 @@ describe('The ldap core module', function() {
         }]
       };
 
-      expect(ldap.translate(baseUser, ldapPayload)).to.deep.equal(expectedUser);
+      expect(getModule().translate(baseUser, ldapPayload)).to.deep.equal(expectedUser);
     });
 
     it('should not add email to based user account if it is already included', function() {
-      var ldap = this.helpers.requireBackend('core/ldap');
       var ldapPayload = {
         username: 'user@email',
         user: {
@@ -481,11 +494,10 @@ describe('The ldap core module', function() {
         }]
       };
 
-      expect(ldap.translate(baseUser, ldapPayload)).to.deep.equal(expectedUser);
+      expect(getModule().translate(baseUser, ldapPayload)).to.deep.equal(expectedUser);
     });
 
     it('should add email to based user account if it is not included and defined in mapping', function() {
-      var ldap = this.helpers.requireBackend('core/ldap');
       var ldapPayload = {
         username: 'user@email',
         user: {
@@ -513,7 +525,7 @@ describe('The ldap core module', function() {
         }]
       };
 
-      expect(ldap.translate(baseUser, ldapPayload)).to.deep.equal(expectedUser);
+      expect(getModule().translate(baseUser, ldapPayload)).to.deep.equal(expectedUser);
     });
 
   });
