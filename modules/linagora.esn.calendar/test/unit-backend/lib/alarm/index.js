@@ -36,7 +36,7 @@ describe('alarm module', function() {
     };
   });
 
-  function checkAlarmSubmitted() {
+  function checkAlarmSubmitted(done) {
     expect(cron.submit).to.have.been.calledWith(
       sinon.match.string,
       sinon.match(function(date) {
@@ -51,9 +51,12 @@ describe('alarm module', function() {
               subject: 'Pending event! Event: Victor Sanders'
             }),
             'event.alarm',
-            sinon.match.has('alarm')
+            sinon.match.has('content', sinon.match.has('alarm'))
           );
+
+          done && done();
         });
+
         return true;
       }),
       sinon.match(function(context) {
@@ -91,7 +94,7 @@ describe('alarm module', function() {
     });
 
     describe('on event creation', function() {
-      it('should register a new alarm without recuring', function() {
+      it('should register a new alarm without recuring', function(done) {
         var ics = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/withVALARM.ics').toString('utf8');
 
         this.requireModule().init();
@@ -101,7 +104,7 @@ describe('alarm module', function() {
           event: ICAL.Component.fromString(ics).toJSON()
         });
 
-        checkAlarmSubmitted();
+        checkAlarmSubmitted(done);
       });
 
       it('should do nothing if action is not EMAIL', function() {
@@ -130,7 +133,7 @@ describe('alarm module', function() {
         expect(cron.submit).to.not.have.been.called;
       });
 
-      it('should register a new alarm with recuring', function() {
+      it('should register a new alarm with recuring', function(done) {
         var ics = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/withVALARMandRRULE.ics').toString('utf8');
 
         this.requireModule().init();
@@ -140,12 +143,12 @@ describe('alarm module', function() {
           event: ICAL.Component.fromString(ics).toJSON()
         });
         expect(cron.submit).to.have.been.called.twice;
-        checkAlarmSubmitted();
+        checkAlarmSubmitted(done);
       });
     });
 
     describe('on event update', function() {
-      it('should only register an alarm if there is no alarm for the previous version of event without recuring', function() {
+      it('should only register an alarm if there is no alarm for the previous version of event without recuring', function(done) {
         var withAlarmICS = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/withVALARM.ics').toString('utf8');
         var withoutAlarmICS = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/allday.ics').toString('utf8');
         this.requireModule().init();
@@ -157,7 +160,7 @@ describe('alarm module', function() {
         });
 
         expect(cron.abortAll).to.not.have.been.called;
-        checkAlarmSubmitted();
+        checkAlarmSubmitted(done);
       });
 
       it('should fail if the deletion of previous alarms failed', function() {
@@ -183,7 +186,7 @@ describe('alarm module', function() {
         expect(cron.submit).to.not.have.been.called;
       });
 
-      it('should delete alarm for the event if any and register a new one', function() {
+      it('should delete alarm for the event if any and register a new one', function(done) {
         var ics = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/withVALARM.ics').toString('utf8');
 
         cron.abortAll = sinon.spy(function(context, callback) {
@@ -203,11 +206,11 @@ describe('alarm module', function() {
         });
 
         expect(cron.abortAll).to.have.been.called;
-        checkAlarmSubmitted();
+        checkAlarmSubmitted(done);
       });
     });
 
-    it('should only register an alarm if there is no alarm for the previous version of event with recuring', function() {
+    it('should only register an alarm if there is no alarm for the previous version of event with recuring', function(done) {
         var withAlarmRRULEICS = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/withVALARMandRRULE.ics').toString('utf8');
         var withoutAlarmICS = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/allday.ics').toString('utf8');
         this.requireModule().init();
@@ -219,7 +222,7 @@ describe('alarm module', function() {
         });
 
         expect(cron.abortAll).to.not.have.been.called;
-        checkAlarmSubmitted();
+        checkAlarmSubmitted(done);
       });
 
   });
