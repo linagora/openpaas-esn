@@ -1572,31 +1572,56 @@ describe('CalendarShell factory', function() {
   });
 
   describe('isOverOneDayOnly function', function() {
-    it('should return true if the start day and the end day are equal', function() {
-      var event = CalendarShell.fromIncompleteShell({
-        start: calMoment('2016-11-23 09:00:00'),
-        end: calMoment('2016-11-23 10:00:00')
+
+    describe('when simple event', function() {
+
+      it('should return true if the start day and the end day are equal', function() {
+        var event = CalendarShell.fromIncompleteShell({
+          start: calMoment('2016-11-23 09:00:00'),
+          end: calMoment('2016-11-23 10:00:00')
+        });
+
+        expect(event.isOverOneDayOnly()).to.be.true;
       });
 
-      expect(event.isOverOneDayOnly()).to.be.true;
+      it('should return true if the event finish in the next day at 12 am ', function() {
+        var event = CalendarShell.fromIncompleteShell({
+          start: calMoment('2016-11-23 09:00:00'),
+          end: calMoment('2016-11-24 00:00:00')
+        });
+
+        expect(event.isOverOneDayOnly()).to.be.true;
+      });
+
+      it('should return false if the start day and the end day are not equal', function() {
+        var event = CalendarShell.fromIncompleteShell({
+          start: calMoment('2016-11-23 09:00:00'),
+          end: calMoment('2016-11-24 10:00:00')
+        });
+
+        expect(event.isOverOneDayOnly()).to.be.false;
+      });
     });
 
-    it('should return true if the event finish in the next day at 12 am ', function() {
-      var event = CalendarShell.fromIncompleteShell({
-        start: calMoment('2016-11-23 09:00:00'),
-        end: calMoment('2016-11-24 00:00:00')
+    describe('when allDay event', function() {
+
+      it('should return true if the start day and the end day are equal', function() {
+        var event = CalendarShell.fromIncompleteShell({
+          start: calMoment('2016-11-23'),
+          end: calMoment('2016-11-24')
+        });
+
+        expect(event.isOverOneDayOnly()).to.be.true;
       });
 
-      expect(event.isOverOneDayOnly()).to.be.true;
-    });
+      it('should return false if the start day and the end day are not equal', function() {
+        var event = CalendarShell.fromIncompleteShell({
+          start: calMoment('2016-11-23'),
+          end: calMoment('2016-11-25')
+        });
 
-    it('should return false if the start day and the end day are not equal', function() {
-      var event = CalendarShell.fromIncompleteShell({
-        start: calMoment('2016-11-23 09:00:00'),
-        end: calMoment('2016-11-24 10:00:00')
+        expect(event.isOverOneDayOnly()).to.be.false;
       });
-
-      expect(event.isOverOneDayOnly()).to.be.false;
     });
   });
 });

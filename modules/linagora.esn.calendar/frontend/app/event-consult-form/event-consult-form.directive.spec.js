@@ -37,12 +37,11 @@ describe('The cal-event-consult-form Angular module directives', function() {
       this.CalendarShell = CalendarShell;
       this.moment = moment;
 
-      this.$scope.event = {
-        allDay: true,
-        start: this.calMoment('2013-02-08 12:30'),
-        end: this.calMoment('2013-02-08 13:30'),
+      this.$scope.event = this.CalendarShell.fromIncompleteShell({
+        start: this.calMoment('2013-02-08'),
+        end: this.calMoment('2013-02-08'),
         location: 'aLocation'
-      };
+      });
 
       this.initDirective = function(scope) {
         var html = '<cal-event-consult-form event="event"/>';
