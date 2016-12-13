@@ -33,6 +33,7 @@
 
       return newProvider({
         name: name,
+        id: calendar.id,
         fetch: function(query) {
           var offset = 0;
 
@@ -86,6 +87,12 @@
 
       $rootScope.$on(CALENDAR_EVENTS.CALENDARS.ADD, function(event, calendar) { // eslint-disable-line
         searchProviders.add(getForCalendar(calendar));
+      });
+
+      $rootScope.$on(CALENDAR_EVENTS.CALENDARS.REMOVE, function(event, calendar) {
+        searchProviders.remove(function(provider) {
+          return provider.id === calendar.id;
+        });
       });
     }
   }

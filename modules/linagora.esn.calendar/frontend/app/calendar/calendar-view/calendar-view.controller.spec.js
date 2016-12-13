@@ -279,6 +279,66 @@ describe('The calendarViewController', function() {
     testRefetchEvent('should refresh the calendar', 'ITEM_REMOVE');
   });
 
+  describe('The CALENDAR_EVENTS.CALENDARS.UPDATE listener', function() {
+    it('should update $scope.calendars correctly', function() {
+      this.controller('calendarViewController', {$scope: this.scope});
+      this.scope.calendars = [{id: 1}, {id: 2}];
+      var newCal = {id: 2, data: 'data'};
+
+      this.rootScope.$broadcast(this.CALENDAR_EVENTS.CALENDARS.UPDATE, newCal);
+      expect(this.scope.calendars).to.be.deep.equal([{id: 1}, newCal]);
+    });
+  });
+
+  describe('The CALENDAR_EVENTS.CALENDARS.REMOVE listener', function() {
+    it('should remove the calendar on $scope.calendars correctly', function() {
+      this.controller('calendarViewController', {$scope: this.scope});
+      this.scope.calendars = [{id: 1}, {id: 2}];
+      this.rootScope.$broadcast(this.CALENDAR_EVENTS.CALENDARS.REMOVE, {id: 2});
+      expect(this.scope.calendars).to.be.deep.equal([{id: 1}]);
+    });
+
+    it('should remove the corresponding source map correctly', function() {
+      var source = {};
+
+      this.controller('calendarViewController', {$scope: this.scope});
+      this.scope.calendarReady(this.calendar);
+      this.scope.$digest();
+      this.scope.eventSourcesMap = {href: source};
+      this.rootScope.$broadcast(this.CALENDAR_EVENTS.CALENDARS.REMOVE, {id: 2, href: 'href'});
+      this.scope.calendarReady(this.calendar);
+      this.scope.$digest();
+
+      expect(this.scope.eventSourcesMap.href).to.be.undefined;
+      expect(fullCalendarSpy).to.have.been.calledWith('removeEventSource', sinon.match.same(source));
+    });
+  });
+
+  describe('The CALENDAR_EVENTS.CALENDARS.ADD listener', function() {
+    it('should add an event source for this calendar in fullcalendar', function() {
+      var source = 'source';
+      var wrappedSource = 'source';
+      var calendarEventSourceMock = sinon.stub().returns(source);
+
+      this.calCachedEventSourceMock.wrapEventSource = sinon.stub().returns(wrappedSource);
+      this.controller('calendarViewController', {
+        $scope: this.scope,
+        calendarEventSource: calendarEventSourceMock
+      });
+      this.scope.calendarReady(this.calendar);
+      this.scope.$digest();
+      this.rootScope.$broadcast(this.CALENDAR_EVENTS.CALENDARS.ADD, {href: 'href', id: 'id', color: 'color'});
+      expect(calendarEventSourceMock).to.have.been.calledWith('href', this.scope.displayCalendarError);
+      expect(this.calCachedEventSourceMock.wrapEventSource).to.have.been.calledWith('id', source);
+      expect(this.scope.eventSourcesMap.href).to.deep.equals({
+        events: wrappedSource,
+        backgroundColor: 'color'
+      });
+
+      expect(fullCalendarSpy).to.have.been.calledWith('addEventSource', this.scope.eventSourcesMap.href);
+    });
+  });
+
   describe('The CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW_MODE listener', function() {
     it('should change the view mode of the calendar', function() {
       this.controller('calendarViewController', {$scope: this.scope});

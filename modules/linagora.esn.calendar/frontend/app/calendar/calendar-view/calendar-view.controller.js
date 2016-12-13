@@ -12,6 +12,7 @@
     $state,
     $timeout,
     $window,
+    _,
     usSpinnerService,
     calCachedEventSource,
     calendarCurrentView,
@@ -209,6 +210,25 @@
         })),
         $rootScope.$on(CALENDAR_EVENTS.CALENDARS.ADD, function(event, calendar) { // eslint-disable-line
           $scope.calendars.push(calendar);
+
+          $scope.eventSourcesMap[calendar.href] = {
+            events: calCachedEventSource.wrapEventSource(calendar.id, calendarEventSource(calendar.href, $scope.displayCalendarError)),
+            backgroundColor: calendar.color
+          };
+
+          calendarPromise.then(function(cal) {
+            cal.fullCalendar('addEventSource', $scope.eventSourcesMap[calendar.href]);
+          });
+        }),
+        $rootScope.$on(CALENDAR_EVENTS.CALENDARS.REMOVE, function(event, calendar) { // eslint-disable-line
+          _.remove($scope.calendars, {id: calendar.id});
+          var removedEventSource = $scope.eventSourcesMap[calendar.href];
+
+          delete $scope.eventSourcesMap[calendar.href];
+
+          calendarPromise.then(function(cal) {
+            cal.fullCalendar('removeEventSource', removedEventSource);
+          });
         }),
         $rootScope.$on(CALENDAR_EVENTS.CALENDARS.UPDATE, function(event, calendar) { // eslint-disable-line
           $scope.calendars.forEach(function(cal, index) {

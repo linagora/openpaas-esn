@@ -416,6 +416,28 @@ describe('The calendar module apis', function() {
       });
     });
 
+    describe('removeCalendar request', function() {
+      it('should return the http response if response.status is 204', function() {
+        var thenSpy = sinon.spy();
+
+        this.$httpBackend.expectDELETE('/dav/api/calendars/test/cal.json').respond(204, 'aResponse');
+        this.calendarAPI.removeCalendar('test', 'cal').then(thenSpy);
+        this.$httpBackend.flush();
+
+        expect(thenSpy).to.have.been.calledWith(sinon.match({data: 'aResponse'}));
+      });
+
+      it('should return an Error if response.status is not 204', function() {
+        var catchSpy = sinon.spy();
+
+        this.$httpBackend.expectDELETE('/dav/api/calendars/test/cal.json').respond(500, 'error');
+        this.calendarAPI.removeCalendar('test', 'cal').catch(catchSpy);
+        this.$httpBackend.flush();
+
+        expect(catchSpy).to.have.been.calledWith(sinon.match.truthy);
+      });
+    });
+
     describe('createCalendar request', function() {
 
       it('should return the http response if response.status is 201', function(done) {
