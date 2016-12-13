@@ -58,6 +58,8 @@ describe('The Core DB Mongo module', function() {
         };
       };
       mockery.registerMock('../../../core/esn-config', configmock);
+      mockery.registerMock('./global', {});
+
       this.mongo = this.helpers.requireBackend('core').db.mongo;
       this.mongo = this.helpers.requireBackend('core').db.redis;
       this.pubsub = this.helpers.requireBackend('core').pubsub.local;
@@ -144,6 +146,8 @@ describe('The Core DB Mongo module', function() {
           };
         };
         mockery.registerMock('../../../core/esn-config', configmock);
+        mockery.registerMock('./global', {});
+
         this.helpers.requireBackend('core').db.redis;
         this.mongo = this.helpers.requireBackend('core').db.mongo;
         events.connected();
@@ -165,6 +169,8 @@ describe('The Core DB Mongo module', function() {
           };
         };
         mockery.registerMock('../../../core/esn-config', configmock);
+        mockery.registerMock('./global', {});
+
         this.helpers.requireBackend('core').db.redis;
         this.mongo = this.helpers.requireBackend('core').db.mongo;
         events.connected();
