@@ -71,7 +71,7 @@ function _registerNewReccuringAlarm(context, dbStorage) {
       var nextInstance = expand.next();
 
       if (nextInstance) {
-        context.alarmDueDate = nextInstance.clone().add(triggerDuration).format();
+        context.alarmDueDate = moment(nextInstance.clone()).add(triggerDuration).format();
         _registerNewReccuringAlarm(context, dbStorage);
       }
 
