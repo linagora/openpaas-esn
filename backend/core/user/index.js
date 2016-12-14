@@ -1,20 +1,22 @@
 'use strict';
 
-var util = require('util');
-var esnConfig = require('../../core')['esn-config'];
-var pubsub = require('../../core/pubsub').local;
-var logger = require('../logger');
-var authToken = require('../auth/token');
-var extend = require('extend');
-var mongoose = require('mongoose');
-var trim = require('trim');
-var User = mongoose.model('User');
-var emailAddresses = require('email-addresses');
-var CONSTANTS = require('./constants');
-var moderation = require('./moderation');
+const util = require('util');
+const esnConfig = require('../../core')['esn-config'];
+const pubsub = require('../../core/pubsub').local;
+const logger = require('../logger');
+const authToken = require('../auth/token');
+const extend = require('extend');
+const mongoose = require('mongoose');
+const trim = require('trim');
+const User = mongoose.model('User');
+const emailAddresses = require('email-addresses');
+const CONSTANTS = require('./constants');
+const moderation = require('./moderation');
+const i18n = require('../../i18n');
+const emailModule = require('../email');
+const configHelper = require('../../helpers/config');
 
-var TYPE = CONSTANTS.TYPE;
-module.exports.TYPE = TYPE;
+const TYPE = CONSTANTS.TYPE;
 
 function getUserTemplate(callback) {
   esnConfig('user').get(callback);
@@ -37,9 +39,7 @@ function recordUser(userData, callback) {
   });
 }
 
-module.exports.recordUser = recordUser;
-
-module.exports.provisionUser = function(data, callback) {
+function provisionUser(data, callback) {
   getUserTemplate(function(err, user) {
     if (err) {
       return callback(err);
@@ -47,9 +47,9 @@ module.exports.provisionUser = function(data, callback) {
     extendUserTemplate(user, data);
     recordUser(user, callback);
   });
-};
+}
 
-module.exports.findByEmail = function(email, callback) {
+function findByEmail(email, callback) {
   var query;
 
   if (util.isArray(email)) {
@@ -75,23 +75,23 @@ module.exports.findByEmail = function(email, callback) {
   }
 
   User.findOne(query, callback);
-};
+}
 
-module.exports.get = function(uuid, callback) {
+function get(uuid, callback) {
   User.findOne({_id: uuid}, callback);
-};
+}
 
-module.exports.list = function(callback) {
+function list(callback) {
   User.find(callback);
-};
+}
 
-module.exports.update = function(user, callback) {
+function update(user, callback) {
   // because Model.update calls callback with 3 params (err, saved, rowAffected)
   // so we work around to make it compatible when we use with q.ninvoke
   user.save((err, savedUser) => callback(err, savedUser));
-};
+}
 
-module.exports.updateProfile = function(user, profile, callback) {
+function updateProfile(user, profile, callback) {
   if (!user || !profile) {
     return callback(new Error('User and profile are required'));
   }
@@ -104,27 +104,9 @@ module.exports.updateProfile = function(user, profile, callback) {
     }
     callback(err, user);
   });
-};
+}
 
-module.exports.checkPassword = function(user, password, callback) {
-  user.comparePassword(password, function(err, isMatch) {
-    return callback(err || isMatch ? null : new Error('Unmatched password'));
-  });
-};
-
-module.exports.updatePassword = function(user, password, callback) {
-  // OR-128 - Do not use findOneAndUpdate here because mongoose 3.x does not
-  // support pre hook on update. We must use pre fook on save to crypt the password
-  User.findOne({ _id: user._id || user }, function(err, user) {
-    if (err) {
-      return callback(err);
-    }
-    user.password = password;
-    user.save(callback);
-  });
-};
-
-module.exports.removeAccountById = function(user, accountId, callback) {
+function removeAccountById(user, accountId, callback) {
   var accountIndex = -1;
   user.accounts.forEach(function(account, index) {
     if (account.data && account.data.id === accountId) {
@@ -141,9 +123,9 @@ module.exports.removeAccountById = function(user, accountId, callback) {
       }
     }
   });
-};
+}
 
-module.exports.belongsToCompany = function(user, company, callback) {
+function belongsToCompany(user, company, callback) {
   if (!user || !company) {
     return callback(new Error('User and company are required.'));
   }
@@ -153,9 +135,9 @@ module.exports.belongsToCompany = function(user, company, callback) {
     return domain === company.toLowerCase() || domainWithoutSuffix === company.toLowerCase();
   });
   return callback(null, hasCompany);
-};
+}
 
-module.exports.getCompanies = function(user, callback) {
+function getCompanies(user, callback) {
   if (!user) {
     return callback(new Error('User is required.'));
   }
@@ -164,27 +146,37 @@ module.exports.getCompanies = function(user, callback) {
     return parsedEmail.domain.split('.')[0];
   });
   return callback(null, companies);
-};
+}
 
 function getNewToken(user, ttl, callback) {
   authToken.getNewToken({ttl: ttl, user: user._id, user_type: TYPE}, callback);
 }
-module.exports.getNewToken = getNewToken;
 
 function find(query, callback) {
   User.findOne(query, callback);
 }
-module.exports.find = find;
 
 function init() {
   moderation.init();
 }
-module.exports.init = init;
 
-module.exports.domain = require('./domain');
-
-module.exports.follow = require('./follow');
-
-module.exports.login = require('./login');
-
-module.exports.moderation = moderation;
+module.exports = {
+  TYPE: TYPE,
+  recordUser: recordUser,
+  provisionUser: provisionUser,
+  findByEmail: findByEmail,
+  get: get,
+  list: list,
+  update: update,
+  updateProfile: updateProfile,
+  removeAccountById: removeAccountById,
+  belongsToCompany: belongsToCompany,
+  getCompanies: getCompanies,
+  getNewToken: getNewToken,
+  find: find,
+  init: init,
+  moderation: moderation,
+  domain: require('./domain'),
+  follow: require('./follow'),
+  login: require('./login')
+};
