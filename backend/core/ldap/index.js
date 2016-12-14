@@ -4,6 +4,7 @@ const LdapAuth = require('ldapauth-fork');
 const async = require('async');
 const _ = require('lodash');
 const esnConfig = require('../esn-config');
+const logger = require('../logger');
 
 /**
  * Check if the email exists in the given ldap
@@ -17,9 +18,22 @@ function emailExists(email, ldap, callback) {
     return callback(new Error('Missing parameters'));
   }
 
-  var ldapauth = new LdapAuth(ldap);
+  const ldapauth = new LdapAuth(ldap);
+  let called = false;
 
-  return ldapauth._findUser(email, callback);
+  ldapauth.on('error', err => {
+    if (!called) {
+      called = true;
+      callback(err);
+    }
+  });
+
+  return ldapauth._findUser(email, (err, data) => {
+    if (!called) {
+      called = true;
+      callback(err, data);
+    }
+  });
 }
 
 /**
@@ -60,9 +74,19 @@ function findLDAPForUser(email, callback) {
       return callback(new Error('No configured LDAP'));
     }
 
-    async.filter(ldapConfigs, (ldap, callback) => {
-      emailExists(email, ldap.configuration, callback);
-    }, callback);
+    const emailExistsInLdap = (ldap, callback) => {
+      const errorMsg = `Error while finding user ${email} in LDAP directory ${ldap.url} with admin DN ${ldap.adminDn}`;
+
+      emailExists(email, ldap.configuration, (err, username) => {
+        if (err) {
+          logger.debug(errorMsg, err);
+        }
+
+        callback(null, !!username);
+      });
+    };
+
+    async.filter(ldapConfigs, emailExistsInLdap, callback);
   });
 }
 
