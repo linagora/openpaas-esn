@@ -12,11 +12,12 @@ describe('The linagora.esn.user-status userStatusService service', function() {
     $rootScope,
     userStatusService,
     userStatusNamespace,
-    $httpBackend;
+    userStatusClientService;
 
   beforeEach(function() {
     user = {_id: 'userId'};
     userStatusNamespace = {on: sinon.spy()};
+    userStatusClientService = {};
 
     sessionMock = {
       user: user,
@@ -40,15 +41,15 @@ describe('The linagora.esn.user-status userStatusService service', function() {
 
     angular.mock.module('linagora.esn.user-status', function($provide) {
       $provide.value('session', sessionMock);
+      $provide.value('userStatusClientService', userStatusClientService);
       $provide.factory('livenotification', livenotificationFactory);
     });
   });
 
-  beforeEach(angular.mock.inject(function(_USER_STATUS_EVENTS_, _$rootScope_, _userStatusService_, _$httpBackend_) {
+  beforeEach(angular.mock.inject(function(_USER_STATUS_EVENTS_, _$rootScope_, _userStatusService_) {
     USER_STATUS_EVENTS = _USER_STATUS_EVENTS_;
     $rootScope = _$rootScope_;
     userStatusService = _userStatusService_;
-    $httpBackend = _$httpBackend_;
   }));
 
   describe('The userStatusService service', function() {
@@ -78,7 +79,7 @@ describe('The linagora.esn.user-status userStatusService service', function() {
           state: state
         });
 
-        userStatusService.get(userId).then(promiseCallback);
+        userStatusService.getCurrentStatus(userId).then(promiseCallback);
         $rootScope.$digest();
         expect(promiseCallback).to.have.been.calledWith(state);
 
@@ -86,20 +87,22 @@ describe('The linagora.esn.user-status userStatusService service', function() {
       }));
     });
 
-    it('should get /user-status/api/users/:userId to get the data the first time and cache it for the second time', function() {
-      var state = 'state';
+    it('should get status from userStatusClientService the first time and cache it for the next times', function() {
+      var status = 'state';
       var callback = sinon.spy();
 
-      $httpBackend.expectGET('/user-status/api/users/userId').respond({state: state});
-      userStatusService.get('userId').then(callback);
+      userStatusClientService.get = sinon.spy(function() {
+        return $q.when({data: {current_status: status}});
+      });
+
+      userStatusService.getCurrentStatus('userId').then(callback);
       $rootScope.$digest();
-      $httpBackend.flush();
-      expect(callback).to.have.been.calledWith(state);
+      expect(callback).to.have.been.calledWith(status);
       callback.reset();
 
-      userStatusService.get('userId').then(callback);
+      userStatusService.getCurrentStatus('userId').then(callback);
       $rootScope.$digest();
-      expect(callback).to.have.been.calledWith(state);
+      expect(callback).to.have.been.calledWith(status);
     });
   });
 });

@@ -3,7 +3,7 @@
 const Q = require('q');
 const CONSTANTS = require('./constants');
 const DISCONNECTED = CONSTANTS.STATUS.DISCONNECTED;
-const DEFAULT_CONNECTED_STATE = CONSTANTS.STATUS.DEFAULT_CONNECTED_STATE;
+const DEFAULT_CONNECTED_STATE = CONSTANTS.STATUS.DEFAULT;
 
 module.exports = userStatus;
 
@@ -21,7 +21,7 @@ function userStatus(dependencies, lib) {
   };
 
   function get(userId) {
-    logger.debug('Get user %s status', userId);
+    logger.debug(`Get user ${userId} status`);
 
     return UserStatus.findById(userId).then(status => {
       if (!status) {
@@ -45,7 +45,7 @@ function userStatus(dependencies, lib) {
   }
 
   function set(userId, status, delay = 0) {
-    logger.debug('Setting user %s status %s with delay %s', userId, status, delay);
+    logger.debug(`Setting user ${userId} status ${status} with delay ${delay}`);
 
     return UserStatus.findById(userId).then(previousStatus => {
       const nextStatus = {

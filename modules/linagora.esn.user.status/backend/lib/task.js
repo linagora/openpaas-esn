@@ -21,16 +21,18 @@ module.exports = function(dependencies) {
 
       if (delay) {
         delayedStateChanges[userId] = setTimeout(() => {
-          logger.debug('Pushing status for user %s after a delay of %s', userId, delay);
-          userStateTopic.publish({userId, status: currentStatus});
+          logger.debug(`Pushing status for user ${userId} after a delay of ${delay}`);
+          userStateTopic.publish({userId: userId, status: currentStatus});
           delete delayedStateChanges[userId];
         }, delay);
 
         return;
       }
 
-      logger.debug('Pushing status without delay for user %s', userId);
+      logger.debug(`Pushing status without delay for user ${userId}`);
       userStateTopic.publish({userId: userId, status: currentStatus});
+    } else {
+      console.log(`current ${currentStatus.current_status}, previous ${previousStatus.current_status}`)
     }
   }
 };

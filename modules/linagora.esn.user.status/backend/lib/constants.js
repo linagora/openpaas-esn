@@ -7,7 +7,8 @@ module.exports = {
   STATUS: {
     DISCONNECTION_DELAY: 10000, //in milliseconds
     DISCONNECTED: 'disconnected',
-    DEFAULT_CONNECTED_STATE: 'connected'
+    CONNECTED: 'connected',
+    DEFAULT: 'connected'
   },
   NOTIFICATIONS: {
     USER_STATE: 'user:status',

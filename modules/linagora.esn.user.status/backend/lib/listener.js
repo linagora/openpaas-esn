@@ -19,13 +19,13 @@ module.exports = function(dependencies, lib) {
 
   function userConnected(userId) {
     lib.userStatus.restorePreviousStatusOfUser(userId).then(status => {
-      logger.debug('User %s status is restored to', userId, status.toJSON());
+      logger.debug(`User ${userId} status is restored to`, status.toJSON());
     });
   }
 
   function userDisconnected(userId) {
     lib.userStatus.set(userId, DISCONNECTED, DISCONNECTION_DELAY).then(status => {
-      logger.debug('User %s status is stored as', userId, status.toJSON());
+      logger.debug(`User ${userId} status is stored as`, status.toJSON());
     });
   }
 

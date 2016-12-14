@@ -9,8 +9,8 @@ module.exports = function(dependencies) {
 
   const UserStatusSchema = new mongoose.Schema({
     _id: {type: ObjectId, ref: 'User'},
-    current_status: {type: String, default: CONSTANTS.STATUS.DEFAULT_CONNECTED_STATE},
-    previous_status: {type: String, default: CONSTANTS.STATUS.DEFAULT_CONNECTED_STATE},
+    current_status: {type: String, default: CONSTANTS.STATUS.DEFAULT},
+    previous_status: {type: String, default: CONSTANTS.STATUS.DEFAULT},
     delay: {type: Number, default: 0},
     timestamps: {
       last_update: {type: Date, default: Date.now}

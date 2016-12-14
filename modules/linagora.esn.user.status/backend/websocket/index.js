@@ -25,7 +25,7 @@ function init(dependencies, lib) {
   chatNamespace.on('connection', socket => {
     const userId = helper.getUserId(socket);
 
-    logger.info('New connection on %s by user %s', NAMESPACE, userId);
+    logger.debug(`New connection on ${NAMESPACE} by user ${userId}`);
     initialized = true;
   });
 

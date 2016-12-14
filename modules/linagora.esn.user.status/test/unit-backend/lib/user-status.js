@@ -5,7 +5,7 @@ const expect = require('chai').expect;
 const Q = require('q');
 const CONSTANTS = require('../../../backend/lib/constants');
 const DISCONNECTED = CONSTANTS.STATUS.DISCONNECTED;
-const DEFAULT_CONNECTED_STATE = CONSTANTS.STATUS.DEFAULT_CONNECTED_STATE;
+const DEFAULT_CONNECTED_STATE = CONSTANTS.STATUS.DEFAULT;
 
 describe('The user-status lib', function() {
 
