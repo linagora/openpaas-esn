@@ -3,85 +3,31 @@
 const sinon = require('sinon');
 const expect = require('chai').expect;
 const Q = require('q');
-const _ = require('lodash');
 const CONSTANTS = require('../../../backend/lib/constants');
 const DISCONNECTED = CONSTANTS.STATUS.DISCONNECTED;
 const DEFAULT_CONNECTED_STATE = CONSTANTS.STATUS.DEFAULT_CONNECTED_STATE;
-const DISCONNECTION_DELAY = CONSTANTS.STATUS.DISCONNECTION_DELAY;
-const USER_STATE = CONSTANTS.NOTIFICATIONS.USER_STATE;
-const USER_CONNECTION = CONSTANTS.NOTIFICATIONS.USER_CONNECTION;
-const USER_DISCONNECTION = CONSTANTS.NOTIFICATIONS.USER_DISCONNECTION;
 
-describe.only('The user-status lib', function() {
+describe('The user-status lib', function() {
 
-  var deps, clock, redisGet, redisSet, redisGetResult, connectionTopic, disconnectionTopic, userStateTopic;
-  var dependencies = function(name) {
-    return deps[name];
-  };
-
-  function getUserStatus() {
-    const lib = require('../../../backend/lib/user-status')(dependencies);
-
-    lib.init();
-
-    return lib;
-  }
+  let clock, db, UserStatus, publishSpy;
+  const userId = '123';
+  const delay = 100;
 
   beforeEach(function() {
-    clock = sinon.useFakeTimers();
-    redisGetResult = null;
-
-    redisGet = sinon.spy(function(key, callback) {
-      callback(null, redisGetResult);
-    });
-
-    redisSet = sinon.spy(function(key, value, callback) {
-      callback(null, null);
-    });
-
-    connectionTopic = {
-      subscribe: sinon.spy()
-    };
-
-    disconnectionTopic = {
-      subscribe: sinon.spy()
-    };
-
-    userStateTopic = {
-      subscribe: sinon.spy(),
-      publish: sinon.spy()
-    };
-
-    deps = {
-      db: {
-        redis: {
-          getClient: function(callback) {
-            callback(null, {
-              hgetall: redisGet,
-              hmset: redisSet
-            });
-          }
-        }
-      },
-      pubsub: {
-        local: {
-          topic: function(name) {
-            if (name === USER_CONNECTION) {
-              return connectionTopic;
-            } else if (name === USER_DISCONNECTION) {
-              return disconnectionTopic;
-            }
-          }
-        },
-        global: {
-          topic: function(name) {
-            if (name === USER_STATE) {
-              return userStateTopic;
-            }
+    publishSpy = sinon.spy();
+    UserStatus = {};
+    db = {
+      mongo: {
+        mongoose: {
+          model: function(name) {
+            return UserStatus;
           }
         }
       }
     };
+    clock = sinon.useFakeTimers();
+    this.moduleHelpers.backendPath = this.moduleHelpers.modulesPath + 'linagora.esn.user.status/backend/lib';
+    this.moduleHelpers.addDep('db', db);
   });
 
   afterEach(function() {
@@ -89,295 +35,171 @@ describe.only('The user-status lib', function() {
   });
 
   describe('The get function', function() {
-    it('should return disconnected if no state found in redis', function(done) {
-      getUserStatus().get('key').then(function(data) {
-        expect(redisGet).to.have.been.calledWith('userState:key');
-        expect(data).to.equal(DISCONNECTED);
+    it('should return disconnected if no status found', function(done) {
+      UserStatus.findById = sinon.spy(function(userId) {
+        return Q.when();
+      });
+      this.module = require(this.moduleHelpers.backendPath + '/user-status')(this.moduleHelpers.dependencies);
+      this.module.get(userId).then(result => {
+        expect(UserStatus.findById).to.have.been.calledWith(userId);
+        expect(result).to.equal(DISCONNECTED);
         done();
       }).catch(done);
     });
 
-    it('should return state saved in redis', function(done) {
-      redisGetResult = {
-        delay: 0,
-        since: Date.now(),
-        state: 'state'
-      };
+    it('should return previous status if delay is not over', function(done) {
+      const status = 'mystatus';
 
-      getUserStatus().get('key').then(function(data) {
-        expect(redisGet).to.have.been.calledWith('userState:key');
-        expect(data).to.equal('state');
+      UserStatus.findById = sinon.spy(function(userId) {
+        return Q.when({previous_status: status, timestamps: {last_update: Date.now()}, delay: delay});
+      });
+      this.module = require(this.moduleHelpers.backendPath + '/user-status')(this.moduleHelpers.dependencies);
+      clock.tick(delay - 1);
+      this.module.get(userId).then(result => {
+        expect(UserStatus.findById).to.have.been.calledWith(userId);
+        expect(result).to.equal(status);
         done();
       }).catch(done);
     });
 
-    it('should return previous state if delay is not passed', function(done) {
-      redisGetResult = {
-        delay: DISCONNECTION_DELAY,
-        since: Date.now(),
-        state: 'state',
-        previousState: 'previousState'
-      };
-
-      getUserStatus().get('key').then(function(data) {
-        expect(redisGet).to.have.been.calledWith('userState:key');
-        expect(data).to.equal('previousState');
+    it('should return disconnected if delay is not over but previous status does not exist', function(done) {
+      UserStatus.findById = sinon.spy(function(userId) {
+        return Q.when({timestamps: {last_update: Date.now()}, delay: delay});
+      });
+      this.module = require(this.moduleHelpers.backendPath + '/user-status')(this.moduleHelpers.dependencies);
+      clock.tick(delay - 1);
+      this.module.get(userId).then(result => {
+        expect(UserStatus.findById).to.have.been.calledWith(userId);
+        expect(result).to.equal(DISCONNECTED);
         done();
       }).catch(done);
     });
 
-    it('should not return previous state if delay is passed', function(done) {
-      redisGetResult = {
-        delay: 100,
-        since: Date.now(),
-        state: 'state',
-        previousState: 'previousState'
-      };
+    it('should return current_status if delay is over', function(done) {
+      const current = 'mycurrentstatus';
 
-      clock.tick(101);
-      getUserStatus().get('key').then(function(data) {
-        expect(redisGet).to.have.been.calledWith('userState:key');
-        expect(data).to.equal('state');
+      UserStatus.findById = sinon.spy(function(userId) {
+        return Q.when({current_status: current, timestamps: {last_update: 0}, delay: delay});
+      });
+      this.module = require(this.moduleHelpers.backendPath + '/user-status')(this.moduleHelpers.dependencies);
+      clock.tick(delay + 1);
+      this.module.get(userId).then(result => {
+        expect(UserStatus.findById).to.have.been.calledWith(userId);
+        expect(result).to.equal(current);
         done();
       }).catch(done);
     });
   });
 
-  function testActionThatShouldRestorePreviousState(action) {
-    it('should set DEFAULT_CONNECTED_STATE if nothing store in redis', function(done) {
-      action('key').then(function() {
-        expect(redisGet).to.have.been.calledWith('userState:key');
-        expect(redisSet).to.have.been.calledWith('userState:key', sinon.match({
-          state: DEFAULT_CONNECTED_STATE
-        }));
+  describe('The set function', function() {
+    it('should update the status from the previous status when disconnected', function(done) {
+      const status = DISCONNECTED;
+      const previousStatus = 'previousStatus';
+      const previous = {
+        current_status: previousStatus
+      };
+      const updatedStatus = 'updatedStatus';
+
+      UserStatus.findById = sinon.spy(function(userId) {
+        return Q.when(previous);
+      });
+      UserStatus.findOneAndUpdate = sinon.spy(function() {
+        return Q.when(updatedStatus);
+      });
+
+      this.module = require(this.moduleHelpers.backendPath + '/user-status')(this.moduleHelpers.dependencies, {task: {publishStatus: publishSpy}});
+      this.module.set(userId, status, delay).then(result => {
+        const nextStatus = {
+          current_status: status,
+          timestamps: {last_update: 0},
+          delay: delay,
+          previous_status: previousStatus
+        };
+
+        expect(UserStatus.findOneAndUpdate).to.have.been.calledWith({_id: userId}, {$set: nextStatus}, {new: true, upsert: true, setDefaultsOnInsert: true});
+        expect(publishSpy).to.have.been.calledWith(userId, previous, updatedStatus, delay);
         done();
       }).catch(done);
     });
 
-    it('should not set anything if no previous state store in redis', function(done) {
-      redisGetResult = {
-        delay: 0,
-        since: Date.now(),
-        state: 'state'
+    it('should not save a previous status when no previous status is available', function(done) {
+      const status = DISCONNECTED;
+      const updatedStatus = 'updatedStatus';
+
+      UserStatus.findById = sinon.spy(function(userId) {
+        return Q.when();
+      });
+      UserStatus.findOneAndUpdate = sinon.spy(function() {
+        return Q.when(updatedStatus);
+      });
+
+      this.module = require(this.moduleHelpers.backendPath + '/user-status')(this.moduleHelpers.dependencies, {task: {publishStatus: publishSpy}});
+      this.module.set(userId, status, delay).then(result => {
+        const nextStatus = {
+          current_status: status,
+          timestamps: {last_update: 0},
+          delay: delay
+        };
+
+        expect(UserStatus.findOneAndUpdate).to.have.been.calledWith({_id: userId}, {$set: nextStatus}, {new: true, upsert: true, setDefaultsOnInsert: true});
+        expect(publishSpy).to.have.been.calledWith(userId, undefined, updatedStatus, delay);
+        done();
+      }).catch(done);
+    });
+  });
+
+  describe('The restorePreviousStatusOfUser function', function() {
+    it('should set status to previous one if exists', function(done) {
+      const status = 'a status';
+      const previousStatus = {previous_status: status};
+      const nextStatus = {
+        current_status: status,
+        timestamps: {last_update: 0},
+        delay: 0
       };
 
-      action('key').then(function() {
-        expect(redisGet).to.have.been.calledWith('userState:key');
-        expect(redisSet).to.have.been.calledWith('userState:key', sinon.match({
-          state: DEFAULT_CONNECTED_STATE
-        }));
+      UserStatus.findById = sinon.spy(function(userId) {
+        return Q.when(previousStatus);
+      });
+      UserStatus.findOneAndUpdate = sinon.spy(function() {
+        return Q.when(nextStatus);
+      });
+
+      this.module = require(this.moduleHelpers.backendPath + '/user-status')(this.moduleHelpers.dependencies, {task: {publishStatus: publishSpy}});
+      this.module.restorePreviousStatusOfUser(userId).then(() => {
+        expect(UserStatus.findOneAndUpdate).to.have.been.calledWith({_id: userId}, {$set: nextStatus}, {new: true, upsert: true, setDefaultsOnInsert: true});
+        expect(publishSpy).to.have.been.calledWith(userId, previousStatus, nextStatus, 0);
         done();
       }).catch(done);
     });
 
-    it('should restore previous state if defined', function(done) {
-      redisGetResult = {
-        delay: 0,
-        since: Date.now(),
-        state: 'state',
-        previousState: 'previousState'
+    it('should set status to default when previous does not exists', function(done) {
+      const status = 'a status';
+      const nextStatus = {
+        current_status: status,
+        timestamps: {last_update: 0},
+        delay: 0
       };
 
-      action('key').then(function() {
-        expect(redisGet).to.have.been.calledWith('userState:key');
-        expect(redisSet).to.have.been.calledWith('userState:key', sinon.match({
-          state: 'previousState',
+      UserStatus.findById = sinon.spy(function(userId) {
+        return Q.when();
+      });
+      UserStatus.findOneAndUpdate = sinon.spy(function() {
+        return Q.when(nextStatus);
+      });
+
+      this.module = require(this.moduleHelpers.backendPath + '/user-status')(this.moduleHelpers.dependencies, {task: {publishStatus: publishSpy}});
+      this.module.restorePreviousStatusOfUser(userId).then(() => {
+        const expected = {
+          current_status: DEFAULT_CONNECTED_STATE,
+          timestamps: {last_update: Date.now()},
           delay: 0
-        }));
+        };
+
+        expect(UserStatus.findOneAndUpdate).to.have.been.calledWith({_id: userId}, {$set: expected}, {new: true, upsert: true, setDefaultsOnInsert: true});
+        expect(publishSpy).to.have.been.calledWith(userId, undefined, nextStatus, 0);
         done();
       }).catch(done);
     });
-  }
-
-  describe('the restorePreviousState function', function() {
-    testActionThatShouldRestorePreviousState(function(userId) {
-      return getUserStatus().restorePreviousState(userId);
-    });
-  });
-
-  describe('The userConnectionTopic handler', function() {
-    testActionThatShouldRestorePreviousState(function(userId) {
-      getUserStatus();
-
-      return Q.Promise(function(resolve, reject) {
-        expect(connectionTopic.subscribe).to.have.been.calledWith(sinon.match(function(handler) {
-          if (_.isFunction(handler)) {
-            handler(userId).then(resolve, reject);
-
-            return true;
-          }
-
-          return false;
-        }));
-      });
-    });
-  });
-
-  function testActionThatDisconnect(action) {
-    it('should save previous state when leaving a connected state for disconnected', function(done) {
-      redisGetResult = {
-        state: 'state',
-        previousState: 'a previous state'
-      };
-
-      action('key').then(function() {
-        expect(redisGet).to.have.been.called;
-        expect(redisSet).to.have.been.calledWith('userState:key', sinon.match({
-          previousState: 'state',
-          state: DISCONNECTED
-        }));
-        done();
-      }).catch(done);
-    });
-
-    it('should not erase previous state when set disconnected to a already disconnected user', function(done) {
-      redisGetResult = {
-        state: DISCONNECTED,
-        previousState: 'previousState'
-      };
-
-      action('key').then(function() {
-        expect(redisGet).to.have.been.called;
-        expect(redisSet).to.have.been.calledWith('userState:key', sinon.match({
-          previousState: 'previousState',
-          state: DISCONNECTED
-        }));
-        done();
-      }).catch(done);
-    });
-  }
-
-  describe('The userDisconnectionTopic handler', function() {
-    testActionThatDisconnect(function(userId) {
-      getUserStatus();
-
-      return Q.Promise(function(resolve, reject) {
-        expect(disconnectionTopic.subscribe).to.have.been.calledWith(sinon.match(function(handler) {
-          if (_.isFunction(handler)) {
-            handler(userId).then(resolve, reject);
-
-            return true;
-          }
-
-          return false;
-        }));
-      });
-    });
-
-    it('should store the disconnection with a delay of 10 second', function(done) {
-      getUserStatus();
-      expect(disconnectionTopic.subscribe).to.have.been.calledWith(sinon.match(function(handler) {
-        if (_.isFunction(handler)) {
-          handler('key').then(function() {
-            expect(redisSet).to.have.been.calledWith('userState:key', sinon.match.has('delay', DISCONNECTION_DELAY));
-            done();
-          }).catch(done);
-
-          return true;
-        }
-
-        return false;
-      }));
-    });
-  });
-
-  describe('set state function', function() {
-    it('should store previous state', function(done) {
-      getUserStatus().set('key', 'state').then(function() {
-        expect(redisSet).to.have.been.calledWith('userState:key', sinon.match.has('state', 'state'));
-        done();
-      }).catch(done);
-    });
-
-    it('if given delay it should store it', function(done) {
-      getUserStatus().set('key', 'state', 42).then(function() {
-        expect(redisSet).to.have.been.calledWith('userState:key', sinon.match.has('delay', 42));
-        done();
-      }).catch(done);
-    });
-
-    it('should store the moment where it has been store', function(done) {
-      var now = 42;
-
-      clock.tick(now);
-      getUserStatus().set('key', 'state').then(function() {
-        expect(redisSet).to.have.been.calledWith('userState:key', sinon.match.has('since', 42));
-        done();
-      }).catch(done);
-    });
-
-    it('should publish on user:state the new user state immediately if no delay', function(done) {
-      getUserStatus().set('key', 'state', 0).then(function() {
-        expect(userStateTopic.publish).to.have.been.calledWith({
-          userId: 'key',
-          state: 'state'
-        });
-        done();
-      }).catch(done);
-    });
-
-    it('should publish on user:state the new user state only after given delay if not null', function(done) {
-      var delay = 1664;
-
-      getUserStatus().set('key', 'state', delay).then(function() {
-        expect(userStateTopic.publish).to.not.have.been.called;
-        clock.tick(delay);
-        expect(userStateTopic.publish).to.have.been.calledWith({
-          userId: 'key',
-          state: 'state'
-        });
-
-        done();
-      }).catch(done);
-    });
-
-    it('should delete previous delayed status', function(done) {
-      var delay = 1664;
-      var userStateLib = getUserStatus();
-
-      userStateLib.set('key', 'delayedState', delay).then(function() {
-        return userStateLib.set('key', 'state').then(function() {
-          expect(userStateTopic.publish).to.have.been.calledWith({
-            userId: 'key',
-            state: 'state'
-          });
-
-          clock.tick(delay);
-          expect(userStateTopic.publish).to.not.have.been.calledWith({
-            userId: 'key',
-            state: 'delayedState'
-          });
-
-          done();
-        });
-      }).catch(done);
-    });
-
-    it('should replace previous delayed status by new delayed status if delay is not null', function(done) {
-      var delay = 1664;
-      var userStateLib = getUserStatus();
-
-      userStateLib.set('key', 'delayedState', 1).then(function() {
-        return userStateLib.set('key', 'state', delay).then(function() {
-          clock.tick(delay + 1);
-          expect(userStateTopic.publish).to.not.have.been.calledWith({
-            userId: 'key',
-            state: 'delayedState'
-          });
-
-          expect(userStateTopic.publish).to.have.been.calledWith({
-            userId: 'key',
-            state: 'state'
-          });
-
-          done();
-        });
-      }).catch(done);
-    });
-
-    testActionThatDisconnect(function(userId) {
-      return getUserStatus().set(userId, DISCONNECTED);
-    });
-
   });
 });

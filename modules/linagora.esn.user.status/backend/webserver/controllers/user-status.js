@@ -10,23 +10,23 @@ module.exports = function(dependencies, lib) {
   };
 
   function getUserStatus(req, res) {
-    lib.userStatus.get(req.params.id).then(state => {
-      res.status(200).json({state});
+    lib.userStatus.get(req.params.id).then(status => {
+      res.status(200).json({current_status: status});
     }).catch(err => {
-      logger.error('Error while getting user %s state', req.params.id, err);
+      logger.error('Error while getting user %s status', req.params.id, err);
 
       res.status(500).json({
         error: {
           code: 500,
           message: 'Server Error',
-          details: err.message || 'Error while fetching user state for user' + req.params.id
+          details: err.message || 'Error while fetching user status for user' + req.params.id
         }
       });
     });
   }
 
   function setCurrentUserStatus(req, res) {
-    if (!req.body.state) {
+    if (!req.body.value) {
       return res.status(400).json({
         error: {
           code: 400,
@@ -36,16 +36,16 @@ module.exports = function(dependencies, lib) {
       });
     }
 
-    lib.userStatus.set(req.user._id, req.body.state).then(() => {
+    lib.userStatus.set(req.user._id, req.body.value).then(() => {
       res.status(204).end();
     }).catch(err => {
-      logger.error('Error while setting user %s state', req.user._id, err);
+      logger.error('Error while setting user %s status', req.user._id, err);
 
       res.status(500).json({
         error: {
           code: 500,
           message: 'Server Error',
-          details: err.message || 'Error while setting user state for user' + req.params.id
+          details: err.message || 'Error while setting user status for user' + req.params.id
         }
       });
     });

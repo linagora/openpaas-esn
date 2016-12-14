@@ -1,96 +1,68 @@
 'use strict';
 
 const Q = require('q');
-const _ = require('lodash');
 const CONSTANTS = require('./constants');
-const USER_STATE = CONSTANTS.NOTIFICATIONS.USER_STATE;
-const USER_CONNECTION = CONSTANTS.NOTIFICATIONS.USER_CONNECTION;
-const USER_DISCONNECTION = CONSTANTS.NOTIFICATIONS.USER_DISCONNECTION;
-const USER_STATE_KEY_PREFIX = 'userState:';
 const DISCONNECTED = CONSTANTS.STATUS.DISCONNECTED;
 const DEFAULT_CONNECTED_STATE = CONSTANTS.STATUS.DEFAULT_CONNECTED_STATE;
-const DISCONNECTION_DELAY = CONSTANTS.STATUS.DISCONNECTION_DELAY;
 
 module.exports = userStatus;
 
-function userStatus(dependencies) {
+function userStatus(dependencies, lib) {
 
-  const redisPromise = Q.ninvoke(dependencies('db').redis, 'getClient');
-  const pubsubLocal = dependencies('pubsub').local;
-  const pubsubGlobal = dependencies('pubsub').global;
-  const userStateTopic = pubsubGlobal.topic(USER_STATE);
-  const userConnectionTopic = pubsubLocal.topic(USER_CONNECTION);
-  const userDisconnectionTopic = pubsubLocal.topic(USER_DISCONNECTION);
-  const delayedStateChanges = {};
+  const logger = dependencies('logger');
+  const mongoose = dependencies('db').mongo.mongoose;
+  const UserStatus = mongoose.model('UserStatus');
 
   return {
     get,
     getAll,
-    init,
-    restorePreviousState,
+    restorePreviousStatusOfUser,
     set
   };
 
-  function set(userId, state, delay) {
-    return redisPromise.then(redis => {
-      const key = USER_STATE_KEY_PREFIX + userId;
-
-      return Q.ninvoke(redis, 'hgetall', key).then(function(previousData) {
-        const data = {
-          state: state,
-          since: Date.now(),
-          delay: delay || 0
-        };
-
-        if (state === DISCONNECTED && previousData) {
-          data.previousState = previousData.state === DISCONNECTED ? previousData.previousState : previousData.state;
-        }
-
-        if ((data.state) !== (previousData && previousData.state || DISCONNECTED)) {
-          delayedStateChanges[userId] && clearTimeout(delayedStateChanges[userId]);
-          if (delay) {
-            delayedStateChanges[userId] = setTimeout(function() {
-              userStateTopic.publish({userId, state});
-              delete delayedStateChanges[userId];
-            }, delay);
-          } else {
-            userStateTopic.publish({userId, state});
-          }
-        }
-
-        return Q.ninvoke(redis, 'hmset', key, data);
-      });
-    });
-  }
-
-  function restorePreviousState(userId) {
-    return redisPromise.then(redis =>
-      Q.ninvoke(redis, 'hgetall', USER_STATE_KEY_PREFIX + userId).then(data => set(userId, data && data.previousState || DEFAULT_CONNECTED_STATE))
-    );
-  }
-
   function get(userId) {
-    return redisPromise.then(redis =>
-      Q.ninvoke(redis, 'hgetall', USER_STATE_KEY_PREFIX + userId).then(data => {
-        if (!data) {
-          return DISCONNECTED;
-        }
+    logger.debug('Get user %s status', userId);
 
-        if ((Date.now() - data.since) < data.delay) {
-          return data.previousState || DISCONNECTED;
-        }
+    return UserStatus.findById(userId).then(status => {
+      if (!status) {
+        return DISCONNECTED;
+      }
 
-        return data.state;
-      })
-    );
+      if ((Date.now() - status.timestamps.last_update) < status.delay) {
+        return status.previous_status || DISCONNECTED;
+      }
+
+      return status.current_status;
+    });
   }
 
   function getAll(userIds) {
     return Q.all(userIds.map(get));
   }
 
-  function init() {
-    userConnectionTopic.subscribe(restorePreviousState);
-    userDisconnectionTopic.subscribe(_.partialRight(set, DISCONNECTED, DISCONNECTION_DELAY));
+  function restorePreviousStatusOfUser(userId) {
+    return UserStatus.findById(userId).then(status => set(userId, status && status.previous_status || DEFAULT_CONNECTED_STATE));
+  }
+
+  function set(userId, status, delay = 0) {
+    logger.debug('Setting user %s status %s with delay %s', userId, status, delay);
+
+    return UserStatus.findById(userId).then(previousStatus => {
+      const nextStatus = {
+        current_status: status,
+        timestamps: {last_update: Date.now()},
+        delay
+      };
+
+      if (status === DISCONNECTED && previousStatus) {
+        nextStatus.previous_status = previousStatus.current_status === DISCONNECTED ? previousStatus.previous_status : previousStatus.current_status;
+      }
+
+      return UserStatus.findOneAndUpdate({_id: userId}, {$set: nextStatus}, {new: true, upsert: true, setDefaultsOnInsert: true}).then(updatedStatus => {
+        lib.task.publishStatus(userId, previousStatus, updatedStatus, delay);
+
+        return updatedStatus;
+      });
+    });
   }
 }

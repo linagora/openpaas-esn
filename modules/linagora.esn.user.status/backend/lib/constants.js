@@ -10,7 +10,7 @@ module.exports = {
     DEFAULT_CONNECTED_STATE: 'connected'
   },
   NOTIFICATIONS: {
-    USER_STATE: 'user:state',
+    USER_STATE: 'user:status',
     USER_CONNECTION: 'user:connection',
     USER_DISCONNECTION: 'user:disconnection'
   }
