@@ -77,7 +77,8 @@ describe('The JWT auth webserver module', function() {
         expect(options).to.deep.equal({
           secretOrKey: 'public key',
           tokenQueryParameterName: 'jwt',
-          algorithms: ['algo']
+          algorithms: ['algo'],
+          ignoreExpiration: true
         });
         done();
       });
