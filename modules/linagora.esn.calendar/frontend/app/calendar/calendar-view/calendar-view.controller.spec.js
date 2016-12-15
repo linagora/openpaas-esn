@@ -41,17 +41,18 @@ describe('The calendarViewController', function() {
 
     this.calMasterEventCacheMock = {
       save: sinon.spy(),
+      get: sinon.spy(),
       remove: sinon.spy()
     };
 
-    this.CalendarShellConstMock = function(vcalendar, event) { // eslint-disable-line
+    this.CalendarShellConstMock = sinon.spy(function(vcalendar, event) { // eslint-disable-line
       this.etag = event.etag;
       this.path = event.path;
       this.end = self.calMoment();
       this.clone = function() {
         return this;
       };
-    };
+    });
 
     this.calendarVisibilityServiceMock = {
       isHidden: sinon.stub().returns(false)
@@ -163,6 +164,7 @@ describe('The calendarViewController', function() {
       $provide.value('calMasterEventCache', self.calMasterEventCacheMock);
       $provide.value('calendarVisibilityService', self.calendarVisibilityServiceMock);
       $provide.value('usSpinnerService', self.usSpinnerServiceMock);
+      $provide.value('calCachedEventCache', self.calCachedEventSourceMock);
       $provide.factory('calendarEventSource', function() {
         return function() {
           return [{
@@ -897,10 +899,6 @@ describe('The calendarViewController', function() {
       testUpdateCalCachedEventSourceAndFcEmit(wsEventModifyListener, 'registerUpdate', 'emitModifiedEvent');
     });
 
-    it('should update event on calCachedEventSource and broadcast emit a fullCalendar event for a modification on EVENT_REPLY', function() {
-      testUpdateCalCachedEventSourceAndFcEmit(wsEventReplyListener, 'registerUpdate', 'emitModifiedEvent');
-    });
-
     it('should remove event on calCachedEventSource and broadcast emit a fullCalendar event for a deletion on EVENT_DELETED', function() {
       testUpdateCalCachedEventSourceAndFcEmit(wsEventDeleteListener, 'registerDelete', 'emitRemovedEvent');
     });
@@ -921,8 +919,49 @@ describe('The calendarViewController', function() {
       testUpdateCalMasterEventCache(wsEventModifyListener, 'save');
     });
 
-    it('should update event on calMasterEventCache for a modification on EVENT_REPLY', function() {
-      testUpdateCalMasterEventCache(wsEventReplyListener, 'save');
+    it('should compute new event and update cache if on cache on EVENT_REPLY', function() {
+      var event = {id: 'id', calendarId: 'calId'};
+      var path = 'path';
+      var etag = 'etag';
+      var resultingEvent = self.CalendarShellMock.from(event, {etag: etag, path: path});
+
+      fullCalendarSpy = self.calendar.fullCalendar = sinon.spy();
+
+      self.scope.calendarReady(self.calendar);
+
+      var originalEvent = {applyReply: sinon.spy()};
+
+      self.calMasterEventCacheMock.get = sinon.stub().returns(originalEvent);
+      wsEventReplyListener({event: event, eventPath: path, etag: etag});
+      self.scope.$digest();
+      expect(self.CalendarShellMock.from).to.have.been.calledWith(event, {path: path, etag: etag});
+      expect(self.calMasterEventCacheMock.get).to.have.been.calledWith(path);
+      expect(originalEvent.applyReply).to.have.been.calledWith(resultingEvent);
+      expect(self.calendarEventEmitterMock.fullcalendar.emitModifiedEvent).to.have.been.calledWith(originalEvent);
+      expect(self.calCachedEventSourceMock.registerUpdate).to.have.been.calledWith(originalEvent);
+    });
+
+    it('should fetch new event master if not already on catch on EVENT_REPLY', function() {
+      var event = {id: 'id', calendarId: 'calId'};
+      var path = 'path';
+      var etag = 'etag';
+      var resultingEvent = this.CalendarShellMock.from(event, {etag: etag, path: path});
+
+      fullCalendarSpy = this.calendar.fullCalendar = sinon.spy();
+
+      this.scope.calendarReady(this.calendar);
+
+      var originalEvent = {};
+
+      this.calEventServiceMock.getEvent = sinon.stub().returns($q.when(originalEvent));
+      wsEventReplyListener({event: event, eventPath: path, etag: etag});
+      this.scope.$digest();
+      expect(this.calMasterEventCacheMock.get).to.have.been.calledWith(path);
+      expect(this.calEventServiceMock.getEvent).to.have.been.calledWith(path);
+
+      expect(this.calendarEventEmitterMock.fullcalendar.emitModifiedEvent).to.have.been.calledWith(sinon.match(originalEvent));
+      expect(this.calCachedEventSourceMock.registerUpdate).to.have.been.calledWith(sinon.match(originalEvent));
+      expect(this.calMasterEventCacheMock.save).to.have.been.calledWith(sinon.match(originalEvent));
     });
 
     it('should remove event on calMasterEventCache for a deletion on EVENT_DELETED', function() {
