@@ -1,0 +1,3 @@
+#! /bin/sh -e
+
+id -u openpaas &> /dev/null || useradd --system --user-group --no-create-home openpaas

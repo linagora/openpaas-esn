@@ -2,15 +2,16 @@
 # Docker container for building openpaas-james package
 #
 
-FROM linagora/fpm-debian-jessie
+FROM linagora/fpm-centos-7
 MAINTAINER Linagora Folks <openpaas@linagora.com>
 
-ARG DEBIAN_FRONTEND=noninteractive
 ARG VERSION=0.0.0
 ARG ITERATION=1
 
+RUN yum install -y rpm-build
+
 ADD common/openpaas-james/package /package
-ADD debian/jessie/openpaas-james/package /package
+ADD redhat/7/openpaas-james/package /package
 
 ADD common/openpaas-james/openpaas-james.preinst /root/
 ADD common/openpaas-james/openpaas-james.postinst /root/
@@ -19,7 +20,7 @@ ADD common/openpaas-james/openpaas-james.postrm /root/
 WORKDIR /package
 RUN fpm \
   -s dir \
-  -t deb \
+  -t rpm \
   --name openpaas-james \
   --version $VERSION \
   --iteration $ITERATION \
@@ -30,8 +31,9 @@ RUN fpm \
   --url "http://open-paas.org" \
   --architecture x86_64 \
   --directories /var/log/openpaas/james \
-  --deb-user openpaas \
-  --deb-group openpaas \
+  --rpm-user openpaas \
+  --rpm-group openpaas \
+  --rpm-dist el7 \
   --depends nginx \
   --depends james \
   --before-install /root/openpaas-james.preinst \
@@ -41,4 +43,4 @@ RUN fpm \
 
 VOLUME /result
 
-ENTRYPOINT cp /package/openpaas*.deb /result/
+ENTRYPOINT cp /package/openpaas*.rpm /result/

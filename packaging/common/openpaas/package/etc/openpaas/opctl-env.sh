@@ -13,3 +13,5 @@ export ELASTICSEARCH_HOST=localhost
 export ELASTICSEARCH_PORT=9200
 export JMAP_SERVER_HOST=james.openpaas.local
 export JMAP_SERVER_PORT=80
+export AMQP_HOST=localhost
+export AMQP_PORT=5672
