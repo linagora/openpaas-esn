@@ -1321,6 +1321,29 @@ describe('CalendarShell factory', function() {
         done();
       }
     });
+
+    it('should not escape value of some valarm properties', function() {
+      var event = CalendarShell.fromIncompleteShell({
+        start: calMoment('2015-01-01 18:00'),
+        end: calMoment('2015-01-01 18:00'),
+        location: 'My <&> "location"',
+        summary: 'My <&> "event"'
+      });
+
+      event.alarm = {
+        trigger: '-PT30M',
+        attendee: 'test@open-paas.org'
+      };
+
+      expect(event.alarm.summary).to.equal('Pending event! My <&> "event"');
+      expect(event.alarm.description)
+        .to.contain('The event My <&> "event" will start')
+        .and.to.contain('location: My <&> "location" \\n')
+        .and.to.contain(
+          'More details:\\n' +
+          'https://localhost:8080/#/calendar//event/00000000-0000-4000-a000-000000000000/consult'
+        );
+    });
   });
 
   describe('getOrganizerPartStat', function() {

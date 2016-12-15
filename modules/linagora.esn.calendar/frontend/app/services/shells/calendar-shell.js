@@ -328,19 +328,18 @@
           this.__alarm = undefined;
           this.vevent.removeSubcomponent('valarm');
 
-          var SUMMARY_TEMPLATE = 'Pending event! <%- summary %>';
+          var SUMMARY_TEMPLATE = 'Pending event! <%= summary %>';
           var DESCRIPTION_TEMPLATE =
             'This is an automatic alarm sent by OpenPaas\\n' +
             'PENDING EVENT!\\n' +
-            'The event <%- summary %> will start <%- diffStart %>\\n' +
+            'The event <%= summary %> will start <%- diffStart %>\\n' +
             'start: <%- start %> \\n' +
             'end: <%- end %> \\n' +
-            'location: <%- location %> \\n' +
+            'location: <%= location %> \\n' +
             'More details:\\n' +
             'https://localhost:8080/#/calendar/<%- calendarId %>/event/<%- eventId %>/consult';
 
           var valarm = new ICAL.Component('valarm');
-
           valarm.addPropertyWithValue('trigger', value.trigger);
           valarm.addPropertyWithValue('action', 'EMAIL');
           valarm.addPropertyWithValue('summary', _.template(SUMMARY_TEMPLATE)({summary: this.summary}));
