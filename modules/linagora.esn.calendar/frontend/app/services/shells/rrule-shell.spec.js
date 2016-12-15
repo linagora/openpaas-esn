@@ -26,6 +26,35 @@ describe('CalRRuleShell Factory', function() {
 
       expect(shell.vevent.getFirstPropertyValue('rrule').interval).to.deep.equal([1]);
     });
+  });
 
+  describe('set count', function() {
+    var shell, vevent;
+
+    beforeEach(function() {
+      var rrule = {
+        freq: RECUR_FREQ[0]
+      };
+
+      vevent = new ICAL.Component('vevent');
+      shell = new CalRRuleShell(rrule, vevent);
+    });
+
+    it('should delete the count cache property', function() {
+      shell.__count = 42;
+      shell.count = 2;
+      expect(shell.__count).to.be.undefined;
+    });
+
+    it('should fail for non number value', function() {
+      expect(function() {
+        shell.count = 'toto';
+      }).to.throw(Error);
+    });
+
+    it('should copy number as if (without packing them in an array)', function() {
+      shell.count = 42;
+      expect(shell.rrule.count).to.equals(42);
+    });
   });
 });

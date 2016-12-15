@@ -67,8 +67,11 @@
         return this.__count;
       },
       set count(value) {
+        if (!angular.isNumber(value)) {
+          throw new Error('Count should be a number value');
+        }
         this.__count = undefined;
-        this.rrule.count = angular.isNumber(value) ? [value] : undefined;
+        this.rrule.count = value;
         this.updateParentEvent();
       },
 
