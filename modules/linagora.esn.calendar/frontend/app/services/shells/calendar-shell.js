@@ -109,6 +109,7 @@
       modifyOccurrence: modifyOccurrence,
       isMeeting: isMeeting,
       isOverOneDayOnly: isOverOneDayOnly,
+      ensureAlarmCoherence: ensureAlarmCoherence,
 
       get uid() { return this.vevent.getFirstPropertyValue('uid'); },
       get id() { return this.recurrenceId ? this.uid + '_' + this.vevent.getFirstPropertyValue('recurrence-id').convertToZone(ICAL.Timezone.utcTimezone) : this.uid; },
@@ -117,14 +118,20 @@
         return this.path && (this.path.match(new RegExp('/([^/]+)/[^/]+?/?$')) || [])[1];
       },
 
-      get title() { return this.vevent.getFirstPropertyValue('summary'); },
-      set title(value) { this.vevent.updatePropertyWithValue('summary', value); },
+      get title() { return this.summary; },
+      set title(value) { this.summary = value; },
 
       get summary() { return this.vevent.getFirstPropertyValue('summary'); },
-      set summary(value) { this.vevent.updatePropertyWithValue('summary', value); },
+      set summary(value) {
+        this.vevent.updatePropertyWithValue('summary', value);
+        this.ensureAlarmCoherence();
+      },
 
       get location() { return this.vevent.getFirstPropertyValue('location'); },
-      set location(value) { this.vevent.updatePropertyWithValue('location', value); },
+      set location(value) {
+        this.vevent.updatePropertyWithValue('location', value);
+        this.ensureAlarmCoherence();
+      },
 
       get description() { return this.vevent.getFirstPropertyValue('description'); },
       set description(value) { this.vevent.updatePropertyWithValue('description', value); },
@@ -155,6 +162,7 @@
 
           this.vevent.updatePropertyWithValue('dtstart', dtstart).setParameter('tzid', localTimezone);
         }
+        this.ensureAlarmCoherence();
       },
 
       get end() {
@@ -177,6 +185,7 @@
 
           this.vevent.updatePropertyWithValue('dtend', dtend).setParameter('tzid', localTimezone);
         }
+        this.ensureAlarmCoherence();
       },
 
       get allDay() { return this.vevent.getFirstProperty('dtstart').type === 'date'; },
@@ -307,57 +316,23 @@
         }, this);
       },
       get alarm() {
-        if (!this.__alarm) {
+        if (!this.__alarmCache) {
           var valarm = this.vevent.getFirstSubcomponent('valarm');
 
           if (valarm) {
-            this.__alarm = new CalVAlarmShell(valarm, this.vevent);
+            this.__alarmCache = new CalVAlarmShell(valarm, this.vevent);
           }
         }
 
-        return this.__alarm;
+        return this.__alarmCache;
       },
       set alarm(value) {
-        if (!value) {
-          this.__alarm = undefined;
-          this.vevent.removeSubcomponent('valarm');
-        } else {
-          if (!value.trigger || !value.attendee) {
-            throw new Error('invalid alarm set value, missing trigger or attendee');
-          }
-          this.__alarm = undefined;
-          this.vevent.removeSubcomponent('valarm');
-
-          var SUMMARY_TEMPLATE = 'Pending event! <%= summary %>';
-          var DESCRIPTION_TEMPLATE =
-            'This is an automatic alarm sent by OpenPaas\\n' +
-            'PENDING EVENT!\\n' +
-            'The event <%= summary %> will start <%- diffStart %>\\n' +
-            'start: <%- start %> \\n' +
-            'end: <%- end %> \\n' +
-            'location: <%= location %> \\n' +
-            'More details:\\n' +
-            'https://localhost:8080/#/calendar/<%- calendarId %>/event/<%- eventId %>/consult';
-
-          var valarm = new ICAL.Component('valarm');
-          valarm.addPropertyWithValue('trigger', value.trigger);
-          valarm.addPropertyWithValue('action', 'EMAIL');
-          valarm.addPropertyWithValue('summary', _.template(SUMMARY_TEMPLATE)({summary: this.summary}));
-          valarm.addPropertyWithValue('description', _.template(DESCRIPTION_TEMPLATE)({
-            summary: this.summary,
-            start: this.start,
-            end: this.end,
-            diffStart: calMoment(new Date()).to(this.start),
-            location: this.location,
-            calendarId: this.calendarId,
-            eventId: this.id
-          }));
-
-          var mailto = calendarUtils.prependMailto(value.attendee);
-
-          valarm.addPropertyWithValue('attendee', mailto);
-          this.vevent.addSubcomponent(valarm);
+        if (value && !value.trigger || !value.attendee) {
+          throw new Error('invalid alarm set value, missing trigger or attendee');
         }
+
+        this.__alarmValue = value;
+        this.ensureAlarmCoherence();
       }
     };
 
@@ -818,6 +793,44 @@
         //for the second condition it is necessary to consider the event that finish at the next day at 12 am is over one day only
         return this.start.isSame(this.end, 'day') || (((startDay + 1) === endDay) && (endHour === '00:00'));
       }
+    }
+
+    function ensureAlarmCoherence() {
+      this.__alarmCache = undefined;
+      this.vevent.removeSubcomponent('valarm');
+
+      if (!this.__alarmValue) {
+        return;
+      }
+
+      var SUMMARY_TEMPLATE = 'Pending event! <%= summary %>';
+      var DESCRIPTION_TEMPLATE =
+        'This is an automatic alarm sent by OpenPaas\\n' +
+        'PENDING EVENT!\\n' +
+        'The event <%= summary %> will start <%- diffStart %>\\n' +
+        'start: <%- start %> \\n' +
+        'end: <%- end %> \\n' +
+        'location: <%= location %> \\n' +
+        'More details:\\n' +
+        'https://localhost:8080/#/calendar/<%- calendarId %>/event/<%- eventId %>/consult';
+
+      var valarm = new ICAL.Component('valarm');
+      var mailto = calendarUtils.prependMailto(this.__alarmValue.attendee);
+
+      valarm.addPropertyWithValue('trigger', this.__alarmValue.trigger);
+      valarm.addPropertyWithValue('action', 'EMAIL');
+      valarm.addPropertyWithValue('attendee', mailto);
+      valarm.addPropertyWithValue('summary', _.template(SUMMARY_TEMPLATE)({summary: this.summary}));
+      valarm.addPropertyWithValue('description', _.template(DESCRIPTION_TEMPLATE)({
+        summary: this.summary,
+        start: this.start,
+        end: this.end,
+        diffStart: calMoment(new Date()).to(this.start),
+        location: this.location,
+        calendarId: this.calendarId,
+        eventId: this.id
+      }));
+      this.vevent.addSubcomponent(valarm);
     }
   }
 })();
