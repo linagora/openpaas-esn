@@ -6,7 +6,17 @@ var expect = chai.expect;
 
 describe('The mail-to-attendees component', function() {
 
+  var attendeesTest, attendeesMailTest;
+
   beforeEach(function() {
+    attendeesTest = [
+      { email: 'other1@example.com', partstat: 'NEEDS-ACTION', clicked: false },
+      { email: 'other2@example.com', partstat: 'ACCEPTED', clicked: true },
+      { email: 'other3@example.com', partstat: 'DECLINED', clicked: false }
+    ];
+
+    attendeesMailTest = 'other1@example.com,other2@example.com,other3@example.com';
+
     module('jadeTemplates');
     angular.mock.module('esn.calendar');
   });
@@ -29,15 +39,20 @@ describe('The mail-to-attendees component', function() {
   }]));
 
   it('should initialize mail-to-attendees', function() {
-    this.$scope.event.attendees = [
-      { email: 'other1@example.com', partstat: 'NEEDS-ACTION', clicked: false },
-      { email: 'other2@example.com', partstat: 'ACCEPTED', clicked: true },
-      { email: 'other3@example.com', partstat: 'DECLINED', clicked: false }
-    ];
+    this.$scope.event.attendees = attendeesTest;
 
     this.initDirective(this.$scope);
-    var attendeesMailTest = 'other1@example.com,other2@example.com,other3@example.com';
 
     expect(this.eleScope.vm.attendeesMail).to.equal(attendeesMailTest);
   });
+
+  it('should initialize mail-to-attendees without duplicates', function() {
+    this.$scope.event.attendees = angular.copy(attendeesTest);
+    this.$scope.event.attendees.push(attendeesTest[1]);
+
+    this.initDirective(this.$scope);
+
+    expect(this.eleScope.vm.attendeesMail).to.equal(attendeesMailTest);
+  });
+
 });

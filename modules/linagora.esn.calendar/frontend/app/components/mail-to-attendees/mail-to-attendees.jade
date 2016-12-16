@@ -1,6 +1,5 @@
-.row.mail-to-attendees.col-xs-12
-  .col-xs-10
-    span #{__('Mail to Attendees')}
-  .col-xs-2
-    a(ng-href="mailto:{{::vm.attendeesMail}}", op-inbox-compose)
-      i.mdi.mdi-email
+.row.mail-to-attendees.col-xs-8.offset-xs-4
+  button.btn.btn-accent.btn-link(ng-href="mailto:{{::vm.attendeesMail}}", op-inbox-compose)
+    label
+      | #{__('Mail to Attendees')}
+    i.mdi.mdi-email

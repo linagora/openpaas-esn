@@ -37,9 +37,9 @@
       calEventUtils.setEditedEvent(event);
       if (matchmedia.is(SM_XS_MEDIA_QUERY)) {
         if (calEventUtils.isOrganizer(event)) {
-          $state.go('calendar.event.form', {calendarId: calendarService.calendarHomeId, eventId: event.id});
+          $state.go('calendar.event.form', {calendarHomeId: calendarService.calendarHomeId, eventId: event.id});
         } else {
-          $state.go('calendar.event.consult', {calendarId: calendarService.calendarHomeId, eventId: event.id});
+          $state.go('calendar.event.consult', {calendarHomeId: calendarService.calendarHomeId, eventId: event.id});
         }
       } else if (modalIsOpen === false) {
         modalIsOpen = true;

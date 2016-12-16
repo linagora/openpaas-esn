@@ -4,11 +4,6 @@
   angular.module('esn.calendar')
          .directive('calEventFullForm', calEventFullForm);
 
-  calEventFullForm.$inject = [
-    '$timeout',
-    'calEventUtils'
-  ];
-
   function calEventFullForm($timeout, calEventUtils) {
     var directive = {
       restrict: 'E',

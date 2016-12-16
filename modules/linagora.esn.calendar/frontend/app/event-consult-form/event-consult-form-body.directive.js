@@ -9,10 +9,6 @@
          })
          .directive('calEventConsultFormBody', calEventConsultFormBody);
 
-  calEventConsultFormBody.$inject = [
-    'CONSULT_FORM_TABS'
-  ];
-
   function calEventConsultFormBody(CONSULT_FORM_TABS) {
     var directive = {
       restrict: 'E',

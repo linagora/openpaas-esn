@@ -62,6 +62,9 @@
               .row.visible-xs
                 cal-attendees-list(attendees='editedEvent.attendees', read-only='::!isOrganizer', organizer='editedEvent.organizer', mode='edition')
 
+              .row.visible-xs
+                mail-to-attendees(ng-if='event.attendees.length', event='event')
+
               event-recurrence-edition(event="editedEvent", is-organizer="isOrganizer")
               event-alarm-edition(event="editedEvent")
 
@@ -92,6 +95,9 @@
 
               .row.hidden-xs
                 cal-attendees-list(attendees='editedEvent.attendees', read-only='::!isOrganizer', organizer='editedEvent.organizer', mode='edition')
+
+              .row.hidden-xs
+                mail-to-attendees(ng-if='event.attendees.length', event='event')
 
               .row
                 .col-xs-12

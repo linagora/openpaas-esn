@@ -104,7 +104,7 @@ describe('The open-event-form service', function() {
       this.calOpenEventForm(this.regularEvent);
       expect(this.matchmedia.is).to.have.been.calledWith(this.SM_XS_MEDIA_QUERY);
       expect(this.$modal).to.have.not.been.called;
-      expect(this.$state.go).to.have.been.calledWith('calendar.event.form', {calendarId: '123', eventId: '456'});
+      expect(this.$state.go).to.have.been.calledWith('calendar.event.form', {calendarHomeId: '123', eventId: '456'});
       expect(this.calEventUtils.isOrganizer).to.have.been.called;
     });
 
@@ -116,7 +116,7 @@ describe('The open-event-form service', function() {
       this.calOpenEventForm(this.regularEvent);
       expect(this.matchmedia.is).to.have.been.calledWith(this.SM_XS_MEDIA_QUERY);
       expect(this.$modal).to.have.not.been.called;
-      expect(this.$state.go).to.have.been.calledWith('calendar.event.consult', {calendarId: '123', eventId: '456'});
+      expect(this.$state.go).to.have.been.calledWith('calendar.event.consult', {calendarHomeId: '123', eventId: '456'});
       expect(this.calEventUtils.isOrganizer).to.have.been.called;
     });
 
