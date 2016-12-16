@@ -1,0 +1,88 @@
+[
+  "vcalendar",
+  [
+    [
+      "version",
+      {},
+      "text",
+      "2.0"
+    ],
+    [
+      "prodid",
+      {},
+      "text",
+      "-//Sabre//Sabre VObject 4.1.2//EN"
+    ],
+    [
+      "calscale",
+      {},
+      "text",
+      "GREGORIAN"
+    ]
+  ],
+  [
+    [
+      "vevent",
+      [
+        [
+          "uid",
+          {},
+          "text",
+          "edfac552-5414-42f4-9e52-98d2daf100f6"
+        ],
+        [
+          "dtstamp",
+          {},
+          "date-time",
+          "2016-12-15T10:43:48Z"
+        ],
+        [
+          "sequence",
+          {},
+          "integer",
+          0
+        ],
+        [
+          "dtstart",
+          {
+            "tzid": "Europe/Berlin"
+          },
+          "date-time",
+          "2016-12-15T10:00:00"
+        ],
+        [
+          "dtend",
+          {
+            "tzid": "Europe/Berlin"
+          },
+          "date-time",
+          "2016-12-15T11:00:00"
+        ],
+        [
+          "summary",
+          {},
+          "text",
+          "test rec"
+        ],
+        [
+          "organizer",
+          {
+            "cn": "admin admin"
+          },
+          "cal-address",
+          "mailto:admin@open-paas.org"
+        ],
+        [
+          "attendee",
+          {
+            "partstat": "ACCEPTED",
+            "cn": "John0 Doe0"
+          },
+          "cal-address",
+          "mailto:user0@open-paas.org"
+        ]
+      ],
+      []
+    ]
+  ]
+]
