@@ -51,6 +51,24 @@ describe('CalendarShell factory', function() {
     });
   });
 
+  describe('applyReply', function() {
+    it('should correctly update PARTSTAT without erasing other partstat neither RRULE', function() {
+      function getShellFromFixture(string) {
+        var path = 'modules/linagora.esn.calendar/frontend/app/fixtures/calendar/reply_test/' + string;
+
+        return new CalendarShell(new ICAL.Component(JSON.parse(__FIXTURES__[path])));
+      }
+
+      var ical = getShellFromFixture('before.json');
+      var reply = getShellFromFixture('reply.json');
+
+      ical.applyReply(reply);
+      var expectedResult = getShellFromFixture('result.json');
+
+      expect(ical.equals(expectedResult)).to.be.true;
+    });
+  });
+
   describe('set date', function() {
     it('should convert date to localTimezone', function() {
       var shell = CalendarShell.fromIncompleteShell({});

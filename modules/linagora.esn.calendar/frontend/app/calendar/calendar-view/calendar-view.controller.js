@@ -260,14 +260,14 @@
       sio.on(CALENDAR_EVENTS.WS.EVENT_CANCEL, _liveNotificationHandlerOnDelete);
       sio.on(CALENDAR_EVENTS.WS.EVENT_UPDATED, _liveNotificationHandlerOnCreateRequestandUpdate);
       sio.on(CALENDAR_EVENTS.WS.EVENT_DELETED, _liveNotificationHandlerOnDelete);
-      sio.on(CALENDAR_EVENTS.WS.EVENT_REPLY, _liveNotificationHandlerOnCreateRequestandUpdate);
+      sio.on(CALENDAR_EVENTS.WS.EVENT_REPLY, _liveNotificationHandlerOnReply);
 
       $scope.$on('$destroy', function() {
         sio.removeListener(CALENDAR_EVENTS.WS.EVENT_CREATED, _liveNotificationHandlerOnCreateRequestandUpdate);
         sio.removeListener(CALENDAR_EVENTS.WS.EVENT_UPDATED, _liveNotificationHandlerOnCreateRequestandUpdate);
         sio.removeListener(CALENDAR_EVENTS.WS.EVENT_DELETED, _liveNotificationHandlerOnDelete);
         sio.removeListener(CALENDAR_EVENTS.WS.EVENT_REQUEST, _liveNotificationHandlerOnCreateRequestandUpdate);
-        sio.removeListener(CALENDAR_EVENTS.WS.EVENT_REPLY, _liveNotificationHandlerOnCreateRequestandUpdate);
+        sio.removeListener(CALENDAR_EVENTS.WS.EVENT_REPLY, _liveNotificationHandlerOnReply);
         sio.removeListener(CALENDAR_EVENTS.WS.EVENT_CANCEL, _liveNotificationHandlerOnDelete);
         unregisterFunctions.forEach(function(unregisterFunction) {
           unregisterFunction();
@@ -283,6 +283,20 @@
         calCachedEventSource.registerUpdate(event);
         calMasterEventCache.save(event);
         calendarEventEmitter.fullcalendar.emitModifiedEvent(event);
+      }
+
+      function _liveNotificationHandlerOnReply(msg) {
+        var replyEvent = CalendarShell.from(msg.event, {etag: msg.etag, path: msg.eventPath});
+
+        var event = calMasterEventCache.get(replyEvent.path);
+
+        event && event.applyReply(replyEvent);
+
+        $q.when(event || calEventService.getEvent(replyEvent.path)).then(function(event) {
+          calMasterEventCache.save(event);
+          calCachedEventSource.registerUpdate(event);
+          calendarEventEmitter.fullcalendar.emitModifiedEvent(event);
+        });
       }
 
       function _liveNotificationHandlerOnDelete(msg) {

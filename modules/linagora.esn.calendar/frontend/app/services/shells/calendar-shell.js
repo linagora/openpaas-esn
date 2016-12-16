@@ -89,6 +89,7 @@
 
     CalendarShell.prototype = {
       isRecurring: isRecurring,
+      applyReply: applyReply,
       deleteInstance: deleteInstance,
       deleteAllException: deleteAllException,
       expand: expand,
@@ -744,6 +745,20 @@
       });
 
       return newShell;
+    }
+
+    /**
+     * This take the vevent of a reply iTipmessage and apply it to update
+     * the partstat correctly
+     */
+    function applyReply(replyEvent) {
+      if (!(replyEvent instanceof CalendarShell)) {
+        replyEvent = new CalendarShell(new ICAL.Component(replyEvent));
+      }
+
+      replyEvent.attendees.forEach(function(attendee) {
+        this.changeParticipation(attendee.partstat, [attendee.email]);
+      }, this);
     }
 
     function isMeeting() {
