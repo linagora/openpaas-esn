@@ -186,6 +186,21 @@ describe('CalendarShell factory', function() {
 
       expect(shell.attendees.length).to.equal(2);
     });
+
+    it('should work with recurring event with exception', function() {
+      var shell = new CalendarShell(new ICAL.Component(ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/frontend/app/fixtures/calendar/reventWithTz.ics'])), {path: '/path/to/uid.ics'});
+
+      shell.attendees = [{
+          displayName: 'Leigh Rafe',
+          email: 'leigh.rafe@demo.open-paas.org',
+          fullmail: 'Leigh Rafe <leigh.rafe@demo.open-paas.org>',
+          name: 'Leigh Rafe',
+          partstat: 'NEEDS-ACTION'
+        }];
+
+      expect(shell.expand()[0].attendees.length).to.equal(1);
+    });
+
   });
 
   describe('for reccurent events', function() {

@@ -284,21 +284,24 @@
           return;
         }
         this.__attendees = undefined;
-        this.vevent.removeAllProperties('attendee');
-        values.forEach(function(attendee) {
-          var mail = attendee.email || attendee.emails[0];
-          var isOrganizer = this.organizer && (mail === this.organizer.email);
-          var mailto = calendarUtils.prependMailto(mail);
-          var property = this.vevent.addPropertyWithValue('attendee', mailto);
+        this.vcalendar.getAllSubcomponents('vevent').forEach(function(vevent) {
+          vevent.removeAllProperties('attendee');
+          values.forEach(function(attendee) {
+            var mail = attendee.email || attendee.emails[0];
+            var isOrganizer = this.organizer && (mail === this.organizer.email);
+            var mailto = calendarUtils.prependMailto(mail);
+            var property = vevent.addPropertyWithValue('attendee', mailto);
 
-          property.setParameter('id', attendee.id);
-          property.setParameter('partstat', attendee.partstat || (isOrganizer ? ICAL_PROPERTIES.partstat.accepted : ICAL_PROPERTIES.partstat.needsaction));
-          property.setParameter('rsvp', isOrganizer ? ICAL_PROPERTIES.rsvp.false : ICAL_PROPERTIES.rsvp.true);
-          property.setParameter('role', isOrganizer ? ICAL_PROPERTIES.role.chair : ICAL_PROPERTIES.role.reqparticipant);
-          if (attendee.displayName && attendee.displayName !== mail) {
-            property.setParameter('cn', attendee.displayName);
-          }
-        }.bind(this));
+            property.setParameter('id', attendee.id);
+            property.setParameter('partstat', attendee.partstat || (isOrganizer ? ICAL_PROPERTIES.partstat.accepted : ICAL_PROPERTIES.partstat.needsaction));
+            property.setParameter('rsvp', isOrganizer ? ICAL_PROPERTIES.rsvp.false : ICAL_PROPERTIES.rsvp.true);
+            property.setParameter('role', isOrganizer ? ICAL_PROPERTIES.role.chair : ICAL_PROPERTIES.role.reqparticipant);
+            if (attendee.displayName && attendee.displayName !== mail) {
+              property.setParameter('cn', attendee.displayName);
+            }
+          }, this);
+
+        }, this);
       },
 
       get alarm() {
