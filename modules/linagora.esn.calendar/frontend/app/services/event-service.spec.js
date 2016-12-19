@@ -1182,11 +1182,14 @@ describe('The calEventService service', function() {
       var recurrentCalendarShell = new self.CalendarShell(new ICAL.Component(ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/frontend/app/fixtures/calendar/reventWithTz.ics'])), {path: '/path/to/uid.ics'});
 
       recurrentCalendarShell.attendees = [{email: 'test@example.com'}];
-      var instance = recurrentCalendarShell.expand()[1];
+      var copy = new self.CalendarShell(new ICAL.Component(ICAL.helpers.clone(recurrentCalendarShell.vcalendar.toJSON(), true)));
+
+      var instance = recurrentCalendarShell.expand()[0];
 
       var emails = ['test@example.com'];
-      var copy = new ICAL.Component(ICAL.helpers.clone(recurrentCalendarShell.vcalendar.jCal, true));
-      var vevent = copy.getFirstSubcomponent('vevent');
+      var vevent = copy.vcalendar.getAllSubcomponents('vevent').filter(function(vevent) {
+        return vevent.getFirstProperty('recurrence-id');
+      })[0];
 
       vevent.removeAllProperties('attendee');
 
@@ -1199,22 +1202,9 @@ describe('The calEventService service', function() {
       self.$httpBackend.expectGET('/dav/api/path/to/uid.ics').respond(200, JSON.stringify(recurrentCalendarShell.vcalendar.jCal));
 
       self.$httpBackend.expectPUT('/dav/api/path/to/uid.ics', function(jCal) {
-        //all of this is about removing an exception that is not a real exception
-        //because it does not differ at all about the normal instance
-        //it's here because of a issue of calendarshell that does not have real impact
-        // Opened Issue : CAL-359
-        var icsComponent = new ICAL.Component(JSON.parse(jCal));
-        var idOfWrongException = instance.vevent.getFirstPropertyValue('recurrence-id');
+        var shell = new self.CalendarShell(new ICAL.Component(JSON.parse(jCal)));
 
-        icsComponent.getAllSubcomponents('vevent').forEach(function(subVevent) {
-          var subEventRecurrentId = subVevent.getFirstPropertyValue('recurrence-id');
-
-          if (subEventRecurrentId && subEventRecurrentId.compare(idOfWrongException) === 0) {
-            icsComponent.removeSubcomponent(subVevent);
-          }
-        });
-
-        return icsComponent.toString() === copy.toString();
+        return copy.vcalendar.toString() === shell.vcalendar.toString();
       }).respond(200, new ICAL.Component('vcalendar').jCal);
 
       self.calEventService.changeParticipation('/path/to/uid.ics', instance, emails, 'ACCEPTED').then(
