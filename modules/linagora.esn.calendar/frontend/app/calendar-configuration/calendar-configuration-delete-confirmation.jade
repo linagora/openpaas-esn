@@ -2,9 +2,9 @@
   .modal-dialog
     .modal-content
       .modal-header
-        h4.modal-title #{__('Delete the calendar?')}
+        h4.modal-title #{__('Confirmation')}
       .modal-body
-        span {{::calendar.name}}
+        span #{__('Remove "%s" and all events it contains?', "{{::calendarName}}")}
       .modal-footer
         button.btn.btn-default(type="button", ng-click="$hide()") #{__('Cancel')}
         button.btn.btn-danger(type="button", ng-click="delete(); $hide()") #{__('Delete')}

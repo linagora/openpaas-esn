@@ -186,6 +186,7 @@
       self.modal = $modal({
         templateUrl: '/calendar/app/calendar-configuration/calendar-configuration-delete-confirmation.html',
         controller: function($scope) {
+          $scope.calendarName = self.calendar.name;
           $scope.delete = removeCalendar;
         },
         backdrop: 'static',
@@ -211,8 +212,9 @@
     }
 
     function removeCalendar() {
-      calendarService.removeCalendar(self.calendarHomeId, self.calendar);
-      $state.go('calendar.main');
+      calendarService.removeCalendar(self.calendarHomeId, self.calendar).then(function() {
+        $state.go('calendar.main');
+      });
     }
 
     function cancel() {
