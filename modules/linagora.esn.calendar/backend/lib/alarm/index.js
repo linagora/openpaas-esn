@@ -1,10 +1,11 @@
 'use strict';
 
-var q = require('q');
-var ICAL = require('ical.js');
-var moment = require('moment-timezone');
-var jcalHelper = require('../helpers/jcal');
-var constants = require('../constants');
+const q = require('q');
+const ICAL = require('ical.js');
+const _ = require('lodash');
+const moment = require('moment-timezone');
+const jcalHelper = require('../helpers/jcal');
+const parseEventPath = require('../helpers/sabre').parseEventPath;
 var emailModule;
 var helpers;
 var pubsub;
@@ -13,7 +14,7 @@ var cron;
 var i18nLib;
 var userModule;
 
-function _sendAlarmEmail(ics, email) {
+function _sendAlarmEmail(ics, email, eventPath) {
   return q.nfbind(userModule.findByEmail)(email)
     .then(user => q.all([
         q.nfcall(helpers.config.getBaseUrl, null),
@@ -22,17 +23,35 @@ function _sendAlarmEmail(ics, email) {
     )
     .spread((baseUrl, i18nConf) => {
       const event = jcalHelper.jcal2content(ics, baseUrl);
+      const alarm = event.alarm;
       const message = {
         to: email,
         subject: event.alarm.summary
       };
       const templateName = 'event.alarm';
 
+      let dateEvent = event.start.timezone ?
+          moment(event.start.date, 'MM-DD-YYYY').tz(event.start.timezone) :
+          moment(event.start.date, 'MM-DD-YYYY');
+      dateEvent = dateEvent.format('MM-DD-YYYY');
+
+      const seeInCalendarLink = _.template('<%= baseUrl %>/#/calendar?start=<%= formatedDate %>')({
+        baseUrl: baseUrl,
+        formatedDate: dateEvent
+      });
+      const consultLink = _.template('<%= baseUrl %>/#/calendar/<%= calendarId %>/event/<%= eventUiid %>/consult')({
+        baseUrl: baseUrl,
+        calendarId: eventPath.calendarId,
+        eventUiid: eventPath.eventUiid
+      });
+
       return emailModule.getMailer().sendHTML(message, templateName, {
         content: {
           baseUrl: baseUrl,
           event: event,
-          alarm: event.alarm
+          alarm: alarm,
+          seeInCalendarLink: seeInCalendarLink,
+          consultLink: consultLink
         },
         translate: i18nConf.translate
       });
@@ -44,7 +63,7 @@ function _sendAlarmEmail(ics, email) {
 function _registerNewAlarm(context, dbStorage) {
   function job(callback) {
     logger.info('Try sending event alarm email to', context.email);
-    _sendAlarmEmail(context.ics, context.email).then(function() {
+    _sendAlarmEmail(context.ics, context.email, context.eventPath).then(function() {
       callback();
     }, callback);
   }
@@ -62,7 +81,7 @@ function _registerNewAlarm(context, dbStorage) {
 function _registerNewReccuringAlarm(context, dbStorage) {
   function job(callback) {
     logger.info('Try sending event alarm email to', context.email);
-    _sendAlarmEmail(context.ics, context.email).then(function() {
+    _sendAlarmEmail(context.ics, context.email, context.eventPath).then(function() {
       var vcalendar = ICAL.Component.fromString(context.ics);
       var vevent = vcalendar.getFirstSubcomponent('vevent');
       var valarm = vevent.getFirstSubcomponent('valarm');
@@ -121,7 +140,8 @@ function _onCreate(msg) {
     eventUid: vevent.getFirstPropertyValue('uid'),
     action: alarm.action,
     ics: vcalendar.toString(),
-    email: alarm.email
+    email: alarm.email,
+    eventPath: parseEventPath(msg.eventPath)
   };
   logger.info('Register new event alarm email for', alarm.email, 'at', alarm.alarmDueDate.clone().local().format());
   if (new ICAL.Event(vevent).isRecurring()) {

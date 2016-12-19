@@ -61,7 +61,7 @@ html.mail
               td(colspan="2")
             td.recurrence
             td.indent-right
-              a(href='#{content.baseUrl}/#/calendar') #{translate('See in calendar')}
+              a(href='#{content.seeInCalendarLink}') #{translate('See in calendar')}
 
           if (content.event.location)
             tr
@@ -73,4 +73,4 @@ html.mail
 
       footer
         div.footer
-          a(href='#{content.baseUrl}/#/calendar') #{translate('More details...')}
+          a(href='#{content.consultLink}') #{translate('More details...')}
