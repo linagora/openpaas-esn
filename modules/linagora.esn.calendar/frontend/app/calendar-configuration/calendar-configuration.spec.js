@@ -45,6 +45,9 @@ describe.skip('The calendarEditionController controller', function() {
       }),
       modifyRights: sinon.spy(function() {
         return $q.when();
+      }),
+      removeCalendar: sinon.spy(function() {
+        return $q.when();
       })
     };
 
@@ -409,6 +412,17 @@ describe.skip('The calendarEditionController controller', function() {
       this.initController();
       this.$scope.goToCalendarEdit();
       expect(this.stateMock.go).to.have.been.calledWith('calendar.edit');
+    });
+  });
+
+  describe('scope.delete', function() {
+    it('should call $state to go back on the main view when deleting', function() {
+      this.initController();
+      this.$scope.delete();
+
+      expect(this.stateMock.go).to.have.not.been.called;
+      this.$scope.$digest();
+      expect(this.stateMock.go).to.have.been.calledWith('calendar.main');
     });
   });
 });

@@ -211,8 +211,9 @@
     }
 
     function removeCalendar() {
-      calendarService.removeCalendar(self.calendarHomeId, self.calendar);
-      $state.go('calendar.main');
+      calendarService.removeCalendar(self.calendarHomeId, self.calendar).then(function() {
+        $state.go('calendar.main');
+      });
     }
 
     function cancel() {
