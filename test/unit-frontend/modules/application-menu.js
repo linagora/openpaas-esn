@@ -19,8 +19,8 @@ describe('The application-menu component', function() {
     }));
 
     it('should return the good template', function() {
-      expect(this.applicationMenuTemplateBuilder('/#/awesomestuffthere', 'mdi-awesomeness', 'ClickMe'))
-        .to.equal('<div><a href="/#/awesomestuffthere"><i class="mdi mdi-awesomeness"/><span class="label">ClickMe</span></a></div>');
+      expect(this.applicationMenuTemplateBuilder('/#/awesomestuffthere', 'awesomeness', 'ClickMe'))
+        .to.equal('<div><a href="/#/awesomestuffthere"><img class="esn-application-menu-icon" src="/images/application-menu/awesomeness-icon.svg" /><span class="label">ClickMe</span></a></div>');
     });
   });
 

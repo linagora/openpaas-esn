@@ -193,6 +193,6 @@ function(WidgetWizard, selectionService, projectCreationService, $timeout, $loca
     return {
       retrict: 'E',
       replace: true,
-      template: applicationMenuTemplateBuilder('/#/project', 'mdi-briefcase', 'Projects', 'linagora.esn.project.applications-menu')
+      template: applicationMenuTemplateBuilder('/#/project', 'projects', 'Projects', 'linagora.esn.project.applications-menu')
     };
   });

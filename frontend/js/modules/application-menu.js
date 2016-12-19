@@ -1,7 +1,8 @@
 'use strict';
 
 angular.module('esn.application-menu', [
-  'op.dynamicDirective'
+  'op.dynamicDirective',
+  'feature-flags'
 ])
 
   .constant('POPOVER_APPLICATION_MENU_OPTIONS', {
@@ -22,24 +23,23 @@ angular.module('esn.application-menu', [
     dynamicDirectiveServiceProvider.addInjection('esn-application-menu', new DD(true, 'application-menu-logout', { priority: -50 }));
   })
 
-  .factory('applicationMenuTemplateBuilder', function(_) {
+  .factory('applicationMenuTemplateBuilder', function(featureFlags, _) {
     var template =
-        '<div <%- featureFlag %>>' +
+        '<div>' +
           '<a href="<%- href %>">' +
-            '<i class="mdi <%- icon %>"/>' +
+            '<img class="esn-application-menu-icon" src="/images/application-menu/<%- icon %>-icon.svg" />' +
             '<span class="label">' +
               '<%- label %>' +
             '</span>' +
           '</a>' +
         '</div>';
 
-    return function(href, icon, label, featureFlag) {
-      return _.template(template)({
-        href: href,
-        icon: icon,
-        label: label,
-        featureFlag: featureFlag ? 'feature-flag="' + featureFlag + '"' : ''
-      });
+    return function(href, icon, label, flag) {
+      if (angular.isDefined(flag) && !featureFlags.isOn(flag)) {
+        return '';
+      }
+
+      return _.template(template)({ href: href, icon: icon, label: label });
     };
   })
 
@@ -103,7 +103,7 @@ angular.module('esn.application-menu', [
     return {
       retrict: 'E',
       replace: true,
-      template: applicationMenuTemplateBuilder('/#/', 'mdi-home', 'Home')
+      template: applicationMenuTemplateBuilder('/#/', 'home', 'Home')
     };
   })
 
@@ -111,6 +111,6 @@ angular.module('esn.application-menu', [
     return {
       retrict: 'E',
       replace: true,
-      template: applicationMenuTemplateBuilder('/logout', 'mdi-power', 'Logout')
+      template: applicationMenuTemplateBuilder('/logout', 'logout', 'Logout')
     };
   });

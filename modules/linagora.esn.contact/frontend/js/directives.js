@@ -5,7 +5,7 @@ angular.module('linagora.esn.contact')
     return {
       retrict: 'E',
       replace: true,
-      template: applicationMenuTemplateBuilder('/#/contact', 'mdi-account-multiple', 'Contacts')
+      template: applicationMenuTemplateBuilder('/#/contact', 'contacts', 'Contacts')
     };
   })
   .directive('contactNavbarLink', function() {

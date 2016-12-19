@@ -6,7 +6,7 @@ angular.module('linagora.esn.unifiedinbox')
     return {
       retrict: 'E',
       replace: true,
-      template: applicationMenuTemplateBuilder('/#/unifiedinbox', 'mdi-email', 'Mail')
+      template: applicationMenuTemplateBuilder('/#/unifiedinbox', 'inbox', 'Mail')
     };
   })
 
