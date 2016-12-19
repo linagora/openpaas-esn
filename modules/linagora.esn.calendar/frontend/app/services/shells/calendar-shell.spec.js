@@ -201,6 +201,16 @@ describe('CalendarShell factory', function() {
       expect(shell.expand()[0].attendees.length).to.equal(1);
     });
 
+    it('should not break vcomponents.toString()', function() {
+      var shell = new CalendarShell(new ICAL.Component(ICAL.parse(__FIXTURES__['modules/linagora.esn.calendar/frontend/app/fixtures/calendar/reventWithTz.ics'])), {path: '/path/to/uid.ics'});
+
+      shell.attendees = [{
+        email: 'leigh.rafe@demo.open-paas.org',
+        partstat: 'NEEDS-ACTION'
+      }];
+
+      shell.vcalendar.toString();
+    });
   });
 
   describe('for reccurent events', function() {

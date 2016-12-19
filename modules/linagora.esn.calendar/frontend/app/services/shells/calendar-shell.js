@@ -292,7 +292,7 @@
             var mailto = calendarUtils.prependMailto(mail);
             var property = vevent.addPropertyWithValue('attendee', mailto);
 
-            property.setParameter('id', attendee.id);
+            attendee.id && property.setParameter('id', attendee.id);
             property.setParameter('partstat', attendee.partstat || (isOrganizer ? ICAL_PROPERTIES.partstat.accepted : ICAL_PROPERTIES.partstat.needsaction));
             property.setParameter('rsvp', isOrganizer ? ICAL_PROPERTIES.rsvp.false : ICAL_PROPERTIES.rsvp.true);
             property.setParameter('role', isOrganizer ? ICAL_PROPERTIES.role.chair : ICAL_PROPERTIES.role.reqparticipant);
