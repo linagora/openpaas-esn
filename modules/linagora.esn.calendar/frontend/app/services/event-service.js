@@ -386,7 +386,7 @@
                 });
               }
 
-              return $q.fail('changeParticipation unhandle server status code : ' + response.status);
+              return $q.reject('changeParticipation unhandle server status code : ' + response.status);
             });
         }).catch(function(response) {
           if (response.status === 412) {

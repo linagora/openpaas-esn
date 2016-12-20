@@ -1217,6 +1217,24 @@ describe('The calEventService service', function() {
       self.$httpBackend.flush();
     });
 
+    it('should fail for unhandle status code', function() {
+      var emails = ['test@example.com'];
+      var errorSpy = sinon.spy();
+
+      var vevent = self.event.vevent;
+      var att = vevent.addPropertyWithValue('attendee', 'mailto:test@example.com');
+
+      att.setParameter('partstat', 'ACCEPTED');
+      att.setParameter('rsvp', 'TRUE');
+      att.setParameter('role', 'REQ-PARTICIPANT');
+
+      self.calEventService.changeParticipation('/path/to/uid.ics', self.event, emails, 'DECLINED').catch(errorSpy);
+      self.$httpBackend.expectPUT('/dav/api/path/to/uid.ics', _.constant(true)).respond(201, {});
+      self.$httpBackend.flush();
+
+      expect(errorSpy).to.have.been.calledOnce;
+    });
+
     // Everything else is covered by the modify fn
   });
 });
