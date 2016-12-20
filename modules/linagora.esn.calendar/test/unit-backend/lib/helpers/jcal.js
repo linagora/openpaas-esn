@@ -59,6 +59,42 @@ describe('jcalHelper', function() {
     });
   });
 
+  describe('getVAlarmAsObject function', function() {
+    beforeEach(function() {
+      this.getAlarmObject = function(fileName) {
+        const ics = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/' + fileName).toString('utf8');
+        const vcalendar = icaljs.Component.fromString(ics);
+        const vevent = vcalendar.getFirstSubcomponent('vevent');
+        const valarm = vevent.getFirstSubcomponent('valarm');
+        return this.jcalHelper.getVAlarmAsObject(valarm, vevent.getFirstProperty('dtstart'));
+      };
+    });
+
+    it('should parse and return an object with email and attendee part for a VALARM with action === EMAIL', function() {
+      const alarmObject = this.getAlarmObject('withVALARM.ics');
+
+      expect(alarmObject).to.shallowDeepEqual({
+        action: 'EMAIL',
+        attendee: 'mailto:slemaistre@gmail.com',
+        email: 'slemaistre@gmail.com',
+        trigger: '-P1D',
+        summary: 'Pending event! Event: Victor Sanders'
+      });
+    });
+
+    it('should parse and return an object without email and attendee part for a VALARM with action !== EMAIL', function() {
+      const alarmObject = this.getAlarmObject('withNotEMAILValarm.ics');
+
+      expect(alarmObject).to.shallowDeepEqual({
+        action: 'DISPLAY',
+        trigger: '-P1D',
+        summary: 'Pending event! Event: Victor Sanders'
+      });
+      expect(alarmObject.attendee).to.not.exist;
+      expect(alarmObject.email).to.not.exist;
+    });
+  });
+
   describe('jcal2content function', function() {
     var ics;
 

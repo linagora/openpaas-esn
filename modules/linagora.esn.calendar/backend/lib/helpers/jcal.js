@@ -4,6 +4,7 @@ var ICAL = require('ical.js');
 var moment = require('moment-timezone');
 var urljoin = require('url-join');
 var _ = require('lodash');
+var constants = require('../constants');
 
 function _getEmail(attendee) {
   return attendee.getFirstValue().replace(/^MAILTO:/i, '');
@@ -38,17 +39,23 @@ function getVAlarmAsObject(valarm, dtstart) {
   var attendee = valarm.getFirstPropertyValue('attendee');
   var startDate = _icalDateToMoment(dtstart);
   var triggerDuration = moment.duration(trigger);
+  var action = valarm.getFirstPropertyValue('action');
 
-  return {
-    action: valarm.getFirstPropertyValue('action'),
-    trigger: trigger,
+  var alarmObject = {
+    action,
+    trigger,
     description: valarm.getFirstPropertyValue('description'),
     summary: valarm.getFirstPropertyValue('summary'),
-    attendee: attendee,
-    email: attendee.replace(/^MAILTO:/i, ''),
     alarmDueDate: startDate.clone().add(triggerDuration),
     triggerDisplay: triggerDuration.humanize()
   };
+
+  if (action === constants.VALARM_ACTIONS.EMAIL) {
+    alarmObject.attendee = attendee;
+    alarmObject.email = attendee.replace(/^MAILTO:/i, '');
+  }
+
+  return alarmObject;
 }
 module.exports.getVAlarmAsObject = getVAlarmAsObject;
 
