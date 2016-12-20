@@ -370,38 +370,35 @@
           return $q.when(null);
         }
 
-        if (event.isInstance()) {
-          return event.getModifiedMaster().then(function(newMasterEvent) {
-            return changeParticipation(eventPath, newMasterEvent, emails, status, etag, emitEvents);
-          });
-        }
+        return $q.when(event.isInstance() ? event.getModifiedMaster() : event).then(function(masterEvent) {
 
-        return calEventAPI.changeParticipation(eventPath, event.vcalendar, etag)
-          .then(function(response) {
-            if (response.status === 200) {
-              return CalendarShell.from(response.data, {path: eventPath, etag: response.headers('ETag')});
-            } else if (response.status === 204) {
-              return getEvent(eventPath).then(function(shell) {
+          return calEventAPI.changeParticipation(eventPath, masterEvent.vcalendar, etag)
+            .then(function(response) {
+              if (response.status === 200) {
+                return CalendarShell.from(response.data, {path: eventPath, etag: response.headers('ETag')});
+              } else if (response.status === 204) {
+                return getEvent(eventPath).then(function(shell) {
+                  if (emitEvents) {
+                    calendarEventEmitter.fullcalendar.emitModifiedEvent(shell);
+                  }
 
-                if (emitEvents) {
-                  calendarEventEmitter.fullcalendar.emitModifiedEvent(shell);
-                }
+                  return shell;
+                });
+              }
 
-                return shell;
-              });
-            }
-          })
-          .catch(function(response) {
-            if (response.status === 412) {
-              return this.getEvent(eventPath).then(function(shell) {
-                // A conflict occurred. We've requested the event data in the
-                // response, so we can retry the request with this data.
-                return changeParticipation(eventPath, shell, emails, status, shell.etag);
-              });
-            }
+              return $q.fail('changeParticipation unhandle server status code : ' + response.status);
+            });
+        }).catch(function(response) {
+          if (response.status === 412) {
+            return this.getEvent(eventPath).then(function(shell) {
+              // A conflict occurred. We've requested the event data in the
+              // response, so we can retry the request with this data.
+              return changeParticipation(eventPath, shell, emails, status, shell.etag);
+            });
+          }
 
-            return $q.reject(response);
-          });
+          return $q.reject(response);
+        });
       }
   }
 })();
