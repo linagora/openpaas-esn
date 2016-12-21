@@ -16,6 +16,10 @@ module.exports = {
     DEFAULT_SORT_KEY: 'start',
     DEFAULT_SORT_ORDER: 'desc'
   },
+  VALARM_ACTIONS: {
+    DISPLAY: 'DISPLAY',
+    EMAIL: 'EMAIL'
+  },
   WS_EVENT: {
     EVENT_CREATED: 'calendar:ws:event:created',
     EVENT_UPDATED: 'calendar:ws:event:updated',
