@@ -94,6 +94,9 @@
       deleteAllException: deleteAllException,
       expand: expand,
       _computeNonExceptionnalInstance: _computeNonExceptionnalInstance,
+      _getExceptionOrRegularInstance: _getExceptionOrRegularInstance,
+      _registerException: _registerException,
+      _getException: _getException,
       isRealException: isRealException,
       removeAlarm: removeAlarm,
       changeParticipation: changeParticipation,
@@ -303,7 +306,6 @@
 
         }, this);
       },
-
       get alarm() {
         if (!this.__alarm) {
           var valarm = this.vevent.getFirstSubcomponent('valarm');
@@ -431,6 +433,10 @@
       }, this);
     }
 
+    /**
+     * @param {ICAL.Event.occurenceDetail} instanceDetails
+     * @return {CalendarShell}
+     */
     function _computeNonExceptionnalInstance(instanceDetails) {
       var instance = this.clone();
 
@@ -445,14 +451,19 @@
       return instance;
     }
 
-    function expand(startDate, endDate, maxElement) {
-      if (!this.icalEvent.isRecurring()) {
-        return [];
-      }
-      if (!endDate && !maxElement && !this.rrule.count && !this.rrule.until) {
-        throw new Error('Could not list all element of a reccuring event that never end');
-      }
+    function _getException(recurrenceId) {
+      var icalEvent = _.find(this.icalEvent.exceptions, function(exception) {
+        return exception.recurrenceId.compare(recurrenceId) === 0;
+      });
 
+      return icalEvent && new CalendarShell(new ICAL.Component(icalEvent.component.toJSON()), _getExtendedProperties(this));
+    }
+
+    /**
+     * Find exception in the vcalendar and register them
+     * so we can find them latter using this._getException
+     */
+    function _registerException() {
       this.vcalendar.getAllSubcomponents('vevent').forEach(function(vevent) {
         if (vevent.getFirstPropertyValue('recurrence-id')) {
           var event = new ICAL.Event(vevent);
@@ -467,15 +478,20 @@
           this.icalEvent.relateException(event);
         }
       }, this);
+    }
+
+    function expand(startDate, endDate, maxElement) {
+      if (!this.icalEvent.isRecurring()) {
+        return [];
+      }
+      if (!endDate && !maxElement && !this.rrule.count && !this.rrule.until) {
+        throw new Error('Could not list all element of a reccuring event that never end');
+      }
+
+      this._registerException();
 
       var iterator = this.icalEvent.iterator(this.icalEvent.startDate);
-      var currentDatetime, currentEvent, currentDetails, result = [];
-
-      function _getException(icalEvent, recurrenceId) {
-        return _.find(icalEvent.exceptions, function(exception) {
-          return exception.recurrenceId.compare(recurrenceId) === 0;
-        });
-      }
+      var currentDatetime, currentDetails, result = [];
 
       function _beforeEndDate(currentDatetime) {
         if (endDate.isAfter(currentDatetime.toJSDate())) {
@@ -492,15 +508,7 @@
         if (!startDate || startDate.isBefore(currentDatetime.toJSDate()) || (!startDate.hasTime() && startDate.isSame(currentDatetime.toJSDate(), 'day'))) {
           currentDetails = this.icalEvent.getOccurrenceDetails(currentDatetime);
 
-          currentEvent = _getException(this.icalEvent, currentDetails.recurrenceId);
-
-          if (currentEvent) {
-            currentEvent = new CalendarShell(new ICAL.Component(currentEvent.component.toJSON()), _getExtendedProperties(this));
-          } else {
-            currentEvent = this._computeNonExceptionnalInstance(currentDetails);
-          }
-
-          result.push(currentEvent);
+          result.push(this._getExceptionOrRegularInstance(currentDetails));
         }
       }
 
@@ -751,17 +759,49 @@
     }
 
     /**
+     * @param {ICAL.Event.occurenceDetail} instanceDetails
+     * @return {CalendarShell}
+     */
+    function _getExceptionOrRegularInstance(instanceDetails) {
+      return this._getException(instanceDetails.recurrenceId) || this._computeNonExceptionnalInstance(instanceDetails);
+    }
+
+    /**
      * This take the vevent of a reply iTipmessage and apply it to update
      * the partstat correctly
      */
     function applyReply(replyEvent) {
+      if (this.isInstance()) {
+        throw new Error('applyReply should be called on master event only');
+      }
+
       if (!(replyEvent instanceof CalendarShell)) {
         replyEvent = new CalendarShell(new ICAL.Component(replyEvent));
       }
 
-      replyEvent.attendees.forEach(function(attendee) {
-        this.changeParticipation(attendee.partstat, [attendee.email]);
-      }, this);
+      function updateAttendee(shell) {
+        replyEvent.attendees.forEach(function(attendee) {
+          shell.changeParticipation(attendee.partstat, [attendee.email]);
+        });
+      }
+
+      if (!replyEvent.isInstance()) {
+        updateAttendee(this);
+      } else {
+        var instance;
+        var recurrenceId = replyEvent.vevent.getFirstPropertyValue('recurrence-id');
+
+        this._registerException();
+
+        instance = this._getExceptionOrRegularInstance({
+          recurrenceId: recurrenceId,
+          startDate: replyEvent.vevent.getFirstPropertyValue('dtstart'),
+          endDate: replyEvent.vevent.getFirstPropertyValue('dtend')
+        });
+
+        updateAttendee(instance);
+        this.modifyOccurrence(instance);
+      }
     }
 
     function isMeeting() {

@@ -52,12 +52,13 @@ describe('CalendarShell factory', function() {
   });
 
   describe('applyReply', function() {
-    it('should correctly update PARTSTAT without erasing other partstat neither RRULE', function() {
-      function getShellFromFixture(string) {
-        var path = 'modules/linagora.esn.calendar/frontend/app/fixtures/calendar/reply_test/' + string;
+    function getShellFromFixture(string) {
+      var path = 'modules/linagora.esn.calendar/frontend/app/fixtures/calendar/reply_test/' + string;
 
-        return new CalendarShell(new ICAL.Component(JSON.parse(__FIXTURES__[path])));
-      }
+      return new CalendarShell(new ICAL.Component(JSON.parse(__FIXTURES__[path])));
+    }
+
+    it('should correctly update PARTSTAT without erasing other partstat neither RRULE', function() {
 
       var ical = getShellFromFixture('before.json');
       var reply = getShellFromFixture('reply.json');
@@ -66,6 +67,30 @@ describe('CalendarShell factory', function() {
       var expectedResult = getShellFromFixture('result.json');
 
       expect(ical.equals(expectedResult)).to.be.true;
+    });
+
+    it('should correctly update PARTSTAT on instance', function() {
+
+      var ical = getShellFromFixture('before_instance.json');
+      var reply = getShellFromFixture('reply_instance.json');
+
+      ical.applyReply(reply);
+      var expectedResult = getShellFromFixture('result_instance.json');
+
+      expect(ical.equals(expectedResult)).to.be.true;
+      expect(ical.expand()[2].equals(expectedResult.expand()[2])).to.be.true; //because for the moment ical.equals does not check instance
+    });
+
+    it('should correctly update PARTSTAT on instance and not erase previous property if exception was already here', function() {
+
+      var ical = getShellFromFixture('before_exception.json');
+      var reply = getShellFromFixture('reply_exception.json');
+
+      ical.applyReply(reply);
+      var expectedResult = getShellFromFixture('result_exception.json');
+
+      expect(ical.equals(expectedResult)).to.be.true;
+      expect(ical.expand()[2].equals(expectedResult.expand()[2])).to.be.true; //because for the moment ical.equals does not check instance
     });
   });
 
@@ -1557,6 +1582,7 @@ describe('CalendarShell factory', function() {
       });
     });
   });
+
   describe('RRule property', function() {
 
     it('should set rrule', function() {
