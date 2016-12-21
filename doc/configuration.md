@@ -342,3 +342,14 @@ Defines login options for ESN instance.
   }
 }
 ```
+
+### Locale
+
+Defines the language to be used for internationalization when sending emails.
+
+```
+{
+  "name" : "locale",
+  "value" : "fr"
+}
+```
