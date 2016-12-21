@@ -8,7 +8,7 @@ var ICAL = require('ical.js');
 var moment = require('moment');
 
 describe('alarm module', function() {
-  var emailModule, sendHTMLMock, helpers, localstub, cron;
+  var emailModule, sendHTMLMock, helpers, localstub, cron, userLib;
 
   beforeEach(function() {
     this.calendarModulePath = this.moduleHelpers.modulesPath + 'linagora.esn.calendar';
@@ -27,10 +27,16 @@ describe('alarm module', function() {
     };
     localstub = {};
     cron = { submit: sinon.spy(), abortAll: sinon.spy() };
+    userLib = {
+      findByEmail: (email, cb) => {
+        cb();
+      }
+    };
     this.moduleHelpers.addDep('email', emailModule);
     this.moduleHelpers.addDep('helpers', helpers);
     this.moduleHelpers.addDep('pubsub', this.helpers.mock.pubsub('', localstub, {}));
     this.moduleHelpers.addDep('cron', cron);
+    this.moduleHelpers.addDep('user', userLib);
     this.requireModule = function() {
       return require(this.calendarModulePath + '/backend/lib/alarm')(this.moduleHelpers.dependencies);
     };
