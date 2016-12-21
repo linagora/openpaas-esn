@@ -1,6 +1,10 @@
 'use strict';
 
-angular.module('esn.application-menu', ['op.dynamicDirective'])
+angular.module('esn.application-menu', [
+  'op.dynamicDirective',
+  'feature-flags'
+])
+
   .constant('POPOVER_APPLICATION_MENU_OPTIONS', {
     animation: 'am-fade-and-slide-right',
     placement: 'bottom',
@@ -11,26 +15,34 @@ angular.module('esn.application-menu', ['op.dynamicDirective'])
     prefixEvent: 'application-menu'
   })
   .constant('APP_MENU_OPEN_EVENT', 'application-menu.open')
-  .config(function(dynamicDirectiveServiceProvider) {
-    var home = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-home', {priority: 50});
-    dynamicDirectiveServiceProvider.addInjection('esn-application-menu', home);
-    var logout = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-logout', {priority: -50});
-    dynamicDirectiveServiceProvider.addInjection('esn-application-menu', logout);
-  })
-  .factory('applicationMenuTemplateBuilder', function(_) {
-    var template = '<div><a href="<%- href %>"><i class="mdi <%- icon %>"/><span class="label"><%- label %></span></a></div>';
-    var featureFlagTemplate = '<div feature-flag="<%- featureFlag %>"><a href="<%- href %>"><i class="mdi <%- icon %>"/><span class="label"><%- label %></span></a></div>';
 
-    return function(href, icon, label, featureFlag) {
-      var context = {
-        href: href,
-        icon: icon,
-        label: label,
-        featureFlag: featureFlag
-      };
-      return _.template(featureFlag ? featureFlagTemplate : template)(context);
+  .config(function(dynamicDirectiveServiceProvider) {
+    var DD = dynamicDirectiveServiceProvider.DynamicDirective;
+
+    dynamicDirectiveServiceProvider.addInjection('esn-application-menu', new DD(true, 'application-menu-home', { priority: 50 }));
+    dynamicDirectiveServiceProvider.addInjection('esn-application-menu', new DD(true, 'application-menu-logout', { priority: -50 }));
+  })
+
+  .factory('applicationMenuTemplateBuilder', function(featureFlags, _) {
+    var template =
+        '<div>' +
+          '<a href="<%- href %>">' +
+            '<img class="esn-application-menu-icon" src="/images/application-menu/<%- icon %>-icon.svg" />' +
+            '<span class="label">' +
+              '<%- label %>' +
+            '</span>' +
+          '</a>' +
+        '</div>';
+
+    return function(href, icon, label, flag) {
+      if (angular.isDefined(flag) && !featureFlags.isOn(flag)) {
+        return '';
+      }
+
+      return _.template(template)({ href: href, icon: icon, label: label });
     };
   })
+
   .directive('applicationMenuToggler', function($rootScope, $document, $popover,
                                                 POPOVER_APPLICATION_MENU_OPTIONS, APP_MENU_OPEN_EVENT) {
     return {
@@ -39,9 +51,10 @@ angular.module('esn.application-menu', ['op.dynamicDirective'])
       replace: true,
       templateUrl: '/views/modules/application-menu/application-menu-toggler.html',
       link: function(scope, element) {
-        var backdrop = angular.element('<div id="application-menu-backdrop" class="modal-backdrop in visible-xs">');
-        var body = $document.find('body').eq(0);
-        var popover = $popover(element, POPOVER_APPLICATION_MENU_OPTIONS);
+        var backdrop = angular.element('<div id="application-menu-backdrop" class="modal-backdrop in visible-xs">'),
+            body = $document.find('body').eq(0),
+            popover = $popover(element, POPOVER_APPLICATION_MENU_OPTIONS);
+
         scope.isShown = false;
 
         popover.$scope.$on('application-menu.show.before', function() {
@@ -61,6 +74,7 @@ angular.module('esn.application-menu', ['op.dynamicDirective'])
       }
     };
   })
+
   .directive('forceCloseOnLinksClick', function($timeout) {
     return {
       restrict: 'A',
@@ -71,28 +85,32 @@ angular.module('esn.application-menu', ['op.dynamicDirective'])
       }
     };
   })
+
   .directive('forceMarginLeft', function($timeout) {
     return {
       restrict: 'A',
       link: function(scope, element, attrs) {
         $timeout(function() {
           var offset = element.offset();
+
           element.offset({top: offset.top, left: offset.left - attrs.forceMarginLeft});
         }, 0, false);
       }
     };
   })
+
   .directive('applicationMenuHome', function(applicationMenuTemplateBuilder) {
     return {
       retrict: 'E',
       replace: true,
-      template: applicationMenuTemplateBuilder('/#/', 'mdi-home', 'Home')
+      template: applicationMenuTemplateBuilder('/#/', 'home', 'Home')
     };
   })
+
   .directive('applicationMenuLogout', function(applicationMenuTemplateBuilder) {
     return {
       retrict: 'E',
       replace: true,
-      template: applicationMenuTemplateBuilder('/logout', 'mdi-power', 'Logout')
+      template: applicationMenuTemplateBuilder('/logout', 'logout', 'Logout')
     };
   });

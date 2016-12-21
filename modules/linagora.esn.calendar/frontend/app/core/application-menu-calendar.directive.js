@@ -11,7 +11,7 @@
   function applicationMenuCalendar(applicationMenuTemplateBuilder) {
     var directive = {
       restrict: 'E',
-      template: applicationMenuTemplateBuilder('/#/calendar', 'mdi-calendar', 'Calendar'),
+      template: applicationMenuTemplateBuilder('/#/calendar', 'calendar', 'Calendar'),
       replace: true
     };
 

@@ -1071,6 +1071,6 @@ angular.module('esn.community', [
     return {
       retrict: 'E',
       replace: true,
-      template: applicationMenuTemplateBuilder('/#/communities', 'mdi-forum', 'Communities', 'core.application-menu.communities')
+      template: applicationMenuTemplateBuilder('/#/communities', 'communities', 'Communities', 'core.application-menu.communities')
     };
   });

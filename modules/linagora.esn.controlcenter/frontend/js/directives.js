@@ -6,7 +6,7 @@ angular.module('linagora.esn.controlcenter')
   return {
     retrict: 'E',
     replace: true,
-    template: applicationMenuTemplateBuilder('/#/controlcenter', 'mdi-settings', 'Control Center')
+    template: applicationMenuTemplateBuilder('/#/controlcenter', 'control-center', 'Control Center')
   };
 })
 
