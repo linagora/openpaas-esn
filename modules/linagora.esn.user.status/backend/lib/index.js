@@ -8,12 +8,13 @@ module.exports = function(dependencies) {
     userStatus: require('./db/user-status')(dependencies)
   };
 
-  const task = require('./task')(dependencies);
-  const userStatus = require('./user-status')(dependencies, {task});
+  const userStatus = require('./user-status')(dependencies);
   const listener = require('./listener')(dependencies, {userStatus});
+  const cron = require('./cron')(dependencies, {userStatus});
 
   function start(callback) {
     listener.start();
+    cron.start();
     callback();
   }
 

@@ -6,27 +6,21 @@ const Q = require('q');
 const _ = require('lodash');
 const CONSTANTS = require('../../../backend/lib/constants');
 const USER_CONNECTION = CONSTANTS.NOTIFICATIONS.USER_CONNECTION;
-const USER_DISCONNECTION = CONSTANTS.NOTIFICATIONS.USER_DISCONNECTION;
-const DISCONNECTED = CONSTANTS.STATUS.DISCONNECTED;
-const DISCONNECTION_DELAY = CONSTANTS.STATUS.DISCONNECTION_DELAY;
+const USER_STATE = CONSTANTS.NOTIFICATIONS.USER_STATE;
+const CONNECTED = CONSTANTS.STATUS.CONNECTED;
 
 describe('The user-status listener lib', function() {
 
-  let connectionTopic, disconnectionTopic, pubsub;
   const userId = '123';
-  const state = {
-    toJSON: function() {
-      return {current_status: 'connected'};
-    }
-  };
+  let connectionTopic, stateTopic, pubsub;
 
   beforeEach(function() {
     connectionTopic = {
       subscribe: sinon.spy()
     };
 
-    disconnectionTopic = {
-      subscribe: sinon.spy()
+    stateTopic = {
+      publish: sinon.spy()
     };
 
     pubsub = {
@@ -34,8 +28,13 @@ describe('The user-status listener lib', function() {
         topic: function(name) {
           if (name === USER_CONNECTION) {
             return connectionTopic;
-          } else if (name === USER_DISCONNECTION) {
-            return disconnectionTopic;
+          }
+        }
+      },
+      global: {
+        topic: function(name) {
+          if (name === USER_STATE) {
+            return stateTopic;
           }
         }
       }
@@ -44,17 +43,45 @@ describe('The user-status listener lib', function() {
     this.moduleHelpers.addDep('pubsub', pubsub);
   });
 
-  describe('The userConnectionTopic handler', function() {
-    it('should restorePreviousStatusOfUser on event', function() {
-      const state = {
-        toJSON: function() {
-          return {current_status: 'connected'};
-        }
-      };
-      const restorePreviousStatusOfUser = sinon.spy(function(userId) {
-        return Q.when(state);
+  describe('The userConnected function', function() {
+    it('should updateLastActiveForUser and publish in global topic', function(done) {
+      const updateLastActiveForUser = sinon.spy(function() {
+        return Q();
       });
-      const module = require(this.moduleHelpers.backendPath + '/listener')(this.moduleHelpers.dependencies, {userStatus: {restorePreviousStatusOfUser: restorePreviousStatusOfUser}});
+
+      const module = require(this.moduleHelpers.backendPath + '/listener')(this.moduleHelpers.dependencies, {userStatus: {updateLastActiveForUser: updateLastActiveForUser}});
+
+      module.userConnected(userId).then(function(result) {
+        expect(result).to.deep.equals({_id: userId, status: CONNECTED});
+        expect(stateTopic.publish).to.have.been.calledWith({_id: userId, status: CONNECTED});
+        done();
+      }, done);
+    });
+
+    it('should not publish in global topic if updateLastActiveForUser fails', function(done) {
+      const err = new Error('I failed');
+      const updateLastActiveForUser = sinon.spy(function() {
+        return Q.reject(err);
+      });
+
+      const module = require(this.moduleHelpers.backendPath + '/listener')(this.moduleHelpers.dependencies, {userStatus: {updateLastActiveForUser: updateLastActiveForUser}});
+
+      module.userConnected(userId).then(function() {
+        done(new Error('Should not be called'));
+      }, function(err) {
+        expect(err.message).to.equals('I failed');
+        expect(stateTopic.publish).to.not.have.been.called;
+        done();
+      });
+    });
+  });
+
+  describe('The userConnectionTopic handler', function() {
+    it('should update the last active timestamp on event', function() {
+      const updateLastActiveForUser = sinon.spy(function(userId) {
+        return Q.when();
+      });
+      const module = require(this.moduleHelpers.backendPath + '/listener')(this.moduleHelpers.dependencies, {userStatus: {updateLastActiveForUser: updateLastActiveForUser}});
 
       module.start();
 
@@ -67,29 +94,8 @@ describe('The user-status listener lib', function() {
 
         return false;
       }));
-      expect(restorePreviousStatusOfUser).to.have.been.calledWith(userId);
-    });
-  });
-
-  describe('The userDisconnectionTopic handler', function() {
-    it('should set the user status to disconnected', function() {
-      const set = sinon.spy(function(userId, status, delay) {
-        return Q.when(state);
-      });
-      const module = require(this.moduleHelpers.backendPath + '/listener')(this.moduleHelpers.dependencies, {userStatus: {set: set}});
-
-      module.start();
-
-      expect(disconnectionTopic.subscribe).to.have.been.calledWith(sinon.match(function(handler) {
-        if (_.isFunction(handler)) {
-          handler(userId);
-
-          return true;
-        }
-
-        return false;
-      }));
-      expect(set).to.have.been.calledWith(userId, DISCONNECTED, DISCONNECTION_DELAY);
+      expect(updateLastActiveForUser).to.have.been.calledWith(userId);
+      expect(stateTopic.publish).to.not.have.been.called;
     });
   });
 });

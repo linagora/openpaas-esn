@@ -1,68 +1,32 @@
 'use strict';
 
-const Q = require('q');
 const CONSTANTS = require('./constants');
-const DISCONNECTED = CONSTANTS.STATUS.DISCONNECTED;
-const DEFAULT_CONNECTED_STATE = CONSTANTS.STATUS.DEFAULT;
 
-module.exports = userStatus;
+module.exports = function(dependencies, lib) {
 
-function userStatus(dependencies, lib) {
-
-  const logger = dependencies('logger');
   const mongoose = dependencies('db').mongo.mongoose;
   const UserStatus = mongoose.model('UserStatus');
 
   return {
-    get,
-    getAll,
-    restorePreviousStatusOfUser,
-    set
+    getStatus,
+    getStatuses,
+    updateLastActiveForUser,
+    updateLastActiveForUsers
   };
 
-  function get(userId) {
-    logger.debug(`Get user ${userId} status`);
-
-    return UserStatus.findById(userId).then(status => {
-      if (!status) {
-        return DISCONNECTED;
-      }
-
-      if ((Date.now() - status.timestamps.last_update) < status.delay) {
-        return status.previous_status || DISCONNECTED;
-      }
-
-      return status.current_status;
-    });
+  function getStatus(userId) {
+    return UserStatus.findById(userId).exec();
   }
 
-  function getAll(userIds) {
-    return Q.all(userIds.map(get));
+  function getStatuses(userIds) {
+    return UserStatus.find({_id: {$in: userIds}}).exec();
   }
 
-  function restorePreviousStatusOfUser(userId) {
-    return UserStatus.findById(userId).then(status => set(userId, status && status.previous_status || DEFAULT_CONNECTED_STATE));
+  function updateLastActiveForUser(userId, last_active = Date.now()) {
+    return UserStatus.findOneAndUpdate({_id: userId}, {$set: {last_active: last_active}}, {upsert: true}).exec();
   }
 
-  function set(userId, status, delay = 0) {
-    logger.debug(`Setting user ${userId} status ${status} with delay ${delay}`);
-
-    return UserStatus.findById(userId).then(previousStatus => {
-      const nextStatus = {
-        current_status: status,
-        timestamps: {last_update: Date.now()},
-        delay
-      };
-
-      if (status === DISCONNECTED && previousStatus) {
-        nextStatus.previous_status = previousStatus.current_status === DISCONNECTED ? previousStatus.previous_status : previousStatus.current_status;
-      }
-
-      return UserStatus.findOneAndUpdate({_id: userId}, {$set: nextStatus}, {new: true, upsert: true, setDefaultsOnInsert: true}).then(updatedStatus => {
-        lib.task.publishStatus(userId, previousStatus, updatedStatus, delay);
-
-        return updatedStatus;
-      });
-    });
+  function updateLastActiveForUsers(userIds, last_active = Date.now()) {
+    return UserStatus.where({_id: {$in: userIds}}).setOptions({multi: true, upsert: true}).update({$set: {last_active: last_active}}).exec();
   }
-}
+};

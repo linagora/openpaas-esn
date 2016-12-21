@@ -5,104 +5,86 @@
 var expect = chai.expect;
 
 describe('The linagora.esn.user-status userStatusService service', function() {
-  var USER_STATUS_EVENTS,
-    sessionMock,
-    user,
-    livenotificationMock,
-    $rootScope,
+  var $rootScope,
     userStatusService,
-    userStatusNamespace,
     userStatusClientService;
 
   beforeEach(function() {
-    user = {_id: 'userId'};
-    userStatusNamespace = {on: sinon.spy()};
     userStatusClientService = {};
 
-    sessionMock = {
-      user: user,
-      ready: {
-        then: function(callback) {
-          return callback({user: user});
-        }
-      }
-    };
-
-    function livenotificationFactory(USER_STATUS_NAMESPACE) {
-      livenotificationMock = function(name) {
-        if (name === USER_STATUS_NAMESPACE) {
-          return userStatusNamespace;
-        }
-        throw new Error(name + 'namespace has not been mocked');
-      };
-
-      return livenotificationMock;
-    }
-
     angular.mock.module('linagora.esn.user-status', function($provide) {
-      $provide.value('session', sessionMock);
       $provide.value('userStatusClientService', userStatusClientService);
-      $provide.factory('livenotification', livenotificationFactory);
     });
   });
 
-  beforeEach(angular.mock.inject(function(_USER_STATUS_EVENTS_, _$rootScope_, _userStatusService_) {
-    USER_STATUS_EVENTS = _USER_STATUS_EVENTS_;
+  beforeEach(angular.mock.inject(function(_$rootScope_, _userStatusService_) {
     $rootScope = _$rootScope_;
     userStatusService = _userStatusService_;
   }));
 
-  describe('The userStatusService service', function() {
+  describe('The cacheUserStatus function', function() {
+    it('should return when input is undefined', function() {
+      var out = userStatusService.cacheUserStatus();
 
-    it('should listen to USER_STATUS_NAMESPACE:USER_STATUS_EVENTS.USER_CHANGE_STATE and broadcast it on $rootScope', function() {
-      $rootScope.$broadcast = sinon.spy();
-      expect(userStatusNamespace.on).to.have.been.calledWith(USER_STATUS_EVENTS.USER_CHANGE_STATE, sinon.match.func.and(function(callback) {
-        var data = {};
-
-        callback(data);
-        expect($rootScope.$broadcast).to.have.been.calledWith(USER_STATUS_EVENTS.USER_CHANGE_STATE, data);
-
-        return true;
-      }));
+      expect(out).to.not.be.defined;
+      expect(userStatusService.getCache()).to.be.empty;
     });
 
-    it('should listen to USER_STATUS_NAMESPACE:USER_STATUS_EVENTS.USER_CHANGE_STATE and save change', function() {
-      var userId = 'userId';
-      var state = 'of alabama';
+    it('should return when input._id is undefined', function() {
+      var out = userStatusService.cacheUserStatus({status: 1});
 
-      $rootScope.$broadcast = sinon.spy();
-      expect(userStatusNamespace.on).to.have.been.calledWith(USER_STATUS_EVENTS.USER_CHANGE_STATE, sinon.match.func.and(function(callback) {
-        var promiseCallback = sinon.spy();
+      expect(out).to.not.be.defined;
+      expect(userStatusService.getCache()).to.be.empty;
+    });
 
-        callback({
-          userId: userId,
-          state: state
-        });
+    it('should return when input.status is undefined', function() {
+      var out = userStatusService.cacheUserStatus({_id: 1});
 
-        userStatusService.getCurrentStatus(userId).then(promiseCallback);
-        $rootScope.$digest();
-        expect(promiseCallback).to.have.been.calledWith(state);
+      expect(out).to.not.be.defined;
+      expect(userStatusService.getCache()).to.be.empty;
+    });
 
-        return true;
-      }));
+    it('should cache status', function() {
+      var status = {_id: 1, status: 2};
+      var out = userStatusService.cacheUserStatus(status);
+
+      expect(out).to.equal(status);
+      expect(userStatusService.getCache()).to.deep.equal({1: status});
+    });
+  });
+
+  describe('The getCurrentStatus function', function() {
+    it('should return status from cache when available', function() {
+      userStatusClientService.getStatusForUser = sinon.spy();
+
+      var id = 1;
+      var status = 'connected';
+      var callback = sinon.spy(function(_status) {
+        expect(_status).to.deep.equal({_id: id, status: status});
+        expect(userStatusClientService.getStatusForUser).to.not.have.been.called;
+      });
+
+      userStatusService.cacheUserStatus({_id: id, status: status});
+      userStatusService.getCurrentStatus(id).then(callback);
+      $rootScope.$digest();
     });
 
     it('should get status from userStatusClientService the first time and cache it for the next times', function() {
-      var status = 'state';
+      var status = 'connected';
+      var userId = 1;
       var callback = sinon.spy();
 
-      userStatusClientService.get = sinon.spy(function() {
-        return $q.when({data: {current_status: status}});
+      userStatusClientService.getStatusForUser = sinon.spy(function() {
+        return $q.when({data: {status: status, _id: userId}});
       });
 
-      userStatusService.getCurrentStatus('userId').then(callback);
+      userStatusService.getCurrentStatus(userId).then(callback);
       $rootScope.$digest();
-      expect(callback).to.have.been.calledWith(status);
-      callback.reset();
+      expect(callback).to.have.been.calledWith({status: status, _id: userId});
 
-      userStatusService.getCurrentStatus('userId').then(callback);
+      userStatusService.getCurrentStatus(userId).then(callback);
       $rootScope.$digest();
-      expect(callback).to.have.been.calledWith(status);
+      expect(userStatusClientService.getStatusForUser).to.have.been.calledOnce;
     });
   });
 });

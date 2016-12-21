@@ -9,21 +9,19 @@
 
     self.$onInit = $onInit;
 
-    var unbind = $scope.$on(USER_STATUS_EVENTS.USER_CHANGE_STATE, function(event, data) {
-      if (data.userId === self.userId) {
-        self.status = data.status.current_status;
-      }
-    });
-
-    $scope.$on('$destroy', unbind);
-
     function $onInit() {
       userStatusService.getCurrentStatus(self.userId).then(function(status) {
-        self.status = status;
+        self.status = status.status;
       }, function() {
         self.status = USER_STATUS.unknown;
       });
+
+      $scope.$on(USER_STATUS_EVENTS.USER_CHANGE_STATE, function(event, data) {
+        if (data[self.userId]) {
+          self.status = data[self.userId].status;
+        }
+      });
     }
-  }
+}
 
 })();

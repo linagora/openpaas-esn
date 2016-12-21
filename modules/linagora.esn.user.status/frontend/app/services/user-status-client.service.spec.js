@@ -12,12 +12,22 @@ describe('The linagora.esn.user-status userStatusClientService service', functio
     $httpBackend = _$httpBackend_;
   }));
 
-  describe('The get function', function() {
+  describe('The getStatusForUser function', function() {
     it('should call GET /user-status/api/users/:userId', function() {
       var id = '123';
 
-      $httpBackend.expectGET('/user-status/api/users/' + id).respond({state: ''});
-      userStatusClientService.get(id);
+      $httpBackend.expectGET('/user-status/api/users/' + id).respond({_id: id, status: 'connected'});
+      userStatusClientService.getStatusForUser(id);
+      $httpBackend.flush();
+    });
+  });
+
+  describe('The getStatusForUsers function', function() {
+    it('should call POST /user-status/api/users', function() {
+      var ids = [1, 2, 3];
+
+      $httpBackend.expectPOST('/user-status/api/users', ids).respond();
+      userStatusClientService.getStatusForUsers(ids);
       $httpBackend.flush();
     });
   });

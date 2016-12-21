@@ -1,21 +1,15 @@
 'use strict';
 
 const expect = require('chai').expect;
-const Q = require('q');
+const sinon = require('sinon');
 const request = require('supertest');
+const Q = require('q');
 const moduleName = 'linagora.esn.user.status';
 const password = 'secret';
 
 describe('The /user-status API', function() {
 
-  var self, user, user1, modelsFixture;
-
-  function startExpressApp() {
-    const expressApp = require('../../backend/webserver/application')(self.helpers.modules.current.deps);
-
-    expressApp.use('/', self.helpers.modules.current.lib.api);
-    self.app = self.helpers.modules.getWebServer(expressApp);
-  }
+  var self, clock, user, user1, modelsFixture;
 
   function initMidway(done) {
     self.helpers.modules.initMidway(moduleName, function(err) {
@@ -36,105 +30,123 @@ describe('The /user-status API', function() {
     });
   }
 
+  function startExpressApp() {
+    const expressApp = require('../../backend/webserver/application')(self.helpers.modules.current.deps);
+
+    expressApp.use('/', self.helpers.modules.current.lib.api);
+    self.app = self.helpers.modules.getWebServer(expressApp);
+  }
+
   afterEach(function(done) {
+    if (clock) {
+      clock.restore();
+    }
     this.helpers.api.cleanDomainDeployment(modelsFixture, done);
   });
 
   describe('GET /user-status/users/:userId', function() {
 
-    it('should return "disconnected" status when requested user does not have status', function(done) {
+    it('should return "connected" if the user was active within the last minute', function(done) {
       self = this;
-      initMidway(function() {
-
-        self.helpers.api.loginAsUser(self.app, user.emails[0], password, function(err, requestAsMember) {
-          var req = requestAsMember(request(self.app).get('/users/' + user._id));
-
-          req.expect(200).end(function(err, res) {
-            if (err) {
-              return done(err);
-            }
-            expect(res.body).to.deep.equals({current_status: 'disconnected'});
-            done();
-          });
-        });
-      });
-    });
-
-    it('should return the given user status', function(done) {
-      const status = 'My status';
-
-      self = this;
-
-      function test() {
-        self.helpers.api.loginAsUser(self.app, user.emails[0], password, function(err, requestAsMember) {
-          var req = requestAsMember(request(self.app).get('/users/' + user1._id));
-
-          req.expect(200).end(function(err, res) {
-            if (err) {
-              return done(err);
-            }
-            expect(res.body).to.deep.equals({current_status: status});
-            done();
-          });
-        });
-      }
 
       initMidway(function() {
         const UserStatus = self.helpers.modules.current.lib.lib.models.userStatus;
-        const userStatus = new UserStatus({_id: user1._id, current_status: status});
+        const userStatus = new UserStatus({_id: user1._id, last_update: Date.now()});
 
         userStatus.save().then(test);
       });
+
+      function test() {
+        self.helpers.api.loginAsUser(self.app, user.emails[0], password, function(err, requestAsMember) {
+          const req = requestAsMember(request(self.app).get('/users/' + user1._id));
+
+          req.expect(200).end(function(err, res) {
+            if (err) {
+              return done(err);
+            }
+            expect(res.body).to.shallowDeepEqual({_id: String(user1._id), status: 'connected'});
+            done();
+          });
+        });
+      }
+    });
+
+    it('should return "disconnected" if the user was active more than 1 minute ago', function(done) {
+      self = this;
+
+      initMidway(function() {
+        clock = sinon.useFakeTimers();
+        self.helpers.modules.current.lib.lib.userStatus.updateLastActiveForUser(user1._id, Date.now()).then(test);
+      });
+
+      function test() {
+        clock.tick(61000);
+        self.helpers.api.loginAsUser(self.app, user.emails[0], password, function(err, requestAsMember) {
+          const req = requestAsMember(request(self.app).get('/users/' + user1._id));
+
+          req.expect(200).end(function(err, res) {
+            if (err) {
+              return done(err);
+            }
+            expect(res.body).to.shallowDeepEqual({_id: String(user1._id), status: 'disconnected'});
+            done();
+          });
+        });
+      }
     });
   });
 
-  describe('PUT /user-status/user', function() {
+  describe('POST /user-status/users', function() {
 
-    it('should save status for current user', function(done) {
-      const status = 'My own status';
-
+    it('should return empty array when users never connected', function(done) {
       self = this;
 
-      function checkDB() {
-        self.helpers.modules.current.lib.lib.models.userStatus.findById(user._id).then(userStatus => {
-          if (!userStatus) {
-            return done(new Error('Can not find status in DB'));
-          }
+      initMidway(test);
 
-          expect(userStatus.current_status).to.equal(status);
-          done();
-        });
-      }
-
-      function updateStatus() {
-        const defer = Q.defer();
-
+      function test() {
         self.helpers.api.loginAsUser(self.app, user.emails[0], password, function(err, requestAsMember) {
-          const req = requestAsMember(request(self.app).put('/user/status'));
+          const req = requestAsMember(request(self.app).post('/users'));
 
-          req.send({value: status});
-          req.expect(204).end(function(err, res) {
+          req.send([user._id, user1._id]);
+
+          req.expect(200).end(function(err, res) {
             if (err) {
-              return defer.reject(err);
+              return done(err);
             }
-
-            return defer.resolve();
+            expect(res.body).to.deep.equals([]);
+            done();
           });
         });
-
-        return defer.promise;
       }
+
+    });
+
+    it('should return the status of all given users', function(done) {
+      self = this;
 
       initMidway(function() {
         const UserStatus = self.helpers.modules.current.lib.lib.models.userStatus;
-        const userStatus = new UserStatus({_id: user._id, current_status: status});
+        const userStatus = new UserStatus({_id: user._id, last_update: Date.now()});
+        const userStatus1 = new UserStatus({_id: user1._id, last_update: Date.now()});
 
-        userStatus
-          .save()
-          .then(updateStatus)
-          .then(checkDB)
-          .catch(done);
+        Q.all([userStatus.save(), userStatus1.save()]).then(test, done);
       });
+
+      function test() {
+        self.helpers.api.loginAsUser(self.app, user.emails[0], password, function(err, requestAsMember) {
+          const req = requestAsMember(request(self.app).post('/users'));
+
+          req.send([user._id, user1._id]);
+
+          req.expect(200).end(function(err, res) {
+            if (err) {
+              return done(err);
+            }
+            expect(res.body).to.shallowDeepEqual([{_id: String(user._id), status: 'connected'}, {_id: String(user1._id), status: 'connected'}]);
+            done();
+          });
+        });
+      }
     });
   });
 });

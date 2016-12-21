@@ -4,8 +4,9 @@ module.exports = {
   WEBSOCKET: {
     NAMESPACE: 'userstatus'
   },
+  JOB_CRON_EXPRESSION: '0 * * * * *',
+  DISCONNECTED_DELAY: 60000, //in milliseconds
   STATUS: {
-    DISCONNECTION_DELAY: 10000, //in milliseconds
     DISCONNECTED: 'disconnected',
     CONNECTED: 'connected',
     DEFAULT: 'connected'

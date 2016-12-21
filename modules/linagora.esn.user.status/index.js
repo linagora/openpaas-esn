@@ -21,7 +21,8 @@ const userStatusModule = new AwesomeModule(MODULE_NAME, {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.user', 'user'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.wsserver', 'wsserver'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.helpers', 'helpers'),
-    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.db', 'db')
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.db', 'db'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.cron', 'cron')
   ],
   states: {
     lib: function(dependencies, callback) {

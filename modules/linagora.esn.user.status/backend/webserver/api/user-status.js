@@ -9,8 +9,8 @@ module.exports = function(dependencies, lib, router) {
     authorizationMW.requiresAPILogin,
     controller.getUserStatus);
 
-  router.put('/user/status',
+  router.post('/users',
     authorizationMW.requiresAPILogin,
-    controller.setCurrentUserStatus);
+    controller.getUsersStatus);
 
 };

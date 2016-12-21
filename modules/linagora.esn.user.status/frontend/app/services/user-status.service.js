@@ -4,33 +4,35 @@
   angular.module('linagora.esn.user-status')
     .factory('userStatusService', userStatusService);
 
-    function userStatusService($q, $rootScope, session, livenotification, userStatusClientService, USER_STATUS_EVENTS, USER_STATUS_NAMESPACE) {
+    function userStatusService($q, userStatusClientService) {
       var cache = {};
 
-      session.ready.then(function() {
-        var sio = livenotification(USER_STATUS_NAMESPACE);
-
-        sio.on(USER_STATUS_EVENTS.USER_CHANGE_STATE, function(data) {
-          $rootScope.$broadcast(USER_STATUS_EVENTS.USER_CHANGE_STATE, data);
-          cache[data.userId] = data.state;
-        });
-      });
-
       return {
+        cacheUserStatus: cacheUserStatus,
+        getCache: getCache,
         getCurrentStatus: getCurrentStatus
       };
 
+      function cacheUserStatus(data) {
+        if (!data || !data._id || !data.status) {
+          return;
+        }
+        cache[data._id] = data;
+
+        return data;
+      }
+
+      function getCache() {
+        return cache;
+      }
+
       function getCurrentStatus(userId) {
-        if (cache[userId]) {
+        if (angular.isDefined(cache[userId])) {
           return $q.when(cache[userId]);
         }
 
-        return userStatusClientService.get(userId).then(function(response) {
-          var state = response.data.current_status;
-
-          cache[userId] = state;
-
-          return state;
+        return userStatusClientService.getStatusForUser(userId).then(function(response) {
+          return cacheUserStatus(response.data);
         });
       }
     }

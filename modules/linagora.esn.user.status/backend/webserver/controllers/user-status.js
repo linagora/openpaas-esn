@@ -1,17 +1,30 @@
 'use strict';
 
+const CONSTANTS = require('../../lib/constants');
+const Q = require('q');
+
 module.exports = function(dependencies, lib) {
 
   const logger = dependencies('logger');
 
   return {
     getUserStatus,
-    setCurrentUserStatus
+    getUsersStatus
   };
 
+  function denormalize(status) {
+    return Q({_id: status._id, status: getConnectedStatus(status), last_active: status.last_active});
+  }
+
+  function getConnectedStatus(status) {
+    return !!status && (Date.now() - status.last_active) < CONSTANTS.DISCONNECTED_DELAY ? CONSTANTS.STATUS.CONNECTED : CONSTANTS.STATUS.DISCONNECTED;
+  }
+
   function getUserStatus(req, res) {
-    lib.userStatus.get(req.params.id).then(status => {
-      res.status(200).json({current_status: status});
+    lib.userStatus.getStatus(req.params.id)
+    .then(denormalize)
+    .then(status => {
+      res.status(200).json(status);
     }).catch(err => {
       logger.error(`Error while getting user ${req.params.id} status`, err);
 
@@ -25,27 +38,19 @@ module.exports = function(dependencies, lib) {
     });
   }
 
-  function setCurrentUserStatus(req, res) {
-    if (!req.body.value) {
-      return res.status(400).json({
-        error: {
-          code: 400,
-          message: 'Bad request',
-          details: 'You should provide the user status'
-        }
-      });
-    }
-
-    lib.userStatus.set(req.user._id, req.body.value).then(() => {
-      res.status(204).end();
+  function getUsersStatus(req, res) {
+    lib.userStatus.getStatuses(req.body)
+    .then(result => Q.all(result.map(denormalize)))
+    .then(status => {
+      res.status(200).json(status);
     }).catch(err => {
-      logger.error(`Error while setting user ${req.user._id} status`, err);
+      logger.error('Error while getting users status', err);
 
       res.status(500).json({
         error: {
           code: 500,
           message: 'Server Error',
-          details: `Error while setting user status for user ${req.params.id}`
+          details: 'Error while fetching user statuses'
         }
       });
     });

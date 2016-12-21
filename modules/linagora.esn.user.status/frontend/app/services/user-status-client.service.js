@@ -7,11 +7,16 @@
     function userStatusClientService(userStatusRestangular) {
 
       return {
-        get: get
+        getStatusForUser: getStatusForUser,
+        getStatusForUsers: getStatusForUsers
       };
 
-      function get(userId) {
+      function getStatusForUser(userId) {
         return userStatusRestangular.one('users', userId).get();
+      }
+
+      function getStatusForUsers(usersId) {
+        return userStatusRestangular.one('users').customPOST(usersId);
       }
     }
 })();

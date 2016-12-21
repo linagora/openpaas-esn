@@ -15,6 +15,7 @@ describe('The userStatusBubbleController controller', function() {
 
     angular.mock.module('linagora.esn.user-status', function($provide) {
       $provide.value('userStatusService', userStatusService);
+      $provide.value('session', {ready: {then: function() {}}});
     });
 
     angular.mock.inject(function(_$rootScope_, _$controller_, _USER_STATUS_EVENTS_, _USER_STATUS_) {
@@ -40,10 +41,10 @@ describe('The userStatusBubbleController controller', function() {
   describe('The $onInit function', function() {
 
     it('should get the status from userStatusService', function() {
-      var status = 'my status';
+      var status = USER_STATUS.connected;
 
       userStatusService.getCurrentStatus = sinon.spy(function() {
-        return $q.when(status);
+        return $q.when({_id: userId, status: status});
       });
       var controller = initController();
 
@@ -68,20 +69,36 @@ describe('The userStatusBubbleController controller', function() {
   });
 
   describe('on $scope USER_STATUS_EVENTS.USER_CHANGE_STATE event', function() {
-    it('should update the status if event.userId is the current one', function() {
+
+    beforeEach(function() {
+      userStatusService.getCurrentStatus = function() {
+        return $q.when({_id: userId, status: USER_STATUS.connected});
+      };
+    });
+
+    it('should update the status if event._id is the current user', function() {
       var status = 'updatedstatus';
+      var event = {};
       var controller = initController();
 
-      $scope.$emit(USER_STATUS_EVENTS.USER_CHANGE_STATE, {userId: userId, status: {current_status: status}});
+      controller.$onInit();
+      $rootScope.$digest();
+
+      event[userId] = {status: status};
+      $scope.$emit(USER_STATUS_EVENTS.USER_CHANGE_STATE, event);
       $rootScope.$digest();
       expect(controller.status).to.equal(status);
     });
 
-    it('should ignore status if event.userId is not the current one', function() {
+    it('should ignore status if event._id is not the current user', function() {
       var status = 'updatedstatus';
+      var event = {anotherUserId: {status: status}};
       var controller = initController();
 
-      $scope.$emit(USER_STATUS_EVENTS.USER_CHANGE_STATE, {userId: 'anotherUserId', status: {current_status: status}});
+      controller.$onInit();
+      $rootScope.$digest();
+
+      $scope.$emit(USER_STATUS_EVENTS.USER_CHANGE_STATE, event);
       $rootScope.$digest();
       expect(controller.status).to.not.equal(status);
     });
