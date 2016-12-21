@@ -1,12 +1,12 @@
 'use strict';
 
 var async = require('async');
-var q = require('q');
+const q = require('q');
 var jcal2content = require('../../../lib/helpers/jcal').jcal2content;
 var urljoin = require('url-join');
 var extend = require('extend');
 var eventMessage,
-    i18n,
+    i18nLib,
     userModule,
     collaborationModule,
     messageHelpers,
@@ -236,106 +236,120 @@ function inviteAttendees(editor, attendeeEmail, notify, method, ics, calendarURI
     return attendeePromise.then(function(attendee) {
       var attendeePreferedEmail = attendee ? attendee.email || attendee.emails[0] : attendeeEmail;
 
-      var editorEmail = editor.email || editor.emails[0];
-      var event = jcal2content(ics, baseUrl);
-      var inviteMessage;
-      var subject = 'Unknown method';
-      var template = 'event.invitation';
+      return i18nLib.getI18nForMailer(attendee).then(i18nConf => {
+        var editorEmail = editor.email || editor.emails[0];
+        var event = jcal2content(ics, baseUrl);
+        var inviteMessage;
+        var subject = 'Unknown method';
+        var template = 'event.invitation';
+        const i18n = i18nConf.i18n;
 
-      switch (method) {
-        case 'REQUEST':
-          if (event.sequence > 0) {
-            subject = i18n.__('Event %s from %s updated', event.summary, userDisplayName(editor));
-            template = 'event.update';
-            inviteMessage = i18n.__('has updated a meeting!');
-          } else {
-            subject = i18n.__('New event from %s: %s', userDisplayName(editor), event.summary);
-            template = 'event.invitation';
-            inviteMessage = i18n.__('has invited you to a meeting!');
-          }
-          break;
-        case 'REPLY':
-          subject = i18n.__('Participation updated: %s', event.summary);
-          template = 'event.reply';
-          inviteMessage = i18n.__('has changed his participation!');
-          break;
-        case 'CANCEL':
-          subject = i18n.__('Event %s from %s canceled', event.summary, userDisplayName(editor));
-          template = 'event.cancel';
-          inviteMessage = i18n.__('has canceled a meeting!');
-          break;
-      }
+        function _i18nHelper(phrase, isSummaryExist = false, isUserDisplayNameExists = false) {
+          const option = Object.assign(
+            {},
+            isSummaryExist ? { summary: event.summary } : {},
+            isUserDisplayNameExists ? { userDisplayName: userDisplayName(editor) } : {}
+          );
 
-      var message = {
-        from: editorEmail,
-        subject: subject,
-        encoding: 'base64',
-        alternatives: [{
-          content: ics,
-          contentType: 'text/calendar; charset=UTF-8; method=' + method
-        }],
-        attachments: [{
-          filename: 'meeting.ics',
-          content: ics,
-          contentType: 'application/ics'
-        }]
-      };
-      var content = {
-        baseUrl: baseUrl,
-        inviteMessage: inviteMessage,
-        event: event,
-        editor: {
-          displayName: userDisplayName(editor),
-          email: editor.email || editor.emails[0]
-        },
-        calendarHomeId: editor._id
-      };
-
-      var filter = function(filename) {
-        switch (filename) {
-          case 'map-marker.png':
-            return !!event.location;
-          case 'format-align-justify.png':
-            return !!event.description;
-          case 'folder-download.png':
-            return !!event.files;
-          case 'check.png':
-            return !(event.allDay && event.durationInDays === 1);
-          default:
-            return true;
+          return i18n.__({phrase: phrase, locale: i18nConf.locale}, option);
         }
-      };
 
-      var userIsInvolved = false;
+        switch (method) {
+          case 'REQUEST':
+            if (event.sequence > 0) {
+              subject = _i18nHelper('Event {{summary}} from {{userDisplayName}} updated', true, true);
+              template = 'event.update';
+              inviteMessage = _i18nHelper('has updated a meeting!');
+            } else {
+              subject = _i18nHelper('New event from {{userDisplayName}}: {{summary}}', true, true);
+              template = 'event.invitation';
+              inviteMessage = _i18nHelper('has invited you to a meeting!');
+            }
+            break;
+          case 'REPLY':
+            subject = _i18nHelper('Participation updated: {{summary}}', true);
+            template = 'event.reply';
+            inviteMessage = _i18nHelper('has changed his participation!');
+            break;
+          case 'CANCEL':
+            subject = _i18nHelper('Event {{summary}} from {{userDisplayName}} canceled', true, true);
+            template = 'event.cancel';
+            inviteMessage = _i18nHelper('has canceled a meeting!');
+            break;
+        }
 
-      if (event.attendees && event.attendees[attendeeEmail]) {
-        userIsInvolved = event.attendees[attendeeEmail].partstat ? event.attendees[attendeeEmail].partstat !== 'DECLINED' : true;
-      }
-
-      if (!userIsInvolved) {
-        return q.reject(new Error('The user is not involved in the event')).nodeify(callback);
-      }
-
-      var jwtPayload = {
-        attendeeEmail: attendeePreferedEmail,
-        organizerEmail: event.organizer.email,
-        uid: event.uid,
-        calendarURI: calendarURI
-      };
-
-      return generateActionLinks(baseUrl, jwtPayload).then(function(links) {
-        var contentWithLinks = {};
-        var email = {};
-
-        extend(true, contentWithLinks, content, links);
-        extend(true, email, message, { to: attendeeEmail });
-
-        var locals = {
-          content: contentWithLinks,
-          filter: filter
+        var message = {
+          from: editorEmail,
+          subject: subject,
+          encoding: 'base64',
+          alternatives: [{
+            content: ics,
+            contentType: 'text/calendar; charset=UTF-8; method=' + method
+          }],
+          attachments: [{
+            filename: 'meeting.ics',
+            content: ics,
+            contentType: 'application/ics'
+          }]
+        };
+        var content = {
+          baseUrl: baseUrl,
+          inviteMessage: inviteMessage,
+          event: event,
+          editor: {
+            displayName: userDisplayName(editor),
+            email: editor.email || editor.emails[0]
+          },
+          calendarHomeId: editor._id
         };
 
-        return mailer.sendHTML(email, template, locals);
+        function filter(filename) {
+          switch (filename) {
+            case 'map-marker.png':
+              return !!event.location;
+            case 'format-align-justify.png':
+              return !!event.description;
+            case 'folder-download.png':
+              return !!event.files;
+            case 'check.png':
+              return !(event.allDay && event.durationInDays === 1);
+            default:
+              return true;
+          }
+        }
+
+        var userIsInvolved = false;
+
+        if (event.attendees && event.attendees[attendeeEmail]) {
+          userIsInvolved = event.attendees[attendeeEmail].partstat ? event.attendees[attendeeEmail].partstat !== 'DECLINED' : true;
+        }
+
+        if (!userIsInvolved) {
+          return q.reject(new Error('The user is not involved in the event')).nodeify(callback);
+        }
+
+        var jwtPayload = {
+          attendeeEmail: attendeePreferedEmail,
+          organizerEmail: event.organizer.email,
+          uid: event.uid,
+          calendarURI: calendarURI
+        };
+
+        return generateActionLinks(baseUrl, jwtPayload).then(function(links) {
+          var contentWithLinks = {};
+          var email = {};
+
+          extend(true, contentWithLinks, content, links);
+          extend(true, email, message, { to: attendeeEmail });
+
+          var locals = {
+            content: contentWithLinks,
+            filter: filter,
+            translate: i18nConf.translate
+          };
+
+          return mailer.sendHTML(email, template, locals);
+        });
       });
     }).nodeify(callback);
   });
@@ -380,7 +394,7 @@ function searchEvents(query, callback) {
 
 module.exports = function(dependencies) {
   eventMessage = require('./../../../lib/message/eventmessage.core')(dependencies);
-  i18n = require('../../../lib/i18n')(dependencies);
+  i18nLib = require('../../../lib/i18n')(dependencies);
   userModule = dependencies('user');
   collaborationModule = dependencies('collaboration');
   messageHelpers = dependencies('helpers').message;

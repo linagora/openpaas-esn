@@ -21,6 +21,7 @@ describe('The calendar core module', function() {
   var caldavClientMock;
   var caldavClientLib;
   var emailMock;
+  let esnConfigMock;
 
   function initMock() {
     collaborationMock = {
@@ -99,6 +100,17 @@ describe('The calendar core module', function() {
     emailMock = {
       getMailer: function() { return {}; }
     };
+    esnConfigMock = function(confName) {
+      expect(confName).to.equal('locale');
+      return {
+        inModule: function(mod) {
+          expect(mod).to.equal('core');
+          return {
+            forUser: () => {}
+          };
+        }
+      };
+    };
   }
 
   beforeEach(function() {
@@ -115,6 +127,7 @@ describe('The calendar core module', function() {
     this.moduleHelpers.addDep('config', configMock);
     this.moduleHelpers.addDep('auth', authMock);
     this.moduleHelpers.addDep('email', emailMock);
+    this.moduleHelpers.addDep('esn-config', esnConfigMock);
   });
 
   describe('The dispatch fn', function() {
