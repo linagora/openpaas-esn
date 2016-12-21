@@ -601,7 +601,7 @@ describe('The calEventService service', function() {
       expect(self.gracePeriodService.grace).to.have.been.calledWith(sinon.match({
         gracePeriodFail: {
           text: 'Event modification failed, please refresh your calendar',
-          actionText: 'Refresh',
+          actionText: 'Refresh calendar',
           action: sinon.match.func.and(sinon.match(function(action) {
             var onSpy = sinon.spy();
             self.$rootScope.$on(self.CALENDAR_EVENTS.CALENDAR_REFRESH, onSpy);
