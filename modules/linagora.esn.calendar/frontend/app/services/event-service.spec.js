@@ -23,7 +23,8 @@ describe('The calEventService service', function() {
       registerAdd: sinon.spy(),
       registerDelete: sinon.spy(),
       registerUpdate: sinon.spy(),
-      deleteRegistration: sinon.spy()
+      deleteRegistration: sinon.spy(),
+      resetCache: sinon.spy()
     };
 
     self.gracePeriodService = {
@@ -91,7 +92,7 @@ describe('The calEventService service', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function(calEventService, $httpBackend, $rootScope, _ICAL_, CalendarShell, calMoment, CALENDAR_EVENTS, CALENDAR_GRACE_DELAY) {
+  beforeEach(angular.mock.inject(function(calEventService, $httpBackend, $rootScope, _ICAL_, CalendarShell, calMoment, CALENDAR_EVENTS, CALENDAR_GRACE_DELAY, $window) {
     self.$httpBackend = $httpBackend;
     self.$rootScope = $rootScope;
     self.calEventService = calEventService;
@@ -100,6 +101,7 @@ describe('The calEventService service', function() {
     ICAL = _ICAL_;
     self.CALENDAR_EVENTS = CALENDAR_EVENTS;
     self.CALENDAR_GRACE_DELAY = CALENDAR_GRACE_DELAY;
+    self.$window = $window;
   }));
 
   describe('The listEvents fn', function() {
@@ -584,6 +586,35 @@ describe('The calEventService service', function() {
 
       self.$httpBackend.flush();
       expect(self.calendarEventEmitterMock.fullcalendar.emitModifiedEvent).to.have.been.called;
+    });
+
+    it('should provide a link to refresh the browser if graceperiod fail', function() {
+      self.$httpBackend.expectPUT('/dav/api/path/to/uid.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY).respond(202, { id: '123456789' });
+
+      self.gracePeriodService.grace = sinon.stub().returns($q.when());
+
+      var spy = sinon.spy();
+
+      self.calEventService.modifyEvent('/path/to/uid.ics', self.event, self.event, 'etag', angular.noop, {notifyFullcalendar: true}).then(spy);
+
+      self.$httpBackend.flush();
+      expect(self.gracePeriodService.grace).to.have.been.calledWith(sinon.match({
+        gracePeriodFail: {
+          text: 'Event modification failed, please refresh your calendar',
+          actionText: 'Refresh',
+          action: sinon.match.func.and(sinon.match(function(action) {
+            var onSpy = sinon.spy();
+            self.$rootScope.$on(self.CALENDAR_EVENTS.CALENDAR_REFRESH, onSpy);
+            action();
+
+            expect(calCachedEventSourceMock.resetCache).to.have.been.calledOnce;
+            expect(onSpy).to.have.been.calledOnce;
+
+            return true;
+          }
+          ))
+        }
+      }));
     });
 
     it('should save event on calMasterEventCache if and only if it is a recurring event', function() {

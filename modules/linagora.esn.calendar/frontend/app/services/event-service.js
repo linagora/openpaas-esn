@@ -6,6 +6,8 @@
 
   function calEventService(
     $q,
+    $window,
+    $rootScope,
     _,
     ICAL,
     calCachedEventSource,
@@ -18,8 +20,8 @@
     gracePeriodService,
     calMasterEventCache,
     notificationFactory,
-    CALENDAR_ERROR_DISPLAY_DELAY,
-    CALENDAR_GRACE_DELAY) {
+    CALENDAR_GRACE_DELAY,
+    CALENDAR_EVENTS) {
 
       var self = this;
       var oldEventStore = {};
@@ -331,7 +333,14 @@
               cancelFailed: 'An error has occured, the modification could not been reverted',
               cancelTooLate: 'It is too late to cancel the modification',
               cancelSuccess: 'Calendar - Modification of ' + event.title + ' has been canceled.',
-              gracePeriodFail: 'Event modification failed, please refresh your calendar',
+              gracePeriodFail: {
+                text: 'Event modification failed, please refresh your calendar',
+                actionText: 'Refresh calendar',
+                action: function() {
+                  calCachedEventSource.resetCache();
+                  $rootScope.$broadcast(CALENDAR_EVENTS.CALENDAR_REFRESH);
+                }
+               },
               successText: 'Calendar - ' + event.title + ' has been modified.'
             }, options.graceperiodMessage)).then(_.constant(true), function() {
               onTaskCancel();

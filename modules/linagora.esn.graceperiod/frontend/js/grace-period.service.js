@@ -8,6 +8,7 @@
     $timeout,
     $log,
     $q,
+    _,
     notifyService,
     gracePeriodRestangularService,
     HTTP_LAG_UPPER_BOUND,
@@ -190,21 +191,43 @@
       return !!tasks[taskId];
     }
 
+    function displayMessage(message, type, delay) {
+      if (!message) {
+        return;
+      }
+
+      if (_.isString(message)) {
+        notifyService({
+          message: message
+        }, {
+          type: type,
+          delay: delay
+        });
+      } else {
+        var notification = notifyService({
+          message: message.text
+        }, {
+          type: type,
+          delay: delay
+        });
+
+        notification.setCancelAction({
+          linkText: message.actionText,
+          action: function() {
+            $rootScope.$applyAsync(function() {
+              message.action();
+            });
+          }
+        });
+      }
+    }
+
     function displayError(errorMessage) {
-      errorMessage && notifyService({
-        message: errorMessage
-      }, {
-        type: 'danger',
-        delay: ERROR_DELAY
-      });
+      displayMessage(errorMessage, 'danger', ERROR_DELAY);
     }
 
     function displaySuccess(message) {
-      message && notifyService({
-        message: message
-      }, {
-        type: 'success'
-      });
+      displayMessage(message, 'success');
     }
 
     function askUserForCancel(text, linkText, delay) {
