@@ -715,4 +715,21 @@ angular.module('linagora.esn.unifiedinbox')
       controllerAs: 'ctrl',
       templateUrl: '/unifiedinbox/views/filter/inbox-clear-filters-button.html'
     };
+  })
+
+  .directive('inboxHomeButton', function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/unifiedinbox/views/partials/inbox-home-button.html'
+    };
+  })
+
+  .directive('inboxListAccountUnavailable', function() {
+    return {
+      restrict: 'E',
+      scope: {
+        account: '='
+      },
+      templateUrl: '/unifiedinbox/views/partials/empty-messages/inbox-list-account-unavailable.html'
+    };
   });

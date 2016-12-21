@@ -12,7 +12,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       Composition, newComposerService = {}, $state, $modal, navigateTo,
       mailboxesService, inboxJmapItemService, _, fileUploadMock, config, moment, Mailbox, inboxMailboxesCache,
       touchscreenDetectorService, Thread, esnPreviousState, inboxFilterDescendantMailboxesFilter, inboxSelectionService;
-  var JMAP_GET_MESSAGES_VIEW, INBOX_EVENTS, INFINITE_LIST_EVENTS, DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD;
+  var JMAP_GET_MESSAGES_VIEW, INBOX_EVENTS, DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD;
 
   beforeEach(function() {
     $stateParams = {
@@ -81,7 +81,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
                                           _Composition_, _mailboxesService_, ___, _JMAP_GET_MESSAGES_VIEW_,
                                           _DEFAULT_FILE_TYPE_, _moment_, _DEFAULT_MAX_SIZE_UPLOAD_, _inboxJmapItemService_,
                                           _INBOX_EVENTS_, _Mailbox_, _inboxMailboxesCache_, _Thread_, _esnPreviousState_,
-                                          _INFINITE_LIST_EVENTS_, _inboxSelectionService_) {
+                                          _inboxSelectionService_) {
     $rootScope = _$rootScope_;
     $controller = _$controller_;
     jmap = _jmap_;
@@ -94,7 +94,6 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     DEFAULT_FILE_TYPE = _DEFAULT_FILE_TYPE_;
     DEFAULT_MAX_SIZE_UPLOAD = _DEFAULT_MAX_SIZE_UPLOAD_;
     INBOX_EVENTS = _INBOX_EVENTS_;
-    INFINITE_LIST_EVENTS = _INFINITE_LIST_EVENTS_;
     moment = _moment_;
     Mailbox = _Mailbox_;
     Thread = _Thread_;
@@ -1843,7 +1842,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     beforeEach(inject(function(_inboxSpecialMailboxes_) {
       inboxSpecialMailboxes = _inboxSpecialMailboxes_;
 
-      mailboxesService.assignMailboxesList = sinon.spy();
+      mailboxesService.assignMailboxesList = sinon.spy(function() { return $q.when(); });
     }));
 
     it('should call the mailboxesService.assignMailboxesList function', function() {

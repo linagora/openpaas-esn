@@ -550,10 +550,12 @@ angular.module('linagora.esn.unifiedinbox')
     $scope.username = account.username;
   })
 
-  .controller('inboxSidebarEmailController', function($scope, mailboxesService, inboxSpecialMailboxes) {
-    mailboxesService.assignMailboxesList($scope);
-
+  .controller('inboxSidebarEmailController', function($scope, mailboxesService, inboxSpecialMailboxes, inboxAsyncHostedMailControllerHelper) {
     $scope.specialMailboxes = inboxSpecialMailboxes.list();
+
+    inboxAsyncHostedMailControllerHelper(this, function() {
+      return mailboxesService.assignMailboxesList($scope);
+    });
   })
 
   .controller('inboxSidebarTwitterController', function($scope, session, inboxConfig) {
