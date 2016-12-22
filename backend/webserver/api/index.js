@@ -105,6 +105,7 @@ function setupAPI(application) {
   require('./timelineentries')(router);
   require('./user')(router);
   require('./users')(router);
+  require('./ldap')(router);
 
   application.use('/api', router);
   application.use('/api/v0.1', router);

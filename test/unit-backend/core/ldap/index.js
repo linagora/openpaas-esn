@@ -530,4 +530,136 @@ describe('The ldap core module', function() {
 
   });
 
+  describe('The search fn', function() {
+    var user, ldapUsersMock;
+    var esnConfigMock, ldapConfigsMock;
+
+    beforeEach(function() {
+      ldapConfigsMock = [
+        {
+          name: 'linagora',
+          configuration: {
+            url: 'ldap://localhost:389',
+            adminDn: 'cn=admin,dc=nodomain',
+            adminPassword: '1234',
+            searchBase: 'dc=nodomain',
+            searchFilter: '(mail={{username}})',
+            mapping: {
+              firstname: 'firstname',
+              lastname: 'lastname',
+              email: 'mail'
+            }
+          }
+        }
+      ];
+
+      ldapUsersMock = [
+        {
+          firstname: 'first1',
+          lastname: 'last1',
+          mail: 'email1'
+        },
+        {
+          firstname: 'first2',
+          lastname: 'last2',
+          mail: 'email2'
+        }
+      ];
+      esnConfigMock = {
+        get: sinon.stub().returns(q.when(ldapConfigsMock))
+      };
+
+      esnConfigMock.forUser = sinon.stub().returns(esnConfigMock);
+
+      mockery.registerMock('../esn-config', function(configName) {
+        expect(configName).to.equal('ldap');
+
+        return esnConfigMock;
+      });
+      mockery.registerMock('ldapauth-fork', function(ldapConf) {
+        return {
+          opts: ldapConf,
+          mapping: ldapConf.mapping,
+          _search: function(searchBase, opts, callback) {
+            return callback(null, ldapUsersMock);
+          },
+          on: function() {}
+        };
+      });
+      user = { _id: '123', preferredDomainId: '123456' };
+    });
+
+    it('should send back correct users information after mapping', function(done) {
+      const query = {search: 'abc', limit: 20};
+      const expectResult = {
+        total_count: 2,
+        list: [
+          {
+            _id: 'email1',
+            firstname: 'first1',
+            lastname: 'last1',
+            emails: ['email1'],
+            domains: [{ domain_id: '123456' }],
+            accounts: [
+              {
+                type: 'email',
+                hosted: true,
+                emails: ['email1']
+              }
+            ],
+            preferredEmail: 'email1'
+          },
+          {
+            _id: 'email2',
+            firstname: 'first2',
+            lastname: 'last2',
+            emails: ['email2'],
+            domains: [{ domain_id: '123456' }],
+            accounts: [
+              {
+                type: 'email',
+                hosted: true,
+                emails: ['email2']
+              }
+            ],
+            preferredEmail: 'email2'
+          }
+        ]
+      };
+
+      getModule().search(user, query).then(result => {
+        expect(result).to.deep.equal(expectResult);
+        done();
+      });
+    });
+
+    it('should send back correct number of user limit by query.limit', function(done) {
+      const query = {search: 'abc', limit: 1};
+      const expectResult = {
+        total_count: 2,
+        list: [
+          {
+            _id: 'email1',
+            firstname: 'first1',
+            lastname: 'last1',
+            emails: ['email1'],
+            domains: [{ domain_id: '123456' }],
+            accounts: [
+              {
+                type: 'email',
+                hosted: true,
+                emails: ['email1']
+              }
+            ],
+            preferredEmail: 'email1'
+          }
+        ]
+      };
+
+      getModule().search(user, query).then(result => {
+        expect(result).to.deep.equal(expectResult);
+        done();
+      });
+    });
+  });
 });
