@@ -1,36 +1,56 @@
 'use strict';
 
-var q = require('q');
-var commons = require('../commons');
-var EsnConfig = require('esn-elasticsearch-configuration');
-var indexes = ['users', 'contacts', 'events'];
+const q = require('q');
+const commons = require('../commons');
+const EsnConfig = require('esn-elasticsearch-configuration');
+const AVAILABLE_INDEXS = ['users', 'contacts', 'events'];
+const command = {
+  command: 'elasticsearch',
+  desc: 'Configure ElasticSearch',
+  builder: {
+    host: {
+      alias: 'h',
+      describe: 'elasticsearch host to connect to',
+      default: 'localhost'
+    },
+    port: {
+      alias: 'p',
+      describe: 'elasticsearch port to connect to',
+      type: 'number',
+      default: 9200
+    },
+    index: {
+      alias: 'i',
+      describe: 'index to create',
+      choices: AVAILABLE_INDEXS
+    }
+  },
+  handler: argv => {
+    const { host, port, index } = argv;
+
+    exec(host, port, index)
+      .then(() => commons.logInfo('ElasticSearch has been configured'))
+      .catch(commons.logError)
+      .finally(commons.exit);
+  }
+};
 
 function exec(host, port, index) {
   host = host || process.env.ELASTICSEARCH_HOST || 'localhost';
   port = port || +process.env.ELASTICSEARCH_PORT || 9200;
 
   var esnConf = new EsnConfig({host: host, port: port});
+
   if (index) {
     return esnConf.createIndex(index);
-  } else {
-    return q.all(indexes.map(function(index) {
-      return esnConf.createIndex(index);
-    }));
   }
-}
-module.exports.exec = exec;
 
-module.exports.createCommand = function(command) {
+  return q.all(AVAILABLE_INDEXS.map(function(index) {
+    return esnConf.createIndex(index);
+  }));
+}
+
+module.exports = {
+  exec,
   command
-    .description('Configure ElasticSearch')
-    .option('-h, --host <host>', 'elasticsearch host to connect to')
-    .option('-p, --port <port>', 'elasticsearch port to connect to')
-    .option('-i, --index <index>', 'index to create')
-    .action(function(cmd) {
-      exec(cmd.host, cmd.port, cmd.index).then(function() {
-        console.log('ElasticSearch has been configured');
-      }, function(err) {
-        console.log('Error', err);
-      }).finally(commons.exit);
-    });
 };

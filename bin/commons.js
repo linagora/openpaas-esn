@@ -8,15 +8,15 @@ var request = require('request'),
 
 var readdir = q.denodeify(fs.readdir);
 
-function log(level, message) {
-  console.log('[CLI] ' + level + ' ' + message);
+function log(level, ...message) {
+  console.log('[CLI]', level, message);
 }
 
-function logInfo(message) {
+function logInfo(...message) {
   log('INFO', message);
 }
 
-function logError(message) {
+function logError(...message) {
   log('ERROR', message);
 }
 
@@ -62,6 +62,7 @@ module.exports.loginAsUser = function(baseUrl, email, password, done) {
     if (resp.statusCode !== 200) {
       return done(new Error('Can not auth user', body));
     }
+
     return done(null, body);
   });
 };

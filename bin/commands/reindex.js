@@ -1,14 +1,54 @@
 'use strict';
 
-var HANDLERS = {
+const HANDLERS = {
   users: indexUsers,
   contacts: indexContacts
 };
+const q = require('q');
+const _ = require('lodash');
+const commons = require('../commons');
+const request = require('request');
+const command = {
+  command: 'reindex',
+  desc: 'Reindex MongoDB data into Elasticsearch',
+  builder: {
+    'db-host': {
+      describe: 'MongoDB host to connect to',
+      default: 'localhost'
+    },
+    'db-port': {
+      describe: 'MongoDB port to connect to',
+      type: 'number',
+      default: 27017
+    },
+    'db-name': {
+      describe: 'MongoDB name to connect to',
+      demand: true
+    },
+    'es-host': {
+      describe: 'Elasticsearch host to connect to',
+      default: 'localhost'
+    },
+    'es-port': {
+      describe: 'Elasticsearch port to connect to',
+      type: 'number',
+      default: 9200
+    },
+    type: {
+      alias: 't',
+      describe: 'the data type to reindex',
+      choices: Object.keys(HANDLERS),
+      demand: true
+    }
+  },
+  handler: argv => {
+    const { dbHost, dbPort, dbName, esHost, esPort, type } = argv;
 
-var q = require('q'),
-    _ = require('lodash'),
-    commons = require('../commons'),
-    request = require('request');
+    return exec(dbHost, dbPort, dbName, esHost, esPort, type)
+      .then(null, commons.logError)
+      .finally(commons.exit);
+  }
+};
 
 function exec(dbHost, dbPort, dbName, esHost, esPort, type) {
   var handler = HANDLERS[type];
@@ -124,18 +164,7 @@ function indexUsers(dbHost, dbPort, dbName) {
     });
 }
 
-module.exports.createCommand = function(command) {
+module.exports = {
+  exec,
   command
-    .description('Reindex MongoDB data into Elasticsearch')
-    .option('--db-host <host>', 'MongoDB host to connect to')
-    .option('--db-port <port>', 'MongoDB port to connect to')
-    .option('--db-name <name>', 'MongoDB host to connect to')
-    .option('--es-host <host>', 'Elasticsearch host to connect to')
-    .option('--es-port <port>', 'Elasticsearch port to connect to')
-    .option('-t, --type <type>', 'the data type to reindex')
-    .action(function(cmd) {
-      return exec(cmd.dbHost, cmd.dbPort, cmd.dbName, cmd.esHost, cmd.esPort, cmd.type)
-        .then(null, commons.logError)
-        .finally(commons.exit);
-    });
 };

@@ -1,27 +1,34 @@
 'use strict';
 
-var commons = require('../commons');
-var configFixture = require('../../fixtures/esn-config');
-var db = require('../../fixtures/db');
+const commons = require('../commons');
+const CONSTANTS = require('../constants').params;
+const configFixture = require('../../fixtures/esn-config');
+const db = require('../../fixtures/db');
+const command = {
+  command: 'configure',
+  desc: 'Configure OpenPaaS',
+  builder: {
+    host: CONSTANTS.mongodb.host,
+    port: CONSTANTS.mongodb.port,
+    database: CONSTANTS.mongodb.database
+  },
+  handler: argv => {
+    const { host, port, database } = argv;
+
+    exec(host, port, database)
+      .then(() => commons.logInfo('Configured'))
+      .catch(commons.logError)
+      .finally(commons.exit);
+  }
+};
 
 function exec(host, port, dbName) {
   return db.connect(commons.getDBOptions(host, port, dbName))
     .then(configFixture)
     .then(db.disconnect);
 }
-module.exports.exec = exec;
 
-module.exports.createCommand = function(command) {
+module.exports = {
+  exec,
   command
-    .description('Configure OpenPaaS')
-    .option('-h, --host <host>', 'database host to connect to')
-    .option('-p, --port <port>', 'database port to connect to')
-    .option('-db, --database <database>', 'database name to connect to')
-    .action(function(cmd) {
-      exec(cmd.host, cmd.port, cmd.database).then(function() {
-        console.log('Configured');
-      }, function(err) {
-        console.log('Error', err);
-      }).finally(commons.exit);
-    });
 };

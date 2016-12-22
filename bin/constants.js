@@ -1,0 +1,46 @@
+'use strict';
+
+const emailAddresses = require('email-addresses');
+
+function validateEmail(email) {
+  return emailAddresses.parseOneAddress(email) !== null;
+}
+
+module.exports = {
+  params: {
+    mongodb: {
+      host: {
+        alias: 'h',
+        describe: 'MongoDB host to connect to',
+        default: 'localhost'
+      },
+      port: {
+        alias: 'p',
+        describe: 'MongoDB port to connect to',
+        type: 'number',
+        default: 27017
+      },
+      database: {
+        alias: 'db',
+        describe: 'MongoDB database name to connect to',
+        default: 'esn'
+      }
+    },
+    administrator: {
+      email: {
+        describe: 'Email address of the administrator to create',
+        demand: true,
+        coerce: adminEmail => {
+          if (!validateEmail(adminEmail)) {
+            throw new Error('email is not a valid email address');
+          }
+
+          return adminEmail;
+        }
+      },
+      password: {
+        describe: 'Password of the administrator to create'
+      }
+    }
+  }
+};
