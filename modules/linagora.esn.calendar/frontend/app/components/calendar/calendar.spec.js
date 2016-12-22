@@ -45,7 +45,7 @@ describe('The esnCalendar component controller', function() {
   }));
 
   it('should pass given config to fullCalendar', function() {
-    vm.$onChanges();
+    vm.$onInit();
 
     expect(calElement.fullCalendar).to.have.been.calledWith({
       viewRender: sinon.match.func,
@@ -54,7 +54,7 @@ describe('The esnCalendar component controller', function() {
   });
 
   it('should not hide config.viewRender but wrap it to notify once when calendar is ready', function() {
-    vm.$onChanges();
+    vm.$onInit();
 
     expect(calElement.fullCalendar).to.have.been.calledWith(sinon.match({
       viewRender: sinon.match.func.and(sinon.match(function(func) {
@@ -72,7 +72,7 @@ describe('The esnCalendar component controller', function() {
     var calendar;
 
     beforeEach(function() {
-      vm.$onChanges();
+      vm.$onInit();
       expect(calElement.fullCalendar).to.have.been.calledWith(sinon.match({
         viewRender: sinon.match.func.and(sinon.match(function(func) {
           func();

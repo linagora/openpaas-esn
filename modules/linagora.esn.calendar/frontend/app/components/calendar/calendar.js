@@ -27,7 +27,6 @@
 
   function esnCalendarController($window, $element, $log, _) {
     var self = this;
-    var alreadyInit = false;
     var alreadyRender = false;
     var div = $element.children();
 
@@ -47,31 +46,25 @@
       windowJQuery.off('resize', windowResize);
     };
 
-    self.$onChanges = function(value, oldValue) {
-      if (alreadyInit) {
-        $log.error('You can not change config');
+    self.$onInit = function() {
+      var config = _.clone(self.config);
 
-        return;
-      } else if (self.config && self.calendarReady) {
-        var config = _.clone(self.config);
+      config.viewRender = function() {
+        self.config.viewRender && self.config.viewRender.apply(this, arguments);
 
-        config.viewRender = function() {
-          self.config.viewRender && self.config.viewRender.apply(this, arguments);
+        self.calendarReady({
+          fullCalendar: function() {
+            try {
+              return div.fullCalendar.apply(div, arguments);
+            } catch (e) {
+              $log.error(e);
+            }
+          },
+          offset: div.offset.bind(div)
+        });
+      };
 
-          self.calendarReady({
-            fullCalendar: function() {
-              try {
-                return div.fullCalendar.apply(div, arguments);
-              } catch (e) {
-                $log.error(e);
-              }
-            },
-            offset: div.offset.bind(div)
-          });
-        };
-        alreadyInit = true;
-        div.fullCalendar(config);
-      }
+      div.fullCalendar(config);
     };
   }
 })();

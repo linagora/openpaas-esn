@@ -440,7 +440,7 @@ describe('The calendarViewController', function() {
 
   it('should resize the calendar height twice when the controller is created', function() {
     this.controller('calendarViewController', {$scope: this.scope});
-    var uiCalendarDiv = this.$compile(angular.element('<esn-calendar config="uiConfig.calendar"></div>'))(this.scope);
+    var uiCalendarDiv = this.$compile(angular.element('<esn-calendar config="uiConfig.calendar" calendar-ready="calendarReady"></div>'))(this.scope);
 
     uiCalendarDiv.appendTo(document.body);
     this.scope.calendarReady(this.calendar);
@@ -487,7 +487,7 @@ describe('The calendarViewController', function() {
     this.controller('calendarViewController', {$scope: this.scope});
     this.scope.$digest();
 
-    var uiCalendarDiv = this.$compile(angular.element('<esn-calendar config="uiConfig.calendar"></div>'))(this.scope);
+    var uiCalendarDiv = this.$compile(angular.element('<esn-calendar config="uiConfig.calendar" calendar-ready="calendarReady"></div>'))(this.scope);
 
     uiCalendarDiv.appendTo(document.body);
     this.$timeout.flush();
@@ -512,7 +512,8 @@ describe('The calendarViewController', function() {
   it('should resize the calendar height to a max value', function() {
     this.controller('calendarViewController', {$scope: this.scope});
 
-    var uiCalendarDiv = this.$compile(angular.element('<esn-calendar config="uiConfig.calendar"></div>'))(this.scope);
+    this.scope.calendarReadyNoop = angular.noop;
+    var uiCalendarDiv = this.$compile(angular.element('<esn-calendar config="uiConfig.calendar" calendar-ready="calendarReadyNoop"></div>'))(this.scope);
 
     uiCalendarDiv.appendTo(document.body);
     this.$timeout.flush();

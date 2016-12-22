@@ -4,6 +4,48 @@
 
 var expect = chai.expect;
 
+describe('The calendar configuration controller', function() {
+  var $rootScope, $controller, $scope, calendarConfigurationController;
+
+  function initController() {
+    return $controller('calendarConfigurationController', { $scope: $scope });
+  }
+
+  beforeEach(function() {
+    angular.mock.module('esn.calendar');
+
+    angular.mock.inject(function(_$rootScope_, _$controller_, DEFAULT_CALENDAR_ID) {
+      $rootScope = _$rootScope_;
+      $scope = $rootScope.$new();
+      $controller = _$controller_;
+
+      calendarConfigurationController = initController();
+    });
+  });
+
+  describe('isDefaultCalendar value', function() {
+    it('should return true if it is the default calendar', function() {
+      calendarConfigurationController.calendar = {
+        id: 'events'
+      };
+
+      calendarConfigurationController.$onInit();
+
+      expect(calendarConfigurationController.isDefaultCalendar).to.be.true;
+    });
+
+    it('should return false if it is not the default calendar', function() {
+      calendarConfigurationController.calendar = {
+        id: '123456789'
+      };
+
+      calendarConfigurationController.$onInit();
+
+      expect(calendarConfigurationController.isDefaultCalendar).to.be.false;
+    });
+  });
+});
+
 describe.skip('The calendarEditionController controller', function() {
   var self;
 
