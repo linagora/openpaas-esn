@@ -20,12 +20,10 @@
     return directive;
   }
 
-  MailToAttendeesController.$inject = ['_'];
-
   function MailToAttendeesController(_) {
     var self = this;
 
-    self.attendeesMail = _.pluck(self.event.attendees, 'email').join();
+    self.attendeesMail = _.uniq(_.map(self.event.attendees, 'email')).join();
   }
 
 })();

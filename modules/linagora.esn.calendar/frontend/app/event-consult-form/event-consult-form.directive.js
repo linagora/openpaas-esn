@@ -4,9 +4,7 @@
   angular.module('esn.calendar')
          .directive('calEventConsultForm', calEventConsultForm);
 
-calEventConsultForm.$inject = ['$injector'];
-
-  function calEventConsultForm($injector) {
+  function calEventConsultForm() {
     var directive = {
       restrict: 'E',
       template: '<div><sub-header><cal-event-consult-form-subheader class="hidden-md" /></sub-header><cal-event-consult-form-body/></div>',
@@ -24,7 +22,6 @@ calEventConsultForm.$inject = ['$injector'];
 
     function link(scope) {
       scope.isEdit = false;
-      scope.composerExists = $injector.has('composerDirective');
       scope.modifyEventParticipation = modifyEventParticipation;
       scope.changeConsultState = changeConsultState;
 

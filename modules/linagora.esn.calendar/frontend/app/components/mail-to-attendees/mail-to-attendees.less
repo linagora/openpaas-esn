@@ -1,18 +1,29 @@
 .mail-to-attendees {
-  .flex-row;
-  .flex-vertical-centered;
   float: right;
-  font-size: 1.2em;
 
-  span {
-    color: @accentColor;
-    float: right;
-  }
+  button {
+    .flex-vertical-centered;
 
-  a {
-    color: @accentColor;
     .mdi {
       font-size: 2em;
+    }
+
+    label {
+      .clickable;
+    }
+  }
+}
+
+@media (min-width: @screen-md-min) {
+  .mail-to-attendees {
+
+    button {
+
+      &:hover {
+        color: @m-white;
+        background-color: @m-amber;
+        box-shadow: none;
+      }
     }
   }
 }

@@ -140,8 +140,9 @@
         resolve: {
           event: function($stateParams, $state, calPathBuilder, calEventService, calEventUtils, notificationFactory) {
             var eventPath = calPathBuilder.forEventId($stateParams.calendarHomeId, $stateParams.eventId);
+            var editedEvent = calEventUtils.getEditedEvent();
 
-            return calEventUtils.getEditedEvent() || calEventService.getEvent(eventPath).catch(function(error) {
+            return editedEvent && Object.keys(editedEvent).length ? editedEvent : calEventService.getEvent(eventPath).catch(function(error) {
               if (error.status !== 404) {
                 notificationFactory.weakError('Cannot display the requested event, an error occured: ', error.statusText);
               }
