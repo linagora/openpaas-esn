@@ -3,8 +3,13 @@
 const logger = require('../../core/logger');
 const q = require('q');
 
+const EXCHANGE_TYPES = {
+  pubsub: 'fanout',
+  topic: 'topic'
+};
+
 const PUBSUB_EXCHANGE = {
-  type: 'fanout',
+  type: EXCHANGE_TYPES.pubsub,
   routingKey: '', // not considered for 'fanout' exchange
   encoding: 'utf8'
 };
@@ -21,6 +26,7 @@ const SUBSCRIBER = {
 
 const dataAsBuffer = data => Buffer.from(JSON.stringify(data), PUBSUB_EXCHANGE.encoding);
 
+// see http://www.squaremobius.net/amqp.node/ for the amqp documentation
 class AmqpClient {
 
   constructor(channel) {
@@ -37,16 +43,15 @@ class AmqpClient {
   publish(topic, data) {
     logger.debug('AMQP: publishing message to:', topic);
 
-    return this.channel.assertExchange(topic, PUBSUB_EXCHANGE.type)
-      .then(() => this.channel.publish(topic, PUBSUB_EXCHANGE.routingKey, dataAsBuffer(data)));
+    return this.assertExchange(topic, PUBSUB_EXCHANGE.type)
+    .then(() => this.send(topic, data, PUBSUB_EXCHANGE.routingKey));
   }
 
   subscribe(topic, callback) {
-    return this.channel.assertExchange(topic, PUBSUB_EXCHANGE.type)
-      .then(() => this.channel.assertQueue(SUBSCRIBER.queueName, SUBSCRIBER.queueOptions))
-      .then(res => this.channel.bindQueue(res.queue, topic).then(() => res))
-      .then(res => this.channel.consume(res.queue, msg => callback(JSON.parse(msg.content)), SUBSCRIBER.consumeOptions))
-      .then(res => this._registerNewConsumerTag(callback, res.consumerTag));
+    return this.assertExchange(topic, PUBSUB_EXCHANGE.type)
+      .then(() => this.assertQueue(SUBSCRIBER.queueName, SUBSCRIBER.queueOptions))
+      .then(res => this.assertBinding(res.queue, topic).then(() => res))
+      .then(res => this.consume(res.queue, SUBSCRIBER.consumeOptions, callback));
   }
 
   unsubscribe(topic, callback) {
@@ -61,6 +66,27 @@ class AmqpClient {
     logger.warn('AMQP: No consumerTag found to unsubscribe a consumer from: ' + topic);
 
     return q.when();
+  }
+
+  assertExchange(exchange, type = EXCHANGE_TYPES.topic) {
+    return this.channel.assertExchange(exchange, type);
+  }
+
+  assertQueue(name, options) {
+    return this.channel.assertQueue(name, options);
+  }
+
+  assertBinding(queue, exchange, routingPattern) {
+    return this.channel.bindQueue(queue, exchange, routingPattern);
+  }
+
+  send(exchange, data, routingKey = '') {
+    return this.channel.publish(exchange, routingKey, dataAsBuffer(data));
+  }
+
+  consume(queue, options, callback) {
+    return this.channel.consume(queue, msg => callback(msg.content), options)
+      .then(res => this._registerNewConsumerTag(callback, res.consumerTag));
   }
 
   _registerNewConsumerTag(callback, consumerTag) {

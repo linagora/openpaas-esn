@@ -41,7 +41,7 @@
     "gridfs-stream": "1.1.1",
     "hash_file": "0.1.1",
     "i18n": "git+https://github.com/linagora/i18n-node.git#multiDirectories",
-    "ical.js": "1.1.2",
+    "ical.js": "github:linagora/ical.js#v1.1.2-#279-require-twice-protection",
     "jade": "^1.11.0",
     "jsonwebtoken": "7.1.9",
     "konphyg": "git+https://github.com/linagora/konphyg.git",
