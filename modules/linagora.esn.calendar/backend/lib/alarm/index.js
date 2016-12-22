@@ -4,33 +4,42 @@ var q = require('q');
 var ICAL = require('ical.js');
 var moment = require('moment-timezone');
 var jcalHelper = require('../helpers/jcal');
+var constants = require('../constants');
 var emailModule;
 var helpers;
 var pubsub;
 var logger;
 var cron;
+var i18nLib;
+var userModule;
 
 function _sendAlarmEmail(ics, email) {
-  return q.nfcall(helpers.config.getBaseUrl, null)
-    .then(function(baseUrl) {
-
-      var event = jcalHelper.jcal2content(ics, baseUrl);
-      var alarm = event.alarm;
-      var message = {
+  return q.nfbind(userModule.findByEmail)(email)
+    .then(user => q.all([
+        q.nfcall(helpers.config.getBaseUrl, null),
+        i18nLib.getI18nForMailer(user)
+      ])
+    )
+    .spread((baseUrl, i18nConf) => {
+      const event = jcalHelper.jcal2content(ics, baseUrl);
+      const message = {
         to: email,
-        subject: alarm.summary
+        subject: event.alarm.summary
       };
-      var templateName = 'event.alarm';
+      const templateName = 'event.alarm';
 
       return emailModule.getMailer().sendHTML(message, templateName, {
-       content: {
-         baseUrl: baseUrl,
-         event: event,
-         alarm: alarm
-       }
-     });
-   });
-  }
+        content: {
+          baseUrl: baseUrl,
+          event: event,
+          alarm: event.alarm
+        },
+        translate: i18nConf.translate
+      });
+    }).catch(err => {
+      logger.error('Could not send alarm email', err);
+    });
+}
 
 function _registerNewAlarm(context, dbStorage) {
   function job(callback) {
@@ -195,6 +204,8 @@ module.exports = function(dependencies) {
   pubsub = dependencies('pubsub');
   cron = dependencies('cron');
   logger = dependencies('logger');
+  userModule = dependencies('user');
+  i18nLib = require('../i18n')(dependencies);
 
   return {
     init: init
