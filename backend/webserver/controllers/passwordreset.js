@@ -1,34 +1,14 @@
 'use strict';
 
-var async = require('async');
+const async = require('async');
 
-var i18n = require('../../i18n');
-var logger = require('../../core/logger');
-var userLogin = require('../../core/user/login');
-var userModule = require('../../core/user');
-var emailModule = require('../../core/email');
-var configHelper = require('../../helpers').config;
-var PasswordReset = require('mongoose').model('PasswordReset');
-
-function _sendConfirmation(user, template, callback) {
-  var mailer = emailModule.getMailer(user.preferredDomainId);
-
-  configHelper.getBaseUrl(user, function(err, url) {
-    if (err) {
-      return callback(err);
-    }
-
-    var locals = {
-      firstname: user.firstname,
-      lastname: user.lastname,
-      url: url
-    };
-
-    mailer.sendHTML({to: user.preferredEmail, subject: i18n.__('Your password has been changed!')}, template, locals).then(function() {
-      callback();
-    }, callback);
-  });
-}
+const i18n = require('../../i18n');
+const logger = require('../../core/logger');
+const userLogin = require('../../core/user/login');
+const userPassword = require('../../core/user/password');
+const emailModule = require('../../core/email');
+const configHelper = require('../../helpers').config;
+const PasswordReset = require('mongoose').model('PasswordReset');
 
 function sendPasswordReset(req, res) {
   userLogin.sendPasswordReset(req.user, function(err) {
@@ -56,9 +36,9 @@ function updateAndRemovePasswordReset(req, res) {
   }
 
   async.series([
-    userModule.updatePassword.bind(null, req.user, req.body.password),
+    userPassword.updatePassword.bind(null, req.user, req.body.password),
     PasswordReset.removeByEmail.bind(PasswordReset, req.user.preferredEmail),
-    _sendConfirmation.bind(null, req.user, 'core.password-reset-confirmation')
+    userPassword.sendPasswordChangedConfirmation.bind(null, req.user, 'core.password-reset-confirmation')
   ], function(err) {
     if (err) {
       return res.status(500).json({error: 500, message: 'Server Error', details: err.message});
@@ -82,9 +62,9 @@ function changePassword(req, res) {
   }
 
   async.series([
-    userModule.checkPassword.bind(null, req.user, req.body.oldpassword),
-    userModule.updatePassword.bind(null, req.user, req.body.newpassword),
-    _sendConfirmation.bind(null, req.user, 'core.change-password-confirmation')
+    userPassword.checkPassword.bind(null, req.user, req.body.oldpassword),
+    userPassword.updatePassword.bind(null, req.user, req.body.newpassword),
+    userPassword.sendPasswordChangedConfirmation.bind(null, req.user, 'core.change-password-confirmation')
   ], function(err) {
     if (err) {
       if (err.message === 'Unmatched password') {
