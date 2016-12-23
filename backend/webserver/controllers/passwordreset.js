@@ -67,7 +67,7 @@ function changePassword(req, res) {
     userPassword.sendPasswordChangedConfirmation.bind(null, req.user, 'core.change-password-confirmation')
   ], function(err) {
     if (err) {
-      if (err.message === 'Unmatched password') {
+      if (err.message === 'The passwords do not match.') {
         return res.status(400).json({error: 400, message: 'Bad Request', details: err.message});
       }
 
