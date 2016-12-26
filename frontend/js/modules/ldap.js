@@ -8,6 +8,8 @@
       'esn.attendee'
     ])
 
+    .constant('LDAP_AUTO_COMPLETE_TEMPLATE_URL', '/views/modules/auto-complete/ldap-auto-complete')
+
     .factory('ldapAPI', ldapAPI)
 
     .service('ldapSearchProvider', ldapSearchProvider)
@@ -31,7 +33,7 @@
     };
   }
 
-  function ldapSearchProvider($log, $q, ldapAPI, userUtils) {
+  function ldapSearchProvider($log, $q, ldapAPI, userUtils, LDAP_AUTO_COMPLETE_TEMPLATE_URL) {
     function searchAttendee(query, limit) {
       var searchOption = {search: query, limit: limit};
 
@@ -53,7 +55,8 @@
     }
 
     return {
-      searchAttendee: searchAttendee
+      searchAttendee: searchAttendee,
+      templateUrl: LDAP_AUTO_COMPLETE_TEMPLATE_URL
     };
   }
 })();
