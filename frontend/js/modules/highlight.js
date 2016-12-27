@@ -2,23 +2,30 @@
 
 angular.module('esn.highlight', [])
 
-.filter('esnHighlight', function($sce) {
+.filter('esnHighlight', function($sce, escapeHtmlUtils) {
     function escapeRegexChars(str) {
       return str && str.replace(/([.?*+^$[\]\\(){}|-])/g, ' ');
     }
-    function escapeHTML(str) {
-      return angular.isUndefined(str) || str === null ? '' : str.toString().trim()
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;');
+
+    function replacer(match, text, tags) {
+      return text ? '<span class="highlight">' + text + '</span>' : tags;
     }
-    return function(text, phrase) {
-      phrase = escapeHTML(phrase);
-      text = escapeHTML(text);
-      var expression = new RegExp('(' + escapeRegexChars(phrase) + ')', 'gi');
-      if (phrase) {
-        text = text.replace(expression, '<span class="highlight">$1</span>');
+
+    return function(text, phrase, options) {
+      options = options || {};
+      phrase = escapeHtmlUtils.escapeHTML(phrase);
+      phrase = escapeRegexChars(phrase);
+
+      if (!options.ignoreEscape) {
+        text = escapeHtmlUtils.escapeHTML(text);
       }
+
+      if (phrase) {
+        var expression = new RegExp('(' + phrase + ')|(<[^>]*?' + phrase + '.*?>)', 'gi');
+
+        text = text.replace(expression, replacer);
+      }
+
       return $sce.trustAsHtml(text);
     };
   });
