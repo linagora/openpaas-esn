@@ -94,6 +94,26 @@ describe('The /user-status API', function() {
         });
       }
     });
+
+    it('should return "disconnected" if the user was never active', function(done) {
+      self = this;
+
+      initMidway(test);
+
+      function test() {
+        self.helpers.api.loginAsUser(self.app, user.emails[0], password, function(err, requestAsMember) {
+          const req = requestAsMember(request(self.app).get('/users/' + user1._id));
+
+          req.expect(200).end(function(err, res) {
+            if (err) {
+              return done(err);
+            }
+            expect(res.body).to.deep.equal({_id: String(user1._id), status: 'disconnected'});
+            done();
+          });
+        });
+      }
+    });
   });
 
   describe('POST /user-status/users', function() {

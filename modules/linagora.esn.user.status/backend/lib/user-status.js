@@ -1,7 +1,5 @@
 'use strict';
 
-const CONSTANTS = require('./constants');
-
 module.exports = function(dependencies, lib) {
 
   const mongoose = dependencies('db').mongo.mongoose;

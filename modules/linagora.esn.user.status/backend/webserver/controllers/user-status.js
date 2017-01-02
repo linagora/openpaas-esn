@@ -12,8 +12,14 @@ module.exports = function(dependencies, lib) {
     getUsersStatus
   };
 
-  function denormalize(status) {
-    return Q({_id: status._id, status: getConnectedStatus(status), last_active: status.last_active});
+  function denormalize(userId, status) {
+    const result = {_id: userId, status: getConnectedStatus(status)};
+
+    if (status && status.last_active) {
+      result.last_active = status.last_active;
+    }
+
+    return Q(result);
   }
 
   function getConnectedStatus(status) {
@@ -22,7 +28,7 @@ module.exports = function(dependencies, lib) {
 
   function getUserStatus(req, res) {
     lib.userStatus.getStatus(req.params.id)
-    .then(denormalize)
+    .then(denormalize.bind(null, req.params.id))
     .then(status => {
       res.status(200).json(status);
     }).catch(err => {
@@ -40,7 +46,7 @@ module.exports = function(dependencies, lib) {
 
   function getUsersStatus(req, res) {
     lib.userStatus.getStatuses(req.body)
-    .then(result => Q.all(result.map(denormalize)))
+    .then(result => Q.all(result.map(userStatus => denormalize(userStatus._id, userStatus))))
     .then(status => {
       res.status(200).json(status);
     }).catch(err => {
