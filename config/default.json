@@ -82,6 +82,7 @@
     "linagora.esn.oauth.consumer",
     "linagora.esn.project",
     "linagora.esn.profile",
+    "linagora.esn.user.status",
     "linagora.esn.controlcenter",
     "linagora.esn.unifiedinbox",
     "linagora.esn.admin"
