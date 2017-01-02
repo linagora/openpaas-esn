@@ -80,6 +80,7 @@ module.exports = function(config) {
 
       'modules/**/frontend/js/**/*.js',
       'modules/**/frontend/app/**/*.js',
+      {pattern: 'modules/**/frontend/app/**/*.run.js', watched: false, included: false, served: true},
 
       'modules/**/test/unit-frontend/**/*.js',
 
