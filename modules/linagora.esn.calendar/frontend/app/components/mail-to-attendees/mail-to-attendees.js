@@ -23,7 +23,12 @@
   function MailToAttendeesController(_) {
     var self = this;
 
-    self.attendeesMail = _.uniq(_.map(self.event.attendees, 'email')).join();
-  }
+    self.getEmailAddressesFromUsers = getEmailAddressesFromUsers;
 
+    ////////////
+
+    function getEmailAddressesFromUsers(list) {
+        return _.uniq(_.map(list, 'email')).join();
+    }
+  }
 })();

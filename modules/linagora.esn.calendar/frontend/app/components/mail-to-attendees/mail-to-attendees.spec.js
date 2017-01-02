@@ -39,20 +39,18 @@ describe('The mail-to-attendees component', function() {
   }]));
 
   it('should initialize mail-to-attendees', function() {
-    this.$scope.event.attendees = attendeesTest;
-
     this.initDirective(this.$scope);
 
-    expect(this.eleScope.vm.attendeesMail).to.equal(attendeesMailTest);
+    expect(this.eleScope.vm.getEmailAddressesFromUsers(attendeesTest)).to.equal(attendeesMailTest);
   });
 
   it('should initialize mail-to-attendees without duplicates', function() {
-    this.$scope.event.attendees = angular.copy(attendeesTest);
-    this.$scope.event.attendees.push(attendeesTest[1]);
+    var attendees = angular.copy(attendeesTest);
+
+    attendees.push(attendeesTest[1]);
 
     this.initDirective(this.$scope);
 
-    expect(this.eleScope.vm.attendeesMail).to.equal(attendeesMailTest);
+    expect(this.eleScope.vm.getEmailAddressesFromUsers(attendees)).to.equal(attendeesMailTest);
   });
-
 });
