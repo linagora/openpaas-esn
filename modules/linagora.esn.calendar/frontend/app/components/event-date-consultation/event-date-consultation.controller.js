@@ -2,27 +2,9 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .directive('eventDateConsultation', eventDateConsultation);
+         .controller('eventDateConsultationController', eventDateConsultationController);
 
-  function eventDateConsultation() {
-    var directive = {
-      restrict: 'E',
-      templateUrl: '/calendar/app/components/event-date-consultation/event-date-consultation.html',
-      scope: {
-        event: '='
-      },
-      replace: true,
-      controller: EventDateConsultationController,
-      controllerAs: 'vm',
-      bindToController: true
-    };
-
-    return directive;
-  }
-
-  EventDateConsultationController.$inject = [];
-
-  function EventDateConsultationController() {
+  function eventDateConsultationController() {
     var self = this,
         isAllDay = self.event.allDay,
         isOverOneDayOnly = self.event.isOverOneDayOnly(),
@@ -62,5 +44,4 @@
       }
     }
   }
-
 })();

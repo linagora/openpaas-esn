@@ -13,8 +13,8 @@ describe('The eventDateEditionController', function() {
     angular.mock.module('esn.calendar');
 
     angular.mock.inject(function(_$controller_, _calMoment_) {
-      calMoment = _calMoment_;
       $controller = _$controller_;
+      calMoment = _calMoment_;
     });
 
     startTestMoment = calMoment('2013-02-08 09:30');
