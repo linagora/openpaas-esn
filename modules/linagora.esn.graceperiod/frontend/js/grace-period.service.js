@@ -208,7 +208,7 @@
           message: message.text
         }, {
           type: type,
-          delay: delay
+          delay: message.delay || delay
         });
 
         notification.setCancelAction({
