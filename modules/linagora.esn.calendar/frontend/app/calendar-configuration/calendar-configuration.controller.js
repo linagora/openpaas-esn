@@ -2,26 +2,9 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .directive('calendarConfiguration', calendarConfiguration);
+    .controller('calendarConfigurationController', calendarConfigurationController);
 
-  function calendarConfiguration() {
-    var directive = {
-      restrict: 'E',
-      templateUrl: '/calendar/app/calendar-configuration/calendar-configuration.html',
-      scope: {
-        calendar: '=?',
-        calendarHomeId: '='
-      },
-      replace: true,
-      controller: CalendarConfigurationController,
-      controllerAs: 'vm',
-      bindToController: true
-    };
-
-    return directive;
-  }
-
-  function CalendarConfigurationController(
+  function calendarConfigurationController(
     $log,
     $modal,
     $scope,
@@ -34,6 +17,7 @@
     notificationFactory,
     CALENDAR_MODIFY_COMPARE_KEYS,
     CALENDAR_RIGHT,
+    DEFAULT_CALENDAR_ID,
     CalendarRightShell,
     CalDelegationEditionHelper,
     $q,
@@ -45,11 +29,6 @@
     var calendarRight, originalCalendarRight;
     var CaldelegationEditionHelperInstance = new CalDelegationEditionHelper();
 
-    self.newCalendar = !self.calendar;
-    self.calendar = self.calendar || {};
-    self.oldCalendar = {};
-    self.newUsersGroups = [];
-    self.selectedTab = 'main';
     self.submit = submit;
     self.openDeleteConfirmationDialog = openDeleteConfirmationDialog;
     self.delete = removeCalendar;
@@ -62,11 +41,18 @@
     self.goToEditDelegation = goToEditDelegation;
     self.goToCalendarEdit = goToCalendarEdit;
 
-    activate();
+    self.$onInit = activate;
 
     ////////////
 
     function activate() {
+      self.newCalendar = !self.calendar;
+      self.calendar = self.calendar || {};
+      self.oldCalendar = {};
+      self.newUsersGroups = [];
+      self.selectedTab = 'main';
+      self.isDefaultCalendar = self.calendar.id === DEFAULT_CALENDAR_ID;
+
       if (self.newCalendar) {
         calendarRight = $q.when(new CalendarRightShell());
       } else {
@@ -194,7 +180,7 @@
       });
     }
 
-     function addUserGroup() {
+    function addUserGroup() {
       self.delegations = CaldelegationEditionHelperInstance.addUserGroup(self.newUsersGroups, self.selection);
       if (self.newCalendar) {
         throw new Error('edition of right on new calendar are not implemented yet');

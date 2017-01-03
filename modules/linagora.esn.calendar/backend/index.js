@@ -139,7 +139,8 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
 
         'calendar-configuration/calendar-configuration-header/calendar-configuration-header.directive.js',
         'calendar-configuration/calendars-configuration-header/calendars-configuration-header.directive.js',
-        'calendar-configuration/calendar-configuration.directive.js',
+        'calendar-configuration/calendar-configuration.component.js',
+        'calendar-configuration/calendar-configuration.controller.js',
         'calendar-configuration/calendars-configuration.directive.js',
 
         'event-consult-form/event-consult-form-body.directive.js',
