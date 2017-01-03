@@ -16,7 +16,7 @@ module.exports = {
  * - EVENT_UID is the real UUID of the event like 14203613-7642-488f-9b83-d325b5dfb19d,
  */
 function parseEventPath(path) {
-  const [ , , userId, calendarId, eventUiidWithSuffix] = path.split(PATH_SEPARATOR);
+  const [,, userId, calendarId, eventUiidWithSuffix] = path.split(PATH_SEPARATOR);
 
   return {
     path,
