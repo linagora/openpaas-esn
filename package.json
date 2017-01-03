@@ -117,7 +117,7 @@
     "grunt-docker-spawn": "git+https://ci.open-paas.org/stash/scm/olibs/grunt-docker-spawn.git#a4c8371fe23",
     "grunt-eslint": "19.0.0",
     "grunt-karma": "2.0.0",
-    "grunt-lint-pattern": "0.1.4",
+    "grunt-lint-pattern": "github:linagora/grunt-lint-pattern.git#7c6f4e1bc98c2851fec2714e115ac33e1b064ca7",
     "grunt-mocha-cli": "2.1.0",
     "grunt-nodemon": "0.4.2",
     "grunt-protractor-runner": "4.0.0",
