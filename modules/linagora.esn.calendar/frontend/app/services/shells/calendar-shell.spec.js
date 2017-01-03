@@ -1321,6 +1321,70 @@ describe('CalendarShell factory', function() {
         done();
       }
     });
+
+    function expectAlarm(event, expectedSummary, expectedLocation, expectedStart, expectedEnd) {
+      expect(event.alarm.summary).to.equal('Pending event! ' + expectedSummary);
+      expect(event.alarm.description)
+        .to.contain('The event ' + expectedSummary + ' will start')
+        .and.to.contain('start: ' + expectedStart)
+        .and.to.contain('end: ' + expectedEnd)
+        .and.to.contain('location: ' + expectedLocation + ' \\n')
+        .and.to.contain(
+        'More details:\\n' +
+        'https://localhost:8080/#/calendar//event/00000000-0000-4000-a000-000000000000/consult'
+      );
+    }
+
+    it('should not escape value of some valarm properties', function() {
+      var summary = 'My <&> "event"';
+      var location = 'My <&> "location"';
+      var event = CalendarShell.fromIncompleteShell({
+        start: calMoment('2015-01-01 18:00'),
+        end: calMoment('2015-01-02 18:00'),
+        location: location,
+        summary: summary
+      });
+
+      event.alarm = {
+        trigger: '-PT30M',
+        attendee: 'test@open-paas.org'
+      };
+
+      expectAlarm(event, summary, location, 'Thu Jan 01 2015 18:00:00', 'Fri Jan 02 2015 18:00:00');
+    });
+
+    it('should update the alarm when any related information is updated', function() {
+      var summary = 'Initial summary',
+          updatedSummary = 'Updated summary',
+          location = 'Initial location',
+          updatedLocation = 'Updated location',
+          start = calMoment('2015-01-01 12:00'),
+          updatedStart = calMoment('2015-01-01 13:00'),
+          end = calMoment('2015-01-02 12:00'),
+          updatedEnd = calMoment('2015-01-02 13:00'),
+          event = CalendarShell.fromIncompleteShell({
+            start: start,
+            end: end,
+            location: location,
+            summary: summary
+          });
+
+      event.alarm = { trigger: '-PT30M', attendee: 'test@open-paas.org' };
+      expectAlarm(event, summary, location, 'Thu Jan 01 2015 12:00:00', 'Fri Jan 02 2015 12:00:00');
+
+      event.summary = updatedSummary;
+      expectAlarm(event, updatedSummary, location, 'Thu Jan 01 2015 12:00:00', 'Fri Jan 02 2015 12:00:00');
+
+      event.location = updatedLocation;
+      expectAlarm(event, updatedSummary, updatedLocation, 'Thu Jan 01 2015 12:00:00', 'Fri Jan 02 2015 12:00:00');
+
+      event.start = updatedStart;
+      expectAlarm(event, updatedSummary, updatedLocation, 'Thu Jan 01 2015 13:00:00', 'Fri Jan 02 2015 12:00:00');
+
+      event.end = updatedEnd;
+      expectAlarm(event, updatedSummary, updatedLocation, 'Thu Jan 01 2015 13:00:00', 'Fri Jan 02 2015 13:00:00');
+    });
+
   });
 
   describe('getOrganizerPartStat', function() {

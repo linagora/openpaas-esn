@@ -1,0 +1,25 @@
+[
+  "vevent",
+  [["uid", {}, "text", "ffa2a481-b0e6-4f6f-aee3-d03b20332832"],
+   ["transp", {}, "text", "OPAQUE"],
+   ["dtstart", {}, "date-time", "2016-12-20T08:45:00Z"],
+   ["dtend", {}, "date-time", "2016-12-20T09:45:00Z"],
+   ["organizer", { "cn":"admin admin"}, "cal-address", "mailto:admin@open-paas.org"],
+   ["summary", {}, "text", "My event"],
+   ["attendee", {
+     "partstat":"ACCEPTED",
+     "rsvp":"FALSE",
+     "role":"CHAIR"
+   }, "cal-address", "mailto:admin@open-paas.org"],
+   ["dtstamp", {}, "date-time", "2016-12-20T08:43:43Z"]
+  ],
+  [["valarm",
+    [["trigger", {}, "duration", "-PT1M"],
+     ["action", {}, "text", "EMAIL"],
+     ["summary", {}, "text", "Pending event! "],
+     ["description", {}, "text", "This is an alarm"],
+     ["attendee", {}, "cal-address", "mailto:admin@open-paas.org"]],
+    {}
+   ]
+  ]
+]

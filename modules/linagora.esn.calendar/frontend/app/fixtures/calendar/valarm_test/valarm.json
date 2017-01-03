@@ -1,0 +1,11 @@
+[
+    "valarm",
+    [
+      ["trigger", {}, "duration", "-PT1M"],
+      ["action", {}, "text", "EMAIL"],
+      ["summary", {}, "text", "Pending event! "],
+      ["description", {}, "text", "This is a description"],
+      ["attendee", {}, "cal-address", "mailto:admin@open-paas.org"]
+    ],
+    {}
+]

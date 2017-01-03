@@ -28,6 +28,7 @@
     ////////////
 
     function equals(that) {
+      if (!that) { return false; }
       if (that === this) { return true; }
       var self = this;
 

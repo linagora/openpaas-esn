@@ -107,6 +107,7 @@ describe('alarm module', function() {
         var handleAlarm = localstub.topics['calendar:event:updated'].handler;
         handleAlarm({
           type: 'created',
+          eventPath: '/calendars/USER/CAL_ID/EVENT_UID.ics',
           event: ICAL.Component.fromString(ics).toJSON()
         });
 
@@ -146,6 +147,7 @@ describe('alarm module', function() {
         var handleAlarm = localstub.topics['calendar:event:updated'].handler;
         handleAlarm({
           type: 'created',
+          eventPath: '/calendars/USER/CAL_ID/EVENT_UID.ics',
           event: ICAL.Component.fromString(ics).toJSON()
         });
         expect(cron.submit).to.have.been.called.twice;
@@ -161,6 +163,7 @@ describe('alarm module', function() {
         var handleAlarm = localstub.topics['calendar:event:updated'].handler;
         handleAlarm({
           type: 'updated',
+          eventPath: '/calendars/USER/CAL_ID/EVENT_UID.ics',
           event: ICAL.Component.fromString(withAlarmICS).toJSON(),
           old_event: ICAL.Component.fromString(withoutAlarmICS).toJSON()
         });
@@ -207,6 +210,7 @@ describe('alarm module', function() {
         var handleAlarm = localstub.topics['calendar:event:updated'].handler;
         handleAlarm({
           type: 'updated',
+          eventPath: '/calendars/USER/CAL_ID/EVENT_UID.ics',
           event: ICAL.Component.fromString(ics).toJSON(),
           old_event: ICAL.Component.fromString(ics).toJSON()
         });
@@ -217,19 +221,23 @@ describe('alarm module', function() {
     });
 
     it('should only register an alarm if there is no alarm for the previous version of event with recuring', function(done) {
-        var withAlarmRRULEICS = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/withVALARMandRRULE.ics').toString('utf8');
-        var withoutAlarmICS = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/allday.ics').toString('utf8');
-        this.requireModule().init();
-        var handleAlarm = localstub.topics['calendar:event:updated'].handler;
-        handleAlarm({
-          type: 'updated',
-          event: ICAL.Component.fromString(withAlarmRRULEICS).toJSON(),
-          old_event: ICAL.Component.fromString(withoutAlarmICS).toJSON()
-        });
+      const withAlarmRRULEICS = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/withVALARMandRRULE.ics').toString('utf8');
+      const withoutAlarmICS = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/allday.ics').toString('utf8');
 
-        expect(cron.abortAll).to.not.have.been.called;
-        checkAlarmSubmitted(done);
+      this.requireModule().init();
+
+      const handleAlarm = localstub.topics['calendar:event:updated'].handler;
+
+      handleAlarm({
+        type: 'updated',
+        eventPath: '/calendars/USER/CAL_ID/EVENT_UID.ics',
+        event: ICAL.Component.fromString(withAlarmRRULEICS).toJSON(),
+        old_event: ICAL.Component.fromString(withoutAlarmICS).toJSON()
       });
+
+      expect(cron.abortAll).to.not.have.been.called;
+      checkAlarmSubmitted(done);
+    });
 
   });
 
