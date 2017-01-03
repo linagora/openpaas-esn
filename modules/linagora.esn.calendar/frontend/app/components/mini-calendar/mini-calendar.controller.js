@@ -143,6 +143,7 @@
         $rootScope.$on(CALENDAR_EVENTS.ITEM_REMOVE, rerenderMiniCalendar),
         $rootScope.$on(CALENDAR_EVENTS.ITEM_MODIFICATION, rerenderMiniCalendar),
         $rootScope.$on(CALENDAR_EVENTS.REVERT_MODIFICATION, rerenderMiniCalendar),
+        $rootScope.$on(CALENDAR_EVENTS.CALENDAR_REFRESH, rerenderMiniCalendar),
         $rootScope.$on(CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE, function(event, view) { // eslint-disable-line
           $scope.homeCalendarViewMode = view.name;
           var start = view.name === 'month' ? calMoment(view.start).add(15, 'days') : view.start;

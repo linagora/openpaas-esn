@@ -388,6 +388,8 @@ describe('The mini-calendar controller', function() {
 
     it('should call calWrapper.rerender on modifiedCalendarItem', testRerender('ITEM_MODIFICATION'));
 
+    it('should call calWrapper.rerender on calendar refresh', testRerender('CALENDAR_REFRESH'));
+
     it('should call calWrapper.rerender on revertedCalendarItemModification', testRerender('REVERT_MODIFICATION'));
 
     it('should call calWrapper.rerender on CALENDAR_EVENTS.ITEM_REMOVE', testRerender('ITEM_MODIFICATION'));
