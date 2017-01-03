@@ -127,6 +127,7 @@
     .constant('CALENDAR_EVENTS', {
       CALENDAR_HEIGHT: 'calendar:height',
       CALENDAR_REFRESH: 'calendar:refresh',
+      CALENDAR_UNSELECT: 'calendar:unselect',
       EVENT_ATTENDEES_UPDATE: 'calendar:eventAttendeesUpdate',
       HOME_CALENDAR_VIEW_CHANGE: 'calendar:homeViewChange',
       ITEM_ADD: 'calendar:itemAdd',
@@ -154,7 +155,8 @@
         EVENT_CANCEL: 'calendar:ws:event:cancel',
         EVENT_DELETED: 'calendar:ws:event:deleted',
         EVENT_REPLY: 'calendar:ws:event:reply'
-      }
+      },
+      MODAL: 'calendar:modal'
     })
 
     .constant('CALENDAR_MAX_DURATION_OF_SMALL_EVENT', 45);

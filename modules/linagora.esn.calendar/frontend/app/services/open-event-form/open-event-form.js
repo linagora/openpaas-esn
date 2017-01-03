@@ -12,16 +12,7 @@
   angular.module('esn.calendar')
          .factory('calOpenEventForm', calOpenEventForm);
 
-  calOpenEventForm.$inject = [
-    '$modal',
-    '$state',
-    'matchmedia',
-    'calendarService',
-    'calEventUtils',
-    'SM_XS_MEDIA_QUERY'
-  ];
-
-  function calOpenEventForm($modal, $state, matchmedia, calendarService, calEventUtils, SM_XS_MEDIA_QUERY) {
+  function calOpenEventForm($rootScope, $modal, $state, matchmedia, calendarService, calEventUtils, SM_XS_MEDIA_QUERY, CALENDAR_EVENTS) {
     var modalIsOpen = false;
     return function calOpenEventForm(event) {
       if (!event.isInstance()) {
@@ -53,14 +44,22 @@
           controller: function($scope, event) {
             var _$hide = $scope.$hide;
 
+            var unregister = $rootScope.$on(CALENDAR_EVENTS.MODAL + '.hide', function() {
+              $rootScope.$broadcast(CALENDAR_EVENTS.CALENDAR_UNSELECT);
+              $scope.$hide();
+            });
+
             $scope.$hide = function() {
               _$hide.apply(this, arguments);
               modalIsOpen = false;
+              unregister && unregister();
             };
+
             $scope.event = event;
           },
           backdrop: 'static',
-          placement: 'center'
+          placement: 'center',
+          prefixEvent: CALENDAR_EVENTS.MODAL
         });
       }
     }

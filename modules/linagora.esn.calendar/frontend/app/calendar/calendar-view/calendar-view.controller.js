@@ -191,6 +191,9 @@
         $rootScope.$on(CALENDAR_EVENTS.CALENDARS.TODAY, withCalendar(function(calendar) {
           calendar.fullCalendar('today');
         })),
+        $rootScope.$on(CALENDAR_EVENTS.CALENDAR_UNSELECT, withCalendar(function(calendar) {
+          calendar.fullCalendar('unselect');
+        })),
         $rootScope.$on(CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW_MODE, withCalendar(function(calendar, event, viewType) {
           calendar.fullCalendar('changeView', viewType);
         })),

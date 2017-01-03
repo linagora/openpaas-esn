@@ -257,19 +257,18 @@ describe('The calendarViewController', function() {
     expect(this.scope.uiConfig.calendar.eventAfterAllRender).to.equal(this.scope.resizeCalendarHeight);
   });
 
-  function testRefetchEvent(nameOfTheTest, calendar_events) {
+  function testRefetchEvent(nameOfTheTest, calendar_events, calendarSpyCalledWith) {
     it(nameOfTheTest, function() {
       this.controller('calendarViewController', {$scope: this.scope});
       this.rootScope.$broadcast(this.CALENDAR_EVENTS[calendar_events]);
 
       this.scope.calendarReady(this.calendar);
       this.scope.$digest();
-      expect(fullCalendarSpy).to.have.been.calledWith('refetchEvents');
+      expect(fullCalendarSpy).to.have.been.calledWith(calendarSpyCalledWith || 'refetchEvents');
     });
   }
 
   describe('The CALENDAR_EVENTS.ITEM_MODIFICATION listener', function() {
-
     testRefetchEvent('should refresh the calendar', 'ITEM_MODIFICATION');
   });
 
@@ -279,6 +278,10 @@ describe('The calendarViewController', function() {
 
   describe('The CALENDAR_EVENTS.ITEM_REMOVE listener', function() {
     testRefetchEvent('should refresh the calendar', 'ITEM_REMOVE');
+  });
+
+  describe('The CALENDAR_EVENTS.CALENDAR_UNSELECT listener', function() {
+    testRefetchEvent('should unselect the calendar', 'CALENDAR_UNSELECT', 'unselect');
   });
 
   describe('The CALENDAR_EVENTS.CALENDARS.UPDATE listener', function() {
@@ -291,6 +294,7 @@ describe('The calendarViewController', function() {
       expect(this.scope.calendars).to.be.deep.equal([{id: 1}, newCal]);
     });
   });
+
   describe('The CALENDAR_EVENTS.CALENDAR_REFRESH listener', function() {
     testRefetchEvent('should refresh the calendar', 'CALENDAR_REFRESH');
   });
