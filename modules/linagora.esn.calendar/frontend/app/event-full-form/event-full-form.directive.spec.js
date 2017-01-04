@@ -21,7 +21,7 @@ describe('The cal-event-full-form Angular module directives', function() {
       $provide.value('calEventUtils', self.calEventUtilsMock);
       $provide.factory('calEventDateEditionDirective', function() { return {}; });
       $provide.factory('eventRecurrenceEditionDirective', function() { return {}; });
-      $provide.factory('eventAlarmEditionDirective', function() { return {}; });
+      $provide.factory('calEventAlarmEditionDirective', function() { return {}; });
     });
   });
 

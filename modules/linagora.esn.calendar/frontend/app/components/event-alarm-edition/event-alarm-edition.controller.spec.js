@@ -4,7 +4,7 @@
 
 var expect = chai.expect;
 
-describe('The eventAlarmEditionController', function() {
+describe('The calEventAlarmEditionController', function() {
   var $controller, asSession, calEventsProviders, TRIGGER;
 
   beforeEach(function() {
@@ -43,7 +43,7 @@ describe('The eventAlarmEditionController', function() {
   });
 
   function initController() {
-    return $controller('eventAlarmEditionController', null, { event: {} });
+    return $controller('calEventAlarmEditionController', null, { event: {} });
   }
 
   it('should scope.setEventAlarm set the event alarm', function() {

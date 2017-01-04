@@ -2,9 +2,9 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .controller('eventAlarmEditionController', eventAlarmEditionController);
+         .controller('calEventAlarmEditionController', calEventAlarmEditionController);
 
-  function eventAlarmEditionController(session, TRIGGER) {
+  function calEventAlarmEditionController(session, TRIGGER) {
     var self = this;
 
     self.trigger = undefined;
