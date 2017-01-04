@@ -335,6 +335,7 @@
               cancelSuccess: 'Calendar - Modification of ' + event.title + ' has been canceled.',
               gracePeriodFail: {
                 text: 'Event modification failed, please refresh your calendar',
+                delay: -1,
                 actionText: 'Refresh calendar',
                 action: function() {
                   calCachedEventSource.resetCache();
