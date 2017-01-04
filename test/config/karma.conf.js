@@ -77,8 +77,10 @@ module.exports = function(config) {
       'frontend/components/angular-scroll-glue/src/scrollglue.js',
       'frontend/components/angular-file-saver/dist/angular-file-saver.bundle.js',
       'test/fixtures/code-generation/constants.js',
+      'frontend/js/modules/attachment/list/attachment-list.module.js',
       'frontend/js/**/*.js',
       'test/unit-frontend/**/*.js',
+      'frontend/js/modules/**/*.jade',
       'frontend/views/modules/**/*.jade',
       'frontend/views/esn/partials/**/*.jade',
 
