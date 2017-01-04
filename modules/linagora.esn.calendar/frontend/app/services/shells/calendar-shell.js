@@ -580,7 +580,7 @@
     }
 
     /**
-     * Return true if the CalendarShell is an occurrence of a serie, false otherwise.
+     * Return true if the CalendarShell is an occurrence of a series, false otherwise.
      * @return {Boolean} true or false depending of if the shell is an instance or a master event.
      */
     function isInstance() { return !!this.recurrenceId; }

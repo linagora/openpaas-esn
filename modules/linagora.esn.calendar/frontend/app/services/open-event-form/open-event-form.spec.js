@@ -123,7 +123,7 @@ describe('The open-event-form service', function() {
     it('if event is a recurring event, it should ask for editting master or instance', function() {
       this.calOpenEventForm(this.instance);
       expect(this.$modal).to.have.been.calledWith(sinon.match({
-        templateUrl: '/calendar/app/services/open-event-form/edit-instance-or-serie',
+        templateUrl: '/calendar/app/services/open-event-form/edit-instance-or-series',
         resolve: {
           event: sinon.match.func.and(sinon.match(function(eventGetter) {
             return eventGetter() === self.instance;
