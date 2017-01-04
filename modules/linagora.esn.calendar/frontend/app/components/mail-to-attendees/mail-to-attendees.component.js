@@ -2,9 +2,9 @@
 
 angular.module('esn.calendar')
 
-  .component('mailToAttendees', {
+  .component('calMailToAttendees', {
     templateUrl: '/calendar/app/components/mail-to-attendees/mail-to-attendees.html',
-    controller: 'mailToAttendeesController',
+    controller: 'calMailToAttendeesController',
     controllerAs: 'ctrl',
     bindings: {
       event: '='

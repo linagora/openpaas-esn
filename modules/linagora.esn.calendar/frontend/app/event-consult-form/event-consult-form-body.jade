@@ -46,7 +46,7 @@
           .row
             .col-xs-12.nopadding
               cal-attendees-list(ng-if='event.attendees.length', attendees='event.attendees', read-only='true', mode='consult')
-              mail-to-attendees(ng-if='event.attendees.length > 1', event='event')
+              cal-mail-to-attendees(ng-if='event.attendees.length > 1', event='event')
 
         div(ng-show="selectedTab === 'more'")
           event-alarm-consultation(ng-if="!isEdit && editedEvent.alarm", event="editedEvent")

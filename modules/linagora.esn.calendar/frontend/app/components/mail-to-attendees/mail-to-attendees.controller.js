@@ -2,9 +2,9 @@
   'use strict';
 
   angular.module('esn.calendar')
-    .controller('mailToAttendeesController', mailToAttendeesController);
+    .controller('calMailToAttendeesController', calMailToAttendeesController);
 
-  function mailToAttendeesController(_) {
+  function calMailToAttendeesController(_) {
     var self = this;
 
     self.getEmailAddressesFromUsers = getEmailAddressesFromUsers;

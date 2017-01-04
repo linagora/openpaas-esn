@@ -4,7 +4,7 @@
 
 var expect = chai.expect;
 
-describe('The mailToAttendees controller', function() {
+describe('The calMailToAttendeesController', function() {
 
   var $controller, _;
   var ctrl, attendeesTest, attendeesMailTest;
@@ -29,7 +29,7 @@ describe('The mailToAttendees controller', function() {
   });
 
   function initController() {
-    return $controller('mailToAttendeesController');
+    return $controller('calMailToAttendeesController');
   }
 
   describe('The getEmailAddressesFromUsers function', function() {
