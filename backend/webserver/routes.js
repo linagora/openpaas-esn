@@ -29,6 +29,7 @@ exports = module.exports = function(application) {
   var views = require('./controllers/views');
   var templates = require('./middleware/templates');
   application.get('/views/*', templates.alterViewsFolder, views.views);
+  application.get(/\/js\/.*\.html/, templates.alterViewsFolder, views.views);
 
   require('./middleware/setup-routes')(application);
   var resourceLinks = require('./middleware/resource-link');
