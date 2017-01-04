@@ -2,9 +2,9 @@
   'use strict';
 
   angular.module('esn.calendar')
-    .controller('eventAlarmConsultationController', eventAlarmConsultationController);
+    .controller('calEventAlarmConsultationController', calEventAlarmConsultationController);
 
-  function eventAlarmConsultationController(TRIGGER) {
+  function calEventAlarmConsultationController(TRIGGER) {
     var self = this;
 
     self.trigger = self.event.alarm.trigger.toICALString();

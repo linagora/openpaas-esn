@@ -1,11 +1,11 @@
 'use strict';
 
 angular.module('esn.calendar')
-  .component('eventAlarmConsultation', {
+  .component('calEventAlarmConsultation', {
     templateUrl: '/calendar/app/components/event-alarm-consultation/event-alarm-consultation.html',
     bindings: {
       event: '='
     },
-    controller: 'eventAlarmConsultationController',
+    controller: 'calEventAlarmConsultationController',
     controllerAs: 'ctrl'
   });

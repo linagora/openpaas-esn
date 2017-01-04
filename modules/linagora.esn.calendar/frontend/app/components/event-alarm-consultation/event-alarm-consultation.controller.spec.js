@@ -4,7 +4,7 @@
 
 var expect = chai.expect;
 
-describe('The eventAlarmConsultationController', function() {
+describe('The calEventAlarmConsultationController', function() {
   var $controller, TRIGGER, CalendarShell, moment;
 
   beforeEach(function() {
@@ -18,7 +18,7 @@ describe('The eventAlarmConsultationController', function() {
   });
 
   function initController(bindings) {
-    return $controller('eventAlarmConsultationController', null, bindings);
+    return $controller('calEventAlarmConsultationController', null, bindings);
   }
 
   it('should get trigger of the alarm when initialize event-alarm-consultation component', function() {
