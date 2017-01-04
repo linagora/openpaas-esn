@@ -625,7 +625,7 @@ describe('The ldap core module', function() {
       getModule().search(user, query).then(result => {
         expect(result).to.deep.equal(expectResult);
         done();
-      });
+      }, err => done(err || 'should resolve'));
     });
 
     it('should send back correct users information after mapping', function(done) {
