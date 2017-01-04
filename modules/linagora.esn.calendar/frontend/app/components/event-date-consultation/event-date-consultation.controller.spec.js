@@ -4,7 +4,7 @@
 
 var expect = chai.expect;
 
-describe('The eventDateConsultationController', function() {
+describe('The calEventDateConsultationController', function() {
   var $controller, calMoment, CalendarShell;
 
   beforeEach(function() {
@@ -18,7 +18,7 @@ describe('The eventDateConsultationController', function() {
   });
 
   function initController(bindings) {
-    return $controller('eventDateConsultationController', null, bindings);
+    return $controller('calEventDateConsultationController', null, bindings);
   }
 
   describe('when the event is on one day', function() {

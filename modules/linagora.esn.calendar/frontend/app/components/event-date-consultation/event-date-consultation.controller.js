@@ -2,9 +2,9 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .controller('eventDateConsultationController', eventDateConsultationController);
+         .controller('calEventDateConsultationController', calEventDateConsultationController);
 
-  function eventDateConsultationController() {
+  function calEventDateConsultationController() {
     var self = this,
         isAllDay = self.event.allDay,
         isOverOneDayOnly = self.event.isOverOneDayOnly(),
