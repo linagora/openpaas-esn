@@ -67,7 +67,7 @@
 
     function _openRecurringModal(event) {
       $modal({
-        templateUrl: '/calendar/app/services/open-event-form/edit-instance-or-serie',
+        templateUrl: '/calendar/app/services/open-event-form/edit-instance-or-series',
         resolve: {
           event: function() {
             return event;
