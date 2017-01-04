@@ -603,6 +603,7 @@ describe('The calEventService service', function() {
           text: 'Event modification failed, please refresh your calendar',
           actionText: 'Refresh calendar',
           delay: -1,
+          hideCross: true,
           action: sinon.match.func.and(sinon.match(function(action) {
             var onSpy = sinon.spy();
             self.$rootScope.$on(self.CALENDAR_EVENTS.CALENDAR_REFRESH, onSpy);
