@@ -262,7 +262,20 @@ function search(user, query) {
   const domainId = user.preferredDomainId;
 
   return esnConfig('ldap').forUser(user).get().then(ldaps => {
-    const promises = ldaps.map(ldap => ldapSearch(domainId, ldap.configuration, query));
+    if (!ldaps || ldaps.length === 0) {
+      return q({
+        total_count: 0,
+        list: []
+      });
+    }
+
+    const promises = ldaps.map(ldap => ldapSearch(domainId, ldap.configuration, query)
+        .catch(err => {
+          logger.err('Error while searching LDAP:', err.message);
+
+          return q([]);
+        })
+    );
     let totalCount = 0;
 
     return q.all(promises).then(ldapSearchResults => {
