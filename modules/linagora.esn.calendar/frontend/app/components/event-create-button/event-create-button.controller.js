@@ -2,9 +2,9 @@
   'use strict';
 
   angular.module('esn.calendar')
-    .controller('eventCreateButtonController', eventCreateButtonController);
+    .controller('calEventCreateButtonController', calEventCreateButtonController);
 
-  function eventCreateButtonController(CalendarShell, calendarUtils, calOpenEventForm) {
+  function calEventCreateButtonController(CalendarShell, calendarUtils, calOpenEventForm) {
     var self = this;
 
     self.openEventForm = _openEventForm;

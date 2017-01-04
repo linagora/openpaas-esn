@@ -1,12 +1,12 @@
 'use strict';
 
 angular.module('esn.calendar')
-  .component('eventCreateButton', {
+  .component('calEventCreateButton', {
     templateUrl: '/calendar/app/components/event-create-button/event-create-button.html',
     bindings: {
       community: '=',
       user: '='
     },
-    controller: 'eventCreateButtonController',
+    controller: 'calEventCreateButtonController',
     controllerAs: 'ctrl'
   });
