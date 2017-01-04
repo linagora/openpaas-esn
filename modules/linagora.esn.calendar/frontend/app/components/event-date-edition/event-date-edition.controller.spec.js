@@ -4,7 +4,7 @@
 
 var expect = chai.expect;
 
-describe('The eventDateEditionController', function() {
+describe('The calEventDateEditionController', function() {
 
   var $controller, calMoment;
   var startTestMoment, endTestMoment;
@@ -22,7 +22,7 @@ describe('The eventDateEditionController', function() {
   });
 
   function initController(bindings) {
-    return $controller('eventDateEditionController', null, bindings);
+    return $controller('calEventDateEditionController', null, bindings);
   }
 
   describe('The dateOnBlurFn function', function() {

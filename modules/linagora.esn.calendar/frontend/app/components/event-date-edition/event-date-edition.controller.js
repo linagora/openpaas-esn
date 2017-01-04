@@ -2,9 +2,9 @@
   'use strict';
 
   angular.module('esn.calendar')
-    .controller('eventDateEditionController', eventDateEditionController);
+    .controller('calEventDateEditionController', calEventDateEditionController);
 
-  function eventDateEditionController(calMoment) {
+  function calEventDateEditionController(calMoment) {
     var self = this;
 
     self.dateOnBlurFn = dateOnBlurFn;

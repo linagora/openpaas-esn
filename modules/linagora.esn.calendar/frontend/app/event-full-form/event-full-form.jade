@@ -45,7 +45,7 @@
                       .fg-line.select
                         select.form-control(ng-disabled="!isOrganizer || !isNew(editedEvent)", ng-model='calendar', ng-options='calendar as calendar.name for calendar in calendars')
 
-              event-date-edition(event="editedEvent", disabled="!isOrganizer")
+              cal-event-date-edition(event="editedEvent", disabled="!isOrganizer")
 
               .row
                 .col-xs-12

@@ -1,9 +1,9 @@
 'use strict';
 
 angular.module('esn.calendar')
-  .component('eventDateEdition', {
+  .component('calEventDateEdition', {
     templateUrl: '/calendar/app/components/event-date-edition/event-date-edition.html',
-    controller: 'eventDateEditionController',
+    controller: 'calEventDateEditionController',
     controllerAs: 'ctrl',
     bindings: {
       event: '=',

@@ -4,7 +4,7 @@ div.form-container
       .fg-line
         textarea.form-control(type="text", rows="1", ng-model='event.title', maxlength="{{::EVENT_FORM.title.maxlength}}", placeholder="#{__('Enter the title of your event')}")
 
-    event-date-edition(event="event", disabled="false")
+    cal-event-date-edition(event="event", disabled="false")
 
     .row
       .col-xs-12
