@@ -336,6 +336,7 @@
               gracePeriodFail: {
                 text: 'Event modification failed, please refresh your calendar',
                 delay: -1,
+                hideCross: true,
                 actionText: 'Refresh calendar',
                 action: function() {
                   calCachedEventSource.resetCache();

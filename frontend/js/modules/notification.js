@@ -3,17 +3,25 @@
 angular.module('esn.notification', ['angularMoment', 'esn.escape-html'])
 
   .factory('notifyService', function($window, escapeHtmlUtils) {
-    var defaultSettings = {
-      placement: { from: 'bottom', align: 'center'},
-      mouse_over: 'pause',
-      animate: { enter: 'animated fadeInUp', exit: 'animated fadeOutDown' },
-      offset: 0,
-      template: '<div data-notify="container" class="alert alert-{0} flex-space-between" role="alert">' +
-        '<span data-notify="message">{2}</span>' +
-        '<a target="_self" class="action-link cancel-task" data-notify="url"></a>' +
-        '<a class="close" data-notify="dismiss"><i class="mdi mdi-close"></i></a>' +
-      '</div>'
-    };
+
+    function getDefaultSettings(options) {
+      var hideCross = options && options.hideCross;
+      // Because I want default hideCross value to be false
+      hideCross = !!hideCross;
+      var template = '<div data-notify="container" class="alert alert-{0} flex-space-between" role="alert">' +
+          '<span data-notify="message">{2}</span>' +
+          '<a target="_self" class="action-link cancel-task" data-notify="url"></a>' +
+          (hideCross ? '' : '<a class="close" data-notify="dismiss"><i class="mdi mdi-close"></i></a>') +
+          '</div>';
+
+      return {
+        placement: { from: 'bottom', align: 'center'},
+        mouse_over: 'pause',
+        animate: { enter: 'animated fadeInUp', exit: 'animated fadeOutDown' },
+        offset: 0,
+        template: template
+      };
+    }
     function escapeHtmlFlatObject(options) {
       var result = {};
 
@@ -25,8 +33,7 @@ angular.module('esn.notification', ['angularMoment', 'esn.escape-html'])
     }
 
     return function(options, settings) {
-
-      var notification = $window.$.notify(escapeHtmlFlatObject(options), angular.extend({}, defaultSettings, settings));
+      var notification = $window.$.notify(escapeHtmlFlatObject(options), angular.extend({}, getDefaultSettings(options), settings));
       var update = notification.update;
 
       notification.update = function(strOrObj, value) {

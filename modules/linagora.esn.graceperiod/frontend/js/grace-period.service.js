@@ -205,7 +205,8 @@
         });
       } else {
         var notification = notifyService({
-          message: message.text
+          message: message.text,
+          hideCross: message.hideCross
         }, {
           type: type,
           delay: message.delay || delay

@@ -38,7 +38,7 @@ describe('The esn.notification Angular modules', function() {
       notifyService = _notifyService_;
     }));
 
-    it('should contain defaultSettings', function() {
+    it('should contain defaultSettings when the hideCross option is not defined', function() {
       var settings = {};
       var expectedSettings = {
         placement: { from: 'bottom', align: 'center'},
@@ -58,6 +58,28 @@ describe('The esn.notification Angular modules', function() {
       });
 
       notifyService({}, settings);
+      expect(notifyMock).to.have.been.calledOnce;
+    });
+
+    it('should contain defaultSettings with no tag "a" that contains the cross when the hideCross option is true', function() {
+      var settings = {};
+      var expectedSettings = {
+        placement: { from: 'bottom', align: 'center'},
+        animate: { enter: 'animated fadeInUp', exit: 'animated fadeOutDown' },
+        offset: 0,
+        template: '<div data-notify="container" class="alert alert-{0} flex-space-between" role="alert">' +
+          '<span data-notify="message">{2}</span>' +
+          '<a target="_self" class="action-link cancel-task" data-notify="url"></a>' +
+          '</div>'
+      };
+
+      notifyMock = sinon.spy(function(options, settings) {
+        expect(settings).to.shallowDeepEqual(expectedSettings);
+
+        return {};
+      });
+
+      notifyService({ hideCross: true }, settings);
       expect(notifyMock).to.have.been.calledOnce;
     });
 
