@@ -271,7 +271,7 @@ function search(user, query) {
 
     const promises = ldaps.map(ldap => ldapSearch(domainId, ldap.configuration, query)
         .catch(err => {
-          logger.err('Error while searching LDAP:', err.message);
+          logger.error('Error while searching LDAP:', err);
 
           return q([]);
         })
