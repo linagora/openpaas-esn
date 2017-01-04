@@ -589,6 +589,45 @@ describe('The ldap core module', function() {
       user = { _id: '123', preferredDomainId: '123456' };
     });
 
+    it('should return an empty list if there is no LDAP configuration', function(done) {
+      esnConfigMock.get = sinon.stub().returns(q.when());
+
+      const query = {search: 'abc', limit: 20};
+      const expectResult = {
+        total_count: 0,
+        list: []
+      };
+
+      getModule().search(user, query).then(result => {
+        expect(result).to.deep.equal(expectResult);
+        done();
+      });
+    });
+
+    it('should only return an empty array when all the searchs failed', function(done) {
+      mockery.registerMock('ldapauth-fork', function(ldapConf) {
+        return {
+          opts: ldapConf,
+          mapping: ldapConf.mapping,
+          _search: function(searchBase, opts, callback) {
+            return callback(new Error('something error'));
+          },
+          on: function() {}
+        };
+      });
+
+      const query = {search: 'abc', limit: 20};
+      const expectResult = {
+        total_count: 0,
+        list: []
+      };
+
+      getModule().search(user, query).then(result => {
+        expect(result).to.deep.equal(expectResult);
+        done();
+      });
+    });
+
     it('should send back correct users information after mapping', function(done) {
       const query = {search: 'abc', limit: 20};
       const expectResult = {

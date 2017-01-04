@@ -13,19 +13,7 @@ Local configuration of the application is available in the ./config/default.json
 
 ### Authentication
 
-    "auth": {
-      "strategies": ["local", "mongo", "bearer"]
-    }
-
-Array containing the authentication strategies to be loaded by the application.
-The application will go through all the authentication strategies until a valid
-one is found for the current HTTP request.
-Possible values are:
-
-- local: Local configuration is defined in `./config/users.json` file.
-- mongo: Uses the User collection in mongodb.
-- ldap: Connect to a LDAP server defined in the global configuration parameter (cf below)
-- bearer: OAuth2 authentication mechanism (cf [REST API](REST.md) for more details)
+Go to [authentication](authentication.md) for more details
 
 ## Global Configuration
 
@@ -266,6 +254,45 @@ Defines the CalDAV server configuration:
 
 - backend.url: URL use by the ESN to send request to the CalDAV server
 - frontend.url: URL use by the browser (client) to send request to the CalDAV server
+
+### LDAP
+
+Defines the LDAP server configurations which can be used for authentication and attendee provider
+
+```
+{
+  "name" : "ldap",
+  "value" : [
+    {
+      "name" : "Linagora",
+      "domainId": ObjectId("5375de4bd684db7f6fbd4f98"),
+      "configuration" : {
+        "searchFilter" : "(mail={{username}})",
+        "searchBase" : "dc=linagora,dc=nodomain",
+        "url" : "ldap://localhost:389",
+        "adminDn" : "cn=admin,dc=nodomain",
+        "adminPassword" : "1234",
+        "mapping" : {
+          "firstname" : "firstname",
+          "email" : "mail",
+          "main_phone" : "telephoneNumber"
+        }
+      }
+    }
+  ]
+}
+```
+
+- The `domainId` is the ID of the domain that the authenticated user will join
+after he is provisioned. If `domainId` is omitted, the domain that contains the
+configuration will be used. If the configuration is system-wide, the `domainId`
+must be present.
+- searchFilter: LDAP search filter with which to find a user by username.
+- searchBase: The base DN from which to search for users by username.
+- url: The address of a LDAP server which to search.
+- adminDn: Admin's distinguished Names of LDAP server.
+- adminPassword: Password for admin.
+- mapping: Mapping Between OP user properties and LDAP user properties.
 
 ### Web
 
