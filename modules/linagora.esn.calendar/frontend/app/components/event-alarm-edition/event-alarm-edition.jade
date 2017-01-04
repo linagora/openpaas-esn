@@ -6,7 +6,6 @@
           i.mdi.mdi-alarm
         .fg-line.select
           select.form-control(
-            ng-model="vm.trigger",
-            ng-options="item.value as item.label for item in vm.TRIGGER",
-            ng-change="vm.setEventAlarm()")
-
+            ng-model="ctrl.trigger",
+            ng-options="item.value as item.label for item in ctrl.TRIGGER",
+            ng-change="ctrl.setEventAlarm()")
