@@ -4655,4 +4655,79 @@ describe('The Unified Inbox Angular module services', function() {
 
   });
 
+  describe('The inboxAsyncHostedMailControllerHelper factory', function() {
+
+    var $rootScope, inboxAsyncHostedMailControllerHelper, ctrl, INBOX_CONTROLLER_LOADING_STATES;
+
+    function qWhen() {
+      return $q.when(0);
+    }
+
+    function qReject() {
+      return $q.reject('WTF');
+    }
+
+    beforeEach(inject(function(_$rootScope_, _inboxAsyncHostedMailControllerHelper_, session, _INBOX_CONTROLLER_LOADING_STATES_) {
+      session.user = {
+        preferredEmail: 'user@example.org'
+      };
+
+      ctrl = {};
+
+      $rootScope = _$rootScope_;
+      inboxAsyncHostedMailControllerHelper = _inboxAsyncHostedMailControllerHelper_;
+      INBOX_CONTROLLER_LOADING_STATES = _INBOX_CONTROLLER_LOADING_STATES_;
+    }));
+
+    it('should define controller.account using the hosted account email address', function() {
+      inboxAsyncHostedMailControllerHelper(ctrl, qWhen);
+
+      expect(ctrl.account).to.deep.equal({
+        name: 'user@example.org'
+      });
+    });
+
+    it('should define controller.state to LOADING', function() {
+      inboxAsyncHostedMailControllerHelper(ctrl, qWhen);
+
+      expect(ctrl.state).to.equal(INBOX_CONTROLLER_LOADING_STATES.LOADING);
+    });
+
+    it('should run the action, set state to LOADED and resolve on success', function(done) {
+      inboxAsyncHostedMailControllerHelper(ctrl, qWhen).then(function(value) {
+        expect(ctrl.state).to.equal(INBOX_CONTROLLER_LOADING_STATES.LOADED);
+        expect(value).to.equal(0);
+
+        done();
+      });
+
+      $rootScope.$digest();
+    });
+
+    it('should run the action, set state to ERROR and reject on failure', function(done) {
+      inboxAsyncHostedMailControllerHelper(ctrl, qReject).catch(function(err) {
+        expect(ctrl.state).to.equal(INBOX_CONTROLLER_LOADING_STATES.ERROR);
+        expect(err).to.equal('WTF');
+
+        done();
+      });
+
+      $rootScope.$digest();
+    });
+
+    it('should define controller.load which resets the state and runs the action again', function() {
+      inboxAsyncHostedMailControllerHelper(ctrl, qReject);
+
+      $rootScope.$digest();
+      expect(ctrl.state).to.equal(INBOX_CONTROLLER_LOADING_STATES.ERROR);
+
+      ctrl.load();
+      expect(ctrl.state).to.equal(INBOX_CONTROLLER_LOADING_STATES.LOADING);
+
+      $rootScope.$digest();
+      expect(ctrl.state).to.equal(INBOX_CONTROLLER_LOADING_STATES.ERROR);
+    });
+
+  });
+
 });

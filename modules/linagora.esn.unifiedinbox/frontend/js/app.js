@@ -35,7 +35,8 @@ angular.module('linagora.esn.unifiedinbox', [
   'esn.escape-html',
   'esn.search',
   'esn.async-action',
-  'esn.user'
+  'esn.user',
+  'esn.session'
 ])
 
   .config(function($stateProvider, dynamicDirectiveServiceProvider) {

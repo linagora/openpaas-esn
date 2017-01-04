@@ -54,4 +54,9 @@ angular.module('linagora.esn.unifiedinbox')
       ['font', ['bold', 'italic', 'underline', 'strikethrough']],
       ['alignment', ['paragraph', 'ul', 'ol']]
     ]
+  })
+  .constant('INBOX_CONTROLLER_LOADING_STATES', {
+    LOADING: 'LOADING',
+    LOADED: 'LOADED',
+    ERROR: 'ERROR'
   });

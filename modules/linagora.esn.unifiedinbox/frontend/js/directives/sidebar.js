@@ -7,7 +7,8 @@ angular.module('linagora.esn.unifiedinbox')
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/sidebar/email/menu.html',
       scope: {},
-      controller: 'inboxSidebarEmailController'
+      controller: 'inboxSidebarEmailController',
+      controllerAs: 'ctrl'
     };
   })
 
@@ -31,5 +32,15 @@ angular.module('linagora.esn.unifiedinbox')
     return {
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/sidebar/configuration/new-folder-button.html'
+    };
+  })
+
+  .directive('inboxSidebarAccountUnavailable', function() {
+    return {
+      restrict: 'E',
+      scope: {
+        account: '='
+      },
+      templateUrl: '/unifiedinbox/views/sidebar/common/account-unavailable.html'
     };
   });

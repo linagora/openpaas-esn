@@ -83,8 +83,11 @@ angular.module('esn.provider', [
                 provider.loadNextItems = toAggregatorSource(provider.fetch(context), ELEMENTS_PER_PAGE);
 
                 return provider;
-              });
-            }));
+              }, angular.noop /* Provider will be skipped if we cannot build its fetch context */);
+            })
+          ).then(function(providers) {
+            return providers.filter(Boolean);
+          });
         });
       },
       getAllProviderDefinitions: function() {

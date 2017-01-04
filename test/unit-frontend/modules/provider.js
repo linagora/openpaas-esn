@@ -151,6 +151,28 @@ describe('The esn.provider module', function() {
         $rootScope.$digest();
       });
 
+      it('should skip providers unable to build their fetch contexts', function(done) {
+        providers.add({
+          name: 'provider',
+          type: 'type1',
+          buildFetchContext: sinon.stub().returns($q.reject(new Error('WTF')))
+        });
+        providers.add({
+          name: 'provider2',
+          type: 'type2',
+          buildFetchContext: sinon.stub().returns($q.when('context2')),
+          fetch: sinon.stub().returns($q.when())
+        });
+
+        providers.getAll().then(function(providers) {
+          expect(providers).to.have.length(1);
+
+          done();
+        });
+
+        $rootScope.$digest();
+      });
+
     });
 
     describe('The remove method', function() {

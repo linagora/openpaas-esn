@@ -1372,4 +1372,28 @@ angular.module('linagora.esn.unifiedinbox')
       toggleItemSelection: toggleItemSelection,
       unselectAllItems: unselectAllItems
     };
+  })
+
+  .factory('inboxAsyncHostedMailControllerHelper', function($q, session, mailboxesService, INBOX_CONTROLLER_LOADING_STATES) {
+    return function(controller, action) {
+      controller.account = {
+        name: session.user.preferredEmail
+      };
+
+      controller.load = function() {
+        controller.state = INBOX_CONTROLLER_LOADING_STATES.LOADING;
+
+        return action().then(function(value) {
+          controller.state = INBOX_CONTROLLER_LOADING_STATES.LOADED;
+
+          return value;
+        }, function(err) {
+          controller.state = INBOX_CONTROLLER_LOADING_STATES.ERROR;
+
+          return $q.reject(err);
+        });
+      };
+
+      return controller.load(); // Try load when controller is first initialized
+    };
   });

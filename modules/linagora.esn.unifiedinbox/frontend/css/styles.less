@@ -116,8 +116,11 @@
 
 @media (min-width: @screen-md-min) {
   .inbox-root {
-    .clickable:hover {
+    .clickable:not(.text-danger):hover {
       color: @text-color;
+    }
+    .clickable.text-danger:hover {
+      color: darken(@state-danger-text, 10%);
     }
   }
 }
