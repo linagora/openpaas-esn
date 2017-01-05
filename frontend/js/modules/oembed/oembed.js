@@ -1,6 +1,9 @@
 'use strict';
 
-angular.module('esn.oembed', [])
+angular.module('esn.oembed', [
+  'esn.registry'
+])
+
   .directive('oembeds', function($compile, $log, oembedService) {
     return {
       restrict: 'E',
@@ -86,24 +89,16 @@ angular.module('esn.oembed', [])
       fixHttpLinks: fixHttpLinks
     };
   })
-  .factory('oembedRegistry', function($log) {
-    var providers = {};
+
+  .factory('oembedRegistry', function(esnRegistry) {
+    var registry = esnRegistry('oembed');
 
     return {
-      /**
-       *  {provider: 'name', regexps: [RegExp], endpoint: 'http://provider/endpoint'}
-       */
-      addProvider: function(provider) {
-        if (provider && !providers[provider.name]) {
-          providers[provider.name] = provider;
-        }
-      },
-
-      getProviders: function() {
-        return providers;
-      }
+      getProviders: registry.getAll.bind(registry),
+      addProvider: registry.add.bind(registry)
     };
   })
+
   .factory('oembedResolver', function($http) {
     return {
 

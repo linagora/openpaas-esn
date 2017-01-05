@@ -1,6 +1,9 @@
 'use strict';
 
-angular.module('esn.file-preview', [])
+angular.module('esn.file-preview', [
+  'esn.registry'
+])
+
   .directive('filePreview', function($log, $compile, filePreviewService) {
     return {
       restrict: 'E',
@@ -27,42 +30,17 @@ angular.module('esn.file-preview', [])
       }
     };
   })
-  .factory('filePreviewService', function($log, _) {
-    var providers = {};
 
-    function getProvider(contentType) {
-      var result = _.find(providers, function(provider) {
+  .factory('filePreviewService', function(esnRegistry) {
+    var registry = esnRegistry('file-preview', {
+      match: function(contentType, provider) {
         return provider.contentType.indexOf(contentType) > -1;
-      });
-
-      if (!result) {
-        $log.debug('No providers for this contentType');
-        return null;
       }
-
-      return result;
-    }
-
-    /**
-     *  {provider: 'name', contentType: [contentType]}
-     */
-    function addFilePreviewProvider(provider) {
-      if (provider && !providers[provider.name]) {
-        providers[provider.name] = provider;
-        $log.debug('The provider : ' + provider.name + ' is registered');
-        return true;
-      }
-
-      return false;
-    }
-
-    function getFilePreviewProviders() {
-      return providers;
-    }
+    });
 
     return {
-      getProvider: getProvider,
-      getFilePreviewProviders: getFilePreviewProviders,
-      addFilePreviewProvider: addFilePreviewProvider
+      getProvider: registry.get.bind(registry),
+      getFilePreviewProviders: registry.getAll.bind(registry),
+      addFilePreviewProvider: registry.add.bind(registry)
     };
   });
