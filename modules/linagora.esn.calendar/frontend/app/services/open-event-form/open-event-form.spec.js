@@ -45,11 +45,12 @@ describe('The open-event-form service', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function(calOpenEventForm, $q, $rootScope, SM_XS_MEDIA_QUERY) {
+  beforeEach(angular.mock.inject(function(calOpenEventForm, $q, $rootScope, SM_XS_MEDIA_QUERY, _CALENDAR_EVENTS_) {
     this.SM_XS_MEDIA_QUERY = SM_XS_MEDIA_QUERY;
     this.calOpenEventForm = calOpenEventForm;
     this.$q = $q;
     this.$rootScope = $rootScope;
+    this.CALENDAR_EVENTS = _CALENDAR_EVENTS_;
   }));
 
   describe('calOpenEventForm', function() {
@@ -94,6 +95,72 @@ describe('The open-event-form service', function() {
       }));
       this.calOpenEventForm(this.regularEvent);
       expect(this.$modal).to.have.been.calledTwice;
+    });
+
+    it('should hide modal when CALENDAR_EVENTS.MODAL.hide is broadcasted', function(done) {
+      var self = this;
+      var calendarUnselectListenerSpy = sinon.spy();
+
+      self.$rootScope.$on(self.CALENDAR_EVENTS.CALENDAR_UNSELECT, calendarUnselectListenerSpy);
+      self.matchmedia.is = sinon.stub().returns(false);
+
+      self.calOpenEventForm(this.regularEvent);
+
+      expect(this.$modal).to.have.been.calledWith(sinon.match({
+        controller: sinon.match.func.and(sinon.match(function(controller) {
+          var openForm = sinon.spy();
+          var $hide = sinon.spy();
+
+          var $scope = {
+            $hide: $hide
+          };
+
+          controller($scope, self.instance, openForm);
+
+          self.$rootScope.$broadcast(self.CALENDAR_EVENTS.MODAL + '.hide');
+
+          expect($hide).to.have.been.called;
+          expect(calendarUnselectListenerSpy).to.have.been.called;
+
+          done();
+
+          return true;
+        }))
+      }));
+    });
+
+    it('should unregister the listner of CALENDAR_EVENTS.MODAL.hide after hiding the modal', function(done) {
+      var self = this;
+      var calendarUnselectListenerSpy = sinon.spy();
+
+      self.matchmedia.is = sinon.stub().returns(false);
+
+      self.$rootScope.$on(self.CALENDAR_EVENTS.CALENDAR_UNSELECT, calendarUnselectListenerSpy);
+
+      this.calOpenEventForm(this.regularEvent);
+
+      expect(this.$modal).to.have.been.calledWith(sinon.match({
+        controller: sinon.match.func.and(sinon.match(function(controller) {
+          var openForm = sinon.spy();
+          var $hide = sinon.spy();
+
+          var $scope = {
+            $hide: $hide
+          };
+
+          controller($scope, self.instance, openForm);
+
+          self.$rootScope.$broadcast(self.CALENDAR_EVENTS.MODAL + '.hide');
+          self.$rootScope.$broadcast(self.CALENDAR_EVENTS.MODAL + '.hide');
+
+          expect($hide).to.have.been.calledOnce;
+          expect(calendarUnselectListenerSpy).to.have.been.calledOnce;
+
+          done();
+
+          return true;
+        }))
+      }));
     });
 
     it('should call $state to calendar.event.form if matchmedia is xs or sm and isOrganizer', function() {
