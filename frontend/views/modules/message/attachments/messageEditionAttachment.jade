@@ -3,7 +3,7 @@
     a(href="", ng-click='cancel()')
       i.nomargin.mdi.mdi-close
   .icon
-    attachment-icon(type='{{::attachment.file.type}}')
+    esn-attachment-icon(type='attachment.file.type')
   .metadata
     h2.ellipsis
       a.download(ng-if='attachment.uploaded', target='_blank', ng-href='/api/files/{{::attachment.response._id}}' title='Download {{::attachment.file.name}}') {{::attachment.file.name}}

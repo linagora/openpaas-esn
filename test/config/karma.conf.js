@@ -77,6 +77,7 @@ module.exports = function(config) {
       'frontend/components/angular-scroll-glue/src/scrollglue.js',
       'frontend/components/angular-file-saver/dist/angular-file-saver.bundle.js',
       'test/fixtures/code-generation/constants.js',
+      'frontend/js/modules/attachment/attachment.module.js',
       'frontend/js/modules/attachment/list/attachment-list.module.js',
       'frontend/js/**/*.js',
       'test/unit-frontend/**/*.js',
@@ -123,6 +124,17 @@ module.exports = function(config) {
     coverageReporter: {type: 'text', dir: '/tmp'},
 
     ngJade2ModulePreprocessor: {
+      cacheIdFromPath: function(filepath) {
+        var cacheId = '';
+
+        if (filepath.match(/^frontend\/js*/)) {
+          cacheId = '/views' + filepath.substr(11).replace('.jade', '.html');
+        } else if (filepath.match(/^frontend*/)) {
+          cacheId = filepath.substr(8).replace('.jade', '.html');
+        }
+
+        return cacheId;
+      },
       stripPrefix: 'frontend',
       // setting this option will create only a single module that contains templates
       // from all the files, so you can load them all with module('templates')
@@ -134,6 +146,5 @@ module.exports = function(config) {
       },
       moduleName: 'jadeTemplates'
     }
-
   });
 };

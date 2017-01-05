@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.message', ['esn.timeline', 'esn.maps', 'esn.file', 'esn.background', 'esn.notification', 'esn.object-type', 'esn.http', 'mgcrea.ngStrap',
+angular.module('esn.message', ['esn.attachment', 'esn.timeline', 'esn.maps', 'esn.file', 'esn.background', 'esn.notification', 'esn.object-type', 'esn.http', 'mgcrea.ngStrap',
 'ngAnimate', 'ngSanitize', 'RecursionHelper', 'mgcrea.ngStrap.typeahead',
 'esn.poll'])
   .constant('ESN_MESSAGE_TYPES', ['whatsup', 'event', 'poll'])
@@ -663,44 +663,6 @@ angular.module('esn.message', ['esn.timeline', 'esn.maps', 'esn.file', 'esn.back
         writable: '='
       },
       templateUrl: '/views/modules/message/messagesThread.html'
-    };
-  })
-  .directive('attachmentIcon', function(contentTypeService) {
-    var classes = {
-      application: 'mdi-file-document',
-      image: 'mdi-file-image',
-      video: 'mdi-file-video',
-      default: 'mdi-file-outline'
-    };
-    return {
-      restrict: 'E',
-      replace: true,
-      templateUrl: '/views/modules/message/attachments/attachmentIcon.html',
-      link: function($scope, element, attributes) {
-        $scope.class = classes[contentTypeService.getType(attributes.type)] || classes.default;
-      }
-    };
-  })
-  .directive('messageAttachment', function(contentTypeService) {
-    var classes = {
-      application: 'mdi-file-document',
-      image: 'mdi-file-image',
-      video: 'mdi-file-video',
-      default: 'mdi-file-outline'
-    };
-    return {
-      restrict: 'E',
-      replace: true,
-      scope: {
-        attachment: '='
-      },
-      templateUrl: '/views/modules/message/attachments/messageAttachment.html',
-      link: function($scope) {
-        $scope.getClass = function(contentType) {
-          var type = contentTypeService.getType(contentType);
-          return classes[type] || classes.default;
-        };
-      }
     };
   })
   .directive('messageAttachments', function() {

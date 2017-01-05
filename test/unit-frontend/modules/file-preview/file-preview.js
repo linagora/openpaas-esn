@@ -5,10 +5,7 @@
 var expect = chai.expect;
 
 describe('The esn.file-preview module', function() {
-    var $q,
-        $rootScope,
-        $compile,
-        $httpBackend;
+    var $rootScope, $compile;
 
     beforeEach(function() {
       angular.mock.module('jadeTemplates');
@@ -17,11 +14,9 @@ describe('The esn.file-preview module', function() {
       angular.mock.module('esn.file-preview.image');
     });
 
-    beforeEach(angular.mock.inject(function(_$q_, _$rootScope_, _$compile_, _$httpBackend_) {
-      $q = _$q_;
+    beforeEach(angular.mock.inject(function(_$rootScope_, _$compile_) {
       $rootScope = _$rootScope_;
       $compile = _$compile_;
-      $httpBackend = _$httpBackend_;
     }));
 
     describe('The filePreview directive', function() {
@@ -45,13 +40,13 @@ describe('The esn.file-preview module', function() {
         expect(angular.element(element.find('file-preview file-preview-image')).length).to.be.equal(1);
       });
 
-      it('should call the message-attachment directive if the file have a unsupported contentType', function() {
+      it('should call the esn-attachment component if the file have a unsupported contentType', function() {
         file = {
           _id: 'abcd',
           contentType: 'video/avi'
         };
         initDirective();
-        expect(angular.element(element.find('file-preview message-attachment')).length).to.be.equal(1);
+        expect(angular.element(element.find('file-preview esn-attachment')).length).to.be.equal(1);
       });
     });
   });
