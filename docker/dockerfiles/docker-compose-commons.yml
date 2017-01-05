@@ -31,6 +31,9 @@ services:
       - ELASTICSEARCH_INIT_TIMEOUT=${ELASTICSEARCH_INIT_TIMEOUT}
       - JMAP_SERVER_HOST=${DOCKER_IP}
       - JMAP_SERVER_PORT=1080
+      - MAIL_BROWSER=false
+      - SMTP_HOST=${DOCKER_IP}
+      - SMTP_PORT=1025
 
   redis:
     image: redis:latest

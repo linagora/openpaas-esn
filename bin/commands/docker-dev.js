@@ -15,6 +15,9 @@ function exec(host, port, dbName) {
   process.env.DAV_SERVER_HOST = host;
   process.env.DAV_SERVER_PORT = 8001;
   process.env.WEB_HOST = 'localhost';
+  process.env.MAIL_BROWSER = false;
+  process.env.SMTP_HOST = host;
+  process.env.SMTP_PORT = 1025;
 
   return db.connect(commons.getDBOptions(host, port, dbName))
     .then(configFixture)
