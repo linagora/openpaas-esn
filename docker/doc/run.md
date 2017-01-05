@@ -3,6 +3,7 @@
 The RSE can be used with Docker to ease the deployment of all the required components:
 
 - Redis
+- RabbitMQ
 - MongoDB
 - Apache Cassandra
 - Apache James
