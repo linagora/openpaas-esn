@@ -45,7 +45,7 @@
                       .fg-line.select
                         select.form-control(ng-disabled="!isOrganizer || !isNew(editedEvent)", ng-model='calendar', ng-options='calendar as calendar.name for calendar in calendars')
 
-              event-date-edition(event="editedEvent", disabled="!isOrganizer")
+              cal-event-date-edition(event="editedEvent", disabled="!isOrganizer")
 
               .row
                 .col-xs-12
@@ -63,10 +63,10 @@
                 cal-attendees-list(attendees='editedEvent.attendees', read-only='::!isOrganizer', organizer='editedEvent.organizer', mode='edition')
 
               .row.visible-xs
-                mail-to-attendees(ng-if='editedEvent.attendees.length > 1', event='editedEvent')
+                cal-mail-to-attendees(ng-if='editedEvent.attendees.length > 1', event='editedEvent')
 
               event-recurrence-edition(event="editedEvent", is-organizer="isOrganizer")
-              event-alarm-edition(event="editedEvent")
+              cal-event-alarm-edition(event="editedEvent")
 
               .row
                 .col-xs-12
@@ -97,7 +97,7 @@
                 cal-attendees-list(attendees='editedEvent.attendees', read-only='::!isOrganizer', organizer='editedEvent.organizer', mode='edition')
 
               .row.hidden-xs
-                mail-to-attendees(ng-if='editedEvent.attendees.length > 1', event='editedEvent')
+                cal-mail-to-attendees(ng-if='editedEvent.attendees.length > 1', event='editedEvent')
 
               .row
                 .col-xs-12

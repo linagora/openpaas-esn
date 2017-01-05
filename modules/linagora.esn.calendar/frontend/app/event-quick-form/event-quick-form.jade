@@ -25,7 +25,7 @@ form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': !
           .form-group
             .fg-line
               input.input.title.form-control(type="text", ng-model='editedEvent.title', ng-model-options="{getterSetter: true}", maxlength="{{::EVENT_FORM.title.maxlength}}", placeholder="#{__('Title')}", ng-readonly="!isOrganizer")
-        event-date-edition(event="editedEvent", disabled="!isOrganizer")
+        cal-event-date-edition(event="editedEvent", disabled="!isOrganizer")
         .col-xs-12
           .form-group(ng-show="isOrganizer || editedEvent.location")
             .input-group

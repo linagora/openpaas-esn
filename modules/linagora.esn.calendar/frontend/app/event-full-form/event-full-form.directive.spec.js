@@ -19,9 +19,9 @@ describe('The cal-event-full-form Angular module directives', function() {
     angular.mock.module(function($provide, $controllerProvider) {
       $controllerProvider.register('calEventFormController', self.calEventFormControllerMock);
       $provide.value('calEventUtils', self.calEventUtilsMock);
-      $provide.factory('eventDateEditionDirective', function() { return {}; });
+      $provide.factory('calEventDateEditionDirective', function() { return {}; });
       $provide.factory('eventRecurrenceEditionDirective', function() { return {}; });
-      $provide.factory('eventAlarmEditionDirective', function() { return {}; });
+      $provide.factory('calEventAlarmEditionDirective', function() { return {}; });
     });
   });
 

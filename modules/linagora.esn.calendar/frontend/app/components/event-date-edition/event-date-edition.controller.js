@@ -2,30 +2,9 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .directive('eventDateEdition', eventDateEdition);
+    .controller('calEventDateEditionController', calEventDateEditionController);
 
-  function eventDateEdition() {
-    var directive = {
-      restrict: 'E',
-      templateUrl: '/calendar/app/components/event-date-edition/event-date-edition.html',
-      scope: {
-        event: '=',
-        disabled: '=?',
-        dateOnBlur: '=?',
-        allDayOnChange: '=?'
-      },
-      replace: true,
-      controller: EventDateEditionController,
-      controllerAs: 'vm',
-      bindToController: true
-    };
-
-    return directive;
-  }
-
-  EventDateEditionController.$inject = ['calMoment'];
-
-  function EventDateEditionController(calMoment) {
+  function calEventDateEditionController(calMoment) {
     var self = this;
 
     self.dateOnBlurFn = dateOnBlurFn;
@@ -105,5 +84,4 @@
       self.diff = self.event.end.diff(self.event.start);
     }
   }
-
 })();
