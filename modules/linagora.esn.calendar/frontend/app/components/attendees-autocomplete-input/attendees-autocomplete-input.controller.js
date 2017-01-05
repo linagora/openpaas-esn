@@ -2,34 +2,9 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .directive('calAttendeesAutocompleteInput', calAttendeesAutocompleteInput);
+         .controller('calAttendeesAutocompleteInputController', calAttendeesAutocompleteInputController);
 
-  function calAttendeesAutocompleteInput() {
-    var directive = {
-      restrict: 'E',
-      templateUrl: '/calendar/app/components/attendees-autocomplete-input/attendees-autocomplete-input.html',
-      scope: {
-        originalAttendees: '=',
-        mutableAttendees: '='
-      },
-      replace: true,
-      controller: AttendeesAutocompleteInputController,
-      controllerAs: 'vm',
-      bindToController: true
-    };
-
-    return directive;
-  }
-
-  AttendeesAutocompleteInputController.$inject = [
-    'calendarAttendeeService',
-    'emailService',
-    'naturalService',
-    'session',
-    'AUTOCOMPLETE_MAX_RESULTS'
-  ];
-
-  function AttendeesAutocompleteInputController(calendarAttendeeService, emailService, naturalService, session, AUTOCOMPLETE_MAX_RESULTS) {
+  function calAttendeesAutocompleteInputController(calendarAttendeeService, naturalService, session, AUTOCOMPLETE_MAX_RESULTS) {
     var self = this;
 
     self.mutableAttendees = self.mutableAttendees || [];
