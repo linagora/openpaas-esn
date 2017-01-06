@@ -10,7 +10,8 @@ var ROOT_FOLDER = path.normalize(__dirname + '../../..');
 var i18nConfig = {
   defaultLocale: 'en',
   locales: ['en', 'fr'],
-  directory: './backend/i18n/locales',
+  multiDirectories: true,
+  directory: __dirname + '/locales',
   updateFiles: false,
   indent: '  ',
   extension: '.json',
