@@ -1,10 +1,7 @@
 'use strict';
 
-module.exports = function(dbHost, dbPort, dbName) {
-
-  var host = process.env.MONGO_HOST || dbHost || 'localhost';
-  var port = process.env.MONGO_PORT || dbPort || '27017';
-  var name = process.env.MONGO_DBNAME || dbName || 'esn';
+module.exports = function(dbHost = 'localhost', dbPort = 27017, dbName = 'esn', connectionString) {
+  connectionString = connectionString || `mongodb://${dbHost}:${dbPort}/${dbName}`;
 
   return {
     connectionOptions: {
@@ -22,6 +19,6 @@ module.exports = function(dbHost, dbPort, dbName) {
         poolSize: 10
       }
     },
-    connectionString: 'mongodb://' + host + ':' + port + '/' + name
+    connectionString
   };
 };

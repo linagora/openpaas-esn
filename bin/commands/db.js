@@ -12,25 +12,23 @@ const command = {
   builder: {
     host: CONSTANTS.mongodb.host,
     port: CONSTANTS.mongodb.port,
-    database: CONSTANTS.mongodb.database
+    database: CONSTANTS.mongodb.database,
+    'connection-string': CONSTANTS.mongodb.connectionString
   },
   handler: argv => {
-    const { host, port, database } = argv;
+    const { host, port, database, connectionString } = argv;
 
-    exec(host, port, database)
+    exec(host, port, database, connectionString)
       .then(() => commons.logInfo('Saved!'))
       .catch(commons.logError)
       .finally(commons.exit);
   }
 };
 
-function exec(host, port, dbName) {
-  host = host || 'localhost';
-  port = port || 27017;
-  dbName = dbName || 'esn';
-  var defer = q.defer();
-  var db = dbFixture(host, port, dbName);
-  var file = path.normalize(__dirname + '/../../config/db.json');
+function exec(host, port, dbName, connectionString) {
+  const defer = q.defer();
+  const file = path.normalize(__dirname + '/../../config/db.json');
+  const db = dbFixture(host, port, dbName, connectionString);
 
   fs.writeFile(file, JSON.stringify(db), function(err) {
     if (err) {

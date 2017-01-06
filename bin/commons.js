@@ -9,15 +9,15 @@ var request = require('request'),
 var readdir = q.denodeify(fs.readdir);
 
 function log(level, ...message) {
-  console.log('[CLI]', level, message);
+  console.log('[CLI]', level, ...message);
 }
 
 function logInfo(...message) {
-  log('INFO', message);
+  log('INFO', ...message);
 }
 
 function logError(...message) {
-  log('ERROR', message);
+  log('ERROR', ...message);
 }
 
 module.exports.getDBOptions = function(host, port, dbName) {

@@ -24,6 +24,16 @@ module.exports = {
         alias: 'db',
         describe: 'MongoDB database name to connect to',
         default: 'esn'
+      },
+      connectionString: {
+        describe: 'MongoDB connection string URI',
+        coerce: connectionString => {
+          if (!/mongodb:\/\//.test(connectionString)) {
+            throw new Error('connectionString must begin with mongodb://');
+          }
+
+          return connectionString;
+        }
       }
     },
     administrator: {
