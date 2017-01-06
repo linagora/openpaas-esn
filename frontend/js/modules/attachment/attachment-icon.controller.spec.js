@@ -30,32 +30,36 @@ describe('The ESNAttachmentIconController', function() {
   }));
 
   describe('the $onInit function', function() {
-    it('should set class to ESN_ATTACHMENT_ICONS.application for application contentType', function() {
+    it('should set iconClass to ESN_ATTACHMENT_ICONS.application for application contentType', function() {
       var controller = initController('application/pdf');
 
       controller.$onInit();
-      expect(controller.class).to.equal(ESN_ATTACHMENT_ICONS.application);
+
+      expect(controller.iconClass).to.equal(ESN_ATTACHMENT_ICONS.application);
     });
 
-    it('should set class to ESN_ATTACHMENT_ICONS.image for image contentType', function() {
+    it('should set iconClass to ESN_ATTACHMENT_ICONS.image for image contentType', function() {
       var controller = initController('image/png');
 
       controller.$onInit();
-      expect(controller.class).to.equal(ESN_ATTACHMENT_ICONS.image);
+
+      expect(controller.iconClass).to.equal(ESN_ATTACHMENT_ICONS.image);
     });
 
-    it('should set class to ESN_ATTACHMENT_ICONS.video for image contentType', function() {
+    it('should set iconClass to ESN_ATTACHMENT_ICONS.video for image contentType', function() {
       var controller = initController('video/mp4');
 
       controller.$onInit();
-      expect(controller.class).to.equal(ESN_ATTACHMENT_ICONS.video);
+
+      expect(controller.iconClass).to.equal(ESN_ATTACHMENT_ICONS.video);
     });
 
-    it('should set class to ESN_ATTACHMENT_ICONS.default for unknown contentType', function() {
+    it('should set iconClass to ESN_ATTACHMENT_ICONS.default for unknown contentType', function() {
       var controller = initController('foo/bar');
 
       controller.$onInit();
-      expect(controller.class).to.equal(ESN_ATTACHMENT_ICONS.default);
+
+      expect(controller.iconClass).to.equal(ESN_ATTACHMENT_ICONS.default);
     });
   });
 });

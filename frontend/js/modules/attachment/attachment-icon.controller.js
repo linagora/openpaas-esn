@@ -10,7 +10,7 @@
     self.$onInit = $onInit;
 
     function $onInit() {
-      self.class = ESN_ATTACHMENT_ICONS[contentTypeService.getType(self.type)] || ESN_ATTACHMENT_ICONS.default;
+      self.iconClass = ESN_ATTACHMENT_ICONS[contentTypeService.getType(self.type)] || ESN_ATTACHMENT_ICONS.default;
     }
   }
 })();
