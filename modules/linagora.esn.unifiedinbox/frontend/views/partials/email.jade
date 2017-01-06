@@ -22,6 +22,8 @@
         inbox-star(item='::email')
 
   .email-body
+    .inbox-message-info(ng-if="::email", dynamic-directive="inbox-message-info")
+
     .text-center(ng-if="!email.loaded", openpaas-logo-spinner, spinner-start-active="1", spinner-size="0.4")
 
     html-email-body(ng-if="email.htmlBody", email="::email")
