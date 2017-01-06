@@ -87,7 +87,9 @@ angular.module('esnApp', [
   'luegg.directives',
   'esn.touchscreen-detector',
   'esn.previous-state',
-  'esn.ldap'
+  'esn.ldap',
+  'esn.attachment-list',
+  'esn.attachment'
 ].concat(angularInjections))
 
 .config(function(routeResolver, $urlRouterProvider, $stateProvider) {

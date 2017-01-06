@@ -76,6 +76,8 @@ module.exports = function(config) {
       'frontend/components/Autolinker.js/dist/Autolinker.js',
       'frontend/components/angular-component/dist/angular-component.min.js',
       'test/fixtures/code-generation/constants.js',
+      'frontend/js/modules/attachment/attachment.module.js',
+      'frontend/js/modules/attachment/list/attachment-list.module.js',
       'frontend/js/**/*.js',
 
       'modules/**/frontend/js/**/*.js',
@@ -84,6 +86,7 @@ module.exports = function(config) {
 
       'modules/**/test/unit-frontend/**/*.js',
 
+      'frontend/js/modules/**/*.jade',
       'modules/**/frontend/views/**/*.jade',
       'modules/**/frontend/app/**/*.jade',
 
@@ -135,7 +138,9 @@ module.exports = function(config) {
       cacheIdFromPath: function(filepath) {
         var cacheId = '';
 
-        if (filepath.match(/^frontend*/)) {
+        if (filepath.match(/^frontend\/js*/)) {
+          cacheId = '/views' + filepath.substr(11).replace('.jade', '.html');
+        } else if (filepath.match(/^frontend*/)) {
           cacheId = filepath.substr(8).replace('.jade', '.html');
         } else if (filepath.match(/^modules*/)) {
           cacheId = filepath.replace('modules/linagora.esn.', '/')

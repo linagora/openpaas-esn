@@ -1,9 +1,6 @@
-.message-attachment
-  .cancel
-    a(href="", ng-click='cancel()')
-      i.nomargin.mdi.mdi-close
+.esn-attachment
   .icon
-    attachment-icon(type='{{::attachment.file.type}}')
+    esn-attachment-icon(type='attachment.file.type')
   .metadata
     h2.ellipsis
       a.download(ng-if='attachment.uploaded', target='_blank', ng-href='/api/files/{{::attachment.response._id}}' title='Download {{::attachment.file.name}}') {{::attachment.file.name}}
@@ -13,3 +10,6 @@
       div.progress(ng-show='attachment.uploading')
         .progress-bar.progress-bar-warning.progress-bar-striped.active(role="progressbar", aria-valuenow="{{attachment.progress}}", aria-valuemin="0", aria-valuemax="100", style="width: {{attachment.progress}}%")
           span.sr-only {{attachment.progress}} % #{__('Complete')}
+  .cancel
+    a(href="", ng-click='cancel()')
+      i.nomargin.mdi.mdi-close

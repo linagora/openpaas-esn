@@ -1,0 +1,3 @@
+.attachment-list-item
+  ng-include(ng-if="ctrl.attachment.templateUrl", src="ctrl.attachment.templateUrl")
+  esn-attachment(ng-if="!ctrl.attachment.templateUrl", attachment='ctrl.attachment')

@@ -16,85 +16,11 @@ describe('The esn.message Angular module', function() {
     });
   });
 
-  describe('messagesAttachment directive', function() {
-
-    beforeEach(module('jadeTemplates'));
-    beforeEach(module('esn.core'));
-
-    beforeEach(inject(['$compile', '$rootScope', function($c, $r) {
-      this.$compile = $c;
-      this.$rootScope = $r;
-    }]));
-
-    it('should display an attachment', function() {
-      var html = '<message-attachment attachment="testAttachment"></messages-display>';
-      var element = this.$compile(html)(this.$rootScope);
-
-      this.$rootScope.testAttachment = {
-        id: 456, name: 'ms.doc', contentType: 'application/doc', length: 10240
-      };
-
-      this.$rootScope.$digest();
-      expect(element.html()).to.have.string(this.$rootScope.testAttachment.name);
-    });
-
-    it('The getClass fn should return the mdi-file-document fontwasome class for application', function(done) {
-      var html = '<message-attachment attachment="testAttachment"></messages-display>';
-      var element = this.$compile(html)(this.$rootScope);
-
-      this.$rootScope.testAttachment = {
-        id: 456, name: 'openpaas.pdf', contentType: 'application/pdf', length: 10240
-      };
-
-      this.$rootScope.$digest();
-      expect(element.children().scope().getClass(this.$rootScope.testAttachment.contentType)).to.equal('mdi-file-document');
-      done();
-    });
-
-    it('The getClass fn should return the mdi-file-image fontwasome class for image', function(done) {
-      var html = '<message-attachment attachment="testAttachment"></messages-display>';
-      var element = this.$compile(html)(this.$rootScope);
-
-      this.$rootScope.testAttachment = {
-        id: 456, name: 'openpaas.pdf', contentType: 'image/png', length: 10240
-      };
-
-      this.$rootScope.$digest();
-      expect(element.children().scope().getClass(this.$rootScope.testAttachment.contentType)).to.equal('mdi-file-image');
-      done();
-    });
-
-    it('The getClass fn should return the mdi-file-video fontwasome class for video', function(done) {
-      var html = '<message-attachment attachment="testAttachment"></messages-display>';
-      var element = this.$compile(html)(this.$rootScope);
-
-      this.$rootScope.testAttachment = {
-        id: 456, name: 'openpaas.pdf', contentType: 'video/mp4', length: 10240
-      };
-
-      this.$rootScope.$digest();
-      expect(element.children().scope().getClass(this.$rootScope.testAttachment.contentType)).to.equal('mdi-file-video');
-      done();
-    });
-
-    it('The getClass fn should return the mdi-file-outline fontwasome class for unknown type', function(done) {
-      var html = '<message-attachment attachment="testAttachment"></messages-display>';
-      var element = this.$compile(html)(this.$rootScope);
-
-      this.$rootScope.testAttachment = {
-        id: 456, name: 'openpaas.pdf', contentType: 'foo/bar', length: 10240
-      };
-
-      this.$rootScope.$digest();
-      expect(element.children().scope().getClass(this.$rootScope.testAttachment.contentType)).to.equal('mdi-file-outline');
-      done();
-    });
-  });
-
   describe('messageAttachments directive', function() {
 
     beforeEach(module('jadeTemplates'));
     beforeEach(module('esn.core'));
+    beforeEach(module('esn.attachment'));
 
     beforeEach(inject(['$compile', '$rootScope', function($c, $r) {
       this.$compile = $c;

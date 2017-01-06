@@ -1,0 +1,8 @@
+.attachment-list
+  infinite-list(load-more-elements='ctrl.loadMoreElements()')
+    .attachment-list-item(ng-repeat="item in ctrl.elements | orderBy: '-date'" ng-if="ctrl.elements.length > 0")
+      esn-attachment-list-item(attachment="item")
+    .attachment-list-empty(ng-if="!ctrl.elements.length")
+      .message #{__("No attachments")}
+    ul.nav.nav-pills.nav-stacked(ng-if='ctrl.infiniteScrollDisabled')
+      li.text-center(openpaas-logo-spinner, spinner-start-active='1', spinner-size='0.5')

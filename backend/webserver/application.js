@@ -12,7 +12,8 @@ var logger = require('../core').logger;
 
 var application = express();
 exports = module.exports = application;
-application.set('views', FRONTEND_PATH + '/views');
+
+application.set('views', [FRONTEND_PATH + '/views', FRONTEND_PATH + '/js']);
 application.set('view engine', 'jade');
 
 var morgan = require('morgan');
@@ -25,7 +26,7 @@ application.use(morgan(format, { stream: logger.stream }));
 
 application.use('/components', express.static(FRONTEND_PATH + '/components'));
 application.use('/images', express.static(FRONTEND_PATH + '/images'));
-application.use('/js', express.static(FRONTEND_PATH + '/js'));
+application.use('/js', express.static(FRONTEND_PATH + '/js', { extensions: ['js']}));
 
 var bodyParser = require('body-parser');
 application.use(bodyParser.json());
