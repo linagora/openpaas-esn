@@ -305,6 +305,7 @@
   "To": "To",
   "Alt": "Alt",
   "At": "At",
+  "file": "file",
   "Files": "Files",
   "Attendees": "Attendees",
   "Organizer mail": "Organizer mail",
@@ -331,5 +332,7 @@
   "This must be greater than or equal to": "This must be greater than or equal to",
   "Length must be less than or equal to": "Length must be less than or equal to",
   "Length must be greater than or equal to": "Length must be greater than or equal to",
-  "Please match requested format": "Please match requested format"
+  "Please match requested format": "Please match requested format",
+  "No attachments": "No attachments",
+  "Download": "Download"
 }
