@@ -3,7 +3,7 @@
 OpenPaaS ESN comes with a CLI to ease several configuration steps. From the root directory:
 
 ```bash
-$ node ./bin/cli
+$ node ./bin/cli --help
 ```
 
 ## Commands
@@ -21,7 +21,7 @@ The global configuration is generated from the data in [../fixtures/esn-config/d
 - DAV_SERVER_PORT: default is 8001
 - ELASTICSEARCH_HOST: default is localhost
 - ELASTICSEARCH_PORT: default is 9200
-- JMAP_SERVER_HOST=: default is localhost 
+- JMAP_SERVER_HOST: default is localhost
 - JMAP_SERVER_PORT: default is 80
 - JMAP_SERVER_PATH: default is jmap
 
@@ -29,7 +29,7 @@ The global configuration is generated from the data in [../fixtures/esn-config/d
 $ JMAP_SERVER_HOST=mail.open-paas.org node ./bin/cli configure --host localhost --port 27017 --database esn
 ```
 
-This will connect to the mongodb database esn on localhost:27017, set the JMAP_SERVER_HOST value to mail.open-paas.org and inject all the configuration at the right place. 
+This will connect to the mongodb database esn on localhost:27017, set the JMAP_SERVER_HOST value to mail.open-paas.org and inject all the configuration at the right place.
 
 **db**
 
@@ -88,12 +88,40 @@ Once populated, you should be able to log into the OpenPaaS instance using user 
 
 **init**
 
-Performs the initial setup of an OpenPaas instance, by configuring a domain and an administrator 
-along with the associated default configurations. Also configures the various storage servers. 
+_This command required **configure** command to be run first_
+
+Performs the initial setup of an OpenPaas instance, by configuring a domain and an administrator
+along with the associated default configurations. Also configures the various storage servers.
 This reads environment variables to know what to configure, as per the *populate*, *elasticsearch* and *configure* commands.
 
 ```bash
-$ node ./bin/cli init --email admin@domain.org
+$ node ./bin/cli init --email admin@domain.org --password secret
 ```
 
 - email: required, the email address of the domain administrator. The OpenPaas domain name is taken from the email address
+- password: optional, the password of the domain administrator. When omitted,
+the username of the email address will be used as password;
+
+**domain**
+
+_This command required **configure** command to be run first_
+
+This command allows you to manage domains of an OpenPaaS instance. For example,
+to create a new domain, type:
+
+```bash
+$ node ./bin/cli domain create --email admin@domain.org --password secret
+```
+
+The new domain will be created and the administrator login is `admin@domain.org`
+with password `secret`.
+
+- email: required, the email address of the domain administrator. The OpenPaas domain name is taken from the email address
+- password: optional, the password of the domain administrator. When omitted,
+the username of the email address will be used as password;
+
+To see all option, use `help` command:
+
+```bash
+$ node ./bin/cli help domain
+```
