@@ -111,6 +111,12 @@
         $rootScope.$broadcast(CALENDAR_EVENTS.MINI_CALENDAR.TOGGLE);
       };
 
+      $scope.miniCalendarConfig.eventRender = function(event, element) {
+        if (event.start.isSame(calMoment(), 'day')) {
+          element.addClass('fc-event-color');
+        }
+      };
+
       var calendarWrapperPromise = $q.all({
         calendar: calendarPromise,
         calendars: calendarService.listCalendars($scope.calendarHomeId)
@@ -165,5 +171,5 @@
           unregisterFunction();
         });
       });
-  }
+    }
 })();
