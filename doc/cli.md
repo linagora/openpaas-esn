@@ -13,17 +13,19 @@ $ node ./bin/cli --help
 It will set the global configuration in the mongodb database defined from CLI options.
 The global configuration is generated from the data in [../fixtures/esn-config/data](../fixtures/esn-config/data) and so from environment variables:
 
-- REDIS_HOST: default is localhost
-- REDIS_PORT: default is 6379
-- WEB_HOST: default is localhost
-- WEB_PORT:default is 8080
-- DAV_SERVER_HOST: default is localhost
-- DAV_SERVER_PORT: default is 8001
-- ELASTICSEARCH_HOST: default is localhost
-- ELASTICSEARCH_PORT: default is 9200
-- JMAP_SERVER_HOST: default is localhost
-- JMAP_SERVER_PORT: default is 80
-- JMAP_SERVER_PATH: default is jmap
+- REDIS_HOST: default is `localhost`
+- REDIS_PORT: default is `6379`
+- WEB_HOST: default is `localhost`
+- WEB_PORT:default is `8080`
+- DAV_SERVER_HOST: default is `localhost`
+- DAV_SERVER_PORT: default is `8001`
+- ELASTICSEARCH_HOST: default is `localhost`
+- ELASTICSEARCH_PORT: default is `9200`
+- JMAP_SERVER_HOST: default is `localhost`
+- JMAP_SERVER_PORT: default is `80`
+- JMAP_SERVER_PATH: default is `jmap`
+- AMQP_HOST: default is `amqp`
+- AMQP_PORT: default is `5672`
 
 ```bash
 $ JMAP_SERVER_HOST=mail.open-paas.org node ./bin/cli configure --host localhost --port 27017 --database esn
