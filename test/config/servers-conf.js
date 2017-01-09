@@ -1,6 +1,8 @@
 'use strict';
 
-var tmp = 'tmp';
+var tmp = 'tmp',
+    tmpAbsolutePath = require('path').join(process.cwd(), tmp);
+
 var DEFAULT_PORTS = {
   express: 23455,
   mongo: 23456,
@@ -9,7 +11,7 @@ var DEFAULT_PORTS = {
   elasticsearch: 23459,
   elasticsearch_comm: 23460,
   davserver: 23461,
-  rabbitmq: 5672
+  rabbitmq: 23462
 };
 
 var images = require('../../docker/images.json');
@@ -59,7 +61,12 @@ module.exports = {
   },
 
   rabbitmq: {
-    cmd: process.env.CMD_RABBITMQ || 'rabbitmq-server',
+    cmd: process.env.CMD_RABBITMQ ||
+      'RABBITMQ_NODENAME=esn_test ' +
+      `RABBITMQ_NODE_PORT=${rabbitmqPort} ` +
+      `RABBITMQ_MNESIA_BASE=${tmpAbsolutePath}/rabbitmq-mnesia ` +
+      `RABBITMQ_LOG_BASE=${tmpAbsolutePath}/rabbitmq-logs ` +
+      'rabbitmq-server',
     port: rabbitmqPort,
     url: 'amqp://' + host + ':' + rabbitmqPort,
     container: {
