@@ -318,7 +318,7 @@ function inviteAttendees(editor, attendeeEmail, notify, method, ics, calendarURI
           }
         }
 
-        var userIsInvolved = false;
+        var userIsInvolved = attendeeEmail === event.organizer.email;
 
         if (event.attendees && event.attendees[attendeeEmail]) {
           userIsInvolved = event.attendees[attendeeEmail].partstat ? event.attendees[attendeeEmail].partstat !== 'DECLINED' : true;
