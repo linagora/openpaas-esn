@@ -598,6 +598,74 @@ describe('The calendar core module', function() {
         });
       });
 
+      it('should send HTML email with correct parameters if the editor is an attendee', function(done) {
+        var attendeeEditor = {
+          firstname: 'attendeeFistname',
+          lastname: 'attendeeLastname',
+          emails: ['attendee1@open-paas.org'],
+          preferredEmail: 'attendee1@open-paas.org',
+          domains: [{ domains_id: 'domain123' }]
+        };
+
+        helpersMock.config.getBaseUrl = function(user, callback) {
+          callback(null, 'http://localhost:8888');
+        };
+
+        mockery.registerMock('../../../lib/helpers/jcal.js', {
+          jcal2content: function() {
+            return {};
+          }
+        });
+
+        var method = 'REQUEST';
+
+        userMock.findByEmail = function(email, callback) {
+          if (email === attendee1.emails[0]) {
+            return callback(null, attendee1);
+          } else {
+            return callback(null, otherAttendee);
+          }
+        };
+
+        emailMock.getMailer = function() {
+          return {
+            sendHTML: function(email, template, locals) {
+              expect(email.from).to.equal(attendeeEditor.emails[0]);
+              expect(email.to).to.equal(organizer.preferredEmail);
+              expect(email).to.shallowDeepEqual({
+                subject: 'New event from ' + attendeeEditor.firstname + ' ' + attendeeEditor.lastname + ': description',
+                encoding: 'base64',
+                alternatives: [{
+                  content: ics,
+                  contentType: 'text/calendar; charset=UTF-8; method=' + method
+                }],
+                attachments: [{
+                  filename: 'meeting.ics',
+                  content: ics,
+                  contentType: 'application/ics'
+                }]
+              });
+
+              expect(template).to.equal('event.invitation');
+              expect(locals.filter).is.a.function;
+              expect(locals.content.baseUrl).to.equal('http://localhost:8888');
+              expect(locals.content.yes).to.equal('http://localhost:8888/calendar/api/calendars/event/participation?jwt=token');
+              expect(locals.content.no).to.equal('http://localhost:8888/calendar/api/calendars/event/participation?jwt=token');
+              expect(locals.content.maybe).to.equal('http://localhost:8888/calendar/api/calendars/event/participation?jwt=token');
+
+              return q();
+            }
+          };
+        };
+
+        this.module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
+
+        this.module.inviteAttendees(attendeeEditor, organizer.preferredEmail, true, method, ics, 'calendarURI', function(err) {
+          expect(err).to.not.exist;
+          done();
+        });
+      });
+
       it('should send HTML email with correct parameters', function(done) {
         helpersMock.config.getBaseUrl = function(user, callback) {
           callback(null, 'http://localhost:8888');
@@ -610,11 +678,7 @@ describe('The calendar core module', function() {
         var method = 'REQUEST';
 
         userMock.findByEmail = function(email, callback) {
-          if (email === attendee1.emails[0]) {
-            return callback(null, attendee1);
-          } else {
-            return callback(null, otherAttendee);
-          }
+          return callback(null, (email === attendee1.emails[0]) ? attendee1 : otherAttendee);
         };
 
         emailMock.getMailer = function() {
