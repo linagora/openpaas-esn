@@ -12,9 +12,6 @@ const User = mongoose.model('User');
 const emailAddresses = require('email-addresses');
 const CONSTANTS = require('./constants');
 const moderation = require('./moderation');
-const i18n = require('../../i18n');
-const emailModule = require('../email');
-const configHelper = require('../../helpers/config');
 
 const TYPE = CONSTANTS.TYPE;
 
@@ -86,9 +83,13 @@ function list(callback) {
 }
 
 function update(user, callback) {
-  // because Model.update calls callback with 3 params (err, saved, rowAffected)
-  // so we work around to make it compatible when we use with q.ninvoke
-  user.save((err, savedUser) => callback(err, savedUser));
+  user.save((err, savedUser, rowAffected) => {
+    if (!err && rowAffected > 0) {
+      pubsub.topic(CONSTANTS.EVENTS.userUpdated).publish(savedUser);
+    }
+
+    callback(err, savedUser);
+  });
 }
 
 function updateProfile(user, profile, callback) {
