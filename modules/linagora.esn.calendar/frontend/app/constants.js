@@ -157,6 +157,8 @@
       }
     })
 
-    .constant('CALENDAR_MAX_DURATION_OF_SMALL_EVENT', 45);
-
+    .constant('CALENDAR_MAX_DURATION_OF_SMALL_EVENT', {
+      MOBILE: 60,
+      DESKTOP: 45
+    });
 })();

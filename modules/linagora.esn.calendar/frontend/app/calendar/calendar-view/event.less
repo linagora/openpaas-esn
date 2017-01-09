@@ -1,7 +1,6 @@
 @event-border-color: rgba(255,255,255,0.5);
 @event-fade: 0.7;
 @remainingSpaceToAllowDnD: 7px;
-@minWidthForEventsInMobileViews: 0.05em;
 
 .fc-event {
   min-height: 1.5em;
@@ -41,6 +40,12 @@
   }
 }
 
+.fc-agendaWeek-view, .fc-agendaThreeDays-view, .fc-agendaDay-view {
+  .fc-event .fc-time{
+    display: none;
+  }
+}
+
 @media (min-width: @screen-md-min) {
   .fc-view:not(.fc-month-view) .fc-event .fc-resizer {
     display: block;
@@ -48,6 +53,12 @@
 
   .fc-event {
     margin-right: @remainingSpaceToAllowDnD;
+  }
+
+  .fc-agendaWeek-view, .fc-agendaThreeDays-view, .fc-agendaDay-view {
+    .fc-event .fc-time {
+      display: block;
+    }
   }
 }
 
@@ -88,18 +99,5 @@
   opacity: @event-fade;
   .fc-title {
     text-decoration: line-through;
-  }
-}
-
-@media (max-width: @swipe-arrows-max) {
-
-  .fc-agendaWeek-view, .fc-agendaThreeDays-view, .fc-agendaDay-view {
-    .fc-event{
-      min-width: @minWidthForEventsInMobileViews;
-    }
-
-     & .fc-event .fc-time{
-        display: none;
-    }
   }
 }
