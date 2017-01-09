@@ -144,6 +144,10 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
         'components/mini-calendar/mini-calendar.directive.js',
         'components/mini-calendar/mini-calendar.service.js',
 
+        'components/inbox/inbox.constants.js',
+        'components/inbox/invitation-message-indicator/invitation-message-indicator.js',
+        'components/inbox/invitation-message-indicator/invitation-message-indicator.run.js',
+
         'calendar/calendar-header/calendar-header-content.directive.js',
         'calendar/calendar-header/calendar-header-mobile.directive.js',
         'calendar/calendar-left-pane/calendar-left-pane.directive.js',

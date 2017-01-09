@@ -1,0 +1,11 @@
+'use strict';
+
+angular.module('esn.calendar')
+
+  .constant('INVITATION_MESSAGE_HEADERS', {
+    METHOD: 'X-MEETING-METHOD',
+    UID: 'X-MEETING-UID',
+    RECURRENCE_ID: 'X-MEETING-RECURRENCE-ID',
+    SEQUENCE: 'X-MEETING-SEQUENCE',
+    DTSTAMP: 'X-MEETING-DTSTAMP'
+  });
