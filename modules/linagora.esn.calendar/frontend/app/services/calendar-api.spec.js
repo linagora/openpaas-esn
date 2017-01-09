@@ -6,8 +6,21 @@ var expect = chai.expect;
 
 describe('The calendar module apis', function() {
 
+  var davItem, davItemRecurring, davItems, davItemsRecurring;
+
   function headerContentTypeJsonChecker(header) {
     return header['Content-Type'] === 'application/json';
+  }
+
+  function davItemsResponse(davItems) {
+    return {
+      _links: {
+        self: { href: '/prepath/path/to/calendar.json' }
+      },
+      _embedded: {
+        'dav:item': davItems
+      }
+    };
   }
 
   beforeEach(function() {
@@ -34,6 +47,51 @@ describe('The calendar module apis', function() {
       id: 'id'
     };
 
+    davItem = {
+      _links: {
+        self: {href: '/prepath/path/to/calendar/myuid.ics'}
+      },
+      etag: '"123123"',
+      data: [
+        'vcalendar', [], [
+          ['vevent', [
+            ['uid', {}, 'text', 'myuid'],
+            ['summary', {}, 'text', 'title'],
+            ['location', {}, 'text', 'location'],
+            ['dtstart', {}, 'date-time', '2014-01-01T02:03:04'],
+            ['dtend', {}, 'date-time', '2014-01-01T03:03:04']
+          ], []]
+        ]
+      ]
+    };
+    davItemRecurring = {
+      _links: {
+        self: {href: '/prepath/path/to/calendar/myuid.ics'}
+      },
+      etag: '"123123"',
+      data: [
+        'vcalendar', [], [
+          ['vevent', [
+            ['uid', {}, 'text', 'myuid'],
+            ['summary', {}, 'text', 'title'],
+            ['location', {}, 'text', 'location'],
+            ['dtstart', {}, 'date-time', '2014-01-01T02:03:04'],
+            ['dtend', {}, 'date-time', '2014-01-01T03:03:04'],
+            ['recurrence-id', {}, 'date-time', '2014-01-01T02:03:04']
+          ], []],
+          ['vevent', [
+            ['uid', {}, 'text', 'myuid'],
+            ['summary', {}, 'text', 'title'],
+            ['location', {}, 'text', 'location'],
+            ['dtstart', {}, 'date-time', '2014-01-02T02:03:04'],
+            ['dtend', {}, 'date-time', '2014-01-02T03:03:04'],
+            ['recurrence-id', {}, 'date-time', '2014-01-02T02:03:04']
+          ], []]
+        ]
+      ]
+    };
+    davItems = [davItem];
+    davItemsRecurring = [davItemRecurring];
   });
 
   describe('calendarAPI', function() {
@@ -41,32 +99,7 @@ describe('The calendar module apis', function() {
     describe('listEvents request', function() {
 
       it('should request the correct path and return an array of items included in dav:item', function(done) {
-        var davItems = [{
-          _links: {
-            self: { href: '/prepath/path/to/calendar/myuid.ics' }
-          },
-          etag: '"123123"',
-          data: [
-            'vcalendar', [], [
-              ['vevent', [
-                ['uid', {}, 'text', 'myuid'],
-                ['summary', {}, 'text', 'title'],
-                ['location', {}, 'text', 'location'],
-                ['dtstart', {}, 'date-time', '2014-01-01T02:03:04'],
-                ['dtend', {}, 'date-time', '2014-01-01T03:03:04']
-              ], []]
-            ]
-          ]
-        }];
-
-        this.$httpBackend.expect('REPORT', '/dav/api/calendars/test/events.json', this.data, headerContentTypeJsonChecker).respond({
-          _links: {
-            self: { href: '/prepath/path/to/calendar.json' }
-          },
-          _embedded: {
-            'dav:item': davItems
-          }
-        });
+        this.$httpBackend.expect('REPORT', '/dav/api/calendars/test/events.json', this.data, headerContentTypeJsonChecker).respond(davItemsResponse(davItems));
 
         this.calendarAPI.listEvents('/dav/api/calendars/test/events.json', this.start, this.end)
           .then(function(data) {
@@ -135,32 +168,7 @@ describe('The calendar module apis', function() {
     describe('listEventsForCalendar request', function() {
 
       it('should request the correct path and return an array of items included in dav:item', function(done) {
-        var davItems = [{
-          _links: {
-            self: { href: '/prepath/path/to/calendar/myuid.ics' }
-          },
-          etag: '"123123"',
-          data: [
-            'vcalendar', [], [
-              ['vevent', [
-                ['uid', {}, 'text', 'myuid'],
-                ['summary', {}, 'text', 'title'],
-                ['location', {}, 'text', 'location'],
-                ['dtstart', {}, 'date-time', '2014-01-01T02:03:04'],
-                ['dtend', {}, 'date-time', '2014-01-01T03:03:04']
-              ], []]
-            ]
-          ]
-        }];
-
-        this.$httpBackend.expect('REPORT', '/dav/api/calendars/test/subtest.json', this.data, headerContentTypeJsonChecker).respond({
-          _links: {
-            self: { href: '/prepath/path/to/calendar.json' }
-          },
-          _embedded: {
-            'dav:item': davItems
-          }
-        });
+        this.$httpBackend.expect('REPORT', '/dav/api/calendars/test/subtest.json', this.data, headerContentTypeJsonChecker).respond(davItemsResponse(davItems));
 
         this.calendarAPI.listEventsForCalendar('test', 'subtest', this.start, this.end)
           .then(function(data) {
@@ -464,6 +472,35 @@ describe('The calendar module apis', function() {
         this.$httpBackend.flush();
       });
     });
+
+    describe('The getEventByUID fn', function() {
+
+      it('should get a non-recurring event', function(done) {
+        this.$httpBackend.expect('REPORT', '/dav/api/calendars/home.json', { uid: 'myuid' }).respond(davItemsResponse(davItems));
+
+        this.calendarAPI.getEventByUID('home', 'myuid').then(function(data) {
+          expect(data).to.deep.equal(davItems);
+
+          done();
+        });
+
+        this.$httpBackend.flush();
+      });
+
+      it('should get a recurring event', function(done) {
+        this.$httpBackend.expect('REPORT', '/dav/api/calendars/home.json', {uid: 'myuid'}).respond(davItemsResponse(davItemsRecurring));
+
+        this.calendarAPI.getEventByUID('home', 'myuid').then(function(data) {
+          expect(data).to.deep.equal(davItemsRecurring);
+
+          done();
+        });
+
+        this.$httpBackend.flush();
+      });
+
+    });
+
   });
 
   describe('calEventAPI', function() {

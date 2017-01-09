@@ -1270,4 +1270,104 @@ describe('The calEventService service', function() {
 
     // Everything else is covered by the modify fn
   });
+
+  describe('The getEventByUID fn', function() {
+
+    it('should get a non-recurring event', function(done) {
+      this.$httpBackend.expect('REPORT', '/dav/api/calendars/myHome.json', { uid: 'myUid' }).respond({
+        _links: {
+          self: { href: '/prepath/path/to/calendar.json' }
+        },
+        _embedded: {
+          'dav:item': [{
+            _links: {
+              self: { href: '/prepath/path/to/calendar/myuid.ics' }
+            },
+            etag: '"123123"',
+            data: [
+              'vcalendar', [], [
+                ['vevent', [
+                  ['uid', {}, 'text', 'myuid'],
+                  ['summary', {}, 'text', 'title'],
+                  ['location', {}, 'text', 'location'],
+                  ['dtstart', {}, 'date-time', '2014-01-01T02:03:04'],
+                  ['dtend', {}, 'date-time', '2014-01-01T03:03:04']
+                ], []]
+              ]
+            ]
+          }]
+        }
+      });
+
+      self.calEventService.getEventByUID('myHome', 'myUid').then(function(event) {
+        expect(event.uid).to.equal('myuid');
+        expect(event.title).to.equal('title');
+        expect(event.location).to.equal('location');
+        expect(event.start.toDate()).to.equalDate(self.calMoment('2014-01-01 02:03:04').toDate());
+        expect(event.end.toDate()).to.equalDate(self.calMoment('2014-01-01 03:03:04').toDate());
+        expect(event.vcalendar).to.be.an('object');
+        expect(event.etag).to.equal('"123123"');
+        expect(event.path).to.equal('/prepath/path/to/calendar/myuid.ics');
+
+        done();
+      });
+
+      self.$httpBackend.flush();
+    });
+
+    it('should get a recurring event', function(done) {
+      this.$httpBackend.expect('REPORT', '/dav/api/calendars/myHome.json', { uid: 'myUid' }).respond({
+        _links: {
+          self: { href: '/prepath/path/to/calendar.json' }
+        },
+        _embedded: {
+          'dav:item': [{
+            _links: {
+              self: { href: '/prepath/path/to/calendar/myuid.ics' }
+            },
+            etag: '"123123"',
+            data: [
+              'vcalendar', [], [
+                ['vevent', [
+                  ['uid', {}, 'text', 'myuid'],
+                  ['summary', {}, 'text', 'title'],
+                  ['location', {}, 'text', 'location'],
+                  ['dtstart', {}, 'date-time', '2014-01-01T02:03:04'],
+                  ['dtend', {}, 'date-time', '2014-01-01T03:03:04'],
+                  ['recurrence-id', {}, 'date-time', '2014-01-01T02:03:04']
+                ], []],
+                ['vevent', [
+                  ['uid', {}, 'text', 'myuid'],
+                  ['summary', {}, 'text', 'title'],
+                  ['location', {}, 'text', 'location'],
+                  ['dtstart', {}, 'date-time', '2014-01-02T02:03:04'],
+                  ['dtend', {}, 'date-time', '2014-01-02T03:03:04'],
+                  ['recurrence-id', {}, 'date-time', '2014-01-02T02:03:04']
+                ], []]
+              ]
+            ]
+          }]
+        }
+      });
+
+      self.calEventService.getEventByUID('myHome', 'myUid').then(function(event) {
+        expect(event.uid).to.equal('myuid');
+        expect(event.title).to.equal('title');
+        expect(event.location).to.equal('location');
+        expect(event.start.toDate()).to.equalDate(self.calMoment('2014-01-01 02:03:04').toDate());
+        expect(event.end.toDate()).to.equalDate(self.calMoment('2014-01-01 03:03:04').toDate());
+        expect(event.vcalendar).to.be.an('object');
+        expect(event.etag).to.equal('"123123"');
+        expect(event.path).to.equal('/prepath/path/to/calendar/myuid.ics');
+
+        expect(event.vcalendar.getAllSubcomponents('vevent')).to.have.length(2);
+
+        done();
+      });
+
+      self.$httpBackend.flush();
+    });
+
+  });
+
 });
