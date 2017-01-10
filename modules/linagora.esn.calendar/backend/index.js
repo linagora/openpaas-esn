@@ -146,10 +146,14 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
         'calendar/calendar-header/calendar-header-mobile.controller.js',
 
         'calendar-configuration/calendar-configuration-header/calendar-configuration-header.directive.js',
-        'calendar-configuration/calendars-configuration-header/calendars-configuration-header.directive.js',
+        'calendar-configuration/calendar-configuration-tabs/calendar-configuration-tabs.component.js',
+        'calendar-configuration/calendar-configuration-tab-delegation/calendar-configuration-tab-delegation.component.js',
+        'calendar-configuration/calendar-configuration-tab-main/calendar-configuration-tab-main.component.js',
         'calendar-configuration/calendar-configuration.component.js',
         'calendar-configuration/calendar-configuration.controller.js',
-        'calendar-configuration/calendars-configuration.directive.js',
+
+        'calendars-configuration/calendars-configuration.directive.js',
+        'calendars-configuration/calendars-configuration-header/calendars-configuration-header.directive.js',
 
         'event-consult-form/event-consult-form-body.directive.js',
         'event-consult-form/event-consult-form-sub-header.directive.js',

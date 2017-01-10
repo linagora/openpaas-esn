@@ -1,0 +1,7 @@
+ul.esn-tab
+  li.btn-wave(ng-class="{'active': $ctrl.selectedTab === 'main'}")
+    a(href="", ng-click="$ctrl.getMainView()")
+      | #{__('Main')}
+  li.btn-wave(ng-class="{'active': $ctrl.selectedTab === 'delegation'}", ng-show='$ctrl.isAdmin && !$ctrl.newCalendar')
+    a(href="", ng-click="$ctrl.getDelegationView()")
+      | #{__('Delegation')}

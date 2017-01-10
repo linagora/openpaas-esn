@@ -1,49 +1,10 @@
-.calendar-configuration-header, .calendars-configuration-header, .calendar-edit-header, .calendars-edit-header, .calendar-edit-delegation-header {
-  .btn {
-    box-shadow: none;
-  }
-  span {
-    color: @m-white;
-    text-transform: uppercase;
-  }
-}
-
-.calendars-configuration.card, .calendar-configuration.card {
-  min-height: ~"calc(100vh - @{header-height} - @{sub-header-height})";
-  overflow: auto;
-  font-size: 1.4em;
-  color: @secondaryTextColor;
-  padding: 0px 15px 15px 15px;
-}
-
-.calendars-configuration.card {
-  .mdi {
-    font-size: 1.6em;
-    vertical-align: bottom;
-    margin-right: 5px;
-    color: @secondaryTextColor;
-  }
-  .lv-item {
-    padding: 0 !important; /* override material-admin property */
-    margin-bottom: 10px;
-    span {
-      color: @secondaryTextColor;
-    }
-  }
-}
-
-.calendars-configuration {
-  hr {
-    border-color: @secondaryTextColor;
-  }
-}
-
 .calendar-configuration {
 
   .color-picker-container {
     width: 50px;
     margin-left: 40px;
     position: relative;
+
     .color-picker-value {
       width: 25px;
       height: 25px;
@@ -55,8 +16,13 @@
   }
 
   .delete-calendar-button {
-    font-size: 15px;
     .underlined-button;
+
+    font-size: 15px;
+  }
+
+  .calendar-configuration-body {
+    margin-top: 25px;
   }
 
   .delegation {
@@ -93,17 +59,13 @@
     .no-margin {
       margin: 0;
     }
+
     .btn-addusers {
       margin-top: 10px;
+
       .mdi {
         margin-right: 5px;
       }
     }
-  }
-}
-
-.calendar-configuration-delete-confirmation {
-  .modal-title, .modal-body {
-    text-align: center;
   }
 }

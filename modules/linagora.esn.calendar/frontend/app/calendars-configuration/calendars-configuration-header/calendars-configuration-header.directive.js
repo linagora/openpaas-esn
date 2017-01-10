@@ -7,18 +7,16 @@
   function calendarsConfigurationHeader() {
     var directive = {
       restrict: 'E',
-      templateUrl: '/calendar/app/calendar-configuration/calendars-configuration-header/calendars-configuration-header.html',
+      templateUrl: '/calendar/app/calendars-configuration/calendars-configuration-header/calendars-configuration-header.html',
       scope: {},
       replace: true,
       controller: CalendarsConfigurationHeaderController,
-      controllerAs: 'vm',
+      controllerAs: '$ctrl',
       bindToController: true
     };
 
     return directive;
   }
-
-  CalendarsConfigurationHeaderController.$inject = ['$state'];
 
   function CalendarsConfigurationHeaderController($state) {
     var self = this;
