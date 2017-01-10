@@ -2,3 +2,4 @@ frontend/js/modules/modernizr.js
 test/frontend/karma-include/*
 frontend/components/*
 modules/**/thirdparty/*.js'
+tmp/
