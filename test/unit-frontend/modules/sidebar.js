@@ -48,29 +48,31 @@ describe('The Sidebar Angular module', function() {
       };
     }));
 
-    it('should allow overriding only template, templateUrl, controller, contentTemplate and placement if it is set to left', function() {
+    it('should allow overriding only template, templateUrl, controller, controllerAs, contentTemplate and placement if it is set to left', function() {
       this.initDirective(
-        '<div contextual-sidebar template="template" template-url="templateUrl" controller="controller" content-template="contentTemplate" unkown="unkown" animation="am-fade-left" placement="left"/>',
+        '<div contextual-sidebar template="template" template-url="templateUrl" controller="controller" controller-as="controllerAs" content-template="contentTemplate" unkown="unkown" animation="am-fade-left" placement="left"/>',
         this.$scope
       );
       expect(options).to.shallowDeepEqual({
         template: 'template',
         templateUrl: 'templateUrl',
         controller: 'controller',
+        controllerAs: 'controllerAs',
         contentTemplate: 'contentTemplate',
         placement: 'left'
       });
     });
 
-    it('should allow overriding only template, templateUrl, controller, contentTemplate and placement if it is set to right', function() {
+    it('should allow overriding only template, templateUrl, controller, controllerAs, contentTemplate and placement if it is set to right', function() {
       this.initDirective(
-        '<div contextual-sidebar template="template" template-url="templateUrl" controller="controller" content-template="contentTemplate" unkown="unkown" animation="am-fade-right" placement="right"/>',
+        '<div contextual-sidebar template="template" template-url="templateUrl" controller="controller" controller-as="controllerAs" content-template="contentTemplate" unkown="unkown" animation="am-fade-right" placement="right"/>',
         this.$scope
       );
       expect(options).to.shallowDeepEqual({
         template: 'template',
         templateUrl: 'templateUrl',
         controller: 'controller',
+        controllerAs: 'controllerAs',
         contentTemplate: 'contentTemplate',
         placement: 'right'
       });
@@ -102,27 +104,29 @@ describe('The Sidebar Angular module', function() {
       expect(options.animation).to.be.undefined;
     });
 
-    it('should allow overriding only template, templateUrl, controller and contentTemplate if placement is set to any value other than left or right', function() {
+    it('should allow overriding only template, templateUrl, controller, controllerAs and contentTemplate if placement is set to any value other than left or right', function() {
       this.initDirective(
-        '<div contextual-sidebar template="template" template-url="templateUrl" controller="controller" content-template="contentTemplate" unkown="unkown" animation="am-fade-left" placement="top"/>',
+        '<div contextual-sidebar template="template" template-url="templateUrl" controller="controller" controller-as="controllerAs" content-template="contentTemplate" unkown="unkown" animation="am-fade-left" placement="top"/>',
         this.$scope
       );
       expect(options).to.shallowDeepEqual({
         template: 'template',
         templateUrl: 'templateUrl',
         controller: 'controller',
+        controllerAs: 'controllerAs',
         contentTemplate: 'contentTemplate'
       });
       expect(options.placement).to.be.undefined;
 
       this.initDirective(
-        '<div contextual-sidebar template="template" template-url="templateUrl" controller="controller" content-template="contentTemplate" unkown="unkown" animation="am-fade-right" placement="top"/>',
+        '<div contextual-sidebar template="template" template-url="templateUrl" controller="controller" controller-as="controllerAs" content-template="contentTemplate" unkown="unkown" animation="am-fade-right" placement="top"/>',
         this.$scope
       );
       expect(options).to.shallowDeepEqual({
         template: 'template',
         templateUrl: 'templateUrl',
         controller: 'controller',
+        controllerAs: 'controllerAs',
         contentTemplate: 'contentTemplate'
       });
       expect(options.placement).to.be.undefined;
