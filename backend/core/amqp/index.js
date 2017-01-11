@@ -1,13 +1,16 @@
 'use strict';
 
-const q = require('q');
 const logger = require('../../core/logger');
 const AmqpClient = require('./client');
+const url = require('url');
+let clientInstancePromise;
 
-function connect(options) {
-  logger.info('Trying to open a connection to the amqp server with the url: ', options.url);
+function connect(options = {}) {
+  const url = getURL(options);
 
-  return require('amqplib').connect(options.url);
+  logger.info('Creating a connection to the amqp server with the url: ', url);
+
+  return require('amqplib').connect(url);
 }
 
 function createClient() {
@@ -21,11 +24,26 @@ function createClient() {
     });
 }
 
-let clientInstancePromise;
 function getClient() {
   clientInstancePromise = clientInstancePromise || createClient();
 
   return clientInstancePromise;
+}
+
+function getHost() {
+  return process.env.AMQP_HOST || 'localhost';
+}
+
+function getPort() {
+  return process.env.AMQP_PORT || '5672';
+}
+
+function getURL(options) {
+  if (options && options.url) {
+    return options.url;
+  }
+
+  return 'amqp:' + url.format({hostname: getHost(), port: getPort()});
 }
 
 module.exports = {
