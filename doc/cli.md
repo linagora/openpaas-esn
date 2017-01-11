@@ -22,16 +22,14 @@ The global configuration is generated from the data in [../fixtures/esn-config/d
 - ELASTICSEARCH_HOST: default is `localhost`
 - ELASTICSEARCH_PORT: default is `9200`
 - JMAP_SERVER_HOST: default is `localhost`
-- JMAP_SERVER_PORT: default is `80`
-- JMAP_SERVER_PATH: default is `jmap`
 - AMQP_HOST: default is `amqp`
 - AMQP_PORT: default is `5672`
 
 ```bash
-$ JMAP_SERVER_HOST=mail.open-paas.org node ./bin/cli configure --host localhost --port 27017 --database esn
+$ DAV_SERVER_HOST=dav.open-paas.org node ./bin/cli configure
 ```
 
-This will connect to the mongodb database esn on localhost:27017, set the JMAP_SERVER_HOST value to mail.open-paas.org and inject all the configuration at the right place.
+This will connect to the MongoDB database of the ESN instance, set the `DAV_SERVER_HOST` value to `dav.open-paas.org` and inject all the configuration at the right place.
 
 **db**
 
@@ -39,6 +37,12 @@ It will generate and override the [../config/db.json](../config/db.json) file fr
 
 ```bash
 $ node ./bin/cli db --host localhost --port 27017 --database esn
+```
+
+A full connection string is also support:
+
+```bash
+$ node ./bin/cli db --connection-string mongodb://db1.example.net,db2.example.net:2500/?replicaSet=test
 ```
 
 **docker-dev**
@@ -64,33 +68,26 @@ $ node ./bin/cli elasticsearch --host localhost --port 9200 --index contacts
 **reindex**
 
 It will index or reindex data from the DB to ES.
-Reindexing users will fetch all required information from the DB, so the only required parameters are --db-*.
-Reindexing contacts will only perform ES queries, so the only required parameters are --es-*.
 
 ```bash
-$ node ./bin/cli reindex --db-host localhost --db-port 27017 --db-name esn --type users
+$ node ./bin/cli reindex --es-host localhost --es-port 9200 --type users
 ```
 
-- db-host: default is localhost
-- db-port: default is 27017
-- db-name: default is esn
 - es-host: default is localhost
 - es-port: default is 9200
 - type: the data type to reindex. Possible values: users, contacts
 
 **populate**
 
-It will populate the mongodb database defined from CLI options with initial required data to use OpenPaaS.
+It will populate the MongoDB database with initial required data to use OpenPaaS.
 
 ```bash
-$ node ./bin/cli populate --host localhost --port 27017 --database esn
+$ node ./bin/cli populate
 ```
 
-Once populated, you should be able to log into the OpenPaaS instance using user 'admin@open-paas.org' and password 'secret'.
+Once populated, you should be able to log into the OpenPaaS instance using user `admin@open-paas.org` and password `secret`.
 
 **init**
-
-_This command required **configure** command to be run first_
 
 Performs the initial setup of an OpenPaas instance, by configuring a domain and an administrator
 along with the associated default configurations. Also configures the various storage servers.
@@ -105,8 +102,6 @@ $ node ./bin/cli init --email admin@domain.org --password secret
 the username of the email address will be used as password;
 
 **domain**
-
-_This command required **configure** command to be run first_
 
 This command allows you to manage domains of an OpenPaaS instance. For example,
 to create a new domain, type:

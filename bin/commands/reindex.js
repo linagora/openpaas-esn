@@ -12,19 +12,6 @@ const command = {
   command: 'reindex',
   desc: 'Reindex MongoDB data into Elasticsearch',
   builder: {
-    'db-host': {
-      describe: 'MongoDB host to connect to',
-      default: 'localhost'
-    },
-    'db-port': {
-      describe: 'MongoDB port to connect to',
-      type: 'number',
-      default: 27017
-    },
-    'db-name': {
-      describe: 'MongoDB name to connect to',
-      demand: true
-    },
     'es-host': {
       describe: 'Elasticsearch host to connect to',
       default: 'localhost'
@@ -42,15 +29,15 @@ const command = {
     }
   },
   handler: argv => {
-    const { dbHost, dbPort, dbName, esHost, esPort, type } = argv;
+    const { esHost, esPort, type } = argv;
 
-    return exec(dbHost, dbPort, dbName, esHost, esPort, type)
+    return exec(esHost, esPort, type)
       .then(null, commons.logError)
       .finally(commons.exit);
   }
 };
 
-function exec(dbHost, dbPort, dbName, esHost, esPort, type) {
+function exec(esHost, esPort, type) {
   var handler = HANDLERS[type];
 
   if (!handler) {
@@ -58,7 +45,7 @@ function exec(dbHost, dbPort, dbName, esHost, esPort, type) {
   }
   try {
     return commons.loadMongooseModels().then(function() {
-      return handler(dbHost, dbPort, dbName, esHost, esPort);
+      return handler(esHost, esPort);
     });
   } catch (e) {
     return q.reject(e);
@@ -111,7 +98,7 @@ function reindexContacts(reindexUrl, sourceIndex, destinationIndex) {
   });
 }
 
-function indexContacts(dbHost, dbPort, dbName, esHost, esPort) {
+function indexContacts(esHost, esPort) {
   var esConfiguration = commons.getESConfiguration(esHost, esPort),
       contactsIndexUrl = esConfiguration.getIndexUrl('contacts'),
       contactsTmpIndexUrl = esConfiguration.getIndexUrl('contacts_tmp'),
@@ -133,13 +120,13 @@ function indexContacts(dbHost, dbPort, dbName, esHost, esPort) {
     });
 }
 
-function indexUsers(dbHost, dbPort, dbName) {
+function indexUsers() {
   var db = require('../../fixtures/db'),
       userCoreModule = require('../../backend/core/user'),
       userCoreModuleListener = require('../../backend/core/user/listener'),
       esUtils = require('../../backend/core/elasticsearch/utils');
 
-  return db.connect(commons.getDBOptions(dbHost, dbPort, dbName))
+  return db.connect(commons.getDBOptions())
     .then(function() {
       return q.nfcall(userCoreModule.list).then(function(users) {
         if (!users || users.length === 0) {

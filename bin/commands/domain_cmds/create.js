@@ -5,8 +5,8 @@ const CONSTANTS = require('../../constants').params;
 const db = require('../../../fixtures/db');
 const populate = require('../../../fixtures/populate');
 
-function exec(host, port, database, adminEmail, adminPassword) {
-  return db.connect(commons.getDBOptions(host, port, database))
+function exec(adminEmail, adminPassword) {
+  return db.connect(commons.getDBOptions())
     .then(() => createDomain(adminEmail, adminPassword))
     .finally(db.disconnect);
 }
@@ -23,9 +23,9 @@ module.exports = {
     password: CONSTANTS.administrator.password
   },
   handler: argv => {
-    const { host, port, database, email, password } = argv;
+    const { email, password } = argv;
 
-    exec(host, port, database, email, password)
+    exec(email, password)
       .then(() => commons.logInfo('Created new domain'))
       .catch(commons.logError)
       .finally(commons.exit);

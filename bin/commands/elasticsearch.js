@@ -2,7 +2,7 @@
 
 const q = require('q');
 const commons = require('../commons');
-const EsnConfig = require('esn-elasticsearch-configuration');
+const EsConfig = require('esn-elasticsearch-configuration');
 const AVAILABLE_INDEXS = ['users', 'contacts', 'events'];
 const command = {
   command: 'elasticsearch',
@@ -39,14 +39,14 @@ function exec(host, port, index) {
   host = host || process.env.ELASTICSEARCH_HOST || 'localhost';
   port = port || +process.env.ELASTICSEARCH_PORT || 9200;
 
-  var esnConf = new EsnConfig({host: host, port: port});
+  const esConfig = new EsConfig({host: host, port: port});
 
   if (index) {
-    return esnConf.createIndex(index);
+    return esConfig.createIndex(index);
   }
 
   return q.all(AVAILABLE_INDEXS.map(function(index) {
-    return esnConf.createIndex(index);
+    return esConfig.createIndex(index);
   }));
 }
 
