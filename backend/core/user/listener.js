@@ -1,8 +1,8 @@
 'use strict';
 
-var CONSTANTS = require('./constants');
-var elasticsearchListener = require('../elasticsearch/listeners');
-var denormalize = require('./denormalize');
+const CONSTANTS = require('./constants');
+const elasticsearchListener = require('../elasticsearch/listeners');
+const denormalize = require('./denormalize');
 
 function getOptions() {
   return {
@@ -17,9 +17,12 @@ function getOptions() {
     index: CONSTANTS.ELASTICSEARCH.index
   };
 }
-module.exports.getOptions = getOptions;
 
 function register() {
   elasticsearchListener.addListener(getOptions());
 }
-module.exports.register = register;
+
+module.exports = {
+  getOptions,
+  register
+};
