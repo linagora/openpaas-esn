@@ -1,8 +1,6 @@
 'use strict';
 
 var q = require('q');
-
-var logger = require('../../core/logger');
 var esnConfig = require('../../core/esn-config');
 var followModule = require('../../core/user/follow');
 var sanitizeUser = require('../controllers/utils').sanitizeUser;
@@ -15,10 +13,12 @@ function follow(user) {
   return followModule.getUserStats(user).then(function(stats) {
     user.followers = stats.followers || 0;
     user.followings = stats.followings || 0;
+
     return user;
   }, function() {
     user.followers = 0;
     user.followings = 0;
+
     return user;
   });
 }
@@ -34,6 +34,7 @@ function setIsFollowing(user, loggedUser) {
 
   return followModule.isFollowedBy(user, loggedUser).then(function(result) {
     user.following = result;
+
     return user;
   }, function(err) {
     return user;
@@ -42,6 +43,7 @@ function setIsFollowing(user, loggedUser) {
 
 function setState(user, sanitized) {
   sanitized.disabled = !!user.login.disabled;
+
   return q(sanitized);
 }
 

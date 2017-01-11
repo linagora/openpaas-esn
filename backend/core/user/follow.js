@@ -1,11 +1,10 @@
 'use strict';
 
-var q = require('q');
-var pubsub = require('../pubsub');
-var resourceLink = require('../resource-link');
-var logger = require('../logger');
-var CONSTANTS = require('./constants');
-var userModule = require('./index');
+const Q = require('q');
+const pubsub = require('../pubsub');
+const resourceLink = require('../resource-link');
+const logger = require('../logger');
+const CONSTANTS = require('./constants');
 
 function userAsTuple(user) {
   return {objectType: CONSTANTS.OBJECT_TYPE, id: String(user._id)};
@@ -29,7 +28,7 @@ function listen() {
 module.exports.listen = listen;
 
 function getUserStats(user) {
-  return q.all([getNbOfFollowers(user), getNbOfFollowings(user)]).spread(function(followers, followings) {
+  return Q.all([getNbOfFollowers(user), getNbOfFollowings(user)]).spread(function(followers, followings) {
     return {
       followers: followers,
       followings: followings
@@ -59,9 +58,12 @@ function follows(userA, userB) {
 module.exports.follows = follows;
 
 function listUsers(options, type) {
-  return q.all([resourceLink.list(options), resourceLink.count(options)]).spread(function(links, count) {
+  // SOC-25: Cyclic dependency. userModule.get is undefined if required above
+  const userModule = require('./index');
+
+  return Q.all([resourceLink.list(options), resourceLink.count(options)]).spread(function(links, count) {
     var promises = links.map(function(link) {
-      return q.denodeify(userModule.get)(link[type].id).then(function(user) {
+      return Q.denodeify(userModule.get)(link[type].id).then(function(user) {
         return {
           link: link,
           user: user
@@ -69,7 +71,7 @@ function listUsers(options, type) {
       });
     });
 
-    return q.all(promises).then(function(users) {
+    return Q.all(promises).then(function(users) {
       return {
         list: users,
         total_count: count
@@ -97,11 +99,11 @@ function getFollowings(user, options) {
 module.exports.getFollowings = getFollowings;
 
 function canFollow(userA, userB) {
-  return q(true);
+  return Q(true);
 }
 module.exports.canFollow = canFollow;
 
 function canUnfollow(userA, userB) {
-  return q(true);
+  return Q(true);
 }
 module.exports.canUnfollow = canUnfollow;
