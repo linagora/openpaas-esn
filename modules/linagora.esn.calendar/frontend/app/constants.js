@@ -34,15 +34,24 @@
             duration: { days: 3 },
             buttonText: '3 days',
             eventLimit: 3,
-            eventLimitClick: 'day'
+            eventLimitClick: 'dayWithDisplayedEvent'
           },
           month: {
             eventLimit: true,
-            eventLimitClick: 'day'
+            eventLimitClick: 'dayWithDisplayedEvent'
           },
           week: {
             eventLimit: 3,
-            eventLimitClick: 'day'
+            eventLimitClick: 'dayWithDisplayedEvent',
+            eventLimitText: '...'
+          },
+          day: {
+            eventLimit: true,
+            eventLimitClick: 'dayWithDisplayedEvent'
+          },
+          dayWithDisplayedEvent: {
+            type: 'agendaDay',
+            eventLimit: false
           }
         }
       },
