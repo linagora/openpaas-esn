@@ -49,14 +49,37 @@ describe('The amqp module', function() {
       getClient();
     });
 
-    it('should trigger an error if no config available from esnconfig', function(done) {
+    it('should reject when esnconfig rejects', function(done) {
+      const error = new Error('I failed to get amqp configuration');
+
       mockEsnConfig(key => ({
-        get: () => q.reject(new Error())
+        get: () => q.reject(error)
       }));
 
       getClient()
         .then(() => done('Failed, an error is expected'))
-        .catch(() => done());
+        .catch(err => {
+          expect(err.message).to.equal(error.message);
+          done();
+        });
+    });
+
+    it('should use default url when esnconfig does not return amqp configuration', function(done) {
+      mockEsnConfig(key => ({
+        get: () => q()
+      }));
+
+      mockAmqplib({
+        connect: url => {
+          expect(url).to.equal('amqp://localhost:5672');
+
+          return { createChannel: () => channel };
+        }
+      });
+
+      getClient()
+        .then(() => done())
+        .catch(err => done(err || 'should resolve'));
     });
 
     it('should connect to the server using the expected esnconfig options', function(done) {
@@ -103,7 +126,7 @@ describe('The amqp module', function() {
         .catch(err => done(err || 'should resolve'));
     });
 
-    it('should do only one connexion and channel when called multiple times', function(done) {
+    it('should do only one connection and channel when called multiple times', function(done) {
       const createChannelSpy = sinon.spy(() => channel);
       const connectSpy = sinon.spy(url => ({
         createChannel: createChannelSpy
