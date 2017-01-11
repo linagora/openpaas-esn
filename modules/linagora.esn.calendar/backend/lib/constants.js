@@ -1,6 +1,10 @@
 'use strict';
 
 module.exports = {
+  EVENT_MAIL_LISTENER: {
+    EXCHANGE: 'james:events',
+    DEFAULT_CALENDAR: 'events'
+  },
   MODE: {
     IMPORT: 'import'
   },

@@ -1,30 +1,60 @@
 'use strict';
 
-var request = require('request');
-var urljoin = require('url-join');
-var async = require('async');
-var q = require('q');
-var davserver, token;
+const request = require('request');
+const urljoin = require('url-join');
+const async = require('async');
+const Q = require('q');
 
 module.exports = function(dependencies) {
-  davserver = dependencies('davserver').utils;
-  token = dependencies('auth').token;
+  const davserver = dependencies('davserver').utils;
+  const token = dependencies('auth').token;
+
+  return {
+    getEvent,
+    getEventPath,
+    putEvent
+  };
+
+  function getEvent(userId, calendarURI, eventUID) {
+    return _requestCaldav(userId, calendarURI, eventUID, (url, token) => ({
+        method: 'GET',
+        url: url,
+        headers: {
+          ESNToken: token
+        }
+      })
+    );
+  }
 
   function getEventPath(userId, calendarURI, eventUID) {
     return urljoin(userId, calendarURI, eventUID + '.ics');
   }
 
-  function buildEventUrl(userId, calendarURI, eventUID, callback) {
+  function putEvent(userId, calendarURI, eventUID, jcal) {
+    return _requestCaldav(userId, calendarURI, eventUID, (url, token) => ({
+        method: 'PUT',
+        url: url,
+        headers: {
+          ESNToken: token
+        },
+        body: jcal,
+        json: true
+      })
+    );
+  }
+
+  function _buildEventUrl(userId, calendarURI, eventUID, callback) {
     davserver.getDavEndpoint(function(davserver) {
       return callback(urljoin(davserver, 'calendars', getEventPath(userId, calendarURI, eventUID)));
     });
   }
 
-  function getEvent(userId, calendarURI, eventUID) {
-    var deferred = q.defer();
+  function _requestCaldav(userId, calendarURI, eventUID, formatRequest) {
+    const deferred = Q.defer();
+
     async.parallel([
         function(cb) {
-          buildEventUrl(userId, calendarURI, eventUID, function(url) {
+          _buildEventUrl(userId, calendarURI, eventUID, function(url) {
             return cb(null, url);
           });
         },
@@ -36,18 +66,15 @@ module.exports = function(dependencies) {
         if (err) {
           return deferred.reject(err);
         }
-        request({method: 'GET', url: results[0], headers: {ESNToken: results[1].token}}, function(err, response) {
+        request(formatRequest(results[0], results[1].token), function(err, response) {
           if (err || response.statusCode < 200 || response.statusCode >= 300) {
             return deferred.reject(err ? err.message : response.body);
           }
+
           return deferred.resolve(response.body);
         });
       });
+
     return deferred.promise;
   }
-
-  return {
-    getEvent: getEvent,
-    getEventPath: getEventPath
-  };
 };
