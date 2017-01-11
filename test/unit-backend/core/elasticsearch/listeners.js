@@ -1,8 +1,10 @@
 'use strict';
 
-var mockery = require('mockery');
-var chai = require('chai');
-var expect = chai.expect;
+const mockery = require('mockery');
+const chai = require('chai');
+const expect = chai.expect;
+const sinon = require('sinon');
+const Q = require('q');
 
 describe('The ES listeners module', function() {
 
@@ -123,9 +125,19 @@ describe('The ES listeners module', function() {
     });
 
     describe('The removeFromIndex function', function() {
-      var pubsubMock, subscribeFn;
+      var pubsubMock, subscribeFn, options, data;
 
       beforeEach(function() {
+        options = {
+          events: {
+            remove: '123'
+          },
+          index: 'contacts.idx',
+          type: 'contact',
+          denormalize: true,
+          getId: true
+        };
+        data = {_id: '123'};
         subscribeFn = null;
         pubsubMock = {
           topic: function() {
@@ -143,17 +155,6 @@ describe('The ES listeners module', function() {
       });
 
       it('should be called with right parameters', function(done) {
-        var options = {
-          events: {
-            remove: '123'
-          },
-          index: 'contacts.idx',
-          type: 'contact',
-          denormalize: true,
-          getId: true
-        };
-        var data = {_id: '123'};
-
         mockery.registerMock('./utils', {
           removeFromIndex: function(input) {
             expect(input).to.deep.equal({
@@ -172,9 +173,103 @@ describe('The ES listeners module', function() {
     });
   });
 
-  describe('The index function', function() {
+  describe('The remove function', function() {
+    let pubsubMock, data;
 
-    var pubsubMock;
+    beforeEach(function() {
+      data = {foo: 'bar'};
+      pubsubMock = {
+        topic: function() {
+          return {
+            subscribe: function(subscribe) {
+            }
+          };
+        }
+      };
+
+      mockery.registerMock('../pubsub', {
+        global: pubsubMock
+      });
+    });
+
+    it('should call the options.skip.remove function to check if index remove must be skipped', function(done) {
+      const result = {foo: 'bar'};
+      const options = {
+        skip: {
+          remove: sinon.spy(function() {
+            return Q(false);
+          })
+        }
+      };
+      const removeFromIndexSpy = sinon.spy(function(optons, callback) {
+        callback(null, result);
+      });
+
+      mockery.registerMock('./utils', {
+        removeFromIndex: removeFromIndexSpy
+      });
+
+      const module = this.helpers.rewireBackend('core/elasticsearch/listeners');
+
+      module.remove(data, options, function(_err, _result) {
+        expect(_err).to.not.be.defined;
+        expect(_result).to.equals(result);
+        expect(removeFromIndexSpy).to.have.been.called;
+        expect(options.skip.remove).to.have.been.calledWith(data);
+        done();
+      });
+    });
+
+    it('should send back error when options.skip.remove function rejects', function(done) {
+      const error = new Error('skip rejects');
+      const options = {
+        skip: {
+          remove: sinon.spy(function() {
+            return Q.reject(error);
+          })
+        }
+      };
+      const removeFromIndexSpy = sinon.spy();
+
+      mockery.registerMock('./utils', {
+        removeFromIndex: removeFromIndexSpy
+      });
+
+      const module = this.helpers.rewireBackend('core/elasticsearch/listeners');
+
+      module.remove(data, options, function(err) {
+        expect(err.message).to.equals(error.message);
+        expect(removeFromIndexSpy).to.not.have.been.called;
+        expect(options.skip.remove).to.have.been.calledWith(data);
+        done();
+      });
+    });
+
+    it('should not remove when options.skip.remove resolves to true', function(done) {
+      const options = {
+        skip: {
+          remove: sinon.spy(function() {
+            return Q(true);
+          })
+        }
+      };
+      const removeFromIndexSpy = sinon.spy();
+
+      const module = this.helpers.rewireBackend('core/elasticsearch/listeners');
+
+      module.remove(data, options, function(_err, _result) {
+        expect(_err).to.not.be.defined;
+        expect(_result).to.not.be.defined;
+        expect(removeFromIndexSpy).to.not.have.been.called;
+        expect(options.skip.remove).to.have.been.calledWith(data);
+        done();
+      });
+    });
+  });
+
+  describe('The index function', function() {
+    let pubsubMock, data;
+
     beforeEach(function() {
       pubsubMock = {
         topic: function() {
@@ -200,7 +295,6 @@ describe('The ES listeners module', function() {
         denormalize: true,
         getId: true
       };
-      var data = {_id: '123'};
 
       mockery.registerMock('./utils', {
         indexData: function(input) {
@@ -266,6 +360,82 @@ describe('The ES listeners module', function() {
         done();
       });
     });
-  });
 
+    it('should call the options.skip.index function to check if index must be skipped', function(done) {
+      const result = {foo: 'bar'};
+      const options = {
+        skip: {
+          index: sinon.spy(function() {
+            return Q(false);
+          })
+        }
+      };
+      const indexSpy = sinon.spy(function(optons, callback) {
+        callback(null, result);
+      });
+
+      mockery.registerMock('./utils', {
+        indexData: indexSpy
+      });
+
+      const module = this.helpers.rewireBackend('core/elasticsearch/listeners');
+
+      module.index(data, options, function(_err, _result) {
+        expect(_err).to.not.be.defined;
+        expect(_result).to.equals(result);
+        expect(indexSpy).to.have.been.called;
+        expect(options.skip.index).to.have.been.calledWith(data);
+        done();
+      });
+    });
+
+    it('should send back error when options.skip.index rejects', function(done) {
+      const error = new Error('skip rejects');
+      const options = {
+        skip: {
+          index: sinon.spy(function() {
+            return Q.reject(error);
+          })
+        }
+      };
+      const indexSpy = sinon.spy();
+
+      mockery.registerMock('./utils', {
+        indexData: indexSpy
+      });
+
+      const module = this.helpers.rewireBackend('core/elasticsearch/listeners');
+
+      module.index(data, options, function(err) {
+        expect(err.message).to.equals(error.message);
+        expect(indexSpy).to.not.have.been.called;
+        expect(options.skip.index).to.have.been.calledWith(data);
+        done();
+      });
+    });
+
+    it('should not index when options.skip.index resolves to true', function(done) {
+      const options = {
+        skip: {
+          index: function() {
+            return Q(true);
+          }
+        }
+      };
+      const indexSpy = sinon.spy();
+
+      mockery.registerMock('./utils', {
+        indexData: indexSpy
+      });
+
+      const module = this.helpers.rewireBackend('core/elasticsearch/listeners');
+
+      module.index(data, options, function(_err, _result) {
+        expect(_err).to.not.be.defined;
+        expect(_result).to.not.be.defined;
+        expect(indexSpy).to.not.have.been.calledWith(data);
+        done();
+      });
+    });
+  });
 });
