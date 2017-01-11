@@ -11,15 +11,17 @@ describe('The ES listeners module', function() {
   describe('The addListener function', function() {
 
     it('should return an object', function() {
-      var module = this.helpers.rewireBackend('core/elasticsearch/listeners');
-      var handler = module.addListener({events: {}});
+      const module = this.helpers.rewireBackend('core/elasticsearch/listeners');
+      const handler = module.addListener({events: {}});
+
       expect(handler.indexData).to.be.a.function;
       expect(handler.removeFromIndex).to.be.a.function;
     });
 
     it('should return a function to index a document', function(done) {
-      var data = {foo: 'bar'};
-      var opts = {events: {}, denormalize: 1, getId: 2, index: 3, type: 4};
+      const data = {foo: 'bar'};
+      const opts = {events: {}, denormalize: 1, getId: 2, index: 3, type: 4};
+
       mockery.registerMock('./utils', {
         indexData: function(options, callback) {
           expect(options).to.deep.equal({
@@ -32,13 +34,16 @@ describe('The ES listeners module', function() {
           callback();
         }
       });
-      var handler = this.helpers.rewireBackend('core/elasticsearch/listeners').addListener(opts);
+
+      const handler = this.helpers.rewireBackend('core/elasticsearch/listeners').addListener(opts);
+
       handler.indexData(data, done);
     });
 
     it('should return a function to remove a document from index', function(done) {
-      var data = {foo: 'bar'};
-      var opts = {events: {}, denormalize: 1, getId: 2, index: 3, type: 4};
+      const data = {foo: 'bar'};
+      const opts = {events: {}, denormalize: 1, getId: 2, index: 3, type: 4};
+
       mockery.registerMock('./utils', {
         removeFromIndex: function(options, callback) {
           expect(options).to.deep.equal({
@@ -50,7 +55,9 @@ describe('The ES listeners module', function() {
           callback();
         }
       });
-      var handler = this.helpers.rewireBackend('core/elasticsearch/listeners').addListener(opts);
+
+      const handler = this.helpers.rewireBackend('core/elasticsearch/listeners').addListener(opts);
+
       handler.removeFromIndex(data, done);
     });
 
@@ -67,65 +74,76 @@ describe('The ES listeners module', function() {
       });
 
       it('should register a listener when options.events.add is defined', function(done) {
-        var eventName = 'foobarbaz';
-        var options = {
+        const eventName = 'foobarbaz';
+        const options = {
           events: {
             add: eventName
           }
         };
+
         pubsubMock.topic = function(name) {
           expect(name).to.equal(eventName);
+
           return {
             subscribe: function() {
               done();
             }
           };
         };
-        var module = this.helpers.rewireBackend('core/elasticsearch/listeners');
+
+        const module = this.helpers.rewireBackend('core/elasticsearch/listeners');
+
         module.addListener(options);
       });
 
       it('should register a listener when options.events.update is defined', function(done) {
-        var eventName = 'foobarbaz';
-        var options = {
+        const eventName = 'foobarbaz';
+        const options = {
           events: {
             update: eventName
           }
         };
+
         pubsubMock.topic = function(name) {
           expect(name).to.equal(eventName);
+
           return {
             subscribe: function() {
               done();
             }
           };
         };
-        var module = this.helpers.rewireBackend('core/elasticsearch/listeners');
+        const module = this.helpers.rewireBackend('core/elasticsearch/listeners');
+
         module.addListener(options);
       });
 
       it('should register a listener when options.events.remove is defined', function(done) {
-        var eventName = 'foobarbaz';
-        var options = {
+        const eventName = 'foobarbaz';
+        const options = {
           events: {
             remove: eventName
           }
         };
+
         pubsubMock.topic = function(name) {
           expect(name).to.equal(eventName);
+
           return {
             subscribe: function() {
               done();
             }
           };
         };
-        var module = this.helpers.rewireBackend('core/elasticsearch/listeners');
+
+        const module = this.helpers.rewireBackend('core/elasticsearch/listeners');
+
         module.addListener(options);
       });
     });
 
     describe('The removeFromIndex function', function() {
-      var pubsubMock, subscribeFn, options, data;
+      let pubsubMock, subscribeFn, options, data;
 
       beforeEach(function() {
         options = {
@@ -166,7 +184,9 @@ describe('The ES listeners module', function() {
             done();
           }
         });
-        var module = this.helpers.rewireBackend('core/elasticsearch/listeners');
+
+        const module = this.helpers.rewireBackend('core/elasticsearch/listeners');
+
         module.addListener(options);
         subscribeFn(data);
       });
@@ -286,7 +306,7 @@ describe('The ES listeners module', function() {
     });
 
     it('should be called with right parameters', function(done) {
-      var options = {
+      const options = {
         events: {
           add: '123'
         },
@@ -308,52 +328,63 @@ describe('The ES listeners module', function() {
           done();
         }
       });
-      var module = this.helpers.rewireBackend('core/elasticsearch/listeners');
+
+      const module = this.helpers.rewireBackend('core/elasticsearch/listeners');
+
       module.index(data, options);
     });
 
     it('should use the denormalize function from options when defined', function(done) {
-      var options = {
+      const options = {
         events: {
           add: '123'
         },
         denormalize: function() {}
       };
+
       mockery.registerMock('./utils', {
         indexData: function(opts) {
           expect(opts.denormalize).to.deep.equal(options.denormalize);
           done();
         }
       });
-      var module = this.helpers.rewireBackend('core/elasticsearch/listeners');
+
+      const module = this.helpers.rewireBackend('core/elasticsearch/listeners');
+
       module.index({}, options);
     });
 
     it('should use the default denormalize function when options.denormalize is not defined', function(done) {
-      var options = {
+      const options = {
         events: {
           add: '123'
         }
       };
+
       mockery.registerMock('./utils', {
         indexData: function(opts) {
           expect(opts.denormalize).to.be.a.function;
           done();
         }
       });
-      var module = this.helpers.rewireBackend('core/elasticsearch/listeners');
+
+      const module = this.helpers.rewireBackend('core/elasticsearch/listeners');
+
       module.index({}, options);
     });
 
     it('should call the callback when defined', function(done) {
-      var options = {};
-      var result = {foo: 'bar'};
+      const options = {};
+      const result = {foo: 'bar'};
+
       mockery.registerMock('./utils', {
         indexData: function(opts, callback) {
           return callback(null, result);
         }
       });
-      var module = this.helpers.rewireBackend('core/elasticsearch/listeners');
+
+      const module = this.helpers.rewireBackend('core/elasticsearch/listeners');
+
       module.index({}, options, function(_err, _result) {
         expect(_err).to.not.be.defined;
         expect(_result).to.deep.equal(result);

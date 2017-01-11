@@ -1,14 +1,20 @@
 'use strict';
 
-var utils = require('./utils');
-var pubsub = require('../pubsub').local;
-var logger = require('../logger');
-var Q = require('q');
+const utils = require('./utils');
+const pubsub = require('../pubsub').local;
+const logger = require('../logger');
+const Q = require('q');
+
+module.exports = {
+  addListener,
+  index,
+  remove
+};
 
 function index(data, options, callback) {
 
   function _index() {
-    var indexOptions = {
+    const indexOptions = {
       denormalize: options.denormalize || function(data) {return data;},
       getId: options.getId,
       index: options.index,
@@ -16,7 +22,7 @@ function index(data, options, callback) {
       data: data
     };
 
-    utils.indexData(indexOptions, function(err, result) {
+    utils.indexData(indexOptions, (err, result) => {
       if (err) {
         logger.error('Error while adding data in index', err);
       } else {
@@ -38,7 +44,6 @@ function index(data, options, callback) {
     callback(err);
   });
 }
-module.exports.index = index;
 
 function remove(data, options, callback) {
   const indexOptions = {
@@ -59,7 +64,6 @@ function remove(data, options, callback) {
     callback(err);
   });
 }
-module.exports.remove = remove;
 
 function addListener(options) {
 
@@ -80,8 +84,8 @@ function addListener(options) {
   }
 
   if (options.events.remove) {
-    pubsub.topic(options.events.remove).subscribe(function(data) {
-      removeFromIndex(data, function(err) {
+    pubsub.topic(options.events.remove).subscribe(data => {
+      removeFromIndex(data, err => {
         if (err) {
           logger.error('Error while removing data from index', err);
         }
@@ -90,8 +94,7 @@ function addListener(options) {
   }
 
   return {
-    indexData: indexData,
-    removeFromIndex: removeFromIndex
+    indexData,
+    removeFromIndex
   };
 }
-module.exports.addListener = addListener;
