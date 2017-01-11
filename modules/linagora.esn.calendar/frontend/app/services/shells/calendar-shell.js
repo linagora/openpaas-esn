@@ -51,7 +51,7 @@
         vcalendar = new ICAL.Component('vcalendar');
         vcalendar.addSubcomponent(vevent);
       } else {
-        throw new Error('Cannot create a shell - Unsupported vcomponent');
+        throw new Error('Cannot create a shell - Unsupported vcomponent ' + vcomponent.name);
       }
 
       this.vcalendar = vcalendar;
@@ -110,6 +110,8 @@
       isMeeting: isMeeting,
       isOverOneDayOnly: isOverOneDayOnly,
       ensureAlarmCoherence: ensureAlarmCoherence,
+      getExceptionByRecurrenceId: getExceptionByRecurrenceId,
+      getRecurrenceType: getRecurrenceType,
 
       get uid() { return this.vevent.getFirstPropertyValue('uid'); },
       get id() { return this.recurrenceId ? this.uid + '_' + this.vevent.getFirstPropertyValue('recurrence-id').convertToZone(ICAL.Timezone.utcTimezone) : this.uid; },
@@ -427,6 +429,10 @@
 
     function _getException(recurrenceId) {
       var icalEvent = _.find(this.icalEvent.exceptions, function(exception) {
+        if (angular.isString(recurrenceId)) {
+          return exception.recurrenceId.toICALString() === recurrenceId;
+        }
+
         return exception.recurrenceId.compare(recurrenceId) === 0;
       });
 
@@ -452,6 +458,16 @@
           this.icalEvent.relateException(event);
         }
       }, this);
+    }
+
+    function getExceptionByRecurrenceId(recurrenceId) {
+      this._registerException();
+
+      return this._getException(recurrenceId);
+    }
+
+    function getRecurrenceType() {
+      return this.isRecurring() ? this.rrule.freq : '';
     }
 
     function expand(startDate, endDate, maxElement) {
