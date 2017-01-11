@@ -203,6 +203,115 @@ describe('The user core module', function() {
     });
   });
 
+  describe('The update fn', function() {
+    let getModule;
+    let localPubsubMock;
+    let constants;
+
+    beforeEach(function() {
+      mockModels({
+        User: {}
+      });
+
+      localPubsubMock = {};
+
+      mockery.registerMock('../../core/pubsub', {
+        local: localPubsubMock
+      });
+
+      constants = this.helpers.requireBackend('core/user/constants');
+
+      getModule = () => this.helpers.requireBackend('core').user;
+    });
+
+    it('should call callback with error and updated user object', function() {
+      const err = new Error('some_error');
+      const updatedUser = { _id: 1 };
+      const user = {
+        save(callback) {
+          callback(err, updatedUser);
+        }
+      };
+      const callbackSpy = sinon.spy();
+
+      getModule().update(user, callbackSpy);
+
+      expect(callbackSpy).to.have.been.calledOnce;
+      expect(callbackSpy).to.have.been.calledWith(err, updatedUser);
+    });
+
+    it('should publish userUpdated event when user was updated successfully with new data (rowAffected > 0)', function() {
+      const err = null;
+      const updatedUser = { _id: 1 };
+      const rowAffected = 1;
+      const user = {
+        save(callback) {
+          callback(err, updatedUser, rowAffected);
+        }
+      };
+      const callback = () => {};
+      const publishSpy = sinon.spy();
+      const topicStub = sinon.stub().returns({
+        publish: publishSpy
+      });
+
+      localPubsubMock.topic = topicStub;
+
+      getModule().update(user, callback);
+
+      expect(topicStub).to.have.been.calledOnce;
+      expect(topicStub).to.have.been.calledWith(constants.EVENTS.userUpdated);
+      expect(publishSpy).to.have.been.calledOnce;
+      expect(publishSpy).to.have.been.calledWith(updatedUser);
+    });
+
+    it('should not publish event when user was not updated successfully', function() {
+      const err = new Error('some_error');
+      const updatedUser = { _id: 1 };
+      const rowAffected = 1;
+      const user = {
+        save(callback) {
+          callback(err, updatedUser, rowAffected);
+        }
+      };
+      const callback = () => {};
+      const publishSpy = sinon.spy();
+      const topicStub = sinon.stub().returns({
+        publish: publishSpy
+      });
+
+      localPubsubMock.topic = topicStub;
+
+      getModule().update(user, callback);
+
+      expect(topicStub).to.not.have.been.called;
+      expect(publishSpy).to.not.have.been.called;
+    });
+
+    it('should not publish event when user was updated successfully but rowAffected equals 0', function() {
+      const err = null;
+      const updatedUser = { _id: 1 };
+      const rowAffected = 0;
+      const user = {
+        save(callback) {
+          callback(err, updatedUser, rowAffected);
+        }
+      };
+      const callback = () => {};
+      const publishSpy = sinon.spy();
+      const topicStub = sinon.stub().returns({
+        publish: publishSpy
+      });
+
+      localPubsubMock.topic = topicStub;
+
+      getModule().update(user, callback);
+
+      expect(topicStub).to.not.have.been.called;
+      expect(publishSpy).to.not.have.been.called;
+    });
+  });
+
   describe('updateProfile fn', function() {
     var userModule = null;
     var profile = {};
