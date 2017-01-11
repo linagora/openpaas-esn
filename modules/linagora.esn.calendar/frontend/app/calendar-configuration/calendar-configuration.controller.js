@@ -170,7 +170,7 @@
 
     function openDeleteConfirmationDialog() {
       self.modal = $modal({
-        templateUrl: '/calendar/app/calendar-configuration/calendar-configuration-delete-confirmation.html',
+        templateUrl: '/calendar/app/calendar-configuration/calendar-configuration-delete-confirmation/calendar-configuration-delete-confirmation.html',
         controller: function($scope) {
           $scope.calendarName = self.calendar.name;
           $scope.delete = removeCalendar;

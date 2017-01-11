@@ -1,0 +1,26 @@
+.form-group.fg-line(ng-class='{"has-error": !$ctrl.calendar.name}')
+  .field-name #{__('Name')}
+  input.form-control(type="text", placeholder="#{__('Enter a name')}", ng-model="$ctrl.calendar.name", maxlength="255")
+  span.help-block(ng-if="!$ctrl.calendar.name")
+    | #{__('Please input a name if you want to save this calendar')}
+.form-group.flex-vertical-centered
+  .field-name #{__('Color')}
+  .color-picker-container(calendar-color-picker-toggler, color="$ctrl.calendar.color")
+    // .select > .form-control is mandatory here for the select-like behavior
+    // of material-admin
+    .select
+      .form-control
+    i.color-picker-value(ng-style="{'background-color': $ctrl.calendar.color}")
+.visible-xs
+  span.delete-calendar-button.flex-vertical-centered(ng-if="!$ctrl.newCalendar && !$ctrl.isDefaultCalendar", type="button", ng-click="$ctrl.openDeleteConfirmationDialog()")
+    | #{__('Delete this calendar')}
+.hidden-xs
+  span.delete-calendar-button.flex-vertical-centered.m-t-10.pull-left.clickable(ng-if="!$ctrl.newCalendar && !$ctrl.isDefaultCalendar", type="button", ng-click="$ctrl.openDeleteConfirmationDialog()")
+    | #{__('Delete this calendar')}
+  span.pull-right
+    button.btn.btn-default.btn-sm.m-t-10.visible-xs(type="button", ng-click="$ctrl.mobileCancel()") #{__('Return to calendar')}
+    button.btn.btn-default.btn-sm.m-t-10.hidden-xs(type="button", ng-click="$ctrl.cancel()") #{__('Return to calendar')}
+    button.btn.btn-primary.btn-sm.m-t-10(type="button", ng-click="$ctrl.submit()")
+      span(ng-if='$ctrl.newCalendar') #{__('Create')}
+      span(ng-if='!$ctrl.newCalendar') #{__('Save')}
+  .clearfix

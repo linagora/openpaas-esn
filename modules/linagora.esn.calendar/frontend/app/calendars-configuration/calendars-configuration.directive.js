@@ -7,20 +7,18 @@
   function calendarsConfiguration() {
     var directive = {
       restrict: 'E',
-      templateUrl: 'calendar/app/calendar-configuration/calendars-configuration.html',
+      templateUrl: 'calendar/app/calendars-configuration/calendars-configuration.html',
       scope: {
         calendars: '='
       },
       replace: true,
       controller: CalendarsConfigurationController,
-      controllerAs: 'vm',
+      controllerAs: '$ctrl',
       bindToController: true
     };
 
     return directive;
   }
-
-  CalendarsConfigurationController.$inject = ['$state'];
 
   function CalendarsConfigurationController($state) {
     var self = this;

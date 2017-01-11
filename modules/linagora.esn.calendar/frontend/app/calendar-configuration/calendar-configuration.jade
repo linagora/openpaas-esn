@@ -5,96 +5,33 @@
     h2 #{__('Calendar configuration')}
   .row
     .col-xs-12.no-padding-xs
-      ul.esn-tab
-        li.btn-wave(ng-class="{'active': $ctrl.selectedTab === 'main'}")
-          a(href="", ng-click="$ctrl.getMainView()")
-            | #{__('Main')}
-        li.btn-wave(ng-class="{'active': $ctrl.selectedTab === 'delegation'}", ng-show='$ctrl.isAdmin && !$ctrl.newCalendar')
-          a(href="", ng-click="$ctrl.getDelegationView()")
-            | #{__('Delegation')}
-      .card-body.m-t-25
+      calendar-configuration-tabs(
+        selected-tab = "$ctrl.selectedTab",
+        get-main-view = "$ctrl.getMainView",
+        is-admin = "$ctrl.isAdmin",
+        new-calendar = "$ctrl.newCalendar",
+        get-delegation-view = "$ctrl.getDelegationView"
+      )
+      .card-body.calendar-configuration-body
         form(ng-submit='$ctrl.submit()')
-          div(ng-show='$ctrl.selectedTab === "main"')
-            .form-group.fg-line(ng-class='{"has-error": !$ctrl.calendar.name}')
-              .field-name #{__('Name')}
-              input.form-control(type="text", placeholder="#{__('Enter a name')}", ng-model="$ctrl.calendar.name", maxlength="255")
-              span.help-block(ng-if="!$ctrl.calendar.name")
-                | #{__('Please input a name if you want to save this calendar')}
-            .form-group.flex-vertical-centered
-              .field-name #{__('Color')}
-              .color-picker-container(calendar-color-picker-toggler, color="$ctrl.calendar.color")
-                // .select > .form-control is mandatory here for the select-like behavior
-                // of material-admin
-                .select
-                  .form-control
-                i.color-picker-value(ng-style="{'background-color': $ctrl.calendar.color}")
-            .visible-xs
-              span.delete-calendar-button.flex-vertical-centered(ng-if="!$ctrl.newCalendar && !$ctrl.isDefaultCalendar", type="button", ng-click="$ctrl.openDeleteConfirmationDialog()")
-                | #{__('Delete this calendar')}
-            .hidden-xs
-              span.delete-calendar-button.flex-vertical-centered.m-t-10.pull-left.clickable(ng-if="!$ctrl.newCalendar && !$ctrl.isDefaultCalendar", type="button", ng-click="$ctrl.openDeleteConfirmationDialog()")
-                | #{__('Delete this calendar')}
-              span.pull-right
-                button.btn.btn-default.btn-sm.m-t-10.visible-xs(type="button", ng-click="$ctrl.mobileCancel()") #{__('Return to calendar')}
-                button.btn.btn-default.btn-sm.m-t-10.hidden-xs(type="button", ng-click="$ctrl.cancel()") #{__('Return to calendar')}
-                button.btn.btn-primary.btn-sm.m-t-10(type="button", ng-click="$ctrl.submit()")
-                  span(ng-if='$ctrl.newCalendar') #{__('Create')}
-                  span(ng-if='!$ctrl.newCalendar') #{__('Save')}
-              .clearfix
-          .delegation(ng-show='$ctrl.selectedTab === "delegation"')
-            .row.public.flex-wrap.flex-vertical-centered
-              .col-sm-6.col-xs-12
-                i.mdi.mdi-account-multiple.vertical-align.big
-                span.vertical-align
-                  | #{__('Public read')}
-              .col-sm-6.col-xs-12
-                span.vertical-align
-                  .input-group
-                    span.input-group-addon
-                      i.mdi.mdi-eye
-                    .fg-line
-                      .select
-                        select.form-control(ng-model='$ctrl.publicSelection')
-                          option(ng-repeat="delegationType in ::$ctrl.delegationTypes" value="{{delegationType.value}}" ng-selected="delegationType.value === $ctrl.selection" ng-if="delegationType.access==='all'") {{ delegationType.name }}
-            .row.public.flex-wrap.flex-vertical-centered.hidden-md
-                .col-sm-6.col-xs-12
-                  .btn-group.btn-addusers
-                    button.btn.btn-primary.dropdown-toggle(type="button", data-toggle="dropdown", aria-expanded="false")
-                      i.mdi.mdi-account-multiple-plus
-                      | #{__('Add users and groups delegation')}
-                    ul.dropdown-menu(role="menu")
-                      li(ng-repeat="delegationType in ::$ctrl.delegationTypes" ng-if="delegationType.access==='all'")
-                        a(ng-click="$ctrl.goToEditDelegation()")
-                          | {{delegationType.name}}
-            hr
-            .row.hidden-xs
-              .col-sm-12.col-xs-12
-                span #{__('Delegation on this calendar')}
-            .row.hidden-xs
-              .col-sm-6.col-xs-12
-                users-autocomplete-input(mutable-users='$ctrl.newUsersGroups')
-              .col-sm-4.col-xs-8
-                span
-                  .select
-                    select.addDelegation.form-control(ng-model='$ctrl.selection')
-                      option(ng-repeat="delegationType in ::$ctrl.delegationTypes" value="{{delegationType.value}}" ng-selected="delegationType.value === $ctrl.selection") {{delegationType.name}}
-               .col-sm-2.col-xs-4
-                .btn.btn-primary.btn-sm(ng-click="$ctrl.addUserGroup()") #{__('Add')}
-
-            hr
-            .row.hidden-xs(ng-repeat="delegation in $ctrl.delegations")
-              .row.no-margin
-                .col-sm-offset-1.col-sm-1.col-xs-2
-                  a.attendee-avatar(href="", ng-attr-title='delegation.user.displayName')
-                    img(src='/images/user.png', fallback-src='/images/user.png', ng-src='/api/avatars?email={{ delegation.user.email | urlencode }}')
-                .col-sm-4.col-xs-4.name
-                  span {{ delegation.user.displayName }}
-                .col-sm-4.col-xs-4
-                  span
-                    .select
-                      select.form-control(ng-model='delegation.selection')
-                        option(ng-repeat="delegationType in ::$ctrl.delegationTypes" value="{{delegationType.value}}" ng-selected="delegationType.value === delegation.selection") {{delegationType.name}}
-                .col-sm-2
-                  a(href="", ng-click='$ctrl.removeUserGroup(delegation)')
-                    i.mdi.mdi-delete
-              hr
+          calendar-configuration-tab-main(
+            ng-show='$ctrl.selectedTab === "main"',
+            calendar = "$ctrl.calendar",
+            new-calendar= "$ctrl.newCalendar",
+            is-default-calendar= "$ctrl.isDefaultCalendar",
+            open-delete-confirmation-dialog = "$ctrl.openDeleteConfirmationDialog",
+            mobile-cancel = "$ctrl.mobileCancel",
+            cancel = "$ctrl.cancel",
+            submit = "$ctrl.submit"
+          )
+          calendar-configuration-tab-delegation(
+            ng-show='$ctrl.selectedTab === "delegation"',
+            delegation-types="$ctrl.delegationTypes",
+            delegations="$ctrl.delegations",
+            selection="$ctrl.selection",
+            public-selection = "$ctrl.publicSelection",
+            go-to-edit-delegation = "$ctrl.goToEditDelegation",
+            new-users-groups= "$ctrl.newUsersGroups",
+            add-user-group = "$ctrl.addUserGroup",
+            remove-user-group = "$ctrl.removeUserGroup"
+          )
