@@ -32,7 +32,7 @@ describe('The amqp client', function() {
 
     it('should make a subscriber getting a published message', function(done) {
       const subscriber = message => {
-        expect(JSON.parse(message)).to.deep.equal(publishingMessage);
+        expect(message).to.deep.equal(publishingMessage);
 
         done();
       };
@@ -45,7 +45,7 @@ describe('The amqp client', function() {
       let calledOnce = false;
 
       const subscriber = message => {
-        expect(JSON.parse(message)).to.deep.equal(publishingMessage);
+        expect(message).to.deep.equal(publishingMessage);
         calledOnce && done();
         calledOnce = true;
       };
@@ -59,7 +59,7 @@ describe('The amqp client', function() {
       let calledOnce = false;
 
       const subscriber = message => {
-        expect(JSON.parse(message)).to.deep.equal(publishingMessage);
+        expect(message).to.deep.equal(publishingMessage);
         calledOnce && done();
         calledOnce = true;
       };
@@ -112,7 +112,7 @@ describe('The amqp client', function() {
 
     it('should make a consumer getting a published message', function(done) {
       const subscriber = message => {
-        expect(JSON.parse(message)).to.deep.equal(publishingMessage);
+        expect(message).to.deep.equal(publishingMessage);
 
         done();
       };
@@ -148,7 +148,7 @@ describe('The amqp client', function() {
     it('should the remaining consumer getting a published message when two have been declared but one has unsubscribed', function(done) {
       let considerTestOkTimeout;
       const subscriber = message => {
-        expect(JSON.parse(message)).to.deep.equal(publishingMessage);
+        expect(message).to.deep.equal(publishingMessage);
         considerTestOkTimeout = setTimeout(done, 500);
       };
       const unsubscribedSubscriber = () => {
@@ -167,13 +167,29 @@ describe('The amqp client', function() {
         .catch(err => done(err || 'No reason'));
     });
 
+    it('should not parse message content when notOnlyJSONConsumer option is true', function(done) {
+      const notOnlyJSONConsumer = true;
+      const subscriber = message => {
+        expect(JSON.parse(message)).to.deep.equal(publishingMessage);
+
+        done();
+      };
+
+      client.assertExchange(exchange, 'topic')
+        .then(() => client.assertQueue(queue, options))
+        .then(() => client.assertBinding(queue, exchange))
+        .then(() => client.consume(queue, options, subscriber, notOnlyJSONConsumer))
+        .then(() => client.send(exchange, publishingMessage))
+        .catch(err => done(err || 'No reason'));
+    });
+
     it('should make the expected consumer getting a published message based on the routing key', function(done) {
       const otherQueue = 'otherQueue';
       const routingKey = 'routing.key.test';
       const routingPattern = 'routing.#';
       const otherRoutingPattern = 'other.routing.#';
       const expectingMessageConsumer = message => {
-        expect(JSON.parse(message)).to.deep.equal(publishingMessage);
+        expect(message).to.deep.equal(publishingMessage);
 
         done();
       };

@@ -84,8 +84,13 @@ class AmqpClient {
     return this.channel.publish(exchange, routingKey, dataAsBuffer(data));
   }
 
-  consume(queue, options, callback) {
-    return this.channel.consume(queue, msg => callback(msg.content), options)
+  consume(queue, options, callback, notOnlyJSONConsumer = false) {
+
+    function onMessage(msg) {
+      callback(notOnlyJSONConsumer ? msg.content : JSON.parse(msg.content));
+    }
+
+    return this.channel.consume(queue, onMessage, options)
       .then(res => this._registerNewConsumerTag(callback, res.consumerTag));
   }
 
