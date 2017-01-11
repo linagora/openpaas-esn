@@ -19,8 +19,10 @@ angular.module('esn.sidebar', ['esn.activitystreams-tracker', 'esn.application-m
   .factory('contextualSidebarService', function($aside, CONTEXTUAL_SIDEBAR) {
     var contextualSidebarService = function(config) {
       var options = angular.extend({}, CONTEXTUAL_SIDEBAR, config);
+
       return $aside(options);
     };
+
     return contextualSidebarService;
   })
 
@@ -32,7 +34,7 @@ angular.module('esn.sidebar', ['esn.activitystreams-tracker', 'esn.application-m
           right: 'am-fade-and-slide-right'
         };
 
-      angular.forEach(['template', 'templateUrl', 'controller', 'contentTemplate'], function(key) {
+      angular.forEach(['template', 'templateUrl', 'controller', 'contentTemplate', 'controllerAs'], function(key) {
         if (angular.isDefined(attr[key])) {
           options[key] = attr[key];
         }
