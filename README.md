@@ -32,7 +32,7 @@ nvm use
 
 4.You may need some additional packages. For example with a Debian installation, as an administrator you should use the following command:
 
-    apt-get install build-essential redis-server python-setuptools graphicsmagick graphicsmagick-imagemagick-compat libjpeg-dev
+    apt-get install build-essential redis-server rabbitmq-server python-setuptools graphicsmagick graphicsmagick-imagemagick-compat libjpeg-dev
 
 5.Install Sabre/dav
 

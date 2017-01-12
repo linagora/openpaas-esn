@@ -56,6 +56,25 @@ See also [General installation instructions](https://ci.open-paas.org/stash/proj
         echo "mongodb-org-mongos hold" | sudo dpkg --set-selections
         echo "mongodb-org-tools hold" | sudo dpkg --set-selections
 
+  _Note for Ubuntu 16.04:_
+
+  In order to properly launch MongoDB as a service on Ubuntu 16.04, we additionally need to create a unit file called `mongodb.service` describing the service inside `/etc/systemd/system`:
+
+        sudo nano /etc/systemd/system/mongodb.service
+
+  In `mongodb.service`, paste in the following contents:
+
+        [Unit]
+        Description=High-performance, schema-free document-oriented database
+        After=network.target
+
+        [Service]
+        User=mongodb
+        ExecStart=/usr/bin/mongod --quiet --config /etc/mongod.conf
+
+        [Install]
+        WantedBy=multi-user.target
+
 5.Install node.js
 
 Please note that your version of node.js must be 6.x.x
