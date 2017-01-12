@@ -8,9 +8,9 @@
         .col-sm-6.col-xs-12
           span #{__('Delegation on this calendar')}
       .row
-        users-autocomplete-input(mutable-users='newUsers')
+        users-autocomplete-input(mutable-users='$ctrl.newUsers')
       .row
         .col-sm-6.col-xs-12
           div.select
             select.form-control(ng-model="permission")
-              option(ng-repeat="delegationType in ::delegationTypes" value="{{delegationType.value}}" ng-selected="none") {{delegationType.name}}
+              option(ng-repeat="delegationType in ::$ctrl.delegationTypes" value="{{delegationType.value}}" ng-selected="none") {{delegationType.name}}

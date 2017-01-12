@@ -152,6 +152,9 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
         'calendar-configuration/calendar-configuration.component.js',
         'calendar-configuration/calendar-configuration.controller.js',
 
+        'calendar-configuration/calendar-edit-delegation-add-users/calendar-edit-delegation-add-users.directive.js',
+        'calendar-configuration/calendar-edit-delegation-add-users/calendar-edit-delegation-add-users-header.directive.js',
+
         'calendars-configuration/calendars-configuration.directive.js',
         'calendars-configuration/calendars-configuration-header/calendars-configuration-header.directive.js',
 

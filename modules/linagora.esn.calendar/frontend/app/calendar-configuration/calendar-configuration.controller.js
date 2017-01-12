@@ -38,9 +38,7 @@
     self.getDelegationView = getDelegationView;
     self.addUserGroup = addUserGroup;
     self.removeUserGroup = removeUserGroup;
-    self.goToEditDelegation = goToEditDelegation;
     self.goToCalendarEdit = goToCalendarEdit;
-
     self.$onInit = activate;
 
     ////////////
@@ -217,10 +215,6 @@
 
     function getDelegationView() {
       self.selectedTab = 'delegation';
-    }
-
-    function goToEditDelegation() {
-      $state.go('calendar.edit-delegation');
     }
 
     function goToCalendarEdit(isCancel) {

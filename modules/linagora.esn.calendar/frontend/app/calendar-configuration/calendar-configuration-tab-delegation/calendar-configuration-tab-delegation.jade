@@ -46,5 +46,5 @@
         | #{__('Add users and groups delegation')}
       ul.dropdown-menu(role="menu")
         li(ng-repeat="delegationType in ::$ctrl.delegationTypes" ng-if="delegationType.access==='all'")
-          a(ng-click="$ctrl.goToEditDelegation()")
+          a(href="", ui-sref="calendar.edit-delegation")
             | {{delegationType.name}}

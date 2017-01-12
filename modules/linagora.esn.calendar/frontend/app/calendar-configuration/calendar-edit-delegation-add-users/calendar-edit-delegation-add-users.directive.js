@@ -8,7 +8,8 @@
     return {
       restrict: 'E',
       replace: true,
-      controller: 'calendarEditionController',
+      controller: 'calendarConfigurationController',
+      controllerAs: '$ctrl',
       templateUrl: '/calendar/app/calendar-configuration/calendar-edit-delegation-add-users/calendar-edit-delegation-add-users.html',
       link: function(scope) {
         scope.permission = CALENDAR_RIGHT.NONE;
