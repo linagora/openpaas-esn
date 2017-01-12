@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('The calEventUtils service', function() {
-  var element, fcTitle, fcTimeSpan, fcTime, fcContent, event, calendarService, view, self;
+  var element, fcTitle, fcTime, fcContent, eventIconsDivInMobile, event, calendarService, view, self;
 
   function Element() {
     this.innerElements = {};
@@ -34,11 +34,9 @@ describe('The calEventUtils service', function() {
     return this.innerElements[aClass];
   };
 
-  Element.prototype.append = function() {
-  };
+  Element.prototype.append = sinon.spy();
 
-  Element.prototype.prepend = function() {
-  };
+  Element.prototype.prepend = sinon.spy();
 
   Element.prototype.css = sinon.spy();
 
@@ -89,31 +87,42 @@ describe('The calEventUtils service', function() {
     element = new Element();
     fcContent = new Element();
     fcTitle = new Element();
-    fcTimeSpan = new Element();
     fcTime = new Element();
+    eventIconsDivInMobile = new Element();
     view = {name: 'month'};
     element.innerElements['.fc-content'] = fcContent;
     element.innerElements['.fc-title'] = fcTitle;
-    element.innerElements['.fc-time span'] = fcTimeSpan;
     element.innerElements['.fc-time'] = fcTime;
+    fcTitle.innerElements['.event-icons-mobile'] = eventIconsDivInMobile;
 
     this.escapeHTMLMockResult = {};
     this.escapeHTMLMock = {
       escapeHTML: sinon.stub().returns(this.escapeHTMLMockResult)
     };
 
+    this.matchmediaMock = {
+      is: sinon.spy()
+    };
+
     angular.mock.module(function($provide) {
       $provide.value('escapeHtmlUtils', self.escapeHTMLMock);
+      $provide.value('matchmedia', self.matchmediaMock);
     });
   });
 
-  beforeEach(angular.mock.inject(function(calEventUtils, $rootScope, calMoment, CalendarShell, CALENDAR_MAX_DURATION_OF_SMALL_EVENT) {
+  beforeEach(angular.mock.inject(function(calEventUtils, $rootScope, calMoment, CalendarShell, escapeHtmlUtils, matchmedia, SM_XS_MEDIA_QUERY, CALENDAR_MAX_DURATION_OF_SMALL_EVENT) {
     this.calEventUtils = calEventUtils;
     this.$rootScope = $rootScope;
     this.calMoment = calMoment;
     this.CalendarShell = CalendarShell;
-    event.start = calMoment('2016-10-06 09:00:00');
-    event.end = event.start.add(CALENDAR_MAX_DURATION_OF_SMALL_EVENT, 'minutes');
+    this.escapeHtmlUtils = escapeHtmlUtils;
+    this.matchmedia = matchmedia;
+    this.SM_XS_MEDIA_QUERY = SM_XS_MEDIA_QUERY;
+    this.CALENDAR_MAX_DURATION_OF_SMALL_EVENT = CALENDAR_MAX_DURATION_OF_SMALL_EVENT;
+    event.start = calMoment();
+    event.end = event.start.add(this.CALENDAR_MAX_DURATION_OF_SMALL_EVENT.DESKTOP, 'minutes');
+    this.recurrentEventIcon = angular.element('<i class="mdi mdi-sync"/>');
+    this.maybeEventIcon = angular.element('<i class="mdi mdi-help-circle"/>');
   }));
 
   describe('applyReply', function() {
@@ -152,99 +161,19 @@ describe('The calEventUtils service', function() {
   });
 
   describe('render function', function() {
-    it('should add a title attribute if description is defined', function() {
-      event.description = 'aDescription';
-      this.calEventUtils.render(event, element, view);
-      expect(this.escapeHTMLMock.escapeHTML).to.have.been.calledWith(event.description);
-      expect(element.attributes.title).to.equal(this.escapeHTMLMockResult);
-    });
 
-    it('should add event-needs-action class if current user is found in the DECLINED attendees', function() {
-      event.attendees.push({
-        email: userEmail,
-        partstat: 'DECLINED'
+    describe('addTooltipToEvent function', function() {
+
+      it('should add a tooltip in all views', function() {
+        fcContent.attr = sinon.spy();
+        this.calEventUtils.render(event, element, view);
+
+        expect(fcContent.attr).to.have.been.calledWith('title', event.title);
       });
-      this.calEventUtils.render(event, element, view);
-      expect(element.class).to.deep.equal(['event-declined']);
-    });
-
-    it('should add event-needs-action class if current user is found in the ACCEPTED attendees', function() {
-      event.attendees.push({
-        email: userEmail,
-        partstat: 'ACCEPTED'
-      });
-      this.calEventUtils.render(event, element, view);
-      expect(element.class).to.deep.equal(['event-accepted']);
-    });
-
-    it('should add event-needs-action class if current user is found in the NEEDS-ACTION attendees', function() {
-      event.attendees.push({
-        email: userEmail,
-        partstat: 'NEEDS-ACTION'
-      });
-      this.calEventUtils.render(event, element, view);
-      expect(element.class).to.deep.equal(['event-needs-action']);
-    });
-
-    it('should add event-tentative class if current user is found in the TENTATIVE attendees and event card with the time part', function() {
-      event.attendees.push({
-        email: userEmail,
-        partstat: 'TENTATIVE'
-      });
-      this.calEventUtils.render(event, element, view);
-
-      expect(element.class).to.deep.equal(['event-tentative']);
-    });
-
-    it('should add event-tentative class if current user is found in the TENTATIVE attendees and  event card without the time part', function() {
-      event.attendees.push({
-        email: userEmail,
-        partstat: 'TENTATIVE'
-      });
-      fcTitle.prepend = sinon.spy();
-      this.calEventUtils.render(event, element, view);
-
-      expect(element.class).to.deep.equal(['event-tentative']);
-      expect(fcTitle.prepend).to.have.been.calledOnce;
-    });
-
-    it('should add the event-is-instance class for instances', function() {
-      delete element.innerElements['.fc-time span'];
-      event.isInstance = function() { return true; };
-      this.calEventUtils.render(event, element, view);
-      expect(element.class).to.include('event-is-instance');
-    });
-
-    it('should display event title instead of time if the event duration under the max duration of a small event', angular.mock.inject(function(calMoment) {
-      element.innerElements['.fc-time'].length = 1;
-      fcTime.attr = sinon.spy();
-      this.calEventUtils.render(event, element, view);
-
-      expect(fcTime.attr).to.have.been.calledWith('data-start', event.start.format('hh:mm') + ' - ' + event.title);
-    }));
-
-    it('should keep startEditable and durationEditable to undefined if the user is the organizer', function() {
-      event.organizer = {
-        email: userEmail
-      };
-      this.calEventUtils.render(event, element, view);
-      expect(event.startEditable).to.not.exist;
-      expect(event.durationEditable).to.not.exist;
-    });
-
-    it('should set startEditable and durationEditable to false if the user is an attendee of the event but not the organizer', function() {
-      event.organizer = {
-        email: 'organizerEmail'
-      };
-      event.attendees.push({
-        email: userEmail
-      });
-      this.calEventUtils.render(event, element, view);
-      expect(event.startEditable).to.be.false;
-      expect(event.durationEditable).to.be.false;
     });
 
     describe('changeEventColorWhenMonthView function', function(calMoment) {
+
       it('should change CSS if we are in month view and the event is not allDay and event.isOverOneDayOnly() return true', function() {
         var backgroundColor = 'blue';
 
@@ -296,15 +225,349 @@ describe('The calEventUtils service', function() {
       });
     });
 
-    it('should add a tooltip in all views', function() {
-      fcContent.attr = sinon.spy();
-      this.calEventUtils.render(event, element, view);
+    describe('adaptTitleWhenShortEvent function', function() {
 
-      expect(fcContent.attr).to.have.been.calledWith('title', event.title);
+      it('should display event title instead of time if the event duration under the max duration of a small event', angular.mock.inject(function(calMoment) {
+        element.innerElements['.fc-time'].length = 1;
+        fcTime.attr = sinon.spy();
+
+        this.calEventUtils.render(event, element, view);
+
+        expect(fcTime.attr).to.have.been.calledWith('data-start', event.start.format('hh:mm') + ' - ' + event.title);
+      }));
+    });
+
+    describe('appendLocation function', function() {
+
+      it('should display the location if the location is defined', function() {
+        event.location = 'location';
+
+        this.calEventUtils.render(event, element, view);
+
+        expect(this.escapeHTMLMock.escapeHTML).to.have.been.calledWith(event.location);
+        expect(element.class).to.include('event-with-location');
+      });
+
+      it('should not display the location if the location is not defined', function() {
+        var locationElement = angular.element('<div class="fc-location"><i class="mdi mdi-map-marker"/>' + event.location + '</div>');
+
+        this.calEventUtils.render(event, element, view);
+
+        expect(element.class).to.not.include('event-with-location');
+      });
+    });
+
+    describe('appendDescription function', function() {
+
+      it('should add a title attribute if description is defined', function() {
+        event.description = 'aDescription';
+
+        this.calEventUtils.render(event, element, view);
+
+        expect(this.escapeHTMLMock.escapeHTML).to.have.been.calledWith(event.description);
+        expect(element.attributes.title).to.equal(this.escapeHTMLMockResult);
+      });
+
+      it('should not add a title attribute if description is not defined', function() {
+        this.calEventUtils.render(event, element, view);
+
+        expect(element.attributes.title).to.deep.equal({});
+      });
+    });
+
+    describe('checkUserIsOrganizer function', function() {
+
+      it('should keep startEditable and durationEditable to undefined if the user is the organizer', function() {
+        event.organizer = {
+          email: userEmail
+        };
+
+        this.calEventUtils.render(event, element, view);
+
+        expect(event.startEditable).to.not.exist;
+        expect(event.durationEditable).to.not.exist;
+      });
+
+      it('should set startEditable and durationEditable to false if the user is an attendee of the event but not the organizer', function() {
+        event.organizer = {
+          email: 'organizerEmail'
+        };
+        event.attendees.push({
+          email: userEmail
+        });
+
+        this.calEventUtils.render(event, element, view);
+
+        expect(event.startEditable).to.be.false;
+        expect(event.durationEditable).to.be.false;
+      });
+    });
+
+    describe('addIcons function', function() {
+
+      describe('mobile View', function() {
+
+        beforeEach(function() {
+          var SM_XS_MEDIA_QUERY = this.SM_XS_MEDIA_QUERY;
+
+          fcTitle.prepend = sinon.spy();
+
+          eventIconsDivInMobile.append = sinon.spy();
+
+          this.matchmedia.is = function(mediaquery) {
+            expect(mediaquery).to.equal(SM_XS_MEDIA_QUERY);
+            return true;
+          };
+        });
+
+        describe('addIconInEventInstanceInMobile function', function() {
+
+          it('should add the event-is-instance class for instances if the event is recurrent', function() {
+            event.isInstance = function() { return true; };
+
+            this.calEventUtils.render(event, element, view);
+
+            expect(element.class).to.include('event-is-instance');
+          });
+
+          it('should not add the event-is-instance class for instances if the event is not recurrent', function() {
+            event.isInstance = function() { return false; };
+
+            this.calEventUtils.render(event, element, view);
+
+            expect(element.class).to.not.include('event-is-instance');
+          });
+
+          it('should add the recurrent event icon in the title div if the event is recurrent and allDay', function() {
+            event.isInstance = function() { return true; };
+            event.allDay = true;
+
+            this.calEventUtils.render(event, element, view);
+
+            expect(fcTitle.prepend).to.have.been.calledWith('<i class="mdi mdi-sync"/>');
+          });
+
+          it('should add the recurrent event icon in the title div if the event is recurrent and not allDay and event Duration <= one hour', function() {
+            event.isInstance = function() { return true; };
+
+            this.calEventUtils.render(event, element, view);
+
+            expect(fcTitle.prepend).to.have.been.calledWith('<i class="mdi mdi-sync"/>');
+          });
+
+          it('should add the recurrent event icon in the eventIconsDivInMobile div after location if the event is recurrent and not allDay and event duration > one hour', function() {
+            event.start = this.calMoment();
+            event.end = event.start.clone().add(this.CALENDAR_MAX_DURATION_OF_SMALL_EVENT.MOBILE + 1, 'minutes');
+
+            event.isInstance = function() { return true; };
+
+            this.calEventUtils.render(event, element, view);
+
+            expect(eventIconsDivInMobile.append).to.have.been.calledWith('<i class="mdi mdi-sync"/>');
+          });
+        });
+
+        describe('addIconForAttendeesInMobile function', function() {
+
+          it('should add event-needs-action class if current user is found in the DECLINED attendees', function() {
+            event.attendees.push({
+              email: userEmail,
+              partstat: 'DECLINED'
+            });
+
+            this.calEventUtils.render(event, element, view);
+
+            expect(element.class).to.deep.equal(['event-declined']);
+          });
+
+          it('should add event-needs-action class if current user is found in the ACCEPTED attendees', function() {
+            event.attendees.push({
+              email: userEmail,
+              partstat: 'ACCEPTED'
+            });
+
+            this.calEventUtils.render(event, element, view);
+
+            expect(element.class).to.deep.equal(['event-accepted']);
+          });
+
+          it('should add event-needs-action class if current user is found in the NEEDS-ACTION attendees', function() {
+            event.attendees.push({
+              email: userEmail,
+              partstat: 'NEEDS-ACTION'
+            });
+
+            this.calEventUtils.render(event, element, view);
+
+            expect(element.class).to.deep.equal(['event-needs-action']);
+          });
+
+          it('should add event-tentative class if current user is found in the TENTATIVE attendees and the event is an allDay event', function() {
+            event.attendees.push({
+              email: userEmail,
+              partstat: 'TENTATIVE'
+            });
+            event.allDay = true;
+
+            this.calEventUtils.render(event, element, view);
+
+            expect(fcTitle.prepend).to.have.been.calledWith('<i class="mdi mdi-help-circle"/>');
+          });
+
+          it('should add maybe event icone before the title if current user is found in the TENTATIVE attendees and the event is not an allDay event and the duration <= one hour', function() {
+            event.attendees.push({
+              email: userEmail,
+              partstat: 'TENTATIVE'
+            });
+
+            this.calEventUtils.render(event, element, view);
+
+            expect(fcTitle.prepend).to.have.been.calledWith('<i class="mdi mdi-help-circle"/>');
+          });
+
+          it('should add maybe event icone after the title if current user is found in the TENTATIVE attendees and the event is not an allDay event and the duration > one hour', function() {
+            event.start = this.calMoment();
+            event.end = event.start.clone().add(this.CALENDAR_MAX_DURATION_OF_SMALL_EVENT.MOBILE + 1, 'minutes');
+            event.attendees.push({
+              email: userEmail,
+              partstat: 'TENTATIVE'
+            });
+
+            this.calEventUtils.render(event, element, view);
+
+            expect(eventIconsDivInMobile.append).to.have.been.calledWith('<i class="mdi mdi-help-circle"/>');
+          });
+        });
+      });
+
+      describe('desktop view', function() {
+
+        beforeEach(function() {
+          var SM_XS_MEDIA_QUERY = this.SM_XS_MEDIA_QUERY;
+
+          fcTitle.prepend = sinon.spy();
+
+          fcTime.prepend = sinon.spy();
+
+          this.matchmedia.is = function(mediaquery) {
+            expect(mediaquery).to.equal(SM_XS_MEDIA_QUERY);
+            return false;
+          };
+        });
+
+        describe('addIconInEventInstanceInDesktop function', function() {
+
+          it('should add the event-is-instance class for instances if the event is recurrent', function() {
+            event.isInstance = function() { return true; };
+            event.allDay = true;
+
+            this.calEventUtils.render(event, element, view);
+
+            expect(element.class).to.include('event-is-instance');
+          });
+
+          it('should not add the event-is-instance class for instances if the event is not recurrent', function() {
+            event.isInstance = function() { return false; };
+
+            this.calEventUtils.render(event, element, view);
+
+            expect(element.class).to.not.include('event-is-instance');
+          });
+
+          it('should add the recurrentEventIcon in the title div if the event is recurrent and allDay', function() {
+            event.isInstance = function() { return true; };
+            event.allDay = true;
+
+            this.calEventUtils.render(event, element, view);
+
+            expect(fcTitle.prepend).to.have.been.calledWith('<i class="mdi mdi-sync"/>');
+          });
+
+          it('should add the recurrentEventIcon in the time div if the event is recurrent and not allDay', function() {
+            event.isInstance = function() { return true; };
+
+            this.calEventUtils.render(event, element, view);
+
+            expect(fcTime.prepend).to.have.been.calledWith('<i class="mdi mdi-sync"/>');
+          });
+        });
+
+        describe('addIconForAttendeesInDesktop function', function() {
+
+          it('should add event-needs-action class if current user is found in the DECLINED attendees', function() {
+            event.attendees.push({
+              email: userEmail,
+              partstat: 'DECLINED'
+            });
+
+            this.calEventUtils.render(event, element, view);
+
+            expect(element.class).to.deep.equal(['event-declined']);
+          });
+
+          it('should add event-needs-action class if current user is found in the ACCEPTED attendees', function() {
+            event.attendees.push({
+              email: userEmail,
+              partstat: 'ACCEPTED'
+            });
+
+            this.calEventUtils.render(event, element, view);
+
+            expect(element.class).to.deep.equal(['event-accepted']);
+          });
+
+          it('should add event-needs-action class if current user is found in the NEEDS-ACTION attendees', function() {
+            event.attendees.push({
+              email: userEmail,
+              partstat: 'NEEDS-ACTION'
+            });
+
+            this.calEventUtils.render(event, element, view);
+
+            expect(element.class).to.deep.equal(['event-needs-action']);
+          });
+
+          it('should add event-tentative class if current user is found in the TENTATIVE attendees', function() {
+            event.attendees.push({
+              email: userEmail,
+              partstat: 'TENTATIVE'
+            });
+            event.allDay = true;
+
+            this.calEventUtils.render(event, element, view);
+
+            expect(element.class).to.deep.equal(['event-tentative']);
+          });
+
+          it('should add maybe event icon in the title div if current user is found in the TENTATIVE attendees and it is an allDay event', function() {
+            event.attendees.push({
+              email: userEmail,
+              partstat: 'TENTATIVE'
+            });
+            event.allDay = true;
+
+            this.calEventUtils.render(event, element, view);
+
+            expect(fcTitle.prepend).to.have.been.calledWith('<i class="mdi mdi-help-circle"/>');
+          });
+
+          it('should add maybe event icon in time div if current user is found in the TENTATIVE attendees and it is not an allDay event', function() {
+            event.attendees.push({
+              email: userEmail,
+              partstat: 'TENTATIVE'
+            });
+
+            this.calEventUtils.render(event, element, view);
+
+            expect(fcTime.prepend).to.have.been.calledWith('<i class="mdi mdi-help-circle"/>');
+          });
+        });
+      });
     });
   });
 
   describe('isOrganizer function', function() {
+
     it('should return true when the event organizer is the current user', function() {
       var event = {
         organizer: {
