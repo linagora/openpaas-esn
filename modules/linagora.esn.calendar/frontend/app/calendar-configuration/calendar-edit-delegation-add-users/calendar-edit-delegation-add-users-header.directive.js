@@ -9,7 +9,8 @@
       restrict: 'E',
       replace: true,
       templateUrl: '/calendar/app/calendar-configuration/calendar-edit-delegation-add-users/calendar-edit-delegation-add-users-header.html',
-      controller: 'calendarEditionController'
+      controller: 'calendarConfigurationController',
+      controllerAs: '$ctrl'
     };
   }
 })();

@@ -102,6 +102,14 @@
           }
         }
       })
+      .state('calendar.edit-delegation', {
+        url: '/delegation',
+        views: {
+          content: {
+            template: '<calendar-edit-delegation-add-users />'
+          }
+        }
+      })
       .state('calendar.add', {
         url: '/add',
         views: {
