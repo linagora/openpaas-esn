@@ -23,7 +23,8 @@
       setNewAttendees: setNewAttendees,
       setBackgroundColor: setBackgroundColor,
       resetStoredEvents: resetStoredEvents,
-      applyReply: applyReply
+      applyReply: applyReply,
+      getUserAttendee: getUserAttendee
     };
 
     return service;
@@ -34,7 +35,7 @@
       var timeDiv = element.find('.fc-time');
       var title = element.find('.fc-title');
       var eventDurationInMinute = event.end.diff(event.start, 'minutes');
-      var userAsAttendee = null;
+      var userAsAttendee = getUserAttendee(event);
       var eventIconsDivInMobile;
 
       addTooltipToEvent();
@@ -42,7 +43,6 @@
       adaptTitleWhenShortEvent();
       appendLocation();
       appendDescription();
-      setUserAsAttendee();
       checkUserIsOrganizer();
       addIcons();
 
@@ -77,16 +77,6 @@
       function appendDescription() {
         if (event.description) {
           element.attr('title', escapeHtmlUtils.escapeHTML(event.description));
-        }
-      }
-
-      function setUserAsAttendee() {
-        if (event.attendees) {
-          event.attendees.forEach(function(att) {
-            if (att.email in session.user.emailMap) {
-              userAsAttendee = att;
-            }
-          });
         }
       }
 
@@ -249,6 +239,11 @@
       return event;
     }
 
+    function getUserAttendee(event) {
+      return _.find(event.attendees, function(attendee) {
+        return attendee.email in session.user.emailMap;
+      });
+    }
   }
 
 })();

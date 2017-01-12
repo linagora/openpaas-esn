@@ -792,4 +792,33 @@ describe('The calEventUtils service', function() {
       })).to.be.true;
     });
   });
+
+  describe('getUserAttendee fn', function() {
+
+    it('should return undefined when event has no "attendees" property', function() {
+      expect(this.calEventUtils.getUserAttendee({})).to.equal(undefined);
+    });
+
+    it('should return undefined when event has 0 attendees', function() {
+      expect(this.calEventUtils.getUserAttendee({ attendees: [] })).to.equal(undefined);
+    });
+
+    it('should return undefined when user is not found in event attendees', function() {
+      expect(this.calEventUtils.getUserAttendee({
+        attendees: [{
+          email: 'contact@domain.com'
+        }]
+      })).to.equal(undefined);
+    });
+
+    it('should return null when user is not found in event attendees', function() {
+      var attendee = {
+        email: 'aAttendee@open-paas.org'
+      };
+
+      expect(this.calEventUtils.getUserAttendee({ attendees: [attendee] })).to.deep.equal(attendee);
+    });
+
+  });
+
 });
