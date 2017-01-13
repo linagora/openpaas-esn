@@ -5,7 +5,7 @@ module.exports = function() {
   var mailInBrowser = typeof process.env.MAIL_BROWSER === 'undefined',
     noreply = process.env.MAIL_NO_REPLY || 'noreply@open-paas.org',
     smtpHost = process.env.SMTP_HOST || 'localhost',
-    smtpPort = process.env.SMTP_PORT || 25;
+    smtpPort = +process.env.SMTP_PORT || 25;
 
   return mailInBrowser ? _inBrowserConfig() : _smtpConfig();
 
