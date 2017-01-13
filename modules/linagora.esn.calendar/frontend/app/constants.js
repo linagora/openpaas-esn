@@ -38,7 +38,8 @@
           },
           month: {
             eventLimit: true,
-            eventLimitClick: 'dayWithDisplayedEvent'
+            eventLimitClick: 'dayWithDisplayedEvent',
+            eventLimitText: '...'
           },
           week: {
             eventLimit: 3,
