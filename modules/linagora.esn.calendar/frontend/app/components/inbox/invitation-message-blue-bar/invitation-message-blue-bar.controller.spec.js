@@ -8,7 +8,7 @@ describe('The calInboxInvitationMessageBlueBarController', function() {
 
   var $componentController, $rootScope, calEventService, session, shells = {}, CalendarShell, ICAL, INVITATION_MESSAGE_HEADERS;
 
-  function initCtrl(method, uid, sequence, recurrenceId) {
+  function initCtrl(method, uid, sequence, recurrenceId, sender) {
     var headers = {};
 
     headers[INVITATION_MESSAGE_HEADERS.METHOD] = method;
@@ -18,6 +18,9 @@ describe('The calInboxInvitationMessageBlueBarController', function() {
 
     return $componentController('calInboxInvitationMessageBlueBar', null, {
       message: {
+        from: {
+          email: sender
+        },
         headers: headers
       }
     });
@@ -207,6 +210,42 @@ describe('The calInboxInvitationMessageBlueBarController', function() {
       $rootScope.$digest();
 
       expect(ctrl.meeting.loaded).to.equal(true);
+    });
+
+    it('should not expose the replyAttendee when the meeting is not a reply', function() {
+      var ctrl = initCtrl('REQUEST', '1234', '2');
+
+      session.user.emailMap = { 'admin@linagora.com': true };
+      calEventService.getEventByUID = qResolve(shells.recurringEventWithTwoExceptions);
+      ctrl.$onInit();
+      $rootScope.$digest();
+
+      expect(ctrl.replyAttendee).to.equal(undefined);
+    });
+
+    it('should not expose the replyAttendee when the meeting is a reply but the attendee is not found', function() {
+      var ctrl = initCtrl('REQUEST', '1234', '2', null, 'another@open-paas.org');
+
+      session.user.emailMap = { 'admin@linagora.com': true };
+      calEventService.getEventByUID = qResolve(shells.recurringEventWithTwoExceptions);
+      ctrl.$onInit();
+      $rootScope.$digest();
+
+      expect(ctrl.replyAttendee).to.equal(undefined);
+    });
+
+    it('should expose the replyAttendee when the meeting is a reply and the attendee is found', function() {
+      var ctrl = initCtrl('REPLY', '1234', '2', null, 'ddolcimascolo@linagora.com');
+
+      session.user.emailMap = { 'admin@linagora.com': true };
+      calEventService.getEventByUID = qResolve(shells.recurringEventWithTwoExceptions);
+      ctrl.$onInit();
+      $rootScope.$digest();
+
+      expect(ctrl.replyAttendee).to.shallowDeepEqual({
+        email: 'ddolcimascolo@linagora.com',
+        partstat: 'NEEDS-ACTION'
+      });
     });
 
   });

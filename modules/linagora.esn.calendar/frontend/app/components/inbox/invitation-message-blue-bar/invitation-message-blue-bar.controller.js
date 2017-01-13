@@ -21,6 +21,7 @@ angular.module('esn.calendar')
         .then(assertEventInvolvesCurrentUser)
         .then(assertInvitationSequenceIsNotOutdated)
         .then(bindEventToController)
+        .then(bindReplyAttendeeToController)
         .catch(handleErrorOrInvalidMeeting)
         .finally(function() {
           self.meeting.loaded = true;
@@ -104,6 +105,12 @@ angular.module('esn.calendar')
       return function() {
         notificationFactory.weakInfo('', text);
       };
+    }
+
+    function bindReplyAttendeeToController() {
+      if (self.meeting.method === 'REPLY') {
+        self.replyAttendee = self.event.getAttendeeByEmail(self.message.from.email);
+      }
     }
 
     /////

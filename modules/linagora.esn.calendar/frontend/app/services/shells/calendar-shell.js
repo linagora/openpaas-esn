@@ -112,6 +112,7 @@
       ensureAlarmCoherence: ensureAlarmCoherence,
       getExceptionByRecurrenceId: getExceptionByRecurrenceId,
       getRecurrenceType: getRecurrenceType,
+      getAttendeeByEmail: getAttendeeByEmail,
 
       get uid() { return this.vevent.getFirstPropertyValue('uid'); },
       get id() { return this.recurrenceId ? this.uid + '_' + this.vevent.getFirstPropertyValue('recurrence-id').convertToZone(ICAL.Timezone.utcTimezone) : this.uid; },
@@ -809,6 +810,10 @@
         //for the second condition it is necessary to consider the event that finish at the next day at 12 am is over one day only
         return this.start.isSame(this.end, 'day') || (((startDay + 1) === endDay) && (endHour === '00:00'));
       }
+    }
+
+    function getAttendeeByEmail(email) {
+      return _.find(this.attendees, { email: email });
     }
 
     function ensureAlarmCoherence() {

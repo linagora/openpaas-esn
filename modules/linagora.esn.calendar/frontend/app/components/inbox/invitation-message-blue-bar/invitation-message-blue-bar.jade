@@ -28,9 +28,18 @@
       .cal-blue-bar-recurrence.cal-blue-bar-labelled-value.ellipsis(ng-if="$ctrl.event.isRecurring()")
         i.cal-blue-bar-label.mdi.mdi-sync
         span.cal-blue-bar-value #{__('Recurs %s', '{{ $ctrl.event.getRecurrenceType() | lowercase }}')}
-    .cal-blue-bar-actions-container.cal-blue-bar-labelled-value.flex-vertical-centered
+
+    .cal-blue-bar-actions-container.cal-blue-bar-labelled-value(ng-if="$ctrl.meeting.method === 'REQUEST'")
       .cal-blue-bar-participation.cal-blue-bar-label.hidden-xs #{__('Will you attend?')}
       .cal-blue-bar-actions.cal-blue-bar-value.btn-group.btn-group-sm
         .cal-blue-bar-action-button.btn(ng-class="$ctrl.getParticipationButtonClass('btn-success', 'ACCEPTED')", ng-click="$ctrl.changeParticipation('ACCEPTED')") #{__('Yes')}
         .cal-blue-bar-action-button.btn(ng-class="$ctrl.getParticipationButtonClass('btn-primary', 'TENTATIVE')", ng-click="$ctrl.changeParticipation('TENTATIVE')") #{__('Maybe')}
         .cal-blue-bar-action-button.btn(ng-class="$ctrl.getParticipationButtonClass('btn-danger', 'DECLINED')", ng-click="$ctrl.changeParticipation('DECLINED')") #{__('No')}
+
+    .cal-blue-bar-actions-container.cal-blue-bar-labelled-value(ng-if="$ctrl.replyAttendee")
+      .cal-blue-bar-reply-attendee-icon.cal-blue-bar-label(ng-switch="$ctrl.replyAttendee.partstat")
+        i.text-success.mdi.mdi-account-check(ng-switch-when="ACCEPTED")
+        i.text-danger.mdi.mdi-account-remove(ng-switch-when="DECLINED")
+        i.text-primary.mdi.mdi-account(ng-switch-default)
+      .cal-blue-bar-actions.cal-blue-bar-value
+        inbox-emailer(emailer="$ctrl.message.from")
