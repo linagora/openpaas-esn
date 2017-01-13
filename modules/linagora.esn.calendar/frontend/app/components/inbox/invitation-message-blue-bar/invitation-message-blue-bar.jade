@@ -37,9 +37,14 @@
         .cal-blue-bar-action-button.btn(ng-class="$ctrl.getParticipationButtonClass('btn-danger', 'DECLINED')", ng-click="$ctrl.changeParticipation('DECLINED')") #{__('No')}
 
     .cal-blue-bar-actions-container.cal-blue-bar-labelled-value(ng-if="$ctrl.replyAttendee")
-      .cal-blue-bar-reply-attendee-icon.cal-blue-bar-label(ng-switch="$ctrl.replyAttendee.partstat")
+      .cal-blue-bar-action-icon.cal-blue-bar-label(ng-switch="$ctrl.replyAttendee.partstat")
         i.text-success.mdi.mdi-account-check(ng-switch-when="ACCEPTED")
         i.text-danger.mdi.mdi-account-remove(ng-switch-when="DECLINED")
         i.text-primary.mdi.mdi-account(ng-switch-default)
-      .cal-blue-bar-actions.cal-blue-bar-value
+      .cal-blue-bar-value
         inbox-emailer(emailer="$ctrl.message.from")
+
+    .cal-blue-bar-actions-container.cal-blue-bar-labelled-value(ng-if="$ctrl.meeting.method === 'CANCEL'")
+      .cal-blue-bar-action-icon.cal-blue-bar-label
+        i.text-danger.mdi.mdi-calendar-remove
+      .cal-blue-bar-value #{__('This event has been cancelled')}
