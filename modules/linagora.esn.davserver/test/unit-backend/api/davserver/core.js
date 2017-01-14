@@ -7,7 +7,7 @@ describe('The dav core module', function() {
   var module, get;
 
   beforeEach(function() {
-    var esnConfigMock = function(key) {
+    var esnConfigMock = function() {
       return {
         get: get
       };

@@ -65,11 +65,11 @@ describe('The message core module', function() {
         };
       };
       var messageModule = this.helpers.requireBackend('core/message');
-      messageModule.get('message1', function(err, resp) {});
+      messageModule.get('message1', function() {});
     });
 
     it('should call the collection.findOne() with a query on id passed in argument', function() {
-      this.mongoose.model = function(name) {
+      this.mongoose.model = function() {
         return {
           collection: {
             findOne: function(query) {
@@ -80,13 +80,13 @@ describe('The message core module', function() {
       };
       this.mongoose.Types.ObjectId = function(name) { return {name: name + 'ObjectId'}; };
       var messageModule = this.helpers.requireBackend('core/message');
-      messageModule.get('message1', function(err, resp) {});
+      messageModule.get('message1', function() {});
     });
 
     describe('findOne() callback', function() {
       beforeEach(function() {
         var self = this;
-        this.mongoose.model = function(name) {
+        this.mongoose.model = function() {
           function ModelMock() {
             this.init = function() {};
           }
@@ -102,7 +102,7 @@ describe('The message core module', function() {
 
       it('should forward an error', function(done) {
         var messageModule = this.helpers.requireBackend('core/message');
-        messageModule.get('message1', function(err, resp) {
+        messageModule.get('message1', function(err) {
           expect(err).to.be.ok;
           done();
         });
@@ -111,7 +111,7 @@ describe('The message core module', function() {
 
       it('should return an error on document not found', function(done) {
         var messageModule = this.helpers.requireBackend('core/message');
-        messageModule.get('message1', function(err, resp) {
+        messageModule.get('message1', function(err) {
           expect(err).to.be.ok;
           done();
         });
@@ -119,7 +119,7 @@ describe('The message core module', function() {
       });
       it('should return an error on unknown objectType', function(done) {
         var messageModule = this.helpers.requireBackend('core/message');
-        messageModule.get('message1', function(err, resp) {
+        messageModule.get('message1', function(err) {
           expect(err).to.be.ok;
           done();
         });
@@ -148,7 +148,7 @@ describe('The message core module', function() {
             };
           } else if (name === 'User') {
             return {
-              find: function(query) {
+              find: function() {
                 return { exec: function(cb) { cb(null, []); } };
               }
             };
@@ -284,7 +284,7 @@ describe('The message core module', function() {
         };
         return ModelMock;
       };
-      messageModule.addNewComment({}, {}, function(err, resp) {
+      messageModule.addNewComment({}, {}, function(err) {
         expect(err).to.be.ok;
         expect(err.message).to.equal('failed');
         done();
@@ -310,7 +310,7 @@ describe('The message core module', function() {
         };
         return ModelMock;
       };
-      messageModule.addNewComment({}, {}, function(err, resp) { });
+      messageModule.addNewComment({}, {}, function() { });
     });
 
     describe('parent.save() callback', function() {
@@ -353,7 +353,7 @@ describe('The message core module', function() {
 
       it('should publish "message:comment" with the message as data', function(done) {
         var self = this;
-        this.ancCallback = function(err, message, parent) {
+        this.ancCallback = function(err) {
           expect(err).to.be.not.ok;
           expect(self.published['message:comment']).to.be.ok;
           expect(self.published['message:comment']).to.deep.equal(

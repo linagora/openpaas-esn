@@ -6,7 +6,6 @@ var q = require('q');
 module.exports = function(dependencies) {
 
   var logger = dependencies('logger');
-  var esnconfig = dependencies('esn-config');
   var configHelpers = dependencies('helpers').config;
 
   function buildTextAvatarUrl(baseUrl, addressBookId, addressbookName, contactId) {

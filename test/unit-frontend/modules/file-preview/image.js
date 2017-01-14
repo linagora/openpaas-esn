@@ -5,10 +5,8 @@
 var expect = chai.expect;
 
 describe('The esn.file-preview.image module', function() {
-    var $q,
-        $rootScope,
+    var $rootScope,
         $compile,
-        $httpBackend,
         filePreviewService;
 
     beforeEach(function() {
@@ -21,11 +19,9 @@ describe('The esn.file-preview.image module', function() {
       });
     });
 
-    beforeEach(angular.mock.inject(function(_$q_, _$rootScope_, _$compile_, _$httpBackend_, _filePreviewService_) {
-      $q = _$q_;
+    beforeEach(angular.mock.inject(function(_$rootScope_, _$compile_, _filePreviewService_) {
       $rootScope = _$rootScope_;
       $compile = _$compile_;
-      $httpBackend = _$httpBackend_;
       filePreviewService = _filePreviewService_;
     }));
 

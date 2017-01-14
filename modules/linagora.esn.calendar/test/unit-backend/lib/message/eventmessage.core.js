@@ -29,7 +29,7 @@ describe('The event message module', function() {
       });
 
       module = require(this.moduleHelpers.backendPath + '/lib/message/eventmessage.core')(this.moduleHelpers.dependencies);
-      module.save({}, function(err, saved) {
+      module.save({}, function(err) {
         expect(err).to.exist;
         expect(localstub.topics['message:stored'].data).to.have.length(0);
         done();

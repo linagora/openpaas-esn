@@ -280,7 +280,7 @@ describe('The communities controller', function() {
       };
 
       var mock = {
-        query: function(q, callback) {
+        query: function(q) {
           expect(q.domain_ids).to.exist;
           expect(q.domain_ids.length).to.equal(1);
           expect(q.domain_ids[0]).to.equal(req.domain._id);
@@ -306,7 +306,7 @@ describe('The communities controller', function() {
       };
 
       var mock = {
-        query: function(q, callback) {
+        query: function(q) {
           expect(q.title).to.exist;
           expect(q.title.toString()).to.equal('/^' + fakeTitle + '$/i');
           done();
@@ -327,7 +327,7 @@ describe('The communities controller', function() {
       };
 
       var mock = {
-        query: function(q, callback) {
+        query: function(q) {
           expect(q.title).to.exist;
           expect(q.title.toString().indexOf('\\$') > -1).to.be.true;
           expect(q.title.toString().indexOf('\\^') > -1).to.be.true;
@@ -350,7 +350,7 @@ describe('The communities controller', function() {
       };
 
       var mock = {
-        query: function(q, callback) {
+        query: function(q) {
 
           expect(q.creator).to.exist;
           expect(q.creator).to.equal(creatorId);
@@ -853,7 +853,7 @@ describe('The communities controller', function() {
       };
 
       var mock = {
-        recordAvatar: function(id, mime, options, req, callback) {
+        recordAvatar: function(id, mime, options) {
           expect(options).to.exist;
           expect(options.creator).to.exist;
           expect(options.creator.objectType).to.equal('user');
@@ -1622,7 +1622,7 @@ describe('The communities controller', function() {
         mockery.registerMock('../../core/community/permission', {});
 
         var res = this.helpers.express.jsonResponse(
-          function(code, err) {
+          function(code) {
             expect(code).to.equal(500);
             done();
           }

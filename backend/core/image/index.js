@@ -96,7 +96,7 @@ function recordAvatar(id, contentType, opts, readable, callback) {
         });
       }
     ],
-    function(err, resps) {
+    function() {
       if (responses.datastore.error) {
         return callback(responses.datastore.error);
       }
@@ -106,7 +106,7 @@ function recordAvatar(id, contentType, opts, readable, callback) {
       }
 
       responses.gm.image.resize(defaultAvatarSize, defaultAvatarSize);
-      responses.gm.image.stream(function(err, stdout, stderr) {
+      responses.gm.image.stream(function(err, stdout) {
         if (err) {
           logger.debug('failed to stream gm image after resize');
           logger.debug(err.stack);

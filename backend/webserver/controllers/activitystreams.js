@@ -30,9 +30,9 @@ function updateTracker(req, timelineEntriesReadable) {
   if (req && req.user && !req.query.before && timelineEntriesReadable && timelineEntriesReadable[0]) {
     // When req.query.after, the last timeline entry is the last element in the result array
     if (req.query.after && timelineEntriesReadable[timelineEntriesReadable.length - 1]) {
-      tracker.updateLastTimelineEntry(req.user._id, req.activity_stream._id, timelineEntriesReadable[timelineEntriesReadable.length - 1]._id, function(err) {});
+      tracker.updateLastTimelineEntry(req.user._id, req.activity_stream._id, timelineEntriesReadable[timelineEntriesReadable.length - 1]._id, function() {});
     } else {
-      tracker.updateLastTimelineEntry(req.user._id, req.activity_stream._id, timelineEntriesReadable[0]._id, function(err) {});
+      tracker.updateLastTimelineEntry(req.user._id, req.activity_stream._id, timelineEntriesReadable[0]._id, function() {});
     }
   }
 }

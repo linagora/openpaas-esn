@@ -135,14 +135,14 @@ describe('The calendar core module', function() {
       this.module = require(this.moduleHelpers.backendPath + '/webserver/api/calendar/core')(this.moduleHelpers.dependencies);
     });
     it('should return an error if data is undefined', function(done) {
-      this.module.dispatch(null, function(err, result) {
+      this.module.dispatch(null, function(err) {
         expect(err).to.exist;
         done();
       });
     });
 
     it('should return an error if data is not an object', function(done) {
-      this.module.dispatch('test', function(err, result) {
+      this.module.dispatch('test', function(err) {
         expect(err).to.exist;
         done();
       });
@@ -157,7 +157,7 @@ describe('The calendar core module', function() {
         }
       };
 
-      this.module.dispatch(data, function(err, result) {
+      this.module.dispatch(data, function(err) {
         expect(err).to.exist;
         done();
       });
@@ -172,7 +172,7 @@ describe('The calendar core module', function() {
         }
       };
 
-      this.module.dispatch(data, function(err, result) {
+      this.module.dispatch(data, function(err) {
         expect(err).to.exist;
         done();
       });
@@ -185,7 +185,7 @@ describe('The calendar core module', function() {
         event: 'test'
       };
 
-      this.module.dispatch(data, function(err, result) {
+      this.module.dispatch(data, function(err) {
         expect(err).to.exist;
         done();
       });
@@ -200,7 +200,7 @@ describe('The calendar core module', function() {
         }
       };
 
-      this.module.dispatch(data, function(err, result) {
+      this.module.dispatch(data, function(err) {
         expect(err).to.exist;
         done();
       });
@@ -215,7 +215,7 @@ describe('The calendar core module', function() {
         }
       };
 
-      this.module.dispatch(data, function(err, result) {
+      this.module.dispatch(data, function(err) {
         expect(err).to.exist;
         done();
       });
@@ -231,7 +231,7 @@ describe('The calendar core module', function() {
         }
       };
 
-      this.module.dispatch(data, function(err, result) {
+      this.module.dispatch(data, function(err) {
         expect(err).to.exist;
         done();
       });
@@ -848,11 +848,6 @@ describe('The calendar core module', function() {
           } else {
             return callback(null, otherAttendee);
           }
-        };
-
-        var editor = {
-          displayName: attendee1.firstname + ' ' + attendee1.lastname,
-          email: attendee1.emails[0]
         };
 
         var called = 0;

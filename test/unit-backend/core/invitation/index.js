@@ -8,7 +8,7 @@ describe('The invitation core module', function() {
   describe('The init method', function() {
     it('should fail on missing invitation', function(done) {
       var invitation = this.helpers.requireBackend('core/invitation');
-      invitation.init(null, function(err, result) {
+      invitation.init(null, function(err) {
         expect(err).to.exist;
         done();
       });
@@ -17,7 +17,7 @@ describe('The invitation core module', function() {
     it('should fail on missing invitation type', function(done) {
       var i = {data: {foo: 'bar'}};
       var invitation = this.helpers.requireBackend('core/invitation');
-      invitation.init(i, function(err, result) {
+      invitation.init(i, function(err) {
         expect(err).to.exist;
         done();
       });
@@ -26,7 +26,7 @@ describe('The invitation core module', function() {
     it('should fail on unknown invitation type', function(done) {
       var i = {type: 'foobar', data: {foo: 'bar'}};
       var invitation = this.helpers.requireBackend('core/invitation');
-      invitation.init(i, function(err, result) {
+      invitation.init(i, function(err) {
         expect(err).to.exist;
         done();
       });
@@ -45,12 +45,12 @@ describe('The invitation core module', function() {
       mockery.registerMock('./handlers/foobar', handler);
 
       var pubsub = this.helpers.requireBackend('core/pubsub').local;
-      pubsub.topic('invitation:init:failure').subscribe(function(data) {
+      pubsub.topic('invitation:init:failure').subscribe(function() {
         done();
       });
       var i = {type: 'foobar', data: {foo: 'bar'}};
       var invitation = this.helpers.requireBackend('core/invitation');
-      invitation.init(i, function(err, result) {
+      invitation.init(i, function(err) {
         expect(err).to.exist;
       });
     });
@@ -68,13 +68,13 @@ describe('The invitation core module', function() {
       mockery.registerMock('./handlers/foobarbaz', handler);
 
       var pubsub = this.helpers.requireBackend('core/pubsub').local;
-      pubsub.topic('invitation:init:success').subscribe(function(data) {
+      pubsub.topic('invitation:init:success').subscribe(function() {
         done();
       });
 
       var i = {type: 'foobarbaz', data: {foo: 'bar'}};
       var invitation = this.helpers.requireBackend('core/invitation');
-      invitation.init(i, function(err, result) {
+      invitation.init(i, function(err) {
         expect(err).to.not.exist;
       });
     });
@@ -97,7 +97,7 @@ describe('The invitation core module', function() {
         type: 'console'
       };
       var data = {};
-      invitation.process(i, data, function(err, result) {
+      invitation.process(i, data, function(err) {
         // next has been called by the console handler
         expect(err).to.not.exist;
         done();
@@ -146,12 +146,12 @@ describe('The invitation core module', function() {
       mockery.registerMock('./handlers/foobar', handler);
 
       var pubsub = this.helpers.requireBackend('core/pubsub').local;
-      pubsub.topic('invitation:process:failure').subscribe(function(data) {
+      pubsub.topic('invitation:process:failure').subscribe(function() {
         done();
       });
       var i = {type: 'foobar', data: {foo: 'bar'}};
       var invitation = this.helpers.requireBackend('core/invitation');
-      invitation.process(i, {}, function(err, result) {
+      invitation.process(i, {}, function(err) {
         expect(err).to.exist;
       });
     });
@@ -169,12 +169,12 @@ describe('The invitation core module', function() {
       mockery.registerMock('./handlers/foobar', handler);
 
       var pubsub = this.helpers.requireBackend('core/pubsub').local;
-      pubsub.topic('invitation:process:success').subscribe(function(data) {
+      pubsub.topic('invitation:process:success').subscribe(function() {
         done();
       });
       var i = {type: 'foobar', data: {foo: 'bar'}};
       var invitation = this.helpers.requireBackend('core/invitation');
-      invitation.process(i, {}, function(err, result) {
+      invitation.process(i, {}, function(err) {
         expect(err).to.not.exist;
       });
     });
@@ -183,7 +183,7 @@ describe('The invitation core module', function() {
   describe('The validate method', function() {
     it('should fail when input is null', function(done) {
       var invitation = this.helpers.requireBackend('core/invitation');
-      invitation.validate(null, function(err, result) {
+      invitation.validate(null, function(err) {
         expect(err).to.exist;
         done();
       });
@@ -191,7 +191,7 @@ describe('The invitation core module', function() {
 
     it('should fail when input type is null', function(done) {
       var invitation = this.helpers.requireBackend('core/invitation');
-      invitation.validate({}, function(err, result) {
+      invitation.validate({}, function(err) {
         expect(err).to.exist;
         done();
       });
@@ -199,10 +199,8 @@ describe('The invitation core module', function() {
 
     it('should call the handler to validate the data', function(done) {
       var invitation = this.helpers.requireBackend('core/invitation');
-      var called = false;
       var handler = {
         validate: function(invitation, cb) {
-          called = true;
           cb(null, true);
         }
       };
@@ -258,12 +256,12 @@ describe('The invitation core module', function() {
     mockery.registerMock('./handlers/foobar', handler);
 
     var pubsub = this.helpers.requireBackend('core/pubsub').local;
-    pubsub.topic('invitation:finalize:failure').subscribe(function(data) {
+    pubsub.topic('invitation:finalize:failure').subscribe(function() {
       done();
     });
     var i = {type: 'foobar', data: {foo: 'bar'}};
     var invitation = this.helpers.requireBackend('core/invitation');
-    invitation.finalize(i, {}, function(err, result) {
+    invitation.finalize(i, {}, function(err) {
       expect(err).to.exist;
     });
   });
@@ -278,12 +276,12 @@ describe('The invitation core module', function() {
     mockery.registerMock('./handlers/foobar', handler);
 
     var pubsub = this.helpers.requireBackend('core/pubsub').local;
-    pubsub.topic('invitation:finalize:success').subscribe(function(data) {
+    pubsub.topic('invitation:finalize:success').subscribe(function() {
       done();
     });
     var i = {type: 'foobar', data: {foo: 'bar'}};
     var invitation = this.helpers.requireBackend('core/invitation');
-    invitation.finalize(i, {}, function(err, result) {
+    invitation.finalize(i, {}, function(err) {
       expect(err).to.not.exist;
     });
   });

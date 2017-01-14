@@ -3,7 +3,7 @@
 var expect = require('chai').expect;
 
 describe('The User model', function() {
-  var User, Domain, email, email2, email_ci, email2_ci, helpers, userFixtures, domainFixtures, userDomainModule;
+  var User, email, email2, email_ci, helpers, userFixtures;
 
   beforeEach(function(done) {
     this.mongoose = require('mongoose');
@@ -11,14 +11,10 @@ describe('The User model', function() {
     helpers.requireBackend('core/db/mongo/models/user');
     helpers.requireBackend('core/db/mongo/models/domain');
     User = this.mongoose.model('User');
-    Domain = this.mongoose.model('Domain');
     userFixtures = helpers.requireFixture('models/users.js')(User);
-    domainFixtures = helpers.requireFixture('models/domains.js')(Domain);
-    userDomainModule = helpers.requireBackend('core/user/domain');
     email = 'foo@linagora.com';
     email_ci = 'FOO@LiNaGoRa.com ';
     email2 = 'bar@linagora.com';
-    email2_ci = '   bAR@linagora.com';
     this.connectMongoose(this.mongoose, done);
   });
 

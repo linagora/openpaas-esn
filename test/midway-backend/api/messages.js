@@ -14,7 +14,6 @@ describe.skip('The messages API', function() {
   var userExternal;
   var userExternal1;
   var userExternal2;
-  var domain;
   var community;
   var restrictedCommunity;
   var privateCommunity;
@@ -44,7 +43,6 @@ describe.skip('The messages API', function() {
         if (err) {
           return done(err);
         }
-        domain = models.domain;
         testuser = models.users[0];
         restrictedUser = models.users[1];
         userNotInPrivateCommunity = models.users[2];
@@ -208,7 +206,7 @@ describe.skip('The messages API', function() {
           }
         });
         req.expect(400)
-          .end(function(err, res) {
+          .end(function(err) {
             expect(err).to.not.exist;
             done();
           });
@@ -237,7 +235,7 @@ describe.skip('The messages API', function() {
           targets: [target]
         });
         req.expect(500)
-          .end(function(err, res) {
+          .end(function(err) {
             expect(err).to.not.exist;
             done();
           });
@@ -299,7 +297,7 @@ describe.skip('The messages API', function() {
           targets: [invalidtarget, target]
         });
         req.expect(201)
-          .end(function(err, res) {
+          .end(function(err) {
             expect(err).to.not.exist;
             done();
           });
@@ -1088,7 +1086,7 @@ describe.skip('The messages API', function() {
     s.push(text);
     s.push(null);
 
-    filestore.store(attachmentId, mime, {name: name, creator: {objectType: 'user', id: testuser._id}}, s, {}, function(err, saved) {
+    filestore.store(attachmentId, mime, {name: name, creator: {objectType: 'user', id: testuser._id}}, s, {}, function(err) {
       if (err) {
         return done(err);
       }
@@ -1355,7 +1353,7 @@ describe.skip('The messages API', function() {
               .delete('/api/resource-links'))
               .send(link)
               .expect(204)
-              .end(function(err, res) {
+              .end(function(err) {
                 if (err) {
                   return done(err);
                 }
@@ -1378,7 +1376,7 @@ describe.skip('The messages API', function() {
               .delete('/api/resource-links'))
               .send(link)
               .expect(403)
-              .end(function(err, res) {
+              .end(function(err) {
                 if (err) {
                   return done(err);
                 }

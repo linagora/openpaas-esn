@@ -23,15 +23,15 @@ describe('The import WS event module', function() {
 
       self.importNamespace = {
         on: function() {},
-        to: function(roomId) {
+        to: function() {
           return {
-            emit: function(event, data) {}
+            emit: function() {}
           };
         }
       };
 
       self.io = {
-        of: function(namespace) {
+        of: function() {
           return self.importNamespace;
         }
       };

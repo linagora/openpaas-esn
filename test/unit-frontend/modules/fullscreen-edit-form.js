@@ -7,7 +7,7 @@ var expect = chai.expect;
 
 describe('The fullscreen-edit-form Angular module', function() {
 
-  var $compile, $rootScope, $scope, $httpBackend, $timeout, element, elementScrollService = {};
+  var $compile, $rootScope, $scope, $timeout, element, elementScrollService = {};
 
   beforeEach(module('jadeTemplates'));
 
@@ -19,10 +19,9 @@ describe('The fullscreen-edit-form Angular module', function() {
     $provide.value('elementScrollService', elementScrollService);
   }));
 
-  beforeEach(inject(function(_$compile_, _$rootScope_, _$httpBackend_, _$timeout_) {
+  beforeEach(inject(function(_$compile_, _$rootScope_, _$timeout_) {
     $compile = _$compile_;
     $rootScope = _$rootScope_;
-    $httpBackend = _$httpBackend_;
     $timeout = _$timeout_;
 
     $scope = $rootScope.$new();

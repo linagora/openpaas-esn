@@ -9,7 +9,7 @@ describe('The davserver controller', function() {
     var module, getDavServerUrlForClient;
 
     beforeEach(function() {
-      var davserver = function(dependencies) {
+      var davserver = function() {
         return {
           getDavServerUrlForClient: getDavServerUrlForClient
         };

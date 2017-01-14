@@ -414,7 +414,7 @@ describe('The user notification API', function() {
 
     it('should return 400 if req.body is not defined', function(done) {
       var self = this;
-      saveNotification(testuser1, false, function(err, saved) {
+      saveNotification(testuser1, false, function() {
         self.helpers.api.loginAsUser(app, testuser1.emails[0], password, function(err, requestAsMember) {
           if (err) {
             return done(err);
@@ -428,7 +428,7 @@ describe('The user notification API', function() {
 
     it('should return 400 if req.body.value is not defined', function(done) {
       var self = this;
-      saveNotification(testuser1, false, function(err, saved) {
+      saveNotification(testuser1, false, function() {
         self.helpers.api.loginAsUser(app, testuser1.emails[0], password, function(err, requestAsMember) {
           if (err) {
             return done(err);

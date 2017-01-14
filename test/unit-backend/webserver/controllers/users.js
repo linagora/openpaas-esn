@@ -17,8 +17,7 @@ describe('The User controller', function() {
         logout: done
       };
       var res = {
-        redirect: function(path) {
-        }
+        redirect: function() {}
       };
       users.logout(req, res);
     });
@@ -144,7 +143,7 @@ describe('The User controller', function() {
         json: function() {
           done();
         },
-        status: function(code, error) {
+        status: function(code) {
           expect(code).to.equal(404);
           return this;
         }
@@ -190,7 +189,7 @@ describe('The User controller', function() {
         }
       };
       var res = {
-        json: function(code) {
+        json: function() {
           done();
         },
         status: function(code) {
@@ -301,7 +300,7 @@ describe('The User controller', function() {
       };
 
       var imageMock = {
-        recordAvatar: function(avatarId, mimetype, opts, req, avatarRecordResponse) {
+        recordAvatar: function(avatarId, mimetype, opts) {
           expect(opts).to.exist;
           expect(opts.creator).to.exist;
           expect(opts.creator.objectType).to.equal('user');
@@ -429,7 +428,7 @@ describe('The User controller', function() {
       var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {user: usermock, query: {mimetype: 'image/png', size: 42}};
       var res = this.helpers.express.jsonResponse(
-        function(code, data) {
+        function() {
         }
       );
       users.postProfileAvatar(req, res);
@@ -536,7 +535,7 @@ describe('The User controller', function() {
         query: {}
       };
       var res = {
-        redirect: function(path) {
+        redirect: function() {
           done();
         }
       };

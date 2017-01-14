@@ -14,7 +14,7 @@ describe('The esn.like Angular module', function() {
   });
 
   describe('The likeButton directive', function() {
-    var $compile, $rootScope, $scope, ResourceLinkAPIMock, ResourceLinkAPI, sessionMock, session, LIKE_LINK_TYPE;
+    var $compile, $rootScope, $scope, ResourceLinkAPIMock, sessionMock, session, LIKE_LINK_TYPE;
     var userId = '1';
 
     function compileDirective(html) {
@@ -39,10 +39,9 @@ describe('The esn.like Angular module', function() {
         $provide.value('session', sessionMock);
       });
 
-      inject(function(_$compile_, _$rootScope_, _ResourceLinkAPI_, _LIKE_LINK_TYPE_, _session_) {
+      inject(function(_$compile_, _$rootScope_, _LIKE_LINK_TYPE_, _session_) {
         $compile = _$compile_;
         $rootScope = _$rootScope_;
-        ResourceLinkAPI = _ResourceLinkAPI_;
         $scope = $rootScope.$new();
         LIKE_LINK_TYPE = _LIKE_LINK_TYPE_;
         session = _session_;

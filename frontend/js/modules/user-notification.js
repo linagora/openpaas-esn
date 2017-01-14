@@ -314,7 +314,7 @@ angular.module('esn.user-notification',
       }
     };
   })
-  .directive('collaborationMembershipRequestAcceptedNotification', function(objectTypeResolver, $q, session) {
+  .directive('collaborationMembershipRequestAcceptedNotification', function() {
     return {
       restrict: 'E',
       replace: true,
@@ -325,7 +325,7 @@ angular.module('esn.user-notification',
       controller: 'requestMembershipActionNotificationController'
     };
   })
-  .directive('collaborationMembershipRequestDeclinedNotification', function(objectTypeResolver) {
+  .directive('collaborationMembershipRequestDeclinedNotification', function() {
     return {
       restrict: 'E',
       replace: true,
@@ -442,7 +442,7 @@ angular.module('esn.user-notification',
   function($rootScope, $timeout, $window, SCREEN_SM_MIN, USER_NOTIFICATION_ITEM_HEIGHT, MOBILE_BROWSER_URL_BAR, POPOVER_ARROW_HEIGHT, POPOVER_TITLE_HEIGHT, POPOVER_PAGER_BUTTONS_HEIGHT, BOTTOM_PADDING) {
       return {
         restrict: 'A',
-        link: function(scope, element, attrs) {
+        link: function(scope, element) {
 
           var loaded = false;
           function hidePopover() {

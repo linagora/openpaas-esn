@@ -17,10 +17,6 @@ describe('The login oauth provision module', function() {
     warn: function() {}
   };
 
-  var user = {
-    _id: 1
-  };
-
   var profile = {
     emails: [{value: 'foo@bar.com'}],
     provider: 'foo'
@@ -57,7 +53,7 @@ describe('The login oauth provision module', function() {
           headers: {'content-type': ''}
         });
       },
-      get: function(uri) {
+      get: function() {
       }
     };
 

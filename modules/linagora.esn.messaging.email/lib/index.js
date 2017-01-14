@@ -146,7 +146,7 @@ module.exports = function(dependencies) {
       }
 
       if (message.attachments && message.attachments.length > 0) {
-        return messageModule.setAttachmentsReferences(message, function(err) {
+        return messageModule.setAttachmentsReferences(message, function() {
           publishCommentActivity(parentMessage, childMessage);
           return callback(null, { _id: childMessage._id, parentId: parentMessage._id});
         });

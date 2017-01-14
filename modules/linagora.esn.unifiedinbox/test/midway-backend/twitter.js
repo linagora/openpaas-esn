@@ -55,7 +55,7 @@ describe('The twitter API', function() {
     get: function() {
     }
   };
-  var twitterClientMocks = function(config) {
+  var twitterClientMocks = function() {
       return twitter;
   };
 

@@ -953,7 +953,6 @@ describe('The calendarViewController', function() {
       var event = {id: 'id', calendarId: 'calId'};
       var path = 'path';
       var etag = 'etag';
-      var resultingEvent = this.CalendarShellMock.from(event, {etag: etag, path: path});
 
       fullCalendarSpy = this.calendar.fullCalendar = sinon.spy();
 

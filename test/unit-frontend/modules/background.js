@@ -54,10 +54,9 @@ describe('The esn.background Angular module', function() {
 
   describe('The inBackground service', function() {
 
-    var $rootScope, inBackground, backgroundProcessorService;
+    var inBackground, backgroundProcessorService;
 
-    beforeEach(angular.mock.inject(function(_$rootScope_, _inBackground_, _backgroundProcessorService_) {
-      $rootScope = _$rootScope_;
+    beforeEach(angular.mock.inject(function(_inBackground_, _backgroundProcessorService_) {
       inBackground = _inBackground_;
       backgroundProcessorService = _backgroundProcessorService_;
     }));

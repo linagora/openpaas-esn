@@ -14,7 +14,7 @@ describe('The contacts api controller', function() {
         generateFromText: function() {
           return new Buffer('some data');
         },
-        getColorsFromUuid: function(uuid) {
+        getColorsFromUuid: function() {
           return { bgColor: 'red', fgColor: 'white' };
         }
       }
@@ -175,7 +175,7 @@ describe('The contacts api controller', function() {
         []
       ];
 
-      imageModuleMock.avatarGenerationModule.generateFromText = function(options) {
+      imageModuleMock.avatarGenerationModule.generateFromText = function() {
         return new Buffer('some data');
       };
 

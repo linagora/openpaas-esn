@@ -1,6 +1,5 @@
 'use strict';
 
-var denormalize = require('./denormalize');
 var CONSTANTS = require('../constants');
 
 var INDEX_NAME = CONSTANTS.SEARCH.INDEX_NAME;

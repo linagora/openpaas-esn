@@ -24,7 +24,7 @@ describe('The login-rules middleware', function() {
       };
 
       var userLoginMocked = {
-        canLogin: function(username, callback) {
+        canLogin: function() {
         }
       };
       mockery.registerMock('../../core/user/login', userLoginMocked);
@@ -144,7 +144,7 @@ describe('The login-rules middleware', function() {
       );
 
       var userLoginMocked = {
-        canLogin: function(username, callback) {
+        canLogin: function() {
         }
       };
       mockery.registerMock('../../core/user/login', userLoginMocked);
@@ -176,7 +176,7 @@ describe('The login-rules middleware', function() {
       );
 
       var userLoginMocked = {
-        canLogin: function(username, callback) {
+        canLogin: function() {
         }
       };
       mockery.registerMock('../../core/user/login', userLoginMocked);

@@ -83,14 +83,14 @@ describe('The signup handler', function() {
     });
 
     it('should fail if invitation uuid is not set', function(done) {
-      signup.init({}, function(err, result) {
+      signup.init({}, function(err) {
         expect(err).to.exist;
         done();
       });
     });
 
     it('should fail if invitation.data.url is not set', function(done) {
-      signup.init({uuid: 123, data: {}}, function(err, result) {
+      signup.init({uuid: 123, data: {}}, function(err) {
         expect(err).to.exist;
         done();
       });
@@ -202,7 +202,7 @@ describe('The signup handler', function() {
         };
 
         var i = new Domain(dom);
-        i.save(function(err, saved) {
+        i.save(function(err) {
           if (err) {
             return done(err);
           }

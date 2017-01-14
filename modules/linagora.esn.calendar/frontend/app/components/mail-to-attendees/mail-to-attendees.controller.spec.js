@@ -6,7 +6,7 @@ var expect = chai.expect;
 
 describe('The calMailToAttendeesController', function() {
 
-  var $controller, _;
+  var $controller;
   var ctrl, attendeesTest, attendeesMailTest;
 
   beforeEach(function() {
@@ -20,8 +20,7 @@ describe('The calMailToAttendeesController', function() {
 
     angular.mock.module('esn.calendar');
 
-    angular.mock.inject(function(___, _$controller_) {
-      _ = ___;
+    angular.mock.inject(function(_$controller_) {
       $controller = _$controller_;
     });
 

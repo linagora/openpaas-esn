@@ -76,7 +76,7 @@ describe('the file-watcher module', function() {
     var fsMock = {stat: function(file, cb) {return cb(null, true);}};
     var eventNames = [];
     var chokidarMock = {
-      watch: function(file) {
+      watch: function() {
         return {
           on: function(evtName) {eventNames.push(evtName);}
         };
@@ -93,7 +93,7 @@ describe('the file-watcher module', function() {
     var fsMock = {stat: function(file, cb) {return cb(null, true);}};
     var eventNames = [];
     var chokidarMock = {
-      watch: function(file) {
+      watch: function() {
         return {
           on: function(evtName) {eventNames.push(evtName);}
         };
@@ -112,7 +112,7 @@ describe('the file-watcher module', function() {
     var fsMock = {stat: function(file, cb) {return cb(null, true);}};
     var eventCallbacks = [];
     var chokidarMock = {
-      watch: function(file) {
+      watch: function() {
         return {
           on: function(evtName, cb) {eventCallbacks.push(cb);}
         };
@@ -132,7 +132,7 @@ describe('the file-watcher module', function() {
       var self = this;
       this.fsMock = {stat: function(file, cb) {return cb(null, true);}};
       this.chokidarMock = {
-        watch: function(file) {
+        watch: function() {
           return {
             on: function(evtName, cb) {self.eventCallback = cb;}
           };
@@ -141,7 +141,7 @@ describe('the file-watcher module', function() {
     });
 
     it('should call hash_file', function(done) {
-      var hashFileMock = function(file, algo, callback) {
+      var hashFileMock = function() {
         done();
       };
       mockery.registerMock('fs', this.fsMock);

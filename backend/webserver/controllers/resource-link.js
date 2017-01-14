@@ -23,7 +23,7 @@ function remove(req, res) {
   var link = req.body;
 
   resourceLink.remove(link).then(
-    function(result) {
+    function() {
     logger.debug('Resource has been removed', link);
     res.status(204).json();
   },

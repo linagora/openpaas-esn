@@ -4,7 +4,7 @@ angular.module('esn.project')
 
 .directive('projectCreate',
 function(WidgetWizard, selectionService, projectCreationService, $timeout, $location, $alert, $rootScope) {
-  function link($scope, element, attrs) {
+  function link($scope, element) {
     $scope.wizard = new WidgetWizard([
       '/project/views/project-creation-wizard-1',
       '/project/views/project-creation-wizard-2',

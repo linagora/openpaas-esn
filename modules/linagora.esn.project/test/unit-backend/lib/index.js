@@ -38,7 +38,7 @@ describe('The project module', function() {
         return callback(null, communities);
       };
 
-      deps.collaboration.query = function(type, q, callback) {
+      deps.collaboration.query = function(type, q) {
         expect(type).to.equal('project');
         expect(q.$or.length).to.equal(communities.length + 1);
         done();
@@ -80,7 +80,7 @@ describe('The project module', function() {
       };
 
       deps.collaboration.permission = {
-        filterWritable: function(collaborations, tuple, callback) {
+        filterWritable: function(collaborations, tuple) {
           expect(collaborations.length).to.equal(communities.length);
           expect(tuple).to.deep.equal({objectType: 'user', id: user});
           done();

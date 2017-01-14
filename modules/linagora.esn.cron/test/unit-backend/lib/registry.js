@@ -91,7 +91,7 @@ describe('The Cron Registry', function() {
       };
 
       var module = getModule();
-      module.store('id', description, 'acronjobobject', context, function(err, result) {
+      module.store('id', description, 'acronjobobject', context, function(err) {
         expect(err).to.not.exist;
         var registryJob = module.getInMemory('id');
         expect(registryJob.cronjob).to.equal('acronjobobject');

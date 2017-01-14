@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function(dependencies, lib) {
+module.exports = function(dependencies) {
 
   const mongoose = dependencies('db').mongo.mongoose;
   const UserStatus = mongoose.model('UserStatus');

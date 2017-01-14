@@ -1,5 +1,5 @@
 'use strict';
 
-module.exports = function(dependencies) {
+module.exports = function() {
   return {};
 };

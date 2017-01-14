@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('The calEventService service', function() {
-  var ICAL, calCachedEventSourceMock, flushContext, self;
+  var ICAL, calCachedEventSourceMock, self;
 
   beforeEach(function() {
     self = this;
@@ -300,9 +300,6 @@ describe('The calEventService service', function() {
   });
 
   describe('The create fn', function() {
-    function unexpected(done) {
-      done(new Error('Unexpected'));
-    }
 
     it('should fail on 500 response status', function() {
       self.$httpBackend.expectPUT('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY).respond(500, '');
@@ -400,8 +397,6 @@ describe('The calEventService service', function() {
       self.gracePeriodService.grace = function() {
         return $q.reject({});
       };
-
-      var headers = { ETag: 'etag' };
 
       self.$httpBackend.expectPUT('/dav/api/path/to/calendar/00000000-0000-4000-a000-000000000000.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY).respond(202, {id: gracePeriodTaskId});
 
@@ -554,10 +549,6 @@ describe('The calEventService service', function() {
       });
       self.oldEvent = self.event.clone();
       self.oldEvent.start = self.event.start.clone().add(1, 'hour');
-
-      flushContext = {
-        id: self.event.id
-      };
     });
 
     it('should fail if status is not 202', function(done) {
@@ -655,8 +646,6 @@ describe('The calEventService service', function() {
 
       this.gracePeriodService.remove = sinon.spy();
 
-      flushContext = {id: self.event.id};
-
       var modifyEventThen = sinon.spy();
 
       this.calEventService.modifyEvent('/path/to/uid.ics', occShell, occShell, 'etag', angular.noop, {notifyFullcalendar: true}).then(modifyEventThen);
@@ -730,8 +719,6 @@ describe('The calEventService service', function() {
     });
 
     it('should raise the sequence if hasSignificantChange parameter is true', function() {
-      var headers = { ETag: 'changed-etag' };
-
       self.$httpBackend.expectPUT('/dav/api/path/to/uid.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY, function(data) {
         var vcalendar = new ICAL.Component(JSON.parse(data));
         var vevent = vcalendar.getFirstSubcomponent('vevent');
@@ -887,9 +874,6 @@ describe('The calEventService service', function() {
   });
 
   describe('The remove fn', function() {
-    function unexpected(done) {
-      done(new Error('Unexpected'));
-    }
 
     beforeEach(function() {
       var vcalendar = new ICAL.Component('vcalendar');
@@ -925,7 +909,6 @@ describe('The calEventService service', function() {
         getModifiedMaster: sinon.stub().returns($q.when(self.master))
       };
 
-      flushContext = {id: self.event.id};
     });
 
     it('should fail if status is not 202', function() {

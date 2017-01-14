@@ -140,7 +140,7 @@ describe('The esn.provider module', function() {
         providers.add(provider1);
         providers.add(provider2);
 
-        providers.getAll(getAllOptions).then(function(resolvedProviders) {
+        providers.getAll(getAllOptions).then(function() {
           expect(provider1.buildFetchContext).to.have.been.calledWith(getAllOptions);
           expect(provider2.buildFetchContext).to.have.been.calledWith(getAllOptions);
 

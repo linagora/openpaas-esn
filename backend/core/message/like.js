@@ -1,6 +1,5 @@
 'use strict';
 
-var q = require('q');
 var pubsub = require('../pubsub');
 var logger = require('../logger');
 var like = require('../like');

@@ -1,16 +1,15 @@
 'use strict';
 
-/* global chai, sinon, _, __FIXTURES__: false */
+/* global chai, __FIXTURES__: false */
 
 var expect = chai.expect;
 
 describe('VAlarmShell factory', function() {
-  var CalendarShell, ICAL, CalVAlarmShell;
+  var ICAL, CalVAlarmShell;
 
   beforeEach(function() {
     angular.mock.module('esn.calendar');
-    angular.mock.inject(function(_CalendarShell_, _ICAL_, _CalVAlarmShell_) {
-      CalendarShell = _CalendarShell_;
+    angular.mock.inject(function(_ICAL_, _CalVAlarmShell_) {
       ICAL = _ICAL_;
       CalVAlarmShell = _CalVAlarmShell_;
     });

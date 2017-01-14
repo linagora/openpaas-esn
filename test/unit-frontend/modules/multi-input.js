@@ -184,11 +184,9 @@ describe('The multi-input Angular module', function() {
 
   describe('The multiInputService factory', function() {
 
-    var $rootScope;
     var multiInputService, timeout;
 
-    beforeEach(angular.mock.inject(function(_$rootScope_, _multiInputService_, _$timeout_) {
-      $rootScope = _$rootScope_;
+    beforeEach(angular.mock.inject(function(_multiInputService_, _$timeout_) {
       multiInputService = _multiInputService_;
       timeout = _$timeout_;
     }));

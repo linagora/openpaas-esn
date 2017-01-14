@@ -31,7 +31,7 @@ describe.skip('Passport LDAP', function() {
       });
     }
 
-    esnconfig.store(JSON.parse(fs.readFileSync(ldapconf)), function(err) {
+    esnconfig.store(JSON.parse(fs.readFileSync(ldapconf)), function() {
       servers(null, function() {
         console.log('Servers started');
         mongoose.connection.collection('templates').insert(template, function() {

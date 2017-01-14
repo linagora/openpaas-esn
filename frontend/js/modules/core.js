@@ -139,7 +139,7 @@ angular.module('esn.core', ['esn.lodash-wrapper'])
 
   .constant('routeResolver', {
     session: function(type) {
-      return ['session', '$q', function(session, $q) {
+      return ['session', '$q', function(session) {
         return session.ready.then(function(session) {
           return session[type];
         });
@@ -151,7 +151,7 @@ angular.module('esn.core', ['esn.lodash-wrapper'])
         var routeId = $stateParams[paramName || 'id'] || undefined;
         return api[method || 'get'](routeId).then(function(response) {
           return response.data;
-        }, function(err) {
+        }, function() {
           $location.path(target || '/');
         });
       }];

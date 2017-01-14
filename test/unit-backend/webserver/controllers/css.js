@@ -1,7 +1,6 @@
 'use strict';
 
 var expect = require('chai').expect;
-var mockery = require('mockery');
 
 describe('the css webserver controller', function() {
   it('should expose a getCss method', function() {

@@ -143,7 +143,7 @@ describe('The esn.activitystream Angular module', function() {
 
     it('should not call messageAPI.get if the array of ids is empty', function() {
       var msgAPIcalled = false;
-      this.msgAPI.get = function(options) {
+      this.msgAPI.get = function() {
         msgAPIcalled = true;
       };
       var instance = this.decorator(function() { });
@@ -156,7 +156,7 @@ describe('The esn.activitystream Angular module', function() {
         {object: { _id: 'ID5' }},
         {object: { _id: 'ID2' }}
       ];
-      this.msgAPI.get = function(options) {
+      this.msgAPI.get = function() {
         return $q.reject({ data: 'ERROR' });
       };
       var instance = this.decorator(function(err) {
@@ -177,7 +177,7 @@ describe('The esn.activitystream Angular module', function() {
         {_id: 'ID5', objectType: 'whatsup' },
         {error: 404, message: 'Not found', details: 'message ID2 could not be found'}
       ];
-      this.msgAPI.get = function(options) {
+      this.msgAPI.get = function() {
         return $q.when({ data: msgResp });
       };
       var instance = this.decorator(function(err) {
@@ -201,7 +201,7 @@ describe('The esn.activitystream Angular module', function() {
         {_id: 'ID5', objectType: 'whatsup', content: 'yolo' },
         {_id: 'ID2', objectType: 'whatsup', content: 'lgtm' }
       ];
-      this.msgAPI.get = function(options) {
+      this.msgAPI.get = function() {
         return $q.when({ data: msgResp });
       };
       var instance = this.decorator(function(err, response) {
@@ -471,7 +471,7 @@ describe('The esn.activitystream Angular module', function() {
     describe('on REST call error', function() {
       it('should forward the error', function(done) {
         var self = this;
-        this.restcursor = function(api) {
+        this.restcursor = function() {
           return {
             nextItems: function(callback) {return callback(new Error('down'));},
             endOfStream: false
@@ -485,7 +485,7 @@ describe('The esn.activitystream Angular module', function() {
         inject(function(activityStreamUpdates, $rootScope) {
           activityStreamUpdates('0987654321', {mostRecentActivityId: 'message1'}).then(
             function() {done(new Error('I should not be called'));},
-            function(err) {done();}
+            function() {done();}
           );
           $rootScope.$digest();
         });
@@ -502,7 +502,7 @@ describe('The esn.activitystream Angular module', function() {
           {_id: 'tl4', object: {_id: 'msg4'}},
           {_id: 'tl5', object: {_id: 'msg5'}}
         ];
-        this.restcursor = function(api) {
+        this.restcursor = function() {
           return {
             nextItems: function(callback) {
               this.endOfStream = true; return callback(null, entries);
@@ -532,7 +532,7 @@ describe('The esn.activitystream Angular module', function() {
               expect(scope.threads[4]._id).to.equal('msg1');
               done();
             },
-            function(err) {done(new Error('I should not be called'));}
+            function() {done(new Error('I should not be called'));}
           ).catch(function(err) {
             throw err;
           });
@@ -549,7 +549,7 @@ describe('The esn.activitystream Angular module', function() {
           {_id: 'tl4', object: {_id: 'msg2'}},
           {_id: 'tl5', object: {_id: 'msg5'}}
         ];
-        this.restcursor = function(api) {
+        this.restcursor = function() {
           return {
             nextItems: function(callback) {
               this.endOfStream = true; return callback(null, entries);
@@ -578,7 +578,7 @@ describe('The esn.activitystream Angular module', function() {
               expect(scope.threads[3]._id).to.equal('msg1');
               done();
             },
-            function(err) {done(new Error('I should not be called'));}
+            function() {done(new Error('I should not be called'));}
           ).catch(function(err) {
             throw err;
           });
@@ -630,7 +630,7 @@ describe('The esn.activitystream Angular module', function() {
 
         var entries = [entries1, entries2];
 
-        this.restcursor = function(api) {
+        this.restcursor = function() {
           return {
             nextItems: function(callback) {
               if (entries.length === 1) {
@@ -664,7 +664,7 @@ describe('The esn.activitystream Angular module', function() {
               expect(scope.threads[5]._id).to.equal('msg1');
               done();
             },
-            function(err) {done(new Error('I should not be called'));}
+            function() {done(new Error('I should not be called'));}
           ).catch(function(err) {
             throw err;
           });

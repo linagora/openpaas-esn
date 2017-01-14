@@ -90,7 +90,7 @@ describe('the TimelineEntriesTracker module', function() {
             return done(err);
           }
 
-          tracker.updateLastTimelineEntry(models.users[0]._id, models2.activityStreamUuid, models2.timelineEntries[2], function(err, saved) {
+          tracker.updateLastTimelineEntry(models.users[0]._id, models2.activityStreamUuid, models2.timelineEntries[2], function(err) {
             if (err) {
               return done(err);
             }
@@ -123,7 +123,7 @@ describe('the TimelineEntriesTracker module', function() {
             return done(err);
           }
 
-          tracker.updateLastTimelineEntry(models.users[0]._id, models2.activityStreamUuid, models2.timelineEntries[2], function(err, saved) {
+          tracker.updateLastTimelineEntry(models.users[0]._id, models2.activityStreamUuid, models2.timelineEntries[2], function(err) {
             if (err) {
               return done(err);
             }
@@ -168,17 +168,17 @@ describe('the TimelineEntriesTracker module', function() {
             return done(err);
           }
 
-          tracker.updateLastTimelineEntry(models.users[0]._id, models2.activityStreamUuid, models2.timelineEntries[0], function(err, saved) {
+          tracker.updateLastTimelineEntry(models.users[0]._id, models2.activityStreamUuid, models2.timelineEntries[0], function(err) {
             if (err) {
               return done(err);
             }
 
             var TimelineEntry = self.helpers.requireBackend('core/db/mongo/models/timelineentry');
-            TimelineEntry.update({_id: models2.timelineEntries[1]._id }, {$set: {verb: 'remove'}}, function(err, numAffected) {
+            TimelineEntry.update({_id: models2.timelineEntries[1]._id }, {$set: {verb: 'remove'}}, function(err) {
               if (err) {
                 return done(err);
               }
-              TimelineEntry.update({_id: models2.timelineEntries[2]._id }, {$set: {verb: 'remove'}}, function(err, numAffected) {
+              TimelineEntry.update({_id: models2.timelineEntries[2]._id }, {$set: {verb: 'remove'}}, function(err) {
                 if (err) {
                   return done(err);
                 }

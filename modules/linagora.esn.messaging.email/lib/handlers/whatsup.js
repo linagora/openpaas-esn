@@ -25,7 +25,7 @@ module.exports = function(lib, dependencies) {
     return callback(new Error('Not implemented'));
   }
 
-  function generateReplyMessage(user, message, data) {
+  function generateReplyMessage(user, message) {
     return {
       content: message.body.text,
       author: user._id,

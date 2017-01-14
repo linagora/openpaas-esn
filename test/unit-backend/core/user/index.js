@@ -5,11 +5,10 @@ var mockery = require('mockery');
 var sinon = require('sinon');
 
 describe('The user core module', function() {
-  var mockModels, mockPubSub, mockEsnConfig;
+  var mockModels, mockEsnConfig;
 
   beforeEach(function() {
     mockModels = this.helpers.mock.models;
-    mockPubSub = this.helpers.mock.pubsub;
     mockEsnConfig = this.helpers.mock.esnConfig;
     mockery.registerMock('../auth/token', {getNewToken: function() {}});
     mockery.registerMock('./login', {});
@@ -344,14 +343,14 @@ describe('The user core module', function() {
     });
 
     it('should pass directly user if user_id is not set', function(done) {
-      userModule.updateProfile('1234', profile, function(query, option) {
+      userModule.updateProfile('1234', profile, function(query) {
         expect(query).to.deep.equal({ _id: '1234'});
         done();
       });
     });
 
     it('should pass directly user_id otherwise', function(done) {
-      userModule.updateProfile({ _id: '1235'}, profile, function(query, option) {
+      userModule.updateProfile({ _id: '1235'}, profile, function(query) {
         expect(query).to.deep.equal({ _id: '1235'});
         done();
       });

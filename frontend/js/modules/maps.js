@@ -73,7 +73,7 @@ angular.module('esn.maps', ['ngGeolocation', 'leaflet-directive'])
             geoAPI.reverse(data.coords.latitude, data.coords.longitude).then(function(data) {
               $scope.position.message = data.data.display_name || $scope.position.message;
               $scope.position.display_name = data.data.display_name;
-            }, function(err) {
+            }, function() {
             }).finally(function() {
               $scope.position.load = false;
             });

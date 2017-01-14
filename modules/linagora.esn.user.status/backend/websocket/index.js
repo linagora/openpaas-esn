@@ -10,7 +10,7 @@ module.exports = {
   init
 };
 
-function init(dependencies, lib) {
+function init(dependencies) {
   const logger = dependencies('logger');
   const io = dependencies('wsserver').io;
   const helper = dependencies('wsserver').ioHelper;

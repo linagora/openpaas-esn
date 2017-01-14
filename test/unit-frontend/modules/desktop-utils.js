@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('The esn.desktop-utils angular module', function() {
-  var element, $scope, $compile, $rootScope, isMobile;
+  var element, $scope, $compile, isMobile;
 
   beforeEach(function() {
 
@@ -21,7 +21,6 @@ describe('The esn.desktop-utils angular module', function() {
 
   beforeEach(angular.mock.inject(function(_$compile_, _$rootScope_) {
     $compile = _$compile_;
-    $rootScope = _$rootScope_;
     $scope = _$rootScope_.$new();
   }));
 

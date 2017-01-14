@@ -173,7 +173,7 @@ describe.skip('The collaborations API', function() {
         }
         var req = loggedInAsUser(request(webserver.application).put('/api/collaborations/community/' + id + '/members/123'));
         req.expect(404);
-        req.end(function(err, res) {
+        req.end(function(err) {
           expect(err).to.not.exist;
           done();
         });
@@ -464,7 +464,7 @@ describe.skip('The collaborations API', function() {
             if (err) { return done(err); }
             var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/community/' + self.com._id + '/members'));
             req.expect(200);
-            req.end(function(err, res) {
+            req.end(function(err) {
               expect(err).to.not.exist;
               done();
             });
@@ -477,7 +477,7 @@ describe.skip('The collaborations API', function() {
             if (err) { return done(err); }
             var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/community/' + self.com._id + '/members'));
             req.expect(200);
-            req.end(function(err, res) {
+            req.end(function(err) {
               expect(err).to.not.exist;
               done();
             });
@@ -500,7 +500,7 @@ describe.skip('The collaborations API', function() {
             if (err) { return done(err); }
             var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/community/' + self.com._id + '/members'));
             req.expect(200);
-            req.end(function(err, res) {
+            req.end(function(err) {
               expect(err).to.not.exist;
               done();
             });
@@ -513,7 +513,7 @@ describe.skip('The collaborations API', function() {
             if (err) { return done(err); }
             var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/community/' + self.com._id + '/members'));
             req.expect(200);
-            req.end(function(err, res) {
+            req.end(function(err) {
               expect(err).to.not.exist;
               done();
             });
@@ -536,7 +536,7 @@ describe.skip('The collaborations API', function() {
             if (err) { return done(err); }
             var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/community/' + self.com._id + '/members'));
             req.expect(403);
-            req.end(function(err, res) {
+            req.end(function(err) {
               expect(err).to.not.exist;
               done();
             });
@@ -549,7 +549,7 @@ describe.skip('The collaborations API', function() {
             if (err) { return done(err); }
             var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/community/' + self.com._id + '/members'));
             req.expect(200);
-            req.end(function(err, res) {
+            req.end(function(err) {
               expect(err).to.not.exist;
               done();
             });
@@ -572,7 +572,7 @@ describe.skip('The collaborations API', function() {
             if (err) { return done(err); }
             var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/community/' + self.com._id + '/members'));
             req.expect(403);
-            req.end(function(err, res) {
+            req.end(function(err) {
               expect(err).to.not.exist;
               done();
             });
@@ -585,7 +585,7 @@ describe.skip('The collaborations API', function() {
             if (err) { return done(err); }
             var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/community/' + self.com._id + '/members'));
             req.expect(200);
-            req.end(function(err, res) {
+            req.end(function(err) {
               expect(err).to.not.exist;
               done();
             });
@@ -606,7 +606,7 @@ describe.skip('The collaborations API', function() {
 
           var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/community/' + id + '/members'));
           req.expect(404);
-          req.end(function(err, res) {
+          req.end(function(err) {
             expect(err).to.not.exist;
             done();
           });
@@ -683,7 +683,7 @@ describe.skip('The collaborations API', function() {
         models.communities[0].members.push({member: {id: self.mongoose.Types.ObjectId(), objectType: 'user'}});
         models.communities[0].members.push({member: {id: self.mongoose.Types.ObjectId(), objectType: 'user'}});
         models.communities[0].members.push({member: {id: self.mongoose.Types.ObjectId(), objectType: 'user'}});
-        models.communities[0].save(function(err, community) {
+        models.communities[0].save(function() {
           self.helpers.api.loginAsUser(webserver.application, models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
             if (err) { return done(err); }
             var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/community/' + models.communities[0]._id + '/members'));
@@ -708,7 +708,7 @@ describe.skip('The collaborations API', function() {
         models.communities[0].members.push({member: {id: self.mongoose.Types.ObjectId(), objectType: 'user'}});
         models.communities[0].members.push({member: {id: self.mongoose.Types.ObjectId(), objectType: 'user'}});
         models.communities[0].members.push({member: {id: self.mongoose.Types.ObjectId(), objectType: 'user'}});
-        models.communities[0].save(function(err, community) {
+        models.communities[0].save(function() {
           self.helpers.api.loginAsUser(webserver.application, models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
             if (err) { return done(err); }
             var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/community/' + models.communities[0]._id + '/members'));
@@ -811,7 +811,7 @@ describe.skip('The collaborations API', function() {
             }
             var req = loggedInAsUser(request(webserver.application).put('/api/collaborations/community/' + community._id + '/membership/' + models.users[3]._id));
             req.expect(403);
-            req.end(function(err, res) {
+            req.end(function(err) {
               expect(err).to.not.exist;
               done();
             });
@@ -881,7 +881,7 @@ describe.skip('The collaborations API', function() {
             }
             var req = loggedInAsUser(request(webserver.application).put('/api/collaborations/community/' + community._id + '/membership/' + models.users[2]._id));
             req.expect(200);
-            req.end(function(err, res) {
+            req.end(function(err) {
               expect(err).to.not.exist;
               Community.findOne({_id: community._id}, function(err, document) {
                 expect(document.membershipRequests).to.exist;
@@ -954,7 +954,7 @@ describe.skip('The collaborations API', function() {
           }
           var req = loggedInAsUser(request(webserver.application).delete('/api/collaborations/community/' + community._id + '/members/' + models.users[1]._id));
           req.expect(204);
-          req.end(function(err, res) {
+          req.end(function(err) {
             expect(err).to.not.exist;
             Community.find({_id: community._id}, function(err, document) {
               if (err) {
@@ -982,7 +982,7 @@ describe.skip('The collaborations API', function() {
           }
           var req = loggedInAsUser(request(webserver.application).delete('/api/collaborations/community/' + community._id + '/members/' + models.users[1]._id));
           req.expect(204);
-          req.end(function(err, res) {
+          req.end(function(err) {
             expect(err).to.not.exist;
             Community.find({_id: community._id}, function(err, document) {
               if (err) {
@@ -1298,7 +1298,7 @@ describe.skip('The collaborations API', function() {
       it('should return 204 with the community having no more membership requests', function(done) {
         var self = this;
         self.community.membershipRequests = [];
-        self.community.save(function(err, community) {
+        self.community.save(function(err) {
           if (err) { return done(err); }
           self.helpers.api.loginAsUser(webserver.application, self.jhendrix.emails[0], 'secret', function(err, loggedInAsUser) {
             if (err) { return done(err); }
@@ -1582,7 +1582,7 @@ describe.skip('The collaborations API', function() {
             request(webserver.application)
               .put('/api/collaborations/community/' + self.community._id + '/membership/' + self.jhendrix._id)
           );
-          req.end(function(err, res) {
+          req.end(function() {
             var req = self.loggedInAsManager(
               request(webserver.application)
                 .delete('/api/collaborations/community/' + self.community._id + '/membership/' + self.jhendrix._id)
@@ -1651,8 +1651,8 @@ describe.skip('The collaborations API', function() {
             request(webserver.application)
               .put('/api/collaborations/community/' + self.community._id + '/membership/' + self.jhendrix._id)
           );
-          req.end(function(err, res) {
-            checkusernotificationexists(function(err, notif) {
+          req.end(function() {
+            checkusernotificationexists(function(err) {
               if (err) { return done(err); }
               var req = self.loggedInAsManager(
                 request(webserver.application)
@@ -1729,7 +1729,7 @@ describe.skip('The collaborations API', function() {
             if (err) { return done(err); }
             var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/community/' + self.com._id + '/members'));
             req.expect(200);
-            req.end(function(err, res) {
+            req.end(function(err) {
               expect(err).to.not.exist;
               done();
             });
@@ -1741,7 +1741,7 @@ describe.skip('The collaborations API', function() {
             if (err) { return done(err); }
             var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/community/' + self.com._id + '/members'));
             req.expect(200);
-            req.end(function(err, res) {
+            req.end(function(err) {
               expect(err).to.not.exist;
               done();
             });
@@ -1761,7 +1761,7 @@ describe.skip('The collaborations API', function() {
             if (err) { return done(err); }
             var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/community/' + self.com._id + '/members'));
             req.expect(200);
-            req.end(function(err, res) {
+            req.end(function(err) {
               expect(err).to.not.exist;
               done();
             });
@@ -1773,7 +1773,7 @@ describe.skip('The collaborations API', function() {
             if (err) { return done(err); }
             var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/community/' + self.com._id + '/members'));
             req.expect(200);
-            req.end(function(err, res) {
+            req.end(function(err) {
               expect(err).to.not.exist;
               done();
             });
@@ -1793,7 +1793,7 @@ describe.skip('The collaborations API', function() {
             if (err) { return done(err); }
             var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/community/' + self.com._id + '/members'));
             req.expect(403);
-            req.end(function(err, res) {
+            req.end(function(err) {
               expect(err).to.not.exist;
               done();
             });
@@ -1805,7 +1805,7 @@ describe.skip('The collaborations API', function() {
             if (err) { return done(err); }
             var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/community/' + self.com._id + '/members'));
             req.expect(200);
-            req.end(function(err, res) {
+            req.end(function(err) {
               expect(err).to.not.exist;
               done();
             });
@@ -1825,7 +1825,7 @@ describe.skip('The collaborations API', function() {
             if (err) { return done(err); }
             var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/community/' + self.com._id + '/members'));
             req.expect(403);
-            req.end(function(err, res) {
+            req.end(function(err) {
               expect(err).to.not.exist;
               done();
             });
@@ -1837,7 +1837,7 @@ describe.skip('The collaborations API', function() {
             if (err) { return done(err); }
             var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/community/' + self.com._id + '/members'));
             req.expect(200);
-            req.end(function(err, res) {
+            req.end(function(err) {
               expect(err).to.not.exist;
               done();
             });
@@ -1856,7 +1856,7 @@ describe.skip('The collaborations API', function() {
         }
         var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/community/' + id + '/members'));
         req.expect(404);
-        req.end(function(err, res) {
+        req.end(function(err) {
           expect(err).to.not.exist;
           done();
         });
@@ -1893,7 +1893,7 @@ describe.skip('The collaborations API', function() {
         models.communities[0].members.push({member: {id: self.mongoose.Types.ObjectId(), objectType: 'user'}});
         models.communities[0].members.push({member: {id: self.mongoose.Types.ObjectId(), objectType: 'user'}});
         models.communities[0].members.push({member: {id: self.mongoose.Types.ObjectId(), objectType: 'user'}});
-        models.communities[0].save(function(err, community) {
+        models.communities[0].save(function() {
           self.helpers.api.loginAsUser(webserver.application, models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
             if (err) { return done(err); }
             var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/community/' + models.communities[0]._id + '/members'));
@@ -1918,7 +1918,7 @@ describe.skip('The collaborations API', function() {
         models.communities[0].members.push({member: {id: self.mongoose.Types.ObjectId(), objectType: 'user'}});
         models.communities[0].members.push({member: {id: self.mongoose.Types.ObjectId(), objectType: 'user'}});
         models.communities[0].members.push({member: {id: self.mongoose.Types.ObjectId(), objectType: 'user'}});
-        models.communities[0].save(function(err, community) {
+        models.communities[0].save(function() {
           self.helpers.api.loginAsUser(webserver.application, models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
             if (err) { return done(err); }
             var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/community/' + models.communities[0]._id + '/members'));
@@ -2015,7 +2015,7 @@ describe.skip('The collaborations API', function() {
             if (err) { return done(err); }
             var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/community/' + self.com._id + '/members/' + self.creator._id));
             req.expect(200);
-            req.end(function(err, res) {
+            req.end(function(err) {
               expect(err).to.not.exist;
               done();
             });
@@ -2028,7 +2028,7 @@ describe.skip('The collaborations API', function() {
             if (err) { return done(err); }
             var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/community/' + self.com._id + '/members/' + self.creator._id));
             req.expect(200);
-            req.end(function(err, res) {
+            req.end(function(err) {
               expect(err).to.not.exist;
               done();
             });
@@ -2050,7 +2050,7 @@ describe.skip('The collaborations API', function() {
             if (err) { return done(err); }
             var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/community/' + self.com._id + '/members/' + self.creator._id));
             req.expect(200);
-            req.end(function(err, res) {
+            req.end(function(err) {
               expect(err).to.not.exist;
               done();
             });
@@ -2063,7 +2063,7 @@ describe.skip('The collaborations API', function() {
             if (err) { return done(err); }
             var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/community/' + self.com._id + '/members/' + self.creator._id));
             req.expect(200);
-            req.end(function(err, res) {
+            req.end(function(err) {
               expect(err).to.not.exist;
               done();
             });
@@ -2084,7 +2084,7 @@ describe.skip('The collaborations API', function() {
             if (err) { return done(err); }
             var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/community/' + self.com._id + '/members/' + self.creator._id));
             req.expect(403);
-            req.end(function(err, res) {
+            req.end(function(err) {
               expect(err).to.not.exist;
               done();
             });
@@ -2097,7 +2097,7 @@ describe.skip('The collaborations API', function() {
             if (err) { return done(err); }
             var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/community/' + self.com._id + '/members/' + self.creator._id));
             req.expect(200);
-            req.end(function(err, res) {
+            req.end(function(err) {
               expect(err).to.not.exist;
               done();
             });
@@ -2118,7 +2118,7 @@ describe.skip('The collaborations API', function() {
             if (err) { return done(err); }
             var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/community/' + self.com._id + '/members/' + self.creator._id));
             req.expect(403);
-            req.end(function(err, res) {
+            req.end(function(err) {
               expect(err).to.not.exist;
               done();
             });
@@ -2131,7 +2131,7 @@ describe.skip('The collaborations API', function() {
             if (err) { return done(err); }
             var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/community/' + self.com._id + '/members/' + self.creator._id));
             req.expect(200);
-            req.end(function(err, res) {
+            req.end(function(err) {
               expect(err).to.not.exist;
               done();
             });
@@ -2152,7 +2152,7 @@ describe.skip('The collaborations API', function() {
           }
           var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/community/' + community._id + '/members/' + models.users[0]._id));
           req.expect(200);
-          req.end(function(err, res) {
+          req.end(function(err) {
             expect(err).to.not.exist;
             done();
           });

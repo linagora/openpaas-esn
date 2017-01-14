@@ -23,7 +23,7 @@ describe('The contacts dav-client Module', function() {
     });
 
     it('should set default header when undefined in options', function(done) {
-      mockery.registerMock('request', function(options, callback) {
+      mockery.registerMock('request', function(options) {
         expect(options.headers).to.deep.equal({});
         done();
       });
@@ -32,7 +32,7 @@ describe('The contacts dav-client Module', function() {
 
     it('should set query option', function(done) {
       var query = { x: '1234' };
-      mockery.registerMock('request', function(options, callback) {
+      mockery.registerMock('request', function(options) {
         expect(options.qs).to.deep.equal(query);
         done();
       });
@@ -52,7 +52,7 @@ describe('The contacts dav-client Module', function() {
       };
 
       var module = rewireModule();
-      module.__set__('rawClient', function(options, callback) {
+      module.__set__('rawClient', function(options) {
         expect(options).to.deep.equal({
           headers: {
             accept: 'application/vcard+json'

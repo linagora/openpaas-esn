@@ -114,7 +114,7 @@ describe('The esn.notification Angular modules', function() {
     });
 
     describe('the returned notify object of notifyService', function() {
-      var notifyObj, rawUpdate, rawClose, wrappedNotifyObj, dirtyValue, escapedHTML, rawFail;
+      var notifyObj, rawUpdate, rawClose, wrappedNotifyObj, dirtyValue, rawFail;
 
       beforeEach(function() {
         rawUpdate = sinon.spy();
@@ -139,7 +139,6 @@ describe('The esn.notification Angular modules', function() {
         wrappedNotifyObj = notifyService(null, null);
 
         dirtyValue = 'value<script></scrit>';
-        escapedHTML = '&lt;script&gt;&lt;/script&gt;';
         this.escapeHTMLMock.escapeHTML = sinon.spy();
       });
 

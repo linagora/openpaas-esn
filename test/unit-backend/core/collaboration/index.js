@@ -24,7 +24,7 @@ describe('The collaboration module', function() {
         }
       });
       var collaboration = this.helpers.requireBackend('core/collaboration');
-      collaboration.query('community', 'collaboration', {}, function(err) {});
+      collaboration.query('community', 'collaboration', {}, function() {});
     });
 
     it('should call mongoose#find even when query is undefined', function(done) {
@@ -41,7 +41,7 @@ describe('The collaboration module', function() {
         }
       });
       var collaboration = this.helpers.requireBackend('core/collaboration');
-      collaboration.query('community', theQuery, function(err) {});
+      collaboration.query('community', theQuery, function() {});
     });
   });
 
@@ -462,7 +462,7 @@ describe('The collaboration module', function() {
       var user = new ObjectId();
       var target = new ObjectId();
 
-      collaboration.join('community', comMock, user, target, 'user', function(err, update) {
+      collaboration.join('community', comMock, user, target, 'user', function(err) {
         expect(err).to.not.exist;
 
         expect(localstub.topics['collaboration:join'].data[0]).to.deep.equal({
@@ -520,7 +520,7 @@ describe('The collaboration module', function() {
         collaborationModule.cleanMembershipRequest = function(collaboration, userid, callback) {
           callback(new Error('test error'));
         };
-        function onResponse(err, resp) {
+        function onResponse(err) {
           expect(err).to.be.ok;
           expect(err.message).to.equal('test error');
           done();
@@ -550,7 +550,7 @@ describe('The collaboration module', function() {
           });
           done();
         };
-        function onResponse(err, resp) {
+        function onResponse() {
         }
         collaborationModule.cancelMembershipInvitation('community', this.collaboration, this.membership, this.manager, onResponse);
       });
@@ -602,7 +602,7 @@ describe('The collaboration module', function() {
         collaborationModule.cleanMembershipRequest = function(collaboration, userid, callback) {
           callback(new Error('test error'));
         };
-        function onResponse(err, resp) {
+        function onResponse(err) {
           expect(err).to.be.ok;
           expect(err.message).to.equal('test error');
           done();
@@ -632,7 +632,7 @@ describe('The collaboration module', function() {
           });
           done();
         };
-        function onResponse(err, resp) {
+        function onResponse() {
         }
         collaborationModule.refuseMembershipRequest('community', this.collaboration, this.membership, this.manager, onResponse);
       });
@@ -684,7 +684,7 @@ describe('The collaboration module', function() {
         collaborationModule.cleanMembershipRequest = function(collaboration, userid, callback) {
           callback(new Error('test error'));
         };
-        function onResponse(err, resp) {
+        function onResponse(err) {
           expect(err).to.be.ok;
           expect(err.message).to.equal('test error');
           done();
@@ -714,7 +714,7 @@ describe('The collaboration module', function() {
           });
           done();
         };
-        function onResponse(err, resp) {
+        function onResponse() {
         }
         collaborationModule.declineMembershipInvitation('community', this.collaboration, this.membership, this.manager, onResponse);
       });
@@ -766,7 +766,7 @@ describe('The collaboration module', function() {
         collaborationModule.cleanMembershipRequest = function(collaboration, userid, callback) {
           callback(new Error('test error'));
         };
-        function onResponse(err, resp) {
+        function onResponse(err) {
           expect(err).to.be.ok;
           expect(err.message).to.equal('test error');
           done();
@@ -796,7 +796,7 @@ describe('The collaboration module', function() {
           });
           done();
         };
-        function onResponse(err, resp) {
+        function onResponse() {
         }
         collaborationModule.cancelMembershipRequest('community', this.collaboration, this.membership, this.manager, onResponse);
       });
@@ -1003,7 +1003,7 @@ describe('The collaboration module', function() {
         }
       });
 
-      collaborationModule.getCollaborationsForUser('userId', {}, function(err, collaborations) {
+      collaborationModule.getCollaborationsForUser('userId', {}, function(err) {
         expect(err).to.deep.equal(errorInOther);
         done();
       });

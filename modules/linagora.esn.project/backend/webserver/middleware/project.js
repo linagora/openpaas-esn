@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function(lib, deps) {
+module.exports = function(lib) {
   return {
     load: function(req, res, next) {
       if (!req.params.id) {

@@ -76,9 +76,9 @@ describe('The daily digest mail builder', function() {
         }
       };
       deps.email = {
-        getMailer: function(user) {
+        getMailer: function() {
           return {
-            sendHTML: function(message, templateName, context, callback) {
+            sendHTML: function() {
               throw new Error(errorMessage);
             }
           };
@@ -101,7 +101,7 @@ describe('The daily digest mail builder', function() {
         }
       };
       deps.email = {
-        getMailer: function(user) {
+        getMailer: function() {
           return {
             sendHTML: function(message, templateName, content) {
               resultedJson = {
@@ -117,7 +117,7 @@ describe('The daily digest mail builder', function() {
       };
 
       module = require('../../../lib/mail')(dependencies);
-      return module.process(user, digest).then(function(message) {
+      return module.process(user, digest).then(function() {
         return expect(
           JSON.stringify(resultedJson)).to.deep.equal(
           JSON.stringify(require('../fixtures/expected-digest-job-result.json')));

@@ -30,7 +30,7 @@ module.exports = function(mixin, testEnv) {
       };
     });
 
-    async.parallel(userJobs, function(err) {
+    async.parallel(userJobs, function() {
       models.domain.remove(function() {
         callback();
       });
@@ -378,7 +378,7 @@ module.exports = function(mixin, testEnv) {
         }
         ]
       });
-      e.save(function(err, saved) {
+      e.save(function(err) {
         if (err) { return callback(err); }
         return callback(null, e);
       });
@@ -441,7 +441,7 @@ module.exports = function(mixin, testEnv) {
       }
 
       var e = new TimelineEntry(timelineEntry);
-      e.save(function(err, saved) {
+      e.save(function(err) {
         if (err) { return callback(err); }
         return callback(null, e);
       });

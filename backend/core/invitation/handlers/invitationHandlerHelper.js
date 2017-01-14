@@ -118,7 +118,7 @@ module.exports.initHelper = function(invitation, data) {
     },
 
     addUserToDomain: function(domain, user, callback) {
-      userModule.domain.joinDomain(user, domain, function(err, update) {
+      userModule.domain.joinDomain(user, domain, function(err) {
         if (err) {
           return callback(new Error('User cannot join domain' + err.message));
         }
@@ -137,7 +137,7 @@ module.exports.initHelper = function(invitation, data) {
           logger.warn('Can not finalized undefined invitation %s', invitation.uuid);
           return callback(new Error('Can not finalized undefined invitation ' + invitation.uuid));
         }
-        loaded.finalize(function(err, updated) {
+        loaded.finalize(function(err) {
           if (err) {
             logger.warn('Invitation has not been set as finalized %s', invitation.uuid);
           }

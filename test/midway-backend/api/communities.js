@@ -63,7 +63,7 @@ describe('The communities API', function() {
             }
             var req = loggedInAsUser(request(webserver.application).get('/api/communities'));
             req.expect(400);
-            req.end(function(err, res) {
+            req.end(function(err) {
               expect(err).to.not.exist;
               done();
             });
@@ -417,7 +417,7 @@ describe('The communities API', function() {
             var req = loggedInAsUser(request(webserver.application).post('/api/communities'));
             req.send(community);
             req.expect(403);
-            req.end(function(err, res) {
+            req.end(function(err) {
               expect(err).to.not.exist;
               done();
             });
@@ -559,7 +559,7 @@ describe('The communities API', function() {
             var req = loggedInAsUser(request(webserver.application).post('/api/communities?noTitleCheck=true'));
             req.send(community);
             req.expect(201);
-            req.end(function(err, res) {
+            req.end(function(err) {
               expect(err).to.not.exist;
 
               Community.find(function(err, result) {
@@ -596,7 +596,7 @@ describe('The communities API', function() {
         }
         var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + id));
         req.expect(404);
-        req.end(function(err, res) {
+        req.end(function(err) {
           expect(err).to.be.null;
           done();
         });
@@ -634,7 +634,7 @@ describe('The communities API', function() {
             }
             var req = loggedInAsUser(request(webserver.application).get('/api/communities/' + community._id));
             req.expect(200);
-            req.end(function(err, res) {
+            req.end(function(err) {
               expect(err).to.not.exist;
               done();
             });
@@ -859,7 +859,7 @@ describe('The communities API', function() {
         var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + self.community._id));
         req.send(self.body);
         req.expect(200);
-        req.end(function(err, res) {
+        req.end(function(err) {
           expect(err).to.not.exist;
           Community.find({_id: self.community._id}, function(err, document) {
             if (err) {
@@ -880,7 +880,7 @@ describe('The communities API', function() {
         if (err) { return done(err); }
         var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + self.community._id));
         req.expect(400);
-        req.end(function(err, res) {
+        req.end(function(err) {
           expect(err).to.not.exist;
           done();
         });
@@ -903,7 +903,7 @@ describe('The communities API', function() {
         var req = loggedInAsUser(request(webserver.application).put('/api/communities/' + self.community._id));
         req.send(self.body);
         req.expect(403);
-        req.end(function(err, res) {
+        req.end(function(err) {
           expect(err).to.not.exist;
           done();
         });

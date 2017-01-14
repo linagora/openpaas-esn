@@ -460,7 +460,7 @@ describe('the ifNotCollaborationManagerCheckUserIdParameterIsCurrentUser fn', fu
       isCollaborationManager: true
     };
     var res = this.helpers.express.jsonResponse(
-      function(code) {
+      function() {
         done(new Error('Should not called res.json()'));
       }
     );
@@ -558,7 +558,7 @@ describe('the checkUserIdParameterIsCurrentUser fn', function() {
       }
     };
     var res = this.helpers.express.jsonResponse(
-      function(code) {
+      function() {
         done(new Error());
       }
     );

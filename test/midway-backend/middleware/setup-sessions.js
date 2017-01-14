@@ -26,7 +26,7 @@ describe('The sessions middleware', function() {
       self.app = self.helpers.requireBackend('webserver/application');
       var User = self.helpers.requireBackend('core/db/mongo/models/user');
       var u = new User(user);
-      u.save(function(err, saved) {
+      u.save(function(err) {
         if (err) {
           return done(err);
         }

@@ -11,7 +11,7 @@ describe('directive : action-list', function() {
 
   beforeEach(function() {
     matchmedia = {
-      on: function(query, callback, scope) {
+      on: function(query, callback) {
         onResize = callback;
       },
       is: angular.noop
@@ -245,7 +245,7 @@ describe('directive : action-list', function() {
     matchmedia.is.onCall(1).returns(true);
     var onResize;
 
-    matchmedia.on = function(query, callback, scope) {
+    matchmedia.on = function(query, callback) {
       onResize = callback;
     };
 
@@ -298,15 +298,16 @@ describe('directive : action-list', function() {
   });
 
   it('should not destroy the dialog belong to other element on action-list.hide', function() {
-    var scope1, scope2;
+    var scope1;
 
     scope1 = $scope = $rootScope.$new();
     this.initDirective('<button action-list>1</button>');
 
-    scope2 = $scope = $rootScope.$new();
+    $scope = $rootScope.$new();
+
     var element2 = this.initDirective('<button action-list>2</button>');
 
-    element2.click(); // dialog is now belong to scope2
+    element2.click();
     scope1.$broadcast('action-list.hide');
 
     expect(this.opened.destroy).to.have.been.callCount(0);

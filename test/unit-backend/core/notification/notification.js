@@ -66,7 +66,7 @@ describe('The notification module', function() {
       });
 
       var module = this.helpers.requireBackend('core/notification/notification');
-      module.find({foo: 'bar'}, function(err, result) {
+      module.find({foo: 'bar'}, function(err) {
         expect(err).to.not.exist;
         done();
       });

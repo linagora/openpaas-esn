@@ -46,7 +46,7 @@ describe('The linagora.esn.user-status userStatusSyncService service', function(
         return cache;
       });
       userStatusService.cacheUserStatus = sinon.spy();
-      userStatusClientService.getStatusForUsers = sinon.spy(function(ids) {
+      userStatusClientService.getStatusForUsers = sinon.spy(function() {
         return $q.when({data: [{_id: '1', status: 'connected'}, {_id: '2', status: 'disconnected'}, {_id: '3', status: 'disconnected'}]});
       });
 

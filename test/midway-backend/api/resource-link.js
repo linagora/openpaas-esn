@@ -2,7 +2,6 @@
 
 var expect = require('chai').expect;
 var request = require('supertest');
-var async = require('async');
 
 describe('The resource-links API', function() {
 

@@ -241,7 +241,7 @@ function(activitystreamFilter, filteredcursor, restcursor, activitystreamOriginD
   }
 
   return activitystreamAggregator;
-}).factory('activitystreamsAggregator', function($q, $log) {
+}).factory('activitystreamsAggregator', function($q) {
 
   function activitystreamsAggregator(aggs, rpp) {
     var aggregators = aggs.map(function(agg) {
@@ -363,7 +363,7 @@ function(activitystreamFilter, filteredcursor, restcursor, activitystreamOriginD
     }
   };
 })
-.factory('activitystreamOriginDecorator', function(activitystreamMessageDecorator, activitystreamHelper) {
+.factory('activitystreamOriginDecorator', function(activitystreamMessageDecorator) {
   return function activitystreamOriginDecorator(streamOrigin, streams, callback) {
 
     function getStreamOrigins(message) {

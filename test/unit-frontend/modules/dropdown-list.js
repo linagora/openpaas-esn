@@ -6,7 +6,7 @@
 var expect = chai.expect;
 
 describe('The dropdown-list directive', function() {
-  var $scope, $compile, $rootScope, $dropdown, element;
+  var $scope, $compile, $dropdown, element;
 
   beforeEach(function() {
     var self = this;
@@ -35,7 +35,6 @@ describe('The dropdown-list directive', function() {
   beforeEach(
     angular.mock.inject(function(_$compile_, _$rootScope_) {
       $compile = _$compile_;
-      $rootScope = _$rootScope_;
       $scope = _$rootScope_.$new();
 
       this.initDirective = function(html) {

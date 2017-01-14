@@ -127,7 +127,7 @@ describe('The amqp client', function() {
 
     it('should make only one consumer getting a published message when multiple have been declared', function(done) {
       let considerTestOkTimeout;
-      const subscriber = msg => {
+      const subscriber = () => {
         if (considerTestOkTimeout) {
           clearTimeout(considerTestOkTimeout);
 

@@ -52,7 +52,7 @@ exports.http = function() {
     Server: http.Server,
     ClientResponse: http.ClientResponse,
     IncomingMessage: http.IncomingMessage,
-    createServer: function(app) {
+    createServer: function() {
       return mockHttp.serverInstance;
     }
   };
@@ -69,7 +69,7 @@ exports.https = function() {
 
     Agent: https.Agent,
     Server: https.Server,
-    createServer: function(options, app) {
+    createServer: function() {
       return mockHttps.serverInstance;
     }
   };

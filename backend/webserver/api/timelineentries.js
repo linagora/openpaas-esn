@@ -1,7 +1,6 @@
 'use strict';
 
 var authorize = require('../middleware/authorization');
-var requestMW = require('../middleware/request');
 var timelineentries = require('../controllers/timelineentries');
 
 module.exports = function(router) {

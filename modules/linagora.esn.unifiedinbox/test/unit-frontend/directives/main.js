@@ -9,7 +9,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
   var $compile, $rootScope, $scope, $timeout, element, jmapClient, jmap,
       iFrameResize = angular.noop, elementScrollService, $stateParams, $dropdown,
-      isMobile, searchService, autosize, windowMock, fakeNotification, $state,
+      isMobile, searchService, autosize, windowMock, fakeNotification,
       sendEmailFakePromise, cancellationLinkAction, inboxConfigMock, inboxJmapItemService, _, INBOX_EVENTS,
       notificationFactory, esnPreviousState, IFRAME_MESSAGE_PREFIXES;
 
@@ -76,14 +76,13 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
     });
   }));
 
-  beforeEach(inject(function(_$compile_, _$rootScope_, _$timeout_, _$stateParams_, session, _inboxJmapItemService_, _$state_,
+  beforeEach(inject(function(_$compile_, _$rootScope_, _$timeout_, _$stateParams_, session, _inboxJmapItemService_,
                              _jmap_, ___, _INBOX_EVENTS_, _notificationFactory_, _esnPreviousState_, _IFRAME_MESSAGE_PREFIXES_) {
     $compile = _$compile_;
     $rootScope = _$rootScope_;
     $timeout = _$timeout_;
     $stateParams = _$stateParams_;
     inboxJmapItemService = _inboxJmapItemService_;
-    $state = _$state_;
     jmap = _jmap_;
     _ = ___;
     esnPreviousState = _esnPreviousState_;
@@ -2035,7 +2034,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
   describe('The inboxEmailerDisplay directive', function() {
 
-    var email, session, _;
+    var email, _;
 
     beforeEach(function() {
       email = {
@@ -2046,8 +2045,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       };
     });
 
-    beforeEach(inject(function(_session_, ___) {
-      session = _session_;
+    beforeEach(inject(function(___) {
       _ = ___;
     }));
 

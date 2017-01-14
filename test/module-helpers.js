@@ -70,7 +70,7 @@ module.exports = function(mixin, testEnv) {
 
   modules.start = function(moduleName, done) {
     var moduleManager = testEnv.moduleManager || require('../backend/module-manager');
-    moduleManager.manager.fire('start', moduleName).then(function(data) {
+    moduleManager.manager.fire('start', moduleName).then(function() {
       done();
     }, function(err) {
       done(err);

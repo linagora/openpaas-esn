@@ -11,7 +11,7 @@ describe('The linagora.esn.unifiedinbox listItemsController', function() {
   var scope, $controller, jmap, inboxHostedMailMessagesProvider, inboxHostedMailThreadsProvider, inboxSelectionService,
       ELEMENTS_PER_REQUEST, JMAP_GET_MESSAGES_LIST;
   // Mocked
-  var $stateParams, jmapClient, mailboxIdsFilter, resolvedProvider, ELEMENTS_PER_PAGE;
+  var $stateParams, jmapClient, resolvedProvider;
 
   beforeEach(module('linagora.esn.unifiedinbox', function($provide) {
     $stateParams = {

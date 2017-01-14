@@ -27,7 +27,7 @@ module.exports = function(grunt) {
   apis: [swaggerDefinitionFiles, swaggerParameterFiles, swaggerResponseFiles, swaggerRoutesFiles]
 };
 
-  grunt.registerTask('swagger-generate', function(args) {
+  grunt.registerTask('swagger-generate', function() {
 
     var swaggerSpec = swaggerJSDoc(options);
 

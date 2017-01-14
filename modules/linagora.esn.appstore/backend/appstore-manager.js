@@ -22,7 +22,7 @@ function AwesomeAppManager(dependencies, moduleManager) {
   this.moduleManager = moduleManager;
 }
 
-AwesomeAppManager.prototype.getDeploymentDirForApplication = function(application, version) {
+AwesomeAppManager.prototype.getDeploymentDirForApplication = function() {
   // For now for the loader, into apps should be modules of which the directory is named the same than their AwesomeModule
   // they are installing. We remove then application.title and version from the path.
   return path.join(DEPLOYMENT_DIR);

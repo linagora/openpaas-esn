@@ -15,7 +15,8 @@ describe('The profile-link middleware', function() {
           done(new Error());
         }
       });
-      var middleware = this.helpers.requireBackend('webserver/middleware/profile-link').trackProfileView({}, {}, done);
+
+      this.helpers.requireBackend('webserver/middleware/profile-link').trackProfileView({}, {}, done);
     });
 
     it('should not send an error if request does not content a profile uuid', function(done) {

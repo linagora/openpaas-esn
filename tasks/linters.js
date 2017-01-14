@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = function(grunt) {
-  grunt.registerTask('prepare-quick-lint', function(arg) {
+  grunt.registerTask('prepare-quick-lint', function() {
     var done = this.async();
     var spawn = require('child_process').spawn;
 

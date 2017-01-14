@@ -84,13 +84,13 @@ module.exports.sendPasswordReset = function(user, callback) {
   }
 
   function createNewPasswordReset(url, callback) {
-    new PasswordReset({ email: to, url: url }).save(function(err, saved) {
+    new PasswordReset({ email: to, url: url }).save(function(err) {
       callback(err, { email: to, url: url });
     });
   }
 
   function updatePasswordResetUrl(url, callback) {
-    PasswordReset.findOneAndUpdate({ email: to }, { $set: { url: url } }, function(err, saved) {
+    PasswordReset.findOneAndUpdate({ email: to }, { $set: { url: url } }, function(err) {
       callback(err, { email: to, url: url });
     });
   }

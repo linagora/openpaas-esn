@@ -7,7 +7,7 @@ var expect = chai.expect;
 
 describe('The contact import backend module', function() {
 
-  var deps, user, account;
+  var deps;
 
   var dependencies = function(name) {
     return deps[name];
@@ -18,10 +18,6 @@ describe('The contact import backend module', function() {
   };
 
   var jobQueueMock, pubsubMock;
-
-  var type = 'twitter';
-  var id = 123;
-  var domainId = 456;
 
   beforeEach(function() {
     pubsubMock = {
@@ -54,28 +50,6 @@ describe('The contact import backend module', function() {
         addApp: function() {}
       },
       pubsub: pubsubMock
-    };
-
-    account = {
-      data: {
-        provider: type,
-        id: id
-      }
-    };
-    user = {
-      _id: '123456789',
-      domains: [
-        {domain_id: domainId}
-      ],
-      accounts: [
-        account,
-        {
-          data: {
-            provider: 'test',
-            id: id
-          }
-        }
-      ]
     };
   });
 

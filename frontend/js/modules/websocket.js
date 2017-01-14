@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socketio'])
-  .factory('IoAction', function($timeout, $log) {
+  .factory('IoAction', function($timeout) {
     function getNgCallback(callback) {
       return function() {
         var args = arguments;
@@ -373,7 +373,7 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
       connect: _connect
     };
   })
-  .factory('socket', function($log, ioSocketProxy, ioConnectionManager) {
+  .factory('socket', function($log, ioSocketProxy) {
     return function(namespace) {
       var io = ioSocketProxy();
       if (namespace) {

@@ -34,7 +34,7 @@ describe('The companies routes', function() {
     });
 
     it('should return a JSON with 404 result when company does not exist', function(done) {
-      request(webserver.application).head('/api/companies').query({name: 'Corporate'}).expect(404).end(function(err, res) {
+      request(webserver.application).head('/api/companies').query({name: 'Corporate'}).expect(404).end(function(err) {
         expect(err).to.be.null;
         done();
       });
@@ -50,7 +50,7 @@ describe('The companies routes', function() {
 
       domain.save(function(err, domain) {
         if (err) { return done(err); }
-        request(webserver.application).head('/api/companies').query({name: 'Corporate'}).expect(200).end(function(err, res) {
+        request(webserver.application).head('/api/companies').query({name: 'Corporate'}).expect(200).end(function(err) {
           expect(err).to.be.null;
           domain.remove(function() { done(); });
         });
@@ -73,7 +73,7 @@ describe('The companies routes', function() {
     });
 
     it('should return a JSON with 404 result when company does not exist', function(done) {
-      request(webserver.application).get('/api/companies').query({name: 'Corporate'}).expect(404).end(function(err, res) {
+      request(webserver.application).get('/api/companies').query({name: 'Corporate'}).expect(404).end(function(err) {
         expect(err).to.be.null;
         done();
       });
@@ -98,7 +98,7 @@ describe('The companies routes', function() {
           expect(res.body).to.have.length(1);
           expect(res.body[0]).to.deep.equal({name: 'Corporate'});
         })
-        .end(function(err, res) {
+        .end(function(err) {
           expect(err).to.be.null;
           domain.remove(function() { done(); });
         });

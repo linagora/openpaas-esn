@@ -13,7 +13,7 @@
     oembedRegistry.addProvider(provider);
   });
 
-  image.directive('imageOembed', function(oembedResolver, oembedService, $compile, $timeout, $http) {
+  image.directive('imageOembed', function(oembedResolver, oembedService, $compile) {
     return {
       restrict: 'E',
       replace: true,
@@ -42,9 +42,7 @@
 
   function oembedImage() {
 
-    function oembedImageFilter(value, opts) {
-      opts = opts || {};
-
+    function oembedImageFilter(value) {
       var prepareText = value;
       var text = provider.regexps[0].exec(value);
 

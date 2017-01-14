@@ -14,7 +14,7 @@ var initialized = false;
  * @param {function} callback       The callback function
  */
 function processActivity(data, callback) {
-  callback = callback || function(err, saved) {
+  callback = callback || function(err) {
     if (err) {
       logger.warn('Error processing message:activity: ', +err.message);
     }

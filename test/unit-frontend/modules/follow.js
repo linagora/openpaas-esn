@@ -99,7 +99,7 @@ describe('The esn.follow Angular module', function() {
   });
 
   describe('The followButton directive', function() {
-    var $compile, $rootScope, $scope, followAPIMock, followAPI;
+    var $compile, $rootScope, $scope, followAPIMock;
 
     function compileDirective(html) {
       var element = $compile(html)($scope);
@@ -113,11 +113,10 @@ describe('The esn.follow Angular module', function() {
         $provide.value('followAPI', followAPIMock);
       });
 
-      inject(function(_$compile_, _$rootScope_, _followAPI_) {
+      inject(function(_$compile_, _$rootScope_) {
         $compile = _$compile_;
         $rootScope = _$rootScope_;
         $scope = $rootScope.$new();
-        followAPI = _followAPI_;
       });
     });
 

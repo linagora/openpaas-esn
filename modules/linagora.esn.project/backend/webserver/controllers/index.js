@@ -51,7 +51,7 @@ function transform(lib, project, user, callback) {
 function projectControllers(lib, dependencies) {
   var controllers = {};
 
-  controllers.getAll = function(req, res, next) {
+  controllers.getAll = function(req, res) {
     var permission = dependencies('collaboration').permission;
     var query = {};
     if (req.domain) {
@@ -86,7 +86,7 @@ function projectControllers(lib, dependencies) {
     });
   };
 
-  controllers.get = function(req, res, next) {
+  controllers.get = function(req, res) {
     var permission = dependencies('collaboration').permission;
     var query = { _id: req.params.id };
 
@@ -108,7 +108,7 @@ function projectControllers(lib, dependencies) {
     });
   };
 
-  controllers.create = function(req, res, next) {
+  controllers.create = function(req, res) {
     var project = {
       title: req.body.title,
       creator: req.user._id,
@@ -199,7 +199,7 @@ function projectControllers(lib, dependencies) {
     var avatarId = new ObjectId();
 
     function updateProjectAvatar() {
-      lib.updateAvatar(req.project, avatarId, function(err, update) {
+      lib.updateAvatar(req.project, avatarId, function(err) {
         if (err) {
           return res.status(500).json({error: 500, message: 'Datastore failure', details: err.message});
         }

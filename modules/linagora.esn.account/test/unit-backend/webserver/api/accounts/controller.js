@@ -141,15 +141,9 @@ describe('The Accounts Controller', function() {
   });
 
   describe('The deleteAccount function', function() {
-    var accounts, user, req;
+    var req;
 
     beforeEach(function() {
-      accounts = [
-        { data: { id: 1 } }
-      ];
-      user = {
-        accounts: accounts
-      };
       req = {
         user: {
           accounts: [{ data: { id: 1 } }]

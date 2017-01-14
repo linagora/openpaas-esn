@@ -4,7 +4,6 @@ var expect = require('chai').expect;
 var request = require('supertest');
 
 describe('The davserver API', function() {
-  var domain;
   var user;
   var password = 'secret';
   var moduleName = 'linagora.esn.davserver';
@@ -20,7 +19,6 @@ describe('The davserver API', function() {
         if (err) {
           return done(err);
         }
-        domain = models.domain;
         user = models.users[0];
         self.models = models;
         done();

@@ -1,13 +1,9 @@
 'use strict';
 
 const async = require('async');
-
-const i18n = require('../../i18n');
 const logger = require('../../core/logger');
 const userLogin = require('../../core/user/login');
 const userPassword = require('../../core/user/password');
-const emailModule = require('../../core/email');
-const configHelper = require('../../helpers').config;
 const PasswordReset = require('mongoose').model('PasswordReset');
 
 function sendPasswordReset(req, res) {

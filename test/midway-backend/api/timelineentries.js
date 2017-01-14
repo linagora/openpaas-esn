@@ -7,7 +7,7 @@ var q = require('q');
 describe('The timelineentries API', function() {
 
   var ENDPOINT = '/api/timelineentries';
-  var user, user2, userId, message, message2, community, email, webserver, helpers;
+  var user, user2, message, message2, community, email, webserver, helpers;
 
   beforeEach(function(done) {
     var self = this;
@@ -39,7 +39,6 @@ describe('The timelineentries API', function() {
           }
           user = models.users[0];
           user2 = models.users[1];
-          userId = user._id;
           community = models.communities[0];
           email = user.emails[0];
 

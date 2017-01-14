@@ -5,7 +5,7 @@ var expect = require('chai').expect,
 
 describe('The jwt API', function() {
 
-  var userId, webserver, fixtures, helpers;
+  var webserver, fixtures, helpers;
 
   beforeEach(function(done) {
     var self = this;
@@ -17,8 +17,7 @@ describe('The jwt API', function() {
         webserver = helpers.requireBackend('webserver').webserver;
         fixtures = helpers.requireFixture('models/users.js')(helpers.requireBackend('core/db/mongo/models/user'));
 
-        fixtures.newDummyUser().save(helpers.callbacks.noErrorAnd(function(saved) {
-          userId = saved.id;
+        fixtures.newDummyUser().save(helpers.callbacks.noErrorAnd(function() {
           helpers.jwt.saveTestConfiguration(done);
         }));
       });

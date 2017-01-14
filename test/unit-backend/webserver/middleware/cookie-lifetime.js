@@ -13,7 +13,7 @@ describe('The cookie-lifetime middleware', function() {
 
     it('should set the cookie maxAge even config.get return an error', function(done) {
       var esnConfigMock = {
-        'esn-config': function(session) {
+        'esn-config': function() {
           return {
             get: function(callback) {
               callback(new Error('ERROR'), { remember: 10 });
@@ -46,7 +46,7 @@ describe('The cookie-lifetime middleware', function() {
 
     it('should set the cookie maxAge even if not configured (session is not set in config)', function(done) {
       var esnConfigMock = {
-        'esn-config': function(session) {
+        'esn-config': function() {
           return {
             get: function(callback) {
               callback(null, null);
@@ -79,7 +79,7 @@ describe('The cookie-lifetime middleware', function() {
 
     it('should set the cookie maxAge to configured value', function(done) {
       var esnConfigMock = {
-        'esn-config': function(session) {
+        'esn-config': function() {
           return {
             get: function(callback) {
               callback(null, { remember: 10 });

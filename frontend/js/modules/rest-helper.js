@@ -15,7 +15,7 @@ angular.module('esn.rest.helper', [])
     var resultsBuffer = [];
 
     options = options || {};
-    options.filter = options.filter || function(item) { return true; };
+    options.filter = options.filter || function() { return true; };
 
     function nextItems(callback) {
       if (self.error || self.running || self.endOfStream) {

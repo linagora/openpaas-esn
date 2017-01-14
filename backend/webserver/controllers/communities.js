@@ -235,7 +235,7 @@ module.exports.update = function(req, res) {
   }
 
   function updateCommunity() {
-    communityModule.update(req.community, req.body, function(err, update) {
+    communityModule.update(req.community, req.body, function(err) {
       if (err) {
         return res.status(500).json({error: 500, message: 'Datastore failure', details: err.message});
       }
@@ -272,7 +272,7 @@ module.exports.uploadAvatar = function(req, res) {
   var avatarId = new ObjectId();
 
   function updateCommunityAvatar() {
-    communityModule.updateAvatar(req.community, avatarId, function(err, update) {
+    communityModule.updateAvatar(req.community, avatarId, function(err) {
       if (err) {
         return res.status(500).json({error: 500, message: 'Datastore failure', details: err.message});
       }
@@ -558,7 +558,7 @@ module.exports.removeMembershipRequest = function(req, res) {
   }
   var membership = memberships[0];
 
-  function onResponse(err, resp) {
+  function onResponse(err) {
     if (err) {
       return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.message}});
     }

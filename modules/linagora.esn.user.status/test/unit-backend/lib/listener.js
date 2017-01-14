@@ -78,7 +78,7 @@ describe('The user-status listener lib', function() {
 
   describe('The userConnectionTopic handler', function() {
     it('should update the last active timestamp on event', function() {
-      const updateLastActiveForUser = sinon.spy(function(userId) {
+      const updateLastActiveForUser = sinon.spy(function() {
         return Q.when();
       });
       const module = require(this.moduleHelpers.backendPath + '/listener')(this.moduleHelpers.dependencies, {userStatus: {updateLastActiveForUser: updateLastActiveForUser}});

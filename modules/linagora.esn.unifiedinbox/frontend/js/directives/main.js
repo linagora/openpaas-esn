@@ -176,7 +176,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('inboxEmailerDisplay', function(emailSendingService, _, session) {
+  .directive('inboxEmailerDisplay', function(emailSendingService, _) {
     function link(scope) {
       var groupLabels = { to: 'To', cc: 'CC', bcc: 'BCC'},
           groups = _.keys(groupLabels);

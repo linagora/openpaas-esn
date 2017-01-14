@@ -380,17 +380,15 @@ describe('The Unified Inbox Angular module models', function() {
 
   describe('The Mailbox factory', function() {
 
-    var Mailbox, inboxMailboxesCache, INBOX_DISPLAY_NAME_SIZE, _;
+    var Mailbox, inboxMailboxesCache;
 
     beforeEach(module(function($provide) {
-      $provide.constant('INBOX_DISPLAY_NAME_SIZE', INBOX_DISPLAY_NAME_SIZE = 10);
+      $provide.constant('INBOX_DISPLAY_NAME_SIZE', 10);
     }));
 
-    beforeEach(inject(function(_Mailbox_, _inboxMailboxesCache_, _INBOX_DISPLAY_NAME_SIZE_, ___) {
+    beforeEach(inject(function(_Mailbox_, _inboxMailboxesCache_) {
       Mailbox = _Mailbox_;
       inboxMailboxesCache = _inboxMailboxesCache_;
-      INBOX_DISPLAY_NAME_SIZE = _INBOX_DISPLAY_NAME_SIZE_;
-      _ = ___;
     }));
 
     describe('mailbox.displayName property', function() {

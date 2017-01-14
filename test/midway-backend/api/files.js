@@ -5,7 +5,7 @@ var request = require('supertest');
 
 describe('The files API', function() {
   var webserver, filestore;
-  var domain, user, user2;
+  var user, user2;
   var password = 'secret';
 
   beforeEach(function() {
@@ -26,7 +26,6 @@ describe('The files API', function() {
   beforeEach(function(done) {
     this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
       if (err) { return done(err); }
-      domain = models.domain;
       user = models.users[0];
       user2 = models.users[1];
       done();
@@ -39,7 +38,7 @@ describe('The files API', function() {
 
   describe('POST /api/files', function() {
     it('should send back 401 when not logged in', function(done) {
-      request(webserver.application).post('/api/files').expect(401).end(function(err, res) {
+      request(webserver.application).post('/api/files').expect(401).end(function(err) {
         expect(err).to.be.null;
         done();
       });
@@ -217,7 +216,7 @@ describe('The files API', function() {
 
   describe('GET /api/files/:id', function() {
     it('should send back 401 when not logged in', function(done) {
-      request(webserver.application).post('/api/files').expect(401).end(function(err, res) {
+      request(webserver.application).post('/api/files').expect(401).end(function(err) {
         expect(err).to.be.null;
         done();
       });
@@ -297,7 +296,7 @@ describe('The files API', function() {
 
   describe('DELETE /api/files/:id', function() {
     it('should 401 when not logged', function(done) {
-      request(webserver.application).delete('/api/files/123').expect(401).end(function(err, res) {
+      request(webserver.application).delete('/api/files/123').expect(401).end(function(err) {
         expect(err).to.be.null;
         done();
       });
@@ -319,7 +318,7 @@ describe('The files API', function() {
       }
 
       function deleteFile(req, callback) {
-        req.expect(204).end(function(err, res) {
+        req.expect(204).end(function(err) {
           expect(err).to.not.exist;
           return callback();
         });
@@ -339,7 +338,7 @@ describe('The files API', function() {
     it('should 404 when not exists', function(done) {
       var ObjectId = require('mongoose').Types.ObjectId;
       function deleteFile(req, callback) {
-        req.expect(404).end(function(err, res) {
+        req.expect(404).end(function(err) {
           expect(err).to.not.exist;
           return callback();
         });
@@ -369,7 +368,7 @@ describe('The files API', function() {
       }
 
       function deleteFile(req, callback) {
-        req.expect(403).end(function(err, res) {
+        req.expect(403).end(function(err) {
           expect(err).to.not.exist;
           return callback();
         });

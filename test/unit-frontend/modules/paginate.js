@@ -20,7 +20,7 @@ describe('The Paginate Angular module', function() {
 
     it('should call the loader on next', function(done) {
       var loader = {
-        getItems: function(offset, size, callback) {
+        getItems: function() {
           return done();
         }
       };
@@ -30,7 +30,7 @@ describe('The Paginate Angular module', function() {
 
     it('should call the loader on previous', function(done) {
       var loader = {
-        getItems: function(offset, size, callback) {
+        getItems: function() {
           return done();
         }
       };
@@ -40,7 +40,7 @@ describe('The Paginate Angular module', function() {
 
     it('should call the loader on current', function(done) {
       var loader = {
-        getItems: function(offset, size, callback) {
+        getItems: function() {
           return done();
         }
       };
@@ -50,7 +50,7 @@ describe('The Paginate Angular module', function() {
 
     it('should call the loader with valid offset and limit', function(done) {
       var loader = {
-        getItems: function(items, offset, limit, callback) {
+        getItems: function(items, offset, limit) {
           expect(items).to.deep.equal(['1']);
           expect(limit).to.equal(5);
           expect(offset).to.equal(0);

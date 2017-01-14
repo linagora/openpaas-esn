@@ -9,7 +9,7 @@ angular.module('esn.appstore')
       $scope.loading = true;
       appstoreAPI.list().then(function(response) {
         $scope.applications = response.data;
-      }, function(err) {
+      }, function() {
         $scope.error = true;
       }).finally(function() {
         $scope.loading = false;
@@ -144,7 +144,7 @@ angular.module('esn.appstore')
             var mime = 'image/png';
             selectionService.getBlob(mime, function(blob) {
               appstoreAPI.uploadAvatar(id, blob, mime)
-                .success(function(data) {
+                .success(function() {
                   $log.debug('avatar uploaded');
                 }).error(function(error) {
                   $log.debug('avatar upload error', error);

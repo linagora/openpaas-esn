@@ -123,7 +123,7 @@ describe('the invitation controller', function() {
       beforeEach(function() {
         var self = this;
         this.invitationId = 'BADA55';
-        this.mongoose.model = function(name) {
+        this.mongoose.model = function() {
           return {
             loadFromUUID: function(id, callback) {
               callback(null, {id: self.invitationId});

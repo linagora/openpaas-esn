@@ -47,7 +47,7 @@ describe('The ldap core module', function() {
     });
 
     it('should send back error if Ldap configuration is empty', function(done) {
-      ldap.findLDAPForUser('foo@bar.com', function(err, ldaps) {
+      ldap.findLDAPForUser('foo@bar.com', function(err) {
         expect(err).to.exist;
         expect(esnConfigMock.getFromAllDomains).to.have.been.calledOnce;
         done();
@@ -57,7 +57,7 @@ describe('The ldap core module', function() {
     it('should send back error if LDAP configuration is null', function(done) {
       ldapConfigsMock = null;
 
-      ldap.findLDAPForUser('foo@bar.com', function(err, ldaps) {
+      ldap.findLDAPForUser('foo@bar.com', function(err) {
         expect(err).to.exist;
         expect(esnConfigMock.getFromAllDomains).to.have.been.calledOnce;
         done();

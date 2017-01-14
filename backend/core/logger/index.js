@@ -2,7 +2,8 @@
 
 var config = require('../config')('default');
 var Winston = require('winston');
-var winstonLogrotatte = require('./winston-logrotate');
+
+require('./winston-logrotate');
 
 var logger = new (Winston.Logger)({
   exitOnError: false

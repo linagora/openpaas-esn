@@ -154,7 +154,7 @@
       taskPromise.then(checkNotResolved(function() {
         displaySuccess(options.successText);
         deferred.resolve(cancelInTry ? {cancelled: true, cancelFailed: true} : {cancelled: false});
-      }), checkNotResolved(function(error) {
+      }), checkNotResolved(function() {
         displayError(options.gracePeriodFail);
         deferred.reject(cancelInTry ? {cancelled: true, cancelFailed: false} : {cancelled: false});
       }));

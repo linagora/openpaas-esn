@@ -60,7 +60,7 @@ describe('linagora.esn.project module', function() {
       app = this.helpers.modules.getWebServer(require('../../backend/webserver/application')(this.helpers.modules.current.lib, this.helpers.modules.current.deps));
     });
     it('should send back 401 when not logged in', function(done) {
-      request(app).get('/api/projects').expect(401).end(function(err, res) {
+      request(app).get('/api/projects').expect(401).end(function(err) {
         expect(err).to.be.null;
         done();
       });
@@ -74,7 +74,7 @@ describe('linagora.esn.project module', function() {
         }
         var req = loggedInAsUser(request(app).get('/api/projects'));
         req.expect(400);
-        req.end(function(err, res) {
+        req.end(function(err) {
           expect(err).to.not.exist;
           done();
         });
@@ -121,7 +121,7 @@ describe('linagora.esn.project module', function() {
   describe('GET /api/projects/:id', function() {
     it('should send back 401 when not logged in', function(done) {
       var app = require('../../backend/webserver/application')(this.helpers.modules.current.lib, this.helpers.modules.current.deps);
-      request(app).get('/api/projects').expect(401).end(function(err, res) {
+      request(app).get('/api/projects').expect(401).end(function(err) {
         expect(err).to.be.null;
         done();
       });
@@ -187,7 +187,7 @@ describe('linagora.esn.project module', function() {
   describe('POST /api/projects', function() {
     it('should send back 401 when not logged in', function(done) {
       var app = require('../../backend/webserver/application')(this.helpers.modules.current.lib, this.helpers.modules.current.deps);
-      request(app).get('/api/projects').expect(401).end(function(err, res) {
+      request(app).get('/api/projects').expect(401).end(function(err) {
         expect(err).to.be.null;
         done();
       });
@@ -355,7 +355,7 @@ describe('linagora.esn.project module', function() {
 
   describe('POST /api/projects/:id/members', function() {
     beforeEach(function() {
-      var app = require('../../backend/webserver/application')(this.helpers.modules.current.lib, this.helpers.modules.current.deps);
+      app = require('../../backend/webserver/application')(this.helpers.modules.current.lib, this.helpers.modules.current.deps);
       app = this.helpers.modules.getWebServer(app);
     });
 
@@ -377,7 +377,6 @@ describe('linagora.esn.project module', function() {
     });
 
     it('should HTTP 404 when project not found', function(done) {
-      var self = this;
       this.helpers.api.loginAsUser(app, this.models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
         if (err) {
           return done(err);
@@ -459,7 +458,7 @@ describe('linagora.esn.project module', function() {
 
   describe('GET /api/projects/:id/invitable', function() {
     beforeEach(function() {
-      var app = require('../../backend/webserver/application')(this.helpers.modules.current.lib, this.helpers.modules.current.deps);
+      app = require('../../backend/webserver/application')(this.helpers.modules.current.lib, this.helpers.modules.current.deps);
       app = this.helpers.modules.getWebServer(app);
     });
 
@@ -468,7 +467,6 @@ describe('linagora.esn.project module', function() {
     });
 
     it('should 404 when project not found', function(done) {
-      var self = this;
       this.helpers.api.loginAsUser(app, this.models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
         if (err) {
           return done(err);
@@ -628,7 +626,7 @@ describe('linagora.esn.project module', function() {
 
   describe('GET /api/projects/:id/avatar', function() {
     beforeEach(function() {
-      var app = require('../../backend/webserver/application')(this.helpers.modules.current.lib, this.helpers.modules.current.deps);
+      app = require('../../backend/webserver/application')(this.helpers.modules.current.lib, this.helpers.modules.current.deps);
       app = this.helpers.modules.getWebServer(app);
     });
 
@@ -637,7 +635,6 @@ describe('linagora.esn.project module', function() {
     });
 
     it('should 404 when project does not exist', function(done) {
-      var self = this;
       this.helpers.api.loginAsUser(app, this.models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
         if (err) {
           return done(err);
@@ -653,7 +650,7 @@ describe('linagora.esn.project module', function() {
 
   describe('POST /api/projects/:id/avatar', function() {
     beforeEach(function() {
-      var app = require('../../backend/webserver/application')(this.helpers.modules.current.lib, this.helpers.modules.current.deps);
+      app = require('../../backend/webserver/application')(this.helpers.modules.current.lib, this.helpers.modules.current.deps);
       app = this.helpers.modules.getWebServer(app);
     });
 
@@ -662,7 +659,6 @@ describe('linagora.esn.project module', function() {
     });
 
     it('should 404 when project does not exists', function(done) {
-      var self = this;
       this.helpers.api.loginAsUser(app, this.models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
         if (err) {
           return done(err);

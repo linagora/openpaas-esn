@@ -75,7 +75,7 @@ describe('The verify-recaptcha middleware', function() {
 
   it('should call next() if verify is a success', function(done) {
     var RecaptchaMock = {
-      Recaptcha: function Recaptcha(pubkey, privkey, data) {}
+      Recaptcha: function Recaptcha() {}
     };
     RecaptchaMock.Recaptcha.prototype.verify = function(callback) {
       return callback(true, null);
@@ -105,7 +105,7 @@ describe('The verify-recaptcha middleware', function() {
       }
     );
     var RecaptchaMock = {
-      Recaptcha: function Recaptcha(pubkey, privkey, data) {}
+      Recaptcha: function Recaptcha() {}
     };
     RecaptchaMock.Recaptcha.prototype.verify = function(callback) {
       return callback(false, null);

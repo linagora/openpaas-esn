@@ -59,9 +59,9 @@ describe('The Aggregator module', function() {
           }
         });
 
-        wrapper.loadNextItems().then(function(result) {
+        wrapper.loadNextItems().then(function() {
           done(new Error('should not be here'));
-        }, function(err) {
+        }, function() {
           expect(wrapper.lastPage).to.be.true;
           done();
         });

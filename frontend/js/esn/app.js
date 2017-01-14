@@ -134,7 +134,7 @@ angular.module('esnApp', [
             $location.path('/');
           });
 
-        }, function(err) {
+        }, function() {
           $location.path('/');
         });
       }
@@ -238,7 +238,7 @@ angular.module('esnApp', [
 
 })
 // don't remove $state from here or ui-router won't route...
-.run(function(session, ioConnectionManager, editableOptions, $state) {
+.run(function(session, ioConnectionManager, editableOptions, $state) { // eslint-disable-line
   editableOptions.theme = 'bs3';
   session.ready.then(function() {
     ioConnectionManager.connect();

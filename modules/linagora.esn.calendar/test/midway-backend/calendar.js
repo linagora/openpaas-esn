@@ -6,7 +6,7 @@ var async = require('async');
 var fs = require('fs');
 
 describe('The calendars API', function() {
-  var user, user2, user3, domain, community;
+  var user, user3, community;
   var password = 'secret';
   var moduleName = 'linagora.esn.calendar';
   var davserver;
@@ -24,9 +24,7 @@ describe('The calendars API', function() {
           return done(err);
         }
         user = models.users[0];
-        user2 = models.users[1];
         user3 = models.users[2];
-        domain = models.domain;
         community = models.communities[1];
         self.models = models;
 
@@ -144,7 +142,7 @@ describe('The calendars API', function() {
             event: 'ICS'
           }).end(callback);
         });
-      }.bind(this), function(callback) {
+      }.bind(this), function() {
         this.helpers.api.loginAsUser(self.app, user.emails[0], password, function(err, requestAsMember) {
           if (err) {
             return done(err);

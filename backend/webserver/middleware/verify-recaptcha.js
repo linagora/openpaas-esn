@@ -43,7 +43,7 @@ module.exports.verify = function(req, res, next) {
 
     var recaptcha = new Recaptcha(recaptchaConfig.publickey, recaptchaConfig.privatekey, data);
 
-    recaptcha.verify(function(success, error_code) {
+    recaptcha.verify(function(success) {
       if (success) {
         return next();
       }

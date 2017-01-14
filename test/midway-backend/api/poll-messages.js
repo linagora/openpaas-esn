@@ -288,7 +288,7 @@ describe('The messages API', function() {
             var req2 = liau(request(app).put('/api/messages/' + messageId + '/vote/0'));
             req2.send({})
             .expect(403)
-            .end(function(err, res) {
+            .end(function() {
               done();
             });
           });
@@ -303,7 +303,7 @@ describe('The messages API', function() {
             var req2 = liau(request(app).put('/api/messages/' + messageId + '/vote/1'));
             req2.send({})
             .expect(403)
-            .end(function(err, res) {
+            .end(function() {
               done();
             });
           });

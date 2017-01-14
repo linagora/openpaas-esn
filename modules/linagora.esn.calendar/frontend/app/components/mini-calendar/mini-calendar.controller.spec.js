@@ -6,7 +6,7 @@ var expect = chai.expect;
 
 describe('The mini-calendar controller', function() {
 
-  var $scope, $rootScope, $controller, $q, $window, calMoment, fcMethodMock, calendarServiceMock, initController,
+  var $scope, $rootScope, $controller, $q, calMoment, fcMethodMock, calendarServiceMock, initController,
     miniCalendarServiceMock, calendarEventSourceMock, UI_CONFIG_MOCK, calendar, calendarCurrentViewMock,
       CALENDAR_EVENTS, calCachedEventSourceMock, calWrapper, element, event;
 
@@ -108,13 +108,12 @@ describe('The mini-calendar controller', function() {
 
   });
 
-  beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _calMoment_, _$q_, _$window_, _CALENDAR_EVENTS_) {
+  beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _calMoment_, _$q_, _CALENDAR_EVENTS_) {
     $rootScope = _$rootScope_;
     $scope = $rootScope.$new();
     $controller = _$controller_;
     calMoment = _calMoment_;
     $q = _$q_;
-    $window = _$window_;
     CALENDAR_EVENTS = _CALENDAR_EVENTS_;
     $scope.calendarHomeId = 'userId';
     initController = function() {
