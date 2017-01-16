@@ -149,6 +149,9 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
         'components/inbox/inbox.constants.js',
         'components/inbox/invitation-message-indicator/invitation-message-indicator.js',
         'components/inbox/invitation-message-indicator/invitation-message-indicator.run.js',
+        'components/inbox/invitation-message-blue-bar/invitation-message-blue-bar.js',
+        'components/inbox/invitation-message-blue-bar/invitation-message-blue-bar.run.js',
+        'components/inbox/invitation-message-blue-bar/invitation-message-blue-bar.controller.js',
 
         'calendar/calendar-header/calendar-header-content.directive.js',
         'calendar/calendar-header/calendar-header-mobile.directive.js',

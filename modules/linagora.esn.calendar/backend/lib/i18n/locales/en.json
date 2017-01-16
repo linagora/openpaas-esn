@@ -87,5 +87,9 @@
   "Delegation on this calendar": "Delegation on this calendar",
   "Remove \"%s\" and all events it contains?": "Remove \"%s\" and all events it contains?",
   "Confirmation": "Confirmation",
-  "This message contains an invitation to an event": "This message contains an invitation to an event"
+  "This message contains an invitation to an event": "This message contains an invitation to an event",
+  "An error occured while processing meeting information contained in this message.": "An error occured while processing meeting information contained in this message.",
+  "Some meeting information contained in this message cannot be processed.": "Some meeting information contained in this message cannot be processed.",
+  "This message contains some meeting information. Please wait while we fetch the event details...": "This message contains some meeting information. Please wait while we fetch the event details...",
+  "Recurs %s": "Recurs %s"
 }

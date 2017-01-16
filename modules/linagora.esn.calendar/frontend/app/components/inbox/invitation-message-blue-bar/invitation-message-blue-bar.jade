@@ -1,0 +1,30 @@
+.cal-blue-bar
+
+  .cal-blue-bar-minical-container
+    .cal-blue-bar-minical
+      .cal-blue-bar-minical-month {{ ($ctrl.event.start | amDateFormat:'MMM') || '-' }}
+      .cal-blue-bar-minical-date {{ ($ctrl.event.start | amDateFormat:'DD') || '-' }}
+      .cal-blue-bar-minical-day {{ ($ctrl.event.start | amDateFormat:'ddd') || '-' }}
+    .cal-blue-bar-minical-overlay(ng-if="!$ctrl.event")
+      .cal-blue-bar-overlay-loading(ng-if="!$ctrl.meeting.loaded")
+        i.cal-blue-bar-overlay-icon.mdi.mdi-sync.rotate
+      i.cal-blue-bar-overlay-icon.mdi.mdi-alert-circle.text-danger(ng-if="$ctrl.meeting.error")
+      i.cal-blue-bar-overlay-icon.mdi.mdi-help-circle(ng-if="$ctrl.meeting.invalid")
+
+  .cal-blue-bar-message(ng-if="!$ctrl.event")
+    .cal-blue-bar-message-error.text-danger(ng-if="$ctrl.meeting.error") #{__('An error occured while processing meeting information contained in this message.')}
+    .cal-blue-bar-message-error(ng-if="$ctrl.meeting.invalid") #{__('Some meeting information contained in this message cannot be processed.')}
+    .cal-blue-bar-message-info(ng-if="!$ctrl.meeting.loaded") #{__('This message contains some meeting information. Please wait while we fetch the event details...')}
+
+  .cal-blue-bar-info-and-actions.ellipsis(ng-if="$ctrl.event")
+    .cal-blue-bar-info
+      .cal-blue-bar-summary.ellipsis {{ $ctrl.event.summary }}
+      .cal-blue-bar-location.cal-blue-bar-labelled-value.ellipsis(ng-if="$ctrl.event.location")
+        i.cal-blue-bar-label.mdi.mdi-map-marker
+        span.cal-blue-bar-value {{ $ctrl.event.location }}
+      .cal-blue-bar-date.cal-blue-bar-labelled-value.ellipsis
+        i.cal-blue-bar-label.mdi.mdi-clock
+        span.cal-blue-bar-value {{ $ctrl.event.start | amDateFormat:'lll' }} ({{ $ctrl.event.end | amDifference:$ctrl.event.start:'hours':true }}h)
+      .cal-blue-bar-recurrence.cal-blue-bar-labelled-value.ellipsis(ng-if="$ctrl.event.isRecurring()")
+        i.cal-blue-bar-label.mdi.mdi-sync
+        span.cal-blue-bar-value #{__('Recurs %s', '{{ $ctrl.event.getRecurrenceType() | lowercase }}')}

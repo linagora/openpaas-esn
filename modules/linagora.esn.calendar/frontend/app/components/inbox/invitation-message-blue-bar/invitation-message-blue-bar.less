@@ -1,0 +1,80 @@
+@cal-blue-bar-border-color: #CCC;
+
+.cal-blue-bar {
+  .flex;
+
+  border: 1px solid @cal-blue-bar-border-color;
+
+  .cal-blue-bar-minical-container {
+    .all-centered;
+
+    position: relative;
+    padding: 10px;
+    min-width: 80px;
+    background-color: @darkenBgColor;
+
+    .cal-blue-bar-minical {
+      .flex-shorthand(1);
+      .RoundedShape(5px);
+      .ShadowedShape(2px 2px 2px rgba(0, 0, 0, .1));
+
+      overflow: hidden;
+      background-color: @m-white;
+      text-align: center;
+      font-weight: bold;
+      font-size: 0.9em;
+
+      .cal-blue-bar-minical-month {
+        padding: 2px;
+        background-color: @primaryColor;
+        color: @textPrimaryColor;
+      }
+
+      .cal-blue-bar-minical-date {
+        padding: 4px;
+        font-size: 1.6em;
+      }
+
+      .cal-blue-bar-minical-day {
+        margin: 0 5px;
+        padding: 2px;
+        border-top: 1px solid @cal-blue-bar-border-color;
+      }
+    }
+
+    .cal-blue-bar-minical-overlay {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      color: @secondaryTextColor;
+
+      .cal-blue-bar-overlay-icon {
+        font-size: 3em;
+      }
+    }
+  }
+
+  .cal-blue-bar-message {
+    margin: auto;
+    padding: 10px;
+    font-weight: bold;
+  }
+
+  .cal-blue-bar-info-and-actions {
+    padding: 10px;
+
+    .cal-blue-bar-labelled-value {
+      .cal-blue-bar-label {
+        margin-right: 5px;
+        color: @secondaryTextColor;
+      }
+    }
+
+    .cal-blue-bar-info {
+      .cal-blue-bar-summary {
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+    }
+  }
+}
