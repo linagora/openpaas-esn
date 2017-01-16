@@ -1,6 +1,6 @@
 'use strict';
 
-/* global chai: false, __FIXTURES__: false */
+/* global chai: false, sinon: false, __FIXTURES__: false */
 
 var expect = chai.expect;
 
@@ -49,8 +49,11 @@ describe('The calInboxInvitationMessageBlueBarController', function() {
         }
       });
       $provide.value('calEventService', {
+        changeParticipation: sinon.spy(function() {
+          return $q.when(new CalendarShell(shells.recurringEventWithTwoExceptions.vcalendar, { etag: 'updatedEtag' }));
+        }),
         getEventByUID: function() {
-          return $q.when([shells.event]);
+          return $q.when(shells.event);
         }
       });
     });
@@ -204,6 +207,111 @@ describe('The calInboxInvitationMessageBlueBarController', function() {
       $rootScope.$digest();
 
       expect(ctrl.meeting.loaded).to.equal(true);
+    });
+
+  });
+
+  describe('The getParticipationButtonClass method', function() {
+
+    it('should return btn-default if the user is NEEDS-ACTION', function() {
+      var ctrl = initCtrl('REQUEST', '1234', '2');
+
+      session.user.emailMap = { 'ddolcimascolo@linagora.com': true };
+      ctrl.event = shells.recurringEventWithTwoExceptions;
+      ctrl.event.changeParticipation('NEED-ACTION');
+
+      ['ACCEPTED', 'TENTATIVE', 'DECLINED'].forEach(function(partstat) {
+        expect(ctrl.getParticipationButtonClass('btn-success', partstat)).to.equal('btn-default');
+      });
+    });
+
+    it('should return btn-success for ACCEPTED if the user is ACCEPTED', function() {
+      var ctrl = initCtrl('REQUEST', '1234', '2');
+
+      session.user.emailMap = { 'ddolcimascolo@linagora.com': true };
+      ctrl.event = shells.recurringEventWithTwoExceptions;
+      ctrl.event.changeParticipation('ACCEPTED');
+
+      expect(ctrl.getParticipationButtonClass('btn-success', 'ACCEPTED')).to.equal('btn-success');
+    });
+
+    it('should return btn-danger for DECLINED if the user is DECLINED', function() {
+      var ctrl = initCtrl('REQUEST', '1234', '2');
+
+      session.user.emailMap = { 'ddolcimascolo@linagora.com': true };
+      ctrl.event = shells.recurringEventWithTwoExceptions;
+      ctrl.event.changeParticipation('DECLINED');
+
+      expect(ctrl.getParticipationButtonClass('btn-danger', 'DECLINED')).to.equal('btn-danger');
+    });
+
+    it('should return btn-primary for TENTATIVE if the user is TENTATIVE', function() {
+      var ctrl = initCtrl('REQUEST', '1234', '2');
+
+      session.user.emailMap = { 'ddolcimascolo@linagora.com': true };
+      ctrl.event = shells.recurringEventWithTwoExceptions;
+      ctrl.event.changeParticipation('TENTATIVE');
+
+      expect(ctrl.getParticipationButtonClass('btn-primary', 'TENTATIVE')).to.equal('btn-primary');
+    });
+
+  });
+
+  describe('The changeParticipation method', function() {
+
+    it('should call calEventService.changeParticipation with the correct options and partstat', function() {
+      var ctrl = initCtrl('REQUEST', '1234', '2');
+
+      session.user.emailMap = { 'ddolcimascolo@linagora.com': true };
+      ctrl.event = shells.recurringEventWithTwoExceptions;
+
+      ctrl.changeParticipation('ACCEPTED');
+
+      expect(calEventService.changeParticipation).to.have.been.calledWith('path', ctrl.event, ['ddolcimascolo@linagora.com'], 'ACCEPTED', 'etag');
+    });
+
+    it('should not call calEventService.changeParticipation if partstat is already correct', function() {
+      var ctrl = initCtrl('REQUEST', '1234', '2');
+
+      session.user.emailMap = { 'ddolcimascolo@linagora.com': true };
+      ctrl.event = shells.recurringEventWithTwoExceptions;
+      ctrl.event.changeParticipation('DECLINED', ['ddolcimascolo@linagora.com']);
+
+      ctrl.changeParticipation('DECLINED');
+
+      expect(calEventService.changeParticipation).to.have.not.been.calledWith();
+    });
+
+    it('should update the bound event with an updated event', function() {
+      var ctrl = initCtrl('REQUEST', '1234', '2');
+
+      calEventService.getEventByUID = qResolve(shells.recurringEventWithTwoExceptions);
+      session.user.emailMap = { 'ddolcimascolo@linagora.com': true };
+
+      ctrl.$onInit();
+      $rootScope.$digest();
+
+      ctrl.changeParticipation('ACCEPTED');
+      $rootScope.$digest();
+
+      expect(ctrl.event.etag).to.equal('updatedEtag');
+      expect(ctrl.event.isInstance()).to.equal(false);
+    });
+
+    it('should update the bound event with an updated occurrence event when the blue bar handles an occurrence', function() {
+      var ctrl = initCtrl('REQUEST', '1234', '2', '20170114T100000Z');
+
+      calEventService.getEventByUID = qResolve(shells.recurringEventWithTwoExceptions);
+      session.user.emailMap = { 'ddolcimascolo@linagora.com': true };
+
+      ctrl.$onInit();
+      $rootScope.$digest();
+
+      ctrl.changeParticipation('ACCEPTED');
+      $rootScope.$digest();
+
+      expect(ctrl.event.etag).to.equal('updatedEtag');
+      expect(ctrl.event.isInstance()).to.equal(true);
     });
 
   });

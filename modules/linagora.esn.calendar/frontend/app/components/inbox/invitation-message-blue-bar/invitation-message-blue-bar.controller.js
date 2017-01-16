@@ -3,8 +3,9 @@
 angular.module('esn.calendar')
 
   .controller('calInboxInvitationMessageBlueBarController', function($q, $log, calEventService, calendarHomeService,
-                                                                     calEventUtils, INVITATION_MESSAGE_HEADERS) {
-    var self = this;
+                                                                     calEventUtils, notificationFactory, INVITATION_MESSAGE_HEADERS) {
+    var self = this,
+        defaultParticipationButtonClass = 'btn-default';
 
     self.$onInit = function() {
       self.meeting = {
@@ -24,6 +25,23 @@ angular.module('esn.calendar')
         .finally(function() {
           self.meeting.loaded = true;
         });
+    };
+
+    self.changeParticipation = function(partstat) {
+      var attendee = userAttendee(self.event);
+
+      if (attendee.partstat === partstat) {
+        return;
+      }
+
+      calEventService.changeParticipation(self.event.path, self.event, [attendee.email], partstat, self.event.etag)
+        .then(selectMasterEventOrException)
+        .then(bindEventToController)
+        .then(notify('Participation updated!'), notify('Cannot change your participation to this event'));
+    };
+
+    self.getParticipationButtonClass = function(cls, partstat) {
+      return userAttendee(self.event).partstat === partstat ? cls : defaultParticipationButtonClass;
     };
 
     /////
@@ -80,6 +98,12 @@ angular.module('esn.calendar')
 
     function bindEventToController(event) {
       self.event = event;
+    }
+
+    function notify(text) {
+      return function() {
+        notificationFactory.weakInfo('', text);
+      };
     }
 
     /////

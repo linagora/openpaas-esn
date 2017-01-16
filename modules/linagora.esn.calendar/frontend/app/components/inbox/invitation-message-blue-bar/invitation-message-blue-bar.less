@@ -76,5 +76,36 @@
         font-weight: bold;
       }
     }
+
+    .cal-blue-bar-actions-container {
+      .cal-blue-bar-actions {
+        margin-top: 5px;
+        box-shadow: none;
+
+        .btn + .btn {
+          margin-left: -1px;
+        }
+
+        .cal-blue-bar-action-button {
+          border: 1px solid @cal-blue-bar-border-color;
+
+          &.btn-default {
+            background-color: @darkenBgColor;
+          }
+
+          &.btn-success {
+            border-color: @btn-success-border;
+          }
+
+          &.btn-primary {
+            border-color: @btn-primary-border;
+          }
+
+          &.btn-danger {
+            border-color: @btn-danger-border;
+          }
+        }
+      }
+    }
   }
 }
