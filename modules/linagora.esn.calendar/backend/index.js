@@ -25,19 +25,22 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.email', 'email'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.wsserver', 'wsserver'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.davserver', 'davserver'),
-    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.cron', 'cron')
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.cron', 'cron'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.amqp', 'amqpClientProvider')
   ],
 
   states: {
     lib: function(dependencies, callback) {
       var calendar = require('./webserver/api/calendar')(dependencies);
       var alarm = require('./lib/alarm')(dependencies);
+      var eventMailListener = require('./lib/event-mail-listener')(dependencies);
 
       var lib = {
         alarm: alarm,
         api: {
           calendar: calendar
-        }
+        },
+        eventMailListener: eventMailListener
       };
 
       return callback(null, lib);
@@ -46,6 +49,9 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
     deploy: function(dependencies, callback) {
       // Init alarm local pubsub listener
       this.alarm.init();
+
+      // Init bluebar event listener
+      this.eventMailListener.init();
 
       // Register the new message type event
       var message = dependencies('message');
