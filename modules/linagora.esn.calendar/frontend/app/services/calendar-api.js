@@ -6,14 +6,15 @@
          .constant('CALENDAR_DAV_DATE_FORMAT', 'YYYYMMDD[T]HHmmss')
          .factory('calendarAPI', calendarAPI);
 
-  var JSON_CONTENT_TYPE_HEADER = {'Content-Type': 'application/json'};
+  var JSON_CONTENT_TYPE_HEADER = { 'Content-Type': 'application/json' };
 
   function calendarAPI(
-    $q,
     calendarRestangular,
     calPathBuilder,
-    calendarHomeService,
     request,
+    responseHandler,
+    gracePeriodResponseHandler,
+    _,
     CALENDAR_ACCEPT_HEADER,
     CALENDAR_DAV_DATE_FORMAT,
     CALENDAR_PREFER_HEADER,
@@ -43,13 +44,9 @@
     ////////////
 
     function davResponseHandler(key) {
-      return function(response) {
-        if (response.status !== 200) {
-          return $q.reject(response);
-        }
-
+      return responseHandler([200], function(response) {
         return (response.data && response.data._embedded && response.data._embedded[key]) || [];
-      };
+      });
     }
 
     /**
@@ -151,14 +148,7 @@
     function getCalendar(calendarHomeId, calendarId) {
       var path = calPathBuilder.forCalendarId(calendarHomeId, calendarId);
 
-      return request('get', path, {Accept: CALENDAR_ACCEPT_HEADER})
-        .then(function(response) {
-          if (response.status !== 200) {
-            return $q.reject(response);
-          }
-
-          return response.data;
-        });
+      return request('get', path, {Accept: CALENDAR_ACCEPT_HEADER}).then(responseHandler(200, _.property('data')));
     }
 
     /**
@@ -170,14 +160,7 @@
     function createCalendar(calendarHomeId, calendar) {
       var path = calPathBuilder.forCalendarHomeId(calendarHomeId);
 
-      return request('post', path, null, calendar)
-        .then(function(response) {
-          if (response.status !== 201) {
-            return $q.reject(response);
-          }
-
-          return response;
-        });
+      return request('post', path, null, calendar).then(responseHandler(201));
     }
 
     /**
@@ -189,14 +172,7 @@
     function removeCalendar(calendarHomeId, calendarId) {
       var path = calPathBuilder.forCalendarId(calendarHomeId, calendarId);
 
-      return request('delete', path)
-        .then(function(response) {
-          if (response.status !== 204) {
-            return $q.reject(response);
-          }
-
-          return response;
-        });
+      return request('delete', path).then(responseHandler(204));
     }
 
     /**
@@ -208,14 +184,7 @@
     function modifyCalendar(calendarHomeId, calendar) {
       var path = calPathBuilder.forCalendarId(calendarHomeId, calendar.id);
 
-      return request('proppatch', path, JSON_CONTENT_TYPE_HEADER, calendar)
-        .then(function(response) {
-          if (response.status !== 204) {
-            return $q.reject(response);
-          }
-
-          return response;
-        });
+      return request('proppatch', path, JSON_CONTENT_TYPE_HEADER, calendar).then(responseHandler(204));
     }
 
     /**
@@ -229,13 +198,7 @@
 
       return request('propfind', path, JSON_CONTENT_TYPE_HEADER, {
         prop: ['cs:invite', 'acl']
-      }).then(function(response) {
-        if (response.status !== 200) {
-          return $q.reject(response);
-        }
-
-        return response.data;
-      });
+      }).then(responseHandler(200, _.property('data')));
     }
 
     /**
@@ -248,14 +211,7 @@
     function modifyShares(calendarHomeId, calendarId, rights) {
       var path = calPathBuilder.forCalendarId(calendarHomeId, calendarId);
 
-      return request('post', path, null, rights)
-        .then(function(response) {
-          if (response.status !== 200) {
-            return $q.reject(response);
-          }
-
-          return response;
-        });
+      return request('post', path, null, rights).then(responseHandler(200));
     }
 
     /**
@@ -268,22 +224,12 @@
     function create(eventPath, vcalendar, options) {
       var headers = {'Content-Type': CALENDAR_CONTENT_TYPE_HEADER};
       var body = vcalendar.toJSON();
+
       if (options.graceperiod) {
-        return request('put', eventPath, headers, body, {graceperiod: CALENDAR_GRACE_DELAY})
-          .then(function(response) {
-            if (response.status !== 202) {
-              return $q.reject(response);
-            }
-            return response.data.id;
-          });
+        return request('put', eventPath, headers, body, {graceperiod: CALENDAR_GRACE_DELAY}).then(gracePeriodResponseHandler);
       }
-      return request('put', eventPath, headers, body)
-        .then(function(response) {
-          if (response.status !== 201) {
-            return $q.reject(response);
-          }
-          return response;
-        });
+
+      return request('put', eventPath, headers, body).then(responseHandler(201));
     }
 
     /**
@@ -298,17 +244,14 @@
         'Content-Type': CALENDAR_CONTENT_TYPE_HEADER,
         Prefer: CALENDAR_PREFER_HEADER
       };
+
       if (etag) {
         headers['If-Match'] = etag;
       }
+
       var body = vcalendar.toJSON();
-      return request('put', eventPath, headers, body, { graceperiod: CALENDAR_GRACE_DELAY })
-        .then(function(response) {
-          if (response.status !== 202) {
-            return $q.reject(response);
-          }
-          return response.data.id;
-        });
+
+      return request('put', eventPath, headers, body, { graceperiod: CALENDAR_GRACE_DELAY }).then(gracePeriodResponseHandler);
     }
 
     /**
@@ -319,13 +262,8 @@
      */
     function remove(eventPath, etag) {
       var headers = {'If-Match': etag};
-      return request('delete', eventPath, headers, null, { graceperiod: CALENDAR_GRACE_DELAY })
-        .then(function(response) {
-          if (response.status !== 202) {
-            return $q.reject(response);
-          }
-          return response.data.id;
-        });
+
+      return request('delete', eventPath, headers, null, { graceperiod: CALENDAR_GRACE_DELAY }).then(gracePeriodResponseHandler);
     }
 
     /**
@@ -346,13 +284,7 @@
       }
       var body = vcalendar.toJSON();
 
-      return request('put', eventPath, headers, body)
-        .then(function(response) {
-          if (response.status !== 200 && response.status !== 204) {
-            return $q.reject(response);
-          }
-          return response;
-        });
+      return request('put', eventPath, headers, body).then(responseHandler([200, 204]));
     }
   }
 })();

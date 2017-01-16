@@ -113,6 +113,8 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
         'services/master-event-cache.js',
         'services/path-builder.js',
         'services/request.js',
+        'services/response-handler.js',
+        'services/grace-period-response-handler.js',
         'services/timezone.js',
 
         'components/calendar/calendar.js',

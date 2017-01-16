@@ -229,7 +229,7 @@ describe('The calEventService service', function() {
 
     it('should return an event', function(done) {
       // The caldav server will be hit
-      self.$httpBackend.expectGET('/dav/api/path/to/event.ics').respond(
+      self.$httpBackend.expectGET(/^\/dav\/api\/path\/to\/event.ics/).respond(
         ['vcalendar', [], [
           ['vevent', [
             ['uid', {}, 'text', 'myuid'],
@@ -667,7 +667,7 @@ describe('The calEventService service', function() {
         return vcalendar.getAllSubcomponents('vevent').length === 2;
       }
 
-      $httpBackend.whenGET('/dav/api/path/to/uid.ics').respond(200, vcalendar, headers);
+      $httpBackend.whenGET(/^\/dav\/api\/path\/to\/uid.ics/).respond(200, vcalendar, headers);
       $httpBackend.expectPUT('/dav/api/path/to/uid.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY, checkPUT).respond(202, {id: '123456789'});
       $httpBackend.flush();
 
@@ -1232,7 +1232,7 @@ describe('The calEventService service', function() {
       att.setParameter('rsvp', 'TRUE');
       att.setParameter('role', 'REQ-PARTICIPANT');
 
-      self.$httpBackend.expectGET('/dav/api/path/to/uid.ics').respond(200, JSON.stringify(recurrentCalendarShell.vcalendar.jCal));
+      self.$httpBackend.expectGET(/^\/dav\/api\/path\/to\/uid.ics/).respond(200, JSON.stringify(recurrentCalendarShell.vcalendar.jCal));
 
       self.$httpBackend.expectPUT('/dav/api/path/to/uid.ics', function(jCal) {
         var shell = new self.CalendarShell(new ICAL.Component(JSON.parse(jCal)));
