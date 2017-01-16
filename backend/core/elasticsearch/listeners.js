@@ -1,29 +1,69 @@
 'use strict';
 
-var utils = require('./utils');
-var pubsub = require('../pubsub').local;
-var logger = require('../logger');
+const utils = require('./utils');
+const pubsub = require('../pubsub').local;
+const logger = require('../logger');
+const Q = require('q');
+
+module.exports = {
+  addListener,
+  index,
+  remove
+};
 
 function index(data, options, callback) {
-  var indexOptions = {
-    denormalize: options.denormalize || function(data) {return data;},
-    getId: options.getId,
-    index: options.index,
-    type: options.type,
-    data: data
-  };
-  utils.indexData(indexOptions, function(err, result) {
-    if (err) {
-      logger.error('Error while adding data in index', err);
-    } else {
-      logger.debug('Document indexed');
+
+  function _index() {
+    const indexOptions = {
+      denormalize: options.denormalize || function(data) {return data;},
+      getId: options.getId,
+      index: options.index,
+      type: options.type,
+      data: data
+    };
+
+    utils.indexData(indexOptions, (err, result) => {
+      if (err) {
+        logger.error('Error while adding data in index', err);
+      } else {
+        logger.debug('Document indexed');
+      }
+
+      callback && callback(err, result);
+    });
+  }
+
+  (options.skip && options.skip.index || function() { return Q(false); })(data).then(skip => {
+    if (skip) {
+      return callback && callback();
     }
-    if (callback) {
-      callback(err, result);
-    }
+
+    _index();
+  }, err => {
+    logger.error('Error while checking index skip', err);
+    callback(err);
   });
 }
-module.exports.index = index;
+
+function remove(data, options, callback) {
+  const indexOptions = {
+    data: data,
+    getId: options.getId,
+    index: options.index,
+    type: options.type
+  };
+
+  (options.skip && options.skip.remove || function() { return Q(false); })(data).then(skip => {
+    if (skip) {
+      return callback && callback();
+    }
+
+    utils.removeFromIndex(indexOptions, callback);
+  }, err => {
+    logger.error('Error while checking remove index skip', err);
+    callback(err);
+  });
+}
 
 function addListener(options) {
 
@@ -32,13 +72,7 @@ function addListener(options) {
   }
 
   function removeFromIndex(data, callback) {
-    var indexOptions = {
-      data: data,
-      getId: options.getId,
-      index: options.index,
-      type: options.type
-    };
-    utils.removeFromIndex(indexOptions, callback);
+    return remove(data, options, callback);
   }
 
   if (options.events.add) {
@@ -50,8 +84,8 @@ function addListener(options) {
   }
 
   if (options.events.remove) {
-    pubsub.topic(options.events.remove).subscribe(function(data) {
-      removeFromIndex(data, function(err) {
+    pubsub.topic(options.events.remove).subscribe(data => {
+      removeFromIndex(data, err => {
         if (err) {
           logger.error('Error while removing data from index', err);
         }
@@ -60,8 +94,7 @@ function addListener(options) {
   }
 
   return {
-    indexData: indexData,
-    removeFromIndex: removeFromIndex
+    indexData,
+    removeFromIndex
   };
 }
-module.exports.addListener = addListener;
