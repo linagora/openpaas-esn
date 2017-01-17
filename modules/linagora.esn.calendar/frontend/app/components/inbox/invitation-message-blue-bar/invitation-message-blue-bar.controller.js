@@ -1,13 +1,21 @@
-'use strict';
+(function() {
+  'use strict';
 
-angular.module('esn.calendar')
+  angular.module('esn.calendar')
+    .controller('calInboxInvitationMessageBlueBarController', calInboxInvitationMessageBlueBarController);
 
-  .controller('calInboxInvitationMessageBlueBarController', function($q, $log, calEventService, calendarHomeService,
-                                                                     calEventUtils, notificationFactory, INVITATION_MESSAGE_HEADERS) {
+  function calInboxInvitationMessageBlueBarController($q, $log, calEventService, calendarHomeService, calEventUtils,
+                                                      notificationFactory, INVITATION_MESSAGE_HEADERS) {
     var self = this,
-        defaultParticipationButtonClass = 'btn-default';
+      defaultParticipationButtonClass = 'btn-default';
 
-    self.$onInit = function() {
+    self.$onInit = $onInit;
+    self.changeParticipation = changeParticipation;
+    self.getParticipationButtonClass = getParticipationButtonClass;
+
+    /////
+
+    function $onInit() {
       self.meeting = {
         method: self.message.headers[INVITATION_MESSAGE_HEADERS.METHOD] || 'REQUEST',
         uid: self.message.headers[INVITATION_MESSAGE_HEADERS.UID],
@@ -26,10 +34,10 @@ angular.module('esn.calendar')
         .finally(function() {
           self.meeting.loaded = true;
         });
-    };
+    }
 
-    self.changeParticipation = function(partstat) {
-      var attendee = userAttendee(self.event);
+    function changeParticipation(partstat) {
+      var attendee = getUserAttendee(self.event);
 
       if (attendee.partstat === partstat) {
         return;
@@ -39,13 +47,11 @@ angular.module('esn.calendar')
         .then(selectMasterEventOrException)
         .then(bindEventToController)
         .then(notify('Participation updated!'), notify('Cannot change your participation to this event'));
-    };
+    }
 
-    self.getParticipationButtonClass = function(cls, partstat) {
-      return userAttendee(self.event).partstat === partstat ? cls : defaultParticipationButtonClass;
-    };
-
-    /////
+    function getParticipationButtonClass(cls, partstat) {
+      return getUserAttendee(self.event).partstat === partstat ? cls : defaultParticipationButtonClass;
+    }
 
     function handleErrorOrInvalidMeeting(err) {
       if (err instanceof InvalidMeetingError) {
@@ -61,7 +67,7 @@ angular.module('esn.calendar')
       return $q.reject(err.status === 404 ? new InvalidMeetingError('Event not found.') : err);
     }
 
-    function userAttendee(event) {
+    function getUserAttendee(event) {
       return calEventUtils.getUserAttendee(event);
     }
 
@@ -82,7 +88,7 @@ angular.module('esn.calendar')
     }
 
     function assertEventInvolvesCurrentUser(event) {
-      if (!userAttendee(event)) {
+      if (!getUserAttendee(event)) {
         return $q.reject(new InvalidMeetingError('Event does not involve current user.'));
       }
 
@@ -113,11 +119,9 @@ angular.module('esn.calendar')
       }
     }
 
-    /////
-
     function InvalidMeetingError(message) {
       this.message = message;
       this.meeting = self.meeting;
     }
-
-  });
+  }
+})();
