@@ -155,6 +155,7 @@ function getModel(objectType) {
 }
 
 function getStreamsForUser(userId, options, callback) {
+  console.log(collaborationLibs);
   const finders = [];
   let results = [];
 

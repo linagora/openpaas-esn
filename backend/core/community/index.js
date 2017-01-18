@@ -15,10 +15,6 @@ const communityObjectType = CONSTANTS.OBJECT_TYPE;
 const MEMBERSHIP_TYPE_REQUEST = 'request';
 const MEMBERSHIP_TYPE_INVITATION = 'invitation';
 
-collaborationModule.registerCollaborationModel(communityObjectType, CONSTANTS.MODEL_NAME);
-collaborationModule.registerCollaborationLib(communityObjectType, module.exports);
-collaborationModule.registerMembersMapping(communityObjectType, CONSTANTS.MODEL_NAME);
-
 module.exports = {
   addMembershipRequest,
   cancelMembershipInvitation,
@@ -51,6 +47,10 @@ module.exports = {
   MEMBERSHIP_TYPE_REQUEST,
   MEMBERSHIP_TYPE_INVITATION
 };
+
+collaborationModule.registerCollaborationModel(communityObjectType, CONSTANTS.MODEL_NAME);
+collaborationModule.registerCollaborationLib(communityObjectType, module.exports);
+collaborationModule.registerMembersMapping(communityObjectType, CONSTANTS.MODEL_NAME);
 
 function addMembershipRequest(community, userAuthor, userTarget, workflow, actor, callback) {
   collaborationModule.member.addMembershipRequest(communityObjectType, community, userAuthor, userTarget, workflow, actor, callback);
@@ -137,12 +137,12 @@ function getMembershipRequests(community, query, callback) {
 }
 
 function getStreamsForUser(userId, options, callback) {
-  getUserCommunities(userId, options, (err, projects) => {
+  getUserCommunities(userId, options, (err, communities) => {
     if (err) {
       return callback(err);
     }
 
-    callback(null, projects.map(communityToStream));
+    callback(null, communities.map(communityToStream));
   });
 }
 
