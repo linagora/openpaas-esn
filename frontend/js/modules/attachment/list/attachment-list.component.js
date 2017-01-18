@@ -11,7 +11,9 @@
         controllerAs: 'ctrl',
         bindings: {
           objectType: '@',
-          id: '@'
+          id: '@',
+          elementsPerPage: '@?',
+          scrollInsideContainer: '@?'
         }
       };
     }

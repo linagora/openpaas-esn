@@ -1,8 +1,8 @@
 .attachment-list
-  infinite-list(load-more-elements='ctrl.loadMoreElements()')
+  infinite-list(load-more-elements='ctrl.loadMoreElements()', scroll-inside-container="ctrl.scrollInsideContainer")
     .attachment-list-item(ng-repeat="item in ctrl.elements | orderBy: '-date'" ng-if="ctrl.elements.length > 0")
       esn-attachment-list-item(attachment="item")
-    .attachment-list-empty(ng-if="!ctrl.elements.length")
+    .attachment-list-empty(ng-if="!ctrl.elements.length && ctrl.infiniteScrollCompleted")
       i.mdi.mdi-file-outline
       .message #{__("No attachments")}
     ul.nav.nav-pills.nav-stacked(ng-if='ctrl.infiniteScrollDisabled')
