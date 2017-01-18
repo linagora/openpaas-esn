@@ -12,7 +12,7 @@ module.exports = function(dependencies) {
   return {
     getEvent,
     getEventPath,
-    putEvent
+    iTipRequest
   };
 
   function getEvent(userId, calendarURI, eventUID) {
@@ -27,26 +27,19 @@ module.exports = function(dependencies) {
   }
 
   function getEventPath(userId, calendarURI, eventUID) {
-    return urljoin(userId, calendarURI, eventUID + '.ics');
+    return calendarURI && eventUID ? urljoin(userId, calendarURI, eventUID + '.ics') : userId;
   }
 
-  function putEvent(userId, calendarURI, eventUID, jcal) {
-    return _requestCaldav(userId, calendarURI, eventUID, (url, token) => ({
-        method: 'PUT',
-        url: url,
-        headers: {
-          ESNToken: token
-        },
-        body: jcal,
-        json: true
-      })
-    );
-  }
-
-  function _buildEventUrl(userId, calendarURI, eventUID, callback) {
-    davserver.getDavEndpoint(function(davserver) {
-      return callback(urljoin(davserver, 'calendars', getEventPath(userId, calendarURI, eventUID)));
-    });
+  function iTipRequest(userId, jcal) {
+    return _requestCaldav(userId, null, null, (url, token) => ({
+      method: 'ITIP',
+      url: url,
+      headers: {
+        ESNToken: token
+      },
+      body: jcal,
+      json: true
+    }));
   }
 
   function _requestCaldav(userId, calendarURI, eventUID, formatRequest) {
@@ -66,6 +59,7 @@ module.exports = function(dependencies) {
         if (err) {
           return deferred.reject(err);
         }
+
         request(formatRequest(results[0], results[1].token), function(err, response) {
           if (err || response.statusCode < 200 || response.statusCode >= 300) {
             return deferred.reject(err ? err.message : response.body);
@@ -76,5 +70,11 @@ module.exports = function(dependencies) {
       });
 
     return deferred.promise;
+  }
+
+  function _buildEventUrl(userId, calendarURI, eventUID, callback) {
+    davserver.getDavEndpoint(function(davserver) {
+      return callback(urljoin(davserver, 'calendars', getEventPath(userId, calendarURI, eventUID)));
+    });
   }
 };
