@@ -2,7 +2,6 @@
 
 const expect = require('chai').expect;
 const sinon = require('sinon');
-const ICAL = require('ical.js');
 const Q = require('q');
 const mockery = require('mockery');
 
@@ -47,7 +46,7 @@ describe('EventMailListener module', function() {
     };
 
     caldavClientMock = {
-      putEvent: sinon.spy(function(userId, calendarURI, eventUID, jsonMessage) {
+      iTipRequest: sinon.spy(function() {
         return Q.resolve;
       })
     };
@@ -77,13 +76,13 @@ describe('EventMailListener module', function() {
           notifyFunction(jsonMessage);
 
           expect(loggerMock.warn).to.have.been.calledWith('CAlEventMailListener : Missing mandatory field => Event ignored');
-          expect(caldavClientMock.putEvent).to.not.have.been.called;
+          expect(caldavClientMock.iTipRequest).to.not.have.been.called;
 
           done();
-        }).catch(function(err) {
-
-        done(err || 'Err');
-      });
+        })
+        .catch(function(err) {
+          done(err || 'Err');
+        });
     });
 
     it('should ignore message and log if sender is missing', function(done) {
@@ -95,13 +94,13 @@ describe('EventMailListener module', function() {
           notifyFunction(jsonMessage);
 
           expect(loggerMock.warn).to.have.been.calledWith('CAlEventMailListener : Missing mandatory field => Event ignored');
-          expect(caldavClientMock.putEvent).to.not.have.been.called;
+          expect(caldavClientMock.iTipRequest).to.not.have.been.called;
 
           done();
-        }).catch(function(err) {
-
-        done(err || 'Err');
-      });
+        })
+        .catch(function(err) {
+          done(err || 'Err');
+        });
     });
 
     it('should ignore message and log if recipient is missing', function(done) {
@@ -113,13 +112,13 @@ describe('EventMailListener module', function() {
           notifyFunction(jsonMessage);
 
           expect(loggerMock.warn).to.have.been.calledWith('CAlEventMailListener : Missing mandatory field => Event ignored');
-          expect(caldavClientMock.putEvent).to.not.have.been.called;
+          expect(caldavClientMock.iTipRequest).to.not.have.been.called;
 
           done();
-        }).catch(function(err) {
-
-        done(err || 'Err');
-      });
+        })
+        .catch(function(err) {
+          done(err || 'Err');
+        });
     });
 
     it('should ignore message and log if uid is missing', function(done) {
@@ -131,13 +130,13 @@ describe('EventMailListener module', function() {
           notifyFunction(jsonMessage);
 
           expect(loggerMock.warn).to.have.been.calledWith('CAlEventMailListener : Missing mandatory field => Event ignored');
-          expect(caldavClientMock.putEvent).to.not.have.been.called;
+          expect(caldavClientMock.iTipRequest).to.not.have.been.called;
 
           done();
-        }).catch(function(err) {
-
-        done(err || 'Err');
-      });
+        })
+        .catch(function(err) {
+          done(err || 'Err');
+        });
     });
   });
 
@@ -153,13 +152,13 @@ describe('EventMailListener module', function() {
           notifyFunction(jsonMessage);
 
           expect(loggerMock.warn).to.have.been.calledWith('CAlEventMailListener : Recipient user unknown in OpenPaas => Event ignored');
-          expect(caldavClientMock.putEvent).to.not.have.been.called;
+          expect(caldavClientMock.iTipRequest).to.not.have.been.called;
 
           done();
-        }).catch(function(err) {
-
-        done(err || 'Err');
-      });
+        })
+        .catch(function(err) {
+          done(err || 'Err');
+        });
     });
 
     it('should ignore message and log if userModule fail', function(done) {
@@ -173,88 +172,30 @@ describe('EventMailListener module', function() {
           notifyFunction(jsonMessage);
 
           expect(loggerMock.error).to.have.been.calledWith('CAlEventMailListener : Could not connect to UserModule => Event ignored');
-          expect(caldavClientMock.putEvent).to.not.have.been.called;
+          expect(caldavClientMock.iTipRequest).to.not.have.been.called;
 
           done();
-        }).catch(function(err) {
-
-        done(err || 'Err');
-      });
+        })
+        .catch(function(err) {
+          done(err || 'Err');
+        });
     });
   });
 
   describe('_handleMessage function', function() {
-    it('should ignore message and log if method is unknown', function(done) {
-      jsonMessage.method = 'TEST';
-
-      this.requireModule()
-        .init()
-        .then(function() {
-          notifyFunction(jsonMessage);
-
-          expect(loggerMock.warn).to.have.been.calledWith('CAlEventMailListener : Unknown method "' + jsonMessage.method + '" => Event ignored');
-          expect(caldavClientMock.putEvent).to.not.have.been.called;
-
-          done();
-        }).catch(function(err) {
-
-        done(err || 'Err');
-      });
-    });
-  });
-
-  describe('_parseJcal function', function() {
-    it('should ignore message and log if message.ical is empty', function(done) {
-      delete jsonMessage.ical;
-
-      this.requireModule()
-        .init()
-        .then(function() {
-          notifyFunction(jsonMessage);
-
-          expect(loggerMock.warn).to.have.been.calledWith('CAlEventMailListener : Empty message ical => Event ignored');
-          expect(caldavClientMock.putEvent).to.not.have.been.called;
-
-          done();
-        }).catch(function(err) {
-
-        done(err || 'Err');
-      });
-    });
-
-    it('should ignore message and log if message.ical format is not correct', function(done) {
-      jsonMessage.ical = 'Test';
-
-      this.requireModule()
-        .init()
-        .then(function() {
-          notifyFunction(jsonMessage);
-
-          expect(loggerMock.warn).to.have.been.calledWith('CAlEventMailListener : Error when parsing ical => Event ignored');
-          expect(caldavClientMock.putEvent).to.not.have.been.called;
-
-          done();
-        }).catch(function(err) {
-
-        done(err || 'Err');
-      });
-    });
-  });
-
-  describe('_handleRequest function', function() {
     it('should send request if message is valid', function(done) {
       this.requireModule()
         .init()
         .then(function() {
           notifyFunction(jsonMessage);
 
-          expect(caldavClientMock.putEvent).to.have.been.calledWith('userId', 'events', jsonMessage.uid, ICAL.parse(jsonMessage.ical));
+          expect(caldavClientMock.iTipRequest).to.have.been.calledWith('userId', jsonMessage);
 
           done();
-        }).catch(function(err) {
-
-        done(err || 'Err');
-      });
+        })
+        .catch(function(err) {
+          done(err || 'Err');
+        });
     });
   });
 });

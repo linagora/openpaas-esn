@@ -5,13 +5,16 @@ const sinon = require('sinon');
 const mockery = require('mockery');
 
 describe('Caldav-client helper', function() {
-  let authMock, davServerMock, request;
-  const davEndpoint = 'http://davendpoint:8003';
-  const userId = 'user1';
-  const calendarId = 'calendar2';
-  const eventId = 'event3';
-  const token = 'aToken';
-  const jcal = {};
+  let authMock, davServerMock, request, davEndpoint, userId, calendarId, eventId, token, jcal;
+
+  beforeEach(function() {
+    davEndpoint = 'http://davendpoint:8003';
+    userId = 'user1';
+    calendarId = 'calendar2';
+    eventId = 'event3';
+    token = 'aToken';
+    jcal = {};
+  });
 
   beforeEach(function() {
     this.calendarModulePath = this.moduleHelpers.modulesPath + 'linagora.esn.calendar';
@@ -43,7 +46,7 @@ describe('Caldav-client helper', function() {
       request = {
         method: 'GET',
         url: [davEndpoint, 'calendars', userId, calendarId, eventId + '.ics'].join('/'),
-        headers: {ESNToken: token}
+        headers: { ESNToken: token }
       };
     });
 
@@ -52,58 +55,125 @@ describe('Caldav-client helper', function() {
         return callback(new Error());
       });
 
-      this.requireModule().getEvent(userId, 'calendarId', 'eventUid').then(function() {
-        done('The promise should not have successed');
-      }, function(err) {
-        expect(err).to.exist;
-        expect(authMock.token.getNewToken).to.have.been.calledWith({user: userId});
-        expect(davServerMock.utils.getDavEndpoint).to.have.been.called;
-        done();
-      });
+      this.requireModule()
+        .getEvent(userId, 'calendarId', 'eventUid')
+        .then(
+          function() {
+            done('The promise should not have successed');
+          },
+          function(err) {
+            expect(err).to.exist;
+            expect(authMock.token.getNewToken).to.have.been.calledWith({ user: userId });
+            expect(davServerMock.utils.getDavEndpoint).to.have.been.called;
+
+            done();
+          });
     });
 
     it('should call request with the built parameters and reject if it fails', function(done) {
       const requestMock = function(opts, callback) {
         expect(opts).to.deep.equal(request);
+
         callback(new Error());
       };
 
       mockery.registerMock('request', requestMock);
 
-      this.requireModule().getEvent(userId, calendarId, eventId).then(function() {
-        done('The promise should not have successed');
-      }, function(err) {
-        expect(err).to.exist;
-        expect(authMock.token.getNewToken).to.have.been.calledWith({user: userId});
-        expect(davServerMock.utils.getDavEndpoint).to.have.been.called;
-        done();
-      });
+      this.requireModule()
+        .getEvent(userId, calendarId, eventId)
+        .then(
+          function() {
+            done('The promise should not have successed');
+          },
+          function(err) {
+            expect(err).to.exist;
+            expect(authMock.token.getNewToken).to.have.been.calledWith({ user: userId });
+            expect(davServerMock.utils.getDavEndpoint).to.have.been.called;
+
+            done();
+          });
     });
 
-    it('should call request with the built parameters and resolve with its results if it succeeds', function(done) {
+    it('should return a long eventPath if all arguments are passed', function(done) {
       const requestMock = function(opts, callback) {
         expect(opts).to.deep.equal(request);
-        callback(null, {body: 'result'});
+
+        callback(null, { body: 'result' });
       };
 
       mockery.registerMock('request', requestMock);
 
-      this.requireModule().getEvent(userId, calendarId, eventId).then(function(event) {
-        expect(event).to.deep.equal('result');
-        expect(authMock.token.getNewToken).to.have.been.calledWith({user: userId});
-        expect(davServerMock.utils.getDavEndpoint).to.have.been.called;
-        done();
-      }, done);
+      this.requireModule()
+        .getEvent(userId, calendarId, eventId)
+        .then(
+          function(event) {
+            expect(event).to.deep.equal('result');
+            expect(authMock.token.getNewToken).to.have.been.calledWith({ user: userId });
+            expect(davServerMock.utils.getDavEndpoint).to.have.been.called;
+
+            done();
+          },
+          done);
+    });
+
+    it('should return only userId if calendarURI is not passed', function(done) {
+      const requestMock = function(opts, callback) {
+        request.url = [davEndpoint, 'calendars', userId].join('/');
+
+        expect(opts).to.deep.equal(request);
+
+        callback(null, { body: 'result' });
+      };
+
+      mockery.registerMock('request', requestMock);
+
+      this.requireModule()
+        .getEvent(userId, null, eventId)
+        .then(
+          function(event) {
+            expect(event).to.deep.equal('result');
+            expect(authMock.token.getNewToken).to.have.been.calledWith({ user: userId });
+            expect(davServerMock.utils.getDavEndpoint).to.have.been.called;
+
+            done();
+          },
+          done);
+    });
+
+    it('should return only userId if eventUID is not passed', function(done) {
+      const requestMock = function(opts, callback) {
+        request.url = [davEndpoint, 'calendars', userId].join('/');
+
+        expect(opts).to.deep.equal(request);
+
+        callback(null, { body: 'result' });
+      };
+
+      mockery.registerMock('request', requestMock);
+
+      this.requireModule()
+        .getEvent(userId, calendarId)
+        .then(
+          function(event) {
+            expect(event).to.deep.equal('result');
+            expect(authMock.token.getNewToken).to.have.been.calledWith({ user: userId });
+            expect(davServerMock.utils.getDavEndpoint).to.have.been.called;
+
+            done();
+          },
+          done);
     });
 
   });
 
-  describe('the putEvent function', function() {
+  describe('the iTipRequest function', function() {
     beforeEach(function() {
         request = {
-          method: 'PUT',
-          url: [davEndpoint, 'calendars', userId, calendarId, eventId + '.ics'].join('/'),
-          headers: {ESNToken: token},
+          method: 'ITIP',
+          url: [davEndpoint, 'calendars', userId].join('/'),
+          headers: {
+            ESNToken: token
+          },
           json: true,
           body: jcal
         };
@@ -115,48 +185,65 @@ describe('Caldav-client helper', function() {
         return callback(new Error());
       });
 
-      this.requireModule().putEvent(userId, calendarId, eventId, jcal).then(function() {
-        done('The promise should not have successed');
-      }, function(err) {
-        expect(err).to.exist;
-        expect(authMock.token.getNewToken).to.have.been.calledWith({user: userId});
-        expect(davServerMock.utils.getDavEndpoint).to.have.been.called;
-        done();
-      });
+      this.requireModule()
+        .iTipRequest(userId, calendarId, eventId, jcal)
+        .then(
+          function() {
+            done('The promise should not have successed');
+          },
+          function(err) {
+            expect(err).to.exist;
+            expect(authMock.token.getNewToken).to.have.been.calledWith({ user: userId });
+            expect(davServerMock.utils.getDavEndpoint).to.have.been.called;
+
+            done();
+          });
     });
 
     it('should call request with the built parameters and reject if it fails', function(done) {
       const requestMock = function(opts, callback) {
         expect(opts).to.deep.equal(request);
+
         callback(new Error());
       };
 
       mockery.registerMock('request', requestMock);
 
-      this.requireModule().putEvent(userId, calendarId, eventId, jcal).then(function() {
-        done('The promise should not have successed');
-      }, function(err) {
-        expect(err).to.exist;
-        expect(authMock.token.getNewToken).to.have.been.calledWith({user: userId});
-        expect(davServerMock.utils.getDavEndpoint).to.have.been.called;
-        done();
-      });
+      this.requireModule()
+        .iTipRequest(userId, jcal)
+        .then(
+          function() {
+            done('The promise should not have successed');
+          },
+          function(err) {
+            expect(err).to.exist;
+            expect(authMock.token.getNewToken).to.have.been.calledWith({ user: userId });
+            expect(davServerMock.utils.getDavEndpoint).to.have.been.called;
+
+            done();
+          });
     });
 
     it('should call request with the built parameters and resolve with its results if it succeeds', function(done) {
       const requestMock = function(opts, callback) {
         expect(opts).to.deep.equal(request);
-        callback(null, {body: 'result'});
+
+        callback(null, { body: 'result' });
       };
 
       mockery.registerMock('request', requestMock);
 
-      this.requireModule().putEvent(userId, calendarId, eventId, jcal).then(function(event) {
-        expect(event).to.deep.equal('result');
-        expect(authMock.token.getNewToken).to.have.been.calledWith({user: userId});
-        expect(davServerMock.utils.getDavEndpoint).to.have.been.called;
-        done();
-      }, done);
+      this.requireModule()
+        .iTipRequest(userId, jcal)
+        .then(
+          function(event) {
+            expect(event).to.deep.equal('result');
+            expect(authMock.token.getNewToken).to.have.been.calledWith({ user: userId });
+            expect(davServerMock.utils.getDavEndpoint).to.have.been.called;
+
+            done();
+          },
+          done);
     });
   });
 });

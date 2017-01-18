@@ -2,8 +2,7 @@
 
 module.exports = {
   EVENT_MAIL_LISTENER: {
-    EXCHANGE: 'james:events',
-    DEFAULT_CALENDAR: 'events'
+    EXCHANGE: 'james:events'
   },
   MODE: {
     IMPORT: 'import'

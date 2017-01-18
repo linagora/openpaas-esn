@@ -1,6 +1,5 @@
 'use strict';
 
-const ICAL = require('ical.js');
 const CONSTANTS = require('../constants');
 
 module.exports = function(dependencies) {
@@ -35,6 +34,7 @@ module.exports = function(dependencies) {
 
           return;
         }
+
         if (user) {
           _handleMessage(user.id, jsonMessage);
         } else {
@@ -49,38 +49,6 @@ module.exports = function(dependencies) {
   }
 
   function _handleMessage(userId, jsonMessage) {
-    switch (jsonMessage.method) {
-      case 'REQUEST' :
-        _handleRequest(userId, jsonMessage);
-        break;
-      default :
-        logger.warn('CAlEventMailListener : Unknown method "' + jsonMessage.method + '" => Event ignored');
-    }
-  }
-
-  function _handleRequest(userId, jsonMessage) {
-    const jcalEvent = _parseJcal(jsonMessage.ical);
-
-    if (jcalEvent) {
-      caldavClient.putEvent(userId, CONSTANTS.EVENT_MAIL_LISTENER.DEFAULT_CALENDAR, jsonMessage.uid, jcalEvent)
-        .catch(function(err) {
-            logger.error('CAlEventMailListener : Error when connecting to Sabre ' + err);
-          }
-        );
-    }
-  }
-
-  function _parseJcal(ical) {
-    if (!ical) {
-      logger.warn('CAlEventMailListener : Empty message ical => Event ignored');
-
-      return;
-    }
-
-    try {
-      return ICAL.parse(ical);
-    } catch (err) {
-      logger.warn('CAlEventMailListener : Error when parsing ical => Event ignored');
-    }
+    caldavClient.iTipRequest(userId, jsonMessage);
   }
 };
