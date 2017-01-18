@@ -1,11 +1,11 @@
 'use strict';
 
-var Community = require('mongoose').model('Community');
+const Community = require('mongoose').model('Community');
 
-function getId(community) {
-  return community._id;
-}
-module.exports.getId = getId;
+module.exports = {
+  denormalize,
+  getId
+};
 
 function denormalize(community) {
   function transform(doc, ret) {
@@ -16,4 +16,7 @@ function denormalize(community) {
 
   return community instanceof Community ? community.toObject(options) : new Community(community).toObject(options);
 }
-module.exports.denormalize = denormalize;
+
+function getId(community) {
+  return community._id;
+}

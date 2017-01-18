@@ -1,31 +1,279 @@
 'use strict';
 
-var mongoose = require('mongoose');
-var Community = mongoose.model('Community');
-var User = mongoose.model('User');
-var logger = require('../logger');
-var collaborationModule = require('../collaboration');
-var permission = collaborationModule.permission;
+const mongoose = require('mongoose');
+const Community = mongoose.model('Community');
+const User = mongoose.model('User');
+const logger = require('../logger');
+const collaborationModule = require('../collaboration');
+const permission = collaborationModule.permission;
+const tuple = require('../tuple');
+const localpubsub = require('../pubsub').local;
+const globalpubsub = require('../pubsub').global;
+const CONSTANTS = require('./constants');
+const search = require('./search');
+const communityObjectType = CONSTANTS.OBJECT_TYPE;
+const MEMBERSHIP_TYPE_REQUEST = 'request';
+const MEMBERSHIP_TYPE_INVITATION = 'invitation';
 
-var tuple = require('../tuple');
-var localpubsub = require('../pubsub').local;
-var globalpubsub = require('../pubsub').global;
-var CONSTANTS = require('./constants');
-var communityObjectType = CONSTANTS.OBJECT_TYPE;
-
-collaborationModule.registerCollaborationModel(communityObjectType, 'Community');
+collaborationModule.registerCollaborationModel(communityObjectType, CONSTANTS.MODEL_NAME);
 collaborationModule.registerCollaborationLib(communityObjectType, module.exports);
-collaborationModule.registerMembersMapping(communityObjectType, 'Community');
+collaborationModule.registerMembersMapping(communityObjectType, CONSTANTS.MODEL_NAME);
 
-module.exports.permission = permission;
+module.exports = {
+  addMembershipRequest,
+  cancelMembershipInvitation,
+  cancelMembershipRequest,
+  cleanMembershipRequest,
+  declineMembershipInvitation,
+  delete: remove,
+  getCollaborationsForUser: getUserCommunities,
+  getManagers,
+  getMembers,
+  getMembershipRequest,
+  getMembershipRequests,
+  getUserCommunities,
+  getStreamsForUser,
+  hasDomain,
+  isManager,
+  isMember,
+  join,
+  leave,
+  load,
+  loadWithDomains,
+  permission,
+  query,
+  refuseMembershipRequest,
+  save,
+  search,
+  update,
+  updateAvatar,
+  userToMember,
+  MEMBERSHIP_TYPE_REQUEST,
+  MEMBERSHIP_TYPE_INVITATION
+};
 
-var MEMBERSHIP_TYPE_REQUEST = 'request';
-var MEMBERSHIP_TYPE_INVITATION = 'invitation';
+function addMembershipRequest(community, userAuthor, userTarget, workflow, actor, callback) {
+  collaborationModule.member.addMembershipRequest(communityObjectType, community, userAuthor, userTarget, workflow, actor, callback);
+}
 
-module.exports.MEMBERSHIP_TYPE_REQUEST = MEMBERSHIP_TYPE_REQUEST;
-module.exports.MEMBERSHIP_TYPE_INVITATION = MEMBERSHIP_TYPE_INVITATION;
+function cancelMembershipInvitation(community, membership, manager, onResponse) {
+  collaborationModule.member.cancelMembershipInvitation(communityObjectType, community, membership, manager, onResponse);
+}
 
-module.exports.update = function(community, modifications, callback) {
+function cancelMembershipRequest(community, membership, user, onResponse) {
+  collaborationModule.member.cancelMembershipRequest(communityObjectType, community, membership, user, onResponse);
+}
+
+function cleanMembershipRequest(community, user, callback) {
+  collaborationModule.member.cleanMembershipRequest(community, user, callback);
+}
+
+function declineMembershipInvitation(community, membership, user, onResponse) {
+  collaborationModule.member.declineMembershipInvitation(communityObjectType, community, membership, user, onResponse);
+}
+
+function communityToStream(community) {
+  return {
+    uuid: community.activity_stream.uuid,
+    target: {
+      objectType: 'community',
+      _id: community._id,
+      displayName: community.title,
+      id: 'urn:linagora.com:community:' + community._id,
+      image: community.avatar || ''
+    }
+  };
+}
+
+function getManagers(community, query, callback) {
+  const id = community._id || community;
+  const q = Community.findById(id);
+
+  // TODO Right now creator is the only manager. It will change in the future.
+  // query = query ||  {};
+  // q.slice('managers', [query.offset || DEFAULT_OFFSET, query.limit || DEFAULT_LIMIT]);
+  q.populate('creator');
+  q.exec((err, community) => {
+    if (err) {
+      return callback(err);
+    }
+
+    callback(null, community ? [community.creator] : []);
+  });
+}
+
+function getMembers(community, query = {}, callback) {
+  const id = community._id || community;
+
+  Community.findById(id, (err, community) => {
+    if (err) { return callback(err); }
+
+    const members = community.members.slice().splice(query.offset || CONSTANTS.DEFAULT_OFFSET, query.limit || CONSTANTS.DEFAULT_LIMIT);
+    const memberIds = members.map(member => member.member.id);
+
+    User.find({_id: {$in: memberIds}}, (err, users) => {
+      if (err) {
+        return callback(err);
+      }
+
+      const hash = {};
+
+      users.forEach(u => { hash[u._id] = u; });
+      members.forEach(m => {
+        m.member = hash[m.member.id];
+      });
+
+      callback(null, members);
+    });
+  });
+}
+
+function getMembershipRequest(community, user) {
+  return collaborationModule.member.getMembershipRequest(community, user);
+}
+
+function getMembershipRequests(community, query, callback) {
+  return collaborationModule.member.getMembershipRequests(communityObjectType, community._id || community, query, callback);
+}
+
+function getStreamsForUser(userId, options, callback) {
+  getUserCommunities(userId, options, (err, projects) => {
+    if (err) {
+      return callback(err);
+    }
+
+    callback(null, projects.map(communityToStream));
+  });
+}
+
+function getUserCommunities(user, options, callback) {
+  let q = options || {};
+  const params = {};
+
+  if (typeof options === 'function') {
+    callback = options;
+    q = {};
+  }
+
+  if (!user) {
+    return callback(new Error('User is required'));
+  }
+
+  const id = user._id || user;
+  const done = function(err, result) {
+    if (err) {
+      return callback(err);
+    }
+
+    if (!result || result.length === 0) {
+      return callback(null, []);
+    }
+
+    if (q.writable) {
+      return permission.filterWritable(result, tuple.user(id), callback);
+    }
+
+    callback(null, result);
+  };
+
+  if (q.member) {
+    params.members = {$elemMatch: {'member.objectType': 'user', 'member.id': id}};
+  }
+
+  if (q.domainid) {
+    params.domain_ids = q.domainid;
+  }
+
+  if (q.name) {
+    params.title = q.name;
+  }
+
+  query(params, done);
+}
+
+function hasDomain(community, domainId) {
+  collaborationModule.hasDomain(community, domainId);
+}
+
+function isManager(community, user, callback) {
+  collaborationModule.member.isManager(communityObjectType, community, user, callback);
+}
+
+function isMember(community, tuple, callback) {
+  collaborationModule.member.isMember(community, tuple, callback);
+}
+
+function join(community, userAuthor, userTarget, actor, callback) {
+  collaborationModule.member.join(communityObjectType, community, userAuthor, userTarget, actor, callback);
+}
+
+function leave(community, userAuthor, userTarget, callback) {
+  collaborationModule.member.leave(communityObjectType, community, userAuthor, userTarget, callback);
+}
+
+function load(community, callback) {
+  if (!community) {
+    return callback(new Error('Community is required'));
+  }
+
+  var id = community._id || community;
+
+  Community.findOne({_id: id}, callback);
+}
+
+function loadWithDomains(community, callback) {
+  if (!community) {
+    return callback(new Error('Community is required'));
+  }
+  const id = community._id || community;
+
+  Community.findOne({_id: id}).populate('domain_ids', null, 'Domain').exec(callback);
+}
+
+function query(q, callback) {
+  collaborationModule.query(communityObjectType, q, callback);
+}
+
+function refuseMembershipRequest(community, membership, manager, onResponse) {
+  collaborationModule.member.refuseMembershipRequest(communityObjectType, community, membership, manager, onResponse);
+}
+
+function remove(community, callback) {
+  if (!community) {
+    return callback(new Error('Community is required'));
+  }
+
+  callback(new Error('Not implemented'));
+}
+
+function save(community, callback) {
+  if (!community) {
+    return callback(new Error('Can not save null community'));
+  }
+
+  if (!community.title) {
+    return callback(new Error('Can not save community with null title'));
+  }
+
+  if (!community.domain_ids || community.domain_ids.length === 0) {
+    return callback(new Error('Can not save community without at least a domain'));
+  }
+
+  const com = new Community(community);
+
+  com.save((err, response) => {
+    if (!err) {
+      logger.info('Added new community:', { _id: response._id });
+      localpubsub.topic(CONSTANTS.EVENTS.communityCreated).publish(response);
+    } else {
+      logger.error('Error while trying to add a new community:', err.message);
+    }
+
+    callback(err, response);
+  });
+}
+
+function update(community, modifications, callback) {
   if (!community) {
     return callback(new Error('Community is required'));
   }
@@ -39,7 +287,7 @@ module.exports.update = function(community, modifications, callback) {
   }
 
   if (modifications.newMembers) {
-    modifications.newMembers.forEach(function(member) {
+    modifications.newMembers.forEach(member => {
       community.members.push({
         member: {
           id: member._id || member,
@@ -50,12 +298,10 @@ module.exports.update = function(community, modifications, callback) {
   }
 
   if (modifications.deleteMembers) {
-    modifications.deleteMembers.forEach(function(member) {
-      var idMember = member._id || member;
+    modifications.deleteMembers.forEach(member => {
+      const idMember = member._id || member;
 
-      community.members = community.members.filter(function(memberCommunity) {
-        return memberCommunity.member.id.toString() !== idMember.toString();
-      });
+      community.members = community.members.filter(memberCommunity => memberCommunity.member.id.toString() !== idMember.toString());
     });
   }
 
@@ -69,9 +315,9 @@ module.exports.update = function(community, modifications, callback) {
 
     callback.apply(null, arguments);
   });
-};
+}
 
-module.exports.updateAvatar = function(community, avatar, callback) {
+function updateAvatar(community, avatar, callback) {
   if (!community) {
     return callback(new Error('Community is required'));
   }
@@ -80,84 +326,9 @@ module.exports.updateAvatar = function(community, avatar, callback) {
   }
   community.avatar = avatar;
   community.save(callback);
-};
-
-module.exports.save = function(community, callback) {
-  if (!community) {
-    return callback(new Error('Can not save null community'));
-  }
-
-  if (!community.title) {
-    return callback(new Error('Can not save community with null title'));
-  }
-
-  if (!community.domain_ids || community.domain_ids.length === 0) {
-    return callback(new Error('Can not save community without at least a domain'));
-  }
-
-  var com = new Community(community);
-
-  com.save(function(err, response) {
-    if (!err) {
-      logger.info('Added new community:', { _id: response._id });
-      localpubsub.topic(CONSTANTS.EVENTS.communityCreated).publish(response);
-    } else {
-      logger.error('Error while trying to add a new community:', err.message);
-    }
-
-    return callback(err, response);
-  });
-};
-
-module.exports.load = function(community, callback) {
-  if (!community) {
-    return callback(new Error('Community is required'));
-  }
-
-  var id = community._id || community;
-
-  return Community.findOne({_id: id}, callback);
-};
-
-module.exports.loadWithDomains = function(community, callback) {
-  if (!community) {
-    return callback(new Error('Community is required'));
-  }
-  var id = community._id || community;
-
-  return Community.findOne({_id: id}).populate('domain_ids', null, 'Domain').exec(callback);
-};
-
-function query(q, callback) {
-  return collaborationModule.query(communityObjectType, q, callback);
 }
-module.exports.query = query;
 
-module.exports.delete = function(community, callback) {
-  if (!community) {
-    return callback(new Error('Community is required'));
-  }
-
-  return callback(new Error('Not implemented'));
-};
-
-module.exports.leave = function(community, userAuthor, userTarget, callback) {
-  collaborationModule.member.leave(communityObjectType, community, userAuthor, userTarget, callback);
-};
-
-module.exports.join = function(community, userAuthor, userTarget, actor, callback) {
-  collaborationModule.member.join(communityObjectType, community, userAuthor, userTarget, actor, callback);
-};
-
-module.exports.isManager = function(community, user, callback) {
-  return collaborationModule.member.isManager(communityObjectType, community, user, callback);
-};
-
-module.exports.isMember = function(community, tuple, callback) {
-  return collaborationModule.member.isMember(community, tuple, callback);
-};
-
-module.exports.userToMember = function(document) {
+function userToMember(document) {
   var result = {};
 
   if (!document || !document.member) {
@@ -179,154 +350,4 @@ module.exports.userToMember = function(document) {
   };
 
   return result;
-};
-
-module.exports.getMembers = function(community, query, callback) {
-  query = query || {};
-  var id = community._id || community;
-
-  Community.findById(id, function(err, community) {
-    if (err) { return callback(err); }
-
-    var members = community.members.slice().splice(query.offset || CONSTANTS.DEFAULT_OFFSET, query.limit || CONSTANTS.DEFAULT_LIMIT);
-
-    var memberIds = members.map(function(member) { return member.member.id; });
-
-    User.find({_id: {$in: memberIds}}, function(err, users) {
-      if (err) { return callback(err); }
-      var hash = {};
-
-      users.forEach(function(u) { hash[u._id] = u; });
-      members.forEach(function(m) {
-        m.member = hash[m.member.id];
-      });
-
-      return callback(null, members);
-    });
-  });
-};
-
-module.exports.getManagers = function(community, query, callback) {
-  var id = community._id || community;
-
-  var q = Community.findById(id);
-
-  // TODO Right now creator is the only manager. It will change in the futur.
-  // query = query ||  {};
-  // q.slice('managers', [query.offset || DEFAULT_OFFSET, query.limit || DEFAULT_LIMIT]);
-  q.populate('creator');
-  q.exec(function(err, community) {
-    if (err) {
-      return callback(err);
-    }
-
-    return callback(null, community ? [community.creator] : []);
-  });
-};
-
-function getUserCommunities(user, options, callback) {
-  var q = options || {};
-
-  if (typeof options === 'function') {
-    callback = options;
-    q = {};
-  }
-
-  if (!user) {
-    return callback(new Error('User is required'));
-  }
-
-  var id = user._id || user;
-
-  var done = function(err, result) {
-    if (err) {
-      return callback(err);
-    }
-
-    if (!result || result.length === 0) {
-      return callback(null, []);
-    }
-
-    if (q.writable) {
-      return permission.filterWritable(result, tuple.user(id), callback);
-    }
-
-    return callback(null, result);
-  };
-
-  var params = {};
-
-  if (q.member) {
-    params.members = {$elemMatch: {'member.objectType': 'user', 'member.id': id}};
-  }
-
-  if (q.domainid) {
-    params.domain_ids = q.domainid;
-  }
-
-  if (q.name) {
-    params.title = q.name;
-  }
-
-  return query(params, done);
 }
-module.exports.getUserCommunities = getUserCommunities;
-module.exports.getCollaborationsForUser = getUserCommunities;
-
-function communityToStream(community) {
-  return {
-    uuid: community.activity_stream.uuid,
-    target: {
-      objectType: 'community',
-      _id: community._id,
-      displayName: community.title,
-      id: 'urn:linagora.com:community:' + community._id,
-      image: community.avatar || ''
-    }
-  };
-}
-
-module.exports.getStreamsForUser = function(userId, options, callback) {
-  getUserCommunities(userId, options, function(err, projects) {
-    if (err) { return callback(err); }
-    callback(null, projects.map(communityToStream));
-  });
-};
-
-module.exports.getMembershipRequests = function(community, query, callback) {
-  return collaborationModule.member.getMembershipRequests(communityObjectType, community._id || community, query, callback);
-};
-
-module.exports.addMembershipRequest = function(community, userAuthor, userTarget, workflow, actor, callback) {
-  return collaborationModule.member.addMembershipRequest(communityObjectType, community, userAuthor, userTarget, workflow, actor, callback);
-};
-
-module.exports.getMembershipRequest = function(community, user) {
-  return collaborationModule.member.getMembershipRequest(community, user);
-};
-
-module.exports.cancelMembershipInvitation = function(community, membership, manager, onResponse) {
-  return collaborationModule.member.cancelMembershipInvitation(communityObjectType, community, membership, manager, onResponse);
-};
-
-module.exports.refuseMembershipRequest = function(community, membership, manager, onResponse) {
-  return collaborationModule.member.refuseMembershipRequest(communityObjectType, community, membership, manager, onResponse);
-};
-
-module.exports.declineMembershipInvitation = function(community, membership, user, onResponse) {
-  return collaborationModule.member.declineMembershipInvitation(communityObjectType, community, membership, user, onResponse);
-};
-
-module.exports.cancelMembershipRequest = function(community, membership, user, onResponse) {
-  return collaborationModule.member.cancelMembershipRequest(communityObjectType, community, membership, user, onResponse);
-};
-
-module.exports.cleanMembershipRequest = function(community, user, callback) {
-  return collaborationModule.member.cleanMembershipRequest(community, user, callback);
-};
-
-module.exports.search = require('./search');
-
-module.exports.hasDomain = function(community, domainId) {
-  return collaborationModule.hasDomain(community, domainId);
-};

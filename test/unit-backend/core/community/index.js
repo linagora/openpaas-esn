@@ -480,7 +480,7 @@ describe('The community module', function() {
       });
 
       var community = this.helpers.requireBackend('core/community/index');
-      community.getMembers({_id: 123}, null, function(err, result) {
+      community.getMembers({_id: 123}, {}, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.be.an.array;
         expect(result.length).to.equal(0);
@@ -514,7 +514,7 @@ describe('The community module', function() {
       });
 
       var community = this.helpers.requireBackend('core/community/index');
-      community.getMembers({_id: 123}, null, function(err, members) {
+      community.getMembers({_id: 123}, {}, function(err, members) {
         expect(err).to.not.exist;
         expect(members).to.be.an.array;
         expect(members).to.deep.equal(result);
@@ -587,7 +587,7 @@ describe('The community module', function() {
       });
 
       var community = this.helpers.requireBackend('core/community/index');
-      community.getMembers({_id: 123}, null, function() {
+      community.getMembers({_id: 123}, {}, function() {
         done();
       });
     });
