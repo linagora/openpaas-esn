@@ -187,7 +187,6 @@ describe('The communities controller', function() {
         }
       };
       mockery.registerMock('../../core/community', mock);
-      mockery.registerMock('../../core/community/permission', {});
 
       var req = {
         query: {}
@@ -211,7 +210,6 @@ describe('The communities controller', function() {
         }
       };
       mockery.registerMock('../../core/community', mock);
-      mockery.registerMock('../../core/community/permission', {});
 
       var req = {
         query: {}
@@ -243,14 +241,14 @@ describe('The communities controller', function() {
         },
         getMembershipRequest: function() {
           return false;
+        },
+        permission: {
+          canFind: function(community, tuple, callback) {
+            return callback(null, true);
+          }
         }
       };
       mockery.registerMock('../../core/community', mock);
-      mockery.registerMock('../../core/community/permission', {
-        canFind: function(community, tuple, callback) {
-          return callback(null, true);
-        }
-      });
 
       var req = {
         query: {},
@@ -288,7 +286,6 @@ describe('The communities controller', function() {
         }
       };
       mockery.registerMock('../../core/community', mock);
-      mockery.registerMock('../../core/community/permission', {});
 
       var res = {
       };
@@ -313,7 +310,6 @@ describe('The communities controller', function() {
         }
       };
       mockery.registerMock('../../core/community', mock);
-      mockery.registerMock('../../core/community/permission', {});
 
       var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.list(req, {});
@@ -335,7 +331,6 @@ describe('The communities controller', function() {
         }
       };
       mockery.registerMock('../../core/community', mock);
-      mockery.registerMock('../../core/community/permission', {});
 
       var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.list(req, {});
@@ -358,7 +353,6 @@ describe('The communities controller', function() {
         }
       };
       mockery.registerMock('../../core/community', mock);
-      mockery.registerMock('../../core/community/permission', {});
 
       var communities = this.helpers.requireBackend('webserver/controllers/communities');
       communities.list(req, {});
@@ -374,7 +368,6 @@ describe('The communities controller', function() {
         }
       };
       mockery.registerMock('../../core/community', mock);
-      mockery.registerMock('../../core/community/permission', {});
 
       var req = {
         params: {
@@ -396,7 +389,6 @@ describe('The communities controller', function() {
         }
       };
       mockery.registerMock('../../core/community', mock);
-      mockery.registerMock('../../core/community/permission', {});
 
       var res = this.helpers.express.jsonResponse(
         function(code) {
@@ -426,7 +418,6 @@ describe('The communities controller', function() {
         }
       };
       mockery.registerMock('../../core/community', mock);
-      mockery.registerMock('../../core/community/permission', {});
 
       var req = {
         params: {
@@ -456,7 +447,6 @@ describe('The communities controller', function() {
         }
       };
       mockery.registerMock('../../core/community', mock);
-      mockery.registerMock('../../core/community/permission', {});
 
       var req = {
         params: {
@@ -480,13 +470,20 @@ describe('The communities controller', function() {
     it('should send back HTTP 200 with community if defined in request', function(done) {
       var community = {_id: 123, members: [{member: {objectType: 'user', id: 'user1'}}]};
       var user = {_id: 'user1', id: 'user1'};
-      mockery.registerMock('../../core/community/permission', {
-        canWrite: function(community, user, callback) {
-          return callback(null, true);
+      mockery.registerMock('../../core/community', {
+        getMembershipRequest: function() {
         },
-        canFind: function(com, tuple, callback) {
-          expect(com).to.deep.equal(community);
-          return callback(null, true);
+        isMember: function(community, tuple, callback) {
+          callback(null, true);
+        },
+        permission: {
+          canWrite: function(community, user, callback) {
+            callback(null, true);
+          },
+          canFind: function(com, tuple, callback) {
+            expect(com).to.deep.equal(community);
+            callback(null, true);
+          }
         }
       });
 
@@ -512,10 +509,12 @@ describe('The communities controller', function() {
     it('should send back HTTP 403 if community is not readable by the user', function(done) {
       var community = {_id: 123, members: [{id: 'user1'}]};
       var user = {_id: 'user1'};
-      mockery.registerMock('../../core/community/permission', {
-        canFind: function(com, tuple, callback) {
-          expect(com).to.deep.equal(community);
-          return callback(null, false);
+      mockery.registerMock('../../core/community', {
+        permission: {
+          canFind: function(com, tuple, callback) {
+            expect(com).to.deep.equal(community);
+            return callback(null, false);
+          }
         }
       });
 
@@ -557,7 +556,6 @@ describe('The communities controller', function() {
   describe('The delete fn', function() {
     it('should return 404 if community is not defined in request', function(done) {
       mockery.registerMock('../../core/community', {});
-      mockery.registerMock('../../core/community/permission', {});
 
       var req = {
       };
@@ -579,7 +577,6 @@ describe('The communities controller', function() {
         }
       };
       mockery.registerMock('../../core/community', mock);
-      mockery.registerMock('../../core/community/permission', {});
 
       var req = {
         community: {}
@@ -601,7 +598,6 @@ describe('The communities controller', function() {
         }
       };
       mockery.registerMock('../../core/community', mock);
-      mockery.registerMock('../../core/community/permission', {});
 
       var req = {
         community: {}
@@ -620,7 +616,6 @@ describe('The communities controller', function() {
   describe('The uploadAvatar fn', function() {
     it('should return 404 if community is not defined in request', function(done) {
       mockery.registerMock('../../core/community', {});
-      mockery.registerMock('../../core/community/permission', {});
 
       var req = {
       };
@@ -638,7 +633,6 @@ describe('The communities controller', function() {
     it('should return 400 if request does not have mimetype', function(done) {
       mockery.registerMock('../../core/image', {});
       mockery.registerMock('../../core/community', {});
-      mockery.registerMock('../../core/community/permission', {});
 
       var req = {
         community: {},
@@ -660,7 +654,6 @@ describe('The communities controller', function() {
     it('should return 400 if request does not have size', function(done) {
       mockery.registerMock('../../core/image', {});
       mockery.registerMock('../../core/community', {});
-      mockery.registerMock('../../core/community/permission', {});
 
       var req = {
         community: {},
@@ -682,7 +675,6 @@ describe('The communities controller', function() {
     it('should return 400 if request does not have a valid mimetype', function(done) {
       mockery.registerMock('../../core/image', {});
       mockery.registerMock('../../core/community', {});
-      mockery.registerMock('../../core/community/permission', {});
 
       var req = {
         community: {},
@@ -705,7 +697,6 @@ describe('The communities controller', function() {
     it('should return 400 if request does not have a valid size', function(done) {
       mockery.registerMock('../../core/image', {});
       mockery.registerMock('../../core/community', {});
-      mockery.registerMock('../../core/community/permission', {});
 
       var req = {
         community: {},
@@ -733,7 +724,6 @@ describe('The communities controller', function() {
       };
       mockery.registerMock('../../core/image', mock);
       mockery.registerMock('../../core/community', {});
-      mockery.registerMock('../../core/community/permission', {});
 
       var req = {
         community: {},
@@ -761,7 +751,6 @@ describe('The communities controller', function() {
       };
       mockery.registerMock('../../core/image', mock);
       mockery.registerMock('../../core/community', {});
-      mockery.registerMock('../../core/community/permission', {});
 
       var req = {
         community: {},
@@ -794,7 +783,6 @@ describe('The communities controller', function() {
       };
       mockery.registerMock('../../core/image', mock);
       mockery.registerMock('../../core/community', community);
-      mockery.registerMock('../../core/community/permission', {});
 
       var req = {
         community: {},
@@ -827,7 +815,6 @@ describe('The communities controller', function() {
       };
       mockery.registerMock('../../core/image', mock);
       mockery.registerMock('../../core/community', community);
-      mockery.registerMock('../../core/community/permission', {});
 
       var req = {
         community: {},
@@ -863,7 +850,6 @@ describe('The communities controller', function() {
       };
       mockery.registerMock('../../core/image', mock);
       mockery.registerMock('../../core/community', {});
-      mockery.registerMock('../../core/community/permission', {});
 
       var req = {
         community: {},
@@ -882,7 +868,6 @@ describe('The communities controller', function() {
   describe('The getAvatar fn', function() {
     it('should return 404 if community is not defined in request', function(done) {
       mockery.registerMock('../../core/community', {});
-      mockery.registerMock('../../core/community/permission', {});
 
       var req = {
       };
@@ -899,7 +884,6 @@ describe('The communities controller', function() {
 
     it('should redirect if community.image is not defined in request', function(done) {
       mockery.registerMock('../../core/community', {});
-      mockery.registerMock('../../core/community/permission', {});
 
       var req = {
         community: {
@@ -917,7 +901,6 @@ describe('The communities controller', function() {
 
     it('should redirect if image module fails', function(done) {
       mockery.registerMock('../../core/community', {});
-      mockery.registerMock('../../core/community/permission', {});
       mockery.registerMock('../../core/image', {
         getAvatar: function(id, format, callback) {
           return callback(new Error());
@@ -945,7 +928,6 @@ describe('The communities controller', function() {
 
     it('should redirect if image module can not return image stream', function(done) {
       mockery.registerMock('../../core/community', {});
-      mockery.registerMock('../../core/community/permission', {});
       mockery.registerMock('../../core/image', {
         getAvatar: function(id, format, callback) {
           return callback();
@@ -984,7 +966,6 @@ describe('The communities controller', function() {
       };
 
       mockery.registerMock('../../core/community', {});
-      mockery.registerMock('../../core/community/permission', {});
       mockery.registerMock('../../core/image', {
         getAvatar: function(id, format, callback) {
           return callback(null, meta, image);
@@ -1032,7 +1013,6 @@ describe('The communities controller', function() {
       };
       mockery.registerMock('../../core/image', imageModuleMock);
       mockery.registerMock('../../core/community', {});
-      mockery.registerMock('../../core/community/permission', {});
 
       var req = {
         headers: {
@@ -1061,7 +1041,6 @@ describe('The communities controller', function() {
   describe('The loadDomainForCreate fn', function() {
     it('should send back 400 is domain_id is not defined in body', function(done) {
       mockery.registerMock('../../core/community', {});
-      mockery.registerMock('../../core/community/permission', {});
 
       var res = this.helpers.express.jsonResponse(
         function(code) {
@@ -1084,7 +1063,6 @@ describe('The communities controller', function() {
   describe('getMine fn', function() {
     it('should send back 400 is req.user is undefined', function(done) {
       mockery.registerMock('../../core/community', {});
-      mockery.registerMock('../../core/community/permission', {});
 
       var res = this.helpers.express.jsonResponse(
         function(code) {
@@ -1113,7 +1091,6 @@ describe('The communities controller', function() {
           done();
         }
       );
-      mockery.registerMock('../../core/community/permission', {});
 
       var req = {
         user: {_id: 123}
@@ -1136,7 +1113,6 @@ describe('The communities controller', function() {
           return false;
         }
       });
-      mockery.registerMock('../../core/community/permission', {});
 
       var res = this.helpers.express.jsonResponse(
         function(code, json) {
@@ -1171,7 +1147,6 @@ describe('The communities controller', function() {
           return { timestamp: { creation: new Date(1419509532000) } };
         }
       });
-      mockery.registerMock('../../core/community/permission', {});
 
       var res = this.helpers.express.jsonResponse(
         function(code, json) {
@@ -1206,7 +1181,6 @@ describe('The communities controller', function() {
           return false;
         }
       });
-      mockery.registerMock('../../core/community/permission', {});
 
       var res = this.helpers.express.jsonResponse(
         function(code, json) {
@@ -1232,7 +1206,6 @@ describe('The communities controller', function() {
   describe('getMembers fn', function() {
     it('should send back 400 is req.community is undefined', function(done) {
       mockery.registerMock('../../core/community', {});
-      mockery.registerMock('../../core/community/permission', {});
 
       var res = this.helpers.express.jsonResponse(
         function(code) {
@@ -1254,7 +1227,6 @@ describe('The communities controller', function() {
           return callback(new Error());
         }
       });
-      mockery.registerMock('../../core/community/permission', {});
 
       var res = this.helpers.express.jsonResponse(
         function(code) {
@@ -1278,7 +1250,6 @@ describe('The communities controller', function() {
           return callback(null, []);
         }
       });
-      mockery.registerMock('../../core/community/permission', {});
 
       var res = this.helpers.express.jsonResponse(
         function(code) {
@@ -1303,7 +1274,6 @@ describe('The communities controller', function() {
           return callback(null, []);
         }
       });
-      mockery.registerMock('../../core/community/permission', {});
 
       var res = this.helpers.express.jsonResponse(
         function(code, data, headers) {
@@ -1340,7 +1310,6 @@ describe('The communities controller', function() {
           return callback(null, []);
         }
       });
-      mockery.registerMock('../../core/community/permission', {});
 
       var res = this.helpers.express.jsonResponse(
         function(code, data, headers) {
@@ -1371,7 +1340,6 @@ describe('The communities controller', function() {
   describe('getMember fn', function() {
     it('should send back 400 is req.community is undefined', function(done) {
       mockery.registerMock('../../core/community', {});
-      mockery.registerMock('../../core/community/permission', {});
 
       var res = this.helpers.express.jsonResponse(
         function(code) {
@@ -1396,7 +1364,6 @@ describe('The communities controller', function() {
           return callback(new Error());
         }
       });
-      mockery.registerMock('../../core/community/permission', {});
 
       var res = this.helpers.express.jsonResponse(
         function(code) {
@@ -1424,7 +1391,6 @@ describe('The communities controller', function() {
           return callback(null, []);
         }
       });
-      mockery.registerMock('../../core/community/permission', {});
 
       var res = this.helpers.express.response(
         function(code) {
@@ -1452,7 +1418,6 @@ describe('The communities controller', function() {
           return callback();
         }
       });
-      mockery.registerMock('../../core/community/permission', {});
 
       var res = this.helpers.express.response(
         function(code) {
@@ -1478,7 +1443,6 @@ describe('The communities controller', function() {
   describe('The join fn', function() {
     it('should send back 400 if req.community is undefined', function(done) {
       mockery.registerMock('../../core/community', {});
-      mockery.registerMock('../../core/community/permission', {});
 
       var res = this.helpers.express.jsonResponse(
         function(code) {
@@ -1500,7 +1464,6 @@ describe('The communities controller', function() {
 
     it('should send back 400 if req.user is undefined', function(done) {
       mockery.registerMock('../../core/community', {});
-      mockery.registerMock('../../core/community/permission', {});
 
       var res = this.helpers.express.jsonResponse(
         function(code) {
@@ -1522,7 +1485,6 @@ describe('The communities controller', function() {
 
     it('should send back 400 if req.params.user_id is undefined', function(done) {
       mockery.registerMock('../../core/community', {});
-      mockery.registerMock('../../core/community/permission', {});
 
       var res = this.helpers.express.jsonResponse(
         function(code) {
@@ -1543,7 +1505,6 @@ describe('The communities controller', function() {
     describe('when current user is community manager', function() {
       it('should send back 400 when current user ID is equals to req.params.user_id', function(done) {
         mockery.registerMock('../../core/community', {});
-        mockery.registerMock('../../core/community/permission', {});
 
         var res = this.helpers.express.jsonResponse(
           function(code, err) {
@@ -1578,7 +1539,6 @@ describe('The communities controller', function() {
             return false;
           }
         });
-        mockery.registerMock('../../core/community/permission', {});
 
         var res = this.helpers.express.jsonResponse(
           function(code, err) {
@@ -1619,7 +1579,6 @@ describe('The communities controller', function() {
             return callback();
           }
         });
-        mockery.registerMock('../../core/community/permission', {});
 
         var res = this.helpers.express.jsonResponse(
           function(code) {
@@ -1659,7 +1618,6 @@ describe('The communities controller', function() {
             return callback(new Error());
           }
         });
-        mockery.registerMock('../../core/community/permission', {});
 
         var res = this.helpers.express.jsonResponse(
           function(code) {
@@ -1699,7 +1657,6 @@ describe('The communities controller', function() {
             return callback();
           }
         });
-        mockery.registerMock('../../core/community/permission', {});
 
         var res = this.helpers.express.response(
           function(code) {
@@ -1732,7 +1689,6 @@ describe('The communities controller', function() {
 
       it('should send back 400 when current user ID is not equals to req.params.user_id', function(done) {
         mockery.registerMock('../../core/community', {});
-        mockery.registerMock('../../core/community/permission', {});
 
         var res = this.helpers.express.jsonResponse(
           function(code, err) {
@@ -1762,7 +1718,6 @@ describe('The communities controller', function() {
 
       describe('when community is not open', function() {
         it('should send back 400 when user did not make a membership request', function(done) {
-          mockery.registerMock('../../core/community/permission', {});
           var communityModuleMock = {
             getMembershipRequest: function() {
               return null;
@@ -1800,7 +1755,6 @@ describe('The communities controller', function() {
 
         it('should send back 500 if erasing the membership requests fails', function(done) {
           var userId = 123;
-          mockery.registerMock('../../core/community/permission', {});
           var communityModuleMock = {
             getMembershipRequest: function() {
               return {user: userId, workflow: 'invitation'};
@@ -1844,7 +1798,6 @@ describe('The communities controller', function() {
 
         it('should send back 500 if adding the user to the community fails', function(done) {
           var userId = 123;
-          mockery.registerMock('../../core/community/permission', {});
           var communityModuleMock = {
             getMembershipRequest: function() {
               return {user: userId, workflow: 'invitation'};
@@ -1888,7 +1841,6 @@ describe('The communities controller', function() {
 
         it('should send back 204 if the user has been added to the community', function(done) {
           var userId = 123;
-          mockery.registerMock('../../core/community/permission', {});
           var communityModuleMock = {
             getMembershipRequest: function() {
               return {user: userId, workflow: 'invitation'};
@@ -1937,7 +1889,6 @@ describe('The communities controller', function() {
               return cb(new Error());
             }
           });
-          mockery.registerMock('../../core/community/permission', {});
 
           var res = this.helpers.express.jsonResponse(
             function(code) {
@@ -1975,7 +1926,6 @@ describe('The communities controller', function() {
               return cb(null, community);
             }
           });
-          mockery.registerMock('../../core/community/permission', {});
 
           var res = this.helpers.express.response(
             function(code) {
@@ -2010,7 +1960,6 @@ describe('The communities controller', function() {
   describe('The leave fn', function() {
     it('should send back 400 if req.community is undefined', function(done) {
       mockery.registerMock('../../core/community', {});
-      mockery.registerMock('../../core/community/permission', {});
 
       var res = this.helpers.express.jsonResponse(
         function(code) {
@@ -2032,7 +1981,6 @@ describe('The communities controller', function() {
 
     it('should send back 400 if req.user is undefined', function(done) {
       mockery.registerMock('../../core/community', {});
-      mockery.registerMock('../../core/community/permission', {});
 
       var res = this.helpers.express.jsonResponse(
         function(code) {
@@ -2054,7 +2002,6 @@ describe('The communities controller', function() {
 
     it('should send back 400 if req.params.user_id is undefined', function(done) {
       mockery.registerMock('../../core/community', {});
-      mockery.registerMock('../../core/community/permission', {});
 
       var res = this.helpers.express.jsonResponse(
         function(code) {
@@ -2078,7 +2025,6 @@ describe('The communities controller', function() {
           return cb(new Error());
         }
       });
-      mockery.registerMock('../../core/community/permission', {});
 
       var res = this.helpers.express.jsonResponse(
         function(code) {
@@ -2105,7 +2051,6 @@ describe('The communities controller', function() {
           return cb();
         }
       });
-      mockery.registerMock('../../core/community/permission', {});
 
       var res = this.helpers.express.response(
         function(code) {
@@ -2130,7 +2075,6 @@ describe('The communities controller', function() {
   describe('removeMembershipRequest() method', function() {
     it('should send back 400 if req.community is undefined', function(done) {
       mockery.registerMock('../../core/community', {});
-      mockery.registerMock('../../core/community/permission', {});
 
       var res = this.helpers.express.jsonResponse(
         function(code) {
@@ -2152,7 +2096,6 @@ describe('The communities controller', function() {
 
     it('should send back 400 if req.user is undefined', function(done) {
       mockery.registerMock('../../core/community', {});
-      mockery.registerMock('../../core/community/permission', {});
 
       var res = this.helpers.express.jsonResponse(
         function(code) {
@@ -2174,7 +2117,6 @@ describe('The communities controller', function() {
 
     it('should send back 400 if the user_id parameter is undefined', function(done) {
       mockery.registerMock('../../core/community', {});
-      mockery.registerMock('../../core/community/permission', {});
 
       var res = this.helpers.express.jsonResponse(
         function(code) {
@@ -2196,7 +2138,6 @@ describe('The communities controller', function() {
 
       it('should send back 403 when req.params.user_id is not the current user id', function(done) {
         mockery.registerMock('../../core/community', {});
-        mockery.registerMock('../../core/community/permission', {});
 
         var res = this.helpers.express.jsonResponse(
           function(code, err) {
@@ -2230,7 +2171,6 @@ describe('The communities controller', function() {
             onResponse(new Error('community module error'));
           }
         });
-        mockery.registerMock('../../core/community/permission', {});
 
         var res = this.helpers.express.jsonResponse(
           function(code) {
@@ -2271,7 +2211,6 @@ describe('The communities controller', function() {
             callback(null, {});
           }
         });
-        mockery.registerMock('../../core/community/permission', {});
 
         var res = this.helpers.express.response(
           function(code) {
@@ -2311,7 +2250,6 @@ describe('The communities controller', function() {
             return callback(new Error());
           }
         });
-        mockery.registerMock('../../core/community/permission', {});
 
         var res = this.helpers.express.jsonResponse(
           function(code) {
@@ -2353,7 +2291,6 @@ describe('The communities controller', function() {
             return callback();
           }
         });
-        mockery.registerMock('../../core/community/permission', {});
 
         var res = this.helpers.express.response(
           function(code) {
@@ -2386,7 +2323,6 @@ describe('The communities controller', function() {
   describe('The getMembershipRequests fn', function() {
     it('should send back 400 is req.community is undefined', function(done) {
       mockery.registerMock('../../core/community', {});
-      mockery.registerMock('../../core/community/permission', {});
 
       var res = this.helpers.express.jsonResponse(
         function(code) {
@@ -2408,7 +2344,6 @@ describe('The communities controller', function() {
           return callback(new Error());
         }
       });
-      mockery.registerMock('../../core/community/permission', {});
 
       var res = this.helpers.express.jsonResponse(
         function(code) {
@@ -2433,7 +2368,6 @@ describe('The communities controller', function() {
           return callback(null, []);
         }
       });
-      mockery.registerMock('../../core/community/permission', {});
 
       var res = this.helpers.express.jsonResponse(
         function(code) {
@@ -2459,7 +2393,6 @@ describe('The communities controller', function() {
           return callback(null, []);
         }
       });
-      mockery.registerMock('../../core/community/permission', {});
 
       var res = this.helpers.express.jsonResponse(
         function(code, data, headers) {
@@ -2497,7 +2430,6 @@ describe('The communities controller', function() {
           return callback(null, []);
         }
       });
-      mockery.registerMock('../../core/community/permission', {});
 
       var res = this.helpers.express.jsonResponse(
         function(code, data, headers) {

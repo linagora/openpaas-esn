@@ -1,7 +1,7 @@
 'use strict';
 
 var async = require('async');
-var community = require('../core/community');
+var collaboration = require('../core/collaboration');
 var logger = require('../core/logger');
 
 /**
@@ -37,7 +37,7 @@ module.exports.getUserIds = function(targets, callback) {
       addUsersIfNotFoundOrContextUndefined(target.id);
       callback();
     } else if (target.objectType === 'community') {
-      community.getMembers(target.id, null, function(err, members) {
+      collaboration.member.getMembers(target.id, target.objectType, null, function(err, members) {
         if (err) {
           return callback(err);
         }

@@ -1,74 +1,78 @@
 'use strict';
 
-var collaborationModule = require('./index');
-var CONSTANTS = require('./constants');
-var async = require('async');
+const async = require('async');
+const CONSTANTS = require('./constants');
 
-module.exports.canRead = function(collaboration, tuple, callback) {
-  if (!collaboration || !collaboration.type) {
-    return callback(new Error('collaboration object is required'));
+module.exports = function(memberModule) {
+  return {
+    canFind,
+    canRead,
+    canWrite,
+    filterWritable
+  };
+
+  function canFind(collaboration, tuple, callback) {
+    if (!collaboration || !collaboration.type) {
+      return callback(new Error('Collaboration object is required'));
+    }
+
+    if (!tuple) {
+      // Tuple is required because the tuple objectType determines the permission
+      return callback(new Error('Tuple is required'));
+    }
+
+    if (collaboration.type !== CONSTANTS.COLLABORATION_TYPES.CONFIDENTIAL) {
+      return callback(null, true);
+    }
+
+    return memberModule.isIndirectMember(collaboration, tuple, callback);
   }
 
-  if (!tuple) {
-    // Tuple is required because the tuple objectType determines the permission
-    return callback(new Error('Tuple is required'));
+  function canRead(collaboration, tuple, callback) {
+    if (!collaboration || !collaboration.type) {
+      return callback(new Error('collaboration object is required'));
+    }
+
+    if (!tuple) {
+      // Tuple is required because the tuple objectType determines the permission
+      return callback(new Error('Tuple is required'));
+    }
+
+    if (collaboration.type === CONSTANTS.COLLABORATION_TYPES.OPEN || collaboration.type === CONSTANTS.COLLABORATION_TYPES.RESTRICTED) {
+      return callback(null, true);
+    }
+
+    return memberModule.isIndirectMember(collaboration, tuple, callback);
   }
 
-  if (collaboration.type === CONSTANTS.COLLABORATION_TYPES.OPEN || collaboration.type === CONSTANTS.COLLABORATION_TYPES.RESTRICTED) {
-    return callback(null, true);
-  }
-  return collaborationModule.isIndirectMember(collaboration, tuple, callback);
-};
+  function canWrite(collaboration, tuple, callback) {
+    if (!collaboration || !collaboration.type) {
+      return callback(new Error('collaboration object is required'));
+    }
 
-function canWrite(collaboration, tuple, callback) {
-  if (!collaboration || !collaboration.type) {
-    return callback(new Error('collaboration object is required'));
-  }
+    if (!tuple) {
+      // Tuple is required because the tuple objectType determines the permission
+      return callback(new Error('Tuple is required'));
+    }
 
-  if (!tuple) {
-    // Tuple is required because the tuple objectType determines the permission
-    return callback(new Error('Tuple is required'));
-  }
+    if (collaboration.type === CONSTANTS.COLLABORATION_TYPES.OPEN) {
+      return callback(null, true);
+    }
 
-  if (collaboration.type === CONSTANTS.COLLABORATION_TYPES.OPEN) {
-    return callback(null, true);
-  }
-  return collaborationModule.isIndirectMember(collaboration, tuple, callback);
-}
-module.exports.canWrite = canWrite;
-
-module.exports.filterWritable = function(collaborations, tuple, callback) {
-  if (!collaborations) {
-    return callback(new Error('collaborations is required'));
+    return memberModule.isIndirectMember(collaboration, tuple, callback);
   }
 
-  if (!tuple) {
-    return callback(new Error('tuple is required'));
-  }
+  function filterWritable(collaborations, tuple, callback) {
+    if (!collaborations) {
+      return callback(new Error('collaborations is required'));
+    }
 
-  async.filter(collaborations, function(collaboration, callback) {
-    canWrite(collaboration, tuple, callback);
-  }, callback);
-};
+    if (!tuple) {
+      return callback(new Error('tuple is required'));
+    }
 
-module.exports.supportsMemberShipRequests = function(collaboration) {
-  if (!collaboration || !collaboration.type) {
-    return false;
+    async.filter(collaborations, (collaboration, callback) => {
+      canWrite(collaboration, tuple, callback);
+    }, callback);
   }
-  return collaboration.type === CONSTANTS.COLLABORATION_TYPES.RESTRICTED || collaboration.type === CONSTANTS.COLLABORATION_TYPES.PRIVATE;
-};
-
-module.exports.canFind = function(collaboration, tuple, callback) {
-  if (!collaboration || !collaboration.type) {
-    return callback(new Error('Collaboration object is required'));
-  }
-
-  if (!tuple) {
-    // Tuple is required because the tuple objectType determines the permission
-    return callback(new Error('Tuple is required'));
-  }
-  if (collaboration.type !== CONSTANTS.COLLABORATION_TYPES.CONFIDENTIAL) {
-    return callback(null, true);
-  }
-  return collaborationModule.isIndirectMember(collaboration, tuple, callback);
 };

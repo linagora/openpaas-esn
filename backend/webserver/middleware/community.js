@@ -1,8 +1,8 @@
 'use strict';
 
 var communityModule = require('../../core/community');
+var communityPermission = communityModule.permission;
 var collaborationConstants = require('../../core/collaboration/constants');
-var communityPermission = require('../../core/community/permission');
 var mongoose = require('mongoose');
 var Community = mongoose.model('Community');
 

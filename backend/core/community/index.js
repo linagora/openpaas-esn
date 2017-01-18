@@ -4,14 +4,20 @@ var mongoose = require('mongoose');
 var Community = mongoose.model('Community');
 var User = mongoose.model('User');
 var logger = require('../logger');
-var permission = require('./permission');
 var collaborationModule = require('../collaboration');
+var permission = collaborationModule.permission;
+
 var tuple = require('../tuple');
 var localpubsub = require('../pubsub').local;
 var globalpubsub = require('../pubsub').global;
 var CONSTANTS = require('./constants');
-
 var communityObjectType = CONSTANTS.OBJECT_TYPE;
+
+collaborationModule.registerCollaborationModel(communityObjectType, 'Community');
+collaborationModule.registerCollaborationLib(communityObjectType, module.exports);
+collaborationModule.registerMembersMapping(communityObjectType, 'Community');
+
+module.exports.permission = permission;
 
 var MEMBERSHIP_TYPE_REQUEST = 'request';
 var MEMBERSHIP_TYPE_INVITATION = 'invitation';
@@ -136,19 +142,19 @@ module.exports.delete = function(community, callback) {
 };
 
 module.exports.leave = function(community, userAuthor, userTarget, callback) {
-  collaborationModule.leave(communityObjectType, community, userAuthor, userTarget, callback);
+  collaborationModule.member.leave(communityObjectType, community, userAuthor, userTarget, callback);
 };
 
 module.exports.join = function(community, userAuthor, userTarget, actor, callback) {
-  collaborationModule.join(communityObjectType, community, userAuthor, userTarget, actor, callback);
+  collaborationModule.member.join(communityObjectType, community, userAuthor, userTarget, actor, callback);
 };
 
 module.exports.isManager = function(community, user, callback) {
-  return collaborationModule.isManager(communityObjectType, community, user, callback);
+  return collaborationModule.member.isManager(communityObjectType, community, user, callback);
 };
 
 module.exports.isMember = function(community, tuple, callback) {
-  return collaborationModule.isMember(community, tuple, callback);
+  return collaborationModule.member.isMember(community, tuple, callback);
 };
 
 module.exports.userToMember = function(document) {
@@ -288,35 +294,35 @@ module.exports.getStreamsForUser = function(userId, options, callback) {
 };
 
 module.exports.getMembershipRequests = function(community, query, callback) {
-  return collaborationModule.getMembershipRequests(communityObjectType, community._id || community, query, callback);
+  return collaborationModule.member.getMembershipRequests(communityObjectType, community._id || community, query, callback);
 };
 
 module.exports.addMembershipRequest = function(community, userAuthor, userTarget, workflow, actor, callback) {
-  return collaborationModule.addMembershipRequest(communityObjectType, community, userAuthor, userTarget, workflow, actor, callback);
+  return collaborationModule.member.addMembershipRequest(communityObjectType, community, userAuthor, userTarget, workflow, actor, callback);
 };
 
 module.exports.getMembershipRequest = function(community, user) {
-  return collaborationModule.getMembershipRequest(community, user);
+  return collaborationModule.member.getMembershipRequest(community, user);
 };
 
 module.exports.cancelMembershipInvitation = function(community, membership, manager, onResponse) {
-  return collaborationModule.cancelMembershipInvitation(communityObjectType, community, membership, manager, onResponse);
+  return collaborationModule.member.cancelMembershipInvitation(communityObjectType, community, membership, manager, onResponse);
 };
 
 module.exports.refuseMembershipRequest = function(community, membership, manager, onResponse) {
-  return collaborationModule.refuseMembershipRequest(communityObjectType, community, membership, manager, onResponse);
+  return collaborationModule.member.refuseMembershipRequest(communityObjectType, community, membership, manager, onResponse);
 };
 
 module.exports.declineMembershipInvitation = function(community, membership, user, onResponse) {
-  return collaborationModule.declineMembershipInvitation(communityObjectType, community, membership, user, onResponse);
+  return collaborationModule.member.declineMembershipInvitation(communityObjectType, community, membership, user, onResponse);
 };
 
 module.exports.cancelMembershipRequest = function(community, membership, user, onResponse) {
-  return collaborationModule.cancelMembershipRequest(communityObjectType, community, membership, user, onResponse);
+  return collaborationModule.member.cancelMembershipRequest(communityObjectType, community, membership, user, onResponse);
 };
 
 module.exports.cleanMembershipRequest = function(community, user, callback) {
-  return collaborationModule.cleanMembershipRequest(community, user, callback);
+  return collaborationModule.member.cleanMembershipRequest(community, user, callback);
 };
 
 module.exports.search = require('./search');

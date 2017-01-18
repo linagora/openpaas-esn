@@ -5,17 +5,17 @@ var mockery = require('mockery');
 var ObjectId = require('mongoose').Types.ObjectId;
 
 describe('The targets helpers module', function() {
-  var communityMock = {};
+  var collaborationMock = {};
 
   function setupMock() {
-    communityMock.getMembers = function(community, query, callback) {
+    collaborationMock.getMembers = function(id, type, query, callback) {
       return callback(null, {});
     };
   }
 
   beforeEach(function() {
     setupMock();
-    mockery.registerMock('../core/community', communityMock);
+    mockery.registerMock('../core/collaboration', collaborationMock);
   });
 
   describe('the getUserIds fn', function() {
@@ -35,7 +35,7 @@ describe('The targets helpers module', function() {
 
     it('should send back an error if community.getMembers fail', function(done) {
       var isPassedByGetMembers = false;
-      communityMock.getMembers = function(community, query, callback) {
+      collaborationMock.getMembers = function(id, type, query, callback) {
         isPassedByGetMembers = true;
         return callback(new Error());
       };
@@ -58,7 +58,7 @@ describe('The targets helpers module', function() {
         {_id: new ObjectId()}
       ];
 
-      communityMock.getMembers = function(community, query, callback) {
+      collaborationMock.getMembers = function(id, type, query, callback) {
         return callback(null, [{member: {id: users[0]._id, objectType: 'user'}}]);
       };
 
