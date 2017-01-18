@@ -37,7 +37,7 @@ module.exports.getUserIds = function(targets, callback) {
       addUsersIfNotFoundOrContextUndefined(target.id);
       callback();
     } else if (target.objectType === 'community') {
-      collaboration.member.getMembers(target.id, target.objectType, null, function(err, members) {
+      collaboration.member.getMembers(target.id, target.objectType, {}, function(err, members) {
         if (err) {
           return callback(err);
         }
