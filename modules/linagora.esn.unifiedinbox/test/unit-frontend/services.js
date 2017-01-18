@@ -2487,6 +2487,86 @@ describe('The Unified Inbox Angular module services', function() {
         $rootScope.$digest();
       });
 
+      it('should apply nl2br to original email textBody', function(done) {
+        var email = {
+          from: {
+            name: 'test',
+            email: 'test@open-paas.org'
+          },
+          subject: 'Heya',
+          date: '2015-08-21T00:10:00Z',
+          textBody: 'Text\nBody\nTest'
+        };
+
+        emailBodyService.quote(email)
+          .then(function(text) {
+            expect(text).to.equal('<p><br/></p><cite>On Aug 21, 2015 12:10:00 AM, from test@open-paas.org</cite><blockquote>Text<br/>Body<br/>Test</blockquote>');
+          })
+          .then(done, done);
+
+        $rootScope.$digest();
+      });
+
+      it('should not apply nl2br to original email HTML body', function(done) {
+        var email = {
+          from: {
+            name: 'test',
+            email: 'test@open-paas.org'
+          },
+          subject: 'Heya',
+          date: '2015-08-21T00:10:00Z',
+          htmlBody: '<p><div>Test\nTest</div\n></p>'
+        };
+
+        emailBodyService.quote(email)
+          .then(function(text) {
+            expect(text).to.equal('<p><br/></p><cite>On Aug 21, 2015 12:10:00 AM, from test@open-paas.org</cite><blockquote><p><div>Test\nTest</div\n></p></blockquote>');
+          })
+          .then(done, done);
+
+        $rootScope.$digest();
+      });
+
+      it('should apply nl2br to original email textBody, when forwarding', function(done) {
+        var email = {
+          from: {
+            name: 'test',
+            email: 'test@open-paas.org'
+          },
+          subject: 'Heya',
+          date: '2015-08-21T00:10:00Z',
+          textBody: 'Text\nBody\nTest'
+        };
+
+        emailBodyService.quote(email, 'forward')
+          .then(function(text) {
+            expect(text).to.equal('<p><br/></p><cite>------- Forwarded message -------<br/>Subject: Heya<br/>Date: Aug 21, 2015 12:10:00 AM<br/>From: test@open-paas.org<br/><br/></cite><blockquote>Text<br/>Body<br/>Test</blockquote>');
+          })
+          .then(done, done);
+
+        $rootScope.$digest();
+      });
+
+      it('should not apply nl2br to original email HTML body, when forwarding', function(done) {
+        var email = {
+          from: {
+            name: 'test',
+            email: 'test@open-paas.org'
+          },
+          subject: 'Heya',
+          date: '2015-08-21T00:10:00Z',
+          htmlBody: '<p><div>Test\nTest</div\n></p>'
+        };
+
+        emailBodyService.quote(email, 'forward')
+          .then(function(text) {
+            expect(text).to.equal('<p><br/></p><cite>------- Forwarded message -------<br/>Subject: Heya<br/>Date: Aug 21, 2015 12:10:00 AM<br/>From: test@open-paas.org<br/><br/></cite><blockquote><p><div>Test\nTest</div\n></p></blockquote>');
+          })
+          .then(done, done);
+
+        $rootScope.$digest();
+      });
+
     });
 
     describe('The supportsRichtext function', function() {
