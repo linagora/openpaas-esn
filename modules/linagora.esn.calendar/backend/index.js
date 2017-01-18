@@ -113,6 +113,8 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
         'services/master-event-cache.js',
         'services/path-builder.js',
         'services/request.js',
+        'services/response-handler.js',
+        'services/grace-period-response-handler.js',
         'services/timezone.js',
 
         'components/calendar/calendar.js',
@@ -143,6 +145,13 @@ var AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
         'components/mini-calendar/mini-calendar.controller.js',
         'components/mini-calendar/mini-calendar.directive.js',
         'components/mini-calendar/mini-calendar.service.js',
+
+        'components/inbox/inbox.constants.js',
+        'components/inbox/invitation-message-indicator/invitation-message-indicator.js',
+        'components/inbox/invitation-message-indicator/invitation-message-indicator.run.js',
+        'components/inbox/invitation-message-blue-bar/invitation-message-blue-bar.js',
+        'components/inbox/invitation-message-blue-bar/invitation-message-blue-bar.run.js',
+        'components/inbox/invitation-message-blue-bar/invitation-message-blue-bar.controller.js',
 
         'calendar/calendar-header/calendar-header-content.directive.js',
         'calendar/calendar-header/calendar-header-mobile.directive.js',

@@ -6,13 +6,15 @@
          .constant('CALENDAR_DAV_DATE_FORMAT', 'YYYYMMDD[T]HHmmss')
          .factory('calendarAPI', calendarAPI);
 
-  var JSON_CONTENT_TYPE_HEADER = {'Content-Type': 'application/json'};
+  var JSON_CONTENT_TYPE_HEADER = { 'Content-Type': 'application/json' };
 
   function calendarAPI(
-    $q,
     calendarRestangular,
     calPathBuilder,
     request,
+    responseHandler,
+    gracePeriodResponseHandler,
+    _,
     CALENDAR_ACCEPT_HEADER,
     CALENDAR_DAV_DATE_FORMAT,
     CALENDAR_PREFER_HEADER,
@@ -26,6 +28,7 @@
       remove: remove,
       listEvents: listEvents,
       searchEvents: searchEvents,
+      getEventByUID: getEventByUID,
       listCalendars: listCalendars,
       getCalendar: getCalendar,
       listEventsForCalendar: listEventsForCalendar,
@@ -37,7 +40,14 @@
       modifyShares: modifyShares,
       changeParticipation: changeParticipation
     };
+
     ////////////
+
+    function davResponseHandler(key) {
+      return responseHandler([200], function(response) {
+        return (response.data && response.data._embedded && response.data._embedded[key]) || [];
+      });
+    }
 
     /**
      * Query one or more calendars for events in a specific range. The dav:calendar resources will include their dav:item resources.
@@ -54,17 +64,7 @@
         }
       };
 
-      return request('report', calendarHref, JSON_CONTENT_TYPE_HEADER, body)
-        .then(function(response) {
-          if (response.status !== 200) {
-            return $q.reject(response);
-          }
-          if (!response.data || !response.data._embedded || !response.data._embedded['dav:item']) {
-            return [];
-          }
-
-          return response.data._embedded['dav:item'];
-        });
+      return request('report', calendarHref, JSON_CONTENT_TYPE_HEADER, body).then(davResponseHandler('dav:item'));
     }
 
     /**
@@ -75,17 +75,27 @@
      * @return {Object}                An array of dav:item items.
      */
     function searchEvents(calendarId, options) {
-      return calendarRestangular.one(calendarId).one('events.json').get({query: options.query, limit: options.limit, offset: options.offset, sortKey: options.sortKey, sortOrder: options.sortOrder})
-        .then(function(response) {
-          if (response.status !== 200) {
-            return $q.reject(response);
-          }
-          if (!response.data || !response.data._embedded || !response.data._embedded['dav:item']) {
-            return [];
-          }
+      var query = {
+        query: options.query,
+        limit: options.limit,
+        offset: options.offset,
+        sortKey: options.sortKey,
+        sortOrder: options.sortOrder
+      };
 
-          return response.data._embedded['dav:item'];
-        });
+      return calendarRestangular.one(calendarId).one('events.json').get(query).then(davResponseHandler('dav:item'));
+    }
+
+    /**
+     * Queries all calendars of the logged-in user's calendar home for an event with the given _uid_.
+     *
+     * @param calendarHomeId {String} The calendar home ID to search in
+     * @param uid {String} The event UID to search.
+     *
+     * @return {Array} The array of dav:items
+     */
+    function getEventByUID(calendarHomeId, uid) {
+      return request('report', calPathBuilder.forCalendarHomeId(calendarHomeId), JSON_CONTENT_TYPE_HEADER, { uid: uid }).then(davResponseHandler('dav:item'));
     }
 
     /**
@@ -105,59 +115,28 @@
       };
       var path = calPathBuilder.forCalendarId(calendarHomeId, calendarId);
 
-      return request('report', path, JSON_CONTENT_TYPE_HEADER, body)
-        .then(function(response) {
-          if (response.status !== 200) {
-            return $q.reject(response);
-          }
-          if (!response.data || !response.data._embedded || !response.data._embedded['dav:item']) {
-            return [];
-          }
-
-          return response.data._embedded['dav:item'];
-        });
+      return request('report', path, JSON_CONTENT_TYPE_HEADER, body).then(davResponseHandler('dav:item'));
     }
 
     /**
      * List all calendar homes and calendars in the calendar root. A dav:root resource, expanded down to all dav:home resouces.
-     * @param  {String} calendarId The calendarId.
      * @return {Object}            An array of dav:home items
      */
     function listAllCalendars() {
       var path = calPathBuilder.rootPath();
 
-      return request('get', path + '/.json', {Accept: CALENDAR_ACCEPT_HEADER})
-        .then(function(response) {
-          if (response.status !== 200) {
-            return $q.reject(response);
-          }
-          if (!response.data || !response.data._embedded || !response.data._embedded['dav:home']) {
-            return [];
-          }
-
-          return response.data._embedded['dav:home'];
-        });
+      return request('get', path + '/.json', {Accept: CALENDAR_ACCEPT_HEADER}).then(davResponseHandler('dav:home'));
     }
 
     /**
      * List all calendars in the calendar home. A dav:home resource, containing all dav:calendar resources in it.
-     * @param  {String} calendarHomeId The calendarHomeId.
+     * @param  {String} calendarId The calendarHomeId.
      * @return {Object}                An array of dav:calendar
      */
     function listCalendars(calendarId) {
       var path = calPathBuilder.forCalendarHomeId(calendarId);
 
-      return request('get', path, {Accept: CALENDAR_ACCEPT_HEADER})
-        .then(function(response) {
-          if (response.status !== 200) {
-            return $q.reject(response);
-          }
-          if (!response.data || !response.data._embedded || !response.data._embedded['dav:calendar']) {
-            return [];
-          }
-
-          return response.data._embedded['dav:calendar'];
-        });
+      return request('get', path, {Accept: CALENDAR_ACCEPT_HEADER}).then(davResponseHandler('dav:calendar'));
     }
 
     /**
@@ -169,14 +148,7 @@
     function getCalendar(calendarHomeId, calendarId) {
       var path = calPathBuilder.forCalendarId(calendarHomeId, calendarId);
 
-      return request('get', path, {Accept: CALENDAR_ACCEPT_HEADER})
-        .then(function(response) {
-          if (response.status !== 200) {
-            return $q.reject(response);
-          }
-
-          return response.data;
-        });
+      return request('get', path, {Accept: CALENDAR_ACCEPT_HEADER}).then(responseHandler(200, _.property('data')));
     }
 
     /**
@@ -188,14 +160,7 @@
     function createCalendar(calendarHomeId, calendar) {
       var path = calPathBuilder.forCalendarHomeId(calendarHomeId);
 
-      return request('post', path, null, calendar)
-        .then(function(response) {
-          if (response.status !== 201) {
-            return $q.reject(response);
-          }
-
-          return response;
-        });
+      return request('post', path, null, calendar).then(responseHandler(201));
     }
 
     /**
@@ -207,14 +172,7 @@
     function removeCalendar(calendarHomeId, calendarId) {
       var path = calPathBuilder.forCalendarId(calendarHomeId, calendarId);
 
-      return request('delete', path)
-        .then(function(response) {
-          if (response.status !== 204) {
-            return $q.reject(response);
-          }
-
-          return response;
-        });
+      return request('delete', path).then(responseHandler(204));
     }
 
     /**
@@ -226,14 +184,7 @@
     function modifyCalendar(calendarHomeId, calendar) {
       var path = calPathBuilder.forCalendarId(calendarHomeId, calendar.id);
 
-      return request('proppatch', path, JSON_CONTENT_TYPE_HEADER, calendar)
-        .then(function(response) {
-          if (response.status !== 204) {
-            return $q.reject(response);
-          }
-
-          return response;
-        });
+      return request('proppatch', path, JSON_CONTENT_TYPE_HEADER, calendar).then(responseHandler(204));
     }
 
     /**
@@ -247,13 +198,7 @@
 
       return request('propfind', path, JSON_CONTENT_TYPE_HEADER, {
         prop: ['cs:invite', 'acl']
-      }).then(function(response) {
-        if (response.status !== 200) {
-          return $q.reject(response);
-        }
-
-        return response.data;
-      });
+      }).then(responseHandler(200, _.property('data')));
     }
 
     /**
@@ -266,14 +211,7 @@
     function modifyShares(calendarHomeId, calendarId, rights) {
       var path = calPathBuilder.forCalendarId(calendarHomeId, calendarId);
 
-      return request('post', path, null, rights)
-        .then(function(response) {
-          if (response.status !== 200) {
-            return $q.reject(response);
-          }
-
-          return response;
-        });
+      return request('post', path, null, rights).then(responseHandler(200));
     }
 
     /**
@@ -286,22 +224,12 @@
     function create(eventPath, vcalendar, options) {
       var headers = {'Content-Type': CALENDAR_CONTENT_TYPE_HEADER};
       var body = vcalendar.toJSON();
+
       if (options.graceperiod) {
-        return request('put', eventPath, headers, body, {graceperiod: CALENDAR_GRACE_DELAY})
-          .then(function(response) {
-            if (response.status !== 202) {
-              return $q.reject(response);
-            }
-            return response.data.id;
-          });
+        return request('put', eventPath, headers, body, {graceperiod: CALENDAR_GRACE_DELAY}).then(gracePeriodResponseHandler);
       }
-      return request('put', eventPath, headers, body)
-        .then(function(response) {
-          if (response.status !== 201) {
-            return $q.reject(response);
-          }
-          return response;
-        });
+
+      return request('put', eventPath, headers, body).then(responseHandler(201));
     }
 
     /**
@@ -316,17 +244,14 @@
         'Content-Type': CALENDAR_CONTENT_TYPE_HEADER,
         Prefer: CALENDAR_PREFER_HEADER
       };
+
       if (etag) {
         headers['If-Match'] = etag;
       }
+
       var body = vcalendar.toJSON();
-      return request('put', eventPath, headers, body, { graceperiod: CALENDAR_GRACE_DELAY })
-        .then(function(response) {
-          if (response.status !== 202) {
-            return $q.reject(response);
-          }
-          return response.data.id;
-        });
+
+      return request('put', eventPath, headers, body, { graceperiod: CALENDAR_GRACE_DELAY }).then(gracePeriodResponseHandler);
     }
 
     /**
@@ -337,13 +262,8 @@
      */
     function remove(eventPath, etag) {
       var headers = {'If-Match': etag};
-      return request('delete', eventPath, headers, null, { graceperiod: CALENDAR_GRACE_DELAY })
-        .then(function(response) {
-          if (response.status !== 202) {
-            return $q.reject(response);
-          }
-          return response.data.id;
-        });
+
+      return request('delete', eventPath, headers, null, { graceperiod: CALENDAR_GRACE_DELAY }).then(gracePeriodResponseHandler);
     }
 
     /**
@@ -364,13 +284,7 @@
       }
       var body = vcalendar.toJSON();
 
-      return request('put', eventPath, headers, body)
-        .then(function(response) {
-          if (response.status !== 200 && response.status !== 204) {
-            return $q.reject(response);
-          }
-          return response;
-        });
+      return request('put', eventPath, headers, body).then(responseHandler([200, 204]));
     }
   }
 })();

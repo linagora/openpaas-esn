@@ -6,7 +6,6 @@
 
   function calEventService(
     $q,
-    $window,
     $rootScope,
     _,
     ICAL,
@@ -34,6 +33,7 @@
       self.modifyEvent = modifyEvent;
       self.removeEvent = removeEvent;
       self.searchEvents = searchEvents;
+      self.getEventByUID = getEventByUID;
 
       ////////////
 
@@ -130,8 +130,23 @@
         return calEventAPI.get(eventPath)
           .then(function(response) {
             return CalendarShell.from(response.data, {path: eventPath, etag: response.headers('ETag')});
-          })
-          .catch($q.reject);
+          });
+      }
+
+    /**
+     * Gets an event by its UID. This searches in all user's calendar.
+     *
+     * @param calendarHomeId {String} The calendar home ID to search in
+     * @param {String} uid The event UID to search for.
+     *
+     * @return {CalendarShell} A {@link CalendarShell} object representing the found event
+     */
+      function getEventByUID(calendarHomeId, uid) {
+        return calendarAPI.getEventByUID(calendarHomeId, uid)
+          .then(_.head) // There's only one item returned
+          .then(function(item) {
+            return CalendarShell.from(item.data, { path: item._links.self.href, etag: item.etag });
+          });
       }
 
       /**
@@ -184,8 +199,7 @@
           })
           .finally(function() {
             event.gracePeriodTaskId = undefined;
-          })
-          .catch($q.reject);
+          });
       }
 
       /**
@@ -266,9 +280,9 @@
               //this is also the reason why this is a service and not a factory so we can mock modifyEvent
               return self.modifyEvent(eventPath, newMaster, oldMaster, etag);
             });
-        } else {
-          return performRemove();
         }
+
+        return performRemove();
       }
 
       /**
@@ -362,7 +376,7 @@
 
       /**
        * Change the status of participation of all emails (attendees) of an event
-       * @param  {String}                   path       the event path. it should be something like /calendars/<homeId>/<id>/<eventId>.ics
+       * @param  {String}                   eventPath       the event path. it should be something like /calendars/<homeId>/<id>/<eventId>.ics
        * @param  {CalendarShell}            event      the event in which we seek the attendees
        * @param  {[String]}                 emails     an array of emails
        * @param  {String}                   status     the status in which attendees status will be set

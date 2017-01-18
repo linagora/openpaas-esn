@@ -1,10 +1,14 @@
 'use strict';
 
-/* global chai: false */
+/* global chai: false, sinon: false */
 
 var expect = chai.expect;
 
 describe('The calendar module apis', function() {
+
+  function headerContentTypeJsonChecker(header) {
+    return header['Content-Type'] === 'application/json';
+  }
 
   beforeEach(function() {
     angular.mock.module('esn.calendar');
@@ -39,7 +43,7 @@ describe('The calendar module apis', function() {
 
     describe('get request', function() {
       it('should return the http response if status is 200', function(done) {
-        this.$httpBackend.expectGET('/dav/api/calendars/test', {Accept: this.CALENDAR_ACCEPT_HEADER}).respond(200, 'aResponse');
+        this.$httpBackend.expectGET(/^\/dav\/api\/calendars\/test\?_=\d+$/, {Accept: this.CALENDAR_ACCEPT_HEADER}).respond(200, 'aResponse');
 
         this.calEventAPI.get('/dav/api/calendars/test', this.vcalendar)
           .then(function(response) {
@@ -51,7 +55,7 @@ describe('The calendar module apis', function() {
       });
 
       it('should return an Error if response.status is not 200', function(done) {
-        this.$httpBackend.expectGET('/dav/api/calendars/test', {Accept: this.CALENDAR_ACCEPT_HEADER}).respond(500, 'Error');
+        this.$httpBackend.expectGET(/^\/dav\/api\/calendars\/test\?_=\d+$/, {Accept: this.CALENDAR_ACCEPT_HEADER}).respond(500, 'Error');
 
         this.calEventAPI.get('/dav/api/calendars/test', this.vcalendar)
           .catch(function(err) {
@@ -138,6 +142,65 @@ describe('The calendar module apis', function() {
           });
 
         this.$httpBackend.flush();
+      });
+    });
+
+    describe('getRight method', function() {
+      var bodyRequest;
+
+      beforeEach(function() {
+        bodyRequest = {
+          prop: ['cs:invite', 'acl']
+        };
+      });
+
+      it('should return an Error if response.status is not 202', function() {
+        this.$httpBackend.expect('PROPFIND', '/dav/api/calendars/calendars/id.json', bodyRequest, headerContentTypeJsonChecker).respond(500, 'Error');
+
+        var catchSpy = sinon.spy();
+
+        this.calendarAPI.getRight('calendars', this.vcalendar).catch(catchSpy);
+        this.$httpBackend.flush();
+        expect(catchSpy).to.have.been.calledWith(sinon.match({data: 'Error'}));
+
+      });
+
+      it('should return server body response if success', function() {
+        this.$httpBackend.expect('PROPFIND', '/dav/api/calendars/calendars/id.json', bodyRequest, headerContentTypeJsonChecker).respond(200, 'body');
+
+        var catchSpy = sinon.spy();
+
+        this.calendarAPI.getRight('calendars', this.vcalendar).then(catchSpy);
+        this.$httpBackend.flush();
+        expect(catchSpy).to.have.been.calledWith(sinon.match.same('body'));
+      });
+    });
+
+    describe('modifyShares', function() {
+      var bodyRequest;
+
+      beforeEach(function() {
+        bodyRequest = 'bodyRequest';
+      });
+
+      it('should return an error if response.status is not 200', function() {
+        var catchSpy = sinon.spy();
+
+        this.$httpBackend.expect('POST', '/dav/api/calendars/homeId/calId.json', bodyRequest).respond(500, 'Error');
+        this.calendarAPI.modifyShares('homeId', 'calId', bodyRequest).catch(catchSpy);
+        this.$httpBackend.flush();
+
+        expect(catchSpy).to.have.been.calledWith(sinon.match({data: 'Error'}));
+      });
+
+      it('should return server body response if success', function() {
+        var thenSpy = sinon.spy();
+
+        this.$httpBackend.expect('POST', '/dav/api/calendars/homeId/calId.json', bodyRequest).respond(200, 'body');
+        this.calendarAPI.modifyShares('homeId', 'calId', bodyRequest).then(thenSpy);
+        this.$httpBackend.flush();
+
+        expect(thenSpy).to.have.been.calledOnce;
       });
     });
 

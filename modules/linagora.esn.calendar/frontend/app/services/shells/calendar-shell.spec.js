@@ -7,6 +7,12 @@ var expect = chai.expect;
 describe('CalendarShell factory', function() {
   var CalendarShell, calMoment, ICAL, $rootScope, calEventService;
 
+  function loadICSFixtureAsCalendarShell(file, folder) {
+    var path = 'modules/linagora.esn.calendar/frontend/app/fixtures/calendar/' + (folder ? folder + '/' : '') + file;
+
+    return new CalendarShell(ICAL.Component.fromString(__FIXTURES__[path]));
+  }
+
   beforeEach(function() {
     this.uuid4 = {
       // This is a valid uuid4. Change this if you need other uuids generated.
@@ -1757,4 +1763,34 @@ describe('CalendarShell factory', function() {
       });
     });
   });
+
+  describe('The getRecurrenceType function', function() {
+
+    it('should return the empty String when the event is not recurring', function() {
+      expect(loadICSFixtureAsCalendarShell('event.ics').getRecurrenceType()).to.equal('');
+    });
+
+    it('should the RRULE frequence when the event is recurring', function() {
+      expect(loadICSFixtureAsCalendarShell('recurringEventWithTwoExceptions.ics').getRecurrenceType()).to.equal('DAILY');
+    });
+
+  });
+
+  describe('The getExceptionByRecurrenceId function', function() {
+
+    it('should return nothing when the event is not recurring', function() {
+      expect(loadICSFixtureAsCalendarShell('event.ics').getExceptionByRecurrenceId('123')).to.equal(undefined);
+    });
+
+    it('should return nothing when the exception is not found is not recurring', function() {
+      expect(loadICSFixtureAsCalendarShell('recurringEventWithTwoExceptions.ics').getExceptionByRecurrenceId('123')).to.equal(undefined);
+    });
+
+    it('should return the exception when the exception is found', function() {
+      expect(loadICSFixtureAsCalendarShell('recurringEventWithTwoExceptions.ics').getExceptionByRecurrenceId('20170113T100000Z').uid)
+        .to.equal('cbdf2ff0-c6e0-413f-8984-0f70a86e9866');
+    });
+
+  });
+
 });

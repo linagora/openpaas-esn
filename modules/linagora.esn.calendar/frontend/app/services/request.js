@@ -2,18 +2,10 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .factory('request', requestFactory);
-
-  requestFactory.$inject = [
-    '$http',
-    '$q',
-    'DAV_PATH'
-  ];
+    .factory('request', requestFactory);
 
   function requestFactory($http, $q, DAV_PATH) {
-    var service = request;
-
-    return service;
+    return request;
 
     ////////////
 

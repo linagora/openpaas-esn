@@ -6,16 +6,8 @@
          .constant('CALENDAR_PREFER_HEADER', 'return=representation')
          .factory('calEventAPI', calEventAPI);
 
-  calEventAPI.$inject = [
-    '$q',
-    'request',
-    'CALENDAR_ACCEPT_HEADER',
-    'CALENDAR_CONTENT_TYPE_HEADER',
-    'CALENDAR_GRACE_DELAY',
-    'CALENDAR_PREFER_HEADER'
-  ];
-
-  function calEventAPI($q, request, CALENDAR_ACCEPT_HEADER, CALENDAR_CONTENT_TYPE_HEADER, CALENDAR_GRACE_DELAY, CALENDAR_PREFER_HEADER) {
+  function calEventAPI(request, responseHandler, gracePeriodResponseHandler,
+                       CALENDAR_ACCEPT_HEADER, CALENDAR_CONTENT_TYPE_HEADER, CALENDAR_GRACE_DELAY, CALENDAR_PREFER_HEADER) {
     var service = {
       get: get,
       create: create,
@@ -34,14 +26,7 @@
      * @return {Object}           the http response.
      */
     function get(eventPath) {
-      return request('get', eventPath, {Accept: CALENDAR_ACCEPT_HEADER})
-        .then(function(response) {
-          if (response.status !== 200) {
-            return $q.reject(response);
-          }
-
-          return response;
-        });
+      return request('get', eventPath, { Accept: CALENDAR_ACCEPT_HEADER }, null, { _: Date.now() }).then(responseHandler(200));
     }
 
     /**
@@ -56,24 +41,10 @@
       var body = vcalendar.toJSON();
 
       if (options.graceperiod) {
-        return request('put', eventPath, headers, body, {graceperiod: CALENDAR_GRACE_DELAY})
-          .then(function(response) {
-            if (response.status !== 202) {
-              return $q.reject(response);
-            }
-
-            return response.data.id;
-          });
+        return request('put', eventPath, headers, body, {graceperiod: CALENDAR_GRACE_DELAY}).then(gracePeriodResponseHandler);
       }
 
-      return request('put', eventPath, headers, body)
-        .then(function(response) {
-          if (response.status !== 201) {
-            return $q.reject(response);
-          }
-
-          return response;
-        });
+      return request('put', eventPath, headers, body).then(responseHandler(201));
     }
 
     /**
@@ -94,14 +65,7 @@
       }
       var body = vcalendar.toJSON();
 
-      return request('put', eventPath, headers, body, { graceperiod: CALENDAR_GRACE_DELAY })
-        .then(function(response) {
-          if (response.status !== 202) {
-            return $q.reject(response);
-          }
-
-          return response.data.id;
-        });
+      return request('put', eventPath, headers, body, { graceperiod: CALENDAR_GRACE_DELAY }).then(gracePeriodResponseHandler);
     }
 
     /**
@@ -113,14 +77,7 @@
     function remove(eventPath, etag) {
       var headers = {'If-Match': etag};
 
-      return request('delete', eventPath, headers, null, { graceperiod: CALENDAR_GRACE_DELAY })
-        .then(function(response) {
-          if (response.status !== 202) {
-            return $q.reject(response);
-          }
-
-          return response.data.id;
-        });
+      return request('delete', eventPath, headers, null, { graceperiod: CALENDAR_GRACE_DELAY }).then(gracePeriodResponseHandler);
     }
 
     /**
@@ -141,14 +98,7 @@
       }
       var body = vcalendar.toJSON();
 
-      return request('put', eventPath, headers, body)
-        .then(function(response) {
-          if (response.status !== 200 && response.status !== 204) {
-            return $q.reject(response);
-          }
-
-          return response;
-        });
+      return request('put', eventPath, headers, body).then(responseHandler([200, 204]));
     }
   }
 })();
