@@ -23,7 +23,8 @@
     $q,
     userAPI,
     _,
-    userUtils
+    userUtils,
+    calendarAPI
   ) {
     var self = this;
     var calendarRight, originalCalendarRight;
@@ -139,8 +140,9 @@
           var rightChanged = !calendarRight.equals(originalCalendarRight);
           var calendarChanged = _hasModifications(self.oldCalendar, self.calendar);
           var updateActions = [];
+          var publicRightChanged = self.publicSelection !== calendarRight.getPublicRight();
 
-          if (!rightChanged && !calendarChanged) {
+          if (!rightChanged && !calendarChanged && !publicRightChanged) {
             if (matchmedia.is(SM_XS_MEDIA_QUERY)) {
               $state.go('calendar.list');
             } else {
@@ -156,6 +158,20 @@
 
           if (rightChanged) {
             updateActions.push(calendarService.modifyRights(self.calendarHomeId, shell, calendarRight, originalCalendarRight));
+          }
+
+          if (publicRightChanged) {
+            switch (self.publicSelection) {
+              case CALENDAR_RIGHT.READ:
+                updateActions.push(calendarAPI.modifyPublicRights(self.calendarHomeId, self.calendar.id, { public_right: '{DAV:}read' }));
+                break;
+              case CALENDAR_RIGHT.NONE:
+                updateActions.push(calendarAPI.modifyPublicRights(self.calendarHomeId, self.calendar.id, { public_right: '{DAV:}write' }));
+                break;
+              case CALENDAR_RIGHT.FREE_BUSY:
+                updateActions.push(calendarAPI.modifyPublicRights(self.calendarHomeId, self.calendar.id, { public_right: '{urn:ietf:params:xml:ns:caldav}read-free-busy' }));
+                break;
+            }
           }
 
           $q.all(updateActions).then(function() {

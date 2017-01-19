@@ -38,7 +38,8 @@
       getRight: getRight,
       modifyCalendar: modifyCalendar,
       modifyShares: modifyShares,
-      changeParticipation: changeParticipation
+      changeParticipation: changeParticipation,
+      modifyPublicRights: modifyPublicRights
     };
 
     ////////////
@@ -199,6 +200,19 @@
       return request('propfind', path, JSON_CONTENT_TYPE_HEADER, {
         prop: ['cs:invite', 'acl']
       }).then(responseHandler(200, _.property('data')));
+    }
+
+    /**
+     * Modify the public rights of a calendar in the specified calendar home.
+     * @param  {String}  calendarHomeId  The calendar home id in which to create a new calendar
+     * @param  {String} calendarId  The id of the calendar which its public right will be modified
+     * @param  {Object} publicRights: the public rights
+     * @return {Object} the http response body.
+     */
+    function modifyPublicRights(calendarHomeId, calendarId, publicRights) {
+      var path = calPathBuilder.forCalendarId(calendarHomeId, calendarId);
+
+      return request('acl', path, JSON_CONTENT_TYPE_HEADER, publicRights).then(responseHandler(200));
     }
 
     /**
