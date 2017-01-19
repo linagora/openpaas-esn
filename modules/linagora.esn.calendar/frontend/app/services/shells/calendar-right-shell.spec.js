@@ -148,10 +148,11 @@ describe('CalendarRightShell factory', function() {
       });
     });
 
-    it('should correcly deal with update of READ to READ_WRITE and to READ_wRITE to READ', function() {
+    it('should correctly deal with update of READ to READ_WRITE and to READ_WRITE to READ', function() {
       var original = calendarRightShell.clone();
       calendarRightShell.update('tom', 'user2@open-paas.org', CALENDAR_RIGHT.READ);
       calendarRightShell.update('jerry', 'user3@open-paas.org', CALENDAR_RIGHT.READ_WRITE);
+
       expect(calendarRightShell.toDAVShareRightsUpdate(original)).to.deep.equals({
         share: {
           set: [{

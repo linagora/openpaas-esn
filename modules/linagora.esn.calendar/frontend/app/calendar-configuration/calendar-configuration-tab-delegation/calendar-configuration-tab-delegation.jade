@@ -5,7 +5,7 @@
   .delegation-line-visibility-value.form-group.col-xs-8
     .select
       select.form-control(ng-model='$ctrl.publicSelection')
-        option(ng-repeat="delegationType in ::$ctrl.delegationTypes" value="{{delegationType.value}}" ng-selected="delegationType.value === $ctrl.publicSelection" ng-if="delegationType.access==='all'") {{ delegationType.name }}
+        option(ng-repeat="publicRight in ::$ctrl.publicRights" value="{{publicRight.value}}" ng-selected="publicRight.value === $ctrl.publicSelection") {{ publicRight.name }}
 
 .hidden-xs
   .delegation-line

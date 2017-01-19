@@ -239,6 +239,18 @@
         ]
       };
 
+      matrix[CALENDAR_RIGHT.WRITE] = {
+        shouldHave: [
+          CalRightSet.WRITE
+        ],
+        shouldNotHave: [
+          CalRightSet.SHAREE_READWRITE,
+          CalRightSet.SHARE,
+          CalRightSet.WRITE_PROPERTIES,
+          CalRightSet.READ
+        ]
+      };
+
       matrix[CALENDAR_RIGHT.FREE_BUSY] = {
         shouldHave: [
           CalRightSet.FREE_BUSY

@@ -14,6 +14,7 @@
         delegations: '=',
         selection: '=',
         publicSelection: '=',
+        publicRights: '=',
         goToEditDelegation: '=',
         newUsersGroups: '=',
         addUserGroup: '=',

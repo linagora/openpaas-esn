@@ -81,6 +81,19 @@
         name: 'Free/Busy',
         access: 'all'
       }];
+      self.publicRights = [
+        {
+          value: CALENDAR_RIGHT.CUSTOM,
+          name: 'Read'
+        },
+        {
+          value: CALENDAR_RIGHT.WRITE,
+          name: 'Write'
+        }, {
+          value: CALENDAR_RIGHT.FREE_BUSY,
+          name: 'Private'
+        }
+      ];
 
       calendarRight.then(function(calendarRightShell) {
         self.publicSelection = calendarRightShell.getPublicRight();
@@ -162,10 +175,10 @@
 
           if (publicRightChanged) {
             switch (self.publicSelection) {
-              case CALENDAR_RIGHT.READ:
+              case CALENDAR_RIGHT.CUSTOM:
                 updateActions.push(calendarAPI.modifyPublicRights(self.calendarHomeId, self.calendar.id, { public_right: '{DAV:}read' }));
                 break;
-              case CALENDAR_RIGHT.NONE:
+              case CALENDAR_RIGHT.WRITE:
                 updateActions.push(calendarAPI.modifyPublicRights(self.calendarHomeId, self.calendar.id, { public_right: '{DAV:}write' }));
                 break;
               case CALENDAR_RIGHT.FREE_BUSY:
