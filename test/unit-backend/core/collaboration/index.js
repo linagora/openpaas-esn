@@ -3,7 +3,7 @@
 const expect = require('chai').expect;
 const sinon = require('sinon');
 
-describe.only('The collaboration module', function() {
+describe('The collaboration module', function() {
 
   beforeEach(function() {
     this.getModule = function() {
