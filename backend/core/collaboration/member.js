@@ -19,6 +19,7 @@ module.exports = function(collaborationModule) {
     cancelMembershipInvitation,
     cancelMembershipRequest,
     cleanMembershipRequest,
+    countMembers,
     declineMembershipInvitation,
     fetchMember,
     getManagers,
@@ -198,6 +199,25 @@ module.exports = function(collaborationModule) {
     collaboration.membershipRequests = otherUserRequests;
     collaboration.save(callback);
   }
+
+  function countMembers(objectType, id, callback) {
+    const Model = collaborationModule.getModel(objectType);
+
+    if (!Model) {
+      return callback(new Error(`Collaboration model ${objectType} is unknown`));
+    }
+
+    return Model.aggregate(
+      {$match: {_id: id}},
+      {$unwind: '$members'},
+      {$group: {_id: null, number: {$sum: 1 }}}).exec((err, result) => {
+        if (err) {
+          return callback(err);
+        }
+
+        callback(null, result && result.length ? result[0].number : 0);
+      });
+   }
 
   function declineMembershipInvitation(objectType, collaboration, membership, user, callback) {
     cleanMembershipRequest(collaboration, membership.user, err => {

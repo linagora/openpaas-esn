@@ -155,7 +155,6 @@ function getModel(objectType) {
 }
 
 function getStreamsForUser(userId, options, callback) {
-  console.log(collaborationLibs);
   const finders = [];
   let results = [];
 
@@ -202,7 +201,6 @@ function query(objectType, q = {}, callback) {
   if (!Model) {
     return callback(new Error(`Collaboration model ${objectType} is unknown`));
   }
-
 
   return Model.find(q, callback);
 }
