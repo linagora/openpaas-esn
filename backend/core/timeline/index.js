@@ -4,7 +4,6 @@ var denormalizer = require('./denormalizer');
 var pubsub = require('../pubsub').local;
 var logger = require('../logger');
 var as = require('../activitystreams');
-var q = require('q');
 
 function registerUserStreamHandlers(topic, handlers) {
 

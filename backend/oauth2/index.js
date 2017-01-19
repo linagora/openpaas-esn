@@ -36,7 +36,7 @@ server.grant(oauth2orize.grant.code(function(client, redirectUri, user, ares, do
     clientId: clientId
   });
   logger.debug('OAuth: grant authorizationcode: clientId', clientId, 'userId', userId, 'redirectUri', redirectUri);
-  oauthAuthorizationCode.save(function(error, result) {
+  oauthAuthorizationCode.save(function(error) {
     if (error) {
       return done(error);
     }
@@ -54,7 +54,7 @@ server.grant(oauth2orize.grant.token(function(client, user, ares, done) {
     userId: userId
   });
   logger.debug('OAuth: grant access token: clientId', clientId, 'userId', userId);
-  oauthAccessToken.save(function(error, result) {
+  oauthAccessToken.save(function(error) {
     return done(error, !error && token);
   });
 }));
@@ -75,7 +75,7 @@ server.exchange(oauth2orize.exchange.code(function(client, code, redirectUri, do
       clientId: clientId,
       userId: oauthauthorizationcode.userId
     });
-    oauthAccessToken.save(function(error, result) {
+    oauthAccessToken.save(function(error) {
       if (error) {
         return done(error);
       }

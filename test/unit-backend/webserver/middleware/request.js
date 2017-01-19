@@ -30,7 +30,7 @@ describe('The request middleware', function() {
       expect(subject).to.be.a.function;
 
       var req = { query: { existing: true } };
-      var res = this.helpers.express.jsonResponse(function(code, detail) { done(new Error('Unexpectedly returned a ' + code)); });
+      var res = this.helpers.express.jsonResponse(function(code) { done(new Error('Unexpectedly returned a ' + code)); });
       subject(req, res, done);
     });
   });
@@ -38,7 +38,7 @@ describe('The request middleware', function() {
     it('should pass if there is a body', function(done) {
       var middleware = this.helpers.requireBackend('webserver/middleware/request');
       var req = { body: 'yeah' };
-      var res = this.helpers.express.jsonResponse(function(code, detail) { done(new Error('Unexpectedly returned a ' + code)); });
+      var res = this.helpers.express.jsonResponse(function(code) { done(new Error('Unexpectedly returned a ' + code)); });
       middleware.requireBody(req, res, done);
     });
     it('should fail if there is no body', function(done) {

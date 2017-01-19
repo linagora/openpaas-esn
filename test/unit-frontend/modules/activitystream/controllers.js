@@ -53,11 +53,11 @@ describe('The esn.activitystream Angular module', function() {
 
       beforeEach(function() {
         self.usSpinnerService = {};
-        self.usSpinnerService.spin = function(id) {};
-        self.usSpinnerService.stop = function(id) {};
+        self.usSpinnerService.spin = function() {};
+        self.usSpinnerService.stop = function() {};
 
         self.loadCount = 0;
-        self.aggregatorService = function(id, limit) {
+        self.aggregatorService = function() {
           return {
             loadMoreElements: function(callback) {
               self.loadCount++;
@@ -67,7 +67,7 @@ describe('The esn.activitystream Angular module', function() {
           };
         };
 
-        self.alert = function(msgObject) {};
+        self.alert = function() {};
         self.controller('activitystreamController', {
           $rootScope: self.rootScope,
           $scope: self.scope,
@@ -105,7 +105,7 @@ describe('The esn.activitystream Angular module', function() {
         it('should handle error', function() {
           var id = '0987654321';
           var errorMsg = 'An Error';
-          self.aggregatorService = function(id, limit) {
+          self.aggregatorService = function() {
             return {
               loadMoreElements: function(callback) {
                 self.loadCount++;
@@ -190,11 +190,11 @@ describe('The esn.activitystream Angular module', function() {
     describe('getStreamUpdates() method', function() {
       beforeEach(function() {
         self.usSpinnerService = {};
-        self.usSpinnerService.spin = function(id) {};
-        self.usSpinnerService.stop = function(id) {};
-        self.aggregatorService = function(id, limit) {};
+        self.usSpinnerService.spin = function() {};
+        self.usSpinnerService.stop = function() {};
+        self.aggregatorService = function() {};
         self.activityStreamUpdates = function() {};
-        self.alert = function(msgObject) {};
+        self.alert = function() {};
       });
 
       describe('when a rest query is active for current stream', function() {

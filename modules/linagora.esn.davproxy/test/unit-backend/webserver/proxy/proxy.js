@@ -24,7 +24,7 @@ describe('The proxy dispatcher module', function() {
 
     it('should send back 500 if proxy fails', function(done) {
 
-      var proxy = function(path, options) {
+      var proxy = function() {
         return function(req, res, next) {
           return next(new Error('You failed'));
         };
@@ -51,7 +51,7 @@ describe('The proxy dispatcher module', function() {
         endpoint: endpoint
       };
 
-      var proxy = function(path, options) {
+      var proxy = function(path) {
         expect(path).to.equal('http://localhost:9393');
         done();
         return function() {};
@@ -70,7 +70,7 @@ describe('The proxy dispatcher module', function() {
         endpoint: endpoint
       };
 
-      var proxy = function(path, options) {
+      var proxy = function(path) {
         expect(path).to.equal('http://localhost:9393');
         done();
         return function() {};

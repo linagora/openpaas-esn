@@ -4,7 +4,7 @@ var messagePollModule = require('../../core/message/poll');
 var messageModule = require('../../core/message');
 var publishMessageEvents = require('../../helpers/message').publishMessageEvents;
 
-function vote(req, res, next) {
+function vote(req, res) {
   var messageId = req.params.id;
   var pollVote = parseInt(req.params.vote, 10);
   var tuple = {objectType: 'user', id: req.user._id};

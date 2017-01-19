@@ -33,13 +33,13 @@ var login = function(req, res, next) {
   var username = req.body.username;
 
   var strategies = config.auth && config.auth.strategies ? config.auth.strategies : ['local'];
-  passport.authenticate(strategies, function(err, user, info) {
+  passport.authenticate(strategies, function(err, user) {
     if (err) {
       return next(err);
     }
 
     if (!user) {
-      userlogin.failure(username, function(err, data) {
+      userlogin.failure(username, function(err) {
         if (err) {
           logger.error('Problem while setting login failure for user ' + username, err);
         }

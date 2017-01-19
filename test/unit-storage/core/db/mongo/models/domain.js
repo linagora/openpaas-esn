@@ -154,7 +154,7 @@ describe('The domain model module', function() {
         };
 
         var i = new Domain(dom);
-        i.save(function(err, data) {
+        i.save(function(err) {
           if (err) { return done(err); }
 
           Domain.testCompany('FOO CORPORATE', function(err, domain) {
@@ -219,7 +219,7 @@ describe('The domain model module', function() {
         };
 
         var i = new Domain(dom);
-        i.save(function(err, data) {
+        i.save(function(err) {
           if (err) { return done(err); }
 
           Domain.testDomainCompany(' FOO CoRPOraTE ', '  MARKETING  ', function(err, domain) {

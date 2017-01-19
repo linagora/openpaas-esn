@@ -35,7 +35,7 @@ angular.module('esn.activitystream')
       $scope.restActive[streamUuid] = true;
       delete $scope.asMessagesUpdates;
       activityStreamUpdates(streamUuid, $scope).then(function() {
-      }, function(err) {
+      }, function() {
       }).finally(function() {
         // we have to plug here the throbber once the websocket stuff is on
         $scope.restActive[streamUuid] = false;

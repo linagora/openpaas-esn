@@ -278,7 +278,7 @@ angular.module('esn.avatar', [
       scope: {
         width: '='
       },
-      link: function(scope, element, attr) {
+      link: function(scope, element) {
         var myImg, myJcropAPI;
         var clear = function() {
           if (myJcropAPI) {
@@ -343,7 +343,7 @@ angular.module('esn.avatar', [
     return {
       restrict: 'A',
       replace: true,
-      link: function(scope, element, attrs) {
+      link: function(scope, element) {
         element.bind('change', function(evt) {
           evt.stopPropagation();
           evt.preventDefault();
@@ -358,7 +358,7 @@ angular.module('esn.avatar', [
               selectionService.setError('File is too large (maximum size is ' + AVATAR_MAX_SIZE_MB + ' Mb)');
             } else {
               var reader = new FileReader();
-              reader.onload = (function(theFile) {
+              reader.onload = (function() {
                 return function(e) {
                   var image = new Image();
                   image.src = e.target.result;

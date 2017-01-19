@@ -176,7 +176,7 @@ angular.module('esn.community', [
   })
   .directive('communityCreate',
   function(WidgetWizard, selectionService, communityCreationService, $timeout, $location, $alert, $rootScope) {
-    function link($scope, element, attrs) {
+    function link($scope, element) {
       $scope.wizard = new WidgetWizard([
         '/views/modules/community/community-creation-wizard-1',
         '/views/modules/community/community-creation-wizard-2',
@@ -236,7 +236,7 @@ angular.module('esn.community', [
         }
       }
 
-      function onFailure(err) {
+      function onFailure() {
         return $scope.displayError('Error while creating the community');
       }
     }
@@ -381,7 +381,7 @@ angular.module('esn.community', [
       }
     };
   })
-  .directive('communityPendingInvitationList', function(collaborationAPI, $animate) {
+  .directive('communityPendingInvitationList', function(collaborationAPI) {
     return {
       restrict: 'E',
       templateUrl: '/views/modules/community/community-pending-invitation-list.html',
@@ -606,7 +606,7 @@ angular.module('esn.community', [
       return objectTypeAdapter.adapt(collaboration);
     });
 
-    $scope.$on('collaboration:membership', function(data) {
+    $scope.$on('collaboration:membership', function() {
       communityAPI.get($scope.community._id).then(function(response) {
         $scope.writable = response.data.writable;
       });

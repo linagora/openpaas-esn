@@ -462,7 +462,7 @@ describe('The Community Angular module', function() {
 
       it('should update $scope if event target is the current community', function(done) {
         var result = {_id: this.community._id, added: true, writable: true};
-        this.communityAPI.get = function(id) {
+        this.communityAPI.get = function() {
           return $q.when({data: result});
         };
         this.$rootScope.$emit('collaboration:join', {collaboration: {objectType: 'community', id: 'community1'}});
@@ -505,7 +505,7 @@ describe('The Community Angular module', function() {
 
       it('should update $scope if event target is the current community', function(done) {
         var result = {_id: this.community._id, added: true, writable: true};
-        this.communityAPI.get = function(id) {
+        this.communityAPI.get = function() {
           return $q.when({ data: result });
         };
         this.$rootScope.$emit('collaboration:leave', {collaboration: {objectType: 'community', id: 'community1'}});
@@ -528,7 +528,7 @@ describe('The Community Angular module', function() {
         callback();
       };
 
-      timeoutMock.cancel = function(promise) {
+      timeoutMock.cancel = function() {
       };
 
       angular.mock.module(function($provide) {
@@ -949,7 +949,7 @@ describe('The Community Angular module', function() {
       });
 
       it('should disable the button', function() {
-        this.communityService.join = function(cid, uid) {
+        this.communityService.join = function() {
           return $q.defer().promise;
         };
         var element = this.$compile(this.html)(this.scope);
@@ -963,7 +963,7 @@ describe('The Community Angular module', function() {
       describe('on communityService.join() response', function() {
         it('should enable back the button on success', function() {
           var deferred = $q.defer();
-          this.communityService.join = function(cid, uid) {
+          this.communityService.join = function() {
             return deferred.promise;
           };
           var element = this.$compile(this.html)(this.scope);
@@ -976,7 +976,7 @@ describe('The Community Angular module', function() {
         });
         it('should enable back the button on failure', function() {
           var deferred = $q.defer();
-          this.communityService.join = function(cid, uid) {
+          this.communityService.join = function() {
             return deferred.promise;
           };
           var element = this.$compile(this.html)(this.scope);
@@ -992,7 +992,7 @@ describe('The Community Angular module', function() {
           this.html = '<community-button-join community="community" user="user" on-join="joinSuccess(community)"></community-button-join>';
           this.scope.joinSuccess = function() {done();};
           var deferred = $q.defer();
-          this.communityService.join = function(cid, uid) {
+          this.communityService.join = function() {
             return deferred.promise;
           };
           var element = this.$compile(this.html)(this.scope);
@@ -1007,7 +1007,7 @@ describe('The Community Angular module', function() {
           this.html = '<community-button-join community="community" user="user" on-fail="joinFailure(community)"></community-button-join>';
           this.scope.joinFailure = function() {done();};
           var deferred = $q.defer();
-          this.communityService.join = function(cid, uid) {
+          this.communityService.join = function() {
             return deferred.promise;
           };
           var element = this.$compile(this.html)(this.scope);
@@ -1082,7 +1082,7 @@ describe('The Community Angular module', function() {
       });
 
       it('should disable the button', function() {
-        this.communityService.leave = function(cid, uid) {
+        this.communityService.leave = function() {
           return $q.defer().promise;
         };
         var element = this.$compile(this.html)(this.scope);
@@ -1096,7 +1096,7 @@ describe('The Community Angular module', function() {
       describe('on communityService.leave() response', function() {
         it('should enable back the button on success', function() {
           var deferred = $q.defer();
-          this.communityService.leave = function(cid, uid) {
+          this.communityService.leave = function() {
             return deferred.promise;
           };
           var element = this.$compile(this.html)(this.scope);
@@ -1110,7 +1110,7 @@ describe('The Community Angular module', function() {
 
         it('should enable back the button on failure', function() {
           var deferred = $q.defer();
-          this.communityService.leave = function(cid, uid) {
+          this.communityService.leave = function() {
             return deferred.promise;
           };
           var element = this.$compile(this.html)(this.scope);
@@ -1126,7 +1126,7 @@ describe('The Community Angular module', function() {
           this.html = '<community-button-leave community="community" user="user" on-leave="leaveSuccess(community)"></community-button-leave>';
           this.scope.leaveSuccess = function() {done();};
           var deferred = $q.defer();
-          this.communityService.leave = function(cid, uid) {
+          this.communityService.leave = function() {
             return deferred.promise;
           };
           var element = this.$compile(this.html)(this.scope);
@@ -1141,7 +1141,7 @@ describe('The Community Angular module', function() {
           this.html = '<community-button-leave community="community" user="user" on-fail="leaveFailure(community)"></community-button-leave>';
           this.scope.leaveFailure = function() {done();};
           var deferred = $q.defer();
-          this.communityService.leave = function(cid, uid) {
+          this.communityService.leave = function() {
             return deferred.promise;
           };
           var element = this.$compile(this.html)(this.scope);
@@ -1215,7 +1215,7 @@ describe('The Community Angular module', function() {
       });
 
       it('should disable the button', function() {
-        this.communityService.requestMembership = function(cid, uid) {
+        this.communityService.requestMembership = function() {
           return $q.defer().promise;
         };
         var element = this.$compile(this.html)(this.scope);
@@ -1229,7 +1229,7 @@ describe('The Community Angular module', function() {
       describe('on communityService.requestMembership() response', function() {
         it('should enable back the button on success', function() {
           var deferred = $q.defer();
-          this.communityService.requestMembership = function(cid, uid) {
+          this.communityService.requestMembership = function() {
             return deferred.promise;
           };
           var element = this.$compile(this.html)(this.scope);
@@ -1242,7 +1242,7 @@ describe('The Community Angular module', function() {
         });
         it('should enable back the button on failure', function() {
           var deferred = $q.defer();
-          this.communityService.requestMembership = function(cid, uid) {
+          this.communityService.requestMembership = function() {
             return deferred.promise;
           };
           var element = this.$compile(this.html)(this.scope);
@@ -1258,7 +1258,7 @@ describe('The Community Angular module', function() {
           this.html = '<community-button-request-membership community="community" user="user" on-request="requestMembershipSuccess(community)"></community-button-request-membership>';
           this.scope.requestMembershipSuccess = function() {done();};
           var deferred = $q.defer();
-          this.communityService.requestMembership = function(cid, uid) {
+          this.communityService.requestMembership = function() {
             return deferred.promise;
           };
           var element = this.$compile(this.html)(this.scope);
@@ -1273,7 +1273,7 @@ describe('The Community Angular module', function() {
           this.html = '<community-button-request-membership community="community" user="user" on-fail="requestMembershipFailure(community)"></community-button-request-membership>';
           this.scope.requestMembershipFailure = function() {done();};
           var deferred = $q.defer();
-          this.communityService.requestMembership = function(cid, uid) {
+          this.communityService.requestMembership = function() {
             return deferred.promise;
           };
           var element = this.$compile(this.html)(this.scope);
@@ -1347,7 +1347,7 @@ describe('The Community Angular module', function() {
       });
 
       it('should disable the button', function() {
-        this.communityService.cancelRequestMembership = function(cid, uid) {
+        this.communityService.cancelRequestMembership = function() {
           return $q.defer().promise;
         };
         var element = this.$compile(this.html)(this.scope);
@@ -1361,7 +1361,7 @@ describe('The Community Angular module', function() {
       describe('on communityService.cancelRequestMembership() response', function() {
         it('should enable back the button on success', function() {
           var deferred = $q.defer();
-          this.communityService.cancelRequestMembership = function(cid, uid) {
+          this.communityService.cancelRequestMembership = function() {
             return deferred.promise;
           };
           var element = this.$compile(this.html)(this.scope);
@@ -1374,7 +1374,7 @@ describe('The Community Angular module', function() {
         });
         it('should enable back the button on failure', function() {
           var deferred = $q.defer();
-          this.communityService.cancelRequestMembership = function(cid, uid) {
+          this.communityService.cancelRequestMembership = function() {
             return deferred.promise;
           };
           var element = this.$compile(this.html)(this.scope);
@@ -1390,7 +1390,7 @@ describe('The Community Angular module', function() {
           this.html = '<community-button-cancel-request-membership community="community" user="user" on-cancel-request="cancelRequestMembershipSuccess(community)"></community-button-cancel-request-membership>';
           this.scope.cancelRequestMembershipSuccess = function() {done();};
           var deferred = $q.defer();
-          this.communityService.cancelRequestMembership = function(cid, uid) {
+          this.communityService.cancelRequestMembership = function() {
             return deferred.promise;
           };
           var element = this.$compile(this.html)(this.scope);
@@ -1405,7 +1405,7 @@ describe('The Community Angular module', function() {
           this.html = '<community-button-cancel-request-membership community="community" user="user" on-fail="cancelRequestMembershipFailure(community)"></community-button-cancel-request-membership>';
           this.scope.cancelRequestMembershipFailure = function() {done();};
           var deferred = $q.defer();
-          this.communityService.cancelRequestMembership = function(cid, uid) {
+          this.communityService.cancelRequestMembership = function() {
             return deferred.promise;
           };
           var element = this.$compile(this.html)(this.scope);

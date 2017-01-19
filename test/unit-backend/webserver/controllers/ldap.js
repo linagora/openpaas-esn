@@ -8,7 +8,7 @@ describe('The ldap controller', function() {
   describe('The search fn', function() {
     it('should return HTTP 500 when search process has error', function(done) {
       const ldapCoreMock = {
-        search: function(user, query) {
+        search: function() {
           return q.reject(new Error('Something error'));
         }
       };
@@ -31,7 +31,7 @@ describe('The ldap controller', function() {
 
     it('should return HTTP 200 with list of users', function(done) {
       const ldapCoreMock = {
-        search: function(user, query) {
+        search: function() {
           return q.resolve([]);
         }
       };

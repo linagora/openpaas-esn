@@ -152,13 +152,13 @@ describe('The login API', function() {
       }
 
       currentUser.login = { failures: [new Date(), new Date()] };
-      currentUser.save(function(err, saved) {
+      currentUser.save(function(err) {
         if (err) {
           return done(err);
         }
 
         var conf = require('../../../backend/core')['esn-config']('login');
-        conf.store({ failure: { size: 1}}, function(err, saved) {
+        conf.store({ failure: { size: 1}}, function(err) {
           if (err) {
             return done(err);
           }
@@ -175,7 +175,7 @@ describe('The login API', function() {
 
   it('should be able to login when user did not tried to log in too many times', function(done) {
     var conf = require('../../../backend/core')['esn-config']('login');
-    conf.store({ failure: { size: 1000}}, function(err, saved) {
+    conf.store({ failure: { size: 1000}}, function(err) {
       if (err) {
         return done(err);
       }

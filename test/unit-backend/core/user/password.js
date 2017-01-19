@@ -126,7 +126,7 @@ describe('The user password core module', function() {
         User: {}
       });
       emailMock = {
-        getMailer: function(user) {
+        getMailer: function() {
           return {
             sendHTML: function(message, templateName, context, callback) {
               callback(null, data);
@@ -146,7 +146,7 @@ describe('The user password core module', function() {
 
     it('should fail if emailModule.getMailer(user) fail', function(done) {
       emailMock = {
-        getMailer: function(user) {
+        getMailer: function() {
           throw new Error(errorMessage);
         }
       };
@@ -163,7 +163,7 @@ describe('The user password core module', function() {
         callback(null, baseUrl);
       };
       emailMock = {
-        getMailer: function(user) {
+        getMailer: function() {
           return {
             sendHTML: function(message, templateName, context, callback) {
               callback(null, data);
@@ -206,7 +206,7 @@ describe('The user password core module', function() {
       configHelperMock.getBaseUrl = function(user, callback) {
         callback(null, baseUrl);
       };
-      emailMock.getMailer = function(user) {
+      emailMock.getMailer = function() {
         return {
           sendHTML: function(message, templateName, context, callback) {
             callback(new Error(errorMessage));
@@ -225,7 +225,7 @@ describe('The user password core module', function() {
       configHelperMock.getBaseUrl = function(user, callback) {
         callback(null, baseUrl);
       };
-      emailMock.getMailer = function(user) {
+      emailMock.getMailer = function() {
         return {
           sendHTML: function(message, templateName, context, callback) {
             callback(null, data);

@@ -11,7 +11,7 @@ describe('The user notifications controller', function() {
 
       var limit = 15;
       mockery.registerMock('../../core/notification/usernotification', {
-        getForUser: function(user, query, callback) {
+        getForUser: function(user, query) {
           expect(query).to.exist;
           expect(query.limit).to.equal(limit);
           done();
@@ -34,7 +34,7 @@ describe('The user notifications controller', function() {
 
       var limit = 'ABC';
       mockery.registerMock('../../core/notification/usernotification', {
-        getForUser: function(user, query, callback) {
+        getForUser: function(user, query) {
           expect(query).to.exist;
           expect(query.limit).to.not.exist;
           done();
@@ -57,7 +57,7 @@ describe('The user notifications controller', function() {
 
       var offset = 10;
       mockery.registerMock('../../core/notification/usernotification', {
-        getForUser: function(user, query, callback) {
+        getForUser: function(user, query) {
           expect(query).to.exist;
           expect(query.offset).to.equal(offset);
           done();
@@ -80,7 +80,7 @@ describe('The user notifications controller', function() {
 
       var offset = 'AZE';
       mockery.registerMock('../../core/notification/usernotification', {
-        getForUser: function(user, query, callback) {
+        getForUser: function(user, query) {
           expect(query).to.exist;
           expect(query.offset).to.not.exist;
           done();
@@ -102,7 +102,7 @@ describe('The user notifications controller', function() {
     it('should call notification#getForUser with read=true query parameter', function(done) {
 
       mockery.registerMock('../../core/notification/usernotification', {
-        getForUser: function(user, query, callback) {
+        getForUser: function(user, query) {
           expect(query).to.exist;
           expect(query.read).to.be.true;
           done();
@@ -124,7 +124,7 @@ describe('The user notifications controller', function() {
     it('should call notification#getForUser with read=false query parameter', function(done) {
 
       mockery.registerMock('../../core/notification/usernotification', {
-        getForUser: function(user, query, callback) {
+        getForUser: function(user, query) {
           expect(query).to.exist;
           expect(query.read).to.be.false;
           done();
@@ -146,7 +146,7 @@ describe('The user notifications controller', function() {
     it('should call notification#getForUser with read=undefined query parameter', function(done) {
 
       mockery.registerMock('../../core/notification/usernotification', {
-        getForUser: function(user, query, callback) {
+        getForUser: function(user, query) {
           expect(query).to.exist;
           expect(query.read).to.be.undefined;
           done();
@@ -197,7 +197,7 @@ describe('The user notifications controller', function() {
         getForUser: function(user, query, callback) {
           return callback(null, [1, 2, 3]);
         },
-        countForUser: function(user, query, callback) {
+        countForUser: function() {
           done();
         }
       });

@@ -6,7 +6,7 @@ var expect = chai.expect;
 
 describe('The feedback core module', function() {
 
-  var feedback, feedbackObject, error, email, user, esnConfigMock, mailAdressMock, mailMock, messageMock, contextMock, i18nMock;
+  var feedback, feedbackObject, error, user, esnConfigMock, mailAdressMock, mailMock, i18nMock;
 
   beforeEach(function() {
     feedbackObject = {
@@ -72,19 +72,6 @@ describe('The feedback core module', function() {
           return 'You received a feedback on OpenPaas';
         }
       };
-      messageMock = {
-        from: 'user@net.net',
-        to: 'email@net.net',
-        subject: 'You received a feedback on OpenPaas'
-      };
-      contextMock = {
-        firstname: 'a firstname',
-        lastname: 'a lastname',
-        email: 'user@email.org',
-        subject: 'a subject feedback',
-        content: 'a feedback content'
-      };
-      var tmp = 'core.feedback';
       mailMock = {
         getMailer: function() {
           return {

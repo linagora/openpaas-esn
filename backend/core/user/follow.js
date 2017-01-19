@@ -98,12 +98,12 @@ function getFollowings(user, options) {
 }
 module.exports.getFollowings = getFollowings;
 
-function canFollow(userA, userB) {
+function canFollow() {
   return Q(true);
 }
 module.exports.canFollow = canFollow;
 
-function canUnfollow(userA, userB) {
+function canUnfollow() {
   return Q(true);
 }
 module.exports.canUnfollow = canUnfollow;

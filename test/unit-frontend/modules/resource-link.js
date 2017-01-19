@@ -1,9 +1,5 @@
 'use strict';
 
-/* global chai, sinon: false */
-
-var expect = chai.expect;
-
 describe('The esn.resource-link Angular module', function() {
 
   beforeEach(angular.mock.module('esn.resource-link'));

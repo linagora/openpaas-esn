@@ -726,8 +726,7 @@ describe('The addressbooks module', function() {
         ]
       ];
 
-      mockery.registerMock('../proxy/http-client', function(options, callback) {
-
+      mockery.registerMock('../proxy/http-client', function() {
       });
 
       dependencies.contact.lib.client = function() {
@@ -793,12 +792,10 @@ describe('The addressbooks module', function() {
     });
 
     it('should forward a "contacts:contact:delete" event if request is a delete and is successful', function(done) {
-      var called = false;
       dependencies.pubsub.local.topic = function(name) {
         expect(name).to.equal(CONSTANTS.NOTIFICATIONS.CONTACT_DELETED);
         return {
           forward: function(pubsub, data) {
-            called = true;
             expect(data).to.deep.equal({
               contactId: req.params.contactId,
               bookId: req.params.bookHome,

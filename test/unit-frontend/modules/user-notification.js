@@ -270,7 +270,7 @@ describe('The esn.user-notification Angular module', function() {
         var array = [{ a: 1 }, { a: 2 }, { a: 3 }];
         var size = 103;
 
-        this.userNotificationAPI.list = function(options) {
+        this.userNotificationAPI.list = function() {
           return $q.when({ data: array, headers: function() {
             return size;
           }});
@@ -287,7 +287,7 @@ describe('The esn.user-notification Angular module', function() {
         var array = [{ a: 1 }, { a: 2 }];
         var size = 101;
 
-        this.userNotificationAPI.list = function(options) {
+        this.userNotificationAPI.list = function() {
           return $q.when({ data: array, headers: function() {
             return size;
           }});
@@ -303,7 +303,7 @@ describe('The esn.user-notification Angular module', function() {
       });
 
       it('should set error on request failure', function(done) {
-        this.userNotificationAPI.list = function(options) {
+        this.userNotificationAPI.list = function() {
           return $q.reject(new Error());
         };
 
@@ -494,7 +494,7 @@ describe('The esn.user-notification Angular module', function() {
     }));
 
     it('should call collaborationAPI#join', function(done) {
-      this.collaborationAPI.join = function(collaborationId, userId) {
+      this.collaborationAPI.join = function() {
         return done();
       };
       var element = this.$compile(this.html)(this.scope);

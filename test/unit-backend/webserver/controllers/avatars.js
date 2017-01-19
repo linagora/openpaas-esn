@@ -148,7 +148,7 @@ describe('The avatars controller', function() {
 
       it('should load the community from its id', function(done) {
         mockery.registerMock('../middleware/collaboration', {
-          load: function(req, res, next) {
+          load: function() {
             return done();
           }
         });
@@ -301,7 +301,7 @@ describe('The avatars controller', function() {
         mockery.registerMock('../middleware/collaboration', {});
         mockery.registerMock('./collaborations', {});
         mockery.registerMock('./users', {
-          getProfileAvatar: function(req, res) {
+          getProfileAvatar: function(req) {
             expect(req.user).to.deep.equal(user);
             done();
           }
@@ -320,7 +320,7 @@ describe('The avatars controller', function() {
         };
 
         var res = {
-          redirect: function(path) {
+          redirect: function() {
             done(new Error());
           }
         };

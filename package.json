@@ -104,7 +104,7 @@
     "dockerode": "git+https://github.com/linagora/dockerode.git#12ff3e46f0bac834b7411a6cf0344c0c079208f9",
     "eslint": "3.6.0",
     "eslint-config-airbnb-base": "8.0.0",
-    "eslint-config-linagora-esn": "1.0.2",
+    "eslint-config-linagora-esn": "git+https://ci.open-paas.org/stash/scm/or/eslint-config-linagora-esn.git#v1.1.0",
     "eslint-plugin-import": "1.16.0",
     "find-port": "2.0.1",
     "grunt": "1.0.1",

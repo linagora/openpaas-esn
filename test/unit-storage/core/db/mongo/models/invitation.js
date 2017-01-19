@@ -61,7 +61,7 @@ describe('The Invitation model', function() {
         }
       };
       var i = new Invitation(json);
-      i.save(function(err, data) {
+      i.save(function(err) {
         expect(err).to.not.exist;
 
         i.finalize(function(err, data) {

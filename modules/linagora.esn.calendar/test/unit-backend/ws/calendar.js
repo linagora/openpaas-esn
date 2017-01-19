@@ -34,7 +34,7 @@ describe('The calendar WS events module', function() {
           }
         },
         local: {
-          topic: sinon.spy(function(topic) {
+          topic: sinon.spy(function() {
             return {
               publish: self.publishSpy
             };

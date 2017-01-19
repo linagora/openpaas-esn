@@ -27,7 +27,7 @@ angular.module('esn.appstore', [
           function(response) {
             return response.data;
           },
-          function(err) {
+          function() {
             $location.path('/appstore');
           }
         );

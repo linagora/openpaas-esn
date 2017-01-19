@@ -1,8 +1,6 @@
 'use strict';
 
 var expect = require('chai').expect,
-  sinon = require('sinon'),
-  express = require('express'),
   request = require('supertest'),
   _ = require('lodash');
 

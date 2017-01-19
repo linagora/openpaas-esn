@@ -276,7 +276,7 @@ describe('The messages controller', function() {
 
     it('should return 400 if message type is not supported', function(done) {
       var res = this.helpers.express.jsonResponse(
-        function(code, message) {
+        function(code) {
           expect(code).to.equal(400);
           done();
         }
@@ -323,7 +323,7 @@ describe('The messages controller', function() {
 
     it('should inherits target from its parent', function(done) {
       var res = this.helpers.express.jsonResponse(
-        function(code, data) {
+        function() {
         }
       );
 

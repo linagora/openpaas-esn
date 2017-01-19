@@ -40,7 +40,7 @@ angular.module('esn.feedback', [
       var subject = $scope.subject || ESN_FEEDBACK_DEFAULT_SUBJECT;
 
       feedbackAPI.post(subject, $scope.content).then(
-        function(response) {
+        function() {
           $scope.feedbackTask.running = false;
           $scope.feedbackTask.done = true;
           $scope.feedbackButton.label = $scope.feedbackButton.notRunning;

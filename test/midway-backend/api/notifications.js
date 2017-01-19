@@ -327,7 +327,7 @@ describe('The notification API', function() {
           var req = request(app).put('/api/notifications/' + _n._id);
           req.cookies = cookies;
           req.expect(205)
-            .end(function(err, res) {
+            .end(function(err) {
               expect(err).to.not.exist;
 
               Notification.findById(_n._id, function(err, found) {
@@ -432,7 +432,7 @@ describe('The notification API', function() {
           var req = request(app).put('/api/notifications/' + _n._id);
           req.cookies = cookies;
           req.expect(403)
-            .end(function(err, res) {
+            .end(function(err) {
               expect(err).to.not.exist;
 
               Notification.findById(_n._id, function(err, found) {

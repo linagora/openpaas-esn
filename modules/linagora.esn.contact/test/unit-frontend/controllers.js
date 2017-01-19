@@ -131,7 +131,7 @@ describe('The Contacts controller module', function() {
       }
     };
 
-    openContactFormMock = function(id) {};
+    openContactFormMock = function() {};
     openContactForm = function(id) {
       return openContactFormMock(id);
     };
@@ -2317,7 +2317,7 @@ describe('The Contacts controller module', function() {
 
         createPaginationMocks(function() {
           return $q.when([]);
-        }, function(options) {
+        }, function() {
           called++;
           // the search will be never resolved
           return promise;

@@ -4,12 +4,10 @@ var expect = require('chai').expect;
 
 describe('The pubsub object', function() {
 
-  var localstub, globalstub, localpubsub, globalpubsub, topic;
+  var localpubsub, globalpubsub, topic;
 
   beforeEach(function() {
     var PubSub = this.helpers.requireBackend('core/pubsub/pubsub');
-    localstub = {};
-    globalstub = {};
     localpubsub = new PubSub();
     topic = localpubsub.topic('topic');
     globalpubsub = new PubSub();

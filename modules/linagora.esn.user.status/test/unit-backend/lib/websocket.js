@@ -70,7 +70,7 @@ describe('The user status websocket lib', function() {
         return socket.userId;
       });
 
-      module.updateLastActiveFromWebsocketConnections().then(result => {
+      module.updateLastActiveFromWebsocketConnections().then(() => {
         expect(updateLastActiveForUsers).to.have.been.calledWith([123, 234]);
         expect(wsserver.ioHelper.getUserId).to.have.been.called;
         done();

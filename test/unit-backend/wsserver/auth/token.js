@@ -59,7 +59,7 @@ describe('The WebSocket Auth Token module', function() {
 
     const auth = this.helpers.requireBackend('wsserver/auth/token');
 
-    auth({request: {_query: {token: '123', user: 'foo'}}}, function(err, bool) {
+    auth({request: {_query: {token: '123', user: 'foo'}}}, function(err) {
       expect(err.message).to.match(/No data from token system/);
       done();
     });
@@ -76,7 +76,7 @@ describe('The WebSocket Auth Token module', function() {
 
     const auth = this.helpers.requireBackend('wsserver/auth/token');
 
-    auth({request: {_query: {token: '123', user: 'foo'}}}, function(err, bool) {
+    auth({request: {_query: {token: '123', user: 'foo'}}}, function(err) {
       expect(err.message).to.match(/No data from token system/);
       done();
     });

@@ -36,7 +36,7 @@ describe('The activitystreams core module', function() {
   });
 
   describe('the query fn', function() {
-    var Domain, TimelineEntry, User, Community;
+    var Domain, TimelineEntry;
 
     beforeEach(function(done) {
       this.mongoose = require('mongoose');
@@ -49,8 +49,6 @@ describe('The activitystreams core module', function() {
       this.testEnv.writeDBConfigFile();
       Domain = this.mongoose.model('Domain');
       TimelineEntry = this.mongoose.model('TimelineEntry');
-      User = this.mongoose.model('User');
-      Community = this.mongoose.model('Community');
 
       this.connectMongoose(this.mongoose, done);
     });

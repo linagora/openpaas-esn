@@ -1,7 +1,5 @@
 'use strict';
 
-var mainPanel = new (require('../pages/inbox-panel'))().mainPanel;
-
 module.exports = function() {
 
   // TOP MENU BUTTONS

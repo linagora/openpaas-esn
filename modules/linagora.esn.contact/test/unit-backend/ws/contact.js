@@ -23,7 +23,7 @@ describe('The contact WS events module', function() {
 
   describe('init function', function() {
 
-    var nbSubscribedTopics, contactNamespace;
+    var contactNamespace;
 
     beforeEach(function(done) {
 
@@ -36,7 +36,6 @@ describe('The contact WS events module', function() {
           topic: function(topic) {
             return {
               subscribe: function(callback) {
-                nbSubscribedTopics++;
                 if (topic === CONTACT_ADDED) {
                   self.pubsub_callback_added = callback;
                   self.pubsub_callback_added();
@@ -65,15 +64,15 @@ describe('The contact WS events module', function() {
       this.socketListeners = {};
       contactNamespace = {
         on: function() {},
-        to: function(roomId) {
+        to: function() {
           return {
-            emit: function(event, data) {}
+            emit: function() {}
           };
         }
       };
 
       this.io = {
-        of: function(namespace) {
+        of: function() {
           return contactNamespace;
         }
       };

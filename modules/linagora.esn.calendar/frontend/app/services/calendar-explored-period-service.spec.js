@@ -1,6 +1,6 @@
 'use strict';
 
-/* global chai, sinon, _: false */
+/* global chai */
 
 var expect = chai.expect;
 

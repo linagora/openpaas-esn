@@ -539,7 +539,7 @@ describe('The community module', function() {
           }
         },
         User: {
-          find: function(query, callback) {
+          find: function(query) {
             expect(query._id.$in).to.be.an('array');
             expect(query._id.$in).to.have.length(2);
             expect(query._id.$in).to.contain('id4');
@@ -595,7 +595,7 @@ describe('The community module', function() {
     it('should send back error when Community.exec fails', function(done) {
       this.helpers.mock.models({
         Community: {
-          findById: function(id) {
+          findById: function() {
             return {
               slice: function() {},
               populate: function() {},
@@ -617,7 +617,7 @@ describe('The community module', function() {
     it('should send back [] when Community.exec does not find members', function(done) {
       this.helpers.mock.models({
         Community: {
-          findById: function(id) {
+          findById: function() {
             return {
               slice: function() {},
               populate: function() {},
@@ -642,7 +642,7 @@ describe('The community module', function() {
       var result = { user: 1 };
       this.helpers.mock.models({
         Community: {
-          findById: function(id) {
+          findById: function() {
             return {
               slice: function() {},
               populate: function() {},
@@ -765,7 +765,7 @@ describe('The community module', function() {
     it('should send back error when Community.exec fails', function(done) {
       this.helpers.mock.models({
         Community: {
-          findById: function(id) {
+          findById: function() {
             return {
               slice: function() {},
               populate: function() {},
@@ -787,7 +787,7 @@ describe('The community module', function() {
     it('should send back [] when Community.exec does not find requests', function(done) {
       this.helpers.mock.models({
         Community: {
-          findById: function(id) {
+          findById: function() {
             return {
               slice: function() {},
               populate: function() {},
@@ -812,7 +812,7 @@ describe('The community module', function() {
       var result = [{user: 1}, {user: 2}];
       this.helpers.mock.models({
         Community: {
-          findById: function(id) {
+          findById: function() {
             return {
               slice: function() {},
               populate: function() {},
@@ -840,7 +840,7 @@ describe('The community module', function() {
       };
       this.helpers.mock.models({
         Community: {
-          findById: function(a) {
+          findById: function() {
             return {
               populate: function() {},
               slice: function(field, array) {
@@ -866,7 +866,7 @@ describe('The community module', function() {
     it('should slice members even if query is not defined', function(done) {
       this.helpers.mock.models({
         Community: {
-          findById: function(a) {
+          findById: function() {
             return {
               slice: function(field, array) {
                 expect(field).to.equal('membershipRequests');

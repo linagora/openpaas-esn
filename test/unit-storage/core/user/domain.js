@@ -125,7 +125,7 @@ describe('The user domain module', function() {
     it('should return an error when calling getUsersList with a null domain', function(done) {
       var userDomain = this.helpers.requireBackend('core/user/domain');
 
-      userDomain.getUsersList(null, null, function(err, users) {
+      userDomain.getUsersList(null, null, function(err) {
         expect(err).to.exist;
         done();
       });
@@ -133,8 +133,6 @@ describe('The user domain module', function() {
   });
 
   describe('Tests cases (search users)', function() {
-    var User;
-    var Domain;
     var domain;
 
     var userDomain;
@@ -151,9 +149,6 @@ describe('The user domain module', function() {
 
         self.helpers.elasticsearch.saveTestConfiguration(function(err) {
           if (err) { return done(err); }
-
-          User = self.helpers.requireBackend('core/db/mongo/models/user');
-          Domain = self.helpers.requireBackend('core/db/mongo/models/domain');
 
           self.helpers.api.applyDomainDeployment('linagora_test_cases', function(err, models) {
             if (err) { return done(err); }
@@ -179,7 +174,7 @@ describe('The user domain module', function() {
     });
 
     beforeEach(function(done) {
-      User = this.helpers.requireBackend('core/db/mongo/models/user');
+      this.helpers.requireBackend('core/db/mongo/models/user');
       this.helpers.requireBackend('core/db/mongo/models/domain');
       userDomain = this.helpers.requireBackend('core/user/domain');
 
@@ -371,8 +366,6 @@ describe('The user domain module', function() {
   });
 
   describe('Tests cases extra (search users)', function() {
-    var User;
-    var Domain;
     var domain;
 
     var userDomain;
@@ -389,8 +382,6 @@ describe('The user domain module', function() {
         self.helpers.elasticsearch.saveTestConfiguration(function(err) {
           if (err) { return done(err); }
 
-          User = self.helpers.requireBackend('core/db/mongo/models/user');
-          Domain = self.helpers.requireBackend('core/db/mongo/models/domain');
           userDomain = self.helpers.requireBackend('core/user/domain');
 
           self.helpers.api.applyDomainDeployment('linagora_test_cases_extra', function(err, models) {
@@ -457,8 +448,6 @@ describe('The user domain module', function() {
   });
 
   describe('Community tests', function() {
-    var User;
-    var Domain;
     var Community;
     var domain;
     var domain2;
@@ -488,8 +477,6 @@ describe('The user domain module', function() {
         self.helpers.elasticsearch.saveTestConfiguration(function(err) {
           if (err) { return done(err); }
 
-          User = self.helpers.requireBackend('core/db/mongo/models/user');
-          Domain = self.helpers.requireBackend('core/db/mongo/models/domain');
           Community = self.helpers.requireBackend('core/db/mongo/models/community');
 
           self.helpers.api.applyDomainDeployment('linagora_test_domain', function(err, models) {
@@ -519,7 +506,7 @@ describe('The user domain module', function() {
                   return done(err);
                 }
 
-                Community.update({_id: communitySaved._id}, {$push: {domain_ids: domain2._id}}, function(err, updated) {
+                Community.update({_id: communitySaved._id}, {$push: {domain_ids: domain2._id}}, function(err) {
                   if (err) {
                     return done(err);
                   }
@@ -555,7 +542,7 @@ describe('The user domain module', function() {
     });
 
     beforeEach(function(done) {
-      User = this.helpers.requireBackend('core/db/mongo/models/user');
+      this.helpers.requireBackend('core/db/mongo/models/user');
       this.helpers.requireBackend('core/db/mongo/models/domain');
       userDomain = this.helpers.requireBackend('core/user/domain');
       Community = this.helpers.requireBackend('core/db/mongo/models/community');
@@ -587,7 +574,7 @@ describe('The user domain module', function() {
       });
 
       it('should return users in the two domains, not in the community and no pending membership', function(done) {
-        Community.update({_id: community._id}, {$push: {membershipRequests: {user: user12._id}}}, function(err, updated) {
+        Community.update({_id: community._id}, {$push: {membershipRequests: {user: user12._id}}}, function(err) {
           if (err) {
             return done(err);
           }
@@ -627,7 +614,7 @@ describe('The user domain module', function() {
 
       it('should return users in the two domains, not in the community, no pending membership and ' +
       'matching with search terms', function(done) {
-        Community.update({_id: community._id}, {$push: {membershipRequests: {user: user4._id}}}, function(err, updated) {
+        Community.update({_id: community._id}, {$push: {membershipRequests: {user: user4._id}}}, function(err) {
           if (err) {
             return done(err);
           }

@@ -1,7 +1,6 @@
 'use strict';
 
 var mockery = require('mockery');
-var sinon = require('sinon');
 var expect = require('chai').expect;
 var q = require('q');
 

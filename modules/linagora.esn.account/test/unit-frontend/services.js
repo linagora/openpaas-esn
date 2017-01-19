@@ -61,11 +61,6 @@ describe('The Account Angular Services', function() {
   });
 
   describe('The displayAccountMessageLevel service', function() {
-    var accountMessageRegistry;
-
-    beforeEach(function() {
-      accountMessageRegistry = {};
-    });
 
     beforeEach(angular.mock.inject(function($rootScope, displayAccountMessageLevel, OAUTH_MESSAGE_LEVELS) {
       this.$rootScope = $rootScope;

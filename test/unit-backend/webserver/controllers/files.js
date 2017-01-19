@@ -313,10 +313,10 @@ describe('The files controller', function() {
     it('should send the request even if there is no metadata', function(done) {
       var req = { params: { id: '123' } };
       var res = {
-        type: function(ctype) {
+        type: function() {
           done(new Error('No content type should be set without metadata'));
         },
-        set: function(hdr, val) {
+        set: function() {
           done(new Error('No headers should be set without metadata'));
         },
         status: function(code) {
@@ -328,7 +328,7 @@ describe('The files controller', function() {
         get: function(id, callback) {
           expect(id).to.equal(req.params.id);
           callback(null, null, {
-            pipe: function(res) {
+            pipe: function() {
               done();
             }
           });
@@ -371,7 +371,7 @@ describe('The files controller', function() {
             },
             uploadDate: new Date()
           }, {
-            pipe: function(res) {
+            pipe: function() {
               done();
             }
           });

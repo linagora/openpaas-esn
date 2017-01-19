@@ -276,7 +276,7 @@ describe('ContactShell Builders', function() {
           spy();
           return $q.when(shell);
         };
-        this.ContactShellBuilder.populateShell(shell, href).then(function(data) {
+        this.ContactShellBuilder.populateShell(shell, href).then(function() {
           expect(spy).to.have.been.called;
           done();
         }, done);

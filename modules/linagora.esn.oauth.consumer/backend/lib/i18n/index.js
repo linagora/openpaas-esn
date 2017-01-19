@@ -14,6 +14,6 @@ i18n.configure(
   }
 );
 
-module.exports = function(dependencies) {
+module.exports = function() {
   return i18n;
 };

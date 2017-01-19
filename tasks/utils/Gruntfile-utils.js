@@ -3,9 +3,6 @@
 var util = require('util');
 var fs = require('fs-extra');
 var path = require('path');
-var async = require('async');
-var MongoClient = require('mongodb').MongoClient;
-var Server = require('mongodb').Server;
 var extend = require('extend');
 var EsnConfig = require('esn-elasticsearch-configuration');
 var Docker = require('dockerode');
@@ -173,7 +170,7 @@ GruntfileUtils.prototype.buildDockerImage = function(source, buildOptions) {
       if (err) {
         grunt.fail.fatal('Failed to build image, reason: ' + err);
       } else {
-        docker.modem.followProgress(stream, (err, output) => {
+        docker.modem.followProgress(stream, err => {
           if (err) {
             grunt.fail.warn(err);
 

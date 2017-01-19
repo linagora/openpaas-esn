@@ -6,7 +6,7 @@ var expect = chai.expect;
 
 describe('The calAttendeesAutocompleteInputController', function() {
 
-  var $rootScope, $scope, $controller, moment, calendarAttendeeService, session, calEventsProviders, AUTOCOMPLETE_MAX_RESULTS;
+  var $rootScope, $scope, $controller, calendarAttendeeService, session, calEventsProviders, AUTOCOMPLETE_MAX_RESULTS;
 
   beforeEach(function() {
     session = {
@@ -72,10 +72,9 @@ describe('The calAttendeesAutocompleteInputController', function() {
       $provide.factory('calEventsProviders', calEventsProviders);
       $provide.constant('AUTOCOMPLETE_MAX_RESULTS', AUTOCOMPLETE_MAX_RESULTS);
     });
-    angular.mock.inject(function(_$rootScope_, _$controller_, _moment_, _calendarAttendeeService_, _session_, _AUTOCOMPLETE_MAX_RESULTS_) {
+    angular.mock.inject(function(_$rootScope_, _$controller_, _calendarAttendeeService_, _session_, _AUTOCOMPLETE_MAX_RESULTS_) {
       $rootScope = _$rootScope_;
       $scope = $rootScope.$new();
-      moment = _moment_;
       $controller = _$controller_;
       calendarAttendeeService = _calendarAttendeeService_;
       session = _session_;

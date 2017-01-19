@@ -193,7 +193,7 @@ angular.module('esn.domain', ['esn.http', 'ngTagsInput', 'op.dynamicDirective', 
 
           $scope.running = 1;
           domainAPI.inviteUsers($scope.domain._id, emails).then(
-              function(data) {
+              function() {
                 $scope.error = undefined;
                 $scope.running = 0;
                 $scope.step = 1;

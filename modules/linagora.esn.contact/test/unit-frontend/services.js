@@ -63,7 +63,7 @@ describe('The Contacts service module', function() {
 
       var expectPath = this.getVCardUrl(bookId, bookName, contact.id) + '?graceperiod=' + this.GRACE_DELAY;
 
-      this.$httpBackend.expectDELETE(expectPath).respond(function(method, url, data, headers) {
+      this.$httpBackend.expectDELETE(expectPath).respond(function() {
         return [204, '', {'X-ESN-TASK-ID': 'myTaskId'}];
       });
       contact.displayName = 'Foo Bar';
@@ -101,7 +101,7 @@ describe('The Contacts service module', function() {
     it('should grace the request using the default delay on success', function(done) {
       var expectPath = this.getVCardUrl(bookId, bookName, contact.id) + '?graceperiod=' + this.GRACE_DELAY;
 
-      this.$httpBackend.expectDELETE(expectPath).respond(function(method, url, data, headers) {
+      this.$httpBackend.expectDELETE(expectPath).respond(function() {
         return [204, '', {'X-ESN-TASK-ID': 'myTaskId'}];
       });
 
@@ -122,7 +122,7 @@ describe('The Contacts service module', function() {
 
       var expectPath = this.getVCardUrl(bookId, bookName, contact.id) + '?graceperiod=' + this.GRACE_DELAY;
 
-      this.$httpBackend.expectDELETE(expectPath).respond(function(method, url, data, headers) {
+      this.$httpBackend.expectDELETE(expectPath).respond(function() {
         return [204, '', {'X-ESN-TASK-ID': 'myTaskId'}];
       });
 
@@ -140,7 +140,7 @@ describe('The Contacts service module', function() {
         return $q.reject();
       };
       var expectPath = this.getVCardUrl(bookId, bookName, contact.id) + '?graceperiod=' + this.GRACE_DELAY;
-      this.$httpBackend.expectDELETE(expectPath).respond(function(method, url, data, headers) {
+      this.$httpBackend.expectDELETE(expectPath).respond(function() {
         return [204, '', {'X-ESN-TASK-ID': 'myTaskId'}];
       });
 

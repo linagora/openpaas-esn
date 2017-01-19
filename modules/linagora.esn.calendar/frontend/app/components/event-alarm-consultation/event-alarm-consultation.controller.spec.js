@@ -5,13 +5,12 @@
 var expect = chai.expect;
 
 describe('The calEventAlarmConsultationController', function() {
-  var $controller, TRIGGER, CalendarShell, moment;
+  var $controller, CalendarShell, moment;
 
   beforeEach(function() {
     angular.mock.module('esn.calendar');
-    angular.mock.inject(function(_$controller_, _TRIGGER_, _CalendarShell_, _moment_) {
+    angular.mock.inject(function(_$controller_, _CalendarShell_, _moment_) {
       $controller = _$controller_;
-      TRIGGER = _TRIGGER_;
       CalendarShell = _CalendarShell_;
       moment = _moment_;
     });

@@ -50,7 +50,7 @@ describe('The addmember handler', function() {
 
     it('should fail if invitation uuid is not set', function(done) {
       var addmember = this.helpers.requireBackend('core/invitation/handlers/addmember');
-      addmember.init({}, function(err, result) {
+      addmember.init({}, function(err) {
         expect(err).to.exist;
         done();
       });
@@ -58,7 +58,7 @@ describe('The addmember handler', function() {
 
     it('should fail if invitation url is not set', function(done) {
       var addmember = this.helpers.requireBackend('core/invitation/handlers/addmember');
-      addmember.init({uuid: 123, data: {}}, function(err, result) {
+      addmember.init({uuid: 123, data: {}}, function(err) {
         expect(err).to.exist;
         done();
       });
@@ -239,7 +239,7 @@ describe('The addmember handler', function() {
         };
 
         var domain = new Domain(dom);
-        domain.save(function(err, saved) {
+        domain.save(function(err) {
           if (err) {
             return done(err);
           }

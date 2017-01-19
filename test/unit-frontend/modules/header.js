@@ -18,10 +18,6 @@ describe('The esn.header Angular module', function() {
 
     var $rootScope, headerService, dynamicDirectiveService, SUB_HEADER, SUB_HEADER_HAS_INJECTION_EVENT, SUB_HEADER_VISIBLE_MD_EVENT;
 
-    beforeEach(angular.mock.module(function($provide) {
-
-    }));
-
     beforeEach(inject(function(_$rootScope_, _headerService_, _dynamicDirectiveService_, _SUB_HEADER_, _SUB_HEADER_HAS_INJECTION_EVENT_, _SUB_HEADER_VISIBLE_MD_EVENT_) {
       $rootScope = _$rootScope_;
       headerService = _headerService_;
@@ -84,7 +80,7 @@ describe('The esn.header Angular module', function() {
       // since we have two callbacks called in subheader and header.
       matchmediaCallback = null;
       $provide.value('matchmedia', {
-        on: function(query, callback, scope) {
+        on: function(query, callback) {
           matchmediaQuery = query;
           if (!matchmediaCallback) {
             matchmediaCallback = callback;

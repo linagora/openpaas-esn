@@ -28,7 +28,7 @@ describe('The Scroll Angular module', function() {
 
   describe('The scrollListener directive', function() {
 
-    var $scope, element;
+    var $scope;
 
     beforeEach(function() {
       module('esn.scroll');
@@ -38,7 +38,8 @@ describe('The Scroll Angular module', function() {
       $scope = $rootScope.$new();
       $scope.setToDOM = true;
 
-      element = $compile('<div scroll-listener ng-if="setToDOM" on-destroy="destroyed()" on-scroll-top="onTop"></div>')($scope);
+      $compile('<div scroll-listener ng-if="setToDOM" on-destroy="destroyed()" on-scroll-top="onTop"></div>')($scope);
+
       $scope.$digest();
     }));
 
@@ -242,7 +243,7 @@ describe('The Scroll Angular module', function() {
   });
 
   describe('The scrollTopOnClick directive', function() {
-    var $scope, $window, $timeout, element;
+    var $scope, $window, element;
 
     beforeEach(function() {
       module('esn.scroll');

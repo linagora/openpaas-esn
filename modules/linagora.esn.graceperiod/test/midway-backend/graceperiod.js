@@ -3,7 +3,6 @@
 var request = require('supertest');
 
 describe('The graceperiod API', function() {
-  var domain;
   var user;
   var password = 'secret';
   var moduleName = 'linagora.esn.graceperiod';
@@ -27,7 +26,6 @@ describe('The graceperiod API', function() {
           if (err) {
             return done(err);
           }
-          domain = models.domain;
           user = models.users[0];
           self.models = models;
           done();

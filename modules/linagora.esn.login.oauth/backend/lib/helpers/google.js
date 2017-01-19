@@ -33,7 +33,7 @@ module.exports = function(dependencies) {
 
         return defer.reject(new Error('Can not get Google access token'));
       });
-    }, error => defer.reject(new Error('OAuth is not configured correctly')));
+    }, () => defer.reject(new Error('OAuth is not configured correctly')));
 
     return defer.promise;
   }

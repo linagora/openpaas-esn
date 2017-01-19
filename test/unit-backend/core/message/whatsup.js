@@ -9,7 +9,7 @@ describe('The core messages module', function() {
 
     it('should not publish in topic message:stored if there was an error', function(done) {
       var mongooseMocked = {
-        model: function(model) {
+        model: function() {
           function Whatsup(message) {
             this.message = message;
           }
@@ -23,9 +23,9 @@ describe('The core messages module', function() {
 
       var pubsubMocked = {
         local: {
-          topic: function(topic) {
+          topic: function() {
             return {
-              publish: function(response) {
+              publish: function() {
                 throw new Error('There is an error !');
               }
             };
@@ -34,7 +34,7 @@ describe('The core messages module', function() {
       };
       mockery.registerMock('../pubsub', pubsubMocked);
 
-      function callback(err, response) {
+      function callback(err) {
         expect(err).to.exist;
         done();
       }
@@ -44,7 +44,7 @@ describe('The core messages module', function() {
 
     it('should publish in topic message:stored if there is no error', function(done) {
       var mongooseMocked = {
-        model: function(model) {
+        model: function() {
           function Whatsup(message) {
             this.message = message;
           }
@@ -61,7 +61,7 @@ describe('The core messages module', function() {
         local: {
           topic: function(topic) {
             return {
-              publish: function(response) {
+              publish: function() {
                 topicUsed = topic;
               }
             };
@@ -70,7 +70,7 @@ describe('The core messages module', function() {
       };
       mockery.registerMock('../pubsub', pubsubMocked);
 
-      function callback(err, response) {
+      function callback(err) {
         expect(err).not.to.exist;
         expect(topicUsed).to.equal('message:stored');
         done();

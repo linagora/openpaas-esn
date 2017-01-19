@@ -9,7 +9,6 @@ var API_VERSIONS = {
   }
 };
 
-var API_BASE = '/api';
 var API_FIRST_VERSION = 'v0.1';
 var API_CURRENT_VERSION = API_FIRST_VERSION;
 

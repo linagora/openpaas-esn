@@ -187,9 +187,7 @@ describe('The contacts tools Module', function() {
     });
 
     it('should reject if can not list vcard in addressbook', function(done) {
-      var book;
-      addressbookMock = function(bookName) {
-        book = bookName;
+      addressbookMock = function() {
         return {
           list: function() {
             return q.resolve(addressbookListMock);

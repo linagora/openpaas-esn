@@ -64,7 +64,7 @@ function insertDocument(db, collectionName, document, callback) {
   var collection = db.collection(collectionName);
   collection.insert(document, function(err, coll) {
     if (err) {
-      db.close(function(err, data) {
+      db.close(function() {
         //ignore error
       });
     }
@@ -73,8 +73,8 @@ function insertDocument(db, collectionName, document, callback) {
 }
 
 function dropCollection(db, collectionName, callback) {
-  db.dropCollection(collectionName, function(err, data) {
-    db.close(function(err, data) {
+  db.dropCollection(collectionName, function(err) {
+    db.close(function() {
       //ignore error
     });
     return callback(err);

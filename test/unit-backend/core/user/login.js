@@ -328,7 +328,7 @@ describe('The user login module', function() {
         }
       });
       emailMock = {
-        getMailer: function(user) {
+        getMailer: function() {
           return {
             sendHTML: function(message, templateName, context, callback) {
               callback(null, data);
@@ -374,7 +374,7 @@ describe('The user login module', function() {
     });
 
     it('should fail if email.getMailer().sendHTML get error', function(done) {
-      emailMock.getMailer = function(user) {
+      emailMock.getMailer = function() {
         return {
           sendHTML: function(message, templateName, context, callback) {
             callback(new Error(errorMessage));
@@ -393,7 +393,7 @@ describe('The user login module', function() {
       helpersMock.config.getBaseUrl = function(user, callback) {
         callback(null, baseUrl);
       };
-      emailMock.getMailer = function(user) {
+      emailMock.getMailer = function() {
         return {
           sendHTML: function(message, templateName, context, callback) {
             callback(null, data);
@@ -413,7 +413,7 @@ describe('The user login module', function() {
       helpersMock.config.getBaseUrl = function(user, callback) {
         callback(null, baseUrl);
       };
-      emailMock.getMailer = function(user) {
+      emailMock.getMailer = function() {
         return {
           sendHTML: function(message, templateName, context, callback) {
             callback(null, data);
@@ -437,7 +437,7 @@ describe('The user login module', function() {
       };
 
       data.url = newBaseUrl + '/passwordreset';
-      emailMock.getMailer = function(user) {
+      emailMock.getMailer = function() {
         return {
           sendHTML: function(message, templateName, context, callback) {
             callback(null, data);

@@ -33,7 +33,7 @@ describe('The passport configuration module', function() {
         }
       };
       var configMock = {
-        config: function(config) {
+        config: function() {
           return conf;
         }
       };

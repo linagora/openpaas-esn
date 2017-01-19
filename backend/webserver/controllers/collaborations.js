@@ -420,7 +420,7 @@ function removeMembershipRequest(req, res) {
   }
   var membership = memberships[0];
 
-  function onResponse(err, resp) {
+  function onResponse(err) {
     if (err) {
       return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.message}});
     }

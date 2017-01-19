@@ -89,7 +89,7 @@ angular.module('esn.appstore')
         version: '@',
         domainDeployment: '='
       },
-      link: function(scope, element, attrs, controllers) {
+      link: function(scope) {
         var target = { objectType: 'domain', id: session.domain._id };
         scope.domainDeployment = applicationService.isDomainLevel(scope.application);
         scope.loading = false;
@@ -168,7 +168,7 @@ angular.module('esn.appstore')
         application: '=',
         community: '='
       },
-      link: function(scope, element, attrs, controllers) {
+      link: function(scope) {
         var target = { objectType: 'community', id: scope.community._id };
         var targetDomain = { objectType: 'domain', id: session.domain._id };
         var deployment = scope.application.deployments.filter(function(deployment) {
@@ -228,7 +228,7 @@ angular.module('esn.appstore')
       }
     };
   })
-  .directive('appstoreButtonUpdate', function(appstoreAPI) {
+  .directive('appstoreButtonUpdate', function() {
     return {
       restrict: 'E',
       templateUrl: '/appstore/views/appstore/appstore-button-update.html',

@@ -8,12 +8,11 @@ describe('The Angular core module', function() {
   beforeEach(angular.mock.module('esn.core'));
 
   describe('CounterFactory', function() {
-    var service, $log, $timeout, userNotificationAPI, $q, unreadDefer, $rootScope;
+    var service, $log, $timeout, $q, unreadDefer, $rootScope;
     var counter, timeoutToTest, callTimes, refreshFn;
 
     beforeEach(function() {
       callTimes = 0;
-      userNotificationAPI = {};
       refreshFn = function() {
         unreadDefer = $q.defer();
         return unreadDefer.promise;

@@ -107,7 +107,7 @@ describe('The invitation controller', function() {
 
     it('should fail if UUID is unknown', function(done) {
       var data = { foo: 'bar'};
-      request(webserver.application).put('/api/invitations/123456789').send(data).expect(404).end(function(err, res) {
+      request(webserver.application).put('/api/invitations/123456789').send(data).expect(404).end(function(err) {
         expect(err).to.be.null;
         done();
       });
@@ -121,7 +121,7 @@ describe('The invitation controller', function() {
           return done(err);
         }
         var data = { foo: 'bar'};
-        request(webserver.application).put('/api/invitations/' + invitation.uuid).send(data).expect(201).end(function(err, res) {
+        request(webserver.application).put('/api/invitations/' + invitation.uuid).send(data).expect(201).end(function(err) {
           expect(err).to.be.null;
           expect(called).to.be.true;
           done();
@@ -147,14 +147,14 @@ describe('The invitation controller', function() {
     });
 
     it('should return 404 on root resource', function(done) {
-      request(webserver.application).get('/api/invitations').expect(404).end(function(err, res) {
+      request(webserver.application).get('/api/invitations').expect(404).end(function(err) {
         expect(err).to.be.null;
         done();
       });
     });
 
     it('should return 404 on unknown resource', function(done) {
-      request(webserver.application).get('/api/invitations/123').expect(404).end(function(err, res) {
+      request(webserver.application).get('/api/invitations/123').expect(404).end(function(err) {
         expect(err).to.be.null;
         done();
       });
@@ -253,7 +253,7 @@ describe('The invitation controller', function() {
         var req = loginAsUser0(request(app).post('/api/domains/' + self.models.domain._id + '/invitations'));
         req.send(['foo@bar.com']);
         req.expect(202);
-        req.end(function(err, res) {
+        req.end(function(err) {
           if (err) {
             done(err);
           }

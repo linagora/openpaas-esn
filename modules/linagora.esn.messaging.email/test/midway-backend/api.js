@@ -57,7 +57,7 @@ describe('linagora.esn.messaging.email module', function() {
       req.set('Content-Type', 'message/rfc822');
       req.send('123');
       req.expect(404);
-      req.end(function(err, res) {
+      req.end(function(err) {
         expect(err).to.not.exist;
         done();
       });
@@ -86,7 +86,7 @@ describe('linagora.esn.messaging.email module', function() {
           req.set('x-esn-email-to-reply-from', self.models.users[2].emails[0]);
           req.send('123');
           req.expect(403);
-          req.end(function(err, res) {
+          req.end(function(err) {
             expect(err).to.not.exist;
             done();
           });

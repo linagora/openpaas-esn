@@ -77,7 +77,7 @@ describe('The proxy module', function() {
         };
         mockery.registerMock('./proxy', function() {
           return {
-            http: function(req, res, options) {
+            http: function(req) {
               expect(req.headers).to.deep.equal({
                 ESNToken: '123456789'
               });
@@ -102,7 +102,7 @@ describe('The proxy module', function() {
         };
         mockery.registerMock('./proxy', function() {
           return {
-            http: function(req, res, options) {
+            http: function(req) {
               expect(req.headers).to.deep.equal({});
               done();
             }

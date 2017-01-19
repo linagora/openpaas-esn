@@ -19,7 +19,7 @@ describe('The activitystreams pubsub module', function() {
     });
 
     it('should call nothing when data is not set', function(done) {
-      function callback(err, result) {
+      function callback(err) {
         expect(err.message).to.equal('Can not create activity from null data');
         done();
       }
@@ -28,7 +28,7 @@ describe('The activitystreams pubsub module', function() {
     });
 
     it('should call the activitystream module when data is set and verb is post', function(done) {
-      function callback(err, result) {
+      function callback(err) {
         done(err);
       }
       var mock = {
@@ -66,7 +66,7 @@ describe('The activitystreams pubsub module', function() {
       var nbCalls = 0;
       var mock = {
         local: {
-          topic: function(topic) {
+          topic: function() {
             return {
               subscribe: function() {
                 nbCalls++;

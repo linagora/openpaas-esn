@@ -69,7 +69,6 @@ describe('The oauthclient model module', function() {
 
   describe('clientId and clientSecret field', function() {
     it('should be generated on save', function(done) {
-      var userId;
       var u = userFixtures.newDummyUser(['foo@linagora.com', 'bar@linagora.com']);
 
       function saveUser(callback) {
@@ -110,7 +109,6 @@ describe('The oauthclient model module', function() {
           name: 'anApp',
           creator: savedUser
         };
-        userId = savedUser._id;
         saveOAuthClient(clientJSON, test);
       });
     });

@@ -49,7 +49,7 @@ angular.module('esn.message', ['esn.attachment', 'esn.timeline', 'esn.maps', 'es
     $scope.validators = [];
     $scope.validationError = {};
 
-    $scope.expand = function(event) {
+    $scope.expand = function() {
       if ($scope.rows === 1) {
         $scope.rows = 5;
       }
@@ -408,7 +408,7 @@ angular.module('esn.message', ['esn.attachment', 'esn.timeline', 'esn.maps', 'es
     };
   })
   .directive('pollMessage', function($log, session, pollAPI) {
-    function link(scope, element, attrs) {
+    function link(scope, element) {
       var results, choices;
 
       scope.showMeChart = false;
@@ -515,7 +515,7 @@ angular.module('esn.message', ['esn.attachment', 'esn.timeline', 'esn.maps', 'es
     };
   })
   .directive('pollEdition', function() {
-    function link(scope, element, attrs) {
+    function link(scope) {
       scope.additionalData = {
         pollChoices: [
           {label: ''},

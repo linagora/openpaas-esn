@@ -2,6 +2,6 @@
 
 var express = require('express');
 
-module.exports = function(dependencies) {
+module.exports = function() {
   return express();
 };

@@ -5,7 +5,6 @@ var urljoin = require('url-join');
 var ICAL = require('ical.js');
 var jcalHelper = require('../../../lib/helpers/jcal');
 var calendar,
-    arrayHelpers,
     logger,
     userModule,
     configHelpers;
@@ -214,7 +213,6 @@ module.exports = function(dependencies) {
   logger = dependencies('logger');
   calendar = require('./core')(dependencies);
   configHelpers = dependencies('helpers').config;
-  arrayHelpers = dependencies('helpers').array;
   userModule = dependencies('user');
 
   return {

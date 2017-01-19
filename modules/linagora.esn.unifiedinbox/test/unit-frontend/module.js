@@ -101,7 +101,7 @@ describe('The Unified Inbox Angular module', function() {
       $rootScope.$digest();
 
       inboxProviders.getAll().then(function(providers) {
-        expect(providers.filter(function(provider) {
+        expect(providers.filter(function() {
         }).length).to.equal(0);
         done();
       });

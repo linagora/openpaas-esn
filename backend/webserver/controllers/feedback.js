@@ -9,7 +9,7 @@ function createFeedback(req, res) {
     author: req.user._id
   };
 
-  feedback.save(feedbackObject, function(err, response) {
+  feedback.save(feedbackObject, function(err) {
     if (err) {
       return res.status(500).json({error: {status: 500, message: 'Server Error', details: 'Cannot save feedback: ' + err.message}});
     }

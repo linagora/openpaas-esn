@@ -35,17 +35,14 @@ describe('The activitystreams API', function() {
     });
 
     describe('Activity Stream tests', function() {
-      var Domain, User, TimelineEntry, Community;
-      var activitystreamId, savedTimelineEntry, community, privateCommunity, privateActivitystreamId;
+      var TimelineEntry;
+      var activitystreamId, community, privateCommunity, privateActivitystreamId;
       var user, userNotInPrivateCommunity;
       var email = 'itadmin@lng.net';
       password = 'secret';
 
       beforeEach(function(done) {
-        Domain = this.mongoose.model('Domain');
-        User = this.mongoose.model('User');
         TimelineEntry = this.mongoose.model('TimelineEntry');
-        Community = this.mongoose.model('Community');
         this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
           user = models.users[0];
           userNotInPrivateCommunity = models.users[2];
@@ -66,15 +63,14 @@ describe('The activitystreams API', function() {
             ]
           };
           var timelineEntry = new TimelineEntry(timelineentryJSON);
-          timelineEntry.save(function(err, saved) {
+          timelineEntry.save(function(err) {
             expect(err).to.not.exist;
-            savedTimelineEntry = saved;
             done();
           });
         });
       });
 
-      describe('GET /api/activitystreams/:uuid', function(done) {
+      describe('GET /api/activitystreams/:uuid', function() {
 
         it('should send back 401 when not logged in', function(done) {
           this.helpers.api.requireLogin(app, 'get', '/api/activitystreams/' + activitystreamId, done);
@@ -133,7 +129,7 @@ describe('The activitystreams API', function() {
             ]
           };
           var timelineEntry = new TimelineEntry(timelineentryPrivate);
-          timelineEntry.save(function(err, timelineEntryPrivateSaved) {
+          timelineEntry.save(function(err) {
             expect(err).to.not.exist;
 
             self.helpers.api.loginAsUser(app, userNotInPrivateCommunity.emails[0], password, function(err, loggedInAsUser) {
@@ -281,17 +277,17 @@ describe('The activitystreams API', function() {
         // Login
         this.helpers.api.loginAsUser(app, user.emails[0], password, function(err, loggedInAsUser) {
           // Add one Timeline Entry
-          self.helpers.api.applyMultipleTimelineEntries(activitystreamId, 1, 'post', function(err, models) {
+          self.helpers.api.applyMultipleTimelineEntries(activitystreamId, 1, 'post', function(err) {
             expect(err).to.not.exist;
 
             // Get the Activity Stream (will update the last unread Timeline Entry)
             var req = loggedInAsUser(request(app).get('/api/activitystreams/' + activitystreamId));
             req.expect(200);
-            req.end(function(err, res) {
+            req.end(function(err) {
               expect(err).to.not.exist;
 
               // Add 3 new Timeline Entries
-              self.helpers.api.applyMultipleTimelineEntries(activitystreamId, 3, 'post', function(err, models) {
+              self.helpers.api.applyMultipleTimelineEntries(activitystreamId, 3, 'post', function(err) {
                 expect(err).to.not.exist;
 
                 // Get the number of unread Timeline Entries
@@ -322,20 +318,20 @@ describe('The activitystreams API', function() {
           // Login
           this.helpers.api.loginAsUser(app, user.emails[0], password, function(err, loggedInAsUser) {
             // Add one Timeline Entry
-            self.helpers.api.applyMultipleTimelineEntries(activitystreamId, 1, 'post', function(err, models) {
+            self.helpers.api.applyMultipleTimelineEntries(activitystreamId, 1, 'post', function(err) {
               expect(err).to.not.exist;
 
               // Get the Activity Stream (will update the last unread Timeline Entry)
               var req = loggedInAsUser(request(app).get('/api/activitystreams/' + activitystreamId));
               req.expect(200);
-              req.end(function(err, res) {
+              req.end(function(err) {
                 expect(err).to.not.exist;
 
                 // Add 3 new Timeline Entries
                 self.helpers.api.applyMultipleTimelineEntries(activitystreamId, 3, 'post', function(err, models) {
                   expect(err).to.not.exist;
                   // add an update on the second timeline entry
-                  self.helpers.api.recordNextTimelineEntry(models.timelineEntries[1], 'update', function(err, model) {
+                  self.helpers.api.recordNextTimelineEntry(models.timelineEntries[1], 'update', function(err) {
                     expect(err).to.not.exist;
                     // Get the number of unread Timeline Entries
                     req = loggedInAsUser(request(app).get(
@@ -366,13 +362,13 @@ describe('The activitystreams API', function() {
         var communityCore = this.helpers.requireBackend('core/community');
 
         // Login
-        this.helpers.api.loginAsUser(app, user.emails[0], password, function(err, loggedInAsUser) {
+        this.helpers.api.loginAsUser(app, user.emails[0], password, function() {
           // Add three Timeline Entry
-          self.helpers.api.applyMultipleTimelineEntries(activitystreamId, 3, 'post', function(err, models) {
+          self.helpers.api.applyMultipleTimelineEntries(activitystreamId, 3, 'post', function(err) {
             expect(err).to.not.exist;
 
             // Add the second user to the community
-            communityCore.join(community, user2, user2, 'user', function(err, updated) {
+            communityCore.join(community, user2, user2, 'user', function(err) {
               expect(err).to.not.exist;
 
               self.helpers.api.loginAsUser(app, user2.emails[0], password, function(err, loggedInAsUser2) {
@@ -425,11 +421,11 @@ describe('The activitystreams API', function() {
                 _id: activitystreamId
               }
             ]
-          }).save(function(err, saved) {
+          }).save(function(err) {
               expect(err).to.not.exist;
 
               // Add 3 new Timeline Entries
-              self.helpers.api.applyMultipleTimelineEntries(activitystreamId, 3, 'post', function(err, models) {
+              self.helpers.api.applyMultipleTimelineEntries(activitystreamId, 3, 'post', function(err) {
                 expect(err).to.not.exist;
 
                 // Get the number of unread Timeline Entries

@@ -53,14 +53,17 @@ describe('The contact Angular module directives', function() {
 
   describe('The editable contactPhoto directive', function() {
 
-    var element;
+    var element, $scope;
 
-    beforeEach(function() {
-      element = this.$compile('<contact-photo editable="true" contact="contact"></contact-photo>')(this.$scope);
-    });
+    beforeEach(inject(function($compile, $rootScope) {
+      $scope = $rootScope.$new();
+      $scope.contact = {};
+
+      element = $compile('<contact-photo editable="true" contact="contact"></contact-photo>')($scope);
+    }));
 
     it('should display the hint', function() {
-      this.$scope.$digest();
+      $scope.$digest();
 
       expect(element.find('i').css('display')).to.not.equal('none');
     });
@@ -106,26 +109,25 @@ describe('The contact Angular module directives', function() {
 
   describe('The contactListToggle directive', function() {
 
-    var $compile, $rootScope, element, $scope, ContactListToggleDisplayService, ContactListToggleEventService, ContactListToggleDisplayServiceMock, CONTACT_LIST_DISPLAY, CONTACT_LIST_DISPLAY_EVENTS;
+    var $compile, $rootScope, element, $scope, ContactListToggleDisplayService, ContactListToggleEventService, ContactListToggleDisplayServiceMock, CONTACT_LIST_DISPLAY;
 
     beforeEach(function() {
 
       ContactListToggleDisplayServiceMock = {
         getCurrentDisplay: function() {},
-        setCurrentDisplay: function(value) {}
+        setCurrentDisplay: function() {}
       };
 
       module(function($provide) {
         $provide.value('ContactListToggleDisplayService', ContactListToggleDisplayServiceMock);
       });
 
-      inject(function(_$compile_, _$rootScope_, _ContactListToggleDisplayService_, _ContactListToggleEventService_, _CONTACT_LIST_DISPLAY_, _CONTACT_LIST_DISPLAY_EVENTS_) {
+      inject(function(_$compile_, _$rootScope_, _ContactListToggleDisplayService_, _ContactListToggleEventService_, _CONTACT_LIST_DISPLAY_) {
         $compile = _$compile_;
         $rootScope = _$rootScope_;
         ContactListToggleDisplayService = _ContactListToggleDisplayService_;
         ContactListToggleEventService = _ContactListToggleEventService_;
         CONTACT_LIST_DISPLAY = _CONTACT_LIST_DISPLAY_;
-        CONTACT_LIST_DISPLAY_EVENTS = _CONTACT_LIST_DISPLAY_EVENTS_;
         $scope = $rootScope.$new();
         $scope.displayAs = CONTACT_LIST_DISPLAY.list;
       });
@@ -224,14 +226,14 @@ describe('The contact Angular module directives', function() {
 
   describe('The contactListDisplayer directive', function() {
 
-    var $compile, $rootScope, element, $scope, ContactListToggleDisplayService, ContactListToggleEventService, ContactListToggleDisplayServiceMock, CONTACT_LIST_DISPLAY, CONTACT_LIST_DISPLAY_EVENTS;
+    var $rootScope, $compile, $scope, ContactListToggleDisplayService, ContactListToggleEventService, ContactListToggleDisplayServiceMock;
 
     beforeEach(function() {
 
       ContactListToggleDisplayServiceMock = {
         getCurrentDisplay: function() {
         },
-        setCurrentDisplay: function(value) {
+        setCurrentDisplay: function() {
         }
       };
 
@@ -239,41 +241,44 @@ describe('The contact Angular module directives', function() {
         $provide.value('ContactListToggleDisplayService', ContactListToggleDisplayServiceMock);
       });
 
-      inject(function(_$compile_, _$rootScope_, _ContactListToggleDisplayService_, _ContactListToggleEventService_, _CONTACT_LIST_DISPLAY_, _CONTACT_LIST_DISPLAY_EVENTS_) {
+      inject(function(_$rootScope_, _$compile_, _ContactListToggleDisplayService_, _ContactListToggleEventService_) {
         $compile = _$compile_;
         $rootScope = _$rootScope_;
         ContactListToggleDisplayService = _ContactListToggleDisplayService_;
         ContactListToggleEventService = _ContactListToggleEventService_;
-        CONTACT_LIST_DISPLAY = _CONTACT_LIST_DISPLAY_;
-        CONTACT_LIST_DISPLAY_EVENTS = _CONTACT_LIST_DISPLAY_EVENTS_;
         $scope = $rootScope.$new();
       });
     });
 
-    var initDirective = function() {
+    function initDirective() {
       return $compile('<contact-list-displayer></contact-list-displayer>')($scope);
-    };
+    }
 
     it('should set displayAs with the ContactListToggleDisplayService value', function() {
       var value = 'the value';
       ContactListToggleDisplayServiceMock.getCurrentDisplay = function() {
         return value;
       };
-      element = initDirective();
+
+      initDirective();
       $scope.$digest();
+
       expect($scope.displayAs).to.equal(value);
     });
 
     it('should set displayAs with the ContactListToggleEventService.broadcast event value', function() {
       var value = 'the value';
-      element = initDirective();
+
+      initDirective();
       $scope.$digest();
       ContactListToggleEventService.broadcast(value);
+
       expect($scope.displayAs).to.equal(value);
     });
 
     it('should save the current value when changing location', function(done) {
       var value = 'my value';
+
       ContactListToggleDisplayServiceMock.setCurrentDisplay = function(display) {
         expect(display).to.equal(value);
         done();
@@ -281,7 +286,7 @@ describe('The contact Angular module directives', function() {
       ContactListToggleDisplayService.getCurrentDisplay = function() {
         return value;
       };
-      element = initDirective();
+      initDirective();
       $scope.$digest();
       $scope.$emit('$locationChangeStart');
     });

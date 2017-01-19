@@ -74,7 +74,7 @@ module.exports.setAsRead = function(req, res) {
     return res.status(404).json({error: { status: 404, message: 'Not found', details: 'Notification has not been found'}});
   }
 
-  notificationModule.setAsRead(req.notification, function(err, udated) {
+  notificationModule.setAsRead(req.notification, function(err) {
     if (err) {
       return res.status(500).json({error: {status: 500, message: 'Server Error', details: 'Cannot create set notification as read . ' + err.message}});
     }

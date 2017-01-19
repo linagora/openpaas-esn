@@ -20,7 +20,7 @@ describe('The amqp module', function() {
   }
 
   function testingEsnConfig() {
-    return key => ({
+    return () => ({
       get: () => q.when({ url: 'amqp://testing-url' })
     });
   }
@@ -32,7 +32,7 @@ describe('The amqp module', function() {
   beforeEach(function() {
     helpers = this.helpers;
     channel = {
-      assertExchange: (topic, type) => q.resolve()
+      assertExchange: () => q.resolve()
     };
   });
 
@@ -52,7 +52,7 @@ describe('The amqp module', function() {
     it('should reject when esnconfig rejects', function(done) {
       const error = new Error('I failed to get amqp configuration');
 
-      mockEsnConfig(key => ({
+      mockEsnConfig(() => ({
         get: () => q.reject(error)
       }));
 
@@ -65,7 +65,7 @@ describe('The amqp module', function() {
     });
 
     it('should use default url when esnconfig does not return amqp configuration', function(done) {
-      mockEsnConfig(key => ({
+      mockEsnConfig(() => ({
         get: () => q()
       }));
 
@@ -93,14 +93,14 @@ describe('The amqp module', function() {
       });
 
       getClient()
-        .then(client => done())
+        .then(() => done())
         .catch(err => done(err || 'should resolve'));
     });
 
     it('should create a channel through the connection', function(done) {
       mockEsnConfig();
       mockAmqplib({
-        connect: url => ({
+        connect: () => ({
           createChannel: () => {
             done();
 
@@ -115,7 +115,7 @@ describe('The amqp module', function() {
     it.skip('should return a AmqpClient', function(done) {
       mockEsnConfig();
       mockAmqplib({
-        connect: url => ({
+        connect: () => ({
           createChannel: () => channel
         })
       });
@@ -128,7 +128,7 @@ describe('The amqp module', function() {
 
     it('should do only one connection and channel when called multiple times', function(done) {
       const createChannelSpy = sinon.spy(() => channel);
-      const connectSpy = sinon.spy(url => ({
+      const connectSpy = sinon.spy(() => ({
         createChannel: createChannelSpy
       }));
 

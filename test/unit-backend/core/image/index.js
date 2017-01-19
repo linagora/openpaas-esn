@@ -36,7 +36,7 @@ describe('The core image module', function() {
       var core = this.helpers.requireBackend('core'),
           image = core.image;
       var rs = createReadStream(this.testEnv.fixtures + '/images/not_square.jpg');
-      image.checkImageSquare(rs, function(err, size, gmInstance) {
+      image.checkImageSquare(rs, function(err) {
         expect(err).to.exist;
         expect(err.code).to.equal(2);
         expect(err.message).to.equal('Image is not a square');
@@ -88,7 +88,7 @@ describe('The core image module', function() {
           image = core.image;
 
       var is = createReadStream(this.testEnv.fixtures + '/images/not_square.jpg');
-      image.recordAvatar('666', 'image/jpeg', {}, is, function(err, size) {
+      image.recordAvatar('666', 'image/jpeg', {}, is, function(err) {
         expect(err).to.be.defined;
         expect(err.code).to.equal(2);
         expect(err.message).to.equal('Image is not a square');
@@ -122,7 +122,7 @@ describe('The core image module', function() {
           image = core.image;
 
       var is = createReadStream(this.testEnv.fixtures + '/images/not_square.jpg');
-      image.recordAvatar('666', 'image/jpeg', {}, is, function(err, size) {
+      image.recordAvatar('666', 'image/jpeg', {}, is, function() {
       });
     });
 
@@ -146,7 +146,7 @@ describe('The core image module', function() {
           image = core.image;
 
       var is = createReadStream(this.testEnv.fixtures + '/images/not-an-image.js');
-      image.recordAvatar('666', 'image/jpeg', {}, is, function(err, size) {
+      image.recordAvatar('666', 'image/jpeg', {}, is, function(err) {
         expect(err).to.be.defined;
         expect(err.code).to.equal(2);
         expect(err.message).to.match(/format/);
@@ -181,7 +181,7 @@ describe('The core image module', function() {
           image = core.image;
 
       var is = createReadStream(this.testEnv.fixtures + '/images/not-an-image.js');
-      image.recordAvatar('666', 'image/jpeg', {}, is, function(err, size) {
+      image.recordAvatar('666', 'image/jpeg', {}, is, function() {
       });
     });
 
@@ -246,7 +246,7 @@ describe('The core image module', function() {
       it('should lookup the reduced avatar', function(done) {
         var id = '123';
         mockery.registerMock('../filestore', {
-          find: function(query, callback) {
+          find: function(query) {
             expect(query['metadata.avatar.originalId']).to.equal('123');
             expect(query['metadata.avatar.fullsize']).to.equal(false);
             done();
@@ -275,7 +275,7 @@ describe('The core image module', function() {
             find: function(query, callback) {
               callback(null, []);
             },
-            get: function(_id, callback) {
+            get: function(_id) {
               expect(_id).to.exist;
               expect(_id).to.equal(id);
               done();
@@ -299,7 +299,7 @@ describe('The core image module', function() {
             find: function(query, callback) {
               callback(null, ['reducedId']);
             },
-            get: function(_id, callback) {
+            get: function(_id) {
               expect(_id).to.exist;
               expect(_id).to.equal('reducedId');
               done();
@@ -323,13 +323,13 @@ describe('The core image module', function() {
     it('should send back error when filestore#find sends back error', function(done) {
       var id = '123';
       mockery.registerMock('../filestore', {
-        get: function(_id, callback) {
+        get: function() {
           return done(new Error());
         },
         find: function(id, callback) {
           return callback(new Error());
         },
-        getFileStream: function(id, callback) {
+        getFileStream: function() {
           return done(new Error());
         }
       });

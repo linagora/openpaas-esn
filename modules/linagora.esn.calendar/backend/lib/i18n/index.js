@@ -48,7 +48,7 @@ function getI18nForMailer(user) {
         translate: phrase => i18nForMailer.__({phrase, locale})
       })
     )
-    .catch(err => ({
+    .catch(() => ({
       i18n: i18nForMailer,
       locale: DEFAULT_LOCALE,
       translate: i18nForMailer.__

@@ -407,8 +407,7 @@ describe('The Unified Inbox Angular module services', function() {
         $provide.value('emailBodyService', emailBodyServiceMock = { bodyProperty: 'htmlBody' });
       });
 
-      angular.mock.inject(function(session, _$rootScope_, _jmapHelper_, _notificationFactory_, _jmap_,
-                                   _backgroundProcessorService_) {
+      angular.mock.inject(function(session, _$rootScope_, _jmapHelper_, _notificationFactory_, _jmap_) {
         jmapHelper = _jmapHelper_;
         jmap = _jmap_;
         $rootScope = _$rootScope_;
@@ -2774,7 +2773,7 @@ describe('The Unified Inbox Angular module services', function() {
       it('should assign dst.mailboxes if dst is given', function(done) {
         var object = {};
 
-        mailboxesService.assignMailboxesList(object).then(function(mailboxes) {
+        mailboxesService.assignMailboxesList(object).then(function() {
           expect(object.mailboxes).to.deep.equal([]);
 
           done();
@@ -2786,7 +2785,7 @@ describe('The Unified Inbox Angular module services', function() {
       it('should assign dst.mailboxes if dst is given and dst.mailboxes does not exist yet', function(done) {
         var object = { mailboxes: 'Yolo' };
 
-        mailboxesService.assignMailboxesList(object).then(function(mailboxes) {
+        mailboxesService.assignMailboxesList(object).then(function() {
           expect(object.mailboxes).to.equal('Yolo');
 
           done();
@@ -3414,7 +3413,7 @@ describe('The Unified Inbox Angular module services', function() {
     var $rootScope, backgroundAction, asyncAction, backgroundProcessorService;
 
     beforeEach(module(function($provide) {
-      $provide.value('asyncAction', asyncAction = sinon.spy(function(message, action, options) {
+      $provide.value('asyncAction', asyncAction = sinon.spy(function(message, action) {
         return action();
       }));
     }));

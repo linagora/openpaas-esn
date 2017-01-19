@@ -9,7 +9,6 @@ var bodyParser = require('body-parser');
 describe('The addressbooks dav proxy', function() {
   var moduleName = 'linagora.esn.davproxy';
   var PREFIX = '/dav/api';
-  var domain;
   var user;
   var password = 'secret';
   var dav, davServer;
@@ -40,7 +39,6 @@ describe('The addressbooks dav proxy', function() {
             if (err) {
               return done(err);
             }
-            domain = models.domain;
             user = models.users[0];
             self.models = models;
             done();

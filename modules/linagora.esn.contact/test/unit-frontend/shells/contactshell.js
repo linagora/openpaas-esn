@@ -83,7 +83,7 @@ describe('ContactShell services', function() {
 
   describe('ContactShell factory', function() {
 
-    function checkShellContactCreatedObject(shell, etag, href) {
+    function checkShellContactCreatedObject(shell, etag) {
       expect(shell.id).to.equal('0');
       expect(shell.displayName).to.equal('Test ContactShell');
       expect(shell.lastName).to.equal('ContactShell');

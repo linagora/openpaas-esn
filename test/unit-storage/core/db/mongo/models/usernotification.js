@@ -31,7 +31,7 @@ describe('the Usernotification mongoose model', function() {
         target: mongoose.Types.ObjectId()
       };
       var notif = new Model(data);
-      notif.save(function(err, data) {
+      notif.save(function(err) {
         expect(err).to.be.ok;
         expect(err.errors).to.have.property('subject');
         expect(err.errors.subject.message).to.match(/required/);
@@ -48,7 +48,7 @@ describe('the Usernotification mongoose model', function() {
         target: mongoose.Types.ObjectId()
       };
       var notif = new Model(data);
-      notif.save(function(err, data) {
+      notif.save(function(err) {
         expect(err).to.be.ok;
         expect(err.errors).to.have.property('subject');
         done();
@@ -65,7 +65,7 @@ describe('the Usernotification mongoose model', function() {
         target: mongoose.Types.ObjectId()
       };
       var notif = new Model(data);
-      notif.save(function(err, data) {
+      notif.save(function(err) {
         expect(err).to.be.ok;
         expect(err.errors).to.have.property('verb');
         expect(err.errors.verb.message).to.match(/required/);
@@ -82,7 +82,7 @@ describe('the Usernotification mongoose model', function() {
         target: mongoose.Types.ObjectId()
       };
       var notif = new Model(data);
-      notif.save(function(err, data) {
+      notif.save(function(err) {
         expect(err).to.be.ok;
         expect(err.errors).to.have.property('verb');
         done();
@@ -99,7 +99,7 @@ describe('the Usernotification mongoose model', function() {
         target: mongoose.Types.ObjectId()
       };
       var notif = new Model(data);
-      notif.save(function(err, data) {
+      notif.save(function(err) {
         expect(err).to.be.ok;
         expect(err.errors).to.have.property('complement');
         expect(err.errors.complement.message).to.match(/required/);
@@ -116,7 +116,7 @@ describe('the Usernotification mongoose model', function() {
         target: mongoose.Types.ObjectId()
       };
       var notif = new Model(data);
-      notif.save(function(err, data) {
+      notif.save(function(err) {
         expect(err).to.be.ok;
         expect(err.errors).to.have.property('complement');
         done();
@@ -134,7 +134,7 @@ describe('the Usernotification mongoose model', function() {
         target: mongoose.Types.ObjectId()
       };
       var notif = new Model(data);
-      notif.save(function(err, data) {
+      notif.save(function(err) {
         expect(err).to.be.ok;
         expect(err.errors).to.have.property('context');
         done();
@@ -150,7 +150,7 @@ describe('the Usernotification mongoose model', function() {
         target: mongoose.Types.ObjectId()
       };
       var notif = new Model(data);
-      notif.save(function(err, data) {
+      notif.save(function(err) {
         expect(err).to.be.ok;
         expect(err.errors).to.have.property('category');
         expect(err.errors.category.message).to.match(/required/);
@@ -169,7 +169,7 @@ describe('the Usernotification mongoose model', function() {
         parentTarget: []
       };
       var notif = new Model(data);
-      notif.save(function(err, data) {
+      notif.save(function(err) {
         expect(err).to.be.null;
         done();
       });
@@ -184,7 +184,7 @@ describe('the Usernotification mongoose model', function() {
         parentTarget: ['some', true, 123]
       };
       var notif = new Model(data);
-      notif.save(function(err, data) {
+      notif.save(function(err) {
         expect(err).to.be.ok;
         done();
       });
@@ -202,7 +202,7 @@ describe('the Usernotification mongoose model', function() {
         ]
       };
       var notif = new Model(data);
-      notif.save(function(err, data) {
+      notif.save(function(err) {
         expect(err).to.be.ok;
         done();
       });
@@ -219,7 +219,7 @@ describe('the Usernotification mongoose model', function() {
         ]
       };
       var notif = new Model(data);
-      notif.save(function(err, data) {
+      notif.save(function(err) {
         expect(err).to.be.ok;
         done();
       });
@@ -255,7 +255,7 @@ describe('the Usernotification mongoose model', function() {
         icon: {garbage: true}
       };
       var notif = new Model(data);
-      notif.save(function(err, data) {
+      notif.save(function(err) {
         expect(err).to.be.ok;
         done();
       });
@@ -270,7 +270,7 @@ describe('the Usernotification mongoose model', function() {
         icon: {objectType: 'user', id: 'user1'}
       };
       var notif = new Model(data);
-      notif.save(function(err, data) {
+      notif.save(function(err) {
         expect(err).to.be.ok;
         done();
       });
@@ -285,7 +285,7 @@ describe('the Usernotification mongoose model', function() {
         icon: {objectType: 'icon', id: 'mdi-bell'}
       };
       var notif = new Model(data);
-      notif.save(function(err, data) {
+      notif.save(function(err) {
         expect(err).to.be.not.ok;
         done();
       });
@@ -300,7 +300,7 @@ describe('the Usernotification mongoose model', function() {
         icon: {objectType: 'url', id: 'http://test.com/image.png'}
       };
       var notif = new Model(data);
-      notif.save(function(err, data) {
+      notif.save(function(err) {
         expect(err).to.be.not.ok;
         done();
       });
@@ -333,7 +333,7 @@ describe('the Usernotification mongoose model', function() {
         action: ['yep', 'nope', null]
       };
       var notif = new Model(data);
-      notif.save(function(err, data) {
+      notif.save(function(err) {
         expect(err).to.be.ok;
         done();
       });
@@ -348,7 +348,7 @@ describe('the Usernotification mongoose model', function() {
         action: [{url: 'http', display: 'none'}]
       };
       var notif = new Model(data);
-      notif.save(function(err, data) {
+      notif.save(function(err) {
         expect(err).to.be.ok;
         done();
       });

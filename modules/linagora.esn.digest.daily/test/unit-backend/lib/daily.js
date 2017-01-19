@@ -241,7 +241,7 @@ describe('The daily digest core module', function() {
             });
 
           var module = require('../../../lib/daily')(dependencies);
-          var loadUserDataForCollaboration = function(u, c, t) {
+          var loadUserDataForCollaboration = function(u, c) {
             expect(u).to.deep.equal(user);
             called++;
             return q({messages: [], collaboration: c});
@@ -627,14 +627,14 @@ describe('The daily digest core module', function() {
         }
       };
 
-      var getMostRecentTimelineEntry = function(id1, id2) {
+      var getMostRecentTimelineEntry = function(id1) {
         return q(id1);
       };
 
       var module = require('../../../lib/daily')(dependencies);
       module.getMostRecentTimelineEntry = getMostRecentTimelineEntry;
 
-      return module.getTracker({_id: 1}, {activity_stream: {uuid: 2}}).then(function(result) {
+      return module.getTracker({_id: 1}, {activity_stream: {uuid: 2}}).then(function() {
         expect(read).to.equal(1);
         expect(push).to.equal(1);
       });
@@ -665,7 +665,7 @@ describe('The daily digest core module', function() {
       });
 
       it('should resolve with read tracker when no result is returned from getMostRecentTimelineEntry', function() {
-        var getMostRecentTimelineEntry = function(id1, id2) {
+        var getMostRecentTimelineEntry = function() {
           return q();
         };
 
@@ -676,7 +676,7 @@ describe('The daily digest core module', function() {
       });
 
       it('should resolve with read tracker when read is most recent than push', function() {
-        var getMostRecentTimelineEntry = function(id1, id2) {
+        var getMostRecentTimelineEntry = function(id1) {
           return q(id1);
         };
 

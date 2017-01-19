@@ -8,7 +8,7 @@ describe('The contact Angular module contactapis', function() {
   beforeEach(angular.mock.module('linagora.esn.contact'));
 
   describe('The ContactAPIClient service', function() {
-    var ICAL, CONTACT_EVENTS, contact, contactWithChangedETag, contactAsJCard;
+    var ICAL, contact;
     var ADDRESSBOOK_PATH = 'addressbooks';
 
     beforeEach(function() {
@@ -35,11 +35,6 @@ describe('The contact Angular module contactapis', function() {
       };
 
       contact = { id: '00000000-0000-4000-a000-000000000000', lastName: 'Last'};
-      contactWithChangedETag = { id: '00000000-0000-4000-a000-000000000000', lastName: 'Last', etag: 'changed-etag' };
-      contactAsJCard = ['vcard', [
-        ['uid', {}, 'text', '00000000-0000-4000-a000-000000000000'],
-        ['n', {}, 'text', ['Last', '', '', '', '']]
-      ], []];
 
       angular.mock.module(function($provide) {
         $provide.value('notificationFactory', self.notificationFactory);
@@ -49,7 +44,7 @@ describe('The contact Angular module contactapis', function() {
       });
     });
 
-    beforeEach(angular.mock.inject(function($rootScope, $httpBackend, ContactAPIClient, ContactShell, ContactsHelper, AddressBookShell, DAV_PATH, GRACE_DELAY, _ICAL_, _CONTACT_EVENTS_) {
+    beforeEach(angular.mock.inject(function($rootScope, $httpBackend, ContactAPIClient, ContactShell, ContactsHelper, AddressBookShell, DAV_PATH, GRACE_DELAY, _ICAL_) {
       this.$rootScope = $rootScope;
       this.$httpBackend = $httpBackend;
       this.ContactAPIClient = ContactAPIClient;
@@ -60,7 +55,6 @@ describe('The contact Angular module contactapis', function() {
       this.ContactsHelper = ContactsHelper;
 
       ICAL = _ICAL_;
-      CONTACT_EVENTS = _CONTACT_EVENTS_;
 
       this.getBookHomeUrl = function(bookId) {
         return [this.DAV_PATH, ADDRESSBOOK_PATH, bookId + '.json'].join('/');
@@ -242,7 +236,7 @@ describe('The contact Angular module contactapis', function() {
               var cardId = '456';
               var addressbook = {id: 1};
 
-              this.ContactShellBuilder.populateShell = function(contact, href) {
+              this.ContactShellBuilder.populateShell = function(contact) {
                 contact.addressbook = addressbook;
                 return $q.when(contact);
               };
@@ -398,7 +392,7 @@ describe('The contact Angular module contactapis', function() {
               var shells = [1, 2];
               this.$httpBackend.expectGET(contactsURL + '?sort=fn').respond(result);
 
-              this.ContactShellBuilder.fromCardListResponse = function(response) {
+              this.ContactShellBuilder.fromCardListResponse = function() {
                 return $q.when(shells);
               };
 
@@ -529,7 +523,7 @@ describe('The contact Angular module contactapis', function() {
                 }
               };
               this.$httpBackend.expectGET(expectPath).respond(response);
-              this.ContactShellBuilder.fromCardListResponse = function(response) {
+              this.ContactShellBuilder.fromCardListResponse = function() {
                 return $q.when(shells);
               };
 
@@ -581,7 +575,7 @@ describe('The contact Angular module contactapis', function() {
                 }
               };
               this.$httpBackend.expectGET(expectPath).respond(response);
-              this.ContactShellBuilder.fromCardListResponse = function(response) {
+              this.ContactShellBuilder.fromCardListResponse = function() {
                 return $q.when(shells);
               };
 
@@ -630,7 +624,7 @@ describe('The contact Angular module contactapis', function() {
                 }
               };
               this.$httpBackend.expectGET(expectPath).respond(response);
-              this.ContactShellBuilder.fromCardListResponse = function(response) {
+              this.ContactShellBuilder.fromCardListResponse = function() {
                 return $q.when(shells);
               };
 

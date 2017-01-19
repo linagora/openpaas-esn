@@ -8,7 +8,7 @@ describe('The oauth client API', function() {
   var user, User;
   var email = 'user@open-paas.org';
   var password = 'secret';
-  var oauthclient, OAuthClient, webserver, app, fixtures;
+  var oauthclient, OAuthClient, app, fixtures;
 
   beforeEach(function(done) {
     var self = this;
@@ -22,7 +22,6 @@ describe('The oauth client API', function() {
       self.testEnv.initCore(function() {
         User = self.helpers.requireBackend('core/db/mongo/models/user');
         OAuthClient = self.helpers.requireBackend('core/db/mongo/models/oauthclient');
-        webserver = self.helpers.requireBackend('webserver').webserver;
         app = self.helpers.requireBackend('webserver/application');
         fixtures = self.helpers.requireFixture('models/users.js')(User);
 

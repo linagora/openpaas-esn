@@ -99,7 +99,7 @@ module.exports = function(lib, dependencies) {
       var data = recipient.target.data;
       var context = recipient.context || {};
 
-      notify(user, message, data, context, function(err, sent) {
+      notify(user, message, data, context, function(err) {
         if (err) {
           logger.info('Can not notify user %s: %s', user._id, err.message);
           return callback();

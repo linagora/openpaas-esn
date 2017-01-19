@@ -201,8 +201,7 @@ describe('The ES listeners module', function() {
       pubsubMock = {
         topic: function() {
           return {
-            subscribe: function(subscribe) {
-            }
+            subscribe: function() {}
           };
         }
       };
@@ -294,7 +293,7 @@ describe('The ES listeners module', function() {
       pubsubMock = {
         topic: function() {
           return {
-            subscribe: function(subscribe) {
+            subscribe: function() {
             }
           };
         }

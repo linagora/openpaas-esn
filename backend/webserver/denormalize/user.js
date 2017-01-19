@@ -36,7 +36,7 @@ function setIsFollowing(user, loggedUser) {
     user.following = result;
 
     return user;
-  }, function(err) {
+  }, function() {
     return user;
   });
 }

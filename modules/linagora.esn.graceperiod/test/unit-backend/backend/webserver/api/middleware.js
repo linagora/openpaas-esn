@@ -71,7 +71,7 @@ describe('The graceperiod middleware', function() {
           return defer.promise;
         }
       };
-      getMiddleware().load(req, this.helpers.express.jsonResponse(function(code) {
+      getMiddleware().load(req, this.helpers.express.jsonResponse(function() {
         done(new Error('Should not call res.json'));
       }), function() {
         expect(req.task).to.deep.equal(task);
@@ -133,7 +133,7 @@ describe('The graceperiod middleware', function() {
         return callback(null, {token: 2, user: userId});
       };
 
-      getMiddleware().isUserTask({user: {_id: userId, id: userId}, task: {id: 1}}, this.helpers.express.jsonResponse(function(code) {
+      getMiddleware().isUserTask({user: {_id: userId, id: userId}, task: {id: 1}}, this.helpers.express.jsonResponse(function() {
         done(new Error());
       }), done);
     });

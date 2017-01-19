@@ -15,7 +15,7 @@ describe('The gracePeriodLiveNotificationService service', function() {
 
   describe('Functions tests', function() {
 
-    var gracePeriodLiveNotificationService, $rootScope, $q;
+    var gracePeriodLiveNotificationService;
     var liveNotificationMock, onFn, removeListenerFn;
 
     beforeEach(function() {
@@ -30,9 +30,7 @@ describe('The gracePeriodLiveNotificationService service', function() {
         $provide.value('livenotification', liveNotificationMock);
       });
 
-      inject(function(_$rootScope_, _gracePeriodLiveNotificationService_, _$q_) {
-        $q = _$q_;
-        $rootScope = _$rootScope_;
+      inject(function(_gracePeriodLiveNotificationService_) {
         gracePeriodLiveNotificationService = _gracePeriodLiveNotificationService_;
       });
     });

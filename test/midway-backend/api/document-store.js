@@ -233,7 +233,7 @@ describe('The document store routes resource', function() {
             !res.body.error.details.match(/somewhere\/not\/writable/)) {
           return 'bad error message in body';
         }
-      }).expect(500).end(function(err, res) {
+      }).expect(500).end(function(err) {
         expect(err).to.be.null;
         done();
       });
@@ -296,7 +296,7 @@ describe('The document store routes resource', function() {
     it('should call the mongodb.validateConnection method with credentials when they are set', function(done) {
       this.mongoDbMock = {
         init: function() {},
-        validateConnection: function(hostname, port, dbname, username, password, callback) {
+        validateConnection: function(hostname, port, dbname, username, password) {
           expect(hostname).to.equal('localhost');
           expect(port).to.equal('42');
           expect(dbname).to.equal('rsetest');
@@ -309,7 +309,7 @@ describe('The document store routes resource', function() {
       this.pubsubMock = {
         init: function() {},
         local: {
-          topic: function(name) {
+          topic: function() {
             return {
               subscribe: function() {},
               publish: function() {}

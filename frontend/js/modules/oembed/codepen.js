@@ -32,8 +32,7 @@
           function(oembed) {
             angular.element(oembedService.fixHttpLinks(oembed.html)).appendTo($element[0]);
           },
-          function(err) {
-          }
+          function() {}
         );
       }
     };

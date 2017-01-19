@@ -7,7 +7,7 @@ function buildSearchFilter(mapping, search) {
 
   search = search ? `*${search}*` : '*';
 
-  _.forEach(mapping, function(ldapAttr, userAttr) {
+  _.forEach(mapping, function(ldapAttr) {
     searchFilter += `(${ldapAttr}=${search})`;
   });
 

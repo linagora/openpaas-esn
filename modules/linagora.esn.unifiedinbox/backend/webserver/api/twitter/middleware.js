@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function(dependencies) {
+module.exports = function() {
 
   function checkRequiredQueryParam(req, res, next) {
     if (!req.query || !req.query.account_id) {

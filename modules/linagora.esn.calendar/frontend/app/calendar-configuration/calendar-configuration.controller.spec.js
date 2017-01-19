@@ -12,7 +12,6 @@ describe('The calendar configuration controller', function() {
     uuid4,
     matchmedia,
     calendarConfigurationController,
-    CalendarCollectionShell,
     calendarHomeId,
     calendarRight,
     calendarService,
@@ -137,12 +136,11 @@ describe('The calendar configuration controller', function() {
   });
 
   beforeEach(function() {
-    angular.mock.inject(function(_$rootScope_, _$controller_, _$q_, _CalendarCollectionShell_, _CALENDAR_RIGHT_, _SM_XS_MEDIA_QUERY_) {
+    angular.mock.inject(function(_$rootScope_, _$controller_, _$q_, _CALENDAR_RIGHT_, _SM_XS_MEDIA_QUERY_) {
       $rootScope = _$rootScope_;
       $scope = $rootScope.$new();
       $controller = _$controller_;
       $q = _$q_;
-      CalendarCollectionShell = _CalendarCollectionShell_;
       CALENDAR_RIGHT = _CALENDAR_RIGHT_;
       SM_XS_MEDIA_QUERY = _SM_XS_MEDIA_QUERY_;
     });

@@ -12,7 +12,6 @@ describe('The follow API', function() {
   var user2;
   var password = 'secret';
   var email1;
-  var email2;
   var fixtures;
 
   beforeEach(function(done) {
@@ -30,7 +29,6 @@ describe('The follow API', function() {
         user1 = models.users[0];
         user2 = models.users[1];
         email1 = user1.emails[0];
-        email2 = user2.emails[0];
         done();
       });
     });
@@ -80,7 +78,7 @@ describe('The follow API', function() {
         var offset = 0;
         var size = 20;
 
-        this.createFollowers(size).then(function(followers) {
+        this.createFollowers(size).then(function() {
           self.helpers.api.loginAsUser(app, email1, password, self.helpers.callbacks.noErrorAnd(function(loggedInAsUser) {
             loggedInAsUser(request(app)
               .get('/api/users/' + user1._id + '/followers'))
@@ -101,7 +99,7 @@ describe('The follow API', function() {
         var offset = 10;
         var size = 20;
 
-        this.createFollowers(size).then(function(followers) {
+        this.createFollowers(size).then(function() {
           self.helpers.api.loginAsUser(app, email1, password, self.helpers.callbacks.noErrorAnd(function(loggedInAsUser) {
             loggedInAsUser(request(app)
               .get('/api/users/' + user1._id + '/followers'))

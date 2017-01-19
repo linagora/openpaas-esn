@@ -60,7 +60,7 @@ describe('The unifiedinbox API', function() {
       var self = this;
       var conf = this.helpers.modules.current.deps('esn-config')('jmap');
 
-      conf.store({api: 'https://expected.url'}, function(err, saved) {
+      conf.store({api: 'https://expected.url'}, function() {
         self.helpers.api.loginAsUser(self.app, user.emails[0], password, function(err, requestAsMember) {
           var req = requestAsMember(request(self.app).get('/api/inbox/jmap-config'));
           req.expect(200, function(err, res) {

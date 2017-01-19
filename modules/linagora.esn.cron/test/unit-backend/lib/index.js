@@ -22,7 +22,7 @@ describe('The Cron Module', function() {
       return callback();
     }
 
-    function getInMemory(id) {
+    function getInMemory() {
       return;
     }
 

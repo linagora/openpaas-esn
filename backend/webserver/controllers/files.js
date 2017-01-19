@@ -27,7 +27,7 @@ function create(req, res) {
 
   var saveStream = function(stream) {
     var interrupted = false;
-    req.on('close', function(err) {
+    req.on('close', function() {
       interrupted = true;
     });
 
@@ -43,7 +43,7 @@ function create(req, res) {
       }
 
       if (saved.length !== size || interrupted) {
-        return filestore.delete(fileId, function(err) {
+        return filestore.delete(fileId, function() {
           res.status(412).json({
             error: {
               code: 412,

@@ -172,7 +172,7 @@ describe('The calEventUtils service', function() {
       });
     });
 
-    describe('changeEventColorWhenMonthView function', function(calMoment) {
+    describe('changeEventColorWhenMonthView function', function() {
 
       it('should change CSS if we are in month view and the event is not allDay and event.isOverOneDayOnly() return true', function() {
         var backgroundColor = 'blue';
@@ -193,7 +193,7 @@ describe('The calEventUtils service', function() {
         expect(element.css).to.have.been.calledWith('border', '0');
       });
 
-      it('should not change CSS if we are in month vue and the event is not allDay and event.isOverOneDayOnly() return false', angular.mock.inject(function(calMoment) {
+      it('should not change CSS if we are in month vue and the event is not allDay and event.isOverOneDayOnly() return false', angular.mock.inject(function() {
         var backgroundColor = 'blue';
 
         element.css = sinon.spy(function(attr) {
@@ -227,7 +227,7 @@ describe('The calEventUtils service', function() {
 
     describe('adaptTitleWhenShortEvent function', function() {
 
-      it('should display event title instead of time if the event duration under the max duration of a small event', angular.mock.inject(function(calMoment) {
+      it('should display event title instead of time if the event duration under the max duration of a small event', angular.mock.inject(function() {
         element.innerElements['.fc-time'].length = 1;
         fcTime.attr = sinon.spy();
 
@@ -249,8 +249,6 @@ describe('The calEventUtils service', function() {
       });
 
       it('should not display the location if the location is not defined', function() {
-        var locationElement = angular.element('<div class="fc-location"><i class="mdi mdi-map-marker"/>' + event.location + '</div>');
-
         this.calEventUtils.render(event, element, view);
 
         expect(element.class).to.not.include('event-with-location');

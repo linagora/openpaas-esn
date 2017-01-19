@@ -356,7 +356,7 @@ describe('The email API', function() {
               req.set('Content-Type', 'message/rfc822');
               req.send(email);
               req.expect(400);
-              req.end(function(err, res) {
+              req.end(function(err) {
                 expect(err).to.not.exist;
                 done();
               });

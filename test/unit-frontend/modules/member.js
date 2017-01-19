@@ -74,11 +74,11 @@ describe('The Member Angular module', function() {
 
       this.domainAPI = {};
       //initialize the getMembers method because it is called at controller's instantiation
-      this.domainAPI.getMembers = function(id, opts) {};
+      this.domainAPI.getMembers = function() {};
 
       this.usSpinnerService = {};
-      this.usSpinnerService.spin = function(id) {};
-      this.usSpinnerService.stop = function(id) {};
+      this.usSpinnerService.spin = function() {};
+      this.usSpinnerService.stop = function() {};
 
       this.domainId = '123456789';
       this.$controller = $controller;

@@ -217,7 +217,7 @@
       self.selectedTab = 'delegation';
     }
 
-    function goToCalendarEdit(isCancel) {
+    function goToCalendarEdit() {
       $state.go('calendar.edit');
     }
   }

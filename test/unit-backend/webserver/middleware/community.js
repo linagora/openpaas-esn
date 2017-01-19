@@ -428,7 +428,7 @@ describe('The community middleware', function() {
         }
       };
       var res = this.helpers.express.jsonResponse(
-        function(code) {
+        function() {
           done(new Error());
         }
       );
@@ -554,7 +554,7 @@ describe('The community middleware', function() {
 
     it('should call next if the community type is "open"', function(done) {
       mockery.registerMock('../../core/community', {
-        isMember: function(com, user, callback) {
+        isMember: function() {
           done(new Error('I should not be called'));
         }
       });
@@ -568,7 +568,7 @@ describe('The community middleware', function() {
     });
     it('should call next if the community type is "restricted"', function(done) {
       mockery.registerMock('../../core/community', {
-        isMember: function(com, user, callback) {
+        isMember: function() {
           done(new Error('I should not be called'));
         }
       });
@@ -582,7 +582,7 @@ describe('The community middleware', function() {
     });
     it('should delegate to isMember middleware if the community type is "private"', function(done) {
       mockery.registerMock('../../core/community', {
-        isMember: function(com, user, callback) {
+        isMember: function() {
           done();
         }
       });
@@ -597,7 +597,7 @@ describe('The community middleware', function() {
     });
     it('should delegate to isMember middleware if the community type is "confidential"', function(done) {
       mockery.registerMock('../../core/community', {
-        isMember: function(com, user, callback) {
+        isMember: function() {
           done();
         }
       });
@@ -799,7 +799,7 @@ describe('The community middleware', function() {
         }
       };
       var res = this.helpers.express.jsonResponse(
-        function(code) {
+        function() {
         }
       );
       var next = function() {
@@ -845,7 +845,7 @@ describe('The community middleware', function() {
         }
       };
       var res = this.helpers.express.jsonResponse(
-        function(code) {
+        function() {
         }
       );
       var next = function() {
@@ -900,7 +900,7 @@ describe('The community middleware', function() {
         }
       };
       var res = this.helpers.express.jsonResponse(
-        function(code) {
+        function() {
           done(new Error());
         }
       );
@@ -1012,7 +1012,7 @@ describe('The community middleware', function() {
         }
       };
       var res = this.helpers.express.jsonResponse(
-        function(code) {
+        function() {
           done(new Error());
         }
       );
@@ -1045,7 +1045,7 @@ describe('The community middleware', function() {
         }
       };
       var res = this.helpers.express.jsonResponse(
-        function(code) {
+        function() {
           done(new Error('Should not be called'));
         }
       );

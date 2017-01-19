@@ -188,8 +188,8 @@ describe('The oauthclients controller', function() {
         }
       );
       var mongooseMocked = {
-        model: function(model) {
-          function OAuthClient(data) {}
+        model: function() {
+          function OAuthClient() {}
           OAuthClient.prototype.save = function(callback) {
             return callback(new Error('There was an error !'));
           };
@@ -213,8 +213,8 @@ describe('The oauthclients controller', function() {
         }
       );
       var mongooseMocked = {
-        model: function(model) {
-          function OAuthClient(data) {}
+        model: function() {
+          function OAuthClient() {}
           OAuthClient.prototype.save = function(callback) {
             return callback(null, {_id: testId});
           };

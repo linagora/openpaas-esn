@@ -113,7 +113,7 @@ describe('The User Angular module', function() {
           user2 = {_id: 'user2', firstname: 'first2', lastname: 'last2', preferredEmail: 'user2@open-paas.org'};
 
       domainAPIMock = {
-        getMembers: function(id, options) {
+        getMembers: function() {
           return $q.when({data: [user1, user2, user3]});
         }
       };
@@ -175,7 +175,7 @@ describe('The User Angular module', function() {
       });
 
       it('should return an empty array if domainAPI.getMembers return an error', function() {
-        domainAPIMock.getMembers = function(id, options) {
+        domainAPIMock.getMembers = function() {
           return $q.reject(new Error('function domainAPIMock.getMembers return error'));
         };
 
