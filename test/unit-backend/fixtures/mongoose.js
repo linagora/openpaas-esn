@@ -11,6 +11,7 @@ module.exports.mongoose = function() {
     model: noop,
     Schema: function() {
       return {
+        index: noop,
         pre: noop,
         virtual: function() {
           return {

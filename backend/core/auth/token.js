@@ -1,78 +1,69 @@
 'use strict';
 
-var uuid = require('node-uuid');
-var redis = require('../db/redis');
-var logger = require('../logger');
+const DEFAULT_TTL = 60;
+const logger = require('../logger');
+const mongoose = require('mongoose');
+const uuid = require('node-uuid');
+const AuthToken = mongoose.model('AuthToken');
 
-var getNewToken = function(options, callback) {
-  options = options || {};
-  options.ttl = options.ttl || 60;
-  redis.getClient(function(err, client) {
-
-    if (err || !client) {
-      return callback(new Error('Error while getting client'));
-    }
-
-    options.token = uuid.v4();
-    options.created_at = new Date();
-
-    client.setex(options.token, options.ttl, JSON.stringify(options), function(err) {
-      if (err) {
-        return callback(err);
-      }
-      return callback(null, options);
-    });
-  });
+module.exports = {
+  getNewToken,
+  getToken,
+  validateToken
 };
-module.exports.getNewToken = getNewToken;
 
-/**
- * Validates a token
- *
- * @param {id} token
- * @param {function} callback - as fn(bool)
- */
-var validateToken = function(token, callback) {
-  redis.getClient(function(err, client) {
+function getExpirationDate(ttl) {
+  return new Date(new Date().getTime() + (ttl * 1000));
+}
+
+function getNewToken(options = {}, callback) {
+  const token = uuid.v4();
+
+  options.ttl = options.ttl || DEFAULT_TTL;
+  options.token = token;
+  options.created_at = new Date();
+
+  if (options.user) {
+    options.user = String(options.user);
+  }
+
+  const authToken = new AuthToken({token: token, expiresAt: getExpirationDate(options.ttl), data: options});
+
+  authToken.save(err => {
     if (err) {
-      logger.error('Problem while getting redis client');
-      return callback(false);
-    }
-    client.get(token, function(err, data) {
-      if (err) {
-        logger.error('Problem while getting redis data');
-        return callback(false);
-      }
+      logger.error('Can not save auth token', err);
 
-      if (!data) {
-        logger.debug('Data not found in redis');
-        return callback(false);
-      }
-
-      return callback(true);
-    });
-  });
-};
-module.exports.validateToken = validateToken;
-
-var getToken = function(token, callback) {
-  redis.getClient(function(err, client) {
-    if (err) {
-      logger.error('Problem while getting redis client', err);
       return callback(err);
     }
-    client.get(token, function(err, data) {
-      if (err) {
-        logger.error('Problem while getting redis data');
-        return callback(err);
-      }
 
-      if (!data) {
-        return callback();
-      }
-
-      return callback(null, JSON.parse(data));
-    });
+    return callback(null, options);
   });
-};
-module.exports.getToken = getToken;
+}
+
+function validateToken(token, callback) {
+  AuthToken.findOne({token: token}, (err, result) => {
+    if (err) {
+      logger.error('Problem while getting token data', err);
+
+      return callback(false);
+    }
+
+    callback(!!result);
+  });
+}
+
+function getToken(token, callback) {
+  AuthToken.findOne({token: token}, (err, result) => {
+    if (err) {
+      logger.error('Problem while getting token data', err);
+
+      return callback(err);
+    }
+
+    if (!result || !result.data) {
+      return callback();
+    }
+
+    callback(null, result.data);
+  });
+}
