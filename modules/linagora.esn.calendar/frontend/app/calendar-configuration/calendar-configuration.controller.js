@@ -41,6 +41,7 @@
     self.removeUserGroup = removeUserGroup;
     self.goToCalendarEdit = goToCalendarEdit;
     self.$onInit = activate;
+    self.onAddingUser = onAddingUser;
 
     ////////////
 
@@ -248,6 +249,10 @@
 
     function goToCalendarEdit() {
       $state.go('calendar.edit');
+    }
+
+    function onAddingUser($tags) {
+      return !!$tags._id;
     }
   }
 })();

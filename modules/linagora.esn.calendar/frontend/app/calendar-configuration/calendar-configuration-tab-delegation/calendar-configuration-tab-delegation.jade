@@ -13,7 +13,7 @@
 
   .delegation-line
     .col-md-5.padding-left-0
-      users-autocomplete-input(mutable-users='$ctrl.newUsersGroups')
+      users-autocomplete-input(mutable-users='$ctrl.newUsersGroups', on-adding-user='$ctrl.onAddingUser')
     .col-md-5
       .select
         select.addDelegation.form-control(ng-model='$ctrl.selection')
