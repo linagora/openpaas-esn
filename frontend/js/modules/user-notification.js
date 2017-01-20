@@ -336,7 +336,7 @@ angular.module('esn.user-notification',
       controller: 'requestMembershipActionNotificationController'
     };
   })
-  .directive('collaborationInvitationAcceptButton', function(collaborationAPI, userNotificationAPI) {
+  .directive('collaborationInvitationAcceptButton', function(esnCollaborationClientService, userNotificationAPI) {
     return {
       restrict: 'E',
       require: '^collaborationMembershipInvitationNotification',
@@ -345,7 +345,7 @@ angular.module('esn.user-notification',
         $scope.restActive = false;
         $scope.accept = function() {
           $scope.restActive = true;
-          collaborationAPI.join($scope.invitationCollaboration.objectType, $scope.invitationCollaboration._id, $scope.invitedUser._id).then(
+          esnCollaborationClientService.join($scope.invitationCollaboration.objectType, $scope.invitationCollaboration._id, $scope.invitedUser._id).then(
             function() {
               userNotificationAPI.setAcknowledged($scope.notification._id, true).then(
                 function() {
@@ -368,7 +368,7 @@ angular.module('esn.user-notification',
       }
     };
   })
-  .directive('collaborationInvitationDeclineButton', function(collaborationAPI, session, userNotificationAPI) {
+  .directive('collaborationInvitationDeclineButton', function(esnCollaborationClientService, session, userNotificationAPI) {
     return {
       restrict: 'E',
       require: '^collaborationMembershipInvitationNotification',
@@ -377,7 +377,7 @@ angular.module('esn.user-notification',
         $scope.restActive = false;
         $scope.decline = function() {
           $scope.restActive = true;
-          collaborationAPI.cancelRequestMembership($scope.invitationCollaboration.objectType, $scope.invitationCollaboration._id, session.user._id).then(
+          esnCollaborationClientService.cancelRequestMembership($scope.invitationCollaboration.objectType, $scope.invitationCollaboration._id, session.user._id).then(
             function() {
               userNotificationAPI.setAcknowledged($scope.notification._id, true).then(
                 function() {

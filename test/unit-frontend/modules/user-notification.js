@@ -318,7 +318,7 @@ describe('The esn.user-notification Angular module', function() {
   describe('collaborationMembershipInvitationNotification directive', function() {
 
     beforeEach(function() {
-      var collaborationAPI = {
+      var esnCollaborationClientService = {
         get: function() {},
         join: function() {}
       };
@@ -336,18 +336,18 @@ describe('The esn.user-notification Angular module', function() {
       angular.mock.module('esn.user');
       angular.mock.module('esn.object-type');
       angular.mock.module(function($provide) {
-        $provide.value('collaborationAPI', collaborationAPI);
+        $provide.value('esnCollaborationClientService', esnCollaborationClientService);
         $provide.value('userAPI', userAPI);
         $provide.value('objectTypeResolver', objectTypeResolver);
       });
       module('jadeTemplates');
     });
 
-    beforeEach(angular.mock.inject(function($rootScope, $compile, collaborationAPI, userNotificationAPI, objectTypeResolver, userAPI) {
+    beforeEach(angular.mock.inject(function($rootScope, $compile, esnCollaborationClientService, userNotificationAPI, objectTypeResolver, userAPI) {
       this.$rootScope = $rootScope;
       this.$compile = $compile;
       this.scope = $rootScope.$new();
-      this.collaborationAPI = collaborationAPI;
+      this.esnCollaborationClientService = esnCollaborationClientService;
       this.userNotificationAPI = userNotificationAPI;
       this.objectTypeResolver = objectTypeResolver;
       this.userAPI = userAPI;
@@ -445,7 +445,7 @@ describe('The esn.user-notification Angular module', function() {
   describe('collaborationInvitationAcceptButton directive', function() {
 
     beforeEach(function() {
-      var collaborationAPI = {
+      var esnCollaborationClientService = {
         join: function() {
         }
       };
@@ -464,18 +464,18 @@ describe('The esn.user-notification Angular module', function() {
       angular.mock.module('esn.user-notification');
       angular.mock.module('esn.object-type');
       angular.mock.module(function($provide) {
-        $provide.value('collaborationAPI', collaborationAPI);
+        $provide.value('esnCollaborationClientService', esnCollaborationClientService);
         $provide.value('userNotificationAPI', userNotificationAPI);
         $provide.value('objectTypeResolver', objectTypeResolver);
       });
       module('jadeTemplates');
     });
 
-    beforeEach(angular.mock.inject(function($rootScope, $compile, collaborationAPI, userNotificationAPI, collaborationMembershipInvitationNotificationDirective) {
+    beforeEach(angular.mock.inject(function($rootScope, $compile, esnCollaborationClientService, userNotificationAPI, collaborationMembershipInvitationNotificationDirective) {
       this.$rootScope = $rootScope;
       this.$compile = $compile;
       this.scope = $rootScope.$new();
-      this.collaborationAPI = collaborationAPI;
+      this.esnCollaborationClientService = esnCollaborationClientService;
       this.userNotificationAPI = userNotificationAPI;
       collaborationMembershipInvitationNotificationDirective[0].controller = function($scope) {
         this.actionDone = function() {};
@@ -493,8 +493,8 @@ describe('The esn.user-notification Angular module', function() {
       this.html = '<collaboration-membership-invitation-notification notification="notification"><collaboration-invitation-accept-button/></collaboration-membership-invitation-notification>';
     }));
 
-    it('should call collaborationAPI#join', function(done) {
-      this.collaborationAPI.join = function() {
+    it('should call esnCollaborationClientService#join', function(done) {
+      this.esnCollaborationClientService.join = function() {
         return done();
       };
       var element = this.$compile(this.html)(this.scope);
@@ -503,7 +503,7 @@ describe('The esn.user-notification Angular module', function() {
     });
 
     it('should call userNotificationAPI#setAck(true)', function(done) {
-      this.collaborationAPI.join = function() {
+      this.esnCollaborationClientService.join = function() {
         return $q.when({ data: { _id: 123 } });
       };
       this.userNotificationAPI.setAcknowledged = function() {
@@ -520,7 +520,7 @@ describe('The esn.user-notification Angular module', function() {
 
   describe('collaborationInvitationDeclineButton directive', function() {
     beforeEach(function() {
-      var collaborationAPI = {
+      var esnCollaborationClientService = {
         cancelRequestMembership: function() {
         }
       };
@@ -539,18 +539,18 @@ describe('The esn.user-notification Angular module', function() {
       angular.mock.module('esn.user-notification');
       angular.mock.module('esn.object-type');
       angular.mock.module(function($provide) {
-        $provide.value('collaborationAPI', collaborationAPI);
+        $provide.value('esnCollaborationClientService', esnCollaborationClientService);
         $provide.value('userNotificationAPI', userNotificationAPI);
         $provide.value('objectTypeResolver', objectTypeResolver);
       });
       module('jadeTemplates');
     });
 
-    beforeEach(angular.mock.inject(function($rootScope, $compile, collaborationAPI, userNotificationAPI, collaborationMembershipInvitationNotificationDirective) {
+    beforeEach(angular.mock.inject(function($rootScope, $compile, esnCollaborationClientService, userNotificationAPI, collaborationMembershipInvitationNotificationDirective) {
       this.$rootScope = $rootScope;
       this.$compile = $compile;
       this.scope = $rootScope.$new();
-      this.collaborationAPI = collaborationAPI;
+      this.esnCollaborationClientService = esnCollaborationClientService;
       this.userNotificationAPI = userNotificationAPI;
       collaborationMembershipInvitationNotificationDirective[0].controller = function($scope) {
         this.actionDone = function() {};
@@ -568,8 +568,8 @@ describe('The esn.user-notification Angular module', function() {
       this.html = '<collaboration-membership-invitation-notification notification="notification"><collaboration-invitation-decline-button/></collaboration-membership-invitation-notification>';
     }));
 
-    it('should call collaborationAPI#cancelRequestMemberShip', function(done) {
-      this.collaborationAPI.cancelRequestMembership = function() {
+    it('should call esnCollaborationClientService#cancelRequestMemberShip', function(done) {
+      this.esnCollaborationClientService.cancelRequestMembership = function() {
         return done();
       };
       var element = this.$compile(this.html)(this.scope);
@@ -578,7 +578,7 @@ describe('The esn.user-notification Angular module', function() {
     });
 
     it('should call userNotificationAPI#setAck(true)', function(done) {
-      this.collaborationAPI.cancelRequestMembership = function() {
+      this.esnCollaborationClientService.cancelRequestMembership = function() {
         return $q.when();
       };
       this.userNotificationAPI.setAcknowledged = function() {

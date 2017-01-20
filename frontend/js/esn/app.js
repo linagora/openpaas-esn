@@ -187,8 +187,8 @@ angular.module('esnApp', [
     controller: 'communityController',
     resolve: {
       community: routeResolver.api('communityAPI', 'get', 'community_id', '/communities'),
-      memberOf: function(collaborationAPI, $q, $stateParams, $location) {
-        return collaborationAPI.getWhereMember({
+      memberOf: function(esnCollaborationClientService, $q, $stateParams, $location) {
+        return esnCollaborationClientService.getWhereMember({
           objectType: 'community',
           id: $stateParams.community_id
         }).then(function(response) {

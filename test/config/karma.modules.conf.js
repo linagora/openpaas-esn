@@ -78,6 +78,9 @@ module.exports = function(config) {
       'test/fixtures/code-generation/constants.js',
       'frontend/js/modules/attachment/attachment.module.js',
       'frontend/js/modules/attachment/list/attachment-list.module.js',
+      'frontend/js/modules/collaboration/collaboration.module.js',
+      {pattern: 'frontend/js/modules/collaboration/collaboration.run.js', watched: false, included: false, served: false},
+
       'frontend/js/**/*.js',
 
       'modules/**/frontend/js/**/*.js',
