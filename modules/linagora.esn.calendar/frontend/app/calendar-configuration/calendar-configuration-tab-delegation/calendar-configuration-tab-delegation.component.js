@@ -19,7 +19,7 @@
         newUsersGroups: '=',
         addUserGroup: '=',
         removeUserGroup: '=',
-        onAddingUser:'='
+        onAddingUser: '='
       },
       controllerAs: '$ctrl'
     };
