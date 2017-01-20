@@ -623,4 +623,24 @@ describe('The calendar configuration controller', function() {
       expect(stateMock.go).to.have.been.calledWith('calendar.main');
     });
   });
+
+  describe('onAddingUser', function() {
+    it('should return false if the $tag do not contain the _id field', function() {
+      var $tag = {};
+
+      calendarConfigurationController.$onInit();
+
+      expect(calendarConfigurationController.onAddingUser($tag)).to.be.false;
+    });
+
+    it('should return true if the $tag contain the _id field', function() {
+      var $tag = {
+        _id: '11111111'
+      }
+
+      calendarConfigurationController.$onInit();
+
+      expect(calendarConfigurationController.onAddingUser($tag)).to.be.true;
+    });
+  });
 });
