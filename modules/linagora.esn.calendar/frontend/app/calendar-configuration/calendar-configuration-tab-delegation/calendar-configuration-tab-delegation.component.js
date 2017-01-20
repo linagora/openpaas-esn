@@ -18,7 +18,8 @@
         goToEditDelegation: '=',
         newUsersGroups: '=',
         addUserGroup: '=',
-        removeUserGroup: '='
+        removeUserGroup: '=',
+        onAddingUser:'='
       },
       controllerAs: '$ctrl'
     };

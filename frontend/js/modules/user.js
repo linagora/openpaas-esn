@@ -109,7 +109,8 @@ angular.module('esn.user', ['esn.http', 'esn.object-type', 'esn.lodash-wrapper']
       link: link,
       scope: {
         originalUsers: '=',
-        mutableUsers: '='
+        mutableUsers: '=',
+        onAddingUser: '=?'
       }
     };
   });
