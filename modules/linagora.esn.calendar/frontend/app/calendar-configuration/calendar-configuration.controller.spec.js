@@ -477,7 +477,7 @@ describe('The calendar configuration controller', function() {
         });
 
         it('should call modifyPublicRights with read argument when public right is changed to read', function() {
-          calendarConfigurationController.publicSelection = 'read';
+          calendarConfigurationController.publicSelection = CALENDAR_RIGHT.CUSTOM;
 
           calendarConfigurationController.submit();
           $rootScope.$digest();
@@ -495,7 +495,7 @@ describe('The calendar configuration controller', function() {
 
         //This test must be changed when we affect the correct right to none option.
         it('should call modifyPublicRights with write argument when public right is changed to none', function() {
-          calendarConfigurationController.publicSelection = 'none';
+          calendarConfigurationController.publicSelection = CALENDAR_RIGHT.WRITE;
 
           calendarConfigurationController.submit();
           $rootScope.$digest();
@@ -512,7 +512,7 @@ describe('The calendar configuration controller', function() {
         });
 
         it('should call modifyPublicRights with free-busy argument when public right is changed to something other than none or read', function() {
-          calendarConfigurationController.publicSelection = 'free busy';
+          calendarConfigurationController.publicSelection = CALENDAR_RIGHT.FREE_BUSY;
 
           calendarConfigurationController.submit();
           $rootScope.$digest();
@@ -551,7 +551,7 @@ describe('The calendar configuration controller', function() {
         calendarConfigurationController.$onInit();
         $rootScope.$digest();
 
-        calendarConfigurationController.publicSelection = 'free busy';
+        calendarConfigurationController.publicSelection = CALENDAR_RIGHT.FREE_BUSY;
         calendarConfigurationController.calendar.name = modifiedName;
         calendarConfigurationController.newCalendar = false;
 
