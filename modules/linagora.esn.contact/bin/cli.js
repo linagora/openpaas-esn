@@ -1,26 +1,30 @@
 'use strict';
 
-var commander = require('commander');
-var fs = require('fs-extra');
-var q = require('q');
-var path = require('path');
+const fs = require('fs-extra');
+const q = require('q');
+const path = require('path');
+const yargs = require('yargs');
 
-var commandsPath = path.resolve(__dirname + '/commands');
+const commandsPath = path.resolve(path.join(__dirname, 'commands'));
+const readdir = q.denodeify(fs.readdir);
 
-var readdir = q.denodeify(fs.readdir);
 readdir(commandsPath).then(function(files) {
   files.forEach(function(filename) {
-    var file = commandsPath + '/' + filename;
-    if (fs.statSync(file).isFile()) {
-      var commandName = filename.slice(filename.lastIndexOf('/') + 1, filename.lastIndexOf('.'));
-      var c = require('./commands/' + commandName);
-      if (c.getCommandParameters && typeof c.getCommandParameters === 'function') {
-        commandName = commandName + ' ' + c.getCommandParameters();
-      }
-      var command = commander.command(commandName);
-      c.createCommand(command);
+    const filePath = path.join(commandsPath, filename);
+
+    if (fs.statSync(filePath).isFile()) {
+      const command = require('./commands/' + filename).command;
+
+      yargs.command(command);
     }
   });
-  commander.parse(process.argv);
-});
 
+  yargs
+    .usage('Usage: $0 <command> [options]')
+    .demand(1, 'You need to specify a command')
+    .help()
+    .version()
+    .epilogue('for more information, go to https://open-paas.org')
+    .example('$0 populate --help', 'show help of populate command')
+    .argv;
+});

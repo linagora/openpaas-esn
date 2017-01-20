@@ -1,32 +1,34 @@
 'use strict';
 
-const commons = require('../commons'),
-      elasticsearch = require('./elasticsearch'),
-      configure = require('../../fixtures/esn-config'),
-      populate = require('../../fixtures/populate'),
-      db = require('../../fixtures/db');
+const commons = require('../commons');
+const CONSTANTS = require('../constants').params;
+const elasticsearch = require('./elasticsearch');
+const configure = require('../../fixtures/esn-config');
+const populate = require('../../fixtures/populate');
+const db = require('../../fixtures/db');
+const command = {
+  command: 'init',
+  desc: 'Performs the initial setup of an OpenPaas instance',
+  builder: {
+    email: CONSTANTS.administrator.email,
+    password: CONSTANTS.administrator.password
+  },
+  handler: argv => {
+    const { email, password } = argv;
 
-function exec(commander, email) {
-  if (!email) {
-    return commander.help();
+    return commons.runCommand('init', () => exec(email, password));
   }
+};
 
+function exec(email, password) {
   return elasticsearch.exec()
     .then(db.connect.bind(null, commons.getDBOptions()))
     .then(configure)
-    .then(() => populate.provisionDomainAndAdministrator(email))
+    .then(() => populate.provisionDomainAndAdministrator(email, password))
     .then(db.disconnect);
 }
 
-function createCommand(command) {
-  command
-    .description('Performs the initial setup of an OpenPaas instance')
-    .option('-e, --email <email-address>', 'Email address of the administrator to create')
-    .action(function(cmd) {
-      return commons.runCommand('init', () => exec(command, cmd.email));
-    });
-}
-
 module.exports = {
-  createCommand
+  exec,
+  command
 };

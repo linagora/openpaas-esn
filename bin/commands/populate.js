@@ -1,30 +1,27 @@
 'use strict';
 
-var commons = require('../commons');
-var populateFixture = require('../../fixtures/populate');
-var db = require('../../fixtures/db');
+const commons = require('../commons');
+const populateFixture = require('../../fixtures/populate');
+const db = require('../../fixtures/db');
+const command = {
+  command: 'populate',
+  desc: 'Populate OpenPaaS Resources',
+  builder: {},
+  handler: () => {
+    exec()
+      .then(() => commons.logInfo('Populated'))
+      .catch(commons.logError)
+      .finally(commons.exit);
+  }
+};
 
-function exec(host, port, dbName) {
-  return db.connect(commons.getDBOptions(host, port, dbName))
+function exec() {
+  return db.connect(commons.getDBOptions())
     .then(populateFixture.populateAll)
-    .then(db.disconnect)
-    .finally(function() {
-      console.log('Populated!');
-    });
+    .then(db.disconnect);
 }
-module.exports.exec = exec;
 
-module.exports.createCommand = function(command) {
+module.exports = {
+  exec,
   command
-    .description('Populate OpenPaaS Resources')
-    .option('-h, --host <host>', 'database host to connect to')
-    .option('-p, --port <port>', 'database port to connect to')
-    .option('-d, --database <database>', 'database name to connect to')
-    .action(function(cmd) {
-      exec(cmd.host, cmd.port, cmd.database).then(function() {
-        console.log('Populated');
-      }, function(err) {
-        console.log('Error', err);
-      }).finally(commons.exit);
-    });
 };

@@ -1,16 +1,43 @@
 'use strict';
 
-var HANDLERS = {
+const HANDLERS = {
   users: indexUsers,
   contacts: indexContacts
 };
+const q = require('q');
+const _ = require('lodash');
+const commons = require('../commons');
+const request = require('request');
+const command = {
+  command: 'reindex',
+  desc: 'Reindex MongoDB data into Elasticsearch',
+  builder: {
+    'es-host': {
+      describe: 'Elasticsearch host to connect to',
+      default: 'localhost'
+    },
+    'es-port': {
+      describe: 'Elasticsearch port to connect to',
+      type: 'number',
+      default: 9200
+    },
+    type: {
+      alias: 't',
+      describe: 'the data type to reindex',
+      choices: Object.keys(HANDLERS),
+      demand: true
+    }
+  },
+  handler: argv => {
+    const { esHost, esPort, type } = argv;
 
-var q = require('q'),
-    _ = require('lodash'),
-    commons = require('../commons'),
-    request = require('request');
+    return exec(esHost, esPort, type)
+      .then(null, commons.logError)
+      .finally(commons.exit);
+  }
+};
 
-function exec(dbHost, dbPort, dbName, esHost, esPort, type) {
+function exec(esHost, esPort, type) {
   var handler = HANDLERS[type];
 
   if (!handler) {
@@ -18,7 +45,7 @@ function exec(dbHost, dbPort, dbName, esHost, esPort, type) {
   }
   try {
     return commons.loadMongooseModels().then(function() {
-      return handler(dbHost, dbPort, dbName, esHost, esPort);
+      return handler(esHost, esPort);
     });
   } catch (e) {
     return q.reject(e);
@@ -71,7 +98,7 @@ function reindexContacts(reindexUrl, sourceIndex, destinationIndex) {
   });
 }
 
-function indexContacts(dbHost, dbPort, dbName, esHost, esPort) {
+function indexContacts(esHost, esPort) {
   var esConfiguration = commons.getESConfiguration(esHost, esPort),
       contactsIndexUrl = esConfiguration.getIndexUrl('contacts'),
       contactsTmpIndexUrl = esConfiguration.getIndexUrl('contacts_tmp'),
@@ -93,13 +120,13 @@ function indexContacts(dbHost, dbPort, dbName, esHost, esPort) {
     });
 }
 
-function indexUsers(dbHost, dbPort, dbName) {
+function indexUsers() {
   var db = require('../../fixtures/db'),
       userCoreModule = require('../../backend/core/user'),
       userCoreModuleListener = require('../../backend/core/user/listener'),
       esUtils = require('../../backend/core/elasticsearch/utils');
 
-  return db.connect(commons.getDBOptions(dbHost, dbPort, dbName))
+  return db.connect(commons.getDBOptions())
     .then(function() {
       return q.nfcall(userCoreModule.list).then(function(users) {
         if (!users || users.length === 0) {
@@ -124,18 +151,7 @@ function indexUsers(dbHost, dbPort, dbName) {
     });
 }
 
-module.exports.createCommand = function(command) {
+module.exports = {
+  exec,
   command
-    .description('Reindex MongoDB data into Elasticsearch')
-    .option('--db-host <host>', 'MongoDB host to connect to')
-    .option('--db-port <port>', 'MongoDB port to connect to')
-    .option('--db-name <name>', 'MongoDB host to connect to')
-    .option('--es-host <host>', 'Elasticsearch host to connect to')
-    .option('--es-port <port>', 'Elasticsearch port to connect to')
-    .option('-t, --type <type>', 'the data type to reindex')
-    .action(function(cmd) {
-      return exec(cmd.dbHost, cmd.dbPort, cmd.dbName, cmd.esHost, cmd.esPort, cmd.type)
-        .then(null, commons.logError)
-        .finally(commons.exit);
-    });
 };

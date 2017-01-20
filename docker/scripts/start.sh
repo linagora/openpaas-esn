@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Generate config/db.json
+node bin/cli db --host $MONGO_HOST --port $MONGO_PORT --database $MONGO_DBNAME
+
 if [ "$PROVISION" = true ] ; then
 
   timeout=60;

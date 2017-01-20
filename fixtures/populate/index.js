@@ -138,14 +138,14 @@ function populateAll(host) {
     .spread(_populateMembers);
 }
 
-function provisionDomainAndAdministrator(email) {
+function provisionDomainAndAdministrator(email, password) {
   const parts = email.split('@'),
         login = parts[0],
         domainName = parts[1],
         admin = {
           firstname: 'Admin',
           lastname: 'Admin',
-          password: login,
+          password: password || login,
           accounts: [{
             type: 'email',
             hosted: true,

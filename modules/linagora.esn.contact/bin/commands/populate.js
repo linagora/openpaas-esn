@@ -1,16 +1,48 @@
 'use strict';
 
-var q = require('q');
-var uuid = require('node-uuid');
-var request = require('request');
-var ICAL = require('ical.js');
-var fs = require('fs');
-var path = require('path');
-var commons = require('../../../../bin/commons');
+const q = require('q');
+const uuid = require('node-uuid');
+const request = require('request');
+const ICAL = require('ical.js');
+const fs = require('fs');
+const path = require('path');
+const commons = require('../../../../bin/commons');
 
-var DEFAULT_BASE_URL = 'http://localhost:8080';
-var DEFAULT_LOGIN = 'admin@open-paas.org';
-var DEFAULT_PASSWORD = 'secret';
+const DEFAULT_BASE_URL = 'http://localhost:8080';
+const DEFAULT_LOGIN = 'admin@open-paas.org';
+const DEFAULT_PASSWORD = 'secret';
+
+const command = {
+  command: 'populate <type> <size>',
+  desc: 'Configure OpenPaaS',
+  builder: {
+    login: {
+      alias: 'l',
+      describe: 'User login',
+      default: DEFAULT_LOGIN
+    },
+    password: {
+      alias: 'p',
+      describe: 'User password',
+      default: DEFAULT_PASSWORD
+    },
+    url: {
+      alias: 'u',
+      describe: 'ESN base URL',
+      default: DEFAULT_BASE_URL
+    }
+  },
+  handler: argv => {
+    const { url, login, password, size, type } = argv;
+
+    commons.logInfo(`Calling with user ${login}/${password} on ${url}`);
+
+    exec(url, login, password, size, type)
+      .then(() => commons.logInfo('Configured'))
+      .catch(commons.logError)
+      .finally(commons.exit);
+  }
+};
 
 function exec(base_url, login, password, size, type) {
 
@@ -22,10 +54,12 @@ function exec(base_url, login, password, size, type) {
     var fileName = size < 1000 ? '100' : '1000';
 
     var filePath = path.join(__dirname, './data/populate/' + fileName + '.json');
+
     fs.readFile(filePath, 'utf-8', function(err, data) {
       if (err) {
         return defer.reject(err);
       }
+
       return defer.resolve(JSON.parse(data).results);
     });
 
@@ -34,6 +68,7 @@ function exec(base_url, login, password, size, type) {
 
   function getRandomContactsFromWeb() {
     var defer = q.defer();
+
     request({
       method: 'GET',
       json: true,
@@ -42,8 +77,10 @@ function exec(base_url, login, password, size, type) {
       if (err) {
         return defer.reject(err);
       }
+
       return defer.resolve(body.results || []);
     });
+
     return defer.promise;
   }
 
@@ -54,6 +91,7 @@ function exec(base_url, login, password, size, type) {
 
   function getRandomContacts() {
     var generator = contactGenerators[type] || contactGenerators.file;
+
     return generator();
   }
 
@@ -74,6 +112,7 @@ function exec(base_url, login, password, size, type) {
     if (shell.emails) {
       shell.emails.forEach(function(data) {
         var prop = vcard.addPropertyWithValue('email', 'mailto:' + data.value);
+
         prop.setParameter('type', data.type);
       });
     }
@@ -87,12 +126,13 @@ function exec(base_url, login, password, size, type) {
 
   function sendContact(user, shell) {
     bookId = bookId || user._id;
+
     var path = '/dav/api/addressbooks/' + bookId + '/contacts/' + shell.id + '.vcf';
-
     var json = shellToVCARD(shell).toJSON();
-
     var defer = q.defer();
-    console.log('Creating contact on path %s...', path);
+
+    commons.logInfo(`Creating contact on path ${path}...`);
+
     request({
       uri: base_url + path,
       jar: true,
@@ -106,9 +146,12 @@ function exec(base_url, login, password, size, type) {
       if (err) {
         return defer.reject(err);
       }
-      console.log('%s created', shell.id);
+
+      commons.logInfo(`${shell.id} created`);
+
       return defer.resolve(body);
     });
+
     return defer.promise;
   }
 
@@ -132,6 +175,7 @@ function exec(base_url, login, password, size, type) {
       phone: [{type: 'mobile', value: u.cell}, {type: 'work', value: u.phone}],
       photo: u.picture.medium
     };
+
     return sendContact(user, shell);
   }
 
@@ -144,47 +188,27 @@ function exec(base_url, login, password, size, type) {
   }
 
   commons.loginAsUser(base_url, login, password, function(err, user) {
-
     if (err) {
-      console.log('Login error');
+      commons.logError('Login error');
+
       return defer.reject(err);
     }
 
-    console.log('Logged in as', user);
+    commons.logInfo('Logged in as', user);
+
     return createContacts(user).then(function(results) {
-      console.log('Contacts have been created', results.length);
+      commons.logInfo('Contacts have been created', results.length);
       defer.resolve();
     }, function(err) {
-      console.log(err);
+      commons.logError(err);
       defer.reject(err);
     });
   });
+
   return defer.promise;
 }
-module.exports.exec = exec;
 
-function getCommandParameters() {
-  return '<type> <size>';
-}
-module.exports.getCommandParameters = getCommandParameters;
-
-module.exports.createCommand = function(command) {
-
+module.exports = {
+  exec,
   command
-    .description('Populate <size> random contacts from <type> generator')
-    .option('-l, --login [login]', 'User login', DEFAULT_LOGIN)
-    .option('-p, --password [password]', 'User password', DEFAULT_PASSWORD)
-    .option('-u, --url [url]', 'ESN base URL like http://localhost:8080', DEFAULT_BASE_URL)
-
-    .action(function(type, size) {
-      var url = command.url;
-      var login = command.login;
-      var password = command.password;
-      console.log('Calling with user %s/%s on %s', login, password, url);
-      exec(url, login, password, size, type).then(function() {
-        console.log('Populated');
-      }, function(err) {
-        console.log('Error', err);
-      }).finally(commons.exit);
-    });
 };
