@@ -636,7 +636,7 @@ describe('The calendar configuration controller', function() {
     it('should return true if the $tag contain the _id field', function() {
       var $tag = {
         _id: '11111111'
-      }
+      };
 
       calendarConfigurationController.$onInit();
 
