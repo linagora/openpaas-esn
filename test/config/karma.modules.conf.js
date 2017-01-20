@@ -151,12 +151,12 @@ module.exports = function(config) {
 
         return cacheId;
       },
-      // setting this option will create only a single module that contains templates
-      // from all the files, so you can load them all with module('templates')
-      jadeRenderConfig: {
+      jadeRenderLocals: {
         __: function(str) {
           return str;
-        },
+        }
+      },
+      jadeRenderOptions: {
         basedir: require('path').resolve(__dirname, '../../frontend/views')
       },
       moduleName: 'jadeTemplates'
