@@ -204,8 +204,7 @@ describe('The event-form module controllers', function() {
           email: 'user@test.com',
           name: 'user@test.com',
           partstat: 'ACCEPTED',
-          displayName: 'user@test.com',
-          id: undefined
+          displayName: 'user@test.com'
         }]);
       });
 

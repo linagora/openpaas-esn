@@ -1462,8 +1462,7 @@ describe('CalendarShell factory', function() {
         email: 'user1@demo.open-paas.org',
         name: 'user1@demo.open-paas.org',
         partstat: 'ACCEPTED',
-        displayName: 'user1@demo.open-paas.org',
-        id: undefined
+        displayName: 'user1@demo.open-paas.org'
       }]);
     });
 
@@ -1485,8 +1484,8 @@ describe('CalendarShell factory', function() {
         email: 'disisemail',
         name: 'disisemail',
         partstat: 'NEEDS-ACTION',
-        displayName: 'disisemail',
-        id: '123'}]);
+        displayName: 'disisemail'
+      }]);
     });
 
     it('should replace the attendee for organizer with a new one with specified partstat', function() {
@@ -1513,8 +1512,7 @@ describe('CalendarShell factory', function() {
         email: 'user1@demo.open-paas.org',
         name: 'user1@demo.open-paas.org',
         partstat: 'DECLINED',
-        displayName: 'user1@demo.open-paas.org',
-        id: undefined
+        displayName: 'user1@demo.open-paas.org'
       }]);
     });
   });

@@ -262,24 +262,21 @@ describe('The calEventService service', function() {
             email: 'test@example.com',
             name: 'name',
             partstat: 'ACCEPTED',
-            displayName: 'name',
-            id: undefined
+            displayName: 'name'
           },
           {
             fullmail: 'noname@example.com',
             email: 'noname@example.com',
             name: 'noname@example.com',
             partstat: 'DECLINED',
-            displayName: 'noname@example.com',
-            id: undefined
+            displayName: 'noname@example.com'
           },
           {
             fullmail: 'yolo@example.com',
             email: 'yolo@example.com',
             name: 'yolo@example.com',
             partstat: 'YOLO',
-            displayName: 'yolo@example.com',
-            id: undefined
+            displayName: 'yolo@example.com'
           }
         ]);
 
