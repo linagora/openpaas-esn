@@ -76,7 +76,7 @@ describe('The collaboration member module', function() {
     it('should send back error if collaboration type is open and workflow is request', function(done) {
       const collaborationModule = getModule();
 
-      collaborationModule.addMembershipRequest('community', {type: 'open'}, {}, {}, 'request', null, function(err, c) {
+      collaborationModule.addMembershipRequest('community', {type: 'open'}, {}, {}, 'request', null, function(err) {
         expect(err.message).to.match(/Only Restricted and Private collaborations allow membership requests/);
         done();
       });
@@ -85,7 +85,7 @@ describe('The collaboration member module', function() {
     it('should send back error if collaboration type is confidential and workflow is request', function(done) {
       const collaborationModule = getModule();
 
-      collaborationModule.addMembershipRequest('community', {type: 'confidential'}, {}, {}, 'request', null, function(err, c) {
+      collaborationModule.addMembershipRequest('community', {type: 'confidential'}, {}, {}, 'request', null, function(err) {
         expect(err.message).to.match(/Only Restricted and Private collaborations allow membership requests/);
         done();
       });
@@ -448,7 +448,7 @@ describe('The collaboration member module', function() {
 
       const collaborationModule = getModule();
 
-      collaborationModule.join('community', comMock, user, target, 'user', function(err, update) {
+      collaborationModule.join('community', comMock, user, target, 'user', function(err) {
         expect(err).to.not.exist;
         expect(localstub.topics['collaboration:join'].data[0]).to.deep.equal({
           author: user,
@@ -546,7 +546,7 @@ describe('The collaboration member module', function() {
           callback(error);
         };
 
-        function onResponse(err, resp) {
+        function onResponse(err) {
           expect(err.message).to.equal(error.message);
           done();
         }
@@ -614,7 +614,7 @@ describe('The collaboration member module', function() {
           callback(error);
         };
 
-        function onResponse(err, resp) {
+        function onResponse(err) {
           expect(err.message).to.equal(error.message);
           done();
         }
