@@ -280,15 +280,13 @@
           var cn = attendee.getParameter('cn');
           var mail = calendarUtils.removeMailto(attendeeEmail);
           var partstat = attendee.getParameter('partstat');
-          var id = attendee.getParameter('id');
 
           return {
             fullmail: calendarUtils.fullmailOf(cn, mail),
             email: mail,
             name: cn || mail,
             partstat: partstat,
-            displayName: cn || mail,
-            id: id
+            displayName: cn || mail
           };
         });
 
@@ -307,7 +305,6 @@
             var mailto = calendarUtils.prependMailto(mail);
             var property = vevent.addPropertyWithValue('attendee', mailto);
 
-            attendee.id && property.setParameter('id', attendee.id);
             property.setParameter('partstat', attendee.partstat || (isOrganizer ? ICAL_PROPERTIES.partstat.accepted : ICAL_PROPERTIES.partstat.needsaction));
             property.setParameter('rsvp', isOrganizer ? ICAL_PROPERTIES.rsvp.false : ICAL_PROPERTIES.rsvp.true);
             property.setParameter('role', isOrganizer ? ICAL_PROPERTIES.role.chair : ICAL_PROPERTIES.role.reqparticipant);
