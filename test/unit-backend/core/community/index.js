@@ -233,7 +233,10 @@ describe('The community module', function() {
         query: function(objectType) {
           expect(objectType).to.equal('community');
           done();
-        }
+        },
+        registerCollaborationModel: function() {},
+        registerCollaborationLib: function() {},
+        registerMembersMapping: function() {}
       };
       mockery.registerMock('../collaboration', collaborationMock);
       this.helpers.mock.models({});
@@ -477,7 +480,7 @@ describe('The community module', function() {
       });
 
       var community = this.helpers.requireBackend('core/community/index');
-      community.getMembers({_id: 123}, null, function(err, result) {
+      community.getMembers({_id: 123}, {}, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.be.an.array;
         expect(result.length).to.equal(0);
@@ -511,7 +514,7 @@ describe('The community module', function() {
       });
 
       var community = this.helpers.requireBackend('core/community/index');
-      community.getMembers({_id: 123}, null, function(err, members) {
+      community.getMembers({_id: 123}, {}, function(err, members) {
         expect(err).to.not.exist;
         expect(members).to.be.an.array;
         expect(members).to.deep.equal(result);
@@ -584,7 +587,7 @@ describe('The community module', function() {
       });
 
       var community = this.helpers.requireBackend('core/community/index');
-      community.getMembers({_id: 123}, null, function() {
+      community.getMembers({_id: 123}, {}, function() {
         done();
       });
     });
@@ -778,7 +781,7 @@ describe('The community module', function() {
       });
 
       var community = this.helpers.requireBackend('core/community/index');
-      community.getMembershipRequests({_id: 123}, null, function(err) {
+      community.getMembershipRequests({_id: 123}, {}, function(err) {
         expect(err).to.exist;
         return done();
       });
@@ -800,7 +803,7 @@ describe('The community module', function() {
       });
 
       var community = this.helpers.requireBackend('core/community/index');
-      community.getMembershipRequests({_id: 123}, null, function(err, result) {
+      community.getMembershipRequests({_id: 123}, {}, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.be.an.array;
         expect(result.length).to.equal(0);
@@ -825,7 +828,7 @@ describe('The community module', function() {
       });
 
       var community = this.helpers.requireBackend('core/community/index');
-      community.getMembershipRequests({_id: 123}, null, function(err, requests) {
+      community.getMembershipRequests({_id: 123}, {}, function(err, requests) {
         expect(err).to.not.exist;
         expect(requests).to.be.an.array;
         expect(requests).to.deep.equal(result);
@@ -884,7 +887,7 @@ describe('The community module', function() {
       });
 
       var community = this.helpers.requireBackend('core/community/index');
-      community.getMembershipRequests({_id: 123}, null, function() {
+      community.getMembershipRequests({_id: 123}, {}, function() {
         done();
       });
     });

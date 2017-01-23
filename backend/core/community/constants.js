@@ -2,6 +2,7 @@
 
 module.exports = {
   OBJECT_TYPE: 'community',
+  MODEL_NAME: 'Community',
   EVENTS: {
     communityCreated: 'communities:community:add',
     communityUpdated: 'communities:community:update',

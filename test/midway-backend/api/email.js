@@ -39,6 +39,7 @@ describe('The email API', function() {
       EMailMsg = self.helpers.requireBackend('core/db/mongo/models/emailmessage');
       Community = self.helpers.requireBackend('core/db/mongo/models/community');
       TimelineEntry = self.helpers.requireBackend('core/db/mongo/models/timelineentry');
+      self.helpers.requireBackend('core/community');
       webserver = self.helpers.requireBackend('webserver').webserver;
       fixtures = self.helpers.requireFixture('models/users.js')(User);
 

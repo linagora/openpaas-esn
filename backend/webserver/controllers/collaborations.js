@@ -1,19 +1,19 @@
 'use strict';
 
-var collaborationModule = require('../../core/collaboration/index');
-var userDomain = require('../../core/user/domain');
-var memberAdapter = require('../../helpers/collaboration').memberAdapter;
-var permission = require('../../core/collaboration/permission');
-var imageModule = require('../../core/image');
-var logger = require('../../core/logger');
-var async = require('async');
+const async = require('async');
+const collaborationModule = require('../../core/collaboration');
+const permission = collaborationModule.permission;
+const userDomain = require('../../core/user/domain');
+const memberAdapter = require('../../helpers/collaboration').memberAdapter;
+const imageModule = require('../../core/image');
+const logger = require('../../core/logger');
 
 function transform(collaboration, user, callback) {
   if (!collaboration) {
     return callback({});
   }
 
-  var membershipRequest = collaborationModule.getMembershipRequest(collaboration, user);
+  var membershipRequest = collaborationModule.member.getMembershipRequest(collaboration, user);
 
   if (typeof collaboration.toObject === 'function') {
     collaboration = collaboration.toObject();
@@ -26,11 +26,11 @@ function transform(collaboration, user, callback) {
 
   var userTuple = {objectType: 'user', id: user.id};
 
-  collaborationModule.isMember(collaboration, userTuple, function(err, membership) {
+  collaborationModule.member.isMember(collaboration, userTuple, function(err, membership) {
     if (membership) {
       collaboration.member_status = 'member';
     } else {
-      collaborationModule.isIndirectMember(collaboration, userTuple, function(err, indirect) {
+      collaborationModule.member.isIndirectMember(collaboration, userTuple, function(err, indirect) {
         if (indirect) {
           collaboration.member_status = 'indirect';
         } else {
@@ -71,7 +71,7 @@ module.exports.searchWhereMember = function(req, res) {
           return callback(null, true);
         }
 
-        collaborationModule.isMember(collaboration, tuple, callback);
+        collaborationModule.member.isMember(collaboration, tuple, callback);
       });
     }, function(err, results) {
       async.map(results, function(element, callback) {
@@ -133,7 +133,7 @@ function getMembers(req, res) {
     query.objectTypeFilter = req.query.objectTypeFilter;
   }
 
-  collaborationModule.getMembers(req.collaboration, req.params.objectType, query, function(err, members) {
+  collaborationModule.member.getMembers(req.collaboration, req.params.objectType, query, function(err, members) {
     if (err) {
       return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.message}});
     }
@@ -248,7 +248,7 @@ function addMembershipRequest(req, res) {
   }
 
   function addMembership(objectType, collaboration, userAuthor, userTarget, workflow, actor) {
-    collaborationModule.addMembershipRequest(objectType, collaboration, userAuthor, userTarget, workflow, actor, function(err, collaboration) {
+    collaborationModule.member.addMembershipRequest(objectType, collaboration, userAuthor, userTarget, workflow, actor, function(err, collaboration) {
       if (err) {
         return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.message}});
       }
@@ -259,9 +259,9 @@ function addMembershipRequest(req, res) {
   }
 
   if (req.isCollaborationManager) {
-    addMembership(objectType, collaboration, userAuthor, userTargetId, collaborationModule.MEMBERSHIP_TYPE_INVITATION, 'manager');
+    addMembership(objectType, collaboration, userAuthor, userTargetId, collaborationModule.member.MEMBERSHIP_TYPE_INVITATION, 'manager');
   } else {
-    addMembership(objectType, collaboration, userAuthor, userTargetId, collaborationModule.MEMBERSHIP_TYPE_REQUEST, 'user');
+    addMembership(objectType, collaboration, userAuthor, userTargetId, collaborationModule.member.MEMBERSHIP_TYPE_REQUEST, 'user');
   }
 }
 module.exports.addMembershipRequest = addMembershipRequest;
@@ -292,7 +292,7 @@ function getMembershipRequests(req, res) {
     }
   }
 
-  collaborationModule.getMembershipRequests(req.params.objectType, collaboration, query, function(err, membershipRequests) {
+  collaborationModule.member.getMembershipRequests(req.params.objectType, collaboration, query, function(err, membershipRequests) {
     if (err) {
       return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
     }
@@ -323,16 +323,16 @@ function join(req, res) {
       return res.status(400).json({error: {code: 400, message: 'Bad request', details: 'Community Manager can not add himself to a collaboration'}});
     }
 
-    if (!req.query.withoutInvite && !collaborationModule.getMembershipRequest(collaboration, {_id: targetUserId})) {
+    if (!req.query.withoutInvite && !collaborationModule.member.getMembershipRequest(collaboration, {_id: targetUserId})) {
       return res.status(400).json({error: {code: 400, message: 'Bad request', details: 'User did not request to join collaboration'}});
     }
 
-    collaborationModule.join(req.params.objectType, collaboration, user, targetUserId, 'manager', function(err) {
+    collaborationModule.member.join(req.params.objectType, collaboration, user, targetUserId, 'manager', function(err) {
       if (err) {
         return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
       }
 
-      collaborationModule.cleanMembershipRequest(collaboration, targetUserId, function(err) {
+      collaborationModule.member.cleanMembershipRequest(collaboration, targetUserId, function(err) {
         if (err) {
           return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
         }
@@ -347,17 +347,17 @@ function join(req, res) {
     }
 
     if (req.collaboration.type !== collaborationModule.CONSTANTS.COLLABORATION_TYPES.OPEN) {
-      var membershipRequest = collaborationModule.getMembershipRequest(collaboration, user);
+      var membershipRequest = collaborationModule.member.getMembershipRequest(collaboration, user);
       if (!membershipRequest) {
         return res.status(400).json({error: {code: 400, message: 'Bad request', details: 'User was not invited to join collaboration'}});
       }
 
-      collaborationModule.join(req.params.objectType, collaboration, user, user, null, function(err) {
+      collaborationModule.member.join(req.params.objectType, collaboration, user, user, null, function(err) {
         if (err) {
           return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
         }
 
-        collaborationModule.cleanMembershipRequest(collaboration, user, function(err) {
+        collaborationModule.member.cleanMembershipRequest(collaboration, user, function(err) {
           if (err) {
             return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
           }
@@ -365,12 +365,12 @@ function join(req, res) {
         });
       });
     } else {
-      collaborationModule.join(req.params.objectType, collaboration, user, targetUserId, 'user', function(err) {
+      collaborationModule.member.join(req.params.objectType, collaboration, user, targetUserId, 'user', function(err) {
         if (err) {
           return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
         }
 
-        collaborationModule.cleanMembershipRequest(collaboration, user, function(err) {
+        collaborationModule.member.cleanMembershipRequest(collaboration, user, function(err) {
           if (err) {
             return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
           }
@@ -390,7 +390,7 @@ function leave(req, res) {
   var user = req.user;
   var targetUserId = req.params.user_id;
 
-  collaborationModule.leave(req.params.objectType, collaboration, user, targetUserId, function(err) {
+  collaborationModule.member.leave(req.params.objectType, collaboration, user, targetUserId, function(err) {
     if (err) {
       return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
     }
@@ -437,15 +437,15 @@ function removeMembershipRequest(req, res) {
    */
 
   if (req.isCollaborationManager) {
-    if (membership.workflow === collaborationModule.MEMBERSHIP_TYPE_INVITATION) {
-      collaborationModule.cancelMembershipInvitation(req.params.objectType, req.collaboration, membership, req.user, onResponse);
+    if (membership.workflow === collaborationModule.member.MEMBERSHIP_TYPE_INVITATION) {
+      collaborationModule.member.cancelMembershipInvitation(req.params.objectType, req.collaboration, membership, req.user, onResponse);
     } else {
-      collaborationModule.refuseMembershipRequest(req.params.objectType, req.collaboration, membership, req.user, onResponse);
+      collaborationModule.member.refuseMembershipRequest(req.params.objectType, req.collaboration, membership, req.user, onResponse);
     }
-  } else if (membership.workflow === collaborationModule.MEMBERSHIP_TYPE_INVITATION) {
-    collaborationModule.declineMembershipInvitation(req.params.objectType, req.collaboration, membership, req.user, onResponse);
+  } else if (membership.workflow === collaborationModule.member.MEMBERSHIP_TYPE_INVITATION) {
+    collaborationModule.member.declineMembershipInvitation(req.params.objectType, req.collaboration, membership, req.user, onResponse);
   } else {
-    collaborationModule.cancelMembershipRequest(req.params.objectType, req.collaboration, membership, req.user, onResponse);
+    collaborationModule.member.cancelMembershipRequest(req.params.objectType, req.collaboration, membership, req.user, onResponse);
   }
 }
 module.exports.removeMembershipRequest = removeMembershipRequest;
@@ -457,7 +457,7 @@ function getMember(req, res) {
     return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'Collaboration is missing'}});
   }
 
-  collaborationModule.isMember(collaboration, {objectType: 'user', id: req.params.user_id}, function(err, result) {
+  collaborationModule.member.isMember(collaboration, {objectType: 'user', id: req.params.user_id}, function(err, result) {
     if (err) {
       return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.message}});
     }

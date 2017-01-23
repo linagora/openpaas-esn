@@ -53,23 +53,23 @@ function projectLib(dependencies) {
 
   function getMembershipRequests(project, query, callback) {
     var projectId = project._id || project;
-    return collaboration.getMembershipRequests(projectObjectType, projectId, query, callback);
+    return collaboration.member.getMembershipRequests(projectObjectType, projectId, query, callback);
   }
 
   function getMembershipRequest(project, user) {
-    return collaboration.getMembershipRequest(project, user);
+    return collaboration.member.getMembershipRequest(project, user);
   }
 
   function isMember(project, tuple, callback) {
-    return collaboration.isMember(project, tuple, callback);
+    return collaboration.member.isMember(project, tuple, callback);
   }
 
   function isIndirectMember(project, tuple, callback) {
-    return collaboration.isIndirectMember(project, tuple, callback);
+    return collaboration.member.isIndirectMember(project, tuple, callback);
   }
 
   function addMember(project, author, member, callback) {
-    return collaboration.addMember(project, author, member, callback);
+    return collaboration.member.addMember(project, author, member, callback);
   }
 
   function getUserProjects(userId, options, callback) {

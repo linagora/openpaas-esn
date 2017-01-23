@@ -1,39 +1,193 @@
 'use strict';
 
-var chai = require('chai');
-var expect = chai.expect;
-var mockery = require('mockery');
+const expect = require('chai').expect;
+const sinon = require('sinon');
 
 describe('The Collaboration permission module', function() {
 
-  describe('The filterWritable function', function() {
+  let lib;
 
-    beforeEach(function() {
-      mockery.registerMock('./index', {});
+  beforeEach(function() {
+    lib = {
+    };
+
+    this.getModule = function() {
+      return this.helpers.requireBackend('core/collaboration/permission')(lib);
+    };
+  });
+
+  describe('The canFind function', function() {
+    it('should fail when collaboration is undefined', function(done) {
+      const module = this.getModule();
+
+      module.canFind(null, {}, this.helpers.callbacks.errorWithMessage(done, 'Collaboration object is required'));
     });
 
-    it('should fail when collaborations is undefined', function(done) {
-      var module = this.helpers.requireBackend('core/collaboration/permission');
-      module.filterWritable(null, {}, this.helpers.callbacks.error(done));
+    it('should fail when collaboration.type is undefined', function(done) {
+      const module = this.getModule();
+
+      module.canFind({}, {}, this.helpers.callbacks.errorWithMessage(done, 'Collaboration object is required'));
     });
 
     it('should fail when tuple is undefined', function(done) {
-      var module = this.helpers.requireBackend('core/collaboration/permission');
-      module.filterWritable([], null, this.helpers.callbacks.error(done));
+      const module = this.getModule();
+
+      module.canFind({type: 'open'}, null, this.helpers.callbacks.errorWithMessage(done, 'Tuple is required'));
+    });
+
+    it('should return true when collaboration is not confidential', function(done) {
+      const module = this.getModule();
+
+      module.canFind({type: 'open'}, {}, function(err, result) {
+        expect(err).to.not.exist;
+        expect(result).to.be.true;
+        done();
+      });
+    });
+
+    it('should return the isIndirectMember result', function(done) {
+      lib.isIndirectMember = sinon.spy(function(collaboration, tuple, callback) {
+        callback(null, true);
+      });
+
+      const module = this.getModule();
+
+      module.canFind({type: 'confidential'}, {}, function(err, result) {
+        expect(err).to.not.exist;
+        expect(lib.isIndirectMember).to.have.been.called;
+        expect(result).to.be.true;
+        done();
+      });
+    });
+  });
+
+  describe('The canRead function', function() {
+    it('should fail when collaboration is undefined', function(done) {
+      const module = this.getModule();
+
+      module.canRead(null, {}, this.helpers.callbacks.errorWithMessage(done, 'collaboration object is required'));
+    });
+
+    it('should fail when collaboration.type is undefined', function(done) {
+      const module = this.getModule();
+
+      module.canRead({}, {}, this.helpers.callbacks.errorWithMessage(done, 'collaboration object is required'));
+    });
+
+    it('should fail when tuple is undefined', function(done) {
+      const module = this.getModule();
+
+      module.canRead({type: 'open'}, null, this.helpers.callbacks.errorWithMessage(done, 'Tuple is required'));
+    });
+
+    it('should return true when collaboration is open', function(done) {
+      const module = this.getModule();
+
+      module.canRead({type: 'open'}, {}, function(err, result) {
+        expect(err).to.not.exist;
+        expect(result).to.be.true;
+        done();
+      });
+    });
+
+    it('should return true when collaboration is restricted', function(done) {
+      const module = this.getModule();
+
+      module.canRead({type: 'restricted'}, {}, function(err, result) {
+        expect(err).to.not.exist;
+        expect(result).to.be.true;
+        done();
+      });
+    });
+
+    it('should return the isIndirectMember result', function(done) {
+      lib.isIndirectMember = sinon.spy(function(collaboration, tuple, callback) {
+        callback(null, true);
+      });
+
+      const module = this.getModule();
+
+      module.canRead({type: 'confidential'}, {}, function(err, result) {
+        expect(err).to.not.exist;
+        expect(lib.isIndirectMember).to.have.been.called;
+        expect(result).to.be.true;
+        done();
+      });
+    });
+  });
+
+  describe('The canWrite function', function() {
+    it('should fail when collaboration is undefined', function(done) {
+      const module = this.getModule();
+
+      module.canWrite(null, {}, this.helpers.callbacks.errorWithMessage(done, 'collaboration object is required'));
+    });
+
+    it('should fail when collaboration.type is undefined', function(done) {
+      const module = this.getModule();
+
+      module.canWrite({}, {}, this.helpers.callbacks.errorWithMessage(done, 'collaboration object is required'));
+    });
+
+    it('should fail when tuple is undefined', function(done) {
+      const module = this.getModule();
+
+      module.canWrite({type: 'open'}, null, this.helpers.callbacks.errorWithMessage(done, 'Tuple is required'));
+    });
+
+    it('should return true when collaboration is open', function(done) {
+      const module = this.getModule();
+
+      module.canWrite({type: 'open'}, {}, function(err, result) {
+        expect(err).to.not.exist;
+        expect(result).to.be.true;
+        done();
+      });
+    });
+
+    it('should return the isIndirectMember result', function(done) {
+      lib.isIndirectMember = sinon.spy(function(collaboration, tuple, callback) {
+        callback(null, true);
+      });
+
+      const module = this.getModule();
+
+      module.canWrite({type: 'confidential'}, {}, function(err, result) {
+        expect(err).to.not.exist;
+        expect(lib.isIndirectMember).to.have.been.called;
+        expect(result).to.be.true;
+        done();
+      });
+    });
+  });
+
+  describe('The filterWritable function', function() {
+    it('should fail when collaborations is undefined', function(done) {
+      const module = this.getModule();
+
+      module.filterWritable(null, {}, this.helpers.callbacks.errorWithMessage(done, 'collaborations is required'));
+    });
+
+    it('should fail when tuple is undefined', function(done) {
+      const module = this.getModule();
+
+      module.filterWritable([], null, this.helpers.callbacks.errorWithMessage(done, 'tuple is required'));
     });
 
     it('should return only writable collaborations', function(done) {
+      const collaborations = [{_id: 1, type: 'private'}, {_id: 2, type: 'private'}, {_id: 3, type: 'private'}];
+      const user = {objectType: 'user', id: 123456789};
 
-      var collaborations = [1, 2, 3];
-      var user = {objectType: 'user', id: 123456789};
-      var module = this.helpers.rewireBackend('core/collaboration/permission');
-      module.__set__('canWrite', function(collaboration, tuple, callback) {
-        expect(tuple).to.deep.equal(user);
-        if (collaboration === 1) {
+      lib.isIndirectMember = function(collaboration, tuple, callback) {
+        if (collaboration._id === 1) {
           return callback(null, false);
         }
-        return callback(null, true);
-      });
+
+        callback(null, true);
+      };
+
+      const module = this.getModule();
+
       module.filterWritable(collaborations, user, function(err, result) {
         expect(result.length).to.exist;
         expect(result).to.not.include(collaborations[0]);

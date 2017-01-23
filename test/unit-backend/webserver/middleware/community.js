@@ -776,9 +776,11 @@ describe('The community middleware', function() {
         }
       });
       mockery.registerMock('../../core/activitystreams', {});
-      mockery.registerMock('../../core/community/permission', {
-        canWrite: function(community, user, callback) {
-          return callback(null, true);
+      mockery.registerMock('../../core/community', {
+        permission: {
+          canWrite: function(community, user, callback) {
+            return callback(null, true);
+          }
         }
       });
 
@@ -823,9 +825,11 @@ describe('The community middleware', function() {
       });
 
       mockery.registerMock('../../core/activitystreams', {});
-      mockery.registerMock('../../core/community/permission', {
-        canWrite: function(community, user, callback) {
-          return callback(null, true);
+      mockery.registerMock('../../core/community', {
+        permission: {
+          canWrite: function(community, user, callback) {
+            return callback(null, true);
+          }
         }
       });
       var middleware = this.helpers.requireBackend('webserver/middleware/community').filterWritableTargets;
@@ -866,9 +870,11 @@ describe('The community middleware', function() {
         }
       });
       mockery.registerMock('../../core/activitystreams', {});
-      mockery.registerMock('../../core/community/permission', {
-        canWrite: function(community, user, callback) {
-          return callback(null, community._id > 10);
+      mockery.registerMock('../../core/community', {
+        permission: {
+          canWrite: function(community, user, callback) {
+            return callback(null, community._id > 10);
+          }
         }
       });
       var middleware = this.helpers.requireBackend('webserver/middleware/community').filterWritableTargets;
@@ -925,9 +931,11 @@ describe('The community middleware', function() {
         }
       });
       mockery.registerMock('../../core/activitystreams', {});
-      mockery.registerMock('../../core/community/permission', {
-        canWrite: function(community, user, callback) {
-          return callback(null, false);
+      mockery.registerMock('../../core/community', {
+        permission: {
+          canWrite: function(community, user, callback) {
+            return callback(null, false);
+          }
         }
       });
       var middleware = this.helpers.requireBackend('webserver/middleware/community').filterWritableTargets;

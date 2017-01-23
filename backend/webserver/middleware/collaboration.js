@@ -52,7 +52,7 @@ function canLeave(req, res, next) {
 module.exports.canLeave = canLeave;
 
 function requiresCollaborationMember(req, res, next) {
-  collaborationModule.isMember(req.collaboration, {objectType: 'user', id: req.user._id}, function(err, isMember) {
+  collaborationModule.member.isMember(req.collaboration, {objectType: 'user', id: req.user._id}, function(err, isMember) {
     if (err) {
       return res.status(500).json({error: 500, message: 'Server error', details: 'Can not define the collaboration membership: ' + err.message});
     }
@@ -83,7 +83,7 @@ module.exports.checkUserParamIsNotMember = function(req, res, next) {
     return res.status(400).json({error: 400, message: 'Bad request', details: 'Missing user id'});
   }
 
-  collaborationModule.isMember(req.collaboration, req.params.user_id, function(err, isMember) {
+  collaborationModule.member.isMember(req.collaboration, req.params.user_id, function(err, isMember) {
     if (err) {
       return res.status(400).json({error: 400, message: 'Bad request', details: 'Can not define the community membership : ' + err.message});
     }
@@ -104,7 +104,7 @@ module.exports.flagCollaborationManager = function(req, res, next) {
     return res.status(400).json({error: 400, message: 'Bad request', details: 'Missing user'});
   }
 
-  collaborationModule.isManager(req.params.objectType, req.collaboration, req.user, function(err, manager) {
+  collaborationModule.member.isManager(req.params.objectType, req.collaboration, req.user, function(err, manager) {
     if (err) {
       return res.status(500).json({error: {code: 500, message: 'Error when checking if the user is a manager', details: err.message}});
     }

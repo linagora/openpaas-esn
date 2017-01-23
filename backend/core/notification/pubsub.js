@@ -74,7 +74,7 @@ function collaborationJoinHandler(data, callback) {
       onSuccessPublishIntoGlobal(callback));
   } else {
 
-    collaborationModule.getManagers(data.collaboration.objectType, data.collaboration.id, {}, function(err, managers) {
+    collaborationModule.member.getManagers(data.collaboration.objectType, data.collaboration.id, {}, function(err, managers) {
       if (err || !managers || managers.legnth === 0) {
         logger.warn('Notification could not be created : no target user found.');
         return;

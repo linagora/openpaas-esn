@@ -1,34 +1,27 @@
 'use strict';
 
-var elastic = require('../elasticsearch');
-var _ = require('lodash');
-var CONSTANTS = require('./constants');
+const elastic = require('../elasticsearch');
+const _ = require('lodash');
+const CONSTANTS = require('./constants');
 
-var defaultLimit = 50;
-var defaultOffset = 0;
+module.exports = {
+  find
+};
 
 /**
  * Search communities in the given domains where the title match the query.search terms.
  */
-module.exports.find = function(domains, query, callback) {
+function find(domains, query, callback) {
 
-  elastic.client(function(err, client) {
+  elastic.client((err, client) => {
     if (err) {
       return callback(err);
     }
 
-    var elasticsearchOrFilters = domains.map(function(domain) {
-      return {
-        term: {
-          domain_ids: domain._id
-        }
-      };
-    });
-
-    query = query || {limit: defaultLimit, offset: defaultOffset};
-    var terms = (query.search instanceof Array) ? query.search.join(' ') : query.search;
-
-    var elasticsearchQuery = {
+    query = query || {limit: CONSTANTS.DEFAULT_LIMIT, offset: CONSTANTS.DEFAULT_OFFSET};
+    const elasticsearchOrFilters = domains.map(domain => ({term: {domain_ids: domain._id}}));
+    const terms = (query.search instanceof Array) ? query.search.join(' ') : query.search;
+    const elasticsearchQuery = {
       sort: [
         {title: 'asc'}
       ],
@@ -57,17 +50,18 @@ module.exports.find = function(domains, query, callback) {
       size: query.limit,
       body: elasticsearchQuery
 
-    }, function(err, response) {
+    }, (err, response) => {
       if (err) {
         return callback(err);
       }
 
-      var list = response.hits.hits;
-      var communities = list.map(function(hit) { return _.extend(hit._source, { _id: hit._source.id }); });
+      const list = response.hits.hits;
+      const communities = list.map(function(hit) { return _.extend(hit._source, { _id: hit._source.id }); });
+
       return callback(null, {
         total_count: response.hits.total,
         list: communities
       });
     });
   });
-};
+}

@@ -1,11 +1,11 @@
 'use strict';
 
 var communityModule = require('../../core/community');
+var permission = communityModule.permission;
 var collaborationConstants = require('../../core/collaboration/constants');
 var imageModule = require('../../core/image');
 var acceptedImageTypes = ['image/jpeg', 'image/gif', 'image/png'];
 var escapeStringRegexp = require('escape-string-regexp');
-var permission = require('../../core/community/permission');
 var logger = require('../../core/logger');
 var _ = require('lodash');
 var async = require('async');
