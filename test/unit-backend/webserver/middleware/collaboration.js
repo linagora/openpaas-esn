@@ -488,10 +488,11 @@ describe('The collaboration middleware', function() {
         isCollaborationManager: true
       };
       var res = this.helpers.express.jsonResponse(
-        function(code) {
+        function() {
           done(new Error('Should not called res.json()'));
         }
       );
+
       middleware(req, res, done);
     });
 
@@ -586,7 +587,7 @@ describe('The collaboration middleware', function() {
         }
       };
       var res = this.helpers.express.jsonResponse(
-        function(code) {
+        function() {
           done(new Error());
         }
       );
