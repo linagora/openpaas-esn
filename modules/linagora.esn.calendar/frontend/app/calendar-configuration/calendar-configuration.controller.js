@@ -58,6 +58,7 @@
       } else {
         calendarRight = calendarService.getRight(self.calendarHomeId, self.calendar);
       }
+
       angular.copy(self.calendar, self.oldCalendar);
       self.delegations = [];
       self.selection = 'none';
@@ -113,6 +114,7 @@
           });
         });
       });
+
       if (self.newCalendar) {
         self.calendar.href = CalendarCollectionShell.buildHref(self.calendarHomeId, uuid4.generate());
         self.calendar.color = '#' + Math.random().toString(16).substr(-6);
@@ -210,9 +212,11 @@
 
     function addUserGroup() {
       self.delegations = CaldelegationEditionHelperInstance.addUserGroup(self.newUsersGroups, self.selection);
+
       if (self.newCalendar) {
         throw new Error('edition of right on new calendar are not implemented yet');
       }
+
       reset();
     }
 
