@@ -10,11 +10,11 @@
         // the method to inject inside all domains.
         activity-stream(activitystream='community', writable='community.writable', streams='streams', calendar-id='community._id')
       .col-lg-3.col-md-3.col-sm-3.hidden-xs(ng-hide='true')
-        collaboration-members-widget(object-type="community", collaboration="community", in-slices-of='4')
+        esn-collaboration-members-widget(object-type="community", collaboration="community", in-slices-of='4')
         .vertiz-space
-        collaboration-membership-requests-widget(ng-if="showMembershipRequestsWidget()" object-type="community", collaboration="community")
+        esn-collaboration-membership-requests-widget(ng-if="showMembershipRequestsWidget()" object-type="community", collaboration="community")
         .vertiz-space
-        collaboration-invite-users(object-type="community", collaboration="community")
+        esn-collaboration-invite-users(object-type="community", collaboration="community")
         .vertiz-space
         injections-widget(injection-anchor-id="communityPageRightPanel", injection-subject="community")
         .vertiz-space

@@ -596,8 +596,8 @@ describe('The Community Angular module', function() {
   });
 
   describe('communityService service', function() {
-    beforeEach(angular.mock.inject(function(communityService, collaborationAPI, $rootScope) {
-      this.collaborationAPI = collaborationAPI;
+    beforeEach(angular.mock.inject(function(communityService, esnCollaborationClientService, $rootScope) {
+      this.esnCollaborationClientService = esnCollaborationClientService;
       this.communityService = communityService;
       this.$rootScope = $rootScope;
     }));
@@ -641,9 +641,9 @@ describe('The Community Angular module', function() {
         expect(rejected).to.be.true;
       });
 
-      it('should call collaborationAPI.join(\'community\', :communityid, :userid) if the user is not a member', function(done) {
+      it('should call esnCollaborationClientService.join(\'community\', :communityid, :userid) if the user is not a member', function(done) {
         this.community.member_status = '???';
-        this.collaborationAPI.join = function(collaborationType, cid, uid) {
+        this.esnCollaborationClientService.join = function(collaborationType, cid, uid) {
           expect(collaborationType).to.equal('community');
           expect(cid).to.equal('community1');
           expect(uid).to.equal('user8');
@@ -673,7 +673,7 @@ describe('The Community Angular module', function() {
 
       it('should call communityAPI.leave(\'community\', :communityid, :userid) if the user is a member', function(done) {
         this.community.member_status = 'member';
-        this.collaborationAPI.leave = function(collaborationType, cid, uid) {
+        this.esnCollaborationClientService.leave = function(collaborationType, cid, uid) {
           expect(collaborationType).to.equal('community');
           expect(cid).to.equal('community1');
           expect(uid).to.equal('user2');
@@ -858,9 +858,9 @@ describe('The Community Angular module', function() {
         expect(rejected).to.be.true;
       });
 
-      it('should call collaborationAPI.requestMembership(\'community\', :communityid, :userid) if the user is not a member', function(done) {
+      it('should call esnCollaborationClientService.requestMembership(\'community\', :communityid, :userid) if the user is not a member', function(done) {
         this.community.member_status = '???';
-        this.collaborationAPI.requestMembership = function(collaborationType, cid, uid) {
+        this.esnCollaborationClientService.requestMembership = function(collaborationType, cid, uid) {
           expect(collaborationType).to.equal('community');
           expect(cid).to.equal('community1');
           expect(uid).to.equal('user8');
@@ -877,8 +877,8 @@ describe('The Community Angular module', function() {
         };
       });
 
-      it('should call collaborationAPI.cancelRequestMembership(\'community\', :communityid, :userid)', function(done) {
-        this.collaborationAPI.cancelRequestMembership = function(collaborationType, cid, uid) {
+      it('should call esnCollaborationClientService.cancelRequestMembership(\'community\', :communityid, :userid)', function(done) {
+        this.esnCollaborationClientService.cancelRequestMembership = function(collaborationType, cid, uid) {
           expect(collaborationType).to.equal('community');
           expect(cid).to.equal('community1');
           expect(uid).to.equal('user8');
@@ -1422,12 +1422,12 @@ describe('The Community Angular module', function() {
   describe('The communityMembershipRequestsWidget directive', function() {
     beforeEach(function() {
       var self = this;
-      this.collaborationAPI = {
+      this.esnCollaborationClientService = {
         get: function() {},
         getRequestMemberships: function() {}
       };
       angular.mock.module(function($provide) {
-        $provide.value('collaborationAPI', self.collaborationAPI);
+        $provide.value('esnCollaborationClientService', self.esnCollaborationClientService);
       });
       module('jadeTemplates');
       module('esn.core');
@@ -1452,8 +1452,8 @@ describe('The Community Angular module', function() {
       this.html = '<community-membership-requests-widget community="community"/>';
     }));
 
-    it('should call collaborationAPI#getRequestMemberships', function(done) {
-      this.collaborationAPI.getRequestMemberships = function() {
+    it('should call esnCollaborationClientService#getRequestMemberships', function(done) {
+      this.esnCollaborationClientService.getRequestMemberships = function() {
         return done();
       };
       this.$compile(this.html)(this.scope);
@@ -1461,7 +1461,7 @@ describe('The Community Angular module', function() {
     });
 
     it('should set error when call the API fails', function(done) {
-      this.collaborationAPI.getRequestMemberships = function() {
+      this.esnCollaborationClientService.getRequestMemberships = function() {
         return $q.reject();
       };
 
@@ -1476,7 +1476,7 @@ describe('The Community Angular module', function() {
 
     it('should set requests in the scope when API call succeeds', function(done) {
       var result = [{user: {_id: 1, emails: ['foo@bar.com']}}, {user: {_id: 2, emails: ['baz@bar.com']}}];
-      this.collaborationAPI.getRequestMemberships = function() {
+      this.esnCollaborationClientService.getRequestMemberships = function() {
         return $q.when({ data: result });
       };
 
@@ -1561,7 +1561,7 @@ describe('The Community Angular module', function() {
 
   describe('The communityMembershipRequestsActions directive', function() {
     beforeEach(function() {
-      var collaborationAPI = {
+      var esnCollaborationClientService = {
         get: function() {},
         join: function() {}
       };
@@ -1573,17 +1573,17 @@ describe('The Community Angular module', function() {
       angular.mock.module('esn.community');
       angular.mock.module('esn.user');
       angular.mock.module(function($provide) {
-        $provide.value('collaborationAPI', collaborationAPI);
+        $provide.value('esnCollaborationClientService', esnCollaborationClientService);
         $provide.value('userAPI', userAPI);
       });
       module('jadeTemplates');
     });
 
-    beforeEach(angular.mock.inject(function($rootScope, $compile, collaborationAPI) {
+    beforeEach(angular.mock.inject(function($rootScope, $compile, esnCollaborationClientService) {
       this.$rootScope = $rootScope;
       this.$compile = $compile;
       this.scope = $rootScope.$new();
-      this.collaborationAPI = collaborationAPI;
+      this.esnCollaborationClientService = esnCollaborationClientService;
       this.scope.community = {
         _id: '123'
       };
@@ -1595,9 +1595,9 @@ describe('The Community Angular module', function() {
 
     describe('The directive controller', function() {
       describe('The accept function', function() {
-        it('should call collaborationAPI#join', function(done) {
+        it('should call esnCollaborationClientService#join', function(done) {
           var self = this;
-          this.collaborationAPI.join = function(collaborationType, community, user) {
+          this.esnCollaborationClientService.join = function(collaborationType, community, user) {
             expect(collaborationType).to.equal('community');
             expect(community).to.equal(self.scope.community._id);
             expect(user).to.equal(self.scope.user._id);
@@ -1609,8 +1609,8 @@ describe('The Community Angular module', function() {
           iscope.accept();
         });
 
-        it('should set $scope.done on collaborationAPI#join success', function() {
-          this.collaborationAPI.join = function() {
+        it('should set $scope.done on esnCollaborationClientService#join success', function() {
+          this.esnCollaborationClientService.join = function() {
             return $q.when();
           };
           var element = this.$compile(this.html)(this.scope);
@@ -1621,8 +1621,8 @@ describe('The Community Angular module', function() {
           expect(iscope.done).to.be.true;
         });
 
-        it('should set $scope.error on collaborationAPI#join failure', function() {
-          this.collaborationAPI.join = function() {
+        it('should set $scope.error on esnCollaborationClientService#join failure', function() {
+          this.esnCollaborationClientService.join = function() {
             return $q.reject();
           };
           var element = this.$compile(this.html)(this.scope);
@@ -1635,9 +1635,9 @@ describe('The Community Angular module', function() {
       });
 
       describe('The decline function', function() {
-        it('should call collaborationAPI#cancelRequestMembership', function(done) {
+        it('should call esnCollaborationClientService#cancelRequestMembership', function(done) {
           var self = this;
-          this.collaborationAPI.cancelRequestMembership = function(collaborationType, community, user) {
+          this.esnCollaborationClientService.cancelRequestMembership = function(collaborationType, community, user) {
             expect(collaborationType).to.equal('community');
             expect(community).to.equal(self.scope.community._id);
             expect(user).to.equal(self.scope.user._id);
@@ -1649,8 +1649,8 @@ describe('The Community Angular module', function() {
           iscope.decline();
         });
 
-        it('should set $scope.error on collaborationAPI#cancelRequestMembership failure', function() {
-          this.collaborationAPI.cancelRequestMembership = function() {
+        it('should set $scope.error on esnCollaborationClientService#cancelRequestMembership failure', function() {
+          this.esnCollaborationClientService.cancelRequestMembership = function() {
             return $q.reject();
           };
           var element = this.$compile(this.html)(this.scope);
@@ -1661,8 +1661,8 @@ describe('The Community Angular module', function() {
           expect(iscope.error).to.be.true;
         });
 
-        it('should set $scope.done on collaborationAPI#cancelRequestMembership success', function() {
-          this.collaborationAPI.cancelRequestMembership = function() {
+        it('should set $scope.done on esnCollaborationClientService#cancelRequestMembership success', function() {
+          this.esnCollaborationClientService.cancelRequestMembership = function() {
             return $q.when();
           };
           var element = this.$compile(this.html)(this.scope);
@@ -1680,12 +1680,12 @@ describe('The Community Angular module', function() {
 
     beforeEach(function() {
       var self = this;
-      this.collaborationAPI = {
+      this.esnCollaborationClientService = {
         cancelRequestMembership: function() {},
         get: function() {}
       };
       angular.mock.module(function($provide) {
-        $provide.value('collaborationAPI', self.collaborationAPI);
+        $provide.value('esnCollaborationClientService', self.esnCollaborationClientService);
       });
       module('jadeTemplates');
     });
@@ -1702,20 +1702,20 @@ describe('The Community Angular module', function() {
       this.html = '<community-pending-invitation-list community="community"></community-pending-invitation-list>';
     }));
 
-    it('should call collaborationAPI.getRequestMemberships', function(done) {
+    it('should call esnCollaborationClientService.getRequestMemberships', function(done) {
 
-      this.collaborationAPI.getRequestMemberships = function() {
+      this.esnCollaborationClientService.getRequestMemberships = function() {
         return done();
       };
       this.$compile(this.html)(this.scope);
       this.scope.$digest();
     });
 
-    it('should set the collaborationAPI.getRequestMemberships result in the scope', function(done) {
+    it('should set the esnCollaborationClientService.getRequestMemberships result in the scope', function(done) {
       this.$compile(this.html)(this.scope);
 
       var result = [1, 2, 3];
-      this.collaborationAPI.getRequestMemberships = function() {
+      this.esnCollaborationClientService.getRequestMemberships = function() {
         return $q.when({ data: result });
       };
       this.scope.$digest();
@@ -1723,9 +1723,9 @@ describe('The Community Angular module', function() {
       done();
     });
 
-    it('should display error when collaborationAPI.getRequestMemberships fails', function(done) {
+    it('should display error when esnCollaborationClientService.getRequestMemberships fails', function(done) {
       var element = this.$compile(this.html)(this.scope);
-      this.collaborationAPI.getRequestMemberships = function() {
+      this.esnCollaborationClientService.getRequestMemberships = function() {
         return $q.reject();
       };
       this.scope.$digest();
@@ -1739,14 +1739,14 @@ describe('The Community Angular module', function() {
 
     beforeEach(function() {
       var self = this;
-      this.collaborationAPI = {
+      this.esnCollaborationClientService = {
         cancelRequestMembership: function() {
         },
         get: function() {
         }
       };
       angular.mock.module(function($provide) {
-        $provide.value('collaborationAPI', self.collaborationAPI);
+        $provide.value('esnCollaborationClientService', self.esnCollaborationClientService);
       });
       module('jadeTemplates');
     });
@@ -1772,7 +1772,7 @@ describe('The Community Angular module', function() {
     describe('The cancel button', function() {
       describe('on click', function() {
         it('should call the cancelRequestMembership', function(done) {
-          this.collaborationAPI.cancelRequestMembership = function() {
+          this.esnCollaborationClientService.cancelRequestMembership = function() {
             done();
           };
           var element = this.$compile(this.html)(this.scope);
@@ -1781,7 +1781,7 @@ describe('The Community Angular module', function() {
         });
 
         it('should hide the button on success', function() {
-          this.collaborationAPI.cancelRequestMembership = function() {
+          this.esnCollaborationClientService.cancelRequestMembership = function() {
             return $q.when();
           };
           var element = this.$compile(this.html)(this.scope);
@@ -1793,7 +1793,7 @@ describe('The Community Angular module', function() {
         });
 
         it('should enable the button on failure', function() {
-          this.collaborationAPI.cancelRequestMembership = function() {
+          this.esnCollaborationClientService.cancelRequestMembership = function() {
             return $q.reject();
           };
           var element = this.$compile(this.html)(this.scope);
@@ -1809,7 +1809,7 @@ describe('The Community Angular module', function() {
 
   describe('The communityInviteUsers directive', function() {
     beforeEach(function() {
-      var collaborationAPI = {
+      var esnCollaborationClientService = {
         get: function() {
         },
         join: function() {
@@ -1824,17 +1824,17 @@ describe('The Community Angular module', function() {
 
       angular.mock.module('esn.community');
       angular.mock.module(function($provide) {
-        $provide.value('collaborationAPI', collaborationAPI);
+        $provide.value('esnCollaborationClientService', esnCollaborationClientService);
         $provide.value('communityService', communityService);
       });
       module('jadeTemplates');
     });
 
-    beforeEach(angular.mock.inject(function($rootScope, $compile, collaborationAPI, communityService) {
+    beforeEach(angular.mock.inject(function($rootScope, $compile, esnCollaborationClientService, communityService) {
       this.$rootScope = $rootScope;
       this.$compile = $compile;
       this.scope = $rootScope.$new();
-      this.collaborationAPI = collaborationAPI;
+      this.esnCollaborationClientService = esnCollaborationClientService;
       this.communityService = communityService;
       this.scope.community = {
         _id: '123'
@@ -1861,10 +1861,10 @@ describe('The Community Angular module', function() {
 
     describe('The directive controller', function() {
       describe('The getInvitablePeople function', function() {
-        it('should call collaborationAPI#getInvitablePeople', function(done) {
+        it('should call esnCollaborationClientService#getInvitablePeople', function(done) {
           var query = 'testquery';
           var self = this;
-          this.collaborationAPI.getInvitablePeople = function(collaborationType, communityId, options) {
+          this.esnCollaborationClientService.getInvitablePeople = function(collaborationType, communityId, options) {
             expect(collaborationType).to.equal('community');
             expect(communityId).to.equal(self.scope.community._id);
             expect(options.search).to.equal(query);
@@ -1877,14 +1877,14 @@ describe('The Community Angular module', function() {
           iscope.getInvitablePeople(query);
         });
 
-        it('should set displaynames on users if collaborationAPI#getInvitablePeople works', function() {
+        it('should set displaynames on users if esnCollaborationClientService#getInvitablePeople works', function() {
           var query = 'testquery';
           var user1 = {_id: '123456', emails: ['pipo1@pipo.com'], firstname: 'pipo1', lastname: 'pipo1'};
           var user2 = {_id: '456789', emails: ['pipo2@pipo.com']};
           var res = {
             data: [user1, user2]
           };
-          this.collaborationAPI.getInvitablePeople = function() {
+          this.esnCollaborationClientService.getInvitablePeople = function() {
             return {
               then: function(successfunction) {
                 successfunction(res);
@@ -1903,13 +1903,13 @@ describe('The Community Angular module', function() {
       });
 
       describe('The inviteUsers function', function() {
-        it('should call collaborationAPI#requestMembership for each user in the scope', function() {
+        it('should call esnCollaborationClientService#requestMembership for each user in the scope', function() {
           var user1 = {_id: '123456', emails: ['pipo1@pipo.com'], firstname: 'pipo1', lastname: 'pipo1'};
           var user2 = {_id: '456789', emails: ['pipo2@pipo.com']};
           var users = [user1, user2];
           var self = this;
           var call = 0;
-          this.collaborationAPI.requestMembership = function(collaborationType, communityId, userId) {
+          this.esnCollaborationClientService.requestMembership = function(collaborationType, communityId, userId) {
             expect(collaborationType).to.equal('community');
             expect(communityId).to.equal(self.scope.community._id);
             expect(userId).to.exist;
@@ -1934,8 +1934,8 @@ describe('The Community Angular module', function() {
           $q.all = oldQAll;
         });
 
-        it('should not call collaborationAPI#requestMembership if there are no user in the scope', function(done) {
-          this.collaborationAPI.requestMembership = function() {
+        it('should not call esnCollaborationClientService#requestMembership if there are no user in the scope', function(done) {
+          this.esnCollaborationClientService.requestMembership = function() {
             done(new Error('unexpected call'));
           };
 
@@ -1947,8 +1947,8 @@ describe('The Community Angular module', function() {
           done();
         });
 
-        it('should not call collaborationAPI#requestMembership if there already is a running call', function(done) {
-          this.collaborationAPI.requestMembership = function() {
+        it('should not call esnCollaborationClientService#requestMembership if there already is a running call', function(done) {
+          this.esnCollaborationClientService.requestMembership = function() {
             done(new Error('unexpected call'));
           };
 
@@ -1967,7 +1967,7 @@ describe('The Community Angular module', function() {
           var users = [user1, user2];
           var self = this;
           var call = 0;
-          this.collaborationAPI.requestMembership = function(collaborationType, communityId, userId) {
+          this.esnCollaborationClientService.requestMembership = function(collaborationType, communityId, userId) {
             expect(collaborationType).to.equal('community');
             expect(communityId).to.equal(self.scope.community._id);
             expect(userId).to.exist;
@@ -2008,7 +2008,7 @@ describe('The Community Angular module', function() {
           var users = [user1, user2];
           var self = this;
           var call = 0;
-          this.collaborationAPI.requestMembership = function(collaborationType, communityId, userId) {
+          this.esnCollaborationClientService.requestMembership = function(collaborationType, communityId, userId) {
             expect(collaborationType).to.equal('community');
             expect(communityId).to.equal(self.scope.community._id);
             expect(userId).to.exist;

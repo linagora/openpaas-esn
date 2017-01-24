@@ -86,7 +86,7 @@ angular.module('esn.project')
         $scope.show = tracked > 0;
       });
   })
-  .controller('projectMembersController', function($scope, collaborationAPI, session, usSpinnerService) {
+  .controller('projectMembersController', function($scope, esnCollaborationClientService, session, usSpinnerService) {
       var project_id = $scope.project._id;
       $scope.spinnerKey = 'membersSpinner';
 
@@ -110,7 +110,7 @@ angular.module('esn.project')
         $scope.restActive = true;
         usSpinnerService.spin($scope.spinnerKey);
 
-        collaborationAPI.getMembers('project', project_id, opts).then(function(result) {
+        esnCollaborationClientService.getMembers('project', project_id, opts).then(function(result) {
           $scope.total = parseInt(result.headers('X-ESN-Items-Count'), 10);
           $scope.offset += result.data.length;
 
