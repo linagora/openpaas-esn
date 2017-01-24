@@ -164,7 +164,7 @@
   "Error while searching members": "Error while searching members",
   "My communities": "My communities",
   "Accept picture": "Accept picture",
-  "You are no allowed to see the content of this community.": "You are no allowed to see the content of this community.",
+  "You are not allowed to see the content of this community.": "You are not allowed to see the content of this community.",
   "Show all members": "Show all members",
   "Error while getting members": "Error while getting members",
   "You are not allowed to see the members of this community": "You are not allowed to see the members of this community",
@@ -334,5 +334,6 @@
   "Length must be greater than or equal to": "Length must be greater than or equal to",
   "Please match requested format": "Please match requested format",
   "No attachments": "No attachments",
-  "Download": "Download"
+  "Download": "Download",
+  "No members": "No members"
 }
