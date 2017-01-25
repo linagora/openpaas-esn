@@ -27,6 +27,7 @@ describe('The calendar configuration controller', function() {
     notificationFactoryMock,
     stateMock,
     calendarMock,
+    CalendarRightShellMock,
     SM_XS_MEDIA_QUERY,
     CALENDAR_RIGHT;
 
@@ -124,6 +125,8 @@ describe('The calendar configuration controller', function() {
     };
 
     calendarHomeId = '12345';
+
+    CalendarRightShellMock = sinon.spy();
   });
 
   beforeEach(function() {
@@ -138,6 +141,7 @@ describe('The calendar configuration controller', function() {
       $provide.value('calendar', calendarMock);
       $provide.value('userAPI', userAPIMock);
       $provide.value('userUtils', userUtilsMock);
+      $provide.value('CalendarRightShell', CalendarRightShellMock);
     });
   });
 
@@ -158,8 +162,47 @@ describe('The calendar configuration controller', function() {
     calendarConfigurationController.calendarHomeId = calendarHomeId;
   });
 
-  describe('isDefaultCalendar value', function() {
-    it('should return true if it is the default calendar', function() {
+  describe('the activate function', function() {
+
+    it('should initialize newCalendar with true it is a new calendar', function() {
+      calendarConfigurationController.$onInit();
+
+      expect(calendarConfigurationController.newCalendar).to.be.true;
+    });
+
+    it('should initialize newCalendar with false it is not a new calendar', function() {
+      calendarConfigurationController.calendar = {
+        id: '123456789'
+      };
+
+      calendarConfigurationController.$onInit();
+
+      expect(calendarConfigurationController.newCalendar).to.be.false;
+    });
+
+    it('should initialize self.calendar with self.calendar if it is not a new calendar', function() {
+      calendarConfigurationController.calendar = {
+        id: '123456789'
+      };
+
+      calendarConfigurationController.$onInit();
+
+      expect(calendarConfigurationController.calendar).to.have.been.deep.equal(calendarConfigurationController.calendar);
+    });
+
+    it('should initialize newUsersGroups with an empty array', function() {
+      calendarConfigurationController.$onInit();
+
+      expect(calendarConfigurationController.newUsersGroups).to.deep.equal;
+    });
+
+    it('should select main tab when initializing', function() {
+      calendarConfigurationController.$onInit();
+
+      expect(calendarConfigurationController.selectedTab).to.equal('main');
+    });
+
+    it('should initialize isDefaultCalendar to true if it is the default calendar', function() {
       calendarConfigurationController.calendar = {
         id: 'events'
       };
@@ -169,7 +212,7 @@ describe('The calendar configuration controller', function() {
       expect(calendarConfigurationController.isDefaultCalendar).to.be.true;
     });
 
-    it('should return false if it is not the default calendar', function() {
+    it('should initialize isDefaultCalendar to false if it is not the default calendar', function() {
       calendarConfigurationController.calendar = {
         id: '123456789'
       };
@@ -179,17 +222,84 @@ describe('The calendar configuration controller', function() {
       expect(calendarConfigurationController.isDefaultCalendar).to.be.false;
     });
 
-    it('should correctly initialize controller if newCalendar is true', function() {
+    it('should initialize calendarRight with a new CalendarRightShell if newCalendar is true', function() {
       calendarConfigurationController.$onInit();
 
-      expect(calendarConfigurationController.calendar.href).to.equal('/calendars/12345/00000000-0000-4000-a000-000000000000.json');
-      expect(calendarConfigurationController.calendar.color).to.exist;
+      expect(CalendarRightShellMock).to.be.calledWithNew;
     });
 
-    it('should select main tab when initializing', function() {
+    it('should initialize calendarRight with an old CalendarRightShell if newCalendar is false', function() {
+      calendarConfigurationController.calendar = {
+        id: '123456789'
+      };
+
       calendarConfigurationController.$onInit();
 
-      expect(calendarConfigurationController.selectedTab).to.equal('main');
+      expect(calendarService.getRight).to.be.calledWith(calendarHomeId, calendarConfigurationController.calendar);
+    });
+
+    it('should copy self.calendar in self.oldCalendar', function() {
+      calendarConfigurationController.calendar = {
+        id: '123456789'
+      };
+
+      calendarConfigurationController.$onInit();
+
+      expect(calendarConfigurationController.oldCalendar).to.deep.equal(calendarConfigurationController.calendar);
+    });
+
+    it('should initialize self.selection with \'none\'', function() {
+      calendarConfigurationController.$onInit();
+
+      expect(calendarConfigurationController.selection).to.equal('none');
+    });
+
+    it('should initialize self.delegationTypes with an array contains the different rights', function() {
+      var delegationTypesExpected = [{
+        value: CALENDAR_RIGHT.NONE,
+        name: 'None',
+        access: 'all'
+      }, {
+        value: CALENDAR_RIGHT.ADMIN,
+        name: 'Administration',
+        access: 'users'
+      }, {
+        value: CALENDAR_RIGHT.READ_WRITE,
+        name: 'Read and Write',
+        access: 'users'
+      }, {
+        value: CALENDAR_RIGHT.READ,
+        name: 'Read only',
+        access: 'all'
+      }, {
+        value: CALENDAR_RIGHT.FREE_BUSY,
+        name: 'Free/Busy',
+        access: 'all'
+      }];
+
+      calendarConfigurationController.$onInit();
+
+      expect(calendarConfigurationController.delegationTypes).to.deep.equal(delegationTypesExpected);
+    });
+
+    it('should initialize self.publicRights with an array contains the different rights', function() {
+      var publicRightsExpected = [
+        {
+          value: CALENDAR_RIGHT.CUSTOM,
+          name: 'Read'
+        },
+        {
+          value: CALENDAR_RIGHT.WRITE,
+          name: 'Write'
+        }, {
+          value: CALENDAR_RIGHT.FREE_BUSY,
+          name: 'Private'
+        }
+      ];
+
+      calendarConfigurationController.$onInit();
+
+      expect(calendarConfigurationController.publicRights).to.deep.equal(publicRightsExpected);
     });
 
     it('should correcly initialize isAdmin if user is admin', function() {
@@ -248,31 +358,27 @@ describe('The calendar configuration controller', function() {
       expect(userUtilsMock.displayNameOf).to.have.been.calledWith(user);
       expect(calendarConfigurationController.delegations).to.equals(addUserGroupResult);
     });
-  });
 
-  describe('getMainView', function() {
-    it('should select main tab', function() {
+    it('should correctly initialize self.calendar if newCalendar is true', function() {
       calendarConfigurationController.$onInit();
 
-      calendarConfigurationController.selectedTab = 'delegation';
-      calendarConfigurationController.getMainView();
+      expect(calendarConfigurationController.calendar.href).to.equal('/calendars/12345/00000000-0000-4000-a000-000000000000.json');
+      expect(calendarConfigurationController.calendar.color).to.exist;
+    });
 
-      expect(calendarConfigurationController.selectedTab).to.equal('main');
+    it('should correctly initialize self.calendar if newCalendar is false', function() {
+      calendarConfigurationController.calendar = {
+        id: '123456789'
+      };
+
+      calendarConfigurationController.$onInit();
+
+      expect(calendarConfigurationController.calendar.href).to.not.equal('/calendars/12345/00000000-0000-4000-a000-000000000000.json');
+      expect(calendarConfigurationController.calendar.color).to.not.exist;
     });
   });
 
-  describe('getDelegationView', function() {
-    it('should select delegation tab', function() {
-      calendarConfigurationController.$onInit();
-
-      calendarConfigurationController.selectedTab = 'main';
-      calendarConfigurationController.getDelegationView();
-
-      expect(calendarConfigurationController.selectedTab).to.equal('delegation');
-    });
-  });
-
-  describe('submit', function() {
+  describe('the submit function', function() {
     it('should do nothing if the calendar name is empty', function() {
       calendarConfigurationController.$onInit();
       calendarConfigurationController.submit();
@@ -320,6 +426,11 @@ describe('The calendar configuration controller', function() {
           expect(path).to.equal('calendar.list');
         });
         calendarService.modifyCalendar = sinon.spy();
+
+        calendarConfigurationController.calendar = {
+          id: '123456789',
+          href: '/calendars/12345/00000000-0000-4000-a000-000000000000.json'
+        };
 
         calendarConfigurationController.$onInit();
 
@@ -577,54 +688,156 @@ describe('The calendar configuration controller', function() {
         );
       });
     });
+  });
 
-    describe('addUserGroup', function() {
-      it('should add multiple users to the delegation if newUsersGroups.length>0', function() {
-        calendarConfigurationController.calendar = {
-          href: '/calendars/12345/00000000-0000-4000-a000-000000000000.json',
-          color: 'aColor',
-          name: 'aName'
-        };
+  describe('the openDeleteConfirmationDialog function', function() {
+    it('should initialize self.modal', function() {
+      calendarConfigurationController.$onInit();
 
-        calendarConfigurationController.$onInit();
-        calendarConfigurationController.addUserGroup();
+      expect(calendarConfigurationController.modal).to.be.undefined;
 
-        expect(addUserGroup).to.have.been.calledOnce;
-      });
-    });
+      calendarConfigurationController.openDeleteConfirmationDialog();
 
-    describe('removeUserGroup', function() {
-      it('should call the removeUserGroup from CalDelegationEditionHelper', function() {
-        calendarConfigurationController.$onInit();
-        calendarConfigurationController.removeUserGroup();
-
-        expect(removeUserGroup).to.have.been.calledOnce;
-      });
+      expect(calendarConfigurationController.modal).to.not.be.undefined;
     });
   });
 
-  describe('scope.goToCalendarEdit', function() {
+  describe('the addUserGroup function', function() {
+    it('should add multiple users to the delegation if newUsersGroups.length > 0 and the calendar is not a new calendar', function() {
+      calendarConfigurationController.calendar = {
+        href: '/calendars/12345/00000000-0000-4000-a000-000000000000.json',
+        color: 'aColor',
+        name: 'aName'
+      };
+
+      calendarConfigurationController.$onInit();
+
+      calendarConfigurationController.addUserGroup();
+
+      expect(addUserGroup).to.have.been.calledOnce;
+    });
+
+    it('should throw an exception if the calendar is a new calendar', function() {
+      var error;
+
+      calendarConfigurationController.$onInit();
+
+      try {
+        calendarConfigurationController.addUserGroup();
+      } catch (err) {
+        error = err;
+      }
+
+      expect(error.message).to.equal('edition of right on new calendar are not implemented yet');
+    });
+  });
+
+  describe('the removeUserGroup function', function() {
+    it('should call the removeUserGroup from CalDelegationEditionHelper', function() {
+      calendarConfigurationController.$onInit();
+      calendarConfigurationController.removeUserGroup();
+
+      expect(removeUserGroup).to.have.been.calledOnce;
+    });
+  });
+
+  describe('the reset function', function() {
+    it('should reset the values of newUsersGroups and selection', function() {
+      calendarConfigurationController.calendar = {
+        id: '123456789'
+      };
+
+      calendarConfigurationController.$onInit();
+
+      calendarConfigurationController.addUserGroup();
+
+      expect(calendarConfigurationController.newUsersGroups).to.deep.equal;
+      expect(calendarConfigurationController.selection).to.deep.equal(CALENDAR_RIGHT.NONE);
+    });
+  });
+
+  describe('the removeCalendar function', function() {
+    it('should call calendarService.removeCalendar before $state to go back on the main view when deleting', function() {
+      calendarConfigurationController.calendar = {
+        id: '123456789'
+      };
+
+      calendarConfigurationController.$onInit();
+
+      calendarConfigurationController.delete();
+
+      expect(stateMock.go).to.have.not.been.called;
+
+      $rootScope.$digest();
+
+      expect(calendarService.removeCalendar).to.have.been.calledWith(calendarHomeId, calendarConfigurationController.calendar);
+      expect(stateMock.go).to.have.been.calledWith('calendar.main');
+    });
+  });
+
+  describe('the cancel function', function() {
+    it('should call $state to go back on the main view when deleting', function() {
+      calendarConfigurationController.calendar = {
+        id: '123456789'
+      };
+
+      calendarConfigurationController.$onInit();
+
+      calendarConfigurationController.cancel();
+
+      expect(stateMock.go).to.have.been.calledWith('calendar.main');
+    });
+  });
+
+  describe('the cancelMobile function', function() {
+    it('should call $state to go back on the list view when deleting in mobile', function() {
+      calendarConfigurationController.calendar = {
+        id: '123456789'
+      };
+
+      calendarConfigurationController.$onInit();
+
+      calendarConfigurationController.cancelMobile();
+
+      expect(stateMock.go).to.have.been.calledWith('calendar.list');
+    });
+  });
+
+  describe('the getMainView function', function() {
+    it('should select main tab', function() {
+      calendarConfigurationController.$onInit();
+
+      calendarConfigurationController.selectedTab = 'delegation';
+
+      calendarConfigurationController.getMainView();
+
+      expect(calendarConfigurationController.selectedTab).to.equal('main');
+    });
+  });
+
+  describe('the getDelegationView function', function() {
+    it('should select delegation tab', function() {
+      calendarConfigurationController.$onInit();
+
+      calendarConfigurationController.selectedTab = 'main';
+
+      calendarConfigurationController.getDelegationView();
+
+      expect(calendarConfigurationController.selectedTab).to.equal('delegation');
+    });
+  });
+
+  describe('the goToCalendarEdit function', function() {
     it('should call $state.go to go back view calendar.edit', function() {
       calendarConfigurationController.$onInit();
+
       calendarConfigurationController.goToCalendarEdit();
 
       expect(stateMock.go).to.have.been.calledWith('calendar.edit');
     });
   });
 
-  describe('delete', function() {
-    it('should call $state to go back on the main view when deleting', function() {
-      calendarConfigurationController.$onInit();
-      calendarConfigurationController.delete();
-
-      expect(stateMock.go).to.have.not.been.called;
-      $rootScope.$digest();
-
-      expect(stateMock.go).to.have.been.calledWith('calendar.main');
-    });
-  });
-
-  describe('onAddingUser', function() {
+  describe('the onAddingUser function', function() {
     it('should return false if the $tag do not contain the _id field', function() {
       var $tag = {};
 
