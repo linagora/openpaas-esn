@@ -2,7 +2,7 @@
 
 module.exports = {
   EVENT_MAIL_LISTENER: {
-    EXCHANGE: 'james:events'
+    FALLBACK_EXCHANGE: 'james:events'
   },
   MODE: {
     IMPORT: 'import'

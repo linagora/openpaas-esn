@@ -7,7 +7,8 @@ const mockery = require('mockery');
 
 describe('EventMailListener module', function() {
   let amqpClient, amqpClientProviderMock, userMock, loggerMock, caldavClientMock, caldavClientLib;
-  let notifyFunction, jsonMessage, calendarModulePath;
+  let notifyFunction, jsonMessage, calendarModulePath, moduleConfig, esnConfigMock, getConfig;
+  let exchanges, defaultExchange;
 
   beforeEach(function() {
 
@@ -51,6 +52,22 @@ describe('EventMailListener module', function() {
       })
     };
 
+    defaultExchange = 'james:events';
+
+    exchanges = ['james:events1', 'james:events2'];
+
+    moduleConfig = {
+      exchanges
+    };
+
+    getConfig = sinon.stub().returns(Q.when(moduleConfig));
+
+    esnConfigMock = () => ({
+      inModule: () => ({
+        get: getConfig
+      })
+    });
+
     caldavClientLib = function() {
       return caldavClientMock;
     };
@@ -60,10 +77,99 @@ describe('EventMailListener module', function() {
     this.moduleHelpers.addDep('amqpClientProvider', amqpClientProviderMock);
     this.moduleHelpers.addDep('user', userMock);
     this.moduleHelpers.addDep('logger', loggerMock);
+    this.moduleHelpers.addDep('esn-config', esnConfigMock);
 
     this.requireModule = function() {
       return require(calendarModulePath + '/backend/lib/event-mail-listener')(this.moduleHelpers.dependencies);
     };
+
+    this.checksIfNoMongoConfiguration = function(done) {
+      this.requireModule()
+        .init()
+        .then(function() {
+
+          expect(loggerMock.warn).to.have.been.calledWith('CAlEventMailListener : Missing configuration in mongoDB');
+          expect(amqpClient.subscribe).to.have.been.calledWith(defaultExchange);
+
+          done();
+        })
+        .catch(function(err) {
+          done(err || 'Err');
+        });
+    };
+  });
+
+  describe('the init and subscribe functions', function() {
+
+    it('should call esnConfig when initialize the listener', function(done) {
+      getConfig = sinon.spy(function() {
+        return Q.when();
+      });
+
+      this.requireModule()
+        .init()
+        .then(function() {
+
+          expect(getConfig).to.have.been.called;
+
+          done();
+        })
+        .catch(function(err) {
+          done(err || 'Err');
+        });
+    });
+
+    it('should log a warning messege and call the subscribe function with the default exchange if no mongoDB configuration', function(done) {
+      getConfig = sinon.stub().returns(Q.when(undefined));
+
+      amqpClient = {
+        subscribe: sinon.spy()
+      };
+
+      this.checksIfNoMongoConfiguration(done);
+    });
+
+    it('should log a warning messege and call the subscribe function with the default exchange if mongoDB configuration does not contain the exchanges', function(done) {
+      amqpClient = {
+        subscribe: sinon.spy()
+      };
+
+      getConfig = sinon.stub().returns(Q.when({}));
+
+      this.checksIfNoMongoConfiguration(done);
+    });
+
+    it('should log a warning messege and call the subscribe function with the default exchange if mongoDB configuration contains an empty array for the exchanges field', function(done) {
+      amqpClient = {
+        subscribe: sinon.spy()
+      };
+
+      moduleConfig = {
+        exchanges: []
+      };
+
+      getConfig = sinon.stub().returns(Q.when(moduleConfig));
+
+      this.checksIfNoMongoConfiguration(done);
+    });
+
+    it('should call the subscribe function with the right exchange from the mongoDB configuration', function(done) {
+      amqpClient = {
+        subscribe: sinon.spy()
+      };
+
+      this.requireModule()
+        .init()
+        .then(function() {
+
+          expect(amqpClient.subscribe).to.have.been.calledTwice;
+
+          done();
+        })
+        .catch(function(err) {
+          done(err || 'Err');
+        });
+    });
   });
 
   describe('_checkMandatoryFields function', function() {
