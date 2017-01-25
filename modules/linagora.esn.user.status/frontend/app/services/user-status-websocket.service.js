@@ -19,8 +19,12 @@
         sio = livenotification(USER_STATUS_NAMESPACE);
 
         sio.on(USER_STATUS_EVENTS.USER_CHANGE_STATE, function(data) {
-          var cached = userStatusService.cacheUserStatus(data);
           var status = {};
+          var cached = userStatusService.cacheUserStatus(data);
+
+          if (!cached) {
+            return;
+          }
 
           status[cached._id] = cached;
 
