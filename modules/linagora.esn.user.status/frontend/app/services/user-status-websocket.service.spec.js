@@ -58,5 +58,21 @@ describe('The linagora.esn.user-status userStatusWebsocketService service', func
         return true;
       }));
     });
+
+    it('should listen to USER_STATUS_NAMESPACE:USER_STATUS_EVENTS.USER_CHANGE_STATE and not broadcast it on $rootScope when status can not be cached', function() {
+      $rootScope.$broadcast = sinon.spy();
+      userStatusService.cacheUserStatus = sinon.spy(function() {});
+
+      userStatusWebsocketService.listen();
+      expect(userStatusNamespace.on).to.have.been.calledWith(USER_STATUS_EVENTS.USER_CHANGE_STATE, sinon.match.func.and(function(callback) {
+        var data = {_id: 1, status: 'connected'};
+
+        callback(data);
+        expect($rootScope.$broadcast).to.not.have.been.called;
+        expect(userStatusService.cacheUserStatus).to.have.been.calledWith(data);
+
+        return true;
+      }));
+    });
   });
 });
