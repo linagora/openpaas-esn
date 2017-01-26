@@ -27,7 +27,8 @@
       currentView = {
         start: view.intervalStart,
         end: view.intervalEnd,
-        name: view.name
+        name: view.name,
+        title: view.title
       };
 
       saveCurrentViewInUrl();

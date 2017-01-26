@@ -161,6 +161,25 @@ describe('The calendarCurrentView factory', function() {
       expect(view.start.format('YYYY-MM-DD')).to.equals(validDate);
     });
 
+    it('should get the correct format of the set view', function() {
+      var view = {
+          intervalStart: calMoment('1980-12-08'),
+          intervalEnd: calMoment('1980-12-09'),
+          name: 'name',
+          title: 'title'
+      },
+        expectedView = {
+          start: view.intervalStart,
+          end: view.intervalEnd,
+          name: view.name,
+          title: view.title
+        };
+
+      calendarCurrentView.set(view);
+
+      expect(calendarCurrentView.get()).to.deep.equal(expectedView);
+    });
+
     describe('comportement with invalid date', function() {
       /* global moment: false */
       beforeEach(function() {
