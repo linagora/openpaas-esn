@@ -68,5 +68,6 @@
   "This message was scaled down." : "This message was scaled down.",
   "Your account %s is currently unavailable.": "Your account %s is currently unavailable.",
   "You can click to retry": "You can click to retry",
-  "Go to your Inbox": "Go to your Inbox"
+  "Go to your Inbox": "Go to your Inbox",
+  "Configuration": "Configuration"
 }
