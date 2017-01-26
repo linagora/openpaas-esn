@@ -9,34 +9,65 @@ describe('The calendarVisibilityService', function() {
 
   beforeEach(function() {
     self = this;
-    angular.mock.module('esn.calendar');
+    this.storageData = {};
+
+    this.storage = {
+      iterate: function(callback) {
+        angular.forEach(self.storageData, callback);
+
+        return self.$q.when();
+      },
+      getItem: function(id) {
+        return $q.when(self.storageData[id]);
+      },
+      setItem: function(id, hidden) {
+        self.storageData[id] = hidden;
+
+        return $q.when(hidden);
+      }
+    };
+
+    this.localStorageServiceMock = {
+      getOrCreateInstance: sinon.stub().returns(this.storage)
+    };
+
+    angular.mock.module('esn.calendar', function($provide) {
+      $provide.value('localStorageService', self.localStorageServiceMock);
+    });
   });
 
-  beforeEach(angular.mock.inject(function(calendarVisibilityService, $rootScope, CALENDAR_EVENTS) {
+  beforeEach(angular.mock.inject(function(calendarVisibilityService, $rootScope, CALENDAR_EVENTS, $q) {
     self.calendarVisibilityService = calendarVisibilityService;
     self.$rootScope = $rootScope;
     self.CALENDAR_EVENTS = CALENDAR_EVENTS;
+    self.$q = $q;
   }));
 
   describe('getHiddenCalendars function', function() {
-    it('should initially return no calendar', function() {
-      expect(this.calendarVisibilityService.getHiddenCalendars()).to.deep.equal([]);
-    });
+    it('should return calendars as it was saved in the localstorage', function() {
+      var thenSpy = sinon.spy();
+      this.storageData.hiddenCalendarId = true;
+      this.storageData.visibleCalendarId = false;
+      this.calendarVisibilityService.getHiddenCalendars().then(thenSpy);
 
-    it('should return previous hidden calendar', function() {
-      var hiddenCalendars = [{id: 1}, {id: 2}];
-
-      hiddenCalendars.map(this.calendarVisibilityService.toggle);
-      expect(this.calendarVisibilityService.getHiddenCalendars()).to.deep.equal(hiddenCalendars);
+      this.$rootScope.$digest();
+      expect(thenSpy).to.have.been.calledWith(['hiddenCalendarId']);
+      expect(this.localStorageServiceMock.getOrCreateInstance).to.have.been.calledWith('calendarStorage');
     });
 
     it('should not return unhidden calendar', function() {
-      var hiddenCalendars = [{id: 1}, {id: 2}];
-
+      var hiddenCalendars = [{id: '1'}, {id: '2'}];
       hiddenCalendars.map(this.calendarVisibilityService.toggle);
+      this.$rootScope.$digest();
 
       this.calendarVisibilityService.toggle(hiddenCalendars[0]);
-      expect(this.calendarVisibilityService.getHiddenCalendars()).to.deep.equal([hiddenCalendars[1]]);
+      this.$rootScope.$digest();
+
+      var thenSpy = sinon.spy();
+
+      this.calendarVisibilityService.getHiddenCalendars().then(thenSpy);
+      this.$rootScope.$digest();
+      expect(thenSpy).to.have.been.calledWith(['2']);
     });
   });
 
@@ -44,23 +75,55 @@ describe('The calendarVisibilityService', function() {
     it('should broadcast the calendar and it new display status', function() {
       var cal = {id: 42};
 
-      this.$rootScope.$broadcast = sinon.spy();
+      this.$rootScope.$broadcast = sinon.spy(this.$rootScope.$broadcast);
 
       this.calendarVisibilityService.toggle(cal);
-      expect(this.$rootScope.$broadcast.firstCall).to.have.been.calledWith(this.CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, {calendar: cal, hidden: true});
+      this.$rootScope.$digest();
+      expect(this.$rootScope.$broadcast).to.have.been.calledWith(
+        this.CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW,
+        {calendarId: cal.id, hidden: true}
+      );
+
+      this.$rootScope.$broadcast.reset();
 
       this.calendarVisibilityService.toggle(cal);
-      expect(this.$rootScope.$broadcast.secondCall).to.have.been.calledWith(this.CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, {calendar: cal, hidden: false});
+      this.$rootScope.$digest();
+      expect(this.$rootScope.$broadcast).to.have.been.calledWith(
+        this.CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW,
+        {calendarId: cal.id, hidden: false}
+      );
+    });
+
+    it('should correctly record hidden calendar in localforage', function() {
+      var hiddenCalendars = [{id: '1'}, {id: '2'}];
+
+      hiddenCalendars.map(this.calendarVisibilityService.toggle);
+      this.$rootScope.$digest();
+      var thenSpy = sinon.spy();
+      this.calendarVisibilityService.getHiddenCalendars().then(thenSpy);
+      this.$rootScope.$digest();
+
+      expect(thenSpy).to.have.been.calledWith(['1', '2']);
     });
   });
 
   describe('The isHidden function', function() {
-    it('should true if and only if the calendar is hidden', function() {
+    it('should return true if and only if the calendar is hidden', function() {
       var cal = {id: 42};
+      var thenSpy = sinon.spy();
 
-      expect(this.calendarVisibilityService.isHidden(cal)).to.be.false;
+      this.calendarVisibilityService.isHidden(cal).then(thenSpy);
+      this.$rootScope.$digest();
+      expect(thenSpy).to.have.been.calledWith(false);
+
+      thenSpy.reset();
+
       this.calendarVisibilityService.toggle(cal);
-      expect(this.calendarVisibilityService.isHidden(cal)).to.be.true;
+      this.$rootScope.$digest();
+
+      this.calendarVisibilityService.isHidden(cal).then(thenSpy);
+      this.$rootScope.$digest();
+      expect(thenSpy).to.have.been.calledWith(true);
     });
   });
 });

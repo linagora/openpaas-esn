@@ -102,16 +102,18 @@
           .then(function(calendars) {
             $scope.calendars = calendars || [];
             $scope.calendars.forEach(function(calendar) {
-              $scope.eventSourcesMap[calendar.href] = {
+              $scope.eventSourcesMap[calendar.id] = {
                 events: calCachedEventSource.wrapEventSource(calendar.id, calendarEventSource(calendar.href, $scope.displayCalendarError)),
                 backgroundColor: calendar.color
               };
 
-              if (!calendarVisibilityService.isHidden(calendar)) {
-                calendarPromise.then(function(cal) {
-                  cal.fullCalendar('addEventSource', $scope.eventSourcesMap[calendar.href]);
-                });
-              }
+              calendarVisibilityService.isHidden(calendar).then(function(calIsHidden) {
+                if (!calIsHidden) {
+                  calendarPromise.then(function(cal) {
+                    cal.fullCalendar('addEventSource', $scope.eventSourcesMap[calendar.id]);
+                  });
+                }
+              });
             });
           })
           .catch($scope.displayCalendarError);
@@ -199,9 +201,9 @@
         })),
         $rootScope.$on(CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, withCalendar(function(calendar, event, data) { // eslint-disable-line
           if (data.hidden) {
-            calendar.fullCalendar('removeEventSource', $scope.eventSourcesMap[data.calendar.href]);
+            calendar.fullCalendar('removeEventSource', $scope.eventSourcesMap[data.calendarId]);
           } else {
-            calendar.fullCalendar('addEventSource', $scope.eventSourcesMap[data.calendar.href]);
+            calendar.fullCalendar('addEventSource', $scope.eventSourcesMap[data.calendarId]);
           }
         })),
         $rootScope.$on(CALENDAR_EVENTS.MINI_CALENDAR.DATE_CHANGE, withCalendar(function(calendar, event, newDate) { // eslint-disable-line
@@ -214,20 +216,20 @@
         $rootScope.$on(CALENDAR_EVENTS.CALENDARS.ADD, function(event, calendar) { // eslint-disable-line
           $scope.calendars.push(calendar);
 
-          $scope.eventSourcesMap[calendar.href] = {
+          $scope.eventSourcesMap[calendar.id] = {
             events: calCachedEventSource.wrapEventSource(calendar.id, calendarEventSource(calendar.href, $scope.displayCalendarError)),
             backgroundColor: calendar.color
           };
 
           calendarPromise.then(function(cal) {
-            cal.fullCalendar('addEventSource', $scope.eventSourcesMap[calendar.href]);
+            cal.fullCalendar('addEventSource', $scope.eventSourcesMap[calendar.id]);
           });
         }),
         $rootScope.$on(CALENDAR_EVENTS.CALENDARS.REMOVE, function(event, calendar) { // eslint-disable-line
           _.remove($scope.calendars, {id: calendar.id});
-          var removedEventSource = $scope.eventSourcesMap[calendar.href];
+          var removedEventSource = $scope.eventSourcesMap[calendar.id];
 
-          delete $scope.eventSourcesMap[calendar.href];
+          delete $scope.eventSourcesMap[calendar.id];
 
           calendarPromise.then(function(cal) {
             cal.fullCalendar('removeEventSource', removedEventSource);

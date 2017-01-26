@@ -20,7 +20,9 @@ describe('The calendar-lists component', function() {
 
     this.hiddenCalendar = {id: 42};
     this.calendarVisibilityServiceMock = {
-      getHiddenCalendars: sinon.stub().returns([this.hiddenCalendar]),
+      getHiddenCalendars: sinon.spy(function() {
+        return self.$q.when([self.hiddenCalendar.id]);
+      }),
       isHidden: sinon.spy(),
       toggle: sinon.spy()
     };
@@ -31,7 +33,7 @@ describe('The calendar-lists component', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function($rootScope, $compile, CalendarCollectionShell, CALENDAR_EVENTS, $q) {
+  beforeEach(angular.mock.inject(function($rootScope, $compile, CalendarCollectionShell, CALENDAR_EVENTS, $q, localStorageService) {
     this.$q = $q;
     this.$rootScope = $rootScope;
     this.$scope = this.$rootScope.$new();
@@ -39,6 +41,7 @@ describe('The calendar-lists component', function() {
     this.$compile = $compile;
     this.CalendarCollectionShell = CalendarCollectionShell;
     this.CALENDAR_EVENTS = CALENDAR_EVENTS;
+    this.localStorageService;
 
     this.initDirective = function(scope) {
       var html = '<calendars-list on-edit-click="click"/>';
@@ -91,7 +94,7 @@ describe('The calendar-lists component', function() {
       this.initDirective(this.$scope);
 
       this.$rootScope.$broadcast(this.CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, {
-        calendar: this.calendars[0],
+        calendarId: this.calendars[0].id,
         hidden: true
       });
       this.$rootScope.$apply();
@@ -99,7 +102,7 @@ describe('The calendar-lists component', function() {
       expect(this.eleScope.vm.hiddenCalendars[this.calendars[0].id]).to.be.true;
 
       this.$rootScope.$broadcast(this.CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, {
-        calendar: this.calendars[0],
+        calendarId: this.calendars[0].id,
         hidden: false
       });
       this.$rootScope.$apply();
