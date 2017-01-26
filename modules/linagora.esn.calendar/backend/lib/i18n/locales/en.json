@@ -92,5 +92,10 @@
   "Some meeting information contained in this message cannot be processed.": "Some meeting information contained in this message cannot be processed.",
   "This message contains some meeting information. Please wait while we fetch the event details...": "This message contains some meeting information. Please wait while we fetch the event details...",
   "Recurs %s": "Recurs %s",
-  "This event has been cancelled": "This event has been cancelled"
+  "This event has been cancelled": "This event has been cancelled",
+  "Configuration": "Configuration",
+  "Show calendar": "Show calendar",
+  "Hide calendar": "Hide calendar",
+  "New calendar": "New calendar"
+
 }
