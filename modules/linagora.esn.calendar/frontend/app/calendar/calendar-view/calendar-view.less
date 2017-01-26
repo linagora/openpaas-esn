@@ -1,3 +1,5 @@
+@spaceNeededForSubheader: 50px;
+
 .calendar-view {
   .flex-horizontal-centered;
   .aligner-items-start;
@@ -44,9 +46,14 @@
 
 @media (min-width: @screen-sm-min) {
   .mini-calendar {
+    margin-top: @spaceNeededForSubheader;
+
     .calendar {
       height: auto;
     }
+  }
+  .calendar {
+    margin-top: @spaceNeededForSubheader;
   }
 }
 
