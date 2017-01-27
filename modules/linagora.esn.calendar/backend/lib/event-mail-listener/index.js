@@ -23,7 +23,7 @@ module.exports = function(dependencies) {
         return _subscribe(CONSTANTS.EVENT_MAIL_LISTENER.FALLBACK_EXCHANGE);
       }
     })
-    .catch(error => {
+    .catch(() => {
       logger.error('CAlEventMailListener : error when initialize the listener');
     });
   }
