@@ -1,9 +1,8 @@
 'use strict';
 
 const wellKnown = require('../../core/well-known');
-const authorize = require('../middleware/authorization');
+const authorize = require('../middleware/authorization.js');
 
 module.exports = function(router) {
-  //TODO: reput authorize.requiresAPILogin
-  router.get('/.well-known/openpaas', wellKnown.getServices);
+  router.get('/.well-known/openpaas', authorize.requiresAPILogin, wellKnown.getServices);
 };
