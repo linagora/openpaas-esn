@@ -47,7 +47,7 @@
       getHiddenCalendars();
 
       var deregister = $rootScope.$on(CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, function(event, data) { // eslint-disable-line
-        self.hiddenCalendars[data.calendar.id] = data.hidden;
+        self.hiddenCalendars[data.calendarId] = data.hidden;
       });
 
       $scope.$on('$destroy', deregister);
@@ -68,8 +68,10 @@
     }
 
     function getHiddenCalendars() {
-      calendarVisibilityService.getHiddenCalendars().forEach(function(calendar) {
-        self.hiddenCalendars[calendar.id] = true;
+      calendarVisibilityService.getHiddenCalendars().then(function(hiddenCalendars) {
+        hiddenCalendars.forEach(function(calendarId) {
+          self.hiddenCalendars[calendarId] = true;
+        });
       });
     }
   }

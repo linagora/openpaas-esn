@@ -4,42 +4,46 @@
   angular.module('esn.calendar')
          .factory('calendarVisibilityService', calendarVisibilityService);
 
-  calendarVisibilityService.$inject = [
-    '$rootScope',
-    '_',
-    'CALENDAR_EVENTS'
-  ];
+  function calendarVisibilityService($rootScope, _, CALENDAR_EVENTS, localStorageService) {
+    var storage = localStorageService.getOrCreateInstance('calendarStorage');
 
-  function calendarVisibilityService($rootScope, _, CALENDAR_EVENTS) {
-    var cache = {};
-
-    var service = {
+    return {
       getHiddenCalendars: getHiddenCalendars,
       isHidden: isHidden,
       toggle: toggle
     };
 
-    return service;
-
     ////////////
 
     function isHidden(calendar) {
-      return Boolean(cache[calendar.id] && cache[calendar.id].hidden);
+      return storage.getItem(calendar.id).then(function(value) {
+        return Boolean(value);
+      });
     }
 
     function toggle(calendar) {
-      var hidden = !cache[calendar.id] || !cache[calendar.id].hidden;
+      storage.getItem(calendar.id).then(function(hiddenBefore) {
+        return storage.setItem(calendar.id, !hiddenBefore);
+      }).then(function(hidden) {
+        $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, {
+          calendarId: calendar.id,
+          hidden: hidden
+        });
 
-      cache[calendar.id] = {
-        calendar: calendar,
-        hidden: hidden
-      };
-
-      $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, cache[calendar.id]);
+        return hidden;
+      });
     }
 
     function getHiddenCalendars() {
-      return _.chain(cache).filter('hidden').map('calendar').value();
+      var result = [];
+      return storage.iterate(function(hidden, id) {
+        if (hidden) {
+          result.push(id);
+        }
+      }).then(function() {
+        return result;
+      });
+
     }
   }
 

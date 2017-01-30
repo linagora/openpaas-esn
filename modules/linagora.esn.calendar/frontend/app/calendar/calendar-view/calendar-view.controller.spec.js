@@ -55,7 +55,9 @@ describe('The calendarViewController', function() {
     });
 
     this.calendarVisibilityServiceMock = {
-      isHidden: sinon.stub().returns(false)
+      isHidden: sinon.spy(function() {
+        return self.$q.when(false);
+      })
     };
 
     this.CalendarShellMock = function() {
@@ -183,7 +185,20 @@ describe('The calendarViewController', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function($controller, $rootScope, $compile, $timeout, $window, UI_CONFIG, moment, CalendarShell, calMoment, CALENDAR_EVENTS, calEventUtils, elementScrollService) {
+  beforeEach(angular.mock.inject(function(
+    $controller,
+    $rootScope,
+    $compile,
+    $timeout,
+    $window,
+    UI_CONFIG,
+    moment,
+    CalendarShell,
+    calMoment,
+    CALENDAR_EVENTS,
+    calEventUtils,
+    elementScrollService,
+    $q) {
     this.rootScope = $rootScope;
     this.scope = $rootScope.$new();
     this.controller = $controller;
@@ -197,6 +212,7 @@ describe('The calendarViewController', function() {
     this.CALENDAR_EVENTS = CALENDAR_EVENTS;
     this.calEventUtils = calEventUtils;
     this.elementScrollService = elementScrollService;
+    this.$q = $q;
   }));
 
   afterEach(function() {
@@ -308,17 +324,22 @@ describe('The calendarViewController', function() {
     });
 
     it('should remove the corresponding source map correctly', function() {
-      var source = {};
+      var source = {
+        backgroundColor: 'black',
+        events: function() {
+          return [];
+        }
+      };
 
       this.controller('calendarViewController', {$scope: this.scope});
       this.scope.calendarReady(this.calendar);
       this.scope.$digest();
-      this.scope.eventSourcesMap = {href: source};
-      this.rootScope.$broadcast(this.CALENDAR_EVENTS.CALENDARS.REMOVE, {id: 2, href: 'href'});
+      this.scope.eventSourcesMap = {calendarId: source};
+      this.rootScope.$broadcast(this.CALENDAR_EVENTS.CALENDARS.REMOVE, {id: 'calendarId'});
       this.scope.calendarReady(this.calendar);
       this.scope.$digest();
 
-      expect(this.scope.eventSourcesMap.href).to.be.undefined;
+      expect(this.scope.eventSourcesMap['2']).to.be.undefined;
       expect(fullCalendarSpy).to.have.been.calledWith('removeEventSource', sinon.match.same(source));
     });
   });
@@ -339,12 +360,12 @@ describe('The calendarViewController', function() {
       this.rootScope.$broadcast(this.CALENDAR_EVENTS.CALENDARS.ADD, {href: 'href', id: 'id', color: 'color'});
       expect(calendarEventSourceMock).to.have.been.calledWith('href', this.scope.displayCalendarError);
       expect(this.calCachedEventSourceMock.wrapEventSource).to.have.been.calledWith('id', source);
-      expect(this.scope.eventSourcesMap.href).to.deep.equals({
+      expect(this.scope.eventSourcesMap.id).to.deep.equals({
         events: wrappedSource,
         backgroundColor: 'color'
       });
 
-      expect(fullCalendarSpy).to.have.been.calledWith('addEventSource', this.scope.eventSourcesMap.href);
+      expect(fullCalendarSpy).to.have.been.calledWith('addEventSource', this.scope.eventSourcesMap.id);
     });
   });
 
@@ -395,21 +416,26 @@ describe('The calendarViewController', function() {
     expect(this.scope.calendars[0].color).to.equal('color');
     expect(this.scope.calendars[1].href).to.equal('href2');
     expect(this.scope.calendars[1].color).to.equal('color2');
-    expect(this.scope.eventSourcesMap.href.backgroundColor).to.equal('color');
-    expect(this.scope.eventSourcesMap.href2.backgroundColor).to.equal('color2');
-    expect(this.scope.eventSourcesMap.href.events).to.be.a('Array');
-    expect(this.scope.eventSourcesMap.href2.events).to.be.a('Array');
+    expect(this.scope.eventSourcesMap.id.backgroundColor).to.equal('color');
+    expect(this.scope.eventSourcesMap.id2.backgroundColor).to.equal('color2');
+    expect(this.scope.eventSourcesMap.id.events).to.be.a('Array');
+    expect(this.scope.eventSourcesMap.id2.events).to.be.a('Array');
   });
 
   it('should add source for each calendar which is not hidden', function() {
     this.controller('calendarViewController', {$scope: this.scope});
     this.calendarVisibilityServiceMock.isHidden = sinon.stub();
-    this.calendarVisibilityServiceMock.isHidden.onFirstCall().returns(false);
-    this.calendarVisibilityServiceMock.isHidden.onSecondCall().returns(true);
+    this.calendarVisibilityServiceMock.isHidden
+      .onFirstCall()
+      .returns(this.$q.when(false));
+    this.calendarVisibilityServiceMock.isHidden
+      .onSecondCall()
+      .returns(this.$q.when(true));
+
     this.scope.calendarReady(this.calendar);
     this.scope.$digest();
-    expect(fullCalendarSpy).to.have.been.calledWith('addEventSource', this.scope.eventSourcesMap[this.calendars[0].href]);
-    expect(fullCalendarSpy).to.not.have.been.calledWith('addEventSource', this.scope.eventSourcesMap[this.calendars[1].href]);
+    expect(fullCalendarSpy).to.have.been.calledWith('addEventSource', this.scope.eventSourcesMap[this.calendars[0].id]);
+    expect(fullCalendarSpy).to.not.have.been.calledWith('addEventSource', this.scope.eventSourcesMap[this.calendars[1].id]);
     expect(fullCalendarSpy).to.have.been.calledOnce;
   });
 
@@ -427,7 +453,7 @@ describe('The calendarViewController', function() {
     this.controller('calendarViewController', {$scope: this.scope});
     this.scope.calendarReady(this.calendar);
     this.scope.$digest();
-    this.rootScope.$broadcast(this.CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, {hidden: false, calendar: {}});
+    this.rootScope.$broadcast(this.CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, {hidden: false, calendarId: 'calendarId' });
     this.scope.$digest();
 
     expect(this.calendar.fullCalendar).to.have.been.calledWith('addEventSource');
