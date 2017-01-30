@@ -80,6 +80,7 @@ module.exports = function(config) {
       'frontend/js/modules/attachment/list/attachment-list.module.js',
       'frontend/js/modules/collaboration/collaboration.module.js',
       'frontend/js/modules/infinite-list/infinite-list.module.js',
+      'frontend/js/modules/pagination/pagination.module.js',
       {pattern: 'frontend/js/modules/collaboration/collaboration.run.js', watched: false, included: false, served: false},
 
       'frontend/js/**/*.js',

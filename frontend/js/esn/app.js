@@ -34,6 +34,7 @@ angular.module('esnApp', [
   'esn.websocket',
   'esn.community',
   'esn.collaboration',
+  'esn.pagination',
   'esn.application',
   'esn.authentication',
   'esn.feedback',
