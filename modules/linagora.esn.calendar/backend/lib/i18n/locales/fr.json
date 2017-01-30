@@ -20,5 +20,9 @@
   "To": "À",
   "will start in": "commence dans",
   "Will you attend?": "Allez-vous participer?",
-  "Yes": "Oui"
+  "Yes": "Oui",
+  "Configuration": "Configuration",
+  "Show calendar": "Afficher le calendrier",
+  "Hide calendar": "Cacher le calendrier",
+  "New calendar": "Nouveau calendrier"
 }
