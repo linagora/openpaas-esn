@@ -33,7 +33,7 @@ describe('The calendar-lists component', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function($rootScope, $compile, CalendarCollectionShell, CALENDAR_EVENTS, $q, localStorageService) {
+  beforeEach(angular.mock.inject(function($rootScope, $compile, CalendarCollectionShell, CALENDAR_EVENTS, $q) {
     this.$q = $q;
     this.$rootScope = $rootScope;
     this.$scope = this.$rootScope.$new();
@@ -41,7 +41,6 @@ describe('The calendar-lists component', function() {
     this.$compile = $compile;
     this.CalendarCollectionShell = CalendarCollectionShell;
     this.CALENDAR_EVENTS = CALENDAR_EVENTS;
-    this.localStorageService;
 
     this.initDirective = function(scope) {
       var html = '<calendars-list on-edit-click="click"/>';
