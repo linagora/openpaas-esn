@@ -46,7 +46,7 @@
     "bootstrap-additions": "~0.2.3",
     "angular-truncate": "sparkalow/angular-truncate",
     "recaptcha_ajax": "http://www.google.com/recaptcha/api/js/recaptcha_ajax.js",
-    "openpaas-logo": "0.7.0",
+    "openpaas-logo": "0.8.0",
     "ngGeolocation": "~0.0.4",
     "angular-leaflet-directive": "~0.7.8",
     "leaflet": "~0.7.3",
