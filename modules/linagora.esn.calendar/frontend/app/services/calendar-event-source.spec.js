@@ -1,13 +1,15 @@
 'use strict';
 
-/* global chai: false */
+/* global chai: false, sinon: false */
 
 var expect = chai.expect;
 
 describe('The calendarEventSource', function() {
+  var $rootScope, $q, $httpBackend, calendarEventSource, calMoment, tokenAPI, calEventService;
+
   beforeEach(function() {
 
-    this.tokenAPI = {
+    tokenAPI = {
       _token: '123',
       getNewToken: function() {
         var token = this._token;
@@ -16,35 +18,42 @@ describe('The calendarEventSource', function() {
       }
     };
 
-    var self = this;
+    calEventService = {
+      listEvents: sinon.spy(function() {
+        return $q.when([]);
+      })
+    };
 
     angular.mock.module('linagora.esn.graceperiod');
     angular.mock.module('esn.calendar');
     angular.mock.module('esn.ical');
     angular.mock.module(function($provide) {
-      $provide.value('tokenAPI', self.tokenAPI);
+      $provide.value('tokenAPI', tokenAPI);
+      $provide.value('calEventService', calEventService);
+    });
+
+    angular.mock.inject(function(_$rootScope_, _$q_, _$httpBackend_, _calMoment_, _calEventService_, _calendarEventSource_) {
+      $rootScope = _$rootScope_;
+      $q = _$q_;
+      $httpBackend = _$httpBackend_;
+      calMoment = _calMoment_;
+      calEventService = _calEventService_;
+      calendarEventSource = _calendarEventSource_;
     });
   });
 
   it('should use the correct path', function(done) {
-    angular.mock.inject(function(calendarEventSource, $httpBackend, calMoment) {
-      this.$httpBackend = $httpBackend;
-      this.calendarEventSource = calendarEventSource;
-      this.calMoment = calMoment;
-    });
-
     var data = {
-      match: {start: '20140101T000000', end: '20140102T000000'}
+      match: {start: '20131231T000000', end: '20140103T000000'}
     };
-    this.$httpBackend.expect('REPORT', '/dav/api/calendars/test/events.json', data).respond({
+    $httpBackend.expect('REPORT', '/dav/api/calendars/test/events.json', data).respond({
       _links: {self: {href: '/prepath/path/to/calendar.json'}},
       _embedded: {'dav:item': []}
     });
 
-    var start = this.calMoment(new Date(2014, 0, 1));
-    var end = this.calMoment(new Date(2014, 0, 2));
-
-    var source = this.calendarEventSource('/dav/api/calendars/test/events.json', function() {
+    var start = calMoment(new Date(2014, 0, 1));
+    var end = calMoment(new Date(2014, 0, 2));
+    var source = calendarEventSource('/dav/api/calendars/test/events.json', function() {
     });
 
     source(start, end, false, function() {
@@ -52,27 +61,21 @@ describe('The calendarEventSource', function() {
       // right URL.
       done();
     });
-    this.$httpBackend.flush();
+    $httpBackend.flush();
   });
 
   it('should filter cancelled events', function(done) {
-    angular.mock.inject(function(calendarEventSource, $httpBackend, calMoment) {
-      this.$httpBackend = $httpBackend;
-      this.calendarEventSource = calendarEventSource;
-      this.calMoment = calMoment;
-    });
-
     var data = {
-      match: {start: '20140101T000000', end: '20140102T000000'}
+      match: {start: '20131231T000000', end: '20140103T000000'}
     };
-    this.$httpBackend.expect('REPORT', '/dav/api/calendars/test/events.json', data).respond({
+    $httpBackend.expect('REPORT', '/dav/api/calendars/test/events.json', data).respond({
       _links: {
-        self: { href: '/prepath/path/to/calendar.json' }
+        self: {href: '/prepath/path/to/calendar.json'}
       },
       _embedded: {
         'dav:item': [{
           _links: {
-            self: { href: '/prepath/path/to/calendar/myuid.ics' }
+            self: {href: '/prepath/path/to/calendar/myuid.ics'}
           },
           etag: '"123123"',
           data: [
@@ -91,44 +94,35 @@ describe('The calendarEventSource', function() {
       }
     });
 
-    var start = this.calMoment(new Date(2014, 0, 1));
-    var end = this.calMoment(new Date(2014, 0, 2));
+    var start = calMoment(new Date(2014, 0, 1));
+    var end = calMoment(new Date(2014, 0, 2));
 
-    var source = this.calendarEventSource('/dav/api/calendars/test/events.json');
+    var source = calendarEventSource('/dav/api/calendars/test/events.json');
 
     source(start, end, false, function(events) {
       expect(events).to.deep.equal([]);
       done();
     });
-    this.$httpBackend.flush();
+    $httpBackend.flush();
   });
 
   it('should propagate an error if calendar events cannot be retrieved', function(done) {
 
-    var start = this.calMoment('2015-01-01 09:00:00');
-    var end = this.calMoment('2015-01-01 09:30:00');
+    var start = calMoment('2015-01-01 09:00:00');
+    var end = calMoment('2015-01-01 09:30:00');
+    var startTest = calMoment('2014-12-31 09:00:00');
+    var endTest = calMoment('2015-01-02 09:30:00');
     var calendarId = 'test';
     var localTimezone = 'local';
 
-    angular.mock.module(function($provide) {
-      $provide.factory('calEventService', function() {
-        return {
-          listEvents: function(id, startMoment, endMoment, timezone) {
-            expect(id).to.equals('test');
-            expect(startMoment).to.deep.equal(start);
-            expect(endMoment).to.deep.equal(end);
-            expect(timezone).to.equals(localTimezone);
+    calEventService.listEvents = function(id, startMoment, endMoment, timezone) {
+      expect(id).to.equals('test');
+      expect(startMoment.isSame(startTest)).to.be.true;
+      expect(endMoment.isSame(endTest)).to.be.true;
+      expect(timezone).to.equals(localTimezone);
 
-            return $q.reject('');
-          }
-        };
-      });
-    });
-
-    angular.mock.inject(function(calendarEventSource, $rootScope) {
-      this.calendarEventSource = calendarEventSource;
-      this.$rootScope = $rootScope;
-    });
+      return $q.reject('');
+    };
 
     var noErrorsCallback = function(events) {
       expect(events).to.deep.equal([]);
@@ -139,9 +133,9 @@ describe('The calendarEventSource', function() {
       done();
     };
 
-    var factoryForCalendarEvents = this.calendarEventSource(calendarId, displayCalendarErrorMock);
+    var factoryForCalendarEvents = calendarEventSource(calendarId, displayCalendarErrorMock);
 
     factoryForCalendarEvents(start, end, localTimezone, noErrorsCallback);
-    this.$rootScope.$apply();
+    $rootScope.$apply();
   });
 });
