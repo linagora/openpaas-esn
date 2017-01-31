@@ -9,15 +9,16 @@ describe('The inboxListSidebarAttachmentController controller', function() {
   // Injected
   var scope, $controller;
   // Mocked
-  var $stateParams;
+  var $stateParams, PROVIDER_TYPES;
 
   beforeEach(module('linagora.esn.unifiedinbox', function($provide) {
     $stateParams = {
       mailbox: 'chosenMailbox'
     };
+    PROVIDER_TYPES = { JMAP: 'jmap' };
 
     $provide.value('$stateParams', $stateParams);
-    $provide.constant('PROVIDER_TYPES', { JMAP: 'jmap' });
+    $provide.constant('PROVIDER_TYPES', PROVIDER_TYPES);
   }));
 
   beforeEach(inject(function(_$rootScope_, _$controller_) {
@@ -37,6 +38,6 @@ describe('The inboxListSidebarAttachmentController controller', function() {
     var controller = initController();
 
     expect(controller.mailbox).to.equal('chosenMailbox');
-    expect(controller.providerType).to.equal('jmap');
+    expect(controller.providerType).to.equal(PROVIDER_TYPES.JMAP);
   });
 });

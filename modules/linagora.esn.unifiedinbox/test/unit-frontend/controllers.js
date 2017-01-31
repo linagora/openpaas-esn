@@ -25,7 +25,9 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       strongInfo: sinon.spy(function() { return { close: sinon.spy() }; })
     };
     $state = {
-      go: sinon.spy()
+      current: { name: 'state.attachment' },
+      go: sinon.spy(),
+      get: sinon.spy()
     };
     $modal = sinon.spy();
 
