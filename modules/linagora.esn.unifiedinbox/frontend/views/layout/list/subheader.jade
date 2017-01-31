@@ -14,6 +14,7 @@ block left
 block right
   .inbox-selection-aware-subheader(ng-switch="ctrl.isSelecting()")
     .inbox-selection-aware-subheader.inbox-not-selecting(ng-switch-when="false")
+      inbox-list-sidebar-attachment-button(ng-if="ctrl.showAttachmentButton", ng-class='{ selected : inbox.rightSidebar.isVisible }')
       inbox-filter-button.clickable(ng-if="::filters", filters="::filters")
     .inbox-selection-aware-subheader.inbox-selecting(ng-switch-when="true")
       .inbox-subheader-buttons

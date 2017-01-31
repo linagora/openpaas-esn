@@ -69,5 +69,7 @@
   "Your account %s is currently unavailable.": "Your account %s is currently unavailable.",
   "You can click to retry": "You can click to retry",
   "Go to your Inbox": "Go to your Inbox",
-  "Configuration": "Configuration"
+  "Configuration": "Configuration",
+  "Show all email attachments": "Show all email attachments",
+  "Hide all email attachments": "Hide all email attachments"
 }

@@ -265,4 +265,32 @@ describe('The Unified Inbox Angular module filters', function() {
     });
   });
 
+  describe('The inboxFilterSidebarAttachment filter', function() {
+
+    it('should return undefined if object has no attachment', function() {
+      expect($filter('inboxFilterSidebarAttachment')({})).to.equal(undefined);
+    });
+
+    it('should return false if object has hasAttachment=false', function() {
+      expect($filter('inboxFilterSidebarAttachment')({ hasAttachment: false })).to.equal(false);
+    });
+
+    it('should return false if object has hasAttachment=true and no attachments', function() {
+      expect($filter('inboxFilterSidebarAttachment')({ hasAttachment: true })).to.equal(false);
+    });
+
+    it('should return false if object has hasAttachment=true and only inline attachments', function() {
+      expect($filter('inboxFilterSidebarAttachment')({ hasAttachment: true, attachments: [{ isInline: true }] })).to.equal(false);
+    });
+
+    it('should return true if object has hasAttachment=true and at only one non-inline attachment', function() {
+      expect($filter('inboxFilterSidebarAttachment')({ hasAttachment: true, attachments: [{ isInline: false }] })).to.equal(true);
+    });
+
+    it('should return true if object has hasAttachment=true and at least one non-inline attachment', function() {
+      expect($filter('inboxFilterSidebarAttachment')({ hasAttachment: true, attachments: [{ isInline: true }, { isInline: false }] })).to.equal(true);
+    });
+
+  });
+
 });

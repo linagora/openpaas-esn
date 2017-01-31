@@ -1,0 +1,72 @@
+#sub-header inbox-list-sidebar-attachment-button {
+  margin-right: 15px;
+
+  &.selected {
+    .mdi-file-outline {
+      color: @accentColor;
+    }
+  }
+}
+
+.inbox-list-sidebar {
+  padding: 0;
+  float: right;
+  position: relative;
+  width: 18vw;
+
+  &.offscreen {
+    display: none;
+  }
+
+  .right-sidebar-container {
+    width: 18vw;
+    height: ~"calc(100vh - @{header-height} - @{sub-header-height} - 30px)";
+    position: fixed;
+    background-color: @m-white;
+    overflow: auto;
+
+    .attachments {
+      .attachment {
+        min-width: 15vw;
+      }
+    }
+  }
+}
+
+.right-sidebar-container {
+  margin-top: 15px;
+  margin-bottom: 15px;
+
+  .button {
+      height: 30px;
+
+      i {
+        padding: 5px;
+      }
+  }
+
+  .attachment-header {
+    width: 100%;
+
+    .mail-title, .mail-date {
+      font-weight: 700;
+      display: inline-block;
+    }
+
+    .mail-title {
+      vertical-align: bottom;
+      padding-left: 6px;
+      width: 65%;
+    }
+
+    .mail-date {
+      text-align: right;
+      padding-right: 6px;
+      width: 35%;
+    }
+  }
+}
+
+.has-sidebar-open {
+  width: 75%;
+}

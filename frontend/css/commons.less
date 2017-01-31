@@ -530,8 +530,16 @@ html:not(.ie9) .select::before, .select::before {
   display: inline-flex;
 }
 
+.visible-xl {
+  display: none !important; // As every other BS visible classes
+}
+
 @media (min-width: @screen-xl-min) {
   .hidden-xl {
     display: none !important; // As every other BS hidden classes
+  }
+
+  .visible-xl {
+    display: block !important; // As every other BS visible classes
   }
 }
