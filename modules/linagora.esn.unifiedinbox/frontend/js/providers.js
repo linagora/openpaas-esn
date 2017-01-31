@@ -83,6 +83,39 @@ angular.module('linagora.esn.unifiedinbox')
     });
   })
 
+  .factory('inboxHostedMailAttachmentProvider', function(withJmapClient, pagedJmapRequest,
+                                                         newProvider, ByDateElementGroupingTool,
+                                                         inboxFilteringService, mailboxesService,
+                                                         inboxJmapProviderContextBuilder,
+                                                         JMAP_GET_MESSAGES_ATTACHMENTS_LIST,
+                                                         ELEMENTS_PER_REQUEST, PROVIDER_TYPES) {
+    return newProvider({
+      type: PROVIDER_TYPES.JMAP,
+      name: 'Attachments',
+      fetch: function(filter) {
+        return pagedJmapRequest(function(position) {
+          return withJmapClient(function(client) {
+            return client.getMessageList({
+              filter: filter,
+              sort: ['date desc'],
+              collapseThreads: false,
+              fetchMessages: false,
+              position: position,
+              limit: ELEMENTS_PER_REQUEST
+            })
+              .then(function(messageList) {
+                return messageList.getMessages({ properties: JMAP_GET_MESSAGES_ATTACHMENTS_LIST });
+              });
+          });
+        });
+      },
+      buildFetchContext: function(options) {
+        return (options.id && mailboxesService.getMessageListFilter(options.id)) || inboxJmapProviderContextBuilder(options);
+      },
+      templateUrl: '/unifiedinbox/views/components/sidebar/attachment/sidebar-attachment-item'
+    });
+  })
+
   .factory('inboxHostedMailThreadsProvider', function($q, withJmapClient, pagedJmapRequest, Email, Thread, _, inboxJmapProviderContextBuilder,
                                                       newProvider, JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_REQUEST, PROVIDER_TYPES) {
     function _prepareThreads(data) {

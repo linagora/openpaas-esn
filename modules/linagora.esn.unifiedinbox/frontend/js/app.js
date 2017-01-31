@@ -36,7 +36,8 @@ angular.module('linagora.esn.unifiedinbox', [
   'esn.search',
   'esn.async-action',
   'esn.user',
-  'esn.session'
+  'esn.session',
+  'esn.attachment-list'
 ])
 
   .config(function($stateProvider, dynamicDirectiveServiceProvider) {
@@ -85,6 +86,23 @@ angular.module('linagora.esn.unifiedinbox', [
       state.onExit = function(modalHolder) {
         modalHolder.modal.hide();
       };
+
+      return state;
+    }
+
+    function stateOpeningRightSidebar(state) {
+      function toggleSidebarVisibility(visible) {
+        return function($rootScope, esnPreviousState) {
+          $rootScope.inbox.rightSidebar.isVisible = visible;
+
+          if (visible) {
+            esnPreviousState.set();
+          }
+        };
+      }
+
+      state.onEnter = toggleSidebarVisibility(true);
+      state.onExit = toggleSidebarVisibility(false);
 
       return state;
     }
@@ -187,11 +205,19 @@ angular.module('linagora.esn.unifiedinbox', [
         url: '/inbox',
         views: {
           'main@unifiedinbox': {
-            controller: 'unifiedInboxController',
+            controller: 'unifiedInboxController as ctrl',
             templateUrl: '/unifiedinbox/views/unified-inbox/index'
           }
         }
       })
+      .state('unifiedinbox.inbox.attachments', stateOpeningRightSidebar({
+        url: '/attachments',
+        views: {
+          'sidebar@unifiedinbox.inbox': {
+            template: '<inbox-list-sidebar-attachment />'
+          }
+        }
+      }))
       .state('unifiedinbox.inbox.move', stateOpeningModal({
         url: '/move',
         params: {
@@ -243,6 +269,14 @@ angular.module('linagora.esn.unifiedinbox', [
           hostedMailProvider: 'inboxHostedMailMessagesProvider'
         }
       })
+      .state('unifiedinbox.list.messages.attachments', stateOpeningRightSidebar({
+        url: '/attachments',
+        views: {
+          'sidebar@unifiedinbox.list.messages': {
+            template: '<inbox-list-sidebar-attachment />'
+          }
+        }
+      }))
       .state('unifiedinbox.list.messages.move', stateOpeningModal({
         url: '/move',
         params: {
@@ -339,6 +373,13 @@ angular.module('linagora.esn.unifiedinbox', [
     $rootScope.inbox = {
       list: {
         isElementOpened: false
+      },
+      rightSidebar: {
+        isVisible: false
       }
     };
+  })
+
+  .run(function(inboxHostedMailAttachmentProvider, esnAttachmentListProviders) {
+    esnAttachmentListProviders.add(inboxHostedMailAttachmentProvider);
   });

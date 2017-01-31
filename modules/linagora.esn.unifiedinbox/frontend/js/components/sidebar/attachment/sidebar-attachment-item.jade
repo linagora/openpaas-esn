@@ -1,0 +1,6 @@
+.group(ng-if="::ctrl.attachment | inboxFilterSidebarAttachment")
+  .attachments
+    .attachment-header.clickable(title="{{ ::ctrl.attachment.subject}}", ui-sref="unifiedinbox.list.messages.message({ mailbox: ctrl.attachment.mailboxIds[0], emailId: ctrl.attachment.id })")
+      .mail-title.ellipsis {{ ::ctrl.attachment.subject}}
+      .mail-date {{ ::ctrl.attachment.date | date: 'mediumDate' }}
+      inbox-attachment(ng-repeat="attachment in ctrl.attachment.attachments",  attachment=" ::attachment", title="{{ ::attachment.name }}")
