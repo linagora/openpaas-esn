@@ -29,8 +29,8 @@ exports.requiresAPILogin = function(req, res, next) {
     return next();
   }
 
-  if (config.auth && config.auth.strategies && config.auth.strategies.indexOf('bearer') !== -1) {
-    return passport.authenticate('bearer', { session: false })(req, res, next);
+  if (config.auth && config.auth.apiStrategies) {
+    return passport.authenticate(config.auth.apiStrategies, { session: false })(req, res, next);
   } else {
     return res.status(401).json({
       error: {

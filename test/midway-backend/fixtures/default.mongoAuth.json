@@ -31,7 +31,8 @@
     }
   },
   "auth": {
-    "strategies": ["mongo"]
+    "strategies": ["mongo"],
+    "apiStrategies": ["basic-mongo"]
   },
   "core": {
     "config": {
