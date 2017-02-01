@@ -1154,6 +1154,34 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         scope.$digest();
       });
 
+      it('should get mailbox.name and mailbox.parentId', function() {
+        jmapClient.getMailboxes = function() { return $q.when([]); };
+        $stateParams.mailbox = { name: 'Name', parentId: 123 };
+
+        initController('addFolderController');
+
+        expect(scope.mailbox).to.deep.equal({ name: 'Name', parentId: 123 });
+        scope.$digest();
+      });
+
+      it('should display an error notification with a "Reopen" link', function(done) {
+        $state.go = sinon.spy();
+        jmapClient.getMailboxes = function() { return $q.when([]); };
+        mailboxesService.createMailbox = function(success, failure) { return $q.reject(failure); };
+
+        initController('addFolderController');
+
+        scope.mailbox = new Mailbox({ name: 'Name', parentId: 123 });
+        scope.addFolder().then(done.bind(null, 'should reject'), function(err) {
+          err.action();
+          expect(err.linkText).to.be.equal('Reopen');
+          expect($state.go).to.have.been.calledWith('unifiedinbox.configuration.folders.add', { mailbox: { name: 'Name', parentId: 123 } });
+          done();
+        });
+        scope.$digest();
+        expect(esnPreviousState.go).to.have.been.calledWith('unifiedinbox');
+      });
+
     });
 
   });

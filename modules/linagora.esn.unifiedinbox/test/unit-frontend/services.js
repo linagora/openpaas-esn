@@ -2699,7 +2699,7 @@ describe('The Unified Inbox Angular module services', function() {
 
   describe('The mailboxesService factory', function() {
 
-    var inboxMailboxesCache, mailboxesService, jmapClient, $rootScope, jmap, Mailbox;
+    var inboxMailboxesCache, mailboxesService, jmapClient, $rootScope, jmap, Mailbox, notificationFactory;
 
     beforeEach(module(function($provide) {
       jmapClient = {
@@ -2707,10 +2707,17 @@ describe('The Unified Inbox Angular module services', function() {
       };
 
       $provide.value('withJmapClient', function(callback) { return callback(jmapClient); });
+      notificationFactory = {
+        weakSuccess: sinon.spy(),
+        weakError: sinon.spy(function() { return { setCancelAction: sinon.spy() }; }),
+        strongInfo: sinon.spy(function() { return { close: sinon.spy() }; })
+      };
+      $provide.value('notificationFactory', notificationFactory);
     }));
 
-    beforeEach(inject(function(_mailboxesService_, _$rootScope_, _inboxMailboxesCache_, _jmap_, _Mailbox_) {
+    beforeEach(inject(function(_mailboxesService_, _$state_, _$rootScope_, _inboxMailboxesCache_, _jmap_, _Mailbox_, _notificationFactory_) {
       inboxMailboxesCache = _inboxMailboxesCache_;
+      notificationFactory = _notificationFactory_;
       mailboxesService = _mailboxesService_;
       $rootScope = _$rootScope_;
       jmap = _jmap_;
@@ -3227,6 +3234,18 @@ describe('The Unified Inbox Angular module services', function() {
 
         mailboxesService.createMailbox('name', 123).then(null, function() {
           expect(inboxMailboxesCache.length).to.equal(0);
+
+          done();
+        });
+        $rootScope.$digest();
+      });
+
+      it('should display an error notification with a "Reopen" link', function(done) {
+        jmapClient.createMailbox = function() {
+          return $q.reject();
+        };
+        mailboxesService.createMailbox(mailbox).then(null, function() {
+          expect(notificationFactory.weakError).to.have.been.calledWith('Error', 'Creation of folder name failed');
 
           done();
         });

@@ -888,9 +888,11 @@ angular.module('linagora.esn.unifiedinbox')
       });
     }
 
-    function createMailbox(mailbox) {
-      return asyncJmapAction('Creation of folder ' + mailbox.displayName, function(client) {
+    function createMailbox(mailbox, onFailure) {
+      return asyncJmapAction('Creation of folder ' + mailbox.name, function(client) {
         return client.createMailbox(mailbox.name, mailbox.parentId);
+      }, {
+        onFailure: onFailure
       })
         .then(_updateMailboxCache);
     }

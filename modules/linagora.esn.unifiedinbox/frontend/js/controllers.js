@@ -303,10 +303,14 @@ angular.module('linagora.esn.unifiedinbox')
     mailboxesService.assignMailboxesList($scope, mailboxesService.filterSystemMailboxes);
   })
 
-  .controller('addFolderController', function($scope, mailboxesService, Mailbox, rejectWithErrorNotification, esnPreviousState) {
+  .controller('addFolderController', function($scope, $state, $stateParams, mailboxesService, Mailbox, rejectWithErrorNotification, esnPreviousState) {
     mailboxesService.assignMailboxesList($scope);
 
-    $scope.mailbox = new Mailbox({});
+    if ($stateParams.mailbox) {
+      $scope.mailbox = new Mailbox({ name: $stateParams.mailbox.name, parentId: $stateParams.mailbox.parentId });
+    } else {
+      $scope.mailbox = new Mailbox({});
+    }
 
     $scope.addFolder = function() {
       if (!$scope.mailbox.name) {
@@ -315,7 +319,12 @@ angular.module('linagora.esn.unifiedinbox')
 
       esnPreviousState.go('unifiedinbox');
 
-      return mailboxesService.createMailbox($scope.mailbox);
+      return mailboxesService.createMailbox($scope.mailbox, {
+        linkText: 'Reopen',
+        action: function() {
+          $state.go('unifiedinbox.configuration.folders.add', { mailbox: $scope.mailbox });
+        }
+      });
     };
   })
 
