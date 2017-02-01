@@ -28,7 +28,8 @@ function getServices(req, res) {
       getCalendarLinks(domainConfs, calendars)
     ]))
     .spread((domainConfs, calendarLinks) => {
-      const davserver = _.find(domainConfs, { name: 'davserver' }) && _.find(domainConfs, { name: 'davserver' }).value.frontend.url;
+      const davconf = _.find(domainConfs, { name: 'davserver' });
+      const davserver = davconf && davconf.value.frontend ? davconf.value.frontend.url : davconf.value.backend.url;
       const mail = _.find(domainConfs, { name: 'mail' }) && _.find(domainConfs, { name: 'mail' }).value;
       const jmap = _.find(domainConfs, { name: 'jmap' }) && _.find(domainConfs, { name: 'jmap' }).value;
       const imap = _.find(domainConfs, { name: 'imap' }) && _.find(domainConfs, { name: 'imap' }).value;
