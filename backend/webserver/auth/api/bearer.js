@@ -1,7 +1,7 @@
 'use strict';
 
 var BearerStrategy = require('passport-http-bearer').Strategy;
-var oauth = require('../../core/auth/oauth');
+var oauth = require('../../../core/auth/oauth');
 
 module.exports = {
   name: 'bearer',

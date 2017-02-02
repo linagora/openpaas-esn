@@ -1,39 +1,45 @@
 'use strict';
 
-var passport = require('passport');
-var config = require('../core').config('default');
-var mongoose = require('mongoose');
-var User = mongoose.model('User');
-var logger = require('../core/logger');
+const passport = require('passport'),
+      mongoose = require('mongoose'),
+      logger = require('../core/logger'),
+      _ = require('lodash');
 
-passport.serializeUser(function(user, done) {
+const config = require('../core').config('default'),
+      User = mongoose.model('User');
+
+passport.serializeUser((user, done) => {
   if (user && user.emails && user.emails.length && user.emails[0]) {
-    var email = user.emails[0].value || user.emails[0];
-    return done(null, email);
+    return done(null, user.emails[0].value || user.emails[0]);
   }
+
   return done(new Error('Unable to serialize a session without email'));
 });
 
-passport.deserializeUser(function(username, done) {
-  User.loadFromEmail(username, function(err, user) {
-    done(err, user);
-  });
-});
+passport.deserializeUser((username, done) => User.loadFromEmail(username, done));
 
 try {
   passport.use('basic', require('./auth/basic').strategy);
   passport.use('oauth2-client-password', require('./auth/oauth2-client-password').strategy);
+
   require('./auth/jwt').useStrategy();
 } catch (err) {
   logger.error('Can not load the client strategies', err.message);
 }
 
-if (config.auth && config.auth.strategies) {
-  config.auth.strategies.forEach(function(auth) {
+if (config.auth) {
+  loadStrategiesInFolder(config.auth.strategies, './auth/');
+  loadStrategiesInFolder(config.auth.apiStrategies, './auth/api/');
+}
+
+function loadStrategiesInFolder(strategies, folder) {
+  _.forEach(strategies, strategy => {
     try {
-      passport.use(auth, require('./auth/' + auth).strategy);
+      passport.use(strategy, require(folder + strategy).strategy);
+
+      logger.debug(`Loaded passport strategy ${strategy} in folder ${folder}`);
     } catch (err) {
-      logger.error('Can not load the ' + auth + ' strategy', err.message);
+      logger.error(`Can not load the ${strategy} strategy in ${folder}. ${err} `);
     }
   });
 }

@@ -58,7 +58,8 @@
     }
   },
   "auth": {
-    "strategies": ["local", "mongo", "bearer"]
+    "strategies": ["local", "mongo"],
+    "apiStrategies": ["basic-mongo", "bearer"]
   },
   "modules": [
     "linagora.esn.account",

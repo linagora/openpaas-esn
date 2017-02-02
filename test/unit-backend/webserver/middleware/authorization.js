@@ -98,7 +98,7 @@ describe('The authorization middleware', function() {
         config: function() {
           return {
             auth: {
-              strategies: ['bearer']
+              apiStrategies: ['bearer']
             }
           };
         }
