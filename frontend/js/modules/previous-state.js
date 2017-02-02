@@ -14,6 +14,10 @@ angular.module('esn.previous-state', ['ct.ui.router.extras'])
       }
     }
 
+    function forget() {
+      $previousState.forget();
+    }
+
     function transition(defaultState) {
       if (previousState) {
         return $state.go(previousState.state.name, previousState.params || {});
@@ -37,6 +41,7 @@ angular.module('esn.previous-state', ['ct.ui.router.extras'])
     return {
       get: get,
       set: set,
+      forget: forget,
       go: go
     };
   })

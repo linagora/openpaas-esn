@@ -25,7 +25,8 @@ describe('The esn.previous-state module', function() {
       go: sinon.spy()
     });
     $provide.value('$previousState', $previousState = {
-      get: sinon.stub().returns(STATE)
+      get: sinon.stub().returns(STATE),
+      forget: sinon.spy()
     });
   }));
 
@@ -73,6 +74,16 @@ describe('The esn.previous-state module', function() {
         esnPreviousState.go();
 
         expect(esnPreviousState.get()).to.equal(null);
+      });
+
+    });
+
+    describe('The forget function', function() {
+
+      it('should call $previousState.forget function', function() {
+        esnPreviousState.forget();
+
+        expect($previousState.forget).to.have.been.calledWith();
       });
 
     });
