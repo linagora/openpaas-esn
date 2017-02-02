@@ -246,4 +246,133 @@ describe('Caldav-client helper', function() {
           done);
     });
   });
+
+  describe('The getCalendarList function', function() {
+    beforeEach(function() {
+      request = {
+        method: 'GET',
+        url: [davEndpoint, 'calendars', userId].join('/'),
+        headers: {
+          Accept: 'application/json',
+          ESNToken: token
+        },
+        json: true
+      };
+    });
+
+    it('should fail if token retrieval fails', function(done) {
+      authMock.token.getNewToken = sinon.spy(function(opts, callback) {
+        return callback(new Error());
+      });
+
+      this.requireModule().getCalendarList(userId).then(() => done('Test should have failed'), () => done());
+    });
+
+    it('should call request with the built parameters and reject if it fails', function(done) {
+      const requestMock = function(opts, callback) {
+        expect(opts).to.deep.equal(request);
+
+        callback(new Error());
+      };
+
+      mockery.registerMock('request', requestMock);
+
+      this.requireModule().getCalendarList(userId).then(() => done('Test should have failed'), () => done());
+    });
+
+    it('should call request with the built parameters and reject if response is an error', function(done) {
+      const requestMock = function(opts, callback) {
+        expect(opts).to.deep.equal(request);
+
+        callback(null, {
+          statusCode: 500
+        });
+      };
+
+      mockery.registerMock('request', requestMock);
+
+      this.requireModule().getCalendarList(userId).then(() => done('Test should have failed'), () => done());
+    });
+
+    it('should call request with the built parameters and resolve with an empty list if response is not a calendar list', function(done) {
+      const requestMock = function(opts, callback) {
+        expect(opts).to.deep.equal(request);
+
+        callback(null, {
+          statusCode: 200,
+          body: {}
+        });
+      };
+
+      mockery.registerMock('request', requestMock);
+
+      this.requireModule().getCalendarList(userId).then(list => {
+        expect(list).to.deep.equal([]);
+
+        done();
+      });
+    });
+
+    it('should call request with the built parameters and resolve with a calendar list', function(done) {
+      const requestMock = function(opts, callback) {
+        expect(opts).to.deep.equal(request);
+
+        callback(null, {
+          statusCode: 200,
+          body: {
+            _links: {
+              self: {
+                href: '/dav/calendars/584abaa9e2d7d7686cff340f.json'
+              }
+            },
+            _embedded: {
+              'dav:calendar': [
+                {
+                  _links: {
+                    self: {
+                      href: '/dav/calendars/584abaa9e2d7d7686cff340f/events.json'
+                    }
+                  }
+                },
+                {
+                  _links: {
+                    self: {
+                      href: '/dav/calendars/584abaa9e2d7d7686cff340f/df68daee-a30d-4191-80de-9c1d689062e1.json'
+                    }
+                  },
+                  'dav:name': 'Personal',
+                  'caldav:description': 'Description of Personal',
+                  'apple:color': '#aa37bb'
+                }
+              ]
+            }
+          }
+        });
+      };
+
+      mockery.registerMock('request', requestMock);
+
+      this.requireModule().getCalendarList(userId).then(list => {
+        expect(list).to.deep.equal([
+          {
+            id: 'events',
+            uri: '/dav/calendars/584abaa9e2d7d7686cff340f/events',
+            name: 'Events',
+            description: undefined,
+            color: undefined
+          },
+          {
+            id: 'df68daee-a30d-4191-80de-9c1d689062e1',
+            uri: '/dav/calendars/584abaa9e2d7d7686cff340f/df68daee-a30d-4191-80de-9c1d689062e1',
+            name: 'Personal',
+            description: 'Description of Personal',
+            color: '#aa37bb'
+          }
+        ]);
+
+        done();
+      });
+    });
+
+  });
 });
