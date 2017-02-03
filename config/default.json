@@ -86,7 +86,8 @@
     "linagora.esn.user.status",
     "linagora.esn.controlcenter",
     "linagora.esn.unifiedinbox",
-    "linagora.esn.admin"
+    "linagora.esn.admin",
+    "linagora.esn.sync"
   ],
   "email": {
     "templatesDir": "./templates/email"

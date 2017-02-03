@@ -3,3 +3,4 @@ test/frontend/karma-include/*
 frontend/components/*
 modules/**/thirdparty/*.js'
 tmp/
+modules/linagora.esn.sync/downloads/**
