@@ -9,7 +9,18 @@ An OpenPaaS CLI is available to ease the configuration. Check the documentation 
 
 ## Local Configuration
 
-Local configuration of the application is available in the ./config/default.json file.
+Local configuration of the application is stored in the `./config/default.json` file.
+You should not modify this file directly but instead define the environment-based
+configuration file, e.g. `./config/default.dev.json` for development and
+`./config/default.production.json` for production deployment.
+
+The application relies on `NODE_ENV` environment variable to know which
+environment-based configuration file to be loaded. For example,
+if `NODE_ENV=test`, it will load `./config/default.test.json` file.
+
+*Note that the local configuration defined in `./config/default.json` will not
+be overridden by the environment-based configuration file but instead inherited
+from it.*
 
 ### Authentication
 
