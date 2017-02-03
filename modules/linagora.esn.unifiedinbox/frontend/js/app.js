@@ -96,6 +96,7 @@ angular.module('linagora.esn.unifiedinbox', [
           $rootScope.inbox.rightSidebar.isVisible = visible;
 
           if (visible) {
+            esnPreviousState.forget();
             esnPreviousState.set();
           }
         };
@@ -218,6 +219,15 @@ angular.module('linagora.esn.unifiedinbox', [
           }
         }
       }))
+      .state('unifiedinbox.inbox.attachments.message', stateOpeningListItem({
+        url: '/:emailId',
+        views: {
+          'preview-pane@unifiedinbox.inbox': {
+            templateUrl: '/unifiedinbox/views/email/view/index',
+            controller: 'viewEmailController as ctrl'
+          }
+        }
+      }))
       .state('unifiedinbox.inbox.move', stateOpeningModal({
         url: '/move',
         params: {
@@ -274,6 +284,15 @@ angular.module('linagora.esn.unifiedinbox', [
         views: {
           'sidebar@unifiedinbox.list.messages': {
             template: '<inbox-list-sidebar-attachment />'
+          }
+        }
+      }))
+      .state('unifiedinbox.list.messages.attachments.message', stateOpeningListItem({
+        url: '/:emailId',
+        views: {
+          'preview-pane@unifiedinbox.list.messages': {
+            templateUrl: '/unifiedinbox/views/email/view/index',
+            controller: 'viewEmailController as ctrl'
           }
         }
       }))
