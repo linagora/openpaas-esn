@@ -105,10 +105,15 @@ Running `grunt dev` will start the server in development mode. Whenever you
 make changes to server files, the server will be restarted. Make sure you have
 started the mongo, redis, rabbitmq and elasticsearch servers beforehand.
 
-In addition, you can run `grunt debug` to start the node-inspector debugger
-server. Visit the displayed URL in Chrome or Opera to start the graphical
-debugging session. Note that startup takes a while, you must wait until the ESN
-webserver starts to do anything meaningful.
+While developing, you have some environement variables, to help you speed up on your job.
+
+    ESN_CSS_CACHE_OFF=true grunt dev
+
+Will force the less->css to be generated on every call.
+
+    ESN_CSS_CACHE_ON=true grunt dev
+
+Will enable the less->css cache: the compilation will happen only once.
 
 ## Docker
 
