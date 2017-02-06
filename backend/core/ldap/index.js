@@ -6,6 +6,7 @@ const _ = require('lodash');
 const esnConfig = require('../esn-config');
 const logger = require('../logger');
 const utils = require('./utils');
+const helpers = require('./helpers');
 const q = require('q');
 
 const LDAP_DEFAULT_LIMIT = 50;
@@ -52,14 +53,14 @@ function findLDAPForUser(email, callback) {
       return callback(new Error('No configured LDAP'));
     }
 
-    var ldapConfigs = configs.map(data => {
+    let ldapConfigs = configs.map(data => {
       if (!data || !data.config) {
         return;
       }
 
-      var domainId = data.domainId;
+      const domainId = data.domainId;
       // each domain can have more than one LDAP directory
-      var ldaps = Array.isArray(data.config) ? data.config : [data.config];
+      const ldaps = Array.isArray(data.config) ? data.config : [data.config];
 
       // provide domainId for all LDAP configurations
       ldaps.forEach(ldap => {
@@ -69,13 +70,16 @@ function findLDAPForUser(email, callback) {
       });
 
       return ldaps;
-    }).filter(Boolean);
+    })
+    .filter(Boolean);
 
-    // make the array flat
-    ldapConfigs = [].concat.apply([], ldapConfigs);
+    // make the array flat and filter LDAP used for authentication
+    ldapConfigs = [].concat.apply([], ldapConfigs).filter(helpers.isLdapUsedForAuth);
 
     if (!ldapConfigs || ldapConfigs.length === 0) {
-      return callback(new Error('No configured LDAP'));
+      logger.warn('No LDAP configured for authentication!');
+
+      return callback(new Error('No LDAP configured for authentication'));
     }
 
     const emailExistsInLdap = (ldap, callback) => {
@@ -107,7 +111,7 @@ function authenticate(email, password, ldap, callback) {
     return callback(new Error('Can not authenticate from null values'));
   }
 
-  var ldapauth = new LdapAuth(ldap);
+  const ldapauth = new LdapAuth(ldap);
 
   ldapauth.authenticate(email, password, function(err, user) {
     ldapauth.close(function() {});
@@ -269,7 +273,7 @@ function search(user, query) {
       });
     }
 
-    const promises = ldaps.map(ldap => ldapSearch(domainId, ldap.configuration, query)
+    const promises = ldaps.filter(helpers.isLdapUsedForSearch).map(ldap => ldapSearch(domainId, ldap.configuration, query)
         .catch(err => {
           logger.error('Error while searching LDAP:', err);
 

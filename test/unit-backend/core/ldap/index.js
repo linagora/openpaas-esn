@@ -13,7 +13,7 @@ describe('The ldap core module', function() {
     getModule = () => this.helpers.requireBackend('core/ldap');
   });
 
-  describe('findLDAPForUser fn', function() {
+  describe('The findLDAPForUser fn', function() {
 
     var ldap;
     var esnConfigMock, ldapConfigsMock;
@@ -46,7 +46,7 @@ describe('The ldap core module', function() {
       ldap = this.helpers.requireBackend('core/ldap');
     });
 
-    it('should send back error if Ldap configuration is empty', function(done) {
+    it('should send back error if LDAP configuration is empty', function(done) {
       ldap.findLDAPForUser('foo@bar.com', function(err) {
         expect(err).to.exist;
         expect(esnConfigMock.getFromAllDomains).to.have.been.calledOnce;
@@ -64,38 +64,65 @@ describe('The ldap core module', function() {
       });
     });
 
-    it('should send back the ldap if LDAP configuration have been return as array of arrays where user is available in', function(done) {
+    it('should send back error if no LDAP configuration is configured for authentication', function(done) {
       ldapConfigsMock = [{
         config: [{
+          usage: { auth: false },
           configuration: {}
-        }]
-      }, {
-        config: [{
-          configuration: { include: true }
-        }, {
-          configuration: { include: true }
         }]
       }];
 
-      ldap.findLDAPForUser('foo@bar.com', function(err, ldaps) {
-        expect(err).to.not.exist;
+      ldap.findLDAPForUser('foo@bar.com', function(err) {
+        expect(err.message).to.equal('No LDAP configured for authentication');
         expect(esnConfigMock.getFromAllDomains).to.have.been.calledOnce;
-        expect(ldaps).to.exist;
-        expect(ldaps.length).to.equal(2);
-        done(err);
+        done();
       });
     });
 
-    it('should send back the ldap if LDAP configuration have been return as array of objects where user is available in', function(done) {
+    it('should send back an array of LDAP which are used for authentication and contain the user (when each domain contains an array of LDAP config)', function(done) {
+      ldapConfigsMock = [{
+        config: [{
+          name: 'LDAP1',
+          usage: { auth: false },
+          configuration: { include: true }
+        }]
+      }, {
+        config: [{
+          name: 'LDAP2.1',
+          usage: { auth: true },
+          configuration: { include: true }
+        }, {
+          name: 'LDAP2.2',
+          usage: { auth: true },
+          configuration: { include: false }
+        }]
+      }];
+
+      ldap.findLDAPForUser('foo@bar.com', function(err, ldaps) {
+        expect(err).to.not.exist;
+        expect(esnConfigMock.getFromAllDomains).to.have.been.calledOnce;
+        expect(ldaps).to.shallowDeepEqual([ldapConfigsMock[1].config[0]]);
+
+        done();
+      });
+    });
+
+    it('should send back an array of LDAP which are used for authentication and contain the user (when each domain contains 1 LDAP config)', function(done) {
       ldapConfigsMock = [{
         config: {
-          configuration: {}
+          name: 'LDAP1',
+          usage: { auth: true },
+          configuration: { include: false }
         }
       }, {
         config: {
+          name: 'LDAP2',
+          usage: { auth: true },
           configuration: { include: true }
         }
       }, {
+        name: 'LDAP3',
+        usage: { auth: false },
         config: {
           configuration: { include: true }
         }
@@ -104,8 +131,8 @@ describe('The ldap core module', function() {
       ldap.findLDAPForUser('foo@bar.com', function(err, ldaps) {
         expect(err).to.not.exist;
         expect(esnConfigMock.getFromAllDomains).to.have.been.calledOnce;
-        expect(ldaps).to.exist;
-        expect(ldaps.length).to.equal(2);
+        expect(ldaps).to.shallowDeepEqual([ldapConfigsMock[1].config]);
+
         done();
       });
     });
@@ -113,16 +140,19 @@ describe('The ldap core module', function() {
     it('should send back all LDAP configurations that contain user even when one of LDAP configuration causes error', function(done) {
       ldapConfigsMock = [{
         config: {
+          usage: { auth: true },
           name: 'config1'
         }
       }, {
         config: {
           name: 'config2',
+          usage: { auth: true },
           configuration: { include: true }
         }
       }, {
         config: {
           name: 'config3',
+          usage: { auth: true },
           configuration: { include: true }
         }
       }];
@@ -538,6 +568,7 @@ describe('The ldap core module', function() {
       ldapConfigsMock = [
         {
           name: 'linagora',
+          usage: { search: true },
           configuration: {
             url: 'ldap://localhost:389',
             adminDn: 'cn=admin,dc=nodomain',
@@ -597,6 +628,21 @@ describe('The ldap core module', function() {
         total_count: 0,
         list: []
       };
+
+      getModule().search(user, query).then(result => {
+        expect(result).to.deep.equal(expectResult);
+        done();
+      });
+    });
+
+    it('should return an empty list if there is no LDAP configuration configured for search', function(done) {
+      const query = {search: 'abc', limit: 20};
+      const expectResult = {
+        total_count: 0,
+        list: []
+      };
+
+      ldapConfigsMock[0].usage.search = false;
 
       getModule().search(user, query).then(result => {
         expect(result).to.deep.equal(expectResult);
