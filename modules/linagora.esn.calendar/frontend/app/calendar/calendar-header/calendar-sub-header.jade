@@ -1,22 +1,25 @@
-.calendar-header-mobile
-  .calendar-controls.flex.flex-space-between
-    .left
+extends /modules/subheader/responsive-subheader
+
+block left
+  .calendar-sub-header.hidden-md
+    .calendar-controls
       a(href='', contextual-sidebar, data-content-template="/calendar/app/calendar/calendar-header/calendar-sidebar")
         button.btn.btn-primary.waves-effect
           i.mdi.mdi-menu
-
       a.btn.flex-vertical-centered(cal-toggle-mini-calendar)
         .date-indicator(calendar-date-indicator) {{vm.dateIndicator}}
         button.mini-calendar-caret.btn.btn-primary.waves-effect
           i.mdi.mdi-menu-down
-    .right.flex
+block right
+  .calendar-sub-header.flex-vertical-centered.hidden-md
+    .calendar-controls
       a(cal-toggle-today)
         button.btn.btn-primary.waves-effect(ng-disabled='isCurrentViewAroundToday()')
           | #{__('Today')}
           i.mdi.mdi-calendar-today
       a(calendar-view-translation='prev')
-        button.btn.btn-primary.waves-effect
+        button.btn.btn-link.waves-effect
           i.mdi.mdi-chevron-left
       a(calendar-view-translation='next')
-        button.btn.btn-primary.waves-effect
+        button.btn.btn-link.waves-effect
           i.mdi.mdi-chevron-right

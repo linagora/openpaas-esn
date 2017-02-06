@@ -19,8 +19,4 @@
     | #{__('Delete this calendar')}
   span.pull-right
     button.btn.btn-default.btn-sm.m-t-10.visible-xs(type="button", ng-click="$ctrl.mobileCancel()") #{__('Return to calendar')}
-    button.btn.btn-default.btn-sm.m-t-10.hidden-xs(type="button", ng-click="$ctrl.cancel()") #{__('Return to calendar')}
-    button.btn.btn-primary.btn-sm.m-t-10(type="button", ng-click="$ctrl.submit()")
-      span(ng-if='$ctrl.newCalendar') #{__('Create')}
-      span(ng-if='!$ctrl.newCalendar') #{__('Save')}
   .clearfix

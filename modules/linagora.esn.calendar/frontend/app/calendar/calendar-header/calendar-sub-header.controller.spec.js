@@ -4,7 +4,7 @@
 
 var expect = chai.expect;
 
-describe('The calendarHeaderMobileController', function() {
+describe('The calendarSubHeaderController', function() {
   var calendarCurrentViewMock, $scope, calMoment;
 
   beforeEach(function() {
@@ -17,7 +17,7 @@ describe('The calendarHeaderMobileController', function() {
 
   beforeEach(angular.mock.inject(function($rootScope, $controller, _calMoment_) {
     $scope = $rootScope.$new();
-    $controller('calendarHeaderMobileController', {$scope: $scope});
+    $controller('calendarSubHeaderController', {$scope: $scope});
     calMoment = _calMoment_;
   }));
 

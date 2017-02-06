@@ -1,31 +1,8 @@
 .row
   .col-xs-12.no-padding-xs
     sub-header
-      cal-event-full-form-subheader.hidden-md
+      cal-event-full-form-subheader
     .nopadding.card.event-full-form.zoomIn(keep-scroll-position, ng-class="{ 'readonly': !isOrganizer }")
-      .card-header.hidden-xs
-        .row.flex-vertical-centered(ng-if='isOrganizer')
-          .col-xs-12.col-sm-7
-            h1(ng-if='isNew(editedEvent)') #{__('Create a new event')}
-            h1(ng-if='!isNew(editedEvent)') #{__('Save event')}
-          .col-xs-12.col-sm-5.buttons
-              button.btn.btn-primary.pull-right(type='button', ng-disabled="restActive", ng-click='goToCalendar(submit);')
-                span(ng-if='isNew(editedEvent)') #{__('Create')}
-                span(ng-if='!isNew(editedEvent)') #{__('Save')}
-              button.btn.btn-primary.pull-right(type='button', ng-disabled="restActive", ng-click='goToCalendar(deleteEvent);', ng-if="isInvolvedInATask(editedEvent) || !isNew(editedEvent)")
-                | #{__('Delete')}
-              button.btn.btn-default.pull-right(type='button', ng-click="goToCalendar()")
-                | #{__('Cancel')}
-        .row.flex-vertical-centered(ng-if='!isOrganizer')
-          .col-xs-7
-            h1 #{__('Consult')}
-          .col-xs-5.buttons
-            button.btn.btn-primary.pull-right(type='button', ng-disabled="restActive", ng-click='goToCalendar(submit);')
-              | #{__('Modify')}
-            button.btn.btn-default.pull-right(type='button', ng-click="goToCalendar()")
-              | #{__('Back')}
-
-
       .card-body.card-padding
         form.form(role="form", aria-hidden="true", ng-class="{ 'readonly': !isOrganizer }")
           .row

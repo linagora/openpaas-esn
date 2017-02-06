@@ -1,12 +1,16 @@
-.calendar-configuration-header
-  .flex-space-between.flex-vertical-centered
-    .left
-      button.btn.btn-primary(ng-click="$ctrl.cancelMobile()")
-        i.mdi.mdi-close
-    .right
-      button.btn.btn-primary(ng-if='!$ctrl.newCalendar', ng-click='$ctrl.submit()')
-        | #{__('Save')}
-        i.mdi.mdi-check
-      button.btn.btn-primary(ng-if='$ctrl.newCalendar', ng-click='$ctrl.submit()')
-        | #{__('Create')}
-        i.mdi.mdi-check
+extends /modules/subheader/responsive-subheader
+
+block left
+  button.btn.btn-link.hidden-xs(ng-click="$ctrl.cancel()")
+    .flex-vertical-centered.flex-space-between
+      i.mdi.mdi-close
+      | #{__('Cancel')}
+  button.btn.btn-link.visible-xs(ng-click="$ctrl.cancelMobile()")
+    i.mdi.mdi-close
+block right
+  button.btn.btn-link(ng-if='!$ctrl.newCalendar', ng-click='$ctrl.submit()')
+    | #{__('Save')}
+    i.mdi.mdi-check
+  button.btn.btn-link(ng-if='$ctrl.newCalendar', ng-click='$ctrl.submit()')
+    | #{__('Create')}
+    i.mdi.mdi-check
