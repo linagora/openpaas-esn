@@ -20,7 +20,9 @@ if `NODE_ENV=test`, it will load `./config/default.test.json` file.
 
 *Note that the local configuration defined in `./config/default.json` will not
 be overridden by the environment-based configuration file but instead inherited
-from it.*
+from it if they are object properties. On the other hand, array properties from
+environment-based configuration file will override the default files corresponding
+ones.*
 
 ### Authentication
 
