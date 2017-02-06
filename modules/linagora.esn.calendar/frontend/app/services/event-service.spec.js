@@ -1077,6 +1077,36 @@ describe('The calEventService service', function() {
       expect(thenSpy).to.have.been.calledWith(true);
     });
 
+    it('should provide a link to refresh the browser if graceperiod fail', function() {
+      self.$httpBackend.expectDELETE('/dav/api/path/to/00000000-0000-4000-a000-000000000000.ics?graceperiod=' + self.CALENDAR_GRACE_DELAY).respond(202, {id: '123456789'});
+
+      self.gracePeriodService.grace = sinon.stub().returns($q.when());
+
+      var thenSpy = sinon.spy();
+      var onSpy = sinon.spy();
+
+      self.calEventService.removeEvent('/path/to/00000000-0000-4000-a000-000000000000.ics', self.event, 'etag').then(thenSpy);
+      self.$rootScope.$on(self.CALENDAR_EVENTS.CALENDAR_REFRESH, onSpy);
+
+      self.$httpBackend.flush();
+      expect(self.gracePeriodService.grace).to.have.been.calledWith(sinon.match({
+        gracePeriodFail: {
+          text: 'Event deletion failed. Please refresh your calendar',
+          delay: -1,
+          hideCross: true,
+          actionText: 'Refresh calendar',
+          action: sinon.match.func.and(sinon.match(function(action) {
+            action();
+
+            return true;
+          }))
+        }
+      }));
+
+      expect(calCachedEventSourceMock.resetCache).to.have.been.calledOnce;
+      expect(onSpy).to.have.been.calledOnce;
+    });
+
   });
 
   describe('The changeParticipation fn', function() {
