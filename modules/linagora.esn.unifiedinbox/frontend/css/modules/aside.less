@@ -106,12 +106,6 @@
       font-size: @inboxAsideIconFontSize;
     }
 
-    .menu-item {
-      .menu-item-after:after {
-        background-color: @body-bg;
-      }
-    }
-
     .clickable {
       .inbox-ng-leave(-100%, 0);
       .inbox-ng-enter(-100%, 0);
@@ -128,6 +122,20 @@
 
       &.droptarget {
         background-color: @inboxAsideDragTargetBgColor;
+      }
+
+      .menu-item {
+        .menu-item-after:after {
+          background-color: @body-bg;
+        }
+      }
+
+      &.droptarget {
+        .menu-item {
+          .menu-item-after:after {
+            background-color: @inboxAsideDragTargetBgColor;
+          }
+        }
       }
     }
   }
