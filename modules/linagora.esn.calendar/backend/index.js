@@ -32,7 +32,7 @@ const AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.davserver', 'davserver'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.cron', 'cron'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.amqp', 'amqpClientProvider'),
-    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.autoconf', 'autoconf')
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.autoconf', 'autoconf', true)
   ],
 
   states: {
@@ -89,7 +89,7 @@ const AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
       require('./ws/calendar').init(dependencies);
       require('./lib/search')(dependencies).listen();
 
-      dependencies('autoconf').addTransformer(require('./lib/autoconf')(dependencies));
+      dependencies('autoconf') && dependencies('autoconf').addTransformer(require('./lib/autoconf')(dependencies));
 
       callback();
     }
