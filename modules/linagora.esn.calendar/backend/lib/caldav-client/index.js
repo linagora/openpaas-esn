@@ -1,9 +1,14 @@
 'use strict';
 
-const request = require('request');
-const urljoin = require('url-join');
-const async = require('async');
-const Q = require('q');
+const request = require('request'),
+      urljoin = require('url-join'),
+      async = require('async'),
+      Q = require('q'),
+      _ = require('lodash'),
+      path = require('path');
+
+const JSON_CONTENT_TYPE = 'application/json',
+      DEFAULT_CALENDAR_NAME = 'Events';
 
 module.exports = function(dependencies) {
   const davserver = dependencies('davserver').utils;
@@ -12,8 +17,37 @@ module.exports = function(dependencies) {
   return {
     getEvent,
     getEventPath,
-    iTipRequest
+    iTipRequest,
+    getCalendarList
   };
+
+  function getCalendarList(userId) {
+    return _requestCaldav(userId, null, null, (url, token) => ({
+        method: 'GET',
+        url: url,
+        json: true,
+        headers: {
+          ESNToken: token,
+          Accept: JSON_CONTENT_TYPE
+        }
+      })).then(res => {
+        if (res && res._embedded && res._embedded['dav:calendar']) {
+          return _.map(res._embedded['dav:calendar'], calendar => {
+            const uri = calendar._links.self.href.replace('.json', ''); // No JSON for *DAV URI
+
+            return {
+              id: path.basename(uri),
+              uri: uri,
+              name: calendar['dav:name'] || DEFAULT_CALENDAR_NAME,
+              description: calendar['caldav:description'],
+              color: calendar['apple:color']
+            };
+          });
+        }
+
+        return [];
+      });
+  }
 
   function getEvent(userId, calendarURI, eventUID) {
     return _requestCaldav(userId, calendarURI, eventUID, (url, token) => ({
