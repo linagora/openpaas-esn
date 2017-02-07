@@ -189,6 +189,12 @@ describe('The esn.form.helper Angular module', function() {
       expect(element.prop('disabled')).to.be.false;
     });
 
+    it('should add an input type submit', function() {
+      var element = initcommDirective('<form esn-submit="myFunction()"></form>');
+
+      expect(element.find('input[type="submit"]')).to.exist;
+    });
+
     it('should trigger esnSubmit function on form submit', function() {
       $scope.myFunction = sinon.stub().returns($q.when());
       var element = initDirective('<form esn-submit="myFunction()"><button type="submit"></button></form>');

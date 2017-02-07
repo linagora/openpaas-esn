@@ -2,7 +2,7 @@ sub-header
   add-folder-subheader
 
 .inbox-main-content.configuration.folders-add.card
-  form
+  form(esn-submit="addFolder()")
     .form-group.fg-line
       .field-name #{__('Name')}
       input.form-control(ng-model="mailbox.name", placeholder="#{__('Enter a name')}", auto-focus)

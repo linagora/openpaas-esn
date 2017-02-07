@@ -84,6 +84,8 @@ angular.module('esn.form.helper', [
       }
 
       if (element[0] && element[0].tagName === 'FORM') {
+        angular.element('<input type="submit" class="hidden">').appendTo(element);
+
         element.on('submit', disableAndSubmit(element.find('[type="submit"]')));
       } else {
         element.on('click', disableAndSubmit(element));
