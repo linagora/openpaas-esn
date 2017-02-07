@@ -1,6 +1,7 @@
 'use strict';
 
 /* global chai: false */
+/* global sinon: false */
 
 var expect = chai.expect;
 
@@ -8,13 +9,15 @@ describe('The linagora.esn.profile Angular module controllers', function() {
 
   var $rootScope;
   var $controller;
+  var $state;
 
   beforeEach(function() {
     module('linagora.esn.profile');
 
-    inject(function(_$rootScope_, _$controller_) {
+    inject(function(_$rootScope_, _$controller_, _$state_) {
       $rootScope = _$rootScope_;
       $controller = _$controller_;
+      $state = _$state_;
     });
   });
 
@@ -41,6 +44,7 @@ describe('The linagora.esn.profile Angular module controllers', function() {
 
       return $controller('profileController', {
         $scope: $scope,
+        $state: $state,
         profileAPI: profileAPIMock,
         user: userMock,
         session: sessionMock
@@ -62,7 +66,48 @@ describe('The linagora.esn.profile Angular module controllers', function() {
 
       expect($scope.me).to.be.false;
     });
+
+    it('should move back to state which not profile nested states when click back button ', function() {
+      var otherState = 'other.state';
+      var profileNestedState = 'profile.details';
+      var from = {
+        name: otherState
+      };
+
+      initProfileController();
+
+      $state.go = sinon.stub();
+
+      $state.go('profile.details.view');
+      $scope.$broadcast('$stateChangeSuccess', null, null, from);
+      $scope.back();
+
+      expect($state.go).to.have.been.calledWith(otherState);
+
+      from.name = profileNestedState;
+      $state.go('profile.details.view');
+      $scope.$broadcast('$stateChangeSuccess', null, null, from);
+      $scope.back();
+
+      expect($state.go).to.have.been.calledWith(otherState);
+    });
+
+    it('should move back to home page if there is no previous state', function() {
+      var from = {
+        name: ''
+      };
+
+      initProfileController();
+      $state.go = sinon.stub();
+
+      $state.go('profile.details.view');
+      $scope.$broadcast('$stateChangeSuccess', null, null, from);
+      $scope.back();
+
+      expect($state.go).to.have.been.calledWith('home');
+    });
   });
+
   describe('The profileEditionController', function() {
     var userMock;
     var profileAPIMock;

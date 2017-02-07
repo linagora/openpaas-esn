@@ -139,6 +139,22 @@ dl {
   }
 }
 
+.profile-back-button {
+  @media (min-width: 1200px) {
+    position: absolute;
+    left: 310px;
+    top: -5px;
+    z-index: 5;
+  }
+
+  @media (min-width: @screen-sm-min) and (max-width: 1200px) {
+    position: absolute;
+    left: 260px;
+    top: -5px;
+    z-index: 5;
+  }
+}
+
 @media (max-width: @screen-xs-max) {
   .modal-profile-avatar {
     width: 100vw;
