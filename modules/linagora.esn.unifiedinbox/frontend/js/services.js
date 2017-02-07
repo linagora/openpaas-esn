@@ -976,7 +976,9 @@ angular.module('linagora.esn.unifiedinbox')
 
     function moveToTrash(item, options) {
       return backgroundAction('Move of "' + item.subject + '" to trash', function() {
-        return item.moveToMailboxWithRole(jmap.MailboxRole.TRASH);
+        return infiniteListService.actionRemovingElements(function() {
+          return item.moveToMailboxWithRole(jmap.MailboxRole.TRASH);
+        }, [item]);
       }, options);
     }
 

@@ -3650,7 +3650,7 @@ describe('The Unified Inbox Angular module services', function() {
   describe('The inboxJmapItemService service', function() {
 
     var $rootScope, jmap, inboxJmapItemService, newComposerService, emailSendingService,
-        quoteEmail, jmapClientMock, notificationFactory, backgroundAction, counter;
+        quoteEmail, jmapClientMock, notificationFactory, backgroundAction, counter, infiniteListService, inboxSelectionService, INFINITE_LIST_EVENTS;
 
     beforeEach(module(function($provide) {
       counter = 0;
@@ -3675,13 +3675,19 @@ describe('The Unified Inbox Angular module services', function() {
       });
     }));
 
-    beforeEach(inject(function(_$rootScope_, _jmap_, _inboxJmapItemService_, _backgroundAction_, _notificationFactory_) {
+    beforeEach(inject(function(_$rootScope_, _jmap_, _inboxJmapItemService_, _backgroundAction_, _notificationFactory_,
+                               _infiniteListService_, _inboxSelectionService_, _INFINITE_LIST_EVENTS_) {
       $rootScope = _$rootScope_;
       jmap = _jmap_;
       inboxJmapItemService = _inboxJmapItemService_;
       backgroundAction = _backgroundAction_;
       notificationFactory = _notificationFactory_;
+      infiniteListService = _infiniteListService_;
+      inboxSelectionService = _inboxSelectionService_;
+      INFINITE_LIST_EVENTS = _INFINITE_LIST_EVENTS_;
 
+      inboxSelectionService.unselectAllItems = sinon.spy(inboxSelectionService.unselectAllItems);
+      infiniteListService.actionRemovingElements = sinon.spy(infiniteListService.actionRemovingElements);
       inboxJmapItemService.setFlag = sinon.spy(inboxJmapItemService.setFlag);
       notificationFactory.weakError = sinon.spy(notificationFactory.weakError);
     }));
@@ -3702,14 +3708,26 @@ describe('The Unified Inbox Angular module services', function() {
 
     describe('The moveToTrash fn', function() {
 
+      it('should delegate to infiniteListService.actionRemovingElements', function(done) {
+        var email = {
+          moveToMailboxWithRole: function() {
+            expect(infiniteListService.actionRemovingElements).to.have.been.calledWith();
+
+            done();
+          }
+        };
+        inboxJmapItemService.moveToTrash(email);
+      });
+
       it('should call email.moveToMailboxWithRole with the "trash" role', function(done) {
-        inboxJmapItemService.moveToTrash({
+        var email = {
           moveToMailboxWithRole: function(role) {
             expect(role).to.equal(jmap.MailboxRole.TRASH);
 
             done();
           }
-        });
+        };
+        inboxJmapItemService.moveToTrash(email);
       });
 
       it('should pass options to backgroundAction', function() {
@@ -3824,17 +3842,6 @@ describe('The Unified Inbox Angular module services', function() {
     });
 
     describe('The moveMultipleItems function', function() {
-
-      var infiniteListService, inboxSelectionService, INFINITE_LIST_EVENTS;
-
-      beforeEach(inject(function(_infiniteListService_, _inboxSelectionService_, _INFINITE_LIST_EVENTS_) {
-        infiniteListService = _infiniteListService_;
-        inboxSelectionService = _inboxSelectionService_;
-        INFINITE_LIST_EVENTS = _INFINITE_LIST_EVENTS_;
-
-        inboxSelectionService.unselectAllItems = sinon.spy(inboxSelectionService.unselectAllItems);
-        infiniteListService.actionRemovingElements = sinon.spy(infiniteListService.actionRemovingElements);
-      }));
 
       it('should delegate to infiniteListService.actionRemovingElements, moving all items', function(done) {
         var item1 = { id: 1, mailboxIds: [] },

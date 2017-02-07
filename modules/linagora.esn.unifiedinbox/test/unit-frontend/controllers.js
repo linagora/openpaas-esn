@@ -739,43 +739,30 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     });
 
     describe('The markAsUnread fn', function() {
-      it('should mark email as unread then update location to parent state', inject(function($state) {
+      it('should update location to parent state, then mark email as unread', inject(function($state) {
         scope.email = {};
         $state.go = sinon.spy();
         var controller = initController('viewEmailController');
 
         controller.markAsUnread();
-        scope.$digest();
 
         expect($state.go).to.have.been.calledWith('^');
+        scope.$digest();
         expect(scope.email.isUnread).to.equal(true);
       }));
     });
 
     describe('The moveToTrash fn', function() {
-      it('should delete the email then update location to parent state if the email is deleted successfully', function() {
+      it('should update location to parent state, then move the email to trash', function() {
         inboxJmapItemService.moveToTrash = sinon.spy(function() {
           return $q.when({});
         });
         var controller = initController('viewEmailController');
 
         controller.moveToTrash();
-        scope.$digest();
 
         expect($state.go).to.have.been.calledWith('^');
-        expect(inboxJmapItemService.moveToTrash).to.have.been.called;
-      });
-
-      it('should not update location if the email is not deleted', function() {
-        inboxJmapItemService.moveToTrash = sinon.spy(function() {
-          return $q.reject({});
-        });
-        var controller = initController('viewEmailController');
-
-        controller.moveToTrash();
         scope.$digest();
-
-        expect($state.go).to.have.not.been.called;
         expect(inboxJmapItemService.moveToTrash).to.have.been.called;
       });
     });
@@ -1012,41 +999,28 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     });
 
     describe('The markAsUnread fn', function() {
-      it('should mark thread as unread then update location to parent state', function() {
+      it('should update location to parent state, then mark thread as unread', function() {
         var controller = initController('viewThreadController');
 
         controller.markAsUnread();
-        scope.$digest();
 
         expect($state.go).to.have.been.calledWith('^');
+        scope.$digest();
         expect(scope.thread.isUnread).to.equal(true);
       });
     });
 
     describe('The moveToTrash fn', function() {
-      it('should delete the thread then update location to parent state if the thread is deleted successfully', function() {
+      it('should update location to parent state, then delete the thread', function() {
         inboxJmapItemService.moveToTrash = sinon.spy(function() {
           return $q.when({});
         });
         var controller = initController('viewThreadController');
 
         controller.moveToTrash();
-        scope.$digest();
 
         expect($state.go).to.have.been.calledWith('^');
-        expect(inboxJmapItemService.moveToTrash).to.have.been.called;
-      });
-
-      it('should not update location if the thread is not deleted', function() {
-        inboxJmapItemService.moveToTrash = sinon.spy(function() {
-          return $q.reject({});
-        });
-        var controller = initController('viewThreadController');
-
-        controller.moveToTrash();
         scope.$digest();
-
-        expect($state.go).to.have.not.been.called;
         expect(inboxJmapItemService.moveToTrash).to.have.been.called;
       });
     });
