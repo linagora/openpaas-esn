@@ -85,54 +85,69 @@ describe('The esn.form.helper Angular module', function() {
 
   describe('toggleSwitch directive', function() {
 
-    beforeEach(inject(function($compile, $rootScope) {
-      this.$compile = $compile;
-      this.$rootScope = $rootScope;
-      this.$scope = this.$rootScope.$new();
+    var $compile, $scope;
 
-      this.initDirective = function(html) {
-        html = html || '<toggle-switch></toggle-switch>';
-        this.element = this.$compile(html)(this.$scope);
-        this.$scope.$digest();
-        this.isolateScope = this.element.isolateScope();
-      };
+    beforeEach(inject(function(_$compile_, _$rootScope_) {
+      $compile = _$compile_;
+      $scope = _$rootScope_.$new();
     }));
 
+    function initDirective(html) {
+      html = html || '<toggle-switch></toggle-switch>';
+
+      var element = $compile(html)($scope);
+
+      $scope.$digest();
+
+      return element;
+    }
+
     it('should set ngModel to false if the attribute "ng-model" is undefined', function() {
-      this.initDirective();
-      expect(this.isolateScope.ngModel).to.equal(false);
+      var element = initDirective();
+
+      expect(element.isolateScope().ngModel).to.equal(false);
     });
 
     it('should change ngModel to true when toggle is called', function() {
-      this.initDirective();
-      this.isolateScope.toggle();
-      expect(this.isolateScope.ngModel).to.equal(true);
+      var element = initDirective();
+
+      element.isolateScope().toggle();
+
+      expect(element.isolateScope().ngModel).to.equal(true);
     });
 
     it('should have a default color', function() {
-      this.initDirective();
-      expect(this.isolateScope.color).to.be.defined;
+      var element = initDirective();
+
+      expect(element.isolateScope().color).to.be.defined;
     });
 
     it('should set the color to the given one', function() {
       var color = 'red';
-      this.initDirective('<toggle-switch color="' + color + '"/>');
-      expect(this.isolateScope.color).to.equal(color);
+      var element = initDirective('<toggle-switch color="' + color + '"/>');
+
+      expect(element.isolateScope().color).to.equal(color);
     });
 
     it('should change form.$dirty to true when toggle is called', function() {
-      var self = this;
-
-      self.$scope.form = {
+      $scope.form = {
         $dirty: false,
         $setDirty: function() {
-          self.$scope.form.$dirty = true;
+          $scope.form.$dirty = true;
         }
       };
 
-      this.initDirective('<toggle-switch form="form"/>');
-      this.isolateScope.toggle();
-      expect(this.isolateScope.form.$dirty).to.equal(true);
+      var element = initDirective('<toggle-switch form="form"/>');
+
+      element.isolateScope().toggle();
+
+      expect(element.isolateScope().form.$dirty).to.equal(true);
+    });
+
+    it('should show the provided label', function() {
+      var element = initDirective('<toggle-switch label="mylabel"/>');
+
+      expect(element.html()).to.contain('mylabel');
     });
 
   });
