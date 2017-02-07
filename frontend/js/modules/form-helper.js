@@ -47,6 +47,7 @@ angular.module('esn.form.helper', [
     scope: {
       ngModel: '=?',
       color: '@?',
+      label: '@?',
       form: '=?'
     },
     link: function(scope) {
