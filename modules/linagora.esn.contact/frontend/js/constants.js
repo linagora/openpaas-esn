@@ -52,4 +52,8 @@ angular.module('linagora.esn.contact')
       DELETED: 'contact:deleted',
       UPDATED: 'contact:updated'
     }
+  })
+  .constant('CONTACT_GLOBAL_SEARCH', {
+    TYPE: 'contact',
+    NAME: 'Contacts'
   });
