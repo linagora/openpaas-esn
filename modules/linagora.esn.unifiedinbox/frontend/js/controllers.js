@@ -218,9 +218,8 @@ angular.module('linagora.esn.unifiedinbox')
 
     ['markAsUnread', 'moveToTrash'].forEach(function(action) {
       this[action] = function() {
-        inboxJmapItemService[action]($scope.email).then(function() {
-          $state.go('^');
-        });
+        $state.go('^');
+        inboxJmapItemService[action]($scope.email);
       };
     }.bind(this));
 
@@ -271,9 +270,8 @@ angular.module('linagora.esn.unifiedinbox')
 
     ['markAsUnread', 'moveToTrash'].forEach(function(action) {
       this[action] = function() {
-        inboxJmapItemService[action]($scope.thread).then(function() {
-          $state.go('^');
-        });
+        $state.go('^');
+        inboxJmapItemService[action]($scope.thread);
       };
     }.bind(this));
 
