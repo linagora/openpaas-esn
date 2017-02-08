@@ -63,19 +63,19 @@ describe('The esn.attendee Angular module', function() {
 
     describe('getAttendeeCandidates() method', function() {
 
+      function getTestProvider(attendeeResult, templateUrl) {
+        return {
+          searchAttendee: function(q, l) {
+            expect(q).to.equal(query);
+            expect(l).to.equal(limit);
+
+            return $q.when(attendeeResult);
+          },
+          templateUrl: templateUrl
+        };
+      }
+
       it('should call providers and return their aggregated values, setting template urls correctly', function(done) {
-        function getTestProvider(attendeeResult, templateUrl) {
-          return {
-            searchAttendee: function(q, l) {
-              expect(q).to.equal(query);
-              expect(l).to.equal(limit);
-
-              return $q.when(attendeeResult);
-            },
-            templateUrl: templateUrl
-          };
-        }
-
         var attendees1 = [{_id: 'attendee1', displayName: 'yolo'}, {_id: 'attendee2', displayName: 'yala'}],
             attendees2 = [{_id: 'attendee3', email: 'yolo@yala.com'}];
 
@@ -93,6 +93,60 @@ describe('The esn.attendee Angular module', function() {
         }, done);
 
         $rootScope.$apply();
+      });
+
+      it('should remove duplicated attendees (check by email)', function(done) {
+        var attendee1 = { _id: 1, email: 'duplicate@email' };
+        var attendee2 = { _id: 2, email: 'att2@email' };
+        var attendee3 = { _id: 3, email: 'duplicate@email' };
+
+        attendeeService.addProvider(getTestProvider([attendee1]));
+        attendeeService.addProvider(getTestProvider([attendee2, attendee3]));
+
+        attendeeService.getAttendeeCandidates(query, limit)
+        .then(function(attendeeCandidates) {
+          expect(attendeeCandidates).to.deep.equal([attendee1, attendee2]);
+          done();
+        })
+        .catch(done);
+
+        $rootScope.$digest();
+      });
+
+      it('should remove duplicated attendees who have no email but duplicate displayName', function(done) {
+        var attendee1 = { _id: 1, displayName: 'duplicate' };
+        var attendee2 = { _id: 2, displayName: 'att2' };
+        var attendee3 = { _id: 3, displayName: 'duplicate' };
+
+        attendeeService.addProvider(getTestProvider([attendee1]));
+        attendeeService.addProvider(getTestProvider([attendee2, attendee3]));
+
+        attendeeService.getAttendeeCandidates(query, limit)
+        .then(function(attendeeCandidates) {
+          expect(attendeeCandidates).to.deep.equal([attendee1, attendee2]);
+          done();
+        })
+        .catch(done);
+
+        $rootScope.$digest();
+      });
+
+      it('should keep only one attendee having no email nor displayName', function(done) {
+        var attendee1 = { _id: 1 };
+        var attendee2 = { _id: 2 };
+        var attendee3 = { _id: 3 };
+
+        attendeeService.addProvider(getTestProvider([attendee1]));
+        attendeeService.addProvider(getTestProvider([attendee2, attendee3]));
+
+        attendeeService.getAttendeeCandidates(query, limit)
+        .then(function(attendeeCandidates) {
+          expect(attendeeCandidates).to.deep.equal([attendee1]);
+          done();
+        })
+        .catch(done);
+
+        $rootScope.$digest();
       });
 
     });

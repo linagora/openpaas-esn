@@ -1,6 +1,8 @@
 'use strict';
 
-angular.module('esn.attendee', [])
+angular.module('esn.attendee', [
+  'esn.lodash-wrapper'
+])
 
   .run(function($templateCache) {
     /**
@@ -23,7 +25,7 @@ angular.module('esn.attendee', [])
 
   .constant('DEFAULT_TEMPLATE_URL', '/views/modules/auto-complete/user-auto-complete')
 
-  .factory('attendeeService', function($q, DEFAULT_TEMPLATE_URL) {
+  .factory('attendeeService', function($q, _, DEFAULT_TEMPLATE_URL) {
     var providers = [];
 
     function addProvider(provider) {
@@ -47,10 +49,16 @@ angular.module('esn.attendee', [])
     function getAttendeeCandidates(query, limit) {
       return $q.all(providers.map(function(provider) {
         return provider.search(query, limit);
-      })).then(function(arrays) {
+      }))
+      .then(function(arrays) {
         return arrays.reduce(function(resultArray, currentArray) {
           return resultArray.concat(currentArray);
         }, []);
+      })
+      .then(function(attendees) {
+        return _.uniq(attendees, false, function(attendee) {
+          return attendee.email || attendee.displayName;
+        });
       });
     }
 
