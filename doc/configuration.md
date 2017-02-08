@@ -277,6 +277,10 @@ Defines the LDAP server configurations which can be used for authentication and 
     {
       "name" : "Linagora",
       "domainId": ObjectId("5375de4bd684db7f6fbd4f98"),
+      "usage": {
+        "auth": true,
+        "search": false
+      },
       "configuration" : {
         "searchFilter" : "(mail={{username}})",
         "searchBase" : "dc=linagora,dc=nodomain",
@@ -294,10 +298,14 @@ Defines the LDAP server configurations which can be used for authentication and 
 }
 ```
 
+- name: name of the LDAP configuration, usually used to distinguish between
+different LDAP configurations.
 - The `domainId` is the ID of the domain that the authenticated user will join
 after he is provisioned. If `domainId` is omitted, the domain that contains the
 configuration will be used. If the configuration is system-wide, the `domainId`
 must be present.
+- usage: specify the usage of the LDAP configuration. Currently, it can be used
+for authentication (`auth`) or search attendee provider (`search`).
 - searchFilter: LDAP search filter with which to find a user by username.
 - searchBase: The base DN from which to search for users by username.
 - url: The address of a LDAP server which to search.
