@@ -68,7 +68,7 @@
     "angular-scroll": "~0.7.0",
     "angular-gist": "~0.1.3",
     "twitter-platform-widget": "http://platform.twitter.com/widgets.js",
-    "ng-device-detector": "~1.1.7",
+    "ng-device-detector": "linagora/ng-device-detector#v3.0.1.1",
     "material-admin": "https://ci.open-paas.org/stash/scm/or/material-admin.git#1.5.1.5",
     "mdi": "1.4.57",
     "roboto-fontface": "~0.4.3",
@@ -109,7 +109,8 @@
     "summernote": "0.8.2-1",
     "angular-touch": "1.3.0",
     "angular-moment": "1.0.0-beta.6",
-    "moment": "2.15.1"
+    "moment": "2.15.1",
+    "ng-device-detector": "v3.0.1.1"
   },
   "devDependencies": {
     "chai-datetime": "~1.4.0",

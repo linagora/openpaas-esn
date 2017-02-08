@@ -55,14 +55,6 @@
       .drop-menu-open-animation(top right);
     }
 
-    .toggle-fullscreen {
-      display: none;
-      &.browser-firefox,
-      &.browser-chrome,
-      &.browser-opera  {
-        display: block;
-      }
-    }
   }
   .header-actions{
     padding-right: 5px;
@@ -145,10 +137,17 @@ body.header-hidden {
         }
       }
     }
-
     #sub-header {
       background-color: @subHeaderBackground;
       box-shadow: 0 1px 4px @subHeaderShadow;
     }
   }
+}
+
+.is-desktop .toggle-fullscreen {
+  display: block;
+}
+
+.is-mobile .toggle-fullscreen {
+  display: none;
 }
