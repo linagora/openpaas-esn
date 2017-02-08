@@ -10,14 +10,16 @@ describe('The linagora.esn.profile Angular module controllers', function() {
   var $rootScope;
   var $controller;
   var $state;
+  var esnPreviousState;
 
   beforeEach(function() {
-    module('linagora.esn.profile');
+    angular.mock.module('linagora.esn.profile');
 
-    inject(function(_$rootScope_, _$controller_, _$state_) {
+    inject(function(_$rootScope_, _$controller_, _$state_, _esnPreviousState_) {
       $rootScope = _$rootScope_;
       $controller = _$controller_;
       $state = _$state_;
+      esnPreviousState = _esnPreviousState_;
     });
   });
 
@@ -67,44 +69,45 @@ describe('The linagora.esn.profile Angular module controllers', function() {
       expect($scope.me).to.be.false;
     });
 
-    it('should move back to state which not profile nested states when click back button ', function() {
-      var otherState = 'other.state';
-      var profileNestedState = 'profile.details';
+    it('should set previous state on the state which is not nested in profile state', function() {
+      var otherState = 'dummies';
       var from = {
         name: otherState
       };
 
       initProfileController();
 
-      $state.go = sinon.stub();
+      esnPreviousState.set = sinon.spy();
 
       $state.go('profile.details.view');
       $scope.$broadcast('$stateChangeSuccess', null, null, from);
-      $scope.back();
-
-      expect($state.go).to.have.been.calledWith(otherState);
-
-      from.name = profileNestedState;
-      $state.go('profile.details.view');
-      $scope.$broadcast('$stateChangeSuccess', null, null, from);
-      $scope.back();
-
-      expect($state.go).to.have.been.calledWith(otherState);
+      expect(esnPreviousState.set).to.have.been.called;
     });
 
-    it('should move back to home page if there is no previous state', function() {
+    it('should not set previous state on the state which is nested in profile state', function() {
+      var otherState = 'profile.details.dummies';
       var from = {
-        name: ''
+        name: otherState
       };
 
       initProfileController();
-      $state.go = sinon.stub();
+
+      esnPreviousState.set = sinon.spy();
 
       $state.go('profile.details.view');
       $scope.$broadcast('$stateChangeSuccess', null, null, from);
-      $scope.back();
+      expect(esnPreviousState.set).to.not.have.been.called;
+    });
 
-      expect($state.go).to.have.been.calledWith('home');
+    describe('The back method', function() {
+
+      it('should go to previous eligible state', function() {
+        initProfileController();
+        esnPreviousState.go = sinon.spy();
+        $scope.back();
+
+        expect(esnPreviousState.go).to.have.been.calledWith('home');
+      });
     });
   });
 

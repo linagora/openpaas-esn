@@ -1,4 +1,14 @@
-.row
-  a.profile-edit-header(ui-sref='profile', ng-click='updateProfile(user)')
-    i.mdi.mdi-check.m-l-5.m-r-5
-    | #{__('Save')}
+extends /modules/subheader/responsive-subheader
+
+block left
+  a.button.flex-vertical-centered(type='button' ui-sref='profile')
+    i.mdi.mdi-close
+    span.visible-md
+      | #{__('Cancel')}
+  span.title.extra-title.ellipsis #{__('Edit Profile')}
+
+block right
+  a.button.flex-vertical-centered(ui-sref='profile', ng-click='updateProfile(user)')
+    span
+      | #{__('Save')}
+    i.mdi.mdi-check
