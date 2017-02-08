@@ -93,9 +93,14 @@ describe('The core/user/listener module', function() {
       expect(err).to.not.exist;
 
       localPubsub.topic(userConsants.EVENTS.userCreated).publish(savedUser);
-      localPubsub.topic(userConsants.EVENTS.userDeleted).publish(savedUser);
 
-      checkUsersDocumentsFullyIndexed([savedUser._id], checkIndexResult(0), done);
+      checkUsersDocumentsFullyIndexed([savedUser._id], checkIndexResult(1), err => {
+        expect(err).to.not.exist;
+
+        localPubsub.topic(userConsants.EVENTS.userDeleted).publish(savedUser);
+
+        checkUsersDocumentsFullyIndexed([savedUser._id], checkIndexResult(0), done);
+      });
     });
   });
 
