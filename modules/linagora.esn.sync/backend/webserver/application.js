@@ -7,6 +7,7 @@ module.exports = dependencies => {
   require('./config/views')(dependencies, application);
 
   application.use(require('./downloads')(dependencies));
+  application.use(require('./android')(dependencies));
 
   return application;
 };
