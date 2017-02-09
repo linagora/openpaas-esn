@@ -16,7 +16,7 @@ div
             i.md.mdi.mdi-fullscreen
         li.hover-scale-animation
           application-menu-toggler
-        li.avatar-container(ng-controller='avatarController' ui-sref='profile')
+        li.avatar-container(ng-controller='avatarController', ui-sref="profile({ user_id: '' })")
           img.header-avatar(ng-src="{{avatarURL}}", alt='#{__("Avatar")}')
     sub-header-container
   sidebar
