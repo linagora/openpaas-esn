@@ -1093,10 +1093,20 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       jmapClient.getMailboxes = function() {
         return $q.when([]);
       };
+      $stateParams.mailbox = null;
 
       initController('addFolderController');
 
       expect(scope.mailbox).to.deep.equal({});
+    });
+
+    it('should get mailbox.name and mailbox.parentId', function() {
+      jmapClient.getMailboxes = function() { return $q.when([]); };
+      $stateParams.mailbox = { name: 'Name', parentId: 123 };
+
+      initController('addFolderController');
+
+      expect(scope.mailbox).to.deep.equal({ name: 'Name', parentId: 123 });
     });
 
     describe('The addFolder method', function() {
@@ -1127,16 +1137,6 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           expect(jmapClient.createMailbox).to.not.have.been.called;
           done();
         });
-        scope.$digest();
-      });
-
-      it('should get mailbox.name and mailbox.parentId', function() {
-        jmapClient.getMailboxes = function() { return $q.when([]); };
-        $stateParams.mailbox = { name: 'Name', parentId: 123 };
-
-        initController('addFolderController');
-
-        expect(scope.mailbox).to.deep.equal({ name: 'Name', parentId: 123 });
         scope.$digest();
       });
 
