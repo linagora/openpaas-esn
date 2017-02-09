@@ -173,6 +173,7 @@ angular.module('linagora.esn.unifiedinbox', [
       })
       .state('unifiedinbox.configuration.folders.add', {
         url: '/add',
+        params: { mailbox: null },
         views: {
           'main@unifiedinbox': {
             templateUrl: '/unifiedinbox/views/configuration/folders/add/index',
