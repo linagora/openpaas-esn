@@ -21,6 +21,7 @@ const userStatusModule = new AwesomeModule(MODULE_NAME, {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.user', 'user'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.wsserver', 'wsserver'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.helpers', 'helpers'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.i18n', 'i18n'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.db', 'db'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.cron', 'cron')
   ],
@@ -34,7 +35,7 @@ const userStatusModule = new AwesomeModule(MODULE_NAME, {
 
     deploy: function(dependencies, callback) {
       const webserverWrapper = dependencies('webserver-wrapper');
-      const app = require('./backend/webserver/application')(this, dependencies);
+      const app = require('./backend/webserver/application')(dependencies);
       const lessFile = path.resolve(__dirname, './frontend/app/user-status.styles.less');
 
       let frontendModules = glob.sync([
