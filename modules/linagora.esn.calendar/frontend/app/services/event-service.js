@@ -249,7 +249,17 @@
                 cancelSuccess: 'Calendar - Suppression of ' + event.title + ' has been cancelled',
                 cancelTooLate: 'It is too late to cancel the deletion',
                 successText: 'Calendar - ' + event.title + ' has been deleted.',
-                gracePeriodFail: 'Event deletion failed. Please refresh your calendar'
+                gracePeriodFail: {
+                  text: 'Event deletion failed. Please refresh your calendar',
+                  delay: -1,
+                  hideCross: true,
+                  actionText: 'Refresh calendar',
+                  action: function() {
+                    calCachedEventSource.resetCache();
+                    $rootScope.$broadcast(CALENDAR_EVENTS.CALENDAR_REFRESH);
+                  }
+                 },
+
               }).then(_.constant(true), function() {
                 onTaskCancel();
 
