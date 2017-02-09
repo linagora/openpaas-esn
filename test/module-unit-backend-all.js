@@ -1,14 +1,20 @@
 'use strict';
 
-var mockery = require('mockery'),
-  chai = require('chai'),
-  helpers = require('./helpers');
+const mockery = require('mockery');
+const chai = require('chai');
+const helpers = require('./helpers');
+const path = require('path');
 
 before(function() {
   chai.use(require('chai-shallow-deep-equal'));
   chai.use(require('sinon-chai'));
   chai.use(require('chai-as-promised'));
-  this.testEnv = {};
+
+  const basePath = path.resolve(__dirname + '/..');
+
+  this.testEnv = {
+    basePath
+  };
   this.helpers = {};
   helpers(this.helpers, this.testEnv);
 
@@ -26,6 +32,7 @@ beforeEach(function() {
   var addDep = function(name, dep) {
     depsStore[name] = dep;
   };
+
   this.moduleHelpers = {
     modulesPath: __dirname + '/../modules/',
     addDep: addDep,

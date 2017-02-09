@@ -19,6 +19,7 @@ var contactModule = new AwesomeModule('linagora.esn.contact', {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.davserver', 'davserver'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.token', 'tokenMW'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.wsserver', 'wsserver'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.i18n', 'i18n'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.autoconf', 'autoconf', true)
   ],
   states: {
@@ -32,11 +33,13 @@ var contactModule = new AwesomeModule('linagora.esn.contact', {
         },
         lib: libModule
       };
+
       return callback(null, lib);
     },
 
     deploy: function(dependencies, callback) {
-      var app = require('./backend/webserver/application')(this, dependencies);
+      var app = require('./backend/webserver/application')(dependencies);
+
       app.use('/api/contacts', this.api.contacts);
 
       var webserverWrapper = dependencies('webserver-wrapper');
@@ -60,8 +63,10 @@ var contactModule = new AwesomeModule('linagora.esn.contact', {
         'providers/attendee.js',
         'providers/contact.js'
       ];
+
       webserverWrapper.injectAngularModules('contact', frontendModules, 'linagora.esn.contact', ['esn']);
       var lessFile = path.resolve(__dirname, './frontend/css/styles.less');
+
       webserverWrapper.injectLess('contact', [lessFile], 'esn');
       webserverWrapper.addApp('contact', app);
 

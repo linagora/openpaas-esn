@@ -7,7 +7,8 @@ var path = require('path');
 var contactModule = new AwesomeModule('linagora.esn.contact.google', {
   dependencies: [
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.wrapper', 'webserver-wrapper'),
-    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.wsserver', 'wsserver')
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.wsserver', 'wsserver'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.i18n', 'i18n')
   ],
   states: {
     lib: function(dependencies, callback) {
@@ -16,6 +17,7 @@ var contactModule = new AwesomeModule('linagora.esn.contact.google', {
       var lib = {
         lib: libModule
       };
+
       return callback(null, lib);
     },
 
@@ -23,8 +25,10 @@ var contactModule = new AwesomeModule('linagora.esn.contact.google', {
       var app = require('./backend/webserver/application')(dependencies);
 
       var webserverWrapper = dependencies('webserver-wrapper');
+
       webserverWrapper.injectAngularModules('contact.google', ['app.js', 'googledisplayshell.js', 'services.js', 'directives.js'], 'linagora.esn.contact.google', ['esn']);
       var lessFile = path.resolve(__dirname, './frontend/css/styles.less');
+
       webserverWrapper.injectLess('contact.google', [lessFile], 'esn');
       webserverWrapper.addApp('contact.google', app);
 

@@ -128,6 +128,7 @@ describe('The calendar core module', function() {
     this.moduleHelpers.addDep('auth', authMock);
     this.moduleHelpers.addDep('email', emailMock);
     this.moduleHelpers.addDep('esn-config', esnConfigMock);
+    this.moduleHelpers.addDep('i18n', this.helpers.requireBackend('core/i18n'));
   });
 
   describe('The dispatch fn', function() {

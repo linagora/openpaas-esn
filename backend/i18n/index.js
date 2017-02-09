@@ -1,25 +1,20 @@
 'use strict';
 
-var extend = require('extend');
-var i18n = require('i18n');
-var path = require('path');
-var isAbsolute = require('path-is-absolute');
-var localConfig = require('../core/config')('default');
-var ROOT_FOLDER = path.normalize(__dirname + '../../..');
+const extend = require('extend');
+const path = require('path');
+const isAbsolute = require('path-is-absolute');
+const localConfig = require('../core/config')('default');
+const ROOT_FOLDER = path.normalize(__dirname + '../../..');
+const i18n = require('../core/i18n');
 
-var i18nConfig = {
-  defaultLocale: 'en',
-  locales: ['en', 'fr'],
+const i18nConfig = {
   multiDirectories: true,
-  directory: __dirname + '/locales',
-  updateFiles: false,
-  indent: '  ',
-  extension: '.json',
-  cookie: 'locale'
+  directory: __dirname + '/locales'
 };
 
 extend(i18nConfig, localConfig.i18n || {});
 i18nConfig.directory = isAbsolute(i18nConfig.directory) ? i18nConfig.directory : path.join(ROOT_FOLDER, i18nConfig.directory);
-i18n.configure(i18nConfig);
+
+i18n.setDefaultConfiguration(i18nConfig);
 
 exports = module.exports = i18n;

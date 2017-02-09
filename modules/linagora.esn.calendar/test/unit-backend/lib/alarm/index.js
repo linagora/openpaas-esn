@@ -37,6 +37,8 @@ describe('alarm module', function() {
     this.moduleHelpers.addDep('pubsub', this.helpers.mock.pubsub('', localstub, {}));
     this.moduleHelpers.addDep('cron', cron);
     this.moduleHelpers.addDep('user', userLib);
+    this.moduleHelpers.addDep('i18n', this.helpers.requireBackend('core/i18n'));
+
     this.requireModule = function() {
       return require(this.calendarModulePath + '/backend/lib/alarm')(this.moduleHelpers.dependencies);
     };
