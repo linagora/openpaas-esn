@@ -258,7 +258,7 @@
                     calCachedEventSource.resetCache();
                     $rootScope.$broadcast(CALENDAR_EVENTS.CALENDAR_REFRESH);
                   }
-                 },
+                 }
 
               }).then(_.constant(true), function() {
                 onTaskCancel();
