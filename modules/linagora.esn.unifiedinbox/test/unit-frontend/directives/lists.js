@@ -643,6 +643,28 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
 
   });
 
+  describe('The inboxDraggableListItem directive', function() {
+
+    it('should return the item\'s subject if dragging a single item', function() {
+      compileDirective('<div inbox-draggable-list-item />');
+
+      expect($scope.getDragMessage([{ id: 1, subject: 'subject' }])).to.equal('subject');
+    });
+
+    it('should return the item\'s length if dragging a single item without subject', function() {
+      compileDirective('<div inbox-draggable-list-item />');
+
+      expect($scope.getDragMessage([{ id: 1 }])).to.equal('1 item');
+    });
+
+    it('should return the number of items if dragging multiple items', function() {
+      compileDirective('<div inbox-draggable-list-item />');
+
+      expect($scope.getDragMessage([{ id: 1 }, { id: 2, subject: 'subject' }, { id: 3 }])).to.equal('3 items');
+    });
+
+  });
+
   describe('The inboxGroupToggleSelection directive', function() {
 
     var item1 = { id: 1, selectable: true },

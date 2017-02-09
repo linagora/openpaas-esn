@@ -19,7 +19,11 @@ angular.module('linagora.esn.unifiedinbox')
         };
 
         scope.getDragMessage = function($dragData) {
-          return $dragData.length > 1 ? $dragData.length + ' items' : $dragData[0].subject;
+          if ($dragData.length > 1) {
+            return $dragData.length + ' items';
+          }
+
+          return $dragData[0].subject || '1 item';
         };
       }
     };
