@@ -205,7 +205,7 @@ describe('The esn.form.helper Angular module', function() {
     });
 
     it('should add an input type submit', function() {
-      var element = initcommDirective('<form esn-submit="myFunction()"></form>');
+      var element = initDirective('<form esn-submit="myFunction()"></form>');
 
       expect(element.find('input[type="submit"]')).to.exist;
     });
