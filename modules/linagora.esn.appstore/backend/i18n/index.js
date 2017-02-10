@@ -1,9 +1,16 @@
 'use strict';
 
-module.exports = function(dependencies) {
-  const i18n = dependencies('i18n');
+var i18n = require('i18n');
+i18n.configure(
+  {
+    defaultLocale: 'en',
+    locales: ['en', 'fr'],
+    directory: __dirname + '/locales',
+    updateFiles: false,
+    indent: '  ',
+    extension: '.json',
+    cookie: 'locale'
+  }
+);
 
-  i18n.setDefaultConfiguration({ directory: __dirname + '/locales' });
-
-  return i18n;
-};
+exports = module.exports = i18n;

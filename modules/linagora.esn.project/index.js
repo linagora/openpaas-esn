@@ -10,7 +10,6 @@ var projectModule = new AwesomeModule('linagora.esn.project', {
   new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.collaboration', 'collaboration'),
   new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.community', 'community'),
   new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.image', 'image'),
-  new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.i18n', 'i18n'),
   new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.wrapper', 'webserver-wrapper'),
   new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.authorization', 'authorizationMW'),
   new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.domain', 'domainMW'),
@@ -20,21 +19,16 @@ var projectModule = new AwesomeModule('linagora.esn.project', {
     lib: function(dependencies, callback) {
       var lib = require('./lib')(dependencies);
       var collaborationModule = dependencies('collaboration');
-
       collaborationModule.registerCollaborationLib('project', lib);
-
       return callback(null, lib);
     },
     deploy: function(dependencies, callback) {
       var webserverWrapper = dependencies('webserver-wrapper');
       var app = require('./backend/webserver/application')(this, dependencies);
-
       webserverWrapper.injectAngularModules('project', ['app.js', 'controllers.js', 'directives.js', 'services.js'], 'esn.project', ['esn']);
       var lessFile = path.resolve(__dirname, './frontend/css/style.less');
-
       webserverWrapper.injectLess('project', [lessFile], 'esn');
       webserverWrapper.addApp('project', app);
-
       return callback();
     }
   }

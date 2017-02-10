@@ -9,8 +9,7 @@ module.exports = new AwesomeModule('linagora.esn.signup', {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.wrapper', 'webserver-wrapper'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.invitation', 'invitation'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.email', 'email'),
-    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.logger', 'logger'),
-    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.i18n', 'i18n')
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.logger', 'logger')
   ],
 
   states: {

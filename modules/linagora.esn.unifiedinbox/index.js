@@ -9,7 +9,6 @@ var unifiedInboxModule = new AwesomeModule('linagora.esn.unifiedinbox', {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.logger', 'logger'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.esn-config', 'esn-config'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.email', 'email'),
-    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.i18n', 'i18n'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.wrapper', 'webserver-wrapper'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.authorization', 'authorizationMW')
   ],
@@ -24,18 +23,15 @@ var unifiedInboxModule = new AwesomeModule('linagora.esn.unifiedinbox', {
           twitter: twitter
         }
       };
-
       return callback(null, lib);
     },
 
     deploy: function(dependencies, callback) {
-      var app = require('./backend/webserver/application')(dependencies);
-
+      var app = require('./backend/webserver/application')(this, dependencies);
       app.use('/', this.api.inbox);
       app.use('/', this.api.twitter);
 
       var webserverWrapper = dependencies('webserver-wrapper');
-
       webserverWrapper.injectAngularModules('unifiedinbox', [
         'app.js',
         'constants.js',
@@ -54,7 +50,6 @@ var unifiedInboxModule = new AwesomeModule('linagora.esn.unifiedinbox', {
         'directives/sidebar.js'
       ], 'linagora.esn.unifiedinbox', ['esn']);
       var lessFile = path.resolve(__dirname, './frontend/css/styles.less');
-
       webserverWrapper.injectLess('unifiedinbox', [lessFile], 'esn');
       webserverWrapper.addApp('unifiedinbox', app);
 

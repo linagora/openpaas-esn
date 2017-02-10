@@ -1,6 +1,6 @@
 'use strict';
 
-const i18n = require('../../core/i18n');
+var i18n = require('i18n');
 
 module.exports.getAll = function(req, res) {
   return res.status(200).json(['en', 'fr']);

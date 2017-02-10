@@ -6,8 +6,7 @@ var path = require('path');
 
 var profileModule = new AwesomeModule('linagora.esn.profile', {
   dependencies: [
-    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.wrapper', 'webserver-wrapper'),
-    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.i18n', 'i18n')
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.wrapper', 'webserver-wrapper')
   ],
 
   states: {
@@ -32,10 +31,8 @@ var profileModule = new AwesomeModule('linagora.esn.profile', {
         'services.js',
         'directives.js'
       ];
-
       webserverWrapper.injectAngularModules('profile', jsFiles, ['linagora.esn.profile'], ['esn']);
       var lessFile = path.resolve(__dirname, './frontend/css/styles.less');
-
       webserverWrapper.injectLess('profile', [lessFile], 'esn');
       webserverWrapper.addApp('profile', app);
 
