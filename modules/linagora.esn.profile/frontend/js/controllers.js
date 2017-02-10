@@ -2,11 +2,18 @@
 
 angular.module('linagora.esn.profile')
 
-  .controller('profileController', function($scope, $window, user, session) {
+  .controller('profileController', function($scope, esnPreviousState, user, session, _) {
     $scope.user = user;
     $scope.me = session.user._id === $scope.user._id;
+
+    $scope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState) {
+      if (!_.include(fromState.name, 'profile.details')) {
+        esnPreviousState.set();
+      }
+    });
+
     $scope.back = function() {
-      $window.history.back();
+      esnPreviousState.go('home');
     };
   })
   .controller('profileEditionController', function($scope, $log, user, session, profileAPI, notificationFactory) {
