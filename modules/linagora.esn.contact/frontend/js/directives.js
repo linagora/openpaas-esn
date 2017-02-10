@@ -69,14 +69,15 @@ angular.module('linagora.esn.contact')
       restrict: 'E',
       templateUrl: '/contact/views/partials/contact-list-item.html',
       scope: {
-        contact: '='
+        contact: '=',
+        avatarSize: '@'
       },
       controller: 'contactItemController',
       link: {
         // We do translation in pre-link to execute it before the dynamic directive injection
         pre: function(scope) {
           scope.displayShell = ContactShellDisplayBuilder.build(scope.contact);
-          scope.avatarSize = CONTACT_AVATAR_SIZE.list;
+          scope.avatarSize = scope.avatarSize ? scope.avatarSize : CONTACT_AVATAR_SIZE.list;
         }
       }
     };

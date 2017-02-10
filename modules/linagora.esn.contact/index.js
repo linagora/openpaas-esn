@@ -57,7 +57,8 @@ var contactModule = new AwesomeModule('linagora.esn.contact', {
         'shells/builders.js',
         'pagination.js',
         'contact-api-client.js',
-        'providers/attendee.js'
+        'providers/attendee.js',
+        'providers/contact.js'
       ];
       webserverWrapper.injectAngularModules('contact', frontendModules, 'linagora.esn.contact', ['esn']);
       var lessFile = path.resolve(__dirname, './frontend/css/styles.less');
