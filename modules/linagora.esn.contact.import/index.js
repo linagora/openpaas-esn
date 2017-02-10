@@ -14,6 +14,7 @@ var importContactModule = new AwesomeModule('linagora.esn.contact.import', {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.technical-user', 'technical-user'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.jobqueue', 'jobqueue'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.pubsub', 'pubsub'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.i18n', 'i18n'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.authorization', 'authorizationMW'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.wsserver', 'wsserver'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.cron', 'cron')
@@ -22,6 +23,7 @@ var importContactModule = new AwesomeModule('linagora.esn.contact.import', {
     lib: function(dependencies, callback) {
       var libModule = require('./backend/lib')(dependencies);
       var constantsModule = require('./backend/constants');
+
       return callback(null, {
         lib: libModule,
         constants: constantsModule
@@ -33,6 +35,7 @@ var importContactModule = new AwesomeModule('linagora.esn.contact.import', {
       var api = require('./backend/webserver/api')(dependencies, this.lib);
 
       var app = webserver.getRootApp();
+
       app.use('/api', api);
 
       var frontendModules = [
@@ -42,6 +45,7 @@ var importContactModule = new AwesomeModule('linagora.esn.contact.import', {
       ];
 
       var webserverWrapper = dependencies('webserver-wrapper');
+
       webserverWrapper.injectAngularModules('import', frontendModules, 'linagora.esn.contact.import', ['esn']);
       webserverWrapper.addApp('import', app);
 

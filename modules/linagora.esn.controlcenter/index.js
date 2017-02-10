@@ -9,7 +9,8 @@ var AWESOME_MODULE_NAME = 'linagora.esn.' + MODULE_NAME;
 
 var controlCenterModule = new AwesomeModule(AWESOME_MODULE_NAME, {
   dependencies: [
-    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.wrapper', 'webserver-wrapper')
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.wrapper', 'webserver-wrapper'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.i18n', 'i18n')
   ],
 
   states: {

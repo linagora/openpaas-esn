@@ -8,6 +8,7 @@ var accountModule = new AwesomeModule('linagora.esn.account', {
   dependencies: [
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.logger', 'logger'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.user', 'esn-user'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.i18n', 'i18n'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.wrapper', 'webserver-wrapper'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.authorization', 'authorizationMW')
   ],
@@ -22,11 +23,13 @@ var accountModule = new AwesomeModule('linagora.esn.account', {
         },
         lib: libModule
       };
+
       return callback(null, lib);
     },
 
     deploy: function(dependencies, callback) {
-      var app = require('./backend/webserver/application')(this, dependencies);
+      var app = require('./backend/webserver/application')(dependencies);
+
       app.use('/api', this.api.accounts);
       var libJS = [
         'app.js',
@@ -37,8 +40,10 @@ var accountModule = new AwesomeModule('linagora.esn.account', {
       ];
 
       var webserverWrapper = dependencies('webserver-wrapper');
+
       webserverWrapper.injectAngularModules('account', libJS, 'linagora.esn.account', ['esn']);
       var lessFile = path.resolve(__dirname, './frontend/css/styles.less');
+
       webserverWrapper.injectLess('account', [lessFile], 'esn');
       webserverWrapper.addApp('account', app);
 
