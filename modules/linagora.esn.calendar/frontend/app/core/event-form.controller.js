@@ -49,12 +49,17 @@
       $scope.canPerformCall = canPerformCall;
       $scope.goToCalendar = goToCalendar;
       $scope.goToFullForm = goToFullForm;
+      $scope.displayCalMailToAttendeesButton = displayCalMailToAttendeesButton;
 
       // Initialize the scope of the form. It creates a scope.editedEvent which allows us to
       // rollback to scope.event in case of a Cancel.
       $scope.initFormData();
 
       ////////////
+
+      function displayCalMailToAttendeesButton() {
+        return calEventUtils.hasAttendees($scope.editedEvent) && !calEventUtils.isInvolvedInATask($scope.editedEvent) && !calEventUtils.isNew($scope.editedEvent);
+      }
 
       function _displayError(err) {
         $alert({

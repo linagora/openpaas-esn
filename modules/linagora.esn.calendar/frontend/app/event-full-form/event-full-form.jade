@@ -40,7 +40,7 @@
                 cal-attendees-list(attendees='editedEvent.attendees', read-only='::!isOrganizer', organizer='editedEvent.organizer', mode='edition')
 
               .row.visible-xs
-                cal-mail-to-attendees(ng-if='editedEvent.attendees.length > 1 && !isInvolvedInATask(editedEvent) && !isNew(editedEvent)', event='editedEvent')
+                cal-mail-to-attendees(ng-if='displayCalMailToAttendeesButton()', event='editedEvent')
 
               event-recurrence-edition(event="editedEvent", is-organizer="isOrganizer")
               cal-event-alarm-edition(event="editedEvent")
@@ -74,7 +74,7 @@
                 cal-attendees-list(attendees='editedEvent.attendees', read-only='::!isOrganizer', organizer='editedEvent.organizer', mode='edition')
 
               .row.hidden-xs
-                cal-mail-to-attendees(ng-if='editedEvent.attendees.length > 1 && !isInvolvedInATask(editedEvent) && !isNew(editedEvent)', event='editedEvent')
+                cal-mail-to-attendees(ng-if='displayCalMailToAttendeesButton()', event='editedEvent')
 
               .row
                 .col-xs-12

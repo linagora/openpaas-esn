@@ -883,5 +883,79 @@ describe('The event-form module controllers', function() {
         expect(this.calEventServiceMock.modifyEvent).to.have.been.called;
       });
     });
+
+    describe('displayCalMailToAttendeesButton function', function() {
+
+      it('should return true if the event has attendees and it is not in the grace periode and it is an old event', function() {
+        this.scope.event = this.CalendarShell.fromIncompleteShell({
+          attendees: [{
+            name: 'organiser',
+            email: 'organiser@openpaas.org',
+            partstart: 'ACCEPTED'
+          },
+            {
+              name: 'attendee1',
+              email: 'attendee1@openpaas.org',
+              partstart: 'ACCEPTED'
+            }],
+          etag: '0000'
+        });
+
+        this.initController();
+
+        expect(this.scope.displayCalMailToAttendeesButton()).to.be.true;
+      });
+
+      it('should return false if the event has no attendees', function() {
+        this.scope.event = this.CalendarShell.fromIncompleteShell({
+          gracePeriodTaskId: '0000'
+        });
+
+        this.initController();
+
+        expect(this.scope.displayCalMailToAttendeesButton()).to.be.false;
+      });
+
+      it('should return false if the event is in the grace periode', function() {
+        this.scope.event = this.CalendarShell.fromIncompleteShell({
+          attendees: [{
+            name: 'organiser',
+            email: 'organiser@openpaas.org',
+            partstart: 'ACCEPTED'
+          },
+            {
+              name: 'attendee1',
+              email: 'attendee1@openpaas.org',
+              partstart: 'ACCEPTED'
+            }],
+          gracePeriodTaskId: '0000',
+          etag: '0000'
+        });
+
+        this.initController();
+
+        expect(this.scope.displayCalMailToAttendeesButton()).to.be.false;
+      });
+
+      it('should return false if the event is a new event(not yet in the calendar)', function() {
+        this.scope.event = this.CalendarShell.fromIncompleteShell({
+          attendees: [{
+            name: 'organiser',
+            email: 'organiser@openpaas.org',
+            partstart: 'ACCEPTED'
+          },
+            {
+              name: 'attendee1',
+              email: 'attendee1@openpaas.org',
+              partstart: 'ACCEPTED'
+            }],
+          gracePeriodTaskId: '0000'
+        });
+
+        this.initController();
+
+        expect(this.scope.displayCalMailToAttendeesButton()).to.be.false;
+      });
+    });
   });
 });
