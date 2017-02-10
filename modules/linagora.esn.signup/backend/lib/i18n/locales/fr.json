@@ -1,0 +1,20 @@
+{
+  "This company is already registered. Please choose another one.": "Cette société éxiste déjà. Merci d'en indiquer une autre",
+  "Email address is required": "L'adresse email est indispensable",
+  "This email address is invalid": "Cette adresse email est invalide",
+  "First name is required": "Le prénom est indispensable",
+  "Last name is required": "Le nom est indispensable",
+  "Last Name": "Nom",
+  "First Name": "Prénom",
+  "Organization": "Société",
+  "Domain name": "Domaine",
+  "Confirm Password": "Confirmer le mot de passe",
+  "Organization is required": "La société est indispensable",
+  "Domain name is required": "Le domaine est indispensable",
+  "The two passwords do not match": "Les deux mots de passe ne sont pas identiques",
+  "Email": "Email",
+  "Register": "S'enregistrer",
+  "Signup": "S'enregistrer",
+  "Sign Up is almost complete": "Votre enregistrement est quasiment terminé",
+  "You will find an email from us in your mailbox. Please click the link in this email to complete your registration.": "Nous vous avons envoyé un email. Merci de suivre le lien contenu dans celui-ci afin de terminer votre enregistrement."
+}

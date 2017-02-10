@@ -1,0 +1,13 @@
+{
+  "First Name": "Prénom",
+  "Last Name": "Nom",
+  "Email": "Email",
+  "Register": "S'enregistrer",
+  "Signup": "S'enregistrer",
+  "Password": "Mot de passe",
+  "Confirm Password": "Confirmer le mot de passe",
+  "Sign Up is almost complete": "Votre enregistrement est quasiment terminé",
+  "You will find an email from us in your mailbox. Please click the link in this email to complete your registration.": "Nous vous avons envoyé un email. Merci de suivre le lien contenu dans celui-ci afin de terminer votre enregistrement.",
+  "Congratulations !": "Félicitations !",
+  "You are now signed up on OpenPaas. Please wait while we log you in automatically...": "Vous êtes maintenant enregistré sur OpenPaaS. Veuillez patientez, nous vous connectons automatiquement..."
+}
