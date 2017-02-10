@@ -16,9 +16,20 @@ describe('The calMailToAttendeesController', function() {
       { email: 'other3@example.com', partstat: 'DECLINED', clicked: false }
     ];
 
-    attendeesMailTest = 'other1@example.com,other2@example.com,other3@example.com';
+    attendeesMailTest = 'other2@example.com,other3@example.com';
 
     angular.mock.module('esn.calendar');
+
+    angular.mock.module(function($provide) {
+      $provide.factory('session', function() {
+        return {
+          user: {
+            preferredEmail: 'other1@example.com'
+          },
+          ready: $q.when({})
+        };
+      });
+    });
 
     angular.mock.inject(function(_$controller_) {
       $controller = _$controller_;
@@ -33,7 +44,7 @@ describe('The calMailToAttendeesController', function() {
 
   describe('The getEmailAddressesFromUsers function', function() {
 
-    it('should initialize mail-to-attendees', function() {
+    it('should initialize mail-to-attendees without the current user', function() {
       expect(ctrl.getEmailAddressesFromUsers(attendeesTest)).to.equal(attendeesMailTest);
     });
 
