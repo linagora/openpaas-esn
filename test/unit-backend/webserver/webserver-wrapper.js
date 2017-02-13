@@ -19,8 +19,6 @@ describe('the webserver-wrapper', function() {
       expect(err).to.be.null;
       expect(api.injectJS).to.exist;
       expect(api.injectJS).to.be.a('function');
-      expect(api.injectCSS).to.exist;
-      expect(api.injectCSS).to.be.a('function');
       expect(api.injectAngularModules).to.exist;
       expect(api.injectAngularModules).to.be.a('function');
       expect(api.addApp).to.exist;
@@ -46,25 +44,6 @@ describe('the webserver-wrapper', function() {
     module = this.helpers.requireBackend('webserver/webserver-wrapper');
     getApi(module, function(err, api) {
       api.injectJS('myModule', 'mymodule.js', 'esn');
-    });
-  });
-
-  it('should call webserver.addCSSInjection with arrays', function(done) {
-    var webserverMock = {
-      webserver: {
-        on: function() {},
-        addCSSInjection: function(namespace, css, apps) {
-          expect(namespace).to.equal('myModule');
-          expect(css).to.deep.equal(['mymodule.css']);
-          expect(apps).to.deep.equal(['esn']);
-          done();
-        }
-      }
-    };
-    mockery.registerMock('./', webserverMock);
-    module = this.helpers.requireBackend('webserver/webserver-wrapper');
-    getApi(module, function(err, api) {
-      api.injectCSS('myModule', 'mymodule.css', 'esn');
     });
   });
 
@@ -142,19 +121,8 @@ describe('the webserver-wrapper', function() {
         var response = this.proxy.call(lib, 'module1', false);
         expect(response).to.not.have.property('test');
         expect(response).to.have.property('injectJS');
-        expect(response).to.have.property('injectCSS');
         expect(response).to.have.property('injectAngularModules');
         expect(response).to.have.property('addApp');
-      });
-      it('injectCSS() should force the namespace on proxied methods', function(done) {
-        var lib = {
-          injectCSS: function(namespace) {
-            expect(namespace).to.equal('module1');
-            done();
-          }
-        };
-        var response = this.proxy.call(lib, 'module1', false);
-        response.injectCSS('some', 'cool', 'params');
       });
       it('injectJS() should force the namespace on proxied methods', function(done) {
         var lib = {
