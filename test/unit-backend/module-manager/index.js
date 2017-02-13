@@ -71,6 +71,7 @@ describe('The module manager', function() {
         'linagora.esn.core.feedback',
         'linagora.esn.core.filestore',
         'linagora.esn.core.helpers',
+        'linagora.esn.core.i18n',
         'linagora.esn.core.image',
         'linagora.esn.core.invitation',
         'linagora.esn.core.ldap',

@@ -16,6 +16,7 @@ var oauthLoginModule = new AwesomeModule(MODULE_NAME, {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.config', 'config'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.helpers', 'helpers'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.filestore', 'store'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.i18n', 'i18n'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.wrapper', 'webserver-wrapper'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.authorization', 'authorizationMW'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.denormalize.user', 'denormalizeUser')
@@ -34,7 +35,7 @@ var oauthLoginModule = new AwesomeModule(MODULE_NAME, {
     deploy: function(dependencies, callback) {
       var config = dependencies('config')('default');
       var webserverWrapper = dependencies('webserver-wrapper');
-      var app = require('./backend/webserver/application')(this, dependencies);
+      var app = require('./backend/webserver/application')(dependencies);
       var lessFile = path.resolve(__dirname, './frontend/css/styles.less');
       var js = ['app.js'];
 

@@ -13,7 +13,10 @@ describe('i18n lib', function() {
 
   beforeEach(function() {
     const modulesPath = this.moduleHelpers.modulesPath;
-    requireModule = () => (require(modulesPath + 'linagora.esn.calendar/backend/lib/i18n')(function() {}));
+
+    this.moduleHelpers.addDep('i18n', this.helpers.requireBackend('core/i18n'));
+
+    requireModule = () => (require(modulesPath + 'linagora.esn.calendar/backend/lib/i18n')(this.moduleHelpers.dependencies));
 
     i18nLib = requireModule();
   });
