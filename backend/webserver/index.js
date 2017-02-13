@@ -172,16 +172,6 @@ function addJSInjection(moduleName, files, innerApps) {
 
 webserver.addJSInjection = addJSInjection;
 
-function addCSSInjection(moduleName, files, innerApps) {
-  injections[moduleName] = injections[moduleName] || {};
-  innerApps.forEach(function(innerApp) {
-    injections[moduleName][innerApp] = injections[moduleName][innerApp] || {};
-    injections[moduleName][innerApp].css = files;
-  });
-}
-
-webserver.addCSSInjection = addCSSInjection;
-
 function addAngularModulesInjection(moduleName, files, angularModulesNames, innerApps) {
   injections[moduleName] = injections[moduleName] || {};
   innerApps.forEach(function(innerApp) {
