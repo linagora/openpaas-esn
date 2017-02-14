@@ -10,6 +10,9 @@ describe('The esnCalendar component controller', function() {
 
   beforeEach(function() {
     angular.mock.module('esn.calendar', 'linagora.esn.graceperiod');
+    angular.mock.module('esn.calendar', function($provide) {
+      $provide.constant('CALENDAR_RESIZE_DEBOUNCE_DELAY', 0);
+    });
   });
 
   afterEach(function() {
@@ -59,6 +62,7 @@ describe('The esnCalendar component controller', function() {
     expect(calElement.fullCalendar).to.have.been.calledWith(sinon.match({
       viewRender: sinon.match.func.and(sinon.match(function(func) {
         func('arg1', 'arg2');
+
         return true;
       }))
     }));
@@ -76,12 +80,14 @@ describe('The esnCalendar component controller', function() {
       expect(calElement.fullCalendar).to.have.been.calledWith(sinon.match({
         viewRender: sinon.match.func.and(sinon.match(function(func) {
           func();
+
           return true;
         }))
       }));
 
       expect(vm.calendarReady).to.have.been.calledWith(sinon.match(function(_calendar_) {
         calendar = _calendar_;
+
         return true;
       }));
     });
@@ -91,19 +97,20 @@ describe('The esnCalendar component controller', function() {
       expect(calElement.fullCalendar).to.have.been.calledWith('yolo', 'yolo');
     });
 
-    it('should have a offset method that call directly the real  offset jquery method', function() {
+    it('should have a offset method that call directly the real offset jquery method', function() {
       calendar.offset('yolo', 'yolo');
       expect(calElement.offset).to.have.been.calledWith('yolo', 'yolo');
     });
   });
 
-  it('should call render on window resize if the calendar was never render', function() {
-    initController();
+  it('should call render on window resize', function(done) {
+    calElement.fullCalendar = function(arg) {
+      if (arg === 'render') {
+        done();
+      }
+    };
+
     angular.element($window).resize();
-    expect(calElement.fullCalendar).to.have.been.calledWith('render');
-    calElement.fullCalendar.reset();
-    angular.element($window).resize();
-    expect(calElement.fullCalendar).to.not.have.been.called;
   });
 
   afterEach(function() {
