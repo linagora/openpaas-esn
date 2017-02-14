@@ -52,9 +52,7 @@
                       span.input-group-addon
                         i.mdi.mdi-lock
                       .fg-line.select
-                        select.form-control(ng-disabled="!isOrganizer")
-                          option(value="privacyA") privacyA
-                          option(value="privacyB") privacyB
+                        select.form-control(ng-disabled="!isOrganizer", ng-model='editedEvent.class', ng-options="value as value for value in EVENT_FORM.class.values")
 
             .col-xs-12.col-sm-6
               .row.hidden-xs

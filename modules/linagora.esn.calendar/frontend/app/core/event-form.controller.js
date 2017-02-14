@@ -87,22 +87,31 @@
       function initFormData() {
         $scope.editedEvent = $scope.event.clone();
         $scope.newAttendees = calEventUtils.getNewAttendees();
+
         calendarService.listCalendars(calendarService.calendarHomeId).then(function(calendars) {
           $scope.calendars = calendars;
           $scope.calendar = calEventUtils.isNew($scope.editedEvent) ? _.find(calendars, 'selected') : _.find(calendars, {id: $scope.editedEvent.calendarId});
         });
+
         $scope.isOrganizer = calEventUtils.isOrganizer($scope.editedEvent);
+
         if ($scope.isOrganizer) {
           initOrganizer();
         } else {
           $scope.editedEvent.attendees.push($scope.editedEvent.organizer);
         }
+
         $scope.userAsAttendee = null;
+
         $scope.editedEvent.attendees.forEach(function(attendee) {
           if (attendee.email in session.user.emailMap) {
             $scope.userAsAttendee = attendee;
           }
         });
+
+        if (!$scope.editedEvent.class) {
+          $scope.editedEvent.class = EVENT_FORM.class.default;
+        }
       }
 
       function initOrganizer() {
@@ -119,6 +128,10 @@
       function createEvent() {
         if (!$scope.editedEvent.title || $scope.editedEvent.title.trim().length === 0) {
           $scope.editedEvent.title = EVENT_FORM.title.default;
+        }
+
+        if (!$scope.editedEvent.class) {
+          $scope.editedEvent.class = EVENT_FORM.class.default;
         }
 
         if (!$scope.calendarHomeId) {

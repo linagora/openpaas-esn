@@ -97,6 +97,10 @@
       },
       location: {
         maxlength: 1024
+      },
+      class: {
+        default: 'public',
+        values: ['public', 'private']
       }
     })
 

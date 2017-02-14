@@ -96,6 +96,7 @@
   "Configuration": "Configuration",
   "Show calendar": "Show calendar",
   "Hide calendar": "Hide calendar",
-  "New calendar": "New calendar"
-
+  "New calendar": "New calendar",
+  "Public": "Public",
+  "Private": "Private"
 }
