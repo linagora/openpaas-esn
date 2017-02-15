@@ -95,5 +95,7 @@
   "Configuration": "Configuration",
   "Show calendar": "Afficher le calendrier",
   "Hide calendar": "Masquer le calendrier",
-  "New calendar": "Nouveau calendrier"
+  "New calendar": "Nouveau calendrier",
+  "Public": "Publique",
+  "Private": "Privé"
 }

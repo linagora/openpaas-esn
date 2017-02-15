@@ -95,7 +95,7 @@ describe('The event-form module controllers', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function($controller, $rootScope, moment, calEventUtils, CALENDAR_EVENTS, CalendarShell, TRIGGER) {
+  beforeEach(angular.mock.inject(function($controller, $rootScope, moment, calEventUtils, CALENDAR_EVENTS, CalendarShell, TRIGGER, EVENT_FORM) {
     this.rootScope = $rootScope;
     this.scope = $rootScope.$new();
     this.controller = $controller;
@@ -104,6 +104,7 @@ describe('The event-form module controllers', function() {
     this.CALENDAR_EVENTS = CALENDAR_EVENTS;
     this.CalendarShell = CalendarShell;
     this.TRIGGER = TRIGGER;
+    this.EVENT_FORM = EVENT_FORM;
   }));
 
   describe('The calEventFormController controller', function() {
@@ -249,6 +250,14 @@ describe('The event-form module controllers', function() {
         });
         this.initController();
         expect(this.scope.isOrganizer).to.equal(false);
+      });
+
+      it('should initialize the class property with the default value if it is a new event', function() {
+        this.scope.event = this.CalendarShell.fromIncompleteShell({});
+
+        this.initController();
+
+        expect(this.scope.editedEvent.class).to.equal(this.EVENT_FORM.class.default);
       });
     });
 
@@ -689,6 +698,12 @@ describe('The event-form module controllers', function() {
       it('should force title to \'No title\' if the edited event has no title', function() {
         this.scope.createEvent();
         expect(this.scope.editedEvent.title).to.equal('No title');
+      });
+
+      it('should initialize the class with \'public\' if the edited event has no class', function() {
+        this.scope.createEvent();
+
+        expect(this.scope.editedEvent.class).to.equal('public');
       });
 
       it('should add newAttendees from the form', function() {

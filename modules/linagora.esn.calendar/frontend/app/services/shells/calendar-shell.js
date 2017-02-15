@@ -34,10 +34,11 @@
     'CalRRuleShell',
     'CalVAlarmShell',
     'EVENT_MODIFY_COMPARE_KEYS',
-    'ICAL_PROPERTIES'
+    'ICAL_PROPERTIES',
+    'EVENT_FORM'
   ];
 
-  function CalendarShellFactory($q, _, ICAL, jstz, uuid4, calendarUtils, calEventAPI, calMoment, calMasterEventCache, CalRRuleShell, CalVAlarmShell, EVENT_MODIFY_COMPARE_KEYS, ICAL_PROPERTIES) {
+  function CalendarShellFactory($q, _, ICAL, jstz, uuid4, calendarUtils, calEventAPI, calMoment, calMasterEventCache, CalRRuleShell, CalVAlarmShell, EVENT_MODIFY_COMPARE_KEYS, ICAL_PROPERTIES, EVENT_FORM) {
     var localTimezone = jstz.determine().name();
 
     function CalendarShell(vcomponent, extendedProperties) {
@@ -88,6 +89,7 @@
     CalendarShell.fromIncompleteShell = fromIncompleteShell;
 
     CalendarShell.prototype = {
+      isPublic: isPublic,
       isRecurring: isRecurring,
       applyReply: applyReply,
       deleteInstance: deleteInstance,
@@ -333,6 +335,13 @@
 
         this.__alarmValue = value;
         this.ensureAlarmCoherence();
+      },
+
+      get class() { return this.vevent.getFirstPropertyValue('class'); },
+
+      set class(value) {
+        this.vevent.updatePropertyWithValue('class', value);
+        this.ensureAlarmCoherence();
       }
     };
 
@@ -388,6 +397,10 @@
           }
         }
       }
+    }
+
+    function isPublic() {
+      return this.class === EVENT_FORM.class.default;
     }
 
     function isRecurring() {
@@ -829,6 +842,7 @@
         'start: <%- start %> \\n' +
         'end: <%- end %> \\n' +
         'location: <%= location %> \\n' +
+        'class: <%= classProperty %> \\n' +
         'More details:\\n' +
         'https://localhost:8080/#/calendar/<%- calendarId %>/event/<%- eventId %>/consult';
 
@@ -845,6 +859,7 @@
         end: this.end,
         diffStart: calMoment(new Date()).to(this.start),
         location: this.location,
+        classProperty: this.class,
         calendarId: this.calendarId,
         eventId: this.id
       }));

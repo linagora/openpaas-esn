@@ -456,6 +456,28 @@ describe('CalendarShell factory', function() {
 
   });
 
+  describe('isPublic method', function() {
+    it('should return true for the public event', function() {
+      var shell = {
+        class: 'public'
+      };
+
+      shell = CalendarShell.fromIncompleteShell(shell);
+
+      expect(shell.isPublic()).to.be.true;
+    });
+
+    it('should return false for the private event', function() {
+      var shell = {
+        class: 'private'
+      };
+
+      shell = CalendarShell.fromIncompleteShell(shell);
+
+      expect(shell.isPublic()).to.be.false;
+    });
+  });
+
   describe('isRecurring method', function() {
     it('should return true for reccuring event', function() {
       var shell = {
@@ -1328,13 +1350,14 @@ describe('CalendarShell factory', function() {
       }
     });
 
-    function expectAlarm(event, expectedSummary, expectedLocation, expectedStart, expectedEnd) {
+    function expectAlarm(event, expectedSummary, expectedLocation, expectedStart, expectedEnd, expectedClass) {
       expect(event.alarm.summary).to.equal('Pending event! ' + expectedSummary);
       expect(event.alarm.description)
         .to.contain('The event ' + expectedSummary + ' will start')
         .and.to.contain('start: ' + expectedStart)
         .and.to.contain('end: ' + expectedEnd)
         .and.to.contain('location: ' + expectedLocation + ' \\n')
+        .and.to.contain('class: ' + expectedClass + ' \\n')
         .and.to.contain(
         'More details:\\n' +
         'https://localhost:8080/#/calendar//event/00000000-0000-4000-a000-000000000000/consult'
@@ -1344,10 +1367,12 @@ describe('CalendarShell factory', function() {
     it('should not escape value of some valarm properties', function() {
       var summary = 'My <&> "event"';
       var location = 'My <&> "location"';
+      var classProperty = 'MY <&> "class"';
       var event = CalendarShell.fromIncompleteShell({
         start: calMoment('2015-01-01 18:00'),
         end: calMoment('2015-01-02 18:00'),
         location: location,
+        class: classProperty,
         summary: summary
       });
 
@@ -1356,13 +1381,15 @@ describe('CalendarShell factory', function() {
         attendee: 'test@open-paas.org'
       };
 
-      expectAlarm(event, summary, location, 'Thu Jan 01 2015 18:00:00', 'Fri Jan 02 2015 18:00:00');
+      expectAlarm(event, summary, location, 'Thu Jan 01 2015 18:00:00', 'Fri Jan 02 2015 18:00:00', classProperty);
     });
 
     it('should update the alarm when any related information is updated', function() {
       var summary = 'Initial summary',
           updatedSummary = 'Updated summary',
           location = 'Initial location',
+          classProperty = 'Initial class',
+          updatedClass = 'Updated class',
           updatedLocation = 'Updated location',
           start = calMoment('2015-01-01 12:00'),
           updatedStart = calMoment('2015-01-01 13:00'),
@@ -1372,25 +1399,31 @@ describe('CalendarShell factory', function() {
             start: start,
             end: end,
             location: location,
-            summary: summary
+            summary: summary,
+            class: classProperty
           });
 
       event.alarm = { trigger: '-PT30M', attendee: 'test@open-paas.org' };
-      expectAlarm(event, summary, location, 'Thu Jan 01 2015 12:00:00', 'Fri Jan 02 2015 12:00:00');
+      expectAlarm(event, summary, location, 'Thu Jan 01 2015 12:00:00', 'Fri Jan 02 2015 12:00:00', classProperty);
 
       event.summary = updatedSummary;
-      expectAlarm(event, updatedSummary, location, 'Thu Jan 01 2015 12:00:00', 'Fri Jan 02 2015 12:00:00');
+      expectAlarm(event, updatedSummary, location, 'Thu Jan 01 2015 12:00:00', 'Fri Jan 02 2015 12:00:00', classProperty);
 
       event.location = updatedLocation;
-      expectAlarm(event, updatedSummary, updatedLocation, 'Thu Jan 01 2015 12:00:00', 'Fri Jan 02 2015 12:00:00');
+      expectAlarm(event, updatedSummary, updatedLocation, 'Thu Jan 01 2015 12:00:00', 'Fri Jan 02 2015 12:00:00', classProperty);
 
       event.start = updatedStart;
-      expectAlarm(event, updatedSummary, updatedLocation, 'Thu Jan 01 2015 13:00:00', 'Fri Jan 02 2015 12:00:00');
+      expectAlarm(event, updatedSummary, updatedLocation, 'Thu Jan 01 2015 13:00:00', 'Fri Jan 02 2015 12:00:00', classProperty);
 
       event.end = updatedEnd;
-      expectAlarm(event, updatedSummary, updatedLocation, 'Thu Jan 01 2015 13:00:00', 'Fri Jan 02 2015 13:00:00');
-    });
+      expectAlarm(event, updatedSummary, updatedLocation, 'Thu Jan 01 2015 13:00:00', 'Fri Jan 02 2015 13:00:00', classProperty);
 
+      event.location = updatedLocation;
+      expectAlarm(event, updatedSummary, updatedLocation, 'Thu Jan 01 2015 13:00:00', 'Fri Jan 02 2015 13:00:00', classProperty);
+
+      event.class = updatedClass;
+      expectAlarm(event, updatedSummary, updatedLocation, 'Thu Jan 01 2015 13:00:00', 'Fri Jan 02 2015 13:00:00', updatedClass);
+    });
   });
 
   describe('getOrganizerPartStat', function() {
