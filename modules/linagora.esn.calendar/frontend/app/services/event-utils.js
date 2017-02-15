@@ -95,10 +95,36 @@
           addIconInEventInstanceInMobile();
 
           addIconForAttendeesInMobile();
+
+          addIconInPrivateEventInMobile();
         } else {
           addIconInEventInstanceInDesktop();
 
           addIconForAttendeesInDesktop();
+
+          addIconInPrivateEventInDesktop();
+        }
+      }
+
+      function addIconInPrivateEventInMobile() {
+        if (!event.isPublic()) {
+          var smallEvent = eventDurationInMinute <= CALENDAR_MAX_DURATION_OF_SMALL_EVENT.MOBILE;
+
+          if (event.allDay || (!event.allDay && smallEvent)) {
+            title.prepend('<i class="mdi mdi-lock"/>');
+          } else if (!smallEvent) {
+            eventIconsDivInMobile.append('<i class="mdi mdi-lock"/>');
+          }
+        }
+      }
+
+      function addIconInPrivateEventInDesktop() {
+        if (!event.isPublic()) {
+          if (event.allDay) {
+            title.prepend('<i class="mdi mdi-lock"/>');
+          } else {
+            timeDiv.prepend('<i class="mdi mdi-lock"/>');
+          }
         }
       }
 
