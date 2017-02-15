@@ -855,5 +855,42 @@ describe('The calendar configuration controller', function() {
 
       expect(calendarConfigurationController.onAddingUser($tag)).to.be.true;
     });
+
+    it('should return true when the $tag is not already added in the delegations', function() {
+      var $tag = {
+        _id: '11111111'
+      };
+
+      calendarConfigurationController.$onInit();
+
+      calendarConfigurationController.delegations = [
+        {
+          user: {
+            _id: '123'
+          }
+        }
+      ];
+
+      expect(calendarConfigurationController.onAddingUser($tag)).to.be.true;
+    });
+
+    it('should return false when the $tag does already exist in the delegations', function() {
+      var $tag = {
+        _id: '123'
+      };
+
+      calendarConfigurationController.$onInit();
+
+      calendarConfigurationController.delegations = [
+        {
+          user: {
+            _id: '123'
+          }
+        }
+      ];
+
+      expect(calendarConfigurationController.onAddingUser($tag)).to.be.false;
+    });
+
   });
 });
