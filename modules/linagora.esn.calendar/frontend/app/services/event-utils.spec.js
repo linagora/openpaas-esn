@@ -81,7 +81,8 @@ describe('The calEventUtils service', function() {
       vcalendar: vcalendar,
       attendees: [],
       isInstance: function() { return false; },
-      isOverOneDayOnly: sinon.spy()
+      isOverOneDayOnly: sinon.spy(),
+      isPublic: sinon.stub().returns(true)
     };
 
     element = new Element();
@@ -436,6 +437,37 @@ describe('The calEventUtils service', function() {
             expect(eventIconsDivInMobile.append).to.have.been.calledWith('<i class="mdi mdi-help-circle"/>');
           });
         });
+
+        describe('addIconInPrivateEventInMobile function', function() {
+
+          it('should add the private event icon in the title div if the event is private and allDay', function() {
+            event.isPublic = function() { return false; };
+            event.allDay = true;
+
+            this.calEventUtils.render(event, element, view);
+
+            expect(fcTitle.prepend).to.have.been.calledWith('<i class="mdi mdi-lock"/>');
+          });
+
+          it('should add the private event icon in the title div if the event is private and not allDay and event Duration <= one hour', function() {
+            event.isPublic = function() { return false; };
+
+            this.calEventUtils.render(event, element, view);
+
+            expect(fcTitle.prepend).to.have.been.calledWith('<i class="mdi mdi-lock"/>');
+          });
+
+          it('should add the private event icon in the eventIconsDivInMobile div after location if the event is private and not allDay and event duration > one hour', function() {
+            event.start = this.calMoment();
+            event.end = event.start.clone().add(this.CALENDAR_MAX_DURATION_OF_SMALL_EVENT.MOBILE + 1, 'minutes');
+
+            event.isPublic = function() { return false; };
+
+            this.calEventUtils.render(event, element, view);
+
+            expect(eventIconsDivInMobile.append).to.have.been.calledWith('<i class="mdi mdi-lock"/>');
+          });
+        });
       });
 
       describe('desktop view', function() {
@@ -558,6 +590,26 @@ describe('The calEventUtils service', function() {
             this.calEventUtils.render(event, element, view);
 
             expect(fcTime.prepend).to.have.been.calledWith('<i class="mdi mdi-help-circle"/>');
+          });
+        });
+
+        describe('addIconInPrivateEventInDesktop function', function() {
+
+          it('should add the private event icon in the title div if the event is private and allDay', function() {
+            event.isPublic = function() { return false; };
+            event.allDay = true;
+
+            this.calEventUtils.render(event, element, view);
+
+            expect(fcTitle.prepend).to.have.been.calledWith('<i class="mdi mdi-lock"/>');
+          });
+
+          it('should add the private event icon in the time div if the event is private and not allDay', function() {
+            event.isPublic = function() { return false; };
+
+            this.calEventUtils.render(event, element, view);
+
+            expect(fcTime.prepend).to.have.been.calledWith('<i class="mdi mdi-lock"/>');
           });
         });
       });
