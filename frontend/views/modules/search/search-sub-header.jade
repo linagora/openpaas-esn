@@ -1,16 +1,12 @@
-.search-subheader.row.all-centered
+.module-subheader.row.all-centered
+  .col-md-offset-2.hidden-xs
   .col-xs-12.col-md-8.no-padding-xs
-    .row.flex-wrap.flex-vertical-centered.flex-space-between
+    .row.flex-wrap.flex-vertical-centered.flex-space-between.module-subheader-inner
       .col-xs-1.search-show-aside.all-centered.hidden-md
         a(href='', contextual-sidebar,  data-controller='searchSidebarController', data-content-template="/views/modules/search/desktop-sidebar.html")
           i.mdi.mdi-dots-vertical
-      .col-md-4.search-header-title.visible-md
-        h2
-          span #{__('Global Search')}
+      .col-md-4.visible-md
+        span.title.ellipsis #{__('Global Search')}
       .col-xs-10.col-md-4
         search-header-form
-      .col-md-4.visible-md
-        .search-options.flex-vertical-centered
-          span.list-item.mdi.mdi-view-list.clickable(ng-class='{"toggle-active": !listDisplay}', ng-click="listDisplay=false")
-          toggle-switch.toggle-switch(ng-model='listDisplay', color='white')
-          span.list-item.mdi.mdi-calendar-clock.clickable(ng-class='{"toggle-active": listDisplay}', ng-click="listDisplay=true")
+      .col-md-offset-4
