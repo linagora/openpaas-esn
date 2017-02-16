@@ -14,7 +14,12 @@
 
   function calOpenEventForm($rootScope, $modal, $state, matchmedia, calendarService, calEventUtils, SM_XS_MEDIA_QUERY, CALENDAR_EVENTS) {
     var modalIsOpen = false;
+
     return function calOpenEventForm(event) {
+      if (!calEventUtils.isOrganizer(event) && !event.isPublic()) {
+        return;
+      }
+
       if (!event.isInstance()) {
         _openForm(event);
       } else {
@@ -92,5 +97,4 @@
       });
     }
   }
-
 })();
