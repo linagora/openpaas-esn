@@ -10,13 +10,13 @@
    * This service will open the correct form corresponding to the event and the screen size.
    */
   angular.module('esn.calendar')
-         .factory('calOpenEventForm', calOpenEventForm);
+    .factory('calOpenEventForm', calOpenEventForm);
 
-  function calOpenEventForm($rootScope, $modal, $state, matchmedia, calendarService, calEventUtils, SM_XS_MEDIA_QUERY, CALENDAR_EVENTS) {
+  function calOpenEventForm($rootScope, $modal, $state, matchmedia, calendarService, calEventUtils, calendarAuthorizationHelper, SM_XS_MEDIA_QUERY, CALENDAR_EVENTS, CALENDAR_AUTHORIZATIONS) {
     var modalIsOpen = false;
 
     return function calOpenEventForm(event) {
-      if (!calEventUtils.isOrganizer(event) && !event.isPublic()) {
+      if (!calendarAuthorizationHelper.isAllowedTo(CALENDAR_AUTHORIZATIONS.ACCESS_EVENT_DETAIL, event)) {
         return;
       }
 

@@ -177,5 +177,9 @@
     .constant('CALENDAR_MAX_DURATION_OF_SMALL_EVENT', {
       MOBILE: 60,
       DESKTOP: 45
+    })
+
+    .constant('CALENDAR_AUTHORIZATIONS', {
+      ACCESS_EVENT_DETAIL: 'access_event_detail'
     });
 })();
