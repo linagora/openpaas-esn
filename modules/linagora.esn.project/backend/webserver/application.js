@@ -4,12 +4,10 @@ var express = require('express');
 var path = require('path');
 var FRONTEND_PATH = path.normalize(__dirname + '/../../frontend');
 
-let i18n;
-
 function projectApplication(projectLib, dependencies) {
-  var app = express();
+  const app = express();
+  const i18n = require('../lib/i18n')(dependencies);
 
-  i18n = require('../i18n')(dependencies);
   app.use(i18n.init);
 
   app.use(express.static(FRONTEND_PATH));
