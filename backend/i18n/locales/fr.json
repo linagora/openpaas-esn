@@ -181,7 +181,7 @@
   "Error while getting notifications": "Erreur lors de la récupération des notifications",
   "Membership requests": "Demandes d'inscription",
   "Error while getting memberships": "Erreur lors de la récupération des inscriptions",
-  "Error, you do not have the permissi  on to read memberships": "Erreur, vous n'avez pas le droit de consulter les inscriptions",
+  "Error, you do not have the permission to read memberships": "Erreur, vous n'avez pas le droit de consulter les inscriptions",
   "Loading membership requests": "Récupération des demandes d'inscription",
   "Accept": "Accepter",
   "Decline": "Décliner",
