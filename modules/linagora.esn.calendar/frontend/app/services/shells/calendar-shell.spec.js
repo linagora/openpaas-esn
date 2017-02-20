@@ -459,7 +459,7 @@ describe('CalendarShell factory', function() {
   describe('isPublic method', function() {
     it('should return true for the public event', function() {
       var shell = {
-        class: 'public'
+        class: 'PUBLIC'
       };
 
       shell = CalendarShell.fromIncompleteShell(shell);
@@ -469,7 +469,7 @@ describe('CalendarShell factory', function() {
 
     it('should return false for the private event', function() {
       var shell = {
-        class: 'private'
+        class: 'PRIVATE'
       };
 
       shell = CalendarShell.fromIncompleteShell(shell);

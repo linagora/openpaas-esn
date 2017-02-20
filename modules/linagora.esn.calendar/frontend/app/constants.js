@@ -99,8 +99,17 @@
         maxlength: 1024
       },
       class: {
-        default: 'public',
-        values: ['public', 'private']
+        default: 'PUBLIC',
+        values: [
+          {
+            value: 'PUBLIC',
+            label: 'Public'
+          },
+          {
+            value: 'PRIVATE',
+            label: 'Private'
+          }
+        ]
       }
     })
 
