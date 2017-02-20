@@ -188,6 +188,24 @@ module.exports = function(grunt) {
       modules_unit_storage: runGrunt.newProcess(['test-modules-unit-storage']),
       modules_frontend: runGrunt.newProcess(['test-modules-frontend']),
       e2e: runGrunt.newProcess(['test-e2e'])
+    },
+
+    i18n_checker: {
+      all: {
+        options: {
+          baseDir: __dirname,
+          verifyOptions: {
+            defaultLocale: 'en',
+            locales: ['en', 'fr'],
+            rules: [
+              'all-locales-present',
+              'valid-json-file',
+              'default-locale-translate',
+              'all-keys-translated'
+            ]
+          }
+        }
+      }
     }
   });
 
@@ -204,6 +222,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-docker-spawn');
   grunt.loadNpmTasks('grunt-eslint');
   grunt.loadNpmTasks('grunt-wait-server');
+  grunt.loadNpmTasks('grunt-i18n-checker');
 
   grunt.loadTasks('tasks');
 
@@ -250,7 +269,8 @@ module.exports = function(grunt) {
   grunt.registerTask('docker-test-unit-storage', ['setup-environment', 'setup-mongo-es-docker', 'run_grunt:unit_storage', 'kill-containers', 'clean-environment']);
   grunt.registerTask('docker-test-midway-backend', ['setup-environment', 'setup-mongo-es-docker', 'run_grunt:midway_backend', 'kill-containers', 'clean-environment']);
   grunt.registerTask('docker-test-modules-midway', ['setup-environment', 'setup-mongo-es-docker', 'run_grunt:modules_midway_backend', 'kill-containers', 'clean-environment']);
-  grunt.registerTask('linters', 'Check code for lint', ['eslint:all', 'lint_pattern']);
+  grunt.registerTask('i18n', 'Check the translation files', ['i18n_checker']);
+  grunt.registerTask('linters', 'Check code for lint', ['eslint:all', 'lint_pattern', 'i18n']);
 
   /**
    * Usage:
