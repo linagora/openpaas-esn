@@ -1,6 +1,7 @@
 'use strict';
 
 var expect = require('chai').expect;
+var sinon = require('sinon');
 
 describe('the websocket store module', function() {
   describe('registerSocket() method', function() {
@@ -78,4 +79,25 @@ describe('the websocket store module', function() {
     });
   });
 
+  describe('the clean function', function() {
+    beforeEach(function() {
+      this.store = this.helpers.requireBackend('wsserver/socketstore');
+    });
+
+    it('should disconnect and unregister all the stored websockets', function() {
+      const socket1 = {_id: 1, disconnect: sinon.spy(), request: {userId: 'user1'}};
+      const socket2 = {_id: 2, disconnect: sinon.spy(), request: {userId: 'user2'}};
+      const socket3 = {_id: 3, disconnect: sinon.spy(), request: {userId: 'user3'}};
+
+      this.store.registerSocket(socket1);
+      this.store.registerSocket(socket2);
+      this.store.registerSocket(socket3);
+
+      this.store.clean();
+
+      expect(socket1.disconnect).to.have.been.calledWith(true);
+      expect(socket2.disconnect).to.have.been.calledWith(true);
+      expect(socket3.disconnect).to.have.been.calledWith(true);
+    });
+  });
 });

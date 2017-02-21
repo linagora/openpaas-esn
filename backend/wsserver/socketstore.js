@@ -1,8 +1,19 @@
 'use strict';
 
+var _ = require('lodash');
 var logger = require('../core/logger');
 var iohelper = require('./helper/socketio');
 var websockets = {};
+
+function clean() {
+  _.forEach(websockets, sockets => {
+    sockets.forEach(socket => {
+      socket.disconnect(true);
+      unregisterSocket(socket);
+    });
+  });
+}
+module.exports.clean = clean;
 
 function registerSocket(socket) {
   var userId = iohelper.getUserId(socket);
