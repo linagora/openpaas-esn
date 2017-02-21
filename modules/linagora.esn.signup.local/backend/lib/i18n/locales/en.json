@@ -1,13 +1,4 @@
 {
-  "First Name": "First Name",
-  "Last Name": "Last Name",
-  "Email": "Email",
-  "Register": "Register",
-  "Signup": "Signup",
-  "Password": "Password",
-  "Confirm Password": "Confirm Password",
-  "Sign Up is almost complete": "Sign Up is almost complete",
-  "You will find an email from us in your mailbox. Please click the link in this email to complete your registration.": "You will find an email from us in your mailbox. Please click the link in this email to complete your registration.",
   "Congratulations !": "Congratulations !",
   "You are now signed up on OpenPaas. Please wait while we log you in automatically...": "You are now signed up on OpenPaas. Please wait while we log you in automatically..."
 }

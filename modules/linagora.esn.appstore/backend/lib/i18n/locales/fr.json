@@ -1,5 +1,4 @@
 {
-  "Please check your email inbox to confirm your registration": "Merci de consulter votre boite de réception de mails pour confirmer votre enregistrement",
   "Install": "Installer",
   "Submit": "Valider",
   "Submit a new module": "Enregistrer un nouveau module",
@@ -20,7 +19,6 @@
   "A human readable description which will help users know what this module is about": "Une description qui permettra aux utilisateurs de comprendre l'utilité de ce module",
   "There are no modules yet.": "Il n'y a pas encore de module.",
   "Domain level deployment": "Déploiement au niveau du domaine",
-  "Module Manager": "Gestionnaire de modules",
   "Loading modules...": "Chargement des modules...",
   "Error while loading modules !": "Nous avons rencontré une erreur lors du chargement des modules",
   "You are about to install new modules in the community": "Vous êtes sur le point d'installer de nouveaux modules dans la communauté"

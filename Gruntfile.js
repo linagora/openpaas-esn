@@ -196,13 +196,7 @@ module.exports = function(grunt) {
           baseDir: __dirname,
           verifyOptions: {
             defaultLocale: 'en',
-            locales: ['en', 'fr'],
-            rules: [
-              'all-locales-present',
-              'valid-json-file',
-              'default-locale-translate',
-              'all-keys-translated'
-            ]
+            locales: ['en', 'fr']
           }
         }
       }
