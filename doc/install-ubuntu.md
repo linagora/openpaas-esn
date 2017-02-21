@@ -12,11 +12,11 @@ See also [General installation instructions](https://ci.open-paas.org/stash/proj
 
         git clone https://ci.open-paas.org/stash/scm/or/rse.git
 
-3.Install ElasticSearch 2.2.1
- Download and install ElasticSearch 2.2.1 [deb package](https://www.elastic.co/downloads/past-releases/elasticsearch-2-2-1) from elastic website
+3.Install ElasticSearch 2.3.2
+ Download and install ElasticSearch 2.3.2 [deb package](https://www.elastic.co/downloads/past-releases/elasticsearch-2-3-2) from elastic website
 
-        wget https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-2.2.1.deb
-        sudo dpkg -i elasticsearch-2.2.1.deb
+        wget https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/2.3.2/elasticsearch-2.3.2.deb
+        sudo dpkg -i elasticsearch-2.3.2.deb
 
  Pin the version to avoid unwanted updates
 
@@ -101,7 +101,7 @@ We highly recommend that you use [nvm](https://github.com/creationix/nvm) to ins
 7.Install the npm dependency
 
     npm install -g bower
-   
+
 8.Go into the project directory and install project dependencies (not as an administrator)
 
         cd rse
