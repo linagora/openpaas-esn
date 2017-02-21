@@ -76,6 +76,7 @@ module.exports = function(config) {
       'frontend/components/angular-component/dist/angular-component.min.js',
       'frontend/components/angular-scroll-glue/src/scrollglue.js',
       'frontend/components/angular-file-saver/dist/angular-file-saver.bundle.js',
+      'frontend/components/waves/dist/waves.min.js',
       'test/fixtures/code-generation/constants.js',
       'frontend/js/modules/**/*.module.js',
       'frontend/js/**/*.js',
