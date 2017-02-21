@@ -1,4 +1,8 @@
-.filter-button(dropdown-list="/unifiedinbox/views/filter/dropdown-list.html", ng-class="{ 'filtered': dropdownList.filtered }", title="#{__('Filters')}")
-  i.mdi.mdi-filter
-  span.filter-label.hidden-xs {{ dropdownList.placeholder }}
-  span.caret
+button.btn.btn-link.filter-button.hidden-xs(dropdown-list="/unifiedinbox/views/filter/dropdown-list.html", ng-class="{ 'filtered': dropdownList.filtered }", title="#{__('Filters')}")
+  .flex-vertical-centered
+    i.mdi.mdi-filter.mdi-margin-right
+    span.filter-label {{ dropdownList.placeholder }}
+    span.caret.mdi-margin-left
+
+button.btn.btn-link.btn-icon.filter-button.visible-xs(dropdown-list="/unifiedinbox/views/filter/dropdown-list.html", ng-class="{ 'filtered': dropdownList.filtered }")
+  i.mdi.mdi.mdi-filter

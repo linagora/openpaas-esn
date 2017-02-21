@@ -13,4 +13,5 @@
             a(href="", ng-click="ctrl.upload(attachment)") #{__('Retry')}
           .size(ng-switch-default) {{ ::attachment.size | bytes }}
       .actions
-        i.mdi.mdi-close.cancel(ng-click="$event.stopPropagation(); ctrl.removeAttachment(attachment)")
+        a.clickable
+          i.mdi.mdi-close.cancel(ng-click="$event.stopPropagation(); ctrl.removeAttachment(attachment)")

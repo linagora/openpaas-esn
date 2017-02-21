@@ -84,9 +84,16 @@
   position: relative;
 
   .mdi {
-    font-size: 1.9em;
-    color: @textPrimaryColor;
-    vertical-align: sub;
+    font-size: 1.8em;
+    vertical-align: middle;
+  }
+
+  .mdi-margin-left {
+    margin-left: 0.1em;
+  }
+
+  .mdi-margin-right {
+    margin-right: 0.1em;
   }
 
   .row {
@@ -94,15 +101,12 @@
 
     a, button.btn-link {
       text-transform: uppercase;
-      color: @textPrimaryColor;
       font-size: 1.1em;
       font-weight: 500;
-      text-align: left;
     }
 
-    button.btn-link {
-      padding-left: 0;
-      padding-right: 0;
+    a {
+      color: @textPrimaryColor;
     }
   }
 
@@ -111,10 +115,13 @@
     float: right;
   }
 
-  ul.dropdown-menu li a {
     color: @secondaryTextColor;
-    cursor: pointer;
-    text-transform: capitalize;
+  .btn-link {
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .btn-link:not([disabled]):hover {
+    color: @textPrimaryColor;
   }
 }
 
