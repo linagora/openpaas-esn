@@ -14,9 +14,6 @@
   "Artifact": "Artifact",
   "This module title already exists. Please choose another one.": "This module title already exists. Please choose another one.",
   "An error occured while checking for module title validity.": "An error occured while checking for module title validity.",
-  "This module title already exists. Please choose another one.": "This module title already exists. Please choose another one.",
-  "This module version already exists. Please choose another one.": "This module version already exists. Please choose another one.",
-  "An error occured while checking for module title validity.": "An error occured while checking for module title validity.",
   "This module version already exists. Please choose another one.": "This module version already exists. Please choose another one.",
   "Select the artifact": "Select the artifact",
   "You can customize it with an avatar and a description now or do it later on the module page": "You can customize it with an avatar and a description now or do it later on the module page",
@@ -26,6 +23,5 @@
   "Module Manager": "Module Manager",
   "Loading modules...": "Loading modules...",
   "Error while loading modules !": "Error while loading modules !",
-  "module": "module",
   "You are about to install new modules in the community": "You are about to install new modules in the community"
 }

@@ -7,7 +7,7 @@ const FRONTEND_PATH = path.join(__dirname, '../../frontend');
 const VIEW_PATH = FRONTEND_PATH + '/views';
 
 module.exports = function(appManager, dependencies) {
-  const i18n = require('../i18n')(dependencies);
+  const i18n = require('../lib/i18n')(dependencies);
 
   const app = express();
 
