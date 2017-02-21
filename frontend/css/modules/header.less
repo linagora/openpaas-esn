@@ -115,7 +115,16 @@
     float: right;
   }
 
+  ul.dropdown-menu {
     color: @secondaryTextColor;
+
+    & li a {
+      color: @secondaryTextColor;
+      cursor: pointer;
+      text-transform: capitalize;
+    }
+  }
+
   .btn-link {
     color: rgba(255, 255, 255, 0.9);
   }

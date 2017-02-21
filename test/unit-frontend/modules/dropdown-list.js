@@ -78,7 +78,7 @@ describe('The dropdown-list directive', function() {
     element.click();
 
     expect($dropdown).to.have.been.calledWith(sinon.match.any, sinon.match({
-      template: '<ul class="dropdown-menu" role="menu"><div ng-include="\'expected-url.html\'"></div></ul>'
+      template: '<ul class="dropdown-menu" role="menu"><li><div ng-include="\'expected-url.html\'"></div></li></ul>'
     }));
   });
 

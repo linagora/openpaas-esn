@@ -1559,8 +1559,14 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       expect(scope.dropdownList.placeholder).to.equal('my placeholder');
     });
 
-    it('should call the $dropdown service once clicked', function() {
-      element.find('.filter-button').click();
+    it('should call the $dropdown service once clicked on mobile', function() {
+      element.find('.filter-button.visible-xs').click();
+
+      expect($dropdown).to.have.been.calledOnce;
+    });
+
+    it('should call the $dropdown service once clicked on desktop', function() {
+      element.find('.filter-button.hidden-xs').click();
 
       expect($dropdown).to.have.been.calledOnce;
     });
