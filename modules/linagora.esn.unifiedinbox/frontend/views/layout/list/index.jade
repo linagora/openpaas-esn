@@ -21,7 +21,7 @@ sub-header(ng-if="!inbox.list.isElementOpened")
 
         .card.listview.lv-bordered.lv-lg
           .lv-body
-            .lv-item.media.inbox-list-item(ng-repeat="item in group.elements | inboxFilterJmapItems | orderBy: '-date' as visibleItemsInGroup")
+            .lv-item.media.inbox-list-item.waves-effect.waves-float(ng-repeat="item in group.elements | inboxFilterJmapItems | orderBy: '-date' as visibleItemsInGroup")
               block item
 
       ul.nav.nav-pills.nav-stacked(ng-if='!infiniteScrollCompleted')

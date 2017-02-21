@@ -1,6 +1,6 @@
 .attachments-zone(ng-click="focusEmailBody()")
   .attachments(ng-if="email.attachments.length > 0")
-    .clickable.attachment(ng-click="$event.stopPropagation()", ng-repeat="attachment in email.attachments | orderBy:'-'", ng-if="::!attachment.isInline", ng-class="attachment.status", name="attachment-{{$index}}")
+    .attachment.waves-effect(ng-click="$event.stopPropagation()", ng-repeat="attachment in email.attachments | orderBy:'-'", ng-if="::!attachment.isInline", ng-class="attachment.status", name="attachment-{{$index}}")
       .progress(ng-if="attachment.status === 'uploading'", ng-style="{ width: attachment.upload.progress + '%' }")
       .icon(ng-switch='attachment.status')
         img(ng-switch-when="error", src="/images/exclamation.svg", alt='#{__("Error")}')

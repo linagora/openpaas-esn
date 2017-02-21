@@ -67,6 +67,17 @@
 
   .card {
     margin-bottom: 20px;
+
+    .waves-effect:not(.attachment) {
+      .ShadowedShape(none);
+
+      &:active {
+        .ShadowedShape(0px 8px 20px 1px rgba(0, 0, 0, 0.3));
+
+        border-bottom: none;
+      }
+    }
+
   }
 
   .block-header {
