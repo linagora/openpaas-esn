@@ -18,8 +18,8 @@
         li.action-item
           a(action-list="/unifiedinbox/views/email/view/action-list.html", title="#{__('More')}")
             i.mdi.mdi-view-module
-      .horiz-space
-        inbox-star(item='::email')
+        li.action-item
+          inbox-star(item='::email')
 
   .email-body
     .inbox-message-info(ng-if="::email", dynamic-directive="inbox-message-info")
