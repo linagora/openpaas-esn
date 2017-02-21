@@ -703,7 +703,7 @@ describe('The event-form module controllers', function() {
       it('should initialize the class with \'public\' if the edited event has no class', function() {
         this.scope.createEvent();
 
-        expect(this.scope.editedEvent.class).to.equal('public');
+        expect(this.scope.editedEvent.class).to.equal('PUBLIC');
       });
 
       it('should add newAttendees from the form', function() {
