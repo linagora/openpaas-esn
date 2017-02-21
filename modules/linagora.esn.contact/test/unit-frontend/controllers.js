@@ -69,10 +69,6 @@ describe('The Contacts controller module', function() {
       flush: function() {}
     };
 
-    $window = {
-      addEventListener: function() {}
-    };
-
     contactUpdateDataService = { contact: null, taskId: null, contactUpdatedIds: [] };
 
     ContactAPIClient = {
@@ -154,9 +150,9 @@ describe('The Contacts controller module', function() {
       $provide.value('contactUpdateDataService', contactUpdateDataService);
       $provide.value('usSpinnerService', usSpinnerService);
       $provide.decorator('$window', function($delegate) {
-        $window._ = $delegate._;
+        $delegate.addEventListener = angular.noop;
 
-        return $window;
+        return $delegate;
       });
       $provide.value('ContactShell', ContactShell);
       $provide.value('ContactAPIClient', ContactAPIClient);
@@ -171,7 +167,8 @@ describe('The Contacts controller module', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _$timeout_, _sharedContactDataService_, ALPHA_ITEMS, _CONTACT_EVENTS_, _CONTACT_LIST_DISPLAY_MODES_) {
+  beforeEach(angular.mock.inject(function(_$window_, _$rootScope_, _$controller_, _$timeout_, _sharedContactDataService_, ALPHA_ITEMS, _CONTACT_EVENTS_, _CONTACT_LIST_DISPLAY_MODES_) {
+    $window = _$window_;
     $rootScope = _$rootScope_;
     $controller = _$controller_;
     $timeout = _$timeout_;

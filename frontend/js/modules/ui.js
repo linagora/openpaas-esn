@@ -4,7 +4,8 @@ angular.module('esn.ui', [
   'esn.autolinker-wrapper',
   'esn.constants',
   'op.dynamicDirective',
-  'mgcrea.ngStrap.modal'
+  'mgcrea.ngStrap.modal',
+  'esn.waves'
 ])
 
   .constant('FAB_ICONS', {
