@@ -90,6 +90,11 @@ function start(port, options, callback) {
 
 wsserver.start = start;
 
+function cleanAllWebsockets() {
+  store.clean();
+}
+wsserver.cleanAllWebsockets = cleanAllWebsockets;
+
 var awesomeWsServer = new AwesomeModule(ESN_MODULE_PREFIX + 'wsserver', {
   dependencies: [
     new Dependency(Dependency.TYPE_NAME, ESN_MODULE_PREFIX + 'config', 'conf')

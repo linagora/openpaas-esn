@@ -47,6 +47,22 @@ describe('The WebSockets server module', function() {
     expect(wsserver.start).to.be.a.Function;
   });
 
+  describe('the cleanAllWebsockets function', function() {
+    it('should call the store clean function', function() {
+      const socketstore = {
+        clean: sinon.spy()
+      };
+
+      mockery.registerMock('./socketstore', socketstore);
+
+      const wsserver = this.helpers.requireBackend('wsserver').wsserver;
+
+      wsserver.cleanAllWebsockets();
+
+      expect(socketstore.clean).to.have.been.calledOnce;
+    });
+  });
+
   describe('the start property', function() {
 
     describe('when webserver port and wsserver port are different', function() {
