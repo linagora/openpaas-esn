@@ -1,24 +1,10 @@
 {
   "Edit Profile": "Edit Profile",
-  "Cancel": "Cancel",
-  "Save": "Save",
-  "Back": "Back",
-  "Edit": "Edit",
-  "Avatar": "Avatar",
   "Update Profile Picture": "Update Profile Picture",
-  "First Name": "First Name",
-  "Last Name": "Last Name",
-  "Job Title": "Job Title",
-  "Service": "Service",
-  "Building Location": "Building Location",
-  "Office Location": "Office Location",
   "Main Phone": "Main Phone",
-  "Bio": "Bio",
   "Profile": "Profile",
   "Followers": "Followers",
   "Followings": "Followings",
   "Timeline": "Timeline",
-  "Profile Informations": "Profile Informations",
-  "Email": "Email",
-  "Phone": "Phone"
+  "Profile Informations": "Profile Informations"
 }

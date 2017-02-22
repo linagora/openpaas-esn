@@ -1,5 +1,4 @@
 {
-  "Please check your email inbox to confirm your registration": "Please check your email inbox to confirm your registration",
   "Install": "Install",
   "Submit": "Submit",
   "Submit a new module": "Submit a new module",
@@ -20,7 +19,6 @@
   "A human readable description which will help users know what this module is about": "A human readable description which will help users know what this module is about",
   "There are no modules yet.": "There are no modules yet.",
   "Domain level deployment": "Domain level deployment",
-  "Module Manager": "Module Manager",
   "Loading modules...": "Loading modules...",
   "Error while loading modules !": "Error while loading modules !",
   "You are about to install new modules in the community": "You are about to install new modules in the community"
