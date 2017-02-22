@@ -147,6 +147,11 @@
 
           &.dragging {
             background-color: lighten(@accentColor, 20%);
+            .cursor-grab;
+          }
+
+          &.dragging:active {
+            .cursor-grabbing;
           }
         }
       }
