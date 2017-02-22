@@ -6,7 +6,7 @@ var cors = require('cors');
 var startupBuffer = require('./middleware/startup-buffer')(config.webserver.startupBufferTimeout);
 
 exports = module.exports = function(application) {
-  application.all('/api/*', cors());
+  application.all('/api/*', cors({origin: true, credentials: true}));
 
   application.use(startupBuffer);
   application.use(require('./middleware/modules'));
