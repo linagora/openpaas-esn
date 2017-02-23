@@ -19,11 +19,11 @@ form.form-horizontal.compose.ng-cloak(ng-submit="send()")
   email-body-editor
 
   .compose-footer.flex-space-between
-    button.btn.btn-default(feature-flag="linagora.esn.unifiedinbox.drafts", ng-click="destroyDraft()", type="button", ng-disabled="isSendingMessage", title="#{__('Delete')}")
+    button.btn.btn-default.btn-link.btn-icon(feature-flag="linagora.esn.unifiedinbox.drafts", ng-click="destroyDraft()", type="button", ng-disabled="isSendingMessage", title="#{__('Delete')}")
       i.mdi.mdi-delete
 
     .compose-right-footer
-      button.btn.btn-default(feature-flag="linagora.esn.unifiedinbox.composer.attachments", type="button", ng-file-select="ctrl.onAttachmentsSelect($files)", data-multiple="true", ng-disabled="isSendingMessage", ng-class="{ 'btn-with-badge': attachmentStatus.number > 0 }")
+      button.btn.btn-default.btn-link.btn-icon(feature-flag="linagora.esn.unifiedinbox.composer.attachments", type="button", ng-file-select="ctrl.onAttachmentsSelect($files)", data-multiple="true", ng-disabled="isSendingMessage", ng-class="{ 'btn-with-badge': attachmentStatus.number > 0 }")
         .badge-container
           .badge.composer-badge(ng-hide='attachmentStatus.number === 0', ng-class="{ error: attachmentStatus.error }") {{ attachmentStatus.number | maxPlus:99 }}
           i.mdi.mdi-paperclip(ng-class="{ uploading: attachmentStatus.uploading }")

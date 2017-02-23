@@ -18,31 +18,56 @@
 
 .inbox-root {
 
-  .actions {
-    a {
-      cursor: pointer;
-    }
-  }
-
   .inbox-main {
     width: 100%;
 
-    .email-status-icon {
-      font-size: 20px;
-      vertical-align: middle;
+    .actions {
+      a {
+        cursor: pointer;
+      }
 
-      margin-left: 5px;
+      & li.action-item a {
+        width: 30px;
+        height: 30px;
+        line-height: 35px;
+        display: inline-block;
+        text-align: center;
 
-      &.mdi-star {
+        & i {
+          .transition(color);
+          .transition-duration(1300ms);
+
+          font-size: 20px;
+        }
+
+        &:hover {
+
+          & i {
+            color: @m-black;
+          }
+        }
+        .hover-pop(rgba(0,0,0,0.1), 50%, 250ms, 0);
+      }
+
+      .mdi-star {
         color: @primaryColor;
       }
 
-      &.mdi-star-outline {
+      .mdi-star-outline {
         color: lighten(@m-gray, 10%);
       }
 
-      &.mdi-star-off {
+      .mdi-star-off {
         color: @m-gray;
+      }
+    }
+
+    .indicators {
+      vertical-align: middle;
+      margin-left: 5px;
+
+      i {
+        font-size: 20px;
       }
     }
   }
@@ -67,6 +92,17 @@
 
   .card {
     margin-bottom: 20px;
+
+    .waves-effect:not(.attachment) {
+      .ShadowedShape(none);
+
+      &:active {
+        .ShadowedShape(0px 8px 20px 1px rgba(0, 0, 0, 0.3));
+
+        border-bottom: none;
+      }
+    }
+
   }
 
   .block-header {
@@ -111,8 +147,9 @@
 
 @media (min-width: @screen-md-min) {
   .inbox-root {
-    .clickable:not(.text-danger):hover {
+    .clickable:not(.text-danger):not(a):hover {
       color: @text-color;
+      background-color: @darkenBgColor;
     }
     .clickable.text-danger:hover {
       color: darken(@state-danger-text, 10%);

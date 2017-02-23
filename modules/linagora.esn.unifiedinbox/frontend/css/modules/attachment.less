@@ -1,4 +1,5 @@
 @attachment-error-color: rgba(255, 0, 0, 0.6);
+@attachment-hover-color: #f0f0f0;
 
 .email-view, .attachments-zone, .right-sidebar-container {
 
@@ -6,7 +7,6 @@
     .flex-start;
     .flex-wrap;
 
-    padding: 5px;
     border: none;
     background-color: @m-white;
 
@@ -27,6 +27,7 @@
 
       &:hover {
         color: @secondaryTextColor;
+        background-color: @attachment-hover-color;
         box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
 
         &.error {
@@ -34,7 +35,7 @@
         }
 
         .icon {
-          background-color: lighten(@body-bg, 2%);
+          background-color: @darkenBgColor;
         }
       }
 
@@ -81,10 +82,6 @@
         .mdi {
           font-size: 2em;
           vertical-align: sub;
-        }
-
-        .cancel {
-          font-size: 2.5em;
         }
 
       }

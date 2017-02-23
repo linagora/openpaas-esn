@@ -12,6 +12,10 @@
       opacity: 1;
     }
 
+    button.close:not(.btn-icon) {
+      padding: 6px 12px;
+    }
+
     .text-header {
       font-size: 1.4em;
       color: @textPrimaryColor;
@@ -21,8 +25,8 @@
       .text-header;
 
       text-align: center;
-      margin-left: 25px;
-      margin-right: 25px;
+      margin-left: 0.5em;
+      margin-right: 0.5em;
     }
 
     .select-recipient {
@@ -53,23 +57,22 @@
     }
 
     .inbox-composer-buttons {
-      .btn {
-        padding: 0 0 0 5px;
-      }
-
-      .btn-with-badge {
-        padding-left: 20px;
-      }
 
       .badge-container {
         padding-right: 0;
 
+        & i {
+          padding-left: 5px;
+        }
+
         .composer-badge {
           background: @accentColor;
-          top: 9px;
+          top: 12px;
           font-weight: bold;
           right: 16px;
-          line-height: 19px;
+          line-height: 16px;
+          height: 16px;
+          min-width: 16px;
 
           &.error {
             background: @m-red;
@@ -94,8 +97,15 @@
         // See http://stackoverflow.com/questions/26465745/ellipsis-in-flexbox-container
         min-width: 0;
 
-        :not(.inbox-selection-aware-subheader):first-child {
+        .calendar-sub-header, .calendar-controls, .calendar-controls a, .calendar-controls div {
           .flex-noshrink;
+          color: @textPrimaryColor;
+        }
+      }
+
+      & > .right-container {
+        .btn {
+          margin-left: 0.5em;
         }
       }
     }

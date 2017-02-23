@@ -1,4 +1,4 @@
-@subHeaderBackground: darken(@primaryColor, 3%);
+@subHeaderBackground: darken(@primaryColor, 4%);
 @subHeaderShadow: rgba(0, 0, 0, 0.3);
 @headerAvatarShadow: rgba(0, 0, 0, 0.2);
 
@@ -55,14 +55,6 @@
       .drop-menu-open-animation(top right);
     }
 
-    .toggle-fullscreen {
-      display: none;
-      &.browser-firefox,
-      &.browser-chrome,
-      &.browser-opera  {
-        display: block;
-      }
-    }
   }
   .header-actions{
     padding-right: 5px;
@@ -92,9 +84,16 @@
   position: relative;
 
   .mdi {
-    font-size: 1.9em;
-    color: @textPrimaryColor;
-    vertical-align: sub;
+    font-size: 1.8em;
+    vertical-align: middle;
+  }
+
+  .mdi-margin-left {
+    margin-left: 0.1em;
+  }
+
+  .mdi-margin-right {
+    margin-right: 0.1em;
   }
 
   .row {
@@ -102,15 +101,12 @@
 
     a, button.btn-link {
       text-transform: uppercase;
-      color: @textPrimaryColor;
       font-size: 1.1em;
       font-weight: 500;
-      text-align: left;
     }
 
-    button.btn-link {
-      padding-left: 0;
-      padding-right: 0;
+    a {
+      color: @textPrimaryColor;
     }
   }
 
@@ -119,10 +115,22 @@
     float: right;
   }
 
-  ul.dropdown-menu li a {
+  ul.dropdown-menu {
     color: @secondaryTextColor;
-    cursor: pointer;
-    text-transform: capitalize;
+
+    & li a {
+      color: @secondaryTextColor;
+      cursor: pointer;
+      text-transform: capitalize;
+    }
+  }
+
+  .btn-link {
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .btn-link:not([disabled]):hover {
+    color: @textPrimaryColor;
   }
 }
 
@@ -145,10 +153,17 @@ body.header-hidden {
         }
       }
     }
-
     #sub-header {
       background-color: @subHeaderBackground;
       box-shadow: 0 1px 4px @subHeaderShadow;
     }
   }
+}
+
+.is-desktop .toggle-fullscreen {
+  display: block;
+}
+
+.is-mobile .toggle-fullscreen {
+  display: none;
 }

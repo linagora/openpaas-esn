@@ -7,7 +7,7 @@ block left
       span.title.ellipsis
         block title
     .inbox-selection-aware-subheader.inbox-selecting(ng-switch-when="true")
-      a.close.button.flex-vertical-centered(href='', ng-click="ctrl.unselectAllItems()")
+      button.btn.btn-link.btn-icon(href='', ng-click="ctrl.unselectAllItems()", title="#{__('Cancel')}")
         i.mdi.mdi-close
       span.title.extra-title.ellipsis #{__('%s selected', '{{ ctrl.getSelectedItems().length }}')}
 
@@ -17,7 +17,9 @@ block right
       inbox-list-sidebar-attachment-button(ng-if="ctrl.showAttachmentButton", ng-class='{ selected : inbox.rightSidebar.isVisible }')
       inbox-filter-button.clickable(ng-if="::filters", filters="::filters")
     .inbox-selection-aware-subheader.inbox-selecting(ng-switch-when="true")
-      .inbox-subheader-buttons
-        i.clickable.mdi.mdi-delete(ng-click="ctrl.moveToTrash()", title="#{__('Delete')}")
-        i.clickable.mdi.mdi-eye(ng-click="ctrl.markAsRead()", title="#{__('Mark as read')}")
-        i.clickable.mdi.mdi-dots-vertical(action-list="/unifiedinbox/views/layout/list/action-list.html")
+      button.btn.btn-link.btn-icon.button(ng-click="ctrl.moveToTrash()", title="#{__('Delete')}")
+        i.mdi.mdi-delete
+      button.btn.btn-link.btn-icon.button(ng-click="ctrl.markAsRead()", title="#{__('Mark as read')}")
+        i.mdi.mdi-eye
+      button.btn.btn-link.btn-icon.button(action-list="/unifiedinbox/views/layout/list/action-list.html")
+        i.mdi.mdi-dots-vertical

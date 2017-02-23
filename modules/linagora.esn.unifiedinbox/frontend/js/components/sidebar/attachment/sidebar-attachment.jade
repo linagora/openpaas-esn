@@ -1,5 +1,7 @@
 .right-sidebar-container
   .button
-    i.mdi.mdi-close.clickable.close.visible-xl(esn-back-button='unifiedinbox')
-    i.mdi.mdi-close.clickable.close.hidden-xl(ng-click='$hide()')
+    button.btn.btn-link.btn-icon.pull-right.visible-xl(esn-back-button='unifiedinbox')
+      i.mdi.mdi-close
+    button.btn.btn-link.btn-icon.pull-right.hidden-xl(ng-click='$hide()')
+      i.mdi.mdi-close
   esn-attachment-list(object-type="{{ ::ctrl.providerType }}", id="{{ ::ctrl.mailbox }}")
