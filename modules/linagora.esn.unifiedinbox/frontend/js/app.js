@@ -357,7 +357,7 @@ angular.module('linagora.esn.unifiedinbox', [
   })
 
   .run(function($q, inboxConfig, inboxProviders, inboxHostedMailMessagesProvider, inboxHostedMailThreadsProvider,
-                inboxTwitterProvider, session, DEFAULT_VIEW, searchProviders) {
+                inboxTwitterProvider, session, DEFAULT_VIEW, searchProviders, inboxSearchResultsProvider) {
 
     $q.all([
       inboxConfig('view', DEFAULT_VIEW),
@@ -375,7 +375,7 @@ angular.module('linagora.esn.unifiedinbox', [
       }
     });
 
-    searchProviders.add(inboxHostedMailMessagesProvider);
+    searchProviders.add(inboxSearchResultsProvider);
   })
 
   .run(function(newComposerService, listenToPrefixedWindowMessage, IFRAME_MESSAGE_PREFIXES) {

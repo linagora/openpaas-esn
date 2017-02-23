@@ -6,7 +6,7 @@ var expect = chai.expect;
 
 describe('The Unified Inbox Angular module providers', function() {
 
-  var $rootScope, inboxProviders, inboxTwitterProvider, inboxHostedMailMessagesProvider, inboxHostedMailAttachmentProvider, inboxHostedMailThreadsProvider,
+  var $rootScope, inboxProviders, inboxTwitterProvider, inboxHostedMailMessagesProvider, inboxHostedMailAttachmentProvider, inboxHostedMailThreadsProvider, inboxSearchResultsProvider,
       $httpBackend, jmapClient, ELEMENTS_PER_PAGE, ELEMENTS_PER_REQUEST, AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE;
 
   function elements(id, length, offset) {
@@ -55,13 +55,14 @@ describe('The Unified Inbox Angular module providers', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function(_$rootScope_, _inboxProviders_, _inboxTwitterProvider_, _inboxHostedMailMessagesProvider_,
+  beforeEach(angular.mock.inject(function(_$rootScope_, _inboxProviders_, _inboxTwitterProvider_, _inboxHostedMailMessagesProvider_, _inboxSearchResultsProvider_,
                                           _inboxHostedMailAttachmentProvider_, _inboxHostedMailThreadsProvider_, _$httpBackend_,
                                           _ELEMENTS_PER_PAGE_, _ELEMENTS_PER_REQUEST_, _AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE_) {
     $rootScope = _$rootScope_;
     inboxProviders = _inboxProviders_;
     inboxTwitterProvider = _inboxTwitterProvider_;
     inboxHostedMailMessagesProvider = _inboxHostedMailMessagesProvider_;
+    inboxSearchResultsProvider = _inboxSearchResultsProvider_;
     inboxHostedMailAttachmentProvider = _inboxHostedMailAttachmentProvider_;
     inboxHostedMailThreadsProvider = _inboxHostedMailThreadsProvider_;
     $httpBackend = _$httpBackend_;
@@ -120,6 +121,65 @@ describe('The Unified Inbox Angular module providers', function() {
         expect(messages[ELEMENTS_PER_PAGE - 1]).to.shallowDeepEqual({
           id: 'message_239',
           templateUrl: '/unifiedinbox/views/unified-inbox/elements/message'
+        });
+
+        done();
+      });
+      $rootScope.$digest();
+    });
+
+  });
+
+   describe('The inboxSearchResultsProvider factory', function() {
+
+    it('should request the backend using the JMAP client, and return pages of messages', function(done) {
+      var filter = { inMailboxes: ['id_inbox'] };
+      var fetcher = inboxSearchResultsProvider.fetch(filter);
+
+      fetcher().then(function(messages) {
+        expect(messages.length).to.equal(AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE);
+        expect(messages[AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE - 1]).to.shallowDeepEqual({
+          id: 'message_39',
+          templateUrl: '/unifiedinbox/views/unified-inbox/elements/search'
+        });
+      });
+      $rootScope.$digest();
+
+      fetcher().then(function(messages) {
+        expect(messages.length).to.equal(ELEMENTS_PER_PAGE);
+        expect(messages[ELEMENTS_PER_PAGE - 1]).to.shallowDeepEqual({
+          id: 'message_59',
+          templateUrl: '/unifiedinbox/views/unified-inbox/elements/search'
+        });
+
+        done();
+      });
+      $rootScope.$digest();
+    });
+
+    it('should paginate requests to the backend', function(done) {
+      var filter = { inMailboxes: ['id_inbox'] };
+      var fetcher = inboxSearchResultsProvider.fetch(filter);
+
+      fetcher().then(function(messages) {
+        expect(messages.length).to.equal(AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE);
+        expect(messages[AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE - 1]).to.shallowDeepEqual({
+          id: 'message_39',
+          templateUrl: '/unifiedinbox/views/unified-inbox/elements/search'
+        });
+      });
+      $rootScope.$digest();
+
+      for (var i = ELEMENTS_PER_PAGE; i < ELEMENTS_PER_REQUEST; i += ELEMENTS_PER_PAGE) {
+        fetcher();
+        $rootScope.$digest();
+      }
+
+      fetcher().then(function(messages) {
+        expect(messages.length).to.equal(ELEMENTS_PER_PAGE);
+        expect(messages[ELEMENTS_PER_PAGE - 1]).to.shallowDeepEqual({
+          id: 'message_239',
+          templateUrl: '/unifiedinbox/views/unified-inbox/elements/search'
         });
 
         done();
