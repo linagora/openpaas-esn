@@ -1,9 +1,10 @@
-.calendar-edit-delegation-header
-  .flex-space-between.flex-vertical-centered
-    .left
-      button.btn.btn-primary(ng-click="$ctrl.goToCalendarEdit(true)")
-        i.mdi.mdi-arrow-left
-    .right
-      button.btn.btn-primary(ng-click='$ctrl.goToCalendarEdit(false)')
-        | #{__('Add')}
-        i.mdi.mdi-plus
+extends /modules/subheader/responsive-subheader
+
+block left
+  button.btn.btn-link(esn-back-button)
+    i.mdi.mdi-arrow-left
+
+block right
+  button.btn.btn-link(ui-sref='calendar.edit({ addUsersFromDelegationState : { selection: $ctrl.selection, newUsersGroups:$ctrl.newUsersGroups }})')
+    | #{__('Add')}
+    i.mdi.mdi-plus

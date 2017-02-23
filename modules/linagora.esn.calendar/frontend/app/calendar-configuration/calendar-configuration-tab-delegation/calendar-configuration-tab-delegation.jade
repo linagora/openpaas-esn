@@ -23,28 +23,23 @@
 
   hr
 
-  .delegation-line(ng-repeat="delegation in $ctrl.delegations")
-    .col-md-1
-      a.attendee-avatar(href="", ng-attr-title='delegation.user.displayName')
-        img(src='/images/user.png', fallback-src='/images/user.png', ng-src='/api/avatars?email={{ delegation.user.email | urlencode }}')
-    .col-md-4.name
-      span {{ delegation.user.displayName }}
-    .col-md-5
-      span
-        .select
-          select.form-control(ng-model='delegation.selection')
-            option(ng-repeat="delegationType in ::$ctrl.delegationTypes" value="{{delegationType.value}}" ng-selected="delegationType.value === delegation.selection") {{delegationType.name}}
-    .col-md-2
-      a(href="", ng-click='$ctrl.removeUserGroup(delegation)')
-        i.mdi.mdi-delete
+.delegation-line(ng-repeat="delegation in $ctrl.delegations")
+  .col-xs-1
+    a.attendee-avatar(href="", ng-attr-title='delegation.user.displayName')
+      img(src='/images/user.png', fallback-src='/images/user.png', ng-src='/api/avatars?email={{ delegation.user.email | urlencode }}')
+  .col-xs-4.name
+    span {{ delegation.user.displayName }}
+  .col-xs-5
+    span
+      .select
+        select.form-control(ng-model='delegation.selection')
+          option(ng-repeat="delegationType in ::$ctrl.delegationTypes" value="{{delegationType.value}}" ng-selected="delegationType.value === delegation.selection") {{delegationType.name}}
+  .col-xs-2
+    a(href="", ng-click='$ctrl.removeUserGroup(delegation)')
+      i.mdi.mdi-delete
 
 .hidden-md
-  .delegation-line
-    .btn-group
-      button.btn.btn-primary.dropdown-toggle(type="button", data-toggle="dropdown", aria-expanded="false")
-        i.mdi.mdi-account-multiple-plus
-        | #{__('Add users and groups delegation')}
-      ul.dropdown-menu(role="menu")
-        li(ng-repeat="delegationType in ::$ctrl.delegationTypes" ng-if="delegationType.access==='all'")
-          a(href="", ui-sref="calendar.edit-delegation")
-            | {{delegationType.name}}
+  .delegation-line-mobile
+    a.btn.btn-primary(ui-sref='calendar.edit.delegation({ newUsersGroups: $ctrl.newUsersGroups, delegationTypes: $ctrl.delegationTypes, addUserGroup:  $ctrl.addUserGroup})')
+      i.mdi.mdi-account-multiple-plus
+      | #{__('Add users and groups delegation')}

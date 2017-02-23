@@ -5,15 +5,16 @@
     .controller('calendarConfigurationController', calendarConfigurationController);
 
   function calendarConfigurationController(
-    $log,
     $modal,
     $scope,
     $state,
+    $stateParams,
     matchmedia,
     SM_XS_MEDIA_QUERY,
     uuid4,
     CalendarCollectionShell,
     calendarService,
+    calendarHomeService,
     notificationFactory,
     CALENDAR_MODIFY_COMPARE_KEYS,
     CALENDAR_RIGHT,
@@ -39,11 +40,34 @@
     self.getDelegationView = getDelegationView;
     self.addUserGroup = addUserGroup;
     self.removeUserGroup = removeUserGroup;
-    self.goToCalendarEdit = goToCalendarEdit;
-    self.$onInit = activate;
+    self.$onInit = $onInit;
+    self.activate = activate;
     self.onAddingUser = onAddingUser;
 
     ////////////
+
+    function $onInit() {
+      calendarHomeService.getUserCalendarHomeId()
+        .then(function(calendarHomeId) {
+          self.calendarHomeId = calendarHomeId;
+
+          return calendarService.getCalendar(calendarHomeId, $stateParams.calendarId);
+        })
+        .then(function(calendar) {
+          self.calendar = calendar;
+
+          return self.activate();
+        })
+        .then(function() {
+          if ($stateParams.addUsersFromDelegationState) {
+            self.newUsersGroups = $stateParams.addUsersFromDelegationState.newUsersGroups;
+            self.selection = $stateParams.addUsersFromDelegationState.selection;
+
+            self.addUserGroup();
+            self.getDelegationView();
+          }
+        });
+    }
 
     function activate() {
       self.newCalendar = !self.calendar;
@@ -60,7 +84,7 @@
       }
 
       angular.copy(self.calendar, self.oldCalendar);
-      self.delegations = [];
+      self.delegations = self.delegations || [];
       self.selection = 'none';
       self.delegationTypes = [{
         value: CALENDAR_RIGHT.NONE,
@@ -249,10 +273,6 @@
 
     function getDelegationView() {
       self.selectedTab = 'delegation';
-    }
-
-    function goToCalendarEdit() {
-      $state.go('calendar.edit');
     }
 
     function onAddingUser($tags) {

@@ -8,7 +8,6 @@
         calendar: '=?',
         calendarHomeId: '<'
       },
-      controller: 'calendarConfigurationController',
-      controllerAs: '$ctrl'
+      controller: 'calendarConfigurationController'
     });
 })();
