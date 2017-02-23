@@ -196,7 +196,7 @@ module.exports = function(grunt) {
           baseDir: __dirname,
           verifyOptions: {
             defaultLocale: 'en',
-            locales: ['en', 'fr']
+            locales: ['en', 'fr', 'vi']
           }
         }
       }
