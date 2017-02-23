@@ -96,10 +96,4 @@ angular.module('linagora.esn.unifiedinbox')
        return mailbox.id !== id && (filterOnlyParentMailbox || !_.find(parent.descendants, { id: mailbox.id }));
      });
    };
- })
-
- .filter('inboxFilterSidebarAttachment', function(_) {
-   return function(mail) {
-     return mail.hasAttachment && _.some(mail.attachments, { isInline: false });
-   };
  });

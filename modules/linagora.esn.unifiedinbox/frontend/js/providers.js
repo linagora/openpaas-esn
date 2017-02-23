@@ -83,12 +83,9 @@ angular.module('linagora.esn.unifiedinbox')
     });
   })
 
-  .factory('inboxHostedMailAttachmentProvider', function(withJmapClient, pagedJmapRequest,
-                                                         newProvider, ByDateElementGroupingTool,
-                                                         inboxFilteringService, mailboxesService,
-                                                         inboxJmapProviderContextBuilder,
-                                                         JMAP_GET_MESSAGES_ATTACHMENTS_LIST,
-                                                         ELEMENTS_PER_REQUEST, PROVIDER_TYPES) {
+  .factory('inboxHostedMailAttachmentProvider', function(withJmapClient, pagedJmapRequest, newProvider, ByDateElementGroupingTool,
+                                                         inboxFilteringService, mailboxesService, inboxJmapProviderContextBuilder,
+                                                         JMAP_GET_MESSAGES_ATTACHMENTS_LIST, ELEMENTS_PER_REQUEST, PROVIDER_TYPES) {
     return newProvider({
       type: PROVIDER_TYPES.JMAP,
       name: 'Attachments',
@@ -96,7 +93,7 @@ angular.module('linagora.esn.unifiedinbox')
         return pagedJmapRequest(function(position) {
           return withJmapClient(function(client) {
             return client.getMessageList({
-              filter: filter,
+              filter: angular.extend(filter, { hasAttachment: true}),
               sort: ['date desc'],
               collapseThreads: false,
               fetchMessages: false,
