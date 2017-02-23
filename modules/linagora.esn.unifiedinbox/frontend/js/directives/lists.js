@@ -112,6 +112,50 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
+  .directive('inboxSearchMessageListItem',function($q, $state, $stateParams, newComposerService, _, inboxJmapItemService,
+                                              inboxSwipeHelper, infiniteListService, inboxSelectionService){
+    return {
+      restrict: 'E',
+      controller: function($scope) {
+        var self = this;
+
+        $scope.email = $scope.item;
+
+        self.openEmail = function(email) {
+          if (email.isDraft) {
+            newComposerService.openDraft(email.id);
+          } else {
+            // Used to fallback to the absolute state name if the transition to a relative state does not work
+            // This allows us to plug '.message' states where we want and guarantee the email can still be opened
+            // when coming from a state that does not get a .message child state (like search for instance)
+            var unregisterStateNotFoundListener = $scope.$on('$stateNotFound', function(event, redirect) {
+              redirect.to = 'unifiedinbox.list.messages.message';
+            });
+
+            $state.go('.message', {
+              mailbox: $stateParams.mailbox || ($scope.mailbox && $scope.mailbox.id) || _.first(email.mailboxIds),
+              emailId: email.id,
+              item: email
+            }).finally(unregisterStateNotFoundListener);
+          }
+        };
+
+        ['reply', 'replyAll', 'forward', 'markAsUnread', 'markAsRead', 'markAsFlagged', 'unmarkAsFlagged'].forEach(function(action) {
+          self[action] = function() {
+            inboxJmapItemService[action]($scope.item);
+          };
+        });
+
+        $scope.onSwipeRight = inboxSwipeHelper.createSwipeRightHandler($scope, {
+          markAsRead: self.markAsRead,
+          moveToTrash: self.moveToTrash
+        });
+      },
+      controllerAs: 'ctrl',
+      templateUrl: '/unifiedinbox/views/email/list/search-list-item.html'
+    };
+  })
+
   .directive('inboxThreadListItem', function($state, $stateParams, newComposerService, _, inboxJmapItemService,
                                              inboxSwipeHelper, infiniteListService, inboxSelectionService) {
     return {

@@ -55,32 +55,43 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('inboxHostedMailMessagesProvider', function(withJmapClient, Email, pagedJmapRequest, inboxJmapProviderContextBuilder,
+  .factory('newInboxMessageProvider', function(withJmapClient, Email, pagedJmapRequest, inboxJmapProviderContextBuilder,
                                                        newProvider, JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_REQUEST, PROVIDER_TYPES) {
-    return newProvider({
-      type: PROVIDER_TYPES.JMAP,
-      name: 'Emails',
-      fetch: function(filter) {
-        return pagedJmapRequest(function(position) {
-          return withJmapClient(function(client) {
-            return client.getMessageList({
-              filter: filter,
-              sort: ['date desc'],
-              collapseThreads: false,
-              fetchMessages: false,
-              position: position,
-              limit: ELEMENTS_PER_REQUEST
-            })
-              .then(function(messageList) {
-                return messageList.getMessages({ properties: JMAP_GET_MESSAGES_LIST });
+    return function (templateUrl){
+      return newProvider({
+        type: PROVIDER_TYPES.JMAP,
+        name: 'Emails',
+        fetch: function(filter) {
+          return pagedJmapRequest(function(position) {
+            return withJmapClient(function(client) {
+              return client.getMessageList({
+                filter: filter,
+                sort: ['date desc'],
+                collapseThreads: false,
+                fetchMessages: false,
+                position: position,
+                limit: ELEMENTS_PER_REQUEST
               })
-              .then(function(messages) { return messages.map(Email); });
+                .then(function(messageList) {
+                  return messageList.getMessages({ properties: JMAP_GET_MESSAGES_LIST });
+                })
+                .then(function(messages) { return messages.map(Email); });
+            });
           });
-        });
-      },
-      buildFetchContext: inboxJmapProviderContextBuilder,
-      templateUrl: '/unifiedinbox/views/unified-inbox/elements/message'
-    });
+        },
+        buildFetchContext: inboxJmapProviderContextBuilder,
+        templateUrl: templateUrl
+      });
+    };
+  })
+
+  .factory('inboxHostedMailMessagesProvider', function(newInboxMessageProvider) {
+    return newInboxMessageProvider('/unifiedinbox/views/unified-inbox/elements/message');
+
+  })
+
+  .factory('inboxSearchResultsProvider', function(newInboxMessageProvider) {
+    return newInboxMessageProvider('/unifiedinbox/views/unified-inbox/elements/search');
   })
 
   .factory('inboxHostedMailAttachmentProvider', function(withJmapClient, pagedJmapRequest,
