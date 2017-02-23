@@ -30,6 +30,7 @@ html.login-content
     script(src='js/material.js')
     script(src='/components/material-admin/js/modules/form.js')
     script(src='/components/dynamic-directive/dist/dynamic-directive.min.js')
+    script(src='/components/waves/dist/waves.min.js')
     +injectJSFromModules('welcome', injections)
     +injectJSAppFromModules('welcome', injections)
     +injectAngularFromModules('welcome', injections)
@@ -46,6 +47,7 @@ html.login-content
     script(src='js/modules/http.js')
     script(src='js/modules/esn.autolinker-wrapper.js')
     script(src='js/modules/lodash-wrapper.js')
+    script(src='js/modules/esn.waves.js')
 
   body.login(ng-app='welcomeApp', ng-init="recaptchaPublicKey='#{recaptchaPublicKey}'")
     .aligner(ng-view ng-cloak)
