@@ -585,7 +585,7 @@ angular.module('linagora.esn.unifiedinbox')
 
   .controller('inboxListSubheaderController', function($state, inboxSelectionService, inboxJmapItemService, jmap,
                                                        withJmapClient, Mailbox) {
-    var attachmentUrl = $state.current.name.indexOf('.attachments') ? $state.current.name : $state.current.name + '.attachments';
+    var attachmentUrl = $state.current.name.indexOf('.attachments') > -1 ? $state.current.name : $state.current.name + '.attachments';
 
     this.isSelecting = inboxSelectionService.isSelecting;
     this.getSelectedItems = inboxSelectionService.getSelectedItems;
