@@ -1,7 +1,6 @@
 'use strict';
 
 module.exports.linagora_IT = function() {
-
   return {
     domain: {
       name: 'IT',
@@ -121,11 +120,27 @@ module.exports.linagora_test_domain = function() {
         password: 'secret',
         firstname: 'a ',
         lastname: 'user1',
-        accounts: [{
-          type: 'email',
-          hosted: true,
-          emails: ['user1@lng.net']
-        }]
+        accounts: [
+          {
+            type: 'email',
+            hosted: true,
+            emails: ['user1@lng.net']
+          },
+          {
+            type: 'oauth',
+            data: {
+              provider: 'twitter',
+              id: 'twitterAccountId'
+            }
+          },
+          {
+            type: 'oauth',
+            data: {
+              provider: 'google',
+              id: 'googleAccountId'
+            }
+          }
+        ]
       },
       {
         password: 'secret',

@@ -547,13 +547,35 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .controller('listTwitterController', function($scope, $stateParams, infiniteScrollOnGroupsHelper, inboxTwitterProvider,
-                                                inboxFilteringService, ByDateElementGroupingTool, session, _) {
-    var account = _.find(session.getTwitterAccounts(), { username: $stateParams.username });
+  .controller('listTwitterController', function($scope, $stateParams, infiniteScrollOnGroupsHelper, inboxProviders, inboxFilteringService,
+                                                ByDateElementGroupingTool, session, _, PageAggregatorService, PROVIDER_TYPES, ELEMENTS_PER_PAGE) {
+    var aggregator = null,
+        account = _.find(session.getTwitterAccounts(), { username: $stateParams.username });
+
+    function load() {
+      return aggregator.loadNextItems().then(_.property('data'), _.constant([]));
+    }
+
+    function loadMoreElements() {
+      if (aggregator) {
+        return load();
+      }
+
+      return inboxProviders.getAll({ acceptedTypes: [PROVIDER_TYPES.SOCIAL] }).then(function(providers) {
+        aggregator = new PageAggregatorService('unifiedInboxTwitterAggregator', providers, {
+          compare: function(a, b) {
+            return b.date - a.date;
+          },
+          results_per_page: ELEMENTS_PER_PAGE
+        });
+
+        return load();
+      });
+    }
 
     inboxFilteringService.uncheckFilters();
 
-    $scope.loadMoreElements = infiniteScrollOnGroupsHelper($scope, inboxTwitterProvider(account.id).fetch(), new ByDateElementGroupingTool());
+    $scope.loadMoreElements = infiniteScrollOnGroupsHelper($scope, loadMoreElements, new ByDateElementGroupingTool());
     $scope.username = account.username;
   })
 

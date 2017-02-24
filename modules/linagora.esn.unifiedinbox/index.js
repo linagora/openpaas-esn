@@ -29,12 +29,8 @@ var unifiedInboxModule = new AwesomeModule('linagora.esn.unifiedinbox', {
     },
 
     deploy: function(dependencies, callback) {
-      var app = require('./backend/webserver/application')(dependencies);
-
-      app.use('/', this.api.inbox);
-      app.use('/', this.api.twitter);
-
-      var webserverWrapper = dependencies('webserver-wrapper');
+      var app = require('./backend/webserver/application')(dependencies),
+          webserverWrapper = dependencies('webserver-wrapper');
 
       webserverWrapper.injectAngularModules('unifiedinbox', [
         'app.js',

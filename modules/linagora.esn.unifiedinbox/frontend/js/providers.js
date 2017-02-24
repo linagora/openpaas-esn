@@ -22,17 +22,17 @@ angular.module('linagora.esn.unifiedinbox')
     return new Providers();
   })
 
-  .factory('inboxTwitterProvider', function($q, $http, newProvider, _, ELEMENTS_PER_REQUEST, PROVIDER_TYPES) {
-    return function(accountId) {
+  .factory('newInboxTwitterProvider', function($q, $http, newProvider, _, ELEMENTS_PER_REQUEST, PROVIDER_TYPES) {
+    return function(accountId, url) {
       return newProvider({
         type: PROVIDER_TYPES.SOCIAL,
-        name: 'inboxTwitterProvider',
+        name: 'Tweets',
         fetch: function() {
           var oldestTweetId = null;
 
           return function() {
             return $http
-              .get('/unifiedinbox/api/inbox/tweets', {
+              .get(url, {
                 params: {
                   account_id: accountId,
                   count: ELEMENTS_PER_REQUEST,
@@ -52,6 +52,18 @@ angular.module('linagora.esn.unifiedinbox')
         buildFetchContext: function() { return $q.when(); },
         templateUrl: '/unifiedinbox/views/unified-inbox/elements/tweet'
       });
+    };
+  })
+
+  .factory('inboxTwitterMentionsProvider', function(newInboxTwitterProvider) {
+    return function(accountId) {
+      return newInboxTwitterProvider(accountId, '/unifiedinbox/api/inbox/twitter/mentions');
+    };
+  })
+
+  .factory('inboxTwitterDirectMessagesProvider', function(newInboxTwitterProvider) {
+    return function(accountId) {
+      return newInboxTwitterProvider(accountId, '/unifiedinbox/api/inbox/twitter/directmessages');
     };
   })
 
@@ -87,7 +99,6 @@ angular.module('linagora.esn.unifiedinbox')
 
   .factory('inboxHostedMailMessagesProvider', function(newInboxMessageProvider) {
     return newInboxMessageProvider('/unifiedinbox/views/unified-inbox/elements/message');
-
   })
 
   .factory('inboxSearchResultsProvider', function(newInboxMessageProvider) {

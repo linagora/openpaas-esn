@@ -357,7 +357,8 @@ angular.module('linagora.esn.unifiedinbox', [
   })
 
   .run(function($q, inboxConfig, inboxProviders, inboxHostedMailMessagesProvider, inboxHostedMailThreadsProvider,
-                inboxTwitterProvider, session, DEFAULT_VIEW, searchProviders, inboxSearchResultsProvider) {
+                inboxTwitterDirectMessagesProvider, inboxTwitterMentionsProvider, session, searchProviders, inboxSearchResultsProvider,
+                DEFAULT_VIEW) {
 
     $q.all([
       inboxConfig('view', DEFAULT_VIEW),
@@ -370,7 +371,8 @@ angular.module('linagora.esn.unifiedinbox', [
 
       if (twitterTweetsEnabled) {
         session.getTwitterAccounts().forEach(function(account) {
-          inboxProviders.add(inboxTwitterProvider(account.id));
+          inboxProviders.add(inboxTwitterMentionsProvider(account.id));
+          inboxProviders.add(inboxTwitterDirectMessagesProvider(account.id));
         });
       }
     });

@@ -6,7 +6,7 @@ var expect = chai.expect;
 
 describe('The Unified Inbox Angular module providers', function() {
 
-  var $rootScope, inboxProviders, inboxTwitterProvider, inboxHostedMailMessagesProvider, inboxHostedMailAttachmentProvider, inboxHostedMailThreadsProvider, inboxSearchResultsProvider,
+  var $rootScope, inboxProviders, newInboxTwitterProvider, inboxHostedMailMessagesProvider, inboxHostedMailAttachmentProvider, inboxHostedMailThreadsProvider, inboxSearchResultsProvider,
       $httpBackend, jmapClient, ELEMENTS_PER_PAGE, ELEMENTS_PER_REQUEST, AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE;
 
   function elements(id, length, offset) {
@@ -55,12 +55,12 @@ describe('The Unified Inbox Angular module providers', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function(_$rootScope_, _inboxProviders_, _inboxTwitterProvider_, _inboxHostedMailMessagesProvider_, _inboxSearchResultsProvider_,
+  beforeEach(angular.mock.inject(function(_$rootScope_, _inboxProviders_, _newInboxTwitterProvider_, _inboxHostedMailMessagesProvider_, _inboxSearchResultsProvider_,
                                           _inboxHostedMailAttachmentProvider_, _inboxHostedMailThreadsProvider_, _$httpBackend_,
                                           _ELEMENTS_PER_PAGE_, _ELEMENTS_PER_REQUEST_, _AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE_) {
     $rootScope = _$rootScope_;
     inboxProviders = _inboxProviders_;
-    inboxTwitterProvider = _inboxTwitterProvider_;
+    newInboxTwitterProvider = _newInboxTwitterProvider_;
     inboxHostedMailMessagesProvider = _inboxHostedMailMessagesProvider_;
     inboxSearchResultsProvider = _inboxSearchResultsProvider_;
     inboxHostedMailAttachmentProvider = _inboxHostedMailAttachmentProvider_;
@@ -319,10 +319,10 @@ describe('The Unified Inbox Angular module providers', function() {
 
   });
 
-  describe('The inboxTwitterProvider factory', function() {
+  describe('The newInboxTwitterProvider factory', function() {
 
     it('should request tweets from the  backend, and return pages of tweets', function(done) {
-      var fetcher = inboxTwitterProvider('myTwitterAccount').fetch();
+      var fetcher = newInboxTwitterProvider('myTwitterAccount', '/unifiedinbox/api/inbox/tweets').fetch();
 
       $httpBackend.expectGET('/unifiedinbox/api/inbox/tweets?account_id=myTwitterAccount&count=200').respond(200, elements('tweet', ELEMENTS_PER_REQUEST));
 
@@ -348,7 +348,7 @@ describe('The Unified Inbox Angular module providers', function() {
     });
 
     it('should paginate requests to the backend', function(done) {
-      var fetcher = inboxTwitterProvider('myTwitterAccount').fetch();
+      var fetcher = newInboxTwitterProvider('myTwitterAccount', '/unifiedinbox/api/inbox/tweets').fetch();
 
       $httpBackend.expectGET('/unifiedinbox/api/inbox/tweets?account_id=myTwitterAccount&count=200').respond(200, elements('tweet', ELEMENTS_PER_REQUEST));
 

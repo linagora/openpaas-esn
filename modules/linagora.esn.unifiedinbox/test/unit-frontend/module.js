@@ -109,14 +109,14 @@ describe('The Unified Inbox Angular module', function() {
     });
   });
 
-  it('should register a provider for every twitter accounts', function(done) {
+  it('should register 2 providers for every twitter accounts', function(done) {
     module(function($provide) {
       $provide.value('esnConfig', function() {
         return $q.when('threads');
       });
     });
 
-    inject(function($rootScope, inboxProviders, session) {
+    inject(function($rootScope, inboxProviders, session, PROVIDER_TYPES) {
       session.user.accounts = [{
         data: {
           provider: 'twitter',
@@ -134,8 +134,8 @@ describe('The Unified Inbox Angular module', function() {
 
       inboxProviders.getAll().then(function(providers) {
         expect(providers.filter(function(provider) {
-          return provider.name === 'inboxTwitterProvider';
-        }).length).to.equal(2);
+          return provider.type === PROVIDER_TYPES.SOCIAL;
+        }).length).to.equal(4);
 
         done();
       });
