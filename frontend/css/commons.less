@@ -543,3 +543,16 @@ html:not(.ie9) .select::before, .select::before {
     display: block !important; // As every other BS visible classes
   }
 }
+
+.cursor-grab() {
+  cursor: move; /* fallback if grab cursor is unsupported */
+  cursor: grab;
+  cursor: -moz-grab;
+  cursor: -webkit-grab;
+}
+
+.cursor-grabbing() {
+  cursor: grabbing;
+  cursor: -moz-grabbing;
+  cursor: -webkit-grabbing;
+}
