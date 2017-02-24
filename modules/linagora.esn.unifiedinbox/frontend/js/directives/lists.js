@@ -112,7 +112,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('inboxSearchMessageListItem', function($q, $state, $stateParams, newComposerService, _, inboxJmapItemService, inboxSwipeHelper) {
+  .directive('inboxSearchMessageListItem', function($q, $state, $stateParams, newComposerService, _, inboxJmapItemService) {
     return {
       restrict: 'E',
       controller: function($scope) {
@@ -143,11 +143,6 @@ angular.module('linagora.esn.unifiedinbox')
           self[action] = function() {
             inboxJmapItemService[action]($scope.item);
           };
-        });
-
-        $scope.onSwipeRight = inboxSwipeHelper.createSwipeRightHandler($scope, {
-          markAsRead: self.markAsRead,
-          moveToTrash: self.moveToTrash
         });
       },
       controllerAs: 'ctrl',
