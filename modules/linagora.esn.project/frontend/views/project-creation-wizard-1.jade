@@ -23,11 +23,11 @@
             input.form-control(type="text", ng-model='project.endDate', name='endDate', data-min-date="{{project.startDate}}", placeholder='project end date', data-autoclose="1", data-start-week="1", data-date-format="yyyy/MM/dd", bs-datepicker, required)
       .row
         .col-sm-10.col-sm-offset-1
-          span.help-block.bg-info.horiz-space.vertiz-space.text-center(ng-show='projectForm.startDate.$dirty && projectForm.startDate.$invalid') #{__('The start date is required, should be a date, and should append before the end date.')}
-          span.help-block.bg-info.horiz-space.vertiz-space.text-center(ng-show='projectForm.endDate.$dirty && projectForm.endDate.$invalid') #{__('The end date is required, should be a date, and should append after the start date.')}
+          span.help-block.bg-info.horiz-space.vertiz-space.text-center(ng-show='projectForm.startDate.$dirty && projectForm.startDate.$invalid') #{__('The start date is required, must be a date before the end date.')}
+          span.help-block.bg-info.horiz-space.vertiz-space.text-center(ng-show='projectForm.endDate.$dirty && projectForm.endDate.$invalid') #{__('The end date is required, must be a date after the start date.')}
     .form-group()
       fieldset
-        label #{__('Visiblity')}&nbsp;
+        label #{__('Visibility')}&nbsp;
         .row
           .radio.radio-primary.col-xs-10.col-xs-offset-1.text-justify
             label

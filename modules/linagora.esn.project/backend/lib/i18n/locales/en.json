@@ -1,10 +1,8 @@
 {
   "You are not allowed to see the content of this project.": "You are not allowed to see the content of this project.",
-  "Create a project": "Create a project",
   "as a": "as a",
   "The project title": "The project title",
   "A project with that title already exists. Please choose another one.": "A project with that title already exists. Please choose another one.",
-  "Visibility": "Visibility",
   "Publish content from and for everyone. Each user can freely read, join and participate to the project": "Publish content from and for everyone. Each user can freely read, join and participate to the project",
   "Only members can read and publish contents in this project. Each user can request membership": "Only members can read and publish contents in this project. Each user can request membership",
   "Only members of this project can read and publish content. All informations about this project are hidden to other users. Membership is only available by invitation": "Only members of this project can read and publish content. All informations about this project are hidden to other users. Membership is only available by invitation",
@@ -15,5 +13,15 @@
   "Redirecting to project page": "Redirecting to project page",
   "Add communities": "Add communities",
   "Error while adding communities": "Error while adding communities",
-  "Communities have been added": "Communities have been added"
+  "Communities have been added": "Communities have been added",
+  "The project dates": "The project dates",
+  "The start date is required, must be a date before the end date.": "The start date is required, must be a date before the end date.",
+  "The end date is required, must be a date after the start date.": "The end date is required, must be a date after the start date.",
+  "project": "project",
+  "Projects": "Projects",
+  "Loading projects...": "Loading projects...",
+  "Error while loading projects !": "Error while loading projects !",
+  "There is no projects yet. Create a new one with the following link:": "There is no projects yet. Create a new one with the following link:",
+  "You are not member of any project. Please join one first.": "You are not member of any project. Please join one first.",
+  "You are not moderator of any project yet. Create a new one with the following link:": "You are not moderator of any project yet. Create a new one with the following link:"
 }

@@ -7,5 +7,7 @@
   "Domain name": "Domain name",
   "Organization is required": "Organization is required",
   "Domain name is required": "Domain name is required",
-  "The two passwords do not match": "The two passwords do not match"
+  "Domain Name": "Domain Name",
+  "We are not able to find the invitation you requested, please try again.": "We are not able to find the invitation you requested, please try again.",
+  "There was an error while signin up to the platform. Please try again.": "There was an error while signin up to the platform. Please try again."
 }

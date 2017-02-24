@@ -74,5 +74,16 @@
   "Show calendar": "Afficher le calendrier",
   "Hide calendar": "Masquer le calendrier",
   "New calendar": "Nouveau calendrier",
-  "Public": "Publique"
+  "Public": "Publique",
+  "Color": "Couleur",
+  "Delete this calendar": "Supprimer ce calendrier",
+  "3 Days": "3 jours",
+  "Pick a color": "Choisir une couleur",
+  "Set": "Affecter",
+  "Create a new event": "Créer un nouvel événement",
+  "Save event": "Enregistrer l'événement",
+  "Location": "Emplacement",
+  "Notes...": "Remarques...",
+  "created an event": "créé un événement",
+  "from": "de"
 }

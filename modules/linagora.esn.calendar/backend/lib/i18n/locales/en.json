@@ -74,5 +74,16 @@
   "Show calendar": "Show calendar",
   "Hide calendar": "Hide calendar",
   "New calendar": "New calendar",
-  "Public": "Public"
+  "Public": "Public",
+  "Color": "Color",
+  "Delete this calendar": "Delete this calendar",
+  "3 Days": "3 Days",
+  "Pick a color": "Pick a color",
+  "Set": "Set",
+  "Create a new event": "Create a new event",
+  "Save event": "Save event",
+  "Location": "Location",
+  "Notes...": "Notes...",
+  "created an event": "created an event",
+  "from": "from"
 }
