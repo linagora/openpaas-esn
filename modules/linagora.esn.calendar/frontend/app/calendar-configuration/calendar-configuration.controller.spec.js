@@ -8,7 +8,6 @@ describe('The calendar configuration controller', function() {
   var $rootScope,
     $controller,
     $scope,
-    $q,
     uuid4,
     matchmedia,
     calendarConfigurationController,
@@ -26,8 +25,11 @@ describe('The calendar configuration controller', function() {
     CalDelegationEditionHelperMock,
     notificationFactoryMock,
     stateMock,
+    stateParamsMock,
     calendarMock,
     CalendarRightShellMock,
+    calendarHomeServiceMock,
+    calendar,
     SM_XS_MEDIA_QUERY,
     CALENDAR_RIGHT;
 
@@ -98,6 +100,8 @@ describe('The calendar configuration controller', function() {
       modifyPublicRights: sinon.spy()
     };
 
+    calendar = 'calendar';
+
     calendarService = {
       getRight: sinon.spy(function() {
         return $q.when(calendarRight);
@@ -121,7 +125,25 @@ describe('The calendar configuration controller', function() {
 
       removeCalendar: sinon.spy(function() {
         return $q.when();
+      }),
+
+      getCalendar: sinon.spy(function() {
+        return $q.when(calendar);
       })
+    };
+
+    calendarHomeServiceMock = {
+      getUserCalendarHomeId: sinon.spy(function() {
+        return $q.when(calendarHomeId);
+      })
+    };
+
+    stateParamsMock = {
+      calendarId: '123',
+      addUsersFromDelegationState: {
+        newUsersGroups: ['user'],
+        selection: 'none'
+      }
     };
 
     calendarHomeId = '12345';
@@ -132,9 +154,11 @@ describe('The calendar configuration controller', function() {
   beforeEach(function() {
     angular.mock.module('esn.calendar', function($provide) {
       $provide.value('$state', stateMock);
+      $provide.value('$stateParams', stateParamsMock);
       $provide.value('uuid4', uuid4);
       $provide.value('calendarAPI', calendarAPI);
       $provide.value('calendarService', calendarService);
+      $provide.value('calendarHomeService', calendarHomeServiceMock);
       $provide.value('matchmedia', matchmedia);
       $provide.value('CalDelegationEditionHelper', CalDelegationEditionHelperMock);
       $provide.value('notificationFactory', notificationFactoryMock);
@@ -146,11 +170,10 @@ describe('The calendar configuration controller', function() {
   });
 
   beforeEach(function() {
-    angular.mock.inject(function(_$rootScope_, _$controller_, _$q_, _CALENDAR_RIGHT_, _SM_XS_MEDIA_QUERY_) {
+    angular.mock.inject(function(_$rootScope_, _$controller_, _CALENDAR_RIGHT_, _SM_XS_MEDIA_QUERY_) {
       $rootScope = _$rootScope_;
       $scope = $rootScope.$new();
       $controller = _$controller_;
-      $q = _$q_;
       CALENDAR_RIGHT = _CALENDAR_RIGHT_;
       SM_XS_MEDIA_QUERY = _SM_XS_MEDIA_QUERY_;
     });
@@ -162,10 +185,95 @@ describe('The calendar configuration controller', function() {
     calendarConfigurationController.calendarHomeId = calendarHomeId;
   });
 
+  describe('the $onInit function', function() {
+    it('should call calendarHomeService.getUserCalendarHomeId() to get the calendarHomeId', function() {
+      calendarConfigurationController.$onInit();
+
+      expect(calendarHomeServiceMock.getUserCalendarHomeId).to.be.called;
+    });
+
+    it('should initialize calendarHomeId', function() {
+      delete calendarConfigurationController.calendarHomeId;
+
+      calendarConfigurationController.$onInit();
+
+      $rootScope.$digest();
+
+      expect(calendarConfigurationController.calendarHomeId).to.be.equal(calendarHomeId);
+    });
+
+    it('should calendarService.getCalendar to get the calendar', function() {
+      calendarConfigurationController.$onInit();
+
+      $rootScope.$digest();
+
+      expect(calendarService.getCalendar).to.be.calledWith(calendarHomeId, stateParamsMock.calendarId);
+    });
+
+    it('should initialize calendar with the right calendar', function() {
+      calendarConfigurationController.$onInit();
+
+      $rootScope.$digest();
+
+      expect(calendarConfigurationController.calendar).to.be.equal(calendar);
+    });
+
+    it('should call the activate function', function() {
+      calendarConfigurationController.activate = sinon.spy();
+
+      calendarConfigurationController.$onInit();
+
+      $rootScope.$digest();
+
+      expect(calendarConfigurationController.activate).to.be.called;
+    });
+
+    describe('if $stateParams.addUsersFromDelegationState not null', function() {
+
+      it('should initialize newUsersGroups', function() {
+        calendarConfigurationController.addUserGroup = sinon.spy();
+
+        calendarConfigurationController.$onInit();
+
+        $rootScope.$digest();
+
+        expect(calendarConfigurationController.newUsersGroups).to.deep.equal(stateParamsMock.addUsersFromDelegationState.newUsersGroups);
+      });
+
+      it('should initialize selection', function() {
+        calendarConfigurationController.$onInit();
+
+        $rootScope.$digest();
+
+        expect(calendarConfigurationController.selection).to.deep.equal(stateParamsMock.addUsersFromDelegationState.selection);
+      });
+
+      it('should call addUserGroup', function() {
+        calendarConfigurationController.addUserGroup = sinon.spy();
+
+        calendarConfigurationController.$onInit();
+
+        $rootScope.$digest();
+
+        expect(calendarConfigurationController.addUserGroup).to.be.called;
+      });
+
+      it('should call getDelegationView', function() {
+        calendarConfigurationController.getDelegationView = sinon.spy();
+
+        calendarConfigurationController.$onInit();
+
+        $rootScope.$digest();
+
+        expect(calendarConfigurationController.getDelegationView).to.be.called;
+      });
+    });
+  });
+
   describe('the activate function', function() {
 
     it('should initialize newCalendar with true it is a new calendar', function() {
-      calendarConfigurationController.$onInit();
+      calendarConfigurationController.activate();
 
       expect(calendarConfigurationController.newCalendar).to.be.true;
     });
@@ -175,7 +283,7 @@ describe('The calendar configuration controller', function() {
         id: '123456789'
       };
 
-      calendarConfigurationController.$onInit();
+      calendarConfigurationController.activate();
 
       expect(calendarConfigurationController.newCalendar).to.be.false;
     });
@@ -185,19 +293,19 @@ describe('The calendar configuration controller', function() {
         id: '123456789'
       };
 
-      calendarConfigurationController.$onInit();
+      calendarConfigurationController.activate();
 
       expect(calendarConfigurationController.calendar).to.have.been.deep.equal(calendarConfigurationController.calendar);
     });
 
     it('should initialize newUsersGroups with an empty array', function() {
-      calendarConfigurationController.$onInit();
+      calendarConfigurationController.activate();
 
       expect(calendarConfigurationController.newUsersGroups).to.deep.equal;
     });
 
     it('should select main tab when initializing', function() {
-      calendarConfigurationController.$onInit();
+      calendarConfigurationController.activate();
 
       expect(calendarConfigurationController.selectedTab).to.equal('main');
     });
@@ -207,7 +315,7 @@ describe('The calendar configuration controller', function() {
         id: 'events'
       };
 
-      calendarConfigurationController.$onInit();
+      calendarConfigurationController.activate();
 
       expect(calendarConfigurationController.isDefaultCalendar).to.be.true;
     });
@@ -217,13 +325,13 @@ describe('The calendar configuration controller', function() {
         id: '123456789'
       };
 
-      calendarConfigurationController.$onInit();
+      calendarConfigurationController.activate();
 
       expect(calendarConfigurationController.isDefaultCalendar).to.be.false;
     });
 
     it('should initialize calendarRight with a new CalendarRightShell if newCalendar is true', function() {
-      calendarConfigurationController.$onInit();
+      calendarConfigurationController.activate();
 
       expect(CalendarRightShellMock).to.be.calledWithNew;
     });
@@ -233,7 +341,7 @@ describe('The calendar configuration controller', function() {
         id: '123456789'
       };
 
-      calendarConfigurationController.$onInit();
+      calendarConfigurationController.activate();
 
       expect(calendarService.getRight).to.be.calledWith(calendarHomeId, calendarConfigurationController.calendar);
     });
@@ -243,13 +351,13 @@ describe('The calendar configuration controller', function() {
         id: '123456789'
       };
 
-      calendarConfigurationController.$onInit();
+      calendarConfigurationController.activate();
 
       expect(calendarConfigurationController.oldCalendar).to.deep.equal(calendarConfigurationController.calendar);
     });
 
     it('should initialize self.selection with \'none\'', function() {
-      calendarConfigurationController.$onInit();
+      calendarConfigurationController.activate();
 
       expect(calendarConfigurationController.selection).to.equal('none');
     });
@@ -277,7 +385,7 @@ describe('The calendar configuration controller', function() {
         access: 'all'
       }];
 
-      calendarConfigurationController.$onInit();
+      calendarConfigurationController.activate();
 
       expect(calendarConfigurationController.delegationTypes).to.deep.equal(delegationTypesExpected);
     });
@@ -297,7 +405,7 @@ describe('The calendar configuration controller', function() {
         }
       ];
 
-      calendarConfigurationController.$onInit();
+      calendarConfigurationController.activate();
 
       expect(calendarConfigurationController.publicRights).to.deep.equal(publicRightsExpected);
     });
@@ -308,7 +416,7 @@ describe('The calendar configuration controller', function() {
         href: 'data/data.json'
       };
 
-      calendarConfigurationController.$onInit();
+      calendarConfigurationController.activate();
       $rootScope.$digest();
 
       expect(calendarConfigurationController.isAdmin).to.be.true;
@@ -321,7 +429,7 @@ describe('The calendar configuration controller', function() {
         href: 'data/data.json'
       };
 
-      calendarConfigurationController.$onInit();
+      calendarConfigurationController.activate();
       $rootScope.$digest();
 
       expect(calendarConfigurationController.isAdmin).to.be.false;
@@ -345,7 +453,7 @@ describe('The calendar configuration controller', function() {
         href: 'data/data.json'
       };
 
-      calendarConfigurationController.$onInit();
+      calendarConfigurationController.activate();
       $rootScope.$digest();
 
       expect(userAPIMock.user).to.have.always.been.calledWith('userId');
@@ -360,7 +468,7 @@ describe('The calendar configuration controller', function() {
     });
 
     it('should correctly initialize self.calendar if newCalendar is true', function() {
-      calendarConfigurationController.$onInit();
+      calendarConfigurationController.activate();
 
       expect(calendarConfigurationController.calendar.href).to.equal('/calendars/12345/00000000-0000-4000-a000-000000000000.json');
       expect(calendarConfigurationController.calendar.color).to.exist;
@@ -371,7 +479,7 @@ describe('The calendar configuration controller', function() {
         id: '123456789'
       };
 
-      calendarConfigurationController.$onInit();
+      calendarConfigurationController.activate();
 
       expect(calendarConfigurationController.calendar.href).to.not.equal('/calendars/12345/00000000-0000-4000-a000-000000000000.json');
       expect(calendarConfigurationController.calendar.color).to.not.exist;
@@ -380,7 +488,7 @@ describe('The calendar configuration controller', function() {
 
   describe('the submit function', function() {
     it('should do nothing if the calendar name is empty', function() {
-      calendarConfigurationController.$onInit();
+      calendarConfigurationController.activate();
       calendarConfigurationController.submit();
 
       expect(stateMock.go).to.not.have.been.called;
@@ -408,7 +516,7 @@ describe('The calendar configuration controller', function() {
         };
       };
 
-      calendarConfigurationController.$onInit();
+      calendarConfigurationController.activate();
 
       calendarConfigurationController.calendar.color = 'aColor';
       calendarConfigurationController.calendar.name = 'N';
@@ -432,7 +540,7 @@ describe('The calendar configuration controller', function() {
           href: '/calendars/12345/00000000-0000-4000-a000-000000000000.json'
         };
 
-        calendarConfigurationController.$onInit();
+        calendarConfigurationController.activate();
 
         calendarConfigurationController.calendar.color = 'aColor';
         calendarConfigurationController.calendar.name = 'aName';
@@ -461,7 +569,7 @@ describe('The calendar configuration controller', function() {
         calendarConfigurationController.calendar.color = 'aColor';
         calendarConfigurationController.calendar.name = 'aName';
 
-        calendarConfigurationController.$onInit();
+        calendarConfigurationController.activate();
         $rootScope.$digest();
 
         calendarConfigurationController.publicSelection = 'publicSelection';
@@ -508,7 +616,7 @@ describe('The calendar configuration controller', function() {
         });
         calendarConfigurationController.calendar.name = 'aName';
 
-        calendarConfigurationController.$onInit();
+        calendarConfigurationController.activate();
         $rootScope.$digest();
 
         calendarConfigurationController.publicSelection = 'publicSelection';
@@ -546,7 +654,7 @@ describe('The calendar configuration controller', function() {
         };
         calendarConfigurationController.calendar.name = 'aName';
 
-        calendarConfigurationController.$onInit();
+        calendarConfigurationController.activate();
         $rootScope.$digest();
 
         calendarConfigurationController.publicSelection = 'publicSelection';
@@ -583,7 +691,7 @@ describe('The calendar configuration controller', function() {
           calendarConfigurationController.calendar.color = 'aColor';
           calendarConfigurationController.calendar.name = 'aName';
 
-          calendarConfigurationController.$onInit();
+          calendarConfigurationController.activate();
           $rootScope.$digest();
         });
 
@@ -659,7 +767,7 @@ describe('The calendar configuration controller', function() {
         };
         calendarConfigurationController.calendar.name = 'aName';
 
-        calendarConfigurationController.$onInit();
+        calendarConfigurationController.activate();
         $rootScope.$digest();
 
         calendarConfigurationController.publicSelection = CALENDAR_RIGHT.FREE_BUSY;
@@ -692,7 +800,7 @@ describe('The calendar configuration controller', function() {
 
   describe('the openDeleteConfirmationDialog function', function() {
     it('should initialize self.modal', function() {
-      calendarConfigurationController.$onInit();
+      calendarConfigurationController.activate();
 
       expect(calendarConfigurationController.modal).to.be.undefined;
 
@@ -710,7 +818,7 @@ describe('The calendar configuration controller', function() {
         name: 'aName'
       };
 
-      calendarConfigurationController.$onInit();
+      calendarConfigurationController.activate();
 
       calendarConfigurationController.addUserGroup();
 
@@ -720,7 +828,7 @@ describe('The calendar configuration controller', function() {
     it('should throw an exception if the calendar is a new calendar', function() {
       var error;
 
-      calendarConfigurationController.$onInit();
+      calendarConfigurationController.activate();
 
       try {
         calendarConfigurationController.addUserGroup();
@@ -734,7 +842,7 @@ describe('The calendar configuration controller', function() {
 
   describe('the removeUserGroup function', function() {
     it('should call the removeUserGroup from CalDelegationEditionHelper', function() {
-      calendarConfigurationController.$onInit();
+      calendarConfigurationController.activate();
       calendarConfigurationController.removeUserGroup();
 
       expect(removeUserGroup).to.have.been.calledOnce;
@@ -747,7 +855,7 @@ describe('The calendar configuration controller', function() {
         id: '123456789'
       };
 
-      calendarConfigurationController.$onInit();
+      calendarConfigurationController.activate();
 
       calendarConfigurationController.addUserGroup();
 
@@ -762,7 +870,7 @@ describe('The calendar configuration controller', function() {
         id: '123456789'
       };
 
-      calendarConfigurationController.$onInit();
+      calendarConfigurationController.activate();
 
       calendarConfigurationController.delete();
 
@@ -781,7 +889,7 @@ describe('The calendar configuration controller', function() {
         id: '123456789'
       };
 
-      calendarConfigurationController.$onInit();
+      calendarConfigurationController.activate();
 
       calendarConfigurationController.cancel();
 
@@ -795,7 +903,7 @@ describe('The calendar configuration controller', function() {
         id: '123456789'
       };
 
-      calendarConfigurationController.$onInit();
+      calendarConfigurationController.activate();
 
       calendarConfigurationController.cancelMobile();
 
@@ -805,7 +913,7 @@ describe('The calendar configuration controller', function() {
 
   describe('the getMainView function', function() {
     it('should select main tab', function() {
-      calendarConfigurationController.$onInit();
+      calendarConfigurationController.activate();
 
       calendarConfigurationController.selectedTab = 'delegation';
 
@@ -817,7 +925,7 @@ describe('The calendar configuration controller', function() {
 
   describe('the getDelegationView function', function() {
     it('should select delegation tab', function() {
-      calendarConfigurationController.$onInit();
+      calendarConfigurationController.activate();
 
       calendarConfigurationController.selectedTab = 'main';
 
@@ -827,21 +935,11 @@ describe('The calendar configuration controller', function() {
     });
   });
 
-  describe('the goToCalendarEdit function', function() {
-    it('should call $state.go to go back view calendar.edit', function() {
-      calendarConfigurationController.$onInit();
-
-      calendarConfigurationController.goToCalendarEdit();
-
-      expect(stateMock.go).to.have.been.calledWith('calendar.edit');
-    });
-  });
-
   describe('the onAddingUser function', function() {
     it('should return false if the $tag do not contain the _id field', function() {
       var $tag = {};
 
-      calendarConfigurationController.$onInit();
+      calendarConfigurationController.activate();
 
       expect(calendarConfigurationController.onAddingUser($tag)).to.be.false;
     });
@@ -851,7 +949,7 @@ describe('The calendar configuration controller', function() {
         _id: '11111111'
       };
 
-      calendarConfigurationController.$onInit();
+      calendarConfigurationController.activate();
 
       expect(calendarConfigurationController.onAddingUser($tag)).to.be.true;
     });
@@ -861,7 +959,7 @@ describe('The calendar configuration controller', function() {
         _id: '11111111'
       };
 
-      calendarConfigurationController.$onInit();
+      calendarConfigurationController.activate();
 
       calendarConfigurationController.delegations = [
         {
@@ -879,7 +977,7 @@ describe('The calendar configuration controller', function() {
         _id: '123'
       };
 
-      calendarConfigurationController.$onInit();
+      calendarConfigurationController.activate();
 
       calendarConfigurationController.delegations = [
         {
@@ -891,6 +989,5 @@ describe('The calendar configuration controller', function() {
 
       expect(calendarConfigurationController.onAddingUser($tag)).to.be.false;
     });
-
   });
 });

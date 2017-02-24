@@ -87,25 +87,23 @@
       })
       .state('calendar.edit', {
         url: '/edit/:calendarId',
+        params: {
+          addUsersFromDelegationState: null
+        },
         views: {
           content: {
-            template: '<calendar-configuration calendar-home-id="calendarHomeId" calendar="calendar"/>',
-            resolve: {
-              calendar: function($stateParams, calendarService, calendarHomeId) {
-                return calendarService.getCalendar(calendarHomeId, $stateParams.calendarId);
-              }
-            },
-            controller: function($scope, calendarHomeId, calendar) {
-              $scope.calendarHomeId = calendarHomeId;
-              $scope.calendar = calendar;
-            }
+            template: '<calendar-configuration calendar-home-id="calendarHomeId" calendar="calendar"/>'
           }
         }
       })
-      .state('calendar.edit-delegation', {
+      .state('calendar.edit.delegation', {
         url: '/delegation',
+        params: {
+          newUsersGroups: null,
+          delegationTypes: null
+        },
         views: {
-          content: {
+          'content@calendar': {
             template: '<calendar-edit-delegation-add-users />'
           }
         }
