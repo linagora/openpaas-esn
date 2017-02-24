@@ -1,0 +1,11 @@
+{
+  "This company is already registered. Please choose another one.": "Công ty này đã được đăng ký. Xin hãy chọn một công ty khác.",
+  "Email address is required": "Yêu cầu phải có địa chỉ thư điện tử",
+  "This email address is invalid": "Địa chỉ thư điện tử không đúng",
+  "First name is required": "Yêu cầu phải có tên",
+  "Last name is required": "Yêu cầu phải có họ",
+  "Domain name": "Tên miền",
+  "Organization is required": "Yêu cầu phải có tổ chức",
+  "Domain name is required": "Yêu cầu phải có tên miền",
+  "The two passwords do not match": "Hai mật khẩu không khớp nhau"
+}
