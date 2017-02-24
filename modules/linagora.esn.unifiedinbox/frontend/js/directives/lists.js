@@ -112,8 +112,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('inboxSearchMessageListItem',function($q, $state, $stateParams, newComposerService, _, inboxJmapItemService,
-                                              inboxSwipeHelper, infiniteListService, inboxSelectionService){
+  .directive('inboxSearchMessageListItem', function($q, $state, $stateParams, newComposerService, _, inboxJmapItemService, inboxSwipeHelper) {
     return {
       restrict: 'E',
       controller: function($scope) {

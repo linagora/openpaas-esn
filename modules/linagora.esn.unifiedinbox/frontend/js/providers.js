@@ -57,7 +57,7 @@ angular.module('linagora.esn.unifiedinbox')
 
   .factory('newInboxMessageProvider', function(withJmapClient, Email, pagedJmapRequest, inboxJmapProviderContextBuilder,
                                                        newProvider, JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_REQUEST, PROVIDER_TYPES) {
-    return function (templateUrl){
+    return function(templateUrl) {
       return newProvider({
         type: PROVIDER_TYPES.JMAP,
         name: 'Emails',
