@@ -121,6 +121,8 @@
 
     .constant('CALENDAR_ERROR_DISPLAY_DELAY', 8000)
 
+    .constant('CALENDAR_RESIZE_DEBOUNCE_DELAY', 250)
+
     /**
      * When checking if an event has been modified in the event form, these JSON
      * keys on the calendar shell will be checked.

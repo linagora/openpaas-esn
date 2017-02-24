@@ -18,32 +18,22 @@
     })
     .controller('esnCalendarController', esnCalendarController);
 
-  esnCalendarController.$inject = [
-    '$window',
-    '$element',
-    '$log',
-    '_'
-  ];
-
-  function esnCalendarController($window, $element, $log, _) {
+  function esnCalendarController($window, $element, $log, _, CALENDAR_RESIZE_DEBOUNCE_DELAY) {
     var self = this;
-    var alreadyRender = false;
     var div = $element.children();
 
-    function windowResize() {
-      !alreadyRender && div.fullCalendar('render');
-      alreadyRender = true;
-    }
-
     var windowJQuery = angular.element($window);
+    var debouncedWindowResize = _.debounce(function() {
+      div.fullCalendar('render');
+    }, CALENDAR_RESIZE_DEBOUNCE_DELAY);
 
     //otherwise if when the directive is initialized hidden
     //when the window is enlarger and the mini-calendar appear
     //the calendar is not render
-    windowJQuery.on('resize', windowResize);
+    windowJQuery.on('resize', debouncedWindowResize);
 
     self.$onDestroy = function() {
-      windowJQuery.off('resize', windowResize);
+      windowJQuery.off('resize', debouncedWindowResize);
     };
 
     self.$onInit = function() {
