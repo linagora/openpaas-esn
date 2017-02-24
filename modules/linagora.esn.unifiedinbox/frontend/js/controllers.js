@@ -547,7 +547,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .controller('listTwitterController', function($scope, $stateParams, infiniteScrollOnGroupsHelper, inboxProviders, inboxFilteringService,
+  .controller('listTwitterController', function($scope, $stateParams, inboxFilteringAwareInfiniteScroll, inboxProviders, inboxFilteringService,
                                                 ByDateElementGroupingTool, session, _, PageAggregatorService, PROVIDER_TYPES, ELEMENTS_PER_PAGE) {
     var aggregator = null,
         account = _.find(session.getTwitterAccounts(), { username: $stateParams.username });
@@ -556,26 +556,30 @@ angular.module('linagora.esn.unifiedinbox')
       return aggregator.loadNextItems().then(_.property('data'), _.constant([]));
     }
 
-    function loadMoreElements() {
-      if (aggregator) {
-        return load();
-      }
+    inboxFilteringAwareInfiniteScroll($scope, function() {
+      return inboxFilteringService.getFiltersForTwitterAccount(account.id);
+    }, function() {
+      aggregator = null;
 
-      return inboxProviders.getAll({ acceptedTypes: [PROVIDER_TYPES.SOCIAL] }).then(function(providers) {
-        aggregator = new PageAggregatorService('unifiedInboxTwitterAggregator', providers, {
-          compare: function(a, b) {
-            return b.date - a.date;
-          },
-          results_per_page: ELEMENTS_PER_PAGE
+      return function() {
+        if (aggregator) {
+          return load();
+        }
+
+        return inboxProviders.getAll({
+          acceptedTypes: [PROVIDER_TYPES.TWITTER],
+          acceptedIds: inboxFilteringService.getSelectedTwitterProviderIds()
+        }).then(function(providers) {
+          aggregator = new PageAggregatorService('unifiedInboxTwitterAggregator', providers, {
+            compare: function(a, b) { return b.date - a.date; },
+            results_per_page: ELEMENTS_PER_PAGE
+          });
+
+          return load();
         });
+      };
+    });
 
-        return load();
-      });
-    }
-
-    inboxFilteringService.uncheckFilters();
-
-    $scope.loadMoreElements = infiniteScrollOnGroupsHelper($scope, loadMoreElements, new ByDateElementGroupingTool());
     $scope.username = account.username;
   })
 

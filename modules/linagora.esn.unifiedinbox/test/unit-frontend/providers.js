@@ -322,9 +322,9 @@ describe('The Unified Inbox Angular module providers', function() {
   describe('The newInboxTwitterProvider factory', function() {
 
     it('should request tweets from the  backend, and return pages of tweets', function(done) {
-      var fetcher = newInboxTwitterProvider('myTwitterAccount', '/unifiedinbox/api/inbox/tweets').fetch();
+      var fetcher = newInboxTwitterProvider('myTwitterAccount', 'id', '/unifiedinbox/api/inbox/tweets').fetch();
 
-      $httpBackend.expectGET('/unifiedinbox/api/inbox/tweets?account_id=myTwitterAccount&count=200').respond(200, elements('tweet', ELEMENTS_PER_REQUEST));
+      $httpBackend.expectGET('/unifiedinbox/api/inbox/tweets?account_id=myTwitterAccount&count=400').respond(200, elements('tweet', ELEMENTS_PER_REQUEST));
 
       fetcher().then(function(tweets) {
         expect(tweets.length).to.equal(AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE);
@@ -348,9 +348,9 @@ describe('The Unified Inbox Angular module providers', function() {
     });
 
     it('should paginate requests to the backend', function(done) {
-      var fetcher = newInboxTwitterProvider('myTwitterAccount', '/unifiedinbox/api/inbox/tweets').fetch();
+      var fetcher = newInboxTwitterProvider('myTwitterAccount', 'id', '/unifiedinbox/api/inbox/tweets').fetch();
 
-      $httpBackend.expectGET('/unifiedinbox/api/inbox/tweets?account_id=myTwitterAccount&count=200').respond(200, elements('tweet', ELEMENTS_PER_REQUEST));
+      $httpBackend.expectGET('/unifiedinbox/api/inbox/tweets?account_id=myTwitterAccount&count=400').respond(200, elements('tweet', ELEMENTS_PER_REQUEST));
 
       fetcher();
       $httpBackend.flush();
@@ -360,7 +360,7 @@ describe('The Unified Inbox Angular module providers', function() {
         $rootScope.$digest();
       }
 
-      $httpBackend.expectGET('/unifiedinbox/api/inbox/tweets?account_id=myTwitterAccount&count=200&max_id=tweet_199').respond(200, [{
+      $httpBackend.expectGET('/unifiedinbox/api/inbox/tweets?account_id=myTwitterAccount&count=400&max_id=tweet_199').respond(200, [{
         id: 'tweet_200',
         date: '2016-01-01T01:01:01.001Z'
       }]);

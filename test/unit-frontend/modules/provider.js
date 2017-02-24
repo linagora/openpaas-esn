@@ -19,7 +19,9 @@ describe('The esn.provider module', function() {
     $provide.constant('moment', function(argument) {
       return moment.tz(argument || nowDate, localTimeZone);
     });
-    $provide.value('uuid4', uuid4 = {});
+    $provide.value('uuid4', uuid4 = {
+      generate: sinon.spy()
+    });
   }));
 
   describe('The Providers factory', function() {
@@ -42,13 +44,28 @@ describe('The esn.provider module', function() {
       });
 
       it('should not generate any id for a provider with existing id', function() {
-        uuid4.generate = sinon.spy();
-
         var provider = newProvider({ name: 'provider', type: 'type1', id: '456' });
 
         expect(provider.id).to.equal('456');
         expect(uuid4.generate).to.not.have.been.called;
       });
+
+      it('should create types array when not present', function() {
+        expect(newProvider({ type: 'type1' }).types).to.deep.equal(['type1']);
+      });
+
+      it('should use types array when present', function() {
+        expect(newProvider({ types: ['type1', 'type2'] }).types).to.deep.equal(['type1', 'type2']);
+      });
+
+      it('should derive type from types array when not present', function() {
+        expect(newProvider({ types: ['type2', 'type1'] }).type).to.equal('type2');
+      });
+
+      it('should use type when present', function() {
+        expect(newProvider({ type: 'type1' }).type).to.equal('type1');
+      });
+
     });
 
     describe('The getAllProviderDefinitions function', function() {
@@ -72,7 +89,7 @@ describe('The esn.provider module', function() {
 
     describe('The getAll function', function() {
 
-      it('should return all providers when no acceptedTypes is given', function() {
+      it('should return all providers when no acceptedTypes is given', function(done) {
         providers.add({ name: 'provider', type: 'type1',
           buildFetchContext: sinon.stub().returns($q.when()),
           fetch: sinon.stub().returns($q.when())
@@ -87,12 +104,14 @@ describe('The esn.provider module', function() {
             { name: 'provider', type: 'type1'},
             { name: 'provider2', type: 'type2'}
           ]);
+
+          done();
         });
 
         $rootScope.$digest();
       });
 
-      it('should filter providers that are not in the acceptedTypes array', function() {
+      it('should filter providers that are not in the acceptedTypes array', function(done) {
         providers.add({ name: 'provider', type: 'type1',
           buildFetchContext: sinon.stub().returns($q.when()),
           fetch: sinon.stub().returns($q.when())
@@ -104,12 +123,48 @@ describe('The esn.provider module', function() {
 
         providers.getAll({acceptedTypes: ['type1']}).then(function(resolvedProviders) {
           expect(resolvedProviders).to.shallowDeepEqual([{ name: 'provider', type: 'type1'}]);
+
+          done();
         });
 
         $rootScope.$digest();
       });
 
-      it('should filter providers that are not in the acceptedIds array', function() {
+      it('should filter providers that are not in the acceptedTypes array, when provider has multiple types', function(done) {
+        providers.add({
+          name: 'provider',
+          types: ['type1', 'type2'],
+          buildFetchContext: sinon.stub().returns($q.when()),
+          fetch: sinon.stub().returns($q.when())
+        });
+
+        providers.getAll({ acceptedTypes: ['type3'] }).then(function(providers) {
+          expect(providers).to.deep.equal([]);
+
+          done();
+        });
+
+        $rootScope.$digest();
+      });
+
+      it('should include providers that are in the acceptedTypes array, when provider has multiple types', function(done) {
+        providers.add({
+          name: 'provider',
+          types: ['type1', 'type2'],
+          buildFetchContext: sinon.stub().returns($q.when()),
+          fetch: sinon.stub().returns($q.when())
+        });
+
+        providers.getAll({ acceptedTypes: ['type2'] }).then(function(providers) {
+          expect(providers).to.shallowDeepEqual([{ name: 'provider' }]);
+
+          done();
+        });
+
+        $rootScope.$digest();
+      });
+
+      it('should filter providers that are not in the acceptedIds array', function(done) {
         providers.add({ name: 'provider', type: 'type1', id: '123',
           buildFetchContext: sinon.stub().returns($q.when()),
           fetch: sinon.stub().returns($q.when())
@@ -121,12 +176,14 @@ describe('The esn.provider module', function() {
 
         providers.getAll({acceptedIds: ['456']}).then(function(resolvedProviders) {
           expect(resolvedProviders).to.shallowDeepEqual([{ name: 'provider2', type: 'type2', id: '456'}]);
+
+          done();
         });
 
         $rootScope.$digest();
       });
 
-      it('should build the fetch context of each provider using its own buildFetchContext function', function() {
+      it('should build the fetch context of each provider using its own buildFetchContext function', function(done) {
         var getAllOptions = {expected: 'options'},
             provider1 = { name: 'provider', type: 'type1',
               buildFetchContext: sinon.stub().returns($q.when('context1')),
@@ -146,6 +203,8 @@ describe('The esn.provider module', function() {
 
           expect(provider1.fetch).to.have.been.calledWith('context1');
           expect(provider2.fetch).to.have.been.calledWith('context2');
+
+          done();
         });
 
         $rootScope.$digest();

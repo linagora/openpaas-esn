@@ -23,9 +23,10 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .factory('newInboxTwitterProvider', function($q, $http, newProvider, _, ELEMENTS_PER_REQUEST, PROVIDER_TYPES) {
-    return function(accountId, url) {
+    return function(accountId, id, url) {
       return newProvider({
-        type: PROVIDER_TYPES.SOCIAL,
+        id: id,
+        types: [PROVIDER_TYPES.SOCIAL, PROVIDER_TYPES.TWITTER],
         name: 'Tweets',
         fetch: function() {
           var oldestTweetId = null;
@@ -35,7 +36,7 @@ angular.module('linagora.esn.unifiedinbox')
               .get(url, {
                 params: {
                   account_id: accountId,
-                  count: ELEMENTS_PER_REQUEST,
+                  count: ELEMENTS_PER_REQUEST * 2, // Because count may not be what you think -> https://dev.twitter.com/rest/reference/get/statuses/mentions_timeline
                   max_id: oldestTweetId
                 }
               })
@@ -57,13 +58,13 @@ angular.module('linagora.esn.unifiedinbox')
 
   .factory('inboxTwitterMentionsProvider', function(newInboxTwitterProvider) {
     return function(accountId) {
-      return newInboxTwitterProvider(accountId, '/unifiedinbox/api/inbox/twitter/mentions');
+      return newInboxTwitterProvider(accountId, 'inboxTwitterMentions', '/unifiedinbox/api/inbox/twitter/mentions');
     };
   })
 
   .factory('inboxTwitterDirectMessagesProvider', function(newInboxTwitterProvider) {
     return function(accountId) {
-      return newInboxTwitterProvider(accountId, '/unifiedinbox/api/inbox/twitter/directmessages');
+      return newInboxTwitterProvider(accountId, 'inboxTwitterDirectMessages', '/unifiedinbox/api/inbox/twitter/directmessages');
     };
   })
 

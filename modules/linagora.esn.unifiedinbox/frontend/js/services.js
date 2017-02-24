@@ -1239,6 +1239,16 @@ angular.module('linagora.esn.unifiedinbox')
         id: 'isSocial',
         displayName: 'Social',
         type: PROVIDER_TYPES.SOCIAL
+      },
+      {
+        id: 'inboxTwitterMentions',
+        displayName: 'Mentions',
+        type: PROVIDER_TYPES.TWITTER
+      },
+      {
+        id: 'inboxTwitterDirectMessages',
+        displayName: 'Direct Messages',
+        type: PROVIDER_TYPES.TWITTER
       }
     ];
   })
@@ -1252,22 +1262,24 @@ angular.module('linagora.esn.unifiedinbox')
       });
     }
 
-    function getFiltersByType(type) {
-      if (!type) {
+    function getFiltersByType(types) {
+      if (!types) {
         return inboxFilters;
       }
 
-      return _.filter(inboxFilters, { type: type });
+      return _.filter(inboxFilters, function(filter) {
+        return _.contains(types, filter.type);
+      });
     }
 
-    function maybeResetAndGetFilters(type, mailbox) {
+    function maybeResetAndGetFilters(types, mailbox) {
       if (latestMailbox !== mailbox) {
         latestMailbox = mailbox;
 
         uncheckFilters();
       }
 
-      return getFiltersByType(type);
+      return getFiltersByType(types);
     }
 
     function getJmapFilter() {
@@ -1303,14 +1315,23 @@ angular.module('linagora.esn.unifiedinbox')
       return [PROVIDER_TYPES.JMAP, PROVIDER_TYPES.SOCIAL];
     }
 
+    function getSelectedTwitterProviderIds() {
+      var filters = getFiltersByType(PROVIDER_TYPES.TWITTER),
+          selectedProviders = _(filters).filter({ checked: true }).map('id').value();
+
+      return selectedProviders.length > 0 ? selectedProviders : _.map(filters, 'id');
+    }
+
     return {
-      getFiltersForJmapMailbox: maybeResetAndGetFilters.bind(null, PROVIDER_TYPES.JMAP),
-      getFiltersForUnifiedInbox: maybeResetAndGetFilters.bind(null, null, 'unifiedinbox'),
+      getFiltersForJmapMailbox: maybeResetAndGetFilters.bind(null, [PROVIDER_TYPES.JMAP]),
+      getFiltersForUnifiedInbox: maybeResetAndGetFilters.bind(null, [PROVIDER_TYPES.JMAP, PROVIDER_TYPES.SOCIAL], 'unifiedinbox'),
+      getFiltersForTwitterAccount: maybeResetAndGetFilters.bind(null, [PROVIDER_TYPES.TWITTER]),
       getJmapFilter: getJmapFilter,
       isAnyFilterOfTypeSelected: isAnyFilterOfTypeSelected,
       isAnyFilterSelected: isAnyFilterSelected,
       getAcceptedTypesFilter: getAcceptedTypesFilter,
-      uncheckFilters: uncheckFilters
+      uncheckFilters: uncheckFilters,
+      getSelectedTwitterProviderIds: getSelectedTwitterProviderIds
     };
   })
 
