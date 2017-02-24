@@ -82,7 +82,7 @@ describe('The calEventUtils service', function() {
       attendees: [],
       isInstance: function() { return false; },
       isOverOneDayOnly: sinon.spy(),
-      isPublic: sinon.stub().returns(true)
+      isPrivate: sinon.stub().returns(false)
     };
 
     element = new Element();
@@ -441,7 +441,7 @@ describe('The calEventUtils service', function() {
         describe('addIconInPrivateEventInMobile function', function() {
 
           it('should add the private event icon in the title div if the event is private and allDay', function() {
-            event.isPublic = function() { return false; };
+            event.isPrivate = function() { return true; };
             event.allDay = true;
 
             this.calEventUtils.render(event, element, view);
@@ -450,7 +450,7 @@ describe('The calEventUtils service', function() {
           });
 
           it('should add the private event icon in the title div if the event is private and not allDay and event Duration <= one hour', function() {
-            event.isPublic = function() { return false; };
+            event.isPrivate = function() { return true; };
 
             this.calEventUtils.render(event, element, view);
 
@@ -461,7 +461,7 @@ describe('The calEventUtils service', function() {
             event.start = this.calMoment();
             event.end = event.start.clone().add(this.CALENDAR_MAX_DURATION_OF_SMALL_EVENT.MOBILE + 1, 'minutes');
 
-            event.isPublic = function() { return false; };
+            event.isPrivate = function() { return true; };
 
             this.calEventUtils.render(event, element, view);
 
@@ -596,7 +596,7 @@ describe('The calEventUtils service', function() {
         describe('addIconInPrivateEventInDesktop function', function() {
 
           it('should add the private event icon in the title div if the event is private and allDay', function() {
-            event.isPublic = function() { return false; };
+            event.isPrivate = function() { return true; };
             event.allDay = true;
 
             this.calEventUtils.render(event, element, view);
@@ -605,7 +605,7 @@ describe('The calEventUtils service', function() {
           });
 
           it('should add the private event icon in the time div if the event is private and not allDay', function() {
-            event.isPublic = function() { return false; };
+            event.isPrivate = function() { return true; };
 
             this.calEventUtils.render(event, element, view);
 

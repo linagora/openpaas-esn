@@ -82,6 +82,11 @@
       CUSTOM: 'custom'
     })
 
+    .constant('EVENT_CLASS', {
+      PUBLIC: 'PUBLIC',
+      PRIVATE: 'PRIVATE'
+    })
+
     .constant('MAX_RRULE_COUNT', 3499)
 
     .constant('MAX_CALENDAR_RESIZE_HEIGHT', 1107)

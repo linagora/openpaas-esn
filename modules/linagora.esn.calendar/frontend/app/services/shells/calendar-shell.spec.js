@@ -457,6 +457,12 @@ describe('CalendarShell factory', function() {
   });
 
   describe('isPublic method', function() {
+    it('should return true for event having no class', function() {
+      var shell = CalendarShell.fromIncompleteShell({});
+
+      expect(shell.isPublic()).to.be.true;
+    });
+
     it('should return true for the public event', function() {
       var shell = {
         class: 'PUBLIC'
@@ -475,6 +481,54 @@ describe('CalendarShell factory', function() {
       shell = CalendarShell.fromIncompleteShell(shell);
 
       expect(shell.isPublic()).to.be.false;
+    });
+
+    it('should return false for an event having an unknown class', function() {
+      var shell = {
+        class: 'UNKNOWN'
+      };
+
+      shell = CalendarShell.fromIncompleteShell(shell);
+
+      expect(shell.isPublic()).to.be.false;
+    });
+  });
+
+  describe('isPrivate method', function() {
+    it('should return false for event having no class', function() {
+      var shell = CalendarShell.fromIncompleteShell({});
+
+      expect(shell.isPrivate()).to.be.false;
+    });
+
+    it('should return false for a public event', function() {
+      var shell = {
+        class: 'PUBLIC'
+      };
+
+      shell = CalendarShell.fromIncompleteShell(shell);
+
+      expect(shell.isPrivate()).to.be.false;
+    });
+
+    it('should return true for the private event', function() {
+      var shell = {
+        class: 'PRIVATE'
+      };
+
+      shell = CalendarShell.fromIncompleteShell(shell);
+
+      expect(shell.isPrivate()).to.be.true;
+    });
+
+    it('should return false for an event having an unknown class', function() {
+      var shell = {
+        class: 'UNKNOWN'
+      };
+
+      shell = CalendarShell.fromIncompleteShell(shell);
+
+      expect(shell.isPrivate()).to.be.false;
     });
   });
 

@@ -107,7 +107,7 @@
       }
 
       function addIconInPrivateEventInMobile() {
-        if (!event.isPublic()) {
+        if (event.isPrivate()) {
           var smallEvent = eventDurationInMinute <= CALENDAR_MAX_DURATION_OF_SMALL_EVENT.MOBILE;
 
           if (event.allDay || (!event.allDay && smallEvent)) {
@@ -119,7 +119,7 @@
       }
 
       function addIconInPrivateEventInDesktop() {
-        if (!event.isPublic()) {
+        if (event.isPrivate()) {
           if (event.allDay) {
             title.prepend('<i class="mdi mdi-lock"/>');
           } else {
