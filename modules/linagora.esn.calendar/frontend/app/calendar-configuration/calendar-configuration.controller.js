@@ -51,7 +51,11 @@
         .then(function(calendarHomeId) {
           self.calendarHomeId = calendarHomeId;
 
-          return calendarService.getCalendar(calendarHomeId, $stateParams.calendarId);
+          if ($stateParams.calendarId) {
+            return calendarService.getCalendar(calendarHomeId, $stateParams.calendarId);
+          }
+
+          return {};
         })
         .then(function(calendar) {
           self.calendar = calendar;

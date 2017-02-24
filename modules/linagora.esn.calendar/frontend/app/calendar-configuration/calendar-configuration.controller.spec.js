@@ -202,7 +202,7 @@ describe('The calendar configuration controller', function() {
       expect(calendarConfigurationController.calendarHomeId).to.be.equal(calendarHomeId);
     });
 
-    it('should calendarService.getCalendar to get the calendar', function() {
+    it('should calendarService.getCalendar to get the calendar if calendarId is not null', function() {
       calendarConfigurationController.$onInit();
 
       $rootScope.$digest();
@@ -210,12 +210,32 @@ describe('The calendar configuration controller', function() {
       expect(calendarService.getCalendar).to.be.calledWith(calendarHomeId, stateParamsMock.calendarId);
     });
 
-    it('should initialize calendar with the right calendar', function() {
+    it('should not call calendarService.getCalendar if calendarId is null', function() {
+      delete stateParamsMock.calendarId;
+
+      calendarConfigurationController.$onInit();
+
+      $rootScope.$digest();
+
+      expect(calendarService.getCalendar).to.not.be.called;
+    });
+
+    it('should initialize calendar with the right calendar when we want configure a calendar', function() {
       calendarConfigurationController.$onInit();
 
       $rootScope.$digest();
 
       expect(calendarConfigurationController.calendar).to.be.equal(calendar);
+    });
+
+    it('should initialize calendar with empty object if calendar when we want create a new calendar', function() {
+      delete stateParamsMock.calendarId;
+
+      calendarConfigurationController.$onInit();
+
+      $rootScope.$digest();
+
+      expect(calendarConfigurationController.calendar).to.deep.equal({});
     });
 
     it('should call the activate function', function() {
