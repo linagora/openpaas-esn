@@ -400,7 +400,7 @@
     }
 
     function isPublic() {
-      return this.class === EVENT_FORM.class.default;
+      return !this.class || this.class === EVENT_FORM.class.default;
     }
 
     function isRecurring() {
