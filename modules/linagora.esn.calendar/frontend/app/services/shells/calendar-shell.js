@@ -21,24 +21,7 @@
   angular.module('esn.calendar')
          .factory('CalendarShell', CalendarShellFactory);
 
-  CalendarShellFactory.$inject = [
-    '$q',
-    '_',
-    'ICAL',
-    'jstz',
-    'uuid4',
-    'calendarUtils',
-    'calEventAPI',
-    'calMoment',
-    'calMasterEventCache',
-    'CalRRuleShell',
-    'CalVAlarmShell',
-    'EVENT_MODIFY_COMPARE_KEYS',
-    'ICAL_PROPERTIES',
-    'EVENT_FORM'
-  ];
-
-  function CalendarShellFactory($q, _, ICAL, jstz, uuid4, calendarUtils, calEventAPI, calMoment, calMasterEventCache, CalRRuleShell, CalVAlarmShell, EVENT_MODIFY_COMPARE_KEYS, ICAL_PROPERTIES, EVENT_FORM) {
+  function CalendarShellFactory($q, _, ICAL, jstz, uuid4, calendarUtils, calEventAPI, calMoment, calMasterEventCache, CalRRuleShell, CalVAlarmShell, EVENT_MODIFY_COMPARE_KEYS, ICAL_PROPERTIES, EVENT_CLASS) {
     var localTimezone = jstz.determine().name();
 
     function CalendarShell(vcomponent, extendedProperties) {
@@ -90,6 +73,7 @@
 
     CalendarShell.prototype = {
       isPublic: isPublic,
+      isPrivate: isPrivate,
       isRecurring: isRecurring,
       applyReply: applyReply,
       deleteInstance: deleteInstance,
@@ -400,7 +384,11 @@
     }
 
     function isPublic() {
-      return !this.class || this.class === EVENT_FORM.class.default;
+      return !this.class || this.class === EVENT_CLASS.PUBLIC;
+    }
+
+    function isPrivate() {
+      return !!this.class && this.class === EVENT_CLASS.PRIVATE;
     }
 
     function isRecurring() {
