@@ -11,5 +11,8 @@ module.exports = function(dependencies) {
   application.use(express.static(FRONTEND_PATH));
   require('./config/views')(dependencies, application);
 
+  application.use(require('./api/twitter/router')(dependencies));
+  application.use(require('./api/inbox/router')(dependencies));
+
   return application;
 };

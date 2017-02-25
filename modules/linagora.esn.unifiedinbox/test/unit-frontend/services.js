@@ -4440,8 +4440,8 @@ describe('The Unified Inbox Angular module services', function() {
 
     describe('The getFiltersForUnifiedInbox function', function() {
 
-      it('should return all filters', function() {
-        expect(service.getFiltersForUnifiedInbox()).to.deep.equal(filters);
+      it('should return all filters of type SOCIAL and JMAP', function() {
+        expect(service.getFiltersForUnifiedInbox()).to.have.length(4);
       });
 
       it('should not reset filters if called multiple times', function() {
@@ -4514,8 +4514,8 @@ describe('The Unified Inbox Angular module services', function() {
 
     describe('The getAcceptedTypesFilter function', function() {
 
-      it('should return a list of all provider types when nothing is selected', function() {
-        expect(service.getAcceptedTypesFilter()).to.deep.equal(_.values(PROVIDER_TYPES));
+      it('should return a list of provider types JMAP and SOCIAL when nothing is selected', function() {
+        expect(service.getAcceptedTypesFilter()).to.deep.equal([PROVIDER_TYPES.JMAP, PROVIDER_TYPES.SOCIAL]);
       });
 
       it('should return an empty list when the selection is eclectic', function() {
@@ -4570,6 +4570,20 @@ describe('The Unified Inbox Angular module services', function() {
         checkFilter('isUnread');
 
         expect(service.isAnyFilterSelected()).to.equal(true);
+      });
+
+    });
+
+    describe('The getSelectedTwitterProviderIds function', function() {
+
+      it('should return all Twitter provider ids when nothing is selected', function() {
+        expect(service.getSelectedTwitterProviderIds()).to.deep.equal(_(filters).filter({ type: PROVIDER_TYPES.TWITTER }).map('id').value());
+      });
+
+      it('should return only selected Twitter provider ids', function() {
+        checkFilter('inboxTwitterMentions');
+
+        expect(service.getSelectedTwitterProviderIds()).to.deep.equal(['inboxTwitterMentions']);
       });
 
     });

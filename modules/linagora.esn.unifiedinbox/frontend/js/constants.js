@@ -34,7 +34,8 @@ angular.module('linagora.esn.unifiedinbox')
   .constant('INBOX_DEFAULT_AVATAR', '/images/user.png')
   .constant('PROVIDER_TYPES', {
     JMAP: 'JMAP',
-    SOCIAL: 'SOCIAL'
+    SOCIAL: 'SOCIAL',
+    TWITTER: 'TWITTER'
   })
   .constant('INBOX_EVENTS', {
     VACATION_STATUS: 'inbox:vacationStatusUpdated',

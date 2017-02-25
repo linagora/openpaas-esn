@@ -71,7 +71,9 @@ angular.module('esn.provider', [
         return $q.all(this.providersPromises).then(function(providers) {
           return $q.all(_.flatten(providers)
             .filter(function(provider) {
-              return !provider.type || !options.acceptedTypes || options.acceptedTypes.indexOf(provider.type) >= 0;
+              return !provider.types || !options.acceptedTypes || _.some(provider.types, function(type) {
+                return _.contains(options.acceptedTypes, type);
+              });
             })
             .filter(function(provider) {
               return !provider.id || !options.acceptedIds || _.contains(options.acceptedIds, provider.id);
@@ -120,7 +122,8 @@ angular.module('esn.provider', [
     return function(provider) {
       return {
         id: provider.id || uuid4.generate(),
-        type: provider.type,
+        type: provider.type || (provider.types && provider.types[0]),
+        types: provider.types || [provider.type],
         name: provider.name,
         fetch: function(context) {
           var aggregator = new PageAggregatorService(provider.name, [{

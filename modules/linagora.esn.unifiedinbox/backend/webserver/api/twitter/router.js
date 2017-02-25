@@ -2,14 +2,14 @@
 
 var express = require('express');
 
-module.exports = function(dependencies) {
+module.exports = dependencies => {
+  const router = express.Router(),
+        auth = dependencies('authorizationMW'),
+        controller = require('./controller')(dependencies),
+        middleware = require('./middleware')(dependencies);
 
-  var router = express.Router();
-  var authorizationMW = dependencies('authorizationMW');
-  var controller = require('./controller')(dependencies);
-  var twitterMiddleware = require('./middleware')(dependencies);
-
-  router.get('/api/inbox/tweets', authorizationMW.requiresAPILogin, twitterMiddleware.checkRequiredQueryParam, twitterMiddleware.getAccount, controller.getTweets);
+  router.get('/api/inbox/twitter/directmessages', auth.requiresAPILogin, middleware.getAccount, controller.getDirectMessages);
+  router.get('/api/inbox/twitter/mentions', auth.requiresAPILogin, middleware.getAccount, controller.getMentions);
 
   return router;
 };
