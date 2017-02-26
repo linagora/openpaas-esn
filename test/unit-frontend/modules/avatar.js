@@ -266,4 +266,31 @@ describe('The Avatar Angular module', function() {
       expect(promise.then).to.be.a.function;
     });
   });
+
+  describe('The esnAvatarService factory', function() {
+
+    var esnAvatarService;
+
+    beforeEach(inject(function(_esnAvatarService_) {
+      esnAvatarService = _esnAvatarService_;
+    }));
+
+    describe('The generateUrl function', function() {
+
+      it('should return a URL with no displayName when none given', function() {
+        expect(esnAvatarService.generateUrl('email')).to.equal('/api/avatars?objectType=email&email=email');
+      });
+
+      it('should return a URL with no displayName when an empty one is given', function() {
+        expect(esnAvatarService.generateUrl('email', '')).to.equal('/api/avatars?objectType=email&email=email');
+      });
+
+      it('should return a URL with displayName when one is given', function() {
+        expect(esnAvatarService.generateUrl('email', 'name')).to.equal('/api/avatars?objectType=email&email=email&displayName=name');
+      });
+
+    });
+
+  });
+
 });

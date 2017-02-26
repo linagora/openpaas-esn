@@ -458,4 +458,16 @@ angular.module('esn.avatar', [
       template: '<img ng-src="{{avatarURL}}" />',
       link: link
     };
+  })
+
+  .factory('esnAvatarService', function() {
+    return {
+      generateUrl: generateUrl
+    };
+
+    /////
+
+    function generateUrl(email, displayName) {
+      return '/api/avatars?objectType=email&email=' + email + (displayName ? '&displayName=' + displayName : '');
+    }
   });

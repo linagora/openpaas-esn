@@ -388,11 +388,23 @@ describe('The avatars controller', function() {
         };
 
         var generationResult = 'aResult';
+
         mockery.registerMock('../../core/image', {
           avatarGenerationModule: {
             generateFromText: function(options) {
-              expect(options).to.deep.equal({text: 't'});
+              expect(options).to.deep.equal({
+                text: 't',
+                bgColor: 'red',
+                fgColor: 'blue'
+              });
+
               return generationResult;
+            },
+            getColorsFromUuid: function() {
+              return {
+                bgColor: 'red',
+                fgColor: 'blue'
+              };
             }
           }
         });

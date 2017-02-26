@@ -390,11 +390,11 @@ describe('The profile API', function() {
       req.expect(404).end(self.helpers.callbacks.noError(done));
     });
 
-    it('should redirect to the default avatar image if the user has no image', function(done) {
+    it('should redirect to the generated avatar if the user has no image', function(done) {
       var req = request(app).get('/api/users/' + foouser._id + '/profile/avatar');
       req.expect(302).end(function(err, res) {
         expect(err).to.not.exist;
-        expect(res.headers.location).to.equal('/images/user.png');
+        expect(res.headers.location).to.equal('/api/avatars?objectType=email&email=foo@bar.com');
         done();
       });
     });
@@ -500,7 +500,7 @@ describe('The profile API', function() {
       this.helpers.api.requireLogin(app, 'get', '/api/user/profile/avatar', done);
     });
 
-    it('should redirect to the default avatar image if the user has no image', function(done) {
+    it('should redirect to the generated avatar if the user has no image', function(done) {
       this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
@@ -508,7 +508,7 @@ describe('The profile API', function() {
         var req = loggedInAsUser(request(app).get('/api/user/profile/avatar'));
         req.expect(302).end(function(err, res) {
           expect(err).to.not.exist;
-          expect(res.headers.location).to.equal('/images/user.png');
+          expect(res.headers.location).to.equal('/api/avatars?objectType=email&email=foo@bar.com');
           done();
         });
       });

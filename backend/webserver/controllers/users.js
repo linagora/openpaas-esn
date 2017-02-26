@@ -200,37 +200,45 @@ function postProfileAvatar(req, res) {
 module.exports.postProfileAvatar = postProfileAvatar;
 
 function getProfileAvatar(req, res) {
+  function redirectToGeneratedAvatar(req, res) {
+    return res.redirect(`/api/avatars?objectType=email&email=${req.user.preferredEmail}`);
+  }
+
   if (!req.user) {
     return res.status(404).json({error: 404, message: 'Not found', details: 'User not found'});
   }
 
   if (!req.user.currentAvatar) {
-    return res.redirect('/images/user.png');
+    return redirectToGeneratedAvatar(req, res);
   }
 
   imageModule.getAvatar(req.user.currentAvatar, req.query.format, function(err, fileStoreMeta, readable) {
     if (err) {
       logger.warn('Can not get user avatar : %s', err.message);
-      return res.redirect('/images/user.png');
+
+      return redirectToGeneratedAvatar(req, res);
     }
 
     if (!readable) {
       logger.warn('Can not retrieve avatar stream for user %s', req.user._id);
-      return res.redirect('/images/user.png');
+
+      return redirectToGeneratedAvatar(req, res);
     }
 
     if (!fileStoreMeta) {
       res.status(200);
+
       return readable.pipe(res);
     }
 
     if (req.headers['if-modified-since'] && Number(new Date(req.headers['if-modified-since']).setMilliseconds(0)) === Number(fileStoreMeta.uploadDate.setMilliseconds(0))) {
       return res.status(304).end();
-    } else {
-      res.header('Last-Modified', fileStoreMeta.uploadDate);
-      res.status(200);
-      return readable.pipe(res);
     }
+
+    res.header('Last-Modified', fileStoreMeta.uploadDate);
+    res.status(200);
+
+    return readable.pipe(res);
   });
 }
 module.exports.getProfileAvatar = getProfileAvatar;
