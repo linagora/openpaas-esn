@@ -139,11 +139,7 @@ describe('The calendar configuration controller', function() {
     };
 
     stateParamsMock = {
-      calendarId: '123',
-      addUsersFromDelegationState: {
-        newUsersGroups: ['user'],
-        selection: 'none'
-      }
+      calendarId: '123'
     };
 
     calendarHomeId = '12345';
@@ -186,6 +182,11 @@ describe('The calendar configuration controller', function() {
   });
 
   describe('the $onInit function', function() {
+
+    beforeEach(function() {
+      calendarConfigurationController.activate = sinon.spy();
+    });
+
     it('should call calendarHomeService.getUserCalendarHomeId() to get the calendarHomeId', function() {
       calendarConfigurationController.$onInit();
 
@@ -228,16 +229,6 @@ describe('The calendar configuration controller', function() {
       expect(calendarConfigurationController.calendar).to.be.equal(calendar);
     });
 
-    it('should initialize calendar with empty object if calendar when we want create a new calendar', function() {
-      delete stateParamsMock.calendarId;
-
-      calendarConfigurationController.$onInit();
-
-      $rootScope.$digest();
-
-      expect(calendarConfigurationController.calendar).to.deep.equal({});
-    });
-
     it('should call the activate function', function() {
       calendarConfigurationController.activate = sinon.spy();
 
@@ -249,6 +240,13 @@ describe('The calendar configuration controller', function() {
     });
 
     describe('if $stateParams.addUsersFromDelegationState not null', function() {
+
+      beforeEach(function() {
+        stateParamsMock.addUsersFromDelegationState = {
+          newUsersGroups: ['user'],
+          selection: 'none'
+        };
+      });
 
       it('should initialize newUsersGroups', function() {
         calendarConfigurationController.addUserGroup = sinon.spy();
