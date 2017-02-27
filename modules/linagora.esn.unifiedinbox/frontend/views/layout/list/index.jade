@@ -3,7 +3,7 @@ sub-header(ng-if="!inbox.list.isElementOpened")
 
 .ui-view(name="preview-pane", noanimation)
 
-.inbox-list-sidebar.ui-view(name="sidebar", ng-class="{ offscreen : !inbox.rightSidebar.isVisible }")
+.inbox-list-sidebar.ui-view(name="sidebar", ng-class="{ offscreen : !inbox.rightSidebar.isVisible || inbox.list.isElementOpened }")
 
 .inbox-list(ng-switch="ctrl.state", ng-class="{ offscreen: inbox.list.isElementOpened,  'has-sidebar-open': inbox.rightSidebar.isVisible }")
 

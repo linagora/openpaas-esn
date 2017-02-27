@@ -66,6 +66,7 @@ describe('The Inbox states', function() {
       mockTemplate('/unifiedinbox/views/configuration/folders/delete/index');
       mockTemplate('/unifiedinbox/views/unified-inbox/index');
       mockTemplate('/unifiedinbox/views/configuration/vacation/index');
+      mockTemplate('/unifiedinbox/views/email/view/index');
     });
   });
 
@@ -147,6 +148,21 @@ describe('The Inbox states', function() {
       goTo('unifiedinbox.configuration.folders.folder', { mailbox: '1' });
 
       expect(hideModal).to.have.been.calledWith();
+    });
+
+  });
+
+  describe('The unifiedinbox.inbox.attachments.message state', function() {
+
+    it('should hide the attachments sidebar', function() {
+      goTo('unifiedinbox.inbox.attachments');
+
+      expect($rootScope.inbox.rightSidebar.isVisible).to.equal(true);
+
+      goTo('.message', {emailId: 'id'});
+
+      expect($rootScope.inbox.rightSidebar.isVisible).to.equal(true);
+      expect($rootScope.inbox.list.isElementOpened).to.equal(true);
     });
 
   });
