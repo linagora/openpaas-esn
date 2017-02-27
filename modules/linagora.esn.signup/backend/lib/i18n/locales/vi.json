@@ -7,5 +7,7 @@
   "Domain name": "Tên miền",
   "Organization is required": "Yêu cầu phải có tổ chức",
   "Domain name is required": "Yêu cầu phải có tên miền",
-  "The two passwords do not match": "Hai mật khẩu không khớp nhau"
+  "Domain Name": "Tên miền",
+  "We are not able to find the invitation you requested, please try again.": "Chúng tôi không thể tìm thấy lời mời mà bạn yêu cầu, xin vui lòng thử lại.",
+  "There was an error while signin up to the platform. Please try again.": "Có lỗi khi đăng ký. Vui lòng thử lại."
 }
