@@ -1315,11 +1315,15 @@ angular.module('linagora.esn.unifiedinbox')
       return [PROVIDER_TYPES.JMAP, PROVIDER_TYPES.SOCIAL];
     }
 
-    function getSelectedTwitterProviderIds() {
-      var filters = getFiltersByType(PROVIDER_TYPES.TWITTER),
-          selectedProviders = _(filters).filter({ checked: true }).map('id').value();
+    function getSelectedTwitterProviderIds(accountId) {
+      function getTargetProviderId(provider) {
+        return provider.id + accountId;
+      }
 
-      return selectedProviders.length > 0 ? selectedProviders : _.map(filters, 'id');
+      var filters = getFiltersByType(PROVIDER_TYPES.TWITTER),
+          selectedProviders = _(filters).filter({ checked: true }).map(getTargetProviderId).value();
+
+      return selectedProviders.length > 0 ? selectedProviders : _.map(filters, getTargetProviderId);
     }
 
     return {

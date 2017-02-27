@@ -568,7 +568,7 @@ angular.module('linagora.esn.unifiedinbox')
 
         return inboxProviders.getAll({
           acceptedTypes: [PROVIDER_TYPES.TWITTER],
-          acceptedIds: inboxFilteringService.getSelectedTwitterProviderIds()
+          acceptedIds: inboxFilteringService.getSelectedTwitterProviderIds(account.id)
         }).then(function(providers) {
           aggregator = new PageAggregatorService('unifiedInboxTwitterAggregator', providers, {
             compare: function(a, b) { return b.date - a.date; },
