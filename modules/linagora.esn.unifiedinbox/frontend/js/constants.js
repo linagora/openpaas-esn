@@ -31,7 +31,6 @@ angular.module('linagora.esn.unifiedinbox')
     INLINE_ATTACHMENT: '[linagora.esn.unifiedinbox.inlineAttachment]'
   })
   .constant('INBOX_SWIPE_DURATION', 500)
-  .constant('INBOX_DEFAULT_AVATAR', '/images/user.png')
   .constant('PROVIDER_TYPES', {
     JMAP: 'JMAP',
     SOCIAL: 'SOCIAL',

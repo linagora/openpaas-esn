@@ -2,7 +2,7 @@
 
 angular.module('linagora.esn.unifiedinbox')
 
-  .factory('Emailer', function(searchService, INBOX_DEFAULT_AVATAR) {
+  .factory('Emailer', function(searchService, esnAvatarService) {
     function Emailer(emailer) {
       var resolver;
 
@@ -10,7 +10,7 @@ angular.module('linagora.esn.unifiedinbox')
         if (!resolver) {
           resolver = searchService.searchByEmail(emailer.email).then(function(result) {
             emailer.name = result && result.displayName || emailer.name;
-            emailer.avatarUrl = result && result.photo || INBOX_DEFAULT_AVATAR;
+            emailer.avatarUrl = result && result.photo || esnAvatarService.generateUrl(emailer.email, emailer.name);
           });
         }
 
