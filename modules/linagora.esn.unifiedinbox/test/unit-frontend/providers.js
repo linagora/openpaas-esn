@@ -321,8 +321,12 @@ describe('The Unified Inbox Angular module providers', function() {
 
   describe('The newInboxTwitterProvider factory', function() {
 
+    it('should generate an ID containing the Account ID', function() {
+      expect(newInboxTwitterProvider('providerId', 'Account1', '').id).to.equal('providerIdAccount1');
+    });
+
     it('should request tweets from the  backend, and return pages of tweets', function(done) {
-      var fetcher = newInboxTwitterProvider('myTwitterAccount', 'id', '/unifiedinbox/api/inbox/tweets').fetch();
+      var fetcher = newInboxTwitterProvider('id', 'myTwitterAccount', '/unifiedinbox/api/inbox/tweets').fetch();
 
       $httpBackend.expectGET('/unifiedinbox/api/inbox/tweets?account_id=myTwitterAccount&count=400').respond(200, elements('tweet', ELEMENTS_PER_REQUEST));
 
@@ -348,7 +352,7 @@ describe('The Unified Inbox Angular module providers', function() {
     });
 
     it('should paginate requests to the backend', function(done) {
-      var fetcher = newInboxTwitterProvider('myTwitterAccount', 'id', '/unifiedinbox/api/inbox/tweets').fetch();
+      var fetcher = newInboxTwitterProvider('id', 'myTwitterAccount', '/unifiedinbox/api/inbox/tweets').fetch();
 
       $httpBackend.expectGET('/unifiedinbox/api/inbox/tweets?account_id=myTwitterAccount&count=400').respond(200, elements('tweet', ELEMENTS_PER_REQUEST));
 

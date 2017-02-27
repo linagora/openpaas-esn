@@ -4577,13 +4577,17 @@ describe('The Unified Inbox Angular module services', function() {
     describe('The getSelectedTwitterProviderIds function', function() {
 
       it('should return all Twitter provider ids when nothing is selected', function() {
-        expect(service.getSelectedTwitterProviderIds()).to.deep.equal(_(filters).filter({ type: PROVIDER_TYPES.TWITTER }).map('id').value());
+        var twitterFilters = _(filters).filter({ type: PROVIDER_TYPES.TWITTER }).map(function(filter) {
+          return filter.id + 'Account1';
+        }).value();
+
+        expect(service.getSelectedTwitterProviderIds('Account1')).to.deep.equal(twitterFilters);
       });
 
       it('should return only selected Twitter provider ids', function() {
         checkFilter('inboxTwitterMentions');
 
-        expect(service.getSelectedTwitterProviderIds()).to.deep.equal(['inboxTwitterMentions']);
+        expect(service.getSelectedTwitterProviderIds('Account1')).to.deep.equal(['inboxTwitterMentionsAccount1']);
       });
 
     });
