@@ -26,7 +26,7 @@
 .delegation-line(ng-repeat="delegation in $ctrl.delegations")
   .col-xs-1
     a.attendee-avatar(href="", ng-attr-title='delegation.user.displayName')
-      img(src='/images/user.png', fallback-src='/images/user.png', ng-src='/api/avatars?email={{ delegation.user.email | urlencode }}')
+      img(src='/images/user.png', fallback-src='/images/user.png', ng-src='/api/avatars?email={{ delegation.user.preferredEmail | urlencode }}')
   .col-xs-4.name
     span {{ delegation.user.displayName }}
   .col-xs-5
