@@ -77,7 +77,7 @@ describe('The Sync module', function() {
             .auth(user, password)
             .expect(200)
             .then(res => {
-              expect(res.text.substring(0, 36)).to.equal('<h2 id="synchroniser-les-courriels">');
+              expect(res.text.substring(0, 38)).to.equal('<h2 id="synchronisation-des-courriels"');
 
               done();
             });
