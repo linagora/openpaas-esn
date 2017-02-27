@@ -53,7 +53,6 @@ angular.module('linagora.esn.unifiedinbox', [
       function toggleElementOpened(opening) {
         return function($rootScope, esnPreviousState) {
           $rootScope.inbox.list.isElementOpened = opening;
-          $rootScope.inbox.rightSidebar.isVisible = !opening;
 
           if (opening) {
             esnPreviousState.set();

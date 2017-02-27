@@ -1,4 +1,4 @@
-button.btn.btn-link.btn-icon.visible-xl.waves-notransition(ng-if="$root.inbox.rightSidebar.isVisible", esn-back-button='unifiedinbox', title="#{__('Hide all email attachments')}")
+button.btn.btn-link.btn-icon.visible-xl.waves-notransition(ng-if="$root.inbox.rightSidebar.isVisible", ui-sref="^", title="#{__('Hide all email attachments')}")
   i.mdi.mdi-file-outline
 button.btn.btn-link.btn-icon.visible-xl.waves-notransition(ng-if="!$root.inbox.rightSidebar.isVisible", ui-sref=".attachments", title="#{__('Show all email attachments')}")
   i.mdi.mdi-file-outline
