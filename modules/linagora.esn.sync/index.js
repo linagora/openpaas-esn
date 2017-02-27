@@ -23,6 +23,7 @@ module.exports = new AwesomeModule('linagora.esn.sync', {
       webserverWrapper.injectAngularAppModules('sync', [
         'app.js',
         'components/main/main.js',
+        'components/android/android.js',
         'components/controlcenter-menu-entry/controlcenter-menu-entry.js'
       ], ['linagora.esn.sync'], ['esn']);
       webserverWrapper.addApp('sync', app);
