@@ -27,7 +27,7 @@ sub-header(ng-if="!inbox.list.isElementOpened")
       ul.nav.nav-pills.nav-stacked(ng-if='!infiniteScrollCompleted')
         li.text-center(openpaas-logo-spinner, spinner-start-active='1', spinner-size='0.5')
 
-      div(ng-if="infiniteScrollCompleted && $parent.infiniteList.getElementsCount() === 0")
+      div(ng-if="infiniteScrollCompleted")
         block empty-message
           inbox-empty-container-message(ng-if="::mailbox", mailbox="::mailbox")
 

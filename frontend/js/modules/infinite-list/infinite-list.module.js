@@ -3,6 +3,7 @@
 
   angular.module('esn.infinite-list', [
     'esn.constants',
+    'esn.mutation-observer',
     'infinite-scroll'
   ]);
 })();

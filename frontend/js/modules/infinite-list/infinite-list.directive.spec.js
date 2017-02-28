@@ -44,22 +44,27 @@ describe('The infiniteList directive', function() {
     checkGeneratedElement(element, INFINITE_LIST_DISTANCE, INFINITE_LIST_DISABLED, INFINITE_LIST_IMMEDIATE_CHECK + '');
   }));
 
-  describe('The controller', function() {
+  it('should expose a isEmpty scope attribute, true when there is no child elements matching the selector', function(done) {
+    compileDirective(
+      '<infinite-list element-selector=".visible">' +
+        '<div class="visible">A</div>' +
+        '<div class="visible">B</div>' +
+      '</infinite-list>'
+    );
 
-    it('should expose a getElementsCount function, couting the DOM elements inside the infinite list', function() {
-      compileDirective(
-        '<infinite-list element-selector=".visible">' +
-          '<div class="visible a">A</div>' +
-          '<div class="visible b">B</div>' +
-          '<div class="visible c">C</div>' +
-        '</infinite-list>'
-      );
+    var scope = element.find('[infinite-scroll]').scope();
 
-      expect(element.controller('infiniteList').getElementsCount()).to.equal(3);
+    expect(!!scope.isEmpty).to.equal(false);
 
-      element.find('.visible.c').remove();
+    element.find('.visible').remove();
 
-      expect(element.controller('infiniteList').getElementsCount()).to.equal(2);
-    });
+    // Need to do this to let the 'Mutation' events fly through
+    setTimeout(function() {
+      $rootScope.$digest();
+
+      expect(!!scope.isEmpty).to.equal(true);
+
+      done();
+    }, 0);
   });
 });

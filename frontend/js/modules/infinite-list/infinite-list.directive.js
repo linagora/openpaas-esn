@@ -4,7 +4,7 @@
   angular.module('esn.infinite-list')
     .directive('infiniteList', infiniteList);
 
-    function infiniteList(INFINITE_LIST_EVENTS, INFINITE_LIST_IMMEDIATE_CHECK, INFINITE_LIST_DISTANCE, INFINITE_LIST_DISABLED) {
+    function infiniteList(MutationObserver, INFINITE_LIST_EVENTS, INFINITE_LIST_IMMEDIATE_CHECK, INFINITE_LIST_DISTANCE, INFINITE_LIST_DISABLED) {
       return {
         restrict: 'E',
         transclude: true,
@@ -16,8 +16,6 @@
           scrollInsideContainer: '=?',
           elementSelector: '@'
         },
-        controller: controller,
-        controllerAs: 'infiniteList',
         compile: compile,
         templateUrl: '/views/modules/infinite-list/infinite-list.html'
       };
@@ -32,17 +30,23 @@
             scope.infiniteScrollListenForEvent = INFINITE_LIST_EVENTS.LOAD_MORE_ELEMENTS;
             scope.marker = 'test';
           },
-          post: angular.noop
-        };
-      }
+          post: function(scope, element) {
+            // We only start the MutationObserver if we're asked to monitor child elements
+            // through the use of the elementSelector attribute.
+            if (scope.elementSelector) {
+              var observer = new MutationObserver(function() {
+                scope.$applyAsync(function(scope) {
+                  scope.isEmpty = element.find(scope.elementSelector).length === 0;
+                });
+              });
 
-      function controller($scope, $element) {
-        this.getElementsCount = function() {
-          if (!$scope.elementSelector) {
-            return 0;
+              observer.observe(element[0], { childList: true, subtree: true });
+
+              scope.$on('$destroy', function() {
+                observer.disconnect();
+              });
+            }
           }
-
-          return $element.find($scope.elementSelector).length;
         };
       }
     }
