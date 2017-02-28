@@ -54,8 +54,6 @@
           if ($stateParams.calendarId) {
             return calendarService.getCalendar(calendarHomeId, $stateParams.calendarId);
           }
-
-          return {};
         })
         .then(function(calendar) {
           self.calendar = calendar;
