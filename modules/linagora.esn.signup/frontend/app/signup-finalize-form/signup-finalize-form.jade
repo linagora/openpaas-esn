@@ -58,7 +58,7 @@
               .col-xs-6.col-xs-offset-6.form-group
                 button.btn.btn-warning.pull-right(type='submit', ng-click='finalize()', ng-disabled='form.$invalid || finalizeTask.running')
                   i.mdi.mdi-exit-to-app
-                  | #{__('{{finalizeButton.label}}')}
+                  | {{finalizeButton.label}}
 
       div.col-md-12(id='notfound', ng-show="notFound && !error && !complete")
         div.form-container

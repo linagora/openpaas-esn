@@ -2,13 +2,11 @@
   "Install": "Install",
   "Submit": "Submit",
   "Submit a new module": "Submit a new module",
-  "Update": "Update",
   "Submitting": "Submitting",
   "Submitting the module": "Submitting the module",
   "module": "module",
   "Uploading artifact": "Uploading artifact",
   "Redirecting to module page": "Redirecting to module page",
-  "Title": "Title",
   "Version": "Version",
   "Artifact": "Artifact",
   "This module title already exists. Please choose another one.": "This module title already exists. Please choose another one.",
@@ -21,5 +19,10 @@
   "Domain level deployment": "Domain level deployment",
   "Loading modules...": "Loading modules...",
   "Error while loading modules !": "Error while loading modules !",
-  "You are about to install new modules in the community": "You are about to install new modules in the community"
+  "You are about to install new modules in the community": "You are about to install new modules in the community",
+  "You are about to create the": "You are about to create the",
+  "Deploy": "Deploy",
+  "Undeploy": "Undeploy",
+  "Uninstall": "Uninstall",
+  "Go back to the community": "Go back to the community"
 }

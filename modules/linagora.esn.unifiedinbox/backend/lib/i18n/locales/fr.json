@@ -9,11 +9,9 @@
   "Tap to edit": "Toucher pour éditer",
   "Folder settings": "Configuration du dossier",
   "New": "Nouveau",
-  "Name": "Nom",
   "Child Of": "Sous",
   "Is located under": "Se trouve sous",
   "Rename": "Renommer",
-  "Enter a name": "Écrire un nom",
   "Delete folder?": "Effacer le dossier ?",
   "Create a new folder": "Créer un nouveau dossier",
   "Mark as unread": "Marquer comme non lu",
@@ -60,5 +58,9 @@
   "You can click to retry": "Vous pouvez cliquer pour réessayer",
   "Go to your Inbox": "Aller dans votre inbox",
   "Show all email attachments": "Montrer toutes les pièces jointes de l'email",
-  "Hide all email attachments": "Masquer toutes les pièces jointes de l'email"
+  "Hide all email attachments": "Masquer toutes les pièces jointes de l'email",
+  "Show attachments": "Afficher les pièces jointes",
+  "Delete this folder": "Supprimer ce dossier",
+  "No end time": "Aucune heure de fin",
+  "Your active filter is too restrictive.": "Votre filtre actif est trop restrictif."
 }

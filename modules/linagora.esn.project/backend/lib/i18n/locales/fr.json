@@ -1,10 +1,8 @@
 {
   "You are not allowed to see the content of this project.": "Vous n'êtes pas autorisé à consulter le contenu de ce projet.",
-  "Create a project": "Créer un projet",
   "as a": "en tant que",
   "The project title": "Le titre du projet",
   "A project with that title already exists. Please choose another one.": "Un projet portant ce nom éxiste déjà. Merci d'en choisir un autre.",
-  "Visibility": "Visibilité",
   "Publish content from and for everyone. Each user can freely read, join and participate to the project": "N'importe quel utilisateur peut librement lire, rejoindre et participer au projet",
   "Only members can read and publish contents in this project. Each user can request membership": "Seul les membres peuvent lire et publier du contenu dans ce projet. Tout utilisateur peut demander à s'inscrire au projet",
   "Only members of this project can read and publish content. All informations about this project are hidden to other users. Membership is only available by invitation": "Seuls les membres de ce projet peuvent lire et publier du contenu. Toutes les informations sur ce projet sont masquée pour les autres utilisateurs. Il faut être invité pour devenir membre",
@@ -15,5 +13,15 @@
   "Redirecting to project page": "Redirection vers la page du projet",
   "Add communities": "Ajouter des communautés",
   "Error while adding communities": "Erreur lors de l'ajout des communautés",
-  "Communities have been added": "Les communautés ont été ajoutées"
+  "Communities have been added": "Les communautés ont été ajoutées",
+  "The project dates": "Les dates du projet",
+  "The start date is required, must be a date before the end date.": "La date de début est requise, et doit être avant la date de fin.",
+  "The end date is required, must be a date after the start date.": "La date de fin est requise, et doit être après la date de début.",
+  "project": "projet",
+  "Projects": "Projets",
+  "Loading projects...": "Chargement des projets ...",
+  "Error while loading projects !": "Erreur lors du chargement des projets!",
+  "There is no projects yet. Create a new one with the following link:": "Il n'y a pas encore de projets. Créer un nouveau avec le lien suivant:",
+  "You are not member of any project. Please join one first.": "Vous n'êtes membre d'aucun projet. Veuillez en rejoindre un.",
+  "You are not moderator of any project yet. Create a new one with the following link:": "Vous n'êtes pas encore modérateur d'un projet. Créer un nouveau avec le lien suivant:"
 }

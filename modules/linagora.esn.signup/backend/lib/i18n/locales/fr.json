@@ -7,5 +7,7 @@
   "Domain name": "Domaine",
   "Organization is required": "La société est indispensable",
   "Domain name is required": "Le domaine est indispensable",
-  "The two passwords do not match": "Les deux mots de passe ne sont pas identiques"
+  "Domain Name": "Nom de domaine",
+  "We are not able to find the invitation you requested, please try again.": "Nous ne sommes pas en mesure de trouver l'invitation que vous avez demandée. Veuillez réessayer.",
+  "There was an error while signin up to the platform. Please try again.": "Une erreur s'est produite lors de l'inscription à la plate-forme. Veuillez réessayer."
 }
