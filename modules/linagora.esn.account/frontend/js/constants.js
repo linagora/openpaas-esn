@@ -28,6 +28,7 @@ angular.module('linagora.esn.account')
   .constant('IMPORT_URI', 'import')
   .constant('SUPPORTED_ACCOUNTS', ['oauth'])
   .constant('SUPPORTED_ACCOUNT_TYPES', {
+    github: 'github',
     twitter: 'twitter',
     facebook: 'facebook',
     google: 'google'
