@@ -119,6 +119,14 @@
           }
         }
       })
+      .state('calendar.public', {
+        url: '/public',
+        views: {
+          content: {
+            template: '<calendar-public-configuration />'
+          }
+        }
+      })
       .state('calendar.list', {
         url: '/list',
         views: {

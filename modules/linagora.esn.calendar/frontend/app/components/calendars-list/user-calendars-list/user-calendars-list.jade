@@ -9,8 +9,17 @@
     .media
       .pull-left
         i.mdi.mdi-calendar
-      .pull-right(ui-sref="calendar.add", title="#{__('New calendar')}")
-        i.mdi.mdi-plus
+      .pull-right
+        .lv-actions.actions
+          .dropdown
+            a(href='', data-toggle='dropdown', aria-expanded='true')
+              i.mdi.mdi-plus
+            ul.dropdown-menu.dropdown-menu-right
+              li
+                a(ui-sref='calendar.add') #{__('New calendar')}
+              li
+                a(ui-sref="calendar.public") #{__('Public calendar')}
+
       .media-body
         .lv-title #{__('My calendars')}
   a.lv-item.calendar-item(href="", ng-repeat="calendar in $ctrl.myCalendars track by calendar.id", ng-class="{'selected-calendar': calendar.selected}")

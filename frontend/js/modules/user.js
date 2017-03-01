@@ -14,11 +14,13 @@ angular.module('esn.user', ['esn.http', 'esn.object-type', 'esn.lodash-wrapper']
         if (user.firstname && user.lastname) {
           return user.firstname + ' ' + user.lastname;
         }
+
         return user;
       };
       model.__id = function(user) {
         return user._id || user;
       };
+
       return model;
     });
   })
@@ -38,6 +40,7 @@ angular.module('esn.user', ['esn.http', 'esn.object-type', 'esn.lodash-wrapper']
 
     function getActivityStreams(options) {
       options = options || {};
+
       return esnRestangular.one('user').all('activitystreams').getList(options);
     }
 
@@ -63,6 +66,7 @@ angular.module('esn.user', ['esn.http', 'esn.object-type', 'esn.lodash-wrapper']
       function getAddedUserIds() {
         var addedUsers = scope.mutableUsers.concat(scope.originalUsers || []);
         var addedUserIds = _.map(addedUsers, '_id');
+
         return addedUserIds;
       }
 
@@ -80,13 +84,16 @@ angular.module('esn.user', ['esn.http', 'esn.object-type', 'esn.lodash-wrapper']
 
       scope.getUsers = function(query) {
         var memberQuery = {search: query, limit: AUTOCOMPLETE_MAX_RESULTS * 2};
+
         return domainAPI.getMembers(session.domain._id, memberQuery).then(function(response) {
           response.data.forEach(function(user) {
             user.displayName = userUtils.displayNameOf(user);
           });
+
           return response.data;
         }, function(error) {
           $log.error('Error while searching users:', error);
+
           return $q.when([]);
         }).then(function(users) {
           users = users.map(function(user) {
@@ -98,6 +105,7 @@ angular.module('esn.user', ['esn.http', 'esn.object-type', 'esn.lodash-wrapper']
           users.sort(function(a, b) {
             return naturalService.naturalSort(a.displayName, b.displayName);
           });
+
           return users.slice(0, AUTOCOMPLETE_MAX_RESULTS);
         });
       };
@@ -108,9 +116,12 @@ angular.module('esn.user', ['esn.http', 'esn.object-type', 'esn.lodash-wrapper']
       templateUrl: '/views/modules/user/users-autocomplete-input.html',
       link: link,
       scope: {
-        originalUsers: '=',
+        originalUsers: '=?',
         mutableUsers: '=',
-        onAddingUser: '=?'
+        onAddingUser: '=?',
+        onUserAdded: '=?',
+        onUserRemoved: '=?',
+        addFromAutocompleteOnly: '=?'
       }
     };
   });

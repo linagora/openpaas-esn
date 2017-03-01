@@ -1,0 +1,10 @@
+.calendar-public-configuration.card.form-container
+  sub-header
+    calendar-public-configuration-header
+  .block-header.hidden-xs
+    h2 #{__('Add a public calendar')}
+  .row
+    .col-xs-12
+      .card-body.calendar-public-configuration-body
+        users-autocomplete-input(mutable-users='$ctrl.users', on-user-added='$ctrl.updateButtonDisplay()', on-user-removed='$ctrl.updateButtonDisplay()', add-from-autocomplete-only='true')
+        button.btn.btn-secondary-dark(type='button', ng-disabled='$ctrl.disableButton') #{__('Find public calendar')}
