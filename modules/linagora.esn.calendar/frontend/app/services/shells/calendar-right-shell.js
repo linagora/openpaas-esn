@@ -206,16 +206,6 @@
     function initRightMatrix() {
       var matrix = {};
 
-      matrix[CALENDAR_RIGHT.ADMIN] = {
-        shouldHave: [
-          CalRightSet.SHARE,
-          CalRightSet.READ,
-          CalRightSet.WRITE,
-          CalRightSet.WRITE_PROPERTIES
-        ],
-        shouldNotHave: []
-      };
-
       matrix[CALENDAR_RIGHT.READ_WRITE] = {
         shouldHave: [
           CalRightSet.SHAREE_READWRITE
@@ -248,20 +238,6 @@
           CalRightSet.SHARE,
           CalRightSet.WRITE_PROPERTIES,
           CalRightSet.READ
-        ]
-      };
-
-      matrix[CALENDAR_RIGHT.FREE_BUSY] = {
-        shouldHave: [
-          CalRightSet.FREE_BUSY
-        ],
-        shouldNotHave: [
-          CalRightSet.READ,
-          CalRightSet.SHAREE_READ,
-          CalRightSet.SHAREE_READWRITE,
-          CalRightSet.SHARE,
-          CalRightSet.WRITE_PROPERTIES,
-          CalRightSet.WRITE
         ]
       };
 

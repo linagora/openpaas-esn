@@ -24,22 +24,12 @@ describe('CalendarRightShell factory', function() {
       expect(calendarRightShell.getUserRight('toto')).to.be.undefined;
     });
 
-    it('should return admin for admin user', function() {
-      expect(calendarRightShell.getUserRight('me')).to.equal(CALENDAR_RIGHT.ADMIN);
-    });
-
     it('should return read write for read-write user', function() {
       expect(calendarRightShell.getUserRight('tom')).to.equal(CALENDAR_RIGHT.READ_WRITE);
     });
 
     it('should return read for read user', function() {
       expect(calendarRightShell.getUserRight('jerry')).to.equal(CALENDAR_RIGHT.READ);
-    });
-  });
-
-  describe('getPublicRight', function() {
-    it('should return rights of all the users', function() {
-      expect(calendarRightShell.getPublicRight(), CALENDAR_RIGHT.FREE_BUSY);
     });
   });
 
@@ -107,12 +97,6 @@ describe('CalendarRightShell factory', function() {
       expect(calendarRightShell.equals(calendarRightShell)).to.be.true;
     });
 
-    it('should be false for different user', function() {
-      var other = calendarRightShell.clone();
-      other.update('other', 'other@open-paas.org', CALENDAR_RIGHT.FREE_BUSY);
-      expect(other.equals(calendarRightShell)).to.be.false;
-    });
-
     it('should be false for different public', function() {
       var other = calendarRightShell.clone();
       other.updatePublic(CALENDAR_RIGHT.READ);
@@ -170,22 +154,6 @@ describe('CalendarRightShell factory', function() {
     it('should correctly remove removed user', function() {
       var original = calendarRightShell.clone();
       calendarRightShell.removeUserRight('jerry');
-      expect(calendarRightShell.toDAVShareRightsUpdate(original)).to.deep.equals({
-        share: {
-          set: [{
-            'dav:href': 'mailto:user2@open-paas.org',
-            'dav:read-write': true
-          }],
-          remove: [{
-            'dav:href': 'mailto:user3@open-paas.org'
-          }]
-        }
-      });
-    });
-
-    it('should remove user sharee if there are downgraded to free buzy', function() {
-      var original = calendarRightShell.clone();
-      calendarRightShell.update('jerry', 'user3@open-paas.org', CALENDAR_RIGHT.FREE_BUSY);
       expect(calendarRightShell.toDAVShareRightsUpdate(original)).to.deep.equals({
         share: {
           set: [{
