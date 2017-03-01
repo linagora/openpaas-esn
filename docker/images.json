@@ -3,7 +3,7 @@
   "elasticsearch": "linagora/esn-elasticsearch:latest",
   "elasticsearch-james": "elasticsearch:1.5.2",
   "james": "linagora/james-project",
-  "mongodb": "mongo:2.6.5",
+  "mongodb": "mongo:3.2.0",
   "redis": "redis:latest",
   "rabbitmq": "rabbitmq:3.6.5-management",
   "sabre": "linagora/esn-sabre",
