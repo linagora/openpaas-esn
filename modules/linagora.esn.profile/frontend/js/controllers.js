@@ -2,19 +2,9 @@
 
 angular.module('linagora.esn.profile')
 
-  .controller('profileController', function($scope, esnPreviousState, user, session, _) {
+  .controller('profileController', function($scope, esnPreviousPage, user, session) {
     $scope.user = user;
     $scope.me = session.user._id === $scope.user._id;
-
-    $scope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState) {
-      if (!_.include(fromState.name, 'profile.details')) {
-        esnPreviousState.set();
-      }
-    });
-
-    $scope.back = function() {
-      esnPreviousState.go('home');
-    };
   })
   .controller('profileEditionController', function($scope, $log, user, session, profileAPI, notificationFactory) {
     $scope.user = user;
@@ -23,6 +13,7 @@ angular.module('linagora.esn.profile')
         return notificationFactory.weakInfo('Profile updated', 'Your profile has been updated');
       }, function(err) {
         $log.error('Error while updating profile', err);
+
         return notificationFactory.weakError('Error in the profile update', 'Error while updating your profile, please retry later.');
       });
     };
