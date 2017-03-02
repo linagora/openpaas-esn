@@ -65,6 +65,7 @@
     "passport": "0.3.2",
     "passport-facebook": "2.1.1",
     "passport-facebook-token": "3.3.0",
+    "passport-github": "1.1.0",
     "passport-google-oauth": "1.0.0",
     "passport-google-token": "0.1.2",
     "passport-http": "0.3.0",

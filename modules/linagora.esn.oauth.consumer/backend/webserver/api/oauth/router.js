@@ -6,6 +6,7 @@ module.exports = function(dependencies) {
   var router = express.Router();
 
   require('./twitter')(router, dependencies);
+  require('./github')(router, dependencies);
   require('./google')(router, dependencies);
   require('./facebook')(router, dependencies);
 

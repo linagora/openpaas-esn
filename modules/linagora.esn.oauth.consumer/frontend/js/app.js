@@ -3,7 +3,8 @@
 angular.module('linagora.esn.oauth', ['esn.lodash-wrapper'])
   .constant('SUPPORTED_ACCOUNT_TYPES', {
     twitter: 'twitter',
-    google: 'google'
+    google: 'google',
+    github: 'github'
   })
   .run(function(oauthStrategyRegistry, SUPPORTED_ACCOUNT_TYPES, _, oauthWorkflow) {
     _.forIn(SUPPORTED_ACCOUNT_TYPES, function(item) {
