@@ -1,13 +1,13 @@
 .action-list(ng-click='$hide(); $event.stopPropagation()')
   .action(ng-switch='email.isUnread')
-    a(ng-switch-when='false', ng-click='ctrl.markAsUnread()', title="#{__('Mark as unread')}")
+    a(ng-switch-when='false', ng-click='ctrl.markAsUnread()', title="#{__('Unread')}")
       i.mdi.mdi-eye-off
       span.label
-        | #{__('Mark as unread')}
-    a(ng-switch-when='true', ng-click='ctrl.markAsRead()', title="#{__('Mark as read')}")
+        | #{__('Unread')}
+    a(ng-switch-when='true', ng-click='ctrl.markAsRead()', title="#{__('Read')}")
       i.mdi.mdi-eye
       span.label
-        | #{__('Mark as read')}
+        | #{__('Read')}
   .action(ng-switch='email.isFlagged')
     a(ng-switch-when='false', ng-click='ctrl.markAsFlagged()', title="#{__('Star')}")
       i.mdi.mdi-star
