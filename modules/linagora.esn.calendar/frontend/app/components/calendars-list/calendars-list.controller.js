@@ -24,6 +24,7 @@
       self.hiddenCalendars = {};
       self.selectCalendar = selectCalendar;
       self.toggleCalendar = calendarVisibilityService.toggle;
+      self.arrangeCalendars = arrangeCalendars;
 
       self.activate();
     }
@@ -32,10 +33,16 @@
       listCalendars();
       getHiddenCalendars();
 
+      var destroyCalAddEvent = $rootScope.$on(CALENDAR_EVENTS.CALENDARS.ADD, self.arrangeCalendars);
+
+      var destroyCalRemoveEvent = $rootScope.$on(CALENDAR_EVENTS.CALENDARS.REMOVE, self.arrangeCalendars);
+
       var deregister = $rootScope.$on(CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, function(event, data) {
         self.hiddenCalendars[data.calendarId] = data.hidden;
       });
 
+      $scope.$on('$destroy', destroyCalAddEvent);
+      $scope.$on('$destroy', destroyCalRemoveEvent);
       $scope.$on('$destroy', deregister);
     }
 
@@ -48,8 +55,14 @@
     }
 
     function listCalendars() {
-      calendarService.listCalendars(session.user._id).then(function(calendars) {
+      var options = {
+        withRights: true
+      };
+
+      calendarService.listCalendars(session.user._id, options).then(function(calendars) {
         self.calendars = calendars;
+
+        self.arrangeCalendars();
       });
     }
 
@@ -58,6 +71,28 @@
         hiddenCalendars.forEach(function(calendarId) {
           self.hiddenCalendars[calendarId] = true;
         });
+      });
+    }
+
+    function arrangeCalendars() {
+      self.myCalendars = self.calendars.filter(function(calendar) {
+        if (calendar.rights) {
+          var rights = calendar.rights.getUserRight(session.user._id);
+
+          return rights === 'admin';
+        }
+
+        return true;
+      });
+
+      self.sharedCalendars = self.calendars.filter(function(calendar) {
+        if (calendar.rights) {
+          var rights = calendar.rights.getUserRight(session.user._id);
+
+          return rights !== 'admin';
+        }
+
+        return false;
       });
     }
   }

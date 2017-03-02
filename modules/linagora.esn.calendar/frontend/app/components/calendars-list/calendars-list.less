@@ -25,6 +25,34 @@
     }
 
     &.calendar-header-title {
+      margin-bottom: 5px;
+      border-left: 3px solid @primaryColor;
+
+      .media {
+        margin-left: -12px;
+        min-width: 240px;
+
+        .pull-left .mdi {
+          font-size: 20px;
+          margin-top: 3px;
+          margin-left: 8px;
+          color: @secondaryTextColor;
+        }
+
+        .pull-left {
+          padding-right: 0;
+        }
+
+        .media-body .lv-title {
+          margin-left: 15px;
+          font-size: 1.3em;
+          font-weight: bold;
+          color: @primaryColor;
+        }
+      }
+    }
+
+    &.calendar-header-title-desktop {
       margin-top: 15px;
       margin-bottom: 10px;
       border-left: 5px solid @primaryColor;
@@ -63,6 +91,17 @@
 
     &.selected-calendar {
       background: @darkenBgColor;
+    }
+  }
+
+  .configuration-container {
+
+    .configuration-button {
+      margin-bottom: 5px;
+    }
+
+    hr {
+      padding-bottom: 10px;
     }
   }
 }

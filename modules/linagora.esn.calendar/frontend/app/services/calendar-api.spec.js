@@ -315,7 +315,7 @@ describe('The calendar module apis', function() {
     });
 
     describe('listCalendars request', function() {
-      it('should request the correct path and return an array of items included in dav:calendar', function(done) {
+      it('should request the correct path without params and return an array of items included in dav:calendar', function(done) {
         this.$httpBackend.expectGET('/dav/api/calendars/test.json').respond({
           _links: {
             self: { href: '/prepath/path/to/calendar.json' }
@@ -326,6 +326,24 @@ describe('The calendar module apis', function() {
         });
 
         this.calendarAPI.listCalendars('test')
+          .then(function(data) {
+            expect(data).to.deep.equal(['dav:calendar']);
+            done();
+          });
+        this.$httpBackend.flush();
+      });
+
+      it('should request the correct path with params and return an array of items included in dav:calendar', function(done) {
+        this.$httpBackend.expectGET('/dav/api/calendars/test.json?withRights=true').respond({
+          _links: {
+            self: { href: '/prepath/path/to/calendar.json' }
+          },
+          _embedded: {
+            'dav:calendar': ['dav:calendar']
+          }
+        });
+
+        this.calendarAPI.listCalendars('test', {withRights: true})
           .then(function(data) {
             expect(data).to.deep.equal(['dav:calendar']);
             done();

@@ -132,12 +132,13 @@
     /**
      * List all calendars in the calendar home. A dav:home resource, containing all dav:calendar resources in it.
      * @param  {String} calendarId The calendarHomeId.
+     * @param  {object} options    options for more data
      * @return {Object}                An array of dav:calendar
      */
-    function listCalendars(calendarId) {
+    function listCalendars(calendarId, options) {
       var path = calPathBuilder.forCalendarHomeId(calendarId);
 
-      return request('get', path, {Accept: CALENDAR_ACCEPT_HEADER}).then(davResponseHandler('dav:calendar'));
+      return request('get', path, {Accept: CALENDAR_ACCEPT_HEADER}, {}, options).then(davResponseHandler('dav:calendar'));
     }
 
     /**

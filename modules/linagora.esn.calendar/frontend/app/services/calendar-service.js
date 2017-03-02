@@ -29,23 +29,26 @@
     /**
      * List all calendars in the calendar home.
      * @param  {String}     calendarHomeId  The calendar home id
+     * @param  {object}     options         options for more data
      * @return {[CalendarCollectionShell]}  an array of CalendarCollectionShell
      */
-    function listCalendars(calendarHomeId) {
-      promiseCache[calendarHomeId] = promiseCache[calendarHomeId] || calendarAPI.listCalendars(calendarHomeId)
-        .then(function(calendars) {
-          var vcalendars = [];
+    function listCalendars(calendarHomeId, options) {
 
-          calendars.forEach(function(calendar) {
-            var vcal = new CalendarCollectionShell(calendar);
+      function createCalendarsShell(calendars) {
+        var vcalendars = [];
 
-            vcalendars.push(vcal);
-          });
+        calendars.forEach(function(calendar) {
+          var vcal = new CalendarCollectionShell(calendar);
 
-          calendarsCache[calendarHomeId] = vcalendars;
-
-          return calendarsCache[calendarHomeId];
+          vcalendars.push(vcal);
         });
+
+        calendarsCache[calendarHomeId] = vcalendars;
+
+        return calendarsCache[calendarHomeId];
+      }
+
+      promiseCache[calendarHomeId] = promiseCache[calendarHomeId] || calendarAPI.listCalendars(calendarHomeId, options).then(createCalendarsShell);
 
       return promiseCache[calendarHomeId];
     }

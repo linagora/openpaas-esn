@@ -102,10 +102,42 @@ describe('The calendarsList controller', function() {
 
   describe('the activate function', function() {
 
+    describe('CALENDAR_EVENTS.CALENDARS.ADD listener', function() {
+
+      it('call arrangeCalendars', function() {
+        CalendarsListController.$onInit();
+
+        CalendarsListController.arrangeCalendars = sinon.spy();
+
+        $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.ADD, calendars[0]);
+
+        $rootScope.$apply();
+
+        expect(CalendarsListController.arrangeCalendars).to.be.called;
+      });
+    });
+
+    describe('CALENDAR_EVENTS.CALENDARS.REMOVE listener', function() {
+
+      it('call arrangeCalendars', function() {
+        CalendarsListController.$onInit();
+
+        CalendarsListController.arrangeCalendars = sinon.spy();
+
+        $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.REMOVE, calendars[0]);
+
+        $rootScope.$apply();
+
+        expect(CalendarsListController.arrangeCalendars).to.be.called;
+      });
+    });
+
     describe('CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW listener', function() {
 
       it('should set the visibility of the calendar', function() {
         CalendarsListController.$onInit();
+
+        CalendarsListController.arrangeCalendars = sinon.spy();
 
         $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, {
           calendarId: calendars[0].id,
@@ -132,27 +164,79 @@ describe('The calendarsList controller', function() {
       it('should initialize calendars with all the calendars from calendarService.listCalendars', function() {
         CalendarsListController.$onInit();
 
+        CalendarsListController.arrangeCalendars = sinon.spy();
+
         $rootScope.$digest();
 
         expect(CalendarsListController.calendars).to.deep.equal(calendars);
       });
 
       it('should call calendarService.listCalendars with the two params', function() {
-        CalendarsListController.activate();
+        CalendarsListController.$onInit();
 
         expect(calendarServiceMock.listCalendars).to.be.called;
+      });
+
+      it('should call arrangeCalendars function', function() {
+        CalendarsListController.$onInit();
+
+        CalendarsListController.arrangeCalendars = sinon.spy();
+
+        $rootScope.$digest();
+
+        expect(CalendarsListController.arrangeCalendars).to.be.called;
+      });
+    });
+
+    describe('the arrangeCalendars function', function() {
+
+      beforeEach(function() {
+        calendars = [{
+          id: '1',
+          href: 'href',
+          name: 'name',
+          color: 'color',
+          description: 'description'
+        }, {
+          id: '2',
+          href: 'href2',
+          name: 'name2',
+          color: 'color2',
+          description: 'description2',
+          rights: {
+            getUserRight: function() {
+              return 'read';
+            }
+          }
+        }];
+      });
+
+      it('should intialize myCalendars with the calendars without rights', function() {
+        CalendarsListController.$onInit();
+
+        $rootScope.$digest();
+
+        expect(CalendarsListController.myCalendars).to.deep.equal([calendars[0]]);
+      });
+
+      it('should intialize sharedCalendars with the calendars with rights', function() {
+        CalendarsListController.$onInit();
+
+        $rootScope.$digest();
+
+        expect(CalendarsListController.sharedCalendars).to.deep.equal([calendars[1]]);
       });
     });
 
     describe('the getHiddenCalendars function', function() {
 
-      it('should call calendarVisibilityService.getHiddenCalendars', function () {
+      it('should call calendarVisibilityService.getHiddenCalendars', function() {
         CalendarsListController.activate();
 
         expect(calendarVisibilityServiceMock.getHiddenCalendars).to.have.been.called;
       });
 
-      it('should update hiddenCalendars and add all the hidden calendars returned by calendarVisibilityService.getHiddenCalendars', function () {
+      it('should update hiddenCalendars and add all the hidden calendars returned by calendarVisibilityService.getHiddenCalendars', function() {
         CalendarsListController.$onInit();
 
         $rootScope.$digest();

@@ -4,13 +4,7 @@
   angular.module('esn.calendar')
          .factory('CalendarCollectionShell', CalendarCollectionShellFactory);
 
-  CalendarCollectionShellFactory.$inject = [
-    'calPathBuilder',
-    'CALENDAR_DEDAULT_EVENT_COLOR',
-    'DEFAULT_CALENDAR_ID'
-  ];
-
-  function CalendarCollectionShellFactory(calPathBuilder, CALENDAR_DEDAULT_EVENT_COLOR, DEFAULT_CALENDAR_ID) {
+  function CalendarCollectionShellFactory(calPathBuilder, CalendarRightShell, CALENDAR_DEDAULT_EVENT_COLOR, DEFAULT_CALENDAR_ID) {
     /**
      * A shell that wraps an caldav calendar component.
      * Note that href is the unique identifier and id is the calendarId inside the calendarHomeId
@@ -24,6 +18,8 @@
       this.href = calendar._links.self.href;
       this.id = this.href.split('/').pop().split('.').shift();
       this.selected = this.id === DEFAULT_CALENDAR_ID;
+
+      this.rights = addRightsForSharedCalendar(calendar);
     }
 
     CalendarCollectionShell.toDavCalendar = toDavCalendar;
@@ -70,6 +66,11 @@
     function buildHref(calendarHomeId, calendarId) {
       return calPathBuilder.forCalendarId(calendarHomeId, calendarId);
     }
-  }
 
+    function addRightsForSharedCalendar(calendar) {
+      if (calendar.invite && calendar.acl) {
+       return new CalendarRightShell(calendar.acl, calendar.invite);
+      }
+    }
+  }
 })();
