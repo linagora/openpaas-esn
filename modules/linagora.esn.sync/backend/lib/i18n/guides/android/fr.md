@@ -46,7 +46,7 @@ choisissez `Personnel (IMAP)`.
     - Saisissez (ou vérifiez) les **paramètres d'envoi** :
         - __Exiger une connexion__: *Activé*
         - __Nom d'utilisateur__: `<%= user.preferredEmail %>`
-        - __Serveur SMTP__: `<%= config.accounts[0].smtp.hostName %>`
+        - __Serveur SMTP__: `<%= config.accounts[0].smtp.hostname %>`
         - __Port__: `<%= config.accounts[0].smtp.port %>`
         - __Type de sécurité__: STARTTLS
 
