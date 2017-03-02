@@ -386,12 +386,20 @@ describe('The calendar configuration controller', function() {
         name: 'None',
         access: 'all'
       }, {
+        value: CALENDAR_RIGHT.ADMIN,
+        name: 'Administration',
+        access: 'users'
+      }, {
         value: CALENDAR_RIGHT.READ_WRITE,
         name: 'Read and Write',
         access: 'users'
       }, {
         value: CALENDAR_RIGHT.READ,
         name: 'Read only',
+        access: 'all'
+      }, {
+        value: CALENDAR_RIGHT.FREE_BUSY,
+        name: 'Free/Busy',
         access: 'all'
       }];
 
@@ -405,6 +413,10 @@ describe('The calendar configuration controller', function() {
         {
           value: CALENDAR_RIGHT.CUSTOM,
           name: 'Read'
+        },
+        {
+          value: CALENDAR_RIGHT.WRITE,
+          name: 'Write'
         }, {
           value: CALENDAR_RIGHT.FREE_BUSY,
           name: 'Private'
@@ -713,6 +725,24 @@ describe('The calendar configuration controller', function() {
             calendarConfigurationController.calendarHomeId,
             calendarConfigurationController.calendar.id,
             { public_right: '{DAV:}read' }
+          );
+          expect(calendarService.modifyCalendar).to.not.have.been.calledWith;
+          expect(calendarService.modifyRights).to.not.have.been.calledWith;
+        });
+
+        //This test must be changed when we affect the correct right to none option.
+        it('should call modifyPublicRights with write argument when public right is changed to none', function() {
+          calendarConfigurationController.publicSelection = CALENDAR_RIGHT.WRITE;
+
+          calendarConfigurationController.submit();
+          $rootScope.$digest();
+
+          expect(notificationFactoryMock.weakInfo).to.have.been.called;
+          expect(stateMock.go).to.have.been.called;
+          expect(calendarAPI.modifyPublicRights).to.have.been.calledWith(
+            calendarConfigurationController.calendarHomeId,
+            calendarConfigurationController.calendar.id,
+            { public_right: '{DAV:}write' }
           );
           expect(calendarService.modifyCalendar).to.not.have.been.calledWith;
           expect(calendarService.modifyRights).to.not.have.been.calledWith;

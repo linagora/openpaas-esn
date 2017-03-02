@@ -93,6 +93,10 @@
         name: 'None',
         access: 'all'
       }, {
+        value: CALENDAR_RIGHT.ADMIN,
+        name: 'Administration',
+        access: 'users'
+      }, {
         value: CALENDAR_RIGHT.READ_WRITE,
         name: 'Read and Write',
         access: 'users'
@@ -100,11 +104,19 @@
         value: CALENDAR_RIGHT.READ,
         name: 'Read only',
         access: 'all'
+      }, {
+        value: CALENDAR_RIGHT.FREE_BUSY,
+        name: 'Free/Busy',
+        access: 'all'
       }];
       self.publicRights = [
         {
           value: CALENDAR_RIGHT.CUSTOM,
           name: 'Read'
+        },
+        {
+          value: CALENDAR_RIGHT.WRITE,
+          name: 'Write'
         }, {
           value: CALENDAR_RIGHT.FREE_BUSY,
           name: 'Private'
@@ -194,6 +206,9 @@
             switch (self.publicSelection) {
               case CALENDAR_RIGHT.CUSTOM:
                 updateActions.push(calendarAPI.modifyPublicRights(self.calendarHomeId, self.calendar.id, { public_right: '{DAV:}read' }));
+                break;
+              case CALENDAR_RIGHT.WRITE:
+                updateActions.push(calendarAPI.modifyPublicRights(self.calendarHomeId, self.calendar.id, { public_right: '{DAV:}write' }));
                 break;
               case CALENDAR_RIGHT.FREE_BUSY:
                 updateActions.push(calendarAPI.modifyPublicRights(self.calendarHomeId, self.calendar.id, { public_right: '{urn:ietf:params:xml:ns:caldav}read-free-busy' }));
