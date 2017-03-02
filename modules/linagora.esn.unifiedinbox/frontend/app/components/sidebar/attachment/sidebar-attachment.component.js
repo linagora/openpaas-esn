@@ -7,7 +7,7 @@
 
   function inboxListSidebarAttachment() {
     return {
-      templateUrl: '/unifiedinbox/views/components/sidebar/attachment/sidebar-attachment.html',
+      templateUrl: '/unifiedinbox/app/components/sidebar/attachment/sidebar-attachment.html',
       controllerAs: 'ctrl',
       controller: 'inboxListSidebarAttachmentController'
     };

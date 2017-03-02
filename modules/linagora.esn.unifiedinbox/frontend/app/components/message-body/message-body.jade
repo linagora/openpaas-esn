@@ -1,0 +1,3 @@
+.inbox-message-body
+  html-email-body(ng-if="$ctrl.message.htmlBody", email="$ctrl.message")
+  .lv-item.multilines(ng-if="!$ctrl.message.htmlBody", esn-string-to-dom="$ctrl.message.textBody | escapeHtml | autolink")

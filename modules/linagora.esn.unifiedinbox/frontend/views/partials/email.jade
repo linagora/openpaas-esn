@@ -26,8 +26,7 @@
 
     .text-center(ng-if="!email.loaded", openpaas-logo-spinner, spinner-start-active="1", spinner-size="0.4")
 
-    html-email-body(ng-if="email.htmlBody", email="::email")
-    .lv-item.multilines(ng-if="!email.htmlBody", esn-string-to-dom="email.textBody | escapeHtml | autolink")
+    inbox-message-body(message="::email")
 
   .lv-footer.attachments(ng-if="email.attachments.length > 0")
     inbox-attachment(ng-repeat="attachment in email.attachments", ng-if="::!attachment.isInline", attachment="::attachment")
