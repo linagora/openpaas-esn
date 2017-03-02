@@ -156,7 +156,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('emailSendingService', function($q, emailService, jmap, _, emailBodyService, sendEmail, jmapHelper) {
+  .factory('emailSendingService', function($q, emailService, jmap, _, session, emailBodyService, sendEmail, jmapHelper) {
 
     /**
      * Add the following logic when sending an email: Check for an invalid email used as a recipient
@@ -231,8 +231,14 @@ angular.module('linagora.esn.unifiedinbox')
       return prefix + subject;
     }
 
+    function getFirstRecipient(email) {
+        return _.head(email.to) || _.head(email.cc) || _.head(email.bcc);
+    }
+
     function showReplyAllButton(email) {
-      return countRecipients(email) > 1;
+      var nbRecipients = countRecipients(email);
+
+      return nbRecipients > 1 || nbRecipients === 1 && getEmailAddress(getFirstRecipient(email)) !== getEmailAddress(session.user);
     }
 
     function getEmailAddress(recipient) {
@@ -321,6 +327,7 @@ angular.module('linagora.esn.unifiedinbox')
       prefixSubject: prefixSubject,
       getReplyRecipients: getReplyRecipients,
       getReplyAllRecipients: getReplyAllRecipients,
+      getFirstRecipient: getFirstRecipient,
       showReplyAllButton: showReplyAllButton,
       createReplyAllEmailObject: _createQuotedEmail.bind(null, 'Re: ', getReplyAllRecipients, 'default', false),
       createReplyEmailObject: _createQuotedEmail.bind(null, 'Re: ', getReplyRecipients, 'default', false),

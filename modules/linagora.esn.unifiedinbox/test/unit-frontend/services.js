@@ -532,9 +532,15 @@ describe('The Unified Inbox Angular module services', function() {
         });
       });
 
-      angular.mock.inject(function(_emailSendingService_, _$rootScope_) {
+      angular.mock.inject(function(session, _emailSendingService_, _$rootScope_) {
         emailSendingService = _emailSendingService_;
         $rootScope = _$rootScope_;
+
+        session.user = {
+          firstname: 'user',
+          lastname: 'using',
+          preferredEmail: 'user@linagora.com'
+        };
       });
     });
 
@@ -681,23 +687,89 @@ describe('The Unified Inbox Angular module services', function() {
       var email;
 
       it('should return true when more than one recipient is provided', function() {
+
         email = {
           to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}],
           cc: [{displayName: '3', email: '3@linagora.com'}, {displayName: '4', email: '4@linagora.com'}],
           bcc: [{displayName: '5', email: '5@linagora.com'}, {displayName: '6', email: '6@linagora.com'}]
         };
+
         expect(emailSendingService.showReplyAllButton(email)).to.be.true;
       });
-      it('should return false when one/zero recipient is provided', function() {
+
+      it('should return false when zero recipient is provided', function() {
+
+        expect(emailSendingService.showReplyAllButton({})).to.be.false;
+      });
+
+      it('should return true when the single recipient is not the user', function() {
+
         email = {
           to: [{displayName: '1', email: '1@linagora.com'}],
           cc: [],
           bcc: []
         };
-        expect(emailSendingService.showReplyAllButton(email)).to.be.false;
+
+        expect(emailSendingService.showReplyAllButton(email)).to.be.true;
+      });
+
+      it('should return false when the single recipient is the user', function() {
+
         email = {
+          to: [{displayName: 'user', email: 'user@linagora.com'}],
+          cc: [],
+          bcc: []
         };
+
         expect(emailSendingService.showReplyAllButton(email)).to.be.false;
+      });
+    });
+
+    describe('The getFirstRecipient function', function() {
+      var expectedEmail = {displayName: '1', email: '1@linagora.com'};
+
+      it('should return the first recipient', function() {
+
+        email = {
+          to: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}],
+          cc: [{displayName: '3', email: '3@linagora.com'}, {displayName: '4', email: '4@linagora.com'}],
+          bcc: [{displayName: '5', email: '5@linagora.com'}, {displayName: '6', email: '6@linagora.com'}]
+        };
+
+        expect(emailSendingService.getFirstRecipient(email)).to.shallowDeepEqual(expectedEmail);
+      });
+
+      it('should return undefined if there is zero recipients', function() {
+
+        email = {
+          to: [],
+          cc: [],
+          bcc: []
+        };
+
+        expect(emailSendingService.getFirstRecipient(email)).to.be.undefined;
+      });
+
+      it('should return the first Cc if there is no To', function() {
+
+        email = {
+          to: [],
+          cc: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}],
+          bcc: [{displayName: '5', email: '5@linagora.com'}]
+        };
+
+        expect(emailSendingService.getFirstRecipient(email)).to.shallowDeepEqual(expectedEmail);
+      });
+
+      it('should return the first Bcc if there is no To and no Cc', function() {
+
+        email = {
+          to: [],
+          cc: [],
+          bcc: [{displayName: '1', email: '1@linagora.com'}, {displayName: '2', email: '2@linagora.com'}]
+        };
+
+        expect(emailSendingService.getFirstRecipient(email)).to.shallowDeepEqual(expectedEmail);
       });
     });
 
