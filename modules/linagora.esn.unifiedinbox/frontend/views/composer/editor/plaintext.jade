@@ -1,3 +1,5 @@
 textarea.compose-body(auto-size-dynamic="!isBoxed()", ng-model="email.textBody", ng-class="{ 'isCollapsed': isCollapsed }", placeholder="#{__('Start writing your email here')}")
-.edit-quoted-mail(ng-if='email.quoted && !email.isQuoting')
-  a(href='', ng-click='editQuotedMail()') #{__('Edit quoted mail')}
+
+.inbox-composer-original-message(ng-if="email.quoted.htmlBody && !email.isQuoting")
+  button.btn.btn-primary.edit-quoted-mail.pull-right(ng-click="editQuotedMail()") #{__('Edit quoted mail')}
+  inbox-message-body(message="email.quoted", auto-scale-disabled="true")

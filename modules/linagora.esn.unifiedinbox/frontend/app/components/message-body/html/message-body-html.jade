@@ -1,5 +1,5 @@
 .inbox-message-body-html
-  .inbox-message-body-html-autoscale(ng-if="$ctrl.message.scaled")
+  .inbox-message-body-html-autoscale(ng-if="!$ctrl.autoScaleDisabled && $ctrl.message.scaled")
     .inbox-message-body-html-autoscale-message #{__('This message was scaled down.')}
     a.btn.btn-link.inbox-message-body-html-autoscale-disable(ng-click="$ctrl.disableAutoScale()") #{__('Cancel')}
 

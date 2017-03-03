@@ -312,7 +312,11 @@ angular.module('linagora.esn.unifiedinbox')
         // We do not automatically quote the message if we're using a plain text editor and the message
         // has a HTML body. In this case the "Edit Quoted Mail" button will show
         if (!emailBodyService.supportsRichtext() && message.htmlBody) {
-          return $q.when(newEmail);
+          return emailBodyService.quote(newEmail, templateName, true).then(function(body) {
+            newEmail.quoted.htmlBody = body;
+
+            return newEmail;
+          });
         }
 
         return emailBodyService.quote(newEmail, templateName).then(function(body) {
@@ -666,16 +670,16 @@ angular.module('linagora.esn.unifiedinbox')
 
   .factory('emailBodyService', function($interpolate, $templateRequest, deviceDetector, localTimezone) {
 
-    function quote(email, templateName) {
+    function quote(email, templateName, forceRichTextTemplate) {
       if (!templateName) {
         templateName = 'default';
       }
 
-      return _quote(email, '/unifiedinbox/views/partials/quotes/' + templateName + (supportsRichtext() ? '.html' : '.txt'));
+      return _quote(email, '/unifiedinbox/views/partials/quotes/' + templateName + (forceRichTextTemplate || supportsRichtext() ? '.html' : '.txt'));
     }
 
     function quoteOriginalEmail(email) {
-      return _quote(email, '/unifiedinbox/views/partials/quotes/original-' + email.quoteTemplate + '.html');
+      return _quote(email, '/unifiedinbox/views/partials/quotes/original.html');
     }
 
     function _quote(email, template) {

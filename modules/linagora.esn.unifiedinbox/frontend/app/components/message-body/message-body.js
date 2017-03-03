@@ -6,7 +6,8 @@
     .component('inboxMessageBody', {
       templateUrl: '/unifiedinbox/app/components/message-body/message-body.html',
       bindings: {
-        message: '<'
+        message: '<',
+        autoScaleDisabled: '<'
       }
     });
 

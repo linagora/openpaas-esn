@@ -70,8 +70,10 @@ composer, composer-desktop {
     }
 
     email-body-editor {
-      .flex;
+      .flex-column;
       .flex-shorthand(1);
+
+      background-color: @m-white;
     }
 
     .compose-subject {
@@ -231,20 +233,9 @@ composer {
       resize: none;
     }
 
-    .edit-quoted-mail {
-      position: fixed;
-      bottom: 0;
-      right: 0;
-      z-index: 3;
-
-      padding: 5px 10px;
-
-      border-top-left-radius: 5px;
-      background-color: @primaryColor;
-      opacity: 0.8;
-
-      a {
-        color: @textPrimaryColor;
+    .inbox-composer-original-message {
+      .edit-quoted-mail {
+        margin-right: 10px;
       }
     }
 

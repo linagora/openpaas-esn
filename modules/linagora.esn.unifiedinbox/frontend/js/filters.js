@@ -36,8 +36,8 @@ angular.module('linagora.esn.unifiedinbox')
 
   .filter('quote', function() {
     return function(text) {
-      if (!angular.isDefined(text)) {
-        return;
+      if (!text) {
+        return text;
       }
 
       return text.trim().replace(/^(.)/gm, '> $1');
