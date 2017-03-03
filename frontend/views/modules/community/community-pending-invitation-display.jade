@@ -5,7 +5,7 @@ div.col-xs-12.nopadding
     img.thumbnail(src='/images/user.png', ng-src='/api/users/{{::request.user._id}}/profile/avatar', alt='#{__("Profile Avatar")}')
   .col-lg-7.col-sm-5.col-xs-8
     h4.media-heading
-      a(ng-href="#/profile/{{::request.user._id}}") {{::request.user.firstname}} {{::request.user.lastname}}
+      a(ui-sref="profile({user_id: request.user._id})") {{::request.user.firstname}} {{::request.user.lastname}}
     span
       i.mdi.mdi-clock
       span.date(am-time-ago="::request.timestamp.creation")
