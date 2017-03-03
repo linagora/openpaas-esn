@@ -1,16 +1,47 @@
 'use strict';
 
-/* global chai: false */
+/* global chai, sinon: false */
+
 var expect = chai.expect;
 
 describe('CalendarCollectionShell factory', function() {
+  var CalendarRightShellMock;
+
+  CalendarRightShellMock = sinon.spy();
 
   beforeEach(angular.mock.module('esn.calendar'));
+
+  beforeEach(function() {
+    angular.mock.module(function($provide) {
+      $provide.value('CalendarRightShell', CalendarRightShellMock);
+    });
+  });
 
   beforeEach(function() {
     angular.mock.inject(function(CalendarCollectionShell, DEFAULT_CALENDAR_ID) {
       this.CalendarCollectionShell = CalendarCollectionShell;
       this.DEFAULT_CALENDAR_ID = DEFAULT_CALENDAR_ID;
+    });
+  });
+
+  describe('CalendarCollectionShell constructor', function() {
+    it('should call CalendarRightShell if the calendar has the acl and the invite fields', function() {
+      var calendar = {
+        _links: {
+          self: {
+            href: '/calendars/56095ccccbd51b7318ce6d0c/db0d5d63-c36a-42fc-9684-6f5e8132acfe.json'
+          }
+        },
+        name: 'name',
+        color: 'color',
+        description: 'description',
+        acl: 'acl',
+        invite: 'invite'
+      };
+
+      this.CalendarCollectionShell(calendar);
+
+      expect(CalendarRightShellMock).to.have.been.calledWith(calendar.acl, calendar.invite);
     });
   });
 

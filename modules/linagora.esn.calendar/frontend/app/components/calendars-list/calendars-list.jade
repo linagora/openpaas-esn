@@ -1,29 +1,15 @@
 .listview.calendars-list
-  .lv-body
-    .lv-item.calendar-item.calendar-header-title.hidden-xs
-      .media
-        .pull-left
-          i.mdi.mdi-calendar
-        .pull-right(ui-sref="calendar.add", title="#{__('New calendar')}")
-            i.mdi.mdi-plus
-        .media-body
-          .lv-title Calendars
-    a.lv-item.calendar-item(href="", ng-repeat="calendar in vm.calendars track by calendar.id", ng-class="{'selected-calendar': calendar.selected}")
-      .media
-        .pull-left(ng-if="!vm.hiddenCalendars[calendar.id]", ng-click="vm.toggleCalendar(calendar)", title="#{__('Hide calendar')}")
-          i.mdi.mdi-checkbox-marked-outline(ng-style="{'color': calendar.color}")
-        .pull-left(ng-if="vm.hiddenCalendars[calendar.id]", ng-click="vm.toggleCalendar(calendar)", title="#{__('Show calendar')}")
-          i.mdi.mdi-checkbox-blank-outline
-        .pull-right.hidden-xs(ui-sref='calendar.edit({calendarId: calendar.id})' ui-sref-opts='{calendarId: calendar.id}', title="#{__('Configuration')}")
-            i.mdi.mdi-settings
-        .media-body.hidden-lg(ng-click="vm.toggleCalendar(calendar)")
-          .lv-title
-            span {{calendar.name}}
-        .media-body.visible-lg-block(ng-click="vm.selectCalendar(calendar)", title="{{ calendar.name }}")
-          .lv-title
-            span {{calendar.name}}
-    .configuration-container.visible-xs
-      hr
-      .lv-item.clickable.configuration-button(href="", ui-sref="calendar.list", ng-click='vm.onEditClick()')
-        i.mdi.mdi-settings
-        | #{__('Manage calendars')}
+  cal-user-calendars-list(
+    my-calendars="$ctrl.myCalendars",
+    toggle-calendar="$ctrl.toggleCalendar",
+    select-calendar="$ctrl.selectCalendar",
+    hidden-calendars="$ctrl.hiddenCalendars"
+  )
+
+  cal-shared-calendars-list(
+    shared-calendars="$ctrl.sharedCalendars",
+    toggle-calendar="$ctrl.toggleCalendar",
+    select-calendar="$ctrl.selectCalendar",
+    hidden-calendars="$ctrl.hiddenCalendars",
+    ng-if="$ctrl.sharedCalendars.length"
+  )

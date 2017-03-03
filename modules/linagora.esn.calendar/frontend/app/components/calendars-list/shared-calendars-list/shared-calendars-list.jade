@@ -1,0 +1,25 @@
+.lv-body
+  .lv-item.calendar-item.calendar-header-title.hidden-md
+    .media
+      .pull-left
+        i.mdi.mdi-calendar
+      .media-body
+        .lv-title #{__('Shared calendars')}
+  .lv-item.calendar-item.calendar-header-title-desktop.visible-md
+    .media
+      .pull-left
+        i.mdi.mdi-calendar
+      .media-body
+        .lv-title #{__('Shared calendars')}
+  a.lv-item.calendar-item(href="", ng-repeat="calendar in $ctrl.sharedCalendars track by calendar.id", ng-class="{'selected-calendar': calendar.selected}")
+    .media
+      .pull-left(ng-if="!$ctrl.hiddenCalendars[calendar.id]", ng-click="$ctrl.toggleCalendar(calendar)", title="#{__('Hide calendar')}")
+        i.mdi.mdi-checkbox-marked-outline(ng-style="{'color': calendar.color}")
+      .pull-left(ng-if="$ctrl.hiddenCalendars[calendar.id]", ng-click="$ctrl.toggleCalendar(calendar)", title="#{__('Show calendar')}")
+        i.mdi.mdi-checkbox-blank-outline
+      .media-body.hidden-lg(ng-click="$ctrl.selectCalendar(calendar)")
+        .lv-title
+          span {{calendar.name}}
+      .media-body.visible-lg-block(ng-click="$ctrl.selectCalendar(calendar)", title="{{ calendar.name }}")
+        .lv-title
+          span {{calendar.name}}

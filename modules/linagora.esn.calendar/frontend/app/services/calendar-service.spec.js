@@ -28,10 +28,11 @@ describe('The calendarService service', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function(calendarService, $httpBackend, $rootScope, CALENDAR_EVENTS, DEFAULT_CALENDAR_ID) {
+  beforeEach(angular.mock.inject(function(calendarService, $httpBackend, $rootScope, calendarAPI, CALENDAR_EVENTS, DEFAULT_CALENDAR_ID) {
     this.$httpBackend = $httpBackend;
     this.$rootScope = $rootScope;
     this.calendarService = calendarService;
+    this.calendarAPI = calendarAPI;
     this.CALENDAR_EVENTS = CALENDAR_EVENTS;
     this.DEFAULT_CALENDAR_ID = DEFAULT_CALENDAR_ID;
   }));
@@ -63,6 +64,20 @@ describe('The calendarService service', function() {
           ]
         }
       };
+    });
+
+    it('should call calendarService.listCalendars with options', function() {
+      var options = {
+        withRights: true
+      };
+
+      this.calendarAPI.listCalendars = sinon.spy(function() {
+        return $q.when();
+      });
+
+      this.calendarService.listCalendars('homeId', options);
+
+      expect(self.calendarAPI.listCalendars).to.be.calledWith('homeId', options);
     });
 
     it('should wrap each received dav:calendar in a CalendarCollectionShell', function(done) {
