@@ -30,7 +30,7 @@
         i.mdi.mdi-checkbox-blank-outline
       .pull-right.hidden-xs(ui-sref='calendar.edit({calendarId: calendar.id})' ui-sref-opts='{calendarId: calendar.id}', title="#{__('Configuration')}")
         i.mdi.mdi-settings
-      .media-body.hidden-lg(ng-click="$ctrl.toggleCalendar(calendar)")
+      .media-body.hidden-lg(ng-click="$ctrl.selectCalendar(calendar)")
         .lv-title
           span {{calendar.name}}
       .media-body.visible-lg-block(ng-click="$ctrl.selectCalendar(calendar)", title="{{ calendar.name }}")
