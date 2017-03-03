@@ -225,12 +225,16 @@ composer {
   .compose {
 
     .compose-body, .note-editor {
-      // This will make the textarea wide enough to overflow the screen,
-      // but be short enough so that when it is focused, the automatic scroll when the
-      // virtual keyboard appears does not hide the caret.
-      min-height: ~"calc(100vh - @{header-height} - @{sub-header-height} - @{composer-header-min-height} - @{attachments-zone-min-height})";
+      min-height: 100px;
       overflow: auto;
       resize: none;
+
+      &.expanded {
+        // This will make the textarea wide enough to overflow the screen,
+        // but be short enough so that when it is focused, the automatic scroll when the
+        // virtual keyboard appears does not hide the caret.
+        min-height: ~"calc(100vh - @{header-height} - @{sub-header-height} - @{composer-header-min-height} - @{attachments-zone-min-height})";
+      }
     }
 
     .inbox-composer-original-message {
