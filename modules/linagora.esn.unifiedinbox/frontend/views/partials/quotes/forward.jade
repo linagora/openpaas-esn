@@ -4,14 +4,14 @@ p
 cite
   | ------- #{__('Forwarded message')} -------
   br
-  | Subject: {{ email.subject }}
+  | Subject: {{ email.quoted.subject }}
   br
-  | Date: {{ email.date | date:dateFormat:tz }}
+  | Date: {{ email.quoted.date | date:dateFormat:tz }}
   br
-  | From: {{ email.from.email }}
+  | From: {{ email.quoted.from.email }}
   br
-  | {{ email.to | emailerList:'To: '}}
+  | {{ email.quoted.to | emailerList:'To: '}}
   br
-  | {{ email.cc | emailerList:'CC: '}}
+  | {{ email.quoted.cc | emailerList:'CC: '}}
 
-blockquote {{ email.htmlBody || (email.textBody | nl2br) }}
+blockquote {{ email.quoted.htmlBody || (email.quoted.textBody | nl2br) }}

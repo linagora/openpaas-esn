@@ -296,24 +296,26 @@ angular.module('linagora.esn.unifiedinbox')
     function _createQuotedEmail(subjectPrefix, recipients, templateName, includeAttachments, messageId, sender) {
       return jmapHelper.getMessageById(messageId).then(function(message) {
         var newRecipients = recipients ? recipients(message, sender) : {},
-          newEmail = {
-            from: getEmailAddress(sender),
-            to: newRecipients.to || [],
-            cc: newRecipients.cc || [],
-            bcc: newRecipients.bcc || [],
-            subject: prefixSubject(message.subject, subjectPrefix),
-            quoted: message,
-            isQuoting: false,
-            quoteTemplate: templateName
-          };
+            newEmail = {
+              from: getEmailAddress(sender),
+              to: newRecipients.to || [],
+              cc: newRecipients.cc || [],
+              bcc: newRecipients.bcc || [],
+              subject: prefixSubject(message.subject, subjectPrefix),
+              quoted: message,
+              isQuoting: false,
+              quoteTemplate: templateName
+            };
 
         includeAttachments && (newEmail.attachments = message.attachments);
 
-        if (!emailBodyService.supportsRichtext()) {
+        // We do not automatically quote the message if we're using a plain text editor and the message
+        // has a HTML body. In this case the "Edit Quoted Mail" button will show
+        if (!emailBodyService.supportsRichtext() && message.htmlBody) {
           return $q.when(newEmail);
         }
 
-        return emailBodyService.quote(message, templateName).then(function(body) {
+        return emailBodyService.quote(newEmail, templateName).then(function(body) {
           return _enrichWithQuote(newEmail, body);
         });
       });

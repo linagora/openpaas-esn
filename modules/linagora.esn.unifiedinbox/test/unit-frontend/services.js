@@ -532,7 +532,7 @@ describe('The Unified Inbox Angular module services', function() {
         });
       });
 
-      angular.mock.inject(function(session, _emailSendingService_, _$rootScope_) {
+      angular.mock.inject(function(session, _emailSendingService_, _$rootScope_, $templateCache) {
         emailSendingService = _emailSendingService_;
         $rootScope = _$rootScope_;
 
@@ -541,6 +541,9 @@ describe('The Unified Inbox Angular module services', function() {
           lastname: 'using',
           preferredEmail: 'user@linagora.com'
         };
+
+        $templateCache.put('/unifiedinbox/views/partials/quotes/default.txt', '');
+        $templateCache.put('/unifiedinbox/views/partials/quotes/forward.txt', '');
       });
     });
 
@@ -1054,6 +1057,32 @@ describe('The Unified Inbox Angular module services', function() {
         $rootScope.$digest();
       });
 
+      it('should create a reply all email object, quoting the original message on mobile if the message is plain text', function(done) {
+        isMobile = true;
+        email = {
+          from: {email: 'sender@linagora.com', name: 'linagora'},
+          to: [{displayName: '1', email: '1@linagora.com'}],
+          subject: 'my subject',
+          textBody: 'Body'
+        };
+        sender = {displayName: 'sender', email: 'sender@linagora.com'};
+        expectedAnswer = {
+          from: 'sender@linagora.com',
+          to: [{displayName: '1', email: '1@linagora.com'}],
+          subject: 'Re: my subject',
+          quoted: email,
+          quoteTemplate: 'default',
+          isQuoting: true
+        };
+
+        mockGetMessages(email);
+        emailSendingService.createReplyAllEmailObject('id', sender).then(function(email) {
+          expect(email).to.shallowDeepEqual(expectedAnswer);
+        }).then(done, done);
+
+        $rootScope.$digest();
+      });
+
       it('should not include attachments in the replayAll email', function(done) {
         email = {
           from: {email: 'from@linagora.com', name: 'linagora'},
@@ -1122,6 +1151,32 @@ describe('The Unified Inbox Angular module services', function() {
           quoted: email,
           quoteTemplate: 'default',
           isQuoting: false
+        };
+
+        mockGetMessages(email);
+        emailSendingService.createReplyEmailObject('id', sender).then(function(email) {
+          expect(email).to.shallowDeepEqual(expectedAnswer);
+        }).then(done, done);
+
+        $rootScope.$digest();
+      });
+
+      it('should create a reply email object, quoting the original message on mobile if the message is plain text', function(done) {
+        isMobile = true;
+        email = {
+          from: {email: 'from@linagora.com', name: 'linagora'},
+          to: [{displayName: '1', email: '1@linagora.com'}],
+          subject: 'my subject',
+          textBody: 'Body'
+        };
+        sender = {displayName: 'sender', email: 'sender@linagora.com'};
+        expectedAnswer = {
+          from: 'sender@linagora.com',
+          to: [{email: 'from@linagora.com', name: 'linagora'}],
+          subject: 'Re: my subject',
+          quoted: email,
+          quoteTemplate: 'default',
+          isQuoting: true
         };
 
         mockGetMessages(email);
@@ -1203,6 +1258,31 @@ describe('The Unified Inbox Angular module services', function() {
           quoted: email,
           quoteTemplate: 'forward',
           isQuoting: false
+        };
+
+        mockGetMessages(email);
+        emailSendingService.createForwardEmailObject('id', sender).then(function(email) {
+          expect(email).to.shallowDeepEqual(expectedAnswer);
+        }).then(done, done);
+
+        $rootScope.$digest();
+      });
+
+      it('should create a forward email object, quoting the original message on mobile if the message is plain text', function() {
+        isMobile = true;
+        email = {
+          from: {email: 'from@linagora.com', name: 'from'},
+          to: [{name: 'first', email: 'first@linagora.com'}, {name: 'second', email: 'second@linagora.com'}],
+          subject: 'my subject',
+          textBody: 'Body'
+        };
+        sender = {name: 'sender', email: 'sender@linagora.com'};
+        expectedAnswer = {
+          from: 'sender@linagora.com',
+          subject: 'Fwd: my subject',
+          quoted: email,
+          quoteTemplate: 'forward',
+          isQuoting: true
         };
 
         mockGetMessages(email);
@@ -2483,14 +2563,14 @@ describe('The Unified Inbox Angular module services', function() {
       $rootScope = _$rootScope_;
       _ = ___;
 
-      $templateCache.put('/unifiedinbox/views/partials/quotes/default.txt', 'On {{ email.date | date:dateFormat:tz }} from {{ email.from.email }}: {{ email.textBody }}');
+      $templateCache.put('/unifiedinbox/views/partials/quotes/default.txt', 'On {{ email.quoted.date | date:dateFormat:tz }} from {{ email.quoted.from.email }}: {{ email.quoted.textBody }}');
       $templateCache.put('/unifiedinbox/views/partials/quotes/forward.txt',
         '------- Forwarded message ------- ' +
-        'Subject: {{ email.subject }} ' +
-        'Date: {{ email.date | date:dateFormat:tz }} ' +
-        '{{ email.to | emailerList:"To: "}} ' +
-        '{{ email.cc | emailerList:"CC: "}} ' +
-        '{{ email.textBody }}');
+        'Subject: {{ email.quoted.subject }} ' +
+        'Date: {{ email.quoted.date | date:dateFormat:tz }} ' +
+        '{{ email.quoted.to | emailerList:"To: "}} ' +
+        '{{ email.quoted.cc | emailerList:"CC: "}} ' +
+        '{{ email.quoted.textBody }}');
     }));
 
     describe('The quote function', function() {
@@ -2506,8 +2586,14 @@ describe('The Unified Inbox Angular module services', function() {
         htmlBody: '<p>HtmlBody</p>'
       };
 
+      function quotedMessage(message) {
+        return {
+          quoted: message
+        };
+      }
+
       it('should quote htmlBody using a richtext template if not on mobile', function(done) {
-        emailBodyService.quote(email)
+        emailBodyService.quote(quotedMessage(email))
           .then(function(text) {
             expect(text).to.equal('<p><br/></p><cite>On Aug 21, 2015 12:10:00 AM, from test@open-paas.org</cite><blockquote><p>HtmlBody</p></blockquote>');
           })
@@ -2517,7 +2603,7 @@ describe('The Unified Inbox Angular module services', function() {
       });
 
       it('should quote textBody using a richtext template if not on mobile and htmlBody is not available', function(done) {
-        emailBodyService.quote(_.omit(email, 'htmlBody'))
+        emailBodyService.quote(quotedMessage(_.omit(email, 'htmlBody')))
           .then(function(text) {
             expect(text).to.equal('<p><br/></p><cite>On Aug 21, 2015 12:10:00 AM, from test@open-paas.org</cite><blockquote>TextBody</blockquote>');
           })
@@ -2528,7 +2614,7 @@ describe('The Unified Inbox Angular module services', function() {
 
       it('should quote textBody using a plaintext template if on mobile', function(done) {
         isMobile = true;
-        emailBodyService.quote(email)
+        emailBodyService.quote(quotedMessage(email))
           .then(function(text) {
             expect(text).to.equal('On Aug 21, 2015 12:10:00 AM from test@open-paas.org: TextBody');
           })
@@ -2538,7 +2624,7 @@ describe('The Unified Inbox Angular module services', function() {
       });
 
       it('should leverage the rich mode of forward template if specified', function(done) {
-        emailBodyService.quote(email, 'forward')
+        emailBodyService.quote(quotedMessage(email), 'forward')
           .then(function(text) {
             expect(text).to.equal('<p><br/></p><cite>------- Forwarded message -------<br/>Subject: Heya<br/>Date: Aug 21, 2015 12:10:00 AM<br/>From: test@open-paas.org<br/><br/></cite><blockquote><p>HtmlBody</p></blockquote>');
           })
@@ -2549,7 +2635,7 @@ describe('The Unified Inbox Angular module services', function() {
 
       it('should leverage the text mode of forward template if specified', function(done) {
         isMobile = true;
-        emailBodyService.quote(email, 'forward')
+        emailBodyService.quote(quotedMessage(email), 'forward')
           .then(function(text) {
             expect(text).to.equal('------- Forwarded message ------- Subject: Heya Date: Aug 21, 2015 12:10:00 AM   TextBody');
           })
@@ -2569,7 +2655,7 @@ describe('The Unified Inbox Angular module services', function() {
           textBody: 'Text\nBody\nTest'
         };
 
-        emailBodyService.quote(email)
+        emailBodyService.quote(quotedMessage(email))
           .then(function(text) {
             expect(text).to.equal('<p><br/></p><cite>On Aug 21, 2015 12:10:00 AM, from test@open-paas.org</cite><blockquote>Text<br/>Body<br/>Test</blockquote>');
           })
@@ -2589,7 +2675,7 @@ describe('The Unified Inbox Angular module services', function() {
           htmlBody: '<p><div>Test\nTest</div\n></p>'
         };
 
-        emailBodyService.quote(email)
+        emailBodyService.quote(quotedMessage(email))
           .then(function(text) {
             expect(text).to.equal('<p><br/></p><cite>On Aug 21, 2015 12:10:00 AM, from test@open-paas.org</cite><blockquote><p><div>Test\nTest</div\n></p></blockquote>');
           })
@@ -2609,7 +2695,7 @@ describe('The Unified Inbox Angular module services', function() {
           textBody: 'Text\nBody\nTest'
         };
 
-        emailBodyService.quote(email, 'forward')
+        emailBodyService.quote(quotedMessage(email), 'forward')
           .then(function(text) {
             expect(text).to.equal('<p><br/></p><cite>------- Forwarded message -------<br/>Subject: Heya<br/>Date: Aug 21, 2015 12:10:00 AM<br/>From: test@open-paas.org<br/><br/></cite><blockquote>Text<br/>Body<br/>Test</blockquote>');
           })
@@ -2629,7 +2715,7 @@ describe('The Unified Inbox Angular module services', function() {
           htmlBody: '<p><div>Test\nTest</div\n></p>'
         };
 
-        emailBodyService.quote(email, 'forward')
+        emailBodyService.quote(quotedMessage(email), 'forward')
           .then(function(text) {
             expect(text).to.equal('<p><br/></p><cite>------- Forwarded message -------<br/>Subject: Heya<br/>Date: Aug 21, 2015 12:10:00 AM<br/>From: test@open-paas.org<br/><br/></cite><blockquote><p><div>Test\nTest</div\n></p></blockquote>');
           })
