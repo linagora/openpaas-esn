@@ -11,6 +11,11 @@
             .pull-left
               i.mdi.mdi-plus
               span #{__('Add a new calendar')}
+        a.lv-item(ui-sref='calendar.public')
+          .media
+            .pull-left
+              i.mdi.mdi-plus
+              span #{__('Add a public calendar')}
         hr
         a.lv-item(href="", ng-repeat="calendar in $ctrl.calendars", ng-click='$ctrl.modify(calendar)')
           .media
