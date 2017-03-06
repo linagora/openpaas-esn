@@ -227,7 +227,18 @@
         ]
       };
 
-      matrix[CALENDAR_RIGHT.READ] = {
+      matrix[CALENDAR_RIGHT.PUBLIC_READ] = {
+        shouldHave: [
+          CalRightSet.READ
+        ],
+        shouldNotHave: [
+          CalRightSet.SHAREE_READWRITE,
+          CalRightSet.SHARE,
+          CalRightSet.WRITE
+        ]
+      };
+
+      matrix[CALENDAR_RIGHT.SHAREE_READ] = {
         shouldHave: [
           CalRightSet.SHAREE_READ
         ],
