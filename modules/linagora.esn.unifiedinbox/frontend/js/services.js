@@ -296,24 +296,30 @@ angular.module('linagora.esn.unifiedinbox')
     function _createQuotedEmail(subjectPrefix, recipients, templateName, includeAttachments, messageId, sender) {
       return jmapHelper.getMessageById(messageId).then(function(message) {
         var newRecipients = recipients ? recipients(message, sender) : {},
-          newEmail = {
-            from: getEmailAddress(sender),
-            to: newRecipients.to || [],
-            cc: newRecipients.cc || [],
-            bcc: newRecipients.bcc || [],
-            subject: prefixSubject(message.subject, subjectPrefix),
-            quoted: message,
-            isQuoting: false,
-            quoteTemplate: templateName
-          };
+            newEmail = {
+              from: getEmailAddress(sender),
+              to: newRecipients.to || [],
+              cc: newRecipients.cc || [],
+              bcc: newRecipients.bcc || [],
+              subject: prefixSubject(message.subject, subjectPrefix),
+              quoted: message,
+              isQuoting: false,
+              quoteTemplate: templateName
+            };
 
         includeAttachments && (newEmail.attachments = message.attachments);
 
-        if (!emailBodyService.supportsRichtext()) {
-          return $q.when(newEmail);
+        // We do not automatically quote the message if we're using a plain text editor and the message
+        // has a HTML body. In this case the "Edit Quoted Mail" button will show
+        if (!emailBodyService.supportsRichtext() && message.htmlBody) {
+          return emailBodyService.quote(newEmail, templateName, true).then(function(body) {
+            newEmail.quoted.htmlBody = body;
+
+            return newEmail;
+          });
         }
 
-        return emailBodyService.quote(message, templateName).then(function(body) {
+        return emailBodyService.quote(newEmail, templateName).then(function(body) {
           return _enrichWithQuote(newEmail, body);
         });
       });
@@ -664,16 +670,16 @@ angular.module('linagora.esn.unifiedinbox')
 
   .factory('emailBodyService', function($interpolate, $templateRequest, deviceDetector, localTimezone) {
 
-    function quote(email, templateName) {
+    function quote(email, templateName, forceRichTextTemplate) {
       if (!templateName) {
         templateName = 'default';
       }
 
-      return _quote(email, '/unifiedinbox/views/partials/quotes/' + templateName + (supportsRichtext() ? '.html' : '.txt'));
+      return _quote(email, '/unifiedinbox/views/partials/quotes/' + templateName + (forceRichTextTemplate || supportsRichtext() ? '.html' : '.txt'));
     }
 
     function quoteOriginalEmail(email) {
-      return _quote(email, '/unifiedinbox/views/partials/quotes/original-' + email.quoteTemplate + '.html');
+      return _quote(email, '/unifiedinbox/views/partials/quotes/original.html');
     }
 
     function _quote(email, template) {

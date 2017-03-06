@@ -70,8 +70,10 @@ composer, composer-desktop {
     }
 
     email-body-editor {
-      .flex;
+      .flex-column;
       .flex-shorthand(1);
+
+      background-color: @m-white;
     }
 
     .compose-subject {
@@ -223,28 +225,21 @@ composer {
   .compose {
 
     .compose-body, .note-editor {
-      // This will make the textarea wide enough to overflow the screen,
-      // but be short enough so that when it is focused, the automatic scroll when the
-      // virtual keyboard appears does not hide the caret.
-      min-height: ~"calc(100vh - @{header-height} - @{sub-header-height} - @{composer-header-min-height} - @{attachments-zone-min-height})";
+      min-height: 100px;
       overflow: auto;
       resize: none;
+
+      &.expanded {
+        // This will make the textarea wide enough to overflow the screen,
+        // but be short enough so that when it is focused, the automatic scroll when the
+        // virtual keyboard appears does not hide the caret.
+        min-height: ~"calc(100vh - @{header-height} - @{sub-header-height} - @{composer-header-min-height} - @{attachments-zone-min-height})";
+      }
     }
 
-    .edit-quoted-mail {
-      position: fixed;
-      bottom: 0;
-      right: 0;
-      z-index: 3;
-
-      padding: 5px 10px;
-
-      border-top-left-radius: 5px;
-      background-color: @primaryColor;
-      opacity: 0.8;
-
-      a {
-        color: @textPrimaryColor;
+    .inbox-composer-original-message {
+      .edit-quoted-mail {
+        margin-right: 10px;
       }
     }
 

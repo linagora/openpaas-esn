@@ -75,8 +75,16 @@ describe('The Unified Inbox Angular module filters', function() {
   describe('The quote filter', function() {
     var emailTextBody;
 
-    it('should do nothing if textBody is not defined', function() {
-      expect($filter('quote')()).to.be.undefined;
+    it('should return undefined if textBody is undefined', function() {
+      expect($filter('quote')()).to.equal(undefined);
+    });
+
+    it('should return null if textBody is null', function() {
+      expect($filter('quote')(null)).to.equal(null);
+    });
+
+    it('should return an empty String if textBody is empty', function() {
+      expect($filter('quote')('')).to.equal('');
     });
 
     it('should prefix each line with "> "', function() {
