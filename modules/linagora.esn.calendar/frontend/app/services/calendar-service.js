@@ -48,9 +48,12 @@
         return calendarsCache[calendarHomeId];
       }
 
-      promiseCache[calendarHomeId] = promiseCache[calendarHomeId] || calendarAPI.listCalendars(calendarHomeId, options).then(createCalendarsShell);
+      if (!options) {
+        promiseCache[calendarHomeId] = promiseCache[calendarHomeId] || calendarAPI.listCalendars(calendarHomeId).then(createCalendarsShell);
+        return promiseCache[calendarHomeId];
+      }
 
-      return promiseCache[calendarHomeId];
+      return calendarAPI.listCalendars(calendarHomeId, options).then(createCalendarsShell);
     }
 
     /**

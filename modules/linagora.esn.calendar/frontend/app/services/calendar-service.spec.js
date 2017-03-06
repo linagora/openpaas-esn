@@ -80,6 +80,23 @@ describe('The calendarService service', function() {
       expect(self.calendarAPI.listCalendars).to.be.calledWith('homeId', options);
     });
 
+    it('should call not cache the calls calendarService.listCalendars when there are options', function() {
+      var options = {
+        withRights: true
+      };
+
+      this.calendarAPI.listCalendars = sinon.spy(function() {
+        return $q.when([]);
+      });
+
+      this.calendarService.listCalendars('homeId', options).then(function() {
+        self.calendarService.listCalendars('homeId', options).then(function() {
+          expect(self.calendarAPI.listCalendars).to.have.been.called.twice;
+        });
+      });
+      this.$rootScope.$digest();
+    });
+
     it('should wrap each received dav:calendar in a CalendarCollectionShell', function(done) {
       var calendarCollection = {id: this.DEFAULT_CALENDAR_ID};
 
