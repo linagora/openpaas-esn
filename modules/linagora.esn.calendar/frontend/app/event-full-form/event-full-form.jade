@@ -37,7 +37,7 @@
                 cal-attendees-autocomplete-input(ng-show='isOrganizer || isNew(editedEvent)', original-attendees='editedEvent.attendees', mutable-attendees='newAttendees')
 
               .row.visible-xs
-                .form-group.status(ng-if='editedEvent.attendees.length > 1 || newAttendees.length > 0')
+                .form-group.status(ng-if='editedEvent.attendees.length > 0 || newAttendees.length > 0')
                   span.col-xs-12.col-md-6.text-center #{__('Will you attend?')}
                   .col-xs-12.col-md-6.text-center
                     .btn-group(role="group")
@@ -68,7 +68,7 @@
                 cal-attendees-autocomplete-input(ng-show='isOrganizer || isNew(editedEvent)', original-attendees='editedEvent.attendees', mutable-attendees='newAttendees')
 
               .row.hidden-xs
-                .form-group.status(ng-if='editedEvent.attendees.length > 1 || newAttendees.length > 0')
+                .form-group.status(ng-if='editedEvent.attendees.length > 0 || newAttendees.length > 0')
                   span.col-xs-12.col-md-6.text-center #{__('Will you attend?')}
                   .col-xs-12.col-md-6.text-center.nopadding-left.nopadding-right
                     .btn-group(role="group")
