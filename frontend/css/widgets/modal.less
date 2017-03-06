@@ -1,13 +1,45 @@
+@modal-header-bg: #f7f7f7;
+
 .modal-backdrop.am-fade, .aside-backdrop.am-fade {
   background: rgba(0, 0, 0, 0.12);
 }
 
 .modal {
   .modal-header {
-    background-color: #f7f7f7;
+    background-color: @modal-header-bg;
   }
 
   .modal-body {
     padding: 10px 20px;
+  }
+
+  .modal-footer {
+    .mdi {
+      font-size: 1.8em;
+    }
+
+    .color-default {
+      color: @secondaryTextColor;
+    }
+
+    .color-primary {
+      color: @brand-primary;
+    }
+
+    .color-success {
+      color: @brand-success;
+    }
+
+    .color-info {
+      color: @brand-info;
+    }
+
+    .color-warning {
+      color: @brand-warning;
+    }
+
+    .color-danger {
+      color: @brand-danger;
+    }
   }
 }

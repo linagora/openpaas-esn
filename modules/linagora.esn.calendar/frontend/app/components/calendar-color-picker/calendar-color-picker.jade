@@ -7,5 +7,5 @@
         .square-box(ng-repeat="color in colorKeys", class="{{color}}", ng-class="{selected: isSelected(color)}", ng-click="select(color)")
           .color-box(ng-style="{'background-color': CALENDAR_LIST_OF_COLORS[color]}")
       .modal-footer
-        button.btn.btn-default(type="button", ng-click="$hide()") #{__('Cancel')}
-        button.btn.btn-danger(type="button", ng-click="set(); $hide()") #{__('Set')}
+        button.btn.btn-link(type="button", ng-click="$hide()") #{__('Cancel')}
+        button.btn.btn-primary(type="button", ng-click="set(); $hide()") #{__('Set')}

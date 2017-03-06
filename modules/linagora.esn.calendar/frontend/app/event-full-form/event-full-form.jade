@@ -37,6 +37,15 @@
                 cal-attendees-autocomplete-input(ng-show='isOrganizer || isNew(editedEvent)', original-attendees='editedEvent.attendees', mutable-attendees='newAttendees')
 
               .row.visible-xs
+                .form-group.status(ng-if='editedEvent.attendees.length > 1 || newAttendees.length > 0')
+                  span.col-xs-12.col-md-6.text-center #{__('Will you attend?')}
+                  .col-xs-12.col-md-6.text-center
+                    .btn-group(role="group")
+                      button.btn.btn-link.accepted(type='button', ng-click='changeParticipation("ACCEPTED")', ng-class='{ "active": userAsAttendee.partstat === "ACCEPTED" }') #{__('Yes')}
+                      button.btn.btn-link.undecided(type='button', ng-click='changeParticipation("TENTATIVE")', ng-class='{ "active": userAsAttendee.partstat === "TENTATIVE" }') #{__('Maybe')}
+                      button.btn.btn-link.declined(type='button', ng-click='changeParticipation("DECLINED")', ng-class='{ "active": userAsAttendee.partstat === "DECLINED" }') #{__('No')}
+
+              .row.visible-xs
                 cal-attendees-list(attendees='editedEvent.attendees', read-only='::!isOrganizer', organizer='editedEvent.organizer', mode='edition')
 
               .row.visible-xs
@@ -56,17 +65,16 @@
 
             .col-xs-12.col-sm-6
               .row.hidden-xs
-                .col-xs-12.hidden-xs(ng-if='editedEvent.attendees.length > 1 || newAttendees.length > 0')
-                  .row
-                    .form-group.status
-                      span.col-xs-12.col-sm-6 #{__('Will you attend?')}
-                      button.btn.btn-default.col-xs-4.col-sm-2.accepted(type='button', ng-click='changeParticipation("ACCEPTED")', ng-class='{ "active": userAsAttendee.partstat === "ACCEPTED" }') #{__('Yes')}
-                      button.btn.btn-default.col-xs-4.col-sm-2.undecided(type='button', ng-click='changeParticipation("TENTATIVE")', ng-class='{ "active": userAsAttendee.partstat === "TENTATIVE" }') #{__('Maybe')}
-                      button.btn.btn-default.col-xs-4.col-sm-2.declined(type='button', ng-click='changeParticipation("DECLINED")', ng-class='{ "active": userAsAttendee.partstat === "DECLINED" }') #{__('No')}
-                  .row
-                    hr
-              .row.hidden-xs
                 cal-attendees-autocomplete-input(ng-show='isOrganizer || isNew(editedEvent)', original-attendees='editedEvent.attendees', mutable-attendees='newAttendees')
+
+              .row.hidden-xs
+                .form-group.status(ng-if='editedEvent.attendees.length > 1 || newAttendees.length > 0')
+                  span.col-xs-12.col-md-6.text-center #{__('Will you attend?')}
+                  .col-xs-12.col-md-6.text-center.nopadding-left.nopadding-right
+                    .btn-group(role="group")
+                      button.btn.btn-link.accepted(type='button', ng-click='changeParticipation("ACCEPTED")', ng-class='{ "active": userAsAttendee.partstat === "ACCEPTED" }') #{__('Yes')}
+                      button.btn.btn-link.undecided(type='button', ng-click='changeParticipation("TENTATIVE")', ng-class='{ "active": userAsAttendee.partstat === "TENTATIVE" }') #{__('Maybe')}
+                      button.btn.btn-link.declined(type='button', ng-click='changeParticipation("DECLINED")', ng-class='{ "active": userAsAttendee.partstat === "DECLINED" }') #{__('No')}
 
               .row.hidden-xs
                 cal-attendees-list(attendees='editedEvent.attendees', read-only='::!isOrganizer', organizer='editedEvent.organizer', mode='edition')

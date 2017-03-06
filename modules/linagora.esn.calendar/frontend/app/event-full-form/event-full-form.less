@@ -6,13 +6,17 @@
     border-top: 1px solid lighten(@m-gray, 20%);
   }
 
+  .status .btn {
+    font-size: 13px;
+  }
+
   .mdi {
-    font-size: 3em;
+    font-size: 2.5em;
   }
 
   .card-body {
     margin-top: 50px;
-    padding: 0 25px;
+    padding: 0;
     .row {
       margin: 0;
     }
@@ -50,16 +54,15 @@
       font-size: @formFontSize;
     }
 
-    .input-group-addon {
-      font-size: @formFontSize;
-      vertical-align: top;
-    }
-
     .form-group {
       .FormMargin();
       margin-top: 20px;
       textarea.form-control {
         z-index: 0;
+      }
+
+      .btn-group {
+        margin-bottom: 10px;
       }
     }
 
@@ -92,6 +95,27 @@
       .flex-wrap;
       .flex-row;
     }
+  }
+
+  .status {
+    span {
+      font-size: 13px;
+      text-align: center;
+      padding: 6px 0;
+    }
+
+    .btn {
+      font-size: 13px;
+    }
+    .active {
+      background-color: @darkenBgColor;
+    }
+  }
+
+  .hidden-xs .allday label {
+    .translate(0, 21px);
+
+    padding-left: 20px;
   }
 }
 
@@ -131,6 +155,21 @@
     .form {
       margin-top: 0;
       padding-top: 10px;
+
+      .form-group {
+        margin-bottom: 10px;
+        margin-top: 15px;
+
+        .btn-group {
+          margin-bottom: 10px;
+        }
+      }
+    }
+    .status {
+      div.text-center {
+        padding-left: 0;
+        padding-right: 0;
+      }
     }
   }
 }
