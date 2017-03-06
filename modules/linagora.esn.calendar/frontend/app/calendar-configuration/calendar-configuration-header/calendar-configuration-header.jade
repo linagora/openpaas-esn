@@ -8,11 +8,11 @@ block left
   button.btn.btn-link.btn-icon.visible-xs(ng-click="$ctrl.cancelMobile()")
     i.mdi.mdi-close
 block right
-  button.btn.btn-link.hidden-xs
-    .flex-vertical-centered.flex-space-between(ng-if='!$ctrl.newCalendar', ng-click='$ctrl.submit()')
+  button.btn.btn-link.hidden-xs(ng-click='$ctrl.submit()')
+    .vertical-centered(ng-if='!$ctrl.newCalendar')
       | #{__('Save')}
-    .flex-vertical-centered.flex-space-between(ng-if='$ctrl.newCalendar', ng-click='$ctrl.submit()')
+    .vertical-centered(ng-if='$ctrl.newCalendar')
       | #{__('Create')}
-      i.mdi.mdi-check
-  button.btn.btn-link.btn-icon.visible-xs
+    i.mdi.mdi-margin-left.mdi-check
+  button.btn.btn-link.btn-icon.visible-xs(ng-click='$ctrl.submit()')
       i.mdi.mdi-check
