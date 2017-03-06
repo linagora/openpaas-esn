@@ -1,4 +1,4 @@
-.inbox-aside
+.inbox-aside(ng-class="{ 'is-vacation-activated' : inbox.vacationActivated }")
   .lv-item.clickable.menu-root.menu-heading
     .title(ui-sref='unifiedinbox')
       .text #{__('Unified Inbox')}
