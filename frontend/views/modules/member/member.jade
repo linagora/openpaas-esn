@@ -1,10 +1,10 @@
 .member-container
   .pull-left.p-r-15
-    a(ng-href='/#/profile/{{::member._id}}')
+    a(ui-sref="profile({user_id: member._id})")
       img.members-avatar(src='/images/user.png', ng-src='/api/users/{{::member._id}}/profile/avatar', alt='#{__("Member Avatar")}')
   .media-body
     .lv-title
-      a(ng-href='/#/profile/{{::member._id}}')
+      a(ui-sref="profile({user_id: member._id})")
         h4.media-heading {{::member.firstname}} {{::member.lastname}}
       span
         a(ng-href='mailto:{{::member.emails[0]}}' op-inbox-compose) {{::member.emails[0]}}
