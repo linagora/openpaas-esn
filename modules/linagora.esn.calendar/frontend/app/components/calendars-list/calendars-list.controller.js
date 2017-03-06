@@ -10,7 +10,8 @@
     calendarService,
     calendarVisibilityService,
     session,
-    CALENDAR_EVENTS
+    CALENDAR_EVENTS,
+    CALENDAR_RIGHT
   ) {
     var self = this;
 
@@ -79,7 +80,7 @@
         if (calendar.rights) {
           var rights = calendar.rights.getUserRight(session.user._id);
 
-          return rights === 'admin';
+          return rights === CALENDAR_RIGHT.ADMIN;
         }
 
         return true;
@@ -89,7 +90,7 @@
         if (calendar.rights) {
           var rights = calendar.rights.getUserRight(session.user._id);
 
-          return rights !== 'admin';
+          return rights !== CALENDAR_RIGHT.ADMIN;
         }
 
         return false;
