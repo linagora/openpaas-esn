@@ -8,6 +8,7 @@
 
   .mdi {
     font-size: 2.5em;
+    vertical-align: middle;
   }
 
   .modal-body {
@@ -30,18 +31,9 @@
   }
 
   .modal-footer {
-    padding: 0 0 15px 0;
 
-    button, .accepted, .undecided, .declined {
-      font-size: 15px;
-    }
-
-    button.save {
-      color: @m-green;
-    }
-
-    button.delete {
-      color: @m-red;
+    .flex-vertical-centered{
+      .flex-grow;
     }
   }
 
@@ -63,22 +55,22 @@
   }
 
   .status span {
-      font-size: 13px;
-      text-align: center;
-      padding: 6px 12px;
+    font-size: 13px;
+    text-align: center;
+    padding: 6px 12px;
   }
 
   .status {
-    margin-top: 10px;
+     margin-top: 10px;
 
-    .btn {
-      font-size: 13px;
-    }
-    .btn.active {
-      background-color: lighten(@m-gray, 10%);
-      box-shadow: none;
-    }
-  }
+     .btn {
+       font-size: 13px;
+     }
+
+     .active {
+       background-color: @darkenBgColor;
+     }
+   }
 
   .attendee-list-item {
     .attendee-avatar {
@@ -103,9 +95,6 @@
 
 @media (min-width: @screen-sm-min) {
   .event-quick-form {
-    .modal-header {
-      padding-top: 0;
-    }
 
     .modal-footer {
       .form-group {
@@ -144,8 +133,9 @@
     }
 
     .modal-header {
-      .PrimaryColor();
-      padding: 0;
+      .modal-title, .close {
+        color: @textPrimaryColor;
+      }
 
       .form-group {
         margin-bottom: 0;
@@ -157,14 +147,13 @@
     }
 
     .modal-footer {
-      padding-bottom: 0;
+      padding: 5px;
 
       .status {
         .PrimaryColor();
 
         margin-top: 15px;
         margin-bottom: 0;
-
         padding: 5px;
 
         .btn.active {

@@ -5,12 +5,14 @@ block left
     .flex-vertical-centered.flex-space-between
       i.mdi.mdi-close
       | #{__('Cancel')}
-  button.btn.btn-link.visible-xs(ng-click="$ctrl.cancelMobile()")
+  button.btn.btn-link.btn-icon.visible-xs(ng-click="$ctrl.cancelMobile()")
     i.mdi.mdi-close
 block right
-  button.btn.btn-link(ng-if='!$ctrl.newCalendar', ng-click='$ctrl.submit()')
-    | #{__('Save')}
-    i.mdi.mdi-check
-  button.btn.btn-link(ng-if='$ctrl.newCalendar', ng-click='$ctrl.submit()')
-    | #{__('Create')}
-    i.mdi.mdi-check
+  button.btn.btn-link.hidden-xs
+    .flex-vertical-centered.flex-space-between(ng-if='!$ctrl.newCalendar', ng-click='$ctrl.submit()')
+      | #{__('Save')}
+    .flex-vertical-centered.flex-space-between(ng-if='$ctrl.newCalendar', ng-click='$ctrl.submit()')
+      | #{__('Create')}
+      i.mdi.mdi-check
+  button.btn.btn-link.btn-icon.visible-xs
+      i.mdi.mdi-check

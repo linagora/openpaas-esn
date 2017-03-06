@@ -4,7 +4,7 @@ block left
   .event-full-form-subheader
     .left-container.hidden-xs(ng-if='isOrganizer')
       .header-title(ng-if='isNew(editedEvent)') #{__('Create a new event')}
-      .header-title(ng-if='!isNew(editedEvent)') #{__('Save event')}
+      .header-title(ng-if='!isNew(editedEvent)') #{__('Edit event')}
     .left-container.hidden-md(ng-if='isOrganizer')
       .flex-vertical-centered.flex-space-between
         button.btn.btn-primary(type='button', ng-click="goToCalendar()")
