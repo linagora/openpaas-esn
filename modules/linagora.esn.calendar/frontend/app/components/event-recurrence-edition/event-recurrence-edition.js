@@ -10,7 +10,8 @@
       templateUrl: '/calendar/app/components/event-recurrence-edition/event-recurrence-edition.html',
       scope: {
         _event: '=event',
-        isOrganizer: '=?'
+        isOrganizer: '=?',
+        readOnlyEventFromSharedCalendar: '=?'
       },
       link: link,
       replace: true,
@@ -59,7 +60,7 @@
 
     function activate() {
       self._event.getModifiedMaster().then(function(master) {
-        self.readOnly = !self.isOrganizer || self._event.isInstance();
+        self.readOnly = !self.isOrganizer || self._event.isInstance() || self.readOnlyEventFromSharedCalendar;
         self.event = master;
         self.freq = self.event.rrule ? self.event.rrule.freq : undefined;
       });

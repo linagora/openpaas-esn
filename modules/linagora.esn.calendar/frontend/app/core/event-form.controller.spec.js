@@ -224,6 +224,12 @@ describe('The event-form module controllers', function() {
         expect(this.scope.calendar).to.equal(this.calendars[1]);
       });
 
+      it('should call calendarService.listCalendars with options object', function() {
+        this.scope.event = this.CalendarShell.fromIncompleteShell({});
+        this.initController();
+        expect(this.calendarServiceMock.listCalendars).to.be.calledWith(this.calendarServiceMock.calendarHomeId, {withRights: true});
+      });
+
       it('should detect if organizer', function() {
         this.scope.event = this.CalendarShell.fromIncompleteShell({
           _id: '123456',

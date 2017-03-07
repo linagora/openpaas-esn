@@ -4,22 +4,6 @@
   angular.module('esn.calendar')
          .controller('calEventFormController', calEventFormController);
 
-  calEventFormController.$inject = [
-    '$alert',
-    '$scope',
-    '$state',
-    '_',
-    'calendarService',
-    'calendarUtils',
-    'calEventService',
-    'calEventUtils',
-    'notificationFactory',
-    'calOpenEventForm',
-    'session',
-    'CALENDAR_EVENTS',
-    'EVENT_FORM'
-  ];
-
   function calEventFormController(
     $alert,
     $scope,
@@ -85,10 +69,14 @@
       }
 
       function initFormData() {
+        var options = {
+          withRights: true
+        };
+
         $scope.editedEvent = $scope.event.clone();
         $scope.newAttendees = calEventUtils.getNewAttendees();
 
-        calendarService.listCalendars(calendarService.calendarHomeId).then(function(calendars) {
+        calendarService.listCalendars(calendarService.calendarHomeId, options).then(function(calendars) {
           $scope.calendars = calendars;
           $scope.calendar = calEventUtils.isNew($scope.editedEvent) ? _.find(calendars, 'selected') : _.find(calendars, {id: $scope.editedEvent.calendarId});
         });

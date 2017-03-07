@@ -24,8 +24,12 @@ describe('The event-recurrence-edition component', function() {
       }
     };
 
+    this.$scope.readOnlyEventFromSharedCalendar = false;
+
+    this.$scope.isOrganizer = true;
+
     this.initDirective = function(scope) {
-      var html = '<event-recurrence-edition event="event" readonly="readOnly"/>';
+      var html = '<event-recurrence-edition event="event" is-organizer="isOrganizer" readonly="readOnly" read-only-event-from-shared-calendar="readOnlyEventFromSharedCalendar"/>';
       var element = this.$compile(html)(scope);
 
       scope.$digest();
@@ -40,6 +44,22 @@ describe('The event-recurrence-edition component', function() {
       return true;
     };
     this.initDirective(this.$scope);
+    expect(this.eleScope.vm.readOnly).to.be.true;
+  });
+
+  it('should initialize read-only to true if the event\'s organizer is not the current user', function() {
+    this.$scope.isOrganizer = false;
+
+    this.initDirective(this.$scope);
+
+    expect(this.eleScope.vm.readOnly).to.be.true;
+  });
+
+  it('should initialize read-only to true if the event is from a delegated calendar with the READ right', function() {
+    this.$scope.readOnlyEventFromSharedCalendar = true;
+
+    this.initDirective(this.$scope);
+
     expect(this.eleScope.vm.readOnly).to.be.true;
   });
 
