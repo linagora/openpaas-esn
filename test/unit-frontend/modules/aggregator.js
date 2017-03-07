@@ -710,5 +710,66 @@ describe('The Aggregator module', function() {
         });
       });
     });
+
+    describe('the loadRecentItems function', function() {
+
+      var $rootScope,
+          PageAggregatorService,
+          sourceWithLoadRecentItems = function(items) {
+            return {
+              loadRecentItems: function() {
+                return $q.when(items);
+              }
+            };
+          },
+          sourceWithoutLoadRecentItems = {};
+
+      beforeEach(inject(function(_PageAggregatorService_, _$rootScope_) {
+        PageAggregatorService = _PageAggregatorService_;
+        $rootScope = _$rootScope_;
+      }));
+
+      it('should return an empty Array when there is no sources', function(done) {
+        new PageAggregatorService('id', []).loadRecentItems().then(function(results) {
+          expect(results).to.deep.equal([]);
+
+          done();
+        });
+
+        $rootScope.$digest();
+      });
+
+      it('should return an empty Array when sources have no loadRecentItems function', function(done) {
+        new PageAggregatorService('id', [sourceWithoutLoadRecentItems]).loadRecentItems().then(function(results) {
+          expect(results).to.deep.equal([]);
+
+          done();
+        });
+
+        $rootScope.$digest();
+      });
+
+      it('should return the recent items, correctly sorted', function(done) {
+        var itemsFirstSource = [{ value: 2 }, { value: 1 }],
+            itemsSecondSource = [{ value: 3 }, { value: 0 }];
+
+        new PageAggregatorService('id', [
+          sourceWithLoadRecentItems(itemsFirstSource),
+          sourceWithLoadRecentItems(itemsSecondSource)
+        ], {
+          compare: function(a, b) {
+            return a.value - b.value;
+          }
+        }).loadRecentItems().then(function(results) {
+          expect(results).to.deep.equal([{ value: 0 }, { value: 1 }, { value: 2 }, { value: 3 }]);
+
+          done();
+        });
+
+        $rootScope.$digest();
+      });
+
+    });
+
   });
 });

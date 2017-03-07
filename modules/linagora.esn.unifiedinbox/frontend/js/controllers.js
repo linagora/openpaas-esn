@@ -2,8 +2,9 @@
 
 angular.module('linagora.esn.unifiedinbox')
 
-  .controller('unifiedInboxController', function($scope, inboxFilteringAwareInfiniteScroll, inboxProviders,
-                                                 PageAggregatorService, _, ELEMENTS_PER_PAGE, inboxFilteringService, inboxSelectionService) {
+  .controller('unifiedInboxController', function($scope, inboxFilteringAwareInfiniteScroll, inboxProviders, inboxSelectionService,
+                                                 PageAggregatorService, _, sortByDateInDescendingOrder, inboxFilteringService,
+                                                 ELEMENTS_PER_PAGE) {
     var aggregator;
 
     function load() {
@@ -16,7 +17,7 @@ angular.module('linagora.esn.unifiedinbox')
     }, function() {
       aggregator = null;
 
-      return function() {
+      var fetcher = function() {
         if (aggregator) {
           return load();
         }
@@ -26,13 +27,19 @@ angular.module('linagora.esn.unifiedinbox')
           filterByType: { JMAP: inboxFilteringService.getJmapFilter() }
         }).then(function(providers) {
           aggregator = new PageAggregatorService('unifiedInboxControllerAggregator', providers, {
-            compare: function(a, b) { return b.date - a.date; },
+            compare: sortByDateInDescendingOrder,
             results_per_page: ELEMENTS_PER_PAGE
           });
 
           return load();
         });
       };
+
+      fetcher.loadRecentItems = function() {
+        return aggregator.loadRecentItems();
+      };
+
+      return fetcher;
     });
   })
 
@@ -548,7 +555,8 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .controller('listTwitterController', function($scope, $stateParams, inboxFilteringAwareInfiniteScroll, inboxProviders, inboxFilteringService,
-                                                ByDateElementGroupingTool, session, _, PageAggregatorService, PROVIDER_TYPES, ELEMENTS_PER_PAGE) {
+                                                ByDateElementGroupingTool, session, _, PageAggregatorService, sortByDateInDescendingOrder,
+                                                PROVIDER_TYPES, ELEMENTS_PER_PAGE) {
     var aggregator = null,
         account = _.find(session.getTwitterAccounts(), { username: $stateParams.username });
 
@@ -561,7 +569,7 @@ angular.module('linagora.esn.unifiedinbox')
     }, function() {
       aggregator = null;
 
-      return function() {
+      var fetcher = function() {
         if (aggregator) {
           return load();
         }
@@ -571,13 +579,19 @@ angular.module('linagora.esn.unifiedinbox')
           acceptedIds: inboxFilteringService.getSelectedTwitterProviderIds(account.id)
         }).then(function(providers) {
           aggregator = new PageAggregatorService('unifiedInboxTwitterAggregator', providers, {
-            compare: function(a, b) { return b.date - a.date; },
+            compare: sortByDateInDescendingOrder,
             results_per_page: ELEMENTS_PER_PAGE
           });
 
           return load();
         });
       };
+
+      fetcher.loadRecentItems = function() {
+        return aggregator.loadRecentItems();
+      };
+
+      return fetcher;
     });
 
     $scope.username = account.username;

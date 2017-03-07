@@ -66,6 +66,12 @@ describe('The esn.provider module', function() {
         expect(newProvider({ type: 'type1' }).type).to.equal('type1');
       });
 
+      it('should return a loadRecentItems() function attached to the main fetcher', function() {
+        var provider = newProvider({ id: 'id', fetch: function() {} });
+
+        expect(provider.fetch().loadRecentItems).to.be.a('function');
+      });
+
     });
 
     describe('The getAllProviderDefinitions function', function() {
@@ -550,6 +556,114 @@ describe('The esn.provider module', function() {
         expect(elementGroupingTool.getGroupedElements()).to.deep.equal(groups(null, null, null, null, null));
       });
 
+    });
+
+  });
+
+  describe('The sortByDateInDescendingOrder factory', function() {
+
+    var sortByDateInDescendingOrder;
+
+    beforeEach(inject(function(_sortByDateInDescendingOrder_) {
+      sortByDateInDescendingOrder = _sortByDateInDescendingOrder_;
+    }));
+
+    it('should sort an array by date in descending order', function() {
+      expect([{ date: 1 }, { date: 3 }, { date: 0 }].sort(sortByDateInDescendingOrder)).to.deep.equal([{ date: 3 }, { date: 1 }, { date: 0 }]);
+    });
+
+  });
+
+  describe('The toAggregatorSource factory', function() {
+
+    var toAggregatorSource, $rootScope;
+
+    beforeEach(inject(function(_toAggregatorSource_, _$rootScope_) {
+      toAggregatorSource = _toAggregatorSource_;
+      $rootScope = _$rootScope_;
+    }));
+
+    it('should add a loadNextItems and loadRecentItems function to the provider', function() {
+      var source = toAggregatorSource({ fetch: function() {} });
+
+      expect(source.loadNextItems).to.be.a('function');
+      expect(source.loadRecentItems).to.be.a('function');
+    });
+
+    it('should format results according to the aggregator expectations', function(done) {
+      var source = toAggregatorSource({
+        fetch: function() {
+          return function() {
+            return $q.when([{ date: 0 }]);
+          };
+        }
+      });
+
+      source.loadNextItems().then(function(data) {
+        expect(data).to.deep.equal({
+          data: [{ date: 0 }],
+          lastPage: true
+        });
+
+        done();
+      });
+      $rootScope.$digest();
+    });
+
+    it('should request recent items based on the most recent item known', function(done) {
+      var source = toAggregatorSource({
+        fetch: function() {
+          var fetcher = function() {
+            return $q.when([{ date: 1 }, { date: 0 }]);
+          };
+
+          fetcher.loadRecentItems = function(item) {
+            expect(item).to.deep.equal({ date: 1 });
+
+            done();
+          };
+
+          return fetcher;
+        }
+      });
+
+      source.loadNextItems();
+      $rootScope.$digest();
+
+      source.loadRecentItems();
+      $rootScope.$digest();
+    });
+
+    it('should update most recent item when fetching recent items', function(done) {
+      var called = 0,
+          source = toAggregatorSource({
+            fetch: function() {
+              var fetcher = function() {
+                return $q.when([{ date: 1 }, { date: 0 }]);
+              };
+
+              fetcher.loadRecentItems = function(item) {
+                expect(item).to.deep.equal(++called === 1 ? { date: 1 } : { date: 3 });
+
+                if (called === 2) {
+                  return done();
+                }
+
+                return $q.when([{ date: 3 }]);
+              };
+
+              return fetcher;
+            }
+          });
+
+      source.loadNextItems();
+      $rootScope.$digest();
+
+      source.loadRecentItems();
+      $rootScope.$digest();
+
+      source.loadRecentItems();
+      $rootScope.$digest();
     });
 
   });

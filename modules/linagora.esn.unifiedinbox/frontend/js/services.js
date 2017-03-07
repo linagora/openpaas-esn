@@ -1353,13 +1353,17 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .factory('inboxFilteringAwareInfiniteScroll', function(infiniteScrollOnGroupsHelper, ByDateElementGroupingTool, INBOX_EVENTS) {
-    return function(scope, getAvailableFilters, buildLoadNextItemsFunction) {
+    return function(scope, getAvailableFilters, buildFetcher) {
       function setFilter() {
+        var fetcher = buildFetcher();
+
         scope.loadMoreElements = infiniteScrollOnGroupsHelper(
           scope,
-          buildLoadNextItemsFunction(),
+          fetcher,
           new ByDateElementGroupingTool()
         );
+
+        scope.loadRecentItems = fetcher.loadRecentItems;
       }
 
       scope.filters = getAvailableFilters();

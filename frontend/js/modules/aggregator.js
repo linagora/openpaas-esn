@@ -1,7 +1,8 @@
 'use strict';
 
 angular.module('esn.aggregator', [
-  'esn.constants'
+  'esn.constants',
+  'esn.lodash-wrapper'
 ])
 
   .factory('PageAggregatorSourceWrapper', function($q) {
@@ -35,8 +36,8 @@ angular.module('esn.aggregator', [
     return PageAggregatorSourceWrapper;
   })
 
-  .factory('PageAggregatorService', function($q, $log, PageAggregatorSourceWrapper, AGGREGATOR_DEFAULT_RESULTS_PER_PAGE,
-                                             AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE) {
+  .factory('PageAggregatorService', function($q, $log, PageAggregatorSourceWrapper, _,
+                                             AGGREGATOR_DEFAULT_RESULTS_PER_PAGE, AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE) {
 
     function PageAggregatorService(id, sources, options) {
       this.id = id;
@@ -160,6 +161,15 @@ angular.module('esn.aggregator', [
           data: result
         });
       });
+    };
+
+    PageAggregatorService.prototype.loadRecentItems = function() {
+      var self = this;
+
+      return $q.all(_(this.sources).filter('loadRecentItems').invoke('loadRecentItems').value())
+        .then(function(resultsFromSources) {
+          return _.flatten(resultsFromSources).sort(self.options.compare);
+        });
     };
 
     PageAggregatorService.prototype.hasNext = function() {

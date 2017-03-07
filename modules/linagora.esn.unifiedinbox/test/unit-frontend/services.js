@@ -4734,7 +4734,9 @@ describe('The Unified Inbox Angular module services', function() {
     });
 
     it('should initialize the scope.loadMoreElements function, calling the passed-in builder', function() {
-      var spy = sinon.spy();
+      var spy = sinon.spy(function() {
+        return function() {};
+      });
 
       service($scope, function() {
         return { id: 'filter' };
@@ -4742,6 +4744,20 @@ describe('The Unified Inbox Angular module services', function() {
 
       expect($scope.loadMoreElements).to.be.a('function');
       expect(spy).to.have.been.calledWith();
+    });
+
+    it('should initialize the scope.loadRecentItems function', function(done) {
+      service($scope, function() {
+        return { id: 'filter' };
+      }, function() {
+        var fetcher = function() {};
+
+        fetcher.loadRecentItems = done;
+
+        return fetcher;
+      });
+
+      $scope.loadRecentItems();
     });
 
     it('should listen to "inbox.filterChanged" event, refreshing the loadMoreElements function and loading first batch of items', function() {

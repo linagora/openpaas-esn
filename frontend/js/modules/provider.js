@@ -8,7 +8,7 @@ angular.module('esn.provider', [
   'uuid4'
 ])
 
-  .factory('Providers', function($q, _, toAggregatorSource, ELEMENTS_PER_PAGE) {
+  .factory('Providers', function($q, _, toAggregatorSource) {
 
     function Providers() {
       this.providersPromises = [];
@@ -81,11 +81,8 @@ angular.module('esn.provider', [
             .map(function(provider) {
               options.filterByType = options.filterByType || {};
 
-              return provider.buildFetchContext(options).then(function(context) {
-                provider.loadNextItems = toAggregatorSource(provider.fetch(context), ELEMENTS_PER_PAGE);
-
-                return provider;
-              }, angular.noop /* Provider will be skipped if we cannot build its fetch context */);
+              // Provider will be skipped if we cannot build its fetch context
+              return provider.buildFetchContext(options).then(toAggregatorSource.bind(null, provider), angular.noop);
             })
           ).then(function(providers) {
             return providers.filter(Boolean);
@@ -107,18 +104,58 @@ angular.module('esn.provider', [
     return Providers;
   })
 
-  .factory('toAggregatorSource', function() {
-    return function(fetcher, length) {
-      return function() {
-        return fetcher().then(function(results) {
-          return { data: results, lastPage: results.length < length };
+  .factory('toAggregatorSource', function($q, ELEMENTS_PER_REQUEST) {
+    return function(provider, context) {
+      var fetcher = provider.fetch(context),
+          mostRecentItem;
+
+      function updateMostRecentItem(results) {
+        // We store the most recent item if:
+        //  - This is the first time we fetch data from this provider (poviders are supposed to return data sorted
+        //    by date in descending order (most recent first) so subsequent fetches would return older elements,
+        //    no need to update mostRecentItem).
+        //  - The returned results contains a more recent item than what we have already
+        //
+        // Note that we blindly trust the provider with regards to the ordering of the resulted items
+        if (results && results.length > 0) {
+          var firstReturnedItem = results[0];
+
+          if (!mostRecentItem || mostRecentItem.date < firstReturnedItem.date) {
+            mostRecentItem = results[0];
+          }
+        }
+
+        return results;
+      }
+
+      provider.loadNextItems = function() {
+        return fetcher().then(updateMostRecentItem).then(function(results) {
+          return { data: results, lastPage: results.length < ELEMENTS_PER_REQUEST };
         });
       };
+
+      provider.loadRecentItems = function() {
+        // Providers are not required to support fetching recent items, so we check this here
+        // We also check that we have a mostRecentItem defined, meaning we already fetched the data at least once
+        if (!mostRecentItem || !fetcher.loadRecentItems) {
+          return $q.when([]);
+        }
+
+        return fetcher.loadRecentItems(mostRecentItem).then(updateMostRecentItem);
+      };
+
+      return provider;
     };
   })
 
-  .factory('newProvider', function(PageAggregatorService, toAggregatorSource, _, uuid4, ELEMENTS_PER_REQUEST,
-                                   ELEMENTS_PER_PAGE) {
+  .factory('sortByDateInDescendingOrder', function() {
+    return function(a, b) {
+      return b.date - a.date;
+    };
+  })
+
+  .factory('newProvider', function(PageAggregatorService, toAggregatorSource, _, uuid4, sortByDateInDescendingOrder,
+                                   ELEMENTS_PER_REQUEST, ELEMENTS_PER_PAGE) {
     return function(provider) {
       return {
         id: provider.id || uuid4.generate(),
@@ -126,24 +163,30 @@ angular.module('esn.provider', [
         types: provider.types || [provider.type],
         name: provider.name,
         fetch: function(context) {
-          var aggregator = new PageAggregatorService(provider.name, [{
-            loadNextItems: toAggregatorSource(provider.fetch(context), ELEMENTS_PER_REQUEST)
-          }], { results_per_page: ELEMENTS_PER_PAGE });
+          var aggregator = new PageAggregatorService(provider.name, [toAggregatorSource(provider, context)], {
+            results_per_page: ELEMENTS_PER_PAGE
+          });
 
-          return function() {
-            return aggregator.loadNextItems()
-              .then(_.property('data'))
-              .then(function(results) {
-                return results.map(function(result) {
-                  if (!(result.date instanceof Date)) {
-                    result.date = new Date(result.date);
-                  }
-                  result.templateUrl = provider.templateUrl;
+          function normalizeResults(results) {
+            return _.map(results, function(result) {
+              if (!(result.date instanceof Date)) {
+                result.date = new Date(result.date);
+              }
+              result.templateUrl = provider.templateUrl;
 
-                  return result;
-                });
-              });
+              return result;
+            });
+          }
+
+          var fetcher = function() {
+            return aggregator.loadNextItems().then(_.property('data')).then(normalizeResults);
           };
+
+          fetcher.loadRecentItems = function() {
+            return aggregator.loadRecentItems().then(normalizeResults);
+          };
+
+          return fetcher;
         },
         buildFetchContext: provider.buildFetchContext
       };
