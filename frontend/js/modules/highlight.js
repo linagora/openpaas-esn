@@ -12,6 +12,10 @@ angular.module('esn.highlight', [])
     }
 
     return function(text, phrase, options) {
+      if (!text) {
+        return text;
+      }
+
       options = options || {};
       phrase = escapeHtmlUtils.escapeHTML(phrase);
       phrase = escapeRegexChars(phrase);

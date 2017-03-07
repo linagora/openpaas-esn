@@ -38,7 +38,9 @@ angular.module('linagora.esn.unifiedinbox', [
   'esn.user',
   'esn.session',
   'esn.attachment-list',
-  'esn.avatar'
+  'esn.avatar',
+  'esn.highlight',
+  'esn.escape-html'
 ])
 
   .config(function($stateProvider, dynamicDirectiveServiceProvider) {

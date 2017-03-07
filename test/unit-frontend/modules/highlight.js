@@ -16,6 +16,23 @@ describe('The esn.highlight Angular module', function() {
   }));
 
   describe('The esnHighlight filter', function() {
+
+    it('should filter text equal null by esnHighlight', function() {
+      var nullMatch = this.$filter('esnHighlight')(null, 'a');
+      expect(nullMatch).to.equal(null);
+    });
+
+    it('should filter text equal undefined by esnHighlight', function() {
+      var undefinedMatch = this.$filter('esnHighlight')(undefined, 'a');
+      expect(undefinedMatch).to.equal(undefined);
+    });
+
+    it('should filter text is empty by esnHighlight', function() {
+      var contentContact = '';
+      var empty = this.$filter('esnHighlight')(contentContact, 'a');
+      expect(empty).to.equal('');
+    });
+
     it('should filter text without special chars by esnHighlight', function() {
       var contentContact = 'text results';
       var notContainSpecialChars = this.$filter('esnHighlight')(contentContact, 'u');
