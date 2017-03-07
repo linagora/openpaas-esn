@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('The calendarsList controller', function() {
-  var calendars, CalendarsListController, CalendarCollectionShell, calendarServiceMock, hiddenCalendar, calendarVisibilityServiceMock, $rootScope, $scope, $controller, CALENDAR_EVENTS;
+  var calendars, CalendarsListController, CalendarCollectionShell, calendarServiceMock, hiddenCalendar, calendarVisibilityServiceMock, $rootScope, $scope, $controller, CALENDAR_EVENTS, CALENDAR_RIGHT;
 
   function initController() {
     return $controller('CalendarsListController', { $scope: $scope });
@@ -38,12 +38,13 @@ describe('The calendarsList controller', function() {
   });
 
   beforeEach(function() {
-    angular.mock.inject(function(_$rootScope_, _$controller_, _CalendarCollectionShell_, _CALENDAR_EVENTS_) {
+    angular.mock.inject(function(_$rootScope_, _$controller_, _CalendarCollectionShell_, _CALENDAR_EVENTS_, _CALENDAR_RIGHT_) {
       $rootScope = _$rootScope_;
       $scope = $rootScope.$new();
       $controller = _$controller_;
       CalendarCollectionShell = _CalendarCollectionShell_;
       CALENDAR_EVENTS = _CALENDAR_EVENTS_;
+      CALENDAR_RIGHT = _CALENDAR_RIGHT_;
     });
   });
 
@@ -104,31 +105,148 @@ describe('The calendarsList controller', function() {
 
     describe('CALENDAR_EVENTS.CALENDARS.ADD listener', function() {
 
-      it('call arrangeCalendars', function() {
+      it('call add calendar to self.calendars', function() {
+        var newCalendar = CalendarCollectionShell.from({
+          id: '3',
+          href: 'href3',
+          name: 'name3',
+          color: 'color3',
+          description: 'description3'
+        });
+        var expectedResult = calendars.concat(newCalendar);
+
         CalendarsListController.$onInit();
-
-        CalendarsListController.arrangeCalendars = sinon.spy();
-
-        $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.ADD, calendars[0]);
-
         $rootScope.$apply();
 
-        expect(CalendarsListController.arrangeCalendars).to.be.called;
+        $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.ADD, newCalendar);
+
+        expect(CalendarsListController.calendars).to.deep.equal(expectedResult);
+      });
+
+      describe('refreshCalendarList on add', function() {
+        beforeEach(function() {
+          calendars = [{
+            id: '1',
+            href: 'href',
+            name: 'name',
+            color: 'color',
+            description: 'description'
+          }, {
+            id: '2',
+            href: 'href2',
+            name: 'name2',
+            color: 'color2',
+            description: 'description2',
+            rights: {
+              getUserRight: function() {
+                return CALENDAR_RIGHT.SHAREE_READ;
+              },
+              getPublicRight: function() {
+                return CALENDAR_RIGHT.PUBLIC_READ;
+              }
+            }
+          }];
+        });
+
+        it('refresh calendars list', function() {
+          var newCalendar = CalendarCollectionShell.from({
+            id: '3',
+            href: 'href3',
+            name: 'name3',
+            color: 'color3',
+            description: 'description3',
+            rights: {
+              getUserRight: function() {
+                return CALENDAR_RIGHT.ADMIN;
+              }
+            }
+          });
+          var expectedResult = calendars.concat(newCalendar);
+
+          CalendarsListController.$onInit();
+          $rootScope.$apply();
+
+          $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.ADD, newCalendar);
+
+          expect(CalendarsListController.myCalendars).to.deep.equal([expectedResult[0], expectedResult[2]]);
+          expect(CalendarsListController.sharedCalendars).to.deep.equal([expectedResult[1]]);
+        });
+
+        it('refresh calendars list and not consider the new calendar as shared once it is classified as personal', function() {
+          var newCalendar = CalendarCollectionShell.from({
+            id: '3',
+            href: 'href3',
+            name: 'name3',
+            color: 'color3',
+            description: 'description3',
+            rights: {
+              getUserRight: function() {
+                return CALENDAR_RIGHT.ADMIN;
+              },
+              getPublicRight: function() {
+                return CALENDAR_RIGHT.SHAREE_READ;
+              }
+            }
+          });
+          var expectedResult = calendars.concat(newCalendar);
+
+          CalendarsListController.$onInit();
+          $rootScope.$apply();
+
+          $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.ADD, newCalendar);
+
+          expect(CalendarsListController.myCalendars).to.deep.equal([expectedResult[0], expectedResult[2]]);
+          expect(CalendarsListController.sharedCalendars).to.deep.equal([expectedResult[1]]);
+        });
       });
     });
 
     describe('CALENDAR_EVENTS.CALENDARS.REMOVE listener', function() {
 
-      it('call arrangeCalendars', function() {
-        CalendarsListController.$onInit();
+      it('remove calendar to self.calendars', function() {
+        var expectedResult = calendars.slice(1);
 
-        CalendarsListController.arrangeCalendars = sinon.spy();
+        CalendarsListController.$onInit();
+        $rootScope.$apply();
 
         $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.REMOVE, calendars[0]);
 
+        expect(CalendarsListController.calendars).to.deep.equal(expectedResult);
+      });
+
+      it('refresh calendars list', function() {
+        calendars = [{
+          id: '1',
+          href: 'href',
+          name: 'name',
+          color: 'color',
+          description: 'description'
+        }, {
+          id: '2',
+          href: 'href2',
+          name: 'name2',
+          color: 'color2',
+          description: 'description2',
+          rights: {
+            getUserRight: function() {
+              return CALENDAR_RIGHT.SHAREE_READ;
+            },
+            getPublicRight: function() {
+              return CALENDAR_RIGHT.PUBLIC_READ;
+            }
+          }
+        }];
+
+        var expectedResult = calendars.slice(1);
+
+        CalendarsListController.$onInit();
         $rootScope.$apply();
 
-        expect(CalendarsListController.arrangeCalendars).to.be.called;
+        $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.REMOVE, calendars[0]);
+
+        expect(CalendarsListController.calendars).to.deep.equal(expectedResult);
+        expect(CalendarsListController.sharedCalendars).to.deep.equal(expectedResult);
+        expect(CalendarsListController.myCalendars).to.deep.equal([]);
       });
     });
 
@@ -136,6 +254,7 @@ describe('The calendarsList controller', function() {
 
       it('should set the visibility of the calendar', function() {
         CalendarsListController.$onInit();
+        $rootScope.$apply();
 
         CalendarsListController.arrangeCalendars = sinon.spy();
 
@@ -144,16 +263,12 @@ describe('The calendarsList controller', function() {
           hidden: true
         });
 
-        $rootScope.$apply();
-
         expect(CalendarsListController.hiddenCalendars[calendars[0].id]).to.be.true;
 
         $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, {
           calendarId: calendars[0].id,
           hidden: false
         });
-
-        $rootScope.$apply();
 
         expect(CalendarsListController.hiddenCalendars[calendars[0].id]).to.be.false;
       });
@@ -176,20 +291,9 @@ describe('The calendarsList controller', function() {
 
         expect(calendarServiceMock.listCalendars).to.be.called;
       });
-
-      it('should call arrangeCalendars function', function() {
-        CalendarsListController.$onInit();
-
-        CalendarsListController.arrangeCalendars = sinon.spy();
-
-        $rootScope.$digest();
-
-        expect(CalendarsListController.arrangeCalendars).to.be.called;
-      });
     });
 
     describe('the arrangeCalendars function', function() {
-
       beforeEach(function() {
         calendars = [{
           id: '1',
@@ -205,7 +309,10 @@ describe('The calendarsList controller', function() {
           description: 'description2',
           rights: {
             getUserRight: function() {
-              return 'read';
+              return CALENDAR_RIGHT.SHAREE_READ;
+            },
+            getPublicRight: function() {
+              return CALENDAR_RIGHT.PUBLIC_READ;
             }
           }
         }];
