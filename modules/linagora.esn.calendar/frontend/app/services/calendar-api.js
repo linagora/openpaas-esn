@@ -123,10 +123,10 @@
      * List all calendar homes and calendars in the calendar root. A dav:root resource, expanded down to all dav:home resouces.
      * @return {Object}            An array of dav:home items
      */
-    function listAllCalendars() {
+    function listAllCalendars(options) {
       var path = calPathBuilder.rootPath();
 
-      return request('get', path + '/.json', {Accept: CALENDAR_ACCEPT_HEADER}).then(davResponseHandler('dav:home'));
+      return request('get', path + '/.json', {Accept: CALENDAR_ACCEPT_HEADER}, {}, options).then(davResponseHandler('dav:home'));
     }
 
     /**
