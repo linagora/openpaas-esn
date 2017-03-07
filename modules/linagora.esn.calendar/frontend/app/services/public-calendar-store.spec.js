@@ -1,0 +1,50 @@
+'use strict';
+
+/* global chai, sinon: false */
+
+var expect = chai.expect;
+
+describe('the calPublicCalendarStore service', function() {
+  var $rootScope, calPublicCalendarStore, CALENDAR_EVENTS, calendarsAddListener, _, publicCalendars;
+
+  beforeEach(function() {
+    angular.mock.module('esn.calendar');
+
+    angular.mock.inject(function(_$rootScope_, _calPublicCalendarStore_, ___, _CALENDAR_EVENTS_) {
+      $rootScope = _$rootScope_;
+      calPublicCalendarStore = _calPublicCalendarStore_;
+      CALENDAR_EVENTS = _CALENDAR_EVENTS_;
+      _ = ___;
+    });
+  });
+
+  beforeEach(function() {
+    publicCalendars = [
+      {
+        id: 'firstCalendar'
+      },
+      {
+        id: 'secondCalendar'
+      }];
+
+    calendarsAddListener = sinon.spy();
+    $rootScope.$on(CALENDAR_EVENTS.CALENDARS.ADD, calendarsAddListener);
+  });
+
+  describe('the storeAll method', function() {
+    it('should $broadcast for each added calendar', function() {
+      calPublicCalendarStore.storeAll(publicCalendars);
+
+      expect(calendarsAddListener).to.have.been.called.twice;
+      expect(calendarsAddListener.firstCall).to.have.been.calledWith(sinon.match.any, publicCalendars[0]);
+      expect(calendarsAddListener.secondCall).to.have.been.calledWith(sinon.match.any, publicCalendars[1]);
+    });
+  });
+
+  describe('the getAll method', function() {
+    it('should store calendars in publicCalendar', function() {
+      calPublicCalendarStore.storeAll(publicCalendars);
+      expect(calPublicCalendarStore.getAll()).to.deep.equal(_.values(publicCalendars));
+    });
+  });
+});
