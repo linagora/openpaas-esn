@@ -7,9 +7,10 @@ var CONSTANTS = require('../lib/constants');
 var WS_EVENT = CONSTANTS.WS_EVENT;
 var NOTIFICATIONS = CONSTANTS.NOTIFICATIONS;
 var ICAL = require('ical.js');
+var _ = require('lodash');
 
 function parseEventPath(eventPath) {
-  //eventPath = /calendars/{{userId}}/calendarId/{{eventUid}}
+  // The eventPath is in this form : /calendars/{{userId}}/calendarId/{{eventUid}}
   var pathParts = eventPath.replace(/^\//, '').split('/');
 
   return {
@@ -19,12 +20,27 @@ function parseEventPath(eventPath) {
   };
 }
 
-function notify(io, ioHelper, event, msg) {
-  var userId = parseEventPath(msg.eventPath).userId;
-  var clientSockets = ioHelper.getUserSocketsFromNamespace(userId, io.of(NAMESPACE).sockets) || [];
+function parseUserPrincipal(userPrincipal) {
+  // The userPrincipal is in this form : principals/users/{{userId}}
+  var pathParts = userPrincipal.split('/');
 
-  clientSockets.forEach(function(socket) {
-    socket.emit(event, msg);
+  return pathParts[2];
+}
+
+function notify(io, ioHelper, event, msg) {
+  var userIds = [parseEventPath(msg.eventPath).userId];
+
+  if (msg.shareeIds) {
+    msg.shareeIds.forEach(function(shareePrincipals) {
+      userIds.push(parseUserPrincipal(shareePrincipals));
+    });
+  }
+
+  delete msg.shareeIds;
+
+  userIds.forEach(function(userId) {
+    var clientSockets = ioHelper.getUserSocketsFromNamespace(userId, io.of(NAMESPACE).sockets) || [];
+    _.invokeMap(clientSockets, 'emit', event, msg);
   });
 }
 
