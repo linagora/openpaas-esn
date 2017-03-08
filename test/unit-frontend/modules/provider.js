@@ -592,16 +592,20 @@ describe('The esn.provider module', function() {
 
     it('should format results according to the aggregator expectations', function(done) {
       var source = toAggregatorSource({
+        templateUrl: 'templateUrl',
         fetch: function() {
           return function() {
-            return $q.when([{ date: 0 }]);
+            return $q.when([{ date: '2017-01-01T00:00:00Z' }]);
           };
         }
       });
 
       source.loadNextItems().then(function(data) {
         expect(data).to.deep.equal({
-          data: [{ date: 0 }],
+          data: [{
+            date: new Date(Date.UTC(2017, 0, 1, 0, 0, 0, 0)),
+            templateUrl: 'templateUrl'
+          }],
           lastPage: true
         });
 
@@ -612,13 +616,17 @@ describe('The esn.provider module', function() {
 
     it('should request recent items based on the most recent item known', function(done) {
       var source = toAggregatorSource({
+        templateUrl: 'templateUrl',
         fetch: function() {
           var fetcher = function() {
-            return $q.when([{ date: 1 }, { date: 0 }]);
+            return $q.when([{ date: '2017-01-01T00:00:00Z' }, { date: '2016-01-01T00:00:00Z' }]);
           };
 
           fetcher.loadRecentItems = function(item) {
-            expect(item).to.deep.equal({ date: 1 });
+            expect(item).to.deep.equal({
+              date: new Date(Date.UTC(2017, 0, 1, 0, 0, 0, 0)),
+              templateUrl: 'templateUrl'
+            });
 
             done();
           };
@@ -636,20 +644,29 @@ describe('The esn.provider module', function() {
 
     it('should update most recent item when fetching recent items', function(done) {
       var called = 0,
+          expectedItem1 = {
+            date: new Date(Date.UTC(2016, 0, 1, 0, 0, 0, 0)),
+            templateUrl: 'templateUrl'
+          },
+          expectedItem2 = {
+            date: new Date(Date.UTC(2017, 0, 1, 0, 0, 0, 0)),
+            templateUrl: 'templateUrl'
+          },
           source = toAggregatorSource({
+            templateUrl: 'templateUrl',
             fetch: function() {
               var fetcher = function() {
-                return $q.when([{ date: 1 }, { date: 0 }]);
+                return $q.when([{ date: '2016-01-01T00:00:00Z' }]);
               };
 
               fetcher.loadRecentItems = function(item) {
-                expect(item).to.deep.equal(++called === 1 ? { date: 1 } : { date: 3 });
+                expect(item).to.deep.equal(++called === 1 ? expectedItem1 : expectedItem2);
 
                 if (called === 2) {
                   return done();
                 }
 
-                return $q.when([{ date: 3 }]);
+                return $q.when([{ date: '2017-01-01T00:00:00Z' }]);
               };
 
               return fetcher;

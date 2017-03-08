@@ -771,5 +771,57 @@ describe('The Aggregator module', function() {
 
     });
 
+    describe('the bidirectionalFetcher function', function() {
+
+      var $rootScope,
+          PageAggregatorService,
+          sourceWithLoadRecentItems = {
+            loadNextItems: function() {
+              return $q.when({ data: [{ a: 'old' }], lastPage: true });
+            },
+            loadRecentItems: function() {
+              return $q.when([{ a: 'recent' }]);
+            }
+          };
+
+      beforeEach(inject(function(_PageAggregatorService_, _$rootScope_) {
+        PageAggregatorService = _PageAggregatorService_;
+        $rootScope = _$rootScope_;
+      }));
+
+      it('should return a function', function() {
+        expect(new PageAggregatorService('id', []).bidirectionalFetcher()).to.be.a('function');
+      });
+
+      it('should return a function having a loadRecentItems function property', function() {
+        expect(new PageAggregatorService('id', []).bidirectionalFetcher().loadRecentItems).to.be.a('function');
+      });
+
+      it('should fetch items when called', function(done) {
+        var service = new PageAggregatorService('id', [sourceWithLoadRecentItems]);
+
+        service.bidirectionalFetcher()().then(function(result) {
+          expect(result).to.deep.equal([{ a: 'old' }]);
+
+          done();
+        });
+
+        $rootScope.$digest();
+      });
+
+      it('should fetch recent items when loadRecentItems is called', function(done) {
+        var service = new PageAggregatorService('id', [sourceWithLoadRecentItems]);
+
+        service.bidirectionalFetcher().loadRecentItems().then(function(result) {
+          expect(result).to.deep.equal([{ a: 'recent' }]);
+
+          done();
+        });
+
+        $rootScope.$digest();
+      });
+
+    });
+
   });
 });

@@ -24,6 +24,7 @@ describe('The linagora.esn.unifiedinbox listItemsController', function() {
       },
       getMessageList: function() {
         return $q.when({
+          messageIds: [1],
           getMessages: function() { return $q.when([]); },
           getThreads: function() { return $q.when([]); }
         });

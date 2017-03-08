@@ -172,6 +172,17 @@ angular.module('esn.aggregator', [
         });
     };
 
+    PageAggregatorService.prototype.bidirectionalFetcher = function() {
+      var self = this,
+          fetcher = function() {
+            return self.loadNextItems().then(_.property('data'));
+          };
+
+      fetcher.loadRecentItems = this.loadRecentItems.bind(this);
+
+      return fetcher;
+    };
+
     PageAggregatorService.prototype.hasNext = function() {
       return this._sourcesHaveData() || this._sourcesHaveNext();
     };

@@ -5,41 +5,19 @@ angular.module('linagora.esn.unifiedinbox')
   .controller('unifiedInboxController', function($scope, inboxFilteringAwareInfiniteScroll, inboxProviders, inboxSelectionService,
                                                  PageAggregatorService, _, sortByDateInDescendingOrder, inboxFilteringService,
                                                  ELEMENTS_PER_PAGE) {
-    var aggregator;
-
-    function load() {
-      return aggregator.loadNextItems().then(_.property('data'), _.constant([]));
-    }
-
     inboxSelectionService.unselectAllItems();
     inboxFilteringAwareInfiniteScroll($scope, function() {
       return inboxFilteringService.getFiltersForUnifiedInbox();
     }, function() {
-      aggregator = null;
-
-      var fetcher = function() {
-        if (aggregator) {
-          return load();
-        }
-
-        return inboxProviders.getAll({
-          acceptedTypes: inboxFilteringService.getAcceptedTypesFilter(),
-          filterByType: { JMAP: inboxFilteringService.getJmapFilter() }
-        }).then(function(providers) {
-          aggregator = new PageAggregatorService('unifiedInboxControllerAggregator', providers, {
-            compare: sortByDateInDescendingOrder,
-            results_per_page: ELEMENTS_PER_PAGE
-          });
-
-          return load();
-        });
-      };
-
-      fetcher.loadRecentItems = function() {
-        return aggregator.loadRecentItems();
-      };
-
-      return fetcher;
+      return inboxProviders.getAll({
+        acceptedTypes: inboxFilteringService.getAcceptedTypesFilter(),
+        filterByType: { JMAP: inboxFilteringService.getJmapFilter() }
+      }).then(function(providers) {
+        return new PageAggregatorService('unifiedInboxControllerAggregator', providers, {
+          compare: sortByDateInDescendingOrder,
+          results_per_page: ELEMENTS_PER_PAGE
+        }).bidirectionalFetcher();
+      });
     });
   })
 
@@ -557,41 +535,20 @@ angular.module('linagora.esn.unifiedinbox')
   .controller('listTwitterController', function($scope, $stateParams, inboxFilteringAwareInfiniteScroll, inboxProviders, inboxFilteringService,
                                                 ByDateElementGroupingTool, session, _, PageAggregatorService, sortByDateInDescendingOrder,
                                                 PROVIDER_TYPES, ELEMENTS_PER_PAGE) {
-    var aggregator = null,
-        account = _.find(session.getTwitterAccounts(), { username: $stateParams.username });
-
-    function load() {
-      return aggregator.loadNextItems().then(_.property('data'), _.constant([]));
-    }
+    var account = _.find(session.getTwitterAccounts(), { username: $stateParams.username });
 
     inboxFilteringAwareInfiniteScroll($scope, function() {
       return inboxFilteringService.getFiltersForTwitterAccount(account.id);
     }, function() {
-      aggregator = null;
-
-      var fetcher = function() {
-        if (aggregator) {
-          return load();
-        }
-
-        return inboxProviders.getAll({
-          acceptedTypes: [PROVIDER_TYPES.TWITTER],
-          acceptedIds: inboxFilteringService.getSelectedTwitterProviderIds(account.id)
-        }).then(function(providers) {
-          aggregator = new PageAggregatorService('unifiedInboxTwitterAggregator', providers, {
-            compare: sortByDateInDescendingOrder,
-            results_per_page: ELEMENTS_PER_PAGE
-          });
-
-          return load();
-        });
-      };
-
-      fetcher.loadRecentItems = function() {
-        return aggregator.loadRecentItems();
-      };
-
-      return fetcher;
+      return inboxProviders.getAll({
+        acceptedTypes: [PROVIDER_TYPES.TWITTER],
+        acceptedIds: inboxFilteringService.getSelectedTwitterProviderIds(account.id)
+      }).then(function(providers) {
+        return new PageAggregatorService('unifiedInboxTwitterAggregator', providers, {
+          compare: sortByDateInDescendingOrder,
+          results_per_page: ELEMENTS_PER_PAGE
+        }).bidirectionalFetcher();
+      });
     });
 
     $scope.username = account.username;

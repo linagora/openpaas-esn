@@ -1352,18 +1352,22 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('inboxFilteringAwareInfiniteScroll', function(infiniteScrollOnGroupsHelper, ByDateElementGroupingTool, INBOX_EVENTS) {
+  .factory('inboxFilteringAwareInfiniteScroll', function($q, infiniteScrollOnGroupsHelper, ByDateElementGroupingTool, INBOX_EVENTS) {
     return function(scope, getAvailableFilters, buildFetcher) {
       function setFilter() {
-        var fetcher = buildFetcher();
+        return $q.when(buildFetcher())
+          .then(function(fetcher) {
+            scope.loadMoreElements = infiniteScrollOnGroupsHelper(
+              scope,
+              fetcher,
+              new ByDateElementGroupingTool()
+            );
 
-        scope.loadMoreElements = infiniteScrollOnGroupsHelper(
-          scope,
-          fetcher,
-          new ByDateElementGroupingTool()
-        );
-
-        scope.loadRecentItems = fetcher.loadRecentItems;
+            scope.loadRecentItems = fetcher.loadRecentItems;
+          })
+          .then(function() {
+            return scope.loadMoreElements();
+          });
       }
 
       scope.filters = getAvailableFilters();
@@ -1373,11 +1377,11 @@ angular.module('linagora.esn.unifiedinbox')
         scope.infiniteScrollCompleted = false;
 
         scope.loadMoreElements.destroy();
+
         setFilter();
-        scope.loadMoreElements();
       });
 
-      setFilter();
+      return setFilter();
     };
   })
 

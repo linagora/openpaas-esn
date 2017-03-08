@@ -104,7 +104,7 @@ angular.module('esn.provider', [
     return Providers;
   })
 
-  .factory('toAggregatorSource', function($q, ELEMENTS_PER_REQUEST) {
+  .factory('toAggregatorSource', function($q, _, ELEMENTS_PER_REQUEST) {
     return function(provider, context) {
       var fetcher = provider.fetch(context),
           mostRecentItem;
@@ -128,10 +128,24 @@ angular.module('esn.provider', [
         return results;
       }
 
-      provider.loadNextItems = function() {
-        return fetcher().then(updateMostRecentItem).then(function(results) {
-          return { data: results, lastPage: results.length < ELEMENTS_PER_REQUEST };
+      function normalizeResults(results) {
+        return _.map(results, function(result) {
+          if (!(result.date instanceof Date)) {
+            result.date = new Date(result.date);
+          }
+          result.templateUrl = provider.templateUrl;
+
+          return result;
         });
+      }
+
+      provider.loadNextItems = function() {
+        return fetcher()
+          .then(normalizeResults)
+          .then(updateMostRecentItem)
+          .then(function(results) {
+            return { data: results, lastPage: results.length < ELEMENTS_PER_REQUEST };
+          });
       };
 
       provider.loadRecentItems = function() {
@@ -141,7 +155,10 @@ angular.module('esn.provider', [
           return $q.when([]);
         }
 
-        return fetcher.loadRecentItems(mostRecentItem).then(updateMostRecentItem);
+        return fetcher
+          .loadRecentItems(mostRecentItem)
+          .then(normalizeResults)
+          .then(updateMostRecentItem);
       };
 
       return provider;
@@ -163,32 +180,12 @@ angular.module('esn.provider', [
         types: provider.types || [provider.type],
         name: provider.name,
         fetch: function(context) {
-          var aggregator = new PageAggregatorService(provider.name, [toAggregatorSource(provider, context)], {
+          return new PageAggregatorService(provider.name, [toAggregatorSource(provider, context)], {
             results_per_page: ELEMENTS_PER_PAGE
-          });
-
-          function normalizeResults(results) {
-            return _.map(results, function(result) {
-              if (!(result.date instanceof Date)) {
-                result.date = new Date(result.date);
-              }
-              result.templateUrl = provider.templateUrl;
-
-              return result;
-            });
-          }
-
-          var fetcher = function() {
-            return aggregator.loadNextItems().then(_.property('data')).then(normalizeResults);
-          };
-
-          fetcher.loadRecentItems = function() {
-            return aggregator.loadRecentItems().then(normalizeResults);
-          };
-
-          return fetcher;
+          }).bidirectionalFetcher();
         },
-        buildFetchContext: provider.buildFetchContext
+        buildFetchContext: provider.buildFetchContext,
+        templateUrl: provider.templateUrl
       };
     };
   })
