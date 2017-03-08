@@ -143,7 +143,8 @@ angular.module('linagora.esn.unifiedinbox')
       controller: 'resolveEmailerController',
       scope: {
         emailer: '=',
-        hideEmail: '=?'
+        hideEmail: '=?',
+        highlight: '@?'
       },
       templateUrl: '/unifiedinbox/views/partials/emailer/inbox-emailer.html',
       link: function(scope) {

@@ -1,19 +1,14 @@
 .inbox-message-list-item
-  .inbox-list-item-content.clickable(
-      ng-click="ctrl.openEmail(item)",
-      ng-class=" item.selected"
-    )
+  .inbox-list-item-content.clickable(ng-click="ctrl.openEmail(item)")
     .inbox-item-with-icon
       .list-image.badge-container
         inbox-emailer-avatar(emailer='::item.from')
       .media-body
         .inbox-list-item-subject-and-from
           .inbox-subject.lv-title
-            span.inbox-subject-inline(ng-class="{bold: item.isUnread}") {{ ::item.subject }}
-            span.inbox-preview-inline.inbox-preview-divider(ng-if='::item.subject') -
-            .inbox-preview-inline.lv-small.preview(ng-if="::item.preview") {{ ::item.preview }}
-          inbox-emailer.inbox-from.lv-title(emailer="::item.from", ng-class="{bold: item.isUnread}")
+            span.inbox-subject-inline(ng-class="{bold: item.isUnread}", ng-bind-html="::item.subject | esnHighlight: query") {{ ::item.subject }}
+          inbox-emailer.inbox-from.lv-title(emailer="::item.from", ng-class="{bold: item.isUnread}", highlight="{{::query}}")
         .inbox-list-item-date-and-indicators(ng-class="{bold: item.isUnread}")
-          .date-container {{ ::item.date | date: group.dateFormat }}
+          .date-container(ng-bind-html="::item.date | date: group.dateFormat | esnHighlight: query") {{ ::item.date | date: group.dateFormat }}
           inbox-indicators(item="::item")
-    .inbox-preview-block.lv-small.preview {{ ::item.preview }}
+    .inbox-preview-block.lv-small.preview(ng-bind-html="::item.preview | esnHighlight: query") {{ ::item.preview }}
