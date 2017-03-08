@@ -12,7 +12,7 @@
         bindings: {
           objectType: '@',
           id: '@',
-          elementsPerPage: '@?',
+          elementsPerPage: '=?',
           scrollInsideContainer: '@?'
         }
       };
