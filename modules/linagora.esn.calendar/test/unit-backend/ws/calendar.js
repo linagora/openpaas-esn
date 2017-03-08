@@ -116,6 +116,42 @@ describe('The calendar WS events module', function() {
         this.eventUpdatedPubsubCallback(event);
       });
 
+      it('should call getUserSocketsFromNamespace for the owner of the calendar and the sharees', function() {
+        var event = {
+          event: 'ICS',
+          eventPath: 'calendar/123/events/1213.ics',
+          websocketEvent: 'calendar:ws:event:created',
+          shareeIds: [
+            'principals/users/shareeId'
+          ]
+        };
+
+        sinon.spy(this.helper, 'getUserSocketsFromNamespace');
+        this.eventUpdatedPubsubCallback(event);
+
+        expect(this.helper.getUserSocketsFromNamespace.firstCall).to.have.been.calledWith('123');
+        expect(this.helper.getUserSocketsFromNamespace.secondCall).to.have.been.calledWith('shareeId');
+      });
+
+      it('should delete the ids of the sharee in the event object', function() {
+        var event = {
+          event: 'ICS',
+          eventPath: 'calendar/123/events/1213.ics',
+          websocketEvent: 'calendar:ws:event:created',
+          shareeIds: [
+            'principals/users/shareeId'
+          ]
+        };
+
+        this.eventUpdatedPubsubCallback(event);
+
+        expect(event).to.be.deep.equal({
+          event: 'ICS',
+          eventPath: 'calendar/123/events/1213.ics',
+          websocketEvent: 'calendar:ws:event:created'
+        });
+      });
+
       function testLocalPublishOnWsEvent(wsEvent, localTopic) {
         self.eventUpdatedPubsubCallback({
           websocketEvent: wsEvent,
