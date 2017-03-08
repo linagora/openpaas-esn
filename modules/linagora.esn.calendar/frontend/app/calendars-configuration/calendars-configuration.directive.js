@@ -20,21 +20,33 @@
     return directive;
   }
 
-  function CalendarsConfigurationController($state) {
+  function CalendarsConfigurationController(session) {
     var self = this;
 
-    self.calendars = self.calendars || [];
-    self.modify = modify;
-    self.add = add;
+    arrangeCalendars(self.calendars);
 
     ////////////
 
-    function modify(calendar) {
-      $state.go('calendar.edit', {calendarId: calendar.id});
-    }
+    function arrangeCalendars(calendars) {
+      self.userCalendars = calendars.filter(function(calendar) {
+        if (calendar.rights) {
+          var rights = calendar.rights.getUserRight(session.user._id);
 
-    function add() {
-      $state.go('calendar.add');
+          return rights === 'admin';
+        }
+
+        return true;
+      });
+
+      self.sharedCalendars = calendars.filter(function(calendar) {
+        if (calendar.rights) {
+          var rights = calendar.rights.getUserRight(session.user._id);
+
+          return rights !== 'admin';
+        }
+
+        return false;
+      });
     }
   }
 

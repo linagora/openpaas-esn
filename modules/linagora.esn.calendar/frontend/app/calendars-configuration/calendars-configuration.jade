@@ -6,7 +6,7 @@
   .card-body
     .listview
       .lv-body.no-padding
-        a.lv-item(href="", ng-click="$ctrl.add()")
+        a.lv-item(href="", ui-sref='calendar.add')
           .media
             .pull-left
               i.mdi.mdi-plus
@@ -17,7 +17,24 @@
               i.mdi.mdi-plus
               span #{__('Add a public calendar')}
         hr
-        a.lv-item(href="", ng-repeat="calendar in $ctrl.calendars", ng-click='$ctrl.modify(calendar)')
+        .calendar-header-title
+          .media
+            .pull-left
+              i.mdi.mdi-calendar
+            .media-body
+              .lv-title #{__('My calendars')}
+        a.lv-item(href="", ng-repeat="calendar in $ctrl.userCalendars", ui-sref='calendar.edit({calendarId: calendar.id})')
+          .media
+            .pull-left
+              i.mdi.mdi-label(ng-style="{'color': calendar.color}")
+              span {{::calendar.name}}
+        .calendar-header-title
+          .media
+            .pull-left
+              i.mdi.mdi-calendar
+            .media-body
+              .lv-title #{__('Shared calendars')}
+        a.lv-item(href="", ng-repeat="calendar in $ctrl.sharedCalendars", ui-sref='calendar.shared({calendarId: calendar.id})')
           .media
             .pull-left
               i.mdi.mdi-label(ng-style="{'color': calendar.color}")

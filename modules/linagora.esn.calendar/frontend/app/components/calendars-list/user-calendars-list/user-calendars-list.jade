@@ -36,8 +36,3 @@
       .media-body.visible-lg-block(ng-click="$ctrl.selectCalendar(calendar)", title="{{ calendar.name }}")
         .lv-title
           span {{calendar.name}}
-  .configuration-container.visible-xs
-    .lv-item.clickable.configuration-button(href="", ui-sref="calendar.list")
-      i.mdi.mdi-settings
-      | #{__('Manage calendars')}
-    hr
