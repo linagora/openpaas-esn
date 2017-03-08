@@ -20,6 +20,7 @@
     this.removeCalendar = removeCalendar;
     this.getCalendar = getCalendar;
     this.listCalendars = listCalendars;
+    this.listAllCalendarsForUser = listAllCalendarsForUser;
     this.modifyCalendar = modifyCalendar;
     this.getRight = getRight;
     this.modifyRights = modifyRights;
@@ -48,9 +49,32 @@
         return calendarsCache[calendarHomeId];
       }
 
-      promiseCache[calendarHomeId] = promiseCache[calendarHomeId] || calendarAPI.listCalendars(calendarHomeId, options).then(createCalendarsShell);
+      if (!options) {
+        promiseCache[calendarHomeId] = promiseCache[calendarHomeId] || calendarAPI.listCalendars(calendarHomeId).then(createCalendarsShell);
+        return promiseCache[calendarHomeId];
+      }
 
-      return promiseCache[calendarHomeId];
+      return calendarAPI.listCalendars(calendarHomeId, options).then(createCalendarsShell);
+    }
+
+    /**
+     * List all public calendars of a user.
+     * @param  {String}     userId  The user id
+     * @return {[CalendarCollectionShell]}  an array of CalendarCollectionShell
+     */
+    function listAllCalendarsForUser(userId) {
+      var options = { withRights: true };
+
+      return calendarAPI.listAllCalendars(options)
+        .then(function(calendars) {
+          return calendars
+            .filter(function(calendar) {
+              return calendar._links.self.href.indexOf(userId) !== -1;
+            })
+            .map(function(calendar) {
+              return new CalendarCollectionShell(calendar._embedded['dav:calendar'][0]);
+            });
+        });
     }
 
     /**

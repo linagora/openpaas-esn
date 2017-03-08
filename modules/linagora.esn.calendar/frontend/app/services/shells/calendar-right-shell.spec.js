@@ -33,7 +33,7 @@ describe('CalendarRightShell factory', function() {
     });
 
     it('should return read for read user', function() {
-      expect(calendarRightShell.getUserRight('jerry')).to.equal(CALENDAR_RIGHT.READ);
+      expect(calendarRightShell.getUserRight('jerry')).to.equal(CALENDAR_RIGHT.SHAREE_READ);
     });
   });
 
@@ -115,7 +115,7 @@ describe('CalendarRightShell factory', function() {
 
     it('should be false for different public', function() {
       var other = calendarRightShell.clone();
-      other.updatePublic(CALENDAR_RIGHT.READ);
+      other.updatePublic(CALENDAR_RIGHT.PUBLIC_READ);
       expect(other.equals(calendarRightShell)).to.be.false;
     });
   });
@@ -150,7 +150,7 @@ describe('CalendarRightShell factory', function() {
 
     it('should correctly deal with update of READ to READ_WRITE and to READ_WRITE to READ', function() {
       var original = calendarRightShell.clone();
-      calendarRightShell.update('tom', 'user2@open-paas.org', CALENDAR_RIGHT.READ);
+      calendarRightShell.update('tom', 'user2@open-paas.org', CALENDAR_RIGHT.SHAREE_READ);
       calendarRightShell.update('jerry', 'user3@open-paas.org', CALENDAR_RIGHT.READ_WRITE);
 
       expect(calendarRightShell.toDAVShareRightsUpdate(original)).to.deep.equals({

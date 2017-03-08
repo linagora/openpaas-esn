@@ -101,7 +101,7 @@
         name: 'Read and Write',
         access: 'users'
       }, {
-        value: CALENDAR_RIGHT.READ,
+        value: CALENDAR_RIGHT.SHAREE_READ,
         name: 'Read only',
         access: 'all'
       }, {
@@ -111,7 +111,7 @@
       }];
       self.publicRights = [
         {
-          value: CALENDAR_RIGHT.CUSTOM,
+          value: CALENDAR_RIGHT.PUBLIC_READ,
           name: 'Read'
         },
         {

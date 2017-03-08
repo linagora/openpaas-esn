@@ -75,7 +75,8 @@
     .constant('CALENDAR_RIGHT', {
       NONE: 'none',
       FREE_BUSY: 'free busy',
-      READ: 'read',
+      SHAREE_READ: 'sharee_read',
+      PUBLIC_READ: 'public_read',
       WRITE: 'write',
       READ_WRITE: 'read write',
       ADMIN: 'admin',

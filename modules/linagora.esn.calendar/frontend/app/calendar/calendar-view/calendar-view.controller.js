@@ -25,9 +25,9 @@
     calendarEventEmitter,
     calendarUtils,
     calEventUtils,
+    calPublicCalendarStore,
     gracePeriodService,
     livenotification,
-    notificationFactory,
     calOpenEventForm,
     elementScrollService,
     CALENDAR_EVENTS,
@@ -100,7 +100,7 @@
         calendarService.calendarHomeId = $scope.calendarHomeId;
         calendarService.listCalendars($scope.calendarHomeId)
           .then(function(calendars) {
-            $scope.calendars = calendars || [];
+            $scope.calendars = (calendars || []).concat(calPublicCalendarStore.getAll());
             $scope.calendars.forEach(function(calendar) {
               $scope.eventSourcesMap[calendar.id] = {
                 events: calCachedEventSource.wrapEventSource(calendar.id, calendarEventSource(calendar.href, $scope.displayCalendarError)),

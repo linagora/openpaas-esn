@@ -198,7 +198,8 @@ describe('The calendarViewController', function() {
     CALENDAR_EVENTS,
     calEventUtils,
     elementScrollService,
-    $q) {
+    $q,
+    calPublicCalendarStore) {
     this.rootScope = $rootScope;
     this.scope = $rootScope.$new();
     this.controller = $controller;
@@ -213,6 +214,7 @@ describe('The calendarViewController', function() {
     this.calEventUtils = calEventUtils;
     this.elementScrollService = elementScrollService;
     this.$q = $q;
+    this.calPublicCalendarStore = calPublicCalendarStore;
   }));
 
   afterEach(function() {
@@ -283,6 +285,37 @@ describe('The calendarViewController', function() {
       expect(fullCalendarSpy).to.have.been.calledWith(calendarSpyCalledWith || 'refetchEvents');
     });
   }
+
+  describe('the initialization', function() {
+    var publicCalendars;
+    beforeEach(function() {
+      publicCalendars = [
+        {
+          href: 'hrefPublic',
+          id: 'idPublic',
+          color: 'colorPublic'
+        },
+        {
+          href: 'href2Public',
+          id: 'id2Public',
+          color: 'color2Public'
+        }
+      ];
+
+      sinon.stub(this.calPublicCalendarStore, 'getAll', function() {
+        return publicCalendars;
+      });
+    });
+
+    it('should properly initialize $scope.calendars', function() {
+      var expectedResult = this.calendars.concat(publicCalendars);
+
+      this.controller('calendarViewController', {$scope: this.scope});
+      this.scope.$digest();
+
+      expect(this.scope.calendars).to.deep.equal(expectedResult);
+    });
+  });
 
   describe('The CALENDAR_EVENTS.ITEM_MODIFICATION listener', function() {
     testRefetchEvent('should refresh the calendar', 'ITEM_MODIFICATION');

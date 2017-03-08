@@ -394,7 +394,7 @@ describe('The calendar configuration controller', function() {
         name: 'Read and Write',
         access: 'users'
       }, {
-        value: CALENDAR_RIGHT.READ,
+        value: CALENDAR_RIGHT.SHAREE_READ,
         name: 'Read only',
         access: 'all'
       }, {
@@ -411,7 +411,7 @@ describe('The calendar configuration controller', function() {
     it('should initialize self.publicRights with an array contains the different rights', function() {
       var publicRightsExpected = [
         {
-          value: CALENDAR_RIGHT.CUSTOM,
+          value: CALENDAR_RIGHT.PUBLIC_READ,
           name: 'Read'
         },
         {

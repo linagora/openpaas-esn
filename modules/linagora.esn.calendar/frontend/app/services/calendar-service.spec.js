@@ -80,6 +80,23 @@ describe('The calendarService service', function() {
       expect(self.calendarAPI.listCalendars).to.be.calledWith('homeId', options);
     });
 
+    it('should call not cache the calls calendarService.listCalendars when there are options', function() {
+      var options = {
+        withRights: true
+      };
+
+      this.calendarAPI.listCalendars = sinon.spy(function() {
+        return $q.when([]);
+      });
+
+      this.calendarService.listCalendars('homeId', options).then(function() {
+        self.calendarService.listCalendars('homeId', options).then(function() {
+          expect(self.calendarAPI.listCalendars).to.have.been.called.twice;
+        });
+      });
+      this.$rootScope.$digest();
+    });
+
     it('should wrap each received dav:calendar in a CalendarCollectionShell', function(done) {
       var calendarCollection = {id: this.DEFAULT_CALENDAR_ID};
 
@@ -113,6 +130,87 @@ describe('The calendarService service', function() {
       });
 
       this.$httpBackend.flush();
+    });
+  });
+
+  describe('listAllCalendarsForUser', function() {
+    var allCalendars;
+
+    beforeEach(function() {
+      sinon.stub(this.calendarAPI, 'listAllCalendars', function() {
+        return allCalendars;
+      });
+    });
+
+    it('should leverage calendarAPI.listAllCalendars', function(done) {
+      allCalendars = $q.when([]);
+
+      this.calendarService.listAllCalendarsForUser().then(function() {
+        expect(self.calendarAPI.listAllCalendars).to.have.been.called;
+
+        done();
+      });
+
+      this.$rootScope.$digest();
+    });
+
+    it('should filter user calaendars and returns only their _embedded["dav:calendar"]', function(done) {
+      var userId = 'userId';
+      var calendars = [
+        {
+          _links: {
+            self: {
+              href: '/calendars/' + userId + '.json'
+            }
+          },
+          _embedded: {
+            'dav:calendar': [
+              {
+                _links: {
+                  self: {
+                    href: '/calendars/' + userId + '/events.json'
+                  }
+                },
+                'caldav:description': 'userId'
+              }
+            ]
+          }
+        },
+        {
+          _links: {
+            self: {
+              href: '/calendars/56698ca29e4cf21f66800def.json'
+            }
+          },
+          _embedded: {
+            'dav:calendar': [
+              {
+                _links: {
+                  self: {
+                    href: '/calendars/56698ca29e4cf21f66800def/events.json'
+                  }
+                },
+                'caldav:description': '56698ca29e4cf21f66800def'
+              }
+            ]
+          }
+        }
+      ];
+      allCalendars = $q.when(calendars);
+
+      CalendarCollectionShellFuncMock = sinon.spy(function(davCal) {
+        expect(davCal).to.deep.equal(calendars[0]._embedded['dav:calendar'][0]);
+      });
+
+      this.calendarService.listAllCalendarsForUser(userId)
+        .then(function() {
+          expect(self.calendarAPI.listAllCalendars).to.have.been.called;
+          expect(CalendarCollectionShellFuncMock).to.have.been.called;
+
+          done();
+        });
+
+      this.$rootScope.$digest();
     });
   });
 

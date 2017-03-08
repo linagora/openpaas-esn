@@ -312,6 +312,25 @@ describe('The calendar module apis', function() {
 
         this.$httpBackend.flush();
       });
+
+      it('should send options when defined as a query parameter', function(done) {
+        var options = {
+          option1: 'value1',
+          option2: 'value2'
+        };
+
+        var expectedUrl = '/dav/api/calendars/.json?' + angular.element.param(options);
+
+        this.$httpBackend.expectGET(expectedUrl).respond(null);
+
+        this.calendarAPI.listAllCalendars(options)
+          .then(function(data) {
+            expect(data).to.deep.equal([]);
+            done();
+          });
+
+        this.$httpBackend.flush();
+      });
     });
 
     describe('listCalendars request', function() {
