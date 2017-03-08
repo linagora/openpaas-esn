@@ -348,16 +348,28 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
       });
     }
 
-    ioSocketConnection.addDisconnectCallback(function() {
+    function _exponentialBackoffReconnect() {
+      var timeout = 500;
+      var maxTimeout = timeout * 64;
       var reconnect = function() {
         $log.debug('ioConnectionManager reconnect algorithm starting');
-        if (ioSocketConnection.isConnected()) { return; }
+        if (ioSocketConnection.isConnected()) {
+          timeout = 500;
+
+          return;
+        }
         _clearManagersCache();
         _connect();
-        $timeout(reconnect, 1000);
+
+        timeout = (timeout >= maxTimeout) ? maxTimeout : timeout * 2;
+
+        $timeout(reconnect, timeout);
       };
+
       reconnect();
-    });
+    }
+
+    ioSocketConnection.addDisconnectCallback(_exponentialBackoffReconnect);
 
     ioSocketConnection.addConnectCallback(function() {
       var subscriptions = ioOfflineBuffer.getSubscriptions();
