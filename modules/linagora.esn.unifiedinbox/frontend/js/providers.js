@@ -69,16 +69,17 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .factory('newInboxMessageProvider', function(withJmapClient, Email, pagedJmapRequest, inboxJmapProviderContextBuilder,
-                                                       newProvider, JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_REQUEST, PROVIDER_TYPES) {
+                                               moment, newProvider, sortByDateInDescendingOrder,
+                                               JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_REQUEST, PROVIDER_TYPES) {
     return function(templateUrl) {
       return newProvider({
         type: PROVIDER_TYPES.JMAP,
         name: 'Emails',
-        fetch: function(filter) {
-          return pagedJmapRequest(function(position) {
+        fetch: function(context) {
+          function getMessages(position, dateOfMostRecentItem) {
             return withJmapClient(function(client) {
               return client.getMessageList({
-                filter: filter,
+                filter: dateOfMostRecentItem ? angular.extend({}, context, { after: dateOfMostRecentItem }) : context,
                 sort: ['date desc'],
                 collapseThreads: false,
                 fetchMessages: false,
@@ -86,11 +87,25 @@ angular.module('linagora.esn.unifiedinbox')
                 limit: ELEMENTS_PER_REQUEST
               })
                 .then(function(messageList) {
+                  if (messageList.messageIds.length === 0) {
+                    return [];
+                  }
+
                   return messageList.getMessages({ properties: JMAP_GET_MESSAGES_LIST });
                 })
-                .then(function(messages) { return messages.map(Email); });
+                .then(function(messages) {
+                  return messages.map(Email).sort(sortByDateInDescendingOrder); // We need to sort here because the backend might return shuffled messages
+                });
             });
-          });
+          }
+
+          var fetcher = pagedJmapRequest(getMessages);
+
+          fetcher.loadRecentItems = function(mostRecentItem) {
+            return getMessages(0, moment(mostRecentItem.date).add(1, 's').toDate());
+          };
+
+          return fetcher;
         },
         buildFetchContext: inboxJmapProviderContextBuilder,
         templateUrl: templateUrl

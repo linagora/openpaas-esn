@@ -15,7 +15,7 @@ describe('The Unified Inbox Angular module providers', function() {
     for (var i = start; i < (start + length); i++) {
       array.push({
         id: id + '_' + i,
-        date: new Date(2016, 1, 1, 1, 1, 1, 999 - i),
+        date: new Date(2016, 1, 1, 1, 1, 1, i), // The variable millisecond is what allows us to check ordering in the tests
         mailboxIds: ['id_inbox'],
         threadId: 'thread_' + i,
         hasAttachment: true
@@ -37,6 +37,7 @@ describe('The Unified Inbox Angular module providers', function() {
           expect(options.filter.inMailboxes).to.deep.equal(['id_inbox']);
 
           return $q.when({
+            messageIds: [1],
             getMessages: function() {
               return $q.when(elements('message', options.limit, options.position));
             },
@@ -80,7 +81,7 @@ describe('The Unified Inbox Angular module providers', function() {
       fetcher().then(function(messages) {
         expect(messages.length).to.equal(AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE);
         expect(messages[AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE - 1]).to.shallowDeepEqual({
-          id: 'message_39',
+          id: 'message_160',
           templateUrl: '/unifiedinbox/views/unified-inbox/elements/message'
         });
       });
@@ -89,7 +90,7 @@ describe('The Unified Inbox Angular module providers', function() {
       fetcher().then(function(messages) {
         expect(messages.length).to.equal(ELEMENTS_PER_PAGE);
         expect(messages[ELEMENTS_PER_PAGE - 1]).to.shallowDeepEqual({
-          id: 'message_59',
+          id: 'message_140',
           templateUrl: '/unifiedinbox/views/unified-inbox/elements/message'
         });
 
@@ -105,7 +106,7 @@ describe('The Unified Inbox Angular module providers', function() {
       fetcher().then(function(messages) {
         expect(messages.length).to.equal(AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE);
         expect(messages[AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE - 1]).to.shallowDeepEqual({
-          id: 'message_39',
+          id: 'message_160',
           templateUrl: '/unifiedinbox/views/unified-inbox/elements/message'
         });
       });
@@ -119,12 +120,37 @@ describe('The Unified Inbox Angular module providers', function() {
       fetcher().then(function(messages) {
         expect(messages.length).to.equal(ELEMENTS_PER_PAGE);
         expect(messages[ELEMENTS_PER_PAGE - 1]).to.shallowDeepEqual({
-          id: 'message_239',
+          id: 'message_360',
           templateUrl: '/unifiedinbox/views/unified-inbox/elements/message'
         });
 
         done();
       });
+      $rootScope.$digest();
+    });
+
+    it('should support fetching recent items once an initial fetch has been done', function(done) {
+      var fetcher = inboxHostedMailMessagesProvider.fetch({ inMailboxes: ['id_inbox'] });
+
+      fetcher();
+      $rootScope.$digest();
+
+      jmapClient = {
+        getMailboxWithRole: function(role) {
+          return $q.when({ id: 'id_' + role.value });
+        },
+        getMessageList: function(options) {
+          expect(options.filter).to.deep.equal({
+            inMailboxes: ['id_inbox'],
+            after: new Date(2016, 1, 1, 1, 1, 2, 199) // Second is 2 because the provider bumps it
+          });
+          expect(options.position).to.equal(0);
+
+          done();
+        }
+      };
+
+      fetcher.loadRecentItems();
       $rootScope.$digest();
     });
 
@@ -139,7 +165,7 @@ describe('The Unified Inbox Angular module providers', function() {
       fetcher().then(function(messages) {
         expect(messages.length).to.equal(AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE);
         expect(messages[AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE - 1]).to.shallowDeepEqual({
-          id: 'message_39',
+          id: 'message_160',
           templateUrl: '/unifiedinbox/views/unified-inbox/elements/search'
         });
       });
@@ -148,7 +174,7 @@ describe('The Unified Inbox Angular module providers', function() {
       fetcher().then(function(messages) {
         expect(messages.length).to.equal(ELEMENTS_PER_PAGE);
         expect(messages[ELEMENTS_PER_PAGE - 1]).to.shallowDeepEqual({
-          id: 'message_59',
+          id: 'message_140',
           templateUrl: '/unifiedinbox/views/unified-inbox/elements/search'
         });
 
@@ -164,7 +190,7 @@ describe('The Unified Inbox Angular module providers', function() {
       fetcher().then(function(messages) {
         expect(messages.length).to.equal(AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE);
         expect(messages[AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE - 1]).to.shallowDeepEqual({
-          id: 'message_39',
+          id: 'message_160',
           templateUrl: '/unifiedinbox/views/unified-inbox/elements/search'
         });
       });
@@ -178,7 +204,7 @@ describe('The Unified Inbox Angular module providers', function() {
       fetcher().then(function(messages) {
         expect(messages.length).to.equal(ELEMENTS_PER_PAGE);
         expect(messages[ELEMENTS_PER_PAGE - 1]).to.shallowDeepEqual({
-          id: 'message_239',
+          id: 'message_360',
           templateUrl: '/unifiedinbox/views/unified-inbox/elements/search'
         });
 
@@ -402,7 +428,7 @@ describe('The Unified Inbox Angular module providers', function() {
             expect(container).to.equal('container_2');
 
             return function() {
-              return $q.when(elements('id', ELEMENTS_PER_PAGE));
+              return $q.when(elements('id', ELEMENTS_PER_REQUEST));
             };
           }),
           templateUrl: 'templateUrl'
@@ -413,7 +439,7 @@ describe('The Unified Inbox Angular module providers', function() {
             return provider.loadNextItems();
           })).then(function(results) {
             expect(results[0]).to.deep.equal({ data: elements('id', 2), lastPage: true });
-            expect(results[1]).to.deep.equal({ data: elements('id', ELEMENTS_PER_PAGE), lastPage: false });
+            expect(results[1]).to.deep.equal({ data: elements('id', ELEMENTS_PER_REQUEST), lastPage: false });
 
             done();
           });
