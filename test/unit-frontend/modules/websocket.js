@@ -1026,6 +1026,7 @@ describe('The esn.websocket Angular module', function() {
   });
   describe('ioConnectionManager service', function() {
     var self = this;
+    var $rootScope;
 
     beforeEach(function() {
       self.isc = {
@@ -1086,10 +1087,11 @@ describe('The esn.websocket Angular module', function() {
         $provide.value('session', self.sessionMock);
       });
     });
-    beforeEach(inject(function(ioOfflineBuffer, ioSocketProxy, ioConnectionManager) {
+    beforeEach(inject(function(ioOfflineBuffer, ioSocketProxy, ioConnectionManager, _$rootScope_) {
       self.ioOfflineBuffer = ioOfflineBuffer;
       self.ioSocketProxy = ioSocketProxy;
       self.icm = ioConnectionManager;
+      $rootScope = _$rootScope_;
     }));
     it('should expose a connect method', function() {
       expect(self.icm.connect).to.be.a('function');
@@ -1105,6 +1107,36 @@ describe('The esn.websocket Angular module', function() {
         expect(self.tokenAPI.callback).to.be.not.ok;
         self.icm.connect();
         expect(self.tokenAPI.callback).to.be.a('function');
+      });
+
+      it('should resolve when token API response succeed', function(done) {
+        self.tokenAPI.getNewToken = function() {
+          return $q.when({
+            data: {
+              token: 'apitoken'
+            }
+          });
+        };
+
+        self.icm.connect().then(function() {
+          done();
+        }, done);
+
+        $rootScope.$digest();
+      });
+
+      it('should reject when token API response fails', function(done) {
+        self.tokenAPI.getNewToken = function() {
+          return $q.reject(new Error('test'));
+        };
+
+        self.icm.connect().then(function() {
+          done(true);
+        }, function() {
+          done();
+        });
+
+        $rootScope.$digest();
       });
     });
     describe('tokenAPI.getNewToken() callback', function() {
