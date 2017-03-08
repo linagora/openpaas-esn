@@ -12,6 +12,7 @@ angular.module('esn.constants', [])
   .constant('INFINITE_LIST_DISABLED', false)
   .constant('INFINITE_LIST_IMMEDIATE_CHECK', true)
   .constant('INFINITE_LIST_THROTTLE', 10)
+  .constant('INFINITE_LIST_POLLING_INTERVAL', 60000)
 
   .constant('ASYNC_ACTION_LONG_TASK_DURATION', 1000)
 
