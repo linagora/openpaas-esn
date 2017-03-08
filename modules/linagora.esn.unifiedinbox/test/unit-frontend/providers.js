@@ -18,7 +18,8 @@ describe('The Unified Inbox Angular module providers', function() {
         date: new Date(2016, 1, 1, 1, 1, 1, i), // The variable millisecond is what allows us to check ordering in the tests
         mailboxIds: ['id_inbox'],
         threadId: 'thread_' + i,
-        hasAttachment: true
+        hasAttachment: true,
+        templateUrl: 'templateUrl'
       });
     }
 
@@ -398,6 +399,34 @@ describe('The Unified Inbox Angular module providers', function() {
       fetcher().then(function(tweets) {
         expect(tweets.length).to.equal(1);
         expect(tweets[0].date).to.equalTime(new Date(Date.UTC(2016, 0, 1, 1, 1, 1, 1)));
+
+        done();
+      });
+      $httpBackend.flush();
+    });
+
+    it('should support fetching recent items once an initial fetch has been done', function(done) {
+      var fetcher = newInboxTwitterProvider('id', 'myTwitterAccount', '/unifiedinbox/api/inbox/tweets').fetch();
+
+      $httpBackend.expectGET('/unifiedinbox/api/inbox/tweets?account_id=myTwitterAccount&count=400').respond(200, elements('tweet', ELEMENTS_PER_REQUEST));
+
+      fetcher();
+      $httpBackend.flush();
+
+      $httpBackend.expectGET('/unifiedinbox/api/inbox/tweets?account_id=myTwitterAccount&count=400&since_id=tweet_0').respond(200, [
+        {
+          id: 'tweet_-1',
+          date: '2016-01-01T01:01:00.999Z'
+        },
+        {
+          id: 'tweet_0',
+          date: '2016-01-01T01:01:01.001Z'
+        }
+      ]);
+
+      fetcher.loadRecentItems().then(function(tweets) {
+        expect(tweets.length).to.equal(1); // Because tweet_0 should be filtered out
+        expect(tweets[0].date).to.equalTime(new Date(Date.UTC(2016, 0, 1, 1, 1, 0, 999)));
 
         done();
       });

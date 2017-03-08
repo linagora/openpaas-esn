@@ -29,26 +29,36 @@ angular.module('linagora.esn.unifiedinbox')
         types: [PROVIDER_TYPES.SOCIAL, PROVIDER_TYPES.TWITTER],
         name: 'Tweets',
         fetch: function() {
-          var oldestTweetId = null;
+          var oldestTweetId = null,
+              fetcher = function(mostRecentTweetId) {
+                return $http
+                  .get(url, {
+                    params: {
+                      account_id: accountId,
+                      count: ELEMENTS_PER_REQUEST * 2, // Because count may not be what you think -> https://dev.twitter.com/rest/reference/get/statuses/mentions_timeline
+                      max_id: mostRecentTweetId ? null : oldestTweetId,
+                      since_id: mostRecentTweetId
+                    }
+                  })
+                  .then(_.property('data'))
+                  .then(function(results) {
+                    if (results.length > 0) {
+                      oldestTweetId = _.last(results).id;
+                    }
 
-          return function() {
-            return $http
-              .get(url, {
-                params: {
-                  account_id: accountId,
-                  count: ELEMENTS_PER_REQUEST * 2, // Because count may not be what you think -> https://dev.twitter.com/rest/reference/get/statuses/mentions_timeline
-                  max_id: oldestTweetId
-                }
-              })
-              .then(_.property('data'))
-              .then(function(results) {
-                if (results.length > 0) {
-                  oldestTweetId = _.last(results).id;
-                }
+                    return results;
+                  });
+              };
 
-                return results;
+          fetcher.loadRecentItems = function(mostRecentTweet) {
+            return fetcher(mostRecentTweet.id).then(function(results) {
+              return _.filter(results, function(tweet) {
+                return tweet.id !== mostRecentTweet.id; // since_id is inclusive, that's too bad :(
               });
+            });
           };
+
+          return fetcher;
         },
         buildFetchContext: function() { return $q.when(); },
         templateUrl: '/unifiedinbox/views/unified-inbox/elements/tweet'
