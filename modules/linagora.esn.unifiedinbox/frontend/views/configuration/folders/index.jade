@@ -2,7 +2,6 @@ sub-header
   inbox-configuration-folder-subheader
 
 .inbox-configuration-folders
-  inbox-sidebar-new-folder-button
-  hr
   .mailboxes-list
     mailbox-display.lv-item(mailbox="mailbox", ng-repeat="mailbox in mailboxes | filter: { role: '!'} | orderBy: ['sortOrder', 'qualifiedName']", ui-sref="unifiedinbox.configuration.folders.folder({ mailbox: mailbox.id})")
+fab(ui-sref='unifiedinbox.configuration.folders.add')
