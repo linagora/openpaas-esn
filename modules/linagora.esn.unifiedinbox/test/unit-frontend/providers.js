@@ -7,7 +7,7 @@ var expect = chai.expect;
 describe('The Unified Inbox Angular module providers', function() {
 
   var $rootScope, inboxProviders, newInboxTwitterProvider, inboxHostedMailMessagesProvider, inboxHostedMailAttachmentProvider, inboxHostedMailThreadsProvider, inboxSearchResultsProvider,
-      $httpBackend, jmapClient, ELEMENTS_PER_PAGE, ELEMENTS_PER_REQUEST, AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE;
+      $httpBackend, jmapClient, mailboxesService, ELEMENTS_PER_PAGE, ELEMENTS_PER_REQUEST, AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE;
 
   function elements(id, length, offset) {
     var array = [], start = offset || 0;
@@ -52,13 +52,18 @@ describe('The Unified Inbox Angular module providers', function() {
       $provide.value('withJmapClient', function(cb) {
         return cb(jmapClient);
       });
+      $provide.decorator('mailboxesService', function($delegate) {
+        $delegate.flagIsUnreadChanged = sinon.spy($delegate.flagIsUnreadChanged);
+
+        return $delegate;
+      });
 
       $provide.constant('ELEMENTS_PER_PAGE', ELEMENTS_PER_PAGE = 20);
     });
   });
 
   beforeEach(angular.mock.inject(function(_$rootScope_, _inboxProviders_, _newInboxTwitterProvider_, _inboxHostedMailMessagesProvider_, _inboxSearchResultsProvider_,
-                                          _inboxHostedMailAttachmentProvider_, _inboxHostedMailThreadsProvider_, _$httpBackend_,
+                                          _inboxHostedMailAttachmentProvider_, _inboxHostedMailThreadsProvider_, _$httpBackend_, _mailboxesService_,
                                           _ELEMENTS_PER_PAGE_, _ELEMENTS_PER_REQUEST_, _AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE_) {
     $rootScope = _$rootScope_;
     inboxProviders = _inboxProviders_;
@@ -68,6 +73,7 @@ describe('The Unified Inbox Angular module providers', function() {
     inboxHostedMailAttachmentProvider = _inboxHostedMailAttachmentProvider_;
     inboxHostedMailThreadsProvider = _inboxHostedMailThreadsProvider_;
     $httpBackend = _$httpBackend_;
+    mailboxesService = _mailboxesService_;
 
     ELEMENTS_PER_REQUEST = _ELEMENTS_PER_REQUEST_;
     AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE = _AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE_;
@@ -153,6 +159,47 @@ describe('The Unified Inbox Angular module providers', function() {
 
       fetcher.loadRecentItems();
       $rootScope.$digest();
+    });
+
+    it('should update mailbox badge when fetching unread recent items', function() {
+      var fetcher = inboxHostedMailMessagesProvider.fetch({ inMailboxes: ['id_inbox'] });
+
+      fetcher();
+      $rootScope.$digest();
+
+      jmapClient.getMessageList = function() {
+        return $q.when({
+          messageIds: ['id1', 'id2'],
+          getMessages: function() {
+            return $q.when([
+              {
+                id: 'id1',
+                date: new Date(2016, 1, 1, 1, 1, 1, 0),
+                mailboxIds: ['id_inbox'],
+                isUnread: true
+              },
+              {
+                id: 'id2',
+                date: new Date(2016, 1, 1, 1, 1, 1, 0),
+                mailboxIds: ['id_inbox', 'id_otherMailbox'],
+                isUnread: true
+              },
+              {
+                id: 'id3',
+                date: new Date(2016, 1, 1, 1, 1, 1, 0),
+                mailboxIds: ['id_inbox']
+              }
+            ]);
+          }
+        });
+      };
+
+      fetcher.loadRecentItems();
+      $rootScope.$digest();
+
+      expect(mailboxesService.flagIsUnreadChanged).to.have.been.calledWith(sinon.match({ id: 'id1' }));
+      expect(mailboxesService.flagIsUnreadChanged).to.have.been.calledWith(sinon.match({ id: 'id2' }));
+      expect(mailboxesService.flagIsUnreadChanged).to.have.not.been.calledWith(sinon.match({ id: 'id3' }));
     });
 
   });
