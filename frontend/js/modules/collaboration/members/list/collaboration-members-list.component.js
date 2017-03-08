@@ -11,7 +11,7 @@
         controllerAs: 'ctrl',
         bindings: {
           collaboration: '=',
-          elementsPerPage: '@?',
+          elementsPerPage: '=?',
           objectTypeFilter: '@?',
           scrollInsideContainer: '@?'
         }
