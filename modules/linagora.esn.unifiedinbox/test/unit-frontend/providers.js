@@ -7,7 +7,7 @@ var expect = chai.expect;
 describe('The Unified Inbox Angular module providers', function() {
 
   var $rootScope, inboxProviders, newInboxTwitterProvider, inboxHostedMailMessagesProvider, inboxHostedMailAttachmentProvider, inboxHostedMailThreadsProvider, inboxSearchResultsProvider,
-      $httpBackend, jmapClient, ELEMENTS_PER_PAGE, ELEMENTS_PER_REQUEST, AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE;
+      $httpBackend, jmapClient, mailboxesService, ELEMENTS_PER_PAGE, ELEMENTS_PER_REQUEST, AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE;
 
   function elements(id, length, offset) {
     var array = [], start = offset || 0;
@@ -15,10 +15,11 @@ describe('The Unified Inbox Angular module providers', function() {
     for (var i = start; i < (start + length); i++) {
       array.push({
         id: id + '_' + i,
-        date: new Date(2016, 1, 1, 1, 1, 1, 999 - i),
+        date: new Date(2016, 1, 1, 1, 1, 1, i), // The variable millisecond is what allows us to check ordering in the tests
         mailboxIds: ['id_inbox'],
         threadId: 'thread_' + i,
-        hasAttachment: true
+        hasAttachment: true,
+        templateUrl: 'templateUrl'
       });
     }
 
@@ -37,6 +38,7 @@ describe('The Unified Inbox Angular module providers', function() {
           expect(options.filter.inMailboxes).to.deep.equal(['id_inbox']);
 
           return $q.when({
+            messageIds: [1],
             getMessages: function() {
               return $q.when(elements('message', options.limit, options.position));
             },
@@ -50,13 +52,18 @@ describe('The Unified Inbox Angular module providers', function() {
       $provide.value('withJmapClient', function(cb) {
         return cb(jmapClient);
       });
+      $provide.decorator('mailboxesService', function($delegate) {
+        $delegate.flagIsUnreadChanged = sinon.spy($delegate.flagIsUnreadChanged);
+
+        return $delegate;
+      });
 
       $provide.constant('ELEMENTS_PER_PAGE', ELEMENTS_PER_PAGE = 20);
     });
   });
 
   beforeEach(angular.mock.inject(function(_$rootScope_, _inboxProviders_, _newInboxTwitterProvider_, _inboxHostedMailMessagesProvider_, _inboxSearchResultsProvider_,
-                                          _inboxHostedMailAttachmentProvider_, _inboxHostedMailThreadsProvider_, _$httpBackend_,
+                                          _inboxHostedMailAttachmentProvider_, _inboxHostedMailThreadsProvider_, _$httpBackend_, _mailboxesService_,
                                           _ELEMENTS_PER_PAGE_, _ELEMENTS_PER_REQUEST_, _AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE_) {
     $rootScope = _$rootScope_;
     inboxProviders = _inboxProviders_;
@@ -66,6 +73,7 @@ describe('The Unified Inbox Angular module providers', function() {
     inboxHostedMailAttachmentProvider = _inboxHostedMailAttachmentProvider_;
     inboxHostedMailThreadsProvider = _inboxHostedMailThreadsProvider_;
     $httpBackend = _$httpBackend_;
+    mailboxesService = _mailboxesService_;
 
     ELEMENTS_PER_REQUEST = _ELEMENTS_PER_REQUEST_;
     AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE = _AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE_;
@@ -80,7 +88,7 @@ describe('The Unified Inbox Angular module providers', function() {
       fetcher().then(function(messages) {
         expect(messages.length).to.equal(AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE);
         expect(messages[AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE - 1]).to.shallowDeepEqual({
-          id: 'message_39',
+          id: 'message_160',
           templateUrl: '/unifiedinbox/views/unified-inbox/elements/message'
         });
       });
@@ -89,7 +97,7 @@ describe('The Unified Inbox Angular module providers', function() {
       fetcher().then(function(messages) {
         expect(messages.length).to.equal(ELEMENTS_PER_PAGE);
         expect(messages[ELEMENTS_PER_PAGE - 1]).to.shallowDeepEqual({
-          id: 'message_59',
+          id: 'message_140',
           templateUrl: '/unifiedinbox/views/unified-inbox/elements/message'
         });
 
@@ -105,7 +113,7 @@ describe('The Unified Inbox Angular module providers', function() {
       fetcher().then(function(messages) {
         expect(messages.length).to.equal(AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE);
         expect(messages[AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE - 1]).to.shallowDeepEqual({
-          id: 'message_39',
+          id: 'message_160',
           templateUrl: '/unifiedinbox/views/unified-inbox/elements/message'
         });
       });
@@ -119,13 +127,79 @@ describe('The Unified Inbox Angular module providers', function() {
       fetcher().then(function(messages) {
         expect(messages.length).to.equal(ELEMENTS_PER_PAGE);
         expect(messages[ELEMENTS_PER_PAGE - 1]).to.shallowDeepEqual({
-          id: 'message_239',
+          id: 'message_360',
           templateUrl: '/unifiedinbox/views/unified-inbox/elements/message'
         });
 
         done();
       });
       $rootScope.$digest();
+    });
+
+    it('should support fetching recent items once an initial fetch has been done', function(done) {
+      var fetcher = inboxHostedMailMessagesProvider.fetch({ inMailboxes: ['id_inbox'] });
+
+      fetcher();
+      $rootScope.$digest();
+
+      jmapClient = {
+        getMailboxWithRole: function(role) {
+          return $q.when({ id: 'id_' + role.value });
+        },
+        getMessageList: function(options) {
+          expect(options.filter).to.deep.equal({
+            inMailboxes: ['id_inbox'],
+            after: new Date(2016, 1, 1, 1, 1, 2, 199) // Second is 2 because the provider bumps it
+          });
+          expect(options.position).to.equal(0);
+
+          done();
+        }
+      };
+
+      fetcher.loadRecentItems();
+      $rootScope.$digest();
+    });
+
+    it('should update mailbox badge when fetching unread recent items', function() {
+      var fetcher = inboxHostedMailMessagesProvider.fetch({ inMailboxes: ['id_inbox'] });
+
+      fetcher();
+      $rootScope.$digest();
+
+      jmapClient.getMessageList = function() {
+        return $q.when({
+          messageIds: ['id1', 'id2'],
+          getMessages: function() {
+            return $q.when([
+              {
+                id: 'id1',
+                date: new Date(2016, 1, 1, 1, 1, 1, 0),
+                mailboxIds: ['id_inbox'],
+                isUnread: true
+              },
+              {
+                id: 'id2',
+                date: new Date(2016, 1, 1, 1, 1, 1, 0),
+                mailboxIds: ['id_inbox', 'id_otherMailbox'],
+                isUnread: true
+              },
+              {
+                id: 'id3',
+                date: new Date(2016, 1, 1, 1, 1, 1, 0),
+                mailboxIds: ['id_inbox']
+              }
+            ]);
+          }
+        });
+      };
+
+      fetcher.loadRecentItems();
+      $rootScope.$digest();
+
+      expect(mailboxesService.flagIsUnreadChanged).to.have.been.calledWith(sinon.match({ id: 'id1' }));
+      expect(mailboxesService.flagIsUnreadChanged).to.have.been.calledWith(sinon.match({ id: 'id2' }));
+      expect(mailboxesService.flagIsUnreadChanged).to.have.not.been.calledWith(sinon.match({ id: 'id3' }));
     });
 
   });
@@ -139,7 +213,7 @@ describe('The Unified Inbox Angular module providers', function() {
       fetcher().then(function(messages) {
         expect(messages.length).to.equal(AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE);
         expect(messages[AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE - 1]).to.shallowDeepEqual({
-          id: 'message_39',
+          id: 'message_160',
           templateUrl: '/unifiedinbox/views/unified-inbox/elements/search'
         });
       });
@@ -148,7 +222,7 @@ describe('The Unified Inbox Angular module providers', function() {
       fetcher().then(function(messages) {
         expect(messages.length).to.equal(ELEMENTS_PER_PAGE);
         expect(messages[ELEMENTS_PER_PAGE - 1]).to.shallowDeepEqual({
-          id: 'message_59',
+          id: 'message_140',
           templateUrl: '/unifiedinbox/views/unified-inbox/elements/search'
         });
 
@@ -164,7 +238,7 @@ describe('The Unified Inbox Angular module providers', function() {
       fetcher().then(function(messages) {
         expect(messages.length).to.equal(AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE);
         expect(messages[AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE - 1]).to.shallowDeepEqual({
-          id: 'message_39',
+          id: 'message_160',
           templateUrl: '/unifiedinbox/views/unified-inbox/elements/search'
         });
       });
@@ -178,7 +252,7 @@ describe('The Unified Inbox Angular module providers', function() {
       fetcher().then(function(messages) {
         expect(messages.length).to.equal(ELEMENTS_PER_PAGE);
         expect(messages[ELEMENTS_PER_PAGE - 1]).to.shallowDeepEqual({
-          id: 'message_239',
+          id: 'message_360',
           templateUrl: '/unifiedinbox/views/unified-inbox/elements/search'
         });
 
@@ -378,6 +452,34 @@ describe('The Unified Inbox Angular module providers', function() {
       $httpBackend.flush();
     });
 
+    it('should support fetching recent items once an initial fetch has been done', function(done) {
+      var fetcher = newInboxTwitterProvider('id', 'myTwitterAccount', '/unifiedinbox/api/inbox/tweets').fetch();
+
+      $httpBackend.expectGET('/unifiedinbox/api/inbox/tweets?account_id=myTwitterAccount&count=400').respond(200, elements('tweet', ELEMENTS_PER_REQUEST));
+
+      fetcher();
+      $httpBackend.flush();
+
+      $httpBackend.expectGET('/unifiedinbox/api/inbox/tweets?account_id=myTwitterAccount&count=400&since_id=tweet_0').respond(200, [
+        {
+          id: 'tweet_-1',
+          date: '2016-01-01T01:01:00.999Z'
+        },
+        {
+          id: 'tweet_0',
+          date: '2016-01-01T01:01:01.001Z'
+        }
+      ]);
+
+      fetcher.loadRecentItems().then(function(tweets) {
+        expect(tweets.length).to.equal(1); // Because tweet_0 should be filtered out
+        expect(tweets[0].date).to.equalTime(new Date(Date.UTC(2016, 0, 1, 1, 1, 0, 999)));
+
+        done();
+      });
+      $httpBackend.flush();
+    });
+
   });
 
   describe('The inboxProviders factory', function() {
@@ -402,7 +504,7 @@ describe('The Unified Inbox Angular module providers', function() {
             expect(container).to.equal('container_2');
 
             return function() {
-              return $q.when(elements('id', ELEMENTS_PER_PAGE));
+              return $q.when(elements('id', ELEMENTS_PER_REQUEST));
             };
           }),
           templateUrl: 'templateUrl'
@@ -413,7 +515,7 @@ describe('The Unified Inbox Angular module providers', function() {
             return provider.loadNextItems();
           })).then(function(results) {
             expect(results[0]).to.deep.equal({ data: elements('id', 2), lastPage: true });
-            expect(results[1]).to.deep.equal({ data: elements('id', ELEMENTS_PER_PAGE), lastPage: false });
+            expect(results[1]).to.deep.equal({ data: elements('id', ELEMENTS_PER_REQUEST), lastPage: false });
 
             done();
           });

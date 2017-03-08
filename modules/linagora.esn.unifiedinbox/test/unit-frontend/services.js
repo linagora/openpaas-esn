@@ -4712,9 +4712,10 @@ describe('The Unified Inbox Angular module services', function() {
 
   describe('The inboxFilteringAwareInfiniteScroll service', function() {
 
-    var $scope, service, INBOX_EVENTS;
+    var $rootScope, $scope, service, INBOX_EVENTS;
 
-    beforeEach(inject(function(inboxFilteringAwareInfiniteScroll, $rootScope, _INBOX_EVENTS_) {
+    beforeEach(inject(function(inboxFilteringAwareInfiniteScroll, _$rootScope_, _INBOX_EVENTS_) {
+      $rootScope = _$rootScope_;
       service = inboxFilteringAwareInfiniteScroll;
       INBOX_EVENTS = _INBOX_EVENTS_;
 
@@ -4734,14 +4735,37 @@ describe('The Unified Inbox Angular module services', function() {
     });
 
     it('should initialize the scope.loadMoreElements function, calling the passed-in builder', function() {
-      var spy = sinon.spy();
+      var spy = sinon.spy(function() {
+        return function() {
+          return $q.when([]);
+        };
+      });
 
       service($scope, function() {
         return { id: 'filter' };
       }, spy);
+      $rootScope.$digest();
 
       expect($scope.loadMoreElements).to.be.a('function');
       expect(spy).to.have.been.calledWith();
+    });
+
+    it('should initialize the scope.loadRecentItems function', function(done) {
+      service($scope, function() {
+        return { id: 'filter' };
+      }, function() {
+        var fetcher = function() {
+          return $q.when([]);
+        };
+
+        fetcher.loadRecentItems = done;
+        fetcher.destroy = sinon.spy();
+
+        return fetcher;
+      });
+      $rootScope.$digest();
+
+      $scope.loadRecentItems();
     });
 
     it('should listen to "inbox.filterChanged" event, refreshing the loadMoreElements function and loading first batch of items', function() {
@@ -4755,6 +4779,7 @@ describe('The Unified Inbox Angular module services', function() {
       service($scope, function() {
         return { id: 'filter' };
       }, spy);
+      $rootScope.$digest();
 
       $scope.$emit(INBOX_EVENTS.FILTER_CHANGED);
 
@@ -4774,6 +4799,8 @@ describe('The Unified Inbox Angular module services', function() {
       service($scope, function() {
         return { id: 'filter' };
       }, spy);
+      $rootScope.$digest();
+
       // Simulate end of initial infinite scroll
       $scope.infiniteScrollCompleted = true;
       $scope.infiniteScrollDisabled = true;

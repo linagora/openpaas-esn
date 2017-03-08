@@ -29,26 +29,36 @@ angular.module('linagora.esn.unifiedinbox')
         types: [PROVIDER_TYPES.SOCIAL, PROVIDER_TYPES.TWITTER],
         name: 'Tweets',
         fetch: function() {
-          var oldestTweetId = null;
+          var oldestTweetId = null,
+              fetcher = function(mostRecentTweetId) {
+                return $http
+                  .get(url, {
+                    params: {
+                      account_id: accountId,
+                      count: ELEMENTS_PER_REQUEST * 2, // Because count may not be what you think -> https://dev.twitter.com/rest/reference/get/statuses/mentions_timeline
+                      max_id: mostRecentTweetId ? null : oldestTweetId,
+                      since_id: mostRecentTweetId
+                    }
+                  })
+                  .then(_.property('data'))
+                  .then(function(results) {
+                    if (results.length > 0) {
+                      oldestTweetId = _.last(results).id;
+                    }
 
-          return function() {
-            return $http
-              .get(url, {
-                params: {
-                  account_id: accountId,
-                  count: ELEMENTS_PER_REQUEST * 2, // Because count may not be what you think -> https://dev.twitter.com/rest/reference/get/statuses/mentions_timeline
-                  max_id: oldestTweetId
-                }
-              })
-              .then(_.property('data'))
-              .then(function(results) {
-                if (results.length > 0) {
-                  oldestTweetId = _.last(results).id;
-                }
+                    return results;
+                  });
+              };
 
-                return results;
+          fetcher.loadRecentItems = function(mostRecentTweet) {
+            return fetcher(mostRecentTweet.id).then(function(results) {
+              return _.filter(results, function(tweet) {
+                return tweet.id !== mostRecentTweet.id; // since_id is inclusive, that's too bad :(
               });
+            });
           };
+
+          return fetcher;
         },
         buildFetchContext: function() { return $q.when(); },
         templateUrl: '/unifiedinbox/views/unified-inbox/elements/tweet'
@@ -69,16 +79,17 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .factory('newInboxMessageProvider', function(withJmapClient, Email, pagedJmapRequest, inboxJmapProviderContextBuilder,
-                                                       newProvider, JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_REQUEST, PROVIDER_TYPES) {
+                                               moment, newProvider, sortByDateInDescendingOrder, mailboxesService,
+                                               JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_REQUEST, PROVIDER_TYPES) {
     return function(templateUrl) {
       return newProvider({
         type: PROVIDER_TYPES.JMAP,
         name: 'Emails',
-        fetch: function(filter) {
-          return pagedJmapRequest(function(position) {
+        fetch: function(context) {
+          function getMessages(position, dateOfMostRecentItem) {
             return withJmapClient(function(client) {
               return client.getMessageList({
-                filter: filter,
+                filter: dateOfMostRecentItem ? angular.extend({}, context, { after: dateOfMostRecentItem }) : context,
                 sort: ['date desc'],
                 collapseThreads: false,
                 fetchMessages: false,
@@ -86,11 +97,33 @@ angular.module('linagora.esn.unifiedinbox')
                 limit: ELEMENTS_PER_REQUEST
               })
                 .then(function(messageList) {
+                  if (messageList.messageIds.length === 0) {
+                    return [];
+                  }
+
                   return messageList.getMessages({ properties: JMAP_GET_MESSAGES_LIST });
                 })
-                .then(function(messages) { return messages.map(Email); });
+                .then(function(messages) {
+                  return messages.map(Email).sort(sortByDateInDescendingOrder); // We need to sort here because the backend might return shuffled messages
+                });
             });
-          });
+          }
+
+          var fetcher = pagedJmapRequest(getMessages);
+
+          fetcher.loadRecentItems = function(mostRecentItem) {
+            return getMessages(0, moment(mostRecentItem.date).add(1, 's').toDate()).then(function(messages) {
+              messages.forEach(function(message) {
+                if (message.isUnread) {
+                  mailboxesService.flagIsUnreadChanged(message, true);
+                }
+              });
+
+              return messages;
+            });
+          };
+
+          return fetcher;
         },
         buildFetchContext: inboxJmapProviderContextBuilder,
         templateUrl: templateUrl

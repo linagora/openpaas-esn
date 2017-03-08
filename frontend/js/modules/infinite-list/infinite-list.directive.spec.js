@@ -1,14 +1,14 @@
 'use strict';
 
-/* global chai: false */
+/* global chai: false, sinon: false */
 
 var expect = chai.expect;
 
 describe('The infiniteList directive', function() {
-  var $rootScope, $compile, element;
+  var $rootScope, $compile, $interval, infiniteListService, element, INFINITE_LIST_POLLING_INTERVAL;
 
   function compileDirective(html) {
-    element = $compile(html)($rootScope);
+    element = $compile(html)($rootScope.$new());
 
     $rootScope.$digest();
 
@@ -23,13 +23,19 @@ describe('The infiniteList directive', function() {
     expect(element.contents()[0].attributes.getNamedItem('infinite-scroll-immediate-check').value).to.equal(immediateCheck);
   }
 
-  beforeEach(angular.mock.module('esn.infinite-list'));
+  beforeEach(angular.mock.module('esn.infinite-list', function($provide) {
+    $provide.value('infiniteListService', infiniteListService = {
+      addElements: sinon.spy()
+    });
+  }));
 
   beforeEach(module('jadeTemplates'));
 
-  beforeEach(inject(function(_$compile_, _$rootScope_) {
+  beforeEach(inject(function(_$compile_, _$rootScope_, _$interval_, _INFINITE_LIST_POLLING_INTERVAL_) {
     $compile = _$compile_;
     $rootScope = _$rootScope_;
+    $interval = _$interval_;
+    INFINITE_LIST_POLLING_INTERVAL = _INFINITE_LIST_POLLING_INTERVAL_;
   }));
 
   it('should fill the isolated scope with values from attribute', function() {
@@ -67,4 +73,35 @@ describe('The infiniteList directive', function() {
       done();
     }, 0);
   });
+
+  it('should schedule scope.loadRecentItems at a regular interval', function(done) {
+    $rootScope.loadRecentItems = done;
+
+    compileDirective('<infinite-list load-recent-items="loadRecentItems" />');
+
+    $interval.flush(INFINITE_LIST_POLLING_INTERVAL);
+  });
+
+  it('should append new elements to the list', function() {
+    $rootScope.loadRecentItems = function() {
+      return $q.when([{ a: 1 }]);
+    };
+
+    compileDirective('<infinite-list load-recent-items="loadRecentItems" />');
+
+    $interval.flush(INFINITE_LIST_POLLING_INTERVAL);
+
+    expect(infiniteListService.addElements).to.have.been.calledWith([{ a: 1 }]);
+  });
+
+  it('should not schedule a $interval if loadRecentItems is not defined', function() {
+    $rootScope.loadRecentItems = sinon.spy();
+
+    compileDirective('<infinite-list />');
+
+    $interval.flush(INFINITE_LIST_POLLING_INTERVAL);
+
+    expect($rootScope.loadRecentItems).to.have.not.been.calledWith();
+  });
+
 });

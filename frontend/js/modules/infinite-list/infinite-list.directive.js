@@ -4,12 +4,14 @@
   angular.module('esn.infinite-list')
     .directive('infiniteList', infiniteList);
 
-    function infiniteList(MutationObserver, INFINITE_LIST_EVENTS, INFINITE_LIST_IMMEDIATE_CHECK, INFINITE_LIST_DISTANCE, INFINITE_LIST_DISABLED) {
+    function infiniteList($interval, $q, MutationObserver, infiniteListService, INFINITE_LIST_EVENTS, INFINITE_LIST_IMMEDIATE_CHECK,
+                          INFINITE_LIST_DISTANCE, INFINITE_LIST_DISABLED, INFINITE_LIST_POLLING_INTERVAL) {
       return {
         restrict: 'E',
         transclude: true,
         scope: {
           loadMoreElements: '&',
+          loadRecentItems: '=?',
           infiniteScrollDistance: '=?',
           infiniteScrollDisabled: '=?',
           infiniteScrollImmediateCheck: '=?',
@@ -44,6 +46,20 @@
 
               scope.$on('$destroy', function() {
                 observer.disconnect();
+              });
+            }
+
+            if (INFINITE_LIST_POLLING_INTERVAL > 0 && scope.loadRecentItems) {
+              var poller = $interval(function() {
+                $q.when(scope.loadRecentItems()).then(function(elements) {
+                  if (elements && elements.length > 0) {
+                    infiniteListService.addElements(elements);
+                  }
+                });
+              }, INFINITE_LIST_POLLING_INTERVAL);
+
+              scope.$on('$destroy', function() {
+                $interval.cancel(poller);
               });
             }
           }
