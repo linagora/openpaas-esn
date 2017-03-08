@@ -318,7 +318,7 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
       return ioInterface(onSocketAction);
     };
   })
-  .factory('ioConnectionManager', function(ioSocketConnection, tokenAPI, $log, session, $timeout, ioOfflineBuffer, io) {
+  .factory('ioConnectionManager', function(ioSocketConnection, tokenAPI, $log, $q, session, $timeout, ioOfflineBuffer, io) {
 
     function _disconnectOld() {
       var oldSio = ioSocketConnection.getSio();
@@ -326,7 +326,7 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
     }
 
     function _connect() {
-      tokenAPI.getNewToken().then(function(response) {
+      return tokenAPI.getNewToken().then(function(response) {
         _disconnectOld();
         var sio = io()('/', {
           query: 'token=' + response.data.token + '&user=' + session.user._id,
@@ -338,6 +338,8 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
         if (error && error.data) {
           $log.info('Error while getting auth token', error.data);
         }
+
+        return $q.reject(error);
       });
     }
 
@@ -359,11 +361,12 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
           return;
         }
         _clearManagersCache();
-        _connect();
+        _connect()
+        .finally(function() {
+          timeout = (timeout >= maxTimeout) ? maxTimeout : timeout * 2;
+          $timeout(reconnect, timeout);
+        });
 
-        timeout = (timeout >= maxTimeout) ? maxTimeout : timeout * 2;
-
-        $timeout(reconnect, timeout);
       };
 
       reconnect();
