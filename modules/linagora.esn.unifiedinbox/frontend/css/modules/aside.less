@@ -79,6 +79,10 @@
     top: ~"calc(@{header-height} + @{sub-header-height})";
     bottom: 0;
 
+    &.is-vacation-activated {
+      top: ~"calc(@{header-height} + @{sub-header-height} + @{sub-header-vacation-height})";
+    }
+
     .listview:not(.lv-lg):not(.lv-message) {
       .lv-item.menu-heading {
         padding: 8px 0 8px 20px;

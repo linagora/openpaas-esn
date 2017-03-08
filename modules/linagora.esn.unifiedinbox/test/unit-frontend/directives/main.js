@@ -1622,7 +1622,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
       compileDirective('<inbox-vacation-indicator />');
 
-      element.isolateScope().$on(INBOX_EVENTS.VACATION_STATUS, done.bind(this, null));
+      $rootScope.$on(INBOX_EVENTS.VACATION_STATUS, done.bind(this, null));
 
       element.find('.inbox-disable-vacation').click();
     });
@@ -1637,10 +1637,10 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       element = compileDirective('<inbox-vacation-indicator />');
 
       expect(jmapClient.getVacationResponse).to.have.been.calledOnce;
-      $scope.$broadcast(INBOX_EVENTS.VACATION_STATUS);
+      $rootScope.$broadcast(INBOX_EVENTS.VACATION_STATUS);
 
       expect(jmapClient.getVacationResponse).to.have.been.calledTwice;
-      expect(element.isolateScope().vacationActivated).to.equal(isActivated);
+      expect($rootScope.inbox.vacationActivated).to.equal(isActivated);
     });
 
     it('should show the message if vacation cannot be disabled', function() {
