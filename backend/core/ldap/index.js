@@ -10,6 +10,7 @@ const helpers = require('./helpers');
 const q = require('q');
 
 const LDAP_DEFAULT_LIMIT = 50;
+const NOOP = () => {};
 
 /**
  * Check if the email exists in the given ldap
@@ -34,6 +35,8 @@ function emailExists(email, ldap, callback) {
   });
 
   return ldapauth._findUser(email, (err, data) => {
+    ldapauth.close(NOOP);
+
     if (!called) {
       called = true;
       callback(err, data);
@@ -114,7 +117,8 @@ function authenticate(email, password, ldap, callback) {
   const ldapauth = new LdapAuth(ldap);
 
   ldapauth.authenticate(email, password, function(err, user) {
-    ldapauth.close(function() {});
+    ldapauth.close(NOOP);
+
     if (err) {
       return callback(new Error('Can not authenticate user ' + email + ' : ' + err.message));
     }
@@ -224,6 +228,8 @@ function ldapSearch(domainId, ldapConf, query) {
   }
 
   ldapauth._search(ldapauth.opts.searchBase, opts, (err, users) => {
+    ldapauth.close(NOOP);
+
     if (err) {
       return deferred.reject(err);
     }
