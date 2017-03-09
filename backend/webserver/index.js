@@ -8,6 +8,7 @@ var fs = require('fs');
 var AwesomeModule = require('awesome-module');
 var Dependency = AwesomeModule.AwesomeModuleDependency;
 var AsyncEventEmitter = require('async-eventemitter');
+var css = require('../core').css;
 
 var webserver = {
   application: serverApplication,
@@ -198,6 +199,12 @@ function addAngularAppModulesInjection(moduleName, jsfiles, angularModulesNames,
 }
 
 webserver.addAngularAppModulesInjection = addAngularAppModulesInjection;
+
+function addLessInjection(namespace, lessFiles, innerApps) {
+  css.addLessInjection(namespace, lessFiles, innerApps);
+}
+
+webserver.addLessInjection = addLessInjection;
 
 function getInjections() {
   return injections;
