@@ -11,7 +11,7 @@ sub-header(ng-if="!inbox.list.isElementOpened")
 
   .inbox-infinite-list(ng-switch-default)
 
-    infinite-list(keep-scroll-position, load-more-elements="loadMoreElements()", load-recent-items="loadRecentItems", element-selector=".inbox-list-item", infinite-scroll-disabled="inbox.list.isElementOpened").inbox-list
+    infinite-list(keep-scroll-position, load-more-elements="loadMoreElements()", load-recent-items="loadRecentItems()", element-selector=".inbox-list-item", infinite-scroll-disabled="inbox.list.isElementOpened").inbox-list
 
       .inbox-items-group(ng-repeat="group in groupedElements" ng-if="group.elements.length > 0")
         .block-header(ng-if="visibleItemsInGroup.length > 0")

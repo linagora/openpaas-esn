@@ -11,7 +11,7 @@
         transclude: true,
         scope: {
           loadMoreElements: '&',
-          loadRecentItems: '=?',
+          loadRecentItems: '&',
           infiniteScrollDistance: '=?',
           infiniteScrollDisabled: '=?',
           infiniteScrollImmediateCheck: '=?',
@@ -32,7 +32,7 @@
             scope.infiniteScrollListenForEvent = INFINITE_LIST_EVENTS.LOAD_MORE_ELEMENTS;
             scope.marker = 'test';
           },
-          post: function(scope, element) {
+          post: function(scope, element, attrs) {
             // We only start the MutationObserver if we're asked to monitor child elements
             // through the use of the elementSelector attribute.
             if (scope.elementSelector) {
@@ -49,7 +49,7 @@
               });
             }
 
-            if (INFINITE_LIST_POLLING_INTERVAL > 0 && scope.loadRecentItems) {
+            if (INFINITE_LIST_POLLING_INTERVAL > 0 && attrs.loadRecentItems) {
               var poller = $interval(function() {
                 $q.when(scope.loadRecentItems()).then(function(elements) {
                   if (elements && elements.length > 0) {
