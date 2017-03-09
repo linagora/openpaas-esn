@@ -27,6 +27,17 @@ describe('The infiniteList directive', function() {
     $provide.value('infiniteListService', infiniteListService = {
       addElements: sinon.spy()
     });
+
+    $provide.decorator('$interval', function($delegate) {
+      var decorator = sinon.spy(function(fn, delay) {
+        return $delegate(fn, delay);
+      });
+
+      decorator.cancel = sinon.spy($delegate.cancel);
+      decorator.flush = sinon.spy($delegate.flush);
+
+      return decorator;
+    });
   }));
 
   beforeEach(module('jadeTemplates'));
@@ -77,7 +88,7 @@ describe('The infiniteList directive', function() {
   it('should schedule scope.loadRecentItems at a regular interval', function(done) {
     $rootScope.loadRecentItems = done;
 
-    compileDirective('<infinite-list load-recent-items="loadRecentItems" />');
+    compileDirective('<infinite-list load-recent-items="loadRecentItems()" />');
 
     $interval.flush(INFINITE_LIST_POLLING_INTERVAL);
   });
@@ -87,7 +98,7 @@ describe('The infiniteList directive', function() {
       return $q.when([{ a: 1 }]);
     };
 
-    compileDirective('<infinite-list load-recent-items="loadRecentItems" />');
+    compileDirective('<infinite-list load-recent-items="loadRecentItems()" />');
 
     $interval.flush(INFINITE_LIST_POLLING_INTERVAL);
 
@@ -95,13 +106,9 @@ describe('The infiniteList directive', function() {
   });
 
   it('should not schedule a $interval if loadRecentItems is not defined', function() {
-    $rootScope.loadRecentItems = sinon.spy();
-
     compileDirective('<infinite-list />');
 
-    $interval.flush(INFINITE_LIST_POLLING_INTERVAL);
-
-    expect($rootScope.loadRecentItems).to.have.not.been.calledWith();
+    expect($interval).to.have.not.been.calledWith(sinon.match.func, INFINITE_LIST_POLLING_INTERVAL);
   });
 
 });
