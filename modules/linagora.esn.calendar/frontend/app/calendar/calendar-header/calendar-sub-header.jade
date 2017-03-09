@@ -3,23 +3,17 @@ extends /modules/subheader/responsive-subheader
 block left
   .calendar-sub-header.hidden-md
     .calendar-controls
-      a(href='', contextual-sidebar, data-content-template="/calendar/app/calendar/calendar-header/calendar-sidebar")
-        button.btn.btn-primary.waves-effect
-          i.mdi.mdi-menu
-      a.btn.flex-vertical-centered(cal-toggle-mini-calendar)
-        .date-indicator(calendar-date-indicator) {{vm.dateIndicator}}
-        button.mini-calendar-caret.btn.btn-primary.waves-effect
+      button.btn.btn-link.btn-icon(href='', contextual-sidebar, data-content-template="/calendar/app/calendar/calendar-header/calendar-sidebar")
+        i.mdi.mdi-menu
+      button.btn.btn-link.flex-vertical-centered(cal-toggle-mini-calendar)
+        .date-indicator.flex-vertical-centered(calendar-date-indicator) {{vm.dateIndicator}}
           i.mdi.mdi-menu-down
 block right
   .calendar-sub-header.flex-vertical-centered.hidden-md
     .calendar-controls
-      a(cal-toggle-today)
-        button.btn.btn-primary.waves-effect(ng-disabled='isCurrentViewAroundToday()')
-          | #{__('Today')}
-          i.mdi.mdi-calendar-today
-      a(calendar-view-translation='prev')
-        button.btn.btn-link.waves-effect
-          i.mdi.mdi-chevron-left
-      a(calendar-view-translation='next')
-        button.btn.btn-link.waves-effect
-          i.mdi.mdi-chevron-right
+      div(cal-toggle-today)
+        calendar-today-button(is-current-view-around-today="isCurrentViewAroundToday()")
+      button.btn.btn-link.btn-icon(calendar-view-translation='prev')
+        i.mdi.mdi-chevron-left
+      button.btn.btn-link.btn-icon(calendar-view-translation='next')
+        i.mdi.mdi-chevron-right
