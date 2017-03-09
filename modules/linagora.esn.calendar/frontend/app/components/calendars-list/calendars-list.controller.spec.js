@@ -168,7 +168,7 @@ describe('The calendarsList controller', function() {
 
           $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.ADD, newCalendar);
 
-          expect(CalendarsListController.myCalendars).to.deep.equal([expectedResult[0], expectedResult[2]]);
+          expect(CalendarsListController.userCalendars).to.deep.equal([expectedResult[0], expectedResult[2]]);
           expect(CalendarsListController.sharedCalendars).to.deep.equal([expectedResult[1]]);
         });
 
@@ -195,7 +195,7 @@ describe('The calendarsList controller', function() {
 
           $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.ADD, newCalendar);
 
-          expect(CalendarsListController.myCalendars).to.deep.equal([expectedResult[0], expectedResult[2]]);
+          expect(CalendarsListController.userCalendars).to.deep.equal([expectedResult[0], expectedResult[2]]);
           expect(CalendarsListController.sharedCalendars).to.deep.equal([expectedResult[1]]);
         });
       });
@@ -246,7 +246,7 @@ describe('The calendarsList controller', function() {
 
         expect(CalendarsListController.calendars).to.deep.equal(expectedResult);
         expect(CalendarsListController.sharedCalendars).to.deep.equal(expectedResult);
-        expect(CalendarsListController.myCalendars).to.deep.equal([]);
+        expect(CalendarsListController.userCalendars).to.deep.equal([]);
       });
     });
 
@@ -290,48 +290,6 @@ describe('The calendarsList controller', function() {
         CalendarsListController.$onInit();
 
         expect(calendarServiceMock.listCalendars).to.be.called;
-      });
-    });
-
-    describe('the arrangeCalendars function', function() {
-      beforeEach(function() {
-        calendars = [{
-          id: '1',
-          href: 'href',
-          name: 'name',
-          color: 'color',
-          description: 'description'
-        }, {
-          id: '2',
-          href: 'href2',
-          name: 'name2',
-          color: 'color2',
-          description: 'description2',
-          rights: {
-            getUserRight: function() {
-              return CALENDAR_RIGHT.SHAREE_READ;
-            },
-            getPublicRight: function() {
-              return CALENDAR_RIGHT.PUBLIC_READ;
-            }
-          }
-        }];
-      });
-
-      it('should intialize myCalendars with the calendars without rights', function() {
-        CalendarsListController.$onInit();
-
-        $rootScope.$digest();
-
-        expect(CalendarsListController.myCalendars).to.deep.equal([calendars[0]]);
-      });
-
-      it('should intialize sharedCalendars with the calendars with rights', function() {
-        CalendarsListController.$onInit();
-
-        $rootScope.$digest();
-
-        expect(CalendarsListController.sharedCalendars).to.deep.equal([calendars[1]]);
       });
     });
 

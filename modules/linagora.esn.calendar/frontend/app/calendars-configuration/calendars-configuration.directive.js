@@ -20,34 +20,12 @@
     return directive;
   }
 
-  function CalendarsConfigurationController(session) {
+  function CalendarsConfigurationController(userAndSharedCalendars) {
     var self = this;
+    var calendars = userAndSharedCalendars(self.calendars);
 
-    arrangeCalendars(self.calendars);
-
-    ////////////
-
-    function arrangeCalendars(calendars) {
-      self.userCalendars = calendars.filter(function(calendar) {
-        if (calendar.rights) {
-          var rights = calendar.rights.getUserRight(session.user._id);
-
-          return rights === 'admin';
-        }
-
-        return true;
-      });
-
-      self.sharedCalendars = calendars.filter(function(calendar) {
-        if (calendar.rights) {
-          var rights = calendar.rights.getUserRight(session.user._id);
-
-          return rights !== 'admin';
-        }
-
-        return false;
-      });
-    }
+    self.userCalendars = calendars.userCalendars;
+    self.sharedCalendars = calendars.sharedCalendars;
   }
 
 })();

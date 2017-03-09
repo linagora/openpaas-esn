@@ -51,6 +51,7 @@
 
       if (!options) {
         promiseCache[calendarHomeId] = promiseCache[calendarHomeId] || calendarAPI.listCalendars(calendarHomeId).then(createCalendarsShell);
+
         return promiseCache[calendarHomeId];
       }
 
@@ -83,8 +84,8 @@
      * @param  {String}     calendarId      The calendar id
      * @return {CalendarCollectionShell}  an array of CalendarCollectionShell
      */
-    function getCalendar(calendarHomeId, calendarId) {
-      return calendarAPI.getCalendar(calendarHomeId, calendarId)
+    function getCalendar(calendarHomeId, calendarId, options) {
+      return calendarAPI.getCalendar(calendarHomeId, calendarId, options)
         .then(function(calendar) {
           return new CalendarCollectionShell(calendar);
         });

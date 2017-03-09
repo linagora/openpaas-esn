@@ -17,23 +17,21 @@
               i.mdi.mdi-plus
               span #{__('Add a public calendar')}
         hr
-        .calendar-header-title
+        .lv-item
           .media
-            .pull-left
+            .pull-left.calendars-configuration-title
               i.mdi.mdi-calendar
-            .media-body
-              .lv-title #{__('My calendars')}
+              span.name #{__('My calendars')}
         a.lv-item(href="", ng-repeat="calendar in $ctrl.userCalendars", ui-sref='calendar.edit({calendarId: calendar.id})')
           .media
             .pull-left
               i.mdi.mdi-label(ng-style="{'color': calendar.color}")
               span {{::calendar.name}}
-        .calendar-header-title
+        .lv-item
           .media
-            .pull-left
+            .pull-left.calendars-configuration-title
               i.mdi.mdi-calendar
-            .media-body
-              .lv-title #{__('Shared calendars')}
+              span.name #{__('Shared calendars')}
         a.lv-item(href="", ng-repeat="calendar in $ctrl.sharedCalendars", ui-sref='calendar.shared({calendarId: calendar.id})')
           .media
             .pull-left

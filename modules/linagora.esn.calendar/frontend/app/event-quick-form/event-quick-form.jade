@@ -1,7 +1,7 @@
 //- NOTE: When adding form controls that should change the event in this form,
 //-       be sure to add them to the EVENT_MODIFY_COMPARE_KEYS constant, to
 //-       make sure they are checked during modification.
-form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': !isOrganizer || calendar.readOnly}", ng-submit='submit()')
+form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': readOnly}", ng-submit='submit()')
   .modal-dialog
     .modal-content
       .modal-header
@@ -21,17 +21,17 @@ form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': !
                 span.input-group-addon
                   i.mdi.mdi-calendar-multiple
                 .fg-line.select
-                  select.form-control(ng-disabled="!isOrganizer || !isNew(editedEvent) || calendar.readOnly", ng-model='calendar', ng-options='calendar as calendar.name for calendar in calendars')
-          cal-event-date-edition(event="editedEvent", disabled="!isOrganizer || calendar.readOnly")
+                  select.form-control(ng-disabled="!isNew(editedEvent) || readOnly", ng-model='calendar', ng-options='calendar as calendar.name for calendar in calendars')
+          cal-event-date-edition(event="editedEvent", disabled='readOnly')
           .col-xs-12
             .form-group(ng-show="isOrganizer || editedEvent.location")
               .input-group
                 span.input-group-addon
                   i.mdi.mdi-map-marker
                 .fg-line
-                  input.input.location.form-control(type="text", ng-model='editedEvent.location', ng-model-options="{getterSetter: true}", maxlength="{{::EVENT_FORM.location.maxlength}}", placeholder="#{__('Location')}", ng-readonly="!isOrganizer || calendar.readOnly")
-          cal-attendees-autocomplete-input(ng-show='(isOrganizer || isNew(editedEvent)) && !calendar.readOnly', original-attendees='editedEvent.attendees', mutable-attendees='newAttendees')
-          .col-xs-12(ng-if='(editedEvent.attendees.length > 1 || newAttendees.length > 0) && !calendar.readOnly')
+                  input.input.location.form-control(type="text", ng-model='editedEvent.location', ng-model-options="{getterSetter: true}", maxlength="{{::EVENT_FORM.location.maxlength}}", placeholder="#{__('Location')}", ng-readonly="readOnly")
+          cal-attendees-autocomplete-input(ng-hide='readOnly', original-attendees='editedEvent.attendees', mutable-attendees='newAttendees')
+          .col-xs-12(ng-if='displayParticipationButton')
             .form-group.status.row
               span.col-xs-12.col-sm-6.text-center #{__('Will you attend?')}
               .col-xs-12.col-sm-6.text-center

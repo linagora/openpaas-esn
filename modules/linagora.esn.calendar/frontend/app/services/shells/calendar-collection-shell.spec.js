@@ -5,12 +5,12 @@
 var expect = chai.expect;
 
 describe('CalendarCollectionShell factory', function() {
-  var CalendarRightShellMock, calendar;
+  var CalendarRightShellMock, calendar, CALENDAR_RIGHT;
 
   CalendarRightShellMock = sinon.spy(function() {
     return {
       getUserRight: function() {
-        return 'read';
+        return CALENDAR_RIGHT.SHAREE_READ;
       }
     };
   });
@@ -24,9 +24,10 @@ describe('CalendarCollectionShell factory', function() {
   });
 
   beforeEach(function() {
-    angular.mock.inject(function(CalendarCollectionShell, DEFAULT_CALENDAR_ID) {
+    angular.mock.inject(function(CalendarCollectionShell, DEFAULT_CALENDAR_ID, _CALENDAR_RIGHT_) {
       this.CalendarCollectionShell = CalendarCollectionShell;
       this.DEFAULT_CALENDAR_ID = DEFAULT_CALENDAR_ID;
+      CALENDAR_RIGHT = _CALENDAR_RIGHT_;
     });
   });
 

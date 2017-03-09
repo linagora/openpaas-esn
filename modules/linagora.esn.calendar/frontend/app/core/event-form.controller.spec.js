@@ -24,7 +24,8 @@ describe('The event-form module controllers', function() {
       href: 'href',
       id: 'id',
       color: 'color',
-      selected: true
+      selected: true,
+      readOnly: true
     }, {
       href: 'href2',
       id: 'id2',
@@ -107,6 +108,12 @@ describe('The event-form module controllers', function() {
     this.EVENT_FORM = EVENT_FORM;
   }));
 
+  beforeEach(function() {
+    this.calEventUtils.getNewAttendees = function() {
+      return [];
+    };
+  });
+
   describe('The calEventFormController controller', function() {
 
     beforeEach(function() {
@@ -175,6 +182,7 @@ describe('The event-form module controllers', function() {
     });
 
     describe('initFormData function', function() {
+
       it('should initialize the scope with $scope.editedEvent as a clone of $scope.event and add ', function() {
         this.scope.event = this.CalendarShell.fromIncompleteShell({
           _id: '123456',
@@ -226,8 +234,95 @@ describe('The event-form module controllers', function() {
 
       it('should call calendarService.listCalendars with options object', function() {
         this.scope.event = this.CalendarShell.fromIncompleteShell({});
+
         this.initController();
-        expect(this.calendarServiceMock.listCalendars).to.be.calledWith(this.calendarServiceMock.calendarHomeId, {withRights: true});
+
+        expect(this.calendarServiceMock.listCalendars).to.be.calledWith(this.calendarServiceMock.calendarHomeId, { withRights: true });
+      });
+
+      it('should initialize calendars with calendars returned from the calendarService.listCalendars', function() {
+        this.scope.event = this.CalendarShell.fromIncompleteShell({});
+
+        this.initController();
+
+        this.rootScope.$digest();
+
+        expect(this.scope.calendars).to.deep.equal(this.calendars);
+      });
+
+      it('should initialize readOnly with true if calendar.readOnly is true', function() {
+        this.scope.event = this.CalendarShell.fromIncompleteShell({
+          _id: '123456',
+          start: this.moment('2013-02-08 12:30'),
+          end: this.moment('2013-02-08 13:30'),
+          organizer: {
+            email: 'user@test.com'
+          },
+          otherProperty: 'aString'
+        });
+
+        this.initController();
+
+        this.rootScope.$digest();
+
+        expect(this.scope.readOnly).to.equal(true);
+      });
+
+      it('should initialize readOnly with true if isOrganize is true', function() {
+        this.scope.event = this.CalendarShell.fromIncompleteShell({
+          _id: '123456',
+          start: this.moment('2013-02-08 12:30'),
+          end: this.moment('2013-02-08 13:30'),
+          organizer: {
+            email: 'user2@test.com'
+          },
+          otherProperty: 'aString'
+        });
+
+        this.calendars[0].readOnly = false;
+
+        this.initController();
+
+        this.rootScope.$digest();
+
+        expect(this.scope.readOnly).to.equal(true);
+      });
+
+      it('should initialize displayParticipationButton with false if calendar.readOnly is true and editedEvent.attendees.length > 1 and newAttendees.length > 0', function() {
+        this.scope.event = this.CalendarShell.fromIncompleteShell({});
+
+        this.initController();
+
+        this.rootScope.$digest();
+
+        expect(this.scope.displayParticipationButton).to.equal(false);
+      });
+
+      it('should initialize displayParticipationButton with false if calendar.readOnly is true', function() {
+        this.scope.event = this.CalendarShell.fromIncompleteShell({
+          _id: '123456',
+          start: this.moment('2013-02-08 12:30'),
+          end: this.moment('2013-02-08 13:30'),
+          attendees: [{
+            name: 'attendee1',
+            email: 'attendee1@openpaas.org',
+            partstart: 'ACCEPTED'
+          }, {
+            name: 'attendee2',
+            email: 'attendee2@openpaas.org',
+            partstart: 'ACCEPTED'
+          }]
+        });
+
+        this.calEventUtils.getNewAttendees = function() {
+          return ['user', 'user1'];
+        };
+
+        this.initController();
+
+        this.rootScope.$digest();
+
+        expect(this.scope.displayParticipationButton).to.equal(false);
       });
 
       it('should detect if organizer', function() {

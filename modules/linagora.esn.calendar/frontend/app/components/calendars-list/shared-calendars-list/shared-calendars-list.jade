@@ -17,6 +17,8 @@
         i.mdi.mdi-checkbox-marked-outline(ng-style="{'color': calendar.color}")
       .pull-left(ng-if="$ctrl.hiddenCalendars[calendar.id]", ng-click="$ctrl.toggleCalendar(calendar)", title="#{__('Show calendar')}")
         i.mdi.mdi-checkbox-blank-outline
+      .pull-right.hidden-xs(ui-sref='calendar.shared({calendarId: calendar.id})', title="#{__('Consult')}")
+        i.mdi.mdi-settings
       .pull-right(title="{{calendar.currentUserRight}}")
         i.mdi.mdi-pencil(ng-if="!calendar.readOnly", ng-style="{'color': calendar.color}")
         i.mdi.mdi-pencil-off(ng-if="calendar.readOnly", ng-style="{'color': calendar.color}")

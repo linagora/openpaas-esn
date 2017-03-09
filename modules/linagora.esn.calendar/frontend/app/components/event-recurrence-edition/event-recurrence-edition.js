@@ -60,10 +60,14 @@
 
     function activate() {
       self._event.getModifiedMaster().then(function(master) {
-        self.readOnly = !self.isOrganizer || self._event.isInstance() || self.readOnlyEventFromSharedCalendar;
+        self.readOnly = checkReadOnly();
         self.event = master;
         self.freq = self.event.rrule ? self.event.rrule.freq : undefined;
       });
+    }
+
+    function checkReadOnly() {
+      return !self.isOrganizer || self._event.isInstance() || self.readOnlyEventFromSharedCalendar;
     }
 
     function toggleWeekdays(weekday) {

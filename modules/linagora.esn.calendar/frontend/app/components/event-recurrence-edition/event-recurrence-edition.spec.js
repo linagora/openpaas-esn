@@ -29,7 +29,7 @@ describe('The event-recurrence-edition component', function() {
     this.$scope.isOrganizer = true;
 
     this.initDirective = function(scope) {
-      var html = '<event-recurrence-edition event="event" is-organizer="isOrganizer" readonly="readOnly" read-only-event-from-shared-calendar="readOnlyEventFromSharedCalendar"/>';
+      var html = '<event-recurrence-edition event="event" is-organizer="isOrganizer" read-only-event-from-shared-calendar="readOnlyEventFromSharedCalendar"/>';
       var element = this.$compile(html)(scope);
 
       scope.$digest();

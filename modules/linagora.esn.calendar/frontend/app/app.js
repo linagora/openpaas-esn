@@ -127,6 +127,14 @@
           }
         }
       })
+      .state('calendar.shared', {
+        url: '/shared/:calendarId',
+        views: {
+          content: {
+            template: '<calendar-shared-consultation />'
+          }
+        }
+      })
       .state('calendar.list', {
         url: '/list',
         views: {
@@ -134,7 +142,11 @@
             template: '<calendars-configuration calendars="calendars"/>',
             resolve: {
               calendars: function(calendarService, calendarHomeId) {
-                return calendarService.listCalendars(calendarHomeId);
+                var options = {
+                  withRights: true
+                };
+
+                return calendarService.listCalendars(calendarHomeId, options);
               }
             },
             controller: function($scope, calendars) {

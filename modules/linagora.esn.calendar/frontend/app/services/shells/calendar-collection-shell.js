@@ -23,7 +23,7 @@
 
       this.rights = addRightsForSharedCalendar(calendar);
 
-      this.readOnly = addReadOnlyProperty(this.rights);
+      this.readOnly = checkReadOnly(this.rights, session.user._id);
     }
 
     CalendarCollectionShell.toDavCalendar = toDavCalendar;
@@ -81,9 +81,9 @@
       }
     }
 
-    function addReadOnlyProperty(rights) {
+    function checkReadOnly(rights, userId) {
       if (rights) {
-        return rights.getUserRight(session.user._id) === CALENDAR_RIGHT.READ;
+        return rights.getUserRight(userId) === CALENDAR_RIGHT.SHAREE_READ;
       }
 
       return false;

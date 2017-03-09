@@ -2,9 +2,9 @@
   .col-xs-12.no-padding-xs
     sub-header
       cal-event-full-form-subheader
-    .nopadding.card.event-full-form.zoomIn(keep-scroll-position, ng-class="{ 'readonly': !isOrganizer || calendar.readOnly }")
+    .nopadding.card.event-full-form.zoomIn(keep-scroll-position, ng-class="{ 'readonly': readOnly }")
       .card-body.card-padding
-        form.form(role="form", aria-hidden="true", ng-class="{ 'readonly': !isOrganizer || calendar.readOnly}")
+        form.form(role="form", aria-hidden="true", ng-class="{ 'readonly': readOnly }")
           .row
             .col-xs-12.col-sm-6
               .row
@@ -20,9 +20,9 @@
                       span.input-group-addon
                         i.mdi.mdi-calendar-multiple
                       .fg-line.select
-                        select.form-control(ng-disabled="!isOrganizer || !isNew(editedEvent) || calendar.readOnly", ng-model='calendar', ng-options='calendar as calendar.name for calendar in calendars')
+                        select.form-control(ng-disabled="!isNew(editedEvent) || readOnly", ng-model='calendar', ng-options='calendar as calendar.name for calendar in calendars')
 
-              cal-event-date-edition(event="editedEvent", disabled="!isOrganizer || calendar.readOnly")
+              cal-event-date-edition(event="editedEvent", disabled="readOnly")
 
               .row
                 .col-xs-12
@@ -34,10 +34,10 @@
                         input.input.location.form-control(type="text", ng-model='editedEvent.location', ng-model-options="{getterSetter: true}", maxlength="{{::EVENT_FORM.location.maxlength}}",placeholder="#{__('Location')}", ng-readonly="!isOrganizer || calendar.readOnly")
 
               .row.visible-xs
-                cal-attendees-autocomplete-input(ng-show='isOrganizer || isNew(editedEvent) || !calendar.readOnly', original-attendees='editedEvent.attendees', mutable-attendees='newAttendees')
+                cal-attendees-autocomplete-input(ng-hide='readOnly', original-attendees='editedEvent.attendees', mutable-attendees='newAttendees')
 
               .row.visible-xs
-                .form-group.status(ng-if='editedEvent.attendees.length > 0 || newAttendees.length > 0')
+                .form-group.status(ng-if='displayParticipationButton')
                   span.col-xs-12.col-md-6.text-center #{__('Will you attend?')}
                   .col-xs-12.col-md-6.text-center
                     .btn-group(role="group")
@@ -46,7 +46,7 @@
                       button.btn.btn-link.declined(type='button', ng-click='changeParticipation("DECLINED")', ng-class='{ "active": userAsAttendee.partstat === "DECLINED" }') #{__('No')}
 
               .row.visible-xs
-                cal-attendees-list(attendees='editedEvent.attendees', read-only='::!isOrganizer || calendar.readOnly', organizer='editedEvent.organizer', mode='edition')
+                cal-attendees-list(attendees='editedEvent.attendees', read-only='readOnly', organizer='editedEvent.organizer', mode='edition')
 
               .row.visible-xs
                 cal-mail-to-attendees(ng-if='displayCalMailToAttendeesButton()', event='editedEvent')
@@ -61,14 +61,14 @@
                       span.input-group-addon
                         i.mdi.mdi-lock
                       .fg-line.select
-                        select.form-control(ng-disabled="!isOrganizer || calendar.readOnly", ng-model='editedEvent.class', ng-options="class.value as class.label for class in EVENT_FORM.class.values")
+                        select.form-control(ng-disabled="readOnly", ng-model='editedEvent.class', ng-options="class.value as class.label for class in EVENT_FORM.class.values")
 
             .col-xs-12.col-sm-6
               .row.hidden-xs
-                cal-attendees-autocomplete-input(ng-show='(isOrganizer || isNew(editedEvent)) && !calendar.readOnly', original-attendees='editedEvent.attendees', mutable-attendees='newAttendees')
+                cal-attendees-autocomplete-input(ng-hide='readOnly', original-attendees='editedEvent.attendees', mutable-attendees='newAttendees')
 
               .row.hidden-xs
-                .form-group.status(ng-if='(editedEvent.attendees.length > 0 || newAttendees.length > 0 && !calendar.readOnly)')
+                .form-group.status(ng-if='displayParticipationButton')
                   span.col-xs-12.col-md-6.text-center #{__('Will you attend?')}
                   .col-xs-12.col-md-6.text-center.nopadding-left.nopadding-right
                     .btn-group(role="group")
@@ -77,7 +77,7 @@
                       button.btn.btn-link.declined(type='button', ng-click='changeParticipation("DECLINED")', ng-class='{ "active": userAsAttendee.partstat === "DECLINED" }') #{__('No')}
 
               .row.hidden-xs
-                cal-attendees-list(attendees='editedEvent.attendees', read-only='::!isOrganizer || calendar.readOnly', organizer='editedEvent.organizer', mode='edition')
+                cal-attendees-list(attendees='editedEvent.attendees', read-only='readOnly', organizer='editedEvent.organizer', mode='edition')
 
               .row.hidden-xs
                 cal-mail-to-attendees(ng-if='displayCalMailToAttendeesButton()', event='editedEvent')
@@ -89,4 +89,4 @@
                       span.input-group-addon.textarea-icon
                         i.mdi.mdi-format-align-justify
                       .fg-line
-                        textarea.form-control(cal-auto-size-and-update, type="text", ng-model='editedEvent.description', placeholder="#{__('Notes...')}", ng-readonly="!isOrganizer || calendar.readOnly")
+                        textarea.form-control(cal-auto-size-and-update, type="text", ng-model='editedEvent.description', placeholder="#{__('Notes...')}", ng-readonly="readOnly")
