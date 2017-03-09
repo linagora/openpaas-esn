@@ -67,17 +67,23 @@ describe('the webserver-wrapper', function() {
     });
   });
 
-  it('should call css.addLessInjection with arrays', function(done) {
-    var cssModule = this.helpers.requireBackend('core').css;
-    cssModule.addLessInjection = function(mod, files, apps) {
-      expect(mod).to.be.a('string');
-      expect(files).to.deep.equal(['/tmp/test.less']);
-      expect(apps).to.deep.equal(['esn']);
-      done();
+  it('should call webserver.addLessInjection with arrays', function(done) {
+    const webserverMock = {
+      webserver: {
+        on: function() {},
+        addLessInjection: function(namespace, less, apps) {
+          expect(namespace).to.equal('myModule');
+          expect(less).to.deep.equal(['my/file.less']);
+          expect(apps).to.deep.equal(['esn']);
+          done();
+        }
+      }
     };
+
+    mockery.registerMock('./', webserverMock);
     module = this.helpers.requireBackend('webserver/webserver-wrapper');
     getApi(module, function(err, api) {
-      api.injectLess('myModule', '/tmp/test.less', 'esn');
+      api.injectLess('myModule', 'my/file.less', 'esn');
     });
 
   });

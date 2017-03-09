@@ -2,7 +2,6 @@
 
 var AwesomeModule = require('awesome-module');
 var util = require('util');
-var css = require('../core').css;
 
 function WebServerWrapper(server) {
   var webserver = server;
@@ -27,7 +26,7 @@ function WebServerWrapper(server) {
   * Default priority is 0, higher priority is included first.
   */
   this.injectLess = function injectLess(namespace, less, innerApps) {
-    css.addLessInjection(namespace, asArray(less), asArray(innerApps));
+    webserver.addLessInjection(namespace, asArray(less), asArray(innerApps));
   };
 
   this.injectAngularModules = function injectAngularModules(namespace, js, moduleNames, innerApps) {
