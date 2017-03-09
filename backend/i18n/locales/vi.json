@@ -384,5 +384,6 @@
   "A new application is requesting an authorization": "Một ứng dụng mới đang yêu cầu được cấp quyền",
   "Title": "Tiêu đề",
   "Name": "Tên",
-  "Enter a name": "Nhập tên"
+  "Enter a name": "Nhập tên",
+  "No member found": "Không tìm thấy thành viên"
 }
