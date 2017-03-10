@@ -12,6 +12,8 @@
                                           asyncJmapAction, Mailbox,
                                           MAILBOX_LEVEL_SEPARATOR, INBOX_RESTRICTED_MAILBOXES) {
 
+      var mailboxesListAlreadyFetched = false;
+
       return {
         filterSystemMailboxes: filterSystemMailboxes,
         assignMailboxesList: assignMailboxesList,
@@ -23,7 +25,8 @@
         createMailbox: createMailbox,
         destroyMailbox: destroyMailbox,
         updateMailbox: updateMailbox,
-        isRestrictedMailbox: isRestrictedMailbox
+        isRestrictedMailbox: isRestrictedMailbox,
+        getMailboxWithRole: getMailboxWithRole
       };
 
       /////
@@ -120,11 +123,23 @@
       }
 
       function assignMailboxesList(dst, filter) {
+        return _getAllMailboxes(filter).then(_assignToObject(dst, 'mailboxes'));
+      }
+
+      function _getAllMailboxes(filter) {
+        if (mailboxesListAlreadyFetched) {
+          return $q.when(inboxMailboxesCache).then(filter || _.identity);
+        }
+
         return withJmapClient(function(jmapClient) {
           return jmapClient.getMailboxes()
+            .then(function(mailboxes) {
+              mailboxesListAlreadyFetched = true;
+
+              return mailboxes;
+            })
             .then(_updateMailboxCache)
-            .then(filter || _.identity)
-            .then(_assignToObject(dst, 'mailboxes'));
+            .then(filter || _.identity);
         });
       }
 
@@ -254,6 +269,12 @@
         })
           .then(_.assign.bind(null, oldMailbox, newMailbox))
           .then(_updateMailboxCache);
+      }
+
+      function getMailboxWithRole(role) {
+        return _getAllMailboxes(function(mailboxes) {
+          return _.filter(mailboxes, { role: role });
+        }).then(_.head);
       }
     });
 

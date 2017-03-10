@@ -67,18 +67,24 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('sendEmail', function($http, $q, inboxConfig, inBackground, jmap, withJmapClient, jmapHelper) {
+  .factory('sendEmail', function($http, $q, inboxConfig, inBackground, jmap, withJmapClient, jmapHelper, inboxMailboxesService) {
     function sendBySmtp(email) {
       return $http.post('/unifiedinbox/api/inbox/sendemail', email);
     }
 
-    function sendByJmap(client, message) {
+    function sendByJmapMovingDraftToOutbox(client, message) {
       return $q.all([
           client.saveAsDraft(message),
-          client.getMailboxWithRole(jmap.MailboxRole.OUTBOX)
+          inboxMailboxesService.getMailboxWithRole(jmap.MailboxRole.OUTBOX)
         ]).then(function(data) {
           return client.moveMessage(data[0].id, [data[1].id]);
         });
+    }
+
+    function sendByJmapDirectlyToOutbox(client, message) {
+      return inboxMailboxesService.getMailboxWithRole(jmap.MailboxRole.OUTBOX).then(function(outbox) {
+        return client.send(message, outbox);
+      });
     }
 
     function sendEmail(email) {
@@ -94,10 +100,10 @@ angular.module('linagora.esn.unifiedinbox')
           if (!isJmapSendingEnabled) {
             return sendBySmtp(message);
           } else if (isSaveDraftBeforeSendingEnabled) {
-            return sendByJmap(client, message);
+            return sendByJmapMovingDraftToOutbox(client, message);
           }
 
-          return client.send(message);
+          return sendByJmapDirectlyToOutbox(client, message);
         });
       });
     }
@@ -738,12 +744,10 @@ angular.module('linagora.esn.unifiedinbox')
       }
     }
 
-    function moveToTrash(item, options) {
-      return backgroundAction('Move of "' + item.subject + '" to trash', function() {
-        return infiniteListService.actionRemovingElements(function() {
-          return item.moveToMailboxWithRole(jmap.MailboxRole.TRASH);
-        }, [item]);
-      }, options);
+    function moveToTrash(itemOrItems) {
+      return inboxMailboxesService.getMailboxWithRole(jmap.MailboxRole.TRASH).then(function(mailbox) {
+        return moveMultipleItems(itemOrItems, mailbox);
+      });
     }
 
     function moveToMailbox(itemOrItems, mailbox) {
@@ -778,7 +782,9 @@ angular.module('linagora.esn.unifiedinbox')
       }, { silent: true });
     }
 
-    function moveMultipleItems(items, mailbox) {
+    function moveMultipleItems(itemOrItems, mailbox) {
+      var items = angular.isArray(itemOrItems) ? itemOrItems : [itemOrItems];
+
       inboxSelectionService.unselectAllItems();
 
       return infiniteListService.actionRemovingElements(function() {

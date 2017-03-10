@@ -580,8 +580,7 @@ angular.module('linagora.esn.unifiedinbox')
     });
   })
 
-  .controller('inboxListSubheaderController', function($state, inboxSelectionService, inboxJmapItemService, jmap,
-                                                       withJmapClient, Mailbox) {
+  .controller('inboxListSubheaderController', function($state, inboxSelectionService, inboxJmapItemService) {
     var attachmentUrl = $state.current.name.indexOf('.attachments') > -1 ? $state.current.name : $state.current.name + '.attachments';
 
     this.isSelecting = inboxSelectionService.isSelecting;
@@ -589,21 +588,12 @@ angular.module('linagora.esn.unifiedinbox')
     this.unselectAllItems = inboxSelectionService.unselectAllItems;
     this.showAttachmentButton = $state.get(attachmentUrl);
 
-    ['markAsUnread', 'markAsRead', 'unmarkAsFlagged', 'markAsFlagged'].forEach(function(action) {
+    ['markAsUnread', 'markAsRead', 'unmarkAsFlagged', 'markAsFlagged', 'moveToTrash'].forEach(function(action) {
       this[action] = function() {
         inboxJmapItemService[action](inboxSelectionService.getSelectedItems());
         inboxSelectionService.unselectAllItems();
       };
     }, this);
-
-    this.moveToTrash = function() {
-      return withJmapClient(function(client) {
-        return client.getMailboxWithRole(jmap.MailboxRole.TRASH).then(Mailbox);
-      })
-        .then(function(trash) {
-          return inboxJmapItemService.moveMultipleItems(inboxSelectionService.getSelectedItems(), trash);
-        });
-    };
 
     this.move = function() {
       $state.go('.move', { selection: true });

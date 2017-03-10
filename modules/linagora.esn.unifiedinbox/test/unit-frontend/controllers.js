@@ -156,18 +156,18 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     });
 
     it('should call our inbox provider as expected', function() {
-      jmapClient.getMailboxWithRole = sinon.stub().returns($q.when(
-        { role: jmap.MailboxRole.INBOX, name: 'a name', id: 'chosenMailbox' }
-      ));
+      jmapClient.getMailboxes = sinon.spy(function() {
+        return $q.when([new jmap.Mailbox({}, 'id_inbox', 'name_inbox', { role: 'inbox' })]);
+      });
       jmapClient.getMessageList = sinon.stub().returns($q.when(new jmap.MessageList(jmapClient, { messageIds: [1] })));
       jmapClient.getMessages = sinon.stub().returns($q.when([]));
 
       $rootScope.$digest();
       initController('unifiedInboxController');
 
-      expect(jmapClient.getMailboxWithRole).to.have.been.calledWith(jmap.MailboxRole.INBOX);
+      expect(jmapClient.getMailboxes).to.have.been.calledWith();
       expect(jmapClient.getMessageList).to.have.been.calledWith(sinon.match.has('filter', {
-        inMailboxes: ['chosenMailbox']
+        inMailboxes: ['id_inbox']
       }));
       expect(jmapClient.getMessages).to.have.been.calledOnce;
     });
@@ -178,13 +178,15 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       jmapClient.getMessageList = sinon.stub().returns($q.when(new jmap.MessageList(jmapClient, { messageIds: [1] })));
       jmapClient.getMessages = sinon.stub().returns($q.when([]));
-      jmapClient.getMailboxWithRole = sinon.stub().returns($q.when({ id: 'inbox' }));
+      jmapClient.getMailboxes = function() {
+        return $q.when([new jmap.Mailbox({}, 'id_inbox', 'name_inbox', { role: 'inbox' })]);
+      };
 
       $rootScope.$digest();
       initController('unifiedInboxController');
 
       expect(jmapClient.getMessageList).to.have.been.calledWith(sinon.match.has('filter', {
-        inMailboxes: ['inbox'],
+        inMailboxes: ['id_inbox'],
         isUnread: true
       }));
       expect(jmapClient.getMessages).to.have.been.calledOnce;
@@ -1899,7 +1901,8 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           markAsRead: sinon.spy(),
           unmarkAsFlagged: sinon.spy(),
           markAsFlagged: sinon.spy(),
-          moveMultipleItems: sinon.spy()
+          moveMultipleItems: sinon.spy(),
+          moveToTrash: sinon.spy()
         }
       });
     });
@@ -1996,50 +1999,21 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
     describe('The moveToTrash function', function() {
 
-      var trash;
-
-      beforeEach(function() {
-        trash = { id: 'trash', name: 'Trash' };
-
-        jmapClient.getMailboxWithRole = sinon.spy(function() {
-          return $q.when(trash);
-        });
-      });
-
-      it('should fetch the "Trash" mailbox', function(done) {
-        controller.moveToTrash().then(function() {
-          expect(jmapClient.getMailboxWithRole).to.have.been.calledWith(jmap.MailboxRole.TRASH);
-
-          done();
-        });
-        $rootScope.$digest();
-      });
-
-      it('should wrap the "Trash" mailbox into a Mailbox model', function(done) {
-        inboxSelectionService.toggleItemSelection(item1);
-
-        controller.moveToTrash().then(function() {
-          expect(inboxJmapItemService.moveMultipleItems).to.have.been.calledWith([item1], sinon.match({
-            id: 'trash',
-            name: 'Trash',
-            displayName: 'Trash'
-          }));
-
-          done();
-        });
-        $rootScope.$digest();
-      });
-
-      it('should delegate to infiniteListService.actionRemovingElement calling moveMultipleItems with selected items', function(done) {
+      it('should call inboxJmapItemService.moveToTrash for all selected items', function() {
         inboxSelectionService.toggleItemSelection(item1);
         inboxSelectionService.toggleItemSelection(item2);
+        controller.moveToTrash();
 
-        controller.moveToTrash().then(function() {
-          expect(inboxJmapItemService.moveMultipleItems).to.have.been.calledWith([item1, item2], trash);
+        expect(inboxJmapItemService.moveToTrash).to.have.been.calledWith([item1, item2]);
+      });
 
-          done();
-        });
-        $rootScope.$digest();
+      it('should unselect all items', function() {
+        inboxSelectionService.toggleItemSelection(item1);
+        inboxSelectionService.toggleItemSelection(item2);
+        controller.moveToTrash();
+
+        expect(item1.selected).to.equal(false);
+        expect(item2.selected).to.equal(false);
       });
 
     });

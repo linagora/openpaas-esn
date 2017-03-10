@@ -86,7 +86,7 @@ angular.module('linagora.esn.unifiedinbox')
           }
         };
 
-        ['reply', 'replyAll', 'forward', 'markAsUnread', 'markAsRead', 'markAsFlagged', 'unmarkAsFlagged'].forEach(function(action) {
+        ['reply', 'replyAll', 'forward', 'markAsUnread', 'markAsRead', 'markAsFlagged', 'unmarkAsFlagged', 'moveToTrash'].forEach(function(action) {
           self[action] = function() {
             inboxJmapItemService[action]($scope.item);
           };
@@ -94,12 +94,6 @@ angular.module('linagora.esn.unifiedinbox')
 
         self.move = function() {
           $state.go('.move', { item: $scope.item });
-        };
-
-        self.moveToTrash = function() {
-          return infiniteListService.actionRemovingElement(function() {
-            return inboxJmapItemService.moveToTrash($scope.item, { silent: true });
-          }, $scope.item);
         };
 
         $scope.onSwipeRight = inboxSwipeHelper.createSwipeRightHandler($scope, {
@@ -179,13 +173,7 @@ angular.module('linagora.esn.unifiedinbox')
           }
         };
 
-        self.moveToTrash = function() {
-          return infiniteListService.actionRemovingElement(function() {
-            return inboxJmapItemService.moveToTrash($scope.item, { silent: true });
-          }, $scope.item);
-        };
-
-        ['markAsUnread', 'markAsRead', 'markAsFlagged', 'unmarkAsFlagged'].forEach(function(action) {
+        ['markAsUnread', 'markAsRead', 'markAsFlagged', 'unmarkAsFlagged', 'moveToTrash'].forEach(function(action) {
           self[action] = function() {
             inboxJmapItemService[action]($scope.item);
           };

@@ -732,4 +732,45 @@ describe('The inboxMailboxesService factory', function() {
 
   });
 
+  describe('The getMailboxWithRole function', function() {
+
+    var mailbox;
+
+    beforeEach(function() {
+      mailbox = new jmap.Mailbox({}, 'id', 'name', { role: 'drafts' });
+
+      jmapClient.getMailboxes = function() {
+        return $q.when([mailbox]);
+      };
+    });
+
+    it('should resolve with nothing if the Mailbox is not found', function(done) {
+      inboxMailboxesService.getMailboxWithRole(jmap.MailboxRole.INBOX).then(function(mailbox) {
+        expect(mailbox).to.equal(undefined);
+
+        done();
+      });
+      $rootScope.$digest();
+    });
+
+    it('should resolve with the Mailbox if found', function(done) {
+      inboxMailboxesService.getMailboxWithRole(jmap.MailboxRole.DRAFTS).then(function(mailbox) {
+        expect(mailbox).to.equal(mailbox);
+
+        done();
+      });
+      $rootScope.$digest();
+    });
+
+    it('should reject if jmapClient rejects', function(done) {
+      jmapClient.getMailboxes = function() {
+        return $q.reject();
+      };
+
+      inboxMailboxesService.getMailboxWithRole(jmap.MailboxRole.DRAFTS).catch(done);
+      $rootScope.$digest();
+    });
+
+  });
+
 });
