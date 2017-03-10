@@ -99,7 +99,8 @@
     "angular-messages": "1.3.16",
     "angular-file-saver": "1.1.2",
     "waves": "0.7.5",
-    "angular-material": "1.1.3"
+    "angular-material": "1.1.3",
+    "james-admin-client": "*"
   },
   "resolutions": {
     "jquery": "2.1.1",
