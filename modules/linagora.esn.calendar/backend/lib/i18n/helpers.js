@@ -7,9 +7,15 @@ function getLocaleForUser(user) {
   return q.ninvoke(esnConfig('locale').inModule('core').forUser(user), 'get');
 }
 
+function getLocaleForSystem() {
+  return q.ninvoke(esnConfig('locale').inModule('core'), 'get');
+}
+
 module.exports = function(dependencies) {
   esnConfig = dependencies('esn-config');
+
   return {
-    getLocaleForUser
+    getLocaleForUser,
+    getLocaleForSystem
   };
 };
