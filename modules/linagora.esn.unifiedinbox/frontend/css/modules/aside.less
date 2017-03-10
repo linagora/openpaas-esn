@@ -26,6 +26,12 @@
         background-color: @darkenBgColor;
       }
     }
+
+    &:hover {
+      .menu-item .menu-item-after:after {
+        background-color: @darkenBgColor;
+      }
+    }
   }
 
   .inbox-icon {
@@ -133,6 +139,10 @@
       &.droptarget {
         background-color: lighten(@accentColor, 20%);
         .cursor-grab;
+
+        .menu-item .menu-item-after:after {
+          background-color: lighten(@accentColor, 20%);
+        }
       }
 
       &.droptarget:active {
