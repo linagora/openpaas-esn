@@ -13,10 +13,10 @@ describe('The Unified Inbox Angular module models', function() {
   });
 
   describe('The Email factory', function() {
-    var $rootScope, Email, mailboxesService, searchService, esnAvatarService;
+    var $rootScope, Email, inboxMailboxesService, searchService, esnAvatarService;
 
     beforeEach(module(function($provide) {
-      $provide.value('mailboxesService', mailboxesService = {
+      $provide.value('inboxMailboxesService', inboxMailboxesService = {
         flagIsUnreadChanged: sinon.spy()
       });
       $provide.value('searchService', searchService = {});
@@ -38,18 +38,18 @@ describe('The Unified Inbox Angular module models', function() {
       expect(new Email({ id: 'id', isUnread: true }).isUnread).to.equal(true);
     });
 
-    it('should call mailboxesService when isUnread is written, if value changes', function() {
+    it('should call inboxMailboxesService when isUnread is written, if value changes', function() {
       var email = new Email({ id: 'id', isUnread: true });
 
       email.isUnread = false;
 
-      expect(mailboxesService.flagIsUnreadChanged).to.have.been.calledWith(email, false);
+      expect(inboxMailboxesService.flagIsUnreadChanged).to.have.been.calledWith(email, false);
     });
 
-    it('should not call mailboxesService when isUnread is written, if value does not change', function() {
+    it('should not call inboxMailboxesService when isUnread is written, if value does not change', function() {
       new Email({ id: 'id', isUnread: false }).isUnread = false;
 
-      expect(mailboxesService.flagIsUnreadChanged).to.not.have.been.calledWith();
+      expect(inboxMailboxesService.flagIsUnreadChanged).to.not.have.been.calledWith();
     });
 
     function resolveAndCheckEmailer(object, key, values, done) {

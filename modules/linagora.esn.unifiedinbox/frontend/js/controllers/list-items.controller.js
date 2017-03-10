@@ -3,11 +3,11 @@
 (function() {
 
   angular.module('linagora.esn.unifiedinbox').controller('listItemsController',
-    function($scope, $stateParams, mailboxesService, inboxFilteringAwareInfiniteScroll, mailboxIdsFilter, hostedMailProvider,
+    function($scope, $stateParams, inboxMailboxesService, inboxFilteringAwareInfiniteScroll, mailboxIdsFilter, hostedMailProvider,
              inboxFilteringService, inboxSelectionService, inboxAsyncHostedMailControllerHelper) {
 
       inboxAsyncHostedMailControllerHelper(this, function() {
-        return mailboxesService.assignMailbox($stateParams.mailbox, $scope);
+        return inboxMailboxesService.assignMailbox($stateParams.mailbox, $scope);
       }).then(function() {
         inboxSelectionService.unselectAllItems();
 

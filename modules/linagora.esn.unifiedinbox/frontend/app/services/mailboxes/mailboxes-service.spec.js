@@ -4,9 +4,9 @@
 
 var expect = chai.expect;
 
-describe.only('The mailboxesService factory', function() {
+describe('The inboxMailboxesService factory', function() {
 
-  var inboxMailboxesCache, mailboxesService, jmapClient, $rootScope, jmap, Mailbox, notificationFactory;
+  var inboxMailboxesCache, inboxMailboxesService, jmapClient, $rootScope, jmap, Mailbox, notificationFactory;
 
   beforeEach(module('linagora.esn.unifiedinbox', function($provide) {
     jmapClient = {
@@ -22,10 +22,10 @@ describe.only('The mailboxesService factory', function() {
     $provide.value('notificationFactory', notificationFactory);
   }));
 
-  beforeEach(inject(function(_mailboxesService_, _$state_, _$rootScope_, _inboxMailboxesCache_, _jmap_, _Mailbox_, _notificationFactory_) {
+  beforeEach(inject(function(_inboxMailboxesService_, _$state_, _$rootScope_, _inboxMailboxesCache_, _jmap_, _Mailbox_, _notificationFactory_) {
     inboxMailboxesCache = _inboxMailboxesCache_;
     notificationFactory = _notificationFactory_;
-    mailboxesService = _mailboxesService_;
+    inboxMailboxesService = _inboxMailboxesService_;
     $rootScope = _$rootScope_;
     jmap = _jmap_;
     Mailbox = _Mailbox_;
@@ -45,15 +45,15 @@ describe.only('The mailboxesService factory', function() {
         { id: 3, role: { value: null } }
       ];
 
-      expect(mailboxesService.filterSystemMailboxes(mailboxes)).to.deep.equal(expected);
+      expect(inboxMailboxesService.filterSystemMailboxes(mailboxes)).to.deep.equal(expected);
     });
 
     it('should return an empty array if an empty array is given', function() {
-      expect(mailboxesService.filterSystemMailboxes([])).to.deep.equal([]);
+      expect(inboxMailboxesService.filterSystemMailboxes([])).to.deep.equal([]);
     });
 
     it('should return an empty array if nothing is given', function() {
-      expect(mailboxesService.filterSystemMailboxes()).to.deep.equal([]);
+      expect(inboxMailboxesService.filterSystemMailboxes()).to.deep.equal([]);
     });
 
   });
@@ -61,13 +61,13 @@ describe.only('The mailboxesService factory', function() {
   describe('The isRestrictedMailbox function', function() {
 
     it('should return true for restricted mailboxes', function() {
-      expect(mailboxesService.isRestrictedMailbox({ role: { value: 'drafts' }})).to.equal(true);
-      expect(mailboxesService.isRestrictedMailbox({ role: { value: 'outbox' }})).to.equal(true);
+      expect(inboxMailboxesService.isRestrictedMailbox({ role: { value: 'drafts' }})).to.equal(true);
+      expect(inboxMailboxesService.isRestrictedMailbox({ role: { value: 'outbox' }})).to.equal(true);
     });
 
     it('should return false for non restricted mailboxes', function() {
-      expect(mailboxesService.isRestrictedMailbox({ role: { value: 'inbox' }})).to.equal(false);
-      expect(mailboxesService.isRestrictedMailbox({ role: { value: undefined }})).to.equal(false);
+      expect(inboxMailboxesService.isRestrictedMailbox({ role: { value: 'inbox' }})).to.equal(false);
+      expect(inboxMailboxesService.isRestrictedMailbox({ role: { value: undefined }})).to.equal(false);
     });
 
   });
@@ -75,7 +75,7 @@ describe.only('The mailboxesService factory', function() {
   describe('The assignMailboxesList function', function() {
 
     it('should return a promise', function(done) {
-      mailboxesService.assignMailboxesList().then(function(mailboxes) {
+      inboxMailboxesService.assignMailboxesList().then(function(mailboxes) {
         expect(mailboxes).to.deep.equal([]);
 
         done();
@@ -87,7 +87,7 @@ describe.only('The mailboxesService factory', function() {
     it('should assign dst.mailboxes if dst is given', function(done) {
       var object = {};
 
-      mailboxesService.assignMailboxesList(object).then(function() {
+      inboxMailboxesService.assignMailboxesList(object).then(function() {
         expect(object.mailboxes).to.deep.equal([]);
 
         done();
@@ -99,7 +99,7 @@ describe.only('The mailboxesService factory', function() {
     it('should assign dst.mailboxes if dst is given and dst.mailboxes does not exist yet', function(done) {
       var object = { mailboxes: 'Yolo' };
 
-      mailboxesService.assignMailboxesList(object).then(function() {
+      inboxMailboxesService.assignMailboxesList(object).then(function() {
         expect(object.mailboxes).to.equal('Yolo');
 
         done();
@@ -112,7 +112,7 @@ describe.only('The mailboxesService factory', function() {
       jmapClient.getMailboxes = function() {
         return $q.when([{}, {}, {}]);
       };
-      mailboxesService.assignMailboxesList(null, function(mailboxes) {
+      inboxMailboxesService.assignMailboxesList(null, function(mailboxes) {
         return mailboxes.slice(0, 1);
       }).then(function(mailboxes) {
         expect(mailboxes).to.have.length(1);
@@ -141,7 +141,7 @@ describe.only('The mailboxesService factory', function() {
         { id: 5, name: '5', parentId: 1, level: 2, qualifiedName: '1 / 5' }
       ];
 
-      mailboxesService.assignMailboxesList().then(function(mailboxes) {
+      inboxMailboxesService.assignMailboxesList().then(function(mailboxes) {
         expect(mailboxes).to.deep.equal(expected);
 
         done();
@@ -164,7 +164,7 @@ describe.only('The mailboxesService factory', function() {
         { id: 4, name: '4', level: 1, qualifiedName: '4' }
       ];
 
-      mailboxesService.assignMailboxesList().then(function(mailboxes) {
+      inboxMailboxesService.assignMailboxesList().then(function(mailboxes) {
         expect(mailboxes).to.deep.equal(expected);
 
         done();
@@ -179,7 +179,7 @@ describe.only('The mailboxesService factory', function() {
     it('should do nothing if mail is undefined', function() {
       inboxMailboxesCache[0] = { id: 1, name: '1', unreadMessages: 1};
 
-      mailboxesService.flagIsUnreadChanged();
+      inboxMailboxesService.flagIsUnreadChanged();
 
       expect(inboxMailboxesCache[0].unreadMessages).to.equal(1);
     });
@@ -187,7 +187,7 @@ describe.only('The mailboxesService factory', function() {
     it('should do nothing if status is undefined', function() {
       inboxMailboxesCache[0] = { id: 1, name: '1', unreadMessages: 1};
 
-      mailboxesService.flagIsUnreadChanged({ mailboxIds: [1] });
+      inboxMailboxesService.flagIsUnreadChanged({ mailboxIds: [1] });
 
       expect(inboxMailboxesCache[0].unreadMessages).to.equal(1);
     });
@@ -195,7 +195,7 @@ describe.only('The mailboxesService factory', function() {
     it('should increase the unreadMessages in the mailboxesCache if status=true', function() {
       inboxMailboxesCache[0] = { id: 1, name: '1', unreadMessages: 1};
 
-      mailboxesService.flagIsUnreadChanged({ mailboxIds: [1] }, true);
+      inboxMailboxesService.flagIsUnreadChanged({ mailboxIds: [1] }, true);
 
       expect(inboxMailboxesCache[0].unreadMessages).to.equal(2);
     });
@@ -203,7 +203,7 @@ describe.only('The mailboxesService factory', function() {
     it('should decrease the unreadMessages in the mailboxesCache if status=false', function() {
       inboxMailboxesCache[0] = { id: 1, name: '1', unreadMessages: 1};
 
-      mailboxesService.flagIsUnreadChanged({ mailboxIds: [1] }, false);
+      inboxMailboxesService.flagIsUnreadChanged({ mailboxIds: [1] }, false);
 
       expect(inboxMailboxesCache[0].unreadMessages).to.equal(0);
     });
@@ -211,7 +211,7 @@ describe.only('The mailboxesService factory', function() {
     it('should guarantee that the unreadMessages in the mailboxesCache is never negative', function() {
       inboxMailboxesCache[0] = { id: 1, name: '1', unreadMessages: 0};
 
-      mailboxesService.flagIsUnreadChanged({ mailboxIds: [1] }, false);
+      inboxMailboxesService.flagIsUnreadChanged({ mailboxIds: [1] }, false);
 
       expect(inboxMailboxesCache[0].unreadMessages).to.equal(0);
     });
@@ -227,7 +227,7 @@ describe.only('The mailboxesService factory', function() {
 
     it('should return a promise', function(done) {
 
-      mailboxesService.assignMailbox().then(function() {
+      inboxMailboxesService.assignMailbox().then(function() {
 
         done();
       });
@@ -242,7 +242,7 @@ describe.only('The mailboxesService factory', function() {
         done();
       };
 
-      mailboxesService.assignMailbox(2);
+      inboxMailboxesService.assignMailbox(2);
     });
 
     it('should not query the backend if useCache is true and the mailbox is already cached', function(done) {
@@ -250,7 +250,7 @@ describe.only('The mailboxesService factory', function() {
       inboxMailboxesCache[0] = { id: 1, name: '1' };
       inboxMailboxesCache[1] = { id: 2, name: '2' };
 
-      mailboxesService.assignMailbox(2, null, true).then(function(mailbox) {
+      inboxMailboxesService.assignMailbox(2, null, true).then(function(mailbox) {
         expect(jmapClient.getMailboxes).to.have.not.been.calledWith();
         expect(mailbox.name).to.equal('2');
 
@@ -266,7 +266,7 @@ describe.only('The mailboxesService factory', function() {
         return $q.when([new jmap.Mailbox(jmapClient, 'id', 'name')]);
       };
 
-      mailboxesService.assignMailbox('id', object).then(function() {
+      inboxMailboxesService.assignMailbox('id', object).then(function() {
         expect(object.mailbox).to.shallowDeepEqual({
           id: 'id',
           name: 'name',
@@ -283,7 +283,7 @@ describe.only('The mailboxesService factory', function() {
     it('should assign dst.mailbox if dst is given and dst.mailbox does not exist yet', function(done) {
       var object = { mailbox: 'mailbox' };
 
-      mailboxesService.assignMailbox(null, object).then(function() {
+      inboxMailboxesService.assignMailbox(null, object).then(function() {
         expect(object.mailbox).to.equal('mailbox');
 
         done();
@@ -293,7 +293,7 @@ describe.only('The mailboxesService factory', function() {
     });
 
     it('should add level and qualifiedName properties to mailbox', function() {
-      mailboxesService.assignMailbox().then(function() {
+      inboxMailboxesService.assignMailbox().then(function() {
         expect(inboxMailboxesCache[0]).to.deep.equal({ name: 'name', level: 1, qualifiedName: 'name' });
       });
 
@@ -313,9 +313,9 @@ describe.only('The mailboxesService factory', function() {
         ]);
       };
 
-      mailboxesService.assignMailboxesList(destObject);
+      inboxMailboxesService.assignMailboxesList(destObject);
       $rootScope.$digest();
-      mailboxesService.moveUnreadMessages([1], [2], 1);
+      inboxMailboxesService.moveUnreadMessages([1], [2], 1);
 
       expect(destObject.mailboxes).to.shallowDeepEqual([
         { id: 1, unreadMessages: 0},
@@ -351,12 +351,12 @@ describe.only('The mailboxesService factory', function() {
       jmapClient.getMailboxes = function() {
         return $q.when([draftMailbox, outboxMailbox]);
       };
-      mailboxesService.assignMailboxesList({});
+      inboxMailboxesService.assignMailboxesList({});
       $rootScope.$digest();
     }));
 
     function checkResult(result) {
-      expect(mailboxesService.canMoveMessage(message, mailbox)).to.equal(result);
+      expect(inboxMailboxesService.canMoveMessage(message, mailbox)).to.equal(result);
     }
 
     it('should allow moving message to mailbox by default value', function() {
@@ -420,7 +420,7 @@ describe.only('The mailboxesService factory', function() {
 
       inboxSpecialMailboxes.get = function() {};
 
-      mailboxesService.getMessageListFilter(mailboxId).then(function(filter) {
+      inboxMailboxesService.getMessageListFilter(mailboxId).then(function(filter) {
         expect(filter).to.deep.equal({ inMailboxes: [mailboxId] });
         done();
       });
@@ -440,7 +440,7 @@ describe.only('The mailboxesService factory', function() {
         return specialMailbox;
       };
 
-      mailboxesService.getMessageListFilter(mailboxId).then(function(filter) {
+      inboxMailboxesService.getMessageListFilter(mailboxId).then(function(filter) {
         expect(filter).to.deep.equal(specialMailbox.filter);
         done();
       });
@@ -472,7 +472,7 @@ describe.only('The mailboxesService factory', function() {
 
       jmapClient.getMailboxes = sinon.stub().returns($q.when(mailboxes));
 
-      mailboxesService.getMessageListFilter(mailboxId).then(function(filter) {
+      inboxMailboxesService.getMessageListFilter(mailboxId).then(function(filter) {
         expect(jmapClient.getMailboxes).to.have.been.calledWith();
         expect(filter).to.deep.equal({
           notInMailboxes: [mailboxes[0].id]
@@ -500,7 +500,7 @@ describe.only('The mailboxesService factory', function() {
 
       jmapClient.getMailboxes = sinon.stub().returns($q.reject());
 
-      mailboxesService.getMessageListFilter(mailboxId).then(function(filter) {
+      inboxMailboxesService.getMessageListFilter(mailboxId).then(function(filter) {
         expect(jmapClient.getMailboxes).to.have.been.calledWith();
         expect(filter).to.deep.equal({
           notInMailboxes: []
@@ -530,7 +530,7 @@ describe.only('The mailboxesService factory', function() {
         done();
       };
 
-      mailboxesService.createMailbox(mailbox);
+      inboxMailboxesService.createMailbox(mailbox);
       $rootScope.$digest();
     });
 
@@ -539,7 +539,7 @@ describe.only('The mailboxesService factory', function() {
         return $q.reject();
       };
 
-      mailboxesService.createMailbox('name', 123).then(null, function() {
+      inboxMailboxesService.createMailbox('name', 123).then(null, function() {
         expect(inboxMailboxesCache.length).to.equal(0);
 
         done();
@@ -551,7 +551,7 @@ describe.only('The mailboxesService factory', function() {
       jmapClient.createMailbox = function() {
         return $q.reject();
       };
-      mailboxesService.createMailbox(mailbox).then(null, function() {
+      inboxMailboxesService.createMailbox(mailbox).then(null, function() {
         expect(notificationFactory.weakError).to.have.been.calledWith('Error', 'Creation of folder name failed');
 
         done();
@@ -566,7 +566,7 @@ describe.only('The mailboxesService factory', function() {
         }));
       };
 
-      mailboxesService.createMailbox(mailbox).then(function() {
+      inboxMailboxesService.createMailbox(mailbox).then(function() {
         expect(inboxMailboxesCache).to.shallowDeepEqual([{
           id: 'id',
           name: 'name',
@@ -593,7 +593,7 @@ describe.only('The mailboxesService factory', function() {
         done();
       };
 
-      mailboxesService.destroyMailbox(Mailbox({ id: 123, name: '123'}));
+      inboxMailboxesService.destroyMailbox(Mailbox({ id: 123, name: '123'}));
     });
 
     it('should destroy children mailboxes before the parent', function(done) {
@@ -606,7 +606,7 @@ describe.only('The mailboxesService factory', function() {
         done();
       };
 
-      mailboxesService.destroyMailbox(Mailbox({ id: 2, name: '2'}));
+      inboxMailboxesService.destroyMailbox(Mailbox({ id: 2, name: '2'}));
     });
 
     it('should remove destroyed mailboxes from the cache, when call succeeds', function(done) {
@@ -616,7 +616,7 @@ describe.only('The mailboxesService factory', function() {
         return $q.when(new jmap.SetResponse(jmapClient, { destroyed: [1, 2] }));
       };
 
-      mailboxesService.destroyMailbox(Mailbox({ id: 2, name: '2' })).then(function() {
+      inboxMailboxesService.destroyMailbox(Mailbox({ id: 2, name: '2' })).then(function() {
         expect(inboxMailboxesCache).to.deep.equal([]);
 
         done();
@@ -631,7 +631,7 @@ describe.only('The mailboxesService factory', function() {
         return $q.when(new jmap.SetResponse(jmapClient, { destroyed: [1] }));
       };
 
-      mailboxesService.destroyMailbox(Mailbox({ id: 2, name: '2' })).then(null, function() {
+      inboxMailboxesService.destroyMailbox(Mailbox({ id: 2, name: '2' })).then(null, function() {
         expect(inboxMailboxesCache).to.deep.equal([{ id: 2, name: '2' }]);
 
         done();
@@ -659,7 +659,7 @@ describe.only('The mailboxesService factory', function() {
         done();
       };
 
-      mailboxesService.updateMailbox(originalMailbox, { id: 'id', name: 'name', parentId: 123 });
+      inboxMailboxesService.updateMailbox(originalMailbox, { id: 'id', name: 'name', parentId: 123 });
     });
 
     it('should not update the cache if the update fails', function(done) {
@@ -667,7 +667,7 @@ describe.only('The mailboxesService factory', function() {
         return $q.reject();
       };
 
-      mailboxesService.updateMailbox(originalMailbox, { id: 'id', name: 'name' }).then(null, function() {
+      inboxMailboxesService.updateMailbox(originalMailbox, { id: 'id', name: 'name' }).then(null, function() {
         expect(inboxMailboxesCache.length).to.equal(0);
 
         done();
@@ -680,7 +680,7 @@ describe.only('The mailboxesService factory', function() {
         return $q.when(new jmap.Mailbox(jmapClient, 'id', 'name'));
       };
 
-      mailboxesService.updateMailbox(originalMailbox, { id: 'id', name: 'name' }).then(function() {
+      inboxMailboxesService.updateMailbox(originalMailbox, { id: 'id', name: 'name' }).then(function() {
         expect(inboxMailboxesCache).to.shallowDeepEqual([{
           id: 'id',
           name: 'name',
@@ -702,7 +702,7 @@ describe.only('The mailboxesService factory', function() {
         return $q.when(new jmap.Mailbox(jmapClient, '1', '1_Renamed'));
       };
 
-      mailboxesService.updateMailbox(originalMailbox, { id: '1', name: '1_Renamed' }).then(function() {
+      inboxMailboxesService.updateMailbox(originalMailbox, { id: '1', name: '1_Renamed' }).then(function() {
         expect(inboxMailboxesCache).to.shallowDeepEqual([{
           id: '1',
           name: '1_Renamed',

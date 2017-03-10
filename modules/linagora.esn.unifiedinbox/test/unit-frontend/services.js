@@ -3150,12 +3150,12 @@ describe('The Unified Inbox Angular module services', function() {
 
     describe('The moveToMailbox function', function() {
 
-      var mailboxesService, mailbox;
+      var inboxMailboxesService, mailbox;
 
-      beforeEach(inject(function(_mailboxesService_) {
-        mailboxesService = _mailboxesService_;
+      beforeEach(inject(function(_inboxMailboxesService_) {
+        inboxMailboxesService = _inboxMailboxesService_;
 
-        mailboxesService.moveUnreadMessages = sinon.spy(mailboxesService.moveUnreadMessages);
+        inboxMailboxesService.moveUnreadMessages = sinon.spy(inboxMailboxesService.moveUnreadMessages);
         mailbox = { id: 'mailboxId', name: 'inbox', displayName: 'inbox' };
       }));
 
@@ -3220,9 +3220,9 @@ describe('The Unified Inbox Angular module services', function() {
         mockSetMessages();
 
         inboxJmapItemService.moveToMailbox([email, email2], mailbox).then(done);
-        expect(mailboxesService.moveUnreadMessages).to.have.been.calledTwice;
-        expect(mailboxesService.moveUnreadMessages).to.have.been.calledWith(['inbox'], ['mailboxId'], 1);
-        expect(mailboxesService.moveUnreadMessages).to.have.been.calledWith(['inbox'], ['mailboxId'], 1);
+        expect(inboxMailboxesService.moveUnreadMessages).to.have.been.calledTwice;
+        expect(inboxMailboxesService.moveUnreadMessages).to.have.been.calledWith(['inbox'], ['mailboxId'], 1);
+        expect(inboxMailboxesService.moveUnreadMessages).to.have.been.calledWith(['inbox'], ['mailboxId'], 1);
 
         $rootScope.$digest();
       });
@@ -3234,12 +3234,12 @@ describe('The Unified Inbox Angular module services', function() {
         mockSetMessages({ id1: 'error' });
 
         inboxJmapItemService.moveToMailbox([email, email2], mailbox).catch(function() {
-          expect(mailboxesService.moveUnreadMessages).to.have.been.calledOnce;
-          expect(mailboxesService.moveUnreadMessages).to.have.been.calledWith(['mailboxId'], ['inbox'], 1);
+          expect(inboxMailboxesService.moveUnreadMessages).to.have.been.calledOnce;
+          expect(inboxMailboxesService.moveUnreadMessages).to.have.been.calledWith(['mailboxId'], ['inbox'], 1);
 
           done();
         });
-        mailboxesService.moveUnreadMessages.reset();
+        inboxMailboxesService.moveUnreadMessages.reset();
 
         $rootScope.$digest();
       });

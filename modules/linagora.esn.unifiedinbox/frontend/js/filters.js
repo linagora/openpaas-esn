@@ -72,10 +72,10 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .filter('inboxFilterRestrictedMailboxes', function(mailboxesService, _) {
+  .filter('inboxFilterRestrictedMailboxes', function(inboxMailboxesService, _) {
     return function(mailboxes) {
       return _.filter(mailboxes, function(mailbox) {
-        return !mailboxesService.isRestrictedMailbox(mailbox);
+        return !inboxMailboxesService.isRestrictedMailbox(mailbox);
       });
     };
   })

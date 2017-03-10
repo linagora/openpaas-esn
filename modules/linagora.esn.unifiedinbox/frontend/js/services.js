@@ -730,7 +730,7 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .service('inboxJmapItemService', function($q, session, newComposerService, emailSendingService, backgroundAction,
-                                            jmap, mailboxesService, infiniteListService, inboxSelectionService,
+                                            jmap, inboxMailboxesService, infiniteListService, inboxSelectionService,
                                             asyncJmapAction, _) {
     function _rejectIfNotFullyUpdated(response) {
       if (!_.isEmpty(response.notUpdated)) {
@@ -751,7 +751,7 @@ angular.module('linagora.esn.unifiedinbox')
           items = angular.isArray(itemOrItems) ? itemOrItems : [itemOrItems],
           itemsById = _.indexBy(items, function(item) {
             if (item.isUnread) {
-              mailboxesService.moveUnreadMessages(item.mailboxIds, toMailboxIds, 1);
+              inboxMailboxesService.moveUnreadMessages(item.mailboxIds, toMailboxIds, 1);
             }
 
             return item.id;
@@ -769,7 +769,7 @@ angular.module('linagora.esn.unifiedinbox')
               var item = itemsById[id];
 
               if (item.isUnread) {
-                mailboxesService.moveUnreadMessages(toMailboxIds, item.mailboxIds, 1);
+                inboxMailboxesService.moveUnreadMessages(toMailboxIds, item.mailboxIds, 1);
               }
             });
 
@@ -1173,7 +1173,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('inboxAsyncHostedMailControllerHelper', function($q, session, mailboxesService, INBOX_CONTROLLER_LOADING_STATES) {
+  .factory('inboxAsyncHostedMailControllerHelper', function($q, session, inboxMailboxesService, INBOX_CONTROLLER_LOADING_STATES) {
     return function(controller, action) {
       controller.account = {
         name: session.user.preferredEmail

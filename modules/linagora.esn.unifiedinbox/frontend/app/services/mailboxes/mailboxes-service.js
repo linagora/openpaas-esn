@@ -8,7 +8,7 @@
       'drafts'
     ])
 
-    .factory('mailboxesService', function($q, _, withJmapClient, jmap, inboxSpecialMailboxes, inboxMailboxesCache,
+    .factory('inboxMailboxesService', function($q, _, withJmapClient, jmap, inboxSpecialMailboxes, inboxMailboxesCache,
                                           asyncJmapAction, Mailbox,
                                           MAILBOX_LEVEL_SEPARATOR, INBOX_RESTRICTED_MAILBOXES) {
 

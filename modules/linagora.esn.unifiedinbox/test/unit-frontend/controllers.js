@@ -10,7 +10,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
   var $stateParams, $rootScope, scope, $controller,
       jmapClient, jmap, notificationFactory, draftService, Offline = {},
       Composition, newComposerService = {}, $state, $modal, navigateTo,
-      mailboxesService, inboxJmapItemService, _, fileUploadMock, config, moment, Mailbox, inboxMailboxesCache,
+      inboxMailboxesService, inboxJmapItemService, _, fileUploadMock, config, moment, Mailbox, inboxMailboxesCache,
       touchscreenDetectorService, Thread, esnPreviousState, inboxFilterDescendantMailboxesFilter, inboxSelectionService;
   var JMAP_GET_MESSAGES_VIEW, INBOX_EVENTS, DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD;
 
@@ -80,7 +80,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
   });
 
   beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _jmap_,
-                                          _Composition_, _mailboxesService_, ___, _JMAP_GET_MESSAGES_VIEW_,
+                                          _Composition_, _inboxMailboxesService_, ___, _JMAP_GET_MESSAGES_VIEW_,
                                           _DEFAULT_FILE_TYPE_, _moment_, _DEFAULT_MAX_SIZE_UPLOAD_, _inboxJmapItemService_,
                                           _INBOX_EVENTS_, _Mailbox_, _inboxMailboxesCache_, _Thread_, _esnPreviousState_,
                                           _inboxSelectionService_) {
@@ -88,7 +88,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     $controller = _$controller_;
     jmap = _jmap_;
     Composition = _Composition_;
-    mailboxesService = _mailboxesService_;
+    inboxMailboxesService = _inboxMailboxesService_;
     inboxJmapItemService = _inboxJmapItemService_;
     inboxMailboxesCache = _inboxMailboxesCache_;
     _ = ___;
@@ -773,17 +773,17 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       $stateParams.mailbox = '$stateParams mailbox';
       $stateParams.item = {};
 
-      mailboxesService.assignMailboxesList = sinon.spy();
+      inboxMailboxesService.assignMailboxesList = sinon.spy();
 
       inboxJmapItemService.moveMultipleItems = sinon.spy(function() {
         return $q.when();
       });
     });
 
-    it('should call mailboxesService.assignMailboxesList', function() {
+    it('should call inboxMailboxesService.assignMailboxesList', function() {
       initController('inboxMoveItemController');
 
-      expect(mailboxesService.assignMailboxesList).to.have.been.calledWith(scope);
+      expect(inboxMailboxesService.assignMailboxesList).to.have.been.calledWith(scope);
     });
 
     describe('The moveTo function', function() {
@@ -1137,7 +1137,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       it('should display an error notification with a "Reopen" link', function(done) {
         $state.go = sinon.spy();
         jmapClient.getMailboxes = function() { return $q.when([]); };
-        mailboxesService.createMailbox = function(success, failure) { return $q.reject(failure); };
+        inboxMailboxesService.createMailbox = function(success, failure) { return $q.reject(failure); };
 
         initController('addFolderController');
 
@@ -1828,13 +1828,13 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     beforeEach(inject(function(_inboxSpecialMailboxes_) {
       inboxSpecialMailboxes = _inboxSpecialMailboxes_;
 
-      mailboxesService.assignMailboxesList = sinon.spy(function() { return $q.when(); });
+      inboxMailboxesService.assignMailboxesList = sinon.spy(function() { return $q.when(); });
     }));
 
-    it('should call the mailboxesService.assignMailboxesList function', function() {
+    it('should call the inboxMailboxesService.assignMailboxesList function', function() {
       initController('inboxSidebarEmailController');
 
-      expect(mailboxesService.assignMailboxesList).to.have.been.calledWith(scope);
+      expect(inboxMailboxesService.assignMailboxesList).to.have.been.calledWith(scope);
     });
 
     it('should assign specialMailboxes from inboxSpecialMailboxes service', function() {
