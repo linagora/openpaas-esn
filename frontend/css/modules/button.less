@@ -29,3 +29,25 @@
   background-color: @black-alpha-10;
   transition: box-shadow .4s cubic-bezier(.25,.8,.25,1),background-color .4s cubic-bezier(.25,.8,.25,1);
 }
+
+.btn-float {
+  width: 56px;
+  height: 56px;
+  line-height: 52px !important; /* Override material-admin  */
+
+  i {
+    font-size: 24px;
+  }
+}
+
+.m-btn {
+  bottom: 16px;
+  right: 16px;
+}
+
+@media (min-width: @screen-md-min) {
+  .m-btn {
+    bottom: 24px;
+    right: 24px;
+  }
+}
