@@ -100,7 +100,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('mailboxDisplay', function(MAILBOX_ROLE_ICONS_MAPPING, inboxJmapItemService, mailboxesService, _) {
+  .directive('mailboxDisplay', function(MAILBOX_ROLE_ICONS_MAPPING, inboxJmapItemService, inboxMailboxesService, _) {
     return {
       restrict: 'E',
       replace: true,
@@ -118,7 +118,7 @@ angular.module('linagora.esn.unifiedinbox')
 
         scope.isDropZone = function($dragData) {
           return _.all($dragData, function(item) {
-            return mailboxesService.canMoveMessage(item, scope.mailbox);
+            return inboxMailboxesService.canMoveMessage(item, scope.mailbox);
           });
         };
       }

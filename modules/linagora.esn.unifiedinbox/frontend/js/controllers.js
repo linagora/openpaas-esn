@@ -265,9 +265,9 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .controller('inboxMoveItemController', function($scope, $stateParams, mailboxesService, inboxJmapItemService,
+  .controller('inboxMoveItemController', function($scope, $stateParams, inboxMailboxesService, inboxJmapItemService,
                                                   esnPreviousState, inboxSelectionService) {
-    mailboxesService.assignMailboxesList($scope);
+    inboxMailboxesService.assignMailboxesList($scope);
 
     this.moveTo = function(mailbox) {
       esnPreviousState.go();
@@ -282,12 +282,12 @@ angular.module('linagora.esn.unifiedinbox')
     $scope.hasTouchscreen = touchscreenDetectorService.hasTouchscreen();
   })
 
-  .controller('inboxConfigurationFolderController', function($scope, mailboxesService) {
-    mailboxesService.assignMailboxesList($scope, mailboxesService.filterSystemMailboxes);
+  .controller('inboxConfigurationFolderController', function($scope, inboxMailboxesService) {
+    inboxMailboxesService.assignMailboxesList($scope, inboxMailboxesService.filterSystemMailboxes);
   })
 
-  .controller('addFolderController', function($scope, $state, $stateParams, mailboxesService, Mailbox, rejectWithErrorNotification, esnPreviousState) {
-    mailboxesService.assignMailboxesList($scope);
+  .controller('addFolderController', function($scope, $state, $stateParams, inboxMailboxesService, Mailbox, rejectWithErrorNotification, esnPreviousState) {
+    inboxMailboxesService.assignMailboxesList($scope);
 
     if ($stateParams.mailbox) {
       $scope.mailbox = new Mailbox({ name: $stateParams.mailbox.name, parentId: $stateParams.mailbox.parentId });
@@ -302,7 +302,7 @@ angular.module('linagora.esn.unifiedinbox')
 
       esnPreviousState.go('unifiedinbox');
 
-      return mailboxesService.createMailbox($scope.mailbox, {
+      return inboxMailboxesService.createMailbox($scope.mailbox, {
         linkText: 'Reopen',
         action: function() {
           $state.go('unifiedinbox.configuration.folders.add', { mailbox: $scope.mailbox });
@@ -311,11 +311,11 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .controller('editFolderController', function($scope, $stateParams, mailboxesService, _,
+  .controller('editFolderController', function($scope, $stateParams, inboxMailboxesService, _,
                                                rejectWithErrorNotification, esnPreviousState) {
     var originalMailbox;
 
-    mailboxesService
+    inboxMailboxesService
       .assignMailboxesList($scope)
       .then(function(mailboxes) {
         originalMailbox = _.find(mailboxes, { id: $stateParams.mailbox });
@@ -329,12 +329,12 @@ angular.module('linagora.esn.unifiedinbox')
 
       esnPreviousState.go('unifiedinbox');
 
-      return mailboxesService.updateMailbox(originalMailbox, $scope.mailbox);
+      return inboxMailboxesService.updateMailbox(originalMailbox, $scope.mailbox);
     };
   })
 
-  .controller('inboxDeleteFolderController', function($scope, $stateParams, mailboxesService, _, esnPreviousState) {
-    mailboxesService
+  .controller('inboxDeleteFolderController', function($scope, $stateParams, inboxMailboxesService, _, esnPreviousState) {
+    inboxMailboxesService
       .assignMailbox($stateParams.mailbox, $scope, true)
       .then(function(mailbox) {
         var descendants = mailbox.descendants,
@@ -358,7 +358,7 @@ angular.module('linagora.esn.unifiedinbox')
     this.deleteFolder = function() {
       esnPreviousState.go('unifiedinbox');
 
-      return mailboxesService.destroyMailbox($scope.mailbox);
+      return inboxMailboxesService.destroyMailbox($scope.mailbox);
     };
   })
 
@@ -554,11 +554,11 @@ angular.module('linagora.esn.unifiedinbox')
     $scope.username = account.username;
   })
 
-  .controller('inboxSidebarEmailController', function($scope, mailboxesService, inboxSpecialMailboxes, inboxAsyncHostedMailControllerHelper) {
+  .controller('inboxSidebarEmailController', function($scope, inboxMailboxesService, inboxSpecialMailboxes, inboxAsyncHostedMailControllerHelper) {
     $scope.specialMailboxes = inboxSpecialMailboxes.list();
 
     inboxAsyncHostedMailControllerHelper(this, function() {
-      return mailboxesService.assignMailboxesList($scope);
+      return inboxMailboxesService.assignMailboxesList($scope);
     });
   })
 
@@ -580,8 +580,7 @@ angular.module('linagora.esn.unifiedinbox')
     });
   })
 
-  .controller('inboxListSubheaderController', function($state, inboxSelectionService, inboxJmapItemService, jmap,
-                                                       withJmapClient, Mailbox) {
+  .controller('inboxListSubheaderController', function($state, inboxSelectionService, inboxJmapItemService) {
     var attachmentUrl = $state.current.name.indexOf('.attachments') > -1 ? $state.current.name : $state.current.name + '.attachments';
 
     this.isSelecting = inboxSelectionService.isSelecting;
@@ -589,21 +588,12 @@ angular.module('linagora.esn.unifiedinbox')
     this.unselectAllItems = inboxSelectionService.unselectAllItems;
     this.showAttachmentButton = $state.get(attachmentUrl);
 
-    ['markAsUnread', 'markAsRead', 'unmarkAsFlagged', 'markAsFlagged'].forEach(function(action) {
+    ['markAsUnread', 'markAsRead', 'unmarkAsFlagged', 'markAsFlagged', 'moveToTrash'].forEach(function(action) {
       this[action] = function() {
         inboxJmapItemService[action](inboxSelectionService.getSelectedItems());
         inboxSelectionService.unselectAllItems();
       };
     }, this);
-
-    this.moveToTrash = function() {
-      return withJmapClient(function(client) {
-        return client.getMailboxWithRole(jmap.MailboxRole.TRASH).then(Mailbox);
-      })
-        .then(function(trash) {
-          return inboxJmapItemService.moveMultipleItems(inboxSelectionService.getSelectedItems(), trash);
-        });
-    };
 
     this.move = function() {
       $state.go('.move', { selection: true });

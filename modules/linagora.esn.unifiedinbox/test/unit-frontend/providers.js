@@ -7,7 +7,7 @@ var expect = chai.expect;
 describe('The Unified Inbox Angular module providers', function() {
 
   var $rootScope, inboxProviders, newInboxTwitterProvider, inboxHostedMailMessagesProvider, inboxHostedMailAttachmentProvider, inboxHostedMailThreadsProvider, inboxSearchResultsProvider,
-      $httpBackend, jmapClient, mailboxesService, ELEMENTS_PER_PAGE, ELEMENTS_PER_REQUEST, AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE;
+      $httpBackend, jmapClient, inboxMailboxesService, jmap, ELEMENTS_PER_PAGE, ELEMENTS_PER_REQUEST, AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE;
 
   function elements(id, length, offset) {
     var array = [], start = offset || 0;
@@ -31,8 +31,8 @@ describe('The Unified Inbox Angular module providers', function() {
     angular.mock.module('esn.configuration');
     angular.mock.module('linagora.esn.unifiedinbox', function($provide) {
       jmapClient = {
-        getMailboxWithRole: function(role) {
-          return $q.when({ id: 'id_' + role.value });
+        getMailboxes: function() {
+          return $q.when([new jmap.Mailbox({}, 'id_inbox', 'name_inbox', { role: 'inbox' })]);
         },
         getMessageList: function(options) {
           expect(options.filter.inMailboxes).to.deep.equal(['id_inbox']);
@@ -52,7 +52,7 @@ describe('The Unified Inbox Angular module providers', function() {
       $provide.value('withJmapClient', function(cb) {
         return cb(jmapClient);
       });
-      $provide.decorator('mailboxesService', function($delegate) {
+      $provide.decorator('inboxMailboxesService', function($delegate) {
         $delegate.flagIsUnreadChanged = sinon.spy($delegate.flagIsUnreadChanged);
 
         return $delegate;
@@ -63,7 +63,7 @@ describe('The Unified Inbox Angular module providers', function() {
   });
 
   beforeEach(angular.mock.inject(function(_$rootScope_, _inboxProviders_, _newInboxTwitterProvider_, _inboxHostedMailMessagesProvider_, _inboxSearchResultsProvider_,
-                                          _inboxHostedMailAttachmentProvider_, _inboxHostedMailThreadsProvider_, _$httpBackend_, _mailboxesService_,
+                                          _inboxHostedMailAttachmentProvider_, _inboxHostedMailThreadsProvider_, _$httpBackend_, _inboxMailboxesService_, _jmap_,
                                           _ELEMENTS_PER_PAGE_, _ELEMENTS_PER_REQUEST_, _AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE_) {
     $rootScope = _$rootScope_;
     inboxProviders = _inboxProviders_;
@@ -73,7 +73,8 @@ describe('The Unified Inbox Angular module providers', function() {
     inboxHostedMailAttachmentProvider = _inboxHostedMailAttachmentProvider_;
     inboxHostedMailThreadsProvider = _inboxHostedMailThreadsProvider_;
     $httpBackend = _$httpBackend_;
-    mailboxesService = _mailboxesService_;
+    inboxMailboxesService = _inboxMailboxesService_;
+    jmap = _jmap_;
 
     ELEMENTS_PER_REQUEST = _ELEMENTS_PER_REQUEST_;
     AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE = _AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE_;
@@ -197,9 +198,9 @@ describe('The Unified Inbox Angular module providers', function() {
       fetcher.loadRecentItems();
       $rootScope.$digest();
 
-      expect(mailboxesService.flagIsUnreadChanged).to.have.been.calledWith(sinon.match({ id: 'id1' }));
-      expect(mailboxesService.flagIsUnreadChanged).to.have.been.calledWith(sinon.match({ id: 'id2' }));
-      expect(mailboxesService.flagIsUnreadChanged).to.have.not.been.calledWith(sinon.match({ id: 'id3' }));
+      expect(inboxMailboxesService.flagIsUnreadChanged).to.have.been.calledWith(sinon.match({ id: 'id1' }));
+      expect(inboxMailboxesService.flagIsUnreadChanged).to.have.been.calledWith(sinon.match({ id: 'id2' }));
+      expect(inboxMailboxesService.flagIsUnreadChanged).to.have.not.been.calledWith(sinon.match({ id: 'id3' }));
     });
 
   });

@@ -2,18 +2,14 @@
 
 angular.module('linagora.esn.unifiedinbox')
 
-  .factory('inboxJmapProviderContextBuilder', function($q, withJmapClient, jmap, PROVIDER_TYPES) {
+  .factory('inboxJmapProviderContextBuilder', function($q, inboxMailboxesService, jmap, PROVIDER_TYPES) {
     return function(options) {
       if (angular.isDefined(options.query)) {
         return $q.when({ text: options.query });
       }
 
-      return withJmapClient(function(client) {
-        return client
-          .getMailboxWithRole(jmap.MailboxRole.INBOX)
-          .then(function(mailbox) {
-            return angular.extend({}, { inMailboxes: [mailbox.id] }, options.filterByType[PROVIDER_TYPES.JMAP]);
-          });
+      return inboxMailboxesService.getMailboxWithRole(jmap.MailboxRole.INBOX).then(function(mailbox) {
+        return angular.extend({}, { inMailboxes: [mailbox.id] }, options.filterByType[PROVIDER_TYPES.JMAP]);
       });
     };
   })
@@ -79,7 +75,7 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .factory('newInboxMessageProvider', function(withJmapClient, Email, pagedJmapRequest, inboxJmapProviderContextBuilder,
-                                               moment, newProvider, sortByDateInDescendingOrder, mailboxesService,
+                                               moment, newProvider, sortByDateInDescendingOrder, inboxMailboxesService,
                                                JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_REQUEST, PROVIDER_TYPES) {
     return function(templateUrl) {
       return newProvider({
@@ -115,7 +111,7 @@ angular.module('linagora.esn.unifiedinbox')
             return getMessages(0, moment(mostRecentItem.date).add(1, 's').toDate()).then(function(messages) {
               messages.forEach(function(message) {
                 if (message.isUnread) {
-                  mailboxesService.flagIsUnreadChanged(message, true);
+                  inboxMailboxesService.flagIsUnreadChanged(message, true);
                 }
               });
 
@@ -140,7 +136,7 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .factory('inboxHostedMailAttachmentProvider', function(withJmapClient, pagedJmapRequest, newProvider, ByDateElementGroupingTool,
-                                                         inboxFilteringService, mailboxesService, inboxJmapProviderContextBuilder,
+                                                         inboxFilteringService, inboxMailboxesService, inboxJmapProviderContextBuilder,
                                                          JMAP_GET_MESSAGES_ATTACHMENTS_LIST, ELEMENTS_PER_REQUEST, PROVIDER_TYPES) {
     return newProvider({
       type: PROVIDER_TYPES.JMAP,
@@ -163,7 +159,7 @@ angular.module('linagora.esn.unifiedinbox')
         });
       },
       buildFetchContext: function(options) {
-        return (options.id && mailboxesService.getMessageListFilter(options.id)) || inboxJmapProviderContextBuilder(options);
+        return (options.id && inboxMailboxesService.getMessageListFilter(options.id)) || inboxJmapProviderContextBuilder(options);
       },
       templateUrl: '/unifiedinbox/views/components/sidebar/attachment/sidebar-attachment-item'
     });

@@ -7,7 +7,7 @@ var expect = chai.expect;
 
 describe('The linagora.esn.unifiedinbox List module directives', function() {
 
-  var $compile, $rootScope, $scope, element, jmap, inboxConfigMock, inboxJmapItemService, infiniteListService, inboxSelectionService, _;
+  var $compile, $rootScope, $scope, element, inboxConfigMock, inboxJmapItemService, infiniteListService, inboxSelectionService, _;
   var INBOX_EVENTS;
 
   beforeEach(function() {
@@ -31,11 +31,10 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
     });
   }));
 
-  beforeEach(inject(function(_$compile_, _$rootScope_, _jmap_, _inboxJmapItemService_, _infiniteListService_,
+  beforeEach(inject(function(_$compile_, _$rootScope_, _inboxJmapItemService_, _infiniteListService_,
                              _inboxSelectionService_, _INBOX_EVENTS_, ___) {
     $compile = _$compile_;
     $rootScope = _$rootScope_;
-    jmap = _jmap_;
     inboxJmapItemService = _inboxJmapItemService_;
     infiniteListService = _infiniteListService_;
     inboxSelectionService = _inboxSelectionService_;
@@ -78,7 +77,7 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
 
     describe('the exposed functions from inboxJmapItemService', function() {
       beforeEach(function() {
-        ['markAsUnread', 'markAsRead', 'markAsFlagged', 'unmarkAsFlagged'].forEach(function(action) {
+        ['markAsUnread', 'markAsRead', 'markAsFlagged', 'unmarkAsFlagged', 'moveToTrash'].forEach(function(action) {
           inboxJmapItemService[action] = sinon.spy();
         });
       });
@@ -86,7 +85,7 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
       it('should expose several functions to the element controller', function() {
         compileDirective('<inbox-thread-list-item />');
 
-        ['markAsUnread', 'markAsRead', 'markAsFlagged', 'unmarkAsFlagged'].forEach(function(action) {
+        ['markAsUnread', 'markAsRead', 'markAsFlagged', 'unmarkAsFlagged', 'moveToTrash'].forEach(function(action) {
           element.controller('inboxThreadListItem')[action]();
           expect(inboxJmapItemService[action]).to.have.been.called;
         });
@@ -198,36 +197,6 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
 
     });
 
-    describe('The moveToTrash function', function() {
-      var controller;
-
-      beforeEach(function() {
-        $scope.item = {
-          moveToMailboxWithRole: sinon.stub().returns($q.when())
-        };
-
-        $scope.groups = {
-          addElement: sinon.spy(),
-          removeElement: sinon.spy()
-        };
-
-        compileDirective('<inbox-thread-list-item />');
-        controller = element.controller('inboxThreadListItem');
-      });
-
-      it('should delegate to infiniteListService.actionRemovingElement', function() {
-        controller.moveToTrash();
-
-        expect(infiniteListService.actionRemovingElement).to.have.been.calledWith(sinon.match.func, $scope.item);
-      });
-
-      it('should move thread to Trash folder using moveToMailboxWithRole method', function() {
-        controller.moveToTrash();
-        expect($scope.item.moveToMailboxWithRole).to.have.been.calledWith(jmap.MailboxRole.TRASH);
-      });
-
-    });
-
     describe('The swipe feature', function() {
 
       beforeEach(function() {
@@ -256,7 +225,8 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
 
         it('should mark thread as read by default feature flip', function(done) {
           $scope.onSwipeRight().then(function() {
-            expect($scope.item.isUnread).to.be.false;
+            expect($scope.item.isUnread).to.equal(false);
+
             done();
           });
 
@@ -265,9 +235,11 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
 
         it('should move thread to Trash if feature flip is set to moveToTrash', function(done) {
           inboxConfigMock.swipeRightAction = 'moveToTrash';
+          inboxJmapItemService.moveToTrash = sinon.spy();
 
           $scope.onSwipeRight().then(function() {
-            expect($scope.item.moveToMailboxWithRole).to.have.been.calledWith(jmap.MailboxRole.TRASH);
+            expect(inboxJmapItemService.moveToTrash).to.have.been.calledWith();
+
             done();
           });
 
@@ -339,7 +311,7 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
 
     describe('the exposed functions from inboxJmapItemService', function() {
       beforeEach(function() {
-        ['reply', 'replyAll', 'forward', 'markAsUnread', 'markAsRead', 'markAsFlagged', 'unmarkAsFlagged'].forEach(function(action) {
+        ['reply', 'replyAll', 'forward', 'markAsUnread', 'markAsRead', 'markAsFlagged', 'unmarkAsFlagged', 'moveToTrash'].forEach(function(action) {
           inboxJmapItemService[action] = sinon.spy();
         });
       });
@@ -347,7 +319,7 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
       it('should expose several functions to the element controller', function() {
         compileDirective('<inbox-message-list-item />');
 
-        ['reply', 'replyAll', 'forward', 'markAsUnread', 'markAsRead', 'markAsFlagged', 'unmarkAsFlagged'].forEach(function(action) {
+        ['reply', 'replyAll', 'forward', 'markAsUnread', 'markAsRead', 'markAsFlagged', 'unmarkAsFlagged', 'moveToTrash'].forEach(function(action) {
           element.controller('inboxMessageListItem')[action]();
 
           expect(inboxJmapItemService[action]).to.have.been.called;
@@ -459,37 +431,6 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
 
     });
 
-    describe('The moveToTrash function', function() {
-      var controller;
-
-      beforeEach(function() {
-        $scope.item = {
-          moveToMailboxWithRole: sinon.stub().returns($q.when())
-        };
-
-        $scope.groups = {
-          addElement: sinon.spy(),
-          removeElement: sinon.spy()
-        };
-
-        compileDirective('<inbox-message-list-item />');
-        controller = element.controller('inboxMessageListItem');
-      });
-
-      it('should delegate to infiniteListService.actionRemovingElement', function() {
-        controller.moveToTrash();
-
-        expect(infiniteListService.actionRemovingElement).to.have.been.calledWith(sinon.match.func, $scope.item);
-      });
-
-      it('should move message to Trash folder using moveToMailboxWithRole method', function() {
-        controller.moveToTrash();
-
-        expect($scope.item.moveToMailboxWithRole).to.have.been.calledWith(jmap.MailboxRole.TRASH);
-      });
-
-    });
-
     describe('The swipe feature', function() {
 
       beforeEach(function() {
@@ -518,7 +459,8 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
 
         it('should mark message as read by default feature flip', function(done) {
           $scope.onSwipeRight().then(function() {
-            expect($scope.item.isUnread).to.be.false;
+            expect($scope.item.isUnread).to.equal(false);
+
             done();
           });
 
@@ -527,9 +469,11 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
 
         it('should move message to Trash if feature flip is set to moveToTrash', function(done) {
           inboxConfigMock.swipeRightAction = 'moveToTrash';
+          inboxJmapItemService.moveToTrash = sinon.spy();
 
           $scope.onSwipeRight().then(function() {
-            expect($scope.item.moveToMailboxWithRole).to.have.been.calledWith(jmap.MailboxRole.TRASH);
+            expect(inboxJmapItemService.moveToTrash).to.have.been.calledWith();
+
             done();
           });
 

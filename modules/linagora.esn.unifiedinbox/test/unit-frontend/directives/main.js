@@ -345,27 +345,27 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
       describe('The isDropZone function', function() {
 
-        var mailboxesService;
+        var inboxMailboxesService;
 
-        beforeEach(inject(function(_mailboxesService_) {
-          mailboxesService = _mailboxesService_;
-          mailboxesService.canMoveMessage = sinon.spy(function() {
+        beforeEach(inject(function(_inboxMailboxesService_) {
+          inboxMailboxesService = _inboxMailboxesService_;
+          inboxMailboxesService.canMoveMessage = sinon.spy(function() {
             return true;
           });
         }));
 
-        it('should check result from mailboxesService.canMoveMessage for a single item', function() {
+        it('should check result from inboxMailboxesService.canMoveMessage for a single item', function() {
           var item = {
             mailboxIds: ['2']
           };
 
           isolateScope.isDropZone([item]);
 
-          expect(mailboxesService.canMoveMessage).to.have.been.calledOnce;
-          expect(mailboxesService.canMoveMessage).to.have.been.calledWith(item, $scope.mailbox);
+          expect(inboxMailboxesService.canMoveMessage).to.have.been.calledOnce;
+          expect(inboxMailboxesService.canMoveMessage).to.have.been.calledWith(item, $scope.mailbox);
         });
 
-        it('should check result from mailboxesService.canMoveMessage for multiple items', function() {
+        it('should check result from inboxMailboxesService.canMoveMessage for multiple items', function() {
           var item = {
             id: '1',
             mailboxIds: ['2']
@@ -377,9 +377,9 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
           isolateScope.isDropZone([item, item2]);
 
-          expect(mailboxesService.canMoveMessage).to.have.been.calledTwice;
-          expect(mailboxesService.canMoveMessage).to.have.been.calledWith(item, $scope.mailbox);
-          expect(mailboxesService.canMoveMessage).to.have.been.calledWith(item2, $scope.mailbox);
+          expect(inboxMailboxesService.canMoveMessage).to.have.been.calledTwice;
+          expect(inboxMailboxesService.canMoveMessage).to.have.been.calledWith(item, $scope.mailbox);
+          expect(inboxMailboxesService.canMoveMessage).to.have.been.calledWith(item2, $scope.mailbox);
         });
 
       });

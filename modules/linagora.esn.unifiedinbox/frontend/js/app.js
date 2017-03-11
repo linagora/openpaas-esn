@@ -266,8 +266,8 @@ angular.module('linagora.esn.unifiedinbox', [
           'main@unifiedinbox': { controller: 'listController' }
         },
         resolve: {
-          mailboxIdsFilter: function($stateParams, mailboxesService) {
-            return mailboxesService.getMessageListFilter($stateParams.mailbox);
+          mailboxIdsFilter: function($stateParams, inboxMailboxesService) {
+            return inboxMailboxesService.getMessageListFilter($stateParams.mailbox);
           }
         }
       })

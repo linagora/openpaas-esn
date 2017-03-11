@@ -6,14 +6,14 @@ var expect = chai.expect;
 
 describe('The Unified Inbox Angular module', function() {
 
-  var jmapClient;
+  var jmapClient, jmap;
 
   beforeEach(function() {
     angular.mock.module('esn.core');
     angular.mock.module('linagora.esn.unifiedinbox', function($provide) {
       jmapClient = {
-        getMailboxWithRole: function(role) {
-          return $q.when({ id: 'id_' + role.value });
+        getMailboxes: function() {
+          return $q.when([new jmap.Mailbox({}, 'id_inbox', 'name_inbox', { role: 'inbox' })]);
         },
         getMessageList: function(options) {
           expect(options.filter.inMailboxes).to.deep.equal(['id_inbox']);
@@ -32,8 +32,11 @@ describe('The Unified Inbox Angular module', function() {
   });
 
   function expectSingleProvider(name, done, specificProvider) {
-    inject(function($rootScope, inboxProviders, searchProviders) {
+    inject(function($rootScope, inboxProviders, searchProviders, _jmap_) {
+      jmap = _jmap_;
+
       $rootScope.$digest();
+
       var providers = {
         inboxProviders: inboxProviders,
         searchProviders: searchProviders

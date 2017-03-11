@@ -23,7 +23,7 @@ angular.module('linagora.esn.unifiedinbox')
     return Emailer;
   })
 
-  .factory('Email', function(mailboxesService, emailSendingService, Emailer, _, Selectable) {
+  .factory('Email', function(inboxMailboxesService, emailSendingService, Emailer, _, Selectable) {
 
     function Email(email) {
       var isUnread = email.isUnread;
@@ -32,7 +32,7 @@ angular.module('linagora.esn.unifiedinbox')
         get: function() { return isUnread; },
         set: function(state) {
           if (isUnread !== state) {
-            mailboxesService.flagIsUnreadChanged(email, state);
+            inboxMailboxesService.flagIsUnreadChanged(email, state);
             isUnread = state;
           }
         }
