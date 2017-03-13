@@ -47,7 +47,7 @@ describe('The core/esn-config module', function() {
   describe('The get fn', function() {
 
     beforeEach(function() {
-      fallbackModuleMock.findByDomainId = function() {
+      fallbackModuleMock.getConfiguration = function() {
         return q(configurationMock);
       };
     });
@@ -162,7 +162,7 @@ describe('The core/esn-config module', function() {
   describe('The set fn', function() {
 
     beforeEach(function() {
-      confModuleMock.findByDomainId = function(domainId, callback) {
+      confModuleMock.findConfiguration = function(domainId, userId, callback) {
         callback(null, configurationMock);
       };
     });
@@ -240,7 +240,7 @@ describe('The core/esn-config module', function() {
   describe('The store fn', function() {
 
     beforeEach(function() {
-      confModuleMock.findByDomainId = function(domainId, callback) {
+      confModuleMock.findConfiguration = function(domainId, userId, callback) {
         callback(null, configurationMock);
       };
     });
@@ -321,7 +321,7 @@ describe('The core/esn-config module', function() {
         ]
       };
 
-      fallbackModuleMock.findByDomainId = function() {
+      fallbackModuleMock.getConfiguration = function() {
         return q(configuration);
       };
 

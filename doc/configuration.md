@@ -28,6 +28,38 @@ ones.*
 
 Go to [authentication](authentication.md) for more details
 
+## Configuration metadata
+Configuration metadata of the application is stored in the `./backend/core/esn-config/constants.js` at key `CONFIG_METADATA`.
+
+A `CONFIG_METADATA` object has the following structure:
+
+```JSON
+{
+  "moduleName": {
+    "rights": {
+      "admin": "rw"
+    },
+    "configurations": {
+      "configName": {
+        "rights": {
+          "admin": "rw",
+          "user": "r"
+        }
+      },
+      "otherConfig": {}
+    }
+  }, {
+    // other modules
+  }
+}
+```
+
+Each module have a rights configuration which is applied for all configuration belong this module if they have not rights configuration. But if configuration have rights config for its, it will be override module rights configuration.
+
+Each rights have two object:
+- The first is actor, for now we have two actors: admin and user.
+- The second is rights, we have read rights with notation is `r` and write rights with notation is `w`. If an actor have both rights then notation is `rw`.
+
 ## Global Configuration
 
 The configuration of the ESN is stored in MongoDB under the `configurations`
@@ -410,7 +442,7 @@ Defines the configuration file template used by the autoconfiguration mechanism.
 {
     "name" : "autoconf",
     "value" : {
-        "accounts" : [ 
+        "accounts" : [
             {
                 "imap" : {
                     "prettyName" : "OpenPaas (<%= user.preferredEmail %>)",
@@ -426,7 +458,7 @@ Defines the configuration file template used by the autoconfiguration mechanism.
                     "port" : "587",
                     "socketType" : "2"
                 },
-                "identities" : [ 
+                "identities" : [
                     {
                         "identityName" : "Default (<%= user.preferredEmail %>)",
                         "email" : "<%= user.preferredEmail %>",
@@ -446,15 +478,15 @@ Defines the configuration file template used by the autoconfiguration mechanism.
                 ]
             }
         ],
-        "addons" : [ 
+        "addons" : [
             {
                 "id" : "{e2fda1a4-762b-4020-b5ad-a41df1933103}",
                 "name" : "Lightning",
-                "versions" : [ 
+                "versions" : [
                     {
                         "version" : "4.7",
                         "minAppVersion" : "45",
-                        "platforms" : [ 
+                        "platforms" : [
                             {
                                 "platform" : "Linux",
                                 "url" : "https://addons.mozilla.org/thunderbird/downloads/file/430153/lightning-4.7-sm+tb-linux.xpi"
@@ -462,11 +494,11 @@ Defines the configuration file template used by the autoconfiguration mechanism.
                         ]
                     }
                 ]
-            }, 
+            },
             {
                 "id" : "cardbook@vigneau.philippe",
                 "name" : "CardBook",
-                "versions" : [ 
+                "versions" : [
                     {
                         "version" : "16.7",
                         "url" : "https://addons.mozilla.org/thunderbird/downloads/file/579999/cardbook-16.7-tb.xpi"
@@ -474,31 +506,31 @@ Defines the configuration file template used by the autoconfiguration mechanism.
                 ]
             }
         ],
-        "preferences" : [ 
+        "preferences" : [
             {
                 "name" : "app.update.enabled",
                 "value" : false,
                 "overwrite" : true
-            }, 
+            },
             {
                 "name" : "extensions.update.enabled",
                 "value" : true,
                 "overwrite" : true
-            }, 
+            },
             {
                 "name" : "extensions.cardbook.firstOpen",
                 "value" : false
-            }, 
+            },
             {
                 "name" : "extensions.cardbook.exclusive",
                 "value" : false
-            }, 
+            },
             {
                 "name" : "extensions.cardbook.firstRun",
                 "value" : false
             }
         ],
-        "directories" : [ 
+        "directories" : [
             {
                 "dirName" : "OpenPaas",
                 "uri" : "ldapUrl",

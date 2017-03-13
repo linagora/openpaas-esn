@@ -16,15 +16,18 @@ EsnConfig.prototype.setModuleName = function(name) {
   this.moduleName = name;
 };
 
-EsnConfig.prototype.setDomainId = function(id) {
-  this.domainId = id;
+EsnConfig.prototype.setDomainId = function(domainId) {
+  this.domainId = domainId;
+};
+
+EsnConfig.prototype.setUserId = function(userId) {
+  this.userId = userId;
 };
 
 EsnConfig.prototype.getMultiple = function(configNames) {
-  var domainId = this.domainId;
-  var moduleName = this.moduleName;
+  const moduleName = this.moduleName;
 
-  return this._getModuleConfigsForDomain(moduleName, domainId)
+  return this._getModuleConfigsForDomain(moduleName)
     .then(function(moduleConfigs) {
       return configNames.map(function(configName) {
         return _.find(moduleConfigs, { name: configName });
@@ -42,49 +45,33 @@ EsnConfig.prototype.get = function(configName) {
 };
 
 EsnConfig.prototype.setMultiple = function(configsToUpdate) {
-  var moduleName = this.moduleName;
-  var domainId = this.domainId;
+  const self = this;
 
-  return q.ninvoke(confModule, 'findByDomainId', domainId)
-    .then(function(configuration) {
-      var moduleTemplate = {
-        name: moduleName,
-        configurations: []
-      };
+  return q.ninvoke(confModule, 'findConfiguration', self.domainId, self.userId).then(configuration => {
+    configuration = self._generateConfigTemplate(configuration);
 
-      configuration = configuration || {
-        domain_id: domainId,
-        modules: [moduleTemplate]
-      };
+    const module = _.find(configuration.modules, { name: self.moduleName });
 
-      var module = _.find(configuration.modules, { name: moduleName });
+    configsToUpdate.forEach(function(config) {
+      let conf = _.find(module.configurations, { name: config.name });
 
-      if (!module) {
-        configuration.modules = configuration.modules || [];
-        configuration.modules.unshift(moduleTemplate);
-        module = configuration.modules[0];
+      if (!conf) {
+        module.configurations.push({
+          name: config.name,
+          value: {}
+        });
+        conf = _.last(module.configurations);
       }
 
-      configsToUpdate.forEach(function(config) {
-        var conf = _.find(module.configurations, { name: config.name });
-
-        if (!conf) {
-          module.configurations.push({
-            name: config.name,
-            value: {}
-          });
-          conf = _.last(module.configurations);
-        }
-
-        if (config.key) {
-          dotty.put(conf.value, config.key, config.value);
-        } else {
-          conf.value = config.value;
-        }
-      });
-
-      return q.ninvoke(confModule, 'update', configuration);
+      if (config.key) {
+        dotty.put(conf.value, config.key, config.value);
+      } else {
+        conf.value = config.value;
+      }
     });
+
+    return q.ninvoke(confModule, 'update', configuration);
+  });
 };
 
 EsnConfig.prototype.set = function(config) {
@@ -123,12 +110,42 @@ EsnConfig.prototype._extractModuleConfigs = function(modulName, confObj) {
   }
 };
 
-EsnConfig.prototype._getModuleConfigsForDomain = function(moduleName, domainId) {
-  var self = this;
+EsnConfig.prototype._getModuleConfigsForDomain = function(moduleName) {
+  const self = this;
 
-  return fallbackModule.findByDomainId(domainId).then(function(configuration) {
-      return self._extractModuleConfigs(moduleName, configuration);
-    });
+  return fallbackModule.getConfiguration(self.domainId, self.userId).then(function(configuration) {
+    return self._extractModuleConfigs(moduleName, configuration);
+  });
+};
+
+EsnConfig.prototype._generateConfigTemplate = function(configuration) {
+  const self = this;
+  const moduleName = this.moduleName;
+  const moduleTemplate = {
+    name: moduleName,
+    configurations: []
+  };
+
+  if (!configuration) {
+    configuration = {
+      domain_id: self.domainId,
+      modules: [moduleTemplate]
+    };
+
+    if (self.userId) {
+      configuration.user_id = self.userId;
+    }
+  }
+
+  let module = _.find(configuration.modules, { name: moduleName });
+
+  if (!module) {
+    configuration.modules = configuration.modules || [];
+    configuration.modules.unshift(moduleTemplate);
+    module = configuration.modules[0];
+  }
+
+  return configuration;
 };
 
 module.exports = EsnConfig;

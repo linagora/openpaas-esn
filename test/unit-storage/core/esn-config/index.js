@@ -132,6 +132,66 @@ describe('The esn-config module', function() {
       });
     });
 
+    it('should get user config from "configurations" as top priority if userId param is defined (backward compatibility)', function(done) {
+      const user = {_id: new ObjectId()};
+      const isUserWide = true;
+      const docInMongoConfig = {
+        _id: 'mail',
+        email: { key0: 'value0' }
+      };
+      const configInFeatures = {
+        email: { key1: 'value1' }
+      };
+      const docInFeatures = {
+        modules: [{
+          name: 'core',
+          features: [{
+            name: 'mail',
+            value: configInFeatures
+          }]
+        }]
+      };
+      const configInConfigurations = {
+        email: { key2: 'value2' }
+      };
+      const docInConfigurations = {
+        modules: [{
+          name: 'core',
+          configurations: [{
+            name: 'mail',
+            value: configInConfigurations
+          }]
+        }]
+      };
+
+      const userConfigInConfigurations = {
+        email: { key2: 'value3' }
+      };
+      const userDocInConfigurations = {
+        user_id: user._id,
+        modules: [{
+          name: 'core',
+          configurations: [{
+            name: 'mail',
+            value: userConfigInConfigurations
+          }]
+        }]
+      };
+
+      q.all([
+        q.nfcall(saveDoc, 'configuration', docInMongoConfig),
+        q.nfcall(saveDoc, 'features', docInFeatures),
+        q.nfcall(saveDoc, 'configurations', docInConfigurations),
+        q.nfcall(saveDoc, 'configurations', userDocInConfigurations)
+      ])
+      .then(function() {
+        getModule()('mail').forUser(user, isUserWide).get().then(function(data) {
+          expect(data).to.deep.equal(userConfigInConfigurations);
+          done();
+        });
+      });
+    });
+
     it('should get config from "features" as top priority if it is available in only "features" and "configuration" collections (backward compatibility)', function(done) {
       var docInMongoConfig = {
         _id: 'mail',
@@ -370,6 +430,32 @@ describe('The esn-config module', function() {
           checkDoc('configurations', { domain_id: domainId }, function(doc) {
             expect(doc).to.shallowDeepEqual({
               domain_id: String(domainId),
+              modules: [{
+                name: 'some_module',
+                configurations: [{
+                  name: 'mail',
+                  value: { key: 'value' }
+                }]
+              }]
+            });
+          }, done);
+        });
+    });
+
+    it('should store user configuration in "configurations" collection', function(done) {
+      const domainId = new ObjectId();
+      const userId = new ObjectId();
+      const isUserWide = true;
+
+      getModule()('mail')
+        .forUser({ _id: userId, preferredDomainId: domainId }, isUserWide)
+        .inModule('some_module')
+        .store({ key: 'value' })
+        .then(function() {
+          checkDoc('configurations', { domain_id: domainId, user_id: userId }, function(doc) {
+            expect(doc).to.shallowDeepEqual({
+              domain_id: String(domainId),
+              user_id: String(userId),
               modules: [{
                 name: 'some_module',
                 configurations: [{

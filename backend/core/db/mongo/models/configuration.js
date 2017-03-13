@@ -13,6 +13,7 @@ var moduleSchema = new mongoose.Schema({
 
 var configurationSchema = new mongoose.Schema({
   domain_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Domain' },
+  user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   modules: [moduleSchema]
 }, { collection: 'configurations', minimize: false });
 

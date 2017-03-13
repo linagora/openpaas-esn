@@ -18,11 +18,17 @@ Adapter.prototype.inModule = function(moduleName) {
   return this;
 };
 
-Adapter.prototype.forUser = function(user) {
-  if (user && user.preferredDomainId) {
-    this.esnConfig.setDomainId(user.preferredDomainId);
-  } else {
-    this.esnConfig.setDomainId(DEFAULT_DOMAIN_ID);
+Adapter.prototype.forUser = function(user, isUserWide = false) {
+  if (!user) {
+    return this;
+  }
+
+  const domainId = user.preferredDomainId ? user.preferredDomainId : DEFAULT_DOMAIN_ID;
+
+  this.esnConfig.setDomainId(domainId);
+
+  if (isUserWide) {
+    this.esnConfig.setUserId(user._id);
   }
 
   return this;

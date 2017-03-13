@@ -13,19 +13,24 @@ const features = require('./features');
  * It also gets system-wide configuration to provide system-wide fallback when
  * the domain-wide configuration is not available.
  *
+ * If userId is defined and not null, it will get user-wide configuration
+ *
  * @param  {String|ObjectId} domainId The domain ID
+ * @param  {String|ObjectId} userId The user ID
  * @return {Promise}
  */
-function findByDomainId(domainId) {
+
+function getConfiguration(domainId, userId) {
   return q.allSettled([
     mongoconfig.findByDomainId(domainId),
     domainId ? features.findByDomainId(null) : q.reject(),
     features.findByDomainId(domainId),
-    domainId ? confModule.findByDomainId(null) : q.reject(),
-    confModule.findByDomainId(domainId)
+    domainId ? confModule.findConfigurationForDomain(null) : q.reject(),
+    confModule.findConfigurationForDomain(domainId),
+    userId ? confModule.findConfigurationForUser(domainId, userId) : q.reject()
   ])
   .then(function(data) {
-    var fulFilledDocuments = data.map(function(doc) {
+    const fulFilledDocuments = data.map(function(doc) {
       return doc.state === 'fulfilled' ? doc.value : null;
     }).filter(Boolean);
 
@@ -33,7 +38,7 @@ function findByDomainId(domainId) {
       return q.reject(data[0].reason);
     }
 
-    var mergedDoc = Object.create(null);
+    const mergedDoc = Object.create(null);
 
     fulFilledDocuments.forEach(function(doc) {
       mergeDocument(mergedDoc, _.cloneDeep(doc));
@@ -66,5 +71,5 @@ function mergeDocument(targetDoc, sourceDoc) {
 }
 
 module.exports = {
-  findByDomainId
+  getConfiguration
 };
