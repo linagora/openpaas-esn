@@ -53,12 +53,8 @@ angular.module('linagora.esn.unifiedinbox', [
 
     function stateOpeningListItem(state) {
       function toggleElementOpened(opening) {
-        return function($rootScope, esnPreviousState) {
+        return function($rootScope) {
           $rootScope.inbox.list.isElementOpened = opening;
-
-          if (opening) {
-            esnPreviousState.set();
-          }
         };
       }
 
@@ -95,13 +91,8 @@ angular.module('linagora.esn.unifiedinbox', [
 
     function stateOpeningRightSidebar(state) {
       function toggleSidebarVisibility(visible) {
-        return function($rootScope, esnPreviousState) {
+        return function($rootScope) {
           $rootScope.inbox.rightSidebar.isVisible = visible;
-
-          if (visible) {
-            esnPreviousState.forget();
-            esnPreviousState.set();
-          }
         };
       }
 
@@ -129,10 +120,7 @@ angular.module('linagora.esn.unifiedinbox', [
             template: '<composer />'
           }
         },
-        params: { email: {}, compositionOptions: {}, composition: null },
-        onEnter: function(esnPreviousState) {
-          esnPreviousState.set();
-        }
+        params: { email: {}, compositionOptions: {}, composition: null }
       })
       .state('unifiedinbox.compose.recipients', {
         url: '/:recipientsType',
@@ -160,9 +148,6 @@ angular.module('linagora.esn.unifiedinbox', [
             templateUrl: '/unifiedinbox/views/configuration/index',
             controller: 'inboxConfigurationIndexController'
           }
-        },
-        onEnter: function(esnPreviousState) {
-          esnPreviousState.set();
         }
       })
       .state('unifiedinbox.configuration.folders', {

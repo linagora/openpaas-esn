@@ -8,7 +8,7 @@ angular.module('linagora.esn.profile', [
   'esn.profile',
   'esn.notification',
   'esn.timeline',
-  'esn.previous-state'
+  'esn.previous-page'
   ])
   .config(function($stateProvider) {
     $stateProvider

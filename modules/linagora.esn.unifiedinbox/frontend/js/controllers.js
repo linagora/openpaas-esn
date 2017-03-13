@@ -266,11 +266,11 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .controller('inboxMoveItemController', function($scope, $stateParams, inboxMailboxesService, inboxJmapItemService,
-                                                  esnPreviousState, inboxSelectionService) {
+                                                  esnPreviousPage, inboxSelectionService) {
     inboxMailboxesService.assignMailboxesList($scope);
 
     this.moveTo = function(mailbox) {
-      esnPreviousState.go();
+      esnPreviousPage.back();
 
       return inboxJmapItemService.moveMultipleItems(
         $stateParams.selection ? inboxSelectionService.getSelectedItems() : [$stateParams.item], mailbox
@@ -286,7 +286,7 @@ angular.module('linagora.esn.unifiedinbox')
     inboxMailboxesService.assignMailboxesList($scope, inboxMailboxesService.filterSystemMailboxes);
   })
 
-  .controller('addFolderController', function($scope, $state, $stateParams, inboxMailboxesService, Mailbox, rejectWithErrorNotification, esnPreviousState) {
+  .controller('addFolderController', function($scope, $state, $stateParams, inboxMailboxesService, Mailbox, rejectWithErrorNotification, esnPreviousPage) {
     inboxMailboxesService.assignMailboxesList($scope);
 
     if ($stateParams.mailbox) {
@@ -300,7 +300,7 @@ angular.module('linagora.esn.unifiedinbox')
         return rejectWithErrorNotification('Please enter a valid folder name');
       }
 
-      esnPreviousState.go('unifiedinbox');
+      esnPreviousPage.back('unifiedinbox');
 
       return inboxMailboxesService.createMailbox($scope.mailbox, {
         linkText: 'Reopen',
@@ -312,7 +312,7 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .controller('editFolderController', function($scope, $stateParams, inboxMailboxesService, _,
-                                               rejectWithErrorNotification, esnPreviousState) {
+                                               rejectWithErrorNotification, esnPreviousPage) {
     var originalMailbox;
 
     inboxMailboxesService
@@ -327,13 +327,13 @@ angular.module('linagora.esn.unifiedinbox')
         return rejectWithErrorNotification('Please enter a valid folder name');
       }
 
-      esnPreviousState.go('unifiedinbox');
+      esnPreviousPage.back('unifiedinbox');
 
       return inboxMailboxesService.updateMailbox(originalMailbox, $scope.mailbox);
     };
   })
 
-  .controller('inboxDeleteFolderController', function($scope, $stateParams, inboxMailboxesService, _, esnPreviousState) {
+  .controller('inboxDeleteFolderController', function($scope, $state, $stateParams, inboxMailboxesService, _) {
     inboxMailboxesService
       .assignMailbox($stateParams.mailbox, $scope, true)
       .then(function(mailbox) {
@@ -356,7 +356,7 @@ angular.module('linagora.esn.unifiedinbox')
       });
 
     this.deleteFolder = function() {
-      esnPreviousState.go('unifiedinbox');
+      $state.go('unifiedinbox');
 
       return inboxMailboxesService.destroyMailbox($scope.mailbox);
     };
@@ -364,7 +364,7 @@ angular.module('linagora.esn.unifiedinbox')
 
   .controller('inboxConfigurationVacationController', function($rootScope, $scope, $state, $stateParams, $q,
                                                                moment, jmap, withJmapClient, rejectWithErrorNotification,
-                                                               asyncJmapAction, esnPreviousState, INBOX_EVENTS) {
+                                                               asyncJmapAction, esnPreviousPage, INBOX_EVENTS) {
     var self = this;
 
     this.momentTimes = {
@@ -450,7 +450,7 @@ angular.module('linagora.esn.unifiedinbox')
     this.updateVacation = function() {
       return _validateVacationLogic()
         .then(function() {
-          esnPreviousState.go('unifiedinbox');
+          esnPreviousPage.back('unifiedinbox');
 
           if (!$scope.vacation.hasToDate) {
             $scope.vacation.toDate = null;

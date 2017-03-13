@@ -7,5 +7,5 @@
         p
           | {{ ::message }}
       .modal-footer
-        button.btn.btn-link(type="button", ui-sref="^") #{__('Cancel')}
+        button.btn.btn-link(type="button", esn-back-button="^") #{__('Cancel')}
         button.btn.btn-primary(type="button", esn-submit="ctrl.deleteFolder()") #{__('Delete')}

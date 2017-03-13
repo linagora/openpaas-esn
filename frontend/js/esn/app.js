@@ -87,7 +87,7 @@ angular.module('esnApp', [
   'uuid4',
   'luegg.directives',
   'esn.touchscreen-detector',
-  'esn.previous-state',
+  'esn.previous-page',
   'esn.ldap',
   'esn.attachment-list',
   'esn.attachment'
