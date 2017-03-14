@@ -18,11 +18,10 @@
       this.href = calendar._links.self.href;
       this.id = this.href.split('/').pop().split('.').shift();
       this.selected = this.id === DEFAULT_CALENDAR_ID;
+
       this.acl = calendar.acl;
       this.invite = calendar.invite;
-
       this.rights = addRightsForSharedCalendar(calendar);
-
       this.readOnly = checkReadOnly(this.rights, session.user._id);
     }
 

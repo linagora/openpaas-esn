@@ -62,7 +62,7 @@
       };
 
       return calendarService.listCalendars(session.user._id, options).then(function(calendars) {
-        self.calendars = calendars;
+        self.calendars = _.clone(calendars);
 
         refreshCalendarsList();
       });
@@ -82,7 +82,7 @@
     }
 
     function handleCalendarRemove(event, calendar) {
-      _.remove(self.calendars, calendar);
+      _.remove(self.calendars, { id: calendar.id });
       refreshCalendarsList();
     }
 

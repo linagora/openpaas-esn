@@ -96,13 +96,14 @@
     * @param  {String}     calendarHomeId  The calendar home id
     * @param  {String}     calendarId      The calendar id
     */
-    function removeCalendar(calendarHomeId, calendar) {
-      return calendarAPI.removeCalendar(calendarHomeId, calendar.id).then(function(response) {
-        _.remove(calendarsCache[calendarHomeId], {id: calendar.id});
-        $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.REMOVE, calendar);
+   function removeCalendar(calendarHomeId, calendar) {
+     return calendarAPI.removeCalendar(calendarHomeId, calendar.id)
+       .then(function(response) {
+         _.remove(calendarsCache[calendarHomeId], {id: calendar.id});
+         $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.REMOVE, calendar);
 
-        return response;
-      });
+         return response;
+       });
     }
 
     /**
