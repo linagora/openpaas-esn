@@ -1,9 +1,12 @@
 'use strict';
 
-var q = require('q');
-var esnConfig = require('../../core/esn-config');
-var followModule = require('../../core/user/follow');
-var sanitizeUser = require('../controllers/utils').sanitizeUser;
+const q = require('q');
+const esnConfig = require('../../core/esn-config');
+const followModule = require('../../core/user/follow');
+const sanitizeUser = require('../controllers/utils').sanitizeUser;
+const rights = require('../../core/esn-config/rights');
+
+const isUserWide = true;
 
 function sanitize(user, options) {
   return q(sanitizeUser(user, options.doNotKeepPrivateData || false));
@@ -48,7 +51,11 @@ function setState(user, sanitized) {
 }
 
 function loadConfigurations(user, sanitized) {
-  return esnConfig.getConfigsForUser(user).then(function(configs) {
+  return esnConfig.getConfigsForUser(user, isUserWide).then(configs => {
+    configs.modules.map(module => {
+      module.configurations = module.configurations.filter(configuration => rights.userCanRead(module.name, configuration.name));
+    }).filter(Boolean);
+
     sanitized.configurations = configs;
 
     return sanitized;
