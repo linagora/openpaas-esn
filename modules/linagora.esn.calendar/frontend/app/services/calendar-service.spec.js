@@ -248,6 +248,20 @@ describe('The calendarService service', function() {
 
       this.$httpBackend.flush();
     });
+
+    it('should call the calendarAPI.removeCalendar with right params', function() {
+      var options = {
+        withRights: true
+      };
+
+      this.calendarAPI.getCalendar = sinon.spy(function() {
+        return $q.when();
+      });
+
+      this.calendarService.getCalendar('homeId', 'id', options);
+
+      expect(this.calendarAPI.getCalendar).to.be.calledWith('homeId', 'id', options);
+    });
   });
 
   describe('The get right calendar fn', function() {

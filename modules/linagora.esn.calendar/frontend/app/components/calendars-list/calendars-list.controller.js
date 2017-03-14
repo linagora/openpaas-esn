@@ -11,9 +11,9 @@
     calendarService,
     calendarVisibilityService,
     session,
+    userAndSharedCalendars,
     _,
-    CALENDAR_EVENTS,
-    CALENDAR_RIGHT
+    CALENDAR_EVENTS
   ) {
     var self = this;
 
@@ -62,9 +62,9 @@
       };
 
       return calendarService.listCalendars(session.user._id, options).then(function(calendars) {
-        self.calendars = calendars;
+        self.calendars = _.clone(calendars);
 
-        refeshCalendarsList();
+        refreshCalendarsList();
       });
     }
 
@@ -78,35 +78,19 @@
 
     function handleCalendarAdd(event, calendar) {
       self.calendars.push(calendar);
-      refeshCalendarsList();
+      refreshCalendarsList();
     }
 
     function handleCalendarRemove(event, calendar) {
-      _.remove(self.calendars, calendar);
-      refeshCalendarsList();
+      _.remove(self.calendars, { id: calendar.id });
+      refreshCalendarsList();
     }
 
-    function refeshCalendarsList() {
-      self.myCalendars = self.calendars.filter(function(calendar) {
-        if (calendar.rights) {
-          var rights = calendar.rights.getUserRight(session.user._id);
+    function refreshCalendarsList() {
+      var calendars = userAndSharedCalendars(self.calendars);
 
-          return rights === CALENDAR_RIGHT.ADMIN;
-        }
-
-        return true;
-      });
-
-      self.sharedCalendars = self.calendars.filter(function(calendar) {
-        if (!_.contains(self.myCalendars, calendar) && calendar.rights) {
-          var delegationRight = calendar.rights.getUserRight(session.user._id);
-          var publicRight = calendar.rights.getPublicRight();
-
-          return delegationRight === CALENDAR_RIGHT.SHAREE_READ || publicRight === CALENDAR_RIGHT.PUBLIC_READ;
-        }
-
-        return false;
-      });
+      self.userCalendars = calendars.userCalendars;
+      self.sharedCalendars = calendars.sharedCalendars;
     }
   }
 })();

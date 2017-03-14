@@ -147,10 +147,10 @@
      * @param  {String} calendarId     The calendarId.
      * @return {Object} An array of dav:calendar
      */
-    function getCalendar(calendarHomeId, calendarId) {
+    function getCalendar(calendarHomeId, calendarId, options) {
       var path = calPathBuilder.forCalendarId(calendarHomeId, calendarId);
 
-      return request('get', path, {Accept: CALENDAR_ACCEPT_HEADER}).then(responseHandler(200, _.property('data')));
+      return request('get', path, {Accept: CALENDAR_ACCEPT_HEADER}, {}, options).then(responseHandler(200, _.property('data')));
     }
 
     /**

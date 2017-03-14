@@ -4,22 +4,6 @@
   angular.module('esn.calendar')
          .controller('calEventFormController', calEventFormController);
 
-  calEventFormController.$inject = [
-    '$alert',
-    '$scope',
-    '$state',
-    '_',
-    'calendarService',
-    'calendarUtils',
-    'calEventService',
-    'calEventUtils',
-    'notificationFactory',
-    'calOpenEventForm',
-    'session',
-    'CALENDAR_EVENTS',
-    'EVENT_FORM'
-  ];
-
   function calEventFormController(
     $alert,
     $scope,
@@ -49,7 +33,6 @@
       $scope.canPerformCall = canPerformCall;
       $scope.goToCalendar = goToCalendar;
       $scope.goToFullForm = goToFullForm;
-      $scope.displayCalMailToAttendeesButton = displayCalMailToAttendeesButton;
 
       // Initialize the scope of the form. It creates a scope.editedEvent which allows us to
       // rollback to scope.event in case of a Cancel.
@@ -58,6 +41,10 @@
       ////////////
 
       function displayCalMailToAttendeesButton() {
+        if ($scope.calendar && $scope.calendar.readOnly) {
+          return calEventUtils.hasAttendees($scope.editedEvent) && !calEventUtils.isInvolvedInATask($scope.editedEvent) && !calEventUtils.isNew($scope.editedEvent) && !$scope.calendar.readOnly;
+        }
+
         return calEventUtils.hasAttendees($scope.editedEvent) && !calEventUtils.isInvolvedInATask($scope.editedEvent) && !calEventUtils.isNew($scope.editedEvent);
       }
 
@@ -85,13 +72,13 @@
       }
 
       function initFormData() {
-        $scope.editedEvent = $scope.event.clone();
-        $scope.newAttendees = calEventUtils.getNewAttendees();
+        var options = {
+          withRights: true
+        };
 
-        calendarService.listCalendars(calendarService.calendarHomeId).then(function(calendars) {
-          $scope.calendars = calendars;
-          $scope.calendar = calEventUtils.isNew($scope.editedEvent) ? _.find(calendars, 'selected') : _.find(calendars, {id: $scope.editedEvent.calendarId});
-        });
+        $scope.editedEvent = $scope.event.clone();
+
+        $scope.newAttendees = calEventUtils.getNewAttendees();
 
         $scope.isOrganizer = calEventUtils.isOrganizer($scope.editedEvent);
 
@@ -112,6 +99,14 @@
         if (!$scope.editedEvent.class) {
           $scope.editedEvent.class = EVENT_FORM.class.default;
         }
+
+        calendarService.listCalendars(calendarService.calendarHomeId, options).then(function(calendars) {
+          $scope.calendars = calendars;
+          $scope.calendar = calEventUtils.isNew($scope.editedEvent) ? _.find(calendars, 'selected') : _.find(calendars, {id: $scope.editedEvent.calendarId});
+          $scope.readOnly = readOnly();
+          $scope.displayParticipationButton = displayParticipationButton();
+          $scope.displayCalMailToAttendeesButton = displayCalMailToAttendeesButton;
+        });
       }
 
       function initOrganizer() {
@@ -119,6 +114,22 @@
 
         $scope.editedEvent.organizer = { displayName: displayName, emails: session.user.emails };
         $scope.editedEvent.setOrganizerPartStat($scope.editedEvent.getOrganizerPartStat());
+      }
+
+      function readOnly() {
+        if ($scope.calendar && $scope.calendar.readOnly) {
+          return !$scope.isOrganizer || $scope.calendar.readOnly;
+        }
+
+        return !$scope.isOrganizer;
+      }
+
+      function displayParticipationButton() {
+        if ($scope.calendar && $scope.calendar.readOnly) {
+          return ($scope.editedEvent.attendees.length > 1 || $scope.newAttendees.length > 0) && !$scope.calendar.readOnly;
+        }
+
+        return $scope.editedEvent.attendees.length > 1 || $scope.newAttendees.length > 0;
       }
 
       function canPerformCall() {

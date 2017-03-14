@@ -11,15 +11,26 @@
         i.mdi.mdi-calendar
       .media-body
         .lv-title #{__('Shared calendars')}
-  a.lv-item.calendar-item(href="", ng-repeat="calendar in $ctrl.sharedCalendars track by calendar.id", ng-class="{'selected-calendar': calendar.selected}")
+  a.lv-item.calendar-item(href="", ng-repeat="calendar in $ctrl.sharedCalendars track by $index", ng-class="{'selected-calendar': calendar.selected && !calendar.readOnly}")
     .media
       .pull-left(ng-if="!$ctrl.hiddenCalendars[calendar.id]", ng-click="$ctrl.toggleCalendar(calendar)", title="#{__('Hide calendar')}")
         i.mdi.mdi-checkbox-marked-outline(ng-style="{'color': calendar.color}")
       .pull-left(ng-if="$ctrl.hiddenCalendars[calendar.id]", ng-click="$ctrl.toggleCalendar(calendar)", title="#{__('Show calendar')}")
         i.mdi.mdi-checkbox-blank-outline
-      .media-body.hidden-lg(ng-click="$ctrl.selectCalendar(calendar)")
+      .pull-right.hidden-xs(ui-sref='calendar.shared({calendarId: calendar.id})', title="#{__('Consult')}")
+        i.mdi.mdi-settings
+      .pull-right(title="{{calendar.currentUserRight}}")
+        i.mdi.mdi-pencil(ng-if="!calendar.readOnly", ng-style="{'color': calendar.color}")
+        i.mdi.mdi-pencil-off(ng-if="calendar.readOnly", ng-style="{'color': calendar.color}")
+      .media-body.hidden-lg(ng-if="!calendar.readOnly", ng-click="$ctrl.selectCalendar(calendar)")
         .lv-title
           span {{calendar.name}}
-      .media-body.visible-lg-block(ng-click="$ctrl.selectCalendar(calendar)", title="{{ calendar.name }}")
+      .media-body.hidden-lg(ng-if="calendar.readOnly")
+        .lv-title
+          span {{calendar.name}}
+      .media-body.visible-lg-block(ng-if="!calendar.readOnly", title="{{ calendar.name }}", ng-click="$ctrl.selectCalendar(calendar)")
+        .lv-title
+          span {{calendar.name}}
+      .media-body.visible-lg-block(ng-if="calendar.readOnly", title="{{ calendar.name }}")
         .lv-title
           span {{calendar.name}}

@@ -1,0 +1,35 @@
+.calendar-shared-consultation.card
+  sub-header
+    calendar-shared-consultationation-header
+  .block-header.hidden-xs
+    h2 #{__('Consult shared calendar')}
+  .calendar-shared-consultation-body
+    .calendar-name
+      .row
+        .col-xs-3
+          div #{__('Name')}
+        .col-xs-9
+          div {{ $ctrl.calendar.name }}
+    .calendar-color
+      .row
+        .col-xs-3
+          div #{__('Color')}
+        .col-xs-9
+          .color-picker-container
+            i.color-picker-value(ng-style="{'background-color': $ctrl.calendar.color}")
+    .calendar-author
+      .row
+        .col-xs-3
+          div #{__('Owner')}
+        .col-xs-9
+          div {{ $ctrl.calendarOwner.firstname + ' ' + $ctrl.calendarOwner.lastname }}
+     hr
+    .delegation-title #{__('Your right on this calendar')}
+    .delegation-line
+      .col-xs-2
+        a.attendee-avatar(href="", ng-attr-title="$ctrl.user.displayName")
+          img(src="/images/user.png", fallback-src="/images/user.png", ng-src="/api/avatars?email={{ $ctrl.user.preferredEmail | urlencode }}")
+      .col-xs-7.col-md-4.name
+        div {{ $ctrl.user.firstname + ' ' + $ctrl.user.lastname }}
+      .col-xs-4.col-md-2
+        div {{ $ctrl.userRight }}

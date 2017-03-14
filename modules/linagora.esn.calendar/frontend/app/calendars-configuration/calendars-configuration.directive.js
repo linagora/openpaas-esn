@@ -20,22 +20,12 @@
     return directive;
   }
 
-  function CalendarsConfigurationController($state) {
+  function CalendarsConfigurationController(userAndSharedCalendars) {
     var self = this;
+    var calendars = userAndSharedCalendars(self.calendars);
 
-    self.calendars = self.calendars || [];
-    self.modify = modify;
-    self.add = add;
-
-    ////////////
-
-    function modify(calendar) {
-      $state.go('calendar.edit', {calendarId: calendar.id});
-    }
-
-    function add() {
-      $state.go('calendar.add');
-    }
+    self.userCalendars = calendars.userCalendars;
+    self.sharedCalendars = calendars.sharedCalendars;
   }
 
 })();

@@ -5,7 +5,7 @@
     .component('calUserCalendarsList', {
       templateUrl: '/calendar/app/components/calendars-list/user-calendars-list/user-calendars-list.html',
       bindings: {
-        myCalendars: '=',
+        userCalendars: '=',
         toggleCalendar: '=',
         selectCalendar: '=',
         hiddenCalendars: '='

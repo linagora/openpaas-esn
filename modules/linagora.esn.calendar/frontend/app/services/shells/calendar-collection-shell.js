@@ -4,7 +4,7 @@
   angular.module('esn.calendar')
          .factory('CalendarCollectionShell', CalendarCollectionShellFactory);
 
-  function CalendarCollectionShellFactory(calPathBuilder, CalendarRightShell, CALENDAR_DEDAULT_EVENT_COLOR, DEFAULT_CALENDAR_ID) {
+  function CalendarCollectionShellFactory(calPathBuilder, CalendarRightShell, session, CALENDAR_DEDAULT_EVENT_COLOR, DEFAULT_CALENDAR_ID, CALENDAR_RIGHT) {
     /**
      * A shell that wraps an caldav calendar component.
      * Note that href is the unique identifier and id is the calendarId inside the calendarHomeId
@@ -19,7 +19,10 @@
       this.id = this.href.split('/').pop().split('.').shift();
       this.selected = this.id === DEFAULT_CALENDAR_ID;
 
+      this.acl = calendar.acl;
+      this.invite = calendar.invite;
       this.rights = addRightsForSharedCalendar(calendar);
+      this.readOnly = checkReadOnly(this.rights, session.user._id);
     }
 
     CalendarCollectionShell.toDavCalendar = toDavCalendar;
@@ -45,7 +48,9 @@
         id: shell.id,
         'dav:name': shell.name,
         'apple:color': shell.color,
-        'caldav:description': shell.description
+        'caldav:description': shell.description,
+        acl: shell.acl,
+        invite: shell.invite
       };
     }
 
@@ -59,7 +64,9 @@
         _links: {self: {href: object.href}},
         'dav:name': object.name,
         'apple:color': object.color,
-        'caldav:description': object.description
+        'caldav:description': object.description,
+        acl: object.acl,
+        invite: object.invite
       });
     }
 
@@ -71,6 +78,14 @@
       if (calendar.invite && calendar.acl) {
        return new CalendarRightShell(calendar.acl, calendar.invite);
       }
+    }
+
+    function checkReadOnly(rights, userId) {
+      if (rights) {
+        return rights.getUserRight(userId) === CALENDAR_RIGHT.SHAREE_READ;
+      }
+
+      return false;
     }
   }
 })();
