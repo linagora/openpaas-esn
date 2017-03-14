@@ -1,0 +1,65 @@
+.esn-collaboration-members {
+  .esn-collaboration-members-add {
+    .flex-column;
+    padding-top: 25px;
+
+    .list-empty {
+      .all-centered;
+      .flex-column;
+
+      color: @accentColor;
+      font-size: 8em;
+      opacity: 0.7;
+
+      .message {
+        color: @secondaryTextColor;
+        font-size: 16px;
+      }
+    }
+  }
+
+  .esn-collaboration-search-form {
+    .flex;
+
+    &.fg-line:not([class*=has-]):after {
+      background: @primaryColor;
+    }
+
+    .esn-collaboration-search-input {
+      top: 0;
+      height: @searchInputHeight;
+      background: @textPrimaryColor;
+      input[type="text"] {
+        font-size: 16px;
+        padding: 8px 0 0 30px;
+        width: 90%;
+        border: 0;
+        border-radius: 0;
+        background: @textPrimaryColor;
+      }
+      i {
+        padding-top: 5px;
+        font-size: x-large;
+        color: @darkPrimaryColor;
+        position: absolute;
+      }
+
+      .mdi-close {
+        color: @m-white;
+      }
+
+      &.form-control:not(.fc-alt) {
+        border-bottom: 1px solid @darkPrimaryColor;
+      }
+    }
+
+    .esn-collaboration-search-input:before {
+      font-family: 'MaterialDesignIcons';
+      content: "\f43b";
+      position: absolute;
+      padding: 2px 10px 0 5px;
+      font-size: x-large;
+      color: @lighterSecondaryTextColor;
+    }
+  }
+}

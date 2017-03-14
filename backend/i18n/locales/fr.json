@@ -384,5 +384,6 @@
   "A new application is requesting an authorization": "Une nouvelle application demande une autorisation",
   "Title": "Titre",
   "Name": "Nom",
-  "Enter a name": "Entrez un nom"
+  "Enter a name": "Entrez un nom",
+  "No member found": "Aucun membre trouvé"
 }

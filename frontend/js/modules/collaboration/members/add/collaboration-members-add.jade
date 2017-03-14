@@ -1,0 +1,13 @@
+.esn-collaboration-members
+  .esn-collaboration-search-form
+    .esn-collaboration-search-input.form-control
+      form(ng-submit='ctrl.onChange()')
+        input(type="text", ng-model="ctrl.query", ng-change='ctrl.onChange()')
+  .esn-collaboration-members-add
+    infinite-list(load-more-elements='ctrl.loadMoreElements()')
+      esn-collaboration-members-add-item(member="member",object-type="ctrl.objectType", collaboration="ctrl.collaboration" ng-repeat="member in ctrl.elements", ng-if="ctrl.elements.length > 0")
+      .list-empty(ng-if="!ctrl.elements.length && ctrl.infiniteScrollCompleted")
+        i.mdi.mdi-check
+        .message #{__('No member found')}
+      span(ng-if='ctrl.infiniteScrollDisabled')
+        .text-center(openpaas-logo-spinner, spinner-start-active='1', spinner-size='0.5')
