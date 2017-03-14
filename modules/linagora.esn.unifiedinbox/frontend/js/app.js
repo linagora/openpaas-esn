@@ -55,6 +55,14 @@ angular.module('linagora.esn.unifiedinbox', [
       function toggleElementOpened(opening) {
         return function($rootScope) {
           $rootScope.inbox.list.isElementOpened = opening;
+
+          if (opening) {
+            $rootScope.inbox.list.infiniteScrollDisabled = opening;
+          } else {
+            $rootScope.$applyAsync(function() {
+              $rootScope.inbox.list.infiniteScrollDisabled = false;
+            });
+          }
         };
       }
 
@@ -382,7 +390,8 @@ angular.module('linagora.esn.unifiedinbox', [
   .run(function($rootScope) {
     $rootScope.inbox = {
       list: {
-        isElementOpened: false
+        isElementOpened: false,
+        infiniteScrollDisabled: false
       },
       rightSidebar: {
         isVisible: false

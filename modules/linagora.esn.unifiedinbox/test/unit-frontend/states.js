@@ -145,6 +145,7 @@ describe('The Inbox states', function() {
 
       expect($rootScope.inbox.rightSidebar.isVisible).to.equal(true);
       expect($rootScope.inbox.list.isElementOpened).to.equal(true);
+      expect($rootScope.inbox.list.infiniteScrollDisabled).to.equal(true);
     });
 
   });
