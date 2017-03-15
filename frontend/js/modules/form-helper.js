@@ -31,8 +31,10 @@ angular.module('esn.form.helper', [
       var checker = function() {
         var e1 = scope.$eval(attrs.ngModel);
         var e2 = scope.$eval(attrs.passwordMatch);
+
         return e1 === e2;
       };
+
       scope.$watch(checker, function(n) {
         control.$setValidity('unique', n);
       });
@@ -204,4 +206,14 @@ angular.module('esn.form.helper', [
     options: '=',
     error: '<'
   }
+})
+
+.directive('esnAutocompleteOff', function() {
+  return {
+    restrict: 'A',
+    link: function(scope, element) {
+      element.prepend(angular.element('<input style="display:none" type="text">'));
+      element.prepend(angular.element('<input style="display:none" type="password">'));
+    }
+  };
 });

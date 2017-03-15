@@ -489,4 +489,34 @@ describe('The esn.form.helper Angular module', function() {
     });
   });
 
+  describe('The esnAutocompleteOff directive', function() {
+    var $compile, $rootScope;
+    var $scope;
+
+    beforeEach(inject(function(_$compile_, _$rootScope_) {
+      $compile = _$compile_;
+      $rootScope = _$rootScope_;
+      $scope = $rootScope.$new();
+    }));
+
+    function initDirective(html) {
+      var element = $compile(html)($scope);
+
+      $scope.$digest();
+
+      return element;
+    }
+
+    it('should add a hidden input type text', function() {
+      var element = initDirective('<form esn-autocomplete-off></form>');
+
+      expect(element.find('input[type="text"]').length).to.equal(1);
+    });
+
+    it('should add a hidden input type password', function() {
+      var element = initDirective('<form esn-autocomplete-off></form>');
+
+      expect(element.find('input[type="password"]').length).to.equal(1);
+    });
+  });
 });
