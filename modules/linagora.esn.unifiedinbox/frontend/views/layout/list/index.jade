@@ -13,7 +13,7 @@ sub-header(ng-if="!inbox.list.isElementOpened")
 
     infinite-list(keep-scroll-position, load-more-elements="loadMoreElements()", load-recent-items="loadRecentItems()", element-selector=".inbox-list-item", infinite-scroll-disabled="inbox.list.infiniteScrollDisabled").inbox-list
 
-      .inbox-items-group(ng-repeat="item in groupedElements | inboxFilterJmapItems | orderBy: '-date' as visibleItems")
+      .inbox-items-group(ng-repeat="item in groupedElements | inboxFilterJmapItems | orderBy: '-date' | inboxLinkItems as visibleItems")
 
         .block-header(ng-if="$first || visibleItems[$index - 1].group !== item.group")
           h2 {{ ::item.group.name }}
