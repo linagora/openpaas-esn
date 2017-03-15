@@ -120,13 +120,14 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
   describe('The unifiedInboxController', function() {
 
-    var inboxFilters, inboxFilteringService, inboxProviders, PROVIDER_TYPES;
+    var INBOX_CONTROLLER_LOADING_STATES, inboxFilters, inboxFilteringService, inboxProviders, PROVIDER_TYPES;
 
-    beforeEach(inject(function(_PROVIDER_TYPES_, _inboxProviders_, _inboxFilteringService_, _inboxFilters_) {
+    beforeEach(inject(function(_PROVIDER_TYPES_, _inboxProviders_, _inboxFilteringService_, _inboxFilters_, _INBOX_CONTROLLER_LOADING_STATES_) {
       PROVIDER_TYPES = _PROVIDER_TYPES_;
       inboxProviders = _inboxProviders_;
       inboxFilters = _inboxFilters_;
       inboxFilteringService = _inboxFilteringService_;
+      INBOX_CONTROLLER_LOADING_STATES = _INBOX_CONTROLLER_LOADING_STATES_;
     }));
 
     afterEach(function() {
@@ -144,6 +145,16 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           JMAP: {}
         }
       });
+    });
+
+    it('should set state to ERROR when inboxProviders.getAll rejects', function() {
+      inboxProviders.getAll = sinon.spy(function() {
+        return $q.reject(new Error());
+      });
+
+      var ctrl = initController('unifiedInboxController');
+
+      expect(ctrl.state).to.equal(INBOX_CONTROLLER_LOADING_STATES.ERROR);
     });
 
     it('should reset selection', function() {

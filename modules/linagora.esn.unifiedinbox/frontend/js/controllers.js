@@ -3,20 +3,24 @@
 angular.module('linagora.esn.unifiedinbox')
 
   .controller('unifiedInboxController', function($scope, inboxFilteringAwareInfiniteScroll, inboxProviders, inboxSelectionService,
-                                                 PageAggregatorService, _, sortByDateInDescendingOrder, inboxFilteringService,
+                                                 PageAggregatorService, _, sortByDateInDescendingOrder, inboxFilteringService, inboxAsyncHostedMailControllerHelper,
                                                  ELEMENTS_PER_PAGE) {
-    inboxSelectionService.unselectAllItems();
-    inboxFilteringAwareInfiniteScroll($scope, function() {
-      return inboxFilteringService.getFiltersForUnifiedInbox();
-    }, function() {
-      return inboxProviders.getAll({
-        acceptedTypes: inboxFilteringService.getAcceptedTypesFilter(),
-        filterByType: { JMAP: inboxFilteringService.getJmapFilter() }
-      }).then(function(providers) {
-        return new PageAggregatorService('unifiedInboxControllerAggregator', providers, {
-          compare: sortByDateInDescendingOrder,
-          results_per_page: ELEMENTS_PER_PAGE
-        }).bidirectionalFetcher();
+
+    inboxAsyncHostedMailControllerHelper(this, function() {
+      inboxSelectionService.unselectAllItems();
+
+      return inboxFilteringAwareInfiniteScroll($scope, function() {
+        return inboxFilteringService.getFiltersForUnifiedInbox();
+      }, function() {
+        return inboxProviders.getAll({
+          acceptedTypes: inboxFilteringService.getAcceptedTypesFilter(),
+          filterByType: { JMAP: inboxFilteringService.getJmapFilter() }
+        }).then(function(providers) {
+          return new PageAggregatorService('unifiedInboxControllerAggregator', providers, {
+            compare: sortByDateInDescendingOrder,
+            results_per_page: ELEMENTS_PER_PAGE
+          }).bidirectionalFetcher();
+        });
       });
     });
   })

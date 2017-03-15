@@ -15,7 +15,7 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .service('jmapClientProvider', function($q, inboxConfig, jmap, dollarHttpTransport, dollarQPromiseProvider, generateJwtToken) {
-    var promise;
+    var jmapClient;
 
     function _initializeJmapClient() {
       return $q.all([
@@ -23,19 +23,16 @@ angular.module('linagora.esn.unifiedinbox')
         inboxConfig('api'),
         inboxConfig('downloadUrl')
       ]).then(function(data) {
-        return new jmap.Client(dollarHttpTransport, dollarQPromiseProvider)
+        jmapClient = new jmap.Client(dollarHttpTransport, dollarQPromiseProvider)
           .withAPIUrl(data[1])
           .withDownloadUrl(data[2])
           .withAuthenticationToken('Bearer ' + data[0]);
+        return jmapClient;
       });
     }
 
     function get() {
-      if (!promise) {
-        promise = _initializeJmapClient();
-      }
-
-      return promise;
+      return jmapClient ? $q.when(jmapClient) : _initializeJmapClient();
     }
 
     return {
@@ -45,9 +42,7 @@ angular.module('linagora.esn.unifiedinbox')
 
   .factory('withJmapClient', function(jmapClientProvider) {
     return function(callback) {
-      return jmapClientProvider.get().then(function(client) {
-        return callback(client);
-      }, callback.bind(null, null));
+      return jmapClientProvider.get().then(callback);
     };
   })
 

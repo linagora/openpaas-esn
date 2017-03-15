@@ -178,13 +178,16 @@ describe('The Unified Inbox Angular module services', function() {
       $rootScope.$digest();
     });
 
-    it('should resolve the callback with a null instance and an error when jmapClient cannot be built', function(done) {
-      jmapClientProviderMock.get = function() { return $q.reject(new Error()); };
+    it('should reject when jmapClient cannot be built', function(done) {
+      var errorMessage = 'JMAP';
+      jmapClientProviderMock.get = function() {
+        return $q.reject(new Error(errorMessage));
+      };
 
-      withJmapClient(function(client, err) {
+      withJmapClient(function(client) {
         expect(client).to.equal(null);
-        expect(err).to.be.an.instanceOf(Error);
-
+      }).catch(function(err) {
+        expect(err.message).to.equal(errorMessage);
         done();
       });
       $rootScope.$digest();
