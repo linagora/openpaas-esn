@@ -6,7 +6,7 @@ var expect = chai.expect;
 
 describe('The calendarsList controller', function() {
   var $rootScope, $scope, $controller, CalendarCollectionShell, CALENDAR_EVENTS, CALENDAR_RIGHT, CALENDAR_SHARED_RIGHT;
-  var calendars, CalendarsListController, calendarServiceMock, hiddenCalendar, calendarVisibilityServiceMock;
+  var calendars, CalendarsListController, calendarServiceMock, hiddenCalendar, calendarVisibilityServiceMock, calPublicCalendarStoreMock, publicCalendar;
 
   function initController() {
     return $controller('CalendarsListController', { $scope: $scope });
@@ -29,11 +29,26 @@ describe('The calendarsList controller', function() {
       toggle: sinon.spy()
     };
 
+    publicCalendar = {
+      id: '5',
+      href: 'public calendar href',
+      name: 'public calendar name',
+      color: 'public calendar color',
+      description: 'public calendar description'
+    };
+
+    calPublicCalendarStoreMock = {
+      getAll: function() {
+        return [];
+      }
+    };
+
     angular.mock.module('esn.calendar');
 
     angular.mock.module(function($provide) {
       $provide.value('calendarService', calendarServiceMock);
       $provide.value('calendarVisibilityService', calendarVisibilityServiceMock);
+      $provide.value('calPublicCalendarStore', calPublicCalendarStoreMock);
     });
 
   });
@@ -296,13 +311,17 @@ describe('The calendarsList controller', function() {
     describe('the listCalendars function', function() {
 
       it('should initialize calendars with all the calendars from calendarService.listCalendars', function() {
+        calPublicCalendarStoreMock.getAll = function() {
+          return [publicCalendar];
+        };
+
         CalendarsListController.$onInit();
 
         CalendarsListController.arrangeCalendars = sinon.spy();
 
         $rootScope.$digest();
 
-        expect(CalendarsListController.calendars).to.deep.equal(calendars);
+        expect(CalendarsListController.calendars).to.deep.equal(calendars.concat(calPublicCalendarStoreMock.getAll()));
       });
 
       it('should call calendarService.listCalendars with the two params', function() {
