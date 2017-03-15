@@ -714,7 +714,7 @@ describe('The calendar configuration controller', function() {
         });
 
         it('should call modifyPublicRights with read argument when public right is changed to read', function() {
-          calendarConfigurationController.publicSelection = CALENDAR_RIGHT.CUSTOM;
+          calendarConfigurationController.publicSelection = CALENDAR_RIGHT.PUBLIC_READ;
 
           calendarConfigurationController.submit();
           $rootScope.$digest();

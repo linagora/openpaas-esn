@@ -171,18 +171,20 @@
             $state.go('calendar.main');
           });
       } else {
-        calendarRight.then(function(calendarRight) {
-          originalCalendarRight = calendarRight.clone();
-          CaldelegationEditionHelperInstance.getAllRemovedUsersId().map(calendarRight.removeUserRight.bind(calendarRight));
-
-          self.delegations.forEach(function(line) {
-            calendarRight.update(line.user._id, line.user.preferredEmail, line.selection);
+        calendarRight.then(function(calendarRightShell) {
+          originalCalendarRight = calendarRightShell.clone();
+          CaldelegationEditionHelperInstance.getAllRemovedUsersId().map(function(removedUserId) {
+            calendarRightShell.removeUserRight(removedUserId);
           });
 
-          var rightChanged = !calendarRight.equals(originalCalendarRight);
+          self.delegations.forEach(function(line) {
+            calendarRightShell.update(line.user._id, line.user.preferredEmail, line.selection);
+          });
+
+          var rightChanged = !calendarRightShell.equals(originalCalendarRight);
           var calendarChanged = _hasModifications(self.oldCalendar, self.calendar);
           var updateActions = [];
-          var publicRightChanged = self.publicSelection !== calendarRight.getPublicRight();
+          var publicRightChanged = self.publicSelection !== calendarRightShell.getPublicRight();
 
           if (!rightChanged && !calendarChanged && !publicRightChanged) {
             if (matchmedia.is(SM_XS_MEDIA_QUERY)) {
@@ -195,16 +197,16 @@
           }
 
           if (calendarChanged) {
-            updateActions.push(calendarService.modifyCalendar(self.calendarHomeId, shell, calendarRight));
+            updateActions.push(calendarService.modifyCalendar(self.calendarHomeId, shell, calendarRightShell));
           }
 
           if (rightChanged) {
-            updateActions.push(calendarService.modifyRights(self.calendarHomeId, shell, calendarRight, originalCalendarRight));
+            updateActions.push(calendarService.modifyRights(self.calendarHomeId, shell, calendarRightShell, originalCalendarRight));
           }
 
           if (publicRightChanged) {
             switch (self.publicSelection) {
-              case CALENDAR_RIGHT.CUSTOM:
+              case CALENDAR_RIGHT.PUBLIC_READ:
                 updateActions.push(calendarAPI.modifyPublicRights(self.calendarHomeId, self.calendar.id, { public_right: '{DAV:}read' }));
                 break;
               case CALENDAR_RIGHT.WRITE:
