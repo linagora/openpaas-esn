@@ -6,6 +6,7 @@
     .constant('UI_CONFIG', {
       calendar: {
         defaultView: 'agendaWeek',
+        scrollTime: '08:00:00',
         theme: true,
         height: 450,
         editable: true,
@@ -44,7 +45,8 @@
           week: {
             eventLimit: 3,
             eventLimitClick: 'dayWithDisplayedEvent',
-            eventLimitText: '...'
+            eventLimitText: '...',
+            columnFormat: 'ddd D'
           },
           day: {
             eventLimit: true,
@@ -66,7 +68,8 @@
           left: 'prev',
           center: 'title',
           right: 'next'
-        }
+        },
+        dayNamesShort: ['S', 'M', 'T', 'W', 'T', 'F', 'S']
       }
     })
 
