@@ -17,9 +17,6 @@ block right
       inbox-list-sidebar-attachment-button(ng-if="ctrl.showAttachmentButton", ng-class='{ selected : inbox.rightSidebar.isVisible }')
       inbox-filter-button.clickable(ng-if="::filters", filters="::filters")
     .inbox-selection-aware-subheader.inbox-selecting(ng-switch-when="true")
-      button.btn.btn-link.btn-icon.button(ng-click="ctrl.moveToTrash()", title="#{__('Delete')}")
-        i.mdi.mdi-delete
-      button.btn.btn-link.btn-icon.button(ng-click="ctrl.markAsRead()", title="#{__('Read')}")
-        i.mdi.mdi-eye
-      button.btn.btn-link.btn-icon.button(action-list="/unifiedinbox/views/layout/list/action-list.html")
-        i.mdi.mdi-dots-vertical
+      inbox-subheader-delete-button(ng-click="ctrl.moveToTrash()")
+      inbox-subheader-mark-as-read-button(ng-click="ctrl.markAsRead()")
+      inbox-subheader-more-button(action-list="/unifiedinbox/views/layout/list/action-list.html")

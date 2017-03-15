@@ -106,13 +106,6 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('inboxSubheaderMoreButton', function() {
-    return {
-      restrict: 'E',
-      templateUrl: '/unifiedinbox/views/partials/subheader/more-button.html'
-    };
-  })
-
   .directive('inboxSubheaderSaveButton', function() {
     return {
       restrict: 'E',
