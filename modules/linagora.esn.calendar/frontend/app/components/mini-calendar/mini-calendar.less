@@ -1,3 +1,6 @@
+@mini-calendar-highlight-size-mobile: 35px;
+@mini-calendar-highlight-size-desktop: 38px;
+
 .mini-calendar {
 
   .dp-inline {
@@ -13,6 +16,14 @@
     float: none;
   }
 
+  .fc-basic-view .fc-body .fc-row {
+    min-height: 3em;
+  }
+
+  tr:first-child>td>.fc-day-grid-event {
+    margin-top: 1px;
+  }
+
   .fc-head-container .fc-day-header, .fc-head-container .ui-widget-header .fc-week-number {
     padding: 3px 2px 1px 2px;
     border-width: 0;
@@ -22,7 +33,7 @@
   }
 
   .fc-rigid .fc-content-skeleton {
-    top: 17px;
+    top: 10px;
   }
 
   .fc td, .fc th {
@@ -31,9 +42,20 @@
     border-style: none;
   }
 
-  .fc-highlight {
+  .fc-row .fc-highlight {
+    background: transparent;
+  }
+
+  .fc-row  td[colspan="1"].fc-highlight {
+    border-radius: 50%;
     background: @text-color;
-    opacity: 0.05;
+    display: inline-block;
+    opacity: 0.1;
+    width: @mini-calendar-highlight-size-mobile;
+    height: @mini-calendar-highlight-size-mobile;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 3px;
   }
 
   .fc-today {
@@ -44,11 +66,11 @@
     border-radius: 50%;
     background-color: @primaryColor;
     display: list-item;
-    width: 40px;
-    height: 40px;
+    width: @mini-calendar-highlight-size-mobile;
+    height: @mini-calendar-highlight-size-mobile;
     margin-left: auto;
     margin-right: auto;
-    margin-top: 10px;
+    margin-top: 3px;
   }
 
   .fc-event-color {
@@ -137,5 +159,39 @@
     border-radius: 50%;
     width: 38px !important; /* override parent !important property */
     height: 38px;
+  }
+}
+
+
+@media (min-width: @screen-md-min) {
+  .mini-calendar {
+    .fc-basic-view .fc-body .fc-row {
+      min-height: 3.5em;
+    }
+
+    .fc-rigid .fc-content-skeleton {
+      top: 12px;
+    }
+
+    tr:first-child>td>.fc-day-grid-event {
+      margin-top: 2px;
+    }
+
+    .fc-day.ui-widget-content.fc-today {
+      width: @mini-calendar-highlight-size-desktop;
+      height: @mini-calendar-highlight-size-desktop;
+      margin-top: 5px;
+    }
+
+    .fc-row .fc-highlight {
+      background: @text-color;
+      opacity: 0.1;
+    }
+
+    .fc-row  td[colspan="1"].fc-highlight {
+      width: @mini-calendar-highlight-size-desktop;
+      height: @mini-calendar-highlight-size-desktop;
+      margin-top: 5px;
+    }
   }
 }
