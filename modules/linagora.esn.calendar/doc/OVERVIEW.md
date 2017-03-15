@@ -72,8 +72,8 @@ The ESN backend of the calendar module is basically a proxy for Sabre. The reque
 It also uses the grace period module (linagora.esn.graceperiod) in order to grace the requests before forwarding them. By grace period we mean that when an action is performed, this action is not immediately considered. Indeed, it is queued for a period of time before being considered.
 
 It includes a few http routes to
-+ invitation of attendees: sending appropriate mails when called by Sabre Scheduling plugin
-+ other features described in the Features part of this document
+* invitation of attendees: sending appropriate mails when called by Sabre Scheduling plugin
+* other features described in the Features part of this document
 
 ### Realtime
 
