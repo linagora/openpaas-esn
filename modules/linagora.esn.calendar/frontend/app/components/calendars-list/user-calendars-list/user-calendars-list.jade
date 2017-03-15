@@ -22,7 +22,7 @@
 
       .media-body
         .lv-title #{__('My calendars')}
-  a.lv-item.calendar-item(href="", ng-repeat="calendar in $ctrl.userCalendars track by $index", ng-class="{'selected-calendar': calendar.selected}")
+  a.lv-item.calendar-item(href="", ng-repeat="calendar in $ctrl.userCalendars track by $index", ng-click="$ctrl.toggleCalendar(calendar)")
     .media
       .pull-left(ng-if="!$ctrl.hiddenCalendars[calendar.id]", ng-click="$ctrl.toggleCalendar(calendar)", title="#{__('Hide calendar')}")
         i.mdi.mdi-checkbox-marked-outline(ng-style="{'color': calendar.color}")
