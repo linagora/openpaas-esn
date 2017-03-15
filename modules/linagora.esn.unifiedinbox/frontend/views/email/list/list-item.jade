@@ -22,6 +22,6 @@
             .inbox-preview-inline.lv-small.preview(ng-if="::item.preview") {{ ::item.preview }}
           inbox-emailer.inbox-from.lv-title(emailer="::item.from", ng-class="{bold: item.isUnread}")
         .inbox-list-item-date-and-indicators(ng-class="{bold: item.isUnread}")
-          .date-container {{ ::item.date | date: group.dateFormat }}
+          .date-container {{ ::item.date | date: item.group.dateFormat }}
           inbox-indicators(item="::item")
     .inbox-preview-block.lv-small.preview {{ ::item.preview }}
