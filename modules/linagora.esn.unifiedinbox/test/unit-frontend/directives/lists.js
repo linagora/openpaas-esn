@@ -7,8 +7,7 @@ var expect = chai.expect;
 
 describe('The linagora.esn.unifiedinbox List module directives', function() {
 
-  var $compile, $rootScope, $scope, element, inboxConfigMock, inboxJmapItemService, infiniteListService, inboxSelectionService, _;
-  var INBOX_EVENTS;
+  var $compile, $rootScope, $scope, element, inboxConfigMock, inboxJmapItemService, infiniteListService, inboxSelectionService;
 
   beforeEach(function() {
     angular.mock.module('esn.core');
@@ -31,15 +30,12 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
     });
   }));
 
-  beforeEach(inject(function(_$compile_, _$rootScope_, _inboxJmapItemService_, _infiniteListService_,
-                             _inboxSelectionService_, _INBOX_EVENTS_, ___) {
+  beforeEach(inject(function(_$compile_, _$rootScope_, _inboxJmapItemService_, _infiniteListService_, _inboxSelectionService_) {
     $compile = _$compile_;
     $rootScope = _$rootScope_;
     inboxJmapItemService = _inboxJmapItemService_;
     infiniteListService = _infiniteListService_;
     inboxSelectionService = _inboxSelectionService_;
-    INBOX_EVENTS = _INBOX_EVENTS_;
-    _ = ___;
 
     inboxSelectionService.toggleItemSelection = sinon.spy(inboxSelectionService.toggleItemSelection);
 
@@ -605,104 +601,6 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
       compileDirective('<div inbox-draggable-list-item />');
 
       expect($scope.getDragMessage([{ id: 1 }, { id: 2, subject: 'subject' }, { id: 3 }])).to.equal('3 items');
-    });
-
-  });
-
-  describe('The inboxGroupToggleSelection directive', function() {
-
-    var item1 = { id: 1, selectable: true },
-        item2 = { id: 2 },
-        item3 = { id: 3, selectable: true };
-
-    beforeEach(function() {
-      $scope.group = {
-        elements: [item1, item2, item3]
-      };
-
-      compileDirective('<div inbox-group-toggle-selection />');
-    });
-
-    it('should initialize scope.selected to false', function() {
-      expect($scope.selected).to.equal(false);
-    });
-
-    it('should select all selectable elements on click', function() {
-      compileDirective('<div inbox-group-toggle-selection />').click();
-
-      expect(inboxSelectionService.toggleItemSelection).to.have.been.calledWith(item1, true);
-      expect(inboxSelectionService.toggleItemSelection).to.have.been.calledWith(item3, true);
-    });
-
-    it('should update scope.selected on ITEM_SELECTION_CHANGED event', function() {
-      compileDirective('<div inbox-group-toggle-selection />');
-
-      $scope.group.elements[0].selected = true;
-      $scope.group.elements[0].selected = true;
-      $scope.$emit(INBOX_EVENTS.ITEM_SELECTION_CHANGED);
-
-      expect($scope.selected).to.equal(true);
-    });
-
-    it('should unselect all selectable elements when they are all selected on click', function() {
-      compileDirective('<div inbox-group-toggle-selection />');
-
-      $scope.group.elements[0].selected = true;
-      $scope.group.elements[0].selected = true;
-      $scope.$emit(INBOX_EVENTS.ITEM_SELECTION_CHANGED);
-
-      element.click();
-
-      expect(inboxSelectionService.toggleItemSelection).to.have.been.calledWith(item1, false);
-      expect(inboxSelectionService.toggleItemSelection).to.have.been.calledWith(item3, false);
-    });
-
-    it('should expose hasSelectableItems=true when initialized over at least 1 selectable item', function() {
-      compileDirective('<div inbox-group-toggle-selection />');
-
-      expect($scope.hasSelectableItems).to.equal(true);
-    });
-
-    it('should expose hasSelectableItems=false when initialized over no items', function() {
-      $scope.group = {
-        elements: []
-      };
-
-      compileDirective('<div inbox-group-toggle-selection />');
-
-      expect($scope.hasSelectableItems).to.equal(false);
-    });
-
-    it('should expose hasSelectableItems=false when initialized over unselectable items', function() {
-      $scope.group = {
-        elements: [item2]
-      };
-
-      compileDirective('<div inbox-group-toggle-selection />');
-
-      expect($scope.hasSelectableItems).to.equal(false);
-    });
-
-    it('should update hasSelectableItems when there are no more selectable items', function() {
-      compileDirective('<div inbox-group-toggle-selection />');
-
-      _.pull($scope.group.elements, item1, item3);
-      $scope.$digest();
-
-      expect($scope.hasSelectableItems).to.equal(false);
-    });
-
-    it('should update hasSelectableItems when there selectable items come into the group', function() {
-      $scope.group = {
-        elements: []
-      };
-
-      compileDirective('<div inbox-group-toggle-selection />');
-
-      $scope.group.elements.push(item1);
-      $scope.$digest();
-
-      expect($scope.hasSelectableItems).to.equal(true);
     });
 
   });

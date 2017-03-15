@@ -55,7 +55,9 @@ var unifiedInboxModule = new AwesomeModule('linagora.esn.unifiedinbox', {
         'components/message-body/html/message-body-html.js',
         'components/message-body/html/message-body-html.controller.js',
         'components/message-body/text/message-body-text.js',
-        'services/mailboxes/mailboxes-service.js'
+        'services/mailboxes/mailboxes-service.js',
+        'components/list/group-toggle-selection/list-group-toggle-selection.js',
+        'components/list/group-toggle-selection/list-group-toggle-selection.controller.js'
       ], 'linagora.esn.unifiedinbox', ['esn']);
 
       webserverWrapper.injectLess('unifiedinbox', [
