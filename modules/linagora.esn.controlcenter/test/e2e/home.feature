@@ -4,9 +4,9 @@ Feature: As a user of Open-Paas,
   Background:
     Given I logged in to OpenPaas
 
-  Scenario: Go to accounts page by default
+  Scenario: Go to general page by default
     When I go on "/#/controlcenter"
-    Then the location url should equal "/controlcenter/accounts"
+    Then the location url should equal "/controlcenter/general"
 
   Scenario: Show sidebar on desktop
     Given I use a desktop screen

@@ -1,0 +1,10 @@
+sub-header
+  controlcenter-general-subheader(on-form-submit="$ctrl.onFormSubmit(form)", form="form")
+.card
+  .card-body.card-padding
+    form(name="form")
+      .row
+        .col-md-6
+          esn-form-group(label="#{__('Home page')}")
+            .select
+              select.form-control(ng-model="$ctrl.configurations.homePage", name="homePage", ng-options="key as homePage for (key, homePage) in $ctrl.homePages")

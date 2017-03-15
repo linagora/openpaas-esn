@@ -5,17 +5,27 @@ angular.module('linagora.esn.controlcenter', [
   'esn.router',
   'esn.user',
   'esn.subheader',
-  'esn.sidebar'
+  'esn.sidebar',
+  'esn.module-registry',
+  'esn.user-configuration'
 ])
 
 .config(function($stateProvider, $urlRouterProvider, dynamicDirectiveServiceProvider) {
-  $urlRouterProvider.when('/controlcenter', '/controlcenter/accounts');
+  $urlRouterProvider.when('/controlcenter', '/controlcenter/general');
 
   $stateProvider
     .state('controlcenter', {
       url: '/controlcenter',
       templateUrl: '/controlcenter/views/controlcenter',
       controller: 'controlCenterController'
+    })
+    .state('controlcenter.general', {
+      url: '/general',
+      views: {
+        'root@controlcenter': {
+          template: '<controlcenter-general />'
+        }
+      }
     });
 
   var controlCenter = new dynamicDirectiveServiceProvider.DynamicDirective(
