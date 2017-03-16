@@ -133,22 +133,32 @@
       };
 
       _.forEach(this._userRight, function(calRightSet, userId) {
-        if (calRightSet.hasPermission(CalRightSet.SHAREE_READ)) {
+        if (calRightSet.hasPermission(CalRightSet.SHAREE_ADMIN)) {
           result.share.set.push({
             'dav:href': HREF_PREFIX + this._userEmails[userId],
-            'dav:read': true
+            'dav:administration': true
           });
         } else if (calRightSet.hasPermission(CalRightSet.SHAREE_READWRITE)) {
           result.share.set.push({
             'dav:href': HREF_PREFIX + this._userEmails[userId],
             'dav:read-write': true
           });
+        } else if (calRightSet.hasPermission(CalRightSet.SHAREE_READ)) {
+          result.share.set.push({
+            'dav:href': HREF_PREFIX + this._userEmails[userId],
+            'dav:read': true
+          });
+        } else if (calRightSet.hasPermission(CalRightSet.SHAREE_FREE_BUSY)) {
+          result.share.set.push({
+            'dav:href': HREF_PREFIX + this._userEmails[userId],
+            'dav:freebusy': true
+          });
         }
       }, this);
 
       _.forEach(oldCalendarRight._userRight, function(oldCalRightSet, userId) {
         var newCalRightSet = this._userRight[userId] || new CalRightSet();
-        var SHAREE_PERMISSION = [CalRightSet.SHAREE_SHAREDOWNER, CalRightSet.SHAREE_READ, CalRightSet.SHAREE_READWRITE];
+        var SHAREE_PERMISSION = [CalRightSet.SHAREE_SHAREDOWNER, CalRightSet.SHAREE_READ, CalRightSet.SHAREE_READWRITE, CalRightSet.SHAREE_ADMIN, CalRightSet.SHAREE_FREE_BUSY];
 
         if (newCalRightSet.hasNoneOfThosePermissions(SHAREE_PERMISSION) && oldCalRightSet.hasAtLeastOneOfThosePermissions(SHAREE_PERMISSION)) {
           result.share.remove.push({
@@ -247,6 +257,25 @@
           CalRightSet.SHARE,
           CalRightSet.WRITE_PROPERTIES,
           CalRightSet.WRITE
+        ]
+      };
+
+      matrix[CALENDAR_RIGHT.SHAREE_ADMIN] = {
+        shouldHave: [
+          CalRightSet.SHAREE_ADMIN
+        ],
+        shouldNotHave: [
+        ]
+      };
+
+      matrix[CALENDAR_RIGHT.SHAREE_FREE_BUSYN] = {
+        shouldHave: [
+          CalRightSet.SHAREE_FREE_BUSY
+        ],
+        shouldNotHave: [
+          CalRightSet.SHAREE_READ,
+          CalRightSet.SHAREE_READWRITE,
+          CalRightSet.SHAREE_ADMIN
         ]
       };
 

@@ -80,6 +80,8 @@
       FREE_BUSY: 'free busy',
       READ_ONLY: ['sharee_read', 'public_read'],
       SHAREE_READ: 'sharee_read',
+      SHAREE_ADMIN: 'sharee_admin',
+      SHAREE_FREE_BUSY: 'sharee_free_busy',
       PUBLIC_READ: 'public_read',
       WRITE: 'write',
       READ_WRITE: 'read write',

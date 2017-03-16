@@ -12,9 +12,15 @@
     CalRightSet.WRITE = 4;
     CalRightSet.WRITE_PROPERTIES = 8;
     CalRightSet.SHARE = 16;
-    CalRightSet.SHAREE_READ = 32;
-    CalRightSet.SHAREE_READWRITE = 64;
-    CalRightSet.SHAREE_SHAREDOWNER = 128;
+    CalRightSet.READ_ACL = 32;
+    CalRightSet.WRITE_ACL = 64;
+    CalRightSet.SHAREE_READ = 128;
+    CalRightSet.SHAREE_READWRITE = 256;
+    CalRightSet.SHAREE_SHAREDOWNER = 512;
+    CalRightSet.SHAREE_ADMIN = 1024;
+    CalRightSet.SHAREE_FREE_BUSY = 2048;
+
+    CalRightSet.SHAREE_BITMASK = CalRightSet.SHAREE_READ + CalRightSet.SHAREE_READWRITE + CalRightSet.SHAREE_SHAREDOWNER + CalRightSet.SHAREE_ADMIN + CalRightSet.SHAREE_FREE_BUSY;
 
     CalRightSet.calendarShareeIntToConstant = calendarShareeIntToConstant;
     CalRightSet.webdavStringToConstant = webdavStringToConstant;
@@ -46,13 +52,17 @@
         '{DAV:}read': CalRightSet.READ,
         '{DAV:}write': CalRightSet.WRITE,
         '{DAV:}write-properties': CalRightSet.WRITE_PROPERTIES,
+        '{DAV:}read-acl': CalRightSet.READ_ACL,
+        '{DAV:}write-acl': CalRightSet.WRITE_ACL,
         '{urn:ietf:params:xml:ns:caldav}read-free-busy': CalRightSet.FREE_BUSY
       };
 
       calendarShareeRightConstantToRightConstantDict = {
         1: CalRightSet.SHAREE_SHAREDOWNER,
         2: CalRightSet.SHAREE_READ,
-        3: CalRightSet.SHAREE_READWRITE
+        3: CalRightSet.SHAREE_READWRITE,
+        5: CalRightSet.SHAREE_ADMIN,
+        6: CalRightSet.SHAREE_FREE_BUSY
       };
     }
 
@@ -99,6 +109,8 @@
       constToString[CalRightSet.WRITE] = 'WRITE';
       constToString[CalRightSet.WRITE_PROPERTIES] = 'WRITE_PROPERTIES';
       constToString[CalRightSet.SHARE] = 'SHARE';
+      constToString[CalRightSet.READ_ACL] = 'READ_ACL';
+      constToString[CalRightSet.WRITE_ACL] = 'WRITE_ACL';
       constToString[CalRightSet.SHAREE_READ] = 'SHAREE_READ';
       constToString[CalRightSet.SHAREE_READWRITE] = 'SHAREE_READWRITE';
       constToString[CalRightSet.SHAREE_SHAREDOWNER] = 'SHAREE_SHAREDOWNER';
@@ -146,6 +158,10 @@
 
     function addPermissions(permissions) {
       var maskOfAllPermission = combinePermission(permissions);
+
+      if (maskOfAllPermission & CalRightSet.SHAREE_BITMASK) {
+        this.bitVector = this.bitVector & ~CalRightSet.SHAREE_BITMASK;
+      }
 
       this.bitVector = this.bitVector | maskOfAllPermission;
     }

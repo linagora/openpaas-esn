@@ -93,7 +93,7 @@
         name: 'None',
         access: 'all'
       }, {
-        value: CALENDAR_RIGHT.ADMIN,
+        value: CALENDAR_RIGHT.SHAREE_ADMIN,
         name: 'Administration',
         access: 'users'
       }, {
@@ -105,7 +105,7 @@
         name: 'Read only',
         access: 'all'
       }, {
-        value: CALENDAR_RIGHT.FREE_BUSY,
+        value: CALENDAR_RIGHT.SHAREE_FREE_BUSY,
         name: 'Free/Busy',
         access: 'all'
       }];
