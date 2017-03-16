@@ -114,7 +114,7 @@ describe('The calendarsList controller', function() {
 
     describe('CALENDAR_EVENTS.CALENDARS.ADD listener', function() {
 
-      it('call add calendar to self.calendars', function() {
+      it('should add calendar to self.calendars if it is not existed in self.calendars', function() {
         var newCalendar = CalendarCollectionShell.from({
           href: '/calendars/12345/3.json',
           name: 'name3',
@@ -124,11 +124,30 @@ describe('The calendarsList controller', function() {
         var expectedResult = calendars.concat(newCalendar);
 
         CalendarsListController.$onInit();
+
         $rootScope.$apply();
 
         $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.ADD, newCalendar);
 
         expect(CalendarsListController.calendars).to.deep.equal(expectedResult);
+      });
+
+      it('should not add calendar to self.calendars if it is already existed', function() {
+        var newCalendar = CalendarCollectionShell.from({
+          id: '1',
+          href: 'href',
+          name: 'name',
+          color: 'color',
+          description: 'description'
+        });
+
+        CalendarsListController.$onInit();
+
+        $rootScope.$apply();
+
+        $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.ADD, newCalendar);
+
+        expect(CalendarsListController.calendars).to.deep.equal(calendars);
       });
 
       describe('refreshCalendarList on add', function() {

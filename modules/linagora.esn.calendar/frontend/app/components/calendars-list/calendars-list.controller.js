@@ -72,8 +72,11 @@
     }
 
     function handleCalendarAdd(event, calendar) {
-      self.calendars.push(calendar);
-      refreshCalendarsList();
+      if (!_.find(self.calendars, {id: calendar.id})) {
+        self.calendars.push(calendar);
+
+        refreshCalendarsList();
+      }
     }
 
     function handleCalendarUpdate(event, calendar) {
@@ -88,6 +91,7 @@
 
     function handleCalendarRemove(event, calendar) {
       _.remove(self.calendars, { id: calendar.id });
+
       refreshCalendarsList();
     }
 
