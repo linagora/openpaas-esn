@@ -25,7 +25,6 @@
     function $onInit() {
       self.calendars = [];
       self.hiddenCalendars = {};
-      self.selectCalendar = selectCalendar;
       self.toggleCalendar = calendarVisibilityService.toggle;
 
       self.activate();
@@ -46,14 +45,6 @@
           $scope.$on('$destroy', destroyCalRemoveEvent);
           $scope.$on('$destroy', deregister);
         });
-    }
-
-    function selectCalendar(calendar) {
-      self.calendars.forEach(function(cal) {
-        cal.selected = calendar.id === cal.id;
-      });
-
-      self.hiddenCalendars[calendar.id] && self.toggleCalendar(calendar);
     }
 
     function listCalendars() {

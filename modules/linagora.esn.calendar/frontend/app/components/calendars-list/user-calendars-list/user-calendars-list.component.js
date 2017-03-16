@@ -7,7 +7,6 @@
       bindings: {
         userCalendars: '=',
         toggleCalendar: '=',
-        selectCalendar: '=',
         hiddenCalendars: '='
       }
     });

@@ -8,14 +8,12 @@
   cal-user-calendars-list(
     user-calendars="$ctrl.userCalendars",
     toggle-calendar="$ctrl.toggleCalendar",
-    select-calendar="$ctrl.selectCalendar",
     hidden-calendars="$ctrl.hiddenCalendars"
   )
 
   cal-shared-calendars-list(
     shared-calendars="$ctrl.sharedCalendars",
     toggle-calendar="$ctrl.toggleCalendar",
-    select-calendar="$ctrl.selectCalendar",
     hidden-calendars="$ctrl.hiddenCalendars",
     ng-if="$ctrl.sharedCalendars.length"
   )
