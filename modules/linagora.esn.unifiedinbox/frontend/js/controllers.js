@@ -179,14 +179,14 @@ angular.module('linagora.esn.unifiedinbox')
 
   })
 
-  .controller('viewEmailController', function($scope, $state, $stateParams, Email, inboxJmapItemService, jmapHelper) {
+  .controller('viewEmailController', function($scope, $state, $stateParams, inboxJmapItemService, jmapHelper) {
     $scope.email = $stateParams.item;
 
     jmapHelper
       .getMessageById($stateParams.emailId)
       .then(function(message) {
         if (!$scope.email) {
-          $scope.email = Email(message);
+          $scope.email = message;
         } else {
           ['isUnread', 'isFlagged', 'attachments', 'textBody', 'htmlBody'].forEach(function(property) {
             $scope.email[property] = message[property];
@@ -240,7 +240,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .controller('viewThreadController', function($scope, $stateParams, $state, withJmapClient, Email, Thread, inboxJmapItemService, _, JMAP_GET_MESSAGES_VIEW) {
+  .controller('viewThreadController', function($scope, $stateParams, $state, withJmapClient, Thread, inboxJmapItemService, _, JMAP_GET_MESSAGES_VIEW) {
     $scope.thread = $stateParams.item;
 
     withJmapClient(function(client) {
@@ -258,7 +258,7 @@ angular.module('linagora.esn.unifiedinbox')
           return messages.map(function(message) {
             message.loaded = true;
 
-            return new Email(message);
+            return message;
           });
         })
         .then(function(emails) {

@@ -74,7 +74,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('newInboxMessageProvider', function(withJmapClient, Email, pagedJmapRequest, inboxJmapProviderContextBuilder,
+  .factory('newInboxMessageProvider', function(withJmapClient, pagedJmapRequest, inboxJmapProviderContextBuilder,
                                                moment, newProvider, sortByDateInDescendingOrder, inboxMailboxesService,
                                                JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_REQUEST, PROVIDER_TYPES) {
     return function(templateUrl) {
@@ -100,7 +100,7 @@ angular.module('linagora.esn.unifiedinbox')
                   return messageList.getMessages({ properties: JMAP_GET_MESSAGES_LIST });
                 })
                 .then(function(messages) {
-                  return messages.map(Email).sort(sortByDateInDescendingOrder); // We need to sort here because the backend might return shuffled messages
+                  return messages.sort(sortByDateInDescendingOrder); // We need to sort here because the backend might return shuffled messages
                 });
             });
           }
@@ -165,14 +165,14 @@ angular.module('linagora.esn.unifiedinbox')
     });
   })
 
-  .factory('inboxHostedMailThreadsProvider', function($q, withJmapClient, pagedJmapRequest, Email, Thread, _, inboxJmapProviderContextBuilder,
+  .factory('inboxHostedMailThreadsProvider', function($q, withJmapClient, pagedJmapRequest, Thread, _, inboxJmapProviderContextBuilder,
                                                       newProvider, JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_REQUEST, PROVIDER_TYPES) {
     function _prepareThreads(data) {
       var threads = data[0],
           messages = data[1];
 
       messages.forEach(function(message) {
-        _.assign(_.find(threads, { id: message.threadId }), { email: Email(message), date: message.date });
+        _.assign(_.find(threads, { id: message.threadId }), { email: message, date: message.date });
       });
 
       return threads;

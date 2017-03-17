@@ -40,15 +40,15 @@ describe('The inboxMessageBodyHtml component', function() {
     });
   });
 
-  beforeEach(inject(function(_$compile_, _$rootScope_, _$timeout_, _IFRAME_MESSAGE_PREFIXES_, jmap, Email) {
+  beforeEach(inject(function(_$compile_, _$rootScope_, _$timeout_, _IFRAME_MESSAGE_PREFIXES_, jmap) {
     $compile = _$compile_;
     $rootScope = _$rootScope_;
     $timeout = _$timeout_;
     IFRAME_MESSAGE_PREFIXES = _IFRAME_MESSAGE_PREFIXES_;
 
-    $rootScope.message = new Email(new jmap.Message({}, 'id', 'threadId', ['inbox'], {
+    $rootScope.message = new jmap.Message({}, 'id', 'threadId', ['inbox'], {
       htmlBody: '<html><body><div>Message HTML Body</div></body></html>'
-    }));
+    });
   }));
 
   it('should contain an iframe element', function() {
