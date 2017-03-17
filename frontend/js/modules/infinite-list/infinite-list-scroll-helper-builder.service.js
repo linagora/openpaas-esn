@@ -20,7 +20,7 @@
               if (!elements || !elements.length) {
                 scope.infiniteScrollCompleted = true;
 
-                return $q.reject(new Error('No more element'));
+                return $q.when([]);
               }
 
               updateScope(elements);
