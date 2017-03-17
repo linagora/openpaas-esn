@@ -106,13 +106,19 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('inboxSearchMessageListItem', function($q, $state, $stateParams, newComposerService, _) {
+  .directive('inboxSearchMessageListItem', function($q, $state, $stateParams, newComposerService, _, inboxJmapItemService, inboxMailboxesService) {
     return {
       restrict: 'E',
       controller: function($scope) {
         var self = this;
 
         $scope.email = $scope.item;
+
+        $q.all(_.map($scope.item.mailboxIds, function(mailboxId) {
+          return inboxMailboxesService.assignMailbox(mailboxId, $scope, true);
+        })).then(function(mailboxes) {
+          $scope.item.mailboxes = mailboxes;
+        });
 
         self.openEmail = function(email) {
           if (email.isDraft) {
