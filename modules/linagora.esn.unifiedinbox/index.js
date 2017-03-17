@@ -64,7 +64,8 @@ var unifiedInboxModule = new AwesomeModule('linagora.esn.unifiedinbox', {
         'components/subheader/mark-as-unread-button/subheader-mark-as-unread-button.js',
         'filters/link-items.js',
         'services/models/emailer.run.js',
-        'services/models/mailbox.run.js'
+        'services/models/mailbox.run.js',
+        'filters/filter-descendant-mailboxes.js'
       ], 'linagora.esn.unifiedinbox', ['esn']);
 
       webserverWrapper.injectLess('unifiedinbox', [
