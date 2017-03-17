@@ -50,14 +50,12 @@ describe('The calendarsList controller', function() {
 
   beforeEach(function() {
     calendars = [CalendarCollectionShell.from({
-      id: '1',
-      href: 'href',
+      href: '/calendars/12345/1.json',
       name: 'name',
       color: 'color',
       description: 'description'
     }), CalendarCollectionShell.from({
-      id: '2',
-      href: 'href2',
+      href: '/calendars/12345/2.json',
       name: 'name2',
       color: 'color2',
       description: 'description2'
@@ -101,8 +99,7 @@ describe('The calendarsList controller', function() {
 
       it('call add calendar to self.calendars', function() {
         var newCalendar = CalendarCollectionShell.from({
-          id: '3',
-          href: 'href3',
+          href: '/calendars/12345/3.json',
           name: 'name3',
           color: 'color3',
           description: 'description3'
@@ -120,14 +117,12 @@ describe('The calendarsList controller', function() {
       describe('refreshCalendarList on add', function() {
         beforeEach(function() {
           calendars = [{
-            id: '1',
-            href: 'href',
+            href: '/calendars/12345/1.json',
             name: 'name',
             color: 'color',
             description: 'description'
           }, {
-            id: '2',
-            href: 'href2',
+            href: '/calendars/12345/2.json',
             name: 'name2',
             color: 'color2',
             description: 'description2',
@@ -144,8 +139,7 @@ describe('The calendarsList controller', function() {
 
         it('refresh calendars list', function() {
           var newCalendar = CalendarCollectionShell.from({
-            id: '3',
-            href: 'href3',
+            href: '/calendars/12345/3.json',
             name: 'name3',
             color: 'color3',
             description: 'description3',
@@ -168,8 +162,7 @@ describe('The calendarsList controller', function() {
 
         it('refresh calendars list and not consider the new calendar as shared once it is classified as personal', function() {
           var newCalendar = CalendarCollectionShell.from({
-            id: '3',
-            href: 'href3',
+            href: '/calendars/12345/3.json',
             name: 'name3',
             color: 'color3',
             description: 'description3',
@@ -241,6 +234,43 @@ describe('The calendarsList controller', function() {
         expect(CalendarsListController.calendars).to.deep.equal(expectedResult);
         expect(CalendarsListController.sharedCalendars).to.deep.equal(expectedResult);
         expect(CalendarsListController.userCalendars).to.deep.equal([]);
+      });
+    });
+
+    describe('CALENDAR_EVENTS.CALENDARS.UPDATE listener', function() {
+
+      it('should update calendar in self.calendars if existed', function() {
+        var updatedCalendar = CalendarCollectionShell.from({
+          href: '/calendars/12345/1.json',
+          name: 'nameUpdated',
+          color: 'colorUpdated',
+          description: 'descriptionUpdated'
+        });
+        var expectedResult = [updatedCalendar].concat(calendars.slice(1));
+
+        CalendarsListController.$onInit();
+        $rootScope.$apply();
+
+        $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.UPDATE, updatedCalendar);
+
+        expect(CalendarsListController.calendars).to.deep.equal(expectedResult);
+      });
+
+      it('should do nothing if the updated calendar does not exist in self.calendars', function() {
+        var updatedCalendar = CalendarCollectionShell.from({
+          href: '/calendars/12345/4.json',
+          name: 'nameUpdated',
+          color: 'colorUpdated',
+          description: 'descriptionUpdated'
+        });
+        var expectedResult = calendars.slice(0);
+
+        CalendarsListController.$onInit();
+        $rootScope.$apply();
+
+        $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.UPDATE, updatedCalendar);
+
+        expect(CalendarsListController.calendars).to.deep.equal(expectedResult);
       });
     });
 

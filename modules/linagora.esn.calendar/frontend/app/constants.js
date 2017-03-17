@@ -173,6 +173,7 @@
       CALENDARS: {
         ADD: 'calendar:calendars:add',
         REMOVE: 'calendar:calendars:remove',
+        UPDATE: 'calendar:calendars:update',
         TOGGLE_VIEW: 'calendar:calendars:toggleView',
         TOGGLE_VIEW_MODE: 'calendar:calendars:toggleViewMode',
         TODAY: 'calendar:calendars:today',
