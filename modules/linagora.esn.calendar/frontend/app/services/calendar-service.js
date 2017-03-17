@@ -14,7 +14,6 @@
     CalendarRightShell
   ) {
     var calendarsCache = {};
-    var promiseCache = {};
 
     this.createCalendar = createCalendar;
     this.removeCalendar = removeCalendar;
@@ -50,9 +49,9 @@
       }
 
       if (!options) {
-        promiseCache[calendarHomeId] = promiseCache[calendarHomeId] || calendarAPI.listCalendars(calendarHomeId).then(createCalendarsShell);
+        calendarsCache[calendarHomeId] = calendarsCache[calendarHomeId] || calendarAPI.listCalendars(calendarHomeId).then(createCalendarsShell);
 
-        return promiseCache[calendarHomeId];
+        return $q.when(calendarsCache[calendarHomeId]);
       }
 
       return calendarAPI.listCalendars(calendarHomeId, options).then(createCalendarsShell);
