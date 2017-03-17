@@ -165,14 +165,14 @@ angular.module('linagora.esn.unifiedinbox')
     });
   })
 
-  .factory('inboxHostedMailThreadsProvider', function($q, withJmapClient, pagedJmapRequest, Thread, _, inboxJmapProviderContextBuilder,
+  .factory('inboxHostedMailThreadsProvider', function($q, withJmapClient, pagedJmapRequest, _, inboxJmapProviderContextBuilder,
                                                       newProvider, JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_REQUEST, PROVIDER_TYPES) {
     function _prepareThreads(data) {
       var threads = data[0],
           messages = data[1];
 
       messages.forEach(function(message) {
-        _.assign(_.find(threads, { id: message.threadId }), { email: message, date: message.date });
+        _.find(threads, { id: message.threadId }).emails = [message];
       });
 
       return threads;
@@ -199,12 +199,7 @@ angular.module('linagora.esn.unifiedinbox')
                   messageList.getMessages({ properties: JMAP_GET_MESSAGES_LIST })
                 ]);
               })
-              .then(_prepareThreads)
-              .then(function(threads) {
-                return threads.map(function(thread) {
-                  return new Thread(thread, [thread.email]);
-                });
-              });
+              .then(_prepareThreads);
           });
         });
       },

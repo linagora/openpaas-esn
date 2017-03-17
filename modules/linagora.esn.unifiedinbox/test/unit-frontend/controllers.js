@@ -10,7 +10,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       jmapClient, jmap, notificationFactory, draftService, Offline = {},
       Composition, newComposerService = {}, $state, $modal, navigateTo,
       inboxMailboxesService, inboxJmapItemService, _, fileUploadMock, config, moment, inboxMailboxesCache,
-      touchscreenDetectorService, Thread, esnPreviousPage, inboxFilterDescendantMailboxesFilter, inboxSelectionService;
+      touchscreenDetectorService, esnPreviousPage, inboxFilterDescendantMailboxesFilter, inboxSelectionService;
   var JMAP_GET_MESSAGES_VIEW, INBOX_EVENTS, DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD;
 
   beforeEach(function() {
@@ -81,8 +81,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
   beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _jmap_,
                                           _Composition_, _inboxMailboxesService_, ___, _JMAP_GET_MESSAGES_VIEW_,
                                           _DEFAULT_FILE_TYPE_, _moment_, _DEFAULT_MAX_SIZE_UPLOAD_, _inboxJmapItemService_,
-                                          _INBOX_EVENTS_, _inboxMailboxesCache_, _Thread_, _esnPreviousPage_,
-                                          _inboxSelectionService_) {
+                                          _INBOX_EVENTS_, _inboxMailboxesCache_, _esnPreviousPage_, _inboxSelectionService_) {
     $rootScope = _$rootScope_;
     $controller = _$controller_;
     jmap = _jmap_;
@@ -96,7 +95,6 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     DEFAULT_MAX_SIZE_UPLOAD = _DEFAULT_MAX_SIZE_UPLOAD_;
     INBOX_EVENTS = _INBOX_EVENTS_;
     moment = _moment_;
-    Thread = _Thread_;
     esnPreviousPage = _esnPreviousPage_;
     inboxSelectionService = _inboxSelectionService_;
 
@@ -956,7 +954,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     });
 
     it('should update $scope.thread if it exists (opening an item from the list)', function() {
-      $stateParams.item = Thread(jmapThread);
+      $stateParams.item = jmapThread;
 
       jmapClient.getThreads = function() {
         return $q.when([{
@@ -974,9 +972,9 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       ]);
     });
 
-    it('should assign thread.subject from the first message', function() {
+    it('should assign thread.subject from the last message', function() {
       jmapClient.getThreads = function() {
-        return $q.when([{
+        return $q.when([new jmap.Thread({
           getMessages: function() {
             return [
               { mailboxIds: ['inbox'], id: 'email1', subject: 'thread subject1' },
@@ -984,12 +982,12 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
               { mailboxIds: ['inbox'], id: 'email3', subject: 'thread subject3' }
             ];
           }
-        }]);
+        }, 'threadId', ['email1', 'email2', 'email3'])]);
       };
 
       initController('viewThreadController');
 
-      expect(scope.thread.subject).to.equal('thread subject1');
+      expect(scope.thread.subject).to.equal('thread subject3');
     });
 
     it('should mark the thread as read once it\'s loaded', function() {

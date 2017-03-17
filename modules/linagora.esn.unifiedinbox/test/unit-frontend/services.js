@@ -464,9 +464,9 @@ describe('The Unified Inbox Angular module services', function() {
           }),
           subject: 'expected subject',
           htmlBody: 'expected htmlBody',
-          to: [{email: 'to@domain', name: 'to'}],
-          cc: [{email: 'cc@domain', name: 'cc'}],
-          bcc: [{email: 'bcc@domain', name: 'bcc'}]
+          to: [new jmap.EMailer({email: 'to@domain', name: 'to'})],
+          cc: [new jmap.EMailer({email: 'cc@domain', name: 'cc'})],
+          bcc: [new jmap.EMailer({email: 'bcc@domain', name: 'bcc'})]
         }));
       });
 
