@@ -133,7 +133,33 @@ describe('The inboxMessageBodyHtml component', function() {
 
     compile('<inbox-message-body-html message="message" />');
 
-    $rootScope.$broadcast('wm:' + IFRAME_MESSAGE_PREFIXES.INLINE_ATTACHMENT, '1');
+    $rootScope.$broadcast('wm:' + IFRAME_MESSAGE_PREFIXES.INLINE_ATTACHMENT, '1', {});
+  });
+
+  it('should call postMessage with the argument 1', function(done) {
+    $rootScope.message.htmlBody = '<html><body><img src="cid:1" /></body></html>';
+    $rootScope.message.attachments = [{
+      cid: '2',
+      getSignedDownloadUrl: function() {
+        return;
+      }
+    }];
+
+    compile('<inbox-message-body-html message="message" />');
+
+    $rootScope.$broadcast('wm:' + IFRAME_MESSAGE_PREFIXES.INLINE_ATTACHMENT, '1', {
+      contentWindow: {
+        postMessage: function(content, target) {
+          expect(target).to.equal('*');
+
+          var contentWithoutRandomPort = content.replace(/localhost:\d*/g, 'localhost:PORT');
+
+          expect(contentWithoutRandomPort).to.equal('[linagora.esn.unifiedinbox.inlineAttachment]1');
+
+          done();
+        }
+      }
+    });
   });
 
   it('should scale the iframe if the computed width is larger than the parent', function() {
