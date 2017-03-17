@@ -36,6 +36,7 @@
         .then(function() {
           var destroyCalAddEvent = $rootScope.$on(CALENDAR_EVENTS.CALENDARS.ADD, handleCalendarAdd);
           var destroyCalRemoveEvent = $rootScope.$on(CALENDAR_EVENTS.CALENDARS.REMOVE, handleCalendarRemove);
+          var destroyCalUpdateEvent = $rootScope.$on(CALENDAR_EVENTS.CALENDARS.UPDATE, handleCalendarUpdate);
 
           var deregister = $rootScope.$on(CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, function(event, data) {
             self.hiddenCalendars[data.calendarId] = data.hidden;
@@ -43,6 +44,7 @@
 
           $scope.$on('$destroy', destroyCalAddEvent);
           $scope.$on('$destroy', destroyCalRemoveEvent);
+          $scope.$on('$destroy', destroyCalUpdateEvent);
           $scope.$on('$destroy', deregister);
         });
     }
@@ -70,6 +72,16 @@
     function handleCalendarAdd(event, calendar) {
       self.calendars.push(calendar);
       refreshCalendarsList();
+    }
+
+    function handleCalendarUpdate(event, calendar) {
+      var index = _.findIndex(self.calendars, { id: calendar.id });
+
+      if (index > -1) {
+        self.calendars[index] = calendar;
+
+        refreshCalendarsList();
+      }
     }
 
     function handleCalendarRemove(event, calendar) {
