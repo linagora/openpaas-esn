@@ -80,12 +80,6 @@ describe('The calendarsList controller', function() {
       expect(CalendarsListController.hiddenCalendars).to.deep.equal({});
     });
 
-    it('should initialize the selectCalendar with the function', function() {
-      CalendarsListController.$onInit();
-
-      expect(CalendarsListController.selectCalendar).to.be.a('function');
-    });
-
     it('should initialize the toggleCalendar with the calendarVisibilityService.toggle', function() {
       CalendarsListController.$onInit();
 
@@ -308,40 +302,6 @@ describe('The calendarsList controller', function() {
 
         expect(CalendarsListController.hiddenCalendars[hiddenCalendar.id]).to.be.true;
       });
-    });
-  });
-
-  describe('the selectCalendar function', function() {
-
-    beforeEach(function() {
-      CalendarsListController.$onInit();
-
-      CalendarsListController.calendars = calendars;
-    });
-
-    it('should set selected on given calendar and remove it on others calendar', function() {
-      calendars[0].selected = true;
-
-      CalendarsListController.selectCalendar(calendars[1]);
-
-      expect(calendars[1].selected).to.be.true;
-      expect(calendars[0].selected).to.be.false;
-    });
-
-    it('should unhide a calendar if the selected calendar was hidden', function() {
-      CalendarsListController.hiddenCalendars[calendars[0].id] = true;
-
-      CalendarsListController.selectCalendar(calendars[0]);
-
-      expect(calendarVisibilityServiceMock.toggle).to.have.been.calledWith(calendars[0]);
-    });
-
-    it('should not hide a calendar if the selected calendar was not hidden', function() {
-      CalendarsListController.hiddenCalendars[calendars[1].id] = true;
-
-      CalendarsListController.selectCalendar(calendars[0]);
-
-      expect(calendarVisibilityServiceMock.toggle).to.have.not.been.calledWith(calendars[0]);
     });
   });
 
