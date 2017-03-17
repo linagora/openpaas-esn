@@ -2,28 +2,7 @@
 
 angular.module('linagora.esn.unifiedinbox')
 
-  .factory('Emailer', function(searchService, esnAvatarService) {
-    function Emailer(emailer) {
-      var resolver;
-
-      emailer.resolve = function() {
-        if (!resolver) {
-          resolver = searchService.searchByEmail(emailer.email).then(function(result) {
-            emailer.name = result && result.displayName || emailer.name;
-            emailer.avatarUrl = result && result.photo || esnAvatarService.generateUrl(emailer.email, emailer.name);
-          });
-        }
-
-        return resolver;
-      };
-
-      return emailer;
-    }
-
-    return Emailer;
-  })
-
-  .factory('Email', function(inboxMailboxesService, emailSendingService, Emailer, _, Selectable) {
+  .factory('Email', function(inboxMailboxesService, emailSendingService, _, Selectable) {
 
     function Email(email) {
       var isUnread = email.isUnread;
@@ -39,10 +18,6 @@ angular.module('linagora.esn.unifiedinbox')
       });
 
       email.hasReplyAll = emailSendingService.showReplyAllButton(email);
-      email.from = email.from && Emailer(email.from);
-      email.to = _.map(email.to, Emailer);
-      email.cc = _.map(email.cc, Emailer);
-      email.bcc = _.map(email.bcc, Emailer);
 
       return Selectable(email);
     }

@@ -356,37 +356,6 @@ describe('The Unified Inbox Angular module models', function() {
 
   });
 
-  describe('The Emailer factory', function() {
-    var $rootScope, Emailer, searchService;
-
-    beforeEach(module(function($provide) {
-      $provide.value('searchService', searchService = {
-        searchByEmail: sinon.spy(function() { return $q.when(); })
-      });
-    }));
-
-    beforeEach(inject(function(_$rootScope_, _Emailer_) {
-      Emailer = _Emailer_;
-      $rootScope = _$rootScope_;
-    }));
-
-    it('should resolve the emailer only once', function(done) {
-      var emailer = new Emailer({
-        from: {
-          email: 'a@a.com'
-        }
-      });
-
-      $q.all([emailer.resolve(), emailer.resolve(), emailer.resolve()]).then(function() {
-        expect(searchService.searchByEmail).to.have.been.calledOnce;
-
-        done();
-      });
-      $rootScope.$digest();
-    });
-
-  });
-
   describe('The Mailbox factory', function() {
 
     var Mailbox, inboxMailboxesCache;
