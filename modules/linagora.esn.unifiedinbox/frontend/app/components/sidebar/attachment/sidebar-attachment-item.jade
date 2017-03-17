@@ -3,4 +3,4 @@
     .attachment-header.clickable(title="{{ ::ctrl.attachment.subject}}", ui-sref=".message({ emailId: ctrl.attachment.id })")
       .mail-title.ellipsis {{ ::ctrl.attachment.subject}}
       .mail-date {{ ::ctrl.attachment.date | date: 'mediumDate' }}
-    inbox-attachment(ng-repeat="attachment in ctrl.attachment.attachments",  attachment=" ::attachment", title="{{ ::attachment.name }}")
+    inbox-attachment(ng-repeat="attachment in ctrl.attachment.attachments | filter:{ isInline: false }",  attachment=" ::attachment", title="{{ ::attachment.name }}")
