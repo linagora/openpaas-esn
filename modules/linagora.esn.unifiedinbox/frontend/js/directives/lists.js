@@ -198,37 +198,4 @@ angular.module('linagora.esn.unifiedinbox')
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/twitter/list/list-item.html'
     };
-  })
-
-  .directive('inboxGroupToggleSelection', function(inboxSelectionService, _, INBOX_EVENTS) {
-    return {
-      restrict: 'A',
-      link: function(scope, element) {
-        function getSelectableElements() {
-          return _.filter(scope.group.elements, { selectable: true });
-        }
-
-        scope.selected = false;
-
-        element.on('click', function() {
-          scope.$apply(function() {
-            var selected = !scope.selected;
-
-            getSelectableElements().forEach(function(item) {
-              inboxSelectionService.toggleItemSelection(item, selected);
-            });
-          });
-        });
-
-        scope.$on(INBOX_EVENTS.ITEM_SELECTION_CHANGED, function() {
-          var selectableElements = getSelectableElements();
-
-          scope.selected = selectableElements.length > 0 && _.all(selectableElements, { selected: true });
-        });
-
-        scope.$watchCollection('group.elements', function() {
-          scope.hasSelectableItems = getSelectableElements().length > 0;
-        });
-      }
-    };
   });

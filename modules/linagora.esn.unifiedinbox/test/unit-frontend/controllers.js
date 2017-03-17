@@ -744,7 +744,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       expect($state.go).to.have.been.calledWith('.move', { item: email });
     });
 
-    describe('The markAsUnread fn', function() {
+    describe('The markAsUnread function', function() {
       it('should update location to parent state, then mark email as unread', inject(function($state) {
         scope.email = {};
         $state.go = sinon.spy();
@@ -758,7 +758,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       }));
     });
 
-    describe('The moveToTrash fn', function() {
+    describe('The moveToTrash function', function() {
       it('should update location to parent state, then move the email to trash', function() {
         inboxJmapItemService.moveToTrash = sinon.spy(function() {
           return $q.when({});
@@ -771,6 +771,58 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         scope.$digest();
         expect(inboxJmapItemService.moveToTrash).to.have.been.called;
       });
+    });
+
+    describe('The previous function', function() {
+
+      it('should do nothing if current message has no "previous" message', function() {
+        initController('viewEmailController').previous();
+
+        expect($state.go).to.have.not.been.calledWith();
+      });
+
+      it('should transition to previous message', function() {
+        var controller = initController('viewEmailController');
+
+        scope.email.previous = function() {
+          return { id: 'newId' };
+        };
+        controller.previous();
+
+        expect($state.go).to.have.been.calledWith('.', {
+          emailId: 'newId',
+          item: { id: 'newId' }
+        }, {
+          location: 'replace'
+        });
+      });
+
+    });
+
+    describe('The next function', function() {
+
+      it('should do nothing if current message has no "next" message', function() {
+        initController('viewEmailController').next();
+
+        expect($state.go).to.have.not.been.calledWith();
+      });
+
+      it('should transition to next message', function() {
+        var controller = initController('viewEmailController');
+
+        scope.email.next = function() {
+          return { id: 'newId' };
+        };
+        controller.next();
+
+        expect($state.go).to.have.been.calledWith('.', {
+          emailId: 'newId',
+          item: { id: 'newId' }
+        }, {
+          location: 'replace'
+        });
+      });
+
     });
 
   });

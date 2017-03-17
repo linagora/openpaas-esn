@@ -235,20 +235,15 @@ angular.module('esn.provider', [
   })
 
   .factory('ByDateElementGroupingTool', function(moment, _) {
-
     function ByDateElementGroupingTool(elements) {
-      this.todayElements = [];
-      this.yesterdayElements = [];
-      this.weeklyElements = [];
-      this.monthlyElements = [];
-      this.otherElements = [];
-      this.allElements = [
-        {name: 'Today', dateFormat: 'shortTime', elements: this.todayElements},
-        {name: 'Yesterday', dateFormat: 'shortTime', elements: this.yesterdayElements},
-        {name: 'This Week', dateFormat: 'EEE d', elements: this.weeklyElements},
-        {name: 'This Month', dateFormat: 'EEE d', elements: this.monthlyElements},
-        {name: 'Older than a month', dateFormat: 'mediumDate', elements: this.otherElements}
+      this.groups = [
+        { name: 'Today', dateFormat: 'shortTime', accepts: isToday },
+        { name: 'Yesterday', dateFormat: 'shortTime', accepts: isYesterday },
+        { name: 'This Week', dateFormat: 'EEE d', accepts: isThisWeek },
+        { name: 'This Month', dateFormat: 'EEE d', accepts: isThisMonth },
+        { name: 'Older than a month', dateFormat: 'mediumDate', accepts: _.constant(true) }
       ];
+      this.elements = [];
 
       if (elements) {
         this.addAll(elements);
@@ -262,61 +257,57 @@ angular.module('esn.provider', [
     };
 
     ByDateElementGroupingTool.prototype.addElement = function(element) {
-      var currentMoment = moment().utc();
-      var elementMoment = moment(element.date).utc();
+      var now = moment().utc(),
+          elementMoment = moment(element.date).utc();
 
-      if (this._isToday(currentMoment, elementMoment)) {
-        this.todayElements.push(element);
-      } else if (this._isYesterday(currentMoment, elementMoment)) {
-        this.yesterdayElements.push(element);
-      } else if (this._isThisWeek(currentMoment, elementMoment)) {
-        this.weeklyElements.push(element);
-      } else if (this._isThisMonth(currentMoment, elementMoment)) {
-        this.monthlyElements.push(element);
-      } else {
-        this.otherElements.push(element);
-      }
+      _.forEach(this.groups, function(group) {
+        if (group.accepts(now, elementMoment)) {
+          element.group = group;
+
+          return false;
+        }
+      });
+
+      this.elements.push(element);
     };
 
     ByDateElementGroupingTool.prototype.removeElement = function(element) {
-      angular.forEach(this.allElements, function(group) {
-        var index = _.findIndex(group.elements, element);
+      var index = _.findIndex(this.elements, element);
 
-        if (index > -1) {
-          group.elements.splice(index, 1);
-        }
-      });
+      if (index > -1) {
+        this.elements.splice(index, 1);
+      }
     };
 
     ByDateElementGroupingTool.prototype.removeElements = function(elements) {
       elements.forEach(this.removeElement, this);
     };
 
-    ByDateElementGroupingTool.prototype._isToday = function(currentMoment, targetMoment) {
-      return currentMoment.clone().startOf('day').isBefore(targetMoment);
-    };
-
-    ByDateElementGroupingTool.prototype._isYesterday = function(currentMoment, targetMoment) {
-      return currentMoment.clone().subtract(1, 'days').startOf('day').isBefore(targetMoment);
-    };
-
-    ByDateElementGroupingTool.prototype._isThisWeek = function(currentMoment, targetMoment) {
-      return currentMoment.clone().startOf('week').isBefore(targetMoment);
-    };
-
-    ByDateElementGroupingTool.prototype._isThisMonth = function(currentMoment, targetMoment) {
-      return currentMoment.clone().startOf('month').isBefore(targetMoment);
-    };
-
     ByDateElementGroupingTool.prototype.getGroupedElements = function getGroupedElements() {
-      return this.allElements;
+      return this.elements;
     };
 
     ByDateElementGroupingTool.prototype.reset = function() {
-      return this.allElements.forEach(function(elementGroup) {
-        elementGroup.elements.length = 0;
-      });
+      this.elements.length = 0;
     };
 
     return ByDateElementGroupingTool;
+
+    /////
+
+    function isToday(now, targetMoment) {
+      return now.startOf('day').isBefore(targetMoment);
+    }
+
+    function isYesterday(now, targetMoment) {
+      return now.subtract(1, 'days').startOf('day').isBefore(targetMoment);
+    }
+
+    function isThisWeek(now, targetMoment) {
+      return now.startOf('week').isBefore(targetMoment);
+    }
+
+    function isThisMonth(now, targetMoment) {
+      return now.startOf('month').isBefore(targetMoment);
+    }
   });

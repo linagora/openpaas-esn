@@ -215,6 +215,29 @@ angular.module('linagora.esn.unifiedinbox')
     this.move = function() {
       $state.go('.move', { item: $scope.email });
     };
+
+    function openAdjacentMessage(direction) {
+      var getAdjacentMessage = $scope.email[direction];
+
+      if (getAdjacentMessage) {
+        var message = getAdjacentMessage();
+
+        return $state.go('.', {
+          emailId: message.id,
+          item: message
+        }, {
+          location: 'replace' // So that moving next/previous does not mess with the "Back" button
+        });
+      }
+    }
+
+    this.next = function() {
+      return openAdjacentMessage('next');
+    };
+
+    this.previous = function() {
+      return openAdjacentMessage('previous');
+    };
   })
 
   .controller('viewThreadController', function($scope, $stateParams, $state, withJmapClient, Email, Thread, inboxJmapItemService, _, JMAP_GET_MESSAGES_VIEW) {
