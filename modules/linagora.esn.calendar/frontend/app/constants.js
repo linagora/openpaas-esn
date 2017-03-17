@@ -78,7 +78,6 @@
     .constant('CALENDAR_RIGHT', {
       NONE: 'none',
       FREE_BUSY: 'free busy',
-      READ_ONLY: ['sharee_read', 'public_read'],
       SHAREE_READ: 'sharee_read',
       SHAREE_ADMIN: 'sharee_admin',
       SHAREE_FREE_BUSY: 'sharee_free_busy',
@@ -87,6 +86,15 @@
       READ_WRITE: 'read write',
       ADMIN: 'admin',
       CUSTOM: 'custom'
+    })
+
+    .constant('CALENDAR_SHARED_RIGHT', {
+      NONE: '0',
+      SHAREE_OWNER: '1',
+      SHAREE_READ: '2',
+      SHAREE_READ_WRITE: '3',
+      SHAREE_ADMIN: '5',
+      SHAREE_FREE_BUSY: '6'
     })
 
     .constant('EVENT_CLASS', {

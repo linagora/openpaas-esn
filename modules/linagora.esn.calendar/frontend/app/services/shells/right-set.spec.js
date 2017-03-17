@@ -39,6 +39,7 @@ describe('CalRightSet', function() {
 
       set.addPermission(CalRightSet.FREE_BUSY);
       set.addPermission(CalRightSet.WRITE);
+
       expect(set.toString()).to.equal('CalRightSet(FREE_BUSY, WRITE)');
     });
   });
@@ -55,10 +56,12 @@ describe('CalRightSet', function() {
       var set = new CalRightSet();
 
       set.addPermission(CalRightSet.WRITE);
+
       expect(set.hasAtLeastAllOfThosePermissions([CalRightSet.WRITE])).to.be.true;
       expect(set.hasAtLeastAllOfThosePermissions([CalRightSet.READ])).to.be.false;
 
       set.addPermission(CalRightSet.READ);
+
       expect(set.hasAtLeastAllOfThosePermissions([CalRightSet.WRITE])).to.be.true;
       expect(set.hasAtLeastAllOfThosePermissions([CalRightSet.READ])).to.be.true;
     });
@@ -67,6 +70,7 @@ describe('CalRightSet', function() {
   describe('addPermissions', function() {
     it('should add correctly a permissions list to a set', function() {
       var set = new CalRightSet();
+
       set.addPermissions([CalRightSet.WRITE, CalRightSet.READ]);
 
       expect(set.hasAtLeastAllOfThosePermissions([CalRightSet.WRITE])).to.be.true;
@@ -78,6 +82,7 @@ describe('CalRightSet', function() {
       var set = new CalRightSet(CalRightSet.FREE_BUSY);
 
       set.addPermissions([]);
+
       expect(set.bitVector).to.be.equal(CalRightSet.FREE_BUSY);
     });
   });
@@ -89,6 +94,7 @@ describe('CalRightSet', function() {
       set.bitVector = -1; //it create a set will all permissions
 
       expect(set.hasAtLeastAllOfThosePermissions([CalRightSet.READ, CalRightSet.FREE_BUSY])).to.be.true;
+
       set.removePermissions([CalRightSet.FREE_BUSY, CalRightSet.READ]);
 
       expect(set.hasAtLeastAllOfThosePermissions([CalRightSet.READ])).to.be.false;
@@ -100,6 +106,7 @@ describe('CalRightSet', function() {
       var set = new CalRightSet(CalRightSet.FREE_BUSY);
 
       set.bitVector = -1;
+
       expect(set.bitVector).to.be.equal(-1);
     });
   });
@@ -110,6 +117,7 @@ describe('CalRightSet', function() {
 
       set.addPermission(CalRightSet.READ);
       set.removePermission(CalRightSet.READ);
+
       expect(set.hasPermission(CalRightSet.READ)).to.be.false;
     });
   });
@@ -141,10 +149,12 @@ describe('CalRightSet', function() {
       expect(set.hasOnlyThosePermissions([CalRightSet.WRITE])).to.be.false;
 
       set.addPermission(CalRightSet.WRITE);
+
       expect(set.hasOnlyThosePermissions([CalRightSet.WRITE])).to.be.true;
       expect(set.hasOnlyThosePermissions([CalRightSet.WRITE, CalRightSet.READ])).to.be.false;
 
       set.addPermission(CalRightSet.READ);
+
       expect(set.hasOnlyThosePermissions([CalRightSet.WRITE, CalRightSet.READ])).to.be.true;
     });
   });
@@ -190,18 +200,23 @@ describe('CalRightSet', function() {
   describe('hasPermission', function() {
     it('should return false with empty set', function() {
       var set = new CalRightSet();
+
       expect(set.hasPermission(CalRightSet.WRITE)).to.be.false;
     });
 
     it('should return false if the set does not have corresponding write', function() {
       var set = new CalRightSet();
+
       set.addPermission(CalRightSet.READ);
+
       expect(set.hasPermission(CalRightSet.WRITE)).to.be.false;
     });
 
     it('should return true if the set has corresponding write', function() {
       var set = new CalRightSet();
+
       set.addPermission(CalRightSet.WRITE);
+
       expect(set.hasPermission(CalRightSet.WRITE)).to.be.true;
     });
   });
@@ -220,7 +235,7 @@ describe('CalRightSet', function() {
     });
 
     it('should return true if and only if set are really equals', function() {
-      var set1 = new CalRightSet(CalRightSet.SHAREE_READWRITE);
+      var set1 = new CalRightSet(CalRightSet.WRITE);
       var set2 = new CalRightSet(CalRightSet.READ);
       var set3 = new CalRightSet(CalRightSet.READ);
 
@@ -234,11 +249,14 @@ describe('CalRightSet', function() {
 
   describe('clone', function() {
     it('should create a clone that is independant of the origin', function() {
-      var set = new CalRightSet(CalRightSet.SHAREE_READWRITE);
+      var set = new CalRightSet(CalRightSet.READ);
       var clone = set.clone();
+
       expect(set.equals(clone)).to.be.true;
       expect(set !== clone).to.be.true;
+
       set.addPermission(CalRightSet.WRITE);
+
       expect(set.equals(clone)).to.be.false;
     });
   });

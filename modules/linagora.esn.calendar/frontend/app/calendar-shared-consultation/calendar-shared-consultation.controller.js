@@ -4,8 +4,14 @@
   angular.module('esn.calendar')
     .controller('CalendarSharedConsultController', CalendarSharedConsultController);
 
-  function CalendarSharedConsultController($stateParams, calendarHomeService, calendarService, session, userAPI, _, CALENDAR_RIGHT) {
+  function CalendarSharedConsultController($stateParams, calendarHomeService, calendarService, session, userAPI, _, CALENDAR_RIGHT, CALENDAR_SHARED_RIGHT) {
     var self = this;
+    var rightLabels = {};
+    rightLabels[CALENDAR_SHARED_RIGHT.NONE] = 'None';
+    rightLabels[CALENDAR_SHARED_RIGHT.SHAREE_READ] = 'Read only';
+    rightLabels[CALENDAR_SHARED_RIGHT.SHAREE_READ_WRITE] = 'Read and Write';
+    rightLabels[CALENDAR_SHARED_RIGHT.SHAREE_ADMIN] = 'Administration';
+    rightLabels[CALENDAR_SHARED_RIGHT.SHAREE_FREE_BUSY] = 'Free/Busy';
 
     self.$onInit = $onInit;
 
@@ -23,7 +29,8 @@
         .then(function(calendar) {
           self.calendar = calendar;
           self.user = session.user;
-          self.userRight = calendar.rights.getUserRight(self.user._id);
+          var right = calendar.rights.getShareeRight(self.user._id);
+          self.userRightLabel = right && rightLabels[right];
 
           getCalendarOwnerFromSharedCalendar(calendar);
         });

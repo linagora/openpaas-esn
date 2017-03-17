@@ -5,12 +5,28 @@
 var expect = chai.expect;
 
 describe('CalendarCollectionShell factory', function() {
-  var CalendarRightShellMock, calendar, CALENDAR_RIGHT, calendarRight;
+  var CalendarRightShellMock, calendar, CALENDAR_RIGHT, CALENDAR_SHARED_RIGHT, calendarRight, calendarSharedRight;
+
+  calendar = {
+    _links: {
+      self: {
+        href: '/calendars/56095ccccbd51b7318ce6d0c/db0d5d63-c36a-42fc-9684-6f5e8132acfe.json'
+      }
+    },
+    name: 'name',
+    color: 'color',
+    description: 'description',
+    acl: 'acl',
+    invite: 'invite'
+  };
 
   CalendarRightShellMock = sinon.spy(function() {
     return {
       getUserRight: function() {
         return calendarRight;
+      },
+      getShareeRight: function() {
+        return calendarSharedRight;
       }
     };
   });
@@ -21,29 +37,15 @@ describe('CalendarCollectionShell factory', function() {
   );
 
   beforeEach(function() {
-    angular.mock.inject(function(CalendarCollectionShell, DEFAULT_CALENDAR_ID, _CALENDAR_RIGHT_) {
+    angular.mock.inject(function(CalendarCollectionShell, DEFAULT_CALENDAR_ID, _CALENDAR_RIGHT_, _CALENDAR_SHARED_RIGHT_) {
       this.CalendarCollectionShell = CalendarCollectionShell;
       this.DEFAULT_CALENDAR_ID = DEFAULT_CALENDAR_ID;
       CALENDAR_RIGHT = _CALENDAR_RIGHT_;
+      CALENDAR_SHARED_RIGHT = _CALENDAR_SHARED_RIGHT_;
     });
   });
 
   describe('CalendarCollectionShell constructor', function() {
-    beforeEach(function() {
-      calendar = {
-        _links: {
-          self: {
-            href: '/calendars/56095ccccbd51b7318ce6d0c/db0d5d63-c36a-42fc-9684-6f5e8132acfe.json'
-          }
-        },
-        name: 'name',
-        color: 'color',
-        description: 'description',
-        acl: 'acl',
-        invite: 'invite'
-      };
-    });
-
     it('should call CalendarRightShell if the calendar has the acl and the invite fields', function() {
       this.CalendarCollectionShell(calendar);
 
@@ -63,7 +65,7 @@ describe('CalendarCollectionShell factory', function() {
     });
 
     it('should call initialize readOnly with true if the user right is SHAREE_READ', function() {
-      calendarRight = CALENDAR_RIGHT.SHAREE_READ;
+      calendarSharedRight = CALENDAR_SHARED_RIGHT.SHAREE_READ;
       this.CalendarCollectionShell(calendar);
 
       expect(this.readOnly).to.be.true;
@@ -74,6 +76,22 @@ describe('CalendarCollectionShell factory', function() {
       this.CalendarCollectionShell(calendar);
 
       expect(this.readOnly).to.be.true;
+    });
+  });
+
+  describe('isShared fn', function() {
+    it('Should return false if calendar has no Sharee Right', function() {
+      calendarSharedRight = undefined;
+      var test = new this.CalendarCollectionShell(calendar);
+
+      expect(test.isShared()).to.be.false;
+    });
+
+    it('Should return true if calendar has Sharee Right', function() {
+      calendarSharedRight = CALENDAR_SHARED_RIGHT.SHAREE_READ;
+      var test = new this.CalendarCollectionShell(calendar);
+
+      expect(test.isShared()).to.be.true;
     });
   });
 

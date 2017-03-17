@@ -18,6 +18,7 @@
     notificationFactory,
     CALENDAR_MODIFY_COMPARE_KEYS,
     CALENDAR_RIGHT,
+    CALENDAR_SHARED_RIGHT,
     DEFAULT_CALENDAR_ID,
     CalendarRightShell,
     CalDelegationEditionHelper,
@@ -63,7 +64,7 @@
         .then(function() {
           if ($stateParams.addUsersFromDelegationState) {
             self.newUsersGroups = $stateParams.addUsersFromDelegationState.newUsersGroups;
-            self.selection = $stateParams.addUsersFromDelegationState.selection;
+            self.selectedShareeRight = $stateParams.addUsersFromDelegationState.selectedShareeRight;
 
             self.addUserGroup();
             self.getDelegationView();
@@ -87,28 +88,24 @@
 
       angular.copy(self.calendar, self.oldCalendar);
       self.delegations = self.delegations || [];
-      self.selection = 'none';
-      self.delegationTypes = [{
-        value: CALENDAR_RIGHT.NONE,
-        name: 'None',
-        access: 'all'
-      }, {
-        value: CALENDAR_RIGHT.SHAREE_ADMIN,
-        name: 'Administration',
-        access: 'users'
-      }, {
-        value: CALENDAR_RIGHT.READ_WRITE,
-        name: 'Read and Write',
-        access: 'users'
-      }, {
-        value: CALENDAR_RIGHT.SHAREE_READ,
-        name: 'Read only',
-        access: 'all'
-      }, {
-        value: CALENDAR_RIGHT.SHAREE_FREE_BUSY,
-        name: 'Free/Busy',
-        access: 'all'
-      }];
+      self.selectedShareeRight = CALENDAR_SHARED_RIGHT.NONE;
+      self.delegationTypes = [
+        {
+          value: CALENDAR_SHARED_RIGHT.NONE,
+          name: 'None'
+        }, {
+          value: CALENDAR_SHARED_RIGHT.SHAREE_ADMIN,
+          name: 'Administration'
+        }, {
+          value: CALENDAR_SHARED_RIGHT.SHAREE_READ_WRITE,
+          name: 'Read and Write'
+        }, {
+          value: CALENDAR_SHARED_RIGHT.SHAREE_READ,
+          name: 'Read only'
+        }, {
+          value: CALENDAR_SHARED_RIGHT.SHAREE_FREE_BUSY,
+          name: 'Free/Busy'
+        }];
       self.publicRights = [
         {
           value: CALENDAR_RIGHT.PUBLIC_READ,
@@ -126,12 +123,10 @@
       calendarRight.then(function(calendarRightShell) {
         self.publicSelection = calendarRightShell.getPublicRight();
         self.isAdmin = calendarRightShell.getUserRight(self.calendarHomeId) === CALENDAR_RIGHT.ADMIN;
-        var usersRight = calendarRightShell.getAllUserRight().filter(function(usersRight) {
-          return usersRight.userId !== self.calendarHomeId;
-        });
+        var allShareeRights = calendarRightShell.getAllShareeRights();
 
-        $q.all(_.chain(usersRight).map('userId').map(userAPI.user).values()).then(function(users) {
-          _.chain(users).map('data').zip(usersRight).forEach(function(array) {
+        $q.all(_.chain(allShareeRights).map('userId').map(userAPI.user).values()).then(function(users) {
+          _.chain(users).map('data').zip(allShareeRights).forEach(function(array) {
             var user = array[0];
             var right = array[1].right;
 
@@ -174,11 +169,11 @@
         calendarRight.then(function(calendarRightShell) {
           originalCalendarRight = calendarRightShell.clone();
           CaldelegationEditionHelperInstance.getAllRemovedUsersId().map(function(removedUserId) {
-            calendarRightShell.removeUserRight(removedUserId);
+            calendarRightShell.removeShareeRight(removedUserId);
           });
 
           self.delegations.forEach(function(line) {
-            calendarRightShell.update(line.user._id, line.user.preferredEmail, line.selection);
+            calendarRightShell.updateSharee(line.user._id, line.user.preferredEmail, line.selection);
           });
 
           var rightChanged = !calendarRightShell.equals(originalCalendarRight);
@@ -239,7 +234,7 @@
     }
 
     function addUserGroup() {
-      self.delegations = CaldelegationEditionHelperInstance.addUserGroup(self.newUsersGroups, self.selection);
+      self.delegations = CaldelegationEditionHelperInstance.addUserGroup(self.newUsersGroups, self.selectedShareeRight);
 
       if (self.newCalendar) {
         throw new Error('edition of right on new calendar are not implemented yet');
@@ -254,7 +249,7 @@
 
     function reset() {
       self.newUsersGroups = [];
-      self.selection = CALENDAR_RIGHT.NONE;
+      self.selectedShareeRight = CALENDAR_SHARED_RIGHT.NONE;
     }
 
     function removeCalendar() {
@@ -281,8 +276,8 @@
 
     function onAddingUser($tags) {
       var canBeAdded = !!$tags._id && !self.delegations.some(function(delegation) {
-        return $tags._id === delegation.user._id;
-      });
+          return $tags._id === delegation.user._id;
+        });
 
       return canBeAdded;
     }

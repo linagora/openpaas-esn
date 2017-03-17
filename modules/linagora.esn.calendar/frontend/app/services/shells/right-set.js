@@ -5,7 +5,7 @@
     .factory('CalRightSet', CalRightSetFactory);
 
   function CalRightSetFactory() {
-    var webdavStringToConstantDict, calendarShareeRightConstantToRightConstantDict;
+    var webdavStringToConstantDict;
 
     CalRightSet.FREE_BUSY = 1;
     CalRightSet.READ = 2;
@@ -14,15 +14,7 @@
     CalRightSet.SHARE = 16;
     CalRightSet.READ_ACL = 32;
     CalRightSet.WRITE_ACL = 64;
-    CalRightSet.SHAREE_READ = 128;
-    CalRightSet.SHAREE_READWRITE = 256;
-    CalRightSet.SHAREE_SHAREDOWNER = 512;
-    CalRightSet.SHAREE_ADMIN = 1024;
-    CalRightSet.SHAREE_FREE_BUSY = 2048;
 
-    CalRightSet.SHAREE_BITMASK = CalRightSet.SHAREE_READ + CalRightSet.SHAREE_READWRITE + CalRightSet.SHAREE_SHAREDOWNER + CalRightSet.SHAREE_ADMIN + CalRightSet.SHAREE_FREE_BUSY;
-
-    CalRightSet.calendarShareeIntToConstant = calendarShareeIntToConstant;
     CalRightSet.webdavStringToConstant = webdavStringToConstant;
 
     CalRightSet.prototype.addPermission = addPermission;
@@ -56,14 +48,6 @@
         '{DAV:}write-acl': CalRightSet.WRITE_ACL,
         '{urn:ietf:params:xml:ns:caldav}read-free-busy': CalRightSet.FREE_BUSY
       };
-
-      calendarShareeRightConstantToRightConstantDict = {
-        1: CalRightSet.SHAREE_SHAREDOWNER,
-        2: CalRightSet.SHAREE_READ,
-        3: CalRightSet.SHAREE_READWRITE,
-        5: CalRightSet.SHAREE_ADMIN,
-        6: CalRightSet.SHAREE_FREE_BUSY
-      };
     }
 
     /* eslint-disable no-bitwise */
@@ -90,16 +74,6 @@
       return result;
     }
 
-    function calendarShareeIntToConstant(integer) {
-      var result = calendarShareeRightConstantToRightConstantDict[integer];
-
-      if (!result) {
-        throw new Error('Unknow calendarSharee integer : ' + integer);
-      }
-
-      return result;
-    }
-
     function toString() {
       var result = [];
       var constToString = {};
@@ -111,9 +85,6 @@
       constToString[CalRightSet.SHARE] = 'SHARE';
       constToString[CalRightSet.READ_ACL] = 'READ_ACL';
       constToString[CalRightSet.WRITE_ACL] = 'WRITE_ACL';
-      constToString[CalRightSet.SHAREE_READ] = 'SHAREE_READ';
-      constToString[CalRightSet.SHAREE_READWRITE] = 'SHAREE_READWRITE';
-      constToString[CalRightSet.SHAREE_SHAREDOWNER] = 'SHAREE_SHAREDOWNER';
 
       angular.forEach(constToString, function(string, constant) {
         if (this.hasAtLeastAllOfThosePermissions([parseInt(constant, 10)])) {
@@ -158,10 +129,6 @@
 
     function addPermissions(permissions) {
       var maskOfAllPermission = combinePermission(permissions);
-
-      if (maskOfAllPermission & CalRightSet.SHAREE_BITMASK) {
-        this.bitVector = this.bitVector & ~CalRightSet.SHAREE_BITMASK;
-      }
 
       this.bitVector = this.bitVector | maskOfAllPermission;
     }

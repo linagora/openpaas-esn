@@ -20,10 +20,9 @@
 
       sharedCalendars = calendars.filter(function(calendar) {
         if (!_.contains(self.userCalendars, calendar) && calendar.rights) {
-          var delegationRight = calendar.rights.getUserRight(session.user._id);
           var publicRight = calendar.rights.getPublicRight();
 
-          return delegationRight !== CALENDAR_RIGHT.ADMIN || publicRight === CALENDAR_RIGHT.PUBLIC_READ;
+          return calendar.isShared(session.user._id) || publicRight === CALENDAR_RIGHT.PUBLIC_READ;
         }
 
         return false;

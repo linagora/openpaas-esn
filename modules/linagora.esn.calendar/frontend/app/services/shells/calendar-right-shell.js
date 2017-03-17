@@ -4,14 +4,7 @@
   angular.module('esn.calendar')
     .factory('CalendarRightShell', CalendarRightShell);
 
-  CalendarRightShell.$inject = [
-    'CALENDAR_RIGHT',
-    'CalRightSet',
-    '_',
-    'calendarUtils'
-  ];
-
-  function CalendarRightShell(CALENDAR_RIGHT, CalRightSet, _, calendarUtils) {
+  function CalendarRightShell(CALENDAR_RIGHT, CALENDAR_SHARED_RIGHT, CalRightSet, _, calendarUtils) {
 
     //the idea here is that there is a multitude of possible combinaison of webdav right and webdav sharing right
     //I will suppose that right are only settle by OpenPaas and that the only possible combinaison are the following
@@ -26,12 +19,13 @@
 
     CalendarRightShell.prototype.clone = clone;
     CalendarRightShell.prototype.equals = equals;
-    CalendarRightShell.prototype.getAllUserRight = getAllUserRight;
     CalendarRightShell.prototype.getPublicRight = getPublicRight;
     CalendarRightShell.prototype.getUserRight = getUserRight;
-    CalendarRightShell.prototype.update = update;
+    CalendarRightShell.prototype.getShareeRight = getShareeRight;
+    CalendarRightShell.prototype.updateSharee = updateSharee;
+    CalendarRightShell.prototype.getAllShareeRights = getAllShareeRights;
     CalendarRightShell.prototype.updatePublic = updatePublic;
-    CalendarRightShell.prototype.removeUserRight = removeUserRight;
+    CalendarRightShell.prototype.removeShareeRight = removeShareeRight;
     CalendarRightShell.prototype.toDAVShareRightsUpdate = toDAVShareRightsUpdate;
     CalendarRightShell.prototype.toJson = toJson;
 
@@ -41,10 +35,19 @@
 
     /////////////////
 
+    /**
+     * Initialize CalendarRightShell with ACL for owner rights and public right and inline for shared access
+     * Note : Sabre sent a shared status for the owner "SHAREDOWNER" (even if the calendar is not shared).
+     * This specific status is filtered out because it doesn't add info about sharing to other users.
+     * @param acl used to initialize owner rights and public rights
+     * @param invite used to initialize rights given to sharees (if any)
+     * @constructor
+     */
     function CalendarRightShell(acl, invite) {
       this._userRight = {};
       this._userEmails = {};
       this._public = new CalRightSet();
+      this._sharee = {};
 
       acl && acl.forEach(function(line) {
         var userCalRightSet, userId, match = line.principal && line.principal.match(principalRegexp);
@@ -55,7 +58,6 @@
         } else if (line.principal === '{DAV:}authenticated') {
           userCalRightSet = this._public;
         }
-
         userCalRightSet && userCalRightSet.addPermission(CalRightSet.webdavStringToConstant(line.privilege));
       }, this);
 
@@ -64,18 +66,26 @@
 
         if (match) {
           userId = match[1];
-          this._getUserSet(userId).addPermission(CalRightSet.calendarShareeIntToConstant(line.access));
+          var access = '' + line.access;
+          if (access !== CALENDAR_SHARED_RIGHT.SHAREE_OWNER) {
+            this._sharee[userId] = access;
+          }
           this._userEmails[userId] = calendarUtils.removeMailto(line.href);
         }
       }, this);
     }
 
+    /**
+     * Modify ACL user rights
+     * @param calRightSet
+     * @param newRole
+     */
     function setProfile(calRightSet, newRole) {
       calRightSet.addPermissions(matrix[newRole].shouldHave);
       calRightSet.removePermissions(matrix[newRole].shouldNotHave);
     }
 
-    function sumupRight(calRightSet) {
+    function _sumupRight(calRightSet) {
       var result;
 
       _.forEach(matrix, function(matrix, right) {
@@ -95,34 +105,68 @@
       return this._userRight[userId];
     }
 
+    /**
+     * Compute Right from ACL
+     * @param userId
+     * @returns {CALENDAR_RIGHT} role computed from ACL
+     */
     function getUserRight(userId) {
       var calRightSet = this._userRight[userId];
 
-      return calRightSet && sumupRight(calRightSet);
+      return calRightSet && _sumupRight(calRightSet);
     }
 
-    function getAllUserRight() {
-      return _.map(this._userRight, function(calRightSet, userId) {
+    /**
+     * Returns all sharees rights for a calendar
+     * Does not return sharee right for the owner of the calendar
+     * @return {Object} {'userId': '', 'right': ''} all shared rights except for userId
+     */
+    function getAllShareeRights() {
+      return _.map(this._sharee, function(sharedRights, userId) {
         return {
           userId: userId,
-          right: sumupRight(calRightSet)
+          right: sharedRights
         };
       });
     }
 
-    function getPublicRight() {
-      return sumupRight(this._public);
+    /**
+     * Get sharee right for a specific user
+     * @param userId
+     * @returns {CALENDAR_SHARED_RIGHT}
+     */
+    function getShareeRight(userId) {
+      return this._sharee[userId];
     }
 
-    function update(userId, userEmail, newRole) {
+    /**
+     * Compute public Right from ACL
+     * @returns {CALENDAR_RIGHT} public role computed from ACL
+     */
+    function getPublicRight() {
+      return _sumupRight(this._public);
+    }
+
+    /**
+     * Add or modify a sharee with role on a calendar
+     * @param userId
+     * @param userEmail
+     * @param role
+     */
+    function updateSharee(userId, userEmail, role) {
       this._userEmails[userId] = this._userEmails[userId] || userEmail;
-      setProfile(this._getUserSet(userId), newRole);
+      this._sharee[userId] = role;
     }
 
     function updatePublic(newRole) {
       setProfile(this._public, newRole);
     }
 
+    /**
+     * Format SabreDAV request for shared right modification
+     * @param oldCalendarRight previous version of calendarRight used to check right modification/removal
+     * @returns {{share: {set: Array, remove: Array}}}
+     */
     function toDAVShareRightsUpdate(oldCalendarRight) {
       var HREF_PREFIX = 'mailto:';
       var result = {
@@ -132,35 +176,39 @@
         }
       };
 
-      _.forEach(this._userRight, function(calRightSet, userId) {
-        if (calRightSet.hasPermission(CalRightSet.SHAREE_ADMIN)) {
-          result.share.set.push({
-            'dav:href': HREF_PREFIX + this._userEmails[userId],
-            'dav:administration': true
-          });
-        } else if (calRightSet.hasPermission(CalRightSet.SHAREE_READWRITE)) {
-          result.share.set.push({
-            'dav:href': HREF_PREFIX + this._userEmails[userId],
-            'dav:read-write': true
-          });
-        } else if (calRightSet.hasPermission(CalRightSet.SHAREE_READ)) {
-          result.share.set.push({
-            'dav:href': HREF_PREFIX + this._userEmails[userId],
-            'dav:read': true
-          });
-        } else if (calRightSet.hasPermission(CalRightSet.SHAREE_FREE_BUSY)) {
-          result.share.set.push({
-            'dav:href': HREF_PREFIX + this._userEmails[userId],
-            'dav:freebusy': true
-          });
+      _.forEach(this._sharee, function(sharedRight, userId) {
+        switch (sharedRight) {
+          case CALENDAR_SHARED_RIGHT.SHAREE_READ:
+            result.share.set.push({
+              'dav:href': HREF_PREFIX + this._userEmails[userId],
+              'dav:read': true
+            });
+            break;
+          case CALENDAR_SHARED_RIGHT.SHAREE_READ_WRITE:
+            result.share.set.push({
+              'dav:href': HREF_PREFIX + this._userEmails[userId],
+              'dav:read-write': true
+            });
+            break;
+          case CALENDAR_SHARED_RIGHT.SHAREE_ADMIN:
+            result.share.set.push({
+              'dav:href': HREF_PREFIX + this._userEmails[userId],
+              'dav:administration': true
+            });
+            break;
+          case CALENDAR_SHARED_RIGHT.SHAREE_FREE_BUSY:
+            result.share.set.push({
+              'dav:href': HREF_PREFIX + this._userEmails[userId],
+              'dav:freebusy': true
+            });
+            break;
         }
       }, this);
 
-      _.forEach(oldCalendarRight._userRight, function(oldCalRightSet, userId) {
-        var newCalRightSet = this._userRight[userId] || new CalRightSet();
-        var SHAREE_PERMISSION = [CalRightSet.SHAREE_SHAREDOWNER, CalRightSet.SHAREE_READ, CalRightSet.SHAREE_READWRITE, CalRightSet.SHAREE_ADMIN, CalRightSet.SHAREE_FREE_BUSY];
+      _.forEach(oldCalendarRight._sharee, function(oldSharedRight, userId) {
+        var newSharedRight = this._sharee[userId];
 
-        if (newCalRightSet.hasNoneOfThosePermissions(SHAREE_PERMISSION) && oldCalRightSet.hasAtLeastOneOfThosePermissions(SHAREE_PERMISSION)) {
+        if (!newSharedRight && oldSharedRight) {
           result.share.remove.push({
             'dav:href': HREF_PREFIX + oldCalendarRight._userEmails[userId]
           });
@@ -170,15 +218,20 @@
       return result;
     }
 
-    function removeUserRight(id) {
-      delete this._userEmails[id];
-      delete this._userRight[id];
+    /**
+     * Remove sharee right of userId
+     * @param userId
+     */
+    function removeShareeRight(userId) {
+      delete this._userEmails[userId];
+      delete this._sharee[userId];
     }
 
     function toJson() {
       var result = {
         users: {},
-        public: this._public.toJson()
+        public: this._public.toJson(),
+        sharee: this._sharee
       };
 
       _.forEach(this._userRight, function(set, userKey) {
@@ -209,6 +262,7 @@
 
       clone._userEmails = _.clone(this._userEmails);
       clone._public = this._public.clone();
+      clone._sharee = _.clone(this._sharee);
 
       return clone;
     }
@@ -226,56 +280,13 @@
         shouldNotHave: []
       };
 
-      matrix[CALENDAR_RIGHT.READ_WRITE] = {
-        shouldHave: [
-          CalRightSet.SHAREE_READWRITE
-        ],
-        shouldNotHave: [
-          CalRightSet.SHARE,
-          CalRightSet.WRITE_PROPERTIES,
-          CalRightSet.SHAREE_READ
-        ]
-      };
-
       matrix[CALENDAR_RIGHT.PUBLIC_READ] = {
         shouldHave: [
           CalRightSet.READ
         ],
         shouldNotHave: [
-          CalRightSet.SHAREE_READWRITE,
           CalRightSet.SHARE,
           CalRightSet.WRITE
-        ]
-      };
-
-      matrix[CALENDAR_RIGHT.SHAREE_READ] = {
-        shouldHave: [
-          CalRightSet.SHAREE_READ
-        ],
-        shouldNotHave: [
-          CalRightSet.SHAREE_READWRITE,
-          CalRightSet.SHARE,
-          CalRightSet.WRITE_PROPERTIES,
-          CalRightSet.WRITE
-        ]
-      };
-
-      matrix[CALENDAR_RIGHT.SHAREE_ADMIN] = {
-        shouldHave: [
-          CalRightSet.SHAREE_ADMIN
-        ],
-        shouldNotHave: [
-        ]
-      };
-
-      matrix[CALENDAR_RIGHT.SHAREE_FREE_BUSYN] = {
-        shouldHave: [
-          CalRightSet.SHAREE_FREE_BUSY
-        ],
-        shouldNotHave: [
-          CalRightSet.SHAREE_READ,
-          CalRightSet.SHAREE_READWRITE,
-          CalRightSet.SHAREE_ADMIN
         ]
       };
 
@@ -284,7 +295,6 @@
           CalRightSet.WRITE
         ],
         shouldNotHave: [
-          CalRightSet.SHAREE_READWRITE,
           CalRightSet.SHARE,
           CalRightSet.WRITE_PROPERTIES,
           CalRightSet.READ
@@ -297,8 +307,6 @@
         ],
         shouldNotHave: [
           CalRightSet.READ,
-          CalRightSet.SHAREE_READ,
-          CalRightSet.SHAREE_READWRITE,
           CalRightSet.SHARE,
           CalRightSet.WRITE_PROPERTIES,
           CalRightSet.WRITE
@@ -310,12 +318,9 @@
         shouldNotHave: [
           CalRightSet.FREE_BUSY,
           CalRightSet.READ,
-          CalRightSet.SHAREE_READ,
-          CalRightSet.SHAREE_READWRITE,
           CalRightSet.SHARE,
           CalRightSet.WRITE_PROPERTIES,
-          CalRightSet.WRITE,
-          CalRightSet.SHAREE_SHAREDOWNER
+          CalRightSet.WRITE
         ]
       };
 
