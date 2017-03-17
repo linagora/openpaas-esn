@@ -9,11 +9,13 @@
   var JSON_CONTENT_TYPE_HEADER = { 'Content-Type': 'application/json' };
 
   function calendarAPI(
+    $q,
     calendarRestangular,
     calPathBuilder,
     request,
     responseHandler,
     gracePeriodResponseHandler,
+    notificationFactory,
     _,
     CALENDAR_ACCEPT_HEADER,
     CALENDAR_DAV_DATE_FORMAT,
@@ -65,7 +67,14 @@
         }
       };
 
-      return request('report', calendarHref, JSON_CONTENT_TYPE_HEADER, body).then(davResponseHandler('dav:item'));
+      return request('report', calendarHref, JSON_CONTENT_TYPE_HEADER, body)
+      .then(davResponseHandler('dav:item'))
+      .catch(function(error) {
+        notificationFactory.weakError('Server cannot get events', 'List event failed; Please refresh');
+
+        return $q.reject(error);
+      })
+      ;
     }
 
     /**
@@ -116,7 +125,13 @@
       };
       var path = calPathBuilder.forCalendarId(calendarHomeId, calendarId);
 
-      return request('report', path, JSON_CONTENT_TYPE_HEADER, body).then(davResponseHandler('dav:item'));
+      return request('report', path, JSON_CONTENT_TYPE_HEADER, body)
+      .then(davResponseHandler('dav:item'))
+      .catch(function(error) {
+        notificationFactory.weakError('Server cannot list events', 'List event failed; Please refresh');
+
+        return $q.reject(error);
+      });
     }
 
     /**
@@ -126,7 +141,13 @@
     function listAllCalendars(options) {
       var path = calPathBuilder.rootPath();
 
-      return request('get', path + '/.json', {Accept: CALENDAR_ACCEPT_HEADER}, {}, options).then(davResponseHandler('dav:home'));
+      return request('get', path + '/.json', {Accept: CALENDAR_ACCEPT_HEADER}, {}, options)
+      .then(davResponseHandler('dav:home'))
+      .catch(function(error) {
+        notificationFactory.weakError('Server cannot get calendars', 'List all calendars failed; Please refresh');
+
+        return $q.reject(error);
+      });
     }
 
     /**
@@ -138,7 +159,13 @@
     function listCalendars(calendarId, options) {
       var path = calPathBuilder.forCalendarHomeId(calendarId);
 
-      return request('get', path, {Accept: CALENDAR_ACCEPT_HEADER}, {}, options).then(davResponseHandler('dav:calendar'));
+      return request('get', path, {Accept: CALENDAR_ACCEPT_HEADER}, {}, options)
+      .then(davResponseHandler('dav:calendar'))
+      .catch(function(error) {
+        notificationFactory.weakError('Server cannot list calendars', 'List calendars failed; Please refresh');
+
+        return $q.reject(error);
+      });
     }
 
     /**
@@ -150,7 +177,13 @@
     function getCalendar(calendarHomeId, calendarId, options) {
       var path = calPathBuilder.forCalendarId(calendarHomeId, calendarId);
 
-      return request('get', path, {Accept: CALENDAR_ACCEPT_HEADER}, {}, options).then(responseHandler(200, _.property('data')));
+      return request('get', path, {Accept: CALENDAR_ACCEPT_HEADER}, {}, options)
+      .then(responseHandler(200, _.property('data')))
+      .catch(function(error) {
+        notificationFactory.weakError('Server cannot get calendar', 'Get calendar failed; Please refresh');
+
+        return $q.reject(error);
+      });
     }
 
     /**
@@ -162,7 +195,13 @@
     function createCalendar(calendarHomeId, calendar) {
       var path = calPathBuilder.forCalendarHomeId(calendarHomeId);
 
-      return request('post', path, null, calendar).then(responseHandler(201));
+      return request('post', path, null, calendar)
+      .then(responseHandler(201))
+      .catch(function(error) {
+        notificationFactory.weakError('Server cannot create calendar', 'Create calendar failed, Please refresh');
+
+        return $q.reject(error);
+      });
     }
 
     /**
@@ -174,7 +213,13 @@
     function removeCalendar(calendarHomeId, calendarId) {
       var path = calPathBuilder.forCalendarId(calendarHomeId, calendarId);
 
-      return request('delete', path).then(responseHandler(204));
+      return request('delete', path)
+      .then(responseHandler(204))
+      .catch(function(error) {
+        notificationFactory.weakError('Server cannot remove calendar', 'Remove calendar failed; Please refresh');
+
+        return $q.reject(error);
+      });
     }
 
     /**
@@ -186,7 +231,13 @@
     function modifyCalendar(calendarHomeId, calendar) {
       var path = calPathBuilder.forCalendarId(calendarHomeId, calendar.id);
 
-      return request('proppatch', path, JSON_CONTENT_TYPE_HEADER, calendar).then(responseHandler(204));
+      return request('proppatch', path, JSON_CONTENT_TYPE_HEADER, calendar)
+      .then(responseHandler(204))
+      .catch(function(error) {
+        notificationFactory.weakError('Server cannot modify calendar', 'Modify calendar failed; Please refresh');
+
+        return $q.reject(error);
+      });
     }
 
     /**
@@ -241,10 +292,22 @@
       var body = vcalendar.toJSON();
 
       if (options.graceperiod) {
-        return request('put', eventPath, headers, body, {graceperiod: CALENDAR_GRACE_DELAY}).then(gracePeriodResponseHandler);
+        return request('put', eventPath, headers, body, {graceperiod: CALENDAR_GRACE_DELAY})
+        .then(gracePeriodResponseHandler)
+        .catch(function(error) {
+          notificationFactory.weakError('Server cannot create events', 'Create failed; Please refresh');
+
+          return $q.reject(error);
+        });
       }
 
-      return request('put', eventPath, headers, body).then(responseHandler(201));
+      return request('put', eventPath, headers, body)
+      .then(responseHandler(201))
+      .catch(function(error) {
+        notificationFactory.weakError('Server cannot create events', 'Create failed; Please refresh');
+
+        return $q.reject(error);
+      });
     }
 
     /**
@@ -266,7 +329,13 @@
 
       var body = vcalendar.toJSON();
 
-      return request('put', eventPath, headers, body, { graceperiod: CALENDAR_GRACE_DELAY }).then(gracePeriodResponseHandler);
+      return request('put', eventPath, headers, body, { graceperiod: CALENDAR_GRACE_DELAY })
+      .then(gracePeriodResponseHandler)
+      .catch(function(error) {
+        notificationFactory.weakError('Server cannot modify events', 'Modify failed; Please refresh ');
+
+        return $q.reject(error);
+      });
     }
 
     /**
@@ -278,7 +347,13 @@
     function remove(eventPath, etag) {
       var headers = {'If-Match': etag};
 
-      return request('delete', eventPath, headers, null, { graceperiod: CALENDAR_GRACE_DELAY }).then(gracePeriodResponseHandler);
+      return request('delete', eventPath, headers, null, { graceperiod: CALENDAR_GRACE_DELAY })
+      .then(gracePeriodResponseHandler)
+      .catch(function(error) {
+        notificationFactory.weakError('Server cannot remove events', 'Delete failed; Please refresh your calendar');
+
+        return $q.reject(error);
+      });
     }
 
     /**
@@ -299,7 +374,13 @@
       }
       var body = vcalendar.toJSON();
 
-      return request('put', eventPath, headers, body).then(responseHandler([200, 204]));
+      return request('put', eventPath, headers, body)
+      .then(responseHandler([200, 204]))
+      .catch(function(error) {
+        notificationFactory.weakError('Server cannot change event', 'Change participation failed; Please refresh your calendar');
+
+        return $q.reject(error);
+      });
     }
   }
 })();

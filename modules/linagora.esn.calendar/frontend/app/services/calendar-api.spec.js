@@ -6,7 +6,12 @@ var expect = chai.expect;
 
 describe('The calendar module apis', function() {
 
-  var davItem, davItemRecurring, davItems, davItemsRecurring;
+  var davItem, davItemRecurring, davItems, davItemsRecurring, notificationFactoryMock;
+
+  notificationFactoryMock = {
+    weakInfo: sinon.spy(),
+    weakError: sinon.spy()
+  };
 
   function headerContentTypeJsonChecker(header) {
     return header['Content-Type'] === 'application/json';
@@ -25,6 +30,11 @@ describe('The calendar module apis', function() {
 
   beforeEach(function() {
     angular.mock.module('esn.calendar');
+
+    angular.mock.module(function($provide) {
+      $provide.value('notificationFactory', notificationFactoryMock);
+    });
+
     angular.mock.inject(function($httpBackend, calMoment, calendarAPI, calEventAPI, CALENDAR_CONTENT_TYPE_HEADER, CALENDAR_ACCEPT_HEADER, CALENDAR_GRACE_DELAY) {
       this.$httpBackend = $httpBackend;
       this.calMoment = calMoment;
@@ -163,6 +173,19 @@ describe('The calendar module apis', function() {
           });
         this.$httpBackend.flush();
       });
+
+      it('should call notificationFactory.weakError if response.status is not 200', function(done) {
+        this.$httpBackend.expect('REPORT', '/dav/api/calendars/test/events.json', this.data, headerContentTypeJsonChecker).respond(500, 'Error');
+
+        this.calendarAPI.listEvents('/dav/api/calendars/test/events.json', this.start, this.end)
+          .catch(function() {
+            expect(notificationFactoryMock.weakError).to.have.been.calledWith('Server cannot get events', 'List event failed; Please refresh');
+
+            done();
+          });
+
+        this.$httpBackend.flush();
+      });
     });
 
     describe('listEventsForCalendar request', function() {
@@ -232,7 +255,19 @@ describe('The calendar module apis', function() {
           });
         this.$httpBackend.flush();
       });
+
+  it('should call notificationFactory.weakError if response.status is not 200 ', function(done) {
+    this.$httpBackend.expect('REPORT', '/dav/api/calendars/test/subtest.json', this.data, headerContentTypeJsonChecker).respond(500, 'Error');
+    this.calendarAPI.listEventsForCalendar('test', 'subtest', this.start, this.end)
+    .catch(function() {
+
+      expect(notificationFactoryMock.weakError).to.have.been.calledWith('Server cannot list events', 'List event failed; Please refresh');
+
+      done();
     });
+    this.$httpBackend.flush();
+  });
+});
 
     describe('listAllCalendars request', function() {
       it('should request the correct path and return an array of items included in dav:home', function(done) {
@@ -331,7 +366,20 @@ describe('The calendar module apis', function() {
 
         this.$httpBackend.flush();
       });
+
+    it('should call notificationFactory.weakError if response.status is not 200', function(done) {
+      this.$httpBackend.expectGET('/dav/api/calendars/.json').respond(500, 'Error');
+
+      this.calendarAPI.listAllCalendars()
+        .catch(function() {
+          expect(notificationFactoryMock.weakError).to.have.been.calledWith('Server cannot get calendars', 'List all calendars failed; Please refresh');
+
+          done();
+        });
+
+      this.$httpBackend.flush();
     });
+  });
 
     describe('listCalendars request', function() {
       it('should request the correct path without params and return an array of items included in dav:calendar', function(done) {
@@ -428,7 +476,20 @@ describe('The calendar module apis', function() {
 
         this.$httpBackend.flush();
       });
+
+    it('should call notificationFactory.weakError if response.status is not 200 ', function(done) {
+      this.$httpBackend.expectGET('/dav/api/calendars/test.json').respond(500, 'Error');
+
+      this.calendarAPI.listCalendars('test')
+      .catch(function() {
+        expect(notificationFactoryMock.weakError).to.have.been.calledWith('Server cannot list calendars', 'List calendars failed; Please refresh');
+
+        done();
+      });
+
+      this.$httpBackend.flush();
     });
+});
 
     describe('getCalendar request', function() {
       it('should request the correct path with params if the options object is defined and return a dav:calendar', function(done) {
@@ -482,7 +543,20 @@ describe('The calendar module apis', function() {
 
         this.$httpBackend.flush();
       });
-    });
+
+      it('should call notificationFactory.weakError if response.status is not 200', function(done) {
+        this.$httpBackend.expectGET('/dav/api/calendars/homeId/id.json').respond(500, 'Error');
+
+        this.calendarAPI.getCalendar('homeId', 'id')
+        .catch(function() {
+          expect(notificationFactoryMock.weakError).to.have.been.calledWith('Server cannot get calendar', 'Get calendar failed; Please refresh');
+
+          done();
+        });
+
+        this.$httpBackend.flush();
+      });
+  });
 
     describe('removeCalendar request', function() {
       it('should return the http response if response.status is 204', function() {
@@ -504,8 +578,19 @@ describe('The calendar module apis', function() {
 
         expect(catchSpy).to.have.been.calledWith(sinon.match.truthy);
       });
-    });
 
+      it('should return an Error if response.status is not 204', function(done) {
+
+        this.$httpBackend.expectDELETE('/dav/api/calendars/test/cal.json').respond(500, 'error');
+        this.calendarAPI.removeCalendar('test', 'cal')
+        .catch(function() {
+          expect(notificationFactoryMock.weakError).to.have.been.calledWith('Server cannot remove calendar', 'Remove calendar failed; Please refresh');
+
+          done();
+        });
+        this.$httpBackend.flush();
+      });
+  });
     describe('createCalendar request', function() {
 
       it('should return the http response if response.status is 201', function(done) {
@@ -531,7 +616,18 @@ describe('The calendar module apis', function() {
 
         this.$httpBackend.flush();
       });
+
+    it('should return an Error if response.status is not 201', function(done) {
+      this.$httpBackend.expectPOST('/dav/api/calendars/test.json', this.vcalendar).respond(500, 'Error');
+
+      this.calendarAPI.createCalendar('test', this.vcalendar)
+      .catch(function() {
+        expect(notificationFactoryMock.weakError).to.have.been.calledWith('Server cannot create calendar', 'Create calendar failed, Please refresh');
+        done();
+      });
+      this.$httpBackend.flush();
     });
+  });
 
     describe('The getEventByUID fn', function() {
 

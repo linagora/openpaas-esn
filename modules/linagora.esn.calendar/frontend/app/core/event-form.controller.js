@@ -155,19 +155,23 @@
           $scope.editedEvent.attendees = $scope.newAttendees;
         }
 
-        var path = '/calendars/' + $scope.calendarHomeId + '/' + $scope.calendar.id;
+        if ($scope.calendar) {
+          var path = '/calendars/' + $scope.calendarHomeId + '/' + $scope.calendar.id;
 
-        $scope.restActive = true;
-        _hideModal();
-        calEventService.createEvent($scope.calendar.id, path, $scope.editedEvent, { graceperiod: true, notifyFullcalendar: $state.is('calendar.main') })
-          .then(function(completed) {
-            if (!completed) {
-              calOpenEventForm($scope.editedEvent);
-            }
-          })
-          .finally(function() {
-            $scope.restActive = false;
-          });
+          $scope.restActive = true;
+          _hideModal();
+          calEventService.createEvent($scope.calendar.id, path, $scope.editedEvent, { graceperiod: true, notifyFullcalendar: $state.is('calendar.main') })
+            .then(function(completed) {
+              if (!completed) {
+                calOpenEventForm($scope.editedEvent);
+              }
+            })
+            .finally(function() {
+              $scope.restActive = false;
+            });
+        } else {
+          _displayNotification(notificationFactory.weakError, 'Event creation failed', 'Event creation failed; cannot find calendar');
+        }
       }
 
       function deleteEvent() {
@@ -195,8 +199,8 @@
           icalPartStatToReadableStatus.DECLINED = 'You will not attend this meeting';
           icalPartStatToReadableStatus.TENTATIVE = 'Your participation is undefined';
           _displayNotification(notificationFactory.weakInfo, 'Calendar - ', icalPartStatToReadableStatus[status]);
-        }, function(err) {
-          _displayNotification(notificationFactory.weakError, 'Event participation modification failed', (err.statusText || err) + ', Please refresh your calendar');
+        }, function() {
+          _displayNotification(notificationFactory.weakError, 'Event participation modification failed', '; Please refresh your calendar');
         }).finally(function() {
           $scope.restActive = false;
         });

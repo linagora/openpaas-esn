@@ -832,6 +832,14 @@ describe('The event-form module controllers', function() {
         });
       });
 
+      it('should return error notification when calendar is undefined', function() {
+        this.scope.calendar = null;
+
+        this.scope.createEvent();
+
+        expect(this.notificationFactory.weakError).to.have.been.calledWith('Event creation failed', 'Event creation failed; cannot find calendar');
+      });
+
       it('should call calOpenEventForm on cancelled task', function() {
         this.calEventServiceMock.createEvent = function() {
           return $q.when(false);
