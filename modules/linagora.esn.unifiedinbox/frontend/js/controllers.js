@@ -313,15 +313,10 @@ angular.module('linagora.esn.unifiedinbox')
     inboxMailboxesService.assignMailboxesList($scope, inboxMailboxesService.filterSystemMailboxes);
   })
 
-  .controller('addFolderController', function($scope, $state, $stateParams, inboxMailboxesService, Mailbox, rejectWithErrorNotification, esnPreviousPage) {
+  .controller('addFolderController', function($scope, $state, $stateParams, jmap, inboxMailboxesService, rejectWithErrorNotification, esnPreviousPage) {
     inboxMailboxesService.assignMailboxesList($scope);
 
-    if ($stateParams.mailbox) {
-      $scope.mailbox = new Mailbox({ name: $stateParams.mailbox.name, parentId: $stateParams.mailbox.parentId });
-    } else {
-      $scope.mailbox = new Mailbox({});
-    }
-
+    $scope.mailbox = $stateParams.mailbox ? $stateParams.mailbox : {};
     $scope.addFolder = function() {
       if (!$scope.mailbox.name) {
         return rejectWithErrorNotification('Please enter a valid folder name');

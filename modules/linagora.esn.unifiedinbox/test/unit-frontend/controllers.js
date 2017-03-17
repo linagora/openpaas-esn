@@ -9,7 +9,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
   var $stateParams, $rootScope, scope, $controller,
       jmapClient, jmap, notificationFactory, draftService, Offline = {},
       Composition, newComposerService = {}, $state, $modal, navigateTo,
-      inboxMailboxesService, inboxJmapItemService, _, fileUploadMock, config, moment, Mailbox, inboxMailboxesCache,
+      inboxMailboxesService, inboxJmapItemService, _, fileUploadMock, config, moment, inboxMailboxesCache,
       touchscreenDetectorService, Thread, esnPreviousPage, inboxFilterDescendantMailboxesFilter, inboxSelectionService;
   var JMAP_GET_MESSAGES_VIEW, INBOX_EVENTS, DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD;
 
@@ -81,7 +81,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
   beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _jmap_,
                                           _Composition_, _inboxMailboxesService_, ___, _JMAP_GET_MESSAGES_VIEW_,
                                           _DEFAULT_FILE_TYPE_, _moment_, _DEFAULT_MAX_SIZE_UPLOAD_, _inboxJmapItemService_,
-                                          _INBOX_EVENTS_, _Mailbox_, _inboxMailboxesCache_, _Thread_, _esnPreviousPage_,
+                                          _INBOX_EVENTS_, _inboxMailboxesCache_, _Thread_, _esnPreviousPage_,
                                           _inboxSelectionService_) {
     $rootScope = _$rootScope_;
     $controller = _$controller_;
@@ -96,7 +96,6 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     DEFAULT_MAX_SIZE_UPLOAD = _DEFAULT_MAX_SIZE_UPLOAD_;
     INBOX_EVENTS = _INBOX_EVENTS_;
     moment = _moment_;
-    Mailbox = _Mailbox_;
     Thread = _Thread_;
     esnPreviousPage = _esnPreviousPage_;
     inboxSelectionService = _inboxSelectionService_;
@@ -1175,7 +1174,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
         initController('addFolderController');
 
-        scope.mailbox = new Mailbox({ name: 'Name' });
+        scope.mailbox = { name: 'Name' };
         scope.addFolder();
         scope.$digest();
 
@@ -1188,11 +1187,11 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
         initController('addFolderController');
 
-        scope.mailbox = new Mailbox({ });
         scope.addFolder().then(done.bind(null, 'should reject'), function(err) {
           expect(err.message).to.equal('Please enter a valid folder name');
           expect(esnPreviousPage.back).to.not.have.been.called;
           expect(jmapClient.createMailbox).to.not.have.been.called;
+
           done();
         });
         scope.$digest();
@@ -1205,11 +1204,12 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
         initController('addFolderController');
 
-        scope.mailbox = new Mailbox({ name: 'Name', parentId: 123 });
+        scope.mailbox = { name: 'Name', parentId: 123 };
         scope.addFolder().then(done.bind(null, 'should reject'), function(err) {
           err.action();
           expect(err.linkText).to.be.equal('Reopen');
           expect($state.go).to.have.been.calledWith('unifiedinbox.configuration.folders.add', { mailbox: { name: 'Name', parentId: 123 } });
+
           done();
         });
         scope.$digest();
@@ -1301,12 +1301,16 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
   describe('The inboxDeleteFolderController', function() {
 
+    function newMailbox(id, parentId) {
+      return new jmap.Mailbox(null, id, id, { parentId: parentId });
+    }
+
     it('should initialize $scope.message containing to-be-deleted mailboxes', function() {
-      inboxMailboxesCache.push(new Mailbox({ id: '1', name: '1' }));
-      inboxMailboxesCache.push(new Mailbox({ id: '2', name: '2', parentId: '1' }));
-      inboxMailboxesCache.push(new Mailbox({ id: '3', name: '3', parentId: '2' }));
-      inboxMailboxesCache.push(new Mailbox({ id: '4', name: '4', parentId: '2' }));
-      inboxMailboxesCache.push(new Mailbox({ id: '5', name: '5', parentId: '2' }));
+      inboxMailboxesCache.push(newMailbox('1'));
+      inboxMailboxesCache.push(newMailbox('2', '1'));
+      inboxMailboxesCache.push(newMailbox('3', '2'));
+      inboxMailboxesCache.push(newMailbox('4', '2'));
+      inboxMailboxesCache.push(newMailbox('5', '2'));
       jmapClient.setMailboxes = sinon.spy(function() { return $q.when(new jmap.SetResponse()); });
       $stateParams.mailbox = '1';
 
@@ -1317,12 +1321,12 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     });
 
     it('should initialize $scope.message with "and x more" when more than 4 mailbox descendants are going to be deleted', function() {
-      inboxMailboxesCache.push(new Mailbox({ id: '1', name: '1' }));
-      inboxMailboxesCache.push(new Mailbox({ id: '2', name: '2', parentId: '1' }));
-      inboxMailboxesCache.push(new Mailbox({ id: '3', name: '3', parentId: '2' }));
-      inboxMailboxesCache.push(new Mailbox({ id: '4', name: '4', parentId: '2' }));
-      inboxMailboxesCache.push(new Mailbox({ id: '5', name: '5', parentId: '2' }));
-      inboxMailboxesCache.push(new Mailbox({ id: '6', name: '6', parentId: '2' }));
+      inboxMailboxesCache.push(newMailbox('1'));
+      inboxMailboxesCache.push(newMailbox('2', '1'));
+      inboxMailboxesCache.push(newMailbox('3', '2'));
+      inboxMailboxesCache.push(newMailbox('4', '2'));
+      inboxMailboxesCache.push(newMailbox('5', '2'));
+      inboxMailboxesCache.push(newMailbox('6', '2'));
       jmapClient.setMailboxes = sinon.spy(function() { return $q.when(new jmap.SetResponse()); });
       $stateParams.mailbox = '1';
 
@@ -1333,7 +1337,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     });
 
     it('should initialize $scope.message properly when the mailbox has no descendant', function() {
-      inboxMailboxesCache.push(new Mailbox({ id: '1', name: '1' }));
+      inboxMailboxesCache.push(newMailbox('1'));
       jmapClient.setMailboxes = sinon.spy(function() { return $q.when(new jmap.SetResponse()); });
       $stateParams.mailbox = '1';
 
@@ -1346,9 +1350,9 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     describe('The deleteFolder method', function() {
 
       it('should call client.setMailboxes with an array of mailbox descendant IDs as the "destroy" option', function() {
-        inboxMailboxesCache.push(new Mailbox({ id: '1', name: '1' }));
-        inboxMailboxesCache.push(new Mailbox({ id: '2', name: '2', parentId: '1' }));
-        inboxMailboxesCache.push(new Mailbox({ id: '3', name: '3', parentId: '2' }));
+        inboxMailboxesCache.push(newMailbox('1'));
+        inboxMailboxesCache.push(newMailbox('2', '1'));
+        inboxMailboxesCache.push(newMailbox('3', '2'));
         jmapClient.setMailboxes = sinon.spy(function() { return $q.when(new jmap.SetResponse()); });
         $stateParams.mailbox = '1';
 
@@ -1361,7 +1365,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       });
 
       it('should support the adaptive user interface concept: it goes to unifiedinbox if destroyMailbox is resolved', function() {
-        inboxMailboxesCache.push(new Mailbox({ id: '3', name: '3' }));
+        inboxMailboxesCache.push(newMailbox('3'));
         jmapClient.setMailboxes = sinon.spy(function() { return $q.when(new jmap.SetResponse()); });
         $stateParams.mailbox = '3';
 
@@ -1374,7 +1378,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       });
 
       it('should support the adaptive user interface concept: it goes to unifiedinbox if destroyMailbox is rejected', function() {
-        inboxMailboxesCache.push(new Mailbox({ id: '3', name: '3' }));
+        inboxMailboxesCache.push(newMailbox('3'));
         jmapClient.setMailboxes = sinon.spy(function() { return $q.reject(); });
         $stateParams.mailbox = '3';
 

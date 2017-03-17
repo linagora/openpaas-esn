@@ -9,8 +9,7 @@
     ])
 
     .factory('inboxMailboxesService', function($q, _, withJmapClient, jmap, inboxSpecialMailboxes, inboxMailboxesCache,
-                                          asyncJmapAction, Mailbox,
-                                          MAILBOX_LEVEL_SEPARATOR, INBOX_RESTRICTED_MAILBOXES) {
+                                          asyncJmapAction, MAILBOX_LEVEL_SEPARATOR, INBOX_RESTRICTED_MAILBOXES) {
 
       var mailboxesListAlreadyFetched = false;
 
@@ -50,7 +49,7 @@
           parent = _findMailboxInCache(parent.parentId);
         }
 
-        return Mailbox(mailbox);
+        return mailbox;
       }
 
       function _updateUnreadMessages(mailboxIds, adjust) {
