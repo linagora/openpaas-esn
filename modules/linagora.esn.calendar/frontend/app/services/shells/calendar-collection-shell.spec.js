@@ -5,23 +5,20 @@
 var expect = chai.expect;
 
 describe('CalendarCollectionShell factory', function() {
-  var CalendarRightShellMock, calendar, CALENDAR_RIGHT;
+  var CalendarRightShellMock, calendar, CALENDAR_RIGHT, calendarRight;
 
   CalendarRightShellMock = sinon.spy(function() {
     return {
       getUserRight: function() {
-        return CALENDAR_RIGHT.SHAREE_READ;
+        return calendarRight;
       }
     };
   });
 
-  beforeEach(angular.mock.module('esn.calendar'));
-
-  beforeEach(function() {
-    angular.mock.module(function($provide) {
+  beforeEach(angular.mock.module('esn.calendar', function($provide) {
       $provide.value('CalendarRightShell', CalendarRightShellMock);
-    });
-  });
+    })
+  );
 
   beforeEach(function() {
     angular.mock.inject(function(CalendarCollectionShell, DEFAULT_CALENDAR_ID, _CALENDAR_RIGHT_) {
@@ -65,7 +62,15 @@ describe('CalendarCollectionShell factory', function() {
       expect(this.invite).to.deep.equal(calendar.invite);
     });
 
-    it('should call initialize readOnly with true if the user right is READ', function() {
+    it('should call initialize readOnly with true if the user right is SHAREE_READ', function() {
+      calendarRight = CALENDAR_RIGHT.SHAREE_READ;
+      this.CalendarCollectionShell(calendar);
+
+      expect(this.readOnly).to.be.true;
+    });
+
+    it('should call initialize readOnly with true if the user right is PUBLIC_READ', function() {
+      calendarRight = CALENDAR_RIGHT.PUBLIC_READ;
       this.CalendarCollectionShell(calendar);
 
       expect(this.readOnly).to.be.true;

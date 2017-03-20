@@ -82,7 +82,7 @@
 
     function checkReadOnly(rights, userId) {
       if (rights) {
-        return rights.getUserRight(userId) === CALENDAR_RIGHT.SHAREE_READ;
+        return CALENDAR_RIGHT.READ_ONLY.indexOf(rights.getUserRight(userId)) > -1;
       }
 
       return false;
