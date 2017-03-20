@@ -132,12 +132,6 @@ angular.module('linagora.esn.unifiedinbox')
             }).finally(unregisterStateNotFoundListener);
           }
         };
-
-        ['reply', 'replyAll', 'forward', 'markAsUnread', 'markAsRead', 'markAsFlagged', 'unmarkAsFlagged'].forEach(function(action) {
-          self[action] = function() {
-            inboxJmapItemService[action]($scope.item);
-          };
-        });
       },
       controllerAs: 'ctrl',
       templateUrl: '/unifiedinbox/views/email/list/search-list-item.html'
