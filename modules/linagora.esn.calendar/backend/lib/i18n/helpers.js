@@ -1,7 +1,6 @@
 'use strict';
 
 let esnConfig;
-const q = require('q');
 
 function getLocaleForUser(user) {
   return esnConfig('locale').inModule('core').forUser(user).get();

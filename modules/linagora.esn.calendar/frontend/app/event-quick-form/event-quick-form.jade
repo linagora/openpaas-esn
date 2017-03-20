@@ -21,7 +21,7 @@ form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': r
                 span.input-group-addon
                   i.mdi.mdi-calendar-multiple
                 .fg-line.select
-                  select.form-control(ng-disabled="!isNew(editedEvent) || readOnly", ng-model='calendar', ng-options='calendar as calendar.name for calendar in calendars')
+                  select.form-control(ng-disabled="!isNew(editedEvent) || readOnly", ng-model='calendar', ng-options='calendar as calendar.name for calendar in calendars | filter: { readOnly: false }')
           cal-event-date-edition(event="editedEvent", disabled='readOnly')
           .col-xs-12
             .form-group(ng-show="isOrganizer || editedEvent.location")
