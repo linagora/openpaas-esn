@@ -91,6 +91,7 @@ module.exports = function(config) {
       'modules/**/frontend/app/**/*.js',
       {pattern: 'modules/**/frontend/app/**/*.run.js', watched: false, included: false, served: true},
       'modules/linagora.esn.calendar/frontend/app/components/inbox/**/*.run.js',
+      'modules/linagora.esn.unifiedinbox/frontend/app/**/*.run.js',
 
       'modules/**/test/unit-frontend/**/*.js',
 

@@ -142,13 +142,13 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
         compileDirective('<inbox-thread-list-item />');
         newComposerService.openDraft = sinon.spy();
 
-        openThread({ email: { id: 'id', isDraft: true } });
+        openThread({ lastEmail: { id: 'id', isDraft: true } });
 
         expect(newComposerService.openDraft).to.have.been.calledWith('id');
       });
 
       it('should change state to thread view with $stateParams.mailbox parameter', function() {
-        var thread = { id: 'expectedId', email: {} };
+        var thread = { id: 'expectedId', lastEmail: {} };
 
         $stateParams.mailbox = '123';
         $scope.mailbox = { id: '456' };
@@ -164,7 +164,7 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
       });
 
       it('should change state to $scope.mailbox.id if present and message is not a draft', function() {
-        var thread = { id: 'expectedId', email: {} };
+        var thread = { id: 'expectedId', lastEmail: {} };
 
         $scope.mailbox = { id: 'chosenMailbox' };
 
@@ -179,7 +179,7 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
       });
 
       it('should change state to the first mailbox of the message if message is not a draft', function() {
-        var thread = { id: 'expectedId', email: { mailboxIds: ['chosenMailbox', 'mailbox2'] } };
+        var thread = { id: 'expectedId', lastEmail: { mailboxIds: ['chosenMailbox', 'mailbox2'] } };
 
         compileDirective('<inbox-thread-list-item />');
         openThread(thread);

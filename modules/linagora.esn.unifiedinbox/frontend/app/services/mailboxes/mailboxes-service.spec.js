@@ -6,7 +6,7 @@ var expect = chai.expect;
 
 describe('The inboxMailboxesService factory', function() {
 
-  var inboxMailboxesCache, inboxMailboxesService, jmapClient, $rootScope, jmap, Mailbox, notificationFactory;
+  var inboxMailboxesCache, inboxMailboxesService, jmapClient, $rootScope, jmap, notificationFactory;
 
   beforeEach(module('linagora.esn.unifiedinbox', function($provide) {
     jmapClient = {
@@ -22,13 +22,12 @@ describe('The inboxMailboxesService factory', function() {
     $provide.value('notificationFactory', notificationFactory);
   }));
 
-  beforeEach(inject(function(_inboxMailboxesService_, _$state_, _$rootScope_, _inboxMailboxesCache_, _jmap_, _Mailbox_, _notificationFactory_) {
+  beforeEach(inject(function(_inboxMailboxesService_, _$state_, _$rootScope_, _inboxMailboxesCache_, _jmap_, _notificationFactory_) {
     inboxMailboxesCache = _inboxMailboxesCache_;
     notificationFactory = _notificationFactory_;
     inboxMailboxesService = _inboxMailboxesService_;
     $rootScope = _$rootScope_;
     jmap = _jmap_;
-    Mailbox = _Mailbox_;
   }));
 
   describe('The filterSystemMailboxes function', function() {
@@ -593,11 +592,11 @@ describe('The inboxMailboxesService factory', function() {
         done();
       };
 
-      inboxMailboxesService.destroyMailbox(Mailbox({ id: 123, name: '123'}));
+      inboxMailboxesService.destroyMailbox({ id: 123, name: '123'});
     });
 
     it('should destroy children mailboxes before the parent', function(done) {
-      inboxMailboxesCache.push(Mailbox({ id: 1, parentId: 2, name: '1'}));
+      inboxMailboxesCache.push(new jmap.Mailbox(jmapClient, 1, '1', { parentId: 2 }));
       jmapClient.setMailboxes = function(options) {
         expect(options).to.deep.equal({
           destroy: [1, 2]
@@ -606,17 +605,17 @@ describe('The inboxMailboxesService factory', function() {
         done();
       };
 
-      inboxMailboxesService.destroyMailbox(Mailbox({ id: 2, name: '2'}));
+      inboxMailboxesService.destroyMailbox(new jmap.Mailbox(jmapClient, 2, '2'));
     });
 
     it('should remove destroyed mailboxes from the cache, when call succeeds', function(done) {
-      inboxMailboxesCache.push(Mailbox({ id: 1, parentId: 2, name: '1'}));
-      inboxMailboxesCache.push(Mailbox({ id: 2, name: '2'}));
+      inboxMailboxesCache.push(new jmap.Mailbox(jmapClient, 1, '1', { parentId: 2 }));
+      inboxMailboxesCache.push(new jmap.Mailbox(jmapClient, 2, '2'));
       jmapClient.setMailboxes = function() {
         return $q.when(new jmap.SetResponse(jmapClient, { destroyed: [1, 2] }));
       };
 
-      inboxMailboxesService.destroyMailbox(Mailbox({ id: 2, name: '2' })).then(function() {
+      inboxMailboxesService.destroyMailbox(new jmap.Mailbox(jmapClient, 2, '2')).then(function() {
         expect(inboxMailboxesCache).to.deep.equal([]);
 
         done();
@@ -625,14 +624,14 @@ describe('The inboxMailboxesService factory', function() {
     });
 
     it('should remove destroyed mailboxes from the cache, when call does not succeed completely', function(done) {
-      inboxMailboxesCache.push(Mailbox({ id: 1, parentId: 2, name: '1' }));
-      inboxMailboxesCache.push(Mailbox({ id: 2, name: '2' }));
+      inboxMailboxesCache.push(new jmap.Mailbox(jmapClient, 1, '1', { parentId: 2 }));
+      inboxMailboxesCache.push(new jmap.Mailbox(jmapClient, 2, '2'));
       jmapClient.setMailboxes = function() {
         return $q.when(new jmap.SetResponse(jmapClient, { destroyed: [1] }));
       };
 
-      inboxMailboxesService.destroyMailbox(Mailbox({ id: 2, name: '2' })).then(null, function() {
-        expect(inboxMailboxesCache).to.deep.equal([{ id: 2, name: '2' }]);
+      inboxMailboxesService.destroyMailbox(new jmap.Mailbox(jmapClient, 2, '2')).catch(function() {
+        expect(inboxMailboxesCache).to.deep.equal([new jmap.Mailbox(jmapClient, 2, '2')]);
 
         done();
       });
@@ -645,7 +644,7 @@ describe('The inboxMailboxesService factory', function() {
     var originalMailbox;
 
     beforeEach(function() {
-      originalMailbox = Mailbox({ id: 'id', name: 'name' });
+      originalMailbox = { id: 'id', name: 'name' };
     });
 
     it('should call client.updateMailbox, passing the new options', function(done) {
@@ -694,10 +693,10 @@ describe('The inboxMailboxesService factory', function() {
     });
 
     it('should update other mailboxes in cache when call succeeds, to reflect hierarchy changes', function(done) {
-      inboxMailboxesCache.push(Mailbox({ id: '1', name: '1', qualifiedName: '1' }));
-      inboxMailboxesCache.push(Mailbox({ id: '2', name: '2', parentId: '1', level: 2, qualifiedName: '1 / 2' }));
-      inboxMailboxesCache.push(Mailbox({ id: '3', name: '3', parentId: '1', level: 2, qualifiedName: '1 / 3' }));
-      inboxMailboxesCache.push(Mailbox({ id: '4', name: '4', parentId: '2', level: 3, qualifiedName: '1 / 2 / 4' }));
+      inboxMailboxesCache.push({ id: '1', name: '1', qualifiedName: '1' });
+      inboxMailboxesCache.push({ id: '2', name: '2', parentId: '1', level: 2, qualifiedName: '1 / 2' });
+      inboxMailboxesCache.push({ id: '3', name: '3', parentId: '1', level: 2, qualifiedName: '1 / 3' });
+      inboxMailboxesCache.push({ id: '4', name: '4', parentId: '2', level: 3, qualifiedName: '1 / 2 / 4' });
       jmapClient.updateMailbox = function() {
         return $q.when(new jmap.Mailbox(jmapClient, '1', '1_Renamed'));
       };

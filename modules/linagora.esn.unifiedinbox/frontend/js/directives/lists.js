@@ -156,11 +156,11 @@ angular.module('linagora.esn.unifiedinbox')
         };
 
         self.openThread = function(thread) {
-          if (thread.email.isDraft) {
-            newComposerService.openDraft(thread.email.id);
+          if (thread.lastEmail.isDraft) {
+            newComposerService.openDraft(thread.lastEmail.id);
           } else {
             $state.go('.thread', {
-              mailbox: $stateParams.mailbox || ($scope.mailbox && $scope.mailbox.id) || _.first(thread.email.mailboxIds),
+              mailbox: $stateParams.mailbox || ($scope.mailbox && $scope.mailbox.id) || _.first(thread.lastEmail.mailboxIds),
               threadId: thread.id,
               item: thread
             });

@@ -38,7 +38,6 @@ var unifiedInboxModule = new AwesomeModule('linagora.esn.unifiedinbox', {
         'controllers.js',
         'services.js',
         'filters.js',
-        'models.js',
         'providers.js',
         'controllers/list-items.controller.js',
         'directives/main.js',
@@ -62,7 +61,13 @@ var unifiedInboxModule = new AwesomeModule('linagora.esn.unifiedinbox', {
         'components/subheader/delete-button/subheader-delete-button.js',
         'components/subheader/mark-as-read-button/subheader-mark-as-read-button.js',
         'components/subheader/mark-as-unread-button/subheader-mark-as-unread-button.js',
-        'filters/link-items.js'
+        'filters/link-items.js',
+        'services/models/emailer.run.js',
+        'services/models/mailbox.run.js',
+        'filters/filter-descendant-mailboxes.js',
+        'services/models/make-selectable.js',
+        'services/models/message.run.js',
+        'services/models/thread.run.js'
       ], 'linagora.esn.unifiedinbox', ['esn']);
 
       webserverWrapper.injectLess('unifiedinbox', [

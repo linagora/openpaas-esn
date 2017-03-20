@@ -179,14 +179,14 @@ angular.module('linagora.esn.unifiedinbox')
 
   })
 
-  .controller('viewEmailController', function($scope, $state, $stateParams, Email, inboxJmapItemService, jmapHelper) {
+  .controller('viewEmailController', function($scope, $state, $stateParams, inboxJmapItemService, jmapHelper) {
     $scope.email = $stateParams.item;
 
     jmapHelper
       .getMessageById($stateParams.emailId)
       .then(function(message) {
         if (!$scope.email) {
-          $scope.email = Email(message);
+          $scope.email = message;
         } else {
           ['isUnread', 'isFlagged', 'attachments', 'textBody', 'htmlBody'].forEach(function(property) {
             $scope.email[property] = message[property];
@@ -240,7 +240,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .controller('viewThreadController', function($scope, $stateParams, $state, withJmapClient, Email, Thread, inboxJmapItemService, _, JMAP_GET_MESSAGES_VIEW) {
+  .controller('viewThreadController', function($scope, $stateParams, $state, withJmapClient, inboxJmapItemService, _, JMAP_GET_MESSAGES_VIEW) {
     $scope.thread = $stateParams.item;
 
     withJmapClient(function(client) {
@@ -249,7 +249,7 @@ angular.module('linagora.esn.unifiedinbox')
         .then(_.head)
         .then(function(thread) {
           if (!$scope.thread) {
-            $scope.thread = Thread(thread);
+            $scope.thread = thread;
           }
 
           return thread.getMessages({ properties: JMAP_GET_MESSAGES_VIEW });
@@ -258,11 +258,11 @@ angular.module('linagora.esn.unifiedinbox')
           return messages.map(function(message) {
             message.loaded = true;
 
-            return new Email(message);
+            return message;
           });
         })
         .then(function(emails) {
-          $scope.thread.setEmails(emails);
+          $scope.thread.emails = emails;
         })
         .then(function() {
           $scope.thread.emails.forEach(function(email, index, emails) {
@@ -313,15 +313,10 @@ angular.module('linagora.esn.unifiedinbox')
     inboxMailboxesService.assignMailboxesList($scope, inboxMailboxesService.filterSystemMailboxes);
   })
 
-  .controller('addFolderController', function($scope, $state, $stateParams, inboxMailboxesService, Mailbox, rejectWithErrorNotification, esnPreviousPage) {
+  .controller('addFolderController', function($scope, $state, $stateParams, jmap, inboxMailboxesService, rejectWithErrorNotification, esnPreviousPage) {
     inboxMailboxesService.assignMailboxesList($scope);
 
-    if ($stateParams.mailbox) {
-      $scope.mailbox = new Mailbox({ name: $stateParams.mailbox.name, parentId: $stateParams.mailbox.parentId });
-    } else {
-      $scope.mailbox = new Mailbox({});
-    }
-
+    $scope.mailbox = $stateParams.mailbox ? $stateParams.mailbox : {};
     $scope.addFolder = function() {
       if (!$scope.mailbox.name) {
         return rejectWithErrorNotification('Please enter a valid folder name');
