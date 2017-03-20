@@ -1,5 +1,6 @@
 'use strict';
 
+const q = require('q');
 const DEFAULT_LOCALE = 'en';
 
 let helpers;
@@ -20,7 +21,7 @@ module.exports = function(dependencies) {
 };
 
 function getI18nForMailer(user) {
-  const localePromise = user ? helpers.getLocaleForUser(user) : helpers.getLocaleForSystem();
+  const localePromise = user ? helpers.getLocaleForUser(user) : q.when(DEFAULT_LOCALE);
 
   return localePromise
     .then((locale = DEFAULT_LOCALE) => ({
