@@ -2,10 +2,12 @@
 
 const expect = require('chai').expect;
 const sinon = require('sinon');
+const mockery = require('mockery');
 
 describe('The collaboration module', function() {
 
   beforeEach(function() {
+    mockery.registerMock('./usernotification', function() {});
     this.getModule = function() {
       return this.helpers.requireBackend('core/collaboration');
     };

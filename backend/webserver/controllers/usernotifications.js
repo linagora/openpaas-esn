@@ -1,34 +1,46 @@
 'use strict';
 
-var notificationModule = require('../../core/notification/usernotification');
-var logger = require('../../core/logger');
+const logger = require('../../core/logger');
+const notificationModule = require('../../core/notification/usernotification');
+
+module.exports = {
+  getUnreadCount,
+  list,
+  load,
+  loadAll,
+  setAcknowledged,
+  setAllRead,
+  setRead
+};
 
 function getUnreadCount(req, res) {
-  var query = {
+  const query = {
     read: false
   };
-  notificationModule.countForUser(req.user._id.toString(), query, function(err, count) {
+
+  notificationModule.countForUser(req.user._id.toString(), query, (err, count) => {
     if (err) {
       return res.status(500).json({error: {status: 500, message: 'Server Error', details: 'Cannot get unread notification for current user: ' + err.message}});
     }
-    return res.status(200).json({ unread_count: count });
+    res.status(200).json({ unread_count: count });
   });
 }
-module.exports.getUnreadCount = getUnreadCount;
 
-module.exports.list = function(req, res) {
-  var user = req.user;
+function list(req, res) {
+  const user = req.user;
+  const query = {};
 
-  var query = {};
   if (req.query.limit) {
-    var limit = parseInt(req.query.limit, 10);
+    const limit = parseInt(req.query.limit, 10);
+
     if (!isNaN(limit)) {
       query.limit = limit;
     }
   }
 
   if (req.query.offset) {
-    var offset = parseInt(req.query.offset, 10);
+    const offset = parseInt(req.query.offset, 10);
+
     if (!isNaN(offset)) {
       query.offset = offset;
     }
@@ -41,41 +53,42 @@ module.exports.list = function(req, res) {
     query.read = false;
   }
 
-  notificationModule.getForUser(user._id.toString(), query, function(err, notifications) {
+  notificationModule.getForUser(user._id.toString(), query, (err, notifications) => {
     if (err) {
       return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
     }
 
     notifications = notifications || [];
 
-    notificationModule.countForUser(user._id.toString(), query, function(err, count) {
+    notificationModule.countForUser(user._id.toString(), query, (err, count) => {
       if (err) {
         logger.warn('Can not count user notification : ' + err.message);
         count = notifications.length;
       }
       res.header('X-ESN-Items-Count', count);
-      return res.status(200).json(notifications);
+      res.status(200).json(notifications);
     });
   });
-};
+}
 
 function load(req, res, next) {
   if (req.params.id) {
-    notificationModule.get(req.params.id, function(err, usernotification) {
+    notificationModule.get(req.params.id, (err, usernotification) => {
       if (err) {
         return res.status(500).json({error: {status: 500, message: 'Server Error', details: 'Cannot load user notification: ' + err.message}});
       }
+
       if (!usernotification) {
         return res.status(404).json({error: { status: 404, message: 'Not found', details: 'The user notification has not been found'}});
       }
+
       req.usernotification = usernotification;
       next();
     });
   } else {
-    return res.status(400).json({error: { status: 400, message: 'Bad request', details: 'Missing parameter id'}});
+    res.status(400).json({error: { status: 400, message: 'Bad request', details: 'Missing parameter id'}});
   }
 }
-module.exports.load = load;
 
 function loadAll(req, res, next) {
   if (!req.query || !req.query.ids) {
@@ -86,7 +99,7 @@ function loadAll(req, res, next) {
     req.query.ids = [req.query.ids];
   }
 
-  notificationModule.getAll(req.query.ids, function(err, usernotifications) {
+  notificationModule.getAll(req.query.ids, (err, usernotifications) => {
     if (err) {
       return res.status(500).json({error: {status: 500, message: 'Server Error', details: 'Cannot load user notifications: ' + err.message}});
     }
@@ -96,63 +109,18 @@ function loadAll(req, res, next) {
       return res.status(404).json({error: { status: 404, message: 'Not found', details: 'No user notifications have not been found'}});
     }
 
-    var foundIds = usernotifications.map(function(usernotification) {
-      return usernotification._id.toString();
-    });
+    const foundIds = usernotifications.map(usernotification => usernotification._id.toString());
 
-    req.query.ids.filter(function(id) {
-      return foundIds.indexOf(id) < 0;
-    }).forEach(function(id) {
-      logger.warn('The usernotification ' + id + ' can not be found');
-    });
+    req.query.ids
+      .filter(id => foundIds.indexOf(id) < 0)
+      .forEach(id => logger.warn(`usernotification ${id} can not be found`));
+
     req.usernotifications = usernotifications;
     next();
   });
 }
-module.exports.loadAll = loadAll;
-
-function setRead(req, res) {
-
-  if (!req.body) {
-    return res.status(400).json({error: { status: 400, message: 'Bad request', details: 'Request body is not defined'}});
-  }
-
-  if (req.body.value !== true && req.body.value !== false) {
-    return res.status(400).json({error: { status: 400, message: 'Bad request', details: 'body value parameter is not boolean'}});
-  }
-
-  notificationModule.setRead(req.usernotification, req.body.value, function(err) {
-    if (err) {
-      return res.status(500).json({error: {status: 500, message: 'Server Error', details: 'Cannot set the user notification as read: ' + err.message}});
-    }
-    return res.status(205).end();
-  });
-}
-
-module.exports.setRead = setRead;
-
-function setAllRead(req, res) {
-
-  if (!req.body) {
-    return res.status(400).json({error: { status: 400, message: 'Bad request', details: 'Request body is not defined'}});
-  }
-
-  if (req.body.value !== true && req.body.value !== false) {
-    return res.status(400).json({error: { status: 400, message: 'Bad request', details: 'body value parameter is not boolean'}});
-  }
-
-  notificationModule.setAllRead(req.usernotifications, req.body.value, function(err) {
-    if (err) {
-      return res.status(500).json({error: {status: 500, message: 'Server Error', details: 'Cannot set the user notifications as read: ' + err.message}});
-    }
-    return res.status(205).end();
-  });
-}
-
-module.exports.setAllRead = setAllRead;
 
 function setAcknowledged(req, res) {
-
   if (!req.body) {
     return res.status(400).json({error: { status: 400, message: 'Bad request', details: 'Request body is not defined'}});
   }
@@ -161,12 +129,44 @@ function setAcknowledged(req, res) {
     return res.status(400).json({error: { status: 400, message: 'Bad request', details: 'body value parameter is not boolean'}});
   }
 
-  notificationModule.setAcknowledged(req.usernotification, req.body.value, function(err) {
+  notificationModule.setAcknowledged(req.usernotification, req.body.value, err => {
     if (err) {
       return res.status(500).json({error: {status: 500, message: 'Server Error', details: 'Cannot set the user notification as acknowledged: ' + err.message}});
     }
-    return res.status(205).end();
+    res.status(205).end();
   });
 }
 
-module.exports.setAcknowledged = setAcknowledged;
+function setAllRead(req, res) {
+  if (!req.body) {
+    return res.status(400).json({error: { status: 400, message: 'Bad request', details: 'Request body is not defined'}});
+  }
+
+  if (req.body.value !== true && req.body.value !== false) {
+    return res.status(400).json({error: { status: 400, message: 'Bad request', details: 'body value parameter is not boolean'}});
+  }
+
+  notificationModule.setAllRead(req.usernotifications, req.body.value, err => {
+    if (err) {
+      return res.status(500).json({error: {status: 500, message: 'Server Error', details: 'Cannot set the user notifications as read: ' + err.message}});
+    }
+    res.status(205).end();
+  });
+}
+
+function setRead(req, res) {
+  if (!req.body) {
+    return res.status(400).json({error: { status: 400, message: 'Bad request', details: 'Request body is not defined'}});
+  }
+
+  if (req.body.value !== true && req.body.value !== false) {
+    return res.status(400).json({error: { status: 400, message: 'Bad request', details: 'body value parameter is not boolean'}});
+  }
+
+  notificationModule.setRead(req.usernotification, req.body.value, err => {
+    if (err) {
+      return res.status(500).json({error: {status: 500, message: 'Server Error', details: 'Cannot set the user notification as read: ' + err.message}});
+    }
+    res.status(205).end();
+  });
+}

@@ -1,55 +1,56 @@
 'use strict';
 
-var notificationModule = require('../../core/notification/notification');
+const notificationModule = require('../../core/notification/notification');
 
-module.exports.create = function(req, res) {
-  var n = req.body;
-  n.author = req.user._id;
-  notificationModule.save(n, function(err, notification) {
+module.exports = {
+  create,
+  created,
+  get,
+  list,
+  load,
+  setAsRead
+};
+
+function create(req, res) {
+  const notification = req.body;
+
+  notification.author = req.user._id;
+  notificationModule.save(notification, (err, result) => {
     if (err) {
       return res.status(500).json({error: {status: 500, message: 'Server Error', details: 'Cannot create notification: ' + err.message}});
     }
-    return res.status(201).json(notification);
+
+    res.status(201).json(result);
   });
-};
-
-function load(req, res, next) {
-  if (req.params.id) {
-    notificationModule.get(req.params.id, function(err, notification) {
-      req.notification = notification;
-      next();
-    });
-  } else {
-    next();
-  }
 }
-module.exports.load = load;
 
-module.exports.get = function(req, res) {
-  if (req.notification) {
-    return res.status(200).json(req.notification);
-  }
-  return res.status(404).json({error: {status: 404, message: 'Not found', details: 'Notification has not been found'}});
-};
-
-module.exports.created = function(req, res) {
-  var user_id = req.user._id;
-  var options = {
+function created(req, res) {
+  const user_id = req.user._id;
+  const options = {
     author: user_id
   };
-  notificationModule.find(options, function(err, results) {
+
+  notificationModule.find(options, (err, results) => {
     if (err) {
       return res.status(500).json({error: {status: 500, message: 'Server Error', details: 'Cannot get created notifications: ' + err.message}});
     }
-    return res.status(200).json(results);
+
+    res.status(200).json(results);
   });
-};
+}
 
-module.exports.list = function(req, res) {
-  var user_id = req.user._id;
-  var read = req.query.read;
+function get(req, res) {
+  if (req.notification) {
+    return res.status(200).json(req.notification);
+  }
 
-  var options = {
+  res.status(404).json({error: {status: 404, message: 'Not found', details: 'Notification has not been found'}});
+}
+
+function list(req, res) {
+  const user_id = req.user._id;
+  const read = req.query.read;
+  const options = {
     'target.id': user_id
   };
 
@@ -61,23 +62,36 @@ module.exports.list = function(req, res) {
     }
   }
 
-  notificationModule.find(options, function(err, results) {
+  notificationModule.find(options, (err, results) => {
     if (err) {
       return res.status(500).json({error: {status: 500, message: 'Server Error', details: 'Cannot get notifications: ' + err.message}});
     }
-    return res.status(200).json(results);
-  });
-};
 
-module.exports.setAsRead = function(req, res) {
+    res.status(200).json(results);
+  });
+}
+
+function load(req, res, next) {
+  if (req.params.id) {
+    notificationModule.get(req.params.id, (err, notification) => {
+      req.notification = notification;
+      next();
+    });
+  } else {
+    next();
+  }
+}
+
+function setAsRead(req, res) {
   if (!req.notification) {
     return res.status(404).json({error: { status: 404, message: 'Not found', details: 'Notification has not been found'}});
   }
 
-  notificationModule.setAsRead(req.notification, function(err) {
+  notificationModule.setAsRead(req.notification, err => {
     if (err) {
       return res.status(500).json({error: {status: 500, message: 'Server Error', details: 'Cannot create set notification as read . ' + err.message}});
     }
-    return res.status(205).end();
+
+    res.status(205).end();
   });
-};
+}

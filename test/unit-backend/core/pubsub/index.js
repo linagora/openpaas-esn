@@ -6,24 +6,29 @@ var mockery = require('mockery');
 var sinon = require('sinon');
 
 describe('The pubsub module', function() {
-
   it('should initialize module pubsubs', function() {
-    var asSpy = {init: sinon.spy()};
-    var rSpy = {init: sinon.spy()};
-    var nSpy = {init: sinon.spy()};
-    var esSpy = {init: sinon.spy()};
-    var tSpy = {init: sinon.spy()};
-    var uSpy = {init: sinon.spy()};
+    const asSpy = {init: sinon.spy()};
+    const cSpy = {init: sinon.spy()};
+    const rSpy = {init: sinon.spy()};
+    const nSpy = {init: sinon.spy()};
+    const esSpy = {init: sinon.spy()};
+    const tSpy = {init: sinon.spy()};
+    const uSpy = {init: sinon.spy()};
+
     mockery.registerMock('../activitystreams/pubsub', asSpy);
+    mockery.registerMock('../collaboration', {usernotification: cSpy});
     mockery.registerMock('../notification/pubsub', nSpy);
     mockery.registerMock('../elasticsearch/pubsub', esSpy);
     mockery.registerMock('../resource-link/pubsub', rSpy);
     mockery.registerMock('../timeline', tSpy);
     mockery.registerMock('../user', uSpy);
 
-    var module = this.helpers.requireBackend('core/pubsub');
+    const module = this.helpers.requireBackend('core/pubsub');
+
     module.init();
+
     expect(asSpy.init).to.have.been.called;
+    expect(cSpy.init).to.have.been.called;
     expect(nSpy.init).to.have.been.called;
     expect(esSpy.init).to.have.been.called;
     expect(rSpy.init).to.have.been.called;

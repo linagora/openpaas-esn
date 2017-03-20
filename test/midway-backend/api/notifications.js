@@ -163,12 +163,12 @@ describe('The notification API', function() {
           link: 'http://localhost:8888',
           target: [{objectType: 'community', id: community._id}]
         });
-        req.expect(201)
-          .end(function(err, res) {
-            expect(err).to.not.exist;
-            expect(res.body).to.exist;
-            done();
-          });
+        req.expect(201);
+        req.end(function(err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).to.exist;
+          done();
+        });
       });
   });
 

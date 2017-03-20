@@ -24,6 +24,8 @@ describe('the TimelineEntriesTracker module', function() {
     this.helpers.requireBackend('core/db/mongo/models/domain');
     this.helpers.requireBackend('core/db/mongo/models/user');
     this.helpers.requireBackend('core/db/mongo/models/community');
+    this.helpers.requireBackend('core/db/mongo/models/notification');
+    this.helpers.requireBackend('core/db/mongo/models/usernotification');
     this.helpers.requireBackend('core/community');
     ReadTimelineEntriesTracker = this.helpers.requireBackend('core/db/mongo/models/read-timelineentriestracker');
     tracker = this.helpers.requireBackend('core/activitystreams/tracker').getTracker('read');

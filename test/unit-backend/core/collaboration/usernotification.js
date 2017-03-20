@@ -1,38 +1,39 @@
 'use strict';
 
-var chai = require('chai');
-var expect = chai.expect;
-var mockery = require('mockery');
+const chai = require('chai');
+const expect = chai.expect;
+const mockery = require('mockery');
 
 describe('The notification pubsub module', function() {
 
   beforeEach(function() {
     this.helpers.mock.models({});
-
   });
 
   it('should subscribe to collaboration:join', function() {
-    var localstub = {};
-    this.helpers.mock.pubsub('../pubsub', localstub, {});
-    mockery.registerMock('./usernotification', {});
+    const localstub = {};
 
-    var module = this.helpers.requireBackend('core/notification/pubsub');
+    this.helpers.mock.pubsub('../pubsub', localstub, {});
+    mockery.registerMock('../notification', {usernotification: {}});
+
+    const module = this.helpers.requireBackend('core/collaboration/usernotification')();
+
     module.init();
+
     expect(localstub.topics['collaboration:join'].handler).to.be.a.function;
   });
 
-  describe('collaborationJoinHandler method', function() {
-
+  describe('The collaborationJoinHandler function', function() {
     it('should save a augmented usernotification then forward it into global usernotification:created', function(done) {
-      var globalstub = {};
-      var datastub = {};
-      var data = {
+      let datastub = {};
+      const globalstub = {};
+      const data = {
         author: '123',
         target: '456',
         collaboration: {objectType: 'community', id: '789'},
         actor: 'manager'
       };
-      var usernotificationMocked = {
+      const usernotificationMocked = {
         create: function(data, callback) {
           datastub = data;
           callback(null, 'saved');
@@ -40,13 +41,15 @@ describe('The notification pubsub module', function() {
       };
 
       this.helpers.mock.pubsub('../pubsub', {}, globalstub);
-      mockery.registerMock('./usernotification', usernotificationMocked);
+      mockery.registerMock('../notification', {usernotification: usernotificationMocked});
 
-      var module = this.helpers.requireBackend('core/notification/pubsub');
+      const module = this.helpers.requireBackend('core/collaboration/usernotification')();
+
       module.collaborationJoinHandler(data, function(err) {
         if (err) {
           return done(err);
         }
+
         expect(datastub).to.deep.equal({
           subject: {objectType: 'user', id: '123'},
           verb: {label: 'ESN_MEMBERSHIP_ACCEPTED', text: 'accepted your request to join'},
@@ -66,17 +69,16 @@ describe('The notification pubsub module', function() {
 
   });
 
-  describe('membershipInviteHandler method', function() {
-
+  describe('The membershipInviteHandler function', function() {
     it('should save a augmented usernotification then forward it into global usernotification:created', function(done) {
-      var globalstub = {};
-      var datastub = {};
-      var data = {
+      const globalstub = {};
+      let datastub = {};
+      const data = {
         author: '123',
         target: '456',
         collaboration: {objectType: 'community', id: '789'}
       };
-      var usernotificationMocked = {
+      const usernotificationMocked = {
         create: function(data, callback) {
           datastub = data;
           callback(null, 'saved');
@@ -84,13 +86,15 @@ describe('The notification pubsub module', function() {
       };
 
       this.helpers.mock.pubsub('../pubsub', {}, globalstub);
-      mockery.registerMock('./usernotification', usernotificationMocked);
+      mockery.registerMock('../notification', {usernotification: usernotificationMocked});
 
-      var module = this.helpers.requireBackend('core/notification/pubsub');
+      const module = this.helpers.requireBackend('core/collaboration/usernotification')();
+
       module.membershipInviteHandler(data, function(err) {
         if (err) {
           return done(err);
         }
+
         expect(datastub).to.deep.equal({
           subject: {objectType: 'user', id: '123'},
           verb: {label: 'ESN_MEMBERSHIP_INVITE', text: 'has invited you in'},

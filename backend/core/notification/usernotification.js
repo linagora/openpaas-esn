@@ -1,102 +1,113 @@
 'use strict';
 
-var mongoose = require('mongoose');
-var UserNotification = mongoose.model('Usernotification');
-var async = require('async');
+const async = require('async');
+const mongoose = require('mongoose');
+const UserNotification = mongoose.model('Usernotification');
 
-var DEFAULT_LIMIT = 50;
-var DEFAULT_OFFSET = 0;
+const DEFAULT_LIMIT = 50;
+const DEFAULT_OFFSET = 0;
 
-module.exports.getForUser = function(user, query, callback) {
-  query = query || {};
-  var id = user._id || user;
-
-  var q = {target: id, acknowledged: false};
-  if (query.read !== undefined) {
-    q.read = query.read;
-  }
-
-  var mq = UserNotification.find(q);
-  mq.limit(+query.limit || DEFAULT_LIMIT);
-  mq.skip(+query.offset || DEFAULT_OFFSET);
-  mq.sort('-timestamps.creation');
-  mq.exec(callback);
+module.exports = {
+  countForUser,
+  create,
+  get,
+  getAll,
+  getForUser,
+  remove,
+  setAcknowledged,
+  setAllRead,
+  setRead
 };
 
-module.exports.countForUser = function(user, query, callback) {
-  query = query || {};
-  var id = user._id || user;
+function countForUser(user, query, callback) {
+  const id = user._id || user;
+  const q = {target: id, acknowledged: false};
 
-  var q = {target: id, acknowledged: false};
+  query = query || {};
+
   if (query.read !== undefined) {
     q.read = query.read;
   }
 
   return UserNotification.count(q).exec(callback);
-};
-
-function get(id, callback) {
-  if (!id) {
-    return callback(new Error('id is not defined'));
-  }
-  return UserNotification.findById(id).exec(callback);
 }
-module.exports.get = get;
-
-function getAll(ids, callback) {
-  if (!ids) {
-    return callback(new Error('id is not defined'));
-  }
-  var formattedIds = ids.map(function(id) {
-    return mongoose.Types.ObjectId(id);
-  });
-  var query = { _id: { $in: formattedIds } };
-
-  return UserNotification.find(query).exec(callback);
-}
-module.exports.getAll = getAll;
-
-function setRead(usernotification, read, callback) {
-  if (!usernotification) {
-    return callback(new Error('usernotification is required'));
-  }
-  usernotification.read = read;
-  usernotification.save(callback);
-}
-module.exports.setRead = setRead;
-
-function setAllRead(usernotifications, read, callback) {
-  if (!usernotifications) {
-    return callback(new Error('usernotification is required'));
-  }
-  function setRead(usernotification, cb) {
-    usernotification.read = read;
-    usernotification.save(cb);
-  }
-  async.each(usernotifications, setRead, callback);
-}
-module.exports.setAllRead = setAllRead;
-
-function setAcknowledged(usernotification, acknowledged, callback) {
-  if (!usernotification) {
-    return callback(new Error('usernotification is required'));
-  }
-  usernotification.acknowledged = acknowledged;
-  usernotification.save(callback);
-}
-module.exports.setAcknowledged = setAcknowledged;
 
 function create(usernotification, callback) {
   if (!usernotification) {
     return callback(new Error('usernotification is required'));
   }
-  var userNotificationInstance = new UserNotification(usernotification);
-  userNotificationInstance.save(callback);
+
+  new UserNotification(usernotification).save(callback);
 }
-module.exports.create = create;
+
+function get(id, callback) {
+  if (!id) {
+    return callback(new Error('id is not defined'));
+  }
+
+  return UserNotification.findById(id).exec(callback);
+}
+
+function getAll(ids, callback) {
+  if (!ids) {
+    return callback(new Error('id is not defined'));
+  }
+
+  const formattedIds = ids.map(id => mongoose.Types.ObjectId(id));
+  const query = { _id: { $in: formattedIds } };
+
+  return UserNotification.find(query).exec(callback);
+}
+
+function getForUser(user, query, callback) {
+  const id = user._id || user;
+  const q = {target: id, acknowledged: false};
+
+  query = query || {};
+
+  if (query.read !== undefined) {
+    q.read = query.read;
+  }
+
+  const mq = UserNotification.find(q);
+
+  mq.limit(+query.limit || DEFAULT_LIMIT);
+  mq.skip(+query.offset || DEFAULT_OFFSET);
+  mq.sort('-timestamps.creation');
+  mq.exec(callback);
+}
 
 function remove(query, callback) {
   UserNotification.remove(query, callback);
 }
 
-module.exports.remove = remove;
+function setAcknowledged(usernotification, acknowledged, callback) {
+  if (!usernotification) {
+    return callback(new Error('usernotification is required'));
+  }
+
+  usernotification.acknowledged = acknowledged;
+  usernotification.save(callback);
+}
+
+function setAllRead(usernotifications, read, callback) {
+  if (!usernotifications) {
+    return callback(new Error('usernotification is required'));
+  }
+
+  async.each(usernotifications, setRead, callback);
+
+  function setRead(usernotification, cb) {
+    usernotification.read = read;
+    usernotification.save(cb);
+  }
+}
+
+function setRead(usernotification, read, callback) {
+  if (!usernotification) {
+    return callback(new Error('usernotification is required'));
+  }
+
+  usernotification.read = read;
+  usernotification.save(callback);
+}

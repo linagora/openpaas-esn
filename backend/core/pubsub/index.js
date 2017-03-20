@@ -5,6 +5,7 @@ module.exports.global = require('./global');
 
 module.exports.init = function() {
   require('../activitystreams/pubsub').init();
+  require('../collaboration').usernotification.init();
   require('../notification/pubsub').init();
   require('../elasticsearch/pubsub').init();
   require('../resource-link/pubsub').init();
