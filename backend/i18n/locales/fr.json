@@ -224,7 +224,7 @@
   "You will find an email from us in your mailbox. Please click the link in this email to complete your registration.": "Vous trouverez un email de notre part dans votre boite de réception. Veuillez suivre le lien de cet email pour terminer votre inscription",
   "Yes": "Oui",
   "No": "Non",
-  "Maybe": "Peut-être",
+  "Maybe": "peut-être",
   "Going": "Y vont",
   "Not Going": "N'y vont pas",
   "Unable to get event details from server... sorry": "Impossible de récupérer les détails de l'événement depuis le serveur",
@@ -259,7 +259,7 @@
   "Save": "Enregistrer",
   "Delete": "Effacer",
   "Add a new": "Ajouter un nouveau",
-  "Add a new address": "Ajouter une nouvelle adresse",
+  "Add a new address": "Ajouter une nouvele adresse",
   "Month View": "Vue mois",
   "Week View": "Vue semaine",
   "Agenda Week View": "Vue semaine agenda",
@@ -385,7 +385,5 @@
   "Title": "Titre",
   "Name": "Nom",
   "Enter a name": "Entrez un nom",
-  "No member found": "Aucun membre trouvé",
-  "See in calendar": "Voir dans le calendrier",
-  "More details": "Plus de détails"
+  "No member found": "Aucun membre trouvé"
 }
