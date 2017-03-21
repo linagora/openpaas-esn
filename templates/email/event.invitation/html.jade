@@ -53,7 +53,7 @@ html.mail
             if (content.event.end)
               td
                 if (content.event.allDay && content.event.end.date == content.event.start.date)
-                  p #{translate('all day')}
+                  p #{translate('All day')}
                 else
                   img.check-transform(src="cid:check", alt="#{translate('To')}")
               td
@@ -95,7 +95,7 @@ html.mail
           if (content.event.method != 'CANCEL')
             tr.table-footer
               td.attend-question(colspan="3")
-                | #{translate('Will you attend ?')}
+                | #{translate('Will you attend?')}
               td(colspan="1")
                 a.green(href="#{content.yes}") #{translate('Yes')}
               td(colspan="1")

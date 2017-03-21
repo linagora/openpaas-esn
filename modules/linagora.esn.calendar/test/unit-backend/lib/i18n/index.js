@@ -15,6 +15,7 @@ describe('i18n lib', function() {
     const modulesPath = this.moduleHelpers.modulesPath;
 
     this.moduleHelpers.addDep('i18n', this.helpers.requireBackend('core/i18n'));
+    this.moduleHelpers.addDep('esn-config', this.helpers.requireBackend('core/esn-config'));
 
     requireModule = () => (require(modulesPath + 'linagora.esn.calendar/backend/lib/i18n')(this.moduleHelpers.dependencies));
 
@@ -22,16 +23,26 @@ describe('i18n lib', function() {
   });
 
   describe('the getI18nForMailer function', function() {
-    it('should resolve i18n object configured by default if no user is provided', function(done) {
+    it('should resolve i18n object configured with the right locale even if no user is provided', function(done) {
+      const local = 'fr';
+      const i18nHelper = function() {
+        return {
+          getLocaleForSystem: function() {
+            return q.when(local);
+          }
+        };
+      };
+
+      mockery.registerMock('./helpers', i18nHelper);
       i18nLib = requireModule();
       i18nLib.getI18nForMailer().then(function(i18nConf) {
-        expect(i18nConf.locale).to.equal(i18nLib.DEFAULT_LOCALE);
+        expect(i18nConf.locale).to.equal(local);
 
         done();
       }, (error = 'fail') => done(error));
     });
 
-    it('should resolve i18n object configured by default if serach for locale conf fails', function(done) {
+    it('should resolve i18n object configured by default if search for locale conf fails', function(done) {
       const i18nHelper = function() {
         return {
           getLocaleForUser: function(u) {
