@@ -97,6 +97,11 @@
       SHAREE_FREE_BUSY: '6'
     })
 
+    .constant('CALENDAR_PUBLIC_RIGHTS', [
+      'write',
+      'public_read'
+    ])
+
     .constant('EVENT_CLASS', {
       PUBLIC: 'PUBLIC',
       PRIVATE: 'PRIVATE'

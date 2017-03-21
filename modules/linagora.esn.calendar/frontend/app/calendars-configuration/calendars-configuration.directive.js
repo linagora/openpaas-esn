@@ -20,9 +20,9 @@
     return directive;
   }
 
-  function CalendarsConfigurationController(userAndSharedCalendars) {
+  function CalendarsConfigurationController(userAndExternalCalendars) {
     var self = this;
-    var calendars = userAndSharedCalendars(self.calendars);
+    var calendars = userAndExternalCalendars(self.calendars);
 
     self.userCalendars = calendars.userCalendars;
     self.sharedCalendars = calendars.sharedCalendars;

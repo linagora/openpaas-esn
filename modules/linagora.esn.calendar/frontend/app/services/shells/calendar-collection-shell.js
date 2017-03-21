@@ -4,7 +4,7 @@
   angular.module('esn.calendar')
          .factory('CalendarCollectionShell', CalendarCollectionShellFactory);
 
-  function CalendarCollectionShellFactory(calPathBuilder, CalendarRightShell, session, CALENDAR_DEDAULT_EVENT_COLOR, DEFAULT_CALENDAR_ID, CALENDAR_RIGHT, CALENDAR_SHARED_RIGHT) {
+  function CalendarCollectionShellFactory($q, $log, _, calPathBuilder, CalendarRightShell, session, userAPI, CALENDAR_PUBLIC_RIGHTS, CALENDAR_DEDAULT_EVENT_COLOR, DEFAULT_CALENDAR_ID, CALENDAR_RIGHT, CALENDAR_SHARED_RIGHT) {
     /**
      * A shell that wraps an caldav calendar component.
      * Note that href is the unique identifier and id is the calendarId inside the calendarHomeId
@@ -26,6 +26,9 @@
     }
 
     CalendarCollectionShell.prototype.isShared = isShared;
+    CalendarCollectionShell.prototype.isPublic = isPublic;
+    CalendarCollectionShell.prototype.isOwner = isOwner;
+    CalendarCollectionShell.prototype.getOwner = getOwner;
 
     CalendarCollectionShell.toDavCalendar = toDavCalendar;
     CalendarCollectionShell.from = from;
@@ -90,6 +93,59 @@
      */
     function isShared(userId) {
       return !!this.rights.getShareeRight(userId);
+    }
+
+    /**
+     * Check if this calendar is public
+     * @returns {boolean} return true if the calendar is public
+     */
+    function isPublic() {
+      var publicRight = this.rights.getPublicRight();
+
+      return CALENDAR_PUBLIC_RIGHTS.indexOf(publicRight) > -1;
+    }
+
+    /**
+     * Get the owner of the calendar
+     * @returns {boolean} return the owner of the calendar
+     */
+    function getOwner() {
+      var self = this;
+
+      if (self.rights) {
+        var calendarInvitesIds = _.keys(self.rights.getUsersEmails());
+        var calendarOwnerId;
+
+        calendarInvitesIds.some(function(userId) {
+          if (self.isOwner(userId)) {
+            calendarOwnerId = userId;
+
+            return true;
+          }
+        });
+
+        if (calendarOwnerId) {
+          return userAPI.user(calendarOwnerId).then(function(response) {
+            return response.data;
+          });
+        }
+
+        $log.error('error when searching the calendar owner from a shared calendar or public calendar');
+      } else {
+        $log.error('the calendar does not have rights');
+      }
+
+      return $q.when({});
+    }
+
+    /**
+     * Check if the user is the owner of the calendar
+     * @returns {boolean} return true if the user is the owner of the calendar
+     */
+    function isOwner(userId) {
+      var rights = this.rights.getUserRight(userId);
+
+      return rights === CALENDAR_RIGHT.ADMIN;
     }
 
     function checkReadOnly(rights, userId) {

@@ -11,7 +11,7 @@
     calendarService,
     calendarVisibilityService,
     session,
-    userAndSharedCalendars,
+    userAndExternalCalendars,
     calPublicCalendarStore,
     _,
     CALENDAR_EVENTS
@@ -25,6 +25,9 @@
 
     function $onInit() {
       self.calendars = [];
+      self.userCalendars = [];
+      self.publicCalendars = [];
+      self.sharedCalendars = [];
       self.hiddenCalendars = {};
       self.toggleCalendar = calendarVisibilityService.toggle;
 
@@ -96,10 +99,11 @@
     }
 
     function refreshCalendarsList() {
-      var calendars = userAndSharedCalendars(self.calendars);
+      var calendars = userAndExternalCalendars(self.calendars);
 
       self.userCalendars = calendars.userCalendars;
       self.sharedCalendars = calendars.sharedCalendars;
+      self.publicCalendars = calendars.publicCalendars;
     }
   }
 })();

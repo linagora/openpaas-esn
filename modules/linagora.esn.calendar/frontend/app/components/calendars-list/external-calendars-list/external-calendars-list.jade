@@ -1,0 +1,27 @@
+.lv-body
+  .lv-item.calendar-item.calendar-header-title.hidden-md
+    .media
+      .pull-left
+        i.mdi.mdi-calendar
+      .media-body
+        .lv-title #{__('External calendars')}
+  .lv-item.calendar-item.calendar-header-title-desktop.visible-md
+    .media
+      .pull-left
+        i.mdi.mdi-calendar
+      .media-body
+        .lv-title #{__('External calendars')}
+
+  calendars-list-items(
+    calendars="$ctrl.sharedCalendars",
+    toggle-calendar="$ctrl.toggleCalendar",
+    hidden-calendars="$ctrl.hiddenCalendars",
+    state-to-go="'calendar.external.shared'"
+  )
+
+  calendars-list-items(
+    calendars="$ctrl.publicCalendars",
+    toggle-calendar="$ctrl.toggleCalendar",
+    hidden-calendars="$ctrl.hiddenCalendars",
+    state-to-go="'calendar.external.public'"
+  )

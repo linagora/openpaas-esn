@@ -90,8 +90,10 @@
   "created an event": "created an event",
   "from": "from",
   "My calendars": "My calendars",
-  "Shared calendars": "Shared calendars",
+  "External calendars": "External calendars",
+  "Public right": "Public right",
   "Consult shared calendar": "Consult shared calendar",
+  "Consult public calendar": "Consult public calendar",
   "Your right on this calendar": "Your right on this calendar",
   "Owner": "Owner"
 }

@@ -127,10 +127,22 @@
           }
         }
       })
-      .state('calendar.shared', {
+      .state('calendar.external', {
+        abstract: true,
+        url: '/external'
+      })
+      .state('calendar.external.public', {
+        url: '/public/:calendarId',
+        views: {
+          'content@calendar': {
+            template: '<calendar-public-consultation />'
+          }
+        }
+      })
+      .state('calendar.external.shared', {
         url: '/shared/:calendarId',
         views: {
-          content: {
+          'content@calendar': {
             template: '<calendar-shared-consultation />'
           }
         }

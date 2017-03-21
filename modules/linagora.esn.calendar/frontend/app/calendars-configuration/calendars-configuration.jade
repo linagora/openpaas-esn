@@ -31,7 +31,7 @@
           .media
             .pull-left.calendars-configuration-title
               i.mdi.mdi-calendar
-              span.name #{__('Shared calendars')}
+              span.name #{__('External calendars')}
         a.lv-item(href="", ng-repeat="calendar in $ctrl.sharedCalendars", ui-sref='calendar.shared({calendarId: calendar.id})')
           .media
             .pull-left

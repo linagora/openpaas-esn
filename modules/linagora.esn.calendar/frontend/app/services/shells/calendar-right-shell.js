@@ -25,6 +25,7 @@
     CalendarRightShell.prototype.getShareeRight = getShareeRight;
     CalendarRightShell.prototype.updateSharee = updateSharee;
     CalendarRightShell.prototype.getAllShareeRights = getAllShareeRights;
+    CalendarRightShell.prototype.getUsersEmails = getUsersEmails;
     CalendarRightShell.prototype.updatePublic = updatePublic;
     CalendarRightShell.prototype.removeShareeRight = removeShareeRight;
     CalendarRightShell.prototype.toDAVShareRightsUpdate = toDAVShareRightsUpdate;
@@ -126,6 +127,10 @@
       var calRightSet = this._userRight[userId];
 
       return calRightSet && _sumupRight(calRightSet);
+    }
+
+    function getUsersEmails() {
+      return this._userEmails;
     }
 
     /**
