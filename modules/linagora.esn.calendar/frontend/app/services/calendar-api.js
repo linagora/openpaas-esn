@@ -68,13 +68,7 @@
       };
 
       return request('report', calendarHref, JSON_CONTENT_TYPE_HEADER, body)
-      .then(davResponseHandler('dav:item'))
-      .catch(function(error) {
-        notificationFactory.weakError('Server cannot get events', 'List event failed; Please refresh');
-
-        return $q.reject(error);
-      })
-      ;
+      .then(davResponseHandler('dav:item'));
     }
 
     /**
@@ -126,12 +120,7 @@
       var path = calPathBuilder.forCalendarId(calendarHomeId, calendarId);
 
       return request('report', path, JSON_CONTENT_TYPE_HEADER, body)
-      .then(davResponseHandler('dav:item'))
-      .catch(function(error) {
-        notificationFactory.weakError('Server cannot list events', 'List event failed; Please refresh');
-
-        return $q.reject(error);
-      });
+      .then(davResponseHandler('dav:item'));
     }
 
     /**
@@ -142,12 +131,7 @@
       var path = calPathBuilder.rootPath();
 
       return request('get', path + '/.json', {Accept: CALENDAR_ACCEPT_HEADER}, {}, options)
-      .then(davResponseHandler('dav:home'))
-      .catch(function(error) {
-        notificationFactory.weakError('Server cannot get calendars', 'List all calendars failed; Please refresh');
-
-        return $q.reject(error);
-      });
+      .then(davResponseHandler('dav:home'));
     }
 
     /**
@@ -160,12 +144,7 @@
       var path = calPathBuilder.forCalendarHomeId(calendarId);
 
       return request('get', path, {Accept: CALENDAR_ACCEPT_HEADER}, {}, options)
-      .then(davResponseHandler('dav:calendar'))
-      .catch(function(error) {
-        notificationFactory.weakError('Server cannot list calendars', 'List calendars failed; Please refresh');
-
-        return $q.reject(error);
-      });
+      .then(davResponseHandler('dav:calendar'));
     }
 
     /**
@@ -178,12 +157,7 @@
       var path = calPathBuilder.forCalendarId(calendarHomeId, calendarId);
 
       return request('get', path, {Accept: CALENDAR_ACCEPT_HEADER}, {}, options)
-      .then(responseHandler(200, _.property('data')))
-      .catch(function(error) {
-        notificationFactory.weakError('Server cannot get calendar', 'Get calendar failed; Please refresh');
-
-        return $q.reject(error);
-      });
+      .then(responseHandler(200, _.property('data')));
     }
 
     /**
@@ -198,7 +172,7 @@
       return request('post', path, null, calendar)
       .then(responseHandler(201))
       .catch(function(error) {
-        notificationFactory.weakError('Server cannot create calendar', 'Create calendar failed, Please refresh');
+        notificationFactory.weakError('Failed to create calendar', 'Cannot join the server, please try later');
 
         return $q.reject(error);
       });
@@ -216,7 +190,7 @@
       return request('delete', path)
       .then(responseHandler(204))
       .catch(function(error) {
-        notificationFactory.weakError('Server cannot remove calendar', 'Remove calendar failed; Please refresh');
+        notificationFactory.weakError('Failed to remove calendar', 'Cannot join the server, please try later');
 
         return $q.reject(error);
       });
@@ -234,7 +208,7 @@
       return request('proppatch', path, JSON_CONTENT_TYPE_HEADER, calendar)
       .then(responseHandler(204))
       .catch(function(error) {
-        notificationFactory.weakError('Server cannot modify calendar', 'Modify calendar failed; Please refresh');
+        notificationFactory.weakError('Failed to modify calendar', 'Cannot join the server, please try later');
 
         return $q.reject(error);
       });
@@ -293,22 +267,12 @@
 
       if (options.graceperiod) {
         return request('put', eventPath, headers, body, {graceperiod: CALENDAR_GRACE_DELAY})
-        .then(gracePeriodResponseHandler)
-        .catch(function(error) {
-          notificationFactory.weakError('Server cannot create events', 'Create failed; Please refresh');
-
-          return $q.reject(error);
-        });
+        .then(gracePeriodResponseHandler);
       }
 
       return request('put', eventPath, headers, body)
-      .then(responseHandler(201))
-      .catch(function(error) {
-        notificationFactory.weakError('Server cannot create events', 'Create failed; Please refresh');
-
-        return $q.reject(error);
-      });
-    }
+      .then(responseHandler(201));
+      }
 
     /**
      * PUT request used to modify an event in a specific calendar.
@@ -330,12 +294,7 @@
       var body = vcalendar.toJSON();
 
       return request('put', eventPath, headers, body, { graceperiod: CALENDAR_GRACE_DELAY })
-      .then(gracePeriodResponseHandler)
-      .catch(function(error) {
-        notificationFactory.weakError('Server cannot modify events', 'Modify failed; Please refresh ');
-
-        return $q.reject(error);
-      });
+      .then(gracePeriodResponseHandler);
     }
 
     /**
@@ -348,12 +307,7 @@
       var headers = {'If-Match': etag};
 
       return request('delete', eventPath, headers, null, { graceperiod: CALENDAR_GRACE_DELAY })
-      .then(gracePeriodResponseHandler)
-      .catch(function(error) {
-        notificationFactory.weakError('Server cannot remove events', 'Delete failed; Please refresh your calendar');
-
-        return $q.reject(error);
-      });
+      .then(gracePeriodResponseHandler);
     }
 
     /**
@@ -375,12 +329,7 @@
       var body = vcalendar.toJSON();
 
       return request('put', eventPath, headers, body)
-      .then(responseHandler([200, 204]))
-      .catch(function(error) {
-        notificationFactory.weakError('Server cannot change event', 'Change participation failed; Please refresh your calendar');
-
-        return $q.reject(error);
-      });
+      .then(responseHandler([200, 204]));
     }
   }
 })();

@@ -837,7 +837,7 @@ describe('The event-form module controllers', function() {
 
         this.scope.createEvent();
 
-        expect(this.notificationFactory.weakError).to.have.been.calledWith('Event creation failed', 'Event creation failed; cannot find calendar');
+        expect(this.notificationFactory.weakError).to.have.been.calledWith('Event creation failed', 'Cannot join the server, please try later');
       });
 
       it('should call calOpenEventForm on cancelled task', function() {

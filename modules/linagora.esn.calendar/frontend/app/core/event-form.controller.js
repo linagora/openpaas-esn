@@ -170,7 +170,7 @@
               $scope.restActive = false;
             });
         } else {
-          _displayNotification(notificationFactory.weakError, 'Event creation failed', 'Event creation failed; cannot find calendar');
+          _displayNotification(notificationFactory.weakError, 'Event creation failed', 'Cannot join the server, please try later');
         }
       }
 
