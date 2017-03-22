@@ -365,7 +365,7 @@ angular.module('linagora.esn.unifiedinbox', [
       inboxProviders.add(view === 'messages' ? inboxHostedMailMessagesProvider : inboxHostedMailThreadsProvider);
 
       if (twitterTweetsEnabled) {
-        session.getTwitterAccounts().forEach(function(account) {
+        session.getProviderAccounts('twitter').forEach(function(account) {
           inboxProviders.add(inboxTwitterMentionsProvider(account.id));
           inboxProviders.add(inboxTwitterDirectMessagesProvider(account.id));
         });

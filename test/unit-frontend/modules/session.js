@@ -68,19 +68,28 @@ describe('The esn.session Angular module', function() {
       });
     });
 
-    describe('getTwitterAccounts method', function() {
-
-      it('should return nothing when no account', function() {
+    describe('The getProviderAccounts function', function() {
+      it('should return empty array when no input provider', function() {
         this.session.setUser({
           _id: '1',
           name: 'yolo',
           emails: ['yolo@example.com']
         });
 
-        expect(this.session.getTwitterAccounts()).to.deep.equal([]);
+        expect(this.session.getProviderAccounts()).to.deep.equal([]);
       });
 
-      it('should return nothing when only other accounts', function() {
+      it('should return empty array when no account', function() {
+        this.session.setUser({
+          _id: '1',
+          name: 'yolo',
+          emails: ['yolo@example.com']
+        });
+
+        expect(this.session.getProviderAccounts('twitter')).to.deep.equal([]);
+      });
+
+      it('should return empty array when only other accounts', function() {
         this.session.setUser({
           _id: '1',
           name: 'yolo',
@@ -93,10 +102,10 @@ describe('The esn.session Angular module', function() {
           }]
         });
 
-        expect(this.session.getTwitterAccounts()).to.deep.equal([]);
+        expect(this.session.getProviderAccounts('twitter')).to.deep.equal([]);
       });
 
-      it('should return all twitter accounts', function() {
+      it('should return all requested accounts', function() {
         this.session.setUser({
           _id: '1',
           name: 'yolo',
@@ -119,7 +128,7 @@ describe('The esn.session Angular module', function() {
           }]
         });
 
-        expect(this.session.getTwitterAccounts()).to.deep.equal([{
+        expect(this.session.getProviderAccounts('twitter')).to.deep.equal([{
           provider: 'twitter',
           field1: 'value1'
         }, {
