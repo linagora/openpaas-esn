@@ -1,3 +1,12 @@
+.public-access-line.public-access-visibility-line
+  i.mdi.mdi-account-multiple.big
+  .public-access-line-visibility-key.col-xs-4
+    | #{__('Public read')}
+  .public-access-line-visibility-value.form-group.col-xs-8
+    .select
+      select.form-control(ng-model='$ctrl.publicSelection')
+        option(ng-repeat="publicRight in ::$ctrl.publicRights" value="{{publicRight.value}}" ng-selected="publicRight.value === $ctrl.publicSelection") {{ publicRight.name }}
+
 .form-group.fg-line(ng-class='{"has-error": !$ctrl.calendar.name}')
   .field-name #{__('Name')}
   input.form-control(type="text", placeholder="#{__('Enter a name')}", ng-model="$ctrl.calendar.name", maxlength="255")
