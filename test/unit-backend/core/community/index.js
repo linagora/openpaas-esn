@@ -149,10 +149,11 @@ describe('The community module', function() {
       mockery.registerMock('../pubsub', {
         local: {
           topic: function(name) {
-            expect(name).to.equal(CONSTANTS.EVENTS.communityCreated);
-            return {
-              publish: spy
-            };
+            if (name === CONSTANTS.EVENTS.communityCreated) {
+              return {
+                publish: spy
+              };
+            }
           }
         }
       });

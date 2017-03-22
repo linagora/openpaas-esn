@@ -14,6 +14,8 @@ div
         li.hover-scale-animation.toggle-fullscreen
           a(href='', ng-click='toggleFullScreen()')
             i.md.mdi.mdi-fullscreen
+        li.hover-scale-animation(ng-if='false')
+          esn-user-notification-toggler
         li.hover-scale-animation
           application-menu-toggler
         li.avatar-container(ng-controller='avatarController', ui-sref="profile({ user_id: '' })")

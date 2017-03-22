@@ -1,26 +1,45 @@
 'use strict';
 
-var mongoose = require('mongoose');
-var Notification = mongoose.model('Notification');
-var pubsub = require('../pubsub').local;
-var topic = pubsub.topic('notification:external');
-var helpersTargets = require('../../helpers/targets');
+const mongoose = require('mongoose');
+const Notification = mongoose.model('Notification');
+const pubsub = require('../pubsub').local;
+const topic = pubsub.topic('notification:external');
+const helpersTargets = require('../../helpers/targets');
 
-module.exports.save = function(notification, callback) {
+module.exports = {
+  get,
+  find,
+  save,
+  setAsRead
+};
+
+function get(id, callback) {
+  if (!id) {
+    return callback(new Error('Notification ID is not defined'));
+  }
+
+  Notification.findById(id).exec(callback);
+}
+
+function find(options, callback) {
+  options = options || {};
+  Notification.find(options).exec(callback);
+}
+
+function save(notification, callback) {
   if (!notification) {
     return callback(new Error('Notification can not be null'));
   }
 
-  helpersTargets.getUserIds(notification.target, function(err, users) {
+  helpersTargets.getUserIds(notification.target, (err, users) => {
     if (err) {
       return callback(err);
     }
 
-    users.forEach(function(user) {
-      var userId = user._id;
-      var context = user.context;
-
-      var data = {
+    users.forEach(user => {
+      const userId = user._id;
+      const context = user.context;
+      const data = {
         title: notification.title,
         author: notification.author,
         action: notification.action,
@@ -32,29 +51,19 @@ module.exports.save = function(notification, callback) {
         data: notification.data || {},
         context: context
       };
+
       topic.publish(data);
     });
-    return callback(null, notification);
+
+    callback(null, notification);
   });
+}
 
-};
-
-module.exports.get = function(id, callback) {
-  if (!id) {
-    return callback(new Error('Notification ID is not defined'));
-  }
-  return Notification.findById(id).exec(callback);
-};
-
-module.exports.find = function(options, callback) {
-  options = options || {};
-  Notification.find(options).exec(callback);
-};
-
-module.exports.setAsRead = function(notification, callback) {
+function setAsRead(notification, callback) {
   if (!notification) {
     return callback(new Error('Notification is required'));
   }
+
   notification.read = true;
   notification.save(callback);
-};
+}

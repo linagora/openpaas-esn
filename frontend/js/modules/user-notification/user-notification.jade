@@ -1,6 +1,6 @@
-.popover(ng-controller='userNotificationPopoverController', tabindex="-1" user-notification-popover)
+.user-notification.popover(ng-controller='ESNUserNotificationPopoverController', tabindex="-1" esn-user-notification-popover)
   .arrow
-  .popover-title #{__('Notifications')}
+  .popover-title.text-center #{__('Notifications')}
     a.pull-right(href="", ng-show="false") #{__('Mark as read')}
   .popover-content
     ul.nav.nav-pills.nav-stacked
@@ -9,7 +9,7 @@
       li.popover-item.read.text-center(ng-show="!notifications.length && loading")
         | #{__('Loading notifications')}...
       li.popover-item(ng-repeat="notification in notifications")
-        notification-template-displayer(notification='notification')
+        esn-user-notification-template-displayer(notification='notification')
       li.divider.nopadding
       li.popover-pager(ng-show="lastPageNb > 0")
         ul.pager

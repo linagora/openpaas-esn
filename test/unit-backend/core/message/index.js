@@ -12,6 +12,7 @@ describe('The message core module', function() {
     this.helpers.requireBackend('core/db/mongo/models/whatsup');
     this.helpers.requireBackend('core/db/mongo/models/community');
     this.helpers.requireBackend('core/db/mongo/models/domain');
+    this.helpers.requireBackend('core/db/mongo/models/notification');
     this.helpers.requireBackend('core/db/mongo/models/usernotification');
     this.helpers.requireBackend('core/db/mongo/models/pollmessage');
   });

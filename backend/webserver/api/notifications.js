@@ -4,7 +4,7 @@ var authorize = require('../middleware/authorization');
 var notifications = require('../controllers/notifications');
 var notificationMiddleware = require('../middleware/notification');
 
-module.exports = function(router) {
+module.exports = router => {
 
   /**
    * @swagger

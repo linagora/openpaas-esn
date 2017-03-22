@@ -9,9 +9,9 @@ const collaborationLibs = {};
 const membersMapping = {
   user: 'User'
 };
-
 const member = require('./member')({isCollaboration, getMembersMapping, getModel, getLib, queryOne});
 const permission = require('./permission')(member);
+const usernotification = require('./usernotification')({member});
 
 module.exports = {
   addObjectType,
@@ -33,6 +33,7 @@ module.exports = {
   registerCollaborationModel,
   registerMembersMapping,
   schemaBuilder: require('../db/mongo/models/base-collaboration'),
+  usernotification,
   userToMember
 };
 
