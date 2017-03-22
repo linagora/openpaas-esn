@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('the userAndSharedCalendars service', function() {
-  var calendars, userAndSharedCalendars, CALENDAR_RIGHT;
+  var calendars, userAndSharedCalendars, CALENDAR_RIGHT, CALENDAR_SHARED_RIGHT;
 
   beforeEach(function() {
     calendars = [{
@@ -27,7 +27,8 @@ describe('the userAndSharedCalendars service', function() {
         getPublicRight: function() {
           return CALENDAR_RIGHT.PUBLIC_READ;
         }
-      }
+      },
+      isShared: angular.noop
     }, {
       id: '3',
       href: 'href',
@@ -38,9 +39,13 @@ describe('the userAndSharedCalendars service', function() {
         getUserRight: function() {
           return CALENDAR_RIGHT.SHAREE_READ;
         },
+
         getPublicRight: function() {
           return CALENDAR_RIGHT.NONE;
         }
+      },
+      isShared: function() {
+        return CALENDAR_SHARED_RIGHT.SHAREE_READ;
       }
     }, {
       id: '4',
@@ -55,14 +60,16 @@ describe('the userAndSharedCalendars service', function() {
         getPublicRight: function() {
           return CALENDAR_RIGHT.NONE;
         }
-      }
+      },
+      isShared: angular.noop
     }];
 
     angular.mock.module('esn.calendar');
 
-    angular.mock.inject(function(_userAndSharedCalendars_, _CALENDAR_RIGHT_) {
+    angular.mock.inject(function(_userAndSharedCalendars_, _CALENDAR_RIGHT_, _CALENDAR_SHARED_RIGHT_) {
       userAndSharedCalendars = _userAndSharedCalendars_;
       CALENDAR_RIGHT = _CALENDAR_RIGHT_;
+      CALENDAR_SHARED_RIGHT = _CALENDAR_SHARED_RIGHT_;
     });
   });
 

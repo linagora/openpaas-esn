@@ -31,7 +31,8 @@ describe('The calendar configuration controller', function() {
     calendarHomeServiceMock,
     calendar,
     SM_XS_MEDIA_QUERY,
-    CALENDAR_RIGHT;
+    CALENDAR_RIGHT,
+    CALENDAR_SHARED_RIGHT;
 
   function initController() {
     return $controller('calendarConfigurationController', { $scope: $scope });
@@ -90,9 +91,11 @@ describe('The calendar configuration controller', function() {
       getPublicRight: sinon.spy(),
       getUserRight: sinon.spy(),
       getAllUserRight: sinon.stub().returns([]),
+      getAllShareeRights: sinon.stub().returns([]),
       clone: sinon.spy(),
-      removeUserRight: sinon.spy(),
+      removeShareeRight: sinon.spy(),
       update: sinon.spy(),
+      updateSharee: sinon.spy(),
       equals: sinon.stub().returns(true)
     };
 
@@ -166,11 +169,12 @@ describe('The calendar configuration controller', function() {
   });
 
   beforeEach(function() {
-    angular.mock.inject(function(_$rootScope_, _$controller_, _CALENDAR_RIGHT_, _SM_XS_MEDIA_QUERY_) {
+    angular.mock.inject(function(_$rootScope_, _$controller_, _CALENDAR_RIGHT_, _CALENDAR_SHARED_RIGHT_, _SM_XS_MEDIA_QUERY_) {
       $rootScope = _$rootScope_;
       $scope = $rootScope.$new();
       $controller = _$controller_;
       CALENDAR_RIGHT = _CALENDAR_RIGHT_;
+      CALENDAR_SHARED_RIGHT = _CALENDAR_SHARED_RIGHT_;
       SM_XS_MEDIA_QUERY = _SM_XS_MEDIA_QUERY_;
     });
   });
@@ -244,7 +248,7 @@ describe('The calendar configuration controller', function() {
       beforeEach(function() {
         stateParamsMock.addUsersFromDelegationState = {
           newUsersGroups: ['user'],
-          selection: 'none'
+          selectedShareeRight: CALENDAR_SHARED_RIGHT.NONE
         };
       });
 
@@ -258,12 +262,12 @@ describe('The calendar configuration controller', function() {
         expect(calendarConfigurationController.newUsersGroups).to.deep.equal(stateParamsMock.addUsersFromDelegationState.newUsersGroups);
       });
 
-      it('should initialize selection', function() {
+      it('should initialize selectedShareeRight', function() {
         calendarConfigurationController.$onInit();
 
         $rootScope.$digest();
 
-        expect(calendarConfigurationController.selection).to.deep.equal(stateParamsMock.addUsersFromDelegationState.selection);
+        expect(calendarConfigurationController.selectedShareeRight).to.deep.equal(stateParamsMock.addUsersFromDelegationState.selectedShareeRight);
       });
 
       it('should call addUserGroup', function() {
@@ -374,34 +378,30 @@ describe('The calendar configuration controller', function() {
       expect(calendarConfigurationController.oldCalendar).to.deep.equal(calendarConfigurationController.calendar);
     });
 
-    it('should initialize self.selection with \'none\'', function() {
+    it('should initialize self.selectedShareeRight with CALENDAR_SHARED_RIGHT.NONE', function() {
       calendarConfigurationController.activate();
 
-      expect(calendarConfigurationController.selection).to.equal('none');
+      expect(calendarConfigurationController.selectedShareeRight).to.equal(CALENDAR_SHARED_RIGHT.NONE);
     });
 
     it('should initialize self.delegationTypes with an array contains the different rights', function() {
-      var delegationTypesExpected = [{
-        value: CALENDAR_RIGHT.NONE,
-        name: 'None',
-        access: 'all'
-      }, {
-        value: CALENDAR_RIGHT.ADMIN,
-        name: 'Administration',
-        access: 'users'
-      }, {
-        value: CALENDAR_RIGHT.READ_WRITE,
-        name: 'Read and Write',
-        access: 'users'
-      }, {
-        value: CALENDAR_RIGHT.SHAREE_READ,
-        name: 'Read only',
-        access: 'all'
-      }, {
-        value: CALENDAR_RIGHT.FREE_BUSY,
-        name: 'Free/Busy',
-        access: 'all'
-      }];
+      var delegationTypesExpected = [
+        {
+          value: CALENDAR_SHARED_RIGHT.NONE,
+          name: 'None'
+        }, {
+          value: CALENDAR_SHARED_RIGHT.SHAREE_ADMIN,
+          name: 'Administration'
+        }, {
+          value: CALENDAR_SHARED_RIGHT.SHAREE_READ_WRITE,
+          name: 'Read and Write'
+        }, {
+          value: CALENDAR_SHARED_RIGHT.SHAREE_READ,
+          name: 'Read only'
+        }, {
+          value: CALENDAR_SHARED_RIGHT.SHAREE_FREE_BUSY,
+          name: 'Free/Busy'
+        }];
 
       calendarConfigurationController.activate();
 
@@ -456,8 +456,7 @@ describe('The calendar configuration controller', function() {
 
     it('should correctly initialize delegation', function() {
       calendarRight.getPublicRight = sinon.stub().returns('publicSelection');
-      calendarRight.getAllUserRight = sinon.stub().returns([
-        {userId: '12345', right: CALENDAR_RIGHT.ADMIN},
+      calendarRight.getAllShareeRights = sinon.stub().returns([
         {userId: 'userId', right: 'right'}
       ]);
 
@@ -679,15 +678,15 @@ describe('The calendar configuration controller', function() {
         calendarConfigurationController.newCalendar = false;
         calendarConfigurationController.delegations = [{
           user: { _id: 'id', preferredEmail: 'preferredEmail' },
-          selection: 'selection'
+          selection: 'selectedShareeRight'
         }];
 
         calendarConfigurationController.submit();
         $rootScope.$digest();
 
         expect(notificationFactoryMock.weakInfo).to.have.been.called;
-        expect(calendarRight.removeUserRight).to.have.been.calledWith('1');
-        expect(calendarRight.update).to.have.been.calledWith('id', 'preferredEmail', 'selection');
+        expect(calendarRight.removeShareeRight).to.have.been.calledWith('1');
+        expect(calendarRight.updateSharee).to.have.been.calledWith('id', 'preferredEmail', 'selectedShareeRight');
         expect(stateMock.go).to.have.been.called;
         expect(calendarService.modifyRights).to.have.been.calledWith(
           calendarConfigurationController.calendarHomeId,
@@ -868,7 +867,7 @@ describe('The calendar configuration controller', function() {
   });
 
   describe('the reset function', function() {
-    it('should reset the values of newUsersGroups and selection', function() {
+    it('should reset the values of newUsersGroups and selectedShareeRight', function() {
       calendarConfigurationController.calendar = {
         id: '123456789'
       };
@@ -878,7 +877,7 @@ describe('The calendar configuration controller', function() {
       calendarConfigurationController.addUserGroup();
 
       expect(calendarConfigurationController.newUsersGroups).to.deep.equal;
-      expect(calendarConfigurationController.selection).to.deep.equal(CALENDAR_RIGHT.NONE);
+      expect(calendarConfigurationController.selectedShareeRight).to.deep.equal(CALENDAR_SHARED_RIGHT.NONE);
     });
   });
 

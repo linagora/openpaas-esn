@@ -5,18 +5,16 @@
     .factory('CalRightSet', CalRightSetFactory);
 
   function CalRightSetFactory() {
-    var webdavStringToConstantDict, calendarShareeRightConstantToRightConstantDict;
+    var webdavStringToConstantDict;
 
     CalRightSet.FREE_BUSY = 1;
     CalRightSet.READ = 2;
     CalRightSet.WRITE = 4;
     CalRightSet.WRITE_PROPERTIES = 8;
     CalRightSet.SHARE = 16;
-    CalRightSet.SHAREE_READ = 32;
-    CalRightSet.SHAREE_READWRITE = 64;
-    CalRightSet.SHAREE_SHAREDOWNER = 128;
+    CalRightSet.READ_ACL = 32;
+    CalRightSet.WRITE_ACL = 64;
 
-    CalRightSet.calendarShareeIntToConstant = calendarShareeIntToConstant;
     CalRightSet.webdavStringToConstant = webdavStringToConstant;
 
     CalRightSet.prototype.addPermission = addPermission;
@@ -46,13 +44,9 @@
         '{DAV:}read': CalRightSet.READ,
         '{DAV:}write': CalRightSet.WRITE,
         '{DAV:}write-properties': CalRightSet.WRITE_PROPERTIES,
+        '{DAV:}read-acl': CalRightSet.READ_ACL,
+        '{DAV:}write-acl': CalRightSet.WRITE_ACL,
         '{urn:ietf:params:xml:ns:caldav}read-free-busy': CalRightSet.FREE_BUSY
-      };
-
-      calendarShareeRightConstantToRightConstantDict = {
-        1: CalRightSet.SHAREE_SHAREDOWNER,
-        2: CalRightSet.SHAREE_READ,
-        3: CalRightSet.SHAREE_READWRITE
       };
     }
 
@@ -80,16 +74,6 @@
       return result;
     }
 
-    function calendarShareeIntToConstant(integer) {
-      var result = calendarShareeRightConstantToRightConstantDict[integer];
-
-      if (!result) {
-        throw new Error('Unknow calendarSharee integer : ' + integer);
-      }
-
-      return result;
-    }
-
     function toString() {
       var result = [];
       var constToString = {};
@@ -99,9 +83,8 @@
       constToString[CalRightSet.WRITE] = 'WRITE';
       constToString[CalRightSet.WRITE_PROPERTIES] = 'WRITE_PROPERTIES';
       constToString[CalRightSet.SHARE] = 'SHARE';
-      constToString[CalRightSet.SHAREE_READ] = 'SHAREE_READ';
-      constToString[CalRightSet.SHAREE_READWRITE] = 'SHAREE_READWRITE';
-      constToString[CalRightSet.SHAREE_SHAREDOWNER] = 'SHAREE_SHAREDOWNER';
+      constToString[CalRightSet.READ_ACL] = 'READ_ACL';
+      constToString[CalRightSet.WRITE_ACL] = 'WRITE_ACL';
 
       angular.forEach(constToString, function(string, constant) {
         if (this.hasAtLeastAllOfThosePermissions([parseInt(constant, 10)])) {

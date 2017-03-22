@@ -5,7 +5,8 @@
 var expect = chai.expect;
 
 describe('The calendarsList controller', function() {
-  var calendars, CalendarsListController, CalendarCollectionShell, calendarServiceMock, hiddenCalendar, calendarVisibilityServiceMock, $rootScope, $scope, $controller, CALENDAR_EVENTS, CALENDAR_RIGHT;
+  var $rootScope, $scope, $controller, CalendarCollectionShell, CALENDAR_EVENTS, CALENDAR_RIGHT, CALENDAR_SHARED_RIGHT;
+  var calendars, CalendarsListController, calendarServiceMock, hiddenCalendar, calendarVisibilityServiceMock;
 
   function initController() {
     return $controller('CalendarsListController', { $scope: $scope });
@@ -38,13 +39,14 @@ describe('The calendarsList controller', function() {
   });
 
   beforeEach(function() {
-    angular.mock.inject(function(_$rootScope_, _$controller_, _CalendarCollectionShell_, _CALENDAR_EVENTS_, _CALENDAR_RIGHT_) {
+    angular.mock.inject(function(_$rootScope_, _$controller_, _CalendarCollectionShell_, _CALENDAR_EVENTS_, _CALENDAR_RIGHT_, _CALENDAR_SHARED_RIGHT_) {
       $rootScope = _$rootScope_;
       $scope = $rootScope.$new();
       $controller = _$controller_;
       CalendarCollectionShell = _CalendarCollectionShell_;
       CALENDAR_EVENTS = _CALENDAR_EVENTS_;
       CALENDAR_RIGHT = _CALENDAR_RIGHT_;
+      CALENDAR_SHARED_RIGHT = _CALENDAR_SHARED_RIGHT_;
     });
   });
 
@@ -133,6 +135,9 @@ describe('The calendarsList controller', function() {
               getPublicRight: function() {
                 return CALENDAR_RIGHT.PUBLIC_READ;
               }
+            },
+            isShared: function() {
+              return CALENDAR_SHARED_RIGHT.SHAREE_READ;
             }
           }];
         });
@@ -142,12 +147,7 @@ describe('The calendarsList controller', function() {
             href: '/calendars/12345/3.json',
             name: 'name3',
             color: 'color3',
-            description: 'description3',
-            rights: {
-              getUserRight: function() {
-                return CALENDAR_RIGHT.ADMIN;
-              }
-            }
+            description: 'description3'
           });
           var expectedResult = calendars.concat(newCalendar);
 
@@ -165,15 +165,7 @@ describe('The calendarsList controller', function() {
             href: '/calendars/12345/3.json',
             name: 'name3',
             color: 'color3',
-            description: 'description3',
-            rights: {
-              getUserRight: function() {
-                return CALENDAR_RIGHT.ADMIN;
-              },
-              getPublicRight: function() {
-                return CALENDAR_RIGHT.SHAREE_READ;
-              }
-            }
+            description: 'description3'
           });
           var expectedResult = calendars.concat(newCalendar);
 
@@ -221,6 +213,9 @@ describe('The calendarsList controller', function() {
             getPublicRight: function() {
               return CALENDAR_RIGHT.PUBLIC_READ;
             }
+          },
+          isShared: function() {
+            return CALENDAR_SHARED_RIGHT.SHAREE_READ;
           }
         }];
 

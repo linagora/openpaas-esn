@@ -4,7 +4,7 @@
   angular.module('esn.calendar')
          .factory('CalendarCollectionShell', CalendarCollectionShellFactory);
 
-  function CalendarCollectionShellFactory(calPathBuilder, CalendarRightShell, session, CALENDAR_DEDAULT_EVENT_COLOR, DEFAULT_CALENDAR_ID, CALENDAR_RIGHT) {
+  function CalendarCollectionShellFactory(calPathBuilder, CalendarRightShell, session, CALENDAR_DEDAULT_EVENT_COLOR, DEFAULT_CALENDAR_ID, CALENDAR_RIGHT, CALENDAR_SHARED_RIGHT) {
     /**
      * A shell that wraps an caldav calendar component.
      * Note that href is the unique identifier and id is the calendarId inside the calendarHomeId
@@ -25,6 +25,8 @@
       this.readOnly = checkReadOnly(this.rights, session.user._id);
     }
 
+    CalendarCollectionShell.prototype.isShared = isShared;
+
     CalendarCollectionShell.toDavCalendar = toDavCalendar;
     CalendarCollectionShell.from = from;
     CalendarCollectionShell.buildHref = buildHref;
@@ -37,7 +39,7 @@
      * Return a dav:calendar used in body of request about calendars
      * Note that it's only used when creating a calendar for now.
      * @param  {Object} shell  a CalendarCollectionShell or an object like {href: '', name: '', color: '', description: ''}
-     * @return {Object}        {'dav:name': '', 'apple:color': '', 'caldav:description': ''}
+     * @returns {Object}        {'dav:name': '', 'apple:color': '', 'caldav:description': ''}
      */
     function toDavCalendar(shell) {
       if (!(shell instanceof CalendarCollectionShell)) {
@@ -57,7 +59,7 @@
     /**
      * Take an object and return a CalendarCollectionShell
      * @param  {Object} object like {href: '', name: '', color: '', description: ''}
-     * @return {CalendarCollectionShell}        the new CalendarCollectionShell
+     * @returns {CalendarCollectionShell}        the new CalendarCollectionShell
      */
     function from(object) {
       return new CalendarCollectionShell({
@@ -80,9 +82,19 @@
       }
     }
 
+    /**
+     * Check if this calendar has been shared by another user
+     * Note: if userId is the calendar owner, it doesn't have sharee right, so isShared will return false.
+     * @param userId
+     * @returns {boolean} return true if userId has sharee right on this calendar
+     */
+    function isShared(userId) {
+      return !!this.rights.getShareeRight(userId);
+    }
+
     function checkReadOnly(rights, userId) {
       if (rights) {
-        return CALENDAR_RIGHT.READ_ONLY.indexOf(rights.getUserRight(userId)) > -1;
+        return rights.getShareeRight(userId) === CALENDAR_SHARED_RIGHT.SHAREE_READ || rights.getUserRight(userId) === CALENDAR_RIGHT.PUBLIC_READ;
       }
 
       return false;

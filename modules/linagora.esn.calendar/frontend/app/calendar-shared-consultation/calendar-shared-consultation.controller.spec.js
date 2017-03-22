@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('The CalendarSharedConsultController controller', function() {
-  var $controller, $rootScope, $scope, calendarAdmin, sessionMock, CalendarSharedConsultController, calendarHomeId, calendar, $stateParamsMock, calendarHomeServiceMock, calendarServiceMock, userAPIMock;
+  var $controller, $rootScope, $scope, calendarAdmin, sessionMock, CalendarSharedConsultController, calendarHomeId, calendar, $stateParamsMock, calendarHomeServiceMock, calendarServiceMock, userAPIMock, CALENDAR_RIGHT, CALENDAR_SHARED_RIGHT;
 
   beforeEach(function() {
     calendarHomeId = '123456789';
@@ -20,10 +20,24 @@ describe('The CalendarSharedConsultController controller', function() {
       rights: {
         getUserRight: sinon.spy(function(userId) {
           if (userId === 'adminId') {
-            return 'admin';
+            return CALENDAR_RIGHT.ADMIN;
           }
 
-          return 'sharee_read';
+          return CALENDAR_RIGHT.SHAREE_READ;
+        }),
+        getShareeRight: sinon.spy(function(userId) {
+          if (userId === 'adminId') {
+            return;
+          }
+
+          return CALENDAR_SHARED_RIGHT.SHAREE_READ;
+        }),
+        getRightLabel: sinon.spy(function(userId) {
+          if (userId === 'adminId') {
+            return;
+          }
+
+          return 'Read only';
         }),
         _userEmails: {
           adminId: {}
@@ -90,10 +104,12 @@ describe('The CalendarSharedConsultController controller', function() {
       $provide.value('session', sessionMock);
     });
 
-    angular.mock.inject(function(_$controller_, _$rootScope_) {
+    angular.mock.inject(function(_$controller_, _$rootScope_, _CALENDAR_RIGHT_, _CALENDAR_SHARED_RIGHT_) {
       $controller = _$controller_;
       $rootScope = _$rootScope_;
       $scope = $rootScope.$new();
+      CALENDAR_RIGHT = _CALENDAR_RIGHT_;
+      CALENDAR_SHARED_RIGHT = _CALENDAR_SHARED_RIGHT_;
     });
   });
 
@@ -141,7 +157,7 @@ describe('The CalendarSharedConsultController controller', function() {
 
       $rootScope.$digest();
 
-      expect(CalendarSharedConsultController.userRight).to.be.equal('sharee_read');
+      expect(CalendarSharedConsultController.userRightLabel).to.be.equal('Read only');
     });
 
     it('should get the calendarOwner from the shared calendar', function() {
