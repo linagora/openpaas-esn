@@ -15,7 +15,7 @@ sub-header(ng-if="!inbox.list.isElementOpened")
 
       .inbox-items-group(ng-repeat="item in groupedElements | inboxFilterJmapItems | inboxLinkItems as visibleItems")
 
-        .block-header(ng-if="$first || visibleItems[$index - 1].group !== item.group")
+        .block-header(ng-if="$first || item.previous().group !== item.group")
           h2 {{ ::item.group.name }}
           .block-header-actions
             inbox-list-group-toggle-selection(group="item.group", elements="groupedElements")

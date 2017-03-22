@@ -3,7 +3,7 @@
 /* global chai, moment, sinon, _: false */
 var expect = chai.expect;
 
-describe.only('The esn.provider module', function() {
+describe('The esn.provider module', function() {
 
   var nowDate = new Date('2015-08-20T04:00:00Z'),
       localTimeZone = 'Europe/Paris',
@@ -375,16 +375,59 @@ describe.only('The esn.provider module', function() {
       ByDateElementGroupingTool = _ByDateElementGroupingTool_;
     }));
 
+    it('should prevent insertion of duplicate items (items with same id)', function() {
+      var tool = new ByDateElementGroupingTool();
+
+      tool.addElement({ id: '000', date: 1 });
+      tool.addElement({ id: '123', date: 2 });
+      tool.addElement({ id: '123', date: 3 });
+      tool.addElement({ id: '555', date: 4 });
+
+      expect(_.pluck(tool.getGroupedElements(), 'id')).to.deep.equal(['555', '123', '000']);
+    });
+
+    it('should allow insertion of an item with same id if previous item is removed', function() {
+      var tool = new ByDateElementGroupingTool(),
+          item = { id: '123', date: 2 };
+
+      tool.addElement({ id: '000', date: 1 });
+      tool.addElement(item);
+      tool.addElement({ id: '555', date: 4 });
+
+      expect(_.pluck(tool.getGroupedElements(), 'id')).to.deep.equal(['555', '123', '000']);
+
+      tool.removeElement(item);
+      tool.addElement(item);
+
+      expect(_.pluck(tool.getGroupedElements(), 'id')).to.deep.equal(['555', '123', '000']);
+    });
+
+    it('should allow insertion of an item with same id after reset', function() {
+      var tool = new ByDateElementGroupingTool(),
+        item = { id: '123', date: 2 };
+
+      tool.addElement({ id: '000', date: 1 });
+      tool.addElement(item);
+      tool.addElement({ id: '555', date: 4 });
+
+      expect(_.pluck(tool.getGroupedElements(), 'id')).to.deep.equal(['555', '123', '000']);
+
+      tool.reset();
+      tool.addElement(item);
+
+      expect(_.pluck(tool.getGroupedElements(), 'id')).to.deep.equal(['123']);
+    });
+
     it('should maintain the array ordered by date in descending order', function() {
       var tool = new ByDateElementGroupingTool();
 
-      tool.addElement({ date: 2 });
-      tool.addElement({ date: 3 });
+      tool.addElement({ id: 1, date: 2 });
+      tool.addElement({ id: 2, date: 3 });
 
       expect(_.pluck(tool.getGroupedElements(), 'date')).to.deep.equal([3, 2]);
 
-      tool.addElement({ date: 4 });
-      tool.addElement({ date: 1 });
+      tool.addElement({ id: 3, date: 4 });
+      tool.addElement({ id: 4, date: 1 });
 
       expect(_.pluck(tool.getGroupedElements(), 'date')).to.deep.equal([4, 3, 2, 1]);
     });

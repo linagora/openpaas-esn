@@ -244,6 +244,7 @@ angular.module('esn.provider', [
         { name: 'Older than a month', dateFormat: 'mediumDate', accepts: _.constant(true) }
       ];
       this.elements = [];
+      this.knownElementIds = {};
 
       if (elements) {
         this.addAll(elements);
@@ -257,6 +258,10 @@ angular.module('esn.provider', [
     };
 
     ByDateElementGroupingTool.prototype.addElement = function(element) {
+      if (this.knownElementIds[element.id]) {
+        return;
+      }
+
       var now = moment().utc(),
           elementMoment = moment(element.date).utc();
 
@@ -268,6 +273,7 @@ angular.module('esn.provider', [
         }
       });
 
+      this.knownElementIds[element.id] = true;
       // This will insert the element at the correct index, keeping the array sorted by date in descending order
       // In the future, if we make the order configurable for instance, we will just have to change the callback
       // function passed to `sortedIndex` and the array will be sorted differently
@@ -281,6 +287,7 @@ angular.module('esn.provider', [
 
       if (index > -1) {
         this.elements.splice(index, 1);
+        delete this.knownElementIds[element.id];
       }
     };
 
@@ -294,6 +301,7 @@ angular.module('esn.provider', [
 
     ByDateElementGroupingTool.prototype.reset = function() {
       this.elements.length = 0;
+      this.knownElementIds = {};
     };
 
     return ByDateElementGroupingTool;
