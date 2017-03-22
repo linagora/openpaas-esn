@@ -80,6 +80,29 @@ Some specialized Grunt tasks are available, check the Gruntfile.js for more:
     grunt test-midway-backend # only run the midway backend tests
     grunt test # launch all the testsuite
 
+## Debug
+
+You can debug the backend thanks to Node debugger. Launch with the `--inspect` flag or `--inspect-brk` if you want to break on the first line of the application
+
+    node --inspect server.js
+
+    Debugger listening on port 9229.
+    Warning: This is an experimental feature and could change at any time.
+    To start debugging, open the following URL in Chrome:
+    chrome-devtools://devtools/remote/serve_file/@60cd6e859b9f557d2312f5bf532f6aec5f284980/inspector.html?experiments=true&v8only=true&ws=localhost:9229/node
+
+Open the printed URL in Google Chrome, add breakpoints, inspect, etc.
+
+Yon can also debug backend tests using `INSPECT=true` environment variable:
+
+    INSPECT=true grunt test-midway-backend --inspect=true
+    ...
+    Running "mochacli:midway1" (mochacli) task
+    Debugger listening on port 9229.
+    Warning: This is an experimental feature and could change at any time.
+    To start debugging, open the following URL in Chrome:
+    chrome-devtools://devtools/remote/serve_file/@62cd277117e6f8ec53e31b1be58290a6f7ab42ef/inspector.html?experiments=true&v8only=true&ws=localhost:9229/node
+
 ## Fixtures
 
 Fixtures can be configured in the fixtures folder and injected in the system using grunt:

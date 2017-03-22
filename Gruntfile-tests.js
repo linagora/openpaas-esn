@@ -67,6 +67,7 @@ module.exports = function(grunt) {
     },
     mochacli: {
       options: {
+        flags: process.env.INSPECT ? ['--debug-brk', '--inspect'] : [],
         debug: false,
         require: ['chai', 'mockery'],
         reporter: 'spec',
