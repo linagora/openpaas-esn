@@ -268,7 +268,12 @@ angular.module('esn.provider', [
         }
       });
 
-      this.elements.push(element);
+      // This will insert the element at the correct index, keeping the array sorted by date in descending order
+      // In the future, if we make the order configurable for instance, we will just have to change the callback
+      // function passed to `sortedIndex` and the array will be sorted differently
+      this.elements.splice(_.sortedIndex(this.elements, element, function(element) {
+        return -element.date;
+      }), 0, element);
     };
 
     ByDateElementGroupingTool.prototype.removeElement = function(element) {

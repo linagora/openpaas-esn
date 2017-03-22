@@ -3,7 +3,7 @@
 /* global chai, moment, sinon, _: false */
 var expect = chai.expect;
 
-describe('The esn.provider module', function() {
+describe.only('The esn.provider module', function() {
 
   var nowDate = new Date('2015-08-20T04:00:00Z'),
       localTimeZone = 'Europe/Paris',
@@ -374,6 +374,20 @@ describe('The esn.provider module', function() {
     beforeEach(inject(function(_ByDateElementGroupingTool_) {
       ByDateElementGroupingTool = _ByDateElementGroupingTool_;
     }));
+
+    it('should maintain the array ordered by date in descending order', function() {
+      var tool = new ByDateElementGroupingTool();
+
+      tool.addElement({ date: 2 });
+      tool.addElement({ date: 3 });
+
+      expect(_.pluck(tool.getGroupedElements(), 'date')).to.deep.equal([3, 2]);
+
+      tool.addElement({ date: 4 });
+      tool.addElement({ date: 1 });
+
+      expect(_.pluck(tool.getGroupedElements(), 'date')).to.deep.equal([4, 3, 2, 1]);
+    });
 
     it('should return an empty array when no elements are added', function() {
       expect(new ByDateElementGroupingTool().getGroupedElements()).to.deep.equal([]);
