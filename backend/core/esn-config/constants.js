@@ -101,6 +101,9 @@ module.exports = {
       'twitter.tweets': {
         public: true
       },
+      'github.received_events': {
+        public: true
+      },
       drafts: {
         public: true
       },
