@@ -96,6 +96,7 @@ module.exports = {
         'composer.attachments': {},
         maxSizeUpload: {},
         'twitter.tweets': {},
+        'github.received_events': {},
         drafts: {},
         swipeRightAction: {}
       }
