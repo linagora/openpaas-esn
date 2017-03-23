@@ -7,7 +7,7 @@ var expect = chai.expect;
 
 describe('The linagora.esn.unifiedinbox List module directives', function() {
 
-  var $compile, $rootScope, $scope, element, inboxConfigMock, inboxJmapItemService, infiniteListService, inboxSelectionService;
+  var $compile, $rootScope, $scope, element, inboxConfigMock, inboxJmapItemService, infiniteListService, inboxSelectionService, inboxMailboxesService;
 
   beforeEach(function() {
     angular.mock.module('esn.core');
@@ -16,7 +16,6 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
   });
 
   beforeEach(module(function($provide) {
-
     inboxConfigMock = {};
 
     $provide.value('inboxConfig', function(key, defaultValue) {
@@ -27,6 +26,10 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
       $delegate.open = sinon.spy(); // overwrite newComposerService.open() with a mock
 
       return $delegate;
+    });
+
+    $provide.value('inboxMailboxesService', inboxMailboxesService = {
+      assignMailbox: sinon.spy()
     });
   }));
 
@@ -531,6 +534,110 @@ describe('The linagora.esn.unifiedinbox List module directives', function() {
           expect($scope.getDragMessage([{ id: 1 }, { id: 2, subject: 'subject' }, { id: 3 }])).to.equal('3 items');
         });
 
+      });
+
+    });
+
+  });
+
+  describe('The inboxSearchMessageListItem directive', function() {
+
+    describe('The inboxMailboxesService.assignMailbox', function() {
+
+      it('should call assignMailbox with one item', function() {
+        $scope.item = { mailboxIds: ['123'] };
+
+        compileDirective('<inbox-search-message-list-item  />');
+
+        expect(inboxMailboxesService.assignMailbox).to.have.been.calledWith('123', $scope, true);
+      });
+
+      it('should call assignMailbox with an array of items', function() {
+          $scope.item = { mailboxIds: ['123', '456'] };
+
+          compileDirective('<inbox-search-message-list-item  />');
+
+          $scope.item.mailboxIds.map(function(mailboxId) {
+            expect(inboxMailboxesService.assignMailbox).to.have.been.calledWith(mailboxId, $scope, true);
+          });
+      });
+
+      it('should return an array of mailboxes', function() {
+         $scope.item = { mailboxIds: ['123', '456'] };
+
+        compileDirective('<inbox-search-message-list-item  />');
+
+        expect($scope.item.mailboxes).to.be.an('array');
+      });
+    });
+
+    describe('openEmail fn', function() {
+
+      var $state, $stateParams, newComposerService;
+
+      beforeEach(angular.mock.inject(function(_$state_, _$stateParams_, _newComposerService_) {
+        $state = _$state_;
+        $stateParams = _$stateParams_;
+        newComposerService = _newComposerService_;
+
+        $state.go = sinon.spy($state.go);
+        $stateParams.mailbox = null;
+      }));
+
+      function openEmail(email) {
+        return element.controller('inboxMessageListItem').openEmail(email);
+      }
+
+      it('should call newComposerService.openDraft if message is a draft', function() {
+        newComposerService.openDraft = sinon.spy();
+
+        compileDirective('<inbox-message-list-item />');
+        openEmail({ id: 'id', isDraft: true });
+
+        expect(newComposerService.openDraft).to.have.been.calledWith('id');
+      });
+
+      it('should change state to message view with $stateParams.mailbox parameter', function() {
+        var email = { id: 'expectedId' };
+
+        $stateParams.mailbox = '123';
+        $scope.mailbox = { id: '456' };
+
+        compileDirective('<inbox-message-list-item />');
+        openEmail(email);
+
+        expect($state.go).to.have.been.calledWith('.message', {
+          emailId: 'expectedId',
+          mailbox: $stateParams.mailbox,
+          item: email
+        });
+      });
+
+      it('should change state to $scope.mailbox.id if present and message is not a draft', function() {
+        var email = { id: 'expectedId' };
+
+        $scope.mailbox = { id: 'chosenMailbox' };
+        compileDirective('<inbox-message-list-item />');
+        openEmail(email);
+
+        expect($state.go).to.have.been.calledWith('.message', {
+          emailId: 'expectedId',
+          mailbox: $scope.mailbox.id,
+          item: email
+        });
+      });
+
+      it('should change state to the first mailbox of the message if message is not a draft', function() {
+        var email = { id: 'expectedId', mailboxIds: ['chosenMailbox', 'mailbox2'] };
+
+        compileDirective('<inbox-message-list-item />');
+        openEmail(email);
+
+        expect($state.go).to.have.been.calledWith('.message', {
+          emailId: 'expectedId',
+          mailbox: 'chosenMailbox',
+          item: email
+        });
       });
 
     });

@@ -10,5 +10,8 @@
           inbox-emailer.inbox-from.lv-title(emailer="::item.from", ng-class="{bold: item.isUnread}", highlight="{{::query}}")
         .inbox-list-item-date-and-indicators(ng-class="{bold: item.isUnread}")
           .date-container(ng-bind-html="::item.date | date: group.dateFormat | esnHighlight: query") {{ ::item.date | date: group.dateFormat }}
-          inbox-indicators(item="::item")
+          .flex-end
+            .inbox-list-item-mailbox
+              span(ng-repeat="mailbox in item.mailboxes track by $index", title="{{ ::mailbox.name }}")  {{ ::mailbox.name }}
+            inbox-indicators(item="::item")
     .inbox-preview-block.lv-small.preview(ng-bind-html="::item.preview | esnHighlight: query") {{ ::item.preview }}
