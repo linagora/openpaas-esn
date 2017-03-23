@@ -8,10 +8,14 @@ angular.module('esn.session', ['esn.user', 'esn.domain'])
     user: {},
     domain: {},
     ready: bootstrapDefer.promise,
-    getTwitterAccounts: function() {
+    getProviderAccounts: function(provider) {
+      if (!provider) {
+        return [];
+      }
+
       return (session.user.accounts || [])
         .filter(function(account) {
-          return account.data && account.data.provider === 'twitter';
+          return account.data && account.data.provider === provider;
         }).map(function(account) {
           return account.data;
         });

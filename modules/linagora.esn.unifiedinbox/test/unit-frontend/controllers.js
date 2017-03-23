@@ -1927,7 +1927,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       var twitterAccounts = [{ id: 1 }, { id: 2 }];
 
       config['linagora.esn.unifiedinbox.twitter.tweets'] = true;
-      session.getTwitterAccounts = function() {
+      session.getProviderAccounts = function() {
         return twitterAccounts;
       };
 
@@ -1940,7 +1940,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       var twitterAccounts = [{ id: 1 }, { id: 2 }];
 
       config['linagora.esn.unifiedinbox.twitter.tweets'] = false;
-      session.getTwitterAccounts = function() {
+      session.getProviderAccounts = function() {
         return twitterAccounts;
       };
 

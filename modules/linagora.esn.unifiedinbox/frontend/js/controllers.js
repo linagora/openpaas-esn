@@ -557,7 +557,7 @@ angular.module('linagora.esn.unifiedinbox')
   .controller('listTwitterController', function($scope, $stateParams, inboxFilteringAwareInfiniteScroll, inboxProviders, inboxFilteringService,
                                                 ByDateElementGroupingTool, session, _, PageAggregatorService, sortByDateInDescendingOrder,
                                                 PROVIDER_TYPES, ELEMENTS_PER_PAGE) {
-    var account = _.find(session.getTwitterAccounts(), { username: $stateParams.username });
+    var account = _.find(session.getProviderAccounts('twitter'), { username: $stateParams.username });
 
     inboxFilteringAwareInfiniteScroll($scope, function() {
       return inboxFilteringService.getFiltersForTwitterAccount(account.id);
@@ -589,7 +589,7 @@ angular.module('linagora.esn.unifiedinbox')
 
     inboxConfig('twitter.tweets').then(function(twitterTweetsEnabled) {
       if (twitterTweetsEnabled) {
-        $scope.twitterAccounts = session.getTwitterAccounts();
+        $scope.twitterAccounts = session.getProviderAccounts('twitter');
       }
     });
   })
