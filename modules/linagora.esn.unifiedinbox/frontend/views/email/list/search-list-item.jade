@@ -11,7 +11,7 @@
         .inbox-list-item-date-and-indicators(ng-class="{bold: item.isUnread}")
           .date-container(ng-bind-html="::item.date | date: group.dateFormat | esnHighlight: query") {{ ::item.date | date: group.dateFormat }}
           .flex-end
-            .inbox-list-item-mailbox
+            .inbox-list-item-mailbox.ellipsis
               span(ng-repeat="mailbox in item.mailboxes track by $index", title="{{ ::mailbox.name }}")  {{ ::mailbox.name }}
             inbox-indicators(item="::item")
     .inbox-preview-block.lv-small.preview(ng-bind-html="::item.preview | esnHighlight: query") {{ ::item.preview }}

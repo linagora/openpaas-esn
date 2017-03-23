@@ -20,12 +20,16 @@
     }
   }
 
-  .inbox-list-item-mailbox span {
-      color: @textPrimaryColor;
+  .inbox-list-item-mailbox {
+    max-width: 120px;
+    color: @textPrimaryColor;
+
+    span {
       margin-left: 10px;
-      background-color: @secondaryTextColor;
+      background-color: lighten(@m-gray, 10%);
       padding: 2px 8px;
       border-radius: 2px;
       font-size: 11px;
     }
+  }
 }
