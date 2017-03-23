@@ -16,7 +16,9 @@
         openDeleteConfirmationDialog: '=',
         mobileCancel: '=',
         cancel: '=',
-        submit: '='
+        submit: '=',
+        publicRights: '=',
+        publicSelection: '='
       },
       controllerAs: '$ctrl'
     };

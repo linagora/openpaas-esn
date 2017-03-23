@@ -1,15 +1,4 @@
-.delegation-line.delegation-visibility-line
-  i.mdi.mdi-account-multiple.big
-  .delegation-line-visibility-key.col-xs-4
-    | #{__('Public read')}
-  .delegation-line-visibility-value.form-group.col-xs-8
-    .select
-      select.form-control(ng-model='$ctrl.publicSelection')
-        option(ng-repeat="publicRight in ::$ctrl.publicRights" value="{{publicRight.value}}" ng-selected="publicRight.value === $ctrl.publicSelection") {{ publicRight.name }}
-
 .hidden-xs
-  .delegation-line
-    span #{__('Delegation on this calendar')}
 
   .delegation-line
     .col-md-5.padding-left-0

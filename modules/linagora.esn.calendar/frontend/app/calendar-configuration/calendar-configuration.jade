@@ -22,15 +22,15 @@
             open-delete-confirmation-dialog = "$ctrl.openDeleteConfirmationDialog",
             mobile-cancel = "$ctrl.mobileCancel",
             cancel = "$ctrl.cancel",
-            submit = "$ctrl.submit"
+            submit = "$ctrl.submit",
+            public-rights = "$ctrl.publicRights",
+            public-selection = "$ctrl.publicSelection"
           )
           calendar-configuration-tab-delegation(
             ng-show='$ctrl.selectedTab === "delegation"',
             delegation-types="$ctrl.delegationTypes",
             delegations="$ctrl.delegations",
             selection="$ctrl.selectedShareeRight",
-            public-selection = "$ctrl.publicSelection",
-            public-rights = "$ctrl.publicRights",
             go-to-edit-delegation = "$ctrl.goToEditDelegation",
             new-users-groups= "$ctrl.newUsersGroups",
             add-user-group = "$ctrl.addUserGroup",
