@@ -70,9 +70,11 @@ function changePassword(req, res) {
         return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'The passwords do not match'}});
       }
 
+      logger.error('Error while changing user password.', err);
+
       return res.status(500).json({error: {code: 500, message: 'Server Error', details: 'Failed to change password'}});
     }
-    logger.error('Error while changing user password.', err);
+
     userPassword.sendPasswordChangedConfirmation(req.user, 'core.change-password-confirmation', function(err) {
       if (err) {
         logger.error('Unable to send notification email.', err);

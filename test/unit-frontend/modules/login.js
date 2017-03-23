@@ -189,4 +189,75 @@ describe('The Login Angular module', function() {
       done();
     });
   });
+
+  describe('changePasswordController', function() {
+    var loginAPI, notificationFactory, $scope, locals;
+
+    beforeEach(inject(function($rootScope, $controller) {
+      loginAPI = {};
+      notificationFactory = {};
+      $scope = $rootScope.$new();
+      locals = {
+        $scope: $scope,
+        loginAPI: loginAPI,
+        notificationFactory: notificationFactory
+      };
+      $controller('changePasswordController', locals);
+    }));
+
+    it('should call loginAPI.changePassword()', function(done) {
+      $scope.form = {$invalid: false};
+
+      loginAPI.changePassword = function() {
+        done();
+      };
+      $scope.changePassword($scope.form);
+    });
+
+    it('should call the loginAPI.changePassword() method with old and new passwords', function(done) {
+      var credentials = {
+        oldpassword: 'oldpassword',
+        newpassword: 'newpassword'
+      };
+
+      $scope.form = {$invalid: false};
+      $scope.credentials = credentials;
+
+      loginAPI.changePassword = function(oldpassword, newpassword) {
+        expect(oldpassword).to.equal(credentials.oldpassword);
+        expect(newpassword).to.equal(credentials.newpassword);
+        done();
+      };
+
+      $scope.changePassword($scope.form);
+    });
+
+    it('should show an error notification incase of invalid password', function(done) {
+      $scope.form = {$invalid: false};
+
+      loginAPI.changePassword = function() {
+        return $q.reject({data: {error: {details: 'The passwords do not match'}}});
+      };
+      notificationFactory.weakError = function(message, text) {
+        expect(text).to.match(/Old password is invalid/);
+        done();
+      };
+
+      $scope.changePassword($scope.form);
+      $scope.$digest();
+    });
+
+    it('should show a general error notification in case of server error', function(done) {
+      $scope.form = {$invalid: false};
+      notificationFactory.weakError = function(message, text) {
+        expect(text).to.match(/Failed to change password, try again later/);
+        done();
+      };
+      loginAPI.changePassword = function() {
+        return $q.reject({data: {error: {details: 'Failed to change password'}}});
+      };
+      $scope.changePassword($scope.form);
+      $scope.$digest();
+    });
+  });
 });

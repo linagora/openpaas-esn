@@ -283,7 +283,6 @@
   "Old password": "Old password",
   "New password": "New password",
   "Confirm your password": "Confirm your password",
-  "Old password is not valid.": "Old password is not valid.",
   "Successfully changed your password.": "Successfully changed your password.",
   "Your password has been changed!": "Your password has been changed!",
   "You have requested a password reset on OpenPaas": "You have requested a password reset on OpenPaas",
