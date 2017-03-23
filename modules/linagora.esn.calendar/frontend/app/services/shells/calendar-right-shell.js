@@ -19,6 +19,7 @@
 
     CalendarRightShell.prototype.clone = clone;
     CalendarRightShell.prototype.equals = equals;
+    CalendarRightShell.prototype.getOwnerId = getOwnerId;
     CalendarRightShell.prototype.getPublicRight = getPublicRight;
     CalendarRightShell.prototype.getUserRight = getUserRight;
     CalendarRightShell.prototype.getShareeRight = getShareeRight;
@@ -48,6 +49,7 @@
       this._userEmails = {};
       this._public = new CalRightSet();
       this._sharee = {};
+      this._ownerId;
 
       acl && acl.forEach(function(line) {
         var userCalRightSet, userId, match = line.principal && line.principal.match(principalRegexp);
@@ -69,10 +71,20 @@
           var access = '' + line.access;
           if (access !== CALENDAR_SHARED_RIGHT.SHAREE_OWNER) {
             this._sharee[userId] = access;
+          } else {
+            this._ownerId = userId;
           }
           this._userEmails[userId] = calendarUtils.removeMailto(line.href);
         }
       }, this);
+    }
+
+    /**
+     * Returns calendar owner
+     * @returns {String} userId of the calendar owner
+     */
+    function getOwnerId() {
+      return this._ownerId;
     }
 
     /**
@@ -231,7 +243,8 @@
       var result = {
         users: {},
         public: this._public.toJson(),
-        sharee: this._sharee
+        sharee: this._sharee,
+        ownerId: this._ownerId
       };
 
       _.forEach(this._userRight, function(set, userKey) {
@@ -263,6 +276,7 @@
       clone._userEmails = _.clone(this._userEmails);
       clone._public = this._public.clone();
       clone._sharee = _.clone(this._sharee);
+      clone._ownerId = this._ownerId;
 
       return clone;
     }

@@ -8,6 +8,7 @@
     $alert,
     $scope,
     $state,
+    $q,
     _,
     calendarService,
     calendarUtils,
@@ -16,6 +17,7 @@
     notificationFactory,
     calOpenEventForm,
     session,
+    userAPI,
     CALENDAR_EVENTS,
     EVENT_FORM) {
 
@@ -116,6 +118,22 @@
         $scope.editedEvent.setOrganizerPartStat($scope.editedEvent.getOrganizerPartStat());
       }
 
+      function checkDelegateOrganizer() {
+        if ($scope.calendar.isShared(session.user._id)) {
+          return userAPI.user($scope.calendar.rights.getOwnerId()).then(function(userResponse) {
+            var user = userResponse.data;
+            var displayName = calendarUtils.displayNameOf(user.firstname, user.lastname);
+
+            $scope.editedEvent.organizer = { displayName: displayName, emails: user.emails };
+            $scope.editedEvent.setOrganizerPartStat($scope.editedEvent.getOrganizerPartStat());
+
+            return;
+          });
+        } else {
+          return $q.when();
+        }
+       }
+
       function readOnly() {
         if ($scope.calendar && $scope.calendar.readOnly) {
           return !$scope.isOrganizer || $scope.calendar.readOnly;
@@ -160,7 +178,13 @@
 
           $scope.restActive = true;
           _hideModal();
-          calEventService.createEvent($scope.calendar.id, path, $scope.editedEvent, { graceperiod: true, notifyFullcalendar: $state.is('calendar.main') })
+          checkDelegateOrganizer()
+            .then(function() {
+              return calEventService.createEvent($scope.calendar.id, path, $scope.editedEvent, {
+                graceperiod: true,
+                notifyFullcalendar: $state.is('calendar.main')
+              });
+            })
             .then(function(completed) {
               if (!completed) {
                 calOpenEventForm($scope.editedEvent);

@@ -20,6 +20,21 @@ describe('CalendarRightShell factory', function() {
     calendarRightShell = new CalendarRightShell(serverPropfindResponse.acl, serverPropfindResponse.invite);
   });
 
+  describe('getOwnerId', function() {
+    it('should return id of the calendar owner', function() {
+      expect(calendarRightShell.getOwnerId()).to.be.equal('me');
+    });
+
+    it('should return admin for admin user', function() {
+      expect(calendarRightShell.getUserRight('me')).to.equal(CALENDAR_RIGHT.ADMIN);
+    });
+
+    it('should convert properly calendar.access to String to match CALENDAR_SHARED_RIGHT constants', function() {
+      expect(calendarRightShell.getShareeRight('tom')).to.equal(CALENDAR_SHARED_RIGHT.SHAREE_READ_WRITE);
+      expect(calendarRightShell.getShareeRight('jerry')).to.equal(CALENDAR_SHARED_RIGHT.SHAREE_READ);
+    });
+  });
+
   describe('getUserRight', function() {
     it('should return nothing for user not in the server response', function() {
       expect(calendarRightShell.getUserRight('toto')).to.be.undefined;
@@ -70,7 +85,8 @@ describe('CalendarRightShell factory', function() {
         sharee: {
           tom: CALENDAR_SHARED_RIGHT.SHAREE_READ_WRITE,
           jerry: CALENDAR_SHARED_RIGHT.SHAREE_READ
-        }
+        },
+        ownerId: 'me'
       });
     });
   });
