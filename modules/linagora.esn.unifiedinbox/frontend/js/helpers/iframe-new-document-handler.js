@@ -22,7 +22,7 @@ function absoluteUrl(url) {
 function setDocument(newDocument) {
   // The new document can declare a <base href="xxx"> so we ask for absolute urls before updating the document
   var scriptsToInclude = [
-    absoluteUrl('/unifiedinbox/js/helpers/load-images-async.js'), // This one must come first, see the script for details
+    absoluteUrl('/unifiedinbox/js/helpers/load-images-async.js'),
     absoluteUrl('/components/iframe-resizer/js/iframeResizer.contentWindow.js')
   ];
   var cssToInclude = [
@@ -32,9 +32,10 @@ function setDocument(newDocument) {
   document.documentElement.innerHTML = newDocument;
   document.head.appendChild(createHtmlElement('base', 'target', '_blank'));
 
-  scriptsToInclude.forEach(function(script) {
-    document.head.appendChild(createHtmlElement('script', 'src', script));
-  });
+  document.head.appendChild(createHtmlElement('script', 'src', scriptsToInclude[0]));// This one must come first, see the script for details
+  setTimeout(function() {
+    document.head.appendChild(createHtmlElement('script', 'src', scriptsToInclude[1]));//timeout to assure that load-images-async loads first
+  }, 10);
 
   cssToInclude.forEach(function(link) {
     document.head.appendChild(createHtmlElement('link', 'rel', 'stylesheet', 'href', link));
@@ -64,13 +65,20 @@ function replaceInlineImageUrl(cidAndUrl) {
   var split = cidAndUrl.split(' '),
       cid = split[0],
       url = split[1],
-      element = document.querySelector('img[data-inline-image="' + cid + '"]');
+      elements = document.querySelectorAll('img[data-inline-image="' + cid + '"]');
 
-  if (element) {
-    element.onload = function() {
-      window.parentIFrame.size();
-    };
-    element.src = url;
+  if (elements) {
+    Array.prototype.forEach.call(elements, function(element) {
+      element.onload = function() {
+        window.parentIFrame.size();
+      };
+
+      if (url) {
+        element.src = url;
+      } else {
+        element.src = 'Broken_Link';
+      }
+    });
   }
 }
 

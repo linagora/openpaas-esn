@@ -67,13 +67,15 @@
           }
         });
 
-        $scope.$on('wm:' + IFRAME_MESSAGE_PREFIXES.INLINE_ATTACHMENT, function(event, cid) {
+        $scope.$on('wm:' + IFRAME_MESSAGE_PREFIXES.INLINE_ATTACHMENT, function(event, cid, iframe) {
           var attachment = _.find(self.message.attachments, { cid: cid });
-
+          iframe = iframe || self.iFrames[0];
           if (attachment) {
             attachment.getSignedDownloadUrl().then(function(url) {
-              self.iFrames[0].contentWindow.postMessage(IFRAME_MESSAGE_PREFIXES.INLINE_ATTACHMENT + cid + ' ' + url, '*');
+              iframe.contentWindow.postMessage(IFRAME_MESSAGE_PREFIXES.INLINE_ATTACHMENT + cid + ' ' + url, '*');
             });
+          } else {
+            iframe.contentWindow.postMessage(IFRAME_MESSAGE_PREFIXES.INLINE_ATTACHMENT + cid, '*');
           }
         });
 
