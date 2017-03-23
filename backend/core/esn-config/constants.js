@@ -6,109 +6,98 @@ module.exports = {
   DEFAULT_FEEDBACK_EMAIL: 'feedback@open-paas.org',
   CONFIG_METADATA: {
     core: {
-      homePage: {
-        public: true
+      rights: {
+        rights: {
+          admin: 'rw'
+        }
       },
-      ldap: {
-        public: false
-      },
-      mail: {
-        public: false
-      },
-      davserver: {
-        public: false
-      },
-      amqp: {
-        public: false
-      },
-      redis: {
-        public: false
-      },
-      oauth: {
-        public: false
-      },
-      session: {
-        public: false
-      },
-      jwt: {
-        public: false
-      },
-      jmap: {
-        public: false
-      },
-      web: {
-        public: false
-      },
-      webserver: {
-        public: false
-      },
-      user: {
-        public: false
-      },
-      constants: {
-        public: false
-      },
-      'application-menu.profile': {
-        public: true
-      },
-      'application-menu.calendar': {
-        public: true
-      },
-      'application-menu.contact': {
-        public: true
-      },
-      'application-menu.controlCenter': {
-        public: true
-      },
-      'application-menu.inbox': {
-        public: true
-      },
-      'application-menu.communities': {
-        public: true
-      },
-      'application-menu.search': {
-        public: true
-      },
-      'application-menu.appstoreAppMenu': {
-        public: true
+      configurations: {
+        homePage: {
+          rights: {
+            admin: 'rw',
+            user: 'rw'
+          }
+        },
+        ldap: {},
+        mail: {},
+        davserver: {},
+        amqp: {},
+        redis: {},
+        oauth: {},
+        session: {},
+        jwt: {},
+        jmap: {},
+        web: {},
+        webserver: {},
+        user: {},
+        constants: {},
+        'application-menu.profile': {
+          rights: {
+            admin: 'rw',
+            user: 'r'
+          }
+        },
+        'application-menu.calendar': {
+          rights: {
+            admin: 'rw',
+            user: 'r'
+          }
+        },
+        'application-menu.contact': {
+          rights: {
+            admin: 'rw',
+            user: 'r'
+          }
+        },
+        'application-menu.controlCenter': {
+          rights: {
+            admin: 'rw',
+            user: 'r'
+          }
+        },
+        'application-menu.inbox': {
+          rights: {
+            admin: 'rw',
+            user: 'r'
+          }
+        },
+        'application-menu.communities': {
+          rights: {
+            admin: 'rw',
+            user: 'r'
+          }
+        },
+        'application-menu.search': {
+          rights: {
+            admin: 'rw',
+            user: 'r'
+          }
+        },
+        'application-menu.appstoreAppMenu': {
+          rights: {
+            admin: 'rw',
+            user: 'r'
+          }
+        }
       }
     },
     'linagora.esn.unifiedinbox': {
-      view: {
-        public: true
+      rights: {
+        admin: 'rw',
+        user: 'r'
       },
-      api: {
-        public: true
-      },
-      uploadUrl: {
-        public: true
-      },
-      downloadUrl: {
-        public: true
-      },
-      isJmapSendingEnabled: {
-        public: true
-      },
-      isSaveDraftBeforeSendingEnabled: {
-        public: true
-      },
-      'composer.attachments': {
-        public: true
-      },
-      maxSizeUpload: {
-        public: true
-      },
-      'twitter.tweets': {
-        public: true
-      },
-      'github.received_events': {
-        public: true
-      },
-      drafts: {
-        public: true
-      },
-      swipeRightAction: {
-        public: true
+      configurations: {
+        view: {},
+        api: {},
+        uploadUrl: {},
+        downloadUrl: {},
+        isJmapSendingEnabled: {},
+        isSaveDraftBeforeSendingEnabled: {},
+        'composer.attachments': {},
+        maxSizeUpload: {},
+        'twitter.tweets': {},
+        drafts: {},
+        swipeRightAction: {}
       }
     },
     'linagora.esn.contact': {},

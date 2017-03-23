@@ -26,7 +26,7 @@ describe('The esn-config/fallback module', function() {
     this.helpers.mongo.dropDatabase(done);
   });
 
-  describe('The findByDomainId fn', function() {
+  describe('The getConfiguration fn', function() {
 
     var saveDoc;
 
@@ -72,7 +72,7 @@ describe('The esn-config/fallback module', function() {
         q.nfcall(saveDoc, 'features', featuresDoc),
         q.nfcall(saveDoc, 'configurations', configDoc)
       ])
-      .then(getModule().findByDomainId)
+      .then(getModule().getConfiguration)
       .then(function(doc) {
         expect(doc).to.deep.equal({
           modules: [{

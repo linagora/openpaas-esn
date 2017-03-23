@@ -21,7 +21,10 @@ describe('The core/esn-config/fallback module', function() {
     mongoConfigMock.setDefaultMongoose = function() {};
     FeaturesMock = {};
     confModuleMock = {
-      findByDomainId: function() {
+      findConfigurationForDomain: function() {
+        return q();
+      },
+      findConfigurationForUser: function() {
         return q();
       }
     };
@@ -48,12 +51,12 @@ describe('The core/esn-config/fallback module', function() {
       };
 
       getModule()
-      .findByDomainId()
+      .getConfiguration()
       .then(function() {
         expect(execSpyFn).to.have.been.calledOnce;
 
         return getModule()
-          .findByDomainId()
+          .getConfiguration()
           .then(function() {
             // get data from cache in second call
             expect(execSpyFn).to.have.been.calledOnce;
@@ -78,13 +81,13 @@ describe('The core/esn-config/fallback module', function() {
       };
 
       getModule()
-      .findByDomainId('domain1')
+      .getConfiguration('domain1')
       .then(function() {
         // called twice to get both system-wide and domain-wide
         expect(execSpyFn).to.have.been.calledTwice;
 
         return getModule()
-          .findByDomainId('domain2')
+          .getConfiguration('domain2')
           .then(function() {
             // different domains so the data is not cached
             expect(execSpyFn).to.have.been.calledThrice;
@@ -121,7 +124,7 @@ describe('The core/esn-config/fallback module', function() {
       };
 
       getModule()
-        .findByDomainId()
+        .getConfiguration()
         .then(function(configuration) {
           configuration.modules[0].configurations.push({});
           // still have length 1
