@@ -5,7 +5,6 @@
     'esn.core',
     'esn.http',
     'esn.object-type',
-    'esn.paginate',
     'esn.session',
     'esn.websocket'
   ]);

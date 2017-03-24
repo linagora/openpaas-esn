@@ -16,7 +16,7 @@
       scope: {
         notification: '='
       },
-      templateUrl: '/views/modules/user-notification/user-notification-external.html'
+      templateUrl: '/views/modules/user-notification/templates/user-notification-external.html'
     };
 
     function controller($scope) {

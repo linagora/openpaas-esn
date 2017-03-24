@@ -74,7 +74,6 @@
           }
 
           if (!loaded) {
-            scope.initPager(nbItems);
             loaded = true;
           }
 

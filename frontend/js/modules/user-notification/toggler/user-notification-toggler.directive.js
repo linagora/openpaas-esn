@@ -10,7 +10,7 @@
       restrict: 'E',
       replace: true,
       scope: true,
-      templateUrl: '/views/modules/user-notification/user-notification-toggler.html'
+      templateUrl: '/views/modules/user-notification/toggler/user-notification-toggler.html'
     };
 
     function link(scope, element) {
@@ -20,7 +20,7 @@
             scope: scope,
             trigger: 'manual',
             placement: 'bottom',
-            templateUrl: '/views/modules/user-notification/user-notification.html'
+            templateUrl: '/views/modules/user-notification/popover/user-notification-popover.html'
           });
           scope.popover.$promise.then(scope.popover.show);
         } else {
