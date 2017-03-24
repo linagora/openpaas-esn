@@ -1,0 +1,9 @@
+.user-notification-list
+  infinite-list(load-more-elements='ctrl.loadMoreElements()', scroll-inside-container="ctrl.scrollInsideContainer")
+    .user-notification-list-item(ng-repeat="item in ctrl.elements | orderBy: '-date'" ng-if="ctrl.elements.length > 0")
+      esn-user-notification-list-item(notification="item")
+    .user-notification-list-empty(ng-if="!ctrl.elements.length && ctrl.infiniteScrollCompleted")
+      i.mdi.mdi-check
+      .message #{__("No notifications")}
+    .text-center(ng-if='ctrl.infiniteScrollDisabled')
+      .throbber(openpaas-logo-spinner, spinner-size='0.5', spinner-start-active='1')
