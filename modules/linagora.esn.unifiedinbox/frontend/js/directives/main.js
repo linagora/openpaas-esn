@@ -293,7 +293,7 @@ angular.module('linagora.esn.unifiedinbox')
           $state.go('.recipients', {
             recipientsType: recipientsType,
             composition: controller.getComposition()
-          });
+          }, { location: 'replace' });
         };
 
         function backToLastLocation() {

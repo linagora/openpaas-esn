@@ -531,14 +531,14 @@ angular.module('linagora.esn.unifiedinbox')
     $scope.recipients = $stateParams.composition.email[$stateParams.recipientsType];
 
     $scope.backToComposition = function() {
-      $state.go('^', { composition: $stateParams.composition });
+      $state.go('^', { composition: $stateParams.composition }, { location: 'replace' });
     };
 
     $scope.goToRecipientsType = function(recipientsType) {
       $state.go('.', {
         recipientsType: recipientsType,
         composition: $stateParams.composition
-      });
+      }, { location: 'replace' });
     };
   })
 
