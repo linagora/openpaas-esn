@@ -4,14 +4,28 @@
     .text-center(openpaas-logo-spinner, spinner-start-active='1', spinner-size='0.4')
 
   .lv-body(ng-switch-when="LOADED")
-    mailbox-display.lv-item(mailbox="mailbox", ng-repeat="mailbox in specialMailboxes" ui-sref="unifiedinbox.list({ mailbox: mailbox.id })")
 
-    mailbox-display.lv-item(mailbox="mailbox", ng-repeat="mailbox in mailboxes | filter: { role: { value: '' } } | orderBy: ['sortOrder', 'qualifiedName'] track by mailbox.id", ui-sref="unifiedinbox.list({ mailbox: mailbox.id })")
-    hr
+    .listview
+      .lv-item.clickable.inbox-item-with-icon.folder-with-icon.toggle-submenu.flex-end.waves-effect.waves-classic(title="{{ emailAddress }}", esn-toggle)
+        .badge-container
+          i.inbox-icon.mdi.mdi-mail-ru
+        .menu-item
+          span.menu-item-inner
+            bdi {{ emailAddress }}
+          span.menu-item-after
+        .caret-submenu
+          i.mdi.mdi-menu-up
+      ul.nopadding
+        mailbox-display.lv-item(mailbox="mailbox", ng-repeat="mailbox in specialMailboxes" ui-sref="unifiedinbox.list({ mailbox: mailbox.id })")
 
-    mailbox-display.lv-item(settings-overlay-sref='unifiedinbox.configuration.folders.folder({ mailbox: mailbox.id })', mailbox="mailbox", ng-repeat="mailbox in mailboxes | filter: { role: { value: '!' } } | orderBy: ['sortOrder', 'qualifiedName'] as customMailboxes track by mailbox.id", ui-sref="unifiedinbox.list({ mailbox: mailbox.id })")
+        mailbox-display.lv-item(mailbox="mailbox", ng-repeat="mailbox in mailboxes | filter: { role: { value: '' } } | orderBy: ['sortOrder', 'qualifiedName'] track by mailbox.id", ui-sref="unifiedinbox.list({ mailbox: mailbox.id })")
+        hr
 
-    inbox-sidebar-new-folder-button
+        inbox-sidebar-new-folder-button
+        
+        hr
+
+        mailbox-display.lv-item(settings-overlay-sref='unifiedinbox.configuration.folders.folder({ mailbox: mailbox.id })', mailbox="mailbox", ng-repeat="mailbox in mailboxes | filter: { role: { value: '!' } } | orderBy: ['sortOrder', 'qualifiedName'] as customMailboxes track by mailbox.id", ui-sref="unifiedinbox.list({ mailbox: mailbox.id })")
 
   .lv-body(ng-switch-when="ERROR")
     inbox-sidebar-account-unavailable.lv-item(account="::ctrl.account", ng-click="ctrl.load()")
