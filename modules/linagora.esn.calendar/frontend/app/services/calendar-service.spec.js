@@ -172,6 +172,14 @@ describe('The calendarService service', function() {
                   }
                 },
                 'caldav:description': 'userId'
+              },
+              {
+                _links: {
+                  self: {
+                    href: '/calendars/' + userId + '/events.json'
+                  }
+                },
+                'caldav:description2': 'userId'
               }
             ]
           }
@@ -198,14 +206,13 @@ describe('The calendarService service', function() {
       ];
       allCalendars = $q.when(calendars);
 
-      CalendarCollectionShellFuncMock = sinon.spy(function(davCal) {
-        expect(davCal).to.deep.equal(calendars[0]._embedded['dav:calendar'][0]);
-      });
+      CalendarCollectionShellFuncMock = sinon.spy();
 
       this.calendarService.listAllCalendarsForUser(userId)
         .then(function() {
           expect(self.calendarAPI.listAllCalendars).to.have.been.called;
-          expect(CalendarCollectionShellFuncMock).to.have.been.called;
+          expect(CalendarCollectionShellFuncMock.firstCall).to.have.been.calledWith(calendars[0]._embedded['dav:calendar'][0]);
+          expect(CalendarCollectionShellFuncMock.secondCall).to.have.been.calledWith(calendars[0]._embedded['dav:calendar'][1]);
 
           done();
         });
