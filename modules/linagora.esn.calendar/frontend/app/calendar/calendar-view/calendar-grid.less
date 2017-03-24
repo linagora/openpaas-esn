@@ -4,16 +4,3 @@
   background: @table-today-cell-color;
 }
 
-.fc-time-grid-container.fc-scroller {
-  overflow-y: auto !important; /* override parent !important property */
-}
-
-@media (min-width: @screen-md-min) {
-  .fc-time-grid-container.fc-scroller {
-    overflow: hidden !important; /* override parent !important property */
-
-    &:hover {
-      overflow-y: auto !important; /* override parent !important property */
-    }
-  }
-}
