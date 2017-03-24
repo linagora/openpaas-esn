@@ -180,7 +180,7 @@
   "Notifications" : "Notifications",
   "Mark as read" : "Mark as read",
   "Read" : "Read",
-  "You have no notifications." : "You have no notifications.",
+  "You have no notifications" : "You have no notifications",
   "Previous" : "Previous",
   "Request membership": "Request membership",
   "Cancel membership request": "Cancel membership request",
@@ -387,5 +387,6 @@
   "Enter a name": "Enter a name",
   "No member found": "No member found",
   "See in calendar": "See in calendar",
-  "More details...": "More details..."
+  "More details...": "More details...",
+  "See all": "See all"
 }

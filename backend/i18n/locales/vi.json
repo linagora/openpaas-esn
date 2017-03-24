@@ -180,7 +180,7 @@
   "Notifications" : "Thông báo",
   "Mark as read" : "Đánh dấu đã đọc",
   "Read" : "Đã đọc",
-  "You have no notifications." : "Bạn không có thông báo nào.",
+  "You have no notifications" : "Bạn không có thông báo nào",
   "Previous" : "Trước",
   "Request membership": "Yêu cầu tham gia",
   "Cancel membership request": "Hủy yêu cầu tham gia",
@@ -387,5 +387,6 @@
   "Enter a name": "Nhập tên",
   "No member found": "Không tìm thấy thành viên",
   "See in calendar": "Xem trong lịch",
-  "More details...": "Chi tiết..."
+  "More details...": "Chi tiết...",
+  "See all": "Xem tất cả"
 }
