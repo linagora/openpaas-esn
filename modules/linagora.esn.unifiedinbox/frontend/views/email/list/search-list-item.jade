@@ -14,4 +14,4 @@
             .inbox-list-item-mailbox.ellipsis
               span(ng-repeat="mailbox in item.mailboxes track by $index", title="{{ ::mailbox.name }}")  {{ ::mailbox.name }}
             inbox-indicators(item="::item")
-    .inbox-preview-block.lv-small.preview(ng-bind-html="::item.preview | esnHighlight: query") {{ ::item.preview }}
+    .inbox-preview-block.preview(ng-bind-html="::item.preview | esnHighlight: query") {{ ::item.preview }}

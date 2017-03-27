@@ -3,15 +3,15 @@
     .inbox-item-with-icon
       .list-image.badge-container
         .inbox-image-with-overlay
-          img(ng-src='{{ ::item.author.avatar }}', alt='#{__("Author Avatar")}')
+          img(ng-src='{{ item.author.avatar }}', alt='#{__("Author Avatar")}')
           img.inbox-overlay(src="/unifiedinbox/images/Twitter_Logo_White_On_Blue.png")
       .media-body
         .inbox-list-item-subject-and-from
-          .inbox-subject
-            .inbox-twitter-screenname.lv-title.hidden-xl(ng-bind-html="::item.author.screenName | autolink")
-            .inbox-preview-inline.preview(ng-bind-html="::item.text | autolink")
-          .inbox-from.lv-title {{ ::item.author.displayName }}
-            span.inbox-twitter-screenname.inbox-twitter-screenname-inline(ng-bind-html="::item.author.screenName | autolink")
+          .inbox-subject.lv-title
+            .inbox-twitter-screenname.lv-title.hidden-xl(ng-bind-html="item.author.screenName | autolink")
+            .inbox-preview-inline.lv-small.preview(ng-bind-html="item.text | autolink")
+          .inbox-from.lv-title {{ item.author.displayName }}
+            span.inbox-twitter-screenname.inbox-twitter-screenname-inline(ng-bind-html="item.author.screenName | autolink")
         .inbox-list-item-date-and-indicators
-          .date-container {{ ::item.date | date: item.group.dateFormat }}
-    .inbox-preview-block.preview(ng-bind-html="::item.text | autolink")
+          .date-container {{ item.date | date: item.group.dateFormat }}
+    .inbox-preview-block.preview(ng-bind-html="item.text | autolink")
