@@ -6,6 +6,12 @@ const userLogin = require('../../core/user/login');
 const userPassword = require('../../core/user/password');
 const PasswordReset = require('mongoose').model('PasswordReset');
 
+module.exports = {
+  changePassword,
+  updateAndRemovePasswordReset,
+  sendPasswordReset
+};
+
 function sendPasswordReset(req, res) {
   userLogin.sendPasswordReset(req.user, function(err) {
     if (err) {
@@ -17,7 +23,6 @@ function sendPasswordReset(req, res) {
     return res.status(200).end();
   });
 }
-module.exports.sendPasswordReset = sendPasswordReset;
 
 /**
  * Update the password of the current user profile and remove associated PasswordReset entry
@@ -43,7 +48,6 @@ function updateAndRemovePasswordReset(req, res) {
     return res.status(200).end();
   });
 }
-module.exports.updateAndRemovePasswordReset = updateAndRemovePasswordReset;
 
 /**
  * Change the password of the current user profile
@@ -59,18 +63,24 @@ function changePassword(req, res) {
 
   async.series([
     userPassword.checkPassword.bind(null, req.user, req.body.oldpassword),
-    userPassword.updatePassword.bind(null, req.user, req.body.newpassword),
-    userPassword.sendPasswordChangedConfirmation.bind(null, req.user, 'core.change-password-confirmation')
+    userPassword.updatePassword.bind(null, req.user, req.body.newpassword)
   ], function(err) {
     if (err) {
-      if (err.message === 'The passwords do not match.') {
-        return res.status(400).json({error: 400, message: 'Bad Request', details: err.message});
+      if (err.message.match(/The passwords do not match/)) {
+        return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'The passwords do not match'}});
       }
 
-      return res.status(500).json({error: 500, message: 'Server Error', details: err.message});
+      logger.error('Error while changing user password.', err);
+
+      return res.status(500).json({error: {code: 500, message: 'Server Error', details: 'Failed to change password'}});
     }
+
+    userPassword.sendPasswordChangedConfirmation(req.user, 'core.change-password-confirmation', function(err) {
+      if (err) {
+        logger.error('Unable to send notification email.', err);
+      }
+    });
 
     return res.status(200).end();
   });
 }
-module.exports.changePassword = changePassword;

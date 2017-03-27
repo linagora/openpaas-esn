@@ -120,9 +120,8 @@ angular.module('esn.login', ['esn.notification', 'esn.http', 'op.dynamicDirectiv
       );
     };
   })
-  .controller('changePasswordController', function($scope, loginAPI) {
+  .controller('changePasswordController', function($scope, loginAPI, notificationFactory) {
     $scope.running = false;
-    $scope.hasFailed = false;
     $scope.hasSucceeded = false;
     $scope.credentials = {};
 
@@ -137,12 +136,16 @@ angular.module('esn.login', ['esn.notification', 'esn.http', 'op.dynamicDirectiv
         function() {
           $scope.running = false;
           $scope.hasSucceeded = true;
-          $scope.hasFailed = false;
         },
-        function() {
+        function(response) {
+          var invalidPassword = response.data.error.details.match(/The passwords do not match/);
+
           $scope.running = false;
           $scope.hasSucceeded = false;
-          $scope.hasFailed = true;
+          notificationFactory.weakError('', invalidPassword ?
+            'Old password is invalid' :
+            'Failed to change password, try again later'
+          );
         }
       );
     };

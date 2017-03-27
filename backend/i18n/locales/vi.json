@@ -283,7 +283,6 @@
   "Old password": "Mật khẩu cũ",
   "New password": "Mật khẩu mới",
   "Confirm your password": "Xác nhận mật khẩu của bạn",
-  "Old password is not valid.": "Mật khẩu cũ không đúng.",
   "Successfully changed your password.": "Thay đổi mật khẩu thành công.",
   "Your password has been changed!": "Mật khẩu của bạn đã được thay đổi!",
   "You have requested a password reset on OpenPaas": "Bạn đã yêu cầu thiết lập lại mật khẩu trên OpenPaaS",

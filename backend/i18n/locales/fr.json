@@ -283,7 +283,6 @@
   "Old password": "Ancien mot de passe",
   "New password": "Nouveau mot de passe",
   "Confirm your password": "Confirmer le mot de passe",
-  "Old password is not valid.": "L'ancien mot de passe n'est pas valide.",
   "Successfully changed your password.": "Le mot de passe a été mis à jour.",
   "Your password has been changed!": "Votre mot de passe a été mis à jour !",
   "You have requested a password reset on OpenPaas": "Vous avez demandé une réinitialisation de votre mot de passe sur OpenPaaS",
