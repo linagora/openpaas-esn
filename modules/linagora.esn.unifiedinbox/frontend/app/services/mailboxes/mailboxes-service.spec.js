@@ -510,6 +510,23 @@ describe('The inboxMailboxesService factory', function() {
       $rootScope.$digest();
     });
 
+    it('should return a filter including the Inbox when no context given', function(done) {
+      jmapClient.getMailboxes = sinon.stub().returns($q.when([
+        new jmap.Mailbox(jmapClient, 'inbox', 'inbox', { role: 'inbox' })
+      ]));
+
+      inboxMailboxesService.getMessageListFilter().then(function(filter) {
+        expect(jmapClient.getMailboxes).to.have.been.calledWith();
+        expect(filter).to.deep.equal({
+          inMailboxes: ['inbox']
+        });
+
+        done();
+      });
+
+      $rootScope.$digest();
+    });
+
   });
 
   describe('The createMailbox function', function() {

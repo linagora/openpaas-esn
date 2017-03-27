@@ -14,6 +14,8 @@ angular.module('esn.constants', [])
   .constant('INFINITE_LIST_THROTTLE', 10)
   .constant('INFINITE_LIST_POLLING_INTERVAL', 60000)
 
+  .constant('VIRTUAL_SCROLL_DISTANCE', 10)
+
   .constant('ASYNC_ACTION_LONG_TASK_DURATION', 1000)
 
   .constant('AVATAR_MIN_SIZE_PX', 256)

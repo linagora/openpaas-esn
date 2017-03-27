@@ -75,7 +75,7 @@ angular.module('linagora.esn.unifiedinbox')
             // This allows us to plug '.message' states where we want and guarantee the email can still be opened
             // when coming from a state that does not get a .message child state (like search for instance)
             var unregisterStateNotFoundListener = $scope.$on('$stateNotFound', function(event, redirect) {
-              redirect.to = 'unifiedinbox.list.messages.message';
+              redirect.to = 'unifiedinbox.inbox.message';
             });
 
             $state.go('.message', {
@@ -128,7 +128,7 @@ angular.module('linagora.esn.unifiedinbox')
             // This allows us to plug '.message' states where we want and guarantee the email can still be opened
             // when coming from a state that does not get a .message child state (like search for instance)
             var unregisterStateNotFoundListener = $scope.$on('$stateNotFound', function(event, redirect) {
-              redirect.to = 'unifiedinbox.list.messages.message';
+              redirect.to = 'unifiedinbox.inbox.message';
             });
 
             $state.go('.message', {

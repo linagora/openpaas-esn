@@ -13,7 +13,7 @@ describe('The inboxListSidebarAttachmentController controller', function() {
 
   beforeEach(module('linagora.esn.unifiedinbox', function($provide) {
     $stateParams = {
-      mailbox: 'chosenMailbox'
+      context: 'chosenMailbox'
     };
     PROVIDER_TYPES = { JMAP: 'jmap' };
 

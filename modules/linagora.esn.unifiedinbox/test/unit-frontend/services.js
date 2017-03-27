@@ -3857,13 +3857,14 @@ describe('The Unified Inbox Angular module services', function() {
 
   describe('The inboxFilteringService service', function() {
 
-    var _, service, filters, PROVIDER_TYPES;
+    var $rootScope, _, service, filters, INBOX_EVENTS;
 
-    beforeEach(inject(function(inboxFilteringService, inboxFilters, ___, _PROVIDER_TYPES_) {
+    beforeEach(inject(function(_$rootScope_, inboxFilteringService, inboxFilters, ___, _INBOX_EVENTS_) {
+      $rootScope = _$rootScope_;
       service = inboxFilteringService;
       filters = inboxFilters;
       _ = ___;
-      PROVIDER_TYPES = _PROVIDER_TYPES_;
+      INBOX_EVENTS = _INBOX_EVENTS_;
     }));
 
     afterEach(function() {
@@ -3873,142 +3874,6 @@ describe('The Unified Inbox Angular module services', function() {
     function checkFilter(id) {
       _.find(filters, { id: id }).checked = true;
     }
-
-    describe('The getFiltersForJmapMailbox function', function() {
-
-      it('should return only JMAP filters', function() {
-        expect(_.every(service.getFiltersForJmapMailbox(), { type: PROVIDER_TYPES.JMAP })).to.equal(true);
-      });
-
-      it('should not reset filters if called multiple times for the same mailbox', function() {
-        var filters = service.getFiltersForJmapMailbox('mailbox1');
-
-        filters[0].checked = true;
-        filters = service.getFiltersForJmapMailbox('mailbox1');
-
-        expect(filters[0].checked).to.equal(true);
-      });
-
-      it('should reset filters if called for another mailbox', function() {
-        var filters = service.getFiltersForJmapMailbox('mailbox1');
-
-        filters[0].checked = true;
-        filters = service.getFiltersForJmapMailbox('other_mailbox');
-
-        expect(_.every(filters, { checked: false })).to.equal(true);
-      });
-
-      it('should reset filters if filters are requested for a unified inbox afterwards', function() {
-        var filters = service.getFiltersForJmapMailbox('mailbox1');
-
-        filters[0].checked = true;
-        filters = service.getFiltersForUnifiedInbox();
-
-        expect(_.every(filters, { checked: false })).to.equal(true);
-      });
-
-    });
-
-    describe('The getFiltersForUnifiedInbox function', function() {
-
-      it('should return all filters of type SOCIAL and JMAP', function() {
-        expect(service.getFiltersForUnifiedInbox()).to.have.length(4);
-      });
-
-      it('should not reset filters if called multiple times', function() {
-        var filters = service.getFiltersForUnifiedInbox();
-
-        filters[0].checked = true;
-        filters = service.getFiltersForUnifiedInbox();
-
-        expect(filters[0].checked).to.equal(true);
-      });
-
-      it('should reset filters if filters are requested for a JMAP mailbox afterwards', function() {
-        var filters = service.getFiltersForUnifiedInbox();
-
-        filters[0].checked = true;
-        filters = service.getFiltersForJmapMailbox('mailbox1');
-
-        expect(_.every(filters, { checked: false })).to.equal(true);
-      });
-
-    });
-
-    describe('The getJmapFilter function', function() {
-
-      it('should build a JMAP filter object, with a single selected filter', function() {
-        checkFilter('isUnread');
-
-        expect(service.getJmapFilter()).to.deep.equal({ isUnread: true });
-      });
-
-      it('should build a JMAP filter object, with multiple selected filters', function() {
-        checkFilter('isUnread');
-        checkFilter('hasAttachment');
-
-        expect(service.getJmapFilter()).to.deep.equal({ isUnread: true, hasAttachment: true });
-      });
-
-      it('should build a empty JMAP filter object, when no filters are selected', function() {
-        expect(service.getJmapFilter()).to.deep.equal({});
-      });
-
-    });
-
-    describe('The isAnyFilterOfTypeSelected function', function() {
-
-      it('should return false when no filters are checked', function() {
-        expect(service.isAnyFilterOfTypeSelected(PROVIDER_TYPES.JMAP)).to.equal(false);
-      });
-
-      it('should return false when no filters of the given type are checked', function() {
-        checkFilter('isSocial');
-
-        expect(service.isAnyFilterOfTypeSelected(PROVIDER_TYPES.JMAP)).to.equal(false);
-      });
-
-      it('should return true when 1 filter of the given type is checked', function() {
-        checkFilter('isUnread');
-
-        expect(service.isAnyFilterOfTypeSelected(PROVIDER_TYPES.JMAP)).to.equal(true);
-      });
-
-      it('should return true when multiple filters of the given type are checked', function() {
-        checkFilter('isUnread');
-        checkFilter('isFlagged');
-
-        expect(service.isAnyFilterOfTypeSelected(PROVIDER_TYPES.JMAP)).to.equal(true);
-      });
-
-    });
-
-    describe('The getAcceptedTypesFilter function', function() {
-
-      it('should return a list of provider types JMAP and SOCIAL when nothing is selected', function() {
-        expect(service.getAcceptedTypesFilter()).to.deep.equal([PROVIDER_TYPES.JMAP, PROVIDER_TYPES.SOCIAL]);
-      });
-
-      it('should return an empty list when the selection is eclectic', function() {
-        checkFilter('isSocial');
-        checkFilter('isUnread');
-
-        expect(service.getAcceptedTypesFilter()).to.deep.equal([]);
-      });
-
-      it('should return only JMAP provider if the selction is JMAP-only', function() {
-        checkFilter('isUnread');
-
-        expect(service.getAcceptedTypesFilter()).to.deep.equal([PROVIDER_TYPES.JMAP]);
-      });
-
-      it('should return only SOCIAL provider if the selction is SOCIAL-only', function() {
-        checkFilter('isSocial');
-
-        expect(service.getAcceptedTypesFilter()).to.deep.equal([PROVIDER_TYPES.SOCIAL]);
-      });
-
-    });
 
     describe('The uncheckFilters function', function() {
 
@@ -4045,130 +3910,105 @@ describe('The Unified Inbox Angular module services', function() {
 
     });
 
-    describe('The getSelectedTwitterProviderIds function', function() {
+    describe('The setProviderFilters function', function() {
 
-      it('should return all Twitter provider ids when nothing is selected', function() {
-        var twitterFilters = _(filters).filter({ type: PROVIDER_TYPES.TWITTER }).map(function(filter) {
-          return filter.id + 'Account1';
-        }).value();
+      it('should broadcast an event', function(done) {
+        $rootScope.$on(INBOX_EVENTS.FILTER_CHANGED, function() {
+          done();
+        });
 
-        expect(service.getSelectedTwitterProviderIds('Account1')).to.deep.equal(twitterFilters);
-      });
-
-      it('should return only selected Twitter provider ids', function() {
-        checkFilter('inboxTwitterMentions');
-
-        expect(service.getSelectedTwitterProviderIds('Account1')).to.deep.equal(['inboxTwitterMentionsAccount1']);
+        service.setProviderFilters({});
       });
 
     });
 
-  });
+    describe('The getAvailableFilters function', function() {
 
-  describe('The inboxFilteringAwareInfiniteScroll service', function() {
-
-    var $rootScope, $scope, service, INBOX_EVENTS;
-
-    beforeEach(inject(function(inboxFilteringAwareInfiniteScroll, _$rootScope_, _INBOX_EVENTS_) {
-      $rootScope = _$rootScope_;
-      service = inboxFilteringAwareInfiniteScroll;
-      INBOX_EVENTS = _INBOX_EVENTS_;
-
-      $scope = $rootScope.$new();
-    }));
-
-    afterEach(function() {
-      $scope.$destroy();
-    });
-
-    it('should publish available filters as scope.filters', function() {
-      service($scope, function() {
-        return { id: 'filter' };
-      }, function() { return angular.noop; });
-
-      expect($scope.filters).to.deep.equal({ id: 'filter'});
-    });
-
-    it('should initialize the scope.loadMoreElements function, calling the passed-in builder', function() {
-      var spy = sinon.spy(function() {
-        return function() {
-          return $q.when([]);
-        };
+      it('should return global filters if no specific type is selected', function() {
+        expect(service.getAvailableFilters()).to.deep.equal(_.filter(filters, { isGlobal: true }));
       });
 
-      service($scope, function() {
-        return { id: 'filter' };
-      }, spy);
-      $rootScope.$digest();
+      it('should return matching filters only if a type is selected', function() {
+        service.setProviderFilters({ types: ['social'] });
 
-      expect($scope.loadMoreElements).to.be.a('function');
-      expect(spy).to.have.been.calledWith();
-    });
-
-    it('should initialize the scope.loadRecentItems function', function(done) {
-      service($scope, function() {
-        return { id: 'filter' };
-      }, function() {
-        var fetcher = function() {
-          return $q.when([]);
-        };
-
-        fetcher.loadRecentItems = done;
-        fetcher.destroy = sinon.spy();
-
-        return fetcher;
+        expect(service.getAvailableFilters()).to.deep.equal(_.filter(filters, { type: 'social' }));
       });
-      $rootScope.$digest();
 
-      $scope.loadRecentItems();
-    });
+      it('should uncheck non-matching filters', function() {
+        _(filters).reject({ isGlobal: true }).forEach(function(filter) {
+          filter.checked = true;
+        });
+        service.getAvailableFilters();
 
-    it('should listen to "inbox.filterChanged" event, refreshing the loadMoreElements function and loading first batch of items', function() {
-      var loadMoreElements = sinon.spy(function() {
-        return function() {
-          return $q.when([]);
-        };
+        expect(_(filters).reject({ isGlobal: true }).map('checked').value()).to.deep.equal([false, false]);
       });
-      var spy = sinon.spy(loadMoreElements);
 
-      service($scope, function() {
-        return { id: 'filter' };
-      }, spy);
-      $rootScope.$digest();
-
-      $scope.$emit(INBOX_EVENTS.FILTER_CHANGED);
-
-      expect($scope.loadMoreElements).to.be.a('function');
-      expect(spy).to.have.been.calledTwice; // 1 at init time, 1 after the event is fired
-      expect(loadMoreElements).to.have.been.calledWith(); // To load the list when the event is fired
     });
 
-    it('should listen to "inbox.filterChanged" event, resetting infinite scroll', function() {
-      var loadMoreElements = sinon.spy(function() {
-        return function() {
-          return $q.when([]);
-        };
+    describe('The getAllProviderFilters function', function() {
+
+      it('should build an object containing filters when neither context nor filters are selected', function() {
+        expect(service.getAllProviderFilters()).to.deep.equal({
+          acceptedIds: null,
+          acceptedTypes: null,
+          acceptedAccounts: undefined,
+          filterByType: {
+            jmap: {},
+            social: {},
+            twitter: {}
+          },
+          context: undefined
+        });
       });
-      var spy = sinon.spy(loadMoreElements);
 
-      service($scope, function() {
-        return { id: 'filter' };
-      }, spy);
-      $rootScope.$digest();
+      it('should build an object containing filters when a context is selected', function() {
+        service.setProviderFilters({
+          types: ['jmap'],
+          accounts: ['accountId'],
+          context: 'mailboxId'
+        });
 
-      // Simulate end of initial infinite scroll
-      $scope.infiniteScrollCompleted = true;
-      $scope.infiniteScrollDisabled = true;
+        expect(service.getAllProviderFilters()).to.deep.equal({
+          acceptedIds: null,
+          acceptedTypes: ['jmap'],
+          acceptedAccounts: ['accountId'],
+          filterByType: {
+            jmap: {},
+            social: {},
+            twitter: {}
+          },
+          context: 'mailboxId'
+        });
+      });
 
-      $scope.$emit(INBOX_EVENTS.FILTER_CHANGED);
+      it('should build an object containing filters when context and filters are selected', function() {
+        service.setProviderFilters({
+          types: ['jmap', 'social'],
+          accounts: ['accountId'],
+          context: 'mailboxId'
+        });
+        _.find(filters, { id: 'isUnread' }).checked = true;
+        _.find(filters, { id: 'isSocial' }).checked = true;
 
-      expect($scope.infiniteScrollCompleted).to.equal(false);
+        expect(service.getAllProviderFilters()).to.deep.equal({
+          acceptedIds: null,
+          acceptedTypes: ['jmap', 'social'],
+          acceptedAccounts: ['accountId'],
+          filterByType: {
+            jmap: {
+              isUnread: true
+            },
+            social: {
+              isSocial: true
+            },
+            twitter: {}
+          },
+          context: 'mailboxId'
+        });
+      });
 
-      $scope.$digest();
-
-      expect($scope.infiniteScrollDisabled).to.equal(false);
-      expect($scope.infiniteScrollCompleted).to.equal(true); // Because the infinite scroll is done as I'm returning no items
     });
+
   });
 
   describe('The inboxSelectionService factory', function() {

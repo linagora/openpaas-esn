@@ -27,6 +27,7 @@ angular.module('linagora.esn.unifiedinbox')
           .withAPIUrl(data[1])
           .withDownloadUrl(data[2])
           .withAuthenticationToken('Bearer ' + data[0]);
+
         return jmapClient;
       });
     }
@@ -1001,38 +1002,44 @@ angular.module('linagora.esn.unifiedinbox')
       {
         id: 'isUnread',
         displayName: 'Unread',
-        type: PROVIDER_TYPES.JMAP
+        type: PROVIDER_TYPES.JMAP,
+        isGlobal: true
       },
       {
         id: 'isFlagged',
         displayName: 'Starred',
-        type: PROVIDER_TYPES.JMAP
+        type: PROVIDER_TYPES.JMAP,
+        isGlobal: true
       },
       {
         id: 'hasAttachment',
         displayName: 'With attachments',
-        type: PROVIDER_TYPES.JMAP
+        type: PROVIDER_TYPES.JMAP,
+        isGlobal: true
       },
       {
         id: 'isSocial',
         displayName: 'Social',
-        type: PROVIDER_TYPES.SOCIAL
+        type: PROVIDER_TYPES.SOCIAL,
+        isGlobal: true
       },
       {
         id: 'inboxTwitterMentions',
         displayName: 'Mentions',
-        type: PROVIDER_TYPES.TWITTER
+        type: PROVIDER_TYPES.TWITTER,
+        selectionById: true
       },
       {
         id: 'inboxTwitterDirectMessages',
         displayName: 'Direct Messages',
-        type: PROVIDER_TYPES.TWITTER
+        type: PROVIDER_TYPES.TWITTER,
+        selectionById: true
       }
     ];
   })
 
-  .factory('inboxFilteringService', function(inboxFilters, _, PROVIDER_TYPES) {
-    var latestMailbox;
+  .factory('inboxFilteringService', function($rootScope, inboxMailboxesService, inboxFilters, _, INBOX_EVENTS) {
+    var providerFilters = {};
 
     function uncheckFilters() {
       inboxFilters.forEach(function(filter) {
@@ -1040,38 +1047,17 @@ angular.module('linagora.esn.unifiedinbox')
       });
     }
 
-    function getFiltersByType(types) {
-      if (!types) {
-        return inboxFilters;
-      }
-
+    function getAvailableFilters() {
       return _.filter(inboxFilters, function(filter) {
-        return _.contains(types, filter.type);
-      });
-    }
+        var available = providerFilters.types ? _.contains(providerFilters.types, filter.type) : filter.isGlobal;
 
-    function maybeResetAndGetFilters(types, mailbox) {
-      if (latestMailbox !== mailbox) {
-        latestMailbox = mailbox;
-
-        uncheckFilters();
-      }
-
-      return getFiltersByType(types);
-    }
-
-    function getJmapFilter() {
-      return getFiltersByType(PROVIDER_TYPES.JMAP).reduce(function(result, filter) {
-        if (filter.checked) {
-          result[filter.id] = true;
+        // When switching context, filters that become unavailble must be unchecked, to avoid side effects
+        if (!available) {
+          filter.checked = false;
         }
 
-        return result;
-      }, {});
-    }
-
-    function isAnyFilterOfTypeSelected(type) {
-      return _.some(inboxFilters, { type: type, checked: true });
+        return available;
+      });
     }
 
     function isAnyFilterSelected() {
@@ -1079,74 +1065,57 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     function getAcceptedTypesFilter() {
-      var jmap = isAnyFilterOfTypeSelected(PROVIDER_TYPES.JMAP),
-          social = isAnyFilterOfTypeSelected(PROVIDER_TYPES.SOCIAL);
-
-      if (social && jmap) {
-        return [];
-      } else if (jmap) {
-        return [PROVIDER_TYPES.JMAP];
-      } else if (social) {
-        return [PROVIDER_TYPES.SOCIAL];
+      if (providerFilters.types) {
+        return providerFilters.types;
       }
 
-      return [PROVIDER_TYPES.JMAP, PROVIDER_TYPES.SOCIAL];
+      return _anyFilterOrNull(_(inboxFilters).filter({ checked: true }).map('type').uniq().value());
     }
 
-    function getSelectedTwitterProviderIds(accountId) {
-      function getTargetProviderId(provider) {
-        return provider.id + accountId;
-      }
+    function setProviderFilters(filters) {
+      providerFilters = filters;
 
-      var filters = getFiltersByType(PROVIDER_TYPES.TWITTER),
-          selectedProviders = _(filters).filter({ checked: true }).map(getTargetProviderId).value();
+      $rootScope.$broadcast(INBOX_EVENTS.FILTER_CHANGED);
+    }
 
-      return selectedProviders.length > 0 ? selectedProviders : _.map(filters, getTargetProviderId);
+    function getAllFiltersByType() {
+      return _(inboxFilters).groupBy('type').reduce(function(result, filters, type) {
+        result[type] = _.reduce(filters, function(result, filter) {
+          if (filter.checked) {
+            result[filter.id] = true;
+          }
+
+          return result;
+        }, {});
+
+        return result;
+      }, {});
+    }
+
+    function getAcceptedIdsFilter() {
+      return _anyFilterOrNull(_(inboxFilters).filter({ checked: true, selectionById: true }).map('id').value());
+    }
+
+    function getAllProviderFilters() {
+      return {
+        acceptedIds: getAcceptedIdsFilter(),
+        acceptedTypes: getAcceptedTypesFilter(),
+        acceptedAccounts: providerFilters.accounts,
+        filterByType: getAllFiltersByType(),
+        context: providerFilters.context
+      };
+    }
+
+    function _anyFilterOrNull(filters) {
+      return filters.length > 0 ? filters : null;
     }
 
     return {
-      getFiltersForJmapMailbox: maybeResetAndGetFilters.bind(null, [PROVIDER_TYPES.JMAP]),
-      getFiltersForUnifiedInbox: maybeResetAndGetFilters.bind(null, [PROVIDER_TYPES.JMAP, PROVIDER_TYPES.SOCIAL], 'unifiedinbox'),
-      getFiltersForTwitterAccount: maybeResetAndGetFilters.bind(null, [PROVIDER_TYPES.TWITTER]),
-      getJmapFilter: getJmapFilter,
-      isAnyFilterOfTypeSelected: isAnyFilterOfTypeSelected,
+      getAvailableFilters: getAvailableFilters,
       isAnyFilterSelected: isAnyFilterSelected,
-      getAcceptedTypesFilter: getAcceptedTypesFilter,
       uncheckFilters: uncheckFilters,
-      getSelectedTwitterProviderIds: getSelectedTwitterProviderIds
-    };
-  })
-
-  .factory('inboxFilteringAwareInfiniteScroll', function($q, infiniteScrollOnGroupsHelper, ByDateElementGroupingTool, INBOX_EVENTS) {
-    return function(scope, getAvailableFilters, buildFetcher) {
-      function setFilter() {
-        return $q.when(buildFetcher())
-          .then(function(fetcher) {
-            scope.loadMoreElements = infiniteScrollOnGroupsHelper(
-              scope,
-              fetcher,
-              new ByDateElementGroupingTool()
-            );
-
-            scope.loadRecentItems = fetcher.loadRecentItems;
-          })
-          .then(function() {
-            return scope.loadMoreElements();
-          });
-      }
-
-      scope.filters = getAvailableFilters();
-
-      scope.$on(INBOX_EVENTS.FILTER_CHANGED, function() {
-        scope.infiniteScrollDisabled = false;
-        scope.infiniteScrollCompleted = false;
-
-        scope.loadMoreElements.destroy();
-
-        setFilter();
-      });
-
-      return setFilter();
+      setProviderFilters: setProviderFilters,
+      getAllProviderFilters: getAllProviderFilters
     };
   })
 

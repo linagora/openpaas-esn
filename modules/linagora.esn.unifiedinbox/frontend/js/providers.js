@@ -8,8 +8,8 @@ angular.module('linagora.esn.unifiedinbox')
         return $q.when({ text: options.query });
       }
 
-      return inboxMailboxesService.getMailboxWithRole(jmap.MailboxRole.INBOX).then(function(mailbox) {
-        return angular.extend({}, { inMailboxes: [mailbox.id] }, options.filterByType[PROVIDER_TYPES.JMAP]);
+      return inboxMailboxesService.getMessageListFilter(options.context).then(function(mailboxFilter) {
+        return angular.extend(mailboxFilter, options.filterByType[PROVIDER_TYPES.JMAP]);
       });
     };
   })
@@ -48,17 +48,22 @@ angular.module('linagora.esn.unifiedinbox')
               };
 
           fetcher.loadRecentItems = function(mostRecentTweet) {
-            return fetcher(mostRecentTweet.id).then(function(results) {
-              return _.filter(results, function(tweet) {
-                return tweet.id !== mostRecentTweet.id; // since_id is inclusive, that's too bad :(
-              });
-            });
+            return fetcher(mostRecentTweet.id);
           };
 
           return fetcher;
         },
         buildFetchContext: function() { return $q.when(); },
-        templateUrl: '/unifiedinbox/views/unified-inbox/elements/tweet'
+        templateUrl: '/unifiedinbox/views/unified-inbox/elements/tweet',
+        itemMatches: function(item, filters) {
+          return $q(function(resolve, reject) {
+            if (!filters.acceptedIds) {
+              return resolve();
+            }
+
+            _.contains(filters.acceptedIds, id) ? resolve() : reject();
+          });
+        }
       });
     };
   })
@@ -75,8 +80,8 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('newInboxMessageProvider', function(withJmapClient, pagedJmapRequest, inboxJmapProviderContextBuilder,
-                                               moment, newProvider, sortByDateInDescendingOrder, inboxMailboxesService,
+  .factory('newInboxMessageProvider', function($q, withJmapClient, pagedJmapRequest, inboxJmapProviderContextBuilder,
+                                               newProvider, sortByDateInDescendingOrder, inboxMailboxesService, _,
                                                JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_REQUEST, PROVIDER_TYPES) {
     return function(templateUrl) {
       return newProvider({
@@ -109,7 +114,7 @@ angular.module('linagora.esn.unifiedinbox')
           var fetcher = pagedJmapRequest(getMessages);
 
           fetcher.loadRecentItems = function(mostRecentItem) {
-            return getMessages(0, moment(mostRecentItem.date).add(1, 's').toDate()).then(function(messages) {
+            return getMessages(0, mostRecentItem.date).then(function(messages) {
               messages.forEach(function(message) {
                 if (message.isUnread) {
                   inboxMailboxesService.flagIsUnreadChanged(message, true);
@@ -123,6 +128,23 @@ angular.module('linagora.esn.unifiedinbox')
           return fetcher;
         },
         buildFetchContext: inboxJmapProviderContextBuilder,
+        itemMatches: function(item, filters) {
+          return $q(function(resolve, reject) {
+            var context = filters.context,
+                mailboxIds = item.mailboxIds,
+                filter = filters.filterByType[PROVIDER_TYPES.JMAP];
+
+            inboxMailboxesService.getMessageListFilter(context).then(function(mailboxFilter) {
+              if ((_.isEmpty(mailboxFilter.notInMailboxes) || _.intersection(mailboxIds, mailboxFilter.notInMailboxes).length === 0) &&
+                  (_.isEmpty(mailboxFilter.inMailboxes) || _.intersection(mailboxIds, mailboxFilter.inMailboxes).length > 0) &&
+                  (_.isEmpty(filter) || _.find([item], filter))) {
+                return resolve();
+              }
+
+              reject();
+            });
+          });
+        },
         templateUrl: templateUrl
       });
     };

@@ -202,7 +202,7 @@ angular.module('linagora.esn.unifiedinbox', [
         params: { vacation: null }
       })
       .state('unifiedinbox.inbox', {
-        url: '/inbox',
+        url: '/inbox?type&account&context',
         views: {
           'main@unifiedinbox': {
             controller: 'unifiedInboxController as ctrl',

@@ -2,33 +2,62 @@
 
 angular.module('linagora.esn.unifiedinbox')
 
-  .controller('unifiedInboxController', function($scope, inboxFilteringAwareInfiniteScroll, inboxProviders, inboxSelectionService,
+  .controller('unifiedInboxController', function($timeout, $interval, $scope, $stateParams, infiniteScrollHelperBuilder, inboxProviders, inboxSelectionService, infiniteListService,
                                                  PageAggregatorService, _, sortByDateInDescendingOrder, inboxFilteringService, inboxAsyncHostedMailControllerHelper,
-                                                 ELEMENTS_PER_PAGE) {
+                                                 inboxFilteredList, ELEMENTS_PER_PAGE, INFINITE_LIST_EVENTS, INBOX_EVENTS, INFINITE_LIST_POLLING_INTERVAL) {
+    setupPolling();
 
-    inboxAsyncHostedMailControllerHelper(this, function() {
-      inboxSelectionService.unselectAllItems();
+    inboxSelectionService.unselectAllItems();
 
-      return inboxFilteringAwareInfiniteScroll($scope, function() {
-        return inboxFilteringService.getFiltersForUnifiedInbox();
-      }, function() {
-        return inboxProviders.getAll({
-          acceptedTypes: inboxFilteringService.getAcceptedTypesFilter(),
-          filterByType: { JMAP: inboxFilteringService.getJmapFilter() }
-        }).then(function(providers) {
-          return new PageAggregatorService('unifiedInboxControllerAggregator', providers, {
-            compare: sortByDateInDescendingOrder,
-            results_per_page: ELEMENTS_PER_PAGE
-          }).bidirectionalFetcher();
+    inboxFilteringService.setProviderFilters({
+      types: $stateParams.type ? [$stateParams.type] : null,
+      accounts: $stateParams.account ? [$stateParams.account] : null,
+      context: $stateParams.context
+    });
+
+    $scope.filters = inboxFilteringService.getAvailableFilters();
+    $scope.loadMoreElements = infiniteScrollHelperBuilder($scope, function() { return $scope.loadNextItems(); }, inboxFilteredList.addAll);
+    $scope.inboxList = inboxFilteredList.list();
+    $scope.inboxListModel = inboxFilteredList.asMdVirtualRepeatModel($scope.loadMoreElements);
+
+    $scope.$on(INBOX_EVENTS.FILTER_CHANGED, updateFetchersInScope);
+
+    inboxAsyncHostedMailControllerHelper(this, updateFetchersInScope);
+
+    /////
+
+    function setupPolling() {
+      if (INFINITE_LIST_POLLING_INTERVAL > 0) {
+        var poller = $interval(function() {
+          $scope.loadRecentItems().then(inboxFilteredList.addAll);
+        }, INFINITE_LIST_POLLING_INTERVAL);
+
+        $scope.$on('$destroy', function() {
+          $interval.cancel(poller);
         });
-      });
-    });
-  })
+      }
+    }
 
-  .controller('listController', function($state, inboxConfig, DEFAULT_VIEW) {
-    inboxConfig('view', DEFAULT_VIEW).then(function(view) {
-      $state.go('unifiedinbox.list.' + view);
-    });
+    function updateFetchersInScope() {
+      $scope.infiniteScrollDisabled = false;
+      $scope.infiniteScrollCompleted = false;
+
+      return buildFetcher().then(function(fetcher) {
+        $scope.loadNextItems = fetcher;
+        $scope.loadRecentItems = fetcher.loadRecentItems;
+
+        $timeout($scope.loadMoreElements, 0);
+      });
+    }
+
+    function buildFetcher() {
+      return inboxProviders.getAll(inboxFilteringService.getAllProviderFilters()).then(function(providers) {
+        return new PageAggregatorService('unifiedInboxControllerAggregator', providers, {
+          compare: sortByDateInDescendingOrder,
+          results_per_page: ELEMENTS_PER_PAGE
+        }).bidirectionalFetcher();
+      });
+    }
   })
 
   .controller('composerController', function($scope, $stateParams, notificationFactory,
@@ -581,22 +610,35 @@ angular.module('linagora.esn.unifiedinbox')
     });
   })
 
-  .controller('inboxListSubheaderController', function($state, inboxSelectionService, inboxJmapItemService) {
-    var attachmentUrl = $state.current.name.indexOf('.attachments') > -1 ? $state.current.name : $state.current.name + '.attachments';
+  .controller('inboxListSubheaderController', function($state, $stateParams, inboxSelectionService, inboxJmapItemService, inboxPlugins) {
+    var self = this,
+        account = $stateParams.account,
+        context = $stateParams.context,
+        plugin = inboxPlugins.get($stateParams.type);
 
-    this.isSelecting = inboxSelectionService.isSelecting;
-    this.getSelectedItems = inboxSelectionService.getSelectedItems;
-    this.unselectAllItems = inboxSelectionService.unselectAllItems;
-    this.showAttachmentButton = $state.get(attachmentUrl);
+    if (plugin) {
+      plugin.resolveContextName(account, context).then(function(name) {
+        self.resolvedContextName = name;
+      });
+      plugin.contextSupportsAttachments(account, context).then(function(value) {
+        self.contextSupportsAttachments = value;
+      });
+    } else {
+      self.contextSupportsAttachments = true;
+    }
+
+    self.isSelecting = inboxSelectionService.isSelecting;
+    self.getSelectedItems = inboxSelectionService.getSelectedItems;
+    self.unselectAllItems = inboxSelectionService.unselectAllItems;
 
     ['markAsUnread', 'markAsRead', 'unmarkAsFlagged', 'markAsFlagged', 'moveToTrash'].forEach(function(action) {
-      this[action] = function() {
+      self[action] = function() {
         inboxJmapItemService[action](inboxSelectionService.getSelectedItems());
         inboxSelectionService.unselectAllItems();
       };
-    }, this);
+    });
 
-    this.move = function() {
+    self.move = function() {
       $state.go('.move', { selection: true });
     };
   });

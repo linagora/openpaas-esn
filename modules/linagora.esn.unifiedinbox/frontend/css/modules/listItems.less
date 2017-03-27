@@ -53,11 +53,20 @@
     }
   }
 
+  .inbox-infinite-list {
+    height: ~"calc(100vh - @{header-height} - @{sub-header-height})";
   }
 
   .inbox-items-group {
+    min-height: 32px; // Size of the smallest possible card
+
     .card {
       margin-bottom: 1px;
+    }
+
+    .inbox-list-item {
+      min-height: 88px;
+      max-height: 88px;
     }
 
     .inbox-list-item, .inbox-message-list-item, .inbox-twitter-list-item {
@@ -105,8 +114,29 @@
           font-size: 12px;
           color: @lighterSecondaryTextColor;
 
-          margin-top: 5px;
+          position: relative;
+          margin-top: 4px;
           min-width: 0;
+          max-height: 34px;
+          text-align: justify;
+          overflow: hidden;
+
+          &:before {
+            content: '\2026';
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            background: @m-white;
+          }
+
+          &:after {
+            content: '';
+            position: absolute;
+            right: 0;
+            width: 1em;
+            height: 1em;
+            background: @m-white;
+          }
         }
 
         .list-image {
@@ -168,6 +198,11 @@
 @media (min-width: @screen-xl-min) {
   .inbox-root {
     .inbox-items-group {
+      .inbox-list-item {
+        min-height: 34px;
+        max-height: 34px;
+      }
+
       .inbox-list-item, .inbox-message-list-item, .inbox-twitter-list-item {
         .inbox-list-item-content {
           padding: 3px 10px;

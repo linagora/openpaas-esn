@@ -77,6 +77,12 @@ describe('The esn.provider module', function() {
         expect(newProvider({ account: 'myAccount' }).account).to.equal('myAccount');
       });
 
+      it('should use itemMatches when present', function() {
+        var itemMatches = function() {};
+
+        expect(newProvider({ itemMatches: itemMatches }).itemMatches).to.equal(itemMatches);
+      });
+
     });
 
     describe('The getAllProviderDefinitions function', function() {
@@ -709,6 +715,17 @@ describe('The esn.provider module', function() {
           provider = {
             templateUrl: 'templateUrl',
             fetch: function() {
+              var expectedItem1 = {
+                    date: new Date(Date.UTC(2016, 0, 1, 0, 0, 0, 0)),
+                    templateUrl: 'templateUrl',
+                    provider: provider
+                  },
+                  expectedItem2 = {
+                    date: new Date(Date.UTC(2017, 0, 1, 0, 0, 0, 0)),
+                    templateUrl: 'templateUrl',
+                    provider: provider
+                  };
+
               var fetcher = function() {
                 return $q.when([{ date: '2016-01-01T00:00:00Z' }]);
               };
@@ -725,16 +742,6 @@ describe('The esn.provider module', function() {
 
               return fetcher;
             }
-          },
-          expectedItem1 = {
-            date: new Date(Date.UTC(2016, 0, 1, 0, 0, 0, 0)),
-            templateUrl: 'templateUrl',
-            provider: provider
-          },
-          expectedItem2 = {
-            date: new Date(Date.UTC(2017, 0, 1, 0, 0, 0, 0)),
-            templateUrl: 'templateUrl',
-            provider: provider
           },
           source = toAggregatorSource(provider);
 

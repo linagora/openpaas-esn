@@ -17,7 +17,7 @@
         .title
           .text #{__('Inbox')}
   .listview
-    .lv-item.clickable.inbox-item-with-icon.folder-with-icon.waves-effect.waves-classic(title="#{__('Unified Inbox')}", ui-sref-active="selected", ui-sref='unifiedinbox.inbox')
+    .lv-item.clickable.inbox-item-with-icon.folder-with-icon.waves-effect.waves-classic(title="#{__('Unified Inbox')}", ui-sref-active="selected", ui-sref="unifiedinbox.inbox({ type: '', account: '', context: '' })")
       .badge-container
         .badge
         i.inbox-icon.mdi.mdi-folder-multiple

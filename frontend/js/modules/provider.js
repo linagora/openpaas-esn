@@ -185,6 +185,7 @@ angular.module('esn.provider', [
         name: provider.name,
         fetch: provider.fetch,
         buildFetchContext: provider.buildFetchContext,
+        itemMatches: provider.itemMatches || _.constant($q.when()),
         templateUrl: provider.templateUrl
       };
     };
