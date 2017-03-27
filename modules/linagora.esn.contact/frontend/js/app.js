@@ -23,7 +23,8 @@ angular.module('linagora.esn.contact', [
   'esn.aggregator',
   'esn.cache',
   'esn.highlight',
-  'esn.provider'
+  'esn.provider',
+  'esn.module-registry'
 ])
   .config(function($stateProvider, routeResolver) {
     $stateProvider.state('contact', {
@@ -87,7 +88,8 @@ angular.module('linagora.esn.contact', [
     dynamicDirectiveServiceProvider.addInjection('esn-application-menu', contact);
   })
 
-  .run(function(attendeeService, ContactAttendeeProvider, searchContactProviderService, searchProviders) {
+  .run(function(attendeeService, ContactAttendeeProvider, searchContactProviderService, searchProviders, esnModuleRegistry, CONTACT_MODULE_METADATA) {
     attendeeService.addProvider(ContactAttendeeProvider);
     searchProviders.add(searchContactProviderService);
+    esnModuleRegistry.add(CONTACT_MODULE_METADATA);
   });

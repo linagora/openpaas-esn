@@ -56,4 +56,11 @@ angular.module('linagora.esn.contact')
   .constant('CONTACT_GLOBAL_SEARCH', {
     TYPE: 'contact',
     NAME: 'Contacts'
+  })
+
+  .constant('CONTACT_MODULE_METADATA', {
+    id: 'linagora.esn.contact',
+    title: 'Contact',
+    icon: 'contacts-icon',
+    homePage: 'contact'
   });

@@ -57,4 +57,11 @@ angular.module('linagora.esn.unifiedinbox')
     LOADING: 'LOADING',
     LOADED: 'LOADED',
     ERROR: 'ERROR'
+  })
+
+  .constant('INBOX_MODULE_METADATA', {
+    id: 'linagora.esn.unifiedinbox',
+    title: 'Unified Inbox',
+    icon: 'inbox-icon',
+    homePage: 'unifiedinbox'
   });

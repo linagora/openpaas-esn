@@ -42,7 +42,8 @@ angular.module('linagora.esn.unifiedinbox', [
   'esn.highlight',
   'esn.escape-html',
   'esn.registry',
-  'material.components.virtualRepeat'
+  'material.components.virtualRepeat',
+  'esn.module-registry'
 ])
 
   .config(function($stateProvider, dynamicDirectiveServiceProvider) {
@@ -312,8 +313,9 @@ angular.module('linagora.esn.unifiedinbox', [
     };
   })
 
-  .run(function(inboxHostedMailAttachmentProvider, esnAttachmentListProviders) {
+  .run(function(inboxHostedMailAttachmentProvider, esnAttachmentListProviders, esnModuleRegistry, INBOX_MODULE_METADATA) {
     esnAttachmentListProviders.add(inboxHostedMailAttachmentProvider);
+    esnModuleRegistry.add(INBOX_MODULE_METADATA);
   })
 
   .run(function(esnScrollListenerService) {
