@@ -554,28 +554,6 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .controller('listTwitterController', function($scope, $stateParams, inboxFilteringAwareInfiniteScroll, inboxProviders, inboxFilteringService,
-                                                ByDateElementGroupingTool, session, _, PageAggregatorService, sortByDateInDescendingOrder,
-                                                PROVIDER_TYPES, ELEMENTS_PER_PAGE) {
-    var account = _.find(session.getProviderAccounts('twitter'), { username: $stateParams.username });
-
-    inboxFilteringAwareInfiniteScroll($scope, function() {
-      return inboxFilteringService.getFiltersForTwitterAccount(account.id);
-    }, function() {
-      return inboxProviders.getAll({
-        acceptedTypes: [PROVIDER_TYPES.TWITTER],
-        acceptedIds: inboxFilteringService.getSelectedTwitterProviderIds(account.id)
-      }).then(function(providers) {
-        return new PageAggregatorService('unifiedInboxTwitterAggregator', providers, {
-          compare: sortByDateInDescendingOrder,
-          results_per_page: ELEMENTS_PER_PAGE
-        }).bidirectionalFetcher();
-      });
-    });
-
-    $scope.username = account.username;
-  })
-
   .controller('inboxSidebarEmailController', function($scope, inboxMailboxesService, inboxSpecialMailboxes, inboxAsyncHostedMailControllerHelper, session) {
     $scope.specialMailboxes = inboxSpecialMailboxes.list();
     $scope.emailAddress = session.user.preferredEmail;
