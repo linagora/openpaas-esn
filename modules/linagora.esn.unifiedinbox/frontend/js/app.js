@@ -41,6 +41,7 @@ angular.module('linagora.esn.unifiedinbox', [
   'esn.avatar',
   'esn.highlight',
   'esn.escape-html',
+  'esn.registry',
   'material.components.virtualRepeat'
 ])
 

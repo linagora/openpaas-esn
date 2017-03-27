@@ -595,20 +595,23 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('inboxEmptyContainerMessage', function(inboxFilteringService, jmap, INBOX_EMPTY_MESSAGE_MAPPING) {
+  .directive('inboxEmptyContainerMessage', function($stateParams, inboxFilteringService, inboxPlugins) {
     return {
       restrict: 'E',
-      scope: {
-        mailbox: '=?',
-        role: '@?'
-      },
+      scope: {},
       templateUrl: '/unifiedinbox/views/partials/empty-messages/index.html',
       link: function(scope) {
-        var role = scope.role || (scope.mailbox && scope.mailbox.role && scope.mailbox.role.value);
+        var plugin = inboxPlugins.get($stateParams.type);
 
-        scope.isCustomMailbox = scope.mailbox && jmap.MailboxRole.UNKNOWN === scope.mailbox.role;
         scope.isFilteringActive = inboxFilteringService.isAnyFilterSelected;
-        scope.containerTemplateUrl = (role && INBOX_EMPTY_MESSAGE_MAPPING[role]) || INBOX_EMPTY_MESSAGE_MAPPING.default;
+
+        if (plugin) {
+          plugin.getEmptyContextTemplateUrl($stateParams.account, $stateParams.context).then(function(templateUrl) {
+            scope.containerTemplateUrl = templateUrl;
+          });
+        } else {
+          scope.containerTemplateUrl = '/unifiedinbox/views/partials/empty-messages/containers/inbox.html';
+        }
       }
     };
   })

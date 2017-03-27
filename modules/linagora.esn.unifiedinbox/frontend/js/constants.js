@@ -32,19 +32,14 @@ angular.module('linagora.esn.unifiedinbox')
   })
   .constant('INBOX_SWIPE_DURATION', 500)
   .constant('PROVIDER_TYPES', {
-    JMAP: 'JMAP',
-    SOCIAL: 'SOCIAL',
-    TWITTER: 'TWITTER'
+    JMAP: 'jmap',
+    SOCIAL: 'social',
+    TWITTER: 'twitter'
   })
   .constant('INBOX_EVENTS', {
     VACATION_STATUS: 'inbox:vacationStatusUpdated',
     FILTER_CHANGED: 'inbox:filterChanged',
     ITEM_SELECTION_CHANGED: 'inbox:itemSelectionChanged'
-  })
-  .constant('INBOX_EMPTY_MESSAGE_MAPPING', {
-    default: '/unifiedinbox/views/partials/empty-messages/containers/default.html',
-    inbox: '/unifiedinbox/views/partials/empty-messages/containers/inbox.html',
-    twitter: '/unifiedinbox/views/partials/empty-messages/containers/twitter.html'
   })
   .constant('INBOX_SUMMERNOTE_OPTIONS', {
     focus: false,

@@ -67,7 +67,10 @@ var unifiedInboxModule = new AwesomeModule('linagora.esn.unifiedinbox', {
         'filters/filter-descendant-mailboxes.js',
         'services/models/make-selectable.js',
         'services/models/message.run.js',
-        'services/models/thread.run.js'
+        'services/models/thread.run.js',
+        'services/plugins/plugins.js',
+        'services/plugins/jmap/jmap-plugin.run.js',
+        'services/plugins/twitter/twitter-plugin.run.js',
       ], 'linagora.esn.unifiedinbox', ['esn']);
 
       webserverWrapper.injectLess('unifiedinbox', [
