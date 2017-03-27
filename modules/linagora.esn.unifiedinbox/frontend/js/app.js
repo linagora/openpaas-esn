@@ -40,7 +40,8 @@ angular.module('linagora.esn.unifiedinbox', [
   'esn.attachment-list',
   'esn.avatar',
   'esn.highlight',
-  'esn.escape-html'
+  'esn.escape-html',
+  'material.components.virtualRepeat'
 ])
 
   .config(function($stateProvider, dynamicDirectiveServiceProvider) {
