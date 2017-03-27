@@ -420,6 +420,9 @@ describe('The calendar configuration controller', function() {
         }, {
           value: CALENDAR_RIGHT.FREE_BUSY,
           name: 'Private'
+        }, {
+          value: CALENDAR_RIGHT.NONE,
+          name: 'None'
         }
       ];
 

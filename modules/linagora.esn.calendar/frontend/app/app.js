@@ -128,8 +128,13 @@
         }
       })
       .state('calendar.external', {
-        abstract: true,
-        url: '/external'
+        url: '/external',
+        deepStateRedirect: {
+          default: 'calendar.main',
+          fn: function() {
+            return { state: 'calendar.main' };
+          }
+        }
       })
       .state('calendar.external.public', {
         url: '/public/:calendarId',

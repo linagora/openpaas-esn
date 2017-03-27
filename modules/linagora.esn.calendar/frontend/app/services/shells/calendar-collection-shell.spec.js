@@ -111,6 +111,13 @@ describe('CalendarCollectionShell factory', function() {
       expect(this.readOnly).to.be.true;
     });
 
+    it('should call initialize readOnly with true if the user right is SHAREE_FREE_BUSY', function() {
+      calendarSharedRight = CALENDAR_SHARED_RIGHT.SHAREE_FREE_BUSY;
+      this.CalendarCollectionShell(calendar);
+
+      expect(this.readOnly).to.be.true;
+    });
+
     it('should call initialize readOnly with true if the user right is PUBLIC_READ', function() {
       calendarRight = CALENDAR_RIGHT.PUBLIC_READ;
       this.CalendarCollectionShell(calendar);

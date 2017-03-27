@@ -150,7 +150,8 @@
 
     function checkReadOnly(rights, userId) {
       if (rights) {
-        return rights.getShareeRight(userId) === CALENDAR_SHARED_RIGHT.SHAREE_READ || rights.getUserRight(userId) === CALENDAR_RIGHT.PUBLIC_READ;
+        return ([CALENDAR_SHARED_RIGHT.SHAREE_READ, CALENDAR_SHARED_RIGHT.SHAREE_FREE_BUSY].indexOf(rights.getShareeRight(userId)) > -1) ||
+          rights.getUserRight(userId) === CALENDAR_RIGHT.PUBLIC_READ;
       }
 
       return false;
