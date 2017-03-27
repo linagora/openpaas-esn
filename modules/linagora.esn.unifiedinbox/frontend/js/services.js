@@ -730,9 +730,9 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .service('inboxJmapItemService', function($q, session, newComposerService, emailSendingService, backgroundAction,
+  .service('inboxJmapItemService', function($q, $rootScope, session, newComposerService, emailSendingService, backgroundAction,
                                             jmap, inboxMailboxesService, infiniteListService, inboxSelectionService,
-                                            asyncJmapAction, _) {
+                                            asyncJmapAction, _, INBOX_EVENTS) {
     function _rejectIfNotFullyUpdated(response) {
       if (!_.isEmpty(response.notUpdated)) {
         return $q.reject(response);
@@ -745,6 +745,13 @@ angular.module('linagora.esn.unifiedinbox')
       });
     }
 
+    function _updateItemMailboxIds(item, newMailboxIds) {
+      item.oldMailboxIds = item.mailboxIds;
+      item.mailboxIds = newMailboxIds;
+
+      return item;
+    }
+
     function moveToMailbox(itemOrItems, mailbox) {
       var toMailboxIds = [mailbox.id],
           items = angular.isArray(itemOrItems) ? itemOrItems : [itemOrItems],
@@ -752,6 +759,8 @@ angular.module('linagora.esn.unifiedinbox')
             if (item.isUnread) {
               inboxMailboxesService.moveUnreadMessages(item.mailboxIds, toMailboxIds, 1);
             }
+
+            $rootScope.$broadcast(INBOX_EVENTS.ITEM_MAILBOX_IDS_CHANGED, _updateItemMailboxIds(item, toMailboxIds));
 
             return item.id;
           });
@@ -766,6 +775,8 @@ angular.module('linagora.esn.unifiedinbox')
           .catch(function(response) {
             _.forEach(response.notUpdated, function(error, id) {
               var item = itemsById[id];
+
+              $rootScope.$broadcast(INBOX_EVENTS.ITEM_MAILBOX_IDS_CHANGED, _updateItemMailboxIds(item, item.oldMailboxIds));
 
               if (item.isUnread) {
                 inboxMailboxesService.moveUnreadMessages(toMailboxIds, item.mailboxIds, 1);
@@ -829,6 +840,7 @@ angular.module('linagora.esn.unifiedinbox')
       var items = _.isArray(itemOrItems) ? itemOrItems : [itemOrItems],
           itemsById = _.indexBy(items, function(item) {
             item[flag] = state;
+            $rootScope.$broadcast(INBOX_EVENTS.ITEM_FLAG_CHANGED, item, flag, state);
 
             return item.id;
           });
@@ -842,7 +854,10 @@ angular.module('linagora.esn.unifiedinbox')
           .then(_rejectIfNotFullyUpdated)
           .catch(function(response) {
             _.forEach(response.notUpdated, function(error, id) {
-              itemsById[id][flag] = !state;
+              var item = itemsById[id];
+
+              item[flag] = !state;
+              $rootScope.$broadcast(INBOX_EVENTS.ITEM_FLAG_CHANGED, item, flag, state);
             });
 
             return $q.reject(response);

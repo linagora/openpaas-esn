@@ -3050,7 +3050,7 @@ describe('The Unified Inbox Angular module services', function() {
   describe('The inboxJmapItemService service', function() {
 
     var $rootScope, jmap, inboxJmapItemService, newComposerService, emailSendingService,
-        quoteEmail, jmapClientMock, notificationFactory, counter, infiniteListService, inboxSelectionService, INFINITE_LIST_EVENTS;
+        quoteEmail, jmapClientMock, notificationFactory, counter, infiniteListService, inboxSelectionService, INFINITE_LIST_EVENTS, INBOX_EVENTS;
 
     beforeEach(module(function($provide) {
       counter = 0;
@@ -3071,7 +3071,7 @@ describe('The Unified Inbox Angular module services', function() {
     }));
 
     beforeEach(inject(function(_$rootScope_, _jmap_, _inboxJmapItemService_, _notificationFactory_,
-                               _infiniteListService_, _inboxSelectionService_, _INFINITE_LIST_EVENTS_) {
+                               _infiniteListService_, _inboxSelectionService_, _INFINITE_LIST_EVENTS_, _INBOX_EVENTS_) {
       $rootScope = _$rootScope_;
       jmap = _jmap_;
       inboxJmapItemService = _inboxJmapItemService_;
@@ -3079,6 +3079,7 @@ describe('The Unified Inbox Angular module services', function() {
       infiniteListService = _infiniteListService_;
       inboxSelectionService = _inboxSelectionService_;
       INFINITE_LIST_EVENTS = _INFINITE_LIST_EVENTS_;
+      INBOX_EVENTS = _INBOX_EVENTS_;
 
       inboxSelectionService.unselectAllItems = sinon.spy(inboxSelectionService.unselectAllItems);
       infiniteListService.actionRemovingElements = sinon.spy(infiniteListService.actionRemovingElements);
@@ -3243,6 +3244,38 @@ describe('The Unified Inbox Angular module services', function() {
         inboxMailboxesService.moveUnreadMessages.reset();
 
         $rootScope.$digest();
+      });
+
+      it('should update mailboxIds and broadcast an event', function(done) {
+        var message = newEmail();
+
+        $rootScope.$on(INBOX_EVENTS.ITEM_MAILBOX_IDS_CHANGED, function() {
+          expect(message.mailboxIds).to.deep.equal(['mailboxId']);
+
+          done();
+        });
+
+        inboxJmapItemService.moveToMailbox(message, mailbox);
+        $rootScope.$digest();
+      });
+
+      it('should revert mailboxIds and broadcast an event on failure', function() {
+        var message = newEmail(),
+            eventHandler = sinon.spy();
+
+        mockSetMessages({
+          id1: {
+            type: 'invalidArguments'
+          }
+        });
+
+        $rootScope.$on(INBOX_EVENTS.ITEM_MAILBOX_IDS_CHANGED, eventHandler);
+
+        inboxJmapItemService.moveToMailbox(message, mailbox);
+        $rootScope.$digest();
+
+        expect(eventHandler).to.have.been.calledTwice;
+        expect(message.mailboxIds).to.deep.equal(['inbox']);
       });
 
     });
@@ -3480,6 +3513,38 @@ describe('The Unified Inbox Angular module services', function() {
           done();
         });
         $rootScope.$digest();
+      });
+
+      it('should broadcast an event with the updated flag', function(done) {
+        var message = newEmail();
+
+        $rootScope.$on(INBOX_EVENTS.ITEM_FLAG_CHANGED, function(event, item) {
+          expect(item.isUnread).to.equal(true);
+
+          done();
+        });
+
+        inboxJmapItemService.setFlag(message, 'isUnread', true);
+        $rootScope.$digest();
+      });
+
+      it('should revert the flag and broadcast an event on failure', function() {
+        var message = newEmail(),
+            eventHandler = sinon.spy();
+
+        mockSetMessages({
+          id1: {
+            type: 'invalidArguments'
+          }
+        });
+
+        $rootScope.$on(INBOX_EVENTS.ITEM_FLAG_CHANGED, eventHandler);
+
+        inboxJmapItemService.setFlag(message, 'isUnread', true);
+        $rootScope.$digest();
+
+        expect(eventHandler).to.have.been.calledTwice;
+        expect(message.isUnread).to.equal(false);
       });
 
     });
