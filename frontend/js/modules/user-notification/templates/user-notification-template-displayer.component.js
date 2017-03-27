@@ -10,7 +10,7 @@
           notification: '='
         },
         controllerAs: 'ctrl',
-        templateUrl: '/views/modules/user-notification/user-notification-template-displayer.html'
+        templateUrl: '/views/modules/user-notification/templates/user-notification-template-displayer.html'
       };
     }
 })();

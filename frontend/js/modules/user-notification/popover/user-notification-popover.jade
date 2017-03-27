@@ -1,0 +1,8 @@
+.user-notification-popover.popover(tabindex="-1", esn-user-notification-popover)
+  .arrow
+  .popover-title.text-center #{__('Notifications')}
+    a.pull-right(href="", ng-show="false") #{__('Mark as read')}
+  .popover-content
+    esn-user-notification-list(scroll-inside-container='true')
+  .popover-footer
+    a #{__('See all')}

@@ -62,7 +62,7 @@ describe('The esn-user-notification-popover directive', function() {
     $window.outerHeight = portraitInnerHeightUrlBar;
     $window.screen.availWidth = portraitWidth;
     $window.screen.availHeight = portraitScreenHeight;
-    var html = '<div ng-controller="ESNUserNotificationPopoverController"><div id="test" esn-user-notification-popover></div></div>';
+    var html = '<div><div id="test" esn-user-notification-popover></div></div>';
     var element = this.$compile(html)(this.$rootScope);
 
     this.$rootScope.$digest();
@@ -94,7 +94,7 @@ describe('The esn-user-notification-popover directive', function() {
     $window.outerHeight = portraitInnerHeightUrlBar;
     $window.screen.availWidth = portraitWidth;
     $window.screen.availHeight = portraitScreenHeight;
-    var html = '<div ng-controller="ESNUserNotificationPopoverController"><div id="test" esn-user-notification-popover></div></div>';
+    var html = '<div><div id="test" esn-user-notification-popover></div></div>';
     var element = this.$compile(html)(this.$rootScope);
 
     this.$rootScope.$digest();
@@ -124,7 +124,7 @@ describe('The esn-user-notification-popover directive', function() {
     $window.outerHeight = portraitInnerHeightUrlBar;
     $window.screen.availWidth = portraitWidth;
     $window.screen.availHeight = portraitScreenHeight;
-    var html = '<div ng-controller="ESNUserNotificationPopoverController"><div id="test" esn-user-notification-popover></div></div>';
+    var html = '<div><div id="test" esn-user-notification-popover></div></div>';
     var element = this.$compile(html)(this.$rootScope);
 
     this.$rootScope.$digest();

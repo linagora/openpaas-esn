@@ -180,7 +180,7 @@
   "Notifications" : "Notifications",
   "Mark as read" : "Marquer comme lu",
   "Read" : "Lu",
-  "You have no notifications." : "Vous n'avez pas de notification.",
+  "You have no notifications" : "Vous n'avez pas de notifications",
   "Previous" : "Précédent",
   "Request membership": "Demander à faire partie de la communauté",
   "Cancel membership request": "Annuler la demande de faire partie de la communauté",
@@ -386,5 +386,6 @@
   "Enter a name": "Entrez un nom",
   "No member found": "Aucun membre trouvé",
   "See in calendar": "Voir dans le calendrier",
-  "More details...": "Plus de détails..."
+  "More details...": "Plus de détails...",
+  "See all": "Voir tout"
 }
