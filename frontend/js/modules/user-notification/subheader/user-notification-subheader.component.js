@@ -6,7 +6,6 @@
 
   function esnUserNotificationSubheader() {
     return {
-      controllerAs: 'ctrl',
       templateUrl: '/views/modules/user-notification/subheader/user-notification-subheader.html'
     };
   }
