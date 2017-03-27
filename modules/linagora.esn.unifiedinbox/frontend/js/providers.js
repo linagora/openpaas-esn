@@ -21,7 +21,8 @@ angular.module('linagora.esn.unifiedinbox')
   .factory('newInboxTwitterProvider', function($q, $http, newProvider, _, ELEMENTS_PER_REQUEST, PROVIDER_TYPES) {
     return function(id, accountId, url) {
       return newProvider({
-        id: id + accountId,
+        id: id,
+        account: accountId,
         types: [PROVIDER_TYPES.SOCIAL, PROVIDER_TYPES.TWITTER],
         name: 'Tweets',
         fetch: function() {

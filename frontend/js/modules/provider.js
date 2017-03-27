@@ -78,6 +78,9 @@ angular.module('esn.provider', [
             .filter(function(provider) {
               return !provider.id || !options.acceptedIds || _.contains(options.acceptedIds, provider.id);
             })
+            .filter(function(provider) {
+              return !provider.account || !options.acceptedAccounts || _.contains(options.acceptedAccounts, provider.account);
+            })
             .map(function(provider) {
               options.filterByType = options.filterByType || {};
 
@@ -134,6 +137,7 @@ angular.module('esn.provider', [
             result.date = new Date(result.date);
           }
           result.templateUrl = provider.templateUrl;
+          result.provider = provider;
 
           return result;
         });
@@ -171,19 +175,15 @@ angular.module('esn.provider', [
     };
   })
 
-  .factory('newProvider', function(PageAggregatorService, toAggregatorSource, _, uuid4, sortByDateInDescendingOrder,
-                                   ELEMENTS_PER_REQUEST, ELEMENTS_PER_PAGE) {
+  .factory('newProvider', function($q, PageAggregatorService, toAggregatorSource, _, uuid4) {
     return function(provider) {
       return {
         id: provider.id || uuid4.generate(),
+        account: provider.account,
         type: provider.type || (provider.types && provider.types[0]),
         types: provider.types || [provider.type],
         name: provider.name,
-        fetch: function(context) {
-          return new PageAggregatorService(provider.name, [toAggregatorSource(provider, context)], {
-            results_per_page: ELEMENTS_PER_PAGE
-          }).bidirectionalFetcher();
-        },
+        fetch: provider.fetch,
         buildFetchContext: provider.buildFetchContext,
         templateUrl: provider.templateUrl
       };
