@@ -403,12 +403,12 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       expect($scope.isBoxed()).to.equal(false);
     });
 
-    it('should call state.go with the given type and the controller composition', function(done) {
+    it('should call state.go with the given type, the controller composition and page history replace option', function(done) {
       var directive = compileDirective('<composer />');
 
       directive.controller('composer').initCtrl({});
 
-      $state.go = sinon.spy(function(recipientsType, params) {
+      $state.go = sinon.spy(function(recipientsType, params, options) {
         expect(recipientsType).to.equal('.recipients');
         expect(params).to.shallowDeepEqual({
           recipientsType: 'to',
@@ -417,6 +417,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
             email: { bcc: [], cc: [], to: [] }
           }
         });
+        expect(options).to.shallowDeepEqual({ location: 'replace' });
         done();
       });
 
@@ -478,7 +479,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
         expect(ctrl.saveDraft).to.have.not.been.called;
       });
 
-      it('should back to previous state with correct parameters when the composer is hidden', function() {
+      it('should back to previous page with correct parameters when the composer is hidden', function() {
         $scope.hide();
 
         expect(esnPreviousPage.back).to.have.been.calledOnce;

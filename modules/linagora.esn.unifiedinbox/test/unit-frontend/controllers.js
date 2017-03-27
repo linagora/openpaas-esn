@@ -1815,7 +1815,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       scope.backToComposition();
 
-      expect($state.go).to.have.been.calledWith('^', { composition: $stateParams.composition });
+      expect($state.go).to.have.been.calledWith('^', { composition: $stateParams.composition }, { location: 'replace' });
     });
 
     it('should go to the selected recipientsType when goToRecipientsType is called', function() {
@@ -1823,7 +1823,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       scope.goToRecipientsType('recipientsType');
 
-      expect($state.go).to.have.been.calledWith('.', { recipientsType: 'recipientsType', composition: $stateParams.composition });
+      expect($state.go).to.have.been.calledWith('.', { recipientsType: 'recipientsType', composition: $stateParams.composition }, { location: 'replace' });
     });
   });
 
