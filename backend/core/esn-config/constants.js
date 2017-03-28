@@ -10,6 +10,12 @@ module.exports = {
         admin: 'rw'
       },
       configurations: {
+        superadmin: {
+          rights: {
+            admin: '',
+            user: ''
+          }
+        },
         homePage: {
           rights: {
             admin: 'rw',
