@@ -798,7 +798,7 @@ angular.module('linagora.esn.unifiedinbox')
         return moveToMailbox(items, mailbox);
       }, items, function(response) {
         return items.filter(function(item) {
-          return response.notUpdated[item.id];
+          return response.notUpdated ? response.notUpdated[item.id] : item;
         });
       });
     }
