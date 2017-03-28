@@ -1,7 +1,7 @@
 @inboxAsideFontSize: 1.2em;
 @inboxAsideHeadingFontSize: 1.6em;
 @inboxAsideIconFontSize: 2em;
-@dividerColor: darken(@darkenBgColor, 10%);
+@dividerColor: rgba(0, 0, 0, 0.08);
 @inboxAsideDragTargetBgColor: #FFCC80;
 
 .inbox-aside {
@@ -10,7 +10,7 @@
   color: @secondaryTextColor;
 
   hr {
-    margin: 5px 15px;
+    margin: 6px 0;
     border-top: 1px solid @dividerColor;
   }
 
@@ -22,12 +22,23 @@
       font-weight: 600;
       background-color: @darkenBgColor;
       border-radius: 2px;
+
+      .badge {
+        border: 1px solid @badge-color;
+      }
+
     }
 
     &:hover {
       .menu-item .menu-item-after:after {
         background-color: @darkenBgColor;
         border-radius: 2px;
+      }
+    }
+
+    &.toggle-submenu {
+      .menu-item .menu-item-after:after {
+        background-color: @body-bg;
       }
     }
   }
@@ -39,11 +50,15 @@
 
   .listview:not(.lv-lg):not(.lv-message) {
     .lv-item:not(.menu-heading) {
-      padding: 3px 30px 3px 20px;
+      padding: 3px 30px 3px 22px;
     }
 
     .lv-item.folder-with-icon {
-      padding: 3px 20px 3px 20px;
+      padding: 3px 3px 3px 22px;
+    }
+
+    .lv-item.toggle-submenu {
+      padding: 3px 3px 3px 0px;
     }
   }
 

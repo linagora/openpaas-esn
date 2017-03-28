@@ -471,4 +471,27 @@ describe('The UI module', function() {
     });
 
   });
+
+  describe('The esnToggle directive', function() {
+    var TOGGLE_TRANSITION;
+
+    beforeEach(inject(function($rootScope, _$compile_, _TOGGLE_TRANSITION_) {
+      $scope = $rootScope.$new();
+      $compile = _$compile_;
+      TOGGLE_TRANSITION = _TOGGLE_TRANSITION_;
+
+      $.fn.slideToggle = sinon.spy($.fn.slideToggle);
+    }));
+
+    it('should add "toggled" class to the parent element on click', function() {
+
+      initDirective('<div><ul></ul><button esn-toggle></button></div>');
+
+      element.find('button').click();
+
+      expect(element.hasClass('toggled')).to.be.true;
+      expect($.fn.slideToggle).to.have.been.calledWith(TOGGLE_TRANSITION);
+    });
+
+  });
 });

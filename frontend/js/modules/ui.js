@@ -18,6 +18,7 @@ angular.module('esn.ui', [
     like: 'mdi mdi-heart',
     up: 'mdi mdi-arrow-up'
   })
+  .constant('TOGGLE_TRANSITION', 200)
 
   .directive('fab', function(FAB_ICONS, DEFAULT_COLOR_CLASS) {
     return {
@@ -212,14 +213,14 @@ angular.module('esn.ui', [
     };
   })
 
-  .directive('esnToggle', function() {
+  .directive('esnToggle', function(TOGGLE_TRANSITION) {
 
     return {
       restrict: 'A',
       link: function(scope, element) {
         element.click(function() {
           element.parent().toggleClass('toggled');
-          element.parent().find('ul').stop(true, false).slideToggle(200);
+          element.parent().find('ul').stop(true, false).slideToggle(TOGGLE_TRANSITION);
         });
       }
     };
