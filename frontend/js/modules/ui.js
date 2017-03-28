@@ -5,7 +5,8 @@ angular.module('esn.ui', [
   'esn.constants',
   'op.dynamicDirective',
   'mgcrea.ngStrap.modal',
-  'esn.waves'
+  'esn.waves',
+  'esn.textarea-autosize'
 ])
 
   .constant('FAB_ICONS', {
