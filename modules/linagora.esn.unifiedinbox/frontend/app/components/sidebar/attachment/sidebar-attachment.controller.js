@@ -5,7 +5,7 @@
     .controller('inboxListSidebarAttachmentController', inboxListSidebarAttachmentController);
 
     function inboxListSidebarAttachmentController($stateParams, PROVIDER_TYPES) {
-      this.mailbox = $stateParams.mailbox;
+      this.mailbox = $stateParams.context;
       this.providerType = PROVIDER_TYPES.JMAP;
     }
 })();

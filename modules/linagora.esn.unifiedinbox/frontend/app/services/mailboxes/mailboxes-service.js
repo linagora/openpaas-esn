@@ -190,6 +190,12 @@
       }
 
       function getMessageListFilter(mailboxId) {
+        if (!mailboxId) {
+          return getMailboxWithRole(jmap.MailboxRole.INBOX).then(function(mailbox) {
+            return { inMailboxes: [mailbox.id] };
+          });
+        }
+
         var specialMailbox = inboxSpecialMailboxes.get(mailboxId);
         var filter;
 
@@ -197,10 +203,11 @@
           filter = specialMailbox.filter;
 
           if (filter && filter.unprocessed) {
-            return _mailboxRolesToIds(filter.notInMailboxes)
-              .then(function(ids) {
+            return $q.all(filter.notInMailboxes.map(getMailboxWithRole))
+              .catch(_.constant([]))
+              .then(function(mailboxes) {
                 delete filter.unprocessed;
-                filter.notInMailboxes = ids;
+                filter.notInMailboxes = _(mailboxes).filter(Boolean).map('id').value();
 
                 return filter;
               });
@@ -214,21 +221,6 @@
 
       function _isSpecialMailbox(mailboxId) {
         return !!inboxSpecialMailboxes.get(mailboxId);
-      }
-
-      function _mailboxRolesToIds(roles) {
-        return withJmapClient(function(jmapClient) {
-          return jmapClient.getMailboxes()
-            .then(function(mailboxes) {
-              return roles
-                .map(function(role) {
-                  return _.find(mailboxes, { role: role });
-                })
-                .filter(Boolean)
-                .map(_.property('id'));
-            })
-            .catch(_.constant([]));
-        });
       }
 
       function createMailbox(mailbox, onFailure) {

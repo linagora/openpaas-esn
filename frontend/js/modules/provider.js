@@ -78,6 +78,9 @@ angular.module('esn.provider', [
             .filter(function(provider) {
               return !provider.id || !options.acceptedIds || _.contains(options.acceptedIds, provider.id);
             })
+            .filter(function(provider) {
+              return !provider.account || !options.acceptedAccounts || _.contains(options.acceptedAccounts, provider.account);
+            })
             .map(function(provider) {
               options.filterByType = options.filterByType || {};
 
@@ -134,6 +137,7 @@ angular.module('esn.provider', [
             result.date = new Date(result.date);
           }
           result.templateUrl = provider.templateUrl;
+          result.provider = provider;
 
           return result;
         });
@@ -171,20 +175,17 @@ angular.module('esn.provider', [
     };
   })
 
-  .factory('newProvider', function(PageAggregatorService, toAggregatorSource, _, uuid4, sortByDateInDescendingOrder,
-                                   ELEMENTS_PER_REQUEST, ELEMENTS_PER_PAGE) {
+  .factory('newProvider', function($q, PageAggregatorService, toAggregatorSource, _, uuid4) {
     return function(provider) {
       return {
         id: provider.id || uuid4.generate(),
+        account: provider.account,
         type: provider.type || (provider.types && provider.types[0]),
         types: provider.types || [provider.type],
         name: provider.name,
-        fetch: function(context) {
-          return new PageAggregatorService(provider.name, [toAggregatorSource(provider, context)], {
-            results_per_page: ELEMENTS_PER_PAGE
-          }).bidirectionalFetcher();
-        },
+        fetch: provider.fetch,
         buildFetchContext: provider.buildFetchContext,
+        itemMatches: provider.itemMatches || _.constant($q.when()),
         templateUrl: provider.templateUrl
       };
     };
@@ -244,6 +245,7 @@ angular.module('esn.provider', [
         { name: 'Older than a month', dateFormat: 'mediumDate', accepts: _.constant(true) }
       ];
       this.elements = [];
+      this.knownElementIds = {};
 
       if (elements) {
         this.addAll(elements);
@@ -257,6 +259,10 @@ angular.module('esn.provider', [
     };
 
     ByDateElementGroupingTool.prototype.addElement = function(element) {
+      if (this.knownElementIds[element.id]) {
+        return;
+      }
+
       var now = moment().utc(),
           elementMoment = moment(element.date).utc();
 
@@ -268,7 +274,13 @@ angular.module('esn.provider', [
         }
       });
 
-      this.elements.push(element);
+      this.knownElementIds[element.id] = true;
+      // This will insert the element at the correct index, keeping the array sorted by date in descending order
+      // In the future, if we make the order configurable for instance, we will just have to change the callback
+      // function passed to `sortedIndex` and the array will be sorted differently
+      this.elements.splice(_.sortedIndex(this.elements, element, function(element) {
+        return -element.date;
+      }), 0, element);
     };
 
     ByDateElementGroupingTool.prototype.removeElement = function(element) {
@@ -276,6 +288,7 @@ angular.module('esn.provider', [
 
       if (index > -1) {
         this.elements.splice(index, 1);
+        delete this.knownElementIds[element.id];
       }
     };
 
@@ -289,6 +302,7 @@ angular.module('esn.provider', [
 
     ByDateElementGroupingTool.prototype.reset = function() {
       this.elements.length = 0;
+      this.knownElementIds = {};
     };
 
     return ByDateElementGroupingTool;

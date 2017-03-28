@@ -6,12 +6,12 @@ var expect = chai.expect;
 
 describe('The linagora.esn.unifiedinbox module controllers', function() {
 
-  var $stateParams, $rootScope, scope, $controller,
+  var $stateParams, $rootScope, scope, $controller, $timeout, $interval,
       jmapClient, jmap, notificationFactory, draftService, Offline = {},
-      Composition, newComposerService = {}, $state, $modal, navigateTo,
+      Composition, newComposerService = {}, $state, $modal, navigateTo, inboxPlugins, inboxFilteredList,
       inboxMailboxesService, inboxJmapItemService, _, fileUploadMock, config, moment, inboxMailboxesCache,
       touchscreenDetectorService, esnPreviousPage, inboxFilterDescendantMailboxesFilter, inboxSelectionService;
-  var JMAP_GET_MESSAGES_VIEW, INBOX_EVENTS, DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD;
+  var JMAP_GET_MESSAGES_VIEW, INBOX_EVENTS, DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD, INFINITE_LIST_POLLING_INTERVAL;
 
   beforeEach(function() {
     $stateParams = {
@@ -75,15 +75,23 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       $provide.value('navigateTo', navigateTo = sinon.spy());
       $provide.value('touchscreenDetectorService', touchscreenDetectorService = {});
       $provide.value('inboxFilterDescendantMailboxesFilter', inboxFilterDescendantMailboxesFilter);
+      $provide.decorator('inboxFilteredList', function($delegate) {
+        $delegate.addAll = sinon.spy();
+
+        return $delegate;
+      });
     });
   });
 
-  beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _jmap_,
+  beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _$timeout_, _$interval_, _jmap_, _inboxPlugins_, _inboxFilteredList_,
                                           _Composition_, _inboxMailboxesService_, ___, _JMAP_GET_MESSAGES_VIEW_,
                                           _DEFAULT_FILE_TYPE_, _moment_, _DEFAULT_MAX_SIZE_UPLOAD_, _inboxJmapItemService_,
-                                          _INBOX_EVENTS_, _inboxMailboxesCache_, _esnPreviousPage_, _inboxSelectionService_) {
+                                          _INBOX_EVENTS_, _inboxMailboxesCache_, _esnPreviousPage_, _inboxSelectionService_,
+                                          _INFINITE_LIST_POLLING_INTERVAL_) {
     $rootScope = _$rootScope_;
     $controller = _$controller_;
+    $timeout = _$timeout_;
+    $interval = _$interval_;
     jmap = _jmap_;
     Composition = _Composition_;
     inboxMailboxesService = _inboxMailboxesService_;
@@ -97,6 +105,9 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     moment = _moment_;
     esnPreviousPage = _esnPreviousPage_;
     inboxSelectionService = _inboxSelectionService_;
+    inboxPlugins = _inboxPlugins_;
+    INFINITE_LIST_POLLING_INTERVAL = _INFINITE_LIST_POLLING_INTERVAL_;
+    inboxFilteredList = _inboxFilteredList_;
 
     scope = $rootScope.$new();
   }));
@@ -117,10 +128,9 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
   describe('The unifiedInboxController', function() {
 
-    var INBOX_CONTROLLER_LOADING_STATES, inboxFilters, inboxFilteringService, inboxProviders, PROVIDER_TYPES;
+    var INBOX_CONTROLLER_LOADING_STATES, inboxFilters, inboxFilteringService, inboxProviders;
 
-    beforeEach(inject(function(_PROVIDER_TYPES_, _inboxProviders_, _inboxFilteringService_, _inboxFilters_, _INBOX_CONTROLLER_LOADING_STATES_) {
-      PROVIDER_TYPES = _PROVIDER_TYPES_;
+    beforeEach(inject(function(_inboxProviders_, _inboxFilteringService_, _inboxFilters_, _INBOX_CONTROLLER_LOADING_STATES_) {
       inboxProviders = _inboxProviders_;
       inboxFilters = _inboxFilters_;
       inboxFilteringService = _inboxFilteringService_;
@@ -136,12 +146,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       initController('unifiedInboxController');
 
-      expect(inboxProviders.getAll).to.have.been.calledWith({
-        acceptedTypes: [PROVIDER_TYPES.JMAP, PROVIDER_TYPES.SOCIAL],
-        filterByType: {
-          JMAP: {}
-        }
-      });
+      expect(inboxProviders.getAll).to.have.been.calledWith(inboxFilteringService.getAllProviderFilters());
     });
 
     it('should set state to ERROR when inboxProviders.getAll rejects', function() {
@@ -171,6 +176,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       $rootScope.$digest();
       initController('unifiedInboxController');
+      $timeout.flush();
 
       expect(jmapClient.getMailboxes).to.have.been.calledWith();
       expect(jmapClient.getMessageList).to.have.been.calledWith(sinon.match.has('filter', {
@@ -180,7 +186,6 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     });
 
     it('should forward filters to our jmap provider', function() {
-      inboxFilteringService.getFiltersForUnifiedInbox();
       _.find(inboxFilters, { id: 'isUnread' }).checked = true; // This simulated the selection of isUnread
 
       jmapClient.getMessageList = sinon.stub().returns($q.when(new jmap.MessageList(jmapClient, { messageIds: [1] })));
@@ -191,12 +196,104 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       $rootScope.$digest();
       initController('unifiedInboxController');
+      $timeout.flush();
 
       expect(jmapClient.getMessageList).to.have.been.calledWith(sinon.match.has('filter', {
         inMailboxes: ['id_inbox'],
         isUnread: true
       }));
       expect(jmapClient.getMessages).to.have.been.calledOnce;
+    });
+
+    it('should pass state parameters to inboxFilteringService', function() {
+      $stateParams.type = 'myType';
+      $stateParams.account = 'myAccount';
+      $stateParams.context = 'myContext';
+
+      initController('unifiedInboxController');
+
+      expect(inboxFilteringService.getAllProviderFilters()).to.deep.equal({
+        acceptedIds: null,
+        acceptedTypes: ['myType'],
+        acceptedAccounts: ['myAccount'],
+        filterByType: {
+          jmap: {},
+          twitter: {},
+          social: {}
+        },
+        context: 'myContext'
+      });
+    });
+
+    it('should publish available filters as scope.filters', function() {
+      initController('unifiedInboxController');
+
+      expect(scope.filters).to.deep.equal(inboxFilteringService.getAvailableFilters());
+    });
+
+    it('should initialize the scope.loadMoreElements function, calling the passed-in builder', function() {
+      initController('unifiedInboxController');
+
+      expect(scope.loadMoreElements).to.be.a('function');
+    });
+
+    it('should initialize the scope.loadRecentItems function', function() {
+      initController('unifiedInboxController');
+      $rootScope.$digest();
+
+      expect(scope.loadRecentItems).to.be.a('function');
+    });
+
+    it('should listen to "FILTER_CHANGED" event, resetting infinite scroll', function() {
+      jmapClient.getMessageList = sinon.stub().returns($q.when(new jmap.MessageList(jmapClient, { messageIds: [1] })));
+      jmapClient.getMessages = sinon.stub().returns($q.when([]));
+      jmapClient.getMailboxes = function() {
+        return $q.when([new jmap.Mailbox({}, 'id_inbox', 'name_inbox', { role: 'inbox' })]);
+      };
+
+      initController('unifiedInboxController');
+      $rootScope.$digest();
+
+      // Simulate end of initial infinite scroll
+      scope.infiniteScrollCompleted = true;
+      scope.infiniteScrollDisabled = true;
+
+      scope.$emit(INBOX_EVENTS.FILTER_CHANGED);
+
+      expect(scope.infiniteScrollCompleted).to.equal(false);
+
+      $timeout.flush();
+
+      expect(scope.infiniteScrollDisabled).to.equal(false);
+      expect(scope.infiniteScrollCompleted).to.equal(true); // Because the infinite scroll is done as I'm returning one item
+    });
+
+    it('should schedule scope.loadRecentItems at a regular interval', function(done) {
+      initController('unifiedInboxController');
+      scope.loadRecentItems = done;
+
+      $interval.flush(INFINITE_LIST_POLLING_INTERVAL);
+    });
+
+    it('should append new elements to the list', function() {
+      initController('unifiedInboxController');
+      scope.loadRecentItems = function() {
+        return $q.when([{ a: 1 }]);
+      };
+
+      $interval.flush(INFINITE_LIST_POLLING_INTERVAL);
+
+      expect(inboxFilteredList.addAll).to.have.been.calledWith([{ a: 1 }]);
+    });
+
+    it('should destroy the interval when scope is destroyed', function() {
+      initController('unifiedInboxController');
+      scope.loadRecentItems = sinon.spy();
+
+      scope.$emit('$destroy');
+      $interval.flush(INFINITE_LIST_POLLING_INTERVAL + 1);
+
+      expect(scope.loadRecentItems).to.have.not.been.calledWith();
     });
 
   });
@@ -1857,36 +1954,6 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
   });
 
-  describe('The listTwitterController', function() {
-
-    beforeEach(function() {
-      $stateParams.username = 'AwesomePaas';
-    });
-
-    beforeEach(inject(function(session) {
-      session.user.accounts = [{
-        data: {
-          id: 'idAwesomePaas',
-          provider: 'twitter',
-          username: 'AwesomePaas'
-        }
-      }, {
-        data: {
-          id: 'idAnother',
-          provider: 'twitter',
-          username: 'AnotherTwtterAccount'
-        }
-      }];
-    }));
-
-    it('should set $scope.username to the correct value', function() {
-      initController('listTwitterController');
-
-      expect(scope.username).to.equal('AwesomePaas');
-    });
-
-  });
-
   describe('The inboxSidebarEmailController', function() {
 
     var inboxSpecialMailboxes;
@@ -1966,10 +2033,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
     var controller, inboxJmapItemService, item1, item2;
 
-    beforeEach(function() {
-      item1 = { id: 1 };
-      item2 = { id: 2 };
-
+    function initController() {
       controller = $controller('inboxListSubheaderController', {
         inboxJmapItemService: inboxJmapItemService = {
           markAsUnread: sinon.spy(),
@@ -1980,6 +2044,14 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           moveToTrash: sinon.spy()
         }
       });
+      $rootScope.$digest();
+    }
+
+    beforeEach(function() {
+      item1 = { id: 1 };
+      item2 = { id: 2 };
+
+      initController();
     });
 
     it('should expose some utility functions from inboxSelectionService', function() {
@@ -2101,6 +2173,36 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         expect($state.go).to.have.been.calledWith('.move', { selection: true });
       });
 
+    });
+
+    it('should default contextSupportsAttachments to true if there\'s no type selected', function() {
+      expect(controller.contextSupportsAttachments).to.equal(true);
+    });
+
+    it('should default contextSupportsAttachments to true if there\'s no plugin for the selected type', function() {
+      $stateParams.type = 'myType';
+
+      initController();
+
+      expect(controller.contextSupportsAttachments).to.equal(true);
+    });
+
+    it('should ask plugin for resolved context name and contextSupportsAttachments', function() {
+      $stateParams.type = 'myType';
+      inboxPlugins.add({
+        type: 'myType',
+        contextSupportsAttachments: function() {
+          return $q.when(false);
+        },
+        resolveContextName: function() {
+          return $q.when('-Context-');
+        }
+      });
+
+      initController();
+
+      expect(controller.contextSupportsAttachments).to.equal(false);
+      expect(controller.resolvedContextName).to.equal('-Context-');
     });
 
   });

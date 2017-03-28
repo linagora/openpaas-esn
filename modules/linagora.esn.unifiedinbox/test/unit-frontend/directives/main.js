@@ -7,7 +7,7 @@ var expect = chai.expect;
 
 describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
-  var $compile, $rootScope, $scope, $timeout, element, jmapClient, jmap,
+  var $compile, $rootScope, $scope, $timeout, $templateCache, element, jmapClient, inboxPlugins,
       iFrameResize = angular.noop, elementScrollService, $stateParams, $dropdown,
       isMobile, searchService, autosize, windowMock, fakeNotification,
       sendEmailFakePromise, cancellationLinkAction, inboxConfigMock, inboxJmapItemService, _, INBOX_EVENTS,
@@ -76,14 +76,15 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
     });
   }));
 
-  beforeEach(inject(function(_$compile_, _$rootScope_, _$timeout_, _$stateParams_, session, _inboxJmapItemService_,
-                             _jmap_, ___, _INBOX_EVENTS_, _notificationFactory_, _esnPreviousPage_) {
+  beforeEach(inject(function(_$compile_, _$rootScope_, _$timeout_, _$stateParams_, _$templateCache_, session, _inboxJmapItemService_,
+                             _inboxPlugins_, ___, _INBOX_EVENTS_, _notificationFactory_, _esnPreviousPage_) {
     $compile = _$compile_;
     $rootScope = _$rootScope_;
     $timeout = _$timeout_;
     $stateParams = _$stateParams_;
+    $templateCache = _$templateCache_;
     inboxJmapItemService = _inboxJmapItemService_;
-    jmap = _jmap_;
+    inboxPlugins = _inboxPlugins_;
     _ = ___;
     esnPreviousPage = _esnPreviousPage_;
     INBOX_EVENTS = _INBOX_EVENTS_;
@@ -1695,7 +1696,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       filters = inboxFilters;
     }));
 
-    it('should expose a isFilteringActive function, returning true if at least one fiter is checked', function() {
+    it('should expose a isFilteringActive function, returning true if at least one filter is checked', function() {
       filters[0].checked = true;
 
       compileDirective('<inbox-empty-container-message />');
@@ -1703,58 +1704,31 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       expect(element.isolateScope().isFilteringActive()).to.equal(true);
     });
 
-    it('should expose a isFilteringActive function, returning false if no fiter is checked', function() {
+    it('should expose a isFilteringActive function, returning false if no filter is checked', function() {
       compileDirective('<inbox-empty-container-message />');
 
       expect(element.isolateScope().isFilteringActive()).to.equal(false);
     });
 
-    it('should expose a isCustomMailbox attribute, true if the container is a custom mailbox', function() {
-      $scope.mailbox = {
-        role: jmap.MailboxRole.UNKNOWN
-      };
-      compileDirective('<inbox-empty-container-message mailbox="mailbox"/>');
+    it('should expose a templateUrl from a plugin, if a plugin exist for the current type', function() {
+      $stateParams.type = 'myPluginType';
+      $templateCache.put('/myPluginTemplate', '');
+      inboxPlugins.add({
+        type: 'myPluginType',
+        getEmptyContextTemplateUrl: _.constant($q.when('/myPluginTemplate'))
+      });
 
-      expect(!!element.isolateScope().isCustomMailbox).to.equal(true);
-    });
-
-    it('should expose a isCustomMailbox attribute, falsy if the container is not a custom mailbox', function() {
-      $scope.mailbox = {
-        role: jmap.MailboxRole.INBOX
-      };
-      compileDirective('<inbox-empty-container-message mailbox="mailbox"/>');
-
-      expect(!!element.isolateScope().isCustomMailbox).to.equal(false);
-    });
-
-    it('should expose a isCustomMailbox attribute, falsy if the container is not a mailbox', function() {
       compileDirective('<inbox-empty-container-message />');
 
-      expect(!!element.isolateScope().isCustomMailbox).to.equal(false);
+      expect(element.isolateScope().containerTemplateUrl).to.equal('/myPluginTemplate');
     });
 
-    it('should use role if defined', function() {
-      compileDirective('<inbox-empty-container-message role="twitter"/>');
+    it('should expose a templateUrl with a default value if a plugin does not exist for the current type', function() {
+      $stateParams.type = 'myPluginType';
 
-      expect(element.isolateScope().containerTemplateUrl).to.match(/twitter.html/);
-    });
+      compileDirective('<inbox-empty-container-message />');
 
-    it('should compute role if not defined, based on the mailbox role', function() {
-      $scope.mailbox = {
-        role: jmap.MailboxRole.INBOX
-      };
-      compileDirective('<inbox-empty-container-message mailbox="mailbox"/>');
-
-      expect(element.isolateScope().containerTemplateUrl).to.match(/inbox.html/);
-    });
-
-    it('should use default role if mailbox is not a custom one', function() {
-      $scope.mailbox = {
-        role: jmap.MailboxRole.UNKNOWN
-      };
-      compileDirective('<inbox-empty-container-message mailbox="mailbox"/>');
-
-      expect(element.isolateScope().containerTemplateUrl).to.match(/default.html/);
+      expect(element.isolateScope().containerTemplateUrl).to.equal('/unifiedinbox/views/partials/empty-messages/containers/inbox.html');
     });
 
   });

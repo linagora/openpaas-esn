@@ -8,8 +8,4 @@
       inbox-clear-filters-button
 
   .message(ng-switch-when="false")
-    ng-include(src="::containerTemplateUrl")
-
-    .message.inbox-dnd-info-message.all-centered.hidden-xs(ng-if="isCustomMailbox")
-      i.mdi.mdi-lightbulb-outline
-      span #{__('Did you know you can drag & drop messages to this folder? Give it a try!')}
+    ng-include(src="containerTemplateUrl")

@@ -2,5 +2,5 @@
   .inbox-message-indicators(dynamic-directive='inbox-message-indicators')
   ul.actions
     li.action-item
-      i.email-status-icon.mdi.mdi-paperclip(ng-if='::item.hasAttachment')
+      i.email-status-icon.mdi.mdi-paperclip(ng-if='item.hasAttachment')
     inbox-star(item='item')

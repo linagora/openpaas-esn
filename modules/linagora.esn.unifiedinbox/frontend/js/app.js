@@ -40,7 +40,9 @@ angular.module('linagora.esn.unifiedinbox', [
   'esn.attachment-list',
   'esn.avatar',
   'esn.highlight',
-  'esn.escape-html'
+  'esn.escape-html',
+  'esn.registry',
+  'material.components.virtualRepeat'
 ])
 
   .config(function($stateProvider, dynamicDirectiveServiceProvider) {
@@ -200,7 +202,7 @@ angular.module('linagora.esn.unifiedinbox', [
         params: { vacation: null }
       })
       .state('unifiedinbox.inbox', {
-        url: '/inbox',
+        url: '/inbox?type&account&context',
         views: {
           'main@unifiedinbox': {
             controller: 'unifiedInboxController as ctrl',
@@ -252,97 +254,7 @@ angular.module('linagora.esn.unifiedinbox', [
             controller: 'listTwitterController as ctrl'
           }
         }
-      })
-      .state('unifiedinbox.list', {
-        url: '/:mailbox',
-        views: {
-          'main@unifiedinbox': { controller: 'listController' }
-        },
-        resolve: {
-          mailboxIdsFilter: function($stateParams, inboxMailboxesService) {
-            return inboxMailboxesService.getMessageListFilter($stateParams.mailbox);
-          }
-        }
-      })
-      .state('unifiedinbox.list.messages', {
-        url: '/messages',
-        views: {
-          'main@unifiedinbox': {
-            templateUrl: '/unifiedinbox/views/email/list/index',
-            controller: 'listItemsController as ctrl'
-          }
-        },
-        resolve: {
-          hostedMailProvider: 'inboxHostedMailMessagesProvider'
-        }
-      })
-      .state('unifiedinbox.list.messages.attachments', stateOpeningRightSidebar({
-        url: '/attachments',
-        views: {
-          'sidebar@unifiedinbox.list.messages': {
-            template: '<inbox-list-sidebar-attachment />'
-          }
-        }
-      }))
-      .state('unifiedinbox.list.messages.attachments.message', stateOpeningListItem({
-        url: '/:emailId',
-        views: {
-          'preview-pane@unifiedinbox.list.messages': {
-            templateUrl: '/unifiedinbox/views/email/view/index',
-            controller: 'viewEmailController as ctrl'
-          }
-        }
-      }))
-      .state('unifiedinbox.list.messages.move', stateOpeningModal({
-        url: '/move',
-        params: {
-          item: undefined,
-          selection: false
-        }
-      }, '/unifiedinbox/views/email/view/move/index', 'inboxMoveItemController'))
-      .state('unifiedinbox.list.messages.message', stateOpeningListItem({
-        url: '/:emailId',
-        views: {
-          'preview-pane@unifiedinbox.list.messages': {
-            templateUrl: '/unifiedinbox/views/email/view/index',
-            controller: 'viewEmailController as ctrl'
-          }
-        }
-      }))
-      .state('unifiedinbox.list.messages.message.move', stateOpeningModal({
-        url: '/move'
-      }, '/unifiedinbox/views/email/view/move/index', 'inboxMoveItemController'))
-      .state('unifiedinbox.list.threads', {
-        url: '/threads',
-        views: {
-          'main@unifiedinbox': {
-            templateUrl: '/unifiedinbox/views/thread/list/index',
-            controller: 'listItemsController as ctrl'
-          }
-        },
-        resolve: {
-          hostedMailProvider: 'inboxHostedMailThreadsProvider'
-        }
-      })
-      .state('unifiedinbox.list.threads.move', stateOpeningModal({
-        url: '/move',
-        params: {
-          item: undefined,
-          selection: false
-        }
-      }, '/unifiedinbox/views/email/view/move/index', 'inboxMoveItemController'))
-      .state('unifiedinbox.list.threads.thread', stateOpeningListItem({
-        url: '/:threadId',
-        views: {
-          'preview-pane@unifiedinbox.list.threads': {
-            templateUrl: '/unifiedinbox/views/thread/view/index',
-            controller: 'viewThreadController as ctrl'
-          }
-        }
-      }))
-      .state('unifiedinbox.list.threads.thread.move', stateOpeningModal({
-        url: '/move'
-      }, '/unifiedinbox/views/email/view/move/index', 'inboxMoveItemController'));
+      });
 
     var inbox = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-inbox', {priority: 45}),
         attachmentDownloadAction = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'attachment-download-action');
@@ -402,4 +314,8 @@ angular.module('linagora.esn.unifiedinbox', [
 
   .run(function(inboxHostedMailAttachmentProvider, esnAttachmentListProviders) {
     esnAttachmentListProviders.add(inboxHostedMailAttachmentProvider);
+  })
+
+  .run(function(esnScrollListenerService) {
+    esnScrollListenerService.bindTo('.inbox-infinite-list .md-virtual-repeat-scroller');
   });

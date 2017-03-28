@@ -1,10 +1,31 @@
-extends ../layout/list/index
-
-block item
-  ng-include(src="::item.templateUrl")
-
-block subheader
+sub-header(ng-if="!inbox.list.isElementOpened")
   unified-view-subheader
 
-block empty-message
-  inbox-empty-container-message(role="inbox")
+.inbox-list-preview-pane.ui-view(name="preview-pane", noanimation)
+.inbox-list-sidebar.ui-view(name="sidebar", ng-class="{ offscreen : !inbox.rightSidebar.isVisible || inbox.list.isElementOpened }")
+
+.inbox-list(ng-switch="ctrl.state", ng-class="{ offscreen: inbox.list.isElementOpened,  'has-sidebar-open': inbox.rightSidebar.isVisible }")
+
+  inbox-list-account-unavailable(ng-switch-when="ERROR", account="::ctrl.account")
+
+  .inbox-infinite-list(ng-switch-default, md-virtual-repeat-container)
+    .inbox-items-group(md-virtual-repeat="item in inboxListModel", md-on-demand="true")
+
+      .block-header(ng-if="item.group.visibleItems > 0 && ($first || item.previous().group !== item.group)")
+        h2 {{ item.group.name }}
+        .block-header-actions
+          inbox-list-group-toggle-selection(group="item.group", elements="inboxList")
+
+      .card.listview.lv-bordered.lv-lg
+        .lv-body
+          .lv-item.media.inbox-list-item
+            ng-include(src="item.templateUrl")
+
+    ul.nav.nav-pills.nav-stacked(ng-if='!infiniteScrollCompleted')
+      li.text-center(openpaas-logo-spinner, spinner-start-active='1', spinner-size='0.5')
+
+    div(ng-if="infiniteScrollCompleted && inboxList.length === 0")
+      inbox-empty-container-message
+
+  inbox-fab
+  fab-scroll-top

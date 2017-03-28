@@ -88,7 +88,7 @@ angular.module('esn.header', ['esn.sidebar', 'esn.subheader', 'matchmedia-ng', '
     };
   })
 
-  .directive('mainHeader', function(matchmedia, headerService, Fullscreen,
+  .directive('mainHeader', function($rootScope, matchmedia, headerService, Fullscreen,
                                     SUB_HEADER_HAS_INJECTION_EVENT, SUB_HEADER_VISIBLE_MD_EVENT,
                                     HEADER_VISIBILITY_EVENT, HEADER_DISABLE_SCROLL_LISTENER_EVENT, SM_XS_MEDIA_QUERY) {
     return {
@@ -97,6 +97,10 @@ angular.module('esn.header', ['esn.sidebar', 'esn.subheader', 'matchmedia-ng', '
       templateUrl: '/views/modules/header/header.html',
       link: function(scope, element) {
         function toggleHeaderVisibility(visible) {
+          $rootScope.$broadcast(HEADER_VISIBILITY_EVENT, visible);
+        }
+
+        function toggleClass(visible) {
           element.find('#header').toggleClass('hide-top', !visible);
         }
 
@@ -105,7 +109,7 @@ angular.module('esn.header', ['esn.sidebar', 'esn.subheader', 'matchmedia-ng', '
         scope.disableByEvent = false;
 
         scope.$on(HEADER_VISIBILITY_EVENT, function(event, visible) {
-          toggleHeaderVisibility(visible);
+          toggleClass(visible);
         });
 
         scope.$on(HEADER_DISABLE_SCROLL_LISTENER_EVENT, function(event, disabled) {

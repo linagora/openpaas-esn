@@ -155,51 +155,6 @@ describe('The Unified Inbox Angular module filters', function() {
 
   });
 
-  describe('The inboxFilterJmapItems filter', function() {
-
-    var _, filter, inboxFilters;
-    var items = [{ id: 'unread', isUnread: true }, { id: 'social' }, { another: 'property' }];
-
-    beforeEach(inject(function(inboxFilterJmapItemsFilter, _inboxFilters_, ___) {
-      filter = inboxFilterJmapItemsFilter;
-      inboxFilters = _inboxFilters_;
-      _ = ___;
-    }));
-
-    afterEach(function() {
-      _.forEach(inboxFilters, function(filter) {
-        filter.checked = false;
-      });
-    });
-
-    function checkFilter(id) {
-      _.find(inboxFilters, { id: id }).checked = true;
-    }
-
-    it('should not filter anything if nothing is selected', function() {
-      expect(filter(items)).to.deep.equal(items);
-    });
-
-    it('should not filter anything if the selection does not involve JMAP', function() {
-      checkFilter('isSocial');
-
-      expect(filter(items)).to.deep.equal(items);
-    });
-
-    it('should filter items if the selection involves JMAP', function() {
-      checkFilter('isUnread');
-
-      expect(filter(items)).to.deep.equal([{ id: 'unread', isUnread: true }]);
-    });
-
-    it('should filter items up to an empty list, if nothing matches', function() {
-      checkFilter('isFlagged');
-
-      expect(filter(items)).to.deep.equal([]);
-    });
-
-  });
-
   describe('The inboxFilterRestrictedMailboxes filter', function() {
 
     var inboxFilterRestrictedMailboxesFilter;

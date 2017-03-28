@@ -62,16 +62,6 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .filter('inboxFilterJmapItems', function(inboxFilteringService, _, PROVIDER_TYPES) {
-    return function(items) {
-      if (!inboxFilteringService.isAnyFilterOfTypeSelected(PROVIDER_TYPES.JMAP)) {
-        return items;
-      }
-
-      return _.filter(items, inboxFilteringService.getJmapFilter());
-    };
-  })
-
   .filter('inboxFilterRestrictedMailboxes', function(inboxMailboxesService, _) {
     return function(mailboxes) {
       return _.filter(mailboxes, function(mailbox) {

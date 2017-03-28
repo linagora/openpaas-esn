@@ -66,10 +66,21 @@ describe('The esn.provider module', function() {
         expect(newProvider({ type: 'type1' }).type).to.equal('type1');
       });
 
-      it('should return a loadRecentItems() function attached to the main fetcher', function() {
-        var provider = newProvider({ id: 'id', fetch: function() {} });
+      it('should return the provider\'s main fetcher', function() {
+        var fetcher = function() {},
+            provider = newProvider({ id: 'id', fetch: fetcher });
 
-        expect(provider.fetch().loadRecentItems).to.be.a('function');
+        expect(provider.fetch).to.be.a('function');
+      });
+
+      it('should use account when present', function() {
+        expect(newProvider({ account: 'myAccount' }).account).to.equal('myAccount');
+      });
+
+      it('should use itemMatches when present', function() {
+        var itemMatches = function() {};
+
+        expect(newProvider({ itemMatches: itemMatches }).itemMatches).to.equal(itemMatches);
       });
 
     });
@@ -375,6 +386,63 @@ describe('The esn.provider module', function() {
       ByDateElementGroupingTool = _ByDateElementGroupingTool_;
     }));
 
+    it('should prevent insertion of duplicate items (items with same id)', function() {
+      var tool = new ByDateElementGroupingTool();
+
+      tool.addElement({ id: '000', date: 1 });
+      tool.addElement({ id: '123', date: 2 });
+      tool.addElement({ id: '123', date: 3 });
+      tool.addElement({ id: '555', date: 4 });
+
+      expect(_.pluck(tool.getGroupedElements(), 'id')).to.deep.equal(['555', '123', '000']);
+    });
+
+    it('should allow insertion of an item with same id if previous item is removed', function() {
+      var tool = new ByDateElementGroupingTool(),
+          item = { id: '123', date: 2 };
+
+      tool.addElement({ id: '000', date: 1 });
+      tool.addElement(item);
+      tool.addElement({ id: '555', date: 4 });
+
+      expect(_.pluck(tool.getGroupedElements(), 'id')).to.deep.equal(['555', '123', '000']);
+
+      tool.removeElement(item);
+      tool.addElement(item);
+
+      expect(_.pluck(tool.getGroupedElements(), 'id')).to.deep.equal(['555', '123', '000']);
+    });
+
+    it('should allow insertion of an item with same id after reset', function() {
+      var tool = new ByDateElementGroupingTool(),
+        item = { id: '123', date: 2 };
+
+      tool.addElement({ id: '000', date: 1 });
+      tool.addElement(item);
+      tool.addElement({ id: '555', date: 4 });
+
+      expect(_.pluck(tool.getGroupedElements(), 'id')).to.deep.equal(['555', '123', '000']);
+
+      tool.reset();
+      tool.addElement(item);
+
+      expect(_.pluck(tool.getGroupedElements(), 'id')).to.deep.equal(['123']);
+    });
+
+    it('should maintain the array ordered by date in descending order', function() {
+      var tool = new ByDateElementGroupingTool();
+
+      tool.addElement({ id: 1, date: 2 });
+      tool.addElement({ id: 2, date: 3 });
+
+      expect(_.pluck(tool.getGroupedElements(), 'date')).to.deep.equal([3, 2]);
+
+      tool.addElement({ id: 3, date: 4 });
+      tool.addElement({ id: 4, date: 1 });
+
+      expect(_.pluck(tool.getGroupedElements(), 'date')).to.deep.equal([4, 3, 2, 1]);
+    });
+
     it('should return an empty array when no elements are added', function() {
       expect(new ByDateElementGroupingTool().getGroupedElements()).to.deep.equal([]);
     });
@@ -587,20 +655,22 @@ describe('The esn.provider module', function() {
     });
 
     it('should format results according to the aggregator expectations', function(done) {
-      var source = toAggregatorSource({
+      var provider = {
         templateUrl: 'templateUrl',
         fetch: function() {
           return function() {
             return $q.when([{ date: '2017-01-01T00:00:00Z' }]);
           };
         }
-      });
+      };
+      var source = toAggregatorSource(provider);
 
       source.loadNextItems().then(function(data) {
         expect(data).to.deep.equal({
           data: [{
             date: new Date(Date.UTC(2017, 0, 1, 0, 0, 0, 0)),
-            templateUrl: 'templateUrl'
+            templateUrl: 'templateUrl',
+            provider: provider
           }],
           lastPage: true
         });
@@ -611,7 +681,7 @@ describe('The esn.provider module', function() {
     });
 
     it('should request recent items based on the most recent item known', function(done) {
-      var source = toAggregatorSource({
+      var provider = {
         templateUrl: 'templateUrl',
         fetch: function() {
           var fetcher = function() {
@@ -621,7 +691,8 @@ describe('The esn.provider module', function() {
           fetcher.loadRecentItems = function(item) {
             expect(item).to.deep.equal({
               date: new Date(Date.UTC(2017, 0, 1, 0, 0, 0, 0)),
-              templateUrl: 'templateUrl'
+              templateUrl: 'templateUrl',
+              provider: provider
             });
 
             done();
@@ -629,7 +700,8 @@ describe('The esn.provider module', function() {
 
           return fetcher;
         }
-      });
+      };
+      var source = toAggregatorSource(provider);
 
       source.loadNextItems();
       $rootScope.$digest();
@@ -640,17 +712,20 @@ describe('The esn.provider module', function() {
 
     it('should update most recent item when fetching recent items', function(done) {
       var called = 0,
-          expectedItem1 = {
-            date: new Date(Date.UTC(2016, 0, 1, 0, 0, 0, 0)),
-            templateUrl: 'templateUrl'
-          },
-          expectedItem2 = {
-            date: new Date(Date.UTC(2017, 0, 1, 0, 0, 0, 0)),
-            templateUrl: 'templateUrl'
-          },
-          source = toAggregatorSource({
+          provider = {
             templateUrl: 'templateUrl',
             fetch: function() {
+              var expectedItem1 = {
+                    date: new Date(Date.UTC(2016, 0, 1, 0, 0, 0, 0)),
+                    templateUrl: 'templateUrl',
+                    provider: provider
+                  },
+                  expectedItem2 = {
+                    date: new Date(Date.UTC(2017, 0, 1, 0, 0, 0, 0)),
+                    templateUrl: 'templateUrl',
+                    provider: provider
+                  };
+
               var fetcher = function() {
                 return $q.when([{ date: '2016-01-01T00:00:00Z' }]);
               };
@@ -667,7 +742,8 @@ describe('The esn.provider module', function() {
 
               return fetcher;
             }
-          });
+          },
+          source = toAggregatorSource(provider);
 
       source.loadNextItems();
       $rootScope.$digest();

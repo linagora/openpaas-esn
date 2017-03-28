@@ -8,8 +8,6 @@
       font-size: 1.4em;
       text-align: center;
 
-      display: none;
-
       .inbox-empty-icon {
         color: @accentColor;
         font-size: 8em;
@@ -53,18 +51,25 @@
       padding-left: 15px;
       padding-right: 19vw;
     }
+  }
 
-    .is-empty .inbox-empty-container-message {
-      .flex;
-    }
+  .inbox-infinite-list {
+    height: ~"calc(100vh - @{header-height} - @{sub-header-height})";
   }
 
   .inbox-items-group {
+    min-height: 32px; // Size of the smallest possible card
+
     .card {
       margin-bottom: 1px;
     }
 
-    .inbox-list-item, .inbox-message-list-item, .inbox-twitter-list-item {
+    .inbox-list-item {
+      min-height: 88px;
+      max-height: 88px;
+    }
+
+    .inbox-list-item {
       padding: 0;
 
       &.selected {
@@ -73,6 +78,7 @@
 
       .inbox-list-item-content {
         padding: 7px 10px;
+        width: 100%;
 
         .media-body {
           .flex-space-between;
@@ -109,8 +115,32 @@
           font-size: 12px;
           color: @lighterSecondaryTextColor;
 
-          margin-top: 5px;
+          margin-top: 4px;
           min-width: 0;
+        }
+
+        .inbox-preview-block {
+          position: relative;
+          max-height: 34px;
+          text-align: justify;
+          overflow: hidden;
+
+          &:before {
+            content: '\2026';
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            background: @m-white;
+          }
+
+          &:after {
+            content: '';
+            position: absolute;
+            right: 0;
+            width: 0.6em;
+            height: 1em;
+            background: @m-white;
+          }
         }
 
         .list-image {
@@ -148,10 +178,18 @@
   }
 }
 
+body.header-hidden {
+  .inbox-root {
+    .inbox-infinite-list {
+      height: ~"calc(100vh - @{sub-header-height})";
+    }
+  }
+}
+
 @media (min-width: @screen-md-min) {
   .inbox-root {
     .inbox-items-group {
-      .inbox-list-item, .inbox-message-list-item, .inbox-twitter-list-item {
+      .inbox-list-item {
         .inbox-list-item-content {
           padding: 10px 15px;
 
@@ -172,7 +210,12 @@
 @media (min-width: @screen-xl-min) {
   .inbox-root {
     .inbox-items-group {
-      .inbox-list-item, .inbox-message-list-item, .inbox-twitter-list-item {
+      .inbox-list-item {
+        min-height: 34px;
+        max-height: 34px;
+      }
+
+      .inbox-list-item {
         .inbox-list-item-content {
           padding: 3px 10px;
 

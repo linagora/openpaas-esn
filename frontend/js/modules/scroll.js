@@ -46,45 +46,74 @@ angular.module('esn.scroll', [
     };
   })
 
-  .directive('scrollListener', function($parse, SCROLL_DIFF_DELTA) {
+  .factory('esnScrollListenerService', function() {
+    var elements = [];
+
+    return {
+      bindTo: bindTo,
+      getAllBoundSelectors: getAllBoundSelectors
+    };
+
+    /////
+
+    function bindTo(selector) {
+      elements.push(selector);
+    }
+
+    function getAllBoundSelectors() {
+      return elements;
+    }
+  })
+
+  .directive('scrollListener', function($parse, esnScrollListenerService, _, SCROLL_DIFF_DELTA) {
     return {
       restrict: 'A',
       scope: true,
       link: function(scope, element, attrs) {
-
-        var position = angular.element(window).scrollTop(),
+        var position = 0,
             toggled = false;
 
-        var scrollHandler = function() {
-          var scroll = angular.element(window).scrollTop(),
-              diff = scroll - position;
+        var scrollHandler = function(event) {
+          var $target = angular.element(event.target),
+              elements = [document].concat(esnScrollListenerService.getAllBoundSelectors()),
+              targetIsElement = function(element) { return $target.is(element); };
+
+          if (!_.any(elements, targetIsElement)) {
+            return;
+          }
+
+          var scroll = $target.scrollTop(),
+              diff = scroll - position,
+              locals = {
+                $scroll: scroll
+              };
 
           if (diff > 0 && !toggled && Math.abs(diff) > SCROLL_DIFF_DELTA) {
             toggled = true;
-            $parse(attrs.onScrollDown)(scope);
+            $parse(attrs.onScrollDown)(scope, locals);
           } else if (diff < 0 && toggled && Math.abs(diff) > SCROLL_DIFF_DELTA) {
             toggled = false;
-            $parse(attrs.onScrollUp)(scope);
+            $parse(attrs.onScrollUp)(scope, locals);
           }
 
           if (scroll === 0 && attrs.onScrollTop) {
-            $parse(attrs.onScrollTop)(scope);
+            $parse(attrs.onScrollTop)(scope, locals);
           }
 
           position = scroll;
         };
 
-        angular.element(window).scroll(scrollHandler);
+        document.addEventListener('scroll', scrollHandler, true);
 
         scope.$on('$destroy', function() {
-          angular.element(window).off('scroll', scrollHandler);
+          document.removeEventListener('scroll', scrollHandler, true);
           $parse(attrs.onDestroy)(scope);
         });
       }
     };
   })
 
-  .factory('elementScrollService', function($timeout, $window, subHeaderService, deviceDetector, SUB_HEADER_HEIGHT_IN_PX) {
+  .factory('elementScrollService', function($timeout, $window, esnScrollListenerService, subHeaderService, deviceDetector, SUB_HEADER_HEIGHT_IN_PX) {
     /**
      * Auto-scroll to the end of the given element
      * @param element
@@ -109,12 +138,9 @@ angular.module('esn.scroll', [
     }
 
     function scrollToTop() {
-      if (deviceDetector.isMobile()) {
-        // the animation rendering is often bad with mobiles
-        $window.scrollTo(0, 0);
-      } else {
-        angular.element('html, body').animate({ scrollTop: 0 });
-      }
+      ['html, body'].concat(esnScrollListenerService.getAllBoundSelectors()).forEach(function(element) {
+        angular.element(element).animate({ scrollTop: 0 }, deviceDetector.isMobile() ? 0 : 250);
+      });
     }
 
     return {

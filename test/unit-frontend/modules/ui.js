@@ -91,27 +91,24 @@ describe('The UI module', function() {
 
     it('should remove "hidden" class when show is called and vertical scroll is twice the screen size', function() {
       $window.innerHeight = 100;
-      $window.scrollY = 250;
       initDirective('<fab-scroll-top></fab-scroll-top>');
 
-      $scope.show();
+      $scope.show(250);
 
       expect(element.hasClass('hidden')).to.equal(false);
     });
 
     it('should not remove "hidden" class when show is called but vertical scroll is not twice the screen size', function() {
       $window.innerHeight = 100;
-      $window.scrollY = 150;
       initDirective('<fab-scroll-top></fab-scroll-top>');
 
-      $scope.show();
+      $scope.show(150);
 
       expect(element.hasClass('hidden')).to.equal(true);
     });
 
     it('should add "hidden" class when hide is called', function() {
       $window.innerHeight = 100;
-      $window.scrollY = 250;
       initDirective('<fab-scroll-top></fab-scroll-top>');
 
       $scope.show();

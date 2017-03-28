@@ -11,24 +11,6 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('listTwitterSubheader', function() {
-    return {
-      restrict: 'E',
-      templateUrl: '/unifiedinbox/views/twitter/list/subheader.html',
-      controller: 'inboxListSubheaderController',
-      controllerAs: 'ctrl'
-    };
-  })
-
-  .directive('listEmailsSubheader', function() {
-    return {
-      restrict: 'E',
-      templateUrl: '/unifiedinbox/views/email/list/subheader.html',
-      controller: 'inboxListSubheaderController',
-      controllerAs: 'ctrl'
-    };
-  })
-
   .directive('viewEmailSubheader', function() {
     return {
       restrict: 'E',
