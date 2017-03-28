@@ -210,4 +210,17 @@ angular.module('esn.ui', [
       restrict: 'A',
       link: link
     };
+  })
+
+  .directive('esnToggle', function() {
+
+    return {
+      restrict: 'A',
+      link: function(scope, element) {
+        element.click(function() {
+          element.parent().toggleClass('toggled');
+          element.parent().find('ul').stop(true, false).slideToggle(200);
+        });
+      }
+    };
   });

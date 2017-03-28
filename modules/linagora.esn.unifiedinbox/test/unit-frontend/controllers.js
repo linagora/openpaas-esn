@@ -1890,13 +1890,15 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
   describe('The inboxSidebarEmailController', function() {
 
     var inboxSpecialMailboxes;
+    var session;
 
-    beforeEach(inject(function(_inboxSpecialMailboxes_) {
+    beforeEach(inject(function(_inboxSpecialMailboxes_, _session_) {
       inboxSpecialMailboxes = _inboxSpecialMailboxes_;
+      session = _session_;
 
       inboxMailboxesService.assignMailboxesList = sinon.spy(function() { return $q.when(); });
-    }));
 
+    }));
     it('should call the inboxMailboxesService.assignMailboxesList function', function() {
       initController('inboxSidebarEmailController');
 
@@ -1913,6 +1915,15 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       expect(inboxSpecialMailboxes.list).to.have.been.calledWith();
       expect(scope.specialMailboxes).to.deep.equal(specialMailboxes);
     });
+
+    it('should set session.user.preferredEmail to the correct value', function() {
+      session.user.preferredEmail = 'admin@open-paas.org';
+
+      initController('inboxSidebarEmailController');
+
+      expect(session.user.preferredEmail).to.equal('admin@open-paas.org');
+    });
+
   });
 
   describe('The inboxSidebarTwitterController controller', function() {

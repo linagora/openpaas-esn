@@ -576,8 +576,9 @@ angular.module('linagora.esn.unifiedinbox')
     $scope.username = account.username;
   })
 
-  .controller('inboxSidebarEmailController', function($scope, inboxMailboxesService, inboxSpecialMailboxes, inboxAsyncHostedMailControllerHelper) {
+  .controller('inboxSidebarEmailController', function($scope, inboxMailboxesService, inboxSpecialMailboxes, inboxAsyncHostedMailControllerHelper, session) {
     $scope.specialMailboxes = inboxSpecialMailboxes.list();
+    $scope.emailAddress = session.user.preferredEmail;
 
     inboxAsyncHostedMailControllerHelper(this, function() {
       return inboxMailboxesService.assignMailboxesList($scope);

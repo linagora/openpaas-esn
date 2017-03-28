@@ -18,18 +18,16 @@
     line-height: @inboxAsideIconFontSize;
 
     &.selected {
-      background-color: @darkenBgColor;
       color: @primaryColor;
-      font-weight: 500;
-
-      .menu-item .menu-item-after:after {
-        background-color: @darkenBgColor;
-      }
+      font-weight: 600;
+      background-color: @darkenBgColor;
+      border-radius: 2px;
     }
 
     &:hover {
       .menu-item .menu-item-after:after {
         background-color: @darkenBgColor;
+        border-radius: 2px;
       }
     }
   }
@@ -42,6 +40,10 @@
   .listview:not(.lv-lg):not(.lv-message) {
     .lv-item:not(.menu-heading) {
       padding: 3px 30px 3px 20px;
+    }
+
+    .lv-item.folder-with-icon {
+      padding: 3px 20px 3px 20px;
     }
   }
 
@@ -98,6 +100,18 @@
     .menu-root {
       border-left: 5px solid @primaryColor;
       margin-top: 20px;
+      max-height: 35px;
+      margin-bottom: 5px;
+
+      .media .pull-right i.mdi {
+        vertical-align: sub;
+        font-size: 25px;
+        color: lighten(@secondaryTextColor, 10%);
+
+        &:hover {
+          color: darken(@secondaryTextColor, 20%);
+        }
+      }
     }
 
     .menu-heading {
@@ -134,6 +148,30 @@
         .menu-item .menu-item-after:after {
           background-color: @darkenBgColor;
         }
+
+        &:hover {
+          .menu-item .menu-item-after:after {
+            background-color: @darkenBgColor;
+          }
+        }
+      }
+
+      &.folder-with-icon {
+        .menu-item .menu-item-after:after {
+          background-color: darken(@darkenBgColor, 2%);
+        }
+
+        &:hover {
+          .menu-item .menu-item-after:after {
+            background-color: @darkenBgColor;
+          }
+        }
+      }
+
+      &.toggle-submenu {
+        .menu-item .menu-item-after:after {
+          background-color: @darkenBgColor;
+        }
       }
 
       &.droptarget {
@@ -149,10 +187,8 @@
         .cursor-grabbing;
       }
 
-      .menu-item {
-        .menu-item-after:after {
-          background-color: @body-bg;
-        }
+      .menu-item .menu-item-after:after {
+        background-color: @body-bg;
       }
     }
   }

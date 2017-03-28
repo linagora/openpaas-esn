@@ -76,6 +76,14 @@
       min-width: 1px;
     }
   }
+
+  .clickable.selected {
+    .menu-item {
+      .menu-item-after:after {
+        background-color: @darkenBgColor;
+      }
+    }
+  }
 }
 
 .flashing-keyframes(flashing-desktop; @primaryColor; @m-black);
