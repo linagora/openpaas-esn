@@ -11,7 +11,8 @@
     calendarService,
     calendarVisibilityService,
     session,
-    userAndSharedCalendars,
+    userAndExternalCalendars,
+    calPublicCalendarStore,
     _,
     CALENDAR_EVENTS
   ) {
@@ -24,6 +25,9 @@
 
     function $onInit() {
       self.calendars = [];
+      self.userCalendars = [];
+      self.publicCalendars = [];
+      self.sharedCalendars = [];
       self.hiddenCalendars = {};
       self.toggleCalendar = calendarVisibilityService.toggle;
 
@@ -56,6 +60,7 @@
 
       return calendarService.listCalendars(session.user._id, options).then(function(calendars) {
         self.calendars = _.clone(calendars);
+        self.calendars = self.calendars.concat(calPublicCalendarStore.getAll());
 
         refreshCalendarsList();
       });
@@ -70,8 +75,11 @@
     }
 
     function handleCalendarAdd(event, calendar) {
-      self.calendars.push(calendar);
-      refreshCalendarsList();
+      if (!_.find(self.calendars, {id: calendar.id})) {
+        self.calendars.push(calendar);
+
+        refreshCalendarsList();
+      }
     }
 
     function handleCalendarUpdate(event, calendar) {
@@ -86,14 +94,16 @@
 
     function handleCalendarRemove(event, calendar) {
       _.remove(self.calendars, { id: calendar.id });
+
       refreshCalendarsList();
     }
 
     function refreshCalendarsList() {
-      var calendars = userAndSharedCalendars(self.calendars);
+      var calendars = userAndExternalCalendars(self.calendars);
 
       self.userCalendars = calendars.userCalendars;
       self.sharedCalendars = calendars.sharedCalendars;
+      self.publicCalendars = calendars.publicCalendars;
     }
   }
 })();

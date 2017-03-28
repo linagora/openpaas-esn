@@ -4,11 +4,21 @@
 
 var expect = chai.expect;
 
-describe('The CalendarSharedConsultController controller', function() {
-  var $controller, $rootScope, $scope, calendarAdmin, sessionMock, CalendarSharedConsultController, calendarHomeId, calendar, $stateParamsMock, calendarHomeServiceMock, calendarServiceMock, userAPIMock, CALENDAR_RIGHT, CALENDAR_SHARED_RIGHT;
+describe('The CalendarSharedConsultationController controller', function() {
+  var $controller, $rootScope, $scope, $logMock, sharedCalendarOwner, sessionMock, CalendarSharedConsultationController, calendarHomeId, calendar, $stateParamsMock, calendarHomeServiceMock, calendarServiceMock, CALENDAR_RIGHT, CALENDAR_SHARED_RIGHT;
 
   beforeEach(function() {
+    $logMock = {
+      error: sinon.spy(),
+      info: sinon.spy(),
+      debug: sinon.spy()
+    };
+
     calendarHomeId = '123456789';
+
+    sharedCalendarOwner = {
+      firstname: 'calendarOwner'
+    };
 
     calendar = {
       href: '/calendars/56095ccccbd51b7318ce6d0c/db0d5d63-c36a-42fc-9684-6f5e8132acfe.json',
@@ -42,6 +52,9 @@ describe('The CalendarSharedConsultController controller', function() {
         _userEmails: {
           adminId: {}
         }
+      },
+      getOwner: function() {
+        return sharedCalendarOwner;
       }
     };
 
@@ -76,32 +89,14 @@ describe('The CalendarSharedConsultController controller', function() {
       })
     };
 
-    calendarAdmin = {
-      _id: 'adminId',
-      firsname: 'admin',
-      lastname: 'admin'
-    };
-
-    userAPIMock = {
-      user: function(userId) {
-        if (userId === 'adminId') {
-          return $q.when({
-            data: calendarAdmin
-          });
-        }
-
-        return $q.when({});
-      }
-    };
-
     angular.mock.module('esn.calendar');
 
     angular.mock.module(function($provide) {
       $provide.value('calendarHomeService', calendarHomeServiceMock);
       $provide.value('$stateParams', $stateParamsMock);
       $provide.value('calendarService', calendarServiceMock);
-      $provide.value('userAPI', userAPIMock);
       $provide.value('session', sessionMock);
+      $provide.value('$log', $logMock);
     });
 
     angular.mock.inject(function(_$controller_, _$rootScope_, _CALENDAR_RIGHT_, _CALENDAR_SHARED_RIGHT_) {
@@ -114,12 +109,20 @@ describe('The CalendarSharedConsultController controller', function() {
   });
 
   beforeEach(function() {
-    CalendarSharedConsultController = $controller('CalendarSharedConsultController', {$scope: $scope});
+    CalendarSharedConsultationController = $controller('CalendarSharedConsultationController', {$scope: $scope});
   });
 
   describe('the $onInit function', function() {
+    it('should display an error message when the calendarId is missing', function() {
+      delete $stateParamsMock.calendarId;
+
+      CalendarSharedConsultationController.$onInit();
+
+      expect($logMock.error).to.have.been.calledWith('the calendar ID is missing from the URL');
+    });
+
     it('should get the calendarHomeId', function() {
-      CalendarSharedConsultController.$onInit();
+      CalendarSharedConsultationController.$onInit();
 
       expect(calendarHomeServiceMock.getUserCalendarHomeId).to.be.called;
     });
@@ -129,7 +132,7 @@ describe('The CalendarSharedConsultController controller', function() {
         withRights: true
       };
 
-      CalendarSharedConsultController.$onInit();
+      CalendarSharedConsultationController.$onInit();
 
       $rootScope.$digest();
 
@@ -137,35 +140,35 @@ describe('The CalendarSharedConsultController controller', function() {
     });
 
     it('should initialize the calendar with the calendar returned by the calendarService.getCalendar', function() {
-      CalendarSharedConsultController.$onInit();
+      CalendarSharedConsultationController.$onInit();
 
       $rootScope.$digest();
 
-      expect(CalendarSharedConsultController.calendar).to.deep.equal(calendar);
+      expect(CalendarSharedConsultationController.sharedCalendar).to.deep.equal(calendar);
     });
 
     it('should initialize the user with the current user', function() {
-      CalendarSharedConsultController.$onInit();
+      CalendarSharedConsultationController.$onInit();
 
       $rootScope.$digest();
 
-      expect(CalendarSharedConsultController.user).to.deep.equal(sessionMock.user);
+      expect(CalendarSharedConsultationController.user).to.deep.equal(sessionMock.user);
     });
 
     it('should initialize the user Right with the user right from the shared calendar', function() {
-      CalendarSharedConsultController.$onInit();
+      CalendarSharedConsultationController.$onInit();
 
       $rootScope.$digest();
 
-      expect(CalendarSharedConsultController.userRightLabel).to.be.equal('Read only');
+      expect(CalendarSharedConsultationController.userRightLabel).to.be.equal('Read only');
     });
 
     it('should get the calendarOwner from the shared calendar', function() {
-      CalendarSharedConsultController.$onInit();
+      CalendarSharedConsultationController.$onInit();
 
       $rootScope.$digest();
 
-      expect(CalendarSharedConsultController.calendarOwner).to.deep.equal(calendarAdmin);
+      expect(CalendarSharedConsultationController.sharedCalendarOwner).to.deep.equal(sharedCalendarOwner);
     });
   });
 });

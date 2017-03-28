@@ -2,10 +2,11 @@
   'use strict';
 
   angular.module('esn.calendar')
-    .component('calSharedCalendarsList', {
-      templateUrl: '/calendar/app/components/calendars-list/shared-calendars-list/shared-calendars-list.html',
+    .component('calExternalCalendarsList', {
+      templateUrl: '/calendar/app/components/calendars-list/external-calendars-list/external-calendars-list.html',
       bindings: {
         sharedCalendars: '=',
+        publicCalendars: '=',
         toggleCalendar: '=',
         hiddenCalendars: '='
       }

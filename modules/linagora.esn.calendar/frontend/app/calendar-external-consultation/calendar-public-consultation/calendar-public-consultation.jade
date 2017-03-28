@@ -1,0 +1,31 @@
+.calendar-public-consultation.card
+  sub-header
+    calendar-external-consultation-header
+  .block-header.hidden-xs
+    h2 #{__('Consult public calendar')}
+  .calendar-public-consultation-body
+    .calendar-public-consultation-line
+      .row
+        .col-xs-3
+          div #{__('Name')}
+        .col-xs-9
+          div {{ $ctrl.publicCalendar.name }}
+    .calendar-color
+      .row
+        .col-xs-3
+          div #{__('Color')}
+        .col-xs-9
+          .color-picker-container
+            i.color-picker-value(ng-style="{'background-color': $ctrl.publicCalendar.color}")
+    .calendar-public-consultation-line
+      .row
+        .col-xs-3
+          div #{__('Owner')}
+        .col-xs-9
+          div {{ $ctrl.publicCalendarOwner.firstname + ' ' + $ctrl.publicCalendarOwner.lastname }}
+    .calendar-public-consultation-line
+      .row
+        .col-xs-3
+          div #{__('Public right')}
+        .col-xs-9
+          div {{ $ctrl.publicRight }}

@@ -6,7 +6,7 @@ var expect = chai.expect;
 
 describe('The calendarsList controller', function() {
   var $rootScope, $scope, $controller, CalendarCollectionShell, CALENDAR_EVENTS, CALENDAR_RIGHT, CALENDAR_SHARED_RIGHT;
-  var calendars, CalendarsListController, calendarServiceMock, hiddenCalendar, calendarVisibilityServiceMock;
+  var calendars, CalendarsListController, calendarServiceMock, hiddenCalendar, calendarVisibilityServiceMock, calPublicCalendarStoreMock, publicCalendar;
 
   function initController() {
     return $controller('CalendarsListController', { $scope: $scope });
@@ -29,11 +29,27 @@ describe('The calendarsList controller', function() {
       toggle: sinon.spy()
     };
 
+    publicCalendar = {
+      id: '5',
+      href: 'public calendar href',
+      name: 'public calendar name',
+      color: 'public calendar color',
+      description: 'public calendar description',
+      isShared: angular.noop
+    };
+
+    calPublicCalendarStoreMock = {
+      getAll: function() {
+        return [];
+      }
+    };
+
     angular.mock.module('esn.calendar');
 
     angular.mock.module(function($provide) {
       $provide.value('calendarService', calendarServiceMock);
       $provide.value('calendarVisibilityService', calendarVisibilityServiceMock);
+      $provide.value('calPublicCalendarStore', calPublicCalendarStoreMock);
     });
 
   });
@@ -99,7 +115,7 @@ describe('The calendarsList controller', function() {
 
     describe('CALENDAR_EVENTS.CALENDARS.ADD listener', function() {
 
-      it('call add calendar to self.calendars', function() {
+      it('should add calendar to self.calendars if it does not exist yet', function() {
         var newCalendar = CalendarCollectionShell.from({
           href: '/calendars/12345/3.json',
           name: 'name3',
@@ -109,11 +125,29 @@ describe('The calendarsList controller', function() {
         var expectedResult = calendars.concat(newCalendar);
 
         CalendarsListController.$onInit();
+
         $rootScope.$apply();
 
         $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.ADD, newCalendar);
 
         expect(CalendarsListController.calendars).to.deep.equal(expectedResult);
+      });
+
+      it('should not add calendar to self.calendars if it already exists', function() {
+        var newCalendar = CalendarCollectionShell.from({
+          href: '/calendars/12345/1.json',
+          name: 'name',
+          color: 'color',
+          description: 'description'
+        });
+
+        CalendarsListController.$onInit();
+
+        $rootScope.$apply();
+
+        $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.ADD, newCalendar);
+
+        expect(CalendarsListController.calendars).to.deep.equal(calendars);
       });
 
       describe('refreshCalendarList on add', function() {
@@ -130,25 +164,54 @@ describe('The calendarsList controller', function() {
             description: 'description2',
             rights: {
               getUserRight: function() {
-                return CALENDAR_RIGHT.SHAREE_READ;
+                return CALENDAR_RIGHT.NONE;
               },
               getPublicRight: function() {
                 return CALENDAR_RIGHT.PUBLIC_READ;
               }
             },
             isShared: function() {
-              return CALENDAR_SHARED_RIGHT.SHAREE_READ;
+              return false;
+            },
+            isPublic: function() {
+              return true;
+            },
+            isOwner: function() {
+              return false;
+            }
+          }, {
+            href: '/calendars/12345/3.json',
+            name: 'name3',
+            color: 'color3',
+            description: 'description3',
+            rights: {
+              getUserRight: function() {
+                return CALENDAR_SHARED_RIGHT.SHAREE_READ;
+              },
+              getPublicRight: function() {
+                return CALENDAR_RIGHT.FREE_BUSY;
+              }
+            },
+            isShared: function() {
+              return true;
+            },
+            isPublic: function() {
+              return false;
+            },
+            isOwner: function() {
+              return false;
             }
           }];
         });
 
-        it('refresh calendars list', function() {
-          var newCalendar = CalendarCollectionShell.from({
-            href: '/calendars/12345/3.json',
-            name: 'name3',
-            color: 'color3',
-            description: 'description3'
-          });
+        it('should refresh calendars list', function() {
+          var newCalendar = {
+            id: '4',
+            href: '/calendars/12345/4.json',
+            name: 'name4',
+            color: 'color4',
+            description: 'description4'
+          };
           var expectedResult = calendars.concat(newCalendar);
 
           CalendarsListController.$onInit();
@@ -156,17 +219,19 @@ describe('The calendarsList controller', function() {
 
           $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.ADD, newCalendar);
 
-          expect(CalendarsListController.userCalendars).to.deep.equal([expectedResult[0], expectedResult[2]]);
-          expect(CalendarsListController.sharedCalendars).to.deep.equal([expectedResult[1]]);
+          expect(CalendarsListController.userCalendars).to.deep.equal([expectedResult[0], expectedResult[3]]);
+          expect(CalendarsListController.sharedCalendars).to.deep.equal([expectedResult[2]]);
+          expect(CalendarsListController.publicCalendars).to.deep.equal([expectedResult[1]]);
         });
 
         it('refresh calendars list and not consider the new calendar as shared once it is classified as personal', function() {
-          var newCalendar = CalendarCollectionShell.from({
-            href: '/calendars/12345/3.json',
-            name: 'name3',
-            color: 'color3',
-            description: 'description3'
-          });
+          var newCalendar = {
+            id: '4',
+            href: '/calendars/12345/4.json',
+            name: 'name4',
+            color: 'color4',
+            description: 'description4'
+          };
           var expectedResult = calendars.concat(newCalendar);
 
           CalendarsListController.$onInit();
@@ -174,8 +239,9 @@ describe('The calendarsList controller', function() {
 
           $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.ADD, newCalendar);
 
-          expect(CalendarsListController.userCalendars).to.deep.equal([expectedResult[0], expectedResult[2]]);
-          expect(CalendarsListController.sharedCalendars).to.deep.equal([expectedResult[1]]);
+          expect(CalendarsListController.userCalendars).to.deep.equal([expectedResult[0], expectedResult[3]]);
+          expect(CalendarsListController.sharedCalendars).to.deep.equal([expectedResult[2]]);
+          expect(CalendarsListController.publicCalendars).to.deep.equal([expectedResult[1]]);
         });
       });
     });
@@ -208,14 +274,20 @@ describe('The calendarsList controller', function() {
           description: 'description2',
           rights: {
             getUserRight: function() {
-              return CALENDAR_RIGHT.SHAREE_READ;
+              return CALENDAR_SHARED_RIGHT.SHAREE_READ;
             },
             getPublicRight: function() {
               return CALENDAR_RIGHT.PUBLIC_READ;
             }
           },
           isShared: function() {
-            return CALENDAR_SHARED_RIGHT.SHAREE_READ;
+            return false;
+          },
+          isPublic: function() {
+            return true;
+          },
+          isOwner: function() {
+            return false;
           }
         }];
 
@@ -227,8 +299,9 @@ describe('The calendarsList controller', function() {
         $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.REMOVE, calendars[0]);
 
         expect(CalendarsListController.calendars).to.deep.equal(expectedResult);
-        expect(CalendarsListController.sharedCalendars).to.deep.equal(expectedResult);
         expect(CalendarsListController.userCalendars).to.deep.equal([]);
+        expect(CalendarsListController.sharedCalendars).to.deep.equal([]);
+        expect(CalendarsListController.publicCalendars).to.deep.equal(expectedResult);
       });
     });
 
@@ -296,13 +369,17 @@ describe('The calendarsList controller', function() {
     describe('the listCalendars function', function() {
 
       it('should initialize calendars with all the calendars from calendarService.listCalendars', function() {
+        calPublicCalendarStoreMock.getAll = function() {
+          return [publicCalendar];
+        };
+
         CalendarsListController.$onInit();
 
         CalendarsListController.arrangeCalendars = sinon.spy();
 
         $rootScope.$digest();
 
-        expect(CalendarsListController.calendars).to.deep.equal(calendars);
+        expect(CalendarsListController.calendars).to.deep.equal(calendars.concat(calPublicCalendarStoreMock.getAll()));
       });
 
       it('should call calendarService.listCalendars with the two params', function() {

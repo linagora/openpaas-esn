@@ -67,12 +67,19 @@
 
       return calendarAPI.listAllCalendars(options)
         .then(function(calendars) {
-          return calendars
-            .filter(function(calendar) {
+          var allPublicCalendarsForUser = [];
+          var allCalendarsForUser = calendars.filter(function(calendar) {
               return calendar._links.self.href.indexOf(userId) !== -1;
-            })
-            .map(function(calendar) {
-              return new CalendarCollectionShell(calendar._embedded['dav:calendar'][0]);
+            });
+
+          allCalendarsForUser.forEach(function(calendar) {
+            calendar._embedded['dav:calendar'].forEach(function(publicCalendar) {
+              allPublicCalendarsForUser.push(publicCalendar);
+            });
+          });
+
+          return allPublicCalendarsForUser.map(function(calendar) {
+            return new CalendarCollectionShell(calendar);
             });
         });
     }

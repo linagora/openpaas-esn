@@ -127,10 +127,27 @@
           }
         }
       })
-      .state('calendar.shared', {
+      .state('calendar.external', {
+        url: '/external',
+        deepStateRedirect: {
+          default: 'calendar.main',
+          fn: function() {
+            return { state: 'calendar.main' };
+          }
+        }
+      })
+      .state('calendar.external.public', {
+        url: '/public/:calendarId',
+        views: {
+          'content@calendar': {
+            template: '<calendar-public-consultation />'
+          }
+        }
+      })
+      .state('calendar.external.shared', {
         url: '/shared/:calendarId',
         views: {
-          content: {
+          'content@calendar': {
             template: '<calendar-shared-consultation />'
           }
         }

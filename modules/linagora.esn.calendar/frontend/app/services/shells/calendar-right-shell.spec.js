@@ -50,6 +50,12 @@ describe('CalendarRightShell factory', function() {
     });
   });
 
+  describe('getUsersEmails function', function() {
+    it('should return the _userEmails attribute', function() {
+      expect(calendarRightShell.getUsersEmails()).to.deep.equal(calendarRightShell._userEmails);
+    });
+  });
+
   describe('getPublicRight', function() {
     it('should return rights of all the users', function() {
       expect(calendarRightShell.getPublicRight(), CALENDAR_RIGHT.FREE_BUSY);

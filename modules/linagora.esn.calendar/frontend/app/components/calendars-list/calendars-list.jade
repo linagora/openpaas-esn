@@ -11,9 +11,10 @@
     hidden-calendars="$ctrl.hiddenCalendars"
   )
 
-  cal-shared-calendars-list(
+  cal-external-calendars-list(
     shared-calendars="$ctrl.sharedCalendars",
+    public-calendars="$ctrl.publicCalendars",
     toggle-calendar="$ctrl.toggleCalendar",
     hidden-calendars="$ctrl.hiddenCalendars",
-    ng-if="$ctrl.sharedCalendars.length"
+    ng-if="$ctrl.sharedCalendars.length || $ctrl.publicCalendars.length"
   )
