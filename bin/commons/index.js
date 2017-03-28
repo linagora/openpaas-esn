@@ -5,8 +5,21 @@ const ESConfiguration = require('esn-elasticsearch-configuration');
 const path = require('path');
 const q = require('q');
 const fs = require('fs');
+const httpClient = require('./httpClient');
 
 const readdir = q.denodeify(fs.readdir);
+
+module.exports = {
+  httpClient,
+  logInfo,
+  logError,
+  getDBOptions,
+  getESConfiguration,
+  exit,
+  runCommand,
+  loginAsUser,
+  loadMongooseModels
+};
 
 function log(level, ...message) {
   console.log('[CLI]', level, ...message);
@@ -20,33 +33,34 @@ function logError(...message) {
   log('ERROR', ...message);
 }
 
-module.exports.getDBOptions = function() {
+function getDBOptions() {
   const dbConfigFilePath = path.normalize(__dirname + '/../config/db.json');
   const dbConfig = fs.readFileSync(dbConfigFilePath, 'utf8');
 
   return JSON.parse(dbConfig);
-};
+}
 
-module.exports.getESConfiguration = function(host, port) {
+function getESConfiguration(host, port) {
   return new ESConfiguration({ host: host || 'localhost', port: port || 9200 });
-};
+}
 
 function exit(code) {
-  process.exit(code);
+  process.exit(code); // eslint-disable-line no-process-exit
 }
-module.exports.exit = exit;
 
-module.exports.runCommand = (name, command) => command().then(() => {
-  logInfo(`Command "${name}" terminated successfully`);
+function runCommand(name, command) {
+  return command().then(() => {
+    logInfo(`Command "${name}" terminated successfully`);
 
-  exit();
-}, err => {
-  logError(`Command "${name}" returned an error: ${err}`);
+    exit();
+  }, err => {
+    logError(`Command "${name}" returned an error: ${err}`);
 
-  exit(1);
-});
+    exit(1);
+  });
+}
 
-module.exports.loginAsUser = function(baseUrl, email, password, done) {
+function loginAsUser(baseUrl, email, password, done) {
   request({
     uri: baseUrl + '/api/login',
     method: 'POST',
@@ -63,12 +77,9 @@ module.exports.loginAsUser = function(baseUrl, email, password, done) {
 
     return done(null, body);
   });
-};
+}
 
-module.exports.logInfo = logInfo;
-module.exports.logError = logError;
-
-module.exports.loadMongooseModels = function loadMongooseModels() {
+function loadMongooseModels() {
   var ESN_ROOT = path.resolve(__dirname, '../');
   var MODELS_ROOT = path.resolve(ESN_ROOT, 'backend/core/db/mongo/models');
 
@@ -81,4 +92,4 @@ module.exports.loadMongooseModels = function loadMongooseModels() {
       }
     });
   });
-};
+}

@@ -51,6 +51,12 @@ module.exports = {
       password: {
         describe: 'Password of the administrator to create'
       }
+    },
+    instance: {
+      url: {
+        describe: 'The OpenPaaS instance URL',
+        default: 'http://localhost:8080'
+      }
     }
   }
 };
