@@ -1,6 +1,7 @@
 'use strict';
 
 const OAUTH_CONFIG_KEY = 'oauth';
+const SCOPE = ['user:email', 'notifications'];
 const passport = require('passport');
 const GithubStrategy = require('passport-github').Strategy;
 
@@ -30,7 +31,7 @@ module.exports = dependencies => {
           clientID: oauth.github.client_id,
           clientSecret: oauth.github.client_secret,
           callbackURL: '/oauth/github/connect/callback',
-          scope: ['user', 'public_repo', 'repo', 'gist'],
+          scope: SCOPE,
           userAgent: 'OpenPaaS',
           passReqToCallback: true
         }, (req, accessToken, refreshToken, profile, callback) => {
