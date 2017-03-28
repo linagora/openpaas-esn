@@ -69,7 +69,7 @@
       max-height: 88px;
     }
 
-    .inbox-list-item, .inbox-message-list-item, .inbox-twitter-list-item {
+    .inbox-list-item {
       padding: 0;
 
       &.selected {
@@ -78,6 +78,7 @@
 
       .inbox-list-item-content {
         padding: 7px 10px;
+        width: 100%;
 
         .media-body {
           .flex-space-between;
@@ -114,9 +115,12 @@
           font-size: 12px;
           color: @lighterSecondaryTextColor;
 
-          position: relative;
           margin-top: 4px;
           min-width: 0;
+        }
+
+        .inbox-preview-block {
+          position: relative;
           max-height: 34px;
           text-align: justify;
           overflow: hidden;
@@ -133,7 +137,7 @@
             content: '';
             position: absolute;
             right: 0;
-            width: 1em;
+            width: 0.6em;
             height: 1em;
             background: @m-white;
           }
@@ -185,7 +189,7 @@ body.header-hidden {
 @media (min-width: @screen-md-min) {
   .inbox-root {
     .inbox-items-group {
-      .inbox-list-item, .inbox-message-list-item, .inbox-twitter-list-item {
+      .inbox-list-item {
         .inbox-list-item-content {
           padding: 10px 15px;
 
@@ -211,7 +215,7 @@ body.header-hidden {
         max-height: 34px;
       }
 
-      .inbox-list-item, .inbox-message-list-item, .inbox-twitter-list-item {
+      .inbox-list-item {
         .inbox-list-item-content {
           padding: 3px 10px;
 
