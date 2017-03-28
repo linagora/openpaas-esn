@@ -26,6 +26,23 @@ describe('The Scroll Angular module', function() {
     $provide.value('SUB_HEADER_HEIGHT_IN_PX', SUB_HEADER_HEIGHT_IN_PX);
   }));
 
+  describe('The esnScrollListenerService factory', function() {
+
+    var esnScrollListenerService;
+
+    beforeEach(inject(function(_esnScrollListenerService_) {
+      esnScrollListenerService = _esnScrollListenerService_;
+    }));
+
+    it('should act as a registry', function() {
+      esnScrollListenerService.bindTo('.my-component');
+      esnScrollListenerService.bindTo('.my-second-component');
+
+      expect(esnScrollListenerService.getAllBoundSelectors()).to.deep.equal(['.my-component', '.my-second-component']);
+    });
+
+  });
+
   describe('The scrollListener directive', function() {
 
     var $scope;
@@ -134,6 +151,8 @@ describe('The Scroll Angular module', function() {
     beforeEach(inject(function(_$timeout_, _elementScrollService_) {
       $timeout = _$timeout_;
       elementScrollService = _elementScrollService_;
+
+      $.fn.animate = sinon.spy($.fn.animate);
     }));
 
     describe('the autoScrollDown method with an element that has a scrollHeight attribute', function() {
@@ -212,31 +231,35 @@ describe('The Scroll Angular module', function() {
 
     describe('The scrollToTop function', function() {
 
-      var $window, deviceDetector;
+      var deviceDetector, esnScrollListenerService;
 
-      beforeEach(inject(function(_$window_, _deviceDetector_) {
-        $window = _$window_;
+      beforeEach(inject(function(_deviceDetector_, _esnScrollListenerService_) {
         deviceDetector = _deviceDetector_;
+        esnScrollListenerService = _esnScrollListenerService_;
       }));
 
-      it('should scroll to top with the "scrollTo" fn on mobile"', function() {
-        deviceDetector.isMobile = sinon.stub().returns(true);
-        $window.scrollTo = sinon.spy();
+      it('should scroll to top with a jquery animation with a speed of 250ms on desktop', function() {
+        deviceDetector.isMobile = sinon.stub().returns(false);
 
         elementScrollService.scrollToTop();
 
-        expect(deviceDetector.isMobile).to.have.been.called;
-        expect($window.scrollTo).to.have.been.calledWith(0, 0);
+        expect($.fn.animate).to.have.been.calledWith(sinon.match.any, 250);
       });
 
-      it('should scroll to top with a jquery animation on desktop"', function() {
-        deviceDetector.isMobile = sinon.stub().returns(false);
-        $window.scrollTo = sinon.spy();
+      it('should scroll to top with a jquery animation with a speed of 0 on mobile', function() {
+        deviceDetector.isMobile = sinon.stub().returns(true);
 
         elementScrollService.scrollToTop();
 
-        expect(deviceDetector.isMobile).to.have.been.called;
-        expect($window.scrollTo).to.not.have.been.called;
+        expect($.fn.animate).to.have.been.calledWith(sinon.match.any, 0);
+      });
+
+      it('should scroll to top body and all registered element selectors', function() {
+        esnScrollListenerService.bindTo('.my-component');
+
+        elementScrollService.scrollToTop();
+
+        expect($.fn.animate).to.have.been.calledTwice;
       });
     });
 

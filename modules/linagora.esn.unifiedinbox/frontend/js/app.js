@@ -314,4 +314,8 @@ angular.module('linagora.esn.unifiedinbox', [
 
   .run(function(inboxHostedMailAttachmentProvider, esnAttachmentListProviders) {
     esnAttachmentListProviders.add(inboxHostedMailAttachmentProvider);
+  })
+
+  .run(function(esnScrollListenerService) {
+    esnScrollListenerService.bindTo('.inbox-infinite-list .md-virtual-repeat-scroller');
   });

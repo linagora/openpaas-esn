@@ -37,19 +37,18 @@ angular.module('esn.ui', [
   .directive('fabScrollTop', function($window, elementScrollService) {
     return {
       restrict: 'E',
-      template: '<fab class="no-animation" icon="up" scroll-listener data-on-scroll-down="hide()" data-on-scroll-top="hide()" data-on-scroll-up="show()" />',
+      template: '<fab class="no-animation" icon="up" scroll-listener data-on-scroll-down="hide()" data-on-scroll-top="hide()" data-on-scroll-up="show($scroll)" />',
       link: function(scope, element) {
-
-        function _scrollIsTwiceScreenHeight() {
-          return ($window.innerHeight * 2) < $window.scrollY;
+        function _scrollIsTwiceScreenHeight($scroll) {
+          return ($window.innerHeight * 2) < $scroll;
         }
 
         scope.hide = function() {
           element.addClass('hidden');
         };
 
-        scope.show = function() {
-          if (_scrollIsTwiceScreenHeight()) {
+        scope.show = function($scroll) {
+          if (_scrollIsTwiceScreenHeight($scroll)) {
             element.removeClass('hidden');
           }
         };
