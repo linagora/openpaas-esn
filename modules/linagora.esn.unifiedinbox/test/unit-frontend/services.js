@@ -3322,13 +3322,13 @@ describe('The Unified Inbox Angular module services', function() {
         $rootScope.$digest();
       });
 
-      it('should restore all items when JMAP did not succeeeded', function(done) {
+      it('should restore all items when JMAP did not succeed', function(done) {
         var item1 = { id: 1, mailboxIds: [] },
           item2 = { id: 2, mailboxIds: [] },
           mailbox = { id: 'mailbox' };
         var itemsToRemove = [item1, item2];
 
-        jmapClientMock.setMessages = sinon.spy(function() { return $q.reject({}); });
+        jmapClientMock.setMessages = function() { return $q.reject({}); };
 
         $rootScope.$on(INFINITE_LIST_EVENTS.ADD_ELEMENTS, function(event, elements) {
           expect(elements).to.deep.equal(itemsToRemove);

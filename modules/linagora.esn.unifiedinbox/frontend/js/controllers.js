@@ -213,25 +213,28 @@ angular.module('linagora.esn.unifiedinbox')
 
   })
 
-  .controller('viewEmailController', function($scope, $state, $stateParams, inboxJmapItemService, jmapHelper) {
+  .controller('viewEmailController', function($scope, $state, $stateParams, inboxJmapItemService, jmapHelper, inboxAsyncHostedMailControllerHelper) {
     $scope.email = $stateParams.item;
 
-    jmapHelper
-      .getMessageById($stateParams.emailId)
-      .then(function(message) {
-        if (!$scope.email) {
-          $scope.email = message;
-        } else {
-          ['isUnread', 'isFlagged', 'attachments', 'textBody', 'htmlBody'].forEach(function(property) {
-            $scope.email[property] = message[property];
-          });
-        }
+    inboxAsyncHostedMailControllerHelper(this, function() {
+      return jmapHelper
+        .getMessageById($stateParams.emailId)
+        .then(function(message) {
+          if (!$scope.email) {
+            $scope.email = message;
+          } else {
+            ['isUnread', 'isFlagged', 'attachments', 'textBody', 'htmlBody'].forEach(function(property) {
+              $scope.email[property] = message[property];
+            });
+          }
 
-        inboxJmapItemService.markAsRead($scope.email);
-      })
-      .then(function() {
-        $scope.email.loaded = true;
-      });
+          inboxJmapItemService.markAsRead($scope.email);
+        })
+        .finally(function() {
+          $scope.email.loaded = true;
+        })
+        ;
+    });
 
     ['markAsRead', 'markAsFlagged', 'unmarkAsFlagged'].forEach(function(action) {
       this[action] = function() {
