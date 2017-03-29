@@ -58,15 +58,10 @@
   }
 
   .inbox-items-group {
-    min-height: 32px; // Size of the smallest possible card
+    min-height: 34px; // Size of the smallest possible card
 
     .card {
       margin-bottom: 1px;
-    }
-
-    .inbox-list-item {
-      min-height: 88px;
-      max-height: 88px;
     }
 
     .inbox-list-item {
@@ -79,6 +74,8 @@
       .inbox-list-item-content {
         padding: 7px 10px;
         width: 100%;
+        min-height: 88px;
+        max-height: 88px;
 
         .media-body {
           .flex-space-between;
@@ -178,6 +175,28 @@
   }
 }
 
+.inbox-root {
+  .inbox-infinite-list {
+    .inbox-items-group {
+      .lv-item:hover.inbox-list-item {
+        .inbox-preview-block {
+          &:before, &:after {
+            background: lighten(@body-bg, 1%);
+          }
+        }
+
+        .clickable.inbox-list-item-content:hover {
+          .inbox-preview-block {
+            &:before, &:after {
+              background: @darkenBgColor;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
 body.header-hidden {
   .inbox-root {
     .inbox-infinite-list {
@@ -191,8 +210,6 @@ body.header-hidden {
     .inbox-items-group {
       .inbox-list-item {
         .inbox-list-item-content {
-          padding: 10px 15px;
-
           &.dragging {
             background-color: lighten(@accentColor, 20%);
             .cursor-grab;
@@ -211,13 +228,10 @@ body.header-hidden {
   .inbox-root {
     .inbox-items-group {
       .inbox-list-item {
-        min-height: 34px;
-        max-height: 34px;
-      }
-
-      .inbox-list-item {
         .inbox-list-item-content {
           padding: 3px 10px;
+          min-height: 34px;
+          max-height: 34px;
 
           .inbox-preview-block {
             display: none;
