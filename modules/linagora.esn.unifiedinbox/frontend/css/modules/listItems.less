@@ -66,6 +66,8 @@
 
     .inbox-list-item {
       padding: 0;
+      min-height: 88px;
+      max-height: 88px;
 
       &.selected {
         background-color: @darkenBgColor;
@@ -74,8 +76,6 @@
       .inbox-list-item-content {
         padding: 7px 10px;
         width: 100%;
-        min-height: 88px;
-        max-height: 88px;
 
         .media-body {
           .flex-space-between;
@@ -228,10 +228,11 @@ body.header-hidden {
   .inbox-root {
     .inbox-items-group {
       .inbox-list-item {
+        min-height: 34px;
+        max-height: 34px;
+
         .inbox-list-item-content {
           padding: 3px 10px;
-          min-height: 34px;
-          max-height: 34px;
 
           .inbox-preview-block {
             display: none;
