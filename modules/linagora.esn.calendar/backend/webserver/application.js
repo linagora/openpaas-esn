@@ -1,10 +1,9 @@
 'use strict';
 
-var express = require('express');
+const express = require('express');
 
-module.exports = function(dependencies) {
-
-  var application = express();
+module.exports = dependencies => {
+  const application = express();
 
   // This needs to be initialized before the body parser
   require('./config/i18n')(dependencies, application);
