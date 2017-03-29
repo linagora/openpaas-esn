@@ -1,15 +1,19 @@
 'use strict';
 
-var jcal = require('../helpers/jcal');
-var moment = require('moment');
-var _ = require('lodash');
+const jcal = require('../helpers/jcal');
+const moment = require('moment');
+const _ = require('lodash');
+
+module.exports = {
+  denormalize,
+  getId
+};
 
 function denormalize(data) {
-  var event = jcal.jcal2content(data.ics, '');
-  var timeInfo = jcal.getIcalEvent(data.ics);
-
-  var start = moment(timeInfo.startDate.toJSDate());
-  var end = moment(timeInfo.endDate.toJSDate());
+  const event = jcal.jcal2content(data.ics, '');
+  const timeInfo = jcal.getIcalEvent(data.ics);
+  const start = moment(timeInfo.startDate.toJSDate());
+  const end = moment(timeInfo.endDate.toJSDate());
 
   if (event.allDay) {
     start.add(start.utcOffset(), 'minutes');
@@ -28,9 +32,7 @@ function denormalize(data) {
   delete event.method;
   delete event.sequence;
 
-  event.attendees = _.map(event.attendees, function(data, email) {
-    return {email: email, cn: data.cn};
-  });
+  event.attendees = _.map(event.attendees, (data, email) => ({email: email, cn: data.cn}));
 
   return event;
 }
@@ -38,7 +40,3 @@ function denormalize(data) {
 function getId(event) {
   return event.eventUid;
 }
-
-module.exports.getId = getId;
-
-module.exports.denormalize = denormalize;

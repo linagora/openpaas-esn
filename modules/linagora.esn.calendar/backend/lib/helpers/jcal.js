@@ -1,18 +1,27 @@
 'use strict';
 
-var ICAL = require('ical.js');
-var moment = require('moment-timezone');
-var urljoin = require('url-join');
-var _ = require('lodash');
-var constants = require('../constants');
+const ICAL = require('ical.js');
+const moment = require('moment-timezone');
+const urljoin = require('url-join');
+const _ = require('lodash');
+const constants = require('../constants');
+
+module.exports = {
+  jcal2content,
+  getAttendeesEmails,
+  getIcalEvent,
+  getOrganizerEmail,
+  getVAlarmAsObject,
+  getVeventAttendeeByMail
+};
 
 function _getEmail(attendee) {
   return attendee.getFirstValue().replace(/^MAILTO:/i, '');
 }
 
 function _icalDateToMoment(icalDate) {
-  var dt;
-  var momentDatetimeArg = [icalDate.year, icalDate.month - 1, icalDate.day, icalDate.hour, icalDate.minute, icalDate.second];
+  let dt;
+  const momentDatetimeArg = [icalDate.year, icalDate.month - 1, icalDate.day, icalDate.hour, icalDate.minute, icalDate.second];
 
   if (icalDate.isDate) {
     dt = moment(momentDatetimeArg.slice(0, 3));
@@ -26,22 +35,18 @@ function _icalDateToMoment(icalDate) {
 }
 
 function getVeventAttendeeByMail(vevent, email) {
-  var results = vevent.getAllProperties('attendee').filter(function(attendee) {
-    return _getEmail(attendee) === email;
-  });
+  const results = vevent.getAllProperties('attendee').filter(attendee => _getEmail(attendee) === email);
 
   return results.length ? results[0] : null;
 }
-module.exports.getVeventAttendeeByMail = getVeventAttendeeByMail;
 
 function getVAlarmAsObject(valarm, dtstart) {
-  var trigger = valarm.getFirstPropertyValue('trigger');
-  var attendee = valarm.getFirstPropertyValue('attendee');
-  var startDate = _icalDateToMoment(dtstart);
-  var triggerDuration = moment.duration(trigger);
-  var action = valarm.getFirstPropertyValue('action');
-
-  var alarmObject = {
+  const trigger = valarm.getFirstPropertyValue('trigger');
+  const attendee = valarm.getFirstPropertyValue('attendee');
+  const startDate = _icalDateToMoment(dtstart);
+  const triggerDuration = moment.duration(trigger);
+  const action = valarm.getFirstPropertyValue('action');
+  const alarmObject = {
     action,
     trigger,
     description: valarm.getFirstPropertyValue('description'),
@@ -57,7 +62,6 @@ function getVAlarmAsObject(valarm, dtstart) {
 
   return alarmObject;
 }
-module.exports.getVAlarmAsObject = getVAlarmAsObject;
 
 /**
  * Construct the Ical.Event of a iCalendar (and setting timezone correctly)
@@ -65,11 +69,10 @@ module.exports.getVAlarmAsObject = getVAlarmAsObject;
  * @return {Ical.Event}
  */
 function getIcalEvent(icalendar) {
-
-  var vcalendar = ICAL.Component.fromString(icalendar);
-  var event = vcalendar.getFirstSubcomponent('vevent');
-  var icalEvent = new ICAL.Event(event);
-  var timezones = _.chain(vcalendar.getAllSubcomponents('vtimezone')).map(ICAL.Timezone.fromData).keyBy('tzid').value();
+  const vcalendar = ICAL.Component.fromString(icalendar);
+  const event = vcalendar.getFirstSubcomponent('vevent');
+  const icalEvent = new ICAL.Event(event);
+  const timezones = _.chain(vcalendar.getAllSubcomponents('vtimezone')).map(ICAL.Timezone.fromData).keyBy('tzid').value();
 
   if (icalEvent.startDate) {
     icalEvent.startDate.zone = timezones[icalEvent.startDate.timezone] || icalEvent.startDate.zone;
@@ -80,8 +83,6 @@ function getIcalEvent(icalendar) {
 
   return icalEvent;
 }
-
-module.exports.getIcalEvent = getIcalEvent;
 
 /**
  * Return a formatted, easily usable data for an email template from a jcal object
@@ -135,21 +136,20 @@ function jcal2content(icalendar, baseUrl) {
   function getTimezoneOfIcalDate(icalDatetime) {
     if (icalDatetime.isDate) {
       return '';
-    } else {
-      return icalDatetime.zone === ICAL.Timezone.utcTimezone ? 'UTC' : icalDatetime.timezone;
     }
+
+    return icalDatetime.zone === ICAL.Timezone.utcTimezone ? 'UTC' : icalDatetime.timezone;
   }
 
-  var vcalendar = ICAL.Component.fromString(icalendar);
-  var vevent = vcalendar.getFirstSubcomponent('vevent');
-  var method = vcalendar.getFirstPropertyValue('method');
+  const vcalendar = ICAL.Component.fromString(icalendar);
+  const vevent = vcalendar.getFirstSubcomponent('vevent');
+  const method = vcalendar.getFirstPropertyValue('method');
+  const attendees = {};
 
-  var attendees = {};
-
-  vevent.getAllProperties('attendee').forEach(function(attendee) {
-    var partstat = attendee.getParameter('partstat');
-    var cn = attendee.getParameter('cn');
-    var mail = _getEmail(attendee);
+  vevent.getAllProperties('attendee').forEach(attendee => {
+    const partstat = attendee.getParameter('partstat');
+    const cn = attendee.getParameter('cn');
+    const mail = _getEmail(attendee);
 
     attendees[mail] = {
       partstat: partstat,
@@ -157,14 +157,13 @@ function jcal2content(icalendar, baseUrl) {
     };
   });
 
-  var dtstart = vevent.getFirstProperty('dtstart');
-  var allDay = dtstart.type === 'date';
-  var durationInDays = null;
-
-  var end, icalEvent = getIcalEvent(icalendar);
-
-  var startDate = _icalDateToMoment(icalEvent.startDate);
-  var endDate = _icalDateToMoment(icalEvent.endDate);
+  const dtstart = vevent.getFirstProperty('dtstart');
+  const allDay = dtstart.type === 'date';
+  const icalEvent = getIcalEvent(icalendar);
+  const startDate = _icalDateToMoment(icalEvent.startDate);
+  const endDate = _icalDateToMoment(icalEvent.endDate);
+  let durationInDays = null;
+  let end;
 
   if (!!endDate && !!startDate) {
     durationInDays = endDate.diff(startDate, 'days');
@@ -185,11 +184,11 @@ function jcal2content(icalendar, baseUrl) {
     };
   }
 
-  var organizer = vevent.getFirstProperty('organizer') || undefined;
+  let organizer = vevent.getFirstProperty('organizer') || undefined;
 
   if (organizer) {
-    var cn = organizer.getParameter('cn');
-    var mail = organizer.getFirstValue().replace(/^MAILTO:/i, '');
+    const cn = organizer.getParameter('cn');
+    const mail = organizer.getFirstValue().replace(/^MAILTO:/i, '');
 
     organizer = {
       cn: cn,
@@ -198,7 +197,7 @@ function jcal2content(icalendar, baseUrl) {
     };
   }
 
-  var content = {
+  const content = {
     method: method,
     uid: vevent.getFirstPropertyValue('uid'),
     sequence: vevent.getFirstPropertyValue('sequence'),
@@ -216,8 +215,7 @@ function jcal2content(icalendar, baseUrl) {
     organizer: organizer,
     durationInDays: durationInDays
   };
-
-  var valarm = vevent.getFirstSubcomponent('valarm');
+  const valarm = vevent.getFirstSubcomponent('valarm');
 
   if (valarm) {
     content.alarm = getVAlarmAsObject(valarm, dtstart);
@@ -225,25 +223,20 @@ function jcal2content(icalendar, baseUrl) {
 
   return content;
 }
-module.exports.jcal2content = jcal2content;
 
 function getAttendeesEmails(icalendar) {
-  var vcalendar = new ICAL.Component(icalendar);
-  var vevent = vcalendar.getFirstSubcomponent('vevent');
+  const vcalendar = new ICAL.Component(icalendar);
+  const vevent = vcalendar.getFirstSubcomponent('vevent');
 
-  return vevent.getAllProperties('attendee').map(function(attendee) {
-    return _getEmail(attendee);
-  });
+  return vevent.getAllProperties('attendee').map(_getEmail);
 }
-module.exports.getAttendeesEmails = getAttendeesEmails;
 
 function getOrganizerEmail(icalendar) {
-  var vcalendar = new ICAL.Component(icalendar);
-  var vevent = vcalendar.getFirstSubcomponent('vevent');
-  var organizer = vevent.getFirstProperty('organizer');
+  const vcalendar = new ICAL.Component(icalendar);
+  const vevent = vcalendar.getFirstSubcomponent('vevent');
+  const organizer = vevent.getFirstProperty('organizer');
 
   if (organizer) {
     return organizer.getFirstValue().replace(/^MAILTO:/i, '');
   }
 }
-module.exports.getOrganizerEmail = getOrganizerEmail;

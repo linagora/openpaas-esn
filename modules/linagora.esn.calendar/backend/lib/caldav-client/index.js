@@ -1,24 +1,24 @@
 'use strict';
 
-const request = require('request'),
-      urljoin = require('url-join'),
-      async = require('async'),
-      Q = require('q'),
-      _ = require('lodash'),
-      path = require('path');
+const request = require('request');
+const urljoin = require('url-join');
+const async = require('async');
+const Q = require('q');
+const _ = require('lodash');
+const path = require('path');
 
-const JSON_CONTENT_TYPE = 'application/json',
-      DEFAULT_CALENDAR_NAME = 'Events';
+const JSON_CONTENT_TYPE = 'application/json';
+const DEFAULT_CALENDAR_NAME = 'Events';
 
-module.exports = function(dependencies) {
+module.exports = dependencies => {
   const davserver = dependencies('davserver').utils;
   const token = dependencies('auth').token;
 
   return {
+    getCalendarList,
     getEvent,
     getEventPath,
-    iTipRequest,
-    getCalendarList
+    iTipRequest
   };
 
   function getCalendarList(userId) {
@@ -81,20 +81,18 @@ module.exports = function(dependencies) {
 
     async.parallel([
         function(cb) {
-          _buildEventUrl(userId, calendarURI, eventUID, function(url) {
-            return cb(null, url);
-          });
+          _buildEventUrl(userId, calendarURI, eventUID, url => cb(null, url));
         },
         function(cb) {
           token.getNewToken({user: userId}, cb);
         }
       ],
-      function(err, results) {
+      (err, results) => {
         if (err) {
           return deferred.reject(err);
         }
 
-        request(formatRequest(results[0], results[1].token), function(err, response) {
+        request(formatRequest(results[0], results[1].token), (err, response) => {
           if (err || response.statusCode < 200 || response.statusCode >= 300) {
             return deferred.reject(err ? err.message : response.body);
           }
