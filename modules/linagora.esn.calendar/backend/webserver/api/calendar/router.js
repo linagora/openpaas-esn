@@ -2,16 +2,14 @@
 
 var express = require('express');
 
-module.exports = function(dependencies) {
-
-  var controller = require('./controller')(dependencies);
-  var calendarMW = require('./middleware')(dependencies);
-  var authorizationMW = dependencies('authorizationMW');
-  var collaborationMW = dependencies('collaborationMW');
-  var davMiddleware = dependencies('davserver').davMiddleware;
-  var tokenMW = dependencies('tokenMW');
-
-  var router = express.Router();
+module.exports = dependencies => {
+  const controller = require('./controller')(dependencies);
+  const calendarMW = require('./middleware')(dependencies);
+  const authorizationMW = dependencies('authorizationMW');
+  const collaborationMW = dependencies('collaborationMW');
+  const davMiddleware = dependencies('davserver').davMiddleware;
+  const tokenMW = dependencies('tokenMW');
+  const router = express.Router();
 
   router.post('/api/calendars/:objectType/:id/events',
     authorizationMW.requiresAPILogin,

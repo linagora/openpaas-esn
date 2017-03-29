@@ -1,21 +1,20 @@
 'use strict';
 
-let esnConfig;
-const q = require('q');
+const Q = require('q');
 
-function getLocaleForUser(user) {
-  return q.ninvoke(esnConfig('locale').inModule('core').forUser(user), 'get');
-}
-
-function getLocaleForSystem() {
-  return q.ninvoke(esnConfig('locale').inModule('core'), 'get');
-}
-
-module.exports = function(dependencies) {
-  esnConfig = dependencies('esn-config');
+module.exports = dependencies => {
+  const esnConfig = dependencies('esn-config');
 
   return {
-    getLocaleForUser,
-    getLocaleForSystem
+    getLocaleForSystem,
+    getLocaleForUser
   };
+
+  function getLocaleForUser(user) {
+    return Q.ninvoke(esnConfig('locale').inModule('core').forUser(user), 'get');
+  }
+
+  function getLocaleForSystem() {
+    return Q.ninvoke(esnConfig('locale').inModule('core'), 'get');
+  }
 };

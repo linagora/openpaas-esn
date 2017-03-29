@@ -1,11 +1,15 @@
 'use strict';
 
-var CONSTANTS = require('../constants');
-var denormalize = require('./denormalize');
+const CONSTANTS = require('../constants');
+const denormalize = require('./denormalize');
 
-module.exports = function(dependencies) {
+module.exports = dependencies => {
+  const listeners = dependencies('elasticsearch').listeners;
 
-  var listeners = dependencies('elasticsearch').listeners;
+  return {
+    getOptions,
+    register
+  };
 
   function getOptions() {
     return {
@@ -24,9 +28,4 @@ module.exports = function(dependencies) {
   function register() {
     return listeners.addListener(getOptions());
   }
-
-  return {
-    register: register,
-    getOptions: getOptions
-  };
 };

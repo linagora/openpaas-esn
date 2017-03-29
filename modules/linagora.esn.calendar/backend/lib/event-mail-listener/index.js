@@ -2,7 +2,7 @@
 
 const CONSTANTS = require('../constants');
 
-module.exports = function(dependencies) {
+module.exports = dependencies => {
   const esnConfig = dependencies('esn-config');
   const amqpClientProvider = dependencies('amqpClientProvider');
   const logger = dependencies('logger');
@@ -14,24 +14,25 @@ module.exports = function(dependencies) {
   };
 
   function init() {
-    return _getConfiguration().then(config => {
-      if (config && config.exchanges && config.exchanges.length) {
-        return config.exchanges.map(_subscribe);
-      } else {
+    return _getConfiguration()
+      .then(config => {
+        if (config && config.exchanges && config.exchanges.length) {
+          return config.exchanges.map(_subscribe);
+        }
         logger.warn('CAlEventMailListener : Missing configuration in mongoDB');
 
         return _subscribe(CONSTANTS.EVENT_MAIL_LISTENER.FALLBACK_EXCHANGE);
-      }
-    })
-    .catch(() => {
-      logger.error('CAlEventMailListener : error when initialize the listener');
-    });
+      })
+      .catch(() => {
+        logger.error('CAlEventMailListener : error when initialize the listener');
+      });
   }
 
   function _subscribe(exchange) {
     const amqpClientPromise = amqpClientProvider.getClient();
 
-    return amqpClientPromise.then(client => client.subscribe(exchange, _processMessage))
+    return amqpClientPromise
+      .then(client => client.subscribe(exchange, _processMessage))
       .catch(() => {
         logger.error('CAlEventMailListener : Cannot connect to MQ ' + exchange);
       });

@@ -1,14 +1,19 @@
 'use strict';
 
-var CONSTANTS = require('../constants');
-var SEARCH = CONSTANTS.SEARCH;
+var SEARCH = require('../constants').SEARCH;
 
-module.exports = function(dependencies) {
+module.exports = dependencies => {
+  const logger = dependencies('logger');
+  const listener = require('./searchHandler')(dependencies);
+  const elasticsearch = dependencies('elasticsearch');
+  let searchHandler;
 
-  var logger = dependencies('logger');
-  var listener = require('./searchHandler')(dependencies);
-  var elasticsearch = dependencies('elasticsearch');
-  var searchHandler;
+  return {
+    indexEvent,
+    listen,
+    removeEventFromIndex,
+    searchEvents
+  };
 
   function indexEvent(event, callback) {
     if (!searchHandler) {
@@ -35,17 +40,19 @@ module.exports = function(dependencies) {
   }
 
   function searchEvents(query, callback) {
-    var terms = query.search;
-    var offset = query.offset || 0;
-    var limit = query.limit || SEARCH.DEFAULT_LIMIT;
-    var sortKey = query.sortKey || SEARCH.DEFAULT_SORT_KEY;
-    var sortOrder = query.sortOrder || SEARCH.DEFAULT_SORT_ORDER;
-    var sort = {};
+    const terms = query.search;
+    const offset = query.offset || 0;
+    const limit = query.limit || SEARCH.DEFAULT_LIMIT;
+    const sortKey = query.sortKey || SEARCH.DEFAULT_SORT_KEY;
+    const sortOrder = query.sortOrder || SEARCH.DEFAULT_SORT_ORDER;
+    const filters = [];
+    const sort = {};
+
     sort[sortKey] = {
       order: sortOrder
     };
 
-    var elasticsearchQuery = {
+    const elasticsearchQuery = {
       query: {
         bool: {
           must: {
@@ -69,7 +76,6 @@ module.exports = function(dependencies) {
       sort: sort
     };
 
-    var filters = [];
     if (query.calendarId) {
       filters.push({
         term: {
@@ -107,12 +113,12 @@ module.exports = function(dependencies) {
       from: offset,
       size: limit,
       body: elasticsearchQuery
-    }, function(err, result) {
+    }, (err, result) => {
       if (err) {
         return callback(err);
       }
 
-      return callback(null, {
+      callback(null, {
         total_count: result.hits.total,
         list: result.hits.hits
       });
@@ -123,11 +129,4 @@ module.exports = function(dependencies) {
     logger.info('Subscribing to event updates for indexing');
     searchHandler = listener.register();
   }
-
-  return {
-    listen: listen,
-    searchEvents: searchEvents,
-    indexEvent: indexEvent,
-    removeEventFromIndex: removeEventFromIndex
-  };
 };
