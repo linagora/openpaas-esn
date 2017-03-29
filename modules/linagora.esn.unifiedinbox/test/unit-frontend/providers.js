@@ -6,7 +6,7 @@ var expect = chai.expect;
 
 describe('The Unified Inbox Angular module providers', function() {
 
-  var $rootScope, inboxProviders, newInboxTwitterProvider, inboxHostedMailMessagesProvider, inboxHostedMailAttachmentProvider, inboxHostedMailThreadsProvider, inboxSearchResultsProvider,
+  var $rootScope, inboxProviders, inboxNewTwitterProvider, inboxHostedMailMessagesProvider, inboxHostedMailAttachmentProvider, inboxHostedMailThreadsProvider, inboxSearchResultsProvider,
       $httpBackend, jmapClient, inboxMailboxesService, jmap, inboxFilteredList, ELEMENTS_PER_REQUEST;
 
   function elements(id, length, offset, before) {
@@ -72,12 +72,12 @@ describe('The Unified Inbox Angular module providers', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function(_$rootScope_, _inboxProviders_, _newInboxTwitterProvider_, _inboxHostedMailMessagesProvider_, _inboxSearchResultsProvider_,
+  beforeEach(angular.mock.inject(function(_$rootScope_, _inboxProviders_, _inboxNewTwitterProvider_, _inboxHostedMailMessagesProvider_, _inboxSearchResultsProvider_,
                                           _inboxHostedMailAttachmentProvider_, _inboxHostedMailThreadsProvider_, _$httpBackend_, _inboxMailboxesService_, _jmap_,
                                           _inboxFilteredList_, _ELEMENTS_PER_REQUEST_) {
     $rootScope = _$rootScope_;
     inboxProviders = _inboxProviders_;
-    newInboxTwitterProvider = _newInboxTwitterProvider_;
+    inboxNewTwitterProvider = _inboxNewTwitterProvider_;
     inboxHostedMailMessagesProvider = _inboxHostedMailMessagesProvider_;
     inboxSearchResultsProvider = _inboxSearchResultsProvider_;
     inboxHostedMailAttachmentProvider = _inboxHostedMailAttachmentProvider_;
@@ -337,7 +337,7 @@ describe('The Unified Inbox Angular module providers', function() {
   describe('The newInboxTwitterProvider factory', function() {
 
     it('should paginate requests to the backend', function(done) {
-      var provider = newInboxTwitterProvider('id', 'myTwitterAccount', '/unifiedinbox/api/inbox/tweets'),
+      var provider = inboxNewTwitterProvider('id', 'myTwitterAccount', '/unifiedinbox/api/inbox/tweets'),
           fetcher = provider.fetch(),
           tweets = elements('tweet', ELEMENTS_PER_REQUEST);
 
@@ -362,7 +362,7 @@ describe('The Unified Inbox Angular module providers', function() {
     });
 
     it('should support fetching recent items', function(done) {
-      var fetcher = newInboxTwitterProvider('id', 'myTwitterAccount', '/unifiedinbox/api/inbox/tweets').fetch();
+      var fetcher = inboxNewTwitterProvider('id', 'myTwitterAccount', '/unifiedinbox/api/inbox/tweets').fetch();
 
       $httpBackend.expectGET('/unifiedinbox/api/inbox/tweets?account_id=myTwitterAccount&count=400').respond(200, elements('tweet', ELEMENTS_PER_REQUEST));
 
@@ -386,21 +386,21 @@ describe('The Unified Inbox Angular module providers', function() {
     describe('The itemMatches function', function() {
 
       it('should resolve when no provider ID is selected', function(done) {
-        var provider = newInboxTwitterProvider('id', 'myTwitterAccount', '/unifiedinbox/api/inbox/tweets');
+        var provider = inboxNewTwitterProvider('id', 'myTwitterAccount', '/unifiedinbox/api/inbox/tweets');
 
         provider.itemMatches({}, {}).then(done);
         $rootScope.$digest();
       });
 
       it('should resolve when provider ID matches selected provider ID', function(done) {
-        var provider = newInboxTwitterProvider('id', 'myTwitterAccount', '/unifiedinbox/api/inbox/tweets');
+        var provider = inboxNewTwitterProvider('id', 'myTwitterAccount', '/unifiedinbox/api/inbox/tweets');
 
         provider.itemMatches({}, { acceptedIds: ['id'] }).then(done);
         $rootScope.$digest();
       });
 
       it('should reject when provider ID does not match selected provider ID', function(done) {
-        var provider = newInboxTwitterProvider('id', 'myTwitterAccount', '/unifiedinbox/api/inbox/tweets');
+        var provider = inboxNewTwitterProvider('id', 'myTwitterAccount', '/unifiedinbox/api/inbox/tweets');
 
         provider.itemMatches({}, { acceptedIds: ['another_id'] }).catch(done);
         $rootScope.$digest();

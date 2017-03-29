@@ -18,7 +18,7 @@ angular.module('linagora.esn.unifiedinbox')
     return new Providers();
   })
 
-  .factory('rejectItemById', function(_) {
+  .factory('inboxRejectItemById', function(_) {
     return function(item) {
       return function(items) {
         return item ? _.reject(items, { id: item.id }) : items;
@@ -26,7 +26,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('newInboxTwitterProvider', function($q, $http, newProvider, rejectItemById, inboxFilteredList, _,
+  .factory('inboxNewTwitterProvider', function($q, $http, newProvider, inboxRejectItemById, inboxFilteredList, _,
                                                ELEMENTS_PER_REQUEST, PROVIDER_TYPES) {
     return function(id, accountId, url) {
       var provider = newProvider({
@@ -40,7 +40,7 @@ angular.module('linagora.esn.unifiedinbox')
           }
 
           fetcher.loadRecentItems = function(newestTweet) {
-            return fetcher(newestTweet).then(rejectItemById(newestTweet));
+            return fetcher(newestTweet).then(inboxRejectItemById(newestTweet));
           };
 
           return fetcher;
@@ -73,20 +73,20 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('inboxTwitterMentionsProvider', function(newInboxTwitterProvider) {
+  .factory('inboxTwitterMentionsProvider', function(inboxNewTwitterProvider) {
     return function(accountId) {
-      return newInboxTwitterProvider('inboxTwitterMentions', accountId, '/unifiedinbox/api/inbox/twitter/mentions');
+      return inboxNewTwitterProvider('inboxTwitterMentions', accountId, '/unifiedinbox/api/inbox/twitter/mentions');
     };
   })
 
-  .factory('inboxTwitterDirectMessagesProvider', function(newInboxTwitterProvider) {
+  .factory('inboxTwitterDirectMessagesProvider', function(inboxNewTwitterProvider) {
     return function(accountId) {
-      return newInboxTwitterProvider('inboxTwitterDirectMessages', accountId, '/unifiedinbox/api/inbox/twitter/directmessages');
+      return inboxNewTwitterProvider('inboxTwitterDirectMessages', accountId, '/unifiedinbox/api/inbox/twitter/directmessages');
     };
   })
 
-  .factory('newInboxMessageProvider', function($q, withJmapClient, inboxJmapProviderContextBuilder, inboxFilteredList,
-                                               newProvider, sortByDateInDescendingOrder, inboxMailboxesService, rejectItemById, _,
+  .factory('inboxNewMessageProvider', function($q, withJmapClient, inboxJmapProviderContextBuilder, inboxFilteredList,
+                                               newProvider, sortByDateInDescendingOrder, inboxMailboxesService, inboxRejectItemById, _,
                                                JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_REQUEST, PROVIDER_TYPES) {
     return function(templateUrl) {
       var provider = newProvider({
@@ -117,7 +117,7 @@ angular.module('linagora.esn.unifiedinbox')
 
           fetcher.loadRecentItems = function(newestItem) {
             return fetcher(newestItem)
-              .then(rejectItemById(newestItem))
+              .then(inboxRejectItemById(newestItem))
               .then(function(messages) {
                 messages.forEach(function(message) {
                   if (message.isUnread) {
@@ -165,12 +165,12 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('inboxHostedMailMessagesProvider', function(newInboxMessageProvider) {
-    return newInboxMessageProvider('/unifiedinbox/views/unified-inbox/elements/message');
+  .factory('inboxHostedMailMessagesProvider', function(inboxNewMessageProvider) {
+    return inboxNewMessageProvider('/unifiedinbox/views/unified-inbox/elements/message');
   })
 
-  .factory('inboxSearchResultsProvider', function(newInboxMessageProvider) {
-    return newInboxMessageProvider('/unifiedinbox/views/unified-inbox/elements/search');
+  .factory('inboxSearchResultsProvider', function(inboxNewMessageProvider) {
+    return inboxNewMessageProvider('/unifiedinbox/views/unified-inbox/elements/search');
   })
 
   .factory('inboxHostedMailAttachmentProvider', function(withJmapClient, pagedJmapRequest, newProvider, ByDateElementGroupingTool,
