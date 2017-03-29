@@ -5,17 +5,17 @@
 A calendar can be shared as a:
 
    * **Public calendar:** every user can access the calendar
-   * **Shared calendar:** the owner can delegate its calendars to other users. 
- 
-It is worth mentioning the technical difference between the two implementations: a public calendar has only one instance in the database which is physically shared by all user. On the other hand, shared calendars are implementing by providing a new instance for each delegated user with the corresponding permission.
+   * **Shared calendar:** the owner can delegate its calendars to other users
 
-Technically speaking, sabre leverage ACL based on the [RFC3744](https://www.ietf.org/rfc/rfc3744.txt) so as to manage both Public/Shared calendars. On the one hand, public calendars are implemented directly by a combination of ACL. On the other hand, Shared calendars are implemented by SharedCalendar objects that extends ACL. Indeed, sabre uses the [CalDAV-Sharing extension](https://github.com/apple/ccs-calendarserver/blob/master/doc/Extensions/caldav-sharing.txt) to share CalDAV. Having said so, developers should always keep in mind that both type of calendars are implemented from ACL.
+It is worth mentioning the technical difference between the two implementations: a public calendar has only one instance in the database which is physically shared by all users. On the other hand, shared calendars are implemented by providing a new instance for each delegated user with the corresponding permission.
 
-To understand well how it works we need to understand how on Sabre side the permissions work. To manage permissions WebDAV uses ACL based on the [RFC3744](https://www.ietf.org/rfc/rfc3744.txt). Sabre uses the [CalDAV-Sharing extension](https://github.com/apple/ccs-calendarserver/blob/master/doc/Extensions/caldav-sharing.txt) to share CalDAV.
+Technically speaking, Sabre leverages ACL based on the [RFC3744](https://www.ietf.org/rfc/rfc3744.txt) so as to manage both Public/Shared calendars. On the one hand, public calendars are implemented directly by a combination of ACLs. On the other hand, Shared calendars are implemented by SharedCalendar objects that extends ACLs. Indeed, Sabre uses the [CalDAV-Sharing extension](https://github.com/apple/ccs-calendarserver/blob/master/doc/Extensions/caldav-sharing.txt) to share CalDAV. Having said so, developers should always keep in mind that both type of calendars are implemented from ACLs.
+
+To understand well how it works we need to understand how the permissions work on Sabre side. To manage permissions WebDAV uses ACL based on the [RFC3744](https://www.ietf.org/rfc/rfc3744.txt). Sabre uses the [CalDAV-Sharing extension](https://github.com/apple/ccs-calendarserver/blob/master/doc/Extensions/caldav-sharing.txt) to share CalDAV.
 
 ### Public Calendars
 
-This are the differents rights for a public calendar. Each public calendar rights can be an aggregation of rights:
+These are the differents rights for a public calendar. Each public calendar rights can be an aggregation of rights:
 
    * **Private:** none
    * **Read:** {dav:}read
@@ -32,9 +32,9 @@ This are the differents roles for a shared calendar:
    * **Read:** {dav:}read
    * **Read-Write:** {dav:}read-write
    * *RSE Extension* **Administration:** {dav:}administration
-       * A user with aministration rights can read and write shared users
+       * A user with administration rights can read and write shared users
    * *RSE Extension* **Free/busy:** {dav:}freebusy
-       * A user with free/busy can only see that the owner of the events without description, to see if the owner is free or busy.
+       * A user with free/busy can only see that the events without description, to see if the owner is free or busy.
 
 ### Annex A: How we can enhance our permission system in RSE
 
@@ -144,7 +144,7 @@ Used to convert the sharees rights in JSON request for Sabre
 
 ### Annex B : REST API
 
-#### POST /api/calendars/:calendarId/:calendarUri.json 
+#### POST /api/calendars/:calendarId/:calendarUri.json
 
 **Request Parameters**
 
