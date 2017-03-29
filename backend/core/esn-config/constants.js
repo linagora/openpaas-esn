@@ -7,9 +7,7 @@ module.exports = {
   CONFIG_METADATA: {
     core: {
       rights: {
-        rights: {
-          admin: 'rw'
-        }
+        admin: 'rw'
       },
       configurations: {
         homePage: {
