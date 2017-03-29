@@ -8,13 +8,13 @@
     .listview
       .lv-item.clickable.inbox-item-with-icon.folder-with-icon.toggle-submenu.flex-end.waves-effect.waves-classic(title="{{ emailAddress }}", esn-toggle)
         .badge-container
+          .caret-submenu
+            i.mdi.mdi-menu-down
           i.inbox-icon.mdi.mdi-mail-ru
         .menu-item
           span.menu-item-inner
             bdi {{ emailAddress }}
           span.menu-item-after
-        .caret-submenu
-          i.mdi.mdi-menu-up
       ul.nopadding
         mailbox-display.lv-item(mailbox="mailbox", ng-repeat="mailbox in specialMailboxes" ui-sref="unifiedinbox.inbox({ type: 'jmap', account: '', context: mailbox.id })")
 
@@ -23,8 +23,6 @@
 
         inbox-sidebar-new-folder-button
         
-        hr
-
         mailbox-display.lv-item(settings-overlay-sref='unifiedinbox.configuration.folders.folder({ mailbox: mailbox.id })', mailbox="mailbox", ng-repeat="mailbox in mailboxes | filter: { role: { value: '!' } } | orderBy: ['sortOrder', 'qualifiedName'] as customMailboxes track by mailbox.id", ui-sref="unifiedinbox.inbox({ type: 'jmap', account: '', context: mailbox.id })")
 
   .lv-body(ng-switch-when="ERROR")
