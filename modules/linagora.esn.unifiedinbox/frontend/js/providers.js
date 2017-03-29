@@ -18,37 +18,29 @@ angular.module('linagora.esn.unifiedinbox')
     return new Providers();
   })
 
-  .factory('newInboxTwitterProvider', function($q, $http, newProvider, _, ELEMENTS_PER_REQUEST, PROVIDER_TYPES) {
+  .factory('inboxRejectItemById', function(_) {
+    return function(item) {
+      return function(items) {
+        return item ? _.reject(items, { id: item.id }) : items;
+      };
+    };
+  })
+
+  .factory('inboxNewTwitterProvider', function($q, $http, newProvider, inboxRejectItemById, inboxFilteredList, _,
+                                               ELEMENTS_PER_REQUEST, PROVIDER_TYPES) {
     return function(id, accountId, url) {
-      return newProvider({
+      var provider = newProvider({
         id: id,
         account: accountId,
         types: [PROVIDER_TYPES.SOCIAL, PROVIDER_TYPES.TWITTER],
         name: 'Tweets',
         fetch: function() {
-          var oldestTweetId = null,
-              fetcher = function(mostRecentTweetId) {
-                return $http
-                  .get(url, {
-                    params: {
-                      account_id: accountId,
-                      count: ELEMENTS_PER_REQUEST * 2, // Because count may not be what you think -> https://dev.twitter.com/rest/reference/get/statuses/mentions_timeline
-                      max_id: mostRecentTweetId ? null : oldestTweetId,
-                      since_id: mostRecentTweetId
-                    }
-                  })
-                  .then(_.property('data'))
-                  .then(function(results) {
-                    if (results.length > 0) {
-                      oldestTweetId = _.last(results).id;
-                    }
+          function fetcher(newestTweet) {
+            return $http.get(url, { params: buildQueryParameters(newestTweet) }).then(_.property('data'));
+          }
 
-                    return results;
-                  });
-              };
-
-          fetcher.loadRecentItems = function(mostRecentTweet) {
-            return fetcher(mostRecentTweet.id);
+          fetcher.loadRecentItems = function(newestTweet) {
+            return fetcher(newestTweet).then(inboxRejectItemById(newestTweet));
           };
 
           return fetcher;
@@ -65,37 +57,49 @@ angular.module('linagora.esn.unifiedinbox')
           });
         }
       });
+
+      function buildQueryParameters(newestTweet) {
+        var oldestTweet = !newestTweet && inboxFilteredList.getOldestProviderItem(provider);
+
+        return {
+          account_id: accountId,
+          count: ELEMENTS_PER_REQUEST * 2, // Because count may not be what you think -> https://dev.twitter.com/rest/reference/get/statuses/mentions_timeline
+          max_id: oldestTweet ? oldestTweet.id : null,
+          since_id: newestTweet ? newestTweet.id : null
+        };
+      }
+
+      return provider;
     };
   })
 
-  .factory('inboxTwitterMentionsProvider', function(newInboxTwitterProvider) {
+  .factory('inboxTwitterMentionsProvider', function(inboxNewTwitterProvider) {
     return function(accountId) {
-      return newInboxTwitterProvider('inboxTwitterMentions', accountId, '/unifiedinbox/api/inbox/twitter/mentions');
+      return inboxNewTwitterProvider('inboxTwitterMentions', accountId, '/unifiedinbox/api/inbox/twitter/mentions');
     };
   })
 
-  .factory('inboxTwitterDirectMessagesProvider', function(newInboxTwitterProvider) {
+  .factory('inboxTwitterDirectMessagesProvider', function(inboxNewTwitterProvider) {
     return function(accountId) {
-      return newInboxTwitterProvider('inboxTwitterDirectMessages', accountId, '/unifiedinbox/api/inbox/twitter/directmessages');
+      return inboxNewTwitterProvider('inboxTwitterDirectMessages', accountId, '/unifiedinbox/api/inbox/twitter/directmessages');
     };
   })
 
-  .factory('newInboxMessageProvider', function($q, withJmapClient, pagedJmapRequest, inboxJmapProviderContextBuilder,
-                                               newProvider, sortByDateInDescendingOrder, inboxMailboxesService, _,
+  .factory('inboxNewMessageProvider', function($q, withJmapClient, inboxJmapProviderContextBuilder, inboxFilteredList,
+                                               newProvider, sortByDateInDescendingOrder, inboxMailboxesService, inboxRejectItemById, _,
                                                JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_REQUEST, PROVIDER_TYPES) {
     return function(templateUrl) {
-      return newProvider({
+      var provider = newProvider({
         type: PROVIDER_TYPES.JMAP,
         name: 'Emails',
         fetch: function(context) {
-          function getMessages(position, dateOfMostRecentItem) {
+          function fetcher(newestItem) {
             return withJmapClient(function(client) {
               return client.getMessageList({
-                filter: dateOfMostRecentItem ? angular.extend({}, context, { after: dateOfMostRecentItem }) : context,
+                filter: buildGetMessageListFilter(context, newestItem),
                 sort: ['date desc'],
                 collapseThreads: false,
                 fetchMessages: false,
-                position: position,
                 limit: ELEMENTS_PER_REQUEST
               })
                 .then(function(messageList) {
@@ -111,18 +115,18 @@ angular.module('linagora.esn.unifiedinbox')
             });
           }
 
-          var fetcher = pagedJmapRequest(getMessages);
+          fetcher.loadRecentItems = function(newestItem) {
+            return fetcher(newestItem)
+              .then(inboxRejectItemById(newestItem))
+              .then(function(messages) {
+                messages.forEach(function(message) {
+                  if (message.isUnread) {
+                    inboxMailboxesService.flagIsUnreadChanged(message, true);
+                  }
+                });
 
-          fetcher.loadRecentItems = function(mostRecentItem) {
-            return getMessages(0, mostRecentItem.date).then(function(messages) {
-              messages.forEach(function(message) {
-                if (message.isUnread) {
-                  inboxMailboxesService.flagIsUnreadChanged(message, true);
-                }
+                return messages;
               });
-
-              return messages;
-            });
           };
 
           return fetcher;
@@ -147,15 +151,26 @@ angular.module('linagora.esn.unifiedinbox')
         },
         templateUrl: templateUrl
       });
+
+      function buildGetMessageListFilter(context, newestItem) {
+        var oldestItem = !newestItem && inboxFilteredList.getOldestProviderItem(provider);
+
+        return _.extend({}, context, {
+          after: newestItem ? newestItem.date : null,
+          before: oldestItem ? oldestItem.date : null
+        });
+      }
+
+      return provider;
     };
   })
 
-  .factory('inboxHostedMailMessagesProvider', function(newInboxMessageProvider) {
-    return newInboxMessageProvider('/unifiedinbox/views/unified-inbox/elements/message');
+  .factory('inboxHostedMailMessagesProvider', function(inboxNewMessageProvider) {
+    return inboxNewMessageProvider('/unifiedinbox/views/unified-inbox/elements/message');
   })
 
-  .factory('inboxSearchResultsProvider', function(newInboxMessageProvider) {
-    return newInboxMessageProvider('/unifiedinbox/views/unified-inbox/elements/search');
+  .factory('inboxSearchResultsProvider', function(inboxNewMessageProvider) {
+    return inboxNewMessageProvider('/unifiedinbox/views/unified-inbox/elements/search');
   })
 
   .factory('inboxHostedMailAttachmentProvider', function(withJmapClient, pagedJmapRequest, newProvider, ByDateElementGroupingTool,

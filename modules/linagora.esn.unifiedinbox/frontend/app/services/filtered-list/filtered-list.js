@@ -15,7 +15,8 @@
       return {
         list: list,
         addAll: addAll,
-        asMdVirtualRepeatModel: asMdVirtualRepeatModel
+        asMdVirtualRepeatModel: asMdVirtualRepeatModel,
+        getOldestProviderItem: getOldestProviderItem
       };
 
       /////
@@ -43,6 +44,10 @@
             return renderedList.length;
           }
         };
+      }
+
+      function getOldestProviderItem(provider) {
+        return _.findLast(renderedList, { provider: provider });
       }
 
       function _buildRenderedList() {
