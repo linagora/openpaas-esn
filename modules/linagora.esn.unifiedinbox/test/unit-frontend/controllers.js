@@ -180,7 +180,9 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       expect(jmapClient.getMailboxes).to.have.been.calledWith();
       expect(jmapClient.getMessageList).to.have.been.calledWith(sinon.match.has('filter', {
-        inMailboxes: ['id_inbox']
+        inMailboxes: ['id_inbox'],
+        before: null,
+        after: null
       }));
       expect(jmapClient.getMessages).to.have.been.calledOnce;
     });
@@ -200,7 +202,9 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       expect(jmapClient.getMessageList).to.have.been.calledWith(sinon.match.has('filter', {
         inMailboxes: ['id_inbox'],
-        isUnread: true
+        isUnread: true,
+        before: null,
+        after: null
       }));
       expect(jmapClient.getMessages).to.have.been.calledOnce;
     });
@@ -277,13 +281,10 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
     it('should append new elements to the list', function() {
       initController('unifiedInboxController');
-      scope.loadRecentItems = function() {
-        return $q.when([{ a: 1 }]);
-      };
 
       $interval.flush(INFINITE_LIST_POLLING_INTERVAL);
 
-      expect(inboxFilteredList.addAll).to.have.been.calledWith([{ a: 1 }]);
+      expect(inboxFilteredList.addAll).to.have.been.calledWith([]);
     });
 
     it('should destroy the interval when scope is destroyed', function() {
@@ -294,6 +295,15 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       $interval.flush(INFINITE_LIST_POLLING_INTERVAL + 1);
 
       expect(scope.loadRecentItems).to.have.not.been.calledWith();
+    });
+
+    it('should call loadRecentItems initially', function() {
+      initController('unifiedInboxController');
+
+      scope.loadRecentItems = sinon.spy(scope.loadRecentItems);
+      $timeout.flush();
+
+      expect(scope.loadRecentItems).to.have.been.calledWith();
     });
 
   });

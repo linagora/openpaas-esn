@@ -7,10 +7,10 @@ var expect = chai.expect;
 describe('The Unified Inbox Angular module providers', function() {
 
   var $rootScope, inboxProviders, newInboxTwitterProvider, inboxHostedMailMessagesProvider, inboxHostedMailAttachmentProvider, inboxHostedMailThreadsProvider, inboxSearchResultsProvider,
-      $httpBackend, jmapClient, inboxMailboxesService, jmap, ELEMENTS_PER_REQUEST;
+      $httpBackend, jmapClient, inboxMailboxesService, jmap, inboxFilteredList, ELEMENTS_PER_REQUEST;
 
-  function elements(id, length, offset) {
-    var array = [], start = offset || 0;
+  function elements(id, length, offset, before) {
+    var array = [], start = offset || (before ? before.getMilliseconds() : 0);
 
     for (var i = start; i < (start + length); i++) {
       array.push({
@@ -23,6 +23,15 @@ describe('The Unified Inbox Angular module providers', function() {
     }
 
     return array;
+  }
+
+  function enrichWithProvider(provider) {
+    return function(item) {
+      item.provider = provider;
+      item.templateUrl = provider.templateUrl;
+
+      return item;
+    };
   }
 
   beforeEach(function() {
@@ -43,7 +52,7 @@ describe('The Unified Inbox Angular module providers', function() {
           return $q.when({
             messageIds: [1],
             getMessages: function() {
-              return $q.when(elements('message', options.limit, options.position));
+              return $q.when(elements('message', options.limit, options.position, options.filter.before));
             },
             getThreads: function() {
               return $q.when(elements('thread', options.limit, options.position));
@@ -65,7 +74,7 @@ describe('The Unified Inbox Angular module providers', function() {
 
   beforeEach(angular.mock.inject(function(_$rootScope_, _inboxProviders_, _newInboxTwitterProvider_, _inboxHostedMailMessagesProvider_, _inboxSearchResultsProvider_,
                                           _inboxHostedMailAttachmentProvider_, _inboxHostedMailThreadsProvider_, _$httpBackend_, _inboxMailboxesService_, _jmap_,
-                                          _ELEMENTS_PER_REQUEST_) {
+                                          _inboxFilteredList_, _ELEMENTS_PER_REQUEST_) {
     $rootScope = _$rootScope_;
     inboxProviders = _inboxProviders_;
     newInboxTwitterProvider = _newInboxTwitterProvider_;
@@ -76,6 +85,7 @@ describe('The Unified Inbox Angular module providers', function() {
     $httpBackend = _$httpBackend_;
     inboxMailboxesService = _inboxMailboxesService_;
     jmap = _jmap_;
+    inboxFilteredList = _inboxFilteredList_;
 
     ELEMENTS_PER_REQUEST = _ELEMENTS_PER_REQUEST_;
   }));
@@ -91,13 +101,15 @@ describe('The Unified Inbox Angular module providers', function() {
         expect(messages[ELEMENTS_PER_REQUEST - 1]).to.shallowDeepEqual({
           id: 'message_0'
         });
+
+        inboxFilteredList.addAll([enrichWithProvider(inboxHostedMailMessagesProvider)(messages[0])]);
       });
       $rootScope.$digest();
 
       fetcher().then(function(messages) {
         expect(messages.length).to.equal(ELEMENTS_PER_REQUEST);
         expect(messages[ELEMENTS_PER_REQUEST - 1]).to.shallowDeepEqual({
-          id: 'message_200'
+          id: 'message_199'
         });
 
         done();
@@ -115,9 +127,9 @@ describe('The Unified Inbox Angular module providers', function() {
         getMessageList: function(options) {
           expect(options.filter).to.deep.equal({
             inMailboxes: ['id_inbox'],
+            before: null,
             after: new Date(2016, 1, 1, 1, 1, 1, 199)
           });
-          expect(options.position).to.equal(0);
 
           done();
         }
@@ -237,13 +249,15 @@ describe('The Unified Inbox Angular module providers', function() {
         expect(messages[ELEMENTS_PER_REQUEST - 1]).to.shallowDeepEqual({
           id: 'message_0'
         });
+
+        inboxFilteredList.addAll([enrichWithProvider(inboxSearchResultsProvider)(messages[0])]);
       });
       $rootScope.$digest();
 
       fetcher().then(function(messages) {
         expect(messages.length).to.equal(ELEMENTS_PER_REQUEST);
         expect(messages[ELEMENTS_PER_REQUEST - 1]).to.shallowDeepEqual({
-          id: 'message_200'
+          id: 'message_199'
         });
 
         done();
@@ -323,12 +337,17 @@ describe('The Unified Inbox Angular module providers', function() {
   describe('The newInboxTwitterProvider factory', function() {
 
     it('should paginate requests to the backend', function(done) {
-      var fetcher = newInboxTwitterProvider('id', 'myTwitterAccount', '/unifiedinbox/api/inbox/tweets').fetch();
+      var provider = newInboxTwitterProvider('id', 'myTwitterAccount', '/unifiedinbox/api/inbox/tweets'),
+          fetcher = provider.fetch(),
+          tweets = elements('tweet', ELEMENTS_PER_REQUEST);
 
-      $httpBackend.expectGET('/unifiedinbox/api/inbox/tweets?account_id=myTwitterAccount&count=400').respond(200, elements('tweet', ELEMENTS_PER_REQUEST));
+      $httpBackend.expectGET('/unifiedinbox/api/inbox/tweets?account_id=myTwitterAccount&count=400').respond(200, tweets);
 
       fetcher();
       $httpBackend.flush();
+
+      inboxFilteredList.addAll([enrichWithProvider(provider)(tweets[199])]);
+      $rootScope.$digest();
 
       $httpBackend.expectGET('/unifiedinbox/api/inbox/tweets?account_id=myTwitterAccount&count=400&max_id=tweet_199').respond(200, [{
         id: 'tweet_200'
@@ -421,15 +440,6 @@ describe('The Unified Inbox Angular module providers', function() {
 
         inboxProviders.add(provider1);
         inboxProviders.add(provider2);
-
-        function enrichWithProvider(provider) {
-          return function(item) {
-            item.provider = provider;
-            item.templateUrl = provider.templateUrl;
-
-            return item;
-          };
-        }
 
         inboxProviders.getAll().then(function(providers) {
           $q.all(providers.map(function(provider) {

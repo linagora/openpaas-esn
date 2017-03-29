@@ -29,7 +29,7 @@ angular.module('linagora.esn.unifiedinbox')
     function setupPolling() {
       if (INFINITE_LIST_POLLING_INTERVAL > 0) {
         var poller = $interval(function() {
-          $scope.loadRecentItems().then(inboxFilteredList.addAll);
+          $scope.loadRecentItems();
         }, INFINITE_LIST_POLLING_INTERVAL);
 
         $scope.$on('$destroy', function() {
@@ -44,9 +44,14 @@ angular.module('linagora.esn.unifiedinbox')
 
       return buildFetcher().then(function(fetcher) {
         $scope.loadNextItems = fetcher;
-        $scope.loadRecentItems = fetcher.loadRecentItems;
+        $scope.loadRecentItems = function() {
+          fetcher.loadRecentItems().then(inboxFilteredList.addAll);
+        };
 
-        $timeout($scope.loadMoreElements, 0);
+        $timeout(function() {
+          $scope.loadRecentItems();
+          $scope.loadMoreElements();
+        }, 0);
       });
     }
 
