@@ -30,7 +30,8 @@
     'esn.aggregator',
     'esn.provider',
     'esn.search',
-    'esn.highlight'
+    'esn.highlight',
+    'esn.module-registry'
   ])
     .config(function($stateProvider, routeResolver, dynamicDirectiveServiceProvider) {
       $stateProvider
@@ -221,8 +222,9 @@
 
       dynamicDirectiveServiceProvider.addInjection('esn-application-menu', calendar);
     })
-    .run(function(calEventsProviders, calRegisterTimezones) {
+    .run(function(calEventsProviders, calRegisterTimezones, esnModuleRegistry, CALENDAR_MODULE_METADATA) {
       calRegisterTimezones();
       calEventsProviders.setUpSearchProviders();
+      esnModuleRegistry.add(CALENDAR_MODULE_METADATA);
     });
 })();

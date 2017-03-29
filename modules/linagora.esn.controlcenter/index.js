@@ -28,14 +28,21 @@ var controlCenterModule = new AwesomeModule(AWESOME_MODULE_NAME, {
       var app = require('./backend/webserver')(dependencies, this);
       var webserverWrapper = dependencies('webserver-wrapper');
       var lessFile = path.resolve(__dirname, './frontend/css/styles.less');
-      var jsFiles = [
+
+      webserverWrapper.injectAngularModules(MODULE_NAME, [
         'app.js',
         'directives.js',
         'services.js',
         'controllers.js'
-      ];
+      ], [AWESOME_MODULE_NAME], ['esn']);
 
-      webserverWrapper.injectAngularModules(MODULE_NAME, jsFiles, [AWESOME_MODULE_NAME], ['esn']);
+      webserverWrapper.injectAngularAppModules(MODULE_NAME, [
+        'general/controlcenter-general.component.js',
+        'general/controlcenter-general.controller.js',
+        'general/controlcenter-general-subheader.component.js',
+        'general/controlcenter-general.service.js'
+      ], [AWESOME_MODULE_NAME], ['esn']);
+
       webserverWrapper.injectLess(MODULE_NAME, [lessFile], 'esn');
       webserverWrapper.addApp(MODULE_NAME, app);
 
