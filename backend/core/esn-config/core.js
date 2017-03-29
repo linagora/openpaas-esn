@@ -30,10 +30,15 @@ function get(esnConfig, configName, key, callback) {
 }
 
 function set(esnConfig, configName, key, value, callback) {
-  if (!callback && typeof value === 'function') {
-    callback = value;
-    value = key;
-    key = null;
+  if (!callback) {
+    if (typeof value === 'function') {
+      callback = value;
+      value = key;
+      key = null;
+    } else if (typeof value === 'undefined') {
+      value = key;
+      key = null;
+    }
   }
 
   callback = callback || function() {};

@@ -492,4 +492,111 @@ describe('The esn-config module', function() {
     });
 
   });
+
+  describe('The set fn', function() {
+    let checkDoc;
+
+    beforeEach(function() {
+      checkDoc = this.helpers.mongo.checkDoc.bind(this.helpers.mongo);
+    });
+
+    it('should store the value when no key specified (use promise)', function(done) {
+      const domainId = new ObjectId();
+      const value = ['my', 'value', 'is an array'];
+
+      getModule()('mail')
+        .forUser({ preferredDomainId: domainId })
+        .inModule('some_module')
+        .set(value)
+        .then(() => {
+          checkDoc('configurations', { domain_id: domainId }, doc => {
+            expect(doc).to.shallowDeepEqual({
+              domain_id: String(domainId),
+              modules: [{
+                name: 'some_module',
+                configurations: [{
+                  name: 'mail',
+                  value
+                }]
+              }]
+            });
+          }, done);
+        });
+    });
+
+    it('should store the value when no key specified (use callback)', function(done) {
+      const domainId = new ObjectId();
+      const value = ['my', 'value', 'is an array'];
+
+      getModule()('mail')
+        .forUser({ preferredDomainId: domainId })
+        .inModule('some_module')
+        .set(value, err => {
+          expect(err).to.not.exist;
+
+          checkDoc('configurations', { domain_id: domainId }, doc => {
+            expect(doc).to.shallowDeepEqual({
+              domain_id: String(domainId),
+              modules: [{
+                name: 'some_module',
+                configurations: [{
+                  name: 'mail',
+                  value
+                }]
+              }]
+            });
+          }, done);
+        });
+    });
+
+    it('should store the value specified key (use promise)', function(done) {
+      const domainId = new ObjectId();
+      const value = ['my', 'value', 'is an array'];
+
+      getModule()('mail')
+        .forUser({ preferredDomainId: domainId })
+        .inModule('some_module')
+        .set('key1.key2', value)
+        .then(() => {
+          checkDoc('configurations', { domain_id: domainId }, doc => {
+            expect(doc).to.shallowDeepEqual({
+              domain_id: String(domainId),
+              modules: [{
+                name: 'some_module',
+                configurations: [{
+                  name: 'mail',
+                  value: { key1: { key2: value } }
+                }]
+              }]
+            });
+          }, done);
+        });
+    });
+
+    it('should store the value when no key specified (use callback)', function(done) {
+      const domainId = new ObjectId();
+      const value = ['my', 'value', 'is an array'];
+
+      getModule()('mail')
+        .forUser({ preferredDomainId: domainId })
+        .inModule('some_module')
+        .set('key1.key2', value, err => {
+          expect(err).to.not.exist;
+
+          checkDoc('configurations', { domain_id: domainId }, doc => {
+            expect(doc).to.shallowDeepEqual({
+              domain_id: String(domainId),
+              modules: [{
+                name: 'some_module',
+                configurations: [{
+                  name: 'mail',
+                  value: { key1: { key2: value } }
+                }]
+              }]
+            });
+          }, done);
+        });
+    });
+
+  });
 });
