@@ -5,6 +5,6 @@ block left
     i.mdi.mdi-arrow-left
 
 block right
-  button.btn.btn-link(ui-sref='calendar.edit({ addUsersFromDelegationState : { selection: $ctrl.selection, newUsersGroups:$ctrl.newUsersGroups }})')
+  button.btn.btn-link(ui-sref='calendar.edit({ addUsersFromDelegationState : { selectedShareeRight: $ctrl.selectedShareeRight, newUsersGroups:$ctrl.newUsersGroups }})')
     | #{__('Add')}
     i.mdi.mdi-plus
