@@ -200,14 +200,6 @@
         TOGGLE: 'calendar:mini:toggle',
         VIEW_CHANGE: 'calendar:mini:viewchange'
       },
-      WS: {
-        EVENT_CREATED: 'calendar:ws:event:created',
-        EVENT_UPDATED: 'calendar:ws:event:updated',
-        EVENT_REQUEST: 'calendar:ws:event:request',
-        EVENT_CANCEL: 'calendar:ws:event:cancel',
-        EVENT_DELETED: 'calendar:ws:event:deleted',
-        EVENT_REPLY: 'calendar:ws:event:reply'
-      },
       MODAL: 'calendar:modal'
     })
 
@@ -225,5 +217,17 @@
       title: 'Calendar',
       icon: 'calendar-icon',
       homePage: 'calendar.main'
+    })
+
+    .constant('CAL_WEBSOCKET', {
+      NAMESPACE: '/calendars',
+      EVENT: {
+        CREATED: 'calendar:ws:event:created',
+        UPDATED: 'calendar:ws:event:updated',
+        REQUEST: 'calendar:ws:event:request',
+        CANCEL: 'calendar:ws:event:cancel',
+        DELETED: 'calendar:ws:event:deleted',
+        REPLY: 'calendar:ws:event:reply'
+      }
     });
 })();

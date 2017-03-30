@@ -21,20 +21,18 @@
     CalendarShell,
     calendarVisibilityService,
     calEventService,
-    calMasterEventCache,
-    calendarEventEmitter,
     calendarUtils,
     calEventUtils,
     calPublicCalendarStore,
+    calWebsocketListenerService,
     gracePeriodService,
-    livenotification,
     calOpenEventForm,
     elementScrollService,
+    esnWithPromiseResult,
     CALENDAR_EVENTS,
     DEFAULT_CALENDAR_ID,
-    MAX_CALENDAR_RESIZE_HEIGHT,
-    esnWithPromiseResult) {
-
+    MAX_CALENDAR_RESIZE_HEIGHT
+  ) {
       var windowJQuery = angular.element($window);
       var calendarDeffered = $q.defer();
       var calendarPromise = calendarDeffered.promise;
@@ -259,22 +257,10 @@
         });
       }
 
-      var sio = livenotification('/calendars');
-
-      sio.on(CALENDAR_EVENTS.WS.EVENT_CREATED, _liveNotificationHandlerOnCreateRequestandUpdate);
-      sio.on(CALENDAR_EVENTS.WS.EVENT_REQUEST, _liveNotificationHandlerOnCreateRequestandUpdate);
-      sio.on(CALENDAR_EVENTS.WS.EVENT_CANCEL, _liveNotificationHandlerOnDelete);
-      sio.on(CALENDAR_EVENTS.WS.EVENT_UPDATED, _liveNotificationHandlerOnCreateRequestandUpdate);
-      sio.on(CALENDAR_EVENTS.WS.EVENT_DELETED, _liveNotificationHandlerOnDelete);
-      sio.on(CALENDAR_EVENTS.WS.EVENT_REPLY, _liveNotificationHandlerOnReply);
+      var websocketListener = calWebsocketListenerService.listenEvents();
 
       $scope.$on('$destroy', function() {
-        sio.removeListener(CALENDAR_EVENTS.WS.EVENT_CREATED, _liveNotificationHandlerOnCreateRequestandUpdate);
-        sio.removeListener(CALENDAR_EVENTS.WS.EVENT_UPDATED, _liveNotificationHandlerOnCreateRequestandUpdate);
-        sio.removeListener(CALENDAR_EVENTS.WS.EVENT_DELETED, _liveNotificationHandlerOnDelete);
-        sio.removeListener(CALENDAR_EVENTS.WS.EVENT_REQUEST, _liveNotificationHandlerOnCreateRequestandUpdate);
-        sio.removeListener(CALENDAR_EVENTS.WS.EVENT_REPLY, _liveNotificationHandlerOnReply);
-        sio.removeListener(CALENDAR_EVENTS.WS.EVENT_CANCEL, _liveNotificationHandlerOnDelete);
+        websocketListener.clean();
         unregisterFunctions.forEach(function(unregisterFunction) {
           unregisterFunction();
         });
@@ -282,35 +268,5 @@
         calCachedEventSource.resetCache();
         windowJQuery.off('resize', $scope.resizeCalendarHeight);
       });
-
-      function _liveNotificationHandlerOnCreateRequestandUpdate(msg) {
-        var event = CalendarShell.from(msg.event, {etag: msg.etag, path: msg.eventPath});
-
-        calCachedEventSource.registerUpdate(event);
-        calMasterEventCache.save(event);
-        calendarEventEmitter.fullcalendar.emitModifiedEvent(event);
-      }
-
-      function _liveNotificationHandlerOnReply(msg) {
-        var replyEvent = CalendarShell.from(msg.event, {etag: msg.etag, path: msg.eventPath});
-
-        var event = calMasterEventCache.get(replyEvent.path);
-
-        event && event.applyReply(replyEvent);
-
-        $q.when(event || calEventService.getEvent(replyEvent.path)).then(function(event) {
-          calMasterEventCache.save(event);
-          calCachedEventSource.registerUpdate(event);
-          calendarEventEmitter.fullcalendar.emitModifiedEvent(event);
-        });
-      }
-
-      function _liveNotificationHandlerOnDelete(msg) {
-        var event = CalendarShell.from(msg.event, {etag: msg.etag, path: msg.eventPath});
-
-        calCachedEventSource.registerDelete(event);
-        calMasterEventCache.remove(event);
-        calendarEventEmitter.fullcalendar.emitRemovedEvent(event);
-      }
   }
 })();
