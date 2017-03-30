@@ -830,6 +830,25 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       scope.$digest();
     });
 
+    it('should stop throbber when JMAP request has failed', function(done) {
+      $stateParams.item = new jmap.Message(jmapClient, 'messageId1', 'threadId1', [$stateParams.mailbox], {
+        id: 'id',
+        isFlagged: false
+      });
+      jmapClient.getMessages = function() {
+        return $q.reject(new Error('JMAP request did fail!'));
+      };
+
+      initController('viewEmailController');
+
+      scope.$watch('email.loaded', function(before, after) {
+        expect(after).to.equal(true);
+        done();
+      });
+
+      scope.$digest();
+    });
+
     it('should mark the email as read once it\'s loaded', function() {
       jmapMessage.isUnread = true;
 
