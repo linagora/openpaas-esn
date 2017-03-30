@@ -9,6 +9,7 @@ var AwesomeModule = require('awesome-module');
 var Dependency = AwesomeModule.AwesomeModuleDependency;
 var AsyncEventEmitter = require('async-eventemitter');
 var css = require('../core').css;
+const assetRegistry = require('../core').assets;
 
 var webserver = {
   application: serverApplication,
@@ -168,6 +169,7 @@ function addJSInjection(moduleName, files, innerApps) {
     injections[moduleName][innerApp] = injections[moduleName][innerApp] || {};
     injections[moduleName][innerApp].js = injections[moduleName][innerApp].js || [];
     injections[moduleName][innerApp].js = injections[moduleName][innerApp].js.concat(files);
+    assetRegistry.app(innerApp).type('js').add(files, moduleName);
   });
 }
 
@@ -181,6 +183,8 @@ function addAngularModulesInjection(moduleName, files, angularModulesNames, inne
     injections[moduleName][innerApp].js = injections[moduleName][innerApp].js.concat(files);
     injections[moduleName][innerApp].angular = injections[moduleName][innerApp].angular || [];
     injections[moduleName][innerApp].angular = injections[moduleName][innerApp].angular.concat(angularModulesNames);
+    assetRegistry.app(innerApp).type('angular').add(angularModulesNames, moduleName);
+    assetRegistry.app(innerApp).type('js').add(files, moduleName);
   });
 }
 
@@ -195,6 +199,8 @@ function addAngularAppModulesInjection(moduleName, jsfiles, angularModulesNames,
     injections[moduleName][innerApp].app.js = injections[moduleName][innerApp].app.js.concat(jsfiles);
     injections[moduleName][innerApp].angular = injections[moduleName][innerApp].angular || [];
     injections[moduleName][innerApp].angular = injections[moduleName][innerApp].angular.concat(angularModulesNames);
+    assetRegistry.app(innerApp).type('angular').add(angularModulesNames, moduleName);
+    assetRegistry.app(innerApp).type('jsApp').add(jsfiles, moduleName);
   });
 }
 
@@ -202,6 +208,9 @@ webserver.addAngularAppModulesInjection = addAngularAppModulesInjection;
 
 function addLessInjection(namespace, lessFiles, innerApps) {
   css.addLessInjection(namespace, lessFiles, innerApps);
+  innerApps.forEach(innerApp => {
+    assetRegistry.app(innerApp).type('less').add(lessFiles, namespace);
+  });
 }
 
 webserver.addLessInjection = addLessInjection;
