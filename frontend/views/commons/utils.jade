@@ -1,9 +1,6 @@
-mixin injectJSFromModules(module, injections)
-  each injection, key in injections
-    - var moduleInjections = injection[module]
-    if (moduleInjections && moduleInjections.js)
-      each file in moduleInjections.js
-        script(src='/' + key + '/js/' + file)
+mixin injectJSFromModules(module, assets)
+  each asset in assets.type('js').all()
+    script(src='/' + asset.namespace + '/js/' + asset.name)
 
 mixin injectJSAppFromModules(module, assets)
   each asset in assets.type('jsApp').all()
