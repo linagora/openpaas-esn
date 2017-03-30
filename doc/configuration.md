@@ -40,25 +40,24 @@ A `CONFIG_METADATA` object has the following structure:
       "admin": "rw"
     },
     "configurations": {
-      "configName": {
+      "config-1": {
         "rights": {
           "admin": "rw",
           "user": "r"
         }
       },
-      "otherConfig": {}
+      "config-2": {},
+      "config-3": {}
     }
-  }, {
-    // other modules
   }
 }
 ```
 
-Each module have a rights configuration which is applied for all configuration belong this module if they have not rights configuration. But if configuration have rights config for its, it will be override module rights configuration.
+With an object defined as above for a module, first we have a generic permission set in `rights` object. This permission rules applies on every configuration defined in `configurations` object. However, if any configuration object has its own permission set like `config-1`, then its declared permission will override the generic one.
 
-Each rights have two object:
-- The first is actor, for now we have two actors: admin and user.
-- The second is rights, we have read rights with notation is `r` and write rights with notation is `w`. If an actor have both rights then notation is `rw`.
+Properties of the `rights` object:
+- The first is actor, we have two kinds of actor: *admin* and *user*.
+- The second is actions allowed on the actor, we have read and write denoted as `r` and `w`.
 
 ## Global Configuration
 

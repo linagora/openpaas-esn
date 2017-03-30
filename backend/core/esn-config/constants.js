@@ -78,28 +78,6 @@ module.exports = {
           }
         }
       }
-    },
-    'linagora.esn.unifiedinbox': {
-      rights: {
-        admin: 'rw',
-        user: 'r'
-      },
-      configurations: {
-        view: {},
-        api: {},
-        uploadUrl: {},
-        downloadUrl: {},
-        isJmapSendingEnabled: {},
-        isSaveDraftBeforeSendingEnabled: {},
-        'composer.attachments': {},
-        maxSizeUpload: {},
-        'twitter.tweets': {},
-        'github.received_events': {},
-        drafts: {},
-        swipeRightAction: {}
-      }
-    },
-    'linagora.esn.contact': {},
-    'linagora.esn.calendar': {}
+    }
   }
 };

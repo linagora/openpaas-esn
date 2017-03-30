@@ -82,6 +82,9 @@ var unifiedInboxModule = new AwesomeModule('linagora.esn.unifiedinbox', {
     },
 
     start: function(dependencies, callback) {
+      var config = require('./backend/lib/config')(dependencies);
+
+      config.register();
       callback();
     }
   }
