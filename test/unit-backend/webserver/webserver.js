@@ -182,25 +182,25 @@ describe('The Webserver module', function() {
       serverMock.webserver.addJSInjection('myModule', ['myModule.js'], ['esn']);
       serverMock.webserver.addAngularModulesInjection('myModule2', ['myModule2.js'], ['esn.plugin.myModule2'], ['esn', 'welcome']);
 
-      expect(serverMock.webserver.getInjections()).to.deep.equal(
-        {
-          myModule: {
-            esn: {
-              js: ['myModule.js']
-            }
-          },
-          myModule2: {
-            esn: {
-              js: ['myModule2.js'],
-              angular: ['esn.plugin.myModule2']
-            },
-            welcome: {
-              js: ['myModule2.js'],
-              angular: ['esn.plugin.myModule2']
-            }
-          }
-        }
-      );
+      const assets = this.helpers.requireBackend('core/assets');
+      const Asset = this.helpers.requireBackend('core/assets/asset');
+
+      expect(assets.app('esn').type('js').all()).to.deep.equal([
+        new Asset('myModule.js', 'myModule', 0),
+        new Asset('myModule2.js', 'myModule2', 0)
+      ]);
+
+      expect(assets.app('esn').type('angular').all()).to.deep.equal([
+        new Asset('esn.plugin.myModule2', 'myModule2', 0)
+      ]);
+
+      expect(assets.app('welcome').type('js').all()).to.deep.equal([
+        new Asset('myModule2.js', 'myModule2', 0)
+      ]);
+
+      expect(assets.app('welcome').type('angular').all()).to.deep.equal([
+        new Asset('esn.plugin.myModule2', 'myModule2', 0)
+      ]);
     });
   });
 

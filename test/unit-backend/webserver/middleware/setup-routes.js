@@ -15,7 +15,17 @@ describe('The webserver setup-route middleware', function() {
       return configured;
     };
 
-    mockery.registerMock('../../core', {configured: configuredMock.bind(this), db: {mongo: {}}});
+    const coreMock = {
+      assets: {
+        app: function() {}
+      },
+      configured: configuredMock.bind(this),
+      db: {
+        mongo: {}
+      }
+    };
+
+    mockery.registerMock('../../core', coreMock);
   });
 
   it('should register a callback on the GET / endpoint', function() {
@@ -38,6 +48,7 @@ describe('The webserver setup-route middleware', function() {
       configured = false;
 
       var responseMock = {
+        locals: {},
         render: function(path) {
           expect(path).to.equal('setup/index');
           done();
