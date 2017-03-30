@@ -88,10 +88,10 @@ angular.module('esn.scroll', [
                 $scroll: scroll
               };
 
-          if (diff > 0 && !toggled && Math.abs(diff) > SCROLL_DIFF_DELTA) {
+          if (diff > 0 && !toggled && scroll > SCROLL_DIFF_DELTA) {
             toggled = true;
             $parse(attrs.onScrollDown)(scope, locals);
-          } else if (diff < 0 && toggled && Math.abs(diff) > SCROLL_DIFF_DELTA) {
+          } else if (diff < 0 && toggled) {
             toggled = false;
             $parse(attrs.onScrollUp)(scope, locals);
           }
