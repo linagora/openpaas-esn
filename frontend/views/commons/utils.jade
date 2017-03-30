@@ -9,11 +9,10 @@ mixin injectJSAppFromModules(module, assets)
   each asset in assets.type('jsApp').all()
     script(src='/' + asset.namespace + '/app/' + asset.name)
 
-mixin injectAngularFromModules(module, injections)
+mixin injectAngularFromModules(module, assets)
+  - var moduleInjections = assets.type('angular').allNames()
   script(type='text/javascript')
     | var angularInjections = []
-    each injection, key in injections
-      - var moduleInjections = injection[module]
-      if (moduleInjections && moduleInjections.angular)
-        | .concat("#{moduleInjections.angular}".split(','))
+    if (moduleInjections && moduleInjections.length)
+      | .concat("#{moduleInjections}".split(','))
     | ;
