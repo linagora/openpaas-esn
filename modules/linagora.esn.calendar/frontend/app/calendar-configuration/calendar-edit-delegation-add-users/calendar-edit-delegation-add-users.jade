@@ -1,7 +1,7 @@
 .row
   .col-xs-12.no-padding-xs
     sub-header
-      calendar-edit-delegation-add-users-header(selection="$ctrl.selection", new-users-groups="$ctrl.newUsersGroups")
+      calendar-edit-delegation-add-users-header(selected-sharee-right="$ctrl.selectedShareeRight", new-users-groups="$ctrl.newUsersGroups")
     .card-body.card-padding.visible-xs
       .row
         .col-sm-6.col-xs-12
@@ -11,5 +11,5 @@
       .row
         .col-sm-6.col-xs-12
           div.select
-            select.form-control(ng-model="$ctrl.selection")
-              option(ng-repeat="delegationType in ::$ctrl.delegationTypes", value="{{delegationType.value}}", ng-selected="none") {{delegationType.name}}
+            select.form-control(ng-model="$ctrl.selectedShareeRight")
+              option(ng-repeat="delegationType in ::$ctrl.delegationTypes", value="{{delegationType.value}}") {{delegationType.name}}

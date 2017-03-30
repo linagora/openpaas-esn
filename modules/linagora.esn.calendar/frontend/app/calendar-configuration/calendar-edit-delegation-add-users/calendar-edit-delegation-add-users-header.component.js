@@ -9,7 +9,7 @@
       templateUrl: '/calendar/app/calendar-configuration/calendar-edit-delegation-add-users/calendar-edit-delegation-add-users-header.html',
       bindings: {
         newUsersGroups: '=',
-        selection: '='
+        selectedShareeRight: '='
       }
     };
   }

@@ -1,5 +1,4 @@
 .hidden-xs
-
   .delegation-line
     .col-md-5.padding-left-0
       users-autocomplete-input(mutable-users='$ctrl.newUsersGroups', on-adding-user='$ctrl.onAddingUser')
@@ -18,17 +17,13 @@
       img(src='/images/user.png', fallback-src='/images/user.png', ng-src='/api/avatars?email={{ delegation.user.preferredEmail | urlencode }}')
   .col-xs-4.name
     span {{ delegation.user.displayName }}
-  .col-xs-5
+  .col-xs-6
     span
       .select
         select.form-control(ng-model='delegation.selection')
           option(ng-repeat="delegationType in ::$ctrl.delegationTypes" value="{{delegationType.value}}" ng-selected="delegationType.value === delegation.selection") {{delegationType.name}}
-  .col-xs-2
+  .col-xs-1.margin-right-10
     a(href="", ng-click='$ctrl.removeUserGroup(delegation)')
       i.mdi.mdi-delete
 
-.hidden-md
-  .delegation-line-mobile
-    a.btn.btn-primary(ui-sref='calendar.edit.delegation({ newUsersGroups: $ctrl.newUsersGroups, delegationTypes: $ctrl.delegationTypes, addUserGroup:  $ctrl.addUserGroup})')
-      i.mdi.mdi-account-multiple-plus
-      | #{__('Add users and groups delegation')}
+fab.hidden-md(ui-sref='calendar.edit.delegation({ newUsersGroups: $ctrl.newUsersGroups, delegationTypes: $ctrl.delegationTypes, addUserGroup:  $ctrl.addUserGroup})')

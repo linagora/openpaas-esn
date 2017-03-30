@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('The CalendarEditDelegationAddUsersController controller', function() {
-  var stateParamsMock, CALENDAR_RIGHT, CalendarEditDelegationAddUsersController, $rootScope, $scope, $controller;
+  var stateParamsMock, CALENDAR_SHARED_RIGHT, CalendarEditDelegationAddUsersController, $rootScope, $scope, $controller;
 
   beforeEach(function() {
     stateParamsMock = {
@@ -19,11 +19,11 @@ describe('The CalendarEditDelegationAddUsersController controller', function() {
       $provide.value('$stateParams', stateParamsMock);
     });
 
-    angular.mock.inject(function(_$controller_, _$rootScope_, _CALENDAR_RIGHT_) {
+    angular.mock.inject(function(_$controller_, _$rootScope_, _CALENDAR_SHARED_RIGHT_) {
       $controller = _$controller_;
       $rootScope = _$rootScope_;
       $scope = $rootScope.$new();
-      CALENDAR_RIGHT = _CALENDAR_RIGHT_;
+      CALENDAR_SHARED_RIGHT = _CALENDAR_SHARED_RIGHT_;
     });
   });
 
@@ -48,7 +48,7 @@ describe('The CalendarEditDelegationAddUsersController controller', function() {
     it('should initialize newUsersGroups', function() {
       CalendarEditDelegationAddUsersController.$onInit();
 
-      expect(CalendarEditDelegationAddUsersController.selection).to.be.deep.equal(CALENDAR_RIGHT.NONE);
+      expect(CalendarEditDelegationAddUsersController.selectedShareeRight).to.be.deep.equal(CALENDAR_SHARED_RIGHT.NONE);
     });
   });
 });
