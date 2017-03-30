@@ -1,11 +1,11 @@
 extends /modules/subheader/responsive-subheader
 
 block left
-  button.btn.btn-link.hidden-xs(ng-click="$ctrl.cancel()")
+  button.btn.btn-link.hidden-xs(ui-sref="calendar.main")
     .flex-vertical-centered.flex-space-between
       i.mdi.mdi-close
       | #{__('Cancel')}
-  button.btn.btn-link.btn-icon.visible-xs(ng-click="$ctrl.cancelMobile()")
+  button.btn.btn-link.btn-icon.visible-xs(ui-sref="calendar.list")
     i.mdi.mdi-close
 block right
   button.btn.btn-link.hidden-xs(ng-click='$ctrl.submit()')

@@ -11,16 +11,11 @@
       templateUrl: '/calendar/app/calendar-configuration/calendar-configuration-tab-main/calendar-configuration-tab-main.html',
       bindings: {
         calendar: '=',
+        calendarHomeId: '=',
         newCalendar: '=',
-        isDefaultCalendar: '=',
-        openDeleteConfirmationDialog: '=',
-        mobileCancel: '=',
-        cancel: '=',
-        submit: '=',
-        publicRights: '=',
         publicSelection: '='
       },
-      controllerAs: '$ctrl'
+      controller: 'CalendarConfigurationTabMainController'
     };
   }
 })();

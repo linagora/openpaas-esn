@@ -5,45 +5,36 @@
     .controller('calendarConfigurationController', calendarConfigurationController);
 
   function calendarConfigurationController(
-    $modal,
-    $scope,
     $state,
     $stateParams,
-    matchmedia,
-    SM_XS_MEDIA_QUERY,
-    uuid4,
+    $q,
+    _,
     CalendarCollectionShell,
     calendarService,
     calendarHomeService,
+    calendarAPI,
+    matchmedia,
     notificationFactory,
+    uuid4,
+    userAPI,
+    userUtils,
+    SM_XS_MEDIA_QUERY,
     CALENDAR_MODIFY_COMPARE_KEYS,
     CALENDAR_RIGHT,
     CALENDAR_SHARED_RIGHT,
-    DEFAULT_CALENDAR_ID,
     CalendarRightShell,
-    CalDelegationEditionHelper,
-    $q,
-    userAPI,
-    _,
-    userUtils,
-    calendarAPI
+    CalDelegationEditionHelper
   ) {
     var self = this;
     var calendarRight, originalCalendarRight;
     var CaldelegationEditionHelperInstance = new CalDelegationEditionHelper();
 
     self.submit = submit;
-    self.openDeleteConfirmationDialog = openDeleteConfirmationDialog;
-    self.delete = removeCalendar;
-    self.cancel = cancel;
-    self.cancelMobile = cancelMobile;
-    self.getMainView = getMainView;
-    self.getDelegationView = getDelegationView;
     self.addUserGroup = addUserGroup;
     self.removeUserGroup = removeUserGroup;
     self.$onInit = $onInit;
     self.activate = activate;
-    self.onAddingUser = onAddingUser;
+    self.canShowDelegationTab = canShowDelegationTab;
 
     ////////////
 
@@ -67,7 +58,7 @@
             self.selectedShareeRight = $stateParams.addUsersFromDelegationState.selectedShareeRight;
 
             self.addUserGroup();
-            self.getDelegationView();
+            self.selectedTab = 'delegation';
           }
         });
     }
@@ -78,7 +69,6 @@
       self.oldCalendar = {};
       self.newUsersGroups = [];
       self.selectedTab = 'main';
-      self.isDefaultCalendar = self.calendar.id === DEFAULT_CALENDAR_ID;
 
       if (self.newCalendar) {
         calendarRight = $q.when(new CalendarRightShell());
@@ -89,39 +79,6 @@
       angular.copy(self.calendar, self.oldCalendar);
       self.delegations = self.delegations || [];
       self.selectedShareeRight = CALENDAR_SHARED_RIGHT.NONE;
-      self.delegationTypes = [
-        {
-          value: CALENDAR_SHARED_RIGHT.NONE,
-          name: 'None'
-        }, {
-          value: CALENDAR_SHARED_RIGHT.SHAREE_ADMIN,
-          name: 'Administration'
-        }, {
-          value: CALENDAR_SHARED_RIGHT.SHAREE_READ_WRITE,
-          name: 'Read and Write'
-        }, {
-          value: CALENDAR_SHARED_RIGHT.SHAREE_READ,
-          name: 'Read only'
-        }, {
-          value: CALENDAR_SHARED_RIGHT.SHAREE_FREE_BUSY,
-          name: 'Free/Busy'
-        }];
-      self.publicRights = [
-        {
-          value: CALENDAR_RIGHT.PUBLIC_READ,
-          name: 'Read'
-        },
-        {
-          value: CALENDAR_RIGHT.WRITE,
-          name: 'Write'
-        }, {
-          value: CALENDAR_RIGHT.FREE_BUSY,
-          name: 'Private'
-        }, {
-          value: CALENDAR_RIGHT.NONE,
-          name: 'None'
-        }
-      ];
 
       calendarRight.then(function(calendarRightShell) {
         self.publicSelection = calendarRightShell.getPublicRight();
@@ -224,18 +181,6 @@
       }
     }
 
-    function openDeleteConfirmationDialog() {
-      self.modal = $modal({
-        templateUrl: '/calendar/app/calendar-configuration/calendar-configuration-delete-confirmation/calendar-configuration-delete-confirmation.html',
-        controller: function($scope) {
-          $scope.calendarName = self.calendar.name;
-          $scope.delete = removeCalendar;
-        },
-        backdrop: 'static',
-        placement: 'center'
-      });
-    }
-
     function addUserGroup() {
       self.delegations = CaldelegationEditionHelperInstance.addUserGroup(self.newUsersGroups, self.selectedShareeRight);
 
@@ -255,34 +200,8 @@
       self.selectedShareeRight = CALENDAR_SHARED_RIGHT.NONE;
     }
 
-    function removeCalendar() {
-      calendarService.removeCalendar(self.calendarHomeId, self.calendar).then(function() {
-        $state.go('calendar.main');
-      });
-    }
-
-    function cancel() {
-      $state.go('calendar.main');
-    }
-
-    function cancelMobile() {
-      $state.go('calendar.list');
-    }
-
-    function getMainView() {
-      self.selectedTab = 'main';
-    }
-
-    function getDelegationView() {
-      self.selectedTab = 'delegation';
-    }
-
-    function onAddingUser($tags) {
-      var canBeAdded = !!$tags._id && !self.delegations.some(function(delegation) {
-          return $tags._id === delegation.user._id;
-        });
-
-      return canBeAdded;
+    function canShowDelegationTab() {
+      return self.isAdmin && !self.newCalendar;
     }
   }
 })();

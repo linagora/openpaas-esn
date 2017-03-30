@@ -4,8 +4,8 @@
       users-autocomplete-input(mutable-users='$ctrl.newUsersGroups', on-adding-user='$ctrl.onAddingUser')
     .col-md-5
       .select
-        select.addDelegation.form-control(ng-model='$ctrl.selection')
-          option(ng-repeat="delegationType in ::$ctrl.delegationTypes" value="{{delegationType.value}}" ng-selected="delegationType.value === $ctrl.selection") {{delegationType.name}}
+        select.addDelegation.form-control(ng-model='$ctrl.selectedShareeRight')
+          option(ng-repeat="delegationType in ::$ctrl.delegationTypes" value="{{delegationType.value}}" ng-selected="delegationType.value === $ctrl.selectedShareeRight") {{delegationType.name}}
     .col-md-2
       .btn.btn-primary.btn-sm(ng-click="$ctrl.addUserGroup()") #{__('Add')}
 

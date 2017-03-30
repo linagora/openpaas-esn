@@ -21,11 +21,9 @@
       .form-control
     i.color-picker-value(ng-style="{'background-color': $ctrl.calendar.color}")
 .visible-xs
-  span.delete-calendar-button.flex-vertical-centered(ng-if="!$ctrl.newCalendar && !$ctrl.isDefaultCalendar", type="button", ng-click="$ctrl.openDeleteConfirmationDialog()")
+  span.delete-calendar-button.flex-vertical-centered(ng-if="$ctrl.canDeleteCalendar()", type="button", ng-click="$ctrl.openDeleteConfirmationDialog()")
     | #{__('Delete this calendar')}
 .hidden-xs
-  span.delete-calendar-button.flex-vertical-centered.m-t-10.pull-left.clickable(ng-if="!$ctrl.newCalendar && !$ctrl.isDefaultCalendar", type="button", ng-click="$ctrl.openDeleteConfirmationDialog()")
+  span.delete-calendar-button.flex-vertical-centered.m-t-10.pull-left.clickable(ng-if="$ctrl.canDeleteCalendar()", type="button", ng-click="$ctrl.openDeleteConfirmationDialog()")
     | #{__('Delete this calendar')}
-  span.pull-right
-    button.btn.btn-default.btn-sm.m-t-10.visible-xs(type="button", ng-click="$ctrl.mobileCancel()") #{__('Return to calendar')}
   .clearfix

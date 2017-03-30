@@ -7,33 +7,22 @@
     .col-xs-12
       calendar-configuration-tabs(
         selected-tab = "$ctrl.selectedTab",
-        get-main-view = "$ctrl.getMainView",
-        is-admin = "$ctrl.isAdmin",
-        new-calendar = "$ctrl.newCalendar",
-        get-delegation-view = "$ctrl.getDelegationView"
+        can-show-delegation-tab = "$ctrl.canShowDelegationTab",
       )
       .card-body.calendar-configuration-body
         form(ng-submit='$ctrl.submit()')
           calendar-configuration-tab-main(
             ng-show='$ctrl.selectedTab === "main"',
             calendar = "$ctrl.calendar",
+            calendar-home-id = "$ctrl.calendarHomeId"
             new-calendar= "$ctrl.newCalendar",
-            is-default-calendar= "$ctrl.isDefaultCalendar",
-            open-delete-confirmation-dialog = "$ctrl.openDeleteConfirmationDialog",
-            mobile-cancel = "$ctrl.mobileCancel",
-            cancel = "$ctrl.cancel",
-            submit = "$ctrl.submit",
-            public-rights = "$ctrl.publicRights",
             public-selection = "$ctrl.publicSelection"
           )
           calendar-configuration-tab-delegation(
             ng-show='$ctrl.selectedTab === "delegation"',
-            delegation-types="$ctrl.delegationTypes",
             delegations="$ctrl.delegations",
-            selection="$ctrl.selectedShareeRight",
-            go-to-edit-delegation = "$ctrl.goToEditDelegation",
+            selected-sharee-right="$ctrl.selectedShareeRight",
             new-users-groups= "$ctrl.newUsersGroups",
             add-user-group = "$ctrl.addUserGroup",
             remove-user-group = "$ctrl.removeUserGroup",
-            on-adding-user = "$ctrl.onAddingUser"
           )

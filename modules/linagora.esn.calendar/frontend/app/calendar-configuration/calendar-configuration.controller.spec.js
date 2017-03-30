@@ -280,14 +280,14 @@ describe('The calendar configuration controller', function() {
         expect(calendarConfigurationController.addUserGroup).to.be.called;
       });
 
-      it('should call getDelegationView', function() {
+      it('should call set selectedTab to "delegation"', function() {
         calendarConfigurationController.getDelegationView = sinon.spy();
 
         calendarConfigurationController.$onInit();
 
         $rootScope.$digest();
 
-        expect(calendarConfigurationController.getDelegationView).to.be.called;
+        expect(calendarConfigurationController.selectedTab).to.equal('delegation');
       });
     });
   });
@@ -332,26 +332,6 @@ describe('The calendar configuration controller', function() {
       expect(calendarConfigurationController.selectedTab).to.equal('main');
     });
 
-    it('should initialize isDefaultCalendar to true if it is the default calendar', function() {
-      calendarConfigurationController.calendar = {
-        id: 'events'
-      };
-
-      calendarConfigurationController.activate();
-
-      expect(calendarConfigurationController.isDefaultCalendar).to.be.true;
-    });
-
-    it('should initialize isDefaultCalendar to false if it is not the default calendar', function() {
-      calendarConfigurationController.calendar = {
-        id: '123456789'
-      };
-
-      calendarConfigurationController.activate();
-
-      expect(calendarConfigurationController.isDefaultCalendar).to.be.false;
-    });
-
     it('should initialize calendarRight with a new CalendarRightShell if newCalendar is true', function() {
       calendarConfigurationController.activate();
 
@@ -382,53 +362,6 @@ describe('The calendar configuration controller', function() {
       calendarConfigurationController.activate();
 
       expect(calendarConfigurationController.selectedShareeRight).to.equal(CALENDAR_SHARED_RIGHT.NONE);
-    });
-
-    it('should initialize self.delegationTypes with an array contains the different rights', function() {
-      var delegationTypesExpected = [
-        {
-          value: CALENDAR_SHARED_RIGHT.NONE,
-          name: 'None'
-        }, {
-          value: CALENDAR_SHARED_RIGHT.SHAREE_ADMIN,
-          name: 'Administration'
-        }, {
-          value: CALENDAR_SHARED_RIGHT.SHAREE_READ_WRITE,
-          name: 'Read and Write'
-        }, {
-          value: CALENDAR_SHARED_RIGHT.SHAREE_READ,
-          name: 'Read only'
-        }, {
-          value: CALENDAR_SHARED_RIGHT.SHAREE_FREE_BUSY,
-          name: 'Free/Busy'
-        }];
-
-      calendarConfigurationController.activate();
-
-      expect(calendarConfigurationController.delegationTypes).to.deep.equal(delegationTypesExpected);
-    });
-
-    it('should initialize self.publicRights with an array contains the different rights', function() {
-      var publicRightsExpected = [
-        {
-          value: CALENDAR_RIGHT.PUBLIC_READ,
-          name: 'Read'
-        },
-        {
-          value: CALENDAR_RIGHT.WRITE,
-          name: 'Write'
-        }, {
-          value: CALENDAR_RIGHT.FREE_BUSY,
-          name: 'Private'
-        }, {
-          value: CALENDAR_RIGHT.NONE,
-          name: 'None'
-        }
-      ];
-
-      calendarConfigurationController.activate();
-
-      expect(calendarConfigurationController.publicRights).to.deep.equal(publicRightsExpected);
     });
 
     it('should correcly initialize isAdmin if user is admin', function() {
@@ -818,18 +751,6 @@ describe('The calendar configuration controller', function() {
     });
   });
 
-  describe('the openDeleteConfirmationDialog function', function() {
-    it('should initialize self.modal', function() {
-      calendarConfigurationController.activate();
-
-      expect(calendarConfigurationController.modal).to.be.undefined;
-
-      calendarConfigurationController.openDeleteConfirmationDialog();
-
-      expect(calendarConfigurationController.modal).to.not.be.undefined;
-    });
-  });
-
   describe('the addUserGroup function', function() {
     it('should add multiple users to the delegation if newUsersGroups.length > 0 and the calendar is not a new calendar', function() {
       calendarConfigurationController.calendar = {
@@ -884,130 +805,41 @@ describe('The calendar configuration controller', function() {
     });
   });
 
-  describe('the removeCalendar function', function() {
-    it('should call calendarService.removeCalendar before $state to go back on the main view when deleting', function() {
-      calendarConfigurationController.calendar = {
-        id: '123456789'
-      };
-
+  describe('the canShowDelegationTab function', function() {
+    it('should return true if isAdmin=true and newCalendar=false', function() {
       calendarConfigurationController.activate();
 
-      calendarConfigurationController.delete();
+      calendarConfigurationController.isAdmin = true;
+      calendarConfigurationController.newCalendar = false;
 
-      expect(stateMock.go).to.have.not.been.called;
-
-      $rootScope.$digest();
-
-      expect(calendarService.removeCalendar).to.have.been.calledWith(calendarHomeId, calendarConfigurationController.calendar);
-      expect(stateMock.go).to.have.been.calledWith('calendar.main');
-    });
-  });
-
-  describe('the cancel function', function() {
-    it('should call $state to go back on the main view when deleting', function() {
-      calendarConfigurationController.calendar = {
-        id: '123456789'
-      };
-
-      calendarConfigurationController.activate();
-
-      calendarConfigurationController.cancel();
-
-      expect(stateMock.go).to.have.been.calledWith('calendar.main');
-    });
-  });
-
-  describe('the cancelMobile function', function() {
-    it('should call $state to go back on the list view when deleting in mobile', function() {
-      calendarConfigurationController.calendar = {
-        id: '123456789'
-      };
-
-      calendarConfigurationController.activate();
-
-      calendarConfigurationController.cancelMobile();
-
-      expect(stateMock.go).to.have.been.calledWith('calendar.list');
-    });
-  });
-
-  describe('the getMainView function', function() {
-    it('should select main tab', function() {
-      calendarConfigurationController.activate();
-
-      calendarConfigurationController.selectedTab = 'delegation';
-
-      calendarConfigurationController.getMainView();
-
-      expect(calendarConfigurationController.selectedTab).to.equal('main');
-    });
-  });
-
-  describe('the getDelegationView function', function() {
-    it('should select delegation tab', function() {
-      calendarConfigurationController.activate();
-
-      calendarConfigurationController.selectedTab = 'main';
-
-      calendarConfigurationController.getDelegationView();
-
-      expect(calendarConfigurationController.selectedTab).to.equal('delegation');
-    });
-  });
-
-  describe('the onAddingUser function', function() {
-    it('should return false if the $tag do not contain the _id field', function() {
-      var $tag = {};
-
-      calendarConfigurationController.activate();
-
-      expect(calendarConfigurationController.onAddingUser($tag)).to.be.false;
+      expect(calendarConfigurationController.canShowDelegationTab()).to.be.true;
     });
 
-    it('should return true if the $tag contain the _id field', function() {
-      var $tag = {
-        _id: '11111111'
-      };
-
+    it('should return false if isAdmin=true and newCalendar=true', function() {
       calendarConfigurationController.activate();
 
-      expect(calendarConfigurationController.onAddingUser($tag)).to.be.true;
+      calendarConfigurationController.isAdmin = true;
+      calendarConfigurationController.newCalendar = true;
+
+      expect(calendarConfigurationController.canShowDelegationTab()).to.be.false;
     });
 
-    it('should return true when the $tag is not already added in the delegations', function() {
-      var $tag = {
-        _id: '11111111'
-      };
-
+    it('should return false if isAdmin=false and newCalendar=false', function() {
       calendarConfigurationController.activate();
 
-      calendarConfigurationController.delegations = [
-        {
-          user: {
-            _id: '123'
-          }
-        }
-      ];
+      calendarConfigurationController.isAdmin = false;
+      calendarConfigurationController.newCalendar = false;
 
-      expect(calendarConfigurationController.onAddingUser($tag)).to.be.true;
+      expect(calendarConfigurationController.canShowDelegationTab()).to.be.false;
     });
 
-    it('should return false when the $tag does already exist in the delegations', function() {
-      var $tag = {
-        _id: '123'
-      };
-
+    it('should return false if isAdmin=false and newCalendar=true', function() {
       calendarConfigurationController.activate();
 
-      calendarConfigurationController.delegations = [
-        {
-          user: {
-            _id: '123'
-          }
-        }
-      ];
+      calendarConfigurationController.isAdmin = false;
+      calendarConfigurationController.newCalendar = true;
 
-      expect(calendarConfigurationController.onAddingUser($tag)).to.be.false;
+      expect(calendarConfigurationController.canShowDelegationTab()).to.be.false;
     });
   });
 });
