@@ -222,12 +222,12 @@
     .constant('CAL_WEBSOCKET', {
       NAMESPACE: '/calendars',
       EVENT: {
-        CREATED: 'calendar:ws:event:created',
-        UPDATED: 'calendar:ws:event:updated',
-        REQUEST: 'calendar:ws:event:request',
-        CANCEL: 'calendar:ws:event:cancel',
-        DELETED: 'calendar:ws:event:deleted',
-        REPLY: 'calendar:ws:event:reply'
+        CREATED: 'calendar:event:created',
+        UPDATED: 'calendar:event:updated',
+        REQUEST: 'calendar:event:request',
+        CANCEL: 'calendar:event:cancel',
+        DELETED: 'calendar:event:deleted',
+        REPLY: 'calendar:event:reply'
       }
     });
 })();

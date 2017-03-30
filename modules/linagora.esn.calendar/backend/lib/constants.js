@@ -24,11 +24,11 @@ module.exports = {
     EMAIL: 'EMAIL'
   },
   WS_EVENT: {
-    EVENT_CREATED: 'calendar:ws:event:created',
-    EVENT_UPDATED: 'calendar:ws:event:updated',
-    EVENT_REQUEST: 'calendar:ws:event:request',
-    EVENT_CANCEL: 'calendar:ws:event:cancel',
-    EVENT_DELETED: 'calendar:ws:event:deleted',
-    EVENT_REPLY: 'calendar:ws:event:reply'
+    EVENT_CREATED: 'calendar:event:created',
+    EVENT_UPDATED: 'calendar:event:updated',
+    EVENT_REQUEST: 'calendar:event:request',
+    EVENT_CANCEL: 'calendar:event:cancel',
+    EVENT_DELETED: 'calendar:event:deleted',
+    EVENT_REPLY: 'calendar:event:reply'
   }
 };

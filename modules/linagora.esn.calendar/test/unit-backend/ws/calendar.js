@@ -97,14 +97,14 @@ describe('The calendar WS events module', function() {
         var event = {
           event: 'ICS',
           eventPath: 'calendar/123/events/1213.ics',
-          websocketEvent: 'calendar:ws:event:created'
+          websocketEvent: 'calendar:event:created'
         };
 
         this.helper.getUserSocketsFromNamespace = function(userId) {
           expect(userId).to.equal('123');
           var socket = {
             emit: function(wsEvent, _event) {
-              expect(wsEvent).to.equal('calendar:ws:event:created');
+              expect(wsEvent).to.equal('calendar:event:created');
               expect(_event).to.equal(event);
               done();
             }
@@ -120,7 +120,7 @@ describe('The calendar WS events module', function() {
         var event = {
           event: 'ICS',
           eventPath: 'calendar/123/events/1213.ics',
-          websocketEvent: 'calendar:ws:event:created',
+          websocketEvent: 'calendar:event:created',
           shareeIds: [
             'principals/users/shareeId'
           ]
@@ -137,7 +137,7 @@ describe('The calendar WS events module', function() {
         var event = {
           event: 'ICS',
           eventPath: 'calendar/123/events/1213.ics',
-          websocketEvent: 'calendar:ws:event:created',
+          websocketEvent: 'calendar:event:created',
           shareeIds: [
             'principals/users/shareeId'
           ]
@@ -148,7 +148,7 @@ describe('The calendar WS events module', function() {
         expect(event).to.be.deep.equal({
           event: 'ICS',
           eventPath: 'calendar/123/events/1213.ics',
-          websocketEvent: 'calendar:ws:event:created'
+          websocketEvent: 'calendar:event:created'
         });
       });
 
