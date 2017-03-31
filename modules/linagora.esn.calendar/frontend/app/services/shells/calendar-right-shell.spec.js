@@ -5,13 +5,13 @@
 var expect = chai.expect;
 
 describe('CalendarRightShell factory', function() {
-  var CalendarRightShell, calendarRightShell, CAL_CALENDAR_RIGHT, CAL_CALENDAR_SHARED_RIGHT;
+  var CalendarRightShell, calendarRightShell, CAL_CALENDAR_PUBLIC_RIGHT, CAL_CALENDAR_SHARED_RIGHT;
 
   beforeEach(function() {
     angular.mock.module('esn.calendar');
-    angular.mock.inject(function(_CalendarRightShell_, _CAL_CALENDAR_RIGHT_, _CAL_CALENDAR_SHARED_RIGHT_) {
+    angular.mock.inject(function(_CalendarRightShell_, _CAL_CALENDAR_PUBLIC_RIGHT_, _CAL_CALENDAR_SHARED_RIGHT_) {
       CalendarRightShell = _CalendarRightShell_;
-      CAL_CALENDAR_RIGHT = _CAL_CALENDAR_RIGHT_;
+      CAL_CALENDAR_PUBLIC_RIGHT = _CAL_CALENDAR_PUBLIC_RIGHT_;
       CAL_CALENDAR_SHARED_RIGHT = _CAL_CALENDAR_SHARED_RIGHT_;
     });
 
@@ -25,25 +25,13 @@ describe('CalendarRightShell factory', function() {
       expect(calendarRightShell.getOwnerId()).to.be.equal('me');
     });
 
-    it('should return admin for admin user', function() {
-      expect(calendarRightShell.getUserRight('me')).to.equal(CAL_CALENDAR_RIGHT.ADMIN);
-    });
-
     it('should convert properly calendar.access to String to match CAL_CALENDAR_SHARED_RIGHT constants', function() {
       expect(calendarRightShell.getShareeRight('tom')).to.equal(CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ_WRITE);
       expect(calendarRightShell.getShareeRight('jerry')).to.equal(CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ);
     });
   });
 
-  describe('getUserRight', function() {
-    it('should return nothing for user not in the server response', function() {
-      expect(calendarRightShell.getUserRight('toto')).to.be.undefined;
-    });
-
-    it('should return admin for admin user', function() {
-      expect(calendarRightShell.getUserRight('me')).to.equal(CAL_CALENDAR_RIGHT.ADMIN);
-    });
-
+  describe('getShareeRight', function() {
     it('should convert properly calendar.access to String to match CAL_CALENDAR_SHARED_RIGHT constants', function() {
       expect(calendarRightShell.getShareeRight('tom')).to.equal(CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ_WRITE);
       expect(calendarRightShell.getShareeRight('jerry')).to.equal(CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ);
@@ -58,7 +46,7 @@ describe('CalendarRightShell factory', function() {
 
   describe('getPublicRight', function() {
     it('should return rights of all the users', function() {
-      expect(calendarRightShell.getPublicRight(), CAL_CALENDAR_RIGHT.FREE_BUSY);
+      expect(calendarRightShell.getPublicRight(), CAL_CALENDAR_PUBLIC_RIGHT.FREE_BUSY);
     });
   });
 
@@ -77,8 +65,8 @@ describe('CalendarRightShell factory', function() {
 
   describe('The update public method', function() {
     it('should update the right of the public user correctly', function() {
-      calendarRightShell.updatePublic(CAL_CALENDAR_RIGHT.PUBLIC_READ);
-      expect(calendarRightShell.getPublicRight()).to.equal(CAL_CALENDAR_RIGHT.PUBLIC_READ);
+      calendarRightShell.updatePublic(CAL_CALENDAR_PUBLIC_RIGHT.READ);
+      expect(calendarRightShell.getPublicRight()).to.equal(CAL_CALENDAR_PUBLIC_RIGHT.READ);
     });
 
   });
@@ -86,7 +74,6 @@ describe('CalendarRightShell factory', function() {
   describe('toJson', function() {
     it('should return a json that allow comparaison for equals', function() {
       expect(calendarRightShell.toJson()).to.be.deep.equals({
-        users: {me: 30},
         public: 1,
         sharee: {
           tom: CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ_WRITE,
@@ -131,7 +118,7 @@ describe('CalendarRightShell factory', function() {
 
     it('should be false for different public', function() {
       var other = calendarRightShell.clone();
-      other.updatePublic(CAL_CALENDAR_RIGHT.PUBLIC_READ);
+      other.updatePublic(CAL_CALENDAR_PUBLIC_RIGHT.READ);
       expect(other.equals(calendarRightShell)).to.be.false;
     });
   });

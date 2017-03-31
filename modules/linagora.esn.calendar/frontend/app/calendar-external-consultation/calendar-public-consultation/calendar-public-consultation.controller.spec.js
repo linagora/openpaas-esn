@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('the CalendarPublicConsultation controller', function() {
-  var $controller, $rootScope, $logMock, calendar1, calendar2, owner, CalendarPublicConsultationController, $stateParamsMock, lodashMock, calPublicCalendarStoreMock, CAL_CALENDAR_RIGHT;
+  var $controller, $rootScope, $logMock, calendar1, calendar2, owner, CalendarPublicConsultationController, $stateParamsMock, lodashMock, calPublicCalendarStoreMock, CAL_CALENDAR_PUBLIC_RIGHT;
 
   beforeEach(function() {
     $logMock = {
@@ -24,11 +24,8 @@ describe('the CalendarPublicConsultation controller', function() {
       color: 'color1',
       description: 'description1',
       rights: {
-        getUserRight: sinon.spy(function() {
-          return CAL_CALENDAR_RIGHT.READ;
-        }),
         getPublicRight: sinon.spy(function() {
-          return CAL_CALENDAR_RIGHT.PUBLIC_READ;
+          return CAL_CALENDAR_PUBLIC_RIGHT.READ;
         })
       },
       getOwner: function() {
@@ -42,11 +39,8 @@ describe('the CalendarPublicConsultation controller', function() {
       color: 'color2',
       description: 'description2',
       rights: {
-        getUserRight: sinon.spy(function() {
-          return CAL_CALENDAR_RIGHT.READ;
-        }),
         getPublicRight: sinon.spy(function() {
-          return CAL_CALENDAR_RIGHT.PUBLIC_READ;
+          return CAL_CALENDAR_PUBLIC_RIGHT.READ;
         })
       },
       getOwner: function() {
@@ -77,10 +71,10 @@ describe('the CalendarPublicConsultation controller', function() {
       $provide.value('$log', $logMock);
     });
 
-    angular.mock.inject(function(_$controller_, _$rootScope_, _CAL_CALENDAR_RIGHT_) {
+    angular.mock.inject(function(_$controller_, _$rootScope_, _CAL_CALENDAR_PUBLIC_RIGHT_) {
       $controller = _$controller_;
       $rootScope = _$rootScope_;
-      CAL_CALENDAR_RIGHT = _CAL_CALENDAR_RIGHT_;
+      CAL_CALENDAR_PUBLIC_RIGHT = _CAL_CALENDAR_PUBLIC_RIGHT_;
     });
   });
 
@@ -132,7 +126,7 @@ describe('the CalendarPublicConsultation controller', function() {
       });
 
       it('should initialize PublicRight with the calendar public right', function() {
-        expect(CalendarPublicConsultationController.publicRight).to.be.equal(CAL_CALENDAR_RIGHT.PUBLIC_READ);
+        expect(CalendarPublicConsultationController.publicRight).to.be.equal(CAL_CALENDAR_PUBLIC_RIGHT.READ);
       });
     });
   });

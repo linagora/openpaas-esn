@@ -96,19 +96,6 @@
 
     .constant('CAL_AVAILABLE_VIEWS', ['agendaWeek', 'agendaDay', 'month', 'agendaThreeDays', 'basicDay'])
 
-    .constant('CAL_CALENDAR_RIGHT', {
-      NONE: 'none',
-      FREE_BUSY: 'free busy',
-      SHAREE_READ: 'sharee_read',
-      SHAREE_ADMIN: 'sharee_admin',
-      SHAREE_FREE_BUSY: 'sharee_free_busy',
-      PUBLIC_READ: 'public_read',
-      WRITE: 'write',
-      READ_WRITE: 'read write',
-      ADMIN: 'admin',
-      CUSTOM: 'custom'
-    })
-
     .constant('CAL_CALENDAR_SHARED_RIGHT', {
       NONE: '0',
       SHAREE_OWNER: '1',
@@ -118,10 +105,12 @@
       SHAREE_FREE_BUSY: '6'
     })
 
-    .constant('CAL_CALENDAR_PUBLIC_RIGHTS', [
-      'write',
-      'public_read'
-    ])
+    .constant('CAL_CALENDAR_PUBLIC_RIGHT', {
+      NONE: 'public_none',
+      READ: 'public_read',
+      READ_WRITE: 'public_read_write',
+      FREE_BUSY: 'public_free_busy'
+    })
 
     .constant('CAL_EVENT_CLASS', {
       PUBLIC: 'PUBLIC',
