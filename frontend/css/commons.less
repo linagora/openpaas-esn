@@ -95,6 +95,12 @@
   transform: scale(@width, @height);
 }
 
+.transition-transform(@duration) {
+  transform: @duration;
+  -ms-transform: @duration; /* IE 9 */
+  -webkit-transform: @duration; /* Opera, Chrome, and Safari */
+}
+
 .vertical-centered {
   vertical-align: middle;
   display: inline-block;
