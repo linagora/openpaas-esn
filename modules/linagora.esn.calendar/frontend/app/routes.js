@@ -63,7 +63,7 @@
         },
         views: {
           content: {
-            template: '<calendar-configuration calendar-home-id="calendarHomeId" calendar="calendar"/>'
+            template: '<calendar-configuration />'
           }
         }
       })
@@ -83,10 +83,7 @@
         url: '/add',
         views: {
           content: {
-            template: '<calendar-configuration calendar-home-id="calendarHomeId"/>',
-            controller: function($scope, calendarHomeId) {
-              $scope.calendarHomeId = calendarHomeId;
-            }
+            template: '<calendar-configuration />'
           }
         }
       })
