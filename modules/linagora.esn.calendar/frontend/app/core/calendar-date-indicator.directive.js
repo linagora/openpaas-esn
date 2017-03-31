@@ -2,7 +2,7 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .directive('calendarDateIndicator', calendarDateIndicator);
+    .directive('calendarDateIndicator', calendarDateIndicator);
 
   function calendarDateIndicator() {
     var directive = {
@@ -15,12 +15,6 @@
 
     return directive;
   }
-
-  CalendarDateIndicatorController.$inject = [
-    '$scope',
-    'CALENDAR_EVENTS',
-    'calendarCurrentView'
-  ];
 
   function CalendarDateIndicatorController($scope, CALENDAR_EVENTS, calendarCurrentView) {
     var self = this;

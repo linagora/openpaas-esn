@@ -7,12 +7,7 @@
    * have a see: https://github.com/jackmoore/autosize/issues/248
    */
   angular.module('esn.calendar')
-         .directive('calAutoSizeAndUpdate', calAutoSizeAndUpdate);
-
-  calAutoSizeAndUpdate.$inject = [
-    '$timeout',
-    'autosize'
-  ];
+    .directive('calAutoSizeAndUpdate', calAutoSizeAndUpdate);
 
   function calAutoSizeAndUpdate($timeout, autosize) {
     var directive = {

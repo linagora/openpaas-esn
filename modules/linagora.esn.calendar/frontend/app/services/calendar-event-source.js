@@ -2,12 +2,7 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .factory('calendarEventSource', calendarEventSource);
-
-  calendarEventSource.$inject = [
-    '$log',
-    'calEventService'
-  ];
+    .factory('calendarEventSource', calendarEventSource);
 
   function calendarEventSource($log, calEventService) {
     return function(calendarPath, errorCallback) {

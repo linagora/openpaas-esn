@@ -2,24 +2,7 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .controller('miniCalendarController', miniCalendarController);
-
-  miniCalendarController.$inject = [
-    '$rootScope',
-    '$q',
-    '$scope',
-    '$log',
-    'calMoment',
-    'UI_CONFIG',
-    'CALENDAR_EVENTS',
-    'calendarEventSource',
-    'calendarService',
-    'miniCalendarService',
-    'notificationFactory',
-    'calendarCurrentView',
-    'calCachedEventSource',
-    '_'
-  ];
+    .controller('miniCalendarController', miniCalendarController);
 
   function miniCalendarController(
     $rootScope,

@@ -2,13 +2,7 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .factory('CalRRuleShell', CalRRuleShellFactory);
-
-  CalRRuleShellFactory.$inject = [
-    'calMoment',
-    'ICAL',
-    'RRULE_MODIFY_COMPARE_KEYS'
-  ];
+    .factory('CalRRuleShell', CalRRuleShellFactory);
 
   function CalRRuleShellFactory(calMoment, ICAL, RRULE_MODIFY_COMPARE_KEYS) {
     function CalRRuleShell(rrule, vevent) {

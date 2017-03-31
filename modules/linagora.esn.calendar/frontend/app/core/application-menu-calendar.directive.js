@@ -2,11 +2,7 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .directive('applicationMenuCalendar', applicationMenuCalendar);
-
-  applicationMenuCalendar.$inject = [
-    'applicationMenuTemplateBuilder'
-  ];
+    .directive('applicationMenuCalendar', applicationMenuCalendar);
 
   function applicationMenuCalendar(applicationMenuTemplateBuilder) {
     var directive = {

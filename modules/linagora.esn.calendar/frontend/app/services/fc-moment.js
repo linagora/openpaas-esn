@@ -11,13 +11,7 @@
    * returned as UTC. See {https://github.com/fullcalendar/fullcalendar/issues/2477}
    */
   angular.module('esn.calMoment', ['angularMoment'])
-         .factory('calMoment', calMoment);
-
-  calMoment.$inject = [
-    '$window',
-    'ICAL',
-    'moment'
-  ];
+    .factory('calMoment', calMoment);
 
   function calMoment($window, ICAL, moment) {
     function _calMoment(time) {

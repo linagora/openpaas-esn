@@ -2,7 +2,7 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .directive('calAttendeesList', calAttendeesList);
+    .directive('calAttendeesList', calAttendeesList);
 
   function calAttendeesList() {
     var directive = {
@@ -22,8 +22,6 @@
 
     return directive;
   }
-
-  AttendeesListController.$inject = ['$scope', 'CALENDAR_EVENTS'];
 
   function AttendeesListController($scope, CALENDAR_EVENTS) {
     var self = this;

@@ -4,11 +4,6 @@
   angular.module('esn.calendar')
          .factory('calendarAttendeeService', calendarAttendeeService);
 
-  calendarAttendeeService.$inject = [
-    'attendeeService',
-    'ICAL_PROPERTIES'
-  ];
-
   function calendarAttendeeService(attendeeService, ICAL_PROPERTIES) {
     var service = {
       getAttendeeCandidates: getAttendeeCandidates

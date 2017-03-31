@@ -2,12 +2,7 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .directive('calendarView', calendarView);
-
-  calendarView.$inject = [
-    '$rootScope',
-    '$timeout'
-  ];
+    .directive('calendarView', calendarView);
 
   function calendarView($rootScope, $timeout) {
     var directive = {

@@ -2,11 +2,7 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .factory('calPathBuilder', calPathBuilder);
-
-  calPathBuilder.$inject = [
-    'DEFAULT_CALENDAR_ID'
-  ];
+    .factory('calPathBuilder', calPathBuilder);
 
   function calPathBuilder(DEFAULT_CALENDAR_ID) {
     var service = {

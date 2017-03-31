@@ -3,9 +3,7 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .directive('calDateToMoment', calDateToMoment);
-
-  calDateToMoment.$inject = ['$parse', 'calMoment'];
+    .directive('calDateToMoment', calDateToMoment);
 
   function calDateToMoment($parse, calMoment) {
     var directive = {

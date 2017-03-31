@@ -2,9 +2,7 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .directive('calFriendlifyEndDate', calFriendlifyEndDate);
-
-  calFriendlifyEndDate.$inject = ['$parse', 'calMoment'];
+    .directive('calFriendlifyEndDate', calFriendlifyEndDate);
 
   function calFriendlifyEndDate($parse, calMoment) {
     var directive = {

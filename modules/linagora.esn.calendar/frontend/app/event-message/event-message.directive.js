@@ -2,7 +2,7 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .directive('calEventMessage', calEventMessage);
+    .directive('calEventMessage', calEventMessage);
 
   function calEventMessage() {
     var directive = {
@@ -23,14 +23,7 @@
     return directive;
   }
 
-  EventMessageController.$inject = [
-    '$log',
-    'calEventMessageService',
-    'calEventService',
-    'session'
-  ];
-
-  function EventMessageController($log, calEventMessageService, calEventService, session) {
+  function EventMessageController($log, session, calEventMessageService, calEventService) {
     var self = this;
 
     self.changeParticipation = changeParticipation;

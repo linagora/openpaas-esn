@@ -2,11 +2,7 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .factory('calendarExploredPeriodService', calendarExploredPeriodService);
-
-   calendarExploredPeriodService.$inject = [
-     '_'
-   ];
+    .factory('calendarExploredPeriodService', calendarExploredPeriodService);
 
   function calendarExploredPeriodService(_) {
     var exploredCalsPeriods = {};
