@@ -63,5 +63,6 @@
   "Delete this folder": "Supprimer ce dossier",
   "No end time": "Aucune heure de fin",
   "Your active filter is too restrictive.": "Votre filtre actif est trop restrictif.",
-  "Add new account": "Ajouter un nouveau compte"
+  "Add new account": "Ajouter un nouveau compte",
+  "My default identity": "Mon identité par défaut"
 }

@@ -16,7 +16,19 @@ module.exports = dependencies => {
       maxSizeUpload: {},
       'twitter.tweets': {},
       drafts: {},
-      swipeRightAction: {}
+      swipeRightAction: {},
+      'identities.default': {
+        rights: {
+          admin: 'rw',
+          user: 'rw'
+        }
+      },
+      identities: {
+        rights: {
+          admin: 'rw',
+          user: 'rw'
+        }
+      }
     }
   };
 

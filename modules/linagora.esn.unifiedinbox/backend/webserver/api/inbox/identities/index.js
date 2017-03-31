@@ -6,8 +6,7 @@ module.exports = dependencies => {
   const router = express.Router(),
         auth = dependencies('authorizationMW');
 
-  router.post('/api/inbox/sendemail', auth.requiresAPILogin, require('./sendEmail')(dependencies).sendEmailToRecipients);
-  router.use('/api/inbox/', require('./identities')(dependencies));
+  router.get('/identities/default', auth.requiresAPILogin, require('./controller')(dependencies).getDefaultIdentity);
 
   return router;
 };
