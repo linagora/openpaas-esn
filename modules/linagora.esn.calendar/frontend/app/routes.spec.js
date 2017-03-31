@@ -5,8 +5,7 @@
 
 var expect = chai.expect;
 
-describe('The Calendar states', function() {
-
+describe('The esn.calendar routes', function() {
   var $rootScope, $state, $q, $injector, calPathBuilder;
   var calEventServiceMock, calEventUtilsMock, notificationFactoryMock;
   var returnResults, stateParams;
