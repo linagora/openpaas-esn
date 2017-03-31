@@ -2,12 +2,7 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .directive('calendarViewTranslation', calendarViewTranslation);
-
-  calendarViewTranslation.$inject = [
-    '$rootScope',
-    'CALENDAR_EVENTS'
-  ];
+    .directive('calendarViewTranslation', calendarViewTranslation);
 
   function calendarViewTranslation($rootScope, CALENDAR_EVENTS) {
     var directive = {

@@ -2,7 +2,7 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .directive('calendarColorPickerToggler', calendarColorPickerToggler);
+    .directive('calendarColorPickerToggler', calendarColorPickerToggler);
 
   function calendarColorPickerToggler() {
     var directive = {
@@ -28,11 +28,6 @@
       });
     }
   }
-
-  CalendarColorPickerTogglerController.$inject = [
-    '$modal',
-    'CALENDAR_LIST_OF_COLORS'
-  ];
 
   function CalendarColorPickerTogglerController($modal, CALENDAR_LIST_OF_COLORS) {
     var self = this;

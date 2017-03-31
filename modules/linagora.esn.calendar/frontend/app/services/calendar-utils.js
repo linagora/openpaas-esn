@@ -2,11 +2,7 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .factory('calendarUtils', calendarUtils);
-
-  calendarUtils.$inject = [
-    'calMoment'
-  ];
+    .factory('calendarUtils', calendarUtils);
 
   function calendarUtils(calMoment) {
     var service = {

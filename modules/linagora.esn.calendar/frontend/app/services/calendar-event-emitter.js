@@ -2,12 +2,7 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .factory('calendarEventEmitter', calendarEventEmitter);
-
-  calendarEventEmitter.$inject = [
-    '$rootScope',
-    'CALENDAR_EVENTS'
-  ];
+    .factory('calendarEventEmitter', calendarEventEmitter);
 
   function calendarEventEmitter($rootScope, CALENDAR_EVENTS) {
     var service = {

@@ -3,11 +3,7 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .factory('calendarRestangular', calendarRestangular);
-
-  calendarRestangular.$inject = [
-    'Restangular'
-  ];
+    .factory('calendarRestangular', calendarRestangular);
 
   function calendarRestangular(Restangular) {
     return Restangular.withConfig(function(RestangularConfigurer) {

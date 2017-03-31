@@ -2,13 +2,7 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .directive('miniCalendarMobile', miniCalendarMobile);
-
-  miniCalendarMobile.$inject = [
-    '$window',
-    'miniCalendarService',
-    'CALENDAR_EVENTS'
-  ];
+    .directive('miniCalendarMobile', miniCalendarMobile);
 
   function miniCalendarMobile($window, miniCalendarService, CALENDAR_EVENTS) {
     var directive = {

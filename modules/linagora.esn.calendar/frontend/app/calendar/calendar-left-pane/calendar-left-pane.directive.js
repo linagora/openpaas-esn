@@ -2,12 +2,7 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .directive('calendarLeftPane', calendarLeftPane);
-
-  calendarLeftPane.$inject = [
-    'CALENDAR_EVENTS',
-    'LEFT_PANEL_BOTTOM_MARGIN'
-  ];
+    .directive('calendarLeftPane', calendarLeftPane);
 
   function calendarLeftPane(CALENDAR_EVENTS, LEFT_PANEL_BOTTOM_MARGIN) {
     var directive = {

@@ -2,12 +2,7 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .directive('calToggleToday', calToggleToday);
-
-  calToggleToday.$inject = [
-    'CALENDAR_EVENTS',
-    '$rootScope'
-  ];
+    .directive('calToggleToday', calToggleToday);
 
   function calToggleToday(CALENDAR_EVENTS, $rootScope) {
     var directive = {

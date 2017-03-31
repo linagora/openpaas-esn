@@ -2,21 +2,10 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .constant('CACHED_EVENT_SOURCE_ADD', 'add')
-         .constant('CACHED_EVENT_SOURCE_DELETE', 'delete')
-         .constant('CACHED_EVENT_SOURCE_UPDATE', 'update')
-         .factory('calCachedEventSource', calCachedEventSource);
-
-  calCachedEventSource.$inject = [
-    '$q',
-    '_',
-    'calendarExploredPeriodService',
-    'calEventStore',
-    'CACHED_EVENT_SOURCE_ADD',
-    'CACHED_EVENT_SOURCE_DELETE',
-    'CACHED_EVENT_SOURCE_UPDATE',
-    'CALENDAR_GRACE_DELAY'
-  ];
+    .constant('CACHED_EVENT_SOURCE_ADD', 'add')
+    .constant('CACHED_EVENT_SOURCE_DELETE', 'delete')
+    .constant('CACHED_EVENT_SOURCE_UPDATE', 'update')
+    .factory('calCachedEventSource', calCachedEventSource);
 
   function calCachedEventSource($q, _, calendarExploredPeriodService, calEventStore, CACHED_EVENT_SOURCE_ADD, CACHED_EVENT_SOURCE_DELETE, CACHED_EVENT_SOURCE_UPDATE) {
     var changes = {};

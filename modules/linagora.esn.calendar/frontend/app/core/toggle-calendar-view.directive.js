@@ -2,12 +2,7 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .directive('calToggleView', calToggleView);
-
-  calToggleView.$inject = [
-    'CALENDAR_EVENTS',
-    '$rootScope'
-  ];
+    .directive('calToggleView', calToggleView);
 
   function calToggleView(CALENDAR_EVENTS, $rootScope) {
     var directive = {

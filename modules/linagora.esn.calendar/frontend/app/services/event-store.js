@@ -2,12 +2,7 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .factory('calEventStore', calEventStore);
-
-  calEventStore.$inject = [
-    '_',
-    'calMoment'
-  ];
+    .factory('calEventStore', calEventStore);
 
   function calEventStore(_, calMoment) {
     var calStores = {};

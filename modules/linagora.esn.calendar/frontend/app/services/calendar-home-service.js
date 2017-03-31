@@ -2,9 +2,7 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .factory('calendarHomeService', calendarHomeService);
-
-  calendarHomeService.$inject = ['session'];
+    .factory('calendarHomeService', calendarHomeService);
 
   function calendarHomeService(session) {
     var service = {

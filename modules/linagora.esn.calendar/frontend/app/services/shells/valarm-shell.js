@@ -2,11 +2,7 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .factory('CalVAlarmShell', CalVAlarmShellFactory);
-
-  CalVAlarmShellFactory.$inject = [
-    'ALARM_MODIFY_COMPARE_KEYS'
-  ];
+    .factory('CalVAlarmShell', CalVAlarmShellFactory);
 
   function CalVAlarmShellFactory(ALARM_MODIFY_COMPARE_KEYS) {
     function CalVAlarmShell(valarm, vevent) {

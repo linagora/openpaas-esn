@@ -2,20 +2,7 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .factory('calEventsProviders', calEventsProviders);
-
-  calEventsProviders.$inject = [
-    '$log',
-    '$q',
-    '$rootScope',
-    'calendarHomeService',
-    'calendarService',
-    'calEventService',
-    'newProvider',
-    'searchProviders',
-    'CALENDAR_EVENTS',
-    'ELEMENTS_PER_REQUEST'
-  ];
+    .factory('calEventsProviders', calEventsProviders);
 
   function calEventsProviders($log, $q, $rootScope, calendarHomeService, calendarService, calEventService, newProvider, searchProviders, CALENDAR_EVENTS, ELEMENTS_PER_REQUEST) {
     var service = {

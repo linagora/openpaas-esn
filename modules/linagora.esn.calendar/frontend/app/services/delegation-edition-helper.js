@@ -4,8 +4,6 @@
   angular.module('esn.calendar')
     .factory('CalDelegationEditionHelper', CalDelegationEditionHelper);
 
-  CalDelegationEditionHelper.$inject = [];
-
   function CalDelegationEditionHelper() {
 
     CalDelegationEditionHelper.prototype.getAllRemovedUsersId = getAllRemovedUsersId;

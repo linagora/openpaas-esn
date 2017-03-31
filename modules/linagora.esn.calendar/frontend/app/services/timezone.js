@@ -2,12 +2,7 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .factory('calRegisterTimezones', calRegisterTimezones);
-
-  calRegisterTimezones.$inject = [
-    'ICAL',
-    'TIMEZONES'
-  ];
+    .factory('calRegisterTimezones', calRegisterTimezones);
 
   function calRegisterTimezones(ICAL, TIMEZONES) {
     var service = registerTZ;

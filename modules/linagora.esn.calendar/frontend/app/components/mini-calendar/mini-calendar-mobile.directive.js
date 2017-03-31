@@ -2,11 +2,7 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .directive('miniCalendar', miniCalendar);
-
-  miniCalendar.$inject = [
-    'miniCalendarService'
-  ];
+    .directive('miniCalendar', miniCalendar);
 
   function miniCalendar() {
     var directive = {
