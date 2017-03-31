@@ -1,5 +1,9 @@
+@transition-sidebar: padding 300ms cubic-bezier(0.4,0.0,0.2,1);
+
 .inbox-root {
   .inbox-list {
+    .transition(@transition-sidebar);
+
     .inbox-empty-container-message {
       .all-centered;
 
@@ -48,8 +52,8 @@
     &.has-sidebar-open {
       width: 100%;
       float: left;
-      padding-left: 15px;
-      padding-right: 19vw;
+      padding-right: 18vw;
+      .transition(@transition-sidebar);
     }
   }
 
@@ -208,6 +212,22 @@ body.header-hidden {
 
 @media (min-width: @screen-md-min) {
   .inbox-root {
+
+    .has-sidebar-open {
+
+      .inbox-infinite-list {
+        margin-right: 0;
+      }
+
+      .md-virtual-repeat-container .md-virtual-repeat-offsetter {
+        padding-right: 0;
+      }
+    }
+
+    .md-virtual-repeat-container .md-virtual-repeat-offsetter {
+      padding-right: 15px;
+    }
+
     .inbox-infinite-list {
       margin-right: -15px;
 
