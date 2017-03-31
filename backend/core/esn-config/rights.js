@@ -1,6 +1,6 @@
 'use strict';
 
-const CONFIG_METADATA = require('./constants').CONFIG_METADATA;
+const registry = require('./registry');
 
 module.exports = {
   userCanRead,
@@ -26,7 +26,7 @@ function adminCanWrite(moduleName, configName) {
 }
 
 function _can(role, rights, moduleName, configName) {
-  const module = CONFIG_METADATA[moduleName];
+  const module = registry.getFromModule(moduleName);
 
   if (!module) { return false; }
   const config = module.configurations[configName];
