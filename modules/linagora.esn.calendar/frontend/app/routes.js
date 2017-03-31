@@ -20,9 +20,9 @@
         views: {
           content: {
             template: '<calendar-view calendar-home-id="calendarHomeId" ui-config="uiConfig"/>',
-            controller: function($scope, community, UI_CONFIG) {
+            controller: function($scope, community, CAL_UI_CONFIG) {
               $scope.calendarHomeId = community._id;
-              $scope.uiConfig = angular.copy(UI_CONFIG);
+              $scope.uiConfig = angular.copy(CAL_UI_CONFIG);
               $scope.uiConfig.calendar.editable = false;
               $scope.uiConfig.calendar.selectable = false;
             }
@@ -49,9 +49,9 @@
         views: {
           content: {
             templateUrl: '/calendar/app/calendar/calendar-main',
-            controller: function($scope, calendarHomeId, UI_CONFIG) {
+            controller: function($scope, calendarHomeId, CAL_UI_CONFIG) {
               $scope.calendarHomeId = calendarHomeId;
-              $scope.uiConfig = angular.copy(UI_CONFIG);
+              $scope.uiConfig = angular.copy(CAL_UI_CONFIG);
             }
           }
         }

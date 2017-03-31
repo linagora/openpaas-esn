@@ -4,11 +4,11 @@
   angular.module('esn.calendar')
          .controller('calEventAlarmEditionController', calEventAlarmEditionController);
 
-  function calEventAlarmEditionController(session, TRIGGER) {
+  function calEventAlarmEditionController(session, CAL_ALARM_TRIGGER) {
     var self = this;
 
     self.trigger = undefined;
-    self.TRIGGER = TRIGGER;
+    self.CAL_ALARM_TRIGGER = CAL_ALARM_TRIGGER;
     self.setEventAlarm = setEventAlarm;
 
     activate();

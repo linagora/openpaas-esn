@@ -2,7 +2,7 @@
 'use strict';
 
 angular.module('esn.calendar')
-.controller('calEventMessageEditionController', function($scope, CalendarShell, calendarUtils, calendarService, calEventService, calendarEventEmitter, notificationFactory, EVENT_FORM, DEFAULT_CALENDAR_ID) {
+.controller('calEventMessageEditionController', function($scope, CalendarShell, calendarUtils, calendarService, calEventService, calendarEventEmitter, notificationFactory, CAL_EVENT_FORM, CAL_DEFAULT_CALENDAR_ID) {
 
   function _initFormData() {
     $scope.event = CalendarShell.fromIncompleteShell({
@@ -10,7 +10,7 @@ angular.module('esn.calendar')
       end: calendarUtils.getNewEndDate()
     });
     $scope.restActive = false;
-    $scope.EVENT_FORM = EVENT_FORM;
+    $scope.CAL_EVENT_FORM = CAL_EVENT_FORM;
     $scope.activitystream = $scope.$parent.activitystream;
   }
 
@@ -33,7 +33,7 @@ angular.module('esn.calendar')
 
   $scope.submit = function() {
     if (!$scope.event.title || $scope.event.title.trim().length === 0) {
-      $scope.event.title = EVENT_FORM.title.default;
+      $scope.event.title = CAL_EVENT_FORM.title.default;
     }
 
     if (!$scope.activitystream.activity_stream || !$scope.activitystream.activity_stream.uuid) {
@@ -44,7 +44,7 @@ angular.module('esn.calendar')
 
     var event = $scope.event;
     var calendarHomeId = $scope.calendarHomeId || calendarService.calendarHomeId;
-    var path = '/calendars/' + calendarHomeId + '/' + DEFAULT_CALENDAR_ID;
+    var path = '/calendars/' + calendarHomeId + '/' + CAL_DEFAULT_CALENDAR_ID;
 
     $scope.restActive = true;
     calEventService.createEvent(calendarHomeId, path, event, { graceperiod: false })

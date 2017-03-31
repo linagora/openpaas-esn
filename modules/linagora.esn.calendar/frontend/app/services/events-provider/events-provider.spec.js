@@ -6,7 +6,7 @@ var expect = chai.expect;
 
 describe('The events-providers', function() {
 
-  var $rootScope, calEventsProviders, $httpBackend, calendarService, searchProvidersMock, CALENDAR_EVENTS;
+  var $rootScope, calEventsProviders, $httpBackend, calendarService, searchProvidersMock, CAL_EVENTS;
   var calendarHomeId = 'calendarHomeId';
 
   beforeEach(function() {
@@ -26,12 +26,12 @@ describe('The events-providers', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function(_$rootScope_, _$httpBackend_, _calEventsProviders_, _calendarService_, _CALENDAR_EVENTS_) {
+  beforeEach(angular.mock.inject(function(_$rootScope_, _$httpBackend_, _calEventsProviders_, _calendarService_, _CAL_EVENTS_) {
     $rootScope = _$rootScope_;
     calEventsProviders = _calEventsProviders_;
     $httpBackend = _$httpBackend_;
     calendarService = _calendarService_;
-    CALENDAR_EVENTS = _CALENDAR_EVENTS_;
+    CAL_EVENTS = _CAL_EVENTS_;
   }));
 
   describe('The setUpSearchProviders', function() {
@@ -45,9 +45,9 @@ describe('The events-providers', function() {
         $rootScope.$on = sinon.spy();
       });
 
-      it('should listen to CALENDAR_EVENTS.CALENDARS.REMOVE and remove the appopriate provider', function() {
+      it('should listen to CAL_EVENTS.CALENDARS.REMOVE and remove the appopriate provider', function() {
         calEventsProviders.setUpSearchProviders();
-        expect($rootScope.$on).to.have.been.calledWith(CALENDAR_EVENTS.CALENDARS.REMOVE, sinon.match.func.and(sinon.match(function(callback) {
+        expect($rootScope.$on).to.have.been.calledWith(CAL_EVENTS.CALENDARS.REMOVE, sinon.match.func.and(sinon.match(function(callback) {
           callback(null, {id: 'id'});
           expect(searchProvidersMock.remove).to.have.been.calledWith(sinon.match.func.and(sinon.match(function(callback) {
             return callback({id: 'id'}) && !callback({id: 'id2'});
@@ -57,9 +57,9 @@ describe('The events-providers', function() {
         })));
       });
 
-      it('should listen to CALENDAR_EVENTS.CALENDARS.ADD and add a provider for the calendar', function() {
+      it('should listen to CAL_EVENTS.CALENDARS.ADD and add a provider for the calendar', function() {
         calEventsProviders.setUpSearchProviders();
-        expect($rootScope.$on).to.have.been.calledWith(CALENDAR_EVENTS.CALENDARS.ADD, sinon.match.func);
+        expect($rootScope.$on).to.have.been.calledWith(CAL_EVENTS.CALENDARS.ADD, sinon.match.func);
       });
     });
   });

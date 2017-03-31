@@ -4,7 +4,7 @@
   angular.module('esn.calendar')
     .directive('calToggleToday', calToggleToday);
 
-  function calToggleToday(CALENDAR_EVENTS, $rootScope) {
+  function calToggleToday(CAL_EVENTS, $rootScope) {
     var directive = {
       restrict: 'A',
       scope: true,
@@ -17,7 +17,7 @@
 
     function link(scope, element, attrs) { // eslint-disable-line
       element.on('click', function() {
-        $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.TODAY);
+        $rootScope.$broadcast(CAL_EVENTS.CALENDARS.TODAY);
       });
     }
   }

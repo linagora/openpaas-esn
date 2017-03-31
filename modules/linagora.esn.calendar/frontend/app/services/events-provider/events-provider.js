@@ -4,7 +4,7 @@
   angular.module('esn.calendar')
     .factory('calEventsProviders', calEventsProviders);
 
-  function calEventsProviders($log, $q, $rootScope, calendarHomeService, calendarService, calEventService, newProvider, searchProviders, CALENDAR_EVENTS, ELEMENTS_PER_REQUEST) {
+  function calEventsProviders($log, $q, $rootScope, calendarHomeService, calendarService, calEventService, newProvider, searchProviders, CAL_EVENTS, ELEMENTS_PER_REQUEST) {
     var service = {
       setUpSearchProviders: setUpSearchProviders,
       getAll: getAll,
@@ -72,11 +72,11 @@
     function setUpSearchProviders() {
       searchProviders.add(getAll());
 
-      $rootScope.$on(CALENDAR_EVENTS.CALENDARS.ADD, function(event, calendar) { // eslint-disable-line
+      $rootScope.$on(CAL_EVENTS.CALENDARS.ADD, function(event, calendar) { // eslint-disable-line
         searchProviders.add(getForCalendar(calendar));
       });
 
-      $rootScope.$on(CALENDAR_EVENTS.CALENDARS.REMOVE, function(event, calendar) {
+      $rootScope.$on(CAL_EVENTS.CALENDARS.REMOVE, function(event, calendar) {
         searchProviders.remove(function(provider) {
           return provider.id === calendar.id;
         });

@@ -11,7 +11,7 @@
                 .col-xs-12
                   .form-group
                     .fg-line
-                      input.input.title.form-control(type="text", ng-model='editedEvent.title', ng-model-options="{getterSetter: true}", maxlength="{{::EVENT_FORM.title.maxlength}}", placeholder="#{__('Title')}", ng-readonly="!isOrganizer || calendar.readOnly")
+                      input.input.title.form-control(type="text", ng-model='editedEvent.title', ng-model-options="{getterSetter: true}", maxlength="{{::CAL_EVENT_FORM.title.maxlength}}", placeholder="#{__('Title')}", ng-readonly="!isOrganizer || calendar.readOnly")
 
               .row
                 .col-xs-12
@@ -31,7 +31,7 @@
                       span.input-group-addon
                         i.mdi.mdi-map-marker
                       .fg-line
-                        input.input.location.form-control(type="text", ng-model='editedEvent.location', ng-model-options="{getterSetter: true}", maxlength="{{::EVENT_FORM.location.maxlength}}",placeholder="#{__('Location')}", ng-readonly="!isOrganizer || calendar.readOnly")
+                        input.input.location.form-control(type="text", ng-model='editedEvent.location', ng-model-options="{getterSetter: true}", maxlength="{{::CAL_EVENT_FORM.location.maxlength}}",placeholder="#{__('Location')}", ng-readonly="!isOrganizer || calendar.readOnly")
 
               .row.visible-xs
                 cal-attendees-autocomplete-input(ng-hide='readOnly', original-attendees='editedEvent.attendees', mutable-attendees='newAttendees')
@@ -61,7 +61,7 @@
                       span.input-group-addon
                         i.mdi.mdi-lock
                       .fg-line.select
-                        select.form-control(ng-disabled="readOnly", ng-model='editedEvent.class', ng-options="class.value as class.label for class in EVENT_FORM.class.values")
+                        select.form-control(ng-disabled="readOnly", ng-model='editedEvent.class', ng-options="class.value as class.label for class in CAL_EVENT_FORM.class.values")
 
             .col-xs-12.col-sm-6
               .row.hidden-xs

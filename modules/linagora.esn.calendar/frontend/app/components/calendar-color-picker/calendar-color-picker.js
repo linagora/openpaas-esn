@@ -29,11 +29,11 @@
     }
   }
 
-  function CalendarColorPickerTogglerController($modal, CALENDAR_LIST_OF_COLORS) {
+  function CalendarColorPickerTogglerController($modal, CAL_LIST_OF_COLORS) {
     var self = this;
 
-    self.CALENDAR_LIST_OF_COLORS = CALENDAR_LIST_OF_COLORS;
-    self.colorKeys = Object.keys(CALENDAR_LIST_OF_COLORS);
+    self.CAL_LIST_OF_COLORS = CAL_LIST_OF_COLORS;
+    self.colorKeys = Object.keys(CAL_LIST_OF_COLORS);
     self.set = set;
     self.select = select;
     self.isSelected = isSelected;
@@ -43,7 +43,7 @@
 
     function set() {
       if (self.selected) {
-        self.color = self.CALENDAR_LIST_OF_COLORS[self.selected];
+        self.color = self.CAL_LIST_OF_COLORS[self.selected];
       }
     }
 
@@ -59,7 +59,7 @@
       var colorHex = self.color.toUpperCase();
 
       self.selected = undefined;
-      angular.forEach(CALENDAR_LIST_OF_COLORS, function(value, key) {
+      angular.forEach(CAL_LIST_OF_COLORS, function(value, key) {
         if (colorHex === value) {
           self.selected = key;
         }
@@ -75,19 +75,4 @@
       });
     }
   }
-
-  angular.module('esn.calendar')
-    .constant('CALENDAR_LIST_OF_COLORS', {
-      red: '#F44336',
-      pink: '#E91E63',
-      purple: '#9C27B0',
-      indigo: '#3F51B5',
-      blue: '#2196F3',
-      teal: '#009688',
-      green: '#4CAF50',
-      amber: '#FFC107',
-      orange: '#FF9800',
-      brown: '#795548'
-    });
-
 })();

@@ -4,7 +4,7 @@
   angular.module('esn.calendar')
          .factory('calendarAttendeeService', calendarAttendeeService);
 
-  function calendarAttendeeService(attendeeService, ICAL_PROPERTIES) {
+  function calendarAttendeeService(attendeeService, CAL_ICAL) {
     var service = {
       getAttendeeCandidates: getAttendeeCandidates
     };
@@ -16,7 +16,7 @@
     function getAttendeeCandidates(query, limit) {
       return attendeeService.getAttendeeCandidates(query, limit).then(function(attendeeCandidates) {
         return attendeeCandidates.map(function(attendeeCandidate) {
-          attendeeCandidate.partstat = ICAL_PROPERTIES.partstat.needsaction;
+          attendeeCandidate.partstat = CAL_ICAL.partstat.needsaction;
 
           return attendeeCandidate;
         });

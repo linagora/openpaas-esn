@@ -6,7 +6,7 @@ var expect = chai.expect;
 
 describe('The calAttendeesAutocompleteInputController', function() {
 
-  var $rootScope, $scope, $controller, calendarAttendeeService, session, calEventsProviders, AUTOCOMPLETE_MAX_RESULTS;
+  var $rootScope, $scope, $controller, calendarAttendeeService, session, calEventsProviders, CAL_AUTOCOMPLETE_MAX_RESULTS;
 
   beforeEach(function() {
     session = {
@@ -64,21 +64,21 @@ describe('The calAttendeesAutocompleteInputController', function() {
       };
     };
 
-    AUTOCOMPLETE_MAX_RESULTS = 6;
+    CAL_AUTOCOMPLETE_MAX_RESULTS = 6;
 
     angular.mock.module('esn.calendar', function($provide) {
       $provide.value('calendarAttendeeService', calendarAttendeeService);
       $provide.value('session', session);
       $provide.factory('calEventsProviders', calEventsProviders);
-      $provide.constant('AUTOCOMPLETE_MAX_RESULTS', AUTOCOMPLETE_MAX_RESULTS);
+      $provide.constant('CAL_AUTOCOMPLETE_MAX_RESULTS', CAL_AUTOCOMPLETE_MAX_RESULTS);
     });
-    angular.mock.inject(function(_$rootScope_, _$controller_, _calendarAttendeeService_, _session_, _AUTOCOMPLETE_MAX_RESULTS_) {
+    angular.mock.inject(function(_$rootScope_, _$controller_, _calendarAttendeeService_, _session_, _CAL_AUTOCOMPLETE_MAX_RESULTS_) {
       $rootScope = _$rootScope_;
       $scope = $rootScope.$new();
       $controller = _$controller_;
       calendarAttendeeService = _calendarAttendeeService_;
       session = _session_;
-      AUTOCOMPLETE_MAX_RESULTS = _AUTOCOMPLETE_MAX_RESULTS_;
+      CAL_AUTOCOMPLETE_MAX_RESULTS = _CAL_AUTOCOMPLETE_MAX_RESULTS_;
     });
   });
 
@@ -155,7 +155,7 @@ describe('The calAttendeesAutocompleteInputController', function() {
       $scope.$digest();
     });
 
-    it('should call calendarAttendeeService and return a maximum of AUTOCOMPLETE_MAX_RESULTS results', function(done) {
+    it('should call calendarAttendeeService and return a maximum of CAL_AUTOCOMPLETE_MAX_RESULTS results', function(done) {
       calendarAttendeeService.getAttendeeCandidates = function(q) {
         expect(q).to.equal(query);
         var response = [];
@@ -170,7 +170,7 @@ describe('The calAttendeesAutocompleteInputController', function() {
       var ctrl = initController();
 
       ctrl.getInvitableAttendees(query).then(function(response) {
-        expect(response.length).to.equal(AUTOCOMPLETE_MAX_RESULTS);
+        expect(response.length).to.equal(CAL_AUTOCOMPLETE_MAX_RESULTS);
         done();
       });
       $scope.$digest();

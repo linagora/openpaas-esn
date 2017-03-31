@@ -111,7 +111,7 @@ describe('The calEventUtils service', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function(calEventUtils, $rootScope, calMoment, CalendarShell, escapeHtmlUtils, matchmedia, SM_XS_MEDIA_QUERY, CALENDAR_MAX_DURATION_OF_SMALL_EVENT) {
+  beforeEach(angular.mock.inject(function(calEventUtils, $rootScope, calMoment, CalendarShell, escapeHtmlUtils, matchmedia, SM_XS_MEDIA_QUERY, CAL_MAX_DURATION_OF_SMALL_EVENT) {
     this.calEventUtils = calEventUtils;
     this.$rootScope = $rootScope;
     this.calMoment = calMoment;
@@ -119,9 +119,9 @@ describe('The calEventUtils service', function() {
     this.escapeHtmlUtils = escapeHtmlUtils;
     this.matchmedia = matchmedia;
     this.SM_XS_MEDIA_QUERY = SM_XS_MEDIA_QUERY;
-    this.CALENDAR_MAX_DURATION_OF_SMALL_EVENT = CALENDAR_MAX_DURATION_OF_SMALL_EVENT;
+    this.CAL_MAX_DURATION_OF_SMALL_EVENT = CAL_MAX_DURATION_OF_SMALL_EVENT;
     event.start = calMoment();
-    event.end = event.start.add(this.CALENDAR_MAX_DURATION_OF_SMALL_EVENT.DESKTOP, 'minutes');
+    event.end = event.start.add(this.CAL_MAX_DURATION_OF_SMALL_EVENT.DESKTOP, 'minutes');
     this.recurrentEventIcon = angular.element('<i class="mdi mdi-sync"/>');
     this.maybeEventIcon = angular.element('<i class="mdi mdi-help-circle"/>');
   }));
@@ -356,7 +356,7 @@ describe('The calEventUtils service', function() {
 
           it('should add the recurrent event icon in the eventIconsDivInMobile div after location if the event is recurrent and not allDay and event duration > one hour', function() {
             event.start = this.calMoment();
-            event.end = event.start.clone().add(this.CALENDAR_MAX_DURATION_OF_SMALL_EVENT.MOBILE + 1, 'minutes');
+            event.end = event.start.clone().add(this.CAL_MAX_DURATION_OF_SMALL_EVENT.MOBILE + 1, 'minutes');
 
             event.isInstance = function() { return true; };
 
@@ -426,7 +426,7 @@ describe('The calEventUtils service', function() {
 
           it('should add maybe event icone after the title if current user is found in the TENTATIVE attendees and the event is not an allDay event and the duration > one hour', function() {
             event.start = this.calMoment();
-            event.end = event.start.clone().add(this.CALENDAR_MAX_DURATION_OF_SMALL_EVENT.MOBILE + 1, 'minutes');
+            event.end = event.start.clone().add(this.CAL_MAX_DURATION_OF_SMALL_EVENT.MOBILE + 1, 'minutes');
             event.attendees.push({
               email: userEmail,
               partstat: 'TENTATIVE'
@@ -459,7 +459,7 @@ describe('The calEventUtils service', function() {
 
           it('should add the private event icon in the eventIconsDivInMobile div after location if the event is private and not allDay and event duration > one hour', function() {
             event.start = this.calMoment();
-            event.end = event.start.clone().add(this.CALENDAR_MAX_DURATION_OF_SMALL_EVENT.MOBILE + 1, 'minutes');
+            event.end = event.start.clone().add(this.CAL_MAX_DURATION_OF_SMALL_EVENT.MOBILE + 1, 'minutes');
 
             event.isPrivate = function() { return true; };
 

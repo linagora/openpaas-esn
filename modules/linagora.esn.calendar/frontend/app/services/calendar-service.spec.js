@@ -28,13 +28,13 @@ describe('The calendarService service', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function(calendarService, $httpBackend, $rootScope, calendarAPI, CALENDAR_EVENTS, DEFAULT_CALENDAR_ID) {
+  beforeEach(angular.mock.inject(function(calendarService, $httpBackend, $rootScope, calendarAPI, CAL_EVENTS, CAL_DEFAULT_CALENDAR_ID) {
     this.$httpBackend = $httpBackend;
     this.$rootScope = $rootScope;
     this.calendarService = calendarService;
     this.calendarAPI = calendarAPI;
-    this.CALENDAR_EVENTS = CALENDAR_EVENTS;
-    this.DEFAULT_CALENDAR_ID = DEFAULT_CALENDAR_ID;
+    this.CAL_EVENTS = CAL_EVENTS;
+    this.CAL_DEFAULT_CALENDAR_ID = CAL_DEFAULT_CALENDAR_ID;
   }));
 
   describe('The listCalendars fn', function() {
@@ -98,7 +98,7 @@ describe('The calendarService service', function() {
     });
 
     it('should wrap each received dav:calendar in a CalendarCollectionShell', function(done) {
-      var calendarCollection = {id: this.DEFAULT_CALENDAR_ID};
+      var calendarCollection = {id: this.CAL_DEFAULT_CALENDAR_ID};
 
       CalendarCollectionShellFuncMock = sinon.spy(function(davCal) {
         expect(davCal).to.deep.equal(response._embedded['dav:calendar'][0]);
@@ -341,7 +341,7 @@ describe('The calendarService service', function() {
       this.$httpBackend.flush();
       this.$rootScope.$digest();
 
-      expect(self.$rootScope.$broadcast).to.have.been.calledWith(this.CALENDAR_EVENTS.CALENDARS.REMOVE, calendar);
+      expect(self.$rootScope.$broadcast).to.have.been.calledWith(this.CAL_EVENTS.CALENDARS.REMOVE, calendar);
     });
   });
 
@@ -405,7 +405,7 @@ describe('The calendarService service', function() {
       this.$httpBackend.flush();
       this.$rootScope.$digest();
 
-      expect(self.$rootScope.$broadcast).to.have.been.calledWith(this.CALENDAR_EVENTS.CALENDARS.ADD, calendar);
+      expect(self.$rootScope.$broadcast).to.have.been.calledWith(this.CAL_EVENTS.CALENDARS.ADD, calendar);
     });
   });
 

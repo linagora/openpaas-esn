@@ -2,7 +2,7 @@ div.form-container
   form.event-message-edition(name='eventMessageForm', role='form', aria-hidden="true", ng-submit='submit()')
     .form-group
       .fg-line
-        textarea.form-control(type="text", rows="1", ng-model='event.title', maxlength="{{::EVENT_FORM.title.maxlength}}", placeholder="#{__('Enter the title of your event')}")
+        textarea.form-control(type="text", rows="1", ng-model='event.title', maxlength="{{::CAL_EVENT_FORM.title.maxlength}}", placeholder="#{__('Enter the title of your event')}")
 
     cal-event-date-edition(event="event", disabled="false")
 

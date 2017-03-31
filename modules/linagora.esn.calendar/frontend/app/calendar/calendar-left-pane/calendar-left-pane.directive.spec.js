@@ -4,8 +4,8 @@
 var expect = chai.expect;
 
 describe('calendarLeftPane directive', function() {
-  var LEFT_PANEL_BOTTOM_MARGIN;
-  var CALENDAR_EVENTS;
+  var CAL_LEFT_PANEL_BOTTOM_MARGIN;
+  var CAL_EVENTS;
   var calendarServiceMock;
 
   beforeEach(function() {
@@ -35,16 +35,16 @@ describe('calendarLeftPane directive', function() {
       return element;
     };
 
-    angular.mock.inject(function(_LEFT_PANEL_BOTTOM_MARGIN_, _CALENDAR_EVENTS_) {
-      LEFT_PANEL_BOTTOM_MARGIN = _LEFT_PANEL_BOTTOM_MARGIN_;
-      CALENDAR_EVENTS = _CALENDAR_EVENTS_;
+    angular.mock.inject(function(_CAL_LEFT_PANEL_BOTTOM_MARGIN_, _CAL_EVENTS_) {
+      CAL_LEFT_PANEL_BOTTOM_MARGIN = _CAL_LEFT_PANEL_BOTTOM_MARGIN_;
+      CAL_EVENTS = _CAL_EVENTS_;
     });
   }));
 
   it('change element height on calendar:height', function() {
     var element = this.initDirective(this.$scope);
 
-    this.$rootScope.$broadcast(CALENDAR_EVENTS.CALENDAR_HEIGHT, 1200);
-    expect(element.height()).to.equal(1200 - LEFT_PANEL_BOTTOM_MARGIN);
+    this.$rootScope.$broadcast(CAL_EVENTS.CALENDAR_HEIGHT, 1200);
+    expect(element.height()).to.equal(1200 - CAL_LEFT_PANEL_BOTTOM_MARGIN);
   });
 });

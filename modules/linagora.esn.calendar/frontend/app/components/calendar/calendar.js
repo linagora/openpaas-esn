@@ -18,14 +18,14 @@
     })
     .controller('esnCalendarController', esnCalendarController);
 
-  function esnCalendarController($window, $element, $log, _, CALENDAR_RESIZE_DEBOUNCE_DELAY) {
+  function esnCalendarController($window, $element, $log, _, CAL_RESIZE_DEBOUNCE_DELAY) {
     var self = this;
     var div = $element.children();
 
     var windowJQuery = angular.element($window);
     var debouncedWindowResize = _.debounce(function() {
       div.fullCalendar('render');
-    }, CALENDAR_RESIZE_DEBOUNCE_DELAY);
+    }, CAL_RESIZE_DEBOUNCE_DELAY);
 
     //otherwise if when the directive is initialized hidden
     //when the window is enlarger and the mini-calendar appear

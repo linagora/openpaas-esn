@@ -4,7 +4,7 @@
   angular.module('esn.calendar')
          .factory('calendarVisibilityService', calendarVisibilityService);
 
-  function calendarVisibilityService($rootScope, _, CALENDAR_EVENTS, localStorageService) {
+  function calendarVisibilityService($rootScope, _, CAL_EVENTS, localStorageService) {
     var storage = localStorageService.getOrCreateInstance('calendarStorage');
 
     return {
@@ -25,7 +25,7 @@
       storage.getItem(calendar.id).then(function(hiddenBefore) {
         return storage.setItem(calendar.id, !hiddenBefore);
       }).then(function(hidden) {
-        $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, {
+        $rootScope.$broadcast(CAL_EVENTS.CALENDARS.TOGGLE_VIEW, {
           calendarId: calendar.id,
           hidden: hidden
         });

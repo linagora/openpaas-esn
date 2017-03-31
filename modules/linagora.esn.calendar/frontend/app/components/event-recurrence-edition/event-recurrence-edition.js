@@ -2,7 +2,7 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .directive('eventRecurrenceEdition', eventRecurrenceEdition);
+    .directive('eventRecurrenceEdition', eventRecurrenceEdition);
 
   function eventRecurrenceEdition() {
     var directive = {
@@ -43,16 +43,16 @@
     }
   }
 
-  function EventRecurrenceEditionController(RECUR_FREQ, WEEK_DAYS, MAX_RRULE_COUNT) {
+  function EventRecurrenceEditionController(CAL_RECUR_FREQ, CAL_WEEK_DAYS, CAL_MAX_RRULE_COUNT) {
     var self = this;
 
-    self.RECUR_FREQ = RECUR_FREQ;
-    self.WEEK_DAYS = Object.keys(WEEK_DAYS);
+    self.CAL_RECUR_FREQ = CAL_RECUR_FREQ;
+    self.CAL_WEEK_DAYS = Object.keys(CAL_WEEK_DAYS);
     self.toggleWeekdays = toggleWeekdays;
     self.resetUntil = resetUntil;
     self.resetCount = resetCount;
     self.setRRULE = setRRULE;
-    self.MAX_RRULE_COUNT = MAX_RRULE_COUNT;
+    self.CAL_MAX_RRULE_COUNT = CAL_MAX_RRULE_COUNT;
 
     activate();
 
@@ -71,16 +71,16 @@
     }
 
     function toggleWeekdays(weekday) {
-      var weekDaysValues = Object.keys(WEEK_DAYS).map(function(key) {
-        return WEEK_DAYS[key];
+      var weekDaysValues = Object.keys(CAL_WEEK_DAYS).map(function(key) {
+        return CAL_WEEK_DAYS[key];
       });
-      var index = self.event.rrule.byday.indexOf(WEEK_DAYS[weekday]);
+      var index = self.event.rrule.byday.indexOf(CAL_WEEK_DAYS[weekday]);
       var newDays = self.event.rrule.byday.slice();
 
       if (index > -1) {
         newDays.splice(index, 1);
       } else {
-        newDays.push(WEEK_DAYS[weekday]);
+        newDays.push(CAL_WEEK_DAYS[weekday]);
       }
       newDays.sort(function(weekdayA, weekdayB) {
         if (weekDaysValues.indexOf(weekdayA) > weekDaysValues.indexOf(weekdayB)) {
@@ -113,32 +113,4 @@
       }
     }
   }
-
-  angular.module('esn.calendar')
-    .constant('RECUR_FREQ', [{
-      value: undefined,
-      label: 'No repetition'
-    }, {
-      value: 'DAILY',
-      label: 'Repeat daily'
-    }, {
-      value: 'WEEKLY',
-      label: 'Repeat weekly'
-    }, {
-      value: 'MONTHLY',
-      label: 'Repeat monthly'
-    }, {
-      value: 'YEARLY',
-      label: 'Repeat yearly'
-    }])
-    .constant('WEEK_DAYS', {
-      M: 'MO',
-      T: 'TU',
-      W: 'WE',
-      Th: 'TH',
-      F: 'FR',
-      S: 'SA',
-      Su: 'SU'
-    });
-
 })();

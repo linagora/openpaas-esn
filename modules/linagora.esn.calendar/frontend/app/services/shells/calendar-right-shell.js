@@ -4,7 +4,7 @@
   angular.module('esn.calendar')
     .factory('CalendarRightShell', CalendarRightShell);
 
-  function CalendarRightShell(CALENDAR_RIGHT, CALENDAR_SHARED_RIGHT, CalRightSet, _, calendarUtils) {
+  function CalendarRightShell(CAL_CALENDAR_RIGHT, CAL_CALENDAR_SHARED_RIGHT, CalRightSet, _, calendarUtils) {
 
     //the idea here is that there is a multitude of possible combinaison of webdav right and webdav sharing right
     //I will suppose that right are only settle by OpenPaas and that the only possible combinaison are the following
@@ -70,7 +70,7 @@
         if (match) {
           userId = match[1];
           var access = '' + line.access;
-          if (access !== CALENDAR_SHARED_RIGHT.SHAREE_OWNER) {
+          if (access !== CAL_CALENDAR_SHARED_RIGHT.SHAREE_OWNER) {
             this._sharee[userId] = access;
           } else {
             this._ownerId = userId;
@@ -109,7 +109,7 @@
         }
       });
 
-      return result || CALENDAR_RIGHT.CUSTOM;
+      return result || CAL_CALENDAR_RIGHT.CUSTOM;
     }
 
     function _getUserSet(userId) {
@@ -121,7 +121,7 @@
     /**
      * Compute Right from ACL
      * @param userId
-     * @returns {CALENDAR_RIGHT} role computed from ACL
+     * @returns {CAL_CALENDAR_RIGHT} role computed from ACL
      */
     function getUserRight(userId) {
       var calRightSet = this._userRight[userId];
@@ -150,7 +150,7 @@
     /**
      * Get sharee right for a specific user
      * @param userId
-     * @returns {CALENDAR_SHARED_RIGHT}
+     * @returns {CAL_CALENDAR_SHARED_RIGHT}
      */
     function getShareeRight(userId) {
       return this._sharee[userId];
@@ -158,7 +158,7 @@
 
     /**
      * Compute public Right from ACL
-     * @returns {CALENDAR_RIGHT} public role computed from ACL
+     * @returns {CAL_CALENDAR_RIGHT} public role computed from ACL
      */
     function getPublicRight() {
       return _sumupRight(this._public);
@@ -195,25 +195,25 @@
 
       _.forEach(this._sharee, function(sharedRight, userId) {
         switch (sharedRight) {
-          case CALENDAR_SHARED_RIGHT.SHAREE_READ:
+          case CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ:
             result.share.set.push({
               'dav:href': HREF_PREFIX + this._userEmails[userId],
               'dav:read': true
             });
             break;
-          case CALENDAR_SHARED_RIGHT.SHAREE_READ_WRITE:
+          case CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ_WRITE:
             result.share.set.push({
               'dav:href': HREF_PREFIX + this._userEmails[userId],
               'dav:read-write': true
             });
             break;
-          case CALENDAR_SHARED_RIGHT.SHAREE_ADMIN:
+          case CAL_CALENDAR_SHARED_RIGHT.SHAREE_ADMIN:
             result.share.set.push({
               'dav:href': HREF_PREFIX + this._userEmails[userId],
               'dav:administration': true
             });
             break;
-          case CALENDAR_SHARED_RIGHT.SHAREE_FREE_BUSY:
+          case CAL_CALENDAR_SHARED_RIGHT.SHAREE_FREE_BUSY:
             result.share.set.push({
               'dav:href': HREF_PREFIX + this._userEmails[userId],
               'dav:freebusy': true
@@ -289,7 +289,7 @@
     function initRightMatrix() {
       var matrix = {};
 
-      matrix[CALENDAR_RIGHT.ADMIN] = {
+      matrix[CAL_CALENDAR_RIGHT.ADMIN] = {
         shouldHave: [
           CalRightSet.SHARE,
           CalRightSet.READ,
@@ -299,7 +299,7 @@
         shouldNotHave: []
       };
 
-      matrix[CALENDAR_RIGHT.PUBLIC_READ] = {
+      matrix[CAL_CALENDAR_RIGHT.PUBLIC_READ] = {
         shouldHave: [
           CalRightSet.READ
         ],
@@ -309,7 +309,7 @@
         ]
       };
 
-      matrix[CALENDAR_RIGHT.WRITE] = {
+      matrix[CAL_CALENDAR_RIGHT.WRITE] = {
         shouldHave: [
           CalRightSet.WRITE
         ],
@@ -320,7 +320,7 @@
         ]
       };
 
-      matrix[CALENDAR_RIGHT.FREE_BUSY] = {
+      matrix[CAL_CALENDAR_RIGHT.FREE_BUSY] = {
         shouldHave: [
           CalRightSet.FREE_BUSY
         ],
@@ -332,7 +332,7 @@
         ]
       };
 
-      matrix[CALENDAR_RIGHT.NONE] = {
+      matrix[CAL_CALENDAR_RIGHT.NONE] = {
         shouldHave: [],
         shouldNotHave: [
           CalRightSet.FREE_BUSY,

@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('The CalendarSharedConsultationController controller', function() {
-  var $controller, $rootScope, $scope, $logMock, sharedCalendarOwner, sessionMock, CalendarSharedConsultationController, calendarHomeId, calendar, $stateParamsMock, calendarHomeServiceMock, calendarServiceMock, CALENDAR_RIGHT, CALENDAR_SHARED_RIGHT;
+  var $controller, $rootScope, $scope, $logMock, sharedCalendarOwner, sessionMock, CalendarSharedConsultationController, calendarHomeId, calendar, $stateParamsMock, calendarHomeServiceMock, calendarServiceMock, CAL_CALENDAR_RIGHT, CAL_CALENDAR_SHARED_RIGHT;
 
   beforeEach(function() {
     $logMock = {
@@ -30,17 +30,17 @@ describe('The CalendarSharedConsultationController controller', function() {
       rights: {
         getUserRight: sinon.spy(function(userId) {
           if (userId === 'adminId') {
-            return CALENDAR_RIGHT.ADMIN;
+            return CAL_CALENDAR_RIGHT.ADMIN;
           }
 
-          return CALENDAR_RIGHT.SHAREE_READ;
+          return CAL_CALENDAR_RIGHT.SHAREE_READ;
         }),
         getShareeRight: sinon.spy(function(userId) {
           if (userId === 'adminId') {
             return;
           }
 
-          return CALENDAR_SHARED_RIGHT.SHAREE_READ;
+          return CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ;
         }),
         getRightLabel: sinon.spy(function(userId) {
           if (userId === 'adminId') {
@@ -99,12 +99,12 @@ describe('The CalendarSharedConsultationController controller', function() {
       $provide.value('$log', $logMock);
     });
 
-    angular.mock.inject(function(_$controller_, _$rootScope_, _CALENDAR_RIGHT_, _CALENDAR_SHARED_RIGHT_) {
+    angular.mock.inject(function(_$controller_, _$rootScope_, _CAL_CALENDAR_RIGHT_, _CAL_CALENDAR_SHARED_RIGHT_) {
       $controller = _$controller_;
       $rootScope = _$rootScope_;
       $scope = $rootScope.$new();
-      CALENDAR_RIGHT = _CALENDAR_RIGHT_;
-      CALENDAR_SHARED_RIGHT = _CALENDAR_SHARED_RIGHT_;
+      CAL_CALENDAR_RIGHT = _CAL_CALENDAR_RIGHT_;
+      CAL_CALENDAR_SHARED_RIGHT = _CAL_CALENDAR_SHARED_RIGHT_;
     });
   });
 

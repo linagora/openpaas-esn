@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('the userAndExternalCalendars service', function() {
-  var calendars, userAndExternalCalendars, CALENDAR_RIGHT, CALENDAR_SHARED_RIGHT;
+  var calendars, userAndExternalCalendars, CAL_CALENDAR_RIGHT, CAL_CALENDAR_SHARED_RIGHT;
 
   beforeEach(function() {
     calendars = [{
@@ -22,10 +22,10 @@ describe('the userAndExternalCalendars service', function() {
       description: 'description2',
       rights: {
         getUserRight: function() {
-          return CALENDAR_RIGHT.ADMIN;
+          return CAL_CALENDAR_RIGHT.ADMIN;
         },
         getPublicRight: function() {
-          return CALENDAR_RIGHT.PUBLIC_READ;
+          return CAL_CALENDAR_RIGHT.PUBLIC_READ;
         }
       },
       isShared: function() {
@@ -45,10 +45,10 @@ describe('the userAndExternalCalendars service', function() {
       description: 'description',
       rights: {
         getUserRight: function() {
-          return CALENDAR_SHARED_RIGHT.SHAREE_READ;
+          return CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ;
         },
         getPublicRight: function() {
-          return CALENDAR_RIGHT.NONE;
+          return CAL_CALENDAR_RIGHT.NONE;
         }
       },
       isShared: function() {
@@ -68,10 +68,10 @@ describe('the userAndExternalCalendars service', function() {
       description: 'description',
       rights: {
         getUserRight: function() {
-          return CALENDAR_RIGHT.ADMIN;
+          return CAL_CALENDAR_RIGHT.ADMIN;
         },
         getPublicRight: function() {
-          return CALENDAR_RIGHT.WRITE;
+          return CAL_CALENDAR_RIGHT.WRITE;
         }
       },
       isShared: function() {
@@ -87,10 +87,10 @@ describe('the userAndExternalCalendars service', function() {
 
     angular.mock.module('esn.calendar');
 
-    angular.mock.inject(function(_userAndExternalCalendars_, _CALENDAR_RIGHT_, _CALENDAR_SHARED_RIGHT_) {
+    angular.mock.inject(function(_userAndExternalCalendars_, _CAL_CALENDAR_RIGHT_, _CAL_CALENDAR_SHARED_RIGHT_) {
       userAndExternalCalendars = _userAndExternalCalendars_;
-      CALENDAR_RIGHT = _CALENDAR_RIGHT_;
-      CALENDAR_SHARED_RIGHT = _CALENDAR_SHARED_RIGHT_;
+      CAL_CALENDAR_RIGHT = _CAL_CALENDAR_RIGHT_;
+      CAL_CALENDAR_SHARED_RIGHT = _CAL_CALENDAR_SHARED_RIGHT_;
     });
   });
 

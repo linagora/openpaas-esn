@@ -5,21 +5,21 @@
 var expect = chai.expect;
 
 describe('CalRRuleShell Factory', function() {
-  var CalRRuleShell, ICAL, RECUR_FREQ;
+  var CalRRuleShell, ICAL, CAL_RECUR_FREQ;
 
   beforeEach(function() {
     angular.mock.module('esn.calendar');
-    angular.mock.inject(function(_CalRRuleShell_, _ICAL_, _RECUR_FREQ_) {
+    angular.mock.inject(function(_CalRRuleShell_, _ICAL_, _CAL_RECUR_FREQ_) {
       CalRRuleShell = _CalRRuleShell_;
       ICAL = _ICAL_;
-      RECUR_FREQ = _RECUR_FREQ_;
+      CAL_RECUR_FREQ = _CAL_RECUR_FREQ_;
     });
   });
 
   describe('should create CalRRuleShell object funcation', function() {
     it('should call updateParentEvent when create CalRRuleShell object with interval does not exist', function() {
       var rrule = {
-        freq: RECUR_FREQ[0]
+        freq: CAL_RECUR_FREQ[0]
       };
       var vevent = new ICAL.Component('vevent');
       var shell = new CalRRuleShell(rrule, vevent);
@@ -33,7 +33,7 @@ describe('CalRRuleShell Factory', function() {
 
     beforeEach(function() {
       var rrule = {
-        freq: RECUR_FREQ[0]
+        freq: CAL_RECUR_FREQ[0]
       };
 
       vevent = new ICAL.Component('vevent');

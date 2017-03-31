@@ -4,7 +4,7 @@
   angular.module('esn.calendar')
     .factory('CalRRuleShell', CalRRuleShellFactory);
 
-  function CalRRuleShellFactory(calMoment, ICAL, RRULE_MODIFY_COMPARE_KEYS) {
+  function CalRRuleShellFactory(calMoment, ICAL, CAL_RRULE_MODIFY_COMPARE_KEYS) {
     function CalRRuleShell(rrule, vevent) {
       this.rrule = rrule;
       this.vevent = vevent;
@@ -92,7 +92,7 @@
       if (that === this) { return true; }
       var self = this;
 
-      return RRULE_MODIFY_COMPARE_KEYS.every(function(key) {
+      return CAL_RRULE_MODIFY_COMPARE_KEYS.every(function(key) {
         return angular.equals(self[key], that[key]);
       });
     }

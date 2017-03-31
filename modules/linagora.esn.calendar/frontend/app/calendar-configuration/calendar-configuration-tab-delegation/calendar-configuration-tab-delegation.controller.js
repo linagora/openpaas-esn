@@ -5,7 +5,7 @@
     .controller('CalendarConfigurationTabDelegationController', CalendarConfigurationTabDelegationController);
 
   function CalendarConfigurationTabDelegationController(
-    CALENDAR_SHARED_RIGHT
+    CAL_CALENDAR_SHARED_RIGHT
   ) {
     var self = this;
 
@@ -19,19 +19,19 @@
 
       self.delegationTypes = [
         {
-          value: CALENDAR_SHARED_RIGHT.NONE,
+          value: CAL_CALENDAR_SHARED_RIGHT.NONE,
           name: 'None'
         }, {
-          value: CALENDAR_SHARED_RIGHT.SHAREE_ADMIN,
+          value: CAL_CALENDAR_SHARED_RIGHT.SHAREE_ADMIN,
           name: 'Administration'
         }, {
-          value: CALENDAR_SHARED_RIGHT.SHAREE_READ_WRITE,
+          value: CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ_WRITE,
           name: 'Read and Write'
         }, {
-          value: CALENDAR_SHARED_RIGHT.SHAREE_READ,
+          value: CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ,
           name: 'Read only'
         }, {
-          value: CALENDAR_SHARED_RIGHT.SHAREE_FREE_BUSY,
+          value: CAL_CALENDAR_SHARED_RIGHT.SHAREE_FREE_BUSY,
           name: 'Free/Busy'
         }];
     }

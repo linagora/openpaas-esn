@@ -9,7 +9,7 @@ describe('The calendar configuration tab delegation controller', function() {
     $controller,
     $scope,
     CalendarConfigurationTabDelegationController,
-    CALENDAR_SHARED_RIGHT;
+    CAL_CALENDAR_SHARED_RIGHT;
 
   function initController() {
     return $controller('CalendarConfigurationTabDelegationController', { $scope: $scope });
@@ -18,11 +18,11 @@ describe('The calendar configuration tab delegation controller', function() {
   beforeEach(function() {
     angular.mock.module('esn.calendar');
 
-    angular.mock.inject(function(_$rootScope_, _$controller_, _CALENDAR_SHARED_RIGHT_) {
+    angular.mock.inject(function(_$rootScope_, _$controller_, _CAL_CALENDAR_SHARED_RIGHT_) {
       $rootScope = _$rootScope_;
       $scope = $rootScope.$new();
       $controller = _$controller_;
-      CALENDAR_SHARED_RIGHT = _CALENDAR_SHARED_RIGHT_;
+      CAL_CALENDAR_SHARED_RIGHT = _CAL_CALENDAR_SHARED_RIGHT_;
     });
   });
 
@@ -34,19 +34,19 @@ describe('The calendar configuration tab delegation controller', function() {
     it('should initialize self.delegationTypes with an array contains the different rights', function() {
       var delegationTypesExpected = [
         {
-          value: CALENDAR_SHARED_RIGHT.NONE,
+          value: CAL_CALENDAR_SHARED_RIGHT.NONE,
           name: 'None'
         }, {
-          value: CALENDAR_SHARED_RIGHT.SHAREE_ADMIN,
+          value: CAL_CALENDAR_SHARED_RIGHT.SHAREE_ADMIN,
           name: 'Administration'
         }, {
-          value: CALENDAR_SHARED_RIGHT.SHAREE_READ_WRITE,
+          value: CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ_WRITE,
           name: 'Read and Write'
         }, {
-          value: CALENDAR_SHARED_RIGHT.SHAREE_READ,
+          value: CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ,
           name: 'Read only'
         }, {
-          value: CALENDAR_SHARED_RIGHT.SHAREE_FREE_BUSY,
+          value: CAL_CALENDAR_SHARED_RIGHT.SHAREE_FREE_BUSY,
           name: 'Free/Busy'
         }];
 

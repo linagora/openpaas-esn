@@ -6,7 +6,7 @@
 
   function CalendarEditDelegationAddUsersController(
     $stateParams,
-    CALENDAR_SHARED_RIGHT
+    CAL_CALENDAR_SHARED_RIGHT
   ) {
     var self = this;
 
@@ -17,7 +17,7 @@
     function $onInit() {
       self.newUsersGroups = $stateParams.newUsersGroups;
       self.delegationTypes = $stateParams.delegationTypes;
-      self.selectedShareeRight = CALENDAR_SHARED_RIGHT.NONE;
+      self.selectedShareeRight = CAL_CALENDAR_SHARED_RIGHT.NONE;
     }
   }
 })();

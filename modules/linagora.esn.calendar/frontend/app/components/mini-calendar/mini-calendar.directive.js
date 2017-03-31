@@ -4,7 +4,7 @@
   angular.module('esn.calendar')
     .directive('miniCalendarMobile', miniCalendarMobile);
 
-  function miniCalendarMobile($window, miniCalendarService, CALENDAR_EVENTS) {
+  function miniCalendarMobile($window, miniCalendarService, CAL_EVENTS) {
     var directive = {
       restrict: 'E',
       templateUrl: '/calendar/app/components/mini-calendar/mini-calendar.html',
@@ -21,7 +21,7 @@
     ////////////
 
     function link(scope, element) { // eslint-disable-line
-      scope.$on(CALENDAR_EVENTS.MINI_CALENDAR.TOGGLE, function() {
+      scope.$on(CAL_EVENTS.MINI_CALENDAR.TOGGLE, function() {
         // initial-state is invisible and height: 0 so that the mini-calendar is not
         // expanded yet
         element.removeClass('initial-state');

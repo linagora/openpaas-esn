@@ -10,7 +10,7 @@
     _,
     calendarAPI,
     CalendarCollectionShell,
-    CALENDAR_EVENTS,
+    CAL_EVENTS,
     CalendarRightShell
   ) {
     var calendarsCache = {};
@@ -106,7 +106,7 @@
      return calendarAPI.removeCalendar(calendarHomeId, calendar.id)
        .then(function(response) {
          _.remove(calendarsCache[calendarHomeId], {id: calendar.id});
-         $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.REMOVE, calendar);
+         $rootScope.$broadcast(CAL_EVENTS.CALENDARS.REMOVE, calendar);
 
          return response;
        });
@@ -122,7 +122,7 @@
       return calendarAPI.createCalendar(calendarHomeId, CalendarCollectionShell.toDavCalendar(calendar))
         .then(function() {
           (calendarsCache[calendarHomeId] || []).push(calendar);
-          $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.ADD, calendar);
+          $rootScope.$broadcast(CAL_EVENTS.CALENDARS.ADD, calendar);
 
           return calendar;
         });
@@ -147,7 +147,7 @@
       return calendarAPI.modifyCalendar(calendarHomeId, CalendarCollectionShell.toDavCalendar(calendar))
         .then(function() {
           updateCache(calendarHomeId, calendar);
-          $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.UPDATE, calendar);
+          $rootScope.$broadcast(CAL_EVENTS.CALENDARS.UPDATE, calendar);
 
           return calendar;
         });
@@ -172,7 +172,7 @@
      */
     function modifyRights(calendarHomeId, calendar, rightShell, oldRightShell) {
       return calendarAPI.modifyShares(calendarHomeId, calendar.id, rightShell.toDAVShareRightsUpdate(oldRightShell)).then(function() {
-        $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.RIGHTS_UPDATE, {
+        $rootScope.$broadcast(CAL_EVENTS.CALENDARS.RIGHTS_UPDATE, {
           calendar: calendar,
           rights: rightShell
         });

@@ -64,7 +64,7 @@ describe('The cal-event-message Angular module directives', function() {
       });
     });
 
-    beforeEach(angular.mock.inject(function($controller, $rootScope, calMoment, EVENT_FORM, $q) {
+    beforeEach(angular.mock.inject(function($controller, $rootScope, calMoment, CAL_EVENT_FORM, $q) {
       self.activitystream = {
         activity_stream: {
           uuid: 'uuid'
@@ -78,7 +78,7 @@ describe('The cal-event-message Angular module directives', function() {
       self.$parentScope.show = angular.noop;
       self.$scope = self.$parentScope.$new();
       self.calMoment = calMoment;
-      self.EVENT_FORM = EVENT_FORM; self.start = calMoment('2015-08-17 08:00');
+      self.CAL_EVENT_FORM = CAL_EVENT_FORM; self.start = calMoment('2015-08-17 08:00');
       self.end = calMoment('2015-08-17 09:00');
       self.initController = function() {
         $controller('calEventMessageEditionController', { $scope: self.$scope });
@@ -116,7 +116,7 @@ describe('The cal-event-message Angular module directives', function() {
         ['', undefined, null, '     '].forEach(function(title) {
           self.$scope.event.title = title;
           self.$scope.submit();
-          expect(self.$scope.event.title).to.equal(self.EVENT_FORM.title.default);
+          expect(self.$scope.event.title).to.equal(self.CAL_EVENT_FORM.title.default);
         }, this);
       });
 

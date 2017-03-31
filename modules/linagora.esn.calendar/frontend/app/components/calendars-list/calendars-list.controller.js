@@ -14,7 +14,7 @@
     userAndExternalCalendars,
     calPublicCalendarStore,
     _,
-    CALENDAR_EVENTS
+    CAL_EVENTS
   ) {
     var self = this;
 
@@ -38,11 +38,11 @@
       $q
         .all(listCalendars(), getHiddenCalendars())
         .then(function() {
-          var destroyCalAddEvent = $rootScope.$on(CALENDAR_EVENTS.CALENDARS.ADD, handleCalendarAdd);
-          var destroyCalRemoveEvent = $rootScope.$on(CALENDAR_EVENTS.CALENDARS.REMOVE, handleCalendarRemove);
-          var destroyCalUpdateEvent = $rootScope.$on(CALENDAR_EVENTS.CALENDARS.UPDATE, handleCalendarUpdate);
+          var destroyCalAddEvent = $rootScope.$on(CAL_EVENTS.CALENDARS.ADD, handleCalendarAdd);
+          var destroyCalRemoveEvent = $rootScope.$on(CAL_EVENTS.CALENDARS.REMOVE, handleCalendarRemove);
+          var destroyCalUpdateEvent = $rootScope.$on(CAL_EVENTS.CALENDARS.UPDATE, handleCalendarUpdate);
 
-          var deregister = $rootScope.$on(CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, function(event, data) {
+          var deregister = $rootScope.$on(CAL_EVENTS.CALENDARS.TOGGLE_VIEW, function(event, data) {
             self.hiddenCalendars[data.calendarId] = data.hidden;
           });
 

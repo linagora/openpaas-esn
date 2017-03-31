@@ -4,7 +4,7 @@
   angular.module('esn.calendar')
     .directive('calendarViewTranslation', calendarViewTranslation);
 
-  function calendarViewTranslation($rootScope, CALENDAR_EVENTS) {
+  function calendarViewTranslation($rootScope, CAL_EVENTS) {
     var directive = {
       restrict: 'A',
       scope: true,
@@ -19,7 +19,7 @@
       element.click(function() {
         var action = attrs.calendarViewTranslation;
 
-        $rootScope.$broadcast(CALENDAR_EVENTS.VIEW_TRANSLATION, action);
+        $rootScope.$broadcast(CAL_EVENTS.VIEW_TRANSLATION, action);
       });
     }
   }

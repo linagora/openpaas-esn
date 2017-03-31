@@ -4,7 +4,7 @@
   angular.module('esn.calendar')
     .factory('calMasterEventCache', calMasterEventCache);
 
-  function calMasterEventCache($timeout, MASTER_EVENT_CACHE_TTL) {
+  function calMasterEventCache($timeout, CAL_MASTER_EVENT_CACHE_TTL) {
     var map = {};
     var service = {
       save: save,
@@ -23,7 +23,7 @@
           shell: shell,
           deletionPromise: $timeout(function() {
             delete map[shell.path];
-          }, MASTER_EVENT_CACHE_TTL)
+          }, CAL_MASTER_EVENT_CACHE_TTL)
         };
       }
     }

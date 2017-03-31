@@ -2,10 +2,9 @@
   'use strict';
 
   angular.module('esn.calendar')
-    .constant('MINI_CALENDAR_DAY_FORMAT', 'YYYY-MM-DD')
     .factory('miniCalendarService', miniCalendarService);
 
-  function miniCalendarService($q, _, calMoment, MINI_CALENDAR_DAY_FORMAT) {
+  function miniCalendarService($q, _, calMoment, CAL_MINI_CALENDAR_DAY_FORMAT) {
     var service = {
       forEachDayOfEvent: forEachDayOfEvent,
       getWeekAroundDay: getWeekAroundDay,
@@ -73,7 +72,7 @@
         }
 
         forEachDayOfEvent(event, function(day) {
-          var date = day.format(MINI_CALENDAR_DAY_FORMAT);
+          var date = day.format(CAL_MINI_CALENDAR_DAY_FORMAT);
           var dayEvent = fakeEvents[date];
 
           if (!dayEvent) {
