@@ -81,7 +81,6 @@
     "linagora.esn.graceperiod",
     "linagora.esn.messaging.email",
     "linagora.esn.oauth.consumer",
-    "linagora.esn.project",
     "linagora.esn.profile",
     "linagora.esn.user.status",
     "linagora.esn.controlcenter",
