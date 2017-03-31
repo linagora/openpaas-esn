@@ -11,10 +11,7 @@
       templateUrl: '/calendar/app/calendar-configuration/calendar-configuration-tabs/calendar-configuration-tabs.html',
       bindings: {
         selectedTab: '=',
-        getMainView: '=',
-        isAdmin: '=',
-        newCalendar: '=',
-        getDelegationView: '='
+        canShowDelegationTab: '='
       },
       controllerAs: '$ctrl'
     };

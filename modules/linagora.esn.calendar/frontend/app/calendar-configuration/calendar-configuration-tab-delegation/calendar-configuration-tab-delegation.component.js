@@ -10,16 +10,13 @@
     return {
       templateUrl: '/calendar/app/calendar-configuration/calendar-configuration-tab-delegation/calendar-configuration-tab-delegation.html',
       bindings: {
-        delegationTypes: '<',
         delegations: '=',
-        selection: '=',
-        goToEditDelegation: '=',
+        selectedShareeRight: '=',
         newUsersGroups: '=',
         addUserGroup: '=',
-        removeUserGroup: '=',
-        onAddingUser: '='
+        removeUserGroup: '='
       },
-      controllerAs: '$ctrl'
+      controller: 'CalendarConfigurationTabDelegationController'
     };
   }
 })();
