@@ -1,35 +1,35 @@
 .calendar-sidebar
   .listview.p-t-10.calendars-list
-    .lv-body
-      a.lv-item(href="", cal-toggle-view="basicDay", ng-click="$hide()")
+    .lv-body(ng-click="$hide()")
+      a.lv-item(href="", cal-toggle-view="basicDay")
         .media
           .pull-left
             i.mdi.mdi-menu
           .media-body
             .lv-title
               span #{__('Planning')}
-      a.lv-item(href="", cal-toggle-view="agendaDay", ng-click="$hide()")
+      a.lv-item(href="", cal-toggle-view="agendaDay")
         .media
           .pull-left
             i.mdi.mdi-view-day
           .media-body
             .lv-title
               span #{__('Day')}
-      a.lv-item(href="", cal-toggle-view="agendaThreeDays", ng-click="$hide()")
+      a.lv-item(href="", cal-toggle-view="agendaThreeDays")
         .media
           .pull-left
             i.mdi.mdi-view-day
           .media-body
             .lv-title
               span #{__('3 Days')}
-      a.lv-item(href="", cal-toggle-view="agendaWeek", ng-click="$hide()")
+      a.lv-item(href="", cal-toggle-view="agendaWeek")
         .media
           .pull-left
             i.mdi.mdi-view-week
           .media-body
             .lv-title
               span #{__('Week')}
-      a.lv-item(href="", cal-toggle-view="month", ng-click="$hide()")
+      a.lv-item(href="", cal-toggle-view="month")
         .media
           .pull-left
             i.mdi.mdi-calendar-blank
