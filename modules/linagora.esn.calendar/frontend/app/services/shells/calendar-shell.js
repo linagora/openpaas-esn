@@ -21,7 +21,7 @@
   angular.module('esn.calendar')
          .factory('CalendarShell', CalendarShellFactory);
 
-  function CalendarShellFactory($q, _, ICAL, jstz, uuid4, calendarUtils, calEventAPI, calMoment, calMasterEventCache, CalRRuleShell, CalVAlarmShell, EVENT_MODIFY_COMPARE_KEYS, ICAL_PROPERTIES, EVENT_CLASS) {
+  function CalendarShellFactory($q, _, ICAL, jstz, uuid4, calendarUtils, calEventAPI, calMoment, calMasterEventCache, CalRRuleShell, CalVAlarmShell, EVENT_MODIFY_COMPARE_KEYS, CAL_ICAL, EVENT_CLASS) {
     var localTimezone = jstz.determine().name();
 
     function CalendarShell(vcomponent, extendedProperties) {
@@ -291,9 +291,9 @@
             var mailto = calendarUtils.prependMailto(mail);
             var property = vevent.addPropertyWithValue('attendee', mailto);
 
-            property.setParameter('partstat', attendee.partstat || (isOrganizer ? ICAL_PROPERTIES.partstat.accepted : ICAL_PROPERTIES.partstat.needsaction));
-            property.setParameter('rsvp', isOrganizer ? ICAL_PROPERTIES.rsvp.false : ICAL_PROPERTIES.rsvp.true);
-            property.setParameter('role', isOrganizer ? ICAL_PROPERTIES.role.chair : ICAL_PROPERTIES.role.reqparticipant);
+            property.setParameter('partstat', attendee.partstat || (isOrganizer ? CAL_ICAL.partstat.accepted : CAL_ICAL.partstat.needsaction));
+            property.setParameter('rsvp', isOrganizer ? CAL_ICAL.rsvp.false : CAL_ICAL.rsvp.true);
+            property.setParameter('role', isOrganizer ? CAL_ICAL.role.chair : CAL_ICAL.role.reqparticipant);
             if (attendee.displayName && attendee.displayName !== mail) {
               property.setParameter('cn', attendee.displayName);
             }
@@ -563,9 +563,9 @@
       }
       var property = this.vevent.addPropertyWithValue('attendee', calendarUtils.prependMailto(this.organizer.email));
 
-      property.setParameter('partstat', status || ICAL_PROPERTIES.partstat.accepted);
-      property.setParameter('rsvp', ICAL_PROPERTIES.rsvp.false);
-      property.setParameter('role', ICAL_PROPERTIES.role.chair);
+      property.setParameter('partstat', status || CAL_ICAL.partstat.accepted);
+      property.setParameter('rsvp', CAL_ICAL.rsvp.false);
+      property.setParameter('role', CAL_ICAL.role.chair);
       this.__attendees = null;
     }
 

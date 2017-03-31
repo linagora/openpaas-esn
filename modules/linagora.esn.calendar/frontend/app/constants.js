@@ -73,6 +73,27 @@
       }
     })
 
+    .constant('CALENDAR_ACCEPT_HEADER', 'application/calendar+json')
+
+    .constant('CALENDAR_DAV_DATE_FORMAT', 'YYYYMMDD[T]HHmmss')
+
+    .constant('CAL_ICAL', {
+      partstat: {
+        needsaction: 'NEEDS-ACTION',
+        accepted: 'ACCEPTED',
+        declined: 'DECLINED',
+        tentative: 'TENTATIVE'
+      },
+      rsvp: {
+        true: 'TRUE',
+        false: 'FALSE'
+      },
+      role: {
+        reqparticipant: 'REQ-PARTICIPANT',
+        chair: 'CHAIR'
+      }
+    })
+
     .constant('CALENDAR_AVAILABLE_VIEWS', ['agendaWeek', 'agendaDay', 'month', 'agendaThreeDays', 'basicDay'])
 
     .constant('CALENDAR_RIGHT', {
@@ -229,5 +250,100 @@
         DELETED: 'calendar:event:deleted',
         REPLY: 'calendar:event:reply'
       }
-    });
+    })
+
+    .constant('CALENDAR_LIST_OF_COLORS', {
+      red: '#F44336',
+      pink: '#E91E63',
+      purple: '#9C27B0',
+      indigo: '#3F51B5',
+      blue: '#2196F3',
+      teal: '#009688',
+      green: '#4CAF50',
+      amber: '#FFC107',
+      orange: '#FF9800',
+      brown: '#795548'
+    })
+
+    .constant('RECUR_FREQ', [{
+      value: undefined,
+      label: 'No repetition'
+    }, {
+      value: 'DAILY',
+      label: 'Repeat daily'
+    }, {
+      value: 'WEEKLY',
+      label: 'Repeat weekly'
+    }, {
+      value: 'MONTHLY',
+      label: 'Repeat monthly'
+    }, {
+      value: 'YEARLY',
+      label: 'Repeat yearly'
+    }])
+
+    .constant('WEEK_DAYS', {
+      M: 'MO',
+      T: 'TU',
+      W: 'WE',
+      Th: 'TH',
+      F: 'FR',
+      S: 'SA',
+      Su: 'SU'
+    })
+
+    .constant('MINI_CALENDAR_DAY_FORMAT', 'YYYY-MM-DD')
+
+    .constant('CONSULT_FORM_TABS', {
+      MAIN: 'main',
+      ATTENDEES: 'attendees',
+      MORE: 'more'
+    })
+
+    .constant('CACHED_EVENT_SOURCE_ADD', 'add')
+
+    .constant('CACHED_EVENT_SOURCE_DELETE', 'delete')
+
+    .constant('CACHED_EVENT_SOURCE_UPDATE', 'update')
+
+    .constant('TRIGGER', [{
+      value: undefined,
+      label: 'No alarm'
+    }, {
+      value: '-PT1M',
+      label: '1 minute'
+    }, {
+      value: '-PT5M',
+      label: '5 minutes'
+    }, {
+      value: '-PT10M',
+      label: '10 minutes'
+    }, {
+      value: '-PT15M',
+      label: '15 minutes'
+    }, {
+      value: '-PT30M',
+      label: '30 minutes'
+    }, {
+      value: '-PT1H',
+      label: '1 hour'
+    }, {
+      value: '-PT2H',
+      label: '2 hours'
+    }, {
+      value: '-PT5H',
+      label: '5 hours'
+    }, {
+      value: '-PT12H',
+      label: '12 hours'
+    }, {
+      value: '-P1D',
+      label: '1 day'
+    }, {
+      value: '-P2D',
+      label: '2 days'
+    }, {
+      value: '-P1W',
+      label: '1 week'
+    }]);
 })();

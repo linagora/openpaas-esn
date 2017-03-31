@@ -2,9 +2,7 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .constant('CALENDAR_ACCEPT_HEADER', 'application/calendar+json')
-         .constant('CALENDAR_DAV_DATE_FORMAT', 'YYYYMMDD[T]HHmmss')
-         .factory('calendarAPI', calendarAPI);
+    .factory('calendarAPI', calendarAPI);
 
   var JSON_CONTENT_TYPE_HEADER = { 'Content-Type': 'application/json' };
 

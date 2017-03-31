@@ -2,12 +2,7 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .constant('CONSULT_FORM_TABS', {
-           MAIN: 'main',
-           ATTENDEES: 'attendees',
-           MORE: 'more'
-         })
-         .directive('calEventConsultFormBody', calEventConsultFormBody);
+    .directive('calEventConsultFormBody', calEventConsultFormBody);
 
   function calEventConsultFormBody(CONSULT_FORM_TABS) {
     var directive = {

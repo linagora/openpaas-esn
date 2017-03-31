@@ -2,7 +2,6 @@
   'use strict';
 
   angular.module('esn.calendar')
-    .constant('MINI_CALENDAR_DAY_FORMAT', 'YYYY-MM-DD')
     .factory('miniCalendarService', miniCalendarService);
 
   function miniCalendarService($q, _, calMoment, MINI_CALENDAR_DAY_FORMAT) {

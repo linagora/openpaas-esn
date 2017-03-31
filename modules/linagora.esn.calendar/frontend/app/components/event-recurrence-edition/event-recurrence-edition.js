@@ -2,7 +2,7 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .directive('eventRecurrenceEdition', eventRecurrenceEdition);
+    .directive('eventRecurrenceEdition', eventRecurrenceEdition);
 
   function eventRecurrenceEdition() {
     var directive = {
@@ -113,32 +113,4 @@
       }
     }
   }
-
-  angular.module('esn.calendar')
-    .constant('RECUR_FREQ', [{
-      value: undefined,
-      label: 'No repetition'
-    }, {
-      value: 'DAILY',
-      label: 'Repeat daily'
-    }, {
-      value: 'WEEKLY',
-      label: 'Repeat weekly'
-    }, {
-      value: 'MONTHLY',
-      label: 'Repeat monthly'
-    }, {
-      value: 'YEARLY',
-      label: 'Repeat yearly'
-    }])
-    .constant('WEEK_DAYS', {
-      M: 'MO',
-      T: 'TU',
-      W: 'WE',
-      Th: 'TH',
-      F: 'FR',
-      S: 'SA',
-      Su: 'SU'
-    });
-
 })();

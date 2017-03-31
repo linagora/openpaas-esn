@@ -75,19 +75,4 @@
       });
     }
   }
-
-  angular.module('esn.calendar')
-    .constant('CALENDAR_LIST_OF_COLORS', {
-      red: '#F44336',
-      pink: '#E91E63',
-      purple: '#9C27B0',
-      indigo: '#3F51B5',
-      blue: '#2196F3',
-      teal: '#009688',
-      green: '#4CAF50',
-      amber: '#FFC107',
-      orange: '#FF9800',
-      brown: '#795548'
-    });
-
 })();
