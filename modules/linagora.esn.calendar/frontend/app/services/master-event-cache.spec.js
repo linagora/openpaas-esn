@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('the calMasterEventCache service', function() {
-  var calMasterEventCache, CalendarShell, calMoment, timeoutMock, MASTER_EVENT_CACHE_TTL, path, shell, timeoutMockReturn;
+  var calMasterEventCache, CalendarShell, calMoment, timeoutMock, CAL_MASTER_EVENT_CACHE_TTL, path, shell, timeoutMockReturn;
 
   beforeEach(function() {
     angular.mock.module('esn.calendar');
@@ -18,11 +18,11 @@ describe('the calMasterEventCache service', function() {
     timeoutMock = sinon.stub().returns(timeoutMockReturn);
     timeoutMock.cancel = sinon.spy();
 
-    angular.mock.inject(function(_calMasterEventCache_, _CalendarShell_, _calMoment_, _MASTER_EVENT_CACHE_TTL_) {
+    angular.mock.inject(function(_calMasterEventCache_, _CalendarShell_, _calMoment_, _CAL_MASTER_EVENT_CACHE_TTL_) {
       calMasterEventCache = _calMasterEventCache_;
       CalendarShell = _CalendarShell_;
       calMoment = _calMoment_;
-      MASTER_EVENT_CACHE_TTL = _MASTER_EVENT_CACHE_TTL_;
+      CAL_MASTER_EVENT_CACHE_TTL = _CAL_MASTER_EVENT_CACHE_TTL_;
     });
 
     path = 'aPath';
@@ -62,6 +62,6 @@ describe('the calMasterEventCache service', function() {
     calMasterEventCache.save(shell);
     expect(timeoutMock).to.have.been.calledWith(sinon.match(function(deleteFunction) {
       return _.isFunction(deleteFunction) && !(deleteFunction(), calMasterEventCache.get(path));
-    }), MASTER_EVENT_CACHE_TTL);
+    }), CAL_MASTER_EVENT_CACHE_TTL);
   });
 });

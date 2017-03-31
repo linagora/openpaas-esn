@@ -5,15 +5,15 @@
 var expect = chai.expect;
 
 describe('the calPublicCalendarStore service', function() {
-  var $rootScope, calPublicCalendarStore, CALENDAR_EVENTS, calendarsAddListener, _, publicCalendars;
+  var $rootScope, calPublicCalendarStore, CAL_EVENTS, calendarsAddListener, _, publicCalendars;
 
   beforeEach(function() {
     angular.mock.module('esn.calendar');
 
-    angular.mock.inject(function(_$rootScope_, _calPublicCalendarStore_, ___, _CALENDAR_EVENTS_) {
+    angular.mock.inject(function(_$rootScope_, _calPublicCalendarStore_, ___, _CAL_EVENTS_) {
       $rootScope = _$rootScope_;
       calPublicCalendarStore = _calPublicCalendarStore_;
-      CALENDAR_EVENTS = _CALENDAR_EVENTS_;
+      CAL_EVENTS = _CAL_EVENTS_;
       _ = ___;
     });
   });
@@ -28,7 +28,7 @@ describe('the calPublicCalendarStore service', function() {
       }];
 
     calendarsAddListener = sinon.spy();
-    $rootScope.$on(CALENDAR_EVENTS.CALENDARS.ADD, calendarsAddListener);
+    $rootScope.$on(CAL_EVENTS.CALENDARS.ADD, calendarsAddListener);
   });
 
   describe('the storeAll method', function() {

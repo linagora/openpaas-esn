@@ -4,7 +4,7 @@
   angular.module('esn.calendar')
     .factory('request', requestFactory);
 
-  function requestFactory($http, $q, DAV_PATH) {
+  function requestFactory($http, $q, CAL_DAV_PATH) {
     return request;
 
     ////////////
@@ -18,7 +18,7 @@
     }
 
     function _configureRequest(method, path, headers, body, params) {
-      var url = DAV_PATH;
+      var url = CAL_DAV_PATH;
 
       headers = headers || {};
 

@@ -36,10 +36,10 @@ describe('The calendarVisibilityService', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function(calendarVisibilityService, $rootScope, CALENDAR_EVENTS, $q) {
+  beforeEach(angular.mock.inject(function(calendarVisibilityService, $rootScope, CAL_EVENTS, $q) {
     self.calendarVisibilityService = calendarVisibilityService;
     self.$rootScope = $rootScope;
-    self.CALENDAR_EVENTS = CALENDAR_EVENTS;
+    self.CAL_EVENTS = CAL_EVENTS;
     self.$q = $q;
   }));
 
@@ -80,7 +80,7 @@ describe('The calendarVisibilityService', function() {
       this.calendarVisibilityService.toggle(cal);
       this.$rootScope.$digest();
       expect(this.$rootScope.$broadcast).to.have.been.calledWith(
-        this.CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW,
+        this.CAL_EVENTS.CALENDARS.TOGGLE_VIEW,
         {calendarId: cal.id, hidden: true}
       );
 
@@ -89,7 +89,7 @@ describe('The calendarVisibilityService', function() {
       this.calendarVisibilityService.toggle(cal);
       this.$rootScope.$digest();
       expect(this.$rootScope.$broadcast).to.have.been.calledWith(
-        this.CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW,
+        this.CAL_EVENTS.CALENDARS.TOGGLE_VIEW,
         {calendarId: cal.id, hidden: false}
       );
     });

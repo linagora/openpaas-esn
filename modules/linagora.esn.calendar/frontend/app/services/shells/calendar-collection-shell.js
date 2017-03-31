@@ -4,7 +4,7 @@
   angular.module('esn.calendar')
          .factory('CalendarCollectionShell', CalendarCollectionShellFactory);
 
-  function CalendarCollectionShellFactory($q, $log, _, calPathBuilder, CalendarRightShell, session, userAPI, CALENDAR_PUBLIC_RIGHTS, CALENDAR_DEDAULT_EVENT_COLOR, DEFAULT_CALENDAR_ID, CALENDAR_RIGHT, CALENDAR_SHARED_RIGHT) {
+  function CalendarCollectionShellFactory($q, $log, _, calPathBuilder, CalendarRightShell, session, userAPI, CAL_CALENDAR_PUBLIC_RIGHTS, CAL_DEDAULT_EVENT_COLOR, CAL_DEFAULT_CALENDAR_ID, CAL_CALENDAR_RIGHT, CAL_CALENDAR_SHARED_RIGHT) {
     /**
      * A shell that wraps an caldav calendar component.
      * Note that href is the unique identifier and id is the calendarId inside the calendarHomeId
@@ -13,11 +13,11 @@
      */
     function CalendarCollectionShell(calendar) {
       this.name = calendar['dav:name'] || 'Events';
-      this.color = calendar['apple:color'] || CALENDAR_DEDAULT_EVENT_COLOR;
+      this.color = calendar['apple:color'] || CAL_DEDAULT_EVENT_COLOR;
       this.description = calendar['caldav:description'] || '';
       this.href = calendar._links.self.href;
       this.id = this.href.split('/').pop().split('.').shift();
-      this.selected = this.id === DEFAULT_CALENDAR_ID;
+      this.selected = this.id === CAL_DEFAULT_CALENDAR_ID;
 
       this.acl = calendar.acl;
       this.invite = calendar.invite;
@@ -102,7 +102,7 @@
     function isPublic() {
       var publicRight = this.rights.getPublicRight();
 
-      return CALENDAR_PUBLIC_RIGHTS.indexOf(publicRight) > -1;
+      return CAL_CALENDAR_PUBLIC_RIGHTS.indexOf(publicRight) > -1;
     }
 
     /**
@@ -145,13 +145,13 @@
     function isOwner(userId) {
       var rights = this.rights.getUserRight(userId);
 
-      return rights === CALENDAR_RIGHT.ADMIN;
+      return rights === CAL_CALENDAR_RIGHT.ADMIN;
     }
 
     function checkReadOnly(rights, userId) {
       if (rights) {
-        return ([CALENDAR_SHARED_RIGHT.SHAREE_READ, CALENDAR_SHARED_RIGHT.SHAREE_FREE_BUSY].indexOf(rights.getShareeRight(userId)) > -1) ||
-          rights.getUserRight(userId) === CALENDAR_RIGHT.PUBLIC_READ;
+        return ([CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ, CAL_CALENDAR_SHARED_RIGHT.SHAREE_FREE_BUSY].indexOf(rights.getShareeRight(userId)) > -1) ||
+          rights.getUserRight(userId) === CAL_CALENDAR_RIGHT.PUBLIC_READ;
       }
 
       return false;

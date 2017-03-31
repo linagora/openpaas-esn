@@ -23,7 +23,7 @@
     return directive;
   }
 
-  function AttendeesListController($scope, CALENDAR_EVENTS) {
+  function AttendeesListController($scope, CAL_EVENTS) {
     var self = this;
 
     self.attendeesPerPartstat = {};
@@ -37,7 +37,7 @@
 
     function activate() {
       updateAttendeeStats(self.attendees);
-      $scope.$on(CALENDAR_EVENTS.EVENT_ATTENDEES_UPDATE, function(event, data) { // eslint-disable-line
+      $scope.$on(CAL_EVENTS.EVENT_ATTENDEES_UPDATE, function(event, data) { // eslint-disable-line
         updateAttendeeStats(data);
       });
     }

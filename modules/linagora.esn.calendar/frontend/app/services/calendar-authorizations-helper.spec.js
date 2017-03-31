@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('The calendarAuthorizationHelper service', function() {
-  var calendarAuthorizationHelper, calEventUtils, CALENDAR_AUTHORIZATIONS;
+  var calendarAuthorizationHelper, calEventUtils, CAL_CALENDAR_AUTHORIZATIONS;
   var action, event;
 
   beforeEach(function() {
@@ -23,10 +23,10 @@ describe('The calendarAuthorizationHelper service', function() {
       $provide.value('calEventUtils', calEventUtils);
     });
 
-    angular.mock.inject(function(_calendarAuthorizationHelper_, _calEventUtils_, _CALENDAR_AUTHORIZATIONS_) {
+    angular.mock.inject(function(_calendarAuthorizationHelper_, _calEventUtils_, _CAL_CALENDAR_AUTHORIZATIONS_) {
       calendarAuthorizationHelper = _calendarAuthorizationHelper_;
       calEventUtils = _calEventUtils_;
-      CALENDAR_AUTHORIZATIONS = _CALENDAR_AUTHORIZATIONS_;
+      CAL_CALENDAR_AUTHORIZATIONS = _CAL_CALENDAR_AUTHORIZATIONS_;
     });
   });
 
@@ -39,9 +39,9 @@ describe('The calendarAuthorizationHelper service', function() {
       expect(result).to.be.false;
     });
 
-    describe('The isAllowedTo function with CALENDAR_AUTHORIZATIONS.ACCESS_EVENT_DETAIL action', function() {
+    describe('The isAllowedTo function with CAL_CALENDAR_AUTHORIZATIONS.ACCESS_EVENT_DETAIL action', function() {
       beforeEach(function() {
-        action = CALENDAR_AUTHORIZATIONS.ACCESS_EVENT_DETAIL;
+        action = CAL_CALENDAR_AUTHORIZATIONS.ACCESS_EVENT_DETAIL;
       });
 
       it('should return false if event is private and logger user is not the organizer of the event', function() {

@@ -18,12 +18,12 @@ describe('The calendar color picker component', function() {
     $provide.value('$modal', self.$modalMock);
   }));
 
-  beforeEach(angular.mock.inject(function($rootScope, $compile, CALENDAR_LIST_OF_COLORS) {
+  beforeEach(angular.mock.inject(function($rootScope, $compile, CAL_LIST_OF_COLORS) {
     this.$compile = $compile;
     this.$rootScope = $rootScope;
     this.$scope = this.$rootScope.$new();
     this.$scope.calendar = {};
-    this.CALENDAR_LIST_OF_COLORS = CALENDAR_LIST_OF_COLORS;
+    this.CAL_LIST_OF_COLORS = CAL_LIST_OF_COLORS;
 
     this.initDirective = function(scope) {
       var html = '<div color="calendar.color" calendar-color-picker-toggler></div>';
@@ -35,7 +35,7 @@ describe('The calendar color picker component', function() {
   }));
 
   it('should pre-select a color', function() {
-    this.$scope.calendar.color = this.CALENDAR_LIST_OF_COLORS.indigo;
+    this.$scope.calendar.color = this.CAL_LIST_OF_COLORS.indigo;
     this.initDirective(this.$scope);
     this.element.click();
     expect(this.eleScope.vm.selected).to.equal('indigo');

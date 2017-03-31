@@ -10,12 +10,12 @@ describe('Calendar constants', function() {
     var self = this;
 
     angular.mock.module('esn.calendar');
-    angular.mock.inject(function(UI_CONFIG) {
-      self.UI_CONFIG = UI_CONFIG;
+    angular.mock.inject(function(CAL_UI_CONFIG) {
+      self.CAL_UI_CONFIG = CAL_UI_CONFIG;
     });
   });
 
   it('mini-calendar should not be editable', function() {
-    expect(this.UI_CONFIG.miniCalendar.editable).to.be.false;
+    expect(this.CAL_UI_CONFIG.miniCalendar.editable).to.be.false;
   });
 });

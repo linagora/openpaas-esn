@@ -4,11 +4,11 @@
   angular.module('esn.calendar')
     .controller('calEventAlarmConsultationController', calEventAlarmConsultationController);
 
-  function calEventAlarmConsultationController(TRIGGER) {
+  function calEventAlarmConsultationController(CAL_ALARM_TRIGGER) {
     var self = this;
 
     self.trigger = self.event.alarm.trigger.toICALString();
-    self.TRIGGER = TRIGGER;
+    self.CAL_ALARM_TRIGGER = CAL_ALARM_TRIGGER;
   }
 
 })();

@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('The calEventAlarmEditionController', function() {
-  var $controller, asSession, calEventsProviders, TRIGGER;
+  var $controller, asSession, calEventsProviders, CAL_ALARM_TRIGGER;
 
   beforeEach(function() {
 
@@ -35,9 +35,9 @@ describe('The calEventAlarmEditionController', function() {
       $provide.factory('calEventsProviders', calEventsProviders);
     });
 
-    angular.mock.inject(function(_$controller_, _TRIGGER_, _calEventsProviders_) {
+    angular.mock.inject(function(_$controller_, _CAL_ALARM_TRIGGER_, _calEventsProviders_) {
       $controller = _$controller_;
-      TRIGGER = _TRIGGER_;
+      CAL_ALARM_TRIGGER = _CAL_ALARM_TRIGGER_;
       calEventsProviders = _calEventsProviders_;
     });
   });
@@ -49,12 +49,12 @@ describe('The calEventAlarmEditionController', function() {
   it('should scope.setEventAlarm set the event alarm', function() {
     var ctrl = initController();
 
-    ctrl.trigger = TRIGGER[1].value;
+    ctrl.trigger = CAL_ALARM_TRIGGER[1].value;
     ctrl.setEventAlarm();
 
     expect(ctrl.event).to.deep.equal({
       alarm: {
-        trigger: TRIGGER[1].value,
+        trigger: CAL_ALARM_TRIGGER[1].value,
         attendee: 'test@open-paas.org'
       }
     });

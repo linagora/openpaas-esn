@@ -21,7 +21,7 @@
   angular.module('esn.calendar')
          .factory('CalendarShell', CalendarShellFactory);
 
-  function CalendarShellFactory($q, _, ICAL, jstz, uuid4, calendarUtils, calEventAPI, calMoment, calMasterEventCache, CalRRuleShell, CalVAlarmShell, EVENT_MODIFY_COMPARE_KEYS, CAL_ICAL, EVENT_CLASS) {
+  function CalendarShellFactory($q, _, ICAL, jstz, uuid4, calendarUtils, calEventAPI, calMoment, calMasterEventCache, CalRRuleShell, CalVAlarmShell, CAL_EVENT_MODIFY_COMPARE_KEYS, CAL_ICAL, CAL_EVENT_CLASS) {
     var localTimezone = jstz.determine().name();
 
     function CalendarShell(vcomponent, extendedProperties) {
@@ -384,11 +384,11 @@
     }
 
     function isPublic() {
-      return !this.class || this.class === EVENT_CLASS.PUBLIC;
+      return !this.class || this.class === CAL_EVENT_CLASS.PUBLIC;
     }
 
     function isPrivate() {
-      return !!this.class && this.class === EVENT_CLASS.PRIVATE;
+      return !!this.class && this.class === CAL_EVENT_CLASS.PRIVATE;
     }
 
     function isRecurring() {
@@ -617,7 +617,7 @@
      * @return {Boolean} the result
      */
     function equals(that, optionalSubsetKeys) {
-      var keys = optionalSubsetKeys || EVENT_MODIFY_COMPARE_KEYS;
+      var keys = optionalSubsetKeys || CAL_EVENT_MODIFY_COMPARE_KEYS;
       var self = this;
 
       return keys.every(function(key) {

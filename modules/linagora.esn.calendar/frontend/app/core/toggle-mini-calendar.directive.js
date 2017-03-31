@@ -4,7 +4,7 @@
   angular.module('esn.calendar')
     .directive('calToggleMiniCalendar', calToggleMiniCalendar);
 
-  function calToggleMiniCalendar($rootScope, CALENDAR_EVENTS) {
+  function calToggleMiniCalendar($rootScope, CAL_EVENTS) {
     var directive = {
       restrict: 'A',
       scope: true,
@@ -18,7 +18,7 @@
     function link(scope, element, attrs) { // eslint-disable-line
       element.click(function() {
         element.toggleClass('toggled');
-        $rootScope.$broadcast(CALENDAR_EVENTS.MINI_CALENDAR.TOGGLE);
+        $rootScope.$broadcast(CAL_EVENTS.MINI_CALENDAR.TOGGLE);
       });
     }
   }

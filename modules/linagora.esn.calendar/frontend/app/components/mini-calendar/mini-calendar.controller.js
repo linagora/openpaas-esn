@@ -10,8 +10,8 @@
     $scope,
     $log,
     calMoment,
-    UI_CONFIG,
-    CALENDAR_EVENTS,
+    CAL_UI_CONFIG,
+    CAL_EVENTS,
     calendarEventSource,
     calendarService,
     miniCalendarService,
@@ -24,9 +24,9 @@
       var calendarPromise = calendarDeffered.promise;
       var currentView = calendarCurrentView.get();
 
-      $scope.miniCalendarConfig = angular.extend({}, UI_CONFIG.calendar, UI_CONFIG.miniCalendar);
+      $scope.miniCalendarConfig = angular.extend({}, CAL_UI_CONFIG.calendar, CAL_UI_CONFIG.miniCalendar);
       $scope.events = [];
-      $scope.homeCalendarViewMode = currentView.name || UI_CONFIG.calendar.defaultView;
+      $scope.homeCalendarViewMode = currentView.name || CAL_UI_CONFIG.calendar.defaultView;
       $scope.calendarReady = calendarDeffered.resolve.bind(calendarDeffered);
 
       var prev = calendarPromise.then.bind(calendarPromise, function(cal) {
@@ -80,18 +80,18 @@
       $scope.miniCalendarConfig.longPressDelay = 0;
       $scope.miniCalendarConfig.dayClick = function(day) { // eslint-disable-line
         calendarPromise.then(selectPeriod.bind(null, day));
-        $rootScope.$broadcast(CALENDAR_EVENTS.MINI_CALENDAR.DATE_CHANGE, day);
-        $rootScope.$broadcast(CALENDAR_EVENTS.MINI_CALENDAR.TOGGLE);
+        $rootScope.$broadcast(CAL_EVENTS.MINI_CALENDAR.DATE_CHANGE, day);
+        $rootScope.$broadcast(CAL_EVENTS.MINI_CALENDAR.TOGGLE);
       };
 
       $scope.miniCalendarConfig.viewRender = function(view) {
         calendarCurrentView.setMiniCalendarView(view);
-        $rootScope.$broadcast(CALENDAR_EVENTS.MINI_CALENDAR.VIEW_CHANGE, view);
+        $rootScope.$broadcast(CAL_EVENTS.MINI_CALENDAR.VIEW_CHANGE, view);
       };
 
       $scope.miniCalendarConfig.eventClick = function(event) {
-        $rootScope.$broadcast(CALENDAR_EVENTS.MINI_CALENDAR.DATE_CHANGE, event.start);
-        $rootScope.$broadcast(CALENDAR_EVENTS.MINI_CALENDAR.TOGGLE);
+        $rootScope.$broadcast(CAL_EVENTS.MINI_CALENDAR.DATE_CHANGE, event.start);
+        $rootScope.$broadcast(CAL_EVENTS.MINI_CALENDAR.TOGGLE);
       };
 
       $scope.miniCalendarConfig.eventRender = function(event, element) {
@@ -128,21 +128,21 @@
 
       var miniCalendarDisplay = false;
       var unregisterFunctions = [
-        $rootScope.$on(CALENDAR_EVENTS.ITEM_ADD, rerenderMiniCalendar),
-        $rootScope.$on(CALENDAR_EVENTS.ITEM_REMOVE, rerenderMiniCalendar),
-        $rootScope.$on(CALENDAR_EVENTS.ITEM_MODIFICATION, rerenderMiniCalendar),
-        $rootScope.$on(CALENDAR_EVENTS.REVERT_MODIFICATION, rerenderMiniCalendar),
-        $rootScope.$on(CALENDAR_EVENTS.CALENDAR_REFRESH, rerenderMiniCalendar),
-        $rootScope.$on(CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE, function(event, view) { // eslint-disable-line
+        $rootScope.$on(CAL_EVENTS.ITEM_ADD, rerenderMiniCalendar),
+        $rootScope.$on(CAL_EVENTS.ITEM_REMOVE, rerenderMiniCalendar),
+        $rootScope.$on(CAL_EVENTS.ITEM_MODIFICATION, rerenderMiniCalendar),
+        $rootScope.$on(CAL_EVENTS.REVERT_MODIFICATION, rerenderMiniCalendar),
+        $rootScope.$on(CAL_EVENTS.CALENDAR_REFRESH, rerenderMiniCalendar),
+        $rootScope.$on(CAL_EVENTS.HOME_CALENDAR_VIEW_CHANGE, function(event, view) { // eslint-disable-line
           $scope.homeCalendarViewMode = view.name;
           var start = view.name === 'month' ? calMoment(view.start).add(15, 'days') : view.start;
 
           calendarPromise.then(selectPeriod.bind(null, start));
         }),
-        $rootScope.$on(CALENDAR_EVENTS.MINI_CALENDAR.TOGGLE, function() {
+        $rootScope.$on(CAL_EVENTS.MINI_CALENDAR.TOGGLE, function() {
           miniCalendarDisplay = !miniCalendarDisplay;
         }),
-        $rootScope.$on(CALENDAR_EVENTS.VIEW_TRANSLATION, function(event, action) { // eslint-disable-line
+        $rootScope.$on(CAL_EVENTS.VIEW_TRANSLATION, function(event, action) { // eslint-disable-line
           if (miniCalendarDisplay) {
             (action === 'prev' ? prev : next)();
           }

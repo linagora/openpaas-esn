@@ -35,14 +35,14 @@ describe('The calendar module apis', function() {
       $provide.value('notificationFactory', notificationFactoryMock);
     });
 
-    angular.mock.inject(function($httpBackend, calMoment, calendarAPI, calEventAPI, CALENDAR_CONTENT_TYPE_HEADER, CALENDAR_ACCEPT_HEADER, CALENDAR_GRACE_DELAY) {
+    angular.mock.inject(function($httpBackend, calMoment, calendarAPI, calEventAPI, CALENDAR_CONTENT_TYPE_HEADER, CAL_ACCEPT_HEADER, CAL_GRACE_DELAY) {
       this.$httpBackend = $httpBackend;
       this.calMoment = calMoment;
       this.calendarAPI = calendarAPI;
       this.calEventAPI = calEventAPI;
       this.CALENDAR_CONTENT_TYPE_HEADER = CALENDAR_CONTENT_TYPE_HEADER;
-      this.CALENDAR_ACCEPT_HEADER = CALENDAR_ACCEPT_HEADER;
-      this.CALENDAR_GRACE_DELAY = CALENDAR_GRACE_DELAY;
+      this.CAL_ACCEPT_HEADER = CAL_ACCEPT_HEADER;
+      this.CAL_GRACE_DELAY = CAL_GRACE_DELAY;
     });
 
     var davDateFormat = 'YYYYMMDD[T]HHmmss';

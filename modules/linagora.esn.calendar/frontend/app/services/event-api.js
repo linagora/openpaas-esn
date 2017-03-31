@@ -7,7 +7,7 @@
          .factory('calEventAPI', calEventAPI);
 
   function calEventAPI(request, responseHandler, gracePeriodResponseHandler,
-                       CALENDAR_ACCEPT_HEADER, CALENDAR_CONTENT_TYPE_HEADER, CALENDAR_GRACE_DELAY, CALENDAR_PREFER_HEADER) {
+                       CAL_ACCEPT_HEADER, CALENDAR_CONTENT_TYPE_HEADER, CAL_GRACE_DELAY, CALENDAR_PREFER_HEADER) {
     var service = {
       get: get,
       create: create,
@@ -26,7 +26,7 @@
      * @return {Object}           the http response.
      */
     function get(eventPath) {
-      return request('get', eventPath, { Accept: CALENDAR_ACCEPT_HEADER }, null, { _: Date.now() }).then(responseHandler(200));
+      return request('get', eventPath, { Accept: CAL_ACCEPT_HEADER }, null, { _: Date.now() }).then(responseHandler(200));
     }
 
     /**
@@ -41,7 +41,7 @@
       var body = vcalendar.toJSON();
 
       if (options.graceperiod) {
-        return request('put', eventPath, headers, body, {graceperiod: CALENDAR_GRACE_DELAY}).then(gracePeriodResponseHandler);
+        return request('put', eventPath, headers, body, {graceperiod: CAL_GRACE_DELAY}).then(gracePeriodResponseHandler);
       }
 
       return request('put', eventPath, headers, body).then(responseHandler(201));
@@ -65,7 +65,7 @@
       }
       var body = vcalendar.toJSON();
 
-      return request('put', eventPath, headers, body, { graceperiod: CALENDAR_GRACE_DELAY }).then(gracePeriodResponseHandler);
+      return request('put', eventPath, headers, body, { graceperiod: CAL_GRACE_DELAY }).then(gracePeriodResponseHandler);
     }
 
     /**
@@ -77,7 +77,7 @@
     function remove(eventPath, etag) {
       var headers = {'If-Match': etag};
 
-      return request('delete', eventPath, headers, null, { graceperiod: CALENDAR_GRACE_DELAY }).then(gracePeriodResponseHandler);
+      return request('delete', eventPath, headers, null, { graceperiod: CAL_GRACE_DELAY }).then(gracePeriodResponseHandler);
     }
 
     /**

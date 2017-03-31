@@ -4,7 +4,7 @@
   angular.module('esn.calendar')
     .factory('calendarEventEmitter', calendarEventEmitter);
 
-  function calendarEventEmitter($rootScope, CALENDAR_EVENTS) {
+  function calendarEventEmitter($rootScope, CAL_EVENTS) {
     var service = {
       activitystream: {
         emitPostedMessage: emitPostedMessage
@@ -28,15 +28,15 @@
     }
 
     function emitCreatedEvent(shell) {
-      $rootScope.$emit(CALENDAR_EVENTS.ITEM_ADD, shell);
+      $rootScope.$emit(CAL_EVENTS.ITEM_ADD, shell);
     }
 
     function emitRemovedEvent(id) {
-      $rootScope.$emit(CALENDAR_EVENTS.ITEM_REMOVE, id);
+      $rootScope.$emit(CAL_EVENTS.ITEM_REMOVE, id);
     }
 
     function emitModifiedEvent(shell) {
-      $rootScope.$emit(CALENDAR_EVENTS.ITEM_MODIFICATION, shell);
+      $rootScope.$emit(CAL_EVENTS.ITEM_MODIFICATION, shell);
     }
   }
 

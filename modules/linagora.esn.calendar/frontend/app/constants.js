@@ -3,7 +3,7 @@
 
   angular.module('esn.calendar')
 
-    .constant('UI_CONFIG', {
+    .constant('CAL_UI_CONFIG', {
       calendar: {
         defaultView: 'agendaWeek',
         scrollTime: '08:00:00',
@@ -73,9 +73,9 @@
       }
     })
 
-    .constant('CALENDAR_ACCEPT_HEADER', 'application/calendar+json')
+    .constant('CAL_ACCEPT_HEADER', 'application/calendar+json')
 
-    .constant('CALENDAR_DAV_DATE_FORMAT', 'YYYYMMDD[T]HHmmss')
+    .constant('CAL_DAV_DATE_FORMAT', 'YYYYMMDD[T]HHmmss')
 
     .constant('CAL_ICAL', {
       partstat: {
@@ -94,9 +94,9 @@
       }
     })
 
-    .constant('CALENDAR_AVAILABLE_VIEWS', ['agendaWeek', 'agendaDay', 'month', 'agendaThreeDays', 'basicDay'])
+    .constant('CAL_AVAILABLE_VIEWS', ['agendaWeek', 'agendaDay', 'month', 'agendaThreeDays', 'basicDay'])
 
-    .constant('CALENDAR_RIGHT', {
+    .constant('CAL_CALENDAR_RIGHT', {
       NONE: 'none',
       FREE_BUSY: 'free busy',
       SHAREE_READ: 'sharee_read',
@@ -109,7 +109,7 @@
       CUSTOM: 'custom'
     })
 
-    .constant('CALENDAR_SHARED_RIGHT', {
+    .constant('CAL_CALENDAR_SHARED_RIGHT', {
       NONE: '0',
       SHAREE_OWNER: '1',
       SHAREE_READ: '2',
@@ -118,25 +118,25 @@
       SHAREE_FREE_BUSY: '6'
     })
 
-    .constant('CALENDAR_PUBLIC_RIGHTS', [
+    .constant('CAL_CALENDAR_PUBLIC_RIGHTS', [
       'write',
       'public_read'
     ])
 
-    .constant('EVENT_CLASS', {
+    .constant('CAL_EVENT_CLASS', {
       PUBLIC: 'PUBLIC',
       PRIVATE: 'PRIVATE'
     })
 
-    .constant('MAX_RRULE_COUNT', 3499)
+    .constant('CAL_MAX_RRULE_COUNT', 3499)
 
-    .constant('MAX_CALENDAR_RESIZE_HEIGHT', 1107)
+    .constant('CAL_MAX_CALENDAR_RESIZE_HEIGHT', 1107)
 
-    .constant('CALENDAR_DEDAULT_EVENT_COLOR', '#2196f3')
+    .constant('CAL_DEDAULT_EVENT_COLOR', '#2196f3')
 
-    .constant('LEFT_PANEL_BOTTOM_MARGIN', 15)
+    .constant('CAL_LEFT_PANEL_BOTTOM_MARGIN', 15)
 
-    .constant('EVENT_FORM', {
+    .constant('CAL_EVENT_FORM', {
       title: {
         default: 'No title',
         maxlength: 1024
@@ -159,44 +159,44 @@
       }
     })
 
-    .constant('AUTOCOMPLETE_MAX_RESULTS', 5)
+    .constant('CAL_AUTOCOMPLETE_MAX_RESULTS', 5)
 
-    .constant('DAV_PATH', '/dav/api')
+    .constant('CAL_DAV_PATH', '/dav/api')
 
-    .constant('CALENDAR_GRACE_DELAY', 10000)
+    .constant('CAL_GRACE_DELAY', 10000)
 
-    .constant('CALENDAR_ERROR_DISPLAY_DELAY', 8000)
+    .constant('CAL_ERROR_DISPLAY_DELAY', 8000)
 
-    .constant('CALENDAR_RESIZE_DEBOUNCE_DELAY', 250)
+    .constant('CAL_RESIZE_DEBOUNCE_DELAY', 250)
 
     /**
      * When checking if an event has been modified in the event form, these JSON
      * keys on the calendar shell will be checked.
      */
-    .constant('EVENT_MODIFY_COMPARE_KEYS', ['attendees', 'title', 'start', 'end', 'allDay', 'location', 'description', 'rrule', 'alarm', 'class'])
+    .constant('CAL_EVENT_MODIFY_COMPARE_KEYS', ['attendees', 'title', 'start', 'end', 'allDay', 'location', 'description', 'rrule', 'alarm', 'class'])
 
     /**
      * When checking rrule comparison, these JSON keys on the rrule shell will be checked.
      */
-    .constant('RRULE_MODIFY_COMPARE_KEYS', ['freq', 'interval', 'until', 'count', 'byday'])
+    .constant('CAL_RRULE_MODIFY_COMPARE_KEYS', ['freq', 'interval', 'until', 'count', 'byday'])
 
     /**
      * When checking alarm comparison, these JSON keys on the alarm shell will be checked.
      */
-    .constant('ALARM_MODIFY_COMPARE_KEYS', ['action', 'attendee', 'description', 'summary', 'trigger'])
+    .constant('CAL_ALARM_MODIFY_COMPARE_KEYS', ['action', 'attendee', 'description', 'summary', 'trigger'])
 
     /**
      * see RFC 5546 https://tools.ietf.org/html/rfc5546#page-11
      */
-    .constant('SIGNIFICANT_CHANGE_KEYS', ['start', 'end', 'duration', 'due', 'rrule', 'rdate', 'exdate', 'status'])
+    .constant('CAL_SIGNIFICANT_CHANGE_KEYS', ['start', 'end', 'duration', 'due', 'rrule', 'rdate', 'exdate', 'status'])
 
-    .constant('CALENDAR_MODIFY_COMPARE_KEYS', ['name', 'color'])
+    .constant('CAL_CALENDAR_MODIFY_COMPARE_KEYS', ['name', 'color'])
 
-    .constant('MASTER_EVENT_CACHE_TTL', 300000)
+    .constant('CAL_MASTER_EVENT_CACHE_TTL', 300000)
 
-    .constant('DEFAULT_CALENDAR_ID', 'events')
+    .constant('CAL_DEFAULT_CALENDAR_ID', 'events')
 
-    .constant('CALENDAR_EVENTS', {
+    .constant('CAL_EVENTS', {
       CALENDAR_HEIGHT: 'calendar:height',
       CALENDAR_REFRESH: 'calendar:refresh',
       CALENDAR_UNSELECT: 'calendar:unselect',
@@ -224,16 +224,16 @@
       MODAL: 'calendar:modal'
     })
 
-    .constant('CALENDAR_MAX_DURATION_OF_SMALL_EVENT', {
+    .constant('CAL_MAX_DURATION_OF_SMALL_EVENT', {
       MOBILE: 60,
       DESKTOP: 45
     })
 
-    .constant('CALENDAR_AUTHORIZATIONS', {
+    .constant('CAL_CALENDAR_AUTHORIZATIONS', {
       ACCESS_EVENT_DETAIL: 'access_event_detail'
     })
 
-    .constant('CALENDAR_MODULE_METADATA', {
+    .constant('CAL_MODULE_METADATA', {
       id: 'linagora.esn.calendar',
       title: 'Calendar',
       icon: 'calendar-icon',
@@ -252,7 +252,7 @@
       }
     })
 
-    .constant('CALENDAR_LIST_OF_COLORS', {
+    .constant('CAL_LIST_OF_COLORS', {
       red: '#F44336',
       pink: '#E91E63',
       purple: '#9C27B0',
@@ -265,7 +265,7 @@
       brown: '#795548'
     })
 
-    .constant('RECUR_FREQ', [{
+    .constant('CAL_RECUR_FREQ', [{
       value: undefined,
       label: 'No repetition'
     }, {
@@ -282,7 +282,7 @@
       label: 'Repeat yearly'
     }])
 
-    .constant('WEEK_DAYS', {
+    .constant('CAL_WEEK_DAYS', {
       M: 'MO',
       T: 'TU',
       W: 'WE',
@@ -292,21 +292,21 @@
       Su: 'SU'
     })
 
-    .constant('MINI_CALENDAR_DAY_FORMAT', 'YYYY-MM-DD')
+    .constant('CAL_MINI_CALENDAR_DAY_FORMAT', 'YYYY-MM-DD')
 
-    .constant('CONSULT_FORM_TABS', {
+    .constant('CAL_CONSULT_FORM_TABS', {
       MAIN: 'main',
       ATTENDEES: 'attendees',
       MORE: 'more'
     })
 
-    .constant('CACHED_EVENT_SOURCE_ADD', 'add')
+    .constant('CAL_CACHED_EVENT_SOURCE_ADD', 'add')
 
-    .constant('CACHED_EVENT_SOURCE_DELETE', 'delete')
+    .constant('CAL_CACHED_EVENT_SOURCE_DELETE', 'delete')
 
-    .constant('CACHED_EVENT_SOURCE_UPDATE', 'update')
+    .constant('CAL_CACHED_EVENT_SOURCE_UPDATE', 'update')
 
-    .constant('TRIGGER', [{
+    .constant('CAL_ALARM_TRIGGER', [{
       value: undefined,
       label: 'No alarm'
     }, {

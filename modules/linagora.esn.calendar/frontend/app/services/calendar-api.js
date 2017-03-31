@@ -15,11 +15,11 @@
     gracePeriodResponseHandler,
     notificationFactory,
     _,
-    CALENDAR_ACCEPT_HEADER,
-    CALENDAR_DAV_DATE_FORMAT,
+    CAL_ACCEPT_HEADER,
+    CAL_DAV_DATE_FORMAT,
     CALENDAR_PREFER_HEADER,
     CALENDAR_CONTENT_TYPE_HEADER,
-    CALENDAR_GRACE_DELAY
+    CAL_GRACE_DELAY
   ) {
 
     return {
@@ -60,8 +60,8 @@
     function listEvents(calendarHref, start, end) {
       var body = {
         match: {
-          start: start.format(CALENDAR_DAV_DATE_FORMAT),
-          end: end.format(CALENDAR_DAV_DATE_FORMAT)
+          start: start.format(CAL_DAV_DATE_FORMAT),
+          end: end.format(CAL_DAV_DATE_FORMAT)
         }
       };
 
@@ -111,8 +111,8 @@
     function listEventsForCalendar(calendarHomeId, calendarId, start, end) {
       var body = {
         match: {
-          start: start.format(CALENDAR_DAV_DATE_FORMAT),
-          end: end.format(CALENDAR_DAV_DATE_FORMAT)
+          start: start.format(CAL_DAV_DATE_FORMAT),
+          end: end.format(CAL_DAV_DATE_FORMAT)
         }
       };
       var path = calPathBuilder.forCalendarId(calendarHomeId, calendarId);
@@ -128,7 +128,7 @@
     function listAllCalendars(options) {
       var path = calPathBuilder.rootPath();
 
-      return request('get', path + '/.json', {Accept: CALENDAR_ACCEPT_HEADER}, {}, options)
+      return request('get', path + '/.json', {Accept: CAL_ACCEPT_HEADER}, {}, options)
       .then(davResponseHandler('dav:home'));
     }
 
@@ -141,7 +141,7 @@
     function listCalendars(calendarId, options) {
       var path = calPathBuilder.forCalendarHomeId(calendarId);
 
-      return request('get', path, {Accept: CALENDAR_ACCEPT_HEADER}, {}, options)
+      return request('get', path, {Accept: CAL_ACCEPT_HEADER}, {}, options)
       .then(davResponseHandler('dav:calendar'));
     }
 
@@ -154,7 +154,7 @@
     function getCalendar(calendarHomeId, calendarId, options) {
       var path = calPathBuilder.forCalendarId(calendarHomeId, calendarId);
 
-      return request('get', path, {Accept: CALENDAR_ACCEPT_HEADER}, {}, options)
+      return request('get', path, {Accept: CAL_ACCEPT_HEADER}, {}, options)
       .then(responseHandler(200, _.property('data')));
     }
 
@@ -264,7 +264,7 @@
       var body = vcalendar.toJSON();
 
       if (options.graceperiod) {
-        return request('put', eventPath, headers, body, {graceperiod: CALENDAR_GRACE_DELAY})
+        return request('put', eventPath, headers, body, {graceperiod: CAL_GRACE_DELAY})
         .then(gracePeriodResponseHandler);
       }
 
@@ -291,7 +291,7 @@
 
       var body = vcalendar.toJSON();
 
-      return request('put', eventPath, headers, body, { graceperiod: CALENDAR_GRACE_DELAY })
+      return request('put', eventPath, headers, body, { graceperiod: CAL_GRACE_DELAY })
       .then(gracePeriodResponseHandler);
     }
 
@@ -304,7 +304,7 @@
     function remove(eventPath, etag) {
       var headers = {'If-Match': etag};
 
-      return request('delete', eventPath, headers, null, { graceperiod: CALENDAR_GRACE_DELAY })
+      return request('delete', eventPath, headers, null, { graceperiod: CAL_GRACE_DELAY })
       .then(gracePeriodResponseHandler);
     }
 

@@ -27,13 +27,13 @@ describe('The cal-event-consult-form Angular module directives', function() {
       });
     });
 
-    beforeEach(angular.mock.inject(function($compile, $rootScope, $window, calMoment, CONSULT_FORM_TABS, CalendarShell, moment) {
+    beforeEach(angular.mock.inject(function($compile, $rootScope, $window, calMoment, CAL_CONSULT_FORM_TABS, CalendarShell, moment) {
       this.$compile = $compile;
       this.$rootScope = $rootScope;
       this.$scope = this.$rootScope.$new();
       this.calMoment = calMoment;
       this.$window = $window;
-      this.TABS = CONSULT_FORM_TABS;
+      this.TABS = CAL_CONSULT_FORM_TABS;
       this.CalendarShell = CalendarShell;
       this.moment = moment;
 

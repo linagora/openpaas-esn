@@ -3,5 +3,5 @@
     .flex-start.flex-vertical-centered
       i.mdi.mdi-alarm
       .description
-        span(ng-repeat="item in ctrl.TRIGGER | filter:{value:ctrl.trigger} | limitTo : 1 : 0")  {{item.label}}
+        span(ng-repeat="item in ctrl.CAL_ALARM_TRIGGER | filter:{value:ctrl.trigger} | limitTo : 1 : 0")  {{item.label}}
           | before 

@@ -4,7 +4,7 @@
   angular.module('esn.calendar')
          .service('calPublicCalendarStore', calPublicCalendarStore);
 
-  function calPublicCalendarStore($rootScope, _, CALENDAR_EVENTS) {
+  function calPublicCalendarStore($rootScope, _, CAL_EVENTS) {
     var publicCalendars = {};
 
     this.storeAll = storeAll;
@@ -16,7 +16,7 @@
       calendars.forEach(function(calendar) {
         publicCalendars[calendar.id] = calendar;
 
-        $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.ADD, calendar);
+        $rootScope.$broadcast(CAL_EVENTS.CALENDARS.ADD, calendar);
       });
     }
 

@@ -12,11 +12,11 @@
   angular.module('esn.calendar')
     .factory('calOpenEventForm', calOpenEventForm);
 
-  function calOpenEventForm($rootScope, $modal, $state, matchmedia, calendarService, calEventUtils, calendarAuthorizationHelper, SM_XS_MEDIA_QUERY, CALENDAR_EVENTS, CALENDAR_AUTHORIZATIONS) {
+  function calOpenEventForm($rootScope, $modal, $state, matchmedia, calendarService, calEventUtils, calendarAuthorizationHelper, SM_XS_MEDIA_QUERY, CAL_EVENTS, CAL_CALENDAR_AUTHORIZATIONS) {
     var modalIsOpen = false;
 
     return function calOpenEventForm(event) {
-      if (!calendarAuthorizationHelper.isAllowedTo(CALENDAR_AUTHORIZATIONS.ACCESS_EVENT_DETAIL, event)) {
+      if (!calendarAuthorizationHelper.isAllowedTo(CAL_CALENDAR_AUTHORIZATIONS.ACCESS_EVENT_DETAIL, event)) {
         return;
       }
 
@@ -49,8 +49,8 @@
           controller: function($scope, event) {
             var _$hide = $scope.$hide;
 
-            var unregister = $rootScope.$on(CALENDAR_EVENTS.MODAL + '.hide', function() {
-              $rootScope.$broadcast(CALENDAR_EVENTS.CALENDAR_UNSELECT);
+            var unregister = $rootScope.$on(CAL_EVENTS.MODAL + '.hide', function() {
+              $rootScope.$broadcast(CAL_EVENTS.CALENDAR_UNSELECT);
               $scope.$hide();
             });
 
@@ -64,7 +64,7 @@
           },
           backdrop: 'static',
           placement: 'center',
-          prefixEvent: CALENDAR_EVENTS.MODAL
+          prefixEvent: CAL_EVENTS.MODAL
         });
       }
     }

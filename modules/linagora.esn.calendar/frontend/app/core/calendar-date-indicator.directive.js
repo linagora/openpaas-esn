@@ -16,13 +16,13 @@
     return directive;
   }
 
-  function CalendarDateIndicatorController($scope, CALENDAR_EVENTS, calendarCurrentView) {
+  function CalendarDateIndicatorController($scope, CAL_EVENTS, calendarCurrentView) {
     var self = this;
     var miniCalendarIsShown = false;
 
-    $scope.$on(CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE, onCalendarHomeViewChange);
-    $scope.$on(CALENDAR_EVENTS.MINI_CALENDAR.VIEW_CHANGE, onMiniCalendarHomeViewChange);
-    $scope.$on(CALENDAR_EVENTS.MINI_CALENDAR.TOGGLE, onMiniCalendarToggle);
+    $scope.$on(CAL_EVENTS.HOME_CALENDAR_VIEW_CHANGE, onCalendarHomeViewChange);
+    $scope.$on(CAL_EVENTS.MINI_CALENDAR.VIEW_CHANGE, onMiniCalendarHomeViewChange);
+    $scope.$on(CAL_EVENTS.MINI_CALENDAR.TOGGLE, onMiniCalendarToggle);
 
     activate();
 

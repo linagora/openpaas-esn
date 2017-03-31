@@ -119,16 +119,16 @@ describe('The event-form module controllers', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function($controller, $rootScope, moment, calEventUtils, CALENDAR_EVENTS, CalendarShell, TRIGGER, EVENT_FORM) {
+  beforeEach(angular.mock.inject(function($controller, $rootScope, moment, calEventUtils, CAL_EVENTS, CalendarShell, CAL_ALARM_TRIGGER, CAL_EVENT_FORM) {
     this.rootScope = $rootScope;
     this.scope = $rootScope.$new();
     this.controller = $controller;
     this.moment = moment;
     this.calEventUtils = calEventUtils;
-    this.CALENDAR_EVENTS = CALENDAR_EVENTS;
+    this.CAL_EVENTS = CAL_EVENTS;
     this.CalendarShell = CalendarShell;
-    this.TRIGGER = TRIGGER;
-    this.EVENT_FORM = EVENT_FORM;
+    this.CAL_ALARM_TRIGGER = CAL_ALARM_TRIGGER;
+    this.CAL_EVENT_FORM = CAL_EVENT_FORM;
   }));
 
   beforeEach(function() {
@@ -386,7 +386,7 @@ describe('The event-form module controllers', function() {
 
         this.initController();
 
-        expect(this.scope.editedEvent.class).to.equal(this.EVENT_FORM.class.default);
+        expect(this.scope.editedEvent.class).to.equal(this.CAL_EVENT_FORM.class.default);
       });
     });
 
@@ -966,8 +966,8 @@ describe('The event-form module controllers', function() {
           this.scope.isOrganizer = false;
         });
 
-        it('should call changeParticipation and broadcast on CALENDAR_EVENTS.EVENT_ATTENDEES_UPDATE', function(done) {
-          this.scope.$on(this.CALENDAR_EVENTS.EVENT_ATTENDEES_UPDATE, function() {
+        it('should call changeParticipation and broadcast on CAL_EVENTS.EVENT_ATTENDEES_UPDATE', function(done) {
+          this.scope.$on(this.CAL_EVENTS.EVENT_ATTENDEES_UPDATE, function() {
             expect(this.scope.userAsAttendee).to.deep.equal({
               email: 'user@test.com',
               partstat: 'ACCEPTED'
@@ -989,8 +989,8 @@ describe('The event-form module controllers', function() {
           this.scope.isOrganizer = true;
         });
 
-        it('should modify attendees list and broadcast on CALENDAR_EVENTS.EVENT_ATTENDEES_UPDATE', function(done) {
-          this.scope.$on(this.CALENDAR_EVENTS.EVENT_ATTENDEES_UPDATE, function(event, attendees) { // eslint-disable-line
+        it('should modify attendees list and broadcast on CAL_EVENTS.EVENT_ATTENDEES_UPDATE', function(done) {
+          this.scope.$on(this.CAL_EVENTS.EVENT_ATTENDEES_UPDATE, function(event, attendees) { // eslint-disable-line
             expect(attendees).to.shallowDeepEqual([{
               email: 'user@test.com',
               partstat: 'ACCEPTED'
@@ -1011,7 +1011,7 @@ describe('The event-form module controllers', function() {
         it('should not call broadcast if no change in the status', function(done) {
           var broadcastSpy = sinon.spy();
 
-          this.scope.$on(this.CALENDAR_EVENTS.EVENT_ATTENDEES_UPDATE, broadcastSpy);
+          this.scope.$on(this.CAL_EVENTS.EVENT_ATTENDEES_UPDATE, broadcastSpy);
 
           this.scope.editedEvent.changeParticipation = sinon.spy();
           this.scope.userAsAttendee = {
@@ -1035,7 +1035,7 @@ describe('The event-form module controllers', function() {
           location: 'aLocation',
           etag: '123456',
           alarm: {
-            trigger: this.TRIGGER[1].value,
+            trigger: this.CAL_ALARM_TRIGGER[1].value,
             attendee: 'test@open-paas.org'
           }
         });

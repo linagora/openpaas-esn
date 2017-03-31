@@ -11,7 +11,7 @@ describe('The esnCalendar component controller', function() {
   beforeEach(function() {
     angular.mock.module('esn.calendar', 'linagora.esn.graceperiod');
     angular.mock.module('esn.calendar', function($provide) {
-      $provide.constant('CALENDAR_RESIZE_DEBOUNCE_DELAY', 0);
+      $provide.constant('CAL_RESIZE_DEBOUNCE_DELAY', 0);
     });
   });
 

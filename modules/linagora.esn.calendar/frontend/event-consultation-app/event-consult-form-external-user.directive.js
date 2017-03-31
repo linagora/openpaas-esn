@@ -7,11 +7,11 @@
   calEventConsultFormExternalUser.$inject = [
     '$http',
     'CalendarShell',
-    'CALENDAR_EVENTS',
+    'CAL_EVENTS',
     'CAL_ICAL'
   ];
 
-  function calEventConsultFormExternalUser($http, CalendarShell, CALENDAR_EVENTS, CAL_ICAL) {
+  function calEventConsultFormExternalUser($http, CalendarShell, CAL_EVENTS, CAL_ICAL) {
     var directive = {
       restrict: 'E',
       template: '<div><cal-event-consult-form-body/></div>',
@@ -44,7 +44,7 @@
 
       function modifyEventParticipation(partstat) {
         scope.invitedAttendee.partstat = partstat;
-        scope.$broadcast(CALENDAR_EVENTS.EVENT_ATTENDEES_UPDATE, scope.event.attendees);
+        scope.$broadcast(CAL_EVENTS.EVENT_ATTENDEES_UPDATE, scope.event.attendees);
         $http({ method: 'GET', url: urls[partstat] });
       }
     }

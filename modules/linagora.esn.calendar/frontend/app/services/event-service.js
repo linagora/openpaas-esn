@@ -19,8 +19,8 @@
     gracePeriodService,
     calMasterEventCache,
     notificationFactory,
-    CALENDAR_GRACE_DELAY,
-    CALENDAR_EVENTS) {
+    CAL_GRACE_DELAY,
+    CAL_EVENTS) {
 
       var self = this;
       var oldEventStore = {};
@@ -183,7 +183,7 @@
 
               return gracePeriodService.grace({
                 id: taskId,
-                delay: CALENDAR_GRACE_DELAY,
+                delay: CAL_GRACE_DELAY,
                 context: {id: event.uid},
                 performedAction: 'You are about to create a new event (' + event.title + ').',
                 cancelFailed: 'An error has occured, the creation could not been reverted',
@@ -242,7 +242,7 @@
 
               return gracePeriodService.grace({
                 id: taskId,
-                delay: CALENDAR_GRACE_DELAY,
+                delay: CAL_GRACE_DELAY,
                 context: {id: event.uid},
                 performedAction: 'You are about to delete the event (' + event.title + ').',
                 cancelFailed: 'An error has occurred, the deletion could not been reverted',
@@ -256,7 +256,7 @@
                   actionText: 'Refresh calendar',
                   action: function() {
                     calCachedEventSource.resetCache();
-                    $rootScope.$broadcast(CALENDAR_EVENTS.CALENDAR_REFRESH);
+                    $rootScope.$broadcast(CAL_EVENTS.CALENDAR_REFRESH);
                   }
                  }
 
@@ -351,7 +351,7 @@
 
             return gracePeriodService.grace(angular.extend({
               id: taskId,
-              delay: CALENDAR_GRACE_DELAY,
+              delay: CAL_GRACE_DELAY,
               context: {id: event.uid},
               performedAction: 'You are about to modify an event (' + event.title + ').',
               cancelFailed: 'An error has occured, the modification could not been reverted',
@@ -364,7 +364,7 @@
                 actionText: 'Refresh calendar',
                 action: function() {
                   calCachedEventSource.resetCache();
-                  $rootScope.$broadcast(CALENDAR_EVENTS.CALENDAR_REFRESH);
+                  $rootScope.$broadcast(CAL_EVENTS.CALENDAR_REFRESH);
                 }
                },
               successText: 'Calendar - ' + event.title + ' has been modified.'

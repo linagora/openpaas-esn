@@ -8,7 +8,7 @@ describe('The mini-calendar controller', function() {
 
   var $scope, $rootScope, $controller, $q, calMoment, fcMethodMock, calendarServiceMock, initController,
     miniCalendarServiceMock, calendarEventSourceMock, UI_CONFIG_MOCK, calendar, calendarCurrentViewMock,
-      CALENDAR_EVENTS, calCachedEventSourceMock, calWrapper, element, event;
+      CAL_EVENTS, calCachedEventSourceMock, calWrapper, element, event;
 
   function sameDayMatcher(day) {
     return function(_day) {
@@ -103,18 +103,18 @@ describe('The mini-calendar controller', function() {
       $provide.value('miniCalendarService', miniCalendarServiceMock);
       $provide.value('calCachedEventSource', calCachedEventSourceMock);
       $provide.value('calendarCurrentView', calendarCurrentViewMock);
-      $provide.constant('UI_CONFIG', UI_CONFIG_MOCK);
+      $provide.constant('CAL_UI_CONFIG', UI_CONFIG_MOCK);
     });
 
   });
 
-  beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _calMoment_, _$q_, _CALENDAR_EVENTS_) {
+  beforeEach(angular.mock.inject(function(_$rootScope_, _$controller_, _calMoment_, _$q_, _CAL_EVENTS_) {
     $rootScope = _$rootScope_;
     $scope = $rootScope.$new();
     $controller = _$controller_;
     calMoment = _calMoment_;
     $q = _$q_;
-    CALENDAR_EVENTS = _CALENDAR_EVENTS_;
+    CAL_EVENTS = _CAL_EVENTS_;
     $scope.calendarHomeId = 'userId';
     initController = function() {
       $controller('miniCalendarController', {$scope: $scope});
@@ -140,13 +140,13 @@ describe('The mini-calendar controller', function() {
     ['prev', 'next'].forEach(function(action) {
       $scope.calendarReady(calendar);
 
-      $rootScope.$broadcast(CALENDAR_EVENTS.VIEW_TRANSLATION, action);
+      $rootScope.$broadcast(CAL_EVENTS.VIEW_TRANSLATION, action);
 
-      $rootScope.$broadcast(CALENDAR_EVENTS.MINI_CALENDAR.TOGGLE);
-      $rootScope.$broadcast(CALENDAR_EVENTS.VIEW_TRANSLATION, action);
+      $rootScope.$broadcast(CAL_EVENTS.MINI_CALENDAR.TOGGLE);
+      $rootScope.$broadcast(CAL_EVENTS.VIEW_TRANSLATION, action);
 
-      $rootScope.$broadcast(CALENDAR_EVENTS.MINI_CALENDAR.TOGGLE);
-      $rootScope.$broadcast(CALENDAR_EVENTS.VIEW_TRANSLATION, action);
+      $rootScope.$broadcast(CAL_EVENTS.MINI_CALENDAR.TOGGLE);
+      $rootScope.$broadcast(CAL_EVENTS.VIEW_TRANSLATION, action);
 
       $rootScope.$digest();
       expect(fcMethodMock[action]).to.have.been.calledOnce;
@@ -200,12 +200,12 @@ describe('The mini-calendar controller', function() {
       expect($scope.homeCalendarViewMode).to.equals('agendaDay');
     });
 
-    it('should broadcast CALENDAR_EVENTS.MINI_CALENDAR.DATE_CHANGE when a day is selected', function(done) {
+    it('should broadcast CAL_EVENTS.MINI_CALENDAR.DATE_CHANGE when a day is selected', function(done) {
       var day = calMoment();
 
       $scope.calendarReady(calendar);
 
-      var unregister = $rootScope.$on(CALENDAR_EVENTS.MINI_CALENDAR.DATE_CHANGE, function(event, _day) { // eslint-disable-line
+      var unregister = $rootScope.$on(CAL_EVENTS.MINI_CALENDAR.DATE_CHANGE, function(event, _day) { // eslint-disable-line
         expect(day.isSame(_day, 'day')).to.be.true;
         unregister();
         done();
@@ -214,12 +214,12 @@ describe('The mini-calendar controller', function() {
       $scope.miniCalendarConfig.dayClick(day);
     });
 
-    it('should broadcast CALENDAR_EVENTS.MINI_CALENDAR.TOGGLE when a day is selected', function(done) {
+    it('should broadcast CAL_EVENTS.MINI_CALENDAR.TOGGLE when a day is selected', function(done) {
       var day = calMoment();
 
       $scope.calendarReady(calendar);
 
-      var unregister = $rootScope.$on(CALENDAR_EVENTS.MINI_CALENDAR.TOGGLE, function() {
+      var unregister = $rootScope.$on(CAL_EVENTS.MINI_CALENDAR.TOGGLE, function() {
         unregister();
         done();
       });
@@ -227,12 +227,12 @@ describe('The mini-calendar controller', function() {
       $scope.miniCalendarConfig.dayClick(day);
     });
 
-    it('should broadcast CALENDAR_EVENTS.MINI_CALENDAR.DATE_CHANGE, when a event is clicked, the day sent with this event should be the day where the event is', function(done) {
+    it('should broadcast CAL_EVENTS.MINI_CALENDAR.DATE_CHANGE, when a event is clicked, the day sent with this event should be the day where the event is', function(done) {
       var day = calMoment();
 
       $scope.calendarReady(calendar);
 
-      var unregister = $rootScope.$on(CALENDAR_EVENTS.MINI_CALENDAR.DATE_CHANGE, function(event, _day) { // eslint-disable-line
+      var unregister = $rootScope.$on(CAL_EVENTS.MINI_CALENDAR.DATE_CHANGE, function(event, _day) { // eslint-disable-line
         expect(day.isSame(_day, 'day')).to.be.true;
         unregister();
         done();
@@ -241,12 +241,12 @@ describe('The mini-calendar controller', function() {
       $scope.miniCalendarConfig.eventClick({start: day});
     });
 
-    it('should broadcast CALENDAR_EVENTS.MINI_CALENDAR.TOGGLE, when a event is clicked', function(done) {
+    it('should broadcast CAL_EVENTS.MINI_CALENDAR.TOGGLE, when a event is clicked', function(done) {
       var day = calMoment();
 
       $scope.calendarReady(calendar);
 
-      var unregister = $rootScope.$on(CALENDAR_EVENTS.MINI_CALENDAR.TOGGLE, function() {
+      var unregister = $rootScope.$on(CAL_EVENTS.MINI_CALENDAR.TOGGLE, function() {
         unregister();
         done();
       });
@@ -254,7 +254,7 @@ describe('The mini-calendar controller', function() {
       $scope.miniCalendarConfig.eventClick({start: day});
     });
 
-    it('should select the good period on CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE event with day as viewMode', function(done) {
+    it('should select the good period on CAL_EVENTS.HOME_CALENDAR_VIEW_CHANGE event with day as viewMode', function(done) {
       var day = calMoment().stripTime();
 
       $scope.calendarReady(calendar);
@@ -267,11 +267,11 @@ describe('The mini-calendar controller', function() {
         done();
       };
 
-      $rootScope.$broadcast(CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE, {name: 'agendaDay', start: day});
+      $rootScope.$broadcast(CAL_EVENTS.HOME_CALENDAR_VIEW_CHANGE, {name: 'agendaDay', start: day});
       $scope.$digest();
     });
 
-    it('should select the good period on CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE event with three days as viewMode', function(done) {
+    it('should select the good period on CAL_EVENTS.HOME_CALENDAR_VIEW_CHANGE event with three days as viewMode', function(done) {
       var day = calMoment().stripTime();
 
       $scope.calendarReady(calendar);
@@ -284,7 +284,7 @@ describe('The mini-calendar controller', function() {
         done();
       };
 
-      $rootScope.$broadcast(CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE, {name: 'agendaThreeDays', start: day});
+      $rootScope.$broadcast(CAL_EVENTS.HOME_CALENDAR_VIEW_CHANGE, {name: 'agendaThreeDays', start: day});
       $scope.$digest();
     });
 
@@ -318,27 +318,27 @@ describe('The mini-calendar controller', function() {
       expect(miniCalendarServiceMock.getWeekAroundDay).to.have.been.called;
     });
 
-    it('should select the good period on CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE with week as view mode', function() {
+    it('should select the good period on CAL_EVENTS.HOME_CALENDAR_VIEW_CHANGE with week as view mode', function() {
       $scope.calendarReady(calendar);
       $scope.$digest();
 
       miniCalendarServiceMock.getWeekAroundDay = sinon.stub().returns({firstWeekDay: firstWeekDay, nextFirstWeekDay: lastWeekDay});
 
-      $rootScope.$broadcast(CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE, {name: 'agendaWeek', start: dayInWeek});
+      $rootScope.$broadcast(CAL_EVENTS.HOME_CALENDAR_VIEW_CHANGE, {name: 'agendaWeek', start: dayInWeek});
       $scope.$digest();
       expect(fcMethodMock.select).to.have.been.calledWith(sinon.match(sameDayMatcher(firstWeekDay)), sinon.match(sameDayMatcher(lastWeekDay)));
       expect(miniCalendarServiceMock.getWeekAroundDay).to.have.been.calledWith($scope.miniCalendarConfig, sinon.match(sameDayMatcher(dayInWeek)));
     });
 
-    it('should unselect on CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE with month as view mode', function() {
+    it('should unselect on CAL_EVENTS.HOME_CALENDAR_VIEW_CHANGE with month as view mode', function() {
       $scope.calendarReady(calendar);
 
-      $rootScope.$broadcast(CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE, {name: 'month', start: null});
+      $rootScope.$broadcast(CAL_EVENTS.HOME_CALENDAR_VIEW_CHANGE, {name: 'month', start: null});
       $scope.$digest();
       expect(fcMethodMock.unselect).to.have.been.called;
     });
 
-    it('should select the good period on CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE event with planning as viewMode', function() {
+    it('should select the good period on CAL_EVENTS.HOME_CALENDAR_VIEW_CHANGE event with planning as viewMode', function() {
       var day = calMoment().stripTime();
 
       $scope.calendarReady(calendar);
@@ -346,7 +346,7 @@ describe('The mini-calendar controller', function() {
 
       fcMethodMock.select = sinon.spy();
 
-      $rootScope.$broadcast(CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE, {name: 'basicDay', start: day});
+      $rootScope.$broadcast(CAL_EVENTS.HOME_CALENDAR_VIEW_CHANGE, {name: 'basicDay', start: day});
       $scope.$digest();
       expect(fcMethodMock.select).to.have.been.calledWith(sinon.match(sameDayMatcher(day)), sinon.match(sameDayMatcher(day.clone().add(1, 'day'))));
     });
@@ -387,7 +387,7 @@ describe('The mini-calendar controller', function() {
         var event = {id: 'anId', start: calMoment()};
 
         $scope.calendarReady(calendar);
-        $rootScope.$broadcast(CALENDAR_EVENTS[nameOfEvent], event);
+        $rootScope.$broadcast(CAL_EVENTS[nameOfEvent], event);
         $scope.$digest();
         expect(calWrapper.rerender).to.have.been.calledOnce;
       };
@@ -399,9 +399,9 @@ describe('The mini-calendar controller', function() {
 
     it('should call calWrapper.rerender on revertedCalendarItemModification', testRerender('REVERT_MODIFICATION'));
 
-    it('should call calWrapper.rerender on CALENDAR_EVENTS.ITEM_REMOVE', testRerender('ITEM_MODIFICATION'));
+    it('should call calWrapper.rerender on CAL_EVENTS.ITEM_REMOVE', testRerender('ITEM_MODIFICATION'));
 
-    it('should call calWrapper.rerender on CALENDAR_EVENTS.ITEM_ADD', testRerender('ITEM_ADD'));
+    it('should call calWrapper.rerender on CAL_EVENTS.ITEM_ADD', testRerender('ITEM_ADD'));
   });
 
   describe('the eventRender function', function() {

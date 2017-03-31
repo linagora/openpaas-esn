@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('CalendarCollectionShell factory', function() {
-  var $rootScope, CalendarRightShellMock, calendar, calendarUserEmails, CALENDAR_RIGHT, CALENDAR_SHARED_RIGHT, calendarRight, calendarSharedRight, calendarPublicRight, $logMock, calendarOwner, userAPIMock;
+  var $rootScope, CalendarRightShellMock, calendar, calendarUserEmails, CAL_CALENDAR_RIGHT, CAL_CALENDAR_SHARED_RIGHT, calendarRight, calendarSharedRight, calendarPublicRight, $logMock, calendarOwner, userAPIMock;
 
   calendar = {
     _links: {
@@ -29,7 +29,7 @@ describe('CalendarCollectionShell factory', function() {
     return {
       getUserRight: function(userId) {
         if (userId === 'ownerId') {
-          return CALENDAR_RIGHT.ADMIN;
+          return CAL_CALENDAR_RIGHT.ADMIN;
         }
 
         return calendarRight;
@@ -76,12 +76,12 @@ describe('CalendarCollectionShell factory', function() {
   );
 
   beforeEach(function() {
-    angular.mock.inject(function(_$rootScope_, CalendarCollectionShell, DEFAULT_CALENDAR_ID, _CALENDAR_RIGHT_, _CALENDAR_SHARED_RIGHT_) {
+    angular.mock.inject(function(_$rootScope_, CalendarCollectionShell, CAL_DEFAULT_CALENDAR_ID, _CAL_CALENDAR_RIGHT_, _CAL_CALENDAR_SHARED_RIGHT_) {
       this.CalendarCollectionShell = CalendarCollectionShell;
-      this.DEFAULT_CALENDAR_ID = DEFAULT_CALENDAR_ID;
+      this.CAL_DEFAULT_CALENDAR_ID = CAL_DEFAULT_CALENDAR_ID;
       $rootScope = _$rootScope_;
-      CALENDAR_RIGHT = _CALENDAR_RIGHT_;
-      CALENDAR_SHARED_RIGHT = _CALENDAR_SHARED_RIGHT_;
+      CAL_CALENDAR_RIGHT = _CAL_CALENDAR_RIGHT_;
+      CAL_CALENDAR_SHARED_RIGHT = _CAL_CALENDAR_SHARED_RIGHT_;
     });
   });
 
@@ -105,21 +105,21 @@ describe('CalendarCollectionShell factory', function() {
     });
 
     it('should call initialize readOnly with true if the user right is SHAREE_READ', function() {
-      calendarSharedRight = CALENDAR_SHARED_RIGHT.SHAREE_READ;
+      calendarSharedRight = CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ;
       this.CalendarCollectionShell(calendar);
 
       expect(this.readOnly).to.be.true;
     });
 
     it('should call initialize readOnly with true if the user right is SHAREE_FREE_BUSY', function() {
-      calendarSharedRight = CALENDAR_SHARED_RIGHT.SHAREE_FREE_BUSY;
+      calendarSharedRight = CAL_CALENDAR_SHARED_RIGHT.SHAREE_FREE_BUSY;
       this.CalendarCollectionShell(calendar);
 
       expect(this.readOnly).to.be.true;
     });
 
     it('should call initialize readOnly with true if the user right is PUBLIC_READ', function() {
-      calendarRight = CALENDAR_RIGHT.PUBLIC_READ;
+      calendarRight = CAL_CALENDAR_RIGHT.PUBLIC_READ;
       this.CalendarCollectionShell(calendar);
 
       expect(this.readOnly).to.be.true;
@@ -135,7 +135,7 @@ describe('CalendarCollectionShell factory', function() {
     });
 
     it('Should return true if calendar has Sharee Right', function() {
-      calendarSharedRight = CALENDAR_SHARED_RIGHT.SHAREE_READ;
+      calendarSharedRight = CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ;
       var test = new this.CalendarCollectionShell(calendar);
 
       expect(test.isShared()).to.be.true;
@@ -152,14 +152,14 @@ describe('CalendarCollectionShell factory', function() {
     });
 
     it('Should return true if calendar is public', function() {
-      calendarPublicRight = CALENDAR_RIGHT.PUBLIC_READ;
+      calendarPublicRight = CAL_CALENDAR_RIGHT.PUBLIC_READ;
       var test = new this.CalendarCollectionShell(calendar);
 
       expect(test.isPublic()).to.be.true;
     });
 
     it('Should return true if calendar is public', function() {
-      calendarPublicRight = CALENDAR_RIGHT.WRITE;
+      calendarPublicRight = CAL_CALENDAR_RIGHT.WRITE;
       var test = new this.CalendarCollectionShell(calendar);
 
       expect(test.isPublic()).to.be.true;
@@ -176,7 +176,7 @@ describe('CalendarCollectionShell factory', function() {
     });
 
     it('Should return true if the user is not the owner', function() {
-      calendarRight = CALENDAR_RIGHT.ADMIN;
+      calendarRight = CAL_CALENDAR_RIGHT.ADMIN;
       var test = new this.CalendarCollectionShell(calendar);
 
       expect(test.isOwner()).to.be.true;
@@ -202,9 +202,9 @@ describe('CalendarCollectionShell factory', function() {
       });
     });
 
-    it('should set selected on calendar with DEFAULT_CALENDAR_ID', function() {
+    it('should set selected on calendar with CAL_DEFAULT_CALENDAR_ID', function() {
       expect(this.CalendarCollectionShell.from({
-        href: '/calendars/56095ccccbd51b7318ce6d0c/' + this.DEFAULT_CALENDAR_ID + '.json',
+        href: '/calendars/56095ccccbd51b7318ce6d0c/' + this.CAL_DEFAULT_CALENDAR_ID + '.json',
         acl: 'acl',
         invite: 'invite'
       })).to.shallowDeepEqual({

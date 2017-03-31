@@ -47,12 +47,12 @@ describe('The open-event-form service', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function(calOpenEventForm, $q, $rootScope, SM_XS_MEDIA_QUERY, _CALENDAR_EVENTS_) {
+  beforeEach(angular.mock.inject(function(calOpenEventForm, $q, $rootScope, SM_XS_MEDIA_QUERY, _CAL_EVENTS_) {
     this.SM_XS_MEDIA_QUERY = SM_XS_MEDIA_QUERY;
     this.calOpenEventForm = calOpenEventForm;
     this.$q = $q;
     this.$rootScope = $rootScope;
-    this.CALENDAR_EVENTS = _CALENDAR_EVENTS_;
+    this.CAL_EVENTS = _CAL_EVENTS_;
   }));
 
   describe('calOpenEventForm', function() {
@@ -105,11 +105,11 @@ describe('The open-event-form service', function() {
       expect(this.$modal).to.have.been.calledTwice;
     });
 
-    it('should hide modal when CALENDAR_EVENTS.MODAL.hide is broadcasted', function(done) {
+    it('should hide modal when CAL_EVENTS.MODAL.hide is broadcasted', function(done) {
       var self = this;
       var calendarUnselectListenerSpy = sinon.spy();
 
-      self.$rootScope.$on(self.CALENDAR_EVENTS.CALENDAR_UNSELECT, calendarUnselectListenerSpy);
+      self.$rootScope.$on(self.CAL_EVENTS.CALENDAR_UNSELECT, calendarUnselectListenerSpy);
       self.matchmedia.is = sinon.stub().returns(false);
 
       self.calOpenEventForm(this.regularEvent);
@@ -125,7 +125,7 @@ describe('The open-event-form service', function() {
 
           controller($scope, self.instance, openForm);
 
-          self.$rootScope.$broadcast(self.CALENDAR_EVENTS.MODAL + '.hide');
+          self.$rootScope.$broadcast(self.CAL_EVENTS.MODAL + '.hide');
 
           expect($hide).to.have.been.called;
           expect(calendarUnselectListenerSpy).to.have.been.called;
@@ -137,13 +137,13 @@ describe('The open-event-form service', function() {
       }));
     });
 
-    it('should unregister the listner of CALENDAR_EVENTS.MODAL.hide after hiding the modal', function(done) {
+    it('should unregister the listner of CAL_EVENTS.MODAL.hide after hiding the modal', function(done) {
       var self = this;
       var calendarUnselectListenerSpy = sinon.spy();
 
       self.matchmedia.is = sinon.stub().returns(false);
 
-      self.$rootScope.$on(self.CALENDAR_EVENTS.CALENDAR_UNSELECT, calendarUnselectListenerSpy);
+      self.$rootScope.$on(self.CAL_EVENTS.CALENDAR_UNSELECT, calendarUnselectListenerSpy);
 
       this.calOpenEventForm(this.regularEvent);
 
@@ -158,8 +158,8 @@ describe('The open-event-form service', function() {
 
           controller($scope, self.instance, openForm);
 
-          self.$rootScope.$broadcast(self.CALENDAR_EVENTS.MODAL + '.hide');
-          self.$rootScope.$broadcast(self.CALENDAR_EVENTS.MODAL + '.hide');
+          self.$rootScope.$broadcast(self.CAL_EVENTS.MODAL + '.hide');
+          self.$rootScope.$broadcast(self.CAL_EVENTS.MODAL + '.hide');
 
           expect($hide).to.have.been.calledOnce;
           expect(calendarUnselectListenerSpy).to.have.been.calledOnce;

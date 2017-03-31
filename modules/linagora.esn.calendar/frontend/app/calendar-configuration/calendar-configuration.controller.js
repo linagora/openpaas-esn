@@ -19,9 +19,9 @@
     userAPI,
     userUtils,
     SM_XS_MEDIA_QUERY,
-    CALENDAR_MODIFY_COMPARE_KEYS,
-    CALENDAR_RIGHT,
-    CALENDAR_SHARED_RIGHT,
+    CAL_CALENDAR_MODIFY_COMPARE_KEYS,
+    CAL_CALENDAR_RIGHT,
+    CAL_CALENDAR_SHARED_RIGHT,
     CalendarRightShell,
     CalDelegationEditionHelper
   ) {
@@ -78,11 +78,11 @@
 
       angular.copy(self.calendar, self.oldCalendar);
       self.delegations = self.delegations || [];
-      self.selectedShareeRight = CALENDAR_SHARED_RIGHT.NONE;
+      self.selectedShareeRight = CAL_CALENDAR_SHARED_RIGHT.NONE;
 
       calendarRight.then(function(calendarRightShell) {
         self.publicSelection = calendarRightShell.getPublicRight();
-        self.isAdmin = calendarRightShell.getUserRight(self.calendarHomeId) === CALENDAR_RIGHT.ADMIN;
+        self.isAdmin = calendarRightShell.getUserRight(self.calendarHomeId) === CAL_CALENDAR_RIGHT.ADMIN;
         var allShareeRights = calendarRightShell.getAllShareeRights();
 
         $q.all(_.chain(allShareeRights).map('userId').map(userAPI.user).values()).then(function(users) {
@@ -107,7 +107,7 @@
     }
 
     function _hasModifications(oldCalendar, newCalendar) {
-      return CALENDAR_MODIFY_COMPARE_KEYS.some(function(key) {
+      return CAL_CALENDAR_MODIFY_COMPARE_KEYS.some(function(key) {
         return !angular.equals(oldCalendar[key], newCalendar[key]);
       });
     }
@@ -161,13 +161,13 @@
 
           if (publicRightChanged) {
             switch (self.publicSelection) {
-              case CALENDAR_RIGHT.PUBLIC_READ:
+              case CAL_CALENDAR_RIGHT.PUBLIC_READ:
                 updateActions.push(calendarAPI.modifyPublicRights(self.calendarHomeId, self.calendar.id, { public_right: '{DAV:}read' }));
                 break;
-              case CALENDAR_RIGHT.WRITE:
+              case CAL_CALENDAR_RIGHT.WRITE:
                 updateActions.push(calendarAPI.modifyPublicRights(self.calendarHomeId, self.calendar.id, { public_right: '{DAV:}write' }));
                 break;
-              case CALENDAR_RIGHT.FREE_BUSY:
+              case CAL_CALENDAR_RIGHT.FREE_BUSY:
                 updateActions.push(calendarAPI.modifyPublicRights(self.calendarHomeId, self.calendar.id, { public_right: '{urn:ietf:params:xml:ns:caldav}read-free-busy' }));
                 break;
             }
@@ -197,7 +197,7 @@
 
     function reset() {
       self.newUsersGroups = [];
-      self.selectedShareeRight = CALENDAR_SHARED_RIGHT.NONE;
+      self.selectedShareeRight = CAL_CALENDAR_SHARED_RIGHT.NONE;
     }
 
     function canShowDelegationTab() {

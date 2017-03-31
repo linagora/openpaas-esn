@@ -4,7 +4,7 @@
   angular.module('esn.calendar')
     .directive('calToggleView', calToggleView);
 
-  function calToggleView(CALENDAR_EVENTS, $rootScope) {
+  function calToggleView(CAL_EVENTS, $rootScope) {
     var directive = {
       restrict: 'A',
       scope: true,
@@ -18,7 +18,7 @@
 
     function link(scope, element, attrs) { // eslint-disable-line
       element.on('click', function() {
-        $rootScope.$broadcast(CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW_MODE, attrs.calToggleView);
+        $rootScope.$broadcast(CAL_EVENTS.CALENDARS.TOGGLE_VIEW_MODE, attrs.calToggleView);
       });
     }
   }

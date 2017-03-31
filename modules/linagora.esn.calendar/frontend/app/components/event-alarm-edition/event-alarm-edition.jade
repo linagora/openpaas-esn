@@ -7,5 +7,5 @@
         .fg-line.select
           select.form-control(
             ng-model="ctrl.trigger",
-            ng-options="item.value as item.label for item in ctrl.TRIGGER",
+            ng-options="item.value as item.label for item in ctrl.CAL_ALARM_TRIGGER",
             ng-change="ctrl.setEventAlarm()")

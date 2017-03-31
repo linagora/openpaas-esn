@@ -1,5 +1,5 @@
 //- NOTE: When adding form controls that should change the event in this form,
-//-       be sure to add them to the EVENT_MODIFY_COMPARE_KEYS constant, to
+//-       be sure to add them to the CAL_EVENT_MODIFY_COMPARE_KEYS constant, to
 //-       make sure they are checked during modification.
 form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': readOnly}", ng-submit='submit()')
   .modal-dialog
@@ -14,7 +14,7 @@ form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': r
           .col-xs-12
             .form-group
               .fg-line
-                input.input.title.form-control(type="text", ng-model='editedEvent.title', ng-model-options="{getterSetter: true}", maxlength="{{::EVENT_FORM.title.maxlength}}", placeholder="#{__('Title')}", ng-readonly="!isOrganizer || calendar.readOnly")
+                input.input.title.form-control(type="text", ng-model='editedEvent.title', ng-model-options="{getterSetter: true}", maxlength="{{::CAL_EVENT_FORM.title.maxlength}}", placeholder="#{__('Title')}", ng-readonly="!isOrganizer || calendar.readOnly")
           .col-xs-12
             .form-group
               .input-group
@@ -29,7 +29,7 @@ form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': r
                 span.input-group-addon
                   i.mdi.mdi-map-marker
                 .fg-line
-                  input.input.location.form-control(type="text", ng-model='editedEvent.location', ng-model-options="{getterSetter: true}", maxlength="{{::EVENT_FORM.location.maxlength}}", placeholder="#{__('Location')}", ng-readonly="readOnly")
+                  input.input.location.form-control(type="text", ng-model='editedEvent.location', ng-model-options="{getterSetter: true}", maxlength="{{::CAL_EVENT_FORM.location.maxlength}}", placeholder="#{__('Location')}", ng-readonly="readOnly")
           cal-attendees-autocomplete-input(ng-hide='readOnly', original-attendees='editedEvent.attendees', mutable-attendees='newAttendees')
           .col-xs-12(ng-if='displayParticipationButton')
             .form-group.status.row

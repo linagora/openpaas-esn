@@ -4,7 +4,7 @@
   angular.module('esn.calendar')
          .factory('calEventUtils', calEventUtils);
 
-  function calEventUtils(_, escapeHtmlUtils, session, matchmedia, CALENDAR_DEDAULT_EVENT_COLOR, SIGNIFICANT_CHANGE_KEYS, CALENDAR_MAX_DURATION_OF_SMALL_EVENT, SM_XS_MEDIA_QUERY) {
+  function calEventUtils(_, escapeHtmlUtils, session, matchmedia, CAL_DEDAULT_EVENT_COLOR, CAL_SIGNIFICANT_CHANGE_KEYS, CAL_MAX_DURATION_OF_SMALL_EVENT, SM_XS_MEDIA_QUERY) {
     var editedEvent = null;
     var newAttendees = null;
 
@@ -62,7 +62,7 @@
       }
 
       function adaptTitleWhenShortEvent() {
-        if ((eventDurationInMinute <= CALENDAR_MAX_DURATION_OF_SMALL_EVENT.DESKTOP) && element.find('.fc-time').length) {
+        if ((eventDurationInMinute <= CAL_MAX_DURATION_OF_SMALL_EVENT.DESKTOP) && element.find('.fc-time').length) {
           element.find('.fc-time').attr('data-start', event.start.format('hh:mm') + ' - ' + event.title);
         }
       }
@@ -108,7 +108,7 @@
 
       function addIconInPrivateEventInMobile() {
         if (event.isPrivate()) {
-          var smallEvent = eventDurationInMinute <= CALENDAR_MAX_DURATION_OF_SMALL_EVENT.MOBILE;
+          var smallEvent = eventDurationInMinute <= CAL_MAX_DURATION_OF_SMALL_EVENT.MOBILE;
 
           if (event.allDay || (!event.allDay && smallEvent)) {
             title.prepend('<i class="mdi mdi-lock"/>');
@@ -135,7 +135,7 @@
           if (event.allDay) {
             title.prepend('<i class="mdi mdi-sync"/>');
           } else {
-            eventDurationInMinute <= CALENDAR_MAX_DURATION_OF_SMALL_EVENT.MOBILE ? title.prepend('<i class="mdi mdi-sync"/>') : eventIconsDivInMobile.append('<i class="mdi mdi-sync"/>');
+            eventDurationInMinute <= CAL_MAX_DURATION_OF_SMALL_EVENT.MOBILE ? title.prepend('<i class="mdi mdi-sync"/>') : eventIconsDivInMobile.append('<i class="mdi mdi-sync"/>');
           }
         }
       }
@@ -150,7 +150,7 @@
             if (event.allDay) {
               title.prepend('<i class="mdi mdi-help-circle"/>');
             } else {
-              eventDurationInMinute <= CALENDAR_MAX_DURATION_OF_SMALL_EVENT.MOBILE ? title.prepend('<i class="mdi mdi-help-circle"/>') : eventIconsDivInMobile.append('<i class="mdi mdi-help-circle"/>');
+              eventDurationInMinute <= CAL_MAX_DURATION_OF_SMALL_EVENT.MOBILE ? title.prepend('<i class="mdi mdi-help-circle"/>') : eventIconsDivInMobile.append('<i class="mdi mdi-help-circle"/>');
             }
           } else if (userAsAttendee.partstat === 'ACCEPTED') {
             element.addClass('event-accepted');
@@ -215,7 +215,7 @@
     }
 
     function hasSignificantChange(oldEvent, newEvent) {
-      return !oldEvent.equals(newEvent, SIGNIFICANT_CHANGE_KEYS);
+      return !oldEvent.equals(newEvent, CAL_SIGNIFICANT_CHANGE_KEYS);
     }
 
     function hasAnyChange(oldEvent, newEvent) {
@@ -260,7 +260,7 @@
     }
 
     function setBackgroundColor(event, calendars) {
-      event.backgroundColor = (_.find(calendars, {id: event.calendarId}) || {color: CALENDAR_DEDAULT_EVENT_COLOR}).color;
+      event.backgroundColor = (_.find(calendars, {id: event.calendarId}) || {color: CAL_DEDAULT_EVENT_COLOR}).color;
 
       return event;
     }

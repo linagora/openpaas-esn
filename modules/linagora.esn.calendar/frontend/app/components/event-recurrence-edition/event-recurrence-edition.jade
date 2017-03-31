@@ -7,7 +7,7 @@
         .fg-line.select
           select.form-control(
             ng-model="vm.freq",
-            ng-options="item.value as item.label for item in vm.RECUR_FREQ",
+            ng-options="item.value as item.label for item in vm.CAL_RECUR_FREQ",
             ng-change="vm.setRRULE()",
             ng-disabled="vm.readOnly")
     .form-group.event-recurrence-flex-container(ng-show="vm.freq")
@@ -24,7 +24,7 @@
       .on-days(ng-if="vm.event.rrule.freq === 'WEEKLY'")
         span.col-xs-3 #{__('On days')}:
         div.col-xs-9.labels
-          label.checkbox.checkbox-inline(ng-repeat="day in vm.WEEK_DAYS")
+          label.checkbox.checkbox-inline(ng-repeat="day in vm.CAL_WEEK_DAYS")
             input.force-position-initial.form-control(ng-click="vm.toggleWeekdays(day)", type="checkbox", ng-disabled="vm.readOnly")
             i.input-helper
               span.force-absolute-center {{day}}
@@ -41,7 +41,7 @@
               .input-group.force-absolute-center
                 span.input-group-addon #{__('After')}
                 .fg-line
-                  input.input-sm.form-control(type="number", min="1", max="{{vm.MAX_RRULE_COUNT}}", ng-model="vm.event.rrule.count", ng-focus="selectEndRadioButton(1)", ng-disabled="vm.readOnly")
+                  input.input-sm.form-control(type="number", min="1", max="{{vm.CAL_MAX_RRULE_COUNT}}", ng-model="vm.event.rrule.count", ng-focus="selectEndRadioButton(1)", ng-disabled="vm.readOnly")
                 span.input-group-addon.last #{__('occurrences')}
             label.radio.radio-inline
               input.force-position-initial.form-control(type="radio", name="inlineRadioEndOptions", ng-click="vm.resetCount();", ng-checked="vm.event.rrule.until", ng-disabled="vm.readOnly")

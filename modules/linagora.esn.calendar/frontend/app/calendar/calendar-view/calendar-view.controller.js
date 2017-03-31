@@ -29,9 +29,9 @@
     calOpenEventForm,
     elementScrollService,
     esnWithPromiseResult,
-    CALENDAR_EVENTS,
-    DEFAULT_CALENDAR_ID,
-    MAX_CALENDAR_RESIZE_HEIGHT
+    CAL_EVENTS,
+    CAL_DEFAULT_CALENDAR_ID,
+    CAL_MAX_CALENDAR_RESIZE_HEIGHT
   ) {
       var windowJQuery = angular.element($window);
       var calendarDeffered = $q.defer();
@@ -50,9 +50,9 @@
       $scope.resizeCalendarHeight = withCalendar(function(calendar) {
         var height = windowJQuery.height() - calendar.offset().top;
 
-        height = height > MAX_CALENDAR_RESIZE_HEIGHT ? MAX_CALENDAR_RESIZE_HEIGHT : height;
+        height = height > CAL_MAX_CALENDAR_RESIZE_HEIGHT ? CAL_MAX_CALENDAR_RESIZE_HEIGHT : height;
         calendar.fullCalendar('option', 'height', height);
-        $rootScope.$broadcast(CALENDAR_EVENTS.CALENDAR_HEIGHT, height);
+        $rootScope.$broadcast(CAL_EVENTS.CALENDAR_HEIGHT, height);
       });
 
       var prev = withCalendar(function(cal) {
@@ -129,7 +129,7 @@
 
         newEvent.start = event.start;
         newEvent.end = event.end;
-        newEvent.path = newEvent.path || '/calendars/' + $scope.calendarHomeId + '/' + DEFAULT_CALENDAR_ID;
+        newEvent.path = newEvent.path || '/calendars/' + $scope.calendarHomeId + '/' + CAL_DEFAULT_CALENDAR_ID;
 
         var oldEvent = newEvent.clone();
 
@@ -139,7 +139,7 @@
         oldEvent.end.subtract(delta);
         function revertFunc() {
           revert();
-          $rootScope.$broadcast(CALENDAR_EVENTS.REVERT_MODIFICATION, oldEvent);
+          $rootScope.$broadcast(CAL_EVENTS.REVERT_MODIFICATION, oldEvent);
         }
 
         calEventService.modifyEvent(newEvent.path, newEvent, oldEvent, newEvent.etag, revertFunc, { graceperiod: true, notifyFullcalendar: true });
@@ -160,7 +160,7 @@
       function viewRender(view) {
         $timeout($scope.resizeCalendarHeight, 1000);
         calendarCurrentView.set(view);
-        $rootScope.$broadcast(CALENDAR_EVENTS.HOME_CALENDAR_VIEW_CHANGE, view);
+        $rootScope.$broadcast(CAL_EVENTS.HOME_CALENDAR_VIEW_CHANGE, view);
       }
 
       function select(start, end) {
@@ -185,33 +185,33 @@
 
       var miniCalendarHidden = true;
       var unregisterFunctions = [
-        $rootScope.$on(CALENDAR_EVENTS.ITEM_MODIFICATION, _rerenderCalendar),
-        $rootScope.$on(CALENDAR_EVENTS.ITEM_REMOVE, _rerenderCalendar),
-        $rootScope.$on(CALENDAR_EVENTS.ITEM_ADD, _rerenderCalendar),
-        $rootScope.$on(CALENDAR_EVENTS.CALENDARS.TODAY, withCalendar(function(calendar) {
+        $rootScope.$on(CAL_EVENTS.ITEM_MODIFICATION, _rerenderCalendar),
+        $rootScope.$on(CAL_EVENTS.ITEM_REMOVE, _rerenderCalendar),
+        $rootScope.$on(CAL_EVENTS.ITEM_ADD, _rerenderCalendar),
+        $rootScope.$on(CAL_EVENTS.CALENDARS.TODAY, withCalendar(function(calendar) {
           calendar.fullCalendar('today');
         })),
-        $rootScope.$on(CALENDAR_EVENTS.CALENDAR_UNSELECT, withCalendar(function(calendar) {
+        $rootScope.$on(CAL_EVENTS.CALENDAR_UNSELECT, withCalendar(function(calendar) {
           calendar.fullCalendar('unselect');
         })),
-        $rootScope.$on(CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW_MODE, withCalendar(function(calendar, event, viewType) {
+        $rootScope.$on(CAL_EVENTS.CALENDARS.TOGGLE_VIEW_MODE, withCalendar(function(calendar, event, viewType) {
           calendar.fullCalendar('changeView', viewType);
         })),
-        $rootScope.$on(CALENDAR_EVENTS.CALENDARS.TOGGLE_VIEW, withCalendar(function(calendar, event, data) { // eslint-disable-line
+        $rootScope.$on(CAL_EVENTS.CALENDARS.TOGGLE_VIEW, withCalendar(function(calendar, event, data) { // eslint-disable-line
           if (data.hidden) {
             calendar.fullCalendar('removeEventSource', $scope.eventSourcesMap[data.calendarId]);
           } else {
             calendar.fullCalendar('addEventSource', $scope.eventSourcesMap[data.calendarId]);
           }
         })),
-        $rootScope.$on(CALENDAR_EVENTS.MINI_CALENDAR.DATE_CHANGE, withCalendar(function(calendar, event, newDate) { // eslint-disable-line
+        $rootScope.$on(CAL_EVENTS.MINI_CALENDAR.DATE_CHANGE, withCalendar(function(calendar, event, newDate) { // eslint-disable-line
           var view = calendar.fullCalendar('getView');
 
           if (newDate && !newDate.isBetween(view.start, view.end)) {
             calendar.fullCalendar('gotoDate', newDate);
           }
         })),
-        $rootScope.$on(CALENDAR_EVENTS.CALENDARS.ADD, function(event, calendar) { // eslint-disable-line
+        $rootScope.$on(CAL_EVENTS.CALENDARS.ADD, function(event, calendar) { // eslint-disable-line
           $scope.calendars.push(calendar);
 
           $scope.eventSourcesMap[calendar.id] = {
@@ -223,7 +223,7 @@
             cal.fullCalendar('addEventSource', $scope.eventSourcesMap[calendar.id]);
           });
         }),
-        $rootScope.$on(CALENDAR_EVENTS.CALENDARS.REMOVE, function(event, calendar) { // eslint-disable-line
+        $rootScope.$on(CAL_EVENTS.CALENDARS.REMOVE, function(event, calendar) { // eslint-disable-line
           _.remove($scope.calendars, {id: calendar.id});
           var removedEventSource = $scope.eventSourcesMap[calendar.id];
 
@@ -233,18 +233,18 @@
             cal.fullCalendar('removeEventSource', removedEventSource);
           });
         }),
-        $rootScope.$on(CALENDAR_EVENTS.CALENDARS.UPDATE, function(event, calendar) { // eslint-disable-line
+        $rootScope.$on(CAL_EVENTS.CALENDARS.UPDATE, function(event, calendar) { // eslint-disable-line
           $scope.calendars.forEach(function(cal, index) {
             if (calendar.id === cal.id) {
               $scope.calendars[index] = calendar;
             }
           });
         }),
-        $rootScope.$on(CALENDAR_EVENTS.CALENDAR_REFRESH, _rerenderCalendar),
-        $rootScope.$on(CALENDAR_EVENTS.MINI_CALENDAR.TOGGLE, function() {
+        $rootScope.$on(CAL_EVENTS.CALENDAR_REFRESH, _rerenderCalendar),
+        $rootScope.$on(CAL_EVENTS.MINI_CALENDAR.TOGGLE, function() {
           miniCalendarHidden = !miniCalendarHidden;
         }),
-        $rootScope.$on(CALENDAR_EVENTS.VIEW_TRANSLATION, function(event, action) { // eslint-disable-line
+        $rootScope.$on(CAL_EVENTS.VIEW_TRANSLATION, function(event, action) { // eslint-disable-line
           if (miniCalendarHidden) {
             (action === 'prev' ? prev : next)();
           }

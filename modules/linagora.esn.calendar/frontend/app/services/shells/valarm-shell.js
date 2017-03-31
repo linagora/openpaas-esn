@@ -4,7 +4,7 @@
   angular.module('esn.calendar')
     .factory('CalVAlarmShell', CalVAlarmShellFactory);
 
-  function CalVAlarmShellFactory(ALARM_MODIFY_COMPARE_KEYS) {
+  function CalVAlarmShellFactory(CAL_ALARM_MODIFY_COMPARE_KEYS) {
     function CalVAlarmShell(valarm, vevent) {
       this.valarm = valarm;
       this.vevent = vevent;
@@ -28,7 +28,7 @@
       if (that === this) { return true; }
       var self = this;
 
-      return ALARM_MODIFY_COMPARE_KEYS.every(function(key) {
+      return CAL_ALARM_MODIFY_COMPARE_KEYS.every(function(key) {
         if (key === 'trigger') {
           return self.trigger.compare(that.trigger) === 0;
         } else {

@@ -4,13 +4,13 @@
   angular.module('esn.calendar')
     .factory('calCachedEventSource', calCachedEventSource);
 
-  function calCachedEventSource($q, _, calendarExploredPeriodService, calEventStore, CACHED_EVENT_SOURCE_ADD, CACHED_EVENT_SOURCE_DELETE, CACHED_EVENT_SOURCE_UPDATE) {
+  function calCachedEventSource($q, _, calendarExploredPeriodService, calEventStore, CAL_CACHED_EVENT_SOURCE_ADD, CAL_CACHED_EVENT_SOURCE_DELETE, CAL_CACHED_EVENT_SOURCE_UPDATE) {
     var changes = {};
 
     var service = {
-      registerAdd: saveChange.bind(null, CACHED_EVENT_SOURCE_ADD),
-      registerDelete: saveChange.bind(null, CACHED_EVENT_SOURCE_DELETE),
-      registerUpdate: saveChange.bind(null, CACHED_EVENT_SOURCE_UPDATE),
+      registerAdd: saveChange.bind(null, CAL_CACHED_EVENT_SOURCE_ADD),
+      registerDelete: saveChange.bind(null, CAL_CACHED_EVENT_SOURCE_DELETE),
+      registerUpdate: saveChange.bind(null, CAL_CACHED_EVENT_SOURCE_UPDATE),
       resetCache: resetCache,
       deleteRegistration: deleteRegistration,
       wrapEventSource: wrapEventSource
@@ -64,7 +64,7 @@
       }
 
       angular.forEach(customChanges || changes, function(change) {
-        if (change.action === CACHED_EVENT_SOURCE_ADD && change.event.calendarId === calendarId && !change.event.isRecurring() && eventInPeriod(change.event)) {
+        if (change.action === CAL_CACHED_EVENT_SOURCE_ADD && change.event.calendarId === calendarId && !change.event.isRecurring() && eventInPeriod(change.event)) {
           events.push(change.event);
         }
       });
@@ -74,11 +74,11 @@
 
     function applyUpdatedAndDeleteEvent(events, start, end, calendarId) {
       var notAppliedChange = _.chain(changes).omit(function(change) {
-        return change.action !== CACHED_EVENT_SOURCE_UPDATE;
+        return change.action !== CAL_CACHED_EVENT_SOURCE_UPDATE;
       }).mapValues(function(change) {
         var result = _.clone(change);
 
-        result.action = CACHED_EVENT_SOURCE_ADD;
+        result.action = CAL_CACHED_EVENT_SOURCE_ADD;
 
         return result;
       }).value();
@@ -90,7 +90,7 @@
 
         if (!change && !changeInMaster) {
           previousCleanedEvents.push(event);
-        } else if (change && change.action === CACHED_EVENT_SOURCE_UPDATE) {
+        } else if (change && change.action === CAL_CACHED_EVENT_SOURCE_UPDATE) {
           delete notAppliedChange[event.id];
           if (change.event.isRecurring()) {
             change.instances.forEach(function(instance) {

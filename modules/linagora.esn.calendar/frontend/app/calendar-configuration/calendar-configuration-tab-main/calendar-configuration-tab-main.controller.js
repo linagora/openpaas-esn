@@ -8,8 +8,8 @@
     $modal,
     $state,
     calendarService,
-    CALENDAR_RIGHT,
-    DEFAULT_CALENDAR_ID
+    CAL_CALENDAR_RIGHT,
+    CAL_DEFAULT_CALENDAR_ID
   ) {
     var self = this;
 
@@ -22,17 +22,17 @@
     function $onInit() {
       self.publicRights = [
         {
-          value: CALENDAR_RIGHT.PUBLIC_READ,
+          value: CAL_CALENDAR_RIGHT.PUBLIC_READ,
           name: 'Read'
         },
         {
-          value: CALENDAR_RIGHT.WRITE,
+          value: CAL_CALENDAR_RIGHT.WRITE,
           name: 'Write'
         }, {
-          value: CALENDAR_RIGHT.FREE_BUSY,
+          value: CAL_CALENDAR_RIGHT.FREE_BUSY,
           name: 'Private'
         }, {
-          value: CALENDAR_RIGHT.NONE,
+          value: CAL_CALENDAR_RIGHT.NONE,
           name: 'None'
         }
       ];
@@ -57,7 +57,7 @@
     }
 
     function canDeleteCalendar() {
-      var isDefaultCalendar = self.calendar && (self.calendar.id === DEFAULT_CALENDAR_ID);
+      var isDefaultCalendar = self.calendar && (self.calendar.id === CAL_DEFAULT_CALENDAR_ID);
 
       return !self.newCalendar && !isDefaultCalendar;
     }

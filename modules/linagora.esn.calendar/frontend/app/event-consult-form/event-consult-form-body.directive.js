@@ -4,7 +4,7 @@
   angular.module('esn.calendar')
     .directive('calEventConsultFormBody', calEventConsultFormBody);
 
-  function calEventConsultFormBody(CONSULT_FORM_TABS) {
+  function calEventConsultFormBody(CAL_CONSULT_FORM_TABS) {
     var directive = {
       restrict: 'E',
       templateUrl: '/calendar/app/event-consult-form/event-consult-form-body.html',
@@ -17,7 +17,7 @@
     ////////////
 
     function link(scope) {
-      scope.selectedTab = CONSULT_FORM_TABS.MAIN;
+      scope.selectedTab = CAL_CONSULT_FORM_TABS.MAIN;
       scope.getMainView = getMainView;
       scope.getMoreView = getMoreView;
       scope.getAttendeesView = getAttendeesView;
@@ -26,19 +26,19 @@
       ////////////
 
       function getMainView() {
-        scope.selectedTab = CONSULT_FORM_TABS.MAIN;
+        scope.selectedTab = CAL_CONSULT_FORM_TABS.MAIN;
       }
 
       function getAttendeesView() {
-        scope.selectedTab = CONSULT_FORM_TABS.ATTENDEES;
+        scope.selectedTab = CAL_CONSULT_FORM_TABS.ATTENDEES;
       }
 
       function getMoreView() {
-        scope.selectedTab = CONSULT_FORM_TABS.MORE;
+        scope.selectedTab = CAL_CONSULT_FORM_TABS.MORE;
       }
 
       function onSwipe(direction) {
-        var availableTabs = [CONSULT_FORM_TABS.MAIN, CONSULT_FORM_TABS.ATTENDEES, CONSULT_FORM_TABS.MORE];
+        var availableTabs = [CAL_CONSULT_FORM_TABS.MAIN, CAL_CONSULT_FORM_TABS.ATTENDEES, CAL_CONSULT_FORM_TABS.MORE];
         var adjust = (direction === 'left') ? 1 : -1;
         var newTabIndex = availableTabs.indexOf(scope.selectedTab) + adjust;
 

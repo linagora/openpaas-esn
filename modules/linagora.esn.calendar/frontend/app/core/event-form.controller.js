@@ -18,11 +18,11 @@
     calOpenEventForm,
     session,
     userAPI,
-    CALENDAR_EVENTS,
-    EVENT_FORM) {
+    CAL_EVENTS,
+    CAL_EVENT_FORM) {
 
       $scope.restActive = false;
-      $scope.EVENT_FORM = EVENT_FORM;
+      $scope.CAL_EVENT_FORM = CAL_EVENT_FORM;
       $scope.initFormData = initFormData;
       $scope.changeParticipation = changeParticipation;
       $scope.modifyEvent = modifyEvent;
@@ -99,7 +99,7 @@
         });
 
         if (!$scope.editedEvent.class) {
-          $scope.editedEvent.class = EVENT_FORM.class.default;
+          $scope.editedEvent.class = CAL_EVENT_FORM.class.default;
         }
 
         calendarService.listCalendars(calendarService.calendarHomeId, options).then(function(calendars) {
@@ -156,11 +156,11 @@
 
       function createEvent() {
         if (!$scope.editedEvent.title || $scope.editedEvent.title.trim().length === 0) {
-          $scope.editedEvent.title = EVENT_FORM.title.default;
+          $scope.editedEvent.title = CAL_EVENT_FORM.title.default;
         }
 
         if (!$scope.editedEvent.class) {
-          $scope.editedEvent.class = EVENT_FORM.class.default;
+          $scope.editedEvent.class = CAL_EVENT_FORM.class.default;
         }
 
         if (!$scope.calendarHomeId) {
@@ -303,11 +303,11 @@
         if ($scope.isOrganizer) {
           if (status !== $scope.editedEvent.getOrganizerPartStat()) {
             $scope.editedEvent.setOrganizerPartStat(status);
-            $scope.$broadcast(CALENDAR_EVENTS.EVENT_ATTENDEES_UPDATE, $scope.editedEvent.attendees);
+            $scope.$broadcast(CAL_EVENTS.EVENT_ATTENDEES_UPDATE, $scope.editedEvent.attendees);
           }
         } else {
           $scope.editedEvent.changeParticipation(status, [$scope.userAsAttendee.email]);
-          $scope.$broadcast(CALENDAR_EVENTS.EVENT_ATTENDEES_UPDATE, $scope.editedEvent.attendees);
+          $scope.$broadcast(CAL_EVENTS.EVENT_ATTENDEES_UPDATE, $scope.editedEvent.attendees);
 
           _changeParticipationAsAttendee();
           if ($state.is('calendar.event.form') || $state.is('calendar.event.consult')) {

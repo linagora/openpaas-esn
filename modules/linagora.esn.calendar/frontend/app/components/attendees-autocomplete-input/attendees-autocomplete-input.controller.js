@@ -4,7 +4,7 @@
   angular.module('esn.calendar')
          .controller('calAttendeesAutocompleteInputController', calAttendeesAutocompleteInputController);
 
-  function calAttendeesAutocompleteInputController(calendarAttendeeService, naturalService, session, AUTOCOMPLETE_MAX_RESULTS) {
+  function calAttendeesAutocompleteInputController(calendarAttendeeService, naturalService, session, CAL_AUTOCOMPLETE_MAX_RESULTS) {
     var self = this;
 
     self.mutableAttendees = self.mutableAttendees || [];
@@ -25,13 +25,13 @@
     function getInvitableAttendees(query) {
       self.query = query;
 
-      return calendarAttendeeService.getAttendeeCandidates(query, AUTOCOMPLETE_MAX_RESULTS * 2).then(function(attendeeCandidates) {
+      return calendarAttendeeService.getAttendeeCandidates(query, CAL_AUTOCOMPLETE_MAX_RESULTS * 2).then(function(attendeeCandidates) {
         attendeeCandidates = _fillNonDuplicateAttendees(attendeeCandidates);
         attendeeCandidates.sort(function(a, b) {
           return naturalService.naturalSort(a.displayName, b.displayName);
         });
 
-        return attendeeCandidates.slice(0, AUTOCOMPLETE_MAX_RESULTS);
+        return attendeeCandidates.slice(0, CAL_AUTOCOMPLETE_MAX_RESULTS);
       });
     }
 
