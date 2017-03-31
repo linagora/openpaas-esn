@@ -208,16 +208,20 @@ body.header-hidden {
 
 @media (min-width: @screen-md-min) {
   .inbox-root {
-    .inbox-items-group {
-      .inbox-list-item {
-        .inbox-list-item-content {
-          &.dragging {
-            background-color: lighten(@accentColor, 20%);
-            .cursor-grab;
-          }
+    .inbox-infinite-list {
+      margin-right: -15px;
 
-          &.dragging:active {
-            .cursor-grabbing;
+      .inbox-items-group {
+        .inbox-list-item {
+          .inbox-list-item-content {
+            &.dragging {
+              background-color: lighten(@accentColor, 20%);
+              .cursor-grab;
+            }
+
+            &.dragging:active {
+              .cursor-grabbing;
+            }
           }
         }
       }

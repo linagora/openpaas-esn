@@ -58,7 +58,7 @@
     }
 
     .lv-item.toggle-submenu {
-      padding: 3px 3px 3px 0px;
+      padding: 3px 3px 3px 0;
     }
   }
 
@@ -91,9 +91,9 @@
 @media(min-width: @screen-md-min) {
   .inbox-aside {
     position: fixed;
-    width: 23%;
-    max-width: 300px;
+    width: inherit;
     overflow: hidden;
+    padding-right: 30px;
 
     &:hover {
       overflow-y: auto;

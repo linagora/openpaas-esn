@@ -282,5 +282,5 @@ html
     script(src='js/modules/esn.mutation-observer.js')
     script(src='js/modules/textarea-autosize.js')
 
-  body.ng-cloak(ng-app="esnApp", ng-controller="sessionInitESNController", header-aware, device-detector, ng-class="{ 'grabbable': esnIsDragging }")
+  body.container-fluid.ng-cloak(ng-app="esnApp", ng-controller="sessionInitESNController", header-aware, device-detector, ng-class="{ 'grabbable': esnIsDragging }")
     #wrap(ng-include='session.template')
