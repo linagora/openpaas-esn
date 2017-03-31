@@ -5,6 +5,8 @@ angular.module('esn.constants', [])
   .constant('AGGREGATOR_DEFAULT_RESULTS_PER_PAGE', 5)
   .constant('AGGREGATOR_DEFAULT_FIRST_PAGE_SIZE', 20)
 
+  .constant('AUTOCOMPLETE_MAX_RESULTS', 5)
+
   .constant('ELEMENTS_PER_REQUEST', 20)
   .constant('ELEMENTS_PER_PAGE', 20)
 
