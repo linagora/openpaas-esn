@@ -102,7 +102,7 @@ angular.module('esn.ui', [
     };
   })
 
-  .directive('autoSizeDynamic', function(autosize) {
+  .directive('autoSizeDynamic', function($timeout, autosize) {
     return {
       restrict: 'A',
       scope: {
@@ -110,7 +110,9 @@ angular.module('esn.ui', [
       },
       link: function(scope, element) {
         if (scope.autoSizeDynamic()) {
-          autosize(element);
+          $timeout(function() {
+            autosize(element);
+          });
         }
       }
     };

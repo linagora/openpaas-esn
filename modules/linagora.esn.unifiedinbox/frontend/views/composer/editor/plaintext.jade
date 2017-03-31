@@ -1,4 +1,4 @@
-textarea.compose-body(auto-size-dynamic="editQuotedMail()", ng-model="email.textBody", ng-class="{ 'isCollapsed': isCollapsed, 'expanded': !email.quoted || email.isQuoting }", placeholder="#{__('Start writing your email here')}")
+textarea.compose-body(auto-size-dynamic="!isBoxed()", ng-model="email.textBody", ng-class="{ 'isCollapsed': isCollapsed, 'expanded': !email.quoted || email.isQuoting }", placeholder="#{__('Start writing your email here')}")
 
 .inbox-composer-original-message(ng-if="email.quoted.htmlBody && !email.isQuoting")
   button.btn.btn-primary.edit-quoted-mail.pull-right(ng-click="editQuotedMail()") #{__('Edit quoted mail')}
