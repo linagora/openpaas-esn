@@ -122,7 +122,7 @@ angular.module('esn.user', ['esn.http', 'esn.object-type', 'esn.lodash-wrapper']
         onUserAdded: '=?',
         onUserRemoved: '=?',
         addFromAutocompleteOnly: '=?',
-        addOnEnter: '=?'
+        propagateEnterEvent: '=?'
       }
     };
   });
