@@ -4,9 +4,9 @@
 
 var expect = chai.expect;
 
-describe('The events-providers', function() {
+describe('The calSearchEventProviderService service', function() {
 
-  var $rootScope, calEventsProviders, $httpBackend, calendarService, searchProvidersMock, CAL_EVENTS;
+  var $rootScope, calSearchEventProviderService, $httpBackend, calendarService, searchProvidersMock, CAL_EVENTS;
   var calendarHomeId = 'calendarHomeId';
 
   beforeEach(function() {
@@ -26,9 +26,9 @@ describe('The events-providers', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function(_$rootScope_, _$httpBackend_, _calEventsProviders_, _calendarService_, _CAL_EVENTS_) {
+  beforeEach(angular.mock.inject(function(_$rootScope_, _$httpBackend_, _calSearchEventProviderService_, _calendarService_, _CAL_EVENTS_) {
     $rootScope = _$rootScope_;
-    calEventsProviders = _calEventsProviders_;
+    calSearchEventProviderService = _calSearchEventProviderService_;
     $httpBackend = _$httpBackend_;
     calendarService = _calendarService_;
     CAL_EVENTS = _CAL_EVENTS_;
@@ -36,7 +36,7 @@ describe('The events-providers', function() {
 
   describe('The setUpSearchProviders', function() {
     it('should add a promise on calendar\'s provider', function() {
-      calEventsProviders.setUpSearchProviders();
+      calSearchEventProviderService.setUpSearchProviders();
       expect(searchProvidersMock.add).to.have.been.calledWith(sinon.match({then: sinon.match.truthy}));
     });
 
@@ -46,7 +46,7 @@ describe('The events-providers', function() {
       });
 
       it('should listen to CAL_EVENTS.CALENDARS.REMOVE and remove the appopriate provider', function() {
-        calEventsProviders.setUpSearchProviders();
+        calSearchEventProviderService.setUpSearchProviders();
         expect($rootScope.$on).to.have.been.calledWith(CAL_EVENTS.CALENDARS.REMOVE, sinon.match.func.and(sinon.match(function(callback) {
           callback(null, {id: 'id'});
           expect(searchProvidersMock.remove).to.have.been.calledWith(sinon.match.func.and(sinon.match(function(callback) {
@@ -58,7 +58,7 @@ describe('The events-providers', function() {
       });
 
       it('should listen to CAL_EVENTS.CALENDARS.ADD and add a provider for the calendar', function() {
-        calEventsProviders.setUpSearchProviders();
+        calSearchEventProviderService.setUpSearchProviders();
         expect($rootScope.$on).to.have.been.calledWith(CAL_EVENTS.CALENDARS.ADD, sinon.match.func);
       });
     });
@@ -115,7 +115,7 @@ describe('The events-providers', function() {
         }
       });
 
-      calEventsProviders.getAll().then(function(providers) {
+      calSearchEventProviderService.getAll().then(function(providers) {
         providers.forEach(testEventProvider);
       }, done);
       $rootScope.$digest();
@@ -127,7 +127,7 @@ describe('The events-providers', function() {
         return $q.reject();
       };
 
-      calEventsProviders.getAll().then(function(providers) {
+      calSearchEventProviderService.getAll().then(function(providers) {
         expect(providers).to.deep.equal([]);
         done();
       }, done);

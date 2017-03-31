@@ -2,13 +2,24 @@
   'use strict';
 
   angular.module('esn.calendar')
-    .factory('calEventsProviders', calEventsProviders);
+    .factory('calSearchEventProviderService', calSearchEventProviderService);
 
-  function calEventsProviders($log, $q, $rootScope, calendarHomeService, calendarService, calEventService, newProvider, searchProviders, CAL_EVENTS, ELEMENTS_PER_REQUEST) {
+  function calSearchEventProviderService(
+    $log,
+    $q,
+    $rootScope,
+    calendarHomeService,
+    calendarService,
+    calEventService,
+    newProvider,
+    searchProviders,
+    CAL_EVENTS,
+    ELEMENTS_PER_REQUEST
+  ) {
     var service = {
-      setUpSearchProviders: setUpSearchProviders,
       getAll: getAll,
-      getForCalendar: getForCalendar
+      getForCalendar: getForCalendar,
+      setUpSearchProviders: setUpSearchProviders
     };
 
     return service;
@@ -49,7 +60,7 @@
           };
         },
         buildFetchContext: function(options) { return $q.when(options.query); },
-        templateUrl: '/calendar/app/services/events-provider/event-search-item'
+        templateUrl: '/calendar/app/search/event/event-search-item'
       });
     }
 
@@ -72,7 +83,7 @@
     function setUpSearchProviders() {
       searchProviders.add(getAll());
 
-      $rootScope.$on(CAL_EVENTS.CALENDARS.ADD, function(event, calendar) { // eslint-disable-line
+      $rootScope.$on(CAL_EVENTS.CALENDARS.ADD, function(event, calendar) {
         searchProviders.add(getForCalendar(calendar));
       });
 
