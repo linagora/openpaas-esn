@@ -26,23 +26,24 @@
           .customPUT(query);
       }
 
-      function get(keys) {
+      function get(keys, module) {
+        if (!module) {
+          module = defaultModule;
+        }
+
         var query = [{
-          name: defaultModule,
+          name: module,
           keys: keys
         }];
 
         return getConfigurations(query).then(function(response) {
-          var modules = response.data;
-          var module = _.find(modules, { name: defaultModule });
-
-          return module.configurations;
+          return _.find(response.data, { name: module }).configurations;
         });
       }
 
-      function set(configurations) {
+      function set(configurations, module) {
         var query = [{
-          name: defaultModule,
+          name: module || defaultModule,
           configurations: configurations
         }];
 
