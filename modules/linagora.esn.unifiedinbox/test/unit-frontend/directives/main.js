@@ -138,6 +138,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       testee.click();
 
       expect(newComposerService.open).to.have.been.calledOnce;
+      expect(newComposerService.open).to.have.been.calledWith({});
     });
 
   });

@@ -2,6 +2,9 @@ form.form-horizontal.compose.ng-cloak(ng-submit="send()")
 
   .compose-header
     .fields
+      .form-group.select
+        label.control-label #{__('From')}
+        select.form-control(ng-model="email.identity", ng-options="ctrl.getIdentityLabel(identity) group by identity.description for identity in ctrl.identities", name="from")
       .form-group
         label.control-label #{__('To')}
         recipients-auto-complete.inbox-recipients.recipients-to(ng-model="email.to", template="recipients-auto-complete")

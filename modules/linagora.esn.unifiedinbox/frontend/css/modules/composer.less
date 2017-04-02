@@ -25,7 +25,7 @@ composer, composer-desktop {
 
       .fields {
         .flex-column;
-        .flex-shorthand(1);
+        .flex-shorthand(1, 1);
 
         padding-right: 0;
 
@@ -46,6 +46,18 @@ composer, composer-desktop {
             padding: 0 0 0 10px;
             text-align: left;
             color: @secondaryTextColor
+          }
+
+          &.select {
+            select {
+              height: 30px;
+              line-height: 30px;
+              overflow: hidden;
+            }
+
+            &::before {
+              height: 30px;
+            }
           }
         }
       }
