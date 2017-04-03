@@ -64,5 +64,10 @@
   "No end time": "No end time",
   "Your active filter is too restrictive.": "Your active filter is too restrictive.",
   "Add new account": "Add new account",
-  "My default identity": "My default identity"
+  "My default identity": "My default identity",
+  "Identities": "Identities",
+  "Create identity": "Create identity",
+  "Edit identity": "Edit identity",
+  "Reply to address": "Reply to address",
+  "Signature": "Signature"
 }

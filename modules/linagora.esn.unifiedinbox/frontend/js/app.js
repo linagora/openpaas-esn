@@ -43,7 +43,8 @@ angular.module('linagora.esn.unifiedinbox', [
   'esn.escape-html',
   'esn.registry',
   'material.components.virtualRepeat',
-  'esn.module-registry'
+  'esn.module-registry',
+  'esn.user-configuration'
 ])
 
   .config(function($stateProvider, dynamicDirectiveServiceProvider) {
@@ -201,6 +202,32 @@ angular.module('linagora.esn.unifiedinbox', [
           }
         },
         params: { vacation: null }
+      })
+      .state('unifiedinbox.configuration.identities', {
+        url: '/identities',
+        views: {
+          'configuration@unifiedinbox.configuration': {
+            template: '<inbox-identities />'
+          }
+        }
+      })
+      .state('unifiedinbox.configuration.identities.add', {
+        url: '/add',
+        views: {
+          'main@unifiedinbox': {
+            template: '<inbox-identity-form />'
+          }
+        }
+      })
+      .state('unifiedinbox.configuration.identities.identity', {
+        url: '/:identityId',
+        views: {
+          'main@unifiedinbox': {
+            template: function($stateParams) {
+              return '<inbox-identity-form identity-id="' + $stateParams.identityId + '" />';
+            }
+          }
+        }
       })
       .state('unifiedinbox.inbox', {
         url: '/inbox?type&account&context',

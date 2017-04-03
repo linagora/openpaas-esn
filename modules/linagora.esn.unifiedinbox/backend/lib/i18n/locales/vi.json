@@ -64,5 +64,10 @@
   "No end time": "Không kết thúc",
   "Your active filter is too restrictive.": "Bạn lọc quá nhiều.",
   "Add new account": "Thêm tài khoản",
-  "My default identity": "Định danh mặc định"
+  "My default identity": "Định danh mặc định",
+  "Identities": "Định danh",
+  "Create identity": "Tạo định danh",
+  "Edit identity": "Sửa định danh",
+  "Reply to address": "Trả lời tới địa chỉ",
+  "Signature": "Chữ ký"
 }

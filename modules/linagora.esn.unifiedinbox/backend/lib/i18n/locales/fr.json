@@ -64,5 +64,10 @@
   "No end time": "Aucune heure de fin",
   "Your active filter is too restrictive.": "Votre filtre actif est trop restrictif.",
   "Add new account": "Ajouter un nouveau compte",
-  "My default identity": "Mon identité par défaut"
+  "My default identity": "Mon identité par défaut",
+  "Identities": "Identités",
+  "Create identity": "Créer une identité",
+  "Edit identity": "Editer une identité",
+  "Reply to address": "Adresse de réponse",
+  "Signature": "Signature"
 }
