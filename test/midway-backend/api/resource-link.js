@@ -27,8 +27,8 @@ describe('The resource-links API', function() {
   });
 
   afterEach(function(done) {
-    this.mongoose.connection.db.dropDatabase();
-    this.mongoose.disconnect(done);
+    this.mongoose.connection.db
+      .dropDatabase(helpers.callbacks.noErrorAnd(() => this.mongoose.disconnect(done)));
   });
 
   describe('POST /api/resource-links', function() {

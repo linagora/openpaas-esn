@@ -71,8 +71,8 @@ describe('The timelineentries API', function() {
   });
 
   afterEach(function(done) {
-    this.mongoose.connection.db.dropDatabase();
-    this.mongoose.disconnect(done);
+    this.mongoose.connection.db
+      .dropDatabase(helpers.callbacks.noErrorAnd(() => this.mongoose.disconnect(done)));
   });
 
   describe('GET /api/user/timelineentries', function() {
