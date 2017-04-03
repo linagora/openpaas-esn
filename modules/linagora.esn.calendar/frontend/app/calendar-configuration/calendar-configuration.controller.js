@@ -85,8 +85,8 @@
 
       calendarRight.then(function(calendarRightShell) {
         self.publicSelection = calendarRightShell.getPublicRight();
-        self.isAdmin = calendarRightShell.getOwnerId() === self.calendarHomeId
-          || calendarRightShell.getShareeRight(self.calendarHomeId) === CAL_CALENDAR_SHARED_RIGHT.SHAREE_ADMIN;
+        self.isAdmin = calendarRightShell.getOwnerId() === self.calendarHomeId ||
+          calendarRightShell.getShareeRight(self.calendarHomeId) === CAL_CALENDAR_SHARED_RIGHT.SHAREE_ADMIN;
         var allShareeRights = calendarRightShell.getAllShareeRights();
 
         $q.all(_.chain(allShareeRights).map('userId').map(userAPI.user).values()).then(function(users) {
