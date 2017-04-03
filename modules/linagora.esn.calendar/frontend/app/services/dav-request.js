@@ -2,9 +2,9 @@
   'use strict';
 
   angular.module('esn.calendar')
-    .factory('request', requestFactory);
+    .factory('calDavRequest', calDavRequest);
 
-  function requestFactory($http, $q, CAL_DAV_PATH) {
+  function calDavRequest($http, $q, CAL_DAV_PATH) {
     return request;
 
     ////////////

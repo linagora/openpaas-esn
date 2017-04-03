@@ -10,7 +10,7 @@
     $q,
     calendarRestangular,
     calPathBuilder,
-    request,
+    calDavRequest,
     responseHandler,
     gracePeriodResponseHandler,
     notificationFactory,
@@ -65,7 +65,7 @@
         }
       };
 
-      return request('report', calendarHref, JSON_CONTENT_TYPE_HEADER, body)
+      return calDavRequest('report', calendarHref, JSON_CONTENT_TYPE_HEADER, body)
       .then(davResponseHandler('dav:item'));
     }
 
@@ -97,7 +97,7 @@
      * @return {Array} The array of dav:items
      */
     function getEventByUID(calendarHomeId, uid) {
-      return request('report', calPathBuilder.forCalendarHomeId(calendarHomeId), JSON_CONTENT_TYPE_HEADER, { uid: uid }).then(davResponseHandler('dav:item'));
+      return calDavRequest('report', calPathBuilder.forCalendarHomeId(calendarHomeId), JSON_CONTENT_TYPE_HEADER, { uid: uid }).then(davResponseHandler('dav:item'));
     }
 
     /**
@@ -117,7 +117,7 @@
       };
       var path = calPathBuilder.forCalendarId(calendarHomeId, calendarId);
 
-      return request('report', path, JSON_CONTENT_TYPE_HEADER, body)
+      return calDavRequest('report', path, JSON_CONTENT_TYPE_HEADER, body)
       .then(davResponseHandler('dav:item'));
     }
 
@@ -128,7 +128,7 @@
     function listAllCalendars(options) {
       var path = calPathBuilder.rootPath();
 
-      return request('get', path + '/.json', {Accept: CAL_ACCEPT_HEADER}, {}, options)
+      return calDavRequest('get', path + '/.json', {Accept: CAL_ACCEPT_HEADER}, {}, options)
       .then(davResponseHandler('dav:home'));
     }
 
@@ -141,7 +141,7 @@
     function listCalendars(calendarId, options) {
       var path = calPathBuilder.forCalendarHomeId(calendarId);
 
-      return request('get', path, {Accept: CAL_ACCEPT_HEADER}, {}, options)
+      return calDavRequest('get', path, {Accept: CAL_ACCEPT_HEADER}, {}, options)
       .then(davResponseHandler('dav:calendar'));
     }
 
@@ -154,7 +154,7 @@
     function getCalendar(calendarHomeId, calendarId, options) {
       var path = calPathBuilder.forCalendarId(calendarHomeId, calendarId);
 
-      return request('get', path, {Accept: CAL_ACCEPT_HEADER}, {}, options)
+      return calDavRequest('get', path, {Accept: CAL_ACCEPT_HEADER}, {}, options)
       .then(responseHandler(200, _.property('data')));
     }
 
@@ -167,7 +167,7 @@
     function createCalendar(calendarHomeId, calendar) {
       var path = calPathBuilder.forCalendarHomeId(calendarHomeId);
 
-      return request('post', path, null, calendar)
+      return calDavRequest('post', path, null, calendar)
       .then(responseHandler(201))
       .catch(function(error) {
         notificationFactory.weakError('Failed to create calendar', 'Cannot join the server, please try later');
@@ -185,7 +185,7 @@
     function removeCalendar(calendarHomeId, calendarId) {
       var path = calPathBuilder.forCalendarId(calendarHomeId, calendarId);
 
-      return request('delete', path)
+      return calDavRequest('delete', path)
       .then(responseHandler(204))
       .catch(function(error) {
         notificationFactory.weakError('Failed to remove calendar', 'Cannot join the server, please try later');
@@ -203,7 +203,7 @@
     function modifyCalendar(calendarHomeId, calendar) {
       var path = calPathBuilder.forCalendarId(calendarHomeId, calendar.id);
 
-      return request('proppatch', path, JSON_CONTENT_TYPE_HEADER, calendar)
+      return calDavRequest('proppatch', path, JSON_CONTENT_TYPE_HEADER, calendar)
       .then(responseHandler(204))
       .catch(function(error) {
         notificationFactory.weakError('Failed to modify calendar', 'Cannot join the server, please try later');
@@ -221,7 +221,7 @@
     function getRight(calendarHomeId, calendar) {
       var path = calPathBuilder.forCalendarId(calendarHomeId, calendar.id);
 
-      return request('propfind', path, JSON_CONTENT_TYPE_HEADER, {
+      return calDavRequest('propfind', path, JSON_CONTENT_TYPE_HEADER, {
         prop: ['cs:invite', 'acl']
       }).then(responseHandler(200, _.property('data')));
     }
@@ -236,7 +236,7 @@
     function modifyPublicRights(calendarHomeId, calendarId, publicRights) {
       var path = calPathBuilder.forCalendarId(calendarHomeId, calendarId);
 
-      return request('acl', path, JSON_CONTENT_TYPE_HEADER, publicRights).then(responseHandler(200));
+      return calDavRequest('acl', path, JSON_CONTENT_TYPE_HEADER, publicRights).then(responseHandler(200));
     }
 
     /**
@@ -249,7 +249,7 @@
     function modifyShares(calendarHomeId, calendarId, rights) {
       var path = calPathBuilder.forCalendarId(calendarHomeId, calendarId);
 
-      return request('post', path, null, rights).then(responseHandler(200));
+      return calDavRequest('post', path, null, rights).then(responseHandler(200));
     }
 
     /**
@@ -264,11 +264,11 @@
       var body = vcalendar.toJSON();
 
       if (options.graceperiod) {
-        return request('put', eventPath, headers, body, {graceperiod: CAL_GRACE_DELAY})
+        return calDavRequest('put', eventPath, headers, body, {graceperiod: CAL_GRACE_DELAY})
         .then(gracePeriodResponseHandler);
       }
 
-      return request('put', eventPath, headers, body)
+      return calDavRequest('put', eventPath, headers, body)
       .then(responseHandler(201));
       }
 
@@ -291,7 +291,7 @@
 
       var body = vcalendar.toJSON();
 
-      return request('put', eventPath, headers, body, { graceperiod: CAL_GRACE_DELAY })
+      return calDavRequest('put', eventPath, headers, body, { graceperiod: CAL_GRACE_DELAY })
       .then(gracePeriodResponseHandler);
     }
 
@@ -304,7 +304,7 @@
     function remove(eventPath, etag) {
       var headers = {'If-Match': etag};
 
-      return request('delete', eventPath, headers, null, { graceperiod: CAL_GRACE_DELAY })
+      return calDavRequest('delete', eventPath, headers, null, { graceperiod: CAL_GRACE_DELAY })
       .then(gracePeriodResponseHandler);
     }
 
@@ -326,7 +326,7 @@
       }
       var body = vcalendar.toJSON();
 
-      return request('put', eventPath, headers, body)
+      return calDavRequest('put', eventPath, headers, body)
       .then(responseHandler([200, 204]));
     }
   }
