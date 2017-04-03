@@ -74,6 +74,11 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
       return $delegate;
     });
+    $provide.value('inboxIdentitiesService', {
+      getAllIdentities: function() {
+        return $q.when([{ isDefault: true, id: 'default' }]);
+      }
+    });
   }));
 
   beforeEach(inject(function(_$compile_, _$rootScope_, _$timeout_, _$stateParams_, _$templateCache_, session, _inboxJmapItemService_,

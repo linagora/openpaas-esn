@@ -3,7 +3,7 @@
 
   angular.module('linagora.esn.unifiedinbox')
 
-    .factory('inboxJmapHelper', function(jmap, session, emailBodyService, userUtils, withJmapClient, _, JMAP_GET_MESSAGES_VIEW) {
+    .factory('inboxJmapHelper', function($q, jmap, emailBodyService, withJmapClient, inboxIdentitiesService, _, JMAP_GET_MESSAGES_VIEW) {
       return {
         getMessageById: getMessageById,
         toOutboundMessage: toOutboundMessage
@@ -18,27 +18,31 @@
       }
 
       function toOutboundMessage(jmapClient, emailState) {
-        var message = {
-          from: new jmap.EMailer({
-            email: session.user.preferredEmail,
-            name: userUtils.displayNameOf(session.user)
-          }),
-          subject: emailState.subject,
-          to: _mapToEMailer(emailState.to),
-          cc: _mapToEMailer(emailState.cc),
-          bcc: _mapToEMailer(emailState.bcc)
-        };
-        var bodyProperty = emailState.htmlBody ? 'htmlBody' : emailBodyService.bodyProperty;
+        return $q.when(emailState.identity || inboxIdentitiesService.getDefaultIdentity())
+          .then(function(identity) {
+            var message = {
+              from: new jmap.EMailer({
+                email: identity.email,
+                name: identity.name
+              }),
+              replyTo: identity.replyTo ? [new jmap.EMailer({ email: identity.replyTo })] : null,
+              subject: emailState.subject,
+              to: _mapToEMailer(emailState.to),
+              cc: _mapToEMailer(emailState.cc),
+              bcc: _mapToEMailer(emailState.bcc)
+            };
+            var bodyProperty = emailState.htmlBody ? 'htmlBody' : emailBodyService.bodyProperty;
 
-        message[bodyProperty] = emailState[bodyProperty];
+            message[bodyProperty] = emailState[bodyProperty];
 
-        if (emailState.attachments) {
-          message.attachments = (emailState.attachments || []).filter(function(attachment) {
-            return attachment.blobId;
+            if (emailState.attachments) {
+              message.attachments = (emailState.attachments || []).filter(function(attachment) {
+                return attachment.blobId;
+              });
+            }
+
+            return new jmap.OutboundMessage(jmapClient, message);
           });
-        }
-
-        return new jmap.OutboundMessage(jmapClient, message);
       }
 
       function _mapToEMailer(recipients) {

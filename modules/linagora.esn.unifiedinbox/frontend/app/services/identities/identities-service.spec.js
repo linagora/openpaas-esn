@@ -38,6 +38,19 @@ describe('The inboxIdentitiesService factory', function() {
     $httpBackend.expectGET('/unifiedinbox/api/inbox/identities/default').respond(200, defaultIdentity);
   });
 
+  describe('The getDefaultIdentity function', function() {
+
+    it('should return the default identity', function(done) {
+      inboxIdentitiesService.getDefaultIdentity().then(function(identity) {
+        expect(identity).to.deep.equal(defaultIdentity);
+
+        done();
+      });
+      $httpBackend.flush();
+    });
+
+  });
+
   describe('The removeIdentity function', function() {
 
     it('should not allow to remove the default identity', function(done) {

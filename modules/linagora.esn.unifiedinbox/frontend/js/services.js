@@ -87,11 +87,12 @@ angular.module('linagora.esn.unifiedinbox')
       return withJmapClient(function(client) {
         return $q.all([
           inboxConfig('isJmapSendingEnabled'),
-          inboxConfig('isSaveDraftBeforeSendingEnabled')
+          inboxConfig('isSaveDraftBeforeSendingEnabled'),
+          inboxJmapHelper.toOutboundMessage(client, email)
         ]).then(function(data) {
           var isJmapSendingEnabled = data[0],
               isSaveDraftBeforeSendingEnabled = data[1],
-              message = inboxJmapHelper.toOutboundMessage(client, email);
+              message = data[2];
 
           if (!isJmapSendingEnabled) {
             return sendBySmtp(message);
@@ -349,12 +350,13 @@ angular.module('linagora.esn.unifiedinbox')
         function doSave() {
           var copy = angular.copy(email);
 
-          return client.saveAsDraft(inboxJmapHelper.toOutboundMessage(client, copy, options))
-            .then(function(ack) {
+          return inboxJmapHelper.toOutboundMessage(client, copy).then(function(message) {
+            return client.saveAsDraft(message).then(function(ack) {
               copy.id = ack.id;
 
               return copy;
             });
+          });
         }
 
         return partial ? doSave() : waitUntilMessageIsComplete(email).then(doSave);

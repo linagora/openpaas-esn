@@ -9,6 +9,7 @@
 
       return {
         getAllIdentities: getAllIdentities,
+        getDefaultIdentity: getDefaultIdentity,
         getIdentity: getIdentity,
         storeIdentity: storeIdentity,
         removeIdentity: removeIdentity
@@ -28,6 +29,12 @@
           identities = _(results[0]).concat(results[1]).value();
 
           return identities;
+        });
+      }
+
+      function getDefaultIdentity() {
+        return getAllIdentities().then(function(identities) {
+          return _.find(identities, { isDefault: true });
         });
       }
 

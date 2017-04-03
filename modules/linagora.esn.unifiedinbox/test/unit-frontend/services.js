@@ -31,6 +31,14 @@ describe('The Unified Inbox Angular module services', function() {
     $provide.value('esnConfig', function(key, defaultValue) {
       return $q.when(angular.isDefined(config[key]) ? config[key] : defaultValue);
     });
+    $provide.value('inboxIdentitiesService', {
+      getAllIdentities: function() {
+        return $q.when([{ isDefault: true, id: 'default', name: 'me me', email: 'yo@lo' }]);
+      },
+      getDefaultIdentity: function() {
+        return $q.when({ isDefault: true, id: 'default', name: 'me me', email: 'yo@lo' });
+      }
+    });
   }));
 
   afterEach(function() {
@@ -1186,7 +1194,7 @@ describe('The Unified Inbox Angular module services', function() {
 
   describe('The draftService service', function() {
 
-    var draftService, session, notificationFactory, jmapClient, emailBodyService, $rootScope;
+    var draftService, notificationFactory, jmapClient, emailBodyService, $rootScope;
 
     beforeEach(module(function($provide) {
       jmapClient = {};
@@ -1206,9 +1214,8 @@ describe('The Unified Inbox Angular module services', function() {
       $provide.value('emailBodyService', emailBodyService);
     }));
 
-    beforeEach(inject(function(_draftService_, _session_, _$rootScope_) {
+    beforeEach(inject(function(_draftService_, _$rootScope_) {
       draftService = _draftService_;
-      session = _session_;
       $rootScope = _$rootScope_;
     }));
 
@@ -1589,11 +1596,6 @@ describe('The Unified Inbox Angular module services', function() {
 
       it('should call saveAsDraft with OutboundMessage filled with properties', function() {
         jmapClient.saveAsDraft = sinon.stub().returns($q.when({}));
-        session.user = {
-          firstname: 'me',
-          lastname: 'me',
-          preferredEmail: 'yo@lo'
-        };
 
         draftService.startDraft({}).save({
           subject: 'expected subject',
@@ -1617,11 +1619,6 @@ describe('The Unified Inbox Angular module services', function() {
 
       it('should map all recipients to name-email tuple', function() {
         jmapClient.saveAsDraft = sinon.stub().returns($q.when({}));
-        session.user = {
-          firstname: 'me',
-          lastname: 'me',
-          preferredEmail: 'yo@lo'
-        };
 
         draftService.startDraft({}).save({
           subject: 'expected subject',

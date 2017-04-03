@@ -16,21 +16,20 @@ describe('The inboxJmapHelper service', function() {
         return callback(jmapClient);
       });
       $provide.value('emailBodyService', emailBodyServiceMock = { bodyProperty: 'htmlBody' });
+      $provide.value('inboxIdentitiesService', {
+        getDefaultIdentity: function() {
+          return $q.when({ id: 'default', name: 'Default Name', email: 'default@domain.com' });
+        }
+      });
     });
 
-    angular.mock.inject(function(session, _$rootScope_, _inboxJmapHelper_, _notificationFactory_, _jmap_) {
+    angular.mock.inject(function(_$rootScope_, _inboxJmapHelper_, _notificationFactory_, _jmap_) {
       inboxJmapHelper = _inboxJmapHelper_;
       jmap = _jmap_;
       $rootScope = _$rootScope_;
       notificationFactory = _notificationFactory_;
 
       notificationFactory.weakError = sinon.spy();
-
-      session.user = {
-        firstname: 'Alice',
-        lastname: 'Cooper',
-        preferredEmail: 'alice@domain'
-      };
     });
   });
 
@@ -67,65 +66,136 @@ describe('The inboxJmapHelper service', function() {
   describe('The toOutboundMessage fn', function() {
 
     it('should build and return new instance of jmap.OutboundMessage', function() {
-      expect(inboxJmapHelper.toOutboundMessage({}, {
+      inboxJmapHelper.toOutboundMessage({}, {
+        identity: {
+          name: 'Alice Cooper',
+          email: 'alice@domain'
+        },
         subject: 'expected subject',
         htmlBody: 'expected htmlBody',
         to: [{email: 'to@domain', name: 'to'}],
         cc: [{email: 'cc@domain', name: 'cc'}],
         bcc: [{email: 'bcc@domain', name: 'bcc'}]
-      })).to.deep.equal(new jmap.OutboundMessage({}, {
-        from: new jmap.EMailer({
-          name: 'Alice Cooper',
-          email: 'alice@domain'
-        }),
-        subject: 'expected subject',
-        htmlBody: 'expected htmlBody',
-        to: [new jmap.EMailer({email: 'to@domain', name: 'to'})],
-        cc: [new jmap.EMailer({email: 'cc@domain', name: 'cc'})],
-        bcc: [new jmap.EMailer({email: 'bcc@domain', name: 'bcc'})]
-      }));
+      }).then(function(message) {
+        expect(message).to.deep.equal(new jmap.OutboundMessage({}, {
+          from: new jmap.EMailer({
+            name: 'Alice Cooper',
+            email: 'alice@domain'
+          }),
+          replyTo: null,
+          subject: 'expected subject',
+          htmlBody: 'expected htmlBody',
+          to: [new jmap.EMailer({email: 'to@domain', name: 'to'})],
+          cc: [new jmap.EMailer({email: 'cc@domain', name: 'cc'})],
+          bcc: [new jmap.EMailer({email: 'bcc@domain', name: 'bcc'})]
+        }));
+      });
+      $rootScope.$digest();
     });
 
     it('should filter attachments with no blobId', function() {
-      expect(inboxJmapHelper.toOutboundMessage({}, {
-        htmlBody: 'expected htmlBody',
-        attachments: [{ blobId: '1' }, { blobId: '' }]
-      })).to.deep.equal(new jmap.OutboundMessage({}, {
-        from: new jmap.EMailer({
+      inboxJmapHelper.toOutboundMessage({}, {
+        identity: {
           name: 'Alice Cooper',
           email: 'alice@domain'
-        }),
+        },
         htmlBody: 'expected htmlBody',
-        to: [],
-        cc: [],
-        bcc: [],
-        attachments: [new jmap.Attachment({}, '1')]
-      }));
+        attachments: [{ blobId: '1' }, { blobId: '' }]
+      }).then(function(message) {
+        expect(message).to.deep.equal(new jmap.OutboundMessage({}, {
+          from: new jmap.EMailer({
+            name: 'Alice Cooper',
+            email: 'alice@domain'
+          }),
+          htmlBody: 'expected htmlBody',
+          to: [],
+          cc: [],
+          bcc: [],
+          attachments: [new jmap.Attachment({}, '1')]
+        }));
+      });
+      $rootScope.$digest();
     });
 
     it('should include email.htmlBody when provided', function() {
       emailBodyServiceMock.bodyProperty = 'textBody';
 
-      var message = inboxJmapHelper.toOutboundMessage({}, {
+      inboxJmapHelper.toOutboundMessage({}, {
+        identity: {
+          name: 'Alice Cooper',
+          email: 'alice@domain'
+        },
         htmlBody: 'expected htmlBody',
         textBody: 'expected textBody'
+      }).then(function(message) {
+        expect(message.htmlBody).to.equal('expected htmlBody');
+        expect(message.textBody).to.be.null;
       });
-
-      expect(message.htmlBody).to.equal('expected htmlBody');
-      expect(message.textBody).to.be.null;
+      $rootScope.$digest();
     });
 
     it('should leverage emailBodyServiceMock.bodyProperty when emailState.htmlBody is undefined', function() {
       emailBodyServiceMock.bodyProperty = 'textBody';
 
-      var message = inboxJmapHelper.toOutboundMessage({}, {
+      inboxJmapHelper.toOutboundMessage({}, {
+        identity: {
+          name: 'Alice Cooper',
+          email: 'alice@domain'
+        },
         htmlBody: '',
         textBody: 'expected textBody'
+      }).then(function(message) {
+        expect(message.htmlBody).to.be.null;
+        expect(message.textBody).to.equal('expected textBody');
       });
-
-      expect(message.htmlBody).to.be.null;
-      expect(message.textBody).to.equal('expected textBody');
+      $rootScope.$digest();
     });
+
+    it('should set replyTo in the OutboundMessage, if defined in the identity', function() {
+      inboxJmapHelper.toOutboundMessage({}, {
+        identity: {
+          name: 'Alice Cooper',
+          email: 'alice@domain',
+          replyTo: 'bob@domain'
+        },
+        to: [{email: 'to@domain', name: 'to'}]
+      }).then(function(message) {
+        expect(message).to.deep.equal(new jmap.OutboundMessage({}, {
+          from: new jmap.EMailer({
+            name: 'Alice Cooper',
+            email: 'alice@domain'
+          }),
+          replyTo: [new jmap.EMailer({ email: 'bob@domain' })],
+          to: [new jmap.EMailer({email: 'to@domain', name: 'to'})],
+          subject: null,
+          htmlBody: null,
+          cc: [],
+          bcc: []
+        }));
+      });
+      $rootScope.$digest();
+    });
+
+    it('should use default identity if none defined at the message level', function() {
+      inboxJmapHelper.toOutboundMessage({}, {
+        to: [{email: 'to@domain', name: 'to'}]
+      }).then(function(message) {
+        expect(message).to.deep.equal(new jmap.OutboundMessage({}, {
+          from: new jmap.EMailer({
+            name: 'Default Name',
+            email: 'default@domain.com'
+          }),
+          replyTo: null,
+          to: [new jmap.EMailer({email: 'to@domain', name: 'to'})],
+          subject: null,
+          htmlBody: null,
+          cc: [],
+          bcc: []
+        }));
+      });
+      $rootScope.$digest();
+    });
+
   });
 
 });
