@@ -12,9 +12,8 @@
   hr
 
 .delegation-line(ng-repeat="delegation in $ctrl.delegations")
-  .col-xs-1
-    a.attendee-avatar(href="", ng-attr-title='delegation.user.displayName')
-      esn-avatar(avatar-email="::delegation.user.preferredEmail", display-user-status="true")
+  a.attendee-avatar(href="", ng-attr-title='delegation.user.displayName')
+    esn-avatar(user-email="{{delegation.user.preferredEmail}}")
   .col-xs-4.name
     span {{ delegation.user.displayName }}
   .col-xs-6

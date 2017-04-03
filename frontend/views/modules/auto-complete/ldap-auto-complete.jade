@@ -1,6 +1,5 @@
 .row.auto-complete-match
-  .col-xs-1.col-sm-1
-    esn-avatar(avatar-email="::data.email", display-user-status="true")
+  esn-avatar(user-email="{{data.email}}")
   .row
     .col-xs-10.col-sm-11(ng-bind-html="$highlight(data.firstname + ' '+ data.lastname)")
     .col-xs-10.col-sm-11(ng-bind-html="$highlight(data.emails[0])")

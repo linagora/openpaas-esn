@@ -252,7 +252,7 @@ describe('The User controller', function() {
     });
   });
 
-  describe('The profileByOptions function', function() {
+  describe('The getProfilesByQuery function', function() {
     it('should return HTTP 400 if the email is missing', function(done) {
 
       var users = this.helpers.requireBackend('webserver/controllers/users');
@@ -270,7 +270,7 @@ describe('The User controller', function() {
         }
       );
 
-      users.profileByOptions(req, res);
+      users.getProfilesByQuery(req, res);
     });
 
     it('should return HTTP 500 if there is an error', function(done) {
@@ -279,7 +279,7 @@ describe('The User controller', function() {
       };
       var moduleMock = {
         user: {
-          findByEmail: function(email, callback) {
+          findUsersByEmail: function(email, callback) {
            callback(error);
           }
         }
@@ -304,50 +304,14 @@ describe('The User controller', function() {
         }
       );
 
-      users.profileByOptions(req, res);
+      users.getProfilesByQuery(req, res);
     });
 
-    it('should return HTTP 404 if user does not exist', function(done) {
+    it('should return HTTP 200 with empty array if the users is undefined', function(done) {
       var moduleMock = {
         user: {
-          findByEmail: function(email, callback) {
-            callback();
-          }
-        }
-      };
-
-      mockery.registerMock('../../core', moduleMock);
-
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-      var req = {
-        query: {
-          email: 'admin@open-paas.org'
-        }
-      };
-      var res = this.helpers.express.jsonResponse(
-        function(code, data) {
-          expect(code).to.equal(404);
-          expect(data.error).to.equal(404);
-          expect(data.message).to.equal('User not found');
-          expect(data.details).to.equal('User admin@open-paas.org has not been found');
-
-          done();
-        }
-      );
-
-      users.profileByOptions(req, res);
-    });
-
-    it('should return HTTP 200 if the user is returned', function(done) {
-      var user = {
-        _id: '123',
-        firstname: 'Dali',
-        lastname: 'Dali'
-      };
-      var moduleMock = {
-        user: {
-          findByEmail: function(email, callback) {
-            callback(null, user);
+          findUsersByEmail: function(email, callback) {
+            callback(null);
           }
         }
       };
@@ -369,13 +333,53 @@ describe('The User controller', function() {
       var res = this.helpers.express.jsonResponse(
         function(code, data) {
           expect(code).to.equal(200);
-          expect(data).to.shallowDeepEqual(user);
+          expect(data).to.shallowDeepEqual([]);
 
           done();
         }
       );
 
-      users.profileByOptions(req, res);
+      users.getProfilesByQuery(req, res);
+    });
+
+    it('should return HTTP 200 if the user is returned', function(done) {
+      var user = {
+        _id: '123',
+        firstname: 'Dali',
+        lastname: 'Dali'
+      };
+      var moduleMock = {
+        user: {
+          findUsersByEmail: function(email, callback) {
+            callback(null, [user]);
+          }
+        }
+      };
+
+      mockery.registerMock('../denormalize/user', {
+        denormalize: function(user) {
+          return q(user);
+        }
+      });
+
+      mockery.registerMock('../../core', moduleMock);
+
+      var users = this.helpers.requireBackend('webserver/controllers/users');
+      var req = {
+        query: {
+          email: 'admin@open-paas.org'
+        }
+      };
+      var res = this.helpers.express.jsonResponse(
+        function(code, data) {
+          expect(code).to.equal(200);
+          expect(data).to.shallowDeepEqual([user]);
+
+          done();
+        }
+      );
+
+      users.getProfilesByQuery(req, res);
     });
   });
 

@@ -1,6 +1,6 @@
 .attendee-list-item.col-xs-1
   a.attendee-avatar(href="", ng-attr-title='{{::ctrl.attendee.name}}')
-    esn-avatar(avatar-email="::ctrl.attendee.email", display-user-status="true")
+    esn-avatar(user-email="{{ctrl.attendee.email}}")
     .checkbox(ng-if='!ctrl.readOnly && !ctrl.isOrganizer')
       label
         input.force-position-initial(type="checkbox", ng-if="!ctrl.attendee.clicked")

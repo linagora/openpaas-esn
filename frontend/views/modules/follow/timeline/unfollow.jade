@@ -3,7 +3,7 @@
     .media
       a.pull-left(ui-sref="profile({user_id: entry.actor._id})")
         .lv-img
-          esn-avatar(avatar-id="::entry.actor._id", display-user-status="true")
+          esn-avatar(user-id="{{entry.actor._id}}")
       .media-body
         h2(ng-if='entry.object._id === user._id')
           a(ui-sref="profile({user_id: entry.actor._id})") {{::entry.actor.displayName}}
