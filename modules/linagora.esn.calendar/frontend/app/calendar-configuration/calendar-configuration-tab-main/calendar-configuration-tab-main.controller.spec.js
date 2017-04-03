@@ -12,7 +12,7 @@ describe('The calendar configuration tab delegation controller', function() {
     $q,
     CalendarConfigurationTabMainController,
     calendarService,
-    CAL_CALENDAR_RIGHT;
+    CAL_CALENDAR_PUBLIC_RIGHT;
 
   function initController() {
     return $controller('CalendarConfigurationTabMainController', { $scope: $scope });
@@ -31,13 +31,13 @@ describe('The calendar configuration tab delegation controller', function() {
       $provide.value('calendarService', calendarService);
     });
 
-    angular.mock.inject(function(_$rootScope_, _$controller_, _$state_, _$q_, _CAL_CALENDAR_RIGHT_) {
+    angular.mock.inject(function(_$rootScope_, _$controller_, _$state_, _$q_, _CAL_CALENDAR_PUBLIC_RIGHT_) {
       $rootScope = _$rootScope_;
       $scope = $rootScope.$new();
       $controller = _$controller_;
       $state = _$state_;
       $q = _$q_;
-      CAL_CALENDAR_RIGHT = _CAL_CALENDAR_RIGHT_;
+      CAL_CALENDAR_PUBLIC_RIGHT = _CAL_CALENDAR_PUBLIC_RIGHT_;
     });
   });
 
@@ -50,17 +50,17 @@ describe('The calendar configuration tab delegation controller', function() {
     it('should initialize self.publicRights with an array contains the different rights', function() {
       var publicRightsExpected = [
         {
-          value: CAL_CALENDAR_RIGHT.PUBLIC_READ,
+          value: CAL_CALENDAR_PUBLIC_RIGHT.READ,
           name: 'Read'
         },
         {
-          value: CAL_CALENDAR_RIGHT.WRITE,
+          value: CAL_CALENDAR_PUBLIC_RIGHT.READ_WRITE,
           name: 'Write'
         }, {
-          value: CAL_CALENDAR_RIGHT.FREE_BUSY,
+          value: CAL_CALENDAR_PUBLIC_RIGHT.FREE_BUSY,
           name: 'Private'
         }, {
-          value: CAL_CALENDAR_RIGHT.NONE,
+          value: CAL_CALENDAR_PUBLIC_RIGHT.NONE,
           name: 'None'
         }
       ];

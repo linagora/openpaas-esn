@@ -18,7 +18,7 @@
 
       sharedCalendars = calendars.filter(function(calendar) {
         if (calendar.rights) {
-          return calendar.isShared(session.user._id);
+          return !calendar.isOwner(session.user._id) && calendar.isShared(session.user._id);
         }
 
         return false;
@@ -26,7 +26,7 @@
 
       publicCalendars = calendars.filter(function(calendar) {
         if (calendar.rights) {
-          return !calendar.isShared(session.user._id) && calendar.isPublic();
+          return !calendar.isOwner(session.user._id) && !calendar.isShared(session.user._id) && calendar.isPublic();
         }
 
         return false;

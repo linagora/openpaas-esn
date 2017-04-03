@@ -2,9 +2,9 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .factory('CalendarCollectionShell', CalendarCollectionShellFactory);
+    .factory('CalendarCollectionShell', CalendarCollectionShellFactory);
 
-  function CalendarCollectionShellFactory($q, $log, _, calPathBuilder, CalendarRightShell, session, userAPI, CAL_CALENDAR_PUBLIC_RIGHTS, CAL_DEDAULT_EVENT_COLOR, CAL_DEFAULT_CALENDAR_ID, CAL_CALENDAR_RIGHT, CAL_CALENDAR_SHARED_RIGHT) {
+  function CalendarCollectionShellFactory($q, $log, _, calPathBuilder, CalendarRightShell, session, userAPI, CAL_DEDAULT_EVENT_COLOR, CAL_DEFAULT_CALENDAR_ID, CAL_CALENDAR_PUBLIC_RIGHT, CAL_CALENDAR_SHARED_RIGHT) {
     /**
      * A shell that wraps an caldav calendar component.
      * Note that href is the unique identifier and id is the calendarId inside the calendarHomeId
@@ -100,29 +100,17 @@
      * @returns {boolean} return true if the calendar is public
      */
     function isPublic() {
-      var publicRight = this.rights.getPublicRight();
-
-      return CAL_CALENDAR_PUBLIC_RIGHTS.indexOf(publicRight) > -1;
+      return !!this.rights.getPublicRight();
     }
 
     /**
      * Get the owner of the calendar
-     * @returns {boolean} return the owner of the calendar
+     * @returns {user} return the owner of the calendar
      */
     function getOwner() {
-      var self = this;
-
-      if (self.rights) {
-        var calendarInvitesIds = _.keys(self.rights.getUsersEmails());
-        var calendarOwnerId;
-
-        calendarInvitesIds.some(function(userId) {
-          if (self.isOwner(userId)) {
-            calendarOwnerId = userId;
-
-            return true;
-          }
-        });
+      var calendarOwnerId;
+      if (this.rights) {
+        calendarOwnerId = this.rights.getOwnerId();
 
         if (calendarOwnerId) {
           return userAPI.user(calendarOwnerId).then(function(response) {
@@ -143,15 +131,13 @@
      * @returns {boolean} return true if the user is the owner of the calendar
      */
     function isOwner(userId) {
-      var rights = this.rights.getUserRight(userId);
-
-      return rights === CAL_CALENDAR_RIGHT.ADMIN;
+      return userId === this.rights.getOwnerId();
     }
 
     function checkReadOnly(rights, userId) {
       if (rights) {
         return ([CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ, CAL_CALENDAR_SHARED_RIGHT.SHAREE_FREE_BUSY].indexOf(rights.getShareeRight(userId)) > -1) ||
-          rights.getUserRight(userId) === CAL_CALENDAR_RIGHT.PUBLIC_READ;
+          rights.getPublicRight() === CAL_CALENDAR_PUBLIC_RIGHT.READ;
       }
 
       return false;

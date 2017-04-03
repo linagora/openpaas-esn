@@ -31,7 +31,7 @@ describe('The calendar configuration controller', function() {
     calendarHomeServiceMock,
     calendar,
     SM_XS_MEDIA_QUERY,
-    CAL_CALENDAR_RIGHT,
+    CAL_CALENDAR_PUBLIC_RIGHT,
     CAL_CALENDAR_SHARED_RIGHT;
 
   function initController() {
@@ -89,9 +89,10 @@ describe('The calendar configuration controller', function() {
 
     calendarRight = {
       getPublicRight: sinon.spy(),
-      getUserRight: sinon.spy(),
+      getShareeRight: sinon.spy(),
       getAllUserRight: sinon.stub().returns([]),
       getAllShareeRights: sinon.stub().returns([]),
+      getOwnerId: sinon.spy(),
       clone: sinon.spy(),
       removeShareeRight: sinon.spy(),
       update: sinon.spy(),
@@ -169,11 +170,11 @@ describe('The calendar configuration controller', function() {
   });
 
   beforeEach(function() {
-    angular.mock.inject(function(_$rootScope_, _$controller_, _CAL_CALENDAR_RIGHT_, _CAL_CALENDAR_SHARED_RIGHT_, _SM_XS_MEDIA_QUERY_) {
+    angular.mock.inject(function(_$rootScope_, _$controller_, _CAL_CALENDAR_PUBLIC_RIGHT_, _CAL_CALENDAR_SHARED_RIGHT_, _SM_XS_MEDIA_QUERY_) {
       $rootScope = _$rootScope_;
       $scope = $rootScope.$new();
       $controller = _$controller_;
-      CAL_CALENDAR_RIGHT = _CAL_CALENDAR_RIGHT_;
+      CAL_CALENDAR_PUBLIC_RIGHT = _CAL_CALENDAR_PUBLIC_RIGHT_;
       CAL_CALENDAR_SHARED_RIGHT = _CAL_CALENDAR_SHARED_RIGHT_;
       SM_XS_MEDIA_QUERY = _SM_XS_MEDIA_QUERY_;
     });
@@ -364,8 +365,8 @@ describe('The calendar configuration controller', function() {
       expect(calendarConfigurationController.selectedShareeRight).to.equal(CAL_CALENDAR_SHARED_RIGHT.NONE);
     });
 
-    it('should correcly initialize isAdmin if user is admin', function() {
-      calendarRight.getUserRight = sinon.stub().returns(CAL_CALENDAR_RIGHT.ADMIN);
+    it('should correcly initialize isAdmin if user is the owner', function() {
+      calendarRight.getOwnerId = sinon.stub().returns('12345');
       calendarConfigurationController.calendar = {
         href: 'data/data.json'
       };
@@ -374,11 +375,25 @@ describe('The calendar configuration controller', function() {
       $rootScope.$digest();
 
       expect(calendarConfigurationController.isAdmin).to.be.true;
-      expect(calendarRight.getUserRight).to.have.been.calledWith(calendarConfigurationController.calendarHomeId);
+      expect(calendarRight.getOwnerId).to.have.been.calledWith;
     });
 
-    it('should correcly initialize isAdmin if user is not admin', function() {
-      calendarRight.getUserRight = sinon.stub().returns(CAL_CALENDAR_RIGHT.READ);
+    it('should correcly initialize isAdmin if user has shared admin right', function() {
+      calendarRight.getOwnerId = sinon.stub().returns('someone_else');
+      calendarRight.getShareeRight = sinon.stub().returns(CAL_CALENDAR_SHARED_RIGHT.SHAREE_ADMIN);
+      calendarConfigurationController.calendar = {
+        href: 'data/data.json'
+      };
+
+      calendarConfigurationController.activate();
+      $rootScope.$digest();
+
+      expect(calendarConfigurationController.isAdmin).to.be.true;
+      expect(calendarRight.getOwnerId).to.have.been.calledWith;
+    });
+
+    it('should correcly initialize isAdmin if user is not the owner', function() {
+      calendarRight.getOwnerId = sinon.stub().returns('someone_else');
       calendarConfigurationController.calendar = {
         href: 'data/data.json'
       };
@@ -387,7 +402,7 @@ describe('The calendar configuration controller', function() {
       $rootScope.$digest();
 
       expect(calendarConfigurationController.isAdmin).to.be.false;
-      expect(calendarRight.getUserRight).to.have.been.calledWith(calendarConfigurationController.calendarHomeId);
+      expect(calendarRight.getOwnerId).to.have.been.calledWith;
     });
 
     it('should correctly initialize delegation', function() {
@@ -649,7 +664,7 @@ describe('The calendar configuration controller', function() {
         });
 
         it('should call modifyPublicRights with read argument when public right is changed to read', function() {
-          calendarConfigurationController.publicSelection = CAL_CALENDAR_RIGHT.PUBLIC_READ;
+          calendarConfigurationController.publicSelection = CAL_CALENDAR_PUBLIC_RIGHT.READ;
 
           calendarConfigurationController.submit();
           $rootScope.$digest();
@@ -667,7 +682,7 @@ describe('The calendar configuration controller', function() {
 
         //This test must be changed when we affect the correct right to none option.
         it('should call modifyPublicRights with write argument when public right is changed to none', function() {
-          calendarConfigurationController.publicSelection = CAL_CALENDAR_RIGHT.WRITE;
+          calendarConfigurationController.publicSelection = CAL_CALENDAR_PUBLIC_RIGHT.READ_WRITE;
 
           calendarConfigurationController.submit();
           $rootScope.$digest();
@@ -684,7 +699,7 @@ describe('The calendar configuration controller', function() {
         });
 
         it('should call modifyPublicRights with free-busy argument when public right is changed to something other than none or read', function() {
-          calendarConfigurationController.publicSelection = CAL_CALENDAR_RIGHT.FREE_BUSY;
+          calendarConfigurationController.publicSelection = CAL_CALENDAR_PUBLIC_RIGHT.FREE_BUSY;
 
           calendarConfigurationController.submit();
           $rootScope.$digest();
@@ -723,7 +738,7 @@ describe('The calendar configuration controller', function() {
         calendarConfigurationController.activate();
         $rootScope.$digest();
 
-        calendarConfigurationController.publicSelection = CAL_CALENDAR_RIGHT.FREE_BUSY;
+        calendarConfigurationController.publicSelection = CAL_CALENDAR_PUBLIC_RIGHT.FREE_BUSY;
         calendarConfigurationController.calendar.name = modifiedName;
         calendarConfigurationController.newCalendar = false;
 

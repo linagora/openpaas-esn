@@ -4,7 +4,7 @@
   angular.module('esn.calendar')
     .factory('CalendarRightShell', CalendarRightShell);
 
-  function CalendarRightShell(CAL_CALENDAR_RIGHT, CAL_CALENDAR_SHARED_RIGHT, CalRightSet, _, calendarUtils) {
+  function CalendarRightShell(CAL_CALENDAR_PUBLIC_RIGHT, CAL_CALENDAR_SHARED_RIGHT, CalRightSet, _, calendarUtils) {
 
     //the idea here is that there is a multitude of possible combinaison of webdav right and webdav sharing right
     //I will suppose that right are only settle by OpenPaas and that the only possible combinaison are the following
@@ -15,13 +15,12 @@
     // free_busy: he own no shared instance and has only the WEBDAV right read-free-busy
     // none: he own no shared instance and no WEBDAV right BUT FOR THE MOMENT I do not know we can overwrite global read-free-busy
     var principalRegexp = new RegExp('principals/users/([^/]*)$');
-    var matrix = initRightMatrix();
+    var matrix = initPublicRightMatrix();
 
     CalendarRightShell.prototype.clone = clone;
     CalendarRightShell.prototype.equals = equals;
     CalendarRightShell.prototype.getOwnerId = getOwnerId;
     CalendarRightShell.prototype.getPublicRight = getPublicRight;
-    CalendarRightShell.prototype.getUserRight = getUserRight;
     CalendarRightShell.prototype.getShareeRight = getShareeRight;
     CalendarRightShell.prototype.updateSharee = updateSharee;
     CalendarRightShell.prototype.getAllShareeRights = getAllShareeRights;
@@ -30,8 +29,6 @@
     CalendarRightShell.prototype.removeShareeRight = removeShareeRight;
     CalendarRightShell.prototype.toDAVShareRightsUpdate = toDAVShareRightsUpdate;
     CalendarRightShell.prototype.toJson = toJson;
-
-    CalendarRightShell.prototype._getUserSet = _getUserSet;
 
     return CalendarRightShell;
 
@@ -46,22 +43,15 @@
      * @constructor
      */
     function CalendarRightShell(acl, invite) {
-      this._userRight = {};
       this._userEmails = {};
       this._public = new CalRightSet();
       this._sharee = {};
-      this._ownerId;
+      this._ownerId = {};
 
       acl && acl.forEach(function(line) {
-        var userCalRightSet, userId, match = line.principal && line.principal.match(principalRegexp);
-
-        if (match) {
-          userId = match[1];
-          userCalRightSet = this._getUserSet(userId);
-        } else if (line.principal === '{DAV:}authenticated') {
-          userCalRightSet = this._public;
+        if (line.principal === '{DAV:}authenticated') {
+          this._public.addPermission(CalRightSet.webdavStringToConstant(line.privilege));
         }
-        userCalRightSet && userCalRightSet.addPermission(CalRightSet.webdavStringToConstant(line.privilege));
       }, this);
 
       invite && invite.forEach(function(line) {
@@ -109,24 +99,7 @@
         }
       });
 
-      return result || CAL_CALENDAR_RIGHT.CUSTOM;
-    }
-
-    function _getUserSet(userId) {
-      this._userRight[userId] = this._userRight[userId] || new CalRightSet();
-
-      return this._userRight[userId];
-    }
-
-    /**
-     * Compute Right from ACL
-     * @param userId
-     * @returns {CAL_CALENDAR_RIGHT} role computed from ACL
-     */
-    function getUserRight(userId) {
-      var calRightSet = this._userRight[userId];
-
-      return calRightSet && _sumupRight(calRightSet);
+      return result || CAL_CALENDAR_PUBLIC_RIGHT.NONE;
     }
 
     function getUsersEmails() {
@@ -158,7 +131,7 @@
 
     /**
      * Compute public Right from ACL
-     * @returns {CAL_CALENDAR_RIGHT} public role computed from ACL
+     * @returns {CAL_CALENDAR_PUBLIC_RIGHT} public role computed from ACL
      */
     function getPublicRight() {
       return _sumupRight(this._public);
@@ -246,17 +219,10 @@
 
     function toJson() {
       var result = {
-        users: {},
         public: this._public.toJson(),
         sharee: this._sharee,
         ownerId: this._ownerId
       };
-
-      _.forEach(this._userRight, function(set, userKey) {
-        if (set.bitVector) {
-          result.users[userKey] = set.toJson();
-        }
-      });
 
       return result;
     }
@@ -274,10 +240,6 @@
     function clone() {
       var clone = new CalendarRightShell();
 
-      clone._userRight = _.mapValues(this._userRight, function(calRightSet) {
-        return calRightSet.clone();
-      });
-
       clone._userEmails = _.clone(this._userEmails);
       clone._public = this._public.clone();
       clone._sharee = _.clone(this._sharee);
@@ -286,20 +248,10 @@
       return clone;
     }
 
-    function initRightMatrix() {
+    function initPublicRightMatrix() {
       var matrix = {};
 
-      matrix[CAL_CALENDAR_RIGHT.ADMIN] = {
-        shouldHave: [
-          CalRightSet.SHARE,
-          CalRightSet.READ,
-          CalRightSet.WRITE,
-          CalRightSet.WRITE_PROPERTIES
-        ],
-        shouldNotHave: []
-      };
-
-      matrix[CAL_CALENDAR_RIGHT.PUBLIC_READ] = {
+      matrix[CAL_CALENDAR_PUBLIC_RIGHT.READ] = {
         shouldHave: [
           CalRightSet.READ
         ],
@@ -309,7 +261,7 @@
         ]
       };
 
-      matrix[CAL_CALENDAR_RIGHT.WRITE] = {
+      matrix[CAL_CALENDAR_PUBLIC_RIGHT.READ_WRITE] = {
         shouldHave: [
           CalRightSet.WRITE
         ],
@@ -320,7 +272,7 @@
         ]
       };
 
-      matrix[CAL_CALENDAR_RIGHT.FREE_BUSY] = {
+      matrix[CAL_CALENDAR_PUBLIC_RIGHT.FREE_BUSY] = {
         shouldHave: [
           CalRightSet.FREE_BUSY
         ],
@@ -332,7 +284,7 @@
         ]
       };
 
-      matrix[CAL_CALENDAR_RIGHT.NONE] = {
+      matrix[CAL_CALENDAR_PUBLIC_RIGHT.NONE] = {
         shouldHave: [],
         shouldNotHave: [
           CalRightSet.FREE_BUSY,

@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('the userAndExternalCalendars service', function() {
-  var calendars, userAndExternalCalendars, CAL_CALENDAR_RIGHT, CAL_CALENDAR_SHARED_RIGHT;
+  var calendars, userAndExternalCalendars;
 
   beforeEach(function() {
     calendars = [{
@@ -21,11 +21,8 @@ describe('the userAndExternalCalendars service', function() {
       color: 'color2',
       description: 'description2',
       rights: {
-        getUserRight: function() {
-          return CAL_CALENDAR_RIGHT.ADMIN;
-        },
-        getPublicRight: function() {
-          return CAL_CALENDAR_RIGHT.PUBLIC_READ;
+        getOwnerId: function() {
+          return 'tata';
         }
       },
       isShared: function() {
@@ -44,11 +41,48 @@ describe('the userAndExternalCalendars service', function() {
       color: 'color',
       description: 'description',
       rights: {
-        getUserRight: function() {
-          return CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ;
-        },
-        getPublicRight: function() {
-          return CAL_CALENDAR_RIGHT.NONE;
+        getOwnerId: function() {
+          return 'tata';
+        }
+      },
+      isShared: function() {
+        return true;
+      },
+      isPublic: function() {
+        return false;
+      },
+      isOwner: function() {
+        return true;
+      }
+    }, {
+      id: '4',
+      href: 'href',
+      name: 'name',
+      color: 'color',
+      description: 'description',
+      rights: {
+        getOwnerId: function() {
+          return 'tata';
+        }
+      },
+      isShared: function() {
+        return false;
+      },
+      isPublic: function() {
+        return true;
+      },
+      isOwner: function() {
+        return false;
+      }
+    }, {
+      id: '5',
+      href: 'href',
+      name: 'name',
+      color: 'color',
+      description: 'description',
+      rights: {
+        getOwnerId: function() {
+          return 'tata';
         }
       },
       isShared: function() {
@@ -61,36 +95,31 @@ describe('the userAndExternalCalendars service', function() {
         return false;
       }
     }, {
-      id: '4',
+      id: '6',
       href: 'href',
       name: 'name',
       color: 'color',
       description: 'description',
       rights: {
-        getUserRight: function() {
-          return CAL_CALENDAR_RIGHT.ADMIN;
-        },
-        getPublicRight: function() {
-          return CAL_CALENDAR_RIGHT.WRITE;
+        getOwnerId: function() {
+          return 'tata';
         }
       },
       isShared: function() {
-        return false;
+        return true;
       },
       isPublic: function() {
         return true;
       },
       isOwner: function() {
-        return true;
+        return false;
       }
     }];
 
     angular.mock.module('esn.calendar');
 
-    angular.mock.inject(function(_userAndExternalCalendars_, _CAL_CALENDAR_RIGHT_, _CAL_CALENDAR_SHARED_RIGHT_) {
+    angular.mock.inject(function(_userAndExternalCalendars_) {
       userAndExternalCalendars = _userAndExternalCalendars_;
-      CAL_CALENDAR_RIGHT = _CAL_CALENDAR_RIGHT_;
-      CAL_CALENDAR_SHARED_RIGHT = _CAL_CALENDAR_SHARED_RIGHT_;
     });
   });
 
@@ -98,27 +127,23 @@ describe('the userAndExternalCalendars service', function() {
     userAndExternalCalendars = userAndExternalCalendars(calendars);
   });
 
-  it('should initialize userCalendars with calendars that have rights', function() {
+  it('should initialize userCalendars with calendars that have no rights', function() {
     expect(userAndExternalCalendars.userCalendars).to.contain(calendars[0]);
   });
 
-  it('should initialize userCalendars with calendars that have the admin right for the current user', function() {
-    expect(userAndExternalCalendars.userCalendars).to.contain(calendars[1], calendars[3]);
+  it('should initialize userCalendars with calendars that belong to the current user', function() {
+    expect(userAndExternalCalendars.userCalendars).to.contain(calendars[1], calendars[2]);
   });
 
-  it('should initialize userCalendars with calendars that have the rights and the calendars have the admin right for the current user', function() {
-    expect(userAndExternalCalendars.userCalendars).to.deep.equal([calendars[0], calendars[1], calendars[3]]);
+  it('should initialize userCalendars with calendars that belong to the current user even if they are shared', function() {
+    expect(userAndExternalCalendars.userCalendars).to.deep.equal([calendars[0], calendars[1], calendars[2]]);
   });
 
-  it('should initialize sharedCalendars with calendars have not the admin right for the current user and it is not a public calendar', function() {
-    expect(userAndExternalCalendars.sharedCalendars).to.contain(calendars[2]);
+  it('should initialize sharedCalendars with calendars that are shared and dont belong to the current user', function() {
+    expect(userAndExternalCalendars.sharedCalendars).to.contain(calendars[4], calendars[5]);
   });
 
-  it('should initialize publicCalendars with calendars that have the public right equals to PUBLIC_READ', function() {
-    expect(userAndExternalCalendars.publicCalendars).to.contain(calendars[1]);
-  });
-
-  it('should initialize publicCalendars with the calendars that have the public right equals to WRITE', function() {
+  it('should initialize publicCalendars with calendars that have the public right and are not shared or belong to the current user', function() {
     expect(userAndExternalCalendars.publicCalendars).to.contain(calendars[3]);
   });
 });

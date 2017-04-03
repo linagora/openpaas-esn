@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('CalendarCollectionShell factory', function() {
-  var $rootScope, CalendarRightShellMock, calendar, calendarUserEmails, CAL_CALENDAR_RIGHT, CAL_CALENDAR_SHARED_RIGHT, calendarRight, calendarSharedRight, calendarPublicRight, $logMock, calendarOwner, userAPIMock;
+  var $rootScope, CalendarRightShellMock, calendar, CAL_CALENDAR_PUBLIC_RIGHT, CAL_CALENDAR_SHARED_RIGHT, calendarSharedRight, calendarPublicRight, $logMock, calendarOwner, calendarOwnerId, userAPIMock;
 
   calendar = {
     _links: {
@@ -20,28 +20,18 @@ describe('CalendarCollectionShell factory', function() {
     invite: 'invite'
   };
 
-  calendarUserEmails = {
-    ownerId: '',
-    user1Id: ''
-  };
+  calendarOwnerId = 'ownerId';
 
   CalendarRightShellMock = sinon.spy(function() {
     return {
-      getUserRight: function(userId) {
-        if (userId === 'ownerId') {
-          return CAL_CALENDAR_RIGHT.ADMIN;
-        }
-
-        return calendarRight;
+      getOwnerId: function() {
+        return calendarOwnerId;
       },
       getShareeRight: function() {
         return calendarSharedRight;
       },
       getPublicRight: function() {
         return calendarPublicRight;
-      },
-      getUsersEmails: function() {
-        return calendarUserEmails;
       }
     };
   });
@@ -64,7 +54,7 @@ describe('CalendarCollectionShell factory', function() {
         });
       }
 
-      return $q.when({});
+      return $q.when({data: {}});
     }
   };
 
@@ -76,17 +66,17 @@ describe('CalendarCollectionShell factory', function() {
   );
 
   beforeEach(function() {
-    angular.mock.inject(function(_$rootScope_, CalendarCollectionShell, CAL_DEFAULT_CALENDAR_ID, _CAL_CALENDAR_RIGHT_, _CAL_CALENDAR_SHARED_RIGHT_) {
-      this.CalendarCollectionShell = CalendarCollectionShell;
-      this.CAL_DEFAULT_CALENDAR_ID = CAL_DEFAULT_CALENDAR_ID;
+    angular.mock.inject(function(_$rootScope_, _CalendarCollectionShell_, _CAL_DEFAULT_CALENDAR_ID_, _CAL_CALENDAR_PUBLIC_RIGHT_, _CAL_CALENDAR_SHARED_RIGHT_) {
+      this.CalendarCollectionShell = _CalendarCollectionShell_;
+      this.CAL_DEFAULT_CALENDAR_ID = _CAL_DEFAULT_CALENDAR_ID_;
       $rootScope = _$rootScope_;
-      CAL_CALENDAR_RIGHT = _CAL_CALENDAR_RIGHT_;
+      CAL_CALENDAR_PUBLIC_RIGHT = _CAL_CALENDAR_PUBLIC_RIGHT_;
       CAL_CALENDAR_SHARED_RIGHT = _CAL_CALENDAR_SHARED_RIGHT_;
     });
   });
 
   describe('CalendarCollectionShell constructor', function() {
-    it('should call CalendarRightShell if the calendar has the acl and the invite fields', function() {
+    it('should initialize CalendarRightShell when calling CalendarCollectionShell ', function() {
       this.CalendarCollectionShell(calendar);
 
       expect(CalendarRightShellMock).to.have.been.calledWith(calendar.acl, calendar.invite);
@@ -118,8 +108,8 @@ describe('CalendarCollectionShell factory', function() {
       expect(this.readOnly).to.be.true;
     });
 
-    it('should call initialize readOnly with true if the user right is PUBLIC_READ', function() {
-      calendarRight = CAL_CALENDAR_RIGHT.PUBLIC_READ;
+    it('should call initialize readOnly with true if the user right is READ', function() {
+      calendarPublicRight = CAL_CALENDAR_PUBLIC_RIGHT.READ;
       this.CalendarCollectionShell(calendar);
 
       expect(this.readOnly).to.be.true;
@@ -144,7 +134,7 @@ describe('CalendarCollectionShell factory', function() {
 
   describe('isPublic fn', function() {
 
-    it('Should return false if the public right of calendar is different of PUBLIC_READ and WRITE', function() {
+    it('Should return false if the public right of calendar is different of READ and WRITE', function() {
       calendarPublicRight = undefined;
       var test = new this.CalendarCollectionShell(calendar);
 
@@ -152,14 +142,14 @@ describe('CalendarCollectionShell factory', function() {
     });
 
     it('Should return true if calendar is public', function() {
-      calendarPublicRight = CAL_CALENDAR_RIGHT.PUBLIC_READ;
+      calendarPublicRight = CAL_CALENDAR_PUBLIC_RIGHT.READ;
       var test = new this.CalendarCollectionShell(calendar);
 
       expect(test.isPublic()).to.be.true;
     });
 
     it('Should return true if calendar is public', function() {
-      calendarPublicRight = CAL_CALENDAR_RIGHT.WRITE;
+      calendarPublicRight = CAL_CALENDAR_PUBLIC_RIGHT.READ_WRITE;
       var test = new this.CalendarCollectionShell(calendar);
 
       expect(test.isPublic()).to.be.true;
@@ -169,17 +159,15 @@ describe('CalendarCollectionShell factory', function() {
   describe('isOwner fn', function() {
 
     it('Should return false if the user is not the owner', function() {
-      calendarRight = undefined;
       var test = new this.CalendarCollectionShell(calendar);
 
-      expect(test.isOwner()).to.be.false;
+      expect(test.isOwner('someone_else')).to.be.false;
     });
 
-    it('Should return true if the user is not the owner', function() {
-      calendarRight = CAL_CALENDAR_RIGHT.ADMIN;
+    it('Should return true if the user is the owner', function() {
       var test = new this.CalendarCollectionShell(calendar);
 
-      expect(test.isOwner()).to.be.true;
+      expect(test.isOwner('ownerId')).to.be.true;
     });
   });
 
@@ -278,8 +266,7 @@ describe('CalendarCollectionShell factory', function() {
     });
 
     it('should return an empty object if we do not find the owner', function(done) {
-      calendarUserEmails = {};
-
+      calendarOwnerId = 'someone_else';
       var test = new this.CalendarCollectionShell(calendar);
 
       test.getOwner().then(function(owner) {
@@ -292,37 +279,12 @@ describe('CalendarCollectionShell factory', function() {
     });
 
     it('should call $log.error if we do not find the owner', function() {
-      calendarUserEmails = {};
-
+      calendarOwnerId = undefined;
       var test = new this.CalendarCollectionShell(calendar);
 
       test.getOwner();
 
       expect($logMock.error).to.have.been.calledWith('error when searching the calendar owner from a shared calendar or public calendar');
-    });
-
-    it('should return an empty object if we do not find the calendar.rights', function(done) {
-      var test = new this.CalendarCollectionShell(calendar);
-
-      delete test.rights;
-
-      test.getOwner().then(function(owner) {
-        expect(owner).to.deep.equal({});
-
-        done();
-      });
-
-      $rootScope.$digest();
-    });
-
-    it('should call $log.error if we do not find the calendar.rights', function() {
-      var test = new this.CalendarCollectionShell(calendar);
-
-      delete test.rights;
-
-      test.getOwner();
-
-      expect($logMock.error).to.have.been.calledWith('the calendar does not have rights');
     });
   });
 });

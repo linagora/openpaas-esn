@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('The CalendarSharedConsultationController controller', function() {
-  var $controller, $rootScope, $scope, $logMock, sharedCalendarOwner, sessionMock, CalendarSharedConsultationController, calendarHomeId, calendar, $stateParamsMock, calendarHomeServiceMock, calendarServiceMock, CAL_CALENDAR_RIGHT, CAL_CALENDAR_SHARED_RIGHT;
+  var $controller, $rootScope, $scope, $logMock, sharedCalendarOwner, sessionMock, CalendarSharedConsultationController, calendarHomeId, calendar, $stateParamsMock, calendarHomeServiceMock, calendarServiceMock, CAL_CALENDAR_SHARED_RIGHT;
 
   beforeEach(function() {
     $logMock = {
@@ -28,13 +28,6 @@ describe('The CalendarSharedConsultationController controller', function() {
       acl: 'acl',
       invite: 'invite',
       rights: {
-        getUserRight: sinon.spy(function(userId) {
-          if (userId === 'adminId') {
-            return CAL_CALENDAR_RIGHT.ADMIN;
-          }
-
-          return CAL_CALENDAR_RIGHT.SHAREE_READ;
-        }),
         getShareeRight: sinon.spy(function(userId) {
           if (userId === 'adminId') {
             return;
@@ -99,11 +92,10 @@ describe('The CalendarSharedConsultationController controller', function() {
       $provide.value('$log', $logMock);
     });
 
-    angular.mock.inject(function(_$controller_, _$rootScope_, _CAL_CALENDAR_RIGHT_, _CAL_CALENDAR_SHARED_RIGHT_) {
+    angular.mock.inject(function(_$controller_, _$rootScope_, _CAL_CALENDAR_SHARED_RIGHT_) {
       $controller = _$controller_;
       $rootScope = _$rootScope_;
       $scope = $rootScope.$new();
-      CAL_CALENDAR_RIGHT = _CAL_CALENDAR_RIGHT_;
       CAL_CALENDAR_SHARED_RIGHT = _CAL_CALENDAR_SHARED_RIGHT_;
     });
   });

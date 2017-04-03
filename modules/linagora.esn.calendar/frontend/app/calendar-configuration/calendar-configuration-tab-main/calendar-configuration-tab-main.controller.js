@@ -8,7 +8,7 @@
     $modal,
     $state,
     calendarService,
-    CAL_CALENDAR_RIGHT,
+    CAL_CALENDAR_PUBLIC_RIGHT,
     CAL_DEFAULT_CALENDAR_ID
   ) {
     var self = this;
@@ -22,17 +22,17 @@
     function $onInit() {
       self.publicRights = [
         {
-          value: CAL_CALENDAR_RIGHT.PUBLIC_READ,
+          value: CAL_CALENDAR_PUBLIC_RIGHT.READ,
           name: 'Read'
         },
         {
-          value: CAL_CALENDAR_RIGHT.WRITE,
+          value: CAL_CALENDAR_PUBLIC_RIGHT.READ_WRITE,
           name: 'Write'
         }, {
-          value: CAL_CALENDAR_RIGHT.FREE_BUSY,
+          value: CAL_CALENDAR_PUBLIC_RIGHT.FREE_BUSY,
           name: 'Private'
         }, {
-          value: CAL_CALENDAR_RIGHT.NONE,
+          value: CAL_CALENDAR_PUBLIC_RIGHT.NONE,
           name: 'None'
         }
       ];
