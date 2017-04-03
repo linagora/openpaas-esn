@@ -1,6 +1,29 @@
 const commons = require('../../commons');
 const Table = require('cli-table');
 
+module.exports = {
+  command: 'list',
+  desc: 'List all platformadmins',
+  builder: {
+    username: {
+      describe: 'Username to login',
+      demand: true
+    },
+    password: {
+      describe: 'Password to login',
+      demand: true
+    }
+  },
+  handler(argv) {
+    const { url, username, password } = argv;
+
+    exec(url, username, password)
+      .then(printPlatformAdmins)
+      .catch(commons.logError)
+      .finally(commons.exit);
+  }
+};
+
 function exec(url, username, password) {
   url = url.replace(/\/$/, '');
 
@@ -25,26 +48,3 @@ function printPlatformAdmins(platformadmins) {
 
   console.log(table.toString());
 }
-
-module.exports = {
-  command: 'list',
-  desc: 'List all platformadmins',
-  builder: {
-    username: {
-      describe: 'Username to login',
-      demand: true
-    },
-    password: {
-      describe: 'Password to login',
-      demand: true
-    }
-  },
-  handler(argv) {
-    const { url, username, password } = argv;
-
-    exec(url, username, password)
-      .then(printPlatformAdmins)
-      .catch(commons.logError)
-      .finally(commons.exit);
-  }
-};

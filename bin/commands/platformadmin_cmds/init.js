@@ -1,24 +1,5 @@
 const commons = require('../../commons');
 
-function exec(url, email) {
-  url = url.replace(/\/$/, '');
-
-  return createPlatformAdmin(url, email);
-}
-
-function createPlatformAdmin(url, email) {
-  const options = {
-    method: 'POST',
-    url: `${url}/api/platformadmins/init`,
-    body: {
-      type: 'email',
-      data: email
-    }
-  };
-
-  return commons.httpClient(options);
-}
-
 module.exports = {
   command: 'init',
   desc: 'Initialize the first platformadmin',
@@ -37,3 +18,22 @@ module.exports = {
       .finally(commons.exit);
   }
 };
+
+function exec(url, email) {
+  url = url.replace(/\/$/, '');
+
+  return createPlatformAdmin(url, email);
+}
+
+function createPlatformAdmin(url, email) {
+  const options = {
+    method: 'POST',
+    url: `${url}/api/platformadmins/init`,
+    body: {
+      type: 'email',
+      data: email
+    }
+  };
+
+  return commons.httpClient(options);
+}

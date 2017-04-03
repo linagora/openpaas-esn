@@ -1,21 +1,5 @@
 const commons = require('../../commons');
 
-function exec(url, username, password, email) {
-  url = url.replace(/\/$/, '');
-
-  const options = {
-    method: 'POST',
-    url: `${url}/api/platformadmins`,
-    body: {
-      type: 'email',
-      data: email
-    },
-    auth: { username, password }
-  };
-
-  return commons.httpClient(options);
-}
-
 module.exports = {
   command: 'set',
   desc: 'Set a user as platformadmin',
@@ -42,3 +26,19 @@ module.exports = {
       .finally(commons.exit);
   }
 };
+
+function exec(url, username, password, email) {
+  url = url.replace(/\/$/, '');
+
+  const options = {
+    method: 'POST',
+    url: `${url}/api/platformadmins`,
+    body: {
+      type: 'email',
+      data: email
+    },
+    auth: { username, password }
+  };
+
+  return commons.httpClient(options);
+}

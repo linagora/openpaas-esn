@@ -1,21 +1,5 @@
 const commons = require('../../commons');
 
-function exec(url, username, password, email) {
-  url = url.replace(/\/$/, '');
-
-  const options = {
-    method: 'DELETE',
-    url: `${url}/api/platformadmins`,
-    qs: {
-      type: 'email',
-      data: email
-    },
-    auth: { username, password }
-  };
-
-  return commons.httpClient(options);
-}
-
 module.exports = {
   command: 'unset',
   desc: 'Unset a platformadmin',
@@ -42,3 +26,19 @@ module.exports = {
       .finally(commons.exit);
   }
 };
+
+function exec(url, username, password, email) {
+  url = url.replace(/\/$/, '');
+
+  const options = {
+    method: 'DELETE',
+    url: `${url}/api/platformadmins`,
+    qs: {
+      type: 'email',
+      data: email
+    },
+    auth: { username, password }
+  };
+
+  return commons.httpClient(options);
+}
