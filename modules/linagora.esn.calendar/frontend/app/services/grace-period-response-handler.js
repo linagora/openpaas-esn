@@ -2,10 +2,10 @@
   'use strict';
 
   angular.module('esn.calendar')
-    .factory('gracePeriodResponseHandler', gracePeriodResponseHandlerFactory);
+    .factory('calGracePeriodResponseHandler', calGracePeriodResponseHandler);
 
-  function gracePeriodResponseHandlerFactory(responseHandler) {
-    return responseHandler(202, function(response) {
+  function calGracePeriodResponseHandler(calHttpResponseHandler) {
+    return calHttpResponseHandler(202, function(response) {
       return response.data.id;
     });
   }
