@@ -35,9 +35,9 @@ describe('The request utility functions', function() {
     var calHttpResponseHandler;
 
     beforeEach(function() {
-      inject(function(_$rootScope_, _responseHandler_) {
+      inject(function(_$rootScope_, _calHttpResponseHandler_) {
         $rootScope = _$rootScope_;
-        calHttpResponseHandler = _responseHandler_;
+        calHttpResponseHandler = _calHttpResponseHandler_;
       });
     });
 

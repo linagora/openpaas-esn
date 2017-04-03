@@ -30,23 +30,23 @@ describe('The request utility functions', function() {
     module('esn.calendar');
   });
 
-  describe('The gracePeriodResponseHandler factory', function() {
+  describe('The calGracePeriodResponseHandler factory', function() {
 
-    var gracePeriodResponseHandler;
+    var calGracePeriodResponseHandler;
 
     beforeEach(function() {
-      inject(function(_$rootScope_, _gracePeriodResponseHandler_) {
+      inject(function(_$rootScope_, _calGracePeriodResponseHandler_) {
         $rootScope = _$rootScope_;
-        gracePeriodResponseHandler = _gracePeriodResponseHandler_;
+        calGracePeriodResponseHandler = _calGracePeriodResponseHandler_;
       });
     });
 
     it('should reject if the status code is not 202, even if it is a success status code', function(done) {
-      expectRejection(gracePeriodResponseHandler({ status: 200 }), done);
+      expectRejection(calGracePeriodResponseHandler({ status: 200 }), done);
     });
 
     it('should resolve with response.data.id', function(done) {
-      expectResolve(gracePeriodResponseHandler({ status: 202, data: { id: 'myTaskId' } }), 'myTaskId', done);
+      expectResolve(calGracePeriodResponseHandler({ status: 202, data: { id: 'myTaskId' } }), 'myTaskId', done);
     });
 
   });

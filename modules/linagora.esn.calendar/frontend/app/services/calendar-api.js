@@ -12,7 +12,7 @@
     calPathBuilder,
     calDavRequest,
     calHttpResponseHandler,
-    gracePeriodResponseHandler,
+    calGracePeriodResponseHandler,
     notificationFactory,
     _,
     CAL_ACCEPT_HEADER,
@@ -265,7 +265,7 @@
 
       if (options.graceperiod) {
         return calDavRequest('put', eventPath, headers, body, {graceperiod: CAL_GRACE_DELAY})
-        .then(gracePeriodResponseHandler);
+        .then(calGracePeriodResponseHandler);
       }
 
       return calDavRequest('put', eventPath, headers, body)
@@ -292,7 +292,7 @@
       var body = vcalendar.toJSON();
 
       return calDavRequest('put', eventPath, headers, body, { graceperiod: CAL_GRACE_DELAY })
-      .then(gracePeriodResponseHandler);
+      .then(calGracePeriodResponseHandler);
     }
 
     /**
@@ -305,7 +305,7 @@
       var headers = {'If-Match': etag};
 
       return calDavRequest('delete', eventPath, headers, null, { graceperiod: CAL_GRACE_DELAY })
-      .then(gracePeriodResponseHandler);
+      .then(calGracePeriodResponseHandler);
     }
 
     /**

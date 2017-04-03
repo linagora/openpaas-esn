@@ -9,7 +9,7 @@
   function calEventAPI(
     calDavRequest,
     calHttpResponseHandler,
-    gracePeriodResponseHandler,
+    calGracePeriodResponseHandler,
     CAL_ACCEPT_HEADER,
     CALENDAR_CONTENT_TYPE_HEADER,
     CAL_GRACE_DELAY,
@@ -48,7 +48,7 @@
       var body = vcalendar.toJSON();
 
       if (options.graceperiod) {
-        return calDavRequest('put', eventPath, headers, body, {graceperiod: CAL_GRACE_DELAY}).then(gracePeriodResponseHandler);
+        return calDavRequest('put', eventPath, headers, body, {graceperiod: CAL_GRACE_DELAY}).then(calGracePeriodResponseHandler);
       }
 
       return calDavRequest('put', eventPath, headers, body).then(calHttpResponseHandler(201));
@@ -72,7 +72,7 @@
       }
       var body = vcalendar.toJSON();
 
-      return calDavRequest('put', eventPath, headers, body, { graceperiod: CAL_GRACE_DELAY }).then(gracePeriodResponseHandler);
+      return calDavRequest('put', eventPath, headers, body, { graceperiod: CAL_GRACE_DELAY }).then(calGracePeriodResponseHandler);
     }
 
     /**
@@ -84,7 +84,7 @@
     function remove(eventPath, etag) {
       var headers = {'If-Match': etag};
 
-      return calDavRequest('delete', eventPath, headers, null, { graceperiod: CAL_GRACE_DELAY }).then(gracePeriodResponseHandler);
+      return calDavRequest('delete', eventPath, headers, null, { graceperiod: CAL_GRACE_DELAY }).then(calGracePeriodResponseHandler);
     }
 
     /**
