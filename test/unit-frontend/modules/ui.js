@@ -200,16 +200,17 @@ describe('The UI module', function() {
   });
 
   describe('the autoSizeDynamic dirctive', function() {
-    var autosizeSpy;
+    var autosizeSpy, $timeout;
 
     beforeEach(module(function($provide) {
       autosizeSpy = sinon.spy();
       $provide.value('autosize', autosizeSpy);
     }));
 
-    beforeEach(inject(function(_$compile_, _$rootScope_) {
+    beforeEach(inject(function(_$compile_, _$rootScope_, _$timeout_) {
       $compile = _$compile_;
       $rootScope = _$rootScope_;
+      $timeout = _$timeout_;
       $scope = $rootScope.$new();
     }));
 
@@ -231,6 +232,7 @@ describe('The UI module', function() {
       $scope.condition = function() {return true;};
 
       initDirective('<div auto-size-dynamic="condition()"></div>');
+      $timeout.flush();
 
       expect(autosizeSpy).to.have.been.called;
     });
