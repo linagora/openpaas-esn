@@ -461,6 +461,36 @@ angular.module('esn.avatar', [
       link: link
     };
   })
+  .component('esnAvatar', {
+    templateUrl: '/views/modules/avatar/avatar.html',
+    controller: 'EsnAvatarController',
+    bindings: {
+      avatarUrl: '=?',
+      avatarEmail: '=?',
+      avatarId: '=?',
+      displayUserStatus: '=?'
+    }
+  })
+  .controller('EsnAvatarController', function(userAPI) {
+    var self = this;
+
+    self.$onInit = $onInit;
+
+    function $onInit() {
+      self.avatarURL = self.avatarUrl;
+
+      if (self.avatarId) {
+        self.avatarURL = '/api/users/' + self.avatarId + '/profile/avatar';
+        self.userId = self.avatarId;
+      } else if (self.avatarEmail) {
+        self.avatarURL = '/api/avatars?email=' + self.avatarEmail;
+
+        userAPI.getUserByEmail(self.avatarEmail).then(function(user) {
+          self.userId = user.data._id;
+        });
+      }
+    }
+  })
   .factory('esnAvatarService', function() {
     return {
       generateUrl: generateUrl
