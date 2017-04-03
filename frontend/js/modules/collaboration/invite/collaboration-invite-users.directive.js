@@ -4,7 +4,7 @@
   angular.module('esn.collaboration')
     .directive('esnCollaborationInviteUsers', esnCollaborationInviteUsers);
 
-  function esnCollaborationInviteUsers($q, notificationFactory, session, esnCollaborationService, esnCollaborationClientService) {
+  function esnCollaborationInviteUsers($q, notificationFactory, session, esnCollaborationService, esnCollaborationClientService, userUtils) {
     return {
       restrict: 'E',
       replace: true,
@@ -68,14 +68,10 @@
             var cache = Object.create(null);
 
             response.data.forEach(function(user) {
-              if (user.firstname && user.lastname) {
-                user.displayName = user.firstname + ' ' + user.lastname;
-              } else {
-                user.displayName = user.emails[0];
-              }
+              user.displayName = userUtils.displayNameOf(user);
 
-              if ((user.displayName in cache) && user.displayName !== user.emails[0]) {
-                user.displayName += ' - ' + user.emails[0];
+              if ((user.displayName in cache) && user.displayName !== user.preferredEmail) {
+                user.displayName += ' - ' + user.preferredEmail;
               }
               cache[user.displayName] = true;
 

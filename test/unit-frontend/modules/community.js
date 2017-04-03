@@ -1879,8 +1879,8 @@ describe('The Community Angular module', function() {
 
         it('should set displaynames on users if esnCollaborationClientService#getInvitablePeople works', function() {
           var query = 'testquery';
-          var user1 = {_id: '123456', emails: ['pipo1@pipo.com'], firstname: 'pipo1', lastname: 'pipo1'};
-          var user2 = {_id: '456789', emails: ['pipo2@pipo.com']};
+          var user1 = {_id: '123456', emails: ['pipo1@pipo.com'], firstname: 'pipo1', lastname: 'pipo1', preferredEmail: 'pipo1@pipo.com'};
+          var user2 = {_id: '456789', emails: ['pipo2@pipo.com'], preferredEmail: 'pipo2@pipo.com'};
           var res = {
             data: [user1, user2]
           };
@@ -1898,7 +1898,7 @@ describe('The Community Angular module', function() {
 
           expect(res.data).to.have.length(2);
           expect(res.data[0].displayName).to.equal('pipo1 pipo1');
-          expect(res.data[1].displayName).to.equal(user2.emails[0]);
+          expect(res.data[1].displayName).to.equal(user2.preferredEmail);
         });
       });
 

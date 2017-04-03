@@ -99,6 +99,10 @@ describe('The event-form module controllers', function() {
       }
     };
 
+    self.userUtilsMock = {
+      displayNameOf: sinon.spy()
+    };
+
     angular.mock.module('esn.calendar');
     angular.mock.module(function($provide) {
       $provide.decorator('calendarUtils', function($delegate) {
@@ -111,6 +115,7 @@ describe('The event-form module controllers', function() {
       $provide.value('notificationFactory', self.notificationFactory);
       $provide.value('calOpenEventForm', self.calOpenEventForm);
       $provide.value('$state', self.$state);
+      $provide.value('userUtils', self.userUtilsMock);
       $provide.factory('calEventsProviders', function() {
         return {
           setUpSearchProviders: function() {}
@@ -224,6 +229,7 @@ describe('The event-form module controllers', function() {
       });
 
       it('should initialize the organizer and add him to the attendees', function() {
+        this.userUtilsMock.displayNameOf = sinon.stub().returns('first last');
         this.scope.event = this.CalendarShell.fromIncompleteShell({});
         this.initController();
         expect(this.scope.editedEvent.organizer).to.deep.equal({
@@ -819,6 +825,7 @@ describe('The event-form module controllers', function() {
     describe('createEvent function', function() {
       beforeEach(function() {
         this.scope.event = this.CalendarShell.fromIncompleteShell({});
+        this.userUtilsMock.displayNameOf = sinon.stub().returns('first last');
         this.initController();
       });
 
@@ -911,7 +918,7 @@ describe('The event-form module controllers', function() {
 
       it('should call calEventService.createEvent with calendar owner as organizer when creating event on shared calendar', function() {
         calendarTest.isShared = sinon.stub().returns(true);
-
+        this.userUtilsMock.displayNameOf = sinon.stub().returns('owner owner');
         this.scope.createEvent();
         var calendarId = calendarTest.id;
         var expectedPath = '/calendars/' + this.calendarServiceMock.calendarHomeId + '/' + calendarId;

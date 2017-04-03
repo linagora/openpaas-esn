@@ -21,7 +21,7 @@
   angular.module('esn.calendar')
          .factory('CalendarShell', CalendarShellFactory);
 
-  function CalendarShellFactory($q, _, ICAL, jstz, uuid4, calendarUtils, calEventAPI, calMoment, calMasterEventCache, CalRRuleShell, CalVAlarmShell, CAL_EVENT_MODIFY_COMPARE_KEYS, CAL_ICAL, CAL_EVENT_CLASS) {
+  function CalendarShellFactory($q, _, ICAL, jstz, uuid4, calendarUtils, calEventAPI, calMoment, calMasterEventCache, CalRRuleShell, CalVAlarmShell, userUtils, CAL_EVENT_MODIFY_COMPARE_KEYS, CAL_ICAL, CAL_EVENT_CLASS) {
     var localTimezone = jstz.determine().name();
 
     function CalendarShell(vcomponent, extendedProperties) {
@@ -246,7 +246,7 @@
       set organizer(value) {
         this.__organizer = undefined;
         var organizerValue = calendarUtils.prependMailto(value.email || value.emails[0]);
-        var organizerCN = value.displayName || calendarUtils.displayNameOf(value.firstname, value.lastname);
+        var organizerCN = value.displayName || userUtils.displayNameOf(value);
         var organizer = this.vevent.updatePropertyWithValue('organizer', organizerValue);
 
         organizer.setParameter('cn', organizerCN);
