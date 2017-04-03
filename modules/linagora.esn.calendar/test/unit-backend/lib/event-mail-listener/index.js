@@ -42,13 +42,14 @@ describe('EventMailListener module', function() {
     };
 
     loggerMock = {
+      debug: function() {},
       error: sinon.spy(),
       warn: sinon.spy()
     };
 
     caldavClientMock = {
       iTipRequest: sinon.spy(function() {
-        return Q.resolve;
+        return Q.when();
       })
     };
 
@@ -257,7 +258,7 @@ describe('EventMailListener module', function() {
         .then(function() {
           notifyFunction(jsonMessage);
 
-          expect(loggerMock.warn).to.have.been.calledWith('CAlEventMailListener : Recipient user unknown in OpenPaas => Event ignored');
+          expect(loggerMock.warn).to.have.been.calledWith('CAlEventMailListener[Test] : Recipient user unknown in OpenPaas => Event ignored');
           expect(caldavClientMock.iTipRequest).to.not.have.been.called;
 
           done();
@@ -277,7 +278,7 @@ describe('EventMailListener module', function() {
         .then(function() {
           notifyFunction(jsonMessage);
 
-          expect(loggerMock.error).to.have.been.calledWith('CAlEventMailListener : Could not connect to UserModule => Event ignored');
+          expect(loggerMock.error).to.have.been.calledWith('CAlEventMailListener[Test] : Could not connect to UserModule => Event ignored');
           expect(caldavClientMock.iTipRequest).to.not.have.been.called;
 
           done();

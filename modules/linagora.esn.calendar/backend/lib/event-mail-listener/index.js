@@ -43,23 +43,27 @@ module.exports = dependencies => {
   }
 
   function _processMessage(jsonMessage) {
+    logger.debug('CAlEventMailListener, new message received');
     if (!_checkMandatoryFields(jsonMessage)) {
       logger.warn('CAlEventMailListener : Missing mandatory field => Event ignored');
 
       return;
     }
+    logger.debug('CAlEventMailListener, handling message ' + jsonMessage.uid);
 
     userModule.findByEmail(jsonMessage.recipient, (err, user) => {
         if (err) {
-          logger.error('CAlEventMailListener : Could not connect to UserModule => Event ignored');
+          logger.error('CAlEventMailListener[' + jsonMessage.uid + '] : Could not connect to UserModule => Event ignored');
 
           return;
         }
 
         if (user) {
-          _handleMessage(user.id, jsonMessage);
+          _handleMessage(user.id, jsonMessage)
+            .then(() => { logger.debug('CAlEventMailListener[' + jsonMessage.uid + '] : Successfully sent to DAV server'); })
+            .catch(err => logger.debug('CAlEventMailListener[' + jsonMessage.uid + '] : DAV request Error ' + err + ' ' + err ? err.stack : ''));
         } else {
-          logger.warn('CAlEventMailListener : Recipient user unknown in OpenPaas => Event ignored');
+          logger.warn('CAlEventMailListener[' + jsonMessage.uid + '] : Recipient user unknown in OpenPaas => Event ignored');
         }
       }
     );
@@ -70,6 +74,6 @@ module.exports = dependencies => {
   }
 
   function _handleMessage(userId, jsonMessage) {
-    caldavClient.iTipRequest(userId, jsonMessage);
+    return caldavClient.iTipRequest(userId, jsonMessage);
   }
 };
