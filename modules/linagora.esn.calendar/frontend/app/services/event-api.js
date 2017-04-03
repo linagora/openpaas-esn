@@ -8,7 +8,7 @@
 
   function calEventAPI(
     calDavRequest,
-    responseHandler,
+    calHttpResponseHandler,
     gracePeriodResponseHandler,
     CAL_ACCEPT_HEADER,
     CALENDAR_CONTENT_TYPE_HEADER,
@@ -33,7 +33,7 @@
      * @return {Object}           the http response.
      */
     function get(eventPath) {
-      return calDavRequest('get', eventPath, { Accept: CAL_ACCEPT_HEADER }, null, { _: Date.now() }).then(responseHandler(200));
+      return calDavRequest('get', eventPath, { Accept: CAL_ACCEPT_HEADER }, null, { _: Date.now() }).then(calHttpResponseHandler(200));
     }
 
     /**
@@ -51,7 +51,7 @@
         return calDavRequest('put', eventPath, headers, body, {graceperiod: CAL_GRACE_DELAY}).then(gracePeriodResponseHandler);
       }
 
-      return calDavRequest('put', eventPath, headers, body).then(responseHandler(201));
+      return calDavRequest('put', eventPath, headers, body).then(calHttpResponseHandler(201));
     }
 
     /**
@@ -105,7 +105,7 @@
       }
       var body = vcalendar.toJSON();
 
-      return calDavRequest('put', eventPath, headers, body).then(responseHandler([200, 204]));
+      return calDavRequest('put', eventPath, headers, body).then(calHttpResponseHandler([200, 204]));
     }
   }
 })();

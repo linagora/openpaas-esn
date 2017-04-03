@@ -4,8 +4,8 @@
   angular.module('esn.calendar')
     .factory('gracePeriodResponseHandler', gracePeriodResponseHandlerFactory);
 
-  function gracePeriodResponseHandlerFactory(responseHandler) {
-    return responseHandler(202, function(response) {
+  function gracePeriodResponseHandlerFactory(calHttpResponseHandler) {
+    return calHttpResponseHandler(202, function(response) {
       return response.data.id;
     });
   }

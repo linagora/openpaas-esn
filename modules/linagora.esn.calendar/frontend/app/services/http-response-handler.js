@@ -2,9 +2,9 @@
   'use strict';
 
   angular.module('esn.calendar')
-    .factory('responseHandler', responseHandlerFactory);
+    .factory('calHttpResponseHandler', calHttpResponseHandler);
 
-  function responseHandlerFactory($q) {
+  function calHttpResponseHandler($q) {
     return function(successStatusCodes, handler) {
       if (!Array.isArray(successStatusCodes)) {
         successStatusCodes = [successStatusCodes];

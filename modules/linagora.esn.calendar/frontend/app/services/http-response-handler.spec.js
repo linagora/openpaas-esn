@@ -30,36 +30,36 @@ describe('The request utility functions', function() {
     module('esn.calendar');
   });
 
-  describe('The responseHandler factory', function() {
+  describe('The calHttpResponseHandler factory', function() {
 
-    var responseHandler;
+    var calHttpResponseHandler;
 
     beforeEach(function() {
       inject(function(_$rootScope_, _responseHandler_) {
         $rootScope = _$rootScope_;
-        responseHandler = _responseHandler_;
+        calHttpResponseHandler = _responseHandler_;
       });
     });
 
     it('should reject if the status code is invalid', function(done) {
-      expectRejection(responseHandler(200)({ status: 400 }), done);
+      expectRejection(calHttpResponseHandler(200)({ status: 400 }), done);
     });
 
     it('should reject if the status code is not in the given success codes array', function(done) {
-      expectRejection(responseHandler([200, 201, 202])({ status: 400 }), done);
+      expectRejection(calHttpResponseHandler([200, 201, 202])({ status: 400 }), done);
     });
 
     it('should resolve with the response if there is no custom handler', function(done) {
       var response = { status: 200 };
 
-      expectResolve(responseHandler(200)(response), response, done);
+      expectResolve(calHttpResponseHandler(200)(response), response, done);
     });
 
     it('should pass the resolved response to the custom handler if there is one', function(done) {
       var data = { a: 'b' },
           response = { status: 200, data: data };
 
-      expectResolve(responseHandler(200, function(response) {
+      expectResolve(calHttpResponseHandler(200, function(response) {
         return response.data;
       })(response), data, done);
     });
