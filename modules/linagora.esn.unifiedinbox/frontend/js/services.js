@@ -63,7 +63,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('sendEmail', function($http, $q, inboxConfig, inBackground, jmap, withJmapClient, jmapHelper, inboxMailboxesService) {
+  .factory('sendEmail', function($http, $q, inboxConfig, inBackground, jmap, withJmapClient, inboxJmapHelper, inboxMailboxesService) {
     function sendBySmtp(email) {
       return $http.post('/unifiedinbox/api/inbox/sendemail', email);
     }
@@ -91,7 +91,7 @@ angular.module('linagora.esn.unifiedinbox')
         ]).then(function(data) {
           var isJmapSendingEnabled = data[0],
               isSaveDraftBeforeSendingEnabled = data[1],
-              message = jmapHelper.toOutboundMessage(client, email);
+              message = inboxJmapHelper.toOutboundMessage(client, email);
 
           if (!isJmapSendingEnabled) {
             return sendBySmtp(message);
@@ -109,7 +109,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('jmapHelper', function(jmap, session, emailBodyService, userUtils, withJmapClient, backgroundAction, _,
+  .factory('inboxJmapHelper', function(jmap, session, emailBodyService, userUtils, withJmapClient, backgroundAction, _,
                                   JMAP_GET_MESSAGES_VIEW) {
     function _mapToEMailer(recipients) {
       return (recipients || []).map(function(recipient) {
@@ -158,7 +158,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('emailSendingService', function($q, emailService, jmap, _, session, emailBodyService, sendEmail, jmapHelper) {
+  .factory('emailSendingService', function($q, emailService, jmap, _, session, emailBodyService, sendEmail, inboxJmapHelper) {
 
     /**
      * Add the following logic when sending an email: Check for an invalid email used as a recipient
@@ -296,7 +296,7 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     function _createQuotedEmail(subjectPrefix, recipients, templateName, includeAttachments, messageId, sender) {
-      return jmapHelper.getMessageById(messageId).then(function(message) {
+      return inboxJmapHelper.getMessageById(messageId).then(function(message) {
         var newRecipients = recipients ? recipients(message, sender) : {},
             newEmail = {
               from: getEmailAddress(sender),
@@ -345,7 +345,7 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .service('draftService', function($q, asyncJmapAction, emailBodyService, _,
-                                    jmapHelper, waitUntilMessageIsComplete, ATTACHMENTS_ATTRIBUTES) {
+                                    inboxJmapHelper, waitUntilMessageIsComplete, ATTACHMENTS_ATTRIBUTES) {
 
     function _keepSomeAttributes(array, attibutes) {
       return _.map(array, function(data) {
@@ -398,7 +398,7 @@ angular.module('linagora.esn.unifiedinbox')
         function doSave() {
           var copy = angular.copy(email);
 
-          return client.saveAsDraft(jmapHelper.toOutboundMessage(client, copy, options))
+          return client.saveAsDraft(inboxJmapHelper.toOutboundMessage(client, copy, options))
             .then(function(ack) {
               copy.id = ack.id;
 
@@ -429,7 +429,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .service('newComposerService', function($state, jmapHelper, boxOverlayOpener, deviceDetector) {
+  .service('newComposerService', function($state, inboxJmapHelper, boxOverlayOpener, deviceDetector) {
     var defaultTitle = 'New message';
 
     function choseByPlatform(mobile, others) {
@@ -465,7 +465,7 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     function openDraft(id) {
-      jmapHelper.getMessageById(id).then(function(message) {
+      inboxJmapHelper.getMessageById(id).then(function(message) {
         choseByPlatform(
           newMobileComposer.bind(this, message),
           newBoxedDraftComposer.bind(this, message)

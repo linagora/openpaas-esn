@@ -225,11 +225,11 @@ angular.module('linagora.esn.unifiedinbox')
 
   })
 
-  .controller('viewEmailController', function($scope, $state, $stateParams, inboxJmapItemService, jmapHelper, inboxAsyncHostedMailControllerHelper) {
+  .controller('viewEmailController', function($scope, $state, $stateParams, inboxJmapItemService, inboxJmapHelper, inboxAsyncHostedMailControllerHelper) {
     $scope.email = $stateParams.item;
 
     inboxAsyncHostedMailControllerHelper(this, function() {
-      return jmapHelper
+      return inboxJmapHelper
         .getMessageById($stateParams.emailId)
         .then(function(message) {
           if (!$scope.email) {

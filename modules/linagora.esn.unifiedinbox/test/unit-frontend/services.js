@@ -388,9 +388,9 @@ describe('The Unified Inbox Angular module services', function() {
 
   });
 
-  describe('The jmapHelper service', function() {
+  describe('The inboxJmapHelper service', function() {
 
-    var jmapHelper, jmap, emailBodyServiceMock, $rootScope, notificationFactory, jmapClient;
+    var inboxJmapHelper, jmap, emailBodyServiceMock, $rootScope, notificationFactory, jmapClient;
 
     beforeEach(function() {
       angular.mock.module(function($provide) {
@@ -402,8 +402,8 @@ describe('The Unified Inbox Angular module services', function() {
         $provide.value('emailBodyService', emailBodyServiceMock = { bodyProperty: 'htmlBody' });
       });
 
-      angular.mock.inject(function(session, _$rootScope_, _jmapHelper_, _notificationFactory_, _jmap_) {
-        jmapHelper = _jmapHelper_;
+      angular.mock.inject(function(session, _$rootScope_, _inboxJmapHelper_, _notificationFactory_, _jmap_) {
+        inboxJmapHelper = _inboxJmapHelper_;
         jmap = _jmap_;
         $rootScope = _$rootScope_;
         notificationFactory = _notificationFactory_;
@@ -427,7 +427,7 @@ describe('The Unified Inbox Angular module services', function() {
           return $q.reject();
         };
 
-        jmapHelper.getMessageById('id').then(null, done);
+        inboxJmapHelper.getMessageById('id').then(null, done);
         $rootScope.$digest();
       });
 
@@ -438,7 +438,7 @@ describe('The Unified Inbox Angular module services', function() {
           return $q.when([{ id: 'id' }]);
         };
 
-        jmapHelper.getMessageById('id').then(function(message) {
+        inboxJmapHelper.getMessageById('id').then(function(message) {
           expect(message).to.deep.equal({ id: 'id' });
 
           done();
@@ -451,7 +451,7 @@ describe('The Unified Inbox Angular module services', function() {
     describe('The toOutboundMessage fn', function() {
 
       it('should build and return new instance of jmap.OutboundMessage', function() {
-        expect(jmapHelper.toOutboundMessage({}, {
+        expect(inboxJmapHelper.toOutboundMessage({}, {
           subject: 'expected subject',
           htmlBody: 'expected htmlBody',
           to: [{email: 'to@domain', name: 'to'}],
@@ -471,7 +471,7 @@ describe('The Unified Inbox Angular module services', function() {
       });
 
       it('should filter attachments with no blobId', function() {
-        expect(jmapHelper.toOutboundMessage({}, {
+        expect(inboxJmapHelper.toOutboundMessage({}, {
           htmlBody: 'expected htmlBody',
           attachments: [{ blobId: '1' }, { blobId: '' }]
         })).to.deep.equal(new jmap.OutboundMessage({}, {
@@ -490,7 +490,7 @@ describe('The Unified Inbox Angular module services', function() {
       it('should include email.htmlBody when provided', function() {
         emailBodyServiceMock.bodyProperty = 'textBody';
 
-        var message = jmapHelper.toOutboundMessage({}, {
+        var message = inboxJmapHelper.toOutboundMessage({}, {
           htmlBody: 'expected htmlBody',
           textBody: 'expected textBody'
         });
@@ -502,7 +502,7 @@ describe('The Unified Inbox Angular module services', function() {
       it('should leverage emailBodyServiceMock.bodyProperty when emailState.htmlBody is undefined', function() {
         emailBodyServiceMock.bodyProperty = 'textBody';
 
-        var message = jmapHelper.toOutboundMessage({}, {
+        var message = inboxJmapHelper.toOutboundMessage({}, {
           htmlBody: '',
           textBody: 'expected textBody'
         });
