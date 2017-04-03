@@ -68,6 +68,48 @@ function profile(req, res) {
 module.exports.profile = profile;
 
 /**
+ * Get a user profile by email.
+ *
+ * @param {request} req
+ * @param {response} res
+ */
+function profileByOptions(req, res) {
+  const email = req.query.email;
+
+  if (!email) {
+    return res.status(400).json({error: {code: 400, message: 'Bad parameters', details: 'User email is missing'}});
+  } else {
+    getProfileByEmail(email);
+  }
+
+  function getProfileByEmail(email) {
+    userModule.findByEmail(email, (err, user) => {
+      if (err) {
+        return res.status(500).json({
+          error: 500,
+          message: 'Error while loading user ' + email,
+          details: err.message
+        });
+      }
+
+      if (!user) {
+        return res.status(404).json({
+          error: 404,
+          message: 'User not found',
+          details: 'User ' + email + ' has not been found'
+        });
+      }
+
+      denormalizeUser(user, {user: req.user, doNotKeepPrivateData: true})
+        .then(denormalized => {
+          res.status(200).json(denormalized);
+        });
+    });
+  }
+}
+module.exports.profileByOptions = profileByOptions;
+
+/**
  * Update a parameter value in the current user profile
  *
  * @param {Request} req
