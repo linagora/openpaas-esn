@@ -1,17 +1,17 @@
 const authorizationMw = require('../middleware/authorization');
-const superadminsMw = require('../middleware/superadmins');
+const platformadminsMw = require('../middleware/platformadmins');
 const helperMw = require('../middleware/helper');
-const controller = require('../controllers/superadmins');
+const controller = require('../controllers/platformadmins');
 
 module.exports = function(router) {
 
   /**
    * @swagger
-   * /superadmins/init:
+   * /platformadmins/init:
    *   post:
    *     tags:
-   *      - Superadmin
-   *     description: Initialize the first superadmin
+   *      - PlatformAdmin
+   *     description: Initialize the first platformadmin
    *     parameters:
    *       - $ref: "#/parameters/sa_set_type"
    *       - $ref: "#/parameters/sa_set_data"
@@ -25,20 +25,20 @@ module.exports = function(router) {
    *       500:
    *         $ref: "#/responses/cm_500"
    */
-  router.post('/superadmins/init',
-    superadminsMw.canCreateFirstSuperAdmin,
-    controller.createSuperAdmin);
+  router.post('/platformadmins/init',
+    platformadminsMw.canCreateFirstPlatformAdmin,
+    controller.createPlatformAdmin);
 
   /**
    * @swagger
-   * /superadmins:
+   * /platformadmins:
    *   get:
    *     tags:
-   *      - Superadmin
-   *     description: List all superadmins
+   *      - PlatformAdmin
+   *     description: List all platformadmins
    *     responses:
    *       200:
-   *         $ref: "#/responses/sa_superadmins"
+   *         $ref: "#/responses/sa_platformadmins"
    *       401:
    *         $ref: "#/responses/cm_401"
    *       403:
@@ -46,18 +46,18 @@ module.exports = function(router) {
    *       500:
    *         $ref: "#/responses/cm_500"
    */
-  router.get('/superadmins',
+  router.get('/platformadmins',
     authorizationMw.requiresAPILogin,
-    superadminsMw.requireSuperAdmin,
-    controller.getAllSuperAdmins);
+    platformadminsMw.requirePlatformAdmin,
+    controller.getAllPlatformAdmins);
 
   /**
    * @swagger
-   * /superadmins:
+   * /platformadmins:
    *   post:
    *     tags:
-   *      - Superadmin
-   *     description: Set a user as superadmin
+   *      - PlatformAdmin
+   *     description: Set a user as platformadmin
    *     parameters:
    *       - $ref: "#/parameters/sa_set_type"
    *       - $ref: "#/parameters/sa_set_data"
@@ -75,19 +75,19 @@ module.exports = function(router) {
    *       500:
    *         $ref: "#/responses/cm_500"
    */
-  router.post('/superadmins',
+  router.post('/platformadmins',
     authorizationMw.requiresAPILogin,
-    superadminsMw.requireSuperAdmin,
+    platformadminsMw.requirePlatformAdmin,
     helperMw.requireBody,
-    controller.createSuperAdmin);
+    controller.createPlatformAdmin);
 
   /**
    * @swagger
-   * /superadmins:
+   * /platformadmins:
    *   delete:
    *     tags:
-   *      - Superadmin
-   *     description: Unset a superadmin
+   *      - PlatformAdmin
+   *     description: Unset a platformadmin
    *     parameters:
    *       - $ref: "#/parameters/sa_unset_type"
    *       - $ref: "#/parameters/sa_unset_data"
@@ -105,8 +105,8 @@ module.exports = function(router) {
    *       500:
    *         $ref: "#/responses/cm_500"
    */
-  router.delete('/superadmins',
+  router.delete('/platformadmins',
     authorizationMw.requiresAPILogin,
-    superadminsMw.requireSuperAdmin,
-    controller.removeSuperAdmin);
+    platformadminsMw.requirePlatformAdmin,
+    controller.removePlatformAdmin);
 };

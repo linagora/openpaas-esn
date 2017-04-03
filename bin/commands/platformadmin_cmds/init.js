@@ -3,13 +3,13 @@ const commons = require('../../commons');
 function exec(url, email) {
   url = url.replace(/\/$/, '');
 
-  return createSuperAdmin(url, email);
+  return createPlatformAdmin(url, email);
 }
 
-function createSuperAdmin(url, email) {
+function createPlatformAdmin(url, email) {
   const options = {
     method: 'POST',
-    url: `${url}/api/superadmins/init`,
+    url: `${url}/api/platformadmins/init`,
     body: {
       type: 'email',
       data: email
@@ -21,10 +21,10 @@ function createSuperAdmin(url, email) {
 
 module.exports = {
   command: 'init',
-  desc: 'Initialize the first superadmin',
+  desc: 'Initialize the first platformadmin',
   builder: {
     email: {
-      describe: 'Email of the user to make as superadmin',
+      describe: 'Email of the user to make as platformadmin',
       demand: true
     }
   },
@@ -32,7 +32,7 @@ module.exports = {
     const { url, email } = argv;
 
     exec(url, email)
-      .then(() => commons.logInfo('Created superadmin'))
+      .then(() => commons.logInfo('Created platformadmin'))
       .catch(commons.logError)
       .finally(commons.exit);
   }

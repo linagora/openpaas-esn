@@ -1,27 +1,27 @@
 const logger = require('../../core/logger');
-const coreSuperAdmin = require('../../core/superadmin');
+const corePlatformAdmin = require('../../core/platformadmin');
 
 module.exports = {
-  canCreateFirstSuperAdmin,
-  requireSuperAdmin
+  canCreateFirstPlatformAdmin,
+  requirePlatformAdmin
 };
 
-function canCreateFirstSuperAdmin(req, res, next) {
-  coreSuperAdmin.getAllSuperAdmins()
-  .then(superadmins => {
-    if (superadmins.length === 0) {
+function canCreateFirstPlatformAdmin(req, res, next) {
+  corePlatformAdmin.getAllPlatformAdmins()
+  .then(platformadmins => {
+    if (platformadmins.length === 0) {
       next();
     } else {
       res.status(403).json({
         error: {
           code: 403,
           message: 'Forbidden',
-          details: 'To create another superadmin, you need to be a superadmin'
+          details: 'To create another platformadmin, you need to be a platformadmin'
         }
       });
     }
   }, err => {
-    const details = 'Error while checking first superadmin';
+    const details = 'Error while checking first platformadmin';
 
     logger.error(details, err);
 
@@ -35,23 +35,23 @@ function canCreateFirstSuperAdmin(req, res, next) {
   });
 }
 
-function requireSuperAdmin(req, res, next) {
+function requirePlatformAdmin(req, res, next) {
   const user = req.user;
 
-  coreSuperAdmin.isSuperAdmin(user.id).then(isSuperAdmin => {
-    if (isSuperAdmin) {
+  corePlatformAdmin.isPlatformAdmin(user.id).then(isPlatformAdmin => {
+    if (isPlatformAdmin) {
       next();
     } else {
       res.status(403).json({
         error: {
           code: 403,
           message: 'Forbidden',
-          details: 'To perform this action, you need to be a superadmin'
+          details: 'To perform this action, you need to be a platformadmin'
         }
       });
     }
   }, err => {
-    const details = 'Error while checking superadmin';
+    const details = 'Error while checking platformadmin';
 
     logger.error(details, err);
 

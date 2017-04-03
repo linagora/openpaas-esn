@@ -123,33 +123,33 @@ To see all option, use `help` command:
 $ node ./bin/cli help domain
 ```
 
-**superadmin**
+**platformadmin**
 
-This command allows you to manage superadmin of an OpenPaaS instance.
+This command allows you to manage platformadmin of an OpenPaaS instance.
 
-In case your system does not have any superadmin, use `init` command to set
+In case your system does not have any platformadmin, use `init` command to set
 the first one:
 
 ```bash
-$ node ./bin/cli superadmin init --url http://open-paas.org --email admin@open-paas.org
+$ node ./bin/cli platformadmin init --url http://open-paas.org --email admin@open-paas.org
 ```
 
 Where:
 
 - url: optional, the OpenPaaS instance URL
-- email: required, email of the user to make as superadmin
+- email: required, email of the user to make as platformadmin
 
-In case there is already superadmin in the instance, you need to be a superadmin
-to list, set, unset superadmins.
+In case there is already platformadmin in the instance, you need to be a platformadmin
+to list, set, unset platformadmins.
 
-For example, use `set` command to set user as superadmin:
+For example, use `set` command to set user as platformadmin:
 
 ```bash
-$ node bin/cli superadmin set --username admin@open-paas.org --password secret  --email user1@open-paas.org
+$ node bin/cli platformadmin set --username admin@open-paas.org --password secret  --email user1@open-paas.org
 ```
 
 To see all supported commands, use `help` command:
 
 ```bash
-$ node ./bin/cli help superadmin
+$ node ./bin/cli help platformadmin
 ```

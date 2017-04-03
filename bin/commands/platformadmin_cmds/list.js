@@ -6,21 +6,21 @@ function exec(url, username, password) {
 
   const options = {
     method: 'GET',
-    url: `${url}/api/superadmins`,
+    url: `${url}/api/platformadmins`,
     auth: { username, password }
   };
 
   return commons.httpClient(options);
 }
 
-function printSuperAdmins(superadmins) {
+function printPlatformAdmins(platformadmins) {
   const table = new Table({
     head: ['ID', 'First name', 'Last name', 'Email'],
     colWidths: [30, 30, 30, 30]
   });
 
-  superadmins.forEach(superadmin => {
-    table.push([superadmin.id, superadmin.firstname, superadmin.lastname, superadmin.email]);
+  platformadmins.forEach(platformadmin => {
+    table.push([platformadmin.id, platformadmin.firstname, platformadmin.lastname, platformadmin.email]);
   });
 
   console.log(table.toString());
@@ -28,7 +28,7 @@ function printSuperAdmins(superadmins) {
 
 module.exports = {
   command: 'list',
-  desc: 'List all superadmins',
+  desc: 'List all platformadmins',
   builder: {
     username: {
       describe: 'Username to login',
@@ -43,7 +43,7 @@ module.exports = {
     const { url, username, password } = argv;
 
     exec(url, username, password)
-      .then(printSuperAdmins)
+      .then(printPlatformAdmins)
       .catch(commons.logError)
       .finally(commons.exit);
   }

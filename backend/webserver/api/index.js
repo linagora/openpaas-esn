@@ -101,7 +101,7 @@ function setupAPI(application) {
   require('./oauthclients')(router);
   require('./passwordreset')(router);
   require('./resource-link')(router);
-  require('./superadmins')(router);
+  require('./platformadmins')(router);
   require('./timelineentries')(router);
   require('./user')(router);
   require('./users')(router);

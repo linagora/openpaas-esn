@@ -1,8 +1,8 @@
 /**
   * @swagger
   * definition:
-  *   sa_superadmin:
-  *     description: "a JSON object containing a superadmin basic information"
+  *   sa_platformadmin:
+  *     description: "a JSON object containing a platformadmin basic information"
   *     properties:
   *       name:
   *         type: string
@@ -12,9 +12,9 @@
   *         type: string
   *       email:
   *         type: string
-  *   sa_superadmins:
-  *     description: "a list of superadmins"
+  *   sa_platformadmins:
+  *     description: "a list of platformadmins"
   *     type: array
   *     items:
-  *       $ref: "#/definitions/sa_superadmin"
+  *       $ref: "#/definitions/sa_platformadmin"
   */

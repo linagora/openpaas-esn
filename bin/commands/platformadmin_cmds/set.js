@@ -5,7 +5,7 @@ function exec(url, username, password, email) {
 
   const options = {
     method: 'POST',
-    url: `${url}/api/superadmins`,
+    url: `${url}/api/platformadmins`,
     body: {
       type: 'email',
       data: email
@@ -18,7 +18,7 @@ function exec(url, username, password, email) {
 
 module.exports = {
   command: 'set',
-  desc: 'Set a user as superadmin',
+  desc: 'Set a user as platformadmin',
   builder: {
     username: {
       describe: 'Username to login',
@@ -29,7 +29,7 @@ module.exports = {
       demand: true
     },
     email: {
-      describe: 'Email of the user to make as superadmin',
+      describe: 'Email of the user to make as platformadmin',
       demand: true
     }
   },
@@ -37,7 +37,7 @@ module.exports = {
     const { url, username, password, email } = argv;
 
     exec(url, username, password, email)
-      .then(() => commons.logInfo('Set superadmin'))
+      .then(() => commons.logInfo('Set platformadmin'))
       .catch(commons.logError)
       .finally(commons.exit);
   }

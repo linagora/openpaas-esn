@@ -1,10 +1,10 @@
 /**
  * @swagger
  * response:
- *   sa_superadmins:
- *     description: OK. With an array of superadmins
+ *   sa_platformadmins:
+ *     description: OK. With an array of platformadmins
  *     schema:
- *       $ref: "#/definitions/sa_superadmins"
+ *       $ref: "#/definitions/sa_platformadmins"
  *     examples:
  *       application/json:
  *         [

@@ -1,17 +1,17 @@
 const logger = require('../../core/logger');
-const coreSuperAdmin = require('../../core/superadmin');
+const corePlatformAdmin = require('../../core/platformadmin');
 const coreUserDenormalize = require('../../core/user/denormalize');
 const dbHelper = require('../../helpers').db;
 
 module.exports = {
-  getAllSuperAdmins,
-  createSuperAdmin,
-  removeSuperAdmin
+  getAllPlatformAdmins,
+  createPlatformAdmin,
+  removePlatformAdmin
 };
 
-function getAllSuperAdmins(req, res) {
-  coreSuperAdmin
-    .getAllSuperAdminUsers()
+function getAllPlatformAdmins(req, res) {
+  corePlatformAdmin
+    .getAllPlatformAdminUsers()
     .then(users => users.map(user => coreUserDenormalize.denormalize(user)))
     .then(users => users.map(user => ({
       id: user.id,
@@ -21,7 +21,7 @@ function getAllSuperAdmins(req, res) {
     })))
     .then(users => res.status(200).json(users))
     .catch(err => {
-      const details = 'Error while listing all superadmins';
+      const details = 'Error while listing all platformadmins';
 
       logger.error(details, err);
 
@@ -35,16 +35,16 @@ function getAllSuperAdmins(req, res) {
     });
 }
 
-function createSuperAdmin(req, res) {
+function createPlatformAdmin(req, res) {
   const { type, data } = req.body;
-  const addSuperAdminHandlers = {
-    email: coreSuperAdmin.addSuperAdminByEmail,
-    id: coreSuperAdmin.addSuperAdminById
+  const addPlatformAdminHandlers = {
+    email: corePlatformAdmin.addPlatformAdminByEmail,
+    id: corePlatformAdmin.addPlatformAdminById
   };
 
-  const addSuperAdmin = addSuperAdminHandlers[type];
+  const addPlatformAdmin = addPlatformAdminHandlers[type];
 
-  if (!addSuperAdmin) {
+  if (!addPlatformAdmin) {
     return res.status(400).json({
       error: {
         code: 400,
@@ -64,7 +64,7 @@ function createSuperAdmin(req, res) {
     });
   }
 
-  addSuperAdmin(data).then(() => {
+  addPlatformAdmin(data).then(() => {
     res.status(204).end();
   }, err => {
     if (/no such user/.test(err.message)) {
@@ -77,7 +77,7 @@ function createSuperAdmin(req, res) {
       });
     }
 
-    const details = 'Error while adding superadmin';
+    const details = 'Error while adding platformadmin';
 
     logger.error(details, err);
 
@@ -91,16 +91,16 @@ function createSuperAdmin(req, res) {
   });
 }
 
-function removeSuperAdmin(req, res) {
+function removePlatformAdmin(req, res) {
   const { type, data } = req.query;
-  const removeSuperAdminHandlers = {
-    email: coreSuperAdmin.removeSuperAdminByEmail,
-    id: coreSuperAdmin.removeSuperAdminById
+  const removePlatformAdminHandlers = {
+    email: corePlatformAdmin.removePlatformAdminByEmail,
+    id: corePlatformAdmin.removePlatformAdminById
   };
 
-  const removeSuperAdmin = removeSuperAdminHandlers[type];
+  const removePlatformAdmin = removePlatformAdminHandlers[type];
 
-  if (!removeSuperAdmin) {
+  if (!removePlatformAdmin) {
     return res.status(400).json({
       error: {
         code: 400,
@@ -138,10 +138,10 @@ function removeSuperAdmin(req, res) {
     });
   }
 
-  removeSuperAdmin(data).then(() => {
+  removePlatformAdmin(data).then(() => {
     res.status(204).end();
   }, err => {
-    const details = 'Error while removing superadmin';
+    const details = 'Error while removing platformadmin';
 
     logger.error(details, err);
 
