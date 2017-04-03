@@ -14,11 +14,9 @@ angular.module('linagora.esn.unifiedinbox')
     return {
       restrict: 'A',
       link: function(scope, element) {
-
         element.click(function() {
-          newComposerService.open();
+          newComposerService.open({});
         });
-
       }
     };
   })

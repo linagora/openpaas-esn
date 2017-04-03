@@ -31,6 +31,14 @@ describe('The Unified Inbox Angular module services', function() {
     $provide.value('esnConfig', function(key, defaultValue) {
       return $q.when(angular.isDefined(config[key]) ? config[key] : defaultValue);
     });
+    $provide.value('inboxIdentitiesService', {
+      getAllIdentities: function() {
+        return $q.when([{ isDefault: true, id: 'default', name: 'me me', email: 'yo@lo' }]);
+      },
+      getDefaultIdentity: function() {
+        return $q.when({ isDefault: true, id: 'default', name: 'me me', email: 'yo@lo' });
+      }
+    });
   }));
 
   afterEach(function() {
@@ -384,132 +392,6 @@ describe('The Unified Inbox Angular module services', function() {
         $rootScope.$digest();
       });
 
-    });
-
-  });
-
-  describe('The jmapHelper service', function() {
-
-    var jmapHelper, jmap, emailBodyServiceMock, $rootScope, notificationFactory, jmapClient;
-
-    beforeEach(function() {
-      angular.mock.module(function($provide) {
-        jmapClient = {};
-
-        $provide.value('withJmapClient', function(callback) {
-          return callback(jmapClient);
-        });
-        $provide.value('emailBodyService', emailBodyServiceMock = { bodyProperty: 'htmlBody' });
-      });
-
-      angular.mock.inject(function(session, _$rootScope_, _jmapHelper_, _notificationFactory_, _jmap_) {
-        jmapHelper = _jmapHelper_;
-        jmap = _jmap_;
-        $rootScope = _$rootScope_;
-        notificationFactory = _notificationFactory_;
-
-        notificationFactory.weakError = sinon.spy();
-
-        session.user = {
-          firstname: 'Alice',
-          lastname: 'Cooper',
-          preferredEmail: 'alice@domain'
-        };
-      });
-    });
-
-    describe('The getMessageById function', function() {
-
-      it('should fetch the message, and reject upon failure', function(done) {
-        jmapClient.getMessages = function(options) {
-          expect(options.ids).to.deep.equal(['id']);
-
-          return $q.reject();
-        };
-
-        jmapHelper.getMessageById('id').then(null, done);
-        $rootScope.$digest();
-      });
-
-      it('should fetch the message, and return it upon success', function(done) {
-        jmapClient.getMessages = function(options) {
-          expect(options.ids).to.deep.equal(['id']);
-
-          return $q.when([{ id: 'id' }]);
-        };
-
-        jmapHelper.getMessageById('id').then(function(message) {
-          expect(message).to.deep.equal({ id: 'id' });
-
-          done();
-        });
-        $rootScope.$digest();
-      });
-
-    });
-
-    describe('The toOutboundMessage fn', function() {
-
-      it('should build and return new instance of jmap.OutboundMessage', function() {
-        expect(jmapHelper.toOutboundMessage({}, {
-          subject: 'expected subject',
-          htmlBody: 'expected htmlBody',
-          to: [{email: 'to@domain', name: 'to'}],
-          cc: [{email: 'cc@domain', name: 'cc'}],
-          bcc: [{email: 'bcc@domain', name: 'bcc'}]
-        })).to.deep.equal(new jmap.OutboundMessage({}, {
-          from: new jmap.EMailer({
-            name: 'Alice Cooper',
-            email: 'alice@domain'
-          }),
-          subject: 'expected subject',
-          htmlBody: 'expected htmlBody',
-          to: [new jmap.EMailer({email: 'to@domain', name: 'to'})],
-          cc: [new jmap.EMailer({email: 'cc@domain', name: 'cc'})],
-          bcc: [new jmap.EMailer({email: 'bcc@domain', name: 'bcc'})]
-        }));
-      });
-
-      it('should filter attachments with no blobId', function() {
-        expect(jmapHelper.toOutboundMessage({}, {
-          htmlBody: 'expected htmlBody',
-          attachments: [{ blobId: '1' }, { blobId: '' }]
-        })).to.deep.equal(new jmap.OutboundMessage({}, {
-          from: new jmap.EMailer({
-            name: 'Alice Cooper',
-            email: 'alice@domain'
-          }),
-          htmlBody: 'expected htmlBody',
-          to: [],
-          cc: [],
-          bcc: [],
-          attachments: [new jmap.Attachment({}, '1')]
-        }));
-      });
-
-      it('should include email.htmlBody when provided', function() {
-        emailBodyServiceMock.bodyProperty = 'textBody';
-
-        var message = jmapHelper.toOutboundMessage({}, {
-          htmlBody: 'expected htmlBody',
-          textBody: 'expected textBody'
-        });
-
-        expect(message.htmlBody).to.equal('expected htmlBody');
-        expect(message.textBody).to.be.null;
-      });
-
-      it('should leverage emailBodyServiceMock.bodyProperty when emailState.htmlBody is undefined', function() {
-        emailBodyServiceMock.bodyProperty = 'textBody';
-
-        var message = jmapHelper.toOutboundMessage({}, {
-          htmlBody: '',
-          textBody: 'expected textBody'
-        });
-
-        expect(message.htmlBody).to.be.null;
-        expect(message.textBody).to.equal('expected textBody');
-      });
     });
 
   });
@@ -1312,7 +1194,7 @@ describe('The Unified Inbox Angular module services', function() {
 
   describe('The draftService service', function() {
 
-    var draftService, session, notificationFactory, jmapClient, emailBodyService, $rootScope;
+    var draftService, notificationFactory, jmapClient, emailBodyService, $rootScope;
 
     beforeEach(module(function($provide) {
       jmapClient = {};
@@ -1332,9 +1214,8 @@ describe('The Unified Inbox Angular module services', function() {
       $provide.value('emailBodyService', emailBodyService);
     }));
 
-    beforeEach(inject(function(_draftService_, _session_, _$rootScope_) {
+    beforeEach(inject(function(_draftService_, _$rootScope_) {
       draftService = _draftService_;
-      session = _session_;
       $rootScope = _$rootScope_;
     }));
 
@@ -1715,11 +1596,6 @@ describe('The Unified Inbox Angular module services', function() {
 
       it('should call saveAsDraft with OutboundMessage filled with properties', function() {
         jmapClient.saveAsDraft = sinon.stub().returns($q.when({}));
-        session.user = {
-          firstname: 'me',
-          lastname: 'me',
-          preferredEmail: 'yo@lo'
-        };
 
         draftService.startDraft({}).save({
           subject: 'expected subject',
@@ -1743,11 +1619,6 @@ describe('The Unified Inbox Angular module services', function() {
 
       it('should map all recipients to name-email tuple', function() {
         jmapClient.saveAsDraft = sinon.stub().returns($q.when({}));
-        session.user = {
-          firstname: 'me',
-          lastname: 'me',
-          preferredEmail: 'yo@lo'
-        };
 
         draftService.startDraft({}).save({
           subject: 'expected subject',

@@ -80,6 +80,11 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
         return $delegate;
       });
+      $provide.value('inboxIdentitiesService', {
+        getAllIdentities: function() {
+          return $q.when([{ isDefault: true, id: 'default' }, { id: 'customIdentity', name: 'Name' }]);
+        }
+      });
     });
   });
 
@@ -314,7 +319,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       draftService.startDraft = sinon.spy();
 
       scope.hide = sinon.spy();
-      scope.email = {to: []};
+      scope.email = { to: [] };
     }));
 
     function initCtrl(email) {
@@ -372,6 +377,9 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       var ctrl = initController('composerController');
 
       expect(ctrl.getComposition()).to.deep.equal($stateParams.composition);
+
+      expect(ctrl.identities).to.have.length(2);
+      expect(scope.email.identity).to.deep.equal({ id: 'default', isDefault: true });
     });
 
     it('should initialize the controller when an email is given in state params', function() {
@@ -383,6 +391,37 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       expect(ctrl.getComposition()).to.be.an.instanceof(Composition);
       expect(ctrl.getComposition().draft).to.equal('expected value');
       expect(scope.email).to.be.a('object');
+
+      expect(ctrl.identities).to.have.length(2);
+      expect(scope.email.identity).to.deep.equal({ id: 'default', isDefault: true });
+    });
+
+    it('should remembers the selected identity', function() {
+      $stateParams.composition = {
+        getEmail: function() {
+          return {
+            identity: {
+              id: 'customIdentity'
+            }
+          };
+        }
+      };
+
+      var ctrl = initController('composerController');
+
+      expect(ctrl.getComposition()).to.deep.equal($stateParams.composition);
+
+      expect(scope.email.identity).to.deep.equal({ id: 'customIdentity', name: 'Name' });
+    });
+
+    describe('The getIdentityLabel function', function() {
+
+      it('should format the identity', function() {
+        var controller = initController('composerController');
+
+        expect(controller.getIdentityLabel({ name: 'Name', email: 'a@a.com' })).to.equal('Name <a@a.com>');
+      });
+
     });
 
     describe('The "destroyDraft" function', function() {

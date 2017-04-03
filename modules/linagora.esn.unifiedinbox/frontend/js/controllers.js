@@ -67,7 +67,7 @@ angular.module('linagora.esn.unifiedinbox')
 
   .controller('composerController', function($scope, $stateParams, notificationFactory,
                                             Composition, jmap, withJmapClient, fileUploadService, $filter,
-                                            attachmentUploadService, _, inboxConfig,
+                                            attachmentUploadService, _, inboxConfig, inboxIdentitiesService,
                                             DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD, INBOX_SUMMERNOTE_OPTIONS) {
     var self = this,
         disableImplicitSavesAsDraft = false,
@@ -94,6 +94,18 @@ angular.module('linagora.esn.unifiedinbox')
       $scope.email = composition.getEmail();
 
       _updateAttachmentStatus();
+
+      inboxIdentitiesService.getAllIdentities().then(function(identities) {
+        self.identities = identities;
+
+        // This will be improved in the future if we support a "preferred" identity (which might not be the default one)
+        // For now we always pre-select the default identity
+        $scope.email.identity = _.find(identities, $scope.email.identity ? { id: $scope.email.identity.id } : { isDefault: true });
+      });
+    };
+
+    this.getIdentityLabel = function(identity) {
+      return identity.name + ' <' + identity.email + '>';
     };
 
     this.saveDraft = function() {
@@ -213,11 +225,11 @@ angular.module('linagora.esn.unifiedinbox')
 
   })
 
-  .controller('viewEmailController', function($scope, $state, $stateParams, inboxJmapItemService, jmapHelper, inboxAsyncHostedMailControllerHelper) {
+  .controller('viewEmailController', function($scope, $state, $stateParams, inboxJmapItemService, inboxJmapHelper, inboxAsyncHostedMailControllerHelper) {
     $scope.email = $stateParams.item;
 
     inboxAsyncHostedMailControllerHelper(this, function() {
-      return jmapHelper
+      return inboxJmapHelper
         .getMessageById($stateParams.emailId)
         .then(function(message) {
           if (!$scope.email) {
