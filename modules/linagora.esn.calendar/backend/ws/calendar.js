@@ -3,7 +3,7 @@
 const NAMESPACE = '/calendars';
 const PUBSUB_EVENT = 'calendar:event:updated';
 const CONSTANTS = require('../lib/constants');
-const WS_EVENT = CONSTANTS.WS_EVENT;
+const EVENTS = CONSTANTS.EVENTS;
 const NOTIFICATIONS = CONSTANTS.NOTIFICATIONS;
 const ICAL = require('ical.js');
 const _ = require('lodash');
@@ -88,13 +88,13 @@ function emitElasticSearchEvent(pubsub, msg) {
 
   data.ics = (new ICAL.Component(msg.event)).toString();
 
-  if (action === WS_EVENT.EVENT_CREATED || action === WS_EVENT.EVENT_REQUEST) {
-    pubsub.local.topic(NOTIFICATIONS.EVENT_ADDED).publish(data);
-  } else if (action === WS_EVENT.EVENT_UPDATED || action === WS_EVENT.EVENT_REPLY) {
-    pubsub.local.topic(NOTIFICATIONS.EVENT_UPDATED).publish(data);
-  } else if (action === WS_EVENT.EVENT_DELETED || action === WS_EVENT.EVENT_CANCEL) {
-    pubsub.local.topic(NOTIFICATIONS.EVENT_DELETED).publish(data);
+  if (action === EVENTS.EVENT.CREATED || action === EVENTS.EVENT.REQUEST) {
+    pubsub.local.topic(NOTIFICATIONS.ADDED).publish(data);
+  } else if (action === EVENTS.EVENT.UPDATED || action === EVENTS.EVENT.REPLY) {
+    pubsub.local.topic(NOTIFICATIONS.UPDATED).publish(data);
+  } else if (action === EVENTS.EVENT.DELETED || action === EVENTS.EVENT.CANCEL) {
+    pubsub.local.topic(NOTIFICATIONS.DELETED).publish(data);
   } else {
-    throw new Error('Unknow ws_event for calendar CRUD', action);
+    throw new Error('Unknow Event received for Calendar Indexing', action);
   }
 }

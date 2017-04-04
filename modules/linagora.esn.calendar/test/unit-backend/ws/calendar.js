@@ -173,27 +173,27 @@ describe('The calendar WS events module', function() {
       }
 
       it('should push event creation on NOTIFICATIONS.EVENT_ADDED', function() {
-        testLocalPublishOnWsEvent(CONSTANTS.WS_EVENT.EVENT_CREATED, CONSTANTS.NOTIFICATIONS.EVENT_ADDED);
+        testLocalPublishOnWsEvent(CONSTANTS.EVENTS.EVENT.CREATED, CONSTANTS.NOTIFICATIONS.EVENT_ADDED);
       });
 
       it('should push event creation on NOTIFICATIONS.EVENT_REQUEST', function() {
-        testLocalPublishOnWsEvent(CONSTANTS.WS_EVENT.EVENT_REQUEST, CONSTANTS.NOTIFICATIONS.EVENT_ADDED);
+        testLocalPublishOnWsEvent(CONSTANTS.EVENTS.EVENT.REQUEST, CONSTANTS.NOTIFICATIONS.EVENT_ADDED);
       });
 
       it('should push event creation on NOTIFICATIONS.EVENT_UPDATED', function() {
-        testLocalPublishOnWsEvent(CONSTANTS.WS_EVENT.EVENT_UPDATED, CONSTANTS.NOTIFICATIONS.EVENT_UPDATED);
+        testLocalPublishOnWsEvent(CONSTANTS.EVENTS.EVENT.UPDATED, CONSTANTS.NOTIFICATIONS.EVENT_UPDATED);
       });
 
       it('should push event creation on NOTIFICATIONS.EVENT_REPLY', function() {
-        testLocalPublishOnWsEvent(CONSTANTS.WS_EVENT.EVENT_REPLY, CONSTANTS.NOTIFICATIONS.EVENT_UPDATED);
+        testLocalPublishOnWsEvent(CONSTANTS.EVENTS.EVENT.REPLY, CONSTANTS.NOTIFICATIONS.EVENT_UPDATED);
       });
 
       it('should push event creation on NOTIFICATIONS.EVENT_DELETED', function() {
-        testLocalPublishOnWsEvent(CONSTANTS.WS_EVENT.EVENT_DELETED, CONSTANTS.NOTIFICATIONS.EVENT_DELETED);
+        testLocalPublishOnWsEvent(CONSTANTS.EVENTS.EVENT.DELETED, CONSTANTS.NOTIFICATIONS.EVENT_DELETED);
       });
 
       it('should push event creation on NOTIFICATIONS.EVENT_CANCEL', function() {
-        testLocalPublishOnWsEvent(CONSTANTS.WS_EVENT.EVENT_CANCEL, CONSTANTS.NOTIFICATIONS.EVENT_DELETED);
+        testLocalPublishOnWsEvent(CONSTANTS.EVENTS.EVENT.CANCEL, CONSTANTS.NOTIFICATIONS.EVENT_DELETED);
       });
     });
 
