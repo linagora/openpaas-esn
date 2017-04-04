@@ -72,8 +72,9 @@
         if (identity.isDefault) {
           return {
             name: 'identities.default',
-            key: 'textSignature',
-            value: identity.textSignature
+            value: {
+              textSignature: identity.textSignature
+            }
           };
         }
 

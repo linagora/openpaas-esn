@@ -414,6 +414,25 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       expect(scope.email.identity).to.deep.equal({ id: 'customIdentity', name: 'Name' });
     });
 
+    it('should call scope.updateIdentity after intialization', function() {
+      scope.updateIdentity = sinon.spy();
+      $stateParams.email = { to: [] };
+
+      initController('composerController');
+
+      expect(scope.updateIdentity).to.have.been.calledWith();
+    });
+
+    describe('The getIdentitySignature function', function() {
+
+      it('should prefix the signature', function() {
+        var controller = initController('composerController');
+
+        expect(controller.getIdentitySignature({ textSignature: 'My Signature' })).to.equal('-- \nMy Signature');
+      });
+
+    });
+
     describe('The getIdentityLabel function', function() {
 
       it('should format the identity', function() {

@@ -149,8 +149,9 @@ describe('The inboxIdentitiesService factory', function() {
       expect(esnUserConfigurationService.set).to.have.been.calledWith([
         {
           name: 'identities.default',
-          key: 'textSignature',
-          value: 'signature'
+          value: {
+            textSignature: 'signature'
+          }
         }
       ], 'linagora.esn.unifiedinbox');
 

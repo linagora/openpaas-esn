@@ -68,7 +68,7 @@ angular.module('linagora.esn.unifiedinbox')
   .controller('composerController', function($scope, $stateParams, notificationFactory,
                                             Composition, jmap, withJmapClient, fileUploadService, $filter,
                                             attachmentUploadService, _, inboxConfig, inboxIdentitiesService,
-                                            DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD, INBOX_SUMMERNOTE_OPTIONS) {
+                                            DEFAULT_FILE_TYPE, DEFAULT_MAX_SIZE_UPLOAD, INBOX_SUMMERNOTE_OPTIONS, INBOX_SIGNATURE_SEPARATOR) {
     var self = this,
         disableImplicitSavesAsDraft = false,
         composition;
@@ -86,7 +86,7 @@ angular.module('linagora.esn.unifiedinbox')
     };
 
     this.initCtrl = function(email, options) {
-      this.initCtrlWithComposition(new Composition(email, options));
+      return this.initCtrlWithComposition(new Composition(email, options));
     };
 
     this.initCtrlWithComposition = function(comp) {
@@ -95,17 +95,27 @@ angular.module('linagora.esn.unifiedinbox')
 
       _updateAttachmentStatus();
 
-      inboxIdentitiesService.getAllIdentities().then(function(identities) {
-        self.identities = identities;
+      return inboxIdentitiesService.getAllIdentities()
+        .then(function(identities) {
+          self.identities = identities;
 
-        // This will be improved in the future if we support a "preferred" identity (which might not be the default one)
-        // For now we always pre-select the default identity
-        $scope.email.identity = _.find(identities, $scope.email.identity ? { id: $scope.email.identity.id } : { isDefault: true });
-      });
+          // This will be improved in the future if we support a "preferred" identity (which might not be the default one)
+          // For now we always pre-select the default identity
+          $scope.email.identity = _.find(identities, $scope.email.identity ? { id: $scope.email.identity.id } : { isDefault: true });
+        })
+        .then(function() {
+          if ($scope.updateIdentity) {
+            $scope.updateIdentity();
+          }
+        });
     };
 
     this.getIdentityLabel = function(identity) {
       return identity.name + ' <' + identity.email + '>';
+    };
+
+    this.getIdentitySignature = function(identity) {
+      return INBOX_SIGNATURE_SEPARATOR + identity.textSignature;
     };
 
     this.saveDraft = function() {

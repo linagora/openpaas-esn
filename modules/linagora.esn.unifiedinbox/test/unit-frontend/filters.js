@@ -72,37 +72,6 @@ describe('The Unified Inbox Angular module filters', function() {
     });
   });
 
-  describe('The quote filter', function() {
-    var emailTextBody;
-
-    it('should return undefined if textBody is undefined', function() {
-      expect($filter('quote')()).to.equal(undefined);
-    });
-
-    it('should return null if textBody is null', function() {
-      expect($filter('quote')(null)).to.equal(null);
-    });
-
-    it('should return an empty String if textBody is empty', function() {
-      expect($filter('quote')('')).to.equal('');
-    });
-
-    it('should prefix each line with "> "', function() {
-      emailTextBody = 'This \n is \n multi-line \n email';
-      expect($filter('quote')(emailTextBody)).to.equal('> This \n>  is \n>  multi-line \n>  email');
-    });
-
-    it('should support CRLF as newlines', function() {
-      emailTextBody = 'This \r\nis \nmulti-line \r\nemail \rtest';
-      expect($filter('quote')(emailTextBody)).to.equal('> This \r\n> is \n> multi-line \r\n> email \r> test');
-    });
-
-    it('should trim useless spaces/lines', function() {
-      emailTextBody = '       This \n is \n multi-line \n email     \n\n\n\n';
-      expect($filter('quote')(emailTextBody)).to.equal('> This \n>  is \n>  multi-line \n>  email');
-    });
-  });
-
   describe('The nl2br filter', function() {
     var emailTextBody;
 

@@ -236,7 +236,8 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('composer', function($rootScope, $state, $timeout, elementScrollService, emailBodyService, autosize, esnPreviousPage) {
+  .directive('composer', function($rootScope, $state, $timeout, elementScrollService, emailBodyService, autosize,
+                                  esnPreviousPage, INBOX_SIGNATURE_SEPARATOR) {
     return {
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/composer/composer.html',
@@ -285,6 +286,53 @@ angular.module('linagora.esn.unifiedinbox')
           $timeout(function() {
             element.find('.compose-body').focusEnd();
           }, 0);
+        };
+
+        scope.updateIdentity = function() {
+          var text = scope.email.textBody || '',
+              identity = scope.email.identity,
+              startOfSignature = new RegExp('^' + INBOX_SIGNATURE_SEPARATOR, 'm').exec(text),
+              /* eslint-disable no-control-regex */ startOfQuote = /^\x00/m.exec(text),
+              newText = '';
+
+          // The code currently only supports placing the signature before the quote, this will be improved
+          // when we later implement the option to place it after the quote.
+          //
+          // Positioning is as follows:
+          //
+          // TEXT
+          // --             <- This symbol is the delimiter of the signature: "-- \n"
+          // SIGNATURE
+          //
+          // [MARKER]QUOTE  <- The MARKER is a NULL character: "\x00"
+          // > QUOTED TEXT
+          //
+          if (startOfSignature) {
+            newText = text.substring(0, startOfSignature.index);
+          } else if (startOfQuote) {
+            newText = text.substring(0, startOfQuote.index);
+          } else {
+            newText = text;
+          }
+
+          if (identity.textSignature) {
+            // If signature is at the top of the message, add a blank line so that it's easier to enter text before
+            if (!newText) {
+              newText += '\n\n';
+            }
+
+            newText += controller.getIdentitySignature(identity) + '\n\n';
+          }
+
+          if (startOfQuote) {
+            newText += text.substring(startOfQuote.index);
+          }
+
+          scope.email.textBody = newText;
+
+          $timeout(function() {
+            autosize.update(element.find('.compose-body').get(0));
+          }, 0, false);
         };
 
         scope.openRecipients = function(recipientsType) {
@@ -384,6 +432,29 @@ angular.module('linagora.esn.unifiedinbox')
             element.find('.summernote').summernote('focus');
             element.find('.note-editable').focusEnd();
           }, 0);
+        };
+
+        scope.updateIdentity = function() {
+          var identity = scope.email.identity,
+              editable = element.find('.note-editable'),
+              signatureElement = editable.find('> pre.openpaas-signature'),
+              citeElement = editable.find('> cite');
+
+          if (identity.textSignature) {
+            if (!signatureElement.length) {
+              signatureElement = angular.element('<pre class="openpaas-signature"></pre>');
+
+              if (citeElement.length) {
+                signatureElement.insertBefore(citeElement.get(0));
+              } else {
+                signatureElement.appendTo(editable);
+              }
+            }
+
+            signatureElement.text(controller.getIdentitySignature(identity));
+          } else {
+            signatureElement.remove();
+          }
         };
 
         scope.hide = scope.$hide;
