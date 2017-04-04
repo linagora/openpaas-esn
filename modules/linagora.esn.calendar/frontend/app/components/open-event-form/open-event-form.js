@@ -40,7 +40,7 @@
       } else if (modalIsOpen === false) {
         modalIsOpen = true;
         $modal({
-          templateUrl: '/calendar/app/services/open-event-form/event-quick-form-view',
+          templateUrl: '/calendar/app/components/open-event-form/event-quick-form-view',
           resolve: {
             event: function(calEventUtils) {
               return calEventUtils.getEditedEvent();
@@ -71,7 +71,7 @@
 
     function _openRecurringModal(event) {
       $modal({
-        templateUrl: '/calendar/app/services/open-event-form/edit-instance-or-series',
+        templateUrl: '/calendar/app/components/open-event-form/edit-instance-or-series',
         resolve: {
           event: function() {
             return event;
