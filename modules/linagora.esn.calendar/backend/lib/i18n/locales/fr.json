@@ -92,8 +92,8 @@
   "My calendars": "Mes calendriers",
   "External calendars": "Calendriers externes",
   "Public right": "Accès public",
-  "Consult shared calendar": "Consulter le calendrier partagé",
   "Consult public calendar": "Consulter le calendrier public",
-  "Your right on this calendar": "Votre droit sur ce calendrier",
+  "Shared by": "Partagé par",
+  "Your permission": "Votre permission",
   "Owner": "Propriétaire"
 }

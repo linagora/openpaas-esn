@@ -46,8 +46,14 @@
           return calendarHomeId;
         })
         .then(function(calendarHomeId) {
+          self.externalCalendar = (self.externalCalendar === 'true');
+
+          var options = {
+            withRights: self.externalCalendar
+          };
+
           if ($stateParams.calendarId) {
-            return calendarService.getCalendar(calendarHomeId, $stateParams.calendarId);
+            return calendarService.getCalendar(calendarHomeId, $stateParams.calendarId, options);
           }
         })
         .then(function(calendar) {

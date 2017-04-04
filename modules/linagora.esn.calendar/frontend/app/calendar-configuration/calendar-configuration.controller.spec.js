@@ -213,7 +213,31 @@ describe('The calendar configuration controller', function() {
 
       $rootScope.$digest();
 
-      expect(calendarService.getCalendar).to.be.calledWith(calendarHomeId, stateParamsMock.calendarId);
+      expect(calendarService.getCalendar).to.be.calledWith(calendarHomeId, stateParamsMock.calendarId, {
+        withRights: false
+      });
+    });
+
+    it('should calendarService.getCalendar with options "withRights: false" if "externalCalendar" is set to "false"', function() {
+      calendarConfigurationController.externalCalendar = 'false';
+      calendarConfigurationController.$onInit();
+
+      $rootScope.$digest();
+
+      expect(calendarService.getCalendar).to.be.calledWith(calendarHomeId, stateParamsMock.calendarId, {
+        withRights: false
+      });
+    });
+
+    it('should calendarService.getCalendar with options "withRights: true" if "externalCalendar" is set to "true"', function() {
+      calendarConfigurationController.externalCalendar = 'true';
+      calendarConfigurationController.$onInit();
+
+      $rootScope.$digest();
+
+      expect(calendarService.getCalendar).to.be.calledWith(calendarHomeId, stateParamsMock.calendarId, {
+        withRights: true
+      });
     });
 
     it('should not call calendarService.getCalendar if calendarId is null', function() {
