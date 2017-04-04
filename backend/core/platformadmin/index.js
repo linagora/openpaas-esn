@@ -8,6 +8,7 @@ const getUserByEmail = q.denodeify(coreUser.findByEmail);
 
 module.exports = {
   isPlatformAdmin,
+  setPlatformAdmins,
   getAllPlatformAdmins,
   getAllPlatformAdminUsers,
   addPlatformAdmin,
@@ -19,22 +20,24 @@ module.exports = {
 };
 
 function isPlatformAdmin(userId) {
-  return getAllPlatformAdmins().then(platformadmins => {
-    return platformadmins.indexOf(userId) > -1;
-  });
+  return getAllPlatformAdmins()
+    .then(platformadmins => platformadmins.indexOf(userId) > -1);
+}
+
+function setPlatformAdmins(platformadmins) {
+  return esnConfig(CONFIG_KEY).set(platformadmins);
 }
 
 function getAllPlatformAdmins() {
-  return esnConfig(CONFIG_KEY).get().then(platformadmins => {
-    return Array.isArray(platformadmins) ? platformadmins : [];
-  });
+  return esnConfig(CONFIG_KEY).get()
+    .then(platformadmins => (Array.isArray(platformadmins) ? platformadmins : []));
 }
 
 function getAllPlatformAdminUsers() {
-  return getAllPlatformAdmins().then(platformadmins => {
-    return q.all(platformadmins.map(userId => getUserById(userId)))
-      .then(users => users.filter(Boolean));
-  });
+  return getAllPlatformAdmins()
+    .then(platformadmins =>
+      q.all(platformadmins.map(userId => getUserById(userId))).then(users => users.filter(Boolean))
+    );
 }
 
 function addPlatformAdmin(user) {
@@ -47,9 +50,8 @@ function addPlatformAdmin(user) {
       platformadmins.push(user.id);
     }
 
-    return platformadmins;
-  })
-  .then(platformadmins => esnConfig(CONFIG_KEY).set(platformadmins));
+    return setPlatformAdmins(platformadmins);
+  });
 }
 
 function addPlatformAdminById(userId) {
@@ -84,9 +86,8 @@ function removePlatformAdmin(user) {
       platformadmins.splice(index, 1);
     }
 
-    return platformadmins;
-  })
-  .then(platformadmins => esnConfig(CONFIG_KEY).set(platformadmins));
+    return setPlatformAdmins(platformadmins);
+  });
 }
 
 function removePlatformAdminById(userId) {

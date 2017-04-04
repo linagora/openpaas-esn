@@ -7,30 +7,6 @@ module.exports = function(router) {
 
   /**
    * @swagger
-   * /platformadmins/init:
-   *   post:
-   *     tags:
-   *      - PlatformAdmin
-   *     description: Initialize the first platformadmin
-   *     parameters:
-   *       - $ref: "#/parameters/sa_set_type"
-   *       - $ref: "#/parameters/sa_set_data"
-   *     responses:
-   *       204:
-   *         $ref: "#/responses/cm_204"
-   *       400:
-   *         $ref: "#/responses/cm_400"
-   *       403:
-   *         $ref: "#/responses/cm_403"
-   *       500:
-   *         $ref: "#/responses/cm_500"
-   */
-  router.post('/platformadmins/init',
-    platformadminsMw.canCreateFirstPlatformAdmin,
-    controller.createPlatformAdmin);
-
-  /**
-   * @swagger
    * /platformadmins:
    *   get:
    *     tags:

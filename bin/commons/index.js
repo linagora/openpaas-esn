@@ -34,7 +34,7 @@ function logError(...message) {
 }
 
 function getDBOptions() {
-  const dbConfigFilePath = path.normalize(__dirname + '/../config/db.json');
+  const dbConfigFilePath = path.normalize(__dirname + '/../../config/db.json');
   const dbConfig = fs.readFileSync(dbConfigFilePath, 'utf8');
 
   return JSON.parse(dbConfig);
@@ -80,7 +80,7 @@ function loginAsUser(baseUrl, email, password, done) {
 }
 
 function loadMongooseModels() {
-  var ESN_ROOT = path.resolve(__dirname, '../');
+  var ESN_ROOT = path.resolve(__dirname, '../../');
   var MODELS_ROOT = path.resolve(ESN_ROOT, 'backend/core/db/mongo/models');
 
   return readdir(MODELS_ROOT).then(function(files) {

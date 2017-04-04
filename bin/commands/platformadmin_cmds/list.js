@@ -1,10 +1,12 @@
-const commons = require('../../commons');
 const Table = require('cli-table');
+const commons = require('../../commons');
+const constants = require('../../constants');
 
 module.exports = {
   command: 'list',
   desc: 'List all platformadmins',
   builder: {
+    url: constants.params.instance.url,
     username: {
       describe: 'Username to login',
       demand: true

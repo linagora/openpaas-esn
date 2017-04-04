@@ -1,9 +1,11 @@
 const commons = require('../../commons');
+const constants = require('../../constants');
 
 module.exports = {
   command: 'set',
   desc: 'Set a user as platformadmin',
   builder: {
+    url: constants.params.instance.url,
     username: {
       describe: 'Username to login',
       demand: true

@@ -1,15 +1,7 @@
-const constants = require('../constants');
-
 const command = {
   command: 'platformadmin',
   desc: 'PlatformAdmin Management',
-  builder(yargs) {
-    return yargs
-      .commandDir('platformadmin_cmds')
-      .options({
-        url: Object.assign({ global: true }, constants.params.instance.url)
-      });
-  }
+  builder: yargs => yargs.commandDir('platformadmin_cmds').demandCommand(1, 'Please specify a command')
 };
 
 module.exports = {

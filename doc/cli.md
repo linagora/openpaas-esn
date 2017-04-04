@@ -131,13 +131,13 @@ In case your system does not have any platformadmin, use `init` command to set
 the first one:
 
 ```bash
-$ node ./bin/cli platformadmin init --url http://open-paas.org --email admin@open-paas.org
+$ node ./bin/cli platformadmin init --email admin@open-paas.org
 ```
 
 Where:
 
-- url: optional, the OpenPaaS instance URL
 - email: required, email of the user to make as platformadmin
+- force: optional, used to overwrite the current platformadmin
 
 In case there is already platformadmin in the instance, you need to be a platformadmin
 to list, set, unset platformadmins.
