@@ -42,10 +42,7 @@ module.exports = function(router) {
    *     tags:
    *      - Users
    *     description: |
-   *       Get the profile of the user with given email.
-
-   *     parameters:
-   *       - $ref: "#/parameters/uss_email"
+   *       Get the users profile from query.
    *     responses:
    *       200:
    *         $ref: "#/responses/uss_profile"
@@ -58,7 +55,7 @@ module.exports = function(router) {
    *       500:
    *         $ref: "#/responses/cm_500"
    */
-  router.get('/users', authorize.requiresAPILogin, users.profileByOptions);
+  router.get('/users', authorize.requiresAPILogin, users.getProfilesByOptions);
 
   /**
    * @swagger

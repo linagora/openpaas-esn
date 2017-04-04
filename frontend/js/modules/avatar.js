@@ -465,30 +465,36 @@ angular.module('esn.avatar', [
     templateUrl: '/views/modules/avatar/avatar.html',
     controller: 'EsnAvatarController',
     bindings: {
+      userId: '=?',
+      userEmail: '=?',
       avatarUrl: '=?',
-      avatarEmail: '=?',
-      avatarId: '=?',
-      displayUserStatus: '=?'
+      hideUserStatus: '=?'
     }
   })
   .controller('EsnAvatarController', function(userAPI) {
     var self = this;
 
     self.$onInit = $onInit;
+    self.displayUserStatus = displayUserStatus;
 
     function $onInit() {
-      self.avatarURL = self.avatarUrl;
+      if (!self.avatarUrl) {
+        if (self.userId) {
+          self.avatarUrl = '/api/users/' + self.userId + '/profile/avatar';
+        } else if (self.userEmail) {
+          self.avatarUrl = '/api/avatars?email=' + self.userEmail;
+        }
+      }
 
-      if (self.avatarId) {
-        self.avatarURL = '/api/users/' + self.avatarId + '/profile/avatar';
-        self.userId = self.avatarId;
-      } else if (self.avatarEmail) {
-        self.avatarURL = '/api/avatars?email=' + self.avatarEmail;
-
-        userAPI.getUserByEmail(self.avatarEmail).then(function(user) {
-          self.userId = user.data._id;
+      if (self.userEmail && !self.userId) {
+        userAPI.getUsersByEmail(self.userEmail).then(function(users) {
+          self.userId = users.data[0]._id;
         });
       }
+    }
+
+    function displayUserStatus() {
+      return !!self.userId && !self.hideUserStatus;
     }
   })
   .factory('esnAvatarService', function() {

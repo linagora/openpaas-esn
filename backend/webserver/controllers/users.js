@@ -1,5 +1,6 @@
 'use strict';
 
+var Q = require('q');
 var userModule = require('../../core').user;
 var imageModule = require('../../core').image;
 var acceptedImageTypes = ['image/jpeg', 'image/gif', 'image/png'];
@@ -73,17 +74,17 @@ module.exports.profile = profile;
  * @param {request} req
  * @param {response} res
  */
-function profileByOptions(req, res) {
+function getProfilesByOptions(req, res) {
   const email = req.query.email;
 
   if (!email) {
     return res.status(400).json({error: {code: 400, message: 'Bad parameters', details: 'User email is missing'}});
-  } else {
-    getProfileByEmail(email);
   }
 
-  function getProfileByEmail(email) {
-    userModule.findByEmail(email, (err, user) => {
+  getProfilesByEmail(email);
+
+  function getProfilesByEmail(email) {
+    userModule.findUsersByEmail(email, (err, users) => {
       if (err) {
         return res.status(500).json({
           error: 500,
@@ -92,22 +93,25 @@ function profileByOptions(req, res) {
         });
       }
 
-      if (!user) {
-        return res.status(404).json({
-          error: 404,
-          message: 'User not found',
-          details: 'User ' + email + ' has not been found'
-        });
+      if (!users) {
+        return res.status(200).json([]);
       }
 
-      denormalizeUser(user, {user: req.user, doNotKeepPrivateData: true})
-        .then(denormalized => {
-          res.status(200).json(denormalized);
-        });
+      const denormalizedUsers = users.map(user => denormalizeUser(user, {user: req.user, doNotKeepPrivateData: true}));
+
+      Q.all(denormalizedUsers)
+        .then(users => {
+          res.status(200).json(users);
+        })
+        .catch(err => res.status(500).json({
+          error: 500,
+          message: 'Error while denormalize users',
+          details: err.message
+        }));
     });
   }
 }
-module.exports.profileByOptions = profileByOptions;
+module.exports.getProfilesByOptions = getProfilesByOptions;
 
 /**
  * Update a parameter value in the current user profile
