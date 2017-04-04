@@ -732,6 +732,99 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
     });
 
+    describe('The updateIdentity function', function() {
+
+      var identity = {
+        textSignature: 'SignatureText'
+      };
+
+      it('should insert the signature when there is no text, with blank lines before and after', function() {
+        compileDirective('<composer />');
+
+        $scope.email = {
+          identity: identity
+        };
+        $scope.updateIdentity();
+
+        expect($scope.email.textBody).to.equal('\n\n-- \nSignatureText\n\n');
+      });
+
+      it('should insert the signature after existing text', function() {
+        compileDirective('<composer />');
+
+        $scope.email = {
+          textBody: 'ExistingText\n',
+          identity: identity
+        };
+        $scope.updateIdentity();
+
+        expect($scope.email.textBody).to.equal('ExistingText\n-- \nSignatureText\n\n');
+      });
+
+      it('should insert the signature after existing text and before quote if present', function() {
+        compileDirective('<composer />');
+
+        $scope.email = {
+          textBody: 'Line 1\nLine 2\n\n\x00Quote',
+          identity: identity
+        };
+        $scope.updateIdentity();
+
+        expect($scope.email.textBody).to.equal('Line 1\nLine 2\n\n-- \nSignatureText\n\n\x00Quote');
+      });
+
+      it('should replace an existing signature when there is no quote', function() {
+        compileDirective('<composer />');
+
+        $scope.email = {
+          textBody: 'ExistingText\n-- \nOld Signature',
+          identity: identity
+        };
+        $scope.updateIdentity();
+
+        expect($scope.email.textBody).to.equal('ExistingText\n-- \nSignatureText\n\n');
+      });
+
+      it('should replace an existing signature when there is a quote present', function() {
+        compileDirective('<composer />');
+
+        $scope.email = {
+          textBody: 'ExistingText\n-- \nOld Signature\n\x00Quote',
+          identity: identity
+        };
+        $scope.updateIdentity();
+
+        expect($scope.email.textBody).to.equal('ExistingText\n-- \nSignatureText\n\n\x00Quote');
+      });
+
+      it('should update autosize() on the email body', function() {
+        autosize.update = sinon.spy();
+
+        compileDirective('<composer />');
+
+        $scope.email = {
+          identity: identity
+        };
+        $scope.updateIdentity();
+        $timeout.flush();
+
+        expect(autosize.update).to.have.been.calledWith(element.find('.compose-body').get(0));
+      });
+
+      it('should remove an existing signature if selected identity has no signature defined', function() {
+        compileDirective('<composer />');
+
+        $scope.email = {
+          textBody: 'ExistingText\n-- \nOld Signature\n\x00Quote',
+          identity: {}
+        };
+        $scope.updateIdentity();
+
+        expect($scope.email.textBody).to.equal('ExistingText\n\x00Quote');
+      });
+
+    });
+
   });
 
   describe('The composer-desktop directive', function() {
@@ -912,6 +1005,91 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
 
         expect(document.activeElement).to.equal(element.find('email-body-editor .note-editable').get(0));
       });
+    });
+
+    describe('The updateIdentity function', function() {
+
+      var identity = {
+        textSignature: 'SignatureText'
+      };
+
+      it('should insert the signature when there is no text', function() {
+        compileDirective('<composer-desktop />');
+
+        $scope.email = {
+          identity: identity
+        };
+        $rootScope.$digest();
+        $scope.updateIdentity();
+
+        expect(element.find('.note-editable').html()).to.equal('<p><br></p><pre class="openpaas-signature">-- \nSignatureText</pre>');
+      });
+
+      it('should insert the signature after existing text', function() {
+        compileDirective('<composer-desktop />');
+
+        $scope.email = {
+          htmlBody: 'ExistingText',
+          identity: identity
+        };
+        $rootScope.$digest();
+        $scope.updateIdentity();
+
+        expect(element.find('.note-editable').html()).to.equal('ExistingText<pre class="openpaas-signature">-- \nSignatureText</pre>');
+      });
+
+      it('should insert the signature after existing text and before quote if present', function() {
+        compileDirective('<composer-desktop />');
+
+        $scope.email = {
+          htmlBody: 'ExistingText<cite>Cite</cite><blockquote>QuoteText</blockquote>',
+          identity: identity
+        };
+        $rootScope.$digest();
+        $scope.updateIdentity();
+
+        expect(element.find('.note-editable').html()).to.equal('ExistingText<pre class="openpaas-signature">-- \nSignatureText</pre><cite>Cite</cite><blockquote>QuoteText</blockquote>');
+      });
+
+      it('should replace an existing signature when there is no quote', function() {
+        compileDirective('<composer-desktop />');
+
+        $scope.email = {
+          htmlBody: 'ExistingText<pre class="openpaas-signature">-- \nOldSignature</pre>',
+          identity: identity
+        };
+        $rootScope.$digest();
+        $scope.updateIdentity();
+
+        expect(element.find('.note-editable').html()).to.equal('ExistingText<pre class="openpaas-signature">-- \nSignatureText</pre>');
+      });
+
+      it('should replace an existing signature when there is a quote present', function() {
+        compileDirective('<composer-desktop />');
+
+        $scope.email = {
+          htmlBody: 'ExistingText<pre class="openpaas-signature">-- \nOldSignature</pre><cite>Cite</cite><blockquote>QuoteText</blockquote>',
+          identity: identity
+        };
+        $rootScope.$digest();
+        $scope.updateIdentity();
+
+        expect(element.find('.note-editable').html()).to.equal('ExistingText<pre class="openpaas-signature">-- \nSignatureText</pre><cite>Cite</cite><blockquote>QuoteText</blockquote>');
+      });
+
+      it('should remove an existing signature if selected identity has no signature defined', function() {
+        compileDirective('<composer-desktop />');
+
+        $scope.email = {
+          htmlBody: 'ExistingText<pre class="openpaas-signature">-- \nOldSignature</pre>',
+          identity: {}
+        };
+        $rootScope.$digest();
+        $scope.updateIdentity();
+
+        expect(element.find('.note-editable').html()).to.equal('ExistingText');
+      });
+
     });
 
   });
