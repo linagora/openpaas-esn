@@ -34,16 +34,6 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .filter('quote', function() {
-    return function(text) {
-      if (!text) {
-        return text;
-      }
-
-      return text.trim().replace(/^(.)/gm, '> $1');
-    };
-  })
-
   .filter('nl2br', function() {
     return function(text) {
       if (!angular.isDefined(text)) {

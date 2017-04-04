@@ -79,7 +79,8 @@ var unifiedInboxModule = new AwesomeModule('linagora.esn.unifiedinbox', {
         'components/identity/form/identity-form.controller.js',
         'components/identity/form/subheader/identity-form-subheader.js',
         'services/identities/identities-service.js',
-        'services/jmap-helper/jmap-helper.js'
+        'services/jmap-helper/jmap-helper.js',
+        'filters/quote/quote.js'
       ], 'linagora.esn.unifiedinbox', ['esn']);
 
       webserverWrapper.injectLess('unifiedinbox', [
