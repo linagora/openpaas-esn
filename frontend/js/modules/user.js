@@ -34,8 +34,8 @@ angular.module('esn.user', ['esn.http', 'esn.object-type', 'esn.lodash-wrapper']
       return esnRestangular.one('users', uuid).get();
     }
 
-    function getUserByEmail(email) {
-      return esnRestangular.one('users').get({ email: email });
+    function getUsersByEmail(email) {
+      return esnRestangular.all('users').getList({ email: email });
     }
 
     function getCommunities() {
@@ -53,7 +53,7 @@ angular.module('esn.user', ['esn.http', 'esn.object-type', 'esn.lodash-wrapper']
       user: user,
       getCommunities: getCommunities,
       getActivityStreams: getActivityStreams,
-      getUserByEmail: getUserByEmail
+      getUsersByEmail: getUsersByEmail
     };
   })
   .factory('userUtils', function() {

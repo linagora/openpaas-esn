@@ -309,11 +309,11 @@ describe('The Avatar Angular module', function() {
       };
 
       result = {
-        data: user
+        data: [user]
       };
 
       userAPIMock = {
-        getUserByEmail: sinon.spy(function() {
+        getUsersByEmail: sinon.spy(function() {
           return $q.when(result);
         })
       };
@@ -330,66 +330,82 @@ describe('The Avatar Angular module', function() {
       EsnAvatarController = $controller('EsnAvatarController');
     });
 
-    it('should initialize the avatarURL with the same URL in avatarUrl', function() {
-      EsnAvatarController.avatarUrl = avatarURL;
+    describe('$onInit function', function() {
 
-      EsnAvatarController.$onInit();
+      it('should initialize the avatarURL with the same URL in avatarUrl if it is defined', function() {
+        EsnAvatarController.avatarUrl = avatarURL;
+        EsnAvatarController.userId = userId;
+        EsnAvatarController.userEmail = userEmail;
 
-      expect(EsnAvatarController.avatarUrl).to.be.equal(avatarURL);
+        EsnAvatarController.$onInit();
+
+        expect(EsnAvatarController.avatarUrl).to.be.equal(avatarURL);
+      });
+
+      it('should initialize the avatarURL with the URL generate from the userId if userId defined and avatarUrl is undefined', function() {
+        EsnAvatarController.userId = userId;
+        EsnAvatarController.userEmail = userId;
+
+        EsnAvatarController.$onInit();
+
+        expect(EsnAvatarController.avatarUrl).to.be.equal(expectedAvatarUrlFromUserId);
+      });
+
+      it('should initialize the avatarURL with the URL generate from the userEmail if userEmail defined and the avatarUrl and userId are undefined', function() {
+        EsnAvatarController.userEmail = userEmail;
+
+        EsnAvatarController.$onInit();
+
+        expect(EsnAvatarController.avatarUrl).to.be.equal(expectedAvatarUrlFromUserEmail);
+      });
+
+      it('should call userAPI.getUserByEmail and initialize the userId if the userEmail is defined and userId is undefined', function() {
+        EsnAvatarController.userEmail = userEmail;
+
+        EsnAvatarController.$onInit();
+
+        $rootScope.$digest();
+
+        expect(EsnAvatarController.userId).to.be.equal(user._id);
+      });
+
+      it('should not update userId if the userId is defined', function() {
+        EsnAvatarController.userId = userId;
+        EsnAvatarController.userEmail = userEmail;
+
+        EsnAvatarController.$onInit();
+
+        expect(EsnAvatarController.userId).to.be.equal(userId);
+      });
     });
 
-    it('should initialize the avatarURL with the URL generate from the avatarId', function() {
-      EsnAvatarController.avatarId = userId;
+    describe('displayUserStatus function', function() {
 
-      EsnAvatarController.$onInit();
+      it('should return true if avatarID is defined and hideUserStatus = false', function() {
+        EsnAvatarController.userId = '123';
+        EsnAvatarController.hideUserStatus = false;
 
-      expect(EsnAvatarController.avatarURL).to.be.equal(expectedAvatarUrlFromUserId);
-    });
+        expect(EsnAvatarController.displayUserStatus()).to.be.true;
+      });
 
-    it('should initialize the userId with the the avatarId if the avatarId is defined', function() {
-      EsnAvatarController.avatarId = userId;
+      it('should return false if avatarID is defined and hideUserStatus = true', function() {
+        EsnAvatarController.userId = '123';
+        EsnAvatarController.hideUserStatus = true;
 
-      EsnAvatarController.$onInit();
+        expect(EsnAvatarController.displayUserStatus()).to.be.false;
+      });
 
-      expect(EsnAvatarController.userId).to.be.equal(userId);
-    });
+      it('should return false if avatarID is undefined and hideUserStatus = true', function() {
+        EsnAvatarController.hideUserStatus = true;
 
-    it('should initialize the avatarURL with the URL generated from the avatarEmail if the avatarEmail is defined', function() {
-      EsnAvatarController.avatarEmail = userEmail;
+        expect(EsnAvatarController.displayUserStatus()).to.be.false;
+      });
 
-      EsnAvatarController.$onInit();
+      it('should return false if avatarID is undefined and hideUserStatus = false', function() {
+        EsnAvatarController.hideUserStatus = false;
 
-      $rootScope.$digest();
-
-      expect(userAPIMock.getUserByEmail).to.have.been.calledWith(userEmail);
-      expect(EsnAvatarController.userId).to.be.equal(user._id);
-    });
-
-    it('should call userAPI.getUserByEmail and initialize the userId if the avatarEmail is defined', function() {
-      EsnAvatarController.avatarEmail = userEmail;
-
-      EsnAvatarController.$onInit();
-
-      expect(EsnAvatarController.avatarURL).to.be.equal(expectedAvatarUrlFromUserEmail);
-    });
-
-    it('should initialize the avatarURL with the URL generate from the avatarId if avatarId, avatarEmail and avatarUrl are defined', function() {
-      EsnAvatarController.avatarEmail = userEmail;
-      EsnAvatarController.avatarId = userId;
-      EsnAvatarController.avatarUrl = avatarURL;
-
-      EsnAvatarController.$onInit();
-
-      expect(EsnAvatarController.avatarURL).to.be.equal(expectedAvatarUrlFromUserId);
-    });
-
-    it('should initialize the avatarURL with the URL generate from the avatar if avatarEmail and avatarUrl are defined', function() {
-      EsnAvatarController.avatarEmail = userEmail;
-      EsnAvatarController.avatarUrl = avatarURL;
-
-      EsnAvatarController.$onInit();
-
-      expect(EsnAvatarController.avatarURL).to.be.equal(expectedAvatarUrlFromUserEmail);
+        expect(EsnAvatarController.displayUserStatus()).to.be.false;
+      });
     });
   });
 });
