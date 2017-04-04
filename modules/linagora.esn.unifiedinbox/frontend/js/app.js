@@ -57,8 +57,10 @@ angular.module('linagora.esn.unifiedinbox', [
 
     function stateOpeningListItem(state) {
       function toggleElementOpened(opening) {
-        return function($rootScope) {
+        return function($rootScope, HEADER_VISIBILITY_EVENT, HEADER_DISABLE_SCROLL_LISTENER_EVENT) {
           $rootScope.inbox.list.isElementOpened = opening;
+
+          toggleHeaderVisibility(!opening)($rootScope, HEADER_VISIBILITY_EVENT, HEADER_DISABLE_SCROLL_LISTENER_EVENT);
 
           if (opening) {
             $rootScope.inbox.list.infiniteScrollDisabled = opening;
@@ -132,7 +134,9 @@ angular.module('linagora.esn.unifiedinbox', [
             template: '<composer />'
           }
         },
-        params: { email: {}, compositionOptions: {}, composition: null }
+        params: { email: {}, compositionOptions: {}, composition: null },
+        onEnter: toggleHeaderVisibility(false),
+        onExit: toggleHeaderVisibility(true)
       })
       .state('unifiedinbox.compose.recipients', {
         url: '/:recipientsType',
@@ -143,9 +147,7 @@ angular.module('linagora.esn.unifiedinbox', [
           }
         },
         params: { composition: null },
-        data: { ignoreSaveAsDraft: true },
-        onEnter: toggleHeaderVisibility(false),
-        onExit: toggleHeaderVisibility(true)
+        data: { ignoreSaveAsDraft: true }
       })
       .state('unifiedinbox.configuration', {
         url: '/configuration',
@@ -160,7 +162,9 @@ angular.module('linagora.esn.unifiedinbox', [
             templateUrl: '/unifiedinbox/views/configuration/index',
             controller: 'inboxConfigurationIndexController'
           }
-        }
+        },
+        onEnter: toggleHeaderVisibility(false),
+        onExit: toggleHeaderVisibility(true)
       })
       .state('unifiedinbox.configuration.folders', {
         url: '/folders',

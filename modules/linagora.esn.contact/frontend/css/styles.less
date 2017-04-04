@@ -223,7 +223,16 @@ ul.dropdown {
   }
 
   .contacts-body {
-    top: 75px;
+    top: @sub-header-height;
+
+    @media (min-width: @screen-md-min) {
+      top: @sub-header-height-md;
+    }
+
+    @media (min-width: @screen-xl-min) {
+      top: @sub-header-height-xl;
+    }
+
     position: inherit;
   }
 }
