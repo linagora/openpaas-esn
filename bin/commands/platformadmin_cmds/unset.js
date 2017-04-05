@@ -35,7 +35,7 @@ function exec(url, username, password, email) {
   const options = {
     method: 'DELETE',
     url: `${url}/api/platformadmins`,
-    qs: {
+    body: {
       type: 'email',
       data: email
     },

@@ -55,6 +55,7 @@ module.exports = function(router) {
     authorizationMw.requiresAPILogin,
     platformadminsMw.requirePlatformAdmin,
     helperMw.requireBody,
+    platformadminsMw.validateBodyData,
     controller.createPlatformAdmin);
 
   /**
@@ -84,5 +85,7 @@ module.exports = function(router) {
   router.delete('/platformadmins',
     authorizationMw.requiresAPILogin,
     platformadminsMw.requirePlatformAdmin,
+    helperMw.requireBody,
+    platformadminsMw.validateBodyData,
     controller.removePlatformAdmin);
 };

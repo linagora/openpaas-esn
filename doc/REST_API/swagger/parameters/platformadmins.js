@@ -18,7 +18,7 @@
  *     type: string
  *   sa_unset_type:
  *     name: type
- *     in: query
+ *     in: body
  *     description: Type of the data to unset platformadmin
  *     required: true
  *     type: string
@@ -27,7 +27,7 @@
  *       - email
  *   sa_unset_data:
  *     name: data
- *     in: query
+ *     in: body
  *     description: User ID or email of the platformadmin you want to unset
  *     required: true
  *     type: string

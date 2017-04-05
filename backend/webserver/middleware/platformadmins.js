@@ -1,8 +1,10 @@
 const logger = require('../../core/logger');
 const corePlatformAdmin = require('../../core/platformadmin');
+const dbHelper = require('../../helpers').db;
 
 module.exports = {
-  requirePlatformAdmin
+  requirePlatformAdmin,
+  validateBodyData
 };
 
 function requirePlatformAdmin(req, res, next) {
@@ -33,4 +35,30 @@ function requirePlatformAdmin(req, res, next) {
       }
     });
   });
+}
+
+function validateBodyData(req, res, next) {
+  const { type, data } = req.body;
+
+  if (['id', 'email'].indexOf(type) === -1) {
+    return res.status(400).json({
+      error: {
+        code: 400,
+        message: 'Bad Request',
+        details: `Unsupport data type: ${type}`
+      }
+    });
+  }
+
+  if (type === 'id' && !dbHelper.isValidObjectId(data)) {
+    return res.status(400).json({
+      error: {
+        code: 400,
+        message: 'Bad Request',
+        details: `${data} is not valid User ID`
+      }
+    });
+  }
+
+  next();
 }

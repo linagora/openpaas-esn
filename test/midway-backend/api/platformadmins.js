@@ -234,33 +234,33 @@ describe('The platformadmins API', function() {
     });
 
     it('should send back 403 if the platformadmin is trying to remove himself by ID', function(done) {
-      const query = { type: 'id', data: userPlatformAdmin.id };
+      const body = { type: 'id', data: userPlatformAdmin.id };
       const expectedPlatformAdmins = [userPlatformAdmin];
 
       sendRequestAsUser(userPlatformAdmin, loggedInAsUser => {
-        loggedInAsUser(request(webserver.application).delete('/api/platformadmins').query(query))
+        loggedInAsUser(request(webserver.application).delete('/api/platformadmins').send(body))
           .expect(403)
           .end(noErrorHavePlatformAdmins(expectedPlatformAdmins, done));
       });
     });
 
     it('should send back 403 if the platformadmin is trying to remove himself by email', function(done) {
-      const query = { type: 'email', data: userPlatformAdmin.emails[0] };
+      const body = { type: 'email', data: userPlatformAdmin.emails[0] };
       const expectedPlatformAdmins = [userPlatformAdmin];
 
       sendRequestAsUser(userPlatformAdmin, loggedInAsUser => {
-        loggedInAsUser(request(webserver.application).delete('/api/platformadmins').query(query))
+        loggedInAsUser(request(webserver.application).delete('/api/platformadmins').send(body))
           .expect(403)
           .end(noErrorHavePlatformAdmins(expectedPlatformAdmins, done));
       });
     });
 
     it('should send back 400 if type is not supported', function(done) {
-      const query = { type: 'name', data: userPlatformAdmin.firstname };
+      const body = { type: 'name', data: userPlatformAdmin.firstname };
       const expectedPlatformAdmins = [userPlatformAdmin];
 
       sendRequestAsUser(userPlatformAdmin, loggedInAsUser => {
-        loggedInAsUser(request(webserver.application).delete('/api/platformadmins').query(query))
+        loggedInAsUser(request(webserver.application).delete('/api/platformadmins').send(body))
           .expect(400)
           .end(noErrorHavePlatformAdmins(expectedPlatformAdmins, done));
       });
@@ -276,22 +276,22 @@ describe('The platformadmins API', function() {
       });
 
       it('remove by ID', function(done) {
-        const query = { type: 'id', data: userPlatformAdmin.id };
+        const body = { type: 'id', data: userPlatformAdmin.id };
         const expectedPlatformAdmins = [userAlice];
 
         sendRequestAsUser(userAlice, loggedInAsUser => {
-          loggedInAsUser(request(webserver.application).delete('/api/platformadmins').query(query))
+          loggedInAsUser(request(webserver.application).delete('/api/platformadmins').send(body))
             .expect(204)
             .end(noErrorHavePlatformAdmins(expectedPlatformAdmins, done));
         });
       });
 
       it('remove by email', function(done) {
-        const query = { type: 'email', data: userPlatformAdmin.emails[0] };
+        const body = { type: 'email', data: userPlatformAdmin.emails[0] };
         const expectedPlatformAdmins = [userAlice];
 
         sendRequestAsUser(userAlice, loggedInAsUser => {
-          loggedInAsUser(request(webserver.application).delete('/api/platformadmins').query(query))
+          loggedInAsUser(request(webserver.application).delete('/api/platformadmins').send(body))
             .expect(204)
             .end(noErrorHavePlatformAdmins(expectedPlatformAdmins, done));
         });

@@ -1,7 +1,6 @@
 const logger = require('../../core/logger');
 const corePlatformAdmin = require('../../core/platformadmin');
 const coreUserDenormalize = require('../../core/user/denormalize');
-const dbHelper = require('../../helpers').db;
 
 module.exports = {
   getAllPlatformAdmins,
@@ -41,28 +40,7 @@ function createPlatformAdmin(req, res) {
     email: corePlatformAdmin.addPlatformAdminByEmail,
     id: corePlatformAdmin.addPlatformAdminById
   };
-
   const addPlatformAdmin = addPlatformAdminHandlers[type];
-
-  if (!addPlatformAdmin) {
-    return res.status(400).json({
-      error: {
-        code: 400,
-        message: 'Bad Request',
-        details: `Unsupport data type: ${type}`
-      }
-    });
-  }
-
-  if (type === 'id' && !dbHelper.isValidObjectId(data)) {
-    return res.status(400).json({
-      error: {
-        code: 400,
-        message: 'Bad Request',
-        details: `${data} is not valid User ID`
-      }
-    });
-  }
 
   addPlatformAdmin(data).then(() => {
     res.status(204).end();
@@ -92,33 +70,12 @@ function createPlatformAdmin(req, res) {
 }
 
 function removePlatformAdmin(req, res) {
-  const { type, data } = req.query;
+  const { type, data } = req.body;
   const removePlatformAdminHandlers = {
     email: corePlatformAdmin.removePlatformAdminByEmail,
     id: corePlatformAdmin.removePlatformAdminById
   };
-
   const removePlatformAdmin = removePlatformAdminHandlers[type];
-
-  if (!removePlatformAdmin) {
-    return res.status(400).json({
-      error: {
-        code: 400,
-        message: 'Bad Request',
-        details: `Unsupport data type: ${type}`
-      }
-    });
-  }
-
-  if (type === 'id' && !dbHelper.isValidObjectId(data)) {
-    return res.status(400).json({
-      error: {
-        code: 400,
-        message: 'Bad Request',
-        details: `${data} is not valid User ID`
-      }
-    });
-  }
 
   let isRemovingMySelf = false;
 
