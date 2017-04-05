@@ -8,7 +8,7 @@ sub-header(ng-if="!inbox.list.isElementOpened")
 
   inbox-list-account-unavailable(ng-switch-when="ERROR", account="::ctrl.account")
 
-  .inbox-infinite-list(ng-switch-default, md-virtual-repeat-container, md-top-index="ctrl.topIndex")
+  .inbox-infinite-list(ng-switch-default, md-virtual-repeat-container, md-top-index="ctrl.topIndex", ng-class="{ 'is-vacation-activated' : inbox.vacationActivated }")
     .inbox-items-group(md-virtual-repeat="item in inboxListModel", md-on-demand="true")
 
       .block-header(ng-if="item.group.visibleItems > 0 && ($first || item.previous().group !== item.group)")

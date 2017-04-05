@@ -59,6 +59,10 @@
 
   .inbox-infinite-list {
     height: ~"calc(100vh - @{header-height} - @{sub-header-height})";
+
+    &.is-vacation-activated {
+      height: ~"calc(100vh - @{header-height} - @{sub-header-height} - @{sub-header-vacation-height})";
+    }
   }
 
   .inbox-items-group {
