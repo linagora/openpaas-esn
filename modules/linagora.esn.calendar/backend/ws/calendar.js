@@ -1,11 +1,8 @@
 'use strict';
 
 const NAMESPACE = '/calendars';
-const PUBSUB_EVENT = 'calendar:event:updated';
 const CONSTANTS = require('../lib/constants');
-const WS_EVENT = CONSTANTS.WS_EVENT;
-const NOTIFICATIONS = CONSTANTS.NOTIFICATIONS;
-const ICAL = require('ical.js');
+const PUBSUB_EVENT = CONSTANTS.EVENTS.TOPIC.EVENT;
 const _ = require('lodash');
 let initialized = false;
 
@@ -28,7 +25,6 @@ function init(dependencies) {
   pubsub.global.topic(PUBSUB_EVENT).subscribe(msg => {
     pubsub.local.topic(PUBSUB_EVENT).publish(msg);
     notify(io, ioHelper, msg.websocketEvent, msg);
-    emitElasticSearchEvent(pubsub, msg);
   });
 
   io.of(NAMESPACE)
@@ -80,21 +76,4 @@ function notify(io, ioHelper, event, msg) {
 
     _.invokeMap(clientSockets, 'emit', event, msg);
   });
-}
-
-function emitElasticSearchEvent(pubsub, msg) {
-  const data = parseEventPath(msg.eventPath);
-  const action = msg.websocketEvent;
-
-  data.ics = (new ICAL.Component(msg.event)).toString();
-
-  if (action === WS_EVENT.EVENT_CREATED || action === WS_EVENT.EVENT_REQUEST) {
-    pubsub.local.topic(NOTIFICATIONS.EVENT_ADDED).publish(data);
-  } else if (action === WS_EVENT.EVENT_UPDATED || action === WS_EVENT.EVENT_REPLY) {
-    pubsub.local.topic(NOTIFICATIONS.EVENT_UPDATED).publish(data);
-  } else if (action === WS_EVENT.EVENT_DELETED || action === WS_EVENT.EVENT_CANCEL) {
-    pubsub.local.topic(NOTIFICATIONS.EVENT_DELETED).publish(data);
-  } else {
-    throw new Error('Unknow ws_event for calendar CRUD', action);
-  }
 }

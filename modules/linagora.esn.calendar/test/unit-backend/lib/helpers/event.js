@@ -2,16 +2,16 @@
 
 const expect = require('chai').expect;
 
-describe('sabreHelper', function() {
+describe('The event helper', function() {
 
   beforeEach(function() {
     this.calendarModulePath = this.moduleHelpers.modulesPath + 'linagora.esn.calendar';
-    this.sabreHelper = require(this.calendarModulePath + '/backend/lib/helpers/sabre');
+    this.eventHelper = require(this.calendarModulePath + '/backend/lib/helpers/event');
   });
 
   describe('parseEventPath fn', function() {
     beforeEach(function() {
-      this.eventPath = this.sabreHelper.parseEventPath('/calendars/USER/CAL_ID/EVENT_UID.ics');
+      this.eventPath = this.eventHelper.parseEventPath('/calendars/USER/CAL_ID/EVENT_UID.ics');
     });
 
     it('should get the path', function() {
@@ -26,14 +26,14 @@ describe('sabreHelper', function() {
       expect(this.eventPath.calendarId).to.equal('CAL_ID');
     });
 
-    it('should get the eventUiid', function() {
-      expect(this.eventPath.eventUiid).to.equal('EVENT_UID');
+    it('should get the eventUid', function() {
+      expect(this.eventPath.eventUid).to.equal('EVENT_UID');
     });
 
-    it('should return the eventUiid if the path has no suffix', function() {
-      const eventPathWithoutSuffix = this.sabreHelper.parseEventPath('/calendars/USER/CAL_ID/EVENT_UID');
+    it('should return the eventUid if the path has no suffix', function() {
+      const eventPathWithoutSuffix = this.eventHelper.parseEventPath('/calendars/USER/CAL_ID/EVENT_UID');
 
-      expect(eventPathWithoutSuffix.eventUiid).to.equal('EVENT_UID');
+      expect(eventPathWithoutSuffix.eventUid).to.equal('EVENT_UID');
     });
   });
 });

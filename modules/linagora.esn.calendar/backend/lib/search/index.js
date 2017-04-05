@@ -4,8 +4,9 @@ var SEARCH = require('../constants').SEARCH;
 
 module.exports = dependencies => {
   const logger = dependencies('logger');
-  const listener = require('./searchHandler')(dependencies);
   const elasticsearch = dependencies('elasticsearch');
+  const listener = require('./searchHandler')(dependencies);
+  const pubsub = require('./pubsub')(dependencies);
   let searchHandler;
 
   return {
@@ -127,6 +128,7 @@ module.exports = dependencies => {
 
   function listen() {
     logger.info('Subscribing to event updates for indexing');
+    pubsub.listen();
     searchHandler = listener.register();
   }
 };

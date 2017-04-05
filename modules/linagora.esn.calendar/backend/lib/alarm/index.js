@@ -6,7 +6,7 @@ const ICAL = require('ical.js');
 const _ = require('lodash');
 const moment = require('moment-timezone');
 const jcalHelper = require('../helpers/jcal');
-const parseEventPath = require('../helpers/sabre').parseEventPath;
+const parseEventPath = require('../helpers/event').parseEventPath;
 
 module.exports = dependencies => {
   const helpers = dependencies('helpers');
@@ -49,10 +49,10 @@ module.exports = dependencies => {
           baseUrl: baseUrl,
           formatedDate: dateEvent
         });
-        const consultLink = _.template('<%= baseUrl %>/#/calendar/<%= calendarId %>/event/<%= eventUiid %>/consult')({
+        const consultLink = _.template('<%= baseUrl %>/#/calendar/<%= calendarId %>/event/<%= eventUid %>/consult')({
           baseUrl: baseUrl,
           calendarId: eventPath.calendarId,
-          eventUiid: eventPath.eventUiid
+          eventUid: eventPath.eventUid
         });
 
         return emailModule.getMailer().sendHTML(message, templateName, {
