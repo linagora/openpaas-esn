@@ -12,11 +12,11 @@
   angular.module('esn.calendar')
     .factory('calOpenEventForm', calOpenEventForm);
 
-  function calOpenEventForm($rootScope, $modal, $state, matchmedia, calendarService, calEventUtils, calendarAuthorizationHelper, SM_XS_MEDIA_QUERY, CAL_EVENTS, CAL_CALENDAR_AUTHORIZATIONS) {
+  function calOpenEventForm($rootScope, $modal, $state, matchmedia, calendarService, calEventUtils, calUIAuthorizationService, SM_XS_MEDIA_QUERY, CAL_EVENTS) {
     var modalIsOpen = false;
 
     return function calOpenEventForm(event) {
-      if (!calendarAuthorizationHelper.isAllowedTo(CAL_CALENDAR_AUTHORIZATIONS.ACCESS_EVENT_DETAIL, event)) {
+      if (!calUIAuthorizationService.canAccessEventDetails(event)) {
         return;
       }
 
