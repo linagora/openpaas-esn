@@ -75,7 +75,7 @@ describe('The calendar search pubsub module', function() {
         path,
         userId,
         calendarId,
-        eventUiid: 'eventId'
+        eventUid: 'eventId'
       });
     }
 

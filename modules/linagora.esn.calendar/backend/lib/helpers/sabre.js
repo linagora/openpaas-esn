@@ -16,20 +16,20 @@ module.exports = {
  * - EVENT_UID is the real UUID of the event like 14203613-7642-488f-9b83-d325b5dfb19d,
  */
 function parseEventPath(path) {
-  const [,, userId, calendarId, eventUiidWithSuffix] = path.split(PATH_SEPARATOR);
+  const [,, userId, calendarId, eventUidWithSuffix] = path.split(PATH_SEPARATOR);
 
   return {
     path,
     userId,
     calendarId,
-    eventUiid: _removeEventUiidSuffix(eventUiidWithSuffix)
+    eventUid: _removeEventUidSuffix(eventUidWithSuffix)
   };
 }
 
-function _removeEventUiidSuffix(eventUiid) {
-  if (eventUiid.endsWith(EVENT_UID_SUFFIX)) {
-    return eventUiid.slice(0, -EVENT_UID_SUFFIX.length);
+function _removeEventUidSuffix(eventUid) {
+  if (eventUid.endsWith(EVENT_UID_SUFFIX)) {
+    return eventUid.slice(0, -EVENT_UID_SUFFIX.length);
   }
 
-  return eventUiid;
+  return eventUid;
 }
