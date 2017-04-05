@@ -1,7 +1,7 @@
 'use strict';
 
 const {EVENTS, NOTIFICATIONS} = require('../constants');
-const eventHelper = require('../helpers/sabre');
+const eventHelper = require('../helpers/event');
 const ICAL = require('ical.js');
 
 module.exports = dependencies => {

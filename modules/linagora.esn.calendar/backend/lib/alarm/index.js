@@ -6,7 +6,7 @@ const ICAL = require('ical.js');
 const _ = require('lodash');
 const moment = require('moment-timezone');
 const jcalHelper = require('../helpers/jcal');
-const parseEventPath = require('../helpers/sabre').parseEventPath;
+const parseEventPath = require('../helpers/event').parseEventPath;
 
 module.exports = dependencies => {
   const helpers = dependencies('helpers');
