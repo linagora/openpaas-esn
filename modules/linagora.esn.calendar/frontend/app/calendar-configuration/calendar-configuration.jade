@@ -12,11 +12,13 @@
       .card-body.calendar-configuration-body
         form(ng-submit='$ctrl.submit()')
           calendar-configuration-tab-main(
+            ng-if="$ctrl.calendar",
             ng-show='$ctrl.selectedTab === "main"',
             calendar = "$ctrl.calendar",
             calendar-home-id = "$ctrl.calendarHomeId"
             new-calendar= "$ctrl.newCalendar",
-            public-selection = "$ctrl.publicSelection"
+            public-selection = "$ctrl.publicSelection",
+            external-calendar = "$ctrl.externalCalendar"
           )
           calendar-configuration-tab-delegation(
             ng-show='$ctrl.selectedTab === "delegation"',

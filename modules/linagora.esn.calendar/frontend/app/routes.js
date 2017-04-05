@@ -116,7 +116,7 @@
         url: '/shared/:calendarId',
         views: {
           'content@calendar': {
-            template: '<calendar-shared-consultation />'
+            template: '<calendar-configuration external-calendar="true" />'
           }
         }
       })

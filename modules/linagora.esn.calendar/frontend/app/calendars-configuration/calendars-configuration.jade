@@ -32,7 +32,7 @@
             .pull-left.calendars-configuration-title
               i.mdi.mdi-calendar
               span.name #{__('External calendars')}
-        a.lv-item(href="", ng-repeat="calendar in $ctrl.sharedCalendars", ui-sref='calendar.shared({calendarId: calendar.id})')
+        a.lv-item(href="", ng-repeat="calendar in $ctrl.sharedCalendars", ui-sref='calendar.external.shared({calendarId: calendar.id})')
           .media
             .pull-left
               i.mdi.mdi-label(ng-style="{'color': calendar.color}")
