@@ -3120,8 +3120,9 @@ describe('The Unified Inbox Angular module services', function() {
       it('should update mailboxIds and broadcast an event', function(done) {
         var message = newEmail();
 
-        $rootScope.$on(INBOX_EVENTS.ITEM_MAILBOX_IDS_CHANGED, function() {
-          expect(message.mailboxIds).to.deep.equal(['mailboxId']);
+        $rootScope.$on(INBOX_EVENTS.ITEM_MAILBOX_IDS_CHANGED, function(event, items) {
+          expect(items).to.have.length(1);
+          expect(items[0].mailboxIds).to.deep.equal(['mailboxId']);
 
           done();
         });
@@ -3146,6 +3147,7 @@ describe('The Unified Inbox Angular module services', function() {
         $rootScope.$digest();
 
         expect(eventHandler).to.have.been.calledTwice;
+        expect(eventHandler).to.have.been.calledWith(sinon.match.any, [message]);
         expect(message.mailboxIds).to.deep.equal(['inbox']);
       });
 
@@ -3407,8 +3409,11 @@ describe('The Unified Inbox Angular module services', function() {
       it('should broadcast an event with the updated flag', function(done) {
         var message = newEmail();
 
-        $rootScope.$on(INBOX_EVENTS.ITEM_FLAG_CHANGED, function(event, item) {
-          expect(item.isUnread).to.equal(true);
+        $rootScope.$on(INBOX_EVENTS.ITEM_FLAG_CHANGED, function(event, items, flag, state) {
+          expect(items).to.have.length(1);
+          expect(items[0].isUnread).to.equal(true);
+          expect(flag).to.equal('isUnread');
+          expect(state).to.equal(true);
 
           done();
         });
@@ -3432,7 +3437,8 @@ describe('The Unified Inbox Angular module services', function() {
         inboxJmapItemService.setFlag(message, 'isUnread', true);
         $rootScope.$digest();
 
-        expect(eventHandler).to.have.been.calledTwice;
+        expect(eventHandler).to.have.been.calledWith(sinon.match.any, [message], 'isUnread', true);
+        expect(eventHandler).to.have.been.calledWith(sinon.match.any, [message], 'isUnread', false);
         expect(message.isUnread).to.equal(false);
       });
 

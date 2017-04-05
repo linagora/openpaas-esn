@@ -702,8 +702,6 @@ angular.module('linagora.esn.unifiedinbox')
     function _updateItemMailboxIds(item, newMailboxIds) {
       item.oldMailboxIds = item.mailboxIds;
       item.mailboxIds = newMailboxIds;
-
-      return item;
     }
 
     function moveToMailbox(itemOrItems, mailbox) {
@@ -714,10 +712,12 @@ angular.module('linagora.esn.unifiedinbox')
               inboxMailboxesService.moveUnreadMessages(item.mailboxIds, toMailboxIds, 1);
             }
 
-            $rootScope.$broadcast(INBOX_EVENTS.ITEM_MAILBOX_IDS_CHANGED, _updateItemMailboxIds(item, toMailboxIds));
+            _updateItemMailboxIds(item, toMailboxIds);
 
             return item.id;
           });
+
+      $rootScope.$broadcast(INBOX_EVENTS.ITEM_MAILBOX_IDS_CHANGED, items);
 
       return asyncJmapAction({
         failure: items.length > 1 ? 'Some items could not be moved to "' + mailbox.displayName + '"' : 'Cannot move "' + items[0].subject + '" to "' + mailbox.displayName + '"'
@@ -727,15 +727,19 @@ angular.module('linagora.esn.unifiedinbox')
         })
           .then(_rejectIfNotFullyUpdated)
           .catch(function(response) {
-            _.forEach(response.notUpdated, function(error, id) {
+            var failedItems = _.map(response.notUpdated, function(error, id) {
               var item = itemsById[id];
 
-              $rootScope.$broadcast(INBOX_EVENTS.ITEM_MAILBOX_IDS_CHANGED, _updateItemMailboxIds(item, item.oldMailboxIds));
+              _updateItemMailboxIds(item, item.oldMailboxIds);
 
               if (item.isUnread) {
                 inboxMailboxesService.moveUnreadMessages(toMailboxIds, item.mailboxIds, 1);
               }
+
+              return item;
             });
+
+            $rootScope.$broadcast(INBOX_EVENTS.ITEM_MAILBOX_IDS_CHANGED, failedItems);
 
             return $q.reject(response);
           });
@@ -794,10 +798,11 @@ angular.module('linagora.esn.unifiedinbox')
       var items = _.isArray(itemOrItems) ? itemOrItems : [itemOrItems],
           itemsById = _.indexBy(items, function(item) {
             item[flag] = state;
-            $rootScope.$broadcast(INBOX_EVENTS.ITEM_FLAG_CHANGED, item, flag, state);
 
             return item.id;
           });
+
+      $rootScope.$broadcast(INBOX_EVENTS.ITEM_FLAG_CHANGED, items, flag, state);
 
       return asyncJmapAction({
         failure: items.length > 1 ? 'Some items could not be updated' : 'Could not update "' + items[0].subject + '"'
@@ -807,12 +812,13 @@ angular.module('linagora.esn.unifiedinbox')
         })
           .then(_rejectIfNotFullyUpdated)
           .catch(function(response) {
-            _.forEach(response.notUpdated, function(error, id) {
-              var item = itemsById[id];
+            var failedItems = _.map(response.notUpdated, function(error, id) {
+              itemsById[id][flag] = !state;
 
-              item[flag] = !state;
-              $rootScope.$broadcast(INBOX_EVENTS.ITEM_FLAG_CHANGED, item, flag, state);
+              return itemsById[id];
             });
+
+            $rootScope.$broadcast(INBOX_EVENTS.ITEM_FLAG_CHANGED, failedItems, flag, !state);
 
             return $q.reject(response);
           });
