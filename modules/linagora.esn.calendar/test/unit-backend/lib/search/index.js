@@ -1,30 +1,35 @@
 'use strict';
 
-var expect = require('chai').expect;
-var mockery = require('mockery');
-var sinon = require('sinon');
-var _ = require('lodash');
-var ObjectId = require('bson').ObjectId;
+const expect = require('chai').expect;
+const mockery = require('mockery');
+const sinon = require('sinon');
+const _ = require('lodash');
+const ObjectId = require('bson').ObjectId;
 
 describe('The calendar search Module', function() {
+  let pubsubListen, deps, dependencies;
 
-  var deps = {
-    elasticsearch: {},
-    logger: {
-      error: function() {},
-      debug: function() {},
-      info: function() {},
-      warning: function() {}
-    }
-  };
+  beforeEach(function() {
+    deps = {
+      elasticsearch: {},
+      logger: {
+        error: function() {},
+        debug: function() {},
+        info: function() {},
+        warning: function() {}
+      }
+    };
 
-  var dependencies = function(name) {
-    return deps[name];
-  };
+    dependencies = function(name) {
+      return deps[name];
+    };
+    pubsubListen = sinon.spy();
+    mockery.registerMock('./pubsub', _.constant({listen: pubsubListen}));
+  });
 
   describe('The listen function', function() {
 
-    it('should register a listener', function() {
+    it('should register listeners', function() {
       var register = sinon.spy();
 
       mockery.registerMock('./searchHandler', _.constant({register: register}));
@@ -33,6 +38,7 @@ describe('The calendar search Module', function() {
 
       module.listen();
       expect(register).to.have.been.calledOnce;
+      expect(pubsubListen).to.have.been.calledOnce;
     });
   });
 

@@ -24,6 +24,9 @@ module.exports = {
     EMAIL: 'EMAIL'
   },
   EVENTS: {
+    TOPIC: {
+      EVENT: 'calendar:event:updated'
+    },
     EVENT: {
       CREATED: 'calendar:event:created',
       UPDATED: 'calendar:event:updated',
