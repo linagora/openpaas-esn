@@ -97,7 +97,7 @@ exports.authorization = server.authorization(function(clientId, redirectUri, don
 });
 
 exports.dialog = function(req, res) {
-  res.locals.assets = assetRegistry.app('oauth');
+  res.locals.assets = assetRegistry.envAwareApp('oauth');
   res.render('oauth/index', {
     transactionId: req.oauth2.transactionID,
     user: req.user,
