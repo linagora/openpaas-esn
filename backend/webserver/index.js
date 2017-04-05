@@ -177,10 +177,13 @@ function addAngularModulesInjection(moduleName, files, angularModulesNames, inne
 
 webserver.addAngularModulesInjection = addAngularModulesInjection;
 
-function addAngularAppModulesInjection(moduleName, jsfiles, angularModulesNames, innerApps) {
+function addAngularAppModulesInjection(moduleName, jsfiles, angularModulesNames, innerApps, opts) {
   innerApps.forEach(function(innerApp) {
     assetRegistry.app(innerApp).type('angular').add(angularModulesNames, moduleName);
     assetRegistry.app(innerApp).type('jsApp').add(jsfiles, moduleName);
+    if (opts && opts.localJsFiles) {
+      assetRegistry.app(innerApp).type('jsAppFullPath').add(opts.localJsFiles, moduleName);
+    }
   });
 }
 

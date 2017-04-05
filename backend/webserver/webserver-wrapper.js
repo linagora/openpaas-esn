@@ -33,8 +33,8 @@ function WebServerWrapper(server) {
     webserver.addAngularModulesInjection(namespace, asArray(js), asArray(moduleNames), asArray(innerApps));
   };
 
-  this.injectAngularAppModules = function injectAngularAppModules(namespace, js, moduleNames, innerApps) {
-    webserver.addAngularAppModulesInjection(namespace, asArray(js), asArray(moduleNames), asArray(innerApps));
+  this.injectAngularAppModules = function injectAngularAppModules(namespace, js, moduleNames, innerApps, opts = {}) {
+    webserver.addAngularAppModulesInjection(namespace, asArray(js), asArray(moduleNames), asArray(innerApps), opts);
   };
 
   this.addApp = function addApp(namespace, expressApp) {
