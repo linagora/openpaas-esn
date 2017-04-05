@@ -68,7 +68,7 @@ describe('The assets module', function() {
     });
   });
 
-  describe('assetCollection', function() {
+  describe.only('assetCollection', function() {
     let assetCollection;
 
     beforeEach(function() {
@@ -93,11 +93,63 @@ describe('The assets module', function() {
       expect(assetCollection.all()).to.deep.equal([{name: 'some/file.js', namespace: 'module', priority: 0}, {name: 'some/file2.js', namespace: 'module', priority: 0}]);
     });
 
+    describe('namespaces() method', function() {
+      it('should return an empty array, if no assets are declared', function() {
+        expect(assetCollection.namespaces()).to.be.an('array');
+        expect(assetCollection.namespaces()).to.have.length(0);
+      });
+
+      it('should return all known namespaces', function() {
+       assetCollection.add(['some/file.js', 'some/file2.js'], 'module');
+       assetCollection.add(['some/file3.js', 'some/file2.js'], 'module2');
+       assetCollection.add('some/file4.js', 'module2');
+
+       expect(assetCollection.namespaces()).to.deep.equal(['module', 'module2']);
+      });
+    });
+
+    describe('all() method', function() {
+      it('should return the assets, in an array', function() {
+        assetCollection.add([{name: 'some/file.js', namespace: 'module'}, {name: 'some/file2.js', namespace: 'module2'}]);
+
+        expect(assetCollection.all()).to.deep.equal([
+          {name: 'some/file.js', namespace: 'module', priority: 0},
+          {name: 'some/file2.js', namespace: 'module2', priority: 0}
+        ]);
+      });
+
+      it('should return the assets of the specified namespaces', function() {
+        assetCollection.add([
+          {name: 'some/file.js', namespace: 'module'},
+          {name: 'some/file3.js', namespace: 'module2'},
+          {name: 'some/file4.js', namespace: 'module3'},
+          {name: 'some/file2.js', namespace: 'module'}
+        ]);
+
+        expect(assetCollection.all(['module', 'module3'])).to.deep.equal([
+          {name: 'some/file.js', namespace: 'module', priority: 0},
+          {name: 'some/file4.js', namespace: 'module3', priority: 0},
+          {name: 'some/file2.js', namespace: 'module', priority: 0}
+        ]);
+      });
+    });
+
     describe('allNames() method', function() {
       it('should return the asset names only, in an array', function() {
         assetCollection.add([{name: 'some/file.js', namespace: 'module'}, {name: 'some/file2.js', namespace: 'module'}]);
 
         expect(assetCollection.allNames()).to.deep.equal(['some/file.js', 'some/file2.js']);
+      });
+
+      it('should return the asset names of the specified namespaces', function() {
+        assetCollection.add([
+          {name: 'some/file.js', namespace: 'module'},
+          {name: 'some/file3.js', namespace: 'module2'},
+          {name: 'some/file4.js', namespace: 'module3'},
+          {name: 'some/file2.js', namespace: 'module'}
+        ]);
+
+        expect(assetCollection.allNames(['module', 'module3'])).to.deep.equal(['some/file.js', 'some/file4.js', 'some/file2.js']);
       });
     });
   });

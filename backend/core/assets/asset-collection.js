@@ -59,12 +59,30 @@ class AssetCollection {
     }
   }
 
-  all() {
-    return this.assets.slice();
+  all(namespaces) {
+    if (!namespaces) {
+      return this.assets.slice();
+    }
+
+    return this.assets.filter(asset => namespaces.indexOf(asset.namespace) > -1);
   }
 
-  allNames() {
-    return this.assets.map(asset => (asset.name));
+  allNames(namespaces) {
+    if (!namespaces) {
+      return this.assets.map(asset => (asset.name));
+    }
+
+    return this.assets
+      .filter(asset => namespaces.indexOf(asset.namespace) > -1)
+      .map(asset => asset.name);
+  }
+
+  namespaces() {
+    const namespaces = new Set();
+
+    this.assets.forEach(asset => namespaces.add(asset.namespace));
+
+    return [...namespaces];
   }
 }
 
