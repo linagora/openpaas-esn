@@ -99,11 +99,27 @@
       overflow-y: auto;
     }
 
-    top: ~"calc(@{header-height} + @{sub-header-height})";
     bottom: 0;
+    top: ~"calc(@{header-height} + @{sub-header-height})";
+
+    @media (min-width: @screen-md-min) {
+      top: ~"calc(@{header-height-md} + @{sub-header-height-md})";
+    }
+
+    @media (min-width: @screen-xl-min) {
+      top: ~"calc(@{header-height-xl} + @{sub-header-height-xl})";
+    }
 
     &.is-vacation-activated {
       top: ~"calc(@{header-height} + @{sub-header-height} + @{sub-header-vacation-height})";
+
+      @media (min-width: @screen-md-min) {
+        top: ~"calc(@{header-height-md} + @{sub-header-height-md} + @{sub-header-vacation-height})";
+      }
+
+      @media (min-width: @screen-xl-min) {
+        top: ~"calc(@{header-height-xl} + @{sub-header-height-xl} + @{sub-header-vacation-height})";
+      }
     }
 
     .listview:not(.lv-lg):not(.lv-message) {

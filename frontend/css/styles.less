@@ -171,6 +171,15 @@ html, body {
 
 body {
   word-wrap: break-word;
+  padding-top: @header-height;
+
+  @media (min-width: @screen-md-min) {
+    padding-top: @header-height-md;
+  }
+
+  @media (min-width: @screen-xl-min) {
+    padding-top: @header-height-xl;
+  }
 
   .modal.center .modal-dialog {
     margin: 0;

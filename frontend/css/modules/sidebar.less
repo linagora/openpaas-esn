@@ -6,6 +6,14 @@ body.aside-open {
   width: 268px;
   top: @header-height;
 
+  @media (min-width: @screen-md-min) {
+    top: @header-height-md;
+  }
+
+  @media (min-width: @screen-xl-min) {
+    top: @header-height-xl;
+  }
+
   .aside-body {
     padding: 0;
   }
@@ -17,11 +25,27 @@ body.aside-open {
 
 .aside-backdrop {
   top: @header-height !important; // Because $aside set styles on the element directly
+
+  @media (min-width: @screen-md-min) {
+    top: @header-height-md !important; // Because $aside set styles on the element directly
+  }
+
+  @media (min-width: @screen-xl-min) {
+    top: @header-height-xl !important; // Because $aside set styles on the element directly
+  }
 }
 
 /* Medium devices (desktops, 992px and up) */
 @media (min-width: @screen-md-min) {
   #sidebar {
-    top: 65px;
+    top: @header-height;
+
+    @media (min-width: @screen-md-min) {
+      top: @header-height-md;
+    }
+
+    @media (min-width: @screen-xl-min) {
+      top: @header-height-xl;
+    }
   }
 }
