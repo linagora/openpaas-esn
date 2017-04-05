@@ -35,6 +35,7 @@ function prepareJsFiles(jsType, appName, namespace) {
 
 // bundled types
 registerType('js', {});
+registerType('jsFullPath', {});
 registerType('jsApp', {});
 registerType('jsAppFullPath', {});
 registerType('less', {sort: true});

@@ -95,8 +95,18 @@ describe('The assets module', function() {
         expect(assetCollection).to.respondTo('allNames');
         expect(assetCollection).to.respondTo('add');
       });
+
       it('should return an AssetCollectionTransformer when the type is jsApp', function() {
         const assetCollection = getModule().envAwareApp('testApp').type('jsApp');
+
+        expect(assetCollection).to.respondTo('all');
+        expect(assetCollection).to.respondTo('getKnownNamespaces');
+        expect(assetCollection).to.respondTo('getBaseAssets');
+        expect(assetCollection).to.respondTo('getAssetsForInjection');
+      });
+
+      it('should return an AssetCollectionTransformer when the type is js', function() {
+        const assetCollection = getModule().envAwareApp('testApp').type('js');
 
         expect(assetCollection).to.respondTo('all');
         expect(assetCollection).to.respondTo('getKnownNamespaces');
