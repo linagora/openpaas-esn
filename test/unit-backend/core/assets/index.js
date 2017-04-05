@@ -68,7 +68,42 @@ describe('The assets module', function() {
     });
   });
 
-  describe.only('assetCollection', function() {
+  describe('envAwareApp() method', function() {
+    it('should return an object having a type() method', function() {
+      const appAsset = getModule().envAwareApp('testApp');
+
+      expect(appAsset).to.respondTo('type');
+    });
+
+    describe('type() method', function() {
+      it('should throw if the type is not registered', function() {
+        const appAsset = getModule().envAwareApp('testApp');
+
+        function test() {
+          appAsset.type('unknownType');
+        }
+        expect(test).to.throw();
+      });
+
+      it('should return an AssetCollection', function() {
+        const assetCollection = getModule().envAwareApp('testApp').type('angular');
+
+        expect(assetCollection).to.respondTo('all');
+        expect(assetCollection).to.respondTo('allNames');
+        expect(assetCollection).to.respondTo('add');
+      });
+      it('should return an AssetCollectionTransformer when the type is jsApp', function() {
+        const assetCollection = getModule().envAwareApp('testApp').type('jsApp');
+
+        expect(assetCollection).to.respondTo('all');
+        expect(assetCollection).to.respondTo('getKnownNamespaces');
+        expect(assetCollection).to.respondTo('getBaseAssets');
+        expect(assetCollection).to.respondTo('getAssetsForInjection');
+      });
+    });
+  });
+
+  describe('assetCollection', function() {
     let assetCollection;
 
     beforeEach(function() {
@@ -150,6 +185,141 @@ describe('The assets module', function() {
         ]);
 
         expect(assetCollection.allNames(['module', 'module3'])).to.deep.equal(['some/file.js', 'some/file4.js', 'some/file2.js']);
+      });
+    });
+  });
+
+  describe('AssetCollectionTransformer', function() {
+    let assetCollectionTransformer;
+
+    beforeEach(function() {
+      const testApp = getModule().app('testApp');
+      const assetCollection = testApp.type('jsApp');
+      const fullPathAssetCollection = testApp.type('jsAppFullPath');
+
+      assetCollectionTransformer = getModule().envAwareApp('testApp').type('jsApp');
+
+      assetCollection.add([
+        {name: '11.js', namespace: 'm1'},
+        {name: '12.js', namespace: 'm1'},
+        {name: '21.js', namespace: 'm2'},
+        {name: '22.js', namespace: 'm2'},
+        {name: '31.js', namespace: 'm3'}
+      ]);
+
+      fullPathAssetCollection.add([
+        {name: '/11.js', namespace: 'm1'},
+        {name: '/12.js', namespace: 'm1'},
+        {name: '/31.js', namespace: 'm3'}
+      ]);
+    });
+
+    describe('getKnownNamespaces() method', function() {
+      it('should return namespaces of the reference collection, and of the shadow collection', function() {
+        expect(assetCollectionTransformer.getKnownNamespaces()).to.deep.equal({
+          base: ['m1', 'm2', 'm3'],
+          shadow: ['m1', 'm3']
+        });
+      });
+    });
+
+    describe('getBaseAssets(true) method', function() {
+      it('should return the assets of the namespaces known on base and unknown on shadow', function() {
+        expect(assetCollectionTransformer.getBaseAssets(true)).to.deep.equal([
+          {
+            name: '21.js',
+            namespace: 'm2',
+            priority: 0
+          },
+          {
+            name: '22.js',
+            namespace: 'm2',
+            priority: 0
+          }
+        ]);
+      });
+    });
+
+    describe('getAssetsForInjection() method', function() {
+      describe('in production mode', function() {
+        let origNodeEnv;
+        beforeEach(function() {
+          origNodeEnv = process.env.NODE_ENV;
+          process.env.NODE_ENV = 'production';
+        });
+
+        afterEach(function() {
+          process.env.NODE_ENV = origNodeEnv;
+        });
+
+        it('should return shadow namespace webservice link, and base assets', function() {
+
+          expect(assetCollectionTransformer.getAssetsForInjection()).to.deep.equal([
+            {
+              name: '21.js',
+              namespace: 'm2',
+              priority: 0
+            },
+            {
+              name: '22.js',
+              namespace: 'm2',
+              priority: 0
+            },
+            {
+              name: 'm1',
+              namespace: 'generated/jsApp/testApp',
+              priority: 0
+            },
+            {
+              name: 'm3',
+              namespace: 'generated/jsApp/testApp',
+              priority: 0
+            }
+          ]);
+        });
+      });
+
+      describe('in !production mode', function() {
+        let origNodeEnv;
+        beforeEach(function() {
+          origNodeEnv = process.env.NODE_ENV;
+          process.env.NODE_ENV = 'test';
+        });
+
+        afterEach(function() {
+          process.env.NODE_ENV = origNodeEnv;
+        });
+
+        it('should return base assets', function() {
+
+          expect(assetCollectionTransformer.getAssetsForInjection()).to.deep.equal([
+            {
+              name: '11.js',
+              namespace: 'm1',
+              priority: 0
+            },
+            {
+              name: '12.js',
+              namespace: 'm1',
+              priority: 0
+            },
+            {
+              name: '21.js',
+              namespace: 'm2',
+              priority: 0
+            },
+            {
+              name: '22.js',
+              namespace: 'm2',
+              priority: 0
+            },
+            {
+              name: '31.js',
+              namespace: 'm3',
+              priority: 0
+            }
+          ]);
+        });
       });
     });
   });

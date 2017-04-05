@@ -1,5 +1,7 @@
 const assetRegistry = require('./asset-registry');
 const ApplicationAsset = require('./application-asset');
+const ApplicationAssetTransformer = require('./application-asset-transformer');
+
 const appAssets = {};
 
 function app(appName) {
@@ -8,6 +10,10 @@ function app(appName) {
   }
 
   return appAssets[appName];
+}
+
+function envAwareApp(appName) {
+  return new ApplicationAssetTransformer(app(appName), appName);
 }
 
 function registerType(assetType, options) {
@@ -25,11 +31,13 @@ function getType(assetType) {
 // bundled types
 registerType('js', {});
 registerType('jsApp', {});
+registerType('jsAppFullPath', {});
 registerType('less', {sort: true});
 registerType('angular', {dedup: true});
 
 module.exports = {
   app,
+  envAwareApp,
   registerType,
   getAllTypes,
   getType
