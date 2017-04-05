@@ -49,8 +49,8 @@ describe('the css webserver controller', function() {
           expect(value).to.equal('text/css');
         }
       };
-      var css = this.helpers.requireBackend('core').css;
-      css.addLessInjection('modX', [this.testEnv.fixtures + '/css/file.less'], ['foo']);
+      var assets = this.helpers.requireBackend('core').assets;
+      assets.app('foo').type('less').add(this.testEnv.fixtures + '/css/file.less', 'modX');
       this.controller.getCss({params: {app: 'foo'}}, res);
     });
     it('should use injected global variable', function(done) {
@@ -66,8 +66,8 @@ describe('the css webserver controller', function() {
           expect(value).to.equal('text/css');
         }
       };
-      var css = this.helpers.requireBackend('core').css;
-      css.addLessInjection('modX', [this.testEnv.fixtures + '/css/file3.less'], ['foo']);
+      var assets = this.helpers.requireBackend('core').assets;
+      assets.app('foo').type('less').add(this.testEnv.fixtures + '/css/file3.less', 'modX');
       this.controller.getCss({params: {app: 'foo'}}, res);
     });
     it('should send a 500 error when the less compilation fails', function(done) {
@@ -77,8 +77,8 @@ describe('the css webserver controller', function() {
           done();
         }
       );
-      var css = this.helpers.requireBackend('core').css;
-      css.addLessInjection('modX', [this.testEnv.fixtures + '/css/file2.less'], ['foo']);
+      var assets = this.helpers.requireBackend('core').assets;
+      assets.app('foo').type('less').add(this.testEnv.fixtures + '/css/file2.less', 'modX');
       this.controller.getCss({params: {app: 'foo'}}, res);
     });
   });

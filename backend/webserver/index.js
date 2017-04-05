@@ -8,7 +8,7 @@ var fs = require('fs');
 var AwesomeModule = require('awesome-module');
 var Dependency = AwesomeModule.AwesomeModuleDependency;
 var AsyncEventEmitter = require('async-eventemitter');
-var css = require('../core').css;
+const assetRegistry = require('../core').assets;
 
 var webserver = {
   application: serverApplication,
@@ -32,8 +32,6 @@ var webserver = {
 
   started: false
 };
-
-var injections = {};
 
 var emitter = new AsyncEventEmitter();
 emitter.setMaxListeners(0);
@@ -163,54 +161,38 @@ function start(callback) {
 webserver.start = start;
 
 function addJSInjection(moduleName, files, innerApps) {
-  injections[moduleName] = injections[moduleName] || {};
   innerApps.forEach(function(innerApp) {
-    injections[moduleName][innerApp] = injections[moduleName][innerApp] || {};
-    injections[moduleName][innerApp].js = injections[moduleName][innerApp].js || [];
-    injections[moduleName][innerApp].js = injections[moduleName][innerApp].js.concat(files);
+    assetRegistry.app(innerApp).type('js').add(files, moduleName);
   });
 }
 
 webserver.addJSInjection = addJSInjection;
 
 function addAngularModulesInjection(moduleName, files, angularModulesNames, innerApps) {
-  injections[moduleName] = injections[moduleName] || {};
   innerApps.forEach(function(innerApp) {
-    injections[moduleName][innerApp] = injections[moduleName][innerApp] || {};
-    injections[moduleName][innerApp].js = injections[moduleName][innerApp].js || [];
-    injections[moduleName][innerApp].js = injections[moduleName][innerApp].js.concat(files);
-    injections[moduleName][innerApp].angular = injections[moduleName][innerApp].angular || [];
-    injections[moduleName][innerApp].angular = injections[moduleName][innerApp].angular.concat(angularModulesNames);
+    assetRegistry.app(innerApp).type('angular').add(angularModulesNames, moduleName);
+    assetRegistry.app(innerApp).type('js').add(files, moduleName);
   });
 }
 
 webserver.addAngularModulesInjection = addAngularModulesInjection;
 
 function addAngularAppModulesInjection(moduleName, jsfiles, angularModulesNames, innerApps) {
-  injections[moduleName] = injections[moduleName] || {};
   innerApps.forEach(function(innerApp) {
-    injections[moduleName][innerApp] = injections[moduleName][innerApp] || {};
-    injections[moduleName][innerApp].app = injections[moduleName][innerApp].app || {};
-    injections[moduleName][innerApp].app.js = injections[moduleName][innerApp].app.js || [];
-    injections[moduleName][innerApp].app.js = injections[moduleName][innerApp].app.js.concat(jsfiles);
-    injections[moduleName][innerApp].angular = injections[moduleName][innerApp].angular || [];
-    injections[moduleName][innerApp].angular = injections[moduleName][innerApp].angular.concat(angularModulesNames);
+    assetRegistry.app(innerApp).type('angular').add(angularModulesNames, moduleName);
+    assetRegistry.app(innerApp).type('jsApp').add(jsfiles, moduleName);
   });
 }
 
 webserver.addAngularAppModulesInjection = addAngularAppModulesInjection;
 
 function addLessInjection(namespace, lessFiles, innerApps) {
-  css.addLessInjection(namespace, lessFiles, innerApps);
+  innerApps.forEach(innerApp => {
+    assetRegistry.app(innerApp).type('less').add(lessFiles, namespace);
+  });
 }
 
 webserver.addLessInjection = addLessInjection;
-
-function getInjections() {
-  return injections;
-}
-
-webserver.getInjections = getInjections;
 
 webserver.on = function(event, callback) {
   emitter.on(event, function(data, next) {
@@ -237,8 +219,6 @@ var awesomeWebServer = new AwesomeModule('linagora.esn.core.webserver', {
         console.warn('The webserver will not start as expected by the configuration.');
         return callback();
       }
-
-      webserver.application.locals.injections = injections;
 
       webserver.virtualhosts = config.webserver.virtualhosts;
       webserver.port = config.webserver.port;

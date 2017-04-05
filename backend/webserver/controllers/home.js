@@ -3,6 +3,9 @@
 var config = require('../../core/esn-config')('recaptcha'),
     logger = require('../../core/logger'),
     alterTemplatePath = require('../middleware/templates').alterTemplatePath;
+
+const assetRegistry = require('../../core').assets;
+
 /**
  * Get /
  * @param {request} req
@@ -19,6 +22,8 @@ function index(req, res) {
           details: 'Internal server error'
         });
       }
+
+      res.locals.assets = assetRegistry.app('welcome');
       alterTemplatePath('welcome/index', function(tplPath) {
         res.render(tplPath, {
           title: 'Home',
@@ -27,6 +32,7 @@ function index(req, res) {
       });
     });
   } else {
+    res.locals.assets = assetRegistry.app('esn');
     alterTemplatePath('esn/index', function(tplPath) {
       return res.render(tplPath, {
         title: 'Home'

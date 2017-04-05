@@ -24,6 +24,7 @@ describe('The home controller', function() {
     var index = this.helpers.requireBackend('webserver/controllers/home.js').index;
 
     var res = {
+      locals: {},
       render: function(url, data) {
         expect(url).to.equal('welcome/index.jade');
         expect(data.recaptchaPublicKey).to.equal('publickey');
@@ -46,6 +47,7 @@ describe('The home controller', function() {
     var index = this.helpers.requireBackend('webserver/controllers/home.js').index;
 
     var res = {
+      locals: {},
       render: function(url, data) {
         expect(url).to.equal('welcome/index.jade');
         expect(data.recaptchaPublicKey).to.be.null;

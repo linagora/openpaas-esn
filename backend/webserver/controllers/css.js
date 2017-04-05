@@ -2,9 +2,10 @@
 
 var less = require('less');
 var path = require('path');
-var css = require('../../core').css;
 var logger = require('../../core/logger');
 var MemoryStore = require('../../helpers/memory-store');
+
+const assetRegistry = require('../../core').assets;
 
 const componentsPath = path.resolve(__dirname, '../../../frontend/components/');
 const lessMainFile = path.resolve(__dirname, '../../../frontend/css/styles.less');
@@ -54,9 +55,9 @@ function renderLess(appName) {
 
 function getLessContents(appName) {
   let lessContents = '@import \'' + lessMainFile + '\';\n';
-  const injections = css.getInjections();
+  const injections = assetRegistry.app(appName).type('less').allNames();
 
-  getFilesList(injections, appName).forEach(function(filePath) {
+  injections.forEach(function(filePath) {
     lessContents += '@import \'' + filePath + '\';\n';
   });
 
@@ -76,23 +77,6 @@ function getLessOptions() {
   }
 
   return lessOptions;
-}
-
-function getFilesList(injections, appName) {
-  var list = [];
-
-  Object.keys(injections).forEach(function(k) {
-    var moduleInjections = injections[k];
-
-    if (!moduleInjections[appName] || !moduleInjections[appName].less) {
-      return;
-    }
-    moduleInjections[appName].less.forEach(function(filePath) {
-      list.push(filePath.filename);
-    });
-  });
-
-  return list;
 }
 
 function shouldCache() {

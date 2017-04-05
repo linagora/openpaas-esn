@@ -1,22 +1,15 @@
-mixin injectJSFromModules(module, injections)
-  each injection, key in injections
-    - var moduleInjections = injection[module]
-    if (moduleInjections && moduleInjections.js)
-      each file in moduleInjections.js
-        script(src='/' + key + '/js/' + file)
+mixin injectJSFromModules(module, assets)
+  each asset in assets.type('js').all()
+    script(src='/' + asset.namespace + '/js/' + asset.name)
 
-mixin injectJSAppFromModules(module, injections)
-  each injection, key in injections
-    - var moduleInjections = injection[module]
-    if (moduleInjections && moduleInjections.app && moduleInjections.app.js)
-      each file in moduleInjections.app.js
-        script(src='/' + key + '/app/' + file)
+mixin injectJSAppFromModules(module, assets)
+  each asset in assets.type('jsApp').all()
+    script(src='/' + asset.namespace + '/app/' + asset.name)
 
-mixin injectAngularFromModules(module, injections)
+mixin injectAngularFromModules(module, assets)
+  - var moduleInjections = assets.type('angular').allNames()
   script(type='text/javascript')
     | var angularInjections = []
-    each injection, key in injections
-      - var moduleInjections = injection[module]
-      if (moduleInjections && moduleInjections.angular)
-        | .concat("#{moduleInjections.angular}".split(','))
+    if (moduleInjections && moduleInjections.length)
+      | .concat("#{moduleInjections}".split(','))
     | ;

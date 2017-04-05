@@ -9,6 +9,8 @@ var oauth2orize = require('oauth2orize'),
     OAuthAccessToken = mongoose.model('OAuthAccessToken'),
     OAuthClient = mongoose.model('OAuthClient');
 
+const assetRegistry = require('../core').assets;
+
 var server = oauth2orize.createServer();
 
 server.serializeClient(function(client, done) {
@@ -95,6 +97,7 @@ exports.authorization = server.authorization(function(clientId, redirectUri, don
 });
 
 exports.dialog = function(req, res) {
+  res.locals.assets = assetRegistry.app('oauth');
   res.render('oauth/index', {
     transactionId: req.oauth2.transactionID,
     user: req.user,
