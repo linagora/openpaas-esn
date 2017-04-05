@@ -25,7 +25,7 @@ module.exports = {
   },
   EVENTS: {
     TOPIC: {
-      EVENT: 'calendar:event:updated'
+      EVENT: 'calendar:event'
     },
     EVENT: {
       CREATED: 'calendar:event:created',

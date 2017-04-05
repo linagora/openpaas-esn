@@ -1,6 +1,7 @@
 'use strict';
 
 const DATE_FORMAT = 'MM-DD-YYYY';
+const CONSTANTS = require('../constants');
 const q = require('q');
 const ICAL = require('ical.js');
 const _ = require('lodash');
@@ -22,7 +23,7 @@ module.exports = dependencies => {
   };
 
   function init() {
-    pubsub.local.topic('calendar:event:updated').subscribe(_handleAlarm);
+    pubsub.local.topic(CONSTANTS.EVENTS.TOPIC.EVENT).subscribe(_handleAlarm);
     pubsub.local.topic('cron:job:revival').subscribe(_reviveAlarm);
   }
 

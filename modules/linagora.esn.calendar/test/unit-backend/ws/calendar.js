@@ -1,9 +1,10 @@
 'use strict';
 
-var expect = require('chai').expect;
-var ICAL = require('ical.js');
-var fs = require('fs');
-var sinon = require('sinon');
+const expect = require('chai').expect;
+const ICAL = require('ical.js');
+const fs = require('fs');
+const sinon = require('sinon');
+const CONSTANTS = require('../../../backend/lib/constants');
 
 describe('The calendar WS events module', function() {
 
@@ -12,7 +13,6 @@ describe('The calendar WS events module', function() {
 
     beforeEach(function(done) {
       this.moduleHelpers.backendPath = this.moduleHelpers.modulesPath + 'linagora.esn.calendar/backend';
-      var EVENT_UPDATED_TOPIC = 'calendar:event:updated';
 
       self = this;
 
@@ -23,7 +23,7 @@ describe('The calendar WS events module', function() {
           topic: function(topic) {
             return {
               subscribe: function(callback) {
-                if (topic === EVENT_UPDATED_TOPIC) {
+                if (topic === CONSTANTS.EVENTS.TOPIC.EVENT) {
                   self.eventUpdatedPubsubCallback = callback;
                 } else {
                   done(new Error('Should not have'));
@@ -73,14 +73,14 @@ describe('The calendar WS events module', function() {
       done();
     });
 
-    it('should register pubsub subscriber for calendar:event:updated event', function() {
+    it('should register pubsub subscriber for CONSTANTS.EVENTS.TOPIC.EVENT event', function() {
       var mod = require(this.moduleHelpers.backendPath + '/ws/calendar');
 
       mod.init(this.moduleHelpers.dependencies);
       expect(this.eventUpdatedPubsubCallback).to.be.a('function');
     });
 
-    describe('calendar:event:updated subscriber', function() {
+    describe('CONSTANTS.EVENTS.TOPIC.EVENT subscriber', function() {
       var ics;
 
       beforeEach(function() {

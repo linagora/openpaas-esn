@@ -1,11 +1,12 @@
 'use strict';
 
-var expect = require('chai').expect;
-var fs = require('fs');
-var sinon = require('sinon');
-var q = require('q');
-var ICAL = require('ical.js');
-var moment = require('moment');
+const expect = require('chai').expect;
+const fs = require('fs');
+const sinon = require('sinon');
+const q = require('q');
+const ICAL = require('ical.js');
+const moment = require('moment');
+const CONSTANTS = require('../../../../backend/lib/constants');
 
 describe('alarm module', function() {
   var emailModule, sendHTMLMock, helpers, localstub, cron, userLib, esnConfigMock;
@@ -97,14 +98,14 @@ describe('alarm module', function() {
       sinon.match.func);
   }
 
-  describe('on calendar:event:updated event', function() {
+  describe('on CONSTANTS.EVENTS.TOPIC.EVENT event', function() {
 
     describe('on event deletion', function() {
       it('should abort all alarm with the right context', function() {
         var ics = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/withVALARM.ics').toString('utf8');
 
         this.requireModule().init();
-        var handleAlarm = localstub.topics['calendar:event:updated'].handler;
+        var handleAlarm = localstub.topics[CONSTANTS.EVENTS.TOPIC.EVENT].handler;
         handleAlarm({
           type: 'deleted',
           event: ICAL.Component.fromString(ics).toJSON()
@@ -121,7 +122,7 @@ describe('alarm module', function() {
         var ics = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/withVALARM.ics').toString('utf8');
 
         this.requireModule().init();
-        var handleAlarm = localstub.topics['calendar:event:updated'].handler;
+        var handleAlarm = localstub.topics[CONSTANTS.EVENTS.TOPIC.EVENT].handler;
         handleAlarm({
           type: 'created',
           eventPath: '/calendars/USER/CAL_ID/EVENT_UID.ics',
@@ -135,7 +136,7 @@ describe('alarm module', function() {
         var ics = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/withNotEMAILValarm.ics').toString('utf8');
 
         this.requireModule().init();
-        var handleAlarm = localstub.topics['calendar:event:updated'].handler;
+        var handleAlarm = localstub.topics[CONSTANTS.EVENTS.TOPIC.EVENT].handler;
         handleAlarm({
           type: 'created',
           event: ICAL.Component.fromString(ics).toJSON()
@@ -148,7 +149,7 @@ describe('alarm module', function() {
         var ics = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/allday.ics').toString('utf8');
 
         this.requireModule().init();
-        var handleAlarm = localstub.topics['calendar:event:updated'].handler;
+        var handleAlarm = localstub.topics[CONSTANTS.EVENTS.TOPIC.EVENT].handler;
         handleAlarm({
           type: 'created',
           event: ICAL.Component.fromString(ics).toJSON()
@@ -161,7 +162,7 @@ describe('alarm module', function() {
         var ics = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/withVALARMandRRULE.ics').toString('utf8');
 
         this.requireModule().init();
-        var handleAlarm = localstub.topics['calendar:event:updated'].handler;
+        var handleAlarm = localstub.topics[CONSTANTS.EVENTS.TOPIC.EVENT].handler;
         handleAlarm({
           type: 'created',
           eventPath: '/calendars/USER/CAL_ID/EVENT_UID.ics',
@@ -177,7 +178,7 @@ describe('alarm module', function() {
         var withAlarmICS = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/withVALARM.ics').toString('utf8');
         var withoutAlarmICS = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/allday.ics').toString('utf8');
         this.requireModule().init();
-        var handleAlarm = localstub.topics['calendar:event:updated'].handler;
+        var handleAlarm = localstub.topics[CONSTANTS.EVENTS.TOPIC.EVENT].handler;
         handleAlarm({
           type: 'updated',
           eventPath: '/calendars/USER/CAL_ID/EVENT_UID.ics',
@@ -201,7 +202,7 @@ describe('alarm module', function() {
         });
 
         this.requireModule().init();
-        var handleAlarm = localstub.topics['calendar:event:updated'].handler;
+        var handleAlarm = localstub.topics[CONSTANTS.EVENTS.TOPIC.EVENT].handler;
         handleAlarm({
           type: 'updated',
           event: ICAL.Component.fromString(ics).toJSON(),
@@ -224,7 +225,7 @@ describe('alarm module', function() {
         });
 
         this.requireModule().init();
-        var handleAlarm = localstub.topics['calendar:event:updated'].handler;
+        var handleAlarm = localstub.topics[CONSTANTS.EVENTS.TOPIC.EVENT].handler;
         handleAlarm({
           type: 'updated',
           eventPath: '/calendars/USER/CAL_ID/EVENT_UID.ics',
@@ -243,7 +244,7 @@ describe('alarm module', function() {
 
       this.requireModule().init();
 
-      const handleAlarm = localstub.topics['calendar:event:updated'].handler;
+      const handleAlarm = localstub.topics[CONSTANTS.EVENTS.TOPIC.EVENT].handler;
 
       handleAlarm({
         type: 'updated',
