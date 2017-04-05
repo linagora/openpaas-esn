@@ -455,6 +455,8 @@ angular.module('linagora.esn.unifiedinbox')
           } else {
             signatureElement.remove();
           }
+
+          scope.email.htmlBody = element.find('.summernote').summernote('code');
         };
 
         scope.hide = scope.$hide;

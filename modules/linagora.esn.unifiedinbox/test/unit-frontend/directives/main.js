@@ -738,6 +738,17 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
         textSignature: 'SignatureText'
       };
 
+      it('should update the model', function() {
+        compileDirective('<composer />');
+
+        $scope.email = {
+          identity: identity
+        };
+        $scope.updateIdentity();
+
+        expect($scope.email.textBody).to.equal('\n\n-- \nSignatureText\n\n');
+      });
+
       it('should insert the signature when there is no text, with blank lines before and after', function() {
         compileDirective('<composer />');
 
@@ -1012,6 +1023,18 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       var identity = {
         textSignature: 'SignatureText'
       };
+
+      it('should update the model', function() {
+        compileDirective('<composer-desktop />');
+
+        $scope.email = {
+          identity: identity
+        };
+        $rootScope.$digest();
+        $scope.updateIdentity();
+
+        expect($scope.email.htmlBody).to.equal('<p><br></p><pre class="openpaas-signature">-- \nSignatureText</pre>');
+      });
 
       it('should insert the signature when there is no text', function() {
         compileDirective('<composer-desktop />');
@@ -1534,18 +1557,16 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
     });
 
     it('should not focus the body when an attachment is removed', function() {
-      $stateParams.composition = {
-        saveDraftSilently: sinon.spy(),
-        getEmail: sinon.stub().returns({
-          attachments: [{
-            blobId: '1',
-            upload: {
-              cancel: angular.noop
-            }
-          }]
-        })
+      $scope.email = {
+        attachments: [{
+          blobId: '1',
+          upload: {
+            cancel: angular.noop
+          }
+        }]
       };
       compileDirective('<composer-desktop />');
+      $timeout.flush();
 
       element.find('.attachment[name="attachment-0"] .cancel').click();
       $timeout.flush();
