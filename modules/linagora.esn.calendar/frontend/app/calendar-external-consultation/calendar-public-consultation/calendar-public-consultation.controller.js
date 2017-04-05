@@ -4,7 +4,7 @@
   angular.module('esn.calendar')
     .controller('CalendarPublicConsultationController', CalendarPublicConsultationController);
 
-  function CalendarPublicConsultationController($stateParams, _, $log, calPublicCalendarStore) {
+  function CalendarPublicConsultationController($stateParams, _, $log, calPublicCalendarStore, userUtils) {
     var self = this;
 
     self.$onInit = $onInit;
@@ -20,6 +20,7 @@
 
         self.publicCalendar.getOwner().then(function(owner) {
           self.publicCalendarOwner = owner;
+          self.publicCalendarOwnerDisplayName = userUtils.displayNameOf(owner);
         });
       } else {
         $log.error('the calendar id is not found');

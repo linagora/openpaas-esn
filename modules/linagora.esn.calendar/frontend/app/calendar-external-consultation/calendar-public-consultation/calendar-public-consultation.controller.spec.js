@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('the CalendarPublicConsultation controller', function() {
-  var $controller, $rootScope, $logMock, calendar1, calendar2, owner, CalendarPublicConsultationController, $stateParamsMock, lodashMock, calPublicCalendarStoreMock, CAL_CALENDAR_PUBLIC_RIGHT;
+  var $controller, $rootScope, $logMock, calendar1, calendar2, owner, CalendarPublicConsultationController, $stateParamsMock, lodashMock, calPublicCalendarStoreMock, userUtilsMock, CAL_CALENDAR_PUBLIC_RIGHT;
 
   beforeEach(function() {
     $logMock = {
@@ -62,6 +62,10 @@ describe('the CalendarPublicConsultation controller', function() {
       })
     };
 
+    userUtilsMock = {
+      displayNameOf: sinon.spy()
+    };
+
     angular.mock.module('esn.calendar');
 
     angular.mock.module(function($provide) {
@@ -69,6 +73,7 @@ describe('the CalendarPublicConsultation controller', function() {
       $provide.value('$stateParams', $stateParamsMock);
       $provide.value('_', lodashMock);
       $provide.value('$log', $logMock);
+      $provide.value('userUtils', userUtilsMock);
     });
 
     angular.mock.inject(function(_$controller_, _$rootScope_, _CAL_CALENDAR_PUBLIC_RIGHT_) {
@@ -107,6 +112,10 @@ describe('the CalendarPublicConsultation controller', function() {
       it('should display an error message', function() {
         expect($logMock.error).to.have.been.calledWith('the calendar id is not found');
       });
+
+      it('should not initialize publicCalendarOwnerDisplayName', function() {
+        expect(CalendarPublicConsultationController.publicCalendarOwnerDisplayNamssse).to.be.undefined;
+      });
     });
 
     describe('when $stateParams.calendarId is defined', function() {
@@ -127,6 +136,10 @@ describe('the CalendarPublicConsultation controller', function() {
 
       it('should initialize PublicRight with the calendar public right', function() {
         expect(CalendarPublicConsultationController.publicRight).to.be.equal(CAL_CALENDAR_PUBLIC_RIGHT.READ);
+      });
+
+      it('should call userUtils.displayNameOf to initialize publicCalendarOwnerDisplayName', function() {
+        expect(userUtilsMock.displayNameOf).to.be.calledWith(owner);
       });
     });
   });

@@ -4,7 +4,7 @@
   angular.module('esn.calendar')
     .controller('CalendarSharedConsultationController', CalendarSharedConsultationController);
 
-  function CalendarSharedConsultationController($stateParams, $log, calendarHomeService, calendarService, session, CAL_CALENDAR_SHARED_RIGHT) {
+  function CalendarSharedConsultationController($stateParams, $log, calendarHomeService, calendarService, session, userUtils, CAL_CALENDAR_SHARED_RIGHT) {
     var self = this;
     var rightLabels = {};
     rightLabels[CAL_CALENDAR_SHARED_RIGHT.NONE] = 'None';
@@ -32,12 +32,13 @@
 
             self.sharedCalendar = sharedCalendar;
             self.user = session.user;
+            self.userDisplayName = userUtils.displayNameOf(self.user);
             self.userRightLabel = right && rightLabels[right];
 
             return sharedCalendar.getOwner();
           })
           .then(function(owner) {
-            self.sharedCalendarOwner = owner;
+            self.sharedCalendarOwnerDisplayName = userUtils.displayNameOf(owner);
           });
       } else {
         $log.error('the calendar ID is missing from the URL');

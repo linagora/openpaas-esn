@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('The CalendarSharedConsultationController controller', function() {
-  var $controller, $rootScope, $scope, $logMock, sharedCalendarOwner, sessionMock, CalendarSharedConsultationController, calendarHomeId, calendar, $stateParamsMock, calendarHomeServiceMock, calendarServiceMock, CAL_CALENDAR_SHARED_RIGHT;
+  var $controller, $rootScope, $scope, $logMock, sharedCalendarOwner, sessionMock, CalendarSharedConsultationController, calendarHomeId, calendar, $stateParamsMock, calendarHomeServiceMock, calendarServiceMock, userUtilsMock, CAL_CALENDAR_SHARED_RIGHT;
 
   beforeEach(function() {
     $logMock = {
@@ -82,6 +82,10 @@ describe('The CalendarSharedConsultationController controller', function() {
       })
     };
 
+    userUtilsMock = {
+      displayNameOf: sinon.spy()
+    };
+
     angular.mock.module('esn.calendar');
 
     angular.mock.module(function($provide) {
@@ -90,6 +94,7 @@ describe('The CalendarSharedConsultationController controller', function() {
       $provide.value('calendarService', calendarServiceMock);
       $provide.value('session', sessionMock);
       $provide.value('$log', $logMock);
+      $provide.value('userUtils', userUtilsMock);
     });
 
     angular.mock.inject(function(_$controller_, _$rootScope_, _CAL_CALENDAR_SHARED_RIGHT_) {
@@ -145,6 +150,8 @@ describe('The CalendarSharedConsultationController controller', function() {
       $rootScope.$digest();
 
       expect(CalendarSharedConsultationController.user).to.deep.equal(sessionMock.user);
+      expect(userUtilsMock.displayNameOf).to.be.calledWith(CalendarSharedConsultationController.user);
+
     });
 
     it('should initialize the user Right with the user right from the shared calendar', function() {
@@ -155,12 +162,12 @@ describe('The CalendarSharedConsultationController controller', function() {
       expect(CalendarSharedConsultationController.userRightLabel).to.be.equal('Read only');
     });
 
-    it('should get the calendarOwner from the shared calendar', function() {
+    it('should get the calendarOwner from the shared calendar and initialize sharedCalendarOwnerDisplayName', function() {
       CalendarSharedConsultationController.$onInit();
 
       $rootScope.$digest();
 
-      expect(CalendarSharedConsultationController.sharedCalendarOwner).to.deep.equal(sharedCalendarOwner);
+      expect(userUtilsMock.displayNameOf).to.be.calledWith(sharedCalendarOwner);
     });
   });
 });

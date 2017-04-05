@@ -11,7 +11,7 @@
     $q,
     _,
     calendarService,
-    calendarUtils,
+    userUtils,
     calEventService,
     calEventUtils,
     notificationFactory,
@@ -112,7 +112,7 @@
       }
 
       function initOrganizer() {
-        var displayName = session.user.displayName || calendarUtils.displayNameOf(session.user.firstname, session.user.lastname);
+        var displayName = session.user.displayName || userUtils.displayNameOf(session.user);
 
         $scope.editedEvent.organizer = { displayName: displayName, emails: session.user.emails };
         $scope.editedEvent.setOrganizerPartStat($scope.editedEvent.getOrganizerPartStat());
@@ -122,7 +122,7 @@
         if ($scope.calendar.isShared(session.user._id)) {
           return userAPI.user($scope.calendar.rights.getOwnerId()).then(function(userResponse) {
             var user = userResponse.data;
-            var displayName = calendarUtils.displayNameOf(user.firstname, user.lastname);
+            var displayName = userUtils.displayNameOf(user);
 
             $scope.editedEvent.organizer = { displayName: displayName, emails: user.emails };
             $scope.editedEvent.setOrganizerPartStat($scope.editedEvent.getOrganizerPartStat());

@@ -902,7 +902,7 @@ angular.module('esn.community', [
       }
     };
   })
-  .directive('communityInviteUsers', function($q, esnCollaborationClientService, communityService, session) {
+  .directive('communityInviteUsers', function($q, esnCollaborationClientService, communityService, session, userUtils) {
     return {
       restrict: 'E',
       replace: true,
@@ -962,11 +962,7 @@ angular.module('esn.community', [
           esnCollaborationClientService.getInvitablePeople('community', $scope.community._id, {search: query, limit: 5}).then(
             function(response) {
               response.data.forEach(function(user) {
-                if (user.firstname && user.lastname) {
-                  user.displayName = user.firstname + ' ' + user.lastname;
-                } else {
-                  user.displayName = user.emails[0];
-                }
+                user.displayName = userUtils.displayNameOf(user);
                 $scope.query = '';
               });
               deferred.resolve(response);

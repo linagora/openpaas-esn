@@ -9,7 +9,6 @@
       prependMailto: prependMailto,
       removeMailto: removeMailto,
       fullmailOf: fullmailOf,
-      displayNameOf: displayNameOf,
       getNewStartDate: getNewStartDate,
       getNewEndDate: getNewEndDate,
       getDateOnCalendarSelect: getDateOnCalendarSelect
@@ -42,15 +41,6 @@
      */
     function fullmailOf(cn, mail) {
       return cn ? cn + ' <' + mail + '>' : mail;
-    }
-
-    /**
-     * Build and return a displayName: 'firstname lastname'
-     * @param {String} firstname
-     * @param {String} lastname
-     */
-    function displayNameOf(firstname, lastname) {
-      return firstname + ' ' + lastname;
     }
 
     /**
