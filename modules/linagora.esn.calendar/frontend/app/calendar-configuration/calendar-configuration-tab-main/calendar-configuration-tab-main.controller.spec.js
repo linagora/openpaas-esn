@@ -11,10 +11,11 @@ describe('The calendar configuration tab delegation controller', function() {
     $state,
     $q,
     _,
+    calendarService,
+    calUIAuthorizationService,
     userUtils,
     session,
     CalendarConfigurationTabMainController,
-    calendarService,
     CAL_CALENDAR_PUBLIC_RIGHT,
     CAL_CALENDAR_SHARED_RIGHT;
 
@@ -35,7 +36,7 @@ describe('The calendar configuration tab delegation controller', function() {
       $provide.value('calendarService', calendarService);
     });
 
-    angular.mock.inject(function(_$rootScope_, _$controller_, _$state_, _$q_, ___, _session_, _userUtils_, _CAL_CALENDAR_PUBLIC_RIGHT_, _CAL_CALENDAR_SHARED_RIGHT_) {
+    angular.mock.inject(function(_$rootScope_, _$controller_, _$state_, _$q_, ___, _session_, _userUtils_, _CAL_CALENDAR_PUBLIC_RIGHT_, _CAL_CALENDAR_SHARED_RIGHT_, _calUIAuthorizationService_) {
       $rootScope = _$rootScope_;
       $scope = $rootScope.$new();
       $controller = _$controller_;
@@ -44,6 +45,7 @@ describe('The calendar configuration tab delegation controller', function() {
       _ = ___;
       userUtils = _userUtils_;
       session = _session_;
+      calUIAuthorizationService = _calUIAuthorizationService_;
       CAL_CALENDAR_PUBLIC_RIGHT = _CAL_CALENDAR_PUBLIC_RIGHT_;
       CAL_CALENDAR_SHARED_RIGHT = _CAL_CALENDAR_SHARED_RIGHT_;
     });
@@ -112,29 +114,29 @@ describe('The calendar configuration tab delegation controller', function() {
   });
 
   describe('the canDeleteCalendar function', function() {
-    it('should return true if isDefaultCalendar=false and newCalendar=false', function() {
-      CalendarConfigurationTabMainController.isDefaultCalendar = false;
+    var canDeleteCalendarResult;
+
+    beforeEach(function() {
+      sinon.stub(calUIAuthorizationService, 'canDeleteCalendar', function() {
+        return canDeleteCalendarResult;
+      });
+    });
+
+    it('should return true if newCalendar=false and calUIAuthorizationService.canDeleteCalendar= true', function() {
       CalendarConfigurationTabMainController.newCalendar = false;
+      canDeleteCalendarResult = true;
 
       expect(CalendarConfigurationTabMainController.canDeleteCalendar()).to.be.true;
     });
 
-    it('should return false if isDefaultCalendar=true and newCalendar=true', function() {
-      CalendarConfigurationTabMainController.isDefaultCalendar = true;
-      CalendarConfigurationTabMainController.newCalendar = true;
+    it('should return false if newCalendar=false and calUIAuthorizationService.canDeleteCalendar= false', function() {
+      CalendarConfigurationTabMainController.newCalendar = false;
+      canDeleteCalendarResult = false;
 
       expect(CalendarConfigurationTabMainController.canDeleteCalendar()).to.be.false;
     });
 
-    it('should return false if isDefaultCalendar=false and newCalendar=true', function() {
-      CalendarConfigurationTabMainController.isDefaultCalendar = false;
-      CalendarConfigurationTabMainController.newCalendar = true;
-
-      expect(CalendarConfigurationTabMainController.canDeleteCalendar()).to.be.false;
-    });
-
-    it('should return false if isDefaultCalendar=true and newCalendar=false', function() {
-      CalendarConfigurationTabMainController.isDefaultCalendar = false;
+    it('should return false if newCalendar=true', function() {
       CalendarConfigurationTabMainController.newCalendar = true;
 
       expect(CalendarConfigurationTabMainController.canDeleteCalendar()).to.be.false;

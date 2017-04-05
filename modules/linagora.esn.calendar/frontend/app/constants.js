@@ -218,10 +218,6 @@
       DESKTOP: 45
     })
 
-    .constant('CAL_CALENDAR_AUTHORIZATIONS', {
-      ACCESS_EVENT_DETAIL: 'access_event_detail'
-    })
-
     .constant('CAL_MODULE_METADATA', {
       id: 'linagora.esn.calendar',
       title: 'Calendar',

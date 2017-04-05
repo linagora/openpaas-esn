@@ -13,7 +13,7 @@
     userUtils,
     CAL_CALENDAR_PUBLIC_RIGHT,
     CAL_CALENDAR_SHARED_RIGHT,
-    CAL_DEFAULT_CALENDAR_ID
+    calUIAuthorizationService
   ) {
     var self = this;
     var rightLabels = {};
@@ -70,9 +70,7 @@
     }
 
     function canDeleteCalendar() {
-      var isDefaultCalendar = self.calendar && (self.calendar.id === CAL_DEFAULT_CALENDAR_ID);
-
-      return !self.newCalendar && !isDefaultCalendar;
+      return !self.newCalendar && calUIAuthorizationService.canDeleteCalendar(self.calendar);
     }
 
     function performSharedCalendarOperations(isSharedCalendar) {
