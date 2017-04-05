@@ -84,7 +84,7 @@ module.exports = function(config) {
       'frontend/js/modules/**/*.jade',
       'frontend/views/modules/**/*.jade',
       'frontend/views/esn/partials/**/*.jade',
-
+      {pattern: 'frontend/js/modules/user-notification/user-notification.router.js', watched: false, included: false, served: false},
       {pattern: 'frontend/images/*.png', watched: false, included: false, served: true}
     ],
 

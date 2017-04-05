@@ -4,8 +4,10 @@
   angular.module('esn.user-notification')
     .directive('esnUserNotificationToggler', esnUserNotificationToggler);
 
-  function esnUserNotificationToggler($popover) {
+  function esnUserNotificationToggler($popover, ESN_USER_NOTIFICATION_POPOVER_OPTIONS) {
     return {
+      controller: 'EsnUserNotificationTogglerController',
+      controllerAs: 'ctrl',
       link: link,
       restrict: 'E',
       replace: true,
@@ -14,21 +16,7 @@
     };
 
     function link(scope, element) {
-      scope.togglePopover = function() {
-        if (!scope.popover) {
-          scope.popover = $popover(element, {
-            scope: scope,
-            trigger: 'manual',
-            placement: 'bottom',
-            templateUrl: '/views/modules/user-notification/popover/user-notification-popover.html'
-          });
-          scope.popover.$promise.then(scope.popover.show);
-        } else {
-          scope.popover.hide();
-          scope.popover.destroy();
-          scope.popover = null;
-        }
-      };
+      scope.popover = $popover(element, ESN_USER_NOTIFICATION_POPOVER_OPTIONS);
     }
   }
 })();
