@@ -1,6 +1,7 @@
 const assetRegistry = require('./asset-registry');
 const ApplicationAsset = require('./application-asset');
 const ApplicationAssetTransformer = require('./application-asset-transformer');
+const jsFiles = require('./js-files');
 
 const appAssets = {};
 
@@ -28,6 +29,10 @@ function getType(assetType) {
   return assetRegistry.get(assetType);
 }
 
+function prepareJsFiles(jsType, appName, namespace) {
+  return jsFiles.prepareJsFiles(jsType, app(appName), namespace);
+}
+
 // bundled types
 registerType('js', {});
 registerType('jsApp', {});
@@ -40,5 +45,6 @@ module.exports = {
   envAwareApp,
   registerType,
   getAllTypes,
-  getType
+  getType,
+  prepareJsFiles
 };

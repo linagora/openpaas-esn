@@ -1,6 +1,9 @@
 'use strict';
 
 const expect = require('chai').expect;
+const Path = require('path');
+const fs = require('fs');
+const mockery = require('mockery');
 
 describe('The assets module', function() {
   let helpers;
@@ -361,6 +364,59 @@ describe('The assets module', function() {
 
         expect(assetCollection.allNames()).to.deep.equal(['zz1', 'zz2', 'zz3']);
       });
+    });
+  });
+
+  describe('prepareJsFiles() method', function() {
+    const fixtureFiles = [];
+    const fixtureContents = [];
+    let ngAnnotateMock;
+
+    beforeEach(function() {
+      [Path.join(this.testEnv.fixtures, 'assets/f1.js.asset'), Path.join(this.testEnv.fixtures, 'assets/f2.js.asset')]
+      .forEach(file => {
+        fixtureFiles.push(file);
+        fixtureContents.push(fs.readFileSync(file, 'utf8'));
+      });
+
+      ngAnnotateMock = function(code) {
+        return {
+          src: `annotated${code}`
+        };
+      };
+
+      mockery.registerMock('ng-annotate/ng-annotate-main', ngAnnotateMock);
+
+      const testApp = getModule().app('testApp');
+      const assetCollection = testApp.type('jsApp');
+      const fullPathAssetCollection = testApp.type('jsAppFullPath');
+
+      assetCollection.add([
+        {name: '11.js', namespace: 'm1'},
+        {name: '12.js', namespace: 'm1'},
+        {name: 'f1.js', namespace: 'm2'},
+        {name: 'f2.js', namespace: 'm2'},
+        {name: '31.js', namespace: 'm3'}
+      ]);
+
+      fullPathAssetCollection.add([
+        {name: fixtureFiles[0], namespace: 'm2'},
+        {name: fixtureFiles[1], namespace: 'm2'}
+      ]);
+    });
+
+    it('should return nothing when the namespace is not known', function(done) {
+      getModule().prepareJsFiles('jsApp', 'testApp', 'm1').then(code => {
+        expect(code).to.deep.equal('');
+        done();
+      }, done);
+    });
+
+    it('should return concatenated annotated files', function(done) {
+      getModule().prepareJsFiles('jsApp', 'testApp', 'm2').then(code => {
+        expect(code).to.deep.equal('annotatedwindow.f1 = true;\nannotatedwindow.f2 = true;\n');
+        done();
+      }, done).done();
     });
   });
 });
