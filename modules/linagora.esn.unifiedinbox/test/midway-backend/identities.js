@@ -34,7 +34,7 @@ describe('The Identities API', function() {
   });
 
   afterEach(function(done) {
-    helpers.api.cleanDomainDeployment(models, done);
+    helpers.requireBackend('core/esn-config')('identities.default').inModule('linagora.esn.unifiedinbox').store(null).then(() => helpers.api.cleanDomainDeployment(models, done));
   });
 
   describe('GET /api/inbox/identities/default', function() {
@@ -96,6 +96,36 @@ describe('The Identities API', function() {
             .expect(200, '{"id":"default","isDefault":true,"name":"Name","email":"user1@lng.net","textSignature":"Overriden signature"}')
             .end(done);
         }));
+      });
+    });
+
+    it('should return the default identity from the database when queried by a user with no signature, after a user with a signature', function(done) {
+      const esnConfig = helpers.requireBackend('core/esn-config');
+
+      esnConfig.configurations.updateConfigurations([
+        {
+          name: 'linagora.esn.unifiedinbox',
+          configurations: [
+            {
+              name: 'identities.default',
+              value: {
+                textSignature: 'Overriden signature'
+              }
+            }
+          ]
+        }
+      ], models.domain._id, models.users[0]._id).then(() => {
+        request(app)
+          .get('/api/inbox/identities/default')
+          .auth('user1@lng.net', 'secret')
+          .expect(200, '{"id":"default","isDefault":true,"description":"My default identity","name":"a user1","email":"user1@lng.net","replyTo":"user1@lng.net","textSignature":"Overriden signature"}')
+          .end(() => {
+            request(app)
+              .get('/api/inbox/identities/default')
+              .auth('user2@lng.net', 'secret')
+              .expect(200, '{"id":"default","isDefault":true,"description":"My default identity","name":"b user2","email":"user2@lng.net","replyTo":"user2@lng.net","textSignature":""}')
+              .end(done);
+          });
       });
     });
 

@@ -23,7 +23,7 @@ module.exports = dependencies => {
       esnConfig('identities.default').inModule('linagora.esn.unifiedinbox').forUser(user).get(),
       esnConfig('identities.default').inModule('linagora.esn.unifiedinbox').forUser(user, true).get()
     ])
-      .then(configs => _.extend(configs[0] || DEFAULT_IDENTITY, configs[1]))
+      .then(configs => _.extend({}, configs[0] || DEFAULT_IDENTITY, configs[1]))
       .then(identity => ejs.render(JSON.stringify(identity), { user, __ }))
       .then(
         identity => res.status(200).json(JSON.parse(identity)),
