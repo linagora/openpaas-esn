@@ -127,11 +127,8 @@
             template: '<calendars-configuration calendars="calendars"/>',
             resolve: {
               calendars: function(calendarService, calendarHomeId) {
-                var options = {
-                  withRights: true
-                };
 
-                return calendarService.listCalendars(calendarHomeId, options);
+                return calendarService.listCalendars(calendarHomeId);
               }
             },
             controller: function($scope, calendars) {

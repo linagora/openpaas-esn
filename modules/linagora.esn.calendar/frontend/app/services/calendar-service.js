@@ -14,6 +14,7 @@
     CalendarRightShell
   ) {
     var calendarsCache = {};
+    var defaultCalendarApiOptions = { withRights: true };
 
     this.createCalendar = createCalendar;
     this.removeCalendar = removeCalendar;
@@ -32,7 +33,7 @@
      * @param  {object}     options         options for more data
      * @return {[CalendarCollectionShell]}  an array of CalendarCollectionShell
      */
-    function listCalendars(calendarHomeId, options) {
+    function listCalendars(calendarHomeId) {
 
       function createCalendarsShell(calendars) {
         var vcalendars = [];
@@ -48,13 +49,9 @@
         return calendarsCache[calendarHomeId];
       }
 
-      if (!options) {
-        calendarsCache[calendarHomeId] = calendarsCache[calendarHomeId] || calendarAPI.listCalendars(calendarHomeId).then(createCalendarsShell);
+      calendarsCache[calendarHomeId] = calendarsCache[calendarHomeId] || calendarAPI.listCalendars(calendarHomeId, defaultCalendarApiOptions).then(createCalendarsShell);
 
-        return $q.when(calendarsCache[calendarHomeId]);
-      }
-
-      return calendarAPI.listCalendars(calendarHomeId, options).then(createCalendarsShell);
+      return $q.when(calendarsCache[calendarHomeId]);
     }
 
     /**
@@ -63,9 +60,7 @@
      * @return {[CalendarCollectionShell]}  an array of CalendarCollectionShell
      */
     function listAllCalendarsForUser(userId) {
-      var options = { withRights: true };
-
-      return calendarAPI.listAllCalendars(options)
+      return calendarAPI.listAllCalendars(defaultCalendarApiOptions)
         .then(function(calendars) {
           var allPublicCalendarsForUser = [];
           var allCalendarsForUser = calendars.filter(function(calendar) {
@@ -90,8 +85,8 @@
      * @param  {String}     calendarId      The calendar id
      * @return {CalendarCollectionShell}  an array of CalendarCollectionShell
      */
-    function getCalendar(calendarHomeId, calendarId, options) {
-      return calendarAPI.getCalendar(calendarHomeId, calendarId, options)
+    function getCalendar(calendarHomeId, calendarId) {
+      return calendarAPI.getCalendar(calendarHomeId, calendarId, defaultCalendarApiOptions)
         .then(function(calendar) {
           return new CalendarCollectionShell(calendar);
         });

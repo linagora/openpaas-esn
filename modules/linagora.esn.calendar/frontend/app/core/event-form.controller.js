@@ -74,10 +74,6 @@
       }
 
       function initFormData() {
-        var options = {
-          withRights: true
-        };
-
         $scope.editedEvent = $scope.event.clone();
 
         $scope.newAttendees = calEventUtils.getNewAttendees();
@@ -102,7 +98,7 @@
           $scope.editedEvent.class = CAL_EVENT_FORM.class.default;
         }
 
-        calendarService.listCalendars(calendarService.calendarHomeId, options).then(function(calendars) {
+        calendarService.listCalendars(calendarService.calendarHomeId).then(function(calendars) {
           $scope.calendars = calendars;
           $scope.calendar = calEventUtils.isNew($scope.editedEvent) ? _.find(calendars, 'selected') : _.find(calendars, {id: $scope.editedEvent.calendarId});
           $scope.readOnly = readOnly();
