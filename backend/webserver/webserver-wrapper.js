@@ -29,8 +29,8 @@ function WebServerWrapper(server) {
     webserver.addLessInjection(namespace, asArray(less), asArray(innerApps));
   };
 
-  this.injectAngularModules = function injectAngularModules(namespace, js, moduleNames, innerApps) {
-    webserver.addAngularModulesInjection(namespace, asArray(js), asArray(moduleNames), asArray(innerApps));
+  this.injectAngularModules = function injectAngularModules(namespace, js, moduleNames, innerApps, opts = {}) {
+    webserver.addAngularModulesInjection(namespace, asArray(js), asArray(moduleNames), asArray(innerApps), opts);
   };
 
   this.injectAngularAppModules = function injectAngularAppModules(namespace, js, moduleNames, innerApps, opts = {}) {
