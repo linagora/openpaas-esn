@@ -8,7 +8,7 @@
     | #{__('Public read')}
   .public-access-line-visibility-value.form-group.col-xs-8
     .select
-      select.form-control(ng-model='$ctrl.publicSelection')
+      select.form-control(ng-model='$ctrl.publicSelection', ng-disabled="!$ctrl.canModifyPublicSelection")
         option(ng-repeat="publicRight in ::$ctrl.publicRights" value="{{publicRight.value}}" ng-selected="publicRight.value === $ctrl.publicSelection") {{ publicRight.name }}
 
 div(ng-if="$ctrl.sharedCalendarOwner")

@@ -49,6 +49,8 @@
       rightLabels[CAL_CALENDAR_SHARED_RIGHT.SHAREE_FREE_BUSY] = 'Free/Busy';
 
       performSharedCalendarOperations(self.externalCalendar);
+
+      self.canModifyPublicSelection = _canModifyPublicSelection();
     }
 
     function openDeleteConfirmationDialog() {
@@ -71,6 +73,10 @@
 
     function canDeleteCalendar() {
       return !self.newCalendar && calUIAuthorizationService.canDeleteCalendar(self.calendar);
+    }
+
+    function _canModifyPublicSelection() {
+      return calUIAuthorizationService.canModifyPublicSelection(self.calendar, session.user._id);
     }
 
     function performSharedCalendarOperations(isSharedCalendar) {
