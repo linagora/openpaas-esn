@@ -2,12 +2,11 @@
 
 const expect = require('chai').expect;
 const fs = require('fs');
-const sinon = require('sinon');
 const ICAL = require('ical.js');
 const CONSTANTS = require('../../../../backend/lib/constants');
 
 describe('The calendar search pubsub module', function() {
-  let jcal, ics, logger, pubsub, eventSubscribeCallback, localPublishSpy;
+  let jcal, ics, logger, pubsub, globalpubsub, localpubsub;
 
   beforeEach(function() {
     this.moduleHelpers.backendPath = this.moduleHelpers.modulesPath + 'linagora.esn.calendar/backend';
@@ -18,38 +17,19 @@ describe('The calendar search pubsub module', function() {
       warning: function() {}
     };
 
-    localPublishSpy = sinon.spy();
-
-    pubsub = {
-      global: {
-        topic: function(topic) {
-          return {
-            subscribe: function(callback) {
-              if (topic === CONSTANTS.EVENTS.TOPIC.EVENT) {
-                eventSubscribeCallback = callback;
-              }
-            }
-          };
-        }
-      },
-      local: {
-        topic: sinon.spy(function() {
-          return {
-            publish: localPublishSpy
-          };
-        })
-      }
-    };
+    globalpubsub = {};
+    localpubsub = {};
 
     this.moduleHelpers.addDep('logger', logger);
     this.moduleHelpers.addDep('pubsub', pubsub);
+    this.moduleHelpers.addDep('pubsub', this.helpers.mock.pubsub('', localpubsub, globalpubsub));
 
     ics = fs.readFileSync(__dirname + '/../../fixtures/meeting.ics', 'utf-8');
     jcal = new ICAL.Component.fromString(ics).jCal;
     ics = new ICAL.Component.fromString(ics).toString();
   });
 
-  describe('On EVENTS.TOPIC.EVENT global event', function() {
+  describe('On global pubsub events', function() {
     let self;
 
     beforeEach(function() {
@@ -63,14 +43,15 @@ describe('The calendar search pubsub module', function() {
       const path = `/calendar/${userId}/${calendarId}/${eventId}.ics`;
 
       require(self.moduleHelpers.backendPath + '/lib/search/pubsub')(self.moduleHelpers.dependencies).listen();
-      eventSubscribeCallback({
+      const handler = globalpubsub.topics[event].handler;
+
+      handler({
         websocketEvent: event,
         event: jcal,
         eventPath: path
       });
 
-      expect(pubsub.local.topic).to.have.been.calledWith(localTopic);
-      expect(localPublishSpy).to.have.been.calledWith({
+      expect(localpubsub.topics[localTopic].data[0]).to.deep.equals({
         ics,
         path,
         userId,

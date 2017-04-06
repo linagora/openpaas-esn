@@ -24,9 +24,6 @@ module.exports = {
     EMAIL: 'EMAIL'
   },
   EVENTS: {
-    TOPIC: {
-      EVENT: 'calendar:event'
-    },
     EVENT: {
       CREATED: 'calendar:event:created',
       UPDATED: 'calendar:event:updated',
@@ -35,5 +32,8 @@ module.exports = {
       DELETED: 'calendar:event:deleted',
       REPLY: 'calendar:event:reply'
     }
+  },
+  WEBSOCKET: {
+    NAMESPACE: '/calendars'
   }
 };

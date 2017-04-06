@@ -23,7 +23,9 @@ module.exports = dependencies => {
   };
 
   function init() {
-    pubsub.local.topic(CONSTANTS.EVENTS.TOPIC.EVENT).subscribe(_handleAlarm);
+    pubsub.local.topic(CONSTANTS.EVENTS.EVENT.CREATED).subscribe(_onCreate);
+    pubsub.local.topic(CONSTANTS.EVENTS.EVENT.UPDATED).subscribe(_onUpdate);
+    pubsub.local.topic(CONSTANTS.EVENTS.EVENT.DELETED).subscribe(_onDelete);
     pubsub.local.topic('cron:job:revival').subscribe(_reviveAlarm);
   }
 
@@ -210,20 +212,6 @@ module.exports = dependencies => {
 
       _onCreate(msg);
     });
-  }
-
-  function _handleAlarm(msg) {
-    switch (msg.type) {
-      case 'created':
-        _onCreate(msg);
-        break;
-      case 'updated':
-        _onUpdate(msg);
-        break;
-      case 'deleted':
-        _onDelete(msg);
-        break;
-    }
   }
 
   function _reviveAlarm(msg) {

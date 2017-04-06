@@ -1,8 +1,6 @@
 'use strict';
 
-const NAMESPACE = '/calendars';
-const CONSTANTS = require('../lib/constants');
-const PUBSUB_EVENT = CONSTANTS.EVENTS.TOPIC.EVENT;
+const {EVENTS, WEBSOCKET} = require('../lib/constants');
 const _ = require('lodash');
 let initialized = false;
 
@@ -22,14 +20,18 @@ function init(dependencies) {
     return;
   }
 
-  pubsub.global.topic(PUBSUB_EVENT).subscribe(msg => {
-    pubsub.local.topic(PUBSUB_EVENT).publish(msg);
-    notify(io, ioHelper, msg.websocketEvent, msg);
+  _.forOwn(EVENTS.EVENT, topic => {
+    logger.debug('Subscribing to global topic', topic);
+    pubsub.global.topic(topic).subscribe(msg => {
+      logger.debug('Received a message on', topic);
+      pubsub.local.topic(topic).publish(msg);
+      notify(topic, msg);
+    });
   });
 
-  io.of(NAMESPACE)
+  io.of(WEBSOCKET.NAMESPACE)
     .on('connection', socket => {
-      logger.info('New connection on ' + NAMESPACE);
+      logger.info('New connection on', WEBSOCKET.NAMESPACE);
 
       socket.on('subscribe', uuid => {
         logger.info('Joining room', uuid);
@@ -42,6 +44,22 @@ function init(dependencies) {
       });
     });
   initialized = true;
+
+  function notify(topic, msg) {
+    const userIds = [parseEventPath(msg.eventPath).userId];
+
+    if (msg.shareeIds) {
+      msg.shareeIds.forEach(shareePrincipals => userIds.push(parseUserPrincipal(shareePrincipals)));
+    }
+
+    delete msg.shareeIds;
+
+    userIds.forEach(userId => {
+      const clientSockets = ioHelper.getUserSocketsFromNamespace(userId, io.of(WEBSOCKET.NAMESPACE).sockets) || [];
+
+      _.invokeMap(clientSockets, 'emit', topic, msg);
+    });
+  }
 }
 
 function parseEventPath(eventPath) {
@@ -60,20 +78,4 @@ function parseUserPrincipal(userPrincipal) {
   const pathParts = userPrincipal.split('/');
 
   return pathParts[2];
-}
-
-function notify(io, ioHelper, event, msg) {
-  const userIds = [parseEventPath(msg.eventPath).userId];
-
-  if (msg.shareeIds) {
-    msg.shareeIds.forEach(shareePrincipals => userIds.push(parseUserPrincipal(shareePrincipals)));
-  }
-
-  delete msg.shareeIds;
-
-  userIds.forEach(userId => {
-    const clientSockets = ioHelper.getUserSocketsFromNamespace(userId, io.of(NAMESPACE).sockets) || [];
-
-    _.invokeMap(clientSockets, 'emit', event, msg);
-  });
 }
