@@ -18,7 +18,7 @@ div(ng-if="$ctrl.sharedCalendarOwner")
     i.mdi.mdi-account-switch.big
     .public-access-line-visibility-key.col-xs-4
       | #{__('Shared by')}
-    .public-access-line-visibility-value.form-group.col-xs-8
+    .public-access-line-visibility-value.shared-by.form-group
       a.attendee-avatar.margin-right-15(href="", ng-attr-title="$ctrl.user.displayName")
         esn-avatar(user-email="$ctrl.sharedCalendarOwner.preferredEmail")
       | {{ $ctrl.displayNameOfSharedCalendarOwner }}
