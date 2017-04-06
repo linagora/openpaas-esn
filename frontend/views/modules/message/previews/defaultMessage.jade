@@ -1,7 +1,6 @@
 div.media
   a.media-left.pull-left(ui-sref="profile({user_id: message.author._id})")
-    .media-object.w-128
-      esn-avatar(user-id="message.author._id")
+    img.media-object.w-128(src='/images/user.png', ng-src='/api/users/{{::message.author._id}}/profile/avatar', alt='#{__("Message Author")}')
   div.media-body
     div
       h4.media-heading
