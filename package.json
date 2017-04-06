@@ -59,6 +59,7 @@
     "mongodb": "2.2.9",
     "mongoose": "4.6.0",
     "morgan": "1.7.0",
+    "ng-annotate": "1.2.1",
     "node-uuid": "1.4.7",
     "nodemailer": "2.6.0",
     "oauth2orize": "1.5.0",

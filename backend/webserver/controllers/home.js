@@ -23,7 +23,7 @@ function index(req, res) {
         });
       }
 
-      res.locals.assets = assetRegistry.app('welcome');
+      res.locals.assets = assetRegistry.envAwareApp('welcome');
       alterTemplatePath('welcome/index', function(tplPath) {
         res.render(tplPath, {
           title: 'Home',
@@ -32,7 +32,7 @@ function index(req, res) {
       });
     });
   } else {
-    res.locals.assets = assetRegistry.app('esn');
+    res.locals.assets = assetRegistry.envAwareApp('esn');
     alterTemplatePath('esn/index', function(tplPath) {
       return res.render(tplPath, {
         title: 'Home'

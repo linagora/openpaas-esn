@@ -4,6 +4,14 @@ const path = require('path'),
       AwesomeModule = require('awesome-module');
 const Dependency = AwesomeModule.AwesomeModuleDependency;
 
+const moduleFiles = [
+  'app.js',
+  'components/main/main.js',
+  'components/android/android.js',
+  'components/controlcenter-menu-entry/controlcenter-menu-entry.js'
+];
+const FRONTEND_JS_PATH = `${__dirname}/frontend/app/`;
+
 module.exports = new AwesomeModule('linagora.esn.sync', {
   dependencies: [
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.logger', 'logger'),
@@ -20,12 +28,9 @@ module.exports = new AwesomeModule('linagora.esn.sync', {
             app = require('./backend/webserver/application')(dependencies);
 
       webserverWrapper.injectLess('sync', [path.resolve(__dirname, 'frontend/app/styles.less')], 'esn');
-      webserverWrapper.injectAngularAppModules('sync', [
-        'app.js',
-        'components/main/main.js',
-        'components/android/android.js',
-        'components/controlcenter-menu-entry/controlcenter-menu-entry.js'
-      ], ['linagora.esn.sync'], ['esn']);
+      webserverWrapper.injectAngularAppModules('sync', moduleFiles, ['linagora.esn.sync'], ['esn'], {
+        localJsFiles: moduleFiles.map(file => path.join(FRONTEND_JS_PATH, file))
+      });
       webserverWrapper.addApp('sync', app);
 
       return callback();
