@@ -148,7 +148,13 @@ describe('The calendar configuration controller', function() {
 
     calendarHomeId = '12345';
 
-    CalendarRightShellMock = sinon.spy();
+    CalendarRightShellMock = sinon.spy(function() {
+      return {
+        getOwnerId: angular.noop,
+        getPublicRight: angular.noop,
+        getShareeRight: angular.noop
+      };
+    });
   });
 
   beforeEach(function() {

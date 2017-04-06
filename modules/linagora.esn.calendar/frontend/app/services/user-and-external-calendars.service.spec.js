@@ -13,7 +13,21 @@ describe('the userAndExternalCalendars service', function() {
       href: 'href',
       name: 'name',
       color: 'color',
-      description: 'description'
+      description: 'description',
+      rights: {
+        getOwnerId: function() {
+          return 'tata';
+        }
+      },
+      isShared: function() {
+        return false;
+      },
+      isPublic: function() {
+        return true;
+      },
+      isOwner: function() {
+        return true;
+      }
     }, {
       id: '2',
       href: 'href2',

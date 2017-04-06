@@ -5,9 +5,11 @@
 var expect = chai.expect;
 
 describe('CalendarRightShell factory', function() {
-  var CalendarRightShell, calendarRightShell, CAL_CALENDAR_PUBLIC_RIGHT, CAL_CALENDAR_SHARED_RIGHT;
+  var CalendarRightShell, calendarRightShell, CAL_CALENDAR_PUBLIC_RIGHT, CAL_CALENDAR_SHARED_RIGHT, defaultOwnerId;
 
   beforeEach(function() {
+    defaultOwnerId = 'ownerId';
+
     angular.mock.module('esn.calendar');
     angular.mock.inject(function(_CalendarRightShell_, _CAL_CALENDAR_PUBLIC_RIGHT_, _CAL_CALENDAR_SHARED_RIGHT_) {
       CalendarRightShell = _CalendarRightShell_;
@@ -17,7 +19,25 @@ describe('CalendarRightShell factory', function() {
 
     var serverPropfindResponse = JSON.parse(__FIXTURES__['modules/linagora.esn.calendar/test/unit-frontend/fixtures/shell/propfind_right_result.json']);
 
-    calendarRightShell = new CalendarRightShell(serverPropfindResponse.acl, serverPropfindResponse.invite);
+    calendarRightShell = new CalendarRightShell(serverPropfindResponse.acl, serverPropfindResponse.invite, defaultOwnerId);
+  });
+
+  describe('Constructor', function() {
+    it('should initialize ownerId with defaultOwnerId when invite are not specified', function() {
+      calendarRightShell = new CalendarRightShell(null, null, defaultOwnerId);
+      expect(calendarRightShell.getOwnerId()).to.be.equal(defaultOwnerId);
+    });
+  });
+
+  describe('getOwnerId', function() {
+    it('should return id of the calendar owner', function() {
+      expect(calendarRightShell.getOwnerId()).to.be.equal('me');
+    });
+
+    it('should convert properly calendar.access to String to match CAL_CALENDAR_SHARED_RIGHT constants', function() {
+      expect(calendarRightShell.getShareeRight('tom')).to.equal(CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ_WRITE);
+      expect(calendarRightShell.getShareeRight('jerry')).to.equal(CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ);
+    });
   });
 
   describe('getOwnerId', function() {
@@ -68,7 +88,6 @@ describe('CalendarRightShell factory', function() {
       calendarRightShell.updatePublic(CAL_CALENDAR_PUBLIC_RIGHT.READ);
       expect(calendarRightShell.getPublicRight()).to.equal(CAL_CALENDAR_PUBLIC_RIGHT.READ);
     });
-
   });
 
   describe('toJson', function() {

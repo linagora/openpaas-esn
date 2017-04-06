@@ -36,17 +36,16 @@
 
     /**
      * Initialize CalendarRightShell with ACL for owner rights and public right and inline for shared access
-     * Note : Sabre sent a shared status for the owner "SHAREDOWNER" (even if the calendar is not shared).
-     * This specific status is filtered out because it doesn't add info about sharing to other users.
      * @param acl used to initialize owner rights and public rights
      * @param invite used to initialize rights given to sharees (if any)
+     * @param ownerId initialize _ownerId default value (will be overridden by invite data if any)
      * @constructor
      */
-    function CalendarRightShell(acl, invite) {
+    function CalendarRightShell(acl, invite, ownerId) {
       this._userEmails = {};
       this._public = new CalRightSet();
       this._sharee = {};
-      this._ownerId = {};
+      this._ownerId = ownerId;
 
       acl && acl.forEach(function(line) {
         if (line.principal === '{DAV:}authenticated') {

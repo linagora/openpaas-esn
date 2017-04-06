@@ -4,7 +4,7 @@
   angular.module('esn.calendar')
     .factory('CalendarCollectionShell', CalendarCollectionShellFactory);
 
-  function CalendarCollectionShellFactory($q, $log, _, calPathBuilder, CalendarRightShell, session, userAPI, CAL_DEDAULT_EVENT_COLOR, CAL_DEFAULT_CALENDAR_ID, CAL_CALENDAR_PUBLIC_RIGHT, CAL_CALENDAR_SHARED_RIGHT) {
+  function CalendarCollectionShellFactory(_, calPathBuilder, CalendarRightShell, session, userAPI, CAL_DEDAULT_EVENT_COLOR, CAL_DEFAULT_CALENDAR_ID, CAL_CALENDAR_PUBLIC_RIGHT, CAL_CALENDAR_SHARED_RIGHT) {
     /**
      * A shell that wraps an caldav calendar component.
      * Note that href is the unique identifier and id is the calendarId inside the calendarHomeId
@@ -21,7 +21,7 @@
 
       this.acl = calendar.acl;
       this.invite = calendar.invite;
-      this.rights = addRightsForSharedCalendar(calendar);
+      this.rights = new CalendarRightShell(calendar.acl, calendar.invite, session.user._id);
       this.readOnly = checkReadOnly(this.rights, session.user._id);
     }
 
@@ -79,12 +79,6 @@
       return calPathBuilder.forCalendarId(calendarHomeId, calendarId);
     }
 
-    function addRightsForSharedCalendar(calendar) {
-      if (calendar.invite && calendar.acl) {
-       return new CalendarRightShell(calendar.acl, calendar.invite);
-      }
-    }
-
     /**
      * Check if this calendar has been shared by another user
      * Note: if userId is the calendar owner, it doesn't have sharee right, so isShared will return false.
@@ -108,22 +102,9 @@
      * @returns {user} return the owner of the calendar
      */
     function getOwner() {
-      var calendarOwnerId;
-      if (this.rights) {
-        calendarOwnerId = this.rights.getOwnerId();
-
-        if (calendarOwnerId) {
-          return userAPI.user(calendarOwnerId).then(function(response) {
-            return response.data;
-          });
-        }
-
-        $log.error('error when searching the calendar owner from a shared calendar or public calendar');
-      } else {
-        $log.error('the calendar does not have rights');
-      }
-
-      return $q.when({});
+      return userAPI.user(this.rights.getOwnerId()).then(function(response) {
+        return response.data;
+      });
     }
 
     /**
