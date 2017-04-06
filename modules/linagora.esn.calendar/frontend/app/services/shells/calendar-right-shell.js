@@ -4,7 +4,7 @@
   angular.module('esn.calendar')
     .factory('CalendarRightShell', CalendarRightShell);
 
-  function CalendarRightShell(CAL_CALENDAR_PUBLIC_RIGHT, CAL_CALENDAR_SHARED_RIGHT, CalRightSet, _, calendarUtils) {
+  function CalendarRightShell(_, session, CalRightSet, calendarUtils, CAL_CALENDAR_PUBLIC_RIGHT, CAL_CALENDAR_SHARED_RIGHT) {
 
     //the idea here is that there is a multitude of possible combinaison of webdav right and webdav sharing right
     //I will suppose that right are only settle by OpenPaas and that the only possible combinaison are the following
@@ -36,16 +36,16 @@
 
     /**
      * Initialize CalendarRightShell with ACL for owner rights and public right and inline for shared access
+     * If invite is undefined, ownerId is the current user.
      * @param acl used to initialize owner rights and public rights
-     * @param invite used to initialize rights given to sharees (if any)
-     * @param ownerId initialize _ownerId default value (will be overridden by invite data if any)
+     * @param invite used to initialize rights given to sharees (if any) and ownerId.
      * @constructor
      */
-    function CalendarRightShell(acl, invite, ownerId) {
+    function CalendarRightShell(acl, invite) {
       this._userEmails = {};
       this._public = new CalRightSet();
       this._sharee = {};
-      this._ownerId = ownerId;
+      this._ownerId = session.user._id;
 
       acl && acl.forEach(function(line) {
         if (line.principal === '{DAV:}authenticated') {

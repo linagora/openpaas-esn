@@ -5,26 +5,41 @@
 var expect = chai.expect;
 
 describe('CalendarRightShell factory', function() {
-  var CalendarRightShell, calendarRightShell, CAL_CALENDAR_PUBLIC_RIGHT, CAL_CALENDAR_SHARED_RIGHT, defaultOwnerId;
+  var session, CalendarRightShell, calendarRightShell, CAL_CALENDAR_PUBLIC_RIGHT, CAL_CALENDAR_SHARED_RIGHT, defaultOwnerId;
 
   beforeEach(function() {
     defaultOwnerId = 'ownerId';
 
+    session = {
+      user: {
+        _id: defaultOwnerId
+      },
+      ready: {
+        then: angular.noop
+      }
+    };
+
     angular.mock.module('esn.calendar');
-    angular.mock.inject(function(_CalendarRightShell_, _CAL_CALENDAR_PUBLIC_RIGHT_, _CAL_CALENDAR_SHARED_RIGHT_) {
+
+    angular.mock.module(function($provide) {
+      $provide.value('session', session);
+    });
+
+    angular.mock.inject(function(_CalendarRightShell_, _session_, _CAL_CALENDAR_PUBLIC_RIGHT_, _CAL_CALENDAR_SHARED_RIGHT_) {
       CalendarRightShell = _CalendarRightShell_;
+      session = _session_;
       CAL_CALENDAR_PUBLIC_RIGHT = _CAL_CALENDAR_PUBLIC_RIGHT_;
       CAL_CALENDAR_SHARED_RIGHT = _CAL_CALENDAR_SHARED_RIGHT_;
     });
 
     var serverPropfindResponse = JSON.parse(__FIXTURES__['modules/linagora.esn.calendar/test/unit-frontend/fixtures/shell/propfind_right_result.json']);
 
-    calendarRightShell = new CalendarRightShell(serverPropfindResponse.acl, serverPropfindResponse.invite, defaultOwnerId);
+    calendarRightShell = new CalendarRightShell(serverPropfindResponse.acl, serverPropfindResponse.invite);
   });
 
   describe('Constructor', function() {
     it('should initialize ownerId with defaultOwnerId when invite are not specified', function() {
-      calendarRightShell = new CalendarRightShell(null, null, defaultOwnerId);
+      calendarRightShell = new CalendarRightShell();
       expect(calendarRightShell.getOwnerId()).to.be.equal(defaultOwnerId);
     });
   });

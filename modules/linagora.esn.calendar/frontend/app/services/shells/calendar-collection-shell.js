@@ -21,7 +21,7 @@
 
       this.acl = calendar.acl;
       this.invite = calendar.invite;
-      this.rights = new CalendarRightShell(calendar.acl, calendar.invite, session.user._id);
+      this.rights = new CalendarRightShell(calendar.acl, calendar.invite);
       this.readOnly = checkReadOnly(this.rights, session.user._id);
     }
 

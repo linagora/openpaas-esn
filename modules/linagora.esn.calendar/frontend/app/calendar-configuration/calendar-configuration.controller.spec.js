@@ -305,6 +305,7 @@ describe('The calendar configuration controller', function() {
       calendarConfigurationController.activate();
 
       expect(calendarConfigurationController.newCalendar).to.be.true;
+      expect(CalendarRightShellMock).to.have.been.calledWith;
     });
 
     it('should initialize newCalendar with false it is not a new calendar', function() {
