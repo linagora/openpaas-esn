@@ -143,6 +143,25 @@ describe('The calendar configuration tab delegation controller', function() {
     });
   });
 
+  describe('the canModifyPublicSelection', function() {
+    it('should leverage calUIAuthorizationService.canModifyPublicSelection', function() {
+      var canModifyPublicSelection = true;
+
+      sinon.stub(calUIAuthorizationService, 'canModifyPublicSelection', function() {
+        return canModifyPublicSelection;
+      });
+      CalendarConfigurationTabMainController.calendar = {
+        id: 'id'
+      };
+
+      CalendarConfigurationTabMainController.$onInit();
+
+      expect(calUIAuthorizationService.canModifyPublicSelection).to.have.been.calledWith(CalendarConfigurationTabMainController.calendar, session.user._id);
+      expect(CalendarConfigurationTabMainController.canModifyPublicSelection).to.equal(canModifyPublicSelection);
+    });
+
+  });
+
   describe('the performSharedCalendarOperations', function() {
     var getShareeRightResult, getOwnerResult;
 
@@ -167,6 +186,7 @@ describe('The calendar configuration tab delegation controller', function() {
     });
 
     it('should do nothing for a non external calendar', function() {
+      sinon.stub(calUIAuthorizationService, 'canModifyPublicSelection', angular.noop);
       CalendarConfigurationTabMainController.externalCalendar = false;
 
       CalendarConfigurationTabMainController.$onInit();
