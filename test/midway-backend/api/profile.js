@@ -388,17 +388,6 @@ describe('The profile API', function() {
       this.helpers.api.requireLogin(app, 'get', '/api/users?email=admin@open-paas.org', done);
     });
 
-    it('should return 404 if the user does not exist', function(done) {
-      var self = this;
-      this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
-        if (err) {
-          return done(err);
-        }
-        var req = loggedInAsUser(request(app).get('/api/users?email=admin@open-paas.org'));
-        req.expect(404).end(self.helpers.callbacks.noError(done));
-      });
-    });
-
     it('should return 200 with the profiles of the users', function(done) {
       this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
