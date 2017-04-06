@@ -13,8 +13,7 @@
         calendar: '=',
         calendarHomeId: '=',
         newCalendar: '=',
-        publicSelection: '=',
-        externalCalendar: '<'
+        publicSelection: '='
       },
       controller: 'CalendarConfigurationTabMainController'
     };

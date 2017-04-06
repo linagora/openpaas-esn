@@ -110,6 +110,27 @@ describe('CalendarCollectionShell factory', function() {
     });
   });
 
+  describe('isAdmin fn', function() {
+    it('Should return false if the user is not the owner and have not SHAREE_ADMIN rights', function() {
+      var test = new CalendarCollectionShell(calendar);
+
+      expect(test.isAdmin('someone_else')).to.be.false;
+    });
+
+    it('Should return true if the user is the owner', function() {
+      var test = new CalendarCollectionShell(calendar);
+
+      expect(test.isAdmin('ownerId')).to.be.true;
+    });
+
+    it('Should return true if the user is not the owner but have SHAREE_ADMIN rights', function() {
+      calendarSharedRight = CAL_CALENDAR_SHARED_RIGHT.SHAREE_ADMIN;
+
+      var test = new CalendarCollectionShell(calendar);
+
+      expect(test.isAdmin('someone_else')).to.be.true;
+    });
+  });
   describe('isShared fn', function() {
     it('Should return false if calendar has no Sharee Right', function() {
       calendarSharedRight = undefined;

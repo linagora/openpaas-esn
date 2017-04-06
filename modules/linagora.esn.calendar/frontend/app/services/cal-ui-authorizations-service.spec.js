@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('The calUIAuthorizationService service', function() {
-  var _, calUIAuthorizationService, calEventUtils, event, CAL_DEFAULT_CALENDAR_ID, CAL_CALENDAR_SHARED_RIGHT;
+  var calUIAuthorizationService, calEventUtils, event, userId, CAL_DEFAULT_CALENDAR_ID;
 
   beforeEach(function() {
     calEventUtils = {
@@ -16,18 +16,18 @@ describe('The calUIAuthorizationService service', function() {
       isPublic: sinon.stub().returns(false)
     };
 
+    userId = 'userId';
+
     angular.mock.module('esn.calendar');
 
     angular.mock.module(function($provide) {
       $provide.value('calEventUtils', calEventUtils);
     });
 
-    angular.mock.inject(function(___, _calUIAuthorizationService_, _calEventUtils_, _CAL_DEFAULT_CALENDAR_ID_, _CAL_CALENDAR_SHARED_RIGHT_) {
-      _ = ___;
+    angular.mock.inject(function(___, _calUIAuthorizationService_, _calEventUtils_, _CAL_DEFAULT_CALENDAR_ID_) {
       calUIAuthorizationService = _calUIAuthorizationService_;
       calEventUtils = _calEventUtils_;
       CAL_DEFAULT_CALENDAR_ID = _CAL_DEFAULT_CALENDAR_ID_;
-      CAL_CALENDAR_SHARED_RIGHT = _CAL_CALENDAR_SHARED_RIGHT_;
     });
   });
 
@@ -74,53 +74,19 @@ describe('The calUIAuthorizationService service', function() {
   });
 
   describe('the canModifyPublicSelection function', function() {
-    var userId, calendar, shareeRight, requiredSharedRightToModifyPublicSelection;
+    var calendar;
 
-    beforeEach(function() {
-      requiredSharedRightToModifyPublicSelection = [CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ_WRITE, CAL_CALENDAR_SHARED_RIGHT.SHAREE_ADMIN];
-      userId = 'userId';
+    it('should return false if calendar is undefined', function() {
+      expect(calUIAuthorizationService.canModifyPublicSelection()).to.be.false;
+    });
+
+    it('should call calendar.isAdmin with userId', function() {
       calendar = {
-        rights: {
-          getShareeRight: sinon.spy(function() {
-            return shareeRight;
-          })
-        }
+        isAdmin: sinon.stub().returns(true)
       };
-    });
 
-    it('should return true if calendar is undefined', function() {
-      expect(calUIAuthorizationService.canModifyPublicSelection()).to.be.true;
-    });
-
-    it('should return true if calendar.rights is undefined', function() {
-      expect(calUIAuthorizationService.canModifyPublicSelection({})).to.be.true;
-    });
-
-    it('should call calendar.rights.getShareeRight with userId', function() {
-      calUIAuthorizationService.canModifyPublicSelection(calendar, userId);
-
-      expect(calendar.rights.getShareeRight).to.have.been.calledWith(userId);
-    });
-
-    it('should return true if shareeRight is equal to CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ_WRITE or CAL_CALENDAR_SHARED_RIGHT.SHAREE_ADMIN', function() {
-      requiredSharedRightToModifyPublicSelection
-        .forEach(function(sharedRightValue) {
-          shareeRight = sharedRightValue;
-
-          expect(calUIAuthorizationService.canModifyPublicSelection(calendar, userId)).to.be.true;
-        });
-    });
-
-    it('should return false if shareeRight is not equal to CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ_WRITE or CAL_CALENDAR_SHARED_RIGHT.SHAREE_ADMIN', function() {
-      _.values(CAL_CALENDAR_SHARED_RIGHT)
-        .filter(function(sharedRight) {
-          return requiredSharedRightToModifyPublicSelection.indexOf(sharedRight) === -1;
-        })
-        .forEach(function(nonPermittedSharedRight) {
-          shareeRight = nonPermittedSharedRight;
-
-          expect(calUIAuthorizationService.canModifyPublicSelection(calendar, userId)).to.be.false;
-        });
+      expect(calUIAuthorizationService.canModifyPublicSelection(calendar, userId)).to.be.true;
+      expect(calendar.isAdmin).to.have.been.calledWith(userId);
     });
   });
 });

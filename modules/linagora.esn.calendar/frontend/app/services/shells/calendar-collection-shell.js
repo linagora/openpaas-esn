@@ -24,7 +24,7 @@
       this.rights = new CalendarRightShell(calendar.acl, calendar.invite);
       this.readOnly = checkReadOnly(this.rights, session.user._id);
     }
-
+    CalendarCollectionShell.prototype.isAdmin = isAdmin;
     CalendarCollectionShell.prototype.isShared = isShared;
     CalendarCollectionShell.prototype.isPublic = isPublic;
     CalendarCollectionShell.prototype.isOwner = isOwner;
@@ -77,6 +77,15 @@
 
     function buildHref(calendarHomeId, calendarId) {
       return calPathBuilder.forCalendarId(calendarHomeId, calendarId);
+    }
+
+    /**
+     * Check if the userId can perform admin task on this calendar
+     * @param userId
+     * @returns {boolean} return true if userId has admin right on this calendar
+     */
+    function isAdmin(userId) {
+      return this.isOwner(userId) || this.rights.getShareeRight(userId) === CAL_CALENDAR_SHARED_RIGHT.SHAREE_ADMIN;
     }
 
     /**
