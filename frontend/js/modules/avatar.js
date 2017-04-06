@@ -142,7 +142,8 @@ angular.module('esn.avatar', [
 
     $scope.initUploadContext();
 
-  }).provider('avatarAPI', function() {
+  })
+  .provider('avatarAPI', function() {
     var baseUrl = '';
 
     return {
@@ -166,7 +167,8 @@ angular.module('esn.avatar', [
         };
       }
     };
-  }).factory('selectionService', function($rootScope, AVATAR_MIN_SIZE_PX) {
+  })
+  .factory('selectionService', function($rootScope, AVATAR_MIN_SIZE_PX) {
 
     var sharedService = {};
     sharedService.image = null;
@@ -459,7 +461,42 @@ angular.module('esn.avatar', [
       link: link
     };
   })
+  .component('esnAvatar', {
+    templateUrl: '/views/modules/avatar/avatar.html',
+    controller: 'EsnAvatarController',
+    bindings: {
+      userId: '=?',
+      userEmail: '=?',
+      avatarUrl: '=?',
+      hideUserStatus: '=?'
+    }
+  })
+  .controller('EsnAvatarController', function(userAPI) {
+    var self = this;
 
+    self.$onInit = $onInit;
+    self.displayUserStatus = displayUserStatus;
+
+    function $onInit() {
+      if (!self.avatarUrl) {
+        if (self.userId) {
+          self.avatarUrl = '/api/users/' + self.userId + '/profile/avatar';
+        } else if (self.userEmail) {
+          self.avatarUrl = '/api/avatars?email=' + self.userEmail;
+        }
+      }
+
+      if (self.userEmail && !self.userId) {
+        userAPI.getUsersByEmail(self.userEmail).then(function(users) {
+          self.userId = users.data[0]._id;
+        });
+      }
+    }
+
+    function displayUserStatus() {
+      return !!self.userId && !self.hideUserStatus;
+    }
+  })
   .factory('esnAvatarService', function() {
     return {
       generateUrl: generateUrl
