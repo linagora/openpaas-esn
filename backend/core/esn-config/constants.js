@@ -10,6 +10,9 @@ module.exports = {
         admin: 'rw'
       },
       configurations: {
+        platformadmin: {
+          rights: {} // domain admin and user cannot read/write this field
+        },
         homePage: {
           rights: {
             admin: 'rw',

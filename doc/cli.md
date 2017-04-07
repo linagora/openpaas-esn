@@ -122,3 +122,34 @@ To see all option, use `help` command:
 ```bash
 $ node ./bin/cli help domain
 ```
+
+**platformadmin**
+
+This command allows you to manage platformadmin of an OpenPaaS instance.
+
+In case your system does not have any platformadmin, use `init` command to set
+the first one:
+
+```bash
+$ node ./bin/cli platformadmin init --email admin@open-paas.org
+```
+
+Where:
+
+- email: required, email of the user to make as platformadmin
+- force: optional, used to overwrite the current platformadmin
+
+In case there is already platformadmin in the instance, you need to be a platformadmin
+to list, set, unset platformadmins.
+
+For example, use `set` command to set user as platformadmin:
+
+```bash
+$ node bin/cli platformadmin set --username admin@open-paas.org --password secret  --email user1@open-paas.org
+```
+
+To see all supported commands, use `help` command:
+
+```bash
+$ node ./bin/cli help platformadmin
+```

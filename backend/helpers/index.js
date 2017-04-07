@@ -5,5 +5,6 @@ module.exports = {
   message: require('./message'),
   targets: require('./targets'),
   array: require('./array'),
-  config: require('./config')
+  config: require('./config'),
+  db: require('./db')
 };

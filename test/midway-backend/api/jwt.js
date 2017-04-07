@@ -25,8 +25,8 @@ describe('The jwt API', function() {
   });
 
   afterEach(function(done) {
-    this.mongoose.connection.db.dropDatabase();
-    this.mongoose.disconnect(done);
+    this.mongoose.connection.db
+      .dropDatabase(helpers.callbacks.noErrorAnd(() => this.mongoose.disconnect(done)));
   });
 
   describe('POST /api/jwt/generate', function() {
