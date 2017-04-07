@@ -4,8 +4,10 @@ const q = require('q'),
       ejs = require('ejs'),
       esnConfig = require('../../core/esn-config'),
       assets = require('../../core').assets,
-      logger = require('../../core').logger,
-      jsAppCache = new Map();
+      logger = require('../../core').logger;
+
+const jsAppCache = new Map(),
+      jsCache = new Map();
 
 function getConstantFrom(constants) {
   return (key, defaultValue) => {
@@ -26,38 +28,41 @@ function constants(req, res) {
     );
 }
 
-function jsApp(req, res) {
-  const appName = req.params.appName,
-        namespace = req.params.namespace,
-        codeUniqId = `${appName}/${namespace}`;
+function makeJsMiddleware(label, cache) {
+  return function js(req, res) {
+    const appName = req.params.appName,
+          namespace = req.params.namespace,
+          codeUniqId = `${appName}/${namespace}`;
 
-  const cacheCodePromise = jsAppCache.get(codeUniqId);
+    const cacheCodePromise = cache.get(codeUniqId);
 
-  if (cacheCodePromise) {
-    return _answer(cacheCodePromise);
-  }
+    if (cacheCodePromise) {
+      return _answer(cacheCodePromise);
+    }
 
-  const newCacheCodePromise = assets.prepareJsFiles('jsApp', appName, namespace);
+    const newCacheCodePromise = assets.prepareJsFiles(label, appName, namespace);
 
-  jsAppCache.set(codeUniqId, newCacheCodePromise);
+    cache.set(codeUniqId, newCacheCodePromise);
 
-  _answer(newCacheCodePromise);
+    _answer(newCacheCodePromise);
 
-  function _answer(cachePromise) {
-    cachePromise.then(code => {
-      res.type('application/javascript');
+    function _answer(cachePromise) {
+      cachePromise.then(code => {
+        res.type('application/javascript');
 
-      return res.end(code);
-    })
-    .catch(err => {
-      logger.error('Unable to transpile code', err);
+        return res.end(code);
+      })
+      .catch(err => {
+        logger.error('Unable to transpile code', err);
 
-      return res.status(500).end(err.message || err);
-    }).done();
-  }
+        return res.status(500).end(err.message || err);
+      }).done();
+    }
+  };
 }
 
 module.exports = {
   constants,
-  jsApp
+  jsApp: makeJsMiddleware('jsApp', jsAppCache),
+  js: makeJsMiddleware('js', jsCache)
 };

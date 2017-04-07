@@ -168,10 +168,13 @@ function addJSInjection(moduleName, files, innerApps) {
 
 webserver.addJSInjection = addJSInjection;
 
-function addAngularModulesInjection(moduleName, files, angularModulesNames, innerApps) {
+function addAngularModulesInjection(moduleName, files, angularModulesNames, innerApps, opts) {
   innerApps.forEach(function(innerApp) {
     assetRegistry.app(innerApp).type('angular').add(angularModulesNames, moduleName);
     assetRegistry.app(innerApp).type('js').add(files, moduleName);
+    if (opts && opts.localJsFiles) {
+      assetRegistry.app(innerApp).type('jsFullPath').add(opts.localJsFiles, moduleName);
+    }
   });
 }
 

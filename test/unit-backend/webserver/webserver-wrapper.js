@@ -67,6 +67,23 @@ describe('the webserver-wrapper', function() {
     });
   });
 
+    it('should call webserver.addAngularModulesInjection with opts object', function(done) {
+    var webserverMock = {
+      webserver: {
+        on: function() {},
+        addAngularModulesInjection: function(namespace, js, angularModules, apps, opts) {
+          expect(opts).to.deep.equal({localJsFiles: ['test1.js', 'test2.js']});
+          done();
+        }
+      }
+    };
+    mockery.registerMock('./', webserverMock);
+    module = this.helpers.requireBackend('webserver/webserver-wrapper');
+    getApi(module, function(err, api) {
+      api.injectAngularModules('myModule', 'mymodule.js', 'myAngularModule', 'esn', {localJsFiles: ['test1.js', 'test2.js']});
+    });
+  });
+
   it('should call webserver.addLessInjection with arrays', function(done) {
     const webserverMock = {
       webserver: {

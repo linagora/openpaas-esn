@@ -202,6 +202,21 @@ describe('The Webserver module', function() {
         new Asset('esn.plugin.myModule2', 'myModule2', 0)
       ]);
     });
+
+    it('should populate "jsFullPath" assets collection', function() {
+      var serverMock = mockServer(this.testEnv.basePath);
+      serverMock.webserver.addAngularModulesInjection('myModule2', ['myModule2.js'], ['esn.plugin.myModule2'], ['esn', 'welcome'], {
+        localJsFiles: ['/f1.js', '/f2.js']
+      });
+
+      const assets = this.helpers.requireBackend('core/assets');
+      const Asset = this.helpers.requireBackend('core/assets/asset');
+
+      expect(assets.app('esn').type('jsFullPath').all()).to.deep.equal([
+        new Asset('/f1.js', 'myModule2', 0),
+        new Asset('/f2.js', 'myModule2', 0)
+      ]);
+    });
   });
 
   describe('the event emitters', function() {

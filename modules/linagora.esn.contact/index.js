@@ -4,6 +4,8 @@ var AwesomeModule = require('awesome-module');
 var Dependency = AwesomeModule.AwesomeModuleDependency;
 var path = require('path');
 
+const FRONTEND_PATH = path.join(__dirname, 'frontend');
+
 var contactModule = new AwesomeModule('linagora.esn.contact', {
   dependencies: [
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.logger', 'logger'),
@@ -64,7 +66,9 @@ var contactModule = new AwesomeModule('linagora.esn.contact', {
         'providers/contact.js'
       ];
 
-      webserverWrapper.injectAngularModules('contact', frontendModules, 'linagora.esn.contact', ['esn']);
+      webserverWrapper.injectAngularModules('contact', frontendModules, 'linagora.esn.contact', ['esn'], {
+        localJsFiles: frontendModules.map(file => path.join(FRONTEND_PATH, 'js', file))
+      });
       var lessFile = path.resolve(__dirname, './frontend/css/styles.less');
 
       webserverWrapper.injectLess('contact', [lessFile], 'esn');
