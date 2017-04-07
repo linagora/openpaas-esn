@@ -34,7 +34,6 @@
     self.removeUserGroup = removeUserGroup;
     self.$onInit = $onInit;
     self.activate = activate;
-    self.canShowDelegationTab = canShowDelegationTab;
 
     ////////////
 
@@ -85,8 +84,6 @@
 
       calendarRight.then(function(calendarRightShell) {
         self.publicSelection = calendarRightShell.getPublicRight();
-        self.isAdmin = calendarRightShell.getOwnerId() === self.calendarHomeId ||
-          calendarRightShell.getShareeRight(self.calendarHomeId) === CAL_CALENDAR_SHARED_RIGHT.SHAREE_ADMIN;
         var allShareeRights = calendarRightShell.getAllShareeRights();
 
         $q.all(_.chain(allShareeRights).map('userId').map(userAPI.user).values()).then(function(users) {
@@ -121,10 +118,10 @@
         return;
       }
 
-      var shell = CalendarCollectionShell.from(self.calendar);
+      var calendarCollectionShell = CalendarCollectionShell.from(self.calendar);
 
       if (self.newCalendar) {
-        calendarService.createCalendar(self.calendarHomeId, shell)
+        calendarService.createCalendar(self.calendarHomeId, calendarCollectionShell)
           .then(function() {
             notificationFactory.weakInfo('New calendar - ', self.calendar.name + ' has been created.');
             $state.go('calendar.main');
@@ -156,11 +153,11 @@
           }
 
           if (calendarChanged) {
-            updateActions.push(calendarService.modifyCalendar(self.calendarHomeId, shell, calendarRightShell));
+            updateActions.push(calendarService.modifyCalendar(self.calendarHomeId, calendarCollectionShell, calendarRightShell));
           }
 
           if (rightChanged) {
-            updateActions.push(calendarService.modifyRights(self.calendarHomeId, shell, calendarRightShell, originalCalendarRight));
+            updateActions.push(calendarService.modifyRights(self.calendarHomeId, calendarCollectionShell, calendarRightShell, originalCalendarRight));
           }
 
           if (publicRightChanged) {
@@ -202,10 +199,6 @@
     function reset() {
       self.newUsersGroups = [];
       self.selectedShareeRight = CAL_CALENDAR_SHARED_RIGHT.NONE;
-    }
-
-    function canShowDelegationTab() {
-      return self.isAdmin && !self.newCalendar;
     }
   }
 })();

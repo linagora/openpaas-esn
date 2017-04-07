@@ -12,7 +12,8 @@
     return {
       canAccessEventDetails: canAccessEventDetails,
       canDeleteCalendar: canDeleteCalendar,
-      canModifyPublicSelection: canModifyPublicSelection
+      canModifyPublicSelection: canModifyPublicSelection,
+      canShowDelegationTab: canShowDelegationTab
     };
 
     ////////////
@@ -26,6 +27,14 @@
     }
 
     function canModifyPublicSelection(calendar, userId) {
+      return _isAdminForCalendar(calendar, userId);
+    }
+
+    function canShowDelegationTab(calendar, userId) {
+      return _isAdminForCalendar(calendar, userId);
+    }
+
+    function _isAdminForCalendar(calendar, userId) {
       return !!calendar && calendar.isAdmin(userId);
     }
   }

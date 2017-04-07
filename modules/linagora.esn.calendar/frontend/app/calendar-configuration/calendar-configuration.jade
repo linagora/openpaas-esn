@@ -7,7 +7,8 @@
     .col-xs-12
       calendar-configuration-tabs(
         selected-tab = "$ctrl.selectedTab",
-        can-show-delegation-tab = "$ctrl.canShowDelegationTab",
+        new-calendar= "$ctrl.newCalendar",
+        calendar = "$ctrl.calendar"
       )
       .card-body.calendar-configuration-body
         form(ng-submit='$ctrl.submit()')
