@@ -150,6 +150,16 @@ describe('The calendar configuration tab delegation controller', function() {
   });
 
   describe('the canModifyPublicSelection', function() {
+    it('should return true for new calendars', function() {
+      sinon.spy(calUIAuthorizationService, 'canModifyPublicSelection');
+      CalendarConfigurationTabMainController.newCalendar = true;
+
+      CalendarConfigurationTabMainController.$onInit();
+
+      expect(calUIAuthorizationService.canModifyPublicSelection).to.not.have.been.called;
+      expect(CalendarConfigurationTabMainController.canModifyPublicSelection).to.be.true;
+    });
+
     it('should leverage calUIAuthorizationService.canModifyPublicSelection', function() {
       var canModifyPublicSelection = true;
 
@@ -166,7 +176,6 @@ describe('The calendar configuration tab delegation controller', function() {
       expect(calUIAuthorizationService.canModifyPublicSelection).to.have.been.calledWith(CalendarConfigurationTabMainController.calendar, session.user._id);
       expect(CalendarConfigurationTabMainController.canModifyPublicSelection).to.equal(canModifyPublicSelection);
     });
-
   });
 
   describe('the performSharedCalendarOperations', function() {
@@ -199,6 +208,18 @@ describe('The calendar configuration tab delegation controller', function() {
     it('should do nothing for a non external calendar', function() {
       sinon.stub(calUIAuthorizationService, 'canModifyPublicSelection', angular.noop);
       CalendarConfigurationTabMainController.calendar.isShared = sinon.stub().returns(false);
+
+      CalendarConfigurationTabMainController.$onInit();
+
+      $rootScope.$digest();
+
+      expect(CalendarConfigurationTabMainController.calendar.rights.getShareeRight).to.not.have.been.called;
+      expect(CalendarConfigurationTabMainController.calendar.getOwner).to.not.have.been.called;
+    });
+
+    it('should do nothing for a new calendar', function() {
+      sinon.stub(calUIAuthorizationService, 'canModifyPublicSelection', angular.noop);
+      CalendarConfigurationTabMainController.newCalendar = true;
 
       CalendarConfigurationTabMainController.$onInit();
 
