@@ -17,10 +17,11 @@ describe('The calendar configuration tab delegation controller', function() {
     session,
     CalendarConfigurationTabMainController,
     CAL_CALENDAR_PUBLIC_RIGHT,
-    CAL_CALENDAR_SHARED_RIGHT;
+    CAL_CALENDAR_SHARED_RIGHT,
+    calendar;
 
-  function initController() {
-    return $controller('CalendarConfigurationTabMainController', { $scope: $scope });
+  function initController(bindings) {
+    return $controller('CalendarConfigurationTabMainController', { $scope: $scope }, bindings);
   }
 
   beforeEach(function() {
@@ -29,9 +30,12 @@ describe('The calendar configuration tab delegation controller', function() {
         return $q.when();
       })
     };
-  });
 
-  beforeEach(function() {
+    calendar = {
+      isShared: sinon.stub().returns(false),
+      isAdmin: sinon.stub().returns(false)
+    };
+
     angular.mock.module('esn.calendar', function($provide) {
       $provide.value('calendarService', calendarService);
     });
@@ -74,6 +78,8 @@ describe('The calendar configuration tab delegation controller', function() {
           name: 'None'
         }
       ];
+
+      CalendarConfigurationTabMainController.calendar = calendar;
 
       CalendarConfigurationTabMainController.$onInit();
 
@@ -151,7 +157,8 @@ describe('The calendar configuration tab delegation controller', function() {
         return canModifyPublicSelection;
       });
       CalendarConfigurationTabMainController.calendar = {
-        id: 'id'
+        id: 'id',
+        isShared: sinon.stub().returns(false)
       };
 
       CalendarConfigurationTabMainController.$onInit();
@@ -166,7 +173,9 @@ describe('The calendar configuration tab delegation controller', function() {
     var getShareeRightResult, getOwnerResult;
 
     beforeEach(function() {
-      CalendarConfigurationTabMainController.externalCalendar = true;
+      CalendarConfigurationTabMainController.calendar = {
+        isShared: sinon.stub().returns(true)
+      };
 
       getShareeRightResult = CAL_CALENDAR_SHARED_RIGHT.SHAREE_ADMIN;
       getOwnerResult = {
@@ -174,6 +183,8 @@ describe('The calendar configuration tab delegation controller', function() {
       };
 
       CalendarConfigurationTabMainController.calendar = {
+        isAdmin: sinon.stub().returns(true),
+        isShared: sinon.stub().returns(true),
         rights: {
           getShareeRight: sinon.spy(function() {
             return getShareeRightResult;
@@ -187,7 +198,7 @@ describe('The calendar configuration tab delegation controller', function() {
 
     it('should do nothing for a non external calendar', function() {
       sinon.stub(calUIAuthorizationService, 'canModifyPublicSelection', angular.noop);
-      CalendarConfigurationTabMainController.externalCalendar = false;
+      CalendarConfigurationTabMainController.calendar.isShared = sinon.stub().returns(false);
 
       CalendarConfigurationTabMainController.$onInit();
 

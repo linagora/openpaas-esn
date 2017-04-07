@@ -54,11 +54,7 @@
     }
 
     function listCalendars() {
-      var options = {
-        withRights: true
-      };
-
-      return calendarService.listCalendars(session.user._id, options).then(function(calendars) {
+      return calendarService.listCalendars(session.user._id).then(function(calendars) {
         self.calendars = _.clone(calendars);
         self.calendars = self.calendars.concat(calPublicCalendarStore.getAll());
 

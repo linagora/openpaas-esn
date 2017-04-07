@@ -148,7 +148,13 @@ describe('The calendar configuration controller', function() {
 
     calendarHomeId = '12345';
 
-    CalendarRightShellMock = sinon.spy();
+    CalendarRightShellMock = sinon.spy(function() {
+      return {
+        getOwnerId: angular.noop,
+        getPublicRight: angular.noop,
+        getShareeRight: angular.noop
+      };
+    });
   });
 
   beforeEach(function() {
@@ -213,31 +219,7 @@ describe('The calendar configuration controller', function() {
 
       $rootScope.$digest();
 
-      expect(calendarService.getCalendar).to.be.calledWith(calendarHomeId, stateParamsMock.calendarId, {
-        withRights: false
-      });
-    });
-
-    it('should calendarService.getCalendar with options "withRights: false" if "externalCalendar" is set to "false"', function() {
-      calendarConfigurationController.externalCalendar = 'false';
-      calendarConfigurationController.$onInit();
-
-      $rootScope.$digest();
-
-      expect(calendarService.getCalendar).to.be.calledWith(calendarHomeId, stateParamsMock.calendarId, {
-        withRights: false
-      });
-    });
-
-    it('should calendarService.getCalendar with options "withRights: true" if "externalCalendar" is set to "true"', function() {
-      calendarConfigurationController.externalCalendar = 'true';
-      calendarConfigurationController.$onInit();
-
-      $rootScope.$digest();
-
-      expect(calendarService.getCalendar).to.be.calledWith(calendarHomeId, stateParamsMock.calendarId, {
-        withRights: true
-      });
+      expect(calendarService.getCalendar).to.be.calledWith(calendarHomeId, stateParamsMock.calendarId);
     });
 
     it('should not call calendarService.getCalendar if calendarId is null', function() {
@@ -323,6 +305,7 @@ describe('The calendar configuration controller', function() {
       calendarConfigurationController.activate();
 
       expect(calendarConfigurationController.newCalendar).to.be.true;
+      expect(CalendarRightShellMock).to.have.been.calledWith;
     });
 
     it('should initialize newCalendar with false it is not a new calendar', function() {

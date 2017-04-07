@@ -28,7 +28,7 @@ describe('The miniCalendar component', function() {
         return element;
       };
 
-      this.$httpBackend.expectGET('/dav/api/calendars/undefined.json').respond(null);
+      this.$httpBackend.expectGET('/dav/api/calendars/undefined.json?withRights=true').respond(null);
     }));
 
     it('should remove toggle the mini-calendar on CAL_EVENTS.MINI_CALENDAR.TOGGLE', function() {

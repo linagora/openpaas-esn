@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('The calendarsList controller', function() {
-  var $rootScope, $scope, $controller, CalendarCollectionShell, CAL_EVENTS, CAL_CALENDAR_PUBLIC_RIGHT;
+  var $rootScope, $scope, $controller, CalendarCollectionShell, session, CAL_EVENTS, CAL_CALENDAR_PUBLIC_RIGHT;
   var calendars, CalendarsListController, calendarServiceMock, hiddenCalendar, calendarVisibilityServiceMock, calPublicCalendarStoreMock, publicCalendar;
 
   function initController() {
@@ -35,7 +35,24 @@ describe('The calendarsList controller', function() {
       name: 'public calendar name',
       color: 'public calendar color',
       description: 'public calendar description',
-      isShared: angular.noop
+      isShared: function() {
+        return false;
+      },
+      isPublic: function() {
+        return true;
+      },
+      isOwner: function() {
+        return false;
+      }
+    };
+
+    session = {
+      user: {
+        id: 'userId'
+      },
+      ready: {
+        then: angular.noop
+      }
     };
 
     calPublicCalendarStoreMock = {
@@ -50,6 +67,7 @@ describe('The calendarsList controller', function() {
       $provide.value('calendarService', calendarServiceMock);
       $provide.value('calendarVisibilityService', calendarVisibilityServiceMock);
       $provide.value('calPublicCalendarStore', calPublicCalendarStoreMock);
+      $provide.value('session', session);
     });
 
   });
@@ -154,7 +172,10 @@ describe('The calendarsList controller', function() {
             href: '/calendars/12345/1.json',
             name: 'name',
             color: 'color',
-            description: 'description'
+            description: 'description',
+            isOwner: function() {
+              return true;
+            }
           }, {
             href: '/calendars/12345/2.json',
             name: 'name2',
@@ -202,7 +223,10 @@ describe('The calendarsList controller', function() {
             href: '/calendars/12345/4.json',
             name: 'name4',
             color: 'color4',
-            description: 'description4'
+            description: 'description4',
+            isOwner: function() {
+              return true;
+            }
           };
           var expectedResult = calendars.concat(newCalendar);
 
@@ -216,13 +240,16 @@ describe('The calendarsList controller', function() {
           expect(CalendarsListController.publicCalendars).to.deep.equal([expectedResult[1]]);
         });
 
-        it('refresh calendars list and not consider the new calendar as shared once it is classified as personal', function() {
+        it('should refresh calendars list and not consider the new calendar as shared once it is classified as personal', function() {
           var newCalendar = {
             id: '4',
             href: '/calendars/12345/4.json',
             name: 'name4',
             color: 'color4',
-            description: 'description4'
+            description: 'description4',
+            isOwner: function() {
+              return true;
+            }
           };
           var expectedResult = calendars.concat(newCalendar);
 
@@ -257,7 +284,10 @@ describe('The calendarsList controller', function() {
           href: 'href',
           name: 'name',
           color: 'color',
-          description: 'description'
+          description: 'description',
+          isOwner: function() {
+            return true;
+          }
         }, {
           id: '2',
           href: 'href2',

@@ -116,7 +116,7 @@
         url: '/shared/:calendarId',
         views: {
           'content@calendar': {
-            template: '<calendar-configuration external-calendar="true" />'
+            template: '<calendar-configuration />'
           }
         }
       })
@@ -127,11 +127,8 @@
             template: '<calendars-configuration calendars="calendars"/>',
             resolve: {
               calendars: function(calendarService, calendarHomeId) {
-                var options = {
-                  withRights: true
-                };
 
-                return calendarService.listCalendars(calendarHomeId, options);
+                return calendarService.listCalendars(calendarHomeId);
               }
             },
             controller: function($scope, calendars) {

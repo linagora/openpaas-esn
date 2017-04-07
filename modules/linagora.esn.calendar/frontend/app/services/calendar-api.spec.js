@@ -372,7 +372,7 @@ describe('The calendar module apis', function() {
           }
         });
 
-        this.calendarAPI.listCalendars('test', {withRights: true})
+        this.calendarAPI.listCalendars('test', { withRights: true })
           .then(function(data) {
             expect(data).to.deep.equal(['dav:calendar']);
             done();

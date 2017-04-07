@@ -9,10 +9,15 @@ describe('The calendarService service', function() {
     CalendarCollectionShellFuncMock,
     CalendarRightShellMock,
     self,
-    CalendarRightShellResult;
+    CalendarRightShellResult,
+    calendarApiOptions;
 
   beforeEach(function() {
     self = this;
+
+    calendarApiOptions = {
+      withRights: true
+    };
 
     CalendarCollectionShellMock = function() {
       return CalendarCollectionShellFuncMock.apply(this, arguments);
@@ -66,32 +71,24 @@ describe('The calendarService service', function() {
       };
     });
 
-    it('should call calendarService.listCalendars with options', function() {
-      var options = {
-        withRights: true
-      };
-
+    it('should always call calendarService.listCalendars with withRights options', function() {
       this.calendarAPI.listCalendars = sinon.spy(function() {
         return $q.when();
       });
 
-      this.calendarService.listCalendars('homeId', options);
+      this.calendarService.listCalendars('homeId');
 
-      expect(self.calendarAPI.listCalendars).to.be.calledWith('homeId', options);
+      expect(self.calendarAPI.listCalendars).to.be.calledWith('homeId', calendarApiOptions);
     });
 
-    it('should call not cache the calls calendarService.listCalendars when there are options', function() {
-      var options = {
-        withRights: true
-      };
-
+    it('should cache the calls calendarService.listCalendars', function() {
       this.calendarAPI.listCalendars = sinon.spy(function() {
         return $q.when([]);
       });
 
-      this.calendarService.listCalendars('homeId', options).then(function() {
-        self.calendarService.listCalendars('homeId', options).then(function() {
-          expect(self.calendarAPI.listCalendars).to.have.been.called.twice;
+      this.calendarService.listCalendars('homeId').then(function() {
+        self.calendarService.listCalendars('homeId').then(function() {
+          expect(self.calendarAPI.listCalendars).to.have.been.called.once;
         });
       });
       this.$rootScope.$digest();
@@ -106,7 +103,7 @@ describe('The calendarService service', function() {
         return calendarCollection;
       });
 
-      this.$httpBackend.expectGET('/dav/api/calendars/homeId.json').respond(response);
+      this.$httpBackend.expectGET('/dav/api/calendars/homeId.json?withRights=true').respond(response);
 
       this.calendarService.listCalendars('homeId').then(function(calendars) {
         expect(calendars).to.have.length(1);
@@ -121,7 +118,7 @@ describe('The calendarService service', function() {
     it('should cache calendars', function() {
       CalendarCollectionShellFuncMock = angular.identity;
 
-      this.$httpBackend.expectGET('/dav/api/calendars/homeId.json').respond(response);
+      this.$httpBackend.expectGET('/dav/api/calendars/homeId.json?withRights=true').respond(response);
 
       this.calendarService.listCalendars('homeId').then(function(calendars) {
         self.calendarService.listCalendars('homeId').then(function(calendars2) {
@@ -146,7 +143,7 @@ describe('The calendarService service', function() {
       allCalendars = $q.when([]);
 
       this.calendarService.listAllCalendarsForUser().then(function() {
-        expect(self.calendarAPI.listAllCalendars).to.have.been.called;
+        expect(self.calendarAPI.listAllCalendars).to.have.been.calledWith(calendarApiOptions);
 
         done();
       });
@@ -154,7 +151,7 @@ describe('The calendarService service', function() {
       this.$rootScope.$digest();
     });
 
-    it('should filter user calaendars and returns only their _embedded["dav:calendar"]', function(done) {
+    it('should filter user calendars and returns only their _embedded["dav:calendar"]', function(done) {
       var userId = 'userId';
       var calendars = [
         {
@@ -210,7 +207,7 @@ describe('The calendarService service', function() {
 
       this.calendarService.listAllCalendarsForUser(userId)
         .then(function() {
-          expect(self.calendarAPI.listAllCalendars).to.have.been.called;
+          expect(self.calendarAPI.listAllCalendars).to.have.been.calledWith(calendarApiOptions);
           expect(CalendarCollectionShellFuncMock.firstCall).to.have.been.calledWith(calendars[0]._embedded['dav:calendar'][0]);
           expect(CalendarCollectionShellFuncMock.secondCall).to.have.been.calledWith(calendars[0]._embedded['dav:calendar'][1]);
 
@@ -245,7 +242,7 @@ describe('The calendarService service', function() {
         return calendarCollection;
       });
 
-      this.$httpBackend.expectGET('/dav/api/calendars/homeId/id.json').respond(response);
+      this.$httpBackend.expectGET('/dav/api/calendars/homeId/id.json?withRights=true').respond(response);
 
       this.calendarService.getCalendar('homeId', 'id').then(function(calendar) {
         expect(calendar).to.equal(calendarCollection);
@@ -257,17 +254,13 @@ describe('The calendarService service', function() {
     });
 
     it('should call the calendarAPI.removeCalendar with right params', function() {
-      var options = {
-        withRights: true
-      };
-
       this.calendarAPI.getCalendar = sinon.spy(function() {
         return $q.when();
       });
 
-      this.calendarService.getCalendar('homeId', 'id', options);
+      this.calendarService.getCalendar('homeId', 'id');
 
-      expect(this.calendarAPI.getCalendar).to.be.calledWith('homeId', 'id', options);
+      expect(this.calendarAPI.getCalendar).to.be.calledWith('homeId', 'id', calendarApiOptions);
     });
   });
 
@@ -310,7 +303,7 @@ describe('The calendarService service', function() {
     it('should sync cache of list calendars', function() {
       CalendarCollectionShellFuncMock = angular.identity;
 
-      this.$httpBackend.expectGET('/dav/api/calendars/homeId.json').respond({_embedded: {
+      this.$httpBackend.expectGET('/dav/api/calendars/homeId.json?withRights=true').respond({_embedded: {
         'dav:calendar': [{id: 1}, {id: 2}]
       }});
 
@@ -367,7 +360,7 @@ describe('The calendarService service', function() {
     it('should sync cache of list calendars', function(done) {
       CalendarCollectionShellFuncMock = angular.identity;
 
-      this.$httpBackend.expectGET('/dav/api/calendars/homeId.json').respond({_embedded: {
+      this.$httpBackend.expectGET('/dav/api/calendars/homeId.json?withRights=true').respond({_embedded: {
         'dav:calendar': [{id: 1}, {id: 2}]
       }});
       this.$httpBackend.expectPOST('/dav/api/calendars/homeId.json').respond(201, {});
@@ -431,7 +424,7 @@ describe('The calendarService service', function() {
     it('should sync cache of list calendars', function(done) {
       CalendarCollectionShellFuncMock = angular.identity;
 
-      this.$httpBackend.expectGET('/dav/api/calendars/homeId.json').respond({_embedded: {
+      this.$httpBackend.expectGET('/dav/api/calendars/homeId.json?withRights=true').respond({_embedded: {
         'dav:calendar': [{id: 1}, {id: 'events', selected: true}]
       }});
       this.$httpBackend.expect('PROPPATCH', '/dav/api/calendars/homeId/events.json').respond(204, {});

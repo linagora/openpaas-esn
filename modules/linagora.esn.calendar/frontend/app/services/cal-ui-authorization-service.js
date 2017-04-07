@@ -6,8 +6,7 @@
 
   function calUIAuthorizationService(
     calEventUtils,
-    CAL_DEFAULT_CALENDAR_ID,
-    CAL_CALENDAR_SHARED_RIGHT
+    CAL_DEFAULT_CALENDAR_ID
   ) {
 
     return {
@@ -27,16 +26,7 @@
     }
 
     function canModifyPublicSelection(calendar, userId) {
-      // this hack cause personal calendars do not have rights now. When we append rights to personal calendars
-      // we should consider "sharee_owner" in requiredSharedRightToModifyPublicSelection
-      if (calendar && calendar.rights) {
-        var shareeRight = calendar.rights.getShareeRight(userId);
-        var requiredSharedRightToModifyPublicSelection = [CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ_WRITE, CAL_CALENDAR_SHARED_RIGHT.SHAREE_ADMIN];
-
-        return (requiredSharedRightToModifyPublicSelection.indexOf(shareeRight) > -1);
-      }
-
-      return true;
+      return !!calendar && calendar.isAdmin(userId);
     }
   }
 })();

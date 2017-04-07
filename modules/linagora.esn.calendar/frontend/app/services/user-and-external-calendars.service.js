@@ -9,27 +9,15 @@
       var userCalendars, sharedCalendars, publicCalendars;
 
       userCalendars = calendars.filter(function(calendar) {
-        if (calendar.rights) {
-          return calendar.isOwner(session.user._id);
-        }
-
-        return true;
+        return calendar.isOwner(session.user._id);
       });
 
       sharedCalendars = calendars.filter(function(calendar) {
-        if (calendar.rights) {
-          return !calendar.isOwner(session.user._id) && calendar.isShared(session.user._id);
-        }
-
-        return false;
+        return !calendar.isOwner(session.user._id) && calendar.isShared(session.user._id);
       });
 
       publicCalendars = calendars.filter(function(calendar) {
-        if (calendar.rights) {
-          return !calendar.isOwner(session.user._id) && !calendar.isShared(session.user._id) && calendar.isPublic();
-        }
-
-        return false;
+        return !calendar.isOwner(session.user._id) && !calendar.isShared(session.user._id) && calendar.isPublic();
       });
 
       return {

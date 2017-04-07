@@ -48,7 +48,7 @@
       rightLabels[CAL_CALENDAR_SHARED_RIGHT.SHAREE_ADMIN] = 'Administration';
       rightLabels[CAL_CALENDAR_SHARED_RIGHT.SHAREE_FREE_BUSY] = 'Free/Busy';
 
-      performSharedCalendarOperations(self.externalCalendar);
+      performSharedCalendarOperations(self.calendar.isShared(session.user._id));
 
       self.canModifyPublicSelection = _canModifyPublicSelection();
     }

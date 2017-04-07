@@ -269,7 +269,7 @@ describe('The event-form module controllers', function() {
 
         this.initController();
 
-        expect(this.calendarServiceMock.listCalendars).to.be.calledWith(this.calendarServiceMock.calendarHomeId, {withRights: true});
+        expect(this.calendarServiceMock.listCalendars).to.be.calledWith(this.calendarServiceMock.calendarHomeId);
       });
 
       it('should initialize calendars with calendars returned from the calendarService.listCalendars', function() {

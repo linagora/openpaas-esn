@@ -109,7 +109,7 @@ describe('The calSearchEventProviderService service', function() {
         };
       });
 
-      $httpBackend.expectGET('/dav/api/calendars/' + calendarHomeId + '.json').respond(200, {
+      $httpBackend.expectGET('/dav/api/calendars/' + calendarHomeId + '.json?withRights=true').respond(200, {
         _embedded: {
           'dav:calendar': davCalendars
         }
