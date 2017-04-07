@@ -16,6 +16,9 @@
     var calendarsCache = {};
     var defaultCalendarApiOptions = { withRights: true };
 
+    this.addAndEmit = addAndEmit;
+    this.removeAndEmit = removeAndEmit;
+    this.updateAndEmit = updateAndEmit;
     this.createCalendar = createCalendar;
     this.removeCalendar = removeCalendar;
     this.getCalendar = getCalendar;
@@ -100,11 +103,15 @@
    function removeCalendar(calendarHomeId, calendar) {
      return calendarAPI.removeCalendar(calendarHomeId, calendar.id)
        .then(function(response) {
-         _.remove(calendarsCache[calendarHomeId], {id: calendar.id});
-         $rootScope.$broadcast(CAL_EVENTS.CALENDARS.REMOVE, calendar);
+         removeAndEmit(calendarHomeId, calendar);
 
          return response;
        });
+    }
+
+    function removeAndEmit(calendarHomeId, calendar) {
+      _.remove(calendarsCache[calendarHomeId], {id: calendar.id});
+      $rootScope.$broadcast(CAL_EVENTS.CALENDARS.REMOVE, calendar);
     }
 
     /**
@@ -116,11 +123,15 @@
     function createCalendar(calendarHomeId, calendar) {
       return calendarAPI.createCalendar(calendarHomeId, CalendarCollectionShell.toDavCalendar(calendar))
         .then(function() {
-          (calendarsCache[calendarHomeId] || []).push(calendar);
-          $rootScope.$broadcast(CAL_EVENTS.CALENDARS.ADD, calendar);
+          addAndEmit(calendarHomeId, calendar);
 
           return calendar;
         });
+    }
+
+    function addAndEmit(calendarHomeId, calendar) {
+      (calendarsCache[calendarHomeId] || []).push(calendar);
+      $rootScope.$broadcast(CAL_EVENTS.CALENDARS.ADD, calendar);
     }
 
     function updateCache(calendarHomeId, calendar) {
@@ -141,11 +152,15 @@
     function modifyCalendar(calendarHomeId, calendar) {
       return calendarAPI.modifyCalendar(calendarHomeId, CalendarCollectionShell.toDavCalendar(calendar))
         .then(function() {
-          updateCache(calendarHomeId, calendar);
-          $rootScope.$broadcast(CAL_EVENTS.CALENDARS.UPDATE, calendar);
+          updateAndEmit(calendarHomeId, calendar);
 
           return calendar;
         });
+    }
+
+    function updateAndEmit(calendarHomeId, calendar) {
+      updateCache(calendarHomeId, calendar);
+      $rootScope.$broadcast(CAL_EVENTS.CALENDARS.UPDATE, calendar);
     }
 
     /**

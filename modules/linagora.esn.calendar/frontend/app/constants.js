@@ -234,6 +234,11 @@
         CANCEL: 'calendar:event:cancel',
         DELETED: 'calendar:event:deleted',
         REPLY: 'calendar:event:reply'
+      },
+      CALENDAR: {
+        CREATED: 'calendar:calendar:created',
+        UPDATED: 'calendar:calendar:updated',
+        DELETED: 'calendar:calendar:deleted'
       }
     })
 

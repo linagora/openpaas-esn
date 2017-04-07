@@ -6,10 +6,13 @@
 
   function calWebsocketListenerService(
     $q,
+    $log,
     livenotification,
     calCachedEventSource,
     calEventService,
+    calPathParser,
     calendarEventEmitter,
+    calendarService,
     calMasterEventCache,
     CalendarShell,
     CAL_WEBSOCKET
@@ -28,6 +31,9 @@
       sio.on(CAL_WEBSOCKET.EVENT.UPDATED, _liveNotificationHandlerOnCreateRequestandUpdate);
       sio.on(CAL_WEBSOCKET.EVENT.DELETED, _liveNotificationHandlerOnDelete);
       sio.on(CAL_WEBSOCKET.EVENT.REPLY, _liveNotificationHandlerOnReply);
+      sio.on(CAL_WEBSOCKET.CALENDAR.CREATED, _onCalendarCreated);
+      sio.on(CAL_WEBSOCKET.CALENDAR.UPDATED, _onCalendarUpdated);
+      sio.on(CAL_WEBSOCKET.CALENDAR.DELETED, _onCalendarDeleted);
 
       return {
         clean: clean,
@@ -41,6 +47,44 @@
         sio.removeListener(CAL_WEBSOCKET.EVENT.REQUEST, _liveNotificationHandlerOnCreateRequestandUpdate);
         sio.removeListener(CAL_WEBSOCKET.EVENT.REPLY, _liveNotificationHandlerOnReply);
         sio.removeListener(CAL_WEBSOCKET.EVENT.CANCEL, _liveNotificationHandlerOnDelete);
+        sio.removeListener(CAL_WEBSOCKET.CALENDAR.CREATED, _onCalendarCreated);
+        sio.removeListener(CAL_WEBSOCKET.CALENDAR.UPDATED, _onCalendarUpdated);
+        sio.removeListener(CAL_WEBSOCKET.CALENDAR.DELETED, _onCalendarDeleted);
+      }
+
+      function _onCalendarCreated(msg) {
+        $log.debug('Received a new calendar', msg);
+        var calendarPath = calPathParser.parseCalendarPath(msg.calendarPath);
+
+        calendarService.getCalendar(calendarPath.calendarHomeId, calendarPath.calendarId).then(function(shell) {
+          if (shell) {
+            calendarService.addAndEmit(calendarPath.calendarHomeId, shell);
+          }
+
+        }).catch(function(err) {
+          $log.error('Can not get the new calendar', err);
+        });
+      }
+
+      function _onCalendarDeleted(msg) {
+        $log.debug('Calendar deleted', msg);
+        var calendarPath = calPathParser.parseCalendarPath(msg.calendarPath);
+
+        calendarService.removeAndEmit(calendarPath.calendarHomeId, {id: calendarPath.calendarId});
+      }
+
+      function _onCalendarUpdated(msg) {
+        $log.debug('Calendar updated', msg);
+        var calendarPath = calPathParser.parseCalendarPath(msg.calendarPath);
+
+        calendarService.getCalendar(calendarPath.calendarHomeId, calendarPath.calendarId).then(function(shell) {
+          if (shell) {
+            calendarService.updateAndEmit(calendarPath.calendarHomeId, shell);
+          }
+
+        }).catch(function(err) {
+          $log.error('Can not get the updated calendar', err);
+        });
       }
 
       function _liveNotificationHandlerOnCreateRequestandUpdate(msg) {
