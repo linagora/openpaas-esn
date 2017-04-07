@@ -1,8 +1,8 @@
 'use strict';
 
-var mockery = require('mockery');
-var q = require('q');
-var expect = require('chai').expect;
+const mockery = require('mockery');
+const q = require('q');
+const expect = require('chai').expect;
 
 describe('The webserver user denormalizer', function() {
 
@@ -14,10 +14,15 @@ describe('The webserver user denormalizer', function() {
           return q(user);
         }
       });
+      mockery.registerMock('../../core/esn-config', {
+        getConfigsForUser: function() {
+          return q({modules: []});
+        }
+      });
     });
 
     it('should set the following flag if user is not the current one and is following', function() {
-      var user = {_id: this.helpers.objectIdMock('1'), login: {}};
+      const user = {_id: this.helpers.objectIdMock('1'), login: {}};
 
       mockery.registerMock('../../core/user/follow', {
         isFollowedBy: function() {
@@ -28,18 +33,25 @@ describe('The webserver user denormalizer', function() {
         }
       });
 
-      var module = this.helpers.requireBackend('webserver/denormalize/user');
+      mockery.registerMock('../../core/platformadmin', {
+        isPlatformAdmin: function() {
+          return q(false);
+        }
+      });
+
+      const module = this.helpers.requireBackend('webserver/denormalize/user');
+
       module.denormalize(user, {_id: this.helpers.objectIdMock('2')}).then(function(result) {
         expect(result.following).to.be.true;
       });
     });
 
     it('should set the follow statistics', function() {
-      var followStats = {
+      const followStats = {
         followers: 1,
         followgins: 2
       };
-      var user = {login: {}};
+      const user = {login: {}};
 
       mockery.registerMock('../../core/user/follow', {
         isFollowedBy: function() {
@@ -50,7 +62,14 @@ describe('The webserver user denormalizer', function() {
         }
       });
 
-      var module = this.helpers.requireBackend('webserver/denormalize/user');
+      mockery.registerMock('../../core/platformadmin', {
+        isPlatformAdmin: function() {
+          return q(false);
+        }
+      });
+
+      const module = this.helpers.requireBackend('webserver/denormalize/user');
+
       module.denormalize(user, {}).then(function(result) {
         expect(result).to.shallowDeepEqual(followStats);
       });
@@ -67,10 +86,40 @@ describe('The webserver user denormalizer', function() {
         }
       });
 
-      var user = {login: {disabled: true}};
-      var module = this.helpers.requireBackend('webserver/denormalize/user');
+      mockery.registerMock('../../core/platformadmin', {
+        isPlatformAdmin: function() {
+          return q(false);
+        }
+      });
+
+      const user = {login: {disabled: true}};
+      const module = this.helpers.requireBackend('webserver/denormalize/user');
+
       module.denormalize(user, {}).then(function(result) {
         expect(result.disabled).to.be.true;
+      });
+    });
+
+    it('should set isPlatformAdmin to check if user is platform admin', function(done) {
+      const isPlatformAdmin = true;
+      const user = { login: {} };
+
+      mockery.registerMock('../../core/user/follow', {
+        getUserStats: function() {
+          return q({});
+        }
+      });
+      mockery.registerMock('../../core/platformadmin', {
+        isPlatformAdmin: function() {
+          return q(isPlatformAdmin);
+        }
+      });
+
+      const module = this.helpers.requireBackend('webserver/denormalize/user');
+
+      module.denormalize(user, {}).then(function(result) {
+        expect(result.isPlatformAdmin).to.equal(isPlatformAdmin);
+        done();
       });
     });
   });

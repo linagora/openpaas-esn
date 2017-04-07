@@ -1,18 +1,18 @@
 'use strict';
 
-var request = require('supertest'),
+const request = require('supertest'),
     expect = require('chai').expect;
 
 describe('The profile API', function() {
-  var app, foouser, baruser, baruserExpectedKeys, baruserForbiddenKeys, WCUtils, checkKeys, imagePath, domain_id, mongoose;
-  var password = 'secret';
+  let app, foouser, baruser, baruserExpectedKeys, baruserForbiddenKeys, WCUtils, checkKeys, imagePath, domain_id, mongoose, core;
+  const password = 'secret';
 
   beforeEach(function(done) {
-    var self = this;
+    const self = this;
 
     imagePath = this.helpers.getFixturePath('image.png');
 
-    this.testEnv.initCore(function() {
+    core = this.testEnv.initCore(function() {
       app = self.helpers.requireBackend('webserver/application');
       mongoose = require('mongoose');
 
@@ -69,12 +69,14 @@ describe('The profile API', function() {
     });
 
     it('should create a profile link when authenticated user looks at a user profile', function(done) {
-      var Link = mongoose.model('ResourceLink');
+      const Link = mongoose.model('ResourceLink');
+
       this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
-        var req = loggedInAsUser(request(app).get('/api/users/' + baruser._id + '/profile'));
+        const req = loggedInAsUser(request(app).get('/api/users/' + baruser._id + '/profile'));
+
         req.expect(200)
           .end(function(err) {
             expect(err).to.not.exist;
@@ -100,12 +102,14 @@ describe('The profile API', function() {
     });
 
     it('should return 404 if the user does not exist', function(done) {
-      var self = this;
+      const self = this;
+
       this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
-        var req = loggedInAsUser(request(app).get('/api/users/577cfa973dfc55eb231bba37/profile'));
+        const req = loggedInAsUser(request(app).get('/api/users/577cfa973dfc55eb231bba37/profile'));
+
         req.expect(404).end(self.helpers.callbacks.noError(done));
       });
     });
@@ -115,7 +119,8 @@ describe('The profile API', function() {
         if (err) {
           return done(err);
         }
-        var req = loggedInAsUser(request(app).get('/api/users/' + baruser._id + '/profile'));
+        const req = loggedInAsUser(request(app).get('/api/users/' + baruser._id + '/profile'));
+
         req.expect(200).end(function(err, res) {
           expect(err).to.not.exist;
           expect(baruser._id.toString()).to.equal(res.body._id);
@@ -130,7 +135,7 @@ describe('The profile API', function() {
         if (err) {
           return done(err);
         }
-        var req = loggedInAsUser(request(app).get('/api/users/' + baruser._id + '/profile'));
+        const req = loggedInAsUser(request(app).get('/api/users/' + baruser._id + '/profile'));
 
         req.expect(200).end(function(err, res) {
           expect(err).to.not.exist;
@@ -148,7 +153,7 @@ describe('The profile API', function() {
         if (err) {
           return done(err);
         }
-        var req = loggedInAsUser(request(app).get('/api/users/' + baruser._id + '/profile'));
+        const req = loggedInAsUser(request(app).get('/api/users/' + baruser._id + '/profile'));
 
         req.expect(200).end(function(err, res) {
           expect(err).to.not.exist;
@@ -169,8 +174,8 @@ describe('The profile API', function() {
     });
 
     it('should return 200 and update his profile', function(done) {
-      var User = mongoose.model('User');
-      var profile = {
+      const User = mongoose.model('User');
+      const profile = {
         firstname: 'James',
         lastname: 'Amaly',
         job_title: 'Engineer',
@@ -186,7 +191,7 @@ describe('The profile API', function() {
           return done(err);
         }
 
-        var req = loggedInAsUser(request(app).put('/api/user/profile'));
+        const req = loggedInAsUser(request(app).put('/api/user/profile'));
 
         req.send(profile).expect(200).end(function(err) {
           expect(err).to.not.exist;
@@ -213,8 +218,8 @@ describe('The profile API', function() {
     });
 
     it('should not return an error even if some of sent profile attributes are undefined', function(done) {
-      var User = mongoose.model('User');
-      var profile = {
+      const User = mongoose.model('User');
+      const profile = {
         firstname: 'John'
       };
 
@@ -223,7 +228,7 @@ describe('The profile API', function() {
           return done(err);
         }
 
-        var req = loggedInAsUser(request(app).put('/api/user/profile'));
+        const req = loggedInAsUser(request(app).put('/api/user/profile'));
 
         req.send(profile).expect(200).end(function(err) {
           expect(err).to.not.exist;
@@ -249,12 +254,14 @@ describe('The profile API', function() {
     });
 
     it('should return 404 if the user does not exist', function(done) {
-      var self = this;
+      const self = this;
+
       this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
-        var req = loggedInAsUser(request(app).get('/api/users/577cfa973dfc55eb231bba37'));
+        const req = loggedInAsUser(request(app).get('/api/users/577cfa973dfc55eb231bba37'));
+
         req.expect(404).end(self.helpers.callbacks.noError(done));
       });
     });
@@ -264,7 +271,8 @@ describe('The profile API', function() {
         if (err) {
           return done(err);
         }
-        var req = loggedInAsUser(request(app).get('/api/users/' + baruser._id));
+        const req = loggedInAsUser(request(app).get('/api/users/' + baruser._id));
+
         req.expect(200).end(function(err, res) {
           expect(err).to.not.exist;
           expect(baruser._id.toString()).to.equal(res.body._id);
@@ -279,7 +287,7 @@ describe('The profile API', function() {
         if (err) {
           return done(err);
         }
-        var req = loggedInAsUser(request(app).get('/api/users/' + baruser._id));
+        const req = loggedInAsUser(request(app).get('/api/users/' + baruser._id));
 
         req.expect(200).end(function(err, res) {
           expect(err).to.not.exist;
@@ -297,7 +305,7 @@ describe('The profile API', function() {
         if (err) {
           return done(err);
         }
-        var req = loggedInAsUser(request(app).get('/api/users/' + baruser._id));
+        const req = loggedInAsUser(request(app).get('/api/users/' + baruser._id));
 
         req.expect(200).end(function(err, res) {
           expect(err).to.not.exist;
@@ -331,7 +339,7 @@ describe('The profile API', function() {
       });
 
       it('should send back nb of followers of the current user', function(done) {
-        var self = this;
+        const self = this;
 
         function test() {
           self.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
@@ -356,7 +364,7 @@ describe('The profile API', function() {
       });
 
       it('should send back stats when logged in user follow another user', function(done) {
-        var self = this;
+        const self = this;
 
         function test() {
           self.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
@@ -385,13 +393,15 @@ describe('The profile API', function() {
   describe('GET /api/users/:uuid/profile/avatar route', function() {
 
     it('should return 404 if the user does not exist', function(done) {
-      var self = this;
-      var req = request(app).get('/api/users/577cfa973dfc55eb231bba37/profile/avatar');
+      const self = this;
+      const req = request(app).get('/api/users/577cfa973dfc55eb231bba37/profile/avatar');
+
       req.expect(404).end(self.helpers.callbacks.noError(done));
     });
 
     it('should redirect to the generated avatar if the user has no image', function(done) {
-      var req = request(app).get('/api/users/' + foouser._id + '/profile/avatar');
+      const req = request(app).get('/api/users/' + foouser._id + '/profile/avatar');
+
       req.expect(302).end(function(err, res) {
         expect(err).to.not.exist;
         expect(res.headers.location).to.equal('/api/avatars?objectType=email&email=foo@bar.com');
@@ -400,13 +410,14 @@ describe('The profile API', function() {
     });
 
     it('should return 200 with the stream of the user avatar', function(done) {
-      var imageModule = this.helpers.requireBackend('core/image');
-      var readable = require('fs').createReadStream(imagePath);
-      var ObjectId = mongoose.Types.ObjectId;
-      var avatarId = new ObjectId();
-      var opts = {
+      const imageModule = this.helpers.requireBackend('core/image');
+      const readable = require('fs').createReadStream(imagePath);
+      const ObjectId = mongoose.Types.ObjectId;
+      const avatarId = new ObjectId();
+      const opts = {
         creator: {objectType: 'user', id: foouser._id}
       };
+
       imageModule.recordAvatar(avatarId, 'image/png', opts, readable, function(err) {
         if (err) {
           return done(err);
@@ -417,7 +428,8 @@ describe('The profile API', function() {
           if (err) {
             return done(err);
           }
-          var req = request(app).get('/api/users/' + foouser._id + '/profile/avatar');
+          const req = request(app).get('/api/users/' + foouser._id + '/profile/avatar');
+
           req.expect(200).end(function(err, res) {
             expect(err).to.not.exist;
             expect(res).to.exist;
@@ -435,57 +447,67 @@ describe('The profile API', function() {
     });
 
     it('should return 400 if the "mimetype" query string is missing', function(done) {
-      var self = this;
+      const self = this;
+
       this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
-        var req = loggedInAsUser(request(app).post('/api/user/profile/avatar?size=123'));
+        const req = loggedInAsUser(request(app).post('/api/user/profile/avatar?size=123'));
+
         req.send().expect(400).end(self.helpers.callbacks.noError(done));
       });
     });
 
     it('should return 400 if the "size" query string is missing', function(done) {
-      var self = this;
+      const self = this;
+
       this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
-        var req = loggedInAsUser(request(app).post('/api/user/profile/avatar?mimetype=image%2Fpng'));
+        const req = loggedInAsUser(request(app).post('/api/user/profile/avatar?mimetype=image%2Fpng'));
+
         req.send().expect(400).end(self.helpers.callbacks.noError(done));
       });
     });
 
     it('should return 400 if the "mimetype" query string is not an accepted mime type', function(done) {
-      var self = this;
+      const self = this;
+
       this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
-        var req = loggedInAsUser(request(app).post('/api/user/profile/avatar?mimetype=notAGoodType&size=123'));
+        const req = loggedInAsUser(request(app).post('/api/user/profile/avatar?mimetype=notAGoodType&size=123'));
+
         req.send().expect(400).end(self.helpers.callbacks.noError(done));
       });
     });
 
     it('should return 400 if the "size" query string is not a number', function(done) {
-      var self = this;
+      const self = this;
+
       this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
-        var req = loggedInAsUser(request(app).post('/api/user/profile/avatar?mimetype=image%2Fpng&size=notanumber'));
+        const req = loggedInAsUser(request(app).post('/api/user/profile/avatar?mimetype=image%2Fpng&size=notanumber'));
+
         req.send().expect(400).end(self.helpers.callbacks.noError(done));
       });
     });
 
     it('should return 412 if the "size" query string is not equal to the actual image size', function(done) {
-      var fileContent = require('fs').readFileSync(imagePath).toString();
-      var self = this;
+      const fileContent = require('fs').readFileSync(imagePath).toString();
+      const self = this;
+
       this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
-        var req = loggedInAsUser(request(app).post('/api/user/profile/avatar'));
+        const req = loggedInAsUser(request(app).post('/api/user/profile/avatar'));
+
         req.query({size: 123, mimetype: 'image/png'})
           .set('Content-Type', 'image/png')
           .send(fileContent).expect(412).end(self.helpers.callbacks.error(done));
@@ -505,7 +527,8 @@ describe('The profile API', function() {
         if (err) {
           return done(err);
         }
-        var req = loggedInAsUser(request(app).get('/api/user/profile/avatar'));
+        const req = loggedInAsUser(request(app).get('/api/user/profile/avatar'));
+
         req.expect(302).end(function(err, res) {
           expect(err).to.not.exist;
           expect(res.headers.location).to.equal('/api/avatars?objectType=email&email=foo@bar.com');
@@ -515,14 +538,15 @@ describe('The profile API', function() {
     });
 
     it('should return 200 with the stream of the user avatar', function(done) {
-      var imageModule = this.helpers.requireBackend('core/image');
-      var readable = require('fs').createReadStream(imagePath);
-      var ObjectId = mongoose.Types.ObjectId;
-      var avatarId = new ObjectId();
-      var opts = {
+      const imageModule = this.helpers.requireBackend('core/image');
+      const readable = require('fs').createReadStream(imagePath);
+      const ObjectId = mongoose.Types.ObjectId;
+      const avatarId = new ObjectId();
+      const opts = {
         creator: {objectType: 'user', id: foouser._id}
       };
-      var self = this;
+      const self = this;
+
       imageModule.recordAvatar(avatarId, 'image/png', opts, readable, function(err) {
         if (err) {
           done(err);
@@ -537,7 +561,8 @@ describe('The profile API', function() {
             if (err) {
               done(err);
             }
-            var req = loggedInAsUser(request(app).get('/api/user/profile/avatar'));
+            const req = loggedInAsUser(request(app).get('/api/user/profile/avatar'));
+
             req.expect(200).end(function(err, res) {
               expect(err).to.not.exist;
               expect(res.text).to.exist;
@@ -553,26 +578,27 @@ describe('The profile API', function() {
   describe('GET /api/user route', function() {
 
     it('should return 200 with the profile of the user, including his configurations', function(done) {
-      var self = this;
+      const self = this;
 
       this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
 
-        var moduleName = 'core';
-        var configName = 'homePage';
-        var configValue = true;
+        const moduleName = 'core';
+        const configName = 'homePage';
+        const configValue = true;
 
         self.helpers.requireBackend('core/esn-config')(configName)
           .inModule(moduleName)
           .forUser({ preferredDomainId: domain_id })
           .set(configValue, function(err) {
             expect(err).to.not.exist;
-            var req = loggedInAsUser(request(app).get('/api/user'));
+            const req = loggedInAsUser(request(app).get('/api/user'));
 
             req.expect(200).end(function(err, res) {
               expect(err).to.not.exist;
+              expect(res.body.isPlatformAdmin).to.be.false;
               expect(res.body.configurations).to.shallowDeepEqual({
                 modules: [{
                   name: moduleName,
@@ -589,6 +615,32 @@ describe('The profile API', function() {
       });
     });
 
+    it('should return 200 with isPlatformAdmin true if user is platform admin', function(done) {
+      const self = this;
+      const fixtures = self.helpers.requireFixture('models/users.js')(this.helpers.requireBackend('core/db/mongo/models/user'));
+
+      fixtures.newDummyUser(['platformadmin@email.com']).save(this.helpers.callbacks.noErrorAnd(user => {
+        core.platformadmin
+          .addPlatformAdmin(user)
+          .then(() => {
+            this.helpers.api.loginAsUser(app, 'platformadmin@email.com', password, function(err, loggedInAsUser) {
+              if (err) {
+                return done(err);
+              }
+
+              const req = loggedInAsUser(request(app).get('/api/user'));
+
+              req.expect(200).end(function(err, res) {
+                expect(err).to.not.exist;
+                expect(res.body.isPlatformAdmin).to.be.true;
+
+                done();
+              });
+            });
+          })
+          .catch(err => done(err || 'failed to add platformadmin'));
+      }));
+    });
   });
 
 });
