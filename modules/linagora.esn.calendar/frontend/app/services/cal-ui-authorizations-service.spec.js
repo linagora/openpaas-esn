@@ -73,6 +73,35 @@ describe('The calUIAuthorizationService service', function() {
     });
   });
 
+  describe('the canModifyEventRecurrence function', function() {
+    var calendar;
+
+    it('should return false if calendar is undefined', function() {
+      expect(calUIAuthorizationService.canModifyEventRecurrence()).to.be.false;
+    });
+
+    it('should return false if calendar is defined event is undefined', function() {
+      calendar = {
+        isWritable: sinon.stub().returns(true)
+      };
+      expect(calUIAuthorizationService.canModifyEventRecurrence()).to.be.false;
+    });
+
+
+    it('should call calendar.isWritable with userId and check if event is not an recurrent event instance', function() {
+      calendar = {
+        isWritable: sinon.stub().returns(true)
+      };
+      event = {
+        isInstance: sinon.stub().returns(false)
+      };
+
+      expect(calUIAuthorizationService.canModifyEventRecurrence(calendar, event, userId)).to.be.true;
+      expect(calendar.isWritable).to.have.been.calledWith(userId);
+      expect(event.isInstance).to.have.been.calledWith;
+    });
+  });
+
   describe('the canModifyPublicSelection function', function() {
     var calendar;
 

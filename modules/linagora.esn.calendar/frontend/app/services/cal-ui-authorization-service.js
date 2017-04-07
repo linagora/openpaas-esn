@@ -12,6 +12,7 @@
     return {
       canAccessEventDetails: canAccessEventDetails,
       canDeleteCalendar: canDeleteCalendar,
+      canModifyEventRecurrence: canModifyEventRecurrence,
       canModifyPublicSelection: canModifyPublicSelection,
       canShowDelegationTab: canShowDelegationTab
     };
@@ -24,6 +25,10 @@
 
     function canDeleteCalendar(calendar) {
       return !!calendar && (calendar.id !== CAL_DEFAULT_CALENDAR_ID);
+    }
+
+    function canModifyEventRecurrence(calendar, event, userId) {
+      return !!calendar && calendar.isWritable(userId) && !!event && !event.isInstance();
     }
 
     function canModifyPublicSelection(calendar, userId) {

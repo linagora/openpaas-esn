@@ -51,7 +51,7 @@
               .row.visible-xs
                 cal-mail-to-attendees(ng-if='displayCalMailToAttendeesButton()', event='editedEvent')
 
-              event-recurrence-edition(event="editedEvent", is-organizer="isOrganizer", read-only-event-from-shared-calendar="calendar.readOnly")
+              event-recurrence-edition(event="editedEvent", can-modify-event-recurrence='canModifyEventRecurrence')
               cal-event-alarm-edition(event="editedEvent")
 
               .row

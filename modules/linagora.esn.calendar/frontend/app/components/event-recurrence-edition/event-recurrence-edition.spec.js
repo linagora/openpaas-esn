@@ -39,30 +39,6 @@ describe('The event-recurrence-edition component', function() {
     };
   }]));
 
-  it('should initialize read-only to true if the event is an instance', function() {
-    this.$scope.event.isInstance = function() {
-      return true;
-    };
-    this.initDirective(this.$scope);
-    expect(this.eleScope.vm.readOnly).to.be.true;
-  });
-
-  it('should initialize read-only to true if the event\'s organizer is not the current user', function() {
-    this.$scope.isOrganizer = false;
-
-    this.initDirective(this.$scope);
-
-    expect(this.eleScope.vm.readOnly).to.be.true;
-  });
-
-  it('should initialize read-only to true if the event is from a delegated calendar with the READ right', function() {
-    this.$scope.readOnlyEventFromSharedCalendar = true;
-
-    this.initDirective(this.$scope);
-
-    expect(this.eleScope.vm.readOnly).to.be.true;
-  });
-
   describe('scope.toggleWeekdays', function() {
     it('should splice the weekday and sort the array', function() {
       this.$scope.event.rrule = {

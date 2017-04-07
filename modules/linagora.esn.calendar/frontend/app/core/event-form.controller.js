@@ -16,6 +16,7 @@
     calEventUtils,
     notificationFactory,
     calOpenEventForm,
+    calUIAuthorizationService,
     session,
     userAPI,
     CAL_EVENTS,
@@ -104,6 +105,8 @@
           $scope.readOnly = readOnly();
           $scope.displayParticipationButton = displayParticipationButton();
           $scope.displayCalMailToAttendeesButton = displayCalMailToAttendeesButton;
+
+          $scope.canModifyEventRecurrence = calUIAuthorizationService.canModifyEventRecurrence($scope.calendar, $scope.editedEvent, session.user._id);
         });
       }
 
