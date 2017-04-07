@@ -24,6 +24,11 @@ module.exports = {
     EMAIL: 'EMAIL'
   },
   EVENTS: {
+    CALENDAR: {
+      CREATED: 'calendar:calendar:created',
+      UPDATED: 'calendar:calendar:updated',
+      DELETED: 'calendar:calendar:deleted'
+    },
     EVENT: {
       CREATED: 'calendar:event:created',
       UPDATED: 'calendar:event:updated',

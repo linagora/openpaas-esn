@@ -1,32 +1,40 @@
 'use strict';
 
 const expect = require('chai').expect;
-const ICAL = require('ical.js');
-const fs = require('fs');
+const mockery = require('mockery');
 const _ = require('lodash');
 const sinon = require('sinon');
 const CONSTANTS = require('../../../backend/lib/constants');
 
 describe('The calendar WS events module', function() {
-
   describe('init function', function() {
-    var self;
+    var self, eventHandler, calendarHandler;
 
-    beforeEach(function(done) {
+    beforeEach(function() {
       this.moduleHelpers.backendPath = this.moduleHelpers.modulesPath + 'linagora.esn.calendar/backend';
 
       self = this;
 
       this.publishSpy = sinon.spy();
-      this.subscribeSpy = sinon.spy(function(callback) {
+      this.eventSubscribeSpy = sinon.spy(function(callback) {
         self.eventUpdatedPubsubCallback = callback;
+      });
+
+      this.calendarSubscribeSpy = sinon.spy(function(callback) {
+        self.calendarUpdatedPubsubCallback = callback;
       });
 
       this.pubsub = {
         global: {
-          topic: sinon.spy(function() {
+          topic: sinon.spy(function(name) {
+            if (CONSTANTS.EVENTS.EVENT[name]) {
+              return {
+                subscribe: self.eventSubscribeSpy
+              };
+            }
+
             return {
-              subscribe: self.subscribeSpy
+              subscribe: self.calendarSubscribeSpy
             };
           })
         },
@@ -38,12 +46,10 @@ describe('The calendar WS events module', function() {
           })
         }
       };
-      this.socketListeners = {};
       this.io = {
         of: function() {
           var socket = {
-            on: function(event, callback) {
-              self.socketListeners[event] = callback;
+            on: function() {
             }
           };
 
@@ -69,7 +75,19 @@ describe('The calendar WS events module', function() {
       this.moduleHelpers.addDep('pubsub', self.pubsub);
       this.moduleHelpers.addDep('user', self.userModule);
 
-      done();
+      eventHandler = {
+        notify: sinon.spy()
+      };
+      mockery.registerMock('./handlers/event', function() {
+        return eventHandler;
+      });
+
+      calendarHandler = {
+        notify: sinon.spy()
+      };
+      mockery.registerMock('./handlers/calendar', function() {
+        return calendarHandler;
+      });
     });
 
     it('should register global pubsub subscribers for supported events', function() {
@@ -79,72 +97,43 @@ describe('The calendar WS events module', function() {
       _.forOwn(CONSTANTS.EVENTS.EVENT, topic => {
         expect(this.pubsub.global.topic).to.have.been.calledWith(topic);
       });
+
+      _.forOwn(CONSTANTS.EVENTS.CALENDAR, topic => {
+        expect(this.pubsub.global.topic).to.have.been.calledWith(topic);
+      });
     });
 
-    describe('When message is received in global pubsub', function() {
-      var ics;
-
+    describe('When message is received in events global pubsub', function() {
       beforeEach(function() {
-        ics = fs.readFileSync(__dirname + '/../fixtures/meeting.ics', 'utf-8');
-        ics = new ICAL.Component.fromString(ics).toString();
         var mod = require(this.moduleHelpers.backendPath + '/ws/calendar');
 
         mod.init(this.moduleHelpers.dependencies);
       });
 
-      it('should return the message from the pubsub', function(done) {
-        var event = {
-          event: 'ICS',
-          eventPath: 'calendar/123/events/1213.ics'
-        };
+      it('should publish it to local and call eventHandler.notify', function() {
+        var message = {foo: 'bar'};
 
-        this.helper.getUserSocketsFromNamespace = function(userId) {
-          expect(userId).to.equal('123');
-          var socket = {
-            emit: function(wsEvent, _event) {
-              expect(wsEvent).to.exist;
-              expect(_event).to.equal(event);
-              done();
-            }
-          };
+        self.eventUpdatedPubsubCallback(message);
 
-          return [socket];
-        };
+        expect(eventHandler.notify).to.have.been.calledWith(message);
+        expect(self.publishSpy).to.have.been.calledWith(message);
+      });
+    });
 
-        this.eventUpdatedPubsubCallback(event);
+    describe('When message is received in calendars global pubsub', function() {
+      beforeEach(function() {
+        var mod = require(this.moduleHelpers.backendPath + '/ws/calendar');
+
+        mod.init(this.moduleHelpers.dependencies);
       });
 
-      it('should call getUserSocketsFromNamespace for the owner of the calendar and the sharees', function() {
-        var event = {
-          event: 'ICS',
-          eventPath: 'calendar/123/events/1213.ics',
-          shareeIds: [
-            'principals/users/shareeId'
-          ]
-        };
+      it('should call calendarHandler.notify', function() {
+        var message = {foo: 'bar'};
 
-        sinon.spy(this.helper, 'getUserSocketsFromNamespace');
-        this.eventUpdatedPubsubCallback(event);
+        self.calendarUpdatedPubsubCallback(message);
 
-        expect(this.helper.getUserSocketsFromNamespace.firstCall).to.have.been.calledWith('123');
-        expect(this.helper.getUserSocketsFromNamespace.secondCall).to.have.been.calledWith('shareeId');
-      });
-
-      it('should delete the ids of the sharee in the event object', function() {
-        var event = {
-          event: 'ICS',
-          eventPath: 'calendar/123/events/1213.ics',
-          shareeIds: [
-            'principals/users/shareeId'
-          ]
-        };
-
-        this.eventUpdatedPubsubCallback(event);
-
-        expect(event).to.be.deep.equal({
-          event: 'ICS',
-          eventPath: 'calendar/123/events/1213.ics'
-        });
+        expect(calendarHandler.notify).to.have.been.calledWith(message);
+        expect(self.publishSpy).to.not.have.been.called;
       });
     });
   });
