@@ -8,5 +8,5 @@ sub-header
       input.form-control(ng-model="mailbox.name", placeholder="#{__('Enter a name')}", auto-focus)
     .form-group.fg-line.select
       .field-name #{__('Is located under')}
-      select.form-control(ng-model="mailbox.parentId", ng-options="mailbox.id as mailbox.qualifiedName for mailbox in mailboxes | orderBy: ['level', 'name']")
+      select.form-control(ng-model="mailbox.parentId", ng-options="mailbox.id as mailbox.qualifiedName for mailbox in mailboxes")
         option(value="") #{__('Unified Inbox')}

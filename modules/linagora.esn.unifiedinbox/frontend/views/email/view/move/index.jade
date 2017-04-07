@@ -1,10 +1,10 @@
-.modal.inbox-modal.inbox-move-item
+.modal.inbox-modal.inbox-move-item.inbox-root
   .modal-dialog
     .modal-content
       .modal-header
         h4.modal-title #{__('Move to')}
       .modal-body
         .text-center(ng-if="!mailboxes", openpaas-logo-spinner, spinner-start-active="1", spinner-size="0.3")
-        mailbox-display.lv-item(mailbox="mailbox", hide-badge="true", ng-click="ctrl.moveTo(mailbox)", ng-repeat="mailbox in mailboxes | inboxFilterRestrictedMailboxes | orderBy: ['sortOrder', 'qualifiedName'] track by mailbox.id")
+        mailbox-display.lv-item(mailbox="mailbox", hide-badge="true", ng-click="ctrl.moveTo(mailbox)", ng-repeat="mailbox in mailboxes | inboxFilterRestrictedMailboxes track by mailbox.id")
       .modal-footer
         button.btn.btn-link(type="button", esn-back-button="^") #{__('Cancel')}

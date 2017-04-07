@@ -136,8 +136,8 @@ describe('The inboxMailboxesService factory', function() {
         { id: 1, name: '1', level: 1, qualifiedName: '1' },
         { id: 2, name: '2', parentId: 1, level: 2, qualifiedName: '1 / 2' },
         { id: 3, name: '3', parentId: 2, level: 3, qualifiedName: '1 / 2 / 3' },
-        { id: 4, name: '4', level: 1, qualifiedName: '4' },
-        { id: 5, name: '5', parentId: 1, level: 2, qualifiedName: '1 / 5' }
+        { id: 5, name: '5', parentId: 1, level: 2, qualifiedName: '1 / 5' },
+        { id: 4, name: '4', level: 1, qualifiedName: '4' }
       ];
 
       inboxMailboxesService.assignMailboxesList().then(function(mailboxes) {
@@ -158,9 +158,39 @@ describe('The inboxMailboxesService factory', function() {
         ]);
       };
       var expected = [
-        { id: 2, name: '2', level: 2, parentId: 1, qualifiedName: '1 / 2' },
         { id: 1, name: '1', level: 1, qualifiedName: '1' },
+        { id: 2, name: '2', level: 2, parentId: 1, qualifiedName: '1 / 2' },
         { id: 4, name: '4', level: 1, qualifiedName: '4' }
+      ];
+
+      inboxMailboxesService.assignMailboxesList().then(function(mailboxes) {
+        expect(mailboxes).to.deep.equal(expected);
+
+        done();
+      });
+      $rootScope.$digest();
+    });
+
+    it('should maintain the sort order using [sortOrder, qualifiedName]', function(done) {
+      inboxMailboxesCache[0] = { id: 2, sortOrder: 1, name: '2', level: 2, parentId: 1, qualifiedName: '1 / 2' };
+      inboxMailboxesCache[1] = { id: 5, sortOrder: 1, name: '5', level: 1, qualifiedName: '5' };
+      jmapClient.getMailboxes = function() {
+        return $q.when([
+          { id: 1, sortOrder: 1, name: '1' },
+          { id: 4, sortOrder: 2, name: '4' },
+          { id: 0, sortOrder: 0, name: '6' },
+          { id: 3, sortOrder: 1, parentId: 2, name: '3' },
+          { id: 7, sortOrder: 3, name: '0' }
+        ]);
+      };
+      var expected = [
+        { id: 0, name: '6', level: 1, sortOrder: 0, qualifiedName: '6' },
+        { id: 1, name: '1', level: 1, sortOrder: 1, qualifiedName: '1' },
+        { id: 2, name: '2', level: 2, sortOrder: 1, parentId: 1, qualifiedName: '1 / 2' },
+        { id: 3, name: '3', level: 3, sortOrder: 1, parentId: 2, qualifiedName: '1 / 2 / 3' },
+        { id: 5, name: '5', level: 1, sortOrder: 1, qualifiedName: '5' },
+        { id: 4, name: '4', level: 1, sortOrder: 2, qualifiedName: '4' },
+        { id: 7, name: '0', level: 1, sortOrder: 3, qualifiedName: '0' }
       ];
 
       inboxMailboxesService.assignMailboxesList().then(function(mailboxes) {
@@ -730,15 +760,15 @@ describe('The inboxMailboxesService factory', function() {
           qualifiedName: '1_Renamed / 2',
           level: 2
         }, {
-          id: '3',
-          name: '3',
-          qualifiedName: '1_Renamed / 3',
-          level: 2
-        }, {
           id: '4',
           name: '4',
           qualifiedName: '1_Renamed / 2 / 4',
           level: 3
+        }, {
+          id: '3',
+          name: '3',
+          qualifiedName: '1_Renamed / 3',
+          level: 2
         }]);
 
         done();

@@ -9,7 +9,7 @@
     ])
 
     .factory('inboxMailboxesService', function($q, _, withJmapClient, jmap, inboxSpecialMailboxes, inboxMailboxesCache,
-                                          asyncJmapAction, MAILBOX_LEVEL_SEPARATOR, INBOX_RESTRICTED_MAILBOXES) {
+                                               asyncJmapAction, MAILBOX_LEVEL_SEPARATOR, INBOX_RESTRICTED_MAILBOXES) {
 
       var mailboxesListAlreadyFetched = false;
 
@@ -69,7 +69,7 @@
 
         mailboxes.forEach(function(mailbox) {
           var index = _.findIndex(inboxMailboxesCache, { id: mailbox.id }),
-            targetIndexInCache = index > -1 ? index : inboxMailboxesCache.length;
+              targetIndexInCache = index > -1 ? index : inboxMailboxesCache.length;
 
           inboxMailboxesCache[targetIndexInCache] = mailbox;
         });
@@ -78,7 +78,11 @@
           cache[index] = qualifyMailbox(mailbox);
         });
 
-        return inboxMailboxesCache;
+        return inboxMailboxesCache.sort(_sortBySortOrderAndQualifiedName);
+      }
+
+      function _sortBySortOrderAndQualifiedName(a, b) {
+        return a.sortOrder - b.sortOrder || (a.qualifiedName < b.qualifiedName ? -1 : 1);
       }
 
       function _findMailboxInCache(id) {
