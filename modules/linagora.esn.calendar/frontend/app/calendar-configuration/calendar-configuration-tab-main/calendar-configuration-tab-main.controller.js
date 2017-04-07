@@ -48,7 +48,7 @@
       rightLabels[CAL_CALENDAR_SHARED_RIGHT.SHAREE_ADMIN] = 'Administration';
       rightLabels[CAL_CALENDAR_SHARED_RIGHT.SHAREE_FREE_BUSY] = 'Free/Busy';
 
-      performSharedCalendarOperations(self.calendar.isShared(session.user._id));
+      !self.newCalendar && performSharedCalendarOperations(self.calendar.isShared(session.user._id));
 
       self.canModifyPublicSelection = _canModifyPublicSelection();
     }
@@ -76,7 +76,7 @@
     }
 
     function _canModifyPublicSelection() {
-      return calUIAuthorizationService.canModifyPublicSelection(self.calendar, session.user._id);
+      return self.newCalendar || calUIAuthorizationService.canModifyPublicSelection(self.calendar, session.user._id);
     }
 
     function performSharedCalendarOperations(isSharedCalendar) {
