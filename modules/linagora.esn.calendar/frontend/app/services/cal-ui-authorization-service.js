@@ -28,7 +28,7 @@
     }
 
     function canModifyEventRecurrence(calendar, event, userId) {
-      return !!calendar && calendar.isWritable(userId) && !!event && !event.isInstance();
+      return _isWritableForCalendar(calendar, userId) && !!event && !event.isInstance();
     }
 
     function canModifyPublicSelection(calendar, userId) {
@@ -41,6 +41,10 @@
 
     function _isAdminForCalendar(calendar, userId) {
       return !!calendar && calendar.isAdmin(userId);
+    }
+
+    function _isWritableForCalendar(calendar, userId) {
+      return !!calendar && calendar.isWritable(userId);
     }
   }
 })();

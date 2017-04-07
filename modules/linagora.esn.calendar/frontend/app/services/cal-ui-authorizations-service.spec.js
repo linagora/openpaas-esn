@@ -65,11 +65,11 @@ describe('The calUIAuthorizationService service', function() {
     });
 
     it('should return false if calendar.id is the same as CAL_DEFAULT_CALENDAR_ID', function() {
-      expect(calUIAuthorizationService.canDeleteCalendar({ id: CAL_DEFAULT_CALENDAR_ID })).to.be.false;
+      expect(calUIAuthorizationService.canDeleteCalendar({id: CAL_DEFAULT_CALENDAR_ID})).to.be.false;
     });
 
     it('should return true if calendar.id is not the same as CAL_DEFAULT_CALENDAR_ID', function() {
-      expect(calUIAuthorizationService.canDeleteCalendar({ id: CAL_DEFAULT_CALENDAR_ID + 'changed' })).to.be.true;
+      expect(calUIAuthorizationService.canDeleteCalendar({id: CAL_DEFAULT_CALENDAR_ID + 'changed'})).to.be.true;
     });
   });
 
@@ -86,7 +86,6 @@ describe('The calUIAuthorizationService service', function() {
       };
       expect(calUIAuthorizationService.canModifyEventRecurrence()).to.be.false;
     });
-
 
     it('should call calendar.isWritable with userId and check if event is not an recurrent event instance', function() {
       calendar = {

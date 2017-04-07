@@ -7,7 +7,7 @@
   function calEventFullFormSubheader() {
     var directive = {
       restrict: 'E',
-      templateUrl: '/calendar/app/event-full-form/event-full-form-sub-header.html',
+      templateUrl: '/calendar/app/event-full-form/event-full-form-subheader.html',
       replace: true
     };
 
