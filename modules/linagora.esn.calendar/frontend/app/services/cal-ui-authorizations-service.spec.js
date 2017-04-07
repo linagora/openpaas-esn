@@ -89,4 +89,21 @@ describe('The calUIAuthorizationService service', function() {
       expect(calendar.isAdmin).to.have.been.calledWith(userId);
     });
   });
+
+  describe('the canShowDelegationTab function', function() {
+    var calendar;
+
+    it('should return false if calendar is undefined', function() {
+      expect(calUIAuthorizationService.canShowDelegationTab()).to.be.false;
+    });
+
+    it('should call calendar.isAdmin with userId', function() {
+      calendar = {
+        isAdmin: sinon.stub().returns(true)
+      };
+
+      expect(calUIAuthorizationService.canShowDelegationTab(calendar, userId)).to.be.true;
+      expect(calendar.isAdmin).to.have.been.calledWith(userId);
+    });
+  });
 });

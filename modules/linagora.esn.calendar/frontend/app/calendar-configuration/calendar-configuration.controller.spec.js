@@ -372,46 +372,6 @@ describe('The calendar configuration controller', function() {
       expect(calendarConfigurationController.selectedShareeRight).to.equal(CAL_CALENDAR_SHARED_RIGHT.NONE);
     });
 
-    it('should correcly initialize isAdmin if user is the owner', function() {
-      calendarRight.getOwnerId = sinon.stub().returns('12345');
-      calendarConfigurationController.calendar = {
-        href: 'data/data.json'
-      };
-
-      calendarConfigurationController.activate();
-      $rootScope.$digest();
-
-      expect(calendarConfigurationController.isAdmin).to.be.true;
-      expect(calendarRight.getOwnerId).to.have.been.calledWith;
-    });
-
-    it('should correcly initialize isAdmin if user has shared admin right', function() {
-      calendarRight.getOwnerId = sinon.stub().returns('someone_else');
-      calendarRight.getShareeRight = sinon.stub().returns(CAL_CALENDAR_SHARED_RIGHT.SHAREE_ADMIN);
-      calendarConfigurationController.calendar = {
-        href: 'data/data.json'
-      };
-
-      calendarConfigurationController.activate();
-      $rootScope.$digest();
-
-      expect(calendarConfigurationController.isAdmin).to.be.true;
-      expect(calendarRight.getOwnerId).to.have.been.calledWith;
-    });
-
-    it('should correcly initialize isAdmin if user is not the owner', function() {
-      calendarRight.getOwnerId = sinon.stub().returns('someone_else');
-      calendarConfigurationController.calendar = {
-        href: 'data/data.json'
-      };
-
-      calendarConfigurationController.activate();
-      $rootScope.$digest();
-
-      expect(calendarConfigurationController.isAdmin).to.be.false;
-      expect(calendarRight.getOwnerId).to.have.been.calledWith;
-    });
-
     it('should correctly initialize delegation', function() {
       calendarRight.getPublicRight = sinon.stub().returns('publicSelection');
       calendarRight.getAllShareeRights = sinon.stub().returns([
@@ -824,44 +784,6 @@ describe('The calendar configuration controller', function() {
 
       expect(calendarConfigurationController.newUsersGroups).to.deep.equal;
       expect(calendarConfigurationController.selectedShareeRight).to.deep.equal(CAL_CALENDAR_SHARED_RIGHT.NONE);
-    });
-  });
-
-  describe('the canShowDelegationTab function', function() {
-    it('should return true if isAdmin=true and newCalendar=false', function() {
-      calendarConfigurationController.activate();
-
-      calendarConfigurationController.isAdmin = true;
-      calendarConfigurationController.newCalendar = false;
-
-      expect(calendarConfigurationController.canShowDelegationTab()).to.be.true;
-    });
-
-    it('should return false if isAdmin=true and newCalendar=true', function() {
-      calendarConfigurationController.activate();
-
-      calendarConfigurationController.isAdmin = true;
-      calendarConfigurationController.newCalendar = true;
-
-      expect(calendarConfigurationController.canShowDelegationTab()).to.be.false;
-    });
-
-    it('should return false if isAdmin=false and newCalendar=false', function() {
-      calendarConfigurationController.activate();
-
-      calendarConfigurationController.isAdmin = false;
-      calendarConfigurationController.newCalendar = false;
-
-      expect(calendarConfigurationController.canShowDelegationTab()).to.be.false;
-    });
-
-    it('should return false if isAdmin=false and newCalendar=true', function() {
-      calendarConfigurationController.activate();
-
-      calendarConfigurationController.isAdmin = false;
-      calendarConfigurationController.newCalendar = true;
-
-      expect(calendarConfigurationController.canShowDelegationTab()).to.be.false;
     });
   });
 });

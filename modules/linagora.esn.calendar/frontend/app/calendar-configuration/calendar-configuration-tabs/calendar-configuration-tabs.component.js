@@ -11,9 +11,10 @@
       templateUrl: '/calendar/app/calendar-configuration/calendar-configuration-tabs/calendar-configuration-tabs.html',
       bindings: {
         selectedTab: '=',
-        canShowDelegationTab: '='
+        newCalendar: '=',
+        calendar: '='
       },
-      controllerAs: '$ctrl'
+      controller: 'CalendarConfigurationTabsController'
     };
   }
 })();
