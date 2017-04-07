@@ -44,6 +44,7 @@ exports = module.exports = function(application) {
   var generatedJavascript = require('./controllers/generated-javascript');
   application.get('/js/constants.js', generatedJavascript.constants);
   application.get('/generated/jsApp/:appName/app/:namespace', generatedJavascript.jsApp);
+  application.get('/generated/js/:appName/js/:namespace', generatedJavascript.js);
 
   var apiModule = require('./api');
   apiModule.setupAPI(application);
