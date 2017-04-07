@@ -471,7 +471,7 @@ angular.module('esn.avatar', [
       hideUserStatus: '=?'
     }
   })
-  .controller('EsnAvatarController', function(userAPI) {
+  .controller('EsnAvatarController', function($q, $log, userAPI) {
     var self = this;
 
     self.$onInit = $onInit;
@@ -487,9 +487,17 @@ angular.module('esn.avatar', [
       }
 
       if (self.userEmail && !self.userId) {
-        userAPI.getUsersByEmail(self.userEmail).then(function(users) {
-          self.userId = users.data[0]._id;
-        });
+        userAPI.getUsersByEmail(self.userEmail)
+          .then(function(users) {
+            if (users.data && users.data[0]) {
+              self.userId = users.data[0]._id;
+            }
+          })
+          .catch(function(err){
+            $log.error('Error when getting the user ID by email');
+
+            $q.reject(err);
+          })
       }
     }
 

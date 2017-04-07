@@ -293,7 +293,7 @@ describe('The Avatar Angular module', function() {
   });
 
   describe('the EsnAvatarController', function() {
-    var $controller, $rootScope, EsnAvatarController, userId, userEmail, avatarURL, expectedAvatarUrlFromUserId, expectedAvatarUrlFromUserEmail, userAPIMock, user, result;
+    var $controller, $rootScope, $logMock, EsnAvatarController, userId, userEmail, avatarURL, expectedAvatarUrlFromUserId, expectedAvatarUrlFromUserEmail, userAPIMock, user, result;
 
     beforeEach(function() {
       userId = '58be757006a35238647028d8';
@@ -301,6 +301,12 @@ describe('The Avatar Angular module', function() {
       avatarURL = '/api/user/profile/avatar?cb=1490951414696';
       expectedAvatarUrlFromUserId = '/api/users/' + userId + '/profile/avatar';
       expectedAvatarUrlFromUserEmail = '/api/avatars?email=' + userEmail;
+
+      $logMock = {
+        error: sinon.spy(),
+        info: sinon.spy(),
+        debug: sinon.spy()
+      };
 
       user = {
         _id: '123',
@@ -320,6 +326,7 @@ describe('The Avatar Angular module', function() {
 
       angular.mock.module(function($provide) {
         $provide.value('userAPI', userAPIMock);
+        $provide.value('$log', $logMock);
       });
 
       angular.mock.inject(function(_$controller_, _$rootScope_) {
@@ -376,6 +383,34 @@ describe('The Avatar Angular module', function() {
         EsnAvatarController.$onInit();
 
         expect(EsnAvatarController.userId).to.be.equal(userId);
+      });
+
+      it('should not initialize userId if the userAPI.getUsersByEmail returned an empty array', function() {
+        userAPIMock.getUsersByEmail = function() {
+          return $q.when({ data: [] });
+        };
+
+        EsnAvatarController.userEmail = userEmail;
+
+        EsnAvatarController.$onInit();
+
+        $rootScope.$digest();
+
+        expect(EsnAvatarController.userId).to.be.defined;
+      });
+
+      it('should display an error message if the userAPI.getUsersByEmail returned an empty array', function() {
+        userAPIMock.getUsersByEmail = function() {
+          return $q.reject();
+        };
+
+        EsnAvatarController.userEmail = userEmail;
+
+        EsnAvatarController.$onInit();
+
+        $rootScope.$digest();
+
+        expect($logMock.error).to.be.calledWith('Error when getting the user ID by email');
       });
     });
 
