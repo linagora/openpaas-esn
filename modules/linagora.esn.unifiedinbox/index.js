@@ -40,7 +40,8 @@ const angularAppFiles = [
   'services/identities/identities-service.js',
   'services/jmap-helper/jmap-helper.js',
   'filters/quote/quote.js',
-  'services/jmap-item/jmap-item-service.js'
+  'services/jmap-item/jmap-item-service.js',
+  'components/filter-input/filter-input.js'
 ];
 
 const angularJsFiles = [

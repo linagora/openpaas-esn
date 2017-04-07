@@ -1,0 +1,2 @@
+.inbox-filter-input.fg-line
+  input.inbox-filter-input-field.form-control(ng-model="$ctrl.filter", ng-model-options="{ debounce: 200 }", ng-change="$ctrl.onChange({ $filter: $ctrl.filter })", placeholder="#{__('Search')}\u2026")
