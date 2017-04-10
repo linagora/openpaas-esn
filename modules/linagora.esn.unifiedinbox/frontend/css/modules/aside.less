@@ -44,6 +44,8 @@
   }
 
   .inbox-icon {
+    margin-left: -5px;
+
     font-size: @inboxAsideIconFontSize;
     vertical-align: bottom;
   }
@@ -86,6 +88,10 @@
     display: none;
   }
 
+  .inbox-filter-input {
+    width: 90%;
+    margin: 2px 2px 2px 16px;
+  }
 }
 
 @media(min-width: @screen-md-min) {
@@ -221,6 +227,10 @@
       .menu-item .menu-item-after:after {
         background-color: @body-bg;
       }
+    }
+
+    .inbox-filter-input {
+      margin-right: 0;
     }
   }
 }
