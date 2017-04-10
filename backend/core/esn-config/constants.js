@@ -26,6 +26,7 @@ module.exports = {
         redis: {},
         oauth: {},
         session: {},
+        james: {},
         jwt: {},
         jmap: {},
         web: {},
