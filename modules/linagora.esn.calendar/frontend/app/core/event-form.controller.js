@@ -102,7 +102,7 @@
         calendarService.listCalendars(calendarService.calendarHomeId).then(function(calendars) {
           $scope.calendars = calendars;
           $scope.calendar = calEventUtils.isNew($scope.editedEvent) ? _.find(calendars, 'selected') : _.find(calendars, {id: $scope.editedEvent.calendarId});
-          $scope.readOnly = readOnly();
+          $scope.canModifyEvent = _canModifyEvent();
           $scope.displayParticipationButton = displayParticipationButton();
           $scope.displayCalMailToAttendeesButton = displayCalMailToAttendeesButton;
 
@@ -133,12 +133,8 @@
         }
        }
 
-      function readOnly() {
-        if ($scope.calendar && $scope.calendar.readOnly) {
-          return !$scope.isOrganizer || $scope.calendar.readOnly;
-        }
-
-        return !$scope.isOrganizer;
+      function _canModifyEvent() {
+        return calUIAuthorizationService.canModifyEvent($scope.calendar, $scope.editedEvent, session.user._id);
       }
 
       function displayParticipationButton() {

@@ -29,7 +29,8 @@ describe('The event-form module controllers', function() {
       isShared: sinon.stub().returns(false),
       rights: {
         getOwnerId: sinon.stub().returns('ownerId')
-      }
+      },
+      isWritable: angular.noop
     };
 
     this.calendars = [
@@ -37,7 +38,8 @@ describe('The event-form module controllers', function() {
       {
         href: 'href2',
         id: 'id2',
-        color: 'color2'
+        color: 'color2',
+        isWritable: angular.noop
       }
     ];
 
@@ -124,13 +126,14 @@ describe('The event-form module controllers', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function($controller, $rootScope, moment, calEventUtils, calUIAuthorizationService, CalendarShell, CAL_EVENTS, CAL_ALARM_TRIGGER, CAL_EVENT_FORM) {
+  beforeEach(angular.mock.inject(function($controller, $rootScope, moment, calEventUtils, calUIAuthorizationService, session, CalendarShell, CAL_EVENTS, CAL_ALARM_TRIGGER, CAL_EVENT_FORM) {
     this.rootScope = $rootScope;
     this.scope = $rootScope.$new();
     this.controller = $controller;
     this.moment = moment;
     this.calEventUtils = calEventUtils;
     this.calUIAuthorizationService = calUIAuthorizationService;
+    this.session = session;
     this.CalendarShell = CalendarShell;
     this.CAL_EVENTS = CAL_EVENTS;
     this.CAL_ALARM_TRIGGER = CAL_ALARM_TRIGGER;
@@ -286,7 +289,7 @@ describe('The event-form module controllers', function() {
         expect(this.scope.calendars).to.deep.equal(this.calendars);
       });
 
-      it('should initialize readOnly with true if calendar.readOnly is true', function() {
+      it('should initialize canModifyEvent with true if calendar.readOnly is true', function() {
         this.scope.event = this.CalendarShell.fromIncompleteShell({
           _id: '123456',
           start: this.moment('2013-02-08 12:30'),
@@ -301,10 +304,10 @@ describe('The event-form module controllers', function() {
 
         this.rootScope.$digest();
 
-        expect(this.scope.readOnly).to.equal(true);
+        expect(this.scope.canModifyEvent).to.equal(true);
       });
 
-      it('should initialize readOnly with true if isOrganize is true', function() {
+      it('should initialize canModifyEvent with true if isOrganize is true', function() {
         this.scope.event = this.CalendarShell.fromIncompleteShell({
           _id: '123456',
           start: this.moment('2013-02-08 12:30'),
@@ -321,7 +324,24 @@ describe('The event-form module controllers', function() {
 
         this.rootScope.$digest();
 
-        expect(this.scope.readOnly).to.equal(true);
+        expect(this.scope.canModifyEvent).to.equal(true);
+      });
+
+      it('should leverage calUIAuthorizationService.canModifyEvent to set canModifyEvent', function() {
+        this.scope.event = this.CalendarShell.fromIncompleteShell({
+          _id: '123456',
+          start: this.moment('2013-02-08 12:30'),
+          end: this.moment('2013-02-08 13:30'),
+          organizer: {
+            email: 'user2@test.com'
+          },
+          otherProperty: 'aString'
+        });
+        sinon.stub(this.calUIAuthorizationService, 'canModifyEvent', angular.noop);
+
+        this.initController();
+
+        expect(this.calUIAuthorizationService.canModifyEvent).to.have.been.calledWith(this.scope.calendar, this.scope.editedEvent, this.session.user._id);
       });
 
       it('should initialize displayParticipationButton with false if calendar.readOnly is true and editedEvent.attendees.length > 1 and newAttendees.length > 0', function() {
