@@ -5,8 +5,31 @@ const esnConfig = require('../../core/esn-config');
 const followModule = require('../../core/user/follow');
 const sanitizeUser = require('../controllers/utils').sanitizeUser;
 const rights = require('../../core/esn-config/rights');
+const platformAdmin = require('../../core/platformadmin');
 
 const isUserWide = true;
+
+module.exports = {
+  denormalize
+};
+
+function denormalize(user, options = {}) {
+  return sanitize(user, options)
+    .then(sanitized => setIsFollowing(sanitized, options.user))
+    .then(follow)
+    .then(sanitized => setIsPlatformAdmin(user, sanitized))
+    .then(sanitized => setState(user, sanitized))
+    .then(sanitized => loadConfigurations(user, sanitized));
+}
+
+function setIsPlatformAdmin(user, sanitized) {
+  return platformAdmin.isPlatformAdmin(user.id)
+    .then(isPlatformAdmin => {
+      sanitized.isPlatformAdmin = isPlatformAdmin;
+
+      return sanitized;
+    }, () => sanitized);
+}
 
 function sanitize(user, options) {
   return q(sanitizeUser(user, options.doNotKeepPrivateData || false));
@@ -61,16 +84,3 @@ function loadConfigurations(user, sanitized) {
     return sanitized;
   });
 }
-
-function denormalize(user, options) {
-  options = options || {};
-
-  return sanitize(user, options)
-    .then(function(sanitized) {
-      return setIsFollowing(sanitized, options.user);
-    })
-    .then(follow)
-    .then(setState.bind(null, user))
-    .then(loadConfigurations.bind(null, user));
-}
-module.exports.denormalize = denormalize;
