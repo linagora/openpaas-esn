@@ -87,27 +87,6 @@ describe('CalendarCollectionShell factory', function() {
 
       expect(test.invite).to.deep.equal(calendar.invite);
     });
-
-    it('should call initialize readOnly with true if the user right is SHAREE_READ', function() {
-      calendarSharedRight = CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ;
-      var test = new CalendarCollectionShell(calendar);
-
-      expect(test.readOnly).to.be.true;
-    });
-
-    it('should call initialize readOnly with true if the user right is SHAREE_FREE_BUSY', function() {
-      calendarSharedRight = CAL_CALENDAR_SHARED_RIGHT.SHAREE_FREE_BUSY;
-      var test = new CalendarCollectionShell(calendar);
-
-      expect(test.readOnly).to.be.true;
-    });
-
-    it('should call initialize readOnly with true if the user right is READ', function() {
-      calendarPublicRight = CAL_CALENDAR_PUBLIC_RIGHT.READ;
-      var test = new CalendarCollectionShell(calendar);
-
-      expect(test.readOnly).to.be.true;
-    });
   });
 
   describe('isAdmin fn', function() {
@@ -183,6 +162,43 @@ describe('CalendarCollectionShell factory', function() {
       var test = new CalendarCollectionShell(calendar);
 
       expect(test.isOwner('ownerId')).to.be.true;
+    });
+  });
+
+  describe('isWritable fn', function() {
+    it('should return false is userId is the owner', function() {
+      var test = new CalendarCollectionShell(calendar);
+
+      expect(test.isWritable('ownerId')).to.be.true;
+    });
+
+    it('should return true is userId has SHAREE_ADMIN right', function() {
+      calendarSharedRight = CAL_CALENDAR_SHARED_RIGHT.SHAREE_ADMIN;
+      var test = new CalendarCollectionShell(calendar);
+
+      expect(test.isWritable('someone_else')).to.be.true;
+    });
+
+    it('should return true is userId has SHAREE_READ_WRITE right', function() {
+      calendarSharedRight = CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ_WRITE;
+      var test = new CalendarCollectionShell(calendar);
+
+      expect(test.isWritable('someone_else')).to.be.true;
+    });
+
+    it('should return true is userId has PUBLIC_READ_WRITE right', function() {
+      calendarPublicRight = CAL_CALENDAR_PUBLIC_RIGHT.READ_WRITE;
+      var test = new CalendarCollectionShell(calendar);
+
+      expect(test.isWritable('someone_else')).to.be.true;
+    });
+
+    it('should return false is userId has PUBLIC_READ or SHAREE_READ right', function() {
+      calendarSharedRight = CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ;
+      calendarPublicRight = CAL_CALENDAR_PUBLIC_RIGHT.READ;
+      var test = new CalendarCollectionShell(calendar);
+
+      expect(test.isWritable('someone_else')).to.be.false;
     });
   });
 

@@ -12,6 +12,7 @@
     return {
       canAccessEventDetails: canAccessEventDetails,
       canDeleteCalendar: canDeleteCalendar,
+      canModifyEventRecurrence: canModifyEventRecurrence,
       canModifyPublicSelection: canModifyPublicSelection,
       canShowDelegationTab: canShowDelegationTab
     };
@@ -26,6 +27,10 @@
       return !!calendar && (calendar.id !== CAL_DEFAULT_CALENDAR_ID);
     }
 
+    function canModifyEventRecurrence(calendar, event, userId) {
+      return _isWritableForCalendar(calendar, userId) && !!event && !event.isInstance();
+    }
+
     function canModifyPublicSelection(calendar, userId) {
       return _isAdminForCalendar(calendar, userId);
     }
@@ -36,6 +41,10 @@
 
     function _isAdminForCalendar(calendar, userId) {
       return !!calendar && calendar.isAdmin(userId);
+    }
+
+    function _isWritableForCalendar(calendar, userId) {
+      return !!calendar && calendar.isWritable(userId);
     }
   }
 })();

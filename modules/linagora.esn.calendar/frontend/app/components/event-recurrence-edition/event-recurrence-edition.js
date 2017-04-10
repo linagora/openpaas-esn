@@ -10,8 +10,7 @@
       templateUrl: '/calendar/app/components/event-recurrence-edition/event-recurrence-edition.html',
       scope: {
         _event: '=event',
-        isOrganizer: '=?',
-        readOnlyEventFromSharedCalendar: '=?'
+        canModifyEventRecurrence: '=?'
       },
       link: link,
       replace: true,
@@ -60,14 +59,9 @@
 
     function activate() {
       self._event.getModifiedMaster().then(function(master) {
-        self.readOnly = checkReadOnly();
         self.event = master;
         self.freq = self.event.rrule ? self.event.rrule.freq : undefined;
       });
-    }
-
-    function checkReadOnly() {
-      return !self.isOrganizer || self._event.isInstance() || self.readOnlyEventFromSharedCalendar;
     }
 
     function toggleWeekdays(weekday) {

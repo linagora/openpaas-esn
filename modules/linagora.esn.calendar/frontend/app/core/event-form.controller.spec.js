@@ -124,14 +124,15 @@ describe('The event-form module controllers', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function($controller, $rootScope, moment, calEventUtils, CAL_EVENTS, CalendarShell, CAL_ALARM_TRIGGER, CAL_EVENT_FORM) {
+  beforeEach(angular.mock.inject(function($controller, $rootScope, moment, calEventUtils, calUIAuthorizationService, CalendarShell, CAL_EVENTS, CAL_ALARM_TRIGGER, CAL_EVENT_FORM) {
     this.rootScope = $rootScope;
     this.scope = $rootScope.$new();
     this.controller = $controller;
     this.moment = moment;
     this.calEventUtils = calEventUtils;
-    this.CAL_EVENTS = CAL_EVENTS;
+    this.calUIAuthorizationService = calUIAuthorizationService;
     this.CalendarShell = CalendarShell;
+    this.CAL_EVENTS = CAL_EVENTS;
     this.CAL_ALARM_TRIGGER = CAL_ALARM_TRIGGER;
     this.CAL_EVENT_FORM = CAL_EVENT_FORM;
   }));
@@ -140,6 +141,9 @@ describe('The event-form module controllers', function() {
     this.calEventUtils.getNewAttendees = function() {
       return [];
     };
+    sinon.stub(this.calUIAuthorizationService, 'canModifyEventRecurrence', function() {
+      return true;
+    });
   });
 
   describe('The calEventFormController controller', function() {

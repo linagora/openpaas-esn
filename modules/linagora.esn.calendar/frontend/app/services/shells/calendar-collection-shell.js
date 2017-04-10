@@ -22,13 +22,14 @@
       this.acl = calendar.acl;
       this.invite = calendar.invite;
       this.rights = new CalendarRightShell(calendar.acl, calendar.invite);
-      this.readOnly = checkReadOnly(this.rights, session.user._id);
+      this.readOnly = !this.isWritable(session.user._id);
     }
-    CalendarCollectionShell.prototype.isAdmin = isAdmin;
-    CalendarCollectionShell.prototype.isShared = isShared;
-    CalendarCollectionShell.prototype.isPublic = isPublic;
-    CalendarCollectionShell.prototype.isOwner = isOwner;
     CalendarCollectionShell.prototype.getOwner = getOwner;
+    CalendarCollectionShell.prototype.isAdmin = isAdmin;
+    CalendarCollectionShell.prototype.isOwner = isOwner;
+    CalendarCollectionShell.prototype.isPublic = isPublic;
+    CalendarCollectionShell.prototype.isShared = isShared;
+    CalendarCollectionShell.prototype.isWritable = isWritable;
 
     CalendarCollectionShell.toDavCalendar = toDavCalendar;
     CalendarCollectionShell.from = from;
@@ -80,12 +81,38 @@
     }
 
     /**
+     * Get the owner of the calendar
+     * @returns {user} return the owner of the calendar
+     */
+    function getOwner() {
+      return userAPI.user(this.rights.getOwnerId()).then(function(response) {
+        return response.data;
+      });
+    }
+
+    /**
      * Check if the userId can perform admin task on this calendar
      * @param userId
      * @returns {boolean} return true if userId has admin right on this calendar
      */
     function isAdmin(userId) {
       return this.isOwner(userId) || this.rights.getShareeRight(userId) === CAL_CALENDAR_SHARED_RIGHT.SHAREE_ADMIN;
+    }
+
+    /**
+     * Check if the user is the owner of the calendar
+     * @returns {boolean} return true if the user is the owner of the calendar
+     */
+    function isOwner(userId) {
+      return userId === this.rights.getOwnerId();
+    }
+
+    /**
+     * Check if this calendar is public
+     * @returns {boolean} return true if the calendar is public
+     */
+    function isPublic() {
+      return !!this.rights.getPublicRight();
     }
 
     /**
@@ -98,39 +125,10 @@
       return !!this.rights.getShareeRight(userId);
     }
 
-    /**
-     * Check if this calendar is public
-     * @returns {boolean} return true if the calendar is public
-     */
-    function isPublic() {
-      return !!this.rights.getPublicRight();
-    }
-
-    /**
-     * Get the owner of the calendar
-     * @returns {user} return the owner of the calendar
-     */
-    function getOwner() {
-      return userAPI.user(this.rights.getOwnerId()).then(function(response) {
-        return response.data;
-      });
-    }
-
-    /**
-     * Check if the user is the owner of the calendar
-     * @returns {boolean} return true if the user is the owner of the calendar
-     */
-    function isOwner(userId) {
-      return userId === this.rights.getOwnerId();
-    }
-
-    function checkReadOnly(rights, userId) {
-      if (rights) {
-        return ([CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ, CAL_CALENDAR_SHARED_RIGHT.SHAREE_FREE_BUSY].indexOf(rights.getShareeRight(userId)) > -1) ||
-          rights.getPublicRight() === CAL_CALENDAR_PUBLIC_RIGHT.READ;
-      }
-
-      return false;
+    function isWritable(userId) {
+      return this.isAdmin(userId) ||
+        this.rights.getShareeRight(userId) === CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ_WRITE ||
+        this.rights.getPublicRight() === CAL_CALENDAR_PUBLIC_RIGHT.READ_WRITE;
     }
   }
 })();
