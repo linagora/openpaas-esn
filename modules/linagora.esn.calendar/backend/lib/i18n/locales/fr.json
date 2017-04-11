@@ -67,7 +67,7 @@
   "Confirmation": "Confirmation",
   "This message contains an invitation to an event": "Ce message contient une invitation à un événement",
   "An error occured while processing meeting information contained in this message.": "Nous avons rencontré une erreur lors de l'analyse des informations d'événement contenu dans ce message.",
-  "Some meeting information contained in this message cannot be processed.": "Ceertaines informations ne peuvent pas être analysées sur cet événement.",
+  "Some meeting information contained in this message cannot be processed.": "Certaines informations ne peuvent pas être analysées sur cet événement.",
   "This message contains some meeting information. Please wait while we fetch the event details...": "Ce message contient des informations d'événement. Merci de patienter pendant que nous récupérons les détails de l'événement",
   "Recurs %s": "est récurrent %s",
   "This event has been cancelled": "Cet événement a été annulé",
