@@ -1,5 +1,6 @@
 'use strict';
 
+const Q = require('q');
 var userModule = require('../../core').user;
 var imageModule = require('../../core').image;
 var acceptedImageTypes = ['image/jpeg', 'image/gif', 'image/png'];
@@ -66,6 +67,51 @@ function profile(req, res) {
   });
 }
 module.exports.profile = profile;
+
+/**
+ * Get a user profile by email.
+ *
+ * @param {request} req
+ * @param {response} res
+ */
+function getProfilesByQuery(req, res) {
+  const email = req.query.email;
+
+  if (!email) {
+    return res.status(400).json({error: {code: 400, message: 'Bad parameters', details: 'User email is missing'}});
+  }
+
+  userModule.findUsersByEmail(email, (err, users) => {
+    if (err) {
+      const details = `Error while finding users by email ${email}`;
+
+      logger.error(details, err);
+
+      return res.status(500).json({
+        error: 500,
+        message: 'Server Error',
+        details
+      });
+    }
+
+    if (!users) {
+      return res.status(200).json([]);
+    }
+
+    const denormalizedUsers = users.map(user => denormalizeUser(user, {user: req.user, doNotKeepPrivateData: true}));
+
+    Q.all(denormalizedUsers)
+      .then(users => {
+        res.status(200).json(users);
+      })
+      .catch(err => res.status(500).json({
+        error: 500,
+        message: 'Error while denormalize users',
+        details: err.message
+      }));
+  });
+}
+module.exports.getProfilesByQuery = getProfilesByQuery;
 
 /**
  * Update a parameter value in the current user profile

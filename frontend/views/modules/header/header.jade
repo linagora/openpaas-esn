@@ -19,7 +19,7 @@ div
         li.hover-scale-animation
           application-menu-toggler
         li.avatar-container(ng-controller='avatarController', ui-sref="profile({ user_id: '' })")
-          img.header-avatar(ng-src="{{avatarURL}}", alt='#{__("Avatar")}')
+          esn-avatar.header-avatar(avatar-url="{{avatarURL}}", hide-user-status="true")
     sub-header-container
   sidebar
   api-notification
