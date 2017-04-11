@@ -4,7 +4,7 @@
   angular.module('esn.calendar')
          .factory('calEventUtils', calEventUtils);
 
-  function calEventUtils(_, escapeHtmlUtils, session, matchmedia, CAL_DEDAULT_EVENT_COLOR, CAL_SIGNIFICANT_CHANGE_KEYS, CAL_MAX_DURATION_OF_SMALL_EVENT, SM_XS_MEDIA_QUERY) {
+  function calEventUtils(_, escapeHtmlUtils, session, matchmedia, CAL_DEFAULT_EVENT_COLOR, CAL_SIGNIFICANT_CHANGE_KEYS, CAL_MAX_DURATION_OF_SMALL_EVENT, SM_XS_MEDIA_QUERY) {
     var editedEvent = null;
     var newAttendees = [];
 
@@ -260,7 +260,7 @@
     }
 
     function setBackgroundColor(event, calendars) {
-      event.backgroundColor = (_.find(calendars, {id: event.calendarId}) || {color: CAL_DEDAULT_EVENT_COLOR}).color;
+      event.backgroundColor = (_.find(calendars, {id: event.calendarId}) || {color: CAL_DEFAULT_EVENT_COLOR}).color;
 
       return event;
     }

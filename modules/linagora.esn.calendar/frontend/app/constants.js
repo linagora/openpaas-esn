@@ -121,7 +121,7 @@
 
     .constant('CAL_MAX_CALENDAR_RESIZE_HEIGHT', 1107)
 
-    .constant('CAL_DEDAULT_EVENT_COLOR', '#2196f3')
+    .constant('CAL_DEFAULT_EVENT_COLOR', '#2196f3')
 
     .constant('CAL_LEFT_PANEL_BOTTOM_MARGIN', 15)
 
