@@ -14,6 +14,7 @@
       canDeleteCalendar: canDeleteCalendar,
       canModifyEventRecurrence: canModifyEventRecurrence,
       canModifyPublicSelection: canModifyPublicSelection,
+      canModifyEvent: canModifyEvent,
       canShowDelegationTab: canShowDelegationTab
     };
 
@@ -29,6 +30,14 @@
 
     function canModifyEventRecurrence(calendar, event, userId) {
       return _isWritableForCalendar(calendar, userId) && !!event && !event.isInstance();
+    }
+
+    function canModifyEvent(calendar, event, userId) {
+      if (calEventUtils.isNew(event)) {
+        return true;
+      }
+
+      return _isWritableForCalendar(calendar, userId);
     }
 
     function canModifyPublicSelection(calendar, userId) {

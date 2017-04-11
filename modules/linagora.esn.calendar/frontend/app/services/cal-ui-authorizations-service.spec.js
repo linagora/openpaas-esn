@@ -101,6 +101,48 @@ describe('The calUIAuthorizationService service', function() {
     });
   });
 
+  describe('the canModifyEvent function', function() {
+    var calendar, event, userId;
+
+    beforeEach(function() {
+      calendar = {
+        isWritable: sinon.stub().returns(false)
+      };
+
+      event = {
+        event: 'event'
+      };
+      userId = 'userId';
+
+      calEventUtils.isNew = sinon.spy(function() {
+        return false;
+      });
+    });
+
+    it('should return true if new event', function() {
+      calEventUtils.isNew = sinon.spy(function() {
+        return true;
+      });
+
+      expect(calUIAuthorizationService.canModifyEvent(calendar, event, userId)).to.be.true;
+      expect(calEventUtils.isNew).to.have.been.calledWith(event);
+    });
+
+    it('should return false if not new event and calendar is not writable', function() {
+      expect(calUIAuthorizationService.canModifyEvent(calendar, event, userId)).to.be.false;
+      expect(calendar.isWritable).to.have.been.calledWith(userId);
+    });
+
+    it('should return true if not new event and calendar is writable', function() {
+      calendar = {
+        isWritable: sinon.stub().returns(true)
+      };
+
+      expect(calUIAuthorizationService.canModifyEvent(calendar, event, userId)).to.be.true;
+      expect(calendar.isWritable).to.have.been.calledWith(userId);
+    });
+  });
+
   describe('the canModifyPublicSelection function', function() {
     var calendar;
 
