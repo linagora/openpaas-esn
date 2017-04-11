@@ -12,10 +12,6 @@ describe('The calUIAuthorizationService service', function() {
       isOrganizer: sinon.stub().returns(false)
     };
 
-    event = {
-      isPublic: sinon.stub().returns(false)
-    };
-
     userId = 'userId';
 
     angular.mock.module('esn.calendar');
@@ -32,29 +28,57 @@ describe('The calUIAuthorizationService service', function() {
   });
 
   describe('The canAccessEventDetails function', function() {
-    it('should return false if event is private and logger user is not the organizer of the event', function() {
-      var result = calUIAuthorizationService.canAccessEventDetails(event);
+    var calendar, event;
 
+    beforeEach(function() {
+      event = {
+        isPublic: sinon.stub().returns(false)
+      };
+
+      calendar = {
+        isOwner: sinon.stub().returns(false),
+        isReadable: sinon.stub().returns(false)
+      };
+
+      userId = 'userId';
+    });
+
+    it('should return false if event is private and user is not the owner of the calendar', function() {
+      var result = calUIAuthorizationService.canAccessEventDetails(calendar, event, userId);
+
+      expect(calendar.isOwner).to.have.been.calledWith(userId);
       expect(event.isPublic).to.have.been.calledWith;
-      expect(calEventUtils.isOrganizer).to.have.been.calledWith(event);
       expect(result).to.be.false;
     });
 
-    it('should return true if event is public', function() {
+    it('should return false if user is not the owner of the calendar, event is public but user does not have read rights', function() {
       event.isPublic = sinon.stub().returns(true);
-      var result = calUIAuthorizationService.canAccessEventDetails(event);
 
+      var result = calUIAuthorizationService.canAccessEventDetails(calendar, event, userId);
+
+      expect(calendar.isOwner).to.have.been.calledWith(userId);
       expect(event.isPublic).to.have.been.calledWith;
-      expect(calEventUtils.isOrganizer).to.not.have.been.called;
+      expect(calendar.isReadable).to.have.been.calledWith(userId);
+      expect(result).to.be.false;
+    });
+
+    it('should return true if user is the owner of the calendar', function() {
+      calendar.isOwner = sinon.stub().returns(true);
+      var result = calUIAuthorizationService.canAccessEventDetails(calendar, event, userId);
+
+      expect(calendar.isOwner).to.have.been.calledWith(userId);
+      expect(event.isPublic).to.not.have.been.called;
       expect(result).to.be.true;
     });
 
-    it('should return true if logger user is the organizer of the event', function() {
-      calEventUtils.isOrganizer = sinon.stub().returns(true);
-      var result = calUIAuthorizationService.canAccessEventDetails(event);
+    it('should return true if event is public and user have read rights on the calendar', function() {
+      event.isPublic = sinon.stub().returns(true);
+      calendar.isReadable = sinon.stub().returns(true);
+      var result = calUIAuthorizationService.canAccessEventDetails(calendar, event, userId);
 
+      expect(calendar.isOwner).to.have.been.calledWith(userId);
       expect(event.isPublic).to.have.been.calledWith;
-      expect(calEventUtils.isOrganizer).to.have.been.calledWith(event);
+      expect(calendar.isReadable).to.have.been.calledWith(userId);
       expect(result).to.be.true;
     });
   });

@@ -20,8 +20,8 @@
 
     ////////////
 
-    function canAccessEventDetails(event) {
-      return event.isPublic() || calEventUtils.isOrganizer(event);
+    function canAccessEventDetails(calendar, event, userId) {
+      return !!calendar && calendar.isOwner(userId) || (event.isPublic() && calendar.isReadable(userId));
     }
 
     function canDeleteCalendar(calendar) {

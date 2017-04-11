@@ -94,5 +94,7 @@
   "Consult public calendar": "Tham khảo lịch công cộng",
   "Shared by": "Chia sẻ bởi",
   "Your permission": "Quyền của bạn",
-  "Owner": "Chủ nhân"
+  "Owner": "Chủ nhân",
+  "Private event": "Sự kiện riêng tư",
+  "Cannot access private event": "Không thể truy cập sự kiện riêng tư"
 }

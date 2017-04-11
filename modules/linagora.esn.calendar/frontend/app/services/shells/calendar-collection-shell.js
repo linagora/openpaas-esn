@@ -24,10 +24,12 @@
       this.rights = new CalendarRightShell(calendar.acl, calendar.invite);
       this.readOnly = !this.isWritable(session.user._id);
     }
+
     CalendarCollectionShell.prototype.getOwner = getOwner;
     CalendarCollectionShell.prototype.isAdmin = isAdmin;
     CalendarCollectionShell.prototype.isOwner = isOwner;
     CalendarCollectionShell.prototype.isPublic = isPublic;
+    CalendarCollectionShell.prototype.isReadable = isReadable;
     CalendarCollectionShell.prototype.isShared = isShared;
     CalendarCollectionShell.prototype.isWritable = isWritable;
 
@@ -116,6 +118,17 @@
     }
 
     /**
+     * Check if user has read rights on this calendar
+     * @param userId
+     * @returns {boolean} return true if the calendar is public
+     */
+    function isReadable(userId) {
+      return this.isWritable(userId) ||
+        this.rights.getShareeRight(userId) === CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ ||
+        this.rights.getPublicRight() === CAL_CALENDAR_PUBLIC_RIGHT.READ;
+    }
+
+    /**
      * Check if this calendar has been shared by another user
      * Note: if userId is the calendar owner, it doesn't have sharee right, so isShared will return false.
      * @param userId
@@ -125,6 +138,11 @@
       return !!this.rights.getShareeRight(userId);
     }
 
+    /**
+     * Check if user has write rights on this calendar
+     * @param userId
+     * @returns {boolean} return true if the calendar is public
+     */
     function isWritable(userId) {
       return this.isAdmin(userId) ||
         this.rights.getShareeRight(userId) === CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ_WRITE ||
