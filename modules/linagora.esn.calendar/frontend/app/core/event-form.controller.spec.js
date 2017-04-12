@@ -5,11 +5,13 @@
 var expect = chai.expect;
 
 describe('The event-form module controllers', function() {
-  var calendarTest, eventTest;
+  var calendarTest, eventTest, canModifyEventResult;
 
   beforeEach(function() {
     eventTest = {};
     var self = this;
+
+    canModifyEventResult = true;
 
     var calendarUtilsMock = {
       getNewStartDate: function() {
@@ -39,7 +41,8 @@ describe('The event-form module controllers', function() {
         href: 'href2',
         id: 'id2',
         color: 'color2',
-        isWritable: angular.noop
+        isWritable: angular.noop,
+        isShared: sinon.stub().returns(false)
       }
     ];
 
@@ -147,6 +150,10 @@ describe('The event-form module controllers', function() {
     sinon.stub(this.calUIAuthorizationService, 'canModifyEventRecurrence', function() {
       return true;
     });
+
+    sinon.stub(this.calUIAuthorizationService, 'canModifyEvent', function() {
+      return canModifyEventResult;
+    });
   });
 
   describe('The calEventFormController controller', function() {
@@ -197,19 +204,20 @@ describe('The event-form module controllers', function() {
 
       it('should be modifyEvent if event has a etag property', function(done) {
         this.scope.event = this.CalendarShell.fromIncompleteShell({
+          path: '/calendars/' + this.calendars[1].id + '/eventID',
           title: 'title',
           start: this.moment('2013-02-08 12:30'),
           end: this.moment('2013-02-08 13:30'),
           location: 'aLocation',
           etag: '123456'
         });
+
         this.calEventServiceMock.modifyEvent = function() {
           done();
         };
         this.initController();
         this.scope.editedEvent = this.scope.event.clone();
         this.scope.editedEvent.title = 'newTitle';
-        this.scope.isOrganizer = true;
         this.scope.calendar = {
           id: 'calendarId'
         };
@@ -337,7 +345,6 @@ describe('The event-form module controllers', function() {
           },
           otherProperty: 'aString'
         });
-        sinon.stub(this.calUIAuthorizationService, 'canModifyEvent', angular.noop);
 
         this.initController();
 
@@ -427,10 +434,6 @@ describe('The event-form module controllers', function() {
       });
 
       describe('as an organizer', function() {
-        beforeEach(function() {
-          this.scope.isOrganizer = true;
-        });
-
         it('should call modifyEvent with options.notifyFullcalendar true only if the state is calendar.main', function() {
           this.scope.event = this.CalendarShell.fromIncompleteShell({title: 'title'});
           this.$state.is = sinon.stub().returns(true);
@@ -465,7 +468,8 @@ describe('The event-form module controllers', function() {
             $alert: $alertMock
           });
 
-          this.scope.editedEvent = {};
+          this.scope.$digest();
+
           this.scope.modifyEvent();
         });
 
@@ -636,7 +640,7 @@ describe('The event-form module controllers', function() {
         it('should pass along the etag', function() {
           this.scope.event = this.CalendarShell.fromIncompleteShell({
             title: 'oldtitle',
-            path: '/path/to/event',
+            path: '/calendars/' + this.calendars[1].id + '/eventID',
             etag: '123123'
           });
           this.initController();
@@ -647,10 +651,12 @@ describe('The event-form module controllers', function() {
             etag: '123123'
           });
 
+          var self = this;
+
           this.calEventServiceMock.modifyEvent = sinon.spy(function(path, event, oldEvent, etag) {
             expect(event.title).to.equal('title');
             expect(oldEvent.title).to.equal('oldtitle');
-            expect(path).to.equal('/path/to/event');
+            expect(path).to.equal('/calendars/' + self.calendars[1].id + '/eventID');
             expect(etag).to.equal('123123');
 
             return $q.when();
@@ -664,16 +670,16 @@ describe('The event-form module controllers', function() {
         });
 
         it('should removeAllException if rrule has been changed', function() {
-          var editedEvent = {
+          var editedEvent = this.CalendarShell.fromIncompleteShell({
             title: 'title',
-            path: '/path/to/event',
+            path: '/calendars/' + this.calendars[1].id + '/eventID',
             etag: '123123',
             getOrganizerPartStat: _.constant(),
             attendees: [],
             equals: _.constant(false),
             deleteAllException: sinon.spy(),
             setOrganizerPartStat: _.constant()
-          };
+          });
 
           this.scope.event = {
             title: 'oldtitle',
@@ -693,16 +699,16 @@ describe('The event-form module controllers', function() {
         });
 
         it('should not removeAllException if rrule has not been changed', function() {
-          var editedEvent = {
+          var editedEvent = this.CalendarShell.fromIncompleteShell({
             title: 'title',
-            path: '/path/to/event',
+            path: '/calendars/' + this.calendars[1].id + '/eventID',
             etag: '123123',
             getOrganizerPartStat: _.constant(),
             attendees: [],
             equals: _.constant(true),
             deleteAllException: sinon.spy(),
             setOrganizerPartStat: _.constant()
-          };
+          });
 
           this.scope.event = {
             title: 'oldtitle',
@@ -724,7 +730,7 @@ describe('The event-form module controllers', function() {
 
       describe('as an attendee', function() {
         beforeEach(function() {
-          this.scope.isOrganizer = false;
+          canModifyEventResult = false;
         });
 
         it('should changeParticipation with ACCEPTED', function(done) {
@@ -746,10 +752,9 @@ describe('The event-form module controllers', function() {
           };
           this.initController();
 
-          this.scope.invitedAttendee = {
+          this.scope.userAsAttendee = {
             partstat: 'ACCEPTED'
           };
-          this.scope.isOrganizer = false;
           this.scope.modifyEvent();
           this.scope.$digest();
         });
@@ -782,16 +787,25 @@ describe('The event-form module controllers', function() {
       });
     });
 
-    describe('modifyEvent function', function() {
+    describe('changeParticipation function', function() {
       beforeEach(function() {
-        this.scope.event = this.CalendarShell.fromIncompleteShell({});
+        this.scope.event = this.CalendarShell.fromIncompleteShell({
+          _id: '123456',
+          start: this.moment('2013-02-08 12:30'),
+          end: this.moment('2013-02-08 13:30'),
+          organizer: {
+            email: 'user@test.com'
+          },
+          otherProperty: 'aString'
+        });
+        canModifyEventResult = false;
         this.$state.go = sinon.spy();
         this.scope.$hide = sinon.spy();
         this.initController();
+        this.scope.isOrganizer = false;
       });
 
       it('should update the event', function() {
-        this.scope.isOrganizer = false;
         var status;
 
         this.calEventServiceMock.changeParticipation = function(path, event, emails, _status_) { // eslint-disable-line
@@ -807,7 +821,6 @@ describe('The event-form module controllers', function() {
       });
 
       it('should call calEventService.changeParticipation', function() {
-        this.scope.isOrganizer = false;
         this.scope.changeParticipation('ACCEPTED');
 
         expect(this.calEventServiceMock.changeParticipation).to.have.been.called;
@@ -817,7 +830,6 @@ describe('The event-form module controllers', function() {
         this.$state.is = function(state) {
           return state === 'calendar.event.form';
         };
-        this.scope.isOrganizer = false;
         this.scope.changeParticipation('ACCEPTED');
         this.scope.$digest();
 
@@ -828,7 +840,6 @@ describe('The event-form module controllers', function() {
         this.$state.is = function(state) {
           return state === 'calendar.event.consult';
         };
-        this.scope.isOrganizer = false;
         this.scope.changeParticipation('ACCEPTED');
         this.scope.$digest();
 
@@ -837,7 +848,6 @@ describe('The event-form module controllers', function() {
 
       it('should hide the modal if user is attendee and view is quick form', function() {
         this.$state.is = sinon.stub().returns(false);
-        this.scope.isOrganizer = false;
         this.scope.changeParticipation('ACCEPTED');
         this.scope.$digest();
 
@@ -848,7 +858,15 @@ describe('The event-form module controllers', function() {
 
     describe('createEvent function', function() {
       beforeEach(function() {
-        this.scope.event = this.CalendarShell.fromIncompleteShell({});
+        this.scope.event = this.CalendarShell.fromIncompleteShell({
+          _id: '123456',
+          start: this.moment('2013-02-08 12:30'),
+          end: this.moment('2013-02-08 13:30'),
+          organizer: {
+            email: 'user@test.com'
+          },
+          otherProperty: 'aString'
+        });
         this.userUtilsMock.displayNameOf = sinon.stub().returns('first last');
         this.initController();
       });
@@ -894,8 +912,6 @@ describe('The event-form module controllers', function() {
         expect(this.scope.editedEvent).to.shallowDeepEqual({
           title: 'No title',
           attendees: [{
-            email: 'user@test.com'
-          }, {
             email: 'user1@test.com'
           }, {
             email: 'user2@test.com'
@@ -1058,6 +1074,10 @@ describe('The event-form module controllers', function() {
     });
 
     describe('updateAlarm function', function() {
+      beforeEach(function() {
+        canModifyEventResult = false;
+      });
+
       it('should do nothing if the alarm has not changed', function() {
         this.scope.event = this.CalendarShell.fromIncompleteShell({
           title: 'title',
@@ -1117,6 +1137,9 @@ describe('The event-form module controllers', function() {
     });
 
     describe('displayCalMailToAttendeesButton function', function() {
+      beforeEach(function() {
+        canModifyEventResult = false;
+      });
 
       it('should return true if the event has attendees and it is not in the grace periode and it is an old event', function() {
         this.scope.event = this.CalendarShell.fromIncompleteShell({

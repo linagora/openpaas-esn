@@ -81,57 +81,59 @@
 
         $scope.isOrganizer = calEventUtils.isOrganizer($scope.editedEvent);
 
-        if ($scope.isOrganizer) {
-          initOrganizer();
-        } else {
-          $scope.editedEvent.attendees.push($scope.editedEvent.organizer);
-        }
+        calendarService.listCalendars(calendarService.calendarHomeId)
+          .then(function(calendars) {
+            $scope.calendars = calendars;
+            $scope.calendar = calEventUtils.isNew($scope.editedEvent) ? _.find(calendars, 'selected') : _.find(calendars, {id: $scope.editedEvent.calendarId});
+            $scope.canModifyEvent = _canModifyEvent();
+          })
+          .then(function() {
+            if ($scope.canModifyEvent) {
+              setOrganizer();
+            } else {
+              $scope.editedEvent.organizer && $scope.editedEvent.attendees.push($scope.editedEvent.organizer);
+            }
 
-        $scope.userAsAttendee = null;
+            $scope.userAsAttendee = null;
 
-        $scope.editedEvent.attendees.forEach(function(attendee) {
-          if (attendee.email in session.user.emailMap) {
-            $scope.userAsAttendee = attendee;
-          }
-        });
+            $scope.editedEvent.attendees.forEach(function(attendee) {
+              if (attendee.email in session.user.emailMap) {
+                $scope.userAsAttendee = attendee;
+              }
+            });
 
-        if (!$scope.editedEvent.class) {
-          $scope.editedEvent.class = CAL_EVENT_FORM.class.default;
-        }
-
-        calendarService.listCalendars(calendarService.calendarHomeId).then(function(calendars) {
-          $scope.calendars = calendars;
-          $scope.calendar = calEventUtils.isNew($scope.editedEvent) ? _.find(calendars, 'selected') : _.find(calendars, {id: $scope.editedEvent.calendarId});
-          $scope.canModifyEvent = _canModifyEvent();
-          $scope.displayParticipationButton = displayParticipationButton();
-          $scope.displayCalMailToAttendeesButton = displayCalMailToAttendeesButton;
-
-          $scope.canModifyEventRecurrence = calUIAuthorizationService.canModifyEventRecurrence($scope.calendar, $scope.editedEvent, session.user._id);
-        });
+            if (!$scope.editedEvent.class) {
+              $scope.editedEvent.class = CAL_EVENT_FORM.class.default;
+            }
+          })
+          .then(function() {
+            $scope.displayParticipationButton = displayParticipationButton();
+            $scope.displayCalMailToAttendeesButton = displayCalMailToAttendeesButton;
+            $scope.canModifyEventRecurrence = calUIAuthorizationService.canModifyEventRecurrence($scope.calendar, $scope.editedEvent, session.user._id);
+          });
       }
 
-      function initOrganizer() {
-        var displayName = session.user.displayName || userUtils.displayNameOf(session.user);
+      function setOrganizer() {
+        var displayName;
 
-        $scope.editedEvent.organizer = { displayName: displayName, emails: session.user.emails };
-        $scope.editedEvent.setOrganizerPartStat($scope.editedEvent.getOrganizerPartStat());
-      }
-
-      function checkDelegateOrganizer() {
         if ($scope.calendar.isShared(session.user._id)) {
           return userAPI.user($scope.calendar.rights.getOwnerId()).then(function(userResponse) {
             var user = userResponse.data;
-            var displayName = userUtils.displayNameOf(user);
+
+            displayName = userUtils.displayNameOf(user);
 
             $scope.editedEvent.organizer = { displayName: displayName, emails: user.emails };
             $scope.editedEvent.setOrganizerPartStat($scope.editedEvent.getOrganizerPartStat());
-
-            return;
           });
         } else {
+          displayName = session.user.displayName || userUtils.displayNameOf(session.user);
+
+          $scope.editedEvent.organizer = { displayName: displayName, emails: session.user.emails };
+          $scope.editedEvent.setOrganizerPartStat($scope.editedEvent.getOrganizerPartStat());
+
           return $q.when();
         }
-       }
+      }
 
       function _canModifyEvent() {
         return calUIAuthorizationService.canModifyEvent($scope.calendar, $scope.editedEvent, session.user._id);
@@ -173,7 +175,7 @@
 
           $scope.restActive = true;
           _hideModal();
-          checkDelegateOrganizer()
+          setOrganizer()
             .then(function() {
               return calEventService.createEvent($scope.calendar.id, path, $scope.editedEvent, {
                 graceperiod: true,
@@ -212,12 +214,15 @@
           if (!response) {
             return _hideModal();
           }
-          var icalPartStatToReadableStatus = Object.create(null);
 
-          icalPartStatToReadableStatus.ACCEPTED = 'You will attend this meeting';
-          icalPartStatToReadableStatus.DECLINED = 'You will not attend this meeting';
-          icalPartStatToReadableStatus.TENTATIVE = 'Your participation is undefined';
-          _displayNotification(notificationFactory.weakInfo, 'Calendar - ', icalPartStatToReadableStatus[status]);
+          if (!$scope.canModifyEvent) {
+            var icalPartStatToReadableStatus = Object.create(null);
+
+            icalPartStatToReadableStatus.ACCEPTED = 'You will attend this meeting';
+            icalPartStatToReadableStatus.DECLINED = 'You will not attend this meeting';
+            icalPartStatToReadableStatus.TENTATIVE = 'You may attend this meeting';
+            _displayNotification(notificationFactory.weakInfo, 'Calendar - ', icalPartStatToReadableStatus[status]);
+          }
         }, function() {
           _displayNotification(notificationFactory.weakError, 'Event participation modification failed', '; Please refresh your calendar');
         }).finally(function() {
@@ -225,7 +230,7 @@
         });
       }
 
-      function _modifyOrganizerEvent() {
+      function _modifyEvent() {
         if (!$scope.editedEvent.title || $scope.editedEvent.title.trim().length === 0) {
           _displayError(new Error('You must define an event title'));
 
@@ -286,8 +291,8 @@
       }
 
       function modifyEvent() {
-        if ($scope.isOrganizer) {
-          _modifyOrganizerEvent();
+        if ($scope.canModifyEvent) {
+          _modifyEvent();
         } else {
           _changeParticipationAsAttendee();
         }
@@ -305,10 +310,13 @@
           $scope.$broadcast(CAL_EVENTS.EVENT_ATTENDEES_UPDATE, $scope.editedEvent.attendees);
 
           _changeParticipationAsAttendee();
-          if ($state.is('calendar.event.form') || $state.is('calendar.event.consult')) {
-            $state.go('calendar.main');
-          } else {
-            _hideModal();
+
+          if (!$scope.canModifyEvent) {
+            if ($state.is('calendar.event.form') || $state.is('calendar.event.consult')) {
+              $state.go('calendar.main');
+            } else {
+              _hideModal();
+            }
           }
         }
       }
