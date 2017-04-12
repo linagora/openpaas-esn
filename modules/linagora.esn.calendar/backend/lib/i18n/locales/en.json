@@ -94,5 +94,7 @@
   "Consult public calendar": "Consult public calendar",
   "Shared by": "Shared by",
   "Your permission": "Your permission",
-  "Owner": "Owner"
+  "Owner": "Owner",
+  "Private event": "Private event",
+  "Cannot access private event": "Cannot access private event"
 }

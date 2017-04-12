@@ -77,52 +77,52 @@ describe('CalendarCollectionShell factory', function() {
     });
 
     it('should call initialize acl with calendar.acl', function() {
-      var test = new CalendarCollectionShell(calendar);
+      var calendarCollectionShell = new CalendarCollectionShell(calendar);
 
-      expect(test.acl).to.deep.equal(calendar.acl);
+      expect(calendarCollectionShell.acl).to.deep.equal(calendar.acl);
     });
 
     it('should call initialize invite with calendar.invite', function() {
-      var test = new CalendarCollectionShell(calendar);
+      var calendarCollectionShell = new CalendarCollectionShell(calendar);
 
-      expect(test.invite).to.deep.equal(calendar.invite);
+      expect(calendarCollectionShell.invite).to.deep.equal(calendar.invite);
     });
   });
 
   describe('isAdmin fn', function() {
     it('Should return false if the user is not the owner and have not SHAREE_ADMIN rights', function() {
-      var test = new CalendarCollectionShell(calendar);
+      var calendarCollectionShell = new CalendarCollectionShell(calendar);
 
-      expect(test.isAdmin('someone_else')).to.be.false;
+      expect(calendarCollectionShell.isAdmin('someone_else')).to.be.false;
     });
 
     it('Should return true if the user is the owner', function() {
-      var test = new CalendarCollectionShell(calendar);
+      var calendarCollectionShell = new CalendarCollectionShell(calendar);
 
-      expect(test.isAdmin('ownerId')).to.be.true;
+      expect(calendarCollectionShell.isAdmin('ownerId')).to.be.true;
     });
 
     it('Should return true if the user is not the owner but have SHAREE_ADMIN rights', function() {
       calendarSharedRight = CAL_CALENDAR_SHARED_RIGHT.SHAREE_ADMIN;
 
-      var test = new CalendarCollectionShell(calendar);
+      var calendarCollectionShell = new CalendarCollectionShell(calendar);
 
-      expect(test.isAdmin('someone_else')).to.be.true;
+      expect(calendarCollectionShell.isAdmin('someone_else')).to.be.true;
     });
   });
   describe('isShared fn', function() {
     it('Should return false if calendar has no Sharee Right', function() {
       calendarSharedRight = undefined;
-      var test = new CalendarCollectionShell(calendar);
+      var calendarCollectionShell = new CalendarCollectionShell(calendar);
 
-      expect(test.isShared()).to.be.false;
+      expect(calendarCollectionShell.isShared()).to.be.false;
     });
 
     it('Should return true if calendar has Sharee Right', function() {
       calendarSharedRight = CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ;
-      var test = new CalendarCollectionShell(calendar);
+      var calendarCollectionShell = new CalendarCollectionShell(calendar);
 
-      expect(test.isShared()).to.be.true;
+      expect(calendarCollectionShell.isShared()).to.be.true;
     });
   });
 
@@ -130,75 +130,126 @@ describe('CalendarCollectionShell factory', function() {
 
     it('Should return false if the public right of calendar is different of READ and WRITE', function() {
       calendarPublicRight = undefined;
-      var test = new CalendarCollectionShell(calendar);
+      var calendarCollectionShell = new CalendarCollectionShell(calendar);
 
-      expect(test.isPublic()).to.be.false;
+      expect(calendarCollectionShell.isPublic()).to.be.false;
     });
 
     it('Should return true if calendar is public', function() {
       calendarPublicRight = CAL_CALENDAR_PUBLIC_RIGHT.READ;
-      var test = new CalendarCollectionShell(calendar);
+      var calendarCollectionShell = new CalendarCollectionShell(calendar);
 
-      expect(test.isPublic()).to.be.true;
+      expect(calendarCollectionShell.isPublic()).to.be.true;
     });
 
     it('Should return true if calendar is public', function() {
       calendarPublicRight = CAL_CALENDAR_PUBLIC_RIGHT.READ_WRITE;
-      var test = new CalendarCollectionShell(calendar);
+      var calendarCollectionShell = new CalendarCollectionShell(calendar);
 
-      expect(test.isPublic()).to.be.true;
+      expect(calendarCollectionShell.isPublic()).to.be.true;
     });
   });
 
   describe('isOwner fn', function() {
 
     it('Should return false if the user is not the owner', function() {
-      var test = new CalendarCollectionShell(calendar);
+      var calendarCollectionShell = new CalendarCollectionShell(calendar);
 
-      expect(test.isOwner('someone_else')).to.be.false;
+      expect(calendarCollectionShell.isOwner('someone_else')).to.be.false;
     });
 
     it('Should return true if the user is the owner', function() {
-      var test = new CalendarCollectionShell(calendar);
+      var calendarCollectionShell = new CalendarCollectionShell(calendar);
 
-      expect(test.isOwner('ownerId')).to.be.true;
+      expect(calendarCollectionShell.isOwner('ownerId')).to.be.true;
     });
   });
 
-  describe('isWritable fn', function() {
-    it('should return false is userId is the owner', function() {
-      var test = new CalendarCollectionShell(calendar);
+  describe('isReadable fn', function() {
+    it('should return true is userId is the owner', function() {
+      var calendarCollectionShell = new CalendarCollectionShell(calendar);
 
-      expect(test.isWritable('ownerId')).to.be.true;
+      expect(calendarCollectionShell.isReadable('ownerId')).to.be.true;
     });
 
     it('should return true is userId has SHAREE_ADMIN right', function() {
       calendarSharedRight = CAL_CALENDAR_SHARED_RIGHT.SHAREE_ADMIN;
-      var test = new CalendarCollectionShell(calendar);
+      var calendarCollectionShell = new CalendarCollectionShell(calendar);
 
-      expect(test.isWritable('someone_else')).to.be.true;
+      expect(calendarCollectionShell.isReadable('someone_else')).to.be.true;
     });
 
     it('should return true is userId has SHAREE_READ_WRITE right', function() {
       calendarSharedRight = CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ_WRITE;
-      var test = new CalendarCollectionShell(calendar);
+      var calendarCollectionShell = new CalendarCollectionShell(calendar);
 
-      expect(test.isWritable('someone_else')).to.be.true;
+      expect(calendarCollectionShell.isReadable('someone_else')).to.be.true;
+    });
+
+    it('should return true is userId has SHAREE_READ right', function() {
+      calendarSharedRight = CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ;
+      var calendarCollectionShell = new CalendarCollectionShell(calendar);
+
+      expect(calendarCollectionShell.isReadable('someone_else')).to.be.true;
     });
 
     it('should return true is userId has PUBLIC_READ_WRITE right', function() {
       calendarPublicRight = CAL_CALENDAR_PUBLIC_RIGHT.READ_WRITE;
-      var test = new CalendarCollectionShell(calendar);
+      var calendarCollectionShell = new CalendarCollectionShell(calendar);
 
-      expect(test.isWritable('someone_else')).to.be.true;
+      expect(calendarCollectionShell.isReadable('someone_else')).to.be.true;
+    });
+
+    it('should return true is userId has PUBLIC_READ right', function() {
+      calendarPublicRight = CAL_CALENDAR_PUBLIC_RIGHT.READ;
+      var calendarCollectionShell = new CalendarCollectionShell(calendar);
+
+      expect(calendarCollectionShell.isReadable('someone_else')).to.be.true;
+    });
+
+    it('should return false is userId has FREE_BUSY or SHAREE_FREE_BUSY right', function() {
+      calendarSharedRight = CAL_CALENDAR_SHARED_RIGHT.SHAREE_FREE_BUSY;
+      calendarPublicRight = CAL_CALENDAR_PUBLIC_RIGHT.FREE_BUSY;
+      var calendarCollectionShell = new CalendarCollectionShell(calendar);
+
+      expect(calendarCollectionShell.isReadable('someone_else')).to.be.false;
+    });
+  });
+
+  describe('isWritable fn', function() {
+    it('should return true is userId is the owner', function() {
+      var calendarCollectionShell = new CalendarCollectionShell(calendar);
+
+      expect(calendarCollectionShell.isWritable('ownerId')).to.be.true;
+    });
+
+    it('should return true is userId has SHAREE_ADMIN right', function() {
+      calendarSharedRight = CAL_CALENDAR_SHARED_RIGHT.SHAREE_ADMIN;
+      var calendarCollectionShell = new CalendarCollectionShell(calendar);
+
+      expect(calendarCollectionShell.isWritable('someone_else')).to.be.true;
+    });
+
+    it('should return true is userId has SHAREE_READ_WRITE right', function() {
+      calendarSharedRight = CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ_WRITE;
+      var calendarCollectionShell = new CalendarCollectionShell(calendar);
+
+      expect(calendarCollectionShell.isWritable('someone_else')).to.be.true;
+    });
+
+    it('should return true is userId has PUBLIC_READ_WRITE right', function() {
+      calendarPublicRight = CAL_CALENDAR_PUBLIC_RIGHT.READ_WRITE;
+      var calendarCollectionShell = new CalendarCollectionShell(calendar);
+
+      expect(calendarCollectionShell.isWritable('someone_else')).to.be.true;
     });
 
     it('should return false is userId has PUBLIC_READ or SHAREE_READ right', function() {
       calendarSharedRight = CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ;
       calendarPublicRight = CAL_CALENDAR_PUBLIC_RIGHT.READ;
-      var test = new CalendarCollectionShell(calendar);
+      var calendarCollectionShell = new CalendarCollectionShell(calendar);
 
-      expect(test.isWritable('someone_else')).to.be.false;
+      expect(calendarCollectionShell.isWritable('someone_else')).to.be.false;
     });
   });
 
@@ -285,9 +336,9 @@ describe('CalendarCollectionShell factory', function() {
   describe('getOwner function', function() {
 
     it('should return the calendar owner from a calendar', function(done) {
-      var test = new CalendarCollectionShell(calendar);
+      var calendarCollectionShell = new CalendarCollectionShell(calendar);
 
-      test.getOwner().then(function(owner) {
+      calendarCollectionShell.getOwner().then(function(owner) {
         expect(owner).to.deep.equal(calendarOwner);
 
         done();
@@ -298,9 +349,9 @@ describe('CalendarCollectionShell factory', function() {
 
     it('should return an empty object if we do not find the owner', function(done) {
       calendarOwnerId = 'someone_else';
-      var test = new CalendarCollectionShell(calendar);
+      var calendarCollectionShell = new CalendarCollectionShell(calendar);
 
-      test.getOwner().then(function(owner) {
+      calendarCollectionShell.getOwner().then(function(owner) {
         expect(owner).to.deep.equal({});
 
         done();

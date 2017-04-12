@@ -12,27 +12,29 @@
   angular.module('esn.calendar')
     .factory('calOpenEventForm', calOpenEventForm);
 
-  function calOpenEventForm($rootScope, $modal, $state, matchmedia, calendarService, calEventUtils, calUIAuthorizationService, SM_XS_MEDIA_QUERY, CAL_EVENTS) {
+  function calOpenEventForm($rootScope, $modal, $state, calendarService, calEventUtils, calUIAuthorizationService, matchmedia, notificationFactory, SM_XS_MEDIA_QUERY, CAL_DEFAULT_CALENDAR_ID, CAL_EVENTS) {
     var modalIsOpen = false;
 
     return function calOpenEventForm(event) {
-      if (!calUIAuthorizationService.canAccessEventDetails(event)) {
-        return;
-      }
-
-      if (!event.isInstance()) {
-        _openForm(event);
-      } else {
-        _openRecurringModal(event);
-      }
+      calendarService.getCalendar(calendarService.calendarHomeId, event.calendarId || CAL_DEFAULT_CALENDAR_ID).then(function(calendar) {
+        if (calUIAuthorizationService.canAccessEventDetails(calendar, event, calendarService.calendarHomeId)) {
+          if (!event.isInstance()) {
+            _openForm(calendar, event);
+          } else {
+            _openRecurringModal(event);
+          }
+        } else {
+          notificationFactory.weakInfo('Private event', 'Cannot access private event');
+        }
+      });
     };
 
     ////////////
 
-    function _openForm(event) {
+    function _openForm(calendar, event) {
       calEventUtils.setEditedEvent(event);
       if (matchmedia.is(SM_XS_MEDIA_QUERY)) {
-        if (calEventUtils.isOrganizer(event)) {
+        if (calUIAuthorizationService.canModifyEvent(calendar, event, calendarService.calendarHomeId)) {
           $state.go('calendar.event.form', {calendarHomeId: calendarService.calendarHomeId, eventId: event.id});
         } else {
           $state.go('calendar.event.consult', {calendarHomeId: calendarService.calendarHomeId, eventId: event.id});
