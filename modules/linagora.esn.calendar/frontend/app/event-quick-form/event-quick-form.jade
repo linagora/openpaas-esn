@@ -42,7 +42,7 @@ form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': !
           cal-attendees-list(ng-if='editedEvent.attendees.length > 1 || newAttendees.length > 0', attendees='editedEvent.attendees', read-only='!canModifyEvent', organizer='editedEvent.organizer', mode='edition')
       .modal-footer.flex
         .flex-vertical-centered.flex-start
-          .delete-button(ng-if="isOrganizer && (isInvolvedInATask(editedEvent) || !isNew(editedEvent))")
+          .delete-button(ng-if="canModifyEvent && (isInvolvedInATask(editedEvent) || !isNew(editedEvent))")
             button.btn.btn-link.btn-icon.color-danger.delete(type='button', ng-click="deleteEvent()", ng-disabled="!canPerformCall()")
               i.mdi.mdi-delete
           .options-button
@@ -51,4 +51,4 @@ form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': !
           .close-button
             button.btn.btn-link.color-default(type='button', ng-click="$hide()") #{__('Cancel')}
           .save-button
-            button.btn.btn-primary.save(ng-if='isOrganizer' type='submit', ng-disabled="!canPerformCall()") #{__('Save')}
+            button.btn.btn-primary.save(ng-if='canModifyEvent' type='submit', ng-disabled="!canPerformCall()") #{__('Save')}

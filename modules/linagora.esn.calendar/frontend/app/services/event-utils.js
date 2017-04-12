@@ -6,7 +6,7 @@
 
   function calEventUtils(_, escapeHtmlUtils, session, matchmedia, CAL_DEDAULT_EVENT_COLOR, CAL_SIGNIFICANT_CHANGE_KEYS, CAL_MAX_DURATION_OF_SMALL_EVENT, SM_XS_MEDIA_QUERY) {
     var editedEvent = null;
-    var newAttendees = null;
+    var newAttendees = [];
 
     var service = {
       editedEvent: editedEvent,

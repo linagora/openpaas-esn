@@ -5,6 +5,7 @@
     .factory('calWebsocketListenerService', calWebsocketListenerService);
 
   function calWebsocketListenerService(
+    $q,
     livenotification,
     calCachedEventSource,
     calEventService,
