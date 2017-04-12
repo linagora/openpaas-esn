@@ -27,7 +27,9 @@ module.exports = {
         davserver: {},
         amqp: {},
         redis: {},
-        oauth: {},
+        oauth: {
+          pubsub: true
+        },
         session: {},
         james: {},
         jwt: {},

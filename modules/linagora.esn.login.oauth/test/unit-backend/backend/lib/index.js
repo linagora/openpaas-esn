@@ -19,12 +19,31 @@ describe('The login oauth backend module', function() {
   var dependencies = function(name) {
     return deps[name];
   };
+  let pubsubMock, esnConfigMock;
 
   beforeEach(function() {
     configMock = {};
+    pubsubMock = {
+      global: {
+        topic() {
+          return {
+            subscribe() {}
+          };
+        }
+      }
+    };
+    esnConfigMock = {
+      constants: {
+        EVENTS: {
+          CONFIG_UPDATED: 'esn-config:config:updated'
+        }
+      }
+    };
     deps = {
       logger: logger,
-      config: config
+      config: config,
+      pubsub: pubsubMock,
+      'esn-config': esnConfigMock
     };
   });
 
@@ -104,5 +123,88 @@ describe('The login oauth backend module', function() {
         done();
       });
     });
+
+    it('should listen on pubsub event to reconfigure when OAuth config updated', function(done) {
+      const configureSpy = sinon.spy(callback => callback());
+      let subscriber;
+
+      configMock = {
+        auth: {
+          oauth: {
+            strategies: ['facebook']
+          }
+        }
+      };
+      mockery.registerMock('./strategies/facebook', function() {
+        return {
+          configure: configureSpy
+        };
+      });
+
+      pubsubMock.global.topic = topic => {
+        expect(topic).to.equal(esnConfigMock.constants.EVENTS.CONFIG_UPDATED);
+
+        return {
+          subscribe(callback) {
+            subscriber = callback;
+          }
+        };
+      };
+
+      getModule().start(() => {
+        expect(configureSpy).to.have.been.calledOnce;
+
+        subscriber({
+          moduleName: 'core',
+          configsUpdated: [{ name: 'oauth' }]
+        });
+
+        expect(configureSpy).to.have.been.calledTwice;
+
+        done();
+      });
+    });
+
+    it('should not reconfigure when OAuth is not updated', function(done) {
+      const configureSpy = sinon.spy(callback => callback());
+      let subscriber;
+
+      configMock = {
+        auth: {
+          oauth: {
+            strategies: ['facebook']
+          }
+        }
+      };
+      mockery.registerMock('./strategies/facebook', function() {
+        return {
+          configure: configureSpy
+        };
+      });
+
+      pubsubMock.global.topic = topic => {
+        expect(topic).to.equal(esnConfigMock.constants.EVENTS.CONFIG_UPDATED);
+
+        return {
+          subscribe(callback) {
+            subscriber = callback;
+          }
+        };
+      };
+
+      getModule().start(() => {
+        expect(configureSpy).to.have.been.calledOnce;
+
+        subscriber({
+          moduleName: 'core',
+          configsUpdated: [{ name: 'not_oauth' }]
+        });
+
+        expect(configureSpy).to.have.been.calledOnce;
+
+        done();
+      });
+    });
+
   });
 });
