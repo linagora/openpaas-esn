@@ -5,31 +5,38 @@ const eventHelper = require('../helpers/event');
 const ICAL = require('ical.js');
 
 module.exports = dependencies => {
-  const logger = dependencies('logger');
   const pubsub = dependencies('pubsub');
 
   return {
     listen
   };
 
-  function forwardEvent(msg) {
-    const data = eventHelper.parseEventPath(msg.eventPath);
-    const action = msg.websocketEvent;
-
-    data.ics = (new ICAL.Component(msg.event)).toString();
-
-    if (action === EVENTS.EVENT.CREATED || action === EVENTS.EVENT.REQUEST) {
-      pubsub.local.topic(NOTIFICATIONS.EVENT_ADDED).publish(data);
-    } else if (action === EVENTS.EVENT.UPDATED || action === EVENTS.EVENT.REPLY) {
-      pubsub.local.topic(NOTIFICATIONS.EVENT_UPDATED).publish(data);
-    } else if (action === EVENTS.EVENT.DELETED || action === EVENTS.EVENT.CANCEL) {
-      pubsub.local.topic(NOTIFICATIONS.EVENT_DELETED).publish(data);
-    } else {
-      logger.warn('Unknow Event type received for Calendar Indexing', action);
-    }
-  }
-
   function listen() {
-    pubsub.global.topic(EVENTS.TOPIC.EVENT).subscribe(forwardEvent);
+    pubsub.global.topic(EVENTS.EVENT.CREATED).subscribe(added);
+    pubsub.global.topic(EVENTS.EVENT.REQUEST).subscribe(added);
+    pubsub.global.topic(EVENTS.EVENT.UPDATED).subscribe(updated);
+    pubsub.global.topic(EVENTS.EVENT.REPLY).subscribe(updated);
+    pubsub.global.topic(EVENTS.EVENT.DELETED).subscribe(deleted);
+    pubsub.global.topic(EVENTS.EVENT.CANCEL).subscribe(deleted);
+
+    function parse(msg) {
+      const data = eventHelper.parseEventPath(msg.eventPath);
+
+      data.ics = (new ICAL.Component(msg.event)).toString();
+
+      return data;
+    }
+
+    function added(msg) {
+      pubsub.local.topic(NOTIFICATIONS.EVENT_ADDED).publish(parse(msg));
+    }
+
+    function updated(msg) {
+      pubsub.local.topic(NOTIFICATIONS.EVENT_UPDATED).publish(parse(msg));
+    }
+
+    function deleted(msg) {
+      pubsub.local.topic(NOTIFICATIONS.EVENT_DELETED).publish(parse(msg));
+    }
   }
 };

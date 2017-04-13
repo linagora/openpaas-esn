@@ -156,7 +156,7 @@ describe('The calWebsocketListenerService service', function() {
     it('should remove all liveNotification listeners when calling clean', function() {
       listener.clean();
 
-      expect(listener.sio.removeListener.getCalls().length).to.equal(6);
+      expect(listener.sio.removeListener.getCalls().length).to.equal(9);
     });
 
     it('should update event on calCachedEventSource and emit a fullCalendar event for a modification on EVENT_CREATED', function() {

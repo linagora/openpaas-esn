@@ -42,6 +42,42 @@ describe('The calendarService service', function() {
     this.CAL_DEFAULT_CALENDAR_ID = CAL_DEFAULT_CALENDAR_ID;
   }));
 
+  describe('The removeAndEmit function', function() {
+    it('should broadcast a CALENDARS.REMOVE event when the calendar has been created', function() {
+      var calendar = {id: 'calId'};
+
+      this.$rootScope.$broadcast = sinon.stub().returns({});
+      this.calendarService.removeAndEmit('homeId', calendar);
+      this.$rootScope.$digest();
+
+      expect(self.$rootScope.$broadcast).to.have.been.calledWith(this.CAL_EVENTS.CALENDARS.REMOVE, calendar);
+    });
+  });
+
+  describe('The addAndEmit function', function() {
+    it('should broadcast a CALENDARS.REMOVE event when the calendar has been created', function() {
+      var calendar = {id: 'calId'};
+
+      this.$rootScope.$broadcast = sinon.stub().returns({});
+      this.calendarService.addAndEmit('homeId', calendar);
+      this.$rootScope.$digest();
+
+      expect(self.$rootScope.$broadcast).to.have.been.calledWith(this.CAL_EVENTS.CALENDARS.ADD, calendar);
+    });
+  });
+
+  describe('The updateAndEmit function', function() {
+    it('should broadcast a CALENDARS.UPDATE event when the calendar has been created', function() {
+      var calendar = {id: 'calId'};
+
+      this.$rootScope.$broadcast = sinon.stub().returns({});
+      this.calendarService.updateAndEmit('homeId', calendar);
+      this.$rootScope.$digest();
+
+      expect(self.$rootScope.$broadcast).to.have.been.calledWith(this.CAL_EVENTS.CALENDARS.UPDATE, calendar);
+    });
+  });
+
   describe('The listCalendars fn', function() {
     var response;
 

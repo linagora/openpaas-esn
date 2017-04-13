@@ -1,8 +1,6 @@
 'use strict';
 
-const NAMESPACE = '/calendars';
-const CONSTANTS = require('../lib/constants');
-const PUBSUB_EVENT = CONSTANTS.EVENTS.TOPIC.EVENT;
+const {EVENTS, WEBSOCKET} = require('../lib/constants');
 const _ = require('lodash');
 let initialized = false;
 
@@ -14,7 +12,8 @@ function init(dependencies) {
   const logger = dependencies('logger');
   const pubsub = dependencies('pubsub');
   const io = dependencies('wsserver').io;
-  const ioHelper = dependencies('wsserver').ioHelper;
+  const eventHandler = require('./handlers/event')(dependencies);
+  const calendarHandler = require('./handlers/calendar')(dependencies);
 
   if (initialized) {
     logger.warn('The calendar notification service is already initialized');
@@ -22,14 +21,26 @@ function init(dependencies) {
     return;
   }
 
-  pubsub.global.topic(PUBSUB_EVENT).subscribe(msg => {
-    pubsub.local.topic(PUBSUB_EVENT).publish(msg);
-    notify(io, ioHelper, msg.websocketEvent, msg);
+  _.forOwn(EVENTS.EVENT, topic => {
+    logger.debug('Subscribing to global topic', topic);
+    pubsub.global.topic(topic).subscribe(msg => {
+      logger.debug('Received a message on', topic);
+      pubsub.local.topic(topic).publish(msg);
+      eventHandler.notify(topic, msg);
+    });
   });
 
-  io.of(NAMESPACE)
+  _.forOwn(EVENTS.CALENDAR, topic => {
+    logger.debug('Subscribing to global topic', topic);
+    pubsub.global.topic(topic).subscribe(msg => {
+      logger.debug('Received a message on', topic, msg);
+      calendarHandler.notify(topic, msg);
+    });
+  });
+
+  io.of(WEBSOCKET.NAMESPACE)
     .on('connection', socket => {
-      logger.info('New connection on ' + NAMESPACE);
+      logger.info('New connection on', WEBSOCKET.NAMESPACE);
 
       socket.on('subscribe', uuid => {
         logger.info('Joining room', uuid);
@@ -42,38 +53,4 @@ function init(dependencies) {
       });
     });
   initialized = true;
-}
-
-function parseEventPath(eventPath) {
-  // The eventPath is in this form : /calendars/{{userId}}/calendarId/{{eventUid}}
-  const pathParts = eventPath.replace(/^\//, '').split('/');
-
-  return {
-    userId: pathParts[1],
-    calendarId: pathParts[2],
-    eventUid: pathParts[3].replace(/\.ics$/, '')
-  };
-}
-
-function parseUserPrincipal(userPrincipal) {
-  // The userPrincipal is in this form : principals/users/{{userId}}
-  const pathParts = userPrincipal.split('/');
-
-  return pathParts[2];
-}
-
-function notify(io, ioHelper, event, msg) {
-  const userIds = [parseEventPath(msg.eventPath).userId];
-
-  if (msg.shareeIds) {
-    msg.shareeIds.forEach(shareePrincipals => userIds.push(parseUserPrincipal(shareePrincipals)));
-  }
-
-  delete msg.shareeIds;
-
-  userIds.forEach(userId => {
-    const clientSockets = ioHelper.getUserSocketsFromNamespace(userId, io.of(NAMESPACE).sockets) || [];
-
-    _.invokeMap(clientSockets, 'emit', event, msg);
-  });
 }
