@@ -6,7 +6,9 @@
 
   function calUIAuthorizationService(
     calEventUtils,
-    CAL_DEFAULT_CALENDAR_ID
+    CAL_DEFAULT_CALENDAR_ID,
+    CAL_CALENDAR_PUBLIC_RIGHT,
+    CAL_CALENDAR_SHARED_RIGHT
   ) {
 
     return {
@@ -21,7 +23,7 @@
     ////////////
 
     function canAccessEventDetails(calendar, event, userId) {
-      return !!calendar && calendar.isOwner(userId) || (event.isPublic() && calendar.isReadable(userId));
+      return !!calendar && !!event && (calEventUtils.isOrganizer(event) || (event.isPublic() && calendar.isReadable(userId)));
     }
 
     function canDeleteCalendar(calendar) {
@@ -29,15 +31,15 @@
     }
 
     function canModifyEventRecurrence(calendar, event, userId) {
-      return _isWritableForCalendar(calendar, userId) && !!event && !event.isInstance();
+      return _canModifyEvent(calendar, event, userId) && !!event && !event.isInstance();
     }
 
     function canModifyEvent(calendar, event, userId) {
-      if (calEventUtils.isNew(event)) {
+      if (!!event && calEventUtils.isNew(event)) {
         return true;
       }
 
-      return _isWritableForCalendar(calendar, userId);
+      return _canModifyEvent(calendar, event, userId);
     }
 
     function canModifyPublicSelection(calendar, userId) {
@@ -52,8 +54,20 @@
       return !!calendar && calendar.isAdmin(userId);
     }
 
-    function _isWritableForCalendar(calendar, userId) {
-      return !!calendar && calendar.isWritable(userId);
+    function _canModifyEvent(calendar, event, userId) {
+      var publicRight, sharedRight;
+
+      if (!!calendar && !!event) {
+        sharedRight = calendar.rights.getShareeRight(userId);
+        publicRight = calendar.rights.getPublicRight();
+
+        return calEventUtils.isOrganizer(event) ||
+        sharedRight === CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ_WRITE ||
+        sharedRight === CAL_CALENDAR_SHARED_RIGHT.SHAREE_ADMIN ||
+        publicRight === CAL_CALENDAR_PUBLIC_RIGHT.READ_WRITE;
+      }
+
+      return false;
     }
   }
 })();
