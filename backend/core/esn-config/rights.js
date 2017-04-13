@@ -6,7 +6,9 @@ module.exports = {
   userCanRead,
   userCanWrite,
   adminCanRead,
-  adminCanWrite
+  adminCanWrite,
+  padminCanRead,
+  padminCanWrite
 };
 
 function userCanRead(moduleName, configName) {
@@ -23,6 +25,14 @@ function adminCanRead(moduleName, configName) {
 
 function adminCanWrite(moduleName, configName) {
   return _can('admin', 'w', moduleName, configName);
+}
+
+function padminCanRead(moduleName, configName) {
+  return _can('padmin', 'r', moduleName, configName);
+}
+
+function padminCanWrite(moduleName, configName) {
+  return _can('padmin', 'w', moduleName, configName);
 }
 
 function _can(role, rights, moduleName, configName) {
