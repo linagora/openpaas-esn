@@ -7,6 +7,7 @@ module.exports = {
   CONFIG_METADATA: {
     core: {
       rights: {
+        padmin: 'rw',
         admin: 'rw'
       },
       configurations: {
