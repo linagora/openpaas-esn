@@ -1,4 +1,4 @@
-button.btn.btn-link.btn-icon.visible-xl.waves-notransition(ng-if="$root.inbox.rightSidebar.isVisible", ui-sref="^", title="#{__('Hide emails with attachments')}")
+button.btn.btn-link.btn-icon.visible-xl.waves-notransition.active(ng-if="$root.inbox.rightSidebar.isVisible", ui-sref="^", title="#{__('Hide emails with attachments')}")
   i.mdi.mdi-paperclip
 button.btn.btn-link.btn-icon.visible-xl.waves-notransition(ng-if="!$root.inbox.rightSidebar.isVisible", ui-sref=".attachments", title="#{__('Show emails with attachments')}")
   i.mdi.mdi-paperclip
