@@ -108,6 +108,7 @@ describe('The module manager', function() {
         'linagora.esn.core.webserver.middleware.login-rules',
         'linagora.esn.core.webserver.middleware.message',
         'linagora.esn.core.webserver.middleware.notification',
+        'linagora.esn.core.webserver.middleware.platformadmins',
         'linagora.esn.core.webserver.middleware.request',
         'linagora.esn.core.webserver.middleware.resource-link',
         'linagora.esn.core.webserver.middleware.setup-routes',

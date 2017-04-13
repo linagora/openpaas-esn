@@ -100,6 +100,7 @@ function mockMiddlewares() {
     'login-rules',
     'message',
     'notification',
+    'platformadmins',
     'request',
     'resource-link',
     'setup-routes',
