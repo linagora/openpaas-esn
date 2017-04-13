@@ -18,7 +18,6 @@ describe('The websocket calendar handler module', function() {
     this.helper = {
       getUserSocketsFromNamespace: function() {}
     };
-    this.moduleHelpers.addDep('logger', self.logger);
     this.moduleHelpers.addDep('wsserver', {io: self.io, ioHelper: self.helper});
   });
 
@@ -64,6 +63,18 @@ describe('The websocket calendar handler module', function() {
     });
 
     it('should not emit when calendarPath is invalid', function() {
+      var message = {
+        calendarPath: {}
+      };
+      var module = require(this.moduleHelpers.backendPath + '/ws/handlers/calendar')(this.moduleHelpers.dependencies);
+
+      sinon.spy(this.helper, 'getUserSocketsFromNamespace');
+      module.notify(topic, message);
+
+      expect(this.helper.getUserSocketsFromNamespace).to.not.have.been.called;
+    });
+
+    it('should not emit when calendarPath.replace failed', function() {
       var message = {
         calendarPath: '/calendars'
       };

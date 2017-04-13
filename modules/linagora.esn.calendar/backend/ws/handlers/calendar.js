@@ -6,19 +6,26 @@ const WEBSOCKET = require('../../lib/constants').WEBSOCKET;
 module.exports = dependencies => {
   const io = dependencies('wsserver').io;
   const ioHelper = dependencies('wsserver').ioHelper;
+  const logger = dependencies('logger');
 
   return {
     notify
   };
 
   function notify(topic, message) {
-    const userId = parseCalendarPath(message.calendarPath).calendarHomeId;
+    let calendarHomeId;
 
-    if (!userId) {
+    try {
+      calendarHomeId = parseCalendarPath(message.calendarPath).calendarHomeId;
+    } catch (err) {
+      logger.error('Error while parsing calendar path', err);
+    }
+
+    if (!calendarHomeId) {
       return;
     }
 
-    const clientSockets = ioHelper.getUserSocketsFromNamespace(userId, io.of(WEBSOCKET.NAMESPACE).sockets) || [];
+    const clientSockets = ioHelper.getUserSocketsFromNamespace(calendarHomeId, io.of(WEBSOCKET.NAMESPACE).sockets) || [];
 
     _.invokeMap(clientSockets, 'emit', topic, message);
   }

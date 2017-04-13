@@ -18,7 +18,6 @@ describe('The websocket event handler module', function() {
     this.helper = {
       getUserSocketsFromNamespace: function() {}
     };
-    this.moduleHelpers.addDep('logger', self.logger);
     this.moduleHelpers.addDep('wsserver', {io: self.io, ioHelper: self.helper});
   });
 
@@ -70,6 +69,18 @@ describe('The websocket event handler module', function() {
       websockets.forEach(function(websocket) {
         expect(websocket.emit).to.have.been.calledWith(topic, message);
       });
+    });
+
+    it('should not emit when eventPath.replace failed', function() {
+      var message = {
+        eventPath: {}
+      };
+      var module = require(this.moduleHelpers.backendPath + '/ws/handlers/event')(this.moduleHelpers.dependencies);
+
+      sinon.spy(this.helper, 'getUserSocketsFromNamespace');
+      module.notify(topic, message);
+
+      expect(this.helper.getUserSocketsFromNamespace).to.not.have.been.called;
     });
 
     it('should delete the ids of the sharees in the event object', function() {

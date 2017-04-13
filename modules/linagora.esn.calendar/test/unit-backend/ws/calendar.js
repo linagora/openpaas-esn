@@ -5,10 +5,11 @@ const mockery = require('mockery');
 const _ = require('lodash');
 const sinon = require('sinon');
 const CONSTANTS = require('../../../backend/lib/constants');
+const eventsName = Object.keys(CONSTANTS.EVENTS.EVENT).map(key => CONSTANTS.EVENTS.EVENT[key]);
 
 describe('The calendar WS events module', function() {
   describe('init function', function() {
-    var self, eventHandler, calendarHandler;
+    let self, eventHandler, calendarHandler;
 
     beforeEach(function() {
       this.moduleHelpers.backendPath = this.moduleHelpers.modulesPath + 'linagora.esn.calendar/backend';
@@ -27,7 +28,7 @@ describe('The calendar WS events module', function() {
       this.pubsub = {
         global: {
           topic: sinon.spy(function(name) {
-            if (CONSTANTS.EVENTS.EVENT[name]) {
+            if (eventsName.indexOf(name) > -1) {
               return {
                 subscribe: self.eventSubscribeSpy
               };
@@ -48,7 +49,7 @@ describe('The calendar WS events module', function() {
       };
       this.io = {
         of: function() {
-          var socket = {
+          const socket = {
             on: function() {
             }
           };
@@ -91,7 +92,7 @@ describe('The calendar WS events module', function() {
     });
 
     it('should register global pubsub subscribers for supported events', function() {
-      var mod = require(this.moduleHelpers.backendPath + '/ws/calendar');
+      const mod = require(this.moduleHelpers.backendPath + '/ws/calendar');
 
       mod.init(this.moduleHelpers.dependencies);
       _.forOwn(CONSTANTS.EVENTS.EVENT, topic => {
@@ -105,34 +106,36 @@ describe('The calendar WS events module', function() {
 
     describe('When message is received in events global pubsub', function() {
       beforeEach(function() {
-        var mod = require(this.moduleHelpers.backendPath + '/ws/calendar');
+        const mod = require(this.moduleHelpers.backendPath + '/ws/calendar');
 
         mod.init(this.moduleHelpers.dependencies);
       });
 
       it('should publish it to local and call eventHandler.notify', function() {
-        var message = {foo: 'bar'};
+        const message = {foo: 'bar'};
+        const lastKey = Object.keys(CONSTANTS.EVENTS.EVENT).pop();
 
         self.eventUpdatedPubsubCallback(message);
 
-        expect(eventHandler.notify).to.have.been.calledWith(message);
+        expect(eventHandler.notify).to.have.been.calledWith(CONSTANTS.EVENTS.EVENT[lastKey], message);
         expect(self.publishSpy).to.have.been.calledWith(message);
       });
     });
 
     describe('When message is received in calendars global pubsub', function() {
       beforeEach(function() {
-        var mod = require(this.moduleHelpers.backendPath + '/ws/calendar');
+        const mod = require(this.moduleHelpers.backendPath + '/ws/calendar');
 
         mod.init(this.moduleHelpers.dependencies);
       });
 
       it('should call calendarHandler.notify', function() {
-        var message = {foo: 'bar'};
+        const message = {foo: 'bar'};
+        const lastKey = Object.keys(CONSTANTS.EVENTS.CALENDAR).pop();
 
         self.calendarUpdatedPubsubCallback(message);
 
-        expect(calendarHandler.notify).to.have.been.calledWith(message);
+        expect(calendarHandler.notify).to.have.been.calledWith(CONSTANTS.EVENTS.CALENDAR[lastKey], message);
         expect(self.publishSpy).to.not.have.been.called;
       });
     });

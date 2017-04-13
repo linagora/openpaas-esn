@@ -56,9 +56,9 @@
         $log.debug('Received a new calendar', msg);
         var calendarPath = calPathParser.parseCalendarPath(msg.calendarPath);
 
-        calendarService.getCalendar(calendarPath.calendarHomeId, calendarPath.calendarId).then(function(shell) {
-          if (shell) {
-            calendarService.addAndEmit(calendarPath.calendarHomeId, shell);
+        calendarService.getCalendar(calendarPath.calendarHomeId, calendarPath.calendarId).then(function(calendarCollectionShell) {
+          if (calendarCollectionShell) {
+            calendarService.addAndEmit(calendarPath.calendarHomeId, calendarCollectionShell);
           }
 
         }).catch(function(err) {
@@ -77,9 +77,9 @@
         $log.debug('Calendar updated', msg);
         var calendarPath = calPathParser.parseCalendarPath(msg.calendarPath);
 
-        calendarService.getCalendar(calendarPath.calendarHomeId, calendarPath.calendarId).then(function(shell) {
-          if (shell) {
-            calendarService.updateAndEmit(calendarPath.calendarHomeId, shell);
+        calendarService.getCalendar(calendarPath.calendarHomeId, calendarPath.calendarId).then(function(calendarCollectionShell) {
+          if (calendarCollectionShell) {
+            calendarService.updateAndEmit(calendarPath.calendarHomeId, calendarCollectionShell);
           }
 
         }).catch(function(err) {

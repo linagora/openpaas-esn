@@ -6,13 +6,24 @@ const WEBSOCKET = require('../../lib/constants').WEBSOCKET;
 module.exports = dependencies => {
   const io = dependencies('wsserver').io;
   const ioHelper = dependencies('wsserver').ioHelper;
+  const logger = dependencies('logger');
 
   return {
     notify
   };
 
   function notify(topic, msg) {
-    const userIds = [parseEventPath(msg.eventPath).userId];
+    let userIds;
+
+    try {
+      userIds = [parseEventPath(msg.eventPath).userId];
+    } catch (err) {
+      logger.error('Error while parsing calendar event path', err);
+    }
+
+    if (!userIds) {
+      return;
+    }
 
     if (msg.shareeIds) {
       msg.shareeIds.forEach(shareePrincipals => userIds.push(parseUserPrincipal(shareePrincipals)));
