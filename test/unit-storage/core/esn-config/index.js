@@ -599,4 +599,60 @@ describe('The esn-config module', function() {
     });
 
   });
+
+  describe('pubsub on config updated', function() {
+    let pubsub, esnConfig, client;
+
+    beforeEach(function(done) {
+      const doc = {
+        modules: [{
+          name: 'core',
+          configurations: [{
+            name: 'amqp',
+            value: { url: this.testEnv.serversConfig.rabbitmq.url }
+          }]
+        }]
+      };
+
+      esnConfig = getModule();
+      pubsub = this.helpers.requireBackend('core/pubsub').global;
+
+      saveDoc('configurations', doc, () => {
+        this.helpers.requireBackend('core/amqp')
+          .getClient()
+          .then(clientInstance => {
+            client = clientInstance;
+            pubsub.setClient(client);
+          })
+          .then(() => done())
+          .catch(err => done(err || 'Cannot create the amqp client'));
+      });
+
+    });
+
+    afterEach(function(done) {
+      client.dispose(() => done());
+    });
+
+    it('should publish event when it sets config with pubsub enabled', function(done) {
+      const config = {
+        name: 'mail',
+        value: { key: 'value' }
+      };
+      const subscriber = message => {
+        expect(message).to.shallowDeepEqual({
+          moduleName: 'core',
+          configsUpdated: [config]
+        });
+        done();
+      };
+
+      esnConfig.constants.CONFIG_METADATA.core.configurations.mail = { pubsub: true };
+
+      client
+        .subscribe(esnConfig.constants.EVENTS.CONFIG_UPDATED, subscriber)
+        .then(() => esnConfig(config.name).set(config.value));
+    });
+
+  });
 });

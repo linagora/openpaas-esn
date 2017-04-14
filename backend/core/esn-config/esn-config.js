@@ -6,6 +6,8 @@ const dotty = require('dotty');
 const confModule = require('../configuration');
 const constants = require('./constants');
 const fallbackModule = require('./fallback');
+const registry = require('./registry');
+const pubsub = require('../pubsub').global;
 
 function EsnConfig(moduleName, domainId) {
   this.moduleName = moduleName || constants.DEFAULT_MODULE;
@@ -71,6 +73,11 @@ EsnConfig.prototype.setMultiple = function(configsToUpdate) {
     });
 
     return q.ninvoke(confModule, 'update', configuration);
+  })
+  .then(data => {
+    self._onConfigsUpdated(configsToUpdate);
+
+    return data;
   });
 };
 
@@ -146,6 +153,25 @@ EsnConfig.prototype._generateConfigTemplate = function(configuration) {
   }
 
   return configuration;
+};
+
+EsnConfig.prototype._onConfigsUpdated = function(configsUpdated) {
+  const { userId, domainId, moduleName } = this;
+  const metadatas = registry.getAll();
+  const configsToNotify = configsUpdated.filter(config =>
+    metadatas[moduleName] &&
+    metadatas[moduleName].configurations[config.name] &&
+    metadatas[moduleName].configurations[config.name].pubsub
+  );
+
+  if (configsToNotify.length) {
+    pubsub.topic(constants.EVENTS.CONFIG_UPDATED).publish({
+      userId,
+      domainId,
+      moduleName,
+      configsUpdated: configsToNotify
+    });
+  }
 };
 
 module.exports = EsnConfig;

@@ -15,10 +15,29 @@ describe('The OAuth Consumer backend module', function() {
   var dependencies = function(name) {
     return deps[name];
   };
+  let pubsubMock, esnConfigMock;
 
   beforeEach(function() {
+    pubsubMock = {
+      global: {
+        topic() {
+          return {
+            subscribe() {}
+          };
+        }
+      }
+    };
+    esnConfigMock = {
+      constants: {
+        EVENTS: {
+          CONFIG_UPDATED: 'esn-config:config:updated'
+        }
+      }
+    };
     deps = {
-      logger: logger
+      logger: logger,
+      pubsub: pubsubMock,
+      'esn-config': esnConfigMock
     };
   });
 
@@ -89,6 +108,84 @@ describe('The OAuth Consumer backend module', function() {
         };
       });
       getModule().start(done);
+    });
+
+    it('should listen on pubsub event to reconfigure when OAuth config updated', function(done) {
+      const configureSpy = sinon.spy(callback => callback());
+      let subscriber;
+
+      mockery.registerMock('./strategies', function() {
+        return {
+          twitter: {
+            configure: configureSpy
+          },
+          google: {
+            configure: configureSpy
+          }
+        };
+      });
+
+      pubsubMock.global.topic = topic => {
+        expect(topic).to.equal(esnConfigMock.constants.EVENTS.CONFIG_UPDATED);
+
+        return {
+          subscribe(callback) {
+            subscriber = callback;
+          }
+        };
+      };
+
+      getModule().start(() => {
+        expect(configureSpy).to.have.been.calledTwice;
+
+        subscriber({
+          moduleName: 'core',
+          configsUpdated: [{ name: 'oauth' }]
+        });
+
+        expect(configureSpy).to.have.been.callCount(4);
+
+        done();
+      });
+    });
+
+    it('should not reconfigure when OAuth is not updated', function(done) {
+      const configureSpy = sinon.spy(callback => callback());
+      let subscriber;
+
+      mockery.registerMock('./strategies', function() {
+        return {
+          twitter: {
+            configure: configureSpy
+          },
+          google: {
+            configure: configureSpy
+          }
+        };
+      });
+
+      pubsubMock.global.topic = topic => {
+        expect(topic).to.equal(esnConfigMock.constants.EVENTS.CONFIG_UPDATED);
+
+        return {
+          subscribe(callback) {
+            subscriber = callback;
+          }
+        };
+      };
+
+      getModule().start(() => {
+        expect(configureSpy).to.have.been.calledTwice;
+
+        subscriber({
+          moduleName: 'core',
+          configsUpdated: [{ name: 'not_oauth' }]
+        });
+
+        expect(configureSpy).to.have.been.calledTwice;
+
+        done();
+      });
     });
   });
 });
