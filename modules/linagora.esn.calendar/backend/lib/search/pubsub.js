@@ -6,6 +6,7 @@ const ICAL = require('ical.js');
 
 module.exports = dependencies => {
   const pubsub = dependencies('pubsub');
+  const logger = dependencies('logger');
 
   return {
     listen
@@ -22,7 +23,11 @@ module.exports = dependencies => {
     function parse(msg) {
       const data = eventHelper.parseEventPath(msg.eventPath);
 
-      data.ics = (new ICAL.Component(msg.event)).toString();
+      try {
+        data.ics = (new ICAL.Component(msg.event)).toString();
+      } catch (error) {
+        logger.error(`Problem stringifying component  ${error}`);
+      }
 
       return data;
     }
