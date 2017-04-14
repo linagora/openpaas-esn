@@ -461,50 +461,6 @@ angular.module('esn.avatar', [
       link: link
     };
   })
-  .component('esnAvatar', {
-    templateUrl: '/views/modules/avatar/avatar.html',
-    controller: 'EsnAvatarController',
-    bindings: {
-      userId: '@?',
-      userEmail: '@?',
-      avatarUrl: '@?',
-      hideUserStatus: '@?'
-    }
-  })
-  .controller('EsnAvatarController', function($q, $log, userAPI) {
-    var self = this;
-
-    self.$onInit = $onInit;
-    self.displayUserStatus = displayUserStatus;
-
-    function $onInit() {
-      if (!self.avatarUrl) {
-        if (self.userId) {
-          self.avatarUrl = '/api/users/' + self.userId + '/profile/avatar';
-        } else if (self.userEmail) {
-          self.avatarUrl = '/api/avatars?email=' + self.userEmail;
-        }
-      }
-
-      if (self.userEmail && !self.userId) {
-        userAPI.getUsersByEmail(self.userEmail)
-          .then(function(response) {
-            if (response.data && response.data[0]) {
-              self.userId = response.data[0]._id;
-            }
-          })
-          .catch(function(err) {
-            $log.error('Error when getting the user ID by email');
-
-            return $q.reject(err);
-          });
-      }
-    }
-
-    function displayUserStatus() {
-      return !!self.userId && !self.hideUserStatus;
-    }
-  })
   .factory('esnAvatarService', function() {
     return {
       generateUrl: generateUrl

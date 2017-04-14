@@ -37,30 +37,6 @@ module.exports = function(router) {
 
   /**
    * @swagger
-   * /users:
-   *   get:
-   *     tags:
-   *      - Users
-   *     description: |
-   *       Get the users profile from query.
-   *     parameters:
-   *       - $ref: "#/parameters/uss_email"
-   *     responses:
-   *       200:
-   *         $ref: "#/responses/uss_profile"
-   *       400:
-   *         $ref: "#/responses/cm_400"
-   *       401:
-   *         $ref: "#/responses/cm_401"
-   *       404:
-   *         $ref: "#/responses/cm_404"
-   *       500:
-   *         $ref: "#/responses/cm_500"
-   */
-  router.get('/users', authorize.requiresAPILogin, users.getProfilesByQuery);
-
-  /**
-   * @swagger
    * /users/{uuid}/profile:
    *   get:
    *     tags:
