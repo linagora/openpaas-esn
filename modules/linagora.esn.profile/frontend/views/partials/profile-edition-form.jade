@@ -5,7 +5,7 @@
         .pmo-pic
           .p-relative.profile-edit-form(ng-controller='avatarController')
             a
-              esn-avatar(avatar-url="::avatarURL", display-user-status="false")
+              img(ng-src="{{avatarURL}}", alt='#{__("Avatar")}')
             a.edit-h(ng-controller='avatarEdit' href='' ng-click="showAvatarEditModal()")
               i.mdi.mdi-camera
               span
