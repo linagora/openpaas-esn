@@ -1,6 +1,5 @@
 'use strict';
 
-const Q = require('q');
 var userModule = require('../../core').user;
 var imageModule = require('../../core').image;
 var acceptedImageTypes = ['image/jpeg', 'image/gif', 'image/png'];
@@ -74,44 +73,41 @@ module.exports.profile = profile;
  * @param {request} req
  * @param {response} res
  */
-function getProfilesByQuery(req, res) {
+function profileByOptions(req, res) {
   const email = req.query.email;
 
   if (!email) {
     return res.status(400).json({error: {code: 400, message: 'Bad parameters', details: 'User email is missing'}});
+  } else {
+    getProfileByEmail(email);
   }
 
-  userModule.findUsersByEmail(email, (err, users) => {
-    if (err) {
-      const details = `Error while finding users by email ${email}`;
+  function getProfileByEmail(email) {
+    userModule.findByEmail(email, (err, user) => {
+      if (err) {
+        return res.status(500).json({
+          error: 500,
+          message: 'Error while loading user ' + email,
+          details: err.message
+        });
+      }
 
-      logger.error(details, err);
+      if (!user) {
+        return res.status(404).json({
+          error: 404,
+          message: 'User not found',
+          details: 'User ' + email + ' has not been found'
+        });
+      }
 
-      return res.status(500).json({
-        error: 500,
-        message: 'Server Error',
-        details
-      });
-    }
-
-    if (!users) {
-      return res.status(200).json([]);
-    }
-
-    const denormalizedUsers = users.map(user => denormalizeUser(user, {user: req.user, doNotKeepPrivateData: true}));
-
-    Q.all(denormalizedUsers)
-      .then(users => {
-        res.status(200).json(users);
-      })
-      .catch(err => res.status(500).json({
-        error: 500,
-        message: 'Error while denormalize users',
-        details: err.message
-      }));
-  });
+      denormalizeUser(user, {user: req.user, doNotKeepPrivateData: true})
+        .then(denormalized => {
+          res.status(200).json(denormalized);
+        });
+    });
+  }
 }
-module.exports.getProfilesByQuery = getProfilesByQuery;
+module.exports.profileByOptions = profileByOptions;
 
 /**
  * Update a parameter value in the current user profile

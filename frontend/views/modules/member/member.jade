@@ -2,7 +2,7 @@
   .pull-left.p-r-15
     a(ui-sref="profile({user_id: member._id})")
       .members-avatar
-        esn-avatar(user-id="{{member._id}}")
+        esn-avatar(avatar-id="::member._id", display-user-status="true")
   .media-body
     .lv-title
       a(ui-sref="profile({user_id: member._id})")

@@ -61,16 +61,16 @@ describe('The User Angular module', function() {
       });
     });
 
-    describe('getUsersByEmail() method', function() {
+    describe('getUserByEmail() method', function() {
 
       it('should send a GET request to /api/users', function() {
         this.$httpBackend.expectGET('/api/users?email=admin@open-paas.org').respond(200, []);
-        this.userAPI.getUsersByEmail('admin@open-paas.org');
+        this.userAPI.getUserByEmail('admin@open-paas.org');
         this.$httpBackend.flush();
       });
 
       it('should return a promise', function() {
-        var promise = this.userAPI.getUsersByEmail();
+        var promise = this.userAPI.getUserByEmail();
 
         expect(promise.then).to.be.a.function;
       });

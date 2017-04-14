@@ -8,10 +8,4 @@
  *     required: true
  *     type: string
  *     format: uuid
- *   uss_email:
- *     name: email
- *     in: query
- *     description: The user email
- *     required: true
- *     type: string
  */
