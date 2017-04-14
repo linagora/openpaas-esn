@@ -207,7 +207,7 @@
           filter = specialMailbox.filter;
 
           if (filter && filter.unprocessed) {
-            return $q.all(filter.notInMailboxes.map(getMailboxWithRole))
+            return $q.all(filter.notInMailboxes.map(jmap.MailboxRole.fromRole).map(getMailboxWithRole))
               .catch(_.constant([]))
               .then(function(mailboxes) {
                 delete filter.unprocessed;

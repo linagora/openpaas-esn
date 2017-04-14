@@ -47,4 +47,26 @@ describe('The inboxSpecialMailboxes factory', function() {
 
   });
 
+  describe('The add fn', function() {
+
+    it('should add the mailbox to the list', function() {
+      inboxSpecialMailboxes.add({ id: 'new' });
+
+      expect(inboxSpecialMailboxes.list()).to.have.length(2);
+    });
+
+    it('should add the mailbox to the list, adding some key properties', function() {
+      inboxSpecialMailboxes.add({ id: 'new', name: 'New' });
+
+      expect(inboxSpecialMailboxes.get('new')).to.deep.equal({
+        id: 'new',
+        name: 'New',
+        qualifiedName: 'New',
+        role: {},
+        unreadMessages: 0
+      });
+    });
+
+  });
+
 });

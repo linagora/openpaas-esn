@@ -3,29 +3,16 @@
 
   angular.module('linagora.esn.unifiedinbox')
 
-    .factory('inboxSpecialMailboxes', function(jmap, _) {
-      var mailboxes = [{
-        id: 'all',
-        name: 'All Mail',
-        role: { value: 'all' },
-        filter: {
-          unprocessed: true,
-          notInMailboxes: [
-            jmap.MailboxRole.ARCHIVE,
-            jmap.MailboxRole.DRAFTS,
-            jmap.MailboxRole.OUTBOX,
-            jmap.MailboxRole.SENT,
-            jmap.MailboxRole.TRASH,
-            jmap.MailboxRole.SPAM
-          ]
-        }
-      }];
+    .factory('inboxSpecialMailboxes', function(_) {
+      var mailboxes = [];
 
-      mailboxes.forEach(function(mailbox) {
-        mailbox.role = mailbox.role || {};
-        mailbox.qualifiedName = mailbox.name;
-        mailbox.unreadMessages = 0;
-      });
+      return {
+        list: list,
+        get: get,
+        add: add
+      };
+
+      /////
 
       function list() {
         return mailboxes;
@@ -35,10 +22,13 @@
         return _.find(mailboxes, { id: mailboxId });
       }
 
-      return {
-        list: list,
-        get: get
-      };
+      function add(mailbox) {
+        mailbox.role = mailbox.role || {};
+        mailbox.qualifiedName = mailbox.name;
+        mailbox.unreadMessages = 0;
+
+        mailboxes.push(mailbox);
+      }
     });
 
 })();
