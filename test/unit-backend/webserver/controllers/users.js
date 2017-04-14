@@ -282,9 +282,6 @@ describe('The User controller', function() {
           findUsersByEmail: function(email, callback) {
            callback(error);
           }
-        },
-        logger: {
-          error: function() {}
         }
       };
 
@@ -300,8 +297,8 @@ describe('The User controller', function() {
         function(code, data) {
           expect(code).to.equal(500);
           expect(data.error).to.equal(500);
-          expect(data.message).to.equal('Server Error');
-          expect(data.details).to.equal('Error while finding users by email admin@open-paas.org');
+          expect(data.message).to.equal('Error while loading user admin@open-paas.org');
+          expect(data.details).to.equal(error.message);
 
           done();
         }
