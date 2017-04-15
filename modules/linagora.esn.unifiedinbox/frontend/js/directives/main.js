@@ -108,7 +108,7 @@ angular.module('linagora.esn.unifiedinbox')
       },
       templateUrl: '/unifiedinbox/views/sidebar/email/menu-item.html',
       link: function(scope) {
-        scope.mailboxIcons = MAILBOX_ROLE_ICONS_MAPPING[scope.mailbox.role.value || 'default'];
+        scope.mailboxIcons = MAILBOX_ROLE_ICONS_MAPPING[scope.mailbox.role.value || 'default'] || scope.mailbox.icon;
 
         scope.onDrop = function($dragData) {
           return inboxJmapItemService.moveMultipleItems($dragData, scope.mailbox);

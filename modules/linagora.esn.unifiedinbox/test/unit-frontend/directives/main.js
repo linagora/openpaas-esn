@@ -297,6 +297,18 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       expect(element.isolateScope().mailboxIcons).to.equal('testclass');
     });
 
+    it('should define $scope.mailboxIcons to a custom one, if provided by a custom mailbox', function() {
+      $scope.mailbox = {
+        role: {
+          value: 'custom role'
+        },
+        icon: 'mdi-custom-icon'
+      };
+      compileDirective('<mailbox-display mailbox="mailbox" />');
+
+      expect(element.isolateScope().mailboxIcons).to.equal('mdi-custom-icon');
+    });
+
     it('should define $scope.hideBadge to the correct value', function() {
       $scope.mailbox = {
         role: {

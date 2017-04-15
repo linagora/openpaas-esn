@@ -9,6 +9,7 @@
       role: {
         value: 'all'
       },
+      icon: 'mdi mdi-folder-outline',
       filter: {
         unprocessed: true,
         notInMailboxes: ['archive', 'drafts', 'outbox', 'sent', 'trash', 'spam', 'templates']
