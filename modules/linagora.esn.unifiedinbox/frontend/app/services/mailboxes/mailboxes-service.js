@@ -200,18 +200,22 @@
           });
         }
 
-        var specialMailbox = inboxSpecialMailboxes.get(mailboxId);
-        var filter;
+        var filter,
+            specialMailbox = inboxSpecialMailboxes.get(mailboxId);
 
         if (specialMailbox) {
           filter = specialMailbox.filter;
 
           if (filter && filter.unprocessed) {
-            return $q.all(filter.notInMailboxes.map(jmap.MailboxRole.fromRole).map(getMailboxWithRole))
-              .catch(_.constant([]))
-              .then(function(mailboxes) {
+            return $q.all([
+              rolesToIds(filter.notInMailboxes),
+              rolesToIds(filter.inMailboxes)
+            ])
+              .then(function(results) {
                 delete filter.unprocessed;
-                filter.notInMailboxes = _(mailboxes).filter(Boolean).map('id').value();
+
+                filter.notInMailboxes = results[0];
+                filter.inMailboxes = results[1];
 
                 return filter;
               });
@@ -221,6 +225,18 @@
         }
 
         return $q.when(filter);
+      }
+
+      function rolesToIds(roles) {
+        if (!roles) {
+          return $q.when([]);
+        }
+
+        return $q.all(roles.map(jmap.MailboxRole.fromRole).map(getMailboxWithRole))
+          .catch(_.constant([]))
+          .then(function(mailboxes) {
+            return _(mailboxes).filter(Boolean).map('id').value();
+          });
       }
 
       function _isSpecialMailbox(mailboxId) {

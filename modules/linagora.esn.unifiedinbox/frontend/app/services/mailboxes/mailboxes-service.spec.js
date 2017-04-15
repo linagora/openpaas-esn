@@ -481,13 +481,15 @@ describe('The inboxMailboxesService factory', function() {
       var mailboxId = '123';
       var mailboxes = [
         new jmap.Mailbox(jmapClient, 'matched role', 'name', { role: 'inbox' }),
-        new jmap.Mailbox(jmapClient, 'unmatched role', 'name', { role: 'outbox' })
+        new jmap.Mailbox(jmapClient, 'unmatched role', 'name', { role: 'outbox' }),
+        new jmap.Mailbox(jmapClient, 'trashId', 'trash', { role: 'trash' })
       ];
       var specialMailbox = {
         id: mailboxId,
         filter: {
           unprocessed: true,
-          notInMailboxes: ['inbox', 'spam']
+          notInMailboxes: ['inbox', 'spam'],
+          inMailboxes: ['trash']
         }
       };
 
@@ -500,7 +502,8 @@ describe('The inboxMailboxesService factory', function() {
       inboxMailboxesService.getMessageListFilter(mailboxId).then(function(filter) {
         expect(jmapClient.getMailboxes).to.have.been.calledWith();
         expect(filter).to.deep.equal({
-          notInMailboxes: [mailboxes[0].id]
+          notInMailboxes: [mailboxes[0].id],
+          inMailboxes: ['trashId']
         });
         done();
       });
@@ -527,7 +530,8 @@ describe('The inboxMailboxesService factory', function() {
       inboxMailboxesService.getMessageListFilter(mailboxId).then(function(filter) {
         expect(jmapClient.getMailboxes).to.have.been.calledWith();
         expect(filter).to.deep.equal({
-          notInMailboxes: []
+          notInMailboxes: [],
+          inMailboxes: []
         });
         done();
       });
