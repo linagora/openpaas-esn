@@ -221,7 +221,7 @@
     .constant('CAL_MODULE_METADATA', {
       id: 'linagora.esn.calendar',
       title: 'Calendar',
-      icon: 'calendar-icon',
+      icon: '/calendar/images/calendar-icon.svg',
       homePage: 'calendar.main'
     })
 

@@ -61,6 +61,6 @@ angular.module('linagora.esn.contact')
   .constant('CONTACT_MODULE_METADATA', {
     id: 'linagora.esn.contact',
     title: 'Contact',
-    icon: 'contacts-icon',
+    icon: '/contact/images/contacts-icon.svg',
     homePage: 'contact'
   });

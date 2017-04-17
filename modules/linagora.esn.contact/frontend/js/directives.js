@@ -1,11 +1,11 @@
 'use strict';
 
 angular.module('linagora.esn.contact')
-  .directive('applicationMenuContact', function(applicationMenuTemplateBuilder) {
+  .directive('applicationMenuContact', function(applicationMenuTemplateBuilder, CONTACT_MODULE_METADATA) {
     return {
       retrict: 'E',
       replace: true,
-      template: applicationMenuTemplateBuilder('/#/contact', { url: '/contact/images/contacts-icon.svg' }, 'Contacts')
+      template: applicationMenuTemplateBuilder('/#/contact', { url: CONTACT_MODULE_METADATA.icon }, 'Contacts')
     };
   })
   .directive('contactNavbarLink', function() {

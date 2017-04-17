@@ -4,10 +4,10 @@
   angular.module('esn.calendar')
     .directive('applicationMenuCalendar', applicationMenuCalendar);
 
-  function applicationMenuCalendar(applicationMenuTemplateBuilder) {
+  function applicationMenuCalendar(applicationMenuTemplateBuilder, CAL_MODULE_METADATA) {
     var directive = {
       restrict: 'E',
-      template: applicationMenuTemplateBuilder('/#/calendar', { url: '/calendar/images/calendar-icon.svg' }, 'Calendar'),
+      template: applicationMenuTemplateBuilder('/#/calendar', { url: CAL_MODULE_METADATA.icon }, 'Calendar'),
       replace: true
     };
 
