@@ -6,7 +6,7 @@ angular.module('linagora.esn.unifiedinbox')
     return {
       retrict: 'E',
       replace: true,
-      template: applicationMenuTemplateBuilder('/#/unifiedinbox', 'inbox', 'Inbox')
+      template: applicationMenuTemplateBuilder('/#/unifiedinbox', { url: '/unifiedinbox/images/inbox-icon.svg' }, 'Inbox')
     };
   })
 

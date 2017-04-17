@@ -7,7 +7,7 @@
   function applicationMenuCalendar(applicationMenuTemplateBuilder) {
     var directive = {
       restrict: 'E',
-      template: applicationMenuTemplateBuilder('/#/calendar', 'calendar', 'Calendar'),
+      template: applicationMenuTemplateBuilder('/#/calendar', { url: '/calendar/images/calendar-icon.svg' }, 'Calendar'),
       replace: true
     };
 

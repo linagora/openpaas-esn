@@ -5,7 +5,7 @@ angular.module('linagora.esn.contact')
     return {
       retrict: 'E',
       replace: true,
-      template: applicationMenuTemplateBuilder('/#/contact', 'contacts', 'Contacts')
+      template: applicationMenuTemplateBuilder('/#/contact', { url: '/contact/images/contacts-icon.svg' }, 'Contacts')
     };
   })
   .directive('contactNavbarLink', function() {
@@ -124,6 +124,7 @@ angular.module('linagora.esn.contact')
       templateUrl: '/contact/views/partials/contact-list-items.html',
       link: function(scope, element) {
         var timeoutPromise;
+
         scope.headerDisplay = {
           letterExists: false
         };
@@ -237,6 +238,7 @@ angular.module('linagora.esn.contact')
 
         ContactListToggleEventService.listen(scope, function(evt, value) {
           var toggleValue = isToggleOn(value);
+
           if (toggleValue === scope.toggleContactDisplay) {
             return;
           }

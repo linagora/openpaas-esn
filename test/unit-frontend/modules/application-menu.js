@@ -18,9 +18,14 @@ describe('The application-menu component', function() {
       this.applicationMenuTemplateBuilder = applicationMenuTemplateBuilder;
     }));
 
-    it('should return the good template', function() {
-      expect(this.applicationMenuTemplateBuilder('/#/awesomestuffthere', 'awesomeness', 'ClickMe'))
+    it('should return the correct template when icon name is given', function() {
+      expect(this.applicationMenuTemplateBuilder('/#/awesomestuffthere', { name: 'awesomeness' }, 'ClickMe'))
         .to.equal('<div><a href="/#/awesomestuffthere"><img class="esn-application-menu-icon" src="/images/application-menu/awesomeness-icon.svg" /><span class="label">ClickMe</span></a></div>');
+    });
+
+    it('should return the correct template when icon url is given', function() {
+      expect(this.applicationMenuTemplateBuilder('/#/awesomestuffthere', { url: '/module/images/awesomeness' }, 'ClickMe'))
+        .to.equal('<div><a href="/#/awesomestuffthere"><img class="esn-application-menu-icon" src="/module/images/awesomeness" /><span class="label">ClickMe</span></a></div>');
     });
   });
 
@@ -34,8 +39,10 @@ describe('The application-menu component', function() {
       this.initDirective = function(scope) {
         var html = '<application-menu-toggler/>';
         var element = this.$compile(html)(scope);
+
         scope.$digest();
         this.eleScope = element.isolateScope();
+
         return element;
       };
     }));
@@ -43,6 +50,7 @@ describe('The application-menu component', function() {
     it('should append the backdrop on application-menu.show.before and remove it on application-menu.hide.before', function() {
       var element = this.initDirective(this.$scope);
       var body = this.$document.find('body').eq(0);
+
       body.append(element);
 
       element.click(); // toggle $popover and show it
@@ -66,8 +74,10 @@ describe('The application-menu component', function() {
       this.initDirective = function(scope) {
         var html = '<div force-close-on-links-click><a/></div>';
         var element = this.$compile(html)(scope);
+
         scope.$digest();
         this.eleScope = element.isolateScope();
+
         return element;
       };
     }));
@@ -76,9 +86,11 @@ describe('The application-menu component', function() {
       this.$scope.$parent.$hide = done;
       var element = this.initDirective(this.$scope);
       var body = this.$document.find('body').eq(0);
+
       body.append(element);
       this.$timeout.flush();
       var link = element.find('a');
+
       link.click();
       element.remove();
     });
@@ -95,8 +107,10 @@ describe('The application-menu component', function() {
       this.initDirective = function(scope) {
         var html = '<div force-margin-left="15"/>';
         var element = this.$compile(html)(scope);
+
         scope.$digest();
         this.eleScope = element.isolateScope();
+
         return element;
       };
     }));
@@ -104,6 +118,7 @@ describe('The application-menu component', function() {
     it('should set a new left offset after timeout', function() {
       var element = this.initDirective(this.$scope);
       var body = this.$document.find('body').eq(0);
+
       body.append(element);
       angular.element(element).offset({top: 15, left: 30});
       this.$timeout.flush();
