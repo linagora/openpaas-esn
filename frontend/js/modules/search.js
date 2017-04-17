@@ -15,7 +15,7 @@ angular.module('esn.search', ['esn.application-menu', 'esn.lodash-wrapper', 'esn
     return {
       restrict: 'E',
       replace: true,
-      template: applicationMenuTemplateBuilder('/#/search', 'search', 'Search')
+      template: applicationMenuTemplateBuilder('/#/search', { name: 'search' }, 'Search')
     };
   })
   .directive('searchForm', function(defaultSpinnerConfiguration) {

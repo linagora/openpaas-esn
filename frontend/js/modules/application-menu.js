@@ -27,7 +27,7 @@ angular.module('esn.application-menu', [
     var template =
         '<div>' +
           '<a href="<%- href %>">' +
-            '<img class="esn-application-menu-icon" src="/images/application-menu/<%- icon %>-icon.svg" />' +
+            '<img class="esn-application-menu-icon" src="<%- iconURL %>" />' +
             '<span class="label">' +
               '<%- label %>' +
             '</span>' +
@@ -35,11 +35,20 @@ angular.module('esn.application-menu', [
         '</div>';
 
     return function(href, icon, label, flag) {
+      var iconUrlTemplate = '/images/application-menu/<%- icon %>-icon.svg',
+          iconURL;
+
       if (angular.isDefined(flag) && !featureFlags.isOn(flag)) {
         return '';
       }
 
-      return _.template(template)({ href: href, icon: icon, label: label });
+      if (icon.url) {
+        iconURL = icon.url;
+      } else if (icon.name) {
+        iconURL = _.template(iconUrlTemplate)({icon: icon.name});
+      }
+
+      return _.template(template)({ href: href, iconURL: iconURL, label: label });
     };
   })
 
@@ -103,7 +112,7 @@ angular.module('esn.application-menu', [
     return {
       retrict: 'E',
       replace: true,
-      template: applicationMenuTemplateBuilder('/#/', 'home', 'Home')
+      template: applicationMenuTemplateBuilder('/#/', { name: 'home' }, 'Home')
     };
   })
 
@@ -111,6 +120,6 @@ angular.module('esn.application-menu', [
     return {
       retrict: 'E',
       replace: true,
-      template: applicationMenuTemplateBuilder('/logout', 'logout', 'Logout')
+      template: applicationMenuTemplateBuilder('/logout', { name: 'logout' }, 'Logout')
     };
   });

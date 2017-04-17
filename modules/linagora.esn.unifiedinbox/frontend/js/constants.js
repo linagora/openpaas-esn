@@ -61,7 +61,7 @@ angular.module('linagora.esn.unifiedinbox')
   .constant('INBOX_MODULE_METADATA', {
     id: 'linagora.esn.unifiedinbox',
     title: 'Unified Inbox',
-    icon: 'inbox-icon',
+    icon: '/unifiedinbox/images/inbox-icon.svg',
     homePage: 'unifiedinbox'
   })
   .constant('INBOX_SIGNATURE_SEPARATOR', '-- \n'); // https://tools.ietf.org/html/rfc3676#section-4.3

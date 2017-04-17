@@ -6,7 +6,7 @@ angular.module('linagora.esn.controlcenter')
   return {
     retrict: 'E',
     replace: true,
-    template: applicationMenuTemplateBuilder('/#/controlcenter', 'control-center', 'Control Center')
+    template: applicationMenuTemplateBuilder('/#/controlcenter', { url: '/controlcenter/images/control-center-icon.svg' }, 'Control Center')
   };
 })
 

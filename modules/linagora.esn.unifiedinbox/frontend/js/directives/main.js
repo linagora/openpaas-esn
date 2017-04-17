@@ -2,11 +2,11 @@
 
 angular.module('linagora.esn.unifiedinbox')
 
-  .directive('applicationMenuInbox', function(applicationMenuTemplateBuilder) {
+  .directive('applicationMenuInbox', function(applicationMenuTemplateBuilder, INBOX_MODULE_METADATA) {
     return {
       retrict: 'E',
       replace: true,
-      template: applicationMenuTemplateBuilder('/#/unifiedinbox', 'inbox', 'Inbox')
+      template: applicationMenuTemplateBuilder('/#/unifiedinbox', { url: INBOX_MODULE_METADATA.icon }, 'Inbox')
     };
   })
 

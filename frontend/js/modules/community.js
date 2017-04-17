@@ -24,6 +24,7 @@ angular.module('esn.community', [
     });
 
     var community = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-community', {priority: 30});
+
     dynamicDirectiveServiceProvider.addInjection('esn-application-menu', community);
   })
   .run(function(objectTypeResolver, objectTypeAdapter, communityAPI, communityAdapterService, esnRestangular, ASTrackerSubscriptionService) {
@@ -41,6 +42,7 @@ angular.module('esn.community', [
       community.avatarUrl = '/api/avatars?objectType=community&id=' + community._id;
       community.displayName = community.title;
       community.objectType = 'community';
+
       return community;
     };
   })
@@ -48,7 +50,9 @@ angular.module('esn.community', [
 
     function list(domain, options) {
       var query = options || {};
+
       query.domain_id = domain;
+
       return esnRestangular.all('communities').getList(query);
     }
 
@@ -110,16 +114,19 @@ angular.module('esn.community', [
     function createCommunity(community) {
       if (!community) {
         $log.error('Missing community');
+
         return $q.reject('Community information is missing');
       }
 
       if (!community.title) {
         $log.error('Missing community title');
+
         return $q.reject('Community title is missing');
       }
 
       if (!community.domain_ids || community.domain_ids.length === 0) {
         $log.error('Missing community domain');
+
         return $q.error('Domain is missing, try reloading the page');
       }
 
@@ -128,6 +135,7 @@ angular.module('esn.community', [
       }
 
       var avatar = community.avatar;
+
       delete community.avatar;
 
       var d = $q.defer();
@@ -139,19 +147,23 @@ angular.module('esn.community', [
       communityAPI.create(community).then(
         function(data) {
           var communityId = data.data._id;
+
           if (avatar.exists()) {
             notifyProgress(d, 'upload', 20);
             var mime = 'image/png';
+
             avatar.getBlob(mime, function(blob) {
               communityAPI.uploadAvatar(communityId, blob, mime)
               .progress(function(evt) {
                 var value = 20 + parseInt(80.0 * evt.loaded / evt.total, 10);
+
                 notifyProgress(d, 'upload', value);
               }).success(function() {
                 return d.resolve(communityId);
               }).error(function(err) {
                 $log.error(err);
                 d.notify({uploadFailed: err});
+
                 return d.resolve(communityId);
               });
             });
@@ -164,8 +176,10 @@ angular.module('esn.community', [
           d.reject(err);
         }
       );
+
       return d.promise;
     }
+
     return createCommunity;
   })
   .directive('communityCreateButton', function() {
@@ -430,6 +444,7 @@ angular.module('esn.community', [
       templateUrl: '/views/modules/community/community-pending-invitation-display.html',
       link: function($scope, $element) {
         var button = $element.find('.btn');
+
         $scope.cancel = function() {
           button.attr('disabled', 'disabled');
           esnCollaborationClientService.cancelRequestMembership('community', $scope.community._id, $scope.request.user._id).then(function() {
@@ -687,6 +702,7 @@ angular.module('esn.community', [
               if (response.data.length === 0) {
                 return $q.when(true);
               }
+
               return $q.reject(new Error('Title already taken'));
             },
             function(err) {
@@ -707,24 +723,31 @@ angular.module('esn.community', [
       if (!community || !community.member_status) {
         return false;
       }
+
       return community.member_status === 'member' || community.member_status === 'indirect';
     }
 
     function join(community, user) {
       if (isMember(community)) {
         var defer = $q.defer();
+
         defer.reject('Can not join the community');
+
         return defer.promise;
       }
+
       return esnCollaborationClientService.join('community', community._id, user._id);
     }
 
     function leave(community, user) {
       if (!isMember(community)) {
         var defer = $q.defer();
+
         defer.reject('Can not leave the community');
+
         return defer.promise;
       }
+
       return esnCollaborationClientService.leave('community', community._id, user._id);
     }
 
@@ -762,18 +785,24 @@ angular.module('esn.community', [
     function requestMembership(community, user) {
       if (isMember(community)) {
         var defer = $q.defer();
+
         defer.reject('User is already a member, can not request membership');
+
         return defer.promise;
       }
+
       return esnCollaborationClientService.requestMembership('community', community._id, user._id);
     }
 
     function cancelRequestMembership(community, user) {
       if (isMember(community)) {
         var defer = $q.defer();
+
         defer.reject('User is already a member, can not cancel request membership');
+
         return defer.promise;
       }
+
       return esnCollaborationClientService.cancelRequestMembership('community', community._id, user._id);
     }
 
@@ -886,6 +915,7 @@ angular.module('esn.community', [
       templateUrl: '/views/modules/community/community-member-avatar.html',
       controller: function($scope) {
         var title = '';
+
         if ($scope.member.user.firstname || $scope.member.user.lastname) {
           title = ($scope.member.user.firstname || '') + ' ' + ($scope.member.user.lastname || '');
         } else {
@@ -959,6 +989,7 @@ angular.module('esn.community', [
         $scope.getInvitablePeople = function(query) {
           $scope.query = query;
           var deferred = $q.defer();
+
           esnCollaborationClientService.getInvitablePeople('community', $scope.community._id, {search: query, limit: 5}).then(
             function(response) {
               response.data.forEach(function(user) {
@@ -971,6 +1002,7 @@ angular.module('esn.community', [
               deferred.resolve(error);
             }
           );
+
           return deferred.promise;
         };
 
@@ -984,11 +1016,13 @@ angular.module('esn.community', [
             $scope.showErrorMessage();
             if (!$scope.users || $scope.users.length === 0) {
               $scope.query = '';
+
               return;
             }
           } else if (!$scope.users || $scope.users.length === 0) {
             $scope.noUser = true;
             $scope.showErrorMessage();
+
             return;
           }
           if ($scope.running) {
@@ -999,6 +1033,7 @@ angular.module('esn.community', [
           $scope.showRunning();
 
           var promises = [];
+
           $scope.users.forEach(function(user) {
             promises.push(esnCollaborationClientService.requestMembership('community', $scope.community._id, user._id));
           });
@@ -1049,6 +1084,7 @@ angular.module('esn.community', [
       if (err) {
         $scope.error = 'Error while getting unread message: ' + err;
         $log.error($scope.error, err);
+
         return;
       }
 
@@ -1057,6 +1093,7 @@ angular.module('esn.community', [
         element.href = '/#/communities/' + element.target._id;
         element.img = '/api/communities/' + element.target._id + '/avatar';
         var registered = ASTrackerNotificationService.subscribeToStreamNotification(element.uuid);
+
         if (registered) {
           ASTrackerNotificationService.addItem(element);
         }
@@ -1067,6 +1104,6 @@ angular.module('esn.community', [
     return {
       retrict: 'E',
       replace: true,
-      template: applicationMenuTemplateBuilder('/#/communities', 'communities', 'Communities', 'core.application-menu.communities')
+      template: applicationMenuTemplateBuilder('/#/communities', { name: 'communities' }, 'Communities', 'core.application-menu.communities')
     };
   });

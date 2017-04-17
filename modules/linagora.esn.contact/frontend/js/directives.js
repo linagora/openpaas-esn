@@ -1,11 +1,11 @@
 'use strict';
 
 angular.module('linagora.esn.contact')
-  .directive('applicationMenuContact', function(applicationMenuTemplateBuilder) {
+  .directive('applicationMenuContact', function(applicationMenuTemplateBuilder, CONTACT_MODULE_METADATA) {
     return {
       retrict: 'E',
       replace: true,
-      template: applicationMenuTemplateBuilder('/#/contact', 'contacts', 'Contacts')
+      template: applicationMenuTemplateBuilder('/#/contact', { url: CONTACT_MODULE_METADATA.icon }, 'Contacts')
     };
   })
   .directive('contactNavbarLink', function() {
@@ -124,6 +124,7 @@ angular.module('linagora.esn.contact')
       templateUrl: '/contact/views/partials/contact-list-items.html',
       link: function(scope, element) {
         var timeoutPromise;
+
         scope.headerDisplay = {
           letterExists: false
         };
@@ -237,6 +238,7 @@ angular.module('linagora.esn.contact')
 
         ContactListToggleEventService.listen(scope, function(evt, value) {
           var toggleValue = isToggleOn(value);
+
           if (toggleValue === scope.toggleContactDisplay) {
             return;
           }
