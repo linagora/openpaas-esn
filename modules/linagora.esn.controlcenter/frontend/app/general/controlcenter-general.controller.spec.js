@@ -8,7 +8,7 @@ var expect = chai.expect;
 describe('The controlcenterGeneralController', function() {
 
   var $controller, $rootScope, $scope;
-  var esnUserConfigurationService;
+  var esnUserConfigurationService, controlcenterGeneralService;
   var CONFIG_NAMES = ['homePage'];
 
   beforeEach(module(function($provide) {
@@ -24,10 +24,11 @@ describe('The controlcenterGeneralController', function() {
   beforeEach(function() {
     module('linagora.esn.controlcenter');
 
-    inject(function(_$controller_, _$rootScope_, _esnUserConfigurationService_) {
+    inject(function(_$controller_, _$rootScope_, _esnUserConfigurationService_, _controlcenterGeneralService_) {
       $controller = _$controller_;
       $rootScope = _$rootScope_;
       esnUserConfigurationService = _esnUserConfigurationService_;
+      controlcenterGeneralService = _controlcenterGeneralService_;
     });
   });
 
@@ -54,6 +55,22 @@ describe('The controlcenterGeneralController', function() {
 
     expect(controller.configurations).to.deep.equal(expectResult);
     expect(esnUserConfigurationService.get).to.have.been.calledWith(CONFIG_NAMES);
+  });
+
+  it('should get a list homePages with keys are sorted', function() {
+    var homePages = { a: 'a', f: 'f', b: 'b'};
+    var expectResult = { a: 'a', b: 'b', f: 'f' };
+
+    esnUserConfigurationService.get = function() { return $q.when([]); };
+    controlcenterGeneralService.getHomePageCandidates = sinon.stub().returns(homePages);
+
+    var controller = initController();
+
+    controller.$onInit();
+    $rootScope.$digest();
+
+    expect(controller.homePages).to.deep.equal(expectResult);
+    expect(controlcenterGeneralService.getHomePageCandidates).to.have.been.calledOnce;
   });
 
   describe('The onFormSubmit fn', function() {
