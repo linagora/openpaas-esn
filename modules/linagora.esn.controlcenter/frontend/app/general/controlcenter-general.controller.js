@@ -12,9 +12,10 @@
 
     function $onInit() {
       var CONFIG_NAMES = ['homePage'];
+      var homePageCandidates = controlcenterGeneralService.getHomePageCandidates();
 
       self.configurations = {};
-      self.homePages = controlcenterGeneralService.getHomePageCandidates();
+      self.homePages = _objectWithKeysSorted(homePageCandidates);
 
       esnUserConfigurationService.get(CONFIG_NAMES)
         .then(function(configurations) {
@@ -46,6 +47,17 @@
       });
 
       return esnUserConfigurationService.set(configurations);
+    }
+
+    function _objectWithKeysSorted(object) {
+      var result = {};
+      var keysSorted = Object.keys(object).sort();
+
+      _.forEach(keysSorted, function(key) {
+        result[key] = object[key];
+      });
+
+      return result;
     }
   }
 })();
