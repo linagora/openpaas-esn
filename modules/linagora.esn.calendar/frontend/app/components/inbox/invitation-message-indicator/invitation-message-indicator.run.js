@@ -3,10 +3,11 @@
 angular.module('esn.calendar')
 
   .run(function(dynamicDirectiveService, DynamicDirective, _, INVITATION_MESSAGE_HEADERS) {
-    var shouldInject = function(scope) {
-          return scope.item && scope.item.headers && INVITATION_MESSAGE_HEADERS.UID in scope.item.headers;
-        },
-        directive = new DynamicDirective(shouldInject, 'cal-inbox-invitation-message-indicator');
+    var directive = new DynamicDirective(true, 'cal-inbox-invitation-message-indicator', {
+      attributes: [
+        { name: 'ng-if', value: 'item.headers["' + INVITATION_MESSAGE_HEADERS.UID + '"]' }
+      ]
+    });
 
     dynamicDirectiveService.addInjection('inbox-message-indicators', directive);
   });

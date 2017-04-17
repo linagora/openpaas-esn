@@ -36,6 +36,22 @@ describe('The calInboxInvitationMessageIndicator component', function() {
     expect(element.find('cal-inbox-invitation-message-indicator')).to.have.length(1);
   });
 
+  it('should remove directive if scope.item changes to a non-event item', function() {
+    scope.item = {
+      headers: {
+        'X-MEETING-UID': '1234'
+      }
+    };
+    initDirective();
+
+    expect(element.find('cal-inbox-invitation-message-indicator')).to.have.length(1);
+
+    scope.item.headers = {};
+    scope.$digest();
+
+    expect(element.find('cal-inbox-invitation-message-indicator')).to.have.length(0);
+  });
+
   it('should not be injected if there is no item in scope', function() {
     initDirective();
 
@@ -56,6 +72,20 @@ describe('The calInboxInvitationMessageIndicator component', function() {
     initDirective();
 
     expect(element.find('cal-inbox-invitation-message-indicator')).to.have.length(0);
+  });
+
+  it('should add directive if scope.item changes to a event item', function() {
+    scope.item = {};
+    initDirective();
+
+    expect(element.find('cal-inbox-invitation-message-indicator')).to.have.length(0);
+
+    scope.item.headers = {
+      'X-MEETING-UID': '1234'
+    };
+    scope.$digest();
+
+    expect(element.find('cal-inbox-invitation-message-indicator')).to.have.length(1);
   });
 
 });
