@@ -173,9 +173,11 @@ module.exports = dependencies => {
   }
 
   function _onDelete(msg) {
-    const vcalendar = new ICAL.Component(msg.event);
-    const vevent = vcalendar.getFirstSubcomponent('vevent');
-    const eventUid = vevent.getFirstPropertyValue('uid');
+    const eventUid = parseEventPath(msg.eventPath)['eventUid'];
+    if (msg.event) {
+      const vcalendar = new ICAL.Component(msg.event);
+      const vevent = vcalendar.getFirstSubcomponent('vevent');
+    }
 
     cron.abortAll({
       eventUid: eventUid

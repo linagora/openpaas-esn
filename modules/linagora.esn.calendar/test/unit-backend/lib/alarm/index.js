@@ -108,7 +108,23 @@ describe('alarm module', function() {
         var handleAlarm = localstub.topics[CONSTANTS.EVENTS.EVENT.DELETED].handler;
         handleAlarm({
           type: 'deleted',
-          event: ICAL.Component.fromString(ics).toJSON()
+          event: ICAL.Component.fromString(ics).toJSON(),
+          eventPath: '/calendars/calendarHomeId/calendarUri/f1514f44bf39311568d640721cbc555071ca90e08d3349ccae43e1787553988ae047feb2aab16e43439a608f28671ab7c10e754cec5324c4e4cd93f443dc3934f6c5d2e592a8112c'
+        });
+
+        expect(cron.abortAll).to.have.been.calledWith({
+          eventUid: 'f1514f44bf39311568d640721cbc555071ca90e08d3349ccae43e1787553988ae047feb2aab16e43439a608f28671ab7c10e754cec5324c4e4cd93f443dc3934f6c5d2e592a8112c'
+        }, sinon.match.func);
+      });
+
+      it('should abort all alarm with the right context with only eventPath', function() {
+        var ics = fs.readFileSync(this.calendarModulePath + '/test/unit-backend/fixtures/withVALARM.ics').toString('utf8');
+
+        this.requireModule().init();
+        var handleAlarm = localstub.topics[CONSTANTS.EVENTS.EVENT.DELETED].handler;
+        handleAlarm({
+          type: 'deleted',
+          eventPath: '/calendars/calendarHomeId/calendarUri/f1514f44bf39311568d640721cbc555071ca90e08d3349ccae43e1787553988ae047feb2aab16e43439a608f28671ab7c10e754cec5324c4e4cd93f443dc3934f6c5d2e592a8112c'
         });
 
         expect(cron.abortAll).to.have.been.calledWith({
