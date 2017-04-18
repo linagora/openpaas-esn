@@ -23,10 +23,12 @@ module.exports = dependencies => {
     function parse(msg) {
       const data = eventHelper.parseEventPath(msg.eventPath);
 
-      try {
-        data.ics = (new ICAL.Component(msg.event)).toString();
-      } catch (error) {
-        logger.error(`Problem stringifying component  ${error}`);
+      if (msg.event) {
+        try {
+          data.ics = (new ICAL.Component(msg.event)).toString();
+        } catch (error) {
+          logger.error(`Problem stringifying component  ${error}`);
+        }
       }
 
       return data;
