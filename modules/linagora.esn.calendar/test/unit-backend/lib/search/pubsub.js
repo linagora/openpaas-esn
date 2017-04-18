@@ -60,28 +60,6 @@ describe('The calendar search pubsub module', function() {
       });
     }
 
-    function testLocalPublishOnEventWithEmptyEvent(event, localTopic) {
-      const eventId = 'eventId';
-      const calendarId = 'events';
-      const userId = 'userId';
-      const path = `/calendar/${userId}/${calendarId}/${eventId}.ics`;
-
-      require(self.moduleHelpers.backendPath + '/lib/search/pubsub')(self.moduleHelpers.dependencies).listen();
-      const handler = globalpubsub.topics[event].handler;
-
-      handler({
-        websocketEvent: event,
-        eventPath: path
-      });
-
-      expect(localpubsub.topics[localTopic].data[0]).to.deep.equals({
-        path,
-        userId,
-        calendarId,
-        eventUid: 'eventId'
-      });
-    }
-
     it('should push event creation on NOTIFICATIONS.EVENT_ADDED', function() {
       testLocalPublishOnEvent(CONSTANTS.EVENTS.EVENT.CREATED, CONSTANTS.NOTIFICATIONS.EVENT_ADDED);
     });
@@ -102,16 +80,8 @@ describe('The calendar search pubsub module', function() {
       testLocalPublishOnEvent(CONSTANTS.EVENTS.EVENT.DELETED, CONSTANTS.NOTIFICATIONS.EVENT_DELETED);
     });
 
-    it('should push event creation on NOTIFICATIONS.EVENT_DELETED with empty calendar event', function() {
-      testLocalPublishOnEventWithEmptyEvent(CONSTANTS.EVENTS.EVENT.DELETED, CONSTANTS.NOTIFICATIONS.EVENT_DELETED);
-    });
-
     it('should push event creation on NOTIFICATIONS.EVENT_CANCEL', function() {
       testLocalPublishOnEvent(CONSTANTS.EVENTS.EVENT.CANCEL, CONSTANTS.NOTIFICATIONS.EVENT_DELETED);
-    });
-
-    it('should push event creation on NOTIFICATIONS.EVENT_CANCEL with empty calendar event', function() {
-      testLocalPublishOnEventWithEmptyEvent(CONSTANTS.EVENTS.EVENT.CANCEL, CONSTANTS.NOTIFICATIONS.EVENT_DELETED);
     });
   });
 });
