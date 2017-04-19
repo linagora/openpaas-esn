@@ -484,12 +484,51 @@ angular.module('linagora.esn.unifiedinbox')
 
         function normalizeToEMailer(tag) {
           Object.keys(tag).forEach(function(key) {
+
+            if (!tag.email) {
+              if (key === 'name') {
+                var foundTags = [];
+
+                tag.name = tag.name.replace(/(.*?)<(.*?)>/g, function(match, name, email) {
+                  name = name.trim();
+                  email = email.trim();
+
+                  if (!name.length) {
+                    name = email;
+                  }
+
+                  foundTags.push({ name: name, email: email });
+
+                  return '';
+                });
+
+                /*The replace will match every "name <email>" or "<email>", and will push all in the foundTags array.
+
+                But we don't want add the last match if anything left in tag.name,
+                so that ngTagsInput internal logic appends the last tag automatically.
+
+                If there's some charaters left in tag.name, this will be added as a tag also. */
+
+                if (!tag.name) {
+                  var lastTag = foundTags.pop();
+
+                  tag.email = lastTag.email;
+                  tag.name = lastTag.name;
+                }
+
+                foundTags.forEach(function(newTag) {
+                  scope.tags.push(newTag);
+                });
+              }
+            }
+
             if (key !== 'email' && key !== 'name') {
               delete tag[key];
             }
           });
 
           if (!tag.email) {
+            tag.name = tag.name.trim();
             tag.email = tag.name;
           }
         }

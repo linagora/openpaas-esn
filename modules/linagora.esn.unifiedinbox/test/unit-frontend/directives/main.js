@@ -1207,6 +1207,10 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       return element.find('recipients-auto-complete').isolateScope();
     }
 
+    function newTag(tag) {
+      element.find('input').scope().tagList.addText(tag);
+    }
+
     it('should trigger an error if no template is given', function() {
       expect(function() {
         compileDirective('<div><recipients-auto-complete ng-model="model"></recipients-auto-complete></div>');
@@ -1292,6 +1296,94 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
       scope.onTagAdding(recipient);
 
       expect(recipient).to.deep.equal({ name: 'a@a.com', email: 'a@a.com' });
+    });
+
+    function expectTagsFromTextInput(text, tags) {
+      var scope = compileDirectiveThenGetScope();
+
+      newTag(text);
+
+      expect(scope.tags).to.deep.equal(tags);
+    }
+
+    it('should make sure email is defined like this "<email@lin34.com>"', function() {
+      expectTagsFromTextInput('<email@lin34.com>', [{ name: 'email@lin34.com', email: 'email@lin34.com' }]);
+    });
+
+    it('should make sure email is defined like this "<  email@lin34.com  >"', function() {
+      expectTagsFromTextInput('<  email@lin34.com  >', [{ name: 'email@lin34.com', email: 'email@lin34.com' }]);
+    });
+
+    it('should make sure email is defined like this "   <email@lin34.com>"', function() {
+      expectTagsFromTextInput('   <email@lin34.com>', [{ name: 'email@lin34.com', email: 'email@lin34.com' }]);
+    });
+
+    it('should make sure email is defined like this "<email@lin34.com>   "', function() {
+      expectTagsFromTextInput('<email@lin34.com>    ', [{ name: 'email@lin34.com', email: 'email@lin34.com' }]);
+    });
+
+    it('should make sure email is defined like this "<email@lin34.com> <lin@gora.com>"', function() {
+      expectTagsFromTextInput('<email@lin34.com> <lin@gora.com>', [{ name: 'email@lin34.com', email: 'email@lin34.com' }, { name: 'lin@gora.com', email: 'lin@gora.com' }]);
+    });
+
+    it('should make sure input is defined like this "name <email@lin.com>"', function() {
+      expectTagsFromTextInput('test <email@lin.com>', [{ name: 'test', email: 'email@lin.com' }]);
+    });
+
+    it('should make sure input is defined like this "     name    <   email@lin.com   >"', function() {
+      expectTagsFromTextInput('     name    <   email@lin.com   >', [{ name: 'name', email: 'email@lin.com' }]);
+    });
+
+    it('should make sure input is defined like this "name1 name2 <email@lin.com>"', function() {
+      expectTagsFromTextInput('      name1 name2   name3 name4     <email@lin.com>', [{ name: 'name1 name2   name3 name4', email: 'email@lin.com' }]);
+    });
+
+    it('should make sure input is defined like this "test <email@lin.com> name2"', function() {
+       expectTagsFromTextInput('test <email@lin.com>  name2', [{name: 'test', email: 'email@lin.com'}, {name: 'name2', email: 'name2'}]);
+    });
+
+    it('should make sure input is defined like this "name <email@lin.com> name2 <lin@gora.com>"', function() {
+      expectTagsFromTextInput('name1 <email@lin.com>  name2 <email2@lin.com>', [{ name: 'name1', email: 'email@lin.com' }, { name: 'name2', email: 'email2@lin.com' }]);
+    });
+
+     it('should make sure input is defined like this "name <email@lin.com> <lin@gora.com>"', function() {
+       expectTagsFromTextInput('name1 <email@lin.com>  <email2@lin.com>', [{ name: 'name1', email: 'email@lin.com' }, { name: 'email2@lin.com', email: 'email2@lin.com' }]);
+    });
+
+    it('should make sure input is defined like this "name   <   email@lin.com > name2   <  email2@lin.com  >"', function() {
+       expectTagsFromTextInput('name1   <   email@lin.com >    name2   <  email2@lin.com  >', [{ name: 'name1', email: 'email@lin.com' }, { name: 'name2', email: 'email2@lin.com' }]);
+    });
+
+    it('should make sure input is defined like this "<<>>"', function() {
+      expectTagsFromTextInput('<<>>', [{ name: '<', email: '<' }, { name: '>', email: '>' }]);
+    });
+
+    it('should make sure input with email is defined like this "<<lin@gora.com>>"', function() {
+      expectTagsFromTextInput('<<lin@gora.com>>', [{ name: '<lin@gora.com', email: '<lin@gora.com' }, { name: '>', email: '>' }]);
+    });
+
+    it('should make sure input is defined like this ">anything<"', function() {
+      expectTagsFromTextInput('>an7th|n8<', [{ name: '>an7th|n8<', email: '>an7th|n8<' }]);
+    });
+
+    it('should make sure input is defined like this "text >anything<"', function() {
+      expectTagsFromTextInput('text    >@n7th|n8<', [{ name: 'text    >@n7th|n8<', email: 'text    >@n7th|n8<' }]);
+    });
+
+    it('should make sure input is defined like this "text1>text2"', function() {
+      expectTagsFromTextInput('text1>text2', [{ name: 'text1>text2', email: 'text1>text2' }]);
+    });
+
+    it('should make sure input is defined like this "text1<text2"', function() {
+      expectTagsFromTextInput('text1<text2', [{ name: 'text1<text2', email: 'text1<text2' }]);
+    });
+
+    it('should make sure input is defined like this "text1 text2"', function() {
+      expectTagsFromTextInput('text1 text2', [{ name: 'text1 text2', email: 'text1 text2' }]);
+    });
+
+    it('should make sure input is defined like this "   text1 text2   "', function() {
+       expectTagsFromTextInput('   text1 text2   ', [{ name: 'text1 text2', email: 'text1 text2' }]);
     });
 
     it('should initialize the model if none given', function() {
