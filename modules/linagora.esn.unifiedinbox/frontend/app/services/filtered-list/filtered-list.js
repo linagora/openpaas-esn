@@ -14,6 +14,7 @@
 
       return {
         list: list,
+        getById: getById,
         addAll: addAll,
         asMdVirtualRepeatModel: asMdVirtualRepeatModel,
         getOldestProviderItem: getOldestProviderItem
@@ -23,6 +24,10 @@
 
       function list() {
         return renderedList;
+      }
+
+      function getById(id) {
+        return model.getById(id);
       }
 
       function addAll(items) {

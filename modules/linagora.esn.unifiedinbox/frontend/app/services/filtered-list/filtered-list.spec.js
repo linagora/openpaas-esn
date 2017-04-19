@@ -203,4 +203,20 @@ describe('The inboxFilteredList factory', function() {
 
   });
 
+  describe('The getById function', function() {
+
+    it('should return undefined if the element does not exist', function() {
+      expect(inboxFilteredList.getById('nonExistentId')).to.equal(undefined);
+    });
+
+    it('should return the element if the it exists', function() {
+      var message = newMessage();
+
+      inboxFilteredList.addAll([message]);
+
+      expect(inboxFilteredList.getById(message.id)).to.equal(message);
+    });
+
+  });
+
 });

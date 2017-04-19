@@ -622,6 +622,23 @@ describe('The esn.provider module', function() {
 
     });
 
+    describe('The getById method', function() {
+
+      it('should return undefined if the element does not exist', function() {
+        expect(new ByDateElementGroupingTool().getById('nonExistentId')).to.equal(undefined);
+      });
+
+      it('should return the element if the it exists', function() {
+        var elementGroupingTool = new ByDateElementGroupingTool(),
+            element = { id: 'myId', date: '2015-05-31T04:00:00Z' };
+
+        elementGroupingTool.addElement(element);
+
+        expect(elementGroupingTool.getById('myId')).to.equal(element);
+      });
+
+    });
+
   });
 
   describe('The sortByDateInDescendingOrder factory', function() {
