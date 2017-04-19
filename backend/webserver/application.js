@@ -27,6 +27,7 @@ application.use(morgan(format, { stream: logger.stream }));
 application.use('/components', express.static(FRONTEND_PATH + '/components'));
 application.use('/images', express.static(FRONTEND_PATH + '/images'));
 application.use('/js', express.static(FRONTEND_PATH + '/js', { extensions: ['js']}));
+application.use('/core/js', express.static(FRONTEND_PATH + '/js/modules', { extensions: ['js']}));
 
 var bodyParser = require('body-parser');
 application.use(bodyParser.json());
