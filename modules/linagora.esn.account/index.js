@@ -4,6 +4,8 @@ var AwesomeModule = require('awesome-module');
 var Dependency = AwesomeModule.AwesomeModuleDependency;
 var path = require('path');
 
+const FRONTEND_PATH = path.resolve(__dirname, 'frontend');
+
 var accountModule = new AwesomeModule('linagora.esn.account', {
   dependencies: [
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.logger', 'logger'),
@@ -41,8 +43,10 @@ var accountModule = new AwesomeModule('linagora.esn.account', {
 
       var webserverWrapper = dependencies('webserver-wrapper');
 
-      webserverWrapper.injectAngularModules('account', libJS, 'linagora.esn.account', ['esn']);
-      var lessFile = path.resolve(__dirname, './frontend/css/styles.less');
+      webserverWrapper.injectAngularModules('account', libJS, 'linagora.esn.account', ['esn'], {
+        localJsFiles: libJS.map(file => path.resolve(FRONTEND_PATH, 'js', file))
+      });
+      var lessFile = path.resolve(FRONTEND_PATH, 'css/styles.less');
 
       webserverWrapper.injectLess('account', [lessFile], 'esn');
       webserverWrapper.addApp('account', app);
