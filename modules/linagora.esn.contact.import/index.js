@@ -1,7 +1,11 @@
 'use strict';
 
+const resolve = require('path').resolve;
+
 var AwesomeModule = require('awesome-module');
 var Dependency = AwesomeModule.AwesomeModuleDependency;
+
+const FRONTEND_PATH = resolve(__dirname, 'frontend');
 
 var importContactModule = new AwesomeModule('linagora.esn.contact.import', {
   dependencies: [
@@ -46,7 +50,9 @@ var importContactModule = new AwesomeModule('linagora.esn.contact.import', {
 
       var webserverWrapper = dependencies('webserver-wrapper');
 
-      webserverWrapper.injectAngularModules('import', frontendModules, 'linagora.esn.contact.import', ['esn']);
+      webserverWrapper.injectAngularModules('import', frontendModules, 'linagora.esn.contact.import', ['esn'], {
+        localJsFiles: frontendModules.map(file => resolve(FRONTEND_PATH, 'js', file))
+      });
       webserverWrapper.addApp('import', app);
 
       return callback();
