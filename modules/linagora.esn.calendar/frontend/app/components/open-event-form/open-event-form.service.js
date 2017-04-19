@@ -21,7 +21,7 @@
           if (!event.isInstance()) {
             _openForm(calendar, event);
           } else {
-            _openRecurringModal(event);
+            _openRecurringModal(calendar, event);
           }
         } else {
           notificationFactory.weakInfo('Private event', 'Cannot access private event');
@@ -71,10 +71,13 @@
       }
     }
 
-    function _openRecurringModal(event) {
+    function _openRecurringModal(calendar, event) {
       $modal({
         templateUrl: '/calendar/app/components/open-event-form/edit-instance-or-series',
         resolve: {
+          calendar: function() {
+            return calendar;
+          },
           event: function() {
             return event;
           },
@@ -82,16 +85,18 @@
             return _openForm;
           }
         },
-        controller: function($scope, event, openForm) {
+        controller: function($scope, calendar, event, openForm) {
           $scope.event = event;
           $scope.editAllInstances = function() {
             $scope.$hide();
-            event.getModifiedMaster().then(openForm);
+            event.getModifiedMaster().then(function(eventMaster) {
+              openForm(calendar, eventMaster);
+            });
           };
 
           $scope.editInstance = function() {
             $scope.$hide();
-            openForm(event);
+            openForm(calendar, event);
           };
         },
         openForm: _openForm,
