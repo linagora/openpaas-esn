@@ -11,7 +11,8 @@ sub-header
         .pmo-stat.p-t-15
           h3.m-0.c-white.ellipsis {{::user.firstname}} {{::user.lastname}}
           span.m-0.c-white.ellipsis {{::user.job_title}}
-      .pmo-block
-        follow-card(ng-if='!me', user='user')
+      .pmo-block(ng-if='!me')
+        follow-card(user='user')
+        .profile-user-actions(dynamic-directive="profile-user-actions")
     .pm-body.clearfix
       .ui-view(name="main")
