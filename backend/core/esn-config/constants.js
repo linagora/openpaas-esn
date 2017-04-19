@@ -33,7 +33,11 @@ module.exports = {
         },
         session: {},
         james: {},
-        jwt: {},
+        jwt: {
+          rights: {
+            padmin: 'rw'
+          }
+        },
         jmap: {},
         web: {},
         webserver: {},
