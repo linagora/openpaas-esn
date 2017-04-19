@@ -1,15 +1,25 @@
 'use strict';
 
 const expect = require('chai').expect;
+const mockery = require('mockery');
 
 describe('The configuration middleware', function() {
-  let middleware;
+  let middleware, rightsMock;
 
   beforeEach(function() {
+    rightsMock = {};
+
+    mockery.registerMock('../../core/esn-config/rights', rightsMock);
     middleware = this.helpers.requireBackend('webserver/middleware/configuration');
   });
 
   describe('The canWriteAdminConfig fn', function() {
+
+    beforeEach(function() {
+      Object.assign(rightsMock, {
+        adminCanWrite() { return true; }
+      });
+    });
 
     it('should send back 400 when one of modules is undefined', function(done) {
       const req = {
@@ -53,9 +63,9 @@ describe('The configuration middleware', function() {
       middleware.canWriteAdminConfig(req, res);
     });
 
-    it('should send back 400 when role hasn\'t write permission on admin configuration', function(done) {
+    it('should send back 400 when config is not writable by admin', function(done) {
       const req = {
-        body: [{ name: 'module1', configurations: [{ name: 'conf1', value: 'value1' }] }]
+        body: [{ name: 'module', configurations: [{ name: 'name', value: 'value' }] }]
       };
       const res = this.helpers.express.jsonResponse(
         function(code) {
@@ -64,12 +74,13 @@ describe('The configuration middleware', function() {
         }
       );
 
+      rightsMock.adminCanWrite = () => false;
       middleware.canWriteAdminConfig(req, res);
     });
 
-    it('should pass when role has write permission on admin configuration ', function(done) {
+    it('should pass when config is writable by admin ', function(done) {
       const req = {
-        body: [{ name: 'core', configurations: [{ name: 'jwt', value: 'value1' }] }]
+        body: [{ name: 'module', configurations: [{ name: 'name', value: 'value' }] }]
       };
       const res = {};
       const next = function(err) {
@@ -77,12 +88,19 @@ describe('The configuration middleware', function() {
         done();
       };
 
+      rightsMock.adminCanWrite = () => true;
       middleware.canWriteAdminConfig(req, res, next);
     });
   });
 
   describe('The canReadAdminConfig fn', function() {
 
+    beforeEach(function() {
+      Object.assign(rightsMock, {
+        adminCanRead() { return true; }
+      });
+    });
+
     it('should send back 400 when one of modules is undefined', function(done) {
       const req = {
         body: [{ name: 'module1', keys: [] }, undefined]
@@ -111,9 +129,9 @@ describe('The configuration middleware', function() {
       middleware.canReadAdminConfig(req, res);
     });
 
-    it('should send back 400 when role hasn\'t read permission on admin configuration', function(done) {
+    it('should send back 400 when config is not readable by admin', function(done) {
       const req = {
-        body: [{ name: 'module1', keys: ['key1'] }]
+        body: [{ name: 'module', keys: ['key1'] }]
       };
       const res = this.helpers.express.jsonResponse(
         function(code) {
@@ -122,12 +140,13 @@ describe('The configuration middleware', function() {
         }
       );
 
+      rightsMock.adminCanRead = () => false;
       middleware.canReadAdminConfig(req, res);
     });
 
     it('should pass when role has read permission on admin configuration ', function(done) {
       const req = {
-        body: [{ name: 'core', keys: ['jwt'] }]
+        body: [{ name: 'module', keys: ['key1'] }]
       };
       const res = {};
       const next = function(err) {
@@ -135,11 +154,18 @@ describe('The configuration middleware', function() {
         done();
       };
 
+      rightsMock.adminCanRead = () => true;
       middleware.canReadAdminConfig(req, res, next);
     });
   });
 
   describe('The canWritePlatformConfig fn', function() {
+
+    beforeEach(function() {
+      Object.assign(rightsMock, {
+        padminCanWrite() { return true; }
+      });
+    });
 
     it('should send back 400 when one of modules is undefined', function(done) {
       const req = {
@@ -183,9 +209,9 @@ describe('The configuration middleware', function() {
       middleware.canWritePlatformConfig(req, res);
     });
 
-    it('should send back 400 when role hasn\'t write permission on platform configuration', function(done) {
+    it('should send back 400 when config is not writable by platform admin', function(done) {
       const req = {
-        body: [{ name: 'module1', configurations: [{ name: 'conf1', value: 'value1' }] }]
+        body: [{ name: 'module', configurations: [{ name: 'name', value: 'value' }] }]
       };
       const res = this.helpers.express.jsonResponse(
         function(code) {
@@ -194,12 +220,13 @@ describe('The configuration middleware', function() {
         }
       );
 
+      rightsMock.padminCanWrite = () => false;
       middleware.canWritePlatformConfig(req, res);
     });
 
-    it('should pass when role has write permission on platform configuration ', function(done) {
+    it('should pass when config is writable by platform admin', function(done) {
       const req = {
-        body: [{ name: 'core', configurations: [{ name: 'jwt', value: 'value1' }] }]
+        body: [{ name: 'module', configurations: [{ name: 'name', value: 'value' }] }]
       };
       const res = {};
       const next = function(err) {
@@ -207,11 +234,18 @@ describe('The configuration middleware', function() {
         done();
       };
 
+      rightsMock.padminCanWrite = () => true;
       middleware.canWritePlatformConfig(req, res, next);
     });
   });
 
   describe('The canReadPlatformConfig fn', function() {
+
+    beforeEach(function() {
+      Object.assign(rightsMock, {
+        padminCanRead() { return true; }
+      });
+    });
 
     it('should send back 400 when one of modules is undefined', function(done) {
       const req = {
@@ -241,9 +275,9 @@ describe('The configuration middleware', function() {
       middleware.canReadPlatformConfig(req, res);
     });
 
-    it('should send back 400 when role hasn\'t read permission on platform configuration', function(done) {
+    it('should send back 400 when config is not readable by platform admin', function(done) {
       const req = {
-        body: [{ name: 'module1', keys: ['key1'] }]
+        body: [{ name: 'module', keys: ['key1'] }]
       };
       const res = this.helpers.express.jsonResponse(
         function(code) {
@@ -252,12 +286,13 @@ describe('The configuration middleware', function() {
         }
       );
 
+      rightsMock.padminCanRead = () => false;
       middleware.canReadPlatformConfig(req, res);
     });
 
-    it('should pass when role has read permission on platform configuration ', function(done) {
+    it('should pass when config is readable by platform admin ', function(done) {
       const req = {
-        body: [{ name: 'core', keys: ['jwt'] }]
+        body: [{ name: 'module', keys: ['key1'] }]
       };
       const res = {};
       const next = function(err) {
@@ -265,6 +300,7 @@ describe('The configuration middleware', function() {
         done();
       };
 
+      rightsMock.padminCanRead = () => true;
       middleware.canReadPlatformConfig(req, res, next);
     });
   });
