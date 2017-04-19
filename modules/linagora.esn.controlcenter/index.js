@@ -12,7 +12,14 @@ const moduleFiles = [
   'general/controlcenter-general-subheader.component.js',
   'general/controlcenter-general.service.js'
 ];
-const FRONTEND_JS_PATH = `${__dirname}/frontend/app/`;
+const jsFiles = [
+  'app.js',
+  'directives.js',
+  'services.js',
+  'controllers.js'
+];
+const FRONTEND_JS_PATH = `${__dirname}/frontend/js/`;
+const FRONTEND_APP_PATH = `${__dirname}/frontend/app/`;
 
 var controlCenterModule = new AwesomeModule(AWESOME_MODULE_NAME, {
   dependencies: [
@@ -36,15 +43,12 @@ var controlCenterModule = new AwesomeModule(AWESOME_MODULE_NAME, {
       var webserverWrapper = dependencies('webserver-wrapper');
       var lessFile = path.resolve(__dirname, './frontend/css/styles.less');
 
-      webserverWrapper.injectAngularModules(MODULE_NAME, [
-        'app.js',
-        'directives.js',
-        'services.js',
-        'controllers.js'
-      ], [AWESOME_MODULE_NAME], ['esn']);
+      webserverWrapper.injectAngularModules(MODULE_NAME, jsFiles, [AWESOME_MODULE_NAME], ['esn'], {
+        localJsFiles: jsFiles.map(file => path.join(FRONTEND_JS_PATH, file))
+      });
 
       webserverWrapper.injectAngularAppModules(MODULE_NAME, moduleFiles, [AWESOME_MODULE_NAME], ['esn'], {
-        localJsFiles: moduleFiles.map(file => path.join(FRONTEND_JS_PATH, file))
+        localJsFiles: moduleFiles.map(file => path.join(FRONTEND_APP_PATH, file))
       });
 
       webserverWrapper.injectLess(MODULE_NAME, [lessFile], 'esn');
