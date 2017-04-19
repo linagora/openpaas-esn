@@ -124,7 +124,7 @@ const injections = [
   {angular: ['esn.router'], files: ['esn.router.js'], innerApps: ['esn']},
   {angular: ['esn.url'], files: ['url.js'], innerApps: ['esn']},
   {angular: ['esn.actionList'], files: ['action-list.js'], innerApps: ['esn']},
-  {angular: ['esn.lodash-wrapper'], files: ['lodash-wrapper.js'], innerApps: ['esn']},
+  {angular: ['esn.lodash-wrapper'], files: ['lodash-wrapper.js'], innerApps: ['esn', 'welcome']},
   {angular: ['esn.aggregator'], files: ['aggregator.js'], innerApps: ['esn']},
   {angular: ['esn.provider'], files: ['provider.js'], innerApps: ['esn']},
   {angular: ['esn.application-menu'], files: ['application-menu.js'], innerApps: ['esn']},
