@@ -5,11 +5,12 @@
 
 var expect = chai.expect;
 
-describe('The open-event-form service', function() {
+describe('The calOpenEventForm service', function() {
   var $modal, $q, $rootScope, $state, calEventUtils, calOpenEventForm, calendarService, calUIAuthorizationService, notificationFactory, matchmedia, CAL_DEFAULT_CALENDAR_ID, CAL_EVENTS, SM_XS_MEDIA_QUERY;
-  var instance, master, regularEvent;
+  var calendar, instance, master, regularEvent;
 
   beforeEach(function() {
+    calendar = {id: 1};
     matchmedia = {};
     calEventUtils = {
       setEditedEvent: sinon.spy()
@@ -21,7 +22,7 @@ describe('The open-event-form service', function() {
     calendarService = {
       calendarHomeId: '123',
       getCalendar: sinon.spy(function() {
-        return $q.when({});
+        return $q.when(calendar);
       })
     };
     regularEvent = {
@@ -61,6 +62,7 @@ describe('The open-event-form service', function() {
 
   describe('calOpenEventForm', function() {
     var canAccessEventDetail, canModifyEvent;
+
     beforeEach(function() {
       canAccessEventDetail = true;
       canModifyEvent = true;
@@ -149,6 +151,7 @@ describe('The open-event-form service', function() {
           controller($scope, instance, openForm);
           $scope.$hide();
           expect($hide).to.have.been.called;
+
           return true;
         }))
       }));
@@ -272,14 +275,14 @@ describe('The open-event-form service', function() {
             $hide: sinon.spy()
           };
 
-          controller($scope, instance, openForm);
+          controller($scope, calendar, instance, openForm);
 
           $scope.editInstance();
           $scope.editAllInstances();
           $rootScope.$digest();
 
-          expect(openForm.firstCall).to.have.been.calledWith(instance);
-          expect(openForm.secondCall).to.have.been.calledWith(master);
+          expect(openForm.firstCall).to.have.been.calledWith(calendar, instance);
+          expect(openForm.secondCall).to.have.been.calledWith(calendar, master);
           expect($scope.$hide).to.have.been.calledTwice;
 
           return true;
