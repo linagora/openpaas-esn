@@ -76,7 +76,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       $provide.value('touchscreenDetectorService', touchscreenDetectorService = {});
       $provide.value('inboxFilterDescendantMailboxesFilter', inboxFilterDescendantMailboxesFilter);
       $provide.decorator('inboxFilteredList', function($delegate) {
-        $delegate.addAll = sinon.spy();
+        $delegate.addAll = sinon.spy($delegate.addAll);
 
         return $delegate;
       });
@@ -1016,7 +1016,12 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         mailboxId: 'id'
       };
       $stateParams.mailbox = '$stateParams mailbox';
-      $stateParams.item = {};
+      $stateParams.item = {
+        id: 'myId',
+        provider: {
+          itemMatches: _.constant($q.when())
+        }
+      };
 
       inboxMailboxesService.assignMailboxesList = sinon.spy();
 
@@ -1051,9 +1056,12 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       });
 
       it('should delegate to inboxJmapItemService.moveMultipleItems with the item if selection=false', function() {
+        inboxFilteredList.addAll([$stateParams.item]);
+        $rootScope.$digest();
+
         initController('inboxMoveItemController').moveTo(mailbox);
 
-        expect(inboxJmapItemService.moveMultipleItems).to.have.been.calledWith([$stateParams.item], mailbox);
+        expect(inboxJmapItemService.moveMultipleItems).to.have.been.calledWith(sinon.match({ id: 'myId' }), mailbox);
       });
 
     });

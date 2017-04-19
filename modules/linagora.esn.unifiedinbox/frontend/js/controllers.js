@@ -352,14 +352,14 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .controller('inboxMoveItemController', function($scope, $stateParams, inboxMailboxesService, inboxJmapItemService,
-                                                  esnPreviousPage, inboxSelectionService) {
+                                                  esnPreviousPage, inboxSelectionService, inboxFilteredList) {
     inboxMailboxesService.assignMailboxesList($scope);
 
     this.moveTo = function(mailbox) {
       esnPreviousPage.back();
 
       return inboxJmapItemService.moveMultipleItems(
-        $stateParams.selection ? inboxSelectionService.getSelectedItems() : [$stateParams.item], mailbox
+        $stateParams.selection ? inboxSelectionService.getSelectedItems() : inboxFilteredList.getById($stateParams.item.id), mailbox
       );
     };
   })
