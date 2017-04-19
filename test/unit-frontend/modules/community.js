@@ -559,15 +559,6 @@ describe('The Community Angular module', function() {
       expect(scope.form.$pending).to.have.property('unique');
     });
 
-    it('should call the companyAPI get() method after a one second delay', function() {
-      this.$httpBackend.expectGET('/api/communities?title=' + this.title).respond(this.emptyResponse);
-      var element = this.$compile(html)(this.$rootScope);
-      var input = element.find('input');
-      input.val(this.title);
-      input.trigger('change');
-      this.$httpBackend.flush();
-    });
-
     it('should remove the ajax error and set a unique=true error when the community already exists', function() {
       this.$httpBackend.expectGET('/api/communities?title=' + this.title).respond(this.response);
       var element = this.$compile(html)(this.$rootScope);

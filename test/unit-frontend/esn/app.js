@@ -6,7 +6,13 @@
 var expect = chai.expect;
 
 describe('The esn app', function() {
-  beforeEach(angular.mock.module('esnApp'));
+  beforeEach(function() {
+    module('esn.core');
+    module('esn.session');
+    module('esn.websocket');
+    module('esn.router');
+    angular.mock.module('esnApp');
+  });
 
   var location, rootScope, stateParams, esnRouterHelper;
 

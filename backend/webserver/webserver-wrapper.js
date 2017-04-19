@@ -2,6 +2,7 @@
 
 var AwesomeModule = require('awesome-module');
 var util = require('util');
+const coreFrontendInjections = require('./core-frontend-injections');
 
 function WebServerWrapper(server) {
   var webserver = server;
@@ -49,6 +50,9 @@ var awesomeWebServerWrapper = new AwesomeModule(require('../module-manager').ESN
   states: {
     lib: function(dependencies, callback) {
       var api = new WebServerWrapper(server);
+
+      coreFrontendInjections(api);
+
       return callback(null, api);
     }
   },

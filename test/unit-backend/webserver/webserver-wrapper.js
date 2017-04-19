@@ -12,7 +12,10 @@ describe('the webserver-wrapper', function() {
 
   it('should expose some methods', function() {
     mockery.registerMock('./', {
-      webserver: { on: function() {} }
+      webserver: {
+        on: function() {},
+        addAngularModulesInjection: function() {}
+      }
     });
     module = this.helpers.requireBackend('webserver/webserver-wrapper');
     getApi(module, function(err, api) {
@@ -32,6 +35,7 @@ describe('the webserver-wrapper', function() {
     var webserverMock = {
       webserver: {
         on: function() {},
+        addAngularModulesInjection: function() {},
         addJSInjection: function(namespace, js, apps) {
           expect(namespace).to.equal('myModule');
           expect(js).to.deep.equal(['mymodule.js']);
@@ -51,18 +55,19 @@ describe('the webserver-wrapper', function() {
     var webserverMock = {
       webserver: {
         on: function() {},
-        addAngularModulesInjection: function(namespace, js, angularModules, apps) {
-          expect(namespace).to.equal('myModule');
-          expect(js).to.deep.equal(['mymodule.js']);
-          expect(angularModules).to.deep.equal(['myAngularModule']);
-          expect(apps).to.deep.equal(['esn']);
-          done();
-        }
+        addAngularModulesInjection: function() {}
       }
     };
     mockery.registerMock('./', webserverMock);
     module = this.helpers.requireBackend('webserver/webserver-wrapper');
     getApi(module, function(err, api) {
+      webserverMock.webserver.addAngularModulesInjection = function(namespace, js, angularModules, apps) {
+        expect(namespace).to.equal('myModule');
+        expect(js).to.deep.equal(['mymodule.js']);
+        expect(angularModules).to.deep.equal(['myAngularModule']);
+        expect(apps).to.deep.equal(['esn']);
+        done();
+      };
       api.injectAngularModules('myModule', 'mymodule.js', 'myAngularModule', 'esn');
     });
   });
@@ -71,15 +76,16 @@ describe('the webserver-wrapper', function() {
     var webserverMock = {
       webserver: {
         on: function() {},
-        addAngularModulesInjection: function(namespace, js, angularModules, apps, opts) {
-          expect(opts).to.deep.equal({localJsFiles: ['test1.js', 'test2.js']});
-          done();
-        }
+        addAngularModulesInjection: function() {}
       }
     };
     mockery.registerMock('./', webserverMock);
     module = this.helpers.requireBackend('webserver/webserver-wrapper');
     getApi(module, function(err, api) {
+      webserverMock.webserver.addAngularModulesInjection = function(namespace, js, angularModules, apps, opts) {
+        expect(opts).to.deep.equal({localJsFiles: ['test1.js', 'test2.js']});
+        done();
+      };
       api.injectAngularModules('myModule', 'mymodule.js', 'myAngularModule', 'esn', {localJsFiles: ['test1.js', 'test2.js']});
     });
   });
@@ -88,6 +94,7 @@ describe('the webserver-wrapper', function() {
     const webserverMock = {
       webserver: {
         on: function() {},
+        addAngularModulesInjection: function() {},
         addLessInjection: function(namespace, less, apps) {
           expect(namespace).to.equal('myModule');
           expect(less).to.deep.equal(['my/file.less']);
@@ -109,6 +116,7 @@ describe('the webserver-wrapper', function() {
     var webserverMock = {
       webserver: {
         on: function() {},
+        addAngularModulesInjection: function() {},
         application: {
           use: function(baseUri) {
             expect(baseUri).to.equal('/myModule');

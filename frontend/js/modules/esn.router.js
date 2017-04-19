@@ -2,6 +2,7 @@
 
 angular.module('esn.router', [
   'esn.session',
+  'esn.configuration',
   'esn.constants',
   'ui.router'
 ])
