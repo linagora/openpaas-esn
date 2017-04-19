@@ -39,6 +39,11 @@ module.exports = {
         webserver: {},
         user: {},
         constants: {},
+        login: {
+          rights: {
+            padmin: 'rw'
+          }
+        },
         'application-menu.profile': {
           rights: {
             admin: 'rw',
