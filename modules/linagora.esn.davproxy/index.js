@@ -1,7 +1,10 @@
 'use strict';
 
+const resolve = require('path').resolve;
+
 var AwesomeModule = require('awesome-module');
 var Dependency = AwesomeModule.AwesomeModuleDependency;
+const FRONTEND_PATH = resolve(__dirname, 'frontend');
 
 var davProxy = new AwesomeModule('linagora.esn.davproxy', {
   dependencies: [
@@ -48,7 +51,9 @@ var davProxy = new AwesomeModule('linagora.esn.davproxy', {
         'constants.js',
         'services.js'
       ];
-      webserverWrapper.injectAngularModules('dav', frontendModules, 'linagora.esn.davproxy', ['esn']);
+      webserverWrapper.injectAngularModules('dav', frontendModules, 'linagora.esn.davproxy', ['esn'], {
+        localJsFiles: frontendModules.map(file => resolve(FRONTEND_PATH, 'js', file))
+      });
 
       webserverWrapper.addApp('dav', app);
 
