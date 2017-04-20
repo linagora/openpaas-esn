@@ -5,7 +5,7 @@
 
 var expect = chai.expect;
 
-describe('The open-event-on-click component', function() {
+describe('The cal-open-event-form-on-click component', function() {
 
   var $compile, $rootScope, $scope, element, calOpenEventFormSpy;
 
@@ -32,7 +32,7 @@ describe('The open-event-on-click component', function() {
 
   it('should call "calOpenEventForm" with the given "event" when clicked', function() {
     $scope.myEvent = { id: 'an event id' };
-    compileDirective('<cal-open-event-on-click event="myEvent" />');
+    compileDirective('<cal-open-event-form-on-click event="myEvent" />');
 
     element.click();
 
