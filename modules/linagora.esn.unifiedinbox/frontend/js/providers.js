@@ -141,6 +141,7 @@ angular.module('linagora.esn.unifiedinbox')
             inboxMailboxesService.getMessageListFilter(context).then(function(mailboxFilter) {
               if ((_.isEmpty(mailboxFilter.notInMailboxes) || _.intersection(mailboxIds, mailboxFilter.notInMailboxes).length === 0) &&
                   (_.isEmpty(mailboxFilter.inMailboxes) || _.intersection(mailboxIds, mailboxFilter.inMailboxes).length > 0) &&
+                  (!mailboxFilter.header || item.headers[mailboxFilter.header]) &&
                   (_.isEmpty(filter) || _.find([item], filter))) {
                 return resolve();
               }

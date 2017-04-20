@@ -12,8 +12,7 @@ angular.module('linagora.esn.unifiedinbox')
     sent: 'mdi mdi-send',
     trash: 'mdi mdi-delete',
     spam: 'mdi mdi-alert-octagon',
-    templates: 'mdi mdi-clipboard-text',
-    all: 'mdi mdi-folder-outline'
+    templates: 'mdi mdi-clipboard-text'
   })
   .constant('INBOX_AUTOCOMPLETE_LIMIT', 20)
   .constant('INBOX_DISPLAY_NAME_SIZE', 100)

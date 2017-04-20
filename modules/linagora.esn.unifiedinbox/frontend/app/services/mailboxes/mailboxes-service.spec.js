@@ -479,19 +479,17 @@ describe('The inboxMailboxesService factory', function() {
 
     it('should convert mailbox role to mailbox ID in filter of special mailbox in the first use', function(done) {
       var mailboxId = '123';
-      var excludedMailboxRoles = [{ value: 'role' }, { value: 'not found role' }];
-      var mailboxes = [{
-        id: 'matched role',
-        role: excludedMailboxRoles[0]
-      }, {
-        id: 'unmatched role',
-        role: { value: 'unmatched role' }
-      }];
+      var mailboxes = [
+        new jmap.Mailbox(jmapClient, 'matched role', 'name', { role: 'inbox' }),
+        new jmap.Mailbox(jmapClient, 'unmatched role', 'name', { role: 'outbox' }),
+        new jmap.Mailbox(jmapClient, 'trashId', 'trash', { role: 'trash' })
+      ];
       var specialMailbox = {
         id: mailboxId,
         filter: {
           unprocessed: true,
-          notInMailboxes: excludedMailboxRoles
+          notInMailboxes: ['inbox', 'spam'],
+          inMailboxes: ['trash']
         }
       };
 
@@ -504,7 +502,8 @@ describe('The inboxMailboxesService factory', function() {
       inboxMailboxesService.getMessageListFilter(mailboxId).then(function(filter) {
         expect(jmapClient.getMailboxes).to.have.been.calledWith();
         expect(filter).to.deep.equal({
-          notInMailboxes: [mailboxes[0].id]
+          notInMailboxes: [mailboxes[0].id],
+          inMailboxes: ['trashId']
         });
         done();
       });
@@ -514,12 +513,11 @@ describe('The inboxMailboxesService factory', function() {
 
     it('should use empty array in filter if JMAP client fails to get mailboxes', function(done) {
       var mailboxId = '123';
-      var excludedMailboxRoles = [{ value: 'role' }];
       var specialMailbox = {
         id: mailboxId,
         filter: {
           unprocessed: true,
-          notInMailboxes: excludedMailboxRoles
+          notInMailboxes: ['inbox']
         }
       };
 
@@ -532,7 +530,8 @@ describe('The inboxMailboxesService factory', function() {
       inboxMailboxesService.getMessageListFilter(mailboxId).then(function(filter) {
         expect(jmapClient.getMailboxes).to.have.been.calledWith();
         expect(filter).to.deep.equal({
-          notInMailboxes: []
+          notInMailboxes: [],
+          inMailboxes: []
         });
         done();
       });
