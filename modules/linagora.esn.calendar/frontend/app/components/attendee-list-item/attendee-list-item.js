@@ -5,9 +5,8 @@ angular.module('esn.calendar')
     templateUrl: '/calendar/app/components/attendee-list-item/attendee-list-item.html',
     bindings: {
       attendee: '=',
-      readOnly: '=',
-      isOrganizer: '=',
-      mode: '='
+      canModifyAttendee: '<',
+      isOrganizer: '<'
     },
     controllerAs: 'ctrl'
   });

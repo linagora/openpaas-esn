@@ -98,6 +98,29 @@ describe('The calUIAuthorizationService service', function() {
     });
   });
 
+  describe('the canModifyEventAttendees function', function() {
+    var event;
+
+    beforeEach(function() {
+      event = 'event';
+    });
+
+    it('should return false if current user is not the event organizer', function() {
+      calEventUtils.isOrganizer = sinon.stub().returns(false);
+
+      expect(calUIAuthorizationService.canModifyEventAttendees(event)).to.be.false;
+      expect(calEventUtils.isOrganizer).to.have.been.calledWith(event);
+    });
+
+    it('should return true if current user is the event organizer', function() {
+      calEventUtils.isOrganizer = sinon.stub().returns(true);
+
+      expect(calUIAuthorizationService.canModifyEventAttendees(event)).to.be.true;
+      expect(calEventUtils.isOrganizer).to.have.been.calledWith(event);
+    });
+
+  });
+
   describe('the canModifyEventRecurrence function', function() {
     var calendar, event, userId, publicRight, shareeRight;
 

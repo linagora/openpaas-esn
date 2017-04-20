@@ -34,7 +34,7 @@
                         input.input.location.form-control(type="text", ng-model='editedEvent.location', ng-model-options="{getterSetter: true}", maxlength="{{::CAL_EVENT_FORM.location.maxlength}}",placeholder="#{__('Location')}", ng-readonly="!canModifyEvent")
 
               .row.visible-xs
-                cal-attendees-autocomplete-input(ng-hide='!canModifyEvent', original-attendees='editedEvent.attendees', mutable-attendees='newAttendees')
+                cal-attendees-autocomplete-input(ng-hide='!canModifyEventAttendees', original-attendees='editedEvent.attendees', mutable-attendees='newAttendees')
 
               .row.visible-xs
                 .form-group.status(ng-if='displayParticipationButton')
@@ -46,7 +46,7 @@
                       button.btn.btn-link.declined(type='button', ng-click='changeParticipation("DECLINED")', ng-class='{ "active": userAsAttendee.partstat === "DECLINED" }') #{__('No')}
 
               .row.visible-xs
-                cal-attendees-list(attendees='editedEvent.attendees', read-only='!canModifyEvent', organizer='editedEvent.organizer', mode='edition')
+                cal-attendees-list(attendees='editedEvent.attendees', can-modify-attendees='::canModifyEventAttendees', organizer='::editedEvent.organizer')
 
               .row.visible-xs
                 cal-mail-to-attendees(ng-if='displayCalMailToAttendeesButton()', event='editedEvent')
@@ -65,7 +65,7 @@
 
             .col-xs-12.col-sm-6
               .row.hidden-xs
-                cal-attendees-autocomplete-input(ng-hide='!canModifyEvent', original-attendees='editedEvent.attendees', mutable-attendees='newAttendees')
+                cal-attendees-autocomplete-input(ng-hide='!canModifyEventAttendees', original-attendees='editedEvent.attendees', mutable-attendees='newAttendees')
 
               .row.hidden-xs
                 .form-group.status(ng-if='displayParticipationButton')
@@ -77,7 +77,7 @@
                       button.btn.btn-link.declined(type='button', ng-click='changeParticipation("DECLINED")', ng-class='{ "active": userAsAttendee.partstat === "DECLINED" }') #{__('No')}
 
               .row.hidden-xs
-                cal-attendees-list(attendees='editedEvent.attendees', read-only='!canModifyEvent', organizer='editedEvent.organizer', mode='edition')
+                cal-attendees-list(attendees='editedEvent.attendees', can-modify-attendees='::canModifyEventAttendees', organizer='::editedEvent.organizer')
 
               .row.hidden-xs
                 cal-mail-to-attendees(ng-if='displayCalMailToAttendeesButton()', event='editedEvent')

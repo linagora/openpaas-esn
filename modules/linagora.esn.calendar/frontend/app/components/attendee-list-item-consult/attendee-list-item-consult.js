@@ -5,7 +5,7 @@ angular.module('esn.calendar')
     templateUrl: '/calendar/app/components/attendee-list-item-consult/attendee-list-item-consult.html',
     bindings: {
       attendee: '=',
-      isOrganizer: '='
+      isOrganizer: '<'
     },
     controllerAs: 'ctrl'
   });

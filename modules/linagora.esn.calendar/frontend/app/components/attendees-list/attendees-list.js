@@ -10,13 +10,12 @@
       templateUrl: '/calendar/app/components/attendees-list/attendees-list.html',
       scope: {
         attendees: '=',
-        readOnly: '=',
-        organizer: '=',
-        mode: '@'
+        canModifyAttendees: '=',
+        organizer: '='
       },
       replace: true,
       controller: AttendeesListController,
-      controllerAs: 'vm',
+      controllerAs: 'ctrl',
       bindToController: true
     };
 
