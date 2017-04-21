@@ -97,7 +97,6 @@
       }
 
       function activate() {
-        calendarService.calendarHomeId = $scope.calendarHomeId;
         calendarService.listCalendars($scope.calendarHomeId)
           .then(function(calendars) {
             $scope.calendars = (calendars || []).concat(calPublicCalendarStore.getAll());

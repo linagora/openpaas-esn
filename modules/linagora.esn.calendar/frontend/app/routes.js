@@ -163,8 +163,9 @@
         url: '/form',
         views: {
           content: {
-            template: '<cal-event-full-form event="event"/>',
-            controller: function($scope, event) {
+            template: '<cal-event-full-form event="event" calendar-home-id="calendarHomeId"/>',
+            controller: function($scope, calendarHomeId, event) {
+              $scope.calendarHomeId = calendarHomeId;
               $scope.event = event;
             }
           }

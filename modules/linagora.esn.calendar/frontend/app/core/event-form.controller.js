@@ -2,9 +2,9 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .controller('calEventFormController', calEventFormController);
+    .controller('CalEventFormController', CalEventFormController);
 
-  function calEventFormController(
+  function CalEventFormController(
     $alert,
     $scope,
     $state,
@@ -76,14 +76,11 @@
 
       function initFormData() {
         $scope.editedEvent = $scope.event.clone();
-
         $scope.newAttendees = calEventUtils.getNewAttendees();
-
         $scope.isOrganizer = calEventUtils.isOrganizer($scope.editedEvent);
-
         $scope.canModifyEventAttendees = calUIAuthorizationService.canModifyEventAttendees($scope.editedEvent);
 
-        calendarService.listCalendars(calendarService.calendarHomeId)
+        calendarService.listCalendars($scope.calendarHomeId)
           .then(function(calendars) {
             $scope.calendars = calendars;
             $scope.calendar = calEventUtils.isNew($scope.editedEvent) ? _.find(calendars, 'selected') : _.find(calendars, {id: $scope.editedEvent.calendarId});
@@ -162,10 +159,6 @@
           $scope.editedEvent.class = CAL_EVENT_FORM.class.default;
         }
 
-        if (!$scope.calendarHomeId) {
-          $scope.calendarHomeId = calendarService.calendarHomeId;
-        }
-
         if ($scope.editedEvent.attendees && $scope.newAttendees) {
           $scope.editedEvent.attendees = $scope.editedEvent.attendees.concat($scope.newAttendees);
         } else {
@@ -198,9 +191,6 @@
       }
 
       function deleteEvent() {
-        if (!$scope.calendarHomeId) {
-          $scope.calendarHomeId = calendarService.calendarHomeId;
-        }
         $scope.restActive = true;
         _hideModal();
         calEventService.removeEvent($scope.event.path, $scope.event, $scope.event.etag).finally(function() {
@@ -239,10 +229,6 @@
           return;
         }
 
-        if (!$scope.calendarHomeId) {
-          $scope.calendarHomeId = calendarService.calendarHomeId;
-        }
-
         if ($scope.editedEvent.attendees && $scope.newAttendees) {
           $scope.editedEvent.attendees = $scope.editedEvent.attendees.concat($scope.newAttendees);
         }
@@ -269,9 +255,6 @@
       }
 
       function updateAlarm() {
-        if (!$scope.calendarHomeId) {
-          $scope.calendarHomeId = calendarService.calendarHomeId;
-        }
         if ($scope.event.alarm && $scope.event.alarm.trigger) {
           if (!$scope.editedEvent.alarm || $scope.editedEvent.alarm.trigger.toICALString() === $scope.event.alarm.trigger.toICALString()) {
             return;
@@ -336,7 +319,7 @@
         calEventUtils.setEditedEvent($scope.editedEvent);
         calEventUtils.setNewAttendees($scope.newAttendees);
         _hideModal();
-        $state.go('calendar.event.form', {calendarId: calendarService.calendarHomeId, eventId: $scope.editedEvent.id});
+        $state.go('calendar.event.form', {calendarId: $scope.calendarHomeId, eventId: $scope.editedEvent.id});
       }
   }
 })();

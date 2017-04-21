@@ -46,9 +46,12 @@
           resolve: {
             event: function(calEventUtils) {
               return calEventUtils.getEditedEvent();
+            },
+            calendar: function() {
+              return calendar;
             }
           },
-          controller: function($scope, event) {
+          controller: function($scope, event, calendar) {
             var _$hide = $scope.$hide;
 
             var unregister = $rootScope.$on(CAL_EVENTS.MODAL + '.hide', function() {
@@ -63,6 +66,7 @@
             };
 
             $scope.event = event;
+            $scope.calendarHomeId = calendar.calendarHomeId;
           },
           backdrop: 'static',
           placement: 'center',
@@ -87,6 +91,8 @@
         },
         controller: function($scope, calendar, event, openForm) {
           $scope.event = event;
+          $scope.calendarHomeId = calendar.calendarHomeId;
+
           $scope.editAllInstances = function() {
             $scope.$hide();
             event.getModifiedMaster().then(function(eventMaster) {

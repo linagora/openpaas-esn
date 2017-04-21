@@ -2,7 +2,7 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .directive('calEventConsultForm', calEventConsultForm);
+    .directive('calEventConsultForm', calEventConsultForm);
 
   function calEventConsultForm() {
     var directive = {
@@ -13,7 +13,7 @@
       },
       link: link,
       replace: true,
-      controller: 'calEventFormController'
+      controller: 'CalEventFormController'
     };
 
     return directive;
