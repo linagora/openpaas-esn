@@ -1,21 +1,27 @@
 'use strict';
 
-var q = require('q');
-var passport = require('passport');
-var FacebookStrategy = require('passport-facebook').Strategy;
-var TYPE = 'facebook';
+const q = require('q');
+const passport = require('passport');
+const FacebookStrategy = require('passport-facebook').Strategy;
+const TYPE = 'facebook';
+const STRATEGY_NAME = 'facebook-login';
 
 module.exports = function(dependencies) {
 
-  var logger = dependencies('logger');
-  var commons = require('./commons')(dependencies);
+  const logger = dependencies('logger');
+  const commons = require('./commons')(dependencies);
+
+  return {
+    configure,
+    name: STRATEGY_NAME
+  };
 
   function configure(callback) {
-
     logger.info('Configuring Facebook OAuth login');
 
-    q.spread([commons.getCallbackEndpoint(TYPE), commons.getOAuthConfiguration(TYPE)], function(url, oauth) {
-      passport.use('facebook-login', new FacebookStrategy({
+    q.spread([commons.getCallbackEndpoint(TYPE), commons.getOAuthConfiguration(TYPE)], (url, oauth) => {
+
+      passport.use(STRATEGY_NAME, new FacebookStrategy({
         clientID: oauth.client_id,
         clientSecret: oauth.client_secret,
         callbackURL: url,
@@ -25,8 +31,4 @@ module.exports = function(dependencies) {
       callback();
     }, callback);
   }
-
-  return {
-    configure: configure
-  };
 };

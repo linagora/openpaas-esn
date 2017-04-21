@@ -1,21 +1,27 @@
 'use strict';
 
-var TYPE = 'google';
-var q = require('q');
-var passport = require('passport');
-var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
+const TYPE = 'google';
+const q = require('q');
+const passport = require('passport');
+const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
+const STRATEGY_NAME = 'google-login';
 
 module.exports = function(dependencies) {
 
-  var logger = dependencies('logger');
-  var commons = require('./commons')(dependencies);
+  const logger = dependencies('logger');
+  const commons = require('./commons')(dependencies);
+
+  return {
+    configure,
+    name: STRATEGY_NAME
+  };
 
   function configure(callback) {
 
     logger.info('Configuring Google OAuth login');
 
-    q.spread([commons.getCallbackEndpoint(TYPE), commons.getOAuthConfiguration(TYPE)], function(url, oauth) {
-      passport.use('google-login', new GoogleStrategy({
+    q.spread([commons.getCallbackEndpoint(TYPE), commons.getOAuthConfiguration(TYPE)], (url, oauth) => {
+      passport.use(STRATEGY_NAME, new GoogleStrategy({
         clientID: oauth.client_id,
         clientSecret: oauth.client_secret,
         callbackURL: url,
@@ -24,8 +30,4 @@ module.exports = function(dependencies) {
       callback();
     }, callback);
   }
-
-  return {
-    configure: configure
-  };
 };

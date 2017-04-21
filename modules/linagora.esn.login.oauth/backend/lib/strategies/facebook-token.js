@@ -3,13 +3,15 @@
 const passport = require('passport');
 const FacebookTokenStrategy = require('passport-facebook-token');
 const TYPE = 'facebook';
+const STRATEGY_NAME = 'facebook-token-login';
 
 module.exports = function(dependencies) {
   const logger = dependencies('logger');
   const commons = require('./commons')(dependencies);
 
   return {
-    configure
+    configure,
+    name: STRATEGY_NAME
   };
 
   ////////////
@@ -18,7 +20,7 @@ module.exports = function(dependencies) {
     logger.info('Configuring Facebook Token OAuth login');
 
     commons.getOAuthConfiguration(TYPE).then(oauth => {
-      passport.use('facebook-token-login', new FacebookTokenStrategy({
+      passport.use(STRATEGY_NAME, new FacebookTokenStrategy({
         clientID: oauth.client_id,
         clientSecret: oauth.client_secret,
         passReqToCallback: true,

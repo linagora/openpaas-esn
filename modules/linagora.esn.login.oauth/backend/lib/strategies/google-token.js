@@ -3,13 +3,15 @@
 const passport = require('passport');
 const GoogleTokenStrategy = require('passport-google-token').Strategy;
 const TYPE = 'google';
+const STRATEGY_NAME = 'google-token-login';
 
 module.exports = function(dependencies) {
   const logger = dependencies('logger');
   const commons = require('./commons')(dependencies);
 
   return {
-    configure
+    configure,
+    name: STRATEGY_NAME
   };
 
   ////////////
@@ -19,7 +21,7 @@ module.exports = function(dependencies) {
     logger.info('Configuring Google Token OAuth login');
 
     commons.getOAuthConfiguration(TYPE).then(oauth => {
-      passport.use('google-token-login', new GoogleTokenStrategy({
+      passport.use(STRATEGY_NAME, new GoogleTokenStrategy({
         clientID: oauth.client_id,
         clientSecret: oauth.client_secret,
         passReqToCallback: true

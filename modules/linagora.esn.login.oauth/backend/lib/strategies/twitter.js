@@ -1,19 +1,25 @@
 'use strict';
 
-var q = require('q');
-var passport = require('passport');
-var TwitterStrategy = require('passport-twitter').Strategy;
-var OAUTH_CONFIG_KEY = 'oauth';
-var TYPE = 'twitter';
+const q = require('q');
+const passport = require('passport');
+const TwitterStrategy = require('passport-twitter').Strategy;
+const OAUTH_CONFIG_KEY = 'oauth';
+const TYPE = 'twitter';
+const STRATEGY_NAME = 'twitter-login';
 
 module.exports = function(dependencies) {
 
-  var config = dependencies('esn-config');
-  var logger = dependencies('logger');
-  var commons = require('./commons')(dependencies);
+  const config = dependencies('esn-config');
+  const logger = dependencies('logger');
+  const commons = require('./commons')(dependencies);
+
+  return {
+    configure: configure,
+    name: STRATEGY_NAME
+  };
 
   function getTwitterConfiguration() {
-    var defer = q.defer();
+    const defer = q.defer();
 
     config(OAUTH_CONFIG_KEY).get(function(err, oauth) {
       if (err) {
@@ -23,8 +29,10 @@ module.exports = function(dependencies) {
       if (!oauth || !oauth.twitter || !oauth.twitter.consumer_key || !oauth.twitter.consumer_secret) {
         return defer.reject(new Error('Twitter OAuth is not configured'));
       }
+
       return defer.resolve(oauth.twitter);
     });
+
     return defer.promise;
   }
 
@@ -32,9 +40,9 @@ module.exports = function(dependencies) {
 
     logger.info('Configuring Twitter OAuth login');
 
-    q.spread([commons.getCallbackEndpoint(TYPE), getTwitterConfiguration()], function(url, oauth) {
+    q.spread([commons.getCallbackEndpoint(TYPE), getTwitterConfiguration()], (url, oauth) => {
 
-      passport.use('twitter-login', new TwitterStrategy({
+      passport.use(STRATEGY_NAME, new TwitterStrategy({
         consumerKey: oauth.consumer_key,
         consumerSecret: oauth.consumer_secret,
         passReqToCallback: true,
@@ -44,8 +52,4 @@ module.exports = function(dependencies) {
       callback();
     }, callback);
   }
-
-  return {
-    configure: configure
-  };
 };

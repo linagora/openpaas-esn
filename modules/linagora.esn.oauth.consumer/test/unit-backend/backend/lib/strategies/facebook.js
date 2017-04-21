@@ -1,18 +1,20 @@
 'use strict';
 
-var chai = require('chai');
-var mockery = require('mockery');
-var expect = chai.expect;
+const chai = require('chai');
+const sinon = require('sinon');
+const mockery = require('mockery');
+const expect = chai.expect;
 
 describe('The Facebook strategy', function() {
-  var deps, passportMocks, configMocks, helpersMock;
-  var logger = {
+  let deps, passportMocks, configMocks, helpersMock;
+  const logger = {
     debug: function() {},
     info: function() {}
   };
-  var dependencies = function(name) {
+  const dependencies = function(name) {
     return deps[name];
   };
+  const STRATEGY_NAME = 'facebook-authz';
 
   beforeEach(function() {
     configMocks = {
@@ -56,22 +58,23 @@ describe('The Facebook strategy', function() {
 
     it('should register facebook-authz passort if facebook is configured', function(done) {
       passportMocks.use = function(name) {
-        expect(name).to.equal('facebook-authz');
+        expect(name).to.equal(STRATEGY_NAME);
       };
 
       getModule().configure(done);
     });
 
-    it('should callback with error if facebook is not configured', function(done) {
+    it('should unregister facebook-authz and callback with error if facebook is not configured', function(done) {
       configMocks.get = function(callback) {
         return callback(null, {});
       };
+      passportMocks.unuse = sinon.spy();
 
       getModule().configure(function(err) {
+        expect(passportMocks.unuse).to.have.been.calledWith(STRATEGY_NAME);
         expect(err).to.deep.equal(new Error('Facebook OAuth is not configured'));
         done();
       });
     });
   });
 });
-
