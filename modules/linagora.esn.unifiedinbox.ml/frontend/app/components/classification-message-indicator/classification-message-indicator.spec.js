@@ -6,7 +6,7 @@ var expect = chai.expect;
 
 describe('The inboxClassificationMessageIndicator component', function() {
 
-  var $compile, $rootScope, jmap, jmapClient, inboxJmapItemService, config, element;
+  var $compile, $rootScope, jmap, jmapClient, inboxJmapItemService, inboxSelectionService, config, element;
 
   function compile(html) {
     element = angular.element(html);
@@ -69,10 +69,11 @@ describe('The inboxClassificationMessageIndicator component', function() {
     });
   });
 
-  beforeEach(inject(function(_$compile_, _$rootScope_, _jmap_) {
+  beforeEach(inject(function(_$compile_, _$rootScope_, _jmap_, _inboxSelectionService_) {
     $compile = _$compile_;
     $rootScope = _$rootScope_;
     jmap = _jmap_;
+    inboxSelectionService = _inboxSelectionService_;
   }));
 
   it('should not display the dynamic directive if item has no header', function() {
@@ -149,6 +150,15 @@ describe('The inboxClassificationMessageIndicator component', function() {
         mailboxId: 'mailboxId',
         confidence: 100
       });
+    });
+
+    it('should unselect the message', function() {
+      inboxSelectionService.toggleItemSelection($rootScope.item);
+
+      compile('<inbox-message-list-item />').find('.inbox-classification-indicator').click();
+
+      expect($rootScope.item.selected).to.equal(false);
+      expect(inboxSelectionService.isSelecting()).to.equal(false);
     });
 
     it('should move the message to the target mailbox', function() {
