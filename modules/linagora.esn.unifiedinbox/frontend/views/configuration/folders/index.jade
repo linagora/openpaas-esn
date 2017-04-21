@@ -1,9 +1,0 @@
-sub-header
-  inbox-configuration-folder-subheader
-
-.inbox-configuration-folders
-  inbox-filter-input(on-change="ctrl.filter = $filter")
-  .mailboxes-list
-    mailbox-display.lv-item(mailbox="mailbox", ng-repeat="mailbox in mailboxes | filter: { role: '!', name: ctrl.filter } track by mailbox.id", ui-sref="unifiedinbox.configuration.folders.folder({ mailbox: mailbox.id})")
-
-fab(ui-sref='unifiedinbox.configuration.folders.add')

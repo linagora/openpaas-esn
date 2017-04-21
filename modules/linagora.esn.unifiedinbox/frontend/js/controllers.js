@@ -386,7 +386,7 @@ angular.module('linagora.esn.unifiedinbox')
       return inboxMailboxesService.createMailbox($scope.mailbox, {
         linkText: 'Reopen',
         action: function() {
-          $state.go('unifiedinbox.configuration.folders.add', { mailbox: $scope.mailbox });
+          $state.go('unifiedinbox.inbox.folders.add', { mailbox: $scope.mailbox });
         }
       });
     };

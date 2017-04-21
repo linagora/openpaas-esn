@@ -1,9 +1,0 @@
-extends /modules/subheader/responsive-subheader
-
-block left
-  inbox-subheader-close-button
-  span.title.ellipsis.extra-title
-    | #{__('Create a new folder')}
-
-block right
-  inbox-subheader-save-button(esn-submit="addFolder()")

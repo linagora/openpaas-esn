@@ -60,9 +60,9 @@ describe('The Inbox states', function() {
       mockTemplate('/unifiedinbox/views/home');
       mockTemplate('/unifiedinbox/views/composer/fullscreen-edit-form/index');
       mockTemplate('/unifiedinbox/views/configuration/index');
-      mockTemplate('/unifiedinbox/views/configuration/folders/index');
-      mockTemplate('/unifiedinbox/views/configuration/folders/edit/index');
-      mockTemplate('/unifiedinbox/views/configuration/folders/delete/index');
+      mockTemplate('/unifiedinbox/views/folders/add/index');
+      mockTemplate('/unifiedinbox/views/folders/edit/index');
+      mockTemplate('/unifiedinbox/views/folders/delete/index');
       mockTemplate('/unifiedinbox/views/unified-inbox/index');
       mockTemplate('/unifiedinbox/views/configuration/vacation/index');
       mockTemplate('/unifiedinbox/views/email/view/index');
@@ -117,17 +117,52 @@ describe('The Inbox states', function() {
 
   });
 
-  describe('The unifiedinbox.configuration.folders.folder.delete state', function() {
+  describe('The unifiedinbox.folders.add state', function() {
 
     it('should open a $modal when entering the state', function() {
-      goTo('unifiedinbox.configuration.folders.folder.delete', { mailbox: '1' });
+      goTo('unifiedinbox.inbox.folders.add', { mailbox: '1' });
 
       expect($modal).to.have.been.calledWith();
     });
 
     it('should close the modal when leaving the state', function() {
-      goTo('unifiedinbox.configuration.folders.folder.delete', { mailbox: '1' });
-      goTo('unifiedinbox.configuration.folders.folder', { mailbox: '1' });
+      goTo('unifiedinbox.inbox.folders.add', { mailbox: '1' });
+      goTo('unifiedinbox.inbox', { mailbox: '1' });
+
+      expect(hideModal).to.have.been.calledWith();
+    });
+
+  });
+
+  describe('The unifiedinbox.folders.edit state', function() {
+
+    it('should open a $modal when entering the state', function() {
+      goTo('unifiedinbox.inbox.folders.edit', { mailbox: '1' });
+
+      expect($modal).to.have.been.calledWith();
+    });
+
+    it('should close the modal when leaving the state', function() {
+      goTo('unifiedinbox.inbox.folders.edit', { mailbox: '1' });
+      goTo('unifiedinbox.inbox', { mailbox: '1' });
+
+      expect(hideModal).to.have.been.calledWith();
+    });
+
+  });
+
+  describe('The unifiedinbox.folders.edit.delete state', function() {
+
+    it('should open a $modal when entering the state', function() {
+      goTo('unifiedinbox.inbox.folders.edit.delete', { mailbox: '1' });
+      goTo('unifiedinbox.inbox', { mailbox: '1' });
+
+      expect($modal).to.have.been.calledWith();
+    });
+
+    it('should close the modal when leaving the state', function() {
+      goTo('unifiedinbox.inbox.folders.edit.delete', { mailbox: '1' });
+      goTo('unifiedinbox.inbox', { mailbox: '1' });
 
       expect(hideModal).to.have.been.calledWith();
     });
