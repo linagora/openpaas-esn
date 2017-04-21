@@ -4,7 +4,7 @@
   angular.module('linagora.esn.unifiedinbox.ml')
 
     .controller('inboxClassificationMessageIndicatorController', function($q, jmap, inboxMailboxesService, inboxJmapItemService,
-                                                                          inboxMLConfig, _, INBOX_ML_HEADERS) {
+                                                                          inboxSelectionService, inboxMLConfig, _, INBOX_ML_HEADERS) {
       var self = this;
 
       self.$onChanges = $onChanges;
@@ -31,6 +31,8 @@
 
       function moveItem() {
         var item = self.item;
+
+        inboxSelectionService.toggleItemSelection(item, false);
 
         return inboxJmapItemService.moveToMailbox(item, self.mailbox)
           .then(function() {
