@@ -1,5 +1,6 @@
 const q = require('q');
 const _ = require('lodash');
+const passport = require('passport');
 
 module.exports = function(dependencies) {
   const logger = dependencies('logger');
@@ -15,18 +16,24 @@ module.exports = function(dependencies) {
 
   function configureStrategies(callback) {
     if (config.auth && config.auth.oauth && config.auth.oauth.strategies && config.auth.oauth.strategies.length) {
-      const promises = config.auth.oauth.strategies.map(function(strategy) {
+      const promises = config.auth.oauth.strategies.map(function(strategyName) {
         const defer = q.defer();
 
         try {
-          require('./strategies/' + strategy)(dependencies).configure(function(err) {
+          const strategy = require('./strategies/' + strategyName)(dependencies);
+
+          strategy.configure(function(err) {
             if (err) {
-              logger.warn('OAuth Login %s configuration failure', strategy, err);
+              if (/OAuth is not configured correctly/.test(err.message)) {
+                passport.unuse(strategy.name);
+              }
+
+              logger.warn('OAuth Login %s configuration failure', strategyName, err);
             }
             defer.resolve();
           });
         } catch (err) {
-          logger.warn('Can not initialize %s lib oauth login strategy', strategy, err);
+          logger.warn('Can not initialize %s lib oauth login strategy', strategyName, err);
           defer.resolve();
         }
 

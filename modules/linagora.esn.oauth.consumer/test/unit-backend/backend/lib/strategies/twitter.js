@@ -1,18 +1,20 @@
 'use strict';
 
-var chai = require('chai');
-var mockery = require('mockery');
-var expect = chai.expect;
+const chai = require('chai');
+const sinon = require('sinon');
+const mockery = require('mockery');
+const expect = chai.expect;
 
 describe('The Twitter strategy', function() {
-  var deps, passportMocks, configMocks, helpersMock;
-  var logger = {
+  let deps, passportMocks, configMocks, helpersMock;
+  const logger = {
     debug: function() {},
     info: function() {}
   };
-  var dependencies = function(name) {
+  const dependencies = function(name) {
     return deps[name];
   };
+  const STRATEGY_NAME = 'twitter-authz';
 
   beforeEach(function() {
     configMocks = {
@@ -56,21 +58,24 @@ describe('The Twitter strategy', function() {
 
     it('should register twitter-authz passort if twitter is configured', function(done) {
       passportMocks.use = function(name) {
-        expect(name).to.equal('twitter-authz');
+        expect(name).to.equal(STRATEGY_NAME);
       };
 
       getModule().configure(done);
     });
 
-    it('should callback with error if twitter is not configured', function(done) {
+    it('should unregister twitter-authz and callback with error if twitter is not configured', function(done) {
       configMocks.get = function(callback) {
         return callback(null, {
           twitter: {}
         });
       };
+      passportMocks.unuse = sinon.spy();
 
       getModule().configure(function(err) {
+        expect(passportMocks.unuse).to.have.been.calledWith(STRATEGY_NAME);
         expect(err).to.deep.equal(new Error('Twitter OAuth is not configured'));
+
         done();
       });
     });

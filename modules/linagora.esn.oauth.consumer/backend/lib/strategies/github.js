@@ -10,6 +10,7 @@ module.exports = dependencies => {
   const config = dependencies('esn-config');
   const logger = dependencies('logger');
   const helper = dependencies('oauth').helpers;
+  const STRATEGY_NAME = 'github-authz';
 
   return {
     configure
@@ -24,10 +25,12 @@ module.exports = dependencies => {
       }
 
       if (!oauth || !oauth.github || !oauth.github.client_id || !oauth.github.client_secret) {
+        passport.unuse(STRATEGY_NAME);
+
         return callback(new Error('Github OAuth is not configured'));
       }
 
-      passport.use('github-authz', new GithubStrategy({
+      passport.use(STRATEGY_NAME, new GithubStrategy({
           clientID: oauth.github.client_id,
           clientSecret: oauth.github.client_secret,
           callbackURL: '/oauth/github/connect/callback',

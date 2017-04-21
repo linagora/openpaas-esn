@@ -65,6 +65,7 @@ describe('The login oauth backend module', function() {
         }
       };
       var facebookSpy = sinon.spy();
+
       mockery.registerMock('./strategies/facebook', function() {
         return {
           configure: function(callback) {
@@ -109,6 +110,7 @@ describe('The login oauth backend module', function() {
         }
       };
       var facebookSpy = sinon.spy();
+
       mockery.registerMock('./strategies/facebook', function() {
         return {
           configure: function(callback) {
@@ -202,6 +204,36 @@ describe('The login oauth backend module', function() {
 
         expect(configureSpy).to.have.been.calledOnce;
 
+        done();
+      });
+    });
+
+    it('should unregister strategies when OAuth is not configured correctly', function(done) {
+      configMock = {
+        auth: {
+          oauth: {
+            strategies: ['facebook']
+          }
+        }
+      };
+      const STRATEGY_NAME = 'facebook-login';
+      const passportMock = {
+        unuse: sinon.spy()
+      };
+
+      mockery.registerMock('passport', passportMock);
+      mockery.registerMock('./strategies/facebook', function() {
+        return {
+          configure: function(callback) {
+            callback(new Error('facebook OAuth is not configured correctly'));
+          },
+          name: STRATEGY_NAME
+        };
+      });
+
+      getModule().start(function(err) {
+        expect(err).to.not.exist;
+        expect(passportMock.unuse).to.have.been.calledWith(STRATEGY_NAME);
         done();
       });
     });
