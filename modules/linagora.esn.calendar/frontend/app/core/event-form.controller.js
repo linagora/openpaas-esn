@@ -184,7 +184,7 @@
             })
             .then(function(completed) {
               if (!completed) {
-                calOpenEventForm($scope.editedEvent);
+                calOpenEventForm($scope.calendarHomeId, $scope.editedEvent);
               }
             })
             .finally(function() {

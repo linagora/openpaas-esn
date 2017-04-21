@@ -51,6 +51,7 @@
                 offset += events.length;
 
                 return events.map(function(event) {
+                  event.calendar = calendar;
                   event.type = name;
                   _setRelevance(event);
 

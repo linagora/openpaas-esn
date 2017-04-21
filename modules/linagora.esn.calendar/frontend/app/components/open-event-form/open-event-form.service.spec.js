@@ -7,10 +7,11 @@ var expect = chai.expect;
 
 describe('The calOpenEventForm service', function() {
   var $modal, $q, $rootScope, $state, calEventUtils, calOpenEventForm, calendarService, calUIAuthorizationService, notificationFactory, matchmedia, CAL_DEFAULT_CALENDAR_ID, CAL_EVENTS, SM_XS_MEDIA_QUERY;
-  var calendar, instance, master, regularEvent;
+  var calendar, calendarHomeId, instance, master, regularEvent;
 
   beforeEach(function() {
-    calendar = {id: 1};
+    calendarHomeId = '123';
+    calendar = {id: 1, calendarHomeId: calendarHomeId};
     matchmedia = {};
     calEventUtils = {
       setEditedEvent: sinon.spy()
@@ -20,7 +21,7 @@ describe('The calOpenEventForm service', function() {
       go: sinon.spy()
     };
     calendarService = {
-      calendarHomeId: '123',
+      calendarHomeId: calendarHomeId,
       getCalendar: sinon.spy(function() {
         return $q.when(calendar);
       })
@@ -79,13 +80,13 @@ describe('The calOpenEventForm service', function() {
     it('should call calendarService with event calendar id', function(done) {
       regularEvent.calendarId = 'Test';
 
-      calendarService.getCalendar = sinon.spy(function(calendarHomeId, calendarId) {
-        expect(calendarHomeId).to.equal('123');
-        expect(calendarId).to.equal('Test');
+      calendarService.getCalendar = sinon.spy(function(_calendarHomeId, _calendarId) {
+        expect(_calendarHomeId).to.equal(calendarHomeId);
+        expect(_calendarId).to.equal(regularEvent.calendarId);
         done();
       });
 
-      calOpenEventForm(regularEvent);
+      calOpenEventForm(calendarHomeId, regularEvent);
 
       $rootScope.$digest();
     });
@@ -94,13 +95,13 @@ describe('The calOpenEventForm service', function() {
       regularEvent = {
       };
 
-      calendarService.getCalendar = sinon.spy(function(calendarHomeId, calendarId) {
-        expect(calendarHomeId).to.equal('123');
-        expect(calendarId).to.equal(CAL_DEFAULT_CALENDAR_ID);
+      calendarService.getCalendar = sinon.spy(function(_calendarHomeId, _calendarId) {
+        expect(_calendarHomeId).to.equal(calendarHomeId);
+        expect(_calendarId).to.equal(CAL_DEFAULT_CALENDAR_ID);
         done();
       });
 
-      calOpenEventForm(regularEvent);
+      calOpenEventForm(calendarHomeId, regularEvent);
 
       $rootScope.$digest();
     });
@@ -108,7 +109,7 @@ describe('The calOpenEventForm service', function() {
     it('should call $modal if matchmedia is md', function() {
       matchmedia.is = sinon.stub().returns(false);
 
-      calOpenEventForm(regularEvent);
+      calOpenEventForm(calendarHomeId, regularEvent);
 
       $rootScope.$digest();
 
@@ -125,8 +126,8 @@ describe('The calOpenEventForm service', function() {
     it('should call $modal only once even if clicking several times', function() {
       matchmedia.is = sinon.stub().returns(false);
 
-      calOpenEventForm(regularEvent);
-      calOpenEventForm(regularEvent);
+      calOpenEventForm(calendarHomeId, regularEvent);
+      calOpenEventForm(calendarHomeId, regularEvent);
 
       $rootScope.$digest();
 
@@ -136,7 +137,7 @@ describe('The calOpenEventForm service', function() {
     it('should recall $modal if closed before', function() {
       matchmedia.is = sinon.stub().returns(false);
 
-      calOpenEventForm(regularEvent);
+      calOpenEventForm(calendarHomeId, regularEvent);
 
       $rootScope.$digest();
 
@@ -156,7 +157,7 @@ describe('The calOpenEventForm service', function() {
         }))
       }));
 
-      calOpenEventForm(regularEvent);
+      calOpenEventForm(calendarHomeId, regularEvent);
 
       $rootScope.$digest();
 
@@ -169,7 +170,7 @@ describe('The calOpenEventForm service', function() {
       $rootScope.$on(CAL_EVENTS.CALENDAR_UNSELECT, calendarUnselectListenerSpy);
       matchmedia.is = sinon.stub().returns(false);
 
-      calOpenEventForm(regularEvent);
+      calOpenEventForm(calendarHomeId, regularEvent);
 
       $rootScope.$digest();
 
@@ -203,7 +204,7 @@ describe('The calOpenEventForm service', function() {
 
       $rootScope.$on(CAL_EVENTS.CALENDAR_UNSELECT, calendarUnselectListenerSpy);
 
-      calOpenEventForm(regularEvent);
+      calOpenEventForm(calendarHomeId, regularEvent);
 
       $rootScope.$digest();
 
@@ -235,30 +236,30 @@ describe('The calOpenEventForm service', function() {
       matchmedia.is = sinon.stub().returns(true);
       canModifyEvent = true;
 
-      calOpenEventForm(regularEvent);
+      calOpenEventForm(calendarHomeId, regularEvent);
 
       $rootScope.$digest();
 
       expect(matchmedia.is).to.have.been.calledWith(SM_XS_MEDIA_QUERY);
       expect($modal).to.have.not.been.called;
-      expect($state.go).to.have.been.calledWith('calendar.event.form', {calendarHomeId: '123', eventId: '456'});
+      expect($state.go).to.have.been.calledWith('calendar.event.form', {calendarHomeId: calendarHomeId, eventId: regularEvent.id});
     });
 
     it('should call $state to calendar.event.consult if matchmedia is xs or sm and user cannot modify event', function() {
       matchmedia.is = sinon.stub().returns(true);
       canModifyEvent = false;
 
-      calOpenEventForm(regularEvent);
+      calOpenEventForm(calendarHomeId, regularEvent);
 
       $rootScope.$digest();
 
       expect(matchmedia.is).to.have.been.calledWith(SM_XS_MEDIA_QUERY);
       expect($modal).to.have.not.been.called;
-      expect($state.go).to.have.been.calledWith('calendar.event.consult', {calendarHomeId: '123', eventId: '456'});
+      expect($state.go).to.have.been.calledWith('calendar.event.consult', {calendarHomeId: calendarHomeId, eventId: regularEvent.id});
     });
 
     it('if event is a recurring event, it should ask for editing master or instance', function() {
-      calOpenEventForm(instance);
+      calOpenEventForm(calendarHomeId, instance);
 
       $rootScope.$digest();
 
@@ -295,7 +296,7 @@ describe('The calOpenEventForm service', function() {
       sinon.spy(notificationFactory, 'weakInfo');
       canAccessEventDetail = false;
 
-      var openEventForm = calOpenEventForm(regularEvent);
+      var openEventForm = calOpenEventForm(calendarHomeId, regularEvent);
 
       $rootScope.$digest();
 

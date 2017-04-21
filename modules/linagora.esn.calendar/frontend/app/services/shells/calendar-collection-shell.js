@@ -4,7 +4,7 @@
   angular.module('esn.calendar')
     .factory('CalendarCollectionShell', CalendarCollectionShellFactory);
 
-  function CalendarCollectionShellFactory(_, calPathBuilder, CalendarRightShell, session, userAPI, CAL_DEFAULT_EVENT_COLOR, CAL_DEFAULT_CALENDAR_ID, CAL_CALENDAR_PUBLIC_RIGHT, CAL_CALENDAR_SHARED_RIGHT) {
+  function CalendarCollectionShellFactory(_, calPathBuilder, calPathParser, CalendarRightShell, session, userAPI, CAL_DEFAULT_EVENT_COLOR, CAL_DEFAULT_CALENDAR_ID, CAL_CALENDAR_PUBLIC_RIGHT, CAL_CALENDAR_SHARED_RIGHT) {
     /**
      * A shell that wraps an caldav calendar component.
      * Note that href is the unique identifier and id is the calendarId inside the calendarHomeId
@@ -16,7 +16,10 @@
       this.color = calendar['apple:color'] || CAL_DEFAULT_EVENT_COLOR;
       this.description = calendar['caldav:description'] || '';
       this.href = calendar._links.self.href;
-      this.id = this.href.split('/').pop().split('.').shift();
+      var parsedPath = calPathParser.parseCalendarPath(this.href);
+
+      this.id = parsedPath.calendarId;
+      this.calendarHomeId = parsedPath.calendarHomeId;
       this.selected = this.id === CAL_DEFAULT_CALENDAR_ID;
 
       this.acl = calendar.acl;

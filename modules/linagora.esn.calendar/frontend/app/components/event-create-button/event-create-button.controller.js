@@ -7,12 +7,12 @@
   function calEventCreateButtonController(CalendarShell, calendarUtils, calOpenEventForm) {
     var self = this;
 
-    self.openEventForm = _openEventForm;
+    self.openEventForm = openEventForm;
 
     ////////////
 
-    function _openEventForm() {
-      calOpenEventForm(CalendarShell.fromIncompleteShell({
+    function openEventForm() {
+      calOpenEventForm(self.calendarHomeId, CalendarShell.fromIncompleteShell({
         start: calendarUtils.getNewStartDate(),
         end: calendarUtils.getNewEndDate()
       }));
