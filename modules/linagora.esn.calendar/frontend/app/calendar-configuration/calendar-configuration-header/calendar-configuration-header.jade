@@ -4,15 +4,14 @@ block left
   button.btn.btn-link.hidden-xs(ui-sref="calendar.main")
     .flex-vertical-centered.flex-space-between
       i.mdi.mdi-close
-      | #{__('Cancel')}
+      .vertical-centered #{__('Cancel')}
   button.btn.btn-link.btn-icon.visible-xs(ui-sref="calendar.list")
     i.mdi.mdi-close
+  .title.ellipsis {{ ::$ctrl.calendar.name }}
 block right
   button.btn.btn-link.hidden-xs(ng-click='$ctrl.submit()')
-    .vertical-centered(ng-if='!$ctrl.newCalendar')
-      | #{__('Save')}
-    .vertical-centered(ng-if='$ctrl.newCalendar')
-      | #{__('Create')}
+    .vertical-centered(ng-if='!$ctrl.newCalendar') #{__('Save')}
+    .vertical-centered(ng-if='$ctrl.newCalendar') #{__('Create')}
     i.mdi.mdi-margin-left.mdi-check
   button.btn.btn-link.btn-icon.visible-xs(ng-click='$ctrl.submit()')
       i.mdi.mdi-check

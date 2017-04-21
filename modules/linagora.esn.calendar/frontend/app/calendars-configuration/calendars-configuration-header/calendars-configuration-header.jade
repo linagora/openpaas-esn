@@ -1,9 +1,7 @@
 .calendars-configuration-header
-  .flex-start.flex-vertical-centered
-    .col-xs-3.nopadding
-      a.btn.btn-primary.flex-vertical-centered(href='', ng-click='$ctrl.cancel()')
-        i.mdi.mdi-arrow-left
-        | #{__('Back')}
-    .col-xs-6.nopadding
-      span.all-centered
+  .flex-start.flex-vertical-centered.calendar-subheader-inner
+    button.btn.btn-link.btn-icon.close.button.visible-xs(href='', ng-click='$ctrl.cancel()')
+      i.mdi.mdi-close
+    .col-xs-9.nopadding
+      .title
         | #{__('Manage calendars')}
