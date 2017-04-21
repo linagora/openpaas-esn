@@ -4,7 +4,8 @@
   angular.module('esn.calendar')
     .component('calOpenEventFormOnClick', {
        bindings: {
-         event: '='
+         calendarHomeId: '<',
+         event: '<'
        },
        controller: CalOpenEventFormOnClickController
      }
@@ -14,7 +15,7 @@
       var self = this;
 
       $element.on('click', function() {
-        calOpenEventForm(self.event);
+        calOpenEventForm(self.calendarHomeId, self.event);
       });
     }
 })();

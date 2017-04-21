@@ -121,7 +121,7 @@
       }
 
       function eventClick(event) {
-        calOpenEventForm(event.clone());
+        calOpenEventForm($scope.calendarHomeId, event.clone());
       }
 
       function eventDropAndResize(drop, event, delta, revert) {
@@ -170,7 +170,7 @@
           end: date.end
         });
 
-        calOpenEventForm(event);
+        calOpenEventForm($scope.calendarHomeId, event);
       }
 
       function loading(isLoading) {

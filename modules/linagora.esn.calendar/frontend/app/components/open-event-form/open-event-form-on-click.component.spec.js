@@ -32,11 +32,12 @@ describe('The cal-open-event-form-on-click component', function() {
 
   it('should call "calOpenEventForm" with the given "event" when clicked', function() {
     $scope.myEvent = { id: 'an event id' };
-    compileDirective('<cal-open-event-form-on-click event="myEvent" />');
+    $scope.calendarHomeId = 'a calendarHomeId';
+    compileDirective('<cal-open-event-form-on-click event="myEvent" calendar-home-id="calendarHomeId"/>');
 
     element.click();
 
-    expect(calOpenEventFormSpy).to.have.been.calledWith($scope.myEvent);
+    expect(calOpenEventFormSpy).to.have.been.calledWith($scope.calendarHomeId, $scope.myEvent);
   });
 
 });

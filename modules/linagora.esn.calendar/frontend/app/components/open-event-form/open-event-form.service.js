@@ -12,12 +12,12 @@
   angular.module('esn.calendar')
     .factory('calOpenEventForm', calOpenEventForm);
 
-  function calOpenEventForm($rootScope, $modal, $state, calendarService, calEventUtils, calUIAuthorizationService, matchmedia, notificationFactory, SM_XS_MEDIA_QUERY, CAL_DEFAULT_CALENDAR_ID, CAL_EVENTS) {
+  function calOpenEventForm($rootScope, $modal, $state, calendarService, calEventUtils, calUIAuthorizationService, matchmedia, notificationFactory, session, SM_XS_MEDIA_QUERY, CAL_DEFAULT_CALENDAR_ID, CAL_EVENTS) {
     var modalIsOpen = false;
 
-    return function calOpenEventForm(event) {
-      calendarService.getCalendar(calendarService.calendarHomeId, event.calendarId || CAL_DEFAULT_CALENDAR_ID).then(function(calendar) {
-        if (calUIAuthorizationService.canAccessEventDetails(calendar, event, calendarService.calendarHomeId)) {
+    return function calOpenEventForm(calendarHomeId, event) {
+      calendarService.getCalendar(calendarHomeId, event.calendarId || CAL_DEFAULT_CALENDAR_ID).then(function(calendar) {
+        if (calUIAuthorizationService.canAccessEventDetails(calendar, event, session.user._id)) {
           if (!event.isInstance()) {
             _openForm(calendar, event);
           } else {
@@ -34,10 +34,10 @@
     function _openForm(calendar, event) {
       calEventUtils.setEditedEvent(event);
       if (matchmedia.is(SM_XS_MEDIA_QUERY)) {
-        if (calUIAuthorizationService.canModifyEvent(calendar, event, calendarService.calendarHomeId)) {
-          $state.go('calendar.event.form', {calendarHomeId: calendarService.calendarHomeId, eventId: event.id});
+        if (calUIAuthorizationService.canModifyEvent(calendar, event, session.user._id)) {
+          $state.go('calendar.event.form', {calendarHomeId: calendar.calendarHomeId, eventId: event.id});
         } else {
-          $state.go('calendar.event.consult', {calendarHomeId: calendarService.calendarHomeId, eventId: event.id});
+          $state.go('calendar.event.consult', {calendarHomeId: calendar.calendarHomeId, eventId: event.id});
         }
       } else if (modalIsOpen === false) {
         modalIsOpen = true;

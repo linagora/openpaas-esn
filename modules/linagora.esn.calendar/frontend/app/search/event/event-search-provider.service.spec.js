@@ -68,43 +68,10 @@ describe('The calSearchEventProviderService service', function() {
 
     it('should build providers for each calendar which request events from the backend, return pages of events and paginate next request', function(done) {
       var calendarIds = ['calendar1', 'calendar2'];
-
-      function testEventProvider(provider, index) {
-        var davItems = [{
-          _links: {
-            self: { href: '/prepath/path/to/calendar/myuid.ics' }
-          },
-          etag: '"123123"',
-          data: 'BEGIN:VCALENDAR\r\nBEGIN:VEVENT\r\nEND:VEVENT\r\nEND:VCALENDAR'
-        }];
-
-        var fetcher = provider.fetch('abcd');
-        var firstFetchSpy = function(events) {
-          expect(events.length).to.equal(1);
-          events.forEach(function(event) {
-            expect(event).to.have.ownProperty('date');
-          });
-          if (index === 1) {
-            done();
-          }
-        };
-
-        $httpBackend.expectGET('/calendar/api/calendars/' + calendarIds[index] + '/events.json?limit=200&offset=0&query=abcd').respond(200, {
-          _links: {
-            self: { href: '/prepath/path/to/calendar.json' }
-          },
-          _embedded: {
-            'dav:item': davItems
-          }
-        });
-
-        fetcher().then(firstFetchSpy, done);
-      }
-
       var davCalendars = calendarIds.map(function(calendarId) {
         return {
           _links: {
-            self: { href: calendarId }
+            self: { href: '/calendars/' + calendarHomeId + '/' + calendarId + '.json'}
           }
         };
       });
@@ -120,6 +87,37 @@ describe('The calSearchEventProviderService service', function() {
       }, done);
       $rootScope.$digest();
       $httpBackend.flush();
+
+      function testEventProvider(provider, index) {
+        var davItems = [{
+          _links: {
+            self: { href: '/prepath/path/to/calendar/myuid.ics' }
+          },
+          etag: '"123123"',
+          data: 'BEGIN:VCALENDAR\r\nBEGIN:VEVENT\r\nEND:VEVENT\r\nEND:VCALENDAR'
+        }];
+
+        $httpBackend.expectGET('/calendar/api/calendars/' + calendarIds[index] + '/events.json?limit=200&offset=0&query=abcd').respond(200, {
+          _links: {
+            self: { href: '/prepath/path/to/calendar.json' }
+          },
+          _embedded: {
+            'dav:item': davItems
+          }
+        });
+
+        provider.fetch('abcd')().then(firstFetchSpy, done);
+
+        function firstFetchSpy(events) {
+          expect(events.length).to.equal(1);
+          events.forEach(function(event) {
+            expect(event).to.have.ownProperty('date');
+          });
+          if (index === 1) {
+            done();
+          }
+        }
+      }
     });
 
     it('should prevent error when sabre is down', function(done) {

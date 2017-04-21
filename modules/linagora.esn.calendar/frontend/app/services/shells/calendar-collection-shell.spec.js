@@ -6,52 +6,56 @@ var expect = chai.expect;
 
 describe('CalendarCollectionShell factory', function() {
   var $rootScope, CalendarCollectionShell, calendarRightShell, calendar, CAL_DEFAULT_CALENDAR_ID, CAL_CALENDAR_PUBLIC_RIGHT,
-    CAL_CALENDAR_SHARED_RIGHT, calendarSharedRight, calendarPublicRight, calendarOwner, calendarOwnerId, userAPIMock;
+    CAL_CALENDAR_SHARED_RIGHT, calendarSharedRight, calendarPublicRight, calendarOwner, calendarOwnerId, userAPIMock, calendarHomeId, id;
 
-  calendar = {
-    _links: {
-      self: {
-        href: '/calendars/56095ccccbd51b7318ce6d0c/db0d5d63-c36a-42fc-9684-6f5e8132acfe.json'
-      }
-    },
-    name: 'name',
-    color: 'color',
-    description: 'description',
-    acl: 'acl',
-    invite: 'invite'
-  };
-
-  calendarOwnerId = 'ownerId';
-
-  calendarRightShell = sinon.spy(function() {
-    return {
-      getOwnerId: function() {
-        return calendarOwnerId;
+  beforeEach(function() {
+    calendarHomeId = '56095ccccbd51b7318ce6d0c';
+    id = 'db0d5d63-c36a-42fc-9684-6f5e8132acfe';
+    calendar = {
+      _links: {
+        self: {
+          href: '/calendars/' + calendarHomeId + '/' + id + '.json'
+        }
       },
-      getShareeRight: function() {
-        return calendarSharedRight;
-      },
-      getPublicRight: function() {
-        return calendarPublicRight;
+      name: 'name',
+      color: 'color',
+      description: 'description',
+      acl: 'acl',
+      invite: 'invite'
+    };
+
+    calendarOwnerId = 'ownerId';
+
+    calendarRightShell = sinon.spy(function() {
+      return {
+        getOwnerId: function() {
+          return calendarOwnerId;
+        },
+        getShareeRight: function() {
+          return calendarSharedRight;
+        },
+        getPublicRight: function() {
+          return calendarPublicRight;
+        }
+      };
+    });
+
+    calendarOwner = {
+      firstname: 'owner'
+    };
+
+    userAPIMock = {
+      user: function(userId) {
+        if (userId === 'ownerId') {
+          return $q.when({
+            data: calendarOwner
+          });
+        }
+
+        return $q.when({data: {}});
       }
     };
   });
-
-  calendarOwner = {
-    firstname: 'owner'
-  };
-
-  userAPIMock = {
-    user: function(userId) {
-      if (userId === 'ownerId') {
-        return $q.when({
-          data: calendarOwner
-        });
-      }
-
-      return $q.when({data: {}});
-    }
-  };
 
   beforeEach(angular.mock.module('esn.calendar', function($provide) {
       $provide.value('CalendarRightShell', calendarRightShell);
@@ -86,6 +90,13 @@ describe('CalendarCollectionShell factory', function() {
       var calendarCollectionShell = new CalendarCollectionShell(calendar);
 
       expect(calendarCollectionShell.invite).to.deep.equal(calendar.invite);
+    });
+
+    it('should set calendarHomeId and id', function() {
+      var calendarCollectionShell = new CalendarCollectionShell(calendar);
+
+      expect(calendarCollectionShell.id).to.be.defined;
+      expect(calendarCollectionShell.calendarHomeId).to.be.defined;
     });
   });
 
