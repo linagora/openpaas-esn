@@ -31,12 +31,14 @@
     esnWithPromiseResult,
     CAL_EVENTS,
     CAL_DEFAULT_CALENDAR_ID,
-    CAL_MAX_CALENDAR_RESIZE_HEIGHT
+    CAL_MAX_CALENDAR_RESIZE_HEIGHT,
+    CAL_SPINNER_TIMEOUT_DURATION
   ) {
       var windowJQuery = angular.element($window);
       var calendarDeffered = $q.defer();
       var calendarPromise = calendarDeffered.promise;
       var spinnerKey = 'calendar';
+      var spinnerTimeoutPromise;
 
       elementScrollService.scrollToTop();
 
@@ -175,9 +177,12 @@
 
       function loading(isLoading) {
         if (isLoading) {
-          usSpinnerService.spin(spinnerKey);
-          $scope.hideCalendar = true;
+          spinnerTimeoutPromise = $timeout(function() {
+            usSpinnerService.spin(spinnerKey);
+            $scope.hideCalendar = true;
+          }, CAL_SPINNER_TIMEOUT_DURATION);
         } else {
+          $timeout.cancel(spinnerTimeoutPromise);
           usSpinnerService.stop(spinnerKey);
           $scope.hideCalendar = false;
         }
