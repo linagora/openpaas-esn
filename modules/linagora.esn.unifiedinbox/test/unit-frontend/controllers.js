@@ -1398,7 +1398,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
         scope.addFolder().then(done.bind(null, 'should reject'), function(err) {
           err.action();
           expect(err.linkText).to.be.equal('Reopen');
-          expect($state.go).to.have.been.calledWith('unifiedinbox.configuration.folders.add', { mailbox: { name: 'Name', parentId: 123 } });
+          expect($state.go).to.have.been.calledWith('unifiedinbox.inbox.folders.add', { mailbox: { name: 'Name', parentId: 123 } });
 
           done();
         });

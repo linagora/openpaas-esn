@@ -6,7 +6,6 @@ angular.module('linagora.esn.unifiedinbox')
     return {
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/sidebar/email/menu.html',
-      scope: {},
       controller: 'inboxSidebarEmailController',
       controllerAs: 'ctrl'
     };

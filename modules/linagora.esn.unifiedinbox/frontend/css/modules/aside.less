@@ -1,6 +1,6 @@
 @inboxAsideFontSize: 1.2em;
 @inboxAsideHeadingFontSize: 1.6em;
-@inboxAsideIconFontSize: 2em;
+@inboxAsideIconFontSize: 1.8em;
 @dividerColor: rgba(0, 0, 0, 0.08);
 @inboxAsideDragTargetBgColor: #FFCC80;
 
@@ -27,6 +27,13 @@
         border: 1px solid @badge-color;
       }
 
+      .settings-overlay {
+        .BoxShadow(-16px 0 5px -8px darken(@darkenBgColor, 2%));
+
+        .mdi {
+          opacity: 1;
+        }
+      }
     }
 
     &:hover {
@@ -41,6 +48,22 @@
         background-color: @body-bg;
       }
     }
+
+    .settings-overlay {
+      .all-centered;
+
+      font-size: @inboxAsideIconFontSize;
+      position: absolute;
+      height: 100%;
+      right: 0;
+
+      background-color: inherit;
+      padding-right: 5px;
+
+      .mdi {
+        opacity: 0;
+      }
+    }
   }
 
   .inbox-icon {
@@ -52,10 +75,6 @@
 
   .listview:not(.lv-lg):not(.lv-message) {
     .lv-item:not(.menu-heading) {
-      padding: 3px 30px 3px 22px;
-    }
-
-    .lv-item.folder-with-icon {
       padding: 3px 3px 3px 22px;
     }
 
@@ -84,13 +103,36 @@
     }
   }
 
-  .settings-overlay {
-    display: none;
-  }
-
   .inbox-filter-input {
     width: 90%;
     margin: 2px 2px 2px 16px;
+  }
+}
+
+.is-desktop .clickable:not(.text-danger):not(a):not(.menu-root):hover {
+  .settings-overlay {
+    background-color: @darkenBgColor;
+    .BoxShadow(-16px 0 5px -8px @darkenBgColor);
+
+    .mdi {
+      opacity: 0.5;
+    }
+
+    &:hover .mdi {
+      opacity: 1;
+    }
+  }
+}
+
+.is-mobile .clickable:not(.text-danger):not(a):not(.menu-root):active {
+  .settings-overlay {
+    background-color: @m-white;
+    .BoxShadow(-16px 0 5px -8px @m-white);
+    .transition(0.25s ease-out);
+
+    .mdi {
+      opacity: 1;
+    }
   }
 }
 
@@ -168,11 +210,6 @@
 
     }
 
-    .settings-overlay {
-      display: block;
-      font-size: @inboxAsideIconFontSize;
-    }
-
     .clickable {
       .inbox-ng-leave(-100%, 0);
       .inbox-ng-enter(-100%, 0);
@@ -183,7 +220,7 @@
 
       &.selected {
         .menu-item .menu-item-after:after {
-          background-color: @darkenBgColor;
+          background-color: darken(@darkenBgColor, 2%);
         }
 
         &:hover {

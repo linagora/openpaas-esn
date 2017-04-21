@@ -149,12 +149,31 @@ angular.module('linagora.esn.unifiedinbox', [
         params: { composition: null },
         data: { ignoreSaveAsDraft: true }
       })
+      .state('unifiedinbox.inbox.folders', {
+        url: '/folders',
+        deepStateRedirect: {
+          default: 'unifiedinbox.inbox.folders.add',
+          fn: function() {
+            return { state: 'unifiedinbox.inbox.folders.add' };
+          }
+        }
+      })
+      .state('unifiedinbox.inbox.folders.add', stateOpeningModal({
+        url: '/add',
+        params: { mailbox: null }
+      }, '/unifiedinbox/views/folders/add/index', 'addFolderController'))
+      .state('unifiedinbox.inbox.folders.edit', stateOpeningModal({
+        url: '/:mailbox'
+      }, '/unifiedinbox/views/folders/edit/index', 'editFolderController'))
+      .state('unifiedinbox.inbox.folders.edit.delete', stateOpeningModal({
+        url: '/delete'
+      }, '/unifiedinbox/views/folders/delete/index', 'inboxDeleteFolderController'))
       .state('unifiedinbox.configuration', {
         url: '/configuration',
         deepStateRedirect: {
-          default: 'unifiedinbox.configuration.folders',
-          fn: function(touchscreenDetectorService) {
-            return { state: touchscreenDetectorService.hasTouchscreen() ? 'unifiedinbox.configuration.folders' : 'unifiedinbox.configuration.vacation' };
+          default: 'unifiedinbox.configuration.vacation',
+          fn: function() {
+            return { state: 'unifiedinbox.configuration.vacation' };
           }
         },
         views: {
@@ -166,37 +185,6 @@ angular.module('linagora.esn.unifiedinbox', [
         onEnter: toggleHeaderVisibility(false),
         onExit: toggleHeaderVisibility(true)
       })
-      .state('unifiedinbox.configuration.folders', {
-        url: '/folders',
-        views: {
-          'configuration@unifiedinbox.configuration': {
-            templateUrl: '/unifiedinbox/views/configuration/folders/index',
-            controller: 'inboxConfigurationFolderController'
-          }
-        }
-      })
-      .state('unifiedinbox.configuration.folders.add', {
-        url: '/add',
-        params: { mailbox: null },
-        views: {
-          'main@unifiedinbox': {
-            templateUrl: '/unifiedinbox/views/configuration/folders/add/index',
-            controller: 'addFolderController'
-          }
-        }
-      })
-      .state('unifiedinbox.configuration.folders.folder', {
-        url: '/:mailbox',
-        views: {
-          'main@unifiedinbox': {
-            templateUrl: '/unifiedinbox/views/configuration/folders/edit/index',
-            controller: 'editFolderController'
-          }
-        }
-      })
-      .state('unifiedinbox.configuration.folders.folder.delete', stateOpeningModal({
-        url: '/delete'
-      }, '/unifiedinbox/views/configuration/folders/delete/index', 'inboxDeleteFolderController'))
       .state('unifiedinbox.configuration.vacation', {
         url: '/vacation',
         views: {

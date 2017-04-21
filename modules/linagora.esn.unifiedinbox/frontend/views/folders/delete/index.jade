@@ -2,6 +2,8 @@
   .modal-dialog
     .modal-content
       .modal-header
+        button.close(type='button', data-dismiss="modal", aria-label="Close", esn-back-button="^")
+          span(aria-hidden="true") &times;
         h4.modal-title #{__('Delete folder?')}
       .modal-body(ng-if="::message")
         p

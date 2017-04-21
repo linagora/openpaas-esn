@@ -1,4 +1,5 @@
 @modal-header-bg: #f7f7f7;
+@button-shadow: 0 5px 11px 0 rgba(0, 0, 0, 0.18), 0 4px 15px 0 rgba(0, 0, 0, 0.15);
 
 .modal-backdrop.am-fade, .aside-backdrop.am-fade {
   background: rgba(0, 0, 0, 0.12);
@@ -16,6 +17,11 @@
   .modal-footer {
     .mdi {
       font-size: 1.8em;
+      vertical-align: middle;
+    }
+
+    .flex-vertical-centered {
+      .flex-grow;
     }
 
     .color-default {
@@ -41,5 +47,21 @@
     .color-danger {
       color: @brand-danger;
     }
+  }
+
+  .btn:not(.btn-link):not(.btn-float) {
+    box-shadow: none;
+  }
+}
+
+.is-desktop .modal {
+  .btn:not(.btn-link):not(.btn-float):hover, .btn:not(.btn-link):not(.btn-float):focus {
+    box-shadow: @button-shadow;
+  }
+}
+
+.is-mobile .modal {
+  .btn:not(.btn-link):not(.btn-float):active {
+    box-shadow: @button-shadow;
   }
 }

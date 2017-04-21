@@ -32,31 +32,10 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .directive('inboxConfigurationFolderSubheader', function() {
-    return {
-      restrict: 'E',
-      templateUrl: '/unifiedinbox/views/configuration/folders/subheader.html'
-    };
-  })
-
   .directive('inboxConfigurationVacationSubheader', function() {
     return {
       restrict: 'E',
       templateUrl: '/unifiedinbox/views/configuration/vacation/subheader.html'
-    };
-  })
-
-  .directive('addFolderSubheader', function() {
-    return {
-      restrict: 'E',
-      templateUrl: '/unifiedinbox/views/configuration/folders/add/subheader.html'
-    };
-  })
-
-  .directive('editFolderSubheader', function() {
-    return {
-      restrict: 'E',
-      templateUrl: '/unifiedinbox/views/configuration/folders/edit/subheader.html'
     };
   })
 
