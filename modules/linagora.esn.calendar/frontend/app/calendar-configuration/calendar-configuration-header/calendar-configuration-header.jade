@@ -8,6 +8,7 @@ block left
   button.btn.btn-link.btn-icon.visible-xs(ui-sref="calendar.list")
     i.mdi.mdi-close
   .title.ellipsis {{ ::$ctrl.calendar.name }}
+
 block right
   button.btn.btn-link.hidden-xs(ng-click='$ctrl.submit()')
     .vertical-centered(ng-if='!$ctrl.newCalendar') #{__('Save')}
