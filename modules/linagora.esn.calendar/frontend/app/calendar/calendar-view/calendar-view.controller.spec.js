@@ -195,7 +195,8 @@ describe('The calendarViewController', function() {
     calEventUtils,
     elementScrollService,
     $q,
-    calPublicCalendarStore) {
+    calPublicCalendarStore,
+    CAL_SPINNER_TIMEOUT_DURATION) {
     this.rootScope = $rootScope;
     this.scope = $rootScope.$new();
     this.controller = $controller;
@@ -211,6 +212,7 @@ describe('The calendarViewController', function() {
     this.elementScrollService = elementScrollService;
     this.$q = $q;
     this.calPublicCalendarStore = calPublicCalendarStore;
+    this.CAL_SPINNER_TIMEOUT_DURATION = CAL_SPINNER_TIMEOUT_DURATION;
   }));
 
   beforeEach(function() {
@@ -666,22 +668,40 @@ describe('The calendarViewController', function() {
     expect(this.calendarCurrentViewMock.set).to.have.been.calledOnce;
   });
 
-  it('should call loading function to wait the events loading', function(done) {
-    this.controller('calendarViewController', {$scope: this.scope});
+  describe('the loading function', function() {
+    it('should spin the throbber when isLoading is true after CAL_SPINNER_TIMEOUT_DURATION', function(done) {
+      var isLoading = true;
 
-    var isLoading = true;
+      this.controller('calendarViewController', {$scope: this.scope});
 
-    this.scope.uiConfig.calendar.loading(isLoading);
-    expect(this.scope.hideCalendar).to.equal(isLoading);
+      this.scope.uiConfig.calendar.loading(isLoading);
+      this.$timeout.flush(this.CAL_SPINNER_TIMEOUT_DURATION - 1);
 
-    isLoading = false;
-    this.scope.uiConfig.calendar.loading(isLoading);
-    expect(this.scope.hideCalendar).to.equal(isLoading);
+      expect(this.scope.hideCalendar).to.be.undefined;
+      expect(this.usSpinnerServiceMock.spin).to.not.have.been.called;
 
-    expect(this.usSpinnerServiceMock.spin).to.have.been.calledOnce;
-    expect(this.usSpinnerServiceMock.stop).to.have.been.calledOnce;
+      this.$timeout.flush(1);
 
-    done();
+      expect(this.scope.hideCalendar).to.equal(isLoading);
+      expect(this.usSpinnerServiceMock.spin).to.have.been.calledOnce;
+
+      done();
+    });
+
+    it('should stop the throbber loading and cancel any pending timeout when isLoading is false', function(done) {
+      var isLoading = false;
+      sinon.spy(this.$timeout, 'cancel');
+
+      this.controller('calendarViewController', {$scope: this.scope});
+      this.scope.uiConfig.calendar.loading(isLoading);
+      this.$timeout.flush();
+
+      expect(this.scope.hideCalendar).to.equal(isLoading);
+      expect(this.usSpinnerServiceMock.stop).to.have.been.calledOnce;
+      expect(this.$timeout.cancel).to.have.been.called;
+
+      done();
+    });
   });
 
   describe('the eventDropAndResize listener', function() {

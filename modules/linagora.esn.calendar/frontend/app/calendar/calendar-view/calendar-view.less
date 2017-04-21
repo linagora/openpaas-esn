@@ -19,6 +19,17 @@
   }
   .calendar {
     height: 1px;
+
+    .throbber .openpaas-logo {
+      .flex-horizontal-centered;
+      .flex-vertical-centered;
+
+      position: absolute;
+      z-index: 2; // If you want to hide the FAB behind the throbber, set the z-index to 3
+      background-color: rgba(0, 0, 0, 0.12);
+      width: 100%;
+      height: 100%;
+    }
   }
   .main-calendar {
     .fc-month-view {
@@ -49,15 +60,23 @@
 }
 
 @media (min-width: @screen-sm-min) {
-  .mini-calendar {
-    margin-top: @spaceNeededForSubheader;
+  .calendar-view {
+    .mini-calendar {
+      margin-top: @spaceNeededForSubheader;
+
+      .calendar {
+        height: auto;
+      }
+    }
 
     .calendar {
-      height: auto;
+      margin-top: @spaceNeededForSubheader;
+
+      .throbber .openpaas-logo {
+        width: ~"calc(100% - 30px)";
+        height: ~"calc(100% - 50px)";
+      }
     }
-  }
-  .calendar {
-    margin-top: @spaceNeededForSubheader;
   }
 }
 
