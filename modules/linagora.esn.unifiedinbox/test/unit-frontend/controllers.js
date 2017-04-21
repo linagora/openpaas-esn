@@ -371,6 +371,63 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
       expect(Composition.prototype.send).to.have.been.calledOnce;
     });
 
+    it('should defined cc and bcc, equal empty', function() {
+      scope.email = { cc: [], bcc: [] };
+
+      initCtrl({
+        to: [{ displayName: '1', email: '1@linagora.com' }]
+      });
+
+      expect(scope.isCollapsed).to.be.true;
+    });
+
+    it('should undefined cc and bcc', function() {
+      initCtrl({
+        to: [{ displayName: '1', email: '1@linagora.com' }]
+      });
+
+      expect(scope.isCollapsed).to.be.true;
+    });
+
+    it('should defined cc and bcc', function() {
+      scope.email = {
+        cc: [{ displayName: '2', email: '2@linagora.com' }],
+        bcc: [{ displayName: '3', email: '3@linagora.com' }]
+      };
+
+      initCtrl({
+        to: [{ displayName: '1', email: '1@linagora.com' }]
+      });
+
+      expect(scope.isCollapsed).to.be.false;
+    });
+
+    it('should defined cc and bcc, bcc must to be empty', function() {
+      scope.email = {
+        cc: [{ displayName: '2', email: '2@linagora.com' }],
+        bcc: []
+      };
+
+      initCtrl({
+        to: [{ displayName: '1', email: '1@linagora.com' }]
+      });
+
+      expect(scope.isCollapsed).to.be.false;
+    });
+
+    it('should defined cc and bcc, cc must to be empty', function() {
+      scope.email = {
+        cc: [],
+        bcc: [{ displayName: '3', email: '3@linagora.com'}]
+      };
+
+      initCtrl({
+        to: [{ displayName: '1', email: '1@linagora.com' }]
+      });
+
+      expect(scope.isCollapsed).to.be.false;
+    });
+
     it('should initialize the controller when a Composition instance is given in state params', function() {
       $stateParams.composition = { getEmail: function() { return {}; } };
 
