@@ -71,6 +71,18 @@ describe('The attendees-list component', function() {
       });
     });
 
+    describe('scope.deleteSelectedAttendees', function() {
+      it('should filter unclicked attendees', function() {
+        this.initDirective(this.$scope);
+        this.eleScope.ctrl.deleteSelectedAttendees();
+        expect(this.eleScope.ctrl.attendees).to.deep.equal([
+          { email: 'other1@example.com', partstat: 'NEEDS-ACTION', clicked: false },
+          { email: 'other3@example.com', partstat: 'DECLINED', clicked: false },
+          { email: 'other5@example.com', partstat: 'YOLO' }
+        ]);
+      });
+    });
+
     describe('scope.selectAttendee', function() {
       describe('when user is organizer', function() {
         it('should do nothing if the user is organizer', function() {
@@ -102,18 +114,6 @@ describe('The attendees-list component', function() {
           expect(attendee.clicked).to.be.false;
           expect(this.eleScope.ctrl.attendeeClickedCount).to.equal(0);
         });
-      });
-    });
-
-    describe('scope.deleteSelectedAttendees', function() {
-      it('should filter unclicked attendees', function() {
-        this.initDirective(this.$scope);
-        this.eleScope.ctrl.deleteSelectedAttendees();
-        expect(this.eleScope.ctrl.attendees).to.deep.equal([
-          { email: 'other1@example.com', partstat: 'NEEDS-ACTION', clicked: false },
-          { email: 'other3@example.com', partstat: 'DECLINED', clicked: false },
-          { email: 'other5@example.com', partstat: 'YOLO' }
-        ]);
       });
     });
   });

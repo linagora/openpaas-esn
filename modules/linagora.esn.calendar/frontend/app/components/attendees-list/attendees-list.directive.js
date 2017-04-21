@@ -41,15 +41,15 @@
       });
     }
 
+    function deleteSelectedAttendees() {
+      self.attendees = self.attendees.filter(function(attendee) { return !attendee.clicked;});
+    }
+
     function selectAttendee(attendee) {
       if (self.organizer.email !== attendee.email) {
         attendee.clicked = !attendee.clicked;
         self.attendeeClickedCount += attendee.clicked ? 1 : -1;
       }
-    }
-
-    function deleteSelectedAttendees() {
-      self.attendees = self.attendees.filter(function(attendee) { return !attendee.clicked;});
     }
 
     function updateAttendeeStats(attendees) {

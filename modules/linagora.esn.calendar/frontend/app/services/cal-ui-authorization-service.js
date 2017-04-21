@@ -14,10 +14,10 @@
     return {
       canAccessEventDetails: canAccessEventDetails,
       canDeleteCalendar: canDeleteCalendar,
+      canModifyEvent: canModifyEvent,
       canModifyEventAttendees: canModifyEventAttendees,
       canModifyEventRecurrence: canModifyEventRecurrence,
       canModifyPublicSelection: canModifyPublicSelection,
-      canModifyEvent: canModifyEvent,
       canShowDelegationTab: canShowDelegationTab
     };
 
@@ -31,6 +31,14 @@
       return !!calendar && (calendar.id !== CAL_DEFAULT_CALENDAR_ID);
     }
 
+    function canModifyEvent(calendar, event, userId) {
+      if (!!event && calEventUtils.isNew(event)) {
+        return true;
+      }
+
+      return _canModifyEvent(calendar, event, userId);
+    }
+
     function canModifyEventAttendees(event) {
       //Sharees with Write permissions cannot modify attendee list according to the RFC
       //https://github.com/apple/ccs-calendarserver/blob/master/doc/Extensions/caldav-sharing.txt#L847
@@ -39,14 +47,6 @@
 
     function canModifyEventRecurrence(calendar, event, userId) {
       return _canModifyEvent(calendar, event, userId) && !!event && !event.isInstance();
-    }
-
-    function canModifyEvent(calendar, event, userId) {
-      if (!!event && calEventUtils.isNew(event)) {
-        return true;
-      }
-
-      return _canModifyEvent(calendar, event, userId);
     }
 
     function canModifyPublicSelection(calendar, userId) {
