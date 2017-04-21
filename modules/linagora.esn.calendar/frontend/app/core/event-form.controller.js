@@ -81,6 +81,8 @@
 
         $scope.isOrganizer = calEventUtils.isOrganizer($scope.editedEvent);
 
+        $scope.canModifyEventAttendees = calUIAuthorizationService.canModifyEventAttendees($scope.editedEvent);
+
         calendarService.listCalendars(calendarService.calendarHomeId)
           .then(function(calendars) {
             $scope.calendars = calendars;

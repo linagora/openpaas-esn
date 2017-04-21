@@ -154,6 +154,10 @@ describe('The event-form module controllers', function() {
     sinon.stub(this.calUIAuthorizationService, 'canModifyEvent', function() {
       return canModifyEventResult;
     });
+
+    sinon.stub(this.calUIAuthorizationService, 'canModifyEventAttendees', function() {
+      return true;
+    });
   });
 
   describe('The calEventFormController controller', function() {
@@ -315,7 +319,7 @@ describe('The event-form module controllers', function() {
         expect(this.scope.canModifyEvent).to.equal(true);
       });
 
-      it('should initialize canModifyEvent with true if isOrganize is true', function() {
+      it('should leverage calUIAuthorizationService.canModifyEventAttendees to set canModifyEventAttendees', function() {
         this.scope.event = this.CalendarShell.fromIncompleteShell({
           _id: '123456',
           start: this.moment('2013-02-08 12:30'),
@@ -326,13 +330,11 @@ describe('The event-form module controllers', function() {
           otherProperty: 'aString'
         });
 
-        calendarTest.readOnly = false;
-
         this.initController();
 
         this.rootScope.$digest();
 
-        expect(this.scope.canModifyEvent).to.equal(true);
+        expect(this.calUIAuthorizationService.canModifyEventAttendees).to.have.been.calledWith(this.scope.editedEvent);
       });
 
       it('should leverage calUIAuthorizationService.canModifyEvent to set canModifyEvent', function() {

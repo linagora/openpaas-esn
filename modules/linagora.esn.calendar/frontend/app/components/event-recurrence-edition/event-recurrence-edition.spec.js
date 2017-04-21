@@ -24,12 +24,10 @@ describe('The event-recurrence-edition component', function() {
       }
     };
 
-    this.$scope.readOnlyEventFromSharedCalendar = false;
-
-    this.$scope.isOrganizer = true;
+    this.$scope.canModifyEventRecurrence = false;
 
     this.initDirective = function(scope) {
-      var html = '<event-recurrence-edition event="event" is-organizer="isOrganizer" read-only-event-from-shared-calendar="readOnlyEventFromSharedCalendar"/>';
+      var html = '<event-recurrence-edition event="event" can-modify-event-recurrence="canModifyEventRecurrence"/>';
       var element = this.$compile(html)(scope);
 
       scope.$digest();

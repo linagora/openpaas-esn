@@ -30,7 +30,7 @@ describe('The attendees-list component', function() {
       this.$scope.organizer = { email: 'organizer@openpaas.org' };
 
       this.initDirective = function(scope) {
-        var html = '<cal-attendees-list attendees="attendees" organizer="organizer"/>';
+        var html = '<cal-attendees-list attendees="attendees" organizer="::organizer"/>';
         var element = this.$compile(html)(scope);
 
         scope.$digest();
@@ -42,7 +42,7 @@ describe('The attendees-list component', function() {
 
     it('should set up attendee stats correctly', function() {
       this.initDirective(this.$scope);
-      expect(this.eleScope.vm.attendeesPerPartstat).to.deep.equal({
+      expect(this.eleScope.ctrl.attendeesPerPartstat).to.deep.equal({
         'NEEDS-ACTION': 1,
         ACCEPTED: 1,
         TENTATIVE: 1,
@@ -62,12 +62,24 @@ describe('The attendees-list component', function() {
       ];
       this.$scope.$digest();
       this.$scope.$broadcast(this.CAL_EVENTS.EVENT_ATTENDEES_UPDATE, this.$scope.attendees);
-      expect(this.eleScope.vm.attendeesPerPartstat).to.deep.equal({
+      expect(this.eleScope.ctrl.attendeesPerPartstat).to.deep.equal({
         'NEEDS-ACTION': 0,
         ACCEPTED: 2,
         TENTATIVE: 0,
         DECLINED: 2,
         OTHER: 1
+      });
+    });
+
+    describe('scope.deleteSelectedAttendees', function() {
+      it('should filter unclicked attendees', function() {
+        this.initDirective(this.$scope);
+        this.eleScope.ctrl.deleteSelectedAttendees();
+        expect(this.eleScope.ctrl.attendees).to.deep.equal([
+          { email: 'other1@example.com', partstat: 'NEEDS-ACTION', clicked: false },
+          { email: 'other3@example.com', partstat: 'DECLINED', clicked: false },
+          { email: 'other5@example.com', partstat: 'YOLO' }
+        ]);
       });
     });
 
@@ -77,9 +89,9 @@ describe('The attendees-list component', function() {
           var attendee = { email: 'organizer@openpaas.org', partstat: 'ACCEPTED', clicked: false };
 
           this.initDirective(this.$scope);
-          this.eleScope.vm.selectAttendee(attendee);
+          this.eleScope.ctrl.selectAttendee(attendee);
           expect(attendee.clicked).to.be.false;
-          expect(this.eleScope.vm.attendeeClickedCount).to.equal(0);
+          expect(this.eleScope.ctrl.attendeeClickedCount).to.equal(0);
         });
       });
 
@@ -88,32 +100,20 @@ describe('The attendees-list component', function() {
           var attendee = { email: 'other1@example.com', partstat: 'NEEDS-ACTION' };
 
           this.initDirective(this.$scope);
-          this.eleScope.vm.selectAttendee(attendee);
+          this.eleScope.ctrl.selectAttendee(attendee);
           expect(attendee.clicked).to.be.true;
-          expect(this.eleScope.vm.attendeeClickedCount).to.equal(1);
+          expect(this.eleScope.ctrl.attendeeClickedCount).to.equal(1);
         });
 
         it('should unset clicked and decrease attendee click count', function() {
           var attendee = { email: 'other1@example.com', partstat: 'NEEDS-ACTION' };
 
           this.initDirective(this.$scope);
-          this.eleScope.vm.selectAttendee(attendee);
-          this.eleScope.vm.selectAttendee(attendee);
+          this.eleScope.ctrl.selectAttendee(attendee);
+          this.eleScope.ctrl.selectAttendee(attendee);
           expect(attendee.clicked).to.be.false;
-          expect(this.eleScope.vm.attendeeClickedCount).to.equal(0);
+          expect(this.eleScope.ctrl.attendeeClickedCount).to.equal(0);
         });
-      });
-    });
-
-    describe('scope.deleteSelectedAttendees', function() {
-      it('should filter unclicked attendees', function() {
-        this.initDirective(this.$scope);
-        this.eleScope.vm.deleteSelectedAttendees();
-        expect(this.eleScope.vm.attendees).to.deep.equal([
-          { email: 'other1@example.com', partstat: 'NEEDS-ACTION', clicked: false },
-          { email: 'other3@example.com', partstat: 'DECLINED', clicked: false },
-          { email: 'other5@example.com', partstat: 'YOLO' }
-        ]);
       });
     });
   });
