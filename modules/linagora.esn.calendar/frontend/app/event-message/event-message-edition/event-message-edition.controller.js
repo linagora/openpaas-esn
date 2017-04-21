@@ -1,66 +1,80 @@
+(function() {
+  'use strict';
 
-'use strict';
+  angular.module('esn.calendar')
+    .controller('CalEventMessageEditionController', CalEventMessageEditionController);
 
-angular.module('esn.calendar')
-.controller('calEventMessageEditionController', function($scope, CalendarShell, calendarUtils, calendarService, calEventService, calendarEventEmitter, notificationFactory, CAL_EVENT_FORM, CAL_DEFAULT_CALENDAR_ID) {
+  function CalEventMessageEditionController(
+    $scope,
+    CalendarShell,
+    calendarUtils,
+    calendarService,
+    calEventService,
+    calendarEventEmitter,
+    notificationFactory,
+    CAL_EVENT_FORM,
+    CAL_DEFAULT_CALENDAR_ID
+  ) {
 
-  function _initFormData() {
-    $scope.event = CalendarShell.fromIncompleteShell({
-      start: calendarUtils.getNewStartDate(),
-      end: calendarUtils.getNewEndDate()
-    });
-    $scope.restActive = false;
-    $scope.CAL_EVENT_FORM = CAL_EVENT_FORM;
-    $scope.activitystream = $scope.$parent.activitystream;
-  }
+    var self = this;
 
-  function _emitPostedMessage(response) {
-    if (response && $scope.activitystream) {
-      calendarEventEmitter.activitystream.emitPostedMessage(
-          response.headers('ESN-Message-Id'),
-          $scope.activitystream.activity_stream.uuid);
-    }
-  }
+    self.submit = submit;
+    self.$onInit = $onInit;
 
-  function _resetEvent() {
-    $scope.rows = 1;
-    $scope.event = CalendarShell.fromIncompleteShell({
-      start: calendarUtils.getNewStartDate(),
-      end: calendarUtils.getNewEndDate(),
-      diff: 1
-    });
-  }
+    //////////
 
-  $scope.submit = function() {
-    if (!$scope.event.title || $scope.event.title.trim().length === 0) {
-      $scope.event.title = CAL_EVENT_FORM.title.default;
+    function $onInit() {
+      self.event = CalendarShell.fromIncompleteShell({
+        start: calendarUtils.getNewStartDate(),
+        end: calendarUtils.getNewEndDate()
+      });
+      self.restActive = false;
+      self.CAL_EVENT_FORM = CAL_EVENT_FORM;
     }
 
-    if (!$scope.activitystream.activity_stream || !$scope.activitystream.activity_stream.uuid) {
-      $scope.displayError('You can not post to an unknown stream');
-
-      return;
+    function emitPostedMessage(response) {
+      if (response && self.activitystream) {
+        calendarEventEmitter.activitystream.emitPostedMessage(
+            response.headers('ESN-Message-Id'),
+            self.activitystream.activity_stream.uuid);
+      }
     }
 
-    var event = $scope.event;
-    var calendarHomeId = $scope.calendarHomeId || calendarService.calendarHomeId;
-    var path = '/calendars/' + calendarHomeId + '/' + CAL_DEFAULT_CALENDAR_ID;
+    function resetEvent() {
+      self.rows = 1;
+      self.event = CalendarShell.fromIncompleteShell({
+        start: calendarUtils.getNewStartDate(),
+        end: calendarUtils.getNewEndDate(),
+        diff: 1
+      });
+    }
 
-    $scope.restActive = true;
-    calEventService.createEvent(calendarHomeId, path, event, { graceperiod: false })
-      .then(function(response) {
-        _emitPostedMessage(response);
-        _resetEvent();
-        $scope.$parent.show('whatsup');
+    function submit() {
+      if (!self.event.title || self.event.title.trim().length === 0) {
+        self.event.title = CAL_EVENT_FORM.title.default;
+      }
+
+      if (!self.activitystream.activity_stream || !self.activitystream.activity_stream.uuid) {
+        $scope.displayError('You can not post to an unknown stream');
+
+        return;
+      }
+
+      var path = '/calendars/' + self.calendarHomeId + '/' + CAL_DEFAULT_CALENDAR_ID;
+
+      self.restActive = true;
+      calEventService.createEvent(self.calendarHomeId, path, self.event, { graceperiod: false })
+        .then(function(response) {
+          emitPostedMessage(response);
+          resetEvent();
+          $scope.$parent.show('whatsup');
+        })
+      .catch(function(err) {
+        notificationFactory.weakError('Event creation failed', (err.statusText || err) + ', Please refresh your calendar');
       })
-    .catch(function(err) {
-      notificationFactory.weakError('Event creation failed', (err.statusText || err) + ', Please refresh your calendar');
-    })
-    .finally(function() {
-      $scope.restActive = false;
-    });
-  };
-
-  // We must init the form on directive load
-  _initFormData();
-});
+      .finally(function() {
+        self.restActive = false;
+      });
+    }
+  }
+})();

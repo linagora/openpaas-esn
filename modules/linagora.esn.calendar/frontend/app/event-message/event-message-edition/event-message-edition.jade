@@ -1,10 +1,10 @@
 div.form-container
-  form.event-message-edition(name='eventMessageForm', role='form', aria-hidden="true", ng-submit='submit()')
+  form.event-message-edition(name='eventMessageForm', role='form', aria-hidden="true", ng-submit='$ctrl.submit()')
     .form-group
       .fg-line
-        textarea.form-control(type="text", rows="1", ng-model='event.title', maxlength="{{::CAL_EVENT_FORM.title.maxlength}}", placeholder="#{__('Enter the title of your event')}")
+        textarea.form-control(type="text", rows="1", ng-model='$ctrl.event.title', maxlength="{{::$ctrl.CAL_EVENT_FORM.title.maxlength}}", placeholder="#{__('Enter the title of your event')}")
 
-    cal-event-date-edition(event="event", disabled="false")
+    cal-event-date-edition(event="$ctrl.event", disabled="false")
 
     .row
       .col-xs-12
@@ -13,9 +13,9 @@ div.form-container
             span.input-group-addon
               i.mdi.mdi-map-marker
             .fg-line
-              input.input.form-control(type="text", ng-model='event.location', placeholder="#{__('Location')}")
+              input.input.form-control(type="text", ng-model='$ctrl.event.location', placeholder="#{__('Location')}")
     .row
       .col-xs-12
         .form-group
-          button.btn.btn-primary(type='submit', ng-disabled="restActive")
+          button.btn.btn-primary(type='submit', ng-disabled="$ctrl.restActive")
             span #{__('Publish')}
