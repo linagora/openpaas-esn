@@ -208,7 +208,8 @@ angular.module('linagora.esn.unifiedinbox')
       this.initCtrl($stateParams.email, $stateParams.compositionOptions);
     }
 
-    $scope.isCollapsed = true;
+    $scope.isCollapsed = !$scope.email || (_.isEmpty($scope.email.cc) && _.isEmpty($scope.email.bcc));
+
     $scope.summernoteOptions = INBOX_SUMMERNOTE_OPTIONS;
 
     $scope.send = function() {
