@@ -138,22 +138,38 @@
         }
       })
       .state('calendar.event', {
-        url: '/:calendarHomeId/event/:eventId',
+        url: '/:calendarHomeId/event/:eventId?recurrenceId',
         abstract: true,
         views: {
           content: {
             template: '<div ui-view="content"/>'
           }
         },
+        params: {
+          recurrenceId: null
+        },
         resolve: {
-          event: function($stateParams, $state, calPathBuilder, calEventService, calEventUtils, notificationFactory) {
+          event: function($log, $q, $stateParams, $state, calPathBuilder, calEventService, calEventUtils, notificationFactory) {
             var eventPath = calPathBuilder.forEventId($stateParams.calendarHomeId, $stateParams.eventId);
             var editedEvent = calEventUtils.getEditedEvent();
 
-            return editedEvent && Object.keys(editedEvent).length ? editedEvent : calEventService.getEvent(eventPath).catch(function(error) {
-              if (error.status !== 404) {
-                notificationFactory.weakError('Cannot display the requested event, an error occured: ', error.statusText);
+            if (editedEvent && Object.keys(editedEvent).length) {
+              return editedEvent;
+            }
+
+            return calEventService.getEvent(eventPath).then(function(event) {
+              if ($stateParams.recurrenceId) {
+                event = event.getExceptionByRecurrenceId($stateParams.recurrenceId);
               }
+
+              if (!event) {
+                return $q.reject(new Error('Event not found', eventPath));
+              }
+
+              return event;
+            }).catch(function(error) {
+              $log.error('Can not display the requested event', error);
+              notificationFactory.weakError('Can not display the event');
               $state.go('calendar.main');
             });
           }

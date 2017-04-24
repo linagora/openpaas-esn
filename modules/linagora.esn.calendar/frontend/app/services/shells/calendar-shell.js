@@ -200,6 +200,10 @@
         }
       },
 
+      get recurrenceIdAsString() {
+        return this.vevent.getFirstPropertyValue('recurrence-id') ? this.vevent.getFirstPropertyValue('recurrence-id').toICALString() : '';
+      },
+
       get rrule() {
         var rrule = this.vevent.getFirstPropertyValue('rrule');
 

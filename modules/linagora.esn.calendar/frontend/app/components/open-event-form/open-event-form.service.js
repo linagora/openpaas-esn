@@ -31,13 +31,13 @@
 
     ////////////
 
-    function _openForm(calendar, event) {
+    function _openForm(calendar, event, recurrenceId) {
       calEventUtils.setEditedEvent(event);
       if (matchmedia.is(SM_XS_MEDIA_QUERY)) {
         if (calUIAuthorizationService.canModifyEvent(calendar, event, session.user._id)) {
-          $state.go('calendar.event.form', {calendarHomeId: calendar.calendarHomeId, eventId: event.id});
+          $state.go('calendar.event.form', {calendarHomeId: calendar.calendarHomeId, eventId: event.uid, recurrenceId: recurrenceId});
         } else {
-          $state.go('calendar.event.consult', {calendarHomeId: calendar.calendarHomeId, eventId: event.id});
+          $state.go('calendar.event.consult', {calendarHomeId: calendar.calendarHomeId, eventId: event.uid, recurrenceId: recurrenceId});
         }
       } else if (modalIsOpen === false) {
         modalIsOpen = true;
@@ -102,10 +102,9 @@
 
           $scope.editInstance = function() {
             $scope.$hide();
-            openForm(calendar, event);
+            openForm(calendar, event, event.recurrenceIdAsString);
           };
         },
-        openForm: _openForm,
         placement: 'center'
       });
     }
