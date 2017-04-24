@@ -108,7 +108,7 @@ describe('CalendarRightShell factory', function() {
   describe('toJson', function() {
     it('should return a json that allow comparaison for equals', function() {
       expect(calendarRightShell.toJson()).to.be.deep.equals({
-        public: 1,
+        public: CAL_CALENDAR_PUBLIC_RIGHT.FREE_BUSY,
         sharee: {
           tom: CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ_WRITE,
           jerry: CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ
