@@ -24,7 +24,7 @@ module.exports = function(dependencies) {
         clientID: oauth.client_id,
         clientSecret: oauth.client_secret,
         passReqToCallback: true,
-        profileFields: ['id', 'emails', 'name', 'picture.type(large)', 'displayName', 'bio', 'location']
+        profileFields: ['id', 'emails', 'name', 'picture.type(large)', 'displayName', 'location']
       }, commons.handleResponse(TYPE)));
       callback();
     }, callback);
