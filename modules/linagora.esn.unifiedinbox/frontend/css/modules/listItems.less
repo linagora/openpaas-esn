@@ -1,4 +1,8 @@
 @transition-sidebar: padding 300ms cubic-bezier(0.4, 0, 0.2, 1);
+@inbox-list-header-height: 42px;
+@inbox-sub-header-height: @sub-header-height + @inbox-list-header-height;
+@inbox-sub-header-height-md: @sub-header-height-md + @inbox-list-header-height;
+@inbox-sub-header-height-xl: @sub-header-height-xl + @inbox-list-header-height;
 
 .inbox-root {
   .inbox-list {
@@ -58,25 +62,25 @@
   }
 
   .inbox-infinite-list {
-    height: ~"calc(100vh - @{header-height} - @{sub-header-height})";
+    height: ~"calc(100vh - @{header-height} - @{inbox-sub-header-height})";
     
     @media (min-width: @screen-md-min) {
-      height: ~"calc(100vh - @{header-height-md} - @{sub-header-height-md})";
+      height: ~"calc(100vh - @{header-height-md} - @{inbox-sub-header-height-md})";
     }
 
     @media (min-width: @screen-xl-min) {
-      height: ~"calc(100vh - @{header-height-xl} - @{sub-header-height-xl})";
+      height: ~"calc(100vh - @{header-height-xl} - @{inbox-sub-header-height-xl})";
     }
 
     &.is-vacation-activated {
-      height: ~"calc(100vh - @{header-height} - @{sub-header-height} - @{sub-header-vacation-height})";
+      height: ~"calc(100vh - @{header-height} - @{inbox-sub-header-height} - @{sub-header-vacation-height})";
 
       @media (min-width: @screen-md-min) {
-      	height: ~"calc(100vh - @{header-height-md} - @{sub-header-height-md} - @{sub-header-vacation-height})";
+      	height: ~"calc(100vh - @{header-height-md} - @{inbox-sub-header-height-md} - @{sub-header-vacation-height})";
       }
 
       @media (min-width: @screen-xl-min) {
-      	height: ~"calc(100vh - @{header-height-xl} - @{sub-header-height-xl} - @{sub-header-vacation-height})";
+      	height: ~"calc(100vh - @{header-height-xl} - @{inbox-sub-header-height-xl} - @{sub-header-vacation-height})";
       }
     }
   }
@@ -225,14 +229,14 @@
 body.header-hidden {
   .inbox-root {
     .inbox-infinite-list {
-      height: ~"calc(100vh - @{sub-header-height})";
+      height: ~"calc(100vh - @{inbox-sub-header-height})";
 
       @media (min-width: @screen-md-min) {
-        height: ~"calc(100vh - @{sub-header-height-md})";
+        height: ~"calc(100vh - @{inbox-sub-header-height-md})";
       }
 
       @media (min-width: @screen-xl-min) {
-        height: ~"calc(100vh - @{sub-header-height-md})";
+        height: ~"calc(100vh - @{inbox-sub-header-height-md})";
       }
     }
   }

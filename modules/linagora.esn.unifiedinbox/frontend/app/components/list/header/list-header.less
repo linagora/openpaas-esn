@@ -1,0 +1,23 @@
+.inbox-list-header {
+  .flex-space-between;
+  .flex-vertical-centered;
+
+  margin: 5px 0;
+  padding: 0 15px 0 5px;
+  color: lighten(@secondaryTextColor, 20%);
+
+  .inbox-filter-button.btn-icon {
+    width: 30px;
+    height: 30px;
+  }
+
+  .inbox-list-header-actions {
+    .mdi {
+      font-size: 1.5em;
+
+      &.selected {
+        color: @primaryColor;
+      }
+    }
+  }
+}

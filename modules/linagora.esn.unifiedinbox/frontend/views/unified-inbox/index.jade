@@ -8,24 +8,20 @@ sub-header(ng-if="!inbox.list.isElementOpened")
 
   inbox-list-account-unavailable(ng-switch-when="ERROR", account="::ctrl.account")
 
-  .inbox-infinite-list(ng-switch-default, md-virtual-repeat-container, md-top-index="ctrl.topIndex", ng-class="{ 'is-vacation-activated' : inbox.vacationActivated }")
-    .inbox-items-group(md-virtual-repeat="item in inboxListModel", md-on-demand="true")
+  .inbox-infinite-lis-container(ng-switch-default)
+    inbox-list-header(item="inboxList[ctrl.topIndex]", filters="filters")
+    .inbox-infinite-list(md-virtual-repeat-container, md-top-index="ctrl.topIndex", ng-class="{ 'is-vacation-activated' : inbox.vacationActivated }")
+      .inbox-items-group(md-virtual-repeat="item in inboxListModel", md-on-demand="true")
+        .card.listview.lv-bordered.lv-lg
+          .lv-body
+            .lv-item.media.inbox-list-item
+              ng-include(src="item.templateUrl")
 
-      .block-header(ng-if="item.group.visibleItems > 0 && ($first || item.previous().group !== item.group)")
-        h2 {{ item.group.name }}
-        .block-header-actions
-          inbox-list-group-toggle-selection(group="item.group", elements="inboxList")
+      ul.nav.nav-pills.nav-stacked(ng-if='!infiniteScrollCompleted')
+        li.text-center(openpaas-logo-spinner, spinner-start-active='1', spinner-size='0.5')
 
-      .card.listview.lv-bordered.lv-lg
-        .lv-body
-          .lv-item.media.inbox-list-item
-            ng-include(src="item.templateUrl")
-
-    ul.nav.nav-pills.nav-stacked(ng-if='!infiniteScrollCompleted')
-      li.text-center(openpaas-logo-spinner, spinner-start-active='1', spinner-size='0.5')
-
-    div(ng-if="infiniteScrollCompleted && inboxList.length === 0")
-      inbox-empty-container-message
+      div(ng-if="infiniteScrollCompleted && inboxList.length === 0")
+        inbox-empty-container-message
 
   inbox-fab
   fab-scroll-top

@@ -1,0 +1,5 @@
+.inbox-list-header
+  inbox-filter-button.clickable(ng-if="$ctrl.filters.length > 0", filters="$ctrl.filters")
+  .inbox-list-header-group {{ $ctrl.group.name }}
+  .inbox-list-header-actions
+    inbox-list-group-toggle-selection

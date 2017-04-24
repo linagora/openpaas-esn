@@ -1593,13 +1593,13 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
     });
 
     it('should call the $dropdown service once clicked on mobile', function() {
-      element.find('.filter-button.visible-xs').click();
+      element.find('.inbox-filter-button.visible-xs').click();
 
       expect($dropdown).to.have.been.calledOnce;
     });
 
     it('should call the $dropdown service once clicked on desktop', function() {
-      element.find('.filter-button.hidden-xs').click();
+      element.find('.inbox-filter-button.hidden-xs').click();
 
       expect($dropdown).to.have.been.calledOnce;
     });

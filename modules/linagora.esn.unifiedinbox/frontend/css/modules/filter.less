@@ -1,11 +1,13 @@
-#sub-header {
-  .filter-button {
+inbox-filter-button {
+  .inbox-filter-button {
     .inline-flex;
     .align-items(center);
 
+    text-transform: capitalize;
+
     .filter-label {
       text-align: left;
-      margin-right: 5px;
+      margin-right: 10px;
     }
   }
 
@@ -46,7 +48,7 @@
 
     }
 
-    a, .mdi-delete {
+    a {
       color: @secondaryTextColor;
     }
 
@@ -60,11 +62,10 @@
     border-right: 4px solid transparent;
     border-left: 4px solid transparent;
   }
+}
 
-  @media (min-width: @screen-md-min) {
-
-    .filter-button {
-      width: auto;
-    }
+@media (min-width: @screen-md-min) {
+  .inbox-filter-button {
+    width: auto;
   }
 }

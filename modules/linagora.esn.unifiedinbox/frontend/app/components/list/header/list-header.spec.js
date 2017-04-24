@@ -1,0 +1,116 @@
+'use strict';
+
+/* global chai: false, moment: false */
+
+var expect = chai.expect;
+
+describe('The inboxListGroupToggleSelection component', function() {
+
+  var $compile, $rootScope, $scope, element, nowDate = new Date('2017-04-20T12:00:00Z');
+
+  function compileDirective(html) {
+    element = angular.element(html);
+
+    $compile(element)($scope = $rootScope.$new());
+    $scope.$digest();
+
+    return element;
+  }
+
+  beforeEach(function() {
+    module('jadeTemplates', 'linagora.esn.unifiedinbox', function($provide) {
+      $provide.constant('moment', function(argument) {
+        return moment.tz(argument || nowDate, 'UTC');
+      });
+    });
+  });
+
+  beforeEach(inject(function(_$compile_, _$rootScope_) {
+    $compile = _$compile_;
+    $rootScope = _$rootScope_;
+  }));
+
+  it('should not display group name if no item given', function() {
+    compileDirective('<inbox-list-header />');
+
+    expect(element.find('.inbox-list-header-group').text()).to.equal('');
+  });
+
+  it('should display "Today" name if item is today', function() {
+    $rootScope.item = {
+      id: 'id',
+      date: new Date('2017-04-20T10:00:00Z') // Same day
+    };
+
+    compileDirective('<inbox-list-header item="item" />');
+
+    expect(element.find('.inbox-list-header-group').text()).to.equal('Today');
+  });
+
+  it('should display "Yesterday" name if item is yesterday', function() {
+    $rootScope.item = {
+      id: 'id',
+      date: new Date('2017-04-19T10:00:00Z') // Wednesday, same week
+    };
+
+    compileDirective('<inbox-list-header item="item" />');
+
+    expect(element.find('.inbox-list-header-group').text()).to.equal('Yesterday');
+  });
+
+  it('should display "Yesterday" name if item is this week', function() {
+    $rootScope.item = {
+      id: 'id',
+      date: new Date('2017-04-18T10:00:00Z') // Tuesday
+    };
+
+    compileDirective('<inbox-list-header item="item" />');
+
+    expect(element.find('.inbox-list-header-group').text()).to.equal('This Week');
+  });
+
+  it('should display "This Month" name if item is this monyh', function() {
+    $rootScope.item = {
+      id: 'id',
+      date: new Date('2017-04-11T10:00:00Z') // Tuesday, the week before
+    };
+
+    compileDirective('<inbox-list-header item="item" />');
+
+    expect(element.find('.inbox-list-header-group').text()).to.equal('This Month');
+  });
+
+  it('should display "Older than a month" name if item is this monyh', function() {
+    $rootScope.item = {
+      id: 'id',
+      date: new Date('2017-03-11T10:00:00Z') // The month before
+    };
+
+    compileDirective('<inbox-list-header item="item" />');
+
+    expect(element.find('.inbox-list-header-group').text()).to.equal('Older than a month');
+  });
+
+  it('should not display filters if no filters given', function() {
+    compileDirective('<inbox-list-header />');
+
+    expect(element.find('.inbox-filter-button')).to.have.length(0);
+  });
+
+  it('should not display filters if filters are empty', function() {
+    $rootScope.filters = [];
+
+    compileDirective('<inbox-list-header />');
+
+    expect(element.find('.inbox-filter-button')).to.have.length(0);
+  });
+
+  it('should display filters if at least one filter is available', function() {
+    $rootScope.filters = [{ id: 'filter1' }];
+
+    compileDirective('<inbox-list-header filters="filters"/>');
+
+    expect(element.find('.inbox-filter-button')).to.have.length(2);
+  });
+
+});
