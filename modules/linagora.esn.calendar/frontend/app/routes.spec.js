@@ -108,14 +108,17 @@ describe('The esn.calendar routes', function() {
     it('should expose the resolved event to the scope', function() {
       var scope = {};
       var event = 'event';
+      var calendarHomeId = 'calendarHomeId';
 
       invokeStateController('calendar.event.form', 'content', {
           $scope: scope,
-          event: event
+          event: event,
+          calendarHomeId: calendarHomeId
         }
       );
 
       expect(scope.event).to.equal(event);
+      expect(scope.calendarHomeId).to.equal(calendarHomeId);
     });
 
     describe('the reject case of calEventUtils.getEditedEvent', function() {

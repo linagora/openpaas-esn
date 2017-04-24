@@ -60,12 +60,13 @@ describe('The event-form module controllers', function() {
       }
     };
 
+    this.calendarHomeId = 'calendarHomeId';
+
     this.calendarServiceMock = {
       calendarId: '1234',
       listCalendars: sinon.spy(function() {
         return $q.when(self.calendars);
-      }),
-      calendarHomeId: 'calendarHomeId'
+      })
     };
 
     var sessionMock = {
@@ -160,11 +161,12 @@ describe('The event-form module controllers', function() {
     });
   });
 
-  describe('The calEventFormController controller', function() {
+  describe('The CalEventFormController controller', function() {
 
     beforeEach(function() {
+      this.scope.calendarHomeId = this.calendarHomeId;
       this.initController = function() {
-        this.controller('calEventFormController', {
+        this.controller('CalEventFormController', {
           $rootScope: this.rootScope,
           $scope: this.scope
         });
@@ -288,7 +290,7 @@ describe('The event-form module controllers', function() {
 
         this.initController();
 
-        expect(this.calendarServiceMock.listCalendars).to.be.calledWith(this.calendarServiceMock.calendarHomeId);
+        expect(this.calendarServiceMock.listCalendars).to.be.calledWith(this.calendarHomeId);
       });
 
       it('should initialize calendars with calendars returned from the calendarService.listCalendars', function() {
@@ -464,7 +466,7 @@ describe('The event-form module controllers', function() {
             done();
           };
 
-          this.controller('calEventFormController', {
+          this.controller('CalEventFormController', {
             $rootScope: this.rootScope,
             $scope: this.scope,
             $alert: $alertMock
@@ -563,7 +565,7 @@ describe('The event-form module controllers', function() {
           this.scope.$digest();
 
           var calendarId = calendarTest.id;
-          var expectedPath = '/calendars/' + this.calendarServiceMock.calendarHomeId + '/' + calendarId;
+          var expectedPath = '/calendars/' + this.calendarHomeId + '/' + calendarId;
 
           expect(this.$state.is).to.have.been.called;
           expect(this.calEventServiceMock.modifyEvent).to.have.been.calledWith(expectedPath, this.scope.editedEvent, this.scope.event, this.scope.etag, sinon.match.any, {
@@ -947,7 +949,7 @@ describe('The event-form module controllers', function() {
       it('should call calEventService.createEvent with the correct parameters', function() {
         this.scope.createEvent();
         var calendarId = calendarTest.id;
-        var expectedPath = '/calendars/' + this.calendarServiceMock.calendarHomeId + '/' + calendarId;
+        var expectedPath = '/calendars/' + this.calendarHomeId + '/' + calendarId;
 
         this.scope.$digest();
 
@@ -963,7 +965,7 @@ describe('The event-form module controllers', function() {
         this.userUtilsMock.displayNameOf = sinon.stub().returns('owner owner');
         this.scope.createEvent();
         var calendarId = calendarTest.id;
-        var expectedPath = '/calendars/' + this.calendarServiceMock.calendarHomeId + '/' + calendarId;
+        var expectedPath = '/calendars/' + this.calendarHomeId + '/' + calendarId;
 
         this.scope.$digest();
 

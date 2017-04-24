@@ -4,7 +4,7 @@
     .tab-content.p-0(data-ng-switch='type')
       whatsup-edition(data-ng-switch-when='whatsup', type="type")
       poll-edition(data-ng-switch-when='poll', type="type")
-      cal-event-message-edition(data-ng-switch-when='event')
+      cal-event-message-edition(data-ng-switch-when='event', calendar-home-id="community._id", activitystream="activitystream")
       injections-widget(injection-anchor-id="messageEditionMessageTypeSwitch", injection-subject="community")
 
   ul.list-unstyled.clearfix.wpb-actions

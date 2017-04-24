@@ -22,7 +22,7 @@ describe('The cal-event-consult-form Angular module directives', function() {
       var self = this;
 
       angular.mock.module(function($provide, $controllerProvider) {
-        $controllerProvider.register('calEventFormController', self.calEventFormControllerMock);
+        $controllerProvider.register('CalEventFormController', self.calEventFormControllerMock);
         $provide.factory('eventAlarmConsultationDirective', function() { return {}; });
       });
     });

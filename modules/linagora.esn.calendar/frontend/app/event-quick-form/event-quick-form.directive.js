@@ -2,7 +2,7 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .directive('calEventQuickForm', calEventQuickForm);
+    .directive('calEventQuickForm', calEventQuickForm);
 
   function calEventQuickForm($timeout, calEventUtils) {
     var directive = {
@@ -10,7 +10,7 @@
       templateUrl: '/calendar/app/event-quick-form/event-quick-form.html',
       link: link,
       replace: true,
-      controller: 'calEventFormController'
+      controller: 'CalEventFormController'
     };
 
     return directive;
