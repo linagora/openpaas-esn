@@ -152,7 +152,7 @@ describe('The calendar configuration controller', function() {
       return {
         getOwnerId: angular.noop,
         getPublicRight: angular.noop,
-        getShareeRight: angular.noop
+        getAllShareeRights: angular.noop
       };
     });
   });
@@ -310,7 +310,8 @@ describe('The calendar configuration controller', function() {
 
     it('should initialize newCalendar with false it is not a new calendar', function() {
       calendarConfigurationController.calendar = {
-        id: '123456789'
+        id: '123456789',
+        rights: calendarRight
       };
 
       calendarConfigurationController.activate();
@@ -320,7 +321,8 @@ describe('The calendar configuration controller', function() {
 
     it('should initialize self.calendar with self.calendar if it is not a new calendar', function() {
       calendarConfigurationController.calendar = {
-        id: '123456789'
+        id: '123456789',
+        rights: calendarRight
       };
 
       calendarConfigurationController.activate();
@@ -346,19 +348,10 @@ describe('The calendar configuration controller', function() {
       expect(CalendarRightShellMock).to.be.calledWithNew;
     });
 
-    it('should initialize calendarRight with an old CalendarRightShell if newCalendar is false', function() {
-      calendarConfigurationController.calendar = {
-        id: '123456789'
-      };
-
-      calendarConfigurationController.activate();
-
-      expect(calendarService.getRight).to.be.calledWith(calendarHomeId, calendarConfigurationController.calendar);
-    });
-
     it('should copy self.calendar in self.oldCalendar', function() {
       calendarConfigurationController.calendar = {
-        id: '123456789'
+        id: '123456789',
+        rights: calendarRight
       };
 
       calendarConfigurationController.activate();
@@ -385,7 +378,8 @@ describe('The calendar configuration controller', function() {
       userAPIMock.user = sinon.stub().returns($q.when({ data: user }));
 
       calendarConfigurationController.calendar = {
-        href: 'data/data.json'
+        href: 'data/data.json',
+        rights: calendarRight
       };
 
       calendarConfigurationController.activate();
@@ -411,7 +405,8 @@ describe('The calendar configuration controller', function() {
 
     it('should correctly initialize self.calendar if newCalendar is false', function() {
       calendarConfigurationController.calendar = {
-        id: '123456789'
+        id: '123456789',
+        rights: calendarRight
       };
 
       calendarConfigurationController.activate();
@@ -472,7 +467,8 @@ describe('The calendar configuration controller', function() {
 
         calendarConfigurationController.calendar = {
           id: '123456789',
-          href: '/calendars/12345/00000000-0000-4000-a000-000000000000.json'
+          href: '/calendars/12345/00000000-0000-4000-a000-000000000000.json',
+          rights: calendarRight
         };
 
         calendarConfigurationController.activate();
@@ -499,7 +495,8 @@ describe('The calendar configuration controller', function() {
         });
         calendarService.modifyCalendar = sinon.spy();
         calendarConfigurationController.calendar = {
-          href: 'blabla/id.json'
+          href: 'blabla/id.json',
+          rights: calendarRight
         };
         calendarConfigurationController.calendar.color = 'aColor';
         calendarConfigurationController.calendar.name = 'aName';
@@ -533,7 +530,8 @@ describe('The calendar configuration controller', function() {
         calendarConfigurationController.calendar = {
           href: '/calendars/12345/00000000-0000-4000-a000-000000000000.json',
           color: 'aColor',
-          name: 'aName'
+          name: 'aName',
+          rights: calendarRight
         };
 
         calendarService.modifyCalendar = sinon.spy(function(calendarHomeId, shell) {
@@ -585,7 +583,8 @@ describe('The calendar configuration controller', function() {
         calendarConfigurationController.calendar = {
           href: '/calendars/12345/00000000-0000-4000-a000-000000000000.json',
           color: 'aColor',
-          name: 'aName'
+          name: 'aName',
+          rights: calendarRight
         };
         calendarConfigurationController.calendar.name = 'aName';
 
@@ -621,7 +620,8 @@ describe('The calendar configuration controller', function() {
           calendarRight.getPublicRight = sinon.stub().returns('publicSelection');
           calendarConfigurationController.calendar = {
             id: '123',
-            href: 'blabla/id.json'
+            href: 'blabla/id.json',
+            rights: calendarRight
           };
           calendarConfigurationController.calendar.color = 'aColor';
           calendarConfigurationController.calendar.name = 'aName';
@@ -698,7 +698,8 @@ describe('The calendar configuration controller', function() {
           id: '123',
           href: '/calendars/12345/00000000-0000-4000-a000-000000000000.json',
           color: 'aColor',
-          name: 'aName'
+          name: 'aName',
+          rights: calendarRight
         };
         calendarConfigurationController.calendar.name = 'aName';
 
@@ -738,7 +739,8 @@ describe('The calendar configuration controller', function() {
       calendarConfigurationController.calendar = {
         href: '/calendars/12345/00000000-0000-4000-a000-000000000000.json',
         color: 'aColor',
-        name: 'aName'
+        name: 'aName',
+        rights: calendarRight
       };
 
       calendarConfigurationController.activate();
@@ -775,7 +777,8 @@ describe('The calendar configuration controller', function() {
   describe('the reset function', function() {
     it('should reset the values of newUsersGroups and selectedShareeRight', function() {
       calendarConfigurationController.calendar = {
-        id: '123456789'
+        id: '123456789',
+        rights: calendarRight
       };
 
       calendarConfigurationController.activate();
