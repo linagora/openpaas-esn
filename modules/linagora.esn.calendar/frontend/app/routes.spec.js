@@ -121,6 +121,44 @@ describe('The esn.calendar routes', function() {
       expect(scope.calendarHomeId).to.equal(calendarHomeId);
     });
 
+    describe('When $stateParams.recurrenceId is defined', function() {
+      it('should get the event from recurrentId query parameter', function() {
+        var getExceptionByRecurrenceIdSpy = sinon.spy(function() {
+          return 'TheRecurrentEvent';
+        });
+
+        stateParams.recurrenceId = '123';
+
+        returnResults.event = {
+          getExceptionByRecurrenceId: getExceptionByRecurrenceIdSpy
+        };
+        goTo('calendar.event.form', stateParams);
+
+        expect(calEventUtilsMock.getEditedEvent).to.have.been.called;
+        expect(calEventServiceMock.getEvent).to.have.been.calledWith(eventPath);
+        expect(getExceptionByRecurrenceIdSpy).to.have.been.calledWith(stateParams.recurrenceId);
+        expect(notificationFactoryMock.weakError).to.not.have.been.called;
+      });
+
+      it('should reject when recurrence is not found', function() {
+        var getExceptionByRecurrenceIdSpy = sinon.spy();
+
+        stateParams.recurrenceId = '123';
+        $state.go = sinon.spy($state.go);
+
+        returnResults.event = {
+          getExceptionByRecurrenceId: getExceptionByRecurrenceIdSpy
+        };
+        goTo('calendar.event.form', stateParams);
+
+        expect(calEventUtilsMock.getEditedEvent).to.have.been.called;
+        expect(calEventServiceMock.getEvent).to.have.been.calledWith(eventPath);
+        expect(getExceptionByRecurrenceIdSpy).to.have.been.calledWith(stateParams.recurrenceId);
+        expect(notificationFactoryMock.weakError).to.have.been.calledWith('Can not display the event');
+        expect($state.go.secondCall).to.have.been.calledWith('calendar.main');
+      });
+    });
+
     describe('the reject case of calEventUtils.getEditedEvent', function() {
       beforeEach(function() {
         calEventServiceMock.getEvent = sinon.spy(function() {
@@ -130,31 +168,13 @@ describe('The esn.calendar routes', function() {
         $state.go = sinon.spy($state.go);
       });
 
-      it('should notify user when calEventUtils.getEditedEvent reject with a non 404 error and then redirect to calendar.main', function() {
-        returnResults.error = {
-          status: 500,
-          statusText: 'statusText'
-        };
-
+      it('should notify user when calEventUtils.getEditedEvent rejects and redirect to calendar.main', function() {
+        returnResults.error = new Error();
         goTo('calendar.event.form', stateParams);
 
-        expect(calEventUtilsMock.getEditedEvent).to.have.been.calledWith();
+        expect(calEventUtilsMock.getEditedEvent).to.have.been.called;
         expect(calEventServiceMock.getEvent).to.have.been.calledWith(eventPath);
-        expect(notificationFactoryMock.weakError).to.have.been.calledWith('Cannot display the requested event, an error occured: ', returnResults.error.statusText);
-        expect($state.go.secondCall).to.have.been.calledWith('calendar.main');
-      });
-
-      it('should not notify user when calEventUtils.getEditedEvent reject with a 404 error but only redirect to calendar.main', function() {
-        returnResults.error = {
-          status: 404,
-          statusText: 'statusText'
-        };
-
-        goTo('calendar.event.form', stateParams);
-
-        expect(calEventUtilsMock.getEditedEvent).to.have.been.calledWith();
-        expect(calEventServiceMock.getEvent).to.have.been.calledWith(eventPath);
-        expect(notificationFactoryMock.weakError).to.not.have.been.called;
+        expect(notificationFactoryMock.weakError).to.have.been.calledWith('Can not display the event');
         expect($state.go.secondCall).to.have.been.calledWith('calendar.main');
       });
     });

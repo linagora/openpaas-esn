@@ -559,6 +559,40 @@ describe('CalendarShell factory', function() {
     });
   });
 
+  describe('The reccurenceIdAsString getter', function() {
+    it('should return empty string when event does not have reccurence', function() {
+      var shell = {
+        start: calMoment.utc('2015-01-01 18:01'),
+        end: calMoment.utc('2015-01-01 19:01'),
+        backgroundColor: 'red',
+        title: 'not reccurent'
+      };
+
+      shell = CalendarShell.fromIncompleteShell(shell);
+
+      expect(shell.recurrenceIdAsString).to.be.empty;
+    });
+
+    it('should return the reccurence id as string', function() {
+      var start = calMoment.utc('2015-01-01 18:01');
+      var shell = {
+        start: start,
+        end: calMoment.utc('2015-01-01 19:01'),
+        backgroundColor: 'red',
+        title: 'reccurent',
+        rrule: {
+          freq: 'DAILY',
+          interval: 2,
+          count: 3
+        }
+      };
+
+      shell = CalendarShell.fromIncompleteShell(shell);
+
+      expect(shell.expand()[0].recurrenceIdAsString).to.equal('20150101T180100Z');
+    });
+  });
+
   describe('expand method', function() {
 
     function formatDates(event) {

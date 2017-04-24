@@ -27,7 +27,7 @@ describe('The calOpenEventForm service', function() {
       })
     };
     regularEvent = {
-      id: '456',
+      uid: '456',
       isInstance: sinon.stub().returns(false)
     };
     master = {};
@@ -242,7 +242,7 @@ describe('The calOpenEventForm service', function() {
 
       expect(matchmedia.is).to.have.been.calledWith(SM_XS_MEDIA_QUERY);
       expect($modal).to.have.not.been.called;
-      expect($state.go).to.have.been.calledWith('calendar.event.form', {calendarHomeId: calendarHomeId, eventId: regularEvent.id});
+      expect($state.go).to.have.been.calledWith('calendar.event.form', {calendarHomeId: calendarHomeId, eventId: regularEvent.uid, recurrenceId: regularEvent.recurrenceIdAsString});
     });
 
     it('should call $state to calendar.event.consult if matchmedia is xs or sm and user cannot modify event', function() {
@@ -255,7 +255,7 @@ describe('The calOpenEventForm service', function() {
 
       expect(matchmedia.is).to.have.been.calledWith(SM_XS_MEDIA_QUERY);
       expect($modal).to.have.not.been.called;
-      expect($state.go).to.have.been.calledWith('calendar.event.consult', {calendarHomeId: calendarHomeId, eventId: regularEvent.id});
+      expect($state.go).to.have.been.calledWith('calendar.event.consult', {calendarHomeId: calendarHomeId, eventId: regularEvent.uid, recurrenceId: regularEvent.recurrenceIdAsString});
     });
 
     it('if event is a recurring event, it should ask for editing master or instance', function() {
@@ -277,12 +277,13 @@ describe('The calOpenEventForm service', function() {
           };
 
           controller($scope, calendar, instance, openForm);
+          instance.recurrenceIdAsString = '20170425T083000Z';
 
           $scope.editInstance();
           $scope.editAllInstances();
           $rootScope.$digest();
 
-          expect(openForm.firstCall).to.have.been.calledWith(calendar, instance);
+          expect(openForm.firstCall).to.have.been.calledWith(calendar, instance, instance.recurrenceIdAsString);
           expect(openForm.secondCall).to.have.been.calledWith(calendar, master);
           expect($scope.$hide).to.have.been.calledTwice;
 
