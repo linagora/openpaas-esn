@@ -3,9 +3,9 @@
 
   angular.module('linagora.esn.unifiedinbox')
 
-    .factory('inboxFilteredList', function($rootScope, $q, ByDateElementGroupingTool, infiniteListService, inboxFilteringService, _,
-                                           INBOX_EVENTS, VIRTUAL_SCROLL_DISTANCE) {
-      var model = new ByDateElementGroupingTool(),
+    .factory('inboxFilteredList', function($rootScope, $q, infiniteListService, inboxFilteringService, _, INBOX_EVENTS, VIRTUAL_SCROLL_DISTANCE) {
+      var items = [],
+          itemsById = {},
           renderedList = [];
 
       $rootScope.$on(INBOX_EVENTS.FILTER_CHANGED, _buildRenderedList);
@@ -27,11 +27,23 @@
       }
 
       function getById(id) {
-        return model.getById(id);
+        return itemsById[id];
       }
 
-      function addAll(items) {
-        model.addAll(items);
+      function addAll(newItems) {
+        newItems.forEach(function(item) {
+          if (itemsById[item.id]) {
+            return;
+          }
+
+          itemsById[item.id] = item;
+          // This will insert the element at the correct index, keeping the array sorted by date in descending order
+          // In the future, if we make the order configurable for instance, we will just have to change the callback
+          // function passed to `sortedIndex` and the array will be sorted differently
+          items.splice(_.sortedIndex(items, item, function(element) {
+            return -element.date;
+          }), 0, item);
+        });
 
         _buildRenderedList();
       }
@@ -56,12 +68,7 @@
       }
 
       function _buildRenderedList() {
-        var items = model.getGroupedElements();
-
         renderedList.length = 0;
-        _.forEach(model.groups, function(group) {
-          group.visibleItems = 0;
-        });
 
         $q.all(items.map(_isItemFiltered.bind(null, inboxFilteringService.getAllProviderFilters())))
           .then(function(filteredStates) {
@@ -71,8 +78,6 @@
                     renderedItemIndex = renderedList.length;
 
                 renderedList.push(item);
-
-                item.group.visibleItems = (item.group.visibleItems || 0) + 1;
 
                 item.previous = _renderedItemGetter(renderedItemIndex - 1);
                 item.next = _renderedItemGetter(renderedItemIndex + 1);

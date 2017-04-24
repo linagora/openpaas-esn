@@ -3,39 +3,39 @@
 
   angular.module('linagora.esn.unifiedinbox')
 
-    .controller('inboxListGroupToggleSelectionController', function($scope, inboxSelectionService, _, INBOX_EVENTS) {
-      var self = this;
+    .controller('inboxListGroupToggleSelectionController', function($scope, inboxSelectionService, inboxFilteredList, _, INBOX_EVENTS) {
+      var self = this,
+          disableItemSelectionListener;
 
-      self.$onInit = $onInit;
-      self.$onChanges = $onChanges;
+      self.$onInit = listenForItemSelectionChanges;
       self.toggleSelection = toggleSelection;
+      self.hasSelectableItems = hasSelectableItems;
 
       /////
 
-      function $onInit() {
-        $scope.$on(INBOX_EVENTS.ITEM_SELECTION_CHANGED, function() {
-          var selectableElements = getSelectableElements();
-
-          self.group.selected = selectableElements.length > 0 && _.all(selectableElements, { selected: true });
-        });
-      }
-
-      function $onChanges(bindings) {
-        if (bindings.elements) {
-          self.hasSelectableItems = getSelectableElements().length > 0;
-        }
-      }
-
       function toggleSelection() {
-        var selected = !self.group.selected;
+        disableItemSelectionListener();
 
+        self.selected = !self.selected;
         getSelectableElements().forEach(function(item) {
-          inboxSelectionService.toggleItemSelection(item, selected);
+          inboxSelectionService.toggleItemSelection(item, self.selected);
         });
+
+        listenForItemSelectionChanges();
       }
 
       function getSelectableElements() {
-        return _(self.elements).filter({ group: self.group }).filter({ selectable: true }).value();
+        return _.filter(inboxFilteredList.list(), { selectable: true });
+      }
+
+      function hasSelectableItems() {
+        return _.some(inboxFilteredList.list(), { selectable: true });
+      }
+
+      function listenForItemSelectionChanges() {
+        disableItemSelectionListener = $scope.$on(INBOX_EVENTS.ITEM_SELECTION_CHANGED, function() {
+          self.selected = _.every(getSelectableElements(), { selected: true });
+        });
       }
     });
 

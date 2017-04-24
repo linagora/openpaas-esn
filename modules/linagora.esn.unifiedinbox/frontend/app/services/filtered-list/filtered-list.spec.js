@@ -143,22 +143,6 @@ describe('The inboxFilteredList factory', function() {
       expect(messages[1].next).to.equal(null);
     });
 
-    it('should update group visible items count', function() {
-      var messages = [
-        newMessage({ isUnread: true, date: '2017-01-01T12:00:01Z' }),
-        newMessage({ isUnread: true, date: '2017-01-01T11:59:59Z' })
-      ];
-
-      inboxFilteredList.addAll([
-        messages[1],
-        newMessage({ isUnread: false, date: '2017-01-01T12:00:00Z' }),
-        messages[0]
-      ]);
-      $rootScope.$digest();
-
-      expect(messages[0].group.visibleItems).to.equal(2); // The two items go the same group with the dummy dates
-    });
-
   });
 
   describe('The asMdVirtualRepeatModel function', function() {
