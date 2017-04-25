@@ -36,6 +36,22 @@ describe('The inboxListGroupToggleSelection component', function() {
     expect(element.find('.inbox-list-header-group').text()).to.equal('');
   });
 
+  it('should remove group name when item becomes null', function() {
+    $rootScope.item = {
+      id: 'id',
+      date: new Date('2017-04-20T10:00:00Z') // Same day
+    };
+
+    compileDirective('<inbox-list-header item="item" />');
+
+    expect(element.find('.inbox-list-header-group').text()).to.equal('Today');
+
+    $rootScope.item = null;
+    $rootScope.$digest();
+
+    expect(element.find('.inbox-list-header-group').text()).to.equal('');
+  });
+
   it('should display "Today" name if item is today', function() {
     $rootScope.item = {
       id: 'id',

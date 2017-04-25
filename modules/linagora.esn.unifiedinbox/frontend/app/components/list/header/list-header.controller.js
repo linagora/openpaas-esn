@@ -11,11 +11,11 @@
       /////
 
       function $onChanges(bindings) {
-        if (!bindings.item || !bindings.item.currentValue) {
+        if (!bindings.item) {
           return;
         }
 
-        self.group = inboxDateGroups.getGroup(bindings.item.currentValue.date);
+        self.group = bindings.item.currentValue && inboxDateGroups.getGroup(bindings.item.currentValue.date);
       }
     });
 
