@@ -4,7 +4,7 @@
   angular.module('esn.calendar')
     .factory('CalendarRightShell', CalendarRightShell);
 
-  function CalendarRightShell(_, session, CalRightSet, calendarUtils, CAL_CALENDAR_PUBLIC_RIGHT, CAL_CALENDAR_SHARED_RIGHT) {
+  function CalendarRightShell(_, $log, session, calendarUtils, CAL_CALENDAR_PUBLIC_RIGHT, CAL_CALENDAR_SHARED_RIGHT) {
 
     //the idea here is that there is a multitude of possible combinaison of webdav right and webdav sharing right
     //I will suppose that right are only settle by OpenPaas and that the only possible combinaison are the following
@@ -15,7 +15,6 @@
     // free_busy: he own no shared instance and has only the WEBDAV right read-free-busy
     // none: he own no shared instance and no WEBDAV right BUT FOR THE MOMENT I do not know we can overwrite global read-free-busy
     var principalRegexp = new RegExp('principals/users/([^/]*)$');
-    var matrix = initPublicRightMatrix();
 
     CalendarRightShell.prototype.clone = clone;
     CalendarRightShell.prototype.equals = equals;
@@ -43,28 +42,38 @@
      */
     function CalendarRightShell(acl, invite) {
       this._userEmails = {};
-      this._public = new CalRightSet();
+      this._public = CAL_CALENDAR_PUBLIC_RIGHT.NONE;
       this._sharee = {};
       this._ownerId = session.user._id;
 
-      acl && acl.forEach(function(line) {
-        if (line.principal === '{DAV:}authenticated') {
-          this._public.addPermission(CalRightSet.webdavStringToConstant(line.privilege));
+      acl && acl.forEach(function(aclItem) {
+        if (aclItem.principal === '{DAV:}authenticated') {
+          switch (aclItem.privilege) {
+            case CAL_CALENDAR_PUBLIC_RIGHT.READ:
+            case CAL_CALENDAR_PUBLIC_RIGHT.READ_WRITE:
+            case CAL_CALENDAR_PUBLIC_RIGHT.FREE_BUSY:
+              this._public = aclItem.privilege;
+              break;
+            default:
+              $log.warn('Unknown public ACL privilege: ' + aclItem.privilege);
+              this._public = CAL_CALENDAR_PUBLIC_RIGHT.NONE;
+          }
         }
       }, this);
 
-      invite && invite.forEach(function(line) {
-        var userId, match = line.principal && line.principal.match(principalRegexp);
+      invite && invite.forEach(function(inviteItem) {
+        var userId, match = inviteItem.principal && inviteItem.principal.match(principalRegexp);
 
         if (match) {
           userId = match[1];
-          var access = '' + line.access;
+          var access = '' + inviteItem.access;
+
           if (access !== CAL_CALENDAR_SHARED_RIGHT.SHAREE_OWNER) {
             this._sharee[userId] = access;
           } else {
             this._ownerId = userId;
           }
-          this._userEmails[userId] = calendarUtils.removeMailto(line.href);
+          this._userEmails[userId] = calendarUtils.removeMailto(inviteItem.href);
         }
       }, this);
     }
@@ -75,30 +84,6 @@
      */
     function getOwnerId() {
       return this._ownerId;
-    }
-
-    /**
-     * Modify ACL user rights
-     * @param calRightSet
-     * @param newRole
-     */
-    function setProfile(calRightSet, newRole) {
-      calRightSet.addPermissions(matrix[newRole].shouldHave);
-      calRightSet.removePermissions(matrix[newRole].shouldNotHave);
-    }
-
-    function _sumupRight(calRightSet) {
-      var result;
-
-      _.forEach(matrix, function(matrix, right) {
-        if (calRightSet.hasAtLeastAllOfThosePermissions(matrix.shouldHave) && calRightSet.hasNoneOfThosePermissions(matrix.shouldNotHave)) {
-          result = right;
-
-          return false;
-        }
-      });
-
-      return result || CAL_CALENDAR_PUBLIC_RIGHT.NONE;
     }
 
     function getUsersEmails() {
@@ -133,7 +118,7 @@
      * @returns {CAL_CALENDAR_PUBLIC_RIGHT} public role computed from ACL
      */
     function getPublicRight() {
-      return _sumupRight(this._public);
+      return this._public;
     }
 
     /**
@@ -147,8 +132,8 @@
       this._sharee[userId] = role;
     }
 
-    function updatePublic(newRole) {
-      setProfile(this._public, newRole);
+    function updatePublic(role) {
+      this._public = role;
     }
 
     /**
@@ -218,7 +203,7 @@
 
     function toJson() {
       var result = {
-        public: this._public.toJson(),
+        public: this._public,
         sharee: this._sharee,
         ownerId: this._ownerId
       };
@@ -240,61 +225,11 @@
       var clone = new CalendarRightShell();
 
       clone._userEmails = _.clone(this._userEmails);
-      clone._public = this._public.clone();
+      clone._public = _.clone(this._public);
       clone._sharee = _.clone(this._sharee);
       clone._ownerId = this._ownerId;
 
       return clone;
-    }
-
-    function initPublicRightMatrix() {
-      var matrix = {};
-
-      matrix[CAL_CALENDAR_PUBLIC_RIGHT.READ] = {
-        shouldHave: [
-          CalRightSet.READ
-        ],
-        shouldNotHave: [
-          CalRightSet.SHARE,
-          CalRightSet.WRITE
-        ]
-      };
-
-      matrix[CAL_CALENDAR_PUBLIC_RIGHT.READ_WRITE] = {
-        shouldHave: [
-          CalRightSet.WRITE
-        ],
-        shouldNotHave: [
-          CalRightSet.SHARE,
-          CalRightSet.WRITE_PROPERTIES,
-          CalRightSet.READ
-        ]
-      };
-
-      matrix[CAL_CALENDAR_PUBLIC_RIGHT.FREE_BUSY] = {
-        shouldHave: [
-          CalRightSet.FREE_BUSY
-        ],
-        shouldNotHave: [
-          CalRightSet.READ,
-          CalRightSet.SHARE,
-          CalRightSet.WRITE_PROPERTIES,
-          CalRightSet.WRITE
-        ]
-      };
-
-      matrix[CAL_CALENDAR_PUBLIC_RIGHT.NONE] = {
-        shouldHave: [],
-        shouldNotHave: [
-          CalRightSet.FREE_BUSY,
-          CalRightSet.READ,
-          CalRightSet.SHARE,
-          CalRightSet.WRITE_PROPERTIES,
-          CalRightSet.WRITE
-        ]
-      };
-
-      return matrix;
     }
   }
 })();

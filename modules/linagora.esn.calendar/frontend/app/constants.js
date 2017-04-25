@@ -106,10 +106,10 @@
     })
 
     .constant('CAL_CALENDAR_PUBLIC_RIGHT', {
-      NONE: 'public_none',
-      READ: 'public_read',
-      READ_WRITE: 'public_read_write',
-      FREE_BUSY: 'public_free_busy'
+      NONE: '',
+      READ: '{DAV:}read',
+      READ_WRITE: '{DAV:}write',
+      FREE_BUSY: '{urn:ietf:params:xml:ns:caldav}read-free-busy'
     })
 
     .constant('CAL_EVENT_CLASS', {

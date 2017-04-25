@@ -641,7 +641,7 @@ describe('The calendar configuration controller', function() {
           expect(calendarAPI.modifyPublicRights).to.have.been.calledWith(
             calendarConfigurationController.calendarHomeId,
             calendarConfigurationController.calendar.id,
-            { public_right: '{DAV:}read' }
+            { public_right: CAL_CALENDAR_PUBLIC_RIGHT.READ }
           );
           expect(calendarService.modifyCalendar).to.not.have.been.calledWith;
           expect(calendarService.modifyRights).to.not.have.been.calledWith;
@@ -659,7 +659,7 @@ describe('The calendar configuration controller', function() {
           expect(calendarAPI.modifyPublicRights).to.have.been.calledWith(
             calendarConfigurationController.calendarHomeId,
             calendarConfigurationController.calendar.id,
-            { public_right: '{DAV:}write' }
+            { public_right: CAL_CALENDAR_PUBLIC_RIGHT.READ_WRITE }
           );
           expect(calendarService.modifyCalendar).to.not.have.been.calledWith;
           expect(calendarService.modifyRights).to.not.have.been.calledWith;
@@ -676,7 +676,7 @@ describe('The calendar configuration controller', function() {
           expect(calendarAPI.modifyPublicRights).to.have.been.calledWith(
             calendarConfigurationController.calendarHomeId,
             calendarConfigurationController.calendar.id,
-            { public_right: '{urn:ietf:params:xml:ns:caldav}read-free-busy' }
+            { public_right: CAL_CALENDAR_PUBLIC_RIGHT.FREE_BUSY }
           );
           expect(calendarService.modifyCalendar).to.not.have.been.calledWith;
           expect(calendarService.modifyRights).to.not.have.been.calledWith;
@@ -728,7 +728,7 @@ describe('The calendar configuration controller', function() {
         expect(calendarAPI.modifyPublicRights).to.have.been.calledWith(
           calendarConfigurationController.calendarHomeId,
           calendarConfigurationController.calendar.id,
-          { public_right: '{urn:ietf:params:xml:ns:caldav}read-free-busy' }
+          { public_right: CAL_CALENDAR_PUBLIC_RIGHT.FREE_BUSY }
         );
       });
     });

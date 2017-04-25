@@ -160,14 +160,9 @@
         if (publicRightChanged) {
           switch (self.publicSelection) {
             case CAL_CALENDAR_PUBLIC_RIGHT.READ:
-              updateActions.push(calendarAPI.modifyPublicRights(self.calendarHomeId, self.calendar.id, { public_right: '{DAV:}read' }));
-              break;
             case CAL_CALENDAR_PUBLIC_RIGHT.READ_WRITE:
-              updateActions.push(calendarAPI.modifyPublicRights(self.calendarHomeId, self.calendar.id, { public_right: '{DAV:}write' }));
-              break;
             case CAL_CALENDAR_PUBLIC_RIGHT.FREE_BUSY:
-              updateActions.push(calendarAPI.modifyPublicRights(self.calendarHomeId, self.calendar.id, { public_right: '{urn:ietf:params:xml:ns:caldav}read-free-busy' }));
-              break;
+              updateActions.push(calendarAPI.modifyPublicRights(self.calendarHomeId, self.calendar.id, { public_right: self.publicSelection }));
           }
         }
 
