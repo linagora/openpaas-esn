@@ -1,43 +1,14 @@
 'use strict';
 
-var expect = require('chai').expect;
-var mockery = require('mockery');
+const expect = require('chai').expect;
+const mockery = require('mockery');
 
 describe('The domain middleware', function() {
 
   describe('The load domain middleware', function() {
 
-    it('should call next(err) if domain can not be loaded', function(done) {
-
-      var mock = {
-        model: function() {
-          return {
-            loadFromID: function(id, callback) {
-              return callback(new Error());
-            }
-          };
-        }
-      };
-      mockery.registerMock('mongoose', mock);
-
-      var req = {
-        params: {
-          uuid: '123'
-        }
-      };
-      var res = {};
-      var next = function(err) {
-        expect(err).to.exist;
-        done();
-      };
-
-      var middleware = this.helpers.requireBackend('webserver/middleware/domain');
-      middleware.load(req, res, next);
-    });
-
-    it('should send 404 if domain is not found', function(done) {
-
-      var mock = {
+    it('should send 400 if domain Id is not valid ObjectID', function(done) {
+      mockery.registerMock('mongoose', {
         model: function() {
           return {
             loadFromID: function(id, callback) {
@@ -45,31 +16,99 @@ describe('The domain middleware', function() {
             }
           };
         }
-      };
-      mockery.registerMock('mongoose', mock);
+      });
+      mockery.registerMock('../../helpers', {
+        db: {
+          isValidObjectId: function() { return false; }
+        }
+      });
 
-      var req = {
+      const req = {
+        params: {
+          uuid: 'invalid'
+        }
+      };
+      const res = this.helpers.express.response(
+        function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      );
+      const next = function() {};
+      const middleware = this.helpers.requireBackend('webserver/middleware/domain');
+
+      middleware.load(req, res, next);
+    });
+
+    it('should call next(err) if domain can not be loaded', function(done) {
+      mockery.registerMock('mongoose', {
+        model: function() {
+          return {
+            loadFromID: function(id, callback) {
+              return callback(new Error());
+            }
+          };
+        }
+      });
+      mockery.registerMock('../../helpers', {
+        db: {
+          isValidObjectId: function() { return true; }
+        }
+      });
+
+      const req = {
+        params: {
+          uuid: '123'
+        }
+      };
+      const res = {};
+      const next = function(err) {
+        expect(err).to.exist;
+        done();
+      };
+      const middleware = this.helpers.requireBackend('webserver/middleware/domain');
+
+      middleware.load(req, res, next);
+    });
+
+    it('should send 404 if domain is not found', function(done) {
+      mockery.registerMock('mongoose', {
+        model: function() {
+          return {
+            loadFromID: function(id, callback) {
+              return callback();
+            }
+          };
+        }
+      });
+      mockery.registerMock('../../helpers', {
+        db: {
+          isValidObjectId: function() { return true; }
+        }
+      });
+
+      const req = {
         params: {
           uuid: 123
         }
       };
 
-      var res = this.helpers.express.response(
+      const res = this.helpers.express.response(
         function(code) {
           expect(code).to.equal(404);
           done();
         }
       );
-      var next = function() {};
+      const next = function() {};
 
-      var middleware = this.helpers.requireBackend('webserver/middleware/domain');
+      const middleware = this.helpers.requireBackend('webserver/middleware/domain');
       middleware.load(req, res, next);
     });
 
     it('should inject the domain into the request', function(done) {
+      const domain = {_id: 123};
 
-      var domain = {_id: 123};
-      var mock = {
+      mockery.registerMock('mongoose', {
         model: function() {
           return {
             loadFromID: function(id, callback) {
@@ -77,24 +116,29 @@ describe('The domain middleware', function() {
             }
           };
         }
-      };
-      mockery.registerMock('mongoose', mock);
-      var req = {
+      });
+      mockery.registerMock('../../helpers', {
+        db: {
+          isValidObjectId: function() { return true; }
+        }
+      });
+
+      const req = {
         params: {
           uuid: 123
         }
       };
 
-      var res = {
+      const res = {
       };
 
-      var next = function() {
+      const next = function() {
         expect(req.domain).to.exist;
         expect(req.domain).to.deep.equal(domain);
         done();
       };
 
-      var middleware = this.helpers.requireBackend('webserver/middleware/domain');
+      const middleware = this.helpers.requireBackend('webserver/middleware/domain');
       middleware.load(req, res, next);
     });
   });
@@ -103,16 +147,16 @@ describe('The domain middleware', function() {
     it('should send back 400 when param is undefined', function(done) {
       this.helpers.mock.models({});
 
-      var req = {
+      const req = {
         query: {}
       };
-      var res = this.helpers.express.jsonResponse(
+      const res = this.helpers.express.jsonResponse(
         function(code) {
           expect(code).to.equal(400);
           done();
         }
       );
-      var mw = this.helpers.requireBackend('webserver/middleware/domain');
+      const mw = this.helpers.requireBackend('webserver/middleware/domain');
       mw.loadFromDomainIdParameter(req, res);
     });
 
@@ -125,18 +169,18 @@ describe('The domain middleware', function() {
         }
       });
 
-      var req = {
+      const req = {
         query: {
           domain_id: '123'
         }
       };
-      var res = {};
-      var next = function(err) {
+      const res = {};
+      const next = function(err) {
         expect(err).to.exist;
         done();
       };
 
-      var mw = this.helpers.requireBackend('webserver/middleware/domain');
+      const mw = this.helpers.requireBackend('webserver/middleware/domain');
       mw.loadFromDomainIdParameter(req, res, next);
     });
 
@@ -149,26 +193,26 @@ describe('The domain middleware', function() {
         }
       });
 
-      var req = {
+      const req = {
         query: {
           domain_id: '123'
         }
       };
 
-      var res = this.helpers.express.jsonResponse(
+      const res = this.helpers.express.jsonResponse(
         function(code) {
           expect(code).to.equal(404);
           done();
         }
       );
-      var next = function() {};
+      const next = function() {};
 
-      var mw = this.helpers.requireBackend('webserver/middleware/domain');
+      const mw = this.helpers.requireBackend('webserver/middleware/domain');
       mw.loadFromDomainIdParameter(req, res, next);
     });
 
     it('should inject the domain into the request', function(done) {
-      var domain = {_id: 123};
+      const domain = {_id: 123};
       this.helpers.mock.models({
         Domain: {
           loadFromID: function(id, callback) {
@@ -177,22 +221,22 @@ describe('The domain middleware', function() {
         }
       });
 
-      var req = {
+      const req = {
         query: {
           domain_id: '123'
         }
       };
 
-      var res = {
+      const res = {
       };
 
-      var next = function() {
+      const next = function() {
         expect(req.domain).to.exist;
         expect(req.domain).to.deep.equal(domain);
         done();
       };
 
-      var mw = this.helpers.requireBackend('webserver/middleware/domain');
+      const mw = this.helpers.requireBackend('webserver/middleware/domain');
       mw.loadFromDomainIdParameter(req, res, next);
     });
 
