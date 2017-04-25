@@ -1,7 +1,6 @@
 {
   "cassandra" : "cassandra:2.2.3",
-  "elasticsearch": "linagora/esn-elasticsearch:latest",
-  "elasticsearch-james": "elasticsearch:1.5.2",
+  "elasticsearch": "elasticsearch:2.3.2",
   "james": "linagora/james-project",
   "mongodb": "mongo:3.2.0",
   "redis": "redis:latest",
