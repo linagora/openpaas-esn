@@ -71,7 +71,7 @@ describe('The inboxListGroupToggleSelection component', function() {
     $rootScope.$broadcast(INBOX_EVENTS.ITEM_SELECTION_CHANGED);
     $rootScope.$digest();
 
-    expect(element.find('.selected')).to.have.length(1);
+    expect(element.find('.active')).to.have.length(1);
   });
 
   it('should unselect all selectable elements when they are all selected on click', function() {

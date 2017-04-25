@@ -3,25 +3,21 @@
 
   angular.module('linagora.esn.unifiedinbox')
 
-    .controller('inboxListGroupToggleSelectionController', function($scope, inboxSelectionService, inboxFilteredList, _, INBOX_EVENTS) {
-      var self = this,
-          disableItemSelectionListener;
+    .controller('inboxListGroupToggleSelectionController', function(inboxSelectionService, inboxFilteredList, _) {
+      var self = this;
 
-      self.$onInit = listenForItemSelectionChanges;
       self.toggleSelection = toggleSelection;
       self.hasSelectableItems = hasSelectableItems;
+      self.isSelected = isSelected;
 
       /////
 
       function toggleSelection() {
-        disableItemSelectionListener();
+        var newSelectedState = !isSelected();
 
-        self.selected = !self.selected;
         getSelectableElements().forEach(function(item) {
-          inboxSelectionService.toggleItemSelection(item, self.selected);
+          inboxSelectionService.toggleItemSelection(item, newSelectedState);
         });
-
-        listenForItemSelectionChanges();
       }
 
       function getSelectableElements() {
@@ -32,10 +28,8 @@
         return _.some(inboxFilteredList.list(), { selectable: true });
       }
 
-      function listenForItemSelectionChanges() {
-        disableItemSelectionListener = $scope.$on(INBOX_EVENTS.ITEM_SELECTION_CHANGED, function() {
-          self.selected = _.every(getSelectableElements(), { selected: true });
-        });
+      function isSelected() {
+        return _.every(getSelectableElements(), { selected: true });
       }
     });
 
