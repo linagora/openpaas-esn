@@ -58,7 +58,7 @@ describe('The inboxListGroupToggleSelection component', function() {
     expect(element.find('.inbox-list-header-group').text()).to.equal('Yesterday');
   });
 
-  it('should display "Yesterday" name if item is this week', function() {
+  it('should display "This week" name if item is this week', function() {
     $rootScope.item = {
       id: 'id',
       date: new Date('2017-04-18T10:00:00Z') // Tuesday
@@ -66,10 +66,10 @@ describe('The inboxListGroupToggleSelection component', function() {
 
     compileDirective('<inbox-list-header item="item" />');
 
-    expect(element.find('.inbox-list-header-group').text()).to.equal('This Week');
+    expect(element.find('.inbox-list-header-group').text()).to.equal('This week');
   });
 
-  it('should display "This Month" name if item is this monyh', function() {
+  it('should display "Last week" name if item is last week', function() {
     $rootScope.item = {
       id: 'id',
       date: new Date('2017-04-11T10:00:00Z') // Tuesday, the week before
@@ -77,18 +77,51 @@ describe('The inboxListGroupToggleSelection component', function() {
 
     compileDirective('<inbox-list-header item="item" />');
 
-    expect(element.find('.inbox-list-header-group').text()).to.equal('This Month');
+    expect(element.find('.inbox-list-header-group').text()).to.equal('Last week');
   });
 
-  it('should display "Older than a month" name if item is this monyh', function() {
+  it('should display "This month" name if item is this month', function() {
     $rootScope.item = {
       id: 'id',
-      date: new Date('2017-03-11T10:00:00Z') // The month before
+      date: new Date('2017-04-07T10:00:00Z') // Friday, two weeks before
     };
 
     compileDirective('<inbox-list-header item="item" />');
 
-    expect(element.find('.inbox-list-header-group').text()).to.equal('Older than a month');
+    expect(element.find('.inbox-list-header-group').text()).to.equal('This month');
+  });
+
+  it('should display "Last month" name if item is this year', function() {
+    $rootScope.item = {
+      id: 'id',
+      date: new Date('2017-03-20T10:00:00Z') // One month before
+    };
+
+    compileDirective('<inbox-list-header item="item" />');
+
+    expect(element.find('.inbox-list-header-group').text()).to.equal('Last month');
+  });
+
+  it('should display "This year" name if item is this year', function() {
+    $rootScope.item = {
+      id: 'id',
+      date: new Date('2017-02-20T10:00:00Z') // Two months before
+    };
+
+    compileDirective('<inbox-list-header item="item" />');
+
+    expect(element.find('.inbox-list-header-group').text()).to.equal('This year');
+  });
+
+  it('should display "Old messages" name if item is older', function() {
+    $rootScope.item = {
+      id: 'id',
+      date: new Date('2016-03-11T10:00:00Z') // the year before
+    };
+
+    compileDirective('<inbox-list-header item="item" />');
+
+    expect(element.find('.inbox-list-header-group').text()).to.equal('Old messages');
   });
 
   it('should not display filters if no filters given', function() {

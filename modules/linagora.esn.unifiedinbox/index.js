@@ -46,7 +46,9 @@ const angularAppFiles = [
   'services/mailboxes/special-mailboxes.constants.js',
   'services/mailboxes/special-mailboxes.run.js',
   'components/list/header/list-header.js',
-  'components/list/header/list-header.controller.js'
+  'components/list/header/list-header.controller.js',
+  'services/date-groups/date-groups.js',
+  'filters/item-date.js'
 ];
 
 const angularJsFiles = [

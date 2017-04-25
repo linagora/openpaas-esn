@@ -69,5 +69,13 @@
   "Create identity": "Créer une identité",
   "Edit identity": "Editer une identité",
   "Reply to address": "Adresse de réponse",
-  "Signature": "Signature"
+  "Signature": "Signature",
+  "Select all": "Tout sélectionner",
+  "Yesterday": "Hier",
+  "This week": "Cette semaine",
+  "Last week": "La semaine dernière",
+  "This month": "Ce mois-ci",
+  "Last month": "Le mois dernier",
+  "This year": "Cette année",
+  "Old messages": "Anciens messages"
 }
