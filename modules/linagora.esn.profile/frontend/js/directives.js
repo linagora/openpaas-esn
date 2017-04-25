@@ -21,4 +21,13 @@ angular.module('linagora.esn.profile')
       restrict: 'E',
       templateUrl: '/profile/views/partials/profile-show-subheader'
     };
+  })
+
+  .component('profileOverview', {
+    templateUrl: '/profile/views/partials/profile-overview.html',
+    controller: 'profileOverviewController',
+    controllerAs: 'ctrl',
+    bindings: {
+      user: '='
+    }
   });

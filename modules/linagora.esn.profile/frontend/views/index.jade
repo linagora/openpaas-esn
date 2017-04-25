@@ -3,16 +3,7 @@ sub-header
 
 .container.full-width.no-padding-xs
   #profile-main.card
-    .pm-overview.c-overflow
-      .pmo-pic
-        .p-relative(ng-controller='avatarController')
-          a
-            img(ng-src="{{avatarURL}}", alt='#{__("Avatar")}')
-        .pmo-stat.p-t-15
-          h3.m-0.c-white.ellipsis {{::user.firstname}} {{::user.lastname}}
-          span.m-0.c-white.ellipsis {{::user.job_title}}
-      .pmo-block(ng-if='!me')
-        follow-card(user='user')
-        .profile-user-actions(dynamic-directive="profile-user-actions")
+    .pm-overview
+      profile-overview(user="user")
     .pm-body.clearfix
       .ui-view(name="main")

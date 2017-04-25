@@ -120,4 +120,38 @@ describe('The linagora.esn.profile Angular module controllers', function() {
       $scope.updateProfile(profile);
     });
   });
+
+  describe('The profileOverviewController', function() {
+
+    var sessionMock;
+    var sameUser;
+    var differentUser;
+
+    beforeEach(function() {
+      sessionMock = { user: {_id: '123'} };
+      sameUser = {
+        _id: '123'
+      };
+      differentUser = {
+        _id: '456'
+      };
+    });
+
+    function initProfileOverviewController(userMock) {
+
+      return $controller('profileOverviewController', {session: sessionMock}, {user: userMock});
+    }
+
+    it('should set a me flag when the user is the same as the logged-in user', function() {
+      var ctrl = initProfileOverviewController(sameUser);
+
+      expect(ctrl.me).to.be.true;
+    });
+
+    it('should not set a me flag when the user is not the logged-in user', function() {
+      var ctrl = initProfileOverviewController(differentUser);
+
+      expect(ctrl.me).to.be.false;
+    });
+  });
 });

@@ -81,6 +81,43 @@
   }
 }
 
+.profile-overview {
+  .po-card {
+    .flex;
+    align-items: stretch;
+    flex-direction: column;
+    .po-card-image {
+      align-self: center;
+      width: 100%;
+    }
+    .po-card-text {
+      background-color: @m-amber;
+      padding: 10px;
+      text-align: center;
+      .po-displayname {
+        display: block;
+        a {
+          .h3;
+          color: white;
+        }
+      }
+    }
+  }
+  .po-information {
+    text-align: center;
+
+    .follow-card,
+    .follow-button,
+    .profile-user-actions {
+      display: inline;
+    }
+
+    .profile-user-actions button {
+      margin-left: 10px;
+    }
+  }
+}
+
 dl {
   height: 2em;
   dd {
