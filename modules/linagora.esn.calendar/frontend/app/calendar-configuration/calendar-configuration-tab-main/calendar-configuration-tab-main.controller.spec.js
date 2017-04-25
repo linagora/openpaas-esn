@@ -260,7 +260,6 @@ describe('The calendar configuration tab delegation controller', function() {
     it('should set "shareeRight" depending on "calendar.rights.getShareeRight"', function() {
       var rightLabels = {};
 
-      rightLabels[CAL_CALENDAR_SHARED_RIGHT.NONE] = 'None';
       rightLabels[CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ] = 'Read only';
       rightLabels[CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ_WRITE] = 'Read and Write';
       rightLabels[CAL_CALENDAR_SHARED_RIGHT.SHAREE_ADMIN] = 'Administration';

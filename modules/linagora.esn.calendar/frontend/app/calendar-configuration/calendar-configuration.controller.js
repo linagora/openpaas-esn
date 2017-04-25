@@ -190,7 +190,7 @@
 
     function resetDelegationFields() {
       self.newUsersGroups = [];
-      self.selectedShareeRight = CAL_CALENDAR_SHARED_RIGHT.NONE;
+      self.selectedShareeRight = CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ;
     }
   }
 })();

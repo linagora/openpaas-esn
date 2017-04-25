@@ -48,7 +48,7 @@ describe('The CalendarEditDelegationAddUsersController controller', function() {
     it('should initialize newUsersGroups', function() {
       CalendarEditDelegationAddUsersController.$onInit();
 
-      expect(CalendarEditDelegationAddUsersController.selectedShareeRight).to.be.deep.equal(CAL_CALENDAR_SHARED_RIGHT.NONE);
+      expect(CalendarEditDelegationAddUsersController.selectedShareeRight).to.be.deep.equal(CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ);
     });
   });
 });

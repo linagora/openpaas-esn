@@ -318,7 +318,7 @@ describe('The calendar configuration controller', function() {
       beforeEach(function() {
         stateParamsMock.addUsersFromDelegationState = {
           newUsersGroups: ['user'],
-          selectedShareeRight: CAL_CALENDAR_SHARED_RIGHT.NONE
+          selectedShareeRight: CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ
         };
       });
 
@@ -422,10 +422,10 @@ describe('The calendar configuration controller', function() {
       expect(calendarConfigurationController.oldCalendar).to.deep.equal(calendarConfigurationController.calendar);
     });
 
-    it('should initialize self.selectedShareeRight with CAL_CALENDAR_SHARED_RIGHT.NONE', function() {
+    it('should initialize self.selectedShareeRight with CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ', function() {
       calendarConfigurationController.activate();
 
-      expect(calendarConfigurationController.selectedShareeRight).to.equal(CAL_CALENDAR_SHARED_RIGHT.NONE);
+      expect(calendarConfigurationController.selectedShareeRight).to.equal(CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ);
     });
 
     it('should correctly initialize delegation', function() {
@@ -844,7 +844,7 @@ describe('The calendar configuration controller', function() {
       calendarConfigurationController.addUserGroup();
 
       expect(calendarConfigurationController.newUsersGroups).to.deep.equal;
-      expect(calendarConfigurationController.selectedShareeRight).to.deep.equal(CAL_CALENDAR_SHARED_RIGHT.NONE);
+      expect(calendarConfigurationController.selectedShareeRight).to.deep.equal(CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ);
     });
   });
 });
