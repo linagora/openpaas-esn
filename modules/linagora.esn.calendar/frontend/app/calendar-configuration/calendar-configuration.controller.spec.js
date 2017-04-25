@@ -29,7 +29,10 @@ describe('The calendar configuration controller', function() {
     calendarMock,
     CalendarRightShellMock,
     calendarHomeServiceMock,
+    calPublicCalendarStoreMock,
     calendar,
+    publicCalendar1,
+    publicCalendar2,
     SM_XS_MEDIA_QUERY,
     CAL_CALENDAR_PUBLIC_RIGHT,
     CAL_CALENDAR_SHARED_RIGHT;
@@ -146,6 +149,36 @@ describe('The calendar configuration controller', function() {
       calendarId: '123'
     };
 
+    publicCalendar1 = {
+      id: stateParamsMock.calendarId,
+      name: 'name1',
+      color: 'color1',
+      description: 'description1',
+      rights: {
+        getPublicRight: sinon.spy(function() {
+          return CAL_CALENDAR_PUBLIC_RIGHT.READ;
+        })
+      }
+    };
+
+    publicCalendar2 = {
+      id: '2',
+      name: 'name2',
+      color: 'color2',
+      description: 'description2',
+      rights: {
+        getPublicRight: sinon.spy(function() {
+          return CAL_CALENDAR_PUBLIC_RIGHT.READ;
+        })
+      }
+    };
+
+    calPublicCalendarStoreMock = {
+      getAll: sinon.spy(function() {
+        return [publicCalendar1, publicCalendar2];
+      })
+    };
+
     calendarHomeId = '12345';
 
     CalendarRightShellMock = sinon.spy(function() {
@@ -172,6 +205,7 @@ describe('The calendar configuration controller', function() {
       $provide.value('userAPI', userAPIMock);
       $provide.value('userUtils', userUtilsMock);
       $provide.value('CalendarRightShell', CalendarRightShellMock);
+      $provide.value('calPublicCalendarStore', calPublicCalendarStoreMock);
     });
   });
 
@@ -214,12 +248,21 @@ describe('The calendar configuration controller', function() {
       expect(calendarConfigurationController.calendarHomeId).to.be.equal(calendarHomeId);
     });
 
-    it('should calendarService.getCalendar to get the calendar if calendarId is not null', function() {
+    it('should calendarService.getCalendar to get the calendar if calendarId is not null and getFromPublicCalendarStore is not truthy', function() {
       calendarConfigurationController.$onInit();
 
       $rootScope.$digest();
 
       expect(calendarService.getCalendar).to.be.calledWith(calendarHomeId, stateParamsMock.calendarId);
+    });
+
+    it('should calendarService.getCalendar to get the calendar if calendarId is not null and getFromPublicCalendarStore is truthy', function() {
+      calendarConfigurationController.getFromPublicCalendarStore = true;
+      calendarConfigurationController.$onInit();
+
+      $rootScope.$digest();
+
+      expect(calPublicCalendarStoreMock.getAll).to.have.been.calledWith();
     });
 
     it('should not call calendarService.getCalendar if calendarId is null', function() {
@@ -232,12 +275,32 @@ describe('The calendar configuration controller', function() {
       expect(calendarService.getCalendar).to.not.be.called;
     });
 
+    it('should not call calPublicCalendarStoreMock.getAll if calendarId is null', function() {
+      delete stateParamsMock.calendarId;
+      calendarConfigurationController.getFromPublicCalendarStore = true;
+
+      calendarConfigurationController.$onInit();
+
+      $rootScope.$digest();
+
+      expect(calPublicCalendarStoreMock.getAll).to.not.have.been.called;
+    });
+
     it('should initialize calendar with the right calendar when we want configure a calendar', function() {
       calendarConfigurationController.$onInit();
 
       $rootScope.$digest();
 
       expect(calendarConfigurationController.calendar).to.be.equal(calendar);
+    });
+
+    it('should initialize calendar with the public calendar when getFromPublicCalendarStore is true', function() {
+      calendarConfigurationController.$onInit();
+      calendarConfigurationController.getFromPublicCalendarStore = true;
+
+      $rootScope.$digest();
+
+      expect(calendarConfigurationController.calendar).to.be.equal(publicCalendar1);
     });
 
     it('should call the activate function', function() {

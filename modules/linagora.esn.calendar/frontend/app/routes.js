@@ -108,7 +108,7 @@
         url: '/public/:calendarId',
         views: {
           'content@calendar': {
-            template: '<calendar-public-consultation />'
+            template: '<calendar-configuration get-from-public-calendar-store = "true" />'
           }
         }
       })

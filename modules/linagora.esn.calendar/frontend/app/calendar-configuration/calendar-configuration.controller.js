@@ -11,6 +11,7 @@
     _,
     CalendarCollectionShell,
     calendarService,
+    calPublicCalendarStore,
     calendarHomeService,
     calendarAPI,
     matchmedia,
@@ -46,7 +47,13 @@
         })
         .then(function(calendarHomeId) {
           if ($stateParams.calendarId) {
-            return calendarService.getCalendar(calendarHomeId, $stateParams.calendarId);
+            if (self.getFromPublicCalendarStore) {
+              var allPublicCalendars = calPublicCalendarStore.getAll();
+
+              return _.find(allPublicCalendars, { id: $stateParams.calendarId });
+            } else {
+              return calendarService.getCalendar(calendarHomeId, $stateParams.calendarId);
+            }
           }
         })
         .then(function(calendar) {
