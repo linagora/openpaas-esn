@@ -156,6 +156,13 @@ describe('The domain API', function() {
         });
       });
     });
+
+    it('should send back 400 when domain ID is not a valid ObjectId', function(done) {
+      helpers.api.loginAsUser(app, user2Domain1Member.emails[0], password, function(err, loggedInAsUser) {
+        expect(err).to.not.exist;
+        loggedInAsUser(request(app).get('/api/domains/invalid')).expect(400).end(helpers.callbacks.noError(done));
+      });
+    });
   });
 
   describe('GET /api/domains/:uuid/members', function() {
@@ -289,6 +296,13 @@ describe('The domain API', function() {
         });
       });
     });
+
+    it('should send back 400 when domain ID is not a valid ObjectId', function(done) {
+      helpers.api.loginAsUser(app, user2Domain1Member.emails[0], password, function(err, loggedInAsUser) {
+        expect(err).to.not.exist;
+        loggedInAsUser(request(app).get('/api/domains/invalid')).expect(400).end(helpers.callbacks.noError(done));
+      });
+    });
   });
 
   describe('POST /api/domains/:uuid/invitations', function() {
@@ -354,6 +368,13 @@ describe('The domain API', function() {
         });
       });
     });
+
+    it('should send back 400 when domain ID is not a valid ObjectId', function(done) {
+      helpers.api.loginAsUser(app, user2Domain1Member.emails[0], password, function(err, loggedInAsUser) {
+        expect(err).to.not.exist;
+        loggedInAsUser(request(app).get('/api/domains/invalid')).expect(400).end(helpers.callbacks.noError(done));
+      });
+    });
   });
 
   describe('GET /api/domains/:uuid/manager', function() {
@@ -415,6 +436,13 @@ describe('The domain API', function() {
         var req = requestAsMember(request(app).post('/api/domains/' + domain1._id + '/members'));
         req.send({});
         req.expect(400).end(done);
+      });
+    });
+
+    it('should send back 400 when domain ID is not a valid ObjectId', function(done) {
+      helpers.api.loginAsUser(app, user2Domain1Member.emails[0], password, function(err, loggedInAsUser) {
+        expect(err).to.not.exist;
+        loggedInAsUser(request(app).get('/api/domains/invalid')).expect(400).end(helpers.callbacks.noError(done));
       });
     });
 
@@ -490,11 +518,11 @@ describe('The domain API', function() {
       }));
     });
 
-    it('should send back 500 when get fail', function(done) {
+    it('should send back 400 when dpmain ID is not a valid ObjectId', function(done) {
       helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, helpers.callbacks.noErrorAnd(function(requestAsMember) {
-        var domainId = 'abc';
-        var req = requestAsMember(request(app).get('/api/domains/' + domainId + '/administrators'));
-        req.expect(500).end(helpers.callbacks.noError(done));
+        var req = requestAsMember(request(app).get('/api/domains/invalid/administrators'));
+
+        req.expect(400).end(helpers.callbacks.noError(done));
       }));
     });
 
@@ -638,12 +666,12 @@ describe('The domain API', function() {
       });
     });
 
-    it('should send back 500 when server fails (domainId is invalid)', function(done) {
+    it('should send back 400 when domainId is invalid', function(done) {
       helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
         expect(err).to.not.exist;
         var req = requestAsMember(request(app).delete('/api/domains/invalid/administrators/' + user1Domain1Manager._id));
 
-        req.expect(500).end(helpers.callbacks.noError(done));
+        req.expect(400).end(helpers.callbacks.noError(done));
       });
     });
 
