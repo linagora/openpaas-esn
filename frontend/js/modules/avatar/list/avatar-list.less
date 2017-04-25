@@ -1,0 +1,35 @@
+.avatar-list-container {
+  width: 100%;
+
+  .avatar-list {
+    .flex-wrap;
+
+    .avatar {
+      .flex-row;
+
+      height:64px;
+      width: 64px;
+      margin: 4px;
+      position: relative;
+
+      img {
+        .avatar(64px, 2px);
+
+        position: relative;
+        cursor: pointer;
+      }
+
+      i {
+        position: absolute;
+        padding: 1px;
+        bottom: 0;
+        right: 0;
+        font-size: 11px;
+      }
+    }
+  }
+
+  a {
+    margin-left: 4px;
+  }
+}

@@ -27,7 +27,11 @@ const injections = [
     'infinite-list/infinite-list.service.js'
   ], innerApps: ['esn']},
   {angular: ['esn.sidebar'], files: ['sidebar.js'], innerApps: ['esn']},
-  {angular: ['esn.avatar'], files: ['avatar.js'], innerApps: ['esn']},
+  {angular: ['esn.avatar'], files: [
+    'avatar.js',
+    'avatar/list/avatar-list.component.js',
+    'avatar/list/avatar-list.controller.js'
+  ], innerApps: ['esn']},
   {angular: ['esn.user'], files: ['user.js'], innerApps: ['esn']},
   {angular: ['esn.message'], files: ['message.js'], innerApps: ['esn']},
   {angular: ['esn.session'], files: ['session.js'], innerApps: ['esn']},
