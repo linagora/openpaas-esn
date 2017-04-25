@@ -48,9 +48,13 @@
       rightLabels[CAL_CALENDAR_SHARED_RIGHT.SHAREE_ADMIN] = 'Administration';
       rightLabels[CAL_CALENDAR_SHARED_RIGHT.SHAREE_FREE_BUSY] = 'Free/Busy';
 
-      !self.newCalendar && performSharedCalendarOperations(self.calendar.isShared(session.user._id));
+      !self.newCalendar && performExternalCalendarOperations(isExternalCalendar());
 
       self.canModifyPublicSelection = _canModifyPublicSelection();
+    }
+
+    function isExternalCalendar() {
+      return self.calendar.isShared(session.user._id) || (!self.calendar.isOwner(session.user._id) && self.calendar.isPublic());
     }
 
     function openDeleteConfirmationDialog() {
@@ -79,10 +83,10 @@
       return self.newCalendar || calUIAuthorizationService.canModifyPublicSelection(self.calendar, session.user._id);
     }
 
-    function performSharedCalendarOperations(isSharedCalendar) {
-      $q.when(isSharedCalendar)
-        .then(function(isSharedCalendar) {
-          if (!isSharedCalendar) {
+    function performExternalCalendarOperations(isExternalCalendar) {
+      $q.when(isExternalCalendar)
+        .then(function(isExternalCalendar) {
+          if (!isExternalCalendar) {
             return $q.reject('Not a shared calendar');
           }
           var shareeRightRaw = self.calendar.rights.getShareeRight(session.user._id);

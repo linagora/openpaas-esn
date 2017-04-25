@@ -33,7 +33,9 @@ describe('The calendar configuration tab delegation controller', function() {
 
     calendar = {
       isShared: sinon.stub().returns(false),
-      isAdmin: sinon.stub().returns(false)
+      isAdmin: sinon.stub().returns(false),
+      isOwner: sinon.stub().returns(false),
+      isPublic: sinon.stub().returns(false)
     };
 
     angular.mock.module('esn.calendar', function($provide) {
@@ -168,7 +170,9 @@ describe('The calendar configuration tab delegation controller', function() {
       });
       CalendarConfigurationTabMainController.calendar = {
         id: 'id',
-        isShared: sinon.stub().returns(false)
+        isShared: sinon.stub().returns(false),
+        isOwner: sinon.stub().returns(false),
+        isPublic: sinon.stub().returns(false)
       };
 
       CalendarConfigurationTabMainController.$onInit();
@@ -178,7 +182,7 @@ describe('The calendar configuration tab delegation controller', function() {
     });
   });
 
-  describe('the performSharedCalendarOperations', function() {
+  describe('the performExternalCalendarOperations', function() {
     var getShareeRightResult, getOwnerResult;
 
     beforeEach(function() {
@@ -205,9 +209,24 @@ describe('The calendar configuration tab delegation controller', function() {
       };
     });
 
-    it('should do nothing for a non external calendar', function() {
+    it('should do nothing for a non external calendar "isShared=false and isOwner=true"', function() {
       sinon.stub(calUIAuthorizationService, 'canModifyPublicSelection', angular.noop);
       CalendarConfigurationTabMainController.calendar.isShared = sinon.stub().returns(false);
+      CalendarConfigurationTabMainController.calendar.isOwner = sinon.stub().returns(true);
+
+      CalendarConfigurationTabMainController.$onInit();
+
+      $rootScope.$digest();
+
+      expect(CalendarConfigurationTabMainController.calendar.rights.getShareeRight).to.not.have.been.called;
+      expect(CalendarConfigurationTabMainController.calendar.getOwner).to.not.have.been.called;
+    });
+
+    it('should do nothing for a non external calendar "isShared=false, isOwner=false and isPublic=false"', function() {
+      sinon.stub(calUIAuthorizationService, 'canModifyPublicSelection', angular.noop);
+      CalendarConfigurationTabMainController.calendar.isShared = sinon.stub().returns(false);
+      CalendarConfigurationTabMainController.calendar.isOwner = sinon.stub().returns(false);
+      CalendarConfigurationTabMainController.calendar.isPublic = sinon.stub().returns(false);
 
       CalendarConfigurationTabMainController.$onInit();
 
