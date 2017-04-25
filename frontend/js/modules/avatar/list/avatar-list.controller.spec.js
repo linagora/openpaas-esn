@@ -9,8 +9,8 @@ describe('The ESNAvatarListController', function() {
 
   function addMember(numberOfMembers) {
     members = [];
-    for(var i=0; i < numberOfMembers; i++) {
-      members.push({member: { id: i+1 }});
+    for (var i = 0; i < numberOfMembers; i++) {
+      members.push({member: { id: i + 1 }});
     }
 
     return members;
