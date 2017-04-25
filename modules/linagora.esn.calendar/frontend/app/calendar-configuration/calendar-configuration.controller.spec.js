@@ -633,11 +633,8 @@ describe('The calendar configuration controller', function() {
       });
 
       it('should call modifyRight and not modifyCalendar nor modifyPublicRights if only right has been changed', function() {
-        var clone = {};
-
         getAllRemovedUsersIdResult = ['1'];
         calendarRight.getPublicRight = sinon.stub().returns('publicSelection');
-        calendarRight.clone = sinon.stub().returns(clone);
         calendarRight.equals = sinon.stub().returns(false);
         notificationFactoryMock.weakInfo = sinon.spy();
         stateMock.go = sinon.spy(function(path) {
@@ -672,7 +669,7 @@ describe('The calendar configuration controller', function() {
           calendarConfigurationController.calendarHomeId,
           sinon.match({href: '/calendars/12345/00000000-0000-4000-a000-000000000000.json'}),
           sinon.match.same(calendarRight),
-          sinon.match.same(clone)
+          sinon.match(calendarRight)
         );
         expect(calendarService.modifyCalendar).to.not.have.been.calledWith;
         expect(calendarAPI.modifyPublicRights).to.have.not.been.called;
@@ -747,11 +744,9 @@ describe('The calendar configuration controller', function() {
       });
 
       it('should call modifyRight, modifyCalendar and modifyPublicRights if all right has been changed', function() {
-        var clone = {};
         var modifiedName = 'A';
 
         calendarRight.getPublicRight = sinon.stub().returns('publicSelection');
-        calendarRight.clone = sinon.stub().returns(clone);
         calendarRight.equals = sinon.stub().returns(false);
         notificationFactoryMock.weakInfo = sinon.spy();
         stateMock.go = sinon.spy(function(path) {
@@ -782,7 +777,7 @@ describe('The calendar configuration controller', function() {
           calendarConfigurationController.calendarHomeId,
           sinon.match({ href: '/calendars/12345/00000000-0000-4000-a000-000000000000.json' }),
           sinon.match.same(calendarRight),
-          sinon.match.same(clone)
+          sinon.match(calendarRight)
         );
         expect(calendarService.modifyCalendar).to.have.been.calledWith('12345', sinon.match({
           href: '/calendars/12345/00000000-0000-4000-a000-000000000000.json',
