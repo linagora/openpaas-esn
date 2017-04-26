@@ -13,5 +13,5 @@
           .inbox-from.lv-title {{ item.author.displayName }}
             span.inbox-twitter-screenname.inbox-twitter-screenname-inline(ng-bind-html="item.author.screenName | autolink")
         .inbox-list-item-date-and-indicators
-          .date-container {{ item.date | date: item.group.dateFormat }}
+          .date-container {{ item.date | inboxItemDate }}
     .inbox-preview-block.preview(ng-bind-html="item.text | autolink")

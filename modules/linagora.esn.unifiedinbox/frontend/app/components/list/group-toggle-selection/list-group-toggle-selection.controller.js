@@ -3,39 +3,33 @@
 
   angular.module('linagora.esn.unifiedinbox')
 
-    .controller('inboxListGroupToggleSelectionController', function($scope, inboxSelectionService, _, INBOX_EVENTS) {
+    .controller('inboxListGroupToggleSelectionController', function(inboxSelectionService, inboxFilteredList, _) {
       var self = this;
 
-      self.$onInit = $onInit;
-      self.$onChanges = $onChanges;
       self.toggleSelection = toggleSelection;
+      self.hasSelectableItems = hasSelectableItems;
+      self.isSelected = isSelected;
 
       /////
 
-      function $onInit() {
-        $scope.$on(INBOX_EVENTS.ITEM_SELECTION_CHANGED, function() {
-          var selectableElements = getSelectableElements();
-
-          self.group.selected = selectableElements.length > 0 && _.all(selectableElements, { selected: true });
-        });
-      }
-
-      function $onChanges(bindings) {
-        if (bindings.elements) {
-          self.hasSelectableItems = getSelectableElements().length > 0;
-        }
-      }
-
       function toggleSelection() {
-        var selected = !self.group.selected;
+        var newSelectedState = !isSelected();
 
         getSelectableElements().forEach(function(item) {
-          inboxSelectionService.toggleItemSelection(item, selected);
+          inboxSelectionService.toggleItemSelection(item, newSelectedState);
         });
       }
 
       function getSelectableElements() {
-        return _(self.elements).filter({ group: self.group }).filter({ selectable: true }).value();
+        return _.filter(inboxFilteredList.list(), { selectable: true });
+      }
+
+      function hasSelectableItems() {
+        return _.some(inboxFilteredList.list(), { selectable: true });
+      }
+
+      function isSelected() {
+        return _.every(getSelectableElements(), { selected: true });
       }
     });
 

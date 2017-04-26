@@ -14,7 +14,6 @@ block right
   .inbox-selection-aware-subheader(ng-switch="ctrl.isSelecting()")
     .inbox-selection-aware-subheader.inbox-not-selecting(ng-switch-when="false")
       inbox-list-sidebar-attachment-button(ng-if="ctrl.contextSupportsAttachments")
-      inbox-filter-button.clickable(ng-if="filters.length > 0", filters="filters")
     .inbox-selection-aware-subheader.inbox-selecting(ng-switch-when="true")
       inbox-subheader-delete-button(ng-click="ctrl.moveToTrash()")
       inbox-subheader-mark-as-read-button(ng-click="ctrl.markAsRead()")

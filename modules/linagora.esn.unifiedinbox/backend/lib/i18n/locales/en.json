@@ -69,5 +69,13 @@
   "Create identity": "Create identity",
   "Edit identity": "Edit identity",
   "Reply to address": "Reply to address",
-  "Signature": "Signature"
+  "Signature": "Signature",
+  "Select all": "Select all",
+  "Yesterday": "Yesterday",
+  "This week": "This week",
+  "Last week": "Last week",
+  "This month": "This month",
+  "Last month": "Last month",
+  "This year": "This year",
+  "Old messages": "Old messages"
 }

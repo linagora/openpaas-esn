@@ -26,8 +26,13 @@ describe('The inboxListGroupToggleSelection component', function() {
   });
 
   beforeEach(function() {
-    module('jadeTemplates');
-    module('linagora.esn.unifiedinbox');
+    module('jadeTemplates', 'linagora.esn.unifiedinbox', function($provide) {
+      $provide.value('inboxFilteredList', {
+        list: function() {
+          return $rootScope.elements;
+        }
+      });
+    });
   });
 
   beforeEach(inject(function(_$compile_, _$rootScope_, _inboxSelectionService_, _INBOX_EVENTS_) {
@@ -41,16 +46,16 @@ describe('The inboxListGroupToggleSelection component', function() {
 
   beforeEach(function() {
     group = {};
-    item1 = { group: group, id: 1, selectable: true };
-    item2 = { group: group, id: 2 };
-    item3 = { group: group, id: 3, selectable: true };
+    item1 = { id: 1, selectable: true };
+    item2 = { id: 2 };
+    item3 = { id: 3, selectable: true };
 
     $rootScope.group = group;
     $rootScope.elements = [item1, item2, item3];
   });
 
   it('should select all selectable elements on click', function() {
-    var element = compileDirective('<inbox-list-group-toggle-selection group="group" elements="elements" />');
+    var element = compileDirective('<inbox-list-group-toggle-selection />');
 
     element.children().first().click();
 
@@ -58,18 +63,19 @@ describe('The inboxListGroupToggleSelection component', function() {
     expect(inboxSelectionService.toggleItemSelection).to.have.been.calledWith(item3, true);
   });
 
-  it('should update group.selected on ITEM_SELECTION_CHANGED event', function() {
-    compileDirective('<inbox-list-group-toggle-selection group="group" elements="elements" />');
+  it('should update selected state on ITEM_SELECTION_CHANGED event', function() {
+    compileDirective('<inbox-list-group-toggle-selection />');
 
     item1.selected = true;
     item3.selected = true;
     $rootScope.$broadcast(INBOX_EVENTS.ITEM_SELECTION_CHANGED);
+    $rootScope.$digest();
 
-    expect(group.selected).to.equal(true);
+    expect(element.find('.active')).to.have.length(1);
   });
 
   it('should unselect all selectable elements when they are all selected on click', function() {
-    compileDirective('<inbox-list-group-toggle-selection group="group" elements="elements" />');
+    compileDirective('<inbox-list-group-toggle-selection />');
 
     item1.selected = true;
     item3.selected = true;
@@ -82,14 +88,15 @@ describe('The inboxListGroupToggleSelection component', function() {
   });
 
   it('should be visible when initialized over at least 1 selectable item', function() {
-    compileDirective('<inbox-list-group-toggle-selection group="group" elements="elements" />');
+    compileDirective('<inbox-list-group-toggle-selection />');
 
     expect(element.find(':visible')).to.have.length(1);
   });
 
   it('should not be visible when initialized over no items', function() {
+    $rootScope.elements = [];
 
-    compileDirective('<inbox-list-group-toggle-selection group="group" />');
+    compileDirective('<inbox-list-group-toggle-selection />');
 
     expect(element.find(':visible')).to.have.length(0);
   });
@@ -97,7 +104,7 @@ describe('The inboxListGroupToggleSelection component', function() {
   it('should not be visible when initialized over unselectable items', function() {
     $rootScope.elements = [item2];
 
-    compileDirective('<inbox-list-group-toggle-selection group="group" elements="elements" />');
+    compileDirective('<inbox-list-group-toggle-selection />');
 
     expect(element.find(':visible')).to.have.length(0);
   });
