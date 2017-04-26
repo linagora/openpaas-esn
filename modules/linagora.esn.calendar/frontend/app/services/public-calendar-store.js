@@ -2,15 +2,24 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .service('calPublicCalendarStore', calPublicCalendarStore);
+    .service('calPublicCalendarStore', calPublicCalendarStore);
 
   function calPublicCalendarStore($rootScope, _, CAL_EVENTS) {
     var publicCalendars = {};
 
-    this.storeAll = storeAll;
     this.getAll = getAll;
+    this.getById = getById;
+    this.storeAll = storeAll;
 
     ///////////
+
+    function getAll() {
+      return _.values(publicCalendars);
+    }
+
+    function getById(calendarId) {
+      return publicCalendars[calendarId];
+    }
 
     function storeAll(calendars) {
       calendars.forEach(function(calendar) {
@@ -19,10 +28,5 @@
         $rootScope.$broadcast(CAL_EVENTS.CALENDARS.ADD, calendar);
       });
     }
-
-    function getAll() {
-      return _.values(publicCalendars);
-    }
   }
-
 })();

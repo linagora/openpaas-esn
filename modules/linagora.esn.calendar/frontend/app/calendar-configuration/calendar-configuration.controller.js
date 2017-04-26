@@ -46,9 +46,7 @@
         .then(function(calendarHomeId) {
           if ($stateParams.calendarId) {
             if (self.getFromPublicCalendarStore) {
-              var allPublicCalendars = calPublicCalendarStore.getAll();
-
-              return _.find(allPublicCalendars, { id: $stateParams.calendarId });
+              return calPublicCalendarStore.getById($stateParams.calendarId);
             } else {
               return calendarService.getCalendar(calendarHomeId, $stateParams.calendarId);
             }

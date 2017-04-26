@@ -176,6 +176,9 @@ describe('The calendar configuration controller', function() {
     calPublicCalendarStoreMock = {
       getAll: sinon.spy(function() {
         return [publicCalendar1, publicCalendar2];
+      }),
+      getById: sinon.spy(function() {
+        return publicCalendar1;
       })
     };
 
@@ -262,7 +265,7 @@ describe('The calendar configuration controller', function() {
 
       $rootScope.$digest();
 
-      expect(calPublicCalendarStoreMock.getAll).to.have.been.calledWith();
+      expect(calPublicCalendarStoreMock.getById).to.have.been.calledWith(stateParamsMock.calendarId);
     });
 
     it('should not call calendarService.getCalendar if calendarId is null', function() {

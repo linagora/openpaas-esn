@@ -31,6 +31,20 @@ describe('the calPublicCalendarStore service', function() {
     $rootScope.$on(CAL_EVENTS.CALENDARS.ADD, calendarsAddListener);
   });
 
+  describe('the getAll method', function() {
+    it('should store calendars in publicCalendar', function() {
+      calPublicCalendarStore.storeAll(publicCalendars);
+      expect(calPublicCalendarStore.getAll()).to.deep.equal(_.values(publicCalendars));
+    });
+  });
+
+  describe('the getById method', function() {
+    it('should get calendars in publicCalendar', function() {
+      calPublicCalendarStore.storeAll(publicCalendars);
+      expect(calPublicCalendarStore.getById('firstCalendar')).to.deep.equal({id: 'firstCalendar'});
+    });
+  });
+
   describe('the storeAll method', function() {
     it('should $broadcast for each added calendar', function() {
       calPublicCalendarStore.storeAll(publicCalendars);
@@ -38,13 +52,6 @@ describe('the calPublicCalendarStore service', function() {
       expect(calendarsAddListener).to.have.been.called.twice;
       expect(calendarsAddListener.firstCall).to.have.been.calledWith(sinon.match.any, publicCalendars[0]);
       expect(calendarsAddListener.secondCall).to.have.been.calledWith(sinon.match.any, publicCalendars[1]);
-    });
-  });
-
-  describe('the getAll method', function() {
-    it('should store calendars in publicCalendar', function() {
-      calPublicCalendarStore.storeAll(publicCalendars);
-      expect(calPublicCalendarStore.getAll()).to.deep.equal(_.values(publicCalendars));
     });
   });
 });
