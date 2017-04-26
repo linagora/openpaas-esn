@@ -26,15 +26,19 @@ services:
     extends:
       file: ../docker-compose-commons.yml
       service: sabre
+    image: linagora/esn-sabre-dev
+    build:
+      context: ${ESN_SABRE_PATH}
+      dockerfile: Dockerfile.dev
     links:
       - mongo
     environment:
       - ESN_MONGO_DBNAME=esn
       - ESN_HOST=${ESN_HOST}
+      - XDEBUG_CONFIG="remote_host=${ESN_HOST}"
     volumes:
-      - ${ESN_SABRE_PATH}/esn.php:/var/www/server.php
-      - ${ESN_SABRE_PATH}/lib:/var/www/lib
-      - ${ESN_SABRE_PATH}/tests:/var/www/tests
+      - ${ESN_SABRE_PATH}:/var/www/
+      - ${ESN_SABRE_PATH}/config/20-xdebug.ini:/etc/php5/fpm/conf.d/20-xdebug.ini
 
   james:
     extends:

@@ -66,27 +66,6 @@ Then you will need to fetch the esn-sabre dependencies:
 cd /path/to/esn-sabre
 composer install --ignore-platform-reqs
 ```
-
-Then you will need to modify the following lines in `docker/dockerfiles/dev/docker-compose-sabre-dev.yml` (of the esn repository) from:
-
-```
-      - ${ESN_SABRE_PATH}/esn.php:/var/www/server.php
-      - ${ESN_SABRE_PATH}/config.json:/var/www/config.json
-      - ${ESN_SABRE_PATH}/lib:/var/www/lib
-      - ${ESN_SABRE_PATH}/tests:/var/www/tests
-```
-
-to:
-
-```
-      - ${ESN_SABRE_PATH}/esn.php:/var/www/server.php
-      - ${ESN_SABRE_PATH}/config.json:/var/www/config.json
-      - ${ESN_SABRE_PATH}/lib:/var/www/lib
-      - ${ESN_SABRE_PATH}/tests:/var/www/tests
-
-      - ${ESN_SABRE_PATH}/vendor:/var/www/vendor
-```
-
 Now, when you edit the esn-sabre dependencies, changes are reflected inside the container.
 
 If you want to watch log of Sabre, you can do it with the following command:
@@ -98,3 +77,43 @@ where `dev_sabre_1` is the container name that run Sabre, you can check it with:
 ```
 docker ps
 ```
+
+### Debugging esn-sabre
+
+The image `dev_sabre_1` has xdebug installed on it. Here is a small tutorial on how to use it with PhpStorm and Visual Studio Code:
+
+### Visual Studio Code
+
+* Install the extension [Php Debug](https://marketplace.visualstudio.com/items?itemName=felixfbecker.php-debug)
+* Go to the Debug view (on the left panel: `Ctrl + Shift + D`)
+* Add a new configuration:
+
+```
+  {
+    "name": "Listen for XDebug",
+    "type": "php",
+    "request": "launch",
+    "port": 9000,
+    "localSourceRoot": "${workspaceRoot}",
+    "serverSourceRoot": "/var/www"
+ }
+```
+
+### PhpStorm
+
+* On PhpStorm go to `File -> Settings -> Languages & Frameworks -> PHP -> Debug`. Check that those parameters are the same:
+    * Xdebug:
+        * **Debug port:** 9000
+* Still on the Settings window: `Languages & Frameworks -> PHP -> Servers`. Add a new server with those parameters:
+    * **Name:** sabre-dev
+    * **Host:** localhost
+    * **Port:** 8001
+    * **Debugger:** Xdebug
+    * Check Use path mappings:
+        * Project Files:
+            * **File/Directory:** you sabre local path
+            * **Absolute path on the server:** /var/www
+* Go to `Run -> Edit Configurations...`. Add a new `Php Remote Debug` configuration with those parameters:
+    * **Name:** sabre-debug
+    * **Servers:** sabre-dev
+    * **Ide key(session id):** debug
