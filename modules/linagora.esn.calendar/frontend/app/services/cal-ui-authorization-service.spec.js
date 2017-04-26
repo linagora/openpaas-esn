@@ -93,8 +93,109 @@ describe('The calUIAuthorizationService service', function() {
       expect(calUIAuthorizationService.canDeleteCalendar({id: CAL_DEFAULT_CALENDAR_ID})).to.be.false;
     });
 
-    it('should return true if calendar.id is not the same as CAL_DEFAULT_CALENDAR_ID', function() {
-      expect(calUIAuthorizationService.canDeleteCalendar({id: CAL_DEFAULT_CALENDAR_ID + 'changed'})).to.be.true;
+    it('should return false if the user is not the owner or the calendar is not shared to the user', function() {
+      var calendar = {
+        id: CAL_DEFAULT_CALENDAR_ID + 'changed',
+        isOwner: sinon.spy(function() {
+          return false;
+        }),
+        isShared: sinon.spy(function() {
+          return false;
+        })
+      };
+      var userId = 'userId';
+
+      expect(calUIAuthorizationService.canDeleteCalendar(calendar, userId)).to.be.false;
+      expect(calendar.isOwner).to.have.been.calledWith(userId);
+      expect(calendar.isShared).to.have.been.calledWith(userId);
+    });
+
+    it('should return true for the non-default calendars when the user is the owner', function() {
+      var calendar = {
+        id: CAL_DEFAULT_CALENDAR_ID + 'changed',
+        isOwner: sinon.spy(function() {
+          return true;
+        }),
+        isShared: sinon.spy(function() {
+          return false;
+        })
+      };
+      var userId = 'userId';
+
+      expect(calUIAuthorizationService.canDeleteCalendar(calendar, userId)).to.be.true;
+      expect(calendar.isOwner).to.have.been.calledWith(userId);
+      expect(calendar.isShared).to.not.have.been.called;
+    });
+
+    it('should return true for the non-default calendars when the calendar is shared with the user', function() {
+      var calendar = {
+        id: CAL_DEFAULT_CALENDAR_ID + 'changed',
+        isOwner: sinon.spy(function() {
+          return false;
+        }),
+        isShared: sinon.spy(function() {
+          return true;
+        })
+      };
+      var userId = 'userId';
+
+      expect(calUIAuthorizationService.canDeleteCalendar(calendar, userId)).to.be.true;
+      expect(calendar.isOwner).to.have.been.calledWith(userId);
+      expect(calendar.isShared).to.have.been.calledWith(userId);
+    });
+  });
+
+  describe('the canModifyCalendarProperties function', function() {
+    it('should return false if calendar is undefined', function() {
+      expect(calUIAuthorizationService.canModifyCalendarProperties()).to.be.false;
+    });
+
+    it('should return false if the user is not the owner or the calendar is not shared to the user', function() {
+      var calendar = {
+        isOwner: sinon.spy(function() {
+          return false;
+        }),
+        isShared: sinon.spy(function() {
+          return false;
+        })
+      };
+      var userId = 'userId';
+
+      expect(calUIAuthorizationService.canModifyCalendarProperties(calendar, userId)).to.be.false;
+      expect(calendar.isOwner).to.have.been.calledWith(userId);
+      expect(calendar.isShared).to.have.been.calledWith(userId);
+    });
+
+    it('should return true for the non-default calendars when the user is the owner', function() {
+      var calendar = {
+        isOwner: sinon.spy(function() {
+          return true;
+        }),
+        isShared: sinon.spy(function() {
+          return false;
+        })
+      };
+      var userId = 'userId';
+
+      expect(calUIAuthorizationService.canModifyCalendarProperties(calendar, userId)).to.be.true;
+      expect(calendar.isOwner).to.have.been.calledWith(userId);
+      expect(calendar.isShared).to.not.have.been.called;
+    });
+
+    it('should return true for the non-default calendars when the calendar is shared with the user', function() {
+      var calendar = {
+        isOwner: sinon.spy(function() {
+          return false;
+        }),
+        isShared: sinon.spy(function() {
+          return true;
+        })
+      };
+      var userId = 'userId';
+
+      expect(calUIAuthorizationService.canModifyCalendarProperties(calendar, userId)).to.be.true;
+      expect(calendar.isOwner).to.have.been.calledWith(userId);
+      expect(calendar.isShared).to.have.been.calledWith(userId);
     });
   });
 

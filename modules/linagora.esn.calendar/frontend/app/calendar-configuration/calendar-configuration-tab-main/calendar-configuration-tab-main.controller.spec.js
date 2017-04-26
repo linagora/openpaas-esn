@@ -182,6 +182,35 @@ describe('The calendar configuration tab delegation controller', function() {
     });
   });
 
+  describe('the canModifyCalendarProperties', function() {
+    var canModifyCalendarPropertiesResult;
+
+    beforeEach(function() {
+      canModifyCalendarPropertiesResult = true;
+
+      sinon.stub(calUIAuthorizationService, 'canModifyCalendarProperties', function() {
+        return canModifyCalendarPropertiesResult;
+      });
+    });
+
+    it('should return false when calendar is undefined', function() {
+      CalendarConfigurationTabMainController.calendar = undefined;
+
+      expect(CalendarConfigurationTabMainController.canModifyCalendarProperties()).to.be.false;
+      expect(calUIAuthorizationService.canModifyCalendarProperties).to.not.have.been.called;
+    });
+
+    it('should return leverage calUIAuthorizationService.canModifyCalendarProperties', function() {
+      CalendarConfigurationTabMainController.calendar = {};
+
+      expect(CalendarConfigurationTabMainController.canModifyCalendarProperties()).to.equal(canModifyCalendarPropertiesResult);
+      expect(calUIAuthorizationService.canModifyCalendarProperties).to.have.been.calledWith(
+        CalendarConfigurationTabMainController.calendar,
+        session.user._id
+      );
+    });
+  });
+
   describe('the performExternalCalendarOperations', function() {
     var getShareeRightResult, getOwnerResult;
 
