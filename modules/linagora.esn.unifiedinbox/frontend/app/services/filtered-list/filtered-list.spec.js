@@ -47,8 +47,8 @@ describe('The inboxFilteredList factory', function() {
   });
 
   it('should render the list when filters change', function() {
-    var unreadMessage = newMessage({ isUnread: true, date: '2017-01-01T12:00:01Z' }),
-        readMessage = newMessage({ date: '2017-01-01T12:00:00Z' });
+    var unreadMessage = newMessage({ isUnread: true, date: 1 }),
+        readMessage = newMessage({ date: 0 });
 
     inboxFilteredList.addAll([
       readMessage,
@@ -66,8 +66,8 @@ describe('The inboxFilteredList factory', function() {
   });
 
   it('should render the list when item flags change', function() {
-    var unreadMessage = newMessage({ isUnread: true, date: '2017-01-01T12:00:01Z' }),
-        readMessage = newMessage({ date: '2017-01-01T12:00:00Z' });
+    var unreadMessage = newMessage({ isUnread: true, date: 1 }),
+        readMessage = newMessage({ date: 0 });
 
     inboxFilteredList.addAll([
       readMessage,
@@ -85,8 +85,8 @@ describe('The inboxFilteredList factory', function() {
   });
 
   it('should render the list when item mailbox ids change', function() {
-    var unreadMessage = newMessage({ isUnread: true, date: '2017-01-01T12:00:01Z' }),
-        readMessage = newMessage({ date: '2017-01-01T12:00:00Z' });
+    var unreadMessage = newMessage({ isUnread: true, date: 1 }),
+      readMessage = newMessage({ date: 0 });
 
     inboxFilteredList.addAll([
       readMessage,
@@ -107,16 +107,16 @@ describe('The inboxFilteredList factory', function() {
 
     it('should render the list', function() {
       var messages = [
-        newMessage({ isUnread: true, date: '2017-01-01T12:00:01Z' }),
-        newMessage({ isUnread: true, date: '2017-01-01T12:00:00Z' }),
-        newMessage({ isUnread: true, date: '2017-01-01T11:59:59Z' })
+        newMessage({ isUnread: true, date: 1 }),
+        newMessage({ isUnread: true, date: 0 }),
+        newMessage({ isUnread: true, date: -1 })
       ];
 
       inboxFilteredList.addAll([
         messages[1],
-        newMessage({ isUnread: false, date: '2017-01-01T12:00:00Z' }),
+        newMessage({ isUnread: false, date: 0 }),
         messages[2],
-        newMessage({ isUnread: false, date: '2017-01-01T12:00:00Z' }),
+        newMessage({ isUnread: false, date: 0 }),
         messages[0]
       ]);
       $rootScope.$digest();
@@ -126,13 +126,13 @@ describe('The inboxFilteredList factory', function() {
 
     it('should link items, considering edges correctly', function() {
       var messages = [
-        newMessage({ isUnread: true, date: '2017-01-01T12:00:01Z' }),
-        newMessage({ isUnread: true, date: '2017-01-01T11:59:59Z' })
+        newMessage({ isUnread: true, date: 1 }),
+        newMessage({ isUnread: true, date: -1 })
       ];
 
       inboxFilteredList.addAll([
         messages[1],
-        newMessage({ isUnread: false, date: '2017-01-01T12:00:00Z' }),
+        newMessage({ isUnread: false, date: 0 }),
         messages[0]
       ]);
       $rootScope.$digest();
@@ -148,7 +148,7 @@ describe('The inboxFilteredList factory', function() {
   describe('The asMdVirtualRepeatModel function', function() {
 
     it('should return the model', function() {
-      var message = newMessage({ isUnread: true, date: '2017-01-01T12:00:00Z' });
+      var message = newMessage({ isUnread: true, date: 0 });
 
       inboxFilteredList.addAll([message]);
       $rootScope.$digest();
@@ -162,27 +162,6 @@ describe('The inboxFilteredList factory', function() {
       model.getItemAtIndex(1);
 
       expect(load).to.have.been.calledWith();
-    });
-
-  });
-
-  describe('The getOldestProviderItem function', function() {
-
-    it('should return nothing if provider has not fetched anything', function() {
-      expect(inboxFilteredList.getOldestProviderItem(inboxHostedMailMessagesProvider)).to.equal(undefined);
-    });
-
-    it('should return the oldest known provider item', function() {
-      var message = newMessage({ date: '2017-01-01T12:00:00Z', isUnread: true });
-
-      inboxFilteredList.addAll([
-        newMessage({ date: '2017-01-01T12:00:02Z', isUnread: true }),
-        message,
-        newMessage({ date: '2017-01-01T12:00:01Z' })
-      ]);
-      $rootScope.$digest();
-
-      expect(inboxFilteredList.getOldestProviderItem(inboxHostedMailMessagesProvider)).to.equal(message);
     });
 
   });
