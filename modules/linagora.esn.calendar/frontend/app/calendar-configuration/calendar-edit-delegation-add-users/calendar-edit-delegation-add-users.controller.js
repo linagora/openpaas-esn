@@ -17,7 +17,7 @@
     function $onInit() {
       self.newUsersGroups = $stateParams.newUsersGroups;
       self.delegationTypes = $stateParams.delegationTypes;
-      self.selectedShareeRight = CAL_CALENDAR_SHARED_RIGHT.NONE;
+      self.selectedShareeRight = CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ;
     }
   }
 })();

@@ -19,9 +19,6 @@
 
       self.delegationTypes = [
         {
-          value: CAL_CALENDAR_SHARED_RIGHT.NONE,
-          name: 'None'
-        }, {
           value: CAL_CALENDAR_SHARED_RIGHT.SHAREE_ADMIN,
           name: 'Administration'
         }, {
