@@ -18,7 +18,8 @@
       canModifyEventAttendees: canModifyEventAttendees,
       canModifyEventRecurrence: canModifyEventRecurrence,
       canModifyPublicSelection: canModifyPublicSelection,
-      canShowDelegationTab: canShowDelegationTab
+      canShowDelegationTab: canShowDelegationTab,
+      canModifyCalendarProperties: canModifyCalendarProperties
     };
 
     ////////////
@@ -27,8 +28,8 @@
       return !!calendar && !!event && (calEventUtils.isOrganizer(event) || (event.isPublic() && calendar.isReadable(userId)));
     }
 
-    function canDeleteCalendar(calendar) {
-      return !!calendar && (calendar.id !== CAL_DEFAULT_CALENDAR_ID);
+    function canDeleteCalendar(calendar, userId) {
+      return !!calendar && (calendar.id !== CAL_DEFAULT_CALENDAR_ID) && canModifyCalendarProperties(calendar, userId);
     }
 
     function canModifyEvent(calendar, event, userId) {
@@ -51,6 +52,10 @@
 
     function canModifyPublicSelection(calendar, userId) {
       return _isAdminForCalendar(calendar, userId);
+    }
+
+    function canModifyCalendarProperties(calendar, userId) {
+      return !!calendar && (calendar.isOwner(userId) || calendar.isShared(userId));
     }
 
     function canShowDelegationTab(calendar, userId) {

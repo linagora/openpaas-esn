@@ -22,6 +22,7 @@
     self.openDeleteConfirmationDialog = openDeleteConfirmationDialog;
     self.removeCalendar = removeCalendar;
     self.canDeleteCalendar = canDeleteCalendar;
+    self.canModifyCalendarProperties = canModifyCalendarProperties;
 
     ///////////
     function $onInit() {
@@ -52,6 +53,10 @@
       self.canModifyPublicSelection = _canModifyPublicSelection();
     }
 
+    function canModifyCalendarProperties() {
+      return !!self.calendar && calUIAuthorizationService.canModifyCalendarProperties(self.calendar, session.user._id);
+    }
+
     function isExternalCalendar() {
       return self.calendar.isShared(session.user._id) || (!self.calendar.isOwner(session.user._id) && self.calendar.isPublic());
     }
@@ -75,7 +80,7 @@
     }
 
     function canDeleteCalendar() {
-      return !self.newCalendar && calUIAuthorizationService.canDeleteCalendar(self.calendar);
+      return !self.newCalendar && calUIAuthorizationService.canDeleteCalendar(self.calendar, session.user._id);
     }
 
     function _canModifyPublicSelection() {
