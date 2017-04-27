@@ -10,7 +10,8 @@
         onBlur: '&',
         autoFocusInput: '@',
         filter: '<'
-      }
+      },
+      controller: 'inboxFilterInputController'
     });
 
 })();
