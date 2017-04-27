@@ -165,6 +165,19 @@
 @import "./widgets/fab-dropup";
 @import "./widgets/modal";
 
+/**
+ * After mdi 1.6, these styles are not applied, but we need them
+ */
+.mdi {
+  display: inline-block;
+  font: normal normal normal 24px/1 'Material Design Icons';
+  font-size: inherit; // can't have font-size inherit on line above, so need to override
+  text-rendering: auto; // optimizelegibility throws things off #1094
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transform: translate(0, 0); // ensures no half-pixel rendering in firefox
+}
+
 html, body {
   height: 100%;
   min-height: 100%; // material admin set this property to 100vh. It does not work well on iOs.
