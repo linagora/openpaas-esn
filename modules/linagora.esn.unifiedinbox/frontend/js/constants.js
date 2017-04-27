@@ -5,10 +5,10 @@ angular.module('linagora.esn.unifiedinbox')
   .constant('INBOX_MODULE_NAME', 'linagora.esn.unifiedinbox')
   .constant('MAILBOX_ROLE_ICONS_MAPPING', {
     default: 'mdi mdi-email',
-    inbox: 'mdi mdi-inbox',
+    inbox: 'mdi mdi-inbox-arrow-down',
     archive: 'mdi mdi-archive',
     drafts: 'mdi mdi-file-document',
-    outbox: 'mdi mdi-outbox',
+    outbox: 'mdi mdi-inbox-arrow-up',
     sent: 'mdi mdi-send',
     trash: 'mdi mdi-delete',
     spam: 'mdi mdi-alert-octagon',
