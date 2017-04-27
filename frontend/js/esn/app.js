@@ -170,9 +170,25 @@ angular.module('esnApp', [
 
 })
 // don't remove $state from here or ui-router won't route...
-.run(function(session, ioConnectionManager, editableOptions, $state) { // eslint-disable-line
+.run(function(session, ioConnectionManager, editableOptions, $state, $rootScope, HEADER_VISIBILITY_EVENT, HEADER_DISABLE_SCROLL_LISTENER_EVENT) { // eslint-disable-line
   editableOptions.theme = 'bs3';
   session.ready.then(function() {
     ioConnectionManager.connect();
+  });
+
+  $rootScope.$on('$stateChangeSuccess', function(e, toState, toParams, fromState) {
+    var fromStateheaderVisibility = (fromState.data) ? fromState.data.headerVisibility : true;
+    var toStateheaderVisibility = (toState.data) ? toState.data.headerVisibility : true;
+
+    function toggleHeaderVisibility(visible) {
+      return function($rootScope, HEADER_VISIBILITY_EVENT, HEADER_DISABLE_SCROLL_LISTENER_EVENT) {
+        $rootScope.$broadcast(HEADER_DISABLE_SCROLL_LISTENER_EVENT, !visible);
+        $rootScope.$broadcast(HEADER_VISIBILITY_EVENT, visible);
+      };
+    }
+
+    if (fromStateheaderVisibility !== toStateheaderVisibility) {
+      toggleHeaderVisibility(toStateheaderVisibility)($rootScope, HEADER_VISIBILITY_EVENT, HEADER_DISABLE_SCROLL_LISTENER_EVENT);
+    }
   });
 });
