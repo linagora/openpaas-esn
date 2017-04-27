@@ -3,10 +3,11 @@
 
   angular.module('linagora.esn.unifiedinbox')
 
-    .controller('inboxListHeaderController', function(inboxDateGroups) {
+    .controller('inboxListHeaderController', function(inboxDateGroups, inboxFilteringService) {
       var self = this;
 
       self.$onChanges = $onChanges;
+      self.setQuickFilter = setQuickFilter;
 
       /////
 
@@ -16,6 +17,10 @@
         }
 
         self.group = bindings.item.currentValue && inboxDateGroups.getGroup(bindings.item.currentValue.date);
+      }
+
+      function setQuickFilter(filter) {
+        inboxFilteringService.setQuickFilter(self.quickFilter = filter);
       }
     });
 

@@ -4,12 +4,14 @@ angular.module('linagora.esn.unifiedinbox')
 
   .factory('inboxJmapProviderContextBuilder', function($q, inboxMailboxesService, jmap, PROVIDER_TYPES) {
     return function(options) {
+      // options.query is used in global search
+      // In this case, build a filter with 'text' only to match all important fields
       if (angular.isDefined(options.query)) {
         return $q.when({ text: options.query });
       }
 
       return inboxMailboxesService.getMessageListFilter(options.context).then(function(mailboxFilter) {
-        return angular.extend(mailboxFilter, options.filterByType[PROVIDER_TYPES.JMAP]);
+        return angular.extend(mailboxFilter, options.filterByType[PROVIDER_TYPES.JMAP], { text: options.quickFilter });
       });
     };
   })
@@ -18,29 +20,37 @@ angular.module('linagora.esn.unifiedinbox')
     return new Providers();
   })
 
-  .factory('inboxRejectItemById', function(_) {
-    return function(item) {
-      return function(items) {
-        return item ? _.reject(items, { id: item.id }) : items;
-      };
-    };
-  })
-
-  .factory('inboxNewTwitterProvider', function($q, $http, newProvider, inboxRejectItemById, inboxFilteredList, _,
-                                               ELEMENTS_PER_REQUEST, PROVIDER_TYPES) {
+  .factory('inboxNewTwitterProvider', function($q, $http, newProvider, _, ELEMENTS_PER_REQUEST, PROVIDER_TYPES) {
     return function(id, accountId, url) {
-      var provider = newProvider({
+      return newProvider({
         id: id,
         account: accountId,
         types: [PROVIDER_TYPES.SOCIAL, PROVIDER_TYPES.TWITTER],
         name: 'Tweets',
         fetch: function() {
-          function fetcher(newestTweet) {
-            return $http.get(url, { params: buildQueryParameters(newestTweet) }).then(_.property('data'));
-          }
+          var oldestTweetId = null,
+              fetcher = function(mostRecentTweetId) {
+                return $http
+                  .get(url, {
+                    params: {
+                      account_id: accountId,
+                      count: ELEMENTS_PER_REQUEST * 2, // Because count may not be what you think -> https://dev.twitter.com/rest/reference/get/statuses/mentions_timeline
+                      max_id: mostRecentTweetId ? null : oldestTweetId,
+                      since_id: mostRecentTweetId
+                    }
+                  })
+                  .then(_.property('data'))
+                  .then(function(results) {
+                    if (results.length > 0) {
+                      oldestTweetId = _.last(results).id;
+                    }
 
-          fetcher.loadRecentItems = function(newestTweet) {
-            return fetcher(newestTweet).then(inboxRejectItemById(newestTweet));
+                    return results;
+                  });
+              };
+
+          fetcher.loadRecentItems = function(mostRecentTweet) {
+            return fetcher(mostRecentTweet.id);
           };
 
           return fetcher;
@@ -57,19 +67,6 @@ angular.module('linagora.esn.unifiedinbox')
           });
         }
       });
-
-      function buildQueryParameters(newestTweet) {
-        var oldestTweet = !newestTweet && inboxFilteredList.getOldestProviderItem(provider);
-
-        return {
-          account_id: accountId,
-          count: ELEMENTS_PER_REQUEST * 2, // Because count may not be what you think -> https://dev.twitter.com/rest/reference/get/statuses/mentions_timeline
-          max_id: oldestTweet ? oldestTweet.id : null,
-          since_id: newestTweet ? newestTweet.id : null
-        };
-      }
-
-      return provider;
     };
   })
 
@@ -85,21 +82,22 @@ angular.module('linagora.esn.unifiedinbox')
     };
   })
 
-  .factory('inboxNewMessageProvider', function($q, withJmapClient, inboxJmapProviderContextBuilder, inboxFilteredList,
-                                               newProvider, sortByDateInDescendingOrder, inboxMailboxesService, inboxRejectItemById, _,
+  .factory('inboxNewMessageProvider', function($q, withJmapClient, pagedJmapRequest, inboxJmapProviderContextBuilder,
+                                               newProvider, sortByDateInDescendingOrder, inboxMailboxesService, _,
                                                JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_REQUEST, PROVIDER_TYPES) {
     return function(templateUrl) {
-      var provider = newProvider({
+      return newProvider({
         type: PROVIDER_TYPES.JMAP,
         name: 'Emails',
         fetch: function(context) {
-          function fetcher(newestItem) {
+          function getMessages(position, dateOfMostRecentItem) {
             return withJmapClient(function(client) {
               return client.getMessageList({
-                filter: buildGetMessageListFilter(context, newestItem),
+                filter: dateOfMostRecentItem ? angular.extend({}, context, { after: dateOfMostRecentItem }) : context,
                 sort: ['date desc'],
                 collapseThreads: false,
                 fetchMessages: false,
+                position: position,
                 limit: ELEMENTS_PER_REQUEST
               })
                 .then(function(messageList) {
@@ -115,18 +113,18 @@ angular.module('linagora.esn.unifiedinbox')
             });
           }
 
-          fetcher.loadRecentItems = function(newestItem) {
-            return fetcher(newestItem)
-              .then(inboxRejectItemById(newestItem))
-              .then(function(messages) {
-                messages.forEach(function(message) {
-                  if (message.isUnread) {
-                    inboxMailboxesService.flagIsUnreadChanged(message, true);
-                  }
-                });
+          var fetcher = pagedJmapRequest(getMessages);
 
-                return messages;
+          fetcher.loadRecentItems = function(mostRecentItem) {
+            return getMessages(0, mostRecentItem.date).then(function(messages) {
+              messages.forEach(function(message) {
+                if (message.isUnread) {
+                  inboxMailboxesService.flagIsUnreadChanged(message, true);
+                }
               });
+
+              return messages;
+            });
           };
 
           return fetcher;
@@ -152,17 +150,6 @@ angular.module('linagora.esn.unifiedinbox')
         },
         templateUrl: templateUrl
       });
-
-      function buildGetMessageListFilter(context, newestItem) {
-        var oldestItem = !newestItem && inboxFilteredList.getOldestProviderItem(provider);
-
-        return _.extend({}, context, {
-          after: newestItem ? newestItem.date : null,
-          before: oldestItem ? oldestItem.date : null
-        });
-      }
-
-      return provider;
     };
   })
 

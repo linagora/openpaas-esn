@@ -6,7 +6,7 @@ var expect = chai.expect;
 
 describe('The inboxListGroupToggleSelection component', function() {
 
-  var $compile, $rootScope, $scope, element, nowDate = new Date('2017-04-20T12:00:00Z');
+  var $compile, $rootScope, $timeout, $scope, inboxFilteringService, element, nowDate = new Date('2017-04-20T12:00:00Z');
 
   function compileDirective(html) {
     element = angular.element(html);
@@ -25,9 +25,11 @@ describe('The inboxListGroupToggleSelection component', function() {
     });
   });
 
-  beforeEach(inject(function(_$compile_, _$rootScope_) {
+  beforeEach(inject(function(_$compile_, _$rootScope_, _$timeout_, _inboxFilteringService_) {
     $compile = _$compile_;
     $rootScope = _$rootScope_;
+    $timeout = _$timeout_;
+    inboxFilteringService = _inboxFilteringService_;
   }));
 
   it('should not display group name if no item given', function() {
@@ -160,6 +162,15 @@ describe('The inboxListGroupToggleSelection component', function() {
     compileDirective('<inbox-list-header filters="filters"/>');
 
     expect(element.find('.inbox-filter-button')).to.have.length(2);
+  });
+
+  it('should update quick filter when user searches for some text', function() {
+    compileDirective('<inbox-list-header />');
+
+    element.find('.inbox-list-header-quick-filter input').val('filter').trigger('input');
+    $timeout.flush(); // Because of the 'debounce' option
+
+    expect(inboxFilteringService.getAllProviderFilters().quickFilter).to.equal('filter');
   });
 
 });

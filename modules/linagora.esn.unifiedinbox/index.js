@@ -42,13 +42,15 @@ const angularAppFiles = [
   'filters/quote/quote.js',
   'services/jmap-item/jmap-item-service.js',
   'components/filter-input/filter-input.js',
+  'components/filter-input/filter-input.controller.js',
   'services/mailboxes/special-mailboxes.js',
   'services/mailboxes/special-mailboxes.constants.js',
   'services/mailboxes/special-mailboxes.run.js',
   'components/list/header/list-header.js',
   'components/list/header/list-header.controller.js',
   'services/date-groups/date-groups.js',
-  'filters/item-date.js'
+  'filters/item-date.js',
+  'services/filtering/filtering-service.js'
 ];
 
 const angularJsFiles = [

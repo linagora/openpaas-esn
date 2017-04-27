@@ -14,8 +14,21 @@
     }
   }
 
-  .inbox-filter-button.btn-icon {
-    width: 30px;
-    height: 30px;
+  inbox-list-group-toggle-selection {
+    margin-right: 1em;
+  }
+
+  .inbox-list-header-actions {
+    .flex-vertical-centered;
+
+    > * {
+      margin-left: 1em;
+    }
+  }
+}
+
+@media (min-width: @screen-md-min) {
+  .inbox-list-header {
+    padding: 0 15px;
   }
 }
