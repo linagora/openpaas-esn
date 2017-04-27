@@ -48,19 +48,11 @@ angular.module('linagora.esn.unifiedinbox', [
 ])
 
   .config(function($stateProvider, dynamicDirectiveServiceProvider) {
-    function toggleHeaderVisibility(visible) {
-      return function($rootScope, HEADER_VISIBILITY_EVENT, HEADER_DISABLE_SCROLL_LISTENER_EVENT) {
-        $rootScope.$broadcast(HEADER_DISABLE_SCROLL_LISTENER_EVENT, !visible);
-        $rootScope.$broadcast(HEADER_VISIBILITY_EVENT, visible);
-      };
-    }
 
     function stateOpeningListItem(state) {
       function toggleElementOpened(opening) {
-        return function($rootScope, HEADER_VISIBILITY_EVENT, HEADER_DISABLE_SCROLL_LISTENER_EVENT) {
+        return function($rootScope) {
           $rootScope.inbox.list.isElementOpened = opening;
-
-          toggleHeaderVisibility(!opening)($rootScope, HEADER_VISIBILITY_EVENT, HEADER_DISABLE_SCROLL_LISTENER_EVENT);
 
           if (opening) {
             $rootScope.inbox.list.infiniteScrollDisabled = opening;
@@ -135,8 +127,7 @@ angular.module('linagora.esn.unifiedinbox', [
           }
         },
         params: { email: {}, compositionOptions: {}, composition: null },
-        onEnter: toggleHeaderVisibility(false),
-        onExit: toggleHeaderVisibility(true)
+        data: { headerVisibility: false }
       })
       .state('unifiedinbox.compose.recipients', {
         url: '/:recipientsType',
@@ -182,8 +173,7 @@ angular.module('linagora.esn.unifiedinbox', [
             controller: 'inboxConfigurationIndexController'
           }
         },
-        onEnter: toggleHeaderVisibility(false),
-        onExit: toggleHeaderVisibility(true)
+        data: { headerVisibility: false }
       })
       .state('unifiedinbox.configuration.vacation', {
         url: '/vacation',
@@ -245,7 +235,8 @@ angular.module('linagora.esn.unifiedinbox', [
             templateUrl: '/unifiedinbox/views/email/view/index',
             controller: 'viewEmailController as ctrl'
           }
-        }
+        },
+        data: { headerVisibility: false }
       }))
       .state('unifiedinbox.inbox.move', stateOpeningModal({
         url: '/move',
@@ -261,7 +252,8 @@ angular.module('linagora.esn.unifiedinbox', [
             templateUrl: '/unifiedinbox/views/email/view/index',
             controller: 'viewEmailController as ctrl'
           }
-        }
+        },
+        data: { headerVisibility: false }
       }))
       .state('unifiedinbox.inbox.message.move', stateOpeningModal({
         url: '/move'
