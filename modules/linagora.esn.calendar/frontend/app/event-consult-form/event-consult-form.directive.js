@@ -9,7 +9,8 @@
       restrict: 'E',
       template: '<div><sub-header><cal-event-consult-form-subheader class="hidden-md" /></sub-header><cal-event-consult-form-body/></div>',
       scope: {
-        event: '='
+        event: '=',
+        calendarHomeId: '='
       },
       link: link,
       replace: true,
