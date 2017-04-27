@@ -6,7 +6,10 @@
     .component('inboxFilterInput', {
       templateUrl: '/unifiedinbox/app/components/filter-input/filter-input.html',
       bindings: {
-        onChange: '&'
+        onChange: '&',
+        onBlur: '&',
+        autoFocusInput: '@',
+        filter: '<'
       }
     });
 

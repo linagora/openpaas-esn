@@ -4,14 +4,15 @@
   angular.module('linagora.esn.unifiedinbox')
 
     .factory('inboxFilteringService', function($rootScope, inboxMailboxesService, inboxFilters, _, INBOX_EVENTS) {
-      var providerFilters = {};
+      var providerFilters = {}, quickFilter = null;
 
       return {
         getAvailableFilters: getAvailableFilters,
         isAnyFilterSelected: isAnyFilterSelected,
         uncheckFilters: uncheckFilters,
         setProviderFilters: setProviderFilters,
-        getAllProviderFilters: getAllProviderFilters
+        getAllProviderFilters: getAllProviderFilters,
+        setQuickFilter: setQuickFilter
       };
 
       /////
@@ -49,6 +50,13 @@
 
       function setProviderFilters(filters) {
         providerFilters = filters;
+        quickFilter = null;
+
+        $rootScope.$broadcast(INBOX_EVENTS.FILTER_CHANGED);
+      }
+
+      function setQuickFilter(filter) {
+        quickFilter = filter;
 
         $rootScope.$broadcast(INBOX_EVENTS.FILTER_CHANGED);
       }
@@ -77,7 +85,8 @@
           acceptedTypes: getAcceptedTypesFilter(),
           acceptedAccounts: providerFilters.accounts,
           filterByType: getAllFiltersByType(),
-          context: providerFilters.context
+          context: providerFilters.context,
+          quickFilter: quickFilter
         };
       }
 

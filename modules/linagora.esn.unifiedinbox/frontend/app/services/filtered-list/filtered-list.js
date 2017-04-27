@@ -3,7 +3,8 @@
 
   angular.module('linagora.esn.unifiedinbox')
 
-    .factory('inboxFilteredList', function($rootScope, $q, infiniteListService, inboxFilteringService, _, INBOX_EVENTS, VIRTUAL_SCROLL_DISTANCE) {
+    .factory('inboxFilteredList', function($rootScope, $q, filterFilter, infiniteListService, inboxFilteringService, _,
+                                           INBOX_EVENTS, VIRTUAL_SCROLL_DISTANCE) {
       var items = [],
           itemsById = {},
           renderedList = [];
@@ -97,6 +98,11 @@
           .then(function() {
             return provider.itemMatches(item, filters);
           })
+          .then(function() {
+            if (filters.quickFilter) {
+              return _itemMatchesQuickFilter(item, filters.quickFilter);
+            }
+          })
           .then(_.constant(false), _.constant(true));
       }
 
@@ -109,6 +115,12 @@
           _.some(attribute, function(value) {
             return _.contains(toMatch, value);
           }) ? resolve() : reject();
+        });
+      }
+
+      function _itemMatchesQuickFilter(item, quickFilter) {
+        return $q(function(resolve, reject) {
+          filterFilter([item], { $: quickFilter }).length > 0 ? resolve() : reject();
         });
       }
 

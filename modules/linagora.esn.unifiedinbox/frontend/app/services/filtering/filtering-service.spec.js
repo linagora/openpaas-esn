@@ -71,6 +71,13 @@ describe('The inboxFilteringService service', function() {
       service.setProviderFilters({});
     });
 
+    it('should reset quickFilter to null', function() {
+      service.setQuickFilter('filter');
+      service.setProviderFilters({});
+
+      expect(service.getAllProviderFilters().quickFilter).to.equal(null);
+    });
+
   });
 
   describe('The getAvailableFilters function', function() {
@@ -108,7 +115,8 @@ describe('The inboxFilteringService service', function() {
           social: {},
           twitter: {}
         },
-        context: undefined
+        context: undefined,
+        quickFilter: null
       });
     });
 
@@ -128,7 +136,8 @@ describe('The inboxFilteringService service', function() {
           social: {},
           twitter: {}
         },
-        context: 'mailboxId'
+        context: 'mailboxId',
+        quickFilter: null
       });
     });
 
@@ -154,8 +163,27 @@ describe('The inboxFilteringService service', function() {
           },
           twitter: {}
         },
-        context: 'mailboxId'
+        context: 'mailboxId',
+        quickFilter: null
       });
+    });
+
+  });
+
+  describe('The setQuickFilter function', function() {
+
+    it('should broadcast an event', function(done) {
+      $rootScope.$on(INBOX_EVENTS.FILTER_CHANGED, function() {
+        done();
+      });
+
+      service.setQuickFilter('filter');
+    });
+
+    it('should persist quickFilter in provider filters', function() {
+      service.setQuickFilter('filter');
+
+      expect(service.getAllProviderFilters().quickFilter).to.equal('filter');
     });
 
   });

@@ -185,7 +185,8 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       expect(jmapClient.getMailboxes).to.have.been.calledWith();
       expect(jmapClient.getMessageList).to.have.been.calledWith(sinon.match.has('filter', {
-        inMailboxes: ['id_inbox']
+        inMailboxes: ['id_inbox'],
+        text: null
       }));
       expect(jmapClient.getMessages).to.have.been.calledOnce;
     });
@@ -205,7 +206,8 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
 
       expect(jmapClient.getMessageList).to.have.been.calledWith(sinon.match.has('filter', {
         inMailboxes: ['id_inbox'],
-        isUnread: true
+        isUnread: true,
+        text: null
       }));
       expect(jmapClient.getMessages).to.have.been.calledOnce;
     });
@@ -226,7 +228,8 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
           twitter: {},
           social: {}
         },
-        context: 'myContext'
+        context: 'myContext',
+        quickFilter: null
       });
     });
 

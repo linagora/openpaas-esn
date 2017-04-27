@@ -459,7 +459,8 @@ describe('The Unified Inbox Angular module providers', function() {
     it('should build default context as a filter to get message list in Inbox folder', function() {
       inboxJmapProviderContextBuilder({ filterByType: {} }).then(function(context) {
         expect(context).to.deep.equal({
-          inMailboxes: ['id_inbox']
+          inMailboxes: ['id_inbox'],
+          text: undefined
         });
       });
 
@@ -474,7 +475,25 @@ describe('The Unified Inbox Angular module providers', function() {
       }).then(function(context) {
         expect(context).to.deep.equal({
           inMailboxes: ['id_inbox'],
-          isUnread: true
+          isUnread: true,
+          text: undefined
+        });
+      });
+
+      $rootScope.$digest();
+    });
+
+    it('should use quickFilter to filter on the backend side, when defined', function() {
+      inboxJmapProviderContextBuilder({
+        filterByType: {
+          jmap: { isUnread: true }
+        },
+        quickFilter: 'filter'
+      }).then(function(context) {
+        expect(context).to.deep.equal({
+          inMailboxes: ['id_inbox'],
+          isUnread: true,
+          text: 'filter'
         });
       });
 

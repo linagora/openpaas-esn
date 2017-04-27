@@ -4,12 +4,14 @@ angular.module('linagora.esn.unifiedinbox')
 
   .factory('inboxJmapProviderContextBuilder', function($q, inboxMailboxesService, jmap, PROVIDER_TYPES) {
     return function(options) {
+      // options.query is used in global search
+      // In this case, build a filter with 'text' only to match all important fields
       if (angular.isDefined(options.query)) {
         return $q.when({ text: options.query });
       }
 
       return inboxMailboxesService.getMessageListFilter(options.context).then(function(mailboxFilter) {
-        return angular.extend(mailboxFilter, options.filterByType[PROVIDER_TYPES.JMAP]);
+        return angular.extend(mailboxFilter, options.filterByType[PROVIDER_TYPES.JMAP], { text: options.quickFilter });
       });
     };
   })

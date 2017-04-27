@@ -86,7 +86,7 @@ describe('The inboxFilteredList factory', function() {
 
   it('should render the list when item mailbox ids change', function() {
     var unreadMessage = newMessage({ isUnread: true, date: 1 }),
-      readMessage = newMessage({ date: 0 });
+        readMessage = newMessage({ date: 0 });
 
     inboxFilteredList.addAll([
       readMessage,
@@ -101,6 +101,22 @@ describe('The inboxFilteredList factory', function() {
     $rootScope.$digest();
 
     expect(inboxFilteredList.list()).to.deep.equal([]);
+  });
+
+  it('should filter items by quickFilter when defined', function() {
+    var unreadMessageMatchingFilter = newMessage({ isUnread: true, date: 1, subject: 'I am matching the xxx quick filter' });
+
+    inboxFilteringService.setQuickFilter('xxx');
+    inboxFilteredList.addAll([
+      newMessage({ date: 0 }),
+      newMessage({ isUnread: true, date: 1 }),
+      unreadMessageMatchingFilter,
+      newMessage({ isUnread: true, date: 2 }),
+      newMessage({ date: 3 })
+    ]);
+    $rootScope.$digest();
+
+    expect(inboxFilteredList.list()).to.deep.equal([unreadMessageMatchingFilter]);
   });
 
   describe('The addAll function', function() {
