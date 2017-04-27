@@ -637,7 +637,7 @@ angular.module('linagora.esn.unifiedinbox')
     }
 
     function htmlToText(html) {
-      return angular.element('<div />').html(html).get(0).innerText;
+      return angular.element('<div />').html(html.replace(/<br\/>/g, '\n')).text();
     }
 
     function interpolate(email, template) {
