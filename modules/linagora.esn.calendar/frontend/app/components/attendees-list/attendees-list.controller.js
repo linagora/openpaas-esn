@@ -2,43 +2,27 @@
   'use strict';
 
   angular.module('esn.calendar')
-    .directive('calAttendeesList', calAttendeesList);
-
-  function calAttendeesList() {
-    var directive = {
-      restrict: 'E',
-      templateUrl: '/calendar/app/components/attendees-list/attendees-list.html',
-      scope: {
-        attendees: '=',
-        canModifyAttendees: '=',
-        organizer: '='
-      },
-      replace: true,
-      controller: AttendeesListController,
-      controllerAs: 'ctrl',
-      bindToController: true
-    };
-
-    return directive;
-  }
+    .controller('AttendeesListController', AttendeesListController);
 
   function AttendeesListController($scope, CAL_EVENTS) {
     var self = this;
 
     self.attendeesPerPartstat = {};
     self.attendeeClickedCount = 0;
+    self.isOrganizer = isOrganizer;
     self.selectAttendee = selectAttendee;
     self.deleteSelectedAttendees = deleteSelectedAttendees;
+    self.$onInit = $onInit;
 
-    activate();
-
-    ////////////
-
-    function activate() {
+    function $onInit() {
       updateAttendeeStats(self.attendees);
-      $scope.$on(CAL_EVENTS.EVENT_ATTENDEES_UPDATE, function(event, data) { // eslint-disable-line
+      $scope.$on(CAL_EVENTS.EVENT_ATTENDEES_UPDATE, function(event, data) {
         updateAttendeeStats(data);
       });
+    }
+
+    function isOrganizer(attendee) {
+      return self.organizer && self.organizer.email === attendee.email;
     }
 
     function deleteSelectedAttendees() {
