@@ -1,5 +1,5 @@
 .inbox-list-header(ng-class="{ searching: $ctrl.searching }")
-  inbox-filter-button.clickable(ng-if="$ctrl.filters.length > 0", filters="$ctrl.filters")
+  inbox-list-group-toggle-selection
   .inbox-list-header-group(ng-if="!$ctrl.searching", ng-switch="$ctrl.group.name")
     span(ng-switch-when="Today") #{__('Today')}
     span(ng-switch-when="Yesterday") #{__('Yesterday')}
@@ -14,4 +14,4 @@
       inbox-filter-input.hidden-xs(filter="$ctrl.quickFilter", on-change="$ctrl.setQuickFilter($filter)")
       inbox-filter-input.visible-xs(ng-if="$ctrl.searching", auto-focus-input="true", filter="$ctrl.quickFilter", on-change="$ctrl.setQuickFilter($filter)", on-blur="$ctrl.searching = false")
       i.clickable.mdi.mdi-magnify.visible-xs(ng-if="!$ctrl.searching", ng-click="$ctrl.searching = true", ng-class="{ active: $ctrl.quickFilter }")
-    inbox-list-group-toggle-selection
+    inbox-filter-button.clickable(ng-if="$ctrl.filters.length > 0", filters="$ctrl.filters")

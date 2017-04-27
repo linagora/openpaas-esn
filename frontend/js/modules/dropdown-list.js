@@ -17,7 +17,7 @@ angular.module('esn.dropdownList', [])
             prefixEvent: 'dropdown-list',
             autoClose: true,
             template: '<ul class="dropdown-menu" role="menu"><li><div ng-include="\'' + attrs.dropdownList + '\'"></div></li></ul>',
-            placement: 'bottom-left',
+            placement: 'bottom-right',
             container: angular.element(element.parent())
           });
         }
