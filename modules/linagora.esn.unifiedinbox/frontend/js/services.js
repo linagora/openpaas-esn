@@ -629,17 +629,24 @@ angular.module('linagora.esn.unifiedinbox')
       if (!templateName) {
         templateName = 'default';
       }
-
-      return _quote(email, '/unifiedinbox/views/partials/quotes/' + templateName + (forceRichTextTemplate || supportsRichtext() ? '.html' : '.txt'));
+       return _quote(email, '/unifiedinbox/views/partials/quotes/' + templateName + (forceRichTextTemplate || supportsRichtext() ? '.html' : 'Text.html'), (forceRichTextTemplate || supportsRichtext()));
     }
 
     function quoteOriginalEmail(email) {
-      return _quote(email, '/unifiedinbox/views/partials/quotes/original.html');
+      return _quote(email, '/unifiedinbox/views/partials/quotes/original.html', true);
     }
 
-    function _quote(email, template) {
+    function htmlToText(html) {
+      return angular.element('<div />').html(html).get(0).innerText;
+    }
+
+    function interpolate(email, template) {
+      return $interpolate(template)({ email: email, dateFormat: 'medium', tz: localTimezone, marker: '\x00' });
+    }
+
+    function _quote(email, template, supportRichTextTemplate) {
       return $templateRequest(template).then(function(template) {
-        return $interpolate(template)({ email: email, dateFormat: 'medium', tz: localTimezone });
+       return interpolate(email, supportRichTextTemplate ? template : htmlToText(template));
       });
     }
 
