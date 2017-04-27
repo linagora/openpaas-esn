@@ -1,14 +1,59 @@
-settings-overlay {
-  .all-centered;
-  .transition(0.25s ease-out);
+@asideSettingsIconFontSize: 1.8em;
 
-  position: absolute;
-  top: 0;
-  height: 100%;
-  right: 0;
-  opacity: 0.5;
+.clickable:not(.text-danger):not(a):not(.menu-root) {
+  &.selected {
+    settings-overlay {
+      .BoxShadow(-16px 0 5px -8px darken(@darkenBgColor, 2%));
 
-  &:hover {
-    opacity: 1;
+      .mdi {
+        opacity: 1;
+      }
+    }
+  }
+
+  settings-overlay {
+    .all-centered;
+
+    position: absolute;
+    top: 0;
+    height: 100%;
+    right: 0;
+    font-size: @asideSettingsIconFontSize;
+    background-color: inherit;
+    padding-right: 5px;
+
+    .mdi {
+      opacity: 0;
+    }
+  }
+}
+
+
+.is-desktop .clickable:not(.text-danger):not(a):not(.menu-root):hover {
+  settings-overlay {
+    background-color: @darkenBgColor;
+    .BoxShadow(-16px 0 5px -8px @darkenBgColor);
+
+    .mdi {
+      opacity: 0.5;
+    }
+
+    &:hover .mdi {
+      opacity: 1;
+    }
+  }
+}
+
+.is-mobile .clickable:not(.text-danger):not(a):not(.menu-root) {
+  &:active {
+    settings-overlay {
+      background-color: @m-white;
+      .BoxShadow(-16px 0 5px -8px @m-white);
+      .transition(0.25s ease-out);
+
+      .mdi {
+        opacity: 1;
+      }
+    }
   }
 }

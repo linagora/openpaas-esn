@@ -13,5 +13,4 @@
     span.menu-item-inner
       bdi {{ mailbox.qualifiedName }}
     span.menu-item-after
-  .settings-overlay(ng-if="settings", ui-sref='unifiedinbox.inbox.folders.edit({ mailbox: mailbox.id })', ng-click="$event.stopImmediatePropagation(); hideAside();")
-    i.mdi.mdi-settings
+  settings-overlay(ng-if="settings", settings-overlay-sref="unifiedinbox.inbox.folders.edit({ mailbox: mailbox.id })", ng-click="$event.stopImmediatePropagation(); hideAside();", ui-sref-active-eq="selected")
