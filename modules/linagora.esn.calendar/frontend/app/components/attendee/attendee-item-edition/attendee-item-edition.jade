@@ -1,10 +1,7 @@
 .attendee-item
-  a.avatar(ng-attr-title='{{::ctrl.attendee.name}}')
-    img(src='/images/user.png', fallback-src='/images/user.png', ng-src='/api/avatars?email={{ctrl.attendee.email|urlencode}}', alt='#{__("User Avatar")}')
-    .checkbox(ng-if='ctrl.canModifyAttendee && !ctrl.isOrganizer')
-      label
-        input.force-position-initial(type="checkbox", ng-if="!ctrl.attendee.clicked")
-        input.force-position-initial(type="checkbox", ng-if="ctrl.attendee.clicked", checked)
-        i.input-helper
-    .organizer(ng-if='ctrl.isOrganizer')
-      i.mdi.mdi-pencil
+  cal-attendee-avatar(attendee='ctrl.attendee', is-organizer='ctrl.isOrganizer')
+  .checkbox(ng-if='ctrl.canModifyAttendee && !ctrl.isOrganizer')
+    label
+      input.force-position-initial(type="checkbox", ng-if="!ctrl.attendee.clicked")
+      input.force-position-initial(type="checkbox", ng-if="ctrl.attendee.clicked", checked)
+      i.input-helper
