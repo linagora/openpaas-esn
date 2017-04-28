@@ -191,7 +191,7 @@
         url: '/consult',
         views: {
           content: {
-            template: '<cal-event-consult-form event="event"/>',
+            template: '<cal-event-consult-form event="event" calendar-home-id="calendarHomeId"/>',
             controller: function($scope, event) {
               $scope.event = event;
             }
