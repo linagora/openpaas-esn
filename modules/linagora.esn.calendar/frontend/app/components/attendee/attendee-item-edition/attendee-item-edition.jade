@@ -1,5 +1,5 @@
-.attendee-list-item.col-xs-1
-  a.attendee-avatar(href="", ng-attr-title='{{::ctrl.attendee.name}}')
+.attendee-item
+  a.avatar(ng-attr-title='{{::ctrl.attendee.name}}')
     img(src='/images/user.png', fallback-src='/images/user.png', ng-src='/api/avatars?email={{ctrl.attendee.email|urlencode}}', alt='#{__("User Avatar")}')
     .checkbox(ng-if='ctrl.canModifyAttendee && !ctrl.isOrganizer')
       label

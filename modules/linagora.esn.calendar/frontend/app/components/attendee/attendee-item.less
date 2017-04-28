@@ -1,0 +1,52 @@
+.attendee-item {
+  .flex-row;
+  .flex-space-between;
+  .flex-vertical-centered;
+
+  height: 50px;
+  margin-left: 5px;
+
+  .avatar {
+    .clickable;
+    .flex-row;
+
+    position: relative;
+
+    img {
+      .esn-avatar-lg;
+    }
+
+    .checkbox {
+      position: absolute;
+      top: 22px;
+      left: 32px;
+    }
+
+    .organizer {
+      position: absolute;
+      top: 30px;
+      left: 36px;
+      .mdi {
+        font-size: 1.5em;
+        color: @accentColor;
+      }
+    }
+  }
+
+  .name {
+    .ellipsis;
+    .flex-grow(1);
+
+    margin-left: 8px;
+  }
+
+  .actions {
+    .send-email {
+      .mdi {
+        color: grey;
+        font-size: 2em;
+        float: right;
+      }
+    }
+  }
+}

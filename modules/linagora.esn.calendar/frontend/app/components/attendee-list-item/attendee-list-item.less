@@ -1,48 +1,11 @@
 .attendee-list-item {
-  .flex-row;
-  .flex-vertical-centered;
-  height: 50px;
-  margin-left: 5px;
 
-  .ellipsis {
-    -webkit-flex: auto;
-    flex: auto;
-  }
-
-  .attendee-send-email {
-    .mdi {
-      color: grey;
-      font-size: 2em;
-      float: right;
+  // This fixes a blinking issue in Chrome and mobile with absolute position, hiding
+  // inputs.
+  @media (max-width: @screen-xs-max) {
+    .force-position-initial {
+      position: initial !important; /* override material-admin properties */
+      margin-left: -20px ! important; /* override material-admin properties */
     }
-  }
-}
-
-.attendee-avatar {
-  .checkbox {
-    position: absolute;
-    top: 24px;
-    left: 36px;
-  }
-  .organizer {
-    position: absolute;
-    top: 30px;
-    left: 36px;
-    .mdi {
-      font-size: 1.5em;
-      color: @accentColor;
-    }
-  }
-  img {
-    .esn-avatar-lg;
-  }
-}
-
-// This fixes a blinking issue in Chrome and mobile with absolute position, hiding
-// inputs.
-@media (max-width: @screen-xs-max) {
-  .force-position-initial {
-    position: initial !important; /* override material-admin properties */
-    margin-left: -20px ! important; /* override material-admin properties */
   }
 }
