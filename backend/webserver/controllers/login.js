@@ -4,17 +4,36 @@ var passport = require('passport');
 var url = require('url');
 var config = require('../../core').config('default');
 var userlogin = require('../../core/user/login');
+var esnConfig = require('../../core/esn-config');
 var logger = require('../../core/logger');
 var alterTemplatePath = require('../middleware/templates').alterTemplatePath;
+var assetRegistry = require('../../core').assets;
 
 function index(req, res) {
-  var targetUrl = { pathname: '/', hash: req.user ? '' : '/login' };
-  var continueUrl = req.query.continue;
-  if (continueUrl && !req.user) {
-    var hashUrl = { pathname: '/login', query: { continue: continueUrl } };
-    targetUrl.hash = url.format(hashUrl);
+  if (req.isAuthenticated()) {
+    return res.redirect(req.query.continue || '/');
   }
-  return res.redirect(url.format(targetUrl));
+
+  esnConfig('recaptcha').get(function(err, recaptcha) {
+    if (err) {
+      logger.error('Could not get recaptcha keys in esn config.', err.message);
+
+      return res.status(500).json({
+        error: 500,
+        message: 'Server Error',
+        details: 'Internal server error'
+      });
+    }
+
+    res.locals.assets = assetRegistry.envAwareApp('welcome');
+
+    alterTemplatePath('welcome/index', function(tplPath) {
+      res.render(tplPath, {
+        title: 'Home',
+        recaptchaPublicKey: recaptcha ? recaptcha.publickey : null
+      });
+    });
+  });
 }
 module.exports.index = index;
 
