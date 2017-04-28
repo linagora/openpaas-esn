@@ -6,6 +6,11 @@ angular.module('linagora.esn.profile')
     $scope.user = user;
     $scope.me = session.user._id === $scope.user._id;
   })
+  .controller('profileOverviewController', function(session) {
+    var self = this;
+
+    self.me = self.user._id === session.user._id;
+  })
   .controller('profileEditionController', function($scope, $log, user, session, profileAPI, notificationFactory) {
     $scope.user = user;
     $scope.updateProfile = function(user) {
