@@ -188,4 +188,18 @@ describe('The inboxFilteringService service', function() {
 
   });
 
+  describe('The getQuickFilter function', function() {
+
+    it('should return null when no quickFilter is defined', function() {
+      expect(service.getQuickFilter()).to.equal(null);
+    });
+
+    it('should return a quickFilter when defined', function() {
+      service.setQuickFilter('filter');
+
+      expect(service.getQuickFilter()).to.equal('filter');
+    });
+
+  });
+
 });
