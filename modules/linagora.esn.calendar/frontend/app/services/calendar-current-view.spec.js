@@ -8,7 +8,7 @@ describe('The calendarCurrentView factory', function() {
   var locationMock, matchmediaMock, calMoment, calendarCurrentView, CAL_AVAILABLE_VIEWS, SM_XS_MEDIA_QUERY;
 
   beforeEach(function() {
-    locationMock = {search: sinon.spy()};
+    locationMock = {search: sinon.spy(), url: function() { return ''; }};
     matchmediaMock = {
       is: function() {
         return false;

@@ -193,4 +193,84 @@ describe('The esn.header Angular module', function() {
 
   });
 
+  describe('The run section', function() {
+    beforeEach(inject(function($rootScope, HEADER_DISABLE_SCROLL_LISTENER_EVENT, HEADER_VISIBILITY_EVENT) {
+      this.$rootScope = $rootScope;
+      this.$scope = this.$rootScope.$new();
+      this.HEADER_DISABLE_SCROLL_LISTENER_EVENT = HEADER_DISABLE_SCROLL_LISTENER_EVENT;
+      this.HEADER_VISIBILITY_EVENT = HEADER_VISIBILITY_EVENT;
+      this.fromState = {
+        data: {
+          headerVisibility: true
+        }
+      };
+      this.toState = {
+        data: {
+          headerVisibility: true
+        }
+      };
+    }));
+
+    it('should HEADER_DISABLE_SCROLL_LISTENER_EVENT be true with toState headerVisibility: false', function(done) {
+      this.toState.data.headerVisibility = false;
+
+      this.$rootScope.$on(this.HEADER_DISABLE_SCROLL_LISTENER_EVENT, function(event, toStateHeaderVisibility) {
+        expect(toStateHeaderVisibility).to.be.true;
+
+        done();
+      });
+      this.$rootScope.$broadcast('$stateChangeSuccess', this.toState, null, this.fromState);
+    });
+
+    it('should HEADER_VISIBILITY_EVENT be false with toState headerVisibility: false', function(done) {
+      this.toState.data.headerVisibility = false;
+
+      this.$rootScope.$on(this.HEADER_VISIBILITY_EVENT, function(event, toStateHeaderVisibility) {
+        expect(toStateHeaderVisibility).to.be.false;
+
+        done();
+      });
+      this.$rootScope.$broadcast('$stateChangeSuccess', this.toState, null, this.fromState);
+    });
+
+    it('should HEADER_DISABLE_SCROLL_LISTENER_EVENT be false with fromState headerVisibility: false', function(done) {
+      this.fromState.data.headerVisibility = false;
+
+      this.$rootScope.$on(this.HEADER_DISABLE_SCROLL_LISTENER_EVENT, function(event, toStateHeaderVisibility) {
+        expect(toStateHeaderVisibility).to.be.false;
+
+        done();
+      });
+      this.$rootScope.$broadcast('$stateChangeSuccess', this.toState, null, this.fromState);
+    });
+
+    it('should HEADER_VISIBILITY_EVENT be true with fromState headerVisibility: false', function(done) {
+      this.fromState.data.headerVisibility = false;
+
+      this.$rootScope.$on(this.HEADER_VISIBILITY_EVENT, function(event, toStateHeaderVisibility) {
+        expect(toStateHeaderVisibility).to.be.true;
+
+        done();
+      });
+      this.$rootScope.$broadcast('$stateChangeSuccess', this.toState, null, this.fromState);
+    });
+
+    it('should HEADER_DISABLE_SCROLL_LISTENER_EVENT be not call', function() {
+      var headerVisibilityScrollListenerEventCallback = sinon.spy();
+
+      this.$rootScope.$on(this.HEADER_DISABLE_SCROLL_LISTENER_EVENT, headerVisibilityScrollListenerEventCallback);
+      this.$rootScope.$broadcast('$stateChangeSuccess', this.toState, null, this.fromState);
+
+      expect(headerVisibilityScrollListenerEventCallback).to.not.have.been.called;
+    });
+
+    it('should HEADER_VISIBILITY_EVENT be not call', function() {
+      var headerVisibilityEventCallback = sinon.spy();
+
+      this.$rootScope.$on(this.HEADER_VISIBILITY_EVENT, headerVisibilityEventCallback);
+      this.$rootScope.$broadcast('$stateChangeSuccess', this.toState, null, this.fromState);
+
+      expect(headerVisibilityEventCallback).to.not.have.been.called;
+    });
+  });
 });
