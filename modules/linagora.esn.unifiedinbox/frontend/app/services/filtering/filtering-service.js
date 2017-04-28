@@ -12,6 +12,7 @@
         uncheckFilters: uncheckFilters,
         setProviderFilters: setProviderFilters,
         getAllProviderFilters: getAllProviderFilters,
+        getQuickFilter: getQuickFilter,
         setQuickFilter: setQuickFilter
       };
 
@@ -53,6 +54,10 @@
         quickFilter = null;
 
         $rootScope.$broadcast(INBOX_EVENTS.FILTER_CHANGED);
+      }
+
+      function getQuickFilter() {
+        return quickFilter;
       }
 
       function setQuickFilter(filter) {

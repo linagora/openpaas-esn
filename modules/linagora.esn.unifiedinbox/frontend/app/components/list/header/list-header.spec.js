@@ -170,7 +170,21 @@ describe('The inboxListGroupToggleSelection component', function() {
     element.find('.inbox-list-header-quick-filter input').val('filter').trigger('input');
     $timeout.flush(); // Because of the 'debounce' option
 
-    expect(inboxFilteringService.getAllProviderFilters().quickFilter).to.equal('filter');
+    expect(inboxFilteringService.getQuickFilter()).to.equal('filter');
+  });
+
+  it('should initialize the quickFilter input to nothing, when no quickFilter exists', function() {
+    compileDirective('<inbox-list-header />');
+
+    expect(element.find('.inbox-list-header-quick-filter input').val()).to.equal('');
+  });
+
+  it('should initialize the quickFilter input to the actual value, when it exists', function() {
+    inboxFilteringService.setQuickFilter('filter');
+
+    compileDirective('<inbox-list-header />');
+
+    expect(element.find('.inbox-list-header-quick-filter input').val()).to.equal('filter');
   });
 
 });

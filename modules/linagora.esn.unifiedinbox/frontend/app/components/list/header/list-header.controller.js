@@ -6,10 +6,15 @@
     .controller('inboxListHeaderController', function(inboxDateGroups, inboxFilteringService) {
       var self = this;
 
+      self.$onInit = $onInit;
       self.$onChanges = $onChanges;
       self.setQuickFilter = setQuickFilter;
 
       /////
+
+      function $onInit() {
+        self.quickFilter = inboxFilteringService.getQuickFilter();
+      }
 
       function $onChanges(bindings) {
         if (!bindings.item) {
