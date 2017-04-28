@@ -3,16 +3,16 @@
     .attendees-sublist(ng-if='ctrl.attendeesPerPartstat.ACCEPTED > 0')
       .attendees-sublist-title.accepted #{__('Accepted')}
       .attendees-sublist-body
-        cal-attendee-list-item(attendee='attendee', can-modify-attendee='::ctrl.canModifyAttendees', is-organizer='ctrl.isOrganizer(attendee)', ng-click= "ctrl.selectAttendee(attendee)", ng-repeat="attendee in ctrl.attendees | partstat:'ACCEPTED' track by attendee.email")
+        cal-attendees-list-item(attendee='attendee', can-modify-attendee='::ctrl.canModifyAttendees', is-organizer='ctrl.isOrganizer(attendee)', ng-click= "ctrl.selectAttendee(attendee)", ng-repeat="attendee in ctrl.attendees | partstat:'ACCEPTED' track by attendee.email")
     .attendees-sublist(ng-if='ctrl.attendeesPerPartstat.DECLINED > 0')
       .attendees-sublist-title.declined #{__('Declined')}
       .attendees-sublist-body
-        cal-attendee-list-item(attendee='attendee', can-modify-attendee='::ctrl.canModifyAttendees', is-organizer='ctrl.isOrganizer(attendee)', ng-click= "ctrl.selectAttendee(attendee)", ng-repeat="attendee in ctrl.attendees | partstat:'DECLINED' track by attendee.email")
+        cal-attendees-list-item(attendee='attendee', can-modify-attendee='::ctrl.canModifyAttendees', is-organizer='ctrl.isOrganizer(attendee)', ng-click= "ctrl.selectAttendee(attendee)", ng-repeat="attendee in ctrl.attendees | partstat:'DECLINED' track by attendee.email")
     .attendees-sublist(ng-if='ctrl.attendeesPerPartstat["NEEDS-ACTION"] > 0 || ctrl.attendeesPerPartstat["TENTATIVE"] > 0')
       .attendees-sublist-title.undecided #{__('Undecided')}
       .attendees-sublist-body
-        cal-attendee-list-item(attendee='attendee', can-modify-attendee='::ctrl.canModifyAttendees', is-organizer='ctrl.isOrganizer(attendee)', ng-click= "ctrl.selectAttendee(attendee)", ng-repeat="attendee in ctrl.attendees | partstat:'NEEDS-ACTION' track by attendee.email")
-        cal-attendee-list-item(attendee='attendee', can-modify-attendee='::ctrl.canModifyAttendees', is-organizer='ctrl.isOrganizer(attendee)', ng-click= "ctrl.selectAttendee(attendee)", ng-repeat="attendee in ctrl.attendees | partstat:'TENTATIVE' track by attendee.email")
+        cal-attendees-list-item(attendee='attendee', can-modify-attendee='::ctrl.canModifyAttendees', is-organizer='ctrl.isOrganizer(attendee)', ng-click= "ctrl.selectAttendee(attendee)", ng-repeat="attendee in ctrl.attendees | partstat:'NEEDS-ACTION' track by attendee.email")
+        cal-attendees-list-item(attendee='attendee', can-modify-attendee='::ctrl.canModifyAttendees', is-organizer='ctrl.isOrganizer(attendee)', ng-click= "ctrl.selectAttendee(attendee)", ng-repeat="attendee in ctrl.attendees | partstat:'TENTATIVE' track by attendee.email")
   .col-xs-2.attendees-bin(ng-if='ctrl.canModifyAttendees && ctrl.attendeeClickedCount > 0', ng-click='ctrl.deleteSelectedAttendees()')
     .trash
       i.mdi.mdi-delete(ng-if='ctrl.canModifyAttendees && ctrl.attendeeClickedCount > 0', ng-click='ctrl.deleteSelectedAttendees()')

@@ -1,0 +1,11 @@
+.attendee-list-item {
+
+  // This fixes a blinking issue in Chrome and mobile with absolute position, hiding
+  // inputs.
+  @media (max-width: @screen-xs-max) {
+    .force-position-initial {
+      position: initial !important; /* override material-admin properties */
+      margin-left: -20px ! important; /* override material-admin properties */
+    }
+  }
+}
