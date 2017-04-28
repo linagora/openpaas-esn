@@ -4,7 +4,7 @@
 
 var expect = chai.expect;
 
-describe('The AttendeesListController controller', function() {
+describe('The CalAttendeesListController controller', function() {
 
   beforeEach(function() {
     module('jadeTemplates');
@@ -28,7 +28,7 @@ describe('The AttendeesListController controller', function() {
     this.context.organizer = { email: 'organizer@openpaas.org' };
 
     this.initController = function() {
-      return this.$controller('AttendeesListController', {$scope: this.$scope}, this.context);
+      return this.$controller('CalAttendeesListController', {$scope: this.$scope}, this.context);
     };
   }));
 

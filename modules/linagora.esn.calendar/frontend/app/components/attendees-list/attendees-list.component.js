@@ -8,7 +8,7 @@
         canModifyAttendees: '=',
         organizer: '='
       },
-      controller: 'AttendeesListController',
+      controller: 'CalAttendeesListController',
       controllerAs: 'ctrl',
       templateUrl: '/calendar/app/components/attendees-list/attendees-list.html'
     });
