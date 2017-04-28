@@ -2,11 +2,10 @@
   'use strict';
 
   angular.module('esn.calendar')
-    .component('calAttendeeListItem', {
-      templateUrl: '/calendar/app/components/attendee-list-item/attendee-list-item.html',
+    .component('calAttendeeAvatar', {
+      templateUrl: '/calendar/app/components/attendee/attendee-avatar/attendee-avatar.html',
       bindings: {
         attendee: '=',
-        canModifyAttendee: '<',
         isOrganizer: '<'
       },
       controllerAs: 'ctrl'
