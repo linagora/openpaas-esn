@@ -88,12 +88,12 @@
 @media(min-width: @screen-md-min) {
   .inbox-aside {
     position: fixed;
-    width: inherit;
+    width: 23%;
     overflow: hidden;
-    padding-right: 30px;
 
     &:hover {
       overflow-y: auto;
+      width: 24%;
     }
 
     bottom: 0;
@@ -220,3 +220,16 @@
     }
   }
 }
+
+@media(min-width: @screen-xl-min) {
+  .inbox-aside {
+    position: fixed;
+    width: 14.66666667%;
+
+    &:hover {
+      overflow-y: auto;
+      width: 15.66666667%;
+    }
+  }
+}
+
