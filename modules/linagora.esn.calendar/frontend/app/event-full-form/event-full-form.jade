@@ -46,7 +46,8 @@
                       button.btn.btn-link.declined(type='button', ng-click='changeParticipation("DECLINED")', ng-class='{ "active": userAsAttendee.partstat === "DECLINED" }') #{__('No')}
 
               .row.visible-xs
-                cal-attendees-list(attendees='editedEvent.attendees', can-modify-attendees='::canModifyEventAttendees', organizer='::editedEvent.organizer')
+                .col-xs-12
+                  cal-attendees-list-condensed(attendees='editedEvent.attendees', can-modify-attendees='::canModifyEventAttendees', organizer='::editedEvent.organizer')
 
               .row.visible-xs
                 cal-mail-to-attendees(ng-if='displayCalMailToAttendeesButton()', event='editedEvent')
@@ -77,7 +78,7 @@
                       button.btn.btn-link.declined(type='button', ng-click='changeParticipation("DECLINED")', ng-class='{ "active": userAsAttendee.partstat === "DECLINED" }') #{__('No')}
 
               .row.hidden-xs
-                cal-attendees-list(attendees='editedEvent.attendees', can-modify-attendees='::canModifyEventAttendees', organizer='::editedEvent.organizer')
+                cal-attendees-list-condensed(attendees='editedEvent.attendees', can-modify-attendees='::canModifyEventAttendees', organizer='::editedEvent.organizer')
 
               .row.hidden-xs
                 cal-mail-to-attendees(ng-if='displayCalMailToAttendeesButton()', event='editedEvent')

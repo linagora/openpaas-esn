@@ -1,7 +1,5 @@
 .attendee-item
   cal-attendee-avatar(attendee='ctrl.attendee', is-organizer='ctrl.isOrganizer')
   .name
-    span {{::ctrl.attendee.name}}
-  .actions
     a.send-email(ng-href="mailto:{{::ctrl.attendee.email}}" op-inbox-compose op-inbox-compose-display-name="{{::ctrl.attendee.name}}")
-      i.mdi.mdi-email
+      {{::ctrl.attendee.name}}

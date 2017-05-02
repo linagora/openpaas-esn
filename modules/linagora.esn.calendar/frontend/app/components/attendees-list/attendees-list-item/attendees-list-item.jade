@@ -1,4 +1,0 @@
-.attendee-list-item
-  cal-attendee-item-edition.hidden-xs(attendee='ctrl.attendee', is-organizer='ctrl.isOrganizer', can-modify-attendee="ctrl.canModifyAttendee")
-  cal-attendee-item-edition.visible-xs(ng-if="::ctrl.canModifyAttendee", attendee='ctrl.attendee', is-organizer='ctrl.isOrganizer')
-  cal-attendee-item-consult.visible-xs(ng-if="::!ctrl.canModifyAttendee", attendee='ctrl.attendee', is-organizer='ctrl.isOrganizer')

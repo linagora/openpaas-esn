@@ -2,7 +2,7 @@
   'use strict';
 
   angular.module('esn.calendar')
-    .component('calAttendeesList', {
+    .component('calAttendeesListExpanded', {
       bindings: {
         attendees: '=',
         canModifyAttendees: '=',
@@ -10,6 +10,6 @@
       },
       controller: 'CalAttendeesListController',
       controllerAs: 'ctrl',
-      templateUrl: '/calendar/app/components/attendees-list/attendees-list.html'
+      templateUrl: '/calendar/app/components/attendees-list/attendees-list-expanded/attendees-list-expanded.html'
     });
 })();

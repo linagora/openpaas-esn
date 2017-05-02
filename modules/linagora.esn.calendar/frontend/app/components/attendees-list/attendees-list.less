@@ -8,6 +8,11 @@
     .flex-column;
 
     .attendees-sublist {
+      .attendees-sublist-title {
+        margin-top: 5px;
+        margin-bottom: 5px;
+      }
+
       .attendees-sublist-body {
         .flex-row;
         .flex-wrap;
@@ -15,15 +20,16 @@
     }
   }
 
-  .attendees-bin {
+  .attendees-actions {
     .flex-horizontal-centered;
 
-    background: @darkenBgColor;
+    min-width: 40px;
   }
 
   .trash {
     .flex-vertical-centered;
 
+    background: @darkenBgColor;
     color: @m-red;
     cursor: pointer;
 
@@ -44,9 +50,13 @@
     color: @m-red;
   }
 
-  @media (max-width: @screen-xs-max) {
+  &.attendees-list-expanded {
     .attendees-sublists .attendees-sublist .attendees-sublist-body {
       .flex-column;
     }
+  }
+
+  &.attendees-list-condensed {
+    justify-content: space-between;
   }
 }
