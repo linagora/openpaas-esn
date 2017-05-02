@@ -28,7 +28,8 @@ describe('EventMailListener module', function() {
     amqpClient = {
       subscribe: (exchange, notifyFn) => {
         notifyFunction = notifyFn;
-      }
+      },
+      ack: sinon.spy()
     };
 
     amqpClientProviderMock = {
@@ -248,20 +249,26 @@ describe('EventMailListener module', function() {
   });
 
   describe('recipient email checks', function() {
-    it('should ignore message and log if recipient not found in OP', function(done) {
+    it('should ignore message and log if recipient not found in OP and ack the message', function(done) {
       userMock.findByEmail = (email, cb) => {
         cb(null, null);
       };
 
+      var originalMessage = {};
+
       this.requireModule()
         .init()
         .then(function() {
-          notifyFunction(jsonMessage);
+          notifyFunction(jsonMessage, originalMessage);
 
           expect(loggerMock.warn).to.have.been.calledWith('CAlEventMailListener[Test] : Recipient user unknown in OpenPaas => Event ignored');
           expect(caldavClientMock.iTipRequest).to.not.have.been.called;
 
-          done();
+          setTimeout(function() {
+            expect(amqpClient.ack).to.have.been.calledWith(originalMessage);
+
+            done();
+          });
         })
         .catch(function(err) {
           done(err || 'Err');
@@ -290,15 +297,21 @@ describe('EventMailListener module', function() {
   });
 
   describe('_handleMessage function', function() {
-    it('should send request if message is valid', function(done) {
+    it('should send request if message is valid and ack the message', function(done) {
+      var originalMessage = {};
+
       this.requireModule()
         .init()
         .then(function() {
-          notifyFunction(jsonMessage);
+          notifyFunction(jsonMessage, originalMessage);
 
           expect(caldavClientMock.iTipRequest).to.have.been.calledWith('userId', jsonMessage);
 
-          done();
+          setTimeout(function() {
+            expect(amqpClient.ack).to.have.been.calledWith(originalMessage);
+
+            done();
+          });
         })
         .catch(function(err) {
           done(err || 'Err');

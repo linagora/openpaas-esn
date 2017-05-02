@@ -21,7 +21,7 @@ const SUBSCRIBER = {
     durable: false,
     autoDelete: true
   },
-  consumeOptions: { noAck: true }
+  consumeOptions: { noAck: false }
 };
 
 const dataAsBuffer = data => Buffer.from(JSON.stringify(data), PUBSUB_EXCHANGE.encoding);
@@ -72,6 +72,10 @@ class AmqpClient {
     return this.channel.assertExchange(exchange, type);
   }
 
+  ack(message, allUpTo = false) {
+    return this.channel.ack(message, allUpTo);
+  }
+
   assertQueue(name, options) {
     return this.channel.assertQueue(name, options);
   }
@@ -86,8 +90,8 @@ class AmqpClient {
 
   consume(queue, options, callback, notOnlyJSONConsumer = false) {
 
-    function onMessage(msg) {
-      callback(notOnlyJSONConsumer ? msg.content : JSON.parse(msg.content));
+    function onMessage(originalMessage) {
+      callback(notOnlyJSONConsumer ? originalMessage.content : JSON.parse(originalMessage.content), originalMessage);
     }
 
     return this.channel.consume(queue, onMessage, options)

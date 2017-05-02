@@ -4,7 +4,6 @@ const expect = require('chai').expect;
 const mockery = require('mockery');
 const q = require('q');
 const sinon = require('sinon');
-const AmqpClient = require('../../../../backend/core/amqp/client');
 
 describe('The amqp module', function() {
 
@@ -112,7 +111,9 @@ describe('The amqp module', function() {
       getClient().catch(err => done(err || 'should resolve'));
     });
 
-    it.skip('should return a AmqpClient', function(done) {
+    it('should return a AmqpClient', function(done) {
+      const AmqpClient = require('../../../../backend/core/amqp/client');
+
       mockEsnConfig();
       mockAmqplib({
         connect: () => ({
@@ -121,7 +122,7 @@ describe('The amqp module', function() {
       });
 
       getClient()
-        .then(client => expect(client instanceof AmqpClient).to.be.true) // This instanceof fail, can't figure out the reason
+        .then(client => expect(client).to.be.instanceof(AmqpClient))
         .then(() => done())
         .catch(err => done(err || 'should resolve'));
     });
