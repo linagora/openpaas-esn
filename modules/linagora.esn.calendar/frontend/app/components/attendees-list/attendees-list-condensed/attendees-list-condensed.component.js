@@ -6,8 +6,7 @@
       bindings: {
         attendees: '=',
         canModifyAttendees: '=',
-        organizer: '=',
-        displayTrash: '<'
+        organizer: '='
       },
       controller: 'CalAttendeesListController',
       controllerAs: 'ctrl',
