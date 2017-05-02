@@ -187,4 +187,26 @@ describe('The inboxListGroupToggleSelection component', function() {
     expect(element.find('.inbox-list-header-quick-filter input').val()).to.equal('filter');
   });
 
+  it('should update the quickFilter input to the new value when it chancges', function() {
+    inboxFilteringService.setQuickFilter('filter');
+
+    compileDirective('<inbox-list-header />');
+
+    inboxFilteringService.setQuickFilter('newFilter');
+    $rootScope.$digest();
+
+    expect(element.find('.inbox-list-header-quick-filter input').val()).to.equal('newFilter');
+  });
+
+  it('should clear the quickFilter input when filter is removed', function() {
+    inboxFilteringService.setQuickFilter('filter');
+
+    compileDirective('<inbox-list-header />');
+
+    inboxFilteringService.clearFilters();
+    $rootScope.$digest();
+
+    expect(element.find('.inbox-list-header-quick-filter input').val()).to.equal('');
+  });
+
 });

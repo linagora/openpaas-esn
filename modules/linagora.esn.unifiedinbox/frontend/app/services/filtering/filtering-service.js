@@ -8,8 +8,8 @@
 
       return {
         getAvailableFilters: getAvailableFilters,
-        isAnyFilterSelected: isAnyFilterSelected,
-        uncheckFilters: uncheckFilters,
+        isFilteringActive: isFilteringActive,
+        clearFilters: clearFilters,
         setProviderFilters: setProviderFilters,
         getAllProviderFilters: getAllProviderFilters,
         getQuickFilter: getQuickFilter,
@@ -18,10 +18,12 @@
 
       /////
 
-      function uncheckFilters() {
+      function clearFilters() {
         inboxFilters.forEach(function(filter) {
           filter.checked = false;
         });
+
+        setQuickFilter(null);
       }
 
       function getAvailableFilters() {
@@ -37,8 +39,8 @@
         });
       }
 
-      function isAnyFilterSelected() {
-        return _.some(inboxFilters, { checked: true });
+      function isFilteringActive() {
+        return _.some(inboxFilters, { checked: true }) || !!quickFilter;
       }
 
       function getAcceptedTypesFilter() {
