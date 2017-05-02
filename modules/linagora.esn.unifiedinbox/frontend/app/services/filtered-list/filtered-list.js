@@ -31,10 +31,14 @@
       }
 
       function addAll(newItems) {
+        var isFilteringActive = inboxFilteringService.isFilteringActive();
+
         newItems.forEach(function(item) {
           if (itemsById[item.id]) {
             return;
           }
+
+          item.fetchedWhileFiltering = isFilteringActive;
 
           itemsById[item.id] = item;
           // This will insert the element at the correct index, keeping the array sorted by date in descending order
@@ -66,6 +70,13 @@
       function _buildRenderedList() {
         renderedList.length = 0;
 
+        // Items fetched while filtering is active will mess up with the ordering by date of the aggregator
+        // Removing them is a kind of hack, but solves the issue. Items will be fetched again when the aggregator
+        // reaches the item's date during regular infinite scrolling
+        if (!inboxFilteringService.isFilteringActive()) {
+          _removeItemsFetchedWhileFiltering();
+        }
+
         $q.all(items.map(_isItemFiltered.bind(null, inboxFilteringService.getAllProviderFilters())))
           .then(function(filteredStates) {
             _.forEach(filteredStates, function(filtered, index) {
@@ -86,6 +97,15 @@
               renderedList[0].previous = renderedList[renderedList.length - 1].next = null;
             }
           });
+      }
+
+      function _removeItemsFetchedWhileFiltering() {
+        var candidates = _.filter(items, { fetchedWhileFiltering: true });
+
+        _.forEach(candidates, function(candidate) {
+          _.pull(items, candidate);
+          delete itemsById[candidate.id];
+        });
       }
 
       function _isItemFiltered(filters, item) {

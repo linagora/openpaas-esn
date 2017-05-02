@@ -47,8 +47,8 @@ describe('The inboxFilteredList factory', function() {
   });
 
   it('should render the list when filters change', function() {
-    var unreadMessage = newMessage({ isUnread: true, date: 1 }),
-        readMessage = newMessage({ date: 0 });
+    var unreadMessage = newMessage({ isFlagged: true, isUnread: true, date: 1 }),
+        readMessage = newMessage({ isFlagged: true, date: 0 });
 
     inboxFilteredList.addAll([
       readMessage,
@@ -59,10 +59,31 @@ describe('The inboxFilteredList factory', function() {
     expect(inboxFilteredList.list()).to.deep.equal([unreadMessage]);
 
     _.find(inboxFilters, { id: 'isUnread' }).checked = false;
+    _.find(inboxFilters, { id: 'isFlagged' }).checked = true;
     $rootScope.$broadcast(INBOX_EVENTS.FILTER_CHANGED);
     $rootScope.$digest();
 
-    expect(inboxFilteredList.list()).to.deep.equal([unreadMessage, readMessage]); // unread is newer
+    expect(inboxFilteredList.list()).to.deep.equal([unreadMessage, readMessage]); // both messages are flagged
+  });
+
+  it('should render the list when filters are cleared, removing items fetched when filtering was active', function() {
+    var unreadMessage = newMessage({ isUnread: true, date: 1 }),
+        readMessage = newMessage({ date: 0 });
+
+    inboxFilteredList.addAll([
+      readMessage,
+      unreadMessage
+    ]);
+    $rootScope.$digest();
+
+    expect(inboxFilteredList.list()).to.deep.equal([unreadMessage]);
+    expect(inboxFilteredList.getById(unreadMessage.id)).to.equal(unreadMessage);
+
+    inboxFilteringService.clearFilters();
+    $rootScope.$digest();
+
+    expect(inboxFilteredList.list()).to.deep.equal([]);
+    expect(inboxFilteredList.getById(unreadMessage.id)).to.equal(undefined);
   });
 
   it('should render the list when item flags change', function() {
