@@ -8,6 +8,7 @@ module.exports = dependencies => {
   const logger = dependencies('logger');
   const userModule = dependencies('user');
   const caldavClient = require('../caldav-client')(dependencies);
+  let amqpClient;
 
   return {
     init
@@ -32,7 +33,11 @@ module.exports = dependencies => {
     const amqpClientPromise = amqpClientProvider.getClient();
 
     return amqpClientPromise
-      .then(client => client.subscribe(exchange, _processMessage))
+      .then(client => {
+        amqpClient = client;
+
+        amqpClient.subscribe(exchange, _processMessage);
+      })
       .catch(() => {
         logger.error('CAlEventMailListener : Cannot connect to MQ ' + exchange);
       });
@@ -42,7 +47,7 @@ module.exports = dependencies => {
     return esnConfig('external-event-listener').inModule('linagora.esn.calendar').get();
   }
 
-  function _processMessage(jsonMessage) {
+  function _processMessage(jsonMessage, originalMessage) {
     logger.debug('CAlEventMailListener, new message received');
     if (!_checkMandatoryFields(jsonMessage)) {
       logger.warn('CAlEventMailListener : Missing mandatory field => Event ignored');
@@ -60,9 +65,15 @@ module.exports = dependencies => {
 
         if (user) {
           _handleMessage(user.id, jsonMessage)
-            .then(() => { logger.debug('CAlEventMailListener[' + jsonMessage.uid + '] : Successfully sent to DAV server'); })
+            .then(() => {
+              amqpClient.ack(originalMessage);
+
+              logger.debug('CAlEventMailListener[' + jsonMessage.uid + '] : Successfully sent to DAV server');
+            })
             .catch(err => logger.debug('CAlEventMailListener[' + jsonMessage.uid + '] : DAV request Error ' + err + ' ' + err ? err.stack : ''));
         } else {
+          amqpClient.ack(originalMessage);
+
           logger.warn('CAlEventMailListener[' + jsonMessage.uid + '] : Recipient user unknown in OpenPaas => Event ignored');
         }
       }
