@@ -22,7 +22,7 @@
     }
 
     function isOrganizer(attendee) {
-      return self.organizer && self.organizer.email === attendee.email;
+      return attendee && attendee.email && self.organizer && self.organizer.email && self.organizer.email === attendee.email;
     }
 
     function deleteSelectedAttendees() {

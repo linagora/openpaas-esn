@@ -85,6 +85,67 @@ describe('The CalAttendeesListController controller', function() {
     });
   });
 
+  describe('The isOrganizer function', function() {
+    var email;
+
+    beforeEach(function() {
+      email = 'me@open-paas.org';
+    });
+
+    it('should be falsy when attendee is not defined', function() {
+      var ctrl = this.initController();
+
+      this.context.organizer = {email: email};
+      ctrl.$onInit();
+
+      expect(ctrl.isOrganizer()).to.be.falsy;
+    });
+
+    it('should be falsy when attendee.email is not defined', function() {
+      var ctrl = this.initController();
+
+      this.context.organizer = {email: email};
+      ctrl.$onInit({});
+
+      expect(ctrl.isOrganizer()).to.be.falsy;
+    });
+
+    it('should be falsy when ctrl.organizer is not defined', function() {
+      var ctrl = this.initController();
+
+      ctrl.$onInit();
+
+      expect(ctrl.isOrganizer({email: email})).to.be.falsy;
+    });
+
+    it('should be falsy when ctrl.organizer.email is not defined', function() {
+      var ctrl = this.initController();
+
+      this.context.organizer = {};
+      ctrl.$onInit();
+
+      expect(ctrl.isOrganizer({email: email})).to.be.falsy;
+    });
+
+    it('should be falsy when attendee.email is not equal to ctrl.organizer.email', function() {
+      var ctrl = this.initController();
+
+      this.context.organizer = {email: 'notequal' + email};
+      ctrl.$onInit();
+
+      expect(ctrl.isOrganizer({email: email})).to.be.falsy;
+    });
+
+    it('should be true when attendee.email is equal to ctrl.organizer.email', function() {
+      var ctrl = this.initController();
+
+      this.context.organizer.email = email;
+      ctrl.$onInit();
+
+      expect(ctrl.isOrganizer({email: email})).to.be.true;
+    });
+  });
+
   describe('The selectAttendee function', function() {
     describe('when user is organizer', function() {
       it('should do nothing if the user is organizer', function() {
