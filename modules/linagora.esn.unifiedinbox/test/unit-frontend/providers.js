@@ -364,6 +364,27 @@ describe('The Unified Inbox Angular module providers', function() {
       $httpBackend.flush();
     });
 
+    describe('The buildFetchContext function', function() {
+
+      it('should resolve when no options are given', function(done) {
+        inboxNewTwitterProvider('id', 'myTwitterAccount', '/unifiedinbox/api/inbox/tweets').buildFetchContext().then(done);
+        $rootScope.$digest();
+      });
+
+      it('should resolve when quickFilter is not defined', function(done) {
+        inboxNewTwitterProvider('id', 'myTwitterAccount', '/unifiedinbox/api/inbox/tweets').buildFetchContext({}).then(done);
+        $rootScope.$digest();
+      });
+
+      it('should reject if quickFilter is defined', function(done) {
+        inboxNewTwitterProvider('id', 'myTwitterAccount', '/unifiedinbox/api/inbox/tweets').buildFetchContext({ quickFilter: 'filter' }).catch(function() {
+          done();
+        });
+        $rootScope.$digest();
+      });
+
+    });
+
     describe('The itemMatches function', function() {
 
       it('should resolve when no provider ID is selected', function(done) {
