@@ -24,22 +24,6 @@ angular.module('esn.header', [
 
   .constant('SUB_HEADER_HEIGHT_IN_PX', 47)
 
-  .run(function($state, $rootScope, HEADER_VISIBILITY_EVENT, HEADER_DISABLE_SCROLL_LISTENER_EVENT) {
-    $rootScope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState) {
-      if (!toState || !fromState) {
-        return;
-      }
-
-      var fromStateHeaderVisibility = fromState.data ? fromState.data.headerVisibility : true,
-        toStateHeaderVisibility = toState.data ? toState.data.headerVisibility : true;
-
-      if (fromStateHeaderVisibility !== toStateHeaderVisibility) {
-        $rootScope.$broadcast(HEADER_DISABLE_SCROLL_LISTENER_EVENT, !toStateHeaderVisibility);
-        $rootScope.$broadcast(HEADER_VISIBILITY_EVENT, toStateHeaderVisibility);
-      }
-    });
-  })
-
   .factory('headerService', function($rootScope, dynamicDirectiveService, MAIN_HEADER, SUB_HEADER, SUB_HEADER_HAS_INJECTION_EVENT, SUB_HEADER_VISIBLE_MD_EVENT) {
 
     function buildDynamicDirective(directiveName, scope) {
