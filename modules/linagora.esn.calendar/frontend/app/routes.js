@@ -124,7 +124,7 @@
         url: '/list',
         views: {
           content: {
-            template: '<calendars-configuration calendars="calendars"/>',
+            template: '<calendars-configuration-mobile calendars="calendars"/>',
             resolve: {
               calendars: function(calendarService, calendarHomeId) {
 
