@@ -107,6 +107,10 @@
         return this.path && (this.path.match(new RegExp('/([^/]+)/[^/]+?/?$')) || [])[1];
       },
 
+      get calendarUniqueId() {
+        return this.path.substring(0, this.path.lastIndexOf('/')) + '.json';
+      },
+
       get title() { return this.summary; },
       set title(value) { this.summary = value; },
 

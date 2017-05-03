@@ -19,18 +19,18 @@ describe('The calendarsList controller', function() {
       })
     };
 
-    hiddenCalendar = {id: 123};
+    hiddenCalendar = {uniqueId: 123};
 
     calendarVisibilityServiceMock = {
       getHiddenCalendars: sinon.spy(function() {
-        return $q.when([hiddenCalendar.id]);
+        return $q.when([hiddenCalendar.uniqueId]);
       }),
       isHidden: sinon.spy(),
       toggle: sinon.spy()
     };
 
     publicCalendar = {
-      id: '5',
+      uniqueId: '5',
       href: 'public calendar href',
       name: 'public calendar name',
       color: 'public calendar color',
@@ -219,7 +219,7 @@ describe('The calendarsList controller', function() {
 
         it('should refresh calendars list', function() {
           var newCalendar = {
-            id: '4',
+            uniqueId: '4',
             href: '/calendars/12345/4.json',
             name: 'name4',
             color: 'color4',
@@ -242,7 +242,7 @@ describe('The calendarsList controller', function() {
 
         it('should refresh calendars list and not consider the new calendar as shared once it is classified as personal', function() {
           var newCalendar = {
-            id: '4',
+            uniqueId: '4',
             href: '/calendars/12345/4.json',
             name: 'name4',
             color: 'color4',
@@ -280,7 +280,7 @@ describe('The calendarsList controller', function() {
 
       it('refresh calendars list', function() {
         calendars = [{
-          id: '1',
+          uniqueId: '1',
           href: 'href',
           name: 'name',
           color: 'color',
@@ -289,7 +289,7 @@ describe('The calendarsList controller', function() {
             return true;
           }
         }, {
-          id: '2',
+          uniqueId: '2',
           href: 'href2',
           name: 'name2',
           color: 'color2',
@@ -373,18 +373,18 @@ describe('The calendarsList controller', function() {
         CalendarsListController.arrangeCalendars = sinon.spy();
 
         $rootScope.$broadcast(CAL_EVENTS.CALENDARS.TOGGLE_VIEW, {
-          calendarId: calendars[0].id,
+          calendarUniqueId: calendars[0].uniqueId,
           hidden: true
         });
 
-        expect(CalendarsListController.hiddenCalendars[calendars[0].id]).to.be.true;
+        expect(CalendarsListController.hiddenCalendars[calendars[0].uniqueId]).to.be.true;
 
         $rootScope.$broadcast(CAL_EVENTS.CALENDARS.TOGGLE_VIEW, {
-          calendarId: calendars[0].id,
+          calendarUniqueId: calendars[0].uniqueId,
           hidden: false
         });
 
-        expect(CalendarsListController.hiddenCalendars[calendars[0].id]).to.be.false;
+        expect(CalendarsListController.hiddenCalendars[calendars[0].uniqueId]).to.be.false;
       });
     });
 
@@ -424,7 +424,7 @@ describe('The calendarsList controller', function() {
 
         $rootScope.$digest();
 
-        expect(CalendarsListController.hiddenCalendars[hiddenCalendar.id]).to.be.true;
+        expect(CalendarsListController.hiddenCalendars[hiddenCalendar.uniqueId]).to.be.true;
       });
     });
   });

@@ -79,11 +79,11 @@ describe('The calendarViewController', function() {
 
     this.calendars = [{
       href: 'href',
-      id: 'id',
+      uniqueId: 'id',
       color: 'color'
     }, {
       href: 'href2',
-      id: 'id2',
+      uniqueId: 'id2',
       color: 'color2'
     }];
 
@@ -99,7 +99,7 @@ describe('The calendarViewController', function() {
     };
 
     this.calendarServiceMock = {
-      calendarId: '1234',
+      calendarUniqueId: '1234',
       listCalendars: function() {
         return $q.when(self.calendars);
       },
@@ -310,12 +310,12 @@ describe('The calendarViewController', function() {
       publicCalendars = [
         {
           href: 'hrefPublic',
-          id: 'idPublic',
+          uniqueId: 'idPublic',
           color: 'colorPublic'
         },
         {
           href: 'href2Public',
-          id: 'id2Public',
+          uniqueId: 'id2Public',
           color: 'color2Public'
         }
       ];
@@ -354,11 +354,11 @@ describe('The calendarViewController', function() {
   describe('The CAL_EVENTS.CALENDARS.UPDATE listener', function() {
     it('should update $scope.calendars correctly', function() {
       this.controller('calendarViewController', {$scope: this.scope});
-      this.scope.calendars = [{id: 1}, {id: 2}];
-      var newCal = {id: 2, data: 'data'};
+      this.scope.calendars = [{uniqueId: 1}, {uniqueId: 2}];
+      var newCal = {uniqueId: 2, data: 'data'};
 
       this.rootScope.$broadcast(this.CAL_EVENTS.CALENDARS.UPDATE, newCal);
-      expect(this.scope.calendars).to.be.deep.equal([{id: 1}, newCal]);
+      expect(this.scope.calendars).to.be.deep.equal([{uniqueId: 1}, newCal]);
     });
   });
 
@@ -369,9 +369,9 @@ describe('The calendarViewController', function() {
   describe('The CAL_EVENTS.CALENDARS.REMOVE listener', function() {
     it('should remove the calendar on $scope.calendars correctly', function() {
       this.controller('calendarViewController', {$scope: this.scope});
-      this.scope.calendars = [{id: 1}, {id: 2}];
-      this.rootScope.$broadcast(this.CAL_EVENTS.CALENDARS.REMOVE, {id: 2});
-      expect(this.scope.calendars).to.be.deep.equal([{id: 1}]);
+      this.scope.calendars = [{uniqueId: 1}, {uniqueId: 2}];
+      this.rootScope.$broadcast(this.CAL_EVENTS.CALENDARS.REMOVE, {uniqueId: 2});
+      expect(this.scope.calendars).to.be.deep.equal([{uniqueId: 1}]);
     });
 
     it('should remove the corresponding source map correctly', function() {
@@ -385,8 +385,8 @@ describe('The calendarViewController', function() {
       this.controller('calendarViewController', {$scope: this.scope});
       this.scope.calendarReady(this.calendar);
       this.scope.$digest();
-      this.scope.eventSourcesMap = {calendarId: source};
-      this.rootScope.$broadcast(this.CAL_EVENTS.CALENDARS.REMOVE, {id: 'calendarId'});
+      this.scope.eventSourcesMap = {calendarUniqueId: source};
+      this.rootScope.$broadcast(this.CAL_EVENTS.CALENDARS.REMOVE, {uniqueId: 'calendarUniqueId'});
       this.scope.calendarReady(this.calendar);
       this.scope.$digest();
 
@@ -408,7 +408,7 @@ describe('The calendarViewController', function() {
       });
       this.scope.calendarReady(this.calendar);
       this.scope.$digest();
-      this.rootScope.$broadcast(this.CAL_EVENTS.CALENDARS.ADD, {href: 'href', id: 'id', color: 'color'});
+      this.rootScope.$broadcast(this.CAL_EVENTS.CALENDARS.ADD, {href: 'href', uniqueId: 'id', color: 'color'});
       expect(calendarEventSourceMock).to.have.been.calledWith('href', this.scope.displayCalendarError);
       expect(this.calCachedEventSourceMock.wrapEventSource).to.have.been.calledWith('id', source);
       expect(this.scope.eventSourcesMap.id).to.deep.equals({
@@ -485,8 +485,8 @@ describe('The calendarViewController', function() {
 
     this.scope.calendarReady(this.calendar);
     this.scope.$digest();
-    expect(fullCalendarSpy).to.have.been.calledWith('addEventSource', this.scope.eventSourcesMap[this.calendars[0].id]);
-    expect(fullCalendarSpy).to.not.have.been.calledWith('addEventSource', this.scope.eventSourcesMap[this.calendars[1].id]);
+    expect(fullCalendarSpy).to.have.been.calledWith('addEventSource', this.scope.eventSourcesMap[this.calendars[0].uniqueId]);
+    expect(fullCalendarSpy).to.not.have.been.calledWith('addEventSource', this.scope.eventSourcesMap[this.calendars[1].uniqueId]);
     expect(fullCalendarSpy).to.have.been.calledOnce;
   });
 
@@ -504,7 +504,7 @@ describe('The calendarViewController', function() {
     this.controller('calendarViewController', {$scope: this.scope});
     this.scope.calendarReady(this.calendar);
     this.scope.$digest();
-    this.rootScope.$broadcast(this.CAL_EVENTS.CALENDARS.TOGGLE_VIEW, {hidden: false, calendarId: 'calendarId' });
+    this.rootScope.$broadcast(this.CAL_EVENTS.CALENDARS.TOGGLE_VIEW, {hidden: false, calendarUniqueId: 'calendarUniqueId' });
     this.scope.$digest();
 
     expect(this.calendar.fullCalendar).to.have.been.calledWith('addEventSource');
@@ -613,7 +613,7 @@ describe('The calendarViewController', function() {
 
   it('should display an error if calendar events cannot be retrieved', function(done) {
 
-    var calendarEventSourceMock = function(calendarId, errorCallback) { // eslint-disable-line
+    var calendarEventSourceMock = function(calendarUniqueId, errorCallback) { // eslint-disable-line
       errorCallback(new Error(), 'Can not get calendar events');
     };
 

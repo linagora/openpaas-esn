@@ -17,7 +17,7 @@ describe('calEventStore', function() {
   function createEvent(calId, id, start, end) {
     return {
       id: id,
-      calendarId: calId,
+      calendarUniqueId: calId,
       start: self.calMoment.utc([2000, 0, start, 0, 0]),
       end: self.calMoment.utc([2000, 0, end, 0, 1])
     };
@@ -38,7 +38,7 @@ describe('calEventStore', function() {
       var event = createEvent('calId', 'a', 2, 2);
 
       self.calEventStore.save(event);
-      event.calendarId = 'calId2';
+      event.calendarUniqueId = 'calId2';
       self.calEventStore.save(event);
       self.calEventStore.reset('calId');
       expect(self.calEventStore.getInPeriod('calId', createPeriod(1, 30))).to.deep.equals([]);
@@ -49,7 +49,7 @@ describe('calEventStore', function() {
       var event = createEvent('calId', 'a', 2, 2);
 
       self.calEventStore.save(event);
-      event.calendarId = 'calId2';
+      event.calendarUniqueId = 'calId2';
       self.calEventStore.save(event);
       self.calEventStore.reset();
       expect(self.calEventStore.getInPeriod('calId', createPeriod(1, 30))).to.deep.equals([]);

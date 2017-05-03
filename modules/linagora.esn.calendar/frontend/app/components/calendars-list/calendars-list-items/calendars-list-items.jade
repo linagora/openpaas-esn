@@ -2,9 +2,9 @@ a.lv-item.calendar-item(href="", ng-repeat="calendar in $ctrl.calendars track by
   .media.row
     .col-md-10
       .media(ng-click="$ctrl.toggleCalendar(calendar)")
-        .pull-left(ng-if="!$ctrl.hiddenCalendars[calendar.id]", title="#{__('Hide calendar')}")
+        .pull-left(ng-if="!$ctrl.hiddenCalendars[calendar.uniqueId]", title="#{__('Hide calendar')}")
           i.mdi.mdi-checkbox-marked-outline(ng-style="{'color': calendar.color}")
-        .pull-left(ng-if="$ctrl.hiddenCalendars[calendar.id]", title="#{__('Show calendar')}")
+        .pull-left(ng-if="$ctrl.hiddenCalendars[calendar.uniqueId]", title="#{__('Show calendar')}")
           i.mdi.mdi-checkbox-blank-outline
         .media-body.hidden-md
           .lv-title
@@ -12,5 +12,5 @@ a.lv-item.calendar-item(href="", ng-repeat="calendar in $ctrl.calendars track by
         .media-body.visible-lg-block(title="{{ calendar.name }}")
           .lv-title
             span {{calendar.name}}
-    .col-md-2.hidden-xs(title="#{__('Configuration')}", ng-click="$ctrl.goTo(calendar.id)")
+    .col-md-2.hidden-xs(title="#{__('Configuration')}", ng-click="$ctrl.goTo(calendar.uniqueId)")
       i.mdi.mdi-settings

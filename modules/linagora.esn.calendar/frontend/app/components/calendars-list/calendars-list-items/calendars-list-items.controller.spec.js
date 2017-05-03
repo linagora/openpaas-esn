@@ -5,10 +5,10 @@
 var expect = chai.expect;
 
 describe('the calendarsListItems controller', function() {
-  var $controller, CalendarsListItemsController, calendarId, $stateMock;
+  var $controller, CalendarsListItemsController, calendarUniqueId, $stateMock;
 
   beforeEach(function() {
-    calendarId = '123';
+    calendarUniqueId = '123';
 
     $stateMock = {
       go: sinon.spy()
@@ -33,12 +33,12 @@ describe('the calendarsListItems controller', function() {
 
   describe('goTo function', function() {
 
-    it('should call $state.go with calendarId', function() {
+    it('should call $state.go with calendarUniqueId', function() {
       CalendarsListItemsController.stateToGo = 'calendar.edit';
 
-      CalendarsListItemsController.goTo(calendarId);
+      CalendarsListItemsController.goTo(calendarUniqueId);
 
-      expect($stateMock.go).to.have.been.calledWith(CalendarsListItemsController.stateToGo, { calendarId: calendarId });
+      expect($stateMock.go).to.have.been.calledWith(CalendarsListItemsController.stateToGo, { calendarUniqueId: calendarUniqueId });
     });
   });
 });

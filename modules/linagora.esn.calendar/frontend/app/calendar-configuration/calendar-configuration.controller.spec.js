@@ -146,11 +146,11 @@ describe('The calendar configuration controller', function() {
     };
 
     stateParamsMock = {
-      calendarId: '123'
+      calendarUniqueId: '/calendars/calendarHomeId/123.json'
     };
 
     publicCalendar1 = {
-      id: stateParamsMock.calendarId,
+      id: stateParamsMock.calendarUniqueId,
       name: 'name1',
       color: 'color1',
       description: 'description1',
@@ -251,25 +251,25 @@ describe('The calendar configuration controller', function() {
       expect(calendarConfigurationController.calendarHomeId).to.be.equal(calendarHomeId);
     });
 
-    it('should calendarService.getCalendar to get the calendar if calendarId is not null and getFromPublicCalendarStore is not truthy', function() {
+    it('should calendarService.getCalendar to get the calendar if calendarUniqueId is not null and getFromPublicCalendarStore is not truthy', function() {
       calendarConfigurationController.$onInit();
 
       $rootScope.$digest();
 
-      expect(calendarService.getCalendar).to.be.calledWith(calendarHomeId, stateParamsMock.calendarId);
+      expect(calendarService.getCalendar).to.be.calledWith(calendarHomeId, '123');
     });
 
-    it('should calendarService.getCalendar to get the calendar if calendarId is not null and getFromPublicCalendarStore is truthy', function() {
+    it('should calendarService.getCalendar to get the calendar if calendarUniqueId is not null and getFromPublicCalendarStore is truthy', function() {
       calendarConfigurationController.getFromPublicCalendarStore = true;
       calendarConfigurationController.$onInit();
 
       $rootScope.$digest();
 
-      expect(calPublicCalendarStoreMock.getById).to.have.been.calledWith(stateParamsMock.calendarId);
+      expect(calPublicCalendarStoreMock.getById).to.have.been.calledWith(stateParamsMock.calendarUniqueId);
     });
 
-    it('should not call calendarService.getCalendar if calendarId is null', function() {
-      delete stateParamsMock.calendarId;
+    it('should not call calendarService.getCalendar if calendarUniqueId is null', function() {
+      delete stateParamsMock.calendarUniqueId;
 
       calendarConfigurationController.$onInit();
 
@@ -278,8 +278,8 @@ describe('The calendar configuration controller', function() {
       expect(calendarService.getCalendar).to.not.be.called;
     });
 
-    it('should not call calPublicCalendarStoreMock.getAll if calendarId is null', function() {
-      delete stateParamsMock.calendarId;
+    it('should not call calPublicCalendarStoreMock.getAll if calendarUniqueId is null', function() {
+      delete stateParamsMock.calendarUniqueId;
       calendarConfigurationController.getFromPublicCalendarStore = true;
 
       calendarConfigurationController.$onInit();

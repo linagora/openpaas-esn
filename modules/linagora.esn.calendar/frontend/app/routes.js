@@ -57,7 +57,7 @@
         }
       })
       .state('calendar.edit', {
-        url: '/edit/:calendarId',
+        url: '/edit/:calendarUniqueId',
         params: {
           addUsersFromDelegationState: null
         },
@@ -107,7 +107,7 @@
         }
       })
       .state('calendar.external.public', {
-        url: '/public/:calendarId',
+        url: '/public/:calendarUniqueId',
         views: {
           'content@calendar': {
             template: '<calendar-configuration get-from-public-calendar-store = "true" />'
@@ -115,7 +115,7 @@
         }
       })
       .state('calendar.external.shared', {
-        url: '/shared/:calendarId',
+        url: '/shared/:calendarUniqueId',
         views: {
           'content@calendar': {
             template: '<calendar-configuration />'

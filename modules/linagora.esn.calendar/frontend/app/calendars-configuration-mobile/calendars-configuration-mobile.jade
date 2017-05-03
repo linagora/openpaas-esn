@@ -22,7 +22,7 @@
             .pull-left.calendars-configuration-title
               i.mdi.mdi-calendar
               span.name #{__('My calendars')}
-        a.lv-item(href="", ng-repeat="calendar in $ctrl.userCalendars", ui-sref='calendar.edit({calendarId: calendar.id})')
+        a.lv-item(href="", ng-repeat="calendar in $ctrl.userCalendars", ui-sref='calendar.edit({calendarUniqueId: calendar.uniqueId})')
           .media
             .pull-left
               i.mdi.mdi-label(ng-style="{'color': calendar.color}")
@@ -32,7 +32,7 @@
             .pull-left.calendars-configuration-title
               i.mdi.mdi-calendar
               span.name #{__('External calendars')}
-        a.lv-item(href="", ng-repeat="calendar in $ctrl.sharedCalendars", ui-sref='calendar.external.shared({calendarId: calendar.id})')
+        a.lv-item(href="", ng-repeat="calendar in $ctrl.sharedCalendars", ui-sref='calendar.external.shared({calendarUniqueId: calendar.uniqueId})')
           .media
             .pull-left
               i.mdi.mdi-label(ng-style="{'color': calendar.color}")
