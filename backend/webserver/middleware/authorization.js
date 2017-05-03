@@ -24,15 +24,21 @@ exports.requiresLogin = function(req, res, next) {
   next();
 };
 
-exports.requiresAPILogin = function(req, res, next) {
-  if (req.isAuthenticated()) {
-    return next();
-  }
+exports.requiresAPILogin = _requiresAPILoginAndFailWithError();
+exports.requiresAPILoginAndFailWithError = _requiresAPILoginAndFailWithError(true);
 
-  if (config.auth && config.auth.apiStrategies) {
-    return passport.authenticate(config.auth.apiStrategies, { session: false })(req, res, next);
-  } else {
+function _requiresAPILoginAndFailWithError(failWithError = false) {
+  return (req, res, next) => {
+    if (req.isAuthenticated()) {
+      return next();
+    }
+
+    if (config.auth && config.auth.apiStrategies) {
+      return passport.authenticate(config.auth.apiStrategies, { session: false, failWithError: failWithError })(req, res, next);
+    }
+
     res.set({ 'content-type': 'application/json; charset=utf-8' });
+
     return res.status(401).json({
       error: {
         code: 401,
@@ -40,8 +46,8 @@ exports.requiresAPILogin = function(req, res, next) {
         details: 'Please log in first'
       }
     });
-  }
-};
+  };
+}
 
 /**
  * Checks that the current request user is the current request domain manager
