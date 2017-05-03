@@ -5,15 +5,42 @@ module.exports = dependencies => {
 
   return {
     status,
-    userInfo
+    userInfo,
+    testSetup
   };
 
   /////
 
   function status(req, res) {
+    res.status(isValidChannelKeyInTheRequest(req) ? 200 : 401).end();
+  }
+
+  function isValidChannelKeyInTheRequest(req) {
     const channelKey = req.get('IFTTT-Channel-Key');
 
-    res.status(lib.constants.SERVICE_KEY === channelKey ? 200 : 401).end();
+    return lib.constants.SERVICE_KEY === channelKey;
+  }
+
+  function testSetup(req, res) {
+    if (isValidChannelKeyInTheRequest(req)) {
+      const user = req.user;
+
+      res.status(200).json({
+        data: {
+          accessToken: 'pPtmk23fnCyTInlSKgkCIXmooACArV1ApuLYpwKC',
+          samples: {
+            actions : {
+              post_community_message : {
+                message : 'message',
+                community: 'community'
+              }
+            }
+          }
+        }
+      });
+    } else {
+      res.status(401).end();
+    }
   }
 
   function userInfo(req, res) {

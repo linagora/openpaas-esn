@@ -32,6 +32,7 @@ exports.requiresAPILogin = function(req, res, next) {
   if (config.auth && config.auth.apiStrategies) {
     return passport.authenticate(config.auth.apiStrategies, { session: false })(req, res, next);
   } else {
+    res.set({ 'content-type': 'application/json; charset=utf-8' });
     return res.status(401).json({
       error: {
         code: 401,

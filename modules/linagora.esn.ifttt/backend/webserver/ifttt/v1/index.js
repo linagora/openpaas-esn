@@ -10,5 +10,7 @@ module.exports = dependencies => {
 
   router.use('/actions', require('./actions')(dependencies));
 
+  router.post('/test/setup', ifttt.testSetup);
+
   return router;
 };
