@@ -26,7 +26,7 @@ angular.module('esn.sidebar', ['esn.activitystreams-tracker', 'esn.application-m
     return contextualSidebarService;
   })
 
-  .directive('contextualSidebar', function($timeout, contextualSidebarService, APP_MENU_OPEN_EVENT) {
+  .directive('contextualSidebar', function($timeout, contextualSidebarService) {
     function link(scope, element, attr) {
       var options = {scope: scope},
         placementToAnimationMap = {
@@ -45,6 +45,10 @@ angular.module('esn.sidebar', ['esn.activitystreams-tracker', 'esn.application-m
         options.animation = placementToAnimationMap[attr.placement];
       }
 
+      if (options.placement === 'right') {
+        scope.hideHeader = true;
+      }
+
       var sidebar = contextualSidebarService(options);
 
       element.on('click', function() {
@@ -55,10 +59,6 @@ angular.module('esn.sidebar', ['esn.activitystreams-tracker', 'esn.application-m
         if (sidebar) { sidebar.hide(); }
         options = null;
         sidebar = null;
-      });
-
-      scope.$on(APP_MENU_OPEN_EVENT, function() {
-        sidebar && sidebar.hide();
       });
     }
 

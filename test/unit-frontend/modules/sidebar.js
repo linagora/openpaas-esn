@@ -149,26 +149,5 @@ describe('The Sidebar Angular module', function() {
       element.scope().$destroy();
       expect(hide).to.have.been.called;
     });
-
-    it('should call hide if sidebar is open and application menu is clicked', function() {
-      var element = this.initDirective('<div contextual-sidebar />', this.$scope);
-
-      element.click();
-      this.$rootScope.$broadcast(this.APP_MENU_OPEN_EVENT);
-
-      expect(hide).to.have.been.calledOnce;
-    });
-
-    it('should not call hide if sidebar is closed and application menu is clicked', function() {
-      var element = this.initDirective('<div contextual-sidebar />', this.$scope);
-      element.click();
-      element.click();
-
-      this.$rootScope.$broadcast(this.APP_MENU_OPEN_EVENT);
-
-      expect(hide).to.have.been.calledOnce;
-    });
-
   });
-
 });

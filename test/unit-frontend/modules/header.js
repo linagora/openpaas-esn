@@ -17,15 +17,14 @@ describe('The esn.header Angular module', function() {
 
   describe('The headerService factory', function() {
 
-    var $rootScope, headerService, dynamicDirectiveService, SUB_HEADER, SUB_HEADER_HAS_INJECTION_EVENT, SUB_HEADER_VISIBLE_MD_EVENT;
+    var $rootScope, headerService, dynamicDirectiveService, SUB_HEADER, SUB_HEADER_HAS_INJECTION_EVENT;
 
-    beforeEach(inject(function(_$rootScope_, _headerService_, _dynamicDirectiveService_, _SUB_HEADER_, _SUB_HEADER_HAS_INJECTION_EVENT_, _SUB_HEADER_VISIBLE_MD_EVENT_) {
+    beforeEach(inject(function(_$rootScope_, _headerService_, _dynamicDirectiveService_, _SUB_HEADER_, _SUB_HEADER_HAS_INJECTION_EVENT_) {
       $rootScope = _$rootScope_;
       headerService = _headerService_;
       dynamicDirectiveService = _dynamicDirectiveService_;
       SUB_HEADER = _SUB_HEADER_;
       SUB_HEADER_HAS_INJECTION_EVENT = _SUB_HEADER_HAS_INJECTION_EVENT_;
-      SUB_HEADER_VISIBLE_MD_EVENT = _SUB_HEADER_VISIBLE_MD_EVENT_;
     }));
 
     describe('The subHeader.setInjection function', function() {
@@ -48,20 +47,6 @@ describe('The esn.header Angular module', function() {
       });
 
     });
-
-    describe('The subHeader.setVisibleMD function', function() {
-
-      it('should broadcast an event to SUB_HEADER_VISIBLE_MD_EVENT', function(done) {
-
-        $rootScope.$on(SUB_HEADER_VISIBLE_MD_EVENT, function(event, data) {
-          expect(data).to.be.true;
-          done();
-        });
-        headerService.subHeader.setVisibleMD();
-      });
-
-    });
-
   });
 
   describe('The mainHeader directive', function() {
@@ -95,12 +80,10 @@ describe('The esn.header Angular module', function() {
       });
     }));
 
-    beforeEach(inject(function($compile, $rootScope, SUB_HEADER_VISIBLE_MD_EVENT, HEADER_VISIBILITY_EVENT, _SM_XS_MEDIA_QUERY_) {
+    beforeEach(inject(function($compile, $rootScope, _SM_XS_MEDIA_QUERY_) {
       this.$compile = $compile;
       this.$rootScope = $rootScope;
       this.$scope = this.$rootScope.$new();
-      this.SUB_HEADER_VISIBLE_MD_EVENT = SUB_HEADER_VISIBLE_MD_EVENT;
-      this.HEADER_VISIBILITY_EVENT = HEADER_VISIBILITY_EVENT;
       this.SM_XS_MEDIA_QUERY = _SM_XS_MEDIA_QUERY_;
 
       var html = '<main-header></main-header>';
@@ -112,16 +95,6 @@ describe('The esn.header Angular module', function() {
       this.$rootScope.$broadcast('sub-header:hasInjection', true);
       expect(hasInjectionsSpy).to.have.been.called;
       expect(this.$scope.hasSubHeaderGotInjections).to.be.true;
-    });
-
-    it('should listen to SUB_HEADER_VISIBLE_MD_EVENT and expose the its value to subHeaderVisibleMd', function() {
-      expect(this.$scope.subHeaderVisibleMd).to.be.undefined;
-
-      this.$scope.$broadcast(this.SUB_HEADER_VISIBLE_MD_EVENT, true);
-      expect(this.$scope.subHeaderVisibleMd).to.be.true;
-
-      this.$scope.$broadcast(this.SUB_HEADER_VISIBLE_MD_EVENT, false);
-      expect(this.$scope.subHeaderVisibleMd).to.be.false;
     });
 
     it('should set subHeaderVisibleMd to false when the state is successfully changed ', function() {
@@ -151,45 +124,5 @@ describe('The esn.header Angular module', function() {
       });
 
     });
-
-    it('should hide header when a hide-header event is received', function() {
-      this.$rootScope.$broadcast(this.HEADER_VISIBILITY_EVENT, false);
-
-      expect(this.element.find('#header').hasClass('hide-top')).to.equal(true);
-    });
-
-    it('should show header when a show-header event is received', function() {
-      this.$rootScope.$broadcast(this.HEADER_VISIBILITY_EVENT, true);
-
-      expect(this.element.find('#header').hasClass('hide-top')).to.equal(false);
-    });
-
-  });
-
-  describe('The headerAware directive', function() {
-
-    var $scope, element;
-    var HEADER_VISIBILITY_EVENT;
-
-    beforeEach(inject(function($compile, $rootScope, _HEADER_VISIBILITY_EVENT_) {
-      HEADER_VISIBILITY_EVENT = _HEADER_VISIBILITY_EVENT_;
-
-      $scope = $rootScope.$new();
-      element = $compile('<div header-aware></div>')($scope);
-      $scope.$digest();
-    }));
-
-    it('should add class header-hidden when HEADER_VISIBILITY_EVENT is broadcasted with false', function() {
-      $scope.$broadcast(HEADER_VISIBILITY_EVENT, false);
-
-      expect(element.hasClass('header-hidden')).to.equal(true);
-    });
-
-    it('should remove class header-hidden when HEADER_VISIBILITY_EVENT is broadcasted with true', function() {
-      $scope.$broadcast(HEADER_VISIBILITY_EVENT, true);
-
-      expect(element.hasClass('header-hidden')).to.equal(false);
-    });
-
   });
 });

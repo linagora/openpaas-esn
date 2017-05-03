@@ -168,7 +168,16 @@
 }
 
 .search-body {
-  margin-top: 75px;
+  margin-top: 0;
+
+  @media (min-width: @screen-md-min) {
+    margin-top: @sub-header-height-md;
+  }
+
+  @media (min-width: @screen-xl-min) {
+    margin-top: @sub-header-height-xl;
+  }
+
   padding: 0;
   position: inherit;
   width: 100%;
