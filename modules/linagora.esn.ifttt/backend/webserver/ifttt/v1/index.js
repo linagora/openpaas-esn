@@ -6,11 +6,18 @@ module.exports = dependencies => {
         router = require('express').Router();
 
   router.get('/status', ifttt.status);
-  router.get('/user/info', auth.requiresAPILogin, ifttt.userInfo);
+  router.get('/user/info', auth.requiresAPILoginAndFailWithError, ifttt.userInfo);
+  router.post('/test/setup', ifttt.testSetup);
 
   router.use('/actions', require('./actions')(dependencies));
 
-  router.post('/test/setup', ifttt.testSetup);
+  router.use((err, req, res, next) => {
+    if (res.statusCode === 401) {
+      return res.json({ errors: [{ message: 'Unauthorized' }] });
+    }
+
+    next(err);
+  });
 
   return router;
 };

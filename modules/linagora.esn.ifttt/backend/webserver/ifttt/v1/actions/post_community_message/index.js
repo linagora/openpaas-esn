@@ -5,8 +5,8 @@ module.exports = dependencies => {
         auth = dependencies('authorizationMW'),
         controller = require('./controller')(dependencies);
 
-  router.post('/', auth.requiresAPILogin, controller.postCommunityMessage);
-  router.post('/fields/community/options', auth.requiresAPILogin, controller.getWritableCommunities);
+  router.post('/', auth.requiresAPILoginAndFailWithError, controller.postCommunityMessage);
+  router.post('/fields/community/options', auth.requiresAPILoginAndFailWithError, controller.getWritableCommunities);
 
   return router;
 };
