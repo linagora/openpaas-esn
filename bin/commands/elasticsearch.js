@@ -21,8 +21,7 @@ const command = {
     },
     index: {
       alias: 'i',
-      describe: 'index to create',
-      choices: AVAILABLE_INDEXS
+      describe: 'index to create'
     }
   },
   handler: argv => {
