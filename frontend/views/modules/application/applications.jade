@@ -1,10 +1,9 @@
 .col-xs-12.col-md-10.nopadding
-  .row
-    .col-xs-12
-      h2
-        i.mdi.mdi-upload
-        | #{__('Applications')}
-      div
-        application-add-form
-      .row(ng-repeat="application in applications")
-        application-display(application="application")
+  .col-xs-12
+    h2
+      .block-header
+        h2 #{__('Applications')}
+    div
+      application-add-form
+    div(ng-repeat="application in applications")
+      application-display(application="application")
