@@ -43,7 +43,7 @@ module.exports = dependencies => {
   function searchEvents(query, callback) {
     const terms = query.search;
     const offset = query.offset || 0;
-    const limit = query.limit || SEARCH.DEFAULT_LIMIT;
+    const limit = 'limit' in query ? query.limit : SEARCH.DEFAULT_LIMIT;
     const sortKey = query.sortKey || SEARCH.DEFAULT_SORT_KEY;
     const sortOrder = query.sortOrder || SEARCH.DEFAULT_SORT_ORDER;
     const filters = [];
