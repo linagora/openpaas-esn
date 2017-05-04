@@ -12,12 +12,17 @@ module.exports = new AwesomeModule('linagora.esn.ifttt', {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.authorization', 'authorizationMW'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.helpers', 'helpers'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.message', 'message'),
-    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.calendar', 'calendar')
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.calendar', 'calendar'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.pubsub', 'pubsub')
   ],
   states: {
-    lib: (dependencies, callback) => callback(null, {}),
+    lib: (dependencies, callback) => {
+      callback(null, require('./backend/lib/ifttt')(dependencies));
+    },
 
-    deploy: (dependencies, callback) => {
+    deploy: function(dependencies, callback) {
+      this.pubsub.start();
+
       dependencies('webserver-wrapper').addApp('', require('./backend/webserver/application')(dependencies));
 
       return callback();
