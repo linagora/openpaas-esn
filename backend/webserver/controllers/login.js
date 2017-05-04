@@ -1,7 +1,6 @@
 'use strict';
 
 var passport = require('passport');
-var url = require('url');
 var config = require('../../core').config('default');
 var userlogin = require('../../core/user/login');
 var esnConfig = require('../../core/esn-config');
