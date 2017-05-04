@@ -14,6 +14,7 @@ function denormalize(data) {
   const timeInfo = jcal.getIcalEvent(data.ics);
   const start = moment(timeInfo.startDate.toJSDate());
   const end = moment(timeInfo.endDate.toJSDate());
+  const dtstamp = moment(timeInfo.component.getFirstPropertyValue('dtstamp').toJSDate());
 
   if (event.allDay) {
     start.add(start.utcOffset(), 'minutes');
@@ -21,6 +22,7 @@ function denormalize(data) {
   }
   event.start = start.toJSON();
   event.end = end.toJSON();
+  event.dtstamp = dtstamp.toJSON();
   event.userId = data.userId;
   event.calendarId = data.calendarId;
 
