@@ -23,16 +23,19 @@ module.exports = dependencies => {
 
   function testSetup(req, res) {
     if (isValidChannelKeyInTheRequest(req)) {
-      const user = req.user;
-
       res.status(200).json({
         data: {
           accessToken: 'pPtmk23fnCyTInlSKgkCIXmooACArV1ApuLYpwKC',
           samples: {
-            actions : {
-              post_community_message : {
-                message : 'message',
+            actions: {
+              post_community_message: {
+                message: 'message',
                 community: 'community'
+              }
+            },
+            triggers: {
+              new_event_with_hashtag: {
+                hashtag: 'tag'
               }
             }
           }
