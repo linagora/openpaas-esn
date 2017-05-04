@@ -1,0 +1,7 @@
+.attendee-item.attendee-item-edition
+  cal-attendee-avatar(attendee='ctrl.attendee', is-organizer='ctrl.isOrganizer')
+  .checkbox(ng-if='ctrl.canModifyAttendee && !ctrl.isOrganizer')
+    label
+      input.force-position-initial(type="checkbox", ng-if="!ctrl.attendee.clicked")
+      input.force-position-initial(type="checkbox", ng-if="ctrl.attendee.clicked", checked)
+      i.input-helper

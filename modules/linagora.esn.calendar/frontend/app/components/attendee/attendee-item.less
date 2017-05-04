@@ -1,0 +1,51 @@
+.attendee-item {
+  .flex-row;
+  .flex-space-between;
+  .flex-vertical-centered;
+
+  height: 50px;
+  margin-left: 5px;
+  position: relative;
+
+  .avatar {
+    .clickable;
+    .flex-row;
+
+    position: relative;
+
+    img {
+      .esn-avatar-lg;
+    }
+
+    .organizer {
+      position: absolute;
+      top: 30px;
+      left: 36px;
+
+      .mdi {
+        font-size: 1.5em;
+        color: @accentColor;
+      }
+    }
+  }
+
+  .name {
+    .ellipsis;
+    .flex-grow(1);
+
+    margin-left: 8px;
+  }
+
+  &.attendee-item-edition {
+    .align-items(baseline);
+    .flex-row;
+
+    width: 50px;
+
+    .checkbox {
+      margin: 0;
+      left: -12px;
+      bottom: -5px;
+    }
+  }
+}

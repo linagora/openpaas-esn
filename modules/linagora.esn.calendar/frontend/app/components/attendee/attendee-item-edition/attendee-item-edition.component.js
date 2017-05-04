@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('esn.calendar')
-  .component('calAttendeeListItemEdition', {
-    templateUrl: '/calendar/app/components/attendee-list-item-edition/attendee-list-item-edition.html',
+  .component('calAttendeeItemEdition', {
+    templateUrl: '/calendar/app/components/attendee/attendee-item-edition/attendee-item-edition.html',
     bindings: {
       attendee: '=',
       canModifyAttendee: '=',

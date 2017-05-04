@@ -44,8 +44,8 @@
 
         div(ng-show="selectedTab === 'attendees'")
           .row
-            .col-xs-12.nopadding
-              cal-attendees-list(ng-if='event.attendees.length', attendees='event.attendees', can-modify-attendees='false')
+            .col-xs-12
+              cal-attendees-list-expanded(ng-if='event.attendees.length', attendees='event.attendees', can-modify-attendees='false')
               cal-mail-to-attendees(ng-if='event.attendees.length > 1', event='event')
 
         div(ng-show="selectedTab === 'more'")

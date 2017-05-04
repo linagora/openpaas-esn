@@ -39,7 +39,8 @@ form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': !
                   button.btn.btn-link.accepted(type='button', ng-click='changeParticipation("ACCEPTED")', ng-class='{ "active": userAsAttendee.partstat === "ACCEPTED" }') #{__('Yes')}
                   button.btn.btn-link.undecided(type='button', ng-click='changeParticipation("TENTATIVE")', ng-class='{ "active": userAsAttendee.partstat === "TENTATIVE" }') #{__('Maybe')}
                   button.btn.btn-link.declined(type='button', ng-click='changeParticipation("DECLINED")', ng-class='{ "active": userAsAttendee.partstat === "DECLINED" }') #{__('No')}
-          cal-attendees-list(ng-if='editedEvent.attendees.length > 1 || newAttendees.length > 0', attendees='editedEvent.attendees', can-modify-attendees='::canModifyEventAttendees', organizer='::editedEvent.organizer')
+          .col-xs-12
+            cal-attendees-list-condensed(ng-if='editedEvent.attendees.length > 1 || newAttendees.length > 0', attendees='editedEvent.attendees', can-modify-attendees='::canModifyEventAttendees', organizer='::editedEvent.organizer')
       .modal-footer.flex
         .flex-vertical-centered.flex-start
           .delete-button(ng-if="canModifyEvent && (isInvolvedInATask(editedEvent) || !isNew(editedEvent))")
