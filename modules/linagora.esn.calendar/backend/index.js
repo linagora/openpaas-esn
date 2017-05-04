@@ -41,12 +41,14 @@ const AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
       const calendar = require('./webserver/api/calendar')(dependencies),
             alarm = require('./lib/alarm')(dependencies),
             eventMailListener = require('./lib/event-mail-listener')(dependencies),
-            search = require('./lib/search')(dependencies);
+            search = require('./lib/search')(dependencies),
+            constants = require('./lib/constants');
 
       const lib = {
         alarm,
         eventMailListener,
         search,
+        constants,
         api: {
           calendar: calendar
         }
