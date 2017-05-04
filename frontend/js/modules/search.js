@@ -6,11 +6,6 @@ angular.module('esn.search', ['esn.application-menu', 'esn.lodash-wrapper', 'esn
     spinnerKey: 'spinnerDefault',
     spinnerConf: {lines: 17, length: 15, width: 7, radius: 33, corners: 1, rotate: 0, direction: 1, color: '#555', speed: 1, trail: 60, shadow: false, hwaccel: false, className: 'spinner', zIndex: 2e9, top: 'auto', left: 'auto'}
   })
-  .config(function(dynamicDirectiveServiceProvider) {
-    var search = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-search', {priority: 34}); // after 35 of contact
-
-    dynamicDirectiveServiceProvider.addInjection('esn-application-menu', search);
-  })
   .directive('applicationMenuSearch', function(applicationMenuTemplateBuilder) {
     return {
       restrict: 'E',
