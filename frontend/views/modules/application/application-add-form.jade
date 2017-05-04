@@ -1,4 +1,4 @@
-.col-xs-12.well.form-container
+.col-xs-12.well.card
   form(name='applicationsForm')
     legend #{__('Register a new application')}
     .form-group
@@ -13,6 +13,6 @@
       label #{__('Application description')}
       textarea.form-control(ng-model='client.description', name='description', placeholder="#{__('Application description')}")
       span.help-block #{__('Tell us what your application is about')}.
-    .form-group
+    .form-group.pull-right
       button.btn.btn-warning(type='submit', ng-click='create(client)', ng-disabled='sending')
         | #{__('Register your application')}
