@@ -55,7 +55,9 @@ angular.module('linagora.esn.unifiedinbox')
 
           return fetcher;
         },
-        buildFetchContext: function() { return $q.when(); },
+        buildFetchContext: function(options) {
+          return options && options.quickFilter ? $q.reject('Twitter does not support server-side filtering') : $q.when();
+        },
         templateUrl: '/unifiedinbox/views/unified-inbox/elements/tweet',
         itemMatches: function(item, filters) {
           return $q(function(resolve, reject) {

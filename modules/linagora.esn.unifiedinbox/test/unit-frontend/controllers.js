@@ -143,7 +143,7 @@ describe('The linagora.esn.unifiedinbox module controllers', function() {
     }));
 
     afterEach(function() {
-      inboxFilteringService.uncheckFilters();
+      inboxFilteringService.clearFilters();
     });
 
     it('should leverage inboxProviders.getAll with options', function() {

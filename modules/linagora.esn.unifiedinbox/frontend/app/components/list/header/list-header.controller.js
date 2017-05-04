@@ -3,16 +3,18 @@
 
   angular.module('linagora.esn.unifiedinbox')
 
-    .controller('inboxListHeaderController', function(inboxDateGroups, inboxFilteringService) {
+    .controller('inboxListHeaderController', function($scope, inboxDateGroups, inboxFilteringService, INBOX_EVENTS) {
       var self = this;
 
-      self.$onInit = $onInit;
+      self.$onInit = initQuickFilter;
       self.$onChanges = $onChanges;
       self.setQuickFilter = setQuickFilter;
 
+      $scope.$on(INBOX_EVENTS.FILTER_CHANGED, initQuickFilter);
+
       /////
 
-      function $onInit() {
+      function initQuickFilter() {
         self.quickFilter = inboxFilteringService.getQuickFilter();
       }
 

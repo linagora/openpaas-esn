@@ -715,7 +715,7 @@ angular.module('linagora.esn.unifiedinbox')
       link: function(scope) {
         var plugin = inboxPlugins.get($stateParams.type);
 
-        scope.isFilteringActive = inboxFilteringService.isAnyFilterSelected;
+        scope.isFilteringActive = inboxFilteringService.isFilteringActive;
 
         if (plugin) {
           plugin.getEmptyContextTemplateUrl($stateParams.account, $stateParams.context).then(function(templateUrl) {
@@ -734,7 +734,7 @@ angular.module('linagora.esn.unifiedinbox')
       scope: {},
       controller: function() {
         this.clearFilters = function() {
-          inboxFilteringService.uncheckFilters();
+          inboxFilteringService.clearFilters();
 
           $rootScope.$broadcast(INBOX_EVENTS.FILTER_CHANGED);
         };

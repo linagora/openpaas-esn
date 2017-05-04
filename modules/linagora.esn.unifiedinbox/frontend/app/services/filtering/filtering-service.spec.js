@@ -19,44 +19,65 @@ describe('The inboxFilteringService service', function() {
   }));
 
   afterEach(function() {
-    service.uncheckFilters();
+    service.clearFilters();
   });
 
   function checkFilter(id) {
     _.find(filters, { id: id }).checked = true;
   }
 
-  describe('The uncheckFilters function', function() {
+  describe('The clearFilters function', function() {
 
     it('should uncheck all filters', function() {
       filters.forEach(function(filter) {
         filter.checked = true;
       });
 
-      service.uncheckFilters();
+      service.clearFilters();
 
       expect(_.every(filters, { checked: false })).to.equal(true);
     });
 
+    it('should reset quickFilter', function() {
+      service.setQuickFilter('filter');
+      service.clearFilters();
+
+      expect(service.getQuickFilter()).to.equal(null);
+    });
+
+    it('should broadcast an event', function(done) {
+      $rootScope.$on(INBOX_EVENTS.FILTER_CHANGED, function() {
+        done();
+      });
+
+      service.clearFilters();
+    });
+
   });
 
-  describe('The isAnyFilterSelected function', function() {
+  describe('The isFilteringActive function', function() {
 
     it('should return false if no filter is checked', function() {
-      expect(service.isAnyFilterSelected()).to.equal(false);
+      expect(service.isFilteringActive()).to.equal(false);
     });
 
     it('should return true if 1 filter is checked', function() {
       checkFilter('isSocial');
 
-      expect(service.isAnyFilterSelected()).to.equal(true);
+      expect(service.isFilteringActive()).to.equal(true);
     });
 
     it('should return true if more than 1 filter is checked', function() {
       checkFilter('isSocial');
       checkFilter('isUnread');
 
-      expect(service.isAnyFilterSelected()).to.equal(true);
+      expect(service.isFilteringActive()).to.equal(true);
+    });
+
+    it('should return true if quickFilter is set', function() {
+      service.setQuickFilter('filter');
+
+      expect(service.isFilteringActive()).to.equal(true);
     });
 
   });
