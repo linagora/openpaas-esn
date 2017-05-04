@@ -25,7 +25,7 @@ module.exports = dependencies => {
     if (isValidChannelKeyInTheRequest(req)) {
       res.status(200).json({
         data: {
-          accessToken: 'pPtmk23fnCyTInlSKgkCIXmooACArV1ApuLYpwKC',
+          accessToken: 'KvT2A4KleH6wlbffMGynjmmCU2uLwwOxfcIhc4Ma',
           samples: {
             actions: {
               post_community_message: {
@@ -35,7 +35,7 @@ module.exports = dependencies => {
             },
             triggers: {
               new_event_with_hashtag: {
-                hashtag: 'tag'
+                hashtag: 'SDK'
               }
             }
           }

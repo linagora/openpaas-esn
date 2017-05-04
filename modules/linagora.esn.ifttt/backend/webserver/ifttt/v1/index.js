@@ -10,6 +10,7 @@ module.exports = dependencies => {
   router.post('/test/setup', ifttt.testSetup);
 
   router.use('/actions', require('./actions')(dependencies));
+  router.use('/triggers', require('./triggers')(dependencies));
 
   router.use((err, req, res, next) => {
     if (res.statusCode === 401) {

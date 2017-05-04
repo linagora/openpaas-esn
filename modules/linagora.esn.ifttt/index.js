@@ -11,7 +11,8 @@ module.exports = new AwesomeModule('linagora.esn.ifttt', {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.wrapper', 'webserver-wrapper'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.authorization', 'authorizationMW'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.helpers', 'helpers'),
-    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.message', 'message')
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.message', 'message'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.calendar', 'calendar')
   ],
   states: {
     lib: (dependencies, callback) => callback(null, {}),
