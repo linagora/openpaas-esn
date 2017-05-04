@@ -3,6 +3,8 @@
 @inbox-sub-header-height: @sub-header-height + @inbox-list-header-height;
 @inbox-sub-header-height-md: @sub-header-height-md + @inbox-list-header-height;
 @inbox-sub-header-height-xl: @sub-header-height-xl + @inbox-list-header-height;
+@inbox-list-item-height: 34px;
+@inbox-list-item-height-xl: 88px;
 
 .inbox-root {
   .inbox-list {
@@ -86,7 +88,7 @@
   }
 
   .inbox-items-group {
-    min-height: 34px; // Size of the smallest possible card
+    min-height: @inbox-list-item-height; // Size of the smallest possible card
 
     .card {
       margin-bottom: 1px;
@@ -94,8 +96,8 @@
 
     .inbox-list-item {
       padding: 0;
-      min-height: 88px;
-      max-height: 88px;
+      min-height: @inbox-list-item-height-xl;
+      max-height: @inbox-list-item-height-xl;
 
       &.selected {
         background-color: @darkenBgColor;
@@ -104,6 +106,8 @@
       .inbox-list-item-content {
         padding: 7px 10px;
         width: 100%;
+        min-height: @inbox-list-item-height-xl;
+        max-height: @inbox-list-item-height-xl;
 
         .media-body {
           .flex-space-between;
@@ -285,11 +289,13 @@ body.header-hidden {
   .inbox-root {
     .inbox-items-group {
       .inbox-list-item {
-        min-height: 34px;
-        max-height: 34px;
+        min-height: @inbox-list-item-height;
+        max-height: @inbox-list-item-height;
 
         .inbox-list-item-content {
           padding: 3px 10px;
+          min-height: @inbox-list-item-height;
+          max-height: @inbox-list-item-height;
 
           .inbox-preview-block {
             display: none;
