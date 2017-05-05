@@ -10,8 +10,20 @@ module.exports = dependencies => {
   /////
 
   function newChatUserMention(req, res) {
-    chatModule.lib.message.getMentions(req.user._id, req.query)
-      .then(mentions => res.status(200).json(mentions))
-      .catch(err => sendHTTPError('Error while getting user mentions', err, res));
+    let query = {
+      limit: req.limit
+    };
+
+    chatModule.lib.message.getMentions(req.user._id, query)
+      .then(mentions => res.status(200).json(_resultsToIFTTTData(mentions))
+      .catch(err => sendHTTPError('Error while getting user mentions', err, res)));
+  }
+
+  function _resultsToIFTTTData(mentions) {
+    console.log(mentions);
+    //CreatedAt
+    //CreatorName
+    //Message
+
   }
 };
