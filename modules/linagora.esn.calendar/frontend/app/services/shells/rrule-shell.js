@@ -105,7 +105,7 @@
       if (this.isValid()) {
         var intervalTmp = this.rrule.interval;
 
-        this.rrule.interval = this.rrule.interval || [1];
+        this.rrule.interval = this.rrule.interval || 1;
         this.vevent.updatePropertyWithValue('rrule', new ICAL.Recur.fromData(this.rrule));
         this.rrule.interval = intervalTmp;
       } else {

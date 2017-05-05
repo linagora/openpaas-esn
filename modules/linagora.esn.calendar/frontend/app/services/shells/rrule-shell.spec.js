@@ -24,7 +24,7 @@ describe('CalRRuleShell Factory', function() {
       var vevent = new ICAL.Component('vevent');
       var shell = new CalRRuleShell(rrule, vevent);
 
-      expect(shell.vevent.getFirstPropertyValue('rrule').interval).to.deep.equal([1]);
+      expect(shell.vevent.getFirstPropertyValue('rrule').interval).to.deep.equal(1);
     });
   });
 
