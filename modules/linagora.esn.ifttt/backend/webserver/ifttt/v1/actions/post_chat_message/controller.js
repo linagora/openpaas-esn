@@ -33,6 +33,7 @@ module.exports = dependencies => {
   function getWritableConversations(req, res) {
     const query = {
       mode: 'channel',
+      type: 'open',
       ignoreMemberFilterForChannel: false,
       members: [{member: {objectType: 'user', id: String(req.user._id)}}]
     };
