@@ -2,12 +2,12 @@
   'use strict';
 
   angular.module('esn.calendar')
-         .directive('calendarsConfiguration', calendarsConfiguration);
+         .directive('calendarsConfigurationMobile', calendarsConfigurationMobile);
 
-  function calendarsConfiguration() {
+  function calendarsConfigurationMobile() {
     var directive = {
       restrict: 'E',
-      templateUrl: 'calendar/app/calendars-configuration/calendars-configuration.html',
+      templateUrl: 'calendar/app/calendars-configuration-mobile/calendars-configuration-mobile.html',
       scope: {
         calendars: '='
       },
