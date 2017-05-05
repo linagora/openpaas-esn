@@ -25,12 +25,16 @@ module.exports = dependencies => {
     if (isValidChannelKeyInTheRequest(req)) {
       res.status(200).json({
         data: {
-          accessToken: 'KvT2A4KleH6wlbffMGynjmmCU2uLwwOxfcIhc4Ma',
+          accessToken: 'VCcOWg2sXcmaFPJtWsgYRCnXb2XtZhfGRL7rnFrx',
           samples: {
             actions: {
               post_community_message: {
                 message: 'message',
                 community: 'community'
+              },
+              post_chat_message: {
+                message: 'message',
+                conversation: 'conversation'
               }
             },
             triggers: {
