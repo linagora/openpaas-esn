@@ -6,8 +6,8 @@ const request = require('request'),
 
 module.exports = dependencies => {
   const pubsub = dependencies('pubsub'),
-        calendarConstants = dependencies('calendar').constants,
-        chatConstants = dependencies('chat').constants;
+        calendarConstants = dependencies('calendar').constants;
+        //chatConstants = dependencies('chat').constants;
 
   return {
     start
@@ -17,7 +17,7 @@ module.exports = dependencies => {
 
   function start() {
     pubsub.local.topic(calendarConstants.NOTIFICATIONS.EVENT_ADDED).subscribe(calendarEventAddTrigger);
-    pubsub.global.topic(chatConstants.NOTIFICATIONS.USERS_MENTION).subscribe(chatUserMentionTrigger);
+    //pubsub.global.topic(chatConstants.NOTIFICATIONS.USERS_MENTION).subscribe(chatUserMentionTrigger);
   }
 
   function calendarEventAddTrigger(data) {
