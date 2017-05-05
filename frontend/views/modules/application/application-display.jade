@@ -7,8 +7,7 @@
     p
       strong #{__('Redirect URI')}
       br
-      span
-        a(ng-href="{{application.redirectUri}}", target='_blank') {{ application.redirectUri }}
+      span {{ application.redirectUri }}
     p
       strong #{__('Client ID')}
       br

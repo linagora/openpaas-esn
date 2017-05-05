@@ -8,10 +8,18 @@ angular.module('esn.application', ['esn.http', 'op.dynamicDirective'])
     var applicationControlCenterMenu = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'controlcenter-menu-application', {priority: -10});
     dynamicDirectiveServiceProvider.addInjection('controlcenter-sidebar-menu', applicationControlCenterMenu);
   })
-  .controller('applicationController', function($scope, $log, $location, applicationAPI, applications) {
+  .controller('applicationController', function($scope, $log, $location, $modal, applicationAPI, applications) {
     $scope.applications = applications;
     $scope.sending = false;
     $scope.client = {};
+
+    $scope.openModal = function() {
+      $modal({
+        scope: $scope,
+        templateUrl: '/views/modules/application/application-add-form.html',
+        placement: 'center'
+      });
+    };
 
     $scope.create = function(client) {
       if (!client) {
@@ -21,7 +29,7 @@ angular.module('esn.application', ['esn.http', 'op.dynamicDirective'])
       $scope.sending = true;
       applicationAPI.create(client).then(function(response) {
         $log.debug('Successfully created new client', client, response);
-        $location.path('/applications/' + response.data._id);
+        $scope.applications.push(response.data)
       }, function(err) {
         $log.error('Error while creating new client', err.data);
         $scope.sending = false;
