@@ -30,7 +30,7 @@ form.event-quick-form(role="form", aria-hidden="true", ng-class="{ 'readonly': !
                   i.mdi.mdi-map-marker
                 .fg-line
                   input.input.location.form-control(type="text", ng-model='editedEvent.location', ng-model-options="{getterSetter: true}", maxlength="{{::CAL_EVENT_FORM.location.maxlength}}", placeholder="#{__('Location')}", ng-readonly="!canModifyEvent")
-          cal-attendees-autocomplete-input(ng-hide='!canModifyEventAttendees', original-attendees='editedEvent.attendees', mutable-attendees='newAttendees')
+          cal-attendees-autocomplete-input(original-attendees='editedEvent.attendees', mutable-attendees='newAttendees')
           .col-xs-12(ng-if='displayParticipationButton')
             .form-group.status.row
               span.col-xs-12.col-sm-6.text-center #{__('Will you attend?')}

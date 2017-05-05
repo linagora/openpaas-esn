@@ -4,6 +4,6 @@
       .block-header
         h2 #{__('Applications')}
     div
-      application-add-form
+      fab(ng-click='openModal()')
     div(ng-repeat="application in applications")
       application-display(application="application")
