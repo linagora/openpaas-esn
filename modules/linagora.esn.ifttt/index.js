@@ -13,6 +13,7 @@ module.exports = new AwesomeModule('linagora.esn.ifttt', {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.helpers', 'helpers'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.message', 'message'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.calendar', 'calendar'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.chat', 'chat'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.pubsub', 'pubsub')
   ],
   states: {
