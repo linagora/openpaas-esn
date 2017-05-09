@@ -49,8 +49,7 @@ angular.module('linagora.esn.contact', [
       resolve: {
         domain: routeResolver.session('domain'),
         user: routeResolver.session('user')
-      },
-      data: { headerVisibility: false }
+      }
     })
     .state('/contact/show/:bookId/:bookName/:cardId', {
       url: '/contact/show/:bookId/:bookName/:cardId',
@@ -59,8 +58,7 @@ angular.module('linagora.esn.contact', [
       resolve: {
         domain: routeResolver.session('domain'),
         user: routeResolver.session('user')
-      },
-      data: { headerVisibility: false }
+      }
     })
     .state('/contact/edit/:bookId/:bookName/:cardId', {
       url: '/contact/edit/:bookId/:bookName/:cardId',
@@ -69,8 +67,7 @@ angular.module('linagora.esn.contact', [
       resolve: {
         domain: routeResolver.session('domain'),
         user: routeResolver.session('user')
-      },
-      data: { headerVisibility: false }
+      }
     });
   })
 

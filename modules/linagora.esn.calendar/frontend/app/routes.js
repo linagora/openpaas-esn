@@ -65,8 +65,7 @@
           content: {
             template: '<calendar-configuration />'
           }
-        },
-        data: { headerVisibility: false }
+        }
       })
       .state('calendar.edit.delegation', {
         url: '/delegation',
@@ -86,8 +85,7 @@
           content: {
             template: '<calendar-configuration />'
           }
-        },
-        data: { headerVisibility: false }
+        }
       })
       .state('calendar.public', {
         url: '/public',
@@ -137,8 +135,7 @@
               $scope.calendars = calendars;
             }
           }
-        },
-        data: { headerVisibility: false }
+        }
       })
       .state('calendar.event', {
         url: '/:calendarHomeId/event/:eventId?recurrenceId',
@@ -148,7 +145,6 @@
             template: '<div ui-view="content"/>'
           }
         },
-        data: { headerVisibility: false },
         params: {
           recurrenceId: null
         },

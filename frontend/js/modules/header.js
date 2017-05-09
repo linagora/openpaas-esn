@@ -16,31 +16,13 @@ angular.module('esn.header', [
 
   .constant('SUB_HEADER_HAS_INJECTION_EVENT', 'sub-header:hasInjection')
 
-  .constant('SUB_HEADER_VISIBLE_MD_EVENT', 'sub-header:visibleMd')
-
-  .constant('HEADER_VISIBILITY_EVENT', 'header:visible')
-
-  .constant('HEADER_DISABLE_SCROLL_LISTENER_EVENT', 'header:disable-scroll-listener')
-
   .constant('SUB_HEADER_HEIGHT_IN_PX', 47)
 
-  .run(function($state, $rootScope, HEADER_VISIBILITY_EVENT, HEADER_DISABLE_SCROLL_LISTENER_EVENT) {
-    $rootScope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState) {
-      if (!toState || !fromState) {
-        return;
-      }
-
-      var fromStateHeaderVisibility = fromState.data ? fromState.data.headerVisibility : true,
-        toStateHeaderVisibility = toState.data ? toState.data.headerVisibility : true;
-
-      if (fromStateHeaderVisibility !== toStateHeaderVisibility) {
-        $rootScope.$broadcast(HEADER_DISABLE_SCROLL_LISTENER_EVENT, !toStateHeaderVisibility);
-        $rootScope.$broadcast(HEADER_VISIBILITY_EVENT, toStateHeaderVisibility);
-      }
-    });
+  .run(function($state, $rootScope) {
+    $rootScope.$state = $state;
   })
 
-  .factory('headerService', function($rootScope, dynamicDirectiveService, MAIN_HEADER, SUB_HEADER, SUB_HEADER_HAS_INJECTION_EVENT, SUB_HEADER_VISIBLE_MD_EVENT) {
+  .factory('headerService', function($rootScope, dynamicDirectiveService, MAIN_HEADER, SUB_HEADER, SUB_HEADER_HAS_INJECTION_EVENT) {
 
     function buildDynamicDirective(directiveName, scope) {
       return new dynamicDirectiveService.DynamicDirective(true, directiveName, {scope: scope});
@@ -80,10 +62,6 @@ angular.module('esn.header', [
       dynamicDirectiveService.resetInjections(SUB_HEADER);
     }
 
-    function setVisibleMD() {
-      $rootScope.$broadcast(SUB_HEADER_VISIBLE_MD_EVENT, true);
-    }
-
     return {
       mainHeader: {
         addInjection: addMainHeaderInjection,
@@ -94,8 +72,7 @@ angular.module('esn.header', [
         addInjection: addSubHeaderInjection,
         setInjection: setSubHeaderInjection,
         resetInjections: resetSubHeaderInjection,
-        hasInjections: hasSubHeaderGotInjections,
-        setVisibleMD: setVisibleMD
+        hasInjections: hasSubHeaderGotInjections
       },
       resetAllInjections: function() {
         resetMainHeaderInjection();
@@ -113,39 +90,19 @@ angular.module('esn.header', [
   })
 
   .directive('mainHeader', function($rootScope, matchmedia, headerService, Fullscreen,
-                                    SUB_HEADER_HAS_INJECTION_EVENT, SUB_HEADER_VISIBLE_MD_EVENT,
-                                    HEADER_VISIBILITY_EVENT, HEADER_DISABLE_SCROLL_LISTENER_EVENT, SM_XS_MEDIA_QUERY) {
+                                    SUB_HEADER_HAS_INJECTION_EVENT, SM_XS_MEDIA_QUERY) {
     return {
       restrict: 'E',
       replace: true,
       templateUrl: '/views/modules/header/header.html',
-      link: function(scope, element) {
-        function toggleHeaderVisibility(visible) {
-          $rootScope.$broadcast(HEADER_VISIBILITY_EVENT, visible);
-        }
-
-        function toggleClass(visible) {
-          element.find('#header').toggleClass('hide-top', !visible);
-        }
-
+      link: function(scope) {
         // We need this second variable because matchmedia.on is called too many times,
         // for instance when top or bottom bars of mobiles finish moving.
         scope.disableByEvent = false;
 
-        scope.$on(HEADER_VISIBILITY_EVENT, function(event, visible) {
-          toggleClass(visible);
-        });
-
-        scope.$on(HEADER_DISABLE_SCROLL_LISTENER_EVENT, function(event, disabled) {
-          scope.disableByEvent = disabled;
-        });
-
         scope.toggleFullScreen = function() {
           Fullscreen.toggleAll();
         };
-
-        scope.hide = toggleHeaderVisibility.bind(null, false);
-        scope.show = toggleHeaderVisibility.bind(null, true);
 
         var unregister = matchmedia.on(SM_XS_MEDIA_QUERY, function(mediaQueryList) {
           scope.enableScrollListener = mediaQueryList.matches;
@@ -158,23 +115,8 @@ angular.module('esn.header', [
           scope.hasSubHeaderGotInjections = hasInjections;
         });
 
-        scope.$on(SUB_HEADER_VISIBLE_MD_EVENT, function(event, visibleMd) {
-          scope.subHeaderVisibleMd = visibleMd;
-        });
-
         scope.$on('$stateChangeSuccess', function() {
           scope.subHeaderVisibleMd = false;
-        });
-      }
-    };
-  })
-
-  .directive('headerAware', function(HEADER_VISIBILITY_EVENT) {
-    return {
-      restrict: 'A',
-      link: function(scope, element) {
-        scope.$on(HEADER_VISIBILITY_EVENT, function(event, visible) {
-          element.toggleClass('header-hidden', !visible);
         });
       }
     };

@@ -126,8 +126,7 @@ angular.module('linagora.esn.unifiedinbox', [
             template: '<composer />'
           }
         },
-        params: { email: {}, compositionOptions: {}, composition: null },
-        data: { headerVisibility: false }
+        params: { email: {}, compositionOptions: {}, composition: null }
       })
       .state('unifiedinbox.compose.recipients', {
         url: '/:recipientsType',
@@ -137,8 +136,7 @@ angular.module('linagora.esn.unifiedinbox', [
             controller: 'recipientsFullscreenEditFormController'
           }
         },
-        params: { composition: null },
-        data: { ignoreSaveAsDraft: true }
+        params: { composition: null }
       })
       .state('unifiedinbox.inbox.folders', {
         url: '/folders',
@@ -172,8 +170,7 @@ angular.module('linagora.esn.unifiedinbox', [
             templateUrl: '/unifiedinbox/views/configuration/index',
             controller: 'inboxConfigurationIndexController'
           }
-        },
-        data: { headerVisibility: false }
+        }
       })
       .state('unifiedinbox.configuration.vacation', {
         url: '/vacation',
@@ -235,8 +232,7 @@ angular.module('linagora.esn.unifiedinbox', [
             templateUrl: '/unifiedinbox/views/email/view/index',
             controller: 'viewEmailController as ctrl'
           }
-        },
-        data: { headerVisibility: false }
+        }
       }))
       .state('unifiedinbox.inbox.move', stateOpeningModal({
         url: '/move',
@@ -252,8 +248,7 @@ angular.module('linagora.esn.unifiedinbox', [
             templateUrl: '/unifiedinbox/views/email/view/index',
             controller: 'viewEmailController as ctrl'
           }
-        },
-        data: { headerVisibility: false }
+        }
       }))
       .state('unifiedinbox.inbox.message.move', stateOpeningModal({
         url: '/move'

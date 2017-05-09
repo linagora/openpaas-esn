@@ -1,4 +1,20 @@
 .aside#contextual-sidebar(tabindex="-1", role="dialog")
   .aside-dialog
     .aside-content
-      .aside-body(ng-bind="content")
+      #aside-header(ng-if="!hideHeader")
+        div.header-inner.flex-vertical-centered.flex-space-between
+          ul.list-inline.all-centered
+            li.logo
+              a(href='', ui-sref='home')
+                img.openpaas-logo(src="/images/logo-tiny.png", alt='#{__("OpenPaas Logo")}')
+          ul.list-inline.all-centered.header-actions
+            li.hover-scale-animation
+              a(href='')
+                i.mdi.mdi-magnify(ui-sref='search.main')
+            li.hover-scale-animation(ng-if='false')
+              esn-user-notification-toggler
+            li.hover-scale-animation
+              application-menu-toggler
+            li.avatar-container(ng-controller='avatarController', ui-sref="profile({ user_id: '' })")
+              img.header-avatar(ng-src="{{avatarURL}}", alt='#{__("Avatar")}')
+      .aside-body(ng-bind="content", ng-class="{'hideHeader' : hideHeader}")

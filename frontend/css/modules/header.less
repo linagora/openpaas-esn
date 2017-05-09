@@ -2,7 +2,7 @@
 @subHeaderShadow: rgba(0, 0, 0, 0.3);
 @headerAvatarShadow: rgba(0, 0, 0, 0.2);
 
-#header {
+#header, #aside-header {
   background-color: @primaryColor;
   padding-right: 0;
   z-index: @header-z-index;
@@ -83,16 +83,12 @@
   }
 }
 
-.is-mobile #header.hide-top {
-  transform: translate3d(0, -@header-height, 0);
-  .transition-transform(0.2s);
-
-  @media (min-width: @screen-md-min) {
-    transform: translate3d(0, -@header-height-md, 0);
-  }
-
-  @media (min-width: @screen-xl-min) {
-    transform: translate3d(0, -@header-height-xl, 0);
+@media (max-width: @screen-md-min) {
+  #header {
+    &:not(.showHeader) {
+      transform: translate3d(0, -@header-height, 0);
+      .transition-transform(0.2s);
+    }
   }
 }
 
@@ -163,7 +159,7 @@
 }
 
 .subheader-aware {
-  margin-top: @sub-header-height;
+  margin-top: 0;
 
   @media (min-width: @screen-md-min) {
     margin-top: @sub-header-height-md;
@@ -174,9 +170,11 @@
   }
 }
 
-body.is-mobile.header-hidden {
-  padding-top: 0;
-  .transition-transform(0.2s);
+@media (max-width: @screen-md-min) {
+  body{
+    padding-top: 0;
+    .transition-transform(0.2s);
+  }
 }
 
 /* Small devices (tablets, 768px and up) */
