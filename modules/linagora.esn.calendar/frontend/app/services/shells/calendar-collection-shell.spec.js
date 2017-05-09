@@ -100,6 +100,14 @@ describe('CalendarCollectionShell factory', function() {
     });
   });
 
+  describe('uniqueId property', function() {
+    it('Should equals calendar href', function() {
+      var calendarCollectionShell = new CalendarCollectionShell(calendar);
+
+      expect(calendarCollectionShell.uniqueId).to.equal(calendar._links.self.href);
+    });
+  });
+
   describe('isAdmin fn', function() {
     it('Should return false if the user is not the owner and have not SHAREE_ADMIN rights', function() {
       var calendarCollectionShell = new CalendarCollectionShell(calendar);

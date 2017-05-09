@@ -15,8 +15,8 @@
       self.goTo = goTo;
     }
 
-    function goTo(calendarId) {
-      $state.go(self.stateToGo, { calendarId: calendarId });
+    function goTo(calendarUniqueId) {
+      $state.go(self.stateToGo, { calendarUniqueId: calendarUniqueId });
     }
   }
 })();

@@ -17,13 +17,13 @@
       return _.values(publicCalendars);
     }
 
-    function getById(calendarId) {
-      return publicCalendars[calendarId];
+    function getById(calendarUniqueId) {
+      return publicCalendars[calendarUniqueId];
     }
 
     function storeAll(calendars) {
       calendars.forEach(function(calendar) {
-        publicCalendars[calendar.id] = calendar;
+        publicCalendars[calendar.uniqueId] = calendar;
 
         $rootScope.$broadcast(CAL_EVENTS.CALENDARS.ADD, calendar);
       });

@@ -1105,6 +1105,14 @@ describe('CalendarShell factory', function() {
     });
   });
 
+  describe('calendarUniqueId property', function() {
+    it('should compute the unique id from the path to match a calendar path', function() {
+      var event = CalendarShell.fromIncompleteShell({path: '/calendarHomeId/calendarId/events'});
+
+      expect(event.calendarUniqueId).to.equal('/calendarHomeId/calendarId.json');
+    });
+  });
+
   describe('modifyOccurence method', function() {
 
     it('should failed if called on a non master event', function(done) {

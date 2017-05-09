@@ -27,7 +27,7 @@
     }
 
     function save(event) {
-      var store = getCalStore(event.calendarId);
+      var store = getCalStore(event.calendarUniqueId);
       var insertionIndex = _.sortedIndex(store.eventsSortedByStart, event, function(event) {
         return event.start.unix();
       });
@@ -85,5 +85,4 @@
       }
     }
   }
-
 })();

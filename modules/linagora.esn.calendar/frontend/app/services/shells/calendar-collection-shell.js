@@ -16,6 +16,7 @@
       this.color = calendar['apple:color'] || CAL_DEFAULT_EVENT_COLOR;
       this.description = calendar['caldav:description'] || '';
       this.href = calendar._links.self.href;
+
       var parsedPath = calPathParser.parseCalendarPath(this.href);
 
       this.id = parsedPath.calendarId;
@@ -27,6 +28,8 @@
       this.rights = new CalendarRightShell(calendar.acl, calendar.invite);
       this.readOnly = !this.isWritable(session.user._id);
     }
+
+    Object.defineProperty(CalendarCollectionShell.prototype, 'uniqueId', { get: function() { return this.href; } });
 
     CalendarCollectionShell.prototype.getOwner = getOwner;
     CalendarCollectionShell.prototype.isAdmin = isAdmin;

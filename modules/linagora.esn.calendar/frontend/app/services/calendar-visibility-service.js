@@ -16,17 +16,17 @@
     ////////////
 
     function isHidden(calendar) {
-      return storage.getItem(calendar.id).then(function(value) {
+      return storage.getItem(calendar.uniqueId).then(function(value) {
         return Boolean(value);
       });
     }
 
     function toggle(calendar) {
-      storage.getItem(calendar.id).then(function(hiddenBefore) {
-        return storage.setItem(calendar.id, !hiddenBefore);
+      storage.getItem(calendar.uniqueId).then(function(hiddenBefore) {
+        return storage.setItem(calendar.uniqueId, !hiddenBefore);
       }).then(function(hidden) {
         $rootScope.$broadcast(CAL_EVENTS.CALENDARS.TOGGLE_VIEW, {
-          calendarId: calendar.id,
+          calendarUniqueId: calendar.uniqueId,
           hidden: hidden
         });
 
@@ -46,5 +46,4 @@
 
     }
   }
-
 })();

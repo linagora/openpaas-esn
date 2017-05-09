@@ -43,7 +43,7 @@
           var destroyCalUpdateEvent = $rootScope.$on(CAL_EVENTS.CALENDARS.UPDATE, handleCalendarUpdate);
 
           var deregister = $rootScope.$on(CAL_EVENTS.CALENDARS.TOGGLE_VIEW, function(event, data) {
-            self.hiddenCalendars[data.calendarId] = data.hidden;
+            self.hiddenCalendars[data.calendarUniqueId] = data.hidden;
           });
 
           $scope.$on('$destroy', destroyCalAddEvent);
@@ -64,14 +64,14 @@
 
     function getHiddenCalendars() {
       return calendarVisibilityService.getHiddenCalendars().then(function(hiddenCalendars) {
-        hiddenCalendars.forEach(function(calendarId) {
-          self.hiddenCalendars[calendarId] = true;
+        hiddenCalendars.forEach(function(calendarUniqueId) {
+          self.hiddenCalendars[calendarUniqueId] = true;
         });
       });
     }
 
     function handleCalendarAdd(event, calendar) {
-      if (!_.find(self.calendars, {id: calendar.id})) {
+      if (!_.find(self.calendars, {uniqueId: calendar.uniqueId})) {
         self.calendars.push(calendar);
 
         refreshCalendarsList();
@@ -79,7 +79,7 @@
     }
 
     function handleCalendarUpdate(event, calendar) {
-      var index = _.findIndex(self.calendars, { id: calendar.id });
+      var index = _.findIndex(self.calendars, { uniqueId: calendar.uniqueId });
 
       if (index > -1) {
         self.calendars[index] = calendar;
@@ -89,7 +89,7 @@
     }
 
     function handleCalendarRemove(event, calendar) {
-      _.remove(self.calendars, { id: calendar.id });
+      _.remove(self.calendars, { uniqueId: calendar.uniqueId });
 
       refreshCalendarsList();
     }

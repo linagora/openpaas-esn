@@ -56,7 +56,7 @@
       });
     }
 
-    function addAddedEvent(start, end, calendarId, events, customChanges) {
+    function addAddedEvent(start, end, calendarUniqueId, events, customChanges) {
       function eventInPeriod(event) {
         return [event.start, event.end].some(function(date) {
           return date && date.clone().stripTime().isBetween(start, end, 'day', '[]');
@@ -64,7 +64,7 @@
       }
 
       angular.forEach(customChanges || changes, function(change) {
-        if (change.action === CAL_CACHED_EVENT_SOURCE_ADD && change.event.calendarId === calendarId && !change.event.isRecurring() && eventInPeriod(change.event)) {
+        if (change.action === CAL_CACHED_EVENT_SOURCE_ADD && change.event.calendarUniqueId === calendarUniqueId && !change.event.isRecurring() && eventInPeriod(change.event)) {
           events.push(change.event);
         }
       });
@@ -72,7 +72,7 @@
       return events;
     }
 
-    function applyUpdatedAndDeleteEvent(events, start, end, calendarId) {
+    function applyUpdatedAndDeleteEvent(events, start, end, calendarUniqueId) {
       var notAppliedChange = _.chain(changes).omit(function(change) {
         return change.action !== CAL_CACHED_EVENT_SOURCE_UPDATE;
       }).mapValues(function(change) {
@@ -105,13 +105,13 @@
         return previousCleanedEvents;
       }, []);
 
-      return addAddedEvent(start, end, calendarId, result, notAppliedChange);
+      return addAddedEvent(start, end, calendarUniqueId, result, notAppliedChange);
     }
 
-    function applySavedChange(start, end, calendarId, events) {
+    function applySavedChange(start, end, calendarUniqueId, events) {
       expandRecurringChange(start, end);
 
-      return addAddedEvent(start, end, calendarId, applyUpdatedAndDeleteEvent(events, start, end, calendarId));
+      return addAddedEvent(start, end, calendarUniqueId, applyUpdatedAndDeleteEvent(events, start, end, calendarUniqueId));
     }
 
     function fetchEventOnlyIfNeeded(start, end, timezone, calId, calendarSource) {
@@ -131,10 +131,10 @@
       return defer.promise;
     }
 
-    function wrapEventSource(calendarId, calendarSource) {
+    function wrapEventSource(calendarUniqueId, calendarSource) {
       return function(start, end, timezone, callback) {
-        fetchEventOnlyIfNeeded(start, end, timezone, calendarId, calendarSource).then(function(events) {
-          callback(applySavedChange(start, end, calendarId, events));
+        fetchEventOnlyIfNeeded(start, end, timezone, calendarUniqueId, calendarSource).then(function(events) {
+          callback(applySavedChange(start, end, calendarUniqueId, events));
         });
       };
     }

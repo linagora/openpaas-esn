@@ -21,10 +21,10 @@ describe('the calPublicCalendarStore service', function() {
   beforeEach(function() {
     publicCalendars = [
       {
-        id: 'firstCalendar'
+        uniqueId: 'firstCalendar'
       },
       {
-        id: 'secondCalendar'
+        uniqueId: 'secondCalendar'
       }];
 
     calendarsAddListener = sinon.spy();
@@ -41,7 +41,7 @@ describe('the calPublicCalendarStore service', function() {
   describe('the getById method', function() {
     it('should get calendars in publicCalendar', function() {
       calPublicCalendarStore.storeAll(publicCalendars);
-      expect(calPublicCalendarStore.getById('firstCalendar')).to.deep.equal({id: 'firstCalendar'});
+      expect(calPublicCalendarStore.getById('firstCalendar')).to.deep.equal({uniqueId: 'firstCalendar'});
     });
   });
 
