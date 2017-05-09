@@ -124,16 +124,7 @@
         url: '/list',
         views: {
           content: {
-            template: '<calendars-configuration-mobile calendars="calendars"/>',
-            resolve: {
-              calendars: function(calendarService, calendarHomeId) {
-
-                return calendarService.listCalendars(calendarHomeId);
-              }
-            },
-            controller: function($scope, calendars) {
-              $scope.calendars = calendars;
-            }
+            template: '<calendars-configuration-mobile calendars="calendars"/>'
           }
         }
       })
