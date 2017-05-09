@@ -20,7 +20,6 @@ angular.module('esn.application-menu', [
     var DD = dynamicDirectiveServiceProvider.DynamicDirective;
 
     dynamicDirectiveServiceProvider.addInjection('esn-application-menu', new DD(true, 'application-menu-home', { priority: 50 }));
-    dynamicDirectiveServiceProvider.addInjection('esn-application-menu', new DD(true, 'application-menu-logout', { priority: -50 }));
   })
 
   .factory('applicationMenuTemplateBuilder', function(featureFlags, _) {
@@ -113,13 +112,5 @@ angular.module('esn.application-menu', [
       retrict: 'E',
       replace: true,
       template: applicationMenuTemplateBuilder('/#/', { name: 'home' }, 'Home')
-    };
-  })
-
-  .directive('applicationMenuLogout', function(applicationMenuTemplateBuilder) {
-    return {
-      retrict: 'E',
-      replace: true,
-      template: applicationMenuTemplateBuilder('/logout', { name: 'logout' }, 'Logout')
     };
   });

@@ -10,7 +10,7 @@ angular.module('linagora.esn.controlcenter', [
   'esn.user-configuration'
 ])
 
-.config(function($stateProvider, $urlRouterProvider, dynamicDirectiveServiceProvider) {
+.config(function($stateProvider, $urlRouterProvider) {
   $urlRouterProvider.when('/controlcenter', '/controlcenter/general');
 
   $stateProvider
@@ -26,9 +26,4 @@ angular.module('linagora.esn.controlcenter', [
         }
       }
     });
-
-  var controlCenter = new dynamicDirectiveServiceProvider.DynamicDirective(
-    true, 'controlcenter-application-menu', { priority: -10 });
-
-  dynamicDirectiveServiceProvider.addInjection('esn-application-menu', controlCenter);
 });

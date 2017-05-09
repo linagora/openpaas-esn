@@ -18,8 +18,22 @@ div
           esn-user-notification-toggler
         li.hover-scale-animation
           application-menu-toggler
-        li.avatar-container(ng-controller='avatarController', ui-sref="profile({ user_id: '' })")
-          img.header-avatar(ng-src="{{avatarURL}}", alt='#{__("Avatar")}')
+        li.avatar-container.dropdown(ng-controller='avatarController')
+          a(href='', data-toggle='dropdown', aria-expanded='true')
+            img.header-avatar(ng-src="{{avatarURL}}", alt='#{__("Avatar")}')
+          ul.dropdown-menu.dm-icon.dropdown-menu-right
+            li
+              a(ui-sref="profile({ user_id: '' })")
+                i.mdi.mdi-account
+                | #{__('Profile')}
+            li
+              a(ui-sref="controlcenter")
+                i.mdi.mdi-account-settings-variant
+                | #{__('Control Center')}
+            li
+              a(ui-sref="logout")
+                i.mdi.mdi-power
+                | #{__('Logout')}
     sub-header-container
   sidebar
   api-notification
