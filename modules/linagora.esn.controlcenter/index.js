@@ -1,27 +1,13 @@
-'use strict';
+const AwesomeModule = require('awesome-module');
+const path = require('path');
+const glob = require('glob-all');
 
-var AwesomeModule = require('awesome-module');
-var Dependency = AwesomeModule.AwesomeModuleDependency;
-var path = require('path');
-
-var MODULE_NAME = 'controlcenter';
-var AWESOME_MODULE_NAME = 'linagora.esn.' + MODULE_NAME;
-const moduleFiles = [
-  'general/controlcenter-general.component.js',
-  'general/controlcenter-general.controller.js',
-  'general/controlcenter-general-subheader.component.js',
-  'general/controlcenter-general.service.js'
-];
-const jsFiles = [
-  'app.js',
-  'directives.js',
-  'services.js',
-  'controllers.js'
-];
-const FRONTEND_JS_PATH = `${__dirname}/frontend/js/`;
+const Dependency = AwesomeModule.AwesomeModuleDependency;
+const MODULE_NAME = 'controlcenter';
+const AWESOME_MODULE_NAME = 'linagora.esn.' + MODULE_NAME;
 const FRONTEND_APP_PATH = `${__dirname}/frontend/app/`;
 
-var controlCenterModule = new AwesomeModule(AWESOME_MODULE_NAME, {
+const controlCenterModule = new AwesomeModule(AWESOME_MODULE_NAME, {
   dependencies: [
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.wrapper', 'webserver-wrapper'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.i18n', 'i18n')
@@ -29,9 +15,9 @@ var controlCenterModule = new AwesomeModule(AWESOME_MODULE_NAME, {
 
   states: {
     lib: function(dependencies, callback) {
-      var libModule = require('./backend/lib')(dependencies);
+      const libModule = require('./backend/lib')(dependencies);
 
-      var lib = {
+      const lib = {
         lib: libModule
       };
 
@@ -39,16 +25,17 @@ var controlCenterModule = new AwesomeModule(AWESOME_MODULE_NAME, {
     },
 
     deploy: function(dependencies, callback) {
-      var app = require('./backend/webserver')(dependencies, this);
-      var webserverWrapper = dependencies('webserver-wrapper');
-      var lessFile = path.resolve(__dirname, './frontend/css/styles.less');
+      const app = require('./backend/webserver')(dependencies, this);
+      const webserverWrapper = dependencies('webserver-wrapper');
+      const lessFile = path.join(FRONTEND_APP_PATH, 'app.less');
+      const frontendJsFilesFullPath = glob.sync([
+        FRONTEND_APP_PATH + '**/*.module.js',
+        FRONTEND_APP_PATH + '**/!(*spec).js'
+      ]);
+      const frontendJsFilesUri = frontendJsFilesFullPath.map(filepath => filepath.replace(FRONTEND_APP_PATH, ''));
 
-      webserverWrapper.injectAngularModules(MODULE_NAME, jsFiles, [AWESOME_MODULE_NAME], ['esn'], {
-        localJsFiles: jsFiles.map(file => path.join(FRONTEND_JS_PATH, file))
-      });
-
-      webserverWrapper.injectAngularAppModules(MODULE_NAME, moduleFiles, [AWESOME_MODULE_NAME], ['esn'], {
-        localJsFiles: moduleFiles.map(file => path.join(FRONTEND_APP_PATH, file))
+      webserverWrapper.injectAngularAppModules(MODULE_NAME, frontendJsFilesUri, [AWESOME_MODULE_NAME], ['esn'], {
+        localJsFiles: frontendJsFilesFullPath
       });
 
       webserverWrapper.injectLess(MODULE_NAME, [lessFile], 'esn');
