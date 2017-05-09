@@ -188,6 +188,18 @@ angular.module('esn.community', [
       templateUrl: '/views/modules/community/community-create-button.html'
     };
   })
+  .directive('communityViewSubheader', function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/views/modules/community/community-subheader.html'
+    };
+  })
+  .directive('communitiesViewSubheader', function() {
+    return {
+      restrict: 'E',
+      templateUrl: '/views/modules/community/communities-subheader.html'
+    };
+  })
   .directive('communityCreate',
   function(WidgetWizard, selectionService, communityCreationService, $timeout, $location, $alert, $rootScope) {
     function link($scope, element) {
