@@ -4,9 +4,15 @@
   angular.module('linagora.esn.controlcenter')
     .controller('controlcenterGeneralController', controlcenterGeneralController);
 
-  function controlcenterGeneralController(esnUserConfigurationService, asyncAction, rejectWithErrorNotification, controlcenterGeneralService, _) {
+  function controlcenterGeneralController(
+    esnUserConfigurationService,
+    asyncAction,
+    rejectWithErrorNotification,
+    controlcenterGeneralService,
+    _,
+    CONTROLCENTER_GENERAL_CONFIGS
+  ) {
     var self = this;
-    var CONFIG_NAMES = ['homePage', 'businessHours'];
 
     self.$onInit = $onInit;
     self.save = save;
@@ -16,7 +22,7 @@
 
       self.homePages = _objectWithKeysSorted(homePageCandidates);
 
-      esnUserConfigurationService.get(CONFIG_NAMES)
+      esnUserConfigurationService.get(CONTROLCENTER_GENERAL_CONFIGS)
         .then(function(configurations) {
           self.configurations = _spreadConfigs(configurations);
         });

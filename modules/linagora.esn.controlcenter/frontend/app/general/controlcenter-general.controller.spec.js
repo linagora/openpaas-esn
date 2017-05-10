@@ -8,8 +8,7 @@ var expect = chai.expect;
 describe('The controlcenterGeneralController', function() {
 
   var $controller, $rootScope, $scope;
-  var esnUserConfigurationService, controlcenterGeneralService;
-  var CONFIG_NAMES = ['homePage', 'businessHours'];
+  var esnUserConfigurationService, controlcenterGeneralService, CONTROLCENTER_GENERAL_CONFIGS;
 
   beforeEach(module(function($provide) {
     $provide.value('asyncAction', sinon.spy(function(message, action) {
@@ -24,11 +23,12 @@ describe('The controlcenterGeneralController', function() {
   beforeEach(function() {
     module('linagora.esn.controlcenter');
 
-    inject(function(_$controller_, _$rootScope_, _esnUserConfigurationService_, _controlcenterGeneralService_) {
+    inject(function(_$controller_, _$rootScope_, _esnUserConfigurationService_, _controlcenterGeneralService_, _CONTROLCENTER_GENERAL_CONFIGS_) {
       $controller = _$controller_;
       $rootScope = _$rootScope_;
       esnUserConfigurationService = _esnUserConfigurationService_;
       controlcenterGeneralService = _controlcenterGeneralService_;
+      CONTROLCENTER_GENERAL_CONFIGS = _CONTROLCENTER_GENERAL_CONFIGS_;
     });
   });
 
@@ -54,7 +54,7 @@ describe('The controlcenterGeneralController', function() {
     $rootScope.$digest();
 
     expect(controller.configurations).to.deep.equal(expectResult);
-    expect(esnUserConfigurationService.get).to.have.been.calledWith(CONFIG_NAMES);
+    expect(esnUserConfigurationService.get).to.have.been.calledWith(CONTROLCENTER_GENERAL_CONFIGS);
   });
 
   it('should get a list homePages with keys are sorted', function() {
