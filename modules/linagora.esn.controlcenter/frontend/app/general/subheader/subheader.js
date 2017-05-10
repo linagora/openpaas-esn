@@ -4,7 +4,7 @@
   angular.module('linagora.esn.controlcenter')
 
   .component('controlcenterGeneralSubheader', {
-    templateUrl: '/controlcenter/app/general/controlcenter-general-subheader',
+    templateUrl: '/controlcenter/app/general/subheader/subheader',
     bindings: {
       onFormSubmit: '&',
       form: '<'
