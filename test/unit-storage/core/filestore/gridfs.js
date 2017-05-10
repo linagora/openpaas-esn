@@ -228,8 +228,9 @@ describe('The filestore gridfs module', function() {
     const ObjectId = this.mongoose.Types.ObjectId;
     const filestore = this.helpers.requireBackend('core/filestore/gridfs');
     const file = path.resolve(this.testEnv.fixtures + '/README.md');
-    let stream = require('fs').createReadStream(file);
-    let userId = new ObjectId();
+    const stream = require('fs').createReadStream(file);
+    const userId = new ObjectId();
+
     creator.id = userId;
     const userMeta = {
       foo: 'bar',
@@ -242,8 +243,9 @@ describe('The filestore gridfs module', function() {
       creator: creator
     };
 
-    let id = new ObjectId();
-    filestore.store(id, 'application/text', userMeta, stream, {}, (err) => {
+    const id = new ObjectId();
+
+    filestore.store(id, 'application/text', userMeta, stream, {}, err => {
       if (err) {
         return done(err);
       }
@@ -262,7 +264,8 @@ describe('The filestore gridfs module', function() {
   it('should return empty array when trying to get metadata from unknown file', function(done) {
     const ObjectId = this.mongoose.Types.ObjectId;
     const filestore = this.helpers.requireBackend('core/filestore/gridfs');
-    let id = new ObjectId();
+    const id = new ObjectId();
+
     filestore.getAllMetaByUserId(id, {}, (err, data) => {
       expect(err).to.not.exist;
       expect(data).to.be.empty;
@@ -272,6 +275,7 @@ describe('The filestore gridfs module', function() {
 
   it('should fail to get meta\'s array when input id is not set', function(done) {
     const filestore = this.helpers.requireBackend('core/filestore/gridfs');
+
     filestore.getAllMetaByUserId(null, {}, (err, data) => {
       expect(err).to.exist;
       expect(data).to.not.exist;
