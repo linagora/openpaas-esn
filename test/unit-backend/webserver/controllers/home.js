@@ -1,82 +1,48 @@
 'use strict';
 
-var expect = require('chai').expect,
-    mockery = require('mockery');
+const expect = require('chai').expect;
+const mockery = require('mockery');
+const sinon = require('sinon');
 
 describe('The home controller', function() {
 
-  beforeEach(function() {
-    var loggerMock = {
-      error: function() {}
-    };
-    mockery.registerMock('../../core/logger', loggerMock);
-  });
+  describe('The index function', function() {
+    it('should set a valid express response', function(done) {
+      const assets = {foo: 'bar'};
+      const tplPath = '/my/template';
+      const alterMock = sinon.spy();
+      const esnAwareAppMock = sinon.spy(function() {
+        return assets;
+      });
 
-  it('should send the recaptcha public key when rendering welcome/index without logged user', function(done) {
-    var coreMock = function() {
-      return {
-        get: function(callback) {
-          return callback(null, {publickey: 'publickey'});
+      mockery.registerMock('../middleware/templates', {
+        alterTemplatePath: alterMock
+      });
+
+      mockery.registerMock('../../core', {
+        assets: {
+          envAwareApp: esnAwareAppMock
+        }
+      });
+
+      const index = this.helpers.requireBackend('webserver/controllers/home').index;
+      const res = {
+        locals: {},
+        render: function(templatePath, options) {
+          expect(res.locals.assets).to.deep.equal(assets);
+          expect(templatePath).to.equal(tplPath);
+          expect(options).to.deep.equal({title: 'Home'});
+          done();
         }
       };
-    };
-    mockery.registerMock('../../core/esn-config', coreMock);
-    var index = this.helpers.requireBackend('webserver/controllers/home.js').index;
 
-    var res = {
-      locals: {},
-      render: function(url, data) {
-        expect(url).to.equal('welcome/index.jade');
-        expect(data.recaptchaPublicKey).to.equal('publickey');
-        done();
-      }
-    };
+      index({}, res);
 
-    index({}, res);
-  });
+      expect(alterMock).to.have.been.calledWith('esn/index', sinon.match.func.and(sinon.match(function(func) {
+        func(tplPath);
 
-  it('should send a null recaptcha if it is not available in esnConfig', function(done) {
-    var coreMock = function() {
-      return {
-        get: function(callback) {
-          return callback(null, null);
-        }
-      };
-    };
-    mockery.registerMock('../../core/esn-config', coreMock);
-    var index = this.helpers.requireBackend('webserver/controllers/home.js').index;
-
-    var res = {
-      locals: {},
-      render: function(url, data) {
-        expect(url).to.equal('welcome/index.jade');
-        expect(data.recaptchaPublicKey).to.be.null;
-        done();
-      }
-    };
-
-    index({}, res);
-  });
-
-  it('should return 500 if we cannot get recaptcha config from esn', function(done) {
-    var coreMock = function() {
-      return {
-        get: function(callback) {
-          return callback(new Error(''), null);
-        }
-      };
-    };
-    mockery.registerMock('../../core/esn-config', coreMock);
-    var index = this.helpers.requireBackend('webserver/controllers/home.js').index;
-
-    var res = this.helpers.express.jsonResponse(
-      function(code, data) {
-        expect(code).to.equal(500);
-        expect(data.message).to.equal('Server Error');
-        done();
-      }
-    );
-
-    index({}, res);
+        return true;
+      })));
+    });
   });
 });

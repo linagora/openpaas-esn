@@ -1,8 +1,11 @@
 'use strict';
 
-var alterTemplatePath = require('../middleware/templates').alterTemplatePath;
-
+const alterTemplatePath = require('../middleware/templates').alterTemplatePath;
 const assetRegistry = require('../../core').assets;
+
+module.exports = {
+  index
+};
 
 /**
  * Get /
@@ -12,11 +15,7 @@ const assetRegistry = require('../../core').assets;
 function index(req, res) {
   res.locals.assets = assetRegistry.envAwareApp('esn');
 
-  alterTemplatePath('esn/index', function(tplPath) {
-    return res.render(tplPath, {
-      title: 'Home'
-    });
-  });
+  alterTemplatePath('esn/index', tplPath => res.render(tplPath, {
+    title: 'Home'
+  }));
 }
-
-module.exports.index = index;
