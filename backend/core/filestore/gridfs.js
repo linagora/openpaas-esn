@@ -5,6 +5,7 @@ var mongoose = require('mongoose');
 var ObjectId = mongoose.Types.ObjectId;
 var chunk_size = 1024;
 var extend = require('extend');
+const CONSTANTS = require('./constants');
 
 function getMongoID(id) {
   if (!id || !(id + '').length) {
@@ -105,6 +106,27 @@ function getMeta(id, callback) {
   gfs.files.findOne({_id: mongoId}, callback);
 }
 module.exports.getMeta = getMeta;
+
+function getAllMetaByUserId(userId, options, callback) {
+  const mongoUserId = getMongoID(userId);
+
+  if (!mongoUserId) {
+    return callback(new Error('userID is mandatory'));
+  }
+
+  const limit = options.limit || CONSTANTS.DEFAULT_LIMIT;
+  const offset = options.offset || CONSTANTS.DEFAULT_OFFSET;
+
+  const gfs = getGrid();
+  const query = gfs.files.find({'metadata.creator.id': mongoUserId}).limit(limit).skip(offset);
+
+  if (options.sort) {
+    query.sort({uploadDate: options.sort});
+  }
+
+  query.toArray(callback);
+}
+module.exports.getAllMetaByUserId = getAllMetaByUserId;
 
 module.exports.addMeta = function(id, data, callback) {
   var mongoId = getMongoID(id);
