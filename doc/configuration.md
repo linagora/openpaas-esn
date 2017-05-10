@@ -539,3 +539,21 @@ Defines the configuration file template used by the autoconfiguration mechanism.
     }
 }
 ```
+
+### businessHours
+
+- Scope: user configuration
+- Description: specify the working hours and working days of the user
+- Example:
+
+```json
+{
+  "name" : "businessHours",
+  "value" : [{
+    // days of week. an array of zero-based day of week integers (0=Sunday)
+    "daysOfWeek" : [1, 2, 3, 4, 5], // Monday - Friday
+    "start": "09:00", / a start time (9am in this example)
+    "end": "18:00" // an end time (6pm in this example)
+  }]
+}
+```
