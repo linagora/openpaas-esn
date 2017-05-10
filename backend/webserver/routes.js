@@ -36,7 +36,7 @@ exports = module.exports = function(application) {
   resourceLinks.addCanCreateMiddleware('like', require('./middleware/message').canLike);
 
   var home = require('./controllers/home');
-  application.get('/', home.index);
+  application.get('/', authorize.loginAndContinue, home.index);
 
   var cssController = require('./controllers/css');
   application.get('/generated/css/:app/:foo.css', cssController.getCss);
