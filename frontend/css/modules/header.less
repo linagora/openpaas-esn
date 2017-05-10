@@ -85,10 +85,8 @@
 
 @media (max-width: @screen-md-min) {
   #header {
-    &:not(.showHeader) {
-      transform: translate3d(0, -@header-height, 0);
-      .transition-transform(0.2s);
-    }
+    transform: translate3d(0, -@header-height, 0);
+    .transition-transform(0.2s);
   }
 }
 
@@ -171,7 +169,7 @@
 }
 
 @media (max-width: @screen-md-min) {
-  body{
+  body {
     padding-top: 0;
     .transition-transform(0.2s);
   }

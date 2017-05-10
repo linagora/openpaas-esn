@@ -18,10 +18,6 @@ angular.module('esn.header', [
 
   .constant('SUB_HEADER_HEIGHT_IN_PX', 47)
 
-  .run(function($state, $rootScope) {
-    $rootScope.$state = $state;
-  })
-
   .factory('headerService', function($rootScope, dynamicDirectiveService, MAIN_HEADER, SUB_HEADER, SUB_HEADER_HAS_INJECTION_EVENT) {
 
     function buildDynamicDirective(directiveName, scope) {
