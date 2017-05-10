@@ -9,7 +9,7 @@ describe('The controlcenterGeneralController', function() {
 
   var $controller, $rootScope, $scope;
   var esnUserConfigurationService, controlcenterGeneralService;
-  var CONFIG_NAMES = ['homePage'];
+  var CONFIG_NAMES = ['homePage', 'businessHours'];
 
   beforeEach(module(function($provide) {
     $provide.value('asyncAction', sinon.spy(function(message, action) {
@@ -73,7 +73,7 @@ describe('The controlcenterGeneralController', function() {
     expect(controlcenterGeneralService.getHomePageCandidates).to.have.been.calledOnce;
   });
 
-  describe('The onFormSubmit fn', function() {
+  describe('The save fn', function() {
 
     var configMock, formMock;
 
@@ -90,28 +90,6 @@ describe('The controlcenterGeneralController', function() {
       };
     });
 
-    it('should reject if form is not defined', function(done) {
-      var controller = initController();
-
-      controller.onFormSubmit().catch(function() {
-        done();
-      });
-
-      $scope.$digest();
-    });
-
-    it('should reject if form is invalid', function(done) {
-      var controller = initController();
-
-      formMock.$valid = false;
-
-      controller.onFormSubmit(formMock).catch(function() {
-        done();
-      });
-
-      $scope.$digest();
-    });
-
     it('should call esnUserConfigurationService.set to save configuration', function(done) {
       esnUserConfigurationService.get = sinon.stub().returns($q.when(configMock));
 
@@ -122,7 +100,7 @@ describe('The controlcenterGeneralController', function() {
 
       esnUserConfigurationService.set = sinon.stub().returns($q.when());
 
-      controller.onFormSubmit(formMock).then(function() {
+      controller.save(formMock).then(function() {
         expect(esnUserConfigurationService.set).to.have.been.calledWith(configMock);
         done();
       });

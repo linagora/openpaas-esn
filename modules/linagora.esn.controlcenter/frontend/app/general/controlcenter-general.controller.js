@@ -6,7 +6,7 @@
 
   function controlcenterGeneralController(esnUserConfigurationService, asyncAction, rejectWithErrorNotification, controlcenterGeneralService, _) {
     var self = this;
-    var CONFIG_NAMES = ['homePage'];
+    var CONFIG_NAMES = ['homePage', 'businessHours'];
 
     self.$onInit = $onInit;
     self.save = save;
