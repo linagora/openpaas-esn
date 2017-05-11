@@ -23,6 +23,11 @@ module.exports = {
             user: 'rw'
           }
         },
+        businessHours: {
+          rights: {
+            user: 'rw'
+          }
+        },
         ldap: {},
         mail: {},
         davserver: {},

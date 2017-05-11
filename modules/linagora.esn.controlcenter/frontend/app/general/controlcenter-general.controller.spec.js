@@ -8,8 +8,7 @@ var expect = chai.expect;
 describe('The controlcenterGeneralController', function() {
 
   var $controller, $rootScope, $scope;
-  var esnUserConfigurationService, controlcenterGeneralService;
-  var CONFIG_NAMES = ['homePage'];
+  var esnUserConfigurationService, controlcenterGeneralService, CONTROLCENTER_GENERAL_CONFIGS;
 
   beforeEach(module(function($provide) {
     $provide.value('asyncAction', sinon.spy(function(message, action) {
@@ -24,11 +23,12 @@ describe('The controlcenterGeneralController', function() {
   beforeEach(function() {
     module('linagora.esn.controlcenter');
 
-    inject(function(_$controller_, _$rootScope_, _esnUserConfigurationService_, _controlcenterGeneralService_) {
+    inject(function(_$controller_, _$rootScope_, _esnUserConfigurationService_, _controlcenterGeneralService_, _CONTROLCENTER_GENERAL_CONFIGS_) {
       $controller = _$controller_;
       $rootScope = _$rootScope_;
       esnUserConfigurationService = _esnUserConfigurationService_;
       controlcenterGeneralService = _controlcenterGeneralService_;
+      CONTROLCENTER_GENERAL_CONFIGS = _CONTROLCENTER_GENERAL_CONFIGS_;
     });
   });
 
@@ -54,7 +54,7 @@ describe('The controlcenterGeneralController', function() {
     $rootScope.$digest();
 
     expect(controller.configurations).to.deep.equal(expectResult);
-    expect(esnUserConfigurationService.get).to.have.been.calledWith(CONFIG_NAMES);
+    expect(esnUserConfigurationService.get).to.have.been.calledWith(CONTROLCENTER_GENERAL_CONFIGS);
   });
 
   it('should get a list homePages with keys are sorted', function() {
@@ -73,7 +73,7 @@ describe('The controlcenterGeneralController', function() {
     expect(controlcenterGeneralService.getHomePageCandidates).to.have.been.calledOnce;
   });
 
-  describe('The onFormSubmit fn', function() {
+  describe('The save fn', function() {
 
     var configMock, formMock;
 
@@ -90,28 +90,6 @@ describe('The controlcenterGeneralController', function() {
       };
     });
 
-    it('should reject if form is not defined', function(done) {
-      var controller = initController();
-
-      controller.onFormSubmit().catch(function() {
-        done();
-      });
-
-      $scope.$digest();
-    });
-
-    it('should reject if form is invalid', function(done) {
-      var controller = initController();
-
-      formMock.$valid = false;
-
-      controller.onFormSubmit(formMock).catch(function() {
-        done();
-      });
-
-      $scope.$digest();
-    });
-
     it('should call esnUserConfigurationService.set to save configuration', function(done) {
       esnUserConfigurationService.get = sinon.stub().returns($q.when(configMock));
 
@@ -122,7 +100,7 @@ describe('The controlcenterGeneralController', function() {
 
       esnUserConfigurationService.set = sinon.stub().returns($q.when());
 
-      controller.onFormSubmit(formMock).then(function() {
+      controller.save(formMock).then(function() {
         expect(esnUserConfigurationService.set).to.have.been.calledWith(configMock);
         done();
       });

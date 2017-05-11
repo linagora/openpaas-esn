@@ -10,7 +10,16 @@ const injections = [
   {angular: ['esn.multi-input'], files: ['multi-input.js'], innerApps: ['esn']},
   {angular: ['esn.http'], files: ['http.js'], innerApps: ['esn', 'welcome']},
   {angular: ['esn.header'], files: ['header.js'], innerApps: ['esn']},
-  {angular: ['esn.subheader'], files: ['subheader.js'], innerApps: ['esn']},
+  {angular: ['esn.subheader'], files: [
+    'subheader/subheader.module.js',
+    'subheader/subheader.constants.js',
+    'subheader/sub-header.service.js',
+    'subheader/sub-header.directive.js',
+    'subheader/sub-header-container.directive.js',
+    'subheader/sub-header-aware.directive.js',
+    'subheader/save-button/save-button.controller.js',
+    'subheader/save-button/save-button.component.js'
+  ], innerApps: ['esn']},
   {angular: ['esn.socketio'], files: ['socketio.js'], innerApps: ['esn']},
   {angular: ['esn.domain'], files: ['domain.js'], innerApps: ['esn']},
   {angular: ['esn.member'], files: ['member.js'], innerApps: ['esn']},

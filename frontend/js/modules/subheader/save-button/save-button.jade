@@ -1,0 +1,7 @@
+button.btn.btn-link.save.hidden-xs(esn-submit="$ctrl.checkValidThenSubmit()", ng-disabled="$ctrl.form.$pristine")
+  .flex-vertical-centered
+    span #{__('Save')}
+    i.mdi.mdi-check.mdi-margin-left
+
+button.btn.btn-link.btn-icon.save.visible-xs(esn-submit="$ctrl.checkValidThenSubmit()", ng-disabled="$ctrl.form.$pristine")
+  i.mdi.mdi-check

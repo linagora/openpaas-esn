@@ -4,41 +4,32 @@
   angular.module('linagora.esn.controlcenter')
     .controller('controlcenterGeneralController', controlcenterGeneralController);
 
-  function controlcenterGeneralController(esnUserConfigurationService, asyncAction, rejectWithErrorNotification, controlcenterGeneralService, _) {
+  function controlcenterGeneralController(
+    esnUserConfigurationService,
+    asyncAction,
+    rejectWithErrorNotification,
+    controlcenterGeneralService,
+    _,
+    CONTROLCENTER_GENERAL_CONFIGS
+  ) {
     var self = this;
 
     self.$onInit = $onInit;
-    self.onFormSubmit = onFormSubmit;
+    self.save = save;
 
     function $onInit() {
-      var CONFIG_NAMES = ['homePage'];
       var homePageCandidates = controlcenterGeneralService.getHomePageCandidates();
 
-      self.configurations = {};
       self.homePages = _objectWithKeysSorted(homePageCandidates);
 
-      esnUserConfigurationService.get(CONFIG_NAMES)
+      esnUserConfigurationService.get(CONTROLCENTER_GENERAL_CONFIGS)
         .then(function(configurations) {
-          _extractConfigs(configurations);
+          self.configurations = _spreadConfigs(configurations);
         });
     }
 
-    function _extractConfigs(configurations) {
-      configurations.forEach(function(configuration) {
-        self.configurations[configuration.name] = configuration.value;
-      });
-    }
-
-    function onFormSubmit(form) {
-      if (form && form.$valid) {
-        return asyncAction('Modification of general settings', _saveConfiguration)
-          .then(function() {
-            form.$setPristine();
-            form.$setUntouched();
-          });
-      }
-
-      return rejectWithErrorNotification('Form is invalid!');
+    function save() {
+      return asyncAction('Modification of general settings', _saveConfiguration);
     }
 
     function _saveConfiguration() {
@@ -47,6 +38,16 @@
       });
 
       return esnUserConfigurationService.set(configurations);
+    }
+
+    function _spreadConfigs(configurations) {
+      var output = {};
+
+      configurations.forEach(function(configuration) {
+        output[configuration.name] = configuration.value;
+      });
+
+      return output;
     }
 
     function _objectWithKeysSorted(object) {

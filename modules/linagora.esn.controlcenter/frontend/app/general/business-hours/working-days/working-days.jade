@@ -1,0 +1,8 @@
+ng-form(name="form")
+  p.text-muted #{__('Choose your working days')}
+  .row
+    .col-xs-6.col-md-3.m-b-10(ng-repeat="day in $ctrl.days")
+      label.checkbox.checkbox-inline
+        input(type="checkbox", ng-model="day.selected", ng-change="$ctrl.onDayChange()")
+        i.input-helper
+        | {{day.title}}
