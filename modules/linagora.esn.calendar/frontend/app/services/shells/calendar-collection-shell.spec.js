@@ -358,8 +358,13 @@ describe('CalendarCollectionShell factory', function() {
     });
   });
 
-  describe('getOwner function', function() {
+  describe('splitUniqueId fn', function() {
+    it('should return correct calendarHomeId and calendarId from uniqueId', function() {
+      expect(CalendarCollectionShell.splitUniqueId('/calendars/aHomeId/aSubId.json')).to.deep.equal({ calendarHomeId: 'aHomeId', calendarId: 'aSubId' });
+    });
+  });
 
+  describe('getOwner function', function() {
     it('should return the calendar owner from a calendar', function(done) {
       var calendarCollectionShell = new CalendarCollectionShell(calendar);
 

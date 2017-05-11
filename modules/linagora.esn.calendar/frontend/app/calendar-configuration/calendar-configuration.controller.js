@@ -11,7 +11,6 @@
     _,
     CalendarCollectionShell,
     calendarService,
-    calPathParser,
     calPublicCalendarStore,
     calendarHomeService,
     calendarAPI,
@@ -49,9 +48,9 @@
             if (self.getFromPublicCalendarStore) {
               return calPublicCalendarStore.getById($stateParams.calendarUniqueId);
             } else {
-              var parsedPath = calPathParser.parseCalendarPath($stateParams.calendarUniqueId);
+              var splitUniqueId = CalendarCollectionShell.splitUniqueId($stateParams.calendarUniqueId);
 
-              return calendarService.getCalendar(calendarHomeId, parsedPath.calendarId);
+              return calendarService.getCalendar(calendarHomeId, splitUniqueId.calendarId);
             }
           }
         })

@@ -43,6 +43,7 @@
     CalendarCollectionShell.from = from;
     CalendarCollectionShell.buildHref = buildHref;
     CalendarCollectionShell.buildUniqueId = buildHref;
+    CalendarCollectionShell.splitUniqueId = splitUniqueId;
 
     return CalendarCollectionShell;
 
@@ -87,6 +88,10 @@
 
     function buildHref(calendarHomeId, calendarId) {
       return calPathBuilder.forCalendarId(calendarHomeId, calendarId);
+    }
+
+    function splitUniqueId(uniqueId) {
+      return calPathParser.parseCalendarPath(uniqueId);
     }
 
     /**

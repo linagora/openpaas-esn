@@ -5,37 +5,38 @@
 var expect = chai.expect;
 
 describe('The calendar configuration controller', function() {
-  var $rootScope,
-    $controller,
+  var $controller,
+    $rootScope,
     $scope,
-    uuid4,
-    matchmedia,
-    calendarConfigurationController,
-    calendarHomeId,
-    calendarRight,
-    calendarService,
-    getAllRemovedUsersIdResult,
-    getAllRemovedUsersId,
-    addUserGroup,
-    addUserGroupResult,
-    removeUserGroup,
-    userUtilsMock,
-    userAPIMock,
-    calendarAPI,
     CalDelegationEditionHelperMock,
+    calendarAPI,
+    CalendarCollectionShell,
+    calendarConfigurationController,
+    calendarHomeServiceMock,
+    calendarRight,
+    CalendarRightShellMock,
+    calendarService,
+    matchmedia,
     notificationFactoryMock,
     stateMock,
     stateParamsMock,
-    calendarMock,
-    CalendarRightShellMock,
-    calendarHomeServiceMock,
+    userUtilsMock,
+    userAPIMock,
+    uuid4,
     calPublicCalendarStoreMock,
-    calendar,
-    publicCalendar1,
-    publicCalendar2,
     SM_XS_MEDIA_QUERY,
     CAL_CALENDAR_PUBLIC_RIGHT,
     CAL_CALENDAR_SHARED_RIGHT;
+
+  var addUserGroup,
+    addUserGroupResult,
+    calendar,
+    calendarHomeId,
+    getAllRemovedUsersIdResult,
+    getAllRemovedUsersId,
+    publicCalendar1,
+    publicCalendar2,
+    removeUserGroup;
 
   function initController() {
     return $controller('calendarConfigurationController', { $scope: $scope });
@@ -85,8 +86,6 @@ describe('The calendar configuration controller', function() {
     stateMock = {
       go: sinon.spy()
     };
-
-    calendarMock = null;
 
     matchmedia = {};
 
@@ -204,7 +203,6 @@ describe('The calendar configuration controller', function() {
       $provide.value('matchmedia', matchmedia);
       $provide.value('CalDelegationEditionHelper', CalDelegationEditionHelperMock);
       $provide.value('notificationFactory', notificationFactoryMock);
-      $provide.value('calendar', calendarMock);
       $provide.value('userAPI', userAPIMock);
       $provide.value('userUtils', userUtilsMock);
       $provide.value('CalendarRightShell', CalendarRightShellMock);
@@ -213,10 +211,11 @@ describe('The calendar configuration controller', function() {
   });
 
   beforeEach(function() {
-    angular.mock.inject(function(_$rootScope_, _$controller_, _CAL_CALENDAR_PUBLIC_RIGHT_, _CAL_CALENDAR_SHARED_RIGHT_, _SM_XS_MEDIA_QUERY_) {
+    angular.mock.inject(function(_$rootScope_, _$controller_, _CalendarCollectionShell_, _CAL_CALENDAR_PUBLIC_RIGHT_, _CAL_CALENDAR_SHARED_RIGHT_, _SM_XS_MEDIA_QUERY_) {
       $rootScope = _$rootScope_;
       $scope = $rootScope.$new();
       $controller = _$controller_;
+      CalendarCollectionShell = _CalendarCollectionShell_;
       CAL_CALENDAR_PUBLIC_RIGHT = _CAL_CALENDAR_PUBLIC_RIGHT_;
       CAL_CALENDAR_SHARED_RIGHT = _CAL_CALENDAR_SHARED_RIGHT_;
       SM_XS_MEDIA_QUERY = _SM_XS_MEDIA_QUERY_;
@@ -252,10 +251,13 @@ describe('The calendar configuration controller', function() {
     });
 
     it('should calendarService.getCalendar to get the calendar if calendarUniqueId is not null and getFromPublicCalendarStore is not truthy', function() {
+      sinon.spy(CalendarCollectionShell, 'splitUniqueId');
+
       calendarConfigurationController.$onInit();
 
       $rootScope.$digest();
 
+      expect(CalendarCollectionShell.splitUniqueId).to.have.been.calledWith(stateParamsMock.calendarUniqueId);
       expect(calendarService.getCalendar).to.be.calledWith(calendarHomeId, '123');
     });
 
