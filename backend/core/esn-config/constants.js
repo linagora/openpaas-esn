@@ -28,6 +28,11 @@ module.exports = {
             user: 'rw'
           }
         },
+        autoconf: {
+          rights: {
+            admin: 'rw'
+          }
+        },
         ldap: {},
         mail: {},
         davserver: {},
