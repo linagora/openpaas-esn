@@ -12,6 +12,7 @@ angular.module('esn.application', ['esn.http', 'op.dynamicDirective'])
     $scope.applications = applications;
     $scope.sending = false;
     $scope.client = {};
+    $scope.formName = 'applicationsForm';
 
     $scope.openModal = function() {
       $modal({
@@ -19,6 +20,10 @@ angular.module('esn.application', ['esn.http', 'op.dynamicDirective'])
         templateUrl: '/views/modules/application/application-add-form.html',
         placement: 'center'
       });
+    };
+
+    $scope.resetFields = function() {
+      $scope.client = {};
     };
 
     $scope.create = function(client) {
@@ -29,7 +34,7 @@ angular.module('esn.application', ['esn.http', 'op.dynamicDirective'])
       $scope.sending = true;
       applicationAPI.create(client).then(function(response) {
         $log.debug('Successfully created new client', client, response);
-        $scope.applications.push(response.data)
+        $scope.applications.push(response.data);
       }, function(err) {
         $log.error('Error while creating new client', err.data);
         $scope.sending = false;
