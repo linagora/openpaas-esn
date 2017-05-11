@@ -67,8 +67,8 @@
         .then(function(calendars) {
           var allPublicCalendarsForUser = [];
           var allCalendarsForUser = calendars.filter(function(calendar) {
-              return calendar._links.self.href.indexOf(userId) !== -1;
-            });
+            return calendar._links.self.href.indexOf(userId) !== -1;
+          });
 
           allCalendarsForUser.forEach(function(calendar) {
             calendar._embedded['dav:calendar'].forEach(function(publicCalendar) {
@@ -78,7 +78,7 @@
 
           return allPublicCalendarsForUser.map(function(calendar) {
             return new CalendarCollectionShell(calendar);
-            });
+          });
         });
     }
 
@@ -95,23 +95,25 @@
         });
     }
 
-   /**
-    * Delete a calendar
-    * @param  {String}     calendarHomeId  The calendar home id
-    * @param  {String}     calendarId      The calendar id
-    */
-   function removeCalendar(calendarHomeId, calendar) {
-     return calendarAPI.removeCalendar(calendarHomeId, calendar.id)
-       .then(function(response) {
-         removeAndEmit(calendarHomeId, calendar);
+    /**
+     * Delete a calendar
+     * @param  {String}     calendarHomeId  The calendar home id
+     * @param  {String}     calendarId      The calendar id
+     */
+    function removeCalendar(calendarHomeId, calendar) {
+      return calendarAPI.removeCalendar(calendarHomeId, calendar.id)
+        .then(function(response) {
+          removeAndEmit(calendarHomeId, calendar);
 
-         return response;
-       });
+          return response;
+        });
     }
 
     function removeAndEmit(calendarHomeId, calendar) {
-      _.remove(calendarsCache[calendarHomeId], {id: calendar.id});
-      $rootScope.$broadcast(CAL_EVENTS.CALENDARS.REMOVE, calendar);
+      var uniqueId = CalendarCollectionShell.buildUniqueId(calendarHomeId, calendar.id);
+
+      _.remove(calendarsCache[calendarHomeId], { id: calendar.id });
+      $rootScope.$broadcast(CAL_EVENTS.CALENDARS.REMOVE, { uniqueId: uniqueId });
     }
 
     /**

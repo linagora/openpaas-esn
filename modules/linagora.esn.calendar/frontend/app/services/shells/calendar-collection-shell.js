@@ -42,6 +42,7 @@
     CalendarCollectionShell.toDavCalendar = toDavCalendar;
     CalendarCollectionShell.from = from;
     CalendarCollectionShell.buildHref = buildHref;
+    CalendarCollectionShell.buildUniqueId = buildHref;
 
     return CalendarCollectionShell;
 

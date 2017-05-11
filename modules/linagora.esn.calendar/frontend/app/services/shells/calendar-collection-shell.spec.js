@@ -352,6 +352,12 @@ describe('CalendarCollectionShell factory', function() {
     });
   });
 
+  describe('buildUniqueId fn', function() {
+    it('should return the correct uniqueId', function() {
+      expect(CalendarCollectionShell.buildUniqueId('aHomeId', 'aSubId')).to.equal('/calendars/aHomeId/aSubId.json');
+    });
+  });
+
   describe('getOwner function', function() {
 
     it('should return the calendar owner from a calendar', function(done) {
