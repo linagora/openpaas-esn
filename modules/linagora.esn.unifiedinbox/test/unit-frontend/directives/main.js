@@ -79,6 +79,7 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
         return $q.when([{ isDefault: true, id: 'default' }]);
       }
     });
+    $provide.value('localTimezone', 'UTC');
   }));
 
   beforeEach(inject(function(_$compile_, _$rootScope_, _$timeout_, _$stateParams_, _$templateCache_, session, _inboxJmapItemService_,
@@ -585,13 +586,11 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
         expect(textarea.selectionEnd).to.equal(position);
       }
 
-      beforeEach(inject(function($templateCache, emailBodyService) {
+      beforeEach(inject(function(emailBodyService) {
         isMobile = true;
         autosize.update = sinon.spy();
 
         emailBodyService.bodyProperty = 'textBody';
-
-        $templateCache.put('/unifiedinbox/views/partials/quotes/default.txt', '{{ email.textBody }} Quote {{ email.quoted.textBody }}');
       }));
 
       beforeEach(function() {
@@ -615,13 +614,15 @@ describe('The linagora.esn.unifiedinbox Main module directives', function() {
         compileDirective('<composer />');
         $scope.email = {
           quoted: {
+            date: '2015-08-21T00:10:00Z',
+            from: {email: 'sender@linagora.com', name: 'linagora'},
             textBody: 'Hello'
           }
         };
 
         $scope.editQuotedMail().then(function() {
           expect($scope.email.isQuoting).to.equal(true);
-          expect($scope.email.textBody).to.equal(' Quote Hello');
+          expect($scope.email.textBody).to.equal('\n\n\n\u0000On Aug 21, 2015 12:10:00 AM, from sender@linagora.com:\n\n> Hello');
 
           done();
         });

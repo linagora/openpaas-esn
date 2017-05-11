@@ -18,9 +18,9 @@ sub-header
   form
     span #{__('Vacation responder')}
     .inbox-toggle-switch.form-group
-      span.clickable.vacation-disabled(ng-class='{"toggle-active": !vacation.isEnabled}', ng-click="ctrl.enableVacation(false)") #{__('Off')}
+      span.clickable.vacation-disabled(ng-class='{"toggle-active": !vacation.isEnabled}', ng-click="ctrl.enableVacation(false)") #{__('Deactivated')}
       toggle-switch(ng-model='vacation.isEnabled', color='blue')
-      span.clickable.vacation-enabled(ng-class='{"toggle-active": vacation.isEnabled}', ng-click="ctrl.enableVacation(true)") #{__('On')}
+      span.clickable.vacation-enabled(ng-class='{"toggle-active": vacation.isEnabled}', ng-click="ctrl.enableVacation(true)") #{__('Activated')}
     fieldset(ng-disabled="!vacation.isEnabled")
       .form-group.flex-form-group.full-width
         .field-name.field-label #{__('Start date')}

@@ -1,6 +1,9 @@
-p
-  br
+pre {{ email.textBody }}
+br
+br
+br
 
+p {{ marker }}
 cite
   | ------- #{__('Forwarded message')} -------
   br
@@ -13,5 +16,7 @@ cite
   | {{ email.quoted.to | emailerList:'#{__('To')}: '}}
   br
   | {{ email.quoted.cc | emailerList:'#{__('CC')}: '}}
+br
+br
 
-blockquote {{ email.quoted.htmlBody || (email.quoted.textBody | nl2br) }}
+blockquote {{ email.quoted.textBody | inboxQuote }}

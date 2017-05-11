@@ -409,7 +409,7 @@ describe('The Unified Inbox Angular module services', function() {
         });
       });
 
-      angular.mock.inject(function(session, _emailSendingService_, _$rootScope_, $templateCache) {
+      angular.mock.inject(function(session, _emailSendingService_, _$rootScope_) {
         emailSendingService = _emailSendingService_;
         $rootScope = _$rootScope_;
 
@@ -418,9 +418,6 @@ describe('The Unified Inbox Angular module services', function() {
           lastname: 'using',
           preferredEmail: 'user@linagora.com'
         };
-
-        $templateCache.put('/unifiedinbox/views/partials/quotes/default.txt', '');
-        $templateCache.put('/unifiedinbox/views/partials/quotes/forward.txt', '');
       });
     });
 
@@ -2431,19 +2428,10 @@ describe('The Unified Inbox Angular module services', function() {
       });
     }));
 
-    beforeEach(inject(function(_emailBodyService_, _$rootScope_, ___, $templateCache) {
+    beforeEach(inject(function(_emailBodyService_, _$rootScope_, ___) {
       emailBodyService = _emailBodyService_;
       $rootScope = _$rootScope_;
       _ = ___;
-
-      $templateCache.put('/unifiedinbox/views/partials/quotes/default.txt', 'On {{ email.quoted.date | date:dateFormat:tz }} from {{ email.quoted.from.email }}: {{ email.quoted.textBody }}');
-      $templateCache.put('/unifiedinbox/views/partials/quotes/forward.txt',
-        '------- Forwarded message ------- ' +
-        'Subject: {{ email.quoted.subject }} ' +
-        'Date: {{ email.quoted.date | date:dateFormat:tz }} ' +
-        '{{ email.quoted.to | emailerList:"To: "}} ' +
-        '{{ email.quoted.cc | emailerList:"CC: "}} ' +
-        '{{ email.quoted.textBody }}');
     }));
 
     describe('The quote function', function() {
@@ -2487,9 +2475,9 @@ describe('The Unified Inbox Angular module services', function() {
 
       it('should quote textBody using a plaintext template if on mobile', function(done) {
         isMobile = true;
-        emailBodyService.quote(quotedMessage(email))
+        emailBodyService.quote(quotedMessage(_.omit(email, 'htmlBody')), 'default', false)
           .then(function(text) {
-            expect(text).to.equal('On Aug 21, 2015 12:10:00 AM from test@open-paas.org: TextBody');
+            expect(text).to.equal('\n\n\n\u0000On Aug 21, 2015 12:10:00 AM, from test@open-paas.org:\n\n> TextBody');
           })
           .then(done, done);
 
@@ -2519,9 +2507,9 @@ describe('The Unified Inbox Angular module services', function() {
 
       it('should leverage the text mode of forward template if specified', function(done) {
         isMobile = true;
-        emailBodyService.quote(quotedMessage(email), 'forward')
+        emailBodyService.quote(quotedMessage(_.omit(email, 'htmlBody')), 'forward', false)
           .then(function(text) {
-            expect(text).to.equal('------- Forwarded message ------- Subject: Heya Date: Aug 21, 2015 12:10:00 AM   TextBody');
+            expect(text).to.equal('\n\n\n\u0000------- Forwarded message -------\nSubject: Heya\nDate: Aug 21, 2015 12:10:00 AM\nFrom: test@open-paas.org\n\n\n\n> TextBody');
           })
           .then(done, done);
 
