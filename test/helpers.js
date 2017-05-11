@@ -404,16 +404,20 @@ module.exports = function(mixin, testEnv) {
       };
     },
     jsonResponse: function(callback) {
-      var _headers = {};
+      const _headers = {};
+      const _set = {};
 
       return {
+        set: function(key, value) {
+          _set[key] = value;
+        },
         header: function(key, value) {
           _headers[key] = value;
         },
         status: function(code) {
           return {
             json: function(data) {
-              return callback && callback(code, data, _headers);
+              return callback && callback(code, data, _headers, _set);
             }
           };
         }
