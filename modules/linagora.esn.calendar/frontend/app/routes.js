@@ -37,6 +37,9 @@
         resolve: {
           calendarHomeId: function(calendarHomeService) {
             return calendarHomeService.getUserCalendarHomeId();
+          },
+          businessHours: function(calendarHomeService) {
+            return calendarHomeService.getUserBusinessHours();
           }
         },
         controller: function($scope, calendarHomeId) {
@@ -49,9 +52,11 @@
         views: {
           content: {
             templateUrl: '/calendar/app/calendar/calendar-main',
-            controller: function($scope, calendarHomeId, CAL_UI_CONFIG) {
+            controller: function($scope, calendarHomeId, businessHours, CAL_UI_CONFIG) {
               $scope.calendarHomeId = calendarHomeId;
               $scope.uiConfig = angular.copy(CAL_UI_CONFIG);
+              $scope.uiConfig.calendar.businessHours = businessHours;
+              $scope.uiConfig.calendar.scrollTime = businessHours[0].start;
             }
           }
         }
