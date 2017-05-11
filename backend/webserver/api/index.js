@@ -106,6 +106,7 @@ function setupAPI(application) {
   require('./user')(router);
   require('./users')(router);
   require('./ldap')(router);
+  require('./i18n')(router);
 
   application.use('/api', router);
   application.use('/api/v0.1', router);
