@@ -7,5 +7,5 @@
         .oauth-redirect-message #{__('You will be redirected to %s', client.redirectUri)}
     input(name="transaction_id", type="hidden", value='#{transactionId}')
     .oauth-btn-group
-      input.btn.btn-primary.save(type="submit", value="Authorize", id="allow")
-      input.btn.btn-cancel.btn-link.color-default.cancel(type="submit", value="Deny", name="Cancel", id="deny")
+      input.btn.btn-primary.save(type="submit", name="#{__('Allow')}", value="Authorize", id="allow")
+      input.btn.btn-cancel.btn-link.color-default.cancel(type="submit", name="#{__('Deny')}", value="Deny", id="deny")
