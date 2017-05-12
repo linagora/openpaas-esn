@@ -1,4 +1,6 @@
 .modal
   .modal-dialog
     .modal-content
-      esn-oauth-application-add-form(on-created="onCreated(application)")
+      legend.modal-header #{__('Register a new application')}
+      .modal-body
+        esn-oauth-application-add-form(on-created="onCreated(application)")
