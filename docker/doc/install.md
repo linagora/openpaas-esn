@@ -71,7 +71,7 @@ sudo apt install docker docker-compose
 ### 2. Run the services with docker-compose
 
 You can launch the minimum set of OpenPaaS required services (Mongo, Redis, Elasticsearch, SabreDAV) in Docker containers and start the current OpenPaaS ESN repository in your preferred NodeJS environment with the help of docker-compose and some initial setup.
-
+**Note** If you get an error related to .yml's "version" statement check your docker-compose version (it should be 1.10.0+). 
 
 ```
 ESN_HOST=<YOUR_ESN_IP> ESN_PATH=$PWD docker-compose -f ./docker/dockerfiles/dev/docker-compose.yml up
