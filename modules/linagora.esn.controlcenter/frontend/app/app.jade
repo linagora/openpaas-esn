@@ -1,9 +1,9 @@
-sub-header
+sub-header(full-width="false")
   .controlcenter-subheader.hidden-md
     button.btn.btn-icon.btn-link.button(contextual-sidebar, data-content-template="/controlcenter/app/sidebar/sidebar")
       i.mdi.mdi-menu
 .controlcenter-root.full-width.no-padding-xs(sub-header-aware)
-  .col-md-3.hidden-xs
+  .col-md-3.col-xl-2.hidden-xs
     controlcenter-sidebar
-  ui-view.col-xs-12.col-md-9.no-padding-xs
+  ui-view.col-xs-12.col-md-9.col-xl-10.no-padding-xs
     .ui-view(name="root", noanimation)

@@ -6,17 +6,19 @@ var expect = chai.expect;
 
 describe('The esn.subheader Angular module', function() {
 
-  var $rootScope, $compile, $scope, SM_XS_MEDIA_QUERY;
+  var $rootScope, $compile, $scope;
+  var SM_XS_MEDIA_QUERY, ESN_SUBHEADER_FULLWIDTH_CLASS;
 
   beforeEach(function() {
     module('jadeTemplates');
     module('esn.subheader');
   });
 
-  beforeEach(inject(function(_$rootScope_, _$compile_, _SM_XS_MEDIA_QUERY_) {
+  beforeEach(inject(function(_$rootScope_, _$compile_, _SM_XS_MEDIA_QUERY_, _ESN_SUBHEADER_FULLWIDTH_CLASS_) {
     $rootScope = _$rootScope_;
     $compile = _$compile_;
     SM_XS_MEDIA_QUERY = _SM_XS_MEDIA_QUERY_;
+    ESN_SUBHEADER_FULLWIDTH_CLASS = _ESN_SUBHEADER_FULLWIDTH_CLASS_;
   }));
 
   function compileDirective(htmlContent, scope) {
@@ -77,6 +79,24 @@ describe('The esn.subheader Angular module', function() {
       var container = compileDirective('<sub-header-container />');
 
       expect(container.html()).to.contain('subHeader1');
+    });
+
+    describe('The subheader fullWidth option', function() {
+      it('should make the subheader full width by default', function() {
+        var container = compileDirective('<sub-header-container />');
+
+        compileDirective('<sub-header><div>subHeader</div></sub-header>');
+
+        expect(container.find('div').hasClass(ESN_SUBHEADER_FULLWIDTH_CLASS)).to.be.true;
+      });
+
+      it('should not make the subheader full width when fullWidth set to false', function() {
+        var container = compileDirective('<sub-header-container />');
+
+        compileDirective('<sub-header full-width="false"><div>subHeader</div></sub-header>');
+
+        expect(container.find('div').hasClass(ESN_SUBHEADER_FULLWIDTH_CLASS)).to.be.false;
+      });
     });
 
   });
