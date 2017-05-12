@@ -1,0 +1,18 @@
+.application-display.well.col-xs-12
+  a.application-display-image-container(ui-sref="oauth-application.view({ application_id: $ctrl.application._id })")
+    img.application-display-image(src='/images/application.png', alt='')
+  .application-display-information
+    h4.media-heading
+      a(ui-sref="oauth-application.view({ application_id: $ctrl.application._id })") {{ $ctrl.application.name }}
+    p
+      strong #{__('Redirect URI')}
+      br
+      span {{ $ctrl.application.redirectUri }}
+    p
+      strong #{__('Client ID')}
+      br
+      span {{ $ctrl.application.clientId }}
+    p
+      strong #{__('Client Secret')}
+      br
+      span {{ $ctrl.application.clientSecret }}

@@ -1,0 +1,23 @@
+.col-xs-12
+  .block-header
+    h2 {{ $ctrl.application.name }}
+
+  .row
+    .well.text-center
+      button.btn.btn-danger(type='submit', ng-click='$ctrl.revokeTokens()') Revoke all user tokens
+      &nbsp;
+      button.btn.btn-danger(type='submit', ng-click='$ctrl.resetClientSecret()') Reset client secret
+
+  .row
+    p
+      strong Client ID
+      br
+      span {{ $ctrl.application.clientId }}
+    p
+      strong Client Secret
+      br
+      span {{ $ctrl.application.clientSecret }}
+
+  .row
+    .well
+      esn-oauth-application-edit-form(application="$ctrl.application")
