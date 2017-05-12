@@ -14,5 +14,4 @@ form(name='applicationsForm')
       textarea.form-control(ng-model='$ctrl.application.description', name='description', placeholder="#{__('Application description')}")
       span.help-block #{__('Tell us what your application is about')}.
   .form-group.modal-footer
-    button.btn.btn-primary(type='submit', ng-click='$ctrl.create()', ng-disabled='sending')
-      | #{__('Register your application')}
+    button.btn.btn-primary(type='submit', ng-click='$ctrl.create()', ng-disabled='sending') #{__('Register your application')}

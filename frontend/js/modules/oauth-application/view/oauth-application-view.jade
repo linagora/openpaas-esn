@@ -4,17 +4,16 @@
 
   .row
     .well.text-center
-      button.btn.btn-danger(type='submit', ng-click='$ctrl.revokeTokens()') Revoke all user tokens
-      &nbsp;
-      button.btn.btn-danger(type='submit', ng-click='$ctrl.resetClientSecret()') Reset client secret
+      button.btn.btn-danger.m-5(type='submit', ng-click='$ctrl.revokeTokens()') #{__('Revoke users tokens')}
+      button.btn.btn-danger.m-5(type='submit', ng-click='$ctrl.resetClientSecret()') #{__('Reset client secret')}
 
   .row
     p
-      strong Client ID
+      strong #{__('Client ID')}
       br
       span {{ $ctrl.application.clientId }}
     p
-      strong Client Secret
+      strong #{__('Client Secret')}
       br
       span {{ $ctrl.application.clientSecret }}
 

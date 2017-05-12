@@ -12,8 +12,5 @@ form(name='applicationsForm')
     textarea.form-control(ng-model='$ctrl.application.description', name='description', placeholder="#{__('Application description')}")
     span.help-block #{__('Tell us what your application is about')}.
   .form-group.text-center
-    button.btn.btn-warning(type='submit', ng-click='$ctrl.update()')
-      | #{__('Update')}
-    &nbsp;
-    button.btn.btn-danger(type='submit', ng-click='$ctrl.remove()')
-      | #{__('Delete')}
+    button.btn.btn-warning.m-5(type='submit', ng-click='$ctrl.update()') #{__('Update')}
+    button.btn.btn-danger.m-5(type='submit', ng-click='$ctrl.remove()') #{__('Delete')}

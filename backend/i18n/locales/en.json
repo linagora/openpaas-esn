@@ -395,5 +395,7 @@
   "See all": "See all",
   "Inbox": "Inbox",
   "Control Center": "Control Center",
-  "Profile": "Profile"
+  "Profile": "Profile",
+  "Revoke users tokens": "Revoke users tokens",
+  "Reset client secret": "Reset client secret"
 }
