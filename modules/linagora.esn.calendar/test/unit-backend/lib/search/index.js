@@ -142,6 +142,34 @@ describe('The calendar search Module', function() {
       }));
     });
 
+    it('should be able to search document with limit = 0', function() {
+      var query = {
+        search: 'Bruce',
+        offset: 10,
+        limit: 0,
+        userId: new ObjectId()
+      };
+
+      deps.elasticsearch.searchDocuments = sinon.spy();
+
+      var module = require('../../../../backend/lib/search')(dependencies);
+      var searchConstants = require('../../../../backend/lib/constants').SEARCH;
+      var defaultSort = {};
+
+      defaultSort[searchConstants.DEFAULT_SORT_KEY] = { order: searchConstants.DEFAULT_SORT_ORDER };
+
+      module.searchEvents(query);
+      expect(deps.elasticsearch.searchDocuments).to.have.been.calledWith(sinon.match({
+        index: 'events.idx',
+        type: 'events',
+        from: query.offset,
+        size: 0,
+        body: {
+          sort: defaultSort
+        }
+      }));
+    });
+
     it('should call search.searchDocuments with right parameters', function() {
       var query = {
         search: 'Bruce',
