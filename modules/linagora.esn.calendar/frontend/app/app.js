@@ -31,6 +31,7 @@
     'esn.provider',
     'esn.search',
     'esn.highlight',
-    'esn.module-registry'
+    'esn.module-registry',
+    'esn.configuration'
   ]);
 })();
