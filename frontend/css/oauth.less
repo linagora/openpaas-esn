@@ -1,0 +1,42 @@
+.oauth-card {
+  .card;
+
+  margin-top: 25vh;
+  margin-left: 5%;
+  margin-right: 5%;
+
+  .oauth-form {
+    padding-top: 20px;
+    padding-bottom: 20px;
+    border: 1px solid lighten(@m-gray, 30%);
+
+    legend {
+      border-bottom: none;
+    }
+
+    .oauth-authorize-message {
+      margin-top: 20px;
+      margin-bottom: 10px;
+
+      em {
+        font-weight: bold;
+        font-style: inherit;
+        color: darken(@primaryColor, 15%);
+      }
+    }
+
+    .oauth-redirect-message {
+      font-size: small;
+      color: @m-gray;
+      margin-bottom: 30px;
+    }
+
+    .oauth-btn-group {
+      .flex-horizontal-centered;
+
+      .cancel {
+        margin-left: 20px;
+      }
+    }
+  }
+}
