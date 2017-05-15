@@ -9,7 +9,7 @@
           return text;
         }
 
-        return text.trim().replace(/^/gm, '> ');
+        return text.trim().replace(/(^|\n)/g, '$1> ');
       };
     });
 

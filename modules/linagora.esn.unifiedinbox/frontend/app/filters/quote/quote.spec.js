@@ -32,7 +32,7 @@ describe('The quote filter', function() {
 
   it('should support CRLF as newlines', function() {
     emailTextBody = 'This \r\nis \nmulti-line \r\nemail \rtest';
-    expect(inboxQuote(emailTextBody)).to.equal('> This \r> \n> is \n> multi-line \r> \n> email \r> test');
+    expect(inboxQuote(emailTextBody)).to.equal('> This \r\n> is \n> multi-line \r\n> email \rtest');
   });
 
   it('should trim useless spaces/lines', function() {
