@@ -447,14 +447,14 @@ Defines the configuration file template used by the autoconfiguration mechanism.
                     "prettyName" : "OpenPaas (<%= user.preferredEmail %>)",
                     "hostName" : "openpaas.linagora.com",
                     "username" : "<%= user.preferredEmail %>",
-                    "port" : "143",
+                    "port" : 143,
                     "socketType" : "2"
                 },
                 "smtp" : {
                     "description" : "OpenPaas SMTP (<%= user.preferredEmail %>)",
                     "hostname" : "smtp.linagora.com",
                     "username" : "<%= user.preferredEmail %>",
-                    "port" : "587",
+                    "port" : 587,
                     "socketType" : "2"
                 },
                 "identities" : [
