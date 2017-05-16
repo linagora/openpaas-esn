@@ -85,7 +85,7 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .factory('inboxNewMessageProvider', function($q, withJmapClient, pagedJmapRequest, inboxJmapProviderContextBuilder,
-                                               newProvider, sortByDateInDescendingOrder, inboxMailboxesService, _,
+                                               newProvider, inboxRejectItemById, sortByDateInDescendingOrder, inboxMailboxesService, _,
                                                JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_REQUEST, PROVIDER_TYPES) {
     return function(templateUrl) {
       return newProvider({
@@ -117,13 +117,21 @@ angular.module('linagora.esn.unifiedinbox')
 
           var fetcher = pagedJmapRequest(getMessages);
 
+          function rejectItemById(item) {
+            return function(items) {
+               return item ? _.reject(items, { id: item.id }) : items;
+            };
+          }
+
           fetcher.loadRecentItems = function(mostRecentItem) {
-            return getMessages(0, mostRecentItem.date).then(function(messages) {
-              messages.forEach(function(message) {
-                if (message.isUnread) {
-                  inboxMailboxesService.flagIsUnreadChanged(message, true);
-                }
-              });
+            return getMessages(0, mostRecentItem.date)
+              .then(rejectItemById(mostRecentItem))
+              .then(function(messages) {
+                messages.forEach(function(message) {
+                  if (message.isUnread) {
+                    inboxMailboxesService.flagIsUnreadChanged(message, true);
+                  }
+                });
 
               return messages;
             });
