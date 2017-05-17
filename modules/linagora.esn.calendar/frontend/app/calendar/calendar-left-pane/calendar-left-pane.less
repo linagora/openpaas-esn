@@ -1,4 +1,14 @@
 .calendar-left-pane {
+  overflow-y: hidden;
+  margin-top: @spaceNeededForSubheader;
+
+  &:hover {
+    width: 285px;
+    height: 100%;
+    position: fixed;
+    overflow-y: scroll;
+  }
+
   .fc-event .fc-title {
     text-align: center;
   }
