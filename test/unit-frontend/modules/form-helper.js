@@ -257,12 +257,24 @@ describe('The esn.form.helper Angular module', function() {
       $compile = _$compile_;
     }));
 
-    function initTemplate(type, required, errorMessages, expression) {
-      expression = expression || '';
+    function initTemplate(inputAttributes, fromGroupAttributes) {
+      inputAttributes = angular.extend({ type: 'text' }, inputAttributes);
+      fromGroupAttributes = angular.extend({}, fromGroupAttributes);
+
+      var inputAttributesInString = Object.keys(inputAttributes)
+        .map(function(key) {
+          return key + '="' + inputAttributes[key] + '"';
+        })
+        .join(' ');
+      var fromGroupAttributesInString = Object.keys(fromGroupAttributes)
+        .map(function(key) {
+          return key + '="' + fromGroupAttributes[key] + '"';
+        })
+        .join(' ');
 
       return '<form name="form">' +
-                '<esn-form-group ' + errorMessages + ' >' +
-                  '<input class="form-control" ng-model="model" type="' + type + '" ' + required + ' name="name" ' + expression + ' />' +
+                '<esn-form-group ' + fromGroupAttributesInString + ' >' +
+                  '<input class="form-control" ng-model="model" name="name" ' + inputAttributesInString + ' />' +
                 '</esn-form-group>' +
              '</form>';
     }
@@ -276,8 +288,8 @@ describe('The esn.form.helper Angular module', function() {
       return element;
     }
 
-    it('should be show nothing when form valid', function() {
-      var template = initTemplate('text', null, null);
+    it('should show nothing when form is valid', function() {
+      var template = initTemplate();
       var element = initDirective(null, template);
 
       var validatorMessageElement = angular.element(element[0].querySelectorAll('esn-form-validate-message'));
@@ -285,8 +297,8 @@ describe('The esn.form.helper Angular module', function() {
       expect(validatorMessageElement.text()).to.equal('');
     });
 
-    it('should be show default message error when given invalid value', function() {
-      var template = initTemplate('email', null, null);
+    it('should show default error message when form is filled with invalid value', function() {
+      var template = initTemplate({ type: 'email' });
       var element = initDirective(null, template);
       var formControlEle = angular.element(element[0].querySelector('.form-control'));
 
@@ -297,11 +309,9 @@ describe('The esn.form.helper Angular module', function() {
       expect(validatorMessageElement.text()).to.equal('Invalid email');
     });
 
-    it('should be show custom message error when given invalid value', function() {
+    it('should show custom error message when form is filled with invalid value', function() {
       var emailErrorMessage = 'This must be email format';
-      var errorMessages = 'email-error-message="' + emailErrorMessage + '"';
-
-      var template = initTemplate('email', null, errorMessages);
+      var template = initTemplate({ type: 'email' }, { 'email-error-message': emailErrorMessage });
       var element = initDirective(null, template);
       var formControlEle = angular.element(element[0].querySelector('.form-control'));
 
@@ -312,9 +322,8 @@ describe('The esn.form.helper Angular module', function() {
       expect(validatorMessageElement.text()).to.equal(emailErrorMessage);
     });
 
-    it('should be show default message error when given invalid expression maxlength', function() {
-      var expression = 'maxlength=6';
-      var template = initTemplate('text', null, null, expression);
+    it('should show default message error when given invalid expression maxlength', function() {
+      var template = initTemplate({ maxlength: 6 });
       var element = initDirective(null, template);
       var formControlEle = angular.element(element[0].querySelector('.form-control'));
 
@@ -325,9 +334,8 @@ describe('The esn.form.helper Angular module', function() {
       expect(validatorMessageElement.text()).to.equal('Length must be less than or equal to 6');
     });
 
-    it('should be show default message error when given invalid expression minlength', function() {
-      var expression = 'minlength=5';
-      var template = initTemplate('text', null, null, expression);
+    it('should show default message error when given invalid expression minlength', function() {
+      var template = initTemplate({ minlength: 5 });
       var element = initDirective(null, template);
       var formControlEle = angular.element(element[0].querySelector('.form-control'));
 
@@ -338,9 +346,8 @@ describe('The esn.form.helper Angular module', function() {
       expect(validatorMessageElement.text()).to.equal('Length must be greater than or equal to 5');
     });
 
-    it('should be show default message error when given invalid expression max', function() {
-      var expression = 'max=30';
-      var template = initTemplate('number', null, null, expression);
+    it('should show default message error when given invalid expression max', function() {
+      var template = initTemplate({ type: 'number', max: 30 });
       var element = initDirective(null, template);
       var formControlEle = angular.element(element[0].querySelector('.form-control'));
 
@@ -351,9 +358,8 @@ describe('The esn.form.helper Angular module', function() {
       expect(validatorMessageElement.text()).to.equal('This must be less than or equal to 30');
     });
 
-    it('should be show default message error when given invalid expression min', function() {
-      var expression = 'min=30';
-      var template = initTemplate('number', null, null, expression);
+    it('should show default message error when given invalid expression min', function() {
+      var template = initTemplate({ type: 'number', min: 30 });
       var element = initDirective(null, template);
       var formControlEle = angular.element(element[0].querySelector('.form-control'));
 
@@ -365,7 +371,7 @@ describe('The esn.form.helper Angular module', function() {
     });
 
     it('should add class has-required for esn-form-group when input is required', function() {
-      var template = initTemplate('email', 'required', null);
+      var template = initTemplate({ required: 'required' });
       var element = initDirective(null, template);
 
       var adminFormGroupEle = angular.element(element[0].querySelector('esn-form-group'));
@@ -374,7 +380,7 @@ describe('The esn.form.helper Angular module', function() {
     });
 
     it('should add class has-invalid for esn-form-group when input has blur event and invalid', function() {
-      var template = initTemplate('email', 'required', null);
+      var template = initTemplate({ type: 'email' });
       var element = initDirective(null, template);
       var formControlEle = angular.element(element[0].querySelector('.form-control'));
 
@@ -388,7 +394,7 @@ describe('The esn.form.helper Angular module', function() {
     });
 
     it('should not add class has-invalid for esn-form-group when input has blur event and valid', function() {
-      var template = initTemplate('email', 'required', null);
+      var template = initTemplate({ type: 'email' });
       var element = initDirective(null, template);
       var formControlEle = angular.element(element[0].querySelector('.form-control'));
 
@@ -402,7 +408,7 @@ describe('The esn.form.helper Angular module', function() {
     });
 
     it('should add class has-focus for esn-form-group when input is focused', function() {
-      var template = initTemplate('email', 'required', null);
+      var template = initTemplate();
       var element = initDirective(null, template);
       var formControlEle = angular.element(element[0].querySelector('.form-control'));
 
@@ -414,7 +420,7 @@ describe('The esn.form.helper Angular module', function() {
     });
 
     it('should remove class has-focus for esn-form-group when input has blur event', function() {
-      var template = initTemplate('email', 'required', null);
+      var template = initTemplate();
       var element = initDirective(null, template);
       var formControlEle = angular.element(element[0].querySelector('.form-control'));
 
@@ -454,8 +460,7 @@ describe('The esn.form.helper Angular module', function() {
     });
 
     it('should support binding attribute for input', function() {
-      var expression = 'min={{minValue}}';
-      var template = initTemplate('number', null, null, expression);
+      var template = initTemplate({ type: 'number', min: '{{minValue}}' });
       var scope = $rootScope.$new();
 
       scope.minValue = 8;
@@ -469,8 +474,7 @@ describe('The esn.form.helper Angular module', function() {
     });
 
     it('should support binding attribute for input when attribute change value', function() {
-      var expression = 'min={{minValue}}';
-      var template = initTemplate('number', null, null, expression);
+      var template = initTemplate({ type: 'number', min: '{{minValue}}' });
       var scope = $rootScope.$new();
 
       scope.minValue = 8;
@@ -486,6 +490,17 @@ describe('The esn.form.helper Angular module', function() {
       element.scope().$digest();
 
       expect(validatorMessageElement.text()).to.equal('This must be greater than or equal to 6');
+    });
+
+    describe('when helper text is provided', function() {
+      it('should always display the helper text and hide error message', function() {
+        var helper = 'This is heplper text';
+        var template = initTemplate(null, { helper: helper });
+        var element = initDirective(null, template);
+
+        expect(element.find('.help-block').html()).to.contain(helper);
+        expect(element.find('esn-form-validate-message')).to.have.length(0);
+      });
     });
   });
 

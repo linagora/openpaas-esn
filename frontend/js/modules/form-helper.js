@@ -120,6 +120,7 @@ angular.module('esn.form.helper', [
     }
 
     scope.label = attrs.label;
+    scope.helper = attrs.helper;
 
     //  use default css of .fg-line
     // .fg-line:not([class*=has-]):after {
@@ -154,7 +155,14 @@ angular.module('esn.form.helper', [
       }
     }, true);
 
-    var template = '<div class="esn-form-validate-message-container"><esn-form-validate-message ng-class="elementForm.$pristine && !elementForm.$touched ? \'pristine\' : \'dirty\'" ng-if="elementForm.$error" options="options" error="elementForm.$error" /><div>';
+    var template = '<div class="esn-form-message-container">' +
+                      '<span ng-if="::helper" class="help-block">{{::helper}}</span>' +
+                      '<esn-form-validate-message ' +
+                        'ng-class="elementForm.$pristine && !elementForm.$touched ? \'pristine\' : \'dirty\'" ' +
+                        'ng-if="::!helper" ' +
+                        'options="options" ' +
+                        'error="elementForm.$error" />' +
+                    '</div>';
     var validateMessage = $compile(template)(scope);
 
     element.find('.form-group').append(validateMessage);
@@ -203,7 +211,7 @@ angular.module('esn.form.helper', [
 .component('esnFormValidateMessage', {
   templateUrl: '/views/modules/form/esn-form-validate-message.html',
   bindings: {
-    options: '=',
+    options: '<',
     error: '<'
   }
 })
