@@ -4,9 +4,5 @@
       h2 #{__('Accounts Management')}
       dynamic-fab-dropup(anchor='accounts-item-anchorpoint')
   .vertiz-space
-  .row
-    .col-xs-12
-      .account-error-container
-  .vertiz-space
   .col-xs-12.card(ng-if='accounts && accounts.length')
     account-displayer(account='account', ng-repeat='account in accounts')

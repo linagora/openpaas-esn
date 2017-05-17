@@ -32,6 +32,7 @@ angular.module('linagora.esn.account')
     function get(provider, type) {
       if (cache[provider]) {
         var messages = cache[provider];
+
         return messages[type] ? messages[type] : OAUTH_DEFAULT_MESSAGES[type] || OAUTH_UNKNOWN_MESSAGE;
       }
 
@@ -44,34 +45,23 @@ angular.module('linagora.esn.account')
     };
   })
 
-  .factory('displayAccountMessageLevel', function(OAUTH_MESSAGE_LEVELS) {
-    return function(status) {
-      return OAUTH_MESSAGE_LEVELS[status] || OAUTH_MESSAGE_LEVELS.default;
-    };
-  })
-
-  .factory('displayAccountMessage', function($alert, accountMessageRegistry, displayAccountMessageLevel) {
+  .factory('displayAccountMessage', function(accountMessageRegistry, notificationFactory) {
     return function(provider, status) {
-      $alert({
-        content: accountMessageRegistry.get(provider, status),
-        type: displayAccountMessageLevel(status),
-        show: true,
-        position: 'bottom',
-        container: '.account-error-container',
-        duration: '3',
-        animation: 'am-flip-x'
-      });
+      notificationFactory.weakInfo('', accountMessageRegistry.get(provider, status));
     };
   })
 
   .factory('socialHelper', function(OAUTH_SOCIAL_MESSAGES, _) {
     function getAccountMessages(type) {
       var message = {};
+
       _.forIn(OAUTH_SOCIAL_MESSAGES, function(value, key) {
         message[key] = value.replace('social', type);
       });
+
       return message;
     }
+
     return {
       getAccountMessages: getAccountMessages
     };
