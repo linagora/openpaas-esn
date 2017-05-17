@@ -491,6 +491,17 @@ describe('The esn.form.helper Angular module', function() {
 
       expect(validatorMessageElement.text()).to.equal('This must be greater than or equal to 6');
     });
+
+    describe('when helper text is provided', function() {
+      it('should always display the helper text and hide error message', function() {
+        var helper = 'This is heplper text';
+        var template = initTemplate(null, { helper: helper });
+        var element = initDirective(null, template);
+
+        expect(element.find('.help-block').html()).to.contain(helper);
+        expect(element.find('esn-form-validate-message')).to.have.length(0);
+      });
+    });
   });
 
   describe('The esnAutocompleteOff directive', function() {

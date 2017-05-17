@@ -10,7 +10,7 @@ esn-form-group {
     background: none;
   }
 
-  .esn-form-validate-message-container {
+  .esn-form-message-container {
     height: 20px;
     padding-top: 5px;
 
@@ -18,6 +18,10 @@ esn-form-group {
       margin-top: 0;
       font-size: 11px;
     }
+  }
+
+  &.has-invalid .esn-form-message-container .help-block {
+    color: @errorColor;
   }
 }
 
