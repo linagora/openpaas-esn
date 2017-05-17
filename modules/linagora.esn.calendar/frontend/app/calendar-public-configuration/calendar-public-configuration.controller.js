@@ -4,12 +4,13 @@
   angular.module('esn.calendar')
     .controller('calendarPublicConfigurationController', calendarPublicConfigurationController);
 
-  function calendarPublicConfigurationController($log, $q, $state, calendarService, calPublicCalendarStore, notificationFactory) {
+  function calendarPublicConfigurationController($log, $q, $state, _, calendarService) {
     var self = this;
 
     self.findPublicCalendars = findPublicCalendars;
-    self.updateButtonDisplay = updateButtonDisplay;
+    self.getSelectedCalendars = getSelectedCalendars;
     self.subscribe = subscribe;
+    self.updateButtonDisplay = updateButtonDisplay;
     self.$onInit = $onInit;
 
     function $onInit() {
@@ -25,18 +26,24 @@
     function fetchPublicCalendars() {
       var promises = self.users.map(function(user) {
         return calendarService.listAllCalendarsForUser(user._id).then(function(calendars) {
-          return {
-            user: user,
-            calendars: calendars
-          };
+          return calendars.map(function(calendar) {
+            return {
+              user: user,
+              calendar: calendar
+            };
+          });
         });
       });
 
       return $q.all(promises);
     }
 
+    function getSelectedCalendars() {
+      return _.filter(self.calendarsPerUser, 'isSelected');
+    }
+
     function subscribe() {
-      calPublicCalendarStore.storeAll(self.selectedCalendars);
+      $log.info('Will Subscribe to', getSelectedCalendars());
     }
 
     function findPublicCalendars() {
@@ -44,7 +51,7 @@
         self.fetching = true;
         fetchPublicCalendars()
           .then(function(result) {
-            self.calendarsPerUser = result;
+            self.calendarsPerUser = _.flatten(result);
           })
           .catch(function(err) {
             $log.error('Error while getting public calendars for users', err);

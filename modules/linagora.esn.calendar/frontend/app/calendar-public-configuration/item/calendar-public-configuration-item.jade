@@ -1,0 +1,9 @@
+.calendar-public-configuration-item
+  .title
+    span {{::$ctrl.item.calendar.name}}
+  .owner
+    span {{$ctrl.item.calendar.owner}}
+  .rights
+    //span {{::$ctrl.item.calendar.rights}}
+  .actions
+    toggle-switch(ng-model='$ctrl.item.isSelected')

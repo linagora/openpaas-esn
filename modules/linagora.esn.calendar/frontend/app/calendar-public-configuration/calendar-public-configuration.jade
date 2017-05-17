@@ -8,3 +8,11 @@
       .card-body.calendar-public-configuration-body
         users-autocomplete-input(mutable-users='$ctrl.users', on-user-added='$ctrl.updateButtonDisplay()', on-user-removed='$ctrl.updateButtonDisplay()', add-from-autocomplete-only='true')
         button.btn.btn-primary(type='button', ng-disabled='$ctrl.disableButton', ng-click='$ctrl.findPublicCalendars()') #{__('Find public calendar')}
+
+  .row
+    .col-xs-12
+      cal-calendar-public-configuration-item(item="item", ng-repeat="item in $ctrl.calendarsPerUser")
+
+  .row
+    .col-xs-12
+      button.btn.btn-primary(type='button', ng-disabled='!$ctrl.getSelectedCalendars().length', ng-click='$ctrl.subscribe()') #{__('Subscribe')}
