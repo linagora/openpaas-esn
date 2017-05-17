@@ -7,4 +7,4 @@
     .col-xs-12
       .card-body.calendar-public-configuration-body
         users-autocomplete-input(mutable-users='$ctrl.users', on-user-added='$ctrl.updateButtonDisplay()', on-user-removed='$ctrl.updateButtonDisplay()', add-from-autocomplete-only='true')
-        button.btn.btn-secondary-dark(type='button', ng-disabled='$ctrl.disableButton', ng-click='$ctrl.addPublicCalendars()') #{__('Find public calendar')}
+        button.btn.btn-primary(type='button', ng-disabled='$ctrl.disableButton', ng-click='$ctrl.findPublicCalendars()') #{__('Find public calendar')}

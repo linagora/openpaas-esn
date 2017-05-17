@@ -4,42 +4,55 @@
   angular.module('esn.calendar')
     .controller('calendarPublicConfigurationController', calendarPublicConfigurationController);
 
-  function calendarPublicConfigurationController($state, $log, calendarService, calPublicCalendarStore, notificationFactory) {
+  function calendarPublicConfigurationController($log, $q, $state, calendarService, calPublicCalendarStore, notificationFactory) {
     var self = this;
 
-    self.users = [];
-    self.disableButton = true;
-
+    self.findPublicCalendars = findPublicCalendars;
     self.updateButtonDisplay = updateButtonDisplay;
-    self.addPublicCalendars = addPublicCalendars;
+    self.subscribe = subscribe;
+    self.$onInit = $onInit;
 
-    ////////////
+    function $onInit() {
+      self.users = [];
+      self.selectedCalendars = [];
+      self.disableButton = true;
+    }
 
     function updateButtonDisplay() {
       self.disableButton = (self.users.length === 0);
     }
 
-    function addPublicCalendars() {
-      calendarService
-        .listAllCalendarsForUser(_getUsersId())
-        .then(
-          function(calendars) {
-            $state.go('calendar.main');
-            calPublicCalendarStore.storeAll(calendars);
-          },
-          function(error) {
-            $log.error(error);
-            notificationFactory.weakError('Could not find public calendars.');
-          });
+    function fetchPublicCalendars() {
+      var promises = self.users.map(function(user) {
+        return calendarService.listAllCalendarsForUser(user._id).then(function(calendars) {
+          return {
+            user: user,
+            calendars: calendars
+          };
+        });
+      });
+
+      return $q.all(promises);
     }
 
-    function _getUsersId() {
-      /**
-       * we are dealing with tags-input which gives us an array of user.
-       * Now, we are limiting addCalendars to only one cal by time.
-       * This should be changed as soon as we support adding several public calendars at time.
-       */
-      return self.users[0]._id;
+    function subscribe() {
+      calPublicCalendarStore.storeAll(self.selectedCalendars);
+    }
+
+    function findPublicCalendars() {
+      if (self.users.length && !self.fetching) {
+        self.fetching = true;
+        fetchPublicCalendars()
+          .then(function(result) {
+            self.calendarsPerUser = result;
+          })
+          .catch(function(err) {
+            $log.error('Error while getting public calendars for users', err);
+          })
+          .finally(function() {
+            self.fetching = false;
+          });
+      }
     }
   }
 })();
