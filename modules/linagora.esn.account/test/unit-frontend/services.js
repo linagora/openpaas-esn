@@ -12,84 +12,42 @@ describe('The Account Angular Services', function() {
   });
 
   describe('The displayAccountMessage service', function() {
-    var accountMessageRegistry, displayAccountMessageLevel, alertMock;
+    var displayAccountMessage;
+    var accountMessageRegistryMock, notificationFactoryMock;
 
     beforeEach(function() {
-      accountMessageRegistry = {
+      accountMessageRegistryMock = {
         register: function() {}
       };
-      displayAccountMessageLevel = function() {};
+      notificationFactoryMock = {};
       angular.mock.module(function($provide) {
-        $provide.value('accountMessageRegistry', accountMessageRegistry);
-        $provide.value('displayAccountMessageLevel', displayAccountMessageLevel);
-        $provide.value('$alert', function(options) {
-          return alertMock(options);
-        });
+        $provide.value('accountMessageRegistry', accountMessageRegistryMock);
+        $provide.value('notificationFactory', notificationFactoryMock);
       });
     });
 
-    beforeEach(angular.mock.inject(function($rootScope, displayAccountMessage, accountMessageRegistry, $alert, displayAccountMessageLevel) {
-      this.$rootScope = $rootScope;
-      this.displayAccountMessage = displayAccountMessage;
-      this.accountMessageRegistry = accountMessageRegistry;
-      this.displayAccountMessageLevel = displayAccountMessageLevel;
-      this.$alert = $alert;
+    beforeEach(angular.mock.inject(function(_displayAccountMessage_) {
+      displayAccountMessage = _displayAccountMessage_;
     }));
 
-    it('should call the $alert service with accountMessageRegistry content', function(done) {
+    it('should call the notificationFactory service with accountMessageRegistry content', function(done) {
       var provider = 'twitter';
-      var type = 'denied';
+      var status = 'denied';
       var message = 'The message to display';
-      alertMock = function(options) {
-        expect(options.content).to.equal(message);
+
+      notificationFactoryMock.weakInfo = function(title, text) {
+        expect(text).to.equal(message);
         done();
       };
 
-      this.displayAccountMessageLevel = function() {
-        return 'error';
-      };
-
-      this.accountMessageRegistry.get = function(_provider, _type) {
+      accountMessageRegistryMock.get = function(_provider, _status) {
         expect(_provider).to.equal(provider);
-        expect(_type).to.equal(type);
+        expect(_status).to.equal(status);
+
         return message;
       };
 
-      this.displayAccountMessage(provider, type);
-    });
-
-  });
-
-  describe('The displayAccountMessageLevel service', function() {
-
-    beforeEach(angular.mock.inject(function($rootScope, displayAccountMessageLevel, OAUTH_MESSAGE_LEVELS) {
-      this.$rootScope = $rootScope;
-      this.displayAccountMessageLevel = displayAccountMessageLevel;
-      this.OAUTH_MESSAGE_LEVELS = OAUTH_MESSAGE_LEVELS;
-    }));
-
-    it('should send back the right level for denied status', function() {
-      expect(this.displayAccountMessageLevel('denied')).to.equal(this.OAUTH_MESSAGE_LEVELS.denied);
-    });
-
-    it('should send back the right level for error status', function() {
-      expect(this.displayAccountMessageLevel('error')).to.equal(this.OAUTH_MESSAGE_LEVELS.error);
-    });
-
-    it('should send back the right level for updated status', function() {
-      expect(this.displayAccountMessageLevel('updated')).to.equal(this.OAUTH_MESSAGE_LEVELS.updated);
-    });
-
-    it('should send back the right level for created status', function() {
-      expect(this.displayAccountMessageLevel('created')).to.equal(this.OAUTH_MESSAGE_LEVELS.created);
-    });
-
-    it('should send back the right level for unknown status', function() {
-      expect(this.displayAccountMessageLevel('not a good status')).to.equal(this.OAUTH_MESSAGE_LEVELS.default);
-    });
-
-    it('should send back the right level for undefined status', function() {
-      expect(this.displayAccountMessageLevel()).to.equal(this.OAUTH_MESSAGE_LEVELS.default);
+      displayAccountMessage(provider, status);
     });
   });
 

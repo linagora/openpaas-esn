@@ -16,14 +16,6 @@ angular.module('linagora.esn.account')
     updated: 'Successful update of your account',
     created: 'Successfully created your account'
   })
-  .constant('OAUTH_MESSAGE_LEVELS', {
-    config_error: 'danger',
-    denied: 'danger',
-    error: 'danger',
-    updated: 'info',
-    created: 'info',
-    default: 'info'
-  })
   .constant('OAUTH_UNKNOWN_MESSAGE', 'Unknown OAuth message')
   .constant('IMPORT_URI', 'import')
   .constant('SUPPORTED_ACCOUNTS', ['oauth'])
