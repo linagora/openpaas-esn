@@ -69,7 +69,28 @@ module.exports = function(dependencies) {
     } else {
       googleAPIRequest(requestOptions, function(err, response, body) {
         if (response.statusCode < 200 || response.statusCode > 299) {
-          defer.reject(importContactClient.buildErrorMessage(IMPORT_API_CLIENT_ERROR, err));
+          if (err) {
+            return defer.reject(importContactClient.buildErrorMessage(IMPORT_API_CLIENT_ERROR, err));
+          }
+
+          parseString(body, function(error, result) {
+            if (error) {
+              return defer.reject(error);
+            }
+
+            let errorObject = { statusCode: response.statusCode };
+
+            if (result.errors && result.errors.error && result.errors.error.length > 0) {
+              errorObject = {
+                statusCode: response.statusCode,
+                message: result.errors.error[0].internalReason,
+                code: result.errors.error[0].code,
+                allErrors: result.errors.error
+              };
+            }
+
+            defer.reject(importContactClient.buildErrorMessage(IMPORT_API_CLIENT_ERROR, errorObject));
+          });
         } else {
           parseString(body, function(err, res) {
             if (err) {
