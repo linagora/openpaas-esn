@@ -1,6 +1,8 @@
 'use strict';
 
 module.exports = function(config) {
+  var singleRun = process.env.SINGLE_RUN ? process.env.SINGLE_RUN !== 'false' : true;
+
   config.set({
     basePath: '../../',
 
@@ -84,8 +86,8 @@ module.exports = function(config) {
       'frontend/js/modules/**/*.jade',
       'frontend/views/modules/**/*.jade',
       'frontend/views/esn/partials/**/*.jade',
-      {pattern: 'frontend/js/modules/user-notification/user-notification.router.js', watched: false, included: false, served: false},
-      {pattern: 'frontend/images/*.png', watched: false, included: false, served: true}
+      { pattern: 'frontend/js/modules/user-notification/user-notification.router.js', watched: false, included: false, served: false },
+      { pattern: 'frontend/images/*.png', watched: false, included: false, served: true }
     ],
 
     proxies: {
@@ -95,9 +97,18 @@ module.exports = function(config) {
     logLevel: config.LOG_ERROR,
     frameworks: ['mocha'],
     colors: true,
-    singleRun: true,
+    singleRun: singleRun,
     autoWatch: true,
     browsers: ['PhantomJS', 'Chrome', 'Firefox'],
+
+    customLaunchers: {
+      Chrome_with_debugging: {
+        base: 'Chrome',
+        flags: ['--remote-debugging-port=9222'],
+        debug: true
+      }
+    },
+
     reporters: ['coverage', 'spec'],
     preprocessors: {
       'frontend/js/**/*.js': ['coverage'],
@@ -121,7 +132,7 @@ module.exports = function(config) {
       suite: 'unit-frontend'
     },
 
-    coverageReporter: {type: 'text', dir: '/tmp'},
+    coverageReporter: { type: 'text', dir: '/tmp' },
 
     ngJade2ModulePreprocessor: {
       cacheIdFromPath: function(filepath) {
