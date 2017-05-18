@@ -14,3 +14,4 @@ frontend/**/*.css.map
 modules/**/*.css
 modules/**/*.css.map
 doc/REST_API/swagger/swagger.json
+.vscode/

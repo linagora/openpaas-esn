@@ -1,6 +1,8 @@
 'use strict';
 
 module.exports = function(config) {
+  var singleRun = process.env.SINGLE_RUN ? process.env.SINGLE_RUN !== 'false' : true;
+
   config.set({
     basePath: '../../',
 
@@ -83,12 +85,12 @@ module.exports = function(config) {
       'test/fixtures/code-generation/constants.js',
       'frontend/js/modules/**/*.module.js',
       'modules/linagora.esn.calendar/frontend/app/app.js',
-      {pattern: 'frontend/js/modules/collaboration/collaboration.run.js', watched: false, included: false, served: false},
+      { pattern: 'frontend/js/modules/collaboration/collaboration.run.js', watched: false, included: false, served: false },
 
       'frontend/js/**/*.js',
       'modules/**/frontend/js/**/*.js',
       'modules/**/frontend/app/**/*.js',
-      {pattern: 'modules/**/frontend/app/**/*.run.js', watched: false, included: false, served: true},
+      { pattern: 'modules/**/frontend/app/**/*.run.js', watched: false, included: false, served: true },
       'modules/linagora.esn.calendar/frontend/app/components/inbox/**/*.run.js',
       'modules/linagora.esn.unifiedinbox/frontend/app/**/*.run.js',
       'modules/linagora.esn.unifiedinbox.ml/frontend/app/**/*.run.js',
@@ -102,7 +104,7 @@ module.exports = function(config) {
       'frontend/views/modules/**/*.jade',
 
       // fixtures
-      {pattern: 'frontend/images/**/*.png', watched: false, included: false, served: true},
+      { pattern: 'frontend/images/**/*.png', watched: false, included: false, served: true },
       'modules/**/unit-frontend/fixtures/**',
       'modules/**/app/fixtures/**'
     ],
@@ -114,9 +116,18 @@ module.exports = function(config) {
     logLevel: config.LOG_ERROR,
     frameworks: ['mocha'],
     colors: true,
-    singleRun: true,
+    singleRun: singleRun,
     autoWatch: true,
     browsers: ['PhantomJS', 'Chrome', 'Firefox'],
+
+    customLaunchers: {
+      Chrome_with_debugging: {
+        base: 'Chrome',
+        flags: ['--remote-debugging-port=9222'],
+        debug: true
+      }
+    },
+
     reporters: ['coverage', 'spec'],
     preprocessors: {
       'modules/**/frontend/js/**/*.js': ['coverage'],
@@ -141,7 +152,7 @@ module.exports = function(config) {
       suite: 'unit-frontend'
     },
 
-    coverageReporter: {type: 'text', dir: '/tmp'},
+    coverageReporter: { type: 'text', dir: '/tmp' },
 
     ngJade2ModulePreprocessor: {
       cacheIdFromPath: function(filepath) {
@@ -153,8 +164,8 @@ module.exports = function(config) {
           cacheId = filepath.substr(8).replace('.jade', '.html');
         } else if (filepath.match(/^modules*/)) {
           cacheId = filepath.replace('modules/linagora.esn.', '/')
-                            .replace('frontend/', '')
-                            .replace('.jade', '.html');
+            .replace('frontend/', '')
+            .replace('.jade', '.html');
         }
 
         return cacheId;
