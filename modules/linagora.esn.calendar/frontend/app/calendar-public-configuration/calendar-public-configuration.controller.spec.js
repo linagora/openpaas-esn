@@ -70,7 +70,7 @@ describe('The CalCalendarPublicConfigurationController controller', function() {
 
   describe('The onUserAdded function', function() {
     it('should return when user is undefined', function() {
-      var spy = sinon.stub(calendarService, 'listAllCalendarsForUser');
+      var spy = sinon.stub(calendarService, 'listPublicCalendars');
       var controller = initController();
 
       controller.onUserAdded();
@@ -79,7 +79,7 @@ describe('The CalCalendarPublicConfigurationController controller', function() {
     });
 
     it('should fill controller calendarsPerUser with the user calendars', function() {
-      var listAllCalendarsForUserStub = sinon.stub(calendarService, 'listAllCalendarsForUser', function() {
+      var listPublicCalendarsStub = sinon.stub(calendarService, 'listPublicCalendars', function() {
         return $q.when([calendar]);
       });
       var controller = initController();
@@ -87,12 +87,12 @@ describe('The CalCalendarPublicConfigurationController controller', function() {
       controller.onUserAdded(user);
       $rootScope.$digest();
 
-      expect(listAllCalendarsForUserStub).to.have.been.calledWith(user._id);
+      expect(listPublicCalendarsStub).to.have.been.calledWith(user._id);
       expect(controller.calendarsPerUser).to.deep.equal([{user: user, calendar: calendar}]);
     });
 
     it('should log error when public calendars fetch fails', function() {
-      var listAllCalendarsForUserStub = sinon.stub(calendarService, 'listAllCalendarsForUser', function() {
+      var listPublicCalendarsStub = sinon.stub(calendarService, 'listPublicCalendars', function() {
         return $q.reject(new Error('I failed'));
       });
       var logSpy = sinon.spy($log, 'error');
@@ -101,7 +101,7 @@ describe('The CalCalendarPublicConfigurationController controller', function() {
       controller.onUserAdded(user);
       $rootScope.$digest();
 
-      expect(listAllCalendarsForUserStub).to.have.been.calledWith(user._id);
+      expect(listPublicCalendarsStub).to.have.been.calledWith(user._id);
       expect(logSpy).to.have.been.calledOnce;
       expect(controller.calendarsPerUser).to.be.empty;
     });

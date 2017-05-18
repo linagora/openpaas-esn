@@ -16,7 +16,7 @@
     self.subscribeToSelectedCalendars = subscribeToSelectedCalendars;
 
     function getPublicCalendarsForUser(user) {
-      return calendarService.listAllCalendarsForUser(user._id).then(function(calendars) {
+      return calendarService.listPublicCalendars(user._id).then(function(calendars) {
           return calendars.map(function(calendar) {
             return {
               user: user,
