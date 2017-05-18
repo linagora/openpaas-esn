@@ -7,35 +7,34 @@
   function calendarPublicConfigurationController($log, $q, $state, _, calendarService) {
     var self = this;
 
-    self.findPublicCalendars = findPublicCalendars;
+    self.calendarsPerUser = [];
+    self.selectedCalendars = [];
+    self.users = [];
     self.getSelectedCalendars = getSelectedCalendars;
+    self.onUserAdded = onUserAdded;
+    self.onUserRemoved = onUserRemoved;
     self.subscribe = subscribe;
-    self.updateButtonDisplay = updateButtonDisplay;
-    self.$onInit = $onInit;
 
-    function $onInit() {
-      self.users = [];
-      self.selectedCalendars = [];
-      self.disableButton = true;
-    }
+    function onUserAdded(user) {
+      if (!user) {
+        return;
+      }
 
-    function updateButtonDisplay() {
-      self.disableButton = (self.users.length === 0);
-    }
-
-    function fetchPublicCalendars() {
-      var promises = self.users.map(function(user) {
-        return calendarService.listAllCalendarsForUser(user._id).then(function(calendars) {
-          return calendars.map(function(calendar) {
-            return {
-              user: user,
-              calendar: calendar
-            };
+      getPublicCalendarsForUser(user)
+        .then(function(userCalendars) {
+          userCalendars.forEach(function(userCalendar) {
+            self.calendarsPerUser.push(userCalendar);
           });
+        })
+        .catch(function(err) {
+          $log.error('Can not get public calendars for user', err);
         });
-      });
+    }
 
-      return $q.all(promises);
+    function onUserRemoved(user) {
+      _.remove(self.calendarsPerUser, function(calendarPerUser) {
+        return calendarPerUser.user._id === user._id;
+      });
     }
 
     function getSelectedCalendars() {
@@ -46,20 +45,15 @@
       $log.info('Will Subscribe to', getSelectedCalendars());
     }
 
-    function findPublicCalendars() {
-      if (self.users.length && !self.fetching) {
-        self.fetching = true;
-        fetchPublicCalendars()
-          .then(function(result) {
-            self.calendarsPerUser = _.flatten(result);
-          })
-          .catch(function(err) {
-            $log.error('Error while getting public calendars for users', err);
-          })
-          .finally(function() {
-            self.fetching = false;
+    function getPublicCalendarsForUser(user) {
+      return calendarService.listAllCalendarsForUser(user._id).then(function(calendars) {
+          return calendars.map(function(calendar) {
+            return {
+              user: user,
+              calendar: calendar
+            };
           });
-      }
+        });
     }
   }
 })();

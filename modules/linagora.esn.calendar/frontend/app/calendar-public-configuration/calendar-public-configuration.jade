@@ -1,18 +1,28 @@
-.calendar-public-configuration.card.form-container
-  sub-header
-    calendar-public-configuration-header
-  .block-header.hidden-xs
-    h2 #{__('Add a public calendar')}
-  .row
-    .col-xs-12
-      .card-body.calendar-public-configuration-body
-        users-autocomplete-input(mutable-users='$ctrl.users', on-user-added='$ctrl.updateButtonDisplay()', on-user-removed='$ctrl.updateButtonDisplay()', add-from-autocomplete-only='true')
-        button.btn.btn-primary(type='button', ng-disabled='$ctrl.disableButton', ng-click='$ctrl.findPublicCalendars()') #{__('Find public calendar')}
+.modal(tabindex="-1", role="dialog")
+  .modal-dialog
+    .modal-content
+      .modal-header
+        button.close(type="button", ng-click="$hide()") &times;
+        h4.modal-title #{__('Subscribe to public calendars')}
+      .modal-body
+        .calendar-public-configuration
+          .user-search.form-group
+            .autocomplete
+              users-autocomplete-input(mutable-users='$ctrl.users', on-user-added='$ctrl.onUserAdded', on-user-removed='$ctrl.onUserRemoved', add-from-autocomplete-only='true')
 
-  .row
-    .col-xs-12
-      cal-calendar-public-configuration-item(item="item", ng-repeat="item in $ctrl.calendarsPerUser")
+          .calendar-list
+            .empty(ng-if='!$ctrl.calendarsPerUser.length')
+              span #{__('Search users to subscribe to their public calendars')}
 
-  .row
-    .col-xs-12
-      button.btn.btn-primary(type='button', ng-disabled='!$ctrl.getSelectedCalendars().length', ng-click='$ctrl.subscribe()') #{__('Subscribe')}
+            .header(ng-if='$ctrl.calendarsPerUser.length')
+              .name
+                span #{__('Name')}
+              .rights
+                span #{__('Rights')}
+              .actions
+                span #{__('Subscribe')}
+            cal-calendar-public-configuration-item(item="item", ng-repeat="item in $ctrl.calendarsPerUser")
+      .modal-footer
+        button.btn.btn-default(type="button", ng-click="$hide()") #{__('Cancel')}
+        button.btn.btn-primary(type='button', ng-disabled='!$ctrl.getSelectedCalendars().length', ng-click='$ctrl.subscribe(); $hide()') #{__('Save')}
+

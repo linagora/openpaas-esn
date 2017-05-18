@@ -1,16 +1,40 @@
 .calendar-public-configuration-item {
   .flex-row;
+  .flex-vertical-centered;
   .flex-space-between;
 
-  .title {
-  }
+  margin: 4px;
 
-  .owner {
+  .meta {
+    .flex-row;
+    .flex-shorthand(1, 0, 40%);
+
+    .avatar {
+      margin-right: 8px;
+      img {
+        .esn-avatar;
+      }
+    }
+
+    .title {
+      .flex-column;
+
+      .name {
+        font-weight: 600;
+      }
+
+      .owner {
+        color: @secondaryTextColor;
+      }
+    }
   }
 
   .rights {
+    .flex-grow;
+    .flex-horizontal-centered;
   }
 
   .actions {
+    .flex-grow;
   }
 }

@@ -5,6 +5,5 @@ angular.module('esn.calendar')
     bindings: {
       item: '='
     },
-    controller: 'CalCalendarPublicConfigurationItemController',
-    templateUrl: '/calendar/app/calendar-public-configuration/item/calendar-public-configuration-item.html',
+    templateUrl: '/calendar/app/calendar-public-configuration/item/calendar-public-configuration-item.html'
   });

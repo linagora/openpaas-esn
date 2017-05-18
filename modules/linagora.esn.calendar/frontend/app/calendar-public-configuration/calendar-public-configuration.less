@@ -1,1 +1,55 @@
 @import "./item/calendar-public-configuration-item";
+
+.calendar-public-configuration {
+  .flex-column;
+
+  min-height: 30vh;
+
+  .user-search {
+    .flex-row;
+    .flex-vertical-centered;
+
+    .autocomplete {
+      .flex-grow;
+    }
+  }
+
+  .calendar-list {
+    .flex-column;
+
+    .header {
+      .flex-row;
+
+      margin: 4px;
+
+      & span {
+        font-weight: 500;
+        font-size: 1.4rem;
+      }
+
+      .name {
+        .flex-shorthand(1, 0, 40%);
+      }
+
+      .rights {
+        .flex-grow;
+        .flex-horizontal-centered;
+      }
+
+      .actions {
+        .flex-grow;
+      }
+    }
+
+    .empty {
+      .all-centered;
+
+      margin: 30px;
+      font-size: 1.4rem;
+    }
+  }
+
+  .actions {
+    .flex-end;
+  }
+}

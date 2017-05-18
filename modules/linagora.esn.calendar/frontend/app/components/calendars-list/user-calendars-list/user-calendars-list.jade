@@ -18,7 +18,7 @@
               li
                 a(ui-sref='calendar.add') #{__('New calendar')}
               li
-                a(ui-sref="calendar.public") #{__('Public calendar')}
+                a(href="" esn-modal-launcher='/calendar/app/calendar-public-configuration/calendar-public-configuration.html', controller-as='$ctrl', controller='calendarPublicConfigurationController') #{__('Public calendar')}
 
       .media-body
         .lv-title #{__('My calendars')}
