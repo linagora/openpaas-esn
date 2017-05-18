@@ -112,6 +112,14 @@
       FREE_BUSY: '{urn:ietf:params:xml:ns:caldav}read-free-busy'
     })
 
+    .constant('CAL_CALENDAR_PUBLIC_RIGHT_HUMAN_READABLE', {
+      unknown: 'unknown',
+      '': 'none',
+      '{DAV:}read': 'read',
+      '{DAV:}write': 'read/write',
+      '{urn:ietf:params:xml:ns:caldav}read-free-busy': 'free/busy'
+    })
+
     .constant('CAL_EVENT_CLASS', {
       PUBLIC: 'PUBLIC',
       PRIVATE: 'PRIVATE'
