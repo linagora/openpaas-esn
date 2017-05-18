@@ -390,6 +390,63 @@ describe('The profile API', function() {
     });
   });
 
+  describe('GET /api/users route', function() {
+
+    it('should return 401 if not authenticated', function(done) {
+      this.helpers.api.requireLogin(app, 'get', '/api/users?email=admin@open-paas.org', done);
+    });
+
+    it('should return 200 with empty array if no user found', function(done) {
+      this.helpers.api.loginAsUser(app, foouser.emails[0], password, (err, loggedInAsUser) => {
+        const req = loggedInAsUser(request(app).get('/api/users?email=admin@open-paas.org'));
+
+        if (err) {
+          return done(err);
+        }
+
+        req.expect(200).end((err, res) => {
+          expect(err).to.not.exist;
+          expect(res.body).to.be.empty;
+          done();
+        });
+      });
+    });
+
+    it('should return 200 with the profiles of the users', function(done) {
+      this.helpers.api.loginAsUser(app, foouser.emails[0], password, (err, loggedInAsUser) => {
+        const req = loggedInAsUser(request(app).get('/api/users?email=' + baruser.accounts[0].emails[0]));
+
+        if (err) {
+          return done(err);
+        }
+
+        req.expect(200).end((err, res) => {
+          expect(err).to.not.exist;
+          expect(baruser._id.toString()).to.equal(res.body[0]._id);
+          done();
+        });
+      });
+    });
+
+    it('should return 200 with the profile of the user without its private informations', function(done) {
+      this.helpers.api.loginAsUser(app, foouser.emails[0], password, (err, loggedInAsUser) => {
+        const req = loggedInAsUser(request(app).get('/api/users?email=' + baruser.accounts[0].emails[0]));
+
+        if (err) {
+          return done(err);
+        }
+
+        req.expect(200).end((err, res) => {
+          expect(err).to.not.exist;
+
+          checkKeys(res.body[0], baruserExpectedKeys, baruserForbiddenKeys);
+
+          done();
+        });
+      });
+    });
+  });
+
   describe('GET /api/users/:uuid/profile/avatar route', function() {
 
     it('should return 404 if the user does not exist', function(done) {
