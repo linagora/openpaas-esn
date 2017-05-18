@@ -1,11 +1,11 @@
 'use strict';
 
-var expect = require('chai').expect;
-var mockery = require('mockery');
-var ObjectId = require('bson').ObjectId;
+const expect = require('chai').expect;
+const mockery = require('mockery');
+const ObjectId = require('bson').ObjectId;
+const sinon = require('sinon');
 
 describe('The authorization middleware', function() {
-
   var domainModuleMock;
 
   beforeEach(function() {
@@ -62,19 +62,22 @@ describe('The authorization middleware', function() {
 
     it('should send an error if user is not autenticated', function(done) {
       mockery.registerMock('../../core/community', {});
-      var middleware = this.helpers.requireBackend('webserver/middleware/authorization').requiresAPILogin;
-      var req = {
+      const middleware = this.helpers.requireBackend('webserver/middleware/authorization').requiresAPILogin;
+      const req = {
         isAuthenticated: function() {
           return false;
         }
       };
-      var res = this.helpers.express.jsonResponse(
-        function() {
+      const res = this.helpers.express.jsonResponse(
+        function(code, data, headers, set) {
+          expect(code).to.equal(401);
+          expect(data).to.shallowDeepEqual({error: {code: 401}});
+          expect(set['Content-Type']).to.equal('application/json; charset=utf-8');
           done();
         }
       );
-      var next = function() {
-      };
+      const next = function() {};
+
       middleware(req, res, next);
     });
 
@@ -93,26 +96,27 @@ describe('The authorization middleware', function() {
       middleware(req, res, next);
     });
 
-    it('should call passport if user is not autenticated and bearer strategy is active', function(done) {
-      var mock = {
+    it('should call passport if user is not autenticated and there are auth strategies enabled', function() {
+      const strategies = ['bearer'];
+      const middlewareSpy = sinon.spy();
+      const authSpy = sinon.spy(function() {
+        return middlewareSpy;
+      });
+      const mock = {
         config: function() {
           return {
             auth: {
-              apiStrategies: ['bearer']
+              apiStrategies: strategies
             }
           };
         }
       };
+      const passport = {
+        authenticate: authSpy
+      };
+
       mockery.registerMock('../../core', mock);
       mockery.registerMock('../../core/community', {});
-
-      var passport = {
-        authenticate: function() {
-          return function() {
-            return done();
-          };
-        }
-      };
       mockery.registerMock('passport', passport);
 
       var middleware = this.helpers.requireBackend('webserver/middleware/authorization').requiresAPILogin;
@@ -121,11 +125,97 @@ describe('The authorization middleware', function() {
           return false;
         }
       };
+      const res = {};
+      const next = sinon.spy();
+
+      middleware(req, res, next);
+
+      expect(next).to.not.have.been.called;
+      expect(authSpy).to.have.been.calledWith(strategies, {
+        session: false,
+        failWithError: false
+      });
+      expect(middlewareSpy).to.have.been.calledWith(req, res, next);
+    });
+  });
+
+  describe('The requiresAPILoginAndFailWithError function', function() {
+    it('should send an error if user is not autenticated', function(done) {
+      mockery.registerMock('../../core/community', {});
+      const middleware = this.helpers.requireBackend('webserver/middleware/authorization').requiresAPILoginAndFailWithError;
+      const req = {
+        isAuthenticated: function() {
+          return false;
+        }
+      };
+      const res = this.helpers.express.jsonResponse(
+        function(code, data, headers, set) {
+          expect(code).to.equal(401);
+          expect(data).to.shallowDeepEqual({error: {code: 401}});
+          expect(set['Content-Type']).to.equal('application/json; charset=utf-8');
+          done();
+        }
+      );
+      const next = function() {};
+
+      middleware(req, res, next);
+    });
+
+    it('should call next if user is autenticated', function(done) {
+      mockery.registerMock('../../core/community', {});
+      var middleware = this.helpers.requireBackend('webserver/middleware/authorization').requiresAPILoginAndFailWithError;
+      var req = {
+        isAuthenticated: function() {
+          return true;
+        }
+      };
       var res = {};
       var next = function() {
-        return done(new Error());
+        done();
       };
       middleware(req, res, next);
+    });
+
+    it('should call passport if user is not autenticated and there are auth strategies enabled', function() {
+      const strategies = ['bearer'];
+      const middlewareSpy = sinon.spy();
+      const authSpy = sinon.spy(function() {
+        return middlewareSpy;
+      });
+      const mock = {
+        config: function() {
+          return {
+            auth: {
+              apiStrategies: strategies
+            }
+          };
+        }
+      };
+      const passport = {
+        authenticate: authSpy
+      };
+
+      mockery.registerMock('../../core', mock);
+      mockery.registerMock('../../core/community', {});
+      mockery.registerMock('passport', passport);
+
+      var middleware = this.helpers.requireBackend('webserver/middleware/authorization').requiresAPILoginAndFailWithError;
+      var req = {
+        isAuthenticated: function() {
+          return false;
+        }
+      };
+      const res = {};
+      const next = sinon.spy();
+
+      middleware(req, res, next);
+
+      expect(next).to.not.have.been.called;
+      expect(authSpy).to.have.been.calledWith(strategies, {
+        session: false,
+        failWithError: true
+      });
+      expect(middlewareSpy).to.have.been.calledWith(req, res, next);
     });
   });
 
