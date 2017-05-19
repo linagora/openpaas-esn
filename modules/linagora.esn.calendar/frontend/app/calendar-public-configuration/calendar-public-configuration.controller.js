@@ -52,6 +52,10 @@
     }
 
     function onUserRemoved(user) {
+      if (!user) {
+        return;
+      }
+
       _.remove(self.calendarsPerUser, function(calendarPerUser) {
         return calendarPerUser.user._id === user._id;
       });

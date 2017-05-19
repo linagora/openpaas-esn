@@ -4,119 +4,147 @@
 
 var expect = chai.expect;
 
-describe('The calendar public configuration controller', function() {
+describe('The CalCalendarPublicConfigurationController controller', function() {
   var $rootScope,
     $controller,
     $q,
-    $state,
     $log,
     calendarService,
     calPublicCalendarStore,
-    notificationFactory;
+    user,
+    anotherUser,
+    calendar,
+    anotherCalendar;
 
   beforeEach(function() {
     angular.mock.module('esn.calendar');
-    angular.mock.inject(function(_$rootScope_, _$controller_, _$q_, _$state_, _$log_, _calendarService_, _calPublicCalendarStore_, _notificationFactory_) {
-        $rootScope = _$rootScope_;
-        $controller = _$controller_;
-        $q = _$q_;
-        $state = _$state_;
-        $log = _$log_;
-        calendarService = _calendarService_;
-        calPublicCalendarStore = _calPublicCalendarStore_;
-        notificationFactory = _notificationFactory_;
-      }
-    );
+
+    user = {_id: 1};
+    anotherUser = {_id: 2};
+    calendar = {_id: 3};
+    anotherCalendar = {_id: 4};
+    angular.mock.inject(function(_$rootScope_, _$controller_, _$q_, _$log_, _calendarService_, _calPublicCalendarStore_) {
+      $rootScope = _$rootScope_;
+      $controller = _$controller_;
+      $q = _$q_;
+      $log = _$log_;
+      calendarService = _calendarService_;
+      calPublicCalendarStore = _calPublicCalendarStore_;
+    });
   });
 
   function initController() {
     return $controller('CalCalendarPublicConfigurationController');
   }
 
-  describe('the updateButtonDisplay function', function() {
-    it('should set disableButton at true is users array is empty', function() {
-      var ctrl = initController();
+  describe('The getSelectedCalendars function', function() {
+    it('should return empty array when no calendar are selected', function() {
+      var controller = initController();
 
-      ctrl.updateButtonDisplay();
+      controller.calendarsPerUser.push({user: user, calendar: calendar});
 
-      expect(ctrl.disableButton).to.be.true;
+      expect(controller.getSelectedCalendars()).to.be.empty;
     });
 
-    it('should set disableButton at false is users array is not empty', function() {
-      var ctrl = initController();
+    it('should return only calendars which have been selected', function() {
+      var controller = initController();
 
-      ctrl.users.push({});
+      controller.calendarsPerUser.push({user: user, calendar: calendar, isSelected: true});
 
-      ctrl.updateButtonDisplay();
-
-      expect(ctrl.disableButton).to.be.false;
+      expect(controller.getSelectedCalendars()).to.deep.equal([calendar]);
     });
   });
 
-  describe('the addPublicCalendars function', function() {
-    var ctrl,
-      user,
-      calendars,
-      listAllCalendarsForUserMock,
-      storeAllMock,
-      weakErrorMock,
-      goMock,
-      errorMock;
-
-    beforeEach(function() {
-      user = {
-        _id: 'kader'
-      };
-      calendars = {
-        calendars: 'my calendars list'
-      };
-
-      ctrl = initController();
-      ctrl.users.push(user);
-
-      listAllCalendarsForUserMock = sinon.spy(function() {
-        return $q.when(calendars);
+  describe('The onUserAdded function', function() {
+    it('should return when user is undefined', function() {
+      var stub = sinon.stub(calendarService, 'listAllCalendarsForUser', function() {
+        return $q();
       });
-      goMock = sinon.spy();
-      errorMock = sinon.spy();
+      var controller = initController();
 
-      sinon.stub(calendarService, 'listAllCalendarsForUser', listAllCalendarsForUserMock);
-      sinon.stub($state, 'go', goMock);
-      sinon.stub(calPublicCalendarStore, 'storeAll', storeAllMock);
-      sinon.stub(notificationFactory, 'weakError', weakErrorMock);
-      sinon.stub($log, 'error', errorMock);
+      controller.onUserAdded();
+
+      expect(stub).to.not.have.been.called;
     });
 
-    it('should call listAllCalendarsForUserMock with the correct user._id', function() {
-      ctrl.addPublicCalendars();
+    it('should fill controller calendarsPerUser with the user calendars', function() {
+      var listAllCalendarsForUserStub = sinon.stub(calendarService, 'listAllCalendarsForUser', function() {
+        return $q.when([calendar]);
+      });
+      var controller = initController();
 
-      expect(listAllCalendarsForUserMock).to.have.been.calledWith(user._id);
-    });
-
-    it('should call $state.go and calPublicCalendarStore.storeAll when resolved', function() {
-      ctrl.addPublicCalendars();
-
+      controller.onUserAdded(user);
       $rootScope.$digest();
 
-      expect($state.go).to.have.been.calledWith('calendar.main');
-      expect(calPublicCalendarStore.storeAll).to.have.been.calledWith(calendars);
+      expect(listAllCalendarsForUserStub).to.have.been.calledWith(user._id);
+      expect(controller.calendarsPerUser).to.deep.equal([{user: user, calendar: calendar}]);
     });
 
-    it('should call $log.error and notificationFactory.weakError when reject', function() {
-      calendarService.listAllCalendarsForUser.restore();
+    it('should log error when public calendars fetch fails', function() {
+      var listAllCalendarsForUserStub = sinon.stub(calendarService, 'listAllCalendarsForUser', function() {
+        return $q.reject(new Error('I failed'));
+      });
+      var logSpy = sinon.spy($log, 'error');
+      var controller = initController();
 
-      var error = 'this is the error message';
-      sinon.stub(calendarService, 'listAllCalendarsForUser', sinon.spy(function() {
-        return $q.reject(error);
-      }));
-
-      ctrl.addPublicCalendars();
-
+      controller.onUserAdded(user);
       $rootScope.$digest();
 
-      expect(notificationFactory.weakError).to.have.been.calledWith('Could not find public calendars.');
-      expect($log.error).to.have.been.calledWith(error);
+      expect(listAllCalendarsForUserStub).to.have.been.calledWith(user._id);
+      expect(logSpy).to.have.been.calledOnce;
+      expect(controller.calendarsPerUser).to.be.empty;
     });
   });
 
+  describe('The onUserRemoved function', function() {
+    it('should do not change the controller calendars when user is not defined', function() {
+      var controller = initController();
+
+      controller.calendarsPerUser.push({calendar: calendar, user: user});
+      controller.onUserRemoved();
+      $rootScope.$digest();
+
+      expect(controller.calendarsPerUser).to.have.lengthOf(1);
+    });
+
+    it('should remove all the calendars of the given user', function() {
+      var controller = initController();
+
+      controller.calendarsPerUser.push({calendar: calendar, user: user});
+      controller.calendarsPerUser.push({calendar: anotherCalendar, user: anotherUser});
+
+      controller.onUserRemoved(user);
+      $rootScope.$digest();
+
+      expect(controller.calendarsPerUser).to.deep.equal([{calendar: anotherCalendar, user: anotherUser}]);
+    });
+  });
+
+  describe('The subscribe function', function() {
+    it('should not store calendars when no calendars are selected', function() {
+      var controller = initController();
+      var storeSpy = sinon.spy(calPublicCalendarStore, 'storeAll');
+
+      controller.calendarsPerUser.push({calendar: calendar, user: user});
+      controller.calendarsPerUser.push({calendar: anotherCalendar, user: anotherUser});
+
+      controller.subscribe();
+      $rootScope.$digest();
+
+      expect(storeSpy).to.not.have.been.called;
+    });
+
+    it('should store selected calendars', function() {
+      var controller = initController();
+      var storeSpy = sinon.spy(calPublicCalendarStore, 'storeAll');
+
+      controller.calendarsPerUser.push({calendar: calendar, user: user, isSelected: true});
+      controller.calendarsPerUser.push({calendar: anotherCalendar, user: anotherUser});
+
+      controller.subscribe();
+      $rootScope.$digest();
+
+      expect(storeSpy).to.have.been.calledWith([calendar]);
+    });
+  });
 });
