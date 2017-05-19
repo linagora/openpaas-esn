@@ -123,13 +123,74 @@ describe('The google contact importer', function() {
     });
 
     it('should reject if request to google server returns error', function(done) {
-      var error = new Error('[Error: Error while getting the contact from google (HTTP %s)]');
+      const errorObject = new Error('something wrong');
+      const type = dependencies['contact-import'].constants.CONTACT_IMPORT_ERROR.API_CLIENT_ERROR;
+      const errorMessage = {
+        type: type,
+        error: errorObject
+      };
+
+      dependencies['contact-import'].lib.import.buildErrorMessage = function(type, error) {
+        expect(type).to.equal(type);
+        expect(error).to.deep.equal(errorObject);
+
+        return errorMessage;
+      };
+
       requestMock = function(option, callback) {
-        callback(null, {statusCode: 500});
+        callback(errorObject, {statusCode: 500});
       };
       mockery.registerMock('request', requestMock);
       getImporter().importContact(optionsMock).then(null, function(err) {
-        expect(err).to.deep.equal(error);
+        expect(err).to.deep.equal(errorMessage);
+        done();
+      });
+    });
+
+    it('should reject if request to google server returns error in respone body instead of error object', function(done) {
+      const statusCode = 403;
+      const body = '<errors></errors>';
+      const bodyParsed = {
+        errors: {
+          error: [
+            {
+              internalReason: 'something wrong',
+              code: 'error code'
+            }
+          ]
+        }
+      };
+      const errorObject = {
+        statusCode: statusCode,
+        message: bodyParsed.errors.error[0].internalReason,
+        code: bodyParsed.errors.error[0].code,
+        allErrors: bodyParsed.errors.error
+      };
+      const type = dependencies['contact-import'].constants.CONTACT_IMPORT_ERROR.API_CLIENT_ERROR;
+
+      xml2jsMock.parseString = function(xml, callback) {
+        expect(xml).to.equal(body);
+        callback(null, bodyParsed);
+      };
+
+      const errorMessage = {
+        type: type,
+        errorObject: errorObject
+      };
+
+      dependencies['contact-import'].lib.import.buildErrorMessage = function(type, error) {
+        expect(type).to.equal(errorMessage.type);
+        expect(error).to.deep.equal(errorMessage.errorObject);
+
+        return errorMessage;
+      };
+
+      requestMock = function(option, callback) {
+        callback(null, { statusCode: statusCode }, body);
+      };
+      mockery.registerMock('request', requestMock);
+      getImporter().importContact(optionsMock).then(null, function(err) {
+        expect(err).to.deep.equal(errorMessage);
         done();
       });
     });
