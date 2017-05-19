@@ -94,5 +94,9 @@
   "Your permission": "Votre permission",
   "Owner": "Propriétaire",
   "Private event": "Evénement privé",
-  "Cannot access private event": "Vous n'avez pas accès à cet événement privé"
+  "Cannot access private event": "Vous n'avez pas accès à cet événement privé",
+  "Subscribe to public calendars": "Souscrire à des calendriers public",
+  "Search users to subscribe to their public calendars": "Rechercher des utilisateurs pour souscrire à leurs calendriers public",
+  "Rights": "Droits",
+  "Subscribe": "Sourcrire"
 }
