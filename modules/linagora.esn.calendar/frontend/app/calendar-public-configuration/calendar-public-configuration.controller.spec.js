@@ -30,7 +30,7 @@ describe('The calendar public configuration controller', function() {
   });
 
   function initController() {
-    return $controller('calendarPublicConfigurationController');
+    return $controller('CalCalendarPublicConfigurationController');
   }
 
   describe('the updateButtonDisplay function', function() {

@@ -2,9 +2,9 @@
   'use strict';
 
   angular.module('esn.calendar')
-    .controller('calendarPublicConfigurationController', calendarPublicConfigurationController);
+    .controller('CalCalendarPublicConfigurationController', CalCalendarPublicConfigurationController);
 
-  function calendarPublicConfigurationController($log, $q, $state, _, calendarService, calPublicCalendarStore) {
+  function CalCalendarPublicConfigurationController($log, $q, $state, _, calendarService, calPublicCalendarStore) {
     var self = this;
 
     self.calendarsPerUser = [];
