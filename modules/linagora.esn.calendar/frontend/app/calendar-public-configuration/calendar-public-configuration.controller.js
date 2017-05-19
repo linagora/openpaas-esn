@@ -4,7 +4,7 @@
   angular.module('esn.calendar')
     .controller('calendarPublicConfigurationController', calendarPublicConfigurationController);
 
-  function calendarPublicConfigurationController($log, $q, $state, _, calendarService) {
+  function calendarPublicConfigurationController($log, $q, $state, _, calendarService, calPublicCalendarStore) {
     var self = this;
 
     self.calendarsPerUser = [];
@@ -14,6 +14,26 @@
     self.onUserAdded = onUserAdded;
     self.onUserRemoved = onUserRemoved;
     self.subscribe = subscribe;
+
+    function getPublicCalendarsForUser(user) {
+      return calendarService.listAllCalendarsForUser(user._id).then(function(calendars) {
+          return calendars.map(function(calendar) {
+            return {
+              user: user,
+              calendar: calendar
+            };
+          });
+        });
+    }
+
+    function getSelectedCalendars() {
+      return _.chain(self.calendarsPerUser)
+        .filter('isSelected')
+        .map(function(selected) {
+          return selected.calendar;
+        })
+        .value();
+    }
 
     function onUserAdded(user) {
       if (!user) {
@@ -27,7 +47,7 @@
           });
         })
         .catch(function(err) {
-          $log.error('Can not get public calendars for user', err);
+          $log.error('Can not get public calendars for user', user._id, err);
         });
     }
 
@@ -37,23 +57,10 @@
       });
     }
 
-    function getSelectedCalendars() {
-      return _.filter(self.calendarsPerUser, 'isSelected');
-    }
-
     function subscribe() {
-      $log.info('Will Subscribe to', getSelectedCalendars());
-    }
+      var calendars = getSelectedCalendars();
 
-    function getPublicCalendarsForUser(user) {
-      return calendarService.listAllCalendarsForUser(user._id).then(function(calendars) {
-          return calendars.map(function(calendar) {
-            return {
-              user: user,
-              calendar: calendar
-            };
-          });
-        });
+      calendars.length && calPublicCalendarStore.storeAll(calendars);
     }
   }
 })();
