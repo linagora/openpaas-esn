@@ -4,7 +4,7 @@
 var expect = chai.expect;
 
 describe('The ESNOauthApplicationClient factory', function() {
-  beforeEach(angular.mock.module('esn.oauth-application', 'op.dynamicDirective'));
+  beforeEach(angular.mock.module('esn.oauth-application'));
 
   beforeEach(angular.mock.inject(function(ESNOauthApplicationClient, $httpBackend) {
     this.ESNOauthApplicationClient = ESNOauthApplicationClient;
