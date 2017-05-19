@@ -1,0 +1,7 @@
+.col-xs-12
+  .block-header
+    h2 #{__('Applications')}
+  div
+    fab(ng-click='$ctrl.openModal()')
+  div(ng-repeat="application in $ctrl.applications")
+    esn-oauth-application-card(application="application")

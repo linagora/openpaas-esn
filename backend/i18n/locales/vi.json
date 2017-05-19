@@ -395,5 +395,7 @@
   "See all": "Xem tất cả",
   "Inbox": "Inbox",
   "Control Center": "Trung tâm điều khiển",
-  "Profile": "Hồ sơ"
+  "Profile": "Hồ sơ",
+  "Revoke users tokens": "Thu hồi thẻ người dùng",
+  "Reset client secret": "Đặt lại mã bí mật" 
 }

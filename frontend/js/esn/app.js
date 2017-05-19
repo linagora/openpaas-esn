@@ -78,14 +78,6 @@ angular.module('esnApp', [
     templateUrl: '/views/esn/partials/members',
     controller: 'memberscontroller'
   })
-  .state('controlcenter.applications', {
-    url: '/applications',
-    templateUrl: '/views/modules/application/applications',
-    controller: 'applicationController',
-    resolve: {
-      applications: routeResolver.api('applicationAPI', 'created', 'undefined')
-    }
-  })
   .state('controlcenter.changepassword', {
     url: '/changepassword',
     templateUrl: '/views/modules/login/changepassword',
@@ -95,14 +87,6 @@ angular.module('esnApp', [
     url: '/timeline',
     templateUrl: '/views/modules/timeline/index',
     controller: 'esnTimelineEntriesController'
-  })
-  .state('/applications/:application_id', {
-    url: '/applications/:application_id',
-    templateUrl: '/views/modules/application/application-details',
-    controller: 'applicationDetailsController',
-    resolve: {
-      application: routeResolver.api('applicationAPI', 'get', 'application_id', '/applications')
-    }
   })
   .state('/communities', {
     url: '/communities',

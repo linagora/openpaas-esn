@@ -395,5 +395,7 @@
   "See all": "Voir tout",
   "Inbox": "Inbox",
   "Control Center": "Préférences",
-  "Profile": "Profil"
+  "Profile": "Profil",
+  "Revoke users tokens": "Révoquer les jetons utilisateurs",
+  "Reset client secret": "Réinitialiser le secret client"
 }
