@@ -13,7 +13,7 @@
     self.getSelectedCalendars = getSelectedCalendars;
     self.onUserAdded = onUserAdded;
     self.onUserRemoved = onUserRemoved;
-    self.subscribe = subscribe;
+    self.subscribeToSelectedCalendars = subscribeToSelectedCalendars;
 
     function getPublicCalendarsForUser(user) {
       return calendarService.listAllCalendarsForUser(user._id).then(function(calendars) {
@@ -42,9 +42,7 @@
 
       getPublicCalendarsForUser(user)
         .then(function(userCalendars) {
-          userCalendars.forEach(function(userCalendar) {
-            self.calendarsPerUser.push(userCalendar);
-          });
+          self.calendarsPerUser = self.calendarsPerUser.concat(userCalendars);
         })
         .catch(function(err) {
           $log.error('Can not get public calendars for user', user._id, err);
@@ -61,10 +59,10 @@
       });
     }
 
-    function subscribe() {
-      var calendars = getSelectedCalendars();
+    function subscribeToSelectedCalendars() {
+      var selectedCalendars = getSelectedCalendars();
 
-      calendars.length && calPublicCalendarStore.storeAll(calendars);
+      selectedCalendars.length && calPublicCalendarStore.storeAll(selectedCalendars);
     }
   }
 })();

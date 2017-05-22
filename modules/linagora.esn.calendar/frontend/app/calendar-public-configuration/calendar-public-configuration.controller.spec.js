@@ -57,14 +57,12 @@ describe('The CalCalendarPublicConfigurationController controller', function() {
 
   describe('The onUserAdded function', function() {
     it('should return when user is undefined', function() {
-      var stub = sinon.stub(calendarService, 'listAllCalendarsForUser', function() {
-        return $q();
-      });
+      var spy = sinon.stub(calendarService, 'listAllCalendarsForUser');
       var controller = initController();
 
       controller.onUserAdded();
 
-      expect(stub).to.not.have.been.called;
+      expect(spy).to.not.have.been.called;
     });
 
     it('should fill controller calendarsPerUser with the user calendars', function() {
@@ -97,7 +95,7 @@ describe('The CalCalendarPublicConfigurationController controller', function() {
   });
 
   describe('The onUserRemoved function', function() {
-    it('should do not change the controller calendars when user is not defined', function() {
+    it('should not change the controller calendars when user is not defined', function() {
       var controller = initController();
 
       controller.calendarsPerUser.push({calendar: calendar, user: user});
@@ -120,7 +118,7 @@ describe('The CalCalendarPublicConfigurationController controller', function() {
     });
   });
 
-  describe('The subscribe function', function() {
+  describe('The subscribeToSelectedCalendars function', function() {
     it('should not store calendars when no calendars are selected', function() {
       var controller = initController();
       var storeSpy = sinon.spy(calPublicCalendarStore, 'storeAll');
@@ -128,7 +126,7 @@ describe('The CalCalendarPublicConfigurationController controller', function() {
       controller.calendarsPerUser.push({calendar: calendar, user: user});
       controller.calendarsPerUser.push({calendar: anotherCalendar, user: anotherUser});
 
-      controller.subscribe();
+      controller.subscribeToSelectedCalendars();
       $rootScope.$digest();
 
       expect(storeSpy).to.not.have.been.called;
@@ -141,7 +139,7 @@ describe('The CalCalendarPublicConfigurationController controller', function() {
       controller.calendarsPerUser.push({calendar: calendar, user: user, isSelected: true});
       controller.calendarsPerUser.push({calendar: anotherCalendar, user: anotherUser});
 
-      controller.subscribe();
+      controller.subscribeToSelectedCalendars();
       $rootScope.$digest();
 
       expect(storeSpy).to.have.been.calledWith([calendar]);
