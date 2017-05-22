@@ -94,5 +94,9 @@
   "Your permission": "Quyền của bạn",
   "Owner": "Chủ nhân",
   "Private event": "Sự kiện riêng tư",
-  "Cannot access private event": "Không thể truy cập sự kiện riêng tư"
+  "Cannot access private event": "Không thể truy cập sự kiện riêng tư",
+  "Subscribe to public calendars": "Đăng kí lịch công khai",
+  "Search users to subscribe to their public calendars":  "Tìm kiếm người dùng để đăng kí lịch công khai của họ",
+  "Rights": "Quyền",
+  "Subscribe": "Đăng kí"
 }

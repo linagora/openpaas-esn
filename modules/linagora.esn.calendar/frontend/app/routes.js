@@ -92,14 +92,6 @@
           }
         }
       })
-      .state('calendar.public', {
-        url: '/public',
-        views: {
-          content: {
-            template: '<calendar-public-configuration />'
-          }
-        }
-      })
       .state('calendar.external', {
         url: '/external',
         deepStateRedirect: {

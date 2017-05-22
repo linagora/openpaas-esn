@@ -2,44 +2,67 @@
   'use strict';
 
   angular.module('esn.calendar')
-    .controller('calendarPublicConfigurationController', calendarPublicConfigurationController);
+    .controller('CalCalendarPublicConfigurationController', CalCalendarPublicConfigurationController);
 
-  function calendarPublicConfigurationController($state, $log, calendarService, calPublicCalendarStore, notificationFactory) {
+  function CalCalendarPublicConfigurationController($log, $q, $state, _, calendarService, calPublicCalendarStore) {
     var self = this;
 
+    self.calendarsPerUser = [];
+    self.selectedCalendars = [];
     self.users = [];
-    self.disableButton = true;
+    self.getSelectedCalendars = getSelectedCalendars;
+    self.onUserAdded = onUserAdded;
+    self.onUserRemoved = onUserRemoved;
+    self.subscribeToSelectedCalendars = subscribeToSelectedCalendars;
 
-    self.updateButtonDisplay = updateButtonDisplay;
-    self.addPublicCalendars = addPublicCalendars;
-
-    ////////////
-
-    function updateButtonDisplay() {
-      self.disableButton = (self.users.length === 0);
-    }
-
-    function addPublicCalendars() {
-      calendarService
-        .listAllCalendarsForUser(_getUsersId())
-        .then(
-          function(calendars) {
-            $state.go('calendar.main');
-            calPublicCalendarStore.storeAll(calendars);
-          },
-          function(error) {
-            $log.error(error);
-            notificationFactory.weakError('Could not find public calendars.');
+    function getPublicCalendarsForUser(user) {
+      return calendarService.listAllCalendarsForUser(user._id).then(function(calendars) {
+          return calendars.map(function(calendar) {
+            return {
+              user: user,
+              calendar: calendar
+            };
           });
+        });
     }
 
-    function _getUsersId() {
-      /**
-       * we are dealing with tags-input which gives us an array of user.
-       * Now, we are limiting addCalendars to only one cal by time.
-       * This should be changed as soon as we support adding several public calendars at time.
-       */
-      return self.users[0]._id;
+    function getSelectedCalendars() {
+      return _.chain(self.calendarsPerUser)
+        .filter('isSelected')
+        .map(function(selected) {
+          return selected.calendar;
+        })
+        .value();
+    }
+
+    function onUserAdded(user) {
+      if (!user) {
+        return;
+      }
+
+      getPublicCalendarsForUser(user)
+        .then(function(userCalendars) {
+          self.calendarsPerUser = self.calendarsPerUser.concat(userCalendars);
+        })
+        .catch(function(err) {
+          $log.error('Can not get public calendars for user', user._id, err);
+        });
+    }
+
+    function onUserRemoved(user) {
+      if (!user) {
+        return;
+      }
+
+      _.remove(self.calendarsPerUser, function(calendarPerUser) {
+        return calendarPerUser.user._id === user._id;
+      });
+    }
+
+    function subscribeToSelectedCalendars() {
+      var selectedCalendars = getSelectedCalendars();
+
+      selectedCalendars.length && calPublicCalendarStore.storeAll(selectedCalendars);
     }
   }
 })();
