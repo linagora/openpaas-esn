@@ -44,4 +44,27 @@ describe('The calPathParser service', function() {
       });
     });
   });
+
+  describe('The parseEventPath fn', function() {
+    var calendarHomeId, calendarId;
+
+    beforeEach(function() {
+      calendarHomeId = '123';
+      calendarId = '456';
+    });
+
+    it('should return valid object', function() {
+      expect(calPathParser.parseEventPath('/a/path/calendars/' + calendarHomeId + '/' + calendarId + '/event.ics')).to.deep.equal({
+        calendarHomeId: calendarHomeId,
+        calendarId: calendarId
+      });
+    });
+
+    it('should strip trailing /', function() {
+      expect(calPathParser.parseEventPath('/' + calendarHomeId + '/' + calendarId + '/event.ics')).to.deep.equal({
+        calendarHomeId: calendarHomeId,
+        calendarId: calendarId
+      });
+    });
+  });
 });
