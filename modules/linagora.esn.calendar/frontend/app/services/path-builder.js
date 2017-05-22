@@ -9,7 +9,8 @@
       rootPath: rootPath,
       forCalendarHomeId: forCalendarHomeId,
       forCalendarId: forCalendarId,
-      forEventId: forEventId
+      forEventId: forEventId,
+      forSubscriptionId: forSubscriptionId
     };
 
     return service;
@@ -30,6 +31,10 @@
 
     function forEventId(calendarHomeId, eventId) {
       return (rootPath() + '/' + calendarHomeId + '/' + CAL_DEFAULT_CALENDAR_ID).replace(/\/$/, '') + '/' + eventId + '.ics';
+    }
+
+    function forSubscriptionId(calendarHomeId, subscriptionId) {
+      return rootPath() + '/' + calendarHomeId + '/' + subscriptionId + '.json';
     }
   }
 

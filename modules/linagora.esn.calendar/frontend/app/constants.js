@@ -202,6 +202,10 @@
 
     .constant('CAL_SPINNER_TIMEOUT_DURATION', 2000)
 
+    .constant('CAL_SUBSCRIPTION', {
+      DEFAULT_NAME: 'Subscription'
+    })
+
     .constant('CAL_EVENTS', {
       CALENDAR_HEIGHT: 'calendar:height',
       CALENDAR_REFRESH: 'calendar:refresh',
