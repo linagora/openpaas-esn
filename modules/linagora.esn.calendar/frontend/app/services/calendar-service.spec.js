@@ -44,18 +44,21 @@ describe('The calendarService service', function() {
 
   describe('The removeAndEmit function', function() {
     it('should broadcast a CALENDARS.REMOVE event when the calendar has been created', function() {
+      CalendarCollectionShellMock.buildUniqueId = sinon.stub().returns('calUniqueId');
+
       var calendar = {id: 'calId'};
 
       this.$rootScope.$broadcast = sinon.stub().returns({});
       this.calendarService.removeAndEmit('homeId', calendar);
       this.$rootScope.$digest();
 
-      expect(self.$rootScope.$broadcast).to.have.been.calledWith(this.CAL_EVENTS.CALENDARS.REMOVE, calendar);
+      expect(self.$rootScope.$broadcast).to.have.been.calledWith(this.CAL_EVENTS.CALENDARS.REMOVE, {uniqueId: 'calUniqueId'});
+      expect(CalendarCollectionShellMock.buildUniqueId).to.have.been.calledWith('homeId', calendar.id);
     });
   });
 
   describe('The addAndEmit function', function() {
-    it('should broadcast a CALENDARS.REMOVE event when the calendar has been created', function() {
+    it('should broadcast a CALENDARS.ADD event when the calendar has been created', function() {
       var calendar = {id: 'calId'};
 
       this.$rootScope.$broadcast = sinon.stub().returns({});
@@ -256,7 +259,6 @@ describe('The calendarService service', function() {
 
   describe('The get calendar fn', function() {
     it('should wrap the received dav:calendar in a CalendarCollectionShell', function(done) {
-
       var response = {
         _links: {
           self: {
@@ -323,6 +325,10 @@ describe('The calendarService service', function() {
   });
 
   describe('The remove calendar fn', function() {
+    beforeEach(function() {
+      CalendarCollectionShellMock.buildUniqueId = sinon.stub().returns('calUniqueId');
+    });
+
     it('should send a delete request to the correct URL', function() {
       this.$httpBackend.expectDELETE('/dav/api/calendars/homeId/cal.json').respond(204, 'response');
 
@@ -370,7 +376,7 @@ describe('The calendarService service', function() {
       this.$httpBackend.flush();
       this.$rootScope.$digest();
 
-      expect(self.$rootScope.$broadcast).to.have.been.calledWith(this.CAL_EVENTS.CALENDARS.REMOVE, calendar);
+      expect(self.$rootScope.$broadcast).to.have.been.calledWith(this.CAL_EVENTS.CALENDARS.REMOVE, {uniqueId: 'calUniqueId'});
     });
   });
 

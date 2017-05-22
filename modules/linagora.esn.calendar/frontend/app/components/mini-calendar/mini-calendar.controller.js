@@ -110,7 +110,7 @@
             $log.error('Could not retrieve event sources', error);
           });
 
-          return calCachedEventSource.wrapEventSource(cal.id, rawSource);
+          return calCachedEventSource.wrapEventSource(cal.uniqueId, rawSource);
         });
 
         return miniCalendarService.miniCalendarWrapper(resolved.calendar, _.flatten(eventSources));

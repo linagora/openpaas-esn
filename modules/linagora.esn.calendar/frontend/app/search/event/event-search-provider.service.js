@@ -31,7 +31,7 @@
 
       return newProvider({
         name: name,
-        id: calendar.id,
+        id: calendar.uniqueId,
         fetch: function(query) {
           var offset = 0;
 
@@ -90,7 +90,7 @@
 
       $rootScope.$on(CAL_EVENTS.CALENDARS.REMOVE, function(event, calendar) {
         searchProviders.remove(function(provider) {
-          return provider.id === calendar.id;
+          return provider.id === calendar.uniqueId;
         });
       });
     }

@@ -48,7 +48,7 @@ describe('The calSearchEventProviderService service', function() {
       it('should listen to CAL_EVENTS.CALENDARS.REMOVE and remove the appopriate provider', function() {
         calSearchEventProviderService.setUpSearchProviders();
         expect($rootScope.$on).to.have.been.calledWith(CAL_EVENTS.CALENDARS.REMOVE, sinon.match.func.and(sinon.match(function(callback) {
-          callback(null, {id: 'id'});
+          callback(null, {uniqueId: 'id'});
           expect(searchProvidersMock.remove).to.have.been.calledWith(sinon.match.func.and(sinon.match(function(callback) {
             return callback({id: 'id'}) && !callback({id: 'id2'});
           })));

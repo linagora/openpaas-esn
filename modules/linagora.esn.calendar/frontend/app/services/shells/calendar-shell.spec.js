@@ -1107,9 +1107,9 @@ describe('CalendarShell factory', function() {
 
   describe('calendarUniqueId property', function() {
     it('should compute the unique id from the path to match a calendar path', function() {
-      var event = CalendarShell.fromIncompleteShell({path: '/calendarHomeId/calendarId/events'});
+      var event = CalendarShell.fromIncompleteShell({path: 'xxxxxxxxxxxx/calendarHomeId/calendarId/eventUid.ics'});
 
-      expect(event.calendarUniqueId).to.equal('/calendarHomeId/calendarId.json');
+      expect(event.calendarUniqueId).to.equal('/calendars/calendarHomeId/calendarId.json');
     });
   });
 

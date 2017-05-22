@@ -21,7 +21,7 @@
   angular.module('esn.calendar')
          .factory('CalendarShell', CalendarShellFactory);
 
-  function CalendarShellFactory($q, _, ICAL, jstz, uuid4, calendarUtils, calEventAPI, calMoment, calMasterEventCache, CalRRuleShell, CalVAlarmShell, userUtils, CAL_EVENT_MODIFY_COMPARE_KEYS, CAL_ICAL, CAL_EVENT_CLASS) {
+  function CalendarShellFactory($q, _, ICAL, jstz, uuid4, calendarUtils, calEventAPI, calMoment, calMasterEventCache, calPathBuilder, calPathParser, CalRRuleShell, CalVAlarmShell, userUtils, CAL_EVENT_MODIFY_COMPARE_KEYS, CAL_ICAL, CAL_EVENT_CLASS) {
     var localTimezone = jstz.determine().name();
 
     function CalendarShell(vcomponent, extendedProperties) {
@@ -104,11 +104,16 @@
       get id() { return this.recurrenceId ? this.uid + '_' + this.vevent.getFirstPropertyValue('recurrence-id').convertToZone(ICAL.Timezone.utcTimezone) : this.uid; },
 
       get calendarId() {
-        return this.path && (this.path.match(new RegExp('/([^/]+)/[^/]+?/?$')) || [])[1];
+        return this.path && (calPathParser.parseEventPath(this.path).calendarId);
       },
 
       get calendarUniqueId() {
-        return this.path.substring(0, this.path.lastIndexOf('/')) + '.json';
+        if (!this.path) {
+          return;
+        }
+        var ids = calPathParser.parseEventPath(this.path);
+
+        return calPathBuilder.forCalendarId(ids.calendarHomeId, ids.calendarId);
       },
 
       get title() { return this.summary; },

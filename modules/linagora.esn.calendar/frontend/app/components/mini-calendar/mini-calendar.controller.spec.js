@@ -34,7 +34,7 @@ describe('The mini-calendar controller', function() {
 
         deferred.resolve([{
           href: 'href',
-          id: 'id'
+          uniqueId: 'uniqueId'
         }]);
 
         return deferred.promise;
@@ -379,7 +379,7 @@ describe('The mini-calendar controller', function() {
     it('should wrap calendars inside calCachedEventSource.wrapEventSource', function() {
       $scope.calendarReady(calendar);
       $scope.$digest();
-      expect(calCachedEventSourceMock.wrapEventSource).to.have.been.calledWith('id', ['anEventSource']);
+      expect(calCachedEventSourceMock.wrapEventSource).to.have.been.calledWith('uniqueId', ['anEventSource']);
     });
 
     function testRerender(nameOfEvent) {
