@@ -10,7 +10,6 @@ describe('The CalCalendarPublicConfigurationController controller', function() {
     $q,
     $log,
     calendarService,
-    calPublicCalendarStore,
     user,
     anotherUser,
     calendar,
@@ -23,13 +22,12 @@ describe('The CalCalendarPublicConfigurationController controller', function() {
     anotherUser = {_id: 2};
     calendar = {_id: 3};
     anotherCalendar = {_id: 4};
-    angular.mock.inject(function(_$rootScope_, _$controller_, _$q_, _$log_, _calendarService_, _calPublicCalendarStore_) {
+    angular.mock.inject(function(_$rootScope_, _$controller_, _$q_, _$log_, _calendarService_) {
       $rootScope = _$rootScope_;
       $controller = _$controller_;
       $q = _$q_;
       $log = _$log_;
       calendarService = _calendarService_;
-      calPublicCalendarStore = _calPublicCalendarStore_;
     });
   });
 
@@ -119,30 +117,6 @@ describe('The CalCalendarPublicConfigurationController controller', function() {
   });
 
   describe('The subscribeToSelectedCalendars function', function() {
-    it('should not store calendars when no calendars are selected', function() {
-      var controller = initController();
-      var storeSpy = sinon.spy(calPublicCalendarStore, 'storeAll');
-
-      controller.calendarsPerUser.push({calendar: calendar, user: user});
-      controller.calendarsPerUser.push({calendar: anotherCalendar, user: anotherUser});
-
-      controller.subscribeToSelectedCalendars();
-      $rootScope.$digest();
-
-      expect(storeSpy).to.not.have.been.called;
-    });
-
-    it('should store selected calendars', function() {
-      var controller = initController();
-      var storeSpy = sinon.spy(calPublicCalendarStore, 'storeAll');
-
-      controller.calendarsPerUser.push({calendar: calendar, user: user, isSelected: true});
-      controller.calendarsPerUser.push({calendar: anotherCalendar, user: anotherUser});
-
-      controller.subscribeToSelectedCalendars();
-      $rootScope.$digest();
-
-      expect(storeSpy).to.have.been.calledWith([calendar]);
-    });
+    // this part is to be modified by @chamerling
   });
 });

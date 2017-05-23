@@ -23,7 +23,6 @@
     calEventService,
     calendarUtils,
     calEventUtils,
-    calPublicCalendarStore,
     calWebsocketListenerService,
     gracePeriodService,
     calOpenEventForm,
@@ -99,7 +98,7 @@
       function activate() {
         calendarService.listCalendars($scope.calendarHomeId)
           .then(function(calendars) {
-            $scope.calendars = (calendars || []).concat(calPublicCalendarStore.getAll());
+            $scope.calendars = calendars || [];
             $scope.calendars.forEach(function(calendar) {
               $scope.eventSourcesMap[calendar.uniqueId] = {
                 events: calCachedEventSource.wrapEventSource(calendar.uniqueId, calendarEventSource(calendar.href, $scope.displayCalendarError)),

@@ -6,7 +6,7 @@ var expect = chai.expect;
 
 describe('The calendarsList controller', function() {
   var $rootScope, $scope, $controller, CalendarCollectionShell, session, CAL_EVENTS, CAL_CALENDAR_PUBLIC_RIGHT;
-  var calendars, CalendarsListController, calendarServiceMock, hiddenCalendar, calendarVisibilityServiceMock, calPublicCalendarStoreMock, publicCalendar;
+  var calendars, CalendarsListController, calendarServiceMock, hiddenCalendar, calendarVisibilityServiceMock;
 
   function initController() {
     return $controller('CalendarsListController', { $scope: $scope });
@@ -29,26 +29,6 @@ describe('The calendarsList controller', function() {
       toggle: sinon.spy()
     };
 
-    publicCalendar = {
-      uniqueId: '5',
-      href: 'public calendar href',
-      name: 'public calendar name',
-      color: 'public calendar color',
-      description: 'public calendar description',
-      isShared: function() {
-        return false;
-      },
-      isPublic: function() {
-        return true;
-      },
-      isOwner: function() {
-        return false;
-      },
-      isSubscription: function() {
-        return false;
-      }
-    };
-
     session = {
       user: {
         id: 'userId'
@@ -58,18 +38,11 @@ describe('The calendarsList controller', function() {
       }
     };
 
-    calPublicCalendarStoreMock = {
-      getAll: function() {
-        return [];
-      }
-    };
-
     angular.mock.module('esn.calendar');
 
     angular.mock.module(function($provide) {
       $provide.value('calendarService', calendarServiceMock);
       $provide.value('calendarVisibilityService', calendarVisibilityServiceMock);
-      $provide.value('calPublicCalendarStore', calPublicCalendarStoreMock);
       $provide.value('session', session);
     });
 
@@ -415,17 +388,13 @@ describe('The calendarsList controller', function() {
     describe('the listCalendars function', function() {
 
       it('should initialize calendars with all the calendars from calendarService.listCalendars', function() {
-        calPublicCalendarStoreMock.getAll = function() {
-          return [publicCalendar];
-        };
-
         CalendarsListController.$onInit();
 
         CalendarsListController.arrangeCalendars = sinon.spy();
 
         $rootScope.$digest();
 
-        expect(CalendarsListController.calendars).to.deep.equal(calendars.concat(calPublicCalendarStoreMock.getAll()));
+        expect(CalendarsListController.calendars).to.deep.equal(calendars);
       });
 
       it('should call calendarService.listCalendars with the two params', function() {

@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('The CalCalendarsConfigurationMobileController controller', function() {
-  var $controller, $rootScope, $scope, $state, calendarHomeService, calPublicCalendarStore, calendarService,
+  var $controller, $rootScope, $scope, $state, calendarHomeService, calendarService,
     userAndExternalCalendarsMock;
 
   beforeEach(function() {
@@ -13,12 +13,6 @@ describe('The CalCalendarsConfigurationMobileController controller', function() 
       getUserCalendarHomeId: sinon.spy(function() {
         return $q.when('123');
       })
-    };
-
-    calPublicCalendarStore = {
-      getAll: sinon.stub().returns(
-        []
-      )
     };
 
     calendarService = {
@@ -33,7 +27,6 @@ describe('The CalCalendarsConfigurationMobileController controller', function() 
 
     angular.mock.module('esn.calendar', function($provide) {
       $provide.value('calendarHomeService', calendarHomeService);
-      $provide.value('calPublicCalendarStore', calPublicCalendarStore);
       $provide.value('calendarService', calendarService);
       $provide.value('$state', $state);
       $provide.value('userAndExternalCalendars', function() {
@@ -41,14 +34,13 @@ describe('The CalCalendarsConfigurationMobileController controller', function() 
       });
     });
 
-    angular.mock.inject(function(_$controller_, _$rootScope_, _$state_, _calendarHomeService_, _calPublicCalendarStore_, _calendarService_) {
+    angular.mock.inject(function(_$controller_, _$rootScope_, _$state_, _calendarHomeService_, _calendarService_) {
         $controller = _$controller_;
         $rootScope = _$rootScope_;
         $scope = $rootScope.$new();
         $state = _$state_;
         calendarService = _calendarService_;
         calendarHomeService = _calendarHomeService_;
-        calPublicCalendarStore = _calPublicCalendarStore_;
       }
     );
   });
@@ -63,7 +55,6 @@ describe('The CalCalendarsConfigurationMobileController controller', function() 
       userAndExternalCalendarsMock = function() {
         expect(calendarHomeService.getUserCalendarHomeId).to.have.been.called;
         expect(calendarService.listCalendars).to.have.been.calledWith('123');
-        expect(calPublicCalendarStore.getAll).to.have.been.calledWith;
 
         done();
       };

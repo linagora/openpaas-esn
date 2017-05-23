@@ -195,7 +195,6 @@ describe('The calendarViewController', function() {
     calEventUtils,
     elementScrollService,
     $q,
-    calPublicCalendarStore,
     CAL_SPINNER_TIMEOUT_DURATION) {
     this.rootScope = $rootScope;
     this.scope = $rootScope.$new();
@@ -211,7 +210,6 @@ describe('The calendarViewController', function() {
     this.calEventUtils = calEventUtils;
     this.elementScrollService = elementScrollService;
     this.$q = $q;
-    this.calPublicCalendarStore = calPublicCalendarStore;
     this.CAL_SPINNER_TIMEOUT_DURATION = CAL_SPINNER_TIMEOUT_DURATION;
   }));
 
@@ -304,34 +302,11 @@ describe('The calendarViewController', function() {
   }
 
   describe('the initialization', function() {
-    var publicCalendars;
-
-    beforeEach(function() {
-      publicCalendars = [
-        {
-          href: 'hrefPublic',
-          uniqueId: 'idPublic',
-          color: 'colorPublic'
-        },
-        {
-          href: 'href2Public',
-          uniqueId: 'id2Public',
-          color: 'color2Public'
-        }
-      ];
-
-      sinon.stub(this.calPublicCalendarStore, 'getAll', function() {
-        return publicCalendars;
-      });
-    });
-
     it('should properly initialize $scope.calendars', function() {
-      var expectedResult = this.calendars.concat(publicCalendars);
-
       this.controller('calendarViewController', {$scope: this.scope});
       this.scope.$digest();
 
-      expect(this.scope.calendars).to.deep.equal(expectedResult);
+      expect(this.scope.calendars).to.deep.equal(this.calendars);
     });
   });
 

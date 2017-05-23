@@ -12,7 +12,6 @@
     calendarVisibilityService,
     session,
     userAndExternalCalendars,
-    calPublicCalendarStore,
     _,
     CAL_EVENTS
   ) {
@@ -56,7 +55,6 @@
     function listCalendars() {
       return calendarService.listCalendars(session.user._id).then(function(calendars) {
         self.calendars = _.clone(calendars);
-        self.calendars = self.calendars.concat(calPublicCalendarStore.getAll());
 
         refreshCalendarsList();
       });

@@ -11,7 +11,6 @@
     _,
     CalendarCollectionShell,
     calendarService,
-    calPublicCalendarStore,
     calendarHomeService,
     calendarAPI,
     matchmedia,
@@ -45,13 +44,9 @@
         })
         .then(function(calendarHomeId) {
           if ($stateParams.calendarUniqueId) {
-            if (self.getFromPublicCalendarStore) {
-              return calPublicCalendarStore.getById($stateParams.calendarUniqueId);
-            } else {
-              var splitUniqueId = CalendarCollectionShell.splitUniqueId($stateParams.calendarUniqueId);
+            var splitUniqueId = CalendarCollectionShell.splitUniqueId($stateParams.calendarUniqueId);
 
-              return calendarService.getCalendar(calendarHomeId, splitUniqueId.calendarId);
-            }
+            return calendarService.getCalendar(calendarHomeId, splitUniqueId.calendarId);
           }
         })
         .then(function(calendar) {

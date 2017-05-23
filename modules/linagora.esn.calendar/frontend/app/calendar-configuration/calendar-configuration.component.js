@@ -4,9 +4,6 @@
   angular.module('esn.calendar')
     .component('calendarConfiguration', {
       templateUrl: '/calendar/app/calendar-configuration/calendar-configuration.html',
-      controller: 'calendarConfigurationController',
-      bindings: {
-        getFromPublicCalendarStore: '='
-      }
+      controller: 'calendarConfigurationController'
     });
 })();

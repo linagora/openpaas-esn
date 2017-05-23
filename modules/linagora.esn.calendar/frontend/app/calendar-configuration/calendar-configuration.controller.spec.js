@@ -23,7 +23,6 @@ describe('The calendar configuration controller', function() {
     userUtilsMock,
     userAPIMock,
     uuid4,
-    calPublicCalendarStoreMock,
     SM_XS_MEDIA_QUERY,
     CAL_CALENDAR_PUBLIC_RIGHT,
     CAL_CALENDAR_SHARED_RIGHT;
@@ -34,8 +33,6 @@ describe('The calendar configuration controller', function() {
     calendarHomeId,
     getAllRemovedUsersIdResult,
     getAllRemovedUsersId,
-    publicCalendar1,
-    publicCalendar2,
     removeUserGroup;
 
   function initController() {
@@ -148,39 +145,6 @@ describe('The calendar configuration controller', function() {
       calendarUniqueId: '/calendars/calendarHomeId/123.json'
     };
 
-    publicCalendar1 = {
-      id: stateParamsMock.calendarUniqueId,
-      name: 'name1',
-      color: 'color1',
-      description: 'description1',
-      rights: {
-        getPublicRight: sinon.spy(function() {
-          return CAL_CALENDAR_PUBLIC_RIGHT.READ;
-        })
-      }
-    };
-
-    publicCalendar2 = {
-      id: '2',
-      name: 'name2',
-      color: 'color2',
-      description: 'description2',
-      rights: {
-        getPublicRight: sinon.spy(function() {
-          return CAL_CALENDAR_PUBLIC_RIGHT.READ;
-        })
-      }
-    };
-
-    calPublicCalendarStoreMock = {
-      getAll: sinon.spy(function() {
-        return [publicCalendar1, publicCalendar2];
-      }),
-      getById: sinon.spy(function() {
-        return publicCalendar1;
-      })
-    };
-
     calendarHomeId = '12345';
 
     CalendarRightShellMock = sinon.spy(function() {
@@ -206,7 +170,6 @@ describe('The calendar configuration controller', function() {
       $provide.value('userAPI', userAPIMock);
       $provide.value('userUtils', userUtilsMock);
       $provide.value('CalendarRightShell', CalendarRightShellMock);
-      $provide.value('calPublicCalendarStore', calPublicCalendarStoreMock);
     });
   });
 
@@ -250,7 +213,7 @@ describe('The calendar configuration controller', function() {
       expect(calendarConfigurationController.calendarHomeId).to.be.equal(calendarHomeId);
     });
 
-    it('should calendarService.getCalendar to get the calendar if calendarUniqueId is not null and getFromPublicCalendarStore is not truthy', function() {
+    it('should calendarService.getCalendar to get the calendar if calendarUniqueId is not null', function() {
       sinon.spy(CalendarCollectionShell, 'splitUniqueId');
 
       calendarConfigurationController.$onInit();
@@ -259,15 +222,6 @@ describe('The calendar configuration controller', function() {
 
       expect(CalendarCollectionShell.splitUniqueId).to.have.been.calledWith(stateParamsMock.calendarUniqueId);
       expect(calendarService.getCalendar).to.be.calledWith(calendarHomeId, '123');
-    });
-
-    it('should calendarService.getCalendar to get the calendar if calendarUniqueId is not null and getFromPublicCalendarStore is truthy', function() {
-      calendarConfigurationController.getFromPublicCalendarStore = true;
-      calendarConfigurationController.$onInit();
-
-      $rootScope.$digest();
-
-      expect(calPublicCalendarStoreMock.getById).to.have.been.calledWith(stateParamsMock.calendarUniqueId);
     });
 
     it('should not call calendarService.getCalendar if calendarUniqueId is null', function() {
@@ -280,32 +234,12 @@ describe('The calendar configuration controller', function() {
       expect(calendarService.getCalendar).to.not.be.called;
     });
 
-    it('should not call calPublicCalendarStoreMock.getAll if calendarUniqueId is null', function() {
-      delete stateParamsMock.calendarUniqueId;
-      calendarConfigurationController.getFromPublicCalendarStore = true;
-
-      calendarConfigurationController.$onInit();
-
-      $rootScope.$digest();
-
-      expect(calPublicCalendarStoreMock.getAll).to.not.have.been.called;
-    });
-
     it('should initialize calendar with the right calendar when we want configure a calendar', function() {
       calendarConfigurationController.$onInit();
 
       $rootScope.$digest();
 
       expect(calendarConfigurationController.calendar).to.be.equal(calendar);
-    });
-
-    it('should initialize calendar with the public calendar when getFromPublicCalendarStore is true', function() {
-      calendarConfigurationController.$onInit();
-      calendarConfigurationController.getFromPublicCalendarStore = true;
-
-      $rootScope.$digest();
-
-      expect(calendarConfigurationController.calendar).to.be.equal(publicCalendar1);
     });
 
     it('should call the activate function', function() {
