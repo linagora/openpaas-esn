@@ -4,7 +4,7 @@
   angular.module('esn.calendar')
     .controller('CalCalendarPublicConfigurationController', CalCalendarPublicConfigurationController);
 
-  function CalCalendarPublicConfigurationController($log, $q, $state, _, calendarService, calPublicCalendarStore) {
+  function CalCalendarPublicConfigurationController($log, $q, $state, _, calendarService) {
     var self = this;
 
     self.calendarsPerUser = [];
@@ -62,7 +62,7 @@
     function subscribeToSelectedCalendars() {
       var selectedCalendars = getSelectedCalendars();
 
-      selectedCalendars.length && calPublicCalendarStore.storeAll(selectedCalendars);
+      selectedCalendars.length && console.log('chamerling will modify this YOLO');
     }
   }
 })();

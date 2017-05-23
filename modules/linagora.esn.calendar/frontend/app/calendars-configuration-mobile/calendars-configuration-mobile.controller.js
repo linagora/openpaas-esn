@@ -4,7 +4,7 @@
   angular.module('esn.calendar')
     .controller('CalCalendarsConfigurationMobileController', CalendarsConfigurationMobileController);
 
-  function CalendarsConfigurationMobileController($state, calendarHomeService, calendarService, calPublicCalendarStore, session, userAndExternalCalendars) {
+  function CalendarsConfigurationMobileController($state, calendarHomeService, calendarService, session, userAndExternalCalendars) {
     var self = this;
 
     self.$onInit = $onInit;
@@ -18,8 +18,7 @@
           return calendarService.listCalendars(calendarHomeId);
         })
         .then(function(calendars) {
-          var allCalendars = calendars.concat(calPublicCalendarStore.getAll());
-          var sortedCalendars = userAndExternalCalendars(allCalendars);
+          var sortedCalendars = userAndExternalCalendars(calendars);
 
           self.userCalendars = sortedCalendars.userCalendars;
           self.sharedCalendars = sortedCalendars.sharedCalendars.concat(sortedCalendars.publicCalendars);
