@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('CalendarShell factory', function() {
-  var CalendarShell, calMoment, ICAL, $rootScope, calEventService;
+  var CalendarShell, calMoment, calPathBuilder, ICAL, $rootScope, calEventService;
 
   function loadICSFixtureAsCalendarShell(file, folder) {
     var path = 'modules/linagora.esn.calendar/frontend/app/fixtures/calendar/' + (folder ? folder + '/' : '') + file;
@@ -48,9 +48,10 @@ describe('CalendarShell factory', function() {
   });
 
   beforeEach(function() {
-    angular.mock.inject(function(_CalendarShell_, _calMoment_, _ICAL_, _$rootScope_, _calEventService_) {
+    angular.mock.inject(function(_CalendarShell_, _calMoment_, _calPathBuilder_, _ICAL_, _$rootScope_, _calEventService_) {
       CalendarShell = _CalendarShell_;
       calMoment = _calMoment_;
+      calPathBuilder = _calPathBuilder_;
       ICAL = _ICAL_;
       $rootScope = _$rootScope_;
       calEventService = _calEventService_;
@@ -1106,10 +1107,10 @@ describe('CalendarShell factory', function() {
   });
 
   describe('calendarUniqueId property', function() {
-    it('should compute the unique id from the path to match a calendar path', function() {
+    it('should be computed with calPathBuilder.forCalendarId function from calendar Home Id and Id', function() {
       var event = CalendarShell.fromIncompleteShell({path: 'xxxxxxxxxxxx/calendarHomeId/calendarId/eventUid.ics'});
 
-      expect(event.calendarUniqueId).to.equal('/calendars/calendarHomeId/calendarId.json');
+      expect(event.calendarUniqueId).to.equal(calPathBuilder.forCalendarId('calendarHomeId', 'calendarId'));
     });
   });
 

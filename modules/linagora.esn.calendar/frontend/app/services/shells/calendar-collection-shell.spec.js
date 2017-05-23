@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('CalendarCollectionShell factory', function() {
-  var $rootScope, CalendarCollectionShell, calendarRightShell, calendar, CAL_DEFAULT_CALENDAR_ID, CAL_CALENDAR_PUBLIC_RIGHT,
+  var $rootScope, CalendarCollectionShell, calPathBuilder, calendarRightShell, calendar, CAL_DEFAULT_CALENDAR_ID, CAL_CALENDAR_PUBLIC_RIGHT,
     CAL_CALENDAR_SHARED_RIGHT, calendarSharedRight, calendarPublicRight, calendarOwner, calendarOwnerId, userAPIMock, calendarHomeId, id;
 
   beforeEach(function() {
@@ -64,9 +64,10 @@ describe('CalendarCollectionShell factory', function() {
   );
 
   beforeEach(function() {
-    angular.mock.inject(function(_$rootScope_, _CalendarCollectionShell_, _CAL_DEFAULT_CALENDAR_ID_, _CAL_CALENDAR_PUBLIC_RIGHT_, _CAL_CALENDAR_SHARED_RIGHT_) {
+    angular.mock.inject(function(_$rootScope_, _CalendarCollectionShell_, _calPathBuilder_, _CAL_DEFAULT_CALENDAR_ID_, _CAL_CALENDAR_PUBLIC_RIGHT_, _CAL_CALENDAR_SHARED_RIGHT_) {
       $rootScope = _$rootScope_;
       CalendarCollectionShell = _CalendarCollectionShell_;
+      calPathBuilder = _calPathBuilder_;
       CAL_DEFAULT_CALENDAR_ID = _CAL_DEFAULT_CALENDAR_ID_;
       CAL_CALENDAR_PUBLIC_RIGHT = _CAL_CALENDAR_PUBLIC_RIGHT_;
       CAL_CALENDAR_SHARED_RIGHT = _CAL_CALENDAR_SHARED_RIGHT_;
@@ -101,10 +102,10 @@ describe('CalendarCollectionShell factory', function() {
   });
 
   describe('uniqueId property', function() {
-    it('Should equals calendar href', function() {
+    it('Should be computed using calPathBuilder.forCalendarId', function() {
       var calendarCollectionShell = new CalendarCollectionShell(calendar);
 
-      expect(calendarCollectionShell.uniqueId).to.equal(calendar._links.self.href);
+      expect(calendarCollectionShell.uniqueId).to.equal(calPathBuilder.forCalendarId(calendarHomeId, id));
     });
   });
 
