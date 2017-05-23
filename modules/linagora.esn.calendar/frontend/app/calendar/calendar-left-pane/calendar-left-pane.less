@@ -1,15 +1,9 @@
 .calendar-left-pane {
-  width: @calendarLeftPaneWidth;
-  top: ~"calc(@{header-height} + @{sub-header-height})";
   bottom: 0;
+  width: ~"calc(@{calendarLeftPaneWidth} + @{scrollbarWidth})";
   margin-top: 20px;
   position: fixed;
-  overflow: hidden;
-
-  &:hover {
-    width: ~"calc(@{calendarLeftPaneWidth} + @{scrollbarWidth})";
-    overflow-y: auto;
-  }
+  overflow-y: scroll;
 
   .fc-event .fc-title {
     text-align: center;
@@ -17,5 +11,17 @@
 
   .card-header {
     padding: 0;
+  }
+}
+
+@media (min-width: @screen-md-min) {
+  .calendar-left-pane {
+    top: ~"calc(@{header-height-md} + @{sub-header-height-md})";
+  }
+}
+
+@media (min-width: @screen-xl-min) {
+  .calendar-left-pane {
+    top: ~"calc(@{header-height-xl} + @{sub-header-height-xl})";
   }
 }
