@@ -27,6 +27,9 @@ describe('the userAndExternalCalendars service', function() {
       },
       isOwner: function() {
         return true;
+      },
+      isSubscription: function() {
+        return false;
       }
     }, {
       id: '2',
@@ -47,6 +50,9 @@ describe('the userAndExternalCalendars service', function() {
       },
       isOwner: function() {
         return true;
+      },
+      isSubscription: function() {
+        return false;
       }
     }, {
       id: '3',
@@ -67,6 +73,9 @@ describe('the userAndExternalCalendars service', function() {
       },
       isOwner: function() {
         return true;
+      },
+      isSubscription: function() {
+        return false;
       }
     }, {
       id: '4',
@@ -87,6 +96,9 @@ describe('the userAndExternalCalendars service', function() {
       },
       isOwner: function() {
         return false;
+      },
+      isSubscription: function() {
+        return true;
       }
     }, {
       id: '5',
@@ -107,6 +119,9 @@ describe('the userAndExternalCalendars service', function() {
       },
       isOwner: function() {
         return false;
+      },
+      isSubscription: function() {
+        return false;
       }
     }, {
       id: '6',
@@ -126,6 +141,9 @@ describe('the userAndExternalCalendars service', function() {
         return true;
       },
       isOwner: function() {
+        return false;
+      },
+      isSubscription: function() {
         return false;
       }
     }];
@@ -157,7 +175,7 @@ describe('the userAndExternalCalendars service', function() {
     expect(userAndExternalCalendars.sharedCalendars).to.contain(calendars[4], calendars[5]);
   });
 
-  it('should initialize publicCalendars with calendars that have the public right and are not shared or belong to the current user', function() {
+  it('should initialize publicCalendars with calendars that are from subscriptions and are not shared or belong to the current user', function() {
     expect(userAndExternalCalendars.publicCalendars).to.contain(calendars[3]);
   });
 });

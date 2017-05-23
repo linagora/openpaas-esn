@@ -43,6 +43,9 @@ describe('The calendarsList controller', function() {
       },
       isOwner: function() {
         return false;
+      },
+      isSubscription: function() {
+        return false;
       }
     };
 
@@ -175,6 +178,9 @@ describe('The calendarsList controller', function() {
             description: 'description',
             isOwner: function() {
               return true;
+            },
+            isSubscription: function() {
+              return false;
             }
           }, {
             href: '/calendars/12345/2.json',
@@ -189,6 +195,9 @@ describe('The calendarsList controller', function() {
             },
             isOwner: function() {
               return false;
+            },
+            isSubscription: function() {
+              return true;
             },
             rights: {
               getOwnerId: function() {
@@ -209,6 +218,9 @@ describe('The calendarsList controller', function() {
             isOwner: function() {
               return false;
             },
+            isSubscription: function() {
+              return false;
+            },
             rights: {
               getOwnerId: function() {
                 return 'ownerId';
@@ -226,6 +238,9 @@ describe('The calendarsList controller', function() {
             description: 'description4',
             isOwner: function() {
               return true;
+            },
+            isSubscription: function() {
+              return false;
             }
           };
           var expectedResult = calendars.concat(newCalendar);
@@ -249,6 +264,9 @@ describe('The calendarsList controller', function() {
             description: 'description4',
             isOwner: function() {
               return true;
+            },
+            isSubscription: function() {
+              return false;
             }
           };
           var expectedResult = calendars.concat(newCalendar);
@@ -287,6 +305,9 @@ describe('The calendarsList controller', function() {
           description: 'description',
           isOwner: function() {
             return true;
+          },
+          isSubscription: function() {
+            return false;
           }
         }, {
           uniqueId: '2',
@@ -306,6 +327,9 @@ describe('The calendarsList controller', function() {
             return false;
           },
           isPublic: function() {
+            return true;
+          },
+          isSubscription: function() {
             return true;
           },
           isOwner: function() {

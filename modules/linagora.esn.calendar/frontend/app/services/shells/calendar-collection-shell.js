@@ -4,7 +4,7 @@
   angular.module('esn.calendar')
     .factory('CalendarCollectionShell', CalendarCollectionShellFactory);
 
-  function CalendarCollectionShellFactory(_, calPathBuilder, calPathParser, CalendarRightShell, session, userAPI, CAL_DEFAULT_EVENT_COLOR, CAL_DEFAULT_CALENDAR_ID, CAL_CALENDAR_PUBLIC_RIGHT, CAL_CALENDAR_SHARED_RIGHT) {
+  function CalendarCollectionShellFactory(_, calPathBuilder, calPathParser, CalendarRightShell, session, userAPI, CAL_DEFAULT_EVENT_COLOR, CAL_DEFAULT_CALENDAR_ID, CAL_CALENDAR_PUBLIC_RIGHT, CAL_CALENDAR_SHARED_RIGHT, CAL_CALENDAR_PROPERTIES) {
     /**
      * A shell that wraps an caldav calendar component.
      * Note that href is the unique identifier and id is the calendarId inside the calendarHomeId
@@ -12,9 +12,11 @@
      * @param {Object} extendedProperties  Object of additional properties like:
      */
     function CalendarCollectionShell(calendar) {
-      this.name = calendar['dav:name'] || 'Events';
-      this.color = calendar['apple:color'] || CAL_DEFAULT_EVENT_COLOR;
-      this.description = calendar['caldav:description'] || '';
+      this.name = calendar[CAL_CALENDAR_PROPERTIES.name] || 'Events';
+      this.color = calendar[CAL_CALENDAR_PROPERTIES.color] || CAL_DEFAULT_EVENT_COLOR;
+      this.description = calendar[CAL_CALENDAR_PROPERTIES.description] || '';
+      this.source = calendar[CAL_CALENDAR_PROPERTIES.source] && calendar[CAL_CALENDAR_PROPERTIES.source];
+
       this.href = calendar._links.self.href;
 
       var parsedPath = calPathParser.parseCalendarPath(this.href);
@@ -34,9 +36,10 @@
     CalendarCollectionShell.prototype.getOwner = getOwner;
     CalendarCollectionShell.prototype.isAdmin = isAdmin;
     CalendarCollectionShell.prototype.isOwner = isOwner;
-    CalendarCollectionShell.prototype.isPublic = isPublic;
     CalendarCollectionShell.prototype.isReadable = isReadable;
     CalendarCollectionShell.prototype.isShared = isShared;
+    CalendarCollectionShell.prototype.isPublic = isPublic;
+    CalendarCollectionShell.prototype.isSubscription = isSubscription;
     CalendarCollectionShell.prototype.isWritable = isWritable;
 
     CalendarCollectionShell.toDavCalendar = toDavCalendar;
@@ -60,14 +63,18 @@
         shell = CalendarCollectionShell.from(shell);
       }
 
-      return {
+      var toDavCalendarObject = {
         id: shell.id,
-        'dav:name': shell.name,
-        'apple:color': shell.color,
-        'caldav:description': shell.description,
         acl: shell.acl,
         invite: shell.invite
       };
+
+      toDavCalendarObject[CAL_CALENDAR_PROPERTIES.name] = shell.name;
+      toDavCalendarObject[CAL_CALENDAR_PROPERTIES.color] = shell.color;
+      toDavCalendarObject[CAL_CALENDAR_PROPERTIES.description] = shell.description;
+      toDavCalendarObject[CAL_CALENDAR_PROPERTIES.source] = shell.source;
+
+      return toDavCalendarObject;
     }
 
     /**
@@ -76,14 +83,20 @@
      * @returns {CalendarCollectionShell}        the new CalendarCollectionShell
      */
     function from(object) {
-      return new CalendarCollectionShell({
-        _links: {self: {href: object.href}},
-        'dav:name': object.name,
-        'apple:color': object.color,
-        'caldav:description': object.description,
+      var calendarCollectionShellObject = {
+        _links: {
+          self: { href: object.href }
+        },
         acl: object.acl,
         invite: object.invite
-      });
+      };
+
+      calendarCollectionShellObject[CAL_CALENDAR_PROPERTIES.name] = object.name;
+      calendarCollectionShellObject[CAL_CALENDAR_PROPERTIES.color] = object.color;
+      calendarCollectionShellObject[CAL_CALENDAR_PROPERTIES.description] = object.description;
+      calendarCollectionShellObject[CAL_CALENDAR_PROPERTIES.source] = object.source;
+
+      return new CalendarCollectionShell(calendarCollectionShellObject);
     }
 
     function buildHref(calendarHomeId, calendarId) {
@@ -127,6 +140,14 @@
      */
     function isPublic() {
       return !!this.rights.getPublicRight();
+    }
+
+    /**
+     * Check if this calendar is a subscription
+     * @returns {boolean} return true if the calendar is has a source property
+     */
+    function isSubscription() {
+      return !!this.source;
     }
 
     /**
