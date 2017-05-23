@@ -6,9 +6,18 @@
       .media-body
         .lv-title #{__('External calendars')}
   .lv-item.calendar-item.calendar-header-title-desktop.visible-md
-    .media
-      .pull-left
+    .media.flex.flex-vertical-centered
+      .flex-start
         i.mdi.mdi-calendar
+      .flex-end.flex-vertical-centered
+        .lv-actions.actions
+          .dropdown
+            a(href='', data-toggle='dropdown', aria-expanded='true')
+              i.mdi.mdi-plus
+            ul.dropdown-menu.dropdown-menu-right
+              li
+                a(href="", esn-modal-launcher='/calendar/app/calendar-public-configuration/calendar-public-configuration.html', controller-as='$ctrl', controller='CalCalendarPublicConfigurationController') #{__('Public calendar')}
+
       .media-body
         .lv-title #{__('External calendars')}
 
