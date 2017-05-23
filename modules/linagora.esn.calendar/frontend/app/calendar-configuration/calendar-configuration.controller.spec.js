@@ -428,35 +428,65 @@ describe('The calendar configuration controller', function() {
       expect(calendarService.createCalendar).to.not.have.been.calledWith();
     });
 
-    it('should call createCalendar if newCalendar is true (with name having only one char)', function() {
-      notificationFactoryMock.weakInfo = sinon.spy();
-      stateMock.go = sinon.spy(function(path) {
-        expect(path).to.equal('calendar.main');
-      });
-      calendarService.createCalendar = function(calendarHomeId, shell) {
-        expect(calendarHomeId).to.equal('12345');
-        expect(shell).to.shallowDeepEqual({
-          href: '/calendars/12345/00000000-0000-4000-a000-000000000000.json',
-          name: 'N',
-          color: 'aColor'
+    describe('when newCalendar is true (with name having only one char)', function() {
+      beforeEach(function() {
+        notificationFactoryMock.weakInfo = sinon.spy();
+        stateMock.go = sinon.spy(function(path) {
+          expect(path).to.equal('calendar.main');
         });
+        calendarService.createCalendar = function(calendarHomeId, shell) {
+          expect(calendarHomeId).to.equal('12345');
+          expect(shell).to.shallowDeepEqual({
+            href: '/calendars/12345/00000000-0000-4000-a000-000000000000.json',
+            name: 'N',
+            color: 'aColor'
+          });
 
-        return {
-          then: function(callback) {
-            callback();
-          }
+          return {
+            then: function(callback) {
+              callback();
+
+              return {
+                then: function(callback) {
+                  callback();
+                }
+              };
+            }
+          };
         };
-      };
+      });
 
-      calendarConfigurationController.activate();
+      it('should call createCalendar', function() {
+        calendarConfigurationController.activate();
 
-      calendarConfigurationController.calendar.color = 'aColor';
-      calendarConfigurationController.calendar.name = 'N';
+        calendarConfigurationController.calendar.color = 'aColor';
+        calendarConfigurationController.calendar.name = 'N';
+        calendarConfigurationController.publicSelection = undefined;
 
-      calendarConfigurationController.submit();
+        calendarConfigurationController.submit();
 
-      expect(notificationFactoryMock.weakInfo).to.have.been.called;
-      expect(stateMock.go).to.have.been.called;
+        expect(notificationFactoryMock.weakInfo).to.have.been.called;
+        expect(stateMock.go).to.have.been.called;
+        expect(calendarAPI.modifyPublicRights).to.not.have.been.called;
+      });
+
+      it('should call createCalendar and calendarAPI.modifyPublicRights when providing a publicSelection', function() {
+        calendarConfigurationController.activate();
+
+        calendarConfigurationController.calendar.color = 'aColor';
+        calendarConfigurationController.calendar.name = 'N';
+        calendarConfigurationController.publicSelection = CAL_CALENDAR_PUBLIC_RIGHT.READ;
+
+        calendarConfigurationController.submit();
+
+        expect(notificationFactoryMock.weakInfo).to.have.been.called;
+        expect(stateMock.go).to.have.been.called;
+        expect(calendarAPI.modifyPublicRights).to.have.been.calledWith(
+          calendarConfigurationController.calendarHomeId,
+          calendarConfigurationController.calendar.id,
+          { public_right: calendarConfigurationController.publicSelection }
+          );
+      });
     });
 
     describe('when newCalendar is false', function() {
