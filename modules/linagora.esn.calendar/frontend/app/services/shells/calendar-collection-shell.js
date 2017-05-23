@@ -31,7 +31,7 @@
       this.readOnly = !this.isWritable(session.user._id);
     }
 
-    Object.defineProperty(CalendarCollectionShell.prototype, 'uniqueId', { get: function() { return this.href; } });
+    Object.defineProperty(CalendarCollectionShell.prototype, 'uniqueId', { get: function() { return calPathBuilder.forCalendarId(this.calendarHomeId, this.id); } });
 
     CalendarCollectionShell.prototype.getOwner = getOwner;
     CalendarCollectionShell.prototype.isAdmin = isAdmin;
