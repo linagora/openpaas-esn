@@ -1,12 +1,14 @@
 .calendar-left-pane {
-  overflow-y: hidden;
-  margin-top: @spaceNeededForSubheader;
+  width: @calendarLeftPaneWidth;
+  top: ~"calc(@{header-height} + @{sub-header-height})";
+  bottom: 0;
+  margin-top: 20px;
+  position: fixed;
+  overflow: hidden;
 
   &:hover {
-    width: 285px;
-    height: 100%;
-    position: fixed;
-    overflow-y: scroll;
+    width: ~"calc(@{calendarLeftPaneWidth} + @{scrollbarWidth})";
+    overflow-y: auto;
   }
 
   .fc-event .fc-title {
