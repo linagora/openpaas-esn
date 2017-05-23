@@ -74,6 +74,25 @@ describe('CalendarCollectionShell factory', function() {
   });
 
   describe('CalendarCollectionShell constructor', function() {
+    it('should expose the following properties: name, color, description and source', function() {
+      var calendarCollectionShell = new CalendarCollectionShell({
+        'dav:name': 'name',
+        'apple:color': 'color',
+        'calendarserver:source': 'source',
+        'caldav:description': 'description',
+        _links: {
+          self: {
+            href: '/calendars/' + calendarHomeId + '/' + id + '.json'
+          }
+        }
+      });
+
+      expect(calendarCollectionShell.name).to.equal('name');
+      expect(calendarCollectionShell.color).to.equal('color');
+      expect(calendarCollectionShell.description).to.equal('description');
+      expect(calendarCollectionShell.source).to.equal('source');
+    });
+
     it('should initialize CalendarRightShell when calling CalendarCollectionShell ', function() {
       new CalendarCollectionShell(calendar);
 
@@ -184,6 +203,35 @@ describe('CalendarCollectionShell factory', function() {
     });
   });
 
+    describe('isSubscription fn', function() {
+
+    it('Should return false if the calendar does not have source property', function() {
+      var calendarCollectionShell = new CalendarCollectionShell({
+        'calendarserver:source': undefined,
+        _links: {
+          self: {
+            href: '/calendars/' + calendarHomeId + '/' + id + '.json'
+          }
+        }
+      });
+
+      expect(calendarCollectionShell.isSubscription()).to.be.false;
+    });
+
+    it('Should return false if the calendar has a source property', function() {
+      var calendarCollectionShell = new CalendarCollectionShell({
+        'calendarserver:source': 'source',
+        _links: {
+          self: {
+            href: '/calendars/' + calendarHomeId + '/' + id + '.json'
+          }
+        }
+      });
+
+      expect(calendarCollectionShell.isSubscription()).to.be.true;
+    });
+  });
+
   describe('isReadable fn', function() {
     it('should return true is userId is the owner', function() {
       var calendarCollectionShell = new CalendarCollectionShell(calendar);
@@ -280,11 +328,13 @@ describe('CalendarCollectionShell factory', function() {
         color: 'color',
         description: 'description',
         acl: 'acl',
-        invite: 'invite'
+        invite: 'invite',
+        source: 'source'
       })).to.deep.equal({
         'dav:name': 'name',
         'apple:color': 'color',
         'caldav:description': 'description',
+        'calendarserver:source': 'source',
         id: 'db0d5d63-c36a-42fc-9684-6f5e8132acfe',
         acl: 'acl',
         invite: 'invite'
@@ -311,6 +361,7 @@ describe('CalendarCollectionShell factory', function() {
         'dav:name': 'name',
         'apple:color': 'color',
         'caldav:description': 'description',
+        'calendarserver:source': 'source',
         acl: 'acl',
         invite: 'invite'
       };
@@ -319,6 +370,7 @@ describe('CalendarCollectionShell factory', function() {
         'dav:name': 'name',
         'apple:color': 'color',
         'caldav:description': 'description',
+        'calendarserver:source': 'source',
         id: 'db0d5d63-c36a-42fc-9684-6f5e8132acfe',
         acl: 'acl',
         invite: 'invite'
@@ -332,6 +384,7 @@ describe('CalendarCollectionShell factory', function() {
         name: 'name',
         color: 'color',
         description: 'description',
+        source: 'source',
         href: '/calendars/56095ccccbd51b7318ce6d0c/db0d5d63-c36a-42fc-9684-6f5e8132acfe.json',
         acl: 'acl',
         invite: 'invite'
@@ -340,6 +393,7 @@ describe('CalendarCollectionShell factory', function() {
       expect(calendarCollection.name).to.equal('name');
       expect(calendarCollection.color).to.equal('color');
       expect(calendarCollection.description).to.equal('description');
+      expect(calendarCollection.source).to.equal('source');
       expect(calendarCollection.href).to.equal('/calendars/56095ccccbd51b7318ce6d0c/db0d5d63-c36a-42fc-9684-6f5e8132acfe.json');
       expect(calendarCollection.id).to.equal('db0d5d63-c36a-42fc-9684-6f5e8132acfe');
       expect(calendarCollection.rights).to.be.defined;

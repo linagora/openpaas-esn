@@ -125,6 +125,13 @@
       PRIVATE: 'PRIVATE'
     })
 
+    .constant('CAL_CALENDAR_PROPERTIES', {
+      color: 'apple:color',
+      description: 'caldav:description',
+      name: 'dav:name',
+      source: 'calendarserver:source'
+    })
+
     .constant('CAL_MAX_RRULE_COUNT', 3499)
 
     .constant('CAL_MAX_CALENDAR_RESIZE_HEIGHT', 1107)
