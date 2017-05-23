@@ -4,7 +4,7 @@
   angular.module('esn.calendar')
     .controller('CalCalendarPublicConfigurationController', CalCalendarPublicConfigurationController);
 
-  function CalCalendarPublicConfigurationController($log, $q, $state, _, calendarService) {
+  function CalCalendarPublicConfigurationController($log, $q, $state, _, notificationFactory, uuid4, calendarService, calendarHomeService, CalendarCollectionShell) {
     var self = this;
 
     self.calendarsPerUser = [];
@@ -59,10 +59,32 @@
       });
     }
 
+    function subscribe(calendars) {
+      return calendarHomeService.getUserCalendarHomeId().then(function(calendarHomeId) {
+        return $q.all(calendars.map(function(calendar) {
+          var id = uuid4.generate();
+          var subscription = CalendarCollectionShell.from({
+            color: calendar.color,
+            description: calendar.description,
+            href: CalendarCollectionShell.buildHref(calendarHomeId, id),
+            id: id,
+            name: calendar.name,
+            source: calendar.href
+          });
+
+          return calendarService.subscribe(calendarHomeId, subscription);
+        }));
+      });
+    }
+
     function subscribeToSelectedCalendars() {
       var selectedCalendars = getSelectedCalendars();
 
-      selectedCalendars.length && console.log('chamerling will modify this YOLO');
+      selectedCalendars.length && subscribe(selectedCalendars).then(function() {
+        notificationFactory.weakInfo('Subscription', 'Successfully subscribed to calendar' + (selectedCalendars.length ? 's' : ''));
+      }, function() {
+        notificationFactory.weakError('Subscription', 'Can not subscribe to calendar' + (selectedCalendars.length ? 's' : ''));
+      });
     }
   }
 })();

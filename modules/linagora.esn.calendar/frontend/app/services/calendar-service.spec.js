@@ -560,16 +560,18 @@ describe('The calendarService service', function() {
 
     describe('The unsubscribe function', function() {
       it('should call subscription api service with right parameters', function(done) {
+        var uniqueId = 'uniqueId';
         var unsubscribeStub = sinon.stub(this.calCalendarSubscriptionApiService, 'unsubscribe', function() {
           return $q.when(subscription);
         });
+        CalendarCollectionShellMock.buildUniqueId = sinon.stub().returns(uniqueId);
 
         this.$rootScope.$broadcast = sinon.stub().returns({});
         this.calendarService.unsubscribe(calendarHomeId, subscription)
         .then(function(result) {
           expect(result).to.equal(subscription);
           expect(unsubscribeStub).to.have.been.calledWith(calendarHomeId, subscription.id);
-          expect(self.$rootScope.$broadcast).to.have.been.calledWith(self.CAL_EVENTS.CALENDARS.REMOVE, subscription);
+          expect(self.$rootScope.$broadcast).to.have.been.calledWith(self.CAL_EVENTS.CALENDARS.REMOVE, {uniqueId: uniqueId});
           done();
         }, done);
 

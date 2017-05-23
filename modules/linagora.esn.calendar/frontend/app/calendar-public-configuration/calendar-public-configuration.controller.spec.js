@@ -10,24 +10,39 @@ describe('The CalCalendarPublicConfigurationController controller', function() {
     $q,
     $log,
     calendarService,
+    calendarHomeService,
     user,
     anotherUser,
     calendar,
-    anotherCalendar;
+    anotherCalendar,
+    notificationFactory,
+    calendarHomeId,
+    CalendarCollectionShell;
 
   beforeEach(function() {
-    angular.mock.module('esn.calendar');
+    CalendarCollectionShell = {};
+  });
 
+  beforeEach(function() {
+    angular.mock.module('esn.calendar', function($provide) {
+      $provide.value('CalendarCollectionShell', CalendarCollectionShell);
+    });
+  });
+
+  beforeEach(function() {
+    calendarHomeId = 'calendarHomeId';
     user = {_id: 1};
     anotherUser = {_id: 2};
     calendar = {_id: 3};
     anotherCalendar = {_id: 4};
-    angular.mock.inject(function(_$rootScope_, _$controller_, _$q_, _$log_, _calendarService_) {
+    angular.mock.inject(function(_$rootScope_, _$controller_, _$q_, _$log_, _calendarService_, _calendarHomeService_, _notificationFactory_) {
       $rootScope = _$rootScope_;
       $controller = _$controller_;
       $q = _$q_;
       $log = _$log_;
       calendarService = _calendarService_;
+      notificationFactory = _notificationFactory_;
+      calendarHomeService = _calendarHomeService_;
     });
   });
 
@@ -117,6 +132,84 @@ describe('The CalCalendarPublicConfigurationController controller', function() {
   });
 
   describe('The subscribeToSelectedCalendars function', function() {
-    // this part is to be modified by @chamerling
+    var weakInfoSpy, weakErrorSpy;
+
+    beforeEach(function() {
+      sinon.stub(calendarHomeService, 'getUserCalendarHomeId', function() {
+        return $q.when(calendarHomeId);
+      });
+
+      weakInfoSpy = sinon.spy(notificationFactory, 'weakInfo');
+      weakErrorSpy = sinon.spy(notificationFactory, 'weakError');
+    });
+
+    it('should not call subscribe service when no calendar has been selected', function() {
+      var controller = initController();
+      var subscribeSpy = sinon.spy(calendarService, 'subscribe');
+
+      controller.calendarsPerUser.push({calendar: calendar, user: user});
+      controller.calendarsPerUser.push({calendar: anotherCalendar, user: anotherUser});
+
+      controller.subscribeToSelectedCalendars();
+      $rootScope.$digest();
+
+      expect(subscribeSpy).to.not.have.been.called;
+      expect(weakInfoSpy).to.not.have.been.called;
+      expect(weakErrorSpy).to.not.have.been.called;
+    });
+
+    it('should subscribe to all the selected calendars', function() {
+      var controller = initController();
+      var subscribeStub = sinon.stub(calendarService, 'subscribe', function() {
+        return $q.when();
+      });
+      var shell = {foo: 'bar'};
+
+      CalendarCollectionShell.from = sinon.spy(function() {
+        return shell;
+      });
+      CalendarCollectionShell.buildHref = sinon.spy(function(home, id) {
+        return home + id;
+      });
+
+      controller.calendarsPerUser.push({calendar: calendar, user: user, isSelected: true});
+      controller.calendarsPerUser.push({calendar: anotherCalendar, user: anotherUser, isSelected: true});
+      controller.calendarsPerUser.push({calendar: anotherCalendar, user: anotherUser, isSelected: false});
+
+      controller.subscribeToSelectedCalendars();
+      $rootScope.$digest();
+
+      expect(CalendarCollectionShell.from).to.have.been.calledTwice;
+      expect(subscribeStub).to.have.been.calledTwice;
+      expect(weakInfoSpy).to.have.been.calledOnce;
+      expect(weakErrorSpy).to.not.have.been.called;
+    });
+
+    it('should reject when one subscription fails', function() {
+      var controller = initController();
+      var error = new Error('I failed to subscribe');
+      var subscribeStub = sinon.stub(calendarService, 'subscribe', function() {
+        return $q.reject(error);
+      });
+      var shell = {foo: 'bar'};
+
+      CalendarCollectionShell.from = sinon.spy(function() {
+        return shell;
+      });
+      CalendarCollectionShell.buildHref = sinon.spy(function(home, id) {
+        return home + id;
+      });
+
+      controller.calendarsPerUser.push({calendar: calendar, user: user, isSelected: true});
+      controller.calendarsPerUser.push({calendar: anotherCalendar, user: anotherUser, isSelected: true});
+
+      controller.subscribeToSelectedCalendars();
+      $rootScope.$digest();
+
+      expect(CalendarCollectionShell.from).to.have.been.calledTwice;
+      expect(subscribeStub).to.have.been.calledTwice;
+      expect(weakInfoSpy).to.not.have.been.called;
+      expect(weakErrorSpy).to.have.been.called;
+    });
   });
 });
