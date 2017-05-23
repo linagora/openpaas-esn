@@ -167,6 +167,33 @@ describe('The Unified Inbox Angular module providers', function() {
       expect(inboxMailboxesService.flagIsUnreadChanged).to.have.not.been.calledWith(sinon.match({ id: 'id3' }));
     });
 
+    it('should do not update mailbox badge when fetching unread old items', function() {
+      var fetcher = inboxHostedMailMessagesProvider.fetch({ inMailboxes: ['id_inbox'] });
+      var email = {
+        id: 'id1',
+        date: new Date(2014, 1, 1, 1, 1, 1, 0),
+        mailboxIds: ['id_inbox'],
+        isUnread: true
+      };
+
+      jmapClient.getMessageList = function() {
+        return $q.when({
+          messageIds: ['id1'],
+          getMessages: function() {
+            return $q.when([email]);
+          }
+        });
+      };
+
+      fetcher.loadRecentItems(email).then(function(mostRecentItem) {
+        expect(mostRecentItem).to.deep.equal([]);
+      });
+
+      $rootScope.$digest();
+
+      expect(inboxMailboxesService.flagIsUnreadChanged).to.have.not.been.called;
+    });
+
     describe('The itemMatches function', function() {
 
       function newMessage(mailboxId, options) {
