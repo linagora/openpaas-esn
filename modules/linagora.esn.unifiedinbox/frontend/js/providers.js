@@ -85,7 +85,7 @@ angular.module('linagora.esn.unifiedinbox')
   })
 
   .factory('inboxNewMessageProvider', function($q, withJmapClient, pagedJmapRequest, inboxJmapProviderContextBuilder,
-                                               newProvider, inboxRejectItemById, sortByDateInDescendingOrder, inboxMailboxesService, _,
+                                               newProvider, sortByDateInDescendingOrder, inboxMailboxesService, _,
                                                JMAP_GET_MESSAGES_LIST, ELEMENTS_PER_REQUEST, PROVIDER_TYPES) {
     return function(templateUrl) {
       return newProvider({
