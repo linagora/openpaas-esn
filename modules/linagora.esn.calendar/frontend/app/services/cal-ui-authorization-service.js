@@ -14,12 +14,12 @@
     return {
       canAccessEventDetails: canAccessEventDetails,
       canDeleteCalendar: canDeleteCalendar,
+      canModifyCalendarProperties: canModifyCalendarProperties,
       canModifyEvent: canModifyEvent,
       canModifyEventAttendees: canModifyEventAttendees,
       canModifyEventRecurrence: canModifyEventRecurrence,
       canModifyPublicSelection: canModifyPublicSelection,
-      canShowDelegationTab: canShowDelegationTab,
-      canModifyCalendarProperties: canModifyCalendarProperties
+      canShowDelegationTab: canShowDelegationTab
     };
 
     ////////////
@@ -63,7 +63,7 @@
     }
 
     function _isAdminForCalendar(calendar, userId) {
-      return !!calendar && calendar.isAdmin(userId);
+      return !!calendar && calendar.isAdmin(userId) && !calendar.isSubscription();
     }
 
     function _canModifyEvent(calendar, event, userId) {

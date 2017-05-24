@@ -1,6 +1,6 @@
 .form-group.fg-line(ng-class='{"has-error": !$ctrl.calendar.name}')
   .field-name #{__('Name')}
-  input.form-control(type="text", placeholder="#{__('Enter a name')}", ng-model="$ctrl.calendar.name", maxlength="255", ng-disabled="!$ctrl.canModifyCalendarProperties()")
+  input.form-control(type="text", placeholder="#{__('Enter a name')}", ng-model="$ctrl.calendar.name", maxlength="255")
 
 .public-access-line.public-access-visibility-line
   i.mdi.mdi-account-multiple.big
@@ -30,7 +30,7 @@ div(ng-if="$ctrl.sharedCalendarOwner")
 
 .form-group.flex-vertical-centered
   .field-name #{__('Color')}
-  .color-picker-container(calendar-color-picker-toggler, color="$ctrl.calendar.color", ng-class="{ 'pointer-events-none': !$ctrl.canModifyCalendarProperties() }")
+  .color-picker-container(calendar-color-picker-toggler, color="$ctrl.calendar.color")
     // .select > .form-control is mandatory here for the select-like behavior
     // of material-admin
     .select

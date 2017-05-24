@@ -129,7 +129,8 @@ module.exports = function(config) {
       }
     },
 
-    reporters: ['coverage', 'spec'],
+    reporters: singleRun ? ['coverage', 'spec'] : ['spec'],
+
     preprocessors: {
       'modules/**/frontend/js/**/*.js': ['coverage'],
       '**/*.jade': ['ng-jade2module'],
