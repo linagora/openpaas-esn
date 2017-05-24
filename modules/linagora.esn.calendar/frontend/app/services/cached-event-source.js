@@ -123,7 +123,7 @@
       } else {
         calendarSource(start, end, timezone, function(events) {
           calendarExploredPeriodService.registerExploredPeriod(calId, period);
-          events.map(calEventStore.save);
+          events.map(calEventStore.save.bind(null, calId));
           defer.resolve(events);
         });
       }
