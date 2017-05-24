@@ -374,11 +374,22 @@ describe('The calUIAuthorizationService service', function() {
 
     it('should call calendar.isAdmin with userId', function() {
       calendar = {
-        isAdmin: sinon.stub().returns(true)
+        isAdmin: sinon.stub().returns(true),
+        isSubscription: sinon.stub().returns(false)
       };
 
       expect(calUIAuthorizationService.canModifyPublicSelection(calendar, userId)).to.be.true;
       expect(calendar.isAdmin).to.have.been.calledWith(userId);
+    });
+
+    it('should call calendar.isSubscription', function() {
+      calendar = {
+        isAdmin: sinon.stub().returns(true),
+        isSubscription: sinon.stub().returns(false)
+      };
+
+      expect(calUIAuthorizationService.canModifyPublicSelection(calendar, userId)).to.be.true;
+      expect(calendar.isSubscription).to.have.been.calledWith();
     });
   });
 
@@ -391,11 +402,22 @@ describe('The calUIAuthorizationService service', function() {
 
     it('should call calendar.isAdmin with userId', function() {
       calendar = {
-        isAdmin: sinon.stub().returns(true)
+        isAdmin: sinon.stub().returns(true),
+        isSubscription: sinon.stub().returns(false)
       };
 
       expect(calUIAuthorizationService.canShowDelegationTab(calendar, userId)).to.be.true;
       expect(calendar.isAdmin).to.have.been.calledWith(userId);
+    });
+
+    it('should call calendar.isSubscription', function() {
+      calendar = {
+        isAdmin: sinon.stub().returns(true),
+        isSubscription: sinon.stub().returns(false)
+      };
+
+      expect(calUIAuthorizationService.canShowDelegationTab(calendar, userId)).to.be.true;
+      expect(calendar.isSubscription).to.have.been.calledWith();
     });
   });
 });
