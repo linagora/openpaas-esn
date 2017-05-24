@@ -118,6 +118,16 @@
       if (self.newCalendar) {
         calendarService.createCalendar(self.calendarHomeId, self.calendar)
           .then(function() {
+            switch (self.publicSelection) {
+              case CAL_CALENDAR_PUBLIC_RIGHT.READ:
+              case CAL_CALENDAR_PUBLIC_RIGHT.READ_WRITE:
+              case CAL_CALENDAR_PUBLIC_RIGHT.FREE_BUSY:
+                return calendarAPI.modifyPublicRights(self.calendarHomeId, self.calendar.id, { public_right: self.publicSelection });
+              default:
+                return $q.when();
+            }
+          })
+          .then(function() {
             notificationFactory.weakInfo('New calendar - ', self.calendar.name + ' has been created.');
             $state.go('calendar.main');
           });
