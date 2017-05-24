@@ -7,7 +7,7 @@ var expect = chai.expect;
 describe('The mini-calendar controller', function() {
 
   var $scope, $rootScope, $controller, $q, calMoment, fcMethodMock, calendarServiceMock, initController,
-    miniCalendarServiceMock, calendarEventSourceMock, UI_CONFIG_MOCK, calendar, calendarCurrentViewMock,
+    miniCalendarServiceMock, calendarEventSourceMock, UI_CONFIG_MOCK, calendar, calendarResult, calendarCurrentViewMock,
       CAL_EVENTS, calCachedEventSourceMock, calWrapper, element, event;
 
   function sameDayMatcher(day) {
@@ -27,15 +27,17 @@ describe('The mini-calendar controller', function() {
   beforeEach(function() {
     angular.mock.module('esn.calendar', 'linagora.esn.graceperiod');
 
+    calendarResult = {
+      href: 'href',
+      uniqueId: 'uniqueId'
+    };
+
     calendarServiceMock = {
       listCalendars: function(userId) {
         expect(userId).to.equals($scope.calendarHomeId);
         var deferred = $q.defer();
 
-        deferred.resolve([{
-          href: 'href',
-          uniqueId: 'uniqueId'
-        }]);
+        deferred.resolve([calendarResult]);
 
         return deferred.promise;
       }
@@ -76,8 +78,8 @@ describe('The mini-calendar controller', function() {
       }
     };
 
-    calendarEventSourceMock = function(href) {
-      expect(href).to.equals('href');
+    calendarEventSourceMock = function(cal) {
+      expect(cal).to.deep.equal(calendarResult);
 
       return ['anEventSource'];
     };

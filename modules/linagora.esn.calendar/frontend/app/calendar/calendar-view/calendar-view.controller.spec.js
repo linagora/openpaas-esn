@@ -372,6 +372,7 @@ describe('The calendarViewController', function() {
 
   describe('The CAL_EVENTS.CALENDARS.ADD listener', function() {
     it('should add an event source for this calendar in fullcalendar', function() {
+      var calendar = {href: 'href', uniqueId: 'id', color: 'color'};
       var source = 'source';
       var wrappedSource = 'source';
       var calendarEventSourceMock = sinon.stub().returns(source);
@@ -383,8 +384,8 @@ describe('The calendarViewController', function() {
       });
       this.scope.calendarReady(this.calendar);
       this.scope.$digest();
-      this.rootScope.$broadcast(this.CAL_EVENTS.CALENDARS.ADD, {href: 'href', uniqueId: 'id', color: 'color'});
-      expect(calendarEventSourceMock).to.have.been.calledWith('href', this.scope.displayCalendarError);
+      this.rootScope.$broadcast(this.CAL_EVENTS.CALENDARS.ADD, calendar);
+      expect(calendarEventSourceMock).to.have.been.calledWith(calendar, this.scope.displayCalendarError);
       expect(this.calCachedEventSourceMock.wrapEventSource).to.have.been.calledWith('id', source);
       expect(this.scope.eventSourcesMap.id).to.deep.equals({
         events: wrappedSource,

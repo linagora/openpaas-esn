@@ -105,7 +105,7 @@
         calendars: calendarService.listCalendars($scope.calendarHomeId)
       }).then(function(resolved) {
         var eventSources = resolved.calendars.map(function(cal) {
-          var rawSource = calendarEventSource(cal.href, function(error) {
+          var rawSource = calendarEventSource(cal, function(error) {
             notificationFactory.weakError('Could not retrieve event sources', error.message);
             $log.error('Could not retrieve event sources', error);
           });
