@@ -4,11 +4,10 @@
 
 var expect = chai.expect;
 
-describe('The calendarEventSource', function() {
-  var $rootScope, $q, $httpBackend, calendarEventSource, calMoment, tokenAPI, calEventService;
+describe('The calendarEventSource factory', function() {
+  var $rootScope, $q, $httpBackend, calendarEventSource, calendar, href, calMoment, tokenAPI, calEventService, start, end, data;
 
   beforeEach(function() {
-
     tokenAPI = {
       _token: '123',
       getNewToken: function() {
@@ -22,6 +21,12 @@ describe('The calendarEventSource', function() {
       listEvents: sinon.spy(function() {
         return $q.when([]);
       })
+    };
+
+    href = '/dav/api/calendars/test/events.json';
+    calendar = {
+      isSubscription: sinon.spy(function() { return false; }),
+      href: href
     };
 
     angular.mock.module('linagora.esn.graceperiod');
@@ -39,22 +44,22 @@ describe('The calendarEventSource', function() {
       calMoment = _calMoment_;
       calEventService = _calEventService_;
       calendarEventSource = _calendarEventSource_;
+
+      start = calMoment(new Date(2014, 0, 1));
+      end = calMoment(new Date(2014, 0, 2));
+      data = {
+        match: {start: '20131231T000000', end: '20140103T000000'}
+      };
     });
   });
 
   it('should use the correct path', function(done) {
-    var data = {
-      match: {start: '20131231T000000', end: '20140103T000000'}
-    };
-    $httpBackend.expect('REPORT', '/dav/api/calendars/test/events.json', data).respond({
+    $httpBackend.expect('REPORT', href, data).respond({
       _links: {self: {href: '/prepath/path/to/calendar.json'}},
       _embedded: {'dav:item': []}
     });
 
-    var start = calMoment(new Date(2014, 0, 1));
-    var end = calMoment(new Date(2014, 0, 2));
-    var source = calendarEventSource('/dav/api/calendars/test/events.json', function() {
-    });
+    var source = calendarEventSource(calendar, function() {});
 
     source(start, end, false, function() {
       // Just getting here is fine, the http backend will check for the
@@ -64,11 +69,32 @@ describe('The calendarEventSource', function() {
     $httpBackend.flush();
   });
 
+  it('should fetch source events if calendar is a subscription', function(done) {
+    var sourceCal = '/this/is/a/source.json';
+
+    calendar.source = sourceCal;
+    calendar.isSubscription = sinon.spy(function() {
+      return true;
+    });
+
+    $httpBackend.expect('REPORT', sourceCal, data).respond({
+      _links: {self: {href: '/prepath/path/to/calendar.json'}},
+      _embedded: {'dav:item': []}
+    });
+
+    var source = calendarEventSource(calendar, angular.noop);
+
+    source(start, end, false, function() {
+      expect(calendar.isSubscription).to.have.been.calledOnce;
+
+      done();
+    });
+
+    $httpBackend.flush();
+  });
+
   it('should filter cancelled events', function(done) {
-    var data = {
-      match: {start: '20131231T000000', end: '20140103T000000'}
-    };
-    $httpBackend.expect('REPORT', '/dav/api/calendars/test/events.json', data).respond({
+    $httpBackend.expect('REPORT', href, data).respond({
       _links: {
         self: {href: '/prepath/path/to/calendar.json'}
       },
@@ -94,10 +120,7 @@ describe('The calendarEventSource', function() {
       }
     });
 
-    var start = calMoment(new Date(2014, 0, 1));
-    var end = calMoment(new Date(2014, 0, 2));
-
-    var source = calendarEventSource('/dav/api/calendars/test/events.json');
+    var source = calendarEventSource(calendar);
 
     source(start, end, false, function(events) {
       expect(events).to.deep.equal([]);
@@ -107,16 +130,14 @@ describe('The calendarEventSource', function() {
   });
 
   it('should propagate an error if calendar events cannot be retrieved', function(done) {
-
     var start = calMoment('2015-01-01 09:00:00');
     var end = calMoment('2015-01-01 09:30:00');
     var startTest = calMoment('2014-12-31 09:00:00');
     var endTest = calMoment('2015-01-02 09:30:00');
-    var calendarId = 'test';
     var localTimezone = 'local';
 
     calEventService.listEvents = function(id, startMoment, endMoment, timezone) {
-      expect(id).to.equals('test');
+      expect(id).to.equals(calendar.href);
       expect(startMoment.isSame(startTest)).to.be.true;
       expect(endMoment.isSame(endTest)).to.be.true;
       expect(timezone).to.equals(localTimezone);
@@ -133,7 +154,7 @@ describe('The calendarEventSource', function() {
       done();
     };
 
-    var factoryForCalendarEvents = calendarEventSource(calendarId, displayCalendarErrorMock);
+    var factoryForCalendarEvents = calendarEventSource(calendar, displayCalendarErrorMock);
 
     factoryForCalendarEvents(start, end, localTimezone, noErrorsCallback);
     $rootScope.$apply();
