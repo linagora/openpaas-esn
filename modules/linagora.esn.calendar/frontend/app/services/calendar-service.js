@@ -9,6 +9,7 @@
     $rootScope,
     _,
     calendarAPI,
+    calCalendarSubscriptionApiService,
     CalendarCollectionShell,
     CAL_EVENTS,
     CalendarRightShell
@@ -27,6 +28,9 @@
     this.modifyCalendar = modifyCalendar;
     this.getRight = getRight;
     this.modifyRights = modifyRights;
+    this.subscribe = subscribe;
+    this.unsubscribe = unsubscribe;
+    this.updateSubscription = updateSubscription;
 
     ////////////
 
@@ -190,6 +194,33 @@
         });
         return calendar;
       });
+    }
+
+    function subscribe(calendarHomeId, subscription) {
+      return calCalendarSubscriptionApiService.subscribe(calendarHomeId, CalendarCollectionShell.toDavCalendar(subscription))
+        .then(function() {
+          addAndEmit(calendarHomeId, subscription);
+
+          return subscription;
+        });
+    }
+
+    function unsubscribe(calendarHomeId, subscription) {
+       return calCalendarSubscriptionApiService.unsubscribe(calendarHomeId, subscription.id)
+        .then(function(response) {
+          removeAndEmit(calendarHomeId, subscription);
+
+          return response;
+        });
+    }
+
+    function updateSubscription(calendarHomeId, subscription) {
+      return calCalendarSubscriptionApiService.update(calendarHomeId, CalendarCollectionShell.toDavCalendar(subscription))
+        .then(function() {
+          updateAndEmit(calendarHomeId, subscription);
+
+          return subscription;
+        });
     }
   }
 })();

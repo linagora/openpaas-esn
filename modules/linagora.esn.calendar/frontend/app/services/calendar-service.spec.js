@@ -33,11 +33,12 @@ describe('The calendarService service', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function(calendarService, $httpBackend, $rootScope, calendarAPI, CAL_EVENTS, CAL_DEFAULT_CALENDAR_ID) {
+  beforeEach(angular.mock.inject(function(calendarService, $httpBackend, $rootScope, calendarAPI, calCalendarSubscriptionApiService, CAL_EVENTS, CAL_DEFAULT_CALENDAR_ID) {
     this.$httpBackend = $httpBackend;
     this.$rootScope = $rootScope;
     this.calendarService = calendarService;
     this.calendarAPI = calendarAPI;
+    this.calCalendarSubscriptionApiService = calCalendarSubscriptionApiService;
     this.CAL_EVENTS = CAL_EVENTS;
     this.CAL_DEFAULT_CALENDAR_ID = CAL_DEFAULT_CALENDAR_ID;
   }));
@@ -507,4 +508,135 @@ describe('The calendarService service', function() {
     });
   });
 
+  describe('The subscription functions', function() {
+    var calendarHomeId, subscription;
+
+    beforeEach(function() {
+      calendarHomeId = '1';
+      subscription = {};
+    });
+
+    describe('The subscribe function', function() {
+      it('should call subscription api service with right parameters', function(done) {
+        var subscribeStub = sinon.stub(this.calCalendarSubscriptionApiService, 'subscribe', function() {
+          return $q.when(subscription);
+        });
+
+        this.$rootScope.$broadcast = sinon.stub().returns({});
+        CalendarCollectionShellMock.toDavCalendar = sinon.spy(angular.identity);
+
+        this.calendarService.subscribe(calendarHomeId, subscription)
+          .then(function() {
+            expect(CalendarCollectionShellMock.toDavCalendar).to.have.been.calledWith(subscription);
+            expect(subscribeStub).to.have.been.calledOnce;
+            expect(self.$rootScope.$broadcast).to.have.been.calledWith(self.CAL_EVENTS.CALENDARS.ADD, subscription);
+            done();
+          }, done);
+
+        this.$rootScope.$digest();
+      });
+
+      it('should reject when subscription api rejects', function(done) {
+        var error = new Error('I failed');
+        var subscribeStub = sinon.stub(this.calCalendarSubscriptionApiService, 'subscribe', function() {
+          return $q.reject(error);
+        });
+
+        this.$rootScope.$broadcast = sinon.stub().returns({});
+        CalendarCollectionShellMock.toDavCalendar = sinon.spy(angular.identity);
+
+        this.calendarService.subscribe(calendarHomeId, subscription)
+        .then(done, function(err) {
+          expect(err.message).to.equal(error.message);
+          expect(CalendarCollectionShellMock.toDavCalendar).to.have.been.calledWith(subscription);
+          expect(subscribeStub).to.have.been.calledOnce;
+          expect(self.$rootScope.$broadcast).to.not.have.been.called;
+          done();
+        });
+
+        this.$rootScope.$digest();
+      });
+    });
+
+    describe('The unsubscribe function', function() {
+      it('should call subscription api service with right parameters', function(done) {
+        var uniqueId = 'uniqueId';
+        var unsubscribeStub = sinon.stub(this.calCalendarSubscriptionApiService, 'unsubscribe', function() {
+          return $q.when(subscription);
+        });
+        CalendarCollectionShellMock.buildUniqueId = sinon.stub().returns(uniqueId);
+
+        this.$rootScope.$broadcast = sinon.stub().returns({});
+        this.calendarService.unsubscribe(calendarHomeId, subscription)
+        .then(function(result) {
+          expect(result).to.equal(subscription);
+          expect(unsubscribeStub).to.have.been.calledWith(calendarHomeId, subscription.id);
+          expect(self.$rootScope.$broadcast).to.have.been.calledWith(self.CAL_EVENTS.CALENDARS.REMOVE, {uniqueId: uniqueId});
+          done();
+        }, done);
+
+        this.$rootScope.$digest();
+      });
+
+      it('should reject when subscription api rejects', function(done) {
+        var error = new Error('I failed');
+        var unsubscribeStub = sinon.stub(this.calCalendarSubscriptionApiService, 'unsubscribe', function() {
+          return $q.reject(error);
+        });
+
+        this.$rootScope.$broadcast = sinon.stub().returns({});
+        this.calendarService.unsubscribe(calendarHomeId, subscription)
+        .then(done, function(err) {
+          expect(err.message).to.equal(error.message);
+          expect(unsubscribeStub).to.have.been.calledWith(calendarHomeId, subscription.id);
+          expect(self.$rootScope.$broadcast).to.not.have.been.called;
+          done();
+        }, done);
+
+        this.$rootScope.$digest();
+      });
+    });
+
+    describe('The updateSubscription function', function() {
+      it('should call subscription api service with right parameters', function(done) {
+        var updateStub = sinon.stub(this.calCalendarSubscriptionApiService, 'update', function() {
+          return $q.when();
+        });
+
+        this.$rootScope.$broadcast = sinon.stub().returns({});
+        CalendarCollectionShellMock.toDavCalendar = sinon.spy(angular.identity);
+
+        this.calendarService.updateSubscription(calendarHomeId, subscription)
+        .then(function() {
+          expect(CalendarCollectionShellMock.toDavCalendar).to.have.been.calledWith(subscription);
+          expect(updateStub).to.have.been.calledOnce;
+          expect(self.$rootScope.$broadcast).to.have.been.calledWith(self.CAL_EVENTS.CALENDARS.UPDATE, subscription);
+          done();
+        }, done);
+
+        this.$rootScope.$digest();
+      });
+
+      it('should reject when subscription api rejects', function(done) {
+        var error = new Error('I failed');
+        var updateStub = sinon.stub(this.calCalendarSubscriptionApiService, 'update', function() {
+          return $q.reject(error);
+        });
+
+        this.$rootScope.$broadcast = sinon.stub().returns({});
+        CalendarCollectionShellMock.toDavCalendar = sinon.spy(angular.identity);
+
+        this.calendarService.updateSubscription(calendarHomeId, subscription)
+        .then(done, function(err) {
+          expect(err.message).to.equal(error.message);
+          expect(CalendarCollectionShellMock.toDavCalendar).to.have.been.calledWith(subscription);
+          expect(updateStub).to.have.been.calledOnce;
+          expect(self.$rootScope.$broadcast).to.not.have.been.called;
+          done();
+        }, done);
+
+        this.$rootScope.$digest();
+      });
+    });
+  });
 });
