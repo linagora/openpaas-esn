@@ -28,6 +28,9 @@ describe('The calendar configuration tab delegation controller', function() {
     calendarService = {
       removeCalendar: sinon.spy(function() {
         return $q.when();
+      }),
+      unsubscribe: sinon.spy(function() {
+        return $q.when();
       })
     };
 
@@ -122,6 +125,28 @@ describe('The calendar configuration tab delegation controller', function() {
     });
   });
 
+  describe('the unsubscribe function', function() {
+    it('should call calendarService.unsubscribe before $state to go back on the main view when unsubscribing', function() {
+      CalendarConfigurationTabMainController.calendar = {
+        id: '123456789'
+      };
+      CalendarConfigurationTabMainController.calendarHomeId = '12345';
+
+      CalendarConfigurationTabMainController.unsubscribe();
+
+      expect($state.go).to.have.not.been.called;
+
+      $rootScope.$digest();
+
+      expect(calendarService.unsubscribe).to.have.been.calledWith(
+        CalendarConfigurationTabMainController.calendarHomeId,
+        CalendarConfigurationTabMainController.calendar
+      );
+
+      expect($state.go).to.have.been.calledWith('calendar.main');
+    });
+  });
+
   describe('the canDeleteCalendar function', function() {
     var canDeleteCalendarResult;
 
@@ -173,13 +198,32 @@ describe('The calendar configuration tab delegation controller', function() {
         id: 'id',
         isShared: sinon.stub().returns(false),
         isOwner: sinon.stub().returns(false),
-        isPublic: sinon.stub().returns(false)
+        isPublic: sinon.stub().returns(false),
+        isSubscription: sinon.stub().returns(false)
       };
 
       CalendarConfigurationTabMainController.$onInit();
 
       expect(calUIAuthorizationService.canModifyPublicSelection).to.have.been.calledWith(CalendarConfigurationTabMainController.calendar, session.user._id);
       expect(CalendarConfigurationTabMainController.canModifyPublicSelection).to.equal(canModifyPublicSelection);
+    });
+  });
+
+  describe('the isSubscription', function() {
+    it('should leverage calendar.isSubscription is not defined', function() {
+      CalendarConfigurationTabMainController.calendar = {
+        id: 'id',
+        isShared: sinon.stub().returns(false),
+        isOwner: sinon.stub().returns(false),
+        isPublic: sinon.stub().returns(false),
+        isAdmin: sinon.stub().returns(false),
+        isSubscription: sinon.stub().returns(true)
+      };
+
+      CalendarConfigurationTabMainController.$onInit();
+
+      expect(CalendarConfigurationTabMainController.isSubscription).to.be.true;
+      expect(CalendarConfigurationTabMainController.calendar.isSubscription).to.have.been.calledWith();
     });
   });
 
