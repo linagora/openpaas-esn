@@ -7,4 +7,5 @@
         span #{__('Remove "%s" and all events it contains?', "{{::calendarName}}")}
       .modal-footer
         button.btn.btn-default(type="button", ng-click="$hide()") #{__('Cancel')}
-        button.btn.btn-danger(type="button", ng-click="delete(); $hide()") #{__('Delete')}
+        button.btn.btn-danger(type="button", ng-if="!isSubscription", ng-click="delete(); $hide()") #{__('Delete')}
+        button.btn.btn-danger(type="button", ng-if="isSubscription", ng-click="unsubscribe(); $hide()") #{__('Unsubscribe')}
