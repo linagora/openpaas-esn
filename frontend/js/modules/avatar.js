@@ -461,14 +461,68 @@ angular.module('esn.avatar', [
       link: link
     };
   })
+  .component('esnAvatar', {
+    templateUrl: '/views/modules/avatar/avatar.html',
+    controller: 'EsnAvatarController',
+    bindings: {
+      userId: '@?',
+      userEmail: '@?',
+      avatarUrl: '@?',
+      hideUserStatus: '=?'
+    }
+  })
+  .controller('EsnAvatarController', function($q, $log, userAPI, esnAvatarService) {
+    var self = this;
+
+    self.$onInit = $onInit;
+    self.displayUserStatus = displayUserStatus;
+
+    function $onInit() {
+      self.avatarUrl = self.avatarUrl || generateAvatarUrl();
+
+      if (self.userEmail && !self.userId) {
+        getUserIdByEmail(self.userEmail).then(function(userId) {
+          self.userId = userId;
+        });
+      }
+    }
+
+    function generateAvatarUrl() {
+      if (self.userId) {
+        return esnAvatarService.generateUrlByUserId(self.userId);
+      }
+
+      if (self.userEmail) {
+        return esnAvatarService.generateUrl(self.userEmail);
+      }
+    }
+
+    function getUserIdByEmail(userEmail) {
+      return userAPI.getUsersByEmail(userEmail)
+        .then(function(response) {
+          if (response.data && response.data[0]) {
+            return response.data[0]._id;
+          }
+        });
+    }
+
+    function displayUserStatus() {
+      return !!self.userId && !self.hideUserStatus;
+    }
+  })
   .factory('esnAvatarService', function() {
     return {
-      generateUrl: generateUrl
+      generateUrl: generateUrl,
+      generateUrlByUserId: generateUrlByUserId
     };
 
     /////
 
     function generateUrl(email, displayName) {
       return '/api/avatars?objectType=email&email=' + email + (displayName ? '&displayName=' + displayName : '');
+    }
+
+    function generateUrlByUserId(userId) {
+      return '/api/users/' + userId + '/profile/avatar';
     }
   });

@@ -10,12 +10,12 @@ describe('The User Angular module', function() {
 
   describe('userAPI service', function() {
 
-    describe('user(:uuid) method', function() {
+    beforeEach(angular.mock.inject(function(userAPI, $httpBackend) {
+      this.$httpBackend = $httpBackend;
+      this.userAPI = userAPI;
+    }));
 
-      beforeEach(angular.mock.inject(function(userAPI, $httpBackend) {
-        this.$httpBackend = $httpBackend;
-        this.userAPI = userAPI;
-      }));
+    describe('user(:uuid) method', function() {
 
       it('should send a request to /api/users/:uuid', function() {
         var uuid = 123456789;
@@ -32,11 +32,6 @@ describe('The User Angular module', function() {
     });
 
     describe('currentUser() method', function() {
-
-      beforeEach(angular.mock.inject(function(userAPI, $httpBackend) {
-        this.$httpBackend = $httpBackend;
-        this.userAPI = userAPI;
-      }));
 
       it('should send a request to /api/user', function() {
         this.$httpBackend.expectGET(/\/api\/user\?_=[0-9]+$/).respond(this.response);
@@ -67,6 +62,21 @@ describe('The User Angular module', function() {
 
       it('should return a promise', function() {
         var promise = this.userAPI.getCommunities();
+
+        expect(promise.then).to.be.a.function;
+      });
+    });
+
+    describe('getUsersByEmail() method', function() {
+
+      it('should send a GET request to /api/users', function() {
+        this.$httpBackend.expectGET('/api/users?email=admin@open-paas.org').respond(200, []);
+        this.userAPI.getUsersByEmail('admin@open-paas.org');
+        this.$httpBackend.flush();
+      });
+
+      it('should return a promise', function() {
+        var promise = this.userAPI.getUsersByEmail();
 
         expect(promise.then).to.be.a.function;
       });

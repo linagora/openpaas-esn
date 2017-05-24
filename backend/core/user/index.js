@@ -47,10 +47,16 @@ function provisionUser(data, callback) {
 }
 
 function findByEmail(email, callback) {
-  var query;
+  User.findOne(buildFindByEmailQuery(email), callback);
+}
 
+function findUsersByEmail(email, callback) {
+  User.find(buildFindByEmailQuery(email), callback);
+}
+
+function buildFindByEmailQuery(email) {
   if (util.isArray(email)) {
-    query = {
+    return {
       $or: email.map(function(e) {
         return {
           accounts: {
@@ -61,17 +67,15 @@ function findByEmail(email, callback) {
         };
       })
     };
-  } else {
-    query = {
-      accounts: {
-        $elemMatch: {
-          emails: trim(email).toLowerCase()
-        }
-      }
-    };
   }
 
-  User.findOne(query, callback);
+  return {
+    accounts: {
+      $elemMatch: {
+        emails: trim(email).toLowerCase()
+      }
+    }
+  };
 }
 
 function get(uuid, callback) {
@@ -166,6 +170,7 @@ module.exports = {
   recordUser: recordUser,
   provisionUser: provisionUser,
   findByEmail: findByEmail,
+  findUsersByEmail: findUsersByEmail,
   get: get,
   list: list,
   update: update,
