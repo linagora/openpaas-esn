@@ -222,6 +222,14 @@ const injections = [
   {angular: ['esn.invitation'], files: ['invitation.js'], innerApps: ['welcome']}
 ];
 
+if (process.env.NODE_ENV === 'production') { // eslint-disable-line no-process-env
+  injections.unshift({
+    angular: ['esn.production'],
+    files: ['production.js'],
+    innerApps: ['esn', 'welcome']
+  });
+}
+
 function coreFrontendInjections(webserverWrapper) {
   injections.forEach(injection => {
     const localJsFiles = injection.files.map(file => join(CORE_JS_BASEPATH, file));
