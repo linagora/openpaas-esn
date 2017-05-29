@@ -58,7 +58,7 @@
     }
   },
   "auth": {
-    "strategies": ["local", "mongo"],
+    "strategies": ["mongo-ldap", "local", "mongo"],
     "apiStrategies": ["basic-mongo", "bearer"]
   },
   "modules": [
