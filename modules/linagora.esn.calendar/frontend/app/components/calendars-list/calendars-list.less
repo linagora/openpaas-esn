@@ -1,4 +1,5 @@
 .listview.calendars-list {
+
   .fg-line {
     top: -6px;
   }
@@ -43,33 +44,41 @@
       border-left: 5px solid @primaryColor;
 
       .media {
+        .flex-vertical-centered;
+
         margin-left: -12px;
         min-width: 240px;
 
-        .pull-left .mdi {
-          font-size: 35px;
-          margin-top: -3px;
-          color: @secondaryTextColor;
+        .calendar-item-left {
+          padding-right: 0;
+
+          .mdi {
+            font-size: 35px;
+            margin-top: -3px;
+            color: @secondaryTextColor;
+          }
         }
 
-        .pull-right .mdi {
+
+        .calendar-item-right .mdi {
           font-size: 25px;
           cursor: pointer;
           color: lighten(@secondaryTextColor, 10%);
+
           &:hover {
             color: darken(@secondaryTextColor, 20%);
           }
         }
 
-        .pull-left {
-          padding-right: 0;
-        }
+        .media-body {
+          .flex-grow;
 
-        .media-body .lv-title {
-          margin-left: 7px;
-          font-size: 20px;
-          font-weight: bold;
-          color: @primaryColor;
+          .lv-title {
+            margin-left: 7px;
+            font-size: 18px;
+            font-weight: bold;
+            color: @primaryColor;
+          }
         }
       }
     }
