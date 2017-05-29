@@ -55,7 +55,7 @@
     }
 
     function isExternalCalendar() {
-      return self.calendar.isShared(session.user._id) || (!self.calendar.isOwner(session.user._id) && self.calendar.isPublic());
+      return self.calendar.isShared(session.user._id) || self.calendar.isSubscription();
     }
 
     function openDeleteConfirmationDialog() {
