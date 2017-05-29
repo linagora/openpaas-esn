@@ -255,10 +255,10 @@ describe('The calendar configuration tab delegation controller', function() {
       };
     });
 
-    it('should do nothing for a non external calendar "isShared=false and isOwner=true"', function() {
+    it('should do nothing for a non external calendar "isShared=false and isSubscription=false"', function() {
       sinon.stub(calUIAuthorizationService, 'canModifyPublicSelection', angular.noop);
       CalendarConfigurationTabMainController.calendar.isShared = sinon.stub().returns(false);
-      CalendarConfigurationTabMainController.calendar.isOwner = sinon.stub().returns(true);
+      CalendarConfigurationTabMainController.calendar.isSubscription = sinon.stub().returns(false);
 
       CalendarConfigurationTabMainController.$onInit();
 
@@ -268,18 +268,30 @@ describe('The calendar configuration tab delegation controller', function() {
       expect(CalendarConfigurationTabMainController.calendar.getOwner).to.not.have.been.called;
     });
 
-    it('should do nothing for a non external calendar "isShared=false, isOwner=false and isPublic=false"', function() {
+    it('should trigger performExternalCalendarOperations for an external calendar "isShared=true and isSubscription=false"', function() {
       sinon.stub(calUIAuthorizationService, 'canModifyPublicSelection', angular.noop);
-      CalendarConfigurationTabMainController.calendar.isShared = sinon.stub().returns(false);
-      CalendarConfigurationTabMainController.calendar.isOwner = sinon.stub().returns(false);
-      CalendarConfigurationTabMainController.calendar.isPublic = sinon.stub().returns(false);
+      CalendarConfigurationTabMainController.calendar.isShared = sinon.stub().returns(true);
+      CalendarConfigurationTabMainController.calendar.isSubscription = sinon.stub().returns(false);
 
       CalendarConfigurationTabMainController.$onInit();
 
       $rootScope.$digest();
 
-      expect(CalendarConfigurationTabMainController.calendar.rights.getShareeRight).to.not.have.been.called;
-      expect(CalendarConfigurationTabMainController.calendar.getOwner).to.not.have.been.called;
+      expect(CalendarConfigurationTabMainController.calendar.rights.getShareeRight).to.have.been.called;
+      expect(CalendarConfigurationTabMainController.calendar.getOwner).to.have.been.called;
+    });
+
+    it('should trigger performExternalCalendarOperations for an external calendar "isShared=false and isSubscription=true"', function() {
+      sinon.stub(calUIAuthorizationService, 'canModifyPublicSelection', angular.noop);
+      CalendarConfigurationTabMainController.calendar.isShared = sinon.stub().returns(false);
+      CalendarConfigurationTabMainController.calendar.isSubscription = sinon.stub().returns(true);
+
+      CalendarConfigurationTabMainController.$onInit();
+
+      $rootScope.$digest();
+
+      expect(CalendarConfigurationTabMainController.calendar.rights.getShareeRight).to.have.been.called;
+      expect(CalendarConfigurationTabMainController.calendar.getOwner).to.have.been.called;
     });
 
     it('should do nothing for a new calendar', function() {
