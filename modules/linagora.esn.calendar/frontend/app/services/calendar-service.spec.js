@@ -111,7 +111,7 @@ describe('The calendarService service', function() {
       };
     });
 
-    it('should always call calendarService.listCalendars with withRights options', function() {
+    it('should always call calendarAPI.listCalendars with default withRights options when options parameter not specified', function() {
       this.calendarAPI.listCalendars = sinon.spy(function() {
         return $q.when();
       });
@@ -119,6 +119,18 @@ describe('The calendarService service', function() {
       this.calendarService.listCalendars('homeId');
 
       expect(self.calendarAPI.listCalendars).to.be.calledWith('homeId', calendarApiOptions);
+    });
+
+    it('should call calendarAPI.listCalendars with options parameters if specified', function() {
+      var options = { option: true };
+
+      this.calendarAPI.listCalendars = sinon.spy(function() {
+        return $q.when();
+      });
+
+      this.calendarService.listCalendars('homeId', options);
+
+      expect(self.calendarAPI.listCalendars).to.be.calledWith('homeId', options);
     });
 
     it('should cache the calls calendarService.listCalendars', function() {
@@ -170,91 +182,23 @@ describe('The calendarService service', function() {
     });
   });
 
-  describe('listAllCalendarsForUser', function() {
-    var allCalendars;
-
-    beforeEach(function() {
-      sinon.stub(this.calendarAPI, 'listAllCalendars', function() {
-        return allCalendars;
-      });
-    });
-
-    it('should leverage calendarAPI.listAllCalendars', function(done) {
-      allCalendars = $q.when([]);
-
-      this.calendarService.listAllCalendarsForUser().then(function() {
-        expect(self.calendarAPI.listAllCalendars).to.have.been.calledWith(calendarApiOptions);
-
-        done();
+  describe('The listPublicCalendars fn', function() {
+    it('should always call calendarAPI.listCalendars with withRights and public options', function() {
+      this.calendarAPI.listCalendars = sinon.spy(function() {
+        return $q.when();
       });
 
-      this.$rootScope.$digest();
+      this.calendarService.listPublicCalendars('homeId');
+
+      expect(self.calendarAPI.listCalendars).to.be.calledWith('homeId', { withRights: true, public: true });
     });
 
-    it('should filter user calendars and returns only their _embedded["dav:calendar"]', function(done) {
-      var userId = 'userId';
-      var calendars = [
-        {
-          _links: {
-            self: {
-              href: '/calendars/' + userId + '.json'
-            }
-          },
-          _embedded: {
-            'dav:calendar': [
-              {
-                _links: {
-                  self: {
-                    href: '/calendars/' + userId + '/events.json'
-                  }
-                },
-                'caldav:description': 'userId'
-              },
-              {
-                _links: {
-                  self: {
-                    href: '/calendars/' + userId + '/events.json'
-                  }
-                },
-                'caldav:description2': 'userId'
-              }
-            ]
-          }
-        },
-        {
-          _links: {
-            self: {
-              href: '/calendars/56698ca29e4cf21f66800def.json'
-            }
-          },
-          _embedded: {
-            'dav:calendar': [
-              {
-                _links: {
-                  self: {
-                    href: '/calendars/56698ca29e4cf21f66800def/events.json'
-                  }
-                },
-                'caldav:description': '56698ca29e4cf21f66800def'
-              }
-            ]
-          }
-        }
-      ];
-      allCalendars = $q.when(calendars);
+    it('should wrap each received dav:calendar in a CalendarCollectionShell', function() {
+      this.$httpBackend.expectGET('/dav/api/calendars/homeId.json?public=true&withRights=true').respond({});
 
-      CalendarCollectionShellFuncMock = sinon.spy();
+      this.calendarService.listPublicCalendars('homeId');
 
-      this.calendarService.listAllCalendarsForUser(userId)
-        .then(function() {
-          expect(self.calendarAPI.listAllCalendars).to.have.been.calledWith(calendarApiOptions);
-          expect(CalendarCollectionShellFuncMock.firstCall).to.have.been.calledWith(calendars[0]._embedded['dav:calendar'][0]);
-          expect(CalendarCollectionShellFuncMock.secondCall).to.have.been.calledWith(calendars[0]._embedded['dav:calendar'][1]);
-
-          done();
-        });
-
-      this.$rootScope.$digest();
+      this.$httpBackend.flush();
     });
   });
 

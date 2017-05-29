@@ -24,7 +24,7 @@
     this.removeCalendar = removeCalendar;
     this.getCalendar = getCalendar;
     this.listCalendars = listCalendars;
-    this.listAllCalendarsForUser = listAllCalendarsForUser;
+    this.listPublicCalendars = listPublicCalendars;
     this.modifyCalendar = modifyCalendar;
     this.getRight = getRight;
     this.modifyRights = modifyRights;
@@ -36,11 +36,11 @@
 
     /**
      * List all calendars in the calendar home.
-     * @param  {String}     calendarHomeId  The calendar home id
-     * @param  {object}     options         options for more data
+     * @param  {String} calendarHomeId      The calendar home id we fetch the calendars in
+     * @param  {Object} options             Specific options that override default options
      * @return {[CalendarCollectionShell]}  an array of CalendarCollectionShell
      */
-    function listCalendars(calendarHomeId) {
+    function listCalendars(calendarHomeId, options) {
 
       function createCalendarsShell(calendars) {
         var vcalendars = [];
@@ -56,34 +56,18 @@
         return calendarsCache[calendarHomeId];
       }
 
-      calendarsCache[calendarHomeId] = calendarsCache[calendarHomeId] || calendarAPI.listCalendars(calendarHomeId, defaultCalendarApiOptions).then(createCalendarsShell);
+      calendarsCache[calendarHomeId] = calendarsCache[calendarHomeId] || calendarAPI.listCalendars(calendarHomeId, options || defaultCalendarApiOptions).then(createCalendarsShell);
 
       return $q.when(calendarsCache[calendarHomeId]);
     }
 
     /**
-     * List all public calendars of a user.
-     * @param  {String}     userId  The user id
+     * List all public calendars for the requested calendar home (user).
+     * @param  {String}     calendarHomeId  The calendar home id of the user
      * @return {[CalendarCollectionShell]}  an array of CalendarCollectionShell
      */
-    function listAllCalendarsForUser(userId) {
-      return calendarAPI.listAllCalendars(defaultCalendarApiOptions)
-        .then(function(calendars) {
-          var allPublicCalendarsForUser = [];
-          var allCalendarsForUser = calendars.filter(function(calendar) {
-            return calendar._links.self.href.indexOf(userId) !== -1;
-          });
-
-          allCalendarsForUser.forEach(function(calendar) {
-            calendar._embedded['dav:calendar'].forEach(function(publicCalendar) {
-              allPublicCalendarsForUser.push(publicCalendar);
-            });
-          });
-
-          return allPublicCalendarsForUser.map(function(calendar) {
-            return new CalendarCollectionShell(calendar);
-          });
-        });
+    function listPublicCalendars(calendarHomeId) {
+      return listCalendars(calendarHomeId, { withRights: true, public: true });
     }
 
     /**
