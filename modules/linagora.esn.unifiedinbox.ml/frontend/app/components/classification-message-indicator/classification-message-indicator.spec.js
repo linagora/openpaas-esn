@@ -19,6 +19,9 @@ describe('The inboxClassificationMessageIndicator component', function() {
 
   function newItem(header, mailboxId) {
     return new jmap.Message({}, 'id', 'threadId', [mailboxId || 'inbox'], {
+      from: {
+        email: 'esn@avat.ar'
+      },
       htmlBody: '<html><body><div>Message HTML Body</div></body></html>',
       headers: {
         'X-Classification-Guess': header ? JSON.stringify(header) : null
@@ -69,11 +72,14 @@ describe('The inboxClassificationMessageIndicator component', function() {
     });
   });
 
-  beforeEach(inject(function(_$compile_, _$rootScope_, _jmap_, _inboxSelectionService_) {
+  beforeEach(inject(function($httpBackend, _$compile_, _$rootScope_, _jmap_, _inboxSelectionService_) {
     $compile = _$compile_;
     $rootScope = _$rootScope_;
     jmap = _jmap_;
     inboxSelectionService = _inboxSelectionService_;
+
+    // So that esnAvatar does not cry
+    $httpBackend.expectGET('/api/users?email=esn@avat.ar').respond('');
   }));
 
   it('should not display the dynamic directive if item has no header', function() {
