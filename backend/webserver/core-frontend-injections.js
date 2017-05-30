@@ -219,7 +219,13 @@ const injections = [
   {angular: ['esn.textarea-autosize'], files: ['textarea-autosize.js'], innerApps: ['esn', 'welcome']},
   {angular: ['esn.login'], files: ['login.js'], innerApps: ['welcome', 'password-reset']},
   {angular: ['esn.company'], files: ['company.js'], innerApps: ['welcome']},
-  {angular: ['esn.invitation'], files: ['invitation.js'], innerApps: ['welcome']}
+  {angular: ['esn.invitation'], files: ['invitation.js'], innerApps: ['welcome']},
+  {angular: ['esn.i18n'], files: [
+    'i18n/i18n.module.js',
+    'i18n/i18n.service.js',
+    'i18n/i18n.constants.js',
+    'i18n/i18n.config.js'
+  ], innerApps: ['esn', 'welcome']}
 ];
 
 if (process.env.NODE_ENV === 'production') { // eslint-disable-line no-process-env
