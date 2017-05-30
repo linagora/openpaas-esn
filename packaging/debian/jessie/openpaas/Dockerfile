@@ -10,7 +10,7 @@ ARG VERSION=0.0.0
 ARG ITERATION=1
 ARG TREEISH=master
 
-RUN apt-get install -y wget && \
+RUN apt-get update && apt-get install -y wget && \
     wget -q -O - http://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -; \
     echo "deb http://deb.nodesource.com/node_6.x jessie main" > /etc/apt/sources.list.d/node.list && \
     apt-get update && \
