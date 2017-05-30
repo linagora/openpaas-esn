@@ -8,10 +8,6 @@
           _.each(res, function(catalog, lang) {
             $translateProvider.translations(lang, catalog);
           });
-        }, function() {
-          var $log = angular.injector(['ng']).get('$log');// Retrieving $log manually because the service itself has not been instantiated yet
-
-          $log.log('Error while loading translations');
         });
 
       $translateProvider.preferredLanguage('en');
