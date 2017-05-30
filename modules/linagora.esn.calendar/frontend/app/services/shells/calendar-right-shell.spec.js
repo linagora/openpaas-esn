@@ -42,6 +42,13 @@ describe('CalendarRightShell factory', function() {
       calendarRightShell = new CalendarRightShell();
       expect(calendarRightShell.getOwnerId()).to.be.equal(defaultOwnerId);
     });
+
+    it('should initialize ownerId with passed ownedId', function() {
+      var publicOwnerId = 'publicOwnerId';
+
+      calendarRightShell = new CalendarRightShell([], [], publicOwnerId);
+      expect(calendarRightShell.getOwnerId()).to.be.equal(publicOwnerId);
+    });
   });
 
   describe('getOwnerId', function() {
