@@ -81,7 +81,7 @@ describe('CalendarRightShell factory', function() {
 
   describe('getPublicRight', function() {
     it('should return rights of all the users', function() {
-      expect(calendarRightShell.getPublicRight(), CAL_CALENDAR_PUBLIC_RIGHT.FREE_BUSY);
+      expect(calendarRightShell.getPublicRight(), CAL_CALENDAR_PUBLIC_RIGHT.READ_WRITE);
     });
   });
 
@@ -108,7 +108,7 @@ describe('CalendarRightShell factory', function() {
   describe('toJson', function() {
     it('should return a json that allow comparaison for equals', function() {
       expect(calendarRightShell.toJson()).to.be.deep.equals({
-        public: CAL_CALENDAR_PUBLIC_RIGHT.FREE_BUSY,
+        public: CAL_CALENDAR_PUBLIC_RIGHT.READ_WRITE,
         sharee: {
           tom: CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ_WRITE,
           jerry: CAL_CALENDAR_SHARED_RIGHT.SHAREE_READ

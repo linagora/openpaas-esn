@@ -26,6 +26,11 @@
       "protected": true
     },
     {
+      "privilege": "{DAV:}write",
+      "principal": "{DAV:}authenticated",
+      "protected": true
+    },
+    {
       "privilege": "{urn:ietf:params:xml:ns:caldav}read-free-busy",
       "principal": "{DAV:}authenticated",
       "protected": true

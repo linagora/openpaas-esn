@@ -46,17 +46,32 @@
       this._sharee = {};
       this._ownerId = session.user._id;
 
+      function pickHighestPriorityRight(oldPublicRight, newPublicRight) {
+        var CalendarRightShellValues = [
+          CAL_CALENDAR_PUBLIC_RIGHT.NONE,
+          CAL_CALENDAR_PUBLIC_RIGHT.FREE_BUSY,
+          CAL_CALENDAR_PUBLIC_RIGHT.READ,
+          CAL_CALENDAR_PUBLIC_RIGHT.READ_WRITE
+        ];
+
+        if (!!oldPublicRight && CalendarRightShellValues.indexOf(oldPublicRight) > CalendarRightShellValues.indexOf(newPublicRight)) {
+          return oldPublicRight;
+        }
+
+        return newPublicRight;
+      }
+
       acl && acl.forEach(function(aclItem) {
         if (aclItem.principal === '{DAV:}authenticated') {
           switch (aclItem.privilege) {
             case CAL_CALENDAR_PUBLIC_RIGHT.READ:
             case CAL_CALENDAR_PUBLIC_RIGHT.READ_WRITE:
             case CAL_CALENDAR_PUBLIC_RIGHT.FREE_BUSY:
-              this._public = aclItem.privilege;
+              this._public = pickHighestPriorityRight(this._public, aclItem.privilege);
               break;
             default:
               $log.warn('Unknown public ACL privilege: ' + aclItem.privilege);
-              this._public = CAL_CALENDAR_PUBLIC_RIGHT.NONE;
+              this._public = this._public || CAL_CALENDAR_PUBLIC_RIGHT.NONE;
           }
         }
       }, this);
