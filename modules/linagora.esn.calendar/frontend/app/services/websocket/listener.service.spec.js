@@ -69,6 +69,7 @@ describe('The calWebsocketListenerService service', function() {
       $provide.value('calMasterEventCache', calMasterEventCacheMock);
       $provide.value('calCachedEventSource', calCachedEventSourceMock);
       $provide.value('calEventService', calEventServiceMock);
+      $provide.value('Cache', function() {});
     });
   });
 

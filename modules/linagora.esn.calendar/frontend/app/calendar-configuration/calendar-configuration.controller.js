@@ -16,7 +16,7 @@
     matchmedia,
     notificationFactory,
     uuid4,
-    userAPI,
+    calendarUsersCache,
     userUtils,
     SM_XS_MEDIA_QUERY,
     CAL_CALENDAR_MODIFY_COMPARE_KEYS,
@@ -89,8 +89,8 @@
       self.publicSelection = self.calendar.rights.getPublicRight();
       var allShareeRights = self.calendar.rights.getAllShareeRights();
 
-      $q.all(_.chain(allShareeRights).map('userId').map(userAPI.user).values()).then(function(users) {
-        _.chain(users).map('data').zip(allShareeRights).forEach(function(array) {
+      $q.all(_.chain(allShareeRights).map('userId').map(calendarUsersCache.getUser).values()).then(function(users) {
+        _.chain(users).zip(allShareeRights).forEach(function(array) {
           var user = array[0];
           var right = array[1].right;
 

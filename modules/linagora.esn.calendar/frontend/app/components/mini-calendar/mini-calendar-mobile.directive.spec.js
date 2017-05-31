@@ -8,6 +8,9 @@ describe('The miniCalendar component', function() {
   beforeEach(function() {
     module('jadeTemplates');
     angular.mock.module('esn.calendar', 'linagora.esn.graceperiod');
+    angular.mock.module('esn.calendar', function($provide) {
+      $provide.value('Cache', function() {});
+    });
   });
 
   describe('miniCalendarMobile directive', function() {

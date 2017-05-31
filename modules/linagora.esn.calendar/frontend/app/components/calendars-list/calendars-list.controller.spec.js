@@ -44,6 +44,7 @@ describe('The calendarsList controller', function() {
       $provide.value('calendarService', calendarServiceMock);
       $provide.value('calendarVisibilityService', calendarVisibilityServiceMock);
       $provide.value('session', session);
+      $provide.value('Cache', function() {});
     });
 
   });

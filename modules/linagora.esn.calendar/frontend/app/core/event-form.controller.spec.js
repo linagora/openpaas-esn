@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('The event-form module controllers', function() {
-  var calendarTest, eventTest, canModifyEventResult;
+  var calendarTest, eventTest, canModifyEventResult, Cache;
 
   beforeEach(function() {
     eventTest = {};
@@ -92,17 +92,16 @@ describe('The event-form module controllers', function() {
       go: sinon.stub().returns('toto')
     };
 
-    this.userAPI = {
-      user: function() {
-        return $q.when({
-          data: {
-            _id: 'ownerId',
-            firstname: 'owner',
-            lastname: 'owner',
-            emails: ['owner@open-paas.org']
-          }
-        });
-      }
+    Cache = function() {};
+    Cache.prototype.get = function() {
+      return $q.when({
+        data: {
+          _id: 'ownerId',
+          firstname: 'owner',
+          lastname: 'owner',
+          emails: ['owner@open-paas.org']
+        }
+      });
     };
 
     self.userUtilsMock = {
@@ -117,7 +116,7 @@ describe('The event-form module controllers', function() {
       $provide.value('calEventService', self.calEventServiceMock);
       $provide.value('calendarService', self.calendarServiceMock);
       $provide.value('session', sessionMock);
-      $provide.value('userAPI', self.userAPI);
+      $provide.value('Cache', Cache);
       $provide.value('notificationFactory', self.notificationFactory);
       $provide.value('calOpenEventForm', self.calOpenEventForm);
       $provide.value('$state', self.$state);

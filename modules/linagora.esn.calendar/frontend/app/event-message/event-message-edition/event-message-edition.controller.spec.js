@@ -52,6 +52,7 @@ describe('The CalEventMessageEditionController controller', function() {
       $provide.value('calEventService', self.calEventServiceMock);
       $provide.value('notificationFactory', self.notificationFactoryMock);
       $provide.value('calendarEventEmitter', self.calendarEventEmitterMock);
+      $provide.value('Cache', function() {});
     });
   });
 

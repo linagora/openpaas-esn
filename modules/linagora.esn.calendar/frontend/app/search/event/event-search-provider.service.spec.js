@@ -23,6 +23,7 @@ describe('The calSearchEventProviderService service', function() {
       });
 
       $provide.value('searchProviders', searchProvidersMock);
+      $provide.value('Cache', function() {});
     });
   });
 

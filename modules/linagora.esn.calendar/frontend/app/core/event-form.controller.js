@@ -18,7 +18,7 @@
     calOpenEventForm,
     calUIAuthorizationService,
     session,
-    userAPI,
+    calendarUsersCache,
     CAL_EVENTS,
     CAL_EVENT_FORM) {
 
@@ -116,9 +116,7 @@
         var displayName;
 
         if ($scope.calendar.isShared(session.user._id)) {
-          return userAPI.user($scope.calendar.rights.getOwnerId()).then(function(userResponse) {
-            var user = userResponse.data;
-
+          return calendarUsersCache.getUser($scope.calendar.rights.getOwnerId()).then(function(user) {
             displayName = userUtils.displayNameOf(user);
 
             $scope.editedEvent.organizer = { displayName: displayName, emails: user.emails };
