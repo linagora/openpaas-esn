@@ -35,9 +35,6 @@ describe('The i18n API', function() {
   }
 
   describe('GET /api/i18n', function() {
-    it('should send back 401 if the user is not logged in', function(done) {
-      helpers.api.requireLogin(webserver.application, 'get', '/api/platformadmins', done);
-    });
 
     it('should send back 200 with i18n translations', function(done) {
       sendRequestAsUser(dummyUser, loggedInAsUser => {
