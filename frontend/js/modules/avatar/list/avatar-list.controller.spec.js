@@ -40,6 +40,17 @@ describe('The ESNAvatarListController', function() {
     $scope = $rootScope.$new();
   }));
 
+  describe('the $onInit function', function() {
+
+    it('should set the profile link to default value when it is undefined', function() {
+      var controller = initController(members);
+
+      controller.$onInit();
+
+      expect(controller.profileLink).to.be.equal('profile({user_id: member.id})');
+    });
+  });
+
   describe('the isLimitedDisplay function', function() {
 
     it('should return true when limit is equal to the defaultLimit', function() {

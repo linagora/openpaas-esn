@@ -15,6 +15,10 @@
 
     function $onInit() {
       defaultLimit = self.limit;
+
+      if (!self.profileLink) {
+        self.profileLink = 'profile({user_id: member.id})';
+      }
     }
 
     function switchDisplay() {

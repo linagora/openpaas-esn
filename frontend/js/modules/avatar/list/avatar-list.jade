@@ -1,6 +1,6 @@
 .avatar-list-container
   .avatar-list
     .avatar(ng-repeat="member in $ctrl.members | orderBy:'-member.memberName' | limitTo: $ctrl.limit")
-      img(ng-src='/api/users/{{::member.id}}/profile/avatar', title='{{::member.memberName}}', ui-sref='profile({user_id: member.id})')
+      img(ng-src='/api/users/{{::member.id}}/profile/avatar', title='{{::member.memberName}}', ui-sref="{{$ctrl.profileLink}}")
   a(href="", ng-show="$ctrl.canShowButton() && $ctrl.isLimitedDisplay()", ng-click="$ctrl.switchDisplay()")  #{__('More')}
   a(href="", ng-show="!$ctrl.isLimitedDisplay()", ng-click="$ctrl.switchDisplay()")  #{__('Collapse')}

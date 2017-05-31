@@ -10,7 +10,8 @@
       controller: 'ESNAvatarListController',
       bindings: {
         members: '<',
-        limit: '='
+        limit: '=',
+        profileLink: '@'
       }
     };
   }
