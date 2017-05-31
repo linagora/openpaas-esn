@@ -5,8 +5,8 @@
 var expect = chai.expect;
 
 describe('CalendarCollectionShell factory', function() {
-  var $rootScope, CalendarCollectionShell, calPathBuilder, calendarRightShell, calendar, CAL_DEFAULT_CALENDAR_ID, CAL_CALENDAR_PUBLIC_RIGHT,
-    CAL_CALENDAR_SHARED_RIGHT, calendarSharedRight, calendarPublicRight, calendarOwner, calendarOwnerId, userAPIMock, calendarHomeId, id, CAL_CALENDAR_PROPERTIES;
+  var $rootScope, Cache, CalendarCollectionShell, calPathBuilder, calendarRightShell, calendar, CAL_DEFAULT_CALENDAR_ID, CAL_CALENDAR_PUBLIC_RIGHT,
+    CAL_CALENDAR_SHARED_RIGHT, calendarSharedRight, calendarPublicRight, calendarOwner, calendarOwnerId, calendarHomeId, id, CAL_CALENDAR_PROPERTIES;
 
   beforeEach(function() {
     calendarHomeId = '56095ccccbd51b7318ce6d0c';
@@ -44,22 +44,19 @@ describe('CalendarCollectionShell factory', function() {
       firstname: 'owner'
     };
 
-    userAPIMock = {
-      user: function(userId) {
+    Cache = function() {};
+    Cache.prototype.get = sinon.spy(function(userId) {
         if (userId === 'ownerId') {
-          return $q.when({
-            data: calendarOwner
-          });
+          return $q.when({ data: calendarOwner });
         }
 
-        return $q.when({data: {}});
-      }
-    };
+        return $q.when({ data: {} });
+      });
   });
 
   beforeEach(angular.mock.module('esn.calendar', function($provide) {
       $provide.value('CalendarRightShell', calendarRightShell);
-      $provide.value('userAPI', userAPIMock);
+      $provide.value('Cache', Cache);
     })
   );
 

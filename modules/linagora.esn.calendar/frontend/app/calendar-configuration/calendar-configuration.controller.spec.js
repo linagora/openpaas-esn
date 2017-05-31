@@ -21,7 +21,7 @@ describe('The calendar configuration controller', function() {
     stateMock,
     stateParamsMock,
     userUtilsMock,
-    userAPIMock,
+    Cache,
     uuid4,
     SM_XS_MEDIA_QUERY,
     CAL_CALENDAR_PUBLIC_RIGHT,
@@ -66,9 +66,8 @@ describe('The calendar configuration controller', function() {
       displayNameOf: sinon.spy()
     };
 
-    userAPIMock = {
-      user: sinon.spy()
-    };
+    Cache = function() {};
+    Cache.prototype.get = sinon.spy();
 
     CalDelegationEditionHelperMock = sinon.spy(function() {
       this.addUserGroup = addUserGroup;
@@ -167,7 +166,7 @@ describe('The calendar configuration controller', function() {
       $provide.value('matchmedia', matchmedia);
       $provide.value('CalDelegationEditionHelper', CalDelegationEditionHelperMock);
       $provide.value('notificationFactory', notificationFactoryMock);
-      $provide.value('userAPI', userAPIMock);
+      $provide.value('Cache', Cache);
       $provide.value('userUtils', userUtilsMock);
       $provide.value('CalendarRightShell', CalendarRightShellMock);
     });
@@ -377,7 +376,7 @@ describe('The calendar configuration controller', function() {
 
       var user = { firstname: 'firstname', lastname: 'lastname' };
 
-      userAPIMock.user = sinon.stub().returns($q.when({ data: user }));
+      Cache.prototype.get = sinon.stub().returns($q.when({ data: user }));
 
       calendarConfigurationController.calendar = {
         href: 'data/data.json',
@@ -387,7 +386,7 @@ describe('The calendar configuration controller', function() {
       calendarConfigurationController.activate();
       $rootScope.$digest();
 
-      expect(userAPIMock.user).to.have.always.been.calledWith('userId');
+      expect(Cache.prototype.get).to.have.always.been.calledWith('userId');
       expect(calendarConfigurationController.publicSelection).to.equal('publicSelection');
       expect(addUserGroup).to.have.been.calledWith([{
         firstname: user.firstname,

@@ -4,7 +4,20 @@
   angular.module('esn.calendar')
     .factory('CalendarCollectionShell', CalendarCollectionShellFactory);
 
-  function CalendarCollectionShellFactory(_, calPathBuilder, calPathParser, CalendarRightShell, session, userAPI, CAL_DEFAULT_EVENT_COLOR, CAL_DEFAULT_CALENDAR_ID, CAL_CALENDAR_PUBLIC_RIGHT, CAL_CALENDAR_SHARED_RIGHT, CAL_CALENDAR_PROPERTIES) {
+  function CalendarCollectionShellFactory(
+    _,
+    calPathBuilder,
+    calPathParser,
+    calendarUsersCache,
+    CalendarRightShell,
+    session,
+    userAPI,
+    CAL_DEFAULT_EVENT_COLOR,
+    CAL_DEFAULT_CALENDAR_ID,
+    CAL_CALENDAR_PUBLIC_RIGHT,
+    CAL_CALENDAR_SHARED_RIGHT,
+    CAL_CALENDAR_PROPERTIES
+  ) {
     /**
      * A shell that wraps an caldav calendar component.
      * Note that href is the unique identifier and id is the calendarId inside the calendarHomeId
@@ -119,9 +132,7 @@
      * @returns {user} return the owner of the calendar
      */
     function getOwner() {
-      return userAPI.user(this.rights.getOwnerId()).then(function(response) {
-        return response.data;
-      });
+      return calendarUsersCache.getUser(this.rights.getOwnerId());
     }
 
     /**
