@@ -1,5 +1,0 @@
-p
-  br
-
-cite #{__('On')} {{ email.quoted.date | date:dateFormat:tz }}, #{__('from')} {{ email.quoted.from.email }}
-blockquote {{ email.quoted.htmlBody || (email.quoted.textBody | nl2br) }}

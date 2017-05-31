@@ -1,9 +1,0 @@
-{
-  "id" : "default",
-  "isDefault" : true,
-  "description" : "<%= __('My default identity') %>",
-  "name" : "<%= user.firstname %> <%= user.lastname %>",
-  "email" : "<%= user.preferredEmail %>",
-  "replyTo" : "<%= user.preferredEmail %>",
-  "textSignature" : ""
-}

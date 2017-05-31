@@ -1,3 +1,0 @@
-.inbox-filter-input.fg-line
-  input.inbox-filter-input-field.form-control(auto-focus="$ctrl.autoFocusInput || false", ng-model="$ctrl.filter", ng-model-options="{ debounce: 200 }", ng-change="$ctrl.onChange({ $filter: $ctrl.filter })", ng-blur="$ctrl.onBlur()", placeholder="#{__('Search')}\u2026")
-  i.inbox-filter-input-clear.clickable.mdi.mdi-close-circle(ng-click="$event.preventDefault(); $event.stopPropagation(); $ctrl.clearFilter()", ng-hide="!$ctrl.filter")
