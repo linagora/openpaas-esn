@@ -67,7 +67,11 @@
      * @return {[CalendarCollectionShell]}  an array of CalendarCollectionShell
      */
     function listPublicCalendars(calendarHomeId) {
-      return listCalendars(calendarHomeId, { withRights: true, public: true });
+      return calendarAPI.listCalendars(calendarHomeId, { withRights: true, public: true }).then(function(calendars) {
+        return calendars.map(function(calendar) {
+          return new CalendarCollectionShell(calendar);
+        });
+      });
     }
 
     /**

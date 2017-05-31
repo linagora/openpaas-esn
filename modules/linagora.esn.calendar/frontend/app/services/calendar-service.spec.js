@@ -183,22 +183,56 @@ describe('The calendarService service', function() {
   });
 
   describe('The listPublicCalendars fn', function() {
-    it('should always call calendarAPI.listCalendars with withRights and public options', function() {
+    var homeId;
+
+    beforeEach(function() {
+      homeId = 'TheHomeId';
+    });
+
+    it('should call calendarAPI.listCalendars with withRights and public options', function() {
       this.calendarAPI.listCalendars = sinon.spy(function() {
         return $q.when();
       });
 
-      this.calendarService.listPublicCalendars('homeId');
+      this.calendarService.listPublicCalendars(homeId);
 
-      expect(self.calendarAPI.listCalendars).to.be.calledWith('homeId', { withRights: true, public: true });
+      expect(self.calendarAPI.listCalendars).to.be.calledWith(homeId, { withRights: true, public: true });
     });
 
-    it('should wrap each received dav:calendar in a CalendarCollectionShell', function() {
-      this.$httpBackend.expectGET('/dav/api/calendars/homeId.json?public=true&withRights=true').respond({});
+    it('should return an array of CalendarCollectionShell', function(done) {
+      var calendarCollection = {id: this.CAL_DEFAULT_CALENDAR_ID};
+      var calendars = [
+        {
+          _links: {
+            self: {
+              href: '/calendars/' + homeId + '/events.json'
+            }
+          },
+          'dav:name': null,
+          'caldav:description': null,
+          'calendarserver:ctag': 'http://sabre.io/ns/sync/3',
+          'apple:color': null,
+          'apple:order': null
+        }
+      ];
 
-      this.calendarService.listPublicCalendars('homeId');
+      CalendarCollectionShellFuncMock = sinon.spy(function() {
+        return calendarCollection;
+      });
 
-      this.$httpBackend.flush();
+      this.calendarAPI.listCalendars = sinon.spy(function() {
+        return $q.when(calendars);
+      });
+
+      this.calendarService.listPublicCalendars(homeId).then(function(result) {
+        expect(result).to.be.an('array').to.have.lengthOf(calendars.length);
+        expect(result[0]).to.deep.equals(calendarCollection);
+        expect(CalendarCollectionShellFuncMock).to.have.been.calledOnce;
+        expect(CalendarCollectionShellFuncMock).to.have.been.calledWith(calendars[0]);
+        done();
+      }, done);
+
+      this.$rootScope.$digest();
     });
   });
 
