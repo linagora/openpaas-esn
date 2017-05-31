@@ -425,7 +425,7 @@
             });
         }).catch(function(response) {
           if (response.status === 412) {
-            return this.getEvent(eventPath).then(function(shell) {
+            return self.getEvent(eventPath).then(function(shell) {
               // A conflict occurred. We've requested the event data in the
               // response, so we can retry the request with this data.
               return changeParticipation(eventPath, shell, emails, status, shell.etag);
