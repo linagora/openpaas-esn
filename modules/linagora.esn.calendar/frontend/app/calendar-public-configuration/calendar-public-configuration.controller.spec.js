@@ -17,15 +17,24 @@ describe('The CalCalendarPublicConfigurationController controller', function() {
     anotherCalendar,
     notificationFactory,
     calendarHomeId,
-    CalendarCollectionShell;
+    CalendarCollectionShell,
+    userAndExternalCalendars,
+    publicCalendars;
 
   beforeEach(function() {
     CalendarCollectionShell = {};
+    publicCalendars = [];
+    userAndExternalCalendars = sinon.spy(function() {
+      return {
+        publicCalendars: publicCalendars
+      };
+    });
   });
 
   beforeEach(function() {
     angular.mock.module('esn.calendar', function($provide) {
       $provide.value('CalendarCollectionShell', CalendarCollectionShell);
+      $provide.value('userAndExternalCalendars', userAndExternalCalendars);
     });
   });
 
@@ -69,6 +78,12 @@ describe('The CalCalendarPublicConfigurationController controller', function() {
   });
 
   describe('The onUserAdded function', function() {
+    beforeEach(function() {
+      sinon.stub(calendarHomeService, 'getUserCalendarHomeId', function() {
+        return $q.when(calendarHomeId);
+      });
+    });
+
     it('should return when user is undefined', function() {
       var spy = sinon.stub(calendarService, 'listPublicCalendars');
       var controller = initController();
@@ -82,13 +97,44 @@ describe('The CalCalendarPublicConfigurationController controller', function() {
       var listPublicCalendarsStub = sinon.stub(calendarService, 'listPublicCalendars', function() {
         return $q.when([calendar]);
       });
+      var listCalendarsStub = sinon.stub(calendarService, 'listCalendars', function() {
+        return $q.when([]);
+      });
       var controller = initController();
 
       controller.onUserAdded(user);
       $rootScope.$digest();
 
       expect(listPublicCalendarsStub).to.have.been.calledWith(user._id);
+      expect(listCalendarsStub).to.have.been.calledWith(calendarHomeId);
       expect(controller.calendarsPerUser).to.deep.equal([{user: user, calendar: calendar}]);
+    });
+
+    it('should not fill calendarsPerUser with a calendar which has already been subscribed', function() {
+      var subscribedHref = 'This is the href of the original calendar';
+      var subscribed = {source: subscribedHref};
+
+      calendar.href = subscribedHref;
+      publicCalendars.push(subscribed);
+
+      var listPublicCalendarsStub = sinon.stub(calendarService, 'listPublicCalendars', function() {
+        return $q.when([calendar]);
+      });
+      var listCalendarsStub = sinon.stub(calendarService, 'listCalendars', function() {
+        return $q.when([subscribed]);
+      });
+
+      var controller = initController();
+
+      controller.calendarsPerUser.push({calendar: calendar, user: user});
+      controller.calendarsPerUser.push({calendar: anotherCalendar, user: anotherUser});
+      controller.onUserAdded(user);
+      $rootScope.$digest();
+
+      expect(listPublicCalendarsStub).to.have.been.calledWith(user._id);
+      expect(listCalendarsStub).to.have.been.calledWith(calendarHomeId);
+      expect(userAndExternalCalendars).to.have.been.calledWith([subscribed]);
+      expect(controller.calendarsPerUser).to.have.lengthOf(2);
     });
 
     it('should log error when public calendars fetch fails', function() {

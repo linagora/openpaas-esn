@@ -4,7 +4,7 @@
   angular.module('esn.calendar')
     .controller('CalCalendarPublicConfigurationController', CalCalendarPublicConfigurationController);
 
-  function CalCalendarPublicConfigurationController($log, $q, $state, _, notificationFactory, uuid4, calendarService, calendarHomeService, CalendarCollectionShell) {
+  function CalCalendarPublicConfigurationController($log, $q, $state, _, notificationFactory, uuid4, calendarService, calendarHomeService, CalendarCollectionShell, userAndExternalCalendars) {
     var self = this;
 
     self.calendarsPerUser = [];
@@ -14,6 +14,26 @@
     self.onUserAdded = onUserAdded;
     self.onUserRemoved = onUserRemoved;
     self.subscribeToSelectedCalendars = subscribeToSelectedCalendars;
+
+    function filterSubscribedCalendars(userCalendars) {
+      return getSubscribedCalendarsForCurrentUser().then(function(subscribedCalendars) {
+        var sources = subscribedCalendars.map(function(calendar) {
+          return calendar.source;
+        });
+
+        return _.filter(userCalendars, function(userCalendar) {
+          return !_.contains(sources, userCalendar.calendar.href);
+        });
+      });
+    }
+
+    function getSubscribedCalendarsForCurrentUser() {
+      return calendarHomeService.getUserCalendarHomeId()
+        .then(calendarService.listCalendars)
+        .then(function(calendars) {
+          return userAndExternalCalendars(calendars).publicCalendars || [];
+        });
+    }
 
     function getPublicCalendarsForUser(user) {
       return calendarService.listPublicCalendars(user._id).then(function(calendars) {
@@ -41,6 +61,7 @@
       }
 
       getPublicCalendarsForUser(user)
+        .then(filterSubscribedCalendars)
         .then(function(userCalendars) {
           self.calendarsPerUser = self.calendarsPerUser.concat(userCalendars);
         })
