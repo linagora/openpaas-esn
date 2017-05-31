@@ -1,9 +1,0 @@
-extends /modules/subheader/responsive-subheader
-
-block left
-  inbox-subheader-close-button
-  .title.ellipsis.extra-title(ng-if="$ctrl.identityId") #{__('Edit identity')}
-  .title.ellipsis.extra-title(ng-if="!$ctrl.identityId") #{__('Create identity')}
-
-block right
-  inbox-subheader-save-button(esn-submit="$ctrl.onSave()")

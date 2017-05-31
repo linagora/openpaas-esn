@@ -1,9 +1,0 @@
-.clickable.attachment.waves-effect(ng-click="ctrl.download(attachment)", title="{{ ::attachment.name }}")
-  .icon
-    img(fallback-src="/images/file-icons/default.png", src="/images/file-icons/default.png", ng-src="/images/file-icons/{{ ::attachment.type | extension }}.png", alt='#{__("Attachment")}')
-  .metadata
-    .name.ellipsis {{ ::attachment.name }}
-    .size {{ ::attachment.size | bytes }}
-  .actions
-    a(href='', action-list="/unifiedinbox/views/attachment/attachment-action-list.html", title="#{__('More')}")
-      i.mdi.mdi-dots-vertical

@@ -1,6 +1,0 @@
-.inbox-root.ui-view.full-width.nopadding(name="root", noanimation)
-  .inbox-main(sub-header-aware)
-    inbox-vacation-indicator
-    .col-md-3.col-xl-2.hidden-xs.hidden-sm(ng-include="'/unifiedinbox/views/sidebar/sidebar-menu.html'")
-    .col-xs-12.col-md-9.col-xl-10.no-padding-xs(ng-class="{ 'has-sidebar-open' : inbox.rightSidebar.isVisible && !inbox.list.isElementOpened }")
-      .ui-view.inbox-main-col(name="main", noanimation)

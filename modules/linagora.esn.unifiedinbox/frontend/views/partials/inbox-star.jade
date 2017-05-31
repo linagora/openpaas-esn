@@ -1,5 +1,0 @@
-a.clickable(desktop-hover='isHover = hover')
-  i.mdi.mdi-star-off.waves-notransition(ng-show='item.isFlagged && isHover', desktop-click='ctrl.setIsFlagged(false)', title="#{__('Unstar')}")
-  i.mdi.mdi-star.waves-notransition(ng-show='item.isFlagged && !isHover')
-  i.mdi.mdi-star-outline.waves-notransition(ng-show='!item.isFlagged && !isHover')
-  i.mdi.mdi-star.waves-notransition(ng-show='!item.isFlagged && isHover', desktop-click='ctrl.setIsFlagged(true)', title="#{__('Star')}")

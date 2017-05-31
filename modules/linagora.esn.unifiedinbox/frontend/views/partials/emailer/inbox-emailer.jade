@@ -1,8 +1,0 @@
-.emailer(title="{{ emailer.email }}")
-  span(ng-bind-html="emailer.name | esnHighlight: highlight") {{ emailer.name }}
-  span.me(ng-if="me") (#{__('me')})
-  span.hidden-xs.email(ng-if="!hideEmail && emailer.email")
-    | <
-    a(op-inbox-compose, ng-href="mailto:{{ emailer.email }}")
-      span(ng-bind-html="emailer.email | esnHighlight: highlight") {{ emailer.email }}
-    | >

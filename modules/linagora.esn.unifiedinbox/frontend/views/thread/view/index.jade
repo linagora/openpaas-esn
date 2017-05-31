@@ -1,9 +1,0 @@
-sub-header
-  view-thread-subheader
-
-.email-view
-  h4.thread-title {{ ::thread.subject }}
-
-  email(ng-repeat='email in thread.emails', email='email')
-  inbox-email-footer(email='thread.lastEmail')
-inbox-fab.hidden-xs

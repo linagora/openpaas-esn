@@ -1,6 +1,0 @@
-button.btn.btn-link.btn-icon.visible-xl.waves-notransition.active(ng-if="$root.inbox.rightSidebar.isVisible", ui-sref="^", title="#{__('Hide emails with attachments')}")
-  i.mdi.mdi-paperclip
-button.btn.btn-link.btn-icon.visible-xl.waves-notransition(ng-if="!$root.inbox.rightSidebar.isVisible", ui-sref=".attachments", title="#{__('Show emails with attachments')}")
-  i.mdi.mdi-paperclip
-button.btn.btn-link.btn-icon.hidden-xl.waves-notransition(title="#{__('Show attachments')}", contextual-sidebar, data-content-template="/unifiedinbox/views/components/sidebar/attachment/sidebar-attachment.html", data-placement="right", data-controller="inboxListSidebarAttachmentController", data-controller-as="ctrl")
-  i.mdi.mdi-paperclip
