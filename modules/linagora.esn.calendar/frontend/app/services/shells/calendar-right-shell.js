@@ -38,13 +38,14 @@
      * If invite is undefined, ownerId is the current user.
      * @param acl used to initialize owner rights and public rights
      * @param invite used to initialize rights given to sharees (if any) and ownerId.
+     * @param ownerId used to initialize the ownerId for public calendar.
      * @constructor
      */
-    function CalendarRightShell(acl, invite) {
+    function CalendarRightShell(acl, invite, ownerId) {
       this._userEmails = {};
       this._public = CAL_CALENDAR_PUBLIC_RIGHT.NONE;
       this._sharee = {};
-      this._ownerId = session.user._id;
+      this._ownerId = ownerId || session.user._id;
 
       function pickHighestPriorityRight(oldPublicRight, newPublicRight) {
         var CalendarRightShellValues = [

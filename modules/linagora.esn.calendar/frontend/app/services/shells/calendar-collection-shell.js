@@ -12,6 +12,8 @@
      * @param {Object} extendedProperties  Object of additional properties like:
      */
     function CalendarCollectionShell(calendar) {
+      var ownerId;
+
       this.name = calendar[CAL_CALENDAR_PROPERTIES.name] || 'Events';
       this.color = calendar[CAL_CALENDAR_PROPERTIES.color] || CAL_DEFAULT_EVENT_COLOR;
       this.description = calendar[CAL_CALENDAR_PROPERTIES.description] || '';
@@ -27,7 +29,12 @@
 
       this.acl = calendar.acl;
       this.invite = calendar.invite;
-      this.rights = new CalendarRightShell(calendar.acl, calendar.invite);
+
+      if (this.source) {
+        ownerId = calPathParser.parseCalendarPath(this.source).calendarHomeId;
+      }
+      this.rights = new CalendarRightShell(calendar.acl, calendar.invite, ownerId);
+
       this.readOnly = !this.isWritable(session.user._id);
     }
 

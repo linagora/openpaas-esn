@@ -6,7 +6,7 @@ var expect = chai.expect;
 
 describe('CalendarCollectionShell factory', function() {
   var $rootScope, CalendarCollectionShell, calPathBuilder, calendarRightShell, calendar, CAL_DEFAULT_CALENDAR_ID, CAL_CALENDAR_PUBLIC_RIGHT,
-    CAL_CALENDAR_SHARED_RIGHT, calendarSharedRight, calendarPublicRight, calendarOwner, calendarOwnerId, userAPIMock, calendarHomeId, id;
+    CAL_CALENDAR_SHARED_RIGHT, calendarSharedRight, calendarPublicRight, calendarOwner, calendarOwnerId, userAPIMock, calendarHomeId, id, CAL_CALENDAR_PROPERTIES;
 
   beforeEach(function() {
     calendarHomeId = '56095ccccbd51b7318ce6d0c';
@@ -64,13 +64,14 @@ describe('CalendarCollectionShell factory', function() {
   );
 
   beforeEach(function() {
-    angular.mock.inject(function(_$rootScope_, _CalendarCollectionShell_, _calPathBuilder_, _CAL_DEFAULT_CALENDAR_ID_, _CAL_CALENDAR_PUBLIC_RIGHT_, _CAL_CALENDAR_SHARED_RIGHT_) {
+    angular.mock.inject(function(_$rootScope_, _CalendarCollectionShell_, _calPathBuilder_, _CAL_DEFAULT_CALENDAR_ID_, _CAL_CALENDAR_PUBLIC_RIGHT_, _CAL_CALENDAR_SHARED_RIGHT_, _CAL_CALENDAR_PROPERTIES_) {
       $rootScope = _$rootScope_;
       CalendarCollectionShell = _CalendarCollectionShell_;
       calPathBuilder = _calPathBuilder_;
       CAL_DEFAULT_CALENDAR_ID = _CAL_DEFAULT_CALENDAR_ID_;
       CAL_CALENDAR_PUBLIC_RIGHT = _CAL_CALENDAR_PUBLIC_RIGHT_;
       CAL_CALENDAR_SHARED_RIGHT = _CAL_CALENDAR_SHARED_RIGHT_;
+      CAL_CALENDAR_PROPERTIES = _CAL_CALENDAR_PROPERTIES_;
     });
   });
 
@@ -98,6 +99,16 @@ describe('CalendarCollectionShell factory', function() {
       new CalendarCollectionShell(calendar);
 
       expect(calendarRightShell).to.have.been.calledWith(calendar.acl, calendar.invite);
+    });
+
+    it('should initialize CalendarRightShell when calling CalendarCollectionShell and pass the ownerId of the public calendar', function() {
+      var publicCalendarOwnerId = 'publicCalendarOwnerId';
+      var subscriptionId = 'subscriptionId';
+
+      calendar[CAL_CALENDAR_PROPERTIES.source] = '/calendars/' + publicCalendarOwnerId + '/' + subscriptionId + '.json';
+      new CalendarCollectionShell(calendar);
+
+      expect(calendarRightShell).to.have.been.calledWith(calendar.acl, calendar.invite, publicCalendarOwnerId);
     });
 
     it('should call initialize acl with calendar.acl', function() {
