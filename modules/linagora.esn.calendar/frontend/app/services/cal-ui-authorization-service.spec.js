@@ -101,6 +101,9 @@ describe('The calUIAuthorizationService service', function() {
         }),
         isShared: sinon.spy(function() {
           return false;
+        }),
+        isSubscription: sinon.spy(function() {
+          return false;
         })
       };
       var userId = 'userId';
@@ -157,6 +160,9 @@ describe('The calUIAuthorizationService service', function() {
         }),
         isShared: sinon.spy(function() {
           return false;
+        }),
+        isSubscription: sinon.spy(function() {
+          return false;
         })
       };
       var userId = 'userId';
@@ -196,6 +202,26 @@ describe('The calUIAuthorizationService service', function() {
       expect(calUIAuthorizationService.canModifyCalendarProperties(calendar, userId)).to.be.true;
       expect(calendar.isOwner).to.have.been.calledWith(userId);
       expect(calendar.isShared).to.have.been.calledWith(userId);
+    });
+
+    it('should return true for the non-default calendars when the calendar is a subscription', function() {
+      var calendar = {
+        isOwner: sinon.spy(function() {
+          return false;
+        }),
+        isShared: sinon.spy(function() {
+          return false;
+        }),
+        isSubscription: sinon.spy(function() {
+          return true;
+        })
+      };
+      var userId = 'userId';
+
+      expect(calUIAuthorizationService.canModifyCalendarProperties(calendar, userId)).to.be.true;
+      expect(calendar.isOwner).to.have.been.calledWith(userId);
+      expect(calendar.isShared).to.have.been.calledWith(userId);
+      expect(calendar.isSubscription).to.have.been.calledWith();
     });
   });
 

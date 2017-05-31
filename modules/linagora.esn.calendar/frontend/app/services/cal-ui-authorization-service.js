@@ -55,7 +55,9 @@
     }
 
     function canModifyCalendarProperties(calendar, userId) {
-      return !!calendar && (calendar.isOwner(userId) || calendar.isShared(userId));
+      // the owner of a Subscription is not the same the current user, so we need to check for calendar.isSubscription()
+      // to allow the user to unsubscribe from a public calendar
+      return !!calendar && (calendar.isOwner(userId) || calendar.isShared(userId) || calendar.isSubscription());
     }
 
     function canShowDelegationTab(calendar, userId) {
