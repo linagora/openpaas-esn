@@ -77,7 +77,7 @@
   "Find public calendar": "Find public calendar",
   "Public": "Public",
   "Color": "Color",
-  "Delete this calendar": "Delete this calendar",
+  "Remove this calendar": "Remove this calendar",
   "3 Days": "3 Days",
   "Pick a color": "Pick a color",
   "Set": "Set",
@@ -99,6 +99,5 @@
   "Search users to subscribe to their public calendars": "Search users to subscribe to their public calendars",
   "Rights": "Rights",
   "Subscribe": "Subscribe",
-  "Unsubscribe": "Unsubscribe",
-  "Unsubscribe from this calendar": "Unsubscribe from this calendar"
+  "Remove": "Remove"
 }

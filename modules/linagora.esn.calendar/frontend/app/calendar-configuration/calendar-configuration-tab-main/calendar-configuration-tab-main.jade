@@ -36,6 +36,4 @@ div(ng-if="$ctrl.sharedCalendarOwner")
     .select
       .form-control
     i.color-picker-value(ng-style="{'background-color': $ctrl.calendar.color}")
-span.delete-calendar-button(ng-if="$ctrl.canDeleteCalendar()", type="button", ng-click="$ctrl.openDeleteConfirmationDialog()")
-  span(ng-if="!$ctrl.isSubscription") #{__('Delete this calendar')}
-  span(ng-if="$ctrl.isSubscription") #{__('Unsubscribe from this calendar')}
+span.delete-calendar-button(ng-if="$ctrl.canDeleteCalendar()", type="button", ng-click="$ctrl.openDeleteConfirmationDialog()") #{__('Remove this calendar')}

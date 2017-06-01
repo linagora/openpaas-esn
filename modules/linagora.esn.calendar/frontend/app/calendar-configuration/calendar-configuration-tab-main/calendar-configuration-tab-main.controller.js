@@ -51,7 +51,6 @@
       !self.newCalendar && performExternalCalendarOperations(isExternalCalendar());
 
       self.canModifyPublicSelection = _canModifyPublicSelection();
-      self.isSubscription = self.calendar && self.calendar.isSubscription();
     }
 
     function isExternalCalendar() {
@@ -63,7 +62,6 @@
         templateUrl: '/calendar/app/calendar-configuration/calendar-configuration-delete-confirmation/calendar-configuration-delete-confirmation.html',
         controller: function($scope) {
           $scope.calendarName = self.calendar.name;
-          $scope.isSubscription = self.isSubscription;
           $scope.delete = removeCalendar;
           $scope.unsubscribe = unsubscribe;
         },

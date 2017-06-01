@@ -209,24 +209,6 @@ describe('The calendar configuration tab delegation controller', function() {
     });
   });
 
-  describe('the isSubscription', function() {
-    it('should leverage calendar.isSubscription is not defined', function() {
-      CalendarConfigurationTabMainController.calendar = {
-        id: 'id',
-        isShared: sinon.stub().returns(false),
-        isOwner: sinon.stub().returns(false),
-        isPublic: sinon.stub().returns(false),
-        isAdmin: sinon.stub().returns(false),
-        isSubscription: sinon.stub().returns(true)
-      };
-
-      CalendarConfigurationTabMainController.$onInit();
-
-      expect(CalendarConfigurationTabMainController.isSubscription).to.be.true;
-      expect(CalendarConfigurationTabMainController.calendar.isSubscription).to.have.been.calledWith();
-    });
-  });
-
   describe('the performExternalCalendarOperations', function() {
     var getShareeRightResult, getOwnerResult;
 
