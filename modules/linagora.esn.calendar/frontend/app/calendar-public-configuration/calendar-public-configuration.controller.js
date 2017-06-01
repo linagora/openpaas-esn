@@ -18,7 +18,7 @@
     function filterSubscribedCalendars(userCalendars) {
       return getSubscribedCalendarsForCurrentUser().then(function(subscribedCalendars) {
         var sources = subscribedCalendars.map(function(calendar) {
-          return calendar.source;
+          return calendar.source.href;
         });
 
         return _.filter(userCalendars, function(userCalendar) {
@@ -90,7 +90,7 @@
             href: CalendarCollectionShell.buildHref(calendarHomeId, id),
             id: id,
             name: calendar.name,
-            source: calendar.href
+            source: CalendarCollectionShell.from(calendar)
           });
 
           return calendarService.subscribe(calendarHomeId, subscription);

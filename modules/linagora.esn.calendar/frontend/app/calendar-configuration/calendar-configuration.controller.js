@@ -86,7 +86,7 @@
       }
 
       resetDelegationFields();
-      self.publicSelection = self.calendar.rights.getPublicRight();
+      self.publicSelection = self.calendar.isSubscription() ? self.calendar.source.rights.getPublicRight() : self.calendar.rights.getPublicRight();
       var allShareeRights = self.calendar.rights.getAllShareeRights();
 
       $q.all(_.chain(allShareeRights).map('userId').map(calendarUsersCache.getUser).values()).then(function(users) {

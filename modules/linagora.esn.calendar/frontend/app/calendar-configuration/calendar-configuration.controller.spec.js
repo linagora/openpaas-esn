@@ -312,7 +312,8 @@ describe('The calendar configuration controller', function() {
     it('should initialize newCalendar with false it is not a new calendar', function() {
       calendarConfigurationController.calendar = {
         id: '123456789',
-        rights: calendarRight
+        rights: calendarRight,
+        isSubscription: angular.noop
       };
 
       calendarConfigurationController.activate();
@@ -323,7 +324,8 @@ describe('The calendar configuration controller', function() {
     it('should initialize self.calendar with self.calendar if it is not a new calendar', function() {
       calendarConfigurationController.calendar = {
         id: '123456789',
-        rights: calendarRight
+        rights: calendarRight,
+        isSubscription: angular.noop
       };
 
       calendarConfigurationController.activate();
@@ -352,7 +354,8 @@ describe('The calendar configuration controller', function() {
     it('should copy self.calendar in self.oldCalendar', function() {
       calendarConfigurationController.calendar = {
         id: '123456789',
-        rights: calendarRight
+        rights: calendarRight,
+        isSubscription: angular.noop
       };
 
       calendarConfigurationController.activate();
@@ -380,7 +383,8 @@ describe('The calendar configuration controller', function() {
 
       calendarConfigurationController.calendar = {
         href: 'data/data.json',
-        rights: calendarRight
+        rights: calendarRight,
+        isSubscription: angular.noop
       };
 
       calendarConfigurationController.activate();
@@ -407,13 +411,48 @@ describe('The calendar configuration controller', function() {
     it('should correctly initialize self.calendar if newCalendar is false', function() {
       calendarConfigurationController.calendar = {
         id: '123456789',
-        rights: calendarRight
+        rights: calendarRight,
+        isSubscription: angular.noop
       };
 
       calendarConfigurationController.activate();
 
       expect(calendarConfigurationController.calendar.href).to.not.equal('/calendars/12345/00000000-0000-4000-a000-000000000000.json');
       expect(calendarConfigurationController.calendar.color).to.not.exist;
+    });
+
+    it('should set public right from calendar right if calendar is not a subscription', function() {
+      calendarConfigurationController.calendar = {
+        id: '123456789',
+        rights: calendarRight,
+        source: {
+          id: '123456789',
+          rights: { getPublicRight: sinon.spy() }
+        },
+        isSubscription: angular.noop
+      };
+
+      calendarConfigurationController.activate();
+
+      expect(calendarConfigurationController.calendar.source.rights.getPublicRight).to.not.have.been.called;
+      expect(calendarConfigurationController.calendar.rights.getPublicRight).to.have.been.calledOnce;
+    });
+
+    it('should set public right from source right if calendar is a subscription', function() {
+      calendarConfigurationController.calendar = {
+        id: '123456789',
+        rights: calendarRight,
+        source: {
+          id: '123456789',
+          rights: { getPublicRight: sinon.spy() }
+        },
+        isSubscription: sinon.stub().returns(true)
+      };
+
+      calendarConfigurationController.activate();
+
+      expect(calendarConfigurationController.calendar.source.rights.getPublicRight).to.have.been.calledOnce;
+      expect(calendarConfigurationController.calendar.rights.getPublicRight).to.not.have.been.called;
     });
   });
 
@@ -499,7 +538,8 @@ describe('The calendar configuration controller', function() {
         calendarConfigurationController.calendar = {
           id: '123456789',
           href: '/calendars/12345/00000000-0000-4000-a000-000000000000.json',
-          rights: calendarRight
+          rights: calendarRight,
+          isSubscription: angular.noop
         };
 
         calendarConfigurationController.activate();
@@ -527,7 +567,8 @@ describe('The calendar configuration controller', function() {
         calendarService.modifyCalendar = sinon.spy();
         calendarConfigurationController.calendar = {
           href: 'blabla/id.json',
-          rights: calendarRight
+          rights: calendarRight,
+          isSubscription: angular.noop
         };
         calendarConfigurationController.calendar.color = 'aColor';
         calendarConfigurationController.calendar.name = 'aName';
@@ -562,7 +603,8 @@ describe('The calendar configuration controller', function() {
           href: '/calendars/12345/00000000-0000-4000-a000-000000000000.json',
           color: 'aColor',
           name: 'aName',
-          rights: calendarRight
+          rights: calendarRight,
+          isSubscription: angular.noop
         };
 
         calendarService.modifyCalendar = sinon.spy(function(calendarHomeId, shell) {
@@ -612,7 +654,8 @@ describe('The calendar configuration controller', function() {
           href: '/calendars/12345/00000000-0000-4000-a000-000000000000.json',
           color: 'aColor',
           name: 'aName',
-          rights: calendarRight
+          rights: calendarRight,
+          isSubscription: angular.noop
         };
         calendarConfigurationController.calendar.name = 'aName';
 
@@ -649,7 +692,8 @@ describe('The calendar configuration controller', function() {
           calendarConfigurationController.calendar = {
             id: '123',
             href: 'blabla/id.json',
-            rights: calendarRight
+            rights: calendarRight,
+            isSubscription: angular.noop
           };
           calendarConfigurationController.calendar.color = 'aColor';
           calendarConfigurationController.calendar.name = 'aName';
@@ -725,7 +769,8 @@ describe('The calendar configuration controller', function() {
           href: '/calendars/12345/00000000-0000-4000-a000-000000000000.json',
           color: 'aColor',
           name: 'aName',
-          rights: calendarRight
+          rights: calendarRight,
+          isSubscription: angular.noop
         };
         calendarConfigurationController.calendar.name = 'aName';
 
@@ -766,7 +811,8 @@ describe('The calendar configuration controller', function() {
         href: '/calendars/12345/00000000-0000-4000-a000-000000000000.json',
         color: 'aColor',
         name: 'aName',
-        rights: calendarRight
+        rights: calendarRight,
+        isSubscription: angular.noop
       };
 
       calendarConfigurationController.activate();
@@ -804,7 +850,8 @@ describe('The calendar configuration controller', function() {
     it('should reset the values of newUsersGroups and selectedShareeRight', function() {
       calendarConfigurationController.calendar = {
         id: '123456789',
-        rights: calendarRight
+        rights: calendarRight,
+        isSubscription: angular.noop
       };
 
       calendarConfigurationController.activate();

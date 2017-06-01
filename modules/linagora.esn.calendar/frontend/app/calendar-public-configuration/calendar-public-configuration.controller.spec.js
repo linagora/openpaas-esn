@@ -112,7 +112,7 @@ describe('The CalCalendarPublicConfigurationController controller', function() {
 
     it('should not fill calendarsPerUser with a calendar which has already been subscribed', function() {
       var subscribedHref = 'This is the href of the original calendar';
-      var subscribed = {source: subscribedHref};
+      var subscribed = { source: { href: subscribedHref }};
 
       calendar.href = subscribedHref;
       publicCalendars.push(subscribed);
@@ -225,7 +225,7 @@ describe('The CalCalendarPublicConfigurationController controller', function() {
       controller.subscribeToSelectedCalendars();
       $rootScope.$digest();
 
-      expect(CalendarCollectionShell.from).to.have.been.calledTwice;
+      expect(CalendarCollectionShell.from).to.have.been.calledFourth;
       expect(subscribeStub).to.have.been.calledTwice;
       expect(weakInfoSpy).to.have.been.calledOnce;
       expect(weakErrorSpy).to.not.have.been.called;
@@ -252,7 +252,7 @@ describe('The CalCalendarPublicConfigurationController controller', function() {
       controller.subscribeToSelectedCalendars();
       $rootScope.$digest();
 
-      expect(CalendarCollectionShell.from).to.have.been.calledTwice;
+      expect(CalendarCollectionShell.from).to.have.been.calledFourth;
       expect(subscribeStub).to.have.been.calledTwice;
       expect(weakInfoSpy).to.not.have.been.called;
       expect(weakErrorSpy).to.have.been.called;
