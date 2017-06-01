@@ -1,5 +1,5 @@
-.calendar-item {
-  cursor: pointer;
+.calendars-list-item {
+  .clickable;
 
   .mdi.mdi-settings {
     color: lighten(@secondaryTextColor, 20%);
@@ -9,7 +9,10 @@
     color: @secondaryTextColor;
   }
 
-  .lv-title {
+  .owner-name {
+    .ellipsis;
+
     color: @secondaryTextColor;
+    font-size: 12px;
   }
 }

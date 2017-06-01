@@ -1,0 +1,8 @@
+.calendar-list-items(ng-repeat="calendar in $ctrl.calendars track by $index")
+  cal-calendars-list-item(
+    calendar="calendar",
+    on-option-click="$ctrl.goTo(calendar.uniqueId)",
+    on-show-hide-toggle="$ctrl.toggleCalendar(calendar)",
+    selected="!$ctrl.hiddenCalendars[calendar.uniqueId]",
+    show-details="$ctrl.showDetails"
+  )
