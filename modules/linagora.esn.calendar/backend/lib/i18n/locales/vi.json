@@ -77,7 +77,7 @@
   "Find public calendar": "Tìm lịch công khai",
   "Public": "Công khai",
   "Color": "Màu sắc",
-  "Delete this calendar": "Xóa lịch này",
+  "Remove this calendar": "Xóa lịch làm việc này",
   "3 Days": "3 ngày",
   "Pick a color": "Chọn một màu",
   "Set": "Thiết lập",
@@ -99,6 +99,5 @@
   "Search users to subscribe to their public calendars":  "Tìm kiếm người dùng để đăng kí lịch công khai của họ",
   "Rights": "Quyền",
   "Subscribe": "Đăng kí",
-  "Unsubscribe": "Hủy đăng ký",
-  "Unsubscribe from this calendar": "Hủy đăng ký đối với lịch làm việc này"
+  "Remove": "Xóa"
 }
