@@ -5,12 +5,14 @@
 var expect = chai.expect;
 
 describe('CalendarCollectionShell factory', function() {
-  var $rootScope, Cache, CalendarCollectionShell, calPathBuilder, calendarRightShell, calendar, CAL_DEFAULT_CALENDAR_ID, CAL_CALENDAR_PUBLIC_RIGHT,
-    CAL_CALENDAR_SHARED_RIGHT, calendarSharedRight, calendarPublicRight, calendarOwner, calendarOwnerId, calendarHomeId, id, CAL_CALENDAR_PROPERTIES;
+  var $rootScope, Cache, CalendarCollectionShell, calPathBuilder, calendarRightShell, calendar, calendarSource, CAL_DEFAULT_CALENDAR_ID, CAL_CALENDAR_PUBLIC_RIGHT,
+    CAL_CALENDAR_SHARED_RIGHT, calendarSharedRight, calendarPublicRight, calendarOwner, calendarOwnerId, publicCalendarOwnerId, subscriptionId, calendarHomeId, id, CAL_CALENDAR_PROPERTIES;
 
   beforeEach(function() {
     calendarHomeId = '56095ccccbd51b7318ce6d0c';
     id = 'db0d5d63-c36a-42fc-9684-6f5e8132acfe';
+    publicCalendarOwnerId = 'publicCalendarOwnerId';
+    subscriptionId = 'subscriptionId';
     calendar = {
       _links: {
         self: {
@@ -24,6 +26,16 @@ describe('CalendarCollectionShell factory', function() {
       invite: 'invite'
     };
 
+    calendarSource = {
+      'dav:name': 'name',
+      'apple:color': 'color',
+      'calendarserver:source': calendarSource,
+      _links: {
+        self: {
+          href: '/calendars/' + publicCalendarOwnerId + '/' + subscriptionId + '.json'
+        }
+      }
+    };
     calendarOwnerId = 'ownerId';
 
     calendarRightShell = sinon.spy(function() {
@@ -77,7 +89,7 @@ describe('CalendarCollectionShell factory', function() {
       var calendarCollectionShell = new CalendarCollectionShell({
         'dav:name': 'name',
         'apple:color': 'color',
-        'calendarserver:source': 'source',
+        'calendarserver:source': calendarSource,
         'caldav:description': 'description',
         _links: {
           self: {
@@ -85,11 +97,12 @@ describe('CalendarCollectionShell factory', function() {
           }
         }
       });
+      var expectedSource = new CalendarCollectionShell(calendarSource);
 
       expect(calendarCollectionShell.name).to.equal('name');
       expect(calendarCollectionShell.color).to.equal('color');
       expect(calendarCollectionShell.description).to.equal('description');
-      expect(calendarCollectionShell.source).to.equal('source');
+      expect(calendarCollectionShell.source).to.shallowDeepEqual(expectedSource);
     });
 
     it('should initialize CalendarRightShell when calling CalendarCollectionShell ', function() {
@@ -99,10 +112,7 @@ describe('CalendarCollectionShell factory', function() {
     });
 
     it('should initialize CalendarRightShell when calling CalendarCollectionShell and pass the ownerId of the public calendar', function() {
-      var publicCalendarOwnerId = 'publicCalendarOwnerId';
-      var subscriptionId = 'subscriptionId';
-
-      calendar[CAL_CALENDAR_PROPERTIES.source] = '/calendars/' + publicCalendarOwnerId + '/' + subscriptionId + '.json';
+      calendar[CAL_CALENDAR_PROPERTIES.source] = calendarSource;
       new CalendarCollectionShell(calendar);
 
       expect(calendarRightShell).to.have.been.calledWith(calendar.acl, calendar.invite, publicCalendarOwnerId);
@@ -229,7 +239,7 @@ describe('CalendarCollectionShell factory', function() {
 
     it('Should return false if the calendar has a source property', function() {
       var calendarCollectionShell = new CalendarCollectionShell({
-        'calendarserver:source': 'source',
+        'calendarserver:source': calendarSource,
         _links: {
           self: {
             href: '/calendars/' + calendarHomeId + '/' + id + '.json'
@@ -338,12 +348,12 @@ describe('CalendarCollectionShell factory', function() {
         description: 'description',
         acl: 'acl',
         invite: 'invite',
-        source: 'source'
-      })).to.deep.equal({
+        source: calendarSource
+      })).to.shallowDeepEqual({
         'dav:name': 'name',
         'apple:color': 'color',
         'caldav:description': 'description',
-        'calendarserver:source': 'source',
+        'calendarserver:source': new CalendarCollectionShell(calendarSource),
         id: 'db0d5d63-c36a-42fc-9684-6f5e8132acfe',
         acl: 'acl',
         invite: 'invite'
@@ -370,16 +380,17 @@ describe('CalendarCollectionShell factory', function() {
         'dav:name': 'name',
         'apple:color': 'color',
         'caldav:description': 'description',
-        'calendarserver:source': 'source',
+        'calendarserver:source': calendarSource,
         acl: 'acl',
         invite: 'invite'
       };
+      var expectedSource = new CalendarCollectionShell(calendarSource);
 
-      expect(CalendarCollectionShell.toDavCalendar(new CalendarCollectionShell(davCalendar))).to.deep.equal({
+      expect(CalendarCollectionShell.toDavCalendar(new CalendarCollectionShell(davCalendar))).to.shallowDeepEqual({
         'dav:name': 'name',
         'apple:color': 'color',
         'caldav:description': 'description',
-        'calendarserver:source': 'source',
+        'calendarserver:source': expectedSource,
         id: 'db0d5d63-c36a-42fc-9684-6f5e8132acfe',
         acl: 'acl',
         invite: 'invite'
@@ -393,16 +404,16 @@ describe('CalendarCollectionShell factory', function() {
         name: 'name',
         color: 'color',
         description: 'description',
-        source: 'source',
+        source: calendarSource,
         href: '/calendars/56095ccccbd51b7318ce6d0c/db0d5d63-c36a-42fc-9684-6f5e8132acfe.json',
         acl: 'acl',
         invite: 'invite'
       });
-
+      var expectSource = new CalendarCollectionShell(calendarSource);
       expect(calendarCollection.name).to.equal('name');
       expect(calendarCollection.color).to.equal('color');
       expect(calendarCollection.description).to.equal('description');
-      expect(calendarCollection.source).to.equal('source');
+      expect(calendarCollection.source).to.shallowDeepEqual(expectSource);
       expect(calendarCollection.href).to.equal('/calendars/56095ccccbd51b7318ce6d0c/db0d5d63-c36a-42fc-9684-6f5e8132acfe.json');
       expect(calendarCollection.id).to.equal('db0d5d63-c36a-42fc-9684-6f5e8132acfe');
       expect(calendarCollection.rights).to.be.defined;

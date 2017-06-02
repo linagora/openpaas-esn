@@ -30,7 +30,7 @@
       this.name = calendar[CAL_CALENDAR_PROPERTIES.name] || 'Events';
       this.color = calendar[CAL_CALENDAR_PROPERTIES.color] || CAL_DEFAULT_EVENT_COLOR;
       this.description = calendar[CAL_CALENDAR_PROPERTIES.description] || '';
-      this.source = calendar[CAL_CALENDAR_PROPERTIES.source] && calendar[CAL_CALENDAR_PROPERTIES.source];
+      this.source = calendar[CAL_CALENDAR_PROPERTIES.source] && getCalendarCollectionShell(calendar[CAL_CALENDAR_PROPERTIES.source]);
 
       this.href = calendar._links.self.href;
 
@@ -43,11 +43,11 @@
       this.acl = calendar.acl;
       this.invite = calendar.invite;
 
-      if (this.source) {
-        ownerId = calPathParser.parseCalendarPath(this.source).calendarHomeId;
+      if (_.has(this.source, 'href')) {
+        ownerId = calPathParser.parseCalendarPath(this.source.href).calendarHomeId;
       }
-      this.rights = new CalendarRightShell(calendar.acl, calendar.invite, ownerId);
 
+      this.rights = new CalendarRightShell(calendar.acl, calendar.invite, ownerId);
       this.readOnly = !this.isWritable(session.user._id);
     }
 
@@ -133,6 +133,18 @@
      */
     function getOwner() {
       return calendarUsersCache.getUser(this.rights.getOwnerId());
+    }
+
+    /**
+     * Return an instance of CalendarCollectionShell
+     * @returns {CalendarCollectionShell} return CalendarCollectionShell
+     */
+    function getCalendarCollectionShell(calendar) {
+      if (calendar instanceof CalendarCollectionShell) {
+        return calendar;
+      }
+
+      return new CalendarCollectionShell(calendar);
     }
 
     /**
