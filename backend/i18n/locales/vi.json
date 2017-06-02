@@ -96,7 +96,7 @@
   "No addressbooks": "Không có danh bạ",
   "Import contacts from": "Nhập liên lạc từ",
   "Register a new application": "Đăng ký một ứng dụng mới",
-  "Applications": "Ứng dụng",
+  "Applications": "Các ứng dụng",
   "Application name": "Tên ứng dụng",
   "Application description": "Mô tả ứng dụng",
   "Application name will help users to find and trust it": "Tên ứng dụng sẽ giúp người dùng dễ tìm thấy",
@@ -413,5 +413,8 @@
   "Thursday": "Thứ 5",
   "Friday": "Thứ 6",
   "Saturday": "Thứ 7",
-  "Sunday": "Chủ nhật"
+  "Sunday": "Chủ nhật",
+  "Search options": "Tùy chọn tìm kiếm",
+  "Reset": "Đặt lại",
+  "Reset search options": "Đặt lại tùy chọn tìm kiếm"
 }
