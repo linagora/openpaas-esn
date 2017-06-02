@@ -18,6 +18,7 @@
     notificationFactory,
     calendarCurrentView,
     calCachedEventSource,
+    userAndExternalCalendars,
     _) {
 
       var calendarDeffered = $q.defer();
@@ -102,7 +103,7 @@
 
       var calendarWrapperPromise = $q.all({
         calendar: calendarPromise,
-        calendars: calendarService.listCalendars($scope.calendarHomeId)
+        calendars: getOwnCalendars()
       }).then(function(resolved) {
         var eventSources = resolved.calendars.map(function(cal) {
           var rawSource = calendarEventSource(cal, function(error) {
@@ -123,6 +124,12 @@
       function rerenderMiniCalendar() {
         calendarWrapperPromise.then(function(calendarWrapper) {
           calendarWrapper.rerender();
+        });
+      }
+
+      function getOwnCalendars() {
+        return calendarService.listCalendars($scope.calendarHomeId).then(function(calendars) {
+          return userAndExternalCalendars(calendars).userCalendars || [];
         });
       }
 

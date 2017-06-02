@@ -4,11 +4,11 @@
 
 var expect = chai.expect;
 
-describe('The mini-calendar controller', function() {
+describe('The miniCalendarController controller', function() {
 
   var $scope, $rootScope, $controller, $q, calMoment, fcMethodMock, calendarServiceMock, initController,
     miniCalendarServiceMock, calendarEventSourceMock, UI_CONFIG_MOCK, calendar, calendarResult, calendarCurrentViewMock,
-      CAL_EVENTS, calCachedEventSourceMock, calWrapper, element, event;
+      CAL_EVENTS, calCachedEventSourceMock, calWrapper, element, event, userAndExternalCalendars, publicCalendar, eventSource;
 
   function sameDayMatcher(day) {
     return function(_day) {
@@ -27,17 +27,30 @@ describe('The mini-calendar controller', function() {
   beforeEach(function() {
     angular.mock.module('esn.calendar', 'linagora.esn.graceperiod');
 
+    eventSource = 'anEventSource';
+
     calendarResult = {
       href: 'href',
       uniqueId: 'uniqueId'
     };
+
+    publicCalendar = {
+      href: 'publichref',
+      uniqueId: 'publicId'
+    };
+
+    userAndExternalCalendars = sinon.spy(function() {
+      return {
+        userCalendars: [calendarResult]
+      };
+    });
 
     calendarServiceMock = {
       listCalendars: function(userId) {
         expect(userId).to.equals($scope.calendarHomeId);
         var deferred = $q.defer();
 
-        deferred.resolve([calendarResult]);
+        deferred.resolve([calendarResult, publicCalendar]);
 
         return deferred.promise;
       }
@@ -81,7 +94,7 @@ describe('The mini-calendar controller', function() {
     calendarEventSourceMock = function(cal) {
       expect(cal).to.deep.equal(calendarResult);
 
-      return ['anEventSource'];
+      return [eventSource];
     };
 
     UI_CONFIG_MOCK = {
@@ -101,6 +114,7 @@ describe('The mini-calendar controller', function() {
 
     angular.mock.module(function($provide) {
       $provide.value('calendarService', calendarServiceMock);
+      $provide.value('userAndExternalCalendars', userAndExternalCalendars);
       $provide.value('calendarEventSource', calendarEventSourceMock);
       $provide.value('miniCalendarService', miniCalendarServiceMock);
       $provide.value('calCachedEventSource', calCachedEventSourceMock);
@@ -372,16 +386,18 @@ describe('The mini-calendar controller', function() {
       initController();
     });
 
-    it('should wrap calendars inside a miniCalendarWrapper', function() {
+    it('should wrap only current user calendars inside a miniCalendarWrapper', function() {
       $scope.calendarReady(calendar);
       $scope.$digest();
-      expect(miniCalendarServiceMock.miniCalendarWrapper).to.have.been.calledWith(calendar, ['anEventSource']);
+      expect(miniCalendarServiceMock.miniCalendarWrapper).to.have.been.calledOnce;
+      expect(miniCalendarServiceMock.miniCalendarWrapper).to.have.been.calledWith(calendar, [eventSource]);
     });
 
-    it('should wrap calendars inside calCachedEventSource.wrapEventSource', function() {
+    it('should wrap only current user calendars inside calCachedEventSource.wrapEventSource', function() {
       $scope.calendarReady(calendar);
       $scope.$digest();
-      expect(calCachedEventSourceMock.wrapEventSource).to.have.been.calledWith('uniqueId', ['anEventSource']);
+      expect(calCachedEventSourceMock.wrapEventSource).to.have.been.calledOnce;
+      expect(calCachedEventSourceMock.wrapEventSource).to.have.been.calledWith('uniqueId', [eventSource]);
     });
 
     function testRerender(nameOfEvent) {
