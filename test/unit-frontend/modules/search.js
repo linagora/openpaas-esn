@@ -5,13 +5,9 @@
 var expect = chai.expect;
 
 describe('The Search Form Angular module', function() {
-  var $state, $stateParams;
 
   beforeEach(function() {
-    angular.mock.module('esn.search', function($provide) {
-      $provide.value('$stateParams', $stateParams = {});
-      $provide.value('$state', $state = {go: sinon.spy()});
-    });
+    angular.mock.module('esn.search');
   });
 
   describe('searchForm directive', function() {
@@ -52,44 +48,6 @@ describe('The Search Form Angular module', function() {
       this.$rootScope.$digest();
       this.checkGeneratedElement(element, 'spinnerKey', {radius: 30, width: 8, length: 16});
     });
-  });
-
-  describe('The searchHeaderFormDirective', function() {
-    var element, $compile, $rootScope, scope;
-
-    function compileSearchHeaderDirective() {
-      var html = '<search-sub-header></search-sub-header>';
-
-      element = $compile(html)(scope);
-      scope.$digest();
-    }
-
-    beforeEach(function() {
-      angular.mock.module('jadeTemplates');
-    });
-
-    beforeEach(inject(function(_$compile_, _$rootScope_) {
-      $compile = _$compile_;
-      $rootScope = _$rootScope_;
-      scope = $rootScope.$new();
-    }));
-
-    it('should init search field with q get parameter', function() {
-      $stateParams.q = 'a query';
-      compileSearchHeaderDirective();
-
-      expect(element.find('input').val()).to.equal('a query');
-    });
-
-    it('when form submitted it should update q get parameter', function() {
-      compileSearchHeaderDirective();
-
-      element.find('input').val('cow').trigger('input');
-      element.find('form').trigger('submit');
-
-      expect($state.go).to.have.been.calledWith('search.main', { q: 'cow', filters: undefined }, { reload: true });
-    });
-
   });
 
   describe('searchResultController', function() {
@@ -192,74 +150,6 @@ describe('The Search Form Angular module', function() {
           [{name: 'dog1'}, {name: 'cat1'}, {name: 'dog2'}, {name: 'cat2'}, {name: 'dog3'}, {name: 'cat3'}]
         );
       });
-    });
-  });
-
-  describe('The searchSidebarController', function() {
-    var $controller, $scope, $rootScope, $stateParams, searchProviders;
-
-    function initController() {
-      $scope = {};
-      $controller('searchSidebarController', {$scope: $scope});
-      $rootScope.$digest();
-    }
-
-    beforeEach(inject(function(_$controller_, _$rootScope_, _$stateParams_, _searchProviders_) {
-      $controller = _$controller_;
-      $rootScope = _$rootScope_;
-      $stateParams = _$stateParams_;
-      searchProviders = _searchProviders_;
-
-      searchProviders.add({ id: '123', name: 'cat' });
-      searchProviders.add({ id: '456', name: 'dog' });
-
-      initController();
-    }));
-
-    it('should create a new filters Array when initializing ctrl with no stateParams.filters', function() {
-      expect($scope.filters).to.deep.equal([
-        { id: '123', name: 'cat', checked: true },
-        { id: '456', name: 'dog', checked: true }
-      ]);
-    });
-
-    it('should create a new filters Array with existing filters when initializing ctrl with stateParams.filters', function() {
-      var filters = [
-        { id: '123', name: 'platypus', checked: true },
-        { id: '456', name: 'penguin', checked: false }
-      ];
-      $stateParams.filters = filters;
-      initController();
-
-      expect($scope.filters).to.deep.equal(filters);
-    });
-
-    it('should toggle checked params of every filter when toggleAll is called', function() {
-      $scope.all = false;
-      $scope.toggleAll();
-
-      expect($scope.filters).to.deep.equal([
-        { id: '123', name: 'cat', checked: false },
-        { id: '456', name: 'dog', checked: false }
-      ]);
-
-      $scope.all = true;
-      $scope.toggleAll();
-
-      expect($scope.filters).to.deep.equal([
-        { id: '123', name: 'cat', checked: true },
-        { id: '456', name: 'dog', checked: true }
-      ]);
-    });
-
-    it('should assign false to scope.all when at least one filter is unchecked', function() {
-      $scope.filters = [
-        { id: '123', name: 'cat', checked: false },
-        { id: '456', name: 'dog', checked: true }
-      ];
-      $scope.updateFilters();
-
-      expect($scope.all).to.equal(false);
     });
   });
 
