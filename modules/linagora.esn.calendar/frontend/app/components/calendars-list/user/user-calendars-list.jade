@@ -5,23 +5,27 @@
         i.mdi.mdi-calendar
       .media-body
         .lv-title #{__('My calendars')}
-  .lv-item.calendar-item.calendar-header-title-desktop.visible-md
+  .lv-item.calendar-item.calendar-header-title-desktop.visible-md.clickable.toggle-submenu.waves-classic(esn-toggle)
     .media
+      .badge-container
+        .caret-submenu
+          i.mdi.mdi-menu-down
       .calendar-item-left
         i.mdi.mdi-calendar
       .media-body
         .lv-title #{__('My calendars')}
-      .calendar-item-right.actions
-        .dropdown
-          a(href='', data-toggle='dropdown', aria-expanded='true')
-            i.mdi.mdi-plus
-          ul.dropdown-menu.dropdown-menu-right
-            li
-              a(ui-sref='calendar.add') #{__('New calendar')}
+  .calendar-item-right.actions
+    .dropdown
+      a(href='', data-toggle='dropdown', aria-expanded='true')
+        i.mdi.mdi-plus
+      ul.not-toggled.dropdown-menu.dropdown-menu-right
+        li
+          a(ui-sref='calendar.add') #{__('New calendar')}
 
-  calendars-list-items(
-    calendars="$ctrl.userCalendars",
-    toggle-calendar="$ctrl.toggleCalendar",
-    hidden-calendars="$ctrl.hiddenCalendars",
-    state-to-go="'calendar.edit'"
-  )
+  ul.no-padding
+    calendars-list-items(
+      calendars="$ctrl.userCalendars",
+      toggle-calendar="$ctrl.toggleCalendar",
+      hidden-calendars="$ctrl.hiddenCalendars",
+      state-to-go="'calendar.edit'"
+    )

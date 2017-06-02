@@ -222,7 +222,7 @@ angular.module('esn.ui', [
       link: function(scope, element) {
         element.click(function() {
           element.parent().toggleClass('toggled');
-          element.parent().find('ul').stop(true, false).slideToggle(TOGGLE_TRANSITION);
+          element.parent().find('ul:not(".not-toggled")').stop(true, false).slideToggle(TOGGLE_TRANSITION);
         });
       }
     };
