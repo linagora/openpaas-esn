@@ -4,6 +4,7 @@ var authorize = require('./middleware/authorization');
 var config = require('../core').config('default');
 var cors = require('cors');
 var startupBuffer = require('./middleware/startup-buffer')(config.webserver.startupBufferTimeout);
+const { ssoStrategies } = require('../core/passport');
 
 exports = module.exports = function(application) {
   application.all('/api/*', cors({origin: true, credentials: true}));
@@ -18,7 +19,7 @@ exports = module.exports = function(application) {
 
   var loginController = require('./controllers/login');
   var users = require('./controllers/users');
-  application.get('/login', loginController.index);
+  application.get('/login', ssoStrategies.middleware, loginController.index);
   application.get('/logout', users.logout);
   application.get('/passwordreset', authorize.requiresJWT, loginController.passwordResetIndex);
 
