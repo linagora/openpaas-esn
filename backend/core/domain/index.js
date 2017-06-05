@@ -3,6 +3,19 @@
 var mongoose = require('mongoose');
 var Domain = mongoose.model('Domain');
 
+module.exports = {
+  getByName,
+  load,
+  list,
+  userIsDomainAdministrator,
+  userIsDomainMember,
+  getDomainAdministrators
+};
+
+function getByName(name) {
+  return Domain.findOne({ name });
+}
+
 function getDomainAdministrators(domain) {
   var administrators = domain.administrators ? domain.administrators.slice() : [];
   var oldAdministrator = domain.administrator;
@@ -95,11 +108,3 @@ function userIsDomainMember(user, domain, callback) {
     return callback(null, true);
   });
 }
-
-module.exports = {
-  userIsDomainAdministrator: userIsDomainAdministrator,
-  userIsDomainMember: userIsDomainMember,
-  load: load,
-  list: list,
-  getDomainAdministrators: getDomainAdministrators
-};
