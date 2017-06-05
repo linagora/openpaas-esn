@@ -527,4 +527,232 @@ describe('The user core module', function() {
     });
   });
 
+  describe('The translate fn', function() {
+    let getModule;
+
+    beforeEach(function() {
+      mockModels({
+        User: {}
+      });
+
+      getModule = () => this.helpers.requireBackend('core').user;
+    });
+
+    it('should translate payload user to OpenPaaS user', function() {
+      const payload = {
+        username: 'user@email',
+        user: {
+          name: 'Alice'
+        },
+        mapping: {
+          firsname: 'name'
+        },
+        domainId: 'domain123'
+      };
+      const expectedUser = {
+        firsname: payload.user.name,
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: [payload.username]
+        }],
+        domains: [{
+          domain_id: payload.domainId
+        }]
+      };
+
+      expect(getModule().translate(null, payload)).to.deep.equal(expectedUser);
+    });
+
+    it('should add domain to based user if it is not included', function() {
+      const payload = {
+        username: 'user@email',
+        user: {
+          name: 'Alice'
+        },
+        mapping: {
+          firsname: 'name'
+        },
+        domainId: 'domain123'
+      };
+      const baseUser = {
+        domains: [{
+          domain_id: 'domain456'
+        }]
+      };
+      const expectedUser = {
+        firsname: payload.user.name,
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: [payload.username]
+        }],
+        domains: [{
+          domain_id: 'domain456'
+        }, {
+          domain_id: payload.domainId
+        }]
+      };
+
+      expect(getModule().translate(baseUser, payload)).to.deep.equal(expectedUser);
+    });
+
+    it('should not domain to based user if it is already included', function() {
+      const payload = {
+        username: 'user@email',
+        user: {
+          name: 'Alice'
+        },
+        mapping: {
+          firsname: 'name'
+        },
+        domainId: 'domain123'
+      };
+      const baseUser = {
+        domains: [{
+          domain_id: payload.domainId
+        }]
+      };
+      const expectedUser = {
+        firsname: payload.user.name,
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: [payload.username]
+        }],
+        domains: [{
+          domain_id: payload.domainId
+        }]
+      };
+
+      expect(getModule().translate(baseUser, payload)).to.deep.equal(expectedUser);
+    });
+
+    it('should not add null domain to based user', function() {
+      const payload = {
+        username: 'user@email',
+        user: {
+          name: 'Alice'
+        },
+        mapping: {
+          firsname: 'name'
+        },
+        domainId: null
+      };
+      const baseUser = {
+        domains: [{
+          domain_id: 'domain123'
+        }]
+      };
+      const expectedUser = {
+        firsname: payload.user.name,
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: [payload.username]
+        }],
+        domains: [{
+          domain_id: 'domain123'
+        }]
+      };
+
+      expect(getModule().translate(baseUser, payload)).to.deep.equal(expectedUser);
+    });
+
+    it('should add email to based user account if it is not included', function() {
+      const payload = {
+        username: 'user@email',
+        user: {
+          name: 'Alice'
+        },
+        mapping: {
+          firsname: 'name'
+        },
+        domainId: 'domain123'
+      };
+      const baseUser = {
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: ['other@email']
+        }]
+      };
+      const expectedUser = {
+        firsname: payload.user.name,
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: ['other@email', payload.username]
+        }],
+        domains: [{
+          domain_id: payload.domainId
+        }]
+      };
+
+      expect(getModule().translate(baseUser, payload)).to.deep.equal(expectedUser);
+    });
+
+    it('should not add email to based user account if it is already included', function() {
+      const payload = {
+        username: 'user@email',
+        user: {
+          name: 'Alice'
+        },
+        mapping: {
+          firsname: 'name'
+        },
+        domainId: 'domain123'
+      };
+      const baseUser = {
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: [payload.username]
+        }]
+      };
+      const expectedUser = {
+        firsname: payload.user.name,
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: [payload.username]
+        }],
+        domains: [{
+          domain_id: payload.domainId
+        }]
+      };
+
+      expect(getModule().translate(baseUser, payload)).to.deep.equal(expectedUser);
+    });
+
+    it('should add email to based user account if it is not included and defined in mapping', function() {
+      const payload = {
+        username: 'user@email',
+        user: {
+          name: 'Alice',
+          mailAlias: 'alias@email'
+        },
+        mapping: {
+          firsname: 'name',
+          email: 'mailAlias'
+        },
+        domainId: 'domain123'
+      };
+      const baseUser = {};
+      const expectedUser = {
+        firsname: payload.user.name,
+        accounts: [{
+          type: 'email',
+          hosted: true,
+          emails: [payload.username, payload.user.mailAlias]
+        }],
+        domains: [{
+          domain_id: payload.domainId
+        }]
+      };
+
+      expect(getModule().translate(baseUser, payload)).to.deep.equal(expectedUser);
+    });
+
+  });
 });
