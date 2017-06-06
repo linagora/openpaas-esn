@@ -82,7 +82,6 @@ module.exports = function(config) {
       'frontend/components/angular-material/modules/js/core/core.min.js',
       'frontend/components/angular-material/modules/js/showHide/showHide.min.js',
       'frontend/components/angular-material/modules/js/virtualRepeat/virtualRepeat.min.js',
-      'frontend/components/angular-translate/angular-translate.min.js',
       'test/fixtures/code-generation/constants.js',
       'frontend/js/modules/**/*.module.js',
       'modules/linagora.esn.calendar/frontend/app/app.js',
@@ -107,9 +106,11 @@ module.exports = function(config) {
 
       // fixtures
       { pattern: 'frontend/images/**/*.png', watched: false, included: false, served: true },
+      { pattern: 'frontend/js/modules/i18n/i18n.config.js', watched: false, included: false, served: true },
       'modules/**/unit-frontend/fixtures/**',
       'modules/**/app/fixtures/**'
     ],
+
     proxies: {
       '/images/': 'frontend/images/',
       '/contact/images/': 'modules/linagora.esn.contact/frontend/images/'

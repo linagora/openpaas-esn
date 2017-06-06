@@ -14,7 +14,7 @@
       $translateProvider.determinePreferredLanguage(); //Try to guess language from window.navigator
       $translateProvider.fallbackLanguage('en');
       $translateProvider.registerAvailableLanguageKeys(ESN_I18N_AVAILABLE_LANGUAGE, ESN_I18N_AVAILABLE_LANGUAGE_KEYS);
-      $translateProvider.useInterpolation('esnI18nArrayInterpolation');
+      $translateProvider.useInterpolation('esnI18nInterpolator');
       $translateProvider.useSanitizeValueStrategy('escape');
     });
 })();
