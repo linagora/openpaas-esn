@@ -52,6 +52,11 @@ describe('CalRRuleShell Factory', function() {
       }).to.throw(Error);
     });
 
+    it('should accept accept undefined value', function() {
+      shell.count = undefined;
+      expect(shell.rrule.count).to.be.undefined;
+    });
+
     it('should copy number as if (without packing them in an array)', function() {
       shell.count = 42;
       expect(shell.rrule.count).to.equals(42);
