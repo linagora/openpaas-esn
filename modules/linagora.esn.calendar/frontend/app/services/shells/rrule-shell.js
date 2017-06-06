@@ -61,7 +61,7 @@
         return this.__count;
       },
       set count(value) {
-        if (!angular.isNumber(value)) {
+        if (value && !angular.isNumber(value)) {
           throw new Error('Count should be a number value');
         }
         this.__count = undefined;
