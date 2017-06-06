@@ -16,7 +16,7 @@ sub-header
   .card.hidden-xs(ng-submit='accept()')
     .card-body.contact-body
       .contact-error-container
-      contact-display(ng-if='loaded && !error' contact='contact', formatted-birthday='formattedBirthday')
+      contact-display(ng-if='loaded && !error' contact='contact')
       div.bs-alert.bs-alert-warning.clearfix.text-center(ng-if= 'loaded && !error && !displayShell.isWritable()')
         strong #{__("This contact can not be edited")}
 
@@ -84,8 +84,8 @@ sub-header
           .contact-item-data(ng-if='contact.nickname')
             p {{contact.nickname}}
             p.type #{__('Nickname')}
-          .contact-item-data(ng-if='formattedBirthday')
-            p {{formattedBirthday}}
+          .contact-item-data(ng-if='contact.birthday')
+            p {{ contact.birthday | esnDatetime:'date' }}
             p.type #{__('Birthday')}
 
         .contact-items-group(ng-if='shouldDisplayOthers()')

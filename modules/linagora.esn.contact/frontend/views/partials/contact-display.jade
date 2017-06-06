@@ -113,12 +113,12 @@
                 | #{__('Nickname')}
               dd
                 | {{contact.nickname}}
-            dl.dl-horizontal(ng-if='formattedBirthday')
+            dl.dl-horizontal(ng-if='contact.birthday')
               dt
                 i.mdi.mdi-cake-variant.m-r-5
                 | #{__('Birthday')}
               dd
-                | {{formattedBirthday}}
+                | {{ contact.birthday | esnDatetime:'date' }}
       .pmb-block(ng-if='contact.notes')
         .pmbb-header
           h2

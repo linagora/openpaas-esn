@@ -225,7 +225,13 @@ const injections = [
     'i18n/i18n.service.js',
     'i18n/i18n.constants.js',
     'i18n/i18n.config.js'
-  ], innerApps: ['esn', 'welcome']}
+  ], innerApps: ['esn', 'welcome']},
+  {angular: ['esn.datetime'], files: [
+    'datetime/datetime.module.js',
+    'datetime/datetime-date-formater.filter.js',
+    'datetime/datetime.constants.js',
+    'datetime/datetime.service.js'
+  ], innerApps: ['esn']}
 ];
 
 if (process.env.NODE_ENV === 'production') { // eslint-disable-line no-process-env

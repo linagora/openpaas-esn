@@ -19,8 +19,7 @@ angular.module('linagora.esn.contact')
     return {
       restrict: 'E',
       scope: {
-        contact: '=',
-        formattedBirthday: '='
+        contact: '='
       },
       templateUrl: '/contact/views/partials/contact-display.html',
       link: function($scope) {
@@ -41,7 +40,7 @@ angular.module('linagora.esn.contact')
           return !!($scope.contact.firstName ||
                     $scope.contact.lastName ||
                     $scope.contact.nickname ||
-                    $scope.formattedBirthday);
+                    $scope.contact.birthday);
         };
 
         $scope.shouldDisplayWork = function() {
