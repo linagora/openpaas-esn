@@ -24,7 +24,8 @@ angular.module('linagora.esn.contact', [
   'esn.cache',
   'esn.highlight',
   'esn.provider',
-  'esn.module-registry'
+  'esn.module-registry',
+  'esn.datetime'
 ])
   .config(function($stateProvider, routeResolver) {
     $stateProvider.state('contact', {
@@ -79,12 +80,14 @@ angular.module('linagora.esn.contact', [
 
     function injectDynamicDirective(condition, directive, destination) {
       var dynamicDirective = new dynamicDirectiveServiceProvider.DynamicDirective(condition, directive);
+
       dynamicDirectiveServiceProvider.addInjection(destination, dynamicDirective);
     }
 
     injectDynamicDirective(isContactWritable, 'contact-edit-action-item', 'contact-list-menu-items');
     injectDynamicDirective(isContactWritable, 'contact-delete-action-item', 'contact-list-menu-items');
     var contact = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-contact', {priority: 35});
+
     dynamicDirectiveServiceProvider.addInjection('esn-application-menu', contact);
   })
 

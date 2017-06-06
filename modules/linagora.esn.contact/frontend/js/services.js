@@ -1,14 +1,7 @@
 'use strict';
 
 angular.module('linagora.esn.contact')
-  .factory('ContactsHelper', function(CONTACT_DATE_FORMAT, CONTACT_ATTRIBUTES_ORDER, $dateFormatter, moment) {
-
-    function getFormattedBirthday(birthday) {
-      if (birthday instanceof Date) {
-        return moment(birthday).format('L');
-      }
-      return birthday;
-    }
+  .factory('ContactsHelper', function($filter, esnDatetimeService, CONTACT_ATTRIBUTES_ORDER) {
 
     function notNullNorEmpty(value) {
       return value && value.length > 0;
@@ -34,14 +27,17 @@ angular.module('linagora.esn.contact')
       }
 
       var result = [];
+
       priorities.forEach(function(priority) {
         getElementsFromType(priority).forEach(function(element) {
           var v = getValue(element);
+
           if (v) {
             result.push({type: priority, value: v});
           }
         });
       });
+
       return result;
     }
 
@@ -57,6 +53,7 @@ angular.module('linagora.esn.contact')
       var filter = array.filter(function(element) {
         return getValue(element) !== null;
       });
+
       if (notNullNorEmpty(filter)) {
         return getValue(filter[0]);
       }
@@ -64,6 +61,7 @@ angular.module('linagora.esn.contact')
 
     function getFormattedAddress(address) {
       var result = '';
+
       if (!address) {
         return result;
       }
@@ -82,6 +80,7 @@ angular.module('linagora.esn.contact')
       if (address.country) {
         result += address.country;
       }
+
       return result.trim();
     }
 
@@ -113,6 +112,7 @@ angular.module('linagora.esn.contact')
 
       if (notNullNorEmpty(contact.emails)) {
         var email = getValueFromArray(contact.emails, ['work', 'home', 'other']);
+
         if (email) {
           return email;
         }
@@ -120,6 +120,7 @@ angular.module('linagora.esn.contact')
 
       if (notNullNorEmpty(contact.social)) {
         var social = getValueFromArray(contact.social, ['twitter', 'skype', 'google', 'linkedin', 'facebook']);
+
         if (social) {
           return social;
         }
@@ -131,6 +132,7 @@ angular.module('linagora.esn.contact')
 
       if (notNullNorEmpty(contact.tel)) {
         var tel = getValueFromArray(contact.tel, ['work', 'mobile', 'home']);
+
         if (tel) {
           return tel;
         }
@@ -145,7 +147,7 @@ angular.module('linagora.esn.contact')
       }
 
       if (contact.birthday) {
-        return $dateFormatter.formatDate(contact.birthday, CONTACT_DATE_FORMAT);
+        return esnDatetimeService.formatDate(contact.birthday, 'date');
       }
 
       if (notNullNorEmpty(contact.addresses)) {
@@ -157,6 +159,7 @@ angular.module('linagora.esn.contact')
     function forceReloadDefaultAvatar(contact) {
       if (contact && contact.photo && isTextAvatar(contact.photo)) {
         var timestampParameter = 't=' + Date.now();
+
         if (/t=[0-9]+/.test(contact.photo)) { // check existing timestampParameter
           contact.photo = contact.photo.replace(/t=[0-9]+/, timestampParameter);
         } else if (/\?(.*?=.*?)+$/.test(contact.photo)) { // check existing parameters
@@ -190,11 +193,12 @@ angular.module('linagora.esn.contact')
       $scope.contact = contact;
       $scope.emails = getOrderedValues($scope.contact.emails, CONTACT_ATTRIBUTES_ORDER.email);
       $scope.phones = getOrderedValues($scope.contact.tel, CONTACT_ATTRIBUTES_ORDER.phone);
-      $scope.formattedBirthday = getFormattedBirthday(contact.birthday);
+      $scope.formattedBirthday = esnDatetimeService.formatDate(contact.birthday);
     }
 
     function getOrderType($scope) {
       var type = CONTACT_ATTRIBUTES_ORDER.social;
+
       for (var j = type.length; j--;) {
         if (type[j] === 'Other') {
           type.splice(j, 1);
@@ -205,7 +209,6 @@ angular.module('linagora.esn.contact')
 
     return {
       getFormattedName: getFormattedName,
-      getFormattedBirthday: getFormattedBirthday,
       getFormattedAddress: getFormattedAddress,
       forceReloadDefaultAvatar: forceReloadDefaultAvatar,
       getOrderedValues: getOrderedValues,
