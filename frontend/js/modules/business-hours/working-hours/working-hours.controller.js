@@ -1,10 +1,10 @@
 (function(angular) {
   'use strict';
 
-  angular.module('linagora.esn.controlcenter')
-    .controller('controlcenterGeneralBusinessHoursWorkingHoursController', controlcenterGeneralBusinessHoursWorkingHoursController);
+  angular.module('esn.business-hours')
+    .controller('esnBusinessHoursWorkingHoursController', esnBusinessHoursWorkingHoursController);
 
-    function controlcenterGeneralBusinessHoursWorkingHoursController(moment, clockpickerService) {
+    function esnBusinessHoursWorkingHoursController(moment, clockpickerService) {
       var self = this;
       var todayMoment = moment(); // because the clockpicker requires ng-model as moment object
 

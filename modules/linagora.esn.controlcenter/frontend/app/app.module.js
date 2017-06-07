@@ -2,15 +2,13 @@
 
 angular.module('linagora.esn.controlcenter', [
   'op.dynamicDirective',
-  'angularMoment',
-  'angular-clockpicker',
   'esn.router',
   'esn.user',
   'esn.subheader',
   'esn.sidebar',
   'esn.module-registry',
-  'esn.configuration',
-  'esn.user-configuration'
+  'esn.user-configuration',
+  'esn.business-hours'
 ])
 
 .config(function($stateProvider, $urlRouterProvider) {

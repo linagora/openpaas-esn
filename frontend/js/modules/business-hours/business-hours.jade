@@ -4,5 +4,5 @@ ng-form(name="form")
       h2 #{__('Business hours')}
         small #{__('Set your business hours, which will be emphasized in your calendars')}
     .card-body.card-padding(ng-if="$ctrl.businessHour")
-      controlcenter-general-business-hours-working-hours(start="$ctrl.businessHour.start", end="$ctrl.businessHour.end")
-      controlcenter-general-business-hours-working-days(days-of-week="$ctrl.businessHour.daysOfWeek")
+      esn-business-hours-working-hours(start="$ctrl.businessHour.start", end="$ctrl.businessHour.end")
+      esn-business-hours-working-days(days-of-week="$ctrl.businessHour.daysOfWeek")

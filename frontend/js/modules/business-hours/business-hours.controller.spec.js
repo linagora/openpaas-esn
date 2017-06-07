@@ -4,12 +4,12 @@
 
 var expect = chai.expect;
 
-describe('The controlcenterGeneralBusinessHoursController', function() {
+describe('The esnBusinessHoursController', function() {
 
   var $controller, $rootScope, $scope, DEFAULT_BUSINESS_HOURS;
 
   beforeEach(function() {
-    module('linagora.esn.controlcenter');
+    module('esn.business-hours');
 
     inject(function(_$controller_, _$rootScope_, ESN_CONFIG_DEFAULT) {
       $controller = _$controller_;
@@ -21,7 +21,7 @@ describe('The controlcenterGeneralBusinessHoursController', function() {
   function initController(scope) {
     $scope = scope || $rootScope.$new();
 
-    var controller = $controller('controlcenterGeneralBusinessHoursController', { $scope: $scope });
+    var controller = $controller('esnBusinessHoursController', { $scope: $scope });
 
     $scope.$digest();
 
