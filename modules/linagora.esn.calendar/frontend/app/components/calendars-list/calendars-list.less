@@ -1,7 +1,8 @@
 .listview.calendars-list {
+  padding-right: 10px;
 
-  .fg-line {
-    top: -6px;
+  .no-padding {
+    padding: 0;
   }
 
   i {
@@ -9,6 +10,14 @@
   }
 
   .calendar-item {
+
+    &:not(.calendar-header-title-desktop){
+      padding: 8px 20px 8px 30px;
+    }
+
+    & .lv-title {
+      color: @secondaryTextColor;
+    }
 
     &.calendar-header-title {
       margin-bottom: 5px;
@@ -22,7 +31,7 @@
           font-size: 20px;
           margin-top: 3px;
           margin-left: 8px;
-          color: @secondaryTextColor;
+          color: @primaryColor;
         }
 
         .pull-left {
@@ -31,42 +40,34 @@
 
         .media-body .lv-title {
           margin-left: 15px;
-          font-size: 1.3em;
-          font-weight: bold;
-          color: @primaryColor;
+          font-size: 13px;
+          font-weight: 500;
+          color: @secondaryTextColor;
         }
       }
     }
 
     &.calendar-header-title-desktop {
-      margin-top: 15px;
+      background-color: darken(@body-bg, 2%);
+      margin-top: 10px;
       margin-bottom: 10px;
-      border-left: 5px solid @primaryColor;
+      padding: 5px 5px;
+
+      &.toggle-submenu:first-child {
+        margin-top: 15px;
+      }
 
       .media {
         .flex-vertical-centered;
 
-        margin-left: -12px;
         min-width: 240px;
 
         .calendar-item-left {
           padding-right: 0;
 
           .mdi {
-            font-size: 35px;
-            margin-top: -3px;
-            color: @secondaryTextColor;
-          }
-        }
-
-
-        .calendar-item-right .mdi {
-          font-size: 25px;
-          cursor: pointer;
-          color: lighten(@secondaryTextColor, 10%);
-
-          &:hover {
-            color: darken(@secondaryTextColor, 20%);
+            font-size: 24px;
+            color: @primaryColor;
           }
         }
 
@@ -75,9 +76,9 @@
 
           .lv-title {
             margin-left: 7px;
-            font-size: 18px;
-            font-weight: bold;
-            color: @primaryColor;
+            font-size: 13px;
+            font-weight: 500;
+            color: @secondaryTextColor;
           }
         }
       }
@@ -94,4 +95,31 @@
       padding-bottom: 10px;
     }
   }
+
+  .calendar-item-right {
+    .mdi-plus {
+      position: absolute;
+      top: -40px;
+      right: 10px;
+    }
+
+    .mdi {
+      font-size: 25px;
+      cursor: pointer;
+      color: lighten(@secondaryTextColor, 10%);
+    }
+
+    &:hover {
+      color: darken(@secondaryTextColor, 20%);
+    }
+  }
+
+  .lv-body.toggled {
+    .caret-submenu {
+      i.mdi-menu-down {
+        .rotateZ3d(-90deg);
+      }
+    }
+  }
 }
+

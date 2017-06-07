@@ -495,5 +495,14 @@ describe('The UI module', function() {
       expect($.fn.slideToggle).to.have.been.calledWith(TOGGLE_TRANSITION);
     });
 
+    it('should not toggle element with "not-toggled" class', function() {
+      initDirective('<div><button esn-toggle><ul class="not-toggled"></ul><ul></ul></button></div>');
+
+      element.find('button').click();
+
+      expect($.fn.slideToggle).to.have.been.calledOn(sinon.match({
+        length: 1
+      }));
+    });
   });
 });
