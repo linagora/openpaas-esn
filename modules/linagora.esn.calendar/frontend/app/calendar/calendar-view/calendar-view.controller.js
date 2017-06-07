@@ -23,6 +23,7 @@
     calEventService,
     calendarUtils,
     calEventUtils,
+    calPathParser,
     calWebsocketListenerService,
     gracePeriodService,
     calOpenEventForm,
@@ -121,7 +122,7 @@
       }
 
       function eventClick(event) {
-        calOpenEventForm($scope.calendarHomeId, event.clone());
+        calOpenEventForm(calPathParser.parseEventPath(event.path).calendarHomeId, event.clone());
       }
 
       function eventDropAndResize(drop, event, delta, revert) {

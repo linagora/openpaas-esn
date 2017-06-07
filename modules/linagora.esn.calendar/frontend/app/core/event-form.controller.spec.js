@@ -32,6 +32,7 @@ describe('The event-form module controllers', function() {
       rights: {
         getOwnerId: sinon.stub().returns('ownerId')
       },
+      isSubscription: function() { return false; },
       isWritable: angular.noop
     };
 
@@ -42,7 +43,33 @@ describe('The event-form module controllers', function() {
         id: 'id2',
         color: 'color2',
         isWritable: angular.noop,
-        isShared: sinon.stub().returns(false)
+        isShared: sinon.stub().returns(false),
+        isSubscription: function() { return false; }
+      }, {
+        href: 'href3',
+        id: 'id3',
+        color: 'color',
+        selected: true,
+        readOnly: true,
+        isShared: sinon.stub().returns(false),
+        rights: {
+          getOwnerId: sinon.stub().returns('ownerId')
+        },
+        isSubscription: function() { return true; },
+        isWritable: angular.noop,
+        source: {
+          id: 'calId',
+          href: 'href4',
+          color: 'color',
+          selected: true,
+          readOnly: true,
+          isShared: sinon.stub().returns(false),
+          rights: {
+            getOwnerId: sinon.stub().returns('ownerId')
+          },
+          isSubscription: function() { return false; },
+          isWritable: angular.noop
+        }
       }
     ];
 
@@ -282,6 +309,17 @@ describe('The event-form module controllers', function() {
         this.initController();
 
         expect(this.scope.calendar).to.equal(this.calendars[1]);
+      });
+
+      it('should select the calendar of the event from source if calendar is a subscription', function() {
+        this.scope.event = this.CalendarShell.fromIncompleteShell({
+          etag: 'i am not a new event',
+          path: '/calendars/calId/calendarId/eventId.ics'
+        });
+        this.scope.event.path = '/calendars/' + this.calendars[2].source.id + '/eventID';
+        this.initController();
+
+        expect(this.scope.calendar).to.equal(this.calendars[2]);
       });
 
       it('should call calendarService.listCalendars with options object', function() {
