@@ -16,6 +16,8 @@ describe('The calendarViewController', function() {
     fullCalendarSpy = sinon.spy();
     createCalendarSpy = sinon.spy();
 
+    this.calOpenEventFormMock = sinon.spy();
+
     var calendarUtilsMock = {
       getNewStartDate: function() {
         return self.calMoment('2013-02-08 09:30');
@@ -149,6 +151,7 @@ describe('The calendarViewController', function() {
         return angular.extend($delegate, calendarUtilsMock);
       });
       $provide.value('elementScrollService', self.elementScrollServiceMock);
+      $provide.value('calOpenEventForm', self.calOpenEventFormMock);
       $provide.value('calEventService', self.calEventServiceMock);
       $provide.value('calendarService', self.calendarServiceMock);
       $provide.value('gracePeriodService', self.gracePeriodService);
@@ -193,6 +196,7 @@ describe('The calendarViewController', function() {
     calMoment,
     CAL_EVENTS,
     calEventUtils,
+    calOpenEventForm,
     elementScrollService,
     $q,
     CAL_SPINNER_TIMEOUT_DURATION) {
@@ -864,5 +868,25 @@ describe('The calendarViewController', function() {
       this.scope.$digest();
     });
 
+  });
+
+  describe('the eventClick', function() {
+    it('should leverage event.path to get the calendarHomeId', function() {
+      var calendarHomeIdInEventPath = 'calendarHomeId';
+      var clonedEvent = {};
+      var event = {
+        path: '/calendars/' + calendarHomeIdInEventPath + '/{{calendarId}}/{{eventId}}.ics',
+        clone: sinon.spy(function() {
+          return clonedEvent;
+        })
+      };
+
+      this.controller('calendarViewController', {$scope: this.scope});
+
+      this.scope.eventClick(event);
+
+      expect(this.calOpenEventFormMock).to.have.been.calledWith(calendarHomeIdInEventPath, clonedEvent);
+      expect(event.clone).to.have.been.calledWith();
+    });
   });
 });

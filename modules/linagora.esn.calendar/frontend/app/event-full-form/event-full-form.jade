@@ -20,7 +20,7 @@
                       span.input-group-addon
                         i.mdi.mdi-calendar-multiple
                       .fg-line.select
-                        select.form-control(ng-disabled="!isNew(editedEvent) || !canModifyEvent", ng-model='calendar', ng-options='calendar as calendar.name for calendar in calendars | filter: { readOnly: false }')
+                        select.form-control(ng-disabled="!isNew(editedEvent) || !canModifyEvent", ng-model='calendar', ng-options='calendar as calendar.name for calendar in calendars | readonlyOrSubscriptionCalendars')
 
               cal-event-date-edition(event="editedEvent", disabled="!canModifyEvent")
 
