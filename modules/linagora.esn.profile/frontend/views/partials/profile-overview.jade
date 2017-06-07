@@ -1,6 +1,7 @@
 .profile-overview
   .po-card
-    avatar-img.po-card-image(avatar-user="ctrl.user")
+    esn-avatar.po-card-image(ng-if='!ctrl.me', user-id="{{ctrl.user._id}}")
+    esn-avatar.po-card-image(ng-if='ctrl.me', user-id="{{ctrl.user._id}}", hide-user-status="true")
     .po-card-text
       user-profile-link.po-displayname.ellipsis(user="ctrl.user")
       span.m-0.c-white.ellipsis {{::ctrl.user.job_title}}
