@@ -4,7 +4,7 @@
       .col-xs-4.col-sm-3
         .fg-line
           .select
-            select.form-control.multi-input-type(ng-init="item.type = item.type || types[0]", ng-model='item.type', ng-options='type as type for type in types')
+            select.form-control.multi-input-type(ng-init="item.type = item.type || types[0]", ng-model='item.type', ng-options='type as (type | esnI18n) for type in types')
       .col-xs-8.col-sm-9
         .fg-line
           input.form-control.multi-input-text(type='text', ng-model='item.street', placeholder='#{__("Street")}', ng-model-options="{allowInvalid: true}", ng-change='verifyNew($index)', ng-focus="onFocusFn($index)", ng-blur="hideDeleteButton($index)")

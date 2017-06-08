@@ -16,4 +16,4 @@
         label
           input(type="checkbox", ng-model="filter.checked", ng-change="updateFilters()")
           i.input-helper
-          span {{ filter.name }}
+          span {{ filter.name | esnI18n }}

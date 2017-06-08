@@ -20,12 +20,12 @@ describe('The application-menu component', function() {
 
     it('should return the correct template when icon name is given', function() {
       expect(this.applicationMenuTemplateBuilder('/#/awesomestuffthere', { name: 'awesomeness' }, 'ClickMe'))
-        .to.equal('<div><a href="/#/awesomestuffthere"><img class="esn-application-menu-icon" src="/images/application-menu/awesomeness-icon.svg" /><span class="label">ClickMe</span></a></div>');
+        .to.equal('<div><a href="/#/awesomestuffthere"><img class="esn-application-menu-icon" src="/images/application-menu/awesomeness-icon.svg" /><span class="label" translate>ClickMe</span></a></div>');
     });
 
     it('should return the correct template when icon url is given', function() {
       expect(this.applicationMenuTemplateBuilder('/#/awesomestuffthere', { url: '/module/images/awesomeness' }, 'ClickMe'))
-        .to.equal('<div><a href="/#/awesomestuffthere"><img class="esn-application-menu-icon" src="/module/images/awesomeness" /><span class="label">ClickMe</span></a></div>');
+        .to.equal('<div><a href="/#/awesomestuffthere"><img class="esn-application-menu-icon" src="/module/images/awesomeness" /><span class="label" translate>ClickMe</span></a></div>');
     });
   });
 

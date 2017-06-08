@@ -11,7 +11,7 @@ describe('The esn.notification Angular modules', function() {
   });
 
   describe('The notification service', function() {
-    var notifyService, notifyMock, self;
+    var notifyService, notifyMock, self, esnI18nServiceMock;
 
     beforeEach(function() {
       self = this;
@@ -19,6 +19,13 @@ describe('The esn.notification Angular modules', function() {
       this.escapeHTMLMockResult = {};
       this.escapeHTMLMock = {
         escapeHTML: sinon.stub().returns(this.escapeHTMLMockResult)
+      };
+      esnI18nServiceMock = {
+        translate: sinon.spy(function(input) {
+          return {
+            toString: function() {return input;}
+          };
+        })
       };
 
       angular.mock.module(function($provide) {
@@ -31,6 +38,7 @@ describe('The esn.notification Angular modules', function() {
         });
 
         $provide.value('escapeHtmlUtils', self.escapeHTMLMock);
+        $provide.value('esnI18nService', esnI18nServiceMock);
       });
     });
 
@@ -81,6 +89,26 @@ describe('The esn.notification Angular modules', function() {
 
       notifyService({ hideCross: true }, settings);
       expect(notifyMock).to.have.been.calledOnce;
+    });
+
+    it('should translate messages before passing it to notify', function() {
+      var data = {
+        title: 'title',
+        message: 'message'
+      };
+
+      notifyMock = function() { return {}; };
+
+      notifyService(data, {});
+      expect(esnI18nServiceMock.translate).to.have.been.calledWith('title');
+      expect(esnI18nServiceMock.translate).to.have.been.calledWith('message');
+    });
+
+    it('should not run translate if message or title are undefined', function() {
+      notifyMock = function() { return {}; };
+      notifyService(null, null);
+
+      expect(esnI18nServiceMock.translate).to.not.have.been.called;
     });
 
     it('should esecape the html data before passing it to notify', function() {

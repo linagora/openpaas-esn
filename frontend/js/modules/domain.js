@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.domain', ['esn.http', 'ngTagsInput', 'op.dynamicDirective', 'esn.attendee', 'esn.session', 'esn.user'])
+angular.module('esn.domain', ['esn.http', 'ngTagsInput', 'op.dynamicDirective', 'esn.attendee', 'esn.session', 'esn.user', 'esn.i18n'])
   .config(function(dynamicDirectiveServiceProvider) {
     var invitationAppMenu = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-invitation', {priority: 10});
     dynamicDirectiveServiceProvider.addInjection('esn-application-menu', invitationAppMenu);
