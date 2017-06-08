@@ -1,10 +1,10 @@
 (function(angular) {
   'use strict';
 
-  angular.module('linagora.esn.controlcenter')
-    .controller('controlcenterGeneralBusinessHoursController', controlcenterGeneralBusinessHoursController);
+  angular.module('esn.business-hours')
+    .controller('esnBusinessHoursController', esnBusinessHoursController);
 
-  function controlcenterGeneralBusinessHoursController(_, ESN_CONFIG_DEFAULT) {
+  function esnBusinessHoursController(_, ESN_CONFIG_DEFAULT) {
     var self = this;
     var DEFAULT_BUSINESS_HOURS = ESN_CONFIG_DEFAULT.core.businessHours;
 

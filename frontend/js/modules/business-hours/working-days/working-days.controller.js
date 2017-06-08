@@ -24,10 +24,10 @@
     title: 'Sunday'
   }];
 
-  angular.module('linagora.esn.controlcenter')
-    .controller('controlcenterGeneralBusinessHoursWorkingDaysController', controlcenterGeneralBusinessHoursWorkingDaysController);
+  angular.module('esn.business-hours')
+    .controller('esnBusinessHoursWorkingDaysController', esnBusinessHoursWorkingDaysController);
 
-    function controlcenterGeneralBusinessHoursWorkingDaysController(_) {
+    function esnBusinessHoursWorkingDaysController(_) {
       var self = this;
 
       self.$onInit = $onInit;

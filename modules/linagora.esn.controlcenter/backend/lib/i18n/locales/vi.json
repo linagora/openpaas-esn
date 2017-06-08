@@ -1,11 +1,5 @@
 {
   "General": "Chung",
   "Home page": "Trang chủ",
-  "Set the default page to load after login": "Chọn trang mặc định tải sau khi đăng nhập",
-  "Business hours": "Giờ làm việc",
-  "Set your business hours, which will be emphasized in your calendars": "Thiết lập giờ làm việc, chúng sẽ được hiển thị trong lịch của bạn",
-  "Choose your working days": "Chọn ngày làm việc",
-  "Choose your working hours": "Chọn giờ làm việc",
-  "Starts at": "Bắt đầu lúc",
-  "Ends at": "Kết thúc lúc"
+  "Set the default page to load after login": "Chọn trang mặc định tải sau khi đăng nhập"
 }

@@ -397,5 +397,11 @@
   "Control Center": "Préférences",
   "Profile": "Profil",
   "Revoke users tokens": "Révoquer les jetons utilisateurs",
-  "Reset client secret": "Réinitialiser le secret client"
+  "Reset client secret": "Réinitialiser le secret client",
+  "Business hours": "Heures de travail",
+  "Set your business hours, which will be emphasized in your calendars": "Définissez votre heure d'ouverture, qui sera soulignée dans vos calendriers",
+  "Choose your working days": "Choisissez vos jours ouvrables",
+  "Choose your working hours": "Choisissez vos heures de travail",
+  "Starts at": "Commence à",
+  "Ends at": "Fini à"
 }
