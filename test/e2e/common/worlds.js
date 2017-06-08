@@ -32,7 +32,7 @@ function logoutAndGoToLoginPage() {
   browser.get('/logout');
   browser.get('/');
 
-  return waitForUrlToChangeTo(/\/#\/$/, 5000);
+  return waitForUrlToChangeTo(/%2F#\/$/, 5000);
 }
 
 function logIn(account) {
