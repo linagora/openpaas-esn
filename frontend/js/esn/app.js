@@ -141,10 +141,7 @@ angular.module('esnApp', [
       filters: null
     },
     views: {
-      'search-desktop-sidebar': {
-        templateUrl: '/views/modules/search/desktop-sidebar.html',
-        controller: 'searchSidebarController'
-      },
+
       'search-result': {
         templateUrl: '/views/modules/search/search-result',
         controller: 'searchResultController'
