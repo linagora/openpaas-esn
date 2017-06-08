@@ -10,7 +10,7 @@
       controller: 'userStatusBubbleController',
       controllerAs: 'ctrl',
       bindings: {
-        userId: '='
+        userId: '<'
       }
     };
   }

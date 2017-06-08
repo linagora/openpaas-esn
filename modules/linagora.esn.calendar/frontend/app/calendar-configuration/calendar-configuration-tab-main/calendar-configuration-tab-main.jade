@@ -18,7 +18,7 @@ div(ng-if="$ctrl.sharedCalendarOwner")
       | #{__('Shared by')}
     .public-access-line-visibility-value.calendar-owner.form-group.col-xs-8
       a.attendee-avatar.margin-right-15(href="", ng-attr-title="$ctrl.user.displayName")
-        esn-avatar(user-email="{{$ctrl.sharedCalendarOwner.preferredEmail}}")
+        esn-avatar(user-email="$ctrl.sharedCalendarOwner.preferredEmail")
       | {{ $ctrl.displayNameOfSharedCalendarOwner }}
 
   .public-access-line.public-access-visibility-line(ng-if="$ctrl.shareeRight")
