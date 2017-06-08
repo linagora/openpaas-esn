@@ -12,6 +12,7 @@
     calEventService,
     calendarEventEmitter,
     notificationFactory,
+    esnI18nService,
     CAL_EVENT_FORM,
     CAL_DEFAULT_CALENDAR_ID
   ) {
@@ -70,7 +71,7 @@
           $scope.$parent.show('whatsup');
         })
       .catch(function(err) {
-        notificationFactory.weakError('Event creation failed', (err.statusText || err) + ', Please refresh your calendar');
+        notificationFactory.weakError('Event creation failed', esnI18nService.translate('%s, Please refresh your calendar', err.statusText || err));
       })
       .finally(function() {
         self.restActive = false;

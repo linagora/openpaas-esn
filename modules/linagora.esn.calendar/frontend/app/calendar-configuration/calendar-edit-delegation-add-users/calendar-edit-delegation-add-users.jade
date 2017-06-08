@@ -12,4 +12,4 @@
         .col-sm-6.col-xs-12
           div.select
             select.form-control(ng-model="$ctrl.selectedShareeRight")
-              option(ng-repeat="delegationType in ::$ctrl.delegationTypes", value="{{delegationType.value}}") {{delegationType.name}}
+              option(ng-repeat="delegationType in ::$ctrl.delegationTypes", value="{{delegationType.value}}") {{delegationType.name | esnI18n}}

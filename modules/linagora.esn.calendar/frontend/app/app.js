@@ -32,6 +32,7 @@
     'esn.search',
     'esn.highlight',
     'esn.module-registry',
-    'esn.configuration'
+    'esn.configuration',
+    'esn.i18n'
   ]);
 })();
