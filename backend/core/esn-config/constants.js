@@ -25,6 +25,7 @@ module.exports = {
         },
         businessHours: {
           rights: {
+            padmin: 'rw',
             admin: 'rw',
             user: 'rw'
           }
