@@ -4,7 +4,7 @@
   angular.module('linagora.esn.controlcenter')
     .factory('controlcenterGeneralService', controlcenterGeneralService);
 
-  function controlcenterGeneralService(esnModuleRegistry, _) {
+  function controlcenterGeneralService(_, esnI18nService, esnModuleRegistry) {
     return {
       getHomePageCandidates: getHomePageCandidates
     };
@@ -15,7 +15,7 @@
 
       _.forEach(modules, function(module) {
         if (module.title && module.homePage) {
-          homePages[module.homePage] = module.title;
+          homePages[module.homePage] = esnI18nService.translate(module.title);
         }
       });
 

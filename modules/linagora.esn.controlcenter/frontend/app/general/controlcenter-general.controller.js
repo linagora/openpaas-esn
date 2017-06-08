@@ -29,7 +29,11 @@
     }
 
     function save() {
-      return asyncAction('Modification of general settings', _saveConfiguration);
+      return asyncAction({
+        progressing: 'Saving configuration...',
+        success: 'Configuration saved',
+        failure: 'Failed to save configuration'
+      }, _saveConfiguration);
     }
 
     function _saveConfiguration() {

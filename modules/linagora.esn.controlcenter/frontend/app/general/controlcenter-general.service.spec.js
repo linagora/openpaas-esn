@@ -9,7 +9,11 @@ describe('The controlcenterGeneralService factory', function() {
   var modulesMock;
 
   beforeEach(function() {
-    module('linagora.esn.controlcenter');
+    module('linagora.esn.controlcenter', function($provide) {
+      $provide.value('esnI18nService', {
+        translate: function(input) { return input; }
+      });
+    });
 
     modulesMock = [
       { homePage: 'a', title: 'A' },

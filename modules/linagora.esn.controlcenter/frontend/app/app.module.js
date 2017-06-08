@@ -8,7 +8,10 @@ angular.module('linagora.esn.controlcenter', [
   'esn.sidebar',
   'esn.module-registry',
   'esn.user-configuration',
-  'esn.business-hours'
+  'esn.business-hours',
+  'esn.configuration',
+  'esn.user-configuration',
+  'esn.i18n'
 ])
 
 .config(function($stateProvider, $urlRouterProvider) {
