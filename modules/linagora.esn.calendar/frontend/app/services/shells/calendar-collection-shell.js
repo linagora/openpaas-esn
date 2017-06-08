@@ -40,14 +40,19 @@
       this.calendarHomeId = parsedPath.calendarHomeId;
       this.selected = this.id === CAL_DEFAULT_CALENDAR_ID;
 
-      this.acl = calendar.acl;
       this.invite = calendar.invite;
 
+      var self = this;
+
       if (_.has(this.source, 'href')) {
-        ownerId = calPathParser.parseCalendarPath(this.source.href).calendarHomeId;
+        ownerId = calPathParser.parseCalendarPath(self.source.href).calendarHomeId;
+        self.acl = self.source.acl;
+      } else {
+        ownerId = undefined;
+        self.acl = calendar.acl;
       }
 
-      this.rights = new CalendarRightShell(calendar.acl, calendar.invite, ownerId);
+      this.rights = new CalendarRightShell(this.acl, calendar.invite, ownerId);
       this.readOnly = !this.isWritable(session.user._id);
     }
 
