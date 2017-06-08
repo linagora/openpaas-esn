@@ -224,7 +224,10 @@ const injections = [
     'i18n/i18n.module.js',
     'i18n/i18n.service.js',
     'i18n/i18n.constants.js',
-    'i18n/i18n.config.js'
+    'i18n/i18n.config.js',
+    'i18n/i18n-interpolator.service.js',
+    'i18n/i18n-string.service.js',
+    'i18n/i18n.filter.js'
   ], innerApps: ['esn', 'welcome']},
   {angular: ['esn.datetime'], files: [
     'datetime/datetime.module.js',

@@ -403,5 +403,15 @@
   "Choose your working days": "Choisissez vos jours ouvrables",
   "Choose your working hours": "Choisissez vos heures de travail",
   "Starts at": "Commence à",
-  "Ends at": "Fini à"
+  "Ends at": "Fini à",
+  "Add an email": "Ajouter un email",
+  "Sync": "Sync",
+  "Modules": "Modules",
+  "Monday": "Lundi",
+  "Tuesday": "Mardi",
+  "Wednesday": "Mercredi",
+  "Thursday": "Jeudi",
+  "Friday": "Vendredi",
+  "Saturday": "Samedi",
+  "Sunday": "Dimanche"
 }

@@ -27,7 +27,7 @@ angular.module('esn.application-menu', [
         '<div>' +
           '<a href="<%- href %>">' +
             '<img class="esn-application-menu-icon" src="<%- iconURL %>" />' +
-            '<span class="label">' +
+            '<span class="label" translate>' +
               '<%- label %>' +
             '</span>' +
           '</a>' +

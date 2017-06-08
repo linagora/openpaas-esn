@@ -1,8 +1,8 @@
 'use strict';
 
-angular.module('esn.notification', ['angularMoment', 'esn.escape-html'])
+angular.module('esn.notification', ['angularMoment', 'esn.escape-html', 'esn.i18n'])
 
-  .factory('notifyService', function($window, escapeHtmlUtils) {
+  .factory('notifyService', function($window, escapeHtmlUtils, esnI18nService) {
 
     function getDefaultSettings(options) {
       var hideCross = options && options.hideCross;
@@ -33,6 +33,11 @@ angular.module('esn.notification', ['angularMoment', 'esn.escape-html'])
     }
 
     return function(options, settings) {
+      if (options) {
+        options.message = options.message ? esnI18nService.translate(options.message).toString() : options.message;
+        options.title = options.title ? esnI18nService.translate(options.title).toString() : options.title;
+      }
+
       var notification = $window.$.notify(escapeHtmlFlatObject(options), angular.extend({}, getDefaultSettings(options), settings));
       var update = notification.update;
 
@@ -44,6 +49,8 @@ angular.module('esn.notification', ['angularMoment', 'esn.escape-html'])
 
       notification.setCancelAction = function(cancelActionConfig) {
         if (cancelActionConfig && cancelActionConfig.linkText && cancelActionConfig.action) {
+          cancelActionConfig.linkText = esnI18nService.translate(cancelActionConfig.linkText).toString();
+
           notification.$ele.find('a.cancel-task').html(cancelActionConfig.linkText);
           notification.$ele.find('a.cancel-task').click(function() {
             notification.close();

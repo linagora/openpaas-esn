@@ -5,4 +5,4 @@ ng-form(name="form")
       label.checkbox.checkbox-inline
         input(type="checkbox", ng-model="day.selected", ng-change="$ctrl.onDayChange()")
         i.input-helper
-        | {{day.title}}
+        | {{day.title | esnI18n}}

@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.search', ['esn.application-menu', 'esn.lodash-wrapper', 'esn.aggregator', 'esn.provider', 'op.dynamicDirective', 'angularMoment'])
+angular.module('esn.search', ['esn.application-menu', 'esn.lodash-wrapper', 'esn.aggregator', 'esn.provider', 'op.dynamicDirective', 'angularMoment', 'esn.i18n'])
   .constant('SIGNIFICANT_DIGITS', 3)
   .constant('defaultSpinnerConfiguration', {
     spinnerKey: 'spinnerDefault',
