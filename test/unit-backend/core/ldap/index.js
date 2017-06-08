@@ -7,9 +7,13 @@ var q = require('q');
 
 describe('The ldap core module', function() {
 
-  let getModule;
+  let getModule, coreUserMock;
 
-  before(function() {
+  beforeEach(function() {
+    coreUserMock = {};
+
+    mockery.registerMock('../user', coreUserMock);
+
     getModule = () => this.helpers.requireBackend('core/ldap');
   });
 
@@ -349,9 +353,8 @@ describe('The ldap core module', function() {
   });
 
   describe('The translate fn', function() {
-
-    it('should translate LDAP user to OpenPaaS user', function() {
-      var ldapPayload = {
+    it('should use the core/user to translate LDAP payload to OP user', function() {
+      const payload = {
         username: 'user@email',
         user: {
           name: 'Alice'
@@ -363,223 +366,20 @@ describe('The ldap core module', function() {
         },
         domainId: 'domain123'
       };
-      var expectedUser = {
-        firsname: ldapPayload.user.name,
-        accounts: [{
-          type: 'email',
-          hosted: true,
-          emails: [ldapPayload.username]
-        }],
-        domains: [{
-          domain_id: ldapPayload.domainId
-        }]
-      };
+      const baseUser = { name: 'base user' };
+      const expectedUser = { name: 'expected user' };
 
-      expect(getModule().translate(null, ldapPayload)).to.deep.equal(expectedUser);
+      coreUserMock.translate = sinon.spy(() => expectedUser);
+
+      expect(getModule().translate(baseUser, payload)).to.deep.equal(expectedUser);
+
+      expect(coreUserMock.translate).to.have.been.calledWith(baseUser, {
+        username: payload.username,
+        user: payload.user,
+        domainId: payload.domainId,
+        mapping: payload.config.mapping
+      });
     });
-
-    it('should add domain to based user if it is not included', function() {
-      var ldapPayload = {
-        username: 'user@email',
-        user: {
-          name: 'Alice'
-        },
-        config: {
-          mapping: {
-            firsname: 'name'
-          }
-        },
-        domainId: 'domain123'
-      };
-      var baseUser = {
-        domains: [{
-          domain_id: 'domain456'
-        }]
-      };
-      var expectedUser = {
-        firsname: ldapPayload.user.name,
-        accounts: [{
-          type: 'email',
-          hosted: true,
-          emails: [ldapPayload.username]
-        }],
-        domains: [{
-          domain_id: 'domain456'
-        }, {
-          domain_id: ldapPayload.domainId
-        }]
-      };
-
-      expect(getModule().translate(baseUser, ldapPayload)).to.deep.equal(expectedUser);
-    });
-
-    it('should not domain to based user if it is already included', function() {
-      var ldapPayload = {
-        username: 'user@email',
-        user: {
-          name: 'Alice'
-        },
-        config: {
-          mapping: {
-            firsname: 'name'
-          }
-        },
-        domainId: 'domain123'
-      };
-      var baseUser = {
-        domains: [{
-          domain_id: ldapPayload.domainId
-        }]
-      };
-      var expectedUser = {
-        firsname: ldapPayload.user.name,
-        accounts: [{
-          type: 'email',
-          hosted: true,
-          emails: [ldapPayload.username]
-        }],
-        domains: [{
-          domain_id: ldapPayload.domainId
-        }]
-      };
-
-      expect(getModule().translate(baseUser, ldapPayload)).to.deep.equal(expectedUser);
-    });
-
-    it('should not add null domain to based user', function() {
-      var ldapPayload = {
-        username: 'user@email',
-        user: {
-          name: 'Alice'
-        },
-        config: {
-          mapping: {
-            firsname: 'name'
-          }
-        },
-        domainId: null
-      };
-      var baseUser = {
-        domains: [{
-          domain_id: 'domain123'
-        }]
-      };
-      var expectedUser = {
-        firsname: ldapPayload.user.name,
-        accounts: [{
-          type: 'email',
-          hosted: true,
-          emails: [ldapPayload.username]
-        }],
-        domains: [{
-          domain_id: 'domain123'
-        }]
-      };
-
-      expect(getModule().translate(baseUser, ldapPayload)).to.deep.equal(expectedUser);
-    });
-
-    it('should add email to based user account if it is not included', function() {
-      var ldapPayload = {
-        username: 'user@email',
-        user: {
-          name: 'Alice'
-        },
-        config: {
-          mapping: {
-            firsname: 'name'
-          }
-        },
-        domainId: 'domain123'
-      };
-      var baseUser = {
-        accounts: [{
-          type: 'email',
-          hosted: true,
-          emails: ['other@email']
-        }]
-      };
-      var expectedUser = {
-        firsname: ldapPayload.user.name,
-        accounts: [{
-          type: 'email',
-          hosted: true,
-          emails: ['other@email', ldapPayload.username]
-        }],
-        domains: [{
-          domain_id: ldapPayload.domainId
-        }]
-      };
-
-      expect(getModule().translate(baseUser, ldapPayload)).to.deep.equal(expectedUser);
-    });
-
-    it('should not add email to based user account if it is already included', function() {
-      var ldapPayload = {
-        username: 'user@email',
-        user: {
-          name: 'Alice'
-        },
-        config: {
-          mapping: {
-            firsname: 'name'
-          }
-        },
-        domainId: 'domain123'
-      };
-      var baseUser = {
-        accounts: [{
-          type: 'email',
-          hosted: true,
-          emails: [ldapPayload.username]
-        }]
-      };
-      var expectedUser = {
-        firsname: ldapPayload.user.name,
-        accounts: [{
-          type: 'email',
-          hosted: true,
-          emails: [ldapPayload.username]
-        }],
-        domains: [{
-          domain_id: ldapPayload.domainId
-        }]
-      };
-
-      expect(getModule().translate(baseUser, ldapPayload)).to.deep.equal(expectedUser);
-    });
-
-    it('should add email to based user account if it is not included and defined in mapping', function() {
-      var ldapPayload = {
-        username: 'user@email',
-        user: {
-          name: 'Alice',
-          mailAlias: 'alias@email'
-        },
-        config: {
-          mapping: {
-            firsname: 'name',
-            email: 'mailAlias'
-          }
-        },
-        domainId: 'domain123'
-      };
-      var baseUser = {};
-      var expectedUser = {
-        firsname: ldapPayload.user.name,
-        accounts: [{
-          type: 'email',
-          hosted: true,
-          emails: [ldapPayload.username, ldapPayload.user.mailAlias]
-        }],
-        domains: [{
-          domain_id: ldapPayload.domainId
-        }]
-      };
-
-      expect(getModule().translate(baseUser, ldapPayload)).to.deep.equal(expectedUser);
-    });
-
   });
 
   describe('The search fn', function() {
@@ -619,6 +419,15 @@ describe('The ldap core module', function() {
           mail: 'email2'
         }
       ];
+
+      coreUserMock.translate = (baseUser, payload) => ({
+        _id: payload.username,
+        firstname: payload.user.firstname,
+        lastname: payload.user.lastname,
+        accounts: [{ type: 'email', hosted: true, emails: [payload.user.mail] }],
+        domains: [{ domain_id: payload.domainId }]
+      });
+
       esnConfigMock = {
         get: sinon.stub().returns(q.when(ldapConfigsMock))
       };

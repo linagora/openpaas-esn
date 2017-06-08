@@ -1,6 +1,7 @@
 'use strict';
 
 const util = require('util');
+const _ = require('lodash');
 const esnConfig = require('../../core')['esn-config'];
 const pubsub = require('../../core/pubsub').local;
 const logger = require('../logger');
@@ -165,10 +166,75 @@ function init() {
   moderation.init();
 }
 
+/**
+ * Translate external payload to OpenPaaS user. This is used by provision modules,
+ * such as converting LDAP user to OpenPaaS user
+ *
+ * @param  {Object} baseUser    The base user object to be extended
+ * @param  {Object} payload     The payload used to convert to OP user
+ * @return {Object}             The OpenPaaS user object
+ */
+function translate(baseUser, payload) {
+  const userEmail = payload.username; // we use email as username to authenticate
+  const domainId = payload.domainId;
+  const payloadUser = payload.user;
+  const mapping = payload.mapping;
+  const outputUser = baseUser || {};
+
+  // provision domain
+  if (!outputUser.domains) {
+    outputUser.domains = [];
+  }
+
+  if (domainId) {
+    const domain = _.find(outputUser.domains, domain => String(domain.domain_id) === String(domainId));
+
+    if (!domain) {
+      outputUser.domains.push({ domain_id: domainId });
+    }
+  }
+
+  // provision email account
+  if (!outputUser.accounts) {
+    outputUser.accounts = [];
+  }
+
+  let emailAccount = _.find(outputUser.accounts, { type: 'email' });
+
+  if (!emailAccount) {
+    emailAccount = {
+      type: 'email',
+      hosted: true,
+      emails: []
+    };
+    outputUser.accounts.push(emailAccount);
+  }
+
+  if (emailAccount.emails.indexOf(userEmail) === -1) {
+    emailAccount.emails.push(userEmail);
+  }
+
+  // provision other fields basing on mapping
+  _.forEach(mapping, (value, key) => {
+    if (key === 'email') {
+      const email = payloadUser[value];
+
+      if (emailAccount.emails.indexOf(email) === -1) {
+        emailAccount.emails.push(email);
+      }
+    } else {
+      outputUser[key] = payloadUser[value];
+    }
+  });
+
+  return outputUser;
+}
+
 module.exports = {
   TYPE: TYPE,
   recordUser: recordUser,
   provisionUser: provisionUser,
+  translate,
   findByEmail: findByEmail,
   findUsersByEmail: findUsersByEmail,
   get: get,

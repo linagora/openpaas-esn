@@ -8,6 +8,7 @@ const logger = require('../logger');
 const utils = require('./utils');
 const helpers = require('./helpers');
 const q = require('q');
+const coreUser = require('../user');
 
 const LDAP_DEFAULT_LIMIT = 50;
 const NOOP = () => {};
@@ -139,59 +140,14 @@ function authenticate(email, password, ldap, callback) {
  * @return {Object}             The OpenPaaS user object
  */
 function translate(baseUser, ldapPayload) {
-  const userEmail = ldapPayload.username; // we use email as username to authenticate LDAP
-  const domainId = ldapPayload.domainId;
-  const ldapUser = ldapPayload.user;
-  const mapping = ldapPayload.config.mapping;
-  const provisionUser = baseUser || {};
+  const payload = {
+    username: ldapPayload.username,
+    domainId: ldapPayload.domainId,
+    user: ldapPayload.user,
+    mapping: ldapPayload.config.mapping
+  };
 
-  // provision domain
-  if (!provisionUser.domains) {
-    provisionUser.domains = [];
-  }
-
-  if (domainId) {
-    const domain = _.find(provisionUser.domains, domain => String(domain.domain_id) === String(domainId));
-
-    if (!domain) {
-      provisionUser.domains.push({ domain_id: domainId });
-    }
-  }
-
-  // provision email account
-  if (!provisionUser.accounts) {
-    provisionUser.accounts = [];
-  }
-
-  let emailAccount = _.find(provisionUser.accounts, { type: 'email' });
-
-  if (!emailAccount) {
-    emailAccount = {
-      type: 'email',
-      hosted: true,
-      emails: []
-    };
-    provisionUser.accounts.push(emailAccount);
-  }
-
-  if (emailAccount.emails.indexOf(userEmail) === -1) {
-    emailAccount.emails.push(userEmail);
-  }
-
-  // provision other fields basing on mapping
-  _.forEach(mapping, (value, key) => {
-    if (key === 'email') {
-      const email = ldapUser[value];
-
-      if (emailAccount.emails.indexOf(email) === -1) {
-        emailAccount.emails.push(email);
-      }
-    } else {
-      provisionUser[key] = ldapUser[value];
-    }
-  });
-
-  return provisionUser;
+  return coreUser.translate(baseUser, payload);
 }
 
 /**

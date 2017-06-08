@@ -1,7 +1,8 @@
 'use strict';
 
-var mockery = require('mockery');
-var expect = require('chai').expect;
+const mockery = require('mockery');
+const expect = require('chai').expect;
+const sinon = require('sinon');
 
 describe('The domain module', function() {
   describe('The load fn', function() {
@@ -230,6 +231,31 @@ describe('The domain module', function() {
         expect(result).to.be.false;
         done();
       });
+    });
+  });
+
+  describe('getByName fn', function() {
+    let domainModule, modelMock;
+
+    beforeEach(function() {
+      modelMock = {};
+
+      mockery.registerMock('mongoose', {
+        model: function() {
+          return modelMock;
+        }
+      });
+
+      domainModule = this.helpers.requireBackend('core/domain');
+    });
+
+    it('should find a domain by name', function() {
+      const domainName = 'a domain name';
+
+      modelMock.findOne = sinon.spy();
+      domainModule.getByName(domainName);
+
+      expect(modelMock.findOne).to.have.been.calledWith({ name: domainName });
     });
   });
 });
