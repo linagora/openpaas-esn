@@ -1,5 +1,5 @@
 .attendee-avatar
   a.avatar(href="", ng-attr-title='{{::ctrl.attendee.name}}')
-    esn-avatar(user-email="{{ctrl.attendee.email}}")
+    esn-avatar(user-email="ctrl.attendee.email")
     .organizer(ng-if='ctrl.isOrganizer')
       i.mdi.mdi-pencil

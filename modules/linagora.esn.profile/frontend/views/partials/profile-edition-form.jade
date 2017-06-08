@@ -5,12 +5,12 @@
         .pmo-pic
           .p-relative.profile-edit-form(ng-controller='avatarController')
             a
-              esn-avatar(avatar-url="{{avatarURL}}", hide-user-status="true")
+              esn-avatar(avatar-url="avatarURL", hide-user-status="true")
             a.edit-h(ng-controller='avatarEdit' href='' ng-click="showAvatarEditModal()")
               i.mdi.mdi-camera
               span
                 | #{__('Update Profile Picture')}
-      .pm-body.clearfix    
+      .pm-body.clearfix
         .col-xs-12.col-sm-8.col-sm-pull-4.col-lg-12.col-lg-pull-0
           .fg-line
             input.form-control.floating-label(type='text', placeholder='#{__("First Name")}', ng-model='user.firstname')
