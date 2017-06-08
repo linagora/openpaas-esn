@@ -70,7 +70,7 @@ addDebianRepositories() {
     addDebianRepository cassandra "deb http://www.apache.org/dist/cassandra/debian 22x main"
     addDebianRepository mongodb-org "deb http://repo.mongodb.org/apt/debian jessie/mongodb-org/3.2 main"
     addDebianRepository nodesource "deb https://deb.nodesource.com/node_6.x jessie main"
-    addDebianRepository backports "deb http://ftp.debian.org/debian jessie-backports main"
+    addDebianRepository backports "deb http://deb.debian.org/debian jessie-backports main"
     addDebianRepository openpaas "deb https://packages.linagora.com/deb oncommit openpaas"
 }
 
