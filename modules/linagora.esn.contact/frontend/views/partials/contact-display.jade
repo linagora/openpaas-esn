@@ -48,7 +48,7 @@
                   i.mdi.mdi-email.m-r-5
                   | #{__('Emails')}
               dd
-                | {{email.type}}:&nbsp;
+                | {{email.type | esnI18n}}:&nbsp;
                 a(ng-href='mailto:{{email.value}}' op-inbox-compose op-inbox-compose-display-name='{{displayShell.getDisplayName()}}') {{email.value}}
             dl.dl-horizontal(ng-repeat='tel in phones track by $index')
               dt
@@ -56,7 +56,7 @@
                   i.mdi.mdi-tablet-android.m-r-5(ng-if='$first')
                   | #{__('Phone numbers')}
               dd
-                | {{tel.type}}:&nbsp;
+                | {{tel.type | esnI18n}}:&nbsp;
                 a(ng-href='tel:{{tel.value}}') {{tel.value}}
             dl.dl-horizontal(ng-repeat='address in contact.addresses track by $index')
               dt
@@ -64,7 +64,7 @@
                   i.mdi.mdi-map-marker.m-r-5(ng-if='$first')
                   | #{__('Addresses')}
               dd
-                | {{address.type}}:
+                | {{address.type | esnI18n}}:
                 br
                 | {{address.street}}
                 br

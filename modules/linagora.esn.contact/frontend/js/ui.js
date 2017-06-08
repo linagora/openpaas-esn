@@ -2,10 +2,10 @@
 
 angular.module('linagora.esn.contact')
 
-  .factory('displayContactError', function($alert) {
+  .factory('displayContactError', function($alert, esnI18nService) {
     return function(err) {
       $alert({
-        content: err,
+        content: esnI18nService.translate(err).toString(),
         type: 'danger',
         show: true,
         position: 'bottom',

@@ -30,6 +30,9 @@ describe('The Contacts service module', function() {
       angular.mock.module(function($provide) {
         $provide.value('notificationFactory', self.notificationFactory);
         $provide.value('gracePeriodService', self.gracePeriodService);
+        $provide.value('esnI18nService', {
+          translate: function(input) { return input; }
+        });
       });
     });
 
@@ -73,7 +76,7 @@ describe('The Contacts service module', function() {
       this.$httpBackend.flush();
       expect(this.gracePeriodService.grace).to.have.been.calledWith({
         id: 'myTaskId',
-        performedAction: 'You have just deleted a contact (Foo Bar)',
+        performedAction: 'You have just deleted a contact (%s)',
         cancelFailed: 'Cannot cancel contact deletion, the contact might be deleted permanently',
         cancelTooLate: 'It is too late to cancel the contact deletion, the contact might be deleted permanently'
       });

@@ -11,7 +11,7 @@ describe('The Contacts controller module', function() {
     notificationFactory, usSpinnerService, $location, $stateParams, selectionService, $alert, gracePeriodService, sharedContactDataService,
     sortedContacts, ContactLiveUpdate, contactUpdateDataService, $window, CONTACT_EVENTS, CONTACT_LIST_DISPLAY_MODES,
     ContactAPIClient, VcardBuilder, ContactLocationHelper, closeContactForm, closeContactFormMock, openContactForm, openContactFormMock, addressbooks,
-    ContactShellDisplayBuilder;
+    ContactShellDisplayBuilder, esnI18nServiceMock;
 
   var bookId = '123456789', bookName = 'bookName', cardId = '987654321';
   addressbooks = [];
@@ -127,6 +127,15 @@ describe('The Contacts controller module', function() {
       }
     };
 
+    esnI18nServiceMock = {
+      translate: function(input) {
+        return {
+          toString: function() { return input; },
+          text: input
+        };
+      }
+    };
+
     openContactFormMock = function() {};
     openContactForm = function(id) {
       return openContactFormMock(id);
@@ -164,6 +173,7 @@ describe('The Contacts controller module', function() {
       $provide.value('closeContactForm', closeContactForm);
       $provide.value('addressbooks', addressbooks);
       $provide.value('ContactShellDisplayBuilder', ContactShellDisplayBuilder);
+      $provide.value('esnI18nService', esnI18nServiceMock);
     });
   });
 
@@ -430,7 +440,10 @@ describe('The Contacts controller module', function() {
       it('should display correct title and link during the grace period', function() {
         scope.contact = {firstName: 'Foo', lastName: 'Bar', id: 'myTaskId'};
 
-        gracePeriodService.askUserForCancel = sinon.spy(function() {
+        gracePeriodService.askUserForCancel = sinon.spy(function(message, linkText) {
+          expect(message.text).to.equal('You have just created a new contact (%s).');
+          expect(linkText).to.equal('Cancel it');
+
           return {promise: $q.when({})};
         });
 
@@ -444,7 +457,6 @@ describe('The Contacts controller module', function() {
 
         scope.accept();
         scope.$digest();
-        expect(gracePeriodService.askUserForCancel).to.have.been.calledWith('You have just created a new contact (Foo Bar).', 'Cancel it');
       });
 
       it('should not grace the request on contact create failure', function(done) {

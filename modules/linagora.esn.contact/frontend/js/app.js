@@ -25,7 +25,8 @@ angular.module('linagora.esn.contact', [
   'esn.highlight',
   'esn.provider',
   'esn.module-registry',
-  'esn.datetime'
+  'esn.datetime',
+  'esn.i18n'
 ])
   .config(function($stateProvider, routeResolver) {
     $stateProvider.state('contact', {
