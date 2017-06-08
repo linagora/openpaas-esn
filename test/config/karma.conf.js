@@ -88,6 +88,7 @@ module.exports = function(config) {
       'frontend/views/esn/partials/**/*.jade',
       { pattern: 'frontend/js/modules/user-notification/user-notification.router.js', watched: false, included: false, served: false },
       { pattern: 'frontend/js/modules/oauth-application/oauth-application.router.js', watched: false, included: false, served: false },
+      { pattern: 'frontend/js/modules/datetime/datetime.run.js', watched: false, included: false, served: false },
       { pattern: 'frontend/images/*.png', watched: false, included: false, served: true },
       { pattern: 'frontend/js/modules/i18n/i18n.config.js', watched: false, included: false, served: true }
     ],

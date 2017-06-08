@@ -87,6 +87,7 @@ module.exports = function(config) {
       'modules/linagora.esn.calendar/frontend/app/app.js',
       { pattern: 'frontend/js/modules/collaboration/collaboration.run.js', watched: false, included: false, served: false },
       { pattern: 'frontend/js/modules/oauth-application/oauth-application.router.js', watched: false, included: false, served: false },
+      { pattern: 'frontend/js/modules/datetime/datetime.run.js', watched: false, included: false, served: false },
 
       'frontend/js/**/*.js',
       'modules/**/frontend/js/**/*.js',

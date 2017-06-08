@@ -231,6 +231,7 @@ const injections = [
   ], innerApps: ['esn', 'welcome']},
   {angular: ['esn.datetime'], files: [
     'datetime/datetime.module.js',
+    'datetime/datetime.run.js',
     'datetime/datetime-date-formater.filter.js',
     'datetime/datetime.constants.js',
     'datetime/datetime.service.js',
