@@ -30,6 +30,7 @@ describe('CalendarCollectionShell factory', function() {
       'dav:name': 'name',
       'apple:color': 'color',
       'calendarserver:source': calendarSource,
+      acl: 'publicAcl',
       _links: {
         self: {
           href: '/calendars/' + publicCalendarOwnerId + '/' + subscriptionId + '.json'
@@ -115,7 +116,7 @@ describe('CalendarCollectionShell factory', function() {
       calendar[CAL_CALENDAR_PROPERTIES.source] = calendarSource;
       new CalendarCollectionShell(calendar);
 
-      expect(calendarRightShell).to.have.been.calledWith(calendar.acl, calendar.invite, publicCalendarOwnerId);
+      expect(calendarRightShell).to.have.been.calledWith(calendarSource.acl, calendar.invite, publicCalendarOwnerId);
     });
 
     it('should call initialize acl with calendar.acl', function() {
@@ -355,7 +356,7 @@ describe('CalendarCollectionShell factory', function() {
         'caldav:description': 'description',
         'calendarserver:source': new CalendarCollectionShell(calendarSource),
         id: 'db0d5d63-c36a-42fc-9684-6f5e8132acfe',
-        acl: 'acl',
+        acl: 'publicAcl',
         invite: 'invite'
       });
     });
@@ -392,7 +393,7 @@ describe('CalendarCollectionShell factory', function() {
         'caldav:description': 'description',
         'calendarserver:source': expectedSource,
         id: 'db0d5d63-c36a-42fc-9684-6f5e8132acfe',
-        acl: 'acl',
+        acl: 'publicAcl',
         invite: 'invite'
       });
     });
