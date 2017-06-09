@@ -31,12 +31,20 @@ describe('The home controller', function() {
         render: function(templatePath, options) {
           expect(res.locals.assets).to.deep.equal(assets);
           expect(templatePath).to.equal(tplPath);
-          expect(options).to.deep.equal({title: 'Home'});
+          expect(options).to.deep.equal({
+            title: 'Home',
+            locale: 'vi'
+          });
           done();
         }
       };
+      const req = {
+        getLocale() {
+          return 'vi';
+        }
+      };
 
-      index({}, res);
+      index(req, res);
 
       expect(alterMock).to.have.been.calledWith('esn/index', sinon.match.func.and(sinon.match(function(func) {
         func(tplPath);
