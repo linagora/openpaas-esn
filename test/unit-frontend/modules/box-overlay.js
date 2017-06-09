@@ -239,7 +239,7 @@ describe('The box-overlay Angular module', function() {
 
       var mock, unsubscriber;
 
-      beforeEach(function(){
+      beforeEach(function() {
         compileAndClickTheButton('<button box-overlay />');
         mock = sinon.spy();
         unsubscriber = $rootScope.$on(ESN_BOX_OVERLAY_EVENTS.RESIZED, mock);
@@ -247,7 +247,7 @@ describe('The box-overlay Angular module', function() {
 
       afterEach(function() {
         unsubscriber && unsubscriber();
-      })
+      });
 
       it('should raise event ESN_BOX_OVERLAY_EVENTS.RESIZED when unminimized', function() {
         minimizeFirstBox();
@@ -415,7 +415,7 @@ describe('The box-overlay Angular module', function() {
       expect(callback).to.have.been.calledOnce;
     });
 
-    it('should register only functions', function(){
+    it('should register only functions', function() {
       var callback = 'foobar';
 
       stateManager.registerHandler(callback);
