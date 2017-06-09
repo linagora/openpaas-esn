@@ -18,6 +18,24 @@ describe('The Domain Angular module', function() {
       domainAPI = _domainAPI_;
     }));
 
+    describe('The list function', function() {
+      var domains;
+
+      beforeEach(function() {
+        domains = [{name: 'MyDomain', company_name: 'MyAwesomeCompany'}];
+      });
+
+      it('should send a GET to /api/domains', function(done) {
+        $httpBackend.expectGET('/api/domains').respond(200, domains);
+        domainAPI.list().then(function(response) {
+          expect(response.data).to.shallowDeepEqual(domains);
+
+          done();
+        });
+        $httpBackend.flush();
+      });
+    });
+
     describe('The inviteUsers fn', function() {
 
       it('should send a POST to /api/domains/:uuid/invitations', function() {
