@@ -92,6 +92,7 @@ describe('The Contacts ui module', function() {
           return [angularFindResult.contactHeader];
         }
       };
+      angular.element.find.attr = angular.noop;
 
       inject(function(_$rootScope_, _$window_, _ContactListScrollingService_, _CONTACT_SCROLL_EVENTS_, _sharedContactDataService_) {
         $rootScope = _$rootScope_;
