@@ -1,7 +1,6 @@
 @subHeaderBackground: darken(@primaryColor, 4%);
 @subHeaderShadow: rgba(0, 0, 0, 0.3);
 @headerAvatarShadow: rgba(0, 0, 0, 0.2);
-@btnLinkColor: rgba(255, 255, 255, 0.9);
 
 #header, #aside-header {
   background-color: @primaryColor;
@@ -82,24 +81,6 @@
       cursor: pointer;
     }
   }
-
-  &:not(.popover) {
-    .btn-link {
-      color: @btnLinkColor;
-    }
-
-    .btn-link:not([disabled], .popover):hover {
-      color: @textPrimaryColor;
-    }
-  }
-
-  .mdi-margin-left {
-    margin-left: 0.1em;
-  }
-
-  .mdi-margin-right {
-    margin-right: 0.1em;
-  }
 }
 
 @media (max-width: @screen-md-min) {
@@ -127,6 +108,14 @@
   .mdi {
     font-size: 1.8em;
     vertical-align: middle;
+  }
+
+  .mdi-margin-left {
+    margin-left: 0.1em;
+  }
+
+  .mdi-margin-right {
+    margin-right: 0.1em;
   }
 
   .row {
@@ -158,6 +147,13 @@
     }
   }
 
+  .btn-link {
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .btn-link:not([disabled]):hover {
+    color: @textPrimaryColor;
+  }
 }
 
 .subheader-aware {

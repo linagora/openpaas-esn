@@ -1,0 +1,19 @@
+.listview.search-desktop-sidebar
+  .lv-body
+    .lv-item.search-item.search-header-title.hidden-xs
+      .media
+        .pull-left
+          i.mdi.mdi-filter
+        .media-body
+          .lv-title #{__('Search For')}
+    form(role="form", novalidate="true")
+      .checkbox
+        label
+          input(type="checkbox", ng-model="all", ng-change="toggleAll()")
+          i.input-helper
+          span #{__('All')}
+      .checkbox(ng-repeat="filter in filters")
+        label
+          input(type="checkbox", ng-model="filter.checked", ng-change="updateFilters()")
+          i.input-helper
+          span {{ filter.name | esnI18n }}

@@ -1,5 +1,5 @@
 div
-  header#header.search-toggled
+  header#header
     div(ng-if='enableScrollListener && !disableByEvent', scroll-listener, data-on-scroll-down='hide()', data-on-scroll-top='show()', data-on-scroll-up='show()', data-on-destroy='!disableByEvent && show()', data-disabled='isDisabled')
 
     div.header-inner.flex-vertical-centered.flex-space-between
@@ -7,10 +7,10 @@ div
         li.logo
           a(href='', ui-sref='home')
             img.openpaas-logo(src="/images/white-logo.svg", alt='#{__("OpenPaas Logo")}')
-
-      search-header
-
       ul.list-inline.all-centered.header-actions
+        li.hover-scale-animation
+          a(href='')
+            i.mdi.mdi-magnify(ui-sref='search.main')
         li.hover-scale-animation.toggle-fullscreen
           a(href='', ng-click='toggleFullScreen()')
             i.md.mdi.mdi-fullscreen

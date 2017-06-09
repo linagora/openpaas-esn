@@ -23,6 +23,20 @@ angular.module('esn.search', ['esn.application-menu', 'esn.lodash-wrapper', 'esn
       templateUrl: '/views/modules/search/search-form.html'
     };
   })
+  .directive('searchHeaderForm', function() {
+    return {
+      restrict: 'E',
+      scope: true,
+      controller: function($scope, $state, $stateParams) {
+        $scope.searchInput = $stateParams.q;
+        $scope.search = function($event) {
+          $event.preventDefault();
+          $state.go('search.main', { q: $scope.searchInput, filters: $stateParams.filters }, { reload: true });
+        };
+      },
+      templateUrl: '/views/modules/search/search-header-form.html'
+    };
+  })
   .directive('searchSubHeader', function() {
     return {
       restrict: 'E',
@@ -54,6 +68,42 @@ angular.module('esn.search', ['esn.application-menu', 'esn.lodash-wrapper', 'esn
         hits: Math.round(count * Math.pow(10, -(len - SIGNIFICANT_DIGITS))) * Math.pow(10, len - SIGNIFICANT_DIGITS),
         isFormatted: true
       };
+    };
+  })
+  .factory('searchProviders', function(Providers) {
+    return new Providers();
+  })
+  .controller('searchSidebarController', function($scope, searchProviders, $stateParams, $state, _) {
+    $scope.filters = $stateParams.filters;
+    $scope.all = _getAllStatus();
+
+    function _getAllStatus() {
+      return !_.findKey($scope.filters, { checked: false });
+    }
+
+    if (!$scope.filters) {
+      searchProviders.getAllProviderDefinitions().then(function(providers) {
+        $scope.filters = providers.map(function(provider) {
+          return {
+            id: provider.id,
+            name: provider.name,
+            checked: true
+          };
+        });
+      });
+    }
+
+    $scope.toggleAll = function() {
+      _.forEach($scope.filters, function(filter) {
+        filter.checked = $scope.all;
+      });
+
+      $scope.updateFilters();
+    };
+
+    $scope.updateFilters = function() {
+      $scope.all = _getAllStatus();
+      $state.go('search.main', { q: $stateParams.q, filters: $scope.filters }, { reload: true });
     };
   })
   .controller('searchResultController', function($scope, $stateParams, $q, searchProviders, infiniteScrollHelper, _,
