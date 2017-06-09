@@ -1,6 +1,16 @@
 'use strict';
 
-angular.module('esn.search', ['esn.application-menu', 'esn.lodash-wrapper', 'esn.aggregator', 'esn.provider', 'op.dynamicDirective', 'angularMoment', 'esn.i18n'])
+angular.module('esn.search', [
+  'esn.application-menu',
+  'esn.lodash-wrapper',
+  'esn.aggregator',
+  'esn.provider',
+  'op.dynamicDirective',
+  'angularMoment',
+  'esn.i18n',
+  'ui.router'
+])
+
   .constant('SIGNIFICANT_DIGITS', 3)
   .constant('defaultSpinnerConfiguration', {
     spinnerKey: 'spinnerDefault',
@@ -21,20 +31,6 @@ angular.module('esn.search', ['esn.application-menu', 'esn.lodash-wrapper', 'esn
         $scope.spinnerConf = angular.isDefined($scope.spinnerConf) ? $scope.spinnerConf : defaultSpinnerConfiguration.spinnerConf;
       },
       templateUrl: '/views/modules/search/search-form.html'
-    };
-  })
-  .directive('searchHeaderForm', function() {
-    return {
-      restrict: 'E',
-      scope: true,
-      controller: function($scope, $state, $stateParams) {
-        $scope.searchInput = $stateParams.q;
-        $scope.search = function($event) {
-          $event.preventDefault();
-          $state.go('search.main', { q: $scope.searchInput, filters: $stateParams.filters }, { reload: true });
-        };
-      },
-      templateUrl: '/views/modules/search/search-header-form.html'
     };
   })
   .directive('searchSubHeader', function() {
@@ -68,42 +64,6 @@ angular.module('esn.search', ['esn.application-menu', 'esn.lodash-wrapper', 'esn
         hits: Math.round(count * Math.pow(10, -(len - SIGNIFICANT_DIGITS))) * Math.pow(10, len - SIGNIFICANT_DIGITS),
         isFormatted: true
       };
-    };
-  })
-  .factory('searchProviders', function(Providers) {
-    return new Providers();
-  })
-  .controller('searchSidebarController', function($scope, searchProviders, $stateParams, $state, _) {
-    $scope.filters = $stateParams.filters;
-    $scope.all = _getAllStatus();
-
-    function _getAllStatus() {
-      return !_.findKey($scope.filters, { checked: false });
-    }
-
-    if (!$scope.filters) {
-      searchProviders.getAllProviderDefinitions().then(function(providers) {
-        $scope.filters = providers.map(function(provider) {
-          return {
-            id: provider.id,
-            name: provider.name,
-            checked: true
-          };
-        });
-      });
-    }
-
-    $scope.toggleAll = function() {
-      _.forEach($scope.filters, function(filter) {
-        filter.checked = $scope.all;
-      });
-
-      $scope.updateFilters();
-    };
-
-    $scope.updateFilters = function() {
-      $scope.all = _getAllStatus();
-      $state.go('search.main', { q: $stateParams.q, filters: $scope.filters }, { reload: true });
     };
   })
   .controller('searchResultController', function($scope, $stateParams, $q, searchProviders, infiniteScrollHelper, _,
@@ -140,4 +100,28 @@ angular.module('esn.search', ['esn.application-menu', 'esn.lodash-wrapper', 'esn
           return load();
         });
     });
+  })
+  .config(function($stateProvider) {
+    $stateProvider
+      .state('search', {
+        url: '/search',
+        abstract: true,
+        templateUrl: '/views/modules/search/index.html'
+      })
+      .state('search.main', {
+        url: '?q',
+        params: {
+          q: {
+            value: '',
+            squash: true
+          },
+          filters: null
+        },
+        views: {
+          'search-result': {
+            templateUrl: '/views/modules/search/search-result.html',
+            controller: 'searchResultController'
+          }
+        }
+      });
   });

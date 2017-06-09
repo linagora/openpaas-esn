@@ -415,5 +415,8 @@
   "Saturday": "Samedi",
   "Sunday": "Dimanche",
   "Date format": "Format de date",
-  "Time format": "Format de l'heure"
+  "Time format": "Format de l'heure",
+  "Search options": "Recherche avancée",
+  "Reset": "Réinitialiser",
+  "Reset search options": "Réinitialiser la recherche avancée"
 }

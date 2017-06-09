@@ -125,31 +125,6 @@ angular.module('esnApp', [
         return [];
       }
     }
-  })
-  .state('search', {
-    url: '/search',
-    abstract: true,
-    templateUrl: '/views/modules/search/index'
-  })
-  .state('search.main', {
-    url: '?q',
-    params: {
-      q: {
-        value: '',
-        squash: true
-      },
-      filters: null
-    },
-    views: {
-      'search-desktop-sidebar': {
-        templateUrl: '/views/modules/search/desktop-sidebar.html',
-        controller: 'searchSidebarController'
-      },
-      'search-result': {
-        templateUrl: '/views/modules/search/search-result',
-        controller: 'searchResultController'
-      }
-    }
   });
 
 })
