@@ -14,8 +14,10 @@ module.exports = {
  */
 function index(req, res) {
   res.locals.assets = assetRegistry.envAwareApp('esn');
+  const locale = req.getLocale();
 
   alterTemplatePath('esn/index', tplPath => res.render(tplPath, {
-    title: 'Home'
+    title: 'Home',
+    locale
   }));
 }
