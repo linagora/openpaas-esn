@@ -7,8 +7,7 @@ angular.module('esn.header', [
   'matchmedia-ng',
   'esn.media.query',
   'esn.core',
-  'esn.profile',
-  'mgcrea.ngStrap.popover'
+  'esn.profile'
   ])
 
   .constant('MAIN_HEADER', 'main-header-middle-content')

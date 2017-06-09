@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.member', ['esn.router', 'esn.domain', 'esn.search', 'esn.infinite-list', 'openpaas-logo', 'esn.provider', 'esn.header'])
+angular.module('esn.member', ['esn.router', 'esn.domain', 'esn.search', 'esn.infinite-list', 'openpaas-logo', 'esn.provider'])
   .run(function(searchProviders, memberSearchProvider) {
     searchProviders.add(memberSearchProvider);
   })

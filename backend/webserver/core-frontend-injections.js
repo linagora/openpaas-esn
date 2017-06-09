@@ -9,13 +9,7 @@ const injections = [
   {angular: ['esn.scroll'], files: ['scroll.js'], innerApps: ['esn']},
   {angular: ['esn.multi-input'], files: ['multi-input.js'], innerApps: ['esn']},
   {angular: ['esn.http'], files: ['http.js'], innerApps: ['esn', 'welcome']},
-  {angular: ['esn.header'], files: [
-    'header/header.js',
-    'header/search/search-header.component.js',
-    'header/search/search-header.controller.js',
-    'header/search/settings/search-header-settings.controller.js',
-    'header/search/settings/search-header-settings.service.js'
-  ], innerApps: ['esn']},
+  {angular: ['esn.header'], files: ['header.js'], innerApps: ['esn']},
   {angular: ['esn.subheader'], files: [
     'subheader/subheader.module.js',
     'subheader/subheader.constants.js',
@@ -41,7 +35,6 @@ const injections = [
     'infinite-list/infinite-list.directive.js',
     'infinite-list/infinite-list.service.js'
   ], innerApps: ['esn']},
-
   {angular: ['esn.sidebar'], files: ['sidebar.js'], innerApps: ['esn']},
   {angular: ['esn.avatar'], files: [
     'avatar.js',

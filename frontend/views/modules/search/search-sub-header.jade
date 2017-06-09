@@ -1,6 +1,12 @@
 .module-subheader.row.all-centered
+  .col-md-offset-2.hidden-xs
   .col-xs-12.col-md-8.no-padding-xs
-    .flex-wrap.flex-vertical-centered.all-centered.module-subheader-inner.hidden-xs
-      span.title.ellipsis.all-centered #{__('Global Search')}
-    .module-subheader-inner.visible-xs
-      search-header
+    .row.flex-vertical-centered.module-subheader-inner
+      .col-xs-1.search-show-aside.hidden-md.no-padding-xs
+        button.btn.btn-link.btn-icon(href='', contextual-sidebar,  data-controller='searchSidebarController', data-content-template="/views/modules/search/desktop-sidebar.html")
+          i.mdi.mdi-menu
+      .col-md-4.visible-md
+        span.title.ellipsis #{__('Global Search')}
+      .col-xs-11.col-md-4
+        search-header-form
+      .col-md-offset-4
