@@ -6,24 +6,26 @@ var request = require('supertest'),
     ObjectId = require('bson').ObjectId;
 
 describe('The domain API', function() {
-  var app;
-  var user1Domain1Manager, user2Domain1Member;
-  var user1Domain2Manager;
-  var domain1;
-  var domain1Users;
-  var password = 'secret';
-  var Domain;
-  var Invitation;
-  var pubsubLocal;
-  var utils;
-  var helpers;
+  let app;
+  let user1Domain1Manager, user2Domain1Member;
+  let user1Domain2Manager;
+  let domain1, domain2;
+  let domain1Users;
+  const password = 'secret';
+  let Domain;
+  let Invitation;
+  let pubsubLocal;
+  let utils;
+  let helpers;
+  let core;
 
   beforeEach(function(done) {
     helpers = this.helpers;
-    var self = this;
+    const self = this;
+
     self.mongoose = require('mongoose');
 
-    self.testEnv.initCore(function() {
+    core = self.testEnv.initCore(function() {
       app = helpers.requireBackend('webserver/application');
       Domain = helpers.requireBackend('core/db/mongo/models/domain');
       Invitation = helpers.requireBackend('core/db/mongo/models/invitation');
@@ -41,6 +43,7 @@ describe('The domain API', function() {
         helpers.api.applyDomainDeployment('linagora_test_domain2', function(err, models2) {
           expect(err).to.not.exist;
           user1Domain2Manager = models2.users[0];
+          domain2 = models2.domain;
 
           helpers.elasticsearch.saveTestConfiguration(helpers.callbacks.noError(done));
         });
@@ -50,6 +53,110 @@ describe('The domain API', function() {
 
   afterEach(function(done) {
     this.helpers.mongo.dropDatabase(done);
+  });
+
+  describe('GET /api/domains', function() {
+    let domains;
+
+    beforeEach(function(done) {
+      core.platformadmin
+        .addPlatformAdmin(user2Domain1Member)
+        .then(() => done())
+        .catch(err => done(err || 'failed to add platformadmin'));
+
+      domains = [getDomainObjectFromModel(domain2), getDomainObjectFromModel(domain1)];
+    });
+
+    function getDomainObjectFromModel(domainModelObject) {
+      const domain = JSON.parse(JSON.stringify(domainModelObject)); // Because model object use original type like Bson, Date
+
+      return {
+        name: domain.name,
+        company_name: domain.company_name,
+        timestamps: domain.timestamps
+      };
+    }
+
+    it('should send back 401 when not logged in', function(done) {
+      helpers.api.requireLogin(app, 'get', '/api/domains', done);
+    });
+
+    it('should send back 403 if the logged in user is not platformadmin', function(done) {
+      helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, loggedInAsUser) {
+        loggedInAsUser(request(app).get('/api/domains'))
+          .expect(403)
+          .end(helpers.callbacks.noError(done));
+      });
+    });
+
+    it('should send back 200 with a list of sorted domains', function(done) {
+      helpers.api.loginAsUser(app, user2Domain1Member.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
+        loggedInAsUser(request(app).get('/api/domains'))
+        .expect(200)
+        .end(helpers.callbacks.noErrorAnd(res => {
+          expect(res.headers['x-esn-items-count']).to.equal(`${domains.length}`);
+          expect(res.body).to.shallowDeepEqual(domains);
+          done();
+        }));
+      }));
+    });
+
+    it('should send back 200 with the first domain', function(done) {
+      helpers.api.loginAsUser(app, user2Domain1Member.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
+        const LIMIT = 1;
+        const expectedDomains = domains.slice(0, 1);
+        const req = loggedInAsUser(request(app).get('/api/domains'));
+
+        req.query({ limit: LIMIT })
+          .expect(200)
+          .end(helpers.callbacks.noErrorAnd(res => {
+            expect(res.body).to.exist;
+            expect(res.headers['x-esn-items-count']).to.exist;
+            expect(res.headers['x-esn-items-count']).to.equal(`${LIMIT}`);
+            expect(res.body).to.shallowDeepEqual(expectedDomains);
+            done();
+        }));
+      }));
+    });
+
+    it('should send back 200 with the last domain', function(done) {
+      const OFFSET = 1;
+      const expectedDomains = domains.slice(1, 2);
+
+      helpers.api.loginAsUser(app, user2Domain1Member.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
+        const req = loggedInAsUser(request(app).get('/api/domains'));
+
+        req.query({ offset: OFFSET })
+          .expect(200)
+          .end(helpers.callbacks.noErrorAnd(res => {
+            expect(res.body).to.exist;
+            expect(res.headers['x-esn-items-count']).to.exist;
+            expect(res.headers['x-esn-items-count']).to.equal(`${expectedDomains.length}`);
+            expect(res.body).to.shallowDeepEqual(expectedDomains);
+            done();
+          }));
+      }));
+    });
+
+    it('should send back 200 with the second domain', function(done) {
+      const OFFSET = 1;
+      const LIMIT = 1;
+      const expectedDomains = domains.slice(1, 2);
+
+      helpers.api.loginAsUser(app, user2Domain1Member.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
+        const req = loggedInAsUser(request(app).get('/api/domains'));
+
+        req.query({ limit: LIMIT, offset: OFFSET })
+          .expect(200)
+          .end(helpers.callbacks.noErrorAnd(res => {
+            expect(res.body).to.exist;
+            expect(res.headers['x-esn-items-count']).to.exist;
+            expect(res.headers['x-esn-items-count']).to.equal(`${LIMIT}`);
+            expect(res.body).to.shallowDeepEqual(expectedDomains);
+            done();
+          }));
+      }));
+    });
   });
 
   describe('POST /api/domains', function() {
