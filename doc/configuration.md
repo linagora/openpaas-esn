@@ -557,3 +557,19 @@ Defines the configuration file template used by the autoconfiguration mechanism.
   }]
 }
 ```
+
+### datetime
+
+- Scope: user, domain, platform
+- Description: specify the date time format in application
+- Example:
+
+```json
+{
+  "name" : "datetime",
+  "value" : {
+    "timeFormat" : "h:mm a",
+    "dateFormat" : "EEEE, MMMM d, y"
+  }
+}
+```

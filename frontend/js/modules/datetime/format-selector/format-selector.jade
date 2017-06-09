@@ -1,0 +1,14 @@
+.row
+  .col-xs-12.col-md-6
+    esn-datetime-form(
+      title="#{__('Date format')}",
+      format="$ctrl.dateFormat",
+      example-date="$ctrl.currentDate",
+      available-formats="$ctrl.AVAILABLE_DATE_FORMATS")
+
+  .col-xs-12.col-md-6
+    esn-datetime-form(
+      title="#{__('Time format')}",
+      format="$ctrl.timeFormat",
+      example-date="$ctrl.currentDate",
+      available-formats="$ctrl.AVAILABLE_TIME_FORMATS")

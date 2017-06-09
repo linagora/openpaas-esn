@@ -413,5 +413,7 @@
   "Thursday": "Jeudi",
   "Friday": "Vendredi",
   "Saturday": "Samedi",
-  "Sunday": "Dimanche"
+  "Sunday": "Dimanche",
+  "Date format": "Format de date",
+  "Time format": "Format de l'heure"
 }

@@ -30,6 +30,13 @@ module.exports = {
             user: 'rw'
           }
         },
+        datetime: {
+          rights: {
+            padmin: 'rw',
+            admin: 'rw',
+            user: 'rw'
+          }
+        },
         autoconf: {
           rights: {
             admin: 'rw'

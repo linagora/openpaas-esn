@@ -231,9 +231,13 @@ const injections = [
   ], innerApps: ['esn', 'welcome']},
   {angular: ['esn.datetime'], files: [
     'datetime/datetime.module.js',
+    'datetime/datetime.run.js',
     'datetime/datetime-date-formater.filter.js',
     'datetime/datetime.constants.js',
-    'datetime/datetime.service.js'
+    'datetime/datetime.service.js',
+    'datetime/format-selector/form.component.js',
+    'datetime/format-selector/format-selector.component.js',
+    'datetime/format-selector/format-selector.controller.js'
   ], innerApps: ['esn']},
   {angular: ['esn.business-hours'], files: [
     'business-hours/business-hours.module.js',
