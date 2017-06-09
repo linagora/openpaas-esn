@@ -6,6 +6,10 @@ angular.module('esn.box-overlay', [
   'ng.deviceDetector'
 ])
 
+  .constant('ESN_BOX_OVERLAY_EVENTS', {
+    RESIZED: 'esn:box-overlay:resized'
+  })
+
   .service('boxOverlayOpener', function($boxOverlay) {
 
     function open(options) {
@@ -89,6 +93,7 @@ angular.module('esn.box-overlay', [
   .factory('StateManager', function() {
     function StateManager() {
       this.state = StateManager.STATES.NORMAL;
+      this.callbacks = [];
     }
 
     StateManager.STATES = {
@@ -99,13 +104,18 @@ angular.module('esn.box-overlay', [
 
     StateManager.prototype.toggle = function(newState) {
       this.state = this.state === newState ? StateManager.STATES.NORMAL : newState;
+      this.callbacks.forEach(function(callback) {callback();});
+    };
+
+    StateManager.prototype.registerHandler = function(callback) {
+      callback && typeof callback === 'function' && this.callbacks.push(callback);
     };
 
     return StateManager;
   })
 
   .provider('$boxOverlay', function() {
-    this.$get = function($window, $rootScope, $compile, $templateCache, $http, $timeout, boxOverlayService, StateManager, deviceDetector, DEVICES) {
+    this.$get = function($window, $rootScope, $compile, $templateCache, $http, $timeout, boxOverlayService, StateManager, deviceDetector, DEVICES, ESN_BOX_OVERLAY_EVENTS) {
       var boxTemplateUrl = '/views/modules/box-overlay/template.html';
 
       function container() {
@@ -149,6 +159,16 @@ angular.module('esn.box-overlay', [
             scope = angular.extend($rootScope.$new(), config),
             $boxOverlay = { $scope: scope},
             stateManager = new StateManager();
+
+        function initialize() {
+          stateManager.registerHandler(notifyComponentsAboutResizeRequest);
+        }
+
+        function notifyComponentsAboutResizeRequest() {
+          if (!scope.isMinimized()) {
+            $rootScope.$broadcast(ESN_BOX_OVERLAY_EVENTS.RESIZED);
+          }
+        }
 
         if (!boxOverlayService.addBox(scope)) {
           return;
@@ -246,6 +266,7 @@ angular.module('esn.box-overlay', [
           scope.title = title || config.title;
         };
 
+        initialize();
         return $boxOverlay;
       }
 

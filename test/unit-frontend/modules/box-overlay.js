@@ -79,10 +79,10 @@ describe('The box-overlay Angular module', function() {
 
   describe('boxOverlay directive', function() {
 
-    var $httpBackend;
+    var $httpBackend, ESN_BOX_OVERLAY_EVENTS;
 
     beforeEach(inject(function(_$window_, _$compile_, _$rootScope_, _$httpBackend_, _$timeout_,
-        _deviceDetector_, _DEVICES_) {
+        _deviceDetector_, _DEVICES_, _ESN_BOX_OVERLAY_EVENTS_) {
       $window = _$window_;
       $compile = _$compile_;
       $rootScope = _$rootScope_;
@@ -91,6 +91,7 @@ describe('The box-overlay Angular module', function() {
       $timeout = _$timeout_;
       deviceDetector = _deviceDetector_;
       DEVICES = _DEVICES_;
+      ESN_BOX_OVERLAY_EVENTS = _ESN_BOX_OVERLAY_EVENTS_;
 
       deviceDetector.device = DEVICES.ANDROID;
     }));
@@ -234,6 +235,47 @@ describe('The box-overlay Angular module', function() {
       expect(overlays().last().hasClass('minimized')).to.equal(true);
     });
 
+    describe('min/maximize buttons should notify child components', function() {
+
+      var mock, unsubscriber;
+
+      beforeEach(function(){
+        compileAndClickTheButton('<button box-overlay />');
+        mock = sinon.spy();
+        unsubscriber = $rootScope.$on(ESN_BOX_OVERLAY_EVENTS.RESIZED, mock);
+      });
+
+      afterEach(function() {
+        unsubscriber && unsubscriber();
+      })
+
+      it('should raise event ESN_BOX_OVERLAY_EVENTS.RESIZED when unminimized', function() {
+        minimizeFirstBox();
+        maximizeFirstBox();
+
+        expect(mock).to.have.been.calledOnce;
+      });
+
+      it('should raise event ESN_BOX_OVERLAY_EVENTS.RESIZED when maximized', function() {
+        maximizeFirstBox();
+
+        expect(mock).to.have.been.calledOnce;
+      });
+
+      it('should NOT raise event ESN_BOX_OVERLAY_EVENTS.RESIZED when minimized', function() {
+        minimizeFirstBox();
+
+        expect(mock).to.not.have.been.called;
+      });
+
+      it('should raise event ESN_BOX_OVERLAY_EVENTS.RESIZED when minimized clicked 2 times', function() {
+        minimizeFirstBox();
+        minimizeFirstBox();
+
+        expect(mock).to.have.been.calledOnce;
+      });
+    });
+
     describe('when the device is an ipad', function() {
 
       beforeEach(function() {
@@ -353,6 +395,38 @@ describe('The box-overlay Angular module', function() {
       overlay.updateTitle('New Title');
 
       expect(overlay.$scope.title).to.equal('New Title');
+    });
+  });
+
+  describe('The StateManager factory', function() {
+    var stateManager, StateManager;
+
+    beforeEach(inject(function(_StateManager_) {
+      StateManager = _StateManager_;
+      stateManager = new StateManager();
+    }));
+
+    it('should call registered functions when toggled', function() {
+      var callback = sinon.spy();
+
+      stateManager.registerHandler(callback);
+      stateManager.toggle(StateManager.STATES.NORMAL);
+
+      expect(callback).to.have.been.calledOnce;
+    });
+
+    it('should register only functions', function(){
+      var callback = 'foobar';
+
+      stateManager.registerHandler(callback);
+
+      expect(function() {stateManager.toggle(StateManager.STATES.NORMAL);}).to.not.throw();
+    });
+
+    it('should have no registered callback by default', function() {
+      stateManager = new StateManager();
+
+      expect(stateManager.callbacks).to.be.an('array').that.is.empty;
     });
   });
 
