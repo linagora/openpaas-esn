@@ -19,6 +19,7 @@
     gracePeriodService,
     calMasterEventCache,
     notificationFactory,
+    esnI18nService,
     CAL_GRACE_DELAY,
     CAL_EVENTS) {
 
@@ -185,15 +186,15 @@
                 id: taskId,
                 delay: CAL_GRACE_DELAY,
                 context: {id: event.uid},
-                performedAction: 'You are about to create a new event (' + event.title + ').',
+                performedAction: esnI18nService.translate('You are about to create a new event (%s).', event.title),
                 cancelFailed: 'An error has occured, the creation could not been reverted',
                 cancelTooLate: 'It is too late to cancel the creation',
                 gracePeriodFail: 'Event creation failed. Please refresh your calendar',
-                successText: 'Calendar - ' + event.title + ' has been created.'
+                successText: esnI18nService.translate('Calendar - %s has been created.', event.title)
               }).then(_.constant(true), onTaskCancel);
             }
           }, function(err) {
-            notificationFactory.weakError('Event creation failed', (err.statusText || err) + '. Please refresh your calendar');
+            notificationFactory.weakError('Event creation failed', esnI18nService.translate('%s. Please refresh your calendar', err.statusText || err));
 
             return $q.reject(err);
           })
@@ -215,7 +216,8 @@
           // This is a noop and the event is not created yet in sabre/dav,
           // we then should only remove the event from fullcalendar
           // and cancel the taskid corresponding on the event.
-          notificationFactory.weakInfo('Calendar', event.title + ' has been deleted.');
+          notificationFactory.weakInfo('Calendar', esnI18nService.translate('%s has been deleted.', event.title));
+
           return gracePeriodService.cancel(event.gracePeriodTaskId).then(function() {
             calCachedEventSource.deleteRegistration(event);
             calendarEventEmitter.fullcalendar.emitRemovedEvent(event.id);
@@ -244,11 +246,11 @@
                 id: taskId,
                 delay: CAL_GRACE_DELAY,
                 context: {id: event.uid},
-                performedAction: 'You are about to delete the event (' + event.title + ').',
-                cancelFailed: 'An error has occurred, the deletion could not been reverted',
-                cancelSuccess: 'Calendar - Suppression of ' + event.title + ' has been cancelled',
+                performedAction: esnI18nService.translate('You are about to delete the event (%s).', event.title),
+                cancelFailed: 'An error has occurred, can not revert the deletion',
+                cancelSuccess: esnI18nService.translate('Calendar - Deletion of %s has been cancelled', event.title),
                 cancelTooLate: 'It is too late to cancel the deletion',
-                successText: 'Calendar - ' + event.title + ' has been deleted.',
+                successText: esnI18nService.translate('Calendar - %s has been deleted.', event.title),
                 gracePeriodFail: {
                   text: 'Event deletion failed. Please refresh your calendar',
                   delay: -1,
@@ -266,7 +268,7 @@
                 return false;
               });
             }, function(err) {
-              notificationFactory.weakError('Event deletion failed', (err.statusText || err) + '. Please refresh your calendar');
+              notificationFactory.weakError(esnI18nService.translate('Event deletion failed', '%s. Please refresh your calendar', err.statusText || err));
 
               return $q.reject(err);
             })
@@ -353,10 +355,10 @@
               id: taskId,
               delay: CAL_GRACE_DELAY,
               context: {id: event.uid},
-              performedAction: 'You are about to modify an event (' + event.title + ').',
-              cancelFailed: 'An error has occured, the modification could not been reverted',
+              performedAction: esnI18nService.translate('You are about to modify an event (%s).', event.title),
+              cancelFailed: 'An error has occured, the modification can not be reverted',
               cancelTooLate: 'It is too late to cancel the modification',
-              cancelSuccess: 'Calendar - Modification of ' + event.title + ' has been canceled.',
+              cancelSuccess: esnI18nService.translate('Calendar - Modification of %s has been canceled.', event.title),
               gracePeriodFail: {
                 text: 'Event modification failed, please refresh your calendar',
                 delay: -1,
@@ -367,14 +369,14 @@
                   $rootScope.$broadcast(CAL_EVENTS.CALENDAR_REFRESH);
                 }
                },
-              successText: 'Calendar - ' + event.title + ' has been modified.'
+              successText: esnI18nService.translate('Calendar - %s has been modified.', event.title)
             }, options.graceperiodMessage)).then(_.constant(true), function() {
               onTaskCancel();
 
               return false;
             });
           }, function(err) {
-            notificationFactory.weakError('Event modification failed ', (err.statusText || err) + ', Please refresh your calendar');
+            notificationFactory.weakError('Event modification failed', esnI18nService.translate('%s, Please refresh your calendar', err.statusText || err));
 
             return $q.reject(err);
           })

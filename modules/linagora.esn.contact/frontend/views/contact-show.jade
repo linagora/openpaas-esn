@@ -35,7 +35,7 @@ sub-header
             .contact-item-data
               p
                 a(ng-href='tel:{{tel.value}}') {{tel.value}}
-              p.type {{tel.type}}
+              p.type {{tel.type | esnI18n}}
 
         .contact-items-group(ng-if='emails && emails.length')
           i.mdi.mdi-email
@@ -43,7 +43,7 @@ sub-header
             .contact-item-data
               p
                 a(ng-href='mailto:{{email.value}}' op-inbox-compose op-inbox-compose-display-name='{{displayShell.getDisplayName()}}') {{email.value}}
-              p.type {{email.type}}
+              p.type {{email.type | esnI18n}}
 
         .contact-items-group(ng-if='contact.social && contact.social.length')
           i.mdi.mdi-account-circle

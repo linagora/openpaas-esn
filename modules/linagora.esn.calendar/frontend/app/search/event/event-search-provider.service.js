@@ -14,7 +14,8 @@
     newProvider,
     searchProviders,
     CAL_EVENTS,
-    ELEMENTS_PER_REQUEST
+    ELEMENTS_PER_REQUEST,
+    esnI18nService
   ) {
     var service = {
       getAll: getAll,
@@ -27,10 +28,8 @@
     ////////////
 
     function buildProvider(calendar) {
-      var name = 'Events from ' + calendar.name;
-
       return newProvider({
-        name: name,
+        name: esnI18nService.translate('Events from %s', calendar.name),
         id: calendar.uniqueId,
         fetch: function(query) {
           var offset = 0;

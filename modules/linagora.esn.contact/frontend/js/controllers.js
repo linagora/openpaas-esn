@@ -2,7 +2,7 @@
 
 angular.module('linagora.esn.contact')
 
-  .controller('newContactController', function($rootScope, $scope, $stateParams, $location, notificationFactory, sendContactToBackend, displayContactError, closeContactForm, gracePeriodService, openContactForm, sharedContactDataService, $q, ContactAPIClient, ContactLocationHelper, DEFAULT_ADDRESSBOOK_NAME) {
+  .controller('newContactController', function($rootScope, $scope, $stateParams, $location, notificationFactory, sendContactToBackend, displayContactError, closeContactForm, gracePeriodService, openContactForm, sharedContactDataService, $q, ContactAPIClient, ContactLocationHelper, esnI18nService, DEFAULT_ADDRESSBOOK_NAME) {
     $scope.bookId = $stateParams.bookId;
     $scope.bookName = DEFAULT_ADDRESSBOOK_NAME;
     $scope.contact = sharedContactDataService.contact;
@@ -27,11 +27,13 @@ angular.module('linagora.esn.contact')
         ContactLocationHelper.contact.show($scope.bookId, $scope.bookName, $scope.contact.id);
       }, function(err) {
         displayContactError(err);
+
         return $q.reject(err);
       }).then(function() {
         return gracePeriodService.askUserForCancel(
-            'You have just created a new contact (' + $scope.contact.displayName + ').', 'Cancel it'
-          ).promise.then(function(data) {
+          esnI18nService.translate('You have just created a new contact (%s).', $scope.contact.displayName),
+          'Cancel it'
+        ).promise.then(function(data) {
             if (data.cancelled) {
               ContactAPIClient
                 .addressbookHome($scope.bookId)
@@ -43,6 +45,7 @@ angular.module('linagora.esn.contact')
                   openContactForm($scope.bookId, $scope.contact);
                 }, function(err) {
                   data.error('Cannot cancel contact creation, the contact is created');
+
                   return $q.reject(err);
                 });
             }
@@ -64,6 +67,7 @@ angular.module('linagora.esn.contact')
       if (!$scope.contact.addresses || !$scope.contact.addresses.length) {
         return false;
       }
+
       return $scope.contact.addresses.filter(function(address) {
         return address.type.toLowerCase() === type.toLowerCase();
       }).length;
@@ -169,6 +173,7 @@ angular.module('linagora.esn.contact')
     });
 
     var oldContact = '';
+
     if (contactUpdateDataService.contact) {
       $scope.contact = contactUpdateDataService.contact;
       $scope.contact.vcard = VcardBuilder.toVcard($scope.contact);
@@ -209,6 +214,7 @@ angular.module('linagora.esn.contact')
       if (!isContactModified()) {
         return $scope.close();
       }
+
       return sendContactToBackend($scope, function() {
         return ContactAPIClient
           .addressbookHome($scope.bookId)
@@ -223,10 +229,10 @@ angular.module('linagora.esn.contact')
 
             return gracePeriodService.grace({
               id: taskId,
-              performedAction: 'The contact has been updated',
+              performedAction: 'Contact updated',
               cancelFailed: 'Cannot cancel contact update',
-              cancelTooLate: 'It is too late to cancel the contact update',
-              gracePeriodFail: 'Failed to update contact, please try later'
+              cancelTooLate: 'Too late to cancel the contact update',
+              gracePeriodFail: 'Failed to update contact'
             }).catch(function(err) {
               $rootScope.$broadcast(
                 CONTACT_EVENTS.CANCEL_UPDATE,
@@ -253,6 +259,7 @@ angular.module('linagora.esn.contact')
   .controller('contactsListController', function($log, $scope, $q, usSpinnerService, $location, AlphaCategoryService, ALPHA_ITEMS, user, displayContactError, openContactForm, ContactsHelper, gracePeriodService, $window, searchResultSizeFormatter, CONTACT_EVENTS, CONTACT_LIST_DISPLAY, sharedContactDataService, contactUpdateDataService, AddressBookPagination, addressbooks, CONTACT_LIST_DISPLAY_MODES) {
     var requiredKey = 'displayName';
     var SPINNER = 'contactListSpinner';
+
     $scope.user = user;
     $scope.bookId = $scope.user._id;
     $scope.keys = ALPHA_ITEMS;
@@ -281,11 +288,13 @@ angular.module('linagora.esn.contact')
     function fillRequiredContactInformation(contact) {
       if (!contact[requiredKey]) {
         var fn = ContactsHelper.getFormattedName(contact);
+
         if (!fn) {
           fn = contact.id;
         }
         contact[requiredKey] = fn;
       }
+
       return contact;
     }
 
@@ -358,10 +367,12 @@ angular.module('linagora.esn.contact')
       if (!$location.search().q) {
         if (!$scope.contactSearch.searchInput) {return;}
         $scope.contactSearch.searchInput = null;
+
         return $scope.search();
       }
       if ($location.search().q.replace(/\+/g, ' ') !== $scope.contactSearch.searchInput) {
         $scope.contactSearch.searchInput = $location.search().q.replace(/\+/g, ' ');
+
         return $scope.search();
       }
     });
@@ -371,6 +382,7 @@ angular.module('linagora.esn.contact')
     $scope.appendQueryToURL = function() {
       if ($scope.contactSearch.searchInput) {
         $location.search('q', $scope.contactSearch.searchInput.replace(/ /g, '+'));
+
         return;
       }
       $location.search('q', null);
@@ -397,6 +409,7 @@ angular.module('linagora.esn.contact')
 
       if ($scope.searching) {
         $scope.updatedDuringSearch = $scope.contactSearch.searchInput;
+
         return;
       }
 
@@ -423,6 +436,7 @@ angular.module('linagora.esn.contact')
     function getSearchResults() {
       $log.debug('Searching contacts');
       usSpinnerService.spin(SPINNER);
+
       return $scope.pagination.service.loadNextItems({searchInput: $scope.contactSearch.searchInput})
         .then(setSearchResults, searchFailure)
         .finally(loadPageComplete);
@@ -444,6 +458,7 @@ angular.module('linagora.esn.contact')
       }
       $scope.loadFailure = false;
       $scope.loadingNextContacts = true;
+
       return $q.when();
     }
 
@@ -506,6 +521,7 @@ angular.module('linagora.esn.contact')
         $scope.loading = true;
         selectionService.getBlob('image/png', function(blob) {
           var reader = new FileReader();
+
           reader.onloadend = function() {
             $scope.contact.photo = reader.result;
             selectionService.clear();
@@ -567,6 +583,7 @@ angular.module('linagora.esn.contact')
           isMatchBirthDay = (contactHighLightHelper.checkStringMatch($scope.formattedBirthday, keySearch, 'mdi-cake-variant') > -1);
 
       $scope.datas = contactHighLightHelper.dataHighlight;
+
       return isMatchAddress ||
              isMatchSocial ||
              isMatchUrl ||

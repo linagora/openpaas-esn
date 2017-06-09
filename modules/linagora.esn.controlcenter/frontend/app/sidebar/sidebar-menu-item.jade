@@ -1,3 +1,3 @@
 a.lv-item.menu-item(ng-href="{{::$ctrl.href}}")
   i.mdi(ng-class="::$ctrl.icon")
-  .menu-title {{::$ctrl.label}}
+  .menu-title {{::$ctrl.label | esnI18n}}

@@ -19,6 +19,7 @@
     calUIAuthorizationService,
     session,
     calendarUsersCache,
+    esnI18nService,
     CAL_EVENTS,
     CAL_EVENT_FORM) {
 
@@ -218,7 +219,7 @@
             icalPartStatToReadableStatus.ACCEPTED = 'You will attend this meeting';
             icalPartStatToReadableStatus.DECLINED = 'You will not attend this meeting';
             icalPartStatToReadableStatus.TENTATIVE = 'You may attend this meeting';
-            _displayNotification(notificationFactory.weakInfo, 'Calendar - ', icalPartStatToReadableStatus[status]);
+            _displayNotification(notificationFactory.weakInfo, 'Calendar -', icalPartStatToReadableStatus[status]);
           }
         }, function() {
           _displayNotification(notificationFactory.weakError, 'Event participation modification failed', '; Please refresh your calendar');
@@ -269,10 +270,10 @@
 
         $scope.restActive = true;
         var gracePeriodMessage = {
-          performedAction: 'You are about to modify alarm of ' + $scope.event.title + ' has been modified',
-          cancelSuccess: 'Modification of ' + $scope.event.title + ' has been cancelled.',
-          gracePeriodFail: 'Modification of ' + $scope.event.title + ' failed. Please refresh your calendar',
-          successText: 'Alarm of ' + $scope.event.title + ' has been modified.'
+          performedAction: esnI18nService.translate('You are about to modify alarm of %s', $scope.event.title),
+          cancelSuccess: esnI18nService.translate('Modification of %s has been cancelled.', $scope.event.title),
+          gracePeriodFail: esnI18nService.translate('Modification of %s failed. Please refresh your calendar', $scope.event.title),
+          successText: esnI18nService.translate('Alarm of %s has been modified.', $scope.event.title)
         };
 
         calEventService.modifyEvent(path, $scope.editedEvent, $scope.event, $scope.event.etag, angular.noop, gracePeriodMessage).finally(function() {

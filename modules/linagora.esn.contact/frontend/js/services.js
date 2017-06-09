@@ -224,6 +224,7 @@ angular.module('linagora.esn.contact')
                               ContactAPIClient,
                               gracePeriodService,
                               notificationFactory,
+                              esnI18nService,
                               GRACE_DELAY,
                               CONTACT_EVENTS) {
     return function(bookId, bookName, contact) {
@@ -243,7 +244,7 @@ angular.module('linagora.esn.contact')
 
           return gracePeriodService.grace({
             id: taskId,
-            performedAction: 'You have just deleted a contact (' + contact.displayName + ')',
+            performedAction: esnI18nService.translate('You have just deleted a contact (%s)', contact.displayName),
             cancelFailed: 'Cannot cancel contact deletion, the contact might be deleted permanently',
             cancelTooLate: 'It is too late to cancel the contact deletion, the contact might be deleted permanently'
           }).catch(function() {

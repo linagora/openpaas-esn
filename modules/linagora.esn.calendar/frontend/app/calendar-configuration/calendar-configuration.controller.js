@@ -22,7 +22,8 @@
     CAL_CALENDAR_MODIFY_COMPARE_KEYS,
     CAL_CALENDAR_PUBLIC_RIGHT,
     CAL_CALENDAR_SHARED_RIGHT,
-    CalDelegationEditionHelper
+    CalDelegationEditionHelper,
+    esnI18nService
   ) {
     var self = this;
     var CaldelegationEditionHelperInstance = new CalDelegationEditionHelper();
@@ -128,7 +129,7 @@
             }
           })
           .then(function() {
-            notificationFactory.weakInfo('New calendar - ', self.calendar.name + ' has been created.');
+            notificationFactory.weakInfo('New calendar -', esnI18nService.translate('%s has been created', self.calendar.name));
             $state.go('calendar.main');
           });
       } else {
@@ -173,7 +174,7 @@
         }
 
         $q.all(updateActions).then(function() {
-          notificationFactory.weakInfo('Calendar - ', self.calendar.name + ' has been modified.');
+          notificationFactory.weakInfo('Calendar -', esnI18nService.translate('%s has been modified.', self.calendar.name));
           $state.go('calendar.main');
         });
       }

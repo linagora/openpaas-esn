@@ -5,7 +5,7 @@
     .col-md-5
       .select
         select.addDelegation.form-control(ng-model='$ctrl.selectedShareeRight')
-          option(ng-repeat="delegationType in ::$ctrl.delegationTypes" value="{{delegationType.value}}" ng-selected="delegationType.value === $ctrl.selectedShareeRight") {{delegationType.name}}
+          option(ng-repeat="delegationType in ::$ctrl.delegationTypes" value="{{delegationType.value}}" ng-selected="delegationType.value === $ctrl.selectedShareeRight") {{delegationType.name | esnI18n}}
     .col-md-2
       .btn.btn-primary.btn-sm(ng-click="$ctrl.addUserGroup()") #{__('Add')}
 

@@ -80,6 +80,9 @@ describe('The calEventService service', function() {
       $provide.value('calCachedEventSource', calCachedEventSourceMock);
       $provide.value('calendarEventEmitter', self.calendarEventEmitterMock);
       $provide.value('gracePeriodLiveNotificationService', {start: angular.noop});
+      $provide.value('esnI18nService', {
+        translate: function(input) { return input; }
+      });
       $provide.decorator('calMasterEventCache', function($delegate) {
         self.calMasterEventCache = {
           get: $delegate.get,
@@ -938,7 +941,7 @@ describe('The calEventService service', function() {
       expect(calCachedEventSourceMock.deleteRegistration).to.have.been.calledWith(self.event);
       expect(self.calendarEventEmitterMock.fullcalendar.emitRemovedEvent).to.have.been.calledWith(self.event.id);
       expect(self.gracePeriodService.cancel).to.have.been.calledWith(self.event.gracePeriodTaskId);
-      expect(self.notificationFactoryMock.weakInfo).to.have.been.calledWith('Calendar', self.event.title + ' has been deleted.');
+      expect(self.notificationFactoryMock.weakInfo).to.have.been.calledWith('Calendar', '%s has been deleted.');
     });
 
     it('should cancel the task if event is involved in a graceperiod', function() {

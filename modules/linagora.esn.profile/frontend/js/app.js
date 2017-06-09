@@ -9,7 +9,8 @@ angular.module('linagora.esn.profile', [
   'esn.notification',
   'esn.timeline',
   'esn.previous-page',
-  'op.dynamicDirective'
+  'op.dynamicDirective',
+  'esn.i18n'
   ])
   .config(function($stateProvider) {
     $stateProvider

@@ -7,7 +7,7 @@
         .fg-line.select
           select.form-control(
             ng-model="vm.freq",
-            ng-options="item.value as item.label for item in vm.CAL_RECUR_FREQ",
+            ng-options="item.value as (item.label | esnI18n) for item in vm.CAL_RECUR_FREQ",
             ng-change="vm.setRRULE()",
             ng-disabled="!vm.canModifyEventRecurrence")
     .form-group.event-recurrence-flex-container(ng-show="vm.freq")

@@ -16,6 +16,7 @@
     ERROR_DELAY,
     $rootScope,
     gracePeriodLiveNotificationService,
+    EsnI18nString,
     DEFAULT_GRACE_MESSAGE
   ) {
     var tasks = {};
@@ -205,7 +206,7 @@
         });
       } else {
         var notification = notifyService({
-          message: message.text,
+          message: (message instanceof EsnI18nString) ? message : message.text,
           hideCross: message.hideCross
         }, {
           type: type,
