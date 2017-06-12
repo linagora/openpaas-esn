@@ -1,14 +1,18 @@
 extends /modules/subheader/responsive-subheader
 
 block left
-  a.button.flex-vertical-centered(type='button' esn-back-button='profile')
+  button.btn.btn-link.hidden-xs(esn-back-button='profile')
+    .flex-vertical-centered
+      i.mdi.mdi-close.mdi-margin-right
+      span #{__('Back')}
+  button.btn.btn-link.btn-icon.visible-xs(esn-back-button='profile')
     i.mdi.mdi-close
-    span.visible-md
-      | #{__('Cancel')}
   span.title.extra-title.ellipsis #{__('Edit Profile')}
 
 block right
-  a.button.flex-vertical-centered(ui-sref='profile', ng-click='updateProfile(user)')
-    span
-      | #{__('Save')}
+  button.btn.btn-link.hidden-xs(ui-sref='profile', ng-click='updateProfile(user)')
+    .flex-vertical-centered
+      span #{__('Save')}
+      i.mdi.mdi-check.mdi-margin-left
+  button.btn.btn-link.btn-icon.visible-xs(ui-sref='profile', ng-click='updateProfile(user)')
     i.mdi.mdi-check
