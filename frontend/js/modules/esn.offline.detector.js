@@ -17,7 +17,7 @@
    * @desc Service to detect offline/online event
    * @memberOf esn.offline.detector
    */
-  function offlineDetectorApi($rootScope, $window) {
+  function offlineDetectorApi($rootScope, $window, $http) {
     var service = {
       activate: activate,
       online: isOnline()
@@ -40,7 +40,14 @@
      * @memberOf esn.offline.detector.offlineDetectorApi
      */
     function isOnline() {
-      return $window.navigator.online;
+      return $http.get('/api/ping').then(
+        function(result) {
+          return result.data === 'pong';
+        },
+        function() {
+          return false;
+        }
+      );
     }
 
     /* @name setNetworkActivity
@@ -49,6 +56,7 @@
      */
     function setNetworkActivity() {
       service.online = isOnline();
+      console.log(service.online);
 
       $rootScope.$broadcast('network:available', service.online);
     }

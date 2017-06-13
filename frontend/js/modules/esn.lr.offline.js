@@ -102,7 +102,7 @@
     function recordAction(localRecord) {
       var recorderInstance = localStorageService.getOrCreateInstance(OFFLINE_RECORD);
 
-      recorderInstance.getItem(localRecord.module).then(function(localRecords) {
+      return recorderInstance.getItem(localRecord.module).then(function(localRecords) {
         localRecords = localRecords || [];
 
         localRecords.push(localRecord);
