@@ -317,6 +317,25 @@ module.exports = function(mixin, testEnv) {
           res.status(200).send(servedData);
         })
         .listen(testEnv.serversConfig.davserver.port);
+    },
+    runConfigurableServer: function(handlers) {
+      function handler(method) {
+        return (req, res) => {
+          if (handlers && handlers[method]) {
+            return handlers[method](req, res);
+          }
+
+          res.status(204).end();
+        };
+      }
+
+      return require('express')()
+        .use(require('body-parser').json())
+        .get('/*', handler('get'))
+        .post('/*', handler('post'))
+        .put('/*', handler('put'))
+        .delete('/*', handler('delete'))
+        .listen(testEnv.serversConfig.davserver.port);
     }
   };
 
