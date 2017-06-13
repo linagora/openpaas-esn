@@ -1,5 +1,0 @@
-.attendee-item
-  cal-attendee-avatar(attendee='ctrl.attendee', is-organizer='ctrl.isOrganizer')
-  .name
-    a.send-email(ng-href="mailto:{{::ctrl.attendee.email}}" op-inbox-compose op-inbox-compose-display-name="{{::ctrl.attendee.name}}")
-      {{::ctrl.attendee.name}}
