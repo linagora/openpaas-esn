@@ -95,24 +95,26 @@
      * @param {Object} localRecord - LocalRecord object to record
      * @param {string} localRecord.module - Name of the module
      * @param {string} localRecord.action - Name of the action
-     * @param {Object} localRecord.playload - Playload of the action
+     * @param {Object} localRecord.payload - Payload of the action
      * @return {Promise} Record status
      * @memberOf esn.offline.offlineApi
      */
     function recordAction(localRecord) {
       var recorderInstance = localStorageService.getOrCreateInstance(OFFLINE_RECORD);
+      return recorderInstance.getItem(localRecord.module).then(function(actions) {
+        actions = actions || [];
 
-      return recorderInstance.getItem(localRecord.module).then(function(localRecords) {
-        localRecords = localRecords || [];
+        actions.push({
+          action: localRecord.action,
+          payload: localRecord.payload
+        });
 
-        localRecords.push(localRecord);
-
-        return recorderInstance.setItem(localRecord.module, localRecords);
+        return recorderInstance.setItem(localRecord.module, actions);
       }).then(function() {
         if (offlineDetectorApi.online) {
           var handler = getActionHandler(localRecord.module, localRecord.action);
 
-          return handler(localRecord).then(function() {
+          return handler(localRecord.payload).then(function() {
             return true;
           });
         }
@@ -146,19 +148,20 @@
      * @param {Object} localRecord - LocalRecord object to remove
      * @param {string} localRecord.module - Name of the module
      * @param {string} localRecord.action - Name of the action
-     * @param {Object} localRecord.playload - Playload of the action
+     * @param {Object} localRecord.payload - Payload of the action
      * @return {Promise} Remove status
      * @memberOf esn.offline.offlineApi
      */
     function removeAction(localRecord) {
       var recorderInstance = localStorageService.getOrCreateInstance(OFFLINE_RECORD);
-      var localRecords = recorderInstance.get(localRecord.module) || [];
+      return recorderInstance.getItem(localRecord.module).then(function(data) {
+        var localRecords = data || [];
 
-      if (localRecords) {
-        _.remove(localRecords, localRecord);
-      }
-
-      return recorderInstance.setItem(localRecord.module, localRecords);
+        if (localRecords) {
+          localRecords = _.remove(localRecords, localRecord);
+        }
+        return recorderInstance.setItem(localRecord.module, localRecords);
+      });
     }
   }
 })();
