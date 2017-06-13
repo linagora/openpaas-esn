@@ -1,20 +1,22 @@
 'use strict';
 
-var ICAL = require('ical.js');
-var charAPI = require('charAPI');
-var DEFAULT_AVATAR_SIZE = 256;
+const ICAL = require('ical.js'),
+      charAPI = require('charAPI');
 
-module.exports = function(dependencies) {
+const DEFAULT_AVATAR_SIZE = 256,
+      DEFAULT_SEARCH_LIMIT = 3;
 
-  var logger = dependencies('logger');
-  var avatarGenerationModule = dependencies('image').avatarGenerationModule;
-  var contactClient = require('../../../lib/client')(dependencies);
+module.exports = dependencies => {
+  const logger = dependencies('logger'),
+        avatarGenerationModule = dependencies('image').avatarGenerationModule,
+        contactClient = require('../../../lib/client')(dependencies),
+        searchClient = require('../../../lib/search')(dependencies);
 
   function _getContactAvatar(contact, size) {
-    var vcard = new ICAL.Component(contact);
-    var formattedName = vcard.getFirstPropertyValue('fn');
-    var contactId = vcard.getFirstPropertyValue('uid');
-    var photo = vcard.getFirstPropertyValue('photo');
+    const vcard = new ICAL.Component(contact),
+          formattedName = vcard.getFirstPropertyValue('fn'),
+          contactId = vcard.getFirstPropertyValue('uid'),
+          photo = vcard.getFirstPropertyValue('photo');
 
     // Detect existing avatar, see more about vcard's photo field spec here:
     // https://tools.ietf.org/html/rfc6350#section-6.2.4
@@ -23,28 +25,33 @@ module.exports = function(dependencies) {
         return new Buffer(photo.split(',')[1], 'base64');
       } else if (photo.indexOf('http') === 0) {
         return photo;
-      } else {
-        logger.warn('Unsupported photo URI', photo);
       }
+
+      logger.warn('Unsupported photo URI', photo);
     }
-    var firstChar;
+
+    let firstChar;
 
     if (!formattedName) {
       firstChar = '#';
     } else {
       firstChar = charAPI.getAsciiUpperCase(formattedName.charAt(0));
+
       if (!firstChar) {
         firstChar = '#';
       }
     }
 
-    var colors = avatarGenerationModule.getColorsFromUuid(contactId);
-    var options = {
-      text: firstChar,
-      bgColor: colors.bgColor,
-      fgColor: colors.fgColor
-    };
-    if (size) { options.size = size; }
+    const colors = avatarGenerationModule.getColorsFromUuid(contactId),
+          options = {
+            text: firstChar,
+            bgColor: colors.bgColor,
+            fgColor: colors.fgColor
+          };
+
+    if (size) {
+      options.size = size;
+    }
 
     return avatarGenerationModule.generateFromText(options);
   }
@@ -58,37 +65,60 @@ module.exports = function(dependencies) {
    * @param  {response} res Response object
    */
   function getAvatar(req, res) {
-    var addressBookId = req.params.addressBookId;
-    var addressbookName = req.params.addressbookName;
-    var contactId = req.params.contactId;
-    var avatarSize = req.query.size ? req.query.size : DEFAULT_AVATAR_SIZE;
-    var clientOptions = {
-      ESNToken: req.token && req.token.token ? req.token.token : '',
-      davserver: req.davserver
-    };
+    const addressBookId = req.params.addressBookId,
+          addressbookName = req.params.addressbookName,
+          contactId = req.params.contactId,
+          avatarSize = req.query.size ? req.query.size : DEFAULT_AVATAR_SIZE,
+          clientOptions = {
+            ESNToken: req.token && req.token.token ? req.token.token : '',
+            davserver: req.davserver
+          };
 
     contactClient(clientOptions)
       .addressbookHome(addressBookId)
       .addressbook(addressbookName)
       .vcard(contactId)
       .get()
-      .then(function(data) {
-        var avatar = _getContactAvatar(data.body, avatarSize);
+      .then(data => {
+        const avatar = _getContactAvatar(data.body, avatarSize);
+
         if (typeof avatar === 'string') {
           res.redirect(avatar);
         } else {
           res.type('png');
           res.send(avatar);
         }
-      }, function(err) {
+      }, err => {
         logger.error(err);
+
         res.status(404).send('Sorry, we cannot find avatar with your request!');
       });
   }
 
+  function searchContacts(req, res) {
+    const query = {
+      search: req.query.q,
+      limit: +req.query.limit || DEFAULT_SEARCH_LIMIT,
+      userId: req.user.id
+    };
+
+    searchClient.searchContacts(query, (err, result) => {
+      if (err) {
+        return res.status(500).json({ error: { code: 500, message: 'Error while searching contacts', details: err.message } });
+      }
+
+      if (result.total_count === 0) {
+        return res.status(204).end();
+      }
+
+      res.status(200).json(result.list.map(contact => contact._source));
+    });
+  }
+
   return {
-    _getContactAvatar: _getContactAvatar,
-    getAvatar: getAvatar
+    _getContactAvatar,
+    getAvatar,
+    searchContacts
   };
 
 };
