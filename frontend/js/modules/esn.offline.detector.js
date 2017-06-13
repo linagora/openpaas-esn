@@ -20,7 +20,6 @@
   function offlineDetectorApi($rootScope, $window, $http) {
     var service = {
       activate: activate,
-      online: isOnline()
     };
     return service;
 
@@ -33,6 +32,10 @@
     function activate() {
       $window.addEventListener('offline', setNetworkActivity);
       $window.addEventListener('online', setNetworkActivity);
+
+      isOnline().then(function(connected) {
+        service.online = connected;
+      });
     }
 
     /* @name isOnline
@@ -56,7 +59,6 @@
      */
     function setNetworkActivity() {
       service.online = isOnline();
-      console.log(service.online);
 
       $rootScope.$broadcast('network:available', service.online);
     }
