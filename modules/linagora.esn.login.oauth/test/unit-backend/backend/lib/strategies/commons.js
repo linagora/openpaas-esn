@@ -202,31 +202,12 @@ describe('The commons oauth login module', function() {
     });
   });
 
-  describe('The getCallbackEndpoint fn', function() {
+  describe('The getCallbackEndpoint function', function() {
 
-    it('should reject when configHelpers cannot get base_url', function(done) {
-      deps.helpers = {
-        config: {
-          getBaseUrl: function(user, callback) {
-            callback(new Error('something error'));
-          }
-        }
-      };
-
-      getModule().getCallbackEndpoint(type).catch(function(err) {
-        expect(err.message).to.equals('something error');
-        done();
-      });
-    });
-
-    it('should get url when configHelpers get baseURL successfully', function(done) {
-      var baseURL = 'http://localhost:8080';
-      var expectedUrl = baseURL + '/login-oauth/' + type + '/auth/callback';
-
-      getModule().getCallbackEndpoint(type).then(function(url) {
-        expect(url).to.equals(expectedUrl);
-        done();
-      });
+    it('should get url correctly', function(done) {
+      var expectedUrl = `/login-oauth/${type}/auth/callback`;
+      expect(getModule().getCallbackEndpoint(type)).to.equals(expectedUrl);
+      done();
     });
   });
 });

@@ -40,13 +40,13 @@ module.exports = function(dependencies) {
 
     logger.info('Configuring Twitter OAuth login');
 
-    q.spread([commons.getCallbackEndpoint(TYPE), getTwitterConfiguration()], (url, oauth) => {
+    getTwitterConfiguration().then(oauth => {
 
       passport.use(STRATEGY_NAME, new TwitterStrategy({
         consumerKey: oauth.consumer_key,
         consumerSecret: oauth.consumer_secret,
         passReqToCallback: true,
-        callbackURL: url,
+        callbackURL: commons.getCallbackEndpoint(TYPE),
         includeEmail: true
       }, commons.handleResponse(TYPE)));
       callback();
