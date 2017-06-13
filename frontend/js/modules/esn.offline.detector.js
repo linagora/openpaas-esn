@@ -17,7 +17,7 @@
    * @desc Service to detect offline/online event
    * @memberOf esn.offline.detector
    */
-  function offlineDetectorApi($rootScope, $window, $http) {
+  function offlineDetectorApi($interval, $rootScope, $window, $http) {
     var service = {
       activate: activate,
     };
@@ -30,12 +30,7 @@
      * @memberOf esn.offline.detector.offlineDetectorApi
      */
     function activate() {
-      $window.addEventListener('offline', setNetworkActivity);
-      $window.addEventListener('online', setNetworkActivity);
-
-      isOnline().then(function(connected) {
-        service.online = connected;
-      });
+      $interval(setNetworkActivity(), 2*1000);
     }
 
     /* @name isOnline
