@@ -39,6 +39,29 @@
     }
 
     /**
+     * @name executeRecord
+     * @param {Object} localRecord - LocalRecord object to record
+     * @param {string} localRecord.module - Name of the module
+     * @param {string} localRecord.action - Name of the action
+     * @param {Object} localRecord.payload - Payload of the action
+     * @returns {Promise} Record excution status
+     */
+    function executeRecord(localRecord) {
+      if (offlineDetectorApi.online) {
+        var handler = getActionHandler(localRecord.module, localRecord.action);
+
+        return handler(localRecord.payload).then(function() {
+          return {executed: true, error: null};
+        }).catch(function(error) {
+          if (error.status !== 504) {
+            return {executed: true, error:error.status};
+          }
+        });
+      }
+      return {executed: false, error: null};
+    }
+
+    /**
      * @name getActionHandler
      * @desc Get the handler associated to an action of a given module
      * @param {string} module - Module name
@@ -101,31 +124,18 @@
      */
     function recordAction(localRecord) {
       var recorderInstance = localStorageService.getOrCreateInstance(OFFLINE_RECORD);
+
       return recorderInstance.getItem(localRecord.module).then(function(actions) {
         actions = actions || [];
-
-        actions.push({
-          action: localRecord.action,
-          payload: localRecord.payload
-        });
-
+        actions.push(localRecord);
         return recorderInstance.setItem(localRecord.module, actions);
       }).then(function() {
-        if (offlineDetectorApi.online) {
-          var handler = getActionHandler(localRecord.module, localRecord.action);
-
-          return handler(localRecord.payload).then(function() {
-            return true;
-          });
+        return executeRecord(localRecord);
+      }).then(function(status) {
+        if (status.executed) {
+          removeAction(localRecord);
         }
-
-        return false;
-      }).then(function(executed) {
-        if (executed) {
-          return removeAction(localRecord);
-        }
-
-        return executed;
+        return status;
       });
     }
 
@@ -154,6 +164,7 @@
      */
     function removeAction(localRecord) {
       var recorderInstance = localStorageService.getOrCreateInstance(OFFLINE_RECORD);
+
       return recorderInstance.getItem(localRecord.module).then(function(data) {
         var localRecords = data || [];
 
