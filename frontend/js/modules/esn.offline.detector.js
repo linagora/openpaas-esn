@@ -1,0 +1,56 @@
+/**
+ * offlineDetectorApi Service
+ * @namespace esn.offline.detector
+ */
+(function() {
+  'use strict';
+
+  angular
+    .module('esn.offline.detector', [])
+    .factory('offlineDetectorApi', offlineDetectorApi)
+    .run(function(offlineDetectorApi) {
+      offlineDetectorApi.activate();
+    });
+
+  /**
+   * @namespace offlineDetectorApi
+   * @desc Service to detect offline/online event
+   * @memberOf esn.offline.detector
+   */
+  function offlineDetectorApi($rootScope, $window) {
+    var service = {
+      activate: activate,
+      online: isOnline()
+    };
+    return service;
+
+    ////////////
+
+    /* @name activate
+     * @desc Activation function launch at service instantiation
+     * @memberOf esn.offline.detector.offlineDetectorApi
+     */
+    function activate() {
+      $window.addEventListener('offline', setNetworkActivity);
+      $window.addEventListener('online', setNetworkActivity);
+    }
+
+    /* @name isOnline
+     * @desc Detection of browser connectivity based on window.online
+     * @memberOf esn.offline.detector.offlineDetectorApi
+     */
+    function isOnline() {
+      return $window.navigator.online;
+    }
+
+    /* @name setNetworkActivity
+     * @desc Set network activity based on isOnline() detection
+     * @memberOf esn.offline.detector.offlineDetectorApi
+     */
+    function setNetworkActivity() {
+      service.online = isOnline();
+
+      $rootScope.$broadcast('network:available', service.online);
+    }
+  }
+})();
