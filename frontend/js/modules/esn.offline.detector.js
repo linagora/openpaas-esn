@@ -58,7 +58,9 @@
      * @memberOf esn.offline.detector.offlineDetectorApi
      */
     function setNetworkActivity() {
-      service.online = isOnline();
+      isOnline().then(function(connected) {
+        service.online = connected;
+      });
 
       $rootScope.$broadcast('network:available', service.online);
     }
