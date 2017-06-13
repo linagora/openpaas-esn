@@ -76,4 +76,17 @@ var awesomeAppStore = new AwesomeModule('linagora.esn.awesomeappstore', {
   }
 });
 
+awesomeAppStore.frontend = {
+  angularModules: [
+    [
+      'appstore', ['appstore.js', 'controllers.js', 'directives.js', 'services.js'], 'esn.appstore', ['esn']
+    ]
+  ],
+  less: [
+    [
+      'appstore', [lessFile], 'esn'
+    ]
+  ]
+};
+
 module.exports = awesomeAppStore;

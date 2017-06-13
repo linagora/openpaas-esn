@@ -50,4 +50,19 @@ const controlCenterModule = new AwesomeModule(AWESOME_MODULE_NAME, {
   }
 });
 
+controlCenterModule.frontend = {
+  angularAppModules: [
+    [
+      MODULE_NAME, frontendJsFilesUri, [AWESOME_MODULE_NAME], ['esn'], {
+        localJsFiles: frontendJsFilesFullPath
+      }
+    ]
+  ],
+  less: [
+    [
+      MODULE_NAME, [lessFile], 'esn'
+    ]
+  ]
+};
+
 module.exports = controlCenterModule;

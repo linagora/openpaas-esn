@@ -89,4 +89,19 @@ var contactModule = new AwesomeModule('linagora.esn.contact', {
   }
 });
 
+contactModule.frontend = {
+  angularModules: [
+    [
+      'contact', frontendModules, 'linagora.esn.contact', ['esn'], {
+        localJsFiles: frontendModules.map(file => path.join(FRONTEND_PATH, 'js', file))
+      }
+    ]
+  ],
+  less: [
+    [
+      'contact', [lessFile], 'esn'
+    ]
+  ]
+};
+
 module.exports = contactModule;

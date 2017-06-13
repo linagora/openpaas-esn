@@ -60,4 +60,19 @@ var accountModule = new AwesomeModule('linagora.esn.account', {
   }
 });
 
+accountModule.frontend = {
+  angularModules: [
+    [
+      'account', libJS, 'linagora.esn.account', ['esn'], {
+        localJsFiles: libJS.map(file => path.resolve(FRONTEND_PATH, 'js', file))
+      }
+    ]
+  ],
+  less: [
+    [
+      'account', [lessFile], 'esn'
+    ]
+  ]
+};
+
 module.exports = accountModule;

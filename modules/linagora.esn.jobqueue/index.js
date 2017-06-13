@@ -37,4 +37,12 @@ var jobQueueModule = new AwesomeModule('linagora.esn.jobqueue', {
   }
 });
 
+jobQueueModule.frontend = {
+  angularModules: [
+    [
+      'jobqueue', modules, 'linagora.esn.jobqueue', ['esn']
+    ]
+  ]
+};
+
 module.exports = jobQueueModule;

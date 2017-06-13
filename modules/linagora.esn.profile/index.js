@@ -52,4 +52,19 @@ var profileModule = new AwesomeModule('linagora.esn.profile', {
   }
 });
 
+profileModule.frontend = {
+  angularModules: [
+    [
+      'profile', jsFiles, ['linagora.esn.profile'], ['esn'], {
+        localJsFiles: jsFiles.map(file => path.resolve(FRONTEND_PATH, 'js', file))
+      }
+    ]
+  ],
+  less: [
+    [
+      'profile', [lessFile], 'esn'
+    ]
+  ]
+};
+
 module.exports = profileModule;

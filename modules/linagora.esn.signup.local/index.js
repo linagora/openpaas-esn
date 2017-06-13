@@ -12,7 +12,7 @@ const moduleFiles = [
 ];
 const FRONTEND_JS_PATH = `${__dirname}/frontend/app/`;
 
-module.exports = new AwesomeModule('linagora.esn.signup.local', {
+var signupLocalModule = new AwesomeModule('linagora.esn.signup.local', {
   dependencies: [
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.wrapper', 'webserver-wrapper'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.invitation', 'invitation'),
@@ -39,3 +39,20 @@ module.exports = new AwesomeModule('linagora.esn.signup.local', {
     start: (dependencies, callback) => callback()
   }
 });
+
+signupLocalModule.frontend = {
+  angularAppModules: [
+    [
+      'signup', moduleFiles, ['linagora.esn.signup'], ['welcome'], {
+        localJsFiles: moduleFiles.map(file => path.join(FRONTEND_JS_PATH, file))
+      }
+    ]
+  ],
+  less: [
+    [
+      'signup', [lessFile], 'welcome'
+    ]
+  ]
+};
+
+module.exports = signupLocalModule;

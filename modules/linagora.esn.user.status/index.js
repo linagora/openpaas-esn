@@ -60,4 +60,19 @@ const userStatusModule = new AwesomeModule(MODULE_NAME, {
   }
 });
 
+userStatusModule.frontend = {
+  angularAppModules: [
+    [
+      NAME, frontendUriPathModules, MODULE_NAME, ['esn'], {
+        localJsFiles: frontendFullPathModules
+      }
+    ]
+  ],
+  less: [
+    [
+      NAME, [lessFile], 'esn'
+    ]
+  ]
+};
+
 module.exports = userStatusModule;

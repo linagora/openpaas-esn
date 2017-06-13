@@ -68,4 +68,14 @@ var davProxy = new AwesomeModule('linagora.esn.davproxy', {
   abilities: ['davproxy']
 });
 
+davProxy.frontend = {
+  angularModules: [
+    [
+      'dav', frontendModules, 'linagora.esn.davproxy', ['esn'], {
+        localJsFiles: frontendModules.map(file => resolve(FRONTEND_PATH, 'js', file))
+      }
+    ]
+  ]
+};
+
 module.exports = davProxy;

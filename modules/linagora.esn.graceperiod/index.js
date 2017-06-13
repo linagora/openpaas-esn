@@ -55,4 +55,19 @@ const graceModule = new AwesomeModule('linagora.esn.graceperiod', {
   }
 });
 
+graceModule.frontend = {
+  angularModules: [
+    [
+      MODULE_NAME, frontendFiles, 'linagora.esn.graceperiod', ['esn'], {
+        localJsFiles: frontendFilesFullPath
+      }
+    ]
+  ],
+  less: [
+    [
+      MODULE_NAME, [lessFile], 'esn'
+    ]
+  ]
+};
+
 module.exports = graceModule;
