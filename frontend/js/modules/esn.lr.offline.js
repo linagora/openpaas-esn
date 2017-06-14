@@ -18,7 +18,7 @@
    * @desc Service to manage action execution on offline mode
    * @memberOf esn.offline
    */
-  function offlineApi($rootScope, $q, _, localStorageService, offlineDetectorApi, OFFLINE_RECORD) {
+  function offlineApi($rootScope, $q, $log, _, localStorageService, offlineDetectorApi, OFFLINE_RECORD) {
     var
     actionHandlers = {},
     service = {
@@ -50,6 +50,7 @@
      * @returns {Promise} Record excution status
      */
     function executeRecord(localRecord) {
+      $log.log('isConnected: ', offlineDetectorApi.online);
       if (offlineDetectorApi.online) {
         var handler = getActionHandler(localRecord.module, localRecord.action);
 
@@ -57,14 +58,18 @@
           return {executed: true, error: null};
         }).catch(function(error) {
           if (error.status !== 504) {
-            return {executed: true, error:error.status};
+
+            return {executed: true, error: error.status};
           }
-        }).then(function(statu) {
+        }).then(function(status) {
           if (status.executed) {
             removeAction(localRecord);
           }
+
+          return status;
         });
       }
+
       return {executed: false, error: null};
     }
 
@@ -122,7 +127,7 @@
                 t.push(status);
               });
             });
-         }, $q((resolve) => {resolve(t);}));
+         }, $q(resolve => {resolve(t);}));
       });
     }
 
@@ -141,7 +146,8 @@
 
       return recorderInstance.getItem(localRecord.module).then(function(actions) {
         actions = actions || [];
-        actions.push(localRecord);
+        actions.push(JSON.parse(JSON.stringify(localRecord)));
+
         return recorderInstance.setItem(localRecord.module, actions);
       }).then(function() {
         return executeRecord(localRecord);
