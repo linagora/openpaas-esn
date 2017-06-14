@@ -1,12 +1,38 @@
 'use strict';
 
-var AwesomeModule = require('awesome-module');
-var Dependency = AwesomeModule.AwesomeModuleDependency;
-var path = require('path');
+const AwesomeModule = require('awesome-module');
+const Dependency = AwesomeModule.AwesomeModuleDependency;
+const path = require('path');
 
 const FRONTEND_PATH = path.join(__dirname, 'frontend');
 
-var contactModule = new AwesomeModule('linagora.esn.contact', {
+const MODULE_NAME = 'contact';
+const AWESOME_MODULE_NAME = `linagora.esn.${MODULE_NAME}`;
+const jsFiles = [
+  'app.js',
+  'constants.js',
+  'controllers.js',
+  'directives.js',
+  'forms.js',
+  'live.js',
+  'services.js',
+  'ui.js',
+  'shells/contactshell.js',
+  'shells/addressbookshell.js',
+  'shells/contactdisplayshell.js',
+  'shells/displayshellprovider.js',
+  'shells/helpers.js',
+  'shells/builders.js',
+  'pagination.js',
+  'contact-api-client.js',
+  'providers/attendee.js',
+  'providers/contact.js'
+];
+
+const frontendFullPathModules = jsFiles.map(file => path.resolve(FRONTEND_PATH, 'js', file));
+const lessFile = path.resolve(FRONTEND_PATH, 'css/styles.less');
+
+const contactModule = new AwesomeModule(AWESOME_MODULE_NAME, {
   dependencies: [
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.logger', 'logger'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.auth', 'auth'),
@@ -25,11 +51,11 @@ var contactModule = new AwesomeModule('linagora.esn.contact', {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.autoconf', 'autoconf', true)
   ],
   states: {
-    lib: function(dependencies, callback) {
-      var libModule = require('./backend/lib')(dependencies);
-      var contacts = require('./backend/webserver/api/contacts')(dependencies);
+    lib(dependencies, callback) {
+      const libModule = require('./backend/lib')(dependencies);
+      const contacts = require('./backend/webserver/api/contacts')(dependencies);
 
-      var lib = {
+      const lib = {
         api: {
           contacts: contacts
         },
@@ -39,47 +65,26 @@ var contactModule = new AwesomeModule('linagora.esn.contact', {
       return callback(null, lib);
     },
 
-    deploy: function(dependencies, callback) {
-      var app = require('./backend/webserver/application')(dependencies);
+    deploy(dependencies, callback) {
+      const app = require('./backend/webserver/application')(dependencies);
 
       app.use('/api/contacts', this.api.contacts);
 
-      var webserverWrapper = dependencies('webserver-wrapper');
-      var frontendModules = [
-        'app.js',
-        'constants.js',
-        'controllers.js',
-        'directives.js',
-        'forms.js',
-        'live.js',
-        'services.js',
-        'ui.js',
-        'shells/contactshell.js',
-        'shells/addressbookshell.js',
-        'shells/contactdisplayshell.js',
-        'shells/displayshellprovider.js',
-        'shells/helpers.js',
-        'shells/builders.js',
-        'pagination.js',
-        'contact-api-client.js',
-        'providers/attendee.js',
-        'providers/contact.js'
-      ];
+      const webserverWrapper = dependencies('webserver-wrapper');
 
-      webserverWrapper.injectAngularModules('contact', frontendModules, 'linagora.esn.contact', ['esn'], {
-        localJsFiles: frontendModules.map(file => path.join(FRONTEND_PATH, 'js', file))
+      webserverWrapper.injectAngularModules(MODULE_NAME, jsFiles, AWESOME_MODULE_NAME, ['esn'], {
+        localJsFiles: frontendFullPathModules
       });
-      var lessFile = path.resolve(__dirname, './frontend/css/styles.less');
 
-      webserverWrapper.injectLess('contact', [lessFile], 'esn');
-      webserverWrapper.addApp('contact', app);
+      webserverWrapper.injectLess(MODULE_NAME, [lessFile], 'esn');
+      webserverWrapper.addApp(MODULE_NAME, app);
 
       require('./backend/webserver/api/contacts/avatarProvider').init(dependencies);
 
       return callback();
     },
 
-    start: function(dependencies, callback) {
+    start(dependencies, callback) {
       require('./backend/ws/contact').init(dependencies);
 
       dependencies('autoconf') && dependencies('autoconf').addTransformer(require('./backend/lib/autoconf')(dependencies));
@@ -88,5 +93,22 @@ var contactModule = new AwesomeModule('linagora.esn.contact', {
     }
   }
 });
+
+contactModule.frontendInjections = {
+  angularModules: [
+    [
+      MODULE_NAME,
+      jsFiles,
+      AWESOME_MODULE_NAME,
+      ['esn'],
+      { localJsFiles: frontendFullPathModules }
+    ]
+  ],
+  less: [
+    [
+      MODULE_NAME, [lessFile], 'esn'
+    ]
+  ]
+};
 
 module.exports = contactModule;

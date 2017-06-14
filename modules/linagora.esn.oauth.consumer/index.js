@@ -48,4 +48,12 @@ var oauthModule = new AwesomeModule('linagora.esn.oauth.consumer', {
   }
 });
 
+oauthModule.frontend = {
+  angularModules: [
+    [
+      'oauth', ['app.js', 'services.js'], 'linagora.esn.oauth', ['esn']
+    ]
+  ]
+};
+
 module.exports = oauthModule;

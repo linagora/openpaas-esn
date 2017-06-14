@@ -2,11 +2,19 @@
 
 const resolve = require('path').resolve;
 
-var AwesomeModule = require('awesome-module');
-var Dependency = AwesomeModule.AwesomeModuleDependency;
+const AwesomeModule = require('awesome-module');
+const Dependency = AwesomeModule.AwesomeModuleDependency;
 const FRONTEND_PATH = resolve(__dirname, 'frontend');
+const MODULE_NAME = 'dav';
+const AWESOME_MODULE_NAME = 'linagora.esn.davproxy';
+const libJS = [
+  'app.js',
+  'constants.js',
+  'services.js'
+];
+const frontendFullPathModules = libJS.map(file => resolve(FRONTEND_PATH, 'js', file));
 
-var davProxy = new AwesomeModule('linagora.esn.davproxy', {
+const davProxy = new AwesomeModule(AWESOME_MODULE_NAME, {
   dependencies: [
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.logger', 'logger'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.auth', 'auth'),
@@ -22,12 +30,12 @@ var davProxy = new AwesomeModule('linagora.esn.davproxy', {
   ],
 
   states: {
-    lib: function(dependencies, callback) {
-      var addressbooks = require('./backend/webserver/addressbooks')(dependencies);
-      var calendars = require('./backend/webserver/calendars')(dependencies);
-      var json = require('./backend/webserver/json')(dependencies);
+    lib(dependencies, callback) {
+      const addressbooks = require('./backend/webserver/addressbooks')(dependencies);
+      const calendars = require('./backend/webserver/calendars')(dependencies);
+      const json = require('./backend/webserver/json')(dependencies);
 
-      var lib = {
+      const lib = {
         api: {
           addressbooks: addressbooks,
           calendars: calendars,
@@ -38,34 +46,41 @@ var davProxy = new AwesomeModule('linagora.esn.davproxy', {
       return callback(null, lib);
     },
 
-    deploy: function(dependencies, callback) {
-      var webserverWrapper = dependencies('webserver-wrapper');
-      var app = require('./backend/webserver/application')(dependencies);
+    deploy(dependencies, callback) {
+      const webserverWrapper = dependencies('webserver-wrapper');
+      const app = require('./backend/webserver/application')(dependencies);
 
       app.use('/api/addressbooks', this.api.addressbooks);
       app.use('/api/calendars', this.api.calendars);
       app.use('/api/json', this.api.json);
 
-      var frontendModules = [
-        'app.js',
-        'constants.js',
-        'services.js'
-      ];
-      webserverWrapper.injectAngularModules('dav', frontendModules, 'linagora.esn.davproxy', ['esn'], {
-        localJsFiles: frontendModules.map(file => resolve(FRONTEND_PATH, 'js', file))
+      webserverWrapper.injectAngularModules(MODULE_NAME, libJS, AWESOME_MODULE_NAME, ['esn'], {
+        localJsFiles: frontendFullPathModules
       });
 
-      webserverWrapper.addApp('dav', app);
+      webserverWrapper.addApp(MODULE_NAME, app);
 
       return callback();
     },
 
-    start: function(dependencies, callback) {
+    start(dependencies, callback) {
       callback();
     }
   },
 
   abilities: ['davproxy']
 });
+
+davProxy.frontendInjections = {
+  angularModules: [
+    [
+      MODULE_NAME,
+      libJS,
+      AWESOME_MODULE_NAME,
+      ['esn'],
+      { localJsFiles: frontendFullPathModules }
+    ]
+  ]
+};
 
 module.exports = davProxy;

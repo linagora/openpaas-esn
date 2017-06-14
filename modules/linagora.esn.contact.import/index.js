@@ -2,12 +2,21 @@
 
 const resolve = require('path').resolve;
 
-var AwesomeModule = require('awesome-module');
-var Dependency = AwesomeModule.AwesomeModuleDependency;
+const AwesomeModule = require('awesome-module');
+const Dependency = AwesomeModule.AwesomeModuleDependency;
 
 const FRONTEND_PATH = resolve(__dirname, 'frontend');
+const MODULE_NAME = 'import';
+const AWESOME_MODULE_NAME = `linagora.esn.contact.${MODULE_NAME}`;
+const jsFiles = [
+  'app.js',
+  'constants.js',
+  'services.js'
+];
 
-var importContactModule = new AwesomeModule('linagora.esn.contact.import', {
+const frontendFullPathModules = jsFiles.map(file => resolve(FRONTEND_PATH, 'js', file));
+
+const importContactModule = new AwesomeModule(AWESOME_MODULE_NAME, {
   dependencies: [
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.logger', 'logger'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.contact', 'contact'),
@@ -24,9 +33,9 @@ var importContactModule = new AwesomeModule('linagora.esn.contact.import', {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.cron', 'cron')
   ],
   states: {
-    lib: function(dependencies, callback) {
-      var libModule = require('./backend/lib')(dependencies);
-      var constantsModule = require('./backend/constants');
+    lib(dependencies, callback) {
+      const libModule = require('./backend/lib')(dependencies);
+      const constantsModule = require('./backend/constants');
 
       return callback(null, {
         lib: libModule,
@@ -34,36 +43,41 @@ var importContactModule = new AwesomeModule('linagora.esn.contact.import', {
       });
     },
 
-    deploy: function(dependencies, callback) {
-      var webserver = require('./backend/webserver')(dependencies);
-      var api = require('./backend/webserver/api')(dependencies, this.lib);
-
-      var app = webserver.getRootApp();
+    deploy(dependencies, callback) {
+      const webserver = require('./backend/webserver')(dependencies);
+      const api = require('./backend/webserver/api')(dependencies, this.lib);
+      const app = webserver.getRootApp();
 
       app.use('/api', api);
 
-      var frontendModules = [
-        'app.js',
-        'constants.js',
-        'services.js'
-      ];
+      const webserverWrapper = dependencies('webserver-wrapper');
 
-      var webserverWrapper = dependencies('webserver-wrapper');
-
-      webserverWrapper.injectAngularModules('import', frontendModules, 'linagora.esn.contact.import', ['esn'], {
-        localJsFiles: frontendModules.map(file => resolve(FRONTEND_PATH, 'js', file))
+      webserverWrapper.injectAngularModules(MODULE_NAME, jsFiles, AWESOME_MODULE_NAME, ['esn'], {
+        localJsFiles: frontendFullPathModules
       });
-      webserverWrapper.addApp('import', app);
+      webserverWrapper.addApp(MODULE_NAME, app);
 
       return callback();
     },
 
-    start: function(dependencies, callback) {
+    start(dependencies, callback) {
       this.lib.cron.init();
       require('./backend/ws/import').init(dependencies);
       callback();
     }
   }
 });
+
+importContactModule.frontendInjections = {
+  angularModules: [
+    [
+     MODULE_NAME,
+     jsFiles,
+     AWESOME_MODULE_NAME,
+     ['esn'],
+     { localJsFiles: frontendFullPathModules }
+    ]
+  ]
+};
 
 module.exports = importContactModule;

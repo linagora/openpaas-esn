@@ -12,7 +12,7 @@ const moduleFiles = [
 ];
 const FRONTEND_JS_PATH = `${__dirname}/frontend/app/`;
 
-module.exports = new AwesomeModule('linagora.esn.sync', {
+var signupEsnSync = new AwesomeModule('linagora.esn.sync', {
   dependencies: [
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.logger', 'logger'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.esn-config', 'esn-config'),
@@ -39,3 +39,20 @@ module.exports = new AwesomeModule('linagora.esn.sync', {
     start: (dependencies, callback) => callback()
   }
 });
+
+signupEsnSync.frontend = {
+  angularAppModules: [
+    [
+      'sync', moduleFiles, ['linagora.esn.sync'], ['esn'], {
+        localJsFiles: moduleFiles.map(file => path.join(FRONTEND_JS_PATH, file))
+      }
+    ]
+  ],
+  less: [
+    [
+      'sync', [path.resolve(__dirname, 'frontend/app/styles.less')], 'esn'
+    ]
+  ]
+};
+
+module.exports = signupEsnSync;

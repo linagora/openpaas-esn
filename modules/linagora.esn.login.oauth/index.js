@@ -61,4 +61,17 @@ var oauthLoginModule = new AwesomeModule(MODULE_NAME, {
   }
 });
 
+oauthLoginModule.frontend = {
+  angularModules: [
+    [
+      APPLICATION_NAME, js, MODULE_NAME, ['welcome']
+    ]
+  ],
+  less: [
+    [
+      APPLICATION_NAME, [lessFile], 'welcome'
+    ]
+  ]
+};
+
 module.exports = oauthLoginModule;
