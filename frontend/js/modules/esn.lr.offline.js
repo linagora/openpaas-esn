@@ -8,6 +8,9 @@
   angular
     .module('esn.offline', ['esn.localstorage', 'esn.lodash-wrapper', 'esn.offline.detector'])
     .factory('offlineApi', offlineApi)
+    .run(function(offlineApi) {
+      offlineApi.activate();
+    })
     .constant('OFFLINE_RECORD', 'linagora.esn.offlineRecord');
 
   /**
@@ -35,7 +38,7 @@
      * @memberOf esn.offline.offlineApi
      */
     function activate() {
-      $rootScope.$on('network:available', onNetworkChange);
+      $rootScope.$on('network:available', (event, state) => {onNetworkChange(event, state);});
     }
 
     /**
@@ -55,6 +58,10 @@
         }).catch(function(error) {
           if (error.status !== 504) {
             return {executed: true, error:error.status};
+          }
+        }).then(function(statu) {
+          if (status.executed) {
+            removeAction(localRecord);
           }
         });
       }
@@ -108,9 +115,14 @@
       })).then(function(moduleActions) {
         var localRecords = _.flatten(moduleActions);
 
-        localRecords.map(function(localRecord) {
-          executeRecord(localRecord);
-        });
+        var t = [];
+         return localRecords.reduce(function(memory, localRecord) {
+            return memory.then(function() {
+              return executeRecord(localRecord).then(function(status) {
+                t.push(status);
+              });
+            });
+         }, $q((resolve) => {resolve(t);}));
       });
     }
 
@@ -134,9 +146,6 @@
       }).then(function() {
         return executeRecord(localRecord);
       }).then(function(status) {
-        if (status.executed) {
-          removeAction(localRecord);
-        }
         return status;
       });
     }
