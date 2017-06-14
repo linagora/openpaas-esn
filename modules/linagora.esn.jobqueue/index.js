@@ -1,9 +1,17 @@
 'use strict';
 
-var AwesomeModule = require('awesome-module');
-var Dependency = AwesomeModule.AwesomeModuleDependency;
+const AwesomeModule = require('awesome-module');
+const Dependency = AwesomeModule.AwesomeModuleDependency;
+const path = require('path');
 
-var jobQueueModule = new AwesomeModule('linagora.esn.jobqueue', {
+const FRONTEND_PATH = path.resolve(__dirname, 'frontend');
+const MODULE_NAME = 'jobqueue';
+const AWESOME_MODULE_NAME = `linagora.esn.${MODULE_NAME}`;
+
+const jsFiles = ['app.js', 'directives.js'];
+const frontendFiles = jsFiles.map(file => path.resolve(FRONTEND_PATH, 'js', file));
+
+const jobQueueModule = new AwesomeModule(AWESOME_MODULE_NAME, {
   dependencies: [
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.logger', 'logger'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.pubsub', 'pubsub'),
@@ -21,12 +29,11 @@ var jobQueueModule = new AwesomeModule('linagora.esn.jobqueue', {
     },
 
     deploy: function(dependencies, callback) {
-      var app = require('./backend/webserver/application')(this.lib, dependencies);
-      var modules = ['app.js', 'directives.js'];
-      var webserverWrapper = dependencies('webserver-wrapper');
+      const app = require('./backend/webserver/application')(this.lib, dependencies);
+      const webserverWrapper = dependencies('webserver-wrapper');
 
-      webserverWrapper.injectAngularModules('jobqueue', modules, 'linagora.esn.jobqueue', ['esn']);
-      webserverWrapper.addApp('jobqueue', app);
+      webserverWrapper.injectAngularModules(MODULE_NAME, jsFiles, AWESOME_MODULE_NAME, ['esn'], { localJsFiles: frontendFiles });
+      webserverWrapper.addApp(MODULE_NAME, app);
 
       return callback();
     },
@@ -40,7 +47,11 @@ var jobQueueModule = new AwesomeModule('linagora.esn.jobqueue', {
 jobQueueModule.frontend = {
   angularModules: [
     [
-      'jobqueue', modules, 'linagora.esn.jobqueue', ['esn']
+      MODULE_NAME,
+      jsFiles,
+      AWESOME_MODULE_NAME,
+      ['esn'],
+      { localJsFiles: frontendFiles }
     ]
   ]
 };

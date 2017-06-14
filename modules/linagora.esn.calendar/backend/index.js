@@ -7,8 +7,18 @@ const glob = require('glob-all');
 
 const FRONTEND_JS_PATH = path.join(__dirname, '/../frontend/app/');
 const APP_ENTRY_POINT = path.join(FRONTEND_JS_PATH, 'app.js');
+const MODULE_NAME = 'calendar';
+const MODULE_NAME_INJECTION = ['esn.calendar', 'esn.ical'];
+const AWESOME_MODULE_NAME = `linagora.esn.${MODULE_NAME}`;
+const frontendFullPathModules = glob.sync([
+  APP_ENTRY_POINT,
+  FRONTEND_JS_PATH + '**/!(*spec).js'
+]);
 
-const AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
+const jsFiles = frontendFullPathModules.map(filepath => filepath.replace(FRONTEND_JS_PATH, ''));
+const lessFile = path.resolve(FRONTEND_JS_PATH, 'styles.less');
+
+const AwesomeCalendarModule = new AwesomeModule(AWESOME_MODULE_NAME, {
   dependencies: [
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.logger', 'logger'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.db', 'db'),
@@ -37,7 +47,7 @@ const AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
   ],
 
   states: {
-    lib: function(dependencies, callback) {
+    lib(dependencies, callback) {
       const calendar = require('./webserver/api/calendar')(dependencies),
             alarm = require('./lib/alarm')(dependencies),
             eventMailListener = require('./lib/event-mail-listener')(dependencies),
@@ -57,7 +67,7 @@ const AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
       return callback(null, lib);
     },
 
-    deploy: function(dependencies, callback) {
+    deploy(dependencies, callback) {
       // Init alarm local pubsub listener
       this.alarm.init();
 
@@ -76,21 +86,16 @@ const AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
 
       const webserverWrapper = dependencies('webserver-wrapper');
 
-      const frontendFullPathModules = glob.sync([
-        APP_ENTRY_POINT,
-        FRONTEND_JS_PATH + '**/!(*spec).js'
-      ]);
-
-      const frontendUriModules = frontendFullPathModules.map(filepath => filepath.replace(FRONTEND_JS_PATH, ''));
-
-      webserverWrapper.injectLess('calendar', [path.resolve(__dirname, '../frontend/app/styles.less')], 'esn');
-      webserverWrapper.injectAngularAppModules('calendar', frontendUriModules, ['esn.calendar', 'esn.ical'], ['esn'], {localJsFiles: frontendFullPathModules});
-      webserverWrapper.addApp('calendar', app);
+      webserverWrapper.injectLess(MODULE_NAME, [lessFile], 'esn');
+      webserverWrapper.injectAngularAppModules(MODULE_NAME, jsFiles, MODULE_NAME_INJECTION, ['esn'], {
+        localJsFiles: frontendFullPathModules
+      });
+      webserverWrapper.addApp(MODULE_NAME, app);
 
       return callback();
     },
 
-    start: function(dependencies, callback) {
+    start(dependencies, callback) {
       require('./ws/calendar').init(dependencies);
       require('./lib/search')(dependencies).listen();
 
@@ -100,6 +105,23 @@ const AwesomeCalendarModule = new AwesomeModule('linagora.esn.calendar', {
     }
   }
 });
+
+AwesomeCalendarModule.frontendInjections = {
+  angularModules: [
+    [
+      MODULE_NAME,
+      jsFiles,
+      MODULE_NAME_INJECTION,
+      ['esn'],
+      frontendFullPathModules
+    ]
+  ],
+  less: [
+    [
+      MODULE_NAME, [lessFile], 'esn'
+    ]
+  ]
+};
 
 /**
  * The main AwesomeModule describing the application.

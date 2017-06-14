@@ -1,19 +1,31 @@
 'use strict';
 
-var AwesomeModule = require('awesome-module');
-var Dependency = AwesomeModule.AwesomeModuleDependency;
-var path = require('path');
+const AwesomeModule = require('awesome-module');
+const Dependency = AwesomeModule.AwesomeModuleDependency;
+const path = require('path');
 
 const FRONTEND_PATH = path.resolve(__dirname, 'frontend');
+const MODULE_NAME = 'contact.twitter';
+const AWESOME_MODULE_NAME = `linagora.esn.${MODULE_NAME}`;
+const jsFiles = [
+  'app.js',
+  'constants.js',
+  'twitterdisplayshell.js',
+  'services.js',
+  'directives.js'
+];
 
-var contactModule = new AwesomeModule('linagora.esn.contact.twitter', {
+const frontendFullPathModules = jsFiles.map(file => path.resolve(FRONTEND_PATH, 'js', file));
+const lessFile = path.resolve(FRONTEND_PATH, 'css/styles.less');
+
+const contactModule = new AwesomeModule(AWESOME_MODULE_NAME, {
   dependencies: [
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.wrapper', 'webserver-wrapper'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.wsserver', 'wsserver'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.i18n', 'i18n')
   ],
   states: {
-    lib: function(dependencies, callback) {
+    lib(dependencies, callback) {
       var libModule = require('./backend/lib')(dependencies);
 
       var lib = {
@@ -23,42 +35,39 @@ var contactModule = new AwesomeModule('linagora.esn.contact.twitter', {
       return callback(null, lib);
     },
 
-    deploy: function(dependencies, callback) {
-      var app = require('./backend/webserver/application')(dependencies);
+    deploy(dependencies, callback) {
+      const app = require('./backend/webserver/application')(dependencies);
+      const webserverWrapper = dependencies('webserver-wrapper');
 
-      var webserverWrapper = dependencies('webserver-wrapper');
-
-      const jsFiles = ['app.js', 'constants.js', 'twitterdisplayshell.js', 'services.js', 'directives.js'];
-
-      webserverWrapper.injectAngularModules('contact.twitter', jsFiles, 'linagora.esn.contact.twitter', ['esn'], {
-        localJsFiles: jsFiles.map(file => path.resolve(FRONTEND_PATH, 'js', file))
+      webserverWrapper.injectAngularModules(MODULE_NAME, jsFiles, AWESOME_MODULE_NAME, ['esn'], { 
+        localJsFiles: frontendFullPathModules
       });
 
-      var lessFile = path.resolve(FRONTEND_PATH, 'css/styles.less');
-
-      webserverWrapper.injectLess('contact.twitter', [lessFile], 'esn');
-      webserverWrapper.addApp('contact.twitter', app);
+      webserverWrapper.injectLess(MODULE_NAME, [lessFile], 'esn');
+      webserverWrapper.addApp(MODULE_NAME, app);
 
       return callback();
     },
 
-    start: function(dependencies, callback) {
+    start(dependencies, callback) {
       return callback();
     }
   }
 });
 
-contactModule.frontend = {
+contactModule.frontendInjections = {
   angularModules: [
     [
-      'contact.twitter', jsFiles, 'linagora.esn.contact.twitter', ['esn'], {
-        localJsFiles: jsFiles.map(file => path.resolve(FRONTEND_PATH, 'js', file))
-      }
+      MODULE_NAME,
+      jsFiles,
+      AWESOME_MODULE_NAME,
+      ['esn'],
+      { localJsFiles: frontendFullPathModules }
     ]
   ],
   less: [
     [
-      'contact.twitter', [lessFile], 'esn'
+      MODULE_NAME, [lessFile], 'esn'
     ]
   ]
 };

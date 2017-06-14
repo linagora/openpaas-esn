@@ -4,8 +4,15 @@ const glob = require('glob-all');
 
 const Dependency = AwesomeModule.AwesomeModuleDependency;
 const MODULE_NAME = 'controlcenter';
-const AWESOME_MODULE_NAME = 'linagora.esn.' + MODULE_NAME;
+const AWESOME_MODULE_NAME = `linagora.esn.${MODULE_NAME}`;
 const FRONTEND_APP_PATH = `${__dirname}/frontend/app/`;
+
+const lessFile = path.join(FRONTEND_APP_PATH, 'app.less');
+const frontendJsFilesFullPath = glob.sync([
+  FRONTEND_APP_PATH + '**/*.module.js',
+  FRONTEND_APP_PATH + '**/!(*spec).js'
+]);
+const frontendJsFilesUri = frontendJsFilesFullPath.map(filepath => filepath.replace(FRONTEND_APP_PATH, ''));
 
 const controlCenterModule = new AwesomeModule(AWESOME_MODULE_NAME, {
   dependencies: [
@@ -14,7 +21,7 @@ const controlCenterModule = new AwesomeModule(AWESOME_MODULE_NAME, {
   ],
 
   states: {
-    lib: function(dependencies, callback) {
+    lib(dependencies, callback) {
       const libModule = require('./backend/lib')(dependencies);
 
       const lib = {
@@ -24,15 +31,9 @@ const controlCenterModule = new AwesomeModule(AWESOME_MODULE_NAME, {
       return callback(null, lib);
     },
 
-    deploy: function(dependencies, callback) {
+    deploy(dependencies, callback) {
       const app = require('./backend/webserver')(dependencies, this);
       const webserverWrapper = dependencies('webserver-wrapper');
-      const lessFile = path.join(FRONTEND_APP_PATH, 'app.less');
-      const frontendJsFilesFullPath = glob.sync([
-        FRONTEND_APP_PATH + '**/*.module.js',
-        FRONTEND_APP_PATH + '**/!(*spec).js'
-      ]);
-      const frontendJsFilesUri = frontendJsFilesFullPath.map(filepath => filepath.replace(FRONTEND_APP_PATH, ''));
 
       webserverWrapper.injectAngularAppModules(MODULE_NAME, frontendJsFilesUri, [AWESOME_MODULE_NAME], ['esn'], {
         localJsFiles: frontendJsFilesFullPath
@@ -44,24 +45,24 @@ const controlCenterModule = new AwesomeModule(AWESOME_MODULE_NAME, {
       return callback();
     },
 
-    start: function(dependencies, callback) {
+    start(dependencies, callback) {
       callback();
     }
   }
 });
 
-controlCenterModule.frontend = {
+controlCenterModule.frontendInjections = {
   angularAppModules: [
     [
-      MODULE_NAME, frontendJsFilesUri, [AWESOME_MODULE_NAME], ['esn'], {
-        localJsFiles: frontendJsFilesFullPath
-      }
+      MODULE_NAME,
+      frontendJsFilesUri,
+      [AWESOME_MODULE_NAME],
+      ['esn'],
+      { localJsFiles: frontendJsFilesFullPath }
     ]
   ],
   less: [
-    [
-      MODULE_NAME, [lessFile], 'esn'
-    ]
+    [MODULE_NAME, [lessFile], 'esn']
   ]
 };
 

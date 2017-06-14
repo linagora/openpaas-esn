@@ -1,63 +1,71 @@
 'use strict';
 
-var AwesomeModule = require('awesome-module');
-var Dependency = AwesomeModule.AwesomeModuleDependency;
-var path = require('path');
+const AwesomeModule = require('awesome-module');
+const Dependency = AwesomeModule.AwesomeModuleDependency;
+const path = require('path');
 
 const FRONTEND_PATH = path.resolve(__dirname, 'frontend');
 
-var contactModule = new AwesomeModule('linagora.esn.contact.google', {
+const MODULE_NAME = 'contact.google';
+const AWESOME_MODULE_NAME = `linagora.esn.${MODULE_NAME}`;
+const jsFiles = [
+  'app.js',
+  'googledisplayshell.js',
+  'services.js',
+  'directives.js'];
+
+const frontendFullPathModules = jsFiles.map(file => path.resolve(FRONTEND_PATH, 'js', file));
+const lessFile = path.resolve(FRONTEND_PATH, 'css/styles.less');
+
+const contactModule = new AwesomeModule(AWESOME_MODULE_NAME, {
   dependencies: [
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.wrapper', 'webserver-wrapper'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.wsserver', 'wsserver'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.i18n', 'i18n')
   ],
   states: {
-    lib: function(dependencies, callback) {
-      var libModule = require('./backend/lib')(dependencies);
-
-      var lib = {
+    lib(dependencies, callback) {
+      const libModule = require('./backend/lib')(dependencies);
+      const lib = {
         lib: libModule
       };
 
       return callback(null, lib);
     },
 
-    deploy: function(dependencies, callback) {
-      var app = require('./backend/webserver/application')(dependencies);
+    deploy(dependencies, callback) {
+      const app = require('./backend/webserver/application')(dependencies);
+      const webserverWrapper = dependencies('webserver-wrapper');
 
-      var webserverWrapper = dependencies('webserver-wrapper');
-
-      const jsFiles = ['app.js', 'googledisplayshell.js', 'services.js', 'directives.js'];
-
-      webserverWrapper.injectAngularModules('contact.google', jsFiles, 'linagora.esn.contact.google', ['esn'], {
-        localJsFiles: jsFiles.map(file => path.resolve(FRONTEND_PATH, 'js', file))
+      webserverWrapper.injectAngularModules(MODULE_NAME, jsFiles, AWESOME_MODULE_NAME, ['esn'], {
+        localJsFiles: frontendFullPathModules
       });
-      var lessFile = path.resolve(FRONTEND_PATH, 'css/styles.less');
 
-      webserverWrapper.injectLess('contact.google', [lessFile], 'esn');
-      webserverWrapper.addApp('contact.google', app);
+      webserverWrapper.injectLess(MODULE_NAME, [lessFile], 'esn');
+      webserverWrapper.addApp(MODULE_NAME, app);
 
       return callback();
     },
 
-    start: function(dependencies, callback) {
+    start(dependencies, callback) {
       return callback();
     }
   }
 });
 
-contactModule.frontend = {
+contactModule.frontendInjections = {
   angularModules: [
     [
-      'contact.google', jsFiles, 'linagora.esn.contact.google', ['esn'], {
-        localJsFiles: jsFiles.map(file => path.resolve(FRONTEND_PATH, 'js', file))
-      }
+      MODULE_NAME,
+      jsFiles,
+      AWESOME_MODULE_NAME,
+      ['esn'],
+      { localJsFiles: frontendFullPathModules }
     ]
   ],
   less: [
     [
-      'contact.google', [lessFile], 'esn'
+      MODULE_NAME, [lessFile], 'esn'
     ]
   ]
 };

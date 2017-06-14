@@ -1,12 +1,27 @@
 'use strict';
 
-var AwesomeModule = require('awesome-module');
-var Dependency = AwesomeModule.AwesomeModuleDependency;
-var path = require('path');
+const AwesomeModule = require('awesome-module');
+const Dependency = AwesomeModule.AwesomeModuleDependency;
+const path = require('path');
 
 const FRONTEND_PATH = path.resolve(__dirname, 'frontend');
 
-var accountModule = new AwesomeModule('linagora.esn.account', {
+const lessFiles = [path.resolve(FRONTEND_PATH, 'css/styles.less')];
+const libJS = [
+  'app.js',
+  'constants.js',
+  'controllers.js',
+  'directives.js',
+  'services.js'
+];
+const MODULE_NAME = 'account';
+const AWESOME_MODULE_NAME = `linagora.esn.${MODULE_NAME}`;
+const innerApps = ['esn'];
+const modulesOptions = {
+  localJsFiles: libJS.map(file => path.resolve(FRONTEND_PATH, 'js', file))
+};
+
+const accountModule = new AwesomeModule('linagora.esn.account', {
   dependencies: [
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.logger', 'logger'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.user', 'esn-user'),
@@ -15,11 +30,11 @@ var accountModule = new AwesomeModule('linagora.esn.account', {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.authorization', 'authorizationMW')
   ],
   states: {
-    lib: function(dependencies, callback) {
-      var libModule = require('./backend/lib')(dependencies);
-      var accounts = require('./backend/webserver/api/accounts')(dependencies);
+    lib(dependencies, callback) {
+      const libModule = require('./backend/lib')(dependencies);
+      const accounts = require('./backend/webserver/api/accounts')(dependencies);
 
-      var lib = {
+      const lib = {
         api: {
           accounts: accounts
         },
@@ -29,49 +44,39 @@ var accountModule = new AwesomeModule('linagora.esn.account', {
       return callback(null, lib);
     },
 
-    deploy: function(dependencies, callback) {
-      var app = require('./backend/webserver/application')(dependencies);
+    deploy(dependencies, callback) {
+      const app = require('./backend/webserver/application')(dependencies);
 
       app.use('/api', this.api.accounts);
-      var libJS = [
-        'app.js',
-        'constants.js',
-        'controllers.js',
-        'directives.js',
-        'services.js'
-      ];
 
-      var webserverWrapper = dependencies('webserver-wrapper');
+      const webserverWrapper = dependencies('webserver-wrapper');
 
-      webserverWrapper.injectAngularModules('account', libJS, 'linagora.esn.account', ['esn'], {
-        localJsFiles: libJS.map(file => path.resolve(FRONTEND_PATH, 'js', file))
-      });
-      var lessFile = path.resolve(FRONTEND_PATH, 'css/styles.less');
+      webserverWrapper.injectAngularModules(MODULE_NAME, libJS, AWESOME_MODULE_NAME, ['esn'], modulesOptions);
 
-      webserverWrapper.injectLess('account', [lessFile], 'esn');
-      webserverWrapper.addApp('account', app);
+      webserverWrapper.injectLess(MODULE_NAME, lessFiles, 'esn');
+      webserverWrapper.addApp(MODULE_NAME, app);
 
       return callback();
     },
 
-    start: function(dependencies, callback) {
+    start(dependencies, callback) {
       return callback();
     }
   }
 });
 
-accountModule.frontend = {
+accountModule.frontendInjections = {
   angularModules: [
     [
-      'account', libJS, 'linagora.esn.account', ['esn'], {
-        localJsFiles: libJS.map(file => path.resolve(FRONTEND_PATH, 'js', file))
-      }
+      MODULE_NAME,
+      libJS,
+      AWESOME_MODULE_NAME,
+      ['esn'],
+      modulesOptions
     ]
   ],
   less: [
-    [
-      'account', [lessFile], 'esn'
-    ]
+    [MODULE_NAME, lessFiles, innerApps]
   ]
 };
 
