@@ -1,11 +1,14 @@
 'use strict';
 
 angular.module('esn.appstore')
-  .factory('AppstoreRestangular', function(Restangular) {
-    return Restangular.withConfig(function(RestangularConfigurer) {
-      RestangularConfigurer.setBaseUrl('/appstore/api');
+  .factory('AppstoreRestangular', function(Restangular, httpConfigurer) {
+    var restangularInstance = Restangular.withConfig(function(RestangularConfigurer) {
       RestangularConfigurer.setFullResponse(true);
     });
+
+    httpConfigurer.manageRestangular(restangularInstance, '/appstore/api');
+
+    return restangularInstance;
   })
   .factory('disableService', function() {
     function disableFn(target, array) {
