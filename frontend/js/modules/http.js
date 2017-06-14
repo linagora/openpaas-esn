@@ -43,7 +43,7 @@ angular.module('esn.http', [
       redirectToLogin: redirectToLogin
     };
   })
-  .provider('httpRestangularConfigurer', function() {
+  .provider('httpConfigurer', function($provide) {
     var restangulars = [];
     var baseUrl = '';
 
@@ -56,7 +56,7 @@ angular.module('esn.http', [
       moduleRestangular.restangular.setBaseUrl(baseUrl + moduleRestangular.baseUri);
     }
 
-    function manageConfig(restangular, baseUri) {
+    function manageRestangular(restangular, baseUri) {
       var moduleRestangular = {restangular: restangular, baseUri: baseUri};
 
       updateRestangularBaseUrl(moduleRestangular);
@@ -67,7 +67,7 @@ angular.module('esn.http', [
     this.$get = function() {
       return {
         setBaseUrl: setBaseUrl,
-        manageConfig: manageConfig
+        manageRestangular: manageRestangular
       };
     }
   });
