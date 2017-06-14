@@ -5,7 +5,7 @@ angular.module('esn.http', [
   'restangular'
 ])
 
-  .factory('esnRestangular', function(Restangular, httpErrorHandler, httpRestangularConfigurer) {
+  .factory('esnRestangular', function(Restangular, httpErrorHandler, httpConfigurer) {
     var restangularInstance = Restangular.withConfig(function(RestangularConfigurer) {
       RestangularConfigurer.setFullResponse(true);
       RestangularConfigurer.setErrorInterceptor(function(response) {
@@ -16,7 +16,7 @@ angular.module('esn.http', [
       });
     });
 
-    httpRestangularConfigurer.manageConfig(restangularInstance, '/api');
+    httpConfigurer.manageRestangular(restangularInstance, '/api');
 
     return restangularInstance;
   })
