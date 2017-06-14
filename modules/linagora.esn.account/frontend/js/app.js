@@ -7,6 +7,7 @@ angular.module('linagora.esn.account', [
   'op.dynamicDirective',
   'esn.core',
   'esn.ui',
+  'esn.http',
   'linagora.esn.oauth'])
   .config(function($stateProvider, routeResolver, dynamicDirectiveServiceProvider) {
     $stateProvider.state('controlcenter.accounts', {

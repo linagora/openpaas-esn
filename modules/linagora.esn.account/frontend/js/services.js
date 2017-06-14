@@ -2,11 +2,14 @@
 
 angular.module('linagora.esn.account')
 
-  .factory('AccountRestangular', function(Restangular) {
-    return Restangular.withConfig(function(RestangularConfigurer) {
-      RestangularConfigurer.setBaseUrl('/account/api');
+  .factory('AccountRestangular', function(Restangular, httpConfigurer) {
+    var restangularInstance = Restangular.withConfig(function(RestangularConfigurer) {
       RestangularConfigurer.setFullResponse(true);
     });
+
+    httpConfigurer.manageRestangular(restangularInstance, '/account/api');
+
+    return restangularInstance;
   })
 
   .factory('accountService', function(AccountRestangular) {
