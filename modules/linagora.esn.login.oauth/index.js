@@ -13,7 +13,6 @@ var oauthLoginModule = new AwesomeModule(MODULE_NAME, {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.domain', 'domain'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.oauth', 'oauth'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.esn-config', 'esn-config'),
-    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.pubsub', 'pubsub'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.config', 'config'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.helpers', 'helpers'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.filestore', 'store'),
