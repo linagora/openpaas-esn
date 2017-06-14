@@ -2,11 +2,14 @@
 
 angular.module('linagora.esn.contact.import')
 
-  .factory('contactImportAPI', function(Restangular, CONTACT_IMPORT_URL) {
-    return Restangular.withConfig(function(RestangularConfigurer) {
-      RestangularConfigurer.setBaseUrl(CONTACT_IMPORT_URL);
+  .factory('contactImportAPI', function(Restangular, httpConfigurer, CONTACT_IMPORT_URL) {
+    var restangularInstance = Restangular.withConfig(function(RestangularConfigurer) {
       RestangularConfigurer.setFullResponse(true);
     });
+
+    httpConfigurer.manageRestangular(restangularInstance, CONTACT_IMPORT_URL);
+
+    return restangularInstance;
   })
 
   .factory('ContactImporterService', function(contactImportAPI) {
