@@ -25,6 +25,7 @@
       activate: activate,
       listActions: listActions,
       recordAction: recordAction,
+      removeAction: removeAction,
       registerActionHandler: registerActionHandler
     };
 
