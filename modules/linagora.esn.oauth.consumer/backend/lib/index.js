@@ -1,12 +1,10 @@
 const q = require('q');
-const _ = require('lodash');
+const { OAUTH_CONFIG_KEY } = require('./constants');
 
 module.exports = function(dependencies) {
   const logger = dependencies('logger');
   const esnConfig = dependencies('esn-config');
-  const pubsub = dependencies('pubsub').global;
   const strategies = require('./strategies')(dependencies);
-  const pubsubTopic = pubsub.topic(esnConfig.constants.EVENTS.CONFIG_UPDATED);
 
   function start(callback) {
     configureStrategies(callback);
@@ -33,16 +31,10 @@ module.exports = function(dependencies) {
   function reconfigureOnChange() {
     const noop = () => {};
 
-    pubsubTopic.subscribe(data => {
-      if (isOauthConfigChanged(data)) {
-        logger.info('OAuth config is changed, reconfiguring OAuth consumer providers');
-        configureStrategies(noop);
-      }
+    esnConfig(OAUTH_CONFIG_KEY).onChange(() => {
+      logger.info('OAuth config is changed, reconfiguring OAuth consumer providers');
+      configureStrategies(noop);
     });
-  }
-
-  function isOauthConfigChanged(data) {
-    return data.moduleName === 'core' && _.find(data.configsUpdated, { name: 'oauth' });
   }
 
   return {

@@ -1,9 +1,9 @@
 'use strict';
 
-const OAUTH_CONFIG_KEY = 'oauth';
 const SCOPE = ['user:email', 'notifications'];
 const passport = require('passport');
 const GithubStrategy = require('passport-github').Strategy;
+const { OAUTH_CONFIG_KEY } = require('../constants');
 
 module.exports = dependencies => {
 

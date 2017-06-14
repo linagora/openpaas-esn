@@ -1,8 +1,8 @@
 'use strict';
 
-const OAUTH_CONFIG_KEY = 'oauth';
 const passport = require('passport');
 const TwitterStrategy = require('passport-twitter').Strategy;
+const { OAUTH_CONFIG_KEY } = require('../constants');
 
 module.exports = function(dependencies) {
 
