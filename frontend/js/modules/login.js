@@ -28,8 +28,17 @@ angular.module('esn.login', ['esn.notification', 'esn.http', 'op.dynamicDirectiv
       }
     };
   })
-  .controller('login', function($scope, $log, $location, $window, loginAPI, loginErrorService, vcRecaptchaService,
-                                notificationFactory, dynamicDirectiveService) {
+  .controller('login', function(
+    $scope,
+    $log,
+    $location,
+    $window,
+    loginAPI,
+    loginSuccessService,
+    loginErrorService,
+    vcRecaptchaService,
+    notificationFactory,
+    dynamicDirectiveService) {
     $scope.step = 1;
     $scope.loginIn = false;
     $scope.recaptcha = {
@@ -57,7 +66,7 @@ angular.module('esn.login', ['esn.notification', 'esn.http', 'op.dynamicDirectiv
         function() {
           $scope.loginIn = true;
           $scope.loginTask.running = false;
-          $window.location.reload();
+          loginSuccessService();
         },
         function(err) {
           $scope.loginTask.running = false;
