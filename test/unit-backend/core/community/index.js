@@ -46,7 +46,9 @@ describe('The community module', function() {
     it('should pubsub the modification if it succeed', function() {
       this.helpers.mock.models({});
       var forwardMock = sinon.spy();
-      var globalpubsubMock = {};
+      var globalpubsubMock = {
+        topic() {}
+      };
       var localTopicMock = sinon.stub().returns({forward: forwardMock});
 
       mockery.registerMock('../pubsub', {
@@ -155,6 +157,9 @@ describe('The community module', function() {
               };
             }
           }
+        },
+        global: {
+          topic() {}
         }
       });
 

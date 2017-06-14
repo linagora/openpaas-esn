@@ -9,6 +9,8 @@ const fallbackModule = require('./fallback');
 const registry = require('./registry');
 const pubsub = require('../pubsub').global;
 
+const configUpdatedTopic = pubsub.topic(constants.EVENTS.CONFIG_UPDATED);
+
 class EsnConfig {
   constructor(moduleName, domainId) {
     this.moduleName = moduleName || constants.DEFAULT_MODULE;
@@ -109,6 +111,21 @@ class EsnConfig {
       });
   }
 
+  onChange(configName, listener) {
+    const { userId, domainId, moduleName } = this;
+
+    return configUpdatedTopic.subscribe(data => {
+      const updatedConfig = _.find(data.configsUpdated, { name: configName });
+
+      if (updatedConfig &&
+          data.moduleName === moduleName &&
+          (!domainId || data.domainId === domainId) &&
+          (!userId || data.userId === userId)) {
+        listener(updatedConfig);
+      }
+    });
+  }
+
   _getModuleConfigsForDomain(moduleName) {
     const self = this;
 
@@ -157,7 +174,7 @@ class EsnConfig {
     );
 
     if (configsToNotify.length) {
-      pubsub.topic(constants.EVENTS.CONFIG_UPDATED).publish({
+      configUpdatedTopic.publish({
         userId,
         domainId,
         moduleName,

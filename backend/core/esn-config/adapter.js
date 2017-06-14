@@ -50,6 +50,10 @@ class Adapter {
   getFromAllDomains(callback) {
     return core.getFromAllDomains(this.esnConfig, this.configName, callback);
   }
+
+  onChange(listener) {
+    return this.esnConfig.onChange(this.configName, listener);
+  }
 }
 
 module.exports = Adapter;
