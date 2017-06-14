@@ -5,10 +5,9 @@ angular.module('esn.http', [
   'restangular'
 ])
 
-  .factory('esnRestangular', function(Restangular, httpErrorHandler) {
-    return Restangular.withConfig(function(RestangularConfigurer) {
+  .factory('esnRestangular', function(Restangular, httpErrorHandler, httpRestangularConfigurer) {
+    var restangularInstance = Restangular.withConfig(function(RestangularConfigurer) {
       RestangularConfigurer.setFullResponse(true);
-      RestangularConfigurer.setBaseUrl('/api');
       RestangularConfigurer.setErrorInterceptor(function(response) {
         if (response.status === 401) {
           httpErrorHandler.redirectToLogin();
@@ -16,6 +15,10 @@ angular.module('esn.http', [
         return true;
       });
     });
+
+    httpRestangularConfigurer.manageConfig(restangularInstance, '/api');
+
+    return restangularInstance;
   })
   .factory('redirectWhenNotAuthInterceptor', function($q, httpErrorHandler) {
     return {
