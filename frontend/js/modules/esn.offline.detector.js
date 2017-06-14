@@ -6,7 +6,7 @@
   'use strict';
 
   angular
-    .module('esn.offline.detector', [])
+    .module('esn.offline.detector', ['esn.websocket'])
     .factory('offlineDetectorApi', offlineDetectorApi)
     .run(function(offlineDetectorApi) {
       offlineDetectorApi.activate();
@@ -17,46 +17,33 @@
    * @desc Service to detect offline/online event
    * @memberOf esn.offline.detector
    */
-  function offlineDetectorApi($interval, $rootScope, $window, $http) {
+  function offlineDetectorApi($rootScope, ioSocketConnection) {
     var service = {
       activate: activate,
+      online: ioSocketConnection.isConnected()
     };
     return service;
 
     ////////////
 
-    /* @name activate
+    /**
+     * @name activate
      * @desc Activation function launch at service instantiation
      * @memberOf esn.offline.detector.offlineDetectorApi
      */
     function activate() {
-      $interval(setNetworkActivity(), 2*1000);
+     ioSocketConnection.addConnectCallback(() => {setNetworkActivity(true);});
+     ioSocketConnection.addDisconnectCallback(() => {setNetworkActivity(false);});
     }
 
-    /* @name isOnline
-     * @desc Detection of browser connectivity based on window.online
+    /**
+     * @name setNetworkActivity
+     * @desc Set network activity based on websocket connect/disconnect callback
+     * @param {boolean} connected - true:connected | false:disconnected
      * @memberOf esn.offline.detector.offlineDetectorApi
      */
-    function isOnline() {
-      return $http.get('/api/ping').then(
-        function(result) {
-          return result.data === 'pong';
-        },
-        function() {
-          return false;
-        }
-      );
-    }
-
-    /* @name setNetworkActivity
-     * @desc Set network activity based on isOnline() detection
-     * @memberOf esn.offline.detector.offlineDetectorApi
-     */
-    function setNetworkActivity() {
-      isOnline().then(function(connected) {
-        service.online = connected;
-      });
-
+    function setNetworkActivity(connected) {
+      service.online = connected;
       $rootScope.$broadcast('network:available', service.online);
     }
   }
