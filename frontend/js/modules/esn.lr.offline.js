@@ -106,8 +106,10 @@
       return $q.all(moduleNames.map(function(name) {
         return listActions(name);
       })).then(function(moduleActions) {
-        var localRecords = _.flatMapDeep(moduleActions, function(action) {
-          return _.values(action);
+        var localRecords = _.flatten(moduleActions);
+
+        localRecords.map(function(localRecord) {
+          executeRecord(localRecord);
         });
       });
     }
