@@ -48,12 +48,16 @@ angular.module('esn.http', [
     var baseUrl = '';
 
     function setBaseUrl(newBaseUrl) {
-      baseUrl = newBaseUrl.replace(/\/$/,'');
+      baseUrl = newBaseUrl.replace(/\/$/, '');
       restangulars.forEach(updateRestangularBaseUrl);
     }
 
+    function getUrl(uri) {
+      return baseUrl + uri;
+    }
+
     function updateRestangularBaseUrl(moduleRestangular) {
-      moduleRestangular.restangular.setBaseUrl(baseUrl + moduleRestangular.baseUri);
+      moduleRestangular.restangular.setBaseUrl(getUrl(moduleRestangular.baseUri));
     }
 
     function manageRestangular(restangular, baseUri) {
@@ -64,10 +68,12 @@ angular.module('esn.http', [
     }
 
     this.setBaseUrl = setBaseUrl;
+    this.getUrl = getUrl;
     this.$get = function() {
       return {
         setBaseUrl: setBaseUrl,
-        manageRestangular: manageRestangular
+        manageRestangular: manageRestangular,
+        getUrl: getUrl
       };
     }
   });
