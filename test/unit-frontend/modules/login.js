@@ -1,6 +1,6 @@
 'use strict';
 
-/* global chai: false */
+/* global chai, sinon: false */
 
 var expect = chai.expect;
 
@@ -41,11 +41,15 @@ describe('The Login Angular module', function() {
   });
 
   describe('loginController', function() {
-    beforeEach(inject(function($rootScope, $controller) {
+    var $rootScope;
+
+    beforeEach(inject(function(_$rootScope_, $controller) {
       var self = this;
+
       this.loginAPI = {};
       this.searchObject = {};
       this.notificationFactory = {};
+      $rootScope = _$rootScope_;
       this.scope = $rootScope.$new();
       this.request = {
       };
@@ -59,9 +63,7 @@ describe('The Login Angular module', function() {
             return self.searchObject;
           }
         },
-        $window: {
-          location: {}
-        },
+        esnLoginSuccessService: sinon.spy(),
         loginAPI: this.loginAPI,
         notificationFactory: this.notificationFactory
       };
@@ -92,23 +94,24 @@ describe('The Login Angular module', function() {
         this.scope.login(this.scope.form);
       });
 
-      it('should reload the page after login', function(done) {
+      it('should fire the esnLoginSuccessService function on successful login', function() {
         this.scope.form = {$invalid: false};
         this.searchObject = {
           continue: '/dummy'
         };
 
-        this.locals.$window.location.reload = done;
-
         this.loginAPI.login = function() {
           return {
             then: function(next) {
-              next();
+              return $q.when(next);
             }
           };
         };
 
         this.scope.login(this.scope.form);
+        $rootScope.$digest();
+
+        expect(this.locals.esnLoginSuccessService).to.have.been.calledOnce;
       });
 
       it('should display an error message when login fails', function(done) {
