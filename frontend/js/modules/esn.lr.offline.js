@@ -6,7 +6,7 @@
   'use strict';
 
   angular
-    .module('esn.offline', ['esn.localstorage', 'esn.lodash-wrapper', 'esn.offline.detector'])
+    .module('esn.offline', ['esn.localstorage', 'esn.lodash-wrapper', 'esn.offline.detector', 'uuid4'])
     .factory('offlineApi', offlineApi)
     .run(function(offlineApi) {
       offlineApi.activate();
@@ -18,7 +18,7 @@
    * @desc Service to manage action execution on offline mode
    * @memberOf esn.offline
    */
-  function offlineApi($rootScope, $q, $log, _, localStorageService, offlineDetectorApi, OFFLINE_RECORD) {
+  function offlineApi($rootScope, $q, $log, _, localStorageService, offlineDetectorApi, OFFLINE_RECORD, uuid4) {
     var
     actionHandlers = {},
     service = {
@@ -147,7 +147,9 @@
 
       return recorderInstance.getItem(localRecord.module).then(function(actions) {
         actions = actions || [];
-        actions.push(JSON.parse(JSON.stringify(localRecord)));
+        localRecord = JSON.parse(JSON.stringify(localRecord));
+        localRecord.id = uuid4.generate();
+        actions.push(localRecord);
 
         return recorderInstance.setItem(localRecord.module, actions);
       }).then(function() {
@@ -173,24 +175,33 @@
     /**
      * @name removeAction
      * @desc Remove an action
-     * @param {Object} localRecord - LocalRecord object to remove
+     * @param {Object|Object[]} localRecordsToRemove - LocalRecord object to remove or array of localrecord to remove
      * @param {string} localRecord.module - Name of the module
      * @param {string} localRecord.action - Name of the action
      * @param {Object} localRecord.payload - Payload of the action
      * @return {Promise} Remove status
      * @memberOf esn.offline.offlineApi
      */
-    function removeAction(localRecord) {
+    function removeAction(localRecords) {
+      if (!_.isArray(localRecords)) {
+        localRecords = [localRecords];
+      }
+
       var recorderInstance = localStorageService.getOrCreateInstance(OFFLINE_RECORD);
 
-      return recorderInstance.getItem(localRecord.module).then(function(data) {
-        var localRecords = data || [];
+      return $q.all(_.chain(localRecords)
+                    .groupBy('module')
+                    .map(function(localRecordsToRemove, module) {
+                      return recorderInstance.getItem(module).then(function(data) {
+                        var localRecords = data || [];
 
-        if (localRecords) {
-          localRecords = _.remove(localRecords, localRecord);
-        }
-        return recorderInstance.setItem(localRecord.module, localRecords);
-      });
+                        localRecordsToRemove.forEach(function(localRecord) {
+                          _.remove(localRecords, {id: localRecord.id});
+                        });
+
+                        return recorderInstance.setItem(module, localRecords);
+                      });
+                    }));
     }
   }
 })();
