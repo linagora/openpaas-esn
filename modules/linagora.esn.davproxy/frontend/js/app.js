@@ -1,3 +1,3 @@
 'use strict';
 
-angular.module('linagora.esn.davproxy', []);
+angular.module('linagora.esn.davproxy', ['esn.http']);
