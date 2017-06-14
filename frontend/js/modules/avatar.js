@@ -143,29 +143,20 @@ angular.module('esn.avatar', [
     $scope.initUploadContext();
 
   })
-  .provider('avatarAPI', function() {
-    var baseUrl = '';
+  .factory('avatarAPI', function($upload, httpConfigurer) {
+    function uploadAvatar(blob, mime) {
+      return $upload.http({
+        method: 'POST',
+        url: httpConfigurer.getUrl('/api/user/profile/avatar'),
+        headers: {'Content-Type': mime},
+        data: blob,
+        params: {mimetype: mime, size: blob.size},
+        withCredentials: true
+      });
+    }
 
     return {
-      setBaseUrl: function(value) {
-        baseUrl = value || '';
-      },
-      $get: function($upload) {
-        function uploadAvatar(blob, mime) {
-          return $upload.http({
-            method: 'POST',
-            url: baseUrl + '/api/user/profile/avatar',
-            headers: {'Content-Type': mime},
-            data: blob,
-            params: {mimetype: mime, size: blob.size},
-            withCredentials: true
-          });
-        }
-
-        return {
-          uploadAvatar: uploadAvatar
-        };
-      }
+      uploadAvatar: uploadAvatar
     };
   })
   .factory('selectionService', function($rootScope, AVATAR_MIN_SIZE_PX) {
