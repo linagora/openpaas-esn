@@ -56,7 +56,7 @@ const controlCenterModule = new AwesomeModule(AWESOME_MODULE_NAME, {
 });
 
 controlCenterModule.frontendInjections = {
-  angularModules: [
+  angularAppModules: [
     [
       MODULE_NAME,
       frontendJsFilesUri,

@@ -66,7 +66,7 @@ const userStatusModule = new AwesomeModule(MODULE_NAME, {
 });
 
 userStatusModule.frontendInjections = {
-  angularModules: [
+  angularAppModules: [
     [
       NAME,
       frontendUriPathModules,
