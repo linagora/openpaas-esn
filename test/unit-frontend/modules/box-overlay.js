@@ -7,7 +7,7 @@ var expect = chai.expect;
 
 describe('The box-overlay Angular module', function() {
 
-  var $window, $compile, $rootScope, $scope, $timeout, element, deviceDetector, notificationFactory, DEVICES;
+  var $window, $compile, $rootScope, $scope, $timeout, element, deviceDetector, notificationFactory, esnI18nService, DEVICES;
 
   function compile(html) {
     element = $compile(html)($scope);
@@ -67,9 +67,18 @@ describe('The box-overlay Angular module', function() {
 
   beforeEach(function() {
     angular.mock.module('esn.box-overlay', function($provide) {
+      esnI18nService = {
+        translate: function(input) {
+          return {
+            toString: function() { return input; }
+          };
+        }
+      };
+
       $provide.value('notificationFactory', notificationFactory = {
         weakError: sinon.spy()
       });
+      $provide.value('esnI18nService', esnI18nService);
     });
   });
 

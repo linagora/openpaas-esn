@@ -14,7 +14,7 @@
         span(ng-if='community.members_count !== 1') {{community.members_count || 0}} #{__('members')}
         span(ng-if='community.members_count === 1') 1 #{__('member')}
       li
-        | {{community.type}}
+        | {{community.type | esnI18n}}
       li(ng-if='canCancelMembership')
         | #{__('Membership request pending')}
     .lv-actions.actions.dropdown(ng-show='actionVisible')

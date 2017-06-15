@@ -128,9 +128,13 @@
   "Owned": "Owned",
   "Member of": "Member of",
   "Open": "Open",
+  "open": "open",
   "Private": "Private",
+  "private": "private",
   "Confidential": "Confidential",
+  "confidential": "confidential",
   "Restricted": "Restricted",
+  "restricted": "restricted",
   "Next": "Next",
   "Create": "Create",
   "A human readable description which will help users know what this community is about": "A human readable description which will help users know what this community is about",
@@ -418,5 +422,6 @@
   "Time format": "Time format",
   "Search options": "Search options",
   "Reset": "Reset",
-  "Reset search options": "Reset search options"
+  "Reset search options": "Reset search options",
+  "Share with...": "Share with..."
 }

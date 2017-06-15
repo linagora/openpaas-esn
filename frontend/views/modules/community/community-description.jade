@@ -1,8 +1,8 @@
-.card
+.card 
   .card-header.ch-alt
     h2 {{::community.title}}
       small
-        span {{::community.type}}, &nbsp;
+        span {{::community.type | esnI18n}}, &nbsp;
         span(ng-if='community.members_count !== 1') {{community.members_count || 0}} #{__('members')}
         span(ng-if='community.members_count === 1') 1 #{__('member')}
     ul.actions

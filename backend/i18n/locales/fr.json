@@ -128,9 +128,13 @@
   "Owned": "M'appartenant",
   "Member of": "Dont je suis membre",
   "Open": "Ouvertes",
+  "open": "ouvertes",
   "Private": "Privées",
+  "private": "privées",
   "Confidential": "Confidentielles",
+  "confidential": "confidentielles",
   "Restricted": "Restreintes",
+  "restricted": "restreintes",
   "Next": "Suivant",
   "Create": "Créer",
   "A human readable description which will help users know what this community is about": "Une description de votre communauté, qui aidera les utilisateurs à comprendre son sujet",
@@ -418,5 +422,6 @@
   "Time format": "Format de l'heure",
   "Search options": "Recherche avancée",
   "Reset": "Réinitialiser",
-  "Reset search options": "Réinitialiser la recherche avancée"
+  "Reset search options": "Réinitialiser la recherche avancée",
+  "Share with...": "Partager avec..."
 }

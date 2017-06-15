@@ -4,5 +4,5 @@
       i.close.mdi.mdi-close(ng-click="$close()")
       span.close.toggle-maximize.mdi.mdi-arrow-expand(ng-click="$toggleMaximized()")
       span.close.toggle-minimize.mdi.mdi-chevron-down(ng-click="$toggleMinimized()")
-      .panel-title-text {{title}}
+      .panel-title-text {{title | esnI18n}}
   .panel-body(ng-include="templateUrl")
