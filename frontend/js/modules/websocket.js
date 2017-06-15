@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socketio'])
+angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socketio', 'esn.http'])
   .factory('IoAction', function($timeout) {
     function getNgCallback(callback) {
       return function() {
@@ -217,7 +217,7 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
       flushBuffer: flushBuffer
     };
   })
-  .factory('ioSocketConnection', function($log, io) {
+  .factory('ioSocketConnection', function($log, io, httpConfigurer) {
     var firstConnection = true;
     var connected = false;
     var sio = null;
@@ -286,7 +286,7 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
         if (!sio) {
           return null;
         }
-        return io()(namespace);
+        return io()(httpConfigurer.getUrl(namespace));
       }
     };
   })
@@ -318,7 +318,7 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
       return ioInterface(onSocketAction);
     };
   })
-  .factory('ioConnectionManager', function(ioSocketConnection, tokenAPI, $log, $q, session, $timeout, ioOfflineBuffer, io) {
+  .factory('ioConnectionManager', function(ioSocketConnection, tokenAPI, $log, $q, session, $timeout, ioOfflineBuffer, io, httpConfigurer) {
 
     function _disconnectOld() {
       var oldSio = ioSocketConnection.getSio();
@@ -328,7 +328,7 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
     function _connect() {
       return tokenAPI.getNewToken().then(function(response) {
         _disconnectOld();
-        var sio = io()('/', {
+        var sio = io()(httpConfigurer.getUrl('/'), {
           query: 'token=' + response.data.token + '&user=' + session.user._id,
           reconnection: false
         });
