@@ -3,6 +3,7 @@
 
   angular.module('esn.i18n', [
     'pascalprecht.translate',
-    'esn.lodash-wrapper'
+    'esn.lodash-wrapper',
+    'esn.http'
   ]);
 })();

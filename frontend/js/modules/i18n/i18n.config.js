@@ -2,8 +2,8 @@
   'use strict';
 
   angular.module('esn.i18n')
-    .config(function(_, $translateProvider, ESN_I18N_AVAILABLE_LANGUAGE, ESN_I18N_AVAILABLE_LANGUAGE_KEYS) {
-      angular.element.ajax('/api/i18n')
+    .config(function(_, $translateProvider, httpConfigurerProvider, ESN_I18N_AVAILABLE_LANGUAGE, ESN_I18N_AVAILABLE_LANGUAGE_KEYS) {
+      angular.element.ajax(httpConfigurerProvider.getUrl('/api/i18n'))
         .then(function(res) {
           _.each(res, function(catalog, lang) {
             $translateProvider.translations(lang, catalog);
