@@ -1,9 +1,12 @@
 'use strict';
 
-var AwesomeModule = require('awesome-module');
-var Dependency = AwesomeModule.AwesomeModuleDependency;
+const AwesomeModule = require('awesome-module');
+const Dependency = AwesomeModule.AwesomeModuleDependency;
 
-var oauthModule = new AwesomeModule('linagora.esn.oauth.consumer', {
+const MODULE_NAME = 'oaut';
+const MODULE_FUL_NAME = `linagora.esn.${MODULE_NAME}`;
+
+const oauthModule = new AwesomeModule('linagora.esn.oauth.consumer', {
   dependencies: [
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.logger', 'logger'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.user', 'user'),
@@ -36,8 +39,8 @@ var oauthModule = new AwesomeModule('linagora.esn.oauth.consumer', {
 
       var webserverWrapper = dependencies('webserver-wrapper');
 
-      webserverWrapper.injectAngularModules('oauth', ['app.js', 'services.js'], 'linagora.esn.oauth', ['esn']);
-      webserverWrapper.addApp('oauth', app);
+      webserverWrapper.injectAngularModules(MODULE_NAME, ['app.js', 'services.js'], MODULE_FUL_NAME, ['esn']);
+      webserverWrapper.addApp(MODULE_NAME, app);
 
       return callback();
     },
@@ -48,11 +51,28 @@ var oauthModule = new AwesomeModule('linagora.esn.oauth.consumer', {
   }
 });
 
-oauthModule.frontend = {
+oauthModule.frontendInjections = {
   angularModules: [
     [
-      'oauth', ['app.js', 'services.js'], 'linagora.esn.oauth', ['esn']
+      MODULE_NAME, ['app.js', 'services.js'], MODULE_FUL_NAME, ['esn']
     ]
+  ],
+  less: [],
+  js: [
+    {
+      moduleName: MODULE_NAME,
+      path: {
+        base: 'frontend/js',
+        serve: `${MODULE_NAME}/js`
+      },
+      moduleJS: ['app.js', 'services.js']
+    }
+  ],
+  views: [],
+  i18n: [
+    'backend/lib/i18n/locales/fr.json',
+    'backend/lib/i18n/locales/en.json',
+    'backend/lib/i18n/locales/vi.json'
   ]
 };
 

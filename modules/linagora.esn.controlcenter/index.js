@@ -13,6 +13,10 @@ const frontendJsFilesFullPath = glob.sync([
   FRONTEND_APP_PATH + '**/!(*spec).js'
 ]);
 const frontendJsFilesUri = frontendJsFilesFullPath.map(filepath => filepath.replace(FRONTEND_APP_PATH, ''));
+const frontendViewFullPathModules = glob.sync([
+  FRONTEND_APP_PATH + '**/*.jade'
+]);
+const viewsFiles = frontendViewFullPathModules.map(filepath => filepath.replace(FRONTEND_APP_PATH, ''));
 
 const controlCenterModule = new AwesomeModule(AWESOME_MODULE_NAME, {
   dependencies: [
@@ -52,7 +56,7 @@ const controlCenterModule = new AwesomeModule(AWESOME_MODULE_NAME, {
 });
 
 controlCenterModule.frontendInjections = {
-  angularAppModules: [
+  angularModules: [
     [
       MODULE_NAME,
       frontendJsFilesUri,
@@ -63,6 +67,31 @@ controlCenterModule.frontendInjections = {
   ],
   less: [
     [MODULE_NAME, [lessFile], 'esn']
+  ],
+  js: [
+    {
+      moduleName: MODULE_NAME,
+      path: {
+        base: 'frontend/app',
+        serve: `${MODULE_NAME}/app`
+      },
+      moduleJS: frontendJsFilesUri
+    }
+  ],
+  views: [
+    {
+      moduleName: MODULE_NAME,
+      path: {
+        base: 'frontend/app',
+        serve: `${MODULE_NAME}/app`
+      },
+      moduleViews: viewsFiles
+    }
+  ],
+  i18n: [
+    'backend/lib/i18n/locales/fr.json',
+    'backend/lib/i18n/locales/en.json',
+    'backend/lib/i18n/locales/vi.json'
   ]
 };
 

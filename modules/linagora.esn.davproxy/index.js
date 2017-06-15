@@ -80,7 +80,20 @@ davProxy.frontendInjections = {
       ['esn'],
       { localJsFiles: frontendFullPathModules }
     ]
-  ]
+  ],
+  less: [],
+  js: [
+    {
+      moduleName: MODULE_NAME,
+      path: {
+        base: 'frontend/js',
+        serve: `${MODULE_NAME}/js`
+      },
+      moduleJS: libJS
+    }
+  ],
+  views: [],
+  i18n: []
 };
 
 module.exports = davProxy;

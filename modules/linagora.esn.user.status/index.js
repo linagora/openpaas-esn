@@ -8,6 +8,7 @@ const glob = require('glob-all');
 const NAME = 'user-status';
 const MODULE_NAME = `linagora.esn.${NAME}`;
 const FRONTEND_JS_PATH = `${__dirname}/frontend/app/`;
+
 const APP_ENTRY_POINT = `${FRONTEND_JS_PATH}app.js`;
 
 const lessFile = path.resolve(__dirname, './frontend/app/user-status.styles.less');
@@ -16,6 +17,10 @@ const frontendFullPathModules = glob.sync([
   FRONTEND_JS_PATH + '**/!(*spec).js'
 ]);
 const frontendUriPathModules = frontendFullPathModules.map(filepath => filepath.replace(FRONTEND_JS_PATH, ''));
+const frontendViewFullPathModules = glob.sync([
+  FRONTEND_JS_PATH + '**/*.jade'
+]);
+const viewsFiles = frontendViewFullPathModules.map(filepath => filepath.replace(FRONTEND_JS_PATH, ''));
 
 const userStatusModule = new AwesomeModule(MODULE_NAME, {
   dependencies: [
@@ -61,7 +66,7 @@ const userStatusModule = new AwesomeModule(MODULE_NAME, {
 });
 
 userStatusModule.frontendInjections = {
-  angularAppModules: [
+  angularModules: [
     [
       NAME,
       frontendUriPathModules,
@@ -72,6 +77,31 @@ userStatusModule.frontendInjections = {
   ],
   less: [
     [NAME, [lessFile], 'esn']
+  ],
+  js: [
+    {
+      moduleName: NAME,
+      path: {
+        base: 'frontend/app',
+        serve: `${NAME}/app`
+      },
+      moduleJS: frontendUriPathModules
+    }
+  ],
+  views: [
+    {
+      moduleName: NAME,
+      path: {
+        base: 'frontend/app',
+        serve: `${NAME}/app`
+      },
+      moduleViews: viewsFiles
+    }
+  ],
+  i18n: [
+    'backend/lib/i18n/locales/fr.json',
+    'backend/lib/i18n/locales/en.json',
+    'backend/lib/i18n/locales/vi.json'
   ]
 };
 

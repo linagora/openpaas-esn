@@ -77,6 +77,23 @@ importContactModule.frontendInjections = {
      ['esn'],
      { localJsFiles: frontendFullPathModules }
     ]
+  ],
+  less: [],
+  js: [
+    {
+      moduleName: MODULE_NAME,
+      path: {
+        base: 'frontend/js',
+        serve: `${MODULE_NAME}/js`
+      },
+      moduleJS: jsFiles
+    }
+  ],
+  views: [],
+  i18n: [
+    'backend/lib/i18n/locales/fr.json',
+    'backend/lib/i18n/locales/en.json',
+    'backend/lib/i18n/locales/vi.json'
   ]
 };
 

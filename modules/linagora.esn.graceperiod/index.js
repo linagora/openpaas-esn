@@ -70,7 +70,19 @@ graceModule.frontendInjections = {
     [
       MODULE_NAME, [lessFile], 'esn'
     ]
-  ]
+  ],
+  js: [
+    {
+      moduleName: MODULE_NAME,
+      path: {
+        base: 'frontend/js',
+        serve: `${MODULE_NAME}/js`
+      },
+      moduleJS: frontendFiles
+    }
+  ],
+  views: [],
+  i18n: []
 };
 
 module.exports = graceModule;

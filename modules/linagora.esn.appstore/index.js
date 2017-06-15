@@ -4,7 +4,10 @@ const moduleManager = require('../../backend/module-manager');
 const AwesomeModule = require('awesome-module');
 const Dependency = AwesomeModule.AwesomeModuleDependency;
 const path = require('path');
+const glob = require('glob-all');
+
 const FRONTEND_PATH = path.join(__dirname, 'frontend');
+const FRONTEND_VIEW_PATH = `${__dirname}/frontend/views/`;
 
 const MODULE_NAME = 'appstore';
 const AWESOME_MODULE_NAME = `esn.${MODULE_NAME}`;
@@ -17,6 +20,10 @@ const jsFiles = [
 
 const frontendFullPathModules = jsFiles.map(file => path.resolve(FRONTEND_PATH, 'js', file));
 const lessFile = path.resolve(FRONTEND_PATH, 'css/styles.less');
+const frontendViewFullPathModules = glob.sync([
+  FRONTEND_VIEW_PATH + '**/*.jade'
+]);
+const viewsFiles = frontendViewFullPathModules.map(filepath => filepath.replace(FRONTEND_VIEW_PATH, ''));
 
 var awesomeAppStore = new AwesomeModule('linagora.esn.awesomeappstore', {
   dependencies: [
@@ -107,6 +114,31 @@ awesomeAppStore.frontendInjections = {
     [
       MODULE_NAME, [lessFile], 'esn'
     ]
+  ],
+  js: [
+    {
+      moduleName: MODULE_NAME,
+      path: {
+        base: 'frontend/js',
+        serve: `${MODULE_NAME}/js`
+      },
+      moduleJS: jsFiles
+    }
+  ],
+  views: [
+    {
+      moduleName: MODULE_NAME,
+      path: {
+        base: 'frontend/views',
+        serve: `${MODULE_NAME}/views`
+      },
+      moduleViews: viewsFiles
+    }
+  ],
+  i18n: [
+    'backend/lib/i18n/locales/fr.json',
+    'backend/lib/i18n/locales/en.json',
+    'backend/lib/i18n/locales/vi.json'
   ]
 };
 

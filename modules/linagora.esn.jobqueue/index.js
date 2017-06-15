@@ -44,7 +44,7 @@ const jobQueueModule = new AwesomeModule(AWESOME_MODULE_NAME, {
   }
 });
 
-jobQueueModule.frontend = {
+jobQueueModule.frontendInjections = {
   angularModules: [
     [
       MODULE_NAME,
@@ -53,7 +53,20 @@ jobQueueModule.frontend = {
       ['esn'],
       { localJsFiles: frontendFiles }
     ]
-  ]
+  ],
+  less: [],
+  js: [
+    {
+      moduleName: MODULE_NAME,
+      path: {
+        base: 'frontend/js',
+        serve: `${MODULE_NAME}/js`
+      },
+      moduleJS: jsFiles
+    }
+  ],
+  views: [],
+  i18n: []
 };
 
 module.exports = jobQueueModule;
