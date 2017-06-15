@@ -155,6 +155,8 @@
       }).then(function() {
         return executeRecord(localRecord);
       }).then(function(status) {
+        status.localRecord = localRecord;
+
         return status;
       });
     }
