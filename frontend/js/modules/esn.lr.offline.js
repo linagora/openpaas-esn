@@ -39,7 +39,9 @@
      * @memberOf esn.offline.offlineApi
      */
     function activate() {
-      $rootScope.$on('network:available', (event, state) => {onNetworkChange(event, state);});
+      $rootScope.$on('network:available', function(event, state) {
+        onNetworkChange(event, state);
+      });
     }
 
     /**
@@ -51,8 +53,8 @@
      * @returns {Promise} Record excution status
      */
     function executeRecord(localRecord) {
-      $log.log('isConnected: ', offlineDetectorApi.online);
-      if (offlineDetectorApi.online) {
+      $log.log('isConnected: ', offlineDetectorApi.isOnline);
+      if (offlineDetectorApi.isOnline) {
         var handler = getActionHandler(localRecord.module, localRecord.action);
 
         return handler(localRecord.payload).then(function() {
@@ -121,14 +123,14 @@
       })).then(function(moduleActions) {
         var localRecords = _.flatten(moduleActions);
 
-        var t = [];
+        var results = [];
          return localRecords.reduce(function(memory, localRecord) {
             return memory.then(function() {
               return executeRecord(localRecord).then(function(status) {
-                t.push(status);
+                results.push(status);
               });
             });
-         }, $q(resolve => {resolve(t);}));
+         }, $q.when(results));
       });
     }
 
