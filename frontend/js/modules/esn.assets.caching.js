@@ -13,7 +13,11 @@
             $log.error('ServiceWorker registration failed: ', error);
           });
       } else {
-        $log.log("ServiceWorker not supported by: ", $window.navigator.userAgent);
+        $log.log('ServiceWorker not supported by: ', $window.navigator.userAgent);
       }
     });
+
+  function assetsCachingAPI() {
+    return {};// TODO
+  }
 })();
