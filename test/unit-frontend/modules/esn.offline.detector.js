@@ -4,7 +4,7 @@
 
 var expect = chai.expect;
 
-describe('The esn.background Angular module', function() {
+describe('The esn.offline.detector Angular module', function() {
     var $rootScope, offlineDetectorApi, ioSocketConnectionMock, isConnectedResult;
 
     beforeEach(angular.mock.module('esn.offline.detector', function($provide) {
