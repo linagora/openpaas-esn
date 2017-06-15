@@ -397,6 +397,16 @@ Defines the algorithm, public-key and private-key that will be used to encode/de
 
 ### Home page
 
+You can enable offline support which is an experimental feature
+```
+{
+  "name": "offline",
+  "value": true
+}
+```
+
+### Home page
+
 Home page is the first page that the user is redirected to after logged in to ESN.
 Valid values are ui-router states available in ESN.
 
