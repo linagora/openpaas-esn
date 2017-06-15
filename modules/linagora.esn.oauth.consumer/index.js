@@ -3,7 +3,7 @@
 const AwesomeModule = require('awesome-module');
 const Dependency = AwesomeModule.AwesomeModuleDependency;
 
-const MODULE_NAME = 'oaut';
+const MODULE_NAME = 'oauth';
 const MODULE_FUL_NAME = `linagora.esn.${MODULE_NAME}`;
 
 const oauthModule = new AwesomeModule('linagora.esn.oauth.consumer', {
