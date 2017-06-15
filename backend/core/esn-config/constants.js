@@ -23,6 +23,12 @@ module.exports = {
             user: 'rw'
           }
         },
+        offline: {
+         rights: {
+            admin: 'rw',
+            user: 'rw'
+          }
+        },
         businessHours: {
           rights: {
             padmin: 'rw',
