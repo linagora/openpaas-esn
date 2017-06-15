@@ -20,21 +20,7 @@
   function offlineDetectorApi($rootScope, $window, ioSocketConnection) {
     var service = {
       activate: activate,
-      online: ioSocketConnection.isConnected()
-    };
-
-    $window.luc = $window.setForceOffline = function() {
-      service.forceOffline = true;
-      service.online = false;
-
-      return 'May the force be with you';
-    };
-
-    $window.han = $window.unsetForceOffline = function() {
-      service.forceOffline = false;
-      setNetworkActivity(ioSocketConnection.isConnected());
-
-      return 'Han shot first!';
+      isOnline: ioSocketConnection.isConnected()
     };
 
     return service;
@@ -47,8 +33,22 @@
      * @memberOf esn.offline.detector.offlineDetectorApi
      */
     function activate() {
-     ioSocketConnection.addConnectCallback(() => {setNetworkActivity(true);});
-     ioSocketConnection.addDisconnectCallback(() => {setNetworkActivity(false);});
+     ioSocketConnection.addConnectCallback(setNetworkActivity.bind(null, true));
+     ioSocketConnection.addDisconnectCallback(setNetworkActivity.bind(null, false));
+
+      $window.luc = $window.setForceOffline = function() {
+          service.forceOffline = true;
+          service.isOnline = false;
+
+          return 'May the force be with you';
+      };
+
+      $window.han = $window.unsetForceOffline = function() {
+          service.forceOffline = false;
+          setNetworkActivity(ioSocketConnection.isConnected());
+
+          return 'Han shot first!';
+      };
     }
 
     /**
@@ -62,8 +62,8 @@
         return;
       }
 
-      service.online = connected;
-      $rootScope.$broadcast('network:available', service.online);
+      service.isOnline = connected;
+      $rootScope.$broadcast('network:available', service.isOnline);
     }
 
   }
