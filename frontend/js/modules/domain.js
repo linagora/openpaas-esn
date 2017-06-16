@@ -10,6 +10,27 @@ angular.module('esn.domain', ['esn.http', 'ngTagsInput', 'op.dynamicDirective', 
   })
   .factory('domainAPI', function(esnRestangular) {
 
+    return {
+      list: list,
+      getMembers: getMembers,
+      inviteUsers: inviteUsers,
+      isManager: isManager,
+      get: get,
+      createMember: createMember,
+      getAdministrators: getAdministrators,
+      addAdministrators: addAdministrators,
+      removeAdministrator: removeAdministrator
+    };
+
+    /**
+     * List domains
+     *
+     * @return {Promise} Resolve on success
+     */
+    function list() {
+      return esnRestangular.one('domains').get();
+    }
+
     /**
      * Get the list of members of a domain.
      *
@@ -87,17 +108,6 @@ angular.module('esn.domain', ['esn.http', 'ngTagsInput', 'op.dynamicDirective', 
     function removeAdministrator(domainId, administratorId) {
       return esnRestangular.one('domains', domainId).one('administrators', administratorId).remove();
     }
-
-    return {
-      getMembers: getMembers,
-      inviteUsers: inviteUsers,
-      isManager: isManager,
-      get: get,
-      createMember: createMember,
-      getAdministrators: getAdministrators,
-      addAdministrators: addAdministrators,
-      removeAdministrator: removeAdministrator
-    };
   })
 
   .service('domainSearchMembersProvider', function($q, $log, domainAPI, userUtils) {

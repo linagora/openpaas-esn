@@ -1,16 +1,65 @@
 'use strict';
 
-var mongoose = require('mongoose');
-var Domain = mongoose.model('Domain');
-var User = mongoose.model('User');
-var userDomain = require('../../core/user/domain');
-var userIndex = require('../../core/user/index');
-var logger = require('../../core').logger;
-var async = require('async');
-var q = require('q');
-var pubsub = require('../../core/pubsub').local;
-var denormalizeUser = require('../denormalize/user').denormalize;
-var _ = require('lodash');
+const mongoose = require('mongoose');
+const Domain = mongoose.model('Domain');
+const User = mongoose.model('User');
+const userDomain = require('../../core/user/domain');
+const userIndex = require('../../core/user/index');
+const coreDomain = require('../../core/domain');
+const logger = require('../../core').logger;
+const async = require('async');
+const q = require('q');
+const pubsub = require('../../core/pubsub').local;
+const denormalizeUser = require('../denormalize/user').denormalize;
+const denormalizeDomain = require('../denormalize/domain');
+const _ = require('lodash');
+
+const DEFAULT_OFFSET = 0;
+const DEFAULT_LIMIT = 50;
+
+module.exports = {
+  list,
+  createDomain,
+  getMembers,
+  sendInvitations,
+  getDomain,
+  createMember,
+  getDomainAdministrators,
+  addDomainAdministrator,
+  removeDomainAdministrator
+};
+
+/**
+ * List domains
+ *
+ * @param {Request} req
+ * @param {Response} res
+ */
+function list(req, res) {
+  const options = {
+    limit: +req.query.limit || DEFAULT_LIMIT,
+    offset: +req.query.offset || DEFAULT_OFFSET
+  };
+
+  coreDomain.list(options, (err, domains) => {
+    if (err) {
+      const details = 'Error while listing domains';
+
+      logger.error(details, err);
+
+      return res.status(500).json({
+        error: {
+          code: 500,
+          message: 'Server Error',
+          details
+        }
+      });
+    }
+
+    res.header('X-ESN-Items-Count', domains.length);
+    res.status(200).json(domains.map(domain => denormalizeDomain(domain)));
+  });
+}
 
 function createDomain(req, res) {
   var data = req.body;
@@ -59,8 +108,6 @@ function createDomain(req, res) {
   });
 }
 
-module.exports.createDomain = createDomain;
-
 /**
  * Get Members of a domain
  *
@@ -74,8 +121,8 @@ function getMembers(req, res) {
   }
 
   var query = {
-    limit: req.query.limit || 50,
-    offset: req.query.offset || 0,
+    limit: req.query.limit || DEFAULT_LIMIT,
+    offset: req.query.offset || DEFAULT_OFFSET,
     search: req.query.search || null
   };
 
@@ -117,7 +164,6 @@ function getMembers(req, res) {
     }
   });
 }
-module.exports.getMembers = getMembers;
 
 /**
  * Send invitations to a list of emails.
@@ -189,7 +235,6 @@ function sendInvitations(req, res) {
     pubsub.topic('domain:invitations:sent').publish({user: user._id, domain: domain._id, emails: sent});
   });
 }
-module.exports.sendInvitations = sendInvitations;
 
 function getDomain(req, res) {
   if (req.domain) {
@@ -197,7 +242,6 @@ function getDomain(req, res) {
   }
   return res.status(404).json({error: 404, message: 'Not found', details: 'Domain not found'});
 }
-module.exports.getDomain = getDomain;
 
 function createMember(req, res) {
   if (!req.body || _.isEmpty(req.body)) {
@@ -212,7 +256,6 @@ function createMember(req, res) {
     return res.status(201).json(user);
   });
 }
-module.exports.createMember = createMember;
 
 function getDomainAdministrators(req, res) {
   userDomain.getAdministrators(req.domain, function(err, administrators) {
@@ -233,7 +276,6 @@ function getDomainAdministrators(req, res) {
       });
   });
 }
-module.exports.getDomainAdministrators = getDomainAdministrators;
 
 function addDomainAdministrator(req, res) {
   var domain = req.domain;
@@ -257,7 +299,6 @@ function addDomainAdministrator(req, res) {
     res.status(204).end();
   });
 }
-module.exports.addDomainAdministrator = addDomainAdministrator;
 
 function removeDomainAdministrator(req, res) {
   var domain = req.domain;
@@ -281,4 +322,3 @@ function removeDomainAdministrator(req, res) {
     res.status(204).end();
   });
 }
-module.exports.removeDomainAdministrator = removeDomainAdministrator;

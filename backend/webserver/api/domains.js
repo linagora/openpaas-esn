@@ -1,10 +1,34 @@
 'use strict';
 
-var authorize = require('../middleware/authorization');
-var domains = require('../controllers/domains');
-var domainMiddleware = require('../middleware/domain');
+const authorize = require('../middleware/authorization');
+const domains = require('../controllers/domains');
+const domainMiddleware = require('../middleware/domain');
+const platformadminsMw = require('../middleware/platformadmins');
 
 module.exports = function(router) {
+
+  /**
+   * @swagger
+   * /domains:
+   *   get:
+   *     tags:
+   *      - Domain
+   *     description: |
+   *       List ESN domains.
+   *     parameters:
+   *       - $ref: "#/parameters/cm_limit"
+   *       - $ref: "#/parameters/cm_offset"
+   *     responses:
+   *       200:
+   *         $ref: "#/responses/dm_domains"
+   *       401:
+   *         $ref: "#/responses/cm_401"
+   *       403:
+   *         $ref: "#/responses/cm_403"
+   *       500:
+   *         $ref: "#/responses/cm_500"
+   */
+  router.get('/domains', authorize.requiresAPILogin, platformadminsMw.requirePlatformAdmin, domains.list);
 
   /**
    * @swagger

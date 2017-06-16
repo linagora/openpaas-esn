@@ -55,24 +55,39 @@
  *           "firstname": "John0",
  *           "lastname": "Doe0",
  *           "password": "$2a$05$zjixZ79RIAcMnF5mxr4e.eavbJUGavfS/.kOZ2gZoCnMWgnisgLbW",
- *           "accounts": [ 
+ *           "accounts": [
  *             {
  *               "type": "email",
  *               "timestamps": {
  *                 "creation": ISODate("2016-06-23T16:24:07.383Z")
  *               },
  *               "preferredEmailIndex": 0,
- *               "emails": [ 
+ *               "emails": [
  *                 "user0@open-paas.org"
  *               ],
  *               "hosted": false
  *             }
  *           ],
- *           "domains": [ 
+ *           "domains": [
  *             {
  *               "domain_id": ObjectId("576c0d26b6c04ee64696b53b"),
  *               "joined_at": ISODate("2016-06-23T16:24:07.804Z")
  *             }
  *           ]
  *        }
+ *   dm_domains:
+ *     description: Ok with the list domains object.
+ *     schema:
+ *       type: array
+ *       items:
+ *         $ref: "#/definitions/dm_domain"
+ *     examples:
+ *       application/json:
+ *         {
+ *           "name": "foo",
+ *           "company_name": "bar",
+ *           "timestamps": {
+ *             "creation": ISODate("2016-06-23T16:24:07.383Z")
+ *           }
+ *         }
  */
