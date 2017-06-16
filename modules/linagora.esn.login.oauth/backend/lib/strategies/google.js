@@ -1,7 +1,6 @@
 'use strict';
 
 const TYPE = 'google';
-const q = require('q');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 const STRATEGY_NAME = 'google-login';
@@ -20,11 +19,12 @@ module.exports = function(dependencies) {
 
     logger.info('Configuring Google OAuth login');
 
-    q.spread([commons.getCallbackEndpoint(TYPE), commons.getOAuthConfiguration(TYPE)], (url, oauth) => {
+    commons.getOAuthConfiguration(TYPE).then(oauth => {
+
       passport.use(STRATEGY_NAME, new GoogleStrategy({
         clientID: oauth.client_id,
         clientSecret: oauth.client_secret,
-        callbackURL: url,
+        callbackURL: commons.getCallbackEndpoint(TYPE),
         passReqToCallback: true
       }, commons.handleResponse(TYPE)));
       callback();

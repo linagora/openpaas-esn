@@ -26,42 +26,6 @@ describe('The twitter oauth login strategy', function() {
       return require('../../../../../backend/lib/strategies/twitter')(dependencies);
     }
 
-    it('should callback with error when getCallbackEndpoint service fails', function(done) {
-      var msg = 'I failed';
-
-      mockery.registerMock('./commons', function() {
-        return {
-          getCallbackEndpoint: function() {
-            return q.reject(new Error(msg));
-          }
-        };
-      });
-
-      deps['esn-config'] = function() {
-        return {
-          get: function(callback) {
-            callback(null, {
-              twitter: {
-                consumer_key: 'A',
-                consumer_secret: 'B'
-              }
-            });
-          }
-        };
-      };
-
-      mockery.registerMock('passport', {
-        use: function() {
-          done(new Error('Should not be called'));
-        }
-      });
-
-      getModule().configure(function(err) {
-        expect(err.message).to.equal(msg);
-        done();
-      });
-    });
-
     it('should callback with error when getTwitterConfiguration fails', function(done) {
       var msg = 'I failed';
 
@@ -97,7 +61,7 @@ describe('The twitter oauth login strategy', function() {
       mockery.registerMock('./commons', function() {
         return {
           getCallbackEndpoint: function() {
-            return q();
+            return 'oauth_callback_url';
           },
           handleResponse: function() {}
         };
