@@ -166,6 +166,7 @@
     "sinon": "1.17.5",
     "sinon-chai": "2.8.0",
     "supertest": "2.0.0",
+    "sw-precache": "^5.2.0",
     "swagger-jsdoc": "1.6.0",
     "time-grunt": "^1.4.0"
   },
