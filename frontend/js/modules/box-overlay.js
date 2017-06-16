@@ -3,7 +3,8 @@
 angular.module('esn.box-overlay', [
   'esn.constants',
   'esn.back-detector',
-  'ng.deviceDetector'
+  'ng.deviceDetector',
+  'esn.i18n'
 ])
 
   .constant('ESN_BOX_OVERLAY_EVENTS', {

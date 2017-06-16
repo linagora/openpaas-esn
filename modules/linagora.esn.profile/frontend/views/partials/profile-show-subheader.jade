@@ -1,13 +1,17 @@
 extends /modules/subheader/responsive-subheader
 
 block left
-  a.button.flex-vertical-centered(href='', esn-back-button='home')
+  button.btn.btn-link.hidden-xs(esn-back-button='home')
+    .flex-vertical-centered
+      i.mdi.mdi-arrow-left.mdi-margin-right
+      span #{__('Back')}
+  button.btn.btn-link.btn-icon.visible-xs(esn-back-button='home')
     i.mdi.mdi-arrow-left
-    span
-      | #{__('Back')}
 
 block right
-  a.button.flex-vertical-centered(ng-if="me", ui-sref="profileEdit")
+  button.btn.btn-link.hidden-xs(ng-if="me", ui-sref="profileEdit")
+    .flex-vertical-centered
+      i.mdi.mdi-pencil.mdi-margin-right
+      span #{__('Edit')}
+  button.btn.btn-link.btn-icon.visible-xs(ng-if="me", ui-sref="profileEdit")
     i.mdi.mdi-pencil
-    span.visible-md
-      | #{__('Edit')}

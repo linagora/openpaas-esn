@@ -26,38 +26,13 @@ describe('The google oauth login strategy', function() {
       return require('../../../../../backend/lib/strategies/google')(dependencies);
     }
 
-    it('should callback with error when getCallbackEndpoint service fails', function(done) {
-      var msg = 'I failed';
-
-      mockery.registerMock('./commons', function() {
-        return {
-          getCallbackEndpoint: function() {
-            return q.reject(new Error(msg));
-          },
-          getOAuthConfiguration: function() {
-            return q();
-          }
-        };
-      });
-      mockery.registerMock('passport', {
-        use: function() {
-          done(new Error('Should not be called'));
-        }
-      });
-
-      getModule().configure(function(err) {
-        expect(err.message).to.equal(msg);
-        done();
-      });
-    });
-
     it('should callback with error when getOAuthConfiguration fails', function(done) {
       var msg = 'I failed';
 
       mockery.registerMock('./commons', function() {
         return {
           getCallbackEndpoint: function() {
-            return q();
+            return 'oauth_callback_url';
           },
           getOAuthConfiguration: function() {
             return q.reject(new Error(msg));
@@ -80,7 +55,7 @@ describe('The google oauth login strategy', function() {
       mockery.registerMock('./commons', function() {
         return {
           getCallbackEndpoint: function() {
-            return q();
+            return 'oauth_callback_url';
           },
           getOAuthConfiguration: function() {
             return q({});

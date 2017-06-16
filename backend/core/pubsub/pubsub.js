@@ -33,34 +33,37 @@ Pubsub.prototype._addCache = function(topic, action, data) {
 };
 
 Pubsub.prototype._createInterface = function(topic) {
-  var self = this;
+  const self = this;
+
   return {
     subscribe: function(handler) {
       if (!self.client) {
         return self._addCache(topic, 'subscribe', handler);
       }
       logger.debug(self.name + '/SUBSCRIBE to', topic);
-      self.client.on(topic, handler);
+
+      return self.client.on(topic, handler);
     },
     unsubscribe: function(handler) {
       if (!self.client) {
         return self._addCache(topic, 'unsubscribe', handler);
       }
       logger.debug(self.name + '/UNSUBSCRIBE to', topic);
-      self.client.removeListener(topic, handler);
+
+      return self.client.removeListener(topic, handler);
     },
     publish: function(data) {
       if (!self.client) {
         return self._addCache(topic, 'publish', data);
       }
 
-      self.client.emit(topic, data);
+      return self.client.emit(topic, data);
     },
     forward: function(pubsub, data) {
       if (pubsub instanceof Pubsub) {
         self._channels[topic].publish(data);
-        pubsub.topic(topic).publish(data);
-        return;
+
+        return pubsub.topic(topic).publish(data);
       }
       throw new Error('Invalid pubsub to forward to');
     }

@@ -1,9 +1,9 @@
 'use strict';
 
-const OAUTH_CONFIG_KEY = 'oauth';
 const passport = require('passport');
 const refresh = require('passport-oauth2-refresh');
 const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
+const { OAUTH_CONFIG_KEY } = require('../constants');
 
 module.exports = function(dependencies) {
 

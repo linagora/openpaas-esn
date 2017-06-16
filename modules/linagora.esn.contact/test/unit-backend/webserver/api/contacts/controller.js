@@ -5,7 +5,7 @@ var mockery = require('mockery');
 var q = require('q');
 
 describe('The contacts api controller', function() {
-  var imageModuleMock, pubsubMock, loggerMock, contactClientMock;
+  var imageModuleMock, pubsubMock, loggerMock, contactClientMock, searchContacts;
   var controller;
 
   beforeEach(function() {
@@ -41,6 +41,10 @@ describe('The contacts api controller', function() {
     this.moduleHelpers.addDep('image', imageModuleMock);
     this.moduleHelpers.addDep('pubsub', pubsubMock);
     this.moduleHelpers.addDep('logger', loggerMock);
+
+    mockery.registerMock('../../../lib/search', () => ({
+      searchContacts: (query, callback) => searchContacts(query, callback)
+  }));
     mockery.registerMock('../../../lib/client', function() {
       return function() {
         return contactClientMock;
@@ -52,7 +56,7 @@ describe('The contacts api controller', function() {
       '/webserver/api/contacts/controller')(this.moduleHelpers.dependencies);
   });
 
-  describe('The _getContactAvatar private fn', function() {
+  describe('The _getContactAvatar private function', function() {
 
     it('should use # character as an alternative when fn is not present', function(done) {
       var contact = ['vcard', [
@@ -210,7 +214,7 @@ describe('The contacts api controller', function() {
 
   });
 
-  describe('The getAvatar fn', function() {
+  describe('The getAvatar function', function() {
 
     function createAddressbookMock(data) {
       return function() {
@@ -376,6 +380,92 @@ describe('The contacts api controller', function() {
         done();
       };
       controller.getAvatar(req);
+    });
+
+  });
+
+  describe('The searchContacts function', function() {
+
+    function req(q, limit) {
+      return {
+        user: {
+          id: 'userId'
+        },
+        query: {
+          q,
+          limit
+        }
+      };
+    }
+
+    it('should build a proper search query when no limit is set', function(done) {
+      searchContacts = query => {
+        expect(query).to.deep.equals({
+          search: 'contact',
+          limit: 3,
+          userId: 'userId'
+        });
+
+        done();
+      };
+
+      controller.searchContacts(req('contact'));
+    });
+
+    it('should build a proper search query, considering limit when set', function(done) {
+      searchContacts = query => {
+        expect(query).to.deep.equals({
+          search: 'contact',
+          limit: 10,
+          userId: 'userId'
+        });
+
+        done();
+      };
+
+      controller.searchContacts(req('contact', 10));
+    });
+
+    it('should return 500 when an error occurs', function(done) {
+      searchContacts = (query, callback) => { callback(new Error()); };
+
+      controller.searchContacts(req(), this.helpers.express.response(code => {
+        expect(code).to.equal(500);
+
+        done();
+      }));
+    });
+
+    it('should return 204 when no results are found', function(done) {
+      searchContacts = (query, callback) => { callback(null, { total_count: 0 }); };
+
+      controller.searchContacts(req(), this.helpers.express.response(code => {
+        expect(code).to.equal(204);
+
+        done();
+      }));
+    });
+
+    it('should return 200 with the results when contacts are found', function(done) {
+      var contact1 = {
+            _source: {
+              fn: 'Contact 1'
+            }
+          },
+          contact2 = {
+            _source: {
+              fn: 'Contact 2'
+            }
+          };
+
+      searchContacts = (query, callback) => { callback(null, { total_count: 2, list: [contact1, contact2] }); };
+
+      controller.searchContacts(req(), this.helpers.express.jsonResponse((code, contacts) => {
+        expect(code).to.equal(200);
+        expect(contacts).to.deep.equal([{ fn: 'Contact 1' }, { fn: 'Contact 2' }]);
+
+        done();
+      }));
     });
 
   });

@@ -1,7 +1,8 @@
 .member-container
   .pull-left.p-r-15
     a(ui-sref="profile({user_id: member._id})")
-      img.members-avatar(src='/images/user.png', ng-src='/api/users/{{::member._id}}/profile/avatar', alt='#{__("Member Avatar")}')
+      .members-avatar
+        img(src='/images/user.png', ng-src='/api/users/{{::member._id}}/profile/avatar', alt='#{__("Member Avatar")}')
   .media-body
     .lv-title
       a(ui-sref="profile({user_id: member._id})")

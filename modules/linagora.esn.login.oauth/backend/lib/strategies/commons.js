@@ -1,16 +1,21 @@
 'use strict';
 
-var OAUTH_CONFIG_KEY = 'oauth';
-var q = require('q');
+const q = require('q');
+const { OAUTH_CONFIG_KEY } = require('../constants');
 
 module.exports = function(dependencies) {
 
   var userModule = dependencies('user');
-  var helpers = dependencies('helpers');
   var config = dependencies('esn-config');
   var logger = dependencies('logger');
   var oauthHelpers = dependencies('oauth').helpers;
   var provisionUser = require('../provision')(dependencies);
+
+  return {
+    getOAuthConfiguration,
+    getCallbackEndpoint,
+    handleResponse
+  };
 
   function getOAuthConfiguration(type) {
     return q.ninvoke(config(OAUTH_CONFIG_KEY), 'get').then(function(oauth) {
@@ -22,19 +27,7 @@ module.exports = function(dependencies) {
   }
 
   function getCallbackEndpoint(type) {
-    var defer = q.defer();
-    helpers.config.getBaseUrl(null, function(err, baseURL) {
-      if (err) {
-        return defer.reject(err);
-      }
-
-      if (!baseURL) {
-        return defer.reject(new Error('Can not retrieve baseURL while configuring provider %s', type));
-      }
-
-      defer.resolve(baseURL + '/login-oauth/' + type + '/auth/callback');
-    });
-    return defer.promise;
+    return `/login-oauth/${type}/auth/callback`;
   }
 
   function handleResponse(type) {
@@ -91,10 +84,4 @@ module.exports = function(dependencies) {
       }
     };
   }
-
-  return {
-    handleResponse: handleResponse,
-    getCallbackEndpoint: getCallbackEndpoint,
-    getOAuthConfiguration: getOAuthConfiguration
-  };
 };
