@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('The esn.offline Angular module', function() {
-    var $rootScope, offlineApi, offlineDetectorApi, OFFLINE_RECORD, uuid4;
+    var $rootScope, localStorageServiceMock, offlineApi, offlineDetectorApi, uuid4;
 
     beforeEach(angular.mock.module('esn.offline', function($provide) {
         var storageData = {};
@@ -18,18 +18,17 @@ describe('The esn.offline Angular module', function() {
                 return $q.when(localRecords);
             }
         };
-        var localStorageServiceMock = {
+        localStorageServiceMock = {
             getOrCreateInstance: sinon.stub().returns(storage)
         };
 
         $provide.value('localStorageService', localStorageServiceMock);
     }));
 
-    beforeEach(angular.mock.inject(function(_$rootScope_, _offlineApi_, _offlineDetectorApi_, _OFFLINE_RECORD_, _uuid4_) {
+    beforeEach(angular.mock.inject(function(_$rootScope_, _offlineApi_, _offlineDetectorApi_, _uuid4_) {
         $rootScope = _$rootScope_;
         offlineApi = _offlineApi_;
         offlineDetectorApi = _offlineDetectorApi_;
-        OFFLINE_RECORD = _OFFLINE_RECORD_;
         uuid4 = _uuid4_;
     }));
 
@@ -52,6 +51,9 @@ describe('The esn.offline Angular module', function() {
             offlineDetectorApi.isOnline = false;
             offlineApi.recordAction(localRecord).then(function(status) {
                 expect(status.localRecord.id).to.exist;
+                localStorageServiceMock.getOrCreateInstance().getItem(localRecord.module).then(function(data) {
+                    expect(data[0]).to.be.equal(status.localRecord);
+                });
             });
             $rootScope.$digest();
         });
