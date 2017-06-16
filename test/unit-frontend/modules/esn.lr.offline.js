@@ -5,77 +5,112 @@
 var expect = chai.expect;
 
 describe('The esn.offline Angular module', function() {
-    var $rootScope, localStorageServiceMock, offlineApi, offlineDetectorApi, OFFLINE_RECORD, uuid4;
+  var $rootScope, localStorageServiceMock, offlineApi, OFFLINE_RECORD, localRecord, storageData;
 
-    beforeEach(angular.mock.module('esn.offline', function($provide) {
-        var storageData = {};
-        var storage = {
-            getItem: function(id) {
-                return $q.when(storageData[id]);
-            },
-            setItem: function(id, localRecords) {
-                storageData[id] = localRecords;
-                return $q.when(localRecords);
-            }
-        };
-        localStorageServiceMock = {
-            getOrCreateInstance: sinon.stub().returns(storage)
-        };
+  beforeEach(angular.mock.module('esn.offline', function($provide) {
+    storageData = {};
+    var storage = {
+      getItem: function(id) {
+        return $q.when(storageData[id]);
+      },
+      setItem: function(id, localRecords) {
 
-        $provide.value('localStorageService', localStorageServiceMock);
-    }));
+        storageData[id] = localRecords;
 
-    beforeEach(angular.mock.inject(function(_$rootScope_, _offlineApi_, _offlineDetectorApi_, _OFFLINE_RECORD_, _uuid4_) {
-        $rootScope = _$rootScope_;
-        offlineApi = _offlineApi_;
-        offlineDetectorApi = _offlineDetectorApi_;
-        OFFLINE_RECORD = _OFFLINE_RECORD_;
-        uuid4 = _uuid4_;
-    }));
+        return $q.when(localRecords);
+      }
+    };
 
-    describe('activate function', function() {
-        it('should execute onNetworkChange function on network:available', function() {
-            var onSpy = sinon.spy($rootScope, '$on');
-            offlineApi.activate();
-            expect(onSpy).to.have.been.calledWith('network:available', sinon.match.func);
-        });
+    localStorageServiceMock = {
+      getOrCreateInstance: sinon.stub().returns(storage)
+    };
+
+    $provide.value('localStorageService', localStorageServiceMock);
+
+    localRecord = {module: 'myModule', action: 'create', payload: {}};
+  }));
+
+  beforeEach(angular.mock.inject(function(_$rootScope_, _offlineApi_, _OFFLINE_RECORD_) {
+    $rootScope = _$rootScope_;
+    offlineApi = _offlineApi_;
+    OFFLINE_RECORD = _OFFLINE_RECORD_;
+  }));
+
+  describe('activate function', function() {
+    it('should record a callback on event network:available', function() {
+      var onSpy = sinon.spy($rootScope, '$on');
+
+      offlineApi.activate();
+      expect(onSpy).to.have.been.calledWith('network:available', sinon.match.func);
+    });
+  });
+
+  describe('recordAction function', function() {
+    it('should record an action on local storage when called', function() {
+      var thenSpy = sinon.spy(function(status) {
+        expect(status.localRecord.id).to.exist;
+        expect(localStorageServiceMock.getOrCreateInstance).to.have.been.calledWith(OFFLINE_RECORD);
+        //expect(status.localRecord).to.shallow.equals(localRecord);
+        expect(storageData[localRecord.module]).to.deep.equals([status.localRecord]);
+      });
+
+      offlineApi.recordAction(localRecord).then(thenSpy);
+      $rootScope.$digest();
+      expect(thenSpy).to.have.been.calledOnce;
+    });
+  });
+
+  describe('listActions function', function() {
+    it('should list recorded actions', function() {
+      offlineApi.recordAction(localRecord);
+      $rootScope.$digest();
+      var thenSpy = sinon.spy();
+
+      offlineApi.listActions(localRecord.module).then(thenSpy);
+      $rootScope.$digest();
+      expect(thenSpy).to.have.been.calledWith(sinon.match({
+        length: 1,
+        0: localRecord
+      }));
+
+      expect(localStorageServiceMock.getOrCreateInstance).to.have.been.calledWith(OFFLINE_RECORD);
+    });
+  });
+
+  describe('removeAction function', function() {
+    it('should not fail if the recorded action is not found', function() {
+      var thenSpy = sinon.spy();
+
+      offlineApi.removeAction(localRecord).then(thenSpy);
+
+      $rootScope.$digest();
+      expect(thenSpy).to.have.been.calledOnce;
+
+      thenSpy = sinon.spy();
+      offlineApi.listActions(localRecord.module).then(thenSpy);
+      $rootScope.$digest();
+      expect(thenSpy).to.have.been.calledWith([]);
     });
 
-    describe('recordAction, listActions, and removeAction functions', function() {
-        var localRecord;
+    it('should remove recorded action', function() {
+      var thenSpy = sinon.spy();
 
-        beforeEach(function() {
-            localRecord = {module: 'myModule', action: 'create', payload: {}};
-        });
+      offlineApi.recordAction(localRecord).then(function(data) {
+        offlineApi.removeAction(data.localRecord);
 
-        describe('recordAction function', function() {
-            it('should record an action on connection not available', function() {
-                offlineDetectorApi.isOnline = false;
-                offlineApi.recordAction(localRecord).then(function(status) {
-                    expect(status.localRecord.id).to.exist;
-                    expect(localStorageServiceMock.getOrCreateInstance).to.have.been.calledWith(OFFLINE_RECORD);
-                    localRecord = status.localRecord;
-                });
-                $rootScope.$digest();
-            });
-        });
+        offlineApi.listActions(localRecord.module).then(thenSpy);
+      });
 
-        describe('listActions function', function() {
-            it('should list recorded actions', function() {
-                localStorageServiceMock.getOrCreateInstance().getItem(localRecord.module).then(function(data) {
-                    expect(data[0]).to.be.equal(localRecord);
-                });
-            });
-        });
-
-        describe('removeAction function', function() {
-            it('should remove recorded action', function() {
-                offlineApi.removeAction(localRecord).then(function(data) {
-                    expect(data[0]).to.not.be.equal(localRecord);
-                    expect(localStorageServiceMock.getOrCreateInstance).to.have.been.calledWith(OFFLINE_RECORD);
-                });
-                $rootScope.$digest();
-            });
-        });
+      $rootScope.$digest();
+      expect(thenSpy).to.have.been.calledWith([]);
     });
+
+    it('should remove recorded action', function() {
+      offlineApi.removeAction(localRecord).then(function(data) {
+        expect(data[0]).to.not.be.equal(localRecord);
+        expect(localStorageServiceMock.getOrCreateInstance).to.have.been.calledWith(OFFLINE_RECORD);
+      });
+      $rootScope.$digest();
+    });
+  });
 });
