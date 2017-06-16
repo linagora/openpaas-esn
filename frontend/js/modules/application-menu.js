@@ -25,7 +25,7 @@ angular.module('esn.application-menu', [
   .factory('applicationMenuTemplateBuilder', function(featureFlags, _) {
     var template =
         '<div>' +
-          '<a href="<%- href %>">' +
+          '<a ui-sref="<%- href %>">' +
             '<img class="esn-application-menu-icon" src="<%- iconURL %>" />' +
             '<span class="label" translate>' +
               '<%- label %>' +
