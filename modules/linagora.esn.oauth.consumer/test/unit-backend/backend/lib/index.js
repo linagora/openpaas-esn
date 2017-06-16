@@ -1,54 +1,29 @@
 'use strict';
 
-var chai = require('chai');
-var mockery = require('mockery');
-var sinon = require('sinon');
-var expect = chai.expect;
+const chai = require('chai');
+const mockery = require('mockery');
+const sinon = require('sinon');
+const expect = chai.expect;
 
 describe('The OAuth Consumer backend module', function() {
-  var deps;
-  var logger = {
-    debug: function() {},
-    info: function() {},
-    warn: function() {}
-  };
-  var dependencies = function(name) {
-    return deps[name];
-  };
-  let pubsubMock, esnConfigMock;
+  let esnConfigMock;
+  let getModule;
 
   beforeEach(function() {
-    pubsubMock = {
-      global: {
-        topic() {
-          return {
-            subscribe() {}
-          };
-        }
-      }
-    };
+    getModule = () => require('../../../../backend/lib/index')(this.moduleHelpers.dependencies);
+
     esnConfigMock = {
-      constants: {
-        EVENTS: {
-          CONFIG_UPDATED: 'esn-config:config:updated'
-        }
-      }
+      onChange() {}
     };
-    deps = {
-      logger: logger,
-      pubsub: pubsubMock,
-      'esn-config': esnConfigMock
-    };
+
+    this.moduleHelpers.addDep('esn-config', () => esnConfigMock);
   });
 
   describe('The start function', function() {
-    function getModule() {
-      return require('../../../../backend/lib/index')(dependencies);
-    }
-
     it('should configure all the strategies', function(done) {
-      var twitterSpy = sinon.spy();
-      var googleSpy = sinon.spy();
+      const twitterSpy = sinon.spy();
+      const googleSpy = sinon.spy();
+
       mockery.registerMock('./strategies', function() {
         return {
           twitter: {
@@ -110,7 +85,7 @@ describe('The OAuth Consumer backend module', function() {
       getModule().start(done);
     });
 
-    it('should listen on pubsub event to reconfigure when OAuth config updated', function(done) {
+    it('should listen on OAuth config change to reconfigure the strategies', function(done) {
       const configureSpy = sinon.spy(callback => callback());
       let subscriber;
 
@@ -125,64 +100,14 @@ describe('The OAuth Consumer backend module', function() {
         };
       });
 
-      pubsubMock.global.topic = topic => {
-        expect(topic).to.equal(esnConfigMock.constants.EVENTS.CONFIG_UPDATED);
-
-        return {
-          subscribe(callback) {
-            subscriber = callback;
-          }
-        };
-      };
+      esnConfigMock.onChange = callback => (subscriber = callback);
 
       getModule().start(() => {
         expect(configureSpy).to.have.been.calledTwice;
 
-        subscriber({
-          moduleName: 'core',
-          configsUpdated: [{ name: 'oauth' }]
-        });
+        subscriber();
 
         expect(configureSpy).to.have.been.callCount(4);
-
-        done();
-      });
-    });
-
-    it('should not reconfigure when OAuth is not updated', function(done) {
-      const configureSpy = sinon.spy(callback => callback());
-      let subscriber;
-
-      mockery.registerMock('./strategies', function() {
-        return {
-          twitter: {
-            configure: configureSpy
-          },
-          google: {
-            configure: configureSpy
-          }
-        };
-      });
-
-      pubsubMock.global.topic = topic => {
-        expect(topic).to.equal(esnConfigMock.constants.EVENTS.CONFIG_UPDATED);
-
-        return {
-          subscribe(callback) {
-            subscriber = callback;
-          }
-        };
-      };
-
-      getModule().start(() => {
-        expect(configureSpy).to.have.been.calledTwice;
-
-        subscriber({
-          moduleName: 'core',
-          configsUpdated: [{ name: 'not_oauth' }]
-        });
-
-        expect(configureSpy).to.have.been.calledTwice;
 
         done();
       });

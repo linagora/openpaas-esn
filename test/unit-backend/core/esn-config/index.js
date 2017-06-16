@@ -298,7 +298,8 @@ describe('The core/esn-config module', function() {
               public: false
             }
           }
-        }
+        },
+        EVENTS: {}
       });
 
       var configuration = {

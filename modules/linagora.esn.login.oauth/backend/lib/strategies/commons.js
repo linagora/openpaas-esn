@@ -1,7 +1,7 @@
 'use strict';
 
-var OAUTH_CONFIG_KEY = 'oauth';
-var q = require('q');
+const q = require('q');
+const { OAUTH_CONFIG_KEY } = require('../constants');
 
 module.exports = function(dependencies) {
 

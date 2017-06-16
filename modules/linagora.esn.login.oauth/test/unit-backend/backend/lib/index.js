@@ -1,57 +1,26 @@
 'use strict';
 
-var chai = require('chai');
-var mockery = require('mockery');
-var sinon = require('sinon');
-var expect = chai.expect;
+const chai = require('chai');
+const mockery = require('mockery');
+const sinon = require('sinon');
+const expect = chai.expect;
 
 describe('The login oauth backend module', function() {
-  var deps;
-  var configMock;
-  var logger = {
-    debug: function() {},
-    info: function() {},
-    warn: function() {}
-  };
-  var config = function() {
-    return configMock;
-  };
-  var dependencies = function(name) {
-    return deps[name];
-  };
-  let pubsubMock, esnConfigMock;
+  let getModule;
+  let configMock, esnConfigMock;
 
   beforeEach(function() {
+    getModule = () => require('../../../../backend/lib/index')(this.moduleHelpers.dependencies);
+
     configMock = {};
-    pubsubMock = {
-      global: {
-        topic() {
-          return {
-            subscribe() {}
-          };
-        }
-      }
-    };
     esnConfigMock = {
-      constants: {
-        EVENTS: {
-          CONFIG_UPDATED: 'esn-config:config:updated'
-        }
-      }
+      onChange() {}
     };
-    deps = {
-      logger: logger,
-      config: config,
-      pubsub: pubsubMock,
-      'esn-config': esnConfigMock
-    };
+    this.moduleHelpers.addDep('config', () => configMock);
+    this.moduleHelpers.addDep('esn-config', () => esnConfigMock);
   });
 
   describe('The start function', function() {
-    function getModule() {
-      return require('../../../../backend/lib/index')(dependencies);
-    }
-
     it('should start without any strategy', function(done) {
       getModule().start(done);
     });
@@ -64,7 +33,7 @@ describe('The login oauth backend module', function() {
           }
         }
       };
-      var facebookSpy = sinon.spy();
+      const facebookSpy = sinon.spy();
 
       mockery.registerMock('./strategies/facebook', function() {
         return {
@@ -109,7 +78,7 @@ describe('The login oauth backend module', function() {
           }
         }
       };
-      var facebookSpy = sinon.spy();
+      const facebookSpy = sinon.spy();
 
       mockery.registerMock('./strategies/facebook', function() {
         return {
@@ -137,72 +106,19 @@ describe('The login oauth backend module', function() {
           }
         }
       };
+      esnConfigMock.onChange = callback => (subscriber = callback);
       mockery.registerMock('./strategies/facebook', function() {
         return {
           configure: configureSpy
         };
       });
 
-      pubsubMock.global.topic = topic => {
-        expect(topic).to.equal(esnConfigMock.constants.EVENTS.CONFIG_UPDATED);
-
-        return {
-          subscribe(callback) {
-            subscriber = callback;
-          }
-        };
-      };
-
       getModule().start(() => {
         expect(configureSpy).to.have.been.calledOnce;
 
-        subscriber({
-          moduleName: 'core',
-          configsUpdated: [{ name: 'oauth' }]
-        });
+        subscriber();
 
         expect(configureSpy).to.have.been.calledTwice;
-
-        done();
-      });
-    });
-
-    it('should not reconfigure when OAuth is not updated', function(done) {
-      const configureSpy = sinon.spy(callback => callback());
-      let subscriber;
-
-      configMock = {
-        auth: {
-          oauth: {
-            strategies: ['facebook']
-          }
-        }
-      };
-      mockery.registerMock('./strategies/facebook', function() {
-        return {
-          configure: configureSpy
-        };
-      });
-
-      pubsubMock.global.topic = topic => {
-        expect(topic).to.equal(esnConfigMock.constants.EVENTS.CONFIG_UPDATED);
-
-        return {
-          subscribe(callback) {
-            subscriber = callback;
-          }
-        };
-      };
-
-      getModule().start(() => {
-        expect(configureSpy).to.have.been.calledOnce;
-
-        subscriber({
-          moduleName: 'core',
-          configsUpdated: [{ name: 'not_oauth' }]
-        });
-
-        expect(configureSpy).to.have.been.calledOnce;
 
         done();
       });
