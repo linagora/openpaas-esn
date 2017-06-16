@@ -5,7 +5,7 @@ angular.module('linagora.esn.contact')
     return {
       retrict: 'E',
       replace: true,
-      template: applicationMenuTemplateBuilder('/#/contact', { url: CONTACT_MODULE_METADATA.icon }, 'Contacts')
+      template: applicationMenuTemplateBuilder('contact', { url: CONTACT_MODULE_METADATA.icon }, 'Contacts')
     };
   })
   .directive('contactNavbarLink', function() {

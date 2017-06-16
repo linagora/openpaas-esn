@@ -20,7 +20,7 @@ angular.module('esn.search', [
     return {
       restrict: 'E',
       replace: true,
-      template: applicationMenuTemplateBuilder('/#/search', { name: 'search' }, 'Search')
+      template: applicationMenuTemplateBuilder('search.main', { name: 'search' }, 'Search')
     };
   })
   .directive('searchForm', function(defaultSpinnerConfiguration) {

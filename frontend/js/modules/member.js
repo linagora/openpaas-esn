@@ -98,7 +98,7 @@ angular.module('esn.member', ['esn.router', 'esn.domain', 'esn.search', 'esn.inf
     return {
       retrict: 'E',
       replace: true,
-      template: applicationMenuTemplateBuilder('/#/controlcenter/domains/{{::domain._id}}/members', 'members', 'Members', 'core.applications-menu.members'),
+      template: applicationMenuTemplateBuilder('controlcenter.domainMembers({ domain_id: domain._id })', 'members', 'Members', 'core.applications-menu.members'),
       link: function(scope) {
         scope.domain = session.domain;
       }

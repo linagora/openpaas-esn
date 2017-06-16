@@ -111,6 +111,6 @@ angular.module('esn.application-menu', [
     return {
       retrict: 'E',
       replace: true,
-      template: applicationMenuTemplateBuilder('/#/', { name: 'home' }, 'Home')
+      template: applicationMenuTemplateBuilder('home', { name: 'home' }, 'Home')
     };
   });

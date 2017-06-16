@@ -22,7 +22,7 @@ angular.module('esn.appstore')
     return {
       retrict: 'E',
       replace: true,
-      template: applicationMenuTemplateBuilder('/#/controlcenter/appstore', 'appstore', 'Modules', 'linagora.esn.appstore.applications-menu')
+      template: applicationMenuTemplateBuilder('controlcenter.appstore', 'appstore', 'Modules', 'linagora.esn.appstore.applications-menu')
     };
   })
   .directive('controlcenterMenuAppstore', function(controlCenterMenuTemplateBuilder) {
