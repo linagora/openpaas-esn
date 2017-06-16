@@ -24,6 +24,7 @@ if (process.env.NODE_ENV === 'dev') {
 }
 application.use(morgan(format, { stream: logger.stream }));
 
+application.use('/esn.assets.caching.worker.js', express.static(FRONTEND_PATH + '/js/modules/esn.assets.caching.worker.js'));
 application.use('/components', express.static(FRONTEND_PATH + '/components'));
 application.use('/images', express.static(FRONTEND_PATH + '/images'));
 application.use('/js', express.static(FRONTEND_PATH + '/js', { extensions: ['js']}));

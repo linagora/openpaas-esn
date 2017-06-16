@@ -6,7 +6,7 @@
     .factory('assetsCachingAPI', assetsCachingAPI)
     .run(function($log, $window) {
       if ('serviceWorker' in $window.navigator) {
-        navigator.serviceWorker.register('/frontend/js/modules/esn.assest.caching.worker.js', {scope: '/'})
+        navigator.serviceWorker.register('esn.assets.caching.worker.js', {scope: '/'})
           .then(function(registration) {
             $log.log('ServiceWorker registration success', registration);
           }).catch(function(error) {
@@ -21,3 +21,4 @@
     return {};// TODO
   }
 })();
+

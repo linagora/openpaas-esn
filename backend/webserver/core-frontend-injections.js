@@ -113,6 +113,7 @@ const injections = [
     'collaboration/user-notifications/collaboration-request-membership-action.controller.js'
   ], innerApps: ['esn']},
   {angular: ['esn.feedback'], files: ['feedback.js'], innerApps: ['esn']},
+  {angular: ['esn.assets.caching'], files: ['esn.assets.caching.js'], innerApps: ['esn']},
   {angular: ['esn.offline'], files: ['esn.lr.offline.js'], innerApps: ['esn']},
   {angular: ['esn.offline.detector'], files: ['esn.offline.detector.js'], innerApps: ['esn']},
   {angular: ['esn.maps'], files: ['maps.js'], innerApps: ['esn']},
