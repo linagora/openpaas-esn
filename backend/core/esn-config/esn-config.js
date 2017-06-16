@@ -33,20 +33,19 @@ class EsnConfig {
     const moduleName = this.moduleName;
 
     return this._getModuleConfigsForDomain(moduleName)
-      .then(function(moduleConfigs) {
-        return configNames.map(function(configName) {
-          return _.find(moduleConfigs, { name: configName });
-        }).filter(Boolean);
-
-      });
+      .then(moduleConfigs =>
+        configNames
+          .map(configName => _.find(moduleConfigs, { name: configName }))
+          .filter(Boolean));
   }
 
   get(configName) {
-    return this.getMultiple([configName]).then(function(configs) {
-      const config = _.find(configs, { name: configName });
+    return this.getMultiple([configName])
+      .then(configs => {
+        const config = _.find(configs, { name: configName });
 
-      return config && config.value;
-    });
+        return config && config.value;
+      });
   }
 
   setMultiple(configsToUpdate) {
@@ -57,7 +56,7 @@ class EsnConfig {
 
       const module = _.find(configuration.modules, { name: self.moduleName });
 
-      configsToUpdate.forEach(function(config) {
+      configsToUpdate.forEach(config => {
         let conf = _.find(module.configurations, { name: config.name });
 
         if (!conf) {
@@ -92,12 +91,12 @@ class EsnConfig {
     const moduleName = this.moduleName;
 
     return q.ninvoke(confModule, 'getAll')
-      .then(function(configurations) {
+      .then(configurations => {
         if (!configurations) {
           return [];
         }
 
-        return configurations.map(function(configuration) {
+        return configurations.map(configuration => {
           const configs = _extractModuleConfigs(moduleName, configuration);
           const config = _.find(configs, { name: configName });
 
@@ -129,9 +128,9 @@ class EsnConfig {
   _getModuleConfigsForDomain(moduleName) {
     const self = this;
 
-    return fallbackModule.getConfiguration(self.domainId, self.userId).then(function(configuration) {
-      return _extractModuleConfigs(moduleName, configuration);
-    });
+    return fallbackModule
+      .getConfiguration(self.domainId, self.userId)
+      .then(configuration => _extractModuleConfigs(moduleName, configuration));
   }
 
   _generateConfigTemplate(configuration) {
