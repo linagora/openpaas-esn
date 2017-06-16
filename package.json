@@ -54,7 +54,6 @@
     "linagora.esn.admin": "git+https://ci.open-paas.org/stash/scm/om/linagora.esn.admin.git",
     "linagora.esn.calendar": "git+https://ci.linagora.com/linagora/lgs/openpaas/linagora.esn.calendar.git#offline_merge",
     "linagora.esn.unifiedinbox": "git+https://ci.linagora.com/linagora/lgs/openpaas/linagora.esn.unifiedinbox.git#offline",
-    "linagora.esn.calendar": "git+https://ci.linagora.com/linagora/lgs/openpaas/linagora.esn.calendar.git",
     "lodash": "4.15.0",
     "logrotate-stream": "0.2.5",
     "mailparser": "0.6.1",
