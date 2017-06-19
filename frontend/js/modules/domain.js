@@ -25,10 +25,12 @@ angular.module('esn.domain', ['esn.http', 'ngTagsInput', 'op.dynamicDirective', 
     /**
      * List domains
      *
+     * @param {Hash} options - Hash with limit (int), offset (int)
+     *
      * @return {Promise} Resolve on success
      */
-    function list() {
-      return esnRestangular.one('domains').get();
+    function list(options) {
+      return esnRestangular.one('domains').get(options);
     }
 
     /**
