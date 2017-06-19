@@ -13,7 +13,7 @@ describe('The esn.async-action Angular module', function() {
 
   describe('The asyncAction factory', function() {
 
-    var notificationFactory, notification, mockedFailureHandler;
+    var notificationFactory, notification, mockedFailureHandler, EsnI18nString;
     var $rootScope, $timeout, asyncAction;
     var ASYNC_ACTION_LONG_TASK_DURATION;
 
@@ -43,10 +43,11 @@ describe('The esn.async-action Angular module', function() {
       $provide.value('notificationFactory', notificationFactory);
     }));
 
-    beforeEach(inject(function(_asyncAction_, _$rootScope_, _$timeout_, _ASYNC_ACTION_LONG_TASK_DURATION_) {
+    beforeEach(inject(function(_asyncAction_, _$rootScope_, _$timeout_, _EsnI18nString_, _ASYNC_ACTION_LONG_TASK_DURATION_) {
       asyncAction = _asyncAction_;
       $rootScope = _$rootScope_;
       $timeout = _$timeout_;
+      EsnI18nString = _EsnI18nString_;
       ASYNC_ACTION_LONG_TASK_DURATION = _ASYNC_ACTION_LONG_TASK_DURATION_;
     }));
 
@@ -295,6 +296,34 @@ describe('The esn.async-action Angular module', function() {
       expect(notificationFactory.weakSuccess).to.have.been.calledWith('', 'Success 10');
     });
 
+    it('should support EsnI18nString as a success message', function() {
+      var i18nMessage = new EsnI18nString('i18n success message');
+
+      asyncAction({
+        success: i18nMessage
+      }, function() {
+        return $q.when();
+      });
+      $rootScope.$digest();
+
+      expect(notificationFactory.weakSuccess).to.have.been.calledWith('', i18nMessage);
+    });
+
+    it('should support EsnI18nString as Error messages', function() {
+      var messages = {
+        progressing: new EsnI18nString('a I18n progressing message !'),
+        failure: new EsnI18nString('a I18n failure message !')
+      };
+
+      asyncAction(messages, function() {
+          return $timeout(angular.noop, ASYNC_ACTION_LONG_TASK_DURATION + 1).then(qReject);
+        });
+      $rootScope.$digest();
+      $timeout.flush();
+
+      expect(notificationFactory.strongInfo).to.have.been.calledWith('', messages.progressing);
+      expect(notificationFactory.weakError).to.have.been.calledWith('Error', messages.failure);
+    });
   });
 
   describe('The rejectWithErrorNotification factory', function() {

@@ -17,7 +17,7 @@ angular.module('esn.async-action', [
   };
 })
 
-.factory('asyncAction', function($q, $log, $timeout, notificationFactory, rejectWithErrorNotification, ASYNC_ACTION_LONG_TASK_DURATION) {
+.factory('asyncAction', function($q, $log, $timeout, notificationFactory, rejectWithErrorNotification, ASYNC_ACTION_LONG_TASK_DURATION, esnI18nService) {
   function _computeMessages(message) {
     if (angular.isString(message)) {
       return {
@@ -33,7 +33,7 @@ angular.module('esn.async-action', [
   function _getMessage(messages, type, arg) {
     var stringOrFunction = messages[type];
 
-    return angular.isString(stringOrFunction) ? stringOrFunction : stringOrFunction(arg);
+    return angular.isString(stringOrFunction) || esnI18nService.isI18nString(stringOrFunction) ? stringOrFunction : stringOrFunction(arg);
   }
 
   return function(message, action, options) {
