@@ -19,15 +19,33 @@ describe('The Domain Angular module', function() {
     }));
 
     describe('The list function', function() {
-      var domains;
+      var domains, headers;
 
       beforeEach(function() {
-        domains = [{name: 'MyDomain', company_name: 'MyAwesomeCompany'}];
+        domains = [
+          { name: 'Domain1', company_name: 'Company1' },
+          { name: 'Domain2', company_name: 'Company2' }
+        ];
+        headers = { 'x-esn-items-count': domains.length + '' };
       });
 
       it('should send a GET to /api/domains', function(done) {
-        $httpBackend.expectGET('/api/domains').respond(200, domains);
+        $httpBackend.expectGET('/api/domains').respond(200, domains, headers);
         domainAPI.list().then(function(response) {
+          expect(response.headers('x-esn-items-count')).to.equal(headers['x-esn-items-count']);
+          expect(response.data).to.shallowDeepEqual(domains);
+
+          done();
+        });
+        $httpBackend.flush();
+      });
+
+      it('should send a request to /api/domains?limit=2&offset=0', function(done) {
+        var query = { limit: 2, offset: 0 };
+
+        $httpBackend.expectGET('/api/domains?limit=' + query.limit + '&offset=' + query.offset).respond(200, domains, headers);
+        domainAPI.list(query).then(function(response) {
+          expect(response.headers('x-esn-items-count')).to.equal(headers['x-esn-items-count']);
           expect(response.data).to.shallowDeepEqual(domains);
 
           done();
