@@ -45,4 +45,18 @@ describe('The esnI18nService service', function() {
       expect(test).to.throw(TypeError);
     });
   });
+
+  describe('The isI18nString function', function() {
+    it('should return true if text is EsnI18nString', function() {
+      var string = new EsnI18nString('i18n string');
+
+      expect(esnI18nService.isI18nString(string)).to.be.true;
+    });
+
+    it('should return false if text is not EsnI18nString', function() {
+      var string = 'normal string';
+
+      expect(esnI18nService.isI18nString(string)).to.be.false;
+    });
+  });
 });

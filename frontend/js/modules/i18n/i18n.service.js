@@ -4,7 +4,8 @@
   angular.module('esn.i18n')
     .factory('esnI18nService', function(EsnI18nString) {
       return {
-        translate: translate
+        translate: translate,
+        isI18nString: isI18nString
       };
 
       function translate(text) {
@@ -19,6 +20,10 @@
         }
 
         throw new TypeError('The input text must be a string or an EsnI18nString object');
+      }
+
+      function isI18nString(text) {
+        return text instanceof EsnI18nString;
       }
     });
 })();
