@@ -20,7 +20,7 @@ div
           application-menu-toggler
         li.avatar-container.dropdown(ng-controller='avatarController')
           a(href='', data-toggle='dropdown', aria-expanded='true')
-            img.header-avatar(ng-src="{{avatarURL}}", alt='#{__("Avatar")}')
+            esn-avatar.header-avatar(avatar-url="avatarURL", hide-user-status="true")
           ul.dropdown-menu.dm-icon.dropdown-menu-right
             li
               a(ui-sref="profile({ user_id: '' })")

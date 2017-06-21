@@ -17,9 +17,9 @@
       }
 
       button {
-          padding: 0;
-          margin-left: auto;
-        }
+        padding: 0;
+        margin-left: auto;
+      }
     }
 
     &.message-textarea-edition {
@@ -35,12 +35,32 @@
 }
 
 .whats-up-message-thread, .poll-message-thread {
+  .card-header {
+    .avatar-with-bubble img {
+      .lv-img;
+
+      border-radius: 50%;
+    }
+  }
   .wall-attrs {
     margin-top: 10px;
+
+    .avatar-with-bubble img {
+      .lv-img-sm;
+
+      margin-left: 5px;
+      border-radius: 50%;
+    }
   }
 
   .wall-comment-list {
     background-color: @app-gray;
+
+    .avatar-with-bubble img {
+      .lv-img-sm;
+
+      border-radius: 50%;
+    }
   }
 
   .progress {
@@ -206,5 +226,13 @@ message-bottom-links {
     a.liked > i {
       color: @brand-success;
     }
+  }
+}
+
+.like, .post {
+  .card-header .avatar-with-bubble img {
+    .lv-img;
+
+    border-radius: 50%;
   }
 }
