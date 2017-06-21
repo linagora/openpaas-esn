@@ -76,6 +76,7 @@ module.exports = function(config) {
       'frontend/components/awesome-angular-swipe/lib/awesome-angular-swipe.js',
       'frontend/components/Autolinker.js/dist/Autolinker.js',
       'frontend/components/angular-component/dist/angular-component.min.js',
+      'frontend/components/angular-material/angular-material.min.js',
       'frontend/components/angular-scroll-glue/src/scrollglue.js',
       'frontend/components/angular-file-saver/dist/angular-file-saver.bundle.js',
       'frontend/components/waves/dist/waves.min.js',
