@@ -15,20 +15,6 @@
               esn-user-notification-toggler
             li.hover-scale-animation
               application-menu-toggler
-            li.avatar-container.dropdown(ng-controller='avatarController')
-              a(href='', data-toggle='dropdown', aria-expanded='true')
-                img.header-avatar(ng-src="{{avatarURL}}", alt='#{__("Avatar")}')
-              ul.dropdown-menu.dm-icon.dropdown-menu-right
-                li
-                  a(ui-sref="profile({ user_id: '' })")
-                    i.mdi.mdi-account
-                    | #{__('Profile')}
-                li
-                  a(ui-sref="controlcenter")
-                    i.mdi.mdi-account-settings-variant
-                    | #{__('Control Center')}
-                li
-                  a(href="/logout")
-                    i.mdi.mdi-power
-                    |  #{__('Logout')}
+            li
+              profile-menu.profile-menu
       .aside-body(ng-bind="content", ng-class="{'hideHeader' : hideHeader}")

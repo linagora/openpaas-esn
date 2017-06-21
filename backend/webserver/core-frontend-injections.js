@@ -16,6 +16,12 @@ const injections = [
     'header/search/settings/search-header-settings.controller.js',
     'header/search/settings/search-header-settings.service.js'
   ], innerApps: ['esn']},
+  {angular: ['esn.profile-menu'], files: [
+    'header/profile-menu/profile-menu.module.js',
+    'header/profile-menu/profile-menu.component.js',
+    'header/profile-menu/profile-menu.controller.js',
+    'header/profile-menu/profile-menu.config.js'
+  ], innerApps: ['esn']},
   {angular: ['esn.subheader'], files: [
     'subheader/subheader.module.js',
     'subheader/subheader.constants.js',

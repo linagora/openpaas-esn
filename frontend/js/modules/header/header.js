@@ -9,6 +9,7 @@ angular.module('esn.header', [
   'esn.core',
   'esn.profile',
   'esn.search',
+  'esn.profile-menu',
   'mgcrea.ngStrap.popover'
   ])
 
