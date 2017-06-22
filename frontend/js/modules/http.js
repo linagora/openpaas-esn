@@ -39,4 +39,43 @@ angular.module('esn.http', [
     return {
       redirectToLogin: redirectToLogin
     };
+  })
+
+  .provider('httpConfigurer', function() {
+    var restangulars = [];
+    var baseUrl = '';
+
+    function setBaseUrl(newBaseUrl) {
+      baseUrl = newBaseUrl.replace(/\/$/, '');
+      restangulars.forEach(updateRestangularBaseUrl);
+    }
+
+    function getUrl(uri) {
+      if (angular.isUndefined(uri)) {
+        uri = '';
+      }
+
+      return baseUrl + uri;
+    }
+
+    function updateRestangularBaseUrl(moduleRestangular) {
+      moduleRestangular.restangular.setBaseUrl(getUrl(moduleRestangular.baseUri));
+    }
+
+    function manageRestangular(restangular, baseUri) {
+      var moduleRestangular = {restangular: restangular, baseUri: baseUri};
+
+      updateRestangularBaseUrl(moduleRestangular);
+      restangulars.push(moduleRestangular);
+    }
+
+    this.setBaseUrl = setBaseUrl;
+    this.getUrl = getUrl;
+    this.$get = function() {
+      return {
+        setBaseUrl: setBaseUrl,
+        manageRestangular: manageRestangular,
+        getUrl: getUrl
+      };
+    };
   });
