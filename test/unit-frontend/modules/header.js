@@ -13,6 +13,7 @@ describe('The esn.header Angular module', function() {
     module('esnApp');
     module('esn.sidebar');
     module('esn.header');
+    module('esn.profile-menu');
   });
 
   describe('The headerService factory', function() {
@@ -80,7 +81,7 @@ describe('The esn.header Angular module', function() {
       });
     }));
 
-    beforeEach(inject(function($compile, $rootScope, _SM_XS_MEDIA_QUERY_) {
+    beforeEach(inject(function($compile, $rootScope, _SM_XS_MEDIA_QUERY_, _$httpBackend_) {
       this.$compile = $compile;
       this.$rootScope = $rootScope;
       this.$scope = this.$rootScope.$new();
@@ -88,8 +89,17 @@ describe('The esn.header Angular module', function() {
 
       var html = '<main-header></main-header>';
       this.element = this.$compile(html)(this.$scope);
+
+      this.$httpBackend = _$httpBackend_;
+
+      // in the header we put a profileMenu component which use an icon provider that load this icon set
+      // if this icon provider is moved somewhere else, this test will have to be moved as well probable.
+      this.$httpBackend
+          .whenGET('images/mdi/mdi.svg')
+          .respond('');
+
       this.$scope.$digest();
-    }));
+      }));
 
     it('should recompute sub header injections on \'sub-header:hasInjection\'', function() {
       this.$rootScope.$broadcast('sub-header:hasInjection', true);
