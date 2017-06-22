@@ -3,8 +3,7 @@ div.poll-message-thread(data-ng-switch='parentMessage')
     .card-header
       .media
         a.pull-left(ui-sref="profile({user_id: message.author._id})")
-          .lv-img
-            esn-avatar(user-id="message.author._id")
+          img.lv-img(src='/images/user.png', ng-src='/api/users/{{::message.author._id}}/profile/avatar', alt='#{__("Message Author")}')
         .media-body.p-t-5
           i.mdi.mdi-email(ng-show='message.source === "email"', title='sent via email reply')
           a(ui-sref="profile({user_id: message.author._id})")
@@ -65,8 +64,8 @@ div.poll-message-thread(data-ng-switch='parentMessage')
           span.active
             i.mdi.mdi-heart.m-r-5
             | {{message.likes.total_count}}
-        li
+        li.wa-users
           a(ui-sref="profile({user_id: response.author._id})", ng-repeat='response in message.responses | limitTo : 5')
-            esn-avatar.wa-users(user-id="response.author._id")
+            img(src="images/user.png", ng-src='/api/users/{{::response.author._id}}/profile/avatar', alt='#{__("Response Author")}')
     .message-comments-thread
       message-comments
