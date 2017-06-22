@@ -1,7 +1,6 @@
 div(ng-class="{'just-posted': message._id === lastPost.messageId}")
   a.pull-left(href='#')
-    .media-object
-      esn-avatar(user-id="message.author._id")
+    img.media-object(src='/images/user.png', ng-src='/api/users/{{message.author._id}}/profile/avatar', alt='#{__("Message Author")}')
   div.media-body
     message-template-displayer(message='message' streams='streams' activitystream='activitystream')
 

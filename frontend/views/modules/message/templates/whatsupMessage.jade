@@ -3,7 +3,7 @@ div.whats-up-message-thread(data-ng-switch='parentMessage')
     .card-header
       .media
         a.pull-left(ui-sref="profile({user_id: message.author._id})")
-          esn-avatar(user-id="message.author._id")
+          img.lv-img(src='/images/user.png', ng-src='/api/users/{{::message.author._id}}/profile/avatar', alt='#{__("Message Author")}')
         .media-body
           i.mdi.mdi-email(ng-show='message.source === "email"', title='sent via email reply')
           a(ui-sref="profile({user_id: message.author._id})")
@@ -31,14 +31,14 @@ div.whats-up-message-thread(data-ng-switch='parentMessage')
             | {{message.likes.total_count}}
         li.wa-users
           a(ui-sref="profile({user_id: response.author._id})", ng-repeat='response in message.responses | limitTo : 5')
-            esn-avatar.wa-users(user-id="response.author._id")
+            img(src="images/user.png", ng-src='/api/users/{{::response.author._id}}/profile/avatar', alt='#{__("Response Author")}')
     .message-comments-thread
       message-comments
   .wall-comment-list(data-ng-switch-when='false', data-tv-type="text" ng-class="{ 'just-posted': message._id === lastPost.messageId}")
     .wcl-list
       .media
         a.pull-left(ui-sref="profile({user_id: message.author._id})")
-          esn-avatar(user-id="message.author._id")
+          img.lv-img-sm(src='/images/user.png', ng-src='/api/users/{{::message.author._id}}/profile/avatar', alt='#{__("Message Author")}')
         .media-body
           i.mdi.mdi-email(ng-show='message.source === "email"', title='sent via email reply')
           a(ui-sref="profile({user_id: message.author._id})")
