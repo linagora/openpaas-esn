@@ -2,7 +2,7 @@
   'use strict';
 
   angular.module('esn.user-configuration', [
-    'esn.core',
-    'esn.http'
+    'esn.configuration',
+    'esn.lodash-wrapper'
   ]);
 })();

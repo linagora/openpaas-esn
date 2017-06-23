@@ -173,7 +173,12 @@ const injections = [
   {angular: ['esn.settings-overlay'], files: ['settings-overlay.js'], innerApps: ['esn']},
   {angular: ['esn.desktop-utils'], files: ['desktop-utils.js'], innerApps: ['esn']},
   {angular: ['esn.beforeunload'], files: ['beforeunload.js'], innerApps: ['esn']},
-  {angular: ['esn.configuration'], files: ['config.js'], innerApps: ['esn']},
+  {angular: ['esn.configuration'], files: [
+    'config/config.module.js',
+    'config/config.constants.js',
+    'config/config.service.js',
+    'config/config-api.service.js'
+  ], innerApps: ['esn']},
   {angular: ['esn.highlight'], files: ['highlight.js'], innerApps: ['esn']},
   {angular: ['esn.dragndrop'], files: ['dragndrop.js'], innerApps: ['esn']},
   {angular: ['esn.autolinker-wrapper'], files: ['esn.autolinker-wrapper.js'], innerApps: ['esn', 'welcome']},
