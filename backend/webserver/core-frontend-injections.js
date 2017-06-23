@@ -254,9 +254,8 @@ const injections = [
     'datetime/datetime-date-formater.filter.js',
     'datetime/datetime.constants.js',
     'datetime/datetime.service.js',
-    'datetime/format-selector/form.component.js',
-    'datetime/format-selector/format-selector.component.js',
-    'datetime/format-selector/format-selector.controller.js'
+    'datetime/timeformat-selector/timeformat-selector.component.js',
+    'datetime/timeformat-selector/timeformat-selector.controller.js'
   ], innerApps: ['esn']},
   {angular: ['esn.business-hours'], files: [
     'business-hours/business-hours.module.js',

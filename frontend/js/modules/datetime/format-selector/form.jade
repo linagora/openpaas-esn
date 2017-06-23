@@ -1,9 +1,0 @@
-ng-form(name="form")
-  .form-group
-    fieldset
-      label {{ $ctrl.title | esnI18n }}
-      .radio.m-b-15(ng-repeat="format in $ctrl.availableFormats")
-        label
-          input(type="radio", ng-model="$ctrl.format", ng-value="::format")
-          i.input-helper
-          span {{::$ctrl.exampleDate | date:format}}

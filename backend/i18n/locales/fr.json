@@ -418,10 +418,10 @@
   "Friday": "Vendredi",
   "Saturday": "Samedi",
   "Sunday": "Dimanche",
-  "Date format": "Format de date",
   "Time format": "Format de l'heure",
   "Search options": "Recherche avancée",
   "Reset": "Réinitialiser",
   "Reset search options": "Réinitialiser la recherche avancée",
-  "Share with...": "Partager avec..."
+  "Share with...": "Partager avec...",
+  "Use 24-hour format": "Utiliser le format 24 heures"
 }

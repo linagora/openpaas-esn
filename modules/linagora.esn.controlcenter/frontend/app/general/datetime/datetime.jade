@@ -1,7 +1,9 @@
 ng-form(name="form")
   .card
     .card-header
-      h2 #{__('Date time')}
-        small #{__('Change your preferred date and time format')}
+      h2 #{__('Time format')}
+        small #{__('Change your preferred time format')}
     .card-body.card-padding
-      esn-datetime-format-selector(date-format="$ctrl.datetime.dateFormat", time-format="$ctrl.datetime.timeFormat")
+      .row
+        .col-md-6
+          esn-datetime-time-format-selector(use-24hour-format="$ctrl.datetime.use24hourFormat")

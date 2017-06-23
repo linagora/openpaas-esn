@@ -418,10 +418,10 @@
   "Friday": "Thứ 6",
   "Saturday": "Thứ 7",
   "Sunday": "Chủ nhật",
-  "Date format": "Định dạng ngày",
   "Time format": "Định dạng thời gian",
   "Search options": "Tùy chọn tìm kiếm",
   "Reset": "Đặt lại",
   "Reset search options": "Đặt lại tùy chọn tìm kiếm",
-  "Share with...": "Chia sẻ với..."
+  "Share with...": "Chia sẻ với...",
+  "Use 24-hour format": "Sử dụng định dạng 24 giờ"
 }
