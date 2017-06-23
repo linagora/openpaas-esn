@@ -1,7 +1,7 @@
 .card.contact-list-card.clickable(ng-click='displayContact()')
   .card-body
     .flex-start
-      .p-10.flex-noshrink
+      .p-10.esn-flex-noshrink
         .card-image
           img(ng-src='{{::displayShell.getAvatar(avatarSize)}}', alt='#{__("Avatar")}', fallback-src="{{::displayShell.getDefaultAvatar()}}")
           i.mdi.i-contact-card(ng-class="displayShell.getOverlayIcon()")
