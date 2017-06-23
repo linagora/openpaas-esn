@@ -26,8 +26,8 @@ describe('The esnDatetime filter', function() {
   }
 
   it('should return formatted date in template', function() {
-    var element = initDirective('<p>{{ "6/5/17" | esnDatetime:"date" }}</p>');
+    var element = initDirective('<p>{{ "6/5/17" | esnDatetime:"mediumDate" }}</p>');
 
-    expect(element.text()).to.equal('05/06/2017');
+    expect(element.text()).to.equal('Jun 5, 2017');
   });
 });
