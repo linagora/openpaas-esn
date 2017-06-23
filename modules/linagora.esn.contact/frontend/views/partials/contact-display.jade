@@ -118,7 +118,7 @@
                 i.mdi.mdi-cake-variant.m-r-5
                 | #{__('Birthday')}
               dd
-                | {{ contact.birthday | esnDatetime:'date' }}
+                | {{ contact.birthday | esnDatetime: 'mediumDate' }}
       .pmb-block(ng-if='contact.notes')
         .pmbb-header
           h2
