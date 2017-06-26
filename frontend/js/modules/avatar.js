@@ -471,7 +471,7 @@ angular.module('esn.avatar', [
       hideUserStatus: '=?'
     }
   })
-  .controller('EsnAvatarController', function($q, $log, userAPI, esnAvatarService) {
+  .controller('EsnAvatarController', function($q, $log, userAPI, esnAvatarUrlService) {
     var self = this;
 
     self.$onInit = setProperties;
@@ -498,11 +498,11 @@ angular.module('esn.avatar', [
 
     function generateAvatarUrl(id, email) {
       if (id) {
-        return esnAvatarService.generateUrlByUserId(id);
+        return esnAvatarUrlService.generateUrlByUserId(id);
       }
 
       if (email) {
-        return esnAvatarService.generateUrl(email);
+        return esnAvatarUrlService.generateUrl(email);
       }
     }
 
@@ -517,21 +517,5 @@ angular.module('esn.avatar', [
 
     function displayUserStatus() {
       return !!self.avatar.id && !self.hideUserStatus;
-    }
-  })
-  .factory('esnAvatarService', function() {
-    return {
-      generateUrl: generateUrl,
-      generateUrlByUserId: generateUrlByUserId
-    };
-
-    /////
-
-    function generateUrl(email, displayName) {
-      return '/api/avatars?objectType=email&email=' + email + (displayName ? '&displayName=' + displayName : '');
-    }
-
-    function generateUrlByUserId(userId) {
-      return '/api/users/' + userId + '/profile/avatar';
     }
   });
