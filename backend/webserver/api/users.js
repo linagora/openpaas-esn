@@ -1,9 +1,9 @@
 'use strict';
 
-var authorize = require('../middleware/authorization');
-var users = require('../controllers/users');
-var usersMW = require('../middleware/users');
-var link = require('../middleware/profile-link');
+const authorize = require('../middleware/authorization');
+const users = require('../controllers/users');
+const usersMW = require('../middleware/users');
+const link = require('../middleware/profile-link');
 
 module.exports = function(router) {
 
@@ -44,6 +44,9 @@ module.exports = function(router) {
    *     description: |
    *       Get the users profile from query.
    *     parameters:
+   *       - $ref: "#/parameters/cm_limit"
+   *       - $ref: "#/parameters/cm_offset"
+   *       - $ref: "#/parameters/cm_search"
    *       - $ref: "#/parameters/uss_email"
    *     responses:
    *       200:
@@ -52,12 +55,16 @@ module.exports = function(router) {
    *         $ref: "#/responses/cm_400"
    *       401:
    *         $ref: "#/responses/cm_401"
-   *       404:
-   *         $ref: "#/responses/cm_404"
+   *       403:
+   *         $ref: "#/responses/cm_403"
    *       500:
    *         $ref: "#/responses/cm_500"
    */
-  router.get('/users', authorize.requiresAPILogin, users.getProfilesByQuery);
+  router.get('/users',
+    authorize.requiresAPILogin,
+    usersMW.requireProfilesQueryParams,
+    usersMW.checkProfilesQueryPermission,
+    users.getProfilesByQuery);
 
   /**
    * @swagger
