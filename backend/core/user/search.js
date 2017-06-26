@@ -1,76 +1,101 @@
 'use strict';
 
-var utils = require('./utils');
-var _ = require('lodash');
-var CONSTANTS = require('./constants');
+const _ = require('lodash');
+const utils = require('./utils');
+const CONSTANTS = require('./constants');
 
-var DEFAULT_LIMIT = 50;
-var DEFAULT_OFFSET = 0;
+module.exports = {
+  getIndexName,
+  getTypeName,
+  search,
+  searchByDomain
+};
 
 function getIndexName() {
   return CONSTANTS.ELASTICSEARCH.index;
 }
-module.exports.getIndexName = getIndexName;
 
 function getTypeName() {
   return CONSTANTS.ELASTICSEARCH.type;
 }
-module.exports.getTypeName = getTypeName;
 
 /**
- * Search users in a domain by using a filter.
+ * Search users in domains.
  *
  * @param {Domain[], ObjectId[]} domains array of domain where search users
- * @param {object} query - Hash with 'limit' and 'offset' for pagination, 'search' for filtering terms,
- *  'not_in_community' to return only members who are not in this community and no pending request with it.
- *  Search can be a single string, an array of strings which will be joined, or a space separated string list.
+ * @param {object} options - Hash with:
+ * - 'limit' and 'offset' for pagination
+ * - 'search' for filtering terms.
+ * - 'not_in_collaboration' to return only users who are not in this collaboration and no pending request with it.
+ * Search can be a single string, an array of strings which will be joined, or a space separated string list.
  *  In the case of array or space separated string, a AND search will be performed with the input terms.
- * @param {function} cb - as fn(err, result) with result: { total_count: number, list: [User1, User2, ...] }
+ * @param {function} callback - as fn(err, result) with result: { total_count: number, list: [User1, User2, ...] }
  */
-function searchByDomain(domains, query, cb) {
+function searchByDomain(domains, options, callback) {
   if (!domains) {
-    return cb(new Error('Domains is mandatory'));
+    return callback(new Error('Domains is mandatory'));
   }
+
   if (!(domains instanceof Array)) {
-    return cb(new Error('Domains must be an array'));
+    return callback(new Error('Domains must be an array'));
   }
+
   if (domains.length === 0) {
-    return cb(new Error('At least one domain is mandatory'));
+    return callback(new Error('At least one domain is mandatory'));
   }
-  if (!query.search) {
-    return cb(new Error('query.search is mandatory, use getUsersList to list users'));
-  }
-  var elasticsearchOrFilters = domains.map(function(domain) {
-    return {
-      term: {
-        'domains.domain_id': domain._id || domain
-      }
-    };
-  });
-  query = query || {limit: DEFAULT_LIMIT, offset: DEFAULT_OFFSET};
 
-  var collaboration = query.not_in_collaboration;
-  var limit = query.limit;
+  options.domains = domains;
+
+  return _search(options, callback);
+}
+
+/**
+ * Search users in system.
+ *
+ * @param {object} options - Hash with:
+ * - 'limit' and 'offset' for pagination
+ * - 'search' for filtering terms
+ * - 'not_in_collaboration' to return only users who are not in this collaboration and no pending request with it.
+ * Search can be a single string, an array of strings which will be joined, or a space separated string list.
+ *  In the case of array or space separated string, a AND search will be performed with the input terms.
+ * @param {function} callback - as fn(err, result) with result: { total_count: number, list: [User1, User2, ...] }
+ */
+function search(options, callback) {
+  return _search(options, callback);
+}
+
+function _search(options, callback) {
+  options.limit = +options.limit || CONSTANTS.USERS_SEARCH_DEFAULT_LIMIT;
+  options.offset = +options.offset || CONSTANTS.USERS_SEARCH_DEFAULT_OFFSET;
+
+  if (!options.search) {
+    return callback(new Error('query.search is mandatory, use getUsersList to list users'));
+  }
+
+  const collaboration = options.not_in_collaboration;
+  const limit = options.limit;
+
   if (collaboration) {
-    query.limit = null;
+    options.limit = null;
   }
 
-  var elasticsearch = require('../elasticsearch');
-  elasticsearch.client(function(err, elascticsearchClient) {
+  const elasticsearch = require('../elasticsearch');
+
+  return elasticsearch.client((err, elascticsearchClient) => {
     if (err) {
-      return cb(err);
+      return callback(err);
     }
 
-    var terms = (query.search instanceof Array) ? query.search.join(' ') : query.search;
+    const terms = (options.search instanceof Array) ? options.search.join(' ') : options.search;
 
-    var elasticsearchQuery = {
+    const elasticsearchQuery = {
       sort: [
         {'firstname.sort': 'asc'}
       ],
       query: {
         bool: {
           filter: {
-            or: elasticsearchOrFilters
+            or: _getElasticsearchOrFilters(options.domains)
           },
           must: {
             multi_match: {
@@ -84,41 +109,62 @@ function searchByDomain(domains, query, cb) {
       }
     };
 
-    elascticsearchClient.search({
+    return elascticsearchClient.search({
       index: getIndexName(),
       type: getTypeName(),
-      from: query.offset,
-      size: query.limit,
+      from: options.offset,
+      size: options.limit,
       body: elasticsearchQuery
-    }, function(err, response) {
+    }, (err, response) => {
       if (err) {
-        return cb(err);
+        return callback(err);
       }
 
-      var list = response.hits.hits;
-      var users = list.map(function(hit) { return _.extend(hit._source, { _id: hit._source.id }); });
+      const list = response.hits.hits;
+      const users = list.map(function(hit) { return _.extend(hit._source, { _id: hit._source.id }); });
 
       if (collaboration) {
-        utils.filterByNotInCollaborationAndNoMembershipRequest(users, collaboration, function(err, results) {
-          if (err) {
-            return cb(err);
-          }
-          var filterCount = results.length;
-          if (filterCount > limit) {
-            results = results.slice(0, limit);
-          }
-          return cb(null, {
-            total_count: filterCount,
-            list: results
-          });
-        });
-      } else {
-        return cb(null, {
-          total_count: response.hits.total,
-          list: users
-        });
+        return _filterUsersByCollaboration(users, collaboration, limit, callback);
       }
+
+      return callback(null, {
+        total_count: response.hits.total,
+        list: users
+      });
     });
   });
 }
-module.exports.searchByDomain = searchByDomain;
+
+function _getElasticsearchOrFilters(domains) {
+  if (!domains || domains.length === 0) {
+    return;
+  }
+
+  return domains.map(domain => {
+    const filter = {
+      term: {
+        'domains.domain_id': domain._id || domain
+      }
+    };
+
+    return filter;
+  });
+}
+
+function _filterUsersByCollaboration(users, collaboration, limit, callback) {
+  return utils.filterByNotInCollaborationAndNoMembershipRequest(users, collaboration, (err, results) => {
+    if (err) {
+      return callback(err);
+    }
+    const filterCount = results.length;
+
+    if (filterCount > limit) {
+      results = results.slice(0, limit);
+    }
+
+    return callback(null, {
+      total_count: filterCount,
+      list: results
+    });
+  });
+}
