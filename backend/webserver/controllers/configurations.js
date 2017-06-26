@@ -9,10 +9,11 @@ module.exports = {
 };
 
 function getConfigurations(req, res) {
+  const domainId = req.query.domain_id || null;
+  const userId = req.query.user_id || null;
   const modules = req.body;
-  const user = req.user;
 
-  return esnConfig.configurations.getConfigurations(modules, user.preferredDomainId, user._id)
+  return esnConfig.configurations.getConfigurations(modules, domainId, userId)
     .then(
       modules => res.status(200).json(modules),
       err => {
@@ -24,10 +25,11 @@ function getConfigurations(req, res) {
 }
 
 function updateConfigurations(req, res) {
+  const domainId = req.query.domain_id || null;
+  const userId = req.query.user_id || null;
   const modules = req.body;
-  const user = req.user;
 
-  return esnConfig.configurations.updateConfigurations(modules, user.preferredDomainId, user._id)
+  return esnConfig.configurations.updateConfigurations(modules, domainId, userId)
     .then(
       () => res.status(204).end(),
       err => {

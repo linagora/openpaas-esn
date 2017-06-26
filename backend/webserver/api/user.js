@@ -2,12 +2,9 @@
 
 const authorize = require('../middleware/authorization');
 const users = require('../controllers/users');
-const userConfiguration = require('../controllers/user-configuration');
 const usernotifications = require('../controllers/usernotifications');
 const usernotificationsAsMiddleware = require('../middleware/usernotifications');
 const oauthclients = require('../controllers/oauthclients');
-const configurationMiddleware = require('../middleware/configuration');
-const helperMiddleware = require('../middleware/helper');
 
 module.exports = function(router) {
 
@@ -271,51 +268,4 @@ module.exports = function(router) {
    */
   router.put('/user/notifications/:id/acknowledged', authorize.requiresAPILogin, usernotifications.load, usernotificationsAsMiddleware.userCanWriteNotification, usernotifications.setAcknowledged);
 
-  /**
-   * @swagger
-   * /user/configuration:
-   *   post:
-   *     tags:
-   *      - Configuration
-   *      - User
-   *     description: Get user configuration.
-   *     parameters:
-   *       - $ref: "#/parameters/cf_modules_with_keys"
-   *     responses:
-   *       200:
-   *         $ref: "#/responses/cf_modules"
-   *       400:
-   *         $ref: "#/responses/cm_400"
-   *       401:
-   *         $ref: "#/responses/cm_401"
-   *       403:
-   *         $ref: "#/responses/cm_403"
-   *       500:
-   *         $ref: "#/responses/cm_500"
-   */
-  router.post('/user/configuration', authorize.requiresAPILogin, helperMiddleware.requireBodyAsArray, configurationMiddleware.canReadUserConfig, userConfiguration.getConfigurations);
-
-  /**
-   * @swagger
-   * /user/configuration:
-   *   put:
-   *     tags:
-   *      - Configuration
-   *      - User
-   *     description: Update user configuration.
-   *     parameters:
-   *       - $ref: "#/parameters/cf_modules"
-   *     responses:
-   *       204:
-   *         $ref: "#/responses/cm_204"
-   *       400:
-   *         $ref: "#/responses/cm_400"
-   *       401:
-   *         $ref: "#/responses/cm_401"
-   *       403:
-   *         $ref: "#/responses/cm_403"
-   *       500:
-   *         $ref: "#/responses/cm_500"
-   */
-  router.put('/user/configuration', authorize.requiresAPILogin, helperMiddleware.requireBodyAsArray, configurationMiddleware.canWriteUserConfig, userConfiguration.updateConfigurations);
 };

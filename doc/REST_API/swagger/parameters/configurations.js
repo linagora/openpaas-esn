@@ -17,4 +17,19 @@
  *       type: array
  *       items:
  *         $ref: "#/definitions/cf_module_request"
+ *   cf_modules_scope:
+ *     name: scope
+ *     in: query
+ *     description: The configuration scope.
+ *     required: true
+ *     type: string
+ *     enum:
+ *       - 'user'
+ *       - 'domain'
+ *       - 'platform'
+ *   cf_modules_domain_id:
+ *     name: domain_id
+ *     in: query
+ *     description: The domain ID you want to get configuration of, required when scope is domain.
+ *     type: string
  */

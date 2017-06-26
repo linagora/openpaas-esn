@@ -36,6 +36,10 @@ function loadFromDomainIdParameter(req, res, next) {
     return res.status(400).json({ error: { code: 400, message: 'Missing parameter', details: 'The domain_id parameter is mandatory'}});
   }
 
+  if (!dbHelper.isValidObjectId(id)) {
+    return res.status(400).json({ error: { code: 400, message: 'Bad Request', details: 'domainID is not a valid ObjectId' }});
+  }
+
   Domain.loadFromID(id, function(err, domain) {
     if (err) {
       return next(err);

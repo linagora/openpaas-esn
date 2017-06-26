@@ -86,6 +86,7 @@ function setupAPI(application) {
   require('./collaborations')(router);
   require('./communities')(router);
   require('./companies')(router);
+  require('./configurations')(router);
   require('./document-store')(router);
   require('./domains')(router);
   require('./feedback')(router);
