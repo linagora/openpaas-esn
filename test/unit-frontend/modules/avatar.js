@@ -267,39 +267,8 @@ describe('The Avatar Angular module', function() {
     });
   });
 
-  describe('The esnAvatarService factory', function() {
-
-    var esnAvatarService;
-
-    beforeEach(inject(function(_esnAvatarService_) {
-      esnAvatarService = _esnAvatarService_;
-    }));
-
-    describe('The generateUrl function', function() {
-
-      it('should return a URL with no displayName when none given', function() {
-        expect(esnAvatarService.generateUrl('email')).to.equal('/api/avatars?objectType=email&email=email');
-      });
-
-      it('should return a URL with no displayName when an empty one is given', function() {
-        expect(esnAvatarService.generateUrl('email', '')).to.equal('/api/avatars?objectType=email&email=email');
-      });
-
-      it('should return a URL with displayName when one is given', function() {
-        expect(esnAvatarService.generateUrl('email', 'name')).to.equal('/api/avatars?objectType=email&email=email&displayName=name');
-      });
-
-    });
-
-    describe('The generateUrlByUserId function', function() {
-      it('should return an URL with the userId', function() {
-        expect(esnAvatarService.generateUrlByUserId('123456789')).to.equal('/api/users/123456789/profile/avatar');
-      });
-    });
-  });
-
   describe('the EsnAvatarController', function() {
-    var $q, $controller, $rootScope, $logMock, EsnAvatarController, esnAvatarServiceMock, userId, userEmail, avatarURL, userAPIMock, user, result;
+    var $q, $controller, $rootScope, $logMock, EsnAvatarController, esnAvatarUrlServiceMock, userId, userEmail, avatarURL, userAPIMock, user, result;
 
     beforeEach(function() {
       userId = '58be757006a35238647028d8';
@@ -328,7 +297,7 @@ describe('The Avatar Angular module', function() {
         })
       };
 
-      esnAvatarServiceMock = {
+      esnAvatarUrlServiceMock = {
         generateUrl: sinon.spy(),
         generateUrlByUserId: sinon.spy()
       };
@@ -336,7 +305,7 @@ describe('The Avatar Angular module', function() {
       angular.mock.module(function($provide) {
         $provide.value('userAPI', userAPIMock);
         $provide.value('$log', $logMock);
-        $provide.value('esnAvatarService', esnAvatarServiceMock);
+        $provide.value('esnAvatarUrlService', esnAvatarUrlServiceMock);
       });
 
       angular.mock.inject(function(_$controller_, _$rootScope_, _$q_) {
@@ -366,7 +335,7 @@ describe('The Avatar Angular module', function() {
 
         EsnAvatarController.$onInit();
 
-        expect(esnAvatarServiceMock.generateUrlByUserId).to.be.calledWith(userId);
+        expect(esnAvatarUrlServiceMock.generateUrlByUserId).to.be.calledWith(userId);
       });
 
       it('should initialize the avatarURL with the URL generate from the userEmail if userEmail defined and the avatarUrl and userId are undefined', function() {
@@ -374,7 +343,7 @@ describe('The Avatar Angular module', function() {
 
         EsnAvatarController.$onInit();
 
-        expect(esnAvatarServiceMock.generateUrl).to.be.calledWith(EsnAvatarController.userEmail);
+        expect(esnAvatarUrlServiceMock.generateUrl).to.be.calledWith(EsnAvatarController.userEmail);
       });
 
       it('should call userAPI.getUserByEmail and initialize avatar.id if the userEmail is defined and userId is undefined', function() {
@@ -485,7 +454,7 @@ describe('The Avatar Angular module', function() {
         email: 'k2r@linagora.com'
       };
       $rootScope.$digest();
-      expect(element.find('img').attr('src')).to.equal('/api/avatars?objectType=email&email=k2r@linagora.com');
+      expect(element.find('img').attr('src')).to.equal('/api/avatars?email=k2r@linagora.com&objectType=email');
     });
 
     it('should update avatar url when switching from a user id to another user id', function() {
