@@ -2,6 +2,7 @@
 
 angular.module('esn.appstore', [
   'esn.router',
+  'esn.http',
   'esn.community',
   'mgcrea.ngStrap.alert',
   'mgcrea.ngStrap.modal',
