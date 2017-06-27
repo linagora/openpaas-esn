@@ -59,7 +59,7 @@
   },
   "auth": {
     "strategies": ["mongo-ldap", "local", "mongo"],
-    "apiStrategies": ["basic-mongo", "bearer"]
+    "apiStrategies": ["basic-mongo", "bearer", "jwt"]
   },
   "modules": [
     "linagora.esn.account",

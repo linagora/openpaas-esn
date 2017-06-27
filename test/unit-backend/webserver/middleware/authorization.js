@@ -16,6 +16,7 @@ describe('The authorization middleware', function() {
   });
 
   describe('The loginAndContinue fn', function() {
+
     it('does nothing when authenticated', function(done) {
       mockery.registerMock('../../core/community', {});
       var middleware = this.helpers.requireBackend('webserver/middleware/authorization').loginAndContinue;
@@ -56,6 +57,31 @@ describe('The authorization middleware', function() {
       };
       middleware(req, res, next);
     });
+
+    it('supports JWT in query string', function(done) {
+      mockery.registerMock('passport', {
+        authenticate: (name, options) => {
+          expect(name).to.equal('jwt');
+          expect(options).to.deep.equal({ failureRedirect: '/login?continue=http%3A%2F%2Flocalhost%2Foauth%2Fauthorize' });
+
+          done();
+        }
+      });
+
+      var middleware = this.helpers.requireBackend('webserver/middleware/authorization').loginAndContinue;
+      var req = {
+        originalUrl: 'http://localhost/oauth/authorize',
+        isAuthenticated: function() {
+          return false;
+        },
+        query: {
+          jwt: 'myJWT'
+        }
+      };
+
+      middleware(req, {});
+    });
+
   });
 
   describe('The requiresAPILogin fn', function() {
