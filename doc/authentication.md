@@ -34,3 +34,8 @@ Possible values are:
 - basic-mongo: [HTTP Basic authentication](https://tools.ietf.org/html/rfc2617#section-2) using the User collection in mongodb.
 - basic-mongo-ldap: [HTTP Basic authentication](https://tools.ietf.org/html/rfc2617#section-2) using the same authentication strategy as the `mongo-ldap` above
 - bearer: OAuth2 authentication mechanism (cf [REST API](REST.md) for more details)
+
+## Single sign-on
+
+OpenPaaS supports single sign-on, see [single-sign-on.md](single-sign-on.md) for
+more details.
