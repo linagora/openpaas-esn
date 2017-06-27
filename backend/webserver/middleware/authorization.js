@@ -121,7 +121,7 @@ function requiresCommunityCreator(req, res, next) {
 }
 
 function requiresJWT(req, res, next) {
-  passport.authenticate('jwt', {session: false})(req, res, next);
+  passport.authenticate('jwt-noauth', {session: false})(req, res, next);
 }
 
 function decodeJWTandLoadUser(req, res, next) {

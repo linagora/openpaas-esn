@@ -21,8 +21,7 @@ passport.deserializeUser((username, done) => User.loadFromEmail(username, done))
 try {
   passport.use('basic', require('./auth/basic').strategy);
   passport.use('oauth2-client-password', require('./auth/oauth2-client-password').strategy);
-
-  require('./auth/jwt').useStrategy();
+  passport.use('jwt-noauth', require('./auth/jwt-noauth').strategy);
 } catch (err) {
   logger.error('Can not load the client strategies', err.message);
 }
