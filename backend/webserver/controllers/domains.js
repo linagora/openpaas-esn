@@ -67,7 +67,13 @@ function createDomain(req, res) {
   var name = data.name;
 
   if (!data.administrators || !data.administrators.length) {
-    return res.status(400).send({ error: { status: 400, message: 'Bad Request', details: 'An administrator is required'}});
+    return res.status(400).json({
+      error: {
+        code: 400,
+        message: 'Bad Request',
+        details: 'An administrator is required'
+      }
+    });
   }
 
   var users = data.administrators.map(function(administrator) {
@@ -79,7 +85,13 @@ function createDomain(req, res) {
   });
 
   if (missEmailsField) {
-    return res.status(400).send({ error: { status: 400, message: 'Bad Request', details: 'One of administrator does not have any email address'}});
+    return res.status(400).json({
+      error: {
+        code: 400,
+        message: 'Bad Request',
+        details: 'One of administrator does not have any email address'
+      }
+    });
   }
 
   var administrators = users.map(function(user) {
@@ -98,7 +110,17 @@ function createDomain(req, res) {
 
   domain.save(function(err, saved) {
     if (err) {
-      return res.status(500).send({ error: { status: 500, message: 'Server Error', details: 'Can not create domains ' + name + '. ' + err.message}});
+      const details = `Error while creating domain ${name}`;
+
+      logger.error(details, err);
+
+      return res.status(500).json({
+        error: {
+          code: 500,
+          message: 'Server Error',
+          details
+        }
+      });
     }
     if (saved) {
       return res.status(201).end();

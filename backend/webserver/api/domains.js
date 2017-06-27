@@ -47,12 +47,16 @@ module.exports = function(router) {
    *         $ref: "#/responses/cm_201"
    *       400:
    *         $ref: "#/responses/cm_400"
+   *       401:
+   *         $ref: "#/responses/cm_401"
+   *       403:
+   *         $ref: "#/responses/cm_403"
    *       404:
    *         $ref: "#/responses/cm_404"
    *       500:
    *         $ref: "#/responses/cm_500"
    */
-  router.post('/domains', domains.createDomain);
+  router.post('/domains', authorize.requiresAPILogin, platformadminsMw.requirePlatformAdmin, domains.createDomain);
 
   /**
    * @swagger
