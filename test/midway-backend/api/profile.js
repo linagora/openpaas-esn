@@ -4,25 +4,27 @@ const request = require('supertest'),
     expect = require('chai').expect;
 
 describe('The profile API', function() {
-  let app, foouser, baruser, baruserExpectedKeys, baruserForbiddenKeys, WCUtils, checkKeys, imagePath, domain_id, mongoose, core;
+  let app, helpers, mongoose, core;
+  let foouser, baruser, baruserExpectedKeys, baruserForbiddenKeys, WCUtils, checkKeys, imagePath, domain_id;
+
   const password = 'secret';
 
   beforeEach(function(done) {
+    helpers = this.helpers;
     const self = this;
 
-    imagePath = this.helpers.getFixturePath('image.png');
+    imagePath = helpers.getFixturePath('image.png');
 
-    core = this.testEnv.initCore(function() {
-      app = self.helpers.requireBackend('webserver/application');
+    core = self.testEnv.initCore(function() {
+      app = helpers.requireBackend('webserver/application');
       mongoose = require('mongoose');
 
-      WCUtils = self.helpers.rewireBackend('webserver/controllers/utils');
+      WCUtils = helpers.rewireBackend('webserver/controllers/utils');
 
-      self.helpers.api.applyDomainDeployment('foo_and_bar_users', function(err, models) {
+      helpers.api.applyDomainDeployment('foo_and_bar_users', function(err, models) {
         if (err) {
           return done(err);
         }
-
         domain_id = models.domain._id;
         foouser = models.users[0];
         baruser = models.users[1];
@@ -59,19 +61,19 @@ describe('The profile API', function() {
   });
 
   afterEach(function(done) {
-    this.helpers.mongo.dropDatabase(done);
+    helpers.mongo.dropDatabase(done);
   });
 
   describe('GET /api/users/:userId/profile route', function() {
 
     it('should return 401 if not authenticated', function(done) {
-      this.helpers.api.requireLogin(app, 'get', '/api/users/' + baruser._id + '/profile', done);
+      helpers.api.requireLogin(app, 'get', '/api/users/' + baruser._id + '/profile', done);
     });
 
     it('should create a profile link when authenticated user looks at a user profile', function(done) {
       const Link = mongoose.model('ResourceLink');
 
-      this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
+      helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
@@ -102,20 +104,18 @@ describe('The profile API', function() {
     });
 
     it('should return 404 if the user does not exist', function(done) {
-      const self = this;
-
-      this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
+      helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
         const req = loggedInAsUser(request(app).get('/api/users/577cfa973dfc55eb231bba37/profile'));
 
-        req.expect(404).end(self.helpers.callbacks.noError(done));
+        req.expect(404).end(helpers.callbacks.noError(done));
       });
     });
 
     it('should return 200 with the profile of the user', function(done) {
-      this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
+      helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
@@ -131,7 +131,7 @@ describe('The profile API', function() {
 
     it('should return 200 with the profile of the user including its private informations if the user is the client himself', function(done) {
 
-      this.helpers.api.loginAsUser(app, baruser.emails[0], password, function(err, loggedInAsUser) {
+      helpers.api.loginAsUser(app, baruser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
@@ -149,7 +149,7 @@ describe('The profile API', function() {
 
     it('should return 200 with the profile of the user except its private informations if the user is NOT the client himself', function(done) {
 
-      this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
+      helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
@@ -170,7 +170,7 @@ describe('The profile API', function() {
   describe('PUT /api/user/profile', function() {
 
     it('should return 401 if not authenticated', function(done) {
-      this.helpers.api.requireLogin(app, 'put', '/api/user/profile', done);
+      helpers.api.requireLogin(app, 'put', '/api/user/profile', done);
     });
 
     it('should return 200 and update his profile', function(done) {
@@ -186,7 +186,7 @@ describe('The profile API', function() {
         description: 'This is my description'
       };
 
-      this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
+      helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
@@ -223,7 +223,7 @@ describe('The profile API', function() {
         firstname: 'John'
       };
 
-      this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
+      helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
@@ -250,24 +250,22 @@ describe('The profile API', function() {
   describe('GET /api/users/:userId route', function() {
 
     it('should return 401 if not authenticated', function(done) {
-      this.helpers.api.requireLogin(app, 'get', '/api/users/' + baruser._id, done);
+      helpers.api.requireLogin(app, 'get', '/api/users/' + baruser._id, done);
     });
 
     it('should return 404 if the user does not exist', function(done) {
-      const self = this;
-
-      this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
+      helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
         const req = loggedInAsUser(request(app).get('/api/users/577cfa973dfc55eb231bba37'));
 
-        req.expect(404).end(self.helpers.callbacks.noError(done));
+        req.expect(404).end(helpers.callbacks.noError(done));
       });
     });
 
     it('should return 200 with the profile of the user', function(done) {
-      this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
+      helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
@@ -283,7 +281,7 @@ describe('The profile API', function() {
 
     it('should return 200 with the profile of the user including its private informations if the user is the client himself', function(done) {
 
-      this.helpers.api.loginAsUser(app, baruser.emails[0], password, function(err, loggedInAsUser) {
+      helpers.api.loginAsUser(app, baruser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
@@ -301,7 +299,7 @@ describe('The profile API', function() {
 
     it('should return 200 with the profile of the user except its private informations if the user is NOT the client himself', function(done) {
 
-      this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
+      helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
@@ -320,7 +318,7 @@ describe('The profile API', function() {
     describe('Follow tests', function() {
 
       it('should send back empty follow stats when user does not follow or is not followed', function(done) {
-        this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
+        helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
           if (err) {
             return done(err);
           }
@@ -339,10 +337,8 @@ describe('The profile API', function() {
       });
 
       it('should send back nb of followers of the current user', function(done) {
-        const self = this;
-
         function test() {
-          self.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
+          helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
             if (err) {
               return done(err);
             }
@@ -360,14 +356,12 @@ describe('The profile API', function() {
           });
         }
 
-        self.helpers.requireBackend('core/user/follow').follow(foouser, baruser).then(test, done);
+        helpers.requireBackend('core/user/follow').follow(foouser, baruser).then(test, done);
       });
 
       it('should send back stats when logged in user follow another user', function(done) {
-        const self = this;
-
         function test() {
-          self.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
+          helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
             if (err) {
               return done(err);
             }
@@ -385,64 +379,100 @@ describe('The profile API', function() {
           });
         }
 
-        self.helpers.requireBackend('core/user/follow').follow(foouser, baruser).then(test, done);
+        helpers.requireBackend('core/user/follow').follow(foouser, baruser).then(test, done);
       });
     });
   });
 
   describe('GET /api/users route', function() {
-
     it('should return 401 if not authenticated', function(done) {
-      this.helpers.api.requireLogin(app, 'get', '/api/users?email=admin@open-paas.org', done);
+      helpers.api.requireLogin(app, 'get', '/api/users?email=admin@open-paas.org', done);
     });
 
-    it('should return 200 with empty array if no user found', function(done) {
-      this.helpers.api.loginAsUser(app, foouser.emails[0], password, (err, loggedInAsUser) => {
-        const req = loggedInAsUser(request(app).get('/api/users?email=admin@open-paas.org'));
+    it('should return 400 if there is no email or search param', function(done) {
+      helpers.api.loginAsUser(app, foouser.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
+        loggedInAsUser(request(app).get('/api/users'))
+          .expect(400)
+          .end(helpers.callbacks.noError(done));
+      }));
+    });
 
-        if (err) {
-          return done(err);
-        }
+    describe('Get profiles by email', function() {
+      it('should return 200 with empty array if no user found', function(done) {
+        helpers.api.loginAsUser(app, foouser.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
+          loggedInAsUser(request(app).get('/api/users?email=admin@open-paas.org'))
+            .expect(200)
+            .end(helpers.callbacks.noErrorAnd(res => {
+              expect(res.headers['x-esn-items-count']).to.equal(`${res.body.length}`);
+              expect(res.body).to.be.empty;
+              done();
+            }));
+        }));
+      });
 
-        req.expect(200).end((err, res) => {
-          expect(err).to.not.exist;
-          expect(res.body).to.be.empty;
-          done();
-        });
+      it('should return 200 with the profiles of the users', function(done) {
+        helpers.api.loginAsUser(app, foouser.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
+          loggedInAsUser(request(app).get('/api/users?email=' + baruser.accounts[0].emails[0]))
+            .expect(200)
+            .end(helpers.callbacks.noErrorAnd(res => {
+              expect(res.headers['x-esn-items-count']).to.equal(`${res.body.length}`);
+              expect(baruser._id.toString()).to.equal(res.body[0]._id);
+              done();
+            }));
+        }));
+      });
+
+      it('should return 200 with the profile of the user without its private informations', function(done) {
+        helpers.api.loginAsUser(app, foouser.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
+          loggedInAsUser(request(app).get('/api/users?email=' + baruser.accounts[0].emails[0]))
+            .expect(200)
+            .end(helpers.callbacks.noErrorAnd(res => {
+              expect(res.headers['x-esn-items-count']).to.equal(`${res.body.length}`);
+              checkKeys(res.body[0], baruserExpectedKeys, baruserForbiddenKeys);
+              done();
+            }));
+        }));
       });
     });
 
-    it('should return 200 with the profiles of the users', function(done) {
-      this.helpers.api.loginAsUser(app, foouser.emails[0], password, (err, loggedInAsUser) => {
-        const req = loggedInAsUser(request(app).get('/api/users?email=' + baruser.accounts[0].emails[0]));
-
-        if (err) {
-          return done(err);
-        }
-
-        req.expect(200).end((err, res) => {
-          expect(err).to.not.exist;
-          expect(baruser._id.toString()).to.equal(res.body[0]._id);
-          done();
-        });
+    describe('Get profiles by search', function() {
+      beforeEach(done => {
+        core.platformadmin
+          .addPlatformAdmin(foouser)
+          .then(() => done())
+          .catch(err => done(err || 'failed to add platformadmin'));
       });
-    });
 
-    it('should return 200 with the profile of the user without its private informations', function(done) {
-      this.helpers.api.loginAsUser(app, foouser.emails[0], password, (err, loggedInAsUser) => {
-        const req = loggedInAsUser(request(app).get('/api/users?email=' + baruser.accounts[0].emails[0]));
+      it('should send back 403 if the logged in user is not platformadmin', function(done) {
+        helpers.api.loginAsUser(app, baruser.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
+          loggedInAsUser(request(app).get('/api/domains?search=a'))
+            .expect(403)
+            .end(helpers.callbacks.noError(done));
+        }));
+      });
 
-        if (err) {
-          return done(err);
-        }
+      it('should return 200 with the profiles of the users', function(done) {
+        helpers.api.loginAsUser(app, foouser.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
+          loggedInAsUser(request(app).get('/api/users?search=' + foouser.emails[0]))
+            .expect(200)
+            .end(helpers.callbacks.noErrorAnd(res => {
+              expect(res.headers['x-esn-items-count']).to.equal(`${res.body.length}`);
+              expect(foouser.emails[0]).to.equal(res.body[0].emails[0]);
+              done();
+            }));
+        }));
+      });
 
-        req.expect(200).end((err, res) => {
-          expect(err).to.not.exist;
-
-          checkKeys(res.body[0], baruserExpectedKeys, baruserForbiddenKeys);
-
-          done();
-        });
+      it('should return 200 with the profile of the user without its private informations', function(done) {
+        helpers.api.loginAsUser(app, foouser.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
+          loggedInAsUser(request(app).get('/api/users?search=' + baruser.emails[0]))
+            .expect(200)
+            .end(helpers.callbacks.noErrorAnd(res => {
+              expect(res.headers['x-esn-items-count']).to.equal(`${res.body.length}`);
+              checkKeys(res.body[0], baruserExpectedKeys, baruserForbiddenKeys);
+              done();
+            }));
+        }));
       });
     });
   });
@@ -450,10 +480,9 @@ describe('The profile API', function() {
   describe('GET /api/users/:uuid/profile/avatar route', function() {
 
     it('should return 404 if the user does not exist', function(done) {
-      const self = this;
       const req = request(app).get('/api/users/577cfa973dfc55eb231bba37/profile/avatar');
 
-      req.expect(404).end(self.helpers.callbacks.noError(done));
+      req.expect(404).end(helpers.callbacks.noError(done));
     });
 
     it('should redirect to the generated avatar if the user has no image', function(done) {
@@ -467,7 +496,7 @@ describe('The profile API', function() {
     });
 
     it('should return 200 with the stream of the user avatar', function(done) {
-      const imageModule = this.helpers.requireBackend('core/image');
+      const imageModule = helpers.requireBackend('core/image');
       const readable = require('fs').createReadStream(imagePath);
       const ObjectId = mongoose.Types.ObjectId;
       const avatarId = new ObjectId();
@@ -500,66 +529,57 @@ describe('The profile API', function() {
   describe('POST /api/user/profile/avatar route', function() {
 
     it('should return 401 if not authenticated', function(done) {
-      this.helpers.api.requireLogin(app, 'post', '/api/user/profile/avatar', done);
+      helpers.api.requireLogin(app, 'post', '/api/user/profile/avatar', done);
     });
 
     it('should return 400 if the "mimetype" query string is missing', function(done) {
-      const self = this;
-
-      this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
+      helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
         const req = loggedInAsUser(request(app).post('/api/user/profile/avatar?size=123'));
 
-        req.send().expect(400).end(self.helpers.callbacks.noError(done));
+        req.send().expect(400).end(helpers.callbacks.noError(done));
       });
     });
 
     it('should return 400 if the "size" query string is missing', function(done) {
-      const self = this;
-
-      this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
+      helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
         const req = loggedInAsUser(request(app).post('/api/user/profile/avatar?mimetype=image%2Fpng'));
 
-        req.send().expect(400).end(self.helpers.callbacks.noError(done));
+        req.send().expect(400).end(helpers.callbacks.noError(done));
       });
     });
 
     it('should return 400 if the "mimetype" query string is not an accepted mime type', function(done) {
-      const self = this;
-
-      this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
+      helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
         const req = loggedInAsUser(request(app).post('/api/user/profile/avatar?mimetype=notAGoodType&size=123'));
 
-        req.send().expect(400).end(self.helpers.callbacks.noError(done));
+        req.send().expect(400).end(helpers.callbacks.noError(done));
       });
     });
 
     it('should return 400 if the "size" query string is not a number', function(done) {
-      const self = this;
-
-      this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
+      helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
         const req = loggedInAsUser(request(app).post('/api/user/profile/avatar?mimetype=image%2Fpng&size=notanumber'));
 
-        req.send().expect(400).end(self.helpers.callbacks.noError(done));
+        req.send().expect(400).end(helpers.callbacks.noError(done));
       });
     });
 
     it('should return 412 if the "size" query string is not equal to the actual image size', function(done) {
       const fileContent = require('fs').readFileSync(imagePath).toString();
-      const self = this;
 
-      this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
+      helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
@@ -567,7 +587,7 @@ describe('The profile API', function() {
 
         req.query({size: 123, mimetype: 'image/png'})
           .set('Content-Type', 'image/png')
-          .send(fileContent).expect(412).end(self.helpers.callbacks.error(done));
+          .send(fileContent).expect(412).end(helpers.callbacks.error(done));
       });
     });
 
@@ -576,11 +596,11 @@ describe('The profile API', function() {
   describe('GET /api/user/profile/avatar route', function() {
 
     it('should return 401 if not authenticated', function(done) {
-      this.helpers.api.requireLogin(app, 'get', '/api/user/profile/avatar', done);
+      helpers.api.requireLogin(app, 'get', '/api/user/profile/avatar', done);
     });
 
     it('should redirect to the generated avatar if the user has no image', function(done) {
-      this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
+      helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
@@ -595,14 +615,13 @@ describe('The profile API', function() {
     });
 
     it('should return 200 with the stream of the user avatar', function(done) {
-      const imageModule = this.helpers.requireBackend('core/image');
+      const imageModule = helpers.requireBackend('core/image');
       const readable = require('fs').createReadStream(imagePath);
       const ObjectId = mongoose.Types.ObjectId;
       const avatarId = new ObjectId();
       const opts = {
         creator: {objectType: 'user', id: foouser._id}
       };
-      const self = this;
 
       imageModule.recordAvatar(avatarId, 'image/png', opts, readable, function(err) {
         if (err) {
@@ -614,7 +633,7 @@ describe('The profile API', function() {
           if (err) {
             done(err);
           }
-          self.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
+          helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
             if (err) {
               done(err);
             }
@@ -635,9 +654,7 @@ describe('The profile API', function() {
   describe('GET /api/user route', function() {
 
     it('should return 200 with the profile of the user, including his configurations', function(done) {
-      const self = this;
-
-      this.helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
+      helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
@@ -646,7 +663,7 @@ describe('The profile API', function() {
         const configName = 'homePage';
         const configValue = true;
 
-        self.helpers.requireBackend('core/esn-config')(configName)
+        helpers.requireBackend('core/esn-config')(configName)
           .inModule(moduleName)
           .forUser({ preferredDomainId: domain_id })
           .set(configValue, function(err) {
@@ -673,14 +690,13 @@ describe('The profile API', function() {
     });
 
     it('should return 200 with isPlatformAdmin true if user is platform admin', function(done) {
-      const self = this;
-      const fixtures = self.helpers.requireFixture('models/users.js')(this.helpers.requireBackend('core/db/mongo/models/user'));
+      const fixtures = helpers.requireFixture('models/users.js')(helpers.requireBackend('core/db/mongo/models/user'));
 
-      fixtures.newDummyUser(['platformadmin@email.com']).save(this.helpers.callbacks.noErrorAnd(user => {
+      fixtures.newDummyUser(['platformadmin@email.com']).save(helpers.callbacks.noErrorAnd(user => {
         core.platformadmin
           .addPlatformAdmin(user)
           .then(() => {
-            this.helpers.api.loginAsUser(app, 'platformadmin@email.com', password, function(err, loggedInAsUser) {
+            helpers.api.loginAsUser(app, 'platformadmin@email.com', password, function(err, loggedInAsUser) {
               if (err) {
                 return done(err);
               }

@@ -1,12 +1,25 @@
 'use strict';
 
 const Q = require('q');
-var userModule = require('../../core').user;
-var imageModule = require('../../core').image;
-var acceptedImageTypes = ['image/jpeg', 'image/gif', 'image/png'];
-var logger = require('../../core').logger;
-var ObjectId = require('mongoose').Types.ObjectId;
-var denormalizeUser = require('../denormalize/user').denormalize;
+const userModule = require('../../core').user;
+const imageModule = require('../../core').image;
+const acceptedImageTypes = ['image/jpeg', 'image/gif', 'image/png'];
+const logger = require('../../core').logger;
+const ObjectId = require('mongoose').Types.ObjectId;
+const denormalizeUser = require('../denormalize/user').denormalize;
+const userSearch = require('../../core/user/search');
+
+module.exports = {
+  getProfileAvatar,
+  getProfilesByQuery,
+  logmein,
+  logout,
+  postProfileAvatar,
+  profile,
+  updatePassword,
+  updateProfile,
+  user
+};
 
 /**
  * Log the user in. The user should already be loaded in the request from a middleware.
@@ -15,9 +28,9 @@ function logmein(req, res) {
   if (!req.user || !req.user.emails || !req.user.emails.length) {
     return res.status(500).send('User not set');
   }
+
   return res.redirect('/');
 }
-module.exports.logmein = logmein;
 
 /**
  * Logout the current user
@@ -29,7 +42,6 @@ function logout(req, res) {
   req.logout();
   res.redirect('/');
 }
-module.exports.logout = logout;
 
 /**
  * Get a user profile.
@@ -39,6 +51,7 @@ module.exports.logout = logout;
  */
 function profile(req, res) {
   var uuid = req.params.uuid;
+
   if (!uuid) {
     return res.status(400).json({error: {code: 400, message: 'Bad parameters', details: 'User ID is missing'}});
   }
@@ -66,52 +79,52 @@ function profile(req, res) {
       });
   });
 }
-module.exports.profile = profile;
 
 /**
- * Get a user profile by email.
+ * Get users profile.
  *
  * @param {request} req
  * @param {response} res
  */
 function getProfilesByQuery(req, res) {
-  const email = req.query.email;
+  let getUsers;
+  let errorMessage;
 
-  if (!email) {
-    return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'User email is missing'}});
+  if (req.query.email) {
+    const email = req.query.email;
+
+    errorMessage = `Error while finding users by email ${email}`;
+    getUsers = _findUsersByEmail(email);
+  } else {
+    const options = {
+      search: req.query.search,
+      limit: req.query.limit,
+      offset: req.query.offset,
+      not_in_collaboration: req.query.not_in_collaboration
+    };
+
+    errorMessage = 'Error while searching users';
+    getUsers = Q.ninvoke(userSearch, 'search', options);
   }
 
-  userModule.findUsersByEmail(email, (err, users) => {
-    if (err) {
-      const details = `Error while finding users by email ${email}`;
+  const denormalizeUsers = users => users.map(user => denormalizeUser(user, { user: req.user, doNotKeepPrivateData: true }));
 
-      logger.error(details, err);
+  getUsers
+    .then(result => Q.all(denormalizeUsers(result.list))
+    .then(denormalizedUsers => {
+      res.header('X-ESN-Items-Count', result.total_count);
+      res.status(200).json(denormalizedUsers);
+    }))
+    .catch(err => {
+      logger.error(errorMessage, err);
 
-      return res.status(500).json({
+      res.status(500).json({
         error: 500,
         message: 'Server Error',
-        details
+        details: errorMessage
       });
-    }
-
-    if (!users) {
-      return res.status(200).json([]);
-    }
-
-    const denormalizedUsers = users.map(user => denormalizeUser(user, {user: req.user, doNotKeepPrivateData: true}));
-
-    Q.all(denormalizedUsers)
-      .then(users => {
-        res.status(200).json(users);
-      })
-      .catch(() => res.status(500).json({
-        error: 500,
-        message: 'Server Error',
-        details: 'Error while denormalize users'
-      }));
-  });
+    });
 }
-module.exports.getProfilesByQuery = getProfilesByQuery;
 
 /**
  * Update a parameter value in the current user profile
@@ -144,10 +157,10 @@ function updateProfile(req, res) {
     if (err) {
       return res.status(500).json({error: 500, message: 'Server Error', details: err.message});
     }
+
     return res.status(200).json(profile);
   });
 }
-module.exports.updateProfile = updateProfile;
 
 /**
  * Update the password in the current user profile
@@ -165,10 +178,10 @@ function updatePassword(req, res) {
     if (err) {
       return res.status(500).json({error: 500, message: 'Server Error', details: err.message});
     }
+
     return res.status(200).end();
   });
 }
-module.exports.updatePassword = updatePassword;
 
 /**
  * Returns the current authenticated user
@@ -185,7 +198,6 @@ function user(req, res) {
     res.status(200).json(denormalized);
   });
 }
-module.exports.user = user;
 
 function postProfileAvatar(req, res) {
   if (!req.user) {
@@ -195,6 +207,7 @@ function postProfileAvatar(req, res) {
     return res.status(400).json({error: 400, message: 'Parameter missing', details: 'mimetype parameter is required'});
   }
   var mimetype = req.query.mimetype.toLowerCase();
+
   if (acceptedImageTypes.indexOf(mimetype) < 0) {
     return res.status(400).json({error: 400, message: 'Bad parameter', details: 'mimetype ' + req.query.mimetype + ' is not acceptable'});
   }
@@ -202,6 +215,7 @@ function postProfileAvatar(req, res) {
     return res.status(400).json({error: 400, message: 'Parameter missing', details: 'size parameter is required'});
   }
   var size = parseInt(req.query.size, 10);
+
   if (isNaN(size)) {
     return res.status(400).json({error: 400, message: 'Bad parameter', details: 'size parameter should be an integer'});
   }
@@ -215,6 +229,7 @@ function postProfileAvatar(req, res) {
       if (err) {
         return res.status(500).json({error: 500, message: 'Datastore failure', details: err.message});
       }
+
       return res.status(200).json({_id: avatarId});
     });
   }
@@ -236,14 +251,13 @@ function postProfileAvatar(req, res) {
   }
 
   var metadata = {};
+
   if (req.user) {
     metadata.creator = {objectType: 'user', id: req.user._id};
   }
 
   imageModule.recordAvatar(avatarId, mimetype, metadata, req, avatarRecordResponse);
 }
-
-module.exports.postProfileAvatar = postProfileAvatar;
 
 function getProfileAvatar(req, res) {
   function redirectToGeneratedAvatar(req, res) {
@@ -287,4 +301,20 @@ function getProfileAvatar(req, res) {
     return readable.pipe(res);
   });
 }
-module.exports.getProfileAvatar = getProfileAvatar;
+
+/**
+ * Find users by email.
+ *
+ * @param {string} email
+ */
+function _findUsersByEmail(email) {
+  return Q.ninvoke(userModule, 'findUsersByEmail', email)
+    .then(users => {
+      const result = {
+        total_count: users.length,
+        list: users
+      };
+
+      return result;
+    });
+}

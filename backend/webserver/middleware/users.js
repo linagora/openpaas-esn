@@ -1,6 +1,14 @@
 'use strict';
 
-var userModule = require('../../core').user;
+const userModule = require('../../core').user;
+const composableMw = require('composable-middleware');
+const platformadminsMW = require('../middleware/platformadmins');
+
+module.exports = {
+  checkProfilesQueryPermission,
+  load,
+  requireProfilesQueryParams
+};
 
 function onFind(req, res, next, err, user) {
   if (err) {
@@ -24,4 +32,29 @@ function load(req, res, next) {
     return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'uuid or email missing'}});
   }
 }
-module.exports.load = load;
+
+function checkProfilesQueryPermission(req, res, next) {
+  const middlewares = [];
+
+  if (!req.query.email && req.query.search) {
+    middlewares.push(platformadminsMW.requirePlatformAdmin);
+  }
+
+  return composableMw(...middlewares)(req, res, next);
+}
+
+function requireProfilesQueryParams(req, res, next) {
+  let details;
+
+  if (!req.query.email && !req.query.search) {
+    return res.status(400).json({
+      error: {
+        code: 400,
+        message: 'Bad Request',
+        details
+      }
+    });
+  }
+
+  next();
+}

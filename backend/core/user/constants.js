@@ -13,5 +13,7 @@ module.exports = {
   ELASTICSEARCH: {
     type: 'users',
     index: 'users.idx'
-  }
+  },
+  USERS_SEARCH_DEFAULT_LIMIT: 50,
+  USERS_SEARCH_DEFAULT_OFFSET: 0
 };
