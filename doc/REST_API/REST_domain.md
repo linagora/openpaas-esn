@@ -1,5 +1,57 @@
 # /api/domains
 
+## GET /api/domains
+
+Get the list of ESN domains
+
+**Request Parameters**
+
+- limit (int): The number of domains to return. This will only keep the N first domains (where N=limit). Default value is 50.
+- offset (int): Start the list of domains after skipping N domains (where N=offset). For example, if the size of the domains list is 100 and the offset is 50, the result list will contain only domains from 50 to 99 (list index starts at index 0).
+
+**Request Headers:**
+
+- Accept: application/json
+
+**Response Headers:**
+
+- X-ESN-Items-Count: The number of domains in the result list
+- Content-Length: Document size
+- Content-Type: application/json
+
+**Status Codes:**
+
+- 200 OK. With the list of domains
+- 401 Unauthorized. The user is not authenticated on the platform.
+- 403 Forbidden. The user is not a platform admin.
+
+**Request:**
+
+    GET /api/domains
+    Accept: application/json
+    Host: localhost:8080
+
+**Response:**
+
+    HTTP/1.1 200 OK
+    X-ESN-Items-Count: 2
+    [
+        {
+            "name": "foo",
+            "company_name": "Foo",
+            "timestamps": {
+              "creation": ISODate("2016-06-23T16:24:07.383Z")
+            }
+        },
+        {
+            "name": "bar",
+            "company_name": "Bar",
+            "timestamps": {
+              "creation": ISODate("2016-06-23T16:24:07.383Z")
+            }
+        }
+    ]
+
 ## POST /api/domains
 
 Create an ESN domain.
@@ -20,7 +72,9 @@ Create an ESN domain.
 **Status Codes:**
 
 - 201 Created. The domain has been created.
-- 400 Bad Request. Invalid request body or parameters
+- 400 Bad Request. Invalid request body or parameters.
+- 401 Unauthorized. The user is not authenticated on the platform.
+- 403 Forbidden. The user is not a platform admin.
 
 **Request:**
 
@@ -203,4 +257,3 @@ Check if the authenticated user is the domain manager
       "name": "foo",
       "company_name": "bar"
     }
-
