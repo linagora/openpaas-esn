@@ -22,7 +22,13 @@ function loginAndContinue(req, res, next) {
     return next();
   }
 
-  return res.redirect('/login?continue=' + encodeURIComponent(req.originalUrl));
+  const redirectUrl = '/login?continue=' + encodeURIComponent(req.originalUrl);
+
+  if (req.query && req.query.jwt) {
+    return passport.authenticate('jwt', { failureRedirect: redirectUrl })(req, res, next);
+  }
+
+  return res.redirect(redirectUrl);
 }
 
 function requiresLogin(req, res, next) {
