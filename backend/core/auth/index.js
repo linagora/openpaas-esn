@@ -2,5 +2,6 @@
 
 module.exports = {
   token: require('./token'),
-  jwt: require('./jwt')
+  jwt: require('./jwt'),
+  handlers: require('./handlers')
 };
