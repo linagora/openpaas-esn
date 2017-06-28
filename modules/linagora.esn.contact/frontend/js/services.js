@@ -147,7 +147,7 @@ angular.module('linagora.esn.contact')
       }
 
       if (contact.birthday) {
-        return esnDatetimeService.formatDate(contact.birthday, 'date');
+        return esnDatetimeService.formatMediumDate(contact.birthday);
       }
 
       if (notNullNorEmpty(contact.addresses)) {
@@ -193,7 +193,7 @@ angular.module('linagora.esn.contact')
       $scope.contact = contact;
       $scope.emails = getOrderedValues($scope.contact.emails, CONTACT_ATTRIBUTES_ORDER.email);
       $scope.phones = getOrderedValues($scope.contact.tel, CONTACT_ATTRIBUTES_ORDER.phone);
-      $scope.formattedBirthday = esnDatetimeService.formatDate(contact.birthday);
+      $scope.formattedBirthday = esnDatetimeService.formatMediumDate(contact.birthday);
     }
 
     function getOrderType($scope) {

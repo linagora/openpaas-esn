@@ -464,7 +464,7 @@ describe('The Contacts service module', function() {
         this.expectEqual('B');
 
         this.shell.tags.shift();
-        this.expectEqual('01/01/1942');
+        this.expectEqual('Jan 1, 1942');
 
         this.shell.birthday = '';
         this.expectEqual('My street My city My zip My country');

@@ -5,8 +5,8 @@
     .filter('esnDatetime', esnDatetime);
 
   function esnDatetime(esnDatetimeService) {
-    return function(date, type) {
-      return esnDatetimeService.formatDate(date, type);
+    return function(date, formats) {
+      return esnDatetimeService.format(date, formats);
     };
   }
 })();

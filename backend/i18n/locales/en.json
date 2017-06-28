@@ -418,10 +418,10 @@
   "Friday": "Friday",
   "Saturday": "Saturday",
   "Sunday": "Sunday",
-  "Date format": "Date format",
   "Time format": "Time format",
   "Search options": "Search options",
   "Reset": "Reset",
   "Reset search options": "Reset search options",
-  "Share with...": "Share with..."
+  "Share with...": "Share with...",
+  "Use 24-hour format": "Use 24-hour format"
 }

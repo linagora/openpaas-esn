@@ -85,7 +85,7 @@ sub-header
             p {{contact.nickname}}
             p.type #{__('Nickname')}
           .contact-item-data(ng-if='contact.birthday')
-            p {{ contact.birthday | esnDatetime:'date' }}
+            p {{ contact.birthday | esnDatetime: 'mediumDate' }}
             p.type #{__('Birthday')}
 
         .contact-items-group(ng-if='shouldDisplayOthers()')
