@@ -160,42 +160,117 @@ describe('The domain API', function() {
   });
 
   describe('POST /api/domains', function() {
+    let platformAdmin;
+
+    beforeEach(function(done) {
+      const fixtures = helpers.requireFixture('models/users.js')(helpers.requireBackend('core/db/mongo/models/user'));
+
+      fixtures.newDummyUser(['platformadmin@email.com'])
+        .save(helpers.callbacks.noErrorAnd(user => {
+          platformAdmin = user;
+
+          core.platformadmin
+            .addPlatformAdmin(platformAdmin)
+            .then(() => done())
+            .catch(err => done(err || 'failed to add platformadmin'));
+        }));
+    });
+
+    it('should send back 401 when not logged in', function(done) {
+      helpers.api.requireLogin(app, 'get', '/api/domains', done);
+    });
+
+    it('should send back 403 if the logged in user is not platformadmin', function(done) {
+      helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, loggedInAsUser) {
+        loggedInAsUser(request(app).post('/api/domains'))
+          .expect(403)
+          .end(helpers.callbacks.noErrorAnd(res => {
+              expect(res.body).to.shallowDeepEqual({
+                error: {
+                  code: 403,
+                  message: 'Forbidden',
+                  details: 'To perform this action, you need to be a platformadmin'
+                }
+              });
+              done();
+            }));
+      });
+    });
+
     it('should send back 400 when administrators is not set', function(done) {
-      var json = {
+      const json = {
         name: 'Marketing',
         company_name: 'Corporate'
       };
 
-      request(app).post('/api/domains').send(json).expect(400).end(helpers.callbacks.noError(done));
+      helpers.api.loginAsUser(app, platformAdmin.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
+        loggedInAsUser(request(app).post('/api/domains').send(json))
+        .expect(400)
+        .end(helpers.callbacks.noErrorAnd(res => {
+            expect(res.body).to.shallowDeepEqual({
+              error: {
+                code: 400,
+                message: 'Bad Request',
+                details: 'An administrator is required'
+              }
+            });
+            done();
+          }));
+      }));
     });
 
     it('should send back 400 when administrators is empty', function(done) {
-      var json = {
+      const json = {
         name: 'Marketing',
         company_name: 'Corporate',
         administrators: []
       };
 
-      request(app).post('/api/domains').send(json).expect(400).end(helpers.callbacks.noError(done));
+      helpers.api.loginAsUser(app, platformAdmin.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
+        loggedInAsUser(request(app).post('/api/domains').send(json))
+        .expect(400)
+        .end(helpers.callbacks.noErrorAnd(res => {
+            expect(res.body).to.shallowDeepEqual({
+              error: {
+                code: 400,
+                message: 'Bad Request',
+                details: 'An administrator is required'
+              }
+            });
+            done();
+          }));
+      }));
     });
 
     it('should send back 400 when administrator users is not correctly filled (emails is mandatory)', function(done) {
-      var user = {
+      const user = {
         firstname: 'foo',
         lastname: 'bar'
       };
-
-      var json = {
+      const json = {
         name: 'Marketing',
         company_name: 'Corporate',
-        administratosr: [user]
+        administrators: [user]
       };
 
-      request(app).post('/api/domains').send(json).expect(400).end(helpers.callbacks.noError(done));
+      helpers.api.loginAsUser(app, platformAdmin.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
+        loggedInAsUser(request(app).post('/api/domains').send(json))
+        .expect(400)
+        .end(helpers.callbacks.noErrorAnd(res => {
+            expect(res.body).to.shallowDeepEqual({
+              error: {
+                code: 400,
+                message: 'Bad Request',
+                details: 'One of administrator does not have any email address'
+              }
+            });
+            done();
+          }));
+      }));
     });
 
     it('should send back 201, create a domain with name, company_name and administrators in lower case', function(done) {
-      var user = {
+      const user = {
         firstname: 'foo',
         lastname: 'bar',
         accounts: [{
@@ -204,27 +279,30 @@ describe('The domain API', function() {
         }]
       };
 
-      var json = {
+      const json = {
         name: 'Marketing',
         company_name: 'Corporate',
         administrators: [user]
       };
 
-      request(app).post('/api/domains').send(json).expect(201).end(function(err, res) {
-        expect(err).to.not.exist;
-        expect(res.body).to.exists;
-        expect(res.body).to.be.empty;
-        Domain.findOne({name: 'marketing', company_name: 'corporate'}, function(err, doc) {
-          expect(err).to.not.exist;
-          expect(doc).to.exist;
-          expect(doc).to.shallowDeepEqual({
-            name: 'marketing',
-            company_name: 'corporate',
-            administrators: [{}]
-          });
-          done();
-        });
-      });
+      helpers.api.loginAsUser(app, platformAdmin.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
+        loggedInAsUser(request(app).post('/api/domains').send(json))
+        .expect(201)
+        .end(helpers.callbacks.noErrorAnd(res => {
+          expect(res.body).to.exists;
+          expect(res.body).to.be.empty;
+
+          Domain.findOne({ name: 'marketing', company_name: 'corporate' }, helpers.callbacks.noErrorAnd(doc => {
+            expect(doc).to.exist;
+            expect(doc).to.shallowDeepEqual({
+              name: 'marketing',
+              company_name: 'corporate',
+              administrators: [{}]
+            });
+            done();
+          }));
+        }));
+      }));
     });
   });
 

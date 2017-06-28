@@ -83,11 +83,20 @@
  *         $ref: "#/definitions/dm_domain"
  *     examples:
  *       application/json:
- *         {
- *           "name": "foo",
- *           "company_name": "bar",
- *           "timestamps": {
- *             "creation": ISODate("2016-06-23T16:24:07.383Z")
+ *         [
+ *           {
+ *             "name": "foo",
+ *             "company_name": "Foo",
+ *             "timestamps": {
+ *               "creation": ISODate("2016-06-23T16:24:07.383Z")
+ *             }
+ *           },
+ *           {
+ *             "name": "bar",
+ *             "company_name": "Bar",
+ *             "timestamps": {
+ *               "creation": ISODate("2016-06-23T16:24:07.383Z")
+ *             }
  *           }
- *         }
+ *         ]
  */
