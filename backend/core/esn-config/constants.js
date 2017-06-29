@@ -6,6 +6,11 @@ const SCOPE = {
   domain: 'domain',
   platform: 'platform'
 };
+const ROLE = {
+  user: 'user',
+  admin: 'admin',
+  padmin: 'padmin'
+};
 
 module.exports = {
   DEFAULT_MODULE: 'core',
@@ -13,6 +18,7 @@ module.exports = {
   DEFAULT_FEEDBACK_EMAIL: 'feedback@open-paas.org',
   EVENTS,
   SCOPE,
+  ROLE,
   CONFIG_METADATA: {
     core: {
       rights: {

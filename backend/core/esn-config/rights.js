@@ -1,6 +1,9 @@
 'use strict';
 
 const registry = require('./registry');
+const { ROLE } = require('./constants');
+const READ = 'r';
+const WRITE = 'w';
 
 module.exports = {
   userCanRead,
@@ -8,34 +11,37 @@ module.exports = {
   adminCanRead,
   adminCanWrite,
   padminCanRead,
-  padminCanWrite
+  padminCanWrite,
+  can,
+  READ,
+  WRITE
 };
 
 function userCanRead(moduleName, configName) {
-  return _can('user', 'r', moduleName, configName);
+  return can(ROLE.user, READ, moduleName, configName);
 }
 
 function userCanWrite(moduleName, configName) {
-  return _can('user', 'w', moduleName, configName);
+  return can(ROLE.user, WRITE, moduleName, configName);
 }
 
 function adminCanRead(moduleName, configName) {
-  return _can('admin', 'r', moduleName, configName);
+  return can(ROLE.admin, READ, moduleName, configName);
 }
 
 function adminCanWrite(moduleName, configName) {
-  return _can('admin', 'w', moduleName, configName);
+  return can(ROLE.admin, WRITE, moduleName, configName);
 }
 
 function padminCanRead(moduleName, configName) {
-  return _can('padmin', 'r', moduleName, configName);
+  return can(ROLE.padmin, READ, moduleName, configName);
 }
 
 function padminCanWrite(moduleName, configName) {
-  return _can('padmin', 'w', moduleName, configName);
+  return can(ROLE.padmin, WRITE, moduleName, configName);
 }
 
-function _can(role, rights, moduleName, configName) {
+function can(role, rights, moduleName, configName) {
   const module = registry.getFromModule(moduleName);
 
   if (!module) { return false; }
