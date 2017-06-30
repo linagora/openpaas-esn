@@ -32,4 +32,10 @@
  *     in: query
  *     description: The domain ID you want to get configuration of, required when scope is domain.
  *     type: string
+ *   cf_modules_inspect
+ *     name: inspect
+ *     in: query
+ *     description: Set if you want to inspect configurations by getting all readable configurations,
+ *      each configuration then have `writable` field indicating the configuration is writable or not
+ *     type: boolean
  */

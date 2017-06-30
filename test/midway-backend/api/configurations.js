@@ -53,7 +53,7 @@ describe('The configurations API', function() {
     });
   }
 
-  describe.skip('POST /api/configurations', function() {
+  describe('POST /api/configurations', function() {
     const API_ENDPOINT = '/api/configurations';
 
     it('should send back 401 if the user is not logged in', function(done) {
@@ -415,6 +415,72 @@ describe('The configurations API', function() {
       });
     });
 
+    describe('when inspect is provided', function() {
+      let userDomainMember;
+
+      beforeEach(function(done) {
+        helpers.api.applyDomainDeployment('linagora_test_domain', function(err, models) {
+          expect(err).to.not.exist;
+          userDomainMember = models.users[1];
+          done();
+        });
+      });
+
+      it('should get all readable configurations', function(done) {
+        core['esn-config'].registry.register(TEST_MODULE, {
+          configurations: {
+            readOnlyKey: {
+              rights: {
+                user: 'r'
+              }
+            },
+            writableKey: {
+              rights: {
+                user: 'rw'
+              }
+            },
+            unReadableKey: {
+              rights: {
+                user: ''
+              }
+            },
+            [TEST_CONFIG.name]: {
+              rights: {
+                user: 'rw'
+              }
+            }
+          }
+        });
+
+        sendRequestAsUser(userDomainMember, loggedInAsUser => {
+          loggedInAsUser(
+            request(webserver.application)
+              .post(API_ENDPOINT)
+              .query('scope=user')
+              .query('inspect=true')
+              .send([{ name: TEST_MODULE, keys: [] }])
+          )
+            .expect(200)
+            .end(helpers.callbacks.noErrorAnd(res => {
+              expect(res.body).to.deep.equal([{
+                name: TEST_MODULE,
+                configurations: [{
+                  name: 'readOnlyKey',
+                  writable: false
+                }, {
+                  name: 'writableKey',
+                  writable: true
+                }, {
+                  name: TEST_CONFIG.name,
+                  value: TEST_CONFIG.value,
+                  writable: true
+                }]
+              }]);
+              done();
+            }));
+        });
+      });
+    });
   });
 
   describe('PUT /api/configurations', function() {
