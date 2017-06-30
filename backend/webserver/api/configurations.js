@@ -17,6 +17,7 @@ module.exports = function(router) {
    *       Get user, domain, platform configurations
    *     parameters:
    *       - $ref: "#/parameters/cf_modules_scope"
+   *       - $ref: "#/parameters/cf_modules_inspect"
    *       - $ref: "#/parameters/cf_modules_domain_id"
    *       - $ref: "#/parameters/cf_modules_with_keys"
    *     responses:

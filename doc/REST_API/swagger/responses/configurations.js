@@ -14,7 +14,8 @@
  *               [
  *                 {
  *                   "name": "homePage",
- *                   "value": "calendar"
+ *                   "value": "calendar",
+ *                   "writable": "true"
  *                 }
  *               ]
  *           }

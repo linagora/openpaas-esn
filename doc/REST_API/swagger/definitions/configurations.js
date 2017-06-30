@@ -11,6 +11,8 @@
   *         type: string
   *       value:
   *         type: object
+  *       writable:
+  *         type: boolean
   *   cf_module:
   *     description: "a JSON object containing a module configuration"
   *     properties:

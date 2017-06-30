@@ -45,7 +45,7 @@ describe('The core/esn-config/esn-config.js module', function() {
 
   describe('The getMultiple method', function() {
 
-    it('should resolve an array of found configurations', function(done) {
+    it('should resolve an array of found configurations and not-found configurations with empty value', function(done) {
       var config1 = {
         name: 'key1',
         value: 'val1'
@@ -59,30 +59,30 @@ describe('The core/esn-config/esn-config.js module', function() {
 
       esnConfig.getMultiple(['key1', 'key2', 'key3']).then(function(data) {
         expect(fallbackModuleMock.getConfiguration).to.have.been.calledWith(DOMAIN_ID);
-        expect(data).to.deep.equal([config1, config2]);
+        expect(data).to.deep.equal([config1, config2, { name: 'key3' }]);
         done();
       }, done.bind(null, 'should resolve'));
     });
 
-    it('should resolve an empty array of no configuration found', function(done) {
+    it('should resolve an array with empty value if no configuration found', function(done) {
       fallbackModuleMock.getConfiguration = sinon.stub().returns(q(createConfiguration(MODULE_NAME, [])));
 
       esnConfig.getMultiple(['key1', 'key2', 'key3']).then(function(data) {
-        expect(data).to.deep.equal([]);
+        expect(data).to.deep.equal([{ name: 'key1' }, { name: 'key2' }, { name: 'key3' }]);
         done();
       }, done.bind(null, 'should resolve'));
     });
 
-    it('should resolve an empty array if no configuration document found from database', function(done) {
+    it('should resolve an array with empty value if no configuration document found from database', function(done) {
       fallbackModuleMock.getConfiguration = sinon.stub().returns(q(null));
 
       esnConfig.getMultiple(['key1', 'key2', 'key3']).then(function(data) {
-        expect(data).to.deep.equal([]);
+        expect(data).to.deep.equal([{ name: 'key1' }, { name: 'key2' }, { name: 'key3' }]);
         done();
       }, done.bind(null, 'should resolve'));
     });
 
-    it('should resolve an empty array if corressponding module found is not found', function(done) {
+    it('should resolve an array with empty value if corressponding module is not found', function(done) {
       var config1 = {
         name: 'key1',
         value: 'val1'
@@ -95,7 +95,7 @@ describe('The core/esn-config/esn-config.js module', function() {
       fallbackModuleMock.getConfiguration = sinon.stub().returns(q(createConfiguration('another_module'), [config1, config2]));
 
       esnConfig.getMultiple(['key1', 'key2', 'key3']).then(function(data) {
-        expect(data).to.deep.equal([]);
+        expect(data).to.deep.equal([{ name: 'key1' }, { name: 'key2' }, { name: 'key3' }]);
         done();
       }, done.bind(null, 'should resolve'));
     });

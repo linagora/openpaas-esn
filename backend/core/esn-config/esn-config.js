@@ -35,8 +35,8 @@ class EsnConfig {
     return this._getModuleConfigsForDomain(moduleName)
       .then(moduleConfigs =>
         configNames
-          .map(configName => _.find(moduleConfigs, { name: configName }))
-          .filter(Boolean));
+          .map(configName => _.find(moduleConfigs, { name: configName }) || { name: configName })
+      );
   }
 
   get(configName) {

@@ -11,9 +11,16 @@ module.exports = {
 function getConfigurations(req, res) {
   const domainId = req.query.domain_id || null;
   const userId = req.query.user_id || null;
-  const modules = req.body;
+  const configsToGet = req.body;
+  let getConfigurations;
 
-  return esnConfig.configurations.getConfigurations(modules, domainId, userId)
+  if (req.query.inspect) {
+    getConfigurations = esnConfig.configurations.inspectConfigurations;
+  } else {
+    getConfigurations = esnConfig.configurations.getConfigurations;
+  }
+
+  return getConfigurations(configsToGet, domainId, userId)
     .then(
       modules => res.status(200).json(modules),
       err => {
