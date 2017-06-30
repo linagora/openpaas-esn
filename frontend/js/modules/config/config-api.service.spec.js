@@ -136,4 +136,59 @@ describe('The esnConfigApi service', function() {
     });
   });
 
+  describe('The inspect functions', function() {
+    var INSPECT_MODULES = ['module1', 'module2'];
+    var INSPECT_MODULES_POST_BODY = [{
+      name: 'module1',
+      keys: []
+    }, {
+      name: 'module2',
+      keys: []
+    }];
+
+    it('should have inspectUserConfigurations to send POST request to right endpoint', function(done) {
+      $httpBackend
+        .expectPOST('/api/configurations?inspect=true&scope=user', INSPECT_MODULES_POST_BODY)
+        .respond(200);
+
+      esnConfigApi
+        .inspectUserConfigurations(INSPECT_MODULES)
+        .then(function() {
+          done();
+        });
+
+      $httpBackend.flush();
+    });
+
+    it('should have inspectDomainConfigurations to send POST request to right endpoint', function(done) {
+      var domainId = 'domainId';
+
+      $httpBackend
+        .expectPOST('/api/configurations?domain_id=' + domainId + '&inspect=true&scope=domain', INSPECT_MODULES_POST_BODY)
+        .respond(200);
+
+      esnConfigApi
+        .inspectDomainConfigurations(domainId, INSPECT_MODULES)
+        .then(function() {
+          done();
+        });
+
+      $httpBackend.flush();
+    });
+
+    it('should have inspectPlatformConfigurations to send POST request to right endpoint', function(done) {
+      $httpBackend
+        .expectPOST('/api/configurations?inspect=true&scope=platform', INSPECT_MODULES_POST_BODY)
+        .respond(200);
+
+      esnConfigApi
+        .inspectPlatformConfigurations(INSPECT_MODULES)
+        .then(function() {
+          done();
+        });
+
+      $httpBackend.flush();
+    });
+  });
+
 });

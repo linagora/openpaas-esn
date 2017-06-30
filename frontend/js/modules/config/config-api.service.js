@@ -6,13 +6,61 @@
 
   function esnConfigApi(Restangular, esnRestangular, ESN_CONFIG_SCOPE) {
     return {
-      getDomainConfigurations: getDomainConfigurations,
-      setDomainConfigurations: setDomainConfigurations,
+      inspectPlatformConfigurations: inspectPlatformConfigurations,
+      inspectDomainConfigurations: inspectDomainConfigurations,
+      inspectUserConfigurations: inspectUserConfigurations,
       getPlatformConfigurations: getPlatformConfigurations,
-      setPlatformConfigurations: setPlatformConfigurations,
+      getDomainConfigurations: getDomainConfigurations,
       getUserConfigurations: getUserConfigurations,
+      setPlatformConfigurations: setPlatformConfigurations,
+      setDomainConfigurations: setDomainConfigurations,
       setUserConfigurations: setUserConfigurations
     };
+
+    function inspectDomainConfigurations(domainId, modules) {
+      var params = {
+        scope: ESN_CONFIG_SCOPE.domain,
+        domain_id: domainId,
+        inspect: true
+      };
+      var configsToGet = modules.map(function(module) {
+        return { name: module, keys: [] };
+      });
+
+      return getConfigurations(configsToGet, params);
+    }
+
+    function inspectPlatformConfigurations(modules) {
+      var params = {
+        scope: ESN_CONFIG_SCOPE.platform,
+        inspect: true
+      };
+      var configsToGet = modules.map(function(module) {
+        return { name: module, keys: [] };
+      });
+
+      return getConfigurations(configsToGet, params);
+    }
+
+    function inspectUserConfigurations(modules) {
+      var params = {
+        scope: ESN_CONFIG_SCOPE.user,
+        inspect: true
+      };
+      var configsToGet = modules.map(function(module) {
+        return { name: module, keys: [] };
+      });
+
+      return getConfigurations(configsToGet, params);
+    }
+
+    function getPlatformConfigurations(configsToGet) {
+      var params = {
+        scope: ESN_CONFIG_SCOPE.platform
+      };
+
+      return getConfigurations(configsToGet, params);
+    }
 
     function getDomainConfigurations(domainId, configsToGet) {
       var params = {
@@ -23,18 +71,9 @@
       return getConfigurations(configsToGet, params);
     }
 
-    function setDomainConfigurations(domainId, configsToSet) {
+    function getUserConfigurations(configsToGet) {
       var params = {
-        scope: ESN_CONFIG_SCOPE.domain,
-        domain_id: domainId
-      };
-
-      return setConfigurations(configsToSet, params);
-    }
-
-    function getPlatformConfigurations(configsToGet) {
-      var params = {
-        scope: ESN_CONFIG_SCOPE.platform
+        scope: ESN_CONFIG_SCOPE.user
       };
 
       return getConfigurations(configsToGet, params);
@@ -48,12 +87,13 @@
       return setConfigurations(configsToSet, params);
     }
 
-    function getUserConfigurations(configsToGet) {
+    function setDomainConfigurations(domainId, configsToSet) {
       var params = {
-        scope: ESN_CONFIG_SCOPE.user
+        scope: ESN_CONFIG_SCOPE.domain,
+        domain_id: domainId
       };
 
-      return getConfigurations(configsToGet, params);
+      return setConfigurations(configsToSet, params);
     }
 
     function setUserConfigurations(configsToSet) {
