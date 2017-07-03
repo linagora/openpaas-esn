@@ -1,25 +1,25 @@
 'use strict';
 
+const _ = require('lodash');
+const q = require('q');
+const async = require('async');
 const mongoose = require('mongoose');
+
 const Domain = mongoose.model('Domain');
-const User = mongoose.model('User');
 const userDomain = require('../../core/user/domain');
 const userIndex = require('../../core/user/index');
 const coreDomain = require('../../core/domain');
 const logger = require('../../core').logger;
-const async = require('async');
-const q = require('q');
 const pubsub = require('../../core/pubsub').local;
 const denormalizeUser = require('../denormalize/user').denormalize;
 const denormalizeDomain = require('../denormalize/domain');
-const _ = require('lodash');
 
 const DEFAULT_OFFSET = 0;
 const DEFAULT_LIMIT = 50;
 
 module.exports = {
   list,
-  createDomain,
+  create,
   getMembers,
   sendInvitations,
   getDomain,
@@ -61,55 +61,40 @@ function list(req, res) {
   });
 }
 
-function createDomain(req, res) {
-  var data = req.body;
-  var company_name = data.company_name;
-  var name = data.name;
+/**
+ * Create a new domain and a new user who become domain administrator
+ *
+ * @param {Request} req
+ * @param {Response} res
+ */
+function create(req, res) {
+  const data = req.body;
+  const company_name = data.company_name;
+  const name = data.name;
+  const administrator = data.administrator;
 
-  if (!data.administrators || !data.administrators.length) {
-    return res.status(400).json({
-      error: {
-        code: 400,
-        message: 'Bad Request',
-        details: 'An administrator is required'
-      }
-    });
-  }
-
-  var users = data.administrators.map(function(administrator) {
-    return new User(administrator);
-  });
-
-  var missEmailsField = users.some(function(user) {
-    return !user.emails || user.emails.length === 0;
-  });
-
-  if (missEmailsField) {
-    return res.status(400).json({
-      error: {
-        code: 400,
-        message: 'Bad Request',
-        details: 'One of administrator does not have any email address'
-      }
-    });
-  }
-
-  var administrators = users.map(function(user) {
-    return {
-      user_id: user
-    };
-  });
-
-  var domainJson = {
-    name: name,
-    company_name: company_name,
-    administrators: administrators
+  const domain = {
+    name,
+    company_name
   };
 
-  var domain = new Domain(domainJson);
+  return q.ninvoke(coreDomain, 'create', domain)
+    .then(domain => {
+      const user = {
+        accounts: [{
+          hosted: true,
+          type: 'email',
+          emails: [administrator.email]
+        }],
+        password: administrator.password,
+        domains: [{ domain_id: domain._id }]
+      };
 
-  domain.save(function(err, saved) {
-    if (err) {
+      return q.ninvoke(userIndex, 'recordUser', user)
+        .then(user => q.ninvoke(userDomain, 'addDomainAdministrator', domain, [user._id])
+          .then(() => res.status(201).json(domain)));
+    })
+    .catch(err => {
       const details = `Error while creating domain ${name}`;
 
       logger.error(details, err);
@@ -121,13 +106,7 @@ function createDomain(req, res) {
           details
         }
       });
-    }
-    if (saved) {
-      return res.status(201).end();
-    }
-
-    return res.status(404).end();
-  });
+    });
 }
 
 /**
