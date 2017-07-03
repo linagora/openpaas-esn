@@ -31,6 +31,7 @@ module.exports = {
         },
         homePage: {
           rights: {
+            padmin: 'rw',
             admin: 'rw',
             user: 'rw'
           }
