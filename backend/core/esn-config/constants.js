@@ -64,7 +64,11 @@ module.exports = {
           pubsub: true
         },
         session: {},
-        james: {},
+        james: {
+          rights: {
+            padmin: 'rw'
+          }
+        },
         jwt: {
           rights: {
             padmin: 'rw'

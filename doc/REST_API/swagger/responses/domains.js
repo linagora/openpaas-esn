@@ -16,6 +16,41 @@
  *           "name": "foo",
  *           "company_name": "bar"
  *         }
+ *   dm_created_domain:
+ *     description: Ok with the created domain object.
+ *     schema:
+ *       type: object
+ *       properties:
+ *         name:
+ *           type: string
+ *         company_name:
+ *           type: string
+ *         timestamps:
+ *          $ref: "#/definitions/cm_timestamps"
+ *         administrator:
+ *          type: object
+ *          properties:
+ *            user_id:
+ *              $ref: "#/definitions/us_id"
+ *            timestamps:
+ *              $ref: "#/definitions/cm_timestamps"
+ *     examples:
+ *       application/json:
+ *         {
+ *           "name": "foo",
+ *           "company_name": "bar",
+ *           "timestamps" : {
+ *             "creation" : ISODate("2017-05-05T03:32:26.822Z")
+ *            },
+ *            "administrators" : [
+ *              {
+ *                "user_id" : ObjectId("590bf24a20e78227e01e5ec9"),
+ *                "timestamps" : {
+ *                  "creation" : ISODate("2017-05-05T03:32:26.822Z")
+ *                }
+ *              }
+ *            ]
+ *         }
  *   dm_members:
  *     description: OK. With the list of members.
  *     schema:

@@ -185,19 +185,61 @@ describe('The domain API', function() {
         loggedInAsUser(request(app).post('/api/domains'))
           .expect(403)
           .end(helpers.callbacks.noErrorAnd(res => {
-              expect(res.body).to.shallowDeepEqual({
-                error: {
-                  code: 403,
-                  message: 'Forbidden',
-                  details: 'To perform this action, you need to be a platformadmin'
-                }
-              });
-              done();
-            }));
+            expect(res.body).to.shallowDeepEqual({
+              error: {
+                code: 403,
+                message: 'Forbidden',
+                details: 'To perform this action, you need to be a platformadmin'
+              }
+            });
+            done();
+          }));
       });
     });
 
-    it('should send back 400 when administrators is not set', function(done) {
+    it('should send back 400 when domain name is not set', function(done) {
+      const json = {
+        company_name: 'Corporate'
+      };
+
+      helpers.api.loginAsUser(app, platformAdmin.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
+        loggedInAsUser(request(app).post('/api/domains').send(json))
+          .expect(400)
+          .end(helpers.callbacks.noErrorAnd(res => {
+            expect(res.body).to.shallowDeepEqual({
+              error: {
+                code: 400,
+                message: 'Bad Request',
+                details: 'Domain does not have name'
+              }
+            });
+            done();
+          }));
+      }));
+    });
+
+    it('should send back 400 when company name is not set', function(done) {
+      const json = {
+        name: 'Marketing'
+      };
+
+      helpers.api.loginAsUser(app, platformAdmin.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
+        loggedInAsUser(request(app).post('/api/domains').send(json))
+          .expect(400)
+          .end(helpers.callbacks.noErrorAnd(res => {
+            expect(res.body).to.shallowDeepEqual({
+              error: {
+                code: 400,
+                message: 'Bad Request',
+                details: 'Domain does not have company name'
+              }
+            });
+            done();
+          }));
+      }));
+    });
+
+    it('should send back 400 when administrator is not set', function(done) {
       const json = {
         name: 'Marketing',
         company_name: 'Corporate'
@@ -205,8 +247,8 @@ describe('The domain API', function() {
 
       helpers.api.loginAsUser(app, platformAdmin.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
         loggedInAsUser(request(app).post('/api/domains').send(json))
-        .expect(400)
-        .end(helpers.callbacks.noErrorAnd(res => {
+          .expect(400)
+          .end(helpers.callbacks.noErrorAnd(res => {
             expect(res.body).to.shallowDeepEqual({
               error: {
                 code: 400,
@@ -219,22 +261,25 @@ describe('The domain API', function() {
       }));
     });
 
-    it('should send back 400 when administrators is empty', function(done) {
-      const json = {
+    it('should send back 400 when administrator user does not have any email address', function(done) {
+      const user = {
+        password: 'secret'
+      };
+      const domain = {
         name: 'Marketing',
         company_name: 'Corporate',
-        administrators: []
+        administrator: user
       };
 
       helpers.api.loginAsUser(app, platformAdmin.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
-        loggedInAsUser(request(app).post('/api/domains').send(json))
-        .expect(400)
-        .end(helpers.callbacks.noErrorAnd(res => {
+        loggedInAsUser(request(app).post('/api/domains').send(domain))
+          .expect(400)
+          .end(helpers.callbacks.noErrorAnd(res => {
             expect(res.body).to.shallowDeepEqual({
               error: {
                 code: 400,
                 message: 'Bad Request',
-                details: 'An administrator is required'
+                details: 'Administrator does not have any email address'
               }
             });
             done();
@@ -242,26 +287,25 @@ describe('The domain API', function() {
       }));
     });
 
-    it('should send back 400 when administrator users is not correctly filled (emails is mandatory)', function(done) {
+    it('should send back 400 when administrator user does not have password', function(done) {
       const user = {
-        firstname: 'foo',
-        lastname: 'bar'
+        email: 'abc@email.com'
       };
-      const json = {
+      const domain = {
         name: 'Marketing',
         company_name: 'Corporate',
-        administrators: [user]
+        administrator: user
       };
 
       helpers.api.loginAsUser(app, platformAdmin.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
-        loggedInAsUser(request(app).post('/api/domains').send(json))
-        .expect(400)
-        .end(helpers.callbacks.noErrorAnd(res => {
+        loggedInAsUser(request(app).post('/api/domains').send(domain))
+          .expect(400)
+          .end(helpers.callbacks.noErrorAnd(res => {
             expect(res.body).to.shallowDeepEqual({
               error: {
                 code: 400,
                 message: 'Bad Request',
-                details: 'One of administrator does not have any email address'
+                details: 'Administrator does not have password'
               }
             });
             done();
@@ -269,37 +313,66 @@ describe('The domain API', function() {
       }));
     });
 
-    it('should send back 201, create a domain with name, company_name and administrators in lower case', function(done) {
+    it('should send back 400 when administrator email is not valid', function(done) {
       const user = {
-        firstname: 'foo',
-        lastname: 'bar',
-        accounts: [{
-          type: 'email',
-          emails: ['foo@linagora.com']
-        }]
+        email: 'invalid email',
+        password: 'secret'
+      };
+      const domain = {
+        name: 'Marketing',
+        company_name: 'Corporate',
+        administrator: user
+      };
+
+      helpers.api.loginAsUser(app, platformAdmin.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
+        loggedInAsUser(request(app).post('/api/domains').send(domain))
+          .expect(400)
+          .end(helpers.callbacks.noErrorAnd(res => {
+            expect(res.body).to.shallowDeepEqual({
+              error: {
+                code: 400,
+                message: 'Bad Request',
+                details: 'Administrator email is not valid'
+              }
+            });
+            done();
+          }));
+      }));
+    });
+
+    it('should send back 201, create a domain with right administrator', function(done) {
+      const user = {
+        email: 'abc@email.com',
+        password: 'secret'
       };
 
       const json = {
         name: 'Marketing',
         company_name: 'Corporate',
-        administrators: [user]
+        administrator: user
       };
+
+      const coreUser = helpers.requireBackend('core/user');
 
       helpers.api.loginAsUser(app, platformAdmin.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
         loggedInAsUser(request(app).post('/api/domains').send(json))
         .expect(201)
         .end(helpers.callbacks.noErrorAnd(res => {
-          expect(res.body).to.exists;
-          expect(res.body).to.be.empty;
+          expect(res.body.administrators.length).to.equal(1);
 
           Domain.findOne({ name: 'marketing', company_name: 'corporate' }, helpers.callbacks.noErrorAnd(doc => {
             expect(doc).to.exist;
-            expect(doc).to.shallowDeepEqual({
-              name: 'marketing',
-              company_name: 'corporate',
-              administrators: [{}]
-            });
-            done();
+
+            coreUser.findByEmail(user.email, helpers.callbacks.noErrorAnd(administrator => {
+             expect(doc).to.shallowDeepEqual({
+               name: 'marketing',
+               company_name: 'corporate',
+               administrators: [{
+                 user_id: `${administrator._id}`
+               }]
+             });
+             done();
+           }));
           }));
         }));
       }));

@@ -41,10 +41,10 @@ module.exports = function(router) {
    *     parameters:
    *       - $ref: "#/parameters/dm_name"
    *       - $ref: "#/parameters/dm_company_name"
-   *       - $ref: "#/parameters/dm_administrators"
+   *       - $ref: "#/parameters/dm_administrator"
    *     responses:
    *       201:
-   *         $ref: "#/responses/cm_201"
+   *         $ref: "#/responses/dm_created_domain"
    *       400:
    *         $ref: "#/responses/cm_400"
    *       401:
@@ -56,7 +56,12 @@ module.exports = function(router) {
    *       500:
    *         $ref: "#/responses/cm_500"
    */
-  router.post('/domains', authorize.requiresAPILogin, platformadminsMw.requirePlatformAdmin, domains.createDomain);
+  router.post('/domains',
+    authorize.requiresAPILogin,
+    platformadminsMw.requirePlatformAdmin,
+    domainMiddleware.requireDomainInfo,
+    domainMiddleware.requireAdministrator,
+    domains.create);
 
   /**
    * @swagger

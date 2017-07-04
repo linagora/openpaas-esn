@@ -18,6 +18,31 @@ describe('The Domain Angular module', function() {
       domainAPI = _domainAPI_;
     }));
 
+    describe('The create function', function() {
+      var domain;
+
+      beforeEach(function() {
+        domain = {
+          name: 'test',
+          company_name: 'abc',
+          administrator: {
+            email: 'abc@email.com',
+            password: 'secret'
+          }
+        };
+      });
+
+      it('should send a POST to /api/domains', function(done) {
+        $httpBackend.expectPOST('/api/domains').respond(201);
+        domainAPI.create(domain).then(function(response) {
+          expect(response.data).to.not.be.defined;
+
+          done();
+        });
+        $httpBackend.flush();
+      });
+    });
+
     describe('The list function', function() {
       var domains, headers;
 

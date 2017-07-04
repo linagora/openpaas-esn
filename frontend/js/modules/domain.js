@@ -11,6 +11,7 @@ angular.module('esn.domain', ['esn.http', 'ngTagsInput', 'op.dynamicDirective', 
   .factory('domainAPI', function(esnRestangular) {
 
     return {
+      create: create,
       list: list,
       getMembers: getMembers,
       inviteUsers: inviteUsers,
@@ -21,6 +22,20 @@ angular.module('esn.domain', ['esn.http', 'ngTagsInput', 'op.dynamicDirective', 
       addAdministrators: addAdministrators,
       removeAdministrator: removeAdministrator
     };
+
+    /**
+     * Create domain
+     *
+     * @param {Object} domain - With attributes:
+     * - name (string)          Domain name
+     * - company_name (string)  Company name
+     * - administrator (object) Who will be created and become the domain administrator
+     *
+     * @return {Promise} Resolve on success
+     */
+    function create(domain) {
+      return esnRestangular.one('domains').customPOST(domain);
+    }
 
     /**
      * List domains

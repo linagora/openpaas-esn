@@ -4,13 +4,21 @@ var mongoose = require('mongoose');
 var Domain = mongoose.model('Domain');
 
 module.exports = {
+  create,
   getByName,
+  getDomainAdministrators,
   load,
   list,
   userIsDomainAdministrator,
-  userIsDomainMember,
-  getDomainAdministrators
+  userIsDomainMember
 };
+
+function create(domain, callback) {
+  const domainAsModel = domain instanceof Domain ? domain : new Domain(domain);
+
+  return domainAsModel.save((err, response) => callback(err, response));// Because save function's callback will receive three parameters
+                                                                        // http://mongoosejs.com/docs/api.html#model_Model-save
+}
 
 function getByName(name) {
   return Domain.findOne({ name });
@@ -35,7 +43,6 @@ function getDomainAdministrators(domain) {
 
   return administrators;
 }
-module.exports.getDomainAdministrators = getDomainAdministrators;
 
 function list(options, callback) {
   options = options || {};

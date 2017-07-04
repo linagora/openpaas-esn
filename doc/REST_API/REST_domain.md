@@ -89,6 +89,21 @@ Create an ESN domain.
 **Response:**
 
     HTTP/1.1 201 Created
+    {
+      "name": "foo",
+      "company_name": "bar",
+      "timestamps" : {
+        "creation" : ISODate("2017-05-05T03:32:26.822Z")
+       },
+       "administrators" : [
+         {
+           "user_id" : ObjectId("590bf24a20e78227e01e5ec9"),
+           "timestamps" : {
+             "creation" : ISODate("2017-05-05T03:32:26.822Z")
+           }
+         }
+       ]
+    }
 
 ## GET /api/domains/{domain_id}
 

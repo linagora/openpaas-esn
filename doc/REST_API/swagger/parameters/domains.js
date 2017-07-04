@@ -19,15 +19,20 @@
  *     description: The domain company name.
  *     required: true
  *     type: string
- *   dm_administrators:
- *     name: administrators
+ *   dm_administrator:
+ *     name: administrator
  *     in: body
- *     description: Array of domain administrators.
+ *     description: Domain administrator.
  *     required: true
  *     schema:
- *       type: array
- *       items:
- *         $ref: "#/definitions/us_content"
+ *       type: object
+ *       properties:
+ *        email:
+ *          type: string
+ *          required: true
+ *        password:
+ *          type: string
+ *          required: true
  *   dm_id:
  *     name: domain_id
  *     in: path
