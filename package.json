@@ -73,7 +73,7 @@
     "passport-github": "1.1.0",
     "passport-google-oauth": "1.0.0",
     "passport-google-token": "0.1.2",
-    "passport-http": "0.3.0",
+    "passport-http": "linagora/passport-http#8d65762ada6a788c566bf84e0e3408f728bad2b9",
     "passport-http-bearer": "1.0.1",
     "passport-jwt": "linagora/passport-jwt#v1.2.2-linagora-2",
     "passport-ldaplng": "0.3.0",
