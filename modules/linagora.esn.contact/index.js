@@ -5,8 +5,42 @@ var Dependency = AwesomeModule.AwesomeModuleDependency;
 var path = require('path');
 
 const FRONTEND_PATH = path.join(__dirname, 'frontend');
+const innerApps = ['esn'];
+const angularModuleFiles = [
+  'app.js',
+  'constants.js',
+  'controllers.js',
+  'directives.js',
+  'forms.js',
+  'live.js',
+  'services.js',
+  'ui.js',
+  'shells/contactshell.js',
+  'shells/addressbookshell.js',
+  'shells/contactdisplayshell.js',
+  'shells/displayshellprovider.js',
+  'shells/helpers.js',
+  'shells/builders.js',
+  'pagination.js',
+  'contact-api-client.js',
+  'providers/attendee.js',
+  'providers/contact.js'
+];
+const modulesOptions = {
+  localJsFiles: angularModuleFiles.map(file => path.resolve(FRONTEND_PATH, 'js', file))
+};
 
-var contactModule = new AwesomeModule('linagora.esn.contact', {
+const moduleData = {
+  shortName: 'contact',
+  fullName: 'linagora.esn.contact',
+  lessFiles: [],
+  angularModules: []
+};
+
+moduleData.lessFiles.push([moduleData.shortName, [path.resolve(FRONTEND_PATH, 'css/styles.less')], innerApps]);
+moduleData.angularModules.push([moduleData.shortName, angularModuleFiles, moduleData.fullName, innerApps, modulesOptions]);
+
+var contactModule = new AwesomeModule(moduleData.fullName, {
   dependencies: [
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.logger', 'logger'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.auth', 'auth'),
@@ -24,6 +58,7 @@ var contactModule = new AwesomeModule('linagora.esn.contact', {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.i18n', 'i18n'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.autoconf', 'autoconf', true)
   ],
+  data: moduleData,
   states: {
     lib: function(dependencies, callback) {
       var libModule = require('./backend/lib')(dependencies);
@@ -41,38 +76,12 @@ var contactModule = new AwesomeModule('linagora.esn.contact', {
 
     deploy: function(dependencies, callback) {
       var app = require('./backend/webserver/application')(dependencies);
+      var webserverWrapper = dependencies('webserver-wrapper');
 
       app.use('/api/contacts', this.api.contacts);
-
-      var webserverWrapper = dependencies('webserver-wrapper');
-      var frontendModules = [
-        'app.js',
-        'constants.js',
-        'controllers.js',
-        'directives.js',
-        'forms.js',
-        'live.js',
-        'services.js',
-        'ui.js',
-        'shells/contactshell.js',
-        'shells/addressbookshell.js',
-        'shells/contactdisplayshell.js',
-        'shells/displayshellprovider.js',
-        'shells/helpers.js',
-        'shells/builders.js',
-        'pagination.js',
-        'contact-api-client.js',
-        'providers/attendee.js',
-        'providers/contact.js'
-      ];
-
-      webserverWrapper.injectAngularModules('contact', frontendModules, 'linagora.esn.contact', ['esn'], {
-        localJsFiles: frontendModules.map(file => path.join(FRONTEND_PATH, 'js', file))
-      });
-      var lessFile = path.resolve(__dirname, './frontend/css/styles.less');
-
-      webserverWrapper.injectLess('contact', [lessFile], 'esn');
-      webserverWrapper.addApp('contact', app);
+      moduleData.angularModules.forEach(mod => webserverWrapper.injectAngularModules.apply(webserverWrapper, mod));
+      moduleData.lessFiles.forEach(lessSet => webserverWrapper.injectLess.apply(webserverWrapper, lessSet));
+      webserverWrapper.addApp(moduleData.shortName, app);
 
       require('./backend/webserver/api/contacts/avatarProvider').init(dependencies);
 
