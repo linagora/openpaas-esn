@@ -28,8 +28,16 @@ angular.module('esn.login', ['esn.notification', 'esn.http', 'op.dynamicDirectiv
       }
     };
   })
-  .controller('login', function($scope, $log, $location, $window, loginAPI, loginErrorService, vcRecaptchaService,
-                                notificationFactory, dynamicDirectiveService) {
+  .controller('login', function(
+    $scope,
+    $log,
+    $location,
+    loginAPI,
+    esnLoginSuccessService,
+    loginErrorService,
+    vcRecaptchaService,
+    notificationFactory,
+    dynamicDirectiveService) {
     $scope.step = 1;
     $scope.loginIn = false;
     $scope.recaptcha = {
@@ -53,30 +61,28 @@ angular.module('esn.login', ['esn.notification', 'esn.http', 'op.dynamicDirectiv
 
       $scope.loginTask.running = true;
 
-      loginAPI.login($scope.credentials).then(
-        function() {
-          $scope.loginIn = true;
-          $scope.loginTask.running = false;
-          $window.location.reload();
-        },
-        function(err) {
-          $scope.loginTask.running = false;
-          $scope.error = err.data;
-          $scope.credentials.password = '';
-          loginErrorService.set($scope.credentials, err.data);
-          if (err.data.error && err.data.error.details && err.data.error.details.match(/The specified account is disabled/)) {
-            notificationFactory.weakError('Login disabled', 'This account has been disabled');
-          } else {
-            notificationFactory.weakError('Login error', 'Please check your credentials');
-            $scope.recaptcha.needed = err.data.recaptcha || false;
-            try {
-              vcRecaptchaService.reload();
-            } catch (e) {
-              $log.error(e);
-            }
+      loginAPI.login($scope.credentials).then(function() {
+        $scope.loginIn = true;
+        $scope.loginTask.running = false;
+      })
+      .then(esnLoginSuccessService)
+      .catch(function(err) {
+        $scope.loginTask.running = false;
+        $scope.error = err.data;
+        $scope.credentials.password = '';
+        loginErrorService.set($scope.credentials, err.data);
+        if (err.data.error && err.data.error.details && err.data.error.details.match(/The specified account is disabled/)) {
+          notificationFactory.weakError('Login disabled', 'This account has been disabled');
+        } else {
+          notificationFactory.weakError('Login error', 'Please check your credentials');
+          $scope.recaptcha.needed = err.data.recaptcha || false;
+          try {
+            vcRecaptchaService.reload();
+          } catch (e) {
+            $log.error(e);
           }
         }
-      );
+      });
     };
 
     $scope.isLogin = true;
