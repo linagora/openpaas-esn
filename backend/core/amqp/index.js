@@ -43,7 +43,14 @@ function getURL(options) {
     return options.url;
   }
 
-  return 'amqp:' + url.format({hostname: getHost(), port: getPort()});
+  const connectionUrl = {
+    protocol: 'amqp',
+    slashes: true,
+    hostname: getHost(),
+    port: getPort()
+  };
+
+  return url.format(connectionUrl);
 }
 
 module.exports = {

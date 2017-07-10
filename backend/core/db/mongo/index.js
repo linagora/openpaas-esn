@@ -89,6 +89,8 @@ function getConnectionString(hostname, port, dbname, username, password, connect
   };
 
   var connectionHash = {
+    protocol: 'mongodb',
+    slashes: true,
     hostname: hostname,
     port: port,
     pathname: '/' + dbname,
@@ -98,7 +100,7 @@ function getConnectionString(hostname, port, dbname, username, password, connect
     connectionHash.auth = username + ':' + password;
   }
 
-  return 'mongodb:' + url.format(connectionHash);
+  return url.format(connectionHash);
 }
 
 function getDefaultConnectionString() {
