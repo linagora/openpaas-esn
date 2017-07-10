@@ -1,4 +1,4 @@
-.esn-attachment
+.esn-attachment(ng-if="ctrl.attachment.contentType.indexOf('video')===-1")
   .icon
     a(target='_blank', ng-href='/api/files/{{::ctrl.attachment._id}}' title='__("Download") ::ctrl.attachment.name')
       esn-attachment-icon(type='ctrl.attachment.contentType')
@@ -6,3 +6,13 @@
     h2.ellipsis
       a(target='_blank', ng-href='/api/files/{{::ctrl.attachment._id}}' title='__("Download") ::ctrl.attachment.name') {{::ctrl.attachment.name}}
     small.ellipsis {{::ctrl.attachment.length | bytes}} {{::ctrl.attachment.contentType | extension | uppercase}} #{__("file")}
+
+.esn-attachment(ng-if="ctrl.attachment.contentType.indexOf('video')!==-1")
+  .icon(data-toggle="modal", data-target="#{{ctrl.attachment._id}}")
+    a(target='_blank')
+      esn-attachment-icon(type='ctrl.attachment.contentType')
+  .metadata(data-toggle="modal", data-target="#{{ctrl.attachment._id}}")
+    h2.ellipsis
+      a(target='_blank') {{::ctrl.attachment.name}}
+    small.ellipsis {{::ctrl.attachment.length | bytes}} {{::ctrl.attachment.contentType | extension | uppercase}} #{__("file")}
+  esn-attachment-viewer-video(file="ctrl.attachment")
