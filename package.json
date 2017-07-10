@@ -42,7 +42,7 @@
     "gm": "1.23.0",
     "gridfs-stream": "1.1.1",
     "hash_file": "0.1.1",
-    "i18n": "git+https://github.com/linagora/i18n-node.git#multiDirectories",
+    "i18n": "linagora/i18n-node#a0ebd46f307c59b871357c1f6a1eb8b4708d9ae5",
     "ical.js": "linagora/ical.js#v1.1.2-#279-require-twice-protection",
     "jade": "^1.11.0",
     "jsonwebtoken": "7.1.9",
