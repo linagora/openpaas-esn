@@ -5,6 +5,11 @@ const i18n = require('i18n');
 const i18nConfigTemplate = {
   defaultLocale: 'en',
   locales: ['en', 'fr', 'vi'],
+  fallbacks: {
+    'en-*': 'en',
+    'fr-*': 'fr',
+    'vi-*': 'vi'
+  },
   updateFiles: false,
   indent: '  ',
   extension: '.json',
