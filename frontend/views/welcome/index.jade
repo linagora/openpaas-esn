@@ -11,6 +11,14 @@ html.login-content
     link(rel='stylesheet', href='/components/roboto-fontface/css/roboto-fontface.css')
     link(rel='stylesheet', href='/components/animate.css/animate.css')
     link(rel='stylesheet', href='/generated/css/welcome/styles.css')
+      
+    <!-- Electron Hack -->
+    script.
+      if (typeof module === 'object') {
+        window.module = module;
+        module = undefined;
+      }
+      
     script(src='/components/jquery/dist/jquery.min.js')
     script(src='/components/lodash/dist/lodash.min.js')
     script(src='/components/bootstrap/dist/js/bootstrap.min.js')
@@ -37,6 +45,10 @@ html.login-content
     +injectAngularFromModules('welcome', assets)
     script(src='js/welcome/app.js')
     script(src='js/constants.js')
+
+    <!-- Electron Hack -->
+    script.
+      if (window.module) module = window.module;
 
   body.login(ng-app='welcomeApp', ng-init="recaptchaPublicKey='#{recaptchaPublicKey}'")
     .aligner(ng-view ng-cloak)
