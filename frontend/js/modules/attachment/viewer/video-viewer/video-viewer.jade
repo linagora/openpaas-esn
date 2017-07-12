@@ -1,0 +1,14 @@
+.videogular-container
+  videogular(vg-theme='config.theme.url')
+    vg-media(vg-src='config.sources')
+    vg-controls
+      vg-play-pause-button
+      vg-time-display {{ currentTime | date:'mm:ss':'+0000' }}
+      vg-scrub-bar
+        vg-scrub-bar-current-time
+      vg-time-display {{ timeLeft | date:'mm:ss':'+0000' }}
+      vg-volume
+        vg-mute-button
+        vg-volume-bar
+      vg-fullscreen-button
+    vg-overlay-play

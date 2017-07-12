@@ -1,0 +1,7 @@
+.modal.fade(id='{{ctrl.file._id}}', role='dialog')
+  .modal-dialog
+    button.close(type='button', data-dismiss='modal') ×
+    .modal-content
+      .modal-body
+        esn-video-viewer(ng-if="ctrl.file.contentType.indexOf('video')!==-1", file="ctrl.file")
+        esn-image-viewer(ng-if="ctrl.file.contentType.indexOf('image')!==-1", file="ctrl.file")
