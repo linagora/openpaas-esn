@@ -9,6 +9,23 @@ const NAME = 'user-status';
 const MODULE_NAME = `linagora.esn.${NAME}`;
 const FRONTEND_JS_PATH = `${__dirname}/frontend/app/`;
 const APP_ENTRY_POINT = `${FRONTEND_JS_PATH}app.js`;
+const innerApps = ['esn'];
+const localJsFiles = glob.sync([
+  APP_ENTRY_POINT,
+  FRONTEND_JS_PATH + '**/!(*spec).js'
+]);
+const angularAppModuleFiles = localJsFiles.map(filepath => filepath.replace(FRONTEND_JS_PATH, ''));
+const modulesOptions = {localJsFiles};
+
+const moduleData = {
+  shortName: NAME,
+  fullName: MODULE_NAME,
+  lessFiles: [],
+  angularAppModules: []
+};
+
+moduleData.lessFiles.push([moduleData.shortName, [path.resolve(FRONTEND_JS_PATH, 'user-status.styles.less')], innerApps]);
+moduleData.angularAppModules.push([moduleData.shortName, angularAppModuleFiles, moduleData.fullName, innerApps, modulesOptions]);
 
 const userStatusModule = new AwesomeModule(MODULE_NAME, {
   dependencies: [
@@ -24,6 +41,7 @@ const userStatusModule = new AwesomeModule(MODULE_NAME, {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.db', 'db'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.cron', 'cron')
   ],
+  data: moduleData,
   states: {
     lib: function(dependencies, callback) {
       const lib = require('./backend/lib')(dependencies);
@@ -35,20 +53,11 @@ const userStatusModule = new AwesomeModule(MODULE_NAME, {
     deploy: function(dependencies, callback) {
       const webserverWrapper = dependencies('webserver-wrapper');
       const app = require('./backend/webserver/application')(dependencies);
-      const lessFile = path.resolve(__dirname, './frontend/app/user-status.styles.less');
-
-      const frontendFullPathModules = glob.sync([
-        APP_ENTRY_POINT,
-        FRONTEND_JS_PATH + '**/!(*spec).js'
-      ]);
-      const frontendUriPathModules = frontendFullPathModules.map(filepath => filepath.replace(FRONTEND_JS_PATH, ''));
 
       app.use('/api', this.api);
-      webserverWrapper.injectAngularAppModules(NAME, frontendUriPathModules, MODULE_NAME, ['esn'], {
-        localJsFiles: frontendFullPathModules
-      });
-      webserverWrapper.injectLess(NAME, [lessFile], 'esn');
-      webserverWrapper.addApp(NAME, app);
+      moduleData.angularAppModules.forEach(mod => webserverWrapper.injectAngularAppModules.apply(webserverWrapper, mod));
+      moduleData.lessFiles.forEach(lessSet => webserverWrapper.injectLess.apply(webserverWrapper, lessSet));
+      webserverWrapper.addApp(moduleData.shortName, app);
 
       callback();
     },
