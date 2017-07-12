@@ -16,7 +16,7 @@ describe('The OAuth Angular Services', function() {
       forIn: angular.noop
     };
     module('esn.core');
-    module('linagora.esn.oauth', function($provide) {
+    module('linagora.esn.oauth.consumer', function($provide) {
       $provide.value('$window', $window);
       $provide.value('_', lodash);
     });
