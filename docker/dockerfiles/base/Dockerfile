@@ -6,7 +6,7 @@
 # docker build -f ./docker/dockerfiles/base/Dockerfile -t linagora/esn-base .
 #
 
-FROM node:6.5.0-slim
+FROM node:8-slim
 MAINTAINER Linagora Folks
 
 RUN sed -i 's/httpredir.debian.org/deb.debian.org/g' /etc/apt/sources.list
