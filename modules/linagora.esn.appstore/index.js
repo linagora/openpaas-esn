@@ -5,7 +5,24 @@ var AwesomeModule = require('awesome-module');
 var Dependency = AwesomeModule.AwesomeModuleDependency;
 var path = require('path');
 
-var awesomeAppStore = new AwesomeModule('linagora.esn.awesomeappstore', {
+const FRONTEND_PATH = path.resolve(__dirname, 'frontend');
+const innerApps = ['esn'];
+const angularModuleFiles = ['appstore.js', 'controllers.js', 'directives.js', 'services.js'];
+const modulesOptions = {
+  localJsFiles: angularModuleFiles.map(file => path.resolve(FRONTEND_PATH, 'js', file))
+};
+
+const moduleData = {
+  shortName: 'appstore',
+  fullName: 'linagora.esn.awesomeappstore',
+  lessFiles: [],
+  angularModules: []
+};
+
+moduleData.lessFiles.push([moduleData.shortName, [path.resolve(FRONTEND_PATH, 'css/styles.less')], innerApps]);
+moduleData.angularModules.push([moduleData.shortName, angularModuleFiles, moduleData.fullName, innerApps, modulesOptions]);
+
+var awesomeAppStore = new AwesomeModule(moduleData.fullName, {
   dependencies: [
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.logger', 'logger'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.filestore', 'filestore'),
@@ -20,6 +37,7 @@ var awesomeAppStore = new AwesomeModule('linagora.esn.awesomeappstore', {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.wrapper', 'webserver-wrapper'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.authorization', 'authorizationMW')
   ],
+  data: moduleData,
   states: {
     lib: function(dependencies, callback) {
       var schemas = dependencies('db').mongo.schemas;
@@ -28,6 +46,7 @@ var awesomeAppStore = new AwesomeModule('linagora.esn.awesomeappstore', {
 
       var AwesomeAppManager = require('./backend/appstore-manager').AwesomeAppManager;
       var appManager = new AwesomeAppManager(dependencies, moduleManager);
+
       require('./backend/injection/pubsub').init(dependencies);
 
       var app = require('./backend/webserver/application')(appManager, dependencies);
@@ -40,10 +59,11 @@ var awesomeAppStore = new AwesomeModule('linagora.esn.awesomeappstore', {
 
     deploy: function(dependencies, callback) {
       var webserverWrapper = dependencies('webserver-wrapper');
-      webserverWrapper.injectAngularModules('appstore', ['appstore.js', 'controllers.js', 'directives.js', 'services.js'], 'esn.appstore', ['esn']);
-      var lessFile = path.resolve(__dirname, './frontend/css/styles.less');
-      webserverWrapper.injectLess('appstore', [lessFile], 'esn');
-      webserverWrapper.addApp('appstore', this.app);
+
+      moduleData.angularModules.forEach(mod => webserverWrapper.injectAngularModules.apply(webserverWrapper, mod));
+      moduleData.lessFiles.forEach(lessSet => webserverWrapper.injectLess.apply(webserverWrapper, lessSet));
+      webserverWrapper.addApp(moduleData.shortName, this.app);
+
       return callback();
     },
 

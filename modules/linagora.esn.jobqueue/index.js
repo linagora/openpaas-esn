@@ -1,7 +1,23 @@
 'use strict';
 
+const path = require('path');
 var AwesomeModule = require('awesome-module');
 var Dependency = AwesomeModule.AwesomeModuleDependency;
+
+const FRONTEND_PATH = path.resolve(__dirname, 'frontend');
+const innerApps = ['esn'];
+const angularModuleFiles = ['app.js', 'directives.js'];
+const modulesOptions = {
+  localJsFiles: angularModuleFiles.map(file => path.resolve(FRONTEND_PATH, 'js', file))
+};
+
+const moduleData = {
+  shortName: 'jobqueue',
+  fullName: 'linagora.esn.jobqueue',
+  angularModules: []
+};
+
+moduleData.angularModules.push([moduleData.shortName, angularModuleFiles, moduleData.fullName, innerApps, modulesOptions]);
 
 var jobQueueModule = new AwesomeModule('linagora.esn.jobqueue', {
   dependencies: [
@@ -11,6 +27,7 @@ var jobQueueModule = new AwesomeModule('linagora.esn.jobqueue', {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.wrapper', 'webserver-wrapper'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.authorization', 'authorizationMW')
   ],
+  data: moduleData,
   states: {
     lib: function(dependencies, callback) {
       var libModule = require('./backend/lib')(dependencies);
@@ -22,11 +39,10 @@ var jobQueueModule = new AwesomeModule('linagora.esn.jobqueue', {
 
     deploy: function(dependencies, callback) {
       var app = require('./backend/webserver/application')(this.lib, dependencies);
-      var modules = ['app.js', 'directives.js'];
       var webserverWrapper = dependencies('webserver-wrapper');
 
-      webserverWrapper.injectAngularModules('jobqueue', modules, 'linagora.esn.jobqueue', ['esn']);
-      webserverWrapper.addApp('jobqueue', app);
+      moduleData.angularModules.forEach(mod => webserverWrapper.injectAngularModules.apply(webserverWrapper, mod));
+      webserverWrapper.addApp(moduleData.shortName, app);
 
       return callback();
     },

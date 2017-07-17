@@ -2,8 +2,24 @@
 
 var AwesomeModule = require('awesome-module');
 var Dependency = AwesomeModule.AwesomeModuleDependency;
+var path = require('path');
 
-var oauthModule = new AwesomeModule('linagora.esn.oauth.consumer', {
+const FRONTEND_PATH = path.join(__dirname, 'frontend');
+const innerApps = ['esn'];
+const angularModuleFiles = ['app.js', 'services.js'];
+const modulesOptions = {
+  localJsFiles: angularModuleFiles.map(file => path.resolve(FRONTEND_PATH, 'js', file))
+};
+
+const moduleData = {
+  shortName: 'oauth',
+  fullName: 'linagora.esn.oauth.consumer',
+  angularModules: []
+};
+
+moduleData.angularModules.push([moduleData.shortName, angularModuleFiles, moduleData.fullName, innerApps, modulesOptions]);
+
+var oauthModule = new AwesomeModule(moduleData.fullName, {
   dependencies: [
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.logger', 'logger'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.user', 'user'),
@@ -13,6 +29,7 @@ var oauthModule = new AwesomeModule('linagora.esn.oauth.consumer', {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.wrapper', 'webserver-wrapper'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.authorization', 'authorizationMW')
   ],
+  data: moduleData,
   states: {
     lib: function(dependencies, callback) {
       var libModule = require('./backend/lib')(dependencies);
@@ -35,8 +52,8 @@ var oauthModule = new AwesomeModule('linagora.esn.oauth.consumer', {
 
       var webserverWrapper = dependencies('webserver-wrapper');
 
-      webserverWrapper.injectAngularModules('oauth', ['app.js', 'services.js'], 'linagora.esn.oauth', ['esn']);
-      webserverWrapper.addApp('oauth', app);
+      moduleData.angularModules.forEach(mod => webserverWrapper.injectAngularModules.apply(webserverWrapper, mod));
+      webserverWrapper.addApp(moduleData.shortName, app);
 
       return callback();
     },

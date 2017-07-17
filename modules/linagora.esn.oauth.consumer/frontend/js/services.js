@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('linagora.esn.oauth')
+angular.module('linagora.esn.oauth.consumer')
 
   .factory('oauthStrategyRegistry', function() {
 

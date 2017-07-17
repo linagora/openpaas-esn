@@ -5,8 +5,21 @@ const resolve = require('path').resolve;
 var AwesomeModule = require('awesome-module');
 var Dependency = AwesomeModule.AwesomeModuleDependency;
 const FRONTEND_PATH = resolve(__dirname, 'frontend');
+const innerApps = ['esn'];
+const angularModuleFiles = ['app.js', 'constants.js', 'services.js'];
+const modulesOptions = {
+  localJsFiles: angularModuleFiles.map(file => resolve(FRONTEND_PATH, 'js', file))
+};
 
-var davProxy = new AwesomeModule('linagora.esn.davproxy', {
+const moduleData = {
+  shortName: 'dav',
+  fullName: 'linagora.esn.davproxy',
+  angularModules: []
+};
+
+moduleData.angularModules.push([moduleData.shortName, angularModuleFiles, moduleData.fullName, innerApps, modulesOptions]);
+
+var davProxy = new AwesomeModule(moduleData.fullName, {
   dependencies: [
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.logger', 'logger'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.auth', 'auth'),
@@ -20,7 +33,7 @@ var davProxy = new AwesomeModule('linagora.esn.davproxy', {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.davserver', 'davserver'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.contact', 'contact')
   ],
-
+  data: moduleData,
   states: {
     lib: function(dependencies, callback) {
       var addressbooks = require('./backend/webserver/addressbooks')(dependencies);
@@ -46,16 +59,8 @@ var davProxy = new AwesomeModule('linagora.esn.davproxy', {
       app.use('/api/calendars', this.api.calendars);
       app.use('/api/json', this.api.json);
 
-      var frontendModules = [
-        'app.js',
-        'constants.js',
-        'services.js'
-      ];
-      webserverWrapper.injectAngularModules('dav', frontendModules, 'linagora.esn.davproxy', ['esn'], {
-        localJsFiles: frontendModules.map(file => resolve(FRONTEND_PATH, 'js', file))
-      });
-
-      webserverWrapper.addApp('dav', app);
+      moduleData.angularModules.forEach(mod => webserverWrapper.injectAngularModules.apply(webserverWrapper, mod));
+      webserverWrapper.addApp(moduleData.shortName, app);
 
       return callback();
     },
