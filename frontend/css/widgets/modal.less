@@ -6,6 +6,31 @@
 }
 
 .modal {
+  &.center {
+    .modal-dialog {
+      margin: 0;
+      min-width: 300px;
+      top: 50%;
+
+      &.modal-sm {
+        width: 300px;
+      }
+
+      &.modal-lg {
+        max-width: 900px;
+        width: 900px;
+      }
+
+      .modal-body {
+        max-height: 60vh;
+
+        &:not(.overflow-none) {
+          overflow: auto;
+        }
+      }
+    }
+  }
+
   .modal-header {
     background-color: @modal-header-bg;
   }
@@ -65,5 +90,57 @@
   .btn:not(.btn-link):not(.btn-float):active {
     box-shadow: @button-shadow;
     transition: @transition-btn-link;
+  }
+}
+
+@media (max-width: @screen-md-min) {
+  .modal {
+    &.full-screen.center {
+      .modal-dialog {
+        .transform(none);
+
+        position: fixed;
+        margin: 0;
+        min-width: 100%;
+        width: 100%;
+        height: 100%;
+        padding: 0;
+        top: 0;
+        left: 0;
+
+        .modal-content {
+          position: absolute;
+          top: 0;
+          right: 0;
+          bottom: 0;
+          left: 0;
+
+          .modal-header {
+            padding: 19px 20px;
+          }
+
+          .modal-body {
+            position: absolute;
+            top: ~"calc(@{sub-header-height})";
+            bottom: 51px;
+            width: 100%;
+            padding: 10px 15px;
+            max-height: inherit;
+
+            &:not(.overflow-none) {
+              overflow: auto;
+            }
+          }
+
+          .modal-footer {
+            border-top-color: @modal-header-bg;
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            left: 0;
+          }
+        }
+      }
+    }
   }
 }

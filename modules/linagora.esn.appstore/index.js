@@ -14,7 +14,7 @@ const modulesOptions = {
 
 const moduleData = {
   shortName: 'appstore',
-  fullName: 'linagora.esn.awesomeappstore',
+  fullName: 'esn.appstore',
   lessFiles: [],
   angularModules: []
 };
