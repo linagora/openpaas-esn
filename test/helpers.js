@@ -236,7 +236,7 @@ module.exports = function(mixin, testEnv) {
      */
     checkDocumentsIndexed: function(options, callback) {
       var request = require('superagent');
-      var elasticsearchURL = testEnv.serversConfig.host + ':' + testEnv.serversConfig.elasticsearch.port;
+      var elasticsearchURL = (testEnv.serversConfig.elasticsearch.host || testEnv.serversConfig.host) + ':' + testEnv.serversConfig.elasticsearch.port;
 
       var index = options.index;
       var type = options.type;
@@ -298,7 +298,7 @@ module.exports = function(mixin, testEnv) {
 
     saveTestConfiguration: function(callback) {
       mixin.requireBackend('core/esn-config')('elasticsearch').store({
-        host: testEnv.serversConfig.host + ':' + testEnv.serversConfig.elasticsearch.port
+        host: (testEnv.serversConfig.elasticsearch.host || testEnv.serversConfig.host) + ':' + testEnv.serversConfig.elasticsearch.port
       }, callback);
     }
   };
@@ -307,7 +307,7 @@ module.exports = function(mixin, testEnv) {
     saveTestConfiguration: function(callback) {
       mixin.requireBackend('core/esn-config')('davserver').store({
         backend: {
-          url: 'http://' + testEnv.serversConfig.host + ':' + testEnv.serversConfig.davserver.port
+          url: 'http://' + (testEnv.serversConfig.davserver.host || testEnv.serversConfig.host) + ':' + testEnv.serversConfig.davserver.port
         }
       }, callback);
     },
@@ -477,6 +477,12 @@ module.exports = function(mixin, testEnv) {
   };
 
   mixin.redis = {
+    saveTestConfiguration: callback => {
+      mixin.requireBackend('core/esn-config')('redis').store({
+        host: testEnv.serversConfig.redis.host || testEnv.serversConfig.host,
+        port: testEnv.serversConfig.redis.port
+      }, callback);
+    },
     publishConfiguration: function() {
       mixin.requireBackend('core/esn-config')('redis').store({
         url: testEnv.redisUrl
@@ -485,7 +491,7 @@ module.exports = function(mixin, testEnv) {
       var pubsub = mixin.requireBackend('core/pubsub');
 
       pubsub.local.topic('redis:configurationAvailable').publish({
-        host: testEnv.serversConfig.host,
+        host: testEnv.serversConfig.redis.host || testEnv.serversConfig.host,
         port: testEnv.serversConfig.redis.port
       });
     }
