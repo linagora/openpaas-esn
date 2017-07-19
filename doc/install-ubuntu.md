@@ -77,18 +77,18 @@ See also [General installation instructions](https://ci.open-paas.org/stash/proj
 
 5.Install node.js
 
-Please note that your version of node.js must be 6.x.x
+Please note that your version of node.js must be 8.x.x
 We highly recommend that you use [nvm](https://github.com/creationix/nvm) to install a specific version of node.
 
         curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.32.1/install.sh | bash
 
  You will have to reopen your terminal or run source ~/.profile
 
-        nvm install 6
+        nvm install 8
 
  Usually, nvm will switch to use the most recently installed version. You can explicitly tell nvm to use the version we just downloaded by typing:
 
-        nvm use 6
+        nvm use 8
 
  For a system-wide install, run this command now and **any time you change your node version**
 
