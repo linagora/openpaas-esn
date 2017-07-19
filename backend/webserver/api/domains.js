@@ -4,6 +4,7 @@ const authorize = require('../middleware/authorization');
 const domains = require('../controllers/domains');
 const domainMiddleware = require('../middleware/domain');
 const platformadminsMw = require('../middleware/platformadmins');
+const helperMw = require('../middleware/helper');
 
 module.exports = function(router) {
 
@@ -62,6 +63,38 @@ module.exports = function(router) {
     domainMiddleware.requireDomainInfo,
     domainMiddleware.requireAdministrator,
     domains.create);
+
+  /**
+   * @swagger
+   * /domains/{domain_id}:
+   *   put:
+   *     tags:
+   *      - Domain
+   *     description: |
+   *       Update an ESN domain.
+   *     parameters:
+   *       - $ref: "#/parameters/dm_id"
+   *       - $ref: "#/parameters/dm_company_name"
+   *     responses:
+   *       200:
+   *         $ref: "#/responses/cm_200"
+   *       400:
+   *         $ref: "#/responses/cm_400"
+   *       401:
+   *         $ref: "#/responses/cm_401"
+   *       403:
+   *         $ref: "#/responses/cm_403"
+   *       404:
+   *         $ref: "#/responses/cm_404"
+   *       500:
+   *         $ref: "#/responses/cm_500"
+   */
+  router.put('/domains/:uuid',
+    authorize.requiresAPILogin,
+    platformadminsMw.requirePlatformAdmin,
+    helperMw.checkIdInParams('uuid', 'Domain'),
+    domainMiddleware.checkUpdateParameters,
+    domains.update);
 
   /**
    * @swagger

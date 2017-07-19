@@ -43,6 +43,19 @@ describe('The Domain Angular module', function() {
       });
     });
 
+    describe('The update function', function() {
+      var domain = {
+        id: DOMAIN_ID,
+        company_name: 'new_company_name'
+      };
+
+      it('should send a PUT to /api/domains/:uuid', function() {
+        $httpBackend.expectPUT('/api/domains/' + DOMAIN_ID, domain).respond(200);
+        domainAPI.update(domain);
+        $httpBackend.flush();
+      });
+    });
+
     describe('The list function', function() {
       var domains, headers;
 

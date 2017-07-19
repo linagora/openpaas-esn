@@ -5,6 +5,7 @@ var Domain = mongoose.model('Domain');
 
 module.exports = {
   create,
+  update,
   getByName,
   getDomainAdministrators,
   load,
@@ -18,6 +19,10 @@ function create(domain, callback) {
 
   return domainAsModel.save((err, response) => callback(err, response));// Because save function's callback will receive three parameters
                                                                         // http://mongoosejs.com/docs/api.html#model_Model-save
+}
+
+function update(modifiedDomain, callback) {
+  Domain.update({_id: modifiedDomain.id}, modifiedDomain, callback);
 }
 
 function getByName(name) {

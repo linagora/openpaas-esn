@@ -6,6 +6,7 @@ var request = require('supertest'),
     ObjectId = require('bson').ObjectId;
 
 describe('The domain API', function() {
+  const API_PATH = '/api/domains';
   let app;
   let user1Domain1Manager, user2Domain1Member;
   let user1Domain2Manager;
@@ -373,6 +374,118 @@ describe('The domain API', function() {
              });
              done();
            }));
+          }));
+        }));
+      }));
+    });
+  });
+
+  describe('PUT /api/domains/:uuid', function() {
+    let platformAdmin;
+
+    beforeEach(function(done) {
+      const fixtures = helpers.requireFixture('models/users.js')(helpers.requireBackend('core/db/mongo/models/user'));
+
+      fixtures.newDummyUser(['platformadmin@email.com'])
+        .save(helpers.callbacks.noErrorAnd(user => {
+          platformAdmin = user;
+
+          core.platformadmin
+            .addPlatformAdmin(platformAdmin)
+            .then(() => done())
+            .catch(err => done(err || 'failed to add platformadmin'));
+        }));
+    });
+
+    it('should send back 401 when not logged in', function(done) {
+      helpers.api.requireLogin(app, 'put', `${API_PATH}/${domain1._id}`, done);
+    });
+
+    it('should send back 403 if the logged in user is not platformadmin', function(done) {
+      helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, loggedInAsUser) {
+        loggedInAsUser(request(app).put(`${API_PATH}/${domain1._id}`))
+          .expect(403)
+          .end(helpers.callbacks.noErrorAnd(res => {
+            expect(res.body).to.shallowDeepEqual({
+              error: {
+                code: 403,
+                message: 'Forbidden',
+                details: 'To perform this action, you need to be a platformadmin'
+              }
+            });
+            done();
+          }));
+      });
+    });
+
+    it('should send back 400 when company name is not set', function(done) {
+      helpers.api.loginAsUser(app, platformAdmin.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
+        loggedInAsUser(request(app).put(`${API_PATH}/${domain1._id}`).send())
+          .expect(400)
+          .end(helpers.callbacks.noErrorAnd(res => {
+            expect(res.body).to.shallowDeepEqual({
+              error: {
+                code: 400,
+                message: 'Bad Request',
+                details: 'Domain company name is required'
+              }
+            });
+            done();
+          }));
+      }));
+    });
+
+    it('should send back 404 when domain not existed', function(done) {
+      const notExistedDomainId = new ObjectId();
+      const modifiedDomain = {
+        company_name: 'new_company_name'
+      };
+
+      helpers.api.loginAsUser(app, platformAdmin.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
+        loggedInAsUser(request(app).put(`${API_PATH}/${notExistedDomainId}`).send(modifiedDomain))
+          .expect(404)
+          .end(helpers.callbacks.noErrorAnd(res => {
+            expect(res.body).to.shallowDeepEqual({
+              error: {
+                code: 404,
+                message: 'Not Found',
+                details: 'Domain not found'
+              }
+            });
+            done();
+          }));
+      }));
+    });
+
+    it('should send back 404 when domain id is invalid', function(done) {
+      helpers.api.loginAsUser(app, platformAdmin.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
+        loggedInAsUser(request(app).put(`${API_PATH}/invalid_id`))
+          .expect(404)
+          .end(helpers.callbacks.noErrorAnd(res => {
+            expect(res.body).to.shallowDeepEqual({
+              error: {
+                code: 404,
+                message: 'Not Found',
+                details: 'Domain not found'
+              }
+            });
+            done();
+          }));
+      }));
+    });
+
+    it('should send back 200 on successful update', function(done) {
+      const modifiedDomain = {
+        company_name: 'new_company_name'
+      };
+
+      helpers.api.loginAsUser(app, platformAdmin.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
+        loggedInAsUser(request(app).put(`${API_PATH}/${domain1._id}`).send(modifiedDomain))
+        .expect(200)
+        .end(helpers.callbacks.noError(() => {
+          Domain.findById(domain1._id, helpers.callbacks.noErrorAnd(doc => {
+            expect(doc.company_name).to.deep.equal('new_company_name');
+            done();
           }));
         }));
       }));
