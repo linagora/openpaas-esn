@@ -8,81 +8,86 @@
   height: 67px;
   margin: 5px 0;
 
-  .icon {
+  .file-type {
     .flex;
+    cursor: pointer;
+    
+    .icon {
+      .flex;
 
-    font-size: 44px;
-    padding: 6px;
-
-    a {
-      color: @m-white;
-    }
-  }
-
-  .metadata {
-    .flex-column;
-
-    overflow: hidden;
-    padding: 16px 12px;
-
-    & > h2 {
-      margin: 0;
-      line-height: 100%;
-      font-size: 18px;
-      font-weight: 300;
+      font-size: 44px;
+      padding: 6px;
 
       a {
         color: @m-white;
       }
     }
 
-    & > small {
-      margin-bottom: 2px;
-      display: block;
-    }
-
-    & > h2,
-    & > small {
-      .text-overflow;
-    }
-  }
-
-  .cancel {
-    .flex-end;
-    .flex-shorthand(1);
-
-    opacity: 0.7;
-    padding-top: 3px;
-    padding-right: 3px;
-
-    a {
-      color: @m-white;
-      font-weight: bold;
-      font-size: larger;
-    }
-  }
-
-  &:before {
-    .transition(width 200ms);
-    .backface-visibility(hidden);
-    .opacity(0.1);
-
-    content: "";
-    width: 0px;
-    height: 100%;
-    background: @m-black;
-    position: absolute;
-    left: 0;
-    top: 0;
-  }
-
-  &:hover {
     .metadata {
-      color: @m-white;
+      .flex-column;
+
+      overflow: hidden;
+      padding: 16px 12px;
+
+      &>h2 {
+        margin: 0;
+        line-height: 100%;
+        font-size: 18px;
+        font-weight: 300;
+
+        a {
+          color: @m-white;
+        }
+      }
+
+      &>small {
+        margin-bottom: 2px;
+        display: block;
+      }
+
+      &>h2,
+      &>small {
+        .text-overflow;
+      }
+    }
+
+    .cancel {
+      .flex-end;
+      .flex-shorthand(1);
+
+      opacity: 0.7;
+      padding-top: 3px;
+      padding-right: 3px;
+
+      a {
+        color: @m-white;
+        font-weight: bold;
+        font-size: larger;
+      }
     }
 
     &:before {
-      width: 68px;
+      .transition(width 200ms);
+      .backface-visibility(hidden);
+      .opacity(0.1);
+
+      content: "";
+      width: 0px;
+      height: 100%;
+      background: @m-black;
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+
+    &:hover {
+      .metadata {
+        color: @m-white;
+      }
+
+      &:before {
+        width: 68px;
+      }
     }
   }
 }

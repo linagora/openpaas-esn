@@ -208,8 +208,9 @@ const injections = [
     'attachment/attachment.constant.js',
     'attachment/attachment-icon.component.js',
     'attachment/attachment-icon.controller.js',
-    'attachment/attachment.component.js',
-    'attachment/viewer/attachment-viewer.component.js',
+    'attachment/viewer/attachment-viewer.service.js',
+    'attachment/attachment.directive.js',
+    'attachment/viewer/attachment-viewer.directive.js',
     'attachment/viewer/video-viewer/video-viewer.directive.js',
     'attachment/viewer/image-viewer/image-viewer.directive.js'
   ], innerApps: ['esn']},

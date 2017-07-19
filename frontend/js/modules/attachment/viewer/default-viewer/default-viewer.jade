@@ -1,0 +1,5 @@
+h2.ellipsis {{file.length | bytes}} {{file.contentType | extension | uppercase}} #{__("file")}
+.icon
+	a(href='{{file.url}}', title='#{__("Download")} {{file.name}}', download)
+		esn-attachment-icon(type='file.contentType')
+		span #{__("Download")}
