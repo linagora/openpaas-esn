@@ -29,6 +29,46 @@ describe('The elasticsearch module', function() {
     });
   });
 
+  describe('with no config', function() {
+
+    beforeEach(function() {
+      this.helpers.mock.esnConfig(callback => callback());
+    });
+
+    afterEach(function() {
+      delete process.env.ES_HOST;
+      delete process.env.ES_PORT;
+    });
+
+    it('should initialize the client with a default configuration', function(done) {
+      mockery.registerMock('elasticsearch', {
+        Client: function(data) {
+          expect(data).to.deep.equal({ host: 'localhost:9200' });
+
+          this.ping = (options, callback) => callback();
+        }
+      });
+
+      this.helpers.requireBackend('core/elasticsearch').updateClient(() => done());
+    });
+
+    it('should support environment variables', function(done) {
+      process.env.ES_HOST = 'es';
+      process.env.ES_PORT = 1234;
+
+      mockery.registerMock('elasticsearch', {
+        Client: function(data) {
+          expect(data).to.deep.equal({ host: 'es:1234' });
+
+          this.ping = (options, callback) => callback();
+        }
+      });
+
+      this.helpers.requireBackend('core/elasticsearch').updateClient(() => done());
+    });
+
+  });
+
   describe('with correct config and can not connect', function() {
 
     beforeEach(function() {
@@ -246,4 +286,5 @@ describe('The elasticsearch module', function() {
       module.searchDocuments(opts, done);
     });
   });
+
 });

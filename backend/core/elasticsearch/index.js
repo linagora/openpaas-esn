@@ -1,13 +1,16 @@
 'use strict';
 
-var esnconfig = require('../esn-config');
-var elasticsearch = require('elasticsearch');
-var q = require('q');
+const esnconfig = require('../esn-config'),
+      elasticsearch = require('elasticsearch'),
+      q = require('q');
 
-var TIMEOUT = 1000;
+const TIMEOUT = 1000,
+      DEFAULT_CONFIG = {
+        host: `${(process.env.ES_HOST || 'localhost')}:${process.env.ES_PORT || 9200}`
+      };
 
 var currentClient,
-  currentClientHash = null;
+    currentClientHash = null;
 
 /**
  * Digest the config parameter into md5sum
@@ -37,6 +40,10 @@ function updateClient(callback) {
       }
       currentClientHash = null;
       return callback(new Error('not found'));
+    }
+
+    if (!data) {
+      data = DEFAULT_CONFIG;
     }
 
     var hash = getConfigurationHash(data);
