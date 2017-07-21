@@ -1,15 +1,16 @@
-.videogular-container.lb-video
-  videogular(vg-player-ready="onPlayerReady($API)", vg-theme='config.theme.url')
-    vg-media(vg-src='config.sources', vg-preload="config.preload")
-    vg-controls
-      vg-play-pause-button
-      vg-time-display {{ currentTime | date:'mm:ss':'+0000' }}
-      vg-scrub-bar
-        vg-scrub-bar-current-time
-      vg-time-display {{ timeLeft | date:'mm:ss':'+0000' }}
-      vg-volume
-        vg-mute-button
-        vg-volume-bar
-      vg-playback-button
-      vg-fullscreen-button
-    vg-overlay-play
+div(style="color:red") this is player video {{file.name}}
+//.videogular-container.lb-video
+//  videogular(vg-player-ready="onPlayerReady($API)", vg-theme='config.theme.url')
+//    vg-media(vg-src='config.sources', vg-preload="config.preload")
+//    vg-controls
+//      vg-play-pause-button
+//      vg-time-display {{ currentTime | date:'mm:ss':'+0000' }}
+//      vg-scrub-bar
+//        vg-scrub-bar-current-time
+//      vg-time-display {{ timeLeft | date:'mm:ss':'+0000' }}
+//      vg-volume
+//        vg-mute-button
+//        vg-volume-bar
+//      vg-playback-button
+//      vg-fullscreen-button
+//    vg-overlay-play

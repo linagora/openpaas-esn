@@ -2,25 +2,13 @@
 
 angular.
 	module('esn.attachment').
-	directive('esnImageViewer', ['attachmentViewer', function(attachmentViewer) {
+	directive('esnImageViewer', ['attachmentViewerService', function(attachmentViewerService) {
 	  return {
-      restrict: 'A',
-      // scope: {
-      //   file: '='
-      // },
-      controller: function($scope, attachmentViewer) {
-        //$scope.imageUrl = attachmentViewer.getFileUrl($scope.file._id);
-        //console.log($scope.imageUrl);
-        // lightbox.option({
-        //   'resizeDuration': 200,
-        //   'wrapAround': true
-        // });
-        // lightbox.build("image");
-        // lightbox.start($scope.currentTarget);
+      restrict: 'E',
+      controller: function($scope) {
+        $scope.imageUrl = attachmentViewerService.getFileUrl($scope.file._id);
         
       },
-      link: function(scope, element, attrs){
-        attachmentViewer.buildLightboxImage(scope.currentTarget, element);
-      }
+      templateUrl: '/views/modules/attachment/viewer/image-viewer/image-viewer.html'
     };
 }]);

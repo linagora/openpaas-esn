@@ -211,7 +211,9 @@ const injections = [
     'attachment/viewer/attachment-viewer.service.js',
     'attachment/attachment.directive.js',
     'attachment/viewer/attachment-viewer.directive.js',
+    'attachment/viewer/video-viewer/video-viewer.provider.js',
     'attachment/viewer/video-viewer/video-viewer.directive.js',
+    'attachment/viewer/image-viewer/image-viewer.provider.js',
     'attachment/viewer/image-viewer/image-viewer.directive.js'
   ], innerApps: ['esn']},
   {angular: ['esn.attachment-list'], files: [
