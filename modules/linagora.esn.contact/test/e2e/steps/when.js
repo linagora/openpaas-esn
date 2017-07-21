@@ -18,6 +18,8 @@ module.exports = function() {
   });
 
   this.When('I click on the create button', function() {
+    browser.executeScript('window.scrollTo(0, 0)'); // scroll to top to make button visible
+
     return createPage.createButton.click();
   });
 

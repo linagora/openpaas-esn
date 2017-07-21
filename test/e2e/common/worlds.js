@@ -2,6 +2,7 @@
 
 var chai = require('chai');
 var chaiAsPromised = require('chai-as-promised');
+var utils = require('./utils');
 
 chai.use(chaiAsPromised);
 
@@ -52,6 +53,7 @@ function World() {
   this.waitUrlToBeRedirected = waitUrlToBeRedirected;
   this.logoutAndGoToLoginPage = logoutAndGoToLoginPage;
   this.logIn = logIn;
+  this.utils = utils;
 }
 
 World.prototype.USERS = {
