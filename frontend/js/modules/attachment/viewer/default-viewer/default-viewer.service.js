@@ -2,8 +2,8 @@
 
 angular
   .module('esn.attachment')
-  .factory('attachmentDefaultViewerService', function() {
-  	
+  .factory('esnAttachmentDefaultViewerService', function() {
+
     var defaultViewer = {
       name: 'defaultViewer',
       contentType: 'default',

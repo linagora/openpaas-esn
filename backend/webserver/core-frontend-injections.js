@@ -211,6 +211,7 @@ const injections = [
     'attachment/attachment.component.js',
     'attachment/viewer/attachment-viewer.run.js',
     'attachment/viewer/attachment-viewer.service.js',
+    'attachment/viewer/attachment-viewer-registry.service.js',
     'attachment/viewer/attachment-viewer.directive.js',
     'attachment/viewer/default-viewer/default-viewer.service.js',
     'attachment/viewer/video-viewer/video-viewer.service.js',

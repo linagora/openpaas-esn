@@ -1,13 +1,12 @@
 'use strict';
 
  angular.module('esn.attachment')
- .run(function(attachmentViewerService, attachmentDefaultViewerService, attachmentImageViewerService, attachmentVideoViewerService) {
-    var defaultViewer = attachmentDefaultViewerService.defaultViewer;
-    var imageViewer = attachmentImageViewerService.imageViewer;
-    var videoViewer = attachmentVideoViewerService.videoViewer;
-    attachmentViewerService.addFileViewerProvider(defaultViewer);
-    attachmentViewerService.addFileViewerProvider(imageViewer);
-    attachmentViewerService.addFileViewerProvider(videoViewer);
-    attachmentViewerService.renderPopup();
+ .run(function(esnAttachmentViewerRegistryService, esnAttachmentViewerService, esnAttachmentDefaultViewerService, esnAttachmentImageViewerService, esnAttachmentVideoViewerService) {
+    var defaultViewer = esnAttachmentDefaultViewerService.defaultViewer;
+    var imageViewer = esnAttachmentImageViewerService.imageViewer;
+    var videoViewer = esnAttachmentVideoViewerService.videoViewer;
+    esnAttachmentViewerRegistryService.addFileViewerProvider(defaultViewer);
+    esnAttachmentViewerRegistryService.addFileViewerProvider(imageViewer);
+    esnAttachmentViewerRegistryService.addFileViewerProvider(videoViewer);
+    esnAttachmentViewerService.renderModal();
   });
- 

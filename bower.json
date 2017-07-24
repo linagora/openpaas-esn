@@ -105,6 +105,10 @@
     "james-admin-client": "0.1.0",
     "angular-i18n": "1.3.20",
     "angular-hotkeys": "chieffancypants/angular-hotkeys#1.7.0"
+    "videogular" : "1.4.4",
+    "videogular-controls" : "1.4.4",
+    "videogular-overlay-play" : "1.4.4",
+    "videogular-themes-default" : "1.4.4"
   },
   "resolutions": {
     "jquery": "2.1.1",
