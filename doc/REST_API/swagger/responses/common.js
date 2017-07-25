@@ -5,10 +5,14 @@
   *     description: Ok.
   *   cm_201:
   *     description: Created.
+  *   cm_202:
+  *     description: Accepted.
   *   cm_204:
   *     description: Action performed but no content in the body.
   *   cm_205:
   *     description: Reset content.
+  *   cm_302:
+  *     description: Moved Temporarily.
   *   cm_304:
   *     description: Not modified.
   *   cm_400:

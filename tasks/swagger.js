@@ -10,6 +10,8 @@ module.exports = function(grunt) {
   var swaggerResponseFiles = path.normalize(__dirname + '/../doc/REST_API/swagger/responses/*.js');
   var swaggerRoutesFiles = path.normalize(__dirname + '/../backend/webserver/api/*.js');
   var swaggerOutputFile = path.normalize(__dirname + '/../doc/REST_API/swagger/swagger.json');
+  var swaggerInternalRoutesFiles = path.normalize(__dirname + '/../modules/*/backend/webserver/**/*.js');
+  var swaggerInternalSwaggerFiles = path.normalize(__dirname + '/../modules/*/doc/swagger/*/*.js');
 
   var options = {
   swaggerDefinition: {
@@ -24,7 +26,7 @@ module.exports = function(grunt) {
     consumes: ['application/json'],
     produces: ['application/json']
   },
-  apis: [swaggerDefinitionFiles, swaggerParameterFiles, swaggerResponseFiles, swaggerRoutesFiles]
+  apis: [swaggerDefinitionFiles, swaggerParameterFiles, swaggerResponseFiles, swaggerRoutesFiles, swaggerInternalSwaggerFiles, swaggerInternalRoutesFiles]
 };
 
   grunt.registerTask('swagger-generate', function() {
