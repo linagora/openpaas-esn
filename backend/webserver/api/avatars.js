@@ -22,10 +22,8 @@ module.exports = function(router) {
    *         $ref: "#/responses/av_stream"
    *       304:
    *         $ref: "#/responses/cm_304"
-   *       401:
-   *         $ref: "#/responses/cm_401"
-   *       404:
-   *         $ref: "#/responses/cm_404"
+   *       400:
+   *         $ref: "#/responses/cm_400"
    *       500:
    *         $ref: "#/responses/cm_500"
    */
