@@ -1,6 +1,5 @@
-//div(style="color:red") this is player video {{file.name}}
 .videogular-container.lb-video
-  videogular(vg-player-ready="onPlayerReady($API)", vg-theme='config.theme.url')
+  videogular(vg-player-ready="onPlayerReady($API)", vg-responsive="true", vg-theme='config.theme.url')
     vg-media(vg-src='config.sources', vg-preload="config.preload")
     vg-controls
       vg-play-pause-button

@@ -1,21 +1,39 @@
-'use strict';
+(function() {
+  'use strict';
 
-angular.module('esn.attachment')
+  angular.module('esn.attachment')
+    .factory('esnAttachmentVideoViewerService', esnAttachmentVideoViewerService);
 
-  .factory('esnAttachmentVideoViewerService', function() {
-
+  function esnAttachmentVideoViewerService() {
     var videoViewer = {
       name: 'video',
       contentType: ['video/mp4', 'video/webm', 'video/ogg'],
-      fitSizeContent: function($videoContainer, fittingSize, resizeContainer) {
-        var size = fittingSize($videoContainer.width(), $videoContainer.height(), 'video');
-        $videoContainer.width(size.width);
-        $videoContainer.height(size.height);
-        resizeContainer(size.width, size.height);
-      }
+      fitSizeContent: fitSizeContent,
+      pauseOnHide: pauseOnHide
     };
+
+    function fitSizeContent(videoContainer, fittingSize, resizeElements) {
+      var defaultRatioWindow = 0.8;
+      var defaultRatioWH = 2.2;
+      var defaultSize = {
+        defaultRatioWindow: defaultRatioWindow,
+        defaultRatioWH: defaultRatioWH
+      };
+      var size = fittingSize(false, false, defaultSize);
+      videoContainer.width(size.width);
+      videoContainer.height(size.height);
+      resizeElements(size.width, size.height);
+    }
+
+    function pauseOnHide(video, isHidden) {
+      if (isHidden()) {
+        video.pause();
+      }
+    }
 
     return {
       videoViewer: videoViewer
     };
-  });
+  }
+
+})();

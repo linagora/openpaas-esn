@@ -1,18 +1,22 @@
-'use strict';
+(function() {
+    'use strict';
 
-angular
-  .module('esn.attachment')
-  .factory('esnAttachmentDefaultViewerService', function() {
+    angular.module('esn.attachment')
+      .factory('esnAttachmentDefaultViewerService', esnAttachmentDefaultViewerService);
 
-    var defaultViewer = {
-      name: 'defaultViewer',
-      contentType: 'default',
-      render: function(file) {
-        return '<span>This is default ' + file.contentType + '</span>';
-      }
-    };
+    function esnAttachmentDefaultViewerService() {
 
-    return {
-      defaultViewer: defaultViewer
-    };
-  });
+      var defaultViewer = {
+        name: 'defaultViewer',
+        contentType: 'default',
+        render: function(file) {
+          return '<span>This is default ' + file.contentType + '</span>';
+        }
+      };
+
+      return {
+        defaultViewer: defaultViewer
+      };
+    });
+
+})();
