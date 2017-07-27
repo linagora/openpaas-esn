@@ -25,3 +25,7 @@
     | {{ $ctrl.options.minlength.message.error || '#{__("Length must be greater than or equal to")} ' + $ctrl.options.minlength.value }}
   .help-block(ng-message="pattern")
     | {{ $ctrl.options.pattern.message.error || '#{__("Please match requested format")}' }}
+  .help-block(ng-message="validator")
+    | {{ $ctrl.options.validator.message.error || '#{__("Invalid value")}' }}
+  .help-block(ng-message="asyncValidator")
+    | {{ $ctrl.options.asyncValidator.message.error || '#{__("Invalid value")}' }}
