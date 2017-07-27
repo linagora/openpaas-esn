@@ -14,7 +14,8 @@ var AdminOfDomainSchema = new mongoose.Schema({
 }, { _id: false });
 
 var DomainSchema = new Schema({
-  name: {type: String, required: true, lowercase: true, trim: true},
+  name: {type: String, required: true, unique: true, lowercase: true, trim: true},
+  label: {type: String, lowercase: true, trim: true},
   company_name: {type: String, required: true, lowercase: true, trim: true},
   administrator: {type: Schema.ObjectId, ref: 'User'}, // deprecated
   administrators: [AdminOfDomainSchema],
