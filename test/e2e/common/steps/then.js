@@ -10,4 +10,8 @@ module.exports = function() {
     return this.expect(browser.getLocationAbsUrl()).to.not.eventually.equal(url);
   });
 
+  this.Then('I see a notification with message "$message"', function(message) {
+    return this.notifications.hasText(message);
+  });
+
 };
