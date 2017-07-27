@@ -11,17 +11,18 @@ angular.module('esn.domain', ['esn.http', 'ngTagsInput', 'op.dynamicDirective', 
   .factory('domainAPI', function(esnRestangular) {
 
     return {
+      addAdministrators: addAdministrators,
       create: create,
-      update: update,
-      list: list,
+      createMember: createMember,
+      get: get,
+      getAdministrators: getAdministrators,
+      getByName: getByName,
       getMembers: getMembers,
       inviteUsers: inviteUsers,
       isManager: isManager,
-      get: get,
-      createMember: createMember,
-      getAdministrators: getAdministrators,
-      addAdministrators: addAdministrators,
-      removeAdministrator: removeAdministrator
+      list: list,
+      removeAdministrator: removeAdministrator,
+      update: update
     };
 
     /**
@@ -54,7 +55,7 @@ angular.module('esn.domain', ['esn.http', 'ngTagsInput', 'op.dynamicDirective', 
     /**
      * List domains
      *
-     * @param {Hash} options - Hash with limit (int), offset (int)
+     * @param {Hash} options - Hash with limit (int), offset (int), name (string)
      *
      * @return {Promise} Resolve on success
      */
@@ -138,6 +139,20 @@ angular.module('esn.domain', ['esn.http', 'ngTagsInput', 'op.dynamicDirective', 
      */
     function removeAdministrator(domainId, administratorId) {
       return esnRestangular.one('domains', domainId).one('administrators', administratorId).remove();
+    }
+
+    /**
+     * Get domain by name
+     * @param {String} domainName The domain name
+     * @return {Promise}          Resolve on success
+     */
+    function getByName(domainName) {
+      var options = { name: domainName };
+
+      return list(options)
+        .then(function(response) {
+          return response.data ? response.data[0] : null;
+        });
     }
   })
 
