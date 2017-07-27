@@ -38,6 +38,7 @@ module.exports = {
  */
 function list(req, res) {
   const options = {
+    name: req.query.name,
     limit: +req.query.limit || DEFAULT_LIMIT,
     offset: +req.query.offset || DEFAULT_OFFSET
   };
@@ -79,22 +80,8 @@ function create(req, res) {
     company_name
   };
 
-  return q.ninvoke(coreDomain, 'create', domain)
-    .then(domain => {
-      const user = {
-        accounts: [{
-          hosted: true,
-          type: 'email',
-          emails: [administrator.email]
-        }],
-        password: administrator.password,
-        domains: [{ domain_id: domain._id }]
-      };
-
-      return q.ninvoke(userIndex, 'recordUser', user)
-        .then(user => q.ninvoke(userDomain, 'addDomainAdministrator', domain, [user._id])
-          .then(() => res.status(201).json(domain)));
-    })
+  return _createWithAdministrator(domain, administrator)
+    .then(domain => res.status(201).json(domain))
     .catch(err => {
       const details = `Error while creating domain ${name}`;
 
@@ -107,6 +94,40 @@ function create(req, res) {
           details
         }
       });
+    });
+}
+
+/**
+ * Create domain with administrator
+ * @param  {object} domain        the basic information of the domain contains name and company_name
+ * @param  {object} administrator the object contains emails and password which will be used for the new domain administrator
+ * @return {Promise} resolve a created domain
+ */
+function _createWithAdministrator(domain, administrator) {
+  const user = {
+    accounts: [{
+      hosted: true,
+      type: 'email',
+      emails: [administrator.email]
+    }],
+    password: administrator.password
+  };
+
+  return q.ninvoke(coreDomain, 'create', domain)
+    .then(domain => {
+      user.domains = [{ domain_id: domain._id }];
+
+      return q.ninvoke(userIndex, 'recordUser', user)
+        .then(administrator => {
+          domain.administrators = [{ user_id: administrator._id }];
+
+          // update domain with administrator
+          return q.ninvoke(coreDomain, 'update', domain);
+        })
+        .catch(
+          err => q.ninvoke(coreDomain, 'removeById', domain._id) // Remove domain if failed to create domain administrator
+            .then(() => q.reject(err))                           // then return error from create domain administrator progression
+        );
     });
 }
 

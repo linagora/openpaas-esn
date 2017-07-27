@@ -17,6 +17,7 @@ module.exports = function(router) {
    *     description: |
    *       List ESN domains.
    *     parameters:
+   *       - $ref: "#/parameters/dm_name_filter"
    *       - $ref: "#/parameters/cm_limit"
    *       - $ref: "#/parameters/cm_offset"
    *     responses:
@@ -26,6 +27,8 @@ module.exports = function(router) {
    *         $ref: "#/responses/cm_401"
    *       403:
    *         $ref: "#/responses/cm_403"
+   *       409:
+   *         $ref: "#/responses/cm_409"
    *       500:
    *         $ref: "#/responses/cm_500"
    */
