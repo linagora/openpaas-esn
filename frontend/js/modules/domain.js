@@ -12,6 +12,7 @@ angular.module('esn.domain', ['esn.http', 'ngTagsInput', 'op.dynamicDirective', 
 
     return {
       create: create,
+      update: update,
       list: list,
       getMembers: getMembers,
       inviteUsers: inviteUsers,
@@ -35,6 +36,19 @@ angular.module('esn.domain', ['esn.http', 'ngTagsInput', 'op.dynamicDirective', 
      */
     function create(domain) {
       return esnRestangular.one('domains').customPOST(domain);
+    }
+
+    /**
+     * Update domain.
+     *
+     * @param {Object} domain - With attributes:
+     * - id (String)            Domain id
+     * - company_name (string)  New company name
+     *
+     * @return {Promise} Resolve on success
+     */
+    function update(domain) {
+      return esnRestangular.one('domains', domain.id).customPUT(domain);
     }
 
     /**

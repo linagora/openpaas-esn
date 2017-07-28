@@ -8,7 +8,8 @@ module.exports = {
   load,
   loadFromDomainIdParameter,
   requireAdministrator,
-  requireDomainInfo
+  requireDomainInfo,
+  checkUpdateParameters
 };
 
 /**
@@ -116,6 +117,27 @@ function requireAdministrator(req, res, next) {
         code: 400,
         message: 'Bad Request',
         details
+      }
+    });
+  }
+
+  next();
+}
+
+/**
+ * Middleware checks parameters for update domain API.
+ *
+ * @param {Request} req
+ * @param {Response} res
+ * @param {Function} next
+ */
+function checkUpdateParameters(req, res, next) {
+  if (!req.body.company_name) {
+    return res.status(400).json({
+      error: {
+        code: 400,
+        message: 'Bad Request',
+        details: 'Domain company name is required'
       }
     });
   }

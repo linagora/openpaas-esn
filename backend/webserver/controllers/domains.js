@@ -20,6 +20,7 @@ const DEFAULT_LIMIT = 50;
 module.exports = {
   list,
   create,
+  update,
   getMembers,
   sendInvitations,
   getDomain,
@@ -96,6 +97,51 @@ function create(req, res) {
     })
     .catch(err => {
       const details = `Error while creating domain ${name}`;
+
+      logger.error(details, err);
+
+      return res.status(500).json({
+        error: {
+          code: 500,
+          message: 'Server Error',
+          details
+        }
+      });
+    });
+}
+
+/**
+ * Update a domain.
+ *
+ * @param {Request} req  Request params must contain id of domain which expected to be update as uuid property.
+ *                       Request body must contain new company name of domain which expected to be update as company_name property.
+ * @param {Response} res
+ */
+function update(req, res) {
+  const domain = {
+    id: req.params.uuid,
+    company_name: req.body.company_name
+  };
+
+  return q.ninvoke(coreDomain, 'update', domain)
+    .then(updatedResult => {
+      // updatedResult: { "ok" : 1, "nModified" : 1, "n" : 1 }
+      // updatedResult.n: The number of documents selected for update
+      // http://mongoosejs.com/docs/api.html#model_Model.update
+      if (updatedResult.n) {
+        return res.status(200).end();
+      }
+
+      return res.status(404).json({
+        error: {
+          code: 404,
+          message: 'Not Found',
+          details: 'Domain not found'
+        }
+      });
+    })
+    .catch(err => {
+      const details = 'Error while updating domain';
 
       logger.error(details, err);
 

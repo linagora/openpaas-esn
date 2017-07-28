@@ -120,6 +120,7 @@
  *       application/json:
  *         [
  *           {
+ *             "id": "596eb9bacdb52e34ea496920",
  *             "name": "foo",
  *             "company_name": "Foo",
  *             "timestamps": {
@@ -127,6 +128,7 @@
  *             }
  *           },
  *           {
+ *             "id": "5968618344f5e527677f5d21",
  *             "name": "bar",
  *             "company_name": "Bar",
  *             "timestamps": {
