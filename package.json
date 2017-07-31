@@ -57,7 +57,6 @@
     "lodash": "4.15.0",
     "logrotate-stream": "0.2.5",
     "mailparser": "0.6.1",
-    "moment": "2.14.1",
     "moment-timezone": "0.5.5",
     "mongoconfig": "1.1.0",
     "mongodb": "2.2.9",
