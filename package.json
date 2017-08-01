@@ -47,7 +47,7 @@
     "jade": "^1.11.0",
     "jsonwebtoken": "7.1.9",
     "konphyg": "1.4.0",
-    "kue": "0.11.1",
+    "kue": "0.11.6",
     "ldapauth-fork": "linagora/node-ldapauth-fork#a07fabf472c16cbf533dfe0c7319d5ce79a869dc",
     "less": "2.7.1",
     "less-middleware": "2.2.0",
