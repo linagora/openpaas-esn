@@ -4,27 +4,38 @@
   angular.module('esn.attachment')
     .factory('esnAttachmentImageViewerService', esnAttachmentImageViewerService);
 
-  function esnAttachmentImageViewerService() {
+  function esnAttachmentImageViewerService($window) {
     var imageViewer = {
-      name: 'image',
+      name: 'imageViewer',
+      directive: 'image',
       contentType: ['image/png', 'image/x-png', 'image/jpeg', 'image/pjpeg', 'image/gif'],
-      fitSizeContent: fitSizeContent
+      fitSizeContent: fitSizeContent,
+      size: {
+        realSize: true,
+        desiredRatio: false
+      }
     };
 
-    function fitSizeContent(image, fittingSize, resizeElements) {
+    function fitSizeContent(onResize, image) {
       var img = new Image();
+      var self = this;
       img.onload = function() {
-        var size = fittingSize(img.width, img.height);
-        image.width(size.width);
-        image.height(size.height);
-        resizeElements(size.width, size.height);
+        var size = {
+          realSize: {
+            width: img.width,
+            height: img.height
+          }
+        };
+        angular.extend(self.size, size);
+        onResize(self.size, image);
       }
       img.src = image.src;
     }
 
     return {
-      imageViewer: imageViewer
+      viewer: imageViewer
     };
+
   }
 
 })();

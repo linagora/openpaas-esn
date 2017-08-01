@@ -1,7 +1,7 @@
 .videogular-container.lb-video
-  videogular(vg-player-ready="onPlayerReady($API)", vg-responsive="true", vg-theme='config.theme.url')
+  videogular(vg-player-ready='onPlayerReady($API)', vg-responsive='true', vg-theme='config.theme.url')
     vg-media(vg-src='config.sources', vg-preload="config.preload")
-    vg-controls
+    vg-controls(vg-autohide='config.plugins.controls.autoHide', vg-autohide-time='config.plugins.controls.autoHideTime')
       vg-play-pause-button
       vg-time-display {{ currentTime | date:'mm:ss':'+0000' }}
       vg-scrub-bar

@@ -1,5 +1,6 @@
-h2.ellipsis {{file.length | bytes}} {{file.contentType | extension | uppercase}} #{__("file")}
-.icon
-	a(href='{{file.url}}', title='#{__("Download")} {{file.name}}', download)
+.left
+	a(target='_blank', ng-href='{{file.url}}', title='#{__("Open in tab")}')
 		esn-attachment-icon(type='file.contentType')
-		span #{__("Download")}
+.right
+	h4.name {{file.name}}
+	.info #{__("File type ")} {{file.contentType | extension | uppercase}} #{__(", Size ")} {{file.length | bytes}}

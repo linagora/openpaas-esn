@@ -4,19 +4,34 @@
   angular.module('esn.attachment')
     .controller('ESNAttachmentController', ESNAttachmentController);
 
-  function ESNAttachmentController(esnAttachmentViewerService, esnAttachmentViewerGalleryService) {
+  function ESNAttachmentController(esnAttachmentViewerService) {
     var self = this;
-    var gallery = esnAttachmentViewerService.getFileType(this.attachment.contentType);
-    this.attachment.url = esnAttachmentViewerService.getFileUrl(this.attachment._id);
-    esnAttachmentViewerGalleryService.addFileToGallery(this.attachment, gallery);
-    this.openViewer = function() {
-      esnAttachmentViewerService.openViewer(this.attachment, gallery);
-    };
+    var gallery = getFileType(this.attachment.contentType);
 
+    self.$onInit = $onInit;
+    self.openViewer = openViewer;
     self.$onDestroy = $onDestroy;
 
+    function $onInit() {
+      esnAttachmentViewerService.onStart(self.attachment, gallery);
+    }
+
+    function openViewer() {
+      esnAttachmentViewerService.onOpen(self.attachment, gallery);
+    }
+
     function $onDestroy() {
-      esnAttachmentViewerGalleryService.removeFileFromGallery(this.attachment, gallery);
+      esnAttachmentViewerService.onDestroy(self.attachment, gallery);
+    }
+
+    function getFileType(contentType) {
+      if (contentType.indexOf('image') > -1) {
+        return 'image';
+      } else if (contentType.indexOf('video') > -1) {
+        return 'video';
+      } else {
+        return 'other';
+      }
     }
   }
 

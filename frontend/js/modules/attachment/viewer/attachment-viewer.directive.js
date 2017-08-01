@@ -12,15 +12,16 @@
 
     function link(scope, element) {
       var elem;
+      var template;
       var provider = esnAttachmentViewerRegistryService.getProvider(scope.file.contentType);
-      scope.provider = provider;
       if (provider) {
-        elem = angular.element('<esn-' + provider.name + '-viewer></esn-' + provider.name + '-viewer>');
+        elem = angular.element('<esn-' + provider.directive + '-viewer></esn-' + provider.directive + '-viewer>');
       } else {
         provider = esnAttachmentViewerRegistryService.getProvider('default');
-        elem = angular.element(provider.render(scope.file));
+        elem = angular.element('<esn-default-viewer></esn-default-viewer>');
       }
-      var template = angular.element(elem);
+      scope.provider = provider;
+      template = angular.element(elem);
       element.html($compile(template)(scope));
     }
   }

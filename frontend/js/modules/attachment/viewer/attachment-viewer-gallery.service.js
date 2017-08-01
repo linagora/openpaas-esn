@@ -2,50 +2,52 @@
   'use strict';
 
   angular.module('esn.attachment')
-    .service('esnAttachmentViewerGalleryService', esnAttachmentViewerGalleryService);
+    .factory('esnAttachmentViewerGalleryService', esnAttachmentViewerGalleryService);
 
   function esnAttachmentViewerGalleryService($compile, $window, $rootScope) {
 
-    var self = this;
+    var defaultGallery = 'noname';
+    var galleries = {};
 
-    self.galleries = {};
-    self.defaultGallery = 'noname';
-    self.galleries[self.defaultGallery] = [];
+    galleries[defaultGallery] = [];
 
-    self.addFileToGallery = addFileToGallery;
-    self.getAllFilesInGallery = getAllFilesInGallery;
-    self.findOrderInArray = findOrderInArray;
-    self.removeFileFromGallery = removeFileFromGallery;
+    return {
+      defaultGallery: defaultGallery,
+      addFileToGallery: addFileToGallery,
+      getAllFilesInGallery: getAllFilesInGallery,
+      findOrderInArray: findOrderInArray,
+      removeFileFromGallery: removeFileFromGallery
+    };
 
     function addFileToGallery(file, gallery) {
       if (gallery) {
-        if (!self.galleries[gallery]) {
-          self.galleries[gallery] = [];
+        if (!galleries[gallery]) {
+          galleries[gallery] = [];
         }
-        self.galleries[gallery].push(file);
+        galleries[gallery].push(file);
       } else {
-        self.galleries[self.defaultGallery].push(file);
+        galleries[defaultGallery].push(file);
       }
-    };
+    }
 
     function getAllFilesInGallery(gallery) {
-      return self.galleries[gallery];
-    };
+      return galleries[gallery];
+    }
 
     function findOrderInArray(files, file) {
       return files.indexOf(file);
-    };
+    }
 
     function removeFileFromGallery(file, gallery) {
       var files = [];
       var order;
       if (!gallery) {
-        gallery = self.defaultGallery;
+        gallery = defaultGallery;
       }
-      files = self.getAllFilesInGallery(gallery);
-      order = self.findOrderInArray(files, file);
+      files = getAllFilesInGallery(gallery);
+      order = findOrderInArray(files, file);
       files.splice(order, 1);
-    };
+    }
   }
 
 })();

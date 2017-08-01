@@ -4,7 +4,7 @@
   angular.module('esn.attachment')
     .directive('esnDefaultViewer', esnDefaultViewer);
 
-  function esnDefaultViewer(esnAttachmentViewerService) {
+  function esnDefaultViewer(esnAttachmentViewerService, $http, FileSaver, Blob) {
     return {
       restrict: 'E',
       link: link,
@@ -12,9 +12,9 @@
     };
 
     function link(scope, elem) {
-      scope.provider.fitSizeContent(
-        esnAttachmentViewerService.fittingSize.bind(esnAttachmentViewerService),
-        esnAttachmentViewerService.resizeElements.bind(esnAttachmentViewerService)
+      scope.provider.fitSizeContent.call(
+        scope.provider,
+        esnAttachmentViewerService.onResize
       );
     }
   }

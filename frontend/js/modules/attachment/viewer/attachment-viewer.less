@@ -33,72 +33,81 @@
      This is visible during transitions. */
     background-color: white;
 
-    .av-main {
-      esn-attachment-viewer {
-        display: block;
-      }
-    }
+    .av-container {
+      height: 100%;
 
-    .av-loader {
-      position: absolute;
-      top: 47%;
-      left: 0;
-      width: 100%;
-      text-align: center;
-      line-height: 0;
+      .av-main {
+        height: 100%;
 
-      .av-cancel {
-        display: block;
-        width: 32px;
-        height: 32px;
-        margin: 0 auto;
-        border: 5px solid #f3f3f3;
-        -webkit-animation: spin 1s linear infinite;
-        animation: spin 1s linear infinite;
-        border-top: 5px solid #555;
-        border-radius: 50%;
-      }
-    }
-
-    .av-nav {
-      position: absolute;
-      top:35%;
-      left: -25%;
-      width: 150%;
-
-      span {
-        outline: none;
-        cursor: pointer;
-        display: block;
-        color: #f1f1f1;
-        font-size: 60px;
-        font-weight: bold;
+        esn-attachment-viewer {
+          height: 100%;
+          display: block;
+          z-index: 10;
+        }
       }
 
-      span.av-prev {
+      .av-loader {
+        position: absolute;
+        top: 47%;
         left: 0;
-        float: left;
-        -webkit-transition: opacity 0.6s;
-        -moz-transition: opacity 0.6s;
-        -o-transition: opacity 0.6s;
-        transition: opacity 0.6s;
+        width: 100%;
+        text-align: center;
+        line-height: 0;
+
+        .av-cancel {
+          display: block;
+          width: 32px;
+          height: 32px;
+          margin: 0 auto;
+          border: 5px solid #f3f3f3;
+          -webkit-animation: spin 1s linear infinite;
+          animation: spin 1s linear infinite;
+          border-top: 5px solid #555;
+          border-radius: 50%;
+        }
       }
 
-      span.av-prev:hover {
-        opacity: 1;
-      }
+      .av-nav {
+        position: absolute;
+        top: 35%;
+        left: -25%;
+        width: 150%;
+        z-index: -1;
 
-      span.av-next {
-        right: 0;
-        float: right;
-        -webkit-transition: opacity 0.6s;
-        -moz-transition: opacity 0.6s;
-        -o-transition: opacity 0.6s;
-        transition: opacity 0.6s;
-      }
+        span {
+          outline: none;
+          cursor: pointer;
+          display: block;
+          color: #7f7f7f;
+          font-size: 60px;
+          font-weight: bold;
+        }
 
-      span.av-next:hover {
-        opacity: 1;
+        span.av-prev {
+          left: 0;
+          float: left;
+          -webkit-transition: opacity 0.6s;
+          -moz-transition: opacity 0.6s;
+          -o-transition: opacity 0.6s;
+          transition: opacity 0.6s;
+        }
+
+        span.av-prev:hover {
+          opacity: 1;
+        }
+
+        span.av-next {
+          right: 0;
+          float: right;
+          -webkit-transition: opacity 0.6s;
+          -moz-transition: opacity 0.6s;
+          -o-transition: opacity 0.6s;
+          transition: opacity 0.6s;
+        }
+
+        span.av-next:hover {
+          opacity: 1;
+        }
       }
     }
   }
@@ -109,39 +118,42 @@
     clear: both;
   }
 
-  .av-dataContainer {
+  .av-topBar {
     margin: 0 auto;
+    padding-top: 5px;
     *zoom: 1;
-    width: 100%;
-    -moz-border-radius-bottomleft: 4px;
-    -webkit-border-bottom-left-radius: 4px;
-    border-bottom-left-radius: 4px;
-    -moz-border-radius-bottomright: 4px;
-    -webkit-border-bottom-right-radius: 4px;
-    border-bottom-right-radius: 4px;
+    width: 250px;
+    padding-top: 5px;
 
     .av-data {
-      padding: 0 4px;
       color: #ccc;
+      background-color: rgba(102, 102, 102, 0.2);
+      padding: 4px;
 
       .av-details {
-        line-height: 1.1em;
-
-        .av-caption {
-          font-size: 13px;
-          font-weight: bold;
-          line-height: 1em;
-
-          span {
-            color: #4ae;
-          }
-        }
+        display: flex;
 
         .av-number {
-          display: block;
-          clear: left;
-          font-size: 12px;
-          color: #999999;
+          width: 35%;
+          text-align: left;
+          color: #e5e5e5
+        }
+
+        .av-caption {
+          width: 65%;
+          text-align: right;
+          font-weight: bold;
+        }
+      }
+
+      .av-download {
+        #downloadFile {
+          position: absolute;
+          top: 15px;
+          right: 110px;
+          color: #f1f1f1;
+          font-size: 40px;
+          font-weight: bold;
         }
       }
 
@@ -165,7 +177,7 @@
     }
   }
 
-  .av-dataContainer:after {
+  .av-topBar:after {
     content: "";
     display: table;
     clear: both;

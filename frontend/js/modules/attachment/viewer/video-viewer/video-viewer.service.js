@@ -6,34 +6,27 @@
 
   function esnAttachmentVideoViewerService() {
     var videoViewer = {
-      name: 'video',
+      name: 'videoViewer',
+      directive: 'video',
       contentType: ['video/mp4', 'video/webm', 'video/ogg'],
       fitSizeContent: fitSizeContent,
-      pauseOnHide: pauseOnHide
+      size: {
+        realSize: false,
+        desiredRatio: {
+          defaultRatioWindow: 0.8,
+          defaultRatioWH: 2
+        }
+      }
     };
 
-    function fitSizeContent(videoContainer, fittingSize, resizeElements) {
-      var defaultRatioWindow = 0.8;
-      var defaultRatioWH = 2.2;
-      var defaultSize = {
-        defaultRatioWindow: defaultRatioWindow,
-        defaultRatioWH: defaultRatioWH
-      };
-      var size = fittingSize(false, false, defaultSize);
-      videoContainer.width(size.width);
-      videoContainer.height(size.height);
-      resizeElements(size.width, size.height);
-    }
-
-    function pauseOnHide(video, isHidden) {
-      if (isHidden()) {
-        video.pause();
-      }
+    function fitSizeContent(onResize, videoContainer) {
+      onResize(this.size, videoContainer);
     }
 
     return {
-      videoViewer: videoViewer
+      viewer: videoViewer
     };
+
   }
 
 })();

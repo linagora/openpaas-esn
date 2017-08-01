@@ -13,26 +13,33 @@
 
     function link(scope, elem) {
       scope.API = null;
-      scope.onPlayerReady = function(API) {
-        scope.API = API;
-      };
+      scope.onPlayerReady = onPlayerReady;
       scope.config = {
         preload: "none",
-        autoHide: true,
-        autoHideTime: 3000,
         sources: [
           { src: $sce.trustAsResourceUrl(scope.file.url), type: scope.file.contentType }
         ],
         theme: {
           url: "/components/videogular-themes-default/videogular.css"
+        },
+        plugins: {
+          controls: {
+            autoHide: true,
+            autoHideTime: 4000
+          }
         }
       };
-      scope.provider.fitSizeContent(
-        angular.element(elem.find('.videogular-container')),
-        esnAttachmentViewerService.fittingSize.bind(esnAttachmentViewerService),
-        esnAttachmentViewerService.resizeElements.bind(esnAttachmentViewerService)
+      scope.provider.fitSizeContent.call(
+        scope.provider,
+        esnAttachmentViewerService.onResize,
+        elem.find('.videogular-container')
       );
+
       esnAttachmentViewerService.onHide(pauseVideo);
+
+      function onPlayerReady(API) {
+         scope.API = API;
+      }
 
       function pauseVideo() {
         scope.API.pause();
