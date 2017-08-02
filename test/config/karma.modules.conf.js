@@ -105,31 +105,25 @@ module.exports = function(config) {
       'frontend/components/angular-material/modules/js/whiteframe/whiteframe.min.css',
       'frontend/components/angular-material/modules/js/panel/panel.min.css',
       'test/fixtures/code-generation/constants.js',
-      'frontend/js/modules/**/*.module.js',
-      'modules/linagora.esn.calendar/frontend/app/app.js',
+
       { pattern: 'frontend/js/modules/collaboration/collaboration.run.js', watched: false, included: false, served: false },
       { pattern: 'frontend/js/modules/oauth-application/oauth-application.router.js', watched: false, included: false, served: false },
       { pattern: 'frontend/js/modules/datetime/datetime.run.js', watched: false, included: false, served: false },
+      { pattern: 'frontend/js/modules/i18n/i18n.config.js', watched: false, included: false, served: true },
+      { pattern: 'modules/**/frontend/app/**/*.run.js', watched: false, included: false, served: true },
 
+      'frontend/js/modules/**/*.module.js',
       'frontend/js/**/*.js',
       'modules/**/frontend/js/**/*.js',
       'modules/**/frontend/app/**/*.js',
-      { pattern: 'modules/**/frontend/app/**/*.run.js', watched: false, included: false, served: true },
-      'modules/linagora.esn.calendar/frontend/app/components/inbox/**/*.run.js',
-      'modules/linagora.esn.unifiedinbox/frontend/app/**/*.run.js',
-      'modules/linagora.esn.unifiedinbox.ml/frontend/app/**/*.run.js',
-
       'modules/**/test/unit-frontend/**/*.js',
-
       'frontend/js/modules/**/*.jade',
       'modules/**/frontend/views/**/*.jade',
       'modules/**/frontend/app/**/*.jade',
-
       'frontend/views/modules/**/*.jade',
 
       // fixtures
       { pattern: 'frontend/images/**/*.png', watched: false, included: false, served: true },
-      { pattern: 'frontend/js/modules/i18n/i18n.config.js', watched: false, included: false, served: true },
       'modules/**/unit-frontend/fixtures/**',
       'modules/**/app/fixtures/**'
     ],
