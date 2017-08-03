@@ -6,46 +6,39 @@
 
   function esnAttachmentViewerGalleryService($compile, $window, $rootScope) {
 
-    var defaultGallery = 'noname';
+    var DEFAULT_GALLERY = 'noname';
     var galleries = {};
 
-    galleries[defaultGallery] = [];
+    galleries[DEFAULT_GALLERY] = [];
 
     return {
-      defaultGallery: defaultGallery,
+      getDefaultGallery: getDefaultGallery,
       addFileToGallery: addFileToGallery,
       getAllFilesInGallery: getAllFilesInGallery,
-      findOrderInArray: findOrderInArray,
       removeFileFromGallery: removeFileFromGallery
     };
 
+    function getDefaultGallery() {
+      return DEFAULT_GALLERY;
+    }
+
     function addFileToGallery(file, gallery) {
-      if (gallery) {
-        if (!galleries[gallery]) {
-          galleries[gallery] = [];
-        }
-        galleries[gallery].push(file);
-      } else {
-        galleries[defaultGallery].push(file);
+      var galleryName = gallery ? gallery : DEFAULT_GALLERY
+
+      if (!galleries[galleryName]) {
+        galleries[galleryName] = [];
       }
+      galleries[galleryName].push(file);
     }
 
     function getAllFilesInGallery(gallery) {
       return galleries[gallery];
     }
 
-    function findOrderInArray(files, file) {
-      return files.indexOf(file);
-    }
-
     function removeFileFromGallery(file, gallery) {
-      var files = [];
-      var order;
-      if (!gallery) {
-        gallery = defaultGallery;
-      }
-      files = getAllFilesInGallery(gallery);
-      order = findOrderInArray(files, file);
+      var galleryName = gallery ? gallery : DEFAULT_GALLERY
+      var files = galleries[galleryName];
+      var order = files.indexOf(file);
       files.splice(order, 1);
     }
   }

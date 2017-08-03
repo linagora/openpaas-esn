@@ -13,7 +13,9 @@
 
     function link(scope, elem) {
       scope.API = null;
-      scope.onPlayerReady = onPlayerReady;
+      scope.onPlayerReady = function(API) {
+        scope.API = API;
+      };
       scope.config = {
         preload: "none",
         sources: [
@@ -29,21 +31,22 @@
           }
         }
       };
+
+      scope.onError = function(event) {
+        console.log("VIDEOGULAR ERROR EVENT");
+        console.log(event);
+      };
+
+      scope.onSeeking = function(currentTime, duration) {
+        console.log(currentTime);
+        console.log(duration);
+      };
+
       scope.provider.fitSizeContent.call(
         scope.provider,
         esnAttachmentViewerService.onResize,
         elem.find('.videogular-container')
       );
-
-      esnAttachmentViewerService.onHide(pauseVideo);
-
-      function onPlayerReady(API) {
-         scope.API = API;
-      }
-
-      function pauseVideo() {
-        scope.API.pause();
-      }
     }
   }
 

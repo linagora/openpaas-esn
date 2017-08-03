@@ -216,10 +216,13 @@ const injections = [
     'attachment/viewer/attachment-viewer-gallery.service.js',
     'attachment/viewer/attachment-viewer-view.service.js',
     'attachment/viewer/attachment-viewer.directive.js',
+    'attachment/viewer/default-viewer/default-viewer.run.js',
     'attachment/viewer/default-viewer/default-viewer.service.js',
     'attachment/viewer/default-viewer/default-viewer.directive.js',
+    'attachment/viewer/video-viewer/video-viewer.run.js',
     'attachment/viewer/video-viewer/video-viewer.service.js',
     'attachment/viewer/video-viewer/video-viewer.directive.js',
+    'attachment/viewer/image-viewer/image-viewer.run.js',
     'attachment/viewer/image-viewer/image-viewer.service.js',
     'attachment/viewer/image-viewer/image-viewer.directive.js'
   ], innerApps: ['esn']},

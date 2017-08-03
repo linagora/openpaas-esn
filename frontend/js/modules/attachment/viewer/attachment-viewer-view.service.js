@@ -5,12 +5,12 @@
     .factory('esnAttachmentViewerViewService', esnAttachmentViewerViewService);
 
   function esnAttachmentViewerViewService(FileSaver, $compile, $window, $rootScope, $http) {
-    //var self = this;
 
     var $el = angular.element;
     var $body = $el('body');
+    var elements = {};
 
-    var defaultOptions = {
+    var DEFAULT_OPTIONS = {
       initSize: {
         width: 250,
         height: 250
@@ -27,27 +27,25 @@
       }
     };
 
-    var elements = {};
-    var currentItem = {};
-
     return {
-      renderModal: renderModal,
+      renderViewer: renderViewer,
+      buildViewer: buildViewer,
       openViewer: openViewer,
       calculateSize: calculateSize,
       resizeElements: resizeElements,
-      onHide: onHide
+      closeViewer: closeViewer
     };
 
-    function renderModal() {
+    function renderViewer() {
       if (!elements.attachmentViewer) {
-        var template = '<div class="attachment-viewer" id="attachmentViewer"><div class="av-topBar"><div class="av-data"><div class="av-details"><span class="av-number"></span><span class="av-caption ellipsis"></span></div><div class="av-download"><a id="downloadFile" href=""><i class="mdi mdi-download mdi-hc-fw"></i></a></div><div class="av-closeContainer"> <span class="av-close"><i class="mdi mdi-close mdi-hc-fw"></i></span></div></div></div><div class="av-outerContainer"><div class="av-container"><div class="av-main"></div><div class="av-loader"> <span class="av-cancel"></span></div><div class="av-nav"> <span class="av-prev nav"> <i class="mdi mdi-chevron-left mdi-hc-fw"> </i> </span> <span class="av-next nav"> <i class="mdi mdi-chevron-right mdi-hc-fw"> </i></span></div></div></div></div>';
-        $body.append(template);
-        buildModal();
+        var template = $el('<esn-attachment-viewer></esn-attachment-viewer>');
+        var scope = $rootScope.$new(true);
+        $body.append($compile(template)(scope));
       }
     }
 
-    function buildModal() {
-      var attachmentViewer = $el('#attachmentViewer');
+    function buildViewer(viewer) {
+      var attachmentViewer = viewer;
       elements = {
         attachmentViewer: attachmentViewer,
         topBar: attachmentViewer.find('.av-topBar'),
@@ -57,63 +55,25 @@
         nav: attachmentViewer.find('.av-nav'),
         loader: attachmentViewer.find('.av-loader')
       };
-      elements.attachmentViewer.on('click', function(e) {
-        if ($el(e.target).attr('id') === 'attachmentViewer') {
-          hide(elements.attachmentViewer);
-        }
-        return false;
-      });
-      elements.attachmentViewer.find('.av-closeContainer').on('click', function() {
-        hide(elements.attachmentViewer);
-        return false;
-      });
-      elements.nav.find('.av-prev').on('click', function() {
-        var files = currentItem.files;
-        var order;
-        if (currentItem.order === 0) {
-          order = files.length - 1;
-        } else {
-          order = currentItem.order - 1;
-        }
-        openViewer(files, order);
-        return false;
-      });
-      elements.nav.find('.av-next').on('click', function() {
-        var files = currentItem.files;
-        var order;
-        if (currentItem.order === files.length - 1) {
-          order = 0;
-        } else {
-          order = currentItem.order + 1;
-        }
-        openViewer(files, order);
-        return false;
-      });
-
-      elements.topBar.find('#downloadFile').on('click', function() {
-        downloadFile(currentItem.files[currentItem.order]);
-      });
     }
 
-    function setCurrentItem(files, order) {
-      currentItem = {
-        files: files,
-        order: order
-      };
-    }
+    function openViewer(files, order, provider) {
+      var file = files[order];
+      renderContent(files, order, provider);
 
-    function openViewer(files, order) {
-      setCurrentItem(files, order);
-
-      var scope = $rootScope.$new(true);
-      var template = $el('<esn-attachment-viewer></esn-attachment-viewer>');
-      scope.file = files[order];
-      elements.mainContent.html($compile(template)(scope));
-
-      showInfo(scope.file.name, currentItem.order + 1, files.length);
+      showInfo(file.name, order + 1, files.length);
       show(elements.loader);
       hide(elements.mainContent);
       show(elements.attachmentViewer);
+    }
+
+    function renderContent(files, order, provider) {
+      var template = $el('<esn-' + provider.directive + '-viewer></esn-' + provider.directive + '-viewer>');
+      var scope = $rootScope.$new(true);
+
+      scope.file = files[order];
+      scope.provider = provider;
+      elements.mainContent.html($compile(template)(scope));
     }
 
     function calculateSize(size) {
@@ -122,17 +82,17 @@
       var windowHeight = $el($window).height();
 
       if (size.desiredRatio) {
-      	calculateSizeByDesire();
+        calculateSizeByDesire();
       } else if (size.realSize) {
-      	calculateSizeByReal();
+        calculateSizeByReal();
       }
 
       function calculateSizeByDesire() {
         var ratioWindow = size.desiredRatio.defaultRatioWindow;
 
-        angular.forEach(defaultOptions.screenWidth, function(value, key) {
-          if (windowWidth > value && size.desiredRatio.defaultRatioWindow <= defaultOptions.minRatio[key]) {
-            ratioWindow = defaultOptions.minRatio[key];
+        angular.forEach(DEFAULT_OPTIONS.screenWidth, function(value, key) {
+          if (windowWidth > value && size.desiredRatio.defaultRatioWindow <= DEFAULT_OPTIONS.minRatio[key]) {
+            ratioWindow = DEFAULT_OPTIONS.minRatio[key];
           }
         });
         if ((windowWidth / windowHeight) > size.desiredRatio.defaultRatioWH) {
@@ -151,7 +111,7 @@
         var realHeight = size.realSize.height;
 
         if (realWidth === 0 && realHeight === 0) {
-          desiredSize = defaultOptions.innitSize;
+          desiredSize = DEFAULT_OPTIONS.innitSize;
         } else {
           if ((realWidth > maxWidth) || (realHeight > maxHeight)) {
             if ((realWidth / maxWidth) > (realHeight / maxHeight)) {
@@ -250,37 +210,12 @@
       });
     }
 
-    // often use for pausing video whenever closing modal
-    function onHide(callback) {
-      elements.attachmentViewer.on('click', function() {
-        if (elements.attachmentViewer.css('display') === 'none') {
-          callback();
-        }
-      });
-      elements.attachmentViewer.find('.av-closeContainer').on('click', function() {
-        if (elements.attachmentViewer.css('display') === 'none') {
-          callback();
-        }
-      });
+    function closeViewer(event) {
+      if (event.target.id === 'attachmentViewer' || event.target.id === 'closeButton') {
+        hide(elements.attachmentViewer);
+        elements.mainContent.html('');
+      }
     }
-
-
-    function downloadFile(file) {
-      $http({
-        method: 'GET',
-        url: file.url,
-        responseType: "blob"
-      }).then(function successCallback(response) {
-        if (!response.data) {
-          console.error('No data');
-          return;
-        }
-        FileSaver.saveAs(response.data, file.name);
-      }, function errorCallback(response) {
-        console.log('Fail to get file');
-      });
-    }
-
   }
 
 })();

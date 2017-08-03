@@ -13,7 +13,7 @@
     self.$onDestroy = $onDestroy;
 
     function $onInit() {
-      esnAttachmentViewerService.onStart(self.attachment, gallery);
+      esnAttachmentViewerService.onBuildGallery(self.attachment, gallery);
     }
 
     function openViewer() {

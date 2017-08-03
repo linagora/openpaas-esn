@@ -2,7 +2,7 @@
 @import "image-viewer/image-viewer";
 @import "video-viewer/video-viewer";
 
-.attachment-viewer {
+esn-attachment-viewer {
   position: fixed;
   display: none;
   padding-top: 70px;
@@ -38,12 +38,6 @@
 
       .av-main {
         height: 100%;
-
-        esn-attachment-viewer {
-          height: 100%;
-          display: block;
-          z-index: 10;
-        }
       }
 
       .av-loader {
@@ -72,7 +66,6 @@
         top: 35%;
         left: -25%;
         width: 150%;
-        z-index: -1;
 
         span {
           outline: none;
@@ -147,7 +140,7 @@
       }
 
       .av-download {
-        #downloadFile {
+        a {
           position: absolute;
           top: 15px;
           right: 110px;

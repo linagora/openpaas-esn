@@ -4,25 +4,35 @@
   angular.module('esn.attachment')
     .directive('esnAttachmentViewer', esnAttachmentViewer);
 
-  function esnAttachmentViewer(esnAttachmentViewerRegistryService, $compile) {
+  function esnAttachmentViewer(esnAttachmentViewerService) {
     return {
       restrict: 'E',
+      templateUrl: '/views/modules/attachment/viewer/attachment-viewer.html',
       link: link
     };
 
     function link(scope, element) {
-      var elem;
-      var template;
-      var provider = esnAttachmentViewerRegistryService.getProvider(scope.file.contentType);
-      if (provider) {
-        elem = angular.element('<esn-' + provider.directive + '-viewer></esn-' + provider.directive + '-viewer>');
-      } else {
-        provider = esnAttachmentViewerRegistryService.getProvider('default');
-        elem = angular.element('<esn-default-viewer></esn-default-viewer>');
+      esnAttachmentViewerService.onBuildViewer(element);
+      scope.close = closeViewer;
+      scope.openPrev = openPrev;
+      scope.openNext = openNext;
+      scope.download = downloadFile;
+
+      function closeViewer(event) {
+        esnAttachmentViewerService.onClose(event);
       }
-      scope.provider = provider;
-      template = angular.element(elem);
-      element.html($compile(template)(scope));
+
+      function openPrev() {
+        esnAttachmentViewerService.openPrev();
+      }
+
+      function openNext() {
+        esnAttachmentViewerService.openNext();
+      }
+
+      function downloadFile() {
+        esnAttachmentViewerService.downloadFile();
+      }
     }
   }
 

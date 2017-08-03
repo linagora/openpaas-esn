@@ -1,0 +1,22 @@
+#attachmentViewer(ng-click='close($event)')
+  .av-topBar
+    .av-data
+      .av-details
+        span.av-number
+        span.av-caption.ellipsis
+      .av-download(ng-click='download()')
+        a(href='')
+          i.mdi.mdi-download.mdi-hc-fw
+      .av-closeContainer(ng-click='close($event)')
+        span.av-close
+          i.mdi.mdi-close.mdi-hc-fw#closeButton
+  .av-outerContainer
+    .av-container
+      .av-main
+      .av-loader
+        span.av-cancel
+      .av-nav
+        span.av-prev.nav(ng-click='openPrev()')
+          i.mdi.mdi-chevron-left.mdi-hc-fw  
+        span.av-next.nav(ng-click='openNext()')
+          i.mdi.mdi-chevron-right.mdi-hc-fw
