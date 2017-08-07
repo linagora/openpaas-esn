@@ -1,24 +1,24 @@
-(function() {
+(function () {
   'use strict';
 
   angular.module('esn.attachment')
     .factory('esnAttachmentViewerService', esnAttachmentViewerService);
 
-  function esnAttachmentViewerService(esnAttachmentViewerRegistryService, esnAttachmentViewerGalleryService, esnAttachmentViewerViewService, esnAttachmentDefaultViewerService, esnAttachmentImageViewerService, esnAttachmentVideoViewerService, $http) {
+  function esnAttachmentViewerService(esnAttachmentViewerRegistryService, esnAttachmentViewerGalleryService, esnAttachmentViewerViewService, FileSaver, $http) {
 
-    var viewerServiceDefinition = ['name', 'directive', 'contentType', 'fitSizeContent', 'size'];
+    var viewerServiceDefinition = ['name', 'directive', 'contentType', 'sizeOptions', 'fitSizeContent'];
 
     var galleryService = esnAttachmentViewerGalleryService;
     var viewerRegistryService = esnAttachmentViewerRegistryService;
     var viewerViewService = esnAttachmentViewerViewService;
 
     var currentItem = {};
+    var init = true;
 
     return {
       onInit: onInit,
       onBuildRegistry: onBuildRegistry,
       onBuildViewer: onBuildViewer,
-      onBuildGallery: onBuildGallery,
       onOpen: onOpen,
       openNext: openNext,
       openPrev: openPrev,
@@ -28,32 +28,35 @@
       onDestroy: onDestroy
     };
 
-    function onInit() {
-      viewerViewService.renderViewer();
+    function onInit(file, gallery) {
+      if (init) {
+        viewerViewService.renderViewer();
+        init = false;
+      }
+
+      buildGallery(file, gallery);
+    }
+
+    function buildGallery(file, gallery) {
+      file.url = '/api/files/' + file._id;
+      galleryService.addFileToGallery(file, gallery);
     }
 
     function onBuildRegistry(viewerRegistry) {
       var required = true;
 
-      angular.forEach(viewerServiceDefinition, function(value) {
+      angular.forEach(viewerServiceDefinition, function (value) {
         if (!viewerRegistry[value]) {
           required = false;
         }
       });
       if (required) {
         viewerRegistryService.addFileViewerProvider(viewerRegistry);
-      } else {
-        console.log('Viewer service need to be defined properly');
       }
     }
 
     function onBuildViewer(viewer) {
       viewerViewService.buildViewer(viewer);
-    }
-
-    function onBuildGallery(file, gallery) {
-      file.url = '/api/files/' + file._id;
-      galleryService.addFileToGallery(file, gallery);
     }
 
     function onOpen(file, gallery) {
@@ -67,6 +70,7 @@
 
     function openNext() {
       var next;
+
       if (currentItem.order === currentItem.files.length - 1) {
         next = 0;
       } else {
@@ -77,6 +81,7 @@
 
     function openPrev() {
       var prev;
+
       if (currentItem.order === 0) {
         prev = currentItem.files.length - 1;
       } else {
@@ -87,6 +92,7 @@
 
     function openViewer(files, order) {
       var provider = viewerRegistryService.getProvider(files[order].contentType);
+
       provider = provider ? provider : viewerRegistryService.getProvider('default');
       if (order > -1) {
         currentItem = {
@@ -94,13 +100,12 @@
           order: order
         };
         viewerViewService.openViewer(files, order, provider);
-      } else {
-        console.log('No matched file in this ' + gallery + ' gallery');
       }
     }
 
-    function onResize(size, item) {
-      var newsize = viewerViewService.calculateSize(size);
+    function onResize(sizeOptions, item) {
+      var newsize = viewerViewService.calculateSize(sizeOptions);
+
       if (item) {
         item.width(newsize.width);
         item.height(newsize.height);
@@ -110,18 +115,19 @@
 
     function downloadFile() {
       var file = currentItem.files[currentItem.order];
+      
       $http({
         method: 'GET',
         url: file.url,
         responseType: "blob"
       }).then(function successCallback(response) {
         if (!response.data) {
-          console.error('No data');
+          // No data
           return;
         }
         FileSaver.saveAs(response.data, file.name);
       }, function errorCallback(response) {
-        console.log('Fail to get file');
+        // Fail to get file
       });
     }
 
@@ -129,8 +135,10 @@
       viewerViewService.closeViewer(event);
     }
 
-    function onDestroy() {
-      viewerViewService.remove();
+    function onDestroy(file, gallery) {
+      galleryService.removeFileFromGallery(file, gallery);
+      viewerViewService.removeSelf();
+      init = true;
     }
   }
 

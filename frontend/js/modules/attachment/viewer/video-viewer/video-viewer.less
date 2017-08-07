@@ -1,11 +1,23 @@
-#attachmentViewer {
+esn-video-viewer {
   .videogular-container {
     width: 100%;
     margin: auto;
     overflow: hidden;
 
-    videogular vg-overlay-play {
-      display: block
+    videogular {
+      
+      vg-overlay-play {
+        display: block;
+      }
+
+      vg-buffering {
+        display: block;
+        z-index: -1;
+        
+        .bufferingContainer {
+          margin-top: -27px;
+        }
+      }
     }
   }
 }

@@ -13,6 +13,7 @@
 
     function link(scope, element) {
       esnAttachmentViewerService.onBuildViewer(element);
+      scope.onView = true;
       scope.close = closeViewer;
       scope.openPrev = openPrev;
       scope.openNext = openNext;
@@ -20,6 +21,7 @@
 
       function closeViewer(event) {
         esnAttachmentViewerService.onClose(event);
+        scope.onView = false;
       }
 
       function openPrev() {

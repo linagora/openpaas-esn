@@ -19,7 +19,11 @@
       scope.config = {
         preload: "none",
         sources: [
-          { src: $sce.trustAsResourceUrl(scope.file.url), type: scope.file.contentType }
+          { 
+            src: $sce.trustAsResourceUrl(scope.file.url), type: 'video/mp4',
+            src: $sce.trustAsResourceUrl(scope.file.url), type: 'video/ogg',
+            src: $sce.trustAsResourceUrl(scope.file.url), type: 'video/webm'
+          }
         ],
         theme: {
           url: "/components/videogular-themes-default/videogular.css"
@@ -30,16 +34,6 @@
             autoHideTime: 4000
           }
         }
-      };
-
-      scope.onError = function(event) {
-        console.log("VIDEOGULAR ERROR EVENT");
-        console.log(event);
-      };
-
-      scope.onSeeking = function(currentTime, duration) {
-        console.log(currentTime);
-        console.log(duration);
       };
 
       scope.provider.fitSizeContent.call(

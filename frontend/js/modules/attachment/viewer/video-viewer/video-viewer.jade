@@ -1,5 +1,5 @@
 .videogular-container.lb-video
-  videogular(vg-player-ready='onPlayerReady($API)', vg-responsive='true', vg-theme='config.theme.url',  vg-error="onError($event)", vg-seeking="onSeeking($currentTime, $duration)")
+  videogular(vg-player-ready='onPlayerReady($API)', vg-responsive='true', vg-theme='config.theme.url')
     vg-media(vg-src='config.sources', vg-preload="config.preload")
     vg-controls(vg-autohide='config.plugins.controls.autoHide', vg-autohide-time='config.plugins.controls.autoHideTime')
       vg-play-pause-button
@@ -13,3 +13,4 @@
       vg-playback-button
       vg-fullscreen-button
     vg-overlay-play
+    vg-buffering

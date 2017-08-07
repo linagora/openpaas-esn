@@ -1,31 +1,13 @@
-(function() {
+(function () {
   'use strict';
 
   angular.module('esn.attachment')
     .factory('esnAttachmentViewerViewService', esnAttachmentViewerViewService);
 
-  function esnAttachmentViewerViewService(FileSaver, $compile, $window, $rootScope, $http) {
+  function esnAttachmentViewerViewService($compile, $window, $rootScope, $timeout, ESN_AV_DEFAULT_OPTIONS) {
 
-    var $el = angular.element;
-    var $body = $el('body');
-    var elements = {};
-
-    var DEFAULT_OPTIONS = {
-      initSize: {
-        width: 250,
-        height: 250
-      },
-      screenWidth: {
-        more0: 0,
-        more6: 600,
-        more8: 800
-      },
-      minRatio: {
-        more0: 0.8,
-        more6: 0.5,
-        more8: 0.3
-      }
-    };
+    var elementsView = {};
+    var body = angular.element('body');
 
     return {
       renderViewer: renderViewer,
@@ -33,85 +15,87 @@
       openViewer: openViewer,
       calculateSize: calculateSize,
       resizeElements: resizeElements,
-      closeViewer: closeViewer
+      closeViewer: closeViewer,
+      removeSelf: removeSelf
     };
 
     function renderViewer() {
-      if (!elements.attachmentViewer) {
-        var template = $el('<esn-attachment-viewer></esn-attachment-viewer>');
-        var scope = $rootScope.$new(true);
-        $body.append($compile(template)(scope));
-      }
+      var template = angular.element('<div class="av-fadeIn"></div><esn-attachment-viewer ng-if="onView" class="av-animate"></esn-attachment-viewer>');
+      var scope = $rootScope.$new(true);
+
+      scope.onView = true;
+      body.append($compile(template)(scope));
     }
 
     function buildViewer(viewer) {
-      var attachmentViewer = viewer;
-      elements = {
-        attachmentViewer: attachmentViewer,
-        topBar: attachmentViewer.find('.av-topBar'),
-        outerContainer: attachmentViewer.find('.av-outerContainer'),
-        container: attachmentViewer.find('.av-container'),
-        mainContent: attachmentViewer.find('.av-main'),
-        nav: attachmentViewer.find('.av-nav'),
-        loader: attachmentViewer.find('.av-loader')
+      elementsView = {
+        fadeIn: body.find('.av-fadeIn'),
+        attachmentViewer: viewer,
+        topBar: viewer.find('.av-topBar'),
+        outerContainer: viewer.find('.av-outerContainer'),
+        container: viewer.find('.av-container'),
+        mainContent: viewer.find('.av-main'),
+        nav: viewer.find('.av-nav'),
+        loader: viewer.find('.av-loader')
       };
     }
 
     function openViewer(files, order, provider) {
       var file = files[order];
-      renderContent(files, order, provider);
-
+      
+      show(elementsView.fadeIn);
+      renderContent(file, order, provider);
       showInfo(file.name, order + 1, files.length);
-      show(elements.loader);
-      hide(elements.mainContent);
-      show(elements.attachmentViewer);
+      show(elementsView.loader);
+      hide(elementsView.mainContent);
+      show(elementsView.attachmentViewer);
     }
 
-    function renderContent(files, order, provider) {
-      var template = $el('<esn-' + provider.directive + '-viewer></esn-' + provider.directive + '-viewer>');
+    function renderContent(file, order, provider) {
+      var template = angular.element('<esn-' + provider.directive + '-viewer></esn-' + provider.directive + '-viewer>');
       var scope = $rootScope.$new(true);
 
-      scope.file = files[order];
+      scope.file = file;
       scope.provider = provider;
-      elements.mainContent.html($compile(template)(scope));
+      elementsView.mainContent.html($compile(template)(scope));
     }
 
-    function calculateSize(size) {
+    function calculateSize(sizeOptions) {
       var desiredSize = {};
-      var windowWidth = $el($window).width();
-      var windowHeight = $el($window).height();
+      var windowWidth = angular.element($window).width();
+      var windowHeight = angular.element($window).height();
 
-      if (size.desiredRatio) {
+      if (sizeOptions.desiredRatio) {
         calculateSizeByDesire();
-      } else if (size.realSize) {
+      } else if (sizeOptions.realSize) {
         calculateSizeByReal();
       }
 
       function calculateSizeByDesire() {
-        var ratioWindow = size.desiredRatio.defaultRatioWindow;
+        var ratioWindow = sizeOptions.desiredRatio.desiredRatioWindow;
 
-        angular.forEach(DEFAULT_OPTIONS.screenWidth, function(value, key) {
-          if (windowWidth > value && size.desiredRatio.defaultRatioWindow <= DEFAULT_OPTIONS.minRatio[key]) {
-            ratioWindow = DEFAULT_OPTIONS.minRatio[key];
+        angular.forEach(ESN_AV_DEFAULT_OPTIONS.screenWidth, function (value, key) {
+          if (windowWidth > value && sizeOptions.desiredRatio.desiredRatioWindow <= ESN_AV_DEFAULT_OPTIONS.minRatio[key]) {
+            ratioWindow = ESN_AV_DEFAULT_OPTIONS.minRatio[key];
           }
         });
-        if ((windowWidth / windowHeight) > size.desiredRatio.defaultRatioWH) {
+        if ((windowWidth / windowHeight) > sizeOptions.desiredRatio.desiredRatioSize) {
           desiredSize.height = windowHeight * ratioWindow;
-          desiredSize.width = parseInt(desiredSize.height * size.desiredRatio.defaultRatioWH, 10);
+          desiredSize.width = parseInt(desiredSize.height * sizeOptions.desiredRatio.desiredRatioSize, 10);
         } else {
           desiredSize.width = windowWidth * ratioWindow;
-          desiredSize.height = parseInt(desiredSize.width / size.desiredRatio.defaultRatioWH, 10);
+          desiredSize.height = parseInt(desiredSize.width / sizeOptions.desiredRatio.desiredRatioSize, 10);
         }
       }
 
       function calculateSizeByReal() {
         var maxWidth = windowWidth - 100;
         var maxHeight = windowHeight - 140;
-        var realWidth = size.realSize.width;
-        var realHeight = size.realSize.height;
+        var realWidth = sizeOptions.realSize.width;
+        var realHeight = sizeOptions.realSize.height;
 
         if (realWidth === 0 && realHeight === 0) {
-          desiredSize = DEFAULT_OPTIONS.innitSize;
+          desiredSize = ESN_AV_DEFAULT_OPTIONS.innitSize;
         } else {
           if ((realWidth > maxWidth) || (realHeight > maxHeight)) {
             if ((realWidth / maxWidth) > (realHeight / maxHeight)) {
@@ -122,7 +106,7 @@
               desiredSize.width = parseInt(realWidth / (realHeight / desiredSize.height), 10);
             }
           } else {
-            desiredSize = size.realSize;
+            desiredSize = sizeOptions.realSize;
           }
         }
       }
@@ -131,8 +115,8 @@
     }
 
     function resizeElements(desiredSize) {
-      var windowWidth = $el($window).width();
-      var windowHeight = $el($window).height();
+      var windowWidth = angular.element($window).width();
+      var windowHeight = angular.element($window).height();
       var newWidth = desiredSize.width;
       var newHeight = desiredSize.height;
 
@@ -140,9 +124,10 @@
       resizeTopBar();
       resizeViewer();
       resizeNav();
+      resizeLoader();
 
       function resizeOuterContainer() {
-        elements.outerContainer.css({
+        elementsView.outerContainer.css({
           'width': newWidth + 'px',
           'height': newHeight + 'px'
         });
@@ -154,31 +139,38 @@
         if (topBarW < minWidth) {
           topBarW = minWidth;
         }
-        elements.topBar.css({
+        elementsView.topBar.css({
           'width': topBarW + 'px'
         });
       }
 
       function resizeViewer() {
-        var paddingTop = (windowHeight - newHeight) / 2 - elements.topBar.height();
+        var paddingTop = (windowHeight - newHeight) / 2 - elementsView.topBar.height();
         if (paddingTop < 0) {
           paddingTop = 0;
         }
-        elements.attachmentViewer.css({
+        elementsView.attachmentViewer.find('.attachment-viewer').css({
           'padding-top': paddingTop + 'px'
         });
       }
 
       function resizeNav() {
         var extraWidth = 0.1 * windowWidth;
-        var navHeight = elements.nav.height();
+        var navHeight = elementsView.nav.height();
         if (windowWidth < 700) {
           extraWidth = 0.22 * windowWidth;
         }
-        elements.nav.css({
+        elementsView.nav.css({
           'width': newWidth + extraWidth + 'px',
           'left': extraWidth / -2 + 'px',
           'top': (newHeight - navHeight - 2) / 2 + 'px'
+        });
+      }
+
+      function resizeLoader() {
+        var loaderHeight = elementsView.loader.height();
+        elementsView.loader.css({
+          'top': (newHeight - loaderHeight - 2) / 2 + 'px'
         });
       }
 
@@ -186,13 +178,15 @@
     }
 
     function showContent() {
-      hide(elements.loader);
-      show(elements.mainContent);
+      $timeout(function () {
+        hide(elementsView.loader);
+        show(elementsView.mainContent);
+      }, 200);
     }
 
     function showInfo(title, order, total) {
-      var caption = elements.topBar.find('.av-caption');
-      var number = elements.topBar.find('.av-number');
+      var caption = elementsView.topBar.find('.av-caption');
+      var number = elementsView.topBar.find('.av-number');
       var totalText = (total > 1 ? ' files' : ' file');
       caption.text(title);
       number.text('File ' + order + ' in ' + total + totalText);
@@ -211,10 +205,16 @@
     }
 
     function closeViewer(event) {
-      if (event.target.id === 'attachmentViewer' || event.target.id === 'closeButton') {
-        hide(elements.attachmentViewer);
-        elements.mainContent.html('');
+      if (event.target.className === 'attachment-viewer' || (event.target.className.indexOf('av-closeButton') > -1)) {
+        hide(elementsView.attachmentViewer);
+        hide(elementsView.mainContent);
+        hide(elementsView.fadeIn);
+        elementsView.mainContent.html('');
       }
+    }
+
+    function removeSelf() {
+      elementsView.attachmentViewer.remove();
     }
   }
 

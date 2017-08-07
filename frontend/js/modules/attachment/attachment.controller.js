@@ -13,15 +13,15 @@
     self.$onDestroy = $onDestroy;
 
     function $onInit() {
-      esnAttachmentViewerService.onBuildGallery(self.attachment, gallery);
+      esnAttachmentViewerService.onInit(self.attachment);
     }
 
     function openViewer() {
-      esnAttachmentViewerService.onOpen(self.attachment, gallery);
+      esnAttachmentViewerService.onOpen(self.attachment);
     }
 
     function $onDestroy() {
-      esnAttachmentViewerService.onDestroy(self.attachment, gallery);
+      esnAttachmentViewerService.onDestroy(self.attachment);
     }
 
     function getFileType(contentType) {

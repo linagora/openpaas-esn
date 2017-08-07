@@ -2,10 +2,21 @@
 @import "image-viewer/image-viewer";
 @import "video-viewer/video-viewer";
 
+.av-fadeIn {
+  position: fixed;
+  display: none;
+  z-index: 10000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgb(0, 0, 0);
+  background-color: rgba(0, 0, 0, 0.9);
+}
 esn-attachment-viewer {
   position: fixed;
   display: none;
-  padding-top: 70px;
   z-index: 10000;
   left: 0;
   top: 0;
@@ -14,170 +25,186 @@ esn-attachment-viewer {
   text-align: center;
   font-weight: normal;
   overflow: auto;
-  background-color: rgb(0, 0, 0);
-  background-color: rgba(0, 0, 0, 0.9);
+  
+   .attachment-viewer {
+    width: 100%;
+    height: 100%;
+    padding-top: 70px;
+    
+    .av-outerContainer {
+      position: relative;
+      *zoom: 1;
+      width: 250px;
+      height: 250px;
+      margin: 0 auto;
+      border-radius: 4px;
 
-  .av-outerContainer {
-    position: relative;
-    *zoom: 1;
-    width: 250px;
-    height: 250px;
-    margin: 0 auto;
-    border-radius: 4px;
-    -webkit-animation-name: zoom;
-    -webkit-animation-duration: 0.6s;
-    animation-name: zoom;
-    animation-duration: 0.6s;
-
-    /* Background color behind image.
+      /* Background color behind image.
      This is visible during transitions. */
-    background-color: white;
+      background-color: white;
 
-    .av-container {
-      height: 100%;
-
-      .av-main {
+      .av-container {
         height: 100%;
-      }
 
-      .av-loader {
-        position: absolute;
-        top: 47%;
-        left: 0;
-        width: 100%;
-        text-align: center;
-        line-height: 0;
-
-        .av-cancel {
-          display: block;
-          width: 32px;
-          height: 32px;
-          margin: 0 auto;
-          border: 5px solid #f3f3f3;
-          -webkit-animation: spin 1s linear infinite;
-          animation: spin 1s linear infinite;
-          border-top: 5px solid #555;
-          border-radius: 50%;
-        }
-      }
-
-      .av-nav {
-        position: absolute;
-        top: 35%;
-        left: -25%;
-        width: 150%;
-
-        span {
-          outline: none;
-          cursor: pointer;
-          display: block;
-          color: #7f7f7f;
-          font-size: 60px;
-          font-weight: bold;
+        .av-main {
+          height: 100%;
         }
 
-        span.av-prev {
+        .av-loader {
+          position: absolute;
+          top: 47%;
           left: 0;
-          float: left;
-          -webkit-transition: opacity 0.6s;
-          -moz-transition: opacity 0.6s;
-          -o-transition: opacity 0.6s;
-          transition: opacity 0.6s;
+          width: 100%;
+          text-align: center;
+          line-height: 0;
+
+          .av-cancel {
+            display: block;
+            width: 32px;
+            height: 32px;
+            margin: 0 auto;
+            border: 5px solid #f3f3f3;
+            -webkit-animation: spin 1s linear infinite;
+            animation: spin 1s linear infinite;
+            border-top: 5px solid #555;
+            border-radius: 50%;
+          }
         }
 
-        span.av-prev:hover {
-          opacity: 1;
-        }
+        .av-nav {
+          position: absolute;
+          top: 35%;
+          left: -25%;
+          width: 150%;
 
-        span.av-next {
-          right: 0;
-          float: right;
-          -webkit-transition: opacity 0.6s;
-          -moz-transition: opacity 0.6s;
-          -o-transition: opacity 0.6s;
-          transition: opacity 0.6s;
-        }
+          span {
+            outline: none;
+            cursor: pointer;
+            display: block;
+            color: #7f7f7f;
+            font-size: 60px;
+            font-weight: bold;
+          }
 
-        span.av-next:hover {
-          opacity: 1;
+          span.av-prev {
+            left: 0;
+            float: left;
+            -webkit-transition: opacity 0.6s;
+            -moz-transition: opacity 0.6s;
+            -o-transition: opacity 0.6s;
+            transition: opacity 0.6s;
+          }
+
+          span.av-prev:hover {
+            opacity: 1;
+          }
+
+          span.av-next {
+            right: 0;
+            float: right;
+            -webkit-transition: opacity 0.6s;
+            -moz-transition: opacity 0.6s;
+            -o-transition: opacity 0.6s;
+            transition: opacity 0.6s;
+          }
+
+          span.av-next:hover {
+            opacity: 1;
+          }
         }
       }
     }
-  }
 
-  .av-outerContainer:after {
-    content: "";
-    display: table;
-    clear: both;
-  }
+    .av-outerContainer:after {
+      content: "";
+      display: table;
+      clear: both;
+    }
 
-  .av-topBar {
-    margin: 0 auto;
-    padding-top: 5px;
-    *zoom: 1;
-    width: 250px;
-    padding-top: 5px;
+    .av-topBar {
+      margin: 0 auto;
+      padding-top: 5px;
+      *zoom: 1;
+      width: 250px;
+      padding-top: 5px;
 
-    .av-data {
-      color: #ccc;
-      background-color: rgba(102, 102, 102, 0.2);
-      padding: 4px;
+      .av-data {
+        color: #ccc;
+        background-color: rgba(102, 102, 102, 0.2);
+        padding: 4px;
 
-      .av-details {
-        display: flex;
+        .av-details {
+          display: flex;
 
-        .av-number {
-          width: 35%;
-          text-align: left;
-          color: #e5e5e5
+          .av-number {
+            width: 35%;
+            text-align: left;
+            color: #e5e5e5
+          }
+
+          .av-caption {
+            width: 65%;
+            text-align: right;
+            font-weight: bold;
+          }
         }
 
-        .av-caption {
-          width: 65%;
-          text-align: right;
-          font-weight: bold;
-        }
-      }
-
-      .av-download {
-        a {
+        .av-download {
           position: absolute;
           top: 15px;
           right: 110px;
+          font-size: 40px;
+          font-weight: bold;
+
+          a {
+            color: #f1f1f1;
+          }
+        }
+
+        .av-closeContainer {
+          position: absolute;
+          top: 15px;
+          right: 35px;
           color: #f1f1f1;
           font-size: 40px;
           font-weight: bold;
+          -webkit-transition: opacity 0.2s;
+          -moz-transition: opacity 0.2s;
+          -o-transition: opacity 0.2s;
+          transition: opacity 0.2s;
+        }
+
+        .av-closeContainer:hover,
+        .av-download:hover {
+          cursor: pointer;
+          opacity: 1;
         }
       }
-
-      .av-close {
-        position: absolute;
-        top: 15px;
-        right: 35px;
-        color: #f1f1f1;
-        font-size: 40px;
-        font-weight: bold;
-        -webkit-transition: opacity 0.2s;
-        -moz-transition: opacity 0.2s;
-        -o-transition: opacity 0.2s;
-        transition: opacity 0.2s;
-      }
-
-      .av-close:hover {
-        cursor: pointer;
-        opacity: 1;
-      }
     }
-  }
 
-  .av-topBar:after {
-    content: "";
-    display: table;
-    clear: both;
+    .av-topBar:after {
+      content: "";
+      display: table;
+      clear: both;
+    }
   }
 }
 
-@-webkit-keyframes zoom {
+.av-animate.ng-enter{
+  -webkit-animation-name: zoomin;
+  -webkit-animation-duration: 0.6s;
+  animation-name: zoomin;
+  animation-duration: 0.6s;
+}
+
+.av-animate.ng-leave {
+  -webkit-animation-name: zoomout;
+  -webkit-animation-duration: 0.6s;
+  animation-name: zoomout;
+  animation-duration: 0.6s;
+}
+
+@-webkit-keyframes zoomin {
   from {
     -webkit-transform: scale(0)
   }
@@ -186,12 +213,31 @@ esn-attachment-viewer {
   }
 }
 
-@keyframes zoom {
+@keyframes zoomin {
   from {
     transform: scale(0)
   }
   to {
     transform: scale(1)
+  }
+}
+
+
+@-webkit-keyframes zoomout {
+  from {
+    -webkit-transform: scale(1)
+  }
+  to {
+    -webkit-transform: scale(0)
+  }
+}
+
+@keyframes zoomout {
+  from {
+    transform: scale(1)
+  }
+  to {
+    transform: scale(0)
   }
 }
 

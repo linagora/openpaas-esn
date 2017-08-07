@@ -2,5 +2,5 @@
 	a(target='_blank', ng-href='{{file.url}}', title='#{__("Open in tab")}')
 		esn-attachment-icon(type='file.contentType')
 .right
-	h4.name {{file.name}}
+	h4 {{file.name}}
 	.info #{__("File type ")} {{file.contentType | extension | uppercase}} #{__(", Size ")} {{file.length | bytes}}

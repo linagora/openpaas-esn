@@ -4,7 +4,7 @@
   angular.module('esn.attachment')
     .directive('esnDefaultViewer', esnDefaultViewer);
 
-  function esnDefaultViewer(esnAttachmentViewerService, $http, FileSaver, Blob) {
+  function esnDefaultViewer(esnAttachmentViewerService) {
     return {
       restrict: 'E',
       link: link,
