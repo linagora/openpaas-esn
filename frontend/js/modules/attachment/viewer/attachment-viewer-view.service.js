@@ -4,12 +4,15 @@
   angular.module('esn.attachment')
     .factory('esnAttachmentViewerViewService', esnAttachmentViewerViewService);
 
-  function esnAttachmentViewerViewService($compile, $window, $rootScope, $timeout, ESN_AV_DEFAULT_OPTIONS) {
+  function esnAttachmentViewerViewService($compile, $window, $rootScope, $timeout, ESN_AV_DEFAULT_OPTIONS, ESN_AV_VIEW_STATES) {
 
-    var elementsView = {};
+    var elements = {};
     var body = angular.element('body');
 
+    var currentState;
+
     return {
+      getState: getState,
       renderViewer: renderViewer,
       buildViewer: buildViewer,
       openViewer: openViewer,
@@ -20,7 +23,7 @@
     };
 
     function renderViewer() {
-      var template = angular.element('<div class="av-fadeIn"></div><esn-attachment-viewer ng-if="onView" class="av-animate"></esn-attachment-viewer>');
+      var template = angular.element('<div class="av-fadeIn"></div><esn-attachment-viewer></esn-attachment-viewer>');
       var scope = $rootScope.$new(true);
 
       scope.onView = true;
@@ -28,7 +31,7 @@
     }
 
     function buildViewer(viewer) {
-      elementsView = {
+      elements = {
         fadeIn: body.find('.av-fadeIn'),
         attachmentViewer: viewer,
         topBar: viewer.find('.av-topBar'),
@@ -40,15 +43,23 @@
       };
     }
 
+    function setState(state) {
+      currentState = state;
+    }
+
+    function getState() {
+      return currentState;
+    }
+
     function openViewer(files, order, provider) {
       var file = files[order];
-      
-      show(elementsView.fadeIn);
+
       renderContent(file, order, provider);
-      showInfo(file.name, order + 1, files.length);
-      show(elementsView.loader);
-      hide(elementsView.mainContent);
-      show(elementsView.attachmentViewer);
+      hide(elements.mainContent);      
+      show(elements.fadeIn);
+      showDetail(file, order, files.length);
+
+      setState(ESN_AV_VIEW_STATES.OPEN_STATE);
     }
 
     function renderContent(file, order, provider) {
@@ -57,7 +68,15 @@
 
       scope.file = file;
       scope.provider = provider;
-      elementsView.mainContent.html($compile(template)(scope));
+      elements.mainContent.html($compile(template)(scope));
+    }
+
+    function showDetail(file, order, total) {
+      showInfo(file.name, order + 1, total);
+      show(elements.loader);
+      show(elements.attachmentViewer);
+
+      total > 1 ? show(elements.nav) : hide(elements.nav);
     }
 
     function calculateSize(sizeOptions) {
@@ -127,7 +146,7 @@
       resizeLoader();
 
       function resizeOuterContainer() {
-        elementsView.outerContainer.css({
+        elements.outerContainer.css({
           'width': newWidth + 'px',
           'height': newHeight + 'px'
         });
@@ -139,37 +158,43 @@
         if (topBarW < minWidth) {
           topBarW = minWidth;
         }
-        elementsView.topBar.css({
+        elements.topBar.css({
           'width': topBarW + 'px'
         });
       }
 
       function resizeViewer() {
-        var paddingTop = (windowHeight - newHeight) / 2 - elementsView.topBar.height();
-        if (paddingTop < 0) {
-          paddingTop = 0;
+        var paddingTop;
+
+        if (elements.topBar.height()) {
+          elements.topBar.newHeight = elements.topBar.height();
         }
-        elementsView.attachmentViewer.find('.attachment-viewer').css({
+        paddingTop = (windowHeight - newHeight) / 2 - elements.topBar.newHeight;
+        paddingTop = paddingTop < 0 ? 0 : paddingTop;
+        elements.attachmentViewer.find('.attachment-viewer').css({
           'padding-top': paddingTop + 'px'
         });
       }
 
       function resizeNav() {
         var extraWidth = 0.1 * windowWidth;
-        var navHeight = elementsView.nav.height();
+
         if (windowWidth < 700) {
           extraWidth = 0.22 * windowWidth;
         }
-        elementsView.nav.css({
+        if (elements.nav.height()) {
+          elements.nav.newHeight = elements.nav.height();
+        }
+        elements.nav.css({
           'width': newWidth + extraWidth + 'px',
           'left': extraWidth / -2 + 'px',
-          'top': (newHeight - navHeight - 2) / 2 + 'px'
+          'top': (newHeight - elements.nav.newHeight - 2) / 2 + 'px'
         });
       }
 
       function resizeLoader() {
-        var loaderHeight = elementsView.loader.height();
-        elementsView.loader.css({
+        var loaderHeight = elements.loader.height();
+        elements.loader.css({
           'top': (newHeight - loaderHeight - 2) / 2 + 'px'
         });
       }
@@ -179,14 +204,14 @@
 
     function showContent() {
       $timeout(function () {
-        hide(elementsView.loader);
-        show(elementsView.mainContent);
+        hide(elements.loader);
+        show(elements.mainContent);
       }, 200);
     }
 
     function showInfo(title, order, total) {
-      var caption = elementsView.topBar.find('.av-caption');
-      var number = elementsView.topBar.find('.av-number');
+      var caption = elements.topBar.find('.av-caption');
+      var number = elements.topBar.find('.av-number');
       var totalText = (total > 1 ? ' files' : ' file');
       caption.text(title);
       number.text('File ' + order + ' in ' + total + totalText);
@@ -206,15 +231,20 @@
 
     function closeViewer(event) {
       if (event.target.className === 'attachment-viewer' || (event.target.className.indexOf('av-closeButton') > -1)) {
-        hide(elementsView.attachmentViewer);
-        hide(elementsView.mainContent);
-        hide(elementsView.fadeIn);
-        elementsView.mainContent.html('');
+        $timeout(function () {
+          hide(elements.attachmentViewer);
+          hide(elements.mainContent);
+          elements.mainContent.html('');
+        }, 200);
+        hide(elements.fadeIn);
+
+        setState(ESN_AV_VIEW_STATES.CLOSE_STATE);
       }
     }
 
     function removeSelf() {
-      elementsView.attachmentViewer.remove();
+      elements.attachmentViewer.remove();
+      elements.fadeIn.remove();
     }
   }
 

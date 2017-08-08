@@ -210,7 +210,6 @@ const injections = [
     'attachment/attachment-icon.controller.js',
     'attachment/attachment.component.js',
     'attachment/attachment.controller.js',
-    'attachment/viewer/attachment-viewer.run.js',
     'attachment/viewer/attachment-viewer.constants.js',
     'attachment/viewer/attachment-viewer.service.js',
     'attachment/viewer/attachment-viewer-registry.service.js',

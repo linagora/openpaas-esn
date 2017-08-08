@@ -1,4 +1,4 @@
-(function() {
+(function () {
   'use strict';
 
   angular.module('esn.attachment')
@@ -38,7 +38,7 @@
       }
     })
     .constant('ESN_AV_DEFAULT_OPTIONS', {
-       initSize: {
+      initSize: {
         width: 250,
         height: 250
       },
@@ -52,6 +52,10 @@
         more6: 0.5,
         more8: 0.3
       }
+    })
+    .constant('ESN_AV_VIEW_STATES', {
+      OPEN_STATE: 'open',
+      CLOSE_STATE: 'close'
     });
 
 })();

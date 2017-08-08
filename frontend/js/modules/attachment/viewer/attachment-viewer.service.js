@@ -24,6 +24,7 @@
       openPrev: openPrev,
       onResize: onResize,
       downloadFile: downloadFile,
+      getCurrentState: getCurrentState,
       onClose: onClose,
       onDestroy: onDestroy
     };
@@ -129,6 +130,10 @@
       }, function errorCallback(response) {
         // Fail to get file
       });
+    }
+
+    function getCurrentState() {
+      return viewerViewService.getState();
     }
 
     function onClose(event) {

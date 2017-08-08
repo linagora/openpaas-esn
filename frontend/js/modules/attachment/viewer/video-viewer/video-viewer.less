@@ -5,14 +5,23 @@ esn-video-viewer {
     overflow: hidden;
 
     videogular {
+
+      vg-media {
+        z-index: 14;
+      }
+
+      vg-controls {
+        z-index: 15;
+      }
       
       vg-overlay-play {
         display: block;
+        z-index: 14;
       }
 
       vg-buffering {
         display: block;
-        z-index: -1;
+        z-index: 13;
         
         .bufferingContainer {
           margin-top: -27px;
