@@ -1,0 +1,14 @@
+extends ../../../../views/modules/subheader/responsive-subheader.pug
+
+block left
+  .user-notification-subheader
+    .title
+      span #{__('Notifications')}
+
+block right
+  .dropdown
+    a(href='', data-toggle='dropdown', aria-expanded='true')
+      i.mdi.mdi-dots-vertical
+
+    ul.dropdown-menu.dropdown-menu-right.clickable
+      li.action-list-container(dynamic-directive="user-notification-dropdown-actions")

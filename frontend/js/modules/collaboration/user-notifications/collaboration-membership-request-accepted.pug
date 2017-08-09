@@ -1,0 +1,16 @@
+.media
+  div(ng-show='ctrl.error')
+    p #{__('Error while getting notifications')}
+  div(ng-show='ctrl.loading && !ctrl.error')
+    p #{__('Loading notifications')}
+  div(ng-hide='ctrl.loading || ctrl.error')
+    a.pull-left(ng-href='/#/{{::ctrl.collaborationPath}}/{{::ctrl.collaboration._id}}')
+      img.media-object(ng-src='/api/avatars?objectType={{::ctrl.collaboration.objectType}}&id={{::ctrl.collaboration._id}}', fallback-src='/images/collaboration.png', alt=__("Collaboration"))
+    .media-body
+      .ellipsis
+        span.pull-right.date.hidden-xs(am-time-ago="::ctrl.notification.timestamps.creation")
+        a(ng-href="/#/{{::ctrl.collaborationPath}}/{{::ctrl.collaboration._id}}") {{::ctrl.collaboration.title}}
+      div(ng-switch='ctrl.collaboration.objectType')
+        span(ng-switch-when='community') #{__('Your request has been accepted, welcome to the community')} !
+        span(ng-switch-when='project') #{__('Your request has been accepted, welcome to the project')} !
+        span(ng-switch-default) #{__('Your request has been accepted, welcome')} !

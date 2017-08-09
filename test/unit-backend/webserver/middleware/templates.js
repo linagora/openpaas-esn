@@ -29,7 +29,7 @@ describe('The templates middleware', function() {
   it('should change path to custom/path if ESN_CUSTOM_TEMPLATES_FOLDER is not set', function(done) {
     delete process.env.ESN_CUSTOM_TEMPLATES_FOLDER;
     var next = function() {
-      expect(req.params[0]).to.equal('custom/path.jade');
+      expect(req.params[0]).to.equal('custom/path.pug');
       done();
     };
 
@@ -43,9 +43,9 @@ describe('The templates middleware', function() {
     middleware.alterViewsFolder(req, {}, next);
   });
 
-  it('should return unchange req if jade template does not exist', function(done) {
+  it('should return unchange req if pug template does not exist', function(done) {
     var next = function() {
-      expect(req.params[0]).to.equal('path.jade');
+      expect(req.params[0]).to.equal('path.pug');
       done();
     };
 
@@ -62,9 +62,9 @@ describe('The templates middleware', function() {
     middleware.alterViewsFolder(req, {}, next);
   });
 
-  it('should change req.params[0] if jade template exists', function(done) {
+  it('should change req.params[0] if pug template exists', function(done) {
     var next = function() {
-      expect(req.params[0]).to.equal('/custom/path.jade');
+      expect(req.params[0]).to.equal('/custom/path.pug');
       done();
     };
 
@@ -81,12 +81,12 @@ describe('The templates middleware', function() {
     middleware.alterViewsFolder(req, {}, next);
   });
 
-  it('should replace .html by .jade for the jade template', function(done) {
+  it('should replace .html by .pug for the pug template', function(done) {
     var pathToTest = '';
 
     var next = function() {
       expect(pathToTest.indexOf('.html')).to.equal(-1);
-      expect(pathToTest.indexOf('.jade')).to.be.greaterThan(0);
+      expect(pathToTest.indexOf('.pug')).to.be.greaterThan(0);
       done();
     };
 
@@ -110,11 +110,11 @@ describe('The templates middleware', function() {
     middleware.alterViewsFolder(req, {}, next);
   });
 
-  it('should concatenate .jade to seek the jade template', function(done) {
+  it('should concatenate .pug to seek the pug template', function(done) {
     var pathToTest = '';
 
     var next = function() {
-      expect(pathToTest.indexOf('.jade')).to.be.greaterThan(0);
+      expect(pathToTest.indexOf('.pug')).to.be.greaterThan(0);
       done();
     };
 

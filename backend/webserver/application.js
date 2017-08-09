@@ -14,7 +14,7 @@ var application = express();
 exports = module.exports = application;
 
 application.set('views', [FRONTEND_PATH + '/views', FRONTEND_PATH + '/js']);
-application.set('view engine', 'jade');
+application.set('view engine', 'pug');
 
 var morgan = require('morgan');
 var format = 'combined';

@@ -1,0 +1,11 @@
+ng-form(name="form")
+  .card
+    .card-header
+      h2 #{__('Home page')}
+        small #{__('Set the default page to load after login')}
+    .card-body.card-padding
+      .row
+        .col-md-6
+          esn-form-group(label=__('Home page'))
+            .select
+              select.form-control(ng-model="$ctrl.homePage", name="homePage", ng-options="key as homePage for (key, homePage) in $ctrl.availablePages")

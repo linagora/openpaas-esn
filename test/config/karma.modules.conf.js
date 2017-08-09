@@ -117,10 +117,11 @@ module.exports = function(config) {
       'modules/**/frontend/js/**/*.js',
       'modules/**/frontend/app/**/*.js',
       'modules/**/test/unit-frontend/**/*.js',
-      'frontend/js/modules/**/*.jade',
-      'modules/**/frontend/views/**/*.jade',
-      'modules/**/frontend/app/**/*.jade',
-      'frontend/views/modules/**/*.jade',
+
+      'frontend/js/modules/**/*.pug',
+      'modules/**/frontend/views/**/*.pug',
+      'modules/**/frontend/app/**/*.pug',
+      'frontend/views/modules/**/*.pug',
 
       // fixtures
       { pattern: 'frontend/images/**/*.png', watched: false, included: false, served: true },
@@ -152,7 +153,7 @@ module.exports = function(config) {
 
     preprocessors: {
       'modules/**/frontend/js/**/*.js': ['coverage'],
-      '**/*.jade': ['ng-jade2module'],
+      '**/*.pug': ['ng-jade2module'],
       'modules/**/unit-frontend/fixtures/**': ['raw2js'],
       'modules/**/app/fixtures/**': ['raw2js']
     },
@@ -180,13 +181,13 @@ module.exports = function(config) {
         var cacheId = '';
 
         if (filepath.match(/^frontend\/js*/)) {
-          cacheId = '/views' + filepath.substr(11).replace('.jade', '.html');
+          cacheId = '/views' + filepath.substr(11).replace('.pug', '.html');
         } else if (filepath.match(/^frontend*/)) {
-          cacheId = filepath.substr(8).replace('.jade', '.html');
+          cacheId = filepath.substr(8).replace('.pug', '.html');
         } else if (filepath.match(/^modules*/)) {
           cacheId = filepath.replace('modules/linagora.esn.', '/')
             .replace('frontend/', '')
-            .replace('.jade', '.html');
+            .replace('.pug', '.html');
         }
 
         return cacheId;

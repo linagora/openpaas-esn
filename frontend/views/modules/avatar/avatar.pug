@@ -1,0 +1,3 @@
+.avatar-with-bubble
+  img(ng-src="{{$ctrl.avatar.url}}", src='/images/throbber-amber.svg', fallback-src='/images/user.png', alt=__("Avatar"))
+  user-status-bubble(ng-if="$ctrl.displayUserStatus()", user-id="$ctrl.avatar.id")

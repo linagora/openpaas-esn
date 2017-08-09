@@ -1,0 +1,20 @@
+div
+  form(role="form")
+    .input-group
+      input.search-query.form-control(type='text', ng-model='searchInput', ng-change='search.status="none"', placeholder=__("Search"))
+      .input-group-btn
+        button.btn.btn-default(type='submit', ng-click='doSearch()')
+          i.mdi.mdi-magnify
+    .vertiz-space
+    div(ng-show="search.status=='error'")
+      .text-danger {{search.err.message}}: {{search.err.details}}
+    div(ng-if="search.count==0 && !search.running")
+      span #{__("There is no result matching your query")}
+    div(ng-if="search.count==1")
+      span {{search.formattedCount}} #{__("Result")}
+    div(ng-if="search.count>1 && search.count<1000")
+      span {{search.formattedCount}} #{__("Results")}
+    div(ng-if="search.count>1000")
+      span #{__("About")} {{search.formattedCount}} #{__("Results")}
+    div(class="col-md-2 col-md-offset-5", ng-show="search.running")
+      span.throbber(us-spinner="{{spinnerConf}}", spinner-key='{{spinnerKey}}', spinner-start-active='1')

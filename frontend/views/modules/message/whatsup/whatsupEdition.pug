@@ -1,0 +1,19 @@
+.whats-up-composer.form-container(ng-controller='messageController', nv-file-drop="" uploader="uploader")
+  form(name='whatsupform')
+    .form-group.message-textarea-edition(ng-class='{nopadding: rows !== 5}')
+      .fg-line
+        textarea.form-control(ng-model='messageContent', ng-focus='expand()', ng-blur='shrink();', placeholder=__('Post a new whatsup message'), rows="{{rows}}", ng-file-drop="onFileSelect($files)")
+    .row.form-group.display-current-position(ng-if='position.show')
+      map-get-display-current-position
+    .row.form-group(ng-if='attachments && attachments.length > 0')
+      message-edition-attachments
+    .form-group.text-right.post-attachments(ng-class='{nopadding: rows !== 5}', ng-hide='rows !== 5')
+      button.btn.btn-link(type='file', ng-file-select='onFileSelect($files)', data-multiple='true')
+        i.mdi.mdi-paperclip
+      a(href='', fill-position)
+        i.mdi.mdi-map-marker
+    .message-edition-button-block
+      .form-group(ng-class='{nopadding: rows !== 5}', ng-hide='rows !== 5')
+        .text-right
+          a.m-r-15(type='reset', ng-click='resetMessage()') #{__('Cancel')}
+          button.btn.btn-primary(type='submit', ng-click='sendMessage()') #{__('Post')}

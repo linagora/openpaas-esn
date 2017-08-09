@@ -1,0 +1,23 @@
+form(name='form')
+  fieldset(ng-disabled='loginIn')
+    .input-group.m-b-20
+      span.input-group-addon
+        i.mdi.mdi-account
+      .fg-line
+        input.form-control(type='email', ng-model='credentials.username', name='email', id='username', placeholder=__('Email'), autofocus=true, required)
+    .input-group.m-b-20
+      span.input-group-addon
+        i.mdi.mdi-lock
+      .fg-line
+        input.form-control(type='password', ng-model='credentials.password', name='password', id='password', placeholder=__('Password'), required, autocomplete='{{autocomplete}}')
+    .clearfix
+    .flex-start
+      .checkbox.m-l-3
+        label
+          input(type='checkbox', ng-model='credentials.rememberme', name='rememberme', id='rememberme')
+          i.input-helper
+          | #{__('Remember me')}
+      .forgot-password.m-10
+        a(href="", data-ng-click="tab(3);") #{__('Forgot password?')}
+
+    button.m-t-25.col-xs-12.btn.btn-accent(type='submit', icon='next', ng-click='autofill(); login(form)', ng-disabled='loginTask.running') #{__('Login')}

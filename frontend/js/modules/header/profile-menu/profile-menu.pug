@@ -1,0 +1,15 @@
+md-menu.blue(md-position-mode='right bottom')
+  img.header-avatar(ng-src="{{ctrl.avatarURL}}", alt=__("Avatar"), aria-label='menu', ng-click='ctrl.openMenu($mdMenu, $event)')
+  md-menu-content.dm-icon
+    md-menu-item
+      md-button(ui-sref="profile({ user_id: '' })")
+        md-icon(md-svg-icon="account",aria-label="Account Icon")
+        | #{__('Profile')}
+    md-menu-item
+      md-button(ui-sref="controlcenter")
+        md-icon(md-svg-icon="account-settings-variant",aria-label="account-settings-variant Icon")
+        | #{__('Control Center')}					
+    md-menu-item
+      md-button(href="/logout")
+        md-icon(md-svg-icon="power",aria-label="power Icon")
+        | #{__('Logout')}

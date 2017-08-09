@@ -322,13 +322,9 @@ module.exports = function(grunt) {
   grunt.registerTask('docker-test-midway-backend', ['setup-environment', 'setup-mongo-es-docker', 'run_grunt:midway_backend', 'kill-containers', 'clean-environment']);
   grunt.registerTask('docker-test-modules-midway', ['setup-environment', 'setup-mongo-es-docker', 'run_grunt:modules_midway_backend', 'kill-containers', 'clean-environment']);
   grunt.registerTask('i18n', 'Check the translation files', ['i18n_checker']);
-<<<<<<< HEAD
-  grunt.registerTask('linters', 'Check code for lint', ['eslint:all', 'lint_pattern', 'i18n']);
   grunt.registerTask('swagger-generate', 'Grunt plugin for swagger generate', ['swagger_generate']);
-=======
   grunt.registerTask('pug-linter', 'Check the pug/jade files', ['puglint:all']);
   grunt.registerTask('linters', 'Check code for lint', ['eslint:all', 'lint_pattern', 'i18n', 'pug-linter']);
->>>>>>> Add new grunt task for linting jade/pug files
 
   /**
    * Usage:

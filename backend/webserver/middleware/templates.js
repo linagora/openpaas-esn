@@ -1,19 +1,26 @@
-'use strict';
+/* eslint-disable no-process-env*/
 
-var fs = require('fs-extra');
-var path = require('path');
+const fs = require('fs-extra');
+const path = require('path');
 
-var VIEWS_ROOT_FOLDER = path.normalize(__dirname + '../../../../frontend/views/');
-var CUSTOM_FOLDER = process.env.ESN_CUSTOM_TEMPLATES_FOLDER || 'custom';
+const VIEWS_ROOT_FOLDER = path.normalize(__dirname + '../../../../frontend/views/');
+let CUSTOM_FOLDER = process.env.ESN_CUSTOM_TEMPLATES_FOLDER || 'custom';
+
 CUSTOM_FOLDER += '/';
 
+module.exports = {
+  alterViewsFolder,
+  alterTemplatePath
+};
+
 function alterTemplatePath(basePath, callback) {
-  var jadeTemplate = basePath.replace(/\.html$/, '') + '.jade';
-  fs.exists(VIEWS_ROOT_FOLDER + CUSTOM_FOLDER + jadeTemplate, function(exists) {
+  const pugTemplate = basePath.replace(/\.html$/, '') + '.pug';
+
+  fs.exists(VIEWS_ROOT_FOLDER + CUSTOM_FOLDER + pugTemplate, function(exists) {
     if (exists) {
-      callback(CUSTOM_FOLDER + jadeTemplate);
+      callback(CUSTOM_FOLDER + pugTemplate);
     } else {
-      callback(jadeTemplate);
+      callback(pugTemplate);
     }
   });
 }
@@ -24,6 +31,3 @@ function alterViewsFolder(req, res, next) {
     next();
   });
 }
-
-module.exports.alterViewsFolder = alterViewsFolder;
-module.exports.alterTemplatePath = alterTemplatePath;
