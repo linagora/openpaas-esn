@@ -1,4 +1,4 @@
-(function () {
+(function() {
   'use strict';
 
   angular.module('esn.attachment')
@@ -12,23 +12,26 @@
     };
 
     function link(scope, element) {
-      esnAttachmentViewerService.onBuildViewer(element);
-
       scope.animationView = true;
+      scope.$onInit = onInit;
       scope.close = closeViewer;
       scope.openPrev = openPrev;
       scope.openNext = openNext;
       scope.download = downloadFile;
 
-      scope.$watch(function () {
+      scope.$watch(function() {
         return esnAttachmentViewerService.getCurrentState();
-      }, function (newValue, oldValue) {
+      }, function(newValue) {
         if (newValue === ESN_AV_VIEW_STATES.OPEN_STATE) {
           scope.animationView = true;
         } else if (newValue === ESN_AV_VIEW_STATES.CLOSE_STATE) {
           scope.animationView = false;
         }
       });
+
+      function onInit() {
+        esnAttachmentViewerService.onBuildViewer(element);
+      }
 
       function closeViewer(event) {
         esnAttachmentViewerService.onClose(event);

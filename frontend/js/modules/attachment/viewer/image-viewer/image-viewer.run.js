@@ -4,7 +4,6 @@ angular.module('esn.attachment')
   .run(function(esnAttachmentViewerService, ESN_ATTACHMENT_VIEWERS) {
     var imageViewer = ESN_ATTACHMENT_VIEWERS.imageViewer;
     imageViewer.fitSizeContent = fitSizeContent;
-    
     esnAttachmentViewerService.onBuildRegistry(imageViewer);
 
     function fitSizeContent(onResize, image) {
@@ -19,7 +18,7 @@ angular.module('esn.attachment')
         };
         angular.extend(imageViewer.sizeOptions, sizeOptions);
         onResize(self.sizeOptions, image);
-      }
+      };
       img.src = image.src;
     }
   });

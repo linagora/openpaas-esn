@@ -14,11 +14,7 @@
     function link(scope, elem) {
       var image = angular.element(elem.find('.av-img'));
       image.src = scope.file.url;
-      scope.provider.fitSizeContent.call(
-        scope.provider,
-        esnAttachmentViewerService.onResize,
-        image
-      );
+      scope.provider.fitSizeContent(esnAttachmentViewerService.onResize, image);
     }
   }
 

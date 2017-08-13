@@ -11,11 +11,8 @@
       templateUrl: '/views/modules/attachment/viewer/default-viewer/default-viewer.html'
     };
 
-    function link(scope, elem) {
-      scope.provider.fitSizeContent.call(
-        scope.provider,
-        esnAttachmentViewerService.onResize
-      );
+    function link(scope) {
+      scope.provider.fitSizeContent(esnAttachmentViewerService.onResize);
     }
   }
 

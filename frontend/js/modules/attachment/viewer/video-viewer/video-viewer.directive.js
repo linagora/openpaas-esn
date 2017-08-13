@@ -17,16 +17,14 @@
         scope.API = API;
       };
       scope.config = {
-        preload: "none",
+        preload: 'none',
         sources: [
-          { 
-            src: $sce.trustAsResourceUrl(scope.file.url), type: 'video/mp4',
-            src: $sce.trustAsResourceUrl(scope.file.url), type: 'video/ogg',
-            src: $sce.trustAsResourceUrl(scope.file.url), type: 'video/webm'
-          }
+          {src: $sce.trustAsResourceUrl(scope.file.url), type: 'video/webm'},
+          {src: $sce.trustAsResourceUrl(scope.file.url), type: 'video/ogg'},
+          {src: $sce.trustAsResourceUrl(scope.file.url), type: 'video/mp4'}
         ],
         theme: {
-          url: "/components/videogular-themes-default/videogular.css"
+          url: '/components/videogular-themes-default/videogular.css'
         },
         plugins: {
           controls: {
@@ -36,11 +34,7 @@
         }
       };
 
-      scope.provider.fitSizeContent.call(
-        scope.provider,
-        esnAttachmentViewerService.onResize,
-        elem.find('.videogular-container')
-      );
+      scope.provider.fitSizeContent(esnAttachmentViewerService.onResize, elem.find('.videogular-container'));
     }
   }
 

@@ -4,12 +4,10 @@
   angular.module('esn.attachment')
     .factory('esnAttachmentViewerGalleryService', esnAttachmentViewerGalleryService);
 
-  function esnAttachmentViewerGalleryService($compile, $window, $rootScope) {
+  function esnAttachmentViewerGalleryService() {
 
     var DEFAULT_GALLERY = 'noname';
     var galleries = {};
-
-    galleries[DEFAULT_GALLERY] = [];
 
     return {
       getDefaultGallery: getDefaultGallery,
@@ -23,7 +21,7 @@
     }
 
     function addFileToGallery(file, gallery) {
-      var galleryName = gallery ? gallery : DEFAULT_GALLERY
+      var galleryName = gallery || DEFAULT_GALLERY;
 
       if (!galleries[galleryName]) {
         galleries[galleryName] = [];
@@ -36,7 +34,10 @@
     }
 
     function removeFileFromGallery(file, gallery) {
-      var galleryName = gallery ? gallery : DEFAULT_GALLERY
+      var galleryName = gallery;
+      if (!gallery) {
+        galleryName = DEFAULT_GALLERY;
+      }
       var files = galleries[galleryName];
       var order = files.indexOf(file);
       files.splice(order, 1);

@@ -1,4 +1,4 @@
-.attachment-viewer(ng-click='close($event)')
+.attachment-viewer(ng-click='close($event)', ng-if="$onInit", ng-init='$onInit()')
   .av-topBar(ng-show='animationView')
     .av-data
       .av-details(ng-show='animationView')

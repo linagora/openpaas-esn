@@ -1,4 +1,4 @@
-(function () {
+(function() {
   'use strict';
 
   angular.module('esn.attachment')
@@ -12,7 +12,9 @@
     var currentState;
 
     return {
+      setState: setState,
       getState: getState,
+      getElements: getElements,
       renderViewer: renderViewer,
       buildViewer: buildViewer,
       openViewer: openViewer,
@@ -21,6 +23,18 @@
       closeViewer: closeViewer,
       removeSelf: removeSelf
     };
+
+    function setState(state) {
+      currentState = state;
+    }
+
+    function getState() {
+      return currentState;
+    }
+
+    function getElements() {
+      return elements;
+    }
 
     function renderViewer() {
       var template = angular.element('<div class="av-fadeIn"></div><esn-attachment-viewer></esn-attachment-viewer>');
@@ -43,19 +57,11 @@
       };
     }
 
-    function setState(state) {
-      currentState = state;
-    }
-
-    function getState() {
-      return currentState;
-    }
-
     function openViewer(files, order, provider) {
       var file = files[order];
 
       renderContent(file, order, provider);
-      hide(elements.mainContent);      
+      hide(elements.mainContent);
       show(elements.fadeIn);
       showDetail(file, order, files.length);
 
@@ -93,7 +99,7 @@
       function calculateSizeByDesire() {
         var ratioWindow = sizeOptions.desiredRatio.desiredRatioWindow;
 
-        angular.forEach(ESN_AV_DEFAULT_OPTIONS.screenWidth, function (value, key) {
+        angular.forEach(ESN_AV_DEFAULT_OPTIONS.screenWidth, function(value, key) {
           if (windowWidth > value && sizeOptions.desiredRatio.desiredRatioWindow <= ESN_AV_DEFAULT_OPTIONS.minRatio[key]) {
             ratioWindow = ESN_AV_DEFAULT_OPTIONS.minRatio[key];
           }
@@ -115,21 +121,18 @@
 
         if (realWidth === 0 && realHeight === 0) {
           desiredSize = ESN_AV_DEFAULT_OPTIONS.innitSize;
-        } else {
-          if ((realWidth > maxWidth) || (realHeight > maxHeight)) {
-            if ((realWidth / maxWidth) > (realHeight / maxHeight)) {
-              desiredSize.width = maxWidth;
-              desiredSize.height = parseInt(realHeight / (realWidth / desiredSize.width), 10);
-            } else {
-              desiredSize.height = maxHeight;
-              desiredSize.width = parseInt(realWidth / (realHeight / desiredSize.height), 10);
-            }
+        } else if ((realWidth > maxWidth) || (realHeight > maxHeight)) {
+          if ((realWidth / maxWidth) > (realHeight / maxHeight)) {
+            desiredSize.width = maxWidth;
+            desiredSize.height = parseInt(realHeight / (realWidth / desiredSize.width), 10);
           } else {
-            desiredSize = sizeOptions.realSize;
+            desiredSize.height = maxHeight;
+            desiredSize.width = parseInt(realWidth / (realHeight / desiredSize.height), 10);
           }
+        } else {
+          desiredSize = sizeOptions.realSize;
         }
       }
-
       return desiredSize;
     }
 
@@ -147,8 +150,8 @@
 
       function resizeOuterContainer() {
         elements.outerContainer.css({
-          'width': newWidth + 'px',
-          'height': newHeight + 'px'
+          width: newWidth + 'px',
+          height: newHeight + 'px'
         });
       }
 
@@ -159,14 +162,14 @@
           topBarW = minWidth;
         }
         elements.topBar.css({
-          'width': topBarW + 'px'
+          width: topBarW + 'px'
         });
       }
 
       function resizeViewer() {
         var paddingTop;
 
-        if (elements.topBar.height()) {
+        if (elements.topBar.height() > 0) {
           elements.topBar.newHeight = elements.topBar.height();
         }
         paddingTop = (windowHeight - newHeight) / 2 - elements.topBar.newHeight;
@@ -182,20 +185,21 @@
         if (windowWidth < 700) {
           extraWidth = 0.22 * windowWidth;
         }
-        if (elements.nav.height()) {
+        if (elements.nav.height() > 0) {
           elements.nav.newHeight = elements.nav.height();
         }
         elements.nav.css({
-          'width': newWidth + extraWidth + 'px',
-          'left': extraWidth / -2 + 'px',
-          'top': (newHeight - elements.nav.newHeight - 2) / 2 + 'px'
+          width: newWidth + extraWidth + 'px',
+          left: extraWidth / -2 + 'px',
+          top: (newHeight - elements.nav.newHeight - 2) / 2 + 'px'
         });
       }
 
       function resizeLoader() {
         var loaderHeight = elements.loader.height();
+
         elements.loader.css({
-          'top': (newHeight - loaderHeight - 2) / 2 + 'px'
+          top: (newHeight - loaderHeight - 2) / 2 + 'px'
         });
       }
 
@@ -203,7 +207,7 @@
     }
 
     function showContent() {
-      $timeout(function () {
+      $timeout(function() {
         hide(elements.loader);
         show(elements.mainContent);
       }, 200);
@@ -218,20 +222,16 @@
     }
 
     function show(elem) {
-      elem.css({
-        'display': 'block'
-      });
+      elem.css({ display: 'block' });
     }
 
     function hide(elem) {
-      elem.css({
-        'display': 'none'
-      });
+      elem.css({ display: 'none' });
     }
 
     function closeViewer(event) {
-      if (event.target.className === 'attachment-viewer' || (event.target.className.indexOf('av-closeButton') > -1)) {
-        $timeout(function () {
+      if (event.target.className.indexOf('attachment-viewer') > -1 || (event.target.className.indexOf('av-closeButton') > -1)) {
+        $timeout(function() {
           hide(elements.attachmentViewer);
           hide(elements.mainContent);
           elements.mainContent.html('');
