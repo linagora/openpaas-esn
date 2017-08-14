@@ -105,17 +105,19 @@ module.exports = function(config) {
       'frontend/components/angular-file-saver/dist/angular-file-saver.bundle.js',
       'frontend/components/waves/dist/waves.min.js',
       'test/fixtures/code-generation/constants.js',
+
+      { pattern: 'frontend/js/modules/user-notification/user-notification.router.js', watched: false, included: false, served: false },
+      { pattern: 'frontend/js/modules/oauth-application/oauth-application.router.js', watched: false, included: false, served: false },
+      { pattern: 'frontend/js/modules/datetime/datetime.run.js', watched: false, included: false, served: false },
+      { pattern: 'frontend/images/*.png', watched: false, included: false, served: true },
+      { pattern: 'frontend/js/modules/i18n/i18n.config.js', watched: false, included: false, served: true },
+
       'frontend/js/modules/**/*.module.js',
       'frontend/js/**/*.js',
       'test/unit-frontend/**/*.js',
       'frontend/js/modules/**/*.jade',
       'frontend/views/modules/**/*.jade',
-      'frontend/views/esn/partials/**/*.jade',
-      { pattern: 'frontend/js/modules/user-notification/user-notification.router.js', watched: false, included: false, served: false },
-      { pattern: 'frontend/js/modules/oauth-application/oauth-application.router.js', watched: false, included: false, served: false },
-      { pattern: 'frontend/js/modules/datetime/datetime.run.js', watched: false, included: false, served: false },
-      { pattern: 'frontend/images/*.png', watched: false, included: false, served: true },
-      { pattern: 'frontend/js/modules/i18n/i18n.config.js', watched: false, included: false, served: true }
+      'frontend/views/esn/partials/**/*.jade'
     ],
 
     proxies: {
