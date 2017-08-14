@@ -27,7 +27,7 @@
     "cors": "2.8.1",
     "cron": "1.1.0",
     "dotty": "0.0.2",
-    "ejs": "2.5.2",
+    "ejs": "2.5.6",
     "elasticsearch": "11.0.1",
     "email-addresses": "2.0.2",
     "email-templates": "2.4.1",
