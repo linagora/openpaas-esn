@@ -35,17 +35,17 @@ describe('The esnAttachmentViewerViewService service', function() {
 
   describe('The getState function', function() {
     it('should return the open state of the modal', function() {
-      esnAttachmentViewerViewService.setState(ESN_AV_VIEW_STATES.OPEN_STATE);
+      esnAttachmentViewerViewService.setState(ESN_AV_VIEW_STATES.OPEN);
       var currentState = esnAttachmentViewerViewService.getState();
 
-      expect(currentState).to.be.equal(ESN_AV_VIEW_STATES.OPEN_STATE);
+      expect(currentState).to.be.equal(ESN_AV_VIEW_STATES.OPEN);
     });
 
     it('should return the close state of the modal', function() {
-      esnAttachmentViewerViewService.setState(ESN_AV_VIEW_STATES.CLOSE_STATE);
+      esnAttachmentViewerViewService.setState(ESN_AV_VIEW_STATES.CLOSE);
       var currentState = esnAttachmentViewerViewService.getState();
 
-      expect(currentState).to.be.equal(ESN_AV_VIEW_STATES.CLOSE_STATE);
+      expect(currentState).to.be.equal(ESN_AV_VIEW_STATES.CLOSE);
     });
   });
 
@@ -95,7 +95,7 @@ describe('The esnAttachmentViewerViewService service', function() {
 
       expect(elements.attachmentViewer.css('display')).to.be.equal('block');
       expect(body.find('esn-image-viewer').length).to.be.equal(1);
-      expect(esnAttachmentViewerViewService.getState()).to.be.equal(ESN_AV_VIEW_STATES.OPEN_STATE);
+      expect(esnAttachmentViewerViewService.getState()).to.be.equal(ESN_AV_VIEW_STATES.OPEN);
     });
   });
 
@@ -160,7 +160,7 @@ describe('The esnAttachmentViewerViewService service', function() {
       $timeout.verifyNoPendingTasks();
 
       expect(elements.attachmentViewer.css('display')).to.be.equal('none');
-      expect(esnAttachmentViewerViewService.getState()).to.be.equal(ESN_AV_VIEW_STATES.CLOSE_STATE);
+      expect(esnAttachmentViewerViewService.getState()).to.be.equal(ESN_AV_VIEW_STATES.CLOSE);
     });
   });
 

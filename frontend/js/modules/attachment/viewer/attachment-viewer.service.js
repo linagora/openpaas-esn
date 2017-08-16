@@ -4,43 +4,35 @@
   angular.module('esn.attachment')
     .factory('esnAttachmentViewerService', esnAttachmentViewerService);
 
-  function esnAttachmentViewerService(esnAttachmentViewerRegistryService, esnAttachmentViewerGalleryService, esnAttachmentViewerViewService, FileSaver, $http, $log) {
+  function esnAttachmentViewerService(esnAttachmentViewerRegistryService, esnAttachmentViewerGalleryService, esnAttachmentViewerViewService, FileSaver, $http, $log, $rootScope) {
 
     var viewerServiceDefinition = ['name', 'directive', 'contentType', 'sizeOptions', 'fitSizeContent'];
-
-    var galleryService = esnAttachmentViewerGalleryService;
-    var viewerRegistryService = esnAttachmentViewerRegistryService;
-    var viewerViewService = esnAttachmentViewerViewService;
 
     var currentItem = {};
     var init = true;
 
     return {
-      onInit: onInit,
+      getCurrentItem : getCurrentItem,
+      onBuild: onBuild,
       onBuildRegistry: onBuildRegistry,
-      onBuildViewer: onBuildViewer,
       onOpen: onOpen,
       openNext: openNext,
       openPrev: openPrev,
       onResize: onResize,
       downloadFile: downloadFile,
-      getCurrentState: getCurrentState,
-      onClose: onClose,
       onDestroy: onDestroy
     };
 
-    function onInit(file, gallery) {
-      if (init) {
-        viewerViewService.renderViewer();
-        init = false;
-      }
-
-      buildGallery(file, gallery);
+    function getCurrentItem() {
+      return currentItem;
     }
 
-    function buildGallery(file, gallery) {
-      file.url = '/api/files/' + file._id;
-      galleryService.addFileToGallery(file, gallery);
+    function onBuild(file, gallery) {
+      if (init) {
+        esnAttachmentViewerViewService.renderViewer();
+        init = false;
+      }
+      esnAttachmentViewerGalleryService.addFileToGallery(file, gallery);
     }
 
     function onBuildRegistry(viewerRegistry) {
@@ -52,20 +44,16 @@
         }
       });
       if (required) {
-        viewerRegistryService.addFileViewerProvider(viewerRegistry);
+        esnAttachmentViewerRegistryService.addFileViewerProvider(viewerRegistry);
       } else {
         $log.debug('Viewer provider need to be defined properly');
       }
     }
 
-    function onBuildViewer(viewer) {
-      viewerViewService.buildViewer(viewer);
-    }
-
     function onOpen(file, gallery) {
-      var defaultGallery = galleryService.getDefaultGallery();
+      var defaultGallery = esnAttachmentViewerGalleryService.getDefaultGallery();
       var galleryName = gallery || defaultGallery;
-      var files = galleryService.getAllFilesInGallery(galleryName);
+      var files = esnAttachmentViewerGalleryService.getAllFilesInGallery(galleryName);
       var order = files.indexOf(file);
 
       openViewer(files, order);
@@ -94,28 +82,28 @@
     }
 
     function openViewer(files, order) {
-      var provider = viewerRegistryService.getProvider(files[order].contentType);
-      provider = provider || viewerRegistryService.getProvider('default');
+      var provider = esnAttachmentViewerRegistryService.getProvider(files[order].contentType);
+      provider = provider || esnAttachmentViewerRegistryService.getProvider('default');
 
       if (order > -1) {
         currentItem = {
           files: files,
           order: order
         };
-        viewerViewService.openViewer(files, order, provider);
+        esnAttachmentViewerViewService.renderContent(files[order], provider);
       } else {
         $log.debug('No such file in gallery');
       }
     }
 
     function onResize(sizeOptions, item) {
-      var newSize = viewerViewService.calculateSize(sizeOptions);
+      var newSize = esnAttachmentViewerViewService.calculateSize(sizeOptions);
 
       if (item) {
         item.width(newSize.width);
         item.height(newSize.height);
       }
-      viewerViewService.resizeElements(newSize);
+      esnAttachmentViewerViewService.resizeElements(newSize);
     }
 
     function downloadFile() {
@@ -136,17 +124,9 @@
       });
     }
 
-    function getCurrentState() {
-      return viewerViewService.getState();
-    }
-
-    function onClose(event) {
-      viewerViewService.closeViewer(event);
-    }
-
     function onDestroy(file, gallery) {
-      galleryService.removeFileFromGallery(file, gallery);
-      viewerViewService.removeSelf();
+      esnAttachmentViewerGalleryService.removeFileFromGallery(file, gallery);
+      esnAttachmentViewerViewService.removeSelf();
       init = true;
     }
   }

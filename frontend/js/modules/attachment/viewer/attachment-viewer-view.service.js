@@ -17,7 +17,7 @@
       getElements: getElements,
       renderViewer: renderViewer,
       buildViewer: buildViewer,
-      openViewer: openViewer,
+      renderContent: renderContent,
       calculateSize: calculateSize,
       resizeElements: resizeElements,
       closeViewer: closeViewer,
@@ -37,16 +37,12 @@
     }
 
     function renderViewer() {
-      var template = angular.element('<div class="av-fadeIn"></div><esn-attachment-viewer></esn-attachment-viewer>');
-      var scope = $rootScope.$new(true);
-
-      scope.onView = true;
-      body.append($compile(template)(scope));
+      var template = renderDirective('esn-attachment-viewer');
+      body.append(template);
     }
 
     function buildViewer(viewer) {
       elements = {
-        fadeIn: body.find('.av-fadeIn'),
         attachmentViewer: viewer,
         topBar: viewer.find('.av-topBar'),
         outerContainer: viewer.find('.av-outerContainer'),
@@ -57,32 +53,24 @@
       };
     }
 
-    function openViewer(files, order, provider) {
-      var file = files[order];
-
-      renderContent(file, order, provider);
-      hide(elements.mainContent);
-      show(elements.fadeIn);
-      showDetail(file, order, files.length);
-
-      setState(ESN_AV_VIEW_STATES.OPEN_STATE);
-    }
-
-    function renderContent(file, order, provider) {
-      var template = angular.element('<esn-' + provider.directive + '-viewer></esn-' + provider.directive + '-viewer>');
+    function renderContent(file, provider) {
       var scope = $rootScope.$new(true);
+      var template;
 
       scope.file = file;
       scope.provider = provider;
-      elements.mainContent.html($compile(template)(scope));
+      template = renderDirective(provider.directive, scope);
+
+      elements.mainContent.html(template);
+      setState(ESN_AV_VIEW_STATES.OPEN);
     }
 
-    function showDetail(file, order, total) {
-      showInfo(file.name, order + 1, total);
-      show(elements.loader);
-      show(elements.attachmentViewer);
+    function renderDirective(directive, scope) {
+      var elem = angular.element('<' + directive + '></' + directive + '>');
+      var scope = scope || $rootScope.$new(true);
+      var template = $compile(elem)(scope);
 
-      total > 1 ? show(elements.nav) : hide(elements.nav);
+      return template;
     }
 
     function calculateSize(sizeOptions) {
@@ -196,10 +184,11 @@
       }
 
       function resizeLoader() {
-        var loaderHeight = elements.loader.height();
-
+        if (elements.loader.height() > 0) {
+          elements.loader.newHeight = elements.loader.height();
+        }
         elements.loader.css({
-          top: (newHeight - loaderHeight - 2) / 2 + 'px'
+          top: (newHeight - elements.loader.newHeight - 2) / 2 + 'px'
         });
       }
 
@@ -208,43 +197,21 @@
 
     function showContent() {
       $timeout(function() {
-        hide(elements.loader);
-        show(elements.mainContent);
+        setState(ESN_AV_VIEW_STATES.DISPLAY);
       }, 200);
-    }
-
-    function showInfo(title, order, total) {
-      var caption = elements.topBar.find('.av-caption');
-      var number = elements.topBar.find('.av-number');
-      var totalText = (total > 1 ? ' files' : ' file');
-      caption.text(title);
-      number.text('File ' + order + ' in ' + total + totalText);
-    }
-
-    function show(elem) {
-      elem.css({ display: 'block' });
-    }
-
-    function hide(elem) {
-      elem.css({ display: 'none' });
     }
 
     function closeViewer(event) {
       if (event.target.className.indexOf('attachment-viewer') > -1 || (event.target.className.indexOf('av-closeButton') > -1)) {
         $timeout(function() {
-          hide(elements.attachmentViewer);
-          hide(elements.mainContent);
           elements.mainContent.html('');
         }, 200);
-        hide(elements.fadeIn);
-
-        setState(ESN_AV_VIEW_STATES.CLOSE_STATE);
+        setState(ESN_AV_VIEW_STATES.CLOSE);
       }
     }
 
     function removeSelf() {
       elements.attachmentViewer.remove();
-      elements.fadeIn.remove();
     }
   }
 

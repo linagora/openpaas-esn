@@ -4,7 +4,7 @@
   angular.module('esn.attachment')
     .directive('esnAttachmentViewer', esnAttachmentViewer);
 
-  function esnAttachmentViewer(esnAttachmentViewerService, ESN_AV_VIEW_STATES) {
+  function esnAttachmentViewer(esnAttachmentViewerService, esnAttachmentViewerViewService, ESN_AV_VIEW_STATES) {
     return {
       restrict: 'E',
       templateUrl: '/views/modules/attachment/viewer/attachment-viewer.html',
@@ -12,32 +12,53 @@
     };
 
     function link(scope, element) {
-      scope.animationView = true;
-      scope.$onInit = onInit;
+      scope.view = false;
+      scope.main = false;
+      scope.nav = false;
+      scope.fileName = '';
+      scope.number = '';
+
+      scope.onInit = onInit;
       scope.close = closeViewer;
       scope.openPrev = openPrev;
       scope.openNext = openNext;
       scope.download = downloadFile;
 
       scope.$watch(function() {
-        return esnAttachmentViewerService.getCurrentState();
+        return esnAttachmentViewerViewService.getState();
       }, function(newValue) {
-        if (newValue === ESN_AV_VIEW_STATES.OPEN_STATE) {
-          scope.animationView = true;
-        } else if (newValue === ESN_AV_VIEW_STATES.CLOSE_STATE) {
-          scope.animationView = false;
+        if (newValue === ESN_AV_VIEW_STATES.OPEN) {
+          open();
+        } else if (newValue === ESN_AV_VIEW_STATES.DISPLAY) {
+          scope.main = true;
+        } else if (newValue === ESN_AV_VIEW_STATES.CLOSE) {
+          scope.view = false;
         }
       });
 
+      function open() {
+        var currentItem = esnAttachmentViewerService.getCurrentItem();
+        var order = currentItem.order + 1;
+        scope.view = true;
+        scope.main = false;
+        scope.fileName = currentItem.files[currentItem.order].name;
+        scope.number = order + '/' + currentItem.files.length;
+        if (currentItem.files.length === 1) {
+          scope.nav = false;
+        } else {
+          scope.nav = true;
+        }
+      }
+
       function onInit() {
-        esnAttachmentViewerService.onBuildViewer(element);
+        esnAttachmentViewerViewService.buildViewer(element);
       }
 
       function closeViewer(event) {
-        esnAttachmentViewerService.onClose(event);
+        esnAttachmentViewerViewService.closeViewer(event);
       }
 
-      function openPrev() {
+      function openPrev() {        
         esnAttachmentViewerService.openPrev();
       }
 

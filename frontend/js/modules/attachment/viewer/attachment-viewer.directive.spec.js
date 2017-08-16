@@ -46,7 +46,7 @@ describe('The esnAttachmentViewer directive', function() {
 
   it('should set the animationView to false when viewer state is close', function() {
     element = initDirective();
-    esnAttachmentViewerService.getCurrentState.returns(ESN_AV_VIEW_STATES.CLOSE_STATE);
+    esnAttachmentViewerService.getCurrentState.returns(ESN_AV_VIEW_STATES.CLOSE);
     element.scope().$digest();
 
     expect(element.scope().animationView).to.be.equal(false);
@@ -54,7 +54,7 @@ describe('The esnAttachmentViewer directive', function() {
 
   it('should set the animationView to true when viewer state is open', function() {
     element = initDirective();
-    esnAttachmentViewerService.getCurrentState.returns(ESN_AV_VIEW_STATES.OPEN_STATE);
+    esnAttachmentViewerService.getCurrentState.returns(ESN_AV_VIEW_STATES.OPEN);
     element.scope().$digest();
 
     expect(element.scope().animationView).to.be.equal(true);

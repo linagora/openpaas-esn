@@ -5,7 +5,7 @@
     .constant('ESN_ATTACHMENT_VIEWERS', {
       defaultViewer: {
         name: 'defaultViewer',
-        directive: 'default',
+        directive: 'esn-default-viewer',
         contentType: 'default',
         sizeOptions: {
           realSize: false,
@@ -17,7 +17,7 @@
       },
       imageViewer: {
         name: 'imageViewer',
-        directive: 'image',
+        directive: 'esn-image-viewer',
         contentType: ['image/png', 'image/x-png', 'image/jpeg', 'image/pjpeg', 'image/gif'],
         sizeOptions: {
           realSize: true,
@@ -26,7 +26,7 @@
       },
       videoViewer: {
         name: 'videoViewer',
-        directive: 'video',
+        directive: 'esn-video-viewer',
         contentType: ['video/mp4', 'video/webm', 'video/ogg'],
         sizeOptions: {
           realSize: false,
@@ -54,8 +54,9 @@
       }
     })
     .constant('ESN_AV_VIEW_STATES', {
-      OPEN_STATE: 'open',
-      CLOSE_STATE: 'close'
+      OPEN: 'open',
+      DISPLAY: 'display',
+      CLOSE: 'close'
     });
 
 })();

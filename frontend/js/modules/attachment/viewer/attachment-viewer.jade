@@ -1,22 +1,22 @@
-.attachment-viewer(ng-click='close($event)', ng-if="$onInit", ng-init='$onInit()')
-  .av-topBar(ng-show='animationView')
-    .av-data
-      .av-details(ng-show='animationView')
-        span.av-number
-        span.av-caption.ellipsis
-      .av-download(ng-click='download()', title='#{__("Download")} #{__("file")}')
-        a(href='')
-          i.mdi.mdi-download.mdi-hc-fw
-      .av-closeContainer(ng-click='close($event)', title='#{__("Close")}')
-        span.av-close
-          i.mdi.mdi-close.mdi-hc-fw.av-closeButton
-  .av-outerContainer(ng-show='animationView')
+.av-fadeIn(ng-show='view')
+.attachment-viewer(ng-if="onInit", ng-init='onInit()', ng-show='view', ng-click='close($event)')
+  .av-topBar(ng-show='view')
+    .av-details
+      span.av-number {{number}}
+      span.av-caption.ellipsis {{fileName}}
+    .av-download(ng-click='download()', title='#{__("Download")} #{__("file")}')
+      a(href='')
+        i.mdi.mdi-download.mdi-hc-fw
+    .av-closeContainer(ng-click='close($event)', title='#{__("Close")}')
+      span.av-close
+        i.mdi.mdi-close.mdi-hc-fw.av-closeButton
+  .av-outerContainer(ng-show='view')
     .av-container
-      .av-main
-      .av-loader
+      .av-main(ng-show='main')
+      .av-loader(ng-hide='main')
         span.av-cancel
       .av-nav
-        span.av-prev.nav(ng-click='openPrev()', title='#{__("Previous")}')
+        span.av-prev.nav(ng-click='openPrev()', ng-show='nav', title='#{__("Previous")}')
           i.mdi.mdi-chevron-left.mdi-hc-fw  
-        span.av-next.nav(ng-click='openNext()', title='#{__("Next")}')
+        span.av-next.nav(ng-click='openNext()', ng-show='nav', title='#{__("Next")}')
           i.mdi.mdi-chevron-right.mdi-hc-fw
