@@ -65,9 +65,9 @@
       setState(ESN_AV_VIEW_STATES.OPEN);
     }
 
-    function renderDirective(directive, scope) {
+    function renderDirective(directive, $scope) {
       var elem = angular.element('<' + directive + '></' + directive + '>');
-      var scope = scope || $rootScope.$new(true);
+      var scope = $scope || $rootScope.$new(true);
       var template = $compile(elem)(scope);
 
       return template;
@@ -198,7 +198,7 @@
     function showContent() {
       $timeout(function() {
         setState(ESN_AV_VIEW_STATES.DISPLAY);
-      }, 200);
+      }, 400);
     }
 
     function closeViewer(event) {

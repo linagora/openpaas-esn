@@ -6,12 +6,12 @@
       defaultPreview: {
         name: 'defaultViewer',
         directive: 'esn-default-preview',
-        contentType: 'default',
+        contentType: 'default'
       },
       imagePreview: {
         name: 'imageViewer',
         directive: 'esn-image-preview',
-        contentType: ['image/png', 'image/x-png', 'image/jpeg', 'image/pjpeg', 'image/gif'],
+        contentType: ['image/png', 'image/x-png', 'image/jpeg', 'image/pjpeg', 'image/gif']
       }
     });
 

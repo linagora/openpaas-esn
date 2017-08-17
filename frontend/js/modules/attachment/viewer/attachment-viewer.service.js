@@ -4,7 +4,7 @@
   angular.module('esn.attachment')
     .factory('esnAttachmentViewerService', esnAttachmentViewerService);
 
-  function esnAttachmentViewerService(esnAttachmentViewerRegistryService, esnAttachmentViewerGalleryService, esnAttachmentViewerViewService, FileSaver, $http, $log, $rootScope) {
+  function esnAttachmentViewerService(esnAttachmentViewerRegistryService, esnAttachmentViewerGalleryService, esnAttachmentViewerViewService, $log) {
 
     var viewerServiceDefinition = ['name', 'directive', 'contentType', 'sizeOptions', 'fitSizeContent'];
 
@@ -12,14 +12,13 @@
     var init = true;
 
     return {
-      getCurrentItem : getCurrentItem,
+      getCurrentItem: getCurrentItem,
       onBuild: onBuild,
       onBuildRegistry: onBuildRegistry,
       onOpen: onOpen,
       openNext: openNext,
       openPrev: openPrev,
       onResize: onResize,
-      downloadFile: downloadFile,
       onDestroy: onDestroy
     };
 
@@ -104,24 +103,6 @@
         item.height(newSize.height);
       }
       esnAttachmentViewerViewService.resizeElements(newSize);
-    }
-
-    function downloadFile() {
-      var file = currentItem.files[currentItem.order];
-      $http({
-        method: 'GET',
-        url: file.url,
-        responseType: 'blob'
-      }).then(function successCallback(response) {
-        var data = response.data;
-        if (!data) {
-          $log.debug('No data');
-          return;
-        }
-        FileSaver.saveAs(data, file.name);
-      }, function errorCallback() {
-        $log.debug('Fail to get file');
-      });
     }
 
     function onDestroy(file, gallery) {

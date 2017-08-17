@@ -3,9 +3,9 @@
   .av-topBar(ng-show='view')
     .av-details
       span.av-number {{number}}
-      span.av-caption.ellipsis {{fileName}}
-    .av-download(ng-click='download()', title='#{__("Download")} #{__("file")}')
-      a(href='')
+      span.av-caption.ellipsis {{file.name}}
+    .av-download(title='#{__("Download")} #{__("file")}')
+      a(href='{{file.url}}', esn-download-file='{{file.name}}')
         i.mdi.mdi-download.mdi-hc-fw
     .av-closeContainer(ng-click='close($event)', title='#{__("Close")}')
       span.av-close

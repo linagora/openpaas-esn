@@ -16,16 +16,16 @@
     self.$onDestroy = $onDestroy;
 
     function $onInit() {
-      esnAttachmentViewerService.onBuild(self.file, self.gallery);
+      esnAttachmentViewerService.onBuild(self.file);
       renderContent();
     }
 
     function openViewer() {
-      esnAttachmentViewerService.onOpen(self.file, self.gallery);
+      esnAttachmentViewerService.onOpen(self.file);
     }
 
     function $onDestroy() {
-      esnAttachmentViewerService.onDestroy(self.file, self.gallery);
+      esnAttachmentViewerService.onDestroy(self.file);
     }
 
     function renderContent() {

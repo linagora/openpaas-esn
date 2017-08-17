@@ -22,7 +22,6 @@
       scope.close = closeViewer;
       scope.openPrev = openPrev;
       scope.openNext = openNext;
-      scope.download = downloadFile;
 
       scope.$watch(function() {
         return esnAttachmentViewerViewService.getState();
@@ -41,7 +40,7 @@
         var order = currentItem.order + 1;
         scope.view = true;
         scope.main = false;
-        scope.fileName = currentItem.files[currentItem.order].name;
+        scope.file = currentItem.files[currentItem.order];
         scope.number = order + '/' + currentItem.files.length;
         if (currentItem.files.length === 1) {
           scope.nav = false;
@@ -58,16 +57,12 @@
         esnAttachmentViewerViewService.closeViewer(event);
       }
 
-      function openPrev() {        
+      function openPrev() {
         esnAttachmentViewerService.openPrev();
       }
 
       function openNext() {
         esnAttachmentViewerService.openNext();
-      }
-
-      function downloadFile() {
-        esnAttachmentViewerService.downloadFile();
       }
     }
   }
