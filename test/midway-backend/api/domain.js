@@ -158,6 +158,30 @@ describe('The domain API', function() {
           }));
       }));
     });
+
+    describe('List domains with name query', function() {
+      it('should send back 200 with a list of domains filtered by name', function(done) {
+        helpers.api.loginAsUser(app, user2Domain1Member.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
+          loggedInAsUser(request(app).get(`/api/domains?name=${domain2.name}`))
+          .expect(200)
+          .end(helpers.callbacks.noErrorAnd(res => {
+            expect(res.body).to.shallowDeepEqual([getDomainObjectFromModel(domain2)]);
+            done();
+          }));
+        }));
+      });
+
+      it('should send back 200 with an empty list if there is no domain is found', function(done) {
+        helpers.api.loginAsUser(app, user2Domain1Member.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
+          loggedInAsUser(request(app).get('/api/domains?name=abc.com'))
+          .expect(200)
+          .end(helpers.callbacks.noErrorAnd(res => {
+            expect(res.body).to.shallowDeepEqual([]);
+            done();
+          }));
+        }));
+      });
+    });
   });
 
   describe('POST /api/domains', function() {
@@ -358,9 +382,7 @@ describe('The domain API', function() {
       helpers.api.loginAsUser(app, platformAdmin.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
         loggedInAsUser(request(app).post('/api/domains').send(json))
         .expect(201)
-        .end(helpers.callbacks.noErrorAnd(res => {
-          expect(res.body.administrators.length).to.equal(1);
-
+        .end(helpers.callbacks.noErrorAnd(() => {
           Domain.findOne({ name: 'marketing', company_name: 'corporate' }, helpers.callbacks.noErrorAnd(doc => {
             expect(doc).to.exist;
 
@@ -374,6 +396,38 @@ describe('The domain API', function() {
              });
              done();
            }));
+          }));
+        }));
+      }));
+    });
+
+    it('should send back 409 when administrator email is already used', function(done) {
+      const user = {
+        email: user2Domain1Member.emails[0],
+        password: 'secret'
+      };
+
+      const json = {
+        name: 'Marketing',
+        company_name: 'Corporate',
+        administrator: user
+      };
+
+      helpers.api.loginAsUser(app, platformAdmin.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
+        loggedInAsUser(request(app).post('/api/domains').send(json))
+        .expect(409)
+        .end(helpers.callbacks.noErrorAnd(res => {
+          expect(res.body).to.shallowDeepEqual({
+            error: {
+              code: 409,
+              message: 'Conflict',
+              details: 'Administrator email is already used'
+            }
+          });
+
+          Domain.findOne({ name: 'marketing', company_name: 'corporate' }, helpers.callbacks.noErrorAnd(doc => {
+            expect(doc).to.not.exist;
+            done();
           }));
         }));
       }));

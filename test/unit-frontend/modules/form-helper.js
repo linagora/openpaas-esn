@@ -502,6 +502,84 @@ describe('The esn.form.helper Angular module', function() {
         expect(element.find('esn-form-validate-message')).to.have.length(0);
       });
     });
+
+    describe('when validator is provided', function() {
+      var formGroupAttributes;
+
+      it('should validate when validator is an asynchronous function', function() {
+        formGroupAttributes = { 'async-validator': 'validator' };
+        var template = initTemplate(null, formGroupAttributes);
+        var scope = $rootScope.$new();
+        var inputValue = 'value';
+
+        scope.validator = sinon.stub().returns($q.when(true));
+
+        var element = initDirective(scope, template);
+        var formControlEle = element.find('.form-control');
+
+        formControlEle.val(inputValue).trigger('input');
+
+        expect(scope.validator).to.have.been.calledWith(inputValue);
+      });
+
+      it('should validate when validator is a synchronous function', function() {
+        formGroupAttributes = { validator: 'validator' };
+        var template = initTemplate(null, formGroupAttributes);
+        var scope = $rootScope.$new();
+        var inputValue = 'value';
+
+        scope.validator = sinon.stub().returns(true);
+
+        var element = initDirective(scope, template);
+        var formControlEle = element.find('.form-control');
+
+        formControlEle.val(inputValue).trigger('input');
+
+        expect(scope.validator).to.have.been.calledWith(inputValue);
+      });
+
+      it('should show default synchronous error message when value is invalid', function() {
+        formGroupAttributes = { validator: 'validator' };
+        var template = initTemplate(null, formGroupAttributes);
+        var scope = $rootScope.$new();
+        var inputValue = 'value';
+
+        scope.validator = sinon.stub().returns(false);
+
+        var element = initDirective(scope, template);
+        var formControlEle = element.find('.form-control');
+        var validatorMessageElement = element.find('esn-form-validate-message');
+
+        formControlEle.val(inputValue).trigger('input');
+        formControlEle.trigger('blur');
+
+        $rootScope.$digest();
+
+        expect(scope.validator).to.have.been.calledWith(inputValue);
+        expect(validatorMessageElement.text()).to.equal('Invalid value');
+      });
+
+      it('should show default asynchronous error message when value is invalid', function() {
+        formGroupAttributes = { 'async-validator': 'validator' };
+        var template = initTemplate(null, formGroupAttributes);
+        var scope = $rootScope.$new();
+        var inputValue = 'value';
+
+        scope.validator = sinon.stub().returns($q.reject());
+
+        var element = initDirective(scope, template);
+        var formControlEle = element.find('.form-control');
+        var validatorMessageElement = element.find('esn-form-validate-message');
+
+        formControlEle.val(inputValue).trigger('input');
+        formControlEle.trigger('blur');
+
+        $rootScope.$digest();
+
+        expect(scope.validator).to.have.been.calledWith(inputValue);
+        expect(validatorMessageElement.text()).to.equal('Invalid value');
+      });
+    });
   });
 
   describe('The esnAutocompleteOff directive', function() {

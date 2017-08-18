@@ -6,13 +6,12 @@
  *     in: body
  *     description: The domain name.
  *     required: true
- *     schema:
- *       type: object
- *       properties:
- *         name:
- *           type: string
- *         company_name:
- *           type: string
+ *     type: string
+ *   dm_name_filter:
+ *     name: name
+ *     in: query
+ *     description: The domain name which is used to filter the domain by name.
+ *     type: string
  *   dm_company_name:
  *     name: company_name
  *     in: body

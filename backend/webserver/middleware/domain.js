@@ -3,6 +3,7 @@
 const emailAddresses = require('email-addresses');
 const Domain = require('mongoose').model('Domain');
 const dbHelper = require('../../helpers').db;
+const userIndex = require('../../core/user/index');
 
 module.exports = {
   load,
@@ -99,7 +100,7 @@ function requireDomainInfo(req, res, next) {
  */
 function requireAdministrator(req, res, next) {
   const administrator = req.body.administrator;
-  let details;
+  let error, details;
 
   if (!administrator) {
     details = 'An administrator is required';
@@ -112,16 +113,33 @@ function requireAdministrator(req, res, next) {
   }
 
   if (details) {
-    return res.status(400).json({
-      error: {
-        code: 400,
-        message: 'Bad Request',
-        details
-      }
-    });
+    error = {
+      code: 400,
+      message: 'Bad Request',
+      details
+    };
+
+    return res.status(error.code).json({ error });
   }
 
-  next();
+  return userIndex.findByEmail(administrator.email, (err, user) => {
+    if (err) {
+      return next(err);
+    }
+
+    if (user) {
+      details = 'Administrator email is already used';
+      error = {
+        code: 409,
+        message: 'Conflict',
+        details
+      };
+
+      return res.status(error.code).json({ error });
+    }
+
+    next();
+  });
 }
 
 /**

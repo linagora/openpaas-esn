@@ -100,10 +100,20 @@ angular.module('esn.form.helper', [
 
 .directive('esnFormGroup', function($compile) {
   function link(scope, element, attrs) {
-    var AVAILABLE_ERRORS = ['min', 'max', 'minlength', 'maxlength', 'pattern', 'email', 'required', 'url', 'date', 'datetimelocal', 'time', 'week', 'month'];
+    var AVAILABLE_ERRORS = ['min', 'max', 'minlength', 'maxlength', 'pattern', 'email', 'required', 'url', 'date', 'datetimelocal', 'time', 'week', 'month', 'validator', 'asyncValidator'];
     var fgLineEle = element.find('.fg-line');
     var formControlEle = element.find('.form-control');
     var formController = scope[attrs.form];
+    var ngModelController = formControlEle.controller('ngModel');
+    var validator = scope[attrs.validator];
+    var asyncValidator = scope[attrs.asyncValidator];
+
+    if (validator) {
+      ngModelController.$validators.validator = validator;
+    }
+    if (asyncValidator) {
+      ngModelController.$asyncValidators.asyncValidator = asyncValidator;
+    }
 
     scope.options = {};
 

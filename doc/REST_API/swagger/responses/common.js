@@ -23,6 +23,8 @@
   *     description: Forbidden. The user does not have enough rights.
   *   cm_404:
   *     description: Not found.
+  *   cm_409:
+  *     description: Conflict.
   *   cm_412:
   *     description: Precondition failed. The number of bytes recoreded by the file storage service differs from the number of bytes given by the user agent.
   *   cm_500:

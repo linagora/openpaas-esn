@@ -1,7 +1,7 @@
 'use strict';
 
-var mongoose = require('mongoose');
-var Domain = mongoose.model('Domain');
+const mongoose = require('mongoose');
+const Domain = mongoose.model('Domain');
 
 module.exports = {
   create,
@@ -10,6 +10,7 @@ module.exports = {
   getDomainAdministrators,
   load,
   list,
+  removeById,
   userIsDomainAdministrator,
   userIsDomainMember
 };
@@ -23,6 +24,10 @@ function create(domain, callback) {
 
 function update(modifiedDomain, callback) {
   Domain.update({_id: modifiedDomain.id}, modifiedDomain, callback);
+}
+
+function removeById(domainId, callback) {
+  return Domain.remove({ _id: domainId }, callback);
 }
 
 function getByName(name) {
@@ -51,7 +56,12 @@ function getDomainAdministrators(domain) {
 
 function list(options, callback) {
   options = options || {};
-  var domainQuery = Domain.find();
+  const findOptions = {};
+
+  if (options.name) {
+    findOptions.name = options.name;
+  }
+  let domainQuery = Domain.find(findOptions);
 
   if (options.offset > 0) {
     domainQuery = domainQuery.skip(+options.offset);

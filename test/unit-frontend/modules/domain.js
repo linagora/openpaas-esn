@@ -278,6 +278,28 @@ describe('The Domain Angular module', function() {
       });
 
     });
+
+    describe('The getByName function', function() {
+      var domain = { name: 'abc' };
+
+      it('should return undefined if there is no domain is found', function(done) {
+        $httpBackend.expectGET('/api/domains?name=' + domain.name).respond(200, []);
+        domainAPI.getByName(domain.name).then(function(domain) {
+          expect(domain).to.be.undefined;
+          done();
+        });
+        $httpBackend.flush();
+      });
+
+      it('should return a domain if it is found', function(done) {
+        $httpBackend.expectGET('/api/domains?name=' + domain.name).respond(200, [domain]);
+        domainAPI.getByName(domain.name).then(function(foundDomain) {
+          expect(foundDomain).to.deep.equal(domain);
+          done();
+        });
+        $httpBackend.flush();
+      });
+    });
   });
 
   describe('The domainSearchMembersProvider service', function() {
