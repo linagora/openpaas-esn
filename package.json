@@ -134,6 +134,7 @@
     "grunt-shell": "2.1.0",
     "grunt-shell-spawn": "0.3.10",
     "grunt-wait-server": "0.3.0",
+    "grunt-swagger-generate": "linagora/grunt-swagger-generate#d756f1a6c51897ddf94de8c2391bfcb14b7ca061",
     "i18n-checker": "linagora/i18n-checker#v1.1.0",
     "karma": "1.7.0",
     "karma-chrome-launcher": "2.0.0",

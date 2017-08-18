@@ -210,6 +210,34 @@ module.exports = function(grunt) {
           }
         }
       }
+    },
+
+    swagger_generate: {
+      options: {
+        baseDir: __dirname,
+        swaggerOutputFile: 'doc/REST_API/swagger/swagger.json',
+        info: {
+          title: 'OpenPaaS',
+          description: 'OpenPaaS API',
+          version: '0.1'
+        },
+        host: 'localhost:8080',
+        securityDefinitions: {
+          auth: {
+            type: 'oauth2',
+            description: 'OAuth2 security scheme for the OpenPaaS API',
+            flow: 'password',
+            tokenUrl: 'localhost:8080/oauth/token',
+            scopes: {}
+          }
+        },
+        paths: [
+          'backend/webserver/api/*.js',
+          'doc/REST_API/swagger/*/*.js',
+          'modules/*/backend/webserver/**/*.js',
+          'modules/*/doc/swagger/*/*.js'
+        ]
+      }
     }
   });
 
@@ -227,6 +255,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-eslint');
   grunt.loadNpmTasks('grunt-wait-server');
   grunt.loadNpmTasks('grunt-i18n-checker');
+  grunt.loadNpmTasks('grunt-swagger-generate');
 
   grunt.loadTasks('tasks');
 
@@ -276,6 +305,7 @@ module.exports = function(grunt) {
   grunt.registerTask('docker-test-modules-midway', ['setup-environment', 'setup-mongo-es-docker', 'run_grunt:modules_midway_backend', 'kill-containers', 'clean-environment']);
   grunt.registerTask('i18n', 'Check the translation files', ['i18n_checker']);
   grunt.registerTask('linters', 'Check code for lint', ['eslint:all', 'lint_pattern', 'i18n']);
+  grunt.registerTask('swagger-generate', 'Grunt plugin for swagger generate', ['swagger_generate']);
 
   /**
    * Usage:

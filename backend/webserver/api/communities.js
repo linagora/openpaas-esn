@@ -85,6 +85,8 @@ module.exports = function(router) {
    *         $ref: "#/responses/cm_403"
    *       404:
    *         $ref: "#/responses/cm_404"
+   *       500:
+   *         $ref: "#/responses/cm_500"
    */
   router.get('/communities/:id', authorize.requiresAPILogin, communities.load, communities.get);
 
