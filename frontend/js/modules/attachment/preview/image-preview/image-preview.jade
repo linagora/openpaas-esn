@@ -1,2 +1,2 @@
 a(target="_blank")
-    img.img-responsive.attachments(ng-src="{{::attachment.url}}", alt="{{::attachment.name}}")
+	img.img-responsive.attachments(ng-src="/api/files/{{::$ctrl.attachment._id}}", alt="{{::$ctrl.attachment.name}}")

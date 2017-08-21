@@ -4,19 +4,24 @@
 
 var expect = chai.expect;
 
-describe('The ESNAttachmentController', function() {
-  var $controller, $scope, $rootScope, esnAttachmentViewerService;
+describe.only('The ESNAttachmentController', function() {
+  var $controller, $scope, $rootScope, esnAttachmentViewerService, esnAttachmentPreviewRegistryService;
 
   beforeEach(function() {
     esnAttachmentViewerService = {
-      onInit: sinon.spy(),
+      onBuild: sinon.spy(),
       onBuildRegistry: sinon.spy(),
       onOpen: sinon.spy(),
       onDestroy: sinon.spy()
     };
 
+    esnAttachmentPreviewRegistryService = {
+      getProvider: sinon.stub()
+    };
+
     angular.mock.module('esn.attachment', function($provide) {
       $provide.value('esnAttachmentViewerService', esnAttachmentViewerService);
+      $provide.value('esnAttachmentPreviewRegistryService', esnAttachmentPreviewRegistryService);
     });
   });
 
@@ -28,7 +33,7 @@ describe('The ESNAttachmentController', function() {
   function initController() {
     $scope = $rootScope.$new();
 
-    var attachment = {
+    var file = {
        _id: 'id',
       name: 'image.jpg',
       contentType: 'image/jpeg',
@@ -38,7 +43,7 @@ describe('The ESNAttachmentController', function() {
 
     var controller = $controller('ESNAttachmentController',
       { $scope: $scope },
-      { attachment: attachment },
+      { file: file },
       { gallery: gallery }
     );
 
@@ -53,7 +58,7 @@ describe('The ESNAttachmentController', function() {
 
       controller.$onInit();
 
-      expect(esnAttachmentViewerService.onInit).to.be.calledWith(controller.attachment, controller.gallery);
+      expect(esnAttachmentViewerService.onInit).to.be.calledWith(controller.file, controller.gallery);
     });
   });
 
@@ -63,7 +68,7 @@ describe('The ESNAttachmentController', function() {
 
       controller.openViewer();
 
-      expect(esnAttachmentViewerService.onOpen).to.be.calledWith(controller.attachment, controller.gallery);
+      expect(esnAttachmentViewerService.onOpen).to.be.calledWith(controller.file, controller.gallery);
     });
   });
 
@@ -73,7 +78,17 @@ describe('The ESNAttachmentController', function() {
 
       controller.$onDestroy();
 
-      expect(esnAttachmentViewerService.onDestroy).to.be.calledWith(controller.attachment, controller.gallery);
+      expect(esnAttachmentViewerService.onDestroy).to.be.calledWith(controller.file, controller.gallery);
+    });
+  });
+
+  describe('the renderContent function', function() {
+    it('should add the attachment file into a gallery', function() {
+      var controller = initController();
+
+      controller.$onInit();
+
+      expect(esnAttachmentViewerService.onInit).to.be.calledWith(controller.file, controller.gallery);
     });
   });
 });

@@ -1,4 +1,4 @@
-(function() {
+(function () {
   'use strict';
 
   angular.module('esn.attachment')
@@ -7,8 +7,6 @@
   function esnAttachmentViewerViewService($compile, $window, $rootScope, $timeout, ESN_AV_DEFAULT_OPTIONS, ESN_AV_VIEW_STATES) {
 
     var elements = {};
-    var body = angular.element('body');
-
     var currentState;
 
     return {
@@ -38,7 +36,7 @@
 
     function renderViewer() {
       var template = renderDirective('esn-attachment-viewer');
-      body.append(template);
+      angular.element('body').append(template);
     }
 
     function buildViewer(viewer) {
@@ -46,7 +44,6 @@
         attachmentViewer: viewer,
         topBar: viewer.find('.av-topBar'),
         outerContainer: viewer.find('.av-outerContainer'),
-        container: viewer.find('.av-container'),
         mainContent: viewer.find('.av-main'),
         nav: viewer.find('.av-nav'),
         loader: viewer.find('.av-loader')
@@ -87,7 +84,7 @@
       function calculateSizeByDesire() {
         var ratioWindow = sizeOptions.desiredRatio.desiredRatioWindow;
 
-        angular.forEach(ESN_AV_DEFAULT_OPTIONS.screenWidth, function(value, key) {
+        angular.forEach(ESN_AV_DEFAULT_OPTIONS.screenWidth, function (value, key) {
           if (windowWidth > value && sizeOptions.desiredRatio.desiredRatioWindow <= ESN_AV_DEFAULT_OPTIONS.minRatio[key]) {
             ratioWindow = ESN_AV_DEFAULT_OPTIONS.minRatio[key];
           }
@@ -196,15 +193,15 @@
     }
 
     function showContent() {
-      $timeout(function() {
+      $timeout(function () {
         setState(ESN_AV_VIEW_STATES.DISPLAY);
       }, 400);
     }
 
     function closeViewer(event) {
       if (event.target.className.indexOf('attachment-viewer') > -1 || (event.target.className.indexOf('av-closeButton') > -1)) {
-        $timeout(function() {
-          elements.mainContent.html('');
+        $timeout(function () {
+          elements.mainContent.empty();
         }, 200);
         setState(ESN_AV_VIEW_STATES.CLOSE);
       }

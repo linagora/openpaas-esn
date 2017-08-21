@@ -1,8 +1,8 @@
-.esn-default-preview
+.esn-attachment
   .icon
-    a(target='_blank', title='#{__("Download")} {{::attachment.name}}')
-      esn-attachment-icon(type='attachment.contentType')
+    a(target='_blank', title='#{__("Download")} {{::$ctrl.attachment.name}}')
+      esn-attachment-icon(type='$ctrl.attachment.contentType')
   .metadata
     h2.ellipsis
-      a(target='_blank', title='#{__("Download")} {{::attachment.name}}') {{::attachment.name}}
-    small.ellipsis {{::attachment.length | bytes}} {{::attachment.contentType | extension | uppercase}} #{__("file")}
+      a(target='_blank', title='#{__("Download")} {{::$ctrl.attachment.name}}') {{::$ctrl.attachment.name}}
+    small.ellipsis {{::$ctrl.attachment.length | bytes}} {{::$ctrl.attachment.contentType | extension | uppercase}} #{__("file")}

@@ -41,6 +41,13 @@ describe('The esnAttachmentViewerViewService service', function() {
       expect(currentState).to.be.equal(ESN_AV_VIEW_STATES.OPEN);
     });
 
+    it('should return the display state of the modal', function() {
+      esnAttachmentViewerViewService.setState(ESN_AV_VIEW_STATES.DISPLAY);
+      var currentState = esnAttachmentViewerViewService.getState();
+
+      expect(currentState).to.be.equal(ESN_AV_VIEW_STATES.DISPLAY);
+    });
+
     it('should return the close state of the modal', function() {
       esnAttachmentViewerViewService.setState(ESN_AV_VIEW_STATES.CLOSE);
       var currentState = esnAttachmentViewerViewService.getState();
@@ -66,34 +73,29 @@ describe('The esnAttachmentViewerViewService service', function() {
       esnAttachmentViewerViewService.buildViewer(viewer);
       elements = esnAttachmentViewerViewService.getElements();
 
-      expect(elements.fadeIn.length).to.be.equal(1);
       expect(elements.attachmentViewer.length).to.be.equal(1);
+      expect(elements.topBar.length).to.be.equal(1);
+      expect(elements.outerContainer.length).to.be.equal(1);
+      expect(elements.mainContent.length).to.be.equal(1);
+      expect(elements.nav.length).to.be.equal(1);
+      expect(elements.loader.length).to.be.equal(1);
     });
   });
 
-  describe('The openViewer function', function() {
-    it('should show the viewer modal and render content', function() {
-      var files = [];
-      var order;
+  describe('The renderContent function', function() {
+    it('should render the content of viewer due to file type', function() {
       var provider = {
         name: 'image',
-        directive: 'image',
+        directive: 'esn-image-viewer',
         contentType: 'image/jpeg',
         sizeOptions: true,
         fitSizeContent: function() {}
       };
 
-      files.push(file);
-      order = files.indexOf(file);
-
       esnAttachmentViewerViewService.buildViewer(viewer);
-      esnAttachmentViewerViewService.openViewer(files, order, provider);
+      esnAttachmentViewerViewService.renderContent(file, provider);
       $rootScope.$digest();
 
-      $timeout.flush();
-      $timeout.verifyNoPendingTasks();
-
-      expect(elements.attachmentViewer.css('display')).to.be.equal('block');
       expect(body.find('esn-image-viewer').length).to.be.equal(1);
       expect(esnAttachmentViewerViewService.getState()).to.be.equal(ESN_AV_VIEW_STATES.OPEN);
     });
@@ -159,7 +161,7 @@ describe('The esnAttachmentViewerViewService service', function() {
       $timeout.flush();
       $timeout.verifyNoPendingTasks();
 
-      expect(elements.attachmentViewer.css('display')).to.be.equal('none');
+      expect(elements.mainContent.html()).to.be.equal('');
       expect(esnAttachmentViewerViewService.getState()).to.be.equal(ESN_AV_VIEW_STATES.CLOSE);
     });
   });

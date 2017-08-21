@@ -12,10 +12,10 @@
     };
 
     function link(scope, element) {
-      scope.view = false;
-      scope.main = false;
-      scope.nav = false;
-      scope.fileName = '';
+      scope.display = false;
+      scope.displayMain = false;
+      scope.displayNav = false;
+      scope.file = {};
       scope.number = '';
 
       scope.onInit = onInit;
@@ -29,23 +29,23 @@
         if (newValue === ESN_AV_VIEW_STATES.OPEN) {
           open();
         } else if (newValue === ESN_AV_VIEW_STATES.DISPLAY) {
-          scope.main = true;
+          scope.displayMain = true;
         } else if (newValue === ESN_AV_VIEW_STATES.CLOSE) {
-          scope.view = false;
+          scope.display = false;
         }
       });
 
       function open() {
         var currentItem = esnAttachmentViewerService.getCurrentItem();
         var order = currentItem.order + 1;
-        scope.view = true;
-        scope.main = false;
+        scope.display = true;
+        scope.displayMain = false;
         scope.file = currentItem.files[currentItem.order];
         scope.number = order + '/' + currentItem.files.length;
         if (currentItem.files.length === 1) {
-          scope.nav = false;
+          scope.displayNav = false;
         } else {
-          scope.nav = true;
+          scope.displayNav = true;
         }
       }
 

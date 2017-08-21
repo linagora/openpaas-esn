@@ -5,10 +5,9 @@
 var expect = chai.expect;
 
 describe('The esnAttachmentViewerService service', function() {
-  var esnAttachmentViewerService, esnAttachmentViewerRegistryService, esnAttachmentViewerGalleryService, esnAttachmentViewerViewService, FileSaver, ESN_ATTACHMENT_VIEWERS;
+  var esnAttachmentViewerService, esnAttachmentViewerRegistryService, esnAttachmentViewerGalleryService, esnAttachmentViewerViewService, ESN_ATTACHMENT_VIEWERS;
   var file, gallery;
   var files = [];
-  var $httpBackend;
 
   beforeEach(function() {
     esnAttachmentViewerRegistryService = {
@@ -23,28 +22,21 @@ describe('The esnAttachmentViewerService service', function() {
     };
     esnAttachmentViewerViewService = {
       renderViewer: sinon.spy(),
-      buildViewer: sinon.spy(),
-      openViewer: sinon.spy(),
+      renderContent: sinon.spy(),
       calculateSize: sinon.stub(),
       resizeElements: sinon.spy(),
       getState: sinon.spy(),
       removeSelf: sinon.spy()
     };
 
-    FileSaver = {
-      saveAs: sinon.spy()
-    };
-
     angular.mock.module('esn.attachment', function($provide) {
        $provide.value('esnAttachmentViewerRegistryService', esnAttachmentViewerRegistryService);
        $provide.value('esnAttachmentViewerGalleryService', esnAttachmentViewerGalleryService);
        $provide.value('esnAttachmentViewerViewService', esnAttachmentViewerViewService);
-       $provide.value('FileSaver', FileSaver);
     });
   });
 
   beforeEach(inject(function(_$httpBackend_, _esnAttachmentViewerService_, _ESN_ATTACHMENT_VIEWERS_) {
-    $httpBackend = _$httpBackend_;
     esnAttachmentViewerService = _esnAttachmentViewerService_;
     ESN_ATTACHMENT_VIEWERS = _ESN_ATTACHMENT_VIEWERS_;
   }));
@@ -62,15 +54,10 @@ describe('The esnAttachmentViewerService service', function() {
     files.push(file);
   });
 
-  afterEach(function() {
-    $httpBackend.verifyNoOutstandingExpectation();
-    $httpBackend.verifyNoOutstandingRequest();
-  });
-
-  describe('The onInit function', function() {
+  describe('The onBuild function', function() {
     it('should add the attachment file into a gallery', function() {
 
-      esnAttachmentViewerService.onInit(file, gallery);
+      esnAttachmentViewerService.onBuild(file, gallery);
 
       expect(esnAttachmentViewerGalleryService.addFileToGallery).to.be.calledWith(file, gallery);
     });
@@ -99,16 +86,6 @@ describe('The esnAttachmentViewerService service', function() {
     });
   });
 
-  describe('The onBuildViewer function', function() {
-    it('should build all the elements of the viewer modal', function() {
-      var viewer = angular.element('<esn-attachment-viewer></esn-attachment-viewer>');
-
-      esnAttachmentViewerService.onBuildViewer(viewer);
-
-      expect(esnAttachmentViewerViewService.buildViewer).to.be.calledWith(viewer);
-    });
-  });
-
   describe('The onOpen, openNext, openPrev function', function() {
     it('should open the file in the viewer modal', function() {
 
@@ -117,7 +94,7 @@ describe('The esnAttachmentViewerService service', function() {
       esnAttachmentViewerService.openNext(file, gallery);
       esnAttachmentViewerService.openPrev(file, gallery);
 
-      expect(esnAttachmentViewerViewService.openViewer.callCount).to.be.equal(3);
+      expect(esnAttachmentViewerViewService.renderContent.callCount).to.be.equal(3);
     });
   });
 
@@ -141,31 +118,6 @@ describe('The esnAttachmentViewerService service', function() {
       expect(item.width()).to.be.equal(200);
       expect(item.height()).to.be.equal(100);
       expect(esnAttachmentViewerViewService.resizeElements).to.be.calledWith(newSize);
-    });
-  });
-
-  describe('The downloadFile function', function() {
-    it('should download the file', function() {
-      esnAttachmentViewerGalleryService.getAllFilesInGallery.returns(files);
-      esnAttachmentViewerService.onOpen(file, gallery);
-      esnAttachmentViewerService.downloadFile();
-
-      $httpBackend.when('GET', file.url).respond(function() {
-        return [200, 'data'];
-      });
-      $httpBackend.expectGET(file.url).respond(200, 'data');
-      $httpBackend.flush();
-
-      expect(FileSaver.saveAs.getCall(0).args[1]).to.be.equal(file.name);
-    });
-  });
-
-  describe('The getCurrentState function', function() {
-    it('should get the current state of the modal viewer', function() {
-
-      esnAttachmentViewerService.getCurrentState();
-
-      expect(esnAttachmentViewerViewService.getState).to.be.calledOnce;
     });
   });
 

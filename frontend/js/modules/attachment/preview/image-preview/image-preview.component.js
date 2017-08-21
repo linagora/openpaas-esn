@@ -2,14 +2,12 @@
   'use strict';
 
   angular.module('esn.attachment')
-    .directive('esnImagePreview', esnImagePreview);
+    .component('esnImagePreview', esnImagePreview());
 
   function esnImagePreview() {
     return {
-      restrict: 'E',
-      scope: {
-        attachment: '=',
-        gallery: '='
+      bindings: {
+        attachment: '='
       },
       templateUrl: '/views/modules/attachment/preview/image-preview/image-preview.html'
     };
