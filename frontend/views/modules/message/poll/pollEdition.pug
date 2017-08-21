@@ -1,0 +1,32 @@
+.poll-composer.form-container(ng-controller='messageController', nv-file-drop="" uploader="uploader")
+  form(name='messageform')
+    .form-group.message-textarea-edition
+      .fg-line
+        textarea.form-control(ng-model='messageContent', placeholder=__('Enter your poll description and question'), rows="{{rows}}", ng-file-drop="onFileSelect($files)")
+    p 
+      strong #{__('Your poll options')}
+    .form-horizontal
+      .form-group(ng-repeat='choice in additionalData.pollChoices')
+        label.col-sm-2.control-label #{__('Option')} {{$index + 1}}
+        .col-sm-10
+          .fg-line
+            input.form-control(type='text' ng-model='choice.label' placeholder=__('Poll option description...'))
+    .form-group
+      p
+        button.btn.btn-link(ng-click='appendChoice()')
+          i.mdi.mdi-plus 
+            span #{__('Add another option')}
+    .row.form-group.display-current-position
+      map-get-display-current-position
+    .row.form-group(ng-if='attachments && attachments.length > 0')
+      message-edition-attachments
+    .form-group.text-right.post-attachments
+      button.btn.btn-link(type='file', ng-file-select='onFileSelect($files)', data-multiple='true')
+        i.mdi.mdi-paperclip
+      a(href='', fill-position)
+        i.mdi.mdi-map-marker
+    .message-edition-button-block
+      .form-group
+        .text-right
+          a.m-r-15(type='reset', ng-click='resetMessage()') #{__('Cancel')}
+          button.btn.btn-primary(type='submit', ng-click='sendMessage()') #{__('Post')}

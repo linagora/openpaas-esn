@@ -1,0 +1,14 @@
+.oauth-application-edit-form
+  ng-form(name='form')
+    esn-form-group(label=__('Application name'))
+      input.form-control(type='text', ng-model='$ctrl.application.name', name='name', autofocus=true, required)
+      span.help-block #{__('Application name will help users to find and trust it')}.
+    esn-form-group(label=__('Redirect URI'))
+      input.form-control(type='url', ng-model='$ctrl.application.redirectUri', name='redirectUri', required pattern="https?://.+")
+      span.help-block #{__("The application's callback URL. Check OAuth documentation for more details")}.
+    esn-form-group(label=__('Application description'))
+      textarea.form-control(ng-model='$ctrl.application.description', name='description')
+      span.help-block #{__('Tell us what your application is about')}.
+    .form-group.text-center
+      button.btn.btn-warning.m-5(type='submit', ng-click='$ctrl.update()') #{__('Update')}
+      button.btn.btn-danger.m-5(type='submit', ng-click='$ctrl.remove()') #{__('Delete')}

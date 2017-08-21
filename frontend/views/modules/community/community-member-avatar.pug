@@ -1,0 +1,5 @@
+div
+  a(ui-sref="profile({user_id: member.user._id})", href="#", data-title='{{tooltip.title}}', data-animation="am-flip-x", data-placement="bottom", bs-tooltip="tooltip")
+    img(ng-src="/api/users/{{member.user._id}}/profile/avatar", src="/images/user.png", alt=__("Member Avatar"))
+    span.badge(title='Creator', ng-show='creator')
+      i.mdi.mdi-trophy

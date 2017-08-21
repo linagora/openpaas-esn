@@ -1,0 +1,11 @@
+div(ng-class="{'just-posted': message._id === lastPost.messageId}")
+  a.pull-left(href='#')
+    img.media-object(src='/images/user.png', ng-src='/api/users/{{message.author._id}}/profile/avatar', alt=__("Message Author"))
+  div.media-body
+    message-template-displayer(message='message' streams='streams' activitystream='activitystream')
+
+    div.media(ng-hide='!message.responses || message.responses.length === 0', ng-repeat='response in message.responses')
+      messages-display(message='response')
+
+    div.media
+      whatsup-add-comment(ng-show="writable")

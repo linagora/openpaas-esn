@@ -1,0 +1,54 @@
+doctype html
+html.login-content
+  include ../commons/utils.pug
+  head
+    meta(charset='utf8')
+    base(href='/')
+    title #{title} - OpenPaas
+    meta(name="viewport", content="width=device-width, initial-scale=1")
+    link(rel='icon', type='image/png', href='images/logo-tiny.png')
+    link(rel='stylesheet', href='/components/mdi/css/materialdesignicons.min.css', media='all')
+    link(rel='stylesheet', href='/components/roboto-fontface/css/roboto-fontface.css')
+    link(rel='stylesheet', href='/components/animate.css/animate.css')
+    link(rel='stylesheet', href='/generated/css/welcome/styles.css')
+      
+    <!-- Electron Hack -->
+    script.
+      if (typeof module === 'object') {
+        window.module = module;
+        module = undefined;
+      }
+      
+    script(src='/components/jquery/dist/jquery.min.js')
+    script(src='/components/lodash/dist/lodash.min.js')
+    script(src='/components/bootstrap/dist/js/bootstrap.min.js')
+    script(src='/components/angular/angular.min.js')
+    script(src='/components/angular-route/angular-route.min.js')
+    script(src='/components/restangular/dist/restangular.min.js')
+    script(src="/components/recaptcha_ajax/index.js")
+    script(src='/components/angular-recaptcha/release/angular-recaptcha.js')
+    script(src='/components/angular-sanitize/angular-sanitize.min.js')
+    script(src='/components/moment/min/moment.min.js')
+    script(src='/components/angular-moment/angular-moment.min.js')
+    script(src='/components/remarkable-bootstrap-notify/bootstrap-notify.min.js')
+    script(src='/components/angular-strap/dist/angular-strap.min.js')
+    script(src='/components/angular-strap/dist/angular-strap.tpl.min.js')
+    script(src='/components/angular-component/dist/angular-component.min.js')
+    script(src='/components/angular-messages/angular-messages.min.js')
+    script(src='js/material.js')
+    script(src='/components/material-admin/js/modules/form.js')
+    script(src='/components/dynamic-directive/dist/dynamic-directive.min.js')
+    script(src='/components/waves/dist/waves.min.js')
+    script(src='/components/angular-translate/angular-translate.min.js')
+    +injectJSFromModules('welcome', assets)
+    +injectJSAppFromModules('welcome', assets)
+    +injectAngularFromModules('welcome', assets)
+    script(src='js/welcome/app.js')
+    script(src='js/constants.js')
+
+    <!-- Electron Hack -->
+    script.
+      if (window.module) module = window.module;
+
+  body.login(ng-app='welcomeApp', ng-init="recaptchaPublicKey=recaptchaPublicKey")
+    .aligner(ng-view ng-cloak)

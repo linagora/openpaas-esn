@@ -1,0 +1,45 @@
+.modal-header
+  button.close(type="button", ng-click="createModal.hide()", ng-hide="sending") &times;
+  h4.modal-title #{__('Create a community')}
+.modal-body
+  form(name='communityForm', ng-hide="sending")
+    .form-group.has-feedback(ng-class='{"has-error": communityForm.title.$error.unique}')
+      .fg-line
+        input.form-control(type='text', ng-model='community.title', ng-model-options="{debounce: 1000}", id="title", name='title', placeholder=__('The community title'), autofocus=true, required, esn-track-first-blur, ensure-unique-community-title, domain-id='{{domain._id}}')
+      span.form-control-feedback(ng-show='communityForm.title.$pending.unique')
+      i.mdi.mdi-web.mdi-spin.form-control-feedback(ng-show='communityForm.title.$pending.unique')
+      span.help-block(ng-show='communityForm.title.$error.unique') #{__('This community title already exists. Please choose another one.')}
+      span.help-block(ng-show='validationError.ajax && !validationError.unique') #{__('An error occured while checking for community title validity.')}
+      span.help-block(ng-show='!validationError.ajax && validationError.unique') #{__('This community title already exists. Please choose another one.')}
+    .form-group()
+      fieldset
+        label #{__('Visibility')}&nbsp;
+        .radio
+          label
+            input(type="radio", ng-model="community.type", value="open", ng-checked="true")
+            i.input-helper
+            .label(ng-class='{"label-primary" : community.type==="open", "label-default" : community.type!=="open"}') #{__('Open')}
+            p.description(ng-class='{"text-muted" : community.type!=="open"}') #{__('Publish content from and for everyone. Each user can freely read, join and participate to the community')}.
+        .radio
+          label
+            input(type="radio", ng-model="community.type", value="restricted")
+            i.input-helper
+            .label(ng-class='{"label-primary" : community.type==="restricted", "label-default": community.type!=="restricted"}') #{__('Restricted')}
+            p.description(ng-class='{"text-muted" : community.type!=="restricted"}') #{__('Content is freely accessible to all users, but only members can participate')}.
+        .radio
+          label
+            input(type="radio", ng-model="community.type", value="private")
+            i.input-helper
+            .label(ng-class='{"label-primary" : community.type==="private", "label-default": community.type!=="private"}') #{__('Private')}
+            p.description(ng-class='{"text-muted" : community.type!=="private"}') #{__('Only members can read and publish content in this community. Each user can request membership')}.
+        .radio.disabled
+          label
+            input(type="radio", ng-model="community.type", value="confidential" disabled)
+            i.input-helper
+            .label.label-default #{__('Confidential')}
+            p.description(ng-class='{"text-muted" : community.type!=="confidential"}') #{__('Only members of this community can read and publish content. All informations about this community are hidden to other users. Membership is only available by invitation')}.
+.modal-footer(ng-hide="sending")
+  button.btn.btn-default(type="button", ng-click="createModal.hide()") #{__('Cancel')}
+  button.btn.btn-primary(type="button", ng-disabled="!communityForm.title.$viewValue || communityForm.title.$error.unique || communityForm.$pending", ng-click="wizard.nextStep()")
+    | #{__('Next')} &nbsp;
+    i.mdi.mdi-chevron-right

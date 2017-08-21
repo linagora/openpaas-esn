@@ -1,0 +1,7 @@
+div
+  a(href='#', title='{{user.name}} <{{user.address}}>')
+    img(src='/images/user.png', ng-src="/api/avatars?objectType=user&email={{user.address}}", alt=__("User Address"))
+    span.label(ng-class="labelclass") {{label}}
+  div.ellipsis {{user.name}}
+  span.ellipsis
+    a(ng-href='mailto:{{user.address}}') {{user.address}}

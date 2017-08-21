@@ -1,0 +1,12 @@
+span
+  span.visible-xs.visible-sm.visible-md
+    a.btn.btn-primary.btn-square(href="" ng-click="accept()" ng-disabled="sending || done", bs-tooltip, data-title=__('Accept'), data-placement="bottom")
+      i.mdi.mdi-check
+    
+    a.btn.btn-default.btn-square(href="" ng-click="decline()" ng-disabled="sending || done", bs-tooltip, data-title=__('Decline'), data-placement="bottom")
+      i.mdi.mdi-close
+
+  span.visible-lg
+    a.btn.btn-primary(href="" ng-click="accept()" ng-disabled="sending || done") #{__('Accept')}
+    
+    a.btn.btn-default(href="" ng-click="decline()" ng-disabled="sending || done") #{__('Decline')}

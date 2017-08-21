@@ -1,0 +1,17 @@
+extends /modules/subheader/responsive-subheader.pug
+
+block left
+  button.btn.btn-link.hidden-xs(esn-back-button='home')
+    .flex-vertical-centered
+      i.mdi.mdi-arrow-left.mdi-margin-right
+      span #{__('Back')}
+  button.btn.btn-link.btn-icon.visible-xs(esn-back-button='home')
+    i.mdi.mdi-arrow-left
+
+block right
+  button.btn.btn-link.hidden-xs(ng-if="me", ui-sref="profileEdit")
+    .flex-vertical-centered
+      i.mdi.mdi-pencil.mdi-margin-right
+      span #{__('Edit')}
+  button.btn.btn-link.btn-icon.visible-xs(ng-if="me", ui-sref="profileEdit")
+    i.mdi.mdi-pencil

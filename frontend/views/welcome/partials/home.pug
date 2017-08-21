@@ -1,0 +1,20 @@
+.card.login-content.nopadding.zoomIn(esn-login-autofill, ng-controller='login')
+  .card-header.login-background
+    include ./welcome.pug
+  .card-body.p-25
+    .login(data-ng-if='!step || step === 1')
+      h3.m-t-0.m-b-15 #{__('Login')}
+      include ../../modules/login/login.pug
+      ul.login-oauth(dynamic-directive='esn-login-oauth')
+    .signup(data-ng-if='step === 2')
+      h3.m-t-0.m-b-15 #{__('Register')}
+      .esn-signup-form(dynamic-directive="esn-signup-form")
+    .forgot-password(ng-controller='forgotPassword', data-ng-if='step === 3')
+      h3.m-t-0.m-b-15 #{__('Reset password')}
+      include ./forgot.pug
+    .actions-footer.m-t-20.pull-right
+      ul.tab-nav(class="tab-nav", tabindex="2")
+        li(data-ng-click="tab(1);", ng-class="{active: isLogin}")
+          a #{__('Login')}
+        li(ng-if="signupIsEnabled", data-ng-click="tab(2);", ng-class="{active: isRegister}")
+          a #{__('Register')}

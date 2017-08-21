@@ -1,0 +1,23 @@
+.hidden
+  .title.ellipsis
+    | #{__('Invite people')}
+  hr
+  div.form-container
+    form(name='form')
+      .form-group
+        .row
+          tags-input(ng-disabled='running', ng-model='users', display-property='{{::displayProperty}}',
+          placeholder='{{::placeholder}}', min-tags='1', add-from-autocomplete-only='true',
+          on-tag-added='resetView()', replace-spaces-with-dashes='false')
+            auto-complete(source='getInvitablePeople($query)', min-length='1', debounce-delay='200')
+          .hidden.bg-info(success-container)
+            p #{__('Invitations have been sent. You will be notified when new users join the community')}.
+          .hidden.bg-danger(error-container)
+            p(ng-show='error') {{error.details || error}}.
+            p(ng-show='invalidUser') #{__('An invitation has not been sent')} : {{invalidUser}} #{__('is not a valid user')}.
+            p(ng-show='noUser') #{__('Please enter at least one user to send an invitation')}.
+      .form-group
+        .row
+          button.btn.btn-primary.pull-right(type='button', ng-click='inviteUsers()', ng-disabled='running')
+            i.mdi.mdi-exit-to-app(button-content) &nbsp;&nbsp;#{__('Send')}
+            span.hidden(running-container) #{__('Please wait...')}

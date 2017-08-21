@@ -115,9 +115,10 @@ module.exports = function(config) {
       'frontend/js/modules/**/*.module.js',
       'frontend/js/**/*.js',
       'test/unit-frontend/**/*.js',
-      'frontend/js/modules/**/*.jade',
-      'frontend/views/modules/**/*.jade',
-      'frontend/views/esn/partials/**/*.jade'
+
+      'frontend/js/modules/**/*.pug',
+      'frontend/views/modules/**/*.pug',
+      'frontend/views/esn/partials/**/*.pug'
     ],
 
     proxies: {
@@ -143,7 +144,7 @@ module.exports = function(config) {
 
     preprocessors: {
       'frontend/js/**/*.js': ['coverage'],
-      '**/*.jade': ['ng-jade2module'],
+      '**/*.pug': ['ng-jade2module'],
       'test/unit-frontend/fixtures/**': ['raw2js']
     },
 
@@ -170,9 +171,9 @@ module.exports = function(config) {
         var cacheId = '';
 
         if (filepath.match(/^frontend\/js*/)) {
-          cacheId = '/views' + filepath.substr(11).replace('.jade', '.html');
+          cacheId = '/views' + filepath.substr(11).replace('.pug', '.html');
         } else if (filepath.match(/^frontend*/)) {
-          cacheId = filepath.substr(8).replace('.jade', '.html');
+          cacheId = filepath.substr(8).replace('.pug', '.html');
         }
 
         return cacheId;

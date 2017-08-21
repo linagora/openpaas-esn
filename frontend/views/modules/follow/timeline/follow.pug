@@ -1,0 +1,14 @@
+.card.m-b-0
+  .card-header
+    .media
+      a.pull-left(ui-sref="profile({user_id: entry.actor._id})")
+        img.lv-img(src='/images/user.png', ng-src='/api/users/{{::entry.actor._id}}/profile/avatar', alt=__("Profile Avatar"))
+      .media-body
+        h2(ng-if='entry.object._id === user._id')
+          a(ui-sref="profile({user_id: entry.actor._id})") {{::entry.actor.displayName}}
+          span &nbsp;#{__('started to follow you')}
+        h2(ng-if='entry.actor._id === user._id')
+          span #{__('You started to follow')}
+          a(ui-sref="profile({user_id: entry.object._id})") &nbsp;{{::entry.object.displayName}}
+        small
+          span(am-time-ago="::entry.published")

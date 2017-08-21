@@ -1,0 +1,13 @@
+form(name='form')
+  fieldset
+    .alert.bs-alert-danger(ng-if="hasFailed") #{__('Cannot find that email.')}
+    .alert.bs-alert-success(ng-if="hasSucceeded") #{__('An email has successfully been sent. Please check your mailbox.')}
+    .form-group(ng-show="!hasSucceeded")
+      .input-group
+        span.input-group-addon
+          i.mdi.mdi-email
+        .fg-line
+          input.form-control(type='email', ng-model='input.email', name='email', placeholder=__('Email'), autofocus=true, required, esn-track-first-blur)
+    .clearfix
+
+    a.m-t-25.col-xs-12.btn.btn-warning(ng-click='resetPassword(form)', icon='new-user', color='warning', ng-disabled='running || hasSucceeded') #{__('Reset password')}

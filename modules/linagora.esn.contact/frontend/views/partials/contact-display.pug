@@ -1,0 +1,129 @@
+#profile-main.fadeIn200ms
+  .pm-overview.c-overflow
+    .pmo-pic
+      .p-relative
+        a
+          img(ng-src="{{displayShell.getAvatar(avatarSize)}}" fallback-src="{{displayShell.getDefaultAvatar()}}", alt=__("Avatar"))
+        i.mdi.i-contact-show(ng-class="displayShell.getOverlayIcon()")
+      .pmo-stat
+        h2.m-0.c-white.break-word.e2e-contact-display-name
+          |{{contact.displayName}}
+        |{{contact.job_title}}
+      .pmo-block(ng-if='contact.tags.length!==0')
+        i.mdi.mdi-tag-multiple
+        | #{__('Tags')}
+        ul.tag-list
+          li.tag-item(ng-repeat='tag in contact.tags track by $index') {{tag.text}}
+  .pm-body.clearfix
+    data(ui-view='')
+      .pmb-block(ng-if='shouldDisplayWork()')
+        .pmbb-header
+          h2
+            i.mdi.mdi-briefcase.m-r-5
+            | #{__('Work')}
+        .pmbb-body.p-l-30
+          .pmbb-view
+            dl.dl-horizontal(ng-if='contact.orgName')
+              dt
+                i.mdi.mdi-factory.m-r-5
+                | #{__('Organization')}
+              dd
+                | {{contact.orgName}}
+            dl.dl-horizontal(ng-if='contact.orgRole')
+              dt
+                i.mdi.mdi-email.m-r-5
+                | #{__('Job Title')}
+              dd
+                | {{contact.orgRole}}
+      .pmb-block(ng-if='hasContactInformation()')
+        .pmbb-header
+          h2
+            i.mdi.mdi-phone.m-r-5
+            | #{__('Contact')}
+        .pmbb-body.p-l-30
+          .pmbb-view
+            dl.dl-horizontal(ng-repeat='email in emails track by $index')
+              dt
+                .hide-if-not-first(ng-if='$first')
+                  i.mdi.mdi-email.m-r-5
+                  | #{__('Emails')}
+              dd
+                | {{email.type | esnI18n}}:&nbsp;
+                a(ng-href='mailto:{{email.value}}' op-inbox-compose op-inbox-compose-display-name='{{displayShell.getDisplayName()}}') {{email.value}}
+            dl.dl-horizontal(ng-repeat='tel in phones track by $index')
+              dt
+                .hide-if-not-first(ng-if='$first')
+                  i.mdi.mdi-tablet-android.m-r-5(ng-if='$first')
+                  | #{__('Phone numbers')}
+              dd
+                | {{tel.type | esnI18n}}:&nbsp;
+                a(ng-href='tel:{{tel.value}}') {{tel.value}}
+            dl.dl-horizontal(ng-repeat='address in contact.addresses track by $index')
+              dt
+                .hide-if-not-first(ng-if='$first')
+                  i.mdi.mdi-map-marker.m-r-5(ng-if='$first')
+                  | #{__('Addresses')}
+              dd
+                | {{address.type | esnI18n}}:
+                br
+                | {{address.street}}
+                br
+                | {{address.zip}} {{address.city}}
+                br
+                | {{address.country}}
+            dl.dl-horizontal(ng-repeat='social in contact.social track by $index')
+              dt
+                .hide-if-not-first(ng-if='$first')
+                  i.mdi.mdi-earth.m-r-5(ng-if='$first')
+                  | #{__('Social Networks')}
+              dd(ng-if="['Skype', 'Twitter'].indexOf(social.type) > -1")
+                | {{social.type}}:&nbsp;
+                a(ng-href="{{social.value|prefixLink:social.type}}", target="_blank") {{social.value}}
+              dd(ng-if="['Skype', 'Twitter'].indexOf(social.type) === -1")
+                | {{social.type}}: {{social.value}}
+            dl.dl-horizontal(ng-repeat='website in contact.urls track by $index')
+              dt
+                .hide-if-not-first(ng-if='$first')
+                  i.mdi.mdi-web.m-r-5(ng-if='$first')
+                  | #{__('Websites')}
+              dd
+                a(ng-href="{{website.value|prefixLink:'http'}}" target='_blank') {{website.value}}
+      .pmb-block(ng-if='hasProfileInformation()')
+        .pmbb-header
+          h2
+            i.mdi.mdi-account-box.m-r-5
+            | #{__('Contact information')}
+        .pmbb-body.p-l-30
+          .pmbb-view
+            dl.dl-horizontal(ng-if='contact.firstName')
+              dt
+                i.mdi.mdi-account-outline.m-r-5
+                | #{__('First Name')}
+              dd
+                | {{contact.firstName}}
+            dl.dl-horizontal(ng-if='contact.lastName')
+              dt
+                i.mdi.mdi-account.m-r-5
+                | #{__('Last name')}
+              dd
+                | {{contact.lastName}}
+            dl.dl-horizontal(ng-if='contact.nickname')
+              dt
+                i.mdi.mdi-comment-account-outline.m-r-5
+                | #{__('Nickname')}
+              dd
+                | {{contact.nickname}}
+            dl.dl-horizontal(ng-if='contact.birthday')
+              dt
+                i.mdi.mdi-cake-variant.m-r-5
+                | #{__('Birthday')}
+              dd
+                | {{ contact.birthday | esnDatetime: 'mediumDate' }}
+      .pmb-block(ng-if='contact.notes')
+        .pmbb-header
+          h2
+            i.mdi.mdi-comment-account.m-r-5
+            | #{__('Comments')}
+        .pmbb-body.p-l-30
+          .pmbb-view.break-word
+            | {{contact.notes}}
