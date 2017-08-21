@@ -6,8 +6,7 @@
   *     in: path
   *     description: The account ID.
   *     required: true
-  *     schema:
-  *       $ref: "#/definitions/cm_id"
+  *     type: string
   *   account_type:
   *     name: type
   *     in: query

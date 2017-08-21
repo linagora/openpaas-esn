@@ -137,12 +137,12 @@
   *           enum:
   *             - email
   *             - oauth
-  *           preferredEmailIndex:
-  *             type: number
-  *           emails:
-  *             type: array
-  *             items:
-  *               $ref: "#/definitions/us_email"
-  *           hosted:
-  *             type: boolean
+  *         preferredEmailIndex:
+  *           type: number
+  *         emails:
+  *           type: array
+  *           items:
+  *             $ref: "#/definitions/us_email"
+  *         hosted:
+  *           type: boolean
   */

@@ -6,7 +6,8 @@
  *     in: body
  *     description: The domain name.
  *     required: true
- *     type: string
+ *     schema:
+ *      type: string
  *   dm_name_filter:
  *     name: name
  *     in: query
@@ -17,7 +18,8 @@
  *     in: body
  *     description: The domain company name.
  *     required: true
- *     type: string
+ *     schema:
+ *      type: string
  *   dm_administrator:
  *     name: administrator
  *     in: body
@@ -25,13 +27,12 @@
  *     required: true
  *     schema:
  *       type: object
+ *       required: [email, password]
  *       properties:
  *        email:
  *          type: string
- *          required: true
  *        password:
  *          type: string
- *          required: true
  *   dm_id:
  *     name: domain_id
  *     in: path

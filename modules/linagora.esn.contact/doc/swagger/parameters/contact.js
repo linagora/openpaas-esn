@@ -6,8 +6,7 @@
   *     in: path
   *     description: The address book ID of user.
   *     required: true
-  *     schema:
-  *       $ref: "#/definitions/cm_id"
+  *     type: string
   *   contact_address_book_name:
   *     name: addressbookName
   *     in: path
@@ -19,8 +18,7 @@
   *     in: path
   *     description: The contact ID, color of letter avatar will be based on this ID.
   *     required: true
-  *     schema:
-  *       $ref: "#/definitions/cm_id"
+  *     type: string
   *   contact_size:
   *     name: size
   *     in: query
@@ -32,6 +30,5 @@
   *     in: query
   *     description: ID of user
   *     required: true
-  *     schema:
-  *       $ref: "#/definitions/cm_id"
+  *     type: string
   */

@@ -19,7 +19,7 @@ module.exports = function(dependencies) {
    *       - $ref: "#/parameters/account_type"
    *     responses:
    *       200:
-   *         $ref: "#/responses/account_list"
+   *         $ref: "#/responses/accounts_list"
    *       401:
    *         $ref: "#/responses/cm_401"
    *       500:
