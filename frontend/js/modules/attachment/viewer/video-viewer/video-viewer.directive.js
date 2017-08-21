@@ -34,7 +34,7 @@
         }
       };
 
-      scope.provider.fitSizeContent(esnAttachmentViewerService.onResize, elem.find('.videogular-container'));
+      scope.provider.fitSizeContent(esnAttachmentViewerService.resizeViewer, elem.find('.videogular-container'));
     }
   }
 

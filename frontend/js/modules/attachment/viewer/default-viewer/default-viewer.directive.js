@@ -12,7 +12,7 @@
     };
 
     function link(scope) {
-      scope.provider.fitSizeContent(esnAttachmentViewerService.onResize);
+      scope.provider.fitSizeContent(esnAttachmentViewerService.resizeViewer);
     }
   }
 

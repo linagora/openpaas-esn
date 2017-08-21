@@ -4,7 +4,7 @@
   angular.module('esn.attachment')
     .controller('ESNAttachmentController', ESNAttachmentController);
 
-  function ESNAttachmentController(esnAttachmentViewerService, esnAttachmentPreviewRegistryService, $element, $scope, $compile, $log) {
+  function ESNAttachmentController(esnAttachmentViewerService, esnAttachmentViewerGalleryService, esnAttachmentPreviewRegistryService, $element, $scope, $compile, $log) {
     var self = this;
 
     self.$onInit = $onInit;
@@ -13,20 +13,20 @@
       self.$onDestroy = $onDestroy;
 
       $element.on('click', function() {
-        esnAttachmentViewerService.onOpen(self.file, self.gallery);
+        esnAttachmentViewerService.openCurrent(self.file, self.gallery);
       });
     }
 
     function $onInit() {
       if (self.viewer){
         self.file.url = '/api/files/' + self.file._id;
-        esnAttachmentViewerService.onBuild(self.file, self.gallery);
+        esnAttachmentViewerGalleryService.addFileToGallery(self.file, self.gallery);
       }
       renderContent();
     }
 
     function $onDestroy() {
-      esnAttachmentViewerService.onDestroy(self.file, self.gallery);
+      esnAttachmentViewerService.destroy(self.file, self.gallery);
     }
 
     function renderContent() {

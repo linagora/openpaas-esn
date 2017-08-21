@@ -4,9 +4,9 @@ angular.module('esn.attachment')
   .run(function(esnAttachmentViewerService, ESN_ATTACHMENT_VIEWERS) {
     var defaultViewer = ESN_ATTACHMENT_VIEWERS.defaultViewer;
     defaultViewer.fitSizeContent = fitSizeContent;
-    esnAttachmentViewerService.onBuildRegistry(defaultViewer);
+    esnAttachmentViewerService.buildRegistry(defaultViewer);
 
-    function fitSizeContent(onResize) {
-      onResize(defaultViewer.sizeOptions);
+    function fitSizeContent(resizeViewer) {
+      resizeViewer(defaultViewer.sizeOptions);
     }
   });

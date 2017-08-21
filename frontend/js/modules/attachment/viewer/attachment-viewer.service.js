@@ -13,28 +13,19 @@
 
     return {
       getCurrentItem: getCurrentItem,
-      onBuild: onBuild,
-      onBuildRegistry: onBuildRegistry,
-      onOpen: onOpen,
+      buildRegistry: buildRegistry,
+      openCurrent: openCurrent,
       openNext: openNext,
       openPrev: openPrev,
-      onResize: onResize,
-      onDestroy: onDestroy
+      resizeViewer: resizeViewer,
+      destroy: destroy
     };
 
     function getCurrentItem() {
       return currentItem;
     }
 
-    function onBuild(file, gallery) {
-      if (init) {
-        esnAttachmentViewerViewService.renderViewer();
-        init = false;
-      }
-      esnAttachmentViewerGalleryService.addFileToGallery(file, gallery);
-    }
-
-    function onBuildRegistry(viewerRegistry) {
+    function buildRegistry(viewerRegistry) {
       var required = true;
 
       angular.forEach(viewerServiceDefinition, function(value) {
@@ -49,7 +40,7 @@
       }
     }
 
-    function onOpen(file, gallery) {
+    function openCurrent(file, gallery) {
       var defaultGallery = esnAttachmentViewerGalleryService.getDefaultGallery();
       var galleryName = gallery || defaultGallery;
       var files = esnAttachmentViewerGalleryService.getAllFilesInGallery(galleryName);
@@ -95,7 +86,7 @@
       }
     }
 
-    function onResize(sizeOptions, item) {
+    function resizeViewer(sizeOptions, item) {
       var newSize = esnAttachmentViewerViewService.calculateSize(sizeOptions);
 
       if (item) {
@@ -105,7 +96,7 @@
       esnAttachmentViewerViewService.resizeElements(newSize);
     }
 
-    function onDestroy(file, gallery) {
+    function destroy(file, gallery) {
       esnAttachmentViewerGalleryService.removeFileFromGallery(file, gallery);
       esnAttachmentViewerViewService.removeSelf();
       init = true;
