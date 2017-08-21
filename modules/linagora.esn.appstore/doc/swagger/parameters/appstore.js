@@ -6,15 +6,13 @@
   *     in: path
   *     description: The id of the artifact
   *     required: true
-  *     schema:
-  *       $ref: "#/definitions/cm_id"
+  *     type: string
   *   appstore_app_id:
   *     name: id
   *     in: path
   *     description: The application id
   *     required: true
-  *     schema:
-  *       $ref: "#/definitions/cm_id"
+  *     type: string
   *   appstore_object_type:
   *     name: objectType
   *     in: query
@@ -63,4 +61,3 @@
   *     schema:
   *       $ref: "#/definitions/appstore_application"
   */
-

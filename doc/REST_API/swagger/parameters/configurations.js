@@ -16,7 +16,7 @@
  *     schema:
  *       type: array
  *       items:
- *         $ref: "#/definitions/cf_module_request"
+ *         $ref: "#/definitions/cf_module_with_keys"
  *   cf_modules_scope:
  *     name: scope
  *     in: query

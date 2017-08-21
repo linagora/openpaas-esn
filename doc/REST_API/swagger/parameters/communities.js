@@ -70,5 +70,6 @@
   *     in: body
   *     description: parameters to update in the community (title, avatar, newMembers, deleteMembers)
   *     required: true
-  *     type: object
+  *     schema:
+  *       type: object
   */

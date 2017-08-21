@@ -17,7 +17,7 @@ module.exports = function(router) {
    *     produces:
    *       - application/json
    *     parameters:
-   *       $ref: "#/parameters/rl_request"
+   *       - $ref: "#/parameters/rl_request"
    *     responses:
    *       "201":
    *         description: Created.
@@ -27,10 +27,6 @@ module.exports = function(router) {
    *         description: Bad request
    *       "500":
    *         description: Internal server error - Something went bad on the server side.
-   *       default:
-   *         description: Error
-   *         schema:
-   *           $ref: "#/definitions/ErrorResponse"
    */
   router.post('/resource-links',
     authorize.requiresAPILogin,
@@ -48,7 +44,7 @@ module.exports = function(router) {
    *     description:
    *       Delete an existant link between resources. For example, delete a 'like' link between a user (source) and a message (target)
    *     parameters:
-   *       $ref: "#/parameters/rl_request"
+   *       - $ref: "#/parameters/rl_request"
    *     responses:
    *       204:
    *         $ref: "#/responses/cm_204"
