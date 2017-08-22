@@ -12,7 +12,7 @@ This project is now complete and stable enough for our needs.
 
 ## Files included
 
-In 'frontend/views/esn/index.jade' layout file, we load .css and .js of libraries used.
+In 'frontend/views/esn/index.pug' layout file, we load .css and .js of libraries used.
 
 These libraries are located in 'frontend/components/', per example Angular-material is located in 'frontend/components/angular-material'.
 
