@@ -2,7 +2,7 @@
 
 angular.module('esn.file-saver', ['ngFileSaver'])
 
-.factory('esnFileSaver', function(FileSaver, Blob, $http, $log) {
+.factory('esnFileSaver', function($http, $log, FileSaver, Blob) {
   return {
     saveText: saveText,
     saveFile: saveFile
@@ -46,11 +46,12 @@ angular.module('esn.file-saver', ['ngFileSaver'])
   return {
     restrict: 'A',
     link: function(scope, element, attrs) {
+      var fileName, fileUrl;
+
       element.on('click', function(event) {
         event.preventDefault();
-
-        var fileName = attrs.esnDownloadFile;
-        var fileUrl = attrs.href;
+        fileName = attrs.esnDownloadFile;
+        fileUrl = attrs.href;
         esnFileSaver.saveFile(fileUrl, fileName);
       });
     }

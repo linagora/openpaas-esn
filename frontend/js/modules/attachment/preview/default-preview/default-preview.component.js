@@ -2,15 +2,11 @@
   'use strict';
 
   angular.module('esn.attachment')
-    .component('esnDefaultPreview', esnDefaultPreview());
-
-  function esnDefaultPreview() {
-    return {
+    .component('esnAttachmentDefaultPreview', {
       bindings: {
         attachment: '='
       },
       templateUrl: '/views/modules/attachment/preview/default-preview/default-preview.html'
-    };
-  }
+    });
 
 })();

@@ -1,6 +1,7 @@
-.left
-	a(target='_blank', ng-href='{{file.url}}', title='#{__("Open in tab")}')
-		esn-attachment-icon(type='file.contentType')
-.right
-	h4 {{file.name}}
-	.info #{__("File type")} {{file.contentType | extension | uppercase}} #{__("Size")} {{file.length | bytes}}
+.esn-attachment-default-viewer
+  .left
+    a(target='_blank', ng-href='/api/files/{{attachment._id}}', title=__("Open in tab"))
+      esn-attachment-icon(type='attachment.contentType')
+  .right
+    h4 {{attachment.name}}
+    .info #{__("File type")} {{attachment.contentType | extension | uppercase}} #{__("Size")} {{attachment.length | bytes}}

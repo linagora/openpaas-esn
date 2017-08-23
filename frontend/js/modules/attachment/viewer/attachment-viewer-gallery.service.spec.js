@@ -33,7 +33,7 @@ describe('The esnAttachmentViewerGalleryService service', function() {
     it('should get the name of default gallery', function() {
       var defaultGallery = esnAttachmentViewerGalleryService.getDefaultGallery();
 
-      expect(defaultGallery).to.be.a('string');
+      expect(defaultGallery).to.be.equal('noname');
     });
   });
 

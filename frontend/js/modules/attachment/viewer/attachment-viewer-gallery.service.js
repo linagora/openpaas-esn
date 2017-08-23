@@ -37,6 +37,7 @@
       var galleryName = gallery || DEFAULT_GALLERY;
       var files = galleries[galleryName];
       var order = files.indexOf(file);
+
       files.splice(order, 1);
     }
   }

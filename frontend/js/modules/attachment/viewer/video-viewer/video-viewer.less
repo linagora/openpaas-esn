@@ -1,4 +1,9 @@
-esn-video-viewer {
+@VG-BUFFERING: 13;
+
+esn-attachment-video-viewer {
+
+  display: inline-block;
+
   .videogular-container {
     width: 100%;
     margin: auto;
@@ -7,21 +12,21 @@ esn-video-viewer {
     videogular {
 
       vg-media {
-        z-index: 14;
+        z-index: @VG-BUFFERING + 1;
       }
 
       vg-controls {
-        z-index: 15;
+        z-index: @VG-BUFFERING + 2;
       }
       
       vg-overlay-play {
         display: block;
-        z-index: 14;
+        z-index: @VG-BUFFERING + 1;
       }
 
       vg-buffering {
         display: block;
-        z-index: 13;
+        z-index: @VG-BUFFERING;
         
         .bufferingContainer {
           margin-top: -27px;

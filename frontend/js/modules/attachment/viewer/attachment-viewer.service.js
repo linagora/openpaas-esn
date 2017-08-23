@@ -4,102 +4,110 @@
   angular.module('esn.attachment')
     .factory('esnAttachmentViewerService', esnAttachmentViewerService);
 
-  function esnAttachmentViewerService(esnAttachmentViewerRegistryService, esnAttachmentViewerGalleryService, esnAttachmentViewerViewService, $log) {
-
-    var viewerServiceDefinition = ['name', 'directive', 'contentType', 'sizeOptions', 'fitSizeContent'];
+  function esnAttachmentViewerService($compile, $window, $rootScope, $timeout, $log, esnAttachmentViewerGalleryService) {
 
     var currentItem = {};
-    var init = true;
+    var viewer = null;
 
     return {
-      getCurrentItem: getCurrentItem,
-      buildRegistry: buildRegistry,
-      openCurrent: openCurrent,
-      openNext: openNext,
-      openPrev: openPrev,
+      open: open,
+      registerViewer: registerViewer,
       resizeViewer: resizeViewer,
-      destroy: destroy
+      unregisterViewer: unregisterViewer,
+      setCurrentItem: setCurrentItem
     };
 
-    function getCurrentItem() {
-      return currentItem;
+    function setCurrentItem(files, order) {
+      currentItem.files = files;
+      currentItem.order = order;
     }
 
-    function buildRegistry(viewerRegistry) {
-      var required = true;
-
-      angular.forEach(viewerServiceDefinition, function(value) {
-        if (!viewerRegistry[value]) {
-          required = false;
-        }
-      });
-      if (required) {
-        esnAttachmentViewerRegistryService.addFileViewerProvider(viewerRegistry);
-      } else {
-        $log.debug('Viewer provider need to be defined properly');
-      }
-    }
-
-    function openCurrent(file, gallery) {
+    function open(file, gallery) {
       var defaultGallery = esnAttachmentViewerGalleryService.getDefaultGallery();
       var galleryName = gallery || defaultGallery;
       var files = esnAttachmentViewerGalleryService.getAllFilesInGallery(galleryName);
       var order = files.indexOf(file);
 
-      openViewer(files, order);
+      if (order === -1) {
+        return $log.debug('No such file in gallery');
+      }
+
+      setCurrentItem(files, order);
+      angular.element('body').append(renderDirective('esn-attachment-viewer'));
     }
 
-    function openNext() {
-      var next;
+    function renderDirective(directive, $scope) {
+      var elem = angular.element('<' + directive + '></' + directive + '>');
+      var scope = $scope || $rootScope.$new();
+      var template = $compile(elem)(scope);
 
-      if (currentItem.order === currentItem.files.length - 1) {
-        next = 0;
-      } else {
-        next = currentItem.order + 1;
-      }
-      openViewer(currentItem.files, next);
+      return template;
     }
 
-    function openPrev() {
-      var prev;
-
-      if (currentItem.order === 0) {
-        prev = currentItem.files.length - 1;
-      } else {
-        prev = currentItem.order - 1;
-      }
-      openViewer(currentItem.files, prev);
-    }
-
-    function openViewer(files, order) {
-      var provider = esnAttachmentViewerRegistryService.getProvider(files[order].contentType);
-      provider = provider || esnAttachmentViewerRegistryService.getProvider('default');
-
-      if (order > -1) {
-        currentItem = {
-          files: files,
-          order: order
-        };
-        esnAttachmentViewerViewService.renderContent(files[order], provider);
-      } else {
-        $log.debug('No such file in gallery');
-      }
+    function registerViewer(_viewer) {
+      viewer = _viewer;
+      viewer.open(currentItem.files, currentItem.order);
     }
 
     function resizeViewer(sizeOptions, item) {
-      var newSize = esnAttachmentViewerViewService.calculateSize(sizeOptions);
+      var newSize = calculateSize(sizeOptions);
 
       if (item) {
         item.width(newSize.width);
         item.height(newSize.height);
       }
-      esnAttachmentViewerViewService.resizeElements(newSize);
+      if (viewer) {
+        viewer.display(newSize);
+      }
     }
 
-    function destroy(file, gallery) {
-      esnAttachmentViewerGalleryService.removeFileFromGallery(file, gallery);
-      esnAttachmentViewerViewService.removeSelf();
-      init = true;
+    function calculateSize(sizeOptions) {
+      var desiredSize = {};
+      var windowWidth = angular.element($window).width();
+      var windowHeight = angular.element($window).height();
+
+      if (sizeOptions.desiredRatio) {
+        calculateSizeByDesire();
+      } else if (sizeOptions.realSize) {
+        calculateSizeByReal();
+      }
+
+      function calculateSizeByDesire() {
+        var ratioWindow = sizeOptions.desiredRatio.desiredRatioWindow;
+
+        if ((windowWidth / windowHeight) > sizeOptions.desiredRatio.desiredRatioSize) {
+          desiredSize.height = windowHeight * ratioWindow;
+          desiredSize.width = parseInt(desiredSize.height * sizeOptions.desiredRatio.desiredRatioSize, 10);
+        } else {
+          desiredSize.width = windowWidth * ratioWindow;
+          desiredSize.height = parseInt(desiredSize.width / sizeOptions.desiredRatio.desiredRatioSize, 10);
+        }
+      }
+
+      function calculateSizeByReal() {
+        var maxWidth = windowWidth - 100;
+        var maxHeight = windowHeight - 140;
+        var realWidth = sizeOptions.realSize.width;
+        var realHeight = sizeOptions.realSize.height;
+
+        if ((realWidth > maxWidth) || (realHeight > maxHeight)) {
+          if ((realWidth / maxWidth) > (realHeight / maxHeight)) {
+            desiredSize.width = maxWidth;
+            desiredSize.height = parseInt(realHeight / (realWidth / desiredSize.width), 10);
+          } else {
+            desiredSize.height = maxHeight;
+            desiredSize.width = parseInt(realWidth / (realHeight / desiredSize.height), 10);
+          }
+        } else {
+          desiredSize = sizeOptions.realSize;
+        }
+      }
+      return desiredSize;
+    }
+
+    function unregisterViewer() {
+      currentItem = {};
+      viewer = null;
     }
   }
 

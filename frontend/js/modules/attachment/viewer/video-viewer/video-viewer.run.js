@@ -1,12 +1,16 @@
-'use strict';
+(function() {
+  'use strict';
 
-angular.module('esn.attachment')
-  .run(function(esnAttachmentViewerService, ESN_ATTACHMENT_VIEWERS) {
-    var videoViewer = ESN_ATTACHMENT_VIEWERS.videoViewer;
-    videoViewer.fitSizeContent = fitSizeContent;
-    esnAttachmentViewerService.buildRegistry(videoViewer);
+  angular.module('esn.attachment')
+    .run(function(esnAttachmentRegistryService, ESN_ATTACHMENT_VIDEO_VIEWER) {
+      var videoViewer = ESN_ATTACHMENT_VIDEO_VIEWER;
 
-    function fitSizeContent(resizeViewer, videoContainer) {
-      resizeViewer(videoViewer.sizeOptions, videoContainer);
-    }
-  });
+      videoViewer.fitSizeContent = fitSizeContent;
+      esnAttachmentRegistryService.addViewer(videoViewer);
+
+      function fitSizeContent(resizeViewer, videoContainer) {
+        resizeViewer(videoViewer.sizeOptions, videoContainer);
+      }
+    });
+
+})();

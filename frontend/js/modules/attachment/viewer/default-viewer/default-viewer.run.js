@@ -1,12 +1,16 @@
-'use strict';
+(function() {
+  'use strict';
 
-angular.module('esn.attachment')
-  .run(function(esnAttachmentViewerService, ESN_ATTACHMENT_VIEWERS) {
-    var defaultViewer = ESN_ATTACHMENT_VIEWERS.defaultViewer;
-    defaultViewer.fitSizeContent = fitSizeContent;
-    esnAttachmentViewerService.buildRegistry(defaultViewer);
+  angular.module('esn.attachment')
+    .run(function(esnAttachmentRegistryService, ESN_ATTACHMENT_DEFAULT_VIEWER) {
+      var defaultViewer = ESN_ATTACHMENT_DEFAULT_VIEWER;
 
-    function fitSizeContent(resizeViewer) {
-      resizeViewer(defaultViewer.sizeOptions);
-    }
-  });
+      defaultViewer.fitSizeContent = fitSizeContent;
+      esnAttachmentRegistryService.addViewer(defaultViewer);
+
+      function fitSizeContent(resizeViewer, attachmentDefaultViewer) {
+        resizeViewer(defaultViewer.sizeOptions, attachmentDefaultViewer);
+      }
+    });
+
+})();

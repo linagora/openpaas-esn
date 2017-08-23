@@ -1,7 +1,9 @@
-'use strict';
+(function() {
+  'use strict';
 
-angular.module('esn.attachment')
-  .run(function(esnAttachmentPreviewRegistryService, ESN_ATTACHMENT_PREVIEWS) {
-    var defaultPreview = ESN_ATTACHMENT_PREVIEWS.defaultPreview;
-    esnAttachmentPreviewRegistryService.addFilePreviewProvider(defaultPreview);
-  });
+  angular.module('esn.attachment')
+    .run(function(esnAttachmentRegistryService, ESN_ATTACHMENT_DEFAULT_PREVIEW) {
+      esnAttachmentRegistryService.addPreviewer(ESN_ATTACHMENT_DEFAULT_PREVIEW);
+    });
+
+})();
