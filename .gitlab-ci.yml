@@ -1,0 +1,93 @@
+before_script:
+  - export TZ=America/New_York
+  - . ~/.nvm/nvm.sh && nvm use 8
+
+stages:
+  - test
+  - test-e2e
+  - swagger
+  - deploy-swagger
+  - deploy_dev
+
+test:
+  stage: test
+  tags:
+    - shell
+    - online.net
+    - mongo
+    - elasticsearch
+    - redis
+  script:
+   - npm i
+   - npm update
+   - npm prune
+   - TZ="Pacific/Kiritimati" grunt test-modules-frontend
+   - TZ="Pacific/Midway" grunt test-modules-frontend
+   - TZ="Pacific/Chatham" grunt test-modules-frontend
+   - grunt --chunk=1
+
+.test-e2e:
+  stage: test-e2e
+  script:
+    - export VIDEO=true
+    - export VIDEO_FIREFOX_NAME=firefox-$CI_JOB_ID
+    - export VIDEO_CHROME_NAME=chrome-$CI_JOB_ID
+    - export VIDEO_DIR="$PWD/e2e-videos"
+    - rm node_modules frontend/components -rf
+    - npm install
+    - npm prune
+    - grunt test-e2e-clean
+    - grunt test-e2e-prepare $DOCKER_OPTIONS
+    - BROWSER="firefox" VIDEO_FILE_NAME=$VIDEO_FIREFOX_NAME grunt test-e2e $DOCKER_OPTIONS
+    - BROWSER="chrome" VIDEO_FILE_NAME=$VIDEO_CHROME_NAME grunt test-e2e $DOCKER_OPTIONS
+  allow_failure: true
+
+swagger:
+  stage: swagger
+  tags:
+    - master 
+    - shell
+  script:
+   - npm i
+   - npm prune
+   - grunt swagger-generate
+  artifacts:
+    paths:
+     - ./doc/REST_API/swagger/swagger.json
+
+deploy-swagger:
+  stage: deploy-swagger
+  tags:
+    - deployment
+    - api.open-paas.org
+    - shell
+  environment:
+    name: api
+    url: https://api.open-paas.org
+  only:
+    - master
+  script:
+    - perl -i -pe's/"host":"localhost:8080"/"schemes":["https"],"host":"demo.open-paas.org"/' ./doc/REST_API/swagger/swagger.json
+    - cp ./doc/REST_API/swagger/swagger.json /var/www/html
+
+deploy_dev:
+  stage: deploy_dev
+  tags:
+    - dev.open-paas.org
+    - deployment
+  environment:
+    name: dev
+    url: https://dev.open-paas.org
+  only:
+    - master
+  script:
+    - cd /srv/rse.dev
+    - git fetch --all
+    - git checkout ${CI_COMMIT_SHA}
+    - npm install --ignore-scripts --production
+    - npm update --production
+    - npm prune
+    - bower install --production
+    - bower prune
+    - git checkout -- .
+    - sudo /etc/init.d/rse.dev restart
