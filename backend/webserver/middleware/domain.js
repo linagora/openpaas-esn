@@ -4,14 +4,56 @@ const emailAddresses = require('email-addresses');
 const Domain = require('mongoose').model('Domain');
 const dbHelper = require('../../helpers').db;
 const userIndex = require('../../core/user/index');
+const coreDomain = require('../../core/domain');
+const logger = require('../../core/logger');
 
 module.exports = {
   load,
   loadFromDomainIdParameter,
+  loadDomainByHostname,
   requireAdministrator,
   requireDomainInfo,
   checkUpdateParameters
 };
+
+/**
+ * Load domain by hostname of request
+ * @param  {Request}   req
+ * @param  {Response}  res
+ * @param  {Function}  next
+ */
+function loadDomainByHostname(req, res, next) {
+  const hostname = req.hostname;
+
+  coreDomain.getByName(hostname)
+    .then(domain => {
+      if (domain) {
+        req.domain = domain;
+        next();
+      } else {
+        res.status(404).json({
+          error: {
+            code: 404,
+            message: 'Not Found',
+            details: `No domain found for hostname: ${hostname}`
+          }
+        });
+      }
+    },
+    err => {
+      const details = `Error while getting domain by hostname ${hostname}`;
+
+      logger.error(details, err);
+
+      res.status(500).json({
+        error: {
+          code: 500,
+          message: 'Server Error',
+          details
+        }
+      });
+    });
+}
 
 /**
  * Load middleware. Load a domain from its UUID and push it into the request (req.domain) for later use.

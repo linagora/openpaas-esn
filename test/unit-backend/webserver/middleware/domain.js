@@ -2,8 +2,15 @@
 
 const expect = require('chai').expect;
 const mockery = require('mockery');
+const q = require('q');
 
 describe('The domain middleware', function() {
+
+  let getModule;
+
+  beforeEach(function() {
+    getModule = () => this.helpers.requireBackend('webserver/middleware/domain');
+  });
 
   describe('The load domain middleware', function() {
 
@@ -240,5 +247,82 @@ describe('The domain middleware', function() {
       mw.loadFromDomainIdParameter(req, res, next);
     });
 
+  });
+
+  describe('The loadDomainByHostname fn', function() {
+    let coreDomainMock;
+
+    beforeEach(function() {
+      this.helpers.mock.models({});
+      coreDomainMock = {};
+
+      mockery.registerMock('../../core/domain', coreDomainMock);
+    });
+
+    it('should assign the loaded domain into request object then call next when domain is found', function(done) {
+      const domain = { name: 'open-paas.org' };
+      const req = {};
+      const res = {};
+      const next = () => {
+        expect(req.domain).to.deep.equal(domain);
+        done();
+      };
+
+      coreDomainMock.getByName = () => q(domain);
+
+      getModule().loadDomainByHostname(req, res, next);
+    });
+
+    it('should response 404 when domain is not found', function(done) {
+      const req = { hostname: 'open-paas.org' };
+      const res = {
+        status(code) {
+          expect(code).to.equal(404);
+
+          return {
+            json(json) {
+              expect(json).to.deep.equal({
+                error: {
+                  code: 404,
+                  message: 'Not Found',
+                  details: `No domain found for hostname: ${req.hostname}`
+                }
+              });
+              done();
+            }
+          };
+        }
+      };
+      const next = null;
+
+      coreDomainMock.getByName = () => q(null);
+      getModule().loadDomainByHostname(req, res, next);
+    });
+
+    it('should response 500 when there is error occurred', function(done) {
+      const req = { hostname: 'open-paas.org' };
+      const res = {
+        status(code) {
+          expect(code).to.equal(500);
+
+          return {
+            json(json) {
+              expect(json).to.deep.equal({
+                error: {
+                  code: 500,
+                  message: 'Server Error',
+                  details: `Error while getting domain by hostname ${req.hostname}`
+                }
+              });
+              done();
+            }
+          };
+        }
+      };
+      const next = null;
+
+      coreDomainMock.getByName = () => q.reject(new Error());
+      getModule().loadDomainByHostname(req, res, next);
+    });
   });
 });
