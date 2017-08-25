@@ -75,7 +75,7 @@ GruntfileUtils.prototype.command = function command() {
       (servers.redis.conf_file ? servers.redis.conf_file : ''));
 
   commandObject.mongo = function() {
-    return util.format('%s --nounixsocket --dbpath %s --port %s %s',
+    return util.format('%s --dbpath %s --port %s %s',
       servers.mongodb.cmd,
       servers.mongodb.dbpath,
       (servers.mongodb.port ? servers.mongodb.port : '23456'),
