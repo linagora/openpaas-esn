@@ -252,7 +252,8 @@ module.exports = function(grunt) {
         },
         src: [
           'frontend/**/*.pug',
-          'modules/**/*.pug'
+          'modules/**/*.pug',
+          'templates/**/*.pug'
         ]
       }
     }

@@ -24,27 +24,27 @@ html.mail
           tr.table-header
             td.logo(colspan="2")
               div
-                a(href="#{content.baseUrl}")
+                a(href=content.baseUrl)
                   img(src="cid:logo", alt="OpenPaas Logo")
             td.organizer(colspan="3")
               h5
                 p
                   | #{content.event.organizer.cn} (
                   span.small
-                    a(href='mailto:#{content.event.organizer.email}')
-                      img(src="cid:email", alt="#{translate('Organizer mail')}")
+                    a(href=`mailto:${content.event.organizer.email}`)
+                      img(src="cid:email", alt=translate('Organizer mail'))
                     | )
                 p.big #{content.inviteMessage}
             td.avatar.indent-right
-              img(src="#{content.event.organizer.avatar}", alt="#{translate('Organizer Avatar')}", width="45px", height="42px")
+              img(src=content.event.organizer.avatar, alt=translate('Organizer Avatar'), width="45px", height="42px")
           tr
             th(colspan="6").title.indent #{content.event.summary}
           tr
             td.indent
               if (content.event.end)
-                img(src="cid:clock", alt="#{translate('From')}")
+                img(src="cid:clock", alt=translate('From'))
               else
-                img(src="cid:clock", alt="#{translate('At')}")
+                img(src="cid:clock", alt=translate('At'))
             td
               p #{content.event.start.date}
               if (!content.event.allDay)
@@ -55,7 +55,7 @@ html.mail
                 if (content.event.allDay && content.event.end.date == content.event.start.date)
                   p #{translate('All day')}
                 else
-                  img.check-transform(src="cid:check", alt="#{translate('To')}")
+                  img.check-transform(src="cid:check", alt=translate('To'))
               td
                 if (!content.event.allDay || (content.event.allDay && content.event.end.date != content.event.start.date))
                   p #{content.event.end.date}
@@ -66,17 +66,17 @@ html.mail
               td(colspan="2")
             td.recurrence
             td.indent-right
-              a(href='#{content.baseUrl}/#/calendar') #{translate('See in calendar')}
+              a(href=`${content.baseUrl}/#/calendar`) #{translate('See in calendar')}
           if (content.event.location)
             tr
               td.indent
-                img(src="cid:map-marker", alt="#{translate('Location')}")
+                img(src="cid:map-marker", alt=translate('Location'))
               td(colspan="4") #{content.event.location}
               td.indent-right
-                a(href='https://www.openstreetmap.org/search?query=#{content.event.location}') #{translate('Map')}
+                a(href=`https://www.openstreetmap.org/search?query=${content.event.location}`) #{translate('Map')}
           tr
             td.indent
-              img(src="cid:account-multiple", alt="#{translate('Attendees')}")
+              img(src="cid:account-multiple", alt=translate('Attendees'))
             td(colspan="5")
               each details, mail in content.event.attendees
                 span
@@ -84,12 +84,12 @@ html.mail
           if (content.event.description)
             tr
               td
-                img(src="cid:format-align-justify", alt="#{translate('Description')}")
+                img(src="cid:format-align-justify", alt=translate('Description'))
               td(colspan="5") #{content.event.description}
           if (content.event.files)
             tr
               td
-                img(src="cid:folder-download", alt="#{translate('Files')}")
+                img(src="cid:folder-download", alt=translate('Files'))
               td(colspan="5")
                 span file.odt
           if (content.event.method != 'CANCEL')
@@ -97,12 +97,12 @@ html.mail
               td.attend-question(colspan="3")
                 | #{translate('Will you attend?')}
               td(colspan="1")
-                a.green(href="#{content.yes}") #{translate('Yes')}
+                a.green(href=content.yes) #{translate('Yes')}
               td(colspan="1")
-                a.blue(href="#{content.maybe}") #{translate('Maybe')}
+                a.blue(href=content.maybe) #{translate('Maybe')}
               td(colspan="1")
-                a.red(href="#{content.no}") #{translate('No')}
+                a.red(href=content.no) #{translate('No')}
 
       footer
         div.footer
-          a(href='#{content.baseUrl}/#/calendar/#{content.calendarHomeId}/event/#{content.event.uid}/consult') #{translate('More details...')}
+          a(href=`${content.baseUrl}/#/calendar/${content.calendarHomeId}/event/${content.event.uid}/consult`) #{translate('More details...')}

@@ -15,8 +15,8 @@ html.mail
             tr
               td
                 div.logo
-                  a(href!="#{content.header.baseUrl}")
-                    img(src="cid:logo", alt='#{__("OpenPaas Logo")}')
+                  a(href!=content.header.baseUrl)
+                    img(src="cid:logo", alt=__("OpenPaas Logo"))
               td
                 h2
                   br
@@ -41,9 +41,9 @@ html.mail
                 table
                   tr
                     td
-                      img(src!="#{collaboration.avatar}", alt='#{__("Collaboration Avatar")}', style="background:white;", width="45px", height="42px")
+                      img(src!=collaboration.avatar, alt=__("Collaboration Avatar"), style="background:white;", width="45px", height="42px")
                     td
-                      a(href!="#{collaboration.link}", alt="#{collaboration.title}")
+                      a(href!=collaboration.link, alt=collaboration.title)
                         h2 #{collaboration.title}
                           span.badge #{collaboration.unreadMessages}
                 .arrow-up
@@ -55,7 +55,7 @@ html.mail
                       table
                         tr
                           td
-                            img(src!="#{message.author.avatar}", alt='#{__("Author Avatar")}', style="background:white;", width="45px", height="42px")
+                            img(src!=message.author.avatar, alt=__("Author Avatar"), style="background:white;", width="45px", height="42px")
                           td
                             h3
                               span.message-author #{message.author.displayName}
@@ -76,14 +76,14 @@ html.mail
                           table
                             tr
                               td
-                                img(src!="#{response.author.avatar}", alt='#{__("Author Avatar")}', style="background:white;", width="45px", height="42px")
+                                img(src!=response.author.avatar, alt=__("Author Avatar"), style="background:white;", width="45px", height="42px")
                               td
                                 span.response-author  #{response.author.displayName}
                                 span  -
                                 span.response-publised  (#{response.published})
                                 p.response-content !{response.content}
               .collaboration-footer
-                a(href="#{collaboration.link}") See more in
+                a(href=collaboration.link) See more in
                   span.collaboration-title  #{collaboration.title}
 
 
