@@ -17,7 +17,7 @@ RUN apt-get update && apt-get install -y wget && \
     apt-get -y install git build-essential python-setuptools graphicsmagick g++ nodejs \
     graphicsmagick-imagemagick-compat libjpeg-dev libcairo2-dev libjpeg62-turbo-dev libpango1.0-dev libgif-dev
 
-RUN git clone --no-single-branch --depth=1 https://ci.open-paas.org/stash/scm/or/rse.git /package/usr/share/openpaas
+RUN git clone --no-single-branch --depth=1 https://ci.linagora.com/linagora/lgs/openpaas/esn.git /package/usr/share/openpaas
 
 ADD common/openpaas/package /package
 ADD debian/jessie/openpaas/package /package

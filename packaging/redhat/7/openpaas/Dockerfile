@@ -14,7 +14,7 @@ RUN curl -sL https://rpm.nodesource.com/setup_6.x | bash - && \
     yum install -y epel-release && \
     yum install -y git rpm-build nodejs GraphicsMagick cairo cairo-devel cairomm-devel libjpeg-turbo-devel pango pango-devel pangomm pangomm-devel giflib-devel
 
-RUN git clone --no-single-branch --depth=1 https://ci.open-paas.org/stash/scm/or/rse.git /package/usr/share/openpaas
+RUN git clone --no-single-branch --depth=1 https://ci.linagora.com/linagora/lgs/openpaas/esn.git /package/usr/share/openpaas
 
 ADD common/openpaas/package /package
 ADD redhat/7/openpaas/package /package
