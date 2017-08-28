@@ -5,7 +5,7 @@ Running OpenPaas end to end tests.
 ## E2E test using Docker (recommended)
 
 With the help of Docker, you will have full running instance of OpenPaas for
-testing purpose. Check documentation [here](https://ci.open-paas.org/stash/projects/OR/repos/rse/browse/docker/doc/tests.md).
+testing purpose. Check documentation [here](https://ci.linagora.com/linagora/lgs/openpaas/esn/blob/master/docker/doc/tests.md).
 
 ## E2E test without Docker (experimental)
 

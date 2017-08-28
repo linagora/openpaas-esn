@@ -24,7 +24,7 @@ git clone https://github.com/linagora/openpaas-esn.git
 or
 
 ```
-git clone https://ci.open-paas.org/stash/scm/or/rse.git
+git clone https://ci.linagora.com/linagora/lgs/openpaas/esn.git
 ```
 
 ### 2. Install Node.js

@@ -8,7 +8,7 @@ OpenPaaS is a collaboration platform for enterprises & organizations.
 
 1.clone the repository
 
-    git clone https://ci.open-paas.org/stash/scm/or/rse.git
+    git clone https://ci.linagora.com/linagora/lgs/openpaas/esn.git
     # or
     git clone https://github.com/linagora/openpaas-esn.git
 
@@ -36,7 +36,7 @@ nvm use
 
 5.Install Sabre/dav
 
-Follow [sabre installation instructions](https://ci.open-paas.org/stash/projects/OR/repos/esn-sabre/browse/README.md).
+Follow [sabre installation instructions](https://ci.linagora.com/linagora/lgs/openpaas/esn-sabre/blob/master/README.md).
 
 6.Install the npm dependency
 

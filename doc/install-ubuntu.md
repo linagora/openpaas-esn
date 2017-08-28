@@ -2,7 +2,7 @@
 
 This manual will guide you through the system-wide installation process of elasticsearch, mongodb and nodeJS on Linux/ubuntu
 
-See also [General installation instructions](https://ci.open-paas.org/stash/projects/OR/repos/rse/browse/README.md)
+See also [General installation instructions](https://ci.linagora.com/linagora/lgs/openpaas/esn/blob/master/README.md)
 
 1.Open a terminal and install git
 
@@ -10,7 +10,7 @@ See also [General installation instructions](https://ci.open-paas.org/stash/proj
 
 2.clone the repository
 
-        git clone https://ci.open-paas.org/stash/scm/or/rse.git
+        git clone https://ci.linagora.com/linagora/lgs/openpaas/esn.git
 
 3.Install ElasticSearch 2.3.2
  Download and install ElasticSearch 2.3.2 [deb package](https://www.elastic.co/downloads/past-releases/elasticsearch-2-3-2) from elastic website
@@ -119,7 +119,7 @@ If during further manipulations you encounter errors with node modules, try to r
 
 9.Install Sabre/dav
 
-Follow [sabre installation instructions](https://ci.open-paas.org/stash/projects/OR/repos/esn-sabre/browse/README.md).
+Follow [sabre installation instructions](https://ci.linagora.com/linagora/lgs/openpaas/esn-sabre/blob/master/README.md).
 
 ## Testing
 
