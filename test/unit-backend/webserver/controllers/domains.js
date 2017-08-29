@@ -130,9 +130,10 @@ describe('The domains controller', function() {
           domain._id = domainId;
           callback(null, domain);
         }),
-        update: sinon.spy(function(modifiedDomain, callback) {
-          domain.administrators = [{ user_id: userId }];
-          expect(modifiedDomain).to.deep.equal(domain);
+        updateById: sinon.spy(function(domainId, modified, callback) {
+          const administrators = [{ user_id: userId }];
+
+          expect(modified).to.deep.equal({ administrators });
           callback(new Error());
         }),
         removeById: sinon.spy(function(options, callback) {
@@ -167,7 +168,7 @@ describe('The domains controller', function() {
             details: `Error while creating domain ${domain.name}`
           });
           expect(userIndexMock.recordUser).to.have.been.calledOnce;
-          expect(coreDomainMock.update).to.have.been.calledOnce;
+          expect(coreDomainMock.updateById).to.have.been.calledOnce;
           expect(coreDomainMock.removeById).to.have.been.calledOnce;
           expect(coreDomainMock.removeById).to.have.been.calledWith(domainId);
           done();

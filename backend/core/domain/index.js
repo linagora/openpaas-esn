@@ -11,6 +11,7 @@ module.exports = {
   load,
   list,
   removeById,
+  updateById,
   userIsDomainAdministrator,
   userIsDomainMember
 };
@@ -24,6 +25,19 @@ function create(domain, callback) {
 
 function update(modifiedDomain, callback) {
   Domain.update({_id: modifiedDomain.id}, modifiedDomain, callback);
+}
+
+/**
+  * Update domain by ID
+  *
+  * @param {string} domainId   - The ID of domain
+  * @param {object} modified   - The object contains attributes with new values
+  * @param {function} callback - The callback that handles the updated domain
+  */
+function updateById(domainId, modified, callback) {
+  const options = { new: true }; // http://mongoosejs.com/docs/api.html#query_Query-findOneAndUpdate
+
+  return Domain.findOneAndUpdate({ _id: domainId }, { $set: modified }, options, callback);
 }
 
 function removeById(domainId, callback) {

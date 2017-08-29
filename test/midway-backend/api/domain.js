@@ -382,7 +382,12 @@ describe('The domain API', function() {
       helpers.api.loginAsUser(app, platformAdmin.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
         loggedInAsUser(request(app).post('/api/domains').send(json))
         .expect(201)
-        .end(helpers.callbacks.noErrorAnd(() => {
+        .end(helpers.callbacks.noErrorAnd(response => {
+          expect(response.body).to.shallowDeepEqual({
+            name: 'marketing',
+            company_name: 'corporate'
+          });
+
           Domain.findOne({ name: 'marketing', company_name: 'corporate' }, helpers.callbacks.noErrorAnd(doc => {
             expect(doc).to.exist;
 
