@@ -1,26 +1,27 @@
 'use strict';
 
-var nodemailer = require('nodemailer');
-var emailTemplates = require('email-templates');
-var path = require('path');
-var logger = require('../logger');
-var config = require('../config')('default');
-var attachmentHelpers = require('./attachment-helpers');
+const nodemailer = require('nodemailer');
+const emailTemplates = require('email-templates');
+const path = require('path');
+const logger = require('../logger');
+const config = require('../config')('default');
+const attachmentHelpers = require('./attachment-helpers');
+const DEFAULT_NO_REPLY = 'no-reply@openpaas.org';
+const templatesDir = (config.email && config.email.templatesDir) || path.resolve(__dirname + '/../../../templates/email');
 
-var DEFAULT_NO_REPLY = 'no-reply@openpaas.org';
-var templatesDir = (config.email && config.email.templatesDir) || path.resolve(__dirname + '/../../../templates/email');
+module.exports = mailSender;
 
-function init(mailConfig) {
+function mailSender(mailConfig) {
   if (!mailConfig) {
     throw new Error('mailConfig cannot be null');
   }
 
-  var transport;
-  var noreply = (mailConfig.mail && mailConfig.mail.noreply) ? mailConfig.mail.noreply : DEFAULT_NO_REPLY;
+  let transport;
+  const noreply = (mailConfig.mail && mailConfig.mail.noreply) ? mailConfig.mail.noreply : DEFAULT_NO_REPLY;
 
   return {
-    send: send,
-    sendHTML: sendHTML
+    send,
+    sendHTML
   };
 
   /**
@@ -41,7 +42,7 @@ function init(mailConfig) {
     // require the nodemailer transport module if it is an external plugin
     if (mailConfig.transport.module) {
       try {
-        var nodemailerPlugin = require(mailConfig.transport.module);
+        const nodemailerPlugin = require(mailConfig.transport.module);
 
         transport = nodemailer.createTransport(nodemailerPlugin(mailConfig.transport.config));
       } catch (err) {
@@ -51,7 +52,7 @@ function init(mailConfig) {
       transport = nodemailer.createTransport(mailConfig.transport.config);
     }
 
-    return callback(null, transport);
+    callback(null, transport);
   }
 
   /**
@@ -64,17 +65,16 @@ function init(mailConfig) {
    * @return {*}
    */
   function sendHTML(message, templateName, locals, callback) {
-
     if (!_validate(message, false, callback)) {
       return;
     }
 
-    getMailTransport(function(err, transport) {
+    getMailTransport((err, transport) => {
       if (err) {
         return callback(err);
       }
 
-      emailTemplates(templatesDir, function(err, template) {
+      emailTemplates(templatesDir, (err, template) => {
         if (err) {
           return callback(err);
         }
@@ -82,7 +82,7 @@ function init(mailConfig) {
         locals.juiceOptions = { removeStyleTags: false };
         locals.pretty = true;
 
-        template(templateName, locals, function(err, html, text) {
+        template(templateName, locals, (err, html, text) => {
           if (err) {
             return callback(err);
           }
@@ -92,7 +92,7 @@ function init(mailConfig) {
           message.text = text;
 
           if (attachmentHelpers.hasAttachments(templatesDir, templateName)) {
-            attachmentHelpers.getAttachments(templatesDir, templateName, locals.filter, function(err, attachments) {
+            attachmentHelpers.getAttachments(templatesDir, templateName, locals.filter, (err, attachments) => {
               if (err) {
                 return callback(err);
               }
@@ -121,18 +121,16 @@ function init(mailConfig) {
    * @return {*}
    */
   function send(message, callback) {
-
     if (!_validate(message, true, callback)) {
       return;
     }
 
-    getMailTransport(function(err, transport) {
+    getMailTransport((err, transport) => {
       if (err) {
         return callback(err);
       }
 
       message.from = message.from || noreply;
-
       _sendRaw(transport, message, callback);
     });
   }
@@ -145,13 +143,14 @@ function init(mailConfig) {
    * @return {*}
    */
   function _sendRaw(transport, message, callback) {
-    transport.sendMail(message, function(err, response) {
+    transport.sendMail(message, (err, response) => {
       if (err) {
-        logger.error('Error while sending email %s', err.message);
+        logger.error(`Error while sending email ${err.message}`);
 
         return callback(err);
       }
-      logger.debug('Email has been sent to %s from %s', message.to, message.from);
+
+      logger.debug(`Email has been sent to ${message.to} from ${message.from}`);
       callback(null, response);
     });
   }
@@ -184,5 +183,3 @@ function init(mailConfig) {
     return true;
   }
 }
-
-module.exports = init;
