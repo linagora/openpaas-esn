@@ -29,13 +29,13 @@ function init(mailConfig) {
    * @param {function} done
    * @return {*}
    */
-  function getMailTransport(done) {
+  function getMailTransport(callback) {
     if (transport) {
-      return done(null, transport);
+      return callback(null, transport);
     }
 
     if (!mailConfig.transport) {
-      return done(new Error('Mail transport is not configured'));
+      return callback(new Error('Mail transport is not configured'));
     }
 
     // require the nodemailer transport module if it is an external plugin
@@ -45,13 +45,13 @@ function init(mailConfig) {
 
         transport = nodemailer.createTransport(nodemailerPlugin(mailConfig.transport.config));
       } catch (err) {
-        return done(err);
+        return callback(err);
       }
     } else {
       transport = nodemailer.createTransport(mailConfig.transport.config);
     }
 
-    return done(null, transport);
+    return callback(null, transport);
   }
 
   /**
@@ -60,23 +60,23 @@ function init(mailConfig) {
    * @param {object} message      - message object forwarded to nodemailer
    * @param {string} templateName - template name forwarded to email-templates
    * @param {object} locals       - locals object forwarded to email-templates
-   * @param {function} done       - callback function like fn(err, response)
+   * @param {function} callback       - callback function like fn(err, response)
    * @return {*}
    */
-  function sendHTML(message, templateName, locals, done) {
+  function sendHTML(message, templateName, locals, callback) {
 
-    if (!_validate(message, false, done)) {
+    if (!_validate(message, false, callback)) {
       return;
     }
 
     getMailTransport(function(err, transport) {
       if (err) {
-        return done(err);
+        return callback(err);
       }
 
       emailTemplates(templatesDir, function(err, template) {
         if (err) {
-          return done(err);
+          return callback(err);
         }
 
         locals.juiceOptions = { removeStyleTags: false };
@@ -84,7 +84,7 @@ function init(mailConfig) {
 
         template(templateName, locals, function(err, html, text) {
           if (err) {
-            return done(err);
+            return callback(err);
           }
 
           message.from = message.from || noreply;
@@ -94,7 +94,7 @@ function init(mailConfig) {
           if (attachmentHelpers.hasAttachments(templatesDir, templateName)) {
             attachmentHelpers.getAttachments(templatesDir, templateName, locals.filter, function(err, attachments) {
               if (err) {
-                return done(err);
+                return callback(err);
               }
 
               if (Array.isArray(message.attachments)) {
@@ -103,11 +103,10 @@ function init(mailConfig) {
                 message.attachments = attachments;
               }
 
-              _sendRaw(transport, message, done);
-
+              _sendRaw(transport, message, callback);
             });
           } else {
-            _sendRaw(transport, message, done);
+            _sendRaw(transport, message, callback);
           }
         });
       });
@@ -118,23 +117,23 @@ function init(mailConfig) {
    * Send an email to recipient
    *
    * @param {object} message - message object forwarded to nodemailer
-   * @param {function} done  - callback function like fn(err, response)
+   * @param {function} callback  - callback function like fn(err, response)
    * @return {*}
    */
-  function send(message, done) {
+  function send(message, callback) {
 
-    if (!_validate(message, true, done)) {
+    if (!_validate(message, true, callback)) {
       return;
     }
 
     getMailTransport(function(err, transport) {
       if (err) {
-        return done(err);
+        return callback(err);
       }
 
       message.from = message.from || noreply;
 
-      _sendRaw(transport, message, done);
+      _sendRaw(transport, message, callback);
     });
   }
 
@@ -142,18 +141,18 @@ function init(mailConfig) {
    * Send raw email using mail transport
    * @param  {Object}   transport mail transport object
    * @param  {Object}   message   message object forwarded to nodemailer
-   * @param  {Function} done      callback function like fn(err, response)
+   * @param  {Function} callback      callback function like fn(err, response)
    * @return {*}
    */
-  function _sendRaw(transport, message, done) {
+  function _sendRaw(transport, message, callback) {
     transport.sendMail(message, function(err, response) {
       if (err) {
         logger.error('Error while sending email %s', err.message);
 
-        return done(err);
+        return callback(err);
       }
       logger.debug('Email has been sent to %s from %s', message.to, message.from);
-      done(null, response);
+      callback(null, response);
     });
   }
 
@@ -163,21 +162,21 @@ function init(mailConfig) {
    * @param  {Boolean} requireContent require text/html attribute or not
    * @return {Boolean}         Return true if the message is well-formed
    */
-  function _validate(message, requireContent, done) {
+  function _validate(message, requireContent, callback) {
     if (!message) {
-      done(new Error('message must be an object'));
+      callback(new Error('message must be an object'));
 
       return false;
     }
 
     if (!message.to) {
-      done(new Error('message.to can not be null'));
+      callback(new Error('message.to can not be null'));
 
       return false;
     }
 
     if (requireContent && !message.text && !message.html) {
-      done(new Error('message content can not be null'));
+      callback(new Error('message content can not be null'));
 
       return false;
     }
