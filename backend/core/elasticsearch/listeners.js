@@ -26,7 +26,7 @@ function index(data, options, callback) {
       if (err) {
         logger.error('Error while adding data in index', err);
       } else {
-        logger.debug('Document indexed');
+        result && result.created ? logger.debug('Document indexed') : logger.debug('Document is not indexed');
       }
 
       callback && callback(err, result);
