@@ -16,19 +16,19 @@ html.mail
           tr.table-header
             td.logo(colspan="2")
               div
-                a(href="#{content.baseUrl}")
-                  img(src="cid:logo", alt="#{translate('OpenPaas Logo')}")
+                a(href=content.baseUrl)
+                  img(src="cid:logo", alt=translate('OpenPaas Logo'))
             td.organizer(colspan="2")
               h5
                 p
                   | #{content.event.organizer.cn} (
                   span.small
-                    a(href='mailto:#{content.event.organizer.email}')
-                      img(src="cid:email", alt="#{translate('Organizer mail')}")
+                    a(href=`mailto:${content.event.organizer.email}`)
+                      img(src="cid:email", alt=translate('Organizer mail'))
                     | )
                 p.big #{translate('Event Reminder')}
             td.avatar.indent-right(colspan="2")
-              img(src="#{content.event.organizer.avatar}", alt="#{translate('Organizer Avatar')}", width="45px", height="42px")
+              img(src=content.event.organizer.avatar, alt=translate('Organizer Avatar'), width="45px", height="42px")
           tr
             td(colspan="6").indent
               span.title #{content.event.summary}
@@ -37,9 +37,9 @@ html.mail
           tr
             td.indent
               if (content.event.end)
-                img(src="cid:clock", alt="#{translate('From')}")
+                img(src="cid:clock", alt=translate('From'))
               else
-                img(src="cid:clock", alt="#{translate('At')}")
+                img(src="cid:clock", alt=translate('At'))
             td
               p #{content.event.start.date}
               if (!content.event.allDay)
@@ -50,7 +50,7 @@ html.mail
                 if (content.event.allDay && content.event.end.date == content.event.start.date)
                   p #{translate('all day')}
                 else
-                  img.check-transform(src="cid:check", alt="#{translate('To')}")
+                  img.check-transform(src="cid:check", alt=translate('To'))
               td
                 if (!content.event.allDay || (content.event.allDay && content.event.end.date != content.event.start.date))
                   p #{content.event.end.date}
@@ -61,12 +61,12 @@ html.mail
               td(colspan="2")
             td.recurrence
             td.indent-right
-              a(href='#{content.seeInCalendarLink}') #{translate('See in calendar')}
+              a(href=content.seeInCalendarLink) #{translate('See in calendar')}
 
           if (content.event.location)
             tr
               td(colspan="1").indent
-                img(src="cid:map-marker", alt="#{translate('Location')}")
+                img(src="cid:map-marker", alt=translate('Location'))
               td(colspan="3").indent
                 | #{content.event.location}
 
@@ -78,4 +78,4 @@ html.mail
 
       footer
         div.footer
-          a(href='#{content.consultLink}') #{translate('More details...')}
+          a(href=content.consultLink) #{translate('More details...')}
