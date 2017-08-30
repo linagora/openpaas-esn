@@ -1,13 +1,13 @@
 'use strict';
 
-const nodemailer = require('nodemailer');
-const emailTemplates = require('email-templates');
+const Q = require('q');
 const path = require('path');
 const logger = require('../logger');
 const config = require('../config')('default');
-const attachmentHelpers = require('./attachment-helpers');
+const mailTransport = require('./mail-transport');
+const messageBuilder = require('./message-builder');
 const DEFAULT_NO_REPLY = 'no-reply@openpaas.org';
-const templatesDir = (config.email && config.email.templatesDir) || path.resolve(__dirname + '/../../../templates/email');
+const TEMPLATES_DIR = (config.email && config.email.templatesDir) || path.resolve(__dirname + '/../../../templates/email');
 
 module.exports = mailSender;
 
@@ -16,7 +16,6 @@ function mailSender(mailConfig) {
     throw new Error('mailConfig cannot be null');
   }
 
-  let transport;
   const noreply = (mailConfig.mail && mailConfig.mail.noreply) ? mailConfig.mail.noreply : DEFAULT_NO_REPLY;
 
   return {
@@ -25,92 +24,27 @@ function mailSender(mailConfig) {
   };
 
   /**
-   * Initialize the mail transport on first call else get it from cache
-   *
-   * @param {function} done
-   * @return {*}
-   */
-  function getMailTransport(callback) {
-    if (transport) {
-      return callback(null, transport);
-    }
-
-    if (!mailConfig.transport) {
-      return callback(new Error('Mail transport is not configured'));
-    }
-
-    // require the nodemailer transport module if it is an external plugin
-    if (mailConfig.transport.module) {
-      try {
-        const nodemailerPlugin = require(mailConfig.transport.module);
-
-        transport = nodemailer.createTransport(nodemailerPlugin(mailConfig.transport.config));
-      } catch (err) {
-        return callback(err);
-      }
-    } else {
-      transport = nodemailer.createTransport(mailConfig.transport.config);
-    }
-
-    callback(null, transport);
-  }
-
-  /**
    * Send an HTML email rendered from a template
    *
    * @param {object} message      - message object forwarded to nodemailer
-   * @param {string} templateName - template name forwarded to email-templates
+   * @param {string} template     - template object with name + optional path
    * @param {object} locals       - locals object forwarded to email-templates
-   * @param {function} callback       - callback function like fn(err, response)
+   * @param {function} callback   - callback function like fn(err, response)
    * @return {*}
    */
-  function sendHTML(message, templateName, locals, callback) {
+  function sendHTML(message, template, locals, callback) {
     if (!_validate(message, false, callback)) {
       return;
     }
 
-    getMailTransport((err, transport) => {
-      if (err) {
-        return callback(err);
-      }
-
-      emailTemplates(templatesDir, (err, template) => {
-        if (err) {
-          return callback(err);
-        }
-
-        locals.juiceOptions = { removeStyleTags: false };
-        locals.pretty = true;
-
-        template(templateName, locals, (err, html, text) => {
-          if (err) {
-            return callback(err);
-          }
-
-          message.from = message.from || noreply;
-          message.html = html;
-          message.text = text;
-
-          if (attachmentHelpers.hasAttachments(templatesDir, templateName)) {
-            attachmentHelpers.getAttachments(templatesDir, templateName, locals.filter, (err, attachments) => {
-              if (err) {
-                return callback(err);
-              }
-
-              if (Array.isArray(message.attachments)) {
-                message.attachments = message.attachments.concat(attachments);
-              } else {
-                message.attachments = attachments;
-              }
-
-              _sendRaw(transport, message, callback);
-            });
-          } else {
-            _sendRaw(transport, message, callback);
-          }
-        });
-      });
-    });
+    Q.all([
+      _getTransport(),
+      messageBuilder({ noreply, defaultTemplatesDir: TEMPLATES_DIR})(message, template, locals)
+    ])
+    .spread((transport, htmlMessage) => {
+      _sendRaw(transport, htmlMessage, callback);
+    })
+    .catch(callback);
   }
 
   /**
@@ -125,14 +59,10 @@ function mailSender(mailConfig) {
       return;
     }
 
-    getMailTransport((err, transport) => {
-      if (err) {
-        return callback(err);
-      }
-
+    _getTransport().then(transport => {
       message.from = message.from || noreply;
       _sendRaw(transport, message, callback);
-    });
+    }).catch(callback);
   }
 
   /**
@@ -181,5 +111,15 @@ function mailSender(mailConfig) {
     }
 
     return true;
+  }
+
+  function _getTransport() {
+    return mailTransport.get(mailConfig).then(transport => {
+      if (!transport) {
+        throw new Error('Transport can not be found');
+      }
+
+      return transport;
+    });
   }
 }
