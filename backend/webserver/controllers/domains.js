@@ -81,7 +81,7 @@ function create(req, res) {
   };
 
   return _createWithAdministrator(domain, administrator)
-    .then(domain => res.status(201).json(domain))
+    .then(domain => res.status(201).json(denormalizeDomain(domain)))
     .catch(err => {
       const details = `Error while creating domain ${name}`;
 
@@ -119,10 +119,10 @@ function _createWithAdministrator(domain, administrator) {
 
       return q.ninvoke(userIndex, 'recordUser', user)
         .then(administrator => {
-          domain.administrators = [{ user_id: administrator._id }];
+          const administrators = [{ user_id: administrator._id }];
 
           // update domain with administrator
-          return q.ninvoke(coreDomain, 'update', domain);
+          return q.ninvoke(coreDomain, 'updateById', domain._id, { administrators });
         })
         .catch(
           err => q.ninvoke(coreDomain, 'removeById', domain._id) // Remove domain if failed to create domain administrator
