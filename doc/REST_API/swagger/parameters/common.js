@@ -8,6 +8,13 @@
   *     required: false
   *     default: 50
   *     type: integer
+  *   cm_pages:
+  *     name: pages
+  *     in: query
+  *     description: the total pages of results to display
+  *     required: false
+  *     default: 0
+  *     type: integer
   *   cm_offset:
   *     name: offset
   *     in: query
