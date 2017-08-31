@@ -45,7 +45,17 @@ function printPlatformAdmins(platformadmins) {
   });
 
   platformadmins.forEach(platformadmin => {
-    table.push([platformadmin.id, platformadmin.firstname, platformadmin.lastname, platformadmin.email]);
+
+    platformadmin.firstname = platformadmin.firstname || '';
+    platformadmin.lastname = platformadmin.lastname || '';
+
+    table.push([
+      platformadmin.id,
+      platformadmin.firstname,
+      platformadmin.lastname,
+      platformadmin.email
+    ]);
+
   });
 
   console.log(table.toString());
