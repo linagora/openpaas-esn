@@ -1,7 +1,12 @@
 'use strict';
 
-var fs = require('fs');
-var path = require('path');
+const fs = require('fs');
+const path = require('path');
+
+module.exports = {
+  getAttachments,
+  hasAttachments
+};
 
 /**
  * Check if template has attachments.
@@ -25,35 +30,25 @@ function hasAttachments(templatesDir, template) {
  * @param {function} done         a callback function called with (err, data)
  * @return {*}
  */
-function getAttachments(templatesDir, template, filter, done) {
-  var basepath = path.join(templatesDir, template, 'attachments');
+function getAttachments(templatesDir, template, filter, callback) {
+  const basepath = path.join(templatesDir, template, 'attachments');
 
   filter = filter || function() { return true; };
 
-  fs.readdir(basepath, function(err, files) {
+  fs.readdir(basepath, (err, files) => {
     if (err) {
-      return done(err);
+      return callback(err);
     }
 
-    var attachments = files.map(function(filePath) {
-      var basename = path.basename(filePath);
-
-      return {
-        filename: basename,
-        path: path.join(basepath, filePath),
-        cid: path.basename(filePath, path.extname(filePath)),
-        contentDisposition: 'inline'
-      };
-    }).filter(function(file) {
-      return filter(file.filename);
-    });
-
-    done(null, attachments);
+    callback(null, files.map(mapFile).filter(file => filter(file.filename)));
   });
 
+  function mapFile(filePath) {
+    return {
+      filename: path.basename(filePath),
+      path: path.join(basepath, filePath),
+      cid: path.basename(filePath, path.extname(filePath)),
+      contentDisposition: 'inline'
+    };
+  }
 }
-
-module.exports = {
-  hasAttachments: hasAttachments,
-  getAttachments: getAttachments
-};

@@ -1,39 +1,44 @@
 'use strict';
 
-var q = require('q');
-var esnConfig = require('../esn-config')('mail');
-var mailSenderBuilder = require('./mail-sender');
+const Q = require('q');
+const esnConfig = require('../esn-config')('mail');
+const mailSenderBuilder = require('./mail-sender');
+
+module.exports = {
+  getMailer,
+  mailSenderBuilder,
+  system: require('./system')
+};
 
 function getMailer(user) {
-  var mailSenderPromise = getMailSender(user);
-
-  function send(type) {
-    var args = Array.prototype.slice.call(arguments, 1);
-    var callback = args.length ? args[args.length - 1] : null;
-
-    if (typeof callback !== 'function') {
-      callback = null;
-    }
-
-    return mailSenderPromise.then(function(mailSender) {
-        return q.npost(mailSender, type, args);
-      })
-      .then(function(data) {
-        callback && callback(null, data);
-
-        return data;
-      })
-      .catch(function(err) {
-        callback && callback(err);
-
-        return q.reject(err);
-      });
-  }
+  const mailSenderPromise = getMailSender(user);
 
   return {
     send: send.bind(null, 'send'),
     sendHTML: send.bind(null, 'sendHTML')
   };
+
+  function send(type) {
+    const args = Array.prototype.slice.call(arguments, 1);
+    let callback = args.length ? args[args.length - 1] : null;
+
+    if (typeof callback !== 'function') {
+      callback = null;
+    }
+
+    return mailSenderPromise
+      .then(mailSender => Q.npost(mailSender, type, args))
+      .then(data => {
+        callback && callback(null, data);
+
+        return data;
+      })
+      .catch(err => {
+        callback && callback(err);
+
+        return Q.reject(err);
+      });
+  }
 }
 
 function getMailSender(user) {
@@ -41,17 +46,12 @@ function getMailSender(user) {
 }
 
 function getMailConfig(user) {
-  return esnConfig.forUser(user).get().then(function(data) {
-    if (!data) {
-      return q.reject(new Error('mail is not configured'));
-    }
+  return esnConfig.forUser(user).get()
+    .then(data => {
+      if (!data) {
+        return Q.reject(new Error('mail is not configured'));
+      }
 
-    return data;
-  });
+      return data;
+    });
 }
-
-module.exports = {
-  getMailer: getMailer,
-  mailSenderBuilder: mailSenderBuilder,
-  system: require('./system')
-};
