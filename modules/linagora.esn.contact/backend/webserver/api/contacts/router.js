@@ -10,7 +10,7 @@ module.exports = dependencies => {
         router = express.Router();
   /**
    * @swagger
-   * /{addressBookId}/{addressbookName}/{contactId}/avatar:
+   * /contacts/{addressBookId}/{addressbookName}/{contactId}/avatar:
    *   get:
    *     tags:
    *       - Contact
@@ -38,7 +38,7 @@ module.exports = dependencies => {
 
   /**
    * @swagger
-   * /search:
+   * /contacts/search:
    *   get:
    *     tags:
    *       - Contact
