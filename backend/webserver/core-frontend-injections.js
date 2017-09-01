@@ -270,7 +270,19 @@ const injections = [
   {angular: ['esn.feature-registry'], files: [
     'feature-registry/feature-registry.module.js',
     'feature-registry/feature-registry.service.js'
-  ], innerApps: ['esn', 'welcome']}
+  ], innerApps: ['esn', 'welcome']},
+  {angular: ['esn.shortcuts'], files: [
+    'shortcuts/shortcuts.module.js',
+    'shortcuts/shortcuts.config.js',
+    'shortcuts/shortcuts.run.js',
+    'shortcuts/shortcuts.constants.js',
+    'shortcuts/shortcuts.service.js',
+    'shortcuts/shortcuts-registry.service.js',
+    'shortcuts/shortcuts-global.service.js',
+    'shortcuts/shortcuts-action.service.js',
+    'shortcuts/sheet/shortcuts-sheet.service.js',
+    'shortcuts/sheet/shortcuts-sheet.controller.js'
+  ], innerApps: ['esn']}
 ];
 
 if (process.env.NODE_ENV === 'production') { // eslint-disable-line no-process-env

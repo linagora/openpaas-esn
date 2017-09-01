@@ -432,5 +432,10 @@
   "Application Menu": "Application Menu",
   "No application, click %s to add a new one": "No application, click %s to add a new one",
   "Cannot get user applications, try again later!": "Cannot get user applications, try again later!",
-  "Allows users to change their password": "Allows users to change their password"
+  "Allows users to change their password": "Allows users to change their password",
+  "Keyboard shortcuts": "Keyboard shortcuts",
+  "Global shortcuts": "Global shortcuts",
+  "Show / hide this help page": "Show / hide this help page",
+  "Focus on the search form": "Focus on the search form",
+  "Show / hide the application menu": "Show / hide the application menu"
 }
