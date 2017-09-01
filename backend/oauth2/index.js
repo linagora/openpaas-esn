@@ -28,9 +28,14 @@ server.deserializeClient(function(id, done) {
 });
 
 server.grant(oauth2orize.grant.code(function(client, redirectUri, user, ares, done) {
-  var code = randomstring.generate(16);
   var userId = user._id || user;
+
+  if (!userId || !client.creator || String(userId) !== String(client.creator)) {
+    return done(null, false);
+  }
+
   var clientId = client._id || client;
+  var code = randomstring.generate(16);
   var oauthAuthorizationCode = new OAuthAuthorizationCode({
     code: code,
     redirectUri: redirectUri,
@@ -47,8 +52,13 @@ server.grant(oauth2orize.grant.code(function(client, redirectUri, user, ares, do
 }));
 
 server.grant(oauth2orize.grant.token(function(client, user, ares, done) {
-  var token = randomstring.generate(40);
   var userId = user._id || user;
+
+  if (!userId || !client.creator || String(userId) !== String(client.creator)) {
+    return done(null, false);
+  }
+
+  var token = randomstring.generate(40);
   var clientId = client._id || client;
   var oauthAccessToken = new OAuthAccessToken({
     accessToken: token,
@@ -71,6 +81,7 @@ server.exchange(oauth2orize.exchange.code(function(client, code, redirectUri, do
     if (!oauthauthorizationcode) {
       return done(null, false);
     }
+
     var uid = randomstring.generate(40);
     var oauthAccessToken = new OAuthAccessToken({
       accessToken: uid,
@@ -97,12 +108,25 @@ exports.authorization = server.authorization(function(clientId, redirectUri, don
 });
 
 exports.dialog = function(req, res) {
-  res.locals.assets = assetRegistry.envAwareApp('oauth');
-  res.render('oauth/index', {
-    transactionId: req.oauth2.transactionID,
-    user: req.user,
-    client: req.oauth2.client
-  });
+  // if current user is exactly app owner, send an approval dialog to obtain permission
+  if (req.user._id.toString() === req.oauth2.client.creator.toString()) {
+    res.locals.assets = assetRegistry.envAwareApp('oauth');
+    res.render('oauth/index', {
+      transactionId: req.oauth2.transactionID,
+      user: req.user,
+      client: req.oauth2.client
+    });
+  } else {
+    // if current user is not app owner:
+    // remove generated transaction from the session
+    // and redirect to redirectURI with error=access_denied
+    // more detail about OAuth error response: https://tools.ietf.org/html/rfc6749#section-4.1.2.1
+    if (req.session && req.session.authorize) {
+      delete req.session.authorize[req.oauth2.transactionID];
+    }
+
+    res.redirect(`${req.oauth2.redirectURI}?error=access_denied`);
+  }
 };
 
 exports.decision = server.decision();
