@@ -10,7 +10,7 @@ function routes(app, lib, dependencies) {
    * /messages/email/reply/check:
    *   get:
    *     tags:
-   *       - Email
+   *       - Message email
    *     description: Checks that the sender and the recipient are valid ie that the user can reply to the message.
    *     parameters:
    *       - $ref: "#/parameters/messaging.email_from"
@@ -36,7 +36,7 @@ function routes(app, lib, dependencies) {
    * /messages/email/reply:
    *   post:
    *     tags:
-   *       - Email
+   *       - Message email
    *     description: Posts a new comment in reply to a message, by the currently logged in user. This is used by platform applications to reply to a message from an incoming email
    *     parameters:
    *       - $ref: "#/parameters/messaging.email_user"
