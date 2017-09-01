@@ -77,3 +77,42 @@ button.close {
     }
   }
 }
+
+/* Override ANGULAR MATERIAL */
+
+md-menu-item .md-button {
+  & > span {
+    font-family: roboto;
+    font-size: 13px;
+  }
+}
+
+.md-open-menu-container {
+  z-index: @aside-z-index + 5;
+}
+
+@media (max-width: @screen-md-min) {
+  md-backdrop.md-menu-backdrop {
+    z-index: 1055;
+  }
+}
+
+@media (min-width: @screen-md-min) {
+  md-menu-content {
+    padding: 5px 0;
+
+    md-menu-item {
+      min-height: 32px;
+      height: 32px;
+
+      & > a.md-button {
+        padding-top: 0;
+      }
+
+      & > .md-button {
+        min-height: 32px;
+        line-height: 32px;
+      }
+    }
+  }
+}

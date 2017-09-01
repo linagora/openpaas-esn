@@ -1,31 +1,18 @@
 .profile-menu {
-  margin-left: 5px;
 
   .header-avatar {
     height: 30px;
     width: 30px;
     border-radius: 50%;
     box-shadow: 0 1px 1px @headerAvatarShadow;
-    cursor: pointer;    
+    cursor: pointer;
+    margin-left: 5px;
+  }
+
+  md-menu-item .md-button {
+    & > md-icon {
+      color: @primaryColor;
+    }
   }
 }
 
-md-menu-item .md-button {
-  text-align: left;
-
-  & > md-icon {
-    color: @primaryColor;
-  }
-  
-  & > span {
-  font-family: roboto;
-  font-weight: normal;
-  line-height: 1.42857143;
-  font-size: 13px;
-  padding: 8px 17px;
-  }
-}
-
-.md-open-menu-container {
-  z-index: @aside-z-index + 5;
-}
