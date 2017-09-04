@@ -577,3 +577,8 @@ html:not(.ie9) .select::before, .select::before {
 @media (min-width: @screen-xl-min) {
   .make-grid(xl);
 }
+
+.checkbox .input-helper:before, .radio .input-helper:before {
+  border: 2px solid lighten(@secondaryTextColor, 20%);
+  border-radius: 2px;
+}
