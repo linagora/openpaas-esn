@@ -27,6 +27,17 @@ function getConfigurationHash(config) {
 }
 
 /**
+ * Get default Elasticsearch configuration. We clone the default config because
+ * the ES client modifies the config object.
+ * See more at https://github.com/elastic/elasticsearch-js/issues/33
+ *
+ * @return {Object} a copy of default Elasticsearch configuration
+ */
+function getDefaultConfig() {
+  return Object.assign({}, DEFAULT_CONFIG);
+}
+
+/**
  * Update the current Client
  *
  * @param {function} callback function like callback(err, elasticsearchClient)
@@ -43,7 +54,7 @@ function updateClient(callback) {
     }
 
     if (!data) {
-      data = DEFAULT_CONFIG;
+      data = getDefaultConfig();
     }
 
     var hash = getConfigurationHash(data);
