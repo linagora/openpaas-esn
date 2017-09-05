@@ -5,7 +5,6 @@ const q = require('q');
 const async = require('async');
 const mongoose = require('mongoose');
 
-const Domain = mongoose.model('Domain');
 const userDomain = require('../../core/user/domain');
 const userIndex = require('../../core/user/index');
 const coreDomain = require('../../core/domain');
@@ -177,59 +176,40 @@ function update(req, res) {
 }
 
 /**
- * Get Members of a domain
+ * Get members of a domain
  *
  * @param {Request} req
  * @param {Response} res
  */
 function getMembers(req, res) {
-  var uuid = req.params.uuid;
-  if (!uuid) {
-    return res.status(400).json({error: {code: 400, message: 'Bad parameters', details: 'Domain ID is missing'}});
-  }
-
-  var query = {
+  const domain = req.domain;
+  const query = {
     limit: req.query.limit || DEFAULT_LIMIT,
     offset: req.query.offset || DEFAULT_OFFSET,
     search: req.query.search || null
   };
+  const getUsers = query.search ? userDomain.getUsersSearch : userDomain.getUsersList;
+  const errorMessage = query.search ? 'Error while searching domain members' : 'Error while getting domain members';
 
-  Domain.loadFromID(uuid, function(err, domain) {
+  getUsers([domain], query, function(err, result) {
     if (err) {
-      return res.status(500).json({ error: { status: 500, message: 'Server error', details: 'Can not load domain: ' + err.message}});
-    }
+      logger.error(errorMessage, err);
 
-    if (!domain) {
-      return res.status(404).json({ error: { status: 404, message: 'Not Found', details: 'Domain ' + uuid + ' has not been found'}});
-    }
-
-    if (query.search) {
-      userDomain.getUsersSearch([domain], query, function(err, result) {
-        if (err) {
-          return res.status(500).json({ error: { status: 500, message: 'Server error', details: 'Error while searching members: ' + err.message}});
+      return res.status(500).json({
+        error: {
+          status: 500,
+          message: 'Server Error',
+          details: errorMessage
         }
-
-        q.all(result.list.map(function(user) {
-          return denormalizeUser(user);
-        })).then(function(denormalized) {
-          res.header('X-ESN-Items-Count', result.total_count);
-          res.status(200).json(denormalized);
-        });
-      });
-    } else {
-      userDomain.getUsersList([domain], query, function(err, result) {
-        if (err) {
-          return res.status(500).json({ error: { status: 500, message: 'Server error', details: 'Error while listing members: ' + err.message}});
-        }
-
-        q.all(result.list.map(function(user) {
-          return denormalizeUser(user);
-        })).then(function(denormalized) {
-          res.header('X-ESN-Items-Count', result.total_count);
-          res.status(200).json(denormalized);
-        });
       });
     }
+
+    q.all(result.list.map(function(user) {
+      return denormalizeUser(user);
+    })).then(function(denormalized) {
+      res.header('X-ESN-Items-Count', result.total_count);
+      res.status(200).json(denormalized);
+    });
   });
 }
 
