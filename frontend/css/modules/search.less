@@ -69,6 +69,10 @@
   .search-result {
     margin-top: 15px;
 
+    .listview.lv-lg .lv-item {
+      padding: 7px 10px;
+    }
+
     .search-empty-result {
       .all-centered;
 
@@ -90,6 +94,16 @@
 
       &.offscreen {
         display: none;
+      }
+    }
+  }
+}
+
+@media (min-width: @screen-md-min) {
+  .search-body {
+    .search-result {
+      .listview.lv-lg .lv-item {
+        padding: 15px 20px 15px 20px;
       }
     }
   }
