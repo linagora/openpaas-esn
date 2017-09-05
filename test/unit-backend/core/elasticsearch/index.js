@@ -23,7 +23,7 @@ describe('The elasticsearch module', function() {
       elasticsearch.updateClient(function(err, elasticsearchClient) {
         expect(err).to.exist;
         expect(elasticsearchClient).not.to.exist;
-        expect(err.message).to.equal('not found');
+        expect(err.message).to.equal('Error');
         done();
       });
     });

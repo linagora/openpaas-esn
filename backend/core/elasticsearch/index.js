@@ -1,6 +1,7 @@
 'use strict';
 
 const esnconfig = require('../esn-config'),
+      logger = require('../logger'),
       elasticsearch = require('elasticsearch'),
       q = require('q');
 
@@ -45,12 +46,14 @@ function getDefaultConfig() {
 function updateClient(callback) {
   esnconfig('elasticsearch').get(function(err, data) {
     if (err) {
+      logger.error('Error while getting elasticsearch configuration', err);
       if (currentClient) {
         currentClient.close();
         currentClient = null;
       }
       currentClientHash = null;
-      return callback(new Error('not found'));
+
+      return callback(err);
     }
 
     if (!data) {
@@ -74,6 +77,8 @@ function updateClient(callback) {
     // Check if the connection was a success
     elasticsearchClient.ping({requestTimeout: TIMEOUT}, function(err) {
       if (err) {
+        logger.error('Cannot connect to Elasticsearch server', err);
+
         return callback(new Error('cannot connect'));
       }
 
