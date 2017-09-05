@@ -191,7 +191,7 @@ function getMembers(req, res) {
   const getUsers = query.search ? userDomain.getUsersSearch : userDomain.getUsersList;
   const errorMessage = query.search ? 'Error while searching domain members' : 'Error while getting domain members';
 
-  getUsers([domain], query, function(err, result) {
+  getUsers([domain], query, (err, result) => {
     if (err) {
       logger.error(errorMessage, err);
 
@@ -204,12 +204,11 @@ function getMembers(req, res) {
       });
     }
 
-    q.all(result.list.map(function(user) {
-      return denormalizeUser(user);
-    })).then(function(denormalized) {
-      res.header('X-ESN-Items-Count', result.total_count);
-      res.status(200).json(denormalized);
-    });
+    q.all(result.list.map(user => denormalizeUser(user)))
+      .then(denormalized => {
+        res.header('X-ESN-Items-Count', result.total_count);
+        res.status(200).json(denormalized);
+      });
   });
 }
 
@@ -224,18 +223,18 @@ function sendInvitations(req, res) {
     return res.status(400).json({ error: { status: 400, message: 'Bad request', details: 'Missing input emails'}});
   }
 
-  var emails = req.body;
-  var user = req.user;
-  var domain = req.domain;
-  var handler = require('../../core/invitation');
-  var Invitation = mongoose.model('Invitation');
-  var getInvitationURL = require('./invitation').getInvitationURL;
-  var sent = [];
+  const emails = req.body;
+  const user = req.user;
+  const domain = req.domain;
+  const handler = require('../../core/invitation');
+  const Invitation = mongoose.model('Invitation');
+  const getInvitationURL = require('./invitation').getInvitationURL;
+  const sent = [];
 
   res.status(202).end();
 
-  var sendInvitation = function(email, callback) {
-    var payload = {
+  const sendInvitation = (email, callback) => {
+    const payload = {
       type: 'addmember',
       data: {
         user: user,
@@ -244,38 +243,43 @@ function sendInvitations(req, res) {
       }
     };
 
-    handler.validate(payload, function(err, result) {
+    handler.validate(payload, (err, result) => {
       if (err || !result) {
         logger.warn('Invitation data is not valid %s : %s', payload, err ? err.message : result);
+
         return callback();
       }
 
-      var invitation = new Invitation(payload);
-      invitation.save(function(err, saved) {
+      const invitation = new Invitation(payload);
+
+      invitation.save((err, saved) => {
         if (err) {
           logger.error('Can not save invitation %s : %s', payload, err.message);
+
           return callback();
         }
 
-        getInvitationURL(req, saved).then(function(url) {
+        getInvitationURL(req, saved).then(url => {
           saved.data.url = url;
-          handler.init(saved, function(err, result) {
+          handler.init(saved, (err, result) => {
             if (err || !result) {
               logger.error('Invitation can not be initialized %s : %s', saved, err ? err.message : result);
             } else {
               sent.push(email);
             }
+
             return callback();
           });
-        }, function(err) {
+        }, err => {
           logger.error('Cannot get invitation url with error : %s', err);
+
           return callback(err);
         });
       });
     });
   };
 
-  async.eachLimit(emails, 10, sendInvitation, function(err) {
+  async.eachLimit(emails, 10, sendInvitation, err => {
     if (err) {
       logger.error('Unexpected error occured : %s', err);
     }
@@ -288,6 +292,7 @@ function getDomain(req, res) {
   if (req.domain) {
     return res.status(200).json(req.domain);
   }
+
   return res.status(404).json({error: 404, message: 'Not found', details: 'Domain not found'});
 }
 
@@ -296,7 +301,7 @@ function createMember(req, res) {
     return res.status(400).json({ error: { code: 400, message: 'Bad request', details: 'Missing input member' } });
   }
 
-  userIndex.recordUser(req.body, function(err, user) {
+  userIndex.recordUser(req.body, (err, user) => {
     if (err) {
       return res.status(500).json({ error: { code: 500, message: 'Server Error', details: 'Can not create member. ' + err.message } });
     }
@@ -306,28 +311,27 @@ function createMember(req, res) {
 }
 
 function getDomainAdministrators(req, res) {
-  userDomain.getAdministrators(req.domain, function(err, administrators) {
+  userDomain.getAdministrators(req.domain, (err, administrators) => {
     if (err || !administrators) {
       logger.error('Can not get domain administrators : %s', err);
 
       return res.status(500).json({ error: { code: 500, message: 'Server Error', details: 'Can not get domain administrators. ' + err.message } });
     }
 
-    q.all(administrators.map(function(administrator) {
-        return denormalizeUser(administrator).then(function(denormalized) {
+    q.all(administrators.map(administrator =>
+        denormalizeUser(administrator).then(denormalized => {
           denormalized.role = administrator.role;
+
           return denormalized;
-        });
-      }))
-      .then(function(denormalizeds) {
-        res.status(200).json(denormalizeds);
-      });
+        })
+      ))
+      .then(denormalizeds => res.status(200).json(denormalizeds));
   });
 }
 
 function addDomainAdministrator(req, res) {
-  var domain = req.domain;
-  var userIds = req.body;
+  const domain = req.domain;
+  const userIds = req.body;
 
   if (!Array.isArray(userIds)) {
     return res.status(400).json({
@@ -335,7 +339,7 @@ function addDomainAdministrator(req, res) {
     });
   }
 
-  userDomain.addDomainAdministrator(domain, userIds, function(err) {
+  userDomain.addDomainAdministrator(domain, userIds, err => {
     if (err) {
       logger.error('Error while adding domain administrators:', err);
 
@@ -349,8 +353,8 @@ function addDomainAdministrator(req, res) {
 }
 
 function removeDomainAdministrator(req, res) {
-  var domain = req.domain;
-  var administratorId = req.params.administratorId;
+  const domain = req.domain;
+  const administratorId = req.params.administratorId;
 
   if (req.user._id.equals(administratorId)) {
     return res.status(403).json({
@@ -358,7 +362,7 @@ function removeDomainAdministrator(req, res) {
     });
   }
 
-  userDomain.removeDomainAdministrator(domain, administratorId, function(err) {
+  userDomain.removeDomainAdministrator(domain, administratorId, err => {
     if (err) {
       logger.error('Error while removing domain administrator:', err);
 
