@@ -1,5 +1,3 @@
 'use strict';
 
-module.exports = function(dependencies) {
-  return require('./queue')(dependencies);
-};
+module.exports = dependencies => require('./queue')(dependencies);

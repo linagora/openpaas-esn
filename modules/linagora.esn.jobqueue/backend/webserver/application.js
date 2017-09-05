@@ -1,10 +1,10 @@
 'use strict';
 
-var express = require('express');
-var FRONTEND_PATH = require('./constants').FRONTEND_PATH;
+const express = require('express');
+const FRONTEND_PATH = require('./constants').FRONTEND_PATH;
 
-module.exports = function(lib, dependencies) {
-  var application = express();
+module.exports = (lib, dependencies) => {
+  const application = express();
 
   // This needs to be initialized before the body parser
   require('./config/i18n')(dependencies, application);
