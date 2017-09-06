@@ -84,6 +84,12 @@ module.exports = {
             padmin: 'rw'
           }
         },
+        features: {
+          rights: {
+            admin: 'rw',
+            user: 'r'
+          }
+        },
         'application-menu.profile': {
           rights: {
             admin: 'rw',

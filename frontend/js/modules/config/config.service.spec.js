@@ -17,6 +17,11 @@ describe('The esnConfig service', function() {
             configurations: [{
               name: 'projects',
               value: false
+            }, {
+              name: 'features',
+              value: {
+                feature: true
+              }
             }]
           }, {
             name: 'module.1',
@@ -72,4 +77,7 @@ describe('The esnConfig service', function() {
     checkValue('module.1.feature', 'value', true, done);
   });
 
+  it('should return the correct value when called with an existing key in features configurations', function(done) {
+    checkValue('core.features.feature', undefined, true, done);
+  });
 });

@@ -196,7 +196,7 @@ angular.module('esn.domain', ['esn.http', 'ngTagsInput', 'op.dynamicDirective', 
   .directive('controlcenterMenuInvitation', function(session, controlCenterMenuTemplateBuilder) {
     return {
       retrict: 'E',
-      template: controlCenterMenuTemplateBuilder('controlcenter.domainInviteMembers({ id: domain._id })', 'mdi-account-plus', 'Invitation'),
+      template: controlCenterMenuTemplateBuilder('controlcenter.domainInviteMembers({ id: domain._id })', 'mdi-account-plus', 'Invitation', 'core.features.control-center:invitation'),
       link: function(scope) {
         scope.domain = session.domain;
       }
