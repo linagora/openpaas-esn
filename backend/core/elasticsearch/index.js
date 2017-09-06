@@ -1,16 +1,26 @@
 'use strict';
 
-const esnconfig = require('../esn-config'),
-      elasticsearch = require('elasticsearch'),
-      q = require('q');
+const q = require('q');
+const elasticsearch = require('elasticsearch');
+const esnconfig = require('../esn-config');
+const logger = require('../logger');
 
-const TIMEOUT = 1000,
-      DEFAULT_CONFIG = {
-        host: `${(process.env.ES_HOST || 'localhost')}:${process.env.ES_PORT || 9200}`
-      };
+const TIMEOUT = 1000;
+const DEFAULT_CONFIG = {
+  host: `${(process.env.ES_HOST || 'localhost')}:${process.env.ES_PORT || 9200}` // eslint-disable-line no-process-env
+};
 
-var currentClient,
-    currentClientHash = null;
+let currentClient;
+let currentClientHash;
+
+module.exports = {
+  client,
+  getClient,
+  updateClient,
+  addDocumentToIndex,
+  removeDocumentFromIndex,
+  searchDocuments
+};
 
 /**
  * Digest the config parameter into md5sum
@@ -19,11 +29,23 @@ var currentClient,
  * @return {string} the md5sum of the config object
  */
 function getConfigurationHash(config) {
-  var crypto = require('crypto');
+  const crypto = require('crypto');
+  const md5sum = crypto.createHash('md5');
 
-  var md5sum = crypto.createHash('md5');
   md5sum.update(JSON.stringify(config));
+
   return md5sum.digest('hex');
+}
+
+/**
+ * Get default Elasticsearch configuration. We clone the default config because
+ * the ES client modifies the config object.
+ * See more at https://github.com/elastic/elasticsearch-js/issues/33
+ *
+ * @return {Object} a copy of default Elasticsearch configuration
+ */
+function getDefaultConfig() {
+  return Object.assign({}, DEFAULT_CONFIG);
 }
 
 /**
@@ -32,21 +54,24 @@ function getConfigurationHash(config) {
  * @param {function} callback function like callback(err, elasticsearchClient)
  */
 function updateClient(callback) {
-  esnconfig('elasticsearch').get(function(err, data) {
+  esnconfig('elasticsearch').get((err, data) => {
     if (err) {
+      logger.error('Error while getting elasticsearch configuration', err);
       if (currentClient) {
         currentClient.close();
         currentClient = null;
       }
       currentClientHash = null;
-      return callback(new Error('not found'));
+
+      return callback(err);
     }
 
     if (!data) {
-      data = DEFAULT_CONFIG;
+      data = getDefaultConfig();
     }
 
-    var hash = getConfigurationHash(data);
+    const hash = getConfigurationHash(data);
+
     if (hash === currentClientHash) {
       return callback(null, currentClient);
     }
@@ -58,11 +83,13 @@ function updateClient(callback) {
     currentClientHash = null;
 
     // Create Elasticsearch client
-    var elasticsearchClient = new elasticsearch.Client(data);
+    const elasticsearchClient = new elasticsearch.Client(data);
 
     // Check if the connection was a success
-    elasticsearchClient.ping({requestTimeout: TIMEOUT}, function(err) {
+    elasticsearchClient.ping({requestTimeout: TIMEOUT}, err => {
       if (err) {
+        logger.error('Cannot connect to Elasticsearch server', err);
+
         return callback(new Error('cannot connect'));
       }
 
@@ -74,7 +101,6 @@ function updateClient(callback) {
 
   });
 }
-module.exports.updateClient = updateClient;
 
 /**
  * Connect to Elasticsearch server.
@@ -82,15 +108,13 @@ module.exports.updateClient = updateClient;
  * @param {function} callback function like callback(err, elasticsearchClient)
  */
 function client(callback) {
-  updateClient(function(err, elasticsearchClient) {
-    return callback(err, elasticsearchClient);
-  });
+  updateClient((err, elasticsearchClient) => callback(err, elasticsearchClient));
 }
-module.exports.client = client;
 
 function getClient() {
-  var defer = q.defer();
-  client(function(err, esClient) {
+  const defer = q.defer();
+
+  client((err, esClient) => {
     if (err) {
       return defer.reject(err);
     }
@@ -101,12 +125,12 @@ function getClient() {
 
     defer.resolve(esClient);
   });
+
   return defer.promise;
 }
-module.exports.getClient = getClient;
 
 function addDocumentToIndex(document, options, callback) {
-  getClient().then(function(esClient) {
+  getClient().then(esClient => {
     esClient.index({
       index: options.index,
       type: options.type,
@@ -115,10 +139,9 @@ function addDocumentToIndex(document, options, callback) {
     }, callback);
   }, callback);
 }
-module.exports.addDocumentToIndex = addDocumentToIndex;
 
 function removeDocumentFromIndex(options, callback) {
-  getClient().then(function(esClient) {
+  getClient().then(esClient => {
     esClient.delete({
       index: options.index,
       type: options.type,
@@ -126,13 +149,12 @@ function removeDocumentFromIndex(options, callback) {
     }, callback);
   }, callback);
 }
-module.exports.removeDocumentFromIndex = removeDocumentFromIndex;
 
 function searchDocuments(options, callback) {
-  getClient().then(function(esClient) {
+  getClient().then(esClient => {
     esClient.search(options, callback);
   }, callback);
 }
-module.exports.searchDocuments = searchDocuments;
 
+// workaround circular dependencies: index -> listeners -> utils -> index
 module.exports.listeners = require('./listeners');
