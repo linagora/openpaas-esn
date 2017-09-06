@@ -64,11 +64,7 @@ For both types of frontend tests (i.e., `frontend tests` and `module frontend te
     "request": "attach",
     "port": 9222,
     "sourceMaps": true,
-    "webRoot": "${workspaceRoot}",
-    "pathMapping": {
-        "/": "${workspaceRoot}",
-        "/base/": "${workspaceRoot}"
-    }
+    "webRoot": "${workspaceRoot}"
 }
 ```
 * install `Debugger for Chrome` extension to `VSCODE`:  <https://marketplace.visualstudio.com/items?itemName=msjsdiag.debugger-for-chrome>

@@ -86,22 +86,22 @@ You can debug the backend thanks to Node debugger. Launch with the `--inspect` f
 
     node --inspect server.js
 
-    Debugger listening on port 9229.
-    Warning: This is an experimental feature and could change at any time.
-    To start debugging, open the following URL in Chrome:
-    chrome-devtools://devtools/remote/serve_file/@60cd6e859b9f557d2312f5bf532f6aec5f284980/inspector.html?experiments=true&v8only=true&ws=localhost:9229/node
+    Debugger listening on ws://127.0.0.1:9229/fe0b0fa5-6a26-4ac3-ac74-c6f254c2e24c
+    For help see https://nodejs.org/en/docs/inspector
 
-Open the printed URL in Google Chrome, add breakpoints, inspect, etc.
+This debugger can be reached in two ways as explained [here](https://nodejs.org/en/docs/inspector/#inspector-tools-clients). Once done you will have the message `Debugger attached` in your terminal. Now you can add breakpoints, inspect, have fun and feel the power.
+
+If you need to have access to the source code (not the minified one), then you should do:
+
+    NODE_ENV="dev" node --inspect --inspect-brk server.js
 
 Yon can also debug backend tests using `INSPECT=true` environment variable:
 
-    INSPECT=true grunt test-midway-backend --inspect=true
+    INSPECT=true grunt test-midway-backend
     ...
-    Running "mochacli:midway1" (mochacli) task
-    Debugger listening on port 9229.
-    Warning: This is an experimental feature and could change at any time.
-    To start debugging, open the following URL in Chrome:
-    chrome-devtools://devtools/remote/serve_file/@62cd277117e6f8ec53e31b1be58290a6f7ab42ef/inspector.html?experiments=true&v8only=true&ws=localhost:9229/node
+    Debugger listening on ws://127.0.0.1:9229/1859ec1c-bbc8-4044-9f5c-d9dd71e7720f
+    For help see https://nodejs.org/en/docs/inspector
+
 
 ## Fixtures
 
@@ -111,6 +111,14 @@ Fixtures can be configured in the fixtures folder and injected in the system usi
 
 Note that you must configure contents of files inside **fixtures/config/data** and **fixtures/esn-config/data/** to match your environment, particularly **fixtures/config/data/db.js** in which the host of the mongodb database is defined. Also note that this will override all the current configuration resources with the fixtures ones.
 
+## Elasticsearch Index
+
+Before start using OpenPaaS, you should create indexes on Elasticsearch. If you are not familiar with elasticsearch indexes then please have a look [here](https://www.elastic.co/guide/en/elasticsearch/guide/current/index-doc.html).
+
+To do so, you can simply run the following command from your OpenPaaS folder:
+
+    node ./bin/cli.js elasticsearch
+
 ## Starting the server
 
 You should first start mongodb, redis and elasticsearch and [configure OpenPaaS](./doc/configuration.md).
@@ -119,6 +127,10 @@ Then 'npm start' to start the OpenPaaS web application:
 
     npm start
 
+
+If you encounter the following problem when starting OpenPaaS: `Getting error : [nodemon] Internal watch failed: watch ENOSPC`, then the limit set per user for the max number of watches is reached. To deal with this error, you should do the following:
+
+    echo fs.inotify.max_user_watches=582222 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
 
 Your ESN can be reached at the following address: http://localhost:8080. Now simply follow the setup wizard.
 
