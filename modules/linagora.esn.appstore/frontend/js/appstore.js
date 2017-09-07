@@ -10,7 +10,8 @@ angular.module('esn.appstore', [
   'restangular',
   'angularFileUpload',
   'frapontillo.bootstrap-switch',
-  'op.dynamicDirective'
+  'op.dynamicDirective',
+  'esn.feature-registry'
 ]).config(function($stateProvider, dynamicDirectiveServiceProvider) {
 
   $stateProvider.state('controlcenter.appstore', {
@@ -73,4 +74,17 @@ angular.module('esn.appstore', [
 
   var appstoreControlCenterMenu = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'controlcenter-menu-appstore', {priority: -12});
   dynamicDirectiveServiceProvider.addInjection('controlcenter-sidebar-menu', appstoreControlCenterMenu);
+})
+
+.run(function(esnFeatureRegistry) {
+  esnFeatureRegistry.add({
+    name: 'Modules',
+    configurations: [
+      {
+        displayIn: 'Control Center',
+        name: 'control-center:appstore'
+      }
+    ],
+    description: 'Allows user to submit new external application for current domain'
+  });
 });

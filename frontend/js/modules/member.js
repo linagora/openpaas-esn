@@ -1,8 +1,21 @@
 'use strict';
 
-angular.module('esn.member', ['esn.router', 'esn.domain', 'esn.search', 'esn.infinite-list', 'openpaas-logo', 'esn.provider', 'esn.header'])
-  .run(function(searchProviders, memberSearchProvider) {
+angular.module('esn.member', ['esn.router', 'esn.domain', 'esn.search', 'esn.infinite-list', 'openpaas-logo', 'esn.provider', 'esn.header', 'esn.feature-registry'])
+  .run(function(searchProviders, memberSearchProvider, esnFeatureRegistry) {
     searchProviders.add(memberSearchProvider);
+    esnFeatureRegistry.add({
+      name: 'Members',
+      configurations: [
+        {
+          displayIn: 'Application Menu',
+          name: 'application-menu:members'
+        }, {
+          displayIn: 'Control Center',
+          name: 'control-center:members'
+        }
+      ],
+      description: 'Show a list of existing members in current domain'
+    });
   })
   .config(function(dynamicDirectiveServiceProvider) {
     var memberAppMenu = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-member', {priority: 15});
@@ -98,7 +111,7 @@ angular.module('esn.member', ['esn.router', 'esn.domain', 'esn.search', 'esn.inf
     return {
       retrict: 'E',
       replace: true,
-      template: applicationMenuTemplateBuilder('/#/controlcenter/domains/{{::domain._id}}/members', 'members', 'Members', 'core.applications-menu.members'),
+      template: applicationMenuTemplateBuilder('/#/controlcenter/domains/{{::domain._id}}/members', 'members', 'Members', 'core.features.application-menu:members'),
       link: function(scope) {
         scope.domain = session.domain;
       }
@@ -107,7 +120,7 @@ angular.module('esn.member', ['esn.router', 'esn.domain', 'esn.search', 'esn.inf
   .directive('controlcenterMenuMember', function(session, controlCenterMenuTemplateBuilder) {
     return {
       restrict: 'E',
-      template: controlCenterMenuTemplateBuilder('controlcenter.domainMembers({ domain_id: domain._id })', 'mdi-account-multiple-outline', 'Members'),
+      template: controlCenterMenuTemplateBuilder('controlcenter.domainMembers({ domain_id: domain._id })', 'mdi-account-multiple-outline', 'Members', 'core.features.control-center:members'),
       link: function(scope) {
         scope.domain = session.domain;
       }
