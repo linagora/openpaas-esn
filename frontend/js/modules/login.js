@@ -1,15 +1,25 @@
 'use strict';
 
-angular.module('esn.login', ['esn.notification', 'esn.http', 'op.dynamicDirective', 'vcRecaptcha'])
+angular.module('esn.login', ['esn.notification', 'esn.http', 'op.dynamicDirective', 'vcRecaptcha', 'esn.feature-registry'])
   .config(function(dynamicDirectiveServiceProvider) {
     var passwordControlCenterMenu = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'controlcenter-menu-password', {priority: -14});
 
     dynamicDirectiveServiceProvider.addInjection('controlcenter-sidebar-menu', passwordControlCenterMenu);
   })
+  .run(function(esnFeatureRegistry) {
+    esnFeatureRegistry.add({
+      name: 'Password',
+      configurations: [{
+        displayIn: 'Control Center',
+        name: 'control-center:password'
+      }],
+      description: 'Allows users to change their password'
+    });
+  })
   .directive('controlcenterMenuPassword', function(controlCenterMenuTemplateBuilder) {
     return {
       retrict: 'E',
-      template: controlCenterMenuTemplateBuilder('controlcenter.changepassword', 'mdi-lock', 'Password')
+      template: controlCenterMenuTemplateBuilder('controlcenter.changepassword', 'mdi-lock', 'Password', 'core.features.control-center:password')
     };
   })
   .directive('esnLoginAutofill', function() {

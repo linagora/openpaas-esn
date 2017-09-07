@@ -431,5 +431,6 @@
   "Allows user to submit new external application for current domain": "Cho phép người dùng đăng ký sử dụng mô-đun bên ngoài vào tên miền OpenPaaS hiện tại",
   "Application Menu": "Danh mục ứng dụng",
   "No application, click %s to add a new one": "Không có ứng dụng, bấm %s để thêm mới",
-  "Cannot get user applications, try again later!": "Không thể lấy dữ liệu ứng dụng của người dùng, thử lại sau!"
+  "Cannot get user applications, try again later!": "Không thể lấy dữ liệu ứng dụng của người dùng, thử lại sau!",
+  "Allows users to change their password": "Cho phép người dùng thay đổi mật khẩu hiện tại"
 }

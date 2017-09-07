@@ -431,5 +431,6 @@
   "Allows user to submit new external application for current domain": "Allows user to submit new external application for current domain",
   "Application Menu": "Application Menu",
   "No application, click %s to add a new one": "No application, click %s to add a new one",
-  "Cannot get user applications, try again later!": "Cannot get user applications, try again later!"
+  "Cannot get user applications, try again later!": "Cannot get user applications, try again later!",
+  "Allows users to change their password": "Allows users to change their password"
 }
