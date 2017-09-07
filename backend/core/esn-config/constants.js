@@ -86,54 +86,7 @@ module.exports = {
         },
         features: {
           rights: {
-            admin: 'rw',
-            user: 'r'
-          }
-        },
-        'application-menu.profile': {
-          rights: {
-            admin: 'rw',
-            user: 'r'
-          }
-        },
-        'application-menu.calendar': {
-          rights: {
-            admin: 'rw',
-            user: 'r'
-          }
-        },
-        'application-menu.contact': {
-          rights: {
-            admin: 'rw',
-            user: 'r'
-          }
-        },
-        'application-menu.controlCenter': {
-          rights: {
-            admin: 'rw',
-            user: 'r'
-          }
-        },
-        'application-menu.inbox': {
-          rights: {
-            admin: 'rw',
-            user: 'r'
-          }
-        },
-        'application-menu.communities': {
-          rights: {
-            admin: 'rw',
-            user: 'r'
-          }
-        },
-        'application-menu.search': {
-          rights: {
-            admin: 'rw',
-            user: 'r'
-          }
-        },
-        'application-menu.appstoreAppMenu': {
-          rights: {
+            padmin: 'rw',
             admin: 'rw',
             user: 'r'
           }
