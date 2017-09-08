@@ -47,7 +47,7 @@ test:
   allow_failure: true
 
 build_pkg_deb_openpaas:
-  stage: build_pkg_deb
+  stage: build_pkg_deb_openpaas
   variables:
     GIT_STRATEGY: none
   tags:
@@ -65,7 +65,7 @@ build_pkg_deb_openpaas:
       https://ci.linagora.com/api/v4/projects/338/trigger/pipeline | jq .
 
 build_pkg_rpm_openpaas:
-  stage: build_pkg_rpm
+  stage: build_pkg_rpm_openpaas
   variables:
     GIT_STRATEGY: none
   tags:
@@ -83,7 +83,7 @@ build_pkg_rpm_openpaas:
       https://ci.linagora.com/api/v4/projects/338/trigger/pipeline | jq .
 
 build_pkg_deb_openpaas-james:
-  stage: build_pkg_deb
+  stage: build_pkg_deb_openpaas-james
   variables:
     GIT_STRATEGY: none
   tags:
@@ -101,7 +101,7 @@ build_pkg_deb_openpaas-james:
       https://ci.linagora.com/api/v4/projects/338/trigger/pipeline | jq .
 
 build_pkg_rpm_openpaas-james:
-  stage: build_pkg_rpm
+  stage: build_pkg_rpm_openpaas-james
   variables:
     GIT_STRATEGY: none
   tags:
