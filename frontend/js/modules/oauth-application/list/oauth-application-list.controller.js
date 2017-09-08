@@ -9,6 +9,7 @@
 
     self.$onInit = $onInit;
     self.openModal = openModal;
+    self.loading = true;
 
     function openModal() {
       $modal({
@@ -27,8 +28,10 @@
 
     function $onInit() {
       ESNOauthApplicationClient.created().then(function(result) {
+        self.loading = false;
         self.applications = result.data;
       }, function(err) {
+        self.loading = false;
         $log.error('Can not get user applications', err);
       });
     }
