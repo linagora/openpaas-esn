@@ -5,6 +5,10 @@ before_script:
 stages:
   - test
   - test-e2e
+  - build_pkg_deb_openpaas
+  - build_pkg_rpm_openpaas
+  - build_pkg_deb_openpaas-james
+  - build_pkg_rpm_openpaas-james
   - swagger
   - deploy-swagger
   - deploy_dev
@@ -41,6 +45,78 @@ test:
     - BROWSER="firefox" VIDEO_FILE_NAME=$VIDEO_FIREFOX_NAME grunt test-e2e $DOCKER_OPTIONS
     - BROWSER="chrome" VIDEO_FILE_NAME=$VIDEO_CHROME_NAME grunt test-e2e $DOCKER_OPTIONS
   allow_failure: true
+
+build_pkg_deb_openpaas:
+  stage: build_pkg_deb
+  variables:
+    GIT_STRATEGY: none
+  tags:
+    - master
+  only:
+    - master
+  script:
+    - curl -s -X POST
+      -F "token=40f79bcbeb736c5b211be0e42f1643"
+      -F "ref=master"
+      -F "variables[REPO]=https://ci.linagora.com/linagora/lgs/openpaas/esn.git"
+      -F "variables[VERSION_FILE]=package.json"
+      -F "variables[PACKAGE_NAME]=openpaas"
+      -F "variables[DOCKERFILE]=debian/jessie/openpaas/Dockerfile"
+      https://ci.linagora.com/api/v4/projects/338/trigger/pipeline | jq .
+
+build_pkg_rpm_openpaas:
+  stage: build_pkg_rpm
+  variables:
+    GIT_STRATEGY: none
+  tags:
+    - master
+  only:
+    - master
+  script:
+    - curl -s -X POST
+      -F "token=40f79bcbeb736c5b211be0e42f1643"
+      -F "ref=master"
+      -F "variables[REPO]=https://ci.linagora.com/linagora/lgs/openpaas/esn.git"
+      -F "variables[VERSION_FILE]=package.json"
+      -F "variables[PACKAGE_NAME]=openpaas"
+      -F "variables[DOCKERFILE]=redhat/7/openpaas/Dockerfile"
+      https://ci.linagora.com/api/v4/projects/338/trigger/pipeline | jq .
+
+build_pkg_deb_openpaas-james:
+  stage: build_pkg_deb
+  variables:
+    GIT_STRATEGY: none
+  tags:
+    - master
+  only:
+    - master
+  script:
+    - curl -s -X POST
+      -F "token=40f79bcbeb736c5b211be0e42f1643"
+      -F "ref=master"
+      -F "variables[REPO]=https://ci.linagora.com/linagora/lgs/openpaas/esn.git"
+      -F "variables[VERSION_FILE]=package.json"
+      -F "variables[PACKAGE_NAME]=openpaas-james"
+      -F "variables[DOCKERFILE]=debian/jessie/openpaas-james/Dockerfile"
+      https://ci.linagora.com/api/v4/projects/338/trigger/pipeline | jq .
+
+build_pkg_rpm_openpaas-james:
+  stage: build_pkg_rpm
+  variables:
+    GIT_STRATEGY: none
+  tags:
+    - master
+  only:
+    - master
+  script:
+    - curl -s -X POST
+      -F "token=40f79bcbeb736c5b211be0e42f1643"
+      -F "ref=master"
+      -F "variables[REPO]=https://ci.linagora.com/linagora/lgs/openpaas/esn.git"
+      -F "variables[VERSION_FILE]=package.json"
+      -F "variables[PACKAGE_NAME]=openpaas-james"
+      -F "variables[DOCKERFILE]=redhat/7/openpaas-james/Dockerfile"
+      https://ci.linagora.com/api/v4/projects/338/trigger/pipeline | jq .
 
 swagger:
   stage: swagger
