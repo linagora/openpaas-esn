@@ -5,6 +5,6 @@ angular.module('linagora.esn.jobqueue')
     return {
       retrict: 'E',
       replace: true,
-      template: applicationMenuTemplateBuilder('/jobqueue', 'jobqueue', 'Job Queue', 'linagora.esn.jobqueue.applications-menu')
+      template: applicationMenuTemplateBuilder('/jobqueue', 'jobqueue', 'Job Queue', 'core.features.application-menu:jobqueue')
     };
   });

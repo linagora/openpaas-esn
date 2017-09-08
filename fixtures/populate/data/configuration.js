@@ -29,8 +29,14 @@ module.exports = function(domains, host) {
           name: 'core',
           configurations: [
             {
-              name: 'application-menu.profile',
-              value: true
+              name: 'features',
+              value: {
+                'control-center:appstore': false,
+                'application-menu:communities': false,
+                'control-center:members': false,
+                'control-center:invitation': false,
+                'control-center:jobqueue': false
+              }
             }
           ]
         }, {

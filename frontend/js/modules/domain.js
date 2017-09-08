@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.domain', ['esn.http', 'ngTagsInput', 'op.dynamicDirective', 'esn.attendee', 'esn.session', 'esn.user', 'esn.i18n'])
+angular.module('esn.domain', ['esn.http', 'ngTagsInput', 'op.dynamicDirective', 'esn.attendee', 'esn.session', 'esn.user', 'esn.i18n', 'esn.feature-registry'])
   .config(function(dynamicDirectiveServiceProvider) {
     var invitationAppMenu = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-invitation', {priority: 10});
     dynamicDirectiveServiceProvider.addInjection('esn-application-menu', invitationAppMenu);
@@ -186,7 +186,7 @@ angular.module('esn.domain', ['esn.http', 'ngTagsInput', 'op.dynamicDirective', 
     return {
       retrict: 'E',
       replace: true,
-      template: applicationMenuTemplateBuilder('/#/controlcenter/domains/{{::domain._id}}/members/invite', 'invitation', 'Invitation', 'core.applications-menu.invitation'),
+      template: applicationMenuTemplateBuilder('/#/controlcenter/domains/{{::domain._id}}/members/invite', 'invitation', 'Invitation', 'core.features.application-menu:invitation'),
       link: function(scope) {
         scope.domain = session.domain;
       }
@@ -266,9 +266,22 @@ angular.module('esn.domain', ['esn.http', 'ngTagsInput', 'op.dynamicDirective', 
   .controller('inviteMembers', function($scope, domain) {
     $scope.domain = domain;
   })
-  .run(function(domainSearchMembersProvider, attendeeService, session) {
+  .run(function(domainSearchMembersProvider, attendeeService, session, esnFeatureRegistry) {
     session.ready.then(function() {
       var attendeeProvider = domainSearchMembersProvider.get(session.domain._id);
       attendeeService.addProvider(attendeeProvider);
+    });
+    esnFeatureRegistry.add({
+      name: 'Invitation',
+      configurations: [
+        {
+          displayIn: 'Application Menu',
+          name: 'application-menu:invitation'
+        }, {
+          displayIn: 'Control Center',
+          name: 'control-center:invitation'
+        }
+      ],
+      description: 'Allows you to invite people to your OpenPaaS domain'
     });
   });
