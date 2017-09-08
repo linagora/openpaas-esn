@@ -1,8 +1,8 @@
 'use strict';
 
 const path = require('path');
-var AwesomeModule = require('awesome-module');
-var Dependency = AwesomeModule.AwesomeModuleDependency;
+const AwesomeModule = require('awesome-module');
+const Dependency = AwesomeModule.AwesomeModuleDependency;
 
 const FRONTEND_PATH = path.resolve(__dirname, 'frontend');
 const innerApps = ['esn'];
@@ -19,7 +19,7 @@ const moduleData = {
 
 moduleData.angularModules.push([moduleData.shortName, angularModuleFiles, moduleData.fullName, innerApps, modulesOptions]);
 
-var jobQueueModule = new AwesomeModule('linagora.esn.jobqueue', {
+const jobQueueModule = new AwesomeModule('linagora.esn.jobqueue', {
   dependencies: [
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.logger', 'logger'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.pubsub', 'pubsub'),

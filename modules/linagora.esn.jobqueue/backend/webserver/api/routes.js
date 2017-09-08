@@ -1,12 +1,12 @@
 'use strict';
 
-var express = require('express');
+const express = require('express');
 
-module.exports = function(lib, dependencies) {
-  var authorizationMW = dependencies('authorizationMW');
-  var router = express.Router();
-  router.get('/', authorizationMW.requiresAPILogin, function(req, res) {
-    res.redirect('/jobqueue/ui');
-  });
+module.exports = (lib, dependencies) => {
+  const authorizationMW = dependencies('authorizationMW');
+  const router = express.Router();
+
+  router.get('/', authorizationMW.requiresAPILogin, (req, res) => res.redirect('/jobqueue/ui'));
+
   return router;
 };

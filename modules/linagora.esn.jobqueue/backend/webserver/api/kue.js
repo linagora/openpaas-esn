@@ -2,15 +2,12 @@
 
 var express = require('express');
 
-module.exports = function(lib, dependencies) {
+module.exports = (lib, dependencies) => {
+  const authorizationMW = dependencies('authorizationMW');
+  const app = express();
 
-  var authorizationMW = dependencies('authorizationMW');
-
-  var app = express();
   app.use(authorizationMW.requiresAPILogin);
-  lib.initJobQueue().then(function() {
-    app.use('/ui', lib.kue.app);
-  });
+  lib.initJobQueue().then(() => app.use('/ui', lib.kue.app));
 
   return app;
 };
