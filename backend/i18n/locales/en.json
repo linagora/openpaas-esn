@@ -429,5 +429,7 @@
   "Allows you to invite people to your OpenPaaS domain": "Allows you to invite people to your OpenPaaS domain",
   "Show a list of existing members in current domain": "Show a list of existing members in current domain",
   "Allows user to submit new external application for current domain": "Allows user to submit new external application for current domain",
-  "Application Menu": "Application Menu"
+  "Application Menu": "Application Menu",
+  "No application, click %s to add a new one": "No application, click %s to add a new one",
+  "Cannot get user applications, try again later!": "Cannot get user applications, try again later!"
 }
