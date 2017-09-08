@@ -1,13 +1,17 @@
-'use strict';
+(function() {
+  'use strict';
 
-angular.module('esn.settings-overlay', [])
+  angular.module('esn.settings-overlay', [])
+    .component('settingsOverlay', {
+      templateUrl: '/views/modules/settings-overlay/template.html',
+      transclude: true,
+      controller: function() {
+        var self = this;
 
-  .directive('settingsOverlay', function() {
-    return {
-      restrict: 'E',
-      controller: function($scope, $attrs) {
-        $scope.settingsOverlaySref = $attrs.settingsOverlaySref;
+        self.openMenu = function($mdMenu, event) {
+          $mdMenu.open(event);
+        };
       },
-      templateUrl: '/views/modules/settings-overlay/template.html'
-    };
-  });
+      controllerAs: 'ctrl'
+    });
+})();

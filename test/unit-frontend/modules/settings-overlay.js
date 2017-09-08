@@ -31,43 +31,26 @@ describe('The esn.settings-overlay Angular module', function() {
       element.remove();
     });
 
-    it('should append a settings-overlay element to the DOM, hidden by default', function() {
-      compileDirective('<settings-overlay settings-overlay-sref="/ui/router/state" />');
-
-      expect(element.find('settings-overlay:visible')).to.have.length(0);
-    });
-
-    it('should use the sref as a ui-sref attribute on the overlay', function() {
-      compileDirective('<settings-overlay settings-overlay-sref="/ui/router/state" />');
-
-      expect(element.find('.settings-overlay').attr('ui-sref')).to.equal('/ui/router/state');
-    });
-
-    it('should make the .settings-overlay element visible on mouseover', function() {
-      compileDirective('<settings-overlay settings-overlay-sref="/ui/router/state" />');
-
-      element.trigger('mouseover');
-
-      expect(element.find('.settings-overlay:visible')).to.have.length(1);
-    });
-
-    it('should make the settings-overlay element hidden on mouseout', function() {
-      compileDirective('<settings-overlay settings-overlay-sref="/ui/router/state" />');
-
-      element.trigger('mouseover').trigger('mouseout');
-
-      expect(element.find('settings-overlay:visible')).to.have.length(0);
-    });
-
     it('should not trigger click in parent element when clicked', function() {
       $scope.parentClicked = false;
-      compileDirective('<settings-overlay ng-click="parentClicked = true" settings-overlay-sref="/ui/router/state" />');
+      compileDirective('<settings-overlay ng-click="parentClicked = true" />');
 
       element.find('settings-overlay').click();
 
       expect($scope.parentClicked).to.equal(false);
     });
 
+    it('should contain a md-menu', function() {
+      compileDirective('<settings-overlay/>');
+
+      expect(element.find('md-menu')).to.exist;
+    });
+
+    it('should contain a clickable icon', function() {
+      compileDirective('<settings-overlay/>');
+
+      expect(element.find('.mdi-dots-vertical')).to.exist.and.attr('ng-click').to.equal('ctrl.openMenu($mdMenu, $event)');
+    });
   });
 
 });
