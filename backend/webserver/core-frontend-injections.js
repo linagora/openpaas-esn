@@ -197,7 +197,7 @@ const injections = [
   {angular: ['esn.file-saver'], files: ['file-saver.js'], innerApps: ['esn']},
   {angular: ['esn.media.query'], files: ['media-query.js'], innerApps: ['esn']},
   {angular: ['esn.ldap'], files: ['ldap.js'], innerApps: ['esn']},
-  {angular: ['esn.registry'], files: ['registry.js'], innerApps: ['esn']},
+  {angular: ['esn.registry'], files: ['registry.js'], innerApps: ['esn', 'welcome']},
   {angular: ['esn.attachment'], files: [
     'attachment/attachment.module.js',
     'attachment/attachment.constant.js',
@@ -270,7 +270,7 @@ const injections = [
   {angular: ['esn.feature-registry'], files: [
     'feature-registry/feature-registry.module.js',
     'feature-registry/feature-registry.service.js'
-  ], innerApps: ['esn']}
+  ], innerApps: ['esn', 'welcome']}
 ];
 
 if (process.env.NODE_ENV === 'production') { // eslint-disable-line no-process-env
