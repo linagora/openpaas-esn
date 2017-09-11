@@ -755,4 +755,40 @@ describe('The user core module', function() {
     });
 
   });
+
+  describe('The getDisplayName function', function() {
+    let getModule, user, firstname, lastname, preferredEmail;
+
+    beforeEach(function() {
+      mockModels({User: {}});
+      firstname = 'John';
+      lastname = 'Doe';
+      preferredEmail = 'johndoe@open-paas.org';
+      user = {firstname, lastname, preferredEmail};
+      getModule = () => this.helpers.requireBackend('core').user;
+    });
+
+    it('should return the preferredEmail when firstname and lastname are undefined', function() {
+      delete user.firsname;
+      delete user.lastname;
+
+      expect(getModule().getDisplayName(user)).to.equal(preferredEmail);
+    });
+
+    it('should return the preferredEmail when firstname is only defined', function() {
+      delete user.lastname;
+
+      expect(getModule().getDisplayName(user)).to.equal(preferredEmail);
+    });
+
+    it('should return the preferredEmail when lastname is only defined', function() {
+      delete user.firstname;
+
+      expect(getModule().getDisplayName(user)).to.equal(preferredEmail);
+    });
+
+    it('should return a valid display name when firstname and lastname are defined', function() {
+      expect(getModule().getDisplayName(user)).to.equal(`${firstname} ${lastname}`);
+    });
+  });
 });
