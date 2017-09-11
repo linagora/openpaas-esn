@@ -155,7 +155,7 @@ deploy_dev:
     name: dev
     url: https://dev.open-paas.org
   only:
-    - master
+    - master@linagora/lgs/openpaas/esn
   script:
     - cd /srv/rse.dev
     - git fetch --all
