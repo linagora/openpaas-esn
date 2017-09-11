@@ -48,7 +48,7 @@ services:
       - 15672:15672
 
   mongo:
-    image: mongo:3.2.0
+    image: mongo:3.2
     command: ["mongod", "--smallfiles"]
     ports:
       - "27017:27017"
