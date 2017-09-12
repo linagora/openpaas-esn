@@ -53,6 +53,8 @@
     "linagora.esn.admin": "linagora/linagora.esn.admin",
     "linagora.esn.calendar": "linagora/linagora.esn.calendar",
     "linagora.esn.unifiedinbox": "linagora/linagora.esn.unifiedinbox",
+    "linagora.esn.contact.collect": "linagora/linagora.esn.contact.collect",
+    "linagora.esn.calendar.collect.email": "linagora/linagora.esn.calendar.collect.email",
     "lodash": "4.15.0",
     "logrotate-stream": "0.2.5",
     "mailparser": "0.6.1",

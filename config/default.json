@@ -86,7 +86,9 @@
     "linagora.esn.controlcenter",
     "linagora.esn.unifiedinbox",
     "linagora.esn.admin",
-    "linagora.esn.sync"
+    "linagora.esn.sync",
+    "linagora.esn.contact.collect",
+    "linagora.esn.calendar.collect.email"
   ],
   "email": {
     "templatesDir": "./templates/email"
