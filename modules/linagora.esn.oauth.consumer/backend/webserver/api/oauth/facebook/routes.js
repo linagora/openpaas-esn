@@ -8,6 +8,23 @@ module.exports = function(router, dependencies) {
   var logger = dependencies('logger');
   var controller = require('../controller')(dependencies);
 
+  /**
+   * @swagger
+   * /facebook/connect:
+   *   get:
+   *     tags:
+   *      - Oauth-Consumer
+   *     description: Gets connect to facebook
+   *     parameters:
+   *       - $ref: '#/parameters/at_token'
+   *     responses:
+   *       200:
+   *         $ref: "#/responses/cm_200"
+   *       401:
+   *         $ref: '#/responses/cm_401'
+   *       500:
+   *         $ref: '#/responses/cm_500'
+   */
   router.get('/facebook/connect',
     authorizationMW.requiresAPILogin,
     passport.authorize('facebook-authz', {
@@ -16,6 +33,24 @@ module.exports = function(router, dependencies) {
     })
   );
 
+  /**
+   * @swagger
+   * /facebook/connect/callback:
+   *   get:
+   *     tags:
+   *      - Oauth-Consumer
+   *     description: Gets callback to facebook
+   *     parameters:
+   *       - $ref: '#/parameters/at_token'
+   *       - $ref: '#/parameters/oauth.consumer_status'
+   *     responses:
+   *       200:
+   *         $ref: '#/responses/cm_200'
+   *       401:
+   *         $ref: '#/responses/cm_401'
+   *       500:
+   *         $ref: '#/responses/cm_500'
+   */
   router.get('/facebook/connect/callback',
     authorizationMW.requiresAPILogin,
     function(req, res, next) {

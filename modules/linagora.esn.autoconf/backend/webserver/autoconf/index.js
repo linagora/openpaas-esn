@@ -7,7 +7,7 @@ module.exports = dependencies => {
 
   /**
    * @swagger
-   * /user:
+   * /user/autoconf:
    *   get:
    *     tags:
    *      - User

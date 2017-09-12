@@ -9,6 +9,23 @@ module.exports = (router, dependencies) => {
   const logger = dependencies('logger');
   const controller = require('../controller')(dependencies);
 
+  /**
+   * @swagger
+   * /github/connect:
+   *   get:
+   *     tags:
+   *      - Oauth-Consumer
+   *     description: Gets connect to github
+   *     parameters:
+   *       - $ref: '#/parameters/at_token'
+   *     responses:
+   *       200:
+   *         $ref: '#/responses/cm_200'
+   *       401:
+   *         $ref: '#/responses/cm_401'
+   *       500:
+   *         $ref: '#/responses/cm_500'
+   */
   router.get('/github/connect',
     authorizationMW.requiresAPILogin,
     passport.authorize(AUTH_NAME, {
@@ -17,6 +34,24 @@ module.exports = (router, dependencies) => {
     })
   );
 
+  /**
+   * @swagger
+   * /github/connect/callback:
+   *   get:
+   *     tags:
+   *      - Oauth-Consumer
+   *     description: Gets callback to github
+   *     parameters:
+   *       - $ref: '#/parameters/at_token'
+   *       - $ref: '#/parameters/oauth.consumer_status'
+   *     responses:
+   *       200:
+   *         $ref: '#/responses/cm_200'
+   *       401:
+   *         $ref: '#/responses/cm_401'
+   *       500:
+   *         $ref: '#/responses/cm_500'
+   */
   router.get('/github/connect/callback', authorizationMW.requiresAPILogin, (req, res, next) => {
       passport.authorize(AUTH_NAME, err => {
         if (err) {

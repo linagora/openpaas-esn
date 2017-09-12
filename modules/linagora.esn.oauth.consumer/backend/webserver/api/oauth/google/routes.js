@@ -8,6 +8,23 @@ module.exports = function(router, dependencies) {
   var logger = dependencies('logger');
   var controller = require('../controller')(dependencies);
 
+  /**
+   * @swagger
+   * /google/connect:
+   *   get:
+   *     tags:
+   *      - Oauth-Consumer
+   *     description: Gets connect to google
+   *     parameters:
+   *       - $ref: '#/parameters/at_token'
+   *     responses:
+   *       200:
+   *         $ref: '#/responses/cm_200'
+   *       401:
+   *         $ref: '#/responses/cm_401'
+   *       500:
+   *         $ref: '#/responses/cm_500'
+   */
   router.get('/google/connect',
     authorizationMW.requiresAPILogin,
     passport.authorize('google-authz', {
@@ -19,6 +36,24 @@ module.exports = function(router, dependencies) {
     })
   );
 
+  /**
+   * @swagger
+   * /google/connect/callback:
+   *   get:
+   *     tags:
+   *      - Oauth-Consumer
+   *     description: Gets callback to google
+   *     parameters:
+   *       - $ref: '#/parameters/at_token'
+   *       - $ref: '#/parameters/oauth.consumer_status'
+   *     responses:
+   *       200:
+   *         $ref: '#/responses/cm_200'
+   *       401:
+   *         $ref: '#/responses/cm_401'
+   *       500:
+   *         $ref: '#/responses/cm_500'
+   */
   router.get('/google/connect/callback',
     authorizationMW.requiresAPILogin,
     function(req, res, next) {

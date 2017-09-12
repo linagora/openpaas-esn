@@ -8,6 +8,24 @@ module.exports = function(router, dependencies) {
   var logger = dependencies('logger');
   var controller = require('../controller')(dependencies);
 
+  /**
+  /**
+   * @swagger
+   * /twitter/connect:
+   *   get:
+   *     tags:
+   *      - Oauth-Consumer
+   *     description: Gets connect to twitter
+   *     parameters:
+   *       - $ref: '#/parameters/at_token'
+   *     responses:
+   *       200:
+   *         $ref: '#/responses/cm_200'
+   *       401:
+   *         $ref: '#/responses/cm_401'
+   *       500:
+   *         $ref: '#/responses/cm_500'
+   */
   router.get('/twitter/connect',
     authorizationMW.requiresAPILogin,
     passport.authorize('twitter-authz', {
@@ -16,6 +34,24 @@ module.exports = function(router, dependencies) {
     })
   );
 
+  /**
+   * @swagger
+   * /twitter/connect/callback:
+   *   get:
+   *     tags:
+   *      - Oauth-Consumer
+   *     description: Gets callback to twitter
+   *     parameters:
+   *       - $ref: '#/parameters/at_token'
+   *       - $ref: '#/parameters/oauth.consumer_status'
+   *     responses:
+   *       200:
+   *         $ref: '#/responses/cm_200'
+   *       401:
+   *         $ref: '#/responses/cm_401'
+   *       500:
+   *         $ref: '#/responses/cm_500'
+   */
   router.get('/twitter/connect/callback',
     authorizationMW.requiresAPILogin,
     function(req, res, next) {
