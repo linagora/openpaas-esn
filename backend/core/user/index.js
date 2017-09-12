@@ -230,7 +230,12 @@ function translate(baseUser, payload) {
   return outputUser;
 }
 
+function getDisplayName(user) {
+  return user.firstname && user.lastname ? `${user.firstname} ${user.lastname}` : user.preferredEmail;
+}
+
 module.exports = {
+  getDisplayName,
   TYPE: TYPE,
   recordUser: recordUser,
   provisionUser: provisionUser,
