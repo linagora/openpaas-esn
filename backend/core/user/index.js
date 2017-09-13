@@ -87,6 +87,10 @@ function list(callback) {
   User.find(callback);
 }
 
+function listByCursor() {
+  return User.find().cursor();
+}
+
 function update(user, callback) {
   user.save((err, savedUser, rowAffected) => {
     if (!err && rowAffected > 0) {
@@ -244,6 +248,7 @@ module.exports = {
   findUsersByEmail: findUsersByEmail,
   get: get,
   list: list,
+  listByCursor,
   update: update,
   updateProfile: updateProfile,
   removeAccountById: removeAccountById,
