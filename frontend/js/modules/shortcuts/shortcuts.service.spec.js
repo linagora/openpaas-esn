@@ -73,6 +73,26 @@ describe('The esnShortcuts service', function() {
       esnShortcuts.use({ id: 'my_shortcut' });
       expect(hotkeys.add).to.have.been.called;
     });
+
+    it('should unuse the shortcut when given scope is destroyed', function() {
+      var shortcut = { combo: 'ctrl+enter' };
+      var destroyCallback;
+      var scope = {
+        $on: function(eventName, callback) {
+          expect(eventName).to.equal('$destroy');
+          destroyCallback = callback;
+        }
+      };
+
+      hotkeys.del = sinon.spy();
+      esnShortcutsRegistry.getById = function() {
+        return shortcut;
+      };
+      esnShortcuts.use('my_shortcut', angular.noop, scope);
+      destroyCallback();
+
+      expect(hotkeys.del).to.have.been.calledWith(shortcut.combo);
+    });
   });
 
   describe('The unuse fn', function() {

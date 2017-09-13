@@ -11,7 +11,7 @@
       register: register
     };
 
-    function use(shortcutId, action) {
+    function use(shortcutId, action, scope) {
       shortcutId = (shortcutId && shortcutId.id) ? shortcutId.id : shortcutId;
 
       var shortcut = esnShortcutsRegistry.getById(shortcutId);
@@ -36,6 +36,12 @@
         allowIn: shortcut.allowIn,
         category: shortcut.category
       });
+
+      if (scope) {
+        scope.$on('$destroy', function() {
+          unuse(shortcutId);
+        });
+      }
     }
 
     function unuse(shortcutId) {
