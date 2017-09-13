@@ -432,5 +432,10 @@
   "Application Menu": "Menu de l'application",
   "No application, click %s to add a new one": "Aucune application, cliquez %s pour en ajouter une nouvelle",
   "Cannot get user applications, try again later!": "Impossible d'obtenir les applications, essayer plus tard!",
-  "Allows users to change their password" : "Autoriser les utilisateurs à changer leurs mots de passe"
+  "Allows users to change their password" : "Autoriser les utilisateurs à changer leurs mots de passe",
+  "Global shortcuts": "Raccourcis globaux",
+  "Keyboard shortcuts": "Raccourcis clavier",
+  "Show / hide this help page": "Afficher / masquer cette page d'aide",
+  "Focus on the search form": "Focus sur le formulaire de recherche",
+  "Show / hide the application menu": "Afficher / cacher le menu de l'application"
 }

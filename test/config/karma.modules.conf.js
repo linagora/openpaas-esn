@@ -104,12 +104,14 @@ module.exports = function(config) {
       'frontend/components/angular-material/modules/js/icon/icon.min.css',
       'frontend/components/angular-material/modules/js/whiteframe/whiteframe.min.css',
       'frontend/components/angular-material/modules/js/panel/panel.min.css',
+      'frontend/components/angular-hotkeys/build/hotkeys.min.js',
       'test/fixtures/code-generation/constants.js',
 
       { pattern: 'frontend/js/modules/collaboration/collaboration.run.js', watched: false, included: false, served: false },
       { pattern: 'frontend/js/modules/oauth-application/oauth-application.router.js', watched: false, included: false, served: false },
       { pattern: 'frontend/js/modules/datetime/datetime.run.js', watched: false, included: false, served: false },
       { pattern: 'frontend/js/modules/i18n/i18n.config.js', watched: false, included: false, served: true },
+      { pattern: 'frontend/js/modules/shortcuts/shortcuts.run.js', watched: false, included: false, served: true },
       { pattern: 'modules/**/frontend/app/**/*.run.js', watched: false, included: false, served: true },
 
       'frontend/js/modules/**/*.module.js',

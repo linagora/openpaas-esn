@@ -432,5 +432,10 @@
   "Application Menu": "Danh mục ứng dụng",
   "No application, click %s to add a new one": "Không có ứng dụng, bấm %s để thêm mới",
   "Cannot get user applications, try again later!": "Không thể lấy dữ liệu ứng dụng của người dùng, thử lại sau!",
-  "Allows users to change their password": "Cho phép người dùng thay đổi mật khẩu hiện tại"
+  "Allows users to change their password": "Cho phép người dùng thay đổi mật khẩu hiện tại",
+  "Global shortcuts": "Phím tắt chung",
+  "Keyboard shortcuts": "Phím tắt",
+  "Show / hide this help page": "Đóng / mở trang hướng dẫn này",
+  "Focus on the search form": "Chuyển tiêu điểm tới khung tìm kiếm",
+  "Show / hide the application menu": "Đóng / mở danh mục ứng dụng"
 }
