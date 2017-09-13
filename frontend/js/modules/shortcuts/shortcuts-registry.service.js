@@ -55,11 +55,9 @@
         throw new Error('category.name is required');
       }
 
-      if (_.find(categories, { id: category.id })) {
-        throw new Error('duplicate category ID');
+      if (!getCategoryById(category.id)) {
+        categories.push(category);
       }
-
-      categories.push(category);
     }
 
     function getAllCategories() {
