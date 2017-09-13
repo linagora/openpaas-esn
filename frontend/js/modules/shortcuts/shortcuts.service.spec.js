@@ -61,6 +61,18 @@ describe('The esnShortcuts service', function() {
       esnShortcuts.use('my_shortcut', customAction);
       expect(hotkeys.add).to.have.been.called;
     });
+
+    it('should be able to detect shortcut ID from given object', function() {
+      esnShortcutsRegistry.getById = function() {
+        return {
+          action: angular.noop
+        };
+      };
+      hotkeys.add = sinon.spy();
+
+      esnShortcuts.use({ id: 'my_shortcut' });
+      expect(hotkeys.add).to.have.been.called;
+    });
   });
 
   describe('The unuse fn', function() {
@@ -83,6 +95,18 @@ describe('The esnShortcuts service', function() {
       hotkeys.del = sinon.spy();
 
       esnShortcuts.unuse('my_shortcut');
+      expect(hotkeys.del).to.have.been.calledWith(shortcut.combo);
+    });
+
+    it('should be able to detect shortcut ID from given object', function() {
+      var shortcut = { combo: 'ctrl+enter' };
+
+      esnShortcutsRegistry.getById = function() {
+        return shortcut;
+      };
+      hotkeys.del = sinon.spy();
+
+      esnShortcuts.unuse({ id: 'my_shortcut' });
       expect(hotkeys.del).to.have.been.calledWith(shortcut.combo);
     });
   });

@@ -13,6 +13,8 @@
     };
 
     function use(shortcutId, action) {
+      shortcutId = (shortcutId && shortcutId.id) ? shortcutId.id : shortcutId;
+
       var shortcut = esnShortcutsRegistry.getById(shortcutId);
 
       if (!shortcut) {
@@ -38,6 +40,8 @@
     }
 
     function unuse(shortcutId) {
+      shortcutId = (shortcutId && shortcutId.id) ? shortcutId.id : shortcutId;
+
       var shortcut = esnShortcutsRegistry.getById(shortcutId);
 
       if (!shortcut) {
