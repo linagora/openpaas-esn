@@ -110,4 +110,70 @@ describe('The esnShortcuts service', function() {
       expect(hotkeys.del).to.have.been.calledWith(shortcut.combo);
     });
   });
+
+  describe('The register fn', function() {
+    it('should register both category and shortcuts', function() {
+      var category = { id: 'my_category', name: 'My Category' };
+      var shortcuts = {
+        shortcut1: {
+          combo: 'x',
+          description: 'this is shortcut1'
+        },
+        shortcut2: {
+          combo: 'y',
+          description: 'this is shortcut2'
+        }
+      };
+
+      esnShortcutsRegistry.addCategory = sinon.spy();
+      esnShortcutsRegistry.register = sinon.spy();
+
+      esnShortcuts.register(category, shortcuts);
+
+      expect(esnShortcutsRegistry.addCategory).to.have.been.calledWith(category);
+      expect(esnShortcutsRegistry.register).to.have.been.calledTwice;
+    });
+
+    it('should assign category and id to each shortcut', function() {
+      var category = { id: 'my_category', name: 'My Category' };
+      var shortcuts = {
+        shortcut1: {
+          combo: 'x',
+          description: 'this is shortcut1'
+        },
+        SHORTCUT2: {
+          combo: 'y',
+          description: 'this is shortcut2'
+        }
+      };
+
+      esnShortcuts.register(category, shortcuts);
+
+      expect(shortcuts.shortcut1.id).to.equal('my_category.shortcut1');
+      expect(shortcuts.SHORTCUT2.id).to.equal('my_category.shortcut2');
+      expect(shortcuts.shortcut1.category).to.equal(category.id);
+      expect(shortcuts.SHORTCUT2.category).to.equal(category.id);
+    });
+
+    it('should use shortcut when it is registered with action', function() {
+      var category = { id: 'my_category', name: 'My Category' };
+      var shortcuts = {
+        shortcut1: {
+          combo: 'x',
+          description: 'this is shortcut1',
+          action: angular.noop
+        },
+        shortcut2: {
+          combo: 'y',
+          description: 'this is shortcut2'
+        }
+      };
+
+      hotkeys.add = sinon.spy();
+
+      esnShortcuts.register(category, shortcuts);
+
+      expect(hotkeys.add).to.have.been.calledOnce;
+    });
+  });
 });

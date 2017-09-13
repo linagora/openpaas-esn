@@ -8,8 +8,7 @@
     return {
       use: use,
       unuse: unuse,
-      register: register,
-      addCategory: addCategory
+      register: register
     };
 
     function use(shortcutId, action) {
@@ -51,12 +50,18 @@
       hotkeys.del(shortcut.combo);
     }
 
-    function register(shortcut) {
-      return esnShortcutsRegistry.register(shortcut);
-    }
+    function register(category, shortcuts) {
+      esnShortcutsRegistry.addCategory(category);
 
-    function addCategory(category) {
-      return esnShortcutsRegistry.addCategory(category);
+      angular.forEach(shortcuts, function(shortcut, key) {
+        shortcut.category = category.id;
+        shortcut.id = category.id + '.' + key.toLowerCase();
+        esnShortcutsRegistry.register(shortcut);
+
+        if (shortcut.action) {
+          use(shortcut);
+        }
+      });
     }
   }
 })(angular);
