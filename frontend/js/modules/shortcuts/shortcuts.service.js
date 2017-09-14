@@ -4,7 +4,7 @@
   angular.module('esn.shortcuts')
     .factory('esnShortcuts', esnShortcuts);
 
-  function esnShortcuts(hotkeys, _, esnShortcutsRegistry) {
+  function esnShortcuts(hotkeys, _, esnShortcutsRegistry, deviceDetector) {
     return {
       use: use,
       unuse: unuse,
@@ -12,6 +12,8 @@
     };
 
     function use(shortcutId, action, scope) {
+      if (deviceDetector.isMobile()) { return; }
+
       shortcutId = (shortcutId && shortcutId.id) ? shortcutId.id : shortcutId;
 
       var shortcut = esnShortcutsRegistry.getById(shortcutId);
@@ -45,6 +47,8 @@
     }
 
     function unuse(shortcutId) {
+      if (deviceDetector.isMobile()) { return; }
+
       shortcutId = (shortcutId && shortcutId.id) ? shortcutId.id : shortcutId;
 
       var shortcut = esnShortcutsRegistry.getById(shortcutId);
@@ -57,6 +61,8 @@
     }
 
     function register(category, shortcuts) {
+      if (deviceDetector.isMobile()) { return; }
+
       esnShortcutsRegistry.addCategory(category);
 
       angular.forEach(shortcuts, function(shortcut, key) {
