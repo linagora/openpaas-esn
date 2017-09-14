@@ -140,14 +140,16 @@ describe('The esnShortcutsRegistry service', function() {
       }).to.throw(Error, 'category.name is required');
     });
 
-    it('should throw error when category is registered more than one time', function() {
+    it('should disallow adding a same category more than one time', function() {
       var category = { id: 'my_category', name: 'My Category' };
 
       esnShortcutsRegistry.addCategory(category);
+      esnShortcutsRegistry.addCategory(category);
 
-      expect(function() {
-        esnShortcutsRegistry.addCategory(category);
-      }).to.throw(Error, 'duplicate category ID');
+      expect(esnShortcutsRegistry.getAllCategories()).to.deep.equal([
+        ESN_SHORTCUTS_DEFAULT_CATEGORY,
+        category
+      ]);
     });
   });
 

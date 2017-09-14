@@ -8,11 +8,12 @@
     return {
       use: use,
       unuse: unuse,
-      register: register,
-      addCategory: addCategory
+      register: register
     };
 
-    function use(shortcutId, action) {
+    function use(shortcutId, action, scope) {
+      shortcutId = (shortcutId && shortcutId.id) ? shortcutId.id : shortcutId;
+
       var shortcut = esnShortcutsRegistry.getById(shortcutId);
 
       if (!shortcut) {
@@ -35,9 +36,17 @@
         allowIn: shortcut.allowIn,
         category: shortcut.category
       });
+
+      if (scope) {
+        scope.$on('$destroy', function() {
+          unuse(shortcutId);
+        });
+      }
     }
 
     function unuse(shortcutId) {
+      shortcutId = (shortcutId && shortcutId.id) ? shortcutId.id : shortcutId;
+
       var shortcut = esnShortcutsRegistry.getById(shortcutId);
 
       if (!shortcut) {
@@ -47,12 +56,18 @@
       hotkeys.del(shortcut.combo);
     }
 
-    function register(shortcut) {
-      return esnShortcutsRegistry.register(shortcut);
-    }
+    function register(category, shortcuts) {
+      esnShortcutsRegistry.addCategory(category);
 
-    function addCategory(category) {
-      return esnShortcutsRegistry.addCategory(category);
+      angular.forEach(shortcuts, function(shortcut, key) {
+        shortcut.category = category.id;
+        shortcut.id = category.id + '.' + key.toLowerCase();
+        esnShortcutsRegistry.register(shortcut);
+
+        if (shortcut.action) {
+          use(shortcut);
+        }
+      });
     }
   }
 })(angular);

@@ -61,6 +61,38 @@ describe('The esnShortcuts service', function() {
       esnShortcuts.use('my_shortcut', customAction);
       expect(hotkeys.add).to.have.been.called;
     });
+
+    it('should be able to detect shortcut ID from given object', function() {
+      esnShortcutsRegistry.getById = function() {
+        return {
+          action: angular.noop
+        };
+      };
+      hotkeys.add = sinon.spy();
+
+      esnShortcuts.use({ id: 'my_shortcut' });
+      expect(hotkeys.add).to.have.been.called;
+    });
+
+    it('should unuse the shortcut when given scope is destroyed', function() {
+      var shortcut = { combo: 'ctrl+enter' };
+      var destroyCallback;
+      var scope = {
+        $on: function(eventName, callback) {
+          expect(eventName).to.equal('$destroy');
+          destroyCallback = callback;
+        }
+      };
+
+      hotkeys.del = sinon.spy();
+      esnShortcutsRegistry.getById = function() {
+        return shortcut;
+      };
+      esnShortcuts.use('my_shortcut', angular.noop, scope);
+      destroyCallback();
+
+      expect(hotkeys.del).to.have.been.calledWith(shortcut.combo);
+    });
   });
 
   describe('The unuse fn', function() {
@@ -84,6 +116,84 @@ describe('The esnShortcuts service', function() {
 
       esnShortcuts.unuse('my_shortcut');
       expect(hotkeys.del).to.have.been.calledWith(shortcut.combo);
+    });
+
+    it('should be able to detect shortcut ID from given object', function() {
+      var shortcut = { combo: 'ctrl+enter' };
+
+      esnShortcutsRegistry.getById = function() {
+        return shortcut;
+      };
+      hotkeys.del = sinon.spy();
+
+      esnShortcuts.unuse({ id: 'my_shortcut' });
+      expect(hotkeys.del).to.have.been.calledWith(shortcut.combo);
+    });
+  });
+
+  describe('The register fn', function() {
+    it('should register both category and shortcuts', function() {
+      var category = { id: 'my_category', name: 'My Category' };
+      var shortcuts = {
+        shortcut1: {
+          combo: 'x',
+          description: 'this is shortcut1'
+        },
+        shortcut2: {
+          combo: 'y',
+          description: 'this is shortcut2'
+        }
+      };
+
+      esnShortcutsRegistry.addCategory = sinon.spy();
+      esnShortcutsRegistry.register = sinon.spy();
+
+      esnShortcuts.register(category, shortcuts);
+
+      expect(esnShortcutsRegistry.addCategory).to.have.been.calledWith(category);
+      expect(esnShortcutsRegistry.register).to.have.been.calledTwice;
+    });
+
+    it('should assign category and id to each shortcut', function() {
+      var category = { id: 'my_category', name: 'My Category' };
+      var shortcuts = {
+        shortcut1: {
+          combo: 'x',
+          description: 'this is shortcut1'
+        },
+        SHORTCUT2: {
+          combo: 'y',
+          description: 'this is shortcut2'
+        }
+      };
+
+      esnShortcuts.register(category, shortcuts);
+
+      expect(shortcuts.shortcut1.id).to.equal('my_category.shortcut1');
+      expect(shortcuts.SHORTCUT2.id).to.equal('my_category.shortcut2');
+      expect(shortcuts.shortcut1.category).to.equal(category.id);
+      expect(shortcuts.SHORTCUT2.category).to.equal(category.id);
+    });
+
+    it('should use shortcut when it is registered with action', function() {
+      var category = { id: 'my_category', name: 'My Category' };
+      var shortcuts = {
+        shortcut1: {
+          combo: 'x',
+          description: 'this is shortcut1',
+          action: angular.noop
+        },
+        shortcut2: {
+          combo: 'y',
+          description: 'this is shortcut2'
+        }
+      };
+
+      hotkeys.add = sinon.spy();
+
+      esnShortcuts.register(category, shortcuts);
+
+      expect(hotkeys.add).to.have.been.calledOnce;
     });
   });
 });
