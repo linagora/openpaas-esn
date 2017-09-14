@@ -64,7 +64,6 @@
     "mongoose": "4.7.1",
     "morgan": "1.7.0",
     "ng-annotate": "1.2.1",
-    "node-uuid": "1.4.7",
     "nodemailer": "2.6.0",
     "oauth2orize": "1.5.0",
     "passport": "0.3.2",
@@ -97,6 +96,7 @@
     "twit": "2.2.5",
     "url-join": "1.1.0",
     "ursa": "0.9.4",
+    "uuid": "3.1.0",
     "valid-url": "1.0.9",
     "winston": "2.2.0",
     "xml2js": "0.4.17",
@@ -170,7 +170,7 @@
     "sinon-chai": "2.8.0",
     "supertest": "2.0.0",
     "swagger-jsdoc": "1.6.0",
-    "time-grunt": "^1.4.0"
+    "time-grunt": "1.4.0"
   },
   "scripts": {
     "postinstall": "bower install --allow-root"

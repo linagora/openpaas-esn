@@ -1,7 +1,7 @@
 'use strict';
 
 var mongoose = require('mongoose');
-var uuid = require('node-uuid');
+var uuidV4 = require('uuid/v4');
 var Schema = mongoose.Schema;
 
 var EmailRecipientToken = new mongoose.Schema({
@@ -20,7 +20,7 @@ EmailRecipientToken.pre('save', function(next) {
   if (!this.isNew) {
     return next();
   }
-  this.token = uuid.v4();
+  this.token = uuidV4();
   next();
 });
 

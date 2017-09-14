@@ -2,7 +2,7 @@
 
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-var uuid = require('node-uuid');
+var uuidV1 = require('uuid/v1');
 
 var options = {
   strict: false
@@ -20,7 +20,7 @@ var InvitationSchema = new Schema({
 }, options);
 
 InvitationSchema.pre('save', function(next) {
-  this.uuid = uuid.v1();
+  this.uuid = uuidV1();
   next();
 });
 
