@@ -5,16 +5,17 @@
 var expect = chai.expect;
 
 describe('The esnShortcuts service', function() {
-  var esnShortcutsRegistry, esnShortcuts, hotkeys;
+  var esnShortcutsRegistry, esnShortcuts, hotkeys, deviceDetector;
 
   beforeEach(function() {
     module('esn.shortcuts');
   });
 
-  beforeEach(inject(function(_esnShortcutsRegistry_, _esnShortcuts_, _hotkeys_) {
+  beforeEach(inject(function(_esnShortcutsRegistry_, _esnShortcuts_, _hotkeys_, _deviceDetector_) {
     esnShortcutsRegistry = _esnShortcutsRegistry_;
     esnShortcuts = _esnShortcuts_;
     hotkeys = _hotkeys_;
+    deviceDetector = _deviceDetector_;
   }));
 
   describe('The use fn', function() {
@@ -93,6 +94,15 @@ describe('The esnShortcuts service', function() {
 
       expect(hotkeys.del).to.have.been.calledWith(shortcut.combo);
     });
+
+    it('should do nothing on mobile', function() {
+      deviceDetector.isMobile = function() { return true; };
+
+      esnShortcutsRegistry.getById = sinon.spy();
+      esnShortcuts.use();
+
+      expect(esnShortcutsRegistry.getById).to.not.have.been.called;
+    });
   });
 
   describe('The unuse fn', function() {
@@ -128,6 +138,15 @@ describe('The esnShortcuts service', function() {
 
       esnShortcuts.unuse({ id: 'my_shortcut' });
       expect(hotkeys.del).to.have.been.calledWith(shortcut.combo);
+    });
+
+    it('should do nothing on mobile', function() {
+      deviceDetector.isMobile = function() { return true; };
+
+      esnShortcutsRegistry.getById = sinon.spy();
+      esnShortcuts.unuse();
+
+      expect(esnShortcutsRegistry.getById).to.not.have.been.called;
     });
   });
 
@@ -194,6 +213,15 @@ describe('The esnShortcuts service', function() {
       esnShortcuts.register(category, shortcuts);
 
       expect(hotkeys.add).to.have.been.calledOnce;
+    });
+
+    it('should do nothing on mobile', function() {
+      deviceDetector.isMobile = function() { return true; };
+
+      esnShortcutsRegistry.addCategory = sinon.spy();
+      esnShortcuts.register();
+
+      expect(esnShortcutsRegistry.addCategory).to.not.have.been.called;
     });
   });
 });
