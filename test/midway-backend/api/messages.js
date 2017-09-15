@@ -4,7 +4,7 @@ var request = require('supertest'),
   expect = require('chai').expect,
   async = require('async'),
   q = require('q'),
-  uuid = require('node-uuid');
+  uuidV4 = require('uuid/v4');
 
 describe.skip('The messages API', function() {
   var app;
@@ -772,9 +772,9 @@ describe.skip('The messages API', function() {
 
         var req = loggedInAsUser(request(app).post('/api/messages/' + message1._id + '/shares'));
         req.send({
-          resource: {objectType: 'activitystream', id: uuid.v4()},
+          resource: {objectType: 'activitystream', id: uuidV4()},
           target: [
-            {objectType: 'activitystream', id: uuid.v4()}
+            {objectType: 'activitystream', id: uuidV4()}
           ]
         });
         req.expect(404);
@@ -798,7 +798,7 @@ describe.skip('The messages API', function() {
         req.send({
           resource: {objectType: 'activitystream', id: privateCommunity.activity_stream.uuid},
           target: [
-            {objectType: 'activitystream', id: uuid.v4()}
+            {objectType: 'activitystream', id: uuidV4()}
           ]
         });
         req.expect(403);

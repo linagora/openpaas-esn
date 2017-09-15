@@ -3,7 +3,7 @@
 var cron = require('cron');
 var JOB_STATES = require('./constants').JOB_STATES;
 var EVENTS = require('./constants').EVENTS;
-var uuid = require('node-uuid');
+var uuidV4 = require('uuid/v4');
 var async = require('async');
 
 module.exports = function(dependencies) {
@@ -98,7 +98,7 @@ module.exports = function(dependencies) {
     }
 
     var CronJob = cron.CronJob;
-    var id = uuid.v4();
+    var id = uuidV4();
 
     var jobWrapper = function() {
       logger.info('Job %s is starting', id);

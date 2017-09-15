@@ -2,7 +2,7 @@
 
 var expect = require('chai').expect,
   request = require('supertest'),
-  uuid = require('node-uuid'),
+  uuidV4 = require('uuid/v4'),
   mockery = require('mockery');
 
 describe('The activitystreams API', function() {
@@ -77,7 +77,7 @@ describe('The activitystreams API', function() {
         });
 
         it('should send back 404 when the activity stream does not exist', function(done) {
-          var incorrectUUID = uuid.v4();
+          var incorrectUUID = uuidV4();
           this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
             expect(err).to.not.exist;
             loggedInAsUser(request(app).get('/api/activitystreams/' + incorrectUUID))
@@ -184,7 +184,7 @@ describe('The activitystreams API', function() {
         });
 
         it('should send back 404 when the activity stream does not exist', function(done) {
-          var incorrectUUID = uuid.v4();
+          var incorrectUUID = uuidV4();
           this.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
             expect(err).to.not.exist;
             loggedInAsUser(request(app).get('/api/activitystreams/' + incorrectUUID + '/resource'))

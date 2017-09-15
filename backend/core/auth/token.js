@@ -3,7 +3,7 @@
 const DEFAULT_TTL = 60;
 const logger = require('../logger');
 const mongoose = require('mongoose');
-const uuid = require('node-uuid');
+const uuidV4 = require('uuid/v4');
 const AuthToken = mongoose.model('AuthToken');
 
 module.exports = {
@@ -17,7 +17,7 @@ function getExpirationDate(ttl) {
 }
 
 function getNewToken(options = {}, callback) {
-  const token = uuid.v4();
+  const token = uuidV4();
 
   options.ttl = options.ttl || DEFAULT_TTL;
   options.token = token;
@@ -27,7 +27,7 @@ function getNewToken(options = {}, callback) {
     options.user = String(options.user);
   }
 
-  const authToken = new AuthToken({token: token, expiresAt: getExpirationDate(options.ttl), data: options});
+  const authToken = new AuthToken({ token: token, expiresAt: getExpirationDate(options.ttl), data: options });
 
   authToken.save(err => {
     if (err) {
@@ -41,7 +41,7 @@ function getNewToken(options = {}, callback) {
 }
 
 function validateToken(token, callback) {
-  AuthToken.findOne({token: token}, (err, result) => {
+  AuthToken.findOne({ token: token }, (err, result) => {
     if (err) {
       logger.error('Problem while getting token data', err);
 
@@ -53,7 +53,7 @@ function validateToken(token, callback) {
 }
 
 function getToken(token, callback) {
-  AuthToken.findOne({token: token}, (err, result) => {
+  AuthToken.findOne({ token: token }, (err, result) => {
     if (err) {
       logger.error('Problem while getting token data', err);
 

@@ -1,7 +1,7 @@
 'use strict';
 
 var expect = require('chai').expect;
-var uuid = require('node-uuid');
+var uuidV4 = require('uuid/v4');
 var path = require('path');
 var hash_file = require('hash_file');
 var q = require('q');
@@ -415,7 +415,7 @@ describe('The filestore gridfs module', function() {
     var file = path.resolve(this.testEnv.fixtures + '/README.md');
     var fs = require('fs');
     var stream = fs.createReadStream(file);
-    var out = this.testEnv.tmp + '/' + uuid.v4();
+    var out = this.testEnv.tmp + '/' + uuidV4();
     var outstream = fs.createWriteStream(out);
 
     var id = new ObjectId();
@@ -478,7 +478,7 @@ describe('The filestore gridfs module', function() {
       var file = path.resolve(this.testEnv.fixtures + '/README.md');
       var fs = require('fs');
       var stream = fs.createReadStream(file);
-      var out = this.testEnv.tmp + '/' + uuid.v4();
+      var out = this.testEnv.tmp + '/' + uuidV4();
       var outstream = fs.createWriteStream(out);
 
       var id = new ObjectId();

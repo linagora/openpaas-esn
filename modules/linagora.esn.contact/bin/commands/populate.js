@@ -1,7 +1,7 @@
 'use strict';
 
 const q = require('q');
-const uuid = require('node-uuid');
+const uuidV4 = require('uuid/v4');
 const request = require('request');
 const ICAL = require('ical.js');
 const fs = require('fs');
@@ -167,7 +167,7 @@ function exec(base_url, login, password, size, type) {
     var first = capitalize(u.name.first);
     var last = capitalize(u.name.last);
     var shell = {
-      id: uuid.v4(),
+      id: uuidV4(),
       displayName: first + ' ' + last,
       lastName: last,
       firstName: first,
