@@ -2,6 +2,11 @@
 @import "image-viewer/image-viewer";
 @import "video-viewer/video-viewer";
 
+@black-alpha-90: rgba(0, 0, 0, 0.9);
+@black-alpha-20: rgba(102, 102, 102, 0.2);
+@spinner-border-color: #f3f3f3;
+@spinner-border-top-color: #555;
+@nav-color: #7f7f7f;
 
 esn-attachment-viewer {
   
@@ -15,7 +20,7 @@ esn-attachment-viewer {
   }
 
   .av-fadeIn {
-    background-color: rgba(0, 0, 0, 0.9);
+    background-color: @black-alpha-90;
   }
   
   .attachment-viewer {
@@ -40,15 +45,15 @@ esn-attachment-viewer {
         left: 0;
         z-index: -1;
 
-        .av-cancel {
+        .av-spinner {
           display: block;
           width: 32px;
           height: 32px;
           margin: 0 auto;
-          border: 5px solid #f3f3f3;
+          border: 5px solid @spinner-border-color;
           -webkit-animation: spin 1s linear infinite;
           animation: spin 1s linear infinite;
-          border-top: 5px solid #555;
+          border-top: 5px solid @spinner-border-top-color;
           border-radius: 50%;
         }
       }
@@ -56,7 +61,7 @@ esn-attachment-viewer {
       span.nav {
         cursor: pointer;
         display: block;
-        color: #7f7f7f;
+        color: @nav-color;
         font-size: 60px;
         font-weight: bold;
         position: absolute;
@@ -82,8 +87,8 @@ esn-attachment-viewer {
       .av-details {
         .flex;
 
-        color: #ccc;
-        background-color: rgba(102, 102, 102, 0.2);
+        color: @breadcrumb-color;
+        background-color: @black-alpha-20;
         padding: 4px;
 
         .av-number {
@@ -124,7 +129,6 @@ esn-attachment-viewer {
       .av-download:hover {
         opacity: 1;
       }
-
     }
   }
     .av-outerContainer.ng-hide{
@@ -133,12 +137,10 @@ esn-attachment-viewer {
       animation-name: zoomout;
       animation-duration: 0.6s;
     }
-
   }
-
 }
 
-@media only screen and (max-width: 370px) {
+@media only screen and (max-width: @screen-phone) {
   esn-attachment-viewer .attachment-viewer .av-outerContainer span.av-next {
     right: -10px;
   }

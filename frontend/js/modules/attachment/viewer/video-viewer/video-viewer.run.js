@@ -3,14 +3,11 @@
 
   angular.module('esn.attachment')
     .run(function(esnAttachmentRegistryService, ESN_ATTACHMENT_VIDEO_VIEWER) {
-      var videoViewer = ESN_ATTACHMENT_VIDEO_VIEWER;
-
-      videoViewer.fitSizeContent = fitSizeContent;
-      esnAttachmentRegistryService.addViewer(videoViewer);
+      ESN_ATTACHMENT_VIDEO_VIEWER.fitSizeContent = fitSizeContent;
+      esnAttachmentRegistryService.addViewer(ESN_ATTACHMENT_VIDEO_VIEWER);
 
       function fitSizeContent(resizeViewer, videoContainer) {
-        resizeViewer(videoViewer.sizeOptions, videoContainer);
+        resizeViewer(ESN_ATTACHMENT_VIDEO_VIEWER.sizeOptions, videoContainer);
       }
     });
-
 })();

@@ -19,5 +19,4 @@
       scope.viewer.fitSizeContent(esnAttachmentViewerService.resizeViewer, elem.find('.esn-attachment-default-viewer'));
     }
   }
-
 })();

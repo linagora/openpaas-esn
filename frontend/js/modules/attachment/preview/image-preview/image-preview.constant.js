@@ -7,5 +7,4 @@
       directive: 'esn-attachment-image-preview',
       contentType: ['image/png', 'image/x-png', 'image/jpeg', 'image/pjpeg', 'image/gif']
     });
-
 })();

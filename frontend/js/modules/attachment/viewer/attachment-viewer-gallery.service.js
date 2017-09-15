@@ -4,8 +4,7 @@
   angular.module('esn.attachment')
     .factory('esnAttachmentViewerGalleryService', esnAttachmentViewerGalleryService);
 
-  function esnAttachmentViewerGalleryService() {
-
+  function esnAttachmentViewerGalleryService($log) {
     var DEFAULT_GALLERY = 'noname';
     var galleries = {};
 
@@ -38,8 +37,11 @@
       var files = galleries[galleryName];
       var order = files.indexOf(file);
 
+      if (order === -1) {
+        return $log.debug('No such file in gallery');
+      }
+
       files.splice(order, 1);
     }
   }
-
 })();

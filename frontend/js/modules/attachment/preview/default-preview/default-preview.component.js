@@ -8,5 +8,4 @@
       },
       templateUrl: '/views/modules/attachment/preview/default-preview/default-preview.html'
     });
-
 })();

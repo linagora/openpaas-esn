@@ -5,5 +5,4 @@
     .run(function(esnAttachmentRegistryService, ESN_ATTACHMENT_IMAGE_PREVIEW) {
       esnAttachmentRegistryService.addPreviewer(ESN_ATTACHMENT_IMAGE_PREVIEW);
     });
-
 })();

@@ -8,7 +8,7 @@ var expect = chai.expect;
 describe('The esnAttachmentViewerService service', function() {
   var files = [];
   var file, gallery, esnAttachmentViewerGalleryService, esnAttachmentViewerService;
-  var $document, $rootScope, $timeout;
+  var $document, $rootScope;
 
   beforeEach(function() {
     angular.mock.module('jadeTemplates');
@@ -24,7 +24,6 @@ describe('The esnAttachmentViewerService service', function() {
     inject(function(_$document_, _$rootScope_, _$timeout_, _esnAttachmentViewerService_) {
       $document = _$document_;
       $rootScope = _$rootScope_;
-      $timeout = _$timeout_;
       esnAttachmentViewerService = _esnAttachmentViewerService_;
     });
   });

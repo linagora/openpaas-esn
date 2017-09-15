@@ -16,12 +16,9 @@
     };
 
     function link(scope, elem) {
-      var fileUrl = scope.attachment.url;
       var image = angular.element(elem.find('.av-img'));
 
-      image.src = fileUrl;
-      scope.viewer.fitSizeContent(esnAttachmentViewerService.resizeViewer, image);
+      scope.viewer.fitSizeContent(esnAttachmentViewerService.resizeViewer, image, scope.attachment.url);
     }
   }
-
 })();

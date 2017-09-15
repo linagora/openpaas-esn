@@ -4,7 +4,7 @@
   angular.module('esn.attachment')
     .directive('esnAttachmentViewer', esnAttachmentViewer);
 
-  function esnAttachmentViewer($rootScope, $window, $compile, $timeout, esnAttachmentRegistryService, esnAttachmentViewerService, ESN_ATTACHMENT_DEFAULT) {
+  function esnAttachmentViewer($rootScope, $window, $compile, $timeout, esnAttachmentRegistryService, esnAttachmentViewerService) {
     return {
       restrict: 'E',
       templateUrl: '/views/modules/attachment/viewer/attachment-viewer.html',
@@ -50,7 +50,7 @@
         var elem, template, newElt;
         var viewer = esnAttachmentRegistryService.getViewer(scope.attachment.contentType);
 
-        scope.viewer = viewer || esnAttachmentRegistryService.getViewer(ESN_ATTACHMENT_DEFAULT.viewer);
+        scope.viewer = viewer || esnAttachmentRegistryService.getDefaultViewer();
 
         elem = angular.element('<' + scope.viewer.directive + '></' + scope.viewer.directive + '>');
         elem.attr({ attachment: 'attachment', viewer: 'viewer' });
@@ -93,6 +93,7 @@
         open(currentItem.files, prev);
       }
 
+      // $timeout here is used due to the zoomout animation
       function closeViewer(event) {
         if (event.target.className.indexOf('av-outerContainer') > -1 || (event.target.className.indexOf('av-closeButton') > -1)) {
           $timeout(function() {
@@ -104,5 +105,4 @@
 
     }
   }
-
 })();

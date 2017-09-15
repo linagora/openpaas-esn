@@ -5,7 +5,6 @@
     .factory('esnAttachmentViewerService', esnAttachmentViewerService);
 
   function esnAttachmentViewerService($compile, $window, $rootScope, $timeout, $log, esnAttachmentViewerGalleryService) {
-
     var currentItem = {};
     var viewer = null;
 
@@ -13,7 +12,6 @@
       open: open,
       registerViewer: registerViewer,
       resizeViewer: resizeViewer,
-      unregisterViewer: unregisterViewer,
       setCurrentItem: setCurrentItem
     };
 
@@ -104,11 +102,5 @@
       }
       return desiredSize;
     }
-
-    function unregisterViewer() {
-      currentItem = {};
-      viewer = null;
-    }
   }
-
 })();

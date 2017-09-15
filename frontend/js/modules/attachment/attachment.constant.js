@@ -7,10 +7,5 @@
       image: 'mdi-file-image',
       video: 'mdi-file-video',
       default: 'mdi-file-outline'
-    })
-    .constant('ESN_ATTACHMENT_DEFAULT', {
-      previewer: 'defaultPreviewer',
-      viewer: 'defaultViewer'
     });
-
 })();

@@ -16,8 +16,6 @@
     };
 
     function link(scope, elem) {
-      var fileUrl = '/api/files/' + scope.attachment._id;
-
       scope.API = null;
       scope.onPlayerReady = function(API) {
         scope.API = API;
@@ -25,9 +23,9 @@
       scope.config = {
         preload: 'none',
         sources: [
-          {src: $sce.trustAsResourceUrl(fileUrl), type: 'video/webm'},
-          {src: $sce.trustAsResourceUrl(fileUrl), type: 'video/ogg'},
-          {src: $sce.trustAsResourceUrl(fileUrl), type: 'video/mp4'}
+          {src: $sce.trustAsResourceUrl(scope.attachment.url), type: 'video/webm'},
+          {src: $sce.trustAsResourceUrl(scope.attachment.url), type: 'video/ogg'},
+          {src: $sce.trustAsResourceUrl(scope.attachment.url), type: 'video/mp4'}
         ],
         theme: {
           url: '/components/videogular-themes-default/videogular.css'
@@ -42,5 +40,4 @@
       scope.viewer.fitSizeContent(esnAttachmentViewerService.resizeViewer, elem.find('.videogular-container'));
     }
   }
-
 })();

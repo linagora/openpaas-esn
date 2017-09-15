@@ -1,12 +1,12 @@
-esn-attachment-default-viewer {
+@left-border-right-color: #999999;
 
+esn-attachment-default-viewer {
   display: inline-flex;
   height: 100%;
   text-align: center;
-  background-color: white;
+  background-color:  @m-white;
 
-  .esn-attachment-default-viewer {
-    
+  .esn-attachment-default-viewer {    
     display: inline-flex;
     min-height: 110px;
     min-width: 250px;
@@ -15,7 +15,7 @@ esn-attachment-default-viewer {
       width: 30%;
       font-size: 6em;
       padding-top: 5px;
-      border-right: 1px solid #999999;
+      border-right: 1px solid @left-border-right-color;
     }
 
     .right {
@@ -25,10 +25,9 @@ esn-attachment-default-viewer {
   }
 }
 
-@media only screen and (max-width: 370px) {
+@media only screen and (max-width: @screen-phone) {
   esn-attachment-default-viewer .esn-attachment-default-viewer {
-
-    min-height: 90px;
+    min-height: 100px;
     
     .left {
       font-size: 4.5em;

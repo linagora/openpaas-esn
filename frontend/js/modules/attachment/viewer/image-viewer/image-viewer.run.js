@@ -3,12 +3,10 @@
 
   angular.module('esn.attachment')
     .run(function(esnAttachmentRegistryService, ESN_ATTACHMENT_IMAGE_VIEWER) {
-      var imageViewer = ESN_ATTACHMENT_IMAGE_VIEWER;
+      ESN_ATTACHMENT_IMAGE_VIEWER.fitSizeContent = fitSizeContent;
+      esnAttachmentRegistryService.addViewer(ESN_ATTACHMENT_IMAGE_VIEWER);
 
-      imageViewer.fitSizeContent = fitSizeContent;
-      esnAttachmentRegistryService.addViewer(imageViewer);
-
-      function fitSizeContent(resizeViewer, image) {
+      function fitSizeContent(resizeViewer, image, url) {
         var img = new Image();
         var self = this;
 
@@ -20,11 +18,10 @@
             }
           };
 
-          angular.extend(imageViewer.sizeOptions, sizeOptions);
+          angular.extend(ESN_ATTACHMENT_IMAGE_VIEWER.sizeOptions, sizeOptions);
           resizeViewer(self.sizeOptions, image);
         };
-        img.src = image.src;
+        img.src = url;
       }
     });
-
 })();
