@@ -255,5 +255,6 @@ module.exports = {
   moderation: moderation,
   domain: require('./domain'),
   follow: require('./follow'),
-  login: require('./login')
+  login: require('./login'),
+  denormalize: require('./denormalize')
 };
