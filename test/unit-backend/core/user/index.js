@@ -527,6 +527,27 @@ describe('The user core module', function() {
     });
   });
 
+  describe('The listByCursor function', function() {
+    it('should return cursor object', function() {
+      const cursorMock = { next: function() {} };
+
+      const User = {
+        find: function() {
+          return { cursor: function() { return cursorMock; } };
+        }
+      };
+
+      mockModels({
+        User: User
+      });
+
+      const userModule = this.helpers.requireBackend('core').user;
+      const cursor = userModule.listByCursor();
+
+      expect(cursor).to.equal(cursorMock);
+    });
+  });
+
   describe('The translate fn', function() {
     let getModule;
 

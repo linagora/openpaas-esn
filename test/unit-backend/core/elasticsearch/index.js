@@ -1,21 +1,33 @@
 'use strict';
 
-var expect = require('chai').expect,
-  mockery = require('mockery');
+const expect = require('chai').expect;
+const mockery = require('mockery');
+const sinon = require('sinon');
+const q = require('q');
 
 describe('The elasticsearch module', function() {
+  let helpers;
 
   beforeEach(function() {
+    helpers = this.helpers;
+
     mockery.registerMock('./listeners', {});
   });
+
+  const getModule = () => helpers.rewireBackend('core/elasticsearch');
 
   describe('with config error', function() {
 
     beforeEach(function() {
-      var get = function(callback) {
-        callback(new Error('Error'), null);
+      const EsnConfig = function() {
+        return {
+          get: function() {
+            return q.reject(new Error('Error'));
+          }
+        };
       };
-      this.helpers.mock.esnConfig(get);
+
+      mockery.registerMock('../esn-config', { EsnConfig });
     });
 
     it('should call the callback with the error "not found"', function(done) {
@@ -32,7 +44,15 @@ describe('The elasticsearch module', function() {
   describe('with no config', function() {
 
     beforeEach(function() {
-      this.helpers.mock.esnConfig(callback => callback());
+      const EsnConfig = function() {
+        return {
+          get: function() {
+            return q.when();
+          }
+        };
+      };
+
+      mockery.registerMock('../esn-config', { EsnConfig });
     });
 
     afterEach(function() {
@@ -72,12 +92,17 @@ describe('The elasticsearch module', function() {
   describe('with correct config and can not connect', function() {
 
     beforeEach(function() {
-      var get = function(callback) {
-        callback(null, {
-          host: 'localhost:9200'
-        });
+      const EsnConfig = function() {
+        return {
+          get: function() {
+            return q.when({
+              host: 'localhost:9200'
+            });
+          }
+        };
       };
-      this.helpers.mock.esnConfig(get);
+
+      mockery.registerMock('../esn-config', { EsnConfig });
 
       var mockedElasticsearch = {
         Client: function Client() {
@@ -103,12 +128,17 @@ describe('The elasticsearch module', function() {
   describe('with correct config and can connect', function() {
 
     beforeEach(function() {
-      var get = function(callback) {
-        callback(null, {
-          host: 'localhost:9200'
-        });
+      const EsnConfig = function() {
+        return {
+          get: function() {
+            return q.when({
+              host: 'localhost:9200'
+            });
+          }
+        };
       };
-      this.helpers.mock.esnConfig(get);
+
+      mockery.registerMock('../esn-config', { EsnConfig });
 
       var mockedElasticsearch = {
         Client: function Client() {
@@ -287,4 +317,94 @@ describe('The elasticsearch module', function() {
     });
   });
 
+  describe('The reconfig function', function() {
+    let ESConfigurationMock, reconfigMock;
+    const indexName = 'name';
+    const indexType = 'type';
+
+    beforeEach(function() {
+      const EsnConfig = function() {
+        return {
+          get: function() {
+            return q.when();
+          }
+        };
+      };
+
+      mockery.registerMock('../esn-config', { EsnConfig });
+
+      ESConfigurationMock = function() {
+        return {
+          reconfig: reconfigMock
+        };
+      };
+
+      mockery.registerMock('esn-elasticsearch-configuration', ESConfigurationMock);
+    });
+
+    it('should reject if failed to reindex configutaion', function(done) {
+      reconfigMock = sinon.stub().returns(q.reject());
+
+      getModule().reconfig(indexName, indexType)
+        .catch(() => {
+          expect(reconfigMock).to.have.been.calledWith(indexName, indexType);
+          done();
+        });
+    });
+
+    it('should resolve if reindex configutaion successfully', function(done) {
+      reconfigMock = sinon.stub().returns(q.when());
+
+      getModule().reconfig(indexName, indexType)
+        .then(() => {
+          expect(reconfigMock).to.have.been.calledWith(indexName, indexType);
+          done();
+        });
+    });
+  });
+
+  describe('The reindex function', function() {
+    let ESConfigurationMock, reindexAllMock;
+    const options = { foo: 'bar' };
+
+    beforeEach(function() {
+      const EsnConfig = function() {
+        return {
+          get: function() {
+            return q.when();
+          }
+        };
+      };
+
+      mockery.registerMock('../esn-config', { EsnConfig });
+
+      ESConfigurationMock = function() {
+        return {
+          reindexAll: reindexAllMock
+        };
+      };
+
+      mockery.registerMock('esn-elasticsearch-configuration', ESConfigurationMock);
+    });
+
+    it('should reject if failed to reindex configuration and data', function(done) {
+      reindexAllMock = sinon.stub().returns(q.reject());
+
+      getModule().reindex(options)
+        .catch(() => {
+          expect(reindexAllMock).to.have.been.calledWith(options);
+          done();
+        });
+    });
+
+    it('should resolve if reindex configuration and data successfully', function(done) {
+      reindexAllMock = sinon.stub().returns(q.when());
+
+      getModule().reindex(options)
+        .then(() => {
+          expect(reindexAllMock).to.have.been.calledWith(options);
+          done();
+        });
+    });
+  });
 });

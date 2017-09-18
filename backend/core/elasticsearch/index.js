@@ -2,7 +2,8 @@
 
 const q = require('q');
 const elasticsearch = require('elasticsearch');
-const esnconfig = require('../esn-config');
+const ESConfiguration = require('esn-elasticsearch-configuration');
+const EsnConfig = require('../esn-config').EsnConfig;
 const logger = require('../logger');
 
 const TIMEOUT = 1000;
@@ -14,12 +15,14 @@ let currentClient;
 let currentClientHash;
 
 module.exports = {
+  addDocumentToIndex,
   client,
   getClient,
-  updateClient,
-  addDocumentToIndex,
+  reconfig,
+  reindex,
   removeDocumentFromIndex,
-  searchDocuments
+  searchDocuments,
+  updateClient
 };
 
 /**
@@ -44,8 +47,29 @@ function getConfigurationHash(config) {
  *
  * @return {Object} a copy of default Elasticsearch configuration
  */
+
 function getDefaultConfig() {
   return Object.assign({}, DEFAULT_CONFIG);
+}
+
+/**
+ * Get Elasticsearch configuration.
+ *
+ * @return {Promise} resolve on success
+ */
+function getConfig() {
+  return new EsnConfig().get('elasticsearch')
+    .then(config => config || getDefaultConfig());
+}
+
+/**
+  * Get an instance of esn-elasticsearch-configuration module
+  *
+  * @return {Promise} resolve on success
+  */
+function getESConfigurationInstance() {
+  return getConfig()
+    .then(config => new ESConfiguration({ url: config.host }));
 }
 
 /**
@@ -54,23 +78,8 @@ function getDefaultConfig() {
  * @param {function} callback function like callback(err, elasticsearchClient)
  */
 function updateClient(callback) {
-  esnconfig('elasticsearch').get((err, data) => {
-    if (err) {
-      logger.error('Error while getting elasticsearch configuration', err);
-      if (currentClient) {
-        currentClient.close();
-        currentClient = null;
-      }
-      currentClientHash = null;
-
-      return callback(err);
-    }
-
-    if (!data) {
-      data = getDefaultConfig();
-    }
-
-    const hash = getConfigurationHash(data);
+  return getConfig().then(config => {
+    const hash = getConfigurationHash(config);
 
     if (hash === currentClientHash) {
       return callback(null, currentClient);
@@ -83,7 +92,7 @@ function updateClient(callback) {
     currentClientHash = null;
 
     // Create Elasticsearch client
-    const elasticsearchClient = new elasticsearch.Client(data);
+    const elasticsearchClient = new elasticsearch.Client(config);
 
     // Check if the connection was a success
     elasticsearchClient.ping({requestTimeout: TIMEOUT}, err => {
@@ -99,6 +108,14 @@ function updateClient(callback) {
       return callback(null, elasticsearchClient);
     });
 
+  }, err => {
+    if (currentClient) {
+      currentClient.close();
+      currentClient = null;
+    }
+    currentClientHash = null;
+
+    return callback(err);
   });
 }
 
@@ -154,6 +171,35 @@ function searchDocuments(options, callback) {
   getClient().then(esClient => {
     esClient.search(options, callback);
   }, callback);
+}
+
+/**
+  * Re-configure configuration for index
+  *
+  * @param {string} name - The name of index
+  * @param {string} type - The type of index (users, contacts, ...)
+  *
+  * @return {Promise} - resolve on success
+  */
+function reconfig(name, type) {
+  return getESConfigurationInstance()
+    .then(esConfiguration => esConfiguration.reconfig(name, type));
+}
+
+/**
+  * Re-configure configuration and reindex data for index
+  *
+  * @param {Object}   options - The object contains infomation of index which be reindexed includes:
+  *                              + index: The name of index
+  *                              + type: The type of index (users, contacts, ...)
+  *                              + next: The function allow to load sequence documents instead all at the same time
+  *                              + getId: The function to get document ID
+  *                              + denormalize: The function is used to denormalize a document
+  * @return {Promise} - resolve on success
+  */
+function reindex(options) {
+  return getESConfigurationInstance()
+    .then(esConfiguration => esConfiguration.reindexAll(options));
 }
 
 // workaround circular dependencies: index -> listeners -> utils -> index
