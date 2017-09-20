@@ -1,25 +1,21 @@
 'use strict';
 
 const DEV_DELAY = 1000;
-var client = require('../http-client');
-var extend = require('extend');
-var http = require('http');
+const client = require('../http-client');
+const extend = require('extend');
+const http = require('http');
 
-module.exports = function(dependencies) {
+module.exports = dependencies => {
+  const graceperiod = dependencies('graceperiod');
+  const logger = dependencies('logger');
 
-  var graceperiod = dependencies('graceperiod');
-  var logger = dependencies('logger');
-
-  return function(req, res, options) {
-
-    var target = options.endpoint + '/' + options.path + req.url;
-    var delay = getDelay(options.graceperiod);
-    var context = {
-      user: req.user._id
-    };
+  return (req, res, options) => {
+    const target = `${options.endpoint}/${options.path}${req.url}`;
+    const delay = getDelay(options.graceperiod);
+    const context = { user: req.user._id };
 
     function forwardRequest(callback) {
-      var requestOptions = {
+      const requestOptions = {
         method: req.method,
         url: target,
         headers: extend({}, req.headers, { ESNToken: req.token.token })
@@ -33,7 +29,7 @@ module.exports = function(dependencies) {
         requestOptions.body = req.body;
       }
 
-      client(requestOptions, function(err, response, body) {
+      client(requestOptions, (err, response, body) => {
         if (err) {
           logger.error('Error while sending request', err);
 
@@ -46,14 +42,15 @@ module.exports = function(dependencies) {
 
         logger.info('Response from remote service: HTTP %s', response.statusCode);
 
-        var error;
+        let error;
+
         if (response.statusCode >= 200 && response.statusCode < 300) {
           if (options.onSuccess) {
             return options.onSuccess(response, body, req, res, callback.bind(null, null, response));
           }
         } else {
           error = {error: {code: response.statusCode, message: http.STATUS_CODES[response.statusCode], details: response.statusMessage}};
-          logger.error('Error from remote service : ', response.body);
+          logger.error(`Error from remote service : ${response.body}`);
           if (options.onError) {
             return options.onError(response, body, req, res, callback.bind(null, error, response));
           }
@@ -77,13 +74,13 @@ module.exports = function(dependencies) {
       logger.info('Task has been aborted');
     }
 
-    graceperiod.create(forwardRequest, delay, context, onComplete, onCancel).then(function(task) {
+    graceperiod.create(forwardRequest, delay, context, onComplete, onCancel).then(task => {
       logger.info('Grace Task %s has been created for %s', task.id, target);
       res.set('X-ESN-Task-Id', task.id);
-      return res.status(202).json({id: task.id});
+      res.status(202).json({id: task.id});
     }, function(err) {
       logger.error('Error while creating deferred task', err);
-      return res.status(500).json({error: {code: 500, message: 'Server Error', details: 'Can not get create deferred task'}});
+      res.status(500).json({error: {code: 500, message: 'Server Error', details: 'Can not get create deferred task'}});
     });
   };
 
