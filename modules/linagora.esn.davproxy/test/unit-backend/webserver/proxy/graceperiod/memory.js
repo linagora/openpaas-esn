@@ -80,6 +80,69 @@ describe('The in memory grace period module', function() {
     }, {});
   });
 
+  it('should use input delay', function(done) {
+    const graceperiod = 100;
+    const task = {id: 1};
+
+    dependencies.graceperiod = {
+      create: sinon.spy(function() {
+        return Promise.resolve(task);
+      })
+    };
+
+    getModule()({user: {_id: 2}}, {
+      set: sinon.spy(),
+      status: function(code) {
+        expect(code).to.equal(202);
+        expect(dependencies.graceperiod.create).to.have.been.calledWith(sinon.match.func, graceperiod);
+
+        return {
+          json: function() {
+            done();
+          }
+        };
+      }
+    }, { graceperiod });
+  });
+
+  describe('in DEV mode', function() {
+    let nodeEnv;
+
+    beforeEach(function() {
+      nodeEnv = process.env.NODE_ENV;
+      process.env.NODE_ENV = 'dev';
+    });
+
+    afterEach(function() {
+      process.env.NODE_ENV = nodeEnv;
+    });
+
+    it('should use DEV_DELAY as input delay', function(done) {
+      const graceperiod = 'this is a dummy grace period which will never be valid but for tests';
+      const task = {id: 1};
+
+      dependencies.graceperiod = {
+        create: sinon.spy(function() {
+          return Promise.resolve(task);
+        })
+      };
+
+      getModule()({user: {_id: 2}}, {
+        set: sinon.spy(),
+        status: function(code) {
+          expect(code).to.equal(202);
+          expect(dependencies.graceperiod.create).to.have.been.calledWith(sinon.match.func, sinon.match(value => value !== graceperiod));
+
+          return {
+            json: function() {
+              done();
+            }
+          };
+        }
+      }, { graceperiod });
+    });
+  });
+
   describe('forwardRequest method', function() {
     var req, options;
 

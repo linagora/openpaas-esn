@@ -1,5 +1,6 @@
 'use strict';
 
+const DEV_DELAY = 1000;
 var client = require('../http-client');
 var extend = require('extend');
 var http = require('http');
@@ -12,7 +13,7 @@ module.exports = function(dependencies) {
   return function(req, res, options) {
 
     var target = options.endpoint + '/' + options.path + req.url;
-    var delay = options.graceperiod;
+    var delay = getDelay(options.graceperiod);
     var context = {
       user: req.user._id
     };
@@ -85,4 +86,8 @@ module.exports = function(dependencies) {
       return res.status(500).json({error: {code: 500, message: 'Server Error', details: 'Can not get create deferred task'}});
     });
   };
+
+  function getDelay(delay) {
+    return process.env.NODE_ENV === 'dev' ? DEV_DELAY : delay;
+  }
 };
