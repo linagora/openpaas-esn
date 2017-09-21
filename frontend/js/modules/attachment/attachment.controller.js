@@ -43,7 +43,7 @@
     function renderContent() {
       var previewer, elem, template, newElt;
 
-      if (!self.attachment || !self.attachment._id) {
+      if (!self.attachment) {
         return $log.debug('File does not exist or incomplete');
       }
 

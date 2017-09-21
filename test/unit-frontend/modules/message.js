@@ -1,18 +1,32 @@
 'use strict';
 
-/* global chai: false */
+/* global chai: false, sinon: false */
 
 var expect = chai.expect;
 
 describe('The esn.message Angular module', function() {
+  var esnAttachmentRegistryService;
+
   beforeEach(function() {
     var session = this.session = {
       user: { emails: ['jdoe@lng.net'] }
     };
 
+    esnAttachmentRegistryService = {
+      addViewer: sinon.spy(),
+      addPreviewer: sinon.spy(),
+      getPreviewer: sinon.spy(),
+      getDefaultPreviewer: sinon.stub()
+    };
+    esnAttachmentRegistryService.getDefaultPreviewer.returns({
+      name: 'defaultPreivew',
+      directive: 'esn-attachment-default-preview'
+    });
+
     angular.mock.module('esn.message');
     angular.mock.module(function($provide) {
       $provide.value('session', session);
+       $provide.value('esnAttachmentRegistryService', esnAttachmentRegistryService);
     });
   });
 

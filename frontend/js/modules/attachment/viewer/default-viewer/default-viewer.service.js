@@ -2,7 +2,9 @@
   'use strict';
 
   angular.module('esn.attachment')
-    .factory('esnAttachmentDefaultViewerService', function() {
+    .factory('esnAttachmentDefaultViewer', esnAttachmentDefaultViewer);
+
+    function esnAttachmentDefaultViewer() {
       var defaultViewer = {
         name: 'defaultViewer',
         directive: 'esn-attachment-default-viewer',
@@ -20,8 +22,6 @@
         resizeViewer(defaultViewer.sizeOptions, attachmentDefaultViewer);
       }
 
-      return {
-        defaultViewer: defaultViewer
-      };
-    });
+      return defaultViewer;
+    }
 })();
