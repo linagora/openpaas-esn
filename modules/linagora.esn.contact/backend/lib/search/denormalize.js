@@ -3,7 +3,7 @@
 var Ical = require('ical.js');
 
 function getId(contact) {
-  return contact.contactId;
+  return contact.contactId ? encodeURIComponent(contact.contactId) : null;
 }
 module.exports.getId = getId;
 

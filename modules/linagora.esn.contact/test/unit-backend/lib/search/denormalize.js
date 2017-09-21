@@ -152,8 +152,19 @@ describe('The contact denormalize module', function() {
     }
 
     it('should return the contactId as id', function() {
-      var contact = {contactId: 1};
+      const contact = {contactId: '1'};
+
       expect(getId(contact)).to.equal(contact.contactId);
+    });
+
+    it('should encode contactId', function() {
+      const contactId = 'chamerling@linagora.com';
+
+      expect(getId({contactId})).to.equal(encodeURIComponent(contactId));
+    });
+
+    it('should return null when contactId is not defined', function() {
+      expect(getId({})).to.be.null;
     });
   });
 });
