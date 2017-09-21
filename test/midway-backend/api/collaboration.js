@@ -4,7 +4,7 @@ var expect = require('chai').expect;
 var request = require('supertest');
 var async = require('async');
 
-describe.skip('The collaborations API', function() {
+describe('The collaborations API', function() {
 
   var email = 'user@open-paas.org', password = 'secret';
   var user, Community, User, Domain, webserver, helpers, fixtures;
@@ -109,7 +109,7 @@ describe.skip('The collaborations API', function() {
             expect(res.body).to.exist;
             expect(res.body).to.be.an('array');
             expect(res.body.length).to.equal(1);
-            expect(res.body[0].id).to.equal(self.models.communities[1].id);
+            expect(res.body[0]._id).to.equal(self.models.communities[1].id);
             done();
           });
         });
@@ -135,7 +135,7 @@ describe.skip('The collaborations API', function() {
             expect(res.body).to.exist;
             expect(res.body).to.be.an('array');
             expect(res.body.length).to.equal(1);
-            expect(res.body[0].id).to.equal(self.models.communities[2].id);
+            expect(res.body[0]._id).to.equal(self.models.communities[2].id);
             done();
           });
         });
@@ -973,14 +973,15 @@ describe.skip('The collaborations API', function() {
       var self = this;
       this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
         if (err) { return done(err); }
-        var manager = models.users[0];
+        var user0 = models.users[0];
+        var user1 = models.users[1];
         var community = models.communities[1];
 
-        self.helpers.api.loginAsUser(webserver.application, manager.emails[0], 'secret', function(err, loggedInAsUser) {
+        self.helpers.api.loginAsUser(webserver.application, user1.emails[0], 'secret', function(err, loggedInAsUser) {
           if (err) {
             return done(err);
           }
-          var req = loggedInAsUser(request(webserver.application).delete('/api/collaborations/community/' + community._id + '/members/' + models.users[1]._id));
+          var req = loggedInAsUser(request(webserver.application).delete('/api/collaborations/community/' + community._id + '/members/' + user1._id));
           req.expect(204);
           req.end(function(err) {
             expect(err).to.not.exist;
@@ -989,7 +990,7 @@ describe.skip('The collaborations API', function() {
                 return done(err);
               }
               expect(document[0].members.length).to.equal(1);
-              expect(document[0].members[0].member.id + '').to.equal(manager.id);
+              expect(document[0].members[0].member.id + '').to.equal(user0.id);
               done();
             });
           });
@@ -2196,7 +2197,7 @@ describe.skip('The collaborations API', function() {
           expect(res.body).to.be.an.array;
           expect(res.body).to.have.length(correctIds.length);
           res.body.forEach(function(returnedCollaboration) {
-            expect(correctIds).to.contain(returnedCollaboration.id);
+            expect(correctIds).to.contain(returnedCollaboration._id);
           });
           done();
         });
