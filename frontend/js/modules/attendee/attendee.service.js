@@ -4,12 +4,13 @@
   angular.module('esn.attendee')
     .factory('attendeeService', attendeeService);
 
-  function attendeeService($q, _, ESN_ATTENDEE_DEFAULT_TEMPLATE_URL) {
+  function attendeeService($q, _, ESN_ATTENDEE_DEFAULT_TEMPLATE_URL, ESN_ATTENDEE_DEFAULT_OBJECT_TYPE) {
     var providers = [];
 
     return {
       addProvider: addProvider,
-      getAttendeeCandidates: getAttendeeCandidates
+      getAttendeeCandidates: getAttendeeCandidates,
+      getProviders: getProviders
     };
 
     function addProvider(provider) {
@@ -17,6 +18,8 @@
         if (!provider.templateUrl) {
           provider.templateUrl = ESN_ATTENDEE_DEFAULT_TEMPLATE_URL;
         }
+
+        provider.objectType = provider.objectType || ESN_ATTENDEE_DEFAULT_OBJECT_TYPE;
 
         provider.search = function(query, limit) {
           return provider.searchAttendee(query, limit).then(function(attendees) {
@@ -30,8 +33,14 @@
       }
     }
 
-    function getAttendeeCandidates(query, limit) {
-      return $q.all(providers.map(function(provider) {
+    function getAttendeeCandidates(query, limit, objectTypes) {
+      objectTypes = objectTypes || [ESN_ATTENDEE_DEFAULT_OBJECT_TYPE];
+
+      var matchingProviders = _.filter(providers, function(provider) {
+        return _.contains(objectTypes, provider.objectType);
+      });
+
+      return $q.all(matchingProviders.map(function(provider) {
         return provider.search(query, limit);
       }))
       .then(function(arrays) {
@@ -44,6 +53,10 @@
           return attendee.email || attendee.displayName;
         });
       });
+    }
+
+    function getProviders() {
+      return providers;
     }
   }
 })(angular);

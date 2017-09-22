@@ -6,14 +6,15 @@
 var expect = chai.expect;
 
 describe('The attendeeService service', function() {
-  var $rootScope, attendeeService, query, limit, ESN_ATTENDEE_DEFAULT_TEMPLATE_URL;
+  var $rootScope, attendeeService, query, limit, ESN_ATTENDEE_DEFAULT_TEMPLATE_URL, ESN_ATTENDEE_DEFAULT_OBJECT_TYPE;
 
   beforeEach(angular.mock.module('esn.attendee'));
 
-  beforeEach(angular.mock.inject(function(_$rootScope_, _attendeeService_, _ESN_ATTENDEE_DEFAULT_TEMPLATE_URL_) {
+  beforeEach(angular.mock.inject(function(_$rootScope_, _attendeeService_, _ESN_ATTENDEE_DEFAULT_TEMPLATE_URL_, _ESN_ATTENDEE_DEFAULT_OBJECT_TYPE_) {
     $rootScope = _$rootScope_;
     attendeeService = _attendeeService_;
     ESN_ATTENDEE_DEFAULT_TEMPLATE_URL = _ESN_ATTENDEE_DEFAULT_TEMPLATE_URL_;
+    ESN_ATTENDEE_DEFAULT_OBJECT_TYPE = _ESN_ATTENDEE_DEFAULT_OBJECT_TYPE_;
   }));
 
   beforeEach(function() {
@@ -42,6 +43,29 @@ describe('The attendeeService service', function() {
       $rootScope.$apply();
     });
 
+    it('should set the provider objectType to ESN_ATTENDEE_DEFAULT_OBJECT_TYPE when not defined', function() {
+      attendeeService.addProvider({_id: 'provider', searchAttendee: function() {}});
+
+      expect(attendeeService.getProviders()[0].objectType).to.deep.equals(ESN_ATTENDEE_DEFAULT_OBJECT_TYPE);
+      $rootScope.$apply();
+    });
+
+    it('should set the provider objectType to ESN_ATTENDEE_DEFAULT_OBJECT_TYPE when null', function() {
+      attendeeService.addProvider({_id: 'provider', objectType: null, searchAttendee: function() {}});
+
+      expect(attendeeService.getProviders()[0].objectType).to.deep.equals(ESN_ATTENDEE_DEFAULT_OBJECT_TYPE);
+      $rootScope.$apply();
+    });
+
+    it('should not modify the provider objectType when defined', function() {
+      var objectType = 'foo';
+
+      attendeeService.addProvider({_id: 'provider', objectType: objectType, searchAttendee: function() {}});
+
+      expect(attendeeService.getProviders()[0].objectType).to.equals(objectType);
+      $rootScope.$apply();
+    });
+
     it('should add a provider', function(done) {
       var spy = sinon.spy(function() { return $q.reject(); }),
           newProvider = {_id: 'provider', searchAttendee: spy};
@@ -58,7 +82,9 @@ describe('The attendeeService service', function() {
   });
 
   describe('The getAttendeeCandidates method', function() {
-    function getTestProvider(attendeeResult, templateUrl) {
+    var attendees1, attendees2, attendees3;
+
+    function getTestProvider(attendeeResult, templateUrl, objectType) {
       return {
         searchAttendee: function(q, l) {
           expect(q).to.equal(query);
@@ -66,14 +92,18 @@ describe('The attendeeService service', function() {
 
           return $q.when(attendeeResult);
         },
-        templateUrl: templateUrl
+        templateUrl: templateUrl,
+        objectType: objectType
       };
     }
 
-    it('should call providers and return their aggregated values, setting template urls correctly', function(done) {
-      var attendees1 = [{_id: 'attendee1', displayName: 'yolo'}, {_id: 'attendee2', displayName: 'yala'}],
-          attendees2 = [{_id: 'attendee3', email: 'yolo@yala.com'}];
+    beforeEach(function() {
+      attendees1 = [{_id: 'attendee1', displayName: 'yolo'}, {_id: 'attendee2', displayName: 'yala'}];
+      attendees2 = [{_id: 'attendee3', email: 'yolo@yala.com'}];
+      attendees3 = [{_id: 'attendee4', email: 'foo@bar.com'}];
+    });
 
+    it('should call providers and return their aggregated values, setting template urls correctly', function(done) {
       attendeeService.addProvider(getTestProvider(attendees1));
       attendeeService.addProvider(getTestProvider([]));
       attendeeService.addProvider(getTestProvider(attendees2, '/views/yolo.html'));
@@ -84,6 +114,56 @@ describe('The attendeeService service', function() {
           {_id: 'attendee2', displayName: 'yala', templateUrl: ESN_ATTENDEE_DEFAULT_TEMPLATE_URL },
           {_id: 'attendee3', email: 'yolo@yala.com', templateUrl: '/views/yolo.html' }
         ]);
+        done();
+      }, done);
+
+      $rootScope.$apply();
+    });
+
+    it('should only call providers defined by the objectTypes argument', function(done) {
+      var objectTypes = ['resource'];
+
+      attendeeService.addProvider(getTestProvider(attendees1));
+      attendeeService.addProvider(getTestProvider([]));
+      attendeeService.addProvider(getTestProvider(attendees2, '/views/yolo.html'));
+      attendeeService.addProvider(getTestProvider(attendees3, '/views/onlycallme.html', objectTypes[0]));
+
+      attendeeService.getAttendeeCandidates(query, limit, objectTypes).then(function(attendeeCandidates) {
+        expect(attendeeCandidates).to.deep.equal([
+          { _id: 'attendee4', email: 'foo@bar.com', templateUrl: '/views/onlycallme.html' }
+        ]);
+        done();
+      }, done);
+
+      $rootScope.$apply();
+    });
+
+    it('should call user providers when objectType argument is not defined', function(done) {
+      attendeeService.addProvider(getTestProvider(attendees1));
+      attendeeService.addProvider(getTestProvider([]));
+      attendeeService.addProvider(getTestProvider(attendees2, '/views/yolo.html'));
+      attendeeService.addProvider(getTestProvider(attendees3, '/views/willnocallme.html', 'resource'));
+
+      attendeeService.getAttendeeCandidates(query, limit).then(function(attendeeCandidates) {
+        expect(attendeeCandidates).to.deep.equal([
+          {_id: 'attendee1', displayName: 'yolo', templateUrl: ESN_ATTENDEE_DEFAULT_TEMPLATE_URL },
+          {_id: 'attendee2', displayName: 'yala', templateUrl: ESN_ATTENDEE_DEFAULT_TEMPLATE_URL },
+          {_id: 'attendee3', email: 'yolo@yala.com', templateUrl: '/views/yolo.html' }
+        ]);
+        done();
+      }, done);
+
+      $rootScope.$apply();
+    });
+
+    it('should call no one when providers objectType does not match with input one', function(done) {
+      attendeeService.addProvider(getTestProvider(attendees1));
+      attendeeService.addProvider(getTestProvider([]));
+      attendeeService.addProvider(getTestProvider(attendees2, '/views/yolo.html'));
+      attendeeService.addProvider(getTestProvider(attendees3, '/views/willnocallme.html', 'resource'));
+
+      attendeeService.getAttendeeCandidates(query, limit, ['foo', 'bar', 'baz']).then(function(attendeeCandidates) {
+        expect(attendeeCandidates).to.be.empty;
         done();
       }, done);
 
