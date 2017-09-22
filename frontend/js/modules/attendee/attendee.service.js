@@ -4,7 +4,7 @@
   angular.module('esn.attendee')
     .factory('attendeeService', attendeeService);
 
-  function attendeeService($q, _, DEFAULT_TEMPLATE_URL) {
+  function attendeeService($q, _, ESN_ATTENDEE_DEFAULT_TEMPLATE_URL) {
     var providers = [];
 
     return {
@@ -15,7 +15,7 @@
     function addProvider(provider) {
       if (provider && provider.searchAttendee) {
         if (!provider.templateUrl) {
-          provider.templateUrl = DEFAULT_TEMPLATE_URL;
+          provider.templateUrl = ESN_ATTENDEE_DEFAULT_TEMPLATE_URL;
         }
 
         provider.search = function(query, limit) {

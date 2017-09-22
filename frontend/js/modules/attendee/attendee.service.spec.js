@@ -6,14 +6,14 @@
 var expect = chai.expect;
 
 describe('The attendeeService service', function() {
-  var $rootScope, attendeeService, query, limit, DEFAULT_TEMPLATE_URL;
+  var $rootScope, attendeeService, query, limit, ESN_ATTENDEE_DEFAULT_TEMPLATE_URL;
 
   beforeEach(angular.mock.module('esn.attendee'));
 
-  beforeEach(angular.mock.inject(function(_$rootScope_, _attendeeService_, _DEFAULT_TEMPLATE_URL_) {
+  beforeEach(angular.mock.inject(function(_$rootScope_, _attendeeService_, _ESN_ATTENDEE_DEFAULT_TEMPLATE_URL_) {
     $rootScope = _$rootScope_;
     attendeeService = _attendeeService_;
-    DEFAULT_TEMPLATE_URL = _DEFAULT_TEMPLATE_URL_;
+    ESN_ATTENDEE_DEFAULT_TEMPLATE_URL = _ESN_ATTENDEE_DEFAULT_TEMPLATE_URL_;
   }));
 
   beforeEach(function() {
@@ -80,8 +80,8 @@ describe('The attendeeService service', function() {
 
       attendeeService.getAttendeeCandidates(query, limit).then(function(attendeeCandidates) {
         expect(attendeeCandidates).to.deep.equal([
-          {_id: 'attendee1', displayName: 'yolo', templateUrl: DEFAULT_TEMPLATE_URL },
-          {_id: 'attendee2', displayName: 'yala', templateUrl: DEFAULT_TEMPLATE_URL },
+          {_id: 'attendee1', displayName: 'yolo', templateUrl: ESN_ATTENDEE_DEFAULT_TEMPLATE_URL },
+          {_id: 'attendee2', displayName: 'yala', templateUrl: ESN_ATTENDEE_DEFAULT_TEMPLATE_URL },
           {_id: 'attendee3', email: 'yolo@yala.com', templateUrl: '/views/yolo.html' }
         ]);
         done();
