@@ -68,6 +68,7 @@
       esnShortcutsRegistry.addCategory({
         id: category.id,
         name: category.name,
+        moduleDetector: category.moduleDetector,
         parentId: category.parentId
       });
       angular.forEach(shortcuts, function(shortcut, key) {

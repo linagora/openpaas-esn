@@ -152,7 +152,7 @@ describe('The esnShortcuts service', function() {
 
   describe('The register fn', function() {
     it('should register both category and shortcuts if pass shortcuts as second parameter', function() {
-      var category = { id: 'my_category', name: 'My Category' };
+      var category = { id: 'my_category', name: 'My Category', moduleDetector: true };
       var shortcuts = {
         shortcut1: {
           combo: 'x',
@@ -169,7 +169,7 @@ describe('The esnShortcuts service', function() {
 
       esnShortcuts.register(category, shortcuts);
 
-      expect(esnShortcutsRegistry.addCategory).to.have.been.calledWith({ id: category.id, name: category.name, parentId: undefined });
+      expect(esnShortcutsRegistry.addCategory).to.have.been.calledWith({ id: category.id, name: category.name, moduleDetector: true, parentId: undefined });
       expect(esnShortcutsRegistry.register).to.have.been.calledTwice;
     });
 
@@ -177,6 +177,7 @@ describe('The esnShortcuts service', function() {
       var category = {
         id: 'my_category',
         name: 'My Category',
+        moduleDetector: true,
         shortcuts: {
           shortcut1: {
             combo: 'x',
@@ -194,12 +195,12 @@ describe('The esnShortcuts service', function() {
 
       esnShortcuts.register(category);
 
-      expect(esnShortcutsRegistry.addCategory).to.have.been.calledWith({ id: category.id, name: category.name, parentId: undefined });
+      expect(esnShortcutsRegistry.addCategory).to.have.been.calledWith({ id: category.id, name: category.name, moduleDetector: true, parentId: undefined });
       expect(esnShortcutsRegistry.register).to.have.been.calledTwice;
     });
 
     it('should assign category and id to each shortcut', function() {
-      var category = { id: 'my_category', name: 'My Category' };
+      var category = { id: 'my_category', name: 'My Category', moduleDetector: true };
       var shortcuts = {
         shortcut1: {
           combo: 'x',
@@ -220,7 +221,7 @@ describe('The esnShortcuts service', function() {
     });
 
     it('should use shortcut when it is registered with action', function() {
-      var category = { id: 'my_category', name: 'My Category' };
+      var category = { id: 'my_category', name: 'My Category', moduleDetector: true };
       var shortcuts = {
         shortcut1: {
           combo: 'x',

@@ -74,7 +74,7 @@ describe('The esnShortcutsRegistry service', function() {
         description: 'this is my shortcut',
         category: 'linagora.esn.admin'
       };
-      var category = { id: 'linagora.esn.admin', name: 'Admin Center' };
+      var category = { id: 'linagora.esn.admin', name: 'Admin Center', moduleDetector: true };
 
       esnShortcutsRegistry.addCategory(category);
 
@@ -140,8 +140,16 @@ describe('The esnShortcutsRegistry service', function() {
       }).to.throw(Error, 'category.name is required');
     });
 
+    it('should throw error when category has no moduleDetector', function() {
+      var category = { id: 'my_category', name: 'My Category' };
+
+      expect(function() {
+        esnShortcutsRegistry.addCategory(category);
+      }).to.throw(Error, 'category.moduleDetector is required');
+    });
+
     it('should throw error when add child category for unregisted parent category', function() {
-      var category = { id: 'my_category', name: 'My Category', parentId: 'parent_category' };
+      var category = { id: 'my_category', name: 'My Category', moduleDetector: true, parentId: 'parent_category' };
 
       expect(function() {
         esnShortcutsRegistry.addCategory(category);
@@ -149,7 +157,7 @@ describe('The esnShortcutsRegistry service', function() {
     });
 
     it('should disallow adding a same category more than one time', function() {
-      var category = { id: 'my_category', name: 'My Category' };
+      var category = { id: 'my_category', name: 'My Category', moduleDetector: true };
 
       esnShortcutsRegistry.addCategory(category);
       esnShortcutsRegistry.addCategory(category);
@@ -163,7 +171,7 @@ describe('The esnShortcutsRegistry service', function() {
 
   describe('The getAllCategories fn', function() {
     it('should return an array of categories', function() {
-      var category = { id: 'my_category', name: 'My Category' };
+      var category = { id: 'my_category', name: 'My Category', moduleDetector: true };
 
       esnShortcutsRegistry.addCategory(category);
 
@@ -176,8 +184,8 @@ describe('The esnShortcutsRegistry service', function() {
 
   describe('The getTopCategories fn', function() {
     it('should return an array of categories which has no parent', function() {
-      var parentCategory = { id: 'parent_category', name: 'Parent Category' };
-      var childCategory = { id: 'child_category', name: 'Child Category', parentId: parentCategory.id};
+      var parentCategory = { id: 'parent_category', name: 'Parent Category', moduleDetector: true };
+      var childCategory = { id: 'child_category', name: 'Child Category', moduleDetector: true, parentId: parentCategory.id};
 
       esnShortcutsRegistry.addCategory(parentCategory);
       esnShortcutsRegistry.addCategory(childCategory);
@@ -191,9 +199,9 @@ describe('The esnShortcutsRegistry service', function() {
 
   describe('The getSubCategoriesByCategoryId fn', function() {
     it('should return all sub-categories of a given category', function() {
-      var parentCategory = { id: 'parent_category', name: 'Parent Category' };
-      var childCategory1 = { id: 'child_category1', name: 'Child Category 1', parentId: parentCategory.id };
-      var childCategory2 = { id: 'child_category2', name: 'Child Category 2', parentId: parentCategory.id };
+      var parentCategory = { id: 'parent_category', name: 'Parent Category', moduleDetector: true };
+      var childCategory1 = { id: 'child_category1', name: 'Child Category 1', moduleDetector: true, parentId: parentCategory.id };
+      var childCategory2 = { id: 'child_category2', name: 'Child Category 2', moduleDetector: true, parentId: parentCategory.id };
 
       esnShortcutsRegistry.addCategory(parentCategory);
       esnShortcutsRegistry.addCategory(childCategory1);
