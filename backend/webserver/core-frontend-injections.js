@@ -157,7 +157,12 @@ const injections = [
   {angular: ['esn.array-helper'], files: ['array-helper.js'], innerApps: ['esn']},
   {angular: ['esn.alphalist'], files: ['alphalist.js'], innerApps: ['esn']},
   {angular: ['esn.ui'], files: ['ui.js'], innerApps: ['esn', 'welcome']},
-  {angular: ['esn.attendee'], files: ['attendee.js'], innerApps: ['esn']},
+  {angular: ['esn.attendee'], files: [
+    'attendee/attendee.module.js',
+    'attendee/attendee.run.js',
+    'attendee/attendee.constants.js',
+    'attendee/attendee.service.js'
+  ], innerApps: ['esn']},
   {angular: ['esn.jmap-client-wrapper'], files: ['jmap-client-wrapper.js'], innerApps: ['esn']},
   {angular: ['esn.iframe-resizer-wrapper'], files: ['iframe-resizer-wrapper.js'], innerApps: ['esn']},
   {angular: ['esn.box-overlay'], files: ['box-overlay.js'], innerApps: ['esn']},
