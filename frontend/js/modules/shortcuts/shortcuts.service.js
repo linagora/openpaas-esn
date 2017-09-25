@@ -63,8 +63,13 @@
     function register(category, shortcuts) {
       if (deviceDetector.isMobile()) { return; }
 
-      esnShortcutsRegistry.addCategory(category);
+      shortcuts = shortcuts || category.shortcuts;
 
+      esnShortcutsRegistry.addCategory({
+        id: category.id,
+        name: category.name,
+        parentId: category.parentId
+      });
       angular.forEach(shortcuts, function(shortcut, key) {
         shortcut.category = category.id;
         shortcut.id = category.id + '.' + key.toLowerCase();

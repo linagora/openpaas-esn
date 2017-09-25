@@ -151,7 +151,7 @@ describe('The esnShortcuts service', function() {
   });
 
   describe('The register fn', function() {
-    it('should register both category and shortcuts', function() {
+    it('should register both category and shortcuts if pass shortcuts as second parameter', function() {
       var category = { id: 'my_category', name: 'My Category' };
       var shortcuts = {
         shortcut1: {
@@ -169,7 +169,32 @@ describe('The esnShortcuts service', function() {
 
       esnShortcuts.register(category, shortcuts);
 
-      expect(esnShortcutsRegistry.addCategory).to.have.been.calledWith(category);
+      expect(esnShortcutsRegistry.addCategory).to.have.been.calledWith({ id: category.id, name: category.name, parentId: undefined });
+      expect(esnShortcutsRegistry.register).to.have.been.calledTwice;
+    });
+
+    it('should register both category and shortcuts if category object contains shortcuts', function() {
+      var category = {
+        id: 'my_category',
+        name: 'My Category',
+        shortcuts: {
+          shortcut1: {
+            combo: 'x',
+            description: 'this is shortcut1'
+          },
+          shortcut2: {
+            combo: 'y',
+            description: 'this is shortcut2'
+          }
+        }
+      };
+
+      esnShortcutsRegistry.addCategory = sinon.spy();
+      esnShortcutsRegistry.register = sinon.spy();
+
+      esnShortcuts.register(category);
+
+      expect(esnShortcutsRegistry.addCategory).to.have.been.calledWith({ id: category.id, name: category.name, parentId: undefined });
       expect(esnShortcutsRegistry.register).to.have.been.calledTwice;
     });
 

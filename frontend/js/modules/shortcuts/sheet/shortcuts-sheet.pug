@@ -9,10 +9,20 @@
         div(ng-repeat="category in $ctrl.categories | orderBy: 'id'")
           dl.dl-horizontal
             dt
-            dd 
+            dd
               h4 {{ ::category.name | esnI18n }}
           div(ng-repeat="shortcut in category.shortcuts")
             dl.dl-horizontal
               dt
                 kbd {{::shortcut.combo}}
               dd {{ ::shortcut.description | esnI18n }}
+          div(ng-repeat="subCategory in category.subCategories | orderBy: 'id'")
+            dl.dl-horizontal
+              dt
+              dd
+                h5 {{ ::subCategory.name | esnI18n }}
+            div(ng-repeat="shortcut in subCategory.shortcuts")
+              dl.dl-horizontal
+                dt
+                  kbd {{::shortcut.combo}}
+                dd {{ ::shortcut.description | esnI18n }}
