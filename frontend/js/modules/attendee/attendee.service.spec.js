@@ -109,7 +109,7 @@ describe('The attendeeService service', function() {
       attendeeService.addProvider(getTestProvider(attendees2, '/views/yolo.html'));
 
       attendeeService.getAttendeeCandidates(query, limit).then(function(attendeeCandidates) {
-        expect(attendeeCandidates).to.deep.equal([
+        expect(attendeeCandidates).to.shallowDeepEqual([
           {_id: 'attendee1', displayName: 'yolo', templateUrl: ESN_ATTENDEE_DEFAULT_TEMPLATE_URL },
           {_id: 'attendee2', displayName: 'yala', templateUrl: ESN_ATTENDEE_DEFAULT_TEMPLATE_URL },
           {_id: 'attendee3', email: 'yolo@yala.com', templateUrl: '/views/yolo.html' }
@@ -129,7 +129,7 @@ describe('The attendeeService service', function() {
       attendeeService.addProvider(getTestProvider(attendees3, '/views/onlycallme.html', objectTypes[0]));
 
       attendeeService.getAttendeeCandidates(query, limit, objectTypes).then(function(attendeeCandidates) {
-        expect(attendeeCandidates).to.deep.equal([
+        expect(attendeeCandidates).to.shallowDeepEqual([
           { _id: 'attendee4', email: 'foo@bar.com', templateUrl: '/views/onlycallme.html' }
         ]);
         done();
@@ -145,10 +145,29 @@ describe('The attendeeService service', function() {
       attendeeService.addProvider(getTestProvider(attendees3, '/views/willnocallme.html', 'resource'));
 
       attendeeService.getAttendeeCandidates(query, limit).then(function(attendeeCandidates) {
-        expect(attendeeCandidates).to.deep.equal([
+        expect(attendeeCandidates).to.shallowDeepEqual([
           {_id: 'attendee1', displayName: 'yolo', templateUrl: ESN_ATTENDEE_DEFAULT_TEMPLATE_URL },
           {_id: 'attendee2', displayName: 'yala', templateUrl: ESN_ATTENDEE_DEFAULT_TEMPLATE_URL },
           {_id: 'attendee3', email: 'yolo@yala.com', templateUrl: '/views/yolo.html' }
+        ]);
+        done();
+      }, done);
+
+      $rootScope.$apply();
+    });
+
+    it('should set objectType on attendees from the provider objectType', function(done) {
+      var objectType = 'resource';
+      attendeeService.addProvider(getTestProvider(attendees1));
+      attendeeService.addProvider(getTestProvider([]));
+      attendeeService.addProvider(getTestProvider(attendees2, '/views/yolo.html', objectType));
+      attendeeService.addProvider(getTestProvider(attendees3, '/views/willnocallme.html'));
+
+      attendeeService.getAttendeeCandidates(query, limit, [ESN_ATTENDEE_DEFAULT_OBJECT_TYPE, objectType]).then(function(attendeeCandidates) {
+        expect(attendeeCandidates).to.shallowDeepEqual([
+          {_id: 'attendee1', displayName: 'yolo', templateUrl: ESN_ATTENDEE_DEFAULT_TEMPLATE_URL, objectType: ESN_ATTENDEE_DEFAULT_OBJECT_TYPE},
+          {_id: 'attendee2', displayName: 'yala', templateUrl: ESN_ATTENDEE_DEFAULT_TEMPLATE_URL, objectType: ESN_ATTENDEE_DEFAULT_OBJECT_TYPE },
+          {_id: 'attendee3', email: 'yolo@yala.com', templateUrl: '/views/yolo.html', objectType: objectType }
         ]);
         done();
       }, done);

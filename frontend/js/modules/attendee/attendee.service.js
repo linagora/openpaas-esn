@@ -24,7 +24,7 @@
         provider.search = function(query, limit) {
           return provider.searchAttendee(query, limit).then(function(attendees) {
             return attendees.map(function(attendee) {
-              return angular.extend(attendee, { templateUrl: provider.templateUrl });
+              return angular.extend(attendee, { templateUrl: provider.templateUrl, objectType: provider.objectType });
             });
           });
         };
