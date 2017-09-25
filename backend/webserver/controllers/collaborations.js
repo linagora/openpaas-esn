@@ -61,18 +61,7 @@ module.exports.searchWhereMember = function(req, res) {
 
     var tuple = {objectType: 'user', id: req.user._id};
     async.filter(collaborations, function(collaboration, callback) {
-
-      permission.canRead(collaboration, tuple, function(err, canRead) {
-        if (err) {
-          return callback(err);
-        }
-
-        if (canRead) {
-          return callback(null, true);
-        }
-
-        collaborationModule.member.isMember(collaboration, tuple, callback);
-      });
+      permission.canRead(collaboration, tuple, callback);
     }, function(err, results) {
       async.map(results, function(element, callback) {
         transform(element, req.user, function(transformed) {
