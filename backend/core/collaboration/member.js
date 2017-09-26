@@ -2,10 +2,10 @@
 
 const _ = require('lodash');
 const async = require('async');
-const mongoose = require('mongoose');
 const localpubsub = require('../pubsub').local;
 const globalpubsub = require('../pubsub').global;
 const tupleModule = require('../tuple');
+const memberResolver = require('./member/resolver');
 
 const CONSTANTS = require('./constants');
 const MEMBERSHIP_TYPE_REQUEST = CONSTANTS.MEMBERSHIP_TYPES.request;
@@ -241,13 +241,11 @@ module.exports = function(collaborationModule) {
       return callback(new Error('Member tuple is required'));
     }
 
-    const schema = collaborationModule.getMembersMapping(tuple.objectType);
-
-    if (!schema) {
-      return callback(new Error(`No schema to fetch member for objectType ${tuple.objectType}`));
-    }
-
-    mongoose.model(schema).findOne({_id: tuple.id}, callback);
+    memberResolver.resolve(tuple)
+      .then(
+        member => callback(null, member),
+        err => callback(err)
+      );
   }
 
   function getManagers(objectType, collaboration, query, callback) {

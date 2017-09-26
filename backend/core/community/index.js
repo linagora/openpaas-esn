@@ -50,7 +50,7 @@ module.exports = {
 
 collaborationModule.registerCollaborationModel(communityObjectType, CONSTANTS.MODEL_NAME);
 collaborationModule.registerCollaborationLib(communityObjectType, module.exports);
-collaborationModule.registerMembersMapping(communityObjectType, CONSTANTS.MODEL_NAME);
+collaborationModule.memberResolver.registerResolver(communityObjectType, CONSTANTS.MODEL_NAME);
 
 function addMembershipRequest(community, userAuthor, userTarget, workflow, actor, callback) {
   collaborationModule.member.addMembershipRequest(communityObjectType, community, userAuthor, userTarget, workflow, actor, callback);

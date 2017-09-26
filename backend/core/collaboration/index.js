@@ -3,13 +3,12 @@
 const mongoose = require('mongoose');
 const async = require('async');
 const tupleModule = require('../tuple');
+const memberResolver = require('./member/resolver');
 
 const collaborationModels = {};
 const collaborationLibs = {};
-const membersMapping = {
-  user: 'User'
-};
-const member = require('./member')({isCollaboration, getMembersMapping, getModel, getLib, queryOne});
+
+const member = require('./member')({isCollaboration, getModel, getLib, queryOne});
 const permission = require('./permission')(member);
 const usernotification = require('./usernotification')({member});
 
@@ -19,7 +18,6 @@ module.exports = {
   findCollaborationFromActivityStreamID,
   getCollaborationsForTuple,
   getCollaborationsForUser,
-  getMembersMapping,
   getLib,
   getModel,
   getStreamsForUser,
@@ -31,10 +29,10 @@ module.exports = {
   queryOne,
   registerCollaborationLib,
   registerCollaborationModel,
-  registerMembersMapping,
   schemaBuilder: require('../db/mongo/models/base-collaboration'),
   usernotification,
-  userToMember
+  userToMember,
+  memberResolver
 };
 
 function addObjectType(objectType, collaborations) {
@@ -137,10 +135,6 @@ function getCollaborationsForUser(userId, options, callback) {
   async.parallel(finders, err => callback(err, results));
 }
 
-function getMembersMapping(objectType) {
-  return membersMapping[objectType];
-}
-
 function getLib(objectType) {
   return collaborationLibs[objectType] || null;
 }
@@ -233,13 +227,6 @@ function registerCollaborationModel(name, modelName, schema) {
   collaborationModels[name] = modelName;
 
   return model;
-}
-
-function registerMembersMapping(memberName, mappingName) {
-  if (membersMapping[memberName]) {
-    throw new Error('Collaboration members mapping for ' + memberName + 'is already registered');
-  }
-  membersMapping[memberName] = mappingName;
 }
 
 function userToMember(document) {
