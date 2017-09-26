@@ -80,10 +80,6 @@ module.exports.searchWhereMember = function(req, res) {
 module.exports.getWritable = function(req, res) {
   var user = req.user;
 
-  if (!user) {
-    return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'User is missing'}});
-  }
-
   collaborationModule.getCollaborationsForUser(user._id, {writable: true}, function(err, collaborations) {
     if (err) {
       return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
