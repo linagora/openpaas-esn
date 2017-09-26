@@ -161,33 +161,23 @@ module.exports.getMembers = getMembers;
 
 function getInvitablePeople(req, res) {
   var collaboration = req.collaboration;
-  var user = req.user;
-
-  if (!user) {
-    return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'You must be logged in to access this resource'}});
-  }
-
-  if (!collaboration) {
-    return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'Collaboration is missing'}});
-  }
-
   var query = {
     limit: req.query.limit || 5,
     search: req.query.search || null,
     not_in_collaboration: collaboration
   };
-
   var domainIds = collaboration.domain_ids.map(function(domainId) {
     return domainId;
   });
-
   var search = query.search ? userDomain.getUsersSearch : userDomain.getUsersList;
+
   search(domainIds, query, function(err, result) {
     if (err) {
       return res.status(500).json({ error: { status: 500, message: 'Server error', details: 'Error while searching invitable people: ' + err.message}});
     }
 
     res.header('X-ESN-Items-Count', result.total_count);
+
     return res.status(200).json(result.list);
   });
 }
