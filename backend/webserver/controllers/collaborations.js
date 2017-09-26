@@ -95,13 +95,11 @@ module.exports.getWritable = function(req, res) {
 };
 
 function getMembers(req, res) {
-  if (!req.collaboration) {
-    return res.status(500).json({error: {code: 500, message: 'Server error', details: 'Collaboration is mandatory here'}});
-  }
-
   var query = {};
+
   if (req.query.limit) {
     var limit = parseInt(req.query.limit, 10);
+
     if (!isNaN(limit)) {
       query.limit = limit;
     }
