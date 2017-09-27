@@ -61,18 +61,7 @@ module.exports.searchWhereMember = function(req, res) {
 
     var tuple = {objectType: 'user', id: req.user._id};
     async.filter(collaborations, function(collaboration, callback) {
-
-      permission.canRead(collaboration, tuple, function(err, canRead) {
-        if (err) {
-          return callback(err);
-        }
-
-        if (canRead) {
-          return callback(null, true);
-        }
-
-        collaborationModule.member.isMember(collaboration, tuple, callback);
-      });
+      permission.canRead(collaboration, tuple, callback);
     }, function(err, results) {
       async.map(results, function(element, callback) {
         transform(element, req.user, function(transformed) {
@@ -91,10 +80,6 @@ module.exports.searchWhereMember = function(req, res) {
 module.exports.getWritable = function(req, res) {
   var user = req.user;
 
-  if (!user) {
-    return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'User is missing'}});
-  }
-
   collaborationModule.getCollaborationsForUser(user._id, {writable: true}, function(err, collaborations) {
     if (err) {
       return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
@@ -110,13 +95,11 @@ module.exports.getWritable = function(req, res) {
 };
 
 function getMembers(req, res) {
-  if (!req.collaboration) {
-    return res.status(500).json({error: {code: 500, message: 'Server error', details: 'Collaboration is mandatory here'}});
-  }
-
   var query = {};
+
   if (req.query.limit) {
     var limit = parseInt(req.query.limit, 10);
+
     if (!isNaN(limit)) {
       query.limit = limit;
     }
@@ -176,33 +159,23 @@ module.exports.getMembers = getMembers;
 
 function getInvitablePeople(req, res) {
   var collaboration = req.collaboration;
-  var user = req.user;
-
-  if (!user) {
-    return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'You must be logged in to access this resource'}});
-  }
-
-  if (!collaboration) {
-    return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'Collaboration is missing'}});
-  }
-
   var query = {
     limit: req.query.limit || 5,
     search: req.query.search || null,
     not_in_collaboration: collaboration
   };
-
   var domainIds = collaboration.domain_ids.map(function(domainId) {
     return domainId;
   });
-
   var search = query.search ? userDomain.getUsersSearch : userDomain.getUsersList;
+
   search(domainIds, query, function(err, result) {
     if (err) {
       return res.status(500).json({ error: { status: 500, message: 'Server error', details: 'Error while searching invitable people: ' + err.message}});
     }
 
     res.header('X-ESN-Items-Count', result.total_count);
+
     return res.status(200).json(result.list);
   });
 }

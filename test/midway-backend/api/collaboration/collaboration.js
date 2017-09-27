@@ -67,25 +67,28 @@ describe('The collaborations API', function() {
       });
     });
 
-    it('should find all the collaborations where the given community is a member of', function(done) {
+    it('should find all the collaborations where the given tuple is a member of', function(done) {
+      const self = this;
+      const tuple = {
+        objectType: 'email',
+        id: 'alice@email.com'
+      };
 
-      var self = this;
-      var tuples = [{
-        objectType: 'community',
-        id: self.models.communities[0]._id
-      }];
-
-      self.helpers.api.addMembersInCommunity(self.models.communities[1], tuples, function(err) {
+      self.helpers.api.addMembersInCommunity(self.models.communities[1], [tuple], err => {
         if (err) {
           return done(err);
         }
 
-        self.helpers.api.loginAsUser(webserver.application, self.user.emails[0], 'secret', function(err, loggedInAsUser) {
+        self.helpers.api.loginAsUser(webserver.application, self.user.emails[0], 'secret', (err, loggedInAsUser) => {
           if (err) { return done(err); }
 
-          var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/membersearch?objectType=community&id=' + self.models.communities[0]._id));
+          const req = loggedInAsUser(
+            request(webserver.application)
+              .get(`/api/collaborations/membersearch?objectType=${tuple.objectType}&id=${tuple.id}`)
+          );
+
           req.expect(200);
-          req.end(function(err, res) {
+          req.end((err, res) => {
             expect(err).to.not.exist;
             expect(res.body).to.exist;
             expect(res.body).to.be.an('array');
@@ -97,21 +100,22 @@ describe('The collaborations API', function() {
       });
     });
 
-    it('should find all the visible collaborations where the given community is a member of', function(done) {
-
-      var self = this;
-      var publicTuples = [{
-        objectType: 'community',
-        id: self.models.communities[0]._id
-      }];
+    it('should find all the visible collaborations where the given tuple is a member of', function(done) {
+      const self = this;
+      const aliceTuple = {
+        objectType: 'email',
+        id: 'alice@email.com'
+      };
+      const tuples = [aliceTuple];
 
       function test() {
-        self.helpers.api.loginAsUser(webserver.application, self.models.users[3].emails[0], 'secret', function(err, loggedInAsUser) {
+        self.helpers.api.loginAsUser(webserver.application, self.models.users[3].emails[0], 'secret', (err, loggedInAsUser) => {
           if (err) { return done(err); }
 
-          var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/membersearch?objectType=community&id=' + self.models.communities[0]._id));
+          const req = loggedInAsUser(request(webserver.application).get(`/api/collaborations/membersearch?objectType=${aliceTuple.objectType}&id=${aliceTuple.id}`));
+
           req.expect(200);
-          req.end(function(err, res) {
+          req.end((err, res) => {
             expect(err).to.not.exist;
             expect(res.body).to.exist;
             expect(res.body).to.be.an('array');
@@ -123,16 +127,13 @@ describe('The collaborations API', function() {
       }
 
       async.parallel([
-        function(callback) {
-          return self.helpers.api.addMembersInCommunity(self.models.communities[1], publicTuples, callback);
-        },
-        function(callback) {
-          return self.helpers.api.addMembersInCommunity(self.models.communities[2], publicTuples, callback);
-        }
-      ], function(err) {
+        callback => self.helpers.api.addMembersInCommunity(self.models.communities[1], tuples, callback),
+        callback => self.helpers.api.addMembersInCommunity(self.models.communities[2], tuples, callback)
+      ], err => {
         if (err) {
           return done(err);
         }
+
         return test();
       });
     });

@@ -242,7 +242,9 @@ describe('The community module', function() {
         },
         registerCollaborationModel: function() {},
         registerCollaborationLib: function() {},
-        registerMembersMapping: function() {}
+        memberResolver: {
+          registerResolver() {}
+        }
       };
       mockery.registerMock('../collaboration', collaborationMock);
       this.helpers.mock.models({});

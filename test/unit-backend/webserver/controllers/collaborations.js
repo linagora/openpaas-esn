@@ -12,20 +12,6 @@ describe('The collaborations controller', function() {
       mockery.registerMock('../../core/user/domain', {});
     });
 
-    it('should send back 500 if req.collaboration is undefined', function(done) {
-      var res = this.helpers.express.jsonResponse(
-        function(code) {
-          expect(code).to.equal(500);
-          done();
-        }
-      );
-
-      var req = {};
-
-      var collaborations = this.helpers.requireBackend('webserver/controllers/collaborations');
-      collaborations.getMembers(req, res);
-    });
-
     it('should send back 500 if collaboration.getMembers returns error', function(done) {
       var res = this.helpers.express.jsonResponse(
         function(code) {
@@ -793,21 +779,6 @@ describe('The collaborations controller', function() {
       mockery.registerMock('../../core/user', {});
       mockery.registerMock('../../helpers/user', {});
       mockery.registerMock('../../core/user/domain', {});
-    });
-
-    it('should send back 400 when req.user does not exist', function(done) {
-      mockery.registerMock('../../core/collaboration', {});
-
-      var res = this.helpers.express.jsonResponse(
-        function(code, err) {
-          expect(code).to.equal(400);
-          expect(err).to.exist;
-          done();
-        }
-      );
-
-      var collaborations = this.helpers.requireBackend('webserver/controllers/collaborations');
-      collaborations.getWritable({}, res);
     });
 
     it('should call collaborationModule#getCollaborationsForUser and send back 500 if there is an error', function(done) {
