@@ -208,23 +208,6 @@ describe('The collaborations controller', function() {
       mockery.registerMock('../../core/user/domain', {});
     });
 
-    it('should send back 400 is req.collaboration is undefined', function(done) {
-      mockery.registerMock('../../core/collaboration', {});
-
-      var res = this.helpers.express.jsonResponse(
-        function(code) {
-          expect(code).to.equal(400);
-          done();
-        }
-      );
-
-      var req = {
-      };
-
-      var collaborations = this.helpers.requireBackend('webserver/controllers/collaborations');
-      collaborations.getMembershipRequests(req, res);
-    });
-
     it('should send back 500 is collaboration.getMembershipRequests returns error', function(done) {
       mockery.registerMock('../../core/collaboration', {
         member: {
@@ -373,72 +356,6 @@ describe('The collaborations controller', function() {
       mockery.registerMock('../../core/user/domain', {});
     });
 
-    it('should send back 400 if req.collaboration is undefined', function(done) {
-      mockery.registerMock('../../core/collaboration', {});
-
-      var res = this.helpers.express.jsonResponse(
-        function(code) {
-          expect(code).to.equal(400);
-          done();
-        }
-      );
-
-      var req = {
-        user: {},
-        params: {
-          user_id: {},
-          objectType: 'community'
-        }
-      };
-
-      var collaborations = this.helpers.requireBackend('webserver/controllers/collaborations');
-      collaborations.leave(req, res);
-    });
-
-    it('should send back 400 if req.user is undefined', function(done) {
-      mockery.registerMock('../../core/collaboration', {});
-
-      var res = this.helpers.express.jsonResponse(
-        function(code) {
-          expect(code).to.equal(400);
-          done();
-        }
-      );
-
-      var req = {
-        collaboration: {},
-        params: {
-          user_id: {},
-          objectType: 'community'
-        }
-      };
-
-      var collaborations = this.helpers.requireBackend('webserver/controllers/collaborations');
-      collaborations.leave(req, res);
-    });
-
-    it('should send back 400 if req.params.user_id is undefined', function(done) {
-      mockery.registerMock('../../core/collaboration', {});
-
-      var res = this.helpers.express.jsonResponse(
-        function(code) {
-          expect(code).to.equal(400);
-          done();
-        }
-      );
-
-      var req = {
-        user: {},
-        collaboration: {},
-        params: {
-          objectType: 'community'
-        }
-      };
-
-      var collaborations = this.helpers.requireBackend('webserver/controllers/collaborations');
-      collaborations.leave(req, res);
-    });
-
     it('should send back 500 if collaboration module fails', function(done) {
       mockery.registerMock('../../core/collaboration', {
         member: {
@@ -505,72 +422,6 @@ describe('The collaborations controller', function() {
       mockery.registerMock('../../core/user', {});
       mockery.registerMock('../../helpers/user', {});
       mockery.registerMock('../../core/user/domain', {});
-    });
-
-    it('should send back 400 if req.collaboration is undefined', function(done) {
-      mockery.registerMock('../../core/collaboration', {});
-
-      var res = this.helpers.express.jsonResponse(
-        function(code) {
-          expect(code).to.equal(400);
-          done();
-        }
-      );
-
-      var req = {
-        user: {},
-        params: {
-          user_id: {},
-          objectType: 'community'
-        }
-      };
-
-      var collaborations = this.helpers.requireBackend('webserver/controllers/collaborations');
-      collaborations.removeMembershipRequest(req, res);
-    });
-
-    it('should send back 400 if req.user is undefined', function(done) {
-      mockery.registerMock('../../core/collaboration', {});
-
-      var res = this.helpers.express.jsonResponse(
-        function(code) {
-          expect(code).to.equal(400);
-          done();
-        }
-      );
-
-      var req = {
-        collaboration: {},
-        params: {
-          user_id: {},
-          objectType: 'community'
-        }
-      };
-
-      var collaborations = this.helpers.requireBackend('webserver/controllers/collaborations');
-      collaborations.removeMembershipRequest(req, res);
-    });
-
-    it('should send back 400 if the user_id parameter is undefined', function(done) {
-      mockery.registerMock('../../core/collaboration', {});
-
-      var res = this.helpers.express.jsonResponse(
-        function(code) {
-          expect(code).to.equal(400);
-          done();
-        }
-      );
-
-      var req = {
-        collaboration: {},
-        user: {},
-        params: {
-          objectType: 'community'
-        }
-      };
-
-      var collaborations = this.helpers.requireBackend('webserver/controllers/collaborations');
-      collaborations.removeMembershipRequest(req, res);
     });
 
     describe('When current user is not collaboration manager', function() {

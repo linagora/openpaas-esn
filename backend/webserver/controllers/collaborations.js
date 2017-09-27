@@ -49,11 +49,6 @@ function transform(collaboration, user, callback) {
 }
 
 module.exports.searchWhereMember = function(req, res) {
-
-  if (!req.query.objectType || !req.query.id) {
-    return res.status(400).json({error: {code: 400, message: 'Bad request', details: 'objectType and id query parameters are required'}});
-  }
-
   collaborationModule.getCollaborationsForTuple({objectType: req.query.objectType, id: req.query.id}, function(err, collaborations) {
     if (err) {
       return res.status(500).json({error: {code: 500, message: 'Server error', details: err.message}});
@@ -181,32 +176,7 @@ function getInvitablePeople(req, res) {
 }
 module.exports.getInvitablePeople = getInvitablePeople;
 
-function ensureLoginCollaborationAndUserId(req, res) {
-  var collaboration = req.collaboration;
-  var user = req.user;
-
-  if (!user) {
-    res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'You must be logged in to access this resource'}});
-    return false;
-  }
-
-  if (!req.params || !req.params.user_id) {
-    res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'The user_id parameter is missing'}});
-    return false;
-  }
-
-  if (!collaboration) {
-    res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'Community is missing'}});
-    return false;
-  }
-  return true;
-}
-module.exports.ensureLoginCollaborationAndUserId = ensureLoginCollaborationAndUserId;
-
 function addMembershipRequest(req, res) {
-  if (!ensureLoginCollaborationAndUserId(req, res)) {
-    return;
-  }
   var collaboration = req.collaboration;
   var userAuthor = req.user;
   var userTargetId = req.params.user_id;
@@ -241,10 +211,6 @@ module.exports.addMembershipRequest = addMembershipRequest;
 
 function getMembershipRequests(req, res) {
   var collaboration = req.collaboration;
-
-  if (!collaboration) {
-    return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'Collaboration is missing'}});
-  }
 
   if (!req.isCollaborationManager) {
     return res.status(403).json({error: {code: 403, message: 'Forbidden', details: 'Only collaboration managers can get requests'}});
@@ -282,10 +248,6 @@ function getMembershipRequests(req, res) {
 module.exports.getMembershipRequests = getMembershipRequests;
 
 function join(req, res) {
-  if (!ensureLoginCollaborationAndUserId(req, res)) {
-    return;
-  }
-
   var collaboration = req.collaboration;
   var user = req.user;
   var targetUserId = req.params.user_id;
@@ -293,7 +255,7 @@ function join(req, res) {
   if (req.isCollaborationManager) {
 
     if (user._id.equals(targetUserId)) {
-      return res.status(400).json({error: {code: 400, message: 'Bad request', details: 'Community Manager can not add himself to a collaboration'}});
+      return res.status(400).json({error: {code: 400, message: 'Bad request', details: 'Collaboration manager can not add himself to a collaboration'}});
     }
 
     if (!req.query.withoutInvite && !collaborationModule.member.getMembershipRequest(collaboration, {_id: targetUserId})) {
@@ -356,9 +318,6 @@ function join(req, res) {
 module.exports.join = join;
 
 function leave(req, res) {
-  if (!ensureLoginCollaborationAndUserId(req, res)) {
-    return;
-  }
   var collaboration = req.collaboration;
   var user = req.user;
   var targetUserId = req.params.user_id;
@@ -373,9 +332,6 @@ function leave(req, res) {
 module.exports.leave = leave;
 
 function removeMembershipRequest(req, res) {
-  if (!ensureLoginCollaborationAndUserId(req, res)) {
-    return;
-  }
   if (!req.isCollaborationManager && !req.user._id.equals(req.params.user_id)) {
     return res.status(403).json({error: {code: 403, message: 'Forbidden', details: 'Current user is not the target user'}});
   }
@@ -425,10 +381,6 @@ module.exports.removeMembershipRequest = removeMembershipRequest;
 
 function getMember(req, res) {
   var collaboration = req.collaboration;
-
-  if (!collaboration) {
-    return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'Collaboration is missing'}});
-  }
 
   collaborationModule.member.isMember(collaboration, {objectType: 'user', id: req.params.user_id}, function(err, result) {
     if (err) {
