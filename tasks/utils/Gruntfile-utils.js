@@ -319,46 +319,21 @@ GruntfileUtils.prototype.cleanEnvironment = function cleanEnvironment() {
   };
 };
 
-GruntfileUtils.prototype.setupElasticsearchUsersIndex = function() {
-  var grunt = this.grunt;
-  var servers = this.servers;
+GruntfileUtils.prototype.setupElasticsearchIndexes = function() {
+  const grunt = this.grunt;
+  const servers = this.servers;
 
   return function() {
-    var done = this.async();
-    var esnConf = new EsnConfig({host: servers.host, port: servers.elasticsearch.port});
+    const done = this.async();
+    const esnConf = new EsnConfig({host: servers.host, port: servers.elasticsearch.port});
 
-    esnConf.setup('users.idx', 'users').then(function() {
-      grunt.log.write('Elasticsearch users settings are successfully added');
-      done(true);
-    }, done);
-  };
-};
-
-GruntfileUtils.prototype.setupElasticsearchContactsIndex = function() {
-  var grunt = this.grunt;
-  var servers = this.servers;
-
-  return function() {
-    var done = this.async();
-    var esnConf = new EsnConfig({host: servers.host, port: servers.elasticsearch.port});
-
-    esnConf.setup('contacts.idx', 'contacts').then(function() {
-      grunt.log.write('Elasticsearch contacts settings are successfully added');
-      done(true);
-    }, done);
-  };
-};
-
-GruntfileUtils.prototype.setupElasticsearchEventsIndex = function() {
-  var grunt = this.grunt;
-  var servers = this.servers;
-
-  return function() {
-    var done = this.async();
-    var esnConf = new EsnConfig({host: servers.host, port: servers.elasticsearch.port});
-
-    esnConf.setup('events.idx', 'events').then(function() {
-      grunt.log.write('Elasticsearch events settings are successfully added');
+    Promise.all([
+      esnConf.setup('users.idx', 'users'),
+      esnConf.setup('events.idx', 'events'),
+      esnConf.setup('contacts.idx', 'contacts'),
+      esnConf.setup('resources.idx', 'resources')
+    ]).then(function() {
+      grunt.log.write('Elasticsearch settings are successfully added');
       done(true);
     }, done);
   };

@@ -281,18 +281,16 @@ module.exports = function(grunt) {
   grunt.registerTask('spawn-containers', 'spawn servers', ['container:redis', 'container:rabbitmq', 'container:mongo', 'container:elasticsearch']);
   grunt.registerTask('pull-containers', 'pull containers', ['container:redis:pull', 'container:rabbitmq:pull', 'container:mongo:pull', 'container:elasticsearch:pull']);
   grunt.registerTask('kill-containers', 'kill servers', ['container:redis:remove', 'container:rabbitmq:remove', 'container:mongo:remove', 'container:elasticsearch:remove']);
-  grunt.registerTask('setup-mongo-es-docker', ['spawn-containers', 'continue:on', 'setupElasticsearchUsersIndex', 'setupElasticsearchContactsIndex', 'setupElasticsearchEventsIndex']);
+  grunt.registerTask('setup-mongo-es-docker', ['spawn-containers', 'continue:on', 'setupElasticsearchIndexes']);
 
   grunt.registerTask('spawn-servers', 'spawn servers', ['shell:redis', 'shell:rabbitmq', 'shell:mongo', 'shell:elasticsearch']);
   grunt.registerTask('kill-servers', 'kill servers', ['shell:redis:kill', 'shell:rabbitmq:kill', 'shell:mongo:kill', 'shell:elasticsearch:kill']);
   grunt.registerTask('setup-environment', 'create temp folders and files for tests', gruntfileUtils.setupEnvironment());
   grunt.registerTask('clean-environment', 'remove temp folder for tests', gruntfileUtils.cleanEnvironment());
-  grunt.registerTask('setupElasticsearchUsersIndex', 'setup elasticsearch users index', gruntfileUtils.setupElasticsearchUsersIndex());
-  grunt.registerTask('setupElasticsearchContactsIndex', 'setup elasticsearch contacts index', gruntfileUtils.setupElasticsearchContactsIndex());
-  grunt.registerTask('setupElasticsearchEventsIndex', 'setup elasticsearch events index', gruntfileUtils.setupElasticsearchEventsIndex());
+  grunt.registerTask('setupElasticsearchIndexes', 'setup elasticsearch indexes', gruntfileUtils.setupElasticsearchIndexes());
 
   grunt.registerTask('dev', ['nodemon:dev']);
-  grunt.registerTask('setup-mongo-es', ['spawn-servers', 'continue:on', 'setupElasticsearchUsersIndex', 'setupElasticsearchContactsIndex', 'setupElasticsearchEventsIndex']);
+  grunt.registerTask('setup-mongo-es', ['spawn-servers', 'continue:on', 'setupElasticsearchIndexes']);
 
   grunt.registerTask('test-e2e', ['test-e2e-up', 'continue:on', 'run_grunt:e2e', 'test-e2e-down', 'continue:off', 'continue:fail-on-warning']);
   grunt.registerTask('test-e2e-quick', ['test-e2e-up', 'run_grunt:e2e']);
