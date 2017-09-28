@@ -318,7 +318,7 @@ describe('The elasticsearch module', function() {
   });
 
   describe('The reconfig function', function() {
-    let ESConfigurationMock, reconfigMock;
+    let ESConfigurationMock, reconfigureMock;
     const indexName = 'name';
     const indexType = 'type';
 
@@ -335,7 +335,7 @@ describe('The elasticsearch module', function() {
 
       ESConfigurationMock = function() {
         return {
-          reconfig: reconfigMock
+          reconfigure: reconfigureMock
         };
       };
 
@@ -343,21 +343,21 @@ describe('The elasticsearch module', function() {
     });
 
     it('should reject if failed to reindex configutaion', function(done) {
-      reconfigMock = sinon.stub().returns(q.reject());
+      reconfigureMock = sinon.stub().returns(q.reject());
 
       getModule().reconfig(indexName, indexType)
         .catch(() => {
-          expect(reconfigMock).to.have.been.calledWith(indexName, indexType);
+          expect(reconfigureMock).to.have.been.calledWith(indexName, indexType);
           done();
         });
     });
 
     it('should resolve if reindex configutaion successfully', function(done) {
-      reconfigMock = sinon.stub().returns(q.when());
+      reconfigureMock = sinon.stub().returns(q.when());
 
       getModule().reconfig(indexName, indexType)
         .then(() => {
-          expect(reconfigMock).to.have.been.calledWith(indexName, indexType);
+          expect(reconfigureMock).to.have.been.calledWith(indexName, indexType);
           done();
         });
     });

@@ -183,7 +183,7 @@ function searchDocuments(options, callback) {
   */
 function reconfig(name, type) {
   return getESConfigurationInstance()
-    .then(esConfiguration => esConfiguration.reconfig(name, type));
+    .then(esConfiguration => esConfiguration.reconfigure(name, type));
 }
 
 /**
