@@ -75,7 +75,7 @@ describe('The activitystreams pubsub module', function() {
           }
         }
       };
-
+      mockery.registerMock('../collaboration', {});
       mockery.registerMock('../pubsub', mock);
       var pubsub = this.helpers.requireBackend('core/activitystreams/pubsub');
       pubsub.init();

@@ -2,12 +2,12 @@
 
 const _ = require('lodash');
 const async = require('async');
-const localpubsub = require('../pubsub').local;
-const globalpubsub = require('../pubsub').global;
-const tupleModule = require('../tuple');
-const memberResolver = require('./member/resolver');
+const localpubsub = require('../../pubsub').local;
+const globalpubsub = require('../../pubsub').global;
+const tupleModule = require('../../tuple');
+const memberResolver = require('./resolver');
 
-const CONSTANTS = require('./constants');
+const CONSTANTS = require('../constants');
 const MEMBERSHIP_TYPE_REQUEST = CONSTANTS.MEMBERSHIP_TYPES.request;
 const MEMBERSHIP_TYPE_INVITATION = CONSTANTS.MEMBERSHIP_TYPES.invitation;
 const WORKFLOW_NOTIFICATIONS_TOPIC = CONSTANTS.WORKFLOW_NOTIFICATIONS_TOPIC;

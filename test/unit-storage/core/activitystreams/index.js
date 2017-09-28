@@ -12,7 +12,7 @@ describe('The activitystreams core module', function() {
 
   function mock(self) {
     self.helpers.mock.models({});
-    self.helpers.mock.pubsub('../pubsub', {});
+    self.helpers.mock.pubsub('../../pubsub', {});
   }
 
   it('query should send back error when options is undefined', function(done) {

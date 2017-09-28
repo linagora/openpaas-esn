@@ -2,18 +2,33 @@
 
 const async = require('async');
 const collaborationModule = require('../../core/collaboration');
-const permission = collaborationModule.permission;
 const userDomain = require('../../core/user/domain');
-const memberAdapter = require('../../helpers/collaboration').memberAdapter;
+const { memberAdapter } = require('../../helpers/collaboration');
 const imageModule = require('../../core/image');
 const logger = require('../../core/logger');
+
+const permission = collaborationModule.permission;
+
+module.exports = {
+  searchWhereMember,
+  getWritable,
+  getMembers,
+  getInvitablePeople,
+  addMembershipRequest,
+  getMembershipRequests,
+  join,
+  leave,
+  removeMembershipRequest,
+  getMember,
+  getAvatar
+};
 
 function transform(collaboration, user, callback) {
   if (!collaboration) {
     return callback({});
   }
 
-  var membershipRequest = collaborationModule.member.getMembershipRequest(collaboration, user);
+  const membershipRequest = collaborationModule.member.getMembershipRequest(collaboration, user);
 
   if (typeof collaboration.toObject === 'function') {
     collaboration = collaboration.toObject();
@@ -24,13 +39,13 @@ function transform(collaboration, user, callback) {
     collaboration.membershipRequest = membershipRequest.timestamp.creation.getTime();
   }
 
-  var userTuple = {objectType: 'user', id: user.id};
+  const userTuple = {objectType: 'user', id: user.id};
 
-  collaborationModule.member.isMember(collaboration, userTuple, function(err, membership) {
+  collaborationModule.member.isMember(collaboration, userTuple, (err, membership) => {
     if (membership) {
       collaboration.member_status = 'member';
     } else {
-      collaborationModule.member.isIndirectMember(collaboration, userTuple, function(err, indirect) {
+      collaborationModule.member.isIndirectMember(collaboration, userTuple, (err, indirect) => {
         if (indirect) {
           collaboration.member_status = 'indirect';
         } else {
@@ -39,66 +54,60 @@ function transform(collaboration, user, callback) {
       });
     }
 
-    permission.canWrite(collaboration, userTuple, function(err, writable) {
+    permission.canWrite(collaboration, userTuple, (err, writable) => {
       collaboration.writable = writable || false;
       delete collaboration.members;
       delete collaboration.membershipRequests;
+
       return callback(collaboration);
     });
   });
 }
 
-module.exports.searchWhereMember = function(req, res) {
-
-  if (!req.query.objectType || !req.query.id) {
-    return res.status(400).json({error: {code: 400, message: 'Bad request', details: 'objectType and id query parameters are required'}});
-  }
-
-  collaborationModule.getCollaborationsForTuple({objectType: req.query.objectType, id: req.query.id}, function(err, collaborations) {
+function searchWhereMember(req, res) {
+  collaborationModule.getCollaborationsForTuple({objectType: req.query.objectType, id: req.query.id}, (err, collaborations) => {
     if (err) {
       return res.status(500).json({error: {code: 500, message: 'Server error', details: err.message}});
     }
 
-    var tuple = {objectType: 'user', id: req.user._id};
-    async.filter(collaborations, function(collaboration, callback) {
-      permission.canRead(collaboration, tuple, callback);
-    }, function(err, results) {
-      async.map(results, function(element, callback) {
-        transform(element, req.user, function(transformed) {
-          return callback(null, transformed);
-        });
-      }, function(err, results) {
-        if (err) {
-          return res.status(500).json({error: {code: 500, message: 'Server error', details: err.message}});
-        }
-        return res.status(200).json(results);
+    const tuple = {objectType: 'user', id: req.user._id};
+
+    async.filter(
+      collaborations,
+      (collaboration, callback) => permission.canRead(collaboration, tuple, callback),
+      (err, results) => {
+        async.map(
+          results,
+          (element, callback) => transform(element, req.user, transformed => callback(null, transformed)),
+          (err, results) => {
+            if (err) {
+              return res.status(500).json({error: {code: 500, message: 'Server error', details: err.message}});
+            }
+
+            return res.status(200).json(results);
+          });
       });
-    });
   });
-};
+}
 
-module.exports.getWritable = function(req, res) {
-  var user = req.user;
+function getWritable(req, res) {
+  const user = req.user;
 
-  collaborationModule.getCollaborationsForUser(user._id, {writable: true}, function(err, collaborations) {
+  collaborationModule.getCollaborationsForUser(user._id, {writable: true}, (err, collaborations) => {
     if (err) {
       return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
     }
-    async.map(collaborations, function(collaboration, callback) {
-      transform(collaboration, req.user, function(transformed) {
-        return callback(null, transformed);
-      });
-    }, function(err, results) {
-      return res.status(200).json(results);
-    });
+    async.map(collaborations, (collaboration, callback) => {
+      transform(collaboration, req.user, transformed => callback(null, transformed));
+    }, (err, results) => res.status(200).json(results));
   });
-};
+}
 
 function getMembers(req, res) {
-  var query = {};
+  const query = {};
 
   if (req.query.limit) {
-    var limit = parseInt(req.query.limit, 10);
+    const limit = parseInt(req.query.limit, 10);
 
     if (!isNaN(limit)) {
       query.limit = limit;
@@ -106,7 +115,8 @@ function getMembers(req, res) {
   }
 
   if (req.query.offset) {
-    var offset = parseInt(req.query.offset, 10);
+    const offset = parseInt(req.query.offset, 10);
+
     if (!isNaN(offset)) {
       query.offset = offset;
     }
@@ -116,7 +126,7 @@ function getMembers(req, res) {
     query.objectTypeFilter = req.query.objectTypeFilter;
   }
 
-  collaborationModule.member.getMembers(req.collaboration, req.params.objectType, query, function(err, members) {
+  collaborationModule.member.getMembers(req.collaboration, req.params.objectType, query, (err, members) => {
     if (err) {
       return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.message}});
     }
@@ -124,7 +134,8 @@ function getMembers(req, res) {
     res.header('X-ESN-Items-Count', members.total_count || 0);
 
     function format(member) {
-      var result = Object.create(null);
+      const result = Object.create(null);
+
       if (!member || !member.member) {
         return null;
       }
@@ -132,7 +143,8 @@ function getMembers(req, res) {
       result.objectType = member.objectType;
       result.id = member.id;
 
-      var Adapter = memberAdapter(member.objectType);
+      const Adapter = memberAdapter(member.objectType);
+
       if (Adapter) {
         result[member.objectType] = new Adapter(member.member || member);
       } else {
@@ -146,30 +158,23 @@ function getMembers(req, res) {
       return result;
     }
 
-    var result = members.map(function(member) {
-      return format(member);
-    }).filter(function(member) {
-      return member !== null;
-    });
+    const result = members.map(format).filter(Boolean);
 
-    return res.status(200).json(result || []);
+    return res.status(200).json(result);
   });
 }
-module.exports.getMembers = getMembers;
 
 function getInvitablePeople(req, res) {
-  var collaboration = req.collaboration;
-  var query = {
+  const collaboration = req.collaboration;
+  const query = {
     limit: req.query.limit || 5,
     search: req.query.search || null,
     not_in_collaboration: collaboration
   };
-  var domainIds = collaboration.domain_ids.map(function(domainId) {
-    return domainId;
-  });
-  var search = query.search ? userDomain.getUsersSearch : userDomain.getUsersList;
+  const domainIds = collaboration.domain_ids.slice(0);
+  const search = query.search ? userDomain.getUsersSearch : userDomain.getUsersList;
 
-  search(domainIds, query, function(err, result) {
+  search(domainIds, query, (err, result) => {
     if (err) {
       return res.status(500).json({ error: { status: 500, message: 'Server error', details: 'Error while searching invitable people: ' + err.message}});
     }
@@ -179,55 +184,28 @@ function getInvitablePeople(req, res) {
     return res.status(200).json(result.list);
   });
 }
-module.exports.getInvitablePeople = getInvitablePeople;
-
-function ensureLoginCollaborationAndUserId(req, res) {
-  var collaboration = req.collaboration;
-  var user = req.user;
-
-  if (!user) {
-    res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'You must be logged in to access this resource'}});
-    return false;
-  }
-
-  if (!req.params || !req.params.user_id) {
-    res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'The user_id parameter is missing'}});
-    return false;
-  }
-
-  if (!collaboration) {
-    res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'Community is missing'}});
-    return false;
-  }
-  return true;
-}
-module.exports.ensureLoginCollaborationAndUserId = ensureLoginCollaborationAndUserId;
 
 function addMembershipRequest(req, res) {
-  if (!ensureLoginCollaborationAndUserId(req, res)) {
-    return;
-  }
-  var collaboration = req.collaboration;
-  var userAuthor = req.user;
-  var userTargetId = req.params.user_id;
-  var objectType = req.params.objectType;
+  const collaboration = req.collaboration;
+  const userAuthor = req.user;
+  const userTargetId = req.params.user_id;
+  const objectType = req.params.objectType;
 
-  var member = collaboration.members.filter(function(m) {
-    return m.member.objectType === 'user' && m.member.id.equals(userTargetId);
-  });
+  const member = collaboration.members.filter(member => (
+    member.member.objectType === 'user' && member.member.id.equals(userTargetId)
+  ));
 
   if (member.length) {
     return res.status(400).json({error: {code: 400, message: 'Bad request', details: 'User is already member'}});
   }
 
   function addMembership(objectType, collaboration, userAuthor, userTarget, workflow, actor) {
-    collaborationModule.member.addMembershipRequest(objectType, collaboration, userAuthor, userTarget, workflow, actor, function(err, collaboration) {
+    collaborationModule.member.addMembershipRequest(objectType, collaboration, userAuthor, userTarget, workflow, actor, (err, collaboration) => {
       if (err) {
         return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.message}});
       }
-      return transform(collaboration, userAuthor, function(transformed) {
-        return res.status(200).json(transformed);
-      });
+
+      return transform(collaboration, userAuthor, transformed => res.status(200).json(transformed));
     });
   }
 
@@ -237,145 +215,137 @@ function addMembershipRequest(req, res) {
     addMembership(objectType, collaboration, userAuthor, userTargetId, collaborationModule.member.MEMBERSHIP_TYPE_REQUEST, 'user');
   }
 }
-module.exports.addMembershipRequest = addMembershipRequest;
 
 function getMembershipRequests(req, res) {
-  var collaboration = req.collaboration;
-
-  if (!collaboration) {
-    return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'Collaboration is missing'}});
-  }
+  const collaboration = req.collaboration;
 
   if (!req.isCollaborationManager) {
     return res.status(403).json({error: {code: 403, message: 'Forbidden', details: 'Only collaboration managers can get requests'}});
   }
 
-  var query = {};
+  const query = {};
+
   if (req.query.limit) {
-    var limit = parseInt(req.query.limit, 10);
+    const limit = parseInt(req.query.limit, 10);
+
     if (!isNaN(limit)) {
       query.limit = limit;
     }
   }
 
   if (req.query.offset) {
-    var offset = parseInt(req.query.offset, 10);
+    const offset = parseInt(req.query.offset, 10);
+
     if (!isNaN(offset)) {
       query.offset = offset;
     }
   }
 
-  collaborationModule.member.getMembershipRequests(req.params.objectType, collaboration, query, function(err, membershipRequests) {
+  collaborationModule.member.getMembershipRequests(req.params.objectType, collaboration, query, (err, membershipRequests) => {
     if (err) {
       return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
     }
     res.header('X-ESN-Items-Count', req.collaboration.membershipRequests ? req.collaboration.membershipRequests.length : 0);
-    var result = membershipRequests.map(function(request) {
-      var result = collaborationModule.userToMember({member: request.user, timestamp: request.timestamp});
+    const result = membershipRequests.map(request => {
+      const result = collaborationModule.userToMember({member: request.user, timestamp: request.timestamp});
+
       result.workflow = request.workflow;
       result.timestamp = request.timestamp;
+
       return result;
     });
+
     return res.status(200).json(result || []);
   });
 }
-module.exports.getMembershipRequests = getMembershipRequests;
 
 function join(req, res) {
-  if (!ensureLoginCollaborationAndUserId(req, res)) {
-    return;
-  }
-
-  var collaboration = req.collaboration;
-  var user = req.user;
-  var targetUserId = req.params.user_id;
+  const collaboration = req.collaboration;
+  const user = req.user;
+  const targetUserId = req.params.user_id;
 
   if (req.isCollaborationManager) {
 
     if (user._id.equals(targetUserId)) {
-      return res.status(400).json({error: {code: 400, message: 'Bad request', details: 'Community Manager can not add himself to a collaboration'}});
+      return res.status(400).json({error: {code: 400, message: 'Bad request', details: 'Collaboration manager can not add himself to a collaboration'}});
     }
 
     if (!req.query.withoutInvite && !collaborationModule.member.getMembershipRequest(collaboration, {_id: targetUserId})) {
       return res.status(400).json({error: {code: 400, message: 'Bad request', details: 'User did not request to join collaboration'}});
     }
 
-    collaborationModule.member.join(req.params.objectType, collaboration, user, targetUserId, 'manager', function(err) {
+    collaborationModule.member.join(req.params.objectType, collaboration, user, targetUserId, 'manager', err => {
       if (err) {
         return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
       }
 
-      collaborationModule.member.cleanMembershipRequest(collaboration, targetUserId, function(err) {
+      collaborationModule.member.cleanMembershipRequest(collaboration, targetUserId, err => {
         if (err) {
           return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
         }
+
         return res.status(204).end();
       });
     });
 
   } else {
-
     if (!user._id.equals(targetUserId)) {
       return res.status(400).json({error: {code: 400, message: 'Bad request', details: 'Current user is not the target user'}});
     }
 
     if (req.collaboration.type !== collaborationModule.CONSTANTS.COLLABORATION_TYPES.OPEN) {
-      var membershipRequest = collaborationModule.member.getMembershipRequest(collaboration, user);
+      const membershipRequest = collaborationModule.member.getMembershipRequest(collaboration, user);
+
       if (!membershipRequest) {
         return res.status(400).json({error: {code: 400, message: 'Bad request', details: 'User was not invited to join collaboration'}});
       }
 
-      collaborationModule.member.join(req.params.objectType, collaboration, user, user, null, function(err) {
+      collaborationModule.member.join(req.params.objectType, collaboration, user, user, null, err => {
         if (err) {
           return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
         }
 
-        collaborationModule.member.cleanMembershipRequest(collaboration, user, function(err) {
+        collaborationModule.member.cleanMembershipRequest(collaboration, user, err => {
           if (err) {
             return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
           }
+
           return res.status(204).end();
         });
       });
     } else {
-      collaborationModule.member.join(req.params.objectType, collaboration, user, targetUserId, 'user', function(err) {
+      collaborationModule.member.join(req.params.objectType, collaboration, user, targetUserId, 'user', err => {
         if (err) {
           return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
         }
 
-        collaborationModule.member.cleanMembershipRequest(collaboration, user, function(err) {
+        collaborationModule.member.cleanMembershipRequest(collaboration, user, err => {
           if (err) {
             return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
           }
+
           return res.status(204).end();
         });
       });
     }
   }
 }
-module.exports.join = join;
 
 function leave(req, res) {
-  if (!ensureLoginCollaborationAndUserId(req, res)) {
-    return;
-  }
-  var collaboration = req.collaboration;
-  var user = req.user;
-  var targetUserId = req.params.user_id;
+  const collaboration = req.collaboration;
+  const user = req.user;
+  const targetUserId = req.params.user_id;
 
-  collaborationModule.member.leave(req.params.objectType, collaboration, user, targetUserId, function(err) {
+  collaborationModule.member.leave(req.params.objectType, collaboration, user, targetUserId, err => {
     if (err) {
       return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
     }
+
     return res.status(204).end();
   });
 }
-module.exports.leave = leave;
 
 function removeMembershipRequest(req, res) {
-  if (!ensureLoginCollaborationAndUserId(req, res)) {
-    return;
-  }
   if (!req.isCollaborationManager && !req.user._id.equals(req.params.user_id)) {
     return res.status(403).json({error: {code: 403, message: 'Forbidden', details: 'Current user is not the target user'}});
   }
@@ -384,14 +354,12 @@ function removeMembershipRequest(req, res) {
     return res.status(204).end();
   }
 
-  var memberships = req.collaboration.membershipRequests.filter(function(mr) {
-    return mr.user.equals(req.params.user_id);
-  });
+  const memberships = req.collaboration.membershipRequests.filter(mr => mr.user.equals(req.params.user_id));
 
   if (!memberships.length) {
     return res.status(204).end();
   }
-  var membership = memberships[0];
+  const membership = memberships[0];
 
   function onResponse(err) {
     if (err) {
@@ -421,16 +389,11 @@ function removeMembershipRequest(req, res) {
     collaborationModule.member.cancelMembershipRequest(req.params.objectType, req.collaboration, membership, req.user, onResponse);
   }
 }
-module.exports.removeMembershipRequest = removeMembershipRequest;
 
 function getMember(req, res) {
-  var collaboration = req.collaboration;
+  const collaboration = req.collaboration;
 
-  if (!collaboration) {
-    return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'Collaboration is missing'}});
-  }
-
-  collaborationModule.member.isMember(collaboration, {objectType: 'user', id: req.params.user_id}, function(err, result) {
+  collaborationModule.member.isMember(collaboration, {objectType: 'user', id: req.params.user_id}, (err, result) => {
     if (err) {
       return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.message}});
     }
@@ -438,10 +401,10 @@ function getMember(req, res) {
     if (result) {
       return res.status(200).end();
     }
+
     return res.status(404).end();
   });
 }
-module.exports.getMember = getMember;
 
 function getAvatar(req, res) {
   if (!req.collaboration) {
@@ -452,24 +415,26 @@ function getAvatar(req, res) {
     return res.redirect('/images/collaboration.png');
   }
 
-  imageModule.getAvatar(req.collaboration.avatar, req.query.format, function(err, fileStoreMeta, readable) {
+  imageModule.getAvatar(req.collaboration.avatar, req.query.format, (err, fileStoreMeta, readable) => {
     if (err) {
       logger.warn('Can not get collaboration avatar : %s', err.message);
+
       return res.redirect('/images/collaboration.png');
     }
 
     if (!readable) {
       logger.warn('Can not retrieve avatar stream for collaboration %s', req.collaboration._id);
+
       return res.redirect('/images/collaboration.png');
     }
 
     if (req.headers['if-modified-since'] && Number(new Date(req.headers['if-modified-since']).setMilliseconds(0)) === Number(fileStoreMeta.uploadDate.setMilliseconds(0))) {
       return res.status(304).end();
-    } else {
-      res.header('Last-Modified', fileStoreMeta.uploadDate);
-      res.status(200);
-      return readable.pipe(res);
     }
+
+    res.header('Last-Modified', fileStoreMeta.uploadDate);
+    res.status(200);
+
+    return readable.pipe(res);
   });
 }
-module.exports.getAvatar = getAvatar;

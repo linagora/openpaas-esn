@@ -345,7 +345,7 @@ describe('The collaboration member module', function() {
         callback(null, result);
       };
 
-      this.helpers.mock.pubsub('../pubsub', localstub, globalstub);
+      this.helpers.mock.pubsub('../../pubsub', localstub, globalstub);
 
       const collaborationModule = getModule();
 
@@ -444,7 +444,7 @@ describe('The collaboration member module', function() {
         callback(null, result);
       };
 
-      this.helpers.mock.pubsub('../pubsub', localstub, globalstub);
+      this.helpers.mock.pubsub('../../pubsub', localstub, globalstub);
 
       const collaborationModule = getModule();
 
@@ -487,7 +487,7 @@ describe('The collaboration member module', function() {
       const localstub = {}, globalstub = {};
 
       beforeEach(function() {
-        this.helpers.mock.pubsub('../pubsub', localstub, globalstub);
+        this.helpers.mock.pubsub('../../pubsub', localstub, globalstub);
       });
 
       it('should fire a collaboration:membership:invitation:cancel topic message', function(done) {
@@ -535,7 +535,7 @@ describe('The collaboration member module', function() {
       const localstub = {}, globalstub = {};
 
       beforeEach(function() {
-        this.helpers.mock.pubsub('../pubsub', localstub, globalstub);
+        this.helpers.mock.pubsub('../../pubsub', localstub, globalstub);
       });
 
       it('should fire callback with an error in case of an error', function(done) {
@@ -603,7 +603,7 @@ describe('The collaboration member module', function() {
       const localstub = {}, globalstub = {};
 
       beforeEach(function() {
-        this.helpers.mock.pubsub('../pubsub', localstub, globalstub);
+        this.helpers.mock.pubsub('../../pubsub', localstub, globalstub);
       });
 
       it('should fire callback with an error in case of an error', function(done) {
@@ -667,7 +667,7 @@ describe('The collaboration member module', function() {
       const localstub = {}, globalstub = {};
 
       beforeEach(function() {
-        this.helpers.mock.pubsub('../pubsub', localstub, globalstub);
+        this.helpers.mock.pubsub('../../pubsub', localstub, globalstub);
       });
 
       it('should fire callback with an error in case of an error', function(done) {
