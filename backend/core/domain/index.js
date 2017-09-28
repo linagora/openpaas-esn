@@ -7,6 +7,7 @@ module.exports = {
   create,
   update,
   getByName,
+  getByHostname,
   getDomainAdministrators,
   load,
   list,
@@ -46,6 +47,15 @@ function removeById(domainId, callback) {
 
 function getByName(name) {
   return Domain.findOne({ name });
+}
+
+/**
+ * Get domain that have hostname in domain.hostnames array
+ * @param  {String} hostname - The hostname to get domain
+ * @return {Promise}         - Resolve the found domain
+ */
+function getByHostname(hostname) {
+  return Domain.findOne({ hostnames: hostname });
 }
 
 function getDomainAdministrators(domain) {

@@ -25,7 +25,7 @@ module.exports = {
 function loadDomainByHostname(req, res, next) {
   const hostname = req.hostname;
 
-  coreDomain.getByName(hostname)
+  coreDomain.getByHostname(hostname)
     .then(domain => {
       if (domain) {
         req.domain = domain;
