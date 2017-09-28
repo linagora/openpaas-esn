@@ -1,9 +1,9 @@
 'use strict';
 
-var authorize = require('../middleware/authorization');
-var requestMW = require('../middleware/request');
-var collaborations = require('../controllers/collaborations');
-var collaborationMW = require('../middleware/collaboration');
+const authorize = require('../middleware/authorization');
+const requestMW = require('../middleware/request');
+const collaborations = require('../controllers/collaborations');
+const collaborationMW = require('../middleware/collaboration');
 const helperMW = require('../middleware/helper');
 
 module.exports = function(router) {

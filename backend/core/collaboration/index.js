@@ -5,12 +5,12 @@ const async = require('async');
 const tupleModule = require('../tuple');
 const memberResolver = require('./member/resolver');
 
-const collaborationModels = {};
-const collaborationLibs = {};
-
 const member = require('./member')({isCollaboration, getModel, getLib, queryOne});
 const permission = require('./permission')(member);
 const usernotification = require('./usernotification')({member});
+
+const collaborationModels = {};
+const collaborationLibs = {};
 
 module.exports = {
   addObjectType,
@@ -47,7 +47,7 @@ function addObjectType(objectType, collaborations) {
 }
 
 function findCollaborationFromActivityStreamID(id, callback) {
-  var finders = [];
+  const finders = [];
 
   function finder(type, callback) {
     queryOne(type, {'activity_stream.uuid': id}, (err, result) => {
@@ -82,7 +82,7 @@ function getCollaborationsForTuple(tuple, callback) {
     return callback(new Error('Can not create tuple'));
   }
 
-  var finders = [];
+  const finders = [];
 
   function finder(type, callback) {
     query(type, {members: {$elemMatch: { 'member.objectType': tuple.objectType, 'member.id': tuple.id}}}, (err, result) => {

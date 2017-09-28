@@ -50,13 +50,15 @@ describe('The community module', function() {
         topic() {}
       };
       var localTopicMock = sinon.stub().returns({forward: forwardMock});
-
-      mockery.registerMock('../pubsub', {
+      const pubsubMock = {
         local: {
           topic: localTopicMock
         },
         global: globalpubsubMock
-      });
+      };
+
+      mockery.registerMock('../../pubsub', pubsubMock);
+      mockery.registerMock('../pubsub', pubsubMock);
 
       var modifications = {};
       var newCommunity;
@@ -148,7 +150,7 @@ describe('The community module', function() {
         Community: Community
       });
 
-      mockery.registerMock('../pubsub', {
+      const pubsubMock = {
         local: {
           topic: function(name) {
             if (name === CONSTANTS.EVENTS.communityCreated) {
@@ -161,7 +163,10 @@ describe('The community module', function() {
         global: {
           topic() {}
         }
-      });
+      };
+
+      mockery.registerMock('../../pubsub', pubsubMock);
+      mockery.registerMock('../pubsub', pubsubMock);
 
       var community = this.helpers.requireBackend('core/community/index');
       community.save({domain_ids: [123], title: 'title'}, function(err, result) {
