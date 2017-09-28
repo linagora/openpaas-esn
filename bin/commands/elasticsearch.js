@@ -47,11 +47,11 @@ function exec(host, port, type, index) {
   if (type) {
     index = index || _getDefaultIndex(type);
 
-    return esConfig.createIndex(index, type);
+    return esConfig.setup(index, type);
   }
 
   return q.all(AVAILABLE_INDEX_TYPES
-    .map(type => esConfig.createIndex(_getDefaultIndex(type), type))
+    .map(type => esConfig.setup(_getDefaultIndex(type), type))
   );
 }
 

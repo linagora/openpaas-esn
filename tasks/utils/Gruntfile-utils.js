@@ -326,7 +326,8 @@ GruntfileUtils.prototype.setupElasticsearchUsersIndex = function() {
   return function() {
     var done = this.async();
     var esnConf = new EsnConfig({host: servers.host, port: servers.elasticsearch.port});
-    esnConf.createIndex('users.idx', 'users').then(function() {
+
+    esnConf.setup('users.idx', 'users').then(function() {
       grunt.log.write('Elasticsearch users settings are successfully added');
       done(true);
     }, done);
@@ -340,7 +341,8 @@ GruntfileUtils.prototype.setupElasticsearchContactsIndex = function() {
   return function() {
     var done = this.async();
     var esnConf = new EsnConfig({host: servers.host, port: servers.elasticsearch.port});
-    esnConf.createIndex('contacts.idx', 'contacts').then(function() {
+
+    esnConf.setup('contacts.idx', 'contacts').then(function() {
       grunt.log.write('Elasticsearch contacts settings are successfully added');
       done(true);
     }, done);
@@ -354,7 +356,8 @@ GruntfileUtils.prototype.setupElasticsearchEventsIndex = function() {
   return function() {
     var done = this.async();
     var esnConf = new EsnConfig({host: servers.host, port: servers.elasticsearch.port});
-    esnConf.createIndex('events.idx', 'events').then(function() {
+
+    esnConf.setup('events.idx', 'events').then(function() {
       grunt.log.write('Elasticsearch events settings are successfully added');
       done(true);
     }, done);
