@@ -1,2 +1,3 @@
-.settings-overlay(ui-sref='{{ ::settingsOverlaySref }}')
-  i.mdi.mdi-settings
+md-menu.blue(md-position-mode='left bottom')
+  i.mdi.mdi-dots-vertical(aria-label='settings', ng-click='ctrl.openMenu($mdMenu, $event)')
+  md-menu-content.dm-icon(ng-transclude)

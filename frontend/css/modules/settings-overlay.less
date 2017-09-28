@@ -3,7 +3,21 @@
 .clickable:not(.text-danger):not(a):not(.menu-root) {
   &.selected {
     settings-overlay {
-      .BoxShadow(-16px 0 5px -8px darken(@darkenBgColor, 2%));
+      .md-menu, .md-menu.md-open {
+        background-color: darken(@darkenBgColor, 2%);
+        .BoxShadow(-16px 0 5px -8px darken(@darkenBgColor, 2%));
+
+        .mdi {
+          opacity: 1;
+        }
+      }
+    }
+  }
+
+  .md-menu {
+    &.md-open {
+      background-color: @body-bg;
+      .BoxShadow(-16px 0 5px -8px @body-bg);
 
       .mdi {
         opacity: 1;
@@ -11,7 +25,7 @@
     }
   }
 
-  settings-overlay {
+  .md-menu {
     .all-centered;
 
     position: absolute;
@@ -28,32 +42,64 @@
   }
 }
 
-
 .is-desktop .clickable:not(.text-danger):not(a):not(.menu-root):hover {
   settings-overlay {
-    background-color: @darkenBgColor;
-    .BoxShadow(-16px 0 5px -8px @darkenBgColor);
+    .md-menu {
+      background-color: @darkenBgColor;
+      .BoxShadow(-16px 0 5px -8px @darkenBgColor);
 
-    .mdi {
-      opacity: 0.5;
-    }
+      .mdi {
+        opacity: 0.5;
+      }
 
-    &:hover .mdi {
-      opacity: 1;
+      &:hover .mdi {
+        opacity: 1;
+      }
     }
   }
 }
 
 .is-mobile .clickable:not(.text-danger):not(a):not(.menu-root) {
+  &.selected {
+    settings-overlay {
+      .md-menu, .md-menu.md-open {
+        background-color: @darkenBgColor;
+        .BoxShadow(-16px 0 5px -8px @darkenBgColor);
+
+        .mdi {
+          opacity: 1;
+        }
+      }
+    }
+  }
+
   &:active {
     settings-overlay {
+      .md-menu, .md-menu.md-open {
+        background-color: @m-white;
+        .BoxShadow(-16px 0 5px -8px @m-white);
+        .transition(0.25s ease-out);
+
+        .mdi {
+          opacity: 1;
+        }
+      }
+    }
+  }
+
+  settings-overlay .md-menu {
+    &.md-open {
       background-color: @m-white;
       .BoxShadow(-16px 0 5px -8px @m-white);
-      .transition(0.25s ease-out);
 
       .mdi {
         opacity: 1;
       }
     }
   }
+}
+
+md-menu-content folder-settings {
+  display: flex;
+  flex-direction: column;
 }
