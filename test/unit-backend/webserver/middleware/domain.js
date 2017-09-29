@@ -268,7 +268,7 @@ describe('The domain middleware', function() {
         done();
       };
 
-      coreDomainMock.getByName = () => q(domain);
+      coreDomainMock.getByHostname = () => q(domain);
 
       getModule().loadDomainByHostname(req, res, next);
     });
@@ -295,7 +295,7 @@ describe('The domain middleware', function() {
       };
       const next = null;
 
-      coreDomainMock.getByName = () => q(null);
+      coreDomainMock.getByHostname = () => q(null);
       getModule().loadDomainByHostname(req, res, next);
     });
 
@@ -321,7 +321,7 @@ describe('The domain middleware', function() {
       };
       const next = null;
 
-      coreDomainMock.getByName = () => q.reject(new Error());
+      coreDomainMock.getByHostname = () => q.reject(new Error());
       getModule().loadDomainByHostname(req, res, next);
     });
   });
