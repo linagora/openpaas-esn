@@ -101,6 +101,9 @@ describe('The collaborations controller', function() {
             members.total_count = members.length;
             return callback(null, members);
           }
+        },
+        memberDenormalize: {
+          denormalize(objectType, member) { return member; }
         }
       });
       var collaborations = this.helpers.requireBackend('webserver/controllers/collaborations');
@@ -141,6 +144,9 @@ describe('The collaborations controller', function() {
             members.total_count = 1;
             return callback(null, members);
           }
+        },
+        memberDenormalize: {
+          denormalize(objectType, member) { return member; }
         }
       });
       var collaborations = this.helpers.requireBackend('webserver/controllers/collaborations');
@@ -191,6 +197,9 @@ describe('The collaborations controller', function() {
             members.total_count = members.length;
             return callback(null, members);
           }
+        },
+        memberDenormalize: {
+          denormalize(objectType, member) { return member; }
         }
       });
       var collaborations = this.helpers.requireBackend('webserver/controllers/collaborations');
