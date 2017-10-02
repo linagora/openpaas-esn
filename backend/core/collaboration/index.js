@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const async = require('async');
 const tupleModule = require('../tuple');
 const memberResolver = require('./member/resolver');
+const memberDenormalize = require('./member/denormalize');
 
 const member = require('./member')({isCollaboration, getModel, getLib, queryOne});
 const permission = require('./permission')(member);
@@ -32,7 +33,8 @@ module.exports = {
   schemaBuilder: require('../db/mongo/models/base-collaboration'),
   usernotification,
   userToMember,
-  memberResolver
+  memberResolver,
+  memberDenormalize
 };
 
 function addObjectType(objectType, collaborations) {
