@@ -3,7 +3,6 @@
 const async = require('async');
 const collaborationModule = require('../../core/collaboration');
 const userDomain = require('../../core/user/domain');
-const { memberAdapter } = require('../../helpers/collaboration');
 const imageModule = require('../../core/image');
 const logger = require('../../core/logger');
 
@@ -134,28 +133,18 @@ function getMembers(req, res) {
     res.header('X-ESN-Items-Count', members.total_count || 0);
 
     function format(member) {
-      const result = Object.create(null);
-
       if (!member || !member.member) {
         return null;
       }
 
-      result.objectType = member.objectType;
-      result.id = member.id;
-
-      const Adapter = memberAdapter(member.objectType);
-
-      if (Adapter) {
-        result[member.objectType] = new Adapter(member.member || member);
-      } else {
-        result[member.objectType] = member.member || member;
-      }
-
-      result.metadata = {
-        timestamps: member.timestamps
+      return {
+        objectType: member.objectType,
+        id: member.id,
+        [member.objectType]: collaborationModule.memberDenormalize.denormalize(member.objectType, member.member),
+        metadata: {
+          timestamps: member.timestamps
+        }
       };
-
-      return result;
     }
 
     const result = members.map(format).filter(Boolean);
