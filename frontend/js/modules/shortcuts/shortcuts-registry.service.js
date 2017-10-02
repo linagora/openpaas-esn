@@ -57,6 +57,10 @@
         throw new Error('category.name is required');
       }
 
+      if (!category.moduleDetector) {
+        throw new Error('category.moduleDetector is required');
+      }
+
       if (category.parentId && !getCategoryById(category.parentId)) {
         throw new Error('no such parent category, you must add category before adding its sub-categories');
       }

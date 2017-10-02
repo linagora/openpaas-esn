@@ -4,16 +4,19 @@
   angular.module('esn.shortcuts')
     .controller('EsnShortcutsSheetController', EsnShortcutsSheetController);
 
-  function EsnShortcutsSheetController(esnShortcutsRegistry) {
+  function EsnShortcutsSheetController($state, _, esnShortcutsRegistry) {
     var self = this;
+    var allCategories = [];
 
     self.$onInit = $onInit;
+    self.showAll = showAll;
+    self.isFiltered = true;
 
     function $onInit() {
       var categories = esnShortcutsRegistry.getTopCategories();
       var subCategories = [];
 
-      self.categories = categories.map(function(category) {
+      allCategories = categories.map(function(category) {
         subCategories = esnShortcutsRegistry.getSubCategoriesByCategoryId(category.id);
         subCategories = subCategories.map(function(subCategory) {
           return setShortcutsForCategory(subCategory);
@@ -22,11 +25,27 @@
         return {
           id: category.id,
           name: category.name,
+          moduleDetector: category.moduleDetector,
           parentId: category.parentId,
           shortcuts: getShortcutsByCategoryId(category.id),
           subCategories: subCategories
         };
       });
+
+      self.filteredCategories = allCategories.filter(isModuleOrGlobalCategory);
+    }
+
+    function showAll() {
+      self.isFiltered = false;
+      self.filteredCategories = allCategories;
+    }
+
+    function isModuleOrGlobalCategory(category) {
+      var detector = category.moduleDetector;
+
+      return (_.isBoolean(detector) && detector) ||
+             (_.isRegExp(detector) && detector.test($state.current.name)) ||
+             (_.isFunction(detector) && detector(category, $state.current.name));
     }
 
     function setShortcutsForCategory(category) {

@@ -4,9 +4,11 @@
       .modal-header
         button.close(type="button", data-dismiss="modal", aria-label=__('Close'), ng-click="$hide()")
           span(aria-hidden='true') ×
-        h4.modal-title #{__('Keyboard shortcuts')}
+        h4.modal-title #{__('Keyboard shortcuts')} 
+          small(ng-if="$ctrl.isFiltered")
+            a(ng-click="$ctrl.showAll()") (#{__('Show all')})
       .modal-body
-        div(ng-repeat="category in $ctrl.categories | orderBy: 'id'")
+        div(ng-repeat="category in $ctrl.filteredCategories | orderBy: 'id'")
           dl.dl-horizontal
             dt
             dd
