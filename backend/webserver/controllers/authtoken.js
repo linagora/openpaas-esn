@@ -48,7 +48,7 @@ function authenticateUser(req, res) {
         return res.status(500).json({error: {code: 500, message: 'Server Error', details: 'Error while logging in user'}});
       }
 
-      denormalizeUser(u).then(function(response) {
+      denormalizeUser(u, { includePrivateData: true }).then(function(response) {
         response.user_type = user.TYPE;
         res.status(200).json(response);
       });

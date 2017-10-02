@@ -3,7 +3,7 @@
 const q = require('q');
 const esnConfig = require('../../core/esn-config');
 const followModule = require('../../core/user/follow');
-const sanitizeUser = require('../controllers/utils').sanitizeUser;
+const denormalizeUser = require('../../core/user/denormalize');
 const rights = require('../../core/esn-config/rights');
 const platformAdmin = require('../../core/platformadmin');
 
@@ -32,7 +32,7 @@ function setIsPlatformAdmin(user, sanitized) {
 }
 
 function sanitize(user, options) {
-  return q(sanitizeUser(user, options.doNotKeepPrivateData || false));
+  return q(denormalizeUser.denormalize(user, options.includePrivateData));
 }
 
 function follow(user) {

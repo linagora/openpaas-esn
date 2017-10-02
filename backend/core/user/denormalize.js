@@ -1,21 +1,60 @@
 'use strict';
 
-var mongoose = require('mongoose');
-var User = mongoose.model('User');
+const mongoose = require('mongoose');
+const User = mongoose.model('User');
+const publicKeys = [
+  '_id',
+  'firstname',
+  'lastname',
+  'preferredEmail',
+  'emails',
+  'domains',
+  'avatars',
+  'job_title',
+  'service',
+  'building_location',
+  'office_location',
+  'main_phone',
+  'description'
+];
+const privateKeys = ['accounts', 'login'];
+
+module.exports = {
+  getId,
+  denormalize,
+  denormalizeForSearchIndexing
+};
 
 function getId(user) {
   return user._id;
 }
-module.exports.getId = getId;
 
-function denormalize(user) {
+function denormalize(user, includePrivateData = false) {
+  const denormalizedUser = {};
+  const keys = publicKeys.slice();
 
-  function transform(doc, ret) {
-    ret.id = getId(ret);
-    delete ret._id;
-    delete ret.password;
+  user = user instanceof User ? user : new User(user).toObject({ virtuals: true }); // So that we have mongoose virtuals
+
+  if (includePrivateData) {
+    keys.push(...privateKeys);
   }
-  var options = {virtuals: true, transform: transform};
-  return user instanceof User ? user.toObject(options) : new User(user).toObject(options);
+
+  keys.forEach(function(key) {
+    if (user[key]) {
+      denormalizedUser[key] = user[key];
+    }
+  });
+
+  denormalizedUser.id = getId(user);
+
+  return denormalizedUser;
 }
-module.exports.denormalize = denormalize;
+
+function denormalizeForSearchIndexing(user) {
+  const denormalizedUser = denormalize(user, true);
+
+  // _id is a metadata field and cannot be added inside a document
+  delete denormalizedUser._id;
+
+  return denormalizedUser;
+}

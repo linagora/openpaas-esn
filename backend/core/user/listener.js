@@ -11,7 +11,7 @@ function getOptions() {
       update: CONSTANTS.EVENTS.userUpdated,
       remove: CONSTANTS.EVENTS.userDeleted
     },
-    denormalize: denormalize.denormalize,
+    denormalize: denormalize.denormalizeForSearchIndexing,
     getId: denormalize.getId,
     type: CONSTANTS.ELASTICSEARCH.type,
     index: CONSTANTS.ELASTICSEARCH.index
