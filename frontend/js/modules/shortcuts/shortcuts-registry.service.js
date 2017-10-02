@@ -13,7 +13,9 @@
       getById: getById,
       getShortcutsByCategoryId: getShortcutsByCategoryId,
       addCategory: addCategory,
-      getAllCategories: getAllCategories
+      getAllCategories: getAllCategories,
+      getTopCategories: getTopCategories,
+      getSubCategoriesByCategoryId: getSubCategoriesByCategoryId
     };
 
     function register(shortcut) {
@@ -55,6 +57,10 @@
         throw new Error('category.name is required');
       }
 
+      if (category.parentId && !getCategoryById(category.parentId)) {
+        throw new Error('no such parent category, you must add category before adding its sub-categories');
+      }
+
       if (!getCategoryById(category.id)) {
         categories.push(category);
       }
@@ -62,6 +68,18 @@
 
     function getAllCategories() {
       return categories.slice(0);
+    }
+
+    function getTopCategories() {
+      var topCategories = _.filter(categories, function(category) { return !category.parentId; });
+
+      return topCategories.slice(0);
+    }
+
+    function getSubCategoriesByCategoryId(id) {
+      var subCategories = _.filter(categories, { parentId: id });
+
+      return subCategories.slice(0);
     }
 
     function getCategoryById(id) {
