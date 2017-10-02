@@ -5,7 +5,7 @@ const request = require('supertest'),
 
 describe('The profile API', function() {
   let app, helpers, mongoose, core;
-  let foouser, baruser, baruserExpectedKeys, baruserForbiddenKeys, WCUtils, checkKeys, imagePath, domain_id;
+  let foouser, baruser, baruserExpectedKeys, baruserForbiddenKeys, checkKeys, imagePath, domain_id;
 
   const password = 'secret';
 
@@ -19,7 +19,7 @@ describe('The profile API', function() {
       app = helpers.requireBackend('webserver/application');
       mongoose = require('mongoose');
 
-      WCUtils = helpers.rewireBackend('webserver/controllers/utils');
+      const coreUserDenormalize = helpers.rewireBackend('core/user/denormalize');
 
       helpers.api.applyDomainDeployment('foo_and_bar_users', function(err, models) {
         if (err) {
@@ -29,13 +29,13 @@ describe('The profile API', function() {
         foouser = models.users[0];
         baruser = models.users[1];
         baruserExpectedKeys = [];
-        WCUtils.__get__('publicKeys').forEach(function(key) {
+        coreUserDenormalize.__get__('publicKeys').forEach(function(key) {
           if (baruser[key]) {
             baruserExpectedKeys.push(key);
           }
         });
         baruserForbiddenKeys = [];
-        WCUtils.__get__('privateKeys').forEach(function(key) {
+        coreUserDenormalize.__get__('privateKeys').forEach(function(key) {
           if (baruser[key]) {
             baruserForbiddenKeys.push(key);
           }
