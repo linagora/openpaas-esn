@@ -2,5 +2,6 @@
 
 module.exports = {
   addMember: require('./addMember'),
-  signupConfirmation: require('./signupConfirmation')
+  signupConfirmation: require('./signupConfirmation'),
+  simpleMail: require('./simpleMail')
 };
