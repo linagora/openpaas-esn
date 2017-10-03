@@ -47,6 +47,9 @@ describe('The activitystreams core module', function() {
       this.helpers.requireBackend('core/db/mongo/models/community');
       this.helpers.requireBackend('core/db/mongo/models/notification');
       this.helpers.requireBackend('core/db/mongo/models/usernotification');
+      this.helpers.requireBackend('core/db/mongo/models/authtoken');
+      this.helpers.requireBackend('core/db/mongo/models/resource-link');
+      this.helpers.requireBackend('core/db/mongo/models/passwordreset');
       this.testEnv.writeDBConfigFile();
       Domain = this.mongoose.model('Domain');
       TimelineEntry = this.mongoose.model('TimelineEntry');

@@ -57,6 +57,7 @@ describe('The community module', function() {
         global: globalpubsubMock
       };
 
+      mockery.registerMock('../../user', pubsubMock);
       mockery.registerMock('../../pubsub', pubsubMock);
       mockery.registerMock('../pubsub', pubsubMock);
 
@@ -167,6 +168,7 @@ describe('The community module', function() {
 
       mockery.registerMock('../../pubsub', pubsubMock);
       mockery.registerMock('../pubsub', pubsubMock);
+      mockery.registerMock('../../user', {});
 
       var community = this.helpers.requireBackend('core/community/index');
       community.save({domain_ids: [123], title: 'title'}, function(err, result) {

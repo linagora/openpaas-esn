@@ -9,9 +9,9 @@ describe('The webserver user denormalizer', function() {
   describe('The denormalize function', function() {
 
     beforeEach(function() {
-      mockery.registerMock('../controllers/utils', {
-        sanitizeUser: function(user) {
-          return q(user);
+      mockery.registerMock('../../core/user/denormalize', {
+        denormalize(user) {
+          return user;
         }
       });
       mockery.registerMock('../../core/esn-config', {

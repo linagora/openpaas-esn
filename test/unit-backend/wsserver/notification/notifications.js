@@ -16,6 +16,8 @@ describe('The WebSockets notification module', function() {
     this.helpers.requireBackend('core/db/mongo/models/domain');
     this.helpers.requireBackend('core/db/mongo/models/notification');
     this.helpers.requireBackend('core/db/mongo/models/usernotification');
+
+    mockery.registerMock('../../user', {});
   });
 
   describe('init method', function() {

@@ -15,6 +15,8 @@ describe('The message core module', function() {
     this.helpers.requireBackend('core/db/mongo/models/notification');
     this.helpers.requireBackend('core/db/mongo/models/usernotification');
     this.helpers.requireBackend('core/db/mongo/models/pollmessage');
+
+    mockery.registerMock('../../user', {});
   });
   it('should expose get() method', function() {
     var messageModule = this.helpers.requireBackend('core/message');

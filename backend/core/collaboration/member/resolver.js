@@ -3,7 +3,8 @@
 const q = require('q');
 const mongoose = require('mongoose');
 const resolvers = {
-  user: createModelResolver('User')
+  user: createModelResolver('User'),
+  email: emailResolver
 };
 
 module.exports = {
@@ -64,4 +65,13 @@ function resolve(tuple) {
  */
 function createModelResolver(modelName) {
   return tuple => mongoose.model(modelName).findOne({ _id: tuple.id });
+}
+
+/**
+ * Resolve the email
+ * @param  {Object} tuple - The tuple { objectType, id }
+ * @return {Promise}      - Resolve the email
+ */
+function emailResolver(tuple) {
+  return q(tuple.id);
 }

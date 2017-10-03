@@ -603,6 +603,64 @@ describe('The collaborations members API', function() {
         });
       });
     });
+
+    it('should return denormalized community members (user member)', function(done) {
+      this.helpers.api.applyDomainDeployment('linagora_IT', (err, models) => {
+        if (err) { return done(err); }
+
+        models.communities[0].save(() => {
+          this.helpers.api.loginAsUser(webserver.application, models.users[0].emails[0], 'secret', (err, loggedInAsUser) => {
+            if (err) { return done(err); }
+
+            const req = loggedInAsUser(request(webserver.application).get('/api/collaborations/community/' + models.communities[0]._id + '/members'));
+
+            req.query({ limit: 1 });
+            req.expect(200);
+            req.end((err, res) => {
+              expect(err).to.not.exist;
+              expect(res.body).to.have.length(1);
+              expect(res.body[0]).to.shallowDeepEqual({
+                objectType: 'user',
+                user: {
+                  _id: models.users[0].id
+                }
+              });
+              expect(res.body[0].user.accounts).to.not.exist;
+              expect(res.body[0].user.password).to.not.exist;
+              done();
+            });
+          });
+        });
+      });
+    });
+
+    it('should return denormalized community members (email member)', function(done) {
+      this.helpers.api.applyDomainDeployment('linagora_IT', (err, models) => {
+        if (err) { return done(err); }
+
+        models.communities[0].members.push({member: {id: 'test-member@email.com', objectType: 'email'}});
+
+        models.communities[0].save(() => {
+          this.helpers.api.loginAsUser(webserver.application, models.users[0].emails[0], 'secret', (err, loggedInAsUser) => {
+            if (err) { return done(err); }
+
+            const req = loggedInAsUser(request(webserver.application).get('/api/collaborations/community/' + models.communities[0]._id + '/members'));
+
+            req.query({ objectTypeFilter: 'email' });
+            req.expect(200);
+            req.end((err, res) => {
+              expect(err).to.not.exist;
+              expect(res.body).to.have.length(1);
+              expect(res.body[0]).to.shallowDeepEqual({
+                objectType: 'email',
+                email: 'test-member@email.com'
+              });
+              done();
+            });
+          });
+        });
+      });
+    });
   });
 
   describe('DELETE /api/collaborations/community/:id/members/:user_id', function() {

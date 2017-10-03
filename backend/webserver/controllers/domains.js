@@ -191,8 +191,15 @@ function getMembers(req, res) {
   const getUsers = query.search ? userDomain.getUsersSearch : userDomain.getUsersList;
   const errorMessage = query.search ? 'Error while searching domain members' : 'Error while getting domain members';
 
-  getUsers([domain], query, (err, result) => {
-    if (err) {
+  q.denodeify(getUsers)([domain], query)
+    .then(result => (
+      q.all(result.list.map(user => denormalizeUser(user)))
+        .then(denormalized => {
+          res.header('X-ESN-Items-Count', result.total_count);
+          res.status(200).json(denormalized);
+        })
+    ))
+    .catch(err => {
       logger.error(errorMessage, err);
 
       return res.status(500).json({
@@ -202,14 +209,7 @@ function getMembers(req, res) {
           details: errorMessage
         }
       });
-    }
-
-    q.all(result.list.map(user => denormalizeUser(user)))
-      .then(denormalized => {
-        res.header('X-ESN-Items-Count', result.total_count);
-        res.status(200).json(denormalized);
-      });
-  });
+    });
 }
 
 /**

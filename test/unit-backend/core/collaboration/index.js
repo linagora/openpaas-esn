@@ -8,6 +8,7 @@ describe('The collaboration module', function() {
 
   beforeEach(function() {
     mockery.registerMock('./usernotification', function() {});
+    mockery.registerMock('../../user', {});
     this.getModule = function() {
       return this.helpers.requireBackend('core/collaboration');
     };

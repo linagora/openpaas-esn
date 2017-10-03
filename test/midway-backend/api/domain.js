@@ -16,7 +16,7 @@ describe('The domain API', function() {
   let Domain;
   let Invitation;
   let pubsubLocal;
-  let utils;
+  let userDenormalize;
   let helpers;
   let core;
 
@@ -31,7 +31,7 @@ describe('The domain API', function() {
       Domain = helpers.requireBackend('core/db/mongo/models/domain');
       Invitation = helpers.requireBackend('core/db/mongo/models/invitation');
       pubsubLocal = helpers.requireBackend('core/pubsub').local;
-      utils = helpers.requireBackend('webserver/controllers/utils');
+      userDenormalize = helpers.requireBackend('core/user/denormalize').denormalize;
       helpers.requireBackend('core/elasticsearch/pubsub').init();
 
       helpers.api.applyDomainDeployment('linagora_test_domain', function(err, models) {
@@ -39,7 +39,7 @@ describe('The domain API', function() {
         user1Domain1Manager = models.users[0];
         user2Domain1Member = models.users[1];
         domain1 = models.domain;
-        domain1Users = models.users.map(utils.sanitizeUser).map(helpers.toComparableObject);
+        domain1Users = models.users.map(userDenormalize).map(helpers.toComparableObject);
 
         helpers.api.applyDomainDeployment('linagora_test_domain2', function(err, models2) {
           expect(err).to.not.exist;
@@ -614,10 +614,12 @@ describe('The domain API', function() {
         var req = requestAsMember(request(app).get('/api/domains/' + domain1._id + '/members'));
         req.expect(200).end(function(err, res) {
           expect(err).to.not.exist;
-          expect(res.body).to.exist;
           expect(res.headers['x-esn-items-count']).to.exist;
           expect(res.headers['x-esn-items-count']).to.equal(domain1Users.length + '');
-          expect(res.body).to.shallowDeepEqual(domain1Users);
+
+          const expectedBody = domain1Users.map(user => ({ id: user.id }));
+
+          expect(res.body).to.shallowDeepEqual(expectedBody);
           done();
         });
       });
@@ -650,7 +652,7 @@ describe('The domain API', function() {
           req.query({search: 'lng'}).expect(200).end(function(err, res) {
             expect(err).to.not.exist;
             expect(res.body).to.exist;
-            var expectedUsers = domain1Users.slice(0, 3);
+            var expectedUsers = domain1Users.slice(0, 3).map(user => ({ _id: user.id }));
             expect(res.headers['x-esn-items-count']).to.exist;
             expect(res.headers['x-esn-items-count']).to.equal(expectedUsers.length + '');
             expect(res.body).to.shallowDeepEqual(expectedUsers);
@@ -688,7 +690,7 @@ describe('The domain API', function() {
           expect(res.body).to.exist;
           expect(res.headers['x-esn-items-count']).to.exist;
           expect(res.headers['x-esn-items-count']).to.equal(domain1Users.length + '');
-          var expectedUsers = domain1Users.slice(0, 2);
+          var expectedUsers = domain1Users.slice(0, 2).map(user => ({ id: user.id }));
           expect(res.body).to.shallowDeepEqual(expectedUsers);
           done();
         });
@@ -704,7 +706,7 @@ describe('The domain API', function() {
           expect(res.body).to.exist;
           expect(res.headers['x-esn-items-count']).to.exist;
           expect(res.headers['x-esn-items-count']).to.equal(domain1Users.length + '');
-          var expectedUsers = domain1Users.slice(2, 4);
+          var expectedUsers = domain1Users.slice(2, 4).map(user => ({ id: user.id }));
           expect(res.body).to.shallowDeepEqual(expectedUsers);
           done();
         });
@@ -720,7 +722,7 @@ describe('The domain API', function() {
           expect(res.body).to.exist;
           expect(res.headers['x-esn-items-count']).to.exist;
           expect(res.headers['x-esn-items-count']).to.equal(domain1Users.length + '');
-          var expectedUsers = domain1Users.slice(2, 3);
+          var expectedUsers = domain1Users.slice(2, 3).map(user => ({ id: user.id }));
           expect(res.body).to.shallowDeepEqual(expectedUsers);
           done();
         });

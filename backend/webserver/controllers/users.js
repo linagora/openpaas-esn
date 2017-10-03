@@ -74,7 +74,7 @@ function profile(req, res) {
       });
     }
 
-    denormalizeUser(user, {user: req.user, doNotKeepPrivateData: String(req.user._id) !== uuid})
+    denormalizeUser(user, {user: req.user, includePrivateData: String(req.user._id) === uuid})
       .then(function(denormalized) {
         res.status(200).json(denormalized);
       });
@@ -108,7 +108,7 @@ function getProfilesByQuery(req, res) {
     getUsers = Q.ninvoke(userSearch, 'search', options);
   }
 
-  const denormalizeUsers = users => users.map(user => denormalizeUser(user, { user: req.user, doNotKeepPrivateData: true }));
+  const denormalizeUsers = users => users.map(user => denormalizeUser(user, { user: req.user, includePrivateData: false }));
 
   getUsers
     .then(result => Q.all(denormalizeUsers(result.list))
@@ -195,7 +195,7 @@ function user(req, res) {
     return res.status(404).json({error: 404, message: 'Not found', details: 'User not found'});
   }
 
-  denormalizeUser(req.user).then(function(denormalized) {
+  denormalizeUser(req.user, { includePrivateData: true }).then(function(denormalized) {
     res.status(200).json(denormalized);
   });
 }
