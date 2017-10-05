@@ -256,6 +256,29 @@ describe('The esn.cache Angular module', function() {
         done(new Error());
       });
 
+      it('should not store the data if loader fail', function(done) {
+        var key = '111';
+        var loader = function() {
+          return $q.reject(new Error());
+        };
+        var cache = new this.Cache({loader: loader});
+
+        cache.isExpired = function() {
+          return false;
+        };
+
+        cache.get(key).then(function() {
+          done(new Error('should not happen'));
+        }).catch(function(err) {
+          expect(err.message).to.equal('Data can not be cached: ' + key);
+          expect(cache.exists(key)).to.false;
+
+          done();
+        });
+
+        this.$rootScope.$apply();
+      });
+
       it('should load the data and save it to the cache when data exists but expired', function(done) {
         var key = '1';
         var data = {foo: 'bar'};
