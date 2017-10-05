@@ -7,6 +7,7 @@ var url = require('url');
 var fs = require('fs');
 var path = require('path');
 var mongoose = require('mongoose');
+mongoose.Promise = require('q').Promise; // http://mongoosejs.com/docs/promises.html
 var logger = require('../../../core').logger;
 var config = require('../../../core').config;
 var topic = require('../../../core').pubsub.local.topic('mongodb:connectionAvailable');
@@ -232,8 +233,6 @@ function mongooseConnect(reinit) {
   }
 
   try {
-    mongoose.Promise = require('q').Promise; // http://mongoosejs.com/docs/promises.html
-
     logger.debug('launch mongoose.connect on ' + connectionInfos.url);
     mongoose.connect(connectionInfos.url, connectionInfos.options);
   } catch (e) {
