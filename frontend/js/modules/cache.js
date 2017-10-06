@@ -77,7 +77,12 @@ angular.module('esn.cache', [
 
         return self.loader(key).then(function(data) {
           self.entries[k].put(data);
+
           return self.entries[k].get();
+        }, function() {
+          delete self.entries[k];
+
+          return $q.reject(new Error('Data can not be cached: ' + k));
         }).finally(function() {
           self.loading[k] = false;
         });
