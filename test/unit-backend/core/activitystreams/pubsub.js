@@ -50,13 +50,14 @@ describe('The activitystreams pubsub module', function() {
       };
       mockery.registerMock('./index', mock);
 
-      var logger = {
-        warn: function() {
-          done();
-        }
+      var logger = function() {};
+      logger.warn = function() {
+        done();
       };
       mockery.registerMock('../logger', logger);
+
       var pubsub = this.helpers.requireBackend('core/activitystreams/pubsub');
+
       pubsub.processActivity({});
     });
   });
@@ -64,8 +65,8 @@ describe('The activitystreams pubsub module', function() {
   describe('the init fn', function() {
     it('should call subscribe only two time', function(done) {
       var nbCalls = 0;
-      var mock = {
-        local: {
+      var mock = function() {};
+      mock.local = {
           topic: function() {
             return {
               subscribe: function() {
@@ -73,7 +74,6 @@ describe('The activitystreams pubsub module', function() {
               }
             };
           }
-        }
       };
       mockery.registerMock('../collaboration', {});
       mockery.registerMock('../pubsub', mock);

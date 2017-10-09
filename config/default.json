@@ -55,6 +55,14 @@
       "json": false,
       "prettyPrint": true,
       "colorize": true
+    },
+    "elasticsearch": {
+      "enabled": false,
+      "level": "debug",
+      "clientOpts": {
+        "hosts": ["http://localhost:5200"],
+        "httpAuth": "elastic:changeme"
+      }
     }
   },
   "auth": {
