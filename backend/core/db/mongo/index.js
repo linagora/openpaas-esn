@@ -1,25 +1,80 @@
 'use strict';
 
-// MongoDB utilities
+/* eslint-disable no-process-env */
 
-var MongoClient = require('mongodb').MongoClient;
-var url = require('url');
-var fs = require('fs');
-var path = require('path');
-var mongoose = require('mongoose');
-var logger = require('../../../core').logger;
-var config = require('../../../core').config;
-var topic = require('../../../core').pubsub.local.topic('mongodb:connectionAvailable');
-var configurationWatcher = require('./file-watcher');
-var initialized = false;
-var connected = false;
+const url = require('url');
+const fs = require('fs');
+const path = require('path');
+const MongoClient = require('mongodb').MongoClient;
+const mongoose = require('mongoose');
+
+mongoose.Promise = require('q').Promise; // http://mongoosejs.com/docs/promises.html
+
+const logger = require('../../../core').logger;
+const config = require('../../../core').config;
+const topic = require('../../../core').pubsub.local.topic('mongodb:connectionAvailable');
+const configurationWatcher = require('./file-watcher');
+
+let initialized = false;
+let connected = false;
+let dbConfigWatcher = null;
+const models = {};
+const schemas = {};
+
+module.exports = {
+  storeConfiguration,
+  validateConnection,
+  getConnectionString,
+  getDefaultOptions,
+  init,
+  isInitalized,
+  isConnected,
+  models,
+  schemas,
+  mongoose
+};
+
+mongoose.connection.on('error', err => {
+  onConnectError(err);
+  initialized = false;
+});
+
+mongoose.connection.on('connected', err => {
+  logger.debug('Connected to MongoDB', err);
+  connected = true;
+  topic.publish();
+});
+
+mongoose.connection.on('disconnected', () => {
+  logger.debug('Connection to MongoDB has been lost');
+  connected = false;
+  if (forceReconnect()) {
+    logger.debug('Reconnecting to MongoDB');
+    mongooseConnect();
+  }
+});
+
+fs.readdirSync(__dirname + '/models').forEach(filename => {
+  const stat = fs.statSync(__dirname + '/models/' + filename);
+
+  if (!stat.isFile()) { return; }
+  models[filename.replace('.js', '')] = require('./models/' + filename);
+});
+
+fs.readdirSync(__dirname + '/schemas').forEach(filename => {
+  const stat = fs.statSync(__dirname + '/schemas/' + filename);
+
+  if (!stat.isFile()) { return; }
+  schemas[filename.replace('.js', '')] = require('./schemas/' + filename);
+});
 
 function forceReconnect() {
   if (process.env.MONGO_FORCE_RECONNECT) {
     return process.env.MONGO_FORCE_RECONNECT;
   }
 
-  var defaultConfig = config('default');
+  const defaultConfig = config('default');
+
   return !!(defaultConfig.db && defaultConfig.db.forceReconnectOnDisconnect);
 }
 
@@ -27,9 +82,9 @@ function onConnectError(err) {
   logger.error('Failed to connect to MongoDB:', err);
 }
 
-var getTimeout = function getTimeout() {
+function getTimeout() {
   return process.env.MONGO_TIMEOUT || 10000;
-};
+}
 
 function getHost() {
   return process.env.MONGO_HOST || 'localhost';
@@ -52,7 +107,7 @@ function getPassword() {
 }
 
 function openDatabase(connectionString, callback) {
-  MongoClient.connect(connectionString, function(err, db) {
+  MongoClient.connect(connectionString, (err, db) => {
     if (err && db && ('close' in db)) {
       db.close();
     }
@@ -61,34 +116,38 @@ function openDatabase(connectionString, callback) {
 }
 
 function insertDocument(db, collectionName, document, callback) {
-  var collection = db.collection(collectionName);
-  collection.insert(document, function(err, coll) {
+  const collection = db.collection(collectionName);
+
+  collection.insert(document, (err, coll) => {
     if (err) {
-      db.close(function() {
+      db.close(() => {
         //ignore error
       });
     }
+
     return callback(err, coll);
   });
 }
 
 function dropCollection(db, collectionName, callback) {
-  db.dropCollection(collectionName, function(err) {
-    db.close(function() {
+  db.dropCollection(collectionName, err => {
+    db.close(() => {
       //ignore error
     });
+
     return callback(err);
   });
 }
 
 function getConnectionString(hostname, port, dbname, username, password, connectionOptions) {
-  var timeout = getTimeout();
+  const timeout = getTimeout();
+
   connectionOptions = connectionOptions || {
     connectTimeoutMS: timeout,
     socketTimeoutMS: timeout
   };
 
-  var connectionHash = {
+  const connectionHash = {
     protocol: 'mongodb',
     slashes: true,
     hostname: hostname,
@@ -96,6 +155,7 @@ function getConnectionString(hostname, port, dbname, username, password, connect
     pathname: '/' + dbname,
     query: connectionOptions
   };
+
   if (username) {
     connectionHash.auth = username + ':' + password;
   }
@@ -108,20 +168,23 @@ function getDefaultConnectionString() {
 }
 
 function getDbConfigurationFile() {
-  var root = path.resolve(__dirname + '/../../../..');
-  var defaultConfig = config('default');
-  var dbConfigurationFile;
+  const root = path.resolve(__dirname + '/../../../..');
+  const defaultConfig = config('default');
+  let dbConfigurationFile;
+
   if (defaultConfig.core && defaultConfig.core.config && defaultConfig.core.config.db) {
     dbConfigurationFile = path.resolve(root + '/' + defaultConfig.core.config.db);
   } else {
     dbConfigurationFile = root + '/config/db.json';
   }
+
   return dbConfigurationFile;
 }
 
 function storeConfiguration(configuration, callback) {
-  var dbConfigurationFile = getDbConfigurationFile();
-  var finalConfiguration = {};
+  const dbConfigurationFile = getDbConfigurationFile();
+  const finalConfiguration = {};
+
   finalConfiguration.connectionOptions = configuration.connectionOptions;
   finalConfiguration.connectionString = getConnectionString(configuration.hostname,
                                                             configuration.port,
@@ -130,17 +193,17 @@ function storeConfiguration(configuration, callback) {
                                                             configuration.password,
                                                             {});
 
-  fs.writeFile(dbConfigurationFile, JSON.stringify(finalConfiguration), function(err) {
+  fs.writeFile(dbConfigurationFile, JSON.stringify(finalConfiguration), err => {
     if (err) {
       logger.error('Cannot write database configuration file', dbConfigurationFile, err);
-      var error = new Error('Can not write database settings in ' + dbConfigurationFile);
+      const error = new Error('Can not write database settings in ' + dbConfigurationFile);
+
       return callback(error);
     }
+
     return callback(null, finalConfiguration);
   });
 }
-
-module.exports.storeConfiguration = storeConfiguration;
 
 /**
  * Checks that we can connect to mongodb
@@ -154,16 +217,16 @@ module.exports.storeConfiguration = storeConfiguration;
  */
 function validateConnection(hostname, port, dbname, username, password, callback) {
 
-  var connectionString = getConnectionString(hostname, port, dbname, username, password);
+  const connectionString = getConnectionString(hostname, port, dbname, username, password);
 
-  var collectionName = 'connectionTest';
-  var document = {test: true};
+  const collectionName = 'connectionTest';
+  const document = {test: true};
 
-  openDatabase(connectionString, function(err, db) {
+  openDatabase(connectionString, (err, db) => {
     if (err) {
       return callback(err);
     }
-    insertDocument(db, collectionName, document, function(err) {
+    insertDocument(db, collectionName, document, err => {
       if (err) {
         return callback(err);
       }
@@ -172,11 +235,9 @@ function validateConnection(hostname, port, dbname, username, password, callback
   });
 }
 
-module.exports.validateConnection = validateConnection;
-module.exports.getConnectionString = getConnectionString;
-
 function getDefaultOptions() {
-  var timeout = getTimeout();
+  const timeout = getTimeout();
+
   return {
     db: {
       w: 1,
@@ -194,10 +255,9 @@ function getDefaultOptions() {
   };
 }
 
-module.exports.getDefaultOptions = getDefaultOptions;
-
 function getConnectionStringAndOptions() {
-  var dbConfig;
+  let dbConfig;
+
   try {
     dbConfig = config('db');
   } catch (e) {
@@ -211,14 +271,14 @@ function getConnectionStringAndOptions() {
     dbConfig.connectionString = getDefaultConnectionString();
   }
 
-  var options = dbConfig.connectionOptions ? dbConfig.connectionOptions : getDefaultOptions();
+  const options = dbConfig.connectionOptions ? dbConfig.connectionOptions : getDefaultOptions();
+
   return {url: dbConfig.connectionString, options: options};
 }
 
-var dbConfigWatcher = null;
-
 function mongooseConnect(reinit) {
-  var defaultConfig = config('default');
+  const defaultConfig = config('default');
+
   if (defaultConfig.db && defaultConfig.db.reconnectOnConfigurationChange) {
     if (!dbConfigWatcher) {
       dbConfigWatcher = configurationWatcher(logger, getDbConfigurationFile(), reinit);
@@ -226,21 +286,22 @@ function mongooseConnect(reinit) {
     dbConfigWatcher();
   }
 
-  var connectionInfos = getConnectionStringAndOptions();
+  const connectionInfos = getConnectionStringAndOptions();
+
   if (!connectionInfos) {
     return false;
   }
 
   try {
-    mongoose.Promise = require('q').Promise; // http://mongoosejs.com/docs/promises.html
-
     logger.debug('launch mongoose.connect on ' + connectionInfos.url);
     mongoose.connect(connectionInfos.url, connectionInfos.options);
   } catch (e) {
     onConnectError(e);
+
     return false;
   }
   initialized = true;
+
   return true;
 }
 
@@ -252,61 +313,21 @@ function init() {
   }
 
   if (initialized) {
-    mongoose.disconnect(function() {
+    mongoose.disconnect(() => {
       initialized = false;
       mongooseConnect(reinit);
     });
+
     return;
   }
+
   return mongooseConnect(reinit);
 }
 
-module.exports.init = init;
-
-module.exports.isInitalized = function() {
+function isInitalized() {
   return initialized;
-};
+}
 
-module.exports.isConnected = function() {
+function isConnected() {
   return connected;
-};
-
-mongoose.connection.on('error', function(e) {
-  onConnectError(e);
-  initialized = false;
-});
-
-mongoose.connection.on('connected', function(e) {
-  logger.debug('Connected to MongoDB', e);
-  connected = true;
-  topic.publish();
-});
-
-mongoose.connection.on('disconnected', function() {
-  logger.debug('Connection to MongoDB has been lost');
-  connected = false;
-  if (forceReconnect()) {
-    logger.debug('Reconnecting to MongoDB');
-    mongooseConnect();
-  }
-});
-
-// load models
-var models = {};
-fs.readdirSync(__dirname + '/models').forEach(function(filename) {
-  var stat = fs.statSync(__dirname + '/models/' + filename);
-  if (!stat.isFile()) { return; }
-  models[filename.replace('.js', '')] = require('./models/' + filename);
-});
-module.exports.models = models;
-
-// load schemas
-var schemas = {};
-fs.readdirSync(__dirname + '/schemas').forEach(function(filename) {
-  var stat = fs.statSync(__dirname + '/schemas/' + filename);
-  if (!stat.isFile()) { return; }
-  schemas[filename.replace('.js', '')] = require('./schemas/' + filename);
-});
-module.exports.schemas = schemas;
-
-module.exports.mongoose = mongoose;
+}
