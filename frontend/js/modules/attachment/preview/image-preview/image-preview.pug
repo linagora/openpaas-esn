@@ -1,2 +1,7 @@
-a(target="_blank")
-  img.img-responsive.attachments(ng-src="{{::$ctrl.attachment.url}}", alt="{{::$ctrl.attachment.name}}")
+.img-preview-container
+  .img-info
+    .ellipsis
+      a {{::$ctrl.attachment.name}}
+      h6 {{::$ctrl.attachment.length | bytes}}
+  .img-preview
+    img.img-responsive.attachments(ng-src="{{::$ctrl.attachment.url}}", alt="{{::$ctrl.attachment.name}}")

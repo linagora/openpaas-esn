@@ -1,0 +1,44 @@
+esn-attachment-image-preview {
+  .img-preview-container {
+    height: 90px;
+    width: 220px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid #ccc;
+
+    img {
+      width: 100%;
+      min-height: 90px;
+    }
+
+    .img-preview {
+      width: 50%;
+      height: 100%;
+    }
+
+    .img-info {
+      width: 50%;
+      height: 100%;
+      background-color: @m-lightblue;
+      position: absolute;
+      transition: all 0.4s;
+      z-index: 1;
+      top: 0;
+      right: 0;
+      padding: 10px;
+      opacity: 1;
+      color: @m-white;
+
+      a {
+        &:hover {
+          text-decoration: underline;
+        }
+        color: @m-white;
+      }
+
+      h6 {
+        color: @m-white;
+      }
+    }
+  }
+}

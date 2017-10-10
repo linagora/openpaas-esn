@@ -4,7 +4,7 @@
   angular.module('esn.attachment')
     .component('esnAttachmentDefaultPreview', {
       bindings: {
-        attachment: '='
+        attachment: '<'
       },
       templateUrl: '/views/modules/attachment/preview/default-preview/default-preview.html'
     });
