@@ -2,17 +2,19 @@
 @import "image-viewer/image-viewer";
 @import "video-viewer/video-viewer";
 
-@black-alpha-90: rgba(0, 0, 0, 0.9);
+@black-alpha-70: rgba(0, 0, 0, 0.7);
 @black-alpha-20: rgba(102, 102, 102, 0.2);
 @spinner-border-color: #f3f3f3;
 @spinner-border-top-color: #555;
 @nav-color: #7f7f7f;
 
 esn-attachment-viewer {
+  position: relative;
+  z-index: 100;
   
   .av-fadeIn, .attachment-viewer {
     position: fixed;
-    z-index: 100;
+    z-index: 101;
     left: 0;
     top: 0;
     width: 100%;
@@ -20,7 +22,7 @@ esn-attachment-viewer {
   }
 
   .av-fadeIn {
-    background-color: @black-alpha-90;
+    background-color: @black-alpha-70;
   }
   
   .attachment-viewer {
@@ -37,6 +39,70 @@ esn-attachment-viewer {
 
       .av-main {
         display: inline-block;
+        position: relative;
+        max-width: 75vw;
+        z-index: 100;
+        line-height:normal;
+
+        .av-closeContainer {
+          top: -20px;
+          right: -20px;
+          transition: all 0.4s;
+          position: absolute;
+          z-index: 100;
+          opacity: 0;
+          font-size: 40px;
+        }
+
+        .av-closeContainer,
+        .av-download {
+          cursor: pointer;
+          color: @m-white;
+        }
+
+        .av-closeContainer:hover,
+        .av-download:hover {
+          opacity: 1;
+        }
+
+        &:hover {
+          .av-closeContainer, .av-details {
+            opacity: 1;
+          }
+        }
+
+        .av-details {
+          .flex;
+
+          color: @breadcrumb-color;
+          background-color: @black-alpha-70;
+          padding: 4px;
+          height: 40px;
+          transition: all 0.4s;
+          opacity: 0;
+
+          .av-number {
+            width: 35%;
+            text-align: left;
+            padding-top: 10px;
+            padding-left: 10px;
+          }
+
+          .av-download {
+            width: 65%;
+            float: right;
+            text-align: right;
+
+            a {
+              color: @m-white;
+              margin-right: 20px;
+              display: block;
+              margin-top: 9px;
+              width: 80px;
+              float: right;
+            }
+          }
+        }
       }
 
       .av-loader {
@@ -58,50 +124,32 @@ esn-attachment-viewer {
         }
       }
 
-      span.nav {
+      .nav {
         cursor: pointer;
         display: block;
-        color: @nav-color;
+        color: @m-white;
         font-size: 60px;
         font-weight: bold;
         position: absolute;
         top: 45%;
+        opacity: 1;
       }
 
-      span.av-prev {
+      .av-prev {
         left: 0;
       }
 
-      span.av-next {
+      .av-next {
         right: 0;
       }
 
-      span.nav:hover {
+      .nav:hover {
         opacity: 1;
       }
 
     .av-topBar {
       margin: 0 auto;
       min-width: 250px;
-
-      .av-details {
-        .flex;
-
-        color: @breadcrumb-color;
-        background-color: @black-alpha-20;
-        padding: 4px;
-
-        .av-number {
-          width: 35%;
-          text-align: left;
-        }
-
-        .av-caption {
-          width: 65%;
-          text-align: right;
-          font-weight: bold;
-        }
-      }
 
       .av-download {
         top: 15px;
@@ -110,24 +158,6 @@ esn-attachment-viewer {
         a {
           color: @m-white;
         }
-      }
-
-      .av-closeContainer {
-        top: 15px;
-        right: 35px;
-      }
-
-      .av-closeContainer,
-      .av-download {
-        cursor: pointer;
-        position: absolute;
-        font-size: 40px;
-        color: @m-white;
-      }
-
-      .av-closeContainer:hover,
-      .av-download:hover {
-        opacity: 1;
       }
     }
   }

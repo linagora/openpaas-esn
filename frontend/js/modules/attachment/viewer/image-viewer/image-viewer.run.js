@@ -2,7 +2,7 @@
   'use strict';
 
   angular.module('esn.attachment')
-    .run(function(esnAttachmentRegistryService, esnAttachmentImageViewer) {
-      esnAttachmentRegistryService.addViewer(esnAttachmentImageViewer);
+    .run(function(esnAttachmentRegistryService, ESN_ATTACHMENT_IMAGE_VIEWER) {
+      esnAttachmentRegistryService.addViewer(ESN_ATTACHMENT_IMAGE_VIEWER);
     });
 })();

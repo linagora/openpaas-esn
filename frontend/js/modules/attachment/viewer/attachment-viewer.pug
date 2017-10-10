@@ -1,20 +1,16 @@
-.av-fadeIn(ng-show='display')
-.attachment-viewer(ng-if='onInit', ng-init='onInit()', ng-show='display', ng-click='close($event)')
-  .av-outerContainer(ng-show='display')
-    .av-topBar
-      .av-details(ng-show='displayMain')
-        span.av-number {{numberInGallery}}
-        span.av-caption.ellipsis {{attachment.name}}
-      .av-download(title=__("Download file"))
-        a(href='{{attachment.url}}', esn-download-file='{{attachment.name}}')
-          i.mdi.mdi-download.mdi-hc-fw
-      .av-closeContainer(ng-click='close($event)', title=__("Close"))
-        span.av-close
-          i.mdi.mdi-close.mdi-hc-fw.av-closeButton
-    .av-main(ng-show='displayMain')
-    .av-loader(ng-hide='displayMain')
-      span.av-spinner
-    span.av-prev.nav(ng-click='openPrev()', ng-show='displayNav', title=__("Previous"))
-      i.mdi.mdi-chevron-left.mdi-hc-fw  
-    span.av-next.nav(ng-click='openNext()', ng-show='displayNav', title=__("Next"))
+.av-fadeIn
+.attachment-viewer(ng-if='onInit', ng-init='onInit()')
+  .av-outerContainer
+    .av-main
+      .av-closeContainer(ng-click='close()', title=__("Close"))
+        .av-close
+          i.mdi.mdi-close-circle.mdi-hc-fw.av-closeButton
+      div(ng-include="viewer.template")
+      .av-details
+        .av-number {{numberInGallery}}
+        .av-download
+          a(href='{{attachment.url}}', esn-download-file='{{attachment.name}}') Download
+    .av-prev.nav(ng-click='openPrev()', ng-show='displayNav', title=__("Previous"))
+      i.mdi.mdi-chevron-left.mdi-hc-fw
+    .av-next.nav(ng-click='openNext()', ng-show='displayNav', title=__("Next"))
       i.mdi.mdi-chevron-right.mdi-hc-fw

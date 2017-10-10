@@ -4,14 +4,17 @@
   angular.module('esn.attachment')
     .directive('esnAttachmentViewer', esnAttachmentViewer);
 
-  function esnAttachmentViewer($rootScope, $window, $compile, $timeout, esnAttachmentRegistryService, esnAttachmentViewerService) {
+  function esnAttachmentViewer(esnAttachmentRegistryService, esnAttachmentViewerService) {
     return {
       restrict: 'E',
       templateUrl: '/views/modules/attachment/viewer/attachment-viewer.html',
+      scope: {
+        viewToggle: '='
+      },
       link: link
     };
 
-    function link(scope, element) {
+    function link(scope) {
       var currentItem;
 
       scope.display = false;
@@ -26,48 +29,29 @@
 
       function onInit() {
         var viewer = {
-          open: open,
-          display: display
+          open: open
         };
 
         esnAttachmentViewerService.registerViewer(viewer);
       }
 
       function open(files, order) {
-        var currentOrder = order + 1;
-
         currentItem = {files: files, order: order};
-        scope.display = true;
-        scope.displayMain = false;
-        scope.attachment = files[order];
-        scope.numberInGallery = currentOrder + '/' + files.length;
         scope.displayNav = files.length > 1;
 
-        renderContent();
+        renderContent(order);
       }
 
-      function renderContent() {
-        var elem, template, newElt;
+      function renderContent(order) {
+        var currentOrder = order + 1;
+
+        scope.attachment = currentItem.files[order];
+
         var viewer = esnAttachmentRegistryService.getViewer(scope.attachment.contentType);
 
+        currentItem.order = order;
+        scope.numberInGallery = 'File ' + currentOrder + ' of ' + currentItem.files.length;
         scope.viewer = viewer || esnAttachmentRegistryService.getDefaultViewer();
-
-        elem = angular.element('<' + scope.viewer.directive + '></' + scope.viewer.directive + '>');
-        elem.attr({ attachment: 'attachment', viewer: 'viewer' });
-        template = angular.element(elem);
-        newElt = $compile(template)(scope);
-
-        element.find('.av-main').html(newElt);
-      }
-
-      function display(desiredSize) {
-        element.find('.av-topBar').css({
-          width: desiredSize.width + 'px'
-        });
-
-        $timeout(function() {
-          scope.displayMain = true;
-        });
       }
 
       function openNext() {
@@ -78,7 +62,7 @@
         } else {
           next = currentItem.order + 1;
         }
-        open(currentItem.files, next);
+        renderContent(next);
       }
 
       function openPrev() {
@@ -89,18 +73,11 @@
         } else {
           prev = currentItem.order - 1;
         }
-
-        open(currentItem.files, prev);
+        renderContent(prev);
       }
 
-      // $timeout here is used due to the zoomout animation
-      function closeViewer(event) {
-        if (event.target.className.indexOf('av-outerContainer') > -1 || (event.target.className.indexOf('av-closeButton') > -1)) {
-          $timeout(function() {
-            element.remove();
-          }, 200);
-          scope.display = false;
-        }
+      function closeViewer() {
+        scope.viewToggle = false;
       }
 
     }

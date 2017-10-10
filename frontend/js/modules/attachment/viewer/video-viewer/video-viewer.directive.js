@@ -4,7 +4,7 @@
   angular.module('esn.attachment')
     .directive('esnAttachmentVideoViewer', esnAttachmentVideoViewer);
 
-  function esnAttachmentVideoViewer($sce, esnAttachmentViewerService) {
+  function esnAttachmentVideoViewer($sce) {
     return {
       restrict: 'E',
       scope: {
@@ -15,7 +15,7 @@
       templateUrl: '/views/modules/attachment/viewer/video-viewer/video-viewer.html'
     };
 
-    function link(scope, elem) {
+    function link(scope) {
       scope.API = null;
       scope.onPlayerReady = function(API) {
         scope.API = API;
@@ -37,7 +37,6 @@
           }
         }
       };
-      scope.viewer.fitSizeContent(esnAttachmentViewerService.resizeViewer, elem.find('.videogular-container'));
     }
   }
 })();
