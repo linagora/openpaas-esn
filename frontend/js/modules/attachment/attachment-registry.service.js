@@ -4,7 +4,7 @@
   angular.module('esn.attachment')
     .factory('esnAttachmentRegistryService', esnAttachmentRegistryService);
 
-  function esnAttachmentRegistryService(esnRegistry, esnAttachmentDefaultViewer, ESN_ATTACHMENT_DEFAULT_PREVIEW) {
+  function esnAttachmentRegistryService(esnRegistry, ESN_ATTACHMENT_DEFAULT_VIEWER, ESN_ATTACHMENT_DEFAULT_PREVIEW) {
     var viewerRegistry = esnRegistry('file-viewer', {
       match: function(contentType, provider) {
         return provider.contentType.indexOf(contentType) > -1;
@@ -22,7 +22,7 @@
     }
 
     function getDefaultViewer() {
-      return esnAttachmentDefaultViewer;
+      return ESN_ATTACHMENT_DEFAULT_VIEWER;
     }
 
     return {
