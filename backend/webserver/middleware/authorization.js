@@ -84,7 +84,9 @@ function requiresDomainManager(req, res, next) {
       return next();
     }
 
-    res.status(403).json({error: 403, message: 'Forbidden', details: 'User is not the domain manager'});
+    res.status(403).json({
+      error: { code: 403, message: 'Forbidden', details: 'User is not the domain manager' }
+    });
   });
 }
 
