@@ -28,16 +28,12 @@ angular.module('esn.file-saver', ['ngFileSaver'])
     };
 
     return $http(req)
-            .then(getFileComplete)
-            .catch(getFileFailed);
-
-    function getFileComplete(response) {
-      return response.data;
-    }
-
-    function getFileFailed(error) {
-      $log.debug('XHR Failed for getFile.' + error.data);
-    }
+      .then(function(response) {
+        return response.data;
+      })
+      .catch(function(error) {
+        $log.debug('XHR Failed for getFile.' + error.data);
+      });
   }
 
 })

@@ -61,8 +61,7 @@ describe('The esn.message Angular module', function() {
       };
 
       this.$rootScope.$digest();
-      expect(element.html()).to.have.string(this.$rootScope.testMessage.attachments[0].name);
-      expect(element.html()).to.have.string(this.$rootScope.testMessage.attachments[1].name);
+      expect(element.find('esn-attachment').length).to.equal(2);
     });
 
     it('should be hide when there is no attachments', function() {

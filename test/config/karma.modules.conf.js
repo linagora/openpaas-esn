@@ -105,6 +105,11 @@ module.exports = function(config) {
       'frontend/components/angular-material/modules/js/whiteframe/whiteframe.min.css',
       'frontend/components/angular-material/modules/js/panel/panel.min.css',
       'frontend/components/angular-hotkeys/build/hotkeys.min.js',
+      'frontend/components/videogular/videogular.min.js',
+      'frontend/components/videogular-buffering/vg-buffering.min.js',
+      'frontend/components/videogular-controls/vg-controls.min.js',
+      'frontend/components/videogular-overlay-play/vg-overlay-play.min.js',
+      'frontend/components/angular-file-saver/dist/angular-file-saver.bundle.js',
       'test/fixtures/code-generation/constants.js',
 
       { pattern: 'frontend/js/modules/collaboration/collaboration.run.js', watched: false, included: false, served: false },
