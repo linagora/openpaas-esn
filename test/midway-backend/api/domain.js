@@ -821,7 +821,11 @@ describe('The domain API', function() {
         req.expect(403).end(function(err, res) {
           expect(err).to.not.exist;
           expect(res.body).to.exists;
-          expect(res.body.error).to.equal(403);
+          expect(res.body.error).to.deep.equal({
+            code: 403,
+            message: 'Forbidden',
+            details: 'User is not the domain manager'
+          });
           done();
         });
       });
@@ -885,7 +889,11 @@ describe('The domain API', function() {
         req.expect(403).end(function(err, res) {
           expect(err).to.not.exist;
           expect(res.body).to.exists;
-          expect(res.body.error).to.equal(403);
+          expect(res.body.error).to.deep.equal({
+            code: 403,
+            message: 'Forbidden',
+            details: 'User is not the domain manager'
+          });
           done();
         });
       });
@@ -937,7 +945,11 @@ describe('The domain API', function() {
         var req = requestAsMember(request(app).get('/api/domains/' + domain1._id + '/administrators'));
         req.expect(403).end(helpers.callbacks.noErrorAnd(function(res) {
           expect(res.body).to.exists;
-          expect(res.body.error).to.equal(403);
+          expect(res.body.error).to.deep.equal({
+            code: 403,
+            message: 'Forbidden',
+            details: 'User is not the domain manager'
+          });
           done();
         }));
       }));
@@ -1004,7 +1016,11 @@ describe('The domain API', function() {
         var req = requestAsMember(request(app).post('/api/domains/' + domain1._id + '/administrators'));
 
         req.expect(403).end(helpers.callbacks.noErrorAnd(function(res) {
-          expect(res.body.error).to.equal(403);
+          expect(res.body.error).to.deep.equal({
+            code: 403,
+            message: 'Forbidden',
+            details: 'User is not the domain manager'
+          });
           done();
         }));
       });
@@ -1071,7 +1087,11 @@ describe('The domain API', function() {
         var req = requestAsMember(request(app).delete(endpoint));
 
         req.expect(403).end(helpers.callbacks.noErrorAnd(function(res) {
-          expect(res.body.error).to.equal(403);
+          expect(res.body.error).to.deep.equal({
+            code: 403,
+            message: 'Forbidden',
+            details: 'User is not the domain manager'
+          });
           done();
         }));
       });

@@ -280,9 +280,11 @@ describe('The configurations API', function() {
             .expect(403)
             .end(helpers.callbacks.noErrorAnd(res => {
               expect(res.body).to.shallowDeepEqual({
-                error: 403,
-                message: 'Forbidden',
-                details: 'User is not the domain manager'
+                error: {
+                  code: 403,
+                  message: 'Forbidden',
+                  details: 'User is not the domain manager'
+                }
               });
               done();
             }));
@@ -720,9 +722,11 @@ describe('The configurations API', function() {
             .expect(403)
             .end(helpers.callbacks.noErrorAnd(res => {
               expect(res.body).to.shallowDeepEqual({
-                error: 403,
-                message: 'Forbidden',
-                details: 'User is not the domain manager'
+                error: {
+                  code: 403,
+                  message: 'Forbidden',
+                  details: 'User is not the domain manager'
+                }
               });
               done();
             }));
