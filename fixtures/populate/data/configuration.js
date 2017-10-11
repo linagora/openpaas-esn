@@ -14,6 +14,8 @@ module.exports = function(domains, host) {
   var isAttachmentsEnabled = process.env.ATTACHMENTS_ENABLED !== 'false';
   var drafts = process.env.DRAFTS !== 'false';
   var maxSizeUpload = parseInt(process.env.JMAP_MAX_SIZE_UPLOAD, 10) || 20971520;
+  var numberItemsPerPageOnBulkReadOperations = 30;
+  var numberItemsPerPageOnBulkDeleteOperations = 30;
   var jmapHostPort = 'http://' + jmapHost + ':' + port;
   var api = jmapHostPort + '/' + path;
   var uploadUrl = process.env.JMAP_UPLOAD_URL || jmapHostPort + '/upload';
@@ -69,6 +71,14 @@ module.exports = function(domains, host) {
             {
               name: 'maxSizeUpload',
               value: maxSizeUpload
+            },
+            {
+              name: 'numberItemsPerPageOnBulkReadOperations',
+              value: numberItemsPerPageOnBulkReadOperations
+            },
+            {
+              name: 'numberItemsPerPageOnBulkDeleteOperations',
+              value: numberItemsPerPageOnBulkDeleteOperations
             },
             {
               name: 'drafts',

@@ -308,6 +308,13 @@
   -ie-animation-name: rotate;
 }
 
+.animation-rotate(@val) {
+  animation: rotate @val;
+  -webkit-animation: rotate @val;
+  -moz-animation: rotate @val;
+  -ie-animation: rotate @val;
+}
+
 .rotateZ3d(@val) {
   -webkit-transform: rotateZ(@val);
   transform: rotateZ(@val);
