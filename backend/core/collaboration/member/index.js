@@ -15,6 +15,7 @@ const WORKFLOW_NOTIFICATIONS_TOPIC = CONSTANTS.WORKFLOW_NOTIFICATIONS_TOPIC;
 module.exports = function(collaborationModule) {
   return {
     addMember,
+    addMembers,
     addMembershipRequest,
     cancelMembershipInvitation,
     cancelMembershipRequest,
@@ -39,44 +40,67 @@ module.exports = function(collaborationModule) {
     MEMBERSHIP_TYPE_INVITATION
   };
 
-  function addMember(target, author, member, callback) {
-    if (!target || !member) {
-      return callback(new Error('Collaboration and member are required'));
+  function addMember(collaboration, member, callback) {
+    addMembers(collaboration, [member], callback);
+  }
+
+  function addMembers(collaboration, members, callback) {
+    if (!collaboration || !members) {
+      return callback(new Error('Collaboration and members are required'));
     }
 
-    if (!target.save) {
-      return callback(new Error('addMember(): first argument (target) must be a collaboration mongoose model'));
+    if (!collaboration.save) {
+      return callback(new Error('addMembers(): first argument (collaboration) must be a collaboration mongoose model'));
     }
 
-    if (!member.id || !member.objectType) {
-      return callback(new Error('member must be a tuple{id, objectType}'));
+    const verifiedMembers = _.uniqWith(members, _.isEqual)
+      .filter(member => !isMember(member))
+      .map(verifyMember);
+    const verificationError = verifiedMembers.find(member => member instanceof Error);
+
+    if (verificationError) {
+      return callback(verificationError);
     }
 
-    const isMemberOf = target.members.filter(m => ((m.member.id.equals ? m.member.id.equals(member.id) : m.member.id === member.id) && m.member.objectType === member.objectType));
+    _.each(verifiedMembers, member => {
+      collaboration.members.push({
+        member,
+        status: CONSTANTS.STATUS.joined
+      });
+    });
 
-    if (isMemberOf.length) {
-      return callback(null, target);
-    }
-
-    member = tupleModule.get(member.objectType, member.id);
-    if (!member) {
-      return callback(new Error('Unsupported tuple'));
-    }
-
-    target.members.push({member: member, status: CONSTANTS.STATUS.joined});
-    target.save((err, update) => {
+    collaboration.save((err, updated) => {
       if (err) {
         return callback(err);
       }
 
-      localpubsub.topic(target.objectType + ':member:add').forward(globalpubsub, {
-        author: author,
-        target: target,
-        member: member
-      });
-
-      callback(null, update);
+      callback(null, updated);
     });
+
+    function verifyMember(member) {
+      if (!member.id || !member.objectType) {
+        return new Error('member must be a tuple{id, objectType}');
+      }
+
+      if (!tupleModule[member.objectType]) {
+        return new Error(`${member.objectType} is not a supported tuple`);
+      }
+
+      try {
+        member = tupleModule.get(member.objectType, member.id);
+      } catch (error) {
+        return new Error(`Invalid tuple id: ${error.message}`);
+      }
+
+      return member;
+    }
+
+    function isMember(member) {
+      return collaboration.members.find(ele => ((
+        ele.member.objectType === member.objectType &&
+        ele.member.id.equals ? ele.member.id.equals(member.id) : ele.member.id === member.id)
+      ));
+    }
   }
 
   function addMembershipRequest(objectType, collaboration, userAuthor, userTarget, workflow, actor, callback) {
@@ -403,7 +427,7 @@ module.exports = function(collaborationModule) {
       id: userTarget_id
     };
 
-    addMember(collaboration, userAuthor, member, (err, updated) => {
+    addMember(collaboration, member, (err, updated) => {
       if (err) {
         return callback(err);
       }
