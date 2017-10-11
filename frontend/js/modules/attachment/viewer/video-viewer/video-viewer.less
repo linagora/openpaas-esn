@@ -1,0 +1,37 @@
+@VG-BUFFERING: 13;
+
+esn-attachment-video-viewer {
+  display: inline-block;
+  z-index: 10;
+
+  .videogular-container {
+    width: 75vw;
+    margin: auto;
+    overflow: hidden;
+
+    videogular {
+
+      vg-media {
+        z-index: @VG-BUFFERING + 1;
+      }
+
+      vg-controls {
+        z-index: @VG-BUFFERING + 2;
+      }
+      
+      vg-overlay-play {
+        display: block;
+        z-index: @VG-BUFFERING + 1;
+      }
+
+      vg-buffering {
+        display: block;
+        z-index: @VG-BUFFERING;
+        
+        .bufferingContainer {
+          margin-top: -27px;
+        }
+      }
+    }
+  }
+}

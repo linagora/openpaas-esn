@@ -1,0 +1,36 @@
+@left-border-right-color: #999999;
+
+esn-attachment-default-viewer {
+  display: inline-flex;
+  height: 100%;
+  text-align: center;
+  background-color:  @m-white;
+
+  .esn-attachment-default-viewer {    
+    display: inline-flex;
+    min-height: 110px;
+    min-width: 250px;
+
+    .left {
+      width: 30%;
+      font-size: 6em;
+      padding-top: 5px;
+      border-right: 1px solid @left-border-right-color;
+    }
+
+    .right {
+      width: 70%;
+      padding: 10px;
+    }
+  }
+}
+
+@media only screen and (max-width: @screen-phone) {
+  esn-attachment-default-viewer .esn-attachment-default-viewer {
+    min-height: 100px;
+    
+    .left {
+      font-size: 4.5em;
+    }
+  }
+}

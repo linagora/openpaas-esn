@@ -1,18 +1,32 @@
 'use strict';
 
-/* global chai: false */
+/* global chai: false, sinon: false */
 
 var expect = chai.expect;
 
 describe('The esn.message Angular module', function() {
+  var esnAttachmentRegistryService;
+
   beforeEach(function() {
     var session = this.session = {
       user: { emails: ['jdoe@lng.net'] }
     };
 
+    esnAttachmentRegistryService = {
+      addViewer: sinon.spy(),
+      addPreviewer: sinon.spy(),
+      getPreviewer: sinon.spy(),
+      getDefaultPreviewer: sinon.stub()
+    };
+    esnAttachmentRegistryService.getDefaultPreviewer.returns({
+      name: 'defaultPreivew',
+      directive: 'esn-attachment-default-preview'
+    });
+
     angular.mock.module('esn.message');
     angular.mock.module(function($provide) {
       $provide.value('session', session);
+       $provide.value('esnAttachmentRegistryService', esnAttachmentRegistryService);
     });
   });
 
@@ -47,8 +61,7 @@ describe('The esn.message Angular module', function() {
       };
 
       this.$rootScope.$digest();
-      expect(element.html()).to.have.string(this.$rootScope.testMessage.attachments[0].name);
-      expect(element.html()).to.have.string(this.$rootScope.testMessage.attachments[1].name);
+      expect(element.find('esn-attachment').length).to.equal(2);
     });
 
     it('should be hide when there is no attachments', function() {

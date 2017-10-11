@@ -1,0 +1,8 @@
+.esn-attachment-default-preview
+  .icon-preview
+    a(target='_blank', title='{{::$ctrl.attachment.name}}')
+      esn-attachment-icon(type='$ctrl.attachment.contentType')
+  .metadata
+    h2.ellipsis
+      a(target='_blank', title='{{::$ctrl.attachment.name}}') {{::$ctrl.attachment.name}}
+    h6.ellipsis {{::$ctrl.attachment.length | bytes}}

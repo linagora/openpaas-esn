@@ -1,0 +1,7 @@
+.esn-attachment-default-viewer
+  .left
+    a(target='_blank', ng-href='{{attachment.url}}', title=__("Open in a new tab"))
+      esn-attachment-icon(type='attachment.contentType')
+  .right
+    h4 {{attachment.name}}
+    .info #{__("File type")} {{attachment.contentType | extension | uppercase}} #{__("Size")} {{attachment.length | bytes}}

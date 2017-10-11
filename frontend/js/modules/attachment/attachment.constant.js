@@ -7,5 +7,5 @@
       image: 'mdi-file-image',
       video: 'mdi-file-video',
       default: 'mdi-file-outline'
-  });
+    });
 })();
