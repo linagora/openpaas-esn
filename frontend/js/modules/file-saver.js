@@ -5,7 +5,8 @@ angular.module('esn.file-saver', ['ngFileSaver'])
 .factory('esnFileSaver', function($http, $log, FileSaver, Blob) {
   return {
     saveText: saveText,
-    saveFile: saveFile
+    saveFile: saveFile,
+    getFile: getFile
   };
 
   function saveText(textContent, filename) {

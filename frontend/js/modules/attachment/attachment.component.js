@@ -9,7 +9,6 @@
         preview: '<',
         viewer: '<'
       },
-      controller: 'ESNAttachmentController',
-      templateUrl: '/views/modules/attachment/attachment.html'
+      controller: 'ESNAttachmentController'
     });
 })();
