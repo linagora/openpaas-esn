@@ -4,20 +4,16 @@
   angular.module('esn.attachment')
     .directive('esnAttachmentViewer', esnAttachmentViewer);
 
-  function esnAttachmentViewer(esnAttachmentRegistryService, esnAttachmentViewerService) {
+  function esnAttachmentViewer($compile, esnAttachmentRegistryService, esnAttachmentViewerService) {
     return {
       restrict: 'E',
       templateUrl: '/views/modules/attachment/viewer/attachment-viewer.html',
-      scope: {
-        viewToggle: '='
-      },
       link: link
     };
 
-    function link(scope) {
+    function link(scope, element) {
       var currentItem;
 
-      scope.display = false;
       scope.displayMain = false;
       scope.displayNav = false;
       scope.numberInGallery = '';
@@ -38,11 +34,11 @@
       function open(files, order) {
         currentItem = {files: files, order: order};
         scope.displayNav = files.length > 1;
-
-        renderContent(order);
+        getViewer(order);
+        renderDirective();
       }
 
-      function renderContent(order) {
+      function getViewer(order) {
         var currentOrder = order + 1;
 
         scope.attachment = currentItem.files[order];
@@ -54,6 +50,11 @@
         scope.viewer = viewer || esnAttachmentRegistryService.getDefaultViewer();
       }
 
+      function renderDirective() {
+        var newElt = $compile('<' + scope.viewer.directive + ' attachment="attachment", viewer="viewer" />')(scope);
+        element.find('.av-attachment-content').html(newElt);
+      }
+
       function openNext() {
         var next;
 
@@ -62,7 +63,8 @@
         } else {
           next = currentItem.order + 1;
         }
-        renderContent(next);
+        getViewer(next);
+        renderDirective();
       }
 
       function openPrev() {
@@ -73,11 +75,12 @@
         } else {
           prev = currentItem.order - 1;
         }
-        renderContent(prev);
+        getViewer(prev);
+        renderDirective();
       }
 
       function closeViewer() {
-        scope.viewToggle = false;
+        element.remove();
       }
 
     }

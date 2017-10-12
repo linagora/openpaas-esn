@@ -4,4 +4,4 @@
       esn-attachment-icon(type='attachment.contentType')
   .right
     h4 {{attachment.name}}
-    .info #{__("File type")} {{attachment.contentType | extension | uppercase}} #{__("Size")} {{attachment.length | bytes}}
+    .info #{__("Size")}: {{attachment.length | bytes}}
