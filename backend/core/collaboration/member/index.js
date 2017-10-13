@@ -32,6 +32,7 @@ module.exports = function(collaborationModule) {
     join,
     leave,
     refuseMembershipRequest,
+    removeMembers,
     supportsMemberShipRequests,
     WORKFLOW_NOTIFICATIONS_TOPIC,
     MEMBERSHIP_TYPE_REQUEST,
@@ -419,13 +420,16 @@ module.exports = function(collaborationModule) {
   }
 
   function leave(objectType, collaboration, userAuthor, userTarget, callback) {
-    const id = collaboration._id || collaboration;
-    const userAuthor_id = userAuthor._id || userAuthor;
-    const userTarget_id = userTarget._id || userTarget;
-    const selection = { 'member.objectType': 'user', 'member.id': userTarget_id };
-    const Model = collaborationModule.getModel(objectType);
+    const userAuthor_id = String(userAuthor._id || userAuthor);
+    const userTarget_id = String(userTarget._id || userTarget);
+    const member = { objectType: 'user', id: userTarget_id };
 
-    Model.update({ _id: id, members: {$elemMatch: selection} }, { $pull: {members: selection} }, (err, updated) => {
+    collaboration = {
+      id: collaboration._id || collaboration,
+      objectType
+    };
+
+    removeMembers(collaboration, [member], (err, updated) => {
       if (err) {
         return callback(err);
       }
@@ -433,7 +437,7 @@ module.exports = function(collaborationModule) {
       localpubsub.topic('collaboration:leave').forward(globalpubsub, {
         author: userAuthor_id,
         target: userTarget_id,
-        collaboration: {objectType: objectType, id: id}
+        collaboration
       });
 
       callback(null, updated);
@@ -455,6 +459,39 @@ module.exports = function(collaborationModule) {
 
       callback(err, collaboration);
     });
+  }
+
+  function removeMembers(collaboration, members, callback) {
+    if (!collaboration || !Array.isArray(members)) {
+      return callback(new Error('Collaboration and members are required'));
+    }
+
+    members = members.map(member => {
+      try {
+        return tupleModule.get(member.objectType, member.id);
+      } catch (err) {
+        return null;
+      }
+    });
+
+    if (members.some(member => !member)) {
+      return callback(new Error('Some members are invalid or unsupported tuples'));
+    }
+
+    const Model = collaborationModule.getModel(collaboration.objectType);
+    const selections = members.map(member => ({
+      'member.id': member.id, 'member.objectType': member.objectType
+    }));
+
+    Model.update(
+      { _id: collaboration.id },
+      {
+        $pull: {
+          members: { $or: selections }
+        }
+      },
+      callback
+    );
   }
 
   function supportsMemberShipRequests(collaboration) {

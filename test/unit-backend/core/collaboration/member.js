@@ -2,6 +2,7 @@
 
 const expect = require('chai').expect;
 const mockery = require('mockery');
+const sinon = require('sinon');
 const ObjectId = require('bson').ObjectId;
 
 describe('The collaboration member module', function() {
@@ -315,7 +316,7 @@ describe('The collaboration member module', function() {
 
       const collaborationModule = getModule();
 
-      collaborationModule.leave('community', 123, 456, 456, function(err) {
+      collaborationModule.leave('community', 123, 456, new ObjectId(), function(err) {
         expect(err.message).to.equal(error.message);
         done();
       });
@@ -330,7 +331,7 @@ describe('The collaboration member module', function() {
 
       const collaborationModule = getModule();
 
-      collaborationModule.leave('community', 123, 456, 456, function(err, update) {
+      collaborationModule.leave('community', 123, 456, new ObjectId(), function(err, update) {
         expect(err).to.not.exist;
         expect(update).to.deep.equal(result);
         done();
@@ -340,6 +341,7 @@ describe('The collaboration member module', function() {
     it('should forward message into collaboration:leave', function(done) {
       const result = {_id: 123};
       const localstub = {}, globalstub = {};
+      const userTarget = String(new ObjectId());
 
       modelMock.update = function(a, b, callback) {
         callback(null, result);
@@ -349,17 +351,17 @@ describe('The collaboration member module', function() {
 
       const collaborationModule = getModule();
 
-      collaborationModule.leave('community', 123, 456, 789, function(err, update) {
+      collaborationModule.leave('community', 123, '456', userTarget, function(err, update) {
         expect(err).to.not.exist;
         expect(update).to.deep.equal(result);
         expect(localstub.topics['collaboration:leave'].data[0]).to.deep.equal({
-          author: 456,
-          target: 789,
+          author: '456',
+          target: userTarget,
           collaboration: {objectType: 'community', id: 123}
         });
         expect(globalstub.topics['collaboration:leave'].data[0]).to.deep.equal({
-          author: 456,
-          target: 789,
+          author: '456',
+          target: userTarget,
           collaboration: {objectType: 'community', id: 123}
         });
 
@@ -749,5 +751,59 @@ describe('The collaboration member module', function() {
       expect(collaborationModule.supportsMemberShipRequests({type: 'restricted'})).to.be.true;
     });
 
+  });
+
+  describe('The removeMembers function', function() {
+    it('should callback with error when collaboration is missing', function(done) {
+      const collaboration = null;
+      const members = [];
+
+      getModule().removeMembers(collaboration, members, err => {
+        expect(err.message).to.equal('Collaboration and members are required');
+        done();
+      });
+    });
+
+    it('should callback with error when members is not an array', function(done) {
+      const collaboration = { objectType: 'objectType', id: 'id' };
+      const members = 'not an array';
+
+      getModule().removeMembers(collaboration, members, err => {
+        expect(err.message).to.equal('Collaboration and members are required');
+        done();
+      });
+    });
+
+    it('should callback with error when some member tuples are invalid', function(done) {
+      const collaboration = { objectType: 'objectType', id: 'id' };
+      const members = [{ objectType: 'user', id: 1 }, { objectType: 'unknown', id: 2 }];
+      const tupleMock = { get: sinon.stub() };
+
+      tupleMock.get.withArgs(members[0]).returns(members[0]);
+      tupleMock.get.withArgs(members[1]).returns(null);
+
+      mockery.registerMock('../../tuple', tupleMock);
+      getModule().removeMembers(collaboration, members, err => {
+        expect(err.message).to.equal('Some members are invalid or unsupported tuples');
+        done();
+      });
+    });
+
+    it('should call Model.update to remove members', function(done) {
+      const collaboration = { objectType: 'objectType', id: 'id' };
+      const members = [{ objectType: 'user', id: 1 }, { objectType: 'user', id: 2 }];
+      const tupleMock = { get: tuple => tuple };
+      const updatedData = { key: 'value' };
+
+      mockery.registerMock('../../tuple', tupleMock);
+      modelMock.update = sinon.spy((query, option, callback) => callback(null, updatedData));
+
+      getModule().removeMembers(collaboration, members, (err, updated) => {
+        expect(err).to.not.exist;
+        expect(updated).to.deep.equal(updatedData);
+        expect(modelMock.update).to.have.been.calledOnce;
+        done();
+      });
+    });
   });
 });
