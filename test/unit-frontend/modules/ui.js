@@ -461,10 +461,21 @@ describe('The UI module', function() {
       });
     });
 
-    it('should call event.stopPropagation on click', function() {
+    it('should not call event.stopPropagation on click by default', function() {
       $scope.spy = sinon.spy();
 
       initDirective('<div ng-click="spy()"><button esn-modal-launcher="/path/to/template"></button></div>');
+
+      element.find('button').click();
+
+      expect(modalMock).to.have.been.calledOnce;
+      expect($scope.spy).to.have.been.called;
+    });
+
+    it('should call event.stopPropagation on click when stop-propagation option is enabled', function() {
+      $scope.spy = sinon.spy();
+
+      initDirective('<div ng-click="spy()"><button esn-modal-launcher="/path/to/template", stop-propagation="true"></button></div>');
 
       element.find('button').click();
 

@@ -204,7 +204,7 @@ angular.module('esn.ui', [
       });
 
       element.click(function(event) {
-        event.stopPropagation();
+        if (attrs.stopPropagation) { event.stopPropagation(); }
         $modal(modalOptions);
       });
     }
