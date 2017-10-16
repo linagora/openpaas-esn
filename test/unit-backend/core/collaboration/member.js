@@ -19,6 +19,109 @@ describe('The collaboration member module', function() {
     getModule = () => this.helpers.requireBackend('core/collaboration/member')(lib);
   });
 
+  describe('The addMembers function', function() {
+    it('should send back error if it failed to update collaboration', function(done) {
+      modelMock.update = function(a, b, callback) {
+        callback(new Error());
+      };
+
+      const collabMock = {
+        members: [],
+        _id: 'collaboration1',
+        save: function(callback) {
+          callback(new Error('failed to update collaboration'));
+        }
+      };
+      const collaborationModule = getModule();
+
+      collaborationModule.addMembers(collabMock, [], err => {
+        expect(err).to.exist;
+        expect(err.message).to.equal('failed to update collaboration');
+        done();
+      });
+    });
+
+    it('should send back error if a member is not a supported tuple', function(done) {
+      const collabMock = {
+        members: [],
+        _id: 'collaboration1',
+        save: function() {}
+      };
+      const user = new ObjectId();
+      const members = [
+        { id: user, objectType: 'user' },
+        { id: 'invalid', objectType: 'invalidtuple' }
+      ];
+      const collaborationModule = getModule();
+
+      collaborationModule.addMembers(collabMock, members, err => {
+        expect(err).to.exist;
+        expect(err.message).to.equal(`${members[1].objectType} is not a supported tuple`);
+        done();
+      });
+    });
+
+    it('should add filtered members of duplicates or members which are currently existing in target collaboration', function(done) {
+      const existingMember = { id: 'member@email.org', objectType: 'email' };
+      const collabMock = {
+        members: [{ member: existingMember, status: 'joined' }],
+        _id: 'collaboration1',
+        save: function(callback) {
+          callback(null, this);
+        }
+      };
+      const user = new ObjectId();
+      const addingMembers = [
+        { id: user, objectType: 'user' },
+        { id: user, objectType: 'user' },
+        existingMember
+      ];
+      const expectedMembers = [
+        { member: existingMember, status: 'joined' },
+        { member: {id: user, objectType: 'user'}, status: 'joined' }
+      ];
+      const collaborationModule = getModule();
+
+      collaborationModule.addMembers(collabMock, addingMembers, (err, updated) => {
+        expect(err).to.not.exist;
+        expect(updated.members.length).to.equal(2);
+        expect(updated.members).to.shallowDeepEqual(expectedMembers);
+        done();
+      });
+    });
+
+    it('should send back updated documents', function(done) {
+      const collabMock = {
+        members: [],
+        _id: 'collaboration1',
+        save: function(callback) {
+          this.updated = true;
+          callback(null, this);
+        }
+      };
+      const user = new ObjectId();
+      const members = [
+        { id: user, objectType: 'user' },
+        { id: user, objectType: 'user' },
+        { id: 'email@lngr.com', objectType: 'email' },
+        { id: 'email@lngr.com', objectType: 'email' }
+      ];
+      const expectedMembers = [
+        { member: { id: user, objectType: 'user' }, status: 'joined' },
+        { member: { id: 'email@lngr.com', objectType: 'email' }, status: 'joined' }
+      ];
+      const collaborationModule = getModule();
+
+      collaborationModule.addMembers(collabMock, members, (err, update) => {
+        expect(err).to.not.exist;
+        expect(update.updated).to.be.true;
+        expect(update.members.length).to.equal(2);
+        expect(update.members).to.shallowDeepEqual(expectedMembers);
+        done();
+      });
+    });
+  });
+
   describe('The addMembershipRequest function', function() {
     beforeEach(function() {
       this.helpers.mock.models({});
