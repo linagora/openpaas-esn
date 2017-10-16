@@ -85,7 +85,8 @@ var UserSchema = new mongoose.Schema({
   schemaVersion: {type: Number, default: 2},
   avatars: [ObjectId],
   currentAvatar: ObjectId,
-  accounts: {type: [UserAccountSchema], required: true, validate: validateAccounts}
+  accounts: {type: [UserAccountSchema], required: true, validate: validateAccounts},
+  organization: { type: mongoose.Schema.Types.ObjectId, ref: 'Organization' }
 });
 
 UserSchema.virtual('preferredEmail').get(function() {
