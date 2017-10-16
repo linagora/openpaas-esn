@@ -1,14 +1,12 @@
-'use strict';
-
-var Pubsub = require('../pubsub');
-var EventEmitter = require('events').EventEmitter;
-var emitter = new EventEmitter();
-
-var removeListener = emitter.removeListener;
+const Pubsub = require('../pubsub');
+const { EventEmitter } = require('events');
+const emitter = new EventEmitter();
+const removeListener = emitter.removeListener;
 
 emitter.removeListener = function(event, handler) {
-  var count = this.listeners(event).length;
-  var countAfterRemove = 0;
+  let count = this.listeners(event).length;
+  let countAfterRemove = 0;
+
   while (count !== countAfterRemove) {
     count = countAfterRemove;
     removeListener.call(this, event, handler);
@@ -16,5 +14,4 @@ emitter.removeListener = function(event, handler) {
   }
 };
 
-var pubsub = new Pubsub('local', emitter);
-module.exports = pubsub;
+module.exports = new Pubsub('local', emitter);
