@@ -1,6 +1,6 @@
 const Pubsub = require('../pubsub');
-const { EventEmitter } = require('events');
-const emitter = new EventEmitter();
+const { EventEmitter2 } = require('eventemitter2');
+const emitter = new EventEmitter2();
 const removeListener = emitter.removeListener;
 
 emitter.removeListener = function(event, handler) {
