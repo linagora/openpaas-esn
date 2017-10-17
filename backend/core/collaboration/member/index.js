@@ -322,16 +322,17 @@ module.exports = function(collaborationModule) {
 
       members = members.slice(offset, offset + limit);
 
-      async.map(members, function(m, callback) {
-        return fetchMember(m.member, function(err, loaded) {
-          m.objectType = m.member.objectType;
-          m.id = m.member.id;
+      async.map(members, function(member, callback) {
+        return fetchMember(member.member, function(err, loaded) {
+          member = member.toObject();
+          member.objectType = member.member.objectType;
+          member.id = member.member.id;
 
           if (loaded) {
-            m.member = loaded;
+            member.member = loaded;
           }
 
-          return callback(null, m);
+          return callback(null, member);
         });
       }, (err, members) => {
         members.total_count = total_count;
