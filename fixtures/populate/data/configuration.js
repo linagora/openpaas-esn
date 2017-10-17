@@ -16,6 +16,7 @@ module.exports = function(domains, host) {
   var maxSizeUpload = parseInt(process.env.JMAP_MAX_SIZE_UPLOAD, 10) || 20971520;
   var numberItemsPerPageOnBulkReadOperations = 30;
   var numberItemsPerPageOnBulkDeleteOperations = 30;
+  var numberItemsPerPageOnBulkUpdateOperations = 30;
   var jmapHostPort = 'http://' + jmapHost + ':' + port;
   var api = jmapHostPort + '/' + path;
   var uploadUrl = process.env.JMAP_UPLOAD_URL || jmapHostPort + '/upload';
@@ -79,6 +80,10 @@ module.exports = function(domains, host) {
             {
               name: 'numberItemsPerPageOnBulkDeleteOperations',
               value: numberItemsPerPageOnBulkDeleteOperations
+            },
+            {
+              name: 'numberItemsPerPageOnBulkUpdateOperations',
+              value: numberItemsPerPageOnBulkUpdateOperations
             },
             {
               name: 'drafts',
