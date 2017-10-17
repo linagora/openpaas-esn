@@ -3,7 +3,7 @@
 const q = require('q');
 const commons = require('../commons');
 const EsConfig = require('esn-elasticsearch-configuration');
-const AVAILABLE_INDEX_TYPES = ['users', 'contacts', 'events', 'resources'];
+const AVAILABLE_INDEX_TYPES = ['users', 'contacts', 'events', 'resources', 'core.events'];
 const command = {
   command: 'elasticsearch',
   desc: 'Configure ElasticSearch',

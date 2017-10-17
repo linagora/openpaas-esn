@@ -14,6 +14,7 @@ describe('The pubsub module', function() {
     const esSpy = {init: sinon.spy()};
     const tSpy = {init: sinon.spy()};
     const uSpy = {init: sinon.spy()};
+    const evsSpy = {init: sinon.spy()};
 
     mockery.registerMock('../activitystreams/pubsub', asSpy);
     mockery.registerMock('../collaboration', {usernotification: cSpy});
@@ -22,6 +23,7 @@ describe('The pubsub module', function() {
     mockery.registerMock('../resource-link/pubsub', rSpy);
     mockery.registerMock('../timeline', tSpy);
     mockery.registerMock('../user', uSpy);
+    mockery.registerMock('../eventsourcing', evsSpy);
 
     const module = this.helpers.requireBackend('core/pubsub');
 
@@ -34,5 +36,6 @@ describe('The pubsub module', function() {
     expect(rSpy.init).to.have.been.called;
     expect(tSpy.init).to.have.been.called;
     expect(uSpy.init).to.have.been.called;
+    expect(evsSpy.init).to.have.been.called;
   });
 });
