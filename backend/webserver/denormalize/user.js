@@ -8,18 +8,28 @@ const rights = require('../../core/esn-config/rights');
 const platformAdmin = require('../../core/platformadmin');
 
 const isUserWide = true;
+const DEFAULT_OPTIONS = {
+  includeIsFollowing: false,
+  includeFollow: false,
+  includeIsPlatformAdmin: false,
+  includeState: false,
+  includeConfigurations: false,
+  includePrivateData: false
+};
 
 module.exports = {
   denormalize
 };
 
-function denormalize(user, options = {}) {
-  return sanitize(user, options)
-    .then(sanitized => setIsFollowing(sanitized, options.user))
-    .then(follow)
-    .then(sanitized => setIsPlatformAdmin(user, sanitized))
-    .then(sanitized => setState(user, sanitized))
-    .then(sanitized => loadConfigurations(user, sanitized));
+function denormalize(user, options = DEFAULT_OPTIONS) {
+  const finalOptions = Object.assign({}, DEFAULT_OPTIONS, options);
+
+  return sanitize(user, finalOptions)
+    .then(sanitized => (finalOptions.includeIsFollowing ? setIsFollowing(sanitized, finalOptions.user) : sanitized))
+    .then(sanitized => (finalOptions.includeFollow ? follow(sanitized) : sanitized))
+    .then(sanitized => (finalOptions.includeIsPlatformAdmin ? setIsPlatformAdmin(user, sanitized) : sanitized))
+    .then(sanitized => (finalOptions.includeState ? setState(user, sanitized) : sanitized))
+    .then(sanitized => (finalOptions.includeConfigurations ? loadConfigurations(user, sanitized) : sanitized));
 }
 
 function setIsPlatformAdmin(user, sanitized) {
