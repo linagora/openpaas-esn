@@ -21,19 +21,18 @@ describe('The ES listeners module', function() {
     it('should return a function to index a document', function(done) {
       const data = {foo: 'bar'};
       const opts = {events: {}, denormalize: 1, getId: 2, index: 3, type: 4};
+      const utils = this.helpers.requireBackend('core/elasticsearch/utils');
 
-      mockery.registerMock('./utils', {
-        indexData: function(options, callback) {
-          expect(options).to.deep.equal({
-            denormalize: opts.denormalize,
-            getId: opts.getId,
-            index: opts.index,
-            type: opts.type,
-            data: data
-          });
-          callback();
-        }
-      });
+      utils.indexData = function(options, callback) {
+        expect(options).to.deep.equal({
+          denormalize: opts.denormalize,
+          getId: opts.getId,
+          index: opts.index,
+          type: opts.type,
+          data: data
+        });
+        callback();
+      };
 
       const handler = this.helpers.rewireBackend('core/elasticsearch/listeners').addListener(opts);
 
@@ -43,18 +42,17 @@ describe('The ES listeners module', function() {
     it('should return a function to remove a document from index', function(done) {
       const data = {foo: 'bar'};
       const opts = {events: {}, denormalize: 1, getId: 2, index: 3, type: 4};
+      const utils = this.helpers.requireBackend('core/elasticsearch/utils');
 
-      mockery.registerMock('./utils', {
-        removeFromIndex: function(options, callback) {
-          expect(options).to.deep.equal({
-            data: data,
-            getId: opts.getId,
-            index: opts.index,
-            type: opts.type
-          });
-          callback();
-        }
-      });
+      utils.removeFromIndex = function(options, callback) {
+        expect(options).to.deep.equal({
+          data: data,
+          getId: opts.getId,
+          index: opts.index,
+          type: opts.type
+        });
+        callback();
+      };
 
       const handler = this.helpers.rewireBackend('core/elasticsearch/listeners').addListener(opts);
 
@@ -67,9 +65,15 @@ describe('The ES listeners module', function() {
 
       beforeEach(function() {
         pubsubMock = {};
-        mockery.registerMock('./utils', {});
         mockery.registerMock('../pubsub', {
-          local: pubsubMock
+          local: pubsubMock,
+          global: {
+            topic: function() {
+              return {
+                subscribe: function() {}
+              };
+            }
+          }
         });
       });
 
@@ -168,22 +172,29 @@ describe('The ES listeners module', function() {
         };
 
         mockery.registerMock('../pubsub', {
-          local: pubsubMock
+          local: pubsubMock,
+          global: {
+            topic: function() {
+              return {
+                subscribe: function() {}
+              };
+            }
+          }
         });
       });
 
       it('should be called with right parameters', function(done) {
-        mockery.registerMock('./utils', {
-          removeFromIndex: function(input) {
-            expect(input).to.deep.equal({
-              index: options.index,
-              type: options.type,
-              getId: options.getId,
-              data: data
-            });
-            done();
-          }
-        });
+        const utils = this.helpers.requireBackend('core/elasticsearch/utils');
+
+        utils.removeFromIndex = function(input) {
+          expect(input).to.deep.equal({
+            index: options.index,
+            type: options.type,
+            getId: options.getId,
+            data: data
+          });
+          done();
+        };
 
         const module = this.helpers.rewireBackend('core/elasticsearch/listeners');
 
@@ -220,13 +231,11 @@ describe('The ES listeners module', function() {
           })
         }
       };
+      const utils = this.helpers.requireBackend('core/elasticsearch/utils');
       const removeFromIndexSpy = sinon.spy(function(optons, callback) {
         callback(null, result);
       });
-
-      mockery.registerMock('./utils', {
-        removeFromIndex: removeFromIndexSpy
-      });
+      utils.removeFromIndex = removeFromIndexSpy;
 
       const module = this.helpers.rewireBackend('core/elasticsearch/listeners');
 
@@ -249,10 +258,9 @@ describe('The ES listeners module', function() {
         }
       };
       const removeFromIndexSpy = sinon.spy();
+      const utils = this.helpers.requireBackend('core/elasticsearch/utils');
 
-      mockery.registerMock('./utils', {
-        removeFromIndex: removeFromIndexSpy
-      });
+      utils.removeFromIndex = removeFromIndexSpy;
 
       const module = this.helpers.rewireBackend('core/elasticsearch/listeners');
 
@@ -272,14 +280,12 @@ describe('The ES listeners module', function() {
           })
         }
       };
-      const removeFromIndexSpy = sinon.spy();
 
       const module = this.helpers.rewireBackend('core/elasticsearch/listeners');
 
       module.remove(data, options, function(_err, _result) {
         expect(_err).to.not.be.defined;
         expect(_result).to.not.be.defined;
-        expect(removeFromIndexSpy).to.not.have.been.called;
         expect(options.skip.remove).to.have.been.calledWith(data);
         done();
       });
@@ -300,7 +306,14 @@ describe('The ES listeners module', function() {
       };
 
       mockery.registerMock('../pubsub', {
-        global: pubsubMock
+        global: pubsubMock,
+        local: {
+          topic: function() {
+            return {
+              subscribe: function() {}
+            };
+          }
+        }
       });
     });
 
@@ -314,19 +327,18 @@ describe('The ES listeners module', function() {
         denormalize: true,
         getId: true
       };
+      const utils = this.helpers.requireBackend('core/elasticsearch/utils');
 
-      mockery.registerMock('./utils', {
-        indexData: function(input) {
-          expect(input).to.deep.equal({
-            denormalize: options.denormalize,
-            getId: options.getId,
-            index: options.index,
-            type: options.type,
-            data: data
-          });
-          done();
-        }
-      });
+      utils.indexData = function(input) {
+        expect(input).to.deep.equal({
+          denormalize: options.denormalize,
+          getId: options.getId,
+          index: options.index,
+          type: options.type,
+          data: data
+        });
+        done();
+      };
 
       const module = this.helpers.rewireBackend('core/elasticsearch/listeners');
 
@@ -341,12 +353,12 @@ describe('The ES listeners module', function() {
         denormalize: function() {}
       };
 
-      mockery.registerMock('./utils', {
-        indexData: function(opts) {
-          expect(opts.denormalize).to.deep.equal(options.denormalize);
-          done();
-        }
-      });
+      const utils = this.helpers.requireBackend('core/elasticsearch/utils');
+
+      utils.indexData = function(opts) {
+        expect(opts.denormalize).to.deep.equal(options.denormalize);
+        done();
+      };
 
       const module = this.helpers.rewireBackend('core/elasticsearch/listeners');
 
@@ -360,12 +372,12 @@ describe('The ES listeners module', function() {
         }
       };
 
-      mockery.registerMock('./utils', {
-        indexData: function(opts) {
-          expect(opts.denormalize).to.be.a.function;
-          done();
-        }
-      });
+      const utils = this.helpers.requireBackend('core/elasticsearch/utils');
+
+      utils.indexData = function(opts) {
+        expect(opts.denormalize).to.be.a.function;
+        done();
+      };
 
       const module = this.helpers.rewireBackend('core/elasticsearch/listeners');
 
@@ -376,11 +388,11 @@ describe('The ES listeners module', function() {
       const options = {};
       const result = {foo: 'bar'};
 
-      mockery.registerMock('./utils', {
-        indexData: function(opts, callback) {
-          return callback(null, result);
-        }
-      });
+      const utils = this.helpers.requireBackend('core/elasticsearch/utils');
+
+      utils.indexData = function(opts, callback) {
+        return callback(null, result);
+      };
 
       const module = this.helpers.rewireBackend('core/elasticsearch/listeners');
 
@@ -403,10 +415,9 @@ describe('The ES listeners module', function() {
       const indexSpy = sinon.spy(function(optons, callback) {
         callback(null, result);
       });
+      const utils = this.helpers.requireBackend('core/elasticsearch/utils');
 
-      mockery.registerMock('./utils', {
-        indexData: indexSpy
-      });
+      utils.indexData = indexSpy;
 
       const module = this.helpers.rewireBackend('core/elasticsearch/listeners');
 
@@ -430,9 +441,9 @@ describe('The ES listeners module', function() {
       };
       const indexSpy = sinon.spy();
 
-      mockery.registerMock('./utils', {
-        indexData: indexSpy
-      });
+      const utils = this.helpers.requireBackend('core/elasticsearch/utils');
+
+      utils.indexData = indexSpy;
 
       const module = this.helpers.rewireBackend('core/elasticsearch/listeners');
 
@@ -454,9 +465,9 @@ describe('The ES listeners module', function() {
       };
       const indexSpy = sinon.spy();
 
-      mockery.registerMock('./utils', {
-        indexData: indexSpy
-      });
+      const utils = this.helpers.requireBackend('core/elasticsearch/utils');
+
+      utils.indexData = indexSpy;
 
       const module = this.helpers.rewireBackend('core/elasticsearch/listeners');
 
