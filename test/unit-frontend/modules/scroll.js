@@ -7,7 +7,7 @@ var expect = chai.expect;
 
 describe('The Scroll Angular module', function() {
 
-  var subHeaderHasInjections, SUB_HEADER_HEIGHT_IN_PX = 47;
+  var subHeaderHasInjections, ESN_SUBHEADER_HEIGHT_MD = 47;
 
   beforeEach(angular.mock.module('esn.scroll', function($provide) {
     subHeaderHasInjections = false;
@@ -23,7 +23,7 @@ describe('The Scroll Angular module', function() {
         return subHeaderHasInjections;
       }
     });
-    $provide.value('SUB_HEADER_HEIGHT_IN_PX', SUB_HEADER_HEIGHT_IN_PX);
+    $provide.value('ESN_SUBHEADER_HEIGHT_MD', ESN_SUBHEADER_HEIGHT_MD);
   }));
 
   describe('The esnScrollListenerService factory', function() {
@@ -224,7 +224,7 @@ describe('The Scroll Angular module', function() {
         elementScrollService.scrollDownToElement(elementWithOffset(100));
 
         expect($window.scrollTo).to.have.been.calledWith(0, 0);
-        expect($window.scrollTo).to.have.been.calledWith(0, 100 - SUB_HEADER_HEIGHT_IN_PX);
+        expect($window.scrollTo).to.have.been.calledWith(0, 100 - ESN_SUBHEADER_HEIGHT_MD);
       });
 
     });

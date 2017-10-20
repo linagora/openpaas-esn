@@ -10,7 +10,7 @@
     SM_XS_MEDIA_QUERY,
     ESN_HEADER_HEIGHT_MD,
     ESN_SUBHEADER_HEIGHT_XS,
-    SUB_HEADER_HEIGHT_IN_PX
+    ESN_SUBHEADER_HEIGHT_MD
   ) {
     return {
       restrict: 'A',
@@ -20,7 +20,7 @@
     };
 
     function link(scope, element) {
-      var offset = matchmedia.is(SM_XS_MEDIA_QUERY) ? ESN_SUBHEADER_HEIGHT_XS : ESN_HEADER_HEIGHT_MD + SUB_HEADER_HEIGHT_IN_PX;
+      var offset = matchmedia.is(SM_XS_MEDIA_QUERY) ? ESN_SUBHEADER_HEIGHT_XS : ESN_HEADER_HEIGHT_MD + ESN_SUBHEADER_HEIGHT_MD;
 
       // https://stackoverflow.com/a/19228302
       element.attr('hl-sticky', '');

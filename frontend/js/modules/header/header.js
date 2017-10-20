@@ -24,7 +24,7 @@ angular.module('esn.header', [
 
   .constant('ESN_SUBHEADER_HEIGHT_XS', 56)
 
-  .constant('SUB_HEADER_HEIGHT_IN_PX', 47)
+  .constant('ESN_SUBHEADER_HEIGHT_MD', 47)
 
   .factory('headerService', function($rootScope, dynamicDirectiveService, MAIN_HEADER, SUB_HEADER, SUB_HEADER_HAS_INJECTION_EVENT) {
 
