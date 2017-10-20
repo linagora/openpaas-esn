@@ -59,6 +59,7 @@ module.exports = function(grunt) {
         },
         src: [
           'frontend/css/**/*.less',
+          'frontend/js/**/*.less',
           'modules/*/frontend/css/**/*.less'
         ]
       },
