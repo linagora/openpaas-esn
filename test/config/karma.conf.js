@@ -109,6 +109,7 @@ module.exports = function(config) {
       'frontend/components/angular-file-saver/dist/angular-file-saver.bundle.js',
       'frontend/components/waves/dist/waves.min.js',
       'frontend/components/angular-hotkeys/build/hotkeys.min.js',
+      'frontend/components/angular-sticky/dist/angular-sticky.min.js',
       'test/fixtures/code-generation/constants.js',
 
       { pattern: 'frontend/js/modules/user-notification/user-notification.router.js', watched: false, included: false, served: false },

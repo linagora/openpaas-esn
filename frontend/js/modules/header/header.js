@@ -2,6 +2,7 @@
 
 angular.module('esn.header', [
   'ui.router',
+  'hl.sticky',
   'esn.sidebar',
   'esn.subheader',
   'matchmedia-ng',
@@ -18,6 +19,10 @@ angular.module('esn.header', [
   .constant('SUB_HEADER', 'sub-header-content')
 
   .constant('SUB_HEADER_HAS_INJECTION_EVENT', 'sub-header:hasInjection')
+
+  .constant('ESN_HEADER_HEIGHT_MD', 56)
+
+  .constant('ESN_SUBHEADER_HEIGHT_XS', 56)
 
   .constant('SUB_HEADER_HEIGHT_IN_PX', 47)
 

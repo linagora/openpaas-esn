@@ -11,6 +11,7 @@ const injections = [
   {angular: ['esn.http'], files: ['http.js'], innerApps: ['esn', 'welcome']},
   {angular: ['esn.header'], files: [
     'header/header.js',
+    'header/sticky/header-sticky.directive.js',
     'header/search/search-header.component.js',
     'header/search/search-header.controller.js',
     'header/search/settings/search-header-settings.controller.js',
