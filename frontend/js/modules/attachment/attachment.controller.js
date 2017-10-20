@@ -4,13 +4,14 @@
   angular.module('esn.attachment')
     .controller('ESNAttachmentController', ESNAttachmentController);
 
-  function ESNAttachmentController($log, esnAttachmentViewerService, esnAttachmentViewerGalleryService, esnAttachmentRegistryService) {
+  function ESNAttachmentController($compile, $element, $scope, $log, esnAttachmentViewerService, esnAttachmentViewerGalleryService, esnAttachmentRegistryService) {
     var self = this;
     var hasPreview;
     var hasViewer;
 
     self.$onInit = $onInit;
     self.onClick = onClick;
+    self.renderContent = renderContent;
     self.$onDestroy = $onDestroy;
 
     function $onInit() {
@@ -30,23 +31,9 @@
       renderContent();
     }
 
-    function openFile(file, gallery) {
-      var defaultGallery = esnAttachmentViewerGalleryService.getDefaultGallery();
-      var galleryName = gallery || defaultGallery;
-      var files = esnAttachmentViewerGalleryService.getAllFilesInGallery(galleryName);
-      var order = files.indexOf(file);
-
-      if (order === -1) {
-        return $log.debug('No such file in gallery');
-      }
-
-      esnAttachmentViewerService.setCurrentItem(files, order);
-    }
-
     function onClick() {
       if (hasViewer) {
-        self.viewToggle = true;
-        openFile(self._attachment, self.gallery);
+        esnAttachmentViewerService.open(self._attachment, self.gallery);
       }
     }
 
@@ -57,15 +44,17 @@
     }
 
     function renderContent() {
-      if (!self.attachment) {
+      if (!self._attachment) {
         return $log.debug('File does not exist or incomplete');
       }
 
-      self.previewer = esnAttachmentRegistryService.getPreviewer(self._attachment.contentType);
+      var previewer = esnAttachmentRegistryService.getPreviewer(self._attachment.contentType);
 
-      if (!self.previewer || !hasPreview) {
-        self.previewer = esnAttachmentRegistryService.getDefaultPreviewer();
+      if (!previewer || !hasPreview) {
+        previewer = esnAttachmentRegistryService.getDefaultPreviewer();
       }
+
+      $element.append($compile('<' + previewer.directive + ' attachment="$ctrl._attachment", gallery="$ctrl.gallery", ng-click="$ctrl.onClick()" />')($scope));
     }
   }
 })();
