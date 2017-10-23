@@ -22,6 +22,8 @@ angular.module('esn.header', [
 
   .constant('ESN_HEADER_HEIGHT_MD', 56)
 
+  .constant('ESN_HEADER_HEIGHT_XL', 65)
+
   .constant('ESN_SUBHEADER_HEIGHT_XS', 56)
 
   .constant('ESN_SUBHEADER_HEIGHT_MD', 47)
