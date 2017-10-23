@@ -113,7 +113,7 @@ angular.module('esn.scroll', [
     };
   })
 
-  .factory('elementScrollService', function($timeout, $window, esnScrollListenerService, subHeaderService, deviceDetector, SUB_HEADER_HEIGHT_IN_PX) {
+  .factory('elementScrollService', function($timeout, $window, esnScrollListenerService, subHeaderService, deviceDetector, ESN_SUBHEADER_HEIGHT_MD) {
     /**
      * Auto-scroll to the end of the given element
      * @param element
@@ -130,7 +130,7 @@ angular.module('esn.scroll', [
       var scrollY = element.offset().top;
 
       if (subHeaderService.isVisible()) {
-        scrollY -= SUB_HEADER_HEIGHT_IN_PX;
+        scrollY -= ESN_SUBHEADER_HEIGHT_MD;
       }
 
       $window.scrollTo(0, 0);

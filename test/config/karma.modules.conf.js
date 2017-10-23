@@ -110,6 +110,7 @@ module.exports = function(config) {
       'frontend/components/videogular-controls/vg-controls.min.js',
       'frontend/components/videogular-overlay-play/vg-overlay-play.min.js',
       'frontend/components/angular-file-saver/dist/angular-file-saver.bundle.js',
+      'frontend/components/angular-sticky/dist/angular-sticky.min.js',
       'test/fixtures/code-generation/constants.js',
 
       { pattern: 'frontend/js/modules/collaboration/collaboration.run.js', watched: false, included: false, served: false },

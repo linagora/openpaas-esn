@@ -109,7 +109,8 @@
     "videogular-buffering": "1.4.4",
     "videogular-controls": "1.4.4",
     "videogular-overlay-play": "1.4.4",
-    "videogular-themes-default": "1.4.4"
+    "videogular-themes-default": "1.4.4",
+    "angular-sticky": "angular-sticky-plugin#0.4.1"
   },
   "resolutions": {
     "jquery": "2.1.1",
