@@ -54,6 +54,7 @@
     "linagora.esn.calendar": "linagora/linagora.esn.calendar",
     "linagora.esn.calendar.collect.email": "linagora/linagora.esn.calendar.collect.email",
     "linagora.esn.contact.collect": "linagora/linagora.esn.contact.collect",
+    "linagora.esn.james": "linagora/linagora.esn.james",
     "linagora.esn.resource": "linagora/linagora.esn.resource",
     "linagora.esn.unifiedinbox": "linagora/linagora.esn.unifiedinbox",
     "lodash": "4.15.0",
