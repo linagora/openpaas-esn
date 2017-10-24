@@ -9,8 +9,12 @@ var DEFAULT_LIMIT = 10;
 var DEFAULT_OFFSET = 0;
 
 function denormalize(data) {
+  const denormalizeOptions = {
+    includeIsFollowing: true,
+    includeFollow: true
+  };
   var promises = data.map(function(item) {
-    return denormalizeUser(item.user).then(function(result) {
+    return denormalizeUser(item.user, denormalizeOptions).then(function(result) {
       item.user = result;
       return item;
     }, function(err) {
