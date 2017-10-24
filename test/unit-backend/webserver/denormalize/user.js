@@ -21,7 +21,7 @@ describe('The webserver user denormalizer', function() {
       });
     });
 
-    it('should set the following flag if user is not the current one and is following', function() {
+    it('should set the following flag if user is not the current one and is following', function(done) {
       const user = {_id: this.helpers.objectIdMock('1'), login: {}};
 
       mockery.registerMock('../../core/user/follow', {
@@ -41,9 +41,10 @@ describe('The webserver user denormalizer', function() {
 
       const module = this.helpers.requireBackend('webserver/denormalize/user');
 
-      module.denormalize(user, {_id: this.helpers.objectIdMock('2')}).then(function(result) {
+      module.denormalize(user, {user: {_id: this.helpers.objectIdMock('2')}, includeIsFollowing: true}).then(function(result) {
         expect(result.following).to.be.true;
-      });
+        done();
+      }).catch(done);
     });
 
     it('should set the follow statistics', function() {
@@ -117,10 +118,10 @@ describe('The webserver user denormalizer', function() {
 
       const module = this.helpers.requireBackend('webserver/denormalize/user');
 
-      module.denormalize(user, {}).then(function(result) {
+      module.denormalize(user, {includeIsPlatformAdmin: true}).then(function(result) {
         expect(result.isPlatformAdmin).to.equal(isPlatformAdmin);
         done();
-      });
+      }).catch(done);
     });
   });
 
