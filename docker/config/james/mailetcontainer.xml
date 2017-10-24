@@ -83,9 +83,14 @@
             <mailet match="All" class="RemoveMimeHeader">
                 <name>bcc</name>
             </mailet>
+            <mailet match="All" class="RemoveMimeHeader">
+                <name>X-MEETING-UID,X-MEETING-METHOD,X-MEETING-RECURRENCE-ID,X-MEETING-SEQUENCE,X-MEETING-DTSTAMP</name>
+            </mailet>
             <mailet match="All" class="RecipientRewriteTable" />
             <mailet match="RecipientIsLocal" class="org.apache.james.jmap.mailet.VacationMailet"/>
-            <mailet match="RecipientIsLocal" class="LocalDelivery"/>
+            <mailet match="RecipientIsLocal" class="ToProcessor">
+                <processor>local-recipient</processor>
+            </mailet>
             <!--
             <mailet match="HostIsLocal" class="ToProcessor">
                 <processor>local-address-error</processor>
@@ -104,6 +109,38 @@
             <mailet match="All" class="ToProcessor">
                 <processor>relay-denied</processor>
             </mailet>
+        </processor>
+
+        <processor state="local-recipient" enableJmx="true">
+            <!-- ICAL pipeline -->
+            <mailet match="All" class="StripAttachment">
+                <mimeType>text/calendar</mimeType>
+                <attribute>rawIcalendar</attribute>
+            </mailet>
+            <mailet match="All" class="MimeDecodingMailet">
+                <attribute>rawIcalendar</attribute>
+            </mailet>
+            <mailet match="All" class="ICalendarParser">
+                <sourceAttribute>rawIcalendar</sourceAttribute>
+                <destinationAttribute>icalendar</destinationAttribute>
+            </mailet>
+            <mailet match="All" class="ICALToHeader">
+                <attribute>icalendar</attribute>
+            </mailet>
+            <mailet match="RecipientIsLocal" class="LogMessage"/>
+            <mailet match="All" class="ICALToJsonAttribute">
+                <source>icalendar</source>
+                <destination>icalendarAsJson</destination>
+		        <rawSource>rawIcalendar</rawSource>
+            </mailet>
+            <mailet match="All" class="AmqpForwardAttribute">
+                <uri>amqp://rabbitmq:5672</uri>
+                <exchange>james:events</exchange>
+                <attribute>icalendarAsJson</attribute>
+            </mailet>
+            <!-- End of ICAL pipeline -->
+            <mailet match="All" class="AddDeliveredToHeader"/>
+            <mailet match="All" class="LocalDelivery"/>
         </processor>
 
         <processor state="spam" enableJmx="true">
