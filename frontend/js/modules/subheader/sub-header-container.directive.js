@@ -3,7 +3,7 @@
 
   angular.module('esn.subheader')
 
-    .directive('subHeaderContainer', function(subHeaderService, matchmedia, SM_XS_MEDIA_QUERY) {
+    .directive('subHeaderContainer', function(subHeaderService, matchmedia, ESN_MEDIA_QUERY_SM_XS) {
       return {
         restrict: 'E',
         templateUrl: '/views/modules/subheader/sub-header-container.html',
@@ -13,7 +13,7 @@
           subHeaderService.registerContainer(injectHandler, destroyHandler);
           ensureVisible();
 
-          var unregister = matchmedia.on(SM_XS_MEDIA_QUERY, function() {
+          var unregister = matchmedia.on(ESN_MEDIA_QUERY_SM_XS, function() {
             ensureVisible();
           }, scope);
 

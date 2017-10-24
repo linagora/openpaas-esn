@@ -96,7 +96,7 @@ angular.module('esn.header', [
   })
 
   .directive('mainHeader', function($rootScope, matchmedia, headerService, Fullscreen,
-                                    SUB_HEADER_HAS_INJECTION_EVENT, SM_XS_MEDIA_QUERY) {
+                                    SUB_HEADER_HAS_INJECTION_EVENT, ESN_MEDIA_QUERY_SM_XS) {
     return {
       restrict: 'E',
       replace: true,
@@ -110,7 +110,7 @@ angular.module('esn.header', [
           Fullscreen.toggleAll();
         };
 
-        var unregister = matchmedia.on(SM_XS_MEDIA_QUERY, function(mediaQueryList) {
+        var unregister = matchmedia.on(ESN_MEDIA_QUERY_SM_XS, function(mediaQueryList) {
           scope.enableScrollListener = mediaQueryList.matches;
         }, scope);
         scope.$on('$destroy', unregister);

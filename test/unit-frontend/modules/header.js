@@ -81,11 +81,11 @@ describe('The esn.header Angular module', function() {
       });
     }));
 
-    beforeEach(inject(function($compile, $rootScope, _SM_XS_MEDIA_QUERY_, _$httpBackend_) {
+    beforeEach(inject(function($compile, $rootScope, _ESN_MEDIA_QUERY_SM_XS_, _$httpBackend_) {
       this.$compile = $compile;
       this.$rootScope = $rootScope;
       this.$scope = this.$rootScope.$new();
-      this.SM_XS_MEDIA_QUERY = _SM_XS_MEDIA_QUERY_;
+      this.ESN_MEDIA_QUERY_SM_XS = _ESN_MEDIA_QUERY_SM_XS_;
 
       var html = '<main-header></main-header>';
       this.element = this.$compile(html)(this.$scope);
@@ -116,7 +116,7 @@ describe('The esn.header Angular module', function() {
     describe('the enableScrollListener var', function() {
 
       it('should be called with xs and sm size when the directive is linked', function() {
-        expect(matchmediaQuery).to.equal(this.SM_XS_MEDIA_QUERY);
+        expect(matchmediaQuery).to.equal(this.ESN_MEDIA_QUERY_SM_XS);
         matchmediaCallback({matches: true});
         expect(this.$scope.enableScrollListener).to.equal(true);
       });

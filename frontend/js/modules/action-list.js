@@ -2,7 +2,7 @@
 
 angular.module('esn.actionList', ['esn.media.query'])
 
-  .directive('actionList', function($modal, $popover, matchmedia, SM_XS_MEDIA_QUERY) {
+  .directive('actionList', function($modal, $popover, matchmedia, ESN_MEDIA_QUERY_SM_XS) {
     var dialogOpened;
 
     return {
@@ -56,7 +56,7 @@ angular.module('esn.actionList', ['esn.media.query'])
         }
 
         self.open = function() {
-          boundOpenFn = (matchmedia.is(SM_XS_MEDIA_QUERY)) ? openForMobile : openForDesktop;
+          boundOpenFn = (matchmedia.is(ESN_MEDIA_QUERY_SM_XS)) ? openForMobile : openForDesktop;
 
           if (isDialogOpened()) {
             dialogOpened.hide();
@@ -66,7 +66,7 @@ angular.module('esn.actionList', ['esn.media.query'])
 
           dialogLock = dialogOpened;
 
-          var unregister = matchmedia.on(SM_XS_MEDIA_QUERY, function(mediaQueryList) {
+          var unregister = matchmedia.on(ESN_MEDIA_QUERY_SM_XS, function(mediaQueryList) {
             if (mediaQueryList.matches) {
               boundOpenFn = openForMobile;
               handleWindowResizement();

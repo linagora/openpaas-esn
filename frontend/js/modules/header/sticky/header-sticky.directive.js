@@ -7,7 +7,7 @@
   function directive(
     $compile,
     matchmedia,
-    SM_XS_MEDIA_QUERY,
+    ESN_MEDIA_QUERY_SM_XS,
     ESN_MEDIA_QUERY_MD,
     ESN_HEADER_HEIGHT_MD,
     ESN_HEADER_HEIGHT_XL,
@@ -24,7 +24,7 @@
     function link(scope, element) {
       var offset;
 
-       if (matchmedia.is(SM_XS_MEDIA_QUERY)) {
+       if (matchmedia.is(ESN_MEDIA_QUERY_SM_XS)) {
          offset = ESN_SUBHEADER_HEIGHT_XS;
        } else if (matchmedia.is(ESN_MEDIA_QUERY_MD)) {
          offset = ESN_HEADER_HEIGHT_MD + ESN_SUBHEADER_HEIGHT_MD;

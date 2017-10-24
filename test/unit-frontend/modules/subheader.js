@@ -7,17 +7,17 @@ var expect = chai.expect;
 describe('The esn.subheader Angular module', function() {
 
   var $rootScope, $compile, $scope;
-  var SM_XS_MEDIA_QUERY, ESN_SUBHEADER_FULLWIDTH_CLASS;
+  var ESN_MEDIA_QUERY_SM_XS, ESN_SUBHEADER_FULLWIDTH_CLASS;
 
   beforeEach(function() {
     module('jadeTemplates');
     module('esn.subheader');
   });
 
-  beforeEach(inject(function(_$rootScope_, _$compile_, _SM_XS_MEDIA_QUERY_, _ESN_SUBHEADER_FULLWIDTH_CLASS_) {
+  beforeEach(inject(function(_$rootScope_, _$compile_, _ESN_MEDIA_QUERY_SM_XS_, _ESN_SUBHEADER_FULLWIDTH_CLASS_) {
     $rootScope = _$rootScope_;
     $compile = _$compile_;
-    SM_XS_MEDIA_QUERY = _SM_XS_MEDIA_QUERY_;
+    ESN_MEDIA_QUERY_SM_XS = _ESN_MEDIA_QUERY_SM_XS_;
     ESN_SUBHEADER_FULLWIDTH_CLASS = _ESN_SUBHEADER_FULLWIDTH_CLASS_;
   }));
 
@@ -164,7 +164,7 @@ describe('The esn.subheader Angular module', function() {
         ensureVisible = callback;
 
         expect(scope).to.be.defined;
-        expect(query).to.equal(SM_XS_MEDIA_QUERY);
+        expect(query).to.equal(ESN_MEDIA_QUERY_SM_XS);
         expect(callback).to.be.a.function;
       };
 

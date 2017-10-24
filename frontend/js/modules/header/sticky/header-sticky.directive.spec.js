@@ -7,7 +7,7 @@ var expect = chai.expect;
 
 describe('The esnHeaderSticky directive', function() {
   var $rootScope, $compile, matchmedia;
-  var SM_XS_MEDIA_QUERY, ESN_MEDIA_QUERY_MD;
+  var ESN_MEDIA_QUERY_SM_XS, ESN_MEDIA_QUERY_MD;
   var ESN_HEADER_HEIGHT_MD, ESN_HEADER_HEIGHT_XL, ESN_SUBHEADER_HEIGHT_XS, ESN_SUBHEADER_HEIGHT_MD;
   var scope;
 
@@ -20,7 +20,7 @@ describe('The esnHeaderSticky directive', function() {
     _$rootScope_,
     _$compile_,
     _matchmedia_,
-    _SM_XS_MEDIA_QUERY_,
+    _ESN_MEDIA_QUERY_SM_XS_,
     _ESN_MEDIA_QUERY_MD_,
     _ESN_HEADER_HEIGHT_MD_,
     _ESN_HEADER_HEIGHT_XL_,
@@ -30,7 +30,7 @@ describe('The esnHeaderSticky directive', function() {
     $rootScope = _$rootScope_;
     $compile = _$compile_;
     matchmedia = _matchmedia_;
-    SM_XS_MEDIA_QUERY = _SM_XS_MEDIA_QUERY_;
+    ESN_MEDIA_QUERY_SM_XS = _ESN_MEDIA_QUERY_SM_XS_;
     ESN_MEDIA_QUERY_MD = _ESN_MEDIA_QUERY_MD_;
     ESN_HEADER_HEIGHT_MD = _ESN_HEADER_HEIGHT_MD_;
     ESN_HEADER_HEIGHT_XL = _ESN_HEADER_HEIGHT_XL_;
@@ -57,7 +57,7 @@ describe('The esnHeaderSticky directive', function() {
 
   it('should set the offset depending on header\'s height (sm, xs screens)', function() {
     matchmedia.is = sinon.stub().returns(false);
-    matchmedia.is.withArgs(SM_XS_MEDIA_QUERY).returns(true);
+    matchmedia.is.withArgs(ESN_MEDIA_QUERY_SM_XS).returns(true);
 
     var element = initDirective();
 
