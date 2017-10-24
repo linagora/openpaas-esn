@@ -4,11 +4,11 @@
   angular.module('esn.user-notification')
     .controller('EsnUserNotificationTogglerController', EsnUserNotificationTogglerController);
 
-  function EsnUserNotificationTogglerController($scope, matchmedia, $state, SM_XS_MEDIA_QUERY) {
+  function EsnUserNotificationTogglerController($scope, matchmedia, $state, ESN_MEDIA_QUERY_SM_XS) {
     $scope.open = open;
 
     function open() {
-      (matchmedia.is(SM_XS_MEDIA_QUERY) ? openForMobile : openForDesktop)();
+      (matchmedia.is(ESN_MEDIA_QUERY_SM_XS) ? openForMobile : openForDesktop)();
     }
 
     function openForMobile() {

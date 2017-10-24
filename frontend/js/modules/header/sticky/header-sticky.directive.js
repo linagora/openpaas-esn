@@ -7,8 +7,10 @@
   function directive(
     $compile,
     matchmedia,
-    SM_XS_MEDIA_QUERY,
+    ESN_MEDIA_QUERY_SM_XS,
+    ESN_MEDIA_QUERY_MD,
     ESN_HEADER_HEIGHT_MD,
+    ESN_HEADER_HEIGHT_XL,
     ESN_SUBHEADER_HEIGHT_XS,
     ESN_SUBHEADER_HEIGHT_MD
   ) {
@@ -20,7 +22,15 @@
     };
 
     function link(scope, element) {
-      var offset = matchmedia.is(SM_XS_MEDIA_QUERY) ? ESN_SUBHEADER_HEIGHT_XS : ESN_HEADER_HEIGHT_MD + ESN_SUBHEADER_HEIGHT_MD;
+      var offset;
+
+       if (matchmedia.is(ESN_MEDIA_QUERY_SM_XS)) {
+         offset = ESN_SUBHEADER_HEIGHT_XS;
+       } else if (matchmedia.is(ESN_MEDIA_QUERY_MD)) {
+         offset = ESN_HEADER_HEIGHT_MD + ESN_SUBHEADER_HEIGHT_MD;
+       } else {
+         offset = ESN_HEADER_HEIGHT_XL + ESN_SUBHEADER_HEIGHT_MD;
+       }
 
       // https://stackoverflow.com/a/19228302
       element.attr('hl-sticky', '');

@@ -7,7 +7,7 @@ var expect = chai.expect;
 
 describe('directive : action-list', function() {
   var element, controller;
-  var $scope, $compile, $rootScope, matchmedia, $modal, $popover, onResize, SM_XS_MEDIA_QUERY;
+  var $scope, $compile, $rootScope, matchmedia, $modal, $popover, onResize, ESN_MEDIA_QUERY_SM_XS;
 
   beforeEach(function() {
     matchmedia = {
@@ -41,8 +41,8 @@ describe('directive : action-list', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function(_$compile_, _$rootScope_, _SM_XS_MEDIA_QUERY_) {
-    SM_XS_MEDIA_QUERY = _SM_XS_MEDIA_QUERY_;
+  beforeEach(angular.mock.inject(function(_$compile_, _$rootScope_, _ESN_MEDIA_QUERY_SM_XS_) {
+    ESN_MEDIA_QUERY_SM_XS = _ESN_MEDIA_QUERY_SM_XS_;
     $compile = _$compile_;
     $rootScope = _$rootScope_;
     $scope = _$rootScope_.$new();
@@ -58,7 +58,7 @@ describe('directive : action-list', function() {
 
   it('should not propagate the click to the parent elements', function() {
     matchmedia.is = function(match) {
-      expect(match).to.equal(SM_XS_MEDIA_QUERY);
+      expect(match).to.equal(ESN_MEDIA_QUERY_SM_XS);
 
       return true;
     };
@@ -71,7 +71,7 @@ describe('directive : action-list', function() {
 
   it('should not run the default handlers of parent links', function(done) {
     matchmedia.is = function(match) {
-      expect(match).to.equal(SM_XS_MEDIA_QUERY);
+      expect(match).to.equal(ESN_MEDIA_QUERY_SM_XS);
 
       return true;
     };
@@ -89,7 +89,7 @@ describe('directive : action-list', function() {
 
   it('should open a $modal when screen size is <= sm', function() {
     matchmedia.is = function(query) {
-      expect(query).to.equal(SM_XS_MEDIA_QUERY);
+      expect(query).to.equal(ESN_MEDIA_QUERY_SM_XS);
 
       return true;
     };
