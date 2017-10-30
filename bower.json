@@ -70,7 +70,7 @@
     "twitter-platform-widget": "http://platform.twitter.com/widgets.js",
     "ng-device-detector": "linagora/ng-device-detector#v3.0.1.1",
     "material-admin": "linagora/material-admin#1.5.1.5",
-    "mdi": "1.9.33",
+    "mdi": "2.0.46",
     "roboto-fontface": "~0.4.3",
     "material-shadows": "~2.0.1",
     "moment": "2.15.1",
