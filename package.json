@@ -32,7 +32,7 @@
     "email-addresses": "2.0.2",
     "email-templates": "2.4.1",
     "escape-string-regexp": "1.0.5",
-    "esn-elasticsearch-configuration": "0.4.4",
+    "esn-elasticsearch-configuration": "0.4.5",
     "eventemitter2": "4.1.2",
     "express": "4.14.0",
     "express-http-proxy": "0.10.0",
