@@ -123,21 +123,29 @@ function get(req, res) {
       clientMod.setMilliseconds(0);
       serverMod.setMilliseconds(0);
 
-      if (modSince && clientMod.getTime() === serverMod.getTime()) {
-        return res.status(304).end();
-      } else {
-        res.set('Last-Modified', fileMeta.uploadDate);
-      }
+      try {
+        if (modSince && clientMod.getTime() === serverMod.getTime()) {
+          return res.status(304).end();
+        } else {
+          res.set('Last-Modified', fileMeta.uploadDate);
+        }
 
-      res.type(fileMeta.contentType);
+        res.type(fileMeta.contentType);
 
-      if (fileMeta.filename) {
-        res.set('Content-Disposition', 'inline; filename="' +
-        fileMeta.filename.replace(/"/g, '') + '"');
-      }
+        if (fileMeta.filename) {
+          res.set('Content-Disposition', 'inline; filename="' +
+          fileMeta.filename.replace(/[^!#$%&'*+\-.^_`|~\d\w]/g, '') + '"');
+        }
 
-      if (fileMeta.length) {
-        res.set('Content-Length', fileMeta.length);
+        if (fileMeta.length) {
+          res.set('Content-Length', fileMeta.length);
+        }
+      } catch (error) {
+        return res.status(500).json({
+          error: 500,
+          message: 'Server error',
+          details: error.message || error
+        });
       }
     }
 

@@ -2,6 +2,7 @@
 
 var mockery = require('mockery');
 var expect = require('chai').expect;
+var sinon = require('sinon');
 
 describe('The files controller', function() {
   describe('The create function', function() {
@@ -49,7 +50,7 @@ describe('The files controller', function() {
         headers: {
           'content-type': 'text/plain'
         },
-        on: function() {}
+        on: function() { }
       };
       var res = this.helpers.express.jsonResponse(
         function(code, detail) {
@@ -84,7 +85,7 @@ describe('The files controller', function() {
         headers: {
           'content-type': 'text/plain'
         },
-        on: function() {}
+        on: function() { }
       };
       var res = this.helpers.express.jsonResponse(
         function(code, detail) {
@@ -120,7 +121,7 @@ describe('The files controller', function() {
         headers: {
           'content-type': 'text/plain'
         },
-        on: function() {}
+        on: function() { }
       };
       var res = this.helpers.express.jsonResponse(
         function(code, detail) {
@@ -158,7 +159,7 @@ describe('The files controller', function() {
         headers: {
           'content-type': 'text/plain'
         },
-        on: function() {}
+        on: function() { }
       };
       var res = this.helpers.express.jsonResponse(
         function(code, detail) {
@@ -194,7 +195,7 @@ describe('The files controller', function() {
         headers: {
           'content-type': 'text/plain'
         },
-        on: function() {}
+        on: function() { }
       };
 
       mockery.registerMock('../../core/filestore', {
@@ -256,7 +257,7 @@ describe('The files controller', function() {
     });
 
     it('should return 404 if the file is not found', function(done) {
-      var req = { params: { id: '123' }, accepts: function() {return false;} };
+      var req = { params: { id: '123' }, accepts: function() { return false; } };
       var res = this.helpers.express.jsonResponse(
         function(code, detail) {
           expect(code).to.equal(404);
@@ -294,7 +295,7 @@ describe('The files controller', function() {
           expect(code).to.equal(404);
 
           return {
-            end: function() {}
+            end: function() { }
           };
         }
       };
@@ -371,10 +372,10 @@ describe('The files controller', function() {
             },
             uploadDate: new Date()
           }, {
-            pipe: function() {
-              done();
-            }
-          });
+              pipe: function() {
+                done();
+              }
+            });
         }
       });
 
@@ -418,5 +419,95 @@ describe('The files controller', function() {
       var files = this.helpers.requireBackend('webserver/controllers/files');
       files.get(req, res);
     });
+
+    it('should return 500 if the set header throw a error', function(done) {
+      var error = new Error('Error');
+
+      var jsonMock = sinon.spy(function() {
+        expect(jsonMock).to.have.been.calledWith({
+          error: 500,
+          message: 'Server error',
+          details: error.message
+        });
+
+        done();
+      });
+
+      var req = {
+        params: { id: '123' },
+        get: sinon.spy()
+      };
+
+      var res = {
+        set: function() {
+          throw error;
+        },
+        type: sinon.spy(),
+        status: function(code) {
+          expect(req.get).to.have.been.calledWith('If-Modified-Since');
+          expect(code).to.equal(500);
+
+          return {
+            json: jsonMock
+          };
+        }
+      };
+
+      mockery.registerMock('../../core/filestore', {
+        get: function(id, callback) {
+          expect(id).to.equal(req.params.id);
+          callback(null, {
+            contentType: 'text/plain',
+            metadata: {
+              name: 'fred "The Great"'
+            },
+            uploadDate: new Date()
+          }, {});
+        }
+      });
+
+      var files = this.helpers.requireBackend('webserver/controllers/files');
+      files.get(req, res);
+    });
+
+    it('should set header with no special character', function(done) {
+      var req = {
+        params: { id: '123' },
+        get: sinon.spy()
+      };
+
+      var res = {
+        set: sinon.spy(),
+        type: sinon.spy(),
+        status: function(code) {
+          expect(req.get).to.have.been.calledWith('If-Modified-Since');
+          expect(res.type).to.have.been.calledWith('text/plain');
+          expect(res.set.secondCall).to.have.been.calledWith('Content-Disposition', 'inline; filename="aFilename"');
+          expect(code).to.equal(200);
+        }
+      };
+
+      mockery.registerMock('../../core/filestore', {
+        get: function(id, callback) {
+          expect(id).to.equal(req.params.id);
+          callback(null, {
+            contentType: 'text/plain',
+            filename: 'a–"Filename"',
+            metadata: {
+              name: 'fred "TheGreat"'
+            },
+            uploadDate: new Date()
+          }, {
+            pipe: function() {
+              done();
+            }
+          });
+        }
+      });
+
+      var files = this.helpers.requireBackend('webserver/controllers/files');
+      files.get(req, res);
+    });
+
   });
 });
