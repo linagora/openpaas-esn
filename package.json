@@ -16,7 +16,7 @@
     "bower": "1.8.2",
     "bson": "0.5.4",
     "busboy": "0.2.13",
-    "canvas": "1.5.0",
+    "canvas": "1.6.7",
     "charAPI": "linagora/char-api",
     "chokidar": "1.6.0",
     "cli-table": "0.3.1",
