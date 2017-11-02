@@ -1,6 +1,8 @@
 const logger = require('../../logger');
 const pubsub = require('../../pubsub');
 const elasticsearchHandler = require('./elasticsearch');
+const mongodbHandler = require('./mongodb');
+const { refineEvent } = require('../util');
 
 module.exports = {
   init
@@ -8,10 +10,12 @@ module.exports = {
 
 function init() {
   logger.info('Initializing the eventsourcing pubsub');
-  registerLocalListener();
+  pubsub.local.client.onAny(listener);
 }
 
-function registerLocalListener() {
-  pubsub.local.client.onAny(elasticsearchHandler.handle);
-}
+function listener(name, data = {}) {
+  const event = refineEvent(name, data);
 
+  elasticsearchHandler.handle(event);
+  mongodbHandler.handle(event);
+}
