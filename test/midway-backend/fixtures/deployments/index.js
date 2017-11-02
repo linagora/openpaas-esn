@@ -113,7 +113,8 @@ module.exports.linagora_test_domain = function() {
     domain: {
       name: 'TestDomain',
       company_name: 'Linagora',
-      administrators: []
+      administrators: [],
+      hostnames: ['openpaas']
     },
     users: [
       {

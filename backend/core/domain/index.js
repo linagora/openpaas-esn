@@ -82,6 +82,9 @@ function list(options, callback) {
   options = options || {};
   const findOptions = {};
 
+  if (options.hostname) {
+    findOptions.hostnames = options.hostname;
+  }
   if (options.name) {
     findOptions.name = options.name;
   }

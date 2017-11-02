@@ -17,6 +17,7 @@ module.exports = function(router) {
    *     description: |
    *       List ESN domains.
    *     parameters:
+   *       - $ref: "#/parameters/dm_hostname_filter"
    *       - $ref: "#/parameters/dm_name_filter"
    *       - $ref: "#/parameters/cm_limit"
    *       - $ref: "#/parameters/cm_offset"

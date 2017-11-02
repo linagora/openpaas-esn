@@ -182,6 +182,30 @@ describe('The domain API', function() {
         }));
       });
     });
+
+    describe('List domains with hostname query', function() {
+      it('should send back 200 with a list of domains filtered by hostname', function(done) {
+        helpers.api.loginAsUser(app, user2Domain1Member.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
+          loggedInAsUser(request(app).get(`/api/domains?hostname=${domain1.hostnames[0]}`))
+            .expect(200)
+            .end(helpers.callbacks.noErrorAnd(res => {
+              expect(res.body).to.shallowDeepEqual([getDomainObjectFromModel(domain1)]);
+              done();
+            }));
+        }));
+      });
+
+      it('should send back 200 with an empty list if there is no domain is found', function(done) {
+        helpers.api.loginAsUser(app, user2Domain1Member.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
+          loggedInAsUser(request(app).get('/api/domains?hostname=abc.com'))
+            .expect(200)
+            .end(helpers.callbacks.noErrorAnd(res => {
+              expect(res.body).to.shallowDeepEqual([]);
+              done();
+            }));
+        }));
+      });
+    });
   });
 
   describe('POST /api/domains', function() {

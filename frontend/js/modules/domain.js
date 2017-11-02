@@ -55,7 +55,7 @@ angular.module('esn.domain', ['esn.http', 'ngTagsInput', 'op.dynamicDirective', 
     /**
      * List domains
      *
-     * @param {Hash} options - Hash with limit (int), offset (int), name (string)
+     * @param {Hash} options - Hash with limit (int), offset (int), name (string), hostname(string)
      *
      * @return {Promise} Resolve on success
      */

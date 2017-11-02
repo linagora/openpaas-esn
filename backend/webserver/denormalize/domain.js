@@ -7,6 +7,7 @@ function denormalize(domain) {
     id: domain._id,
     name: domain.name,
     company_name: domain.company_name,
-    timestamps: domain.timestamps
+    timestamps: domain.timestamps,
+    hostnames: domain.hostnames
   };
 }
