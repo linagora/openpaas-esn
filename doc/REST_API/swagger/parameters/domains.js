@@ -22,9 +22,14 @@
  *     name: company_name
  *     in: body
  *     description: The domain company name.
- *     required: true
  *     schema:
  *      type: string
+ *   dm_hostnames:
+ *     name: hostnames
+ *     in: body
+ *     description: Array of domain hostnames.
+ *     schema:
+ *      type: array
  *   dm_administrator:
  *     name: administrator
  *     in: body

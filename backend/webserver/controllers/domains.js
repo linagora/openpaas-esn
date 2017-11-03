@@ -135,13 +135,14 @@ function _createWithAdministrator(domain, administrator) {
  * Update a domain.
  *
  * @param {Request} req  Request params must contain id of domain which expected to be update as uuid property.
- *                       Request body must contain new company name of domain which expected to be update as company_name property.
+ *                       Request body must contain new company name or new hostnames of domain which expected to be updated.
  * @param {Response} res
  */
 function update(req, res) {
   const domain = {
     id: req.params.uuid,
-    company_name: req.body.company_name
+    company_name: req.body.company_name || req.domain.company_name,
+    hostnames: [...new Set(req.body.hostnames || req.domain.hostnames)]
   };
 
   return q.ninvoke(coreDomain, 'update', domain)

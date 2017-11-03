@@ -501,7 +501,21 @@ describe('The domain API', function() {
       });
     });
 
-    it('should send back 400 when company name is not set', function(done) {
+    it('should send back 404 when domain is not found', function(done) {
+      const notExistedDomainId = new ObjectId();
+      const modifiedDomain = {
+        company_name: 'new_company_name'
+      };
+
+      helpers.api.loginAsUser(app, platformAdmin.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
+        loggedInAsUser(request(app).put(`${API_PATH}/${notExistedDomainId}`).send(modifiedDomain))
+          .expect(404).end(helpers.callbacks.noErrorAnd(() => {
+            done();
+        }));
+      }));
+    });
+
+    it('should send back 400 when company name and hostnames not set', function(done) {
       helpers.api.loginAsUser(app, platformAdmin.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
         loggedInAsUser(request(app).put(`${API_PATH}/${domain1._id}`).send())
           .expect(400)
@@ -510,7 +524,7 @@ describe('The domain API', function() {
               error: {
                 code: 400,
                 message: 'Bad Request',
-                details: 'Domain company name is required'
+                details: 'Company name or hostnames are required'
               }
             });
             done();
@@ -518,21 +532,37 @@ describe('The domain API', function() {
       }));
     });
 
-    it('should send back 404 when domain not existed', function(done) {
-      const notExistedDomainId = new ObjectId();
-      const modifiedDomain = {
-        company_name: 'new_company_name'
+    it('should send back 409 when hostname is already used by another domain', function(done) {
+      const alreadyUsedHostname = {
+        hostnames: ['openpaas']
       };
 
       helpers.api.loginAsUser(app, platformAdmin.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
-        loggedInAsUser(request(app).put(`${API_PATH}/${notExistedDomainId}`).send(modifiedDomain))
-          .expect(404)
+        loggedInAsUser(request(app).put(`${API_PATH}/${domain2._id}`).send(alreadyUsedHostname))
+          .expect(409)
           .end(helpers.callbacks.noErrorAnd(res => {
             expect(res.body).to.shallowDeepEqual({
               error: {
-                code: 404,
-                message: 'Not Found',
-                details: 'Domain not found'
+                code: 409,
+                message: 'Conflict',
+                details: 'Hostname openpaas is already in use'
+              }
+            });
+            done();
+          }));
+      }));
+    });
+
+    it('should send back 400 when hostnames is not an array', function(done) {
+      helpers.api.loginAsUser(app, platformAdmin.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
+        loggedInAsUser(request(app).put(`${API_PATH}/${domain2._id}`).send({ hostnames: 'not an array' }))
+          .expect(400)
+          .end(helpers.callbacks.noErrorAnd(res => {
+            expect(res.body).to.shallowDeepEqual({
+              error: {
+                code: 400,
+                message: 'Bad Request',
+                details: 'Hostnames must be an array!'
               }
             });
             done();
@@ -557,7 +587,7 @@ describe('The domain API', function() {
       }));
     });
 
-    it('should send back 200 on successful update', function(done) {
+    it('should send back 200 on successful update company name', function(done) {
       const modifiedDomain = {
         company_name: 'new_company_name'
       };
@@ -567,10 +597,46 @@ describe('The domain API', function() {
         .expect(200)
         .end(helpers.callbacks.noError(() => {
           Domain.findById(domain1._id, helpers.callbacks.noErrorAnd(doc => {
-            expect(doc.company_name).to.deep.equal('new_company_name');
+            expect(doc.company_name).to.equal('new_company_name');
             done();
           }));
         }));
+      }));
+    });
+
+    it('should send back 200 on successful update hostnames', function(done) {
+      const modifiedDomain = {
+        hostnames: ['new_hostname']
+      };
+
+      helpers.api.loginAsUser(app, platformAdmin.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
+        loggedInAsUser(request(app).put(`${API_PATH}/${domain1._id}`).send(modifiedDomain))
+          .expect(200)
+          .end(helpers.callbacks.noError(() => {
+            Domain.findById(domain1._id, helpers.callbacks.noErrorAnd(doc => {
+              expect(doc.hostnames[0]).to.equal('new_hostname');
+              done();
+            }));
+          }));
+      }));
+    });
+
+    it('should send back 200 on successful update company name and hostnames', function(done) {
+      const modifiedDomain = {
+        company_name: 'new_company_name',
+        hostnames: ['new_hostname']
+      };
+
+      helpers.api.loginAsUser(app, platformAdmin.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
+        loggedInAsUser(request(app).put(`${API_PATH}/${domain1._id}`).send(modifiedDomain))
+          .expect(200)
+          .end(helpers.callbacks.noError(() => {
+            Domain.findById(domain1._id, helpers.callbacks.noErrorAnd(doc => {
+              expect(doc.hostnames[0]).to.equal('new_hostname');
+              expect(doc.company_name).to.equal('new_company_name');
+              done();
+            }));
+          }));
       }));
     });
   });

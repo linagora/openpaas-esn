@@ -1,5 +1,6 @@
 'use strict';
 
+const q = require('q');
 const emailAddresses = require('email-addresses');
 const Domain = require('mongoose').model('Domain');
 const dbHelper = require('../../helpers').db;
@@ -192,17 +193,63 @@ function requireAdministrator(req, res, next) {
  * @param {Function} next
  */
 function checkUpdateParameters(req, res, next) {
-  if (!req.body.company_name) {
+  if (!req.body.company_name && !req.body.hostnames) {
     return res.status(400).json({
       error: {
         code: 400,
         message: 'Bad Request',
-        details: 'Domain company name is required'
+        details: 'Company name or hostnames are required'
       }
     });
   }
 
-  next();
+  if (req.body.hostnames) {
+    if (!Array.isArray(req.body.hostnames)) {
+      return res.status(400).json({
+        error: {
+          code: 400,
+          message: 'Bad Request',
+          details: 'Hostnames must be an array!'
+        }
+      });
+    }
+
+    return ensureNoConflictHostname(req, res, next);
+  }
+
+  return next();
+}
+
+function ensureNoConflictHostname(req, res, next) {
+  const hostnames = req.body.hostnames;
+
+  q.all(hostnames.map(hostname => coreDomain.getByHostname(hostname)))
+    .then(domains => {
+      const isUsedByOtherDomain = domains.findIndex(domain => domain && String(domain._id) !== req.params.uuid);
+
+      if (isUsedByOtherDomain !== -1) {
+        return res.status(409).json({
+          error: {
+            code: 409,
+            message: 'Conflict',
+            details: `Hostname ${hostnames[isUsedByOtherDomain]} is already in use`
+          }
+        });
+      }
+
+      return next();
+    })
+    .catch(err => {
+      logger.error('Unable to verify hostnames', err);
+
+      return res.status(500).json({
+        error: {
+          code: 500,
+          message: 'Server Error',
+          details: 'Unable to verify hostnames'
+        }
+      });
+    });
 }
 
 function _isValidEmail(email) {

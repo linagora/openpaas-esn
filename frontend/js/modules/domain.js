@@ -45,6 +45,7 @@ angular.module('esn.domain', ['esn.http', 'ngTagsInput', 'op.dynamicDirective', 
      * @param {Object} domain - With attributes:
      * - id (String)            Domain id
      * - company_name (string)  New company name
+     * - hostnames (Array)      New hostnames
      *
      * @return {Promise} Resolve on success
      */

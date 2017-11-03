@@ -79,6 +79,7 @@ module.exports = function(router) {
    *     parameters:
    *       - $ref: "#/parameters/dm_id"
    *       - $ref: "#/parameters/dm_company_name"
+   *       - $ref: "#/parameters/dm_hostnames"
    *     responses:
    *       200:
    *         $ref: "#/responses/cm_200"
@@ -97,6 +98,7 @@ module.exports = function(router) {
     authorize.requiresAPILogin,
     platformadminsMw.requirePlatformAdmin,
     helperMw.checkIdInParams('uuid', 'Domain'),
+    domainMiddleware.load,
     domainMiddleware.checkUpdateParameters,
     domains.update);
 
