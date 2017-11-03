@@ -91,6 +91,7 @@ services:
       - "1465:465"
       - "1587:587"
       - "1993:993"
+      - "8000:8000"
     volumes:
       - ${ESN_PATH}/docker/config/james:/root/conf
       - ${ESN_PATH}/docker/config/jwt/public:/root/conf/jwt_publickey
