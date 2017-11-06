@@ -98,7 +98,8 @@
     "linagora.esn.contact.collect",
     "linagora.esn.calendar.collect.email",
     "linagora.esn.resource",
-    "linagora.esn.james"
+    "linagora.esn.james",
+    "linagora.esn.group"
   ],
   "email": {
     "templatesDir": "./templates/email"
