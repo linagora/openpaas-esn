@@ -37,6 +37,7 @@ module.exports = {
  */
 function list(req, res) {
   const options = {
+    hostname: req.query.hostname,
     name: req.query.name,
     limit: +req.query.limit || DEFAULT_LIMIT,
     offset: +req.query.offset || DEFAULT_OFFSET

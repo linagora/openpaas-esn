@@ -13,6 +13,11 @@
  *     in: query
  *     description: The domain name which is used to filter the domain by name.
  *     type: string
+ *   dm_hostname_filter:
+ *     name: hostname
+ *     in: query
+ *     description: The hostname which is used to filter the domain by hostname.
+ *     type: string
  *   dm_company_name:
  *     name: company_name
  *     in: body
