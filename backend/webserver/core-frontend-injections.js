@@ -35,7 +35,7 @@ const injections = [
   ], innerApps: ['esn']},
   {angular: ['esn.socketio'], files: ['socketio.js'], innerApps: ['esn']},
   {angular: ['esn.domain'], files: ['domain.js'], innerApps: ['esn']},
-  {angular: ['esn.member'], files: ['member.js'], innerApps: ['esn']},
+  {angular: ['esn.member'], files: ['member.js', 'member/member-resolver-registry.service.js'], innerApps: ['esn']},
   {angular: ['esn.module-registry'], files: ['module-registry/module-registry.module.js', 'module-registry/module-registry.service.js'], innerApps: ['esn']},
   {angular: ['esn.search'], files: ['search.js'], innerApps: ['esn']},
   {angular: ['esn.infinite-list'], files: [
