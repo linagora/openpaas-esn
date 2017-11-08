@@ -46,6 +46,7 @@ module.exports = function(router) {
    *     parameters:
    *       - $ref: "#/parameters/dm_name"
    *       - $ref: "#/parameters/dm_company_name"
+   *       - $ref: "#/parameters/dm_hostnames"
    *       - $ref: "#/parameters/dm_administrator"
    *     responses:
    *       201:

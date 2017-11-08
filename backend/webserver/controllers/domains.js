@@ -72,12 +72,14 @@ function list(req, res) {
 function create(req, res) {
   const data = req.body;
   const company_name = data.company_name;
+  const hostnames = [...new Set(data.hostnames || [])];
   const name = data.name;
   const administrator = data.administrator;
 
   const domain = {
     name,
-    company_name
+    company_name,
+    hostnames
   };
 
   return _createWithAdministrator(domain, administrator)

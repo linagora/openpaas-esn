@@ -31,6 +31,7 @@ angular.module('esn.domain', ['esn.http', 'ngTagsInput', 'op.dynamicDirective', 
      * @param {Object} domain - With attributes:
      * - name (string)          Domain name
      * - company_name (string)  Company name
+     * - hostnames (array)      Array of hostnames
      * - administrator (object) Who will be created and become the domain administrator
      *
      * @return {Promise} Resolve on success

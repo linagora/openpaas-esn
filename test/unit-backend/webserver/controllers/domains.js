@@ -27,7 +27,8 @@ describe('The domains controller', function() {
       domainId = 'domain123';
       domain = {
         name: 'awesome.domain',
-        company_name: 'awesome company'
+        company_name: 'awesome company',
+        hostnames: ['linagora']
       };
 
       user = {
@@ -55,7 +56,8 @@ describe('The domains controller', function() {
         body: {
           name: domain.name,
           company_name: domain.company_name,
-          administrator: {}
+          administrator: {},
+          hostnames: domain.hostnames
         }
       };
       const res = helpers.express.jsonResponse(

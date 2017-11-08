@@ -131,6 +131,20 @@ function requireDomainInfo(req, res, next) {
     });
   }
 
+  if (req.body.hostnames) {
+    if (!Array.isArray(req.body.hostnames)) {
+      return res.status(400).json({
+        error: {
+          code: 400,
+          message: 'Bad Request',
+          details: 'Hostnames must be an array!'
+        }
+      });
+    }
+
+    return ensureNoConflictHostname(req, res, next);
+  }
+
   next();
 }
 

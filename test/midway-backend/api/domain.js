@@ -389,6 +389,51 @@ describe('The domain API', function() {
       }));
     });
 
+    it('should send back 409 when hostname is already used by another domain', function(done) {
+      const alreadyUsedHostname = {
+        name: 'Marketing',
+        company_name: 'Corporate',
+        hostnames: ['openpaas']
+      };
+
+      helpers.api.loginAsUser(app, platformAdmin.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
+        loggedInAsUser(request(app).post('/api/domains').send(alreadyUsedHostname))
+          .expect(409)
+          .end(helpers.callbacks.noErrorAnd(res => {
+            expect(res.body).to.shallowDeepEqual({
+              error: {
+                code: 409,
+                message: 'Conflict',
+                details: 'Hostname openpaas is already in use'
+              }
+            });
+            done();
+          }));
+      }));
+    });
+
+    it('should send back 400 when hostnames is not an array', function(done) {
+      const notAnArrayHostnames = {
+        name: 'Marketing',
+        company_name: 'Corporate',
+        hostnames: 'not array'
+      };
+      helpers.api.loginAsUser(app, platformAdmin.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
+        loggedInAsUser(request(app).post('/api/domains').send(notAnArrayHostnames))
+          .expect(400)
+          .end(helpers.callbacks.noErrorAnd(res => {
+            expect(res.body).to.shallowDeepEqual({
+              error: {
+                code: 400,
+                message: 'Bad Request',
+                details: 'Hostnames must be an array!'
+              }
+            });
+            done();
+          }));
+      }));
+    });
+
     it('should send back 201, create a domain with right administrator', function(done) {
       const user = {
         email: 'abc@email.com',
@@ -398,6 +443,7 @@ describe('The domain API', function() {
       const json = {
         name: 'Marketing',
         company_name: 'Corporate',
+        hostnames: ['hostname'],
         administrator: user
       };
 
@@ -419,6 +465,7 @@ describe('The domain API', function() {
              expect(doc).to.shallowDeepEqual({
                name: 'marketing',
                company_name: 'corporate',
+               hostnames: ['hostname'],
                administrators: [{
                  user_id: `${administrator._id}`
                }]
