@@ -431,6 +431,21 @@ describe('The esn.form.helper Angular module', function() {
       expect(adminFormGroupEle.hasClass('has-focus')).to.be.false;
     });
 
+    it('should support getting form controller from parent controller', function() {
+      var template = '<form>' +
+                        '<esn-form-group form="$ctrl.form">' +
+                            '<input class="form-control"  ng-model="model" type="text" />' +
+                        '</esn-form-group>' +
+                     '</form>';
+      var scope = $rootScope.$new();
+
+      scope.$ctrl = { form: { controller: 'formController' } };
+
+      expect(function() {
+        return initDirective(scope, template);
+      }).to.not.throw();
+    });
+
     it('should throw exception when form controller is missing', function() {
       var template = '<form>' +
                         '<esn-form-group>' +
