@@ -103,8 +103,8 @@ angular.module('esn.form.helper', [
     var AVAILABLE_ERRORS = ['min', 'max', 'minlength', 'maxlength', 'pattern', 'email', 'required', 'url', 'date', 'datetimelocal', 'time', 'week', 'month', 'validator', 'asyncValidator'];
     var fgLineEle = element.find('.fg-line');
     var formControlEle = element.find('.form-control');
-    var formController = scope[attrs.form];
     var ngModelController = formControlEle.controller('ngModel');
+    var formController = $parse(attrs.form)(scope) || scope.form;
     var validator = $parse(attrs.validator)(scope);
     var asyncValidator = $parse(attrs.asyncValidator)(scope);
 
@@ -118,11 +118,7 @@ angular.module('esn.form.helper', [
     scope.options = {};
 
     if (!formController) {
-      if (scope.form) {
-        formController = scope.form;
-      } else {
-        throw new Error('no form is specified and form is missing in scope');
-      }
+      throw new Error('no form is specified and form is missing in scope');
     }
 
     if (formControlEle.attr('required')) {
