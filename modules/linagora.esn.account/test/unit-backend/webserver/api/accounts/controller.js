@@ -1,22 +1,24 @@
 'use strict';
 
-var expect = require('chai').expect;
+const expect = require('chai').expect;
+const q = require('q');
 
 describe('The Accounts Controller', function() {
 
-  var deps;
+  let deps, esnConfigMock;
 
   beforeEach(function() {
     deps = {
       'esn-user': {
-        removeAccountById: function() {}
-      }
+        removeAccountById: () => {}
+      },
+      'esn-config': () => ({
+        get: () => q.when(esnConfigMock)
+      })
     };
   });
 
-  var dependencies = function(name) {
-    return deps[name];
-  };
+  const dependencies = name => deps[name];
 
   function requireController() {
     return require('../../../../../backend/webserver/api/accounts/controller')(dependencies);
@@ -25,8 +27,8 @@ describe('The Accounts Controller', function() {
   describe('The getAccounts function', function() {
     it('should return all the accounts when no query parameter', function(done) {
 
-      var oauthAccount = {type: 'oauth'};
-      var req = {
+      const oauthAccount = {type: 'oauth'};
+      const req = {
         user: {
           accounts: [
             {type: 'email'},
@@ -37,9 +39,10 @@ describe('The Accounts Controller', function() {
         query: {}
       };
 
-      var res = {
+      const res = {
         status: function(code) {
           expect(code).to.equal(200);
+
           return {
             json: function(data) {
               expect(data.length).to.equal(3);
@@ -48,13 +51,14 @@ describe('The Accounts Controller', function() {
           };
         }
       };
+
       requireController().getAccounts(req, res);
     });
 
     it('should return the defined accounts based on the query.type parameter value', function(done) {
 
-      var oauthAccount = {type: 'oauth'};
-      var req = {
+      const oauthAccount = {type: 'oauth'};
+      const req = {
         user: {
           accounts: [
             {type: 'email'},
@@ -65,9 +69,10 @@ describe('The Accounts Controller', function() {
         query: oauthAccount
       };
 
-      var res = {
+      const res = {
         status: function(code) {
           expect(code).to.equal(200);
+
           return {
             json: function(data) {
               expect(data).to.deep.equal([oauthAccount, oauthAccount]);
@@ -76,13 +81,14 @@ describe('The Accounts Controller', function() {
           };
         }
       };
+
       requireController().getAccounts(req, res);
     });
 
     it('should return the defined accounts based on the query.type parameter value (case insensitive)', function(done) {
 
-      var oauthAccount = {type: 'oauth'};
-      var req = {
+      const oauthAccount = {type: 'oauth'};
+      const req = {
         user: {
           accounts: [
             {type: 'email'},
@@ -95,9 +101,10 @@ describe('The Accounts Controller', function() {
         }
       };
 
-      var res = {
+      const res = {
         status: function(code) {
           expect(code).to.equal(200);
+
           return {
             json: function(data) {
               expect(data).to.deep.equal([oauthAccount, oauthAccount]);
@@ -106,13 +113,14 @@ describe('The Accounts Controller', function() {
           };
         }
       };
+
       requireController().getAccounts(req, res);
     });
 
     it('should return empty accounts list when type not found', function(done) {
 
-      var oauthAccount = {type: 'oauth'};
-      var req = {
+      const oauthAccount = {type: 'oauth'};
+      const req = {
         user: {
           accounts: [
             {type: 'email'},
@@ -125,9 +133,10 @@ describe('The Accounts Controller', function() {
         }
       };
 
-      var res = {
+      const res = {
         status: function(code) {
           expect(code).to.equal(200);
+
           return {
             json: function(data) {
               expect(data.length).to.equal(0);
@@ -136,12 +145,13 @@ describe('The Accounts Controller', function() {
           };
         }
       };
+
       requireController().getAccounts(req, res);
     });
   });
 
   describe('The deleteAccount function', function() {
-    var req;
+    let req;
 
     beforeEach(function() {
       req = {
@@ -159,28 +169,32 @@ describe('The Accounts Controller', function() {
 
     it('should return 204 if account is deleted without error', function(done) {
 
-      var res = {
+      const res = {
         status: function(code) {
           expect(code).to.equal(204);
+
           return {
             end: done
           };
         }
       };
+
       requireController().deleteAccount(req, res);
     });
 
     it('should return 400 if account not found', function(done) {
-      var error = {
+      const error = {
         message: 'Invalid account id: 2'
       };
+
       deps['esn-user'].removeAccountById = function(user, id, callback) {
         callback(error);
       };
 
-      var res = {
+      const res = {
         status: function(code) {
           expect(code).to.equal(400);
+
           return {
             json: function(err) {
               expect(err).to.deep.equal({error: 400, message: 'Server Error', details: error.message});
@@ -189,20 +203,23 @@ describe('The Accounts Controller', function() {
           };
         }
       };
+
       requireController().deleteAccount(req, res);
     });
 
     it('should return 500 if error when saving user', function(done) {
-      var error = {
+      const error = {
         message: 'Mongo Error'
       };
+
       deps['esn-user'].removeAccountById = function(user, id, callback) {
         callback(error);
       };
 
-      var res = {
+      const res = {
         status: function(code) {
           expect(code).to.equal(500);
+
           return {
             json: function(err) {
               expect(err).to.deep.equal({error: 500, message: 'Server Error', details: error.message});
@@ -211,7 +228,41 @@ describe('The Accounts Controller', function() {
           };
         }
       };
+
       requireController().deleteAccount(req, res);
+    });
+  });
+
+  describe('The getAccountProviders function', function() {
+    it('should return 200 with a list of account provider', function(done) {
+      esnConfigMock = {
+        facebook: {
+          usage: { account: false }
+        },
+        google: {
+          usage: { account: true }
+        },
+        github: {
+          usage: { account: true }
+        }
+      };
+
+      const res = {
+        status: function(code) {
+          expect(code).to.equal(200);
+
+          return {
+            json: providers => {
+              expect(providers).to.have.length(2);
+              expect(providers).to.include('github');
+              expect(providers).to.include('google');
+              done();
+            }
+          };
+        }
+      };
+
+      requireController().getAccountProviders({}, res);
     });
   });
 });
