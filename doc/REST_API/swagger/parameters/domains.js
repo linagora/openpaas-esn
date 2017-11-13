@@ -29,7 +29,9 @@
  *     in: body
  *     description: Array of domain hostnames.
  *     schema:
- *      type: array
+ *       type: array
+ *       items:
+ *         type: string
  *   dm_administrator:
  *     name: administrator
  *     in: body
