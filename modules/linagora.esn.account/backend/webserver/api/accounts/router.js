@@ -1,13 +1,14 @@
 'use strict';
 
-var express = require('express');
+const express = require('express');
 
-module.exports = function(dependencies) {
+module.exports = dependencies => {
 
-  var authorizationMW = dependencies('authorizationMW');
-  var controller = require('./controller')(dependencies);
+  const authorizationMW = dependencies('authorizationMW');
+  const controller = require('./controller')(dependencies);
 
-  var router = express.Router();
+  const router = express.Router();
+
   /**
    * @swagger
    * /accounts:
@@ -47,6 +48,23 @@ module.exports = function(dependencies) {
    *         $ref: "#/responses/cm_500"
    */
   router.delete('/accounts/:id', authorizationMW.requiresAPILogin, controller.deleteAccount);
+
+  /**
+   * @swagger
+   * /accounts/providers:
+   *   get:
+   *     tags:
+   *       - Accounts
+   *     description: Get available social account providers from OAuth configuration
+   *     responses:
+   *       200:
+   *         $ref: "#/responses/cm_200"
+   *       401:
+   *         $ref: "#/responses/cm_401"
+   *       500:
+   *         $ref: "#/responses/cm_500"
+   */
+  router.get('/accounts/providers', authorizationMW.requiresAPILogin, controller.getAccountProviders);
 
   return router;
 };
