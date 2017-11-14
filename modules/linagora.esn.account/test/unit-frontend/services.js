@@ -115,28 +115,34 @@ describe('The Account Angular Services', function() {
   });
 
   describe('The accountService service', function() {
+    var accountService, $httpBackend;
 
-    beforeEach(angular.mock.inject(function(accountService, $httpBackend, $rootScope) {
-      this.$httpBackend = $httpBackend;
-      this.$rootScope = $rootScope;
-      this.$scope = $rootScope.$new();
-      this.accountService = accountService;
+    beforeEach(angular.mock.inject(function(_accountService_, _$httpBackend_) {
+      $httpBackend = _$httpBackend_;
+      accountService = _accountService_;
     }));
 
     describe('The getAccounts function', function() {
       it('should call GET /account/api/accounts', function() {
-        this.$httpBackend.expectGET('/account/api/accounts').respond([]);
-        this.accountService.getAccounts();
-        this.$rootScope.$apply();
-        this.$httpBackend.flush();
+        $httpBackend.expectGET('/account/api/accounts').respond([]);
+        accountService.getAccounts();
+        $httpBackend.flush();
       });
 
       it('should call GET /account/api/accounts?type=:type', function() {
         var options = {type: 'oauth'};
-        this.$httpBackend.expectGET('/account/api/accounts?type=oauth').respond([]);
-        this.accountService.getAccounts(options);
-        this.$rootScope.$apply();
-        this.$httpBackend.flush();
+
+        $httpBackend.expectGET('/account/api/accounts?type=oauth').respond([]);
+        accountService.getAccounts(options);
+        $httpBackend.flush();
+      });
+    });
+
+    describe('The getAccoutnsConfig function', function() {
+      it('should call GET /account/api/accountsconfig', function() {
+        $httpBackend.expectGET('/account/api/accounts/providers').respond(200, []);
+        accountService.getAccountProviders();
+        $httpBackend.flush();
       });
     });
   });

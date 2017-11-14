@@ -244,7 +244,8 @@ describe('The Accounts Controller', function() {
         },
         github: {
           usage: { account: true }
-        }
+        },
+        twitter: {}
       };
 
       const res = {

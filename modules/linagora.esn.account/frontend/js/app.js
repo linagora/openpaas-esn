@@ -30,22 +30,4 @@ angular.module('linagora.esn.account', [
 
     var accountControlCenterMenu = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'controlcenter-menu-account', {priority: -2});
     dynamicDirectiveServiceProvider.addInjection('controlcenter-sidebar-menu', accountControlCenterMenu);
-  })
-  .run(function(dynamicDirectiveService, accountMessageRegistry, FAB_ANCHOR_POINT, SUPPORTED_ACCOUNT_TYPES, socialHelper, _) {
-    _.forIn(SUPPORTED_ACCOUNT_TYPES, function(item) {
-      var options = {
-        attributes: [
-          {
-            name: 'type',
-            value: item
-          }
-        ]
-      };
-      var directive = new dynamicDirectiveService.DynamicDirective(
-        function() {
-          return true;
-        }, 'account-menu-item', options);
-      dynamicDirectiveService.addInjection(FAB_ANCHOR_POINT, directive);
-      accountMessageRegistry.register(item, socialHelper.getAccountMessages(item));
-    });
   });

@@ -18,8 +18,13 @@ angular.module('linagora.esn.account')
       return AccountRestangular.all('accounts').getList(options);
     }
 
+    function getAccountProviders() {
+      return AccountRestangular.all('accounts').all('providers').getList();
+    }
+
     return {
-      getAccounts: getAccounts
+      getAccounts: getAccounts,
+      getAccountProviders: getAccountProviders
     };
 
   })

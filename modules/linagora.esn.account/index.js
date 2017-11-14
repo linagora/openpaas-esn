@@ -8,6 +8,7 @@ const FRONTEND_PATH = path.resolve(__dirname, 'frontend');
 const innerApps = ['esn'];
 const angularModuleFiles = [
   'app.js',
+  'app.run.js',
   'constants.js',
   'controllers.js',
   'directives.js',

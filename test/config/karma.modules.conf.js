@@ -118,7 +118,7 @@ module.exports = function(config) {
       { pattern: 'frontend/js/modules/datetime/datetime.run.js', watched: false, included: false, served: false },
       { pattern: 'frontend/js/modules/i18n/i18n.config.js', watched: false, included: false, served: true },
       { pattern: 'frontend/js/modules/shortcuts/shortcuts.run.js', watched: false, included: false, served: true },
-      { pattern: 'modules/**/frontend/app/**/*.run.js', watched: false, included: false, served: true },
+      { pattern: 'modules/**/frontend/**/*.run.js', watched: false, included: false, served: true },
 
       'frontend/js/modules/**/*.module.js',
       'frontend/js/**/*.js',
