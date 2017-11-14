@@ -1,7 +1,7 @@
 'use strict';
 
 const q = require('q'),
-      userModule = require('../../../core/user'),
+      userModule = require('../../user'),
       ldapModule = require('../../ldap'),
       logger = require('../../logger');
 
@@ -15,22 +15,28 @@ module.exports = (username, password, done) => {
       return done(null, false, { message: 'Can not find any LDAP for this user' });
     }
 
-    const ldapConfig = ldaps[0]; // authenticate user on the first LDAP for now
+    q.allSettled(ldaps.map(
+      ldapConfig => authenticate(username, password, ldapConfig.configuration).then(user => ({ user, ldapConfig }))
+    ))
+      .then(results => {
+        const successResults = results.filter(result => result.state === 'fulfilled')
+                                      .map(result => result.value)
+                                      .filter(value => !!value.user);
 
-    ldapModule.authenticate(username, password, ldapConfig.configuration, (err, user) => {
-      if (err) {
-        // Invalid credentials / user not found are not errors but login failures
-        if (err.name === 'InvalidCredentialsError' || err.name === 'NoSuchObjectError' || (typeof err === 'string' && err.match(/no such user/i))) {
-          return done(null, false);
+        if (successResults.length > 0) {
+          return onSuccess(successResults);
         }
 
-        // Other errors are (most likely) real errors
-        return done(err);
-      }
+        const errorResults = results.filter(result => result.state !== 'fulfilled')
+                                    .map(result => result.reason);
 
-      if (!user) {
-        return done(false);
-      }
+        onError(errorResults);
+      });
+
+    function onSuccess(successResults) {
+      const { user, ldapConfig } = successResults[0];
+
+      logger.debug(`Found user "${username}" in ${successResults.length} LDAP(s), select the first one: "${ldapConfig.name}"`);
 
       if (!ldapConfig.domainId) {
         logger.warn(`LDAP directory ${ldapConfig.name} does not have domain information, user provision could fail`);
@@ -44,9 +50,25 @@ module.exports = (username, password, done) => {
       })
         .then(user => done(null, user))
         .catch(done);
-    });
+    }
+
+    function onError(errorResults) {
+      if (errorResults.length > 0) {
+        logger.error(`Error while authenticating user "${username}" against LDAP`, ...errorResults);
+        done(errorResults[0]);
+      } else {
+        // no error means user not found
+        logger.debug(`LDAP: Failed to authenticate user "${username}", user not found or invalid password`);
+        done(null, false);
+      }
+    }
+
   });
 };
+
+function authenticate(username, password, configuration) {
+  return q.denodeify(ldapModule.authenticate)(username, password, configuration);
+}
 
 function provisionUser(ldapPayload) {
   return q.nfcall(userModule.findByEmail, ldapPayload.username)

@@ -51,6 +51,15 @@ describe('The ldap core module', function() {
       ldap = this.helpers.requireBackend('core/ldap');
     });
 
+    it('should send back error if it fails to get LDAP configuration', function(done) {
+      esnConfigMock.getFromAllDomains = () => q.reject(new Error('an_error'));
+
+      ldap.findLDAPForUser('foo@bar.com', function(err) {
+        expect(err.message).to.equal('an_error');
+        done();
+      });
+    });
+
     it('should send back error if LDAP configuration is empty', function(done) {
       ldap.findLDAPForUser('foo@bar.com', function(err) {
         expect(err).to.exist;
@@ -332,7 +341,7 @@ describe('The ldap core module', function() {
       });
     });
 
-    it('should send back error if auth does not return user', function(done) {
+    it('should not send back error if auth does not return user', function(done) {
       var ldapmock = function() {
         return {
           authenticate: function(email, password, callback) {
@@ -345,8 +354,30 @@ describe('The ldap core module', function() {
       mockery.registerMock('ldapauth-fork', ldapmock);
 
       getModule().authenticate('me', 'secret', {}, function(err, user) {
-        expect(err).to.exist;
+        expect(err).to.not.exist;
         expect(user).to.not.exist;
+        done();
+      });
+    });
+
+    it('should send back null user if auth fails because of invalid credentials', function(done) {
+      const error = new Error();
+      const ldapauth = {
+        authenticate: function(email, password, callback) {
+          return callback(error);
+        },
+        close: sinon.spy()
+      };
+      const ldapmock = function() { return ldapauth; };
+
+      mockery.registerMock('ldapauth-fork', ldapmock);
+      error.name = 'InvalidCredentialsError';
+
+      getModule().authenticate('me', 'secret', {}, function(err, user) {
+        expect(err).to.not.exist;
+        expect(user).to.not.exist;
+        expect(ldapauth.close).to.have.been.calledWith();
+
         done();
       });
     });
