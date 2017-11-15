@@ -87,7 +87,7 @@ function findLDAPForUser(email, callback) {
     }
 
     const emailExistsInLdap = (ldap, callback) => {
-      const errorMsg = `Error while finding user ${email} in LDAP directory ${ldap.url} with admin DN ${ldap.adminDn}`;
+      const errorMsg = `Error while finding user ${email} in LDAP directory "${ldap.name}"`;
 
       emailExists(email, ldap.configuration, (err, username) => {
         if (err) {
@@ -99,7 +99,7 @@ function findLDAPForUser(email, callback) {
     };
 
     async.filter(ldapConfigs, emailExistsInLdap, callback);
-  });
+  }, callback);
 }
 
 /**
@@ -108,7 +108,7 @@ function findLDAPForUser(email, callback) {
  * @param {String} email
  * @param {String} password
  * @param {hash} ldap - LDAP configuration
- * @param {function} callback - as function(err, user) where user is not null when authenticated
+ * @param {function} callback - as function(err, user) where user is nullable
  */
 function authenticate(email, password, ldap, callback) {
   if (!email || !password || !ldap) {
@@ -121,11 +121,16 @@ function authenticate(email, password, ldap, callback) {
     ldapauth.close(NOOP);
 
     if (err) {
-      return callback(new Error('Can not authenticate user ' + email + ' : ' + err.message));
-    }
+      // Invalid credentials / user not found are not errors but login failures
+     if (err.name === 'InvalidCredentialsError' ||
+         err.name === 'NoSuchObjectError' ||
+         (typeof err === 'string' && err.match(/no such user/i))
+     ) {
+      return callback(null, null);
+     }
 
-    if (!user) {
-      return callback(new Error('Can not authenticate user ' + email + ' : null user'));
+      // Other errors are (most likely) real errors
+      return callback(err);
     }
 
     return callback(null, user);
