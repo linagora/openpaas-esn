@@ -166,6 +166,7 @@ const injections = [
   ], innerApps: ['esn']},
   {angular: ['esn.jmap-client-wrapper'], files: ['jmap-client-wrapper.js'], innerApps: ['esn']},
   {angular: ['esn.iframe-resizer-wrapper'], files: ['iframe-resizer-wrapper.js'], innerApps: ['esn']},
+  {angular: ['esn.email-addresses-wrapper'], files: ['email-addresses-wrapper.js'], innerApps: ['esn']},
   {angular: ['esn.box-overlay'], files: ['box-overlay.js'], innerApps: ['esn']},
   {angular: ['esn.back-detector'], files: ['back-detector.js'], innerApps: ['esn']},
   {angular: ['esn.fullscreen-edit-form'], files: ['fullscreen-edit-form.js'], innerApps: ['esn']},

@@ -110,7 +110,8 @@
     "videogular-controls": "1.4.4",
     "videogular-overlay-play": "1.4.4",
     "videogular-themes-default": "1.4.4",
-    "angular-sticky": "angular-sticky-plugin#0.4.1"
+    "angular-sticky": "angular-sticky-plugin#0.4.1",
+    "email-addresses": "3.0.0"
   },
   "resolutions": {
     "jquery": "2.1.1",

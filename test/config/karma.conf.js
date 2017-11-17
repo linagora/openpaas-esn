@@ -8,6 +8,7 @@ module.exports = function(config) {
 
     files: [
       'frontend/components/jquery/dist/jquery.js',
+      'frontend/components/email-addresses/lib/email-addresses.min.js',
       'frontend/components/angular/angular.js',
       'frontend/components/angular-mocks/angular-mocks.js',
       'frontend/components/angular-messages/angular-messages.min.js',
