@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.core', ['esn.lodash-wrapper'])
+angular.module('esn.core', ['esn.lodash-wrapper', 'esn.email-addresses-wrapper'])
   .config(function($compileProvider) {
     $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|skype):/);
   })
@@ -158,11 +158,9 @@ angular.module('esn.core', ['esn.lodash-wrapper'])
     }
   })
 
-  .service('emailService', function() {
-    var emailRegex = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*$/;
-
+  .service('emailService', function(emailAddresses) {
     function isValidEmail(email) {
-      return !!emailRegex.exec(email);
+      return !!emailAddresses.parseOneAddress(email);
     }
 
     return {

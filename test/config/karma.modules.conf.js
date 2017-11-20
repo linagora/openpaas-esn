@@ -9,6 +9,7 @@ module.exports = function(config) {
     files: [
       'frontend/components/mdi/css/materialdesignicons.min.css',
       'frontend/components/jquery/dist/jquery.js',
+      'frontend/components/email-addresses/lib/email-addresses.min.js',
       'frontend/components/jquery-mockjax/dist/jquery.mockjax.js',
       'frontend/components/angular/angular.js',
       'frontend/components/angular-mocks/angular-mocks.js',

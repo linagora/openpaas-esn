@@ -264,10 +264,11 @@ describe('The Angular core module', function() {
       it('should return false for an invalid email', function() {
         expect(this.emailService.isValidEmail('notanEmail')).to.be.false;
         expect(this.emailService.isValidEmail('notOnlyEmail test@yolo.com')).to.be.false;
+        expect(this.emailService.isValidEmail('notOnlyEmail..test@yolo.com')).to.be.false;
       });
 
       it('should return true for a valid email', function() {
-        expect(this.emailService.isValidEmail('test@yolo.com')).to.be.true;
+        expect(this.emailService.isValidEmail('te.st@yolo.com')).to.be.true;
       });
     });
   });
