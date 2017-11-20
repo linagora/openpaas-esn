@@ -23,8 +23,9 @@ module.exports = {
   },
 
   DOMAIN: {
-    name: 'OpenPaaS',
-    company_name: 'open-paas.org'
+    name: 'open-paas.org',
+    company_name: 'OpenPaaS',
+    hostnames: ['localhost', '127.0.0.1', 'open-paas.org']
   },
 
   COMMUNITY: {
