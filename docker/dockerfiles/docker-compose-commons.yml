@@ -34,6 +34,8 @@ services:
       - MAIL_BROWSER=false
       - SMTP_HOST=${DOCKER_IP}
       - SMTP_PORT=1025
+      - JAMES_WEBADMIN_HOST=${DOCKER_IP}
+      - JAMES_WEBADMIN_PORT=8000
 
   redis:
     image: redis:latest
