@@ -52,6 +52,12 @@ function logout(req, res) {
  */
 function profile(req, res) {
   var uuid = req.params.uuid;
+  const denormalizeOptions = {
+    includeIsFollowing: true,
+    includeFollow: true,
+    includePrivateData: String(req.user._id) === uuid,
+    user: req.user
+  };
 
   if (!uuid) {
     return res.status(400).json({error: {code: 400, message: 'Bad parameters', details: 'User ID is missing'}});
@@ -74,10 +80,8 @@ function profile(req, res) {
       });
     }
 
-    denormalizeUser(user, {user: req.user, includePrivateData: String(req.user._id) === uuid})
-      .then(function(denormalized) {
-        res.status(200).json(denormalized);
-      });
+    denormalizeUser(user, denormalizeOptions)
+      .then(denormalized => res.status(200).json(denormalized));
   });
 }
 
@@ -108,7 +112,7 @@ function getProfilesByQuery(req, res) {
     getUsers = Q.ninvoke(userSearch, 'search', options);
   }
 
-  const denormalizeUsers = users => users.map(user => denormalizeUser(user, { user: req.user, includePrivateData: false }));
+  const denormalizeUsers = users => users.map(user => denormalizeUser(user, { user: req.user }));
 
   getUsers
     .then(result => Q.all(denormalizeUsers(result.list))
@@ -195,9 +199,13 @@ function user(req, res) {
     return res.status(404).json({error: 404, message: 'Not found', details: 'User not found'});
   }
 
-  denormalizeUser(req.user, { includePrivateData: true }).then(function(denormalized) {
-    res.status(200).json(denormalized);
-  });
+  const denormalizeOption = {
+    includeConfigurations: true,
+    includePrivateData: true,
+    includeIsPlatformAdmin: true
+  };
+
+  denormalizeUser(req.user, denormalizeOption).then(denormalized => res.status(200).json(denormalized));
 }
 
 function postProfileAvatar(req, res) {

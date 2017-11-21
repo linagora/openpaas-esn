@@ -127,6 +127,7 @@ describe('The User controller', function() {
 
       var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {
+        user: {id: this.helpers.objectIdMock('1')},
         params: {}
       };
       var res = this.helpers.express.jsonResponse(
@@ -159,6 +160,7 @@ describe('The User controller', function() {
 
       var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {
+        user: {id: this.helpers.objectIdMock('123')},
         params: {
           uuid: '123'
         }
@@ -190,6 +192,7 @@ describe('The User controller', function() {
 
       var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {
+        user: {id: this.helpers.objectIdMock('123')},
         params: {
           uuid: '123'
         }
