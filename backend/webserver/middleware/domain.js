@@ -12,6 +12,7 @@ module.exports = {
   load,
   loadFromDomainIdParameter,
   loadDomainByHostname,
+  loadSessionDomain,
   requireAdministrator,
   requireDomainInfo,
   checkUpdateParameters
@@ -92,17 +93,7 @@ function loadFromDomainIdParameter(req, res, next) {
     return res.status(400).json({ error: { code: 400, message: 'Bad Request', details: 'domainID is not a valid ObjectId' }});
   }
 
-  Domain.loadFromID(id, function(err, domain) {
-    if (err) {
-      return next(err);
-    }
-    if (!domain) {
-      return res.status(404).json({ error: { code: 404, message: 'Not found', details: 'The domain ' + id + ' could not be found'}});
-    }
-    req.domain = domain;
-
-    return next();
-  });
+  loadDomain(id)(req, res, next);
 }
 
 /**
@@ -146,6 +137,51 @@ function requireDomainInfo(req, res, next) {
   }
 
   next();
+}
+
+/**
+ * Load preferred domain of the authenticated user
+ * @param {Request} req
+ * @param {Response} res
+ * @param {Function} next
+ */
+function loadSessionDomain(req, res, next) {
+  const domainId = req.user.preferredDomainId;
+
+  if (!domainId) {
+    return res.status(404).json({
+      error: {
+        code: 404,
+        message: 'Not Found',
+        details: 'You do not belong to any domain'
+      }
+    });
+  }
+
+  loadDomain(domainId)(req, res, next);
+}
+
+function loadDomain(domainId) {
+  return (req, res, next) => {
+    Domain.loadFromID(domainId, function(err, domain) {
+      if (err) {
+        return next(err);
+      }
+
+      if (!domain) {
+        return res.status(404).json({
+          error: {
+            code: 404,
+            message: 'Not found',
+            details: `The domain ${domainId} could not be found`}
+          });
+      }
+
+      req.domain = domain;
+
+      return next();
+    });
+  };
 }
 
 /**

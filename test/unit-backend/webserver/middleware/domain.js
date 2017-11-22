@@ -325,4 +325,92 @@ describe('The domain middleware', function() {
       getModule().loadDomainByHostname(req, res, next);
     });
   });
+
+  describe('The loadSessionDomain fn', function() {
+    let DomainModelMock;
+
+    beforeEach(function() {
+      DomainModelMock = {
+        loadFromID(id, callback) {
+          return callback(new Error('an_error'));
+        }
+      };
+
+      this.helpers.mock.models({ Domain: DomainModelMock });
+    });
+
+    it('should respond 404 if the logged in user does not belong to any domain', function(done) {
+      const req = {
+        user: { _id: '123' }
+      };
+      const res = {
+        status(code) {
+          expect(code).to.equal(404);
+
+          return {
+            json(data) {
+              expect(data.error.details).to.equal('You do not belong to any domain');
+              done();
+            }
+          };
+        }
+      };
+      const next = () => {};
+
+      getModule().loadSessionDomain(req, res, next);
+    });
+
+    it('should fails if it cannot load domain by ID', function(done) {
+      const req = {
+        user: { _id: '123', preferredDomainId: 'domainId' }
+      };
+      const res = {};
+      const next = err => {
+        expect(err.message).to.equal('an_error');
+        done();
+      };
+
+      getModule().loadSessionDomain(req, res, next);
+    });
+
+    it('should respond 404 if no domain found with corresponding ID', function(done) {
+      const domain = null;
+      const req = {
+        user: { _id: '123', preferredDomainId: 'domainId' }
+      };
+      const res = {
+        status(code) {
+          expect(code).to.equal(404);
+
+          return {
+            json(data) {
+              expect(data.error.details).to.equal(`The domain ${req.user.preferredDomainId} could not be found`);
+              done();
+            }
+          };
+        }
+      };
+      const next = () => {};
+
+      DomainModelMock.loadFromID = (id, callback) => callback(null, domain);
+
+      getModule().loadSessionDomain(req, res, next);
+    });
+
+    it('should assign the found domain to req then call next', function(done) {
+      const domain = { _id: 'domainId' };
+      const req = {
+        user: { _id: '123', preferredDomainId: 'domainId' }
+      };
+      const res = {};
+      const next = () => {
+        expect(req.domain).to.deep.equal(domain);
+        done();
+      };
+
+      DomainModelMock.loadFromID = (id, callback) => callback(null, domain);
+
+      getModule().loadSessionDomain(req, res, next);
+    });
+  });
 });
