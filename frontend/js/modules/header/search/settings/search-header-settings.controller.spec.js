@@ -49,7 +49,9 @@ describe('The ESNSearchHeaderSettingsController', function() {
 
       expect($scope.filters).to.deep.equal(filters);
     });
+  });
 
+  describe('toggleAll function', function() {
     it('should toggle checked params of every filter when toggleAll is called', function() {
       $scope.all = false;
       $scope.toggleAll();
@@ -67,7 +69,9 @@ describe('The ESNSearchHeaderSettingsController', function() {
         { id: '456', name: 'dog', checked: true }
       ]);
     });
+  });
 
+  describe('updateFilters function', function() {
     it('should assign false to scope.all when at least one filter is unchecked', function() {
       $scope.filters = [
         { id: '123', name: 'cat', checked: false },
@@ -76,6 +80,17 @@ describe('The ESNSearchHeaderSettingsController', function() {
       $scope.updateFilters();
 
       expect($scope.all).to.equal(false);
+    });
+
+    it('should save filters in $stateParams when updating filters', function() {
+      $scope.filters = [
+        { id: '123', name: 'platypus', checked: true },
+        { id: '456', name: 'penguin', checked: false }
+      ];
+
+      $scope.updateFilters();
+
+      expect($stateParams.filters).to.be.deep.equal($scope.filters);
     });
   });
 });
