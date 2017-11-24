@@ -127,4 +127,36 @@ describe('The tuple core module', function() {
     });
   });
 
+  describe('isEqual function', function() {
+    let getModule;
+
+    beforeEach(function() {
+      getModule = () => require(this.modPath);
+    });
+
+    it('should return false if objectTypes are not equal', function() {
+      expect(
+        getModule().isEqual({ objectType: 'user', id: '123' }, { objectType: 'email', id: 'e@mail' })
+      ).to.equal(false);
+    });
+
+    it('should return false if IDs are not equal', function() {
+      expect(
+        getModule().isEqual({ objectType: 'user', id: '123' }, { objectType: 'user', id: '456' })
+      ).to.equal(false);
+    });
+
+    it('should return true if both objectTypes and IDs are identical', function() {
+      expect(
+        getModule().isEqual({ objectType: 'user', id: '123' }, { objectType: 'user', id: '123' })
+      ).to.equal(true);
+    });
+
+    it('should compare email tuple case insensitive', function() {
+      expect(
+        getModule().isEqual({ objectType: 'email', id: 'e@Mail' }, { objectType: 'email', id: 'E@mail' })
+      ).to.equal(true);
+    });
+  });
+
 });

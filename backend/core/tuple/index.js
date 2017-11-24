@@ -4,6 +4,20 @@ var ObjectID = require('bson').ObjectId;
 var emailAddresses = require('email-addresses');
 var validUrl = require('valid-url');
 
+module.exports = {
+  user,
+  community,
+  email,
+  string,
+  icon,
+  url,
+  get,
+  validateAndSanitize,
+  isTuple,
+  isTupleOfType,
+  isEqual
+};
+
 function checkString(value) {
   if (!value || typeof value !== 'string') {
     throw new Error('id should be a string');
@@ -127,15 +141,14 @@ function isTupleOfType(type, tuple) {
   return isTuple(tuple) && tuple.objectType === type;
 }
 
-module.exports = {
-  user: user,
-  community: community,
-  email: email,
-  string: string,
-  icon: icon,
-  url: url,
-  get: get,
-  validateAndSanitize: validateAndSanitize,
-  isTuple: isTuple,
-  isTupleOfType: isTupleOfType
-};
+function isEqual(tuple1, tuple2) {
+  if (tuple1.objectType !== tuple2.objectType) {
+    return false;
+  }
+
+  if (tuple1.objectType === 'email') {
+    return String(tuple1.id).toUpperCase() === String(tuple2.id).toUpperCase();
+  }
+
+  return String(tuple1.id) === String(tuple2.id);
+}
