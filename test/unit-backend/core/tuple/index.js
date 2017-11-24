@@ -81,6 +81,34 @@ describe('The tuple core module', function() {
     });
   });
 
+  describe('email function', function() {
+    let getModule;
+
+    beforeEach(function() {
+      getModule = () => require(this.modPath);
+    });
+
+    it('should throw error if email is not a string', function() {
+      expect(function() {
+        getModule().email(true);
+      }).to.throw(Error, 'id should be a string');
+    });
+
+    it('should throw error if email is invalid', function() {
+      const email = 'invalid...@email';
+
+      expect(function() {
+        getModule().email(email);
+      }).to.throw(Error, `invalid email address: ${email}`);
+    });
+
+    it('should convert email to lower case', function() {
+      expect(
+        getModule().email('E@maiL')
+      ).to.deep.equal({ objectType: 'email', id: 'e@mail' });
+    });
+  });
+
   describe('isTuple function', function() {
     var mod;
     beforeEach(function() {

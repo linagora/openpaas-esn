@@ -53,7 +53,7 @@ function vasEmail(value) {
   if (!emailAddresses.parseOneAddress(value)) {
     throw new Error('invalid email address: ' + value);
   }
-  return value;
+  return value.toLowerCase();
 }
 
 function vasString(value) {
