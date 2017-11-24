@@ -81,6 +81,34 @@ describe('The tuple core module', function() {
     });
   });
 
+  describe('email function', function() {
+    let getModule;
+
+    beforeEach(function() {
+      getModule = () => require(this.modPath);
+    });
+
+    it('should throw error if email is not a string', function() {
+      expect(function() {
+        getModule().email(true);
+      }).to.throw(Error, 'id should be a string');
+    });
+
+    it('should throw error if email is invalid', function() {
+      const email = 'invalid...@email';
+
+      expect(function() {
+        getModule().email(email);
+      }).to.throw(Error, `invalid email address: ${email}`);
+    });
+
+    it('should convert email to lower case', function() {
+      expect(
+        getModule().email('E@maiL')
+      ).to.deep.equal({ objectType: 'email', id: 'e@mail' });
+    });
+  });
+
   describe('isTuple function', function() {
     var mod;
     beforeEach(function() {
@@ -124,6 +152,38 @@ describe('The tuple core module', function() {
 
     it('should send back true when objectType does match', function() {
       expect(mod.isTupleOfType('user', {objectType: 'user', id: '123'})).to.be.true;
+    });
+  });
+
+  describe('isEqual function', function() {
+    let getModule;
+
+    beforeEach(function() {
+      getModule = () => require(this.modPath);
+    });
+
+    it('should return false if objectTypes are not equal', function() {
+      expect(
+        getModule().isEqual({ objectType: 'user', id: '123' }, { objectType: 'email', id: 'e@mail' })
+      ).to.equal(false);
+    });
+
+    it('should return false if IDs are not equal', function() {
+      expect(
+        getModule().isEqual({ objectType: 'user', id: '123' }, { objectType: 'user', id: '456' })
+      ).to.equal(false);
+    });
+
+    it('should return true if both objectTypes and IDs are identical', function() {
+      expect(
+        getModule().isEqual({ objectType: 'user', id: '123' }, { objectType: 'user', id: '123' })
+      ).to.equal(true);
+    });
+
+    it('should compare email tuple case insensitive', function() {
+      expect(
+        getModule().isEqual({ objectType: 'email', id: 'e@Mail' }, { objectType: 'email', id: 'E@mail' })
+      ).to.equal(true);
     });
   });
 
