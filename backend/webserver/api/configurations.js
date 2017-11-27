@@ -72,6 +72,7 @@ module.exports = function(router) {
     configurationMW.qualifyScopeQueries,
     helperMW.requireBodyAsArray,
     configurationMW.ensureWellformedBody,
+    configurationMW.validateWriteBody,
     configurationMW.checkAuthorizedRole,
     configurationMW.checkWritePermission,
     controller.updateConfigurations);

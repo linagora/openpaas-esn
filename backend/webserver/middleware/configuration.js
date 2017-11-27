@@ -1,11 +1,14 @@
 'use strict';
 
+const q = require('q');
 const composableMw = require('composable-middleware');
 const platformadminsMW = require('./platformadmins');
 const helperMW = require('./helper');
 const domainMW = require('./domain');
 const authorizationMW = require('./authorization');
+const logger = require('../../core/logger');
 const rights = require('../../core/esn-config/rights');
+const validator = require('../../core/esn-config/validator');
 const { SCOPE } = require('../../core/esn-config/constants');
 
 module.exports = {
@@ -13,7 +16,8 @@ module.exports = {
   checkAuthorizedRole,
   checkReadPermission,
   checkWritePermission,
-  ensureWellformedBody
+  ensureWellformedBody,
+  validateWriteBody
 };
 
 function qualifyScopeQueries(req, res, next) {
@@ -114,6 +118,70 @@ function ensureWellformedBody(req, res, next) {
   }
 
   next();
+}
+
+function validateWriteBody(req, res, next) {
+  const modules = req.body;
+
+  const invalidModules = modules.map(module => {
+    if (!Array.isArray(module.configurations)) {
+      return module.name;
+    }
+
+    return module.configurations.some(configuration => !configuration.name) ? module.name : null;
+  }).filter(Boolean);
+
+  if (invalidModules.length > 0) {
+    return res.status(400).json({
+      error: {
+        code: 400,
+        message: 'Bad Request',
+        details: `module ${invalidModules.join(', ')} must have "configurations" attribute as an array of {name, value}`
+      }
+    });
+  }
+
+  const validationPromises = modules.map(module =>
+    module.configurations.map(configuration =>
+      validator.validate(module.name, configuration.name, configuration.value).then(result => ({
+        moduleName: module.name,
+        configName: configuration.name,
+        result
+      }))
+    )
+  );
+
+  q.all([].concat(...validationPromises)).then(validations => {
+    const invalidValidations = validations.filter(validation => !validation.result.ok);
+
+    if (invalidValidations.length > 0) {
+      const details = invalidValidations.map(validation =>
+        `${validation.moduleName}->${validation.configName}: ${validation.result.message}`
+      ).join('; ');
+
+      return res.status(400).json({
+        error: {
+          code: 400,
+          message: 'Bad Request',
+          details
+        }
+      });
+    }
+
+    next();
+  }, err => {
+    const details = 'Error while validating configurations';
+
+    logger.error(details, err);
+
+    return res.status(500).json({
+      error: {
+        code: 500,
+        message: 'Server Error',
+        details
+      }
+    });
+  });
 }
 
 function canWriteUserConfig(req, res, next) {
