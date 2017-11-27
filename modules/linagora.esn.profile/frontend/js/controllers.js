@@ -15,6 +15,8 @@ angular.module('linagora.esn.profile')
     $scope.user = user;
     $scope.updateProfile = function(user) {
       return profileAPI.updateProfile(user).then(function() {
+        session.setUser(user);
+
         return notificationFactory.weakInfo('Profile updated', 'Your profile has been updated');
       }, function(err) {
         $log.error('Error while updating profile', err);
