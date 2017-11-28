@@ -1,6 +1,7 @@
 'use strict';
 
 /* global chai: false */
+/* global sinon: true */
 
 var expect = chai.expect;
 
@@ -9,14 +10,20 @@ describe('The linagora.esn.profile Angular module controllers', function() {
   var $rootScope;
   var $controller;
   var $state;
+  var $httpBackend;
+
+  var profileAPI;
 
   beforeEach(function() {
     angular.mock.module('linagora.esn.profile');
 
-    inject(function(_$rootScope_, _$controller_, _$state_) {
+    inject(function(_$rootScope_, _$controller_, _$state_, _$httpBackend_, _profileAPI_) {
       $rootScope = _$rootScope_;
       $controller = _$controller_;
       $state = _$state_;
+      $httpBackend = _$httpBackend_;
+
+      profileAPI = _profileAPI_;
     });
   });
 
@@ -72,6 +79,7 @@ describe('The linagora.esn.profile Angular module controllers', function() {
     var profileAPIMock;
     var sessionMock;
     var $scope;
+    var context;
 
     beforeEach(function() {
       userMock = {
@@ -81,22 +89,25 @@ describe('The linagora.esn.profile Angular module controllers', function() {
       };
       profileAPIMock = {};
       sessionMock = { user: userMock };
+      sessionMock.setUser = sinon.spy(function(user) {
+        sessionMock.user = user;
+      });
       $scope = $rootScope.$new();
     });
 
-    function initProfileEditionController(scope) {
+    function initProfileEditionController(scope, profileAPINotMocked) {
       $scope = scope || $scope;
 
-      return $controller('profileEditionController', {
+      context = {
         $scope: $scope,
-        profileAPI: profileAPIMock,
         user: userMock,
         session: sessionMock
-      });
+      };
+
+      context.profileAPI = profileAPINotMocked ? profileAPI : profileAPIMock;
+
+      return $controller('profileEditionController', context);
     }
-    beforeEach(function() {
-      initProfileEditionController();
-    });
 
     var getMoreThan100CharString = function() {
       return new Array(1000).join('a');
@@ -113,11 +124,37 @@ describe('The linagora.esn.profile Angular module controllers', function() {
         main_phone: getMoreThan100CharString(),
         description: getMoreThan100CharString()
       };
+
+      initProfileEditionController();
+
       profileAPIMock.updateProfile = function(user) {
         expect(user).to.equal(profile);
         done();
       };
       $scope.updateProfile(profile);
+    });
+
+    it('should update user in session when updating profile', function(done) {
+      var profile = {
+        firstname: 'john',
+        lastname: 'smith',
+        main_phone: '55555'
+      };
+
+      var profileAPINotMocked = true;
+
+      initProfileEditionController(null, profileAPINotMocked);
+
+      $httpBackend.expectPUT('/api/user/profile', profile).respond(200);
+
+      $scope.updateProfile(profile).then(function() {
+        expect(sessionMock.user).to.equal(profile);
+        expect(sessionMock.setUser).to.have.been.calledWith(profile);
+
+        done();
+      }, done);
+
+      $httpBackend.flush();
     });
   });
 
