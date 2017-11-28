@@ -326,6 +326,8 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
     }
 
     function _connect() {
+      if (!session.isLoggedIn()) return;
+
       return tokenAPI.getNewToken().then(function(response) {
         _disconnectOld();
         var sio = io()(httpConfigurer.getUrl('/'), {
@@ -369,7 +371,7 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
 
       };
 
-      reconnect();
+      if (session.isLoggedIn()) reconnect();
     }
 
     ioSocketConnection.addDisconnectCallback(_exponentialBackoffReconnect);

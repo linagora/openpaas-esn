@@ -199,6 +199,9 @@ describe('The esn.session Angular module', function() {
       session = {
         setUser: function() {},
         setDomain: function() {},
+        setLogin: function() {},
+        setLogout: function() {},
+        isLoggedIn: function() {},
         domain: {},
         ready: {
           then: function() {}

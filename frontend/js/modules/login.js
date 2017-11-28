@@ -166,6 +166,10 @@ angular.module('esn.login', ['esn.notification', 'esn.http', 'op.dynamicDirectiv
       );
     };
   })
+  .controller('logoutController', function(session) {
+    session.setLogout();
+    window.location.href = '/logout';
+  })
   .factory('loginAPI', function(esnRestangular) {
 
     function login(credentials) {

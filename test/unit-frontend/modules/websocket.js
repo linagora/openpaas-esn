@@ -1075,7 +1075,10 @@ describe('The esn.websocket Angular module', function() {
         domain: {},
         ready: {
           then: function() {}
-        }
+        },
+        setLogin: function() {},
+        setLogout: function() {},
+        isLoggedIn: function() { return true; }
       };
 
       angular.mock.module('esn.websocket');
