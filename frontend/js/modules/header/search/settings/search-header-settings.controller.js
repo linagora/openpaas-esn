@@ -48,6 +48,7 @@
 
     $scope.updateFilters = function() {
       $scope.all = _getAllStatus();
+      $stateParams.filters = $scope.filters;
     };
 
     $scope.updateSettings = function() {
