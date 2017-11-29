@@ -1,6 +1,5 @@
 ng-form(name="form")
   .form-group.timeformat-selector
-    span #{__('Use 24-hour format')}
     .timeformat-toggle-switch
       span.clickable(ng-class='{"enabled": !$ctrl.use24hourFormat, "disabled": $ctrl.use24hourFormat}')
         | {{::$ctrl.currentDate | date: $ctrl.ESN_DATETIME_TIME_FORMATS.format12}}
