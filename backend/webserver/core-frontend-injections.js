@@ -164,6 +164,11 @@ const injections = [
     'attendee/attendee.constants.js',
     'attendee/attendee.service.js'
   ], innerApps: ['esn']},
+  {angular: ['esn.availability'], files: [
+    'availability/availability.module.js',
+    'availability/availability.constants.js',
+    'availability/availability.service.js'
+  ], innerApps: ['esn']},
   {angular: ['esn.jmap-client-wrapper'], files: ['jmap-client-wrapper.js'], innerApps: ['esn']},
   {angular: ['esn.iframe-resizer-wrapper'], files: ['iframe-resizer-wrapper.js'], innerApps: ['esn']},
   {angular: ['esn.email-addresses-wrapper'], files: ['email-addresses-wrapper.js'], innerApps: ['esn']},
