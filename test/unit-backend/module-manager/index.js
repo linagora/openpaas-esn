@@ -56,6 +56,7 @@ describe('The module manager', function() {
         'linagora.esn.core.amqp',
         'linagora.esn.core.assets',
         'linagora.esn.core.auth',
+        'linagora.esn.core.availability',
         'linagora.esn.core.avatar',
         'linagora.esn.core.collaboration',
         'linagora.esn.core.community',
