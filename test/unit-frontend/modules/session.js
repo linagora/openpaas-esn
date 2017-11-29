@@ -21,9 +21,12 @@ describe('The esn.session Angular module', function() {
       expect(this.session.domain).to.be.an.object;
     });
 
-    it('should return an object with 2 methods: setUser, setDomain', function() {
+    it('should return an object with 5 methods: setUser, setDomain, setLogout, setLogin, isLoggedIn', function() {
       expect(this.session).to.respondTo('setUser');
       expect(this.session).to.respondTo('setDomain');
+      expect(this.session).to.respondTo('setLogout');
+      expect(this.session).to.respondTo('setLogin');
+      expect(this.session).to.respondTo('isLoggedIn');
     });
 
     describe('setUser method', function() {
@@ -65,6 +68,30 @@ describe('The esn.session Angular module', function() {
         expect(domain).to.deep.equal(domain1);
         this.session.setDomain(domain2);
         expect(domain).to.deep.equal(domain2);
+      });
+    });
+
+    describe('setLogin method', function() {
+      it('should set session private field loggedIn to true', function() {
+        this.session.setLogin();
+        expect(this.session.isLoggedIn()).to.be.true;
+      });
+    });
+
+    describe('setLogout method', function() {
+      it('should set session private field loggedIn to false', function() {
+        this.session.setLogout();
+        expect(this.session.isLoggedIn()).to.be.false;
+      });
+    });
+
+    describe('isLoggedIn method', function() {
+      it('should retrieve private field loggedIn', function() {
+        this.session.setLogin();
+        expect(this.session.isLoggedIn()).to.be.true;
+
+        this.session.setLogout();
+        expect(this.session.isLoggedIn()).to.be.false;
       });
     });
 
