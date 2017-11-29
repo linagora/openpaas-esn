@@ -1,5 +1,6 @@
 'use strict';
 
+const q = require('q');
 const util = require('util');
 const _ = require('lodash');
 const esnConfig = require('../../core')['esn-config'];
@@ -13,6 +14,7 @@ const User = mongoose.model('User');
 const emailAddresses = require('email-addresses');
 const CONSTANTS = require('./constants');
 const moderation = require('./moderation');
+const coreAvailability = require('../availability');
 
 const TYPE = CONSTANTS.TYPE;
 
@@ -25,16 +27,23 @@ function extendUserTemplate(template, data) {
 }
 
 function recordUser(userData, callback) {
-  var userAsModel = userData instanceof User ? userData : new User(userData);
-  userAsModel.save(function(err, resp) {
-    if (!err) {
-      pubsub.topic(CONSTANTS.EVENTS.userCreated).publish(resp);
-      logger.info('User provisioned in datastore:', userAsModel.emails.join(','));
-    } else {
-      logger.warn('Error while trying to provision user in database:', err.message);
+  const userAsModel = userData instanceof User ? userData : new User(userData);
+
+  checkEmailsAvailability(userAsModel.emails).then(unavailableEmails => {
+    if (unavailableEmails.length > 0) {
+      return callback(new Error(`Emails already in use: ${unavailableEmails.join(', ')}`));
     }
-    callback(err, resp);
-  });
+
+    userAsModel.save(function(err, resp) {
+      if (!err) {
+        pubsub.topic(CONSTANTS.EVENTS.userCreated).publish(resp);
+        logger.info('User provisioned in datastore:', userAsModel.emails.join(','));
+      } else {
+        logger.warn('Error while trying to provision user in database:', err.message);
+      }
+      callback(err, resp);
+    });
+  }, callback);
 }
 
 function provisionUser(data, callback) {
@@ -168,6 +177,12 @@ function find(query, callback) {
 
 function init() {
   moderation.init();
+  coreAvailability.email.addChecker({
+    name: 'user',
+    check(email) {
+      return q.denodeify(findByEmail)(email).then(user => !user);
+    }
+  });
 }
 
 /**
@@ -236,6 +251,17 @@ function translate(baseUser, payload) {
 
 function getDisplayName(user) {
   return user.firstname && user.lastname ? `${user.firstname} ${user.lastname}` : user.preferredEmail;
+}
+
+function checkEmailsAvailability(emails) {
+  return q.all(
+    emails.map(email =>
+      coreAvailability.email.isAvailable(email)
+        .then(result => ({ email, available: result.available }))
+  ))
+  .then(results =>
+    results.filter(result => !result.available).map(result => result.email)
+  );
 }
 
 module.exports = {

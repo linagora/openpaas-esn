@@ -490,4 +490,121 @@ describe('The domains controller', function() {
       controller.sendInvitations(req, res);
     });
   });
+
+  describe('The createMember fn', function() {
+    let getController;
+    let userIndexMock;
+
+    beforeEach(function() {
+      getController = () => this.helpers.requireBackend('webserver/controllers/domains');
+      userIndexMock = {};
+
+      mockery.registerMock('../../core/user/index', userIndexMock);
+      mockery.registerMock('mongoose', { model: function() {} });
+    });
+
+    it('should respond 400 if body is empty', function(done) {
+      const req = {
+        body: {}
+      };
+      const res = {
+        status(code) {
+          expect(code).to.equal(400);
+
+          return {
+            json(json) {
+              expect(json.error.details).to.equal('Missing input member');
+              done();
+            }
+          };
+        }
+      };
+
+      getController().createMember(req, res);
+    });
+
+    it('should respond 400 if it fails to record user because of email unavailability', function(done) {
+      const errorMessage = 'Emails already in use: e@mail';
+
+      userIndexMock.recordUser = sinon.spy((user, callback) => {
+        callback(new Error(errorMessage));
+      });
+
+      const req = {
+        body: { name: 'H' }
+      };
+      const res = {
+        status(code) {
+          expect(code).to.equal(400);
+
+          return {
+            json(json) {
+              expect(json.error.details).to.equal(errorMessage);
+              expect(userIndexMock.recordUser).to.have.been.calledOnce;
+              expect(userIndexMock.recordUser).to.have.been.calledWith(req.body, sinon.match.func);
+              done();
+            }
+          };
+        }
+      };
+
+      getController().createMember(req, res);
+    });
+
+    it('should respond 500 if it fails to record user because of other reasons', function(done) {
+      const errorMessage = 'an_error';
+
+      userIndexMock.recordUser = sinon.spy((user, callback) => {
+        callback(new Error(errorMessage));
+      });
+
+      const req = {
+        body: { name: 'H' }
+      };
+      const res = {
+        status(code) {
+          expect(code).to.equal(500);
+
+          return {
+            json(json) {
+              expect(json.error.details).to.equal('Error while creating member');
+              expect(userIndexMock.recordUser).to.have.been.calledOnce;
+              expect(userIndexMock.recordUser).to.have.been.calledWith(req.body, sinon.match.func);
+              done();
+            }
+          };
+        }
+      };
+
+      getController().createMember(req, res);
+    });
+
+    it('should respond 201 when user is successfully recored', function(done) {
+      const createdUser = { name: 'created user' };
+
+      userIndexMock.recordUser = sinon.spy((user, callback) => {
+        callback(null, createdUser);
+      });
+
+      const req = {
+        body: { name: 'H' }
+      };
+      const res = {
+        status(code) {
+          expect(code).to.equal(201);
+
+          return {
+            json(json) {
+              expect(json).to.deep.equal(createdUser);
+              expect(userIndexMock.recordUser).to.have.been.calledOnce;
+              expect(userIndexMock.recordUser).to.have.been.calledWith(req.body, sinon.match.func);
+              done();
+            }
+          };
+        }
+      };
+
+      getController().createMember(req, res);
+    });
+  });
 });

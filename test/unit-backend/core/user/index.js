@@ -1,8 +1,9 @@
 'use strict';
 
-var expect = require('chai').expect;
-var mockery = require('mockery');
-var sinon = require('sinon');
+const q = require('q');
+const expect = require('chai').expect;
+const mockery = require('mockery');
+const sinon = require('sinon');
 
 describe('The user core module', function() {
   var mockModels, mockEsnConfig;
@@ -22,13 +23,51 @@ describe('The user core module', function() {
     beforeEach(function() {
       User = function User(user) {
         this.name = user.name;
-        this.emails = ['email1', 'email2'];
+        this.emails = ['email1@domain.com', 'email2@domain.com'];
       };
       User.prototype.save = function(callback) {
         callback();
       };
       mockModels({
         User: User
+      });
+    });
+
+    it('should callback with error if some emails of user are already in use', function(done) {
+      mockery.registerMock('../availability', {
+        email: {
+          isAvailable() {
+            return q.resolve(false);
+          }
+        }
+      });
+
+      userModule = this.helpers.requireBackend('core').user;
+      userModule.recordUser({
+        name: 'aName'
+      }, (err, createdUser) => {
+        expect(err.message).to.equal('Emails already in use: email1@domain.com, email2@domain.com');
+        expect(createdUser).to.not.exist;
+        done();
+      });
+    });
+
+    it('should callback with error when it cannot check availability of user emails', function(done) {
+      mockery.registerMock('../availability', {
+        email: {
+          isAvailable() {
+            return q.reject(new Error('an_error'));
+          }
+        }
+      });
+
+      userModule = this.helpers.requireBackend('core').user;
+      userModule.recordUser({
+        name: 'aName'
+      }, (err, createdUser) => {
+        expect(err.message).to.equal('an_error');
+        expect(createdUser).to.not.exist;
+        done();
       });
     });
 
@@ -78,7 +117,8 @@ describe('The user core module', function() {
         }
       });
       userModule = this.helpers.requireBackend('core').user;
-      userModule.recordUser(new User({name: 'aName'}), function() {
+      userModule.recordUser(new User({name: 'aName'}), function(err) {
+        expect(err).to.not.exist;
         expect(spy).to.have.been.called;
         done();
       });
