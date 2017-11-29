@@ -82,6 +82,7 @@ function setupAPI(application) {
 
   require('./activitystreams')(router);
   require('./authentication')(router);
+  require('./availability')(router);
   require('./avatars')(router);
   require('./collaborations')(router);
   require('./communities')(router);
