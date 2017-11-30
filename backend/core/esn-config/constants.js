@@ -1,3 +1,6 @@
+const businessHours = require('./metadata/businessHours');
+const datetime = require('./metadata/datetime');
+
 const EVENTS = {
   CONFIG_UPDATED: 'esn-config:config:updated'
 };
@@ -36,20 +39,8 @@ module.exports = {
             user: 'rw'
           }
         },
-        businessHours: {
-          rights: {
-            padmin: 'rw',
-            admin: 'rw',
-            user: 'rw'
-          }
-        },
-        datetime: {
-          rights: {
-            padmin: 'rw',
-            admin: 'rw',
-            user: 'rw'
-          }
-        },
+        businessHours,
+        datetime,
         autoconf: {
           rights: {
             admin: 'rw'

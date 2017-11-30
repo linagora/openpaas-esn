@@ -559,7 +559,7 @@ describe('The configurations API', function() {
       });
     });
 
-    it('should send back 400 if body array is not well-formed', function(done) {
+    it('should send back 400 if body array is not well-formed (some modules have no name)', function(done) {
       sendRequestAsUser(userAlice, loggedInAsUser => {
         loggedInAsUser(
           request(webserver.application)
@@ -581,8 +581,126 @@ describe('The configurations API', function() {
       });
     });
 
+    it('should send back 400 if body array is not well-formed (some modules have no configurations array)', function(done) {
+      sendRequestAsUser(userAlice, loggedInAsUser => {
+        loggedInAsUser(
+          request(webserver.application)
+            .put(API_ENDPOINT)
+            .query('scope=user')
+            .send([{ name: TEST_MODULE, configurations: 'not an array' }])
+        )
+          .expect(400)
+          .end(helpers.callbacks.noErrorAnd(res => {
+            expect(res.body).to.shallowDeepEqual({
+              error: {
+                code: 400,
+                message: 'Bad Request',
+                details: `module ${TEST_MODULE} must have "configurations" attribute as an array of {name, value}`
+              }
+            });
+            done();
+          }));
+      });
+    });
+
+    it('should send back 400 if body array is not well-formed (some configurations have no name)', function(done) {
+      sendRequestAsUser(userAlice, loggedInAsUser => {
+        loggedInAsUser(
+          request(webserver.application)
+            .put(API_ENDPOINT)
+            .query('scope=user')
+            .send([{ name: TEST_MODULE, configurations: [{}] }])
+        )
+          .expect(400)
+          .end(helpers.callbacks.noErrorAnd(res => {
+            expect(res.body).to.shallowDeepEqual({
+              error: {
+                code: 400,
+                message: 'Bad Request',
+                details: `module ${TEST_MODULE} must have "configurations" attribute as an array of {name, value}`
+              }
+            });
+            done();
+          }));
+      });
+    });
+
+    describe('The validation', function() {
+      it('should send back 400 if configuration value is missing', function(done) {
+        core['esn-config'].registry.register(TEST_MODULE, {
+          configurations: {
+            [TEST_CONFIG.name]: {
+              validator() {
+                return null;
+              }
+            }
+          }
+        });
+
+        sendRequestAsUser(userAlice, loggedInAsUser => {
+          loggedInAsUser(
+            request(webserver.application)
+              .put(API_ENDPOINT)
+              .query('scope=user')
+              .send([{
+                name: TEST_MODULE,
+                configurations: [{ name: TEST_CONFIG.name }]
+              }])
+          )
+            .expect(400)
+            .end(helpers.callbacks.noErrorAnd(res => {
+              expect(res.body).to.shallowDeepEqual({
+                error: {
+                  code: 400,
+                  message: 'Bad Request',
+                  details: `${TEST_MODULE}->${TEST_CONFIG.name}: The value is required`
+                }
+              });
+              done();
+            }));
+        });
+      });
+
+      it('should send back 400 if configuration is considered invalid by the validator', function(done) {
+        core['esn-config'].registry.register(TEST_MODULE, {
+          configurations: {
+            [TEST_CONFIG.name]: {
+              validator() {
+                return 'invalid value';
+              }
+            }
+          }
+        });
+
+        sendRequestAsUser(userAlice, loggedInAsUser => {
+          loggedInAsUser(
+            request(webserver.application)
+              .put(API_ENDPOINT)
+              .query('scope=user')
+              .send([{
+                name: TEST_MODULE,
+                configurations: [{ name: TEST_CONFIG.name, value: 'aaa' }]
+              }])
+          )
+            .expect(400)
+            .end(helpers.callbacks.noErrorAnd(res => {
+              expect(res.body).to.shallowDeepEqual({
+                error: {
+                  code: 400,
+                  message: 'Bad Request',
+                  details: `${TEST_MODULE}->${TEST_CONFIG.name}: invalid value`
+                }
+              });
+              done();
+            }));
+        });
+      });
+    });
+
     describe('when scope is user', function() {
       it('should send back 400 if there are unwritable configs', function(done) {
+        registerTestConfig('user', 'r');
+
         sendRequestAsUser(userAlice, loggedInAsUser => {
           loggedInAsUser(
             request(webserver.application)
@@ -633,6 +751,8 @@ describe('The configurations API', function() {
       let userDomainAdmin, userDomainMember, domain;
 
       beforeEach(function(done) {
+        registerTestConfig('admin', 'r');
+
         helpers.api.applyDomainDeployment('linagora_test_domain', function(err, models) {
           expect(err).to.not.exist;
           userDomainAdmin = models.users[0];
@@ -787,6 +907,8 @@ describe('The configurations API', function() {
       let userPlatformAdmin;
 
       beforeEach(function(done) {
+        registerTestConfig('padmin', 'r');
+
         fixtures.newDummyUser(['platformadmin@email.com']).save(helpers.callbacks.noErrorAnd(user => {
           userPlatformAdmin = user;
           core.platformadmin
