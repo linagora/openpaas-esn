@@ -326,6 +326,10 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
     }
 
     function _connect() {
+      if (!session.isLoggedIn()) {
+        return $q.reject(new Error('User not logged in'));
+      }
+
       return tokenAPI.getNewToken().then(function(response) {
         _disconnectOld();
         var sio = io()(httpConfigurer.getUrl('/'), {
@@ -351,6 +355,10 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
     }
 
     function _exponentialBackoffReconnect() {
+      if (!session.isLoggedIn()) {
+        return $q.reject(new Error('User not logged in'));
+      }
+
       var timeout = 500;
       var maxTimeout = timeout * 64;
       var reconnect = function() {
@@ -366,7 +374,6 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
           timeout = (timeout >= maxTimeout) ? maxTimeout : timeout * 2;
           $timeout(reconnect, timeout);
         });
-
       };
 
       reconnect();

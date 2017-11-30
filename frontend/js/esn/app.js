@@ -125,6 +125,10 @@ angular.module('esnApp', [
         return [];
       }
     }
+  })
+  .state('logout', {
+    url: '/logout',
+    controller: 'logoutController'
   });
 
 })

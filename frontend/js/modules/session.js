@@ -4,10 +4,15 @@ angular.module('esn.session', ['esn.user', 'esn.domain'])
 .factory('session', function($q) {
 
   var bootstrapDefer = $q.defer();
+  var loggedIn = false;
+
   var session = {
     user: {},
     domain: {},
     ready: bootstrapDefer.promise,
+    isLoggedIn: isLoggedIn,
+    setLogout: setLogout,
+    setLogin: setLogin,
     getProviderAccounts: function(provider) {
       if (!provider) {
         return [];
@@ -34,6 +39,19 @@ angular.module('esn.session', ['esn.user', 'esn.domain'])
       });
     }
   };
+
+  function isLoggedIn() {
+    return loggedIn;
+  }
+
+  function setLogout() {
+    loggedIn = false;
+  }
+
+  function setLogin() {
+    loggedIn = true;
+  }
+
   var sessionIsBootstraped = false;
 
   function checkBootstrap() {
@@ -119,6 +137,7 @@ angular.module('esn.session', ['esn.user', 'esn.domain'])
             }
             callback(null);
           });
+          session.setLogin();
         }, function(error) {
           onError(error, callback);
         });

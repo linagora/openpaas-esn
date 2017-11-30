@@ -1075,7 +1075,10 @@ describe('The esn.websocket Angular module', function() {
         domain: {},
         ready: {
           then: function() {}
-        }
+        },
+        setLogin: function() {},
+        setLogout: function() {},
+        isLoggedIn: function() { return true; }
       };
 
       angular.mock.module('esn.websocket');
@@ -1102,7 +1105,19 @@ describe('The esn.websocket Angular module', function() {
     it('should add a disconnect callback to ioSocketConnection', function() {
       expect(self.isc.callbacks.disconnect).to.be.a('function');
     });
+
     describe('connect method', function() {
+      it('should not try to connect when user is not logged in', function(done) {
+        self.sessionMock.isLoggedIn = function() { return false; };
+
+        self.icm.connect().catch(function(error) {
+          expect(error.message).to.equal('User not logged in');
+          done();
+        });
+
+        $rootScope.$digest();
+      });
+
       it('should call tokenAPI.getNewToken()', function() {
         expect(self.tokenAPI.callback).to.be.not.ok;
         self.icm.connect();
@@ -1169,13 +1184,31 @@ describe('The esn.websocket Angular module', function() {
         self.icm.connect();
         self.tokenAPI.callback({data: {token: 'token1'}});
         self.isc.isConnected = function() { return false; };
+
         self.tokenAPI.getNewToken = function() {
           done();
           return {then: function() {}};
         };
+
         self.isc.callbacks.disconnect();
       });
+
+      it('should not try to reconnect if user is not logged in', function(done) {
+        self.ioMock = function() { return { io: true }; };
+        self.ioMock.managers = {};
+        self.icm.connect();
+        self.isc.isConnected = function() { return false; };
+        self.sessionMock.isLoggedIn = function() { return false; };
+
+        self.isc.callbacks.disconnect().catch(function(error) {
+          expect(error.message).to.equal('User not logged in');
+          done();
+        });
+
+        $rootScope.$digest();
+      });
     });
+
     describe('connect callback', function() {
       it('should call ioOfflineBuffer.flushBuffer()', function(done) {
         self.ioOfflineBuffer.flushBuffer = done;
