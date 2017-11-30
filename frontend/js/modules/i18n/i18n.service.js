@@ -2,11 +2,16 @@
   'use strict';
 
   angular.module('esn.i18n')
-    .factory('esnI18nService', function(EsnI18nString) {
+    .factory('esnI18nService', function($translate, EsnI18nString, ESN_I18N_DEFAULT_LOCALE) {
       return {
+        getLocale: getLocale,
         translate: translate,
         isI18nString: isI18nString
       };
+
+      function getLocale() {
+        return $translate.preferredLanguage() || ESN_I18N_DEFAULT_LOCALE;
+      }
 
       function translate(text) {
         if (!text || text instanceof EsnI18nString) {
