@@ -104,7 +104,7 @@ describe('The User Angular module', function() {
     });
   });
 
-  describe('directive usersAutoCompleteInput', function() {
+  describe('directive usersAutocompleteInput', function() {
     var asSession, domainAPIMock, autoCompleteMax;
     var query = 'aQuery';
 
@@ -171,9 +171,44 @@ describe('The User Angular module', function() {
         expect(thenSpy).to.have.been.calledWith(expectResult);
       });
 
+      it('should remove connected user from result based on email comparing to added users', function() {
+        this.initDirective(this.$scope);
+        asSession.user = {
+            emails: ['user1@test.com'],
+            emailMap: { 'user1@open-paas.org': true }
+          };
+
+        var expectResult = [{_id: 'user2', firstname: 'first2', lastname: 'last2', preferredEmail: 'user2@open-paas.org', displayName: 'first2 last2', templateUrl: this.USER_AUTO_COMPLETE_TEMPLATE_URL},
+          {_id: 'user3', firstname: 'first3', lastname: 'last3', preferredEmail: 'user3@open-paas.org', displayName: 'first3 last3', templateUrl: this.USER_AUTO_COMPLETE_TEMPLATE_URL}];
+        var thenSpy = sinon.spy();
+        this.eleScope.getUsers(query).then(thenSpy);
+        this.$scope.$digest();
+
+        expect(thenSpy).to.have.been.calledWith(expectResult);
+      });
+
       it('should remove duplicate users based on ID comparing to added users', function() {
         this.initDirective(this.$scope);
         this.eleScope.originalUsers = [{
+          _id: 'user1',
+          preferredEmail: 'user1@open-paas.org'
+        }];
+        this.eleScope.mutableUsers = [{
+          _id: 'user2',
+          preferredEmail: 'user2@open-paas.org'
+        }];
+
+        var expectResult = [{_id: 'user3', firstname: 'first3', lastname: 'last3', preferredEmail: 'user3@open-paas.org', displayName: 'first3 last3', templateUrl: this.USER_AUTO_COMPLETE_TEMPLATE_URL}];
+        var thenSpy = sinon.spy();
+        this.eleScope.getUsers(query).then(thenSpy);
+        this.$scope.$digest();
+
+        expect(thenSpy).to.have.been.calledWith(expectResult);
+      });
+
+      it('should remove ignored users based on ID', function() {
+        this.initDirective(this.$scope);
+        this.eleScope.ignoredUsers = [{
           _id: 'user1',
           preferredEmail: 'user1@open-paas.org'
         }];
