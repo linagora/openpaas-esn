@@ -5,4 +5,4 @@
     .lv-title
       h4.media-heading {{::member.firstname}} {{::member.lastname}}
       span
-        a(ng-href='mailto:{{::member.emails[0]}}', op-inbox-compose) {{::member.emails[0]}}
+        a(ng-href='mailto:{{::member.emails[0]}}', op-inbox-compose, op-inbox-compose-display-name="{{member.firstname}} {{member.lastname}}") {{::member.emails[0]}}
