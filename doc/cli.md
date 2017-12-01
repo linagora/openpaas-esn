@@ -58,12 +58,14 @@ $ node ./bin/cli docker-dev --host localhost --port 27017 --database esn
 It will create the indexes on the elasticsearch instance defined from CLI options.
 
 ```bash
-$ node ./bin/cli elasticsearch --host localhost --port 9200 --index contacts
+$ node ./bin/cli elasticsearch --host localhost --port 9200 --type users --index users.idx
 ```
 
 - host: default is localhost
 - port: default is 9200
-- index: Defines the index to create. When not set, it will create all the required indexes.
+- type: the data type to create. When not set, it will create all the required index types.
+Possible values: users, contacts, events, resources, core.events, groups.
+- index: Defines the index to create. When not set, it will be generated automatically from type
 
 **reindex**
 
@@ -75,7 +77,7 @@ $ node ./bin/cli reindex --es-host localhost --es-port 9200 --type users
 
 - es-host: default is localhost
 - es-port: default is 9200
-- type: the data type to reindex. Possible values: users, contacts
+- type: the data type to reindex. Possible values: users, contacts, events, resources, core.events, groups.
 
 **populate**
 
