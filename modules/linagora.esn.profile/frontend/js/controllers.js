@@ -11,11 +11,12 @@ angular.module('linagora.esn.profile')
 
     self.me = self.user._id === session.user._id;
   })
-  .controller('profileEditionController', function($scope, $log, user, session, profileAPI, notificationFactory) {
+  .controller('profileEditionController', function($scope, $log, $state, user, session, profileAPI, notificationFactory) {
     $scope.user = user;
     $scope.updateProfile = function(user) {
       return profileAPI.updateProfile(user).then(function() {
         session.setUser(user);
+        $state.reload();
 
         return notificationFactory.weakInfo('Profile updated', 'Your profile has been updated');
       }, function(err) {
