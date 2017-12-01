@@ -24,16 +24,17 @@ esn-form-group {
     color: @errorColor;
   }
 
-  .form-control.ng-pending {
-    background-image: url('/images/throbber-amber.svg');
-    background-size: 2em;
-    background-position: right center;
-    background-repeat: no-repeat;
-  }
-
   .form-control.ng-valid-validator, .form-control.ng-valid-async-validator {
     background-image: url('/images/checkmark.png');
     background-size: 1.5em;
+    background-position: right center;
+    background-repeat: no-repeat;
+    padding-right: 25px;
+  }
+
+  .form-control.ng-pending {
+    background-image: url('/images/throbber-amber.svg');
+    background-size: 2em;
     background-position: right center;
     background-repeat: no-repeat;
     padding-right: 25px;
