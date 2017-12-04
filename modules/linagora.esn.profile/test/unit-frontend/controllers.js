@@ -143,6 +143,8 @@ describe('The linagora.esn.profile Angular module controllers', function() {
 
       var profileAPINotMocked = true;
 
+      $state.reload = sinon.spy();
+
       initProfileEditionController(null, profileAPINotMocked);
 
       $httpBackend.expectPUT('/api/user/profile', profile).respond(200);
@@ -150,9 +152,10 @@ describe('The linagora.esn.profile Angular module controllers', function() {
       $scope.updateProfile(profile).then(function() {
         expect(sessionMock.user).to.equal(profile);
         expect(sessionMock.setUser).to.have.been.calledWith(profile);
+        expect($state.reload).to.have.been.called;
 
         done();
-      }, done);
+      });
 
       $httpBackend.flush();
     });
