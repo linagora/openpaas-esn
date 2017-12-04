@@ -38,5 +38,10 @@
       "db": "./tmp/db.json"
     }
   },
+  "db": {
+    "reconnectOnConfigurationChange": true,
+    "forceReconnectOnDisconnect": true,
+    "attemptsLimit": 100
+  },
   "for-the-test": "This key is only set in the test configuration file"
 }

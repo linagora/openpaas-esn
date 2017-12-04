@@ -32,5 +32,10 @@
   },
   "auth": {
     "strategies": ["ldap"]
+  },
+  "db": {
+    "reconnectOnConfigurationChange": true,
+    "forceReconnectOnDisconnect": true,
+    "attemptsLimit": 100
   }
 }

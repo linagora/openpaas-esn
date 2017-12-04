@@ -32,5 +32,10 @@
   },
   "auth": {
     "strategies": ["local"]
+  },
+  "db": {
+    "reconnectOnConfigurationChange": true,
+    "forceReconnectOnDisconnect": true,
+    "attemptsLimit": 100
   }
 }
