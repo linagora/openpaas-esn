@@ -307,7 +307,13 @@ function createMember(req, res) {
 
   userIndex.recordUser(req.body, (err, user) => {
     if (err) {
-      return res.status(500).json({ error: { code: 500, message: 'Server Error', details: 'Can not create member. ' + err.message } });
+      if (/^Emails already in use/.test(err.message)) {
+        return res.status(400).json({ error: { code: 400, message: 'Bad request', details: err.message } });
+      }
+
+      logger.error('Error while creating member', err);
+
+      return res.status(500).json({ error: { code: 500, message: 'Server Error', details: 'Error while creating member' } });
     }
 
     return res.status(201).json(user);
