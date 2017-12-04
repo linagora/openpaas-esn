@@ -4,22 +4,14 @@ const validatorHelper = require('../validator/helper');
 const schema = {
   type: 'object',
   properties: {
-    dateFormat: {
-      type: 'string',
-      maxLength: 225
-    },
-    timeFormat: {
-      type: 'string',
-      maxLength: 225
-    },
     use24hourFormat: {
       type: 'boolean'
     }
   },
-  required: ['dateFormat', 'timeFormat', 'use24hourFormat'],
+  required: ['use24hourFormat'],
   additionalProperties: false
 };
-const ajv = new Ajv();
+const ajv = new Ajv({ removeAdditional: true });
 const validate = ajv.compile(schema);
 
 module.exports = {

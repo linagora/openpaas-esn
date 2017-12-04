@@ -568,8 +568,7 @@ Defines the configuration file template used by the autoconfiguration mechanism.
 {
   "name" : "datetime",
   "value" : {
-    "timeFormat" : "h:mm a",
-    "dateFormat" : "EEEE, MMMM d, y"
+    "use24hourFormat" : false
   }
 }
 ```
