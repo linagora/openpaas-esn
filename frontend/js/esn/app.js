@@ -21,7 +21,8 @@ angular.module('esnApp', [
   'op.dynamicDirective',
   'awesome-angular-swipe',
   'uuid4',
-  'luegg.directives'
+  'luegg.directives',
+  'naturalSort'
 ].concat(angularInjections))
 
 .config(function(routeResolver, $urlRouterProvider, $stateProvider) {
