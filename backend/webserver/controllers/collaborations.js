@@ -125,6 +125,10 @@ function getMembers(req, res) {
     query.objectTypeFilter = req.query.objectTypeFilter;
   }
 
+  if (req.query.idFilter) {
+    query.idFilter = req.query.idFilter;
+  }
+
   collaborationModule.member.getMembers(req.collaboration, req.params.objectType, query, (err, members) => {
     if (err) {
       return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.message}});

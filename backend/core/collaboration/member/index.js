@@ -318,6 +318,10 @@ module.exports = function(collaborationModule) {
         members = members.filter(operation);
       }
 
+      if (query.idFilter) {
+        members = members.filter(m => String(m.member.id) === String(query.idFilter));
+      }
+
       const total_count = members.length;
 
       members = members.slice(offset, offset + limit);
