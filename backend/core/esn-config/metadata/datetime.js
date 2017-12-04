@@ -11,7 +11,7 @@ const schema = {
   required: ['use24hourFormat'],
   additionalProperties: false
 };
-const ajv = new Ajv();
+const ajv = new Ajv({ removeAdditional: true });
 const validate = ajv.compile(schema);
 
 module.exports = {

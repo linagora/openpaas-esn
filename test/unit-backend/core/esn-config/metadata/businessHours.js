@@ -41,17 +41,6 @@ describe('The core/esn-config/metadata/businessHours module', function() {
       expect(validator(config)).to.equal('[0]: should have required property \'start\'');
     });
 
-    it('should return error message when config contains additional attributes', function() {
-      const config = [{
-        start: '09:00',
-        end: '18:00',
-        daysOfWeek: [],
-        other: 'value'
-      }];
-
-      expect(validator(config)).to.equal('[0]: should NOT have additional properties');
-    });
-
     it('should return error message when start time is not in required format', function() {
       const config = [{
         start: '09:00:30',
@@ -110,6 +99,18 @@ describe('The core/esn-config/metadata/businessHours module', function() {
       }];
 
       expect(validator(config)).to.not.exist;
+    });
+
+    it('should remove additional attributes and return nothing when everything is alright', function() {
+      const config = [{
+        start: '09:00',
+        end: '18:00',
+        daysOfWeek: [],
+        other: 'value'
+      }];
+
+      expect(validator(config)).to.not.exist;
+      expect(config[0].other).to.not.exist;
     });
   });
 });
