@@ -31,7 +31,8 @@ angular.module('esn.member', ['esn.router', 'esn.domain', 'esn.search', 'esn.inf
     return {
       restrict: 'E',
       scope: {
-        member: '=member'
+        member: '=member',
+        disableProfileLink: '=?'
       },
       templateUrl: '/views/modules/member/member.html'
     };
