@@ -202,7 +202,9 @@ function user(req, res) {
   const denormalizeOption = {
     includeConfigurations: true,
     includePrivateData: true,
-    includeIsPlatformAdmin: true
+    includeIsPlatformAdmin: true,
+    includeIsFollowing: true,
+    includeFollow: true
   };
 
   denormalizeUser(req.user, denormalizeOption).then(denormalized => res.status(200).json(denormalized));
