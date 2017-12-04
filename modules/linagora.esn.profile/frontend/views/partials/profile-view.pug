@@ -10,7 +10,7 @@
           i.mdi.mdi-email.m-r-5
           | #{__('Email')}
         dd
-          a(ng-href="mailto:{{user.emails[0]}}") {{user.emails[0]}}
+          a(ng-href="mailto:{{user.emails[0]}}", op-inbox-compose, op-inbox-compose-display-name="{{user.firstname}} {{user.lastname}}") {{user.emails[0]}}
       dl.dl-horizontal
         dt
           i.mdi.mdi-phone.m-r-5
