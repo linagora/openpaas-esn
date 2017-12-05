@@ -22,7 +22,7 @@
 <mailetcontainer enableJmx="true">
 
     <context>
-        <postmaster>postmaster@james.minet.net</postmaster>
+        <postmaster>postmaster@open-paas.org</postmaster>
     </context>
 
     <spooler>
@@ -33,9 +33,9 @@
         <processor state="root" enableJmx="true">
             <mailet match="All" class="PostmasterAlias"/>
             <mailet match="RelayLimit=30" class="Null"/>
-            <!-- Hook on sievemanager@james.linagora.com
+            <!-- Hook on sievemanager@open-paas.org
                  Mail send to this address will get interpreted with SIEVE Manage -->
-            <mailet match="RecipientIs=sievemanager@james.linagora.com" class="ToProcessor">
+            <mailet match="RecipientIs=sievemanager@open-paas.org" class="ToProcessor">
                 <processor>sieve-manager-check</processor>
             </mailet>
             <mailet match="HasMailAttribute=spamChecked" class="ToProcessor">
@@ -80,6 +80,16 @@
                 <name>X-WasSigned</name>
                 <value>true</value>
             </mailet>
+            <!-- Beginning of contact pipeline -->
+            <mailet match="SenderIsLocal" class="ContactExtractor">
+                <attribute>extractedContacts</attribute>
+            </mailet>
+            <mailet match="All" class="AmqpForwardAttribute">
+                <uri>amqp://rabbitmq:5672</uri>
+                <exchange>collector:email</exchange>
+                <attribute>extractedContacts</attribute>
+            </mailet>
+            <!-- End of contact pipeline -->
             <mailet match="All" class="RemoveMimeHeader">
                 <name>bcc</name>
             </mailet>
@@ -131,7 +141,7 @@
             <mailet match="All" class="ICALToJsonAttribute">
                 <source>icalendar</source>
                 <destination>icalendarAsJson</destination>
-		        <rawSource>rawIcalendar</rawSource>
+                <rawSource>rawIcalendar</rawSource>
             </mailet>
             <mailet match="All" class="AmqpForwardAttribute">
                 <uri>amqp://rabbitmq:5672</uri>

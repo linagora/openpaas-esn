@@ -19,11 +19,7 @@
  -->
 
 <dnsservice>
-  <servers>
-    <server>8.8.8.8</server>
-    <server>62.210.16.6</server>
-  </servers>
-  <autodiscover>false</autodiscover>
-  <authoritative>false</authoritative>
+  <autodiscover>true</autodiscover>
+  <authoritative>true</authoritative>
   <maxcachesize>50000</maxcachesize>
 </dnsservice>
