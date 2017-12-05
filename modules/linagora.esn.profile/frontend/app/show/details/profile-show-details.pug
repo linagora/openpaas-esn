@@ -10,28 +10,28 @@
           i.mdi.mdi-email.m-r-5
           | #{__('Email')}
         dd
-          a(ng-href="mailto:{{user.emails[0]}}", op-inbox-compose, op-inbox-compose-display-name="{{user.firstname}} {{user.lastname}}") {{user.emails[0]}}
+          a(ng-href="mailto:{{$ctrl.user.emails[0]}}", op-inbox-compose, op-inbox-compose-display-name="{{$ctrl.user.firstname}} {{$ctrl.user.lastname}}") {{$ctrl.user.emails[0]}}
       dl.dl-horizontal
         dt
           i.mdi.mdi-phone.m-r-5
           | #{__('Phone')}
         dd
-          | {{user.main_phone}}
+          | {{$ctrl.user.main_phone}}
       dl.dl-horizontal
         dt
           i.mdi.mdi-city.m-r-5
           | #{__('Building Location')}
           dd
-            | {{user.building_location}}
+            | {{$ctrl.user.building_location}}
       dl.dl-horizontal
         dt
           i.mdi.mdi-monitor.m-r-5
           | #{__('Office Location')}
           dd
-            | {{user.office_location}}
+            | {{$ctrl.user.office_location}}
       dl.dl-horizontal
         dt
           i.mdi.mdi-account.m-r-5
           | #{__('Bio')}
           dd
-            | {{user.description}}
+            | {{$ctrl.user.description}}

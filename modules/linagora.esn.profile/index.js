@@ -3,12 +3,18 @@
 var AwesomeModule = require('awesome-module');
 var Dependency = AwesomeModule.AwesomeModuleDependency;
 var path = require('path');
+const glob = require('glob-all');
 
-const FRONTEND_PATH = path.resolve(__dirname, 'frontend');
+const FRONTEND_JS_PATH = __dirname + '/frontend/app/';
 const innerApps = ['esn'];
-const angularModuleFiles = ['app.js', 'controllers.js', 'services.js', 'directives.js'];
+const localJsFiles = glob.sync([
+  FRONTEND_JS_PATH + '**/*.module.js',
+  FRONTEND_JS_PATH + '**/!(*spec).js'
+]);
+
+const angularModuleFiles = localJsFiles.map(filepath => filepath.replace(FRONTEND_JS_PATH, ''));
 const modulesOptions = {
-  localJsFiles: angularModuleFiles.map(file => path.resolve(FRONTEND_PATH, 'js', file))
+  localJsFiles
 };
 
 const moduleData = {
@@ -18,7 +24,7 @@ const moduleData = {
   angularModules: []
 };
 
-moduleData.lessFiles.push([moduleData.shortName, [path.resolve(FRONTEND_PATH, 'css/styles.less')], innerApps]);
+moduleData.lessFiles.push([moduleData.shortName, [path.resolve(FRONTEND_JS_PATH, 'app.less')], innerApps]);
 moduleData.angularModules.push([moduleData.shortName, angularModuleFiles, moduleData.fullName, innerApps, modulesOptions]);
 
 var profileModule = new AwesomeModule(moduleData.fullName, {
@@ -42,7 +48,7 @@ var profileModule = new AwesomeModule(moduleData.fullName, {
       var app = require('./backend/webserver')(dependencies, this);
       var webserverWrapper = dependencies('webserver-wrapper');
 
-      moduleData.angularModules.forEach(mod => webserverWrapper.injectAngularModules.apply(webserverWrapper, mod));
+      moduleData.angularModules.forEach(mod => webserverWrapper.injectAngularAppModules.apply(webserverWrapper, mod));
       moduleData.lessFiles.forEach(lessSet => webserverWrapper.injectLess.apply(webserverWrapper, lessSet));
       webserverWrapper.addApp(moduleData.shortName, app);
 

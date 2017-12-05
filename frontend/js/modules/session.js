@@ -107,7 +107,7 @@ angular.module('esn.session', ['esn.user', 'esn.domain'])
   });
 })
 
-.factory('sessionFactory', function($log, $q, userAPI, domainAPI, session) {
+.factory('sessionFactory', function($log, $q, Restangular, userAPI, domainAPI, session) {
 
   function onError(error, callback) {
         if (error && error.data) {
@@ -117,7 +117,7 @@ angular.module('esn.session', ['esn.user', 'esn.domain'])
 
   function fetchUser(callback) {
         userAPI.currentUser().then(function(response) {
-          var user = response.data;
+          var user = Restangular.stripRestangular(response.data);
           session.setUser(user);
           var domainIds = angular.isArray(user.domains) ?
             user.domains.map(function(domain) {return domain.domain_id;}) :
