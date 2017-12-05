@@ -8,5 +8,11 @@
       'en_*': 'en',
       'fr_*': 'fr',
       'vi_*': 'vi'
-    });
+    })
+    .constant('ESN_I18N_DATE_FORMAT', {
+      en: 'yyyy/MM/dd',
+      fr: 'dd/MM/yyyy',
+      vi: 'dd/MM/yyyy'
+    })
+    ;
 })();
