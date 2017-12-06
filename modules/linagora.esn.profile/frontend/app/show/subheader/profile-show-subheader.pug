@@ -9,9 +9,9 @@ block left
     i.mdi.mdi-arrow-left
 
 block right
-  button.btn.btn-link.hidden-xs(ng-if="$ctrl.showEditButton", ui-sref="profile.details.edit")
+  button.btn.btn-link.hidden-xs(ng-if="$ctrl.showEditButton", ui-sref="profile.details.edit", ui-sref-opts="{location: 'replace'}")
     .flex-vertical-centered
       i.mdi.mdi-pencil.mdi-margin-right
       span #{__('Edit')}
-  button.btn.btn-link.btn-icon.visible-xs(ng-if="$ctrl.showEditButton", ui-sref="profile.details.edit")
+  button.btn.btn-link.btn-icon.visible-xs(ng-if="$ctrl.showEditButton", ui-sref="profile.details.edit", ui-sref-opts="{location: 'replace'}")
     i.mdi.mdi-pencil
