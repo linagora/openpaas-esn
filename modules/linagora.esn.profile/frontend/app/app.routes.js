@@ -1,49 +1,18 @@
 'use strict';
 
-angular.module('linagora.esn.profile', [
-  'ui.router',
-  'esn.http',
-  'esn.user',
-  'esn.session',
-  'esn.profile',
-  'esn.notification',
-  'esn.timeline',
-  'esn.previous-page',
-  'op.dynamicDirective',
-  'esn.i18n'
-  ])
-  .config(function($stateProvider) {
-    $stateProvider
+angular.module('linagora.esn.profile')
+  .config(function($stateProvider, $urlRouterProvider) {
+    $urlRouterProvider.when('/profile', '/profile/details/view');
+    $urlRouterProvider.when('/profile/:user_id', '/profile/:user_id/details/view');
 
-      .state('profileEdit', {
-        url: '/profileedit',
-        templateUrl: '/profile/views/edit',
-        controller: 'profileEditionController',
-        resolve: {
-          user: function($location, userAPI) {
-            return userAPI.currentUser().then(function(response) {
-              return response.data;
-            }, function() {
-              $location.path('/');
-            });
-          }
-        }
-      })
+    $stateProvider
       .state('profile', {
         url: '/profile/:user_id?',
-        templateUrl: '/profile/views/index',
+        templateUrl: '/profile/app/app',
         controller: 'profileController',
         params: {user_id: {value: null, squash: true}},
-        deepStateRedirect: {
-          default: 'profile.details.view',
-          params: true,
-          fn: function() {
-            return {state: 'profile.details.view'};
-          }
-        },
         resolve: {
-          user: function($stateParams, $location, userAPI, session, $q) {
-
+          user: function($stateParams, $location, userAPI, session) {
             if ($stateParams.user_id) {
               return userAPI.user($stateParams.user_id).then(function(response) {
                 return response.data;
@@ -52,17 +21,27 @@ angular.module('linagora.esn.profile', [
               });
             }
 
-            return $q.when(session.user);
+            return session.ready.then(function(session) {
+              return session.user;
+            });
           }
         }
       })
 
       .state('profile.details', {
-        abstract: true,
         url: '/details',
         views: {
-          'main@profile': {
-            templateUrl: '/profile/views/partials/profile-tabs'
+          'root@profile': {
+            template: '<profile-show user="user" me="me" />'
+          }
+        }
+      })
+
+      .state('profile.details.edit', {
+        url: '/edit',
+        views: {
+          'root@profile': {
+            template: '<profile-edit user="user" />'
           }
         }
       })
@@ -71,7 +50,7 @@ angular.module('linagora.esn.profile', [
         url: '/view',
         views: {
           'details@profile.details': {
-            templateUrl: '/profile/views/partials/profile-view'
+            template: '<profile-show-details user="user" />'
           }
         }
       })

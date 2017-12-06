@@ -6,8 +6,8 @@
   "Followings": "Followings",
   "Timeline": "Timeline",
   "Profile Informations": "Profile Informations",
-  "Error in the profile update": "Error in the profile update",
-  "Error while updating your profile, please retry later.": "Error while updating your profile, please retry later.",
-  "Your profile has been updated": "Your profile has been updated",
-  "Profile updated": "Profile updated"
+  "Updating profile...": "Updating profile...",
+  "Profile updated": "Profile updated",
+  "Error while updating your profile, please retry later": "Error while updating your profile, please retry later",
+  "You did not modify anything": "You did not modify anything"
 }

@@ -10,9 +10,9 @@ block left
   span.title.extra-title.ellipsis #{__('Edit Profile')}
 
 block right
-  button.btn.btn-link.hidden-xs(ui-sref='profile', ng-click='updateProfile(user)')
+  button.btn.btn-link.hidden-xs(esn-submit='$ctrl.onSaveBtnClick()')
     .flex-vertical-centered
       span #{__('Save')}
       i.mdi.mdi-check.mdi-margin-left
-  button.btn.btn-link.btn-icon.visible-xs(ui-sref='profile', ng-click='updateProfile(user)')
+  button.btn.btn-link.btn-icon.visible-xs(esn-submit='$ctrl.onSaveBtnClick()')
     i.mdi.mdi-check

@@ -1,0 +1,8 @@
+sub-header
+  profile-show-subheader(show-edit-button="$ctrl.me")
+
+#profile-main.card
+  .pm-overview
+    profile-overview(user="$ctrl.user", me="$ctrl.me")
+  .pm-body.clearfix
+    profile-tabs(ng-if="$ctrl.user", user="$ctrl.user", me="$ctrl.me")

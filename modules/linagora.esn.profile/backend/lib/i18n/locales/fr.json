@@ -6,8 +6,8 @@
   "Followings": "Suivis",
   "Timeline": "Chronologie",
   "Profile Informations": "Informations sur le profil",
-  "Error in the profile update": "Erreur dans la mise à jour du profil",
-  "Error while updating your profile, please retry later.": "Erreur lors de la mise à jour de votre profil, réessayez plus tard.",
-  "Your profile has been updated": "Votre profil a été mis à jour",
-  "Profile updated": "Profil mis à jour"
+  "Updating profile...": "Mise à jour du profile...",
+  "Profile updated": "Profil mis à jour",
+  "Error while updating your profile, please retry later": "Erreur lors de la mise à jour de votre profil, réessayez plus tard",
+  "You did not modify anything": "Vous n'avez rien modifié"
 }

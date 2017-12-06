@@ -6,8 +6,8 @@
   "Followings": "Đang theo dõi",
   "Timeline": "Dòng thời gian",
   "Profile Informations": "Thông tin cá nhân",
-  "Error in the profile update": "Xảy ra lỗi khi cập nhật hồ sơ cá nhân",
-  "Error while updating your profile, please retry later.": "Xảy ra lỗi khi cập nhật hồ sơ của bạn, vui lòng thử lại sau",
-  "Your profile has been updated": "Hồ sơ của bạn đã được cập nhật",
-  "Profile updated": "Hồ sơ đã được cập nhật"
+  "Updating profile...": "Updating profile...",
+  "Profile updated": "Hồ sơ đã được cập nhật",
+  "Error while updating your profile, please retry later": "Xảy ra lỗi khi cập nhật hồ sơ của bạn, vui lòng thử lại sau",
+  "You did not modify anything": "Bạn chưa sửa gì"
 }
