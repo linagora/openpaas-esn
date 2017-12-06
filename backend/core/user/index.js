@@ -15,6 +15,7 @@ const emailAddresses = require('email-addresses');
 const CONSTANTS = require('./constants');
 const moderation = require('./moderation');
 const coreAvailability = require('../availability');
+const utils = require('./utils');
 
 const TYPE = CONSTANTS.TYPE;
 
@@ -249,10 +250,6 @@ function translate(baseUser, payload) {
   return outputUser;
 }
 
-function getDisplayName(user) {
-  return user.firstname && user.lastname ? `${user.firstname} ${user.lastname}` : user.preferredEmail;
-}
-
 function checkEmailsAvailability(emails) {
   return q.all(
     emails.map(email =>
@@ -265,7 +262,7 @@ function checkEmailsAvailability(emails) {
 }
 
 module.exports = {
-  getDisplayName,
+  getDisplayName: utils.getDisplayName,
   TYPE: TYPE,
   recordUser: recordUser,
   provisionUser: provisionUser,
