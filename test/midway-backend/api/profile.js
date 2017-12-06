@@ -173,7 +173,7 @@ describe('The profile API', function() {
       helpers.api.requireLogin(app, 'put', '/api/user/profile', done);
     });
 
-    it('should return 200 and update his profile', function(done) {
+    it('should update his profile and respond 200 with denormalized user', function(done) {
       const User = mongoose.model('User');
       const profile = {
         firstname: 'James',
@@ -193,8 +193,21 @@ describe('The profile API', function() {
 
         const req = loggedInAsUser(request(app).put('/api/user/profile'));
 
-        req.send(profile).expect(200).end(function(err) {
+        req.send(profile).expect(200).end(function(err, resp) {
           expect(err).to.not.exist;
+
+          expect(resp.body).to.shallowDeepEqual({
+            firstname: profile.firstname,
+            lastname: profile.lastname,
+            job_title: profile.job_title,
+            service: profile.service,
+            building_location: profile.building_location,
+            office_location: profile.office_location,
+            main_phone: profile.main_phone,
+            description: profile.description
+          });
+          expect(resp.body.password).to.not.exist;
+          expect(resp.body.accounts).to.not.exist;
 
           User.findOne({ _id: foouser._id }, function(err, user) {
             if (err) {
