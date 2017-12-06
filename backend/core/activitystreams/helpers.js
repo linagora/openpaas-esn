@@ -1,5 +1,7 @@
 'use strict';
 
+const userUtilsModule = require('../user/utils');
+
 var getURN = function(type, id) {
   return 'urn:linagora.com:' + type + ':' + id;
 };
@@ -14,7 +16,7 @@ var getUserAsActor = function(user) {
     objectType: 'user',
     _id: user._id,
     image: user.currentAvatar || '',
-    displayName: user.firstname + ' ' + user.lastname
+    displayName: userUtilsModule.getDisplayName(user)
   };
 };
 module.exports.getUserAsActor = getUserAsActor;

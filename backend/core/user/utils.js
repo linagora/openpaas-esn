@@ -1,5 +1,10 @@
 'use strict';
 
+module.exports = {
+  filterByNotInCollaborationAndNoMembershipRequest,
+  getDisplayName
+};
+
 /**
  * Return an array of users who are not in the collaboration AND
  *  who have no pending membership request/invitation.
@@ -40,5 +45,7 @@ function filterByNotInCollaborationAndNoMembershipRequest(users, collaboration, 
 
   return callback(null, results);
 }
-module.exports.filterByNotInCollaborationAndNoMembershipRequest = filterByNotInCollaborationAndNoMembershipRequest;
 
+function getDisplayName(user) {
+  return user.firstname && user.lastname ? `${user.firstname} ${user.lastname}` : user.preferredEmail;
+}
