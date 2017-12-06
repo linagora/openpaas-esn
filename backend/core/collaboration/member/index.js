@@ -273,7 +273,7 @@ module.exports = function(collaborationModule) {
       );
   }
 
-  function getManagers(objectType, collaboration, query, callback) {
+  function getManagers(objectType, collaboration, callback) {
     const id = collaboration._id || collaboration;
     const Model = collaborationModule.getModel(objectType);
 
@@ -282,9 +282,11 @@ module.exports = function(collaborationModule) {
     }
 
     // TODO Right now creator is the only manager. It will change in the future.
-    // query = query ||  {};
-    // q.slice('managers', [query.offset || DEFAULT_OFFSET, query.limit || DEFAULT_LIMIT]);
-    Model.findById(id).populate('creator').exec((err, collaboration) => callback(err, collaboration ? [collaboration.creator] : []));
+    Model.findById(id).populate('creator').exec((err, collaboration) => {
+      // there is no creator on the "general" channel in chat :-(
+      const response = collaboration && collaboration.creator ? [collaboration.creator] : [];
+      callback(err, response);
+    });
   }
 
   function getMembers(collaboration, objectType, query = {}, callback) {

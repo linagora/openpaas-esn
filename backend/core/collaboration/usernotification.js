@@ -85,8 +85,8 @@ module.exports = collaborationModule => {
         ],
         onSuccessPublishIntoGlobal(callback));
     } else {
-      collaborationModule.member.getManagers(data.collaboration.objectType, data.collaboration.id, {}, (err, managers) => {
-        if (err || !managers || managers.legnth === 0) {
+      collaborationModule.member.getManagers(data.collaboration.objectType, data.collaboration.id, (err, managers) => {
+        if (err || !managers || managers.length === 0) {
           logger.warn('Notification could not be created : no target user found.');
 
           return;

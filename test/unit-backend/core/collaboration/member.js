@@ -909,4 +909,66 @@ describe('The collaboration member module', function() {
       });
     });
   });
+
+  describe('the getManagers() method', function() {
+
+    const managersModelMock = {
+      findById: function() {
+        return this;
+      },
+      populate: function() {
+        return this;
+      }
+    };
+
+    it('should return an error when the model is not found', function() {
+      modelMock = undefined;
+
+      getModule().getManagers('channel', '123', err => {
+        expect(err).to.exist;
+        expect(err.message).to.match(/is unknown/);
+      });
+    });
+
+    it('should return an empty array when the collaboration is not found', function() {
+      modelMock = managersModelMock;
+      modelMock.exec = function(callback) {
+        return callback(null, null);
+      };
+
+      getModule().getManagers('channel', '123', (err, managers) => {
+        expect(err).to.not.exist;
+        expect(managers).to.be.an('array');
+        expect(managers).to.have.length(0);
+      });
+    });
+
+    it('should return an empty array when the collaboration creator does not exist', function() {
+      modelMock = managersModelMock;
+      modelMock.exec = function(callback) {
+        return callback(null, {creator: undefined});
+      };
+
+      getModule().getManagers('channel', '123', (err, managers) => {
+        expect(err).to.not.exist;
+        expect(managers).to.be.an('array');
+        expect(managers).to.have.length(0);
+      });
+    });
+
+    it('should return an array with the collaboration creator when it exists', function() {
+      const creator = {_id: 'user1'};
+      modelMock = managersModelMock;
+      modelMock.exec = function(callback) {
+        return callback(null, {creator});
+      };
+
+      getModule().getManagers('channel', '123', (err, managers) => {
+        expect(err).to.not.exist;
+        expect(managers).to.be.an('array');
+        expect(managers).to.have.length(1);
+        expect(managers[0]).to.deep.equal(creator);
+      });
+    });
+  });
 });
