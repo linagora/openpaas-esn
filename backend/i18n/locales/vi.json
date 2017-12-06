@@ -440,5 +440,7 @@
   "Show all": "Hiển thị tất cả",
   "Open in a new tab": "Mở trong tab mới",
   "File type": "Định dạng tệp tin",
-  "Size": "Kích thước"
+  "Size": "Kích thước",
+  "Copy to clipboard": "Sao chép vào khay nhớ tạm",
+  "Link copied to clipboard": "Liên kết được sao chép vào khay nhớ tạm"
 }

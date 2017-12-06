@@ -311,6 +311,11 @@ const injections = [
     'shortcuts/shortcuts-action.service.js',
     'shortcuts/sheet/shortcuts-sheet.service.js',
     'shortcuts/sheet/shortcuts-sheet.controller.js'
+  ], innerApps: ['esn']},
+  {angular: ['esn.clipboard'], files: [
+    'clipboard/clipboard.module.js',
+    'clipboard/url/clipboard-url.component.js',
+    'clipboard/url/clipboard-url.controller.js'
   ], innerApps: ['esn']}
 ];
 
