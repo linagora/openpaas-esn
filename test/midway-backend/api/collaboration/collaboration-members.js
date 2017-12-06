@@ -555,6 +555,33 @@ describe('The collaborations members API', function() {
       });
     });
 
+    it('should return the member list filtered by id', function(done) {
+      const self = this;
+
+      this.helpers.api.applyDomainDeployment('collaborationMembers', (err, models) => {
+        expect(err).to.not.exist;
+
+        self.helpers.api.loginAsUser(webserver.application, models.users[0].emails[0], 'secret', (err, loggedInAsUser) => {
+          expect(err).to.not.exist;
+
+          const collaborationId = models.communities[4]._id;
+          const member = models.communities[4].members[0].member;
+
+          loggedInAsUser(request(webserver.application).get(`/api/collaborations/community/${collaborationId}/members?idFilter=${member.id}`))
+            .expect(200)
+            .end((err, res) => {
+              expect(err).to.not.exist;
+              expect(res.body).to.be.an.array;
+              expect(res.body.length).to.equal(1);
+              expect(res.body[0].objectType).to.equal(member.objectType);
+              expect(res.body[0].id).to.equal(String(member.id));
+              expect(res.headers['x-esn-items-count']).to.equal('1');
+              done();
+            });
+        });
+      });
+    });
+
     it('should return the sliced members list', function(done) {
       var self = this;
       this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
