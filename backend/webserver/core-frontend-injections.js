@@ -272,6 +272,7 @@ const injections = [
     'i18n/i18n.service.js',
     'i18n/i18n.constants.js',
     'i18n/i18n.config.js',
+    'i18n/i18n-dateformat.service.js',
     'i18n/i18n-loader.service.js',
     'i18n/i18n-interpolator.service.js',
     'i18n/i18n-string.service.js',
