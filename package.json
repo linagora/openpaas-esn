@@ -56,6 +56,7 @@
     "linagora.esn.admin": "linagora/linagora.esn.admin",
     "linagora.esn.calendar": "linagora/linagora.esn.calendar",
     "linagora.esn.calendar.collect.email": "linagora/linagora.esn.calendar.collect.email",
+    "linagora.esn.chat": "linagora/linagora.esn.chat",
     "linagora.esn.contact.collect": "linagora/linagora.esn.contact.collect",
     "linagora.esn.group": "linagora/linagora.esn.group",
     "linagora.esn.james": "linagora/linagora.esn.james",
