@@ -27,7 +27,7 @@
       return asyncAction(notificationMessages, function() {
         return profileAPI.updateProfile(self.mutableUser).then(function() {
           session.setUser(self.mutableUser);
-          $state.go('profile', { user_id: '' });
+          $state.go('profile', { user_id: '' }, { location: 'replace' });
         });
       });
     }

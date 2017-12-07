@@ -1,11 +1,11 @@
 extends /modules/subheader/responsive-subheader.pug
 
 block left
-  button.btn.btn-link.hidden-xs(esn-back-button='profile')
+  button.btn.btn-link.hidden-xs(ui-sref="profile", ui-sref-opts="{location: 'replace'}")
     .flex-vertical-centered
       i.mdi.mdi-close.mdi-margin-right
       span #{__('Cancel')}
-  button.btn.btn-link.btn-icon.visible-xs(esn-back-button='profile')
+  button.btn.btn-link.btn-icon.visible-xs(ui-sref="profile", ui-sref-opts="{location: 'replace'}")
     i.mdi.mdi-close
   span.title.extra-title.ellipsis #{__('Edit Profile')}
 
