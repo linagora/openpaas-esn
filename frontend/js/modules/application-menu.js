@@ -12,7 +12,8 @@ angular.module('esn.application-menu', [
     html: false,
     trigger: 'manual',
     autoClose: true,
-    prefixEvent: 'application-menu'
+    prefixEvent: 'application-menu',
+    container: 'body'
   })
   .constant('APP_MENU_OPEN_EVENT', 'application-menu.open')
 
