@@ -440,5 +440,7 @@
   "Show all": "Tout afficher",
   "Open in a new tab": "Ouvrir dans l'onglet",
   "File type": "Type de fichier",
-  "Size": "Taille"
+  "Size": "Taille",
+  "Copy to clipboard": "Copier dans le presse-papiers",
+  "Link copied to clipboard": "Lien copié dans le presse-papiers"
 }

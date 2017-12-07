@@ -440,5 +440,7 @@
   "Show all": "Show all",
   "Open in a new tab": "Open in a new tab",
   "File type": "File type",
-  "Size": "Size"
+  "Size": "Size",
+  "Copy to clipboard": "Copy to clipboard",
+  "Link copied to clipboard": "Link copied to clipboard"
 }
