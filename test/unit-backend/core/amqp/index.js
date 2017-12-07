@@ -3,19 +3,19 @@
 const expect = require('chai').expect;
 const mockery = require('mockery');
 const q = require('q');
-const sinon = require('sinon');
 
 describe('The amqp module', function() {
 
   let helpers;
   let channel;
+  let amqpConnection;
 
   function mockEsnConfig(mock) {
     mockery.registerMock('../../core/esn-config', mock || testingEsnConfig());
   }
 
   function mockAmqplib(mock) {
-    mockery.registerMock('amqplib', mock);
+    mockery.registerMock('amqp-connection-manager', mock);
   }
 
   function testingEsnConfig() {
@@ -32,6 +32,13 @@ describe('The amqp module', function() {
     helpers = this.helpers;
     channel = {
       assertExchange: () => q.resolve()
+    };
+
+    amqpConnection = {
+      on: function() {
+        return this;
+      },
+      createChannel: () => channel
     };
   });
 
@@ -70,9 +77,9 @@ describe('The amqp module', function() {
 
       mockAmqplib({
         connect: url => {
-          expect(url).to.equal('amqp://localhost:5672');
+          expect(url).to.deep.equal(['amqp://localhost:5672']);
 
-          return { createChannel: () => channel };
+          return amqpConnection;
         }
       });
 
@@ -85,9 +92,9 @@ describe('The amqp module', function() {
       mockEsnConfig();
       mockAmqplib({
         connect: url => {
-          expect(url).to.equal('amqp://testing-url');
+          expect(url).to.deep.equal(['amqp://testing-url']);
 
-          return { createChannel: () => channel };
+          return amqpConnection;
         }
       });
 
@@ -98,54 +105,24 @@ describe('The amqp module', function() {
 
     it('should create a channel through the connection', function(done) {
       mockEsnConfig();
-      mockAmqplib({
-        connect: () => ({
-          createChannel: () => {
-            done();
 
-            return channel;
-          }
-        })
+      amqpConnection.createChannel = () => {
+        done();
+
+        return channel;
+      };
+      mockAmqplib({
+        connect: () => amqpConnection
       });
 
       getClient().catch(err => done(err || 'should resolve'));
     });
 
-    it('should return a AmqpClient', function(done) {
-      const AmqpClient = require('../../../../backend/core/amqp/client');
+    it('should return the same resolution promise', function() {
+      const promise1 = getClient();
+      const promise2 = getClient();
 
-      mockEsnConfig();
-      mockAmqplib({
-        connect: () => ({
-          createChannel: () => channel
-        })
-      });
-
-      getClient()
-        .then(client => expect(client).to.be.instanceof(AmqpClient))
-        .then(() => done())
-        .catch(err => done(err || 'should resolve'));
-    });
-
-    it('should do only one connection and channel when called multiple times', function(done) {
-      const createChannelSpy = sinon.spy(() => channel);
-      const connectSpy = sinon.spy(() => ({
-        createChannel: createChannelSpy
-      }));
-
-      mockEsnConfig();
-      mockAmqplib({
-        connect: connectSpy
-      });
-
-      getClient()
-        .then(() => getClient())
-        .then(() => {
-          expect(createChannelSpy).to.have.been.calledOnce;
-          expect(connectSpy).to.have.been.calledOnce;
-          done();
-        })
-        .catch(err => done(err || 'should resolve'));
+      expect(promise1).to.equal(promise2);
     });
   });
 
