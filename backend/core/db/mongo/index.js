@@ -14,12 +14,16 @@ const logger = require('../../../core').logger;
 const config = require('../../../core').config;
 const topic = require('../../../core').pubsub.local.topic('mongodb:connectionAvailable');
 const configurationWatcher = require('./file-watcher');
+const defaultConfig = config('default');
 
 let initialized = false;
 let connected = false;
 let dbConfigWatcher = null;
 const models = {};
 const schemas = {};
+
+let reconnectAttemptCounter = 0;
+let connectionLost = false;
 
 module.exports = {
   storeConfiguration,
@@ -43,14 +47,25 @@ mongoose.connection.on('connected', err => {
   logger.debug('Connected to MongoDB', err);
   connected = true;
   topic.publish();
+  reconnectAttemptCounter = 0;
+  connectionLost = false;
 });
 
 mongoose.connection.on('disconnected', () => {
-  logger.debug('Connection to MongoDB has been lost');
-  connected = false;
-  if (forceReconnect()) {
+  if (!connectionLost) {
+    logger.debug('Connection to MongoDB has been lost');
+    connected = false;
+    connectionLost = true;
+  }
+
+  if (forceReconnect() && (reconnectAttemptCounter < defaultConfig.db.attemptsLimit)) {
     logger.debug('Reconnecting to MongoDB');
-    mongooseConnect();
+    reconnectAttemptCounter++;
+    setTimeout(mongooseConnect, _fibonacci(reconnectAttemptCounter) * 1000);
+  }
+
+  if (reconnectAttemptCounter === defaultConfig.db.attemptsLimit) {
+    logger.error(`Failed to connect to MongoDB ${defaultConfig.db.attemptsLimit} time - No more attempts - Please contact your administrator, to restart the database server`);
   }
 });
 
@@ -73,13 +88,29 @@ function forceReconnect() {
     return process.env.MONGO_FORCE_RECONNECT;
   }
 
-  const defaultConfig = config('default');
-
   return !!(defaultConfig.db && defaultConfig.db.forceReconnectOnDisconnect);
 }
 
 function onConnectError(err) {
-  logger.error('Failed to connect to MongoDB:', err);
+  if (!connectionLost || firstAttempt()) {
+    logger.error(`Failed to connect to MongoDB - Attempt #${reconnectAttemptCounter}/${defaultConfig.db.attemptsLimit} at ${Date()}: `, err);
+  } else {
+    logger.error(`Failed to connect to MongoDB - Attempt #${reconnectAttemptCounter}/${defaultConfig.db.attemptsLimit} at ${Date()} - Please contact your administrator, to restart the database server`);
+  }
+}
+
+function _fibonacci(number) {
+  const sequence = [1, 1];
+
+  for (let i = 2; i < number; i++) {
+    sequence[i] = sequence[i - 1] + sequence[i - 2];
+  }
+
+  return sequence[number - 1];
+}
+
+function firstAttempt() {
+  return reconnectAttemptCounter === 1;
 }
 
 function getTimeout() {
@@ -169,7 +200,6 @@ function getDefaultConnectionString() {
 
 function getDbConfigurationFile() {
   const root = path.resolve(__dirname + '/../../../..');
-  const defaultConfig = config('default');
   let dbConfigurationFile;
 
   if (defaultConfig.core && defaultConfig.core.config && defaultConfig.core.config.db) {
@@ -277,8 +307,6 @@ function getConnectionStringAndOptions() {
 }
 
 function mongooseConnect(reinit) {
-  const defaultConfig = config('default');
-
   if (defaultConfig.db && defaultConfig.db.reconnectOnConfigurationChange) {
     if (!dbConfigWatcher) {
       dbConfigWatcher = configurationWatcher(logger, getDbConfigurationFile(), reinit);

@@ -38,5 +38,10 @@
     "config": {
       "db": "./tmp/db.json"
     }
+  },
+  "db": {
+    "reconnectOnConfigurationChange": false,
+    "forceReconnectOnDisconnect": false,
+    "attemptsLimit": 100
   }
 }

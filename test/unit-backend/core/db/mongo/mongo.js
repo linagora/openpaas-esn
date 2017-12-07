@@ -74,6 +74,7 @@ describe('The Core DB Mongo module', function() {
       var events;
       var mongoose;
       var forceReconnect;
+      var reconnectAttemptCounter = 0;
 
       beforeEach(function() {
         mongoose = this.helpers.requireFixture('mongoose').mongoose();
@@ -86,7 +87,8 @@ describe('The Core DB Mongo module', function() {
         var configMock = function() {
           return {
             db: {
-              forceReconnectOnDisconnect: forceReconnect
+              forceReconnectOnDisconnect: forceReconnect,
+              attemptsLimit: 100
             }
           };
         };
@@ -109,10 +111,18 @@ describe('The Core DB Mongo module', function() {
       });
 
       it('should reconnect when disconnected and configured to reconnect', function() {
+        var clock = sinon.useFakeTimers();
+        var reconnectTimeout = 1;
+
         forceReconnect = true;
+        reconnectAttemptCounter = reconnectAttemptCounter + 1;
+
         this.helpers.requireBackend('core').db.mongo;
         events.disconnected();
+        clock.tick(reconnectTimeout * 1000);
+
         expect(mongoose.connect).to.have.been.calledOnce;
+        clock.restore();
       });
 
       it('should not reconnect when disconnected and configured to reconnect', function() {

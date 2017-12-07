@@ -25,7 +25,8 @@
   },
   "db": {
     "reconnectOnConfigurationChange": true,
-    "forceReconnectOnDisconnect": true
+    "forceReconnectOnDisconnect": true,
+    "attemptsLimit": 100
   },
   "log": {
     "file": {
