@@ -3,6 +3,7 @@
 const logger = require('../../core/logger');
 const AmqpClient = require('./client');
 const url = require('url');
+const Q = require('q');
 let clientInstancePromise;
 
 function connect(options = {}) {
@@ -10,22 +11,38 @@ function connect(options = {}) {
 
   logger.info('Creating a connection to the amqp server with the url: ', url);
 
-  return require('amqplib').connect(url);
+  return require('amqp-connection-manager').connect([url]);
 }
 
-function createClient() {
+function createClient(onConnect, onDisconnect, onClient) {
   return require('../../core/esn-config')('amqp').get()
     .then(connect)
-    .then(conn => conn.createChannel())
-    .then(channel => new AmqpClient(channel))
+    .then(connection => bindEvents(connection, onConnect, onDisconnect))
+    .then(connection => connection.createChannel({
+      name: 'globalPubsub',
+      setup: channel => {
+        const client = new AmqpClient(channel);
+
+        onClient(client);
+
+        return Q.when(client);
+      }
+    }))
     .catch(err => {
       logger.error('Unable to create the AMQP client: ', err);
       throw err;
     });
 }
 
-function getClient() {
-  clientInstancePromise = clientInstancePromise || createClient();
+function bindEvents(connection, onConnect, onDisconnect) {
+  connection.on('connect', onConnect);
+  connection.on('disconnect', onDisconnect);
+
+  return connection;
+}
+
+function getClient(onConnect, onDisconnect, onClient) {
+  clientInstancePromise = clientInstancePromise || createClient(onConnect, onDisconnect, onClient);
 
   return clientInstancePromise;
 }
@@ -47,7 +64,8 @@ function getURL(options) {
     protocol: 'amqp',
     slashes: true,
     hostname: getHost(),
-    port: getPort()
+    port: getPort(),
+    heartbeat: 3
   };
 
   return url.format(connectionUrl);
