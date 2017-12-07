@@ -158,13 +158,22 @@ function updateProfile(req, res) {
     description: req.body.description || ''
   };
 
-  userModule.updateProfile(req.user, newProfile, function(err, profile) {
-    if (err) {
-      return res.status(500).json({error: 500, message: 'Server Error', details: err.message});
-    }
+  Q.denodeify(userModule.updateProfile)(req.user, newProfile)
+    .then(updatedUser => denormalizeUser(updatedUser))
+    .then(denormalizedUser => res.status(200).json(denormalizedUser))
+    .catch(err => {
+      const details = `Error while updating profile of user ${req.user.id}`;
 
-    return res.status(200).json(profile);
-  });
+      logger.error(details, err);
+
+      res.status(500).json({
+        error: {
+          code: 500,
+          message: 'Server Error',
+          details
+        }
+      });
+    });
 }
 
 /**
