@@ -2,7 +2,7 @@
 
 const jwtAuth = require('../../core/auth/jwt'),
       logger = require('../../core/logger'),
-      JwtStrategy = require('passport-jwt').Strategy;
+      JwtStrategy = require('@linagora/passport-jwt').Strategy;
 
 module.exports = {
   strategy: new JwtStrategy(optionsResolver, (jwtPayload, done) => done(null, jwtPayload)),

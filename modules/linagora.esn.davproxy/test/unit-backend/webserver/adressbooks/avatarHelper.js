@@ -115,7 +115,7 @@ describe('The avatarHelper module', function() {
     });
 
     it('should resolve original vcard when ical throws error', function(done) {
-      mockery.registerMock('ical.js', {
+      mockery.registerMock('@linagora/ical.js', {
         Component: function() {
           throw new Error('some error');
         }
@@ -171,7 +171,7 @@ describe('The avatarHelper module', function() {
     });
 
     it('should return original vcard when ical throws error', function() {
-      mockery.registerMock('ical.js', {
+      mockery.registerMock('@linagora/ical.js', {
         Component: function() {
           throw new Error('some error');
         }

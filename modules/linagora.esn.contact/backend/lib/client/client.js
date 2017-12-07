@@ -1,7 +1,7 @@
 'use strict';
 
 var q = require('q');
-var ICAL = require('ical.js');
+var ICAL = require('@linagora/ical.js');
 var davClient = require('../dav-client').rawClient;
 var PATH = 'addressbooks';
 var DEFAULT_ADDRESSBOOK_NAME = 'contacts';

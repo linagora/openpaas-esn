@@ -1,6 +1,6 @@
 'use strict';
 
-var ICAL = require('ical.js');
+var ICAL = require('@linagora/ical.js');
 var q = require('q');
 
 module.exports = function(dependencies) {
