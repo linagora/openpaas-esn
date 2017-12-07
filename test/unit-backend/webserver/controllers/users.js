@@ -537,14 +537,14 @@ describe('The User controller', function() {
       users.postProfileAvatar(req, res);
     });
 
-    it('should call the recordUser function of the user model', function(done) {
+    it('should call the update function of the user module to update user', function(done) {
       var usermock = {
         avatars: [],
         currentAvatar: undefined
       };
       var moduleMock = {
         user: {
-          recordUser: function() {
+          update: function() {
             expect(usermock.avatars).to.have.length(1);
             expect(usermock.currentAvatar).to.equal(usermock.avatars[0]);
             done();
@@ -570,7 +570,7 @@ describe('The User controller', function() {
     it('should return 500 if the model cannot be saved', function(done) {
       var moduleMock = {
         user: {
-          recordUser: function(user, callback) {
+          update: function(user, callback) {
             var err = new Error('yolo');
             callback(err);
           }
@@ -605,7 +605,7 @@ describe('The User controller', function() {
     it('should return 200 and the avatar id, if recording is successfull', function(done) {
       var moduleMock = {
         user: {
-          recordUser: function(user, callback) {
+          update: function(user, callback) {
             callback();
           }
         },
