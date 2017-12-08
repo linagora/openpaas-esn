@@ -6,7 +6,7 @@
         h4.modal-title(ng-hide="uploading") #{__('Edit your avatar')}
         h4.modal-title(ng-show="uploading") #{__('Updating your avatar')}...
       .modal-body
-        avatar-picker
+        avatar-picker(avatar-placeholder="{{avatarURL}}")
       .modal-footer(ng-hide='uploading')
         button.btn.btn-link.color-default(type="button", ng-disabled="uploading", ng-click="$hide()") #{__('Cancel')}
         button.btn.btn-primary(type="button", ng-disabled="uploading || !preview", ng-click="upload()") #{__('Update')}
