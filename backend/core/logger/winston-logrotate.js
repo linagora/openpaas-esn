@@ -129,13 +129,6 @@ Rotate.prototype._configure_log_stream = function(resolve, reject) {
   });
 
   log_stream.on('ready', function() {
-    process.__defineGetter__('stdout', function() { //eslint-disable-line no-restricted-properties
-      return log_stream;
-    });
-    process.__defineGetter__('stderr', function() { //eslint-disable-line no-restricted-properties
-      return log_stream;
-    });
-
     self.ready = true;
     self.emit('ready', log_stream);
     resolve();
