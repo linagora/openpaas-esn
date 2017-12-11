@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.session', ['esn.user', 'esn.domain'])
+angular.module('esn.session', ['esn.user', 'esn.domain', 'esn.template'])
 .factory('session', function($q) {
 
   var bootstrapDefer = $q.defer();
@@ -91,18 +91,18 @@ angular.module('esn.session', ['esn.user', 'esn.domain'])
   $scope.domain = session.domain;
 })
 
-.controller('sessionInitESNController', function($scope, sessionFactory) {
+.controller('sessionInitESNController', function($scope, esnTemplate, sessionFactory) {
 
   $scope.session = {
-    template: '/views/commons/loading.html'
+    template: esnTemplate.templates.loading
   };
 
   sessionFactory.fetchUser(function(error) {
     if (error) {
       $scope.session.error = error.data;
-      $scope.session.template = '/views/commons/loading-error.html';
+      $scope.session.template = esnTemplate.templates.error;
     } else {
-      $scope.session.template = '/views/esn/partials/application.html';
+      $scope.session.template = esnTemplate.templates.success;
     }
   });
 })
