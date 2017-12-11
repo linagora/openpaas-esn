@@ -4,7 +4,7 @@
   angular.module('esn.avatar')
     .factory('esnAvatarUrlService', esnAvatarUrlService);
 
-  function esnAvatarUrlService() {
+  function esnAvatarUrlService(urlUtils) {
     return {
       generateUrl: generateUrl,
       generateUrlByUserEmail: generateUrlByUserEmail,
@@ -15,12 +15,20 @@
       return generateUrlByUserEmail(email) + '&objectType=email' + (displayName ? '&displayName=' + displayName : '');
     }
 
-    function generateUrlByUserEmail(email) {
-      return '/api/avatars?email=' + email;
+    function generateUrlByUserEmail(email, noCache) {
+      return applyTimestamp('/api/avatars?email=' + email, noCache);
     }
 
-    function generateUrlByUserId(userId) {
-      return '/api/users/' + userId + '/profile/avatar';
+    function generateUrlByUserId(userId, noCache) {
+      return applyTimestamp('/api/users/' + userId + '/profile/avatar', noCache);
+    }
+
+    function applyTimestamp(url, apply) {
+      if (apply) {
+        return urlUtils.updateUrlParameter(url, 'cb', Date.now());
+      }
+
+      return url;
     }
   }
 })();
