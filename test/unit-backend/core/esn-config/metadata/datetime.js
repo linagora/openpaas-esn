@@ -2,7 +2,7 @@
 
 const expect = require('chai').expect;
 
-describe('The core/esn-config/metadata/datetime module', function() {
+describe('The core/esn-config/metadata/datetime module', () => {
   let getModule;
 
   beforeEach(function() {
@@ -10,20 +10,20 @@ describe('The core/esn-config/metadata/datetime module', function() {
 
   });
 
-  describe('The validator fn', function() {
+  describe('The validator fn', () => {
     let validator;
 
     beforeEach(function() {
       validator = getModule().validator;
     });
 
-    it('should return error message when config is not an object', function() {
+    it('should return error message when config is not an object', () => {
       const config = [];
 
       expect(validator(config)).to.equal('should be object');
     });
 
-    it('should return error message when use24hourFormat is not boolean value', function() {
+    it('should return error message when use24hourFormat is not boolean value', () => {
       const config = {
         use24hourFormat: 'false'
       };
@@ -31,7 +31,7 @@ describe('The core/esn-config/metadata/datetime module', function() {
       expect(validator(config)).to.equal('.use24hourFormat: should be boolean');
     });
 
-    it('should return nothing when everything is alright', function() {
+    it('should return nothing when everything is alright', () => {
       const config = {
         use24hourFormat: false
       };
@@ -39,7 +39,7 @@ describe('The core/esn-config/metadata/datetime module', function() {
       expect(validator(config)).to.not.exist;
     });
 
-    it('should remove additional attributes and return nothing when everything is alright', function() {
+    it('should remove additional attributes and return nothing when everything is alright', () => {
       const config = {
         use24hourFormat: false,
         other: 'value'

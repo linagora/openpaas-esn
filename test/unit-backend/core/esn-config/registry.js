@@ -1,7 +1,7 @@
 const expect = require('chai').expect;
 
 describe('The core/esn-config/registry module', function() {
-  let registry, constants;
+  let registry;
   const moduleConfig = {
     rights: {
       admin: 'rw',
@@ -13,13 +13,6 @@ describe('The core/esn-config/registry module', function() {
 
   beforeEach(function() {
     registry = this.helpers.requireBackend('core/esn-config/registry');
-    constants = this.helpers.requireBackend('core/esn-config/constants');
-  });
-
-  describe('The getAll method', function() {
-    it('should return registry data', function() {
-      expect(registry.getAll()).to.deep.equal(constants.CONFIG_METADATA);
-    });
   });
 
   describe('The getFromModule method', function() {

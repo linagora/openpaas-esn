@@ -1,6 +1,5 @@
-const Ajv = require('ajv');
 const moment = require('moment');
-const validatorHelper = require('../validator/helper');
+const { buildErrorMessage, createValidateFunction } = require('../validator/helper');
 
 const TIME_FORMAT = 'H:m';
 const schema = {
@@ -30,8 +29,7 @@ const schema = {
     additionalProperties: false
   }
 };
-const ajv = new Ajv({ removeAdditional: true });
-const validate = ajv.compile(schema);
+const validate = createValidateFunction(schema);
 
 module.exports = {
   rights: {
@@ -46,7 +44,7 @@ function validator(businessHours) {
   const valid = validate(businessHours);
 
   if (!valid) {
-    return validatorHelper.buildErrorMessage(validate.errors);
+    return buildErrorMessage(validate.errors);
   }
 
   return validateBusinessHour(businessHours[0]);

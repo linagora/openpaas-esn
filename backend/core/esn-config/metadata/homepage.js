@@ -1,14 +1,8 @@
 const { createValidator } = require('../validator/helper');
 
 const schema = {
-  type: 'object',
-  properties: {
-    use24hourFormat: {
-      type: 'boolean'
-    }
-  },
-  required: ['use24hourFormat'],
-  additionalProperties: false
+  type: 'string',
+  minLength: 1
 };
 
 module.exports = {

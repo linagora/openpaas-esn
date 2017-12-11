@@ -1,0 +1,51 @@
+const { createValidator } = require('../validator/helper');
+
+const schema = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    'control-center:appstore': {
+      type: 'boolean'
+    },
+    'application-menu:jobqueue': {
+      type: 'boolean'
+    },
+    'control-center:password': {
+      type: 'boolean'
+    },
+    'application-menu:communities': {
+      type: 'boolean'
+    },
+    'control-center:members': {
+      type: 'boolean'
+    },
+    'application-menu:members': {
+      type: 'boolean'
+    },
+    'control-center:invitation': {
+      type: 'boolean'
+    },
+    'application-menu:invitation': {
+      type: 'boolean'
+    }
+  },
+  required: [
+    'control-center:appstore',
+    'application-menu:jobqueue',
+    'control-center:password',
+    'application-menu:communities',
+    'control-center:members',
+    'application-menu:members',
+    'control-center:invitation',
+    'application-menu:invitation'
+  ]
+};
+
+module.exports = {
+  rights: {
+    padmin: 'rw',
+    admin: 'rw',
+    user: 'r'
+  },
+  validator: createValidator(schema)
+};

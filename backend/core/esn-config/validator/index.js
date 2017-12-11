@@ -1,8 +1,10 @@
 const q = require('q');
 const _ = require('lodash');
 const registry = require('../registry');
+const helper = require('./helper');
 
 module.exports = {
+  helper,
   validate
 };
 
