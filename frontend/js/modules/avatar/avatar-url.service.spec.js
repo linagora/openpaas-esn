@@ -33,6 +33,16 @@ describe('The esnAvatarUrlService service', function() {
     });
   });
 
+  describe('The generateForCurrentUser function', function() {
+    it('should return avatar URL of the current user', function() {
+      expect(esnAvatarUrlService.generateForCurrentUser()).to.equal('/api/user/profile/avatar');
+    });
+
+    it('should append timestamp when noCache option is provided', function() {
+      expect(esnAvatarUrlService.generateForCurrentUser(true)).to.match(/[&?]cb=\d+$/);
+    });
+  });
+
   describe('The generateUrlByUserEmail function', function() {
     it('should return an URL with valid query paramater', function() {
       expect(esnAvatarUrlService.generateUrlByUserEmail(email)).to.equal('/api/avatars?email=' + email);

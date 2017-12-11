@@ -7,12 +7,17 @@
   function esnAvatarUrlService(urlUtils) {
     return {
       generateUrl: generateUrl,
+      generateForCurrentUser: generateForCurrentUser,
       generateUrlByUserEmail: generateUrlByUserEmail,
       generateUrlByUserId: generateUrlByUserId
     };
 
     function generateUrl(email, displayName) {
       return generateUrlByUserEmail(email) + '&objectType=email' + (displayName ? '&displayName=' + displayName : '');
+    }
+
+    function generateForCurrentUser(noCache) {
+      return applyTimestamp('/api/user/profile/avatar', noCache);
     }
 
     function generateUrlByUserEmail(email, noCache) {

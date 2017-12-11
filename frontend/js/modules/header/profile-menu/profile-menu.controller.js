@@ -4,13 +4,24 @@
   angular.module('esn.profile-menu')
     .controller('ESNProfileMenuController', ESNProfileMenuController);
 
-  function ESNProfileMenuController() {
+  function ESNProfileMenuController($scope, esnAvatarUrlService) {
     var self = this;
 
-    self.avatarURL = '/api/user/profile/avatar?cb=' + Date.now();
+    self.$onInit = $onInit;
+    self.openMenu = openMenu;
 
-    self.openMenu = function($mdMenu, event) {
+    function $onInit() {
+      self.avatarURL = esnAvatarUrlService.generateForCurrentUser(true);
+
+      $scope.$on('avatar:updated', onAvatarUpdated);
+    }
+
+    function openMenu($mdMenu, event) {
       $mdMenu.open(event);
-    };
+    }
+
+    function onAvatarUpdated() {
+      self.avatarURL = esnAvatarUrlService.generateForCurrentUser(true);
+    }
   }
 })();
