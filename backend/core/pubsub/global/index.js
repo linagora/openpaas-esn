@@ -5,25 +5,20 @@ const RabbitPubsub = require('./rabbit');
 const localPubsub = require('../').local;
 const rabbitPubsub = new RabbitPubsub('global');
 const amqpClientProvider = require('../../amqp');
+const amqpDisconnectedTopic = localPubsub.topic('amqp:disconnected');
+const amqpClientTopic = localPubsub.topic('amqp:client:available');
 
-function onConnect() {}
-
-function onDisconnect(e) {
-  const error = e.err ? e.err : e;
-  const errorCode = error.code ? error.code : error;
-
-  logger.warn('RabbitMQ connection lost', errorCode);
-  logger.debug(error);
+amqpDisconnectedTopic.subscribe(() => {
   rabbitPubsub.unsetClient();
-}
+});
 
-function onClient(client) {
+amqpClientTopic.subscribe(client => {
   rabbitPubsub.setClient(client);
-}
+});
 
 localPubsub.topic('mongodb:connectionAvailable').subscribe(function() {
   amqpClientProvider
-    .getClient(onConnect, onDisconnect, onClient)
+    .getClient()
     .catch(e => logger.error('Globalpubsub (RabbitMQ) Severe error', e));
 });
 

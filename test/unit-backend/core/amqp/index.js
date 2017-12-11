@@ -55,21 +55,6 @@ describe('The amqp module', function() {
       getClient();
     });
 
-    it('should reject when esnconfig rejects', function(done) {
-      const error = new Error('I failed to get amqp configuration');
-
-      mockEsnConfig(() => ({
-        get: () => q.reject(error)
-      }));
-
-      getClient()
-        .then(() => done('Failed, an error is expected'))
-        .catch(err => {
-          expect(err.message).to.equal(error.message);
-          done();
-        });
-    });
-
     it('should use default url when esnconfig does not return amqp configuration', function(done) {
       mockEsnConfig(() => ({
         get: () => q()
@@ -78,14 +63,12 @@ describe('The amqp module', function() {
       mockAmqplib({
         connect: url => {
           expect(url).to.deep.equal(['amqp://localhost:5672']);
-
+          done();
           return amqpConnection;
         }
       });
 
-      getClient()
-        .then(() => done())
-        .catch(err => done(err || 'should resolve'));
+      getClient().catch(err => done(err || 'should succeed before'));
     });
 
     it('should connect to the server using the expected esnconfig options', function(done) {
@@ -93,14 +76,12 @@ describe('The amqp module', function() {
       mockAmqplib({
         connect: url => {
           expect(url).to.deep.equal(['amqp://testing-url']);
-
+          done();
           return amqpConnection;
         }
       });
 
-      getClient()
-        .then(() => done())
-        .catch(err => done(err || 'should resolve'));
+      getClient().catch(err => done(err || 'should succeed before'));
     });
 
     it('should create a channel through the connection', function(done) {

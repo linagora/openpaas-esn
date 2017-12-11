@@ -4,12 +4,14 @@ const Pubsub = require('../pubsub');
 
 const ACTION_SUBSCRIBE = 'subscribe';
 const ACTION_PUBLISH = 'publish';
+const noop = () => {};
 
 class RabbitPubsub extends Pubsub {
   constructor(name, client) {
     super(name, client);
     this._publicationsBuffer = [];
     this._subscriptionsCache = [];
+    this._subscriptionsPromisesBuffer = [];
   }
 
   setClient(client) {
@@ -25,13 +27,31 @@ class RabbitPubsub extends Pubsub {
         this.topic(elem.topic)[elem.action](elem.data)
         .catch(e => logger.error('Rabbit publish', e));
       });
+
+      this._subscriptionsPromisesBuffer.forEach(resolve => resolve());
+
       this._publicationsBuffer = [];
+      this._subscriptionsPromisesBuffer = [];
     })
     .catch(e => logger.error('Error applying subscriptions', e));
   }
 
-  unsetClient() {
+  unsetClient(callback) {
+    const oldClient = this.client;
+
+    callback = callback || noop;
     this.client = undefined;
+
+    if (oldClient) {
+      try {
+        oldClient.dispose(callback);
+      } catch (e) {
+        logger.debug('error on RabbitMQ channel closing', e);
+      }
+    } else {
+      callback();
+    }
+
   }
 
   _addCache(topic, action, data) {
@@ -49,9 +69,14 @@ class RabbitPubsub extends Pubsub {
   _createInterface(topic) {
     return {
       subscribe: handler => {
+        this._addCache(topic, ACTION_SUBSCRIBE, handler);
+
         if (!this.client) {
-          return this._addCache(topic, ACTION_SUBSCRIBE, handler);
+          return Q(resolve => {
+            this._subscriptionsPromisesBuffer.push(resolve);
+          });
         }
+
         logger.debug(this.name + '/SUBSCRIBE to', topic);
 
         return this.client.subscribe(topic, handler);
