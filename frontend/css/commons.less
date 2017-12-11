@@ -589,3 +589,35 @@ html:not(.ie9) .select::before, .select::before {
   border: 2px solid lighten(@secondaryTextColor, 20%);
   border-radius: 2px;
 }
+
+/*
+ * Pop-in active effects
+ */
+.active-pop(@background: ~"rgba(0,0,0,0.5)", @radius: 0, @duration: 250ms, @zindex: 0) {
+  position: relative;
+
+  &:before {
+    left: 0;
+    top: 0;
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: @background;
+    z-index: @zindex;
+    border-radius: @radius;
+
+    .scale3d(0,0,0);
+    .transition(all);
+    .transition-duration(@duration);
+    .backface-visibility(hidden);
+    .opacity(0);
+  }
+
+  &:active {
+    &:before {
+      .scale3d(1,1,1);
+      .opacity(1);
+    }
+  }
+}
