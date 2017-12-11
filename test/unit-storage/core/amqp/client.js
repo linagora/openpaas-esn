@@ -18,10 +18,11 @@ describe('The amqp client', function() {
     publishingMessage = { one: 'field', and: [{ an: 'array', as: 'message value'}] };
 
     this.helpers.requireBackend('core/amqp')
-      .getClient()
-      .then(clientInstance => { client = clientInstance; })
-      .then(() => done())
-      .catch(err => done(err || 'Cannot create the amqp client'));
+      .getClient().then(clientInstance => {
+        client = clientInstance;
+        done();
+      })
+      .catch(err => done(err || 'Cannot create the amqp client')).done();
   });
 
   afterEach(function(done) {

@@ -92,7 +92,7 @@ beforeEach(function() {
   this.testEnv.writeDBConfigFile();
 });
 
-afterEach(function() {
+afterEach(function(done) {
   try {
     this.helpers.requireBackend('core/db/mongo/file-watcher').clear();
     this.testEnv.removeDBConfigFile();
@@ -102,4 +102,5 @@ afterEach(function() {
   mockery.resetCache();
   mockery.deregisterAll();
   mockery.disable();
+  this.helpers.requireBackend('core/pubsub').global.unsetClient(done);
 });
