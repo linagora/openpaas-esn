@@ -2,7 +2,7 @@
   .panel-heading
     div.panel-title
       i.close.mdi.mdi-close(ng-click="$close()")
-      span.close.toggle-maximize.mdi.mdi-arrow-expand(ng-click="$toggleMaximized()")
+      span.close.toggle-maximize.mdi(ng-click="$toggleMaximized()", ng-class="{ 'mdi-arrow-expand': !isMaximized(), 'mdi-arrow-collapse': isMaximized() }")
       span.close.toggle-minimize.mdi.mdi-chevron-down(ng-click="$toggleMinimized()")
       .panel-title-text {{title | esnI18n}}
   .panel-body(ng-include="templateUrl")
