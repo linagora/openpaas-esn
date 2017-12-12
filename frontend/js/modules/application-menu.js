@@ -6,7 +6,7 @@ angular.module('esn.application-menu', [
 ])
 
   .constant('POPOVER_APPLICATION_MENU_OPTIONS', {
-    animation: 'am-fade-and-slide-right',
+    animation: 'am-fade',
     placement: 'bottom',
     templateUrl: '/views/modules/application-menu/application-menu.html',
     html: false,
