@@ -69,7 +69,7 @@ addDebianRepositories() {
     addDebianRepository elasticsearch "deb http://packages.elastic.co/elasticsearch/2.x/debian stable main"
     addDebianRepository cassandra "deb http://www.apache.org/dist/cassandra/debian 22x main"
     addDebianRepository mongodb-org "deb http://repo.mongodb.org/apt/debian jessie/mongodb-org/3.2 main"
-    addDebianRepository nodesource "deb https://deb.nodesource.com/node_6.x jessie main"
+    addDebianRepository nodesource "deb https://deb.nodesource.com/node_8.x jessie main"
     addDebianRepository backports "deb http://deb.debian.org/debian jessie-backports main"
     addDebianRepository openpaas "deb https://packages.linagora.com/deb oncommit openpaas"
 }
@@ -88,7 +88,7 @@ addRedhatRepositories() {
     addRedhatRepository elasticsearch 'https://packages.elastic.co/elasticsearch/2.x/centos'
     addRedhatRepository mongodb-org 'https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/3.0/x86_64/'
     addRedhatRepository datastax 'http://rpm.datastax.com/community'
-    addRedhatRepository nodesource 'https://rpm.nodesource.com/pub_6.x/el/7/$basearch'
+    addRedhatRepository nodesource 'https://rpm.nodesource.com/pub_8.x/el/7/$basearch'
     addRedhatRepository openpaas 'https://packages.linagora.com/rpm/oncommit/7/'
 }
 

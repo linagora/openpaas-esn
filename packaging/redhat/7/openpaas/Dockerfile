@@ -9,7 +9,7 @@ ARG VERSION=0.0.0
 ARG ITERATION=1
 ARG TREEISH=master
 
-RUN curl -sL https://rpm.nodesource.com/setup_6.x | bash - && \
+RUN curl -sL https://rpm.nodesource.com/setup_8.x | bash - && \
     yum groupinstall -y 'Development Tools' && \
     yum install -y epel-release && \
     yum install -y git rpm-build nodejs GraphicsMagick cairo cairo-devel cairomm-devel libjpeg-turbo-devel pango pango-devel pangomm pangomm-devel giflib-devel
