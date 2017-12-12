@@ -39,6 +39,7 @@
   .panel-title .panel-title-text {
     .ellipsis;
 
+    font-size: 14px;
     padding: 0;
   }
 }
@@ -68,6 +69,7 @@
 
     background-color: @primaryColor;
     color: @textPrimaryColor;
+    padding: 10px;
 
     i, span {
       color: @textPrimaryColor;
@@ -86,13 +88,21 @@
   }
 
   &.minimized {
-    max-height: 40px;
+    max-height: 39px;
     width: @overlayWidth * 0.5;
     min-width: @overlayMinWidth * 0.5;
-    top: ~"calc(100% - 40px)";
+    top: ~"calc(100% - 39px)";
 
     .toggle-minimize {
       .rotateZ3d(180deg);
+    }
+
+    .panel-heading {
+      padding: 9px 10px;
+    }
+
+    .close {
+      margin-left: 5px;
     }
 
     .panel-body {
@@ -115,7 +125,7 @@
 
   .close {
     margin-left: 10px;
-    font-size: 21.5px;
+    font-size: 20px;
   }
 
   .toggle-minimize {
