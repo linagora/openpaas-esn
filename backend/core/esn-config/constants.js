@@ -48,7 +48,13 @@ module.exports = {
         },
         ldap: {},
         mail: {},
-        davserver: {},
+        davserver: {
+          rights: {
+            padmin: 'rw',
+            admin: 'rw',
+            user: 'r'
+          }
+        },
         amqp: {},
         redis: {},
         oauth: {
