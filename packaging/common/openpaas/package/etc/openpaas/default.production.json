@@ -37,7 +37,8 @@
     }
   },
   "auth": {
-    "strategies": ["mongo", "bearer"]
+    "strategies": ["mongo"],
+    "apiStrategies": ["bearer"]
   },
   "db": {
     "reconnectOnConfigurationChange": true,
