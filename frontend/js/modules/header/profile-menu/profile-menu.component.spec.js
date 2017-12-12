@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('The profileMenu component', function() {
-  var $httpBackend, element, $compile, $rootScope, scope;
+  var $httpBackend, element, $compile, $rootScope;
 
   beforeEach(function() {
     angular.mock.module('esn.profile-menu', 'jadeTemplates');
@@ -21,21 +21,22 @@ describe('The profileMenu component', function() {
     $httpBackend
         .whenGET('images/mdi/mdi.svg')
         .respond('');
-
-    scope = $rootScope.$new();
   }));
+
+  beforeEach(function() {
+    compileProfileMenuComponent();
+  });
 
   function compileProfileMenuComponent() {
     var html = '<profile-menu></profile-menu>';
+    var scope = $rootScope.$new();
 
     element = $compile(html)(scope);
-    element = angular.element(document.body).append(element);
+
     scope.$digest();
   }
 
   it('should contain a md-menu', function() {
-    compileProfileMenuComponent();
-
     expect(element.find('md-menu')).to.exist;
   });
 
@@ -54,10 +55,14 @@ describe('The profileMenu component', function() {
     expect(element.find('md-backdrop')).to.not.exist;
   });
 
-  it('when click on avatar image, it should open the menu', function() {
-    element.find('.header-avatar').click();
+  it('should update avatar url on avatar:updated event', function() {
+    var initalAvatarUrl = element.find('img.header-avatar').attr('src');
 
-    expect(element.find('.header-avatar')).attr('aria-expanded').to.equal('true');
-    expect(element.find('md-backdrop')).to.exist;
+    $rootScope.$broadcast('avatar:updated');
+    $rootScope.$digest();
+
+    var newAvatarUrl = element.find('img.header-avatar').attr('src');
+
+    expect(newAvatarUrl).to.not.equal(initalAvatarUrl);
   });
 });

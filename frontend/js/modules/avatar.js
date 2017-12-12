@@ -8,7 +8,8 @@ angular.module('esn.avatar', [
   'angularFileUpload',
   'mgcrea.ngStrap.alert',
   'ng.deviceDetector',
-  'esn.http'
+  'esn.http',
+  'esn.url'
 ])
   .constant('AVATAR_OFFSET', 10)
   .provider('avatarDefaultUrl', function() {
@@ -460,7 +461,8 @@ angular.module('esn.avatar', [
       userId: '<',
       userEmail: '<',
       avatarUrl: '<',
-      hideUserStatus: '=?'
+      hideUserStatus: '<',
+      noCache: '<'
     }
   })
   .controller('EsnAvatarController', function($q, $log, userAPI, esnAvatarUrlService) {
@@ -490,11 +492,11 @@ angular.module('esn.avatar', [
 
     function generateAvatarUrl(id, email) {
       if (id) {
-        return esnAvatarUrlService.generateUrlByUserId(id);
+        return esnAvatarUrlService.generateUrlByUserId(id, self.noCache);
       }
 
       if (email) {
-        return esnAvatarUrlService.generateUrl(email);
+        return esnAvatarUrlService.generateUrl(email, self.noCache);
       }
     }
 
