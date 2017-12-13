@@ -12,6 +12,7 @@ services:
     env_file:
       - ../config/oauth.env
     environment:
+      - DOCKER_IP=localhost
       - PROVISION=${PROVISION}
       - CONFIG_DIR=/var/www/docker/config
       - MONGO_HOST=mongo
