@@ -16,6 +16,8 @@ const topic = require('../../../core').pubsub.local.topic('mongodb:connectionAva
 const configurationWatcher = require('./file-watcher');
 const defaultConfig = config('default');
 
+const ATTEMPTS_LIMIT = defaultConfig.db && defaultConfig.db.attemptsLimit ? defaultConfig.db.attemptsLimit : 100;
+
 let initialized = false;
 let connected = false;
 let dbConfigWatcher = null;
@@ -58,14 +60,14 @@ mongoose.connection.on('disconnected', () => {
     connectionLost = true;
   }
 
-  if (forceReconnect() && (reconnectAttemptCounter < defaultConfig.db.attemptsLimit)) {
+  if (forceReconnect() && (reconnectAttemptCounter < ATTEMPTS_LIMIT)) {
     logger.debug('Reconnecting to MongoDB');
     reconnectAttemptCounter++;
     setTimeout(mongooseConnect, _fibonacci(reconnectAttemptCounter) * 1000);
   }
 
-  if (reconnectAttemptCounter === defaultConfig.db.attemptsLimit) {
-    logger.error(`Failed to connect to MongoDB ${defaultConfig.db.attemptsLimit} time - No more attempts - Please contact your administrator, to restart the database server`);
+  if (reconnectAttemptCounter === ATTEMPTS_LIMIT) {
+    logger.error(`Failed to connect to MongoDB ${ATTEMPTS_LIMIT} time - No more attempts - Please contact your administrator to restart the database server`);
   }
 });
 
@@ -93,9 +95,9 @@ function forceReconnect() {
 
 function onConnectError(err) {
   if (!connectionLost || firstAttempt()) {
-    logger.error(`Failed to connect to MongoDB - Attempt #${reconnectAttemptCounter}/${defaultConfig.db.attemptsLimit} at ${Date()}: `, err);
+    logger.error(`Failed to connect to MongoDB - Attempt #${reconnectAttemptCounter}/${ATTEMPTS_LIMIT} at ${Date()}: `, err);
   } else {
-    logger.error(`Failed to connect to MongoDB - Attempt #${reconnectAttemptCounter}/${defaultConfig.db.attemptsLimit} at ${Date()} - Please contact your administrator, to restart the database server`);
+    logger.error(`Failed to connect to MongoDB - Attempt #${reconnectAttemptCounter}/${ATTEMPTS_LIMIT} at ${Date()} - Please contact your administrator to restart the database server`);
   }
 }
 
