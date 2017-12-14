@@ -9,7 +9,7 @@ before_install:
   - export ESN_REPO=linagora/esn
   - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_TAG ; fi`
   - docker build -f ./docker/dockerfiles/base/Dockerfile -t $BASE_REPO:$BUILD_ID .
-  - docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+  - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
   - docker tag $BASE_REPO:$BUILD_ID $BASE_REPO:$TAG
   - docker push $BASE_REPO:$TAG
   - docker build -t $ESN_REPO:$BUILD_ID .
