@@ -70,11 +70,16 @@ angular.module('esn.follow', [
 
         scope.addFollower = function() {
           scope.user.followers++;
+          session.user.followings++;
         };
 
         scope.removeFollower = function() {
           if (scope.user.followers) {
             scope.user.followers--;
+          }
+
+          if (session.user.followings) {
+            session.user.followings--;
           }
         };
       }
