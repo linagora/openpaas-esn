@@ -3,19 +3,19 @@ const { createValidator } = require('../validator/helper');
 const schema = {
   type: 'object',
   properties: {
-    use24hourFormat: {
-      type: 'boolean'
+    url: {
+      type: 'string',
+      format: 'uri'
     }
   },
-  required: ['use24hourFormat'],
-  additionalProperties: false
+  required: [
+    'url'
+  ]
 };
 
 module.exports = {
   rights: {
-    padmin: 'rw',
-    admin: 'rw',
-    user: 'rw'
+    padmin: 'rw'
   },
   validator: createValidator(schema)
 };

@@ -1,5 +1,4 @@
-const constants = require('./constants');
-const data = {core: constants.CONFIG_METADATA.core};
+const data = {};
 
 module.exports = {
   register,

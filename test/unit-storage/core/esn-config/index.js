@@ -629,7 +629,11 @@ describe('The esn-config module', function() {
     });
 
     it('should call the listener when the desired config changed', function(done) {
-      esnConfig.constants.CONFIG_METADATA.core.configurations.mail = { pubsub: true };
+      esnConfig.registry.register('core', {
+        configurations: {
+          mail: { pubsub: true }
+        }
+      });
 
       esnConfig('mail')
         .onChange(
@@ -686,7 +690,11 @@ describe('The esn-config module', function() {
         done();
       };
 
-      esnConfig.constants.CONFIG_METADATA.core.configurations.mail = { pubsub: true };
+      esnConfig.registry.register('core', {
+        configurations: {
+          mail: { pubsub: true }
+        }
+      });
 
       pubsub.topic(esnConfig.constants.EVENTS.CONFIG_UPDATED)
       .subscribe(subscriber)

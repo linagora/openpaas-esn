@@ -282,52 +282,17 @@ describe('The core/esn-config module', function() {
   });
 
   describe('The getConfigsForUser fn', function() {
-
-    it('should set configuration have scope is frontend', function() {
-      var user = {
+    it('should get user specific configurations', function(done) {
+      const user = {
+        _id: '123',
         preferredDomainId: 'domain123'
       };
 
-      mockery.registerMock('./constants', {
-        CONFIG_METADATA: {
-          core: {
-            config1: {
-              public: true
-            },
-            config2: {
-              public: false
-            }
-          }
-        },
-        EVENTS: {}
-      });
+      fallbackModuleMock.getConfiguration = sinon.spy(() => q());
 
-      var configuration = {
-        modules: [
-          { name: 'core',
-            configurations: [
-              { name: 'config1', value: 'value1' },
-              { name: 'config2', value: 'value2' }
-            ]
-          }
-        ]
-      };
-      var configExpected = {
-        modules: [
-          { name: 'core',
-            configurations: [
-              { name: 'config1', value: 'value1' }
-            ]
-          }
-        ]
-      };
-
-      fallbackModuleMock.getConfiguration = function() {
-        return q(configuration);
-      };
-
-      this.getModule().getConfigsForUser(user).then(function() {
-        expect(configuration).to.deep.equal(configExpected);
+      this.getModule().getConfigsForUser(user).then(() => {
+        expect(fallbackModuleMock.getConfiguration).to.have.been.calledWith(user.preferredDomainId, user._id);
+        done();
       });
     });
   });

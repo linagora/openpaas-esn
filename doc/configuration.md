@@ -29,26 +29,24 @@ ones.*
 Go to [authentication](authentication.md) for more details
 
 ## Configuration metadata
-Configuration metadata of the application is stored in the `./backend/core/esn-config/constants.js` at key `CONFIG_METADATA`.
+Configuration metadata of the application is stored in the `./backend/core/esn-config/metadata`.
 
-A `CONFIG_METADATA` object has the following structure:
+Each module metadata has the following structure:
 
 ```JSON
 {
-  "moduleName": {
-    "rights": {
-      "admin": "rw"
+  "rights": {
+    "admin": "rw"
+  },
+  "configurations": {
+    "config-1": {
+      "rights": {
+        "admin": "rw",
+        "user": "r"
+      }
     },
-    "configurations": {
-      "config-1": {
-        "rights": {
-          "admin": "rw",
-          "user": "r"
-        }
-      },
-      "config-2": {},
-      "config-3": {}
-    }
+    "config-2": {},
+    "config-3": {}
   }
 }
 ```
