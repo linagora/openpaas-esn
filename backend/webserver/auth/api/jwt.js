@@ -1,7 +1,7 @@
 'use strict';
 
 const userModule = require('../../../core/user'),
-      JwtStrategy = require('passport-jwt').Strategy;
+      JwtStrategy = require('@linagora/passport-jwt').Strategy;
 
 module.exports = {
   name: 'jwt',

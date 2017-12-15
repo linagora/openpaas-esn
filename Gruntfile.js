@@ -268,12 +268,12 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-nodemon');
   grunt.loadNpmTasks('grunt-shell-spawn');
   grunt.loadNpmTasks('grunt-continue');
-  grunt.loadNpmTasks('grunt-run-grunt');
-  grunt.loadNpmTasks('grunt-lint-pattern');
+  grunt.loadNpmTasks('@linagora/grunt-run-grunt');
+  grunt.loadNpmTasks('@linagora/grunt-lint-pattern');
   grunt.loadNpmTasks('grunt-docker-spawn');
   grunt.loadNpmTasks('grunt-eslint');
   grunt.loadNpmTasks('grunt-wait-server');
-  grunt.loadNpmTasks('grunt-i18n-checker');
+  grunt.loadNpmTasks('@linagora/grunt-i18n-checker');
   grunt.loadNpmTasks('grunt-swagger-generate');
   grunt.loadNpmTasks('grunt-puglint');
 

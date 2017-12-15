@@ -1,6 +1,6 @@
 'use strict';
 
-var Ical = require('ical.js');
+var Ical = require('@linagora/ical.js');
 
 function getId(contact) {
   return contact.contactId ? encodeURIComponent(contact.contactId) : null;

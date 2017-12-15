@@ -1,6 +1,6 @@
 'use strict';
 
-var BasicStrategy = require('passport-http').BasicStrategy;
+var BasicStrategy = require('@linagora/passport-http').BasicStrategy;
 
 module.exports = {
   name: 'basic-mongo',

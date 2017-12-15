@@ -1,7 +1,7 @@
 'use strict';
 
 const expressSession = require('express-session');
-const MongoStore = require('awesome-sessionstore')(expressSession);
+const MongoStore = require('@linagora/awesome-sessionstore')(expressSession);
 const mongoose = require('mongoose');
 const core = require('../../core');
 

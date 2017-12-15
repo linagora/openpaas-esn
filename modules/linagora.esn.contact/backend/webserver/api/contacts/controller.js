@@ -1,7 +1,7 @@
 'use strict';
 
-const ICAL = require('ical.js'),
-      charAPI = require('charAPI');
+const ICAL = require('@linagora/ical.js'),
+      charAPI = require('@linagora/char-api');
 
 const DEFAULT_AVATAR_SIZE = 256,
       DEFAULT_SEARCH_LIMIT = 3;

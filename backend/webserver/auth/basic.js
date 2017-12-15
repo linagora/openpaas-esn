@@ -1,7 +1,7 @@
 'use strict';
 
 var OAuthClient = require('mongoose').model('OAuthClient'),
-    BasicStrategy = require('passport-http').BasicStrategy;
+    BasicStrategy = require('@linagora/passport-http').BasicStrategy;
 
 module.exports = {
   name: 'basic',

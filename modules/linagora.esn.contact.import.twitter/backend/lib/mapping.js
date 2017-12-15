@@ -1,6 +1,6 @@
 'use strict';
 
-var ICAL = require('ical.js');
+var ICAL = require('@linagora/ical.js');
 var trim = require('trim');
 
 module.exports = function() {
