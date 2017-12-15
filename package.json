@@ -1,6 +1,6 @@
 {
   "name": "linagora-rse",
-  "version": "0.0.0",
+  "version": "0.0.12",
   "description": "Linagora RSE",
   "main": "index.js",
   "dependencies": {
@@ -58,7 +58,7 @@
     "linagora.esn.calendar.collect.email": "linagora/linagora.esn.calendar.collect.email",
     "linagora.esn.chat": "linagora/linagora.esn.chat",
     "linagora.esn.contact.collect": "linagora/linagora.esn.contact.collect",
-    "linagora.esn.emoticon": "linagora/linagora.esn.emoticon",
+    "linagora.esn.emoticon": "linagora/linagora.esn.emoticon#0.0.12",
     "linagora.esn.group": "linagora/linagora.esn.group",
     "linagora.esn.james": "linagora/linagora.esn.james",
     "linagora.esn.resource": "linagora/linagora.esn.resource",
