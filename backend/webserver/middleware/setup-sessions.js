@@ -9,6 +9,7 @@ const mongo = core.db.mongo;
 const mongotopic = core.pubsub.local.topic('mongodb:connectionAvailable');
 const mongosessiontopic = core.pubsub.local.topic('webserver:mongosessionstoreEnabled');
 const logger = core.logger;
+const DEFAULT_SESSION_SECRET = 'this is the secret!';
 
 module.exports = init;
 
@@ -24,13 +25,23 @@ function init(session) {
   function setSession() {
     logger.debug('mongo is connected, setting up mongo session store');
 
-    session.setMiddleware(expressSession({
-      resave: false,
-      saveUninitialized: false,
-      cookie: { maxAge: 6000000 },
-      secret: 'this is the secret!',
-      store
-    }));
-    mongosessiontopic.publish({});
+    getSessionSecret().then(secret => {
+      session.setMiddleware(expressSession({
+        resave: false,
+        saveUninitialized: false,
+        cookie: { maxAge: 6000000 },
+        secret,
+        store
+      }));
+      mongosessiontopic.publish({});
+    }, err => {
+      logger.error('Failed to get session secret configuration', err);
+    });
   }
+}
+
+function getSessionSecret() {
+  return core['esn-config']('session').get().then(data =>
+    (data && data.secret ? data.secret : DEFAULT_SESSION_SECRET)
+  );
 }
