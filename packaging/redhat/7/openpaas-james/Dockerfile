@@ -36,6 +36,8 @@ RUN fpm \
   --rpm-dist el7 \
   --depends nginx \
   --depends james \
+  --depends cassandra22 \
+  --config-files etc/james \
   --before-install /root/openpaas-james.preinst \
   --after-install /root/openpaas-james.postinst \
   --after-remove /root/openpaas-james.postrm \
