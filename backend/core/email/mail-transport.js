@@ -1,15 +1,11 @@
-
 const nodemailer = require('nodemailer');
-let transport;
 
 module.exports = {
   get
 };
 
 function get(config) {
-  if (transport) {
-    return Promise.resolve(transport);
-  }
+  let transport;
 
   if (!config) {
     return Promise.reject(new Error('Mail configuration is required'));
