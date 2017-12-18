@@ -57,6 +57,12 @@ module.exports = {
         describe: 'The OpenPaaS instance URL',
         default: 'http://localhost:8080'
       }
+    },
+    jwt: {
+      path: {
+        describe: 'Path where the public key gonna be saved',
+        default: '/etc/openpaas/private'
+      }
     }
   }
 };
