@@ -210,7 +210,7 @@ describe('The setup-session middleware', function() {
 
     mockery.registerMock('mongoose', mongooseMock);
     mockery.registerMock('../../core', coreMock);
-    mockery.registerMock('awesome-sessionstore', awesomeSessionstoreMock);
+    mockery.registerMock('@linagora/awesome-sessionstore', awesomeSessionstoreMock);
     mockery.registerMock('express-session', expressSessionMock);
 
     this.helpers.requireBackend('webserver/middleware/setup-sessions')(session);
