@@ -1,8 +1,8 @@
 #
-# Docker container for building openpaas-james Debian Jessie package
+# Docker container for building openpaas-james Debian Stretch package
 #
 
-FROM linagora/fpm-debian-jessie
+FROM linagora/fpm-debian-stretch
 MAINTAINER Linagora Folks <openpaas@linagora.com>
 
 ARG DEBIAN_FRONTEND=noninteractive

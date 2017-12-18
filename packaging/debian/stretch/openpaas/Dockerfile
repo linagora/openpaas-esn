@@ -1,8 +1,8 @@
 #
-# Docker container for building openpaas Debian Jessie package
+# Docker container for building openpaas Debian Stretch package
 #
 
-FROM linagora/fpm-debian-jessie
+FROM linagora/fpm-debian-stretch
 MAINTAINER Linagora Folks <openpaas@linagora.com>
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -51,7 +51,7 @@ RUN fpm \
   --deb-group openpaas \
   --depends nginx \
   --depends elasticsearch \
-  --depends mongodb-org \
+  --depends mongodb \
   --depends redis-server \
   --depends rabbitmq-server \
   --depends openjdk-8-jdk \
