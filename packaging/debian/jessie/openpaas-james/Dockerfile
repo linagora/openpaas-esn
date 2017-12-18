@@ -34,6 +34,8 @@ RUN fpm \
   --deb-group openpaas \
   --depends nginx \
   --depends james \
+  --depends cassandra \
+  --config-files etc/james \
   --before-install /root/openpaas-james.preinst \
   --after-install /root/openpaas-james.postinst \
   --after-remove /root/openpaas-james.postrm \
