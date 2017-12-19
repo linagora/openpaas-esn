@@ -1,6 +1,13 @@
 .profile-overview
   .po-card
-    esn-avatar.po-card-image(user-id="$ctrl.user._id", hide-user-status="$ctrl.me", no-cache="$ctrl.me")
+    .pmo-pic
+      .p-relative.po-card-image(ng-controller='avatarController')
+        a
+          esn-avatar(avatar-url="avatarURL", hide-user-status="true")
+        a.edit-h(ng-controller='avatarEdit' href='' ng-click="showAvatarEditModal()", ng-if="$ctrl.me" )
+          i.mdi.mdi-camera
+          span
+            | #{__('Update Profile Picture')}
     .po-card-text
       user-profile-link.po-displayname.ellipsis(user="$ctrl.user")
       span.m-0.c-white.ellipsis {{::$ctrl.user.job_title}}

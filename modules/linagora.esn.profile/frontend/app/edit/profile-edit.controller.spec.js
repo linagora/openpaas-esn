@@ -50,15 +50,17 @@ describe('The profileEditController', function() {
       profileAPI.updateProfile = sinon.stub().returns($q.when());
     }));
 
-    it('should reject if the mutableUser object is the same as the user object', function(done) {
+    it('should do nothing but just go back to profile state if the mutableUser object is the same as the user object', function(done) {
       var user = { _id: 123, name: 'Alice' };
       var controller = initController();
 
       controller.user = user;
       controller.mutableUser = user;
 
-      controller.updateProfile().catch(function(err) {
-        expect(err.message).to.equal('You did not modify anything');
+      controller.updateProfile().then(function() {
+        expect(profileAPI.updateProfile).to.not.have.been.called;
+        expect($state.go).to.have.been.calledOnce;
+        expect($state.go).to.have.been.calledWith('profile', { user_id: '' });
         done();
       });
 

@@ -1,4 +1,4 @@
-extends /modules/subheader/responsive-subheader.pug
+extends /modules/subheader/centered-subheader.pug
 
 block left
   button.btn.btn-link.hidden-xs(ui-sref="profile", ui-sref-opts="{location: 'replace'}")
@@ -10,9 +10,9 @@ block left
   span.title.extra-title.ellipsis #{__('Edit Profile')}
 
 block right
-  button.btn.btn-link.hidden-xs(esn-submit='$ctrl.onSaveBtnClick()')
+  button.btn.btn-link.hidden-xs(esn-submit='$ctrl.onSaveBtnClick()', ng-disabled="$ctrl.form.$pristine")
     .flex-vertical-centered
       span #{__('Save')}
       i.mdi.mdi-check.mdi-margin-left
-  button.btn.btn-link.btn-icon.visible-xs(esn-submit='$ctrl.onSaveBtnClick()')
+  button.btn.btn-link.btn-icon.visible-xs(esn-submit='$ctrl.onSaveBtnClick()', ng-disabled="$ctrl.form.$pristine")
     i.mdi.mdi-check

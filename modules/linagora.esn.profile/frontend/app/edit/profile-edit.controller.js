@@ -4,7 +4,7 @@
   angular.module('linagora.esn.profile')
     .controller('profileEditController', profileEditController);
 
-  function profileEditController($state, _, session, profileAPI, asyncAction, rejectWithErrorNotification) {
+  function profileEditController($q, $state, _, session, profileAPI, asyncAction) {
     var self = this;
     var notificationMessages = {
       progressing: 'Updating profile...',
@@ -20,16 +20,22 @@
     }
 
     function updateProfile() {
-      if (angular.equals(self.user, self.mutableUser)) {
-        return rejectWithErrorNotification('You did not modify anything');
+      var promiseChain;
+
+       if (angular.equals(self.user, self.mutableUser)) {
+        promiseChain = $q.when();
+      } else {
+        promiseChain = asyncAction(notificationMessages, function() {
+          return profileAPI.updateProfile(self.mutableUser).then(function() {
+            session.setUser(self.mutableUser);
+          });
+        });
       }
 
-      return asyncAction(notificationMessages, function() {
-        return profileAPI.updateProfile(self.mutableUser).then(function() {
-          session.setUser(self.mutableUser);
-          $state.go('profile', { user_id: '' }, { location: 'replace' });
+      return promiseChain
+        .then(function() {
+          $state.go('profile', {user_id: ''}, {location: 'replace'});
         });
-      });
     }
   }
 
