@@ -97,5 +97,18 @@ describe('The eventsourcing pubsub module', function() {
         expect(mongodb.handle).to.have.been.calledWith(expectedArg);
       });
     });
+
+    describe('when event data has circular references', function() {
+      it('should remove circular references', function() {
+        data.circular = data;
+
+        listenerMock(eventName, data);
+
+        const expectedArg = sinon.match.instanceOf(Event).and(sinon.match(e => e.payload.circular && e.payload.circular !== data));
+
+        expect(elasticsearch.handle).has.been.calledWith(expectedArg);
+        expect(mongodb.handle).has.been.calledWith(expectedArg);
+      });
+    });
   });
 });

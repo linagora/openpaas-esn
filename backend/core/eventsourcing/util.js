@@ -1,6 +1,7 @@
 'use strict';
 
 const uuidV4 = require('uuid/v4');
+const CircularJSON = require('circular-json');
 const { Event } = require('../models');
 
 module.exports = {
@@ -21,5 +22,13 @@ function refineEvent(name, data) {
 
   event.uuid = event.uuid || uuidV4();
 
+  if (event.payload) {
+    event.payload = removeCircularReferences(event.payload);
+  }
+
   return event;
+}
+
+function removeCircularReferences(payload) {
+  return JSON.parse(CircularJSON.stringify(payload));
 }
