@@ -21,7 +21,7 @@ class RabbitPubsub extends Pubsub {
 
     this.client = client;
 
-    Q.all(this._subscriptionsCache.map(elem => this.topic(elem.topic)[elem.action](elem.data)))
+    Q.all(this._subscriptionsCache.map(elem => this._subscribeToClient(elem.topic, elem.data)))
     .then(() => {
       this._publicationsBuffer.forEach(elem => {
         this.topic(elem.topic)[elem.action](elem.data)
@@ -66,6 +66,12 @@ class RabbitPubsub extends Pubsub {
     this._subscriptionsCache = this._subscriptionsCache.filter(subscription => (subscription.action !== ACTION_SUBSCRIBE || subscription.data !== handler));
   }
 
+  _subscribeToClient(topic, handler) {
+    logger.debug(this.name + '/SUBSCRIBE to', topic);
+
+    return this.client.subscribe(topic, handler);
+  }
+
   _createInterface(topic) {
     return {
       subscribe: handler => {
@@ -77,9 +83,7 @@ class RabbitPubsub extends Pubsub {
           });
         }
 
-        logger.debug(this.name + '/SUBSCRIBE to', topic);
-
-        return this.client.subscribe(topic, handler);
+        return this._subscribeToClient(topic, handler);
       },
       unsubscribe: handler => {
         this._removeSubscriptionFromCache(topic, handler);
