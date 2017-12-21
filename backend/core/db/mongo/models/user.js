@@ -26,7 +26,7 @@ function validateEmails(emails) {
 
 function hasEmail(accounts) {
   return accounts.some(function(account) {
-    return account.emails.some(function(email) {
+    return account.emails && account.emails.some(function(email) {
       return !!email;
     });
   });
@@ -40,10 +40,10 @@ var UserAccountSchema = new mongoose.Schema({
   _id: false,
   type: { type: String, enum: ['email', 'oauth'] },
   hosted: { type: Boolean, default: false },
-  emails: { type: [String], unique: true, sparse: true, validate: validateEmails },
+  emails: { type: [String], unique: true, partialFilterExpression: { $type: 'array' }, validate: validateEmails },
   preferredEmailIndex: { type: Number, default: 0 },
   timestamps: {
-    creation: {type: Date, default: Date.now}
+    creation: { type: Date, default: Date.now }
   },
   data: { type: Mixed }
 });
@@ -55,37 +55,45 @@ UserAccountSchema.pre('validate', function(next) {
   next();
 });
 
+UserAccountSchema.pre('save', function(next) {
+  if (this.emails.length === 0) {
+    this.emails = undefined;
+  }
+
+  next();
+});
+
 var MemberOfDomainSchema = new mongoose.Schema({
-  domain_id: {type: mongoose.Schema.Types.ObjectId, ref: 'Domain', required: true},
-  joined_at: {type: Date, default: Date.now},
-  status: {type: String, lowercase: true, trim: true}
+  domain_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Domain', required: true },
+  joined_at: { type: Date, default: Date.now },
+  status: { type: String, lowercase: true, trim: true }
 }, { _id: false });
 
 var UserSchema = new mongoose.Schema({
-  firstname: {type: String, trim: true},
-  lastname: {type: String, trim: true},
-  password: {type: String},
-  job_title: {type: String, trim: true},
-  service: {type: String, trim: true},
-  building_location: {type: String, trim: true},
-  office_location: {type: String, trim: true},
-  main_phone: {type: String, trim: true},
-  description: {type: String, trim: true},
+  firstname: { type: String, trim: true },
+  lastname: { type: String, trim: true },
+  password: { type: String },
+  job_title: { type: String, trim: true },
+  service: { type: String, trim: true },
+  building_location: { type: String, trim: true },
+  office_location: { type: String, trim: true },
+  main_phone: { type: String, trim: true },
+  description: { type: String, trim: true },
   timestamps: {
-    creation: {type: Date, default: Date.now}
+    creation: { type: Date, default: Date.now }
   },
-  domains: {type: [MemberOfDomainSchema]},
+  domains: { type: [MemberOfDomainSchema] },
   login: {
-    disabled: {type: Boolean, default: false},
+    disabled: { type: Boolean, default: false },
     failures: {
       type: [Date]
     },
-    success: {type: Date}
+    success: { type: Date }
   },
-  schemaVersion: {type: Number, default: 2},
+  schemaVersion: { type: Number, default: 2 },
   avatars: [ObjectId],
   currentAvatar: ObjectId,
-  accounts: {type: [UserAccountSchema], required: true, validate: validateAccounts}
+  accounts: { type: [UserAccountSchema], required: true, validate: validateAccounts }
 });
 
 UserSchema.virtual('preferredEmail').get(function() {
@@ -110,7 +118,7 @@ UserSchema.virtual('emails').get(function() {
   var emails = [];
 
   this.accounts.forEach(function(account) {
-    account.emails.forEach(function(email) {
+    account.emails && account.emails.forEach(function(email) {
       emails.push(email);
     });
   });
@@ -123,7 +131,7 @@ UserSchema.pre('save', function(next) {
   var SALT_FACTOR = 5;
 
   self.accounts.forEach(function(account) {
-    account.emails = account.emails.map(function(email) {
+    account.emails = account.emails && account.emails.map(function(email) {
       return trim(email).toLowerCase();
     });
   });
