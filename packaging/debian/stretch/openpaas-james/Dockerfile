@@ -22,7 +22,7 @@ RUN fpm \
   -t deb \
   --name openpaas-james \
   --version $VERSION \
-  --iteration $ITERATION \
+  --iteration "$ITERATION+stretch" \
   --license AGPLv3 \
   --vendor Linagora \
   --maintainer "Linagora Folks <lgs-openpaas-dev@linagora.com>" \
