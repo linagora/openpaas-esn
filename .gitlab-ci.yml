@@ -55,7 +55,7 @@ build_pkg_deb_openpaas_jessie:
   tags:
     - master
   only:
-    - master
+    - master@linagora/lgs/openpaas/esn
   script:
     - curl -s -X POST
       -F "token=40f79bcbeb736c5b211be0e42f1643"
@@ -73,7 +73,7 @@ build_pkg_deb_openpaas_stretch:
   tags:
     - master
   only:
-    - master
+    - master@linagora/lgs/openpaas/esn
   script:
     - curl -s -X POST
       -F "token=40f79bcbeb736c5b211be0e42f1643"
@@ -91,7 +91,7 @@ build_pkg_rpm_openpaas:
   tags:
     - master
   only:
-    - master
+    - master@linagora/lgs/openpaas/esn
   script:
     - curl -s -X POST
       -F "token=40f79bcbeb736c5b211be0e42f1643"
@@ -109,7 +109,7 @@ build_pkg_deb_openpaas-james_jessie:
   tags:
     - master
   only:
-    - master
+    - master@linagora/lgs/openpaas/esn
   script:
     - curl -s -X POST
       -F "token=40f79bcbeb736c5b211be0e42f1643"
@@ -127,7 +127,7 @@ build_pkg_deb_openpaas-james_stretch:
   tags:
     - master
   only:
-    - master
+    - master@linagora/lgs/openpaas/esn
   script:
     - curl -s -X POST
       -F "token=40f79bcbeb736c5b211be0e42f1643"
@@ -145,7 +145,7 @@ build_pkg_rpm_openpaas-james:
   tags:
     - master
   only:
-    - master
+    - master@linagora/lgs/openpaas/esn
   script:
     - curl -s -X POST
       -F "token=40f79bcbeb736c5b211be0e42f1643"
@@ -179,7 +179,7 @@ deploy-swagger:
     name: api
     url: https://api.open-paas.org
   only:
-    - master
+    - master@linagora/lgs/openpaas/esn
   script:
     - perl -i -pe's/"host":"localhost:8080"/"schemes":["https"],"host":"demo.open-paas.org"/' ./doc/REST_API/swagger/swagger.json
     - cp ./doc/REST_API/swagger/swagger.json /var/www/html
