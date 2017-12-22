@@ -26,7 +26,7 @@ function exec(email, password) {
   return elasticsearch.exec()
     .then(db.connect.bind(null, commons.getDBOptions()))
     .then(configure)
-    .then(generateJWT.exec(CONSTANTS.params.jwt.path.default))
+    .then(() => generateJWT.exec(CONSTANTS.jwt.path.default))
     .then(() => populate.provisionDomainAndAdministrator(email, password))
     .then(db.disconnect);
 }

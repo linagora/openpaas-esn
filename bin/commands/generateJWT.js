@@ -2,6 +2,7 @@
 
 const path = require('path');
 const ursa = require('ursa');
+const Q = require('q');
 const { promisify } = require('util');
 const fsCreateFileFromString = promisify(require('fs-extra').outputFile);
 const fsChmod = promisify(require('fs').chmod);
@@ -13,8 +14,7 @@ const JWT_PUBLIC_KEY_FILE_NAME = 'jwt_publickey';
 const JWT_ALGORITHM = 'RS256';
 
 const exec = keyPath => {
-  return db.connect(commons.getDBOptions())
-    .then(_generateJWT)
+  return _generateJWT()
     .then(_storeJwtKeys)
     .then(keys => _saveFile(keys, keyPath))
     .then(db.disconnect)
@@ -42,11 +42,11 @@ function _generateJWT() {
   const privateKey = key.toPrivatePem().toString('ascii');
   const publicKey = key.toPublicPem().toString('ascii');
 
-  return {
+  return Q.when({
     algorithm: JWT_ALGORITHM,
     publicKey: publicKey,
     privateKey: privateKey
-  };
+  });
 }
 
 function _storeJwtKeys(config) {
