@@ -1,0 +1,127 @@
+version: '2'
+
+volumes:
+  esn_james_conf:
+
+services:
+
+  esn:
+    container_name: esn
+    image: linagora/esn:latest
+    ports:
+     - "8080:8080"
+    volumes:
+      - esn_james_conf:/var/www/docker/config/james:ro
+    environment:
+      - DOCKER_IP=localhost
+      - PROVISION=${PROVISION}
+      - CONFIG_DIR=/var/www/docker/config
+      - MONGO_HOST=mongo
+      - MONGO_PORT=27017
+      - MONGO_DBNAME=esn_docker
+      - MONGO_TIMEOUT=100000
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - AMQP_HOST=rabbitmq
+      - AMQP_PORT=5672
+      - WEB_HOST=${DOCKER_IP}
+      - WEB_PORT=8080
+      - DAV_SERVER_HOST=sabre
+      - DAV_SERVER_PORT=80
+      - ELASTICSEARCH_HOST=elasticsearch
+      - ELASTICSEARCH_PORT=9200
+      - ELASTICSEARCH_INIT_TIMEOUT=${ELASTICSEARCH_INIT_TIMEOUT}
+      - JMAP_SERVER_HOST=${DOCKER_IP}
+      - JMAP_SERVER_PORT=1080
+      - MAIL_BROWSER=false
+      - SMTP_HOST=${DOCKER_IP}
+      - SMTP_PORT=1025
+      - JAMES_WEBADMIN_HOST=${DOCKER_IP}
+      - JAMES_WEBADMIN_PORT=8000
+    links:
+      - redis
+      - mongo
+      - rabbitmq
+      - sabre
+      - elasticsearch
+  redis:
+    container_name: esn_redis
+    image: redis:latest
+    ports:
+      - "6379:6379"
+
+  rabbitmq:
+    container_name: esn_rabbitmq
+    image: rabbitmq:3.6.5-management
+    hostname: esn-rabbit
+    ports:
+      - 5672:5672
+      - 15672:15672
+
+  mongo:
+    container_name: esn_mongo
+    image: mongo:3.2
+    command: ["mongod", "--smallfiles"]
+    ports:
+      - "27017:27017"
+
+  elasticsearch:
+    container_name: esn_elasticsearch
+    image: elasticsearch:2.3.2
+    ports:
+      - "9200:9200"
+    environment:
+      - ELASTICSEARCH_INIT_TIMEOUT=${ELASTICSEARCH_INIT_TIMEOUT}
+
+  sabre:
+    container_name: esn_sabre
+    image: linagora/esn-sabre:latest
+    ports:
+      - "8001:80"
+    environment:
+      - SABRE_MONGO_HOST=mongo
+      - SABRE_MONGO_PORT=27017
+      - ESN_MONGO_HOST=mongo
+      - ESN_MONGO_PORT=27017
+      - ESN_MONGO_DBNAME=esn_docker
+      - MONGO_TIMEOUT=100000
+      - ESN_HOST=esn
+      - ESN_PORT=8080
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - AMQP_HOST=rabbitmq
+      - AMQP_PORT=5672
+    links:
+      - mongo
+
+  james:
+    container_name: esn_james
+    entrypoint: bash -c "java -Dlogback.configurationFile=/root/conf/logback.xml -Dworking.directory=/root/ -jar james-server.jar"
+    image: linagora/james-project:latest
+    hostname: open-paas.org
+    depends_on:
+      - esn # to have configuration ready in shared volume
+    ports:
+      - "1080:80"
+      - "1025:25"
+      - "1110:110"
+      - "1143:143"
+      - "1465:465"
+      - "1587:587"
+      - "1993:993"
+      - "8000:8000"
+    volumes:
+      - esn_james_conf:/root/conf
+    links:
+      - cassandra:cassandra
+      - james_elastic:elasticsearch
+
+  james_elastic:
+    container_name: esn_james_elasticsearch
+    image: elasticsearch:2.3.2
+
+  cassandra:
+    container_name: esn_cassandra
+    image: cassandra:2.2.3
+    ports:
+      - "9042:9042"
