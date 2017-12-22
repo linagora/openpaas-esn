@@ -97,7 +97,7 @@ addDebianRepositories() {
     addDebianRepository elasticsearch "deb http://packages.elastic.co/elasticsearch/2.x/debian stable main"
     addDebianRepository cassandra "deb http://www.apache.org/dist/cassandra/debian 22x main"
     addDebianRepository nodesource "deb https://deb.nodesource.com/node_8.x ${DEBIAN_RELEASE} main"
-    addDebianRepository openpaas "deb https://packages.linagora.com/deb oncommit openpaas"
+    addDebianRepository openpaas "deb https://packages.linagora.com/deb/openpaas/v1 ${DEBIAN_RELEASE} main"
     addDebianRepository sury.org "deb https://packages.sury.org/php/ ${DEBIAN_RELEASE} main" # To support PHP5.6 on Debian Stretch (see https://deb.sury.org/)
 
     runIf debian 8 'addDebianRepository backports "deb http://deb.debian.org/debian jessie-backports main"'
@@ -119,7 +119,7 @@ addRedhatRepositories() {
     addRedhatRepository mongodb-org 'https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/3.0/x86_64/'
     addRedhatRepository datastax 'http://rpm.datastax.com/community'
     addRedhatRepository nodesource 'https://rpm.nodesource.com/pub_8.x/el/7/$basearch'
-    addRedhatRepository openpaas 'https://packages.linagora.com/rpm/oncommit/7/'
+    addRedhatRepository openpaas 'https://packages.linagora.com/rpm/v1/7/'
 }
 
 addRedhatRepository() {
