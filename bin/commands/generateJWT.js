@@ -9,16 +9,14 @@ const fsChmod = promisify(require('fs').chmod);
 const CONSTANTS = require('../constants').params;
 const commons = require('../commons');
 const db = require('../../fixtures/db');
-const { 'esn-config': esnConfig, logger } = require('../../backend/core/');
+const { 'esn-config': esnConfig } = require('../../backend/core/');
 const JWT_PUBLIC_KEY_FILE_NAME = 'jwt_publickey';
 const JWT_ALGORITHM = 'RS256';
 
 const exec = keyPath => {
   return _generateJWT()
     .then(_storeJwtKeys)
-    .then(keys => _saveFile(keys, keyPath))
-    .then(db.disconnect)
-    .catch(err => logger.error('Error when generating jwt keys', err));
+    .then(keys => _saveFile(keys, keyPath));
 };
 
 const command = {
@@ -30,9 +28,11 @@ const command = {
   handler: argv => {
     const { path } = argv;
 
-    exec(path)
+    db.connect(commons.getDBOptions())
+      .then(() => exec(path))
       .then(() => commons.logInfo('Generated'))
       .catch(commons.logError)
+      .finally(db.disconnect)
       .finally(commons.exit);
   }
 };

@@ -26,4 +26,4 @@ readdir(commandsPath).then(function(files) {
     .epilogue('for more information, go to https://open-paas.org')
     .example('$0 configure --help', 'show help of configure command')
     .argv;
-});
+}).catch(err => console.error(err));
