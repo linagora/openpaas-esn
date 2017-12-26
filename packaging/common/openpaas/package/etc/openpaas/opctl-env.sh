@@ -17,3 +17,6 @@ export AMQP_HOST=localhost
 export AMQP_PORT=5672
 export JAMES_WEBADMIN_HOST=james.openpaas.local
 export JAMES_WEBADMIN_PORT=8000
+export MAIL_BROWSER=false
+export SMTP_HOST=james.openpaas.local
+export SMTP_PORT=25
