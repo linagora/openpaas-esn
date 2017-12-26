@@ -4,6 +4,7 @@ module.exports = function() {
 
   var mailInBrowser = typeof process.env.MAIL_BROWSER === 'undefined',
     noreply = process.env.MAIL_NO_REPLY || 'noreply@open-paas.org',
+    feedback = process.env.MAIL_FEEDBACK || 'feedback@open-paas.org',
     smtpHost = process.env.SMTP_HOST || 'localhost',
     smtpPort = +process.env.SMTP_PORT || 25;
 
@@ -12,7 +13,8 @@ module.exports = function() {
   function _inBrowserConfig() {
     return {
       mail: {
-        noreply: noreply
+        noreply,
+        feedback
       },
       transport: {
         module: 'nodemailer-browser',
@@ -28,7 +30,8 @@ module.exports = function() {
   function _smtpConfig() {
     return {
       mail: {
-        noreply: noreply
+        noreply,
+        feedback
       },
       transport: {
         name: 'SMTP',
