@@ -6,7 +6,7 @@
         </contextListener>
 
         <appender name="LOG_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-                <file>/logs/james.log</file>
+                <file>/var/log/james/james.log</file>
 
                 <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
                         <!-- daily rollover -->
