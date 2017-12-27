@@ -1,9 +1,10 @@
 'use strict';
 
+const randomstring = require('randomstring');
+
 module.exports = function() {
   return {
     remember: 2592000000,
-    secret: 'This is the super secret secret'
+    secret: randomstring.generate(40)
   };
 };
-
