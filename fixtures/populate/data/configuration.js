@@ -29,20 +29,6 @@ module.exports = function(domains, host) {
       var configuration = new Configuration({
         domain_id: domain._id || domain,
         modules: [{
-          name: 'core',
-          configurations: [
-            {
-              name: 'features',
-              value: {
-                'control-center:appstore': false,
-                'application-menu:communities': false,
-                'control-center:members': false,
-                'control-center:invitation': false,
-                'control-center:jobqueue': false
-              }
-            }
-          ]
-        }, {
           name: 'linagora.esn.unifiedinbox',
           configurations: [
             {
