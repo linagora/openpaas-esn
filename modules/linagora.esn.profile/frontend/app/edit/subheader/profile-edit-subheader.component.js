@@ -5,7 +5,8 @@
     .component('profileEditSubheader', {
       templateUrl: '/profile/app/edit/subheader/profile-edit-subheader.html',
       bindings: {
-        onSaveBtnClick: '&'
+        onSaveBtnClick: '&',
+        form: '<'
       }
     });
 })(angular);
