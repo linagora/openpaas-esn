@@ -9,6 +9,7 @@ var flash = require('connect-flash');
 var FRONTEND_PATH = path.normalize(__dirname + '/../../frontend');
 var config = require('../core').config('default');
 var logger = require('../core').logger;
+const startupBuffer = require('./middleware/startup-buffer')(config.webserver.startupBufferTimeout);
 
 var application = express();
 exports = module.exports = application;
@@ -34,6 +35,8 @@ application.use(bodyParser.json());
 application.use(bodyParser.urlencoded({
   extended: true
 }));
+
+application.use(startupBuffer);
 
 var session = require('express-session');
 var sessionMiddleware = cdm(session({
