@@ -16,10 +16,14 @@ const schema = {
       required: [
         'size'
       ]
+    },
+    resetpassword: {
+      type: 'boolean'
     }
   },
   required: [
-    'failure'
+    'failure',
+    'resetpassword'
   ]
 };
 

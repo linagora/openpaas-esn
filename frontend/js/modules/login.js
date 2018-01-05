@@ -47,7 +47,8 @@ angular.module('esn.login', ['esn.notification', 'esn.http', 'op.dynamicDirectiv
     loginErrorService,
     vcRecaptchaService,
     notificationFactory,
-    dynamicDirectiveService) {
+    dynamicDirectiveService,
+    RESET_PASSWORD_ENABLED) {
     $scope.step = 1;
     $scope.loginIn = false;
     $scope.recaptcha = {
@@ -59,6 +60,7 @@ angular.module('esn.login', ['esn.notification', 'esn.http', 'op.dynamicDirectiv
     $scope.error = loginErrorService.getError();
     $scope.autocomplete = ($location.path() === '/') ? 'on' : 'off';
     $scope.signupIsEnabled = dynamicDirectiveService.getInjections('esn-signup-form').length > 0;
+    $scope.RESET_PASSWORD_ENABLED = RESET_PASSWORD_ENABLED;
 
     $scope.loginTask = {
       running: false

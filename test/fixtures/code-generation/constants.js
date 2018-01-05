@@ -42,4 +42,6 @@ angular.module('esn.constants', [])
 
   .constant('DEFAULT_COLOR_CLASS', 'accent')
 
-  .constant('CACHE_DEFAULT_TTL', 60000);
+  .constant('CACHE_DEFAULT_TTL', 60000)
+
+  .constant('RESET_PASSWORD_ENABLED', true);
