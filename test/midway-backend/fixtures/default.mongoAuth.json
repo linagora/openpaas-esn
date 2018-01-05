@@ -5,7 +5,7 @@
     "ipv6": "::1",
     "port": 8081,
     "virtualhosts": [],
-    "startupBufferTimeout": 500
+    "startupBufferTimeout": 5000
   },
   "wsserver": {
     "enabled": false,

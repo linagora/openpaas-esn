@@ -1,15 +1,12 @@
 'use strict';
 
 var authorize = require('./middleware/authorization');
-var config = require('../core').config('default');
 var cors = require('cors');
-var startupBuffer = require('./middleware/startup-buffer')(config.webserver.startupBufferTimeout);
 const authenticationMw = require('./middleware/authentication');
 
 exports = module.exports = function(application) {
   application.all('/api/*', cors({origin: true, credentials: true}));
 
-  application.use(startupBuffer);
   application.use(require('./middleware/modules'));
 
   var oauth2 = require('../oauth2');

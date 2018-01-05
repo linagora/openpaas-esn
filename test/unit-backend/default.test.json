@@ -9,7 +9,7 @@
     "ssl_ipv6": "::1",
     "ssl_port": 8444,
     "virtualhosts": [],
-    "startupBufferTimeout": 500
+    "startupBufferTimeout": 5000
   },
   "wsserver": {
     "enabled": true,
