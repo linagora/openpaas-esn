@@ -1,7 +1,5 @@
 #! /bin/sh -e
 
-echo "127.0.0.1 openpaas.local openpaas" | tee -a /etc/hosts
-
 service nginx status > /dev/null && service nginx reload || service nginx start
 service elasticsearch status > /dev/null || service elasticsearch start
 service rabbitmq-server status > /dev/null || service rabbitmq-server start
