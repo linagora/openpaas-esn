@@ -317,6 +317,11 @@ const injections = [
     'clipboard/url/clipboard-url.component.js',
     'clipboard/url/clipboard-url.controller.js'
   ], innerApps: ['esn']},
+  {angular: ['esn.promise'], files: [
+    'promise/promise.module.js',
+    'promise/promise.service.js',
+    'promise/promise.constants.js'
+  ], innerApps: ['esn']},
   {angular: ['esn.template'], files: [
     'template/template.module.js',
     'template/template.provider.js'
