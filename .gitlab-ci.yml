@@ -58,7 +58,7 @@ build_pkg_deb_openpaas_jessie:
     - master@linagora/lgs/openpaas/esn
   script:
     - curl -s -X POST
-      -F "token=40f79bcbeb736c5b211be0e42f1643"
+      -F "token=${BUILD_PACKAGE_CI_TOKEN}"
       -F "ref=master"
       -F "variables[REPO]=https://ci.linagora.com/linagora/lgs/openpaas/esn.git"
       -F "variables[VERSION_FILE]=package.json"
@@ -76,7 +76,7 @@ build_pkg_deb_openpaas_stretch:
     - master@linagora/lgs/openpaas/esn
   script:
     - curl -s -X POST
-      -F "token=40f79bcbeb736c5b211be0e42f1643"
+      -F "token=${BUILD_PACKAGE_CI_TOKEN}"
       -F "ref=master"
       -F "variables[REPO]=https://ci.linagora.com/linagora/lgs/openpaas/esn.git"
       -F "variables[VERSION_FILE]=package.json"
@@ -94,7 +94,7 @@ build_pkg_rpm_openpaas:
     - master@linagora/lgs/openpaas/esn
   script:
     - curl -s -X POST
-      -F "token=40f79bcbeb736c5b211be0e42f1643"
+      -F "token=${BUILD_PACKAGE_CI_TOKEN}"
       -F "ref=master"
       -F "variables[REPO]=https://ci.linagora.com/linagora/lgs/openpaas/esn.git"
       -F "variables[VERSION_FILE]=package.json"
@@ -112,7 +112,7 @@ build_pkg_deb_openpaas-james_jessie:
     - master@linagora/lgs/openpaas/esn
   script:
     - curl -s -X POST
-      -F "token=40f79bcbeb736c5b211be0e42f1643"
+      -F "token=${BUILD_PACKAGE_CI_TOKEN}"
       -F "ref=master"
       -F "variables[REPO]=https://ci.linagora.com/linagora/lgs/openpaas/esn.git"
       -F "variables[VERSION_FILE]=package.json"
@@ -130,7 +130,7 @@ build_pkg_deb_openpaas-james_stretch:
     - master@linagora/lgs/openpaas/esn
   script:
     - curl -s -X POST
-      -F "token=40f79bcbeb736c5b211be0e42f1643"
+      -F "token=${BUILD_PACKAGE_CI_TOKEN}"
       -F "ref=master"
       -F "variables[REPO]=https://ci.linagora.com/linagora/lgs/openpaas/esn.git"
       -F "variables[VERSION_FILE]=package.json"
@@ -148,7 +148,7 @@ build_pkg_rpm_openpaas-james:
     - master@linagora/lgs/openpaas/esn
   script:
     - curl -s -X POST
-      -F "token=40f79bcbeb736c5b211be0e42f1643"
+      -F "token=${BUILD_PACKAGE_CI_TOKEN}"
       -F "ref=master"
       -F "variables[REPO]=https://ci.linagora.com/linagora/lgs/openpaas/esn.git"
       -F "variables[VERSION_FILE]=package.json"
