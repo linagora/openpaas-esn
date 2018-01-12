@@ -50,7 +50,7 @@
     "gm": "1.23.0",
     "gridfs-stream": "1.1.1",
     "hash_file": "0.1.1",
-    "jsonwebtoken": "7.1.9",
+    "jsonwebtoken": "8.1.0",
     "konphyg": "1.4.0",
     "kue": "0.11.6",
     "ldapauth-fork": "3.0.0",
