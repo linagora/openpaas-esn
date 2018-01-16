@@ -3,6 +3,7 @@
 var passwordResetController = require('../controllers/passwordreset');
 var usersMW = require('../middleware/users');
 var authorizationMW = require('../middleware/authorization');
+const passwordResetMW = require('../middleware/passwordreset');
 
 module.exports = function(router) {
 
@@ -26,7 +27,7 @@ module.exports = function(router) {
    *       500:
    *         $ref: "#/responses/cm_500"
    */
-  router.post('/passwordreset', usersMW.load, passwordResetController.sendPasswordReset);
+  router.post('/passwordreset', passwordResetMW.isEnabled, usersMW.load, passwordResetController.sendPasswordReset);
 
   /**
    * @swagger
@@ -47,7 +48,7 @@ module.exports = function(router) {
    *       500:
    *         $ref: "#/responses/cm_500"
    */
-  router.put('/passwordreset', authorizationMW.requiresJWT, authorizationMW.decodeJWTandLoadUser, passwordResetController.updateAndRemovePasswordReset);
+  router.put('/passwordreset', passwordResetMW.isEnabled, authorizationMW.requiresJWT, authorizationMW.decodeJWTandLoadUser, passwordResetController.updateAndRemovePasswordReset);
 
   /**
    * @swagger

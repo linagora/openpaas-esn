@@ -65,7 +65,8 @@ describe('The Login Angular module', function() {
         },
         esnLoginSuccessService: sinon.spy(),
         loginAPI: this.loginAPI,
-        notificationFactory: this.notificationFactory
+        notificationFactory: this.notificationFactory,
+        RESET_PASSWORD_ENABLED: true
       };
       $controller('login', this.locals);
     }));

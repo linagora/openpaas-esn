@@ -20,12 +20,17 @@ function getConstantFrom(constants) {
 }
 
 function constants(req, res) {
-  esnConfig('constants').inModule('core').forUser(req.user).get()
-    .then(constants => q.ninvoke(ejs, 'renderFile', 'templates/js/constants.ejs', { getConstant: getConstantFrom(constants) }))
-    .then(
-      file => res.status(200).send(file),
-      err => res.status(500).send('Failed to generate constants file. ' + err)
-    );
+  q.all([
+    esnConfig('constants').inModule('core').forUser(req.user).get(),
+    esnConfig('login').inModule('core').get()
+  ]).spread((constants = {}, loginConfig) => {
+    constants.RESET_PASSWORD_ENABLED = loginConfig && loginConfig.resetpassword;
+
+    return q.ninvoke(ejs, 'renderFile', 'templates/js/constants.ejs', { getConstant: getConstantFrom(constants) });
+  }).then(
+    file => res.status(200).send(file),
+    err => res.status(500).send('Failed to generate constants file. ' + err)
+  );
 }
 
 function makeJsMiddleware(label, cache) {
