@@ -141,4 +141,28 @@ describe('The activity streams core module', function() {
     });
 
   });
+
+  describe('getTimelineEntries function', function() {
+    it('should call TimelineEntry.find with right query when object is provided', function(done) {
+      const object = { _id: 1, objectType: 'test' };
+      const expected = [{
+        'object._id': object._id,
+        'object.objectType': object.objectType
+      }];
+
+      this.helpers.mock.models({
+        TimelineEntry: {
+          find: () => ({
+            or: orQuery => {
+              expect(orQuery).to.deep.equal(expected);
+              done();
+            }
+          })
+        }
+      });
+      const module = this.helpers.requireBackend('core/activitystreams/index');
+
+      module.getTimelineEntries({ object });
+    });
+  });
 });

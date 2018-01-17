@@ -128,6 +128,10 @@ function getTimelineEntries(options, callback) {
       or.push({'target._id': options.target._id, 'target.objectType': options.target.objectType});
     }
 
+    if (options.object) {
+      or.push({'object._id': options.object._id, 'object.objectType': options.object.objectType});
+    }
+
     q = q.or(or);
 
     if (options.excludeVerbs) {
