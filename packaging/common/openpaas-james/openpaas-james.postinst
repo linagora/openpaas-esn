@@ -1,7 +1,5 @@
 #! /bin/sh -e
 
-echo "127.0.0.1 james.openpaas.local" | tee -a /etc/hosts
-
 service nginx status > /dev/null && service nginx reload || service nginx start
 
 systemctl try-restart james
