@@ -325,6 +325,11 @@ const injections = [
   {angular: ['esn.template'], files: [
     'template/template.module.js',
     'template/template.provider.js'
+  ], innerApps: ['esn']},
+  {angular: ['esn.file-browser'], files: [
+    'file-browser/file-browser.module.js',
+    'file-browser/file-browser.component.js',
+    'file-browser/file-browser.controller.js'
   ], innerApps: ['esn']}
 ];
 

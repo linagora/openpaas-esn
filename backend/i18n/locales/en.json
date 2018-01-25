@@ -442,5 +442,6 @@
   "File type": "File type",
   "Size": "Size",
   "Copy to clipboard": "Copy to clipboard",
-  "Link copied to clipboard": "Link copied to clipboard"
+  "Link copied to clipboard": "Link copied to clipboard",
+  "An error occured while loading": "An error occured while loading"
 }

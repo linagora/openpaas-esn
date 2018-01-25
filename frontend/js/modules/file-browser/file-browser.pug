@@ -1,0 +1,40 @@
+.listview.lv-bordered.lv-lg
+  .lv-header-alt.clearfix
+    ul.lv-actions.actions.pull-left
+      li
+        a.clickable(ng-click='$ctrl.back()')
+          i.mdi.mdi-chevron-left
+    h2.lvh-label(ng-if='$ctrl.currentNode.name') {{$ctrl.currentNode.name}}
+    h2.lvh-label(ng-if='!$ctrl.currentNode') {{$ctrl.options.rootName}}
+    
+  .error-message(ng-if='$ctrl.status === "error"')
+    i.mdi.mdi-cloud-off-outline
+    .message #{__('An error occured while loading')}
+    
+  .text-center(
+    ng-if='$ctrl.status === "loading"',
+    openpaas-logo-spinner,
+    spinner-start-active='1',
+    spinner-size='0.5'
+  )
+    
+  .lv-body(ng-if='$ctrl.status === "loaded"')
+    .node.lv-bordered(
+      ng-repeat='node in $ctrl.childNodes'
+    )
+      .node-icon
+        .node-checkbox
+          label.checkbox(ng-if='node.isSelectable')
+            input.clickable(
+              type='checkbox',
+              ng-model='node.selected', ng-change='$ctrl.onSelectionChangeOf(node)'
+            )
+            i.input-helper
+
+        i.mdi(ng-class='node.icon ? node.icon : "mdi-menu-right"')
+
+      .node-details
+        .node-name.ellipsis {{node.name}}
+        .lv-actions.actions
+          a.clickable(ng-if='node.isExpandable', ng-click='$ctrl.open(node)')
+            i.mdi.mdi-chevron-right
