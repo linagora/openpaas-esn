@@ -250,6 +250,55 @@ describe('The box-overlay Angular module', function() {
       expect(angular.element('.full-screen')).to.have.length(1);
     });
 
+    it('should not be closeable when closeable=false is given', function() {
+      compileAndClickTheButton('<button box-overlay box-closeable="false" />');
+
+      expect(angular.element('.box-overlay-open i.close')).to.have.length(0);
+    });
+
+    it('should be closeable when no closeable=true is given', function() {
+      compileAndClickTheButton('<button box-overlay box-closeable="true" />');
+
+      expect(angular.element('.box-overlay-open i.close')).to.have.length(1);
+    });
+
+    it('should be closeable when no closeable option is given', function() {
+      compileAndClickTheButton('<button box-overlay />');
+
+      expect(angular.element('.box-overlay-open i.close')).to.have.length(1);
+    });
+
+    it('should have minimize and maximize buttons when no allowedStates option is given', function() {
+      compileAndClickTheButton('<button box-overlay />');
+
+      expect(angular.element('.box-overlay-open .toggle-maximize')).to.have.length(1);
+      expect(angular.element('.box-overlay-open .toggle-minimize')).to.have.length(1);
+    });
+
+    it('should have maximize button when allowedStates contains MAXIMIZED', function() {
+      compileAndClickTheButton('<button box-overlay box-allowed-states="[\'MAXIMIZED\']"/>');
+
+      expect(angular.element('.box-overlay-open .toggle-maximize')).to.have.length(1);
+    });
+
+    it('should not have minimize button when allowedStates does not contain MINIMIZED', function() {
+      compileAndClickTheButton('<button box-overlay box-allowed-states="[\'MAXIMIZED\']"/>');
+
+      expect(angular.element('.box-overlay-open .toggle-minimize')).to.have.length(0);
+    });
+
+    it('should have minimize button when allowedStates contains MINIMIZED', function() {
+      compileAndClickTheButton('<button box-overlay box-allowed-states="[\'MINIMIZED\']"/>');
+
+      expect(angular.element('.box-overlay-open .toggle-minimize')).to.have.length(1);
+    });
+
+    it('should not have maximize button when allowedStates does not contain MAXIMIZED', function() {
+      compileAndClickTheButton('<button box-overlay box-allowed-states="[\'MINIMIZED\']"/>');
+
+      expect(angular.element('.box-overlay-open .toggle-maximize')).to.have.length(0);
+    });
+
     describe('min/maximize buttons should notify child components', function() {
 
       var mock, unsubscriber;

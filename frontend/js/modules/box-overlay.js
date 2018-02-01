@@ -177,16 +177,16 @@ angular.module('esn.box-overlay', [
 
         $boxOverlay.$isShown = scope.$isShown = false;
 
-        scope.isMinimized = function() {
-          return stateManager.state === StateManager.STATES.MINIMIZED;
-        };
+        scope.allowMinimize = _allow.bind(null, StateManager.STATES.MINIMIZED);
+        scope.allowMaximize = _allow.bind(null, StateManager.STATES.MAXIMIZED);
+        scope.allowFullScreen = _allow.bind(null, StateManager.STATES.FULL_SCREEN);
 
-        scope.isMaximized = function() {
-          return stateManager.state === StateManager.STATES.MAXIMIZED;
-        };
+        function _allow(state) {
+          return !config.allowedStates || config.allowedStates.indexOf(state) > -1;
+        }
 
-        scope.$toggleMinimized = function() {
-          stateManager.toggle(StateManager.STATES.MINIMIZED);
+        scope.closeable = function() {
+          return !angular.isDefined(config.closeable) || config.closeable;
         };
 
         scope.isMinimized = _is.bind(null, StateManager.STATES.MINIMIZED);
@@ -307,7 +307,9 @@ angular.module('esn.box-overlay', [
         boxId: '@',
         boxTitle: '@',
         boxTemplateUrl: '@',
-        boxInitialState: '@'
+        boxInitialState: '@',
+        boxCloseable: '=',
+        boxAllowedStates: '='
       },
       link: function(scope, element) {
 
@@ -316,7 +318,9 @@ angular.module('esn.box-overlay', [
             id: scope.boxId,
             title: scope.boxTitle,
             templateUrl: scope.boxTemplateUrl,
-            initialState: scope.boxInitialState
+            initialState: scope.boxInitialState,
+            closeable: scope.boxCloseable,
+            allowedStates: scope.boxAllowedStates
           });
         });
       }
