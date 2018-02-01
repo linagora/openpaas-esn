@@ -2,7 +2,7 @@ sub-header
   controlcenter-general-subheader(on-form-submit="$ctrl.save()", form="form")
 
 form(name="form")
-  .flex-column(ng-if="$ctrl.configurations")
+  .flex-column(ng-if="$ctrl.configurations", dynamic-directive="esn-preferences-general")
     controlcenter-general-home-page(home-page="$ctrl.configurations.homePage", available-pages="$ctrl.homePages")
     esn-business-hours(business-hours="$ctrl.configurations.businessHours")
     controlcenter-general-datetime(datetime="$ctrl.configurations.datetime")
