@@ -244,6 +244,12 @@ describe('The box-overlay Angular module', function() {
       expect(overlays().last().hasClass('minimized')).to.equal(true);
     });
 
+    it('should open in the given initial state when defined', function() {
+      compileAndClickTheButton('<button box-overlay box-initial-state="FULL_SCREEN" />');
+
+      expect(angular.element('.full-screen')).to.have.length(1);
+    });
+
     describe('min/maximize buttons should notify child components', function() {
 
       var mock, unsubscriber;

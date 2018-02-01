@@ -2,7 +2,6 @@
 
 angular.module('esn.box-overlay', [
   'esn.constants',
-  'esn.back-detector',
   'ng.deviceDetector',
   'esn.i18n'
 ])
@@ -245,8 +244,13 @@ angular.module('esn.box-overlay', [
             container().append(boxElement);
             setAutoMaximizeForIPAD(boxElement, scope);
 
+            if (config.initialState) {
+              _toggle(config.initialState);
+            }
+
             $timeout(function() {
               var toFocus = boxElement.find('[autofocus]')[0];
+
               if (toFocus) {
                 toFocus.focus();
               }
@@ -281,6 +285,7 @@ angular.module('esn.box-overlay', [
         };
 
         initialize();
+
         return $boxOverlay;
       }
 
@@ -301,7 +306,8 @@ angular.module('esn.box-overlay', [
       scope: {
         boxId: '@',
         boxTitle: '@',
-        boxTemplateUrl: '@'
+        boxTemplateUrl: '@',
+        boxInitialState: '@'
       },
       link: function(scope, element) {
 
@@ -309,7 +315,8 @@ angular.module('esn.box-overlay', [
           boxOverlayOpener.open({
             id: scope.boxId,
             title: scope.boxTitle,
-            templateUrl: scope.boxTemplateUrl
+            templateUrl: scope.boxTemplateUrl,
+            initialState: scope.boxInitialState
           });
         });
       }
