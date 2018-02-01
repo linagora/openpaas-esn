@@ -1,15 +1,14 @@
 'use strict';
 
-var AwesomeModule = require('awesome-module');
-var util = require('util');
-const coreFrontendInjections = require('./core-frontend-injections');
+const util = require('util'),
+      AwesomeModule = require('awesome-module'),
+      coreFrontendInjections = require('./core-frontend-injections');
 
 function WebServerWrapper(server) {
   var webserver = server;
 
   function asArray(values) {
-    var array = util.isArray(values) ? values : [values];
-    return array;
+    return util.isArray(values) ? values : [values];
   }
 
   this.injectJS = function injectJS(namespace, js, innerApps) {
@@ -42,26 +41,32 @@ function WebServerWrapper(server) {
     webserver.application.use('/' + namespace, expressApp);
   };
 
+  this.requestCoreFrontendInjections = function(innerApps, angularModules) {
+    coreFrontendInjections(this, innerApps, angularModules);
+  };
+
   this.on = webserver.on.bind(webserver);
+
+  /**
+   * This will inject Angular modules for the core when the webserver wrapper is first created
+   * It will use all the available modules in the default innerApp: esn
+   */
+  this.requestCoreFrontendInjections();
 }
 
 var server = require('./').webserver;
 var awesomeWebServerWrapper = new AwesomeModule(require('../module-manager').ESN_MODULE_PREFIX + 'webserver.wrapper', {
   states: {
-    lib: function(dependencies, callback) {
-      var api = new WebServerWrapper(server);
-
-      coreFrontendInjections(api);
-
-      return callback(null, api);
-    }
+    lib: (dependencies, callback) => callback(null, new WebServerWrapper(server))
   },
   proxy: function(moduleName, trusted) {
     if (trusted) {
       return this;
     }
+
     var self = this;
-    var proxyLib = {
+
+    return {
       injectJS: function(js, innerApps) {
         return self.injectJS(moduleName, js, innerApps);
       },
@@ -75,7 +80,6 @@ var awesomeWebServerWrapper = new AwesomeModule(require('../module-manager').ESN
         return self.addApp(moduleName, expressApp);
       }
     };
-    return proxyLib;
   }
 });
 
