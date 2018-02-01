@@ -1,4 +1,4 @@
-.panel.panel-default(ng-class="{ 'minimized': isMinimized(), 'maximized': isMaximized() }")
+.panel.panel-default(ng-class="{ 'minimized': isMinimized(), 'maximized': isMaximized(), 'full-screen': isFullScreen() }")
   .panel-heading
     div.panel-title
       i.close.mdi.mdi-close(ng-click="$close()")

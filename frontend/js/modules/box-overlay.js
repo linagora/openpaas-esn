@@ -81,7 +81,7 @@ angular.module('esn.box-overlay', [
         }
       },
       maximizedBoxExists: function() {
-        return boxScopes.some(function(scope) { return scope.isMaximized(); });
+        return boxScopes.some(function(scope) { return scope.isMaximized() || scope.isFullScreen(); });
       },
       minimizeOthers: function(me) {
         return boxScopes
@@ -100,7 +100,8 @@ angular.module('esn.box-overlay', [
     StateManager.STATES = {
       NORMAL: 'NORMAL',
       MINIMIZED: 'MINIMIZED',
-      MAXIMIZED: 'MAXIMIZED'
+      MAXIMIZED: 'MAXIMIZED',
+      FULL_SCREEN: 'FULL_SCREEN'
     };
 
     StateManager.prototype.toggle = function(newState) {
@@ -189,17 +190,29 @@ angular.module('esn.box-overlay', [
           stateManager.toggle(StateManager.STATES.MINIMIZED);
         };
 
+        scope.isMinimized = _is.bind(null, StateManager.STATES.MINIMIZED);
+        scope.isMaximized = _is.bind(null, StateManager.STATES.MAXIMIZED);
+        scope.isFullScreen = _is.bind(null, StateManager.STATES.FULL_SCREEN);
+
+        function _is(state) {
+          return stateManager.state === state;
+        }
+
         scope.$minimize = function() {
           stateManager.state = StateManager.STATES.MINIMIZED;
         };
 
-        scope.$toggleMaximized = function() {
-          stateManager.toggle(StateManager.STATES.MAXIMIZED);
+        scope.$toggleMinimized = _toggle.bind(null, StateManager.STATES.MINIMIZED);
+        scope.$toggleMaximized = _toggle.bind(null, StateManager.STATES.MAXIMIZED);
+        scope.$toggleFullScreen = _toggle.bind(null, StateManager.STATES.FULL_SCREEN);
 
-          if (scope.isMaximized()) {
+        function _toggle(state) {
+          stateManager.toggle(state);
+
+          if (scope.isMaximized() || scope.isFullScreen()) {
             boxOverlayService.minimizeOthers(scope);
           }
-        };
+        }
 
         scope.$hide = function() {
           $timeout(function() {
