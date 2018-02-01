@@ -107,6 +107,21 @@ describe('The controlcenterGeneralController', function() {
 
       $scope.$digest();
     });
+
+    it('should call any registered save handler', function(done) {
+      esnUserConfigurationService.set = sinon.stub().returns($q.when());
+
+      var controller = initController();
+
+      controller.registerSaveHandler(function() {
+        expect(esnUserConfigurationService.set).to.have.been.calledWith();
+      });
+      controller.registerSaveHandler(done);
+      controller.save(formMock);
+
+      $scope.$digest();
+    });
+
   });
 
 });
