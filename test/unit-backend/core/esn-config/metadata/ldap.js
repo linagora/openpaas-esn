@@ -27,8 +27,9 @@ describe('The core/esn-config/metadata/ldap module', () => {
           searchFilter: '(foo={{username}})'
         },
         usage: {
-          auth: false,
-          search: false
+          auth: true,
+          search: true,
+          autoProvisioning: true
         },
         name: 'ldap'
       }];
@@ -121,6 +122,24 @@ describe('The core/esn-config/metadata/ldap module', () => {
           expect(validator(config)).to.equal('[0].usage: should be object');
         });
 
+        it('should return error message when \'auth\' is not defined', () => {
+          delete config[0].usage.auth;
+
+          expect(validator(config)).to.equal('[0].usage: should have required property \'auth\'');
+        });
+
+        it('should return error message when \'search\' propertie is not defined', () => {
+          delete config[0].usage.search;
+
+          expect(validator(config)).to.equal('[0].usage: should have required property \'search\'');
+        });
+
+        it('should return error message when \'autoProvisioning\' propertie is not defined', () => {
+          delete config[0].usage.autoProvisioning;
+
+          expect(validator(config)).to.equal('[0].usage: should have required property \'autoProvisioning\'');
+        });
+
         it('should return error message when auth is not boolean', () => {
           config[0].usage.auth = 'true';
 
@@ -132,6 +151,13 @@ describe('The core/esn-config/metadata/ldap module', () => {
 
           expect(validator(config)).to.equal('[0].usage.search: should be boolean');
         });
+
+        it('should return error message when autoProvisioning is not boolean', () => {
+          config[0].usage.autoProvisioning = 'string';
+
+          expect(validator(config)).to.equal('[0].usage.autoProvisioning: should be boolean');
+        });
+
       });
     });
   });

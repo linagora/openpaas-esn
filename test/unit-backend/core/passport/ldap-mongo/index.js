@@ -8,8 +8,8 @@ describe('The ldap-mongo passport strategy', function() {
   const USERNAME = 'user@email';
   const PASSWORD = 'secret';
   let getModule;
-  let existingUser, translatedUser, provisionedUser, updatedUser, ldapUser;
-  let coreUserMock, coreLdapMock, loggerMock;
+  let existingUser, translatedUser, provisionedUser, updatedUser, ldapUser, autoProvisioningResult;
+  let coreUserMock, coreLdapMock, loggerMock, helpersMock;
 
   beforeEach(function() {
     getModule = () => this.helpers.requireBackend('core/passport/ldap-mongo');
@@ -19,6 +19,7 @@ describe('The ldap-mongo passport strategy', function() {
     provisionedUser = { _id: 'provisionedUser' };
     updatedUser = { _id: 'updatedUser' };
     ldapUser = { email: 'user@ldap' };
+    autoProvisioningResult = true;
     coreUserMock = {
       findByEmail: sinon.spy((email, callback) => callback(null, existingUser)),
       provisionUser: sinon.spy((user, callback) => callback(null, provisionedUser)),
@@ -33,10 +34,16 @@ describe('The ldap-mongo passport strategy', function() {
         callback(null, ldapUser);
       }
     };
+    helpersMock = {
+      isLdapUsedForAutoProvisioning() {
+        return autoProvisioningResult;
+      }
+    };
     loggerMock = { debug: sinon.spy(), error: sinon.spy(), warn: sinon.spy() };
     mockery.registerMock('../../user', coreUserMock);
     mockery.registerMock('../../ldap', coreLdapMock);
     mockery.registerMock('../../logger', loggerMock);
+    mockery.registerMock('../../ldap/helpers', helpersMock);
   });
 
   it('should fail with false if it fails to find LDAP directories containing the user', function(done) {
@@ -144,13 +151,13 @@ describe('The ldap-mongo passport strategy', function() {
     getModule()(USERNAME, PASSWORD, callback);
   });
 
-  it('should fail with error if it authenticated user but fails to update user', function(done) {
-    existingUser = { _id: 'existingUser' };
-    coreUserMock.update = (user, callback) => callback(new Error('an_error'));
+  it('should not provision user if the toggle \'auto-provision\' is false', function(done) {
+    autoProvisioningResult = false;
 
     const callback = (err, user) => {
-      expect(err.message).to.equal('an_error');
-      expect(user).to.not.exist;
+      expect(err).to.not.exist;
+      expect(user).to.equal(false);
+      expect(helpersMock.isLdapUsedForAutoProvisioning()).to.equal(false);
       done();
     };
 

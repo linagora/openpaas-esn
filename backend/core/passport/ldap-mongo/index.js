@@ -3,7 +3,8 @@
 const q = require('q'),
       userModule = require('../../user'),
       ldapModule = require('../../ldap'),
-      logger = require('../../logger');
+      logger = require('../../logger'),
+      helpers = require('../../ldap/helpers');
 
 module.exports = (username, password, done) => {
   ldapModule.findLDAPForUser(username, (err, ldaps) => {
@@ -16,12 +17,12 @@ module.exports = (username, password, done) => {
     }
 
     q.allSettled(ldaps.map(
-      ldapConfig => authenticate(username, password, ldapConfig.configuration).then(user => ({ user, ldapConfig }))
+      ldapConfig => authenticate(username, password, ldapConfig.configuration).then(ldapUser => ({ ldapUser, ldapConfig }))
     ))
       .then(results => {
         const successResults = results.filter(result => result.state === 'fulfilled')
                                       .map(result => result.value)
-                                      .filter(value => !!value.user);
+                                      .filter(value => !!value.ldapUser);
 
         if (successResults.length > 0) {
           return onSuccess(successResults);
@@ -33,23 +34,38 @@ module.exports = (username, password, done) => {
         onError(errorResults);
       });
 
-    function onSuccess(successResults) {
-      const { user, ldapConfig } = successResults[0];
-
-      logger.debug(`Found user "${username}" in ${successResults.length} LDAP(s), select the first one: "${ldapConfig.name}"`);
+    function onSuccess([{ ldapUser, ldapConfig }, ...otherResults]) {
+      logger.debug(`Found user "${username}" in ${otherResults.length + 1} LDAP(s), select the first one: "${ldapConfig.name}"`);
 
       if (!ldapConfig.domainId) {
         logger.warn(`LDAP directory ${ldapConfig.name} does not have domain information, user provision could fail`);
       }
 
-      provisionUser({
-        username,
-        user,
-        config: ldapConfig.configuration,
-        domainId: ldapConfig.domainId
-      })
-        .then(user => done(null, user))
-        .catch(done);
+      q.nfcall(userModule.findByEmail, ldapUser.mail)
+          .then(user => {
+            if (user || helpers.isLdapUsedForAutoProvisioning(ldapConfig)) {
+              return updateOrProvisionUser(user, ldapUser, ldapConfig, done);
+            }
+            return done(null, false);
+          })
+          .catch(done);
+    }
+
+    function updateOrProvisionUser(user, ldapUser, ldapConfig, callback) {
+
+      var ldapPayload = {
+            username,
+            user: ldapUser,
+            config: ldapConfig.configuration,
+            domainId: ldapConfig.domainId
+          },
+          method = user ? 'update' : 'provisionUser',
+          newUser = ldapModule.translate(user, ldapPayload);
+
+      return q.ninvoke(userModule, method, newUser)
+          .then(savedUser => {
+            callback(null, savedUser);
+          });
     }
 
     function onError(errorResults) {
@@ -68,14 +84,4 @@ module.exports = (username, password, done) => {
 
 function authenticate(username, password, configuration) {
   return q.denodeify(ldapModule.authenticate)(username, password, configuration);
-}
-
-function provisionUser(ldapPayload) {
-  return q.nfcall(userModule.findByEmail, ldapPayload.username)
-    .then(user => {
-      var method = user ? 'update' : 'provisionUser',
-          provisionUser = ldapModule.translate(user, ldapPayload);
-
-      return q.ninvoke(userModule, method, provisionUser);
-    });
 }
