@@ -442,5 +442,6 @@
   "File type": "Type de fichier",
   "Size": "Taille",
   "Copy to clipboard": "Copier dans le presse-papiers",
-  "Link copied to clipboard": "Lien copié dans le presse-papiers"
+  "Link copied to clipboard": "Lien copié dans le presse-papiers",
+  "An error occured while loading": "Une erreur est survenue lors du chargement"
 }
