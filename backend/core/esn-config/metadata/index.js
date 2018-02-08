@@ -18,7 +18,6 @@ module.exports = {
     mail: require('./mail'),
     davserver: require('./davserver'),
     oauth: require('./oauth'),
-    james: require('./james'),
     jwt: require('./jwt'),
     web: require('./web'),
     login: require('./login'),
