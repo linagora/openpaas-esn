@@ -1,42 +1,62 @@
 'use strict';
 
-var q = require('q');
-var fs = require('fs-extra');
-var path = require('path');
-var core = require('../../backend/core/');
-var esnconfig = core['esn-config'];
-var dataPath = path.resolve(__dirname + '/data');
+/* eslint-disable no-console */
 
-function _injectConf(key, conf) {
-  return q.ninvoke(esnconfig(key), 'store', conf).catch(function() {
-    return;
-  });
-}
-
-function _injectAllConf(files) {
-  var promiseFuncs = files.map(function(filename) {
-    var file = dataPath + '/' + filename;
-
-    if (fs.statSync(file).isFile()) {
-      return function() {
-        var key = filename.slice(filename.lastIndexOf('/') + 1, filename.lastIndexOf('.'));
-        var conf = require(dataPath + '/' + key)();
-
-        console.log('[INFO] Inject conf', key);
-        console.log(JSON.stringify(conf, null, 2));
-
-        return _injectConf(key, conf); // allways resolves
-      };
-    }
-  }).filter(Boolean);
-
-  return promiseFuncs.reduce(q.when, q()); // https://github.com/kriskowal/q#sequences
-}
+const q = require('q');
+const fs = require('fs-extra');
+const path = require('path');
+const core = require('../../backend/core/');
+const esnConfig = core['esn-config'];
+const dataPath = path.resolve(__dirname + '/data');
+const readdir = q.denodeify(fs.readdir);
 
 module.exports = function() {
-  console.log('[INFO] ESN Configuration');
+  console.log('[INFO] Injecting ESN configurations');
 
-  var readdir = q.denodeify(fs.readdir);
+  return readdir(dataPath).then(moduleNames => {
+    const promiseFuncs = moduleNames.map(moduleName =>
+      () => injectModuleConfigurations(moduleName)
+    );
 
-  return readdir(dataPath).then(_injectAllConf);
+    return runSeq(promiseFuncs);
+  });
 };
+
+function injectModuleConfigurations(moduleName) {
+  const modulePath = path.join(dataPath, moduleName);
+
+  return readdir(modulePath)
+    .then(files => {
+      const promiseFuncs = files.map(function(filename) {
+        const filePath = path.join(modulePath, filename);
+
+        if (fs.statSync(filePath).isFile()) {
+          return function() {
+            const key = path.parse(filePath).name;
+            const conf = require(filePath)();
+
+            return _injectConf(moduleName, key, conf); // allways resolves
+          };
+        }
+      }).filter(Boolean);
+
+      return runSeq(promiseFuncs);
+    });
+}
+
+function _injectConf(moduleName, key, conf) {
+  return esnConfig(key)
+    .inModule(moduleName)
+    .store(conf)
+    .then(() => {
+      console.log('[INFO] Injected conf', `${moduleName}.${key}`);
+      console.log(JSON.stringify(conf, null, 2));
+    })
+    .catch(err => {
+      console.log('[ERROR] Error while storing ESN config', err);
+    });
+}
+
+function runSeq(promiseFuncs) {
+  return promiseFuncs.reduce(q.when, q()); // https://github.com/kriskowal/q#sequences
+}
