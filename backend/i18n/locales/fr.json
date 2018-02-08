@@ -443,5 +443,6 @@
   "Size": "Taille",
   "Copy to clipboard": "Copier dans le presse-papiers",
   "Link copied to clipboard": "Lien copié dans le presse-papiers",
-  "An error occured while loading": "Une erreur est survenue lors du chargement"
+  "An error occured while loading": "Une erreur est survenue lors du chargement",
+  "Email is already in use. Try another one.": "Cet email est déjà utilisé. Essayez un autre."
 }

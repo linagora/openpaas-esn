@@ -1,0 +1,10 @@
+esn-form-group(
+  label=__('Email'),
+  form='$ctrl.form',
+  validator-error-message=__('Invalid email'),
+  validator="$ctrl.emailValidator",
+  async-validator-error-message=__('Email is already in use. Try another one.'),
+  async-validator="$ctrl.availabilityValidator"
+)
+  input.form-control(type="text", maxlength="255", ng-model="$ctrl.emailName", ng-model-options="{ debounce: {'default': 300} }", ng-change="$ctrl.onChange()", name="groupEmail", required)
+span(title="{{$ctrl.domainName}}") @{{$ctrl.domainName}}

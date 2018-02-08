@@ -1,8 +1,6 @@
 'use strict';
 
-angular.module('esn.form.helper', [
-  'ngMessages'
-])
+angular.module('esn.form.helper')
 .factory('autosize', function($window) {
     return $window.autosize;
   })
