@@ -132,7 +132,6 @@ const injections = [
   ], innerApps: ['esn']},
   {angular: ['esn.object-type'], files: ['object-type.js'], innerApps: ['esn']},
   {angular: ['esn.file'], files: ['file.js'], innerApps: ['esn']},
-  {angular: ['esn.form.helper'], files: ['form-helper.js'], innerApps: ['esn', 'welcome']},
   {angular: ['esn.background'], files: ['background.js'], innerApps: ['esn']},
   {angular: ['esn.parser'], files: ['parser.js'], innerApps: ['esn']},
   {angular: ['esn.parser'], files: ['markdown-parser.js'], innerApps: ['esn']},
@@ -330,7 +329,13 @@ const injections = [
     'file-browser/file-browser.module.js',
     'file-browser/file-browser.component.js',
     'file-browser/file-browser.controller.js'
-  ], innerApps: ['esn']}
+  ], innerApps: ['esn']},
+  {angular: ['esn.form.helper'], files: [
+    'form-helper/form-helper.module.js',
+    'form-helper/form-helper.directives.js',
+    'form-helper/email-input/email-input.controller.js',
+    'form-helper/email-input/email-input.component.js'
+  ], innerApps: ['esn', 'welcome']}
 ];
 
 if (process.env.NODE_ENV === 'production') { // eslint-disable-line no-process-env

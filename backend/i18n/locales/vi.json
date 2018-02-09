@@ -443,5 +443,6 @@
   "Size": "Kích thước",
   "Copy to clipboard": "Sao chép vào khay nhớ tạm",
   "Link copied to clipboard": "Liên kết được sao chép vào khay nhớ tạm",
-  "An error occured while loading": "Có lỗi xảy ra khi tải về"
+  "An error occured while loading": "Có lỗi xảy ra khi tải về",
+  "Email is already in use. Try another one.": "Địa chỉ thư đã được dùng. Hãy thử một địa chỉ khác."
 }
