@@ -7,7 +7,7 @@ var DEFAULT_JWT_PRIVATE = '-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAKCAQEAtlCh
 
 function readFile(path) {
   try {
-    return fs.readFileSync(path, 'ascii');
+    return fs.existsSync(path) && fs.readFileSync(path, 'ascii');
   } catch (err) {
     console.log('WARN: Cannot read JWT file: ' + path, err);
   }
