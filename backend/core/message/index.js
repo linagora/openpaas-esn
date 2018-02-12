@@ -39,7 +39,7 @@ function getInstance(objectType, message) {
 function registerMessageType(objectType, schemaName, messageModule) {
   objectTypeToSchemaName[objectType] = schemaName;
   if (messageModule) {
-    type.event = messageModule;
+    type[objectType] = messageModule;
   }
 }
 
