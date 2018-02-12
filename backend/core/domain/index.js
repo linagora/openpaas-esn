@@ -2,6 +2,9 @@
 
 const mongoose = require('mongoose');
 const Domain = mongoose.model('Domain');
+const pubsub = require('../pubsub').local;
+const { Event } = require('../models');
+const { OBJECT_TYPE, EVENTS } = require('./constants');
 
 module.exports = {
   create,
@@ -20,8 +23,13 @@ module.exports = {
 function create(domain, callback) {
   const domainAsModel = domain instanceof Domain ? domain : new Domain(domain);
 
-  return domainAsModel.save((err, response) => callback(err, response));// Because save function's callback will receive three parameters
-                                                                        // http://mongoosejs.com/docs/api.html#model_Model-save
+  domainAsModel.save((err, response) => {
+    if (!err && response) {
+      pubsub.topic(EVENTS.CREATED).publish(new Event(null, EVENTS.CREATED, OBJECT_TYPE, String(response._id), response));
+    }
+
+    callback(err, response);
+  });
 }
 
 function update(modifiedDomain, callback) {
