@@ -643,4 +643,15 @@ describe('The message core module', function() {
     });
   });
 
+  describe('The registerMessageType function', function() {
+    it('should register message module for specific type if messageModule is given', function() {
+      const module = this.helpers.requireBackend('core/message');
+      const objectType = 'test';
+      const testMessageModule = { foo: 'bar' };
+
+      module.registerMessageType(objectType, 'testSchema', testMessageModule);
+
+      expect(module.type[objectType]).to.deep.equal(testMessageModule);
+    });
+  });
 });
