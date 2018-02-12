@@ -2,7 +2,7 @@
   .lv-header-alt.clearfix
     ul.lv-actions.actions.pull-left
       li
-        a.clickable(ng-click='$ctrl.back()')
+        button.btn-link(ng-if='$ctrl.currentNode && $ctrl.status !== "loading"', ng-click='$ctrl.back()')
           i.mdi.mdi-chevron-left
     h2.lvh-label(ng-if='$ctrl.currentNode.name') {{$ctrl.currentNode.name}}
     h2.lvh-label(ng-if='!$ctrl.currentNode') {{$ctrl.options.rootName}}

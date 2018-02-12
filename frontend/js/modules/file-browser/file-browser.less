@@ -1,6 +1,7 @@
 esn-file-browser {
   .lv-header-alt {
     background: @primaryColor;
+    width: 100%;
 
     .lvh-label {
       color: @textPrimaryColor;
@@ -8,9 +9,13 @@ esn-file-browser {
       font-weight: 500;
     }
 
-    .actions li a i {
-      color: @textPrimaryColor;
-      font-size: 25px;
+    .lv-actions {
+      width: 5%;
+
+      button i {
+        color: @textPrimaryColor;
+        font-size: 25px;
+      }
     }
   }
 
@@ -35,6 +40,8 @@ esn-file-browser {
 
   .node {
     .flex-start;
+
+    width: 100%;
     border-bottom: 1px solid lighten(@m-gray, 30%);;
 
     .node-icon {
@@ -67,7 +74,7 @@ esn-file-browser {
       .flex-space-between;
       .flex-vertical-centered;
 
-      width: 100%;
+      width: 80%;
       height: 50px;
       padding: 10px 25px 10px 0px;
     }
