@@ -444,5 +444,6 @@
   "Copy to clipboard": "Copy to clipboard",
   "Link copied to clipboard": "Link copied to clipboard",
   "An error occured while loading": "An error occured while loading",
-  "Email is already in use. Try another one.": "Email is already in use. Try another one."
+  "Email is already in use. Try another one.": "Email is already in use. Try another one.",
+  "Form is invalid!": "Form is invalid!"
 }
