@@ -164,5 +164,51 @@ describe('The activity streams core module', function() {
 
       module.getTimelineEntries({ object });
     });
+
+    it('should call TimelineEntry.find with right query when sort option is not provided', function(done) {
+      this.helpers.mock.models({
+        TimelineEntry: {
+          find: () => ({
+            or: () => ({
+              count: () => ({
+                exec: callback => callback()
+              }),
+              sort: sortQuery => {
+                expect(sortQuery).to.deep.equal({ published: -1 });
+                done();
+              }
+            })
+          })
+        }
+      });
+      const module = this.helpers.requireBackend('core/activitystreams/index');
+
+      module.getTimelineEntries({});
+    });
+
+    it('should call TimelineEntry.find with right query when sort option is provided', function(done) {
+      const options = {
+        sort: { customField: 1 }
+      };
+
+      this.helpers.mock.models({
+        TimelineEntry: {
+          find: () => ({
+            or: () => ({
+              count: () => ({
+                exec: callback => callback()
+              }),
+              sort: sortQuery => {
+                expect(sortQuery).to.deep.equal(options.sort);
+                done();
+              }
+            })
+          })
+        }
+      });
+      const module = this.helpers.requireBackend('core/activitystreams/index');
+
+      module.getTimelineEntries(options);
+    });
   });
 });

@@ -108,65 +108,67 @@ function query(options, cb) {
 }
 module.exports.query = query;
 
-function getTimelineEntries(options, callback) {
-  options = options || {};
+function getTimelineEntries(options = {}, callback) {
+  const getQuery = () => {
+    const findOptions = {};
 
-  function getQuery() {
-    var query = {};
     if (options.verb) {
-      query.verb = options.verb;
+      findOptions.verb = options.verb;
     }
 
-    var q = TimelineEntry.find(query);
-    var or = [];
+    let query = TimelineEntry.find(findOptions);
+    const or = [];
 
     if (options.actor) {
-      or.push({'actor._id': options.actor._id, 'actor.objectType': options.actor.objectType});
+      or.push({ 'actor._id': options.actor._id, 'actor.objectType': options.actor.objectType });
     }
 
     if (options.target) {
-      or.push({'target._id': options.target._id, 'target.objectType': options.target.objectType});
+      or.push({ 'target._id': options.target._id, 'target.objectType': options.target.objectType });
     }
 
     if (options.object) {
-      or.push({'object._id': options.object._id, 'object.objectType': options.object.objectType});
+      or.push({ 'object._id': options.object._id, 'object.objectType': options.object.objectType });
     }
 
-    q = q.or(or);
+    query = query.or(or);
 
     if (options.excludeVerbs) {
-      var and = options.excludeVerbs.map(function(verb) {
-        return { verb: { $ne: verb } };
-      });
+      const and = options.excludeVerbs.map(verb => ({ verb: { $ne: verb } }));
 
-      q = q.where('verb').and(and);
+      query = query.where('verb').and(and);
     }
 
-    return q;
-  }
+    return query;
+  };
 
-  getQuery().count().exec(function(err, count) {
-    if (err) {
-      return callback(err);
-    }
-
-    var timelineQuery = getQuery();
-
-    if (options.offset > 0) {
-      timelineQuery = timelineQuery.skip(+options.offset);
-    }
-
-    if (options.limit > 0) {
-      timelineQuery = timelineQuery.limit(+options.limit);
-    }
-
-    timelineQuery.sort('-published').exec(function(err, results) {
+  return getQuery()
+    .count()
+    .exec((err, count) => {
       if (err) {
         return callback(err);
       }
-      return callback(null, {total_count: count, list: results});
+
+      let timelineQuery = getQuery();
+
+      if (options.offset > 0) {
+        timelineQuery = timelineQuery.skip(+options.offset);
+      }
+
+      if (options.limit > 0) {
+        timelineQuery = timelineQuery.limit(+options.limit);
+      }
+
+      return timelineQuery
+        .sort(options.sort || { published: -1 })
+        .exec((err, results) => {
+          if (err) {
+            return callback(err);
+          }
+
+          return callback(null, { total_count: count, list: results });
+        });
     });
-  });
 }
 module.exports.getTimelineEntries = getTimelineEntries;
 
