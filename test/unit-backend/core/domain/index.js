@@ -5,6 +5,45 @@ const expect = require('chai').expect;
 const sinon = require('sinon');
 
 describe('The domain module', function() {
+  describe('The create fn', function() {
+    it('should publish an event on successfully created a domain', function(done) {
+      const createdDomain = {
+        _id: '123',
+        name: 'example.com'
+      };
+      const domainModel = function() {
+        this.save = callback => callback(null, createdDomain);
+      };
+      const mongooseMock = {
+        model: () => domainModel
+      };
+      const pubsubMock = {
+        local: {
+          topic: name => {
+            expect(name).to.equal('domain:created');
+
+            return {
+              publish: function(event) {
+                expect(event.name).to.equal('domain:created');
+                expect(event.objectType).to.equal('domain');
+                expect(event.payload).to.equal(createdDomain);
+
+                done();
+              }
+            };
+          }
+        }
+      };
+
+      mockery.registerMock('mongoose', mongooseMock);
+      mockery.registerMock('../pubsub', pubsubMock);
+
+      const domain = this.helpers.requireBackend('core/domain');
+
+      domain.create();
+    });
+  });
+
   describe('The load fn', function() {
     it('should send back error when id is undefined', function(done) {
       var mongooseMock = {
