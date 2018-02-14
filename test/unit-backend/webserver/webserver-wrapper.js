@@ -28,6 +28,7 @@ describe('the webserver-wrapper', function() {
       expect(api.addApp).to.be.a('function');
       expect(api.on).to.be.a('function');
       expect(api.injectLess).to.be.a('function');
+      expect(api.requestCoreFrontendInjections).to.be.a('function');
     });
   });
 

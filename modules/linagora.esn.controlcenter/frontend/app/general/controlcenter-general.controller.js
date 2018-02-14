@@ -12,10 +12,14 @@
     _,
     CONTROLCENTER_GENERAL_CONFIGS
   ) {
-    var self = this;
+    var self = this,
+        saveHandlers = [];
 
     self.$onInit = $onInit;
     self.save = save;
+    self.registerSaveHandler = registerSaveHandler;
+
+    /////
 
     function $onInit() {
       var homePageCandidates = controlcenterGeneralService.getHomePageCandidates();
@@ -33,7 +37,12 @@
         progressing: 'Saving configuration...',
         success: 'Configuration saved',
         failure: 'Failed to save configuration'
-      }, _saveConfiguration);
+      }, _saveConfiguration)
+        .finally(_notifySaveHandlers);
+    }
+
+    function registerSaveHandler(handler) {
+      saveHandlers.push(handler);
     }
 
     function _saveConfiguration() {
@@ -63,6 +72,12 @@
       });
 
       return result;
+    }
+
+    function _notifySaveHandlers() {
+      saveHandlers.forEach(function(handler) {
+        handler();
+      });
     }
   }
 })();

@@ -2,7 +2,6 @@
 
 angular.module('esn.box-overlay', [
   'esn.constants',
-  'esn.back-detector',
   'ng.deviceDetector',
   'esn.i18n'
 ])
@@ -81,7 +80,7 @@ angular.module('esn.box-overlay', [
         }
       },
       maximizedBoxExists: function() {
-        return boxScopes.some(function(scope) { return scope.isMaximized(); });
+        return boxScopes.some(function(scope) { return scope.isMaximized() || scope.isFullScreen(); });
       },
       minimizeOthers: function(me) {
         return boxScopes
@@ -100,7 +99,8 @@ angular.module('esn.box-overlay', [
     StateManager.STATES = {
       NORMAL: 'NORMAL',
       MINIMIZED: 'MINIMIZED',
-      MAXIMIZED: 'MAXIMIZED'
+      MAXIMIZED: 'MAXIMIZED',
+      FULL_SCREEN: 'FULL_SCREEN'
     };
 
     StateManager.prototype.toggle = function(newState) {
@@ -177,29 +177,41 @@ angular.module('esn.box-overlay', [
 
         $boxOverlay.$isShown = scope.$isShown = false;
 
-        scope.isMinimized = function() {
-          return stateManager.state === StateManager.STATES.MINIMIZED;
+        scope.allowMinimize = _allow.bind(null, StateManager.STATES.MINIMIZED);
+        scope.allowMaximize = _allow.bind(null, StateManager.STATES.MAXIMIZED);
+        scope.allowFullScreen = _allow.bind(null, StateManager.STATES.FULL_SCREEN);
+
+        function _allow(state) {
+          return !config.allowedStates || config.allowedStates.indexOf(state) > -1;
+        }
+
+        scope.closeable = function() {
+          return !angular.isDefined(config.closeable) || config.closeable;
         };
 
-        scope.isMaximized = function() {
-          return stateManager.state === StateManager.STATES.MAXIMIZED;
-        };
+        scope.isMinimized = _is.bind(null, StateManager.STATES.MINIMIZED);
+        scope.isMaximized = _is.bind(null, StateManager.STATES.MAXIMIZED);
+        scope.isFullScreen = _is.bind(null, StateManager.STATES.FULL_SCREEN);
 
-        scope.$toggleMinimized = function() {
-          stateManager.toggle(StateManager.STATES.MINIMIZED);
-        };
+        function _is(state) {
+          return stateManager.state === state;
+        }
 
         scope.$minimize = function() {
           stateManager.state = StateManager.STATES.MINIMIZED;
         };
 
-        scope.$toggleMaximized = function() {
-          stateManager.toggle(StateManager.STATES.MAXIMIZED);
+        scope.$toggleMinimized = _toggle.bind(null, StateManager.STATES.MINIMIZED);
+        scope.$toggleMaximized = _toggle.bind(null, StateManager.STATES.MAXIMIZED);
+        scope.$toggleFullScreen = _toggle.bind(null, StateManager.STATES.FULL_SCREEN);
 
-          if (scope.isMaximized()) {
+        function _toggle(state) {
+          stateManager.toggle(state);
+
+          if (scope.isMaximized() || scope.isFullScreen()) {
             boxOverlayService.minimizeOthers(scope);
           }
-        };
+        }
 
         scope.$hide = function() {
           $timeout(function() {
@@ -232,8 +244,13 @@ angular.module('esn.box-overlay', [
             container().append(boxElement);
             setAutoMaximizeForIPAD(boxElement, scope);
 
+            if (config.initialState) {
+              _toggle(config.initialState);
+            }
+
             $timeout(function() {
               var toFocus = boxElement.find('[autofocus]')[0];
+
               if (toFocus) {
                 toFocus.focus();
               }
@@ -268,6 +285,7 @@ angular.module('esn.box-overlay', [
         };
 
         initialize();
+
         return $boxOverlay;
       }
 
@@ -288,7 +306,10 @@ angular.module('esn.box-overlay', [
       scope: {
         boxId: '@',
         boxTitle: '@',
-        boxTemplateUrl: '@'
+        boxTemplateUrl: '@',
+        boxInitialState: '@',
+        boxCloseable: '=',
+        boxAllowedStates: '='
       },
       link: function(scope, element) {
 
@@ -296,7 +317,10 @@ angular.module('esn.box-overlay', [
           boxOverlayOpener.open({
             id: scope.boxId,
             title: scope.boxTitle,
-            templateUrl: scope.boxTemplateUrl
+            templateUrl: scope.boxTemplateUrl,
+            initialState: scope.boxInitialState,
+            closeable: scope.boxCloseable,
+            allowedStates: scope.boxAllowedStates
           });
         });
       }
