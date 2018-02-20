@@ -1,55 +1,72 @@
-tags-input .tags .input {
-  .form-control;
-  background-color: transparent;
-  height: 30px;
-  &:not(.fc-alt){
-    border: none;
+tags-input {
+  .host {
+    margin: 0;
   }
-}
 
-tags-input .tags .tag-item {
-  .btn;
-  .btn-primary;
+  .autocomplete {
+    .suggestion-list {
+      .suggestion-item {
+        color: @secondaryTextColor;
 
-  height: auto;
-  float: none;
-  word-break: break-all;
-  white-space: normal;
-  text-align: left;
+        &.selected {
+          color: @text-color;
+          background-color: @darkenBgColor;
+        }
 
-  &:not(.btn-link){
-    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.16);
+        em {
+          color: inherit;
+          background-color: inherit;
+          font: normal 600 12px @fontName;
+        }
+
+        .auto-complete-match {
+          img {
+            .avatar(35px);
+          }
+
+          .row {
+            font-size: 0.8em;
+          }
+        }
+      }
+    }
+
+    .autocomplete-information {
+      background: @body-bg;
+      padding: 5px 10px;
+      text-align: center;
+      font-style: italic;
+      color: @secondaryTextColor;
+    }
   }
-  .remove-button {
-    color: @m-white;
+
+  .tags {
+
+    .tag-item {
+      .ShadowedShape(0 2px 2px rgba(0, 0, 0, 0.16));
+
+      border: 0;
+      color: @secondaryTextColor;
+      background: @body-bg;
+      font-size: 12px;
+
+      &:hover, &.focused {
+        color: @text-color;
+        background: @darkenBgColor;
+      }
+
+      &.selected, &:active, &:active:hover {
+        color: @text-color;
+        background: darken(@darkenBgColor, 3%);
+      }
+
+      ti-tag-item > * {
+        .remove-button {
+          color: inherit;
+          background: inherit;
+        }
+      }
+    }
+
   }
-  line-height: 1;
-  &.selected {
-    background: lighten(@m-red, 10%);
-  }
-}
-
-tags-input .tags input.input {
-  border: 0;
-  width: 100% !important; //override ng-tags-input style
-}
-
-tags-input .autocomplete .suggestion-list {
-  max-height: 208px;
-  .suggestion-item.selected {
-    background: @primaryColor;
-  }
-}
-
-.autocomplete-information {
-  background: @body-bg;
-  padding: 5px 10px;
-  text-align: center;
-  font-style: italic;
-  color: @secondaryTextColor;
-}
-
-.tags-input .host {
-  margin-bottom: 0;
-  margin-top: 0;
 }
