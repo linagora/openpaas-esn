@@ -1,7 +1,6 @@
 'use strict';
 
-/* global chai: false */
-/* global sinon: false */
+/* global chai: false, sinon: false */
 
 var expect = chai.expect;
 
@@ -443,11 +442,17 @@ describe('The box-overlay Angular module', function() {
   });
 
   describe('The boxOverlay service', function() {
-    var $boxOverlay;
+    var $boxOverlay, $httpBackend;
 
-    beforeEach(inject(function(_$boxOverlay_) {
+    beforeEach(inject(function(_$timeout_, _$httpBackend_, _$boxOverlay_) {
+      $timeout = _$timeout_;
+      $httpBackend = _$httpBackend_;
       $boxOverlay = _$boxOverlay_;
     }));
+
+    beforeEach(function() {
+      $httpBackend.expectGET('/path/to/template').respond('');
+    });
 
     it('should update the title', function() {
       var overlay = $boxOverlay({
@@ -460,6 +465,41 @@ describe('The box-overlay Angular module', function() {
 
       expect(overlay.$scope.title).to.equal('New Title');
     });
+
+    it('should allow hiding and opening through scope functions', function() {
+      var overlay = $boxOverlay({
+        id: 0,
+        title: 'Default title',
+        templateUrl: '/path/to/template'
+      });
+
+      overlay.$scope.$show();
+      $timeout.flush();
+      expect(overlay.$isShown).to.equal(true);
+
+      overlay.$scope.$hide();
+      $timeout.flush();
+      expect(overlay.$isShown).to.equal(false);
+    });
+
+    it('should allow hiding and reopening the same overlay over and over again', function() {
+      var overlay = $boxOverlay({
+        id: 0,
+        title: 'Default title',
+        templateUrl: '/path/to/template'
+      });
+
+      for (var i = 0; i < 10; i++) {
+        overlay.$scope.$show();
+        $timeout.flush();
+        expect(overlay.$isShown).to.equal(true);
+
+        overlay.$scope.$hide();
+        $timeout.flush();
+        expect(overlay.$isShown).to.equal(false);
+      }
+    });
+
   });
 
   describe('The StateManager factory', function() {

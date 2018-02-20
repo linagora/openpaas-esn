@@ -171,10 +171,6 @@ angular.module('esn.box-overlay', [
           }
         }
 
-        if (!boxOverlayService.addBox(scope)) {
-          return;
-        }
-
         $boxOverlay.$isShown = scope.$isShown = false;
 
         scope.allowMinimize = _allow.bind(null, StateManager.STATES.MINIMIZED);
@@ -213,24 +209,24 @@ angular.module('esn.box-overlay', [
           }
         }
 
-        scope.$hide = function() {
-          $timeout(function() {
-            $boxOverlay.hide();
-          });
-        };
+        scope.$show = nextTick('show');
+        scope.$hide = nextTick('hide');
+        scope.$close = nextTick('destroy');
 
-        scope.$close = function() {
-          $timeout(function() {
-            $boxOverlay.destroy();
-          });
-        };
+        function nextTick(action) {
+          return function() {
+            $timeout(function() {
+              $boxOverlay[action]();
+            }, 0);
+          };
+        }
 
         scope.$updateTitle = function(title) {
           $boxOverlay.updateTitle(title);
         };
 
         $boxOverlay.show = function() {
-          if ($boxOverlay.$isShown) {
+          if ($boxOverlay.$isShown || !boxOverlayService.addBox(scope)) {
             return;
           }
 
