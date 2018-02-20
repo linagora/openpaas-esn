@@ -92,11 +92,15 @@ const schema = {
           },
           search: {
             type: 'boolean'
+          },
+          autoProvisioning: {
+            type: 'boolean'
           }
         },
         required: [
           'auth',
-          'search'
+          'search',
+          'autoProvisioning'
         ]
       },
       name: {

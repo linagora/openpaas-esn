@@ -2,7 +2,8 @@
 
 module.exports = {
   isLdapUsedForAuth,
-  isLdapUsedForSearch
+  isLdapUsedForSearch,
+  isLdapUsedForAutoProvisioning
 };
 
 function isLdapUsedForAuth(ldapConfig) {
@@ -11,4 +12,15 @@ function isLdapUsedForAuth(ldapConfig) {
 
 function isLdapUsedForSearch(ldapConfig) {
   return ldapConfig && ldapConfig.usage && ldapConfig.usage.search;
+}
+
+function _isAutoProvisioningHandledAndActivated(ldapConfig) {
+  if (ldapConfig.usage.autoProvisioning !== undefined) {
+    return ldapConfig.usage.autoProvisioning;
+  }
+  return true;
+}
+
+function isLdapUsedForAutoProvisioning(ldapConfig) {
+  return (ldapConfig && ldapConfig.usage && _isAutoProvisioningHandledAndActivated(ldapConfig));
 }
