@@ -29,7 +29,7 @@ function denormalize(contact) {
   }
 
   if (contact.user && contact.user._id) {
-    result.userId = contact.user.id;
+    result.userId = String(contact.user._id);
   }
 
   if (!contact.vcard || !contact.vcard[1] || !contact.vcard[1].length) {
