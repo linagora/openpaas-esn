@@ -17,7 +17,7 @@
               span(ng-if='searchResult.formattedResultsCount.isFormatted') #{__('About')}&nbsp;
               span(ng-if='searchResult.formattedResultsCount.hits') {{searchResult.formattedResultsCount.hits}} #{__('contacts found')}
       .col-xs-11.col-md-8.contacts-list-toolbar
-        .contacts-search
+        .contacts-search.hidden-md
           contact-search-form
         .contacts-toggle.flex-vertical-centered.visible-md
           contact-list-toggle
