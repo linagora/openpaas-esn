@@ -143,6 +143,12 @@ describe('The contact denormalize module', function() {
     it('should set the comments', function() {
       expect(denormalize().comments).to.equal(contact.vcard[1][11][3]);
     });
+
+    it('should set the user ID', function() {
+      contact.user = { _id: 12345 };
+
+      expect(denormalize().userId).to.equal(String(contact.user._id));
+    });
   });
 
   describe('The getId function', function() {
