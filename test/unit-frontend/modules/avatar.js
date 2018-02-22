@@ -268,13 +268,25 @@ describe('The Avatar Angular module', function() {
   });
 
   describe('the EsnAvatarController', function() {
-    var $q, $controller, $rootScope, $logMock, EsnAvatarController, esnAvatarUrlServiceMock, userId, userEmail, avatarURL, userAPIMock, user, result;
+    var $q, $compile, $rootScope, $logMock, element, controller, esnAvatarUrlServiceMock, userAPIMock, user, result;
+
+    function compileEsnAvatar(html) {
+      element = $compile(html)($rootScope.$new());
+      $rootScope.$digest();
+
+      $('body').append(element);
+      controller = element.controller('esnAvatar');
+
+      return element;
+    }
+
+    afterEach(function() {
+      if (element) {
+        element.remove();
+      }
+    });
 
     beforeEach(function() {
-      userId = '58be757006a35238647028d8';
-      userEmail = 'dali@open-paas.org';
-      avatarURL = '/api/user/profile/avatar?cb=1490951414696';
-
       $logMock = {
         error: sinon.spy(),
         info: sinon.spy(),
@@ -302,67 +314,70 @@ describe('The Avatar Angular module', function() {
         generateUrlByUserId: sinon.spy()
       };
 
-      angular.mock.module(function($provide) {
+      angular.mock.module('jadeTemplates', function($provide) {
         $provide.value('userAPI', userAPIMock);
         $provide.value('$log', $logMock);
         $provide.value('esnAvatarUrlService', esnAvatarUrlServiceMock);
       });
 
-      angular.mock.inject(function(_$controller_, _$rootScope_, _$q_) {
-        $controller = _$controller_;
+      angular.mock.inject(function(_$compile_, _$rootScope_, _$q_) {
+        $compile = _$compile_;
         $rootScope = _$rootScope_;
         $q = _$q_;
       });
 
-      EsnAvatarController = $controller('EsnAvatarController');
+      $rootScope.userId = '58be757006a35238647028d8';
+      $rootScope.userEmail = 'dali@open-paas.org';
+      $rootScope.avatarURL = '/api/user/profile/avatar?cb=1490951414696';
+      $rootScope.resolveAvatar = function() {
+        return $q.when({
+          id: 'myId',
+          url: 'myUrl',
+          email: 'myEmail'
+        });
+      };
     });
 
     describe('$onInit function', function() {
 
+      it('should initialize the avatar object from the resolveAvatar function when provided', function() {
+        compileEsnAvatar('<esn-avatar resolve-avatar="resolveAvatar()" />');
+
+        expect(controller.avatar).to.deep.equal({
+          id: 'myId',
+          url: 'myUrl',
+          email: 'myEmail'
+        });
+      });
+
       it('should initialize the avatar.url with the same URL in avatarUrl if it is defined', function() {
-        EsnAvatarController.avatarUrl = avatarURL;
-        EsnAvatarController.userId = userId;
-        EsnAvatarController.userEmail = userEmail;
+        compileEsnAvatar('<esn-avatar avatar-url="avatarURL" user-id="userId" user-email="userEmail" />');
 
-        EsnAvatarController.$onInit();
-
-        expect(EsnAvatarController.avatar.url).to.be.equal(avatarURL);
+        expect(controller.avatar.url).to.be.equal($rootScope.avatarURL);
       });
 
       it('should initialize the avatarURL with the URL generate from the userId if userId defined and avatarUrl is undefined', function() {
-        EsnAvatarController.userId = userId;
-        EsnAvatarController.userEmail = 'dali@linagora.com';
+        compileEsnAvatar('<esn-avatar user-id="userId" user-email="userEmail" />');
 
-        EsnAvatarController.$onInit();
-
-        expect(esnAvatarUrlServiceMock.generateUrlByUserId).to.be.calledWith(userId);
+        expect(esnAvatarUrlServiceMock.generateUrlByUserId).to.be.calledWith($rootScope.userId);
       });
 
       it('should initialize the avatarURL with the URL generate from the userEmail if userEmail defined and the avatarUrl and userId are undefined', function() {
-        EsnAvatarController.userEmail = userEmail;
+        compileEsnAvatar('<esn-avatar user-email="userEmail" />');
 
-        EsnAvatarController.$onInit();
-
-        expect(esnAvatarUrlServiceMock.generateUrl).to.be.calledWith(EsnAvatarController.userEmail);
+        expect(esnAvatarUrlServiceMock.generateUrl).to.be.calledWith(controller.userEmail);
       });
 
       it('should call userAPI.getUserByEmail and initialize avatar.id if the userEmail is defined and userId is undefined', function() {
-        EsnAvatarController.userEmail = userEmail;
+        compileEsnAvatar('<esn-avatar user-email="userEmail" />');
 
-        EsnAvatarController.$onInit();
-
-        $rootScope.$digest();
-
-        expect(EsnAvatarController.avatar.id).to.be.equal(user._id);
+        expect(controller.avatar.id).to.be.equal(user._id);
       });
 
       it('should not update userId if the userId is defined', function() {
-        EsnAvatarController.userId = userId;
-        EsnAvatarController.userEmail = userEmail;
+        compileEsnAvatar('<esn-avatar user-id="userId" user-email="userEmail" />');
 
-        EsnAvatarController.$onInit();
-
-        expect(EsnAvatarController.userId).to.be.equal(userId);
+        expect(controller.userId).to.be.equal($rootScope.userId);
       });
 
       it('should not initialize userId if the userAPI.getUsersByEmail returned an empty array', function() {
@@ -370,46 +385,36 @@ describe('The Avatar Angular module', function() {
           return $q.when({ data: [] });
         };
 
-        EsnAvatarController.userEmail = userEmail;
+        compileEsnAvatar('<esn-avatar user-email="userEmail" />');
 
-        EsnAvatarController.$onInit();
-
-        $rootScope.$digest();
-
-        expect(EsnAvatarController.userId).to.be.defined;
+        expect(controller.userId).to.equal(undefined);
       });
     });
 
     describe('displayUserStatus function', function() {
 
       it('should return true if avatar.id is defined and hideUserStatus = false', function() {
-        EsnAvatarController.avatar = {
-          id: '123'
-        };
-        EsnAvatarController.hideUserStatus = false;
+        compileEsnAvatar('<esn-avatar resolve-avatar="resolveAvatar()" />');
 
-        expect(EsnAvatarController.displayUserStatus()).to.be.true;
+        expect(controller.displayUserStatus()).to.equal(true);
       });
 
       it('should return false if avatar.id is defined and hideUserStatus = true', function() {
-        EsnAvatarController.avatar = {
-          id: '123'
-        };
-        EsnAvatarController.hideUserStatus = true;
+        compileEsnAvatar('<esn-avatar resolve-avatar="resolveAvatar()" hide-user-status="true" />');
 
-        expect(EsnAvatarController.displayUserStatus()).to.be.false;
+        expect(controller.displayUserStatus()).to.equal(false);
       });
 
       it('should return false if avatar.id is undefined and hideUserStatus = true', function() {
-        EsnAvatarController.hideUserStatus = true;
+        compileEsnAvatar('<esn-avatar hide-user-status="true" />');
 
-        expect(EsnAvatarController.displayUserStatus()).to.be.false;
+        expect(controller.displayUserStatus()).to.equal(false);
       });
 
       it('should return false if avatar.id is undefined and hideUserStatus = false', function() {
-        EsnAvatarController.hideUserStatus = false;
+        compileEsnAvatar('<esn-avatar />');
 
-        expect(EsnAvatarController.displayUserStatus()).to.be.false;
+        expect(controller.displayUserStatus()).to.equal(false);
       });
     });
   });

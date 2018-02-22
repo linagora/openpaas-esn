@@ -462,10 +462,11 @@ angular.module('esn.avatar', [
       userEmail: '<',
       avatarUrl: '<',
       hideUserStatus: '<',
-      noCache: '<'
+      noCache: '<',
+      resolveAvatar: '&'
     }
   })
-  .controller('EsnAvatarController', function($q, $log, userAPI, esnAvatarUrlService) {
+  .controller('EsnAvatarController', function($attrs, $q, $log, userAPI, esnAvatarUrlService) {
     var self = this;
 
     self.$onInit = setProperties;
@@ -474,13 +475,22 @@ angular.module('esn.avatar', [
     self.avatar = {};
 
     function setProperties() {
+      if ($attrs.resolveAvatar) {
+        return self.resolveAvatar().then(function(avatar) {
+          self.avatar = avatar;
+        });
+      }
+
       self.avatar = {};
+
       if (self.userId) {
         self.avatar.id = self.userId;
       }
+
       if (self.userEmail) {
         self.avatar.email = self.userEmail;
       }
+
       self.avatar.url = self.avatarUrl || generateAvatarUrl(self.avatar.id, self.avatar.email);
 
       if (self.userEmail && !self.avatar.id) {
