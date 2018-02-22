@@ -1,15 +1,42 @@
 'use strict';
 
-var express = require('express');
+const express = require('express');
 
 module.exports = function(dependencies) {
+  const router = express.Router();
 
-  var router = express.Router();
+  const authorizationMW = dependencies('authorizationMW');
+  const proxyMW = require('../proxy/middleware')(dependencies);
+  const davMiddleware = dependencies('davserver').davMiddleware;
+  const controller = require('./controller')(dependencies);
+  const middleware = require('./middleware')(dependencies);
 
-  var authorizationMW = dependencies('authorizationMW');
-  var middleware = require('../proxy/middleware')(dependencies);
-  var davMiddleware = dependencies('davserver').davMiddleware;
-  var controller = require('./controller')(dependencies);
+  /**
+   * @swagger
+   * /addressbooks/{bookHome}.json:
+   *   post:
+   *     tags:
+   *       - Davproxy
+   *     description: Create a addressbook in the specified addressbook home
+   *     parameters:
+   *       - $ref: "#/parameters/davproxy_addressbook_book_home"
+   *       - $ref: "#/parameters/davproxy_addressbook_create"
+   *     responses:
+   *       201:
+   *         $ref: "#/responses/davproxy_addressbook_create"
+   *       401:
+   *         $ref: "#/responses/cm_401"
+   *       500:
+   *         $ref: "#/responses/cm_500"
+   */
+  router.post(
+    '/:bookHome.json',
+    authorizationMW.requiresAPILogin,
+    middleware.validateAddressbookCreation,
+    proxyMW.generateNewToken,
+    davMiddleware.getDavEndpoint,
+    controller.createAddressbook
+  );
 
   /**
    * @swagger
@@ -33,7 +60,7 @@ module.exports = function(dependencies) {
   router.get(
     '/:bookHome/:bookName/:contactId.vcf',
     authorizationMW.requiresAPILogin,
-    middleware.generateNewToken,
+    proxyMW.generateNewToken,
     davMiddleware.getDavEndpoint,
     controller.getContact
   );
@@ -61,7 +88,7 @@ module.exports = function(dependencies) {
   router.put(
     '/:bookHome/:bookName/:contactId.vcf',
     authorizationMW.requiresAPILogin,
-    middleware.generateNewToken,
+    proxyMW.generateNewToken,
     davMiddleware.getDavEndpoint,
     controller.updateContact
   );
@@ -88,7 +115,7 @@ module.exports = function(dependencies) {
   router.delete(
     '/:bookHome/:bookName/:contactId.vcf',
     authorizationMW.requiresAPILogin,
-    middleware.generateNewToken,
+    proxyMW.generateNewToken,
     davMiddleware.getDavEndpoint,
     controller.deleteContact
   );
@@ -119,7 +146,7 @@ module.exports = function(dependencies) {
   router.get(
     '/:bookHome/:bookName.json',
     authorizationMW.requiresAPILogin,
-    middleware.generateNewToken,
+    proxyMW.generateNewToken,
     davMiddleware.getDavEndpoint,
     controller.getContacts
   );
@@ -127,7 +154,7 @@ module.exports = function(dependencies) {
   router.propfind(
     '/:bookHome/:bookName.json',
     authorizationMW.requiresAPILogin,
-    middleware.generateNewToken,
+    proxyMW.generateNewToken,
     davMiddleware.getDavEndpoint,
     controller.getAddressbook
   );
@@ -157,12 +184,12 @@ module.exports = function(dependencies) {
   router.get(
     '/:bookHome.json',
     authorizationMW.requiresAPILogin,
-    middleware.generateNewToken,
+    proxyMW.generateNewToken,
     davMiddleware.getDavEndpoint,
     controller.getAddressbooks
   );
 
-  router.all('/*', authorizationMW.requiresAPILogin, middleware.generateNewToken, davMiddleware.getDavEndpoint, controller.defaultHandler);
+  router.all('/*', authorizationMW.requiresAPILogin, proxyMW.generateNewToken, davMiddleware.getDavEndpoint, controller.defaultHandler);
 
   return router;
 };

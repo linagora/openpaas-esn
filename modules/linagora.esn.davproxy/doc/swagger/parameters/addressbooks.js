@@ -34,4 +34,18 @@
   *       type: array
   *       items:
   *         $ref: "#/definitions/cm_id"
+  *   davproxy_addressbook_create:
+  *     name: addressbook
+  *     in: body
+  *     description: addressbook object to create
+  *     required: true
+  *     schema:
+  *       type: object
+  *       properties:
+  *        name:
+  *          type: string
+  *        description:
+  *          type: string
+  *        type:
+  *          type: string
   */

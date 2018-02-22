@@ -1,18 +1,64 @@
 'use strict';
 
-var q = require('q');
-var PATH = 'addressbooks';
+const q = require('q');
+const PATH = 'addressbooks';
 
 module.exports = function(dependencies) {
+  const logger = dependencies('logger');
+  const pubsub = dependencies('pubsub');
+  const localpubsub = pubsub.local;
+  const globalpubsub = pubsub.global;
+  const contactModule = dependencies('contact');
+  const CONSTANTS = contactModule.lib.constants;
+  const proxy = require('../proxy')(dependencies)(PATH);
+  const avatarHelper = require('./avatarHelper')(dependencies);
 
-  var logger = dependencies('logger');
-  var pubsub = dependencies('pubsub');
-  var localpubsub = pubsub.local;
-  var globalpubsub = pubsub.global;
-  var contactModule = dependencies('contact');
-  var CONSTANTS = contactModule.lib.constants;
-  var proxy = require('../proxy')(dependencies)(PATH);
-  var avatarHelper = require('./avatarHelper')(dependencies);
+  return {
+    createAddressbook,
+    defaultHandler,
+    deleteContact,
+    getAddressbook,
+    getAddressbooks,
+    getContact,
+    getContacts,
+    getContactsFromDAV,
+    searchContacts,
+    updateContact
+  };
+
+  function createAddressbook(req, res) {
+    const options = {
+      ESNToken: req.token && req.token.token ? req.token.token : '',
+      davserver: req.davserver
+    };
+
+    const addressbook = {
+      id: req.body.name,
+      'dav:name': req.body.name,
+      'carddav:description': req.body.description,
+      'dav:acl': ['dav:read', 'dav:write'],
+      type: req.body.type
+    };
+
+    contactModule.lib.client(options)
+      .addressbookHome(req.params.bookHome)
+      .addressbook()
+      .create(addressbook)
+      .then(() => res.status(201).json(addressbook))
+      .catch(err => {
+        const details = 'Error while creating addressbook on DAV server';
+
+        logger.error(details, err);
+
+        res.status(500).json({
+          error: {
+            code: 500,
+            message: 'Server Error',
+            details
+          }
+        });
+      });
+  }
 
   function getContactUrl(req, bookHome, bookName, contactId) {
     return [req.davserver, '/', PATH, '/', bookHome, '/', bookName, '/', contactId, '.vcf'].join('');
@@ -316,17 +362,4 @@ module.exports = function(dependencies) {
         });
       });
   }
-
-  return {
-    getContactsFromDAV: getContactsFromDAV,
-    getContact: getContact,
-    getContacts: getContacts,
-    searchContacts: searchContacts,
-    updateContact: updateContact,
-    deleteContact: deleteContact,
-    getAddressbooks: getAddressbooks,
-    getAddressbook: getAddressbook,
-    defaultHandler: defaultHandler
-  };
-
 };
