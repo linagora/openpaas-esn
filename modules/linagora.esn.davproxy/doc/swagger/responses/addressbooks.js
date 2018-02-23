@@ -75,4 +75,15 @@
   *             ["rev", {}, "timestamp", "2008-04-24T19:52:43Z"]
   *           ]
   *         ]
+  *   davproxy_addressbook_create:
+  *     description: OK. with content of addressbook
+  *     examples:
+  *       application/json:
+  *         {
+  *           "id": "addressbook name",
+  *           "dav:name": "addressbook name",
+  *           "carddav:description": "addressbook description",
+  *           "dav:acl": ["dav:read", "dav:write"],
+  *           "type": "user"
+  *         }
   */

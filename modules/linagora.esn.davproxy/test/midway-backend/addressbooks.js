@@ -479,5 +479,130 @@ describe('The addressbooks dav proxy', function() {
         });
       });
     });
+
+    describe('POST /addressbooks/:bookId.json', function() {
+      it('should respond 401 if user is not authenticated', function(done) {
+        this.helpers.api.requireLogin(this.app, 'post', `${PREFIX}/addressbooks/123.json`, done);
+      });
+
+      it('should respond 400 if there is no addressbook type', function(done) {
+        const self = this;
+        const addressbook = {
+          name: 'addressbook test',
+          description: 'addressbook description'
+        };
+
+        self.createDavServer(err => {
+          if (err) {
+            return done(err);
+          }
+
+          self.helpers.api.loginAsUser(self.app, user.emails[0], password, (err, loggedInAsUser) => {
+            if (err) {
+              return done(err);
+            }
+
+            const req = loggedInAsUser(request(self.app).post(`${PREFIX}/addressbooks/123.json`));
+
+            req.send(addressbook)
+              .expect(400)
+              .end((err, res) => {
+                expect(err).to.not.exist;
+                expect(res.body).to.deep.equal({
+                  error: {
+                    code: 400,
+                    message: 'Bad Request',
+                    details: 'Addressbook type is required'
+                  }
+                });
+                done();
+              });
+          });
+        });
+      });
+
+      it('should respond 400 if addressbook type is not supported', function(done) {
+        const self = this;
+        const addressbook = {
+          name: 'addressbook test',
+          description: 'addressbook description',
+          type: 'unsupport type'
+        };
+
+        self.createDavServer(err => {
+          if (err) {
+            return done(err);
+          }
+
+          self.helpers.api.loginAsUser(self.app, user.emails[0], password, (err, loggedInAsUser) => {
+            if (err) {
+              return done(err);
+            }
+
+            const req = loggedInAsUser(request(self.app).post(`${PREFIX}/addressbooks/123.json`));
+
+            req.send(addressbook)
+              .expect(400)
+              .end((err, res) => {
+                expect(err).to.not.exist;
+                expect(res.body).to.deep.equal({
+                  error: {
+                    code: 400,
+                    message: 'Bad Request',
+                    details: 'Addressbook type is not supported'
+                  }
+                });
+                done();
+              });
+          });
+        });
+      });
+
+      it('should respond 201 if success to create addressbook', function(done) {
+        const self = this;
+        let called = false;
+        const path = '/addressbooks/123.json';
+        const addressbook = {
+          name: 'addressbook test',
+          description: 'addressbook description',
+          type: 'user'
+        };
+
+        dav.post(path, (req, res) => {
+          called = true;
+
+          return res.status(201).json();
+        });
+
+        self.createDavServer(err => {
+          if (err) {
+            return done(err);
+          }
+
+          self.helpers.api.loginAsUser(self.app, user.emails[0], password, (err, loggedInAsUser) => {
+            if (err) {
+              return done(err);
+            }
+
+            const req = loggedInAsUser(request(self.app).post(`${PREFIX}${path}`));
+
+            req.send(addressbook)
+              .expect(201)
+              .end((err, res) => {
+                expect(err).to.not.exist;
+                expect(called).to.be.true;
+                expect(res.body).to.deep.equal({
+                  id: addressbook.name,
+                  'dav:name': addressbook.name,
+                  'carddav:description': addressbook.description,
+                  'dav:acl': ['dav:read', 'dav:write'],
+                  type: addressbook.type
+                });
+                done();
+              });
+          });
+        });
+      });
+    });
   });
 });
