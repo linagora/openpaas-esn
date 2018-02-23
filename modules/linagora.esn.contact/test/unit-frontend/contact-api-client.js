@@ -961,6 +961,47 @@ describe('The contact Angular module contactapis', function() {
 
         });
 
+        describe('The create addresbook function', function() {
+          it('should return an AddressBookShell instance if success', function(done) {
+            var AddressBookShell = this.AddressBookShell;
+            var bookId = '123';
+            var addresbook = {
+              name: 'Custom addresbook',
+              description: 'Addressbook for test',
+              type: 'user'
+            };
+
+            this.$httpBackend.when('POST', this.getBookHomeUrl(bookId)).respond({
+              _links: {
+                self: {
+                  href: '/esn-sabre/esn.php/addressbooks/5666b4cff5d672f316d4439f.json'
+                }
+              },
+              'dav:name': addresbook.name,
+              'carddav:description': addresbook.description,
+              'dav:acl': ['dav:read', 'dav:write'],
+              type: 'user'
+            });
+
+            this.ContactAPIClient
+              .addressbookHome(bookId)
+              .addressbook()
+              .create(addresbook)
+              .then(function(createdAddressbook) {
+                expect(createdAddressbook).to.be.instanceof(AddressBookShell);
+                expect(createdAddressbook).to.shallowDeepEqual({
+                  name: addresbook.name,
+                  description: addresbook.description,
+                  readable: true,
+                  editable: true
+                });
+                done();
+              }, done);
+
+            this.$rootScope.$apply();
+            this.$httpBackend.flush();
+          });
+        });
       });
 
       describe('The search function', function() {

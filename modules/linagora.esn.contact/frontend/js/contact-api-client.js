@@ -90,6 +90,21 @@ angular.module('linagora.esn.contact')
     }
 
     /**
+     * Create a addressbook in the specified addressbook home
+     * @param  {String} bookId      The addressbook home ID
+     * @param  {Object} addressbook The addressbook object to create. It must contain name and type, and it may contain description.
+     * @return {Promise}            Resolve AddressBookShell if success
+     */
+    function createAddressbook(bookId, addressbook) {
+      var headers = { Accept: CONTACT_ACCEPT_HEADER };
+
+      return davClient('POST', getBookHomeUrl(bookId), headers, addressbook)
+        .then(function(response) {
+          return new AddressBookShell(response.data);
+        });
+    }
+
+    /**
      * Get specified card
      * @param  {String} bookId   the addressbook home ID
      * @param  {String} bookName the addressbook name
@@ -316,6 +331,7 @@ angular.module('linagora.esn.contact')
      * Examples:
      * - List addressbooks: addressbookHome(bookId).addresbook().list()
      * - Get a addressbook: addressbookHome(bookId).addresbook(bookName).get()
+     * - Create a addresbook: addressbookHome(bookId).addresbook().create(addresbook)
      * - List contacts: addressbookHome(bookId).addresbook(bookName).vcard().list(options)
      * - Search contacts: addressbookHome(bookId).addresbook(bookName).vcard().search(options)
      * - Get a contact: addressbookHome(bookId).addresbook(bookName).vcard(cardId).get()
@@ -328,6 +344,10 @@ angular.module('linagora.esn.contact')
     function addressbookHome(bookId) {
       function addressbook(bookName) {
         bookName = bookName || DEFAULT_ADDRESSBOOK_NAME;
+
+        function create(addressbook) {
+          return createAddressbook(bookId, addressbook);
+        }
 
         function list() {
           return listAddressbook(bookId);
@@ -373,7 +393,9 @@ angular.module('linagora.esn.contact')
             remove: remove
           };
         }
+
         return {
+          create: create,
           list: list,
           get: get,
           vcard: vcard
