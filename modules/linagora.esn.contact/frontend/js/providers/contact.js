@@ -21,6 +21,7 @@
             .then(function(response) {
               return response.data.map(function(contact) {
                 contact.type = CONTACT_GLOBAL_SEARCH.TYPE;
+                contact.date = new Date();
 
                 return contact;
               });

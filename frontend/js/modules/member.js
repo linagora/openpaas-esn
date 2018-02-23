@@ -145,6 +145,8 @@ angular.module('esn.member', ['esn.router', 'esn.domain', 'esn.search', 'esn.inf
             offset += members.data.length;
             return members.data.map(function(member) {
               member.type = name;
+              member.date = new Date();
+
               return member;
             });
           });

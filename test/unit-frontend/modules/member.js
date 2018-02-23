@@ -1,6 +1,7 @@
 'use strict';
 
 /* global chai: false */
+/* global sinon: false */
 
 var expect = chai.expect;
 
@@ -211,7 +212,7 @@ describe('The Member Angular module', function() {
 
   describe('The memberSearchProvider factory', function() {
 
-    var $rootScope, memberSearchProvider, domainAPI;
+    var $rootScope, memberSearchProvider, domainAPI, members;
 
     beforeEach(module(function($provide) {
       domainAPI = {};
@@ -222,11 +223,8 @@ describe('The Member Angular module', function() {
       $rootScope = _$rootScope_;
       memberSearchProvider = _memberSearchProvider_;
       domainAPI = _domainAPI_;
-    }));
 
-    it('should search members from domain and adapt the result', function(done) {
-
-      var members = [
+      members = [
         {_id: 1, firstname: 'Nicolas', lastname: 'Cage'},
         {_id: 2, firstname: 'Bruce', lastname: 'Willis'}
       ];
@@ -236,6 +234,9 @@ describe('The Member Angular module', function() {
           data: members
         });
       };
+    }));
+
+    it('should search members from domain and adapt the result', function(done) {
 
       function check(result) {
         expect(result.length).to.equal(2);
@@ -252,6 +253,65 @@ describe('The Member Angular module', function() {
       fetcher().then(check, done);
 
       $rootScope.$digest();
+    });
+
+    describe('The date property of members', function() {
+      var fakeTimestamp, clock;
+
+      beforeEach(function() {
+        fakeTimestamp = 1519900268;
+        clock = sinon.useFakeTimers(fakeTimestamp);
+      });
+
+      afterEach(function() {
+        clock.restore();
+      });
+
+      it('should set member.date when members have no date property', function(done) {
+
+        function check(results) {
+          results.forEach(function(member) {
+            expect(member).to.have.property('date');
+            expect(member.date.getTime()).to.equal(fakeTimestamp);
+          });
+
+          done();
+        }
+
+        var fetcher = memberSearchProvider.fetch('abcd');
+
+        fetcher().then(check, done);
+
+        $rootScope.$digest();
+      });
+
+      it('should override existing member.date with current date', function(done) {
+        var members = [
+          {_id: 1, firstname: 'Nicolas', lastname: 'Cage', date: 'Mon Feb 10 2016 15:16:41 GMT+0100 (CET)'},
+          {_id: 2, firstname: 'Bruce', lastname: 'Willis', date: 'Mon Feb 10 2016 15:16:41 GMT+0100 (CET)'}
+        ];
+
+        domainAPI.getMembers = function() {
+          return $q.when({
+            data: members
+          });
+        };
+
+        function check(results) {
+          results.forEach(function(member) {
+            expect(member).to.have.property('date');
+            expect(member.date.getTime()).to.equal(fakeTimestamp);
+          });
+
+          done();
+        }
+
+        var fetcher = memberSearchProvider.fetch('abcd');
+
+        fetcher().then(check, done);
+
+        $rootScope.$digest();
+      });
     });
   });
 });
