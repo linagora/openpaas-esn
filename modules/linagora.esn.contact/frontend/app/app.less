@@ -1,0 +1,21 @@
+@import '../css/styles';
+@import './sidebar/sidebar';
+
+@media(min-width: @screen-md-min) {
+  .contact-aside {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    top: ~"calc(@{header-height-md} + @{sub-header-height-md})";
+    overflow-y: auto;
+
+    @media (min-width: @screen-xl-min) {
+      top: ~"calc(@{header-height-xl} + @{sub-header-height-xl})";
+    }
+  }
+
+  .contact-main-content {
+    position: absolute;
+    right: 0;
+  }
+}

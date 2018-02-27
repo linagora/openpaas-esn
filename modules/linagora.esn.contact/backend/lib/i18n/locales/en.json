@@ -53,5 +53,8 @@
   "The contact cannot be deleted, please retry later": "The contact cannot be deleted, please retry later",
   "Cancel it": "Cancel it",
   "Contact creation": "Contact creation",
-  "The contact cannot be created, please retry later": "The contact cannot be created, please retry later"
+  "The contact cannot be created, please retry later": "The contact cannot be created, please retry later",
+  "Address books": "Address books",
+  "My contacts": "My contacts",
+  "All address books": "All address books"
 }

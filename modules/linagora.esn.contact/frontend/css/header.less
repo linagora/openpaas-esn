@@ -6,6 +6,27 @@ contact-show-subheader, contact-edit-subheader, contact-create-subheader {
   contact-list-subheader {
     color: @m-white;
 
+    .contact-list-subheader-title {
+      padding-left: 0;
+
+      h2 {
+        font-size: 15px;
+        color: @m-white;
+        margin: 0 0 0 15px;
+        font-weight: 400;
+        text-transform: uppercase;
+
+        small {
+          display: block;
+          text-transform: none;
+          margin-top: 3px;
+          color: @accentColor;
+          font-weight: bold;
+          line-height: 140%;
+        }
+      }
+    }
+
     .contacts-list-toolbar {
       .flex-end;
 
