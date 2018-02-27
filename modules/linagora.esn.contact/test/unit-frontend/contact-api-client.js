@@ -1002,6 +1002,26 @@ describe('The contact Angular module contactapis', function() {
             this.$httpBackend.flush();
           });
         });
+
+        describe('The remove addresbook function', function() {
+          it('should resolve if success', function(done) {
+            var bookId = '123';
+            var bookName = 'test';
+
+            this.$httpBackend.when('DELETE', this.getBookUrl(bookId, bookName)).respond({});
+
+            this.ContactAPIClient
+              .addressbookHome(bookId)
+              .addressbook(bookName)
+              .remove()
+              .then(function() {
+                done();
+              }, done);
+
+            this.$rootScope.$apply();
+            this.$httpBackend.flush();
+          });
+        });
       });
 
       describe('The search function', function() {

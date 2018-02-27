@@ -105,6 +105,18 @@ angular.module('linagora.esn.contact')
     }
 
     /**
+     * Remove an addressbook in the specified addressbook home
+     * @param  {String} bookId   The addressbook home ID
+     * @param  {String} bookName The addressbook name
+     * @return {Promise}         Resolve on success
+     */
+    function removeAddressbook(bookId, bookName) {
+      var headers = { Accept: CONTACT_ACCEPT_HEADER };
+
+      return davClient('DELETE', getBookUrl(bookId, bookName), headers);
+    }
+
+    /**
      * Get specified card
      * @param  {String} bookId   the addressbook home ID
      * @param  {String} bookName the addressbook name
@@ -330,8 +342,9 @@ angular.module('linagora.esn.contact')
      * The addressbook API
      * Examples:
      * - List addressbooks: addressbookHome(bookId).addresbook().list()
-     * - Get a addressbook: addressbookHome(bookId).addresbook(bookName).get()
-     * - Create a addresbook: addressbookHome(bookId).addresbook().create(addresbook)
+     * - Get an addressbook: addressbookHome(bookId).addresbook(bookName).get()
+     * - Create an addresbook: addressbookHome(bookId).addresbook().create(addresbook)
+     * - Remove an addresbook: addressbookHome(bookId).addresbook(bookName).remove()
      * - List contacts: addressbookHome(bookId).addresbook(bookName).vcard().list(options)
      * - Search contacts: addressbookHome(bookId).addresbook(bookName).vcard().search(options)
      * - Get a contact: addressbookHome(bookId).addresbook(bookName).vcard(cardId).get()
@@ -355,6 +368,10 @@ angular.module('linagora.esn.contact')
 
         function get() {
           return getAddressbook(bookId, bookName);
+        }
+
+        function remove() {
+          return removeAddressbook(bookId, bookName);
         }
 
         function vcard(cardId) {
@@ -398,6 +415,7 @@ angular.module('linagora.esn.contact')
           create: create,
           list: list,
           get: get,
+          remove: remove,
           vcard: vcard
         };
       }
