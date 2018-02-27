@@ -53,5 +53,8 @@
   "The contact cannot be deleted, please retry later": "Le contact ne peut pas être supprimé, réessayez plus tard",
   "Cancel it": "Annuler",
   "Contact creation": "Création de contact",
-  "The contact cannot be created, please retry later": "Le contact ne peut pas être créé, réessayez plus tard"
+  "The contact cannot be created, please retry later": "Le contact ne peut pas être créé, réessayez plus tard",
+  "Address books": "Carnet d'adresses",
+  "My contacts": "Mes contacts",
+  "All address books": "Tous les carnets d'adresses"
 }

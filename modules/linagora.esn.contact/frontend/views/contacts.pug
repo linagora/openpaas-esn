@@ -1,12 +1,12 @@
 sub-header
   contact-list-subheader
 
-.contacts-list.col-xs-12
+.contacts-list
   fab.contact-fab(ng-click='openContactCreation()')
 
   .contacts-body.p-t-15
     .row
-      .col-xs-12
+      .col-xs-12.col-md-8
         .contact-error-container
     .row
       .col-xs-12(infinite-scroll='scrollHandler()' infinite-scroll-distance='1' infinite-scroll-disabled='loadingNextContacts || searchFailure || lastPage')

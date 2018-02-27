@@ -53,5 +53,8 @@
   "The contact cannot be deleted, please retry later": "Không thể xóa liên lạc, vui lòng thử lại sau",
   "Cancel it": "Hủy tác vụ",
   "Contact creation": "Tạo liên lạc",
-  "The contact cannot be created, please retry later": "Khôn thể tạo liên lạc, vui lòng thử lại sau"
+  "The contact cannot be created, please retry later": "Không thể tạo liên lạc, vui lòng thử lại sau",
+  "Address books": "Sổ địa chỉ",
+  "My contacts": "Danh bạ của tôi",
+  "All address books": "Tất cả liên hệ"
 }
