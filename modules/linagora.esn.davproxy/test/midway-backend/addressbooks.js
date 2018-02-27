@@ -485,6 +485,42 @@ describe('The addressbooks dav proxy', function() {
         this.helpers.api.requireLogin(this.app, 'post', `${PREFIX}/addressbooks/123.json`, done);
       });
 
+      it('should respond 400 if there is no addressbook name', function(done) {
+        const self = this;
+        const addressbook = {
+          description: 'addressbook description',
+          type: 'user'
+        };
+
+        self.createDavServer(err => {
+          if (err) {
+            return done(err);
+          }
+
+          self.helpers.api.loginAsUser(self.app, user.emails[0], password, (err, loggedInAsUser) => {
+            if (err) {
+              return done(err);
+            }
+
+            const req = loggedInAsUser(request(self.app).post(`${PREFIX}/addressbooks/123.json`));
+
+            req.send(addressbook)
+              .expect(400)
+              .end((err, res) => {
+                expect(err).to.not.exist;
+                expect(res.body).to.deep.equal({
+                  error: {
+                    code: 400,
+                    message: 'Bad Request',
+                    details: 'Addressbook name is required'
+                  }
+                });
+                done();
+              });
+          });
+        });
+      });
+
       it('should respond 400 if there is no addressbook type', function(done) {
         const self = this;
         const addressbook = {

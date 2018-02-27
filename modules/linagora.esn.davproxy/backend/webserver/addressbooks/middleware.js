@@ -18,6 +18,16 @@ module.exports = dependencies => {
       });
     }
 
+    if (!req.body.name) {
+      return res.status(400).json({
+        error: {
+          code: 400,
+          message: 'Bad Request',
+          details: 'Addressbook name is required'
+        }
+      });
+    }
+
     if (AVAILABLE_ADDRESSBOOK_TYPES.indexOf(req.body.type) === -1) {
       return res.status(400).json({
         error: {
