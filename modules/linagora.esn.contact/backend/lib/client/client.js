@@ -160,6 +160,27 @@ module.exports = function(dependencies, options) {
       }
 
       /**
+       * Remove an addressbook
+       *
+       * @return {Promise}
+       */
+      function remove() {
+        var deferred = q.defer();
+        var headers = {
+          ESNToken: ESNToken,
+          accept: VCARD_JSON
+        };
+
+        getBookUrl(url => davClient({
+          method: 'DELETE',
+          headers: headers,
+          url: url
+        }, checkResponse(deferred, 'DELETE', 'Error while removing addressbook in DAV')));
+
+        return deferred.promise;
+      }
+
+      /**
        * Get all addressbooks of current user
        * @return {Promise}
        */
@@ -436,10 +457,11 @@ module.exports = function(dependencies, options) {
       }
 
       return {
-        create: create,
-        list: list,
-        get: get,
-        vcard: vcard
+        create,
+        list,
+        get,
+        remove,
+        vcard
       };
     }
 

@@ -604,5 +604,44 @@ describe('The addressbooks dav proxy', function() {
         });
       });
     });
+
+    describe('DELETE /addressbooks/:bookId/:bookName.json', function() {
+      it('should respond 401 if user is not authenticated', function(done) {
+        this.helpers.api.requireLogin(this.app, 'delete', `${PREFIX}/addressbooks/123/test.json`, done);
+      });
+
+      it('should respond 204 if success to remove addressbook', function(done) {
+        const self = this;
+        let called = false;
+        const path = '/addressbooks/123/test.json';
+
+        dav.delete(path, (req, res) => {
+          called = true;
+
+          return res.status(204).json();
+        });
+
+        self.createDavServer(err => {
+          if (err) {
+            return done(err);
+          }
+
+          self.helpers.api.loginAsUser(self.app, user.emails[0], password, (err, loggedInAsUser) => {
+            if (err) {
+              return done(err);
+            }
+
+            const req = loggedInAsUser(request(self.app).delete(`${PREFIX}${path}`));
+
+            req.expect(204)
+              .end(err => {
+                expect(err).to.not.exist;
+                expect(called).to.be.true;
+                done();
+              });
+          });
+        });
+      });
+    });
   });
 });

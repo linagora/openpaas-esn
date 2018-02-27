@@ -17,7 +17,7 @@ module.exports = function(dependencies) {
    *   post:
    *     tags:
    *       - Davproxy
-   *     description: Create a addressbook in the specified addressbook home
+   *     description: Create an addressbook in the specified addressbook home
    *     parameters:
    *       - $ref: "#/parameters/davproxy_addressbook_book_home"
    *       - $ref: "#/parameters/davproxy_addressbook_create"
@@ -36,6 +36,32 @@ module.exports = function(dependencies) {
     proxyMW.generateNewToken,
     davMiddleware.getDavEndpoint,
     controller.createAddressbook
+  );
+
+  /**
+   * @swagger
+   * /addressbooks/{bookHome}.json:
+   *   delete:
+   *     tags:
+   *       - Davproxy
+   *     description: Remove an addressbook in the specified addressbook home
+   *     parameters:
+   *       - $ref: "#/parameters/davproxy_addressbook_book_home"
+   *       - $ref: "#/parameters/davproxy_addressbook_book_name"
+   *     responses:
+   *       204:
+   *         $ref: "#/responses/cm_204"
+   *       401:
+   *         $ref: "#/responses/cm_401"
+   *       500:
+   *         $ref: "#/responses/cm_500"
+   */
+  router.delete(
+    '/:bookHome/:bookName.json',
+    authorizationMW.requiresAPILogin,
+    proxyMW.generateNewToken,
+    davMiddleware.getDavEndpoint,
+    controller.removeAddressbook
   );
 
   /**
