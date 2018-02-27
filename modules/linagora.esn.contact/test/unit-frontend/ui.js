@@ -88,7 +88,7 @@ describe('The Contacts ui module', function() {
       // Simulate angular.element.find and restore after
       angularFind = angular.element.find;
       angular.element.find = function(value) {
-        if (value === '.contact-list-subheader') {
+        if (value === 'contact-list-subheader') {
           return [angularFindResult.contactHeader];
         }
       };

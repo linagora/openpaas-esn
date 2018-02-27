@@ -256,7 +256,7 @@ angular.module('linagora.esn.contact')
       }, 200);
     };
   })
-  .controller('contactsListController', function($log, $scope, $q, usSpinnerService, $location, AlphaCategoryService, ALPHA_ITEMS, user, displayContactError, openContactForm, ContactsHelper, gracePeriodService, $window, searchResultSizeFormatter, CONTACT_EVENTS, CONTACT_LIST_DISPLAY, sharedContactDataService, contactUpdateDataService, AddressBookPagination, addressbooks, CONTACT_LIST_DISPLAY_MODES) {
+  .controller('contactsListController', function($log, $scope, $stateParams, $q, usSpinnerService, $location, AlphaCategoryService, ALPHA_ITEMS, user, displayContactError, openContactForm, ContactsHelper, gracePeriodService, $window, searchResultSizeFormatter, CONTACT_EVENTS, CONTACT_LIST_DISPLAY, sharedContactDataService, contactUpdateDataService, AddressBookPagination, esnI18nService, addressbooks, CONTACT_LIST_DISPLAY_MODES) {
     var requiredKey = 'displayName';
     var SPINNER = 'contactListSpinner';
 
@@ -273,6 +273,7 @@ angular.module('linagora.esn.contact')
     $scope.totalHits = 0;
     $scope.displayAs = CONTACT_LIST_DISPLAY.list;
     $scope.addressbooks = addressbooks || [];
+    $scope.bookTitle = $stateParams.bookTitle || esnI18nService.translate('All addressbooks').toString();
 
     $scope.$on('$stateChangeStart', function(evt, next) {
       // store the search query so the search list can be restored when the user
