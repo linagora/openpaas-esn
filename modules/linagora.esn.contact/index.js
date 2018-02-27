@@ -1,8 +1,9 @@
 'use strict';
 
-var AwesomeModule = require('awesome-module');
-var Dependency = AwesomeModule.AwesomeModuleDependency;
-var path = require('path');
+const AwesomeModule = require('awesome-module');
+const Dependency = AwesomeModule.AwesomeModuleDependency;
+const path = require('path');
+const glob = require('glob-all');
 
 const FRONTEND_PATH = path.join(__dirname, 'frontend');
 const innerApps = ['esn'];
@@ -26,6 +27,9 @@ const angularModuleFiles = [
   'providers/attendee.js',
   'providers/contact.js'
 ];
+const angularModuleAppFiles = glob.sync([
+  `${FRONTEND_PATH}/app/**/!(*spec).js`
+]);
 const modulesOptions = {
   localJsFiles: angularModuleFiles.map(file => path.resolve(FRONTEND_PATH, 'js', file))
 };
@@ -37,10 +41,10 @@ const moduleData = {
   angularModules: []
 };
 
-moduleData.lessFiles.push([moduleData.shortName, [path.resolve(FRONTEND_PATH, 'css/styles.less')], innerApps]);
+moduleData.lessFiles.push([moduleData.shortName, [path.resolve(FRONTEND_PATH, 'app/app.less')], innerApps]);
 moduleData.angularModules.push([moduleData.shortName, angularModuleFiles, moduleData.fullName, innerApps, modulesOptions]);
 
-var contactModule = new AwesomeModule(moduleData.fullName, {
+const contactModule = new AwesomeModule(moduleData.fullName, {
   dependencies: [
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.logger', 'logger'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.auth', 'auth'),
@@ -61,10 +65,10 @@ var contactModule = new AwesomeModule(moduleData.fullName, {
   data: moduleData,
   states: {
     lib: function(dependencies, callback) {
-      var libModule = require('./backend/lib')(dependencies);
-      var contacts = require('./backend/webserver/api/contacts')(dependencies);
+      const libModule = require('./backend/lib')(dependencies);
+      const contacts = require('./backend/webserver/api/contacts')(dependencies);
 
-      var lib = {
+      const lib = {
         api: {
           contacts: contacts
         },
@@ -75,13 +79,21 @@ var contactModule = new AwesomeModule(moduleData.fullName, {
     },
 
     deploy: function(dependencies, callback) {
-      var app = require('./backend/webserver/application')(dependencies);
-      var webserverWrapper = dependencies('webserver-wrapper');
+      const app = require('./backend/webserver/application')(dependencies);
+      const webserverWrapper = dependencies('webserver-wrapper');
 
       app.use('/api/contacts', this.api.contacts);
       moduleData.angularModules.forEach(mod => webserverWrapper.injectAngularModules.apply(webserverWrapper, mod));
       moduleData.lessFiles.forEach(lessSet => webserverWrapper.injectLess.apply(webserverWrapper, lessSet));
       webserverWrapper.addApp(moduleData.shortName, app);
+
+      const appFilesUri = angularModuleAppFiles.map(function(filepath) {
+        return filepath.replace(`${FRONTEND_PATH}/app/`, '');
+      });
+
+      webserverWrapper.injectAngularAppModules(moduleData.shortName, appFilesUri, moduleData.fullName, innerApps, {
+        localJsFiles: angularModuleAppFiles
+      });
 
       require('./backend/webserver/api/contacts/avatarProvider').init(dependencies);
 
