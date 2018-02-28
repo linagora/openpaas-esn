@@ -961,12 +961,12 @@ describe('The contact Angular module contactapis', function() {
 
         });
 
-        describe('The create addresbook function', function() {
+        describe('The create addressbook function', function() {
           it('should return an AddressBookShell instance if success', function(done) {
             var AddressBookShell = this.AddressBookShell;
             var bookId = '123';
-            var addresbook = {
-              name: 'Custom addresbook',
+            var addressbook = {
+              name: 'Custom addressbook',
               description: 'Addressbook for test',
               type: 'user'
             };
@@ -977,8 +977,8 @@ describe('The contact Angular module contactapis', function() {
                   href: '/esn-sabre/esn.php/addressbooks/5666b4cff5d672f316d4439f.json'
                 }
               },
-              'dav:name': addresbook.name,
-              'carddav:description': addresbook.description,
+              'dav:name': addressbook.name,
+              'carddav:description': addressbook.description,
               'dav:acl': ['dav:read', 'dav:write'],
               type: 'user'
             });
@@ -986,12 +986,12 @@ describe('The contact Angular module contactapis', function() {
             this.ContactAPIClient
               .addressbookHome(bookId)
               .addressbook()
-              .create(addresbook)
+              .create(addressbook)
               .then(function(createdAddressbook) {
                 expect(createdAddressbook).to.be.instanceof(AddressBookShell);
                 expect(createdAddressbook).to.shallowDeepEqual({
-                  name: addresbook.name,
-                  description: addresbook.description,
+                  name: addressbook.name,
+                  description: addressbook.description,
                   readable: true,
                   editable: true
                 });
@@ -1003,7 +1003,7 @@ describe('The contact Angular module contactapis', function() {
           });
         });
 
-        describe('The remove addresbook function', function() {
+        describe('The remove addressbook function', function() {
           it('should resolve if success', function(done) {
             var bookId = '123';
             var bookName = 'test';
@@ -1014,6 +1014,29 @@ describe('The contact Angular module contactapis', function() {
               .addressbookHome(bookId)
               .addressbook(bookName)
               .remove()
+              .then(function() {
+                done();
+              }, done);
+
+            this.$rootScope.$apply();
+            this.$httpBackend.flush();
+          });
+        });
+
+        describe('The update addressbook function', function() {
+          it('should resolve if success', function(done) {
+            var bookId = '123';
+            var bookName = 'test';
+            var addressbook = {
+              name: 'Modified name'
+            };
+
+            this.$httpBackend.when('PUT', this.getBookUrl(bookId, bookName)).respond({});
+
+            this.ContactAPIClient
+              .addressbookHome(bookId)
+              .addressbook(bookName)
+              .update(addressbook)
               .then(function() {
                 done();
               }, done);
