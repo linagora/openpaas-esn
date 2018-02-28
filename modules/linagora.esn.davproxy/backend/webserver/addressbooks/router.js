@@ -66,6 +66,33 @@ module.exports = function(dependencies) {
 
   /**
    * @swagger
+   * /addressbooks/{bookHome}.json:
+   *   put:
+   *     tags:
+   *       - Davproxy
+   *     description: Update an addressbook in the specified addressbook home
+   *     parameters:
+   *       - $ref: "#/parameters/davproxy_addressbook_book_home"
+   *       - $ref: "#/parameters/davproxy_addressbook_book_name"
+   *       - $ref: "#/parameters/davproxy_addressbook_update"
+   *     responses:
+   *       204:
+   *         $ref: "#/responses/cm_204"
+   *       401:
+   *         $ref: "#/responses/cm_401"
+   *       500:
+   *         $ref: "#/responses/cm_500"
+   */
+  router.put(
+    '/:bookHome/:bookName.json',
+    authorizationMW.requiresAPILogin,
+    proxyMW.generateNewToken,
+    davMiddleware.getDavEndpoint,
+    controller.updateAddressbook
+  );
+
+  /**
+   * @swagger
    * /addressbooks/{bookHome}/{bookName}/{contactId}.vcf:
    *   get:
    *     tags:
