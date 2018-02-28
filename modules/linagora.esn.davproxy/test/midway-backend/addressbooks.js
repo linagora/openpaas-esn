@@ -296,7 +296,7 @@ describe('The addressbooks dav proxy', function() {
         var self = this;
         var called = false;
 
-        var path = '/addressbooks/123/contacts.json';
+        var path = '/addressbooks/123/contacts.vcf';
         var result = {_id: '123'};
 
         dav.put(path, function(req, res) {
@@ -670,6 +670,50 @@ describe('The addressbooks dav proxy', function() {
             const req = loggedInAsUser(request(self.app).delete(`${PREFIX}${path}`));
 
             req.expect(204)
+              .end(err => {
+                expect(err).to.not.exist;
+                expect(called).to.be.true;
+                done();
+              });
+          });
+        });
+      });
+    });
+
+    describe('PUT /addressbooks/:bookId/:bookName.json', function() {
+      it('should respond 401 if user is not authenticated', function(done) {
+        this.helpers.api.requireLogin(this.app, 'put', `${PREFIX}/addressbooks/123/test.json`, done);
+      });
+
+      it('should respond 204 if success to update addressbook', function(done) {
+        const self = this;
+        let called = false;
+        const path = '/addressbooks/123/test.json';
+        const addressBookToUpdate = {
+          name: 'modified addressbook name',
+          description: 'modified addressbook description'
+        };
+
+        dav.proppatch(path, (req, res) => {
+          called = true;
+
+          return res.status(204).json();
+        });
+
+        self.createDavServer(err => {
+          if (err) {
+            return done(err);
+          }
+
+          self.helpers.api.loginAsUser(self.app, user.emails[0], password, (err, loggedInAsUser) => {
+            if (err) {
+              return done(err);
+            }
+
+            const req = loggedInAsUser(request(self.app).put(`${PREFIX}${path}`));
+
+            req.send(addressBookToUpdate)
+              .expect(204)
               .end(err => {
                 expect(err).to.not.exist;
                 expect(called).to.be.true;

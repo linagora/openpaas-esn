@@ -181,6 +181,29 @@ module.exports = function(dependencies, options) {
       }
 
       /**
+       * Update an addressbook
+       *
+       * @return {Promise}
+       */
+      function update(modified) {
+        const deferred = q.defer();
+        const headers = {
+          ESNToken: ESNToken,
+          accept: VCARD_JSON
+        };
+
+        getBookUrl(url => davClient({
+          method: 'PROPPATCH',
+          headers: headers,
+          url: url,
+          json: true,
+          body: modified
+        }, checkResponse(deferred, 'PROPPATCH', 'Error while updating addressbook in DAV')));
+
+        return deferred.promise;
+      }
+
+      /**
        * Get all addressbooks of current user
        * @return {Promise}
        */
@@ -461,6 +484,7 @@ module.exports = function(dependencies, options) {
         list,
         get,
         remove,
+        update,
         vcard
       };
     }
