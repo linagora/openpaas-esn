@@ -23,6 +23,7 @@ module.exports = function(dependencies) {
     getContacts,
     getContactsFromDAV,
     searchContacts,
+    removeAddressbook,
     updateContact
   };
 
@@ -47,6 +48,32 @@ module.exports = function(dependencies) {
       .then(() => res.status(201).json(addressbook))
       .catch(err => {
         const details = 'Error while creating addressbook on DAV server';
+
+        logger.error(details, err);
+
+        res.status(500).json({
+          error: {
+            code: 500,
+            message: 'Server Error',
+            details
+          }
+        });
+      });
+  }
+
+  function removeAddressbook(req, res) {
+    const options = {
+      ESNToken: req.token && req.token.token ? req.token.token : '',
+      davserver: req.davserver
+    };
+
+    contactModule.lib.client(options)
+      .addressbookHome(req.params.bookHome)
+      .addressbook(req.params.bookName)
+      .remove()
+      .then(() => res.status(204).json())
+      .catch(err => {
+        const details = 'Error while removing addressbook on DAV server';
 
         logger.error(details, err);
 
