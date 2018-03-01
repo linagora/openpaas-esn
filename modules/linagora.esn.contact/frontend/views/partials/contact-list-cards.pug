@@ -1,7 +1,5 @@
-.row.all-centered(ng-switch='mode')
-  .col-xs-12.col-md-10
-    .contacts.clearfix.row.fadeIn200ms
-      div(ng-switch-when='multiple' data-contact-index="{{letter}}" ng-repeat="(letter, contacts) in sorted_contacts" on-finish-render)
-        contact-list-card.col-md-4.col-sm-6.col-xs-12(contact='contact', ng-repeat="contact in contacts")
-      div(ng-switch-when='search' on-finish-render ng-if='searchResult.data && searchResult.data.length')
-        contact-list-card.col-md-4.col-sm-6.col-xs-12(contact='contact', ng-repeat="contact in searchResult.data" ng-hide="contact.deleted")
+.contacts.clearfix.row.fadeIn200ms(ng-switch='mode')
+  div(ng-switch-when='multiple' data-contact-index="{{letter}}" ng-repeat="(letter, contacts) in sorted_contacts" on-finish-render)
+    contact-list-card.col-md-4.col-sm-6.col-xs-12(contact='contact', ng-repeat="contact in contacts")
+  div(ng-switch-when='search' on-finish-render ng-if='searchResult.data && searchResult.data.length')
+    contact-list-card.col-md-4.col-sm-6.col-xs-12(contact='contact', ng-repeat="contact in searchResult.data" ng-hide="contact.deleted")

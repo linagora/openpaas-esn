@@ -1,0 +1,58 @@
+contact-sidebar {
+  .sidebar-title {
+    .flex;
+
+    border-left: 5px solid @primaryColor;
+    padding: 8px 0 8px 10px;
+    margin-top: 20px;
+    max-height: 35px;
+    margin-bottom: 5px;
+
+    .title {
+      .flex;
+      .flex-shorthand(1);
+
+      .text {
+        .flex-shorthand(1);
+
+        font-weight: bold;
+        font-size: 1.6em;
+        color: @primaryColor;
+      }
+    }
+
+    .media > .pull-right {
+      padding-left: 2px;
+    }
+  }
+
+  .listview .addressbook-item {
+    .flex-row;
+    .flex-start;
+    .flex-vertical-centered;
+
+    .addressbook-icon {
+      margin-left: -5px;
+      color: @primaryColor;
+      font-size: 1.8em;
+      vertical-align: bottom;
+    }
+
+    &.selected {
+      color: @primaryColor;
+      font-weight: 500;
+      background-color: @darkenBgColor;
+      border-radius: 2px;
+    }
+
+    &:hover {
+      background-color: @darkenBgColor;
+      border-radius: 2px;
+    }
+  }
+
+  hr {
+    margin: 6px 0;
+    border-top: 1px solid @black-alpha-10;
+  }
+}
