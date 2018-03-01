@@ -48,4 +48,16 @@
   *          type: string
   *        type:
   *          type: string
+  *   davproxy_addressbook_update:
+  *     name: addressbook
+  *     in: body
+  *     description: addressbook object to update
+  *     required: true
+  *     schema:
+  *       type: object
+  *       properties:
+  *        name:
+  *          type: string
+  *        description:
+  *          type: string
   */
