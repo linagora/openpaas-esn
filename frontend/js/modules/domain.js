@@ -162,6 +162,7 @@ angular.module('esn.domain', ['esn.http', 'ngTagsInput', 'op.dynamicDirective', 
     function get(domainId) {
       return {
         objectType: 'user',
+        priority: 100,
         searchAttendee: function(query, limit) {
           var memberQuery = {search: query, limit: limit};
           return domainAPI.getMembers(domainId, memberQuery).then(function(response) {

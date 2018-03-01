@@ -1,7 +1,6 @@
 'use strict';
 
-/* global chai: false */
-/* global sinon: false */
+/* global chai: false, sinon: false */
 
 var expect = chai.expect;
 
@@ -23,6 +22,7 @@ describe('The attendeeService service', function() {
   });
 
   describe('The addProvider method', function() {
+
     it('should not add an undefined provider', function(done) {
       attendeeService.addProvider();
       attendeeService.getAttendeeCandidates(query, limit).then(function(attendeeCandidates) {
@@ -73,6 +73,31 @@ describe('The attendeeService service', function() {
       attendeeService.addProvider(newProvider);
       attendeeService.getAttendeeCandidates(query, limit).then(function() {
         expect(spy).to.have.been.called;
+        done();
+      }, done);
+
+      $rootScope.$apply();
+    });
+
+    it('should honor provider priority over unprioritized providers', function(done) {
+      attendeeService.addProvider({ searchAttendee: sinon.stub().returns($q.when([{ email: 'attendee1' }])) });
+      attendeeService.addProvider({ priority: 1, searchAttendee: sinon.stub().returns($q.when([{ email: 'attendee2' }])) });
+      attendeeService.getAttendeeCandidates({}).then(function(attendees) {
+        expect(attendees).to.shallowDeepEqual([{ email: 'attendee2' }, { email: 'attendee1' }]);
+
+        done();
+      }, done);
+
+      $rootScope.$apply();
+    });
+
+    it('should honor provider priority over lower priority providers', function(done) {
+      attendeeService.addProvider({ priority: 1, searchAttendee: sinon.stub().returns($q.when([{ email: 'attendee1' }])) });
+      attendeeService.addProvider({ priority: 2, searchAttendee: sinon.stub().returns($q.when([{ email: 'attendee2' }])) });
+      attendeeService.addProvider({ searchAttendee: sinon.stub().returns($q.when([{ email: 'attendee3' }])) });
+      attendeeService.getAttendeeCandidates({}).then(function(attendees) {
+        expect(attendees).to.shallowDeepEqual([{ email: 'attendee2' }, { email: 'attendee1' }, { email: 'attendee3' }]);
+
         done();
       }, done);
 

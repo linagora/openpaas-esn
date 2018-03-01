@@ -13,6 +13,10 @@
       getProviders: getProviders
     };
 
+    function higherPriorityFirst(provider) {
+      return -provider.priority;
+    }
+
     function addProvider(provider) {
       if (provider && provider.searchAttendee) {
         if (!provider.templateUrl) {
@@ -29,7 +33,15 @@
           });
         };
 
-        providers.push(provider);
+        // Before the introduction of providers priority the providers were pushed to the end of the array
+        // without any particular order. To minimize the risk of regressions, the below 'if' maintains a backwards-
+        // compatibility with the previous behavior.
+        // If all registered providers implement a priority, this can safely be removed.
+        if (!provider.priority) {
+          return providers.push(provider);
+        }
+
+        providers.splice(_.sortedIndex(providers, provider, higherPriorityFirst), 0, provider);
       }
     }
 
