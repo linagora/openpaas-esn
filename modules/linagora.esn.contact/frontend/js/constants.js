@@ -5,6 +5,7 @@
 angular.module('linagora.esn.contact')
   .constant('ICAL', ICAL)
   .constant('DEFAULT_ADDRESSBOOK_NAME', 'contacts')
+  .constant('CONTACT_COLLECTED_ADDRESSBOOK_NAME', 'collected')
   .constant('DEFAULT_ADDRESSBOOK_AGGREGATOR_NAME', 'ABAggregator')
   .constant('CONTACT_DATE_FORMAT', 'MM/dd/yyyy')
   .constant('LETTER_DISPLAY_DURATION', 1500)

@@ -35,10 +35,11 @@ describe('The Contacts forms module', function() {
 
   describe('The openContactForm service', function() {
 
-    var bookId, contact;
+    var bookId, bookName, contact;
 
     beforeEach(function() {
       bookId = '123';
+      bookName = 'contacts';
       contact = {_id: '456'};
       var self = this;
       self.sharedContactDataService = {};
@@ -60,14 +61,14 @@ describe('The Contacts forms module', function() {
     }));
 
     it('should save the contact in the sharedContactDataService when defined', function() {
-      this.openContactForm(bookId, contact);
+      this.openContactForm(bookId, bookName, contact);
       expect(this.sharedContactDataService.contact).to.deep.equal(contact);
     });
 
     it('should call the ContactLocationHelper.contact.new with right parameter', function() {
       this.ContactLocationHelper.contact.new = sinon.spy();
-      this.openContactForm(bookId, contact);
-      expect(this.ContactLocationHelper.contact.new).to.have.been.calledWithExactly(bookId, this.DEFAULT_ADDRESSBOOK_NAME);
+      this.openContactForm(bookId, bookName, contact);
+      expect(this.ContactLocationHelper.contact.new).to.have.been.calledWithExactly(bookId, bookName);
     });
   });
 });

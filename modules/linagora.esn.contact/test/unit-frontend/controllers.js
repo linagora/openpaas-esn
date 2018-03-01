@@ -48,7 +48,8 @@ describe('The Contacts controller module', function() {
       }
     };
     $stateParams = {
-      bookId: bookId
+      bookId: bookId,
+      bookName: bookName
     };
     selectionService = {
       clear: function() {}
@@ -76,6 +77,7 @@ describe('The Contacts controller module', function() {
         return {
           addressbook: function() {
             return {
+              list: function() { return $q.when([]); },
               vcard: function() {
                 return {
                   get: function() { return $q.when(); },
@@ -137,8 +139,8 @@ describe('The Contacts controller module', function() {
     };
 
     openContactFormMock = function() {};
-    openContactForm = function(id) {
-      return openContactFormMock(id);
+    openContactForm = function(id, name) {
+      return openContactFormMock(id, name);
     };
 
     closeContactFormMock = function() {};
@@ -287,6 +289,18 @@ describe('The Contacts controller module', function() {
       });
       scope.close();
       done(new Error('Should not happen'));
+    });
+
+    it('should get the bookName of address book in stateParam', function() {
+      $controller('newContactController', {
+        $scope: scope,
+        $stateParams: $stateParams,
+        sharedContactDataService: {
+          contact: {}
+        }
+      });
+
+      expect(scope.bookName).to.equal(bookName);
     });
 
     describe('the accept function', function() {
@@ -2003,6 +2017,8 @@ describe('The Contacts controller module', function() {
           _id: 123
         };
 
+        scope.bookName = 'contacts';
+
         openContactFormMock = sinon.spy();
 
         $controller('contactsListController', {
@@ -2011,7 +2027,8 @@ describe('The Contacts controller module', function() {
         });
 
         scope.openContactCreation();
-        expect(openContactFormMock).to.have.been.calledWith(user._id);
+        scope.$digest();
+        expect(openContactFormMock).to.have.been.calledWith(user._id, 'contacts');
       });
     });
 

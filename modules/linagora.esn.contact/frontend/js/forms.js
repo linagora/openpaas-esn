@@ -8,11 +8,11 @@ angular.module('linagora.esn.contact')
     };
   })
 
-  .factory('openContactForm', function(sharedContactDataService, ContactLocationHelper, DEFAULT_ADDRESSBOOK_NAME) {
-    return function(bookId, contact) {
+  .factory('openContactForm', function(sharedContactDataService, ContactLocationHelper) {
+    return function(bookId, bookName, contact) {
       if (contact) {
         sharedContactDataService.contact = contact;
       }
-      ContactLocationHelper.contact.new(bookId, DEFAULT_ADDRESSBOOK_NAME);
+      ContactLocationHelper.contact.new(bookId, bookName);
     };
   });

@@ -56,5 +56,7 @@
   "The contact cannot be created, please retry later": "Le contact ne peut pas être créé, réessayez plus tard",
   "Address books": "Carnet d'adresses",
   "My contacts": "Mes contacts",
-  "All address books": "Tous les carnets d'adresses"
+  "All address books": "Tous les carnets d'adresses",
+  "Address book": "Carnet d'adresse",
+  "Collected contacts": "Contacts collectés"
 }
