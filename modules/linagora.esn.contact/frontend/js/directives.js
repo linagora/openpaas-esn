@@ -49,7 +49,12 @@ angular.module('linagora.esn.contact')
       }
     };
   })
-  .directive('contactEditionForm', function(contactAddressbookService, CONTACT_ATTRIBUTES_ORDER, CONTACT_AVATAR_SIZE) {
+  .directive('contactEditionForm', function(
+    contactAddressbookDisplayService,
+    contactAddressbookService,
+    CONTACT_ATTRIBUTES_ORDER,
+    CONTACT_AVATAR_SIZE
+  ) {
     return {
       restrict: 'E',
       scope: {
@@ -62,7 +67,7 @@ angular.module('linagora.esn.contact')
         $scope.CONTACT_ATTRIBUTES_ORDER = CONTACT_ATTRIBUTES_ORDER;
         $scope.avatarSize = CONTACT_AVATAR_SIZE.bigger;
         $scope.getDisplayName = function(book) {
-          return contactAddressbookService.getDisplayName(book);
+          return contactAddressbookDisplayService.buildDisplayName(book);
         };
 
         contactAddressbookService.listEditableAddressbooks().then(function(addressbooks) {

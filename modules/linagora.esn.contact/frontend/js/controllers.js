@@ -259,7 +259,7 @@ angular.module('linagora.esn.contact')
   .controller('contactsListController', function(
     $q, $log, $scope, $stateParams, $location, $window,
     addressbooks, AddressBookPagination, AlphaCategoryService,
-    ContactsHelper, contactUpdateDataService, contactAddressbookService,
+    ContactsHelper, contactUpdateDataService, contactAddressbookDisplayService, contactAddressbookService,
     esnI18nService, displayContactError, gracePeriodService, openContactForm,
     searchResultSizeFormatter, sharedContactDataService,
     user, usSpinnerService,
@@ -297,11 +297,11 @@ angular.module('linagora.esn.contact')
 
     function _buildAddressBookTitle() {
       if ($scope.addressbooks.length > 1) {
-        return esnI18nService.translate('All address books').toString();
+        return esnI18nService.translate('All contacts').toString();
       }
 
       if ($scope.addressbooks.length === 1) {
-        return contactAddressbookService.getDisplayName($scope.addressbooks[0]);
+        return contactAddressbookDisplayService.buildDisplayName($scope.addressbooks[0]);
       }
 
       return '';
