@@ -12,7 +12,8 @@ var VALID_HTTP_STATUS = {
   PUT: [200, 201, 204],
   POST: [200, 201],
   DELETE: [204],
-  PROPFIND: [200]
+  PROPFIND: [200],
+  PROPPATCH: [204]
 };
 
 module.exports = function(dependencies, options) {
