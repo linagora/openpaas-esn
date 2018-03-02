@@ -56,5 +56,7 @@
   "The contact cannot be created, please retry later": "Không thể tạo liên lạc, vui lòng thử lại sau",
   "Address books": "Sổ địa chỉ",
   "My contacts": "Danh bạ của tôi",
-  "All address books": "Tất cả liên hệ"
+  "All address books": "Tất cả liên hệ",
+  "Address book": "Sổ địa chỉ",
+  "Collected contacts": "Danh bạ thu thập"
 }
