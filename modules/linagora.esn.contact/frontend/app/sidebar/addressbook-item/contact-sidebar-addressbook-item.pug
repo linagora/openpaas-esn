@@ -1,0 +1,10 @@
+.lv-item.clickable.addressbook-item.waves-effect.waves-classic(
+  title='{{$ctrl.addressbook.displayName}}',
+  ui-sref-active="selected",
+  ui-sref='contact.addressbooks({ bookName: $ctrl.addressbook.shell.bookName })'
+)
+  .badge-container
+    .badge
+    i.addressbook-icon.mdi(ng-class='$ctrl.addressbook.icon')
+  .title.ellipsis
+    span {{$ctrl.addressbook.displayName}}

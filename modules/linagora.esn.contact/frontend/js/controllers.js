@@ -4,7 +4,7 @@ angular.module('linagora.esn.contact')
 
   .controller('newContactController', function($rootScope, $scope, $stateParams, $location, notificationFactory, sendContactToBackend, displayContactError, closeContactForm, gracePeriodService, openContactForm, sharedContactDataService, $q, ContactAPIClient, ContactLocationHelper, esnI18nService, DEFAULT_ADDRESSBOOK_NAME) {
     $scope.bookId = $stateParams.bookId;
-    $scope.bookName = DEFAULT_ADDRESSBOOK_NAME;
+    $scope.bookName = $stateParams.bookName || DEFAULT_ADDRESSBOOK_NAME;
     $scope.contact = sharedContactDataService.contact;
 
     $scope.close = closeContactForm;
@@ -42,7 +42,7 @@ angular.module('linagora.esn.contact')
                 .remove({ etag: $scope.contact.etag })
                 .then(function() {
                   data.success();
-                  openContactForm($scope.bookId, $scope.contact);
+                  openContactForm($scope.bookId, $scope.bookName, $scope.contact);
                 }, function(err) {
                   data.error('Cannot cancel contact creation, the contact is created');
 
@@ -256,12 +256,21 @@ angular.module('linagora.esn.contact')
       }, 200);
     };
   })
-  .controller('contactsListController', function($log, $scope, $q, usSpinnerService, $location, AlphaCategoryService, ALPHA_ITEMS, user, displayContactError, openContactForm, ContactsHelper, gracePeriodService, $window, searchResultSizeFormatter, CONTACT_EVENTS, CONTACT_LIST_DISPLAY, sharedContactDataService, contactUpdateDataService, AddressBookPagination, addressbooks, CONTACT_LIST_DISPLAY_MODES) {
+  .controller('contactsListController', function(
+    $q, $log, $scope, $stateParams, $location, $window,
+    addressbooks, AddressBookPagination, AlphaCategoryService,
+    ContactsHelper, contactUpdateDataService, contactAddressbookDisplayService, contactAddressbookService,
+    esnI18nService, displayContactError, gracePeriodService, openContactForm,
+    searchResultSizeFormatter, sharedContactDataService,
+    user, usSpinnerService,
+    ALPHA_ITEMS, CONTACT_EVENTS, CONTACT_LIST_DISPLAY, CONTACT_LIST_DISPLAY_MODES, DEFAULT_ADDRESSBOOK_NAME
+  ) {
     var requiredKey = 'displayName';
     var SPINNER = 'contactListSpinner';
 
     $scope.user = user;
     $scope.bookId = $scope.user._id;
+    $scope.bookName = $stateParams.bookName;
     $scope.keys = ALPHA_ITEMS;
     $scope.sortBy = requiredKey;
     $scope.prefix = 'contact-index';
@@ -273,6 +282,7 @@ angular.module('linagora.esn.contact')
     $scope.totalHits = 0;
     $scope.displayAs = CONTACT_LIST_DISPLAY.list;
     $scope.addressbooks = addressbooks || [];
+    $scope.bookTitle = _buildAddressBookTitle();
 
     $scope.$on('$stateChangeStart', function(evt, next) {
       // store the search query so the search list can be restored when the user
@@ -284,6 +294,18 @@ angular.module('linagora.esn.contact')
         sharedContactDataService.searchQuery = null;
       }
     });
+
+    function _buildAddressBookTitle() {
+      if ($scope.addressbooks.length > 1) {
+        return esnI18nService.translate('All contacts').toString();
+      }
+
+      if ($scope.addressbooks.length === 1) {
+        return contactAddressbookDisplayService.buildDisplayName($scope.addressbooks[0]);
+      }
+
+      return '';
+    }
 
     function fillRequiredContactInformation(contact) {
       if (!contact[requiredKey]) {
@@ -324,7 +346,11 @@ angular.module('linagora.esn.contact')
     }
 
     $scope.openContactCreation = function() {
-      openContactForm($scope.bookId);
+      var isEditable = contactAddressbookService.isEditableAddressbook($scope.bookName);
+
+      isEditable.then(function(editable) {
+        openContactForm($scope.bookId, editable ? $scope.bookName : DEFAULT_ADDRESSBOOK_NAME);
+      });
     };
 
     $scope.$on(CONTACT_EVENTS.CREATED, function(e, data) {

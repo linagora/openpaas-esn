@@ -1,0 +1,22 @@
+.lv-item.sidebar-title
+  .media
+    .media-body
+      .title
+        .text #{__('Address books')}
+
+.listview
+  .lv-item.clickable.addressbook-item.waves-effect.waves-classic(
+    title=__('All contacts'),
+    ui-sref-active="selected",
+    ui-sref="contact.addressbooks({ bookName: null })"
+  )
+    .badge-container
+      .badge
+      i.addressbook-icon.mdi.mdi-folder-multiple
+    .title.ellipsis
+      span #{__('All contacts')}
+
+hr
+
+.listview
+  contact-sidebar-addressbook-item(ng-repeat='book in $ctrl.addressbooks', addressbook='book')

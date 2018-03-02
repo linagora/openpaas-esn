@@ -49,17 +49,30 @@ angular.module('linagora.esn.contact')
       }
     };
   })
-  .directive('contactEditionForm', function(CONTACT_ATTRIBUTES_ORDER, CONTACT_AVATAR_SIZE) {
+  .directive('contactEditionForm', function(
+    contactAddressbookDisplayService,
+    contactAddressbookService,
+    CONTACT_ATTRIBUTES_ORDER,
+    CONTACT_AVATAR_SIZE
+  ) {
     return {
       restrict: 'E',
       scope: {
         contact: '=',
+        bookName: '=',
         contactState: '@'
       },
       templateUrl: '/contact/views/partials/contact-edition-form.html',
       link: function($scope) {
         $scope.CONTACT_ATTRIBUTES_ORDER = CONTACT_ATTRIBUTES_ORDER;
         $scope.avatarSize = CONTACT_AVATAR_SIZE.bigger;
+        $scope.getDisplayName = function(book) {
+          return contactAddressbookDisplayService.buildDisplayName(book);
+        };
+
+        contactAddressbookService.listEditableAddressbooks().then(function(addressbooks) {
+          $scope.availableAddressbooks = addressbooks;
+        });
       }
     };
   })

@@ -1,7 +1,7 @@
 .row.all-centered(ng-switch='mode')
-  .contact-alpha-letter.visible-xs(ng-show='headerDisplay.mobileLetterVisibility')
+  .contact-alpha-letter(ng-show='headerDisplay.mobileLetterVisibility')
     contact-category-letter
-  .col-xs-12.col-md-8
+  .col-xs-12
     div(ng-switch-when='multiple' data-contact-index="{{letter}}" ng-repeat="(letter, contacts) in sorted_contacts" on-finish-render)
       .letter-list(ng-if='contacts && contacts.length')
         .block-header

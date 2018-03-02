@@ -12,7 +12,8 @@ var VALID_HTTP_STATUS = {
   PUT: [200, 201, 204],
   POST: [200, 201],
   DELETE: [204],
-  PROPFIND: [200]
+  PROPFIND: [200],
+  PROPPATCH: [204]
 };
 
 module.exports = function(dependencies, options) {
@@ -176,6 +177,29 @@ module.exports = function(dependencies, options) {
           headers: headers,
           url: url
         }, checkResponse(deferred, 'DELETE', 'Error while removing addressbook in DAV')));
+
+        return deferred.promise;
+      }
+
+      /**
+       * Update an addressbook
+       *
+       * @return {Promise}
+       */
+      function update(modified) {
+        const deferred = q.defer();
+        const headers = {
+          ESNToken: ESNToken,
+          accept: VCARD_JSON
+        };
+
+        getBookUrl(url => davClient({
+          method: 'PROPPATCH',
+          headers: headers,
+          url: url,
+          json: true,
+          body: modified
+        }, checkResponse(deferred, 'PROPPATCH', 'Error while updating addressbook in DAV')));
 
         return deferred.promise;
       }
@@ -461,6 +485,7 @@ module.exports = function(dependencies, options) {
         list,
         get,
         remove,
+        update,
         vcard
       };
     }

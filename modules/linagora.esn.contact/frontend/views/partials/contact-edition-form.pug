@@ -6,6 +6,14 @@
           div(modal-launcher, template="contact/views/partials/contact-avatar-modal", ng-click="showModal()")
             contact-photo(contact='contact', editable='true', avatar-size='{{avatarSize}}', contact-state='{{contactState}}')
         .col-xs-12.col-sm-8.col-sm-pull-4.col-lg-12.col-lg-pull-0
+          .contact-addressbook-selector(ng-show='contactState === "new"')
+            .col-xs-3
+              label.control-label.contact-field-label #{__("Address book")}
+            .col-xs-9
+              .fg-line
+                .select
+                  select.form-control.floating-label(type='text', ng-model='bookName')
+                    option(ng-repeat='book in availableAddressbooks', ng-selected='book.bookName === bookName', value='{{book.bookName}}') {{getDisplayName(book)}}
           .fg-line
             input.form-control.floating-label(type='text', placeholder=__("First Name"), ng-model='contact.firstName')
           .fg-line

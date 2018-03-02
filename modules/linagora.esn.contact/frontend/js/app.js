@@ -28,49 +28,66 @@ angular.module('linagora.esn.contact', [
   'esn.datetime',
   'esn.i18n'
 ])
-  .config(function($stateProvider, routeResolver) {
-    $stateProvider.state('contact', {
-      url: '/contact',
-      templateUrl: '/contact/views/contacts',
-      controller: 'contactsListController',
-      resolve: {
-        domain: routeResolver.session('domain'),
-        user: routeResolver.session('user'),
-        addressbooks: function(ContactAPIClient, session) {
-          return session.ready.then(function() {
-            return ContactAPIClient.addressbookHome(session.user._id).addressbook().list();
-          });
+  .config(function($stateProvider, $urlRouterProvider, routeResolver) {
+    $urlRouterProvider.when('/contact', '/contact/addressbooks/');
+
+    $stateProvider
+      .state('contact', {
+        url: '/contact',
+        templateUrl: '/contact/app/app.html'
+      })
+      .state('contact.addressbooks', {
+        url: '/addressbooks/:bookName',
+        views: {
+          'main@contact': {
+            templateUrl: '/contact/views/contacts',
+            controller: 'contactsListController',
+            resolve: {
+              domain: routeResolver.session('domain'),
+              user: routeResolver.session('user'),
+              addressbooks: function($stateParams, session, contactAddressbookService) {
+                return session.ready.then(function() {
+                  if ($stateParams.bookName) {
+                    return contactAddressbookService.getAddressbookByBookName($stateParams.bookName)
+                      .then(function(addressbook) {
+                        return [addressbook];
+                      });
+                  }
+
+                  return contactAddressbookService.listAddressbooks();
+                });
+              }
+            }
+          }
         }
-      },
-      reloadOnSearch: false
-    })
-    .state('/contact/new/:bookId/:bookName', {
-      url: '/contact/new/:bookId/:bookName',
-      templateUrl: '/contact/views/contact-new',
-      controller: 'newContactController',
-      resolve: {
-        domain: routeResolver.session('domain'),
-        user: routeResolver.session('user')
-      }
-    })
-    .state('/contact/show/:bookId/:bookName/:cardId', {
-      url: '/contact/show/:bookId/:bookName/:cardId',
-      templateUrl: '/contact/views/contact-show',
-      controller: 'showContactController',
-      resolve: {
-        domain: routeResolver.session('domain'),
-        user: routeResolver.session('user')
-      }
-    })
-    .state('/contact/edit/:bookId/:bookName/:cardId', {
-      url: '/contact/edit/:bookId/:bookName/:cardId',
-      templateUrl: '/contact/views/contact-edit',
-      controller: 'editContactController',
-      resolve: {
-        domain: routeResolver.session('domain'),
-        user: routeResolver.session('user')
-      }
-    });
+      })
+      .state('/contact/new/:bookId/:bookName', {
+        url: '/contact/new/:bookId/:bookName',
+        templateUrl: '/contact/views/contact-new',
+        controller: 'newContactController',
+        resolve: {
+          domain: routeResolver.session('domain'),
+          user: routeResolver.session('user')
+        }
+      })
+      .state('/contact/show/:bookId/:bookName/:cardId', {
+        url: '/contact/show/:bookId/:bookName/:cardId',
+        templateUrl: '/contact/views/contact-show',
+        controller: 'showContactController',
+        resolve: {
+          domain: routeResolver.session('domain'),
+          user: routeResolver.session('user')
+        }
+      })
+      .state('/contact/edit/:bookId/:bookName/:cardId', {
+        url: '/contact/edit/:bookId/:bookName/:cardId',
+        templateUrl: '/contact/views/contact-edit',
+        controller: 'editContactController',
+        resolve: {
+          domain: routeResolver.session('domain'),
+          user: routeResolver.session('user')
+        }
+      });
   })
 
   .config(function(dynamicDirectiveServiceProvider) {
@@ -92,7 +109,23 @@ angular.module('linagora.esn.contact', [
     dynamicDirectiveServiceProvider.addInjection('esn-application-menu', contact);
   })
 
-  .run(function(attendeeService, ContactAttendeeProvider, searchContactProviderService, searchProviders, esnModuleRegistry, CONTACT_MODULE_METADATA) {
+  .run(function(
+    attendeeService,
+    contactAddressbookDisplayShellRegistry,
+    ContactAttendeeProvider,
+    contactDefaultAddressbookHelper,
+    ContactDefaultAddressbookDisplayShell,
+    esnModuleRegistry,
+    searchContactProviderService,
+    searchProviders,
+    CONTACT_MODULE_METADATA
+  ) {
+    contactAddressbookDisplayShellRegistry.add({
+      id: 'linagora.esn.contact',
+      priority: 1,
+      displayShell: ContactDefaultAddressbookDisplayShell,
+      matchingFunction: contactDefaultAddressbookHelper.isDefaultAddressbook
+    });
     attendeeService.addProvider(ContactAttendeeProvider);
     searchProviders.add(searchContactProviderService);
     esnModuleRegistry.add(CONTACT_MODULE_METADATA);

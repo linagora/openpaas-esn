@@ -1,30 +1,29 @@
-.contact-list-subheader.row.module-subheader
-  .col-xs-12.col-md-8.no-padding-xs
-    .row.flex-vertical-centered.module-subheader-inner
-      .col-xs-1.contact-show-aside.hidden-md.no-padding-xs
-        button.btn.btn-link.btn-icon(href='', contextual-sidebar, data-content-template="/contact/views/partials/contact-right-sidebar")
-          i.mdi.mdi-menu
-      .col-md-4.contact-list-subheader-title.visible-md
-        h2
-          .contact-categories-letter(ng-show="!contactSearch.searchInput && displayAs === 'list'")
-            contact-category-letter
-          span(ng-show="getContactTitleDisplayCondition()") #{__('Contacts')}
-          span(ng-show="contactSearch.searchInput") #{__('Search in contacts')}
-          small(ng-switch="searchResult.count" ng-if="!!contactSearch.searchInput")
-            span(ng-switch-when='0') #{__('No contacts found')}
-            span(ng-switch-when='1') #{__('1 contact found')}
-            span(ng-switch-default)
-              span(ng-if='searchResult.formattedResultsCount.isFormatted') #{__('About')}&nbsp;
-              span(ng-if='searchResult.formattedResultsCount.hits') {{searchResult.formattedResultsCount.hits}} #{__('contacts found')}
-      .col-xs-11.col-md-8.contacts-list-toolbar
-        .contacts-search.hidden-md
-          contact-search-form
-        .contacts-toggle.flex-vertical-centered.visible-md
-          contact-list-toggle
-        ul.actions.visible-md
-          li.dropdown
-            a(href='', data-toggle='dropdown', aria-expanded='true')
-              i.mdi.mdi-dots-vertical
-            ul.dropdown-menu.dropdown-menu-right
-              li
-                a(href='/#/controlcenter/accounts') #{__('Import')}
+extends /modules/subheader/responsive-subheader.pug
+
+block left
+  button.btn.btn-link.btn-icon.hidden-md(contextual-sidebar, data-content-template="/contact/views/partials/contact-right-sidebar")
+    i.mdi.mdi-menu
+  span.title.ellipsis {{bookTitle}}
+  h2.visible-md
+    span(ng-show="contactSearch.searchInput") #{__('Search in contacts')}
+    small(ng-switch="searchResult.count" ng-if="!!contactSearch.searchInput")
+      span(ng-switch-when='0') #{__('No contacts found')}
+      span(ng-switch-when='1') #{__('1 contact found')}
+      span(ng-switch-default)
+        span(ng-if='searchResult.formattedResultsCount.isFormatted') #{__('About')}&nbsp;
+        span(ng-if='searchResult.formattedResultsCount.hits') {{searchResult.formattedResultsCount.hits}} #{__('contacts found')}
+
+
+block right
+  .contacts-list-toolbar
+    .contacts-search.hidden
+      contact-search-form
+    .contacts-toggle.flex-vertical-centered.hidden-xs
+      contact-list-toggle
+    ul.actions.visible-md
+      li.dropdown
+        a(href='', data-toggle='dropdown', aria-expanded='true')
+          i.mdi.mdi-dots-vertical
+        ul.dropdown-menu.dropdown-menu-right
+          li
+            a(href='/#/controlcenter/accounts') #{__('Import')}

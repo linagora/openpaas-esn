@@ -297,6 +297,22 @@ describe('The contact client APIs', function() {
 
       });
 
+      describe('The update addressbook function', function() {
+        it('should reject when HTTP status is not 204', function(done) {
+          mockery.registerMock('../dav-client', {
+            rawClient: (options, callback) => {
+              callback(null, { statusCode: 403 });
+            }
+          });
+
+          getAddressbook().update({})
+            .then(null, err => {
+              expect(err).to.exist;
+              done();
+            });
+        });
+      });
+
       describe('The vcard fn', function() {
 
         function getVcard(id) {
