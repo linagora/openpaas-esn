@@ -56,7 +56,7 @@
   "The contact cannot be created, please retry later": "The contact cannot be created, please retry later",
   "Address books": "Address books",
   "My contacts": "My contacts",
-  "All address books": "All address books",
   "Address book": "Address book",
-  "Collected contacts": "Collected contacts"
+  "Collected contacts": "Collected contacts",
+  "All contacts": "All contacts"
 }

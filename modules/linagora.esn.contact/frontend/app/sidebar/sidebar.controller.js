@@ -4,16 +4,18 @@
   angular.module('linagora.esn.contact')
     .controller('ContactSidebarController', ContactSidebarController);
 
-  function ContactSidebarController(ContactAPIClient, session) {
+  function ContactSidebarController(
+    contactAddressbookDisplayService,
+    contactAddressbookService
+  ) {
     var self = this;
 
     self.$onInit = $onInit;
 
     function $onInit() {
-      ContactAPIClient.addressbookHome(session.user._id).addressbook().list()
-        .then(function(addressbooks) {
-          self.addressbooks = addressbooks;
-        });
+      contactAddressbookService.listAddressbooks().then(function(addresssbooks) {
+        self.addressbooks = contactAddressbookDisplayService.buildAddressbookDisplayShells(addresssbooks);
+      });
     }
   }
 })(angular);

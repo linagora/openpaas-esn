@@ -6,23 +6,16 @@
 var expect = chai.expect;
 
 describe('the ContactSidebarController controller', function() {
-  var $rootScope, $controller, session, ContactAPIClient;
+  var $rootScope, $controller, contactAddressbookService, contactAddressbookDisplayService;
 
   beforeEach(function() {
     module('esn.core');
     module('linagora.esn.contact', function($provide) {
-      ContactAPIClient = {};
-      session = {
-        user: {
-          _id: '123'
-        },
-        ready: {
-          then: angular.noop
-        }
-      };
+      contactAddressbookService = {};
+      contactAddressbookDisplayService = {};
 
-      $provide.value('ContactAPIClient', ContactAPIClient);
-      $provide.value('session', session);
+      $provide.value('contactAddressbookService', contactAddressbookService);
+      $provide.value('contactAddressbookDisplayService', contactAddressbookDisplayService);
     });
 
     inject(function(_$controller_, _$rootScope_) {
@@ -38,27 +31,17 @@ describe('the ContactSidebarController controller', function() {
   }
 
   describe('$onInit fn', function() {
-    it('should call contactApiClient to get addressbooks list', function() {
+    it('should get the list of addressbooks then build the addressbook display shells', function() {
       var controller = initController();
-      var listSpy = sinon.stub().returns($q.when(['book1', 'book2']));
 
-      ContactAPIClient.addressbookHome = function(bookId) {
-        expect(bookId).to.equal(session.user._id);
-
-        return {
-          addressbook: function() {
-            return {
-              list: listSpy
-            };
-          }
-        };
-      };
+      contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when(['book1', 'book2']));
+      contactAddressbookDisplayService.buildAddressbookDisplayShells = sinon.spy();
 
       controller.$onInit();
       $rootScope.$digest();
 
-      expect(listSpy).to.have.been.called;
-      expect(controller.addressbooks).to.deep.equal(['book1', 'book2']);
+      expect(contactAddressbookService.listAddressbooks).to.have.been.called;
+      expect(contactAddressbookDisplayService.buildAddressbookDisplayShells).to.have.been.calledWith(['book1', 'book2']);
     });
   });
 });
