@@ -45,16 +45,16 @@ angular.module('linagora.esn.contact', [
             resolve: {
               domain: routeResolver.session('domain'),
               user: routeResolver.session('user'),
-              addressbooks: function($stateParams, ContactAPIClient, session) {
+              addressbooks: function($stateParams, session, contactAddressbookService) {
                 return session.ready.then(function() {
                   if ($stateParams.bookName) {
-                    return ContactAPIClient.addressbookHome(session.user._id).addressbook($stateParams.bookName).get()
+                    return contactAddressbookService.getAddressbookByBookName($stateParams.bookName)
                       .then(function(addressbook) {
                         return [addressbook];
                       });
                   }
 
-                  return ContactAPIClient.addressbookHome(session.user._id).addressbook().list();
+                  return contactAddressbookService.listAddressbooks();
                 });
               }
             }
@@ -109,7 +109,23 @@ angular.module('linagora.esn.contact', [
     dynamicDirectiveServiceProvider.addInjection('esn-application-menu', contact);
   })
 
-  .run(function(attendeeService, ContactAttendeeProvider, searchContactProviderService, searchProviders, esnModuleRegistry, CONTACT_MODULE_METADATA) {
+  .run(function(
+    attendeeService,
+    contactAddressbookDisplayShellRegistry,
+    ContactAttendeeProvider,
+    contactDefaultAddressbookHelper,
+    ContactDefaultAddressbookDisplayShell,
+    esnModuleRegistry,
+    searchContactProviderService,
+    searchProviders,
+    CONTACT_MODULE_METADATA
+  ) {
+    contactAddressbookDisplayShellRegistry.add({
+      id: 'linagora.esn.contact',
+      priority: 1,
+      displayShell: ContactDefaultAddressbookDisplayShell,
+      matchingFunction: contactDefaultAddressbookHelper.isDefaultAddressbook
+    });
     attendeeService.addProvider(ContactAttendeeProvider);
     searchProviders.add(searchContactProviderService);
     esnModuleRegistry.add(CONTACT_MODULE_METADATA);

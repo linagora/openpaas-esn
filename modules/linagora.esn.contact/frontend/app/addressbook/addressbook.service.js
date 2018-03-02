@@ -4,29 +4,16 @@
   angular.module('linagora.esn.contact')
     .factory('contactAddressbookService', contactAddressbookService);
 
-  function contactAddressbookService(
-    esnI18nService,
-    session,
-    ContactAPIClient,
-    DEFAULT_ADDRESSBOOK_NAME,
-    CONTACT_COLLECTED_ADDRESSBOOK_NAME
-  ) {
+  function contactAddressbookService(ContactAPIClient, session) {
     return {
-      getDisplayName: getDisplayName,
+      getAddressbookByBookName: getAddressbookByBookName,
+      isEditableAddressbook: isEditableAddressbook,
       listAddressbooks: listAddressbooks,
-      listEditableAddressbooks: listEditableAddressbooks,
-      isEditableAddressbook: isEditableAddressbook
+      listEditableAddressbooks: listEditableAddressbooks
     };
 
-    function getDisplayName(addressBook) {
-      if (addressBook.bookName === DEFAULT_ADDRESSBOOK_NAME) {
-        return esnI18nService.translate('My contacts').toString();
-      }
-      if (addressBook.bookName === CONTACT_COLLECTED_ADDRESSBOOK_NAME) {
-        return esnI18nService.translate('Collected contacts').toString();
-      }
-
-      return addressBook.name;
+    function getAddressbookByBookName(bookName) {
+      return ContactAPIClient.addressbookHome(session.user._id).addressbook(bookName).get();
     }
 
     function listAddressbooks() {
