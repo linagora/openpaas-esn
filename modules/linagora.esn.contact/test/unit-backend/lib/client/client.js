@@ -38,23 +38,25 @@ describe('The contact client APIs', function() {
   }
 
   it('should not call getDavEndpoint if davserver option is provided', function() {
-    var clientOptions = {
+    const clientOptions = {
       ESNToken: '1111',
       davserver: 'http://localhost:80'
     };
+    const addressbook = { id: 'addressbookId' };
 
     deps.davserver.utils.getDavEndpoint = sinon.spy();
 
-    getModule()(clientOptions).addressbookHome().addressbook().create();
+    getModule()(clientOptions).addressbookHome().addressbook().create(addressbook);
 
     expect(deps.davserver.utils.getDavEndpoint).to.not.have.been.called;
   });
 
   it('should call getDavEndpoint to get DAV endpoint and cache it if davserver option is not provided', function() {
-    var clientOptions = {
+    const clientOptions = {
       ESNToken: '1111',
       user: { _id: '1', preferredDomainId: 'domain123' }
     };
+    const addressbook = { id: 'addressbookId' };
 
     deps.davserver.utils.getDavEndpoint = sinon.spy(function(user, callback) {
       expect(user).to.equal(clientOptions.user);
@@ -63,8 +65,8 @@ describe('The contact client APIs', function() {
 
     var client = getModule()(clientOptions);
 
-    client.addressbookHome().addressbook().create();
-    client.addressbookHome().addressbook().create();
+    client.addressbookHome().addressbook().create(addressbook);
+    client.addressbookHome().addressbook().create(addressbook);
 
     expect(deps.davserver.utils.getDavEndpoint).to.have.been.calledOnce;
     expect(deps.davserver.utils.getDavEndpoint).to.have.been.calledWith(clientOptions.user, sinon.match.func);

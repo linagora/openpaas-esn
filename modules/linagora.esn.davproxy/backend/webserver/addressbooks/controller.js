@@ -35,7 +35,7 @@ module.exports = function(dependencies) {
     };
 
     const addressbook = {
-      id: req.body.name,
+      id: req.body.id,
       'dav:name': req.body.name,
       'carddav:description': req.body.description,
       'dav:acl': ['dav:read', 'dav:write'],
@@ -46,7 +46,7 @@ module.exports = function(dependencies) {
       .addressbookHome(req.params.bookHome)
       .addressbook()
       .create(addressbook)
-      .then(() => res.status(201).json(addressbook))
+      .then(response => res.status(201).json(response.body))
       .catch(err => {
         const details = 'Error while creating addressbook on DAV server';
 

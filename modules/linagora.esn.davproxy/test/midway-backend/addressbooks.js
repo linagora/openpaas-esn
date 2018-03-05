@@ -11,7 +11,7 @@ describe('The addressbooks dav proxy', function() {
   var PREFIX = '/dav/api';
   var user;
   var password = 'secret';
-  var dav, davServer;
+  var dav, davServer, caldavConfiguration;
 
   beforeEach(function(done) {
     var self = this;
@@ -56,7 +56,8 @@ describe('The addressbooks dav proxy', function() {
 
     self.createDavServer = function(done) {
       var port = self.testEnv.serversConfig.express.port;
-      var caldavConfiguration = {
+
+      caldavConfiguration = {
         backend: {
           url: 'http://localhost:' + port
         },
@@ -485,9 +486,46 @@ describe('The addressbooks dav proxy', function() {
         this.helpers.api.requireLogin(this.app, 'post', `${PREFIX}/addressbooks/123.json`, done);
       });
 
+      it('should respond 400 if there is no addressbook id', function(done) {
+        const self = this;
+        const addressbook = {
+          description: 'addressbook description',
+          type: 'user'
+        };
+
+        self.createDavServer(err => {
+          if (err) {
+            return done(err);
+          }
+
+          self.helpers.api.loginAsUser(self.app, user.emails[0], password, (err, loggedInAsUser) => {
+            if (err) {
+              return done(err);
+            }
+
+            const req = loggedInAsUser(request(self.app).post(`${PREFIX}/addressbooks/123.json`));
+
+            req.send(addressbook)
+              .expect(400)
+              .end((err, res) => {
+                expect(err).to.not.exist;
+                expect(res.body).to.deep.equal({
+                  error: {
+                    code: 400,
+                    message: 'Bad Request',
+                    details: 'Addressbook id is required'
+                  }
+                });
+                done();
+              });
+          });
+        });
+      });
+
       it('should respond 400 if there is no addressbook name', function(done) {
         const self = this;
         const addressbook = {
+          id: '4e2a6aef-d443-4709-b925-d9585ebc9109',
           description: 'addressbook description',
           type: 'user'
         };
@@ -524,6 +562,7 @@ describe('The addressbooks dav proxy', function() {
       it('should respond 400 if there is no addressbook type', function(done) {
         const self = this;
         const addressbook = {
+          id: '4e2a6aef-d443-4709-b925-d9585ebc9109',
           name: 'addressbook test',
           description: 'addressbook description'
         };
@@ -560,6 +599,7 @@ describe('The addressbooks dav proxy', function() {
       it('should respond 400 if addressbook type is not supported', function(done) {
         const self = this;
         const addressbook = {
+          id: '4e2a6aef-d443-4709-b925-d9585ebc9109',
           name: 'addressbook test',
           description: 'addressbook description',
           type: 'unsupport type'
@@ -597,8 +637,10 @@ describe('The addressbooks dav proxy', function() {
       it('should respond 201 if success to create addressbook', function(done) {
         const self = this;
         let called = false;
-        const path = '/addressbooks/123.json';
+        const bookId = '59c86d0ec89099103b0bafbf';
+        const path = `/addressbooks/${bookId}.json`;
         const addressbook = {
+          id: '4e2a6aef-d443-4709-b925-d9585ebc9109',
           name: 'addressbook test',
           description: 'addressbook description',
           type: 'user'
@@ -628,11 +670,13 @@ describe('The addressbooks dav proxy', function() {
                 expect(err).to.not.exist;
                 expect(called).to.be.true;
                 expect(res.body).to.deep.equal({
-                  id: addressbook.name,
                   'dav:name': addressbook.name,
                   'carddav:description': addressbook.description,
                   'dav:acl': ['dav:read', 'dav:write'],
-                  type: addressbook.type
+                  type: addressbook.type,
+                  _links: {
+                    self: { href: `${caldavConfiguration.backend.url}/addressbooks/${bookId}/${addressbook.id}.json` }
+                  }
                 });
                 done();
               });
