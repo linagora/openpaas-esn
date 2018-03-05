@@ -24,7 +24,7 @@ angular.module('linagora.esn.contact.google', [
     DisplayShellProvider.addDisplayShell(GoogleDisplayShell, GoogleContactHelper.isGoogleContact);
     contactAddressbookDisplayShellRegistry.add({
       id: 'linagora.esn.contact.google',
-      priority: 3,
+      priority: 20,
       displayShell: ContactGoogleAddressbookDisplayShell,
       matchingFunction: contactGoogleAddressbookHelper.isGoogleAddressbook
     });
