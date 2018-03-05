@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('linagora.esn.contact')
-  .factory('ContactsHelper', function($filter, esnDatetimeService, CONTACT_ATTRIBUTES_ORDER) {
+  .factory('ContactsHelper', function($filter, esnDatetimeService, contactAddressbookDisplayService, CONTACT_ATTRIBUTES_ORDER) {
 
     function notNullNorEmpty(value) {
       return value && value.length > 0;
@@ -194,6 +194,7 @@ angular.module('linagora.esn.contact')
       $scope.emails = getOrderedValues($scope.contact.emails, CONTACT_ATTRIBUTES_ORDER.email);
       $scope.phones = getOrderedValues($scope.contact.tel, CONTACT_ATTRIBUTES_ORDER.phone);
       $scope.formattedBirthday = esnDatetimeService.formatMediumDate(contact.birthday);
+      $scope.addressbookDisplayShell = contactAddressbookDisplayService.convertShellToDisplayShell(contact.addressbook);
     }
 
     function getOrderType($scope) {

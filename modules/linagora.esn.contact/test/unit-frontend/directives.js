@@ -293,18 +293,28 @@ describe('The contact Angular module directives', function() {
   });
 
   describe('The contactDisplay directive', function() {
-    var $compile, $rootScope, element, $scope, CONTACT_AVATAR_SIZE, ContactShellDisplayBuilder;
+    var $compile, $rootScope, element, $scope, CONTACT_AVATAR_SIZE, ContactShellDisplayBuilder, esnI18nService;
 
     beforeEach(function() {
       ContactShellDisplayBuilder = {
         build: function() {}
       };
+
+      esnI18nService = {
+        translate: sinon.spy(function(input) {
+          return {
+            toString: function() {return input;}
+          };
+        })
+      };
+
       module(function($provide) {
         $provide.value('ContactShellDisplayBuilder', ContactShellDisplayBuilder);
+        $provide.value('esnI18nService', esnI18nService);
       });
     });
 
-    beforeEach(inject(function(_$compile_, _$rootScope_, _CONTACT_AVATAR_SIZE_) {
+    beforeEach(inject(function(_$q_, _$compile_, _$rootScope_, _CONTACT_AVATAR_SIZE_) {
       $compile = _$compile_;
       $rootScope = _$rootScope_;
       CONTACT_AVATAR_SIZE = _CONTACT_AVATAR_SIZE_;
@@ -314,7 +324,8 @@ describe('The contact Angular module directives', function() {
         tel: [],
         addresses: [],
         social: [],
-        urls: []
+        urls: [],
+        addressbook: {}
       };
     }));
 

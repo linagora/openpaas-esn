@@ -78,6 +78,7 @@ describe('The Contacts controller module', function() {
           addressbook: function() {
             return {
               list: function() { return $q.when([]); },
+              get: function() { return $q.when({ name: 'My Contacts' }); },
               vcard: function() {
                 return {
                   get: function() { return $q.when(); },
@@ -208,7 +209,10 @@ describe('The Contacts controller module', function() {
           if (bookName) {
             expect(name).to.equal(bookName);
           }
-          return { vcard: vcardFn };
+          return {
+            vcard: vcardFn,
+            get: function() { return $q.when({ name: 'My Contacts' }); }
+          };
         }
       };
     };
@@ -2001,8 +2005,6 @@ describe('The Contacts controller module', function() {
           _id: 123
         };
 
-        scope.bookName = 'contacts';
-
         openContactFormMock = sinon.spy();
 
         $controller('contactsListController', {
@@ -2012,7 +2014,7 @@ describe('The Contacts controller module', function() {
 
         scope.openContactCreation();
         scope.$digest();
-        expect(openContactFormMock).to.have.been.calledWith(user._id, 'contacts');
+        expect(openContactFormMock).to.have.been.calledWith(user._id, scope.bookName);
       });
     });
 

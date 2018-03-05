@@ -15,7 +15,14 @@ angular.module('linagora.esn.contact')
       templateUrl: '/contact/views/partials/contact-navbar-link.html'
     };
   })
-  .directive('contactDisplay', function(ContactsHelper, ContactShellDisplayBuilder, CONTACT_AVATAR_SIZE) {
+  .directive('contactDisplay', function(
+    $state,
+    $stateParams,
+    ContactsHelper,
+    ContactShellDisplayBuilder,
+    contactAddressbookDisplayService,
+    CONTACT_AVATAR_SIZE
+  ) {
     return {
       restrict: 'E',
       scope: {
@@ -46,6 +53,10 @@ angular.module('linagora.esn.contact')
         $scope.shouldDisplayWork = function() {
           return !!($scope.contact.orgName || $scope.contact.orgRole);
         };
+
+        $scope.openAddressbook = function() {
+          $state.go('contact.addressbooks', { bookName: $scope.contact.addressbook.bookName });
+        };
       }
     };
   })
@@ -66,12 +77,11 @@ angular.module('linagora.esn.contact')
       link: function($scope) {
         $scope.CONTACT_ATTRIBUTES_ORDER = CONTACT_ATTRIBUTES_ORDER;
         $scope.avatarSize = CONTACT_AVATAR_SIZE.bigger;
-        $scope.getDisplayName = function(book) {
-          return contactAddressbookDisplayService.buildDisplayName(book);
-        };
 
         contactAddressbookService.listEditableAddressbooks().then(function(addressbooks) {
-          $scope.availableAddressbooks = addressbooks;
+          var addressbookDisplayShells = contactAddressbookDisplayService.convertShellsToDisplayShells(addressbooks, { includePriority: true });
+
+          $scope.availableAddressbookDisplayShells = contactAddressbookDisplayService.sortAddressbookDisplayShells(addressbookDisplayShells);
         });
       }
     };
