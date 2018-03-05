@@ -9,35 +9,47 @@
     contactAddressbookDisplayShellRegistry,
     ContactAddressbookDisplayShell
   ) {
-
     return {
-      buildAddressbookDisplayShells: buildAddressbookDisplayShells,
+      convertShellToDisplayShell: convertShellToDisplayShell,
+      convertShellsToDisplayShells: convertShellsToDisplayShells,
+      sortAddressbookDisplayShells: sortAddressbookDisplayShells,
       buildDisplayName: buildDisplayName
     };
 
-    function buildAddressbookDisplayShells(addressbooks) {
-      var addressbookDisplayShells = [];
-      var registeredDisplayShells = _getRegisteredDisplayShells();
-      var unregisteredAddressbooks = registeredDisplayShells.reduce(function(list, shell) {
-        var matches = list.filter(shell.matchingFunction);
-
-        matches.forEach(function(addressbook) {
-          addressbookDisplayShells.push(new shell.displayShell(addressbook));
-        });
-
-        return _.xor(matches, list);
-      }, addressbooks);
-
-      unregisteredAddressbooks.forEach(function(addressbook) {
-        addressbookDisplayShells.push(new ContactAddressbookDisplayShell(addressbook));
+    function convertShellsToDisplayShells(addressbookShells) {
+      return _.map(addressbookShells, function(addressbookShell) {
+        return convertShellToDisplayShell(addressbookShell);
       });
+    }
 
-      return addressbookDisplayShells;
+    function convertShellToDisplayShell(addressbookShell) {
+      var match = _.find(_getRegisteredDisplayShells(), function(displayShell) {
+        return displayShell.matchingFunction(addressbookShell);
+      });
+      var addressbookDisplayShell;
+
+      if (match) {
+        addressbookDisplayShell = new match.displayShell(addressbookShell);
+        addressbookDisplayShell.priority = match.priority;
+      } else {
+        addressbookDisplayShell = new ContactAddressbookDisplayShell(addressbookShell);
+      }
+
+      return addressbookDisplayShell;
+    }
+
+    function sortAddressbookDisplayShells(addressbookDisplayShells) {
+      return addressbookDisplayShells.sort(function(displayShell1, displayShell2) {
+        if (displayShell1.priority === displayShell2.priority) {
+          return displayShell1.displayName.localeCompare(displayShell2.displayName);
+        }
+
+        return displayShell1.priority - displayShell2.priority;
+      });
     }
 
     function buildDisplayName(addressbook) {
-      var registeredDisplayShells = _getRegisteredDisplayShells();
-      var matchedShell = _.find(registeredDisplayShells, function(shell) {
+      var matchedShell = _.find(_getRegisteredDisplayShells(), function(shell) {
         return shell.matchingFunction(addressbook);
       });
 
@@ -49,11 +61,7 @@
     }
 
     function _getRegisteredDisplayShells() {
-      function _lowerPriorityFirst(shell1, shell2) {
-        return shell1.priority - shell2.priority;
-      }
-
-      return _.values(contactAddressbookDisplayShellRegistry.getAll()).sort(_lowerPriorityFirst);
+      return _.values(contactAddressbookDisplayShellRegistry.getAll());
     }
   }
 })(angular);
