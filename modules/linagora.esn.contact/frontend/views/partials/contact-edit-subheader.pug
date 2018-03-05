@@ -9,6 +9,6 @@
           i.mdi.mdi-dots-vertical.m-r-5
         ul.dropdown-menu.dropdown-menu-right(role="menu")
           li
-            a(ng-click="deleteContact()") #{__('Delete')}
+            a(ng-click="deleteContact()", esn-back-button="contact") #{__('Delete')}
           li
-            a(esn-back-button='/contact') #{__('Cancel')}
+            a(ng-click="close()") #{__('Cancel')}
