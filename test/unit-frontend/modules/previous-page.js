@@ -34,18 +34,29 @@ describe('The esn.previous-page module', function() {
 
     describe('The back() Function', function() {
 
-      it('should call $window.history.back if there are browser history records', function() {
+      it('should call $window.history.back if there is previous state and browser history records', function() {
         $window.history.length = 10;
+        $rootScope.$emit('$stateChangeStart', null, null, null, null, { location: true });
 
         esnPreviousPage.back();
 
         expect($window.history.back).to.have.been.called;
       });
 
-      it('should go to default state if there is no record in browser history', function() {
+      it('should go to default state if there is no previous state', function() {
+        $window.history.length = 10;
+
+        esnPreviousPage.back('expected.state');
+
+        expect($window.history.back).to.not.have.been.called;
+        expect($state.go).to.have.been.calledWith('expected.state');
+      });
+
+      it('should go to default state if there is previous state but no record in browser history', function() {
         $window.history.length = null;
 
         esnPreviousPage.back('expected.state');
+        $rootScope.$emit('$stateChangeStart', null, null, null, null, { location: true });
 
         expect($window.history.back).to.not.have.been.called;
         expect($state.go).to.have.been.calledWith('expected.state');

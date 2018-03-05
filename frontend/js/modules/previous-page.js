@@ -2,6 +2,10 @@
 
 angular.module('esn.previous-page', [])
 
+  .run(function(esnPreviousPage) {
+    esnPreviousPage.init();
+  })
+
   .directive('esnBackButton', function(esnPreviousPage) {
     return {
       restrict: 'A',
@@ -14,17 +18,30 @@ angular.module('esn.previous-page', [])
     };
   })
 
-  .factory('esnPreviousPage', function($state, $window) {
+  .factory('esnPreviousPage', function($rootScope, $state, $window) {
+    var hasPreviousPage = false;
+
+    return {
+      back: back,
+      init: init
+    };
 
     function back(defaultState) {
-      if ($window.history && $window.history.length > 0) {
+      if (hasPreviousPage && $window.history && $window.history.length > 0) {
         return $window.history.back();
       }
 
       $state.go(defaultState);
     }
 
-    return {
-      back: back
-    };
+    function init() {
+      var unregister = $rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams, options) {
+        // if url updated and new history record added
+        // see more at https://github.com/angular-ui/ui-router/wiki/quick-reference#stategoto--toparams--options
+        if (options.location === true) {
+          hasPreviousPage = true;
+          unregister();
+        }
+      });
+    }
   });
