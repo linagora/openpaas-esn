@@ -38,7 +38,7 @@ angular.module('esn.previous-page', [])
       var unregister = $rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams, options) {
         // if url updated and new history record added
         // see more at https://github.com/angular-ui/ui-router/wiki/quick-reference#stategoto--toparams--options
-        if (options.location === true) {
+        if (options && options.location === true) {
           hasPreviousPage = true;
           unregister();
         }
