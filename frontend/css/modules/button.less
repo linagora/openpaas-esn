@@ -62,6 +62,10 @@ button.close {
   right: 16px;
 }
 
+md-menu-bar.md-default-theme md-menu.md-open > button, md-menu-bar md-menu.md-open > button, md-menu-bar.md-default-theme md-menu > button:focus, md-menu-bar md-menu > button:focus {
+  background: transparent;
+}
+
 @media (min-width: @screen-md-min) {
   .m-btn {
     bottom: 24px;
@@ -98,7 +102,7 @@ md-menu-item .md-button {
 }
 
 @media (min-width: @screen-md-min) {
-  md-menu-content {
+  md-menu-content, md-menu-content.md-menu-bar-menu.md-dense {
     padding: 5px 0;
 
     md-menu-item {
