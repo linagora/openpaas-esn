@@ -1942,7 +1942,7 @@ describe('The Contacts controller module', function() {
         done();
       });
 
-      it('should stop the throbber when contacts are loaded', function(done) {
+      it('should stop the throbber after contacts are loaded', function(done) {
         var user = {_id: 123};
         var usSpinnerService = {
           spin: function() {
@@ -1951,7 +1951,7 @@ describe('The Contacts controller module', function() {
         };
 
         createPaginationMocks(function() {
-          return $q.when({});
+          return $q.when({ data: [] });
         }, function() {
           done(new Error('Should not be called'));
         });
@@ -1963,6 +1963,9 @@ describe('The Contacts controller module', function() {
         });
         scope.loadContacts();
         $rootScope.$digest();
+        expect(usSpinnerService.stop).to.not.have.been.called;
+        $timeout.flush();
+        expect(scope.sorted_contacts).to.deep.equal(sortedContacts);
         expect(usSpinnerService.stop).to.have.been.called;
         done();
       });

@@ -332,10 +332,14 @@ angular.module('linagora.esn.contact')
     }
 
     function addItemsToCategories(data) {
-      return $scope.$applyAsync(function() {
-        data = data.map(fillRequiredContactInformation);
-        $scope.categories.addItems(data);
-        $scope.sorted_contacts = $scope.categories.get();
+      return $q(function(resolve) {
+        $scope.$applyAsync(function() {
+          data = data.map(fillRequiredContactInformation);
+          $scope.categories.addItems(data);
+          $scope.sorted_contacts = $scope.categories.get();
+
+          resolve();
+        });
       });
     }
 
@@ -482,7 +486,7 @@ angular.module('linagora.esn.contact')
     function getNextContacts() {
       usSpinnerService.spin(SPINNER);
       $scope.pagination.service.loadNextItems().then(function(result) {
-        addItemsToCategories(result.data);
+        return addItemsToCategories(result.data);
       }, function(err) {
         $log.error('Can not get contacts', err);
         displayContactError('Can not get contacts');

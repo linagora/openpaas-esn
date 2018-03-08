@@ -228,6 +228,26 @@ ul.dropdown {
   .contacts-body {
     top: 0;
     position: inherit;
+
+    .empty-message {
+      .flex-column;
+      .all-centered;
+
+      height: 70vh;
+      text-align: center;
+
+      img {
+        height: 150px;
+        opacity: 0.7;
+        margin-bottom: 10px;
+      }
+
+      .message {
+        color: @secondaryTextColor;
+        font-size: 1.5em;
+        text-align: center;
+      }
+    }
   }
 }
 
