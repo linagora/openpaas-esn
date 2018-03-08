@@ -17,6 +17,10 @@ describe('The Alpha List module', function() {
     }));
 
     describe('when instantiating', function() {
+      it('should has no items in category', function() {
+        var category = new CategoryService({ keys: 'A' });
+        expect(category.getNumberOfItems()).to.equal(0);
+      });
 
       it('should initialize the categories', function() {
         var keys = 'ABC';
@@ -172,6 +176,18 @@ describe('The Alpha List module', function() {
     });
 
     describe('The removeItemWithId fn', function() {
+      it('should decrease number of items by 1 after successful removing item with the specified ID from the list', function() {
+        var keys = 'AB';
+        var items = [
+          { id: 1, firstName: 'A', lastName: 'X' },
+          { id: 2, firstName: 'B', lastName: 'Y' }
+        ];
+
+        var category = new CategoryService({ keys: keys, sortBy: 'firstName' });
+        category.addItems(items);
+        category.removeItemWithId(1);
+        expect(category.getNumberOfItems()).to.equal(items.length - 1);
+      });
 
       it('should remove the item with the specified ID from the list', function() {
         var keys = 'ABC';
@@ -219,6 +235,20 @@ describe('The Alpha List module', function() {
     });
 
     describe('The removeItem fn', function() {
+      it('should decrease number of items by 1 after successful removing item', function() {
+        var item = { firstName: 'A', lastName: 'A1' };
+        var keys = 'A';
+        var items = [
+          item,
+          { firstName: 'A', lastName: 'A2' }
+        ];
+
+        var category = new CategoryService({ keys: keys, sortBy: 'firstName' });
+        category.addItems(items);
+        category.removeItem(item);
+        expect(category.getNumberOfItems()).to.equal(items.length - 1);
+      });
+
       it('should remove the item from the list', function() {
         var item = {firstName: 'CBC', lastName: 'DEF'};
         var itemWithoutFirstname = {firstName: '', lastName: 'DDD'};
@@ -300,6 +330,18 @@ describe('The Alpha List module', function() {
     });
 
     describe('the addItems function', function() {
+      it('should increase number of items after successful adding items', function() {
+        var keys = 'AB';
+        var items = [
+          { firstName: 'A', lastName: 'X' },
+          { firstName: 'B', lastName: 'Y' }
+        ];
+
+        var category = new CategoryService({ keys: keys, sortBy: 'firstName' });
+        category.addItems(items);
+        expect(category.getNumberOfItems()).to.equal(items.length);
+      });
+
       it('should add the items to the right categories', function() {
 
         var keys = 'ABC';

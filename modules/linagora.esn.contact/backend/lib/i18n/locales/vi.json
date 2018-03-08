@@ -33,7 +33,7 @@
   "Social Networks": "Mạng xã hội",
   "Last name": "Họ",
   "Social Account": "Tài khoản mạng xã hội",
-  "Import Contacts": "Nhập liên hệ",
+  "Import Contacts": "Nhập liên lạc",
   "Other": "Khác",
   "Mobile": "Di động",
   "Contact updated": "Liên lạc đã được cập nhật",
@@ -58,5 +58,6 @@
   "My contacts": "Danh bạ của tôi",
   "Address book": "Sổ địa chỉ",
   "Collected contacts": "Danh bạ thu thập",
-  "All contacts": "Tất cả liên hệ"
+  "All contacts": "Tất cả liên lạc",
+  "No contact": "Không có liên lạc"
 }

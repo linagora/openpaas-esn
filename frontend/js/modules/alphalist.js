@@ -17,6 +17,7 @@ angular.module('esn.alphalist', ['duScroll', 'esn.array-helper', 'esn.core', 'es
     }
 
     Categorize.prototype.init = function init() {
+      this.numberOfItems = 0;
       this.categories = {};
       for (var i = 0; i < this.keys.length; i++) {
         var nextChar = this.keys.charAt(i);
@@ -38,6 +39,8 @@ angular.module('esn.alphalist', ['duScroll', 'esn.array-helper', 'esn.core', 'es
           this.categories[this.keepAllKey].push(items[i]);
         }
       }
+
+      this.numberOfItems += items.length;
     };
 
     Categorize.prototype._removeItemWithId = function _removeItemWithId(id) {
@@ -47,6 +50,7 @@ angular.module('esn.alphalist', ['duScroll', 'esn.array-helper', 'esn.core', 'es
         var inCategory = self.categories[name].some(function(item, index) {
           if (item.id === id) {
             self.categories[name].splice(index, 1);
+            self.numberOfItems--;
             return true;
           }
           return false;
@@ -69,11 +73,13 @@ angular.module('esn.alphalist', ['duScroll', 'esn.array-helper', 'esn.core', 'es
         index = this.categories[letter].indexOf(item);
         if (index !== -1) {
           this.categories[letter].splice(index, 1);
+          this.numberOfItems--;
         }
       } else if (this.keepAll) {
         index = this.categories[this.keepAllKey].indexOf(item);
         if (index !== -1) {
           this.categories[this.keepAllKey].splice(index, 1);
+          this.numberOfItems--;
         }
       }
     };
@@ -96,6 +102,10 @@ angular.module('esn.alphalist', ['duScroll', 'esn.array-helper', 'esn.core', 'es
 
     Categorize.prototype.get = function get() {
       return this.categories;
+    };
+
+    Categorize.prototype.getNumberOfItems = function getNumberOfItems() {
+      return this.numberOfItems;
     };
 
     Categorize.prototype.removeItem = function removeItem(item) {
