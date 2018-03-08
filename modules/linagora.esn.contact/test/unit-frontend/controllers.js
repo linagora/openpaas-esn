@@ -1211,6 +1211,76 @@ describe('The Contacts controller module', function() {
       expect(scope.displayAs).to.equal(CONTACT_LIST_DISPLAY.list);
     }));
 
+    it('should display create contact button if user is viewing all contacts', function() {
+      var currentAddressbooks = [{
+        bookName: 'contacts',
+        editable: true
+      }, {
+        bookName: 'twitter',
+        editable: false
+      }];
+
+      $controller('contactsListController', {
+        $scope: scope,
+        user: { _id: '123' },
+        addressbooks: currentAddressbooks
+      });
+
+      expect(scope.canCreateContact).to.equal(true);
+    });
+
+    it('should display create contact button if current address book can create contact', function() {
+      var currentAddressbooks = [{
+        bookName: 'contacts',
+        editable: true
+      }];
+
+      $controller('contactsListController', {
+        $scope: scope,
+        user: { _id: '123' },
+        addressbooks: currentAddressbooks
+      });
+
+      expect(scope.canCreateContact).to.equal(true);
+    });
+
+    it('should not display create contact button if current address book cannot create contact', function() {
+      var currentAddressbooks = [{
+        bookName: 'twitter',
+        editable: false
+      }];
+
+      $controller('contactsListController', {
+        $scope: scope,
+        user: { _id: '123' },
+        addressbooks: currentAddressbooks
+      });
+
+      expect(scope.canCreateContact).to.equal(false);
+    });
+
+    it('should open create form for default address book if user clicks on create contact button while viewing all contacts', function() {
+      var currentAddressbooks = [{
+        bookName: 'twitter',
+        editable: false
+      }, {
+        bookName: 'collected',
+        editable: true
+      }];
+      openContactForm = sinon.spy();
+
+      $controller('contactsListController', {
+        $scope: scope,
+        user: { _id: '123' },
+        addressbooks: currentAddressbooks,
+        DEFAULT_ADDRESSBOOK_NAME: 'contacts',
+        openContactForm: openContactForm
+      });
+
+      scope.openContactCreation();
+      expect(openContactForm).to.have.been.calledWith(scope.bookId, 'contacts');
+    });
+
     it('should store the search query when user switches to contact view', function() {
       scope.contactSearch = {
         searchInput: 'some query'
@@ -2004,17 +2074,18 @@ describe('The Contacts controller module', function() {
         var user = {
           _id: 123
         };
-
         openContactFormMock = sinon.spy();
+        addressbooks = [{ bookName: 'contacts' }];
 
         $controller('contactsListController', {
           $scope: scope,
-          user: user
+          user: user,
+          addressbooks: addressbooks
         });
 
         scope.openContactCreation();
         scope.$digest();
-        expect(openContactFormMock).to.have.been.calledWith(user._id, scope.bookName);
+        expect(openContactFormMock).to.have.been.calledWith(user._id, 'contacts');
       });
     });
 

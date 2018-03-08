@@ -384,10 +384,12 @@ angular.module('linagora.esn.contact')
     }
 
     $scope.openContactCreation = function() {
-      if ($scope.bookName) {
-        openContactForm($scope.bookId, $scope.bookName);
-      } else {
-        openContactForm($scope.bookId, DEFAULT_ADDRESSBOOK_NAME);
+      if (addressbooks.length > 1) {
+        return openContactForm($scope.bookId, DEFAULT_ADDRESSBOOK_NAME);
+      }
+
+      if (addressbooks.length === 1) {
+        return openContactForm($scope.bookId, addressbooks[0].bookName);
       }
     };
 
@@ -565,13 +567,9 @@ angular.module('linagora.esn.contact')
     };
     $scope.createPagination(CONTACT_LIST_DISPLAY_MODES.multiple);
 
-    if (!$scope.bookName) {
-      $scope.canCreateContact = true;
-    } else {
-      contactAddressbookService.canCreateContact($scope.bookName).then(function(canCreateContact) {
-        $scope.canCreateContact = canCreateContact;
-      });
-    }
+    $scope.canCreateContact = $scope.addressbooks.some(function(addressbook) {
+      return addressbook.editable;
+    });
 
     if ($location.search().q) {
       $scope.contactSearch.searchInput = $location.search().q.replace(/\+/g, ' ');
