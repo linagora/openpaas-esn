@@ -2,7 +2,10 @@
   'use strict';
 
   angular.module('linagora.esn.contact')
-    .factory('ContactDefaultAddressbookDisplayShell', function(ContactAddressbookDisplayShell, esnI18nService) {
+    .factory('ContactDefaultAddressbookDisplayShell', function(
+      esnI18nService,
+      ContactAddressbookDisplayShell
+    ) {
       var ContactDefaultAddressbookDisplayShell = function(shell) {
         this.shell = shell;
         this.icon = 'mdi-contacts';
