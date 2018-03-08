@@ -1,0 +1,12 @@
+.modal(tabindex="-1", role="dialog")
+  .modal-dialog
+    .modal-content
+      .modal-header
+        h4.modal-title #{__('Delete address book?')}
+      .modal-body
+        p #{__('Address book %s will be deleted along with its contacts.', '{{::$ctrl.addressbookDisplayShell.displayName}}')}
+      .modal-footer
+        button.btn.btn-link(ng-click="$hide()")
+          | #{__('Cancel')}
+        button.btn.btn-danger(ng-click="$ctrl.onDeleteBtnClick(); $hide()")
+          | #{__('Delete')}

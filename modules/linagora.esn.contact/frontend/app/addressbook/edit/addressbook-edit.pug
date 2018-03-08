@@ -1,0 +1,16 @@
+.modal.full-screen
+  form.modal-dialog(name="form", esn-submit="$hide(); $ctrl.onSaveBtnClick();")
+    .modal-content
+      .modal-header
+        button.close(type="button", data-dismiss="modal", aria-label=__('Close'), ng-click="$hide()")
+          span(aria-hidden="true") &times;
+        h4.modal-title #{__('Edit address book information')}
+      .modal-body.p-t-20
+        esn-form-group(label=__('Name'))
+          input.form-control(type="text", ng-model="$ctrl.addressbook.name", name="addressbookName", required)
+      .modal-footer.flex
+        .flex-vertical-centered.flex-end
+          button.btn.btn-link(type="button", ng-click="$hide()")
+            | #{__('Cancel')}
+          button.btn.btn-primary(type="submit", ng-disabled="form.$invalid || form.$pristine || form.$pending")
+            | #{__('Save')}

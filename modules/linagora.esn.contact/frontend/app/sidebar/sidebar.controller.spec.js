@@ -78,6 +78,7 @@ describe('the ContactSidebarController controller', function() {
         priority: 5
       };
 
+      contactAddressbookDisplayService.convertShellsToDisplayShells = angular.noop;
       contactAddressbookDisplayService.convertShellToDisplayShell = sinon.spy(function(addressbook) {
         return addressbook;
       });
@@ -96,5 +97,69 @@ describe('the ContactSidebarController controller', function() {
       expect(contactAddressbookDisplayService.convertShellToDisplayShell).to.have.been.calledOnce;
       expect(contactAddressbookDisplayService.sortAddressbookDisplayShells).to.have.been.calledTwice; // First time when init controller
     });
+  });
+
+  it('should update an address book when updated address book event is fired', function() {
+    var addressbooks = [
+      {
+        shell: { bookName: 'bookA', name: 'bookA' },
+        displayName: 'bookA'
+      },
+      {
+        shell: { bookName: 'bookB', name: 'bookB' },
+        displayName: 'bookB'
+      }
+    ];
+    var updatedAddressbook = {
+      bookName: 'bookA',
+      name: 'new bookA'
+    };
+
+    contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when());
+    contactAddressbookDisplayService.convertShellsToDisplayShells = angular.noop;
+    contactAddressbookDisplayService.sortAddressbookDisplayShells = angular.noop;
+
+    var controller = initController();
+
+    controller.addressbooks = addressbooks;
+    $rootScope.$broadcast(CONTACT_ADDRESSBOOK_EVENTS.UPDATED, updatedAddressbook);
+    $rootScope.$digest();
+
+    expect(controller.addressbooks).to.deep.equal([{
+      shell: { bookName: 'bookA', name: 'new bookA' },
+      displayName: 'new bookA'
+    }, {
+      shell: { bookName: 'bookB', name: 'bookB' },
+      displayName: 'bookB'
+    }]);
+  });
+
+  it('should remove an address book when removed address book event is fired', function() {
+    var addressbooks = [
+      {
+        shell: { bookName: 'bookA', name: 'bookA' },
+        displayName: 'bookA'
+      },
+      {
+        shell: { bookName: 'bookB', name: 'bookB' },
+        displayName: 'bookB'
+      }
+    ];
+    var removedAddressbook = 'bookA';
+
+    contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when());
+    contactAddressbookDisplayService.convertShellsToDisplayShells = angular.noop;
+    contactAddressbookDisplayService.sortAddressbookDisplayShells = angular.noop;
+
+    var controller = initController();
+
+    controller.addressbooks = addressbooks;
+    $rootScope.$broadcast(CONTACT_ADDRESSBOOK_EVENTS.DELETED, removedAddressbook);
+    $rootScope.$digest();
+
+    expect(controller.addressbooks).to.deep.equal([{
+      shell: { bookName: 'bookB', name: 'bookB' },
+      displayName: 'bookB'
+    }]);
   });
 });
