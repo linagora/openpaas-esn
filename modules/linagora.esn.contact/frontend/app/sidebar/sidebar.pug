@@ -1,5 +1,22 @@
 .lv-item.sidebar-title
   .media
+    .pull-right
+      .lv-actions.actions
+        li.dropdown
+          a(href='', data-toggle='dropdown', aria-expanded='true', title=__('New address book'))
+            i.mdi.mdi-plus
+          ul.dropdown-menu.dropdown-menu-right
+            li
+              a(
+                href='',
+                esn-modal-launcher="/contact/app/addressbook/create/contact-addressbook-create",
+                controller='ContactAddressbookCreateController',
+                controller-as='$ctrl',
+                backdrop='static'
+              )
+                | #{__('New address book')}
+            li
+              a(href='/#/controlcenter/accounts') #{__('Import contacts')}
     .media-body
       .title
         .text #{__('Address books')}

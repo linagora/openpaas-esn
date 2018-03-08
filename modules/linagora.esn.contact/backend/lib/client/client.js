@@ -141,20 +141,38 @@ module.exports = function(dependencies, options) {
        * @return {Promise}
        */
       function create(addressbook) {
-        var deferred = q.defer();
-        var headers = {
+        const deferred = q.defer();
+        const headers = {
           ESNToken: ESNToken,
           accept: VCARD_JSON
         };
+        const method = 'POST';
 
-        getAddressBookHomeUrl(function(url) {
+        _getDavEndpoint(davEndpoint => {
+          const addressbookHomeUrl = [davEndpoint, PATH, `${bookHome}.json`].join('/');
+          const addressbookUrl = [davEndpoint, PATH, bookHome, `${addressbook.id}.json`].join('/');
+
           davClient({
-            method: 'POST',
+            method,
             headers: headers,
-            url: url,
+            url: addressbookHomeUrl,
             json: true,
             body: addressbook
-          }, checkResponse(deferred, 'POST', 'Error while creating addressbook in DAV'));
+          }, (err, response, body) => {
+            if (!err && VALID_HTTP_STATUS[method].indexOf(response.statusCode) > -1) {
+              delete addressbook.id;
+
+              body = Object.assign(
+                {},
+                addressbook,
+                {
+                  _links: { self: { href: addressbookUrl } }
+                }
+              );
+            }
+
+            checkResponse(deferred, method, 'Error while creating addressbook in DAV')(err, response, body);
+          });
         });
 
         return deferred.promise;

@@ -8,6 +8,16 @@ module.exports = dependencies => {
   };
 
   function validateAddressbookCreation(req, res, next) {
+    if (!req.body.id) {
+      return res.status(400).json({
+        error: {
+          code: 400,
+          message: 'Bad Request',
+          details: 'Addressbook id is required'
+        }
+      });
+    }
+
     if (!req.body.type) {
       return res.status(400).json({
         error: {

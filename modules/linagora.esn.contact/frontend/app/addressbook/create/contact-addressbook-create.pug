@@ -1,0 +1,13 @@
+.modal.full-screen(tabindex="-1", role="dialog")
+  form(name="form", esn-submit="$hide(); $ctrl.onCreateBtnClick()")
+    .modal-dialog
+      .modal-content
+        .modal-header
+          button.close(type="button", ng-click="$hide()") &times;
+          h4.modal-title #{__('New address book')}
+        .modal-body.p-t-20
+          esn-form-group(label=__('Name'))
+            input.form-control(type="text", ng-model="$ctrl.addressbook.name", name="addressbookName", autofocus, required)
+        .modal-footer
+          button.btn.btn-default(type="button", ng-click="$hide()") #{__('Cancel')}
+          button.btn.btn-primary(type="submit", ng-disabled="form.$invalid") #{__('Create')}

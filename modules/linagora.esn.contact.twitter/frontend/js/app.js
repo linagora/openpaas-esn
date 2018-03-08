@@ -24,7 +24,7 @@ angular.module('linagora.esn.contact.twitter', [
     DisplayShellProvider.addDisplayShell(TwitterDisplayShell, TwitterContactHelper.isTwitterContact);
     contactAddressbookDisplayShellRegistry.add({
       id: 'linagora.esn.contact.twitter',
-      priority: 4,
+      priority: 30,
       displayShell: ContactTwitterAddressbookDisplayShell,
       matchingFunction: contactTwitterAddressbookHelper.isTwitterAddressbook
     });

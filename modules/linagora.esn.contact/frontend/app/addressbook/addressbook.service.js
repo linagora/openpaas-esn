@@ -4,8 +4,16 @@
   angular.module('linagora.esn.contact')
     .factory('contactAddressbookService', contactAddressbookService);
 
-  function contactAddressbookService(ContactAPIClient, session) {
+  function contactAddressbookService(
+    $rootScope,
+    session,
+    ContactAPIClient,
+    CONTACT_ADDRESSBOOK_EVENTS
+  ) {
+    var CONTACT_ADDRESSBOOK_DEFAULT_TYPE = 'user';
+
     return {
+      createAddressbook: createAddressbook,
       getAddressbookByBookName: getAddressbookByBookName,
       isEditableAddressbook: isEditableAddressbook,
       listAddressbooks: listAddressbooks,
@@ -34,6 +42,29 @@
           return bookName === addressbook.bookName;
         });
       });
+    }
+
+    function createAddressbook(addressbook) {
+      if (!addressbook) {
+        return $q.reject(new Error('Address book is required'));
+      }
+
+      if (!addressbook.name) {
+        return $q.reject(new Error('Address book\'s name is required'));
+      }
+
+      addressbook.type = CONTACT_ADDRESSBOOK_DEFAULT_TYPE;
+
+      return ContactAPIClient
+        .addressbookHome(session.user._id)
+        .addressbook()
+        .create(addressbook)
+        .then(function(createdAddressbook) {
+          $rootScope.$broadcast(
+            CONTACT_ADDRESSBOOK_EVENTS.CREATED,
+            createdAddressbook
+          );
+        });
     }
   }
 })(angular);

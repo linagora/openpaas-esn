@@ -6,42 +6,95 @@
 var expect = chai.expect;
 
 describe('the ContactSidebarController controller', function() {
-  var $rootScope, $controller, contactAddressbookService, contactAddressbookDisplayService;
+  var $rootScope, $controller;
+  var contactAddressbookService, contactAddressbookDisplayService;
+  var CONTACT_ADDRESSBOOK_EVENTS;
 
   beforeEach(function() {
-    module('esn.core');
-    module('linagora.esn.contact', function($provide) {
-      contactAddressbookService = {};
-      contactAddressbookDisplayService = {};
+    module('linagora.esn.contact');
 
-      $provide.value('contactAddressbookService', contactAddressbookService);
-      $provide.value('contactAddressbookDisplayService', contactAddressbookDisplayService);
-    });
-
-    inject(function(_$controller_, _$rootScope_) {
+    inject(function(
+      _$controller_,
+      _$rootScope_,
+      _contactAddressbookDisplayService_,
+      _contactAddressbookService_,
+      _CONTACT_ADDRESSBOOK_EVENTS_
+    ) {
       $controller = _$controller_;
       $rootScope = _$rootScope_;
+      contactAddressbookDisplayService = _contactAddressbookDisplayService_;
+      contactAddressbookService = _contactAddressbookService_;
+      CONTACT_ADDRESSBOOK_EVENTS = _CONTACT_ADDRESSBOOK_EVENTS_;
     });
   });
 
   function initController() {
     var $scope = $rootScope.$new();
+    var controller = $controller('ContactSidebarController', {$scope: $scope});
 
-    return $controller('ContactSidebarController', {$scope: $scope});
+    controller.$onInit();
+    $rootScope.$digest();
+
+    return controller;
   }
 
   describe('$onInit fn', function() {
-    it('should get the list of addressbooks then build the addressbook display shells', function() {
-      var controller = initController();
+    it('should get the list of addressbooks then build and arranger the addressbook display shells', function() {
+      var addressbooks = [
+        {
+          displayName: 'bookA',
+          priority: 1
+        },
+        {
+          displayName: 'bookB',
+          priority: 10
+        }
+      ];
 
-      contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when(['book1', 'book2']));
-      contactAddressbookDisplayService.buildAddressbookDisplayShells = sinon.spy();
+      contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when(addressbooks));
+      contactAddressbookDisplayService.convertShellsToDisplayShells = sinon.spy();
+      contactAddressbookDisplayService.sortAddressbookDisplayShells = sinon.spy();
 
-      controller.$onInit();
-      $rootScope.$digest();
+      initController();
 
       expect(contactAddressbookService.listAddressbooks).to.have.been.called;
-      expect(contactAddressbookDisplayService.buildAddressbookDisplayShells).to.have.been.calledWith(['book1', 'book2']);
+      expect(contactAddressbookDisplayService.convertShellsToDisplayShells).to.have.been.calledOnce;
+      expect(contactAddressbookDisplayService.sortAddressbookDisplayShells).to.have.been.calledOnce;
+    });
+
+    it('should add new address book when created address book event is fired', function() {
+      var addressbooks = [
+        {
+          displayName: 'bookA',
+          priority: 1
+        },
+        {
+          displayName: 'bookB',
+          priority: 10
+        }
+      ];
+      var createdAddressbook = {
+        displayName: 'bookC',
+        priority: 5
+      };
+
+      contactAddressbookDisplayService.convertShellToDisplayShell = sinon.spy(function(addressbook) {
+        return addressbook;
+      });
+      contactAddressbookDisplayService.sortAddressbookDisplayShells = sinon.spy(function(addressbooks) {
+        return addressbooks;
+      });
+
+      contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when());
+      var controller = initController();
+
+      controller.addressbooks = addressbooks;
+      $rootScope.$broadcast(CONTACT_ADDRESSBOOK_EVENTS.CREATED, createdAddressbook);
+      $rootScope.$digest();
+
+      expect(controller.addressbooks.length).to.equal(3);
+      expect(contactAddressbookDisplayService.convertShellToDisplayShell).to.have.been.calledOnce;
+      expect(contactAddressbookDisplayService.sortAddressbookDisplayShells).to.have.been.calledTwice; // First time when init controller
     });
   });
 });

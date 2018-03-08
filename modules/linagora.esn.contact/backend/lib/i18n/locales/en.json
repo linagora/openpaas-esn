@@ -33,7 +33,7 @@
   "Social Networks": "Social Networks",
   "Last name": "Last name",
   "Social Account": "Social Account",
-  "Import Contacts": "Import Contacts",
+  "Import contacts": "Import contacts",
   "Other": "Other",
   "Mobile": "Mobile",
   "Contact updated": "Contact updated",
@@ -59,5 +59,9 @@
   "Address book": "Address book",
   "Collected contacts": "Collected contacts",
   "All contacts": "All contacts",
-  "No contact": "No contact"
+  "No contact": "No contact",
+  "New address book": "New address book",
+  "Creating address book...": "Creating address book...",
+  "Address book created": "Address book created",
+  "Failed to create address book": "Failed to create address book"
 }

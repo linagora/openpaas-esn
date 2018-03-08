@@ -8,8 +8,8 @@ describe('The contactAddressbookDisplayService service', function() {
   var contactAddressbookDisplayService, ContactAddressbookDisplayShell, contactAddressbookDisplayShellRegistry, displayShellRegistry;
 
   beforeEach(function() {
-    module('esn.notification');
-    module('linagora.esn.contact', function($provide) {
+    module('linagora.esn.contact');
+    module(function($provide) {
       displayShellRegistry = {};
       contactAddressbookDisplayShellRegistry = {
         getAll: function() {
@@ -29,16 +29,16 @@ describe('The contactAddressbookDisplayService service', function() {
     });
   });
 
-  describe('The buildAddressbookDisplayShells function', function() {
-    it('should convert addressbook to a registered display shell if the addressbook properties are satisfied with display shell matching function', function() {
+  describe('The convertShellToDisplayShell function', function() {
+    it('should convert addressbook shell to a registered display shell if the addressbook properties are satisfied with display shell matching function', function() {
       var DummyDisplayShell = function(shell) {
         this.shell = shell;
       };
 
-      var addressbooks = [{
+      var addressbookShell = {
         bookName: 'dummy',
         type: 'dummy'
-      }];
+      };
 
       displayShellRegistry = {
         dummy: {
@@ -50,70 +50,60 @@ describe('The contactAddressbookDisplayService service', function() {
         }
       };
 
-      var result = contactAddressbookDisplayService.buildAddressbookDisplayShells(addressbooks);
+      var result = contactAddressbookDisplayService.convertShellToDisplayShell(addressbookShell);
 
-      expect(result).to.have.length(1);
-      expect(result[0]).to.be.an.instanceof(DummyDisplayShell);
+      expect(result).to.be.an.instanceof(DummyDisplayShell);
     });
 
     it('should convert addressbook to ContactAddressbookDisplayShell if it does not match any registered display shells', function() {
-      var addressbooks = [{
+      var addressbookShell = {
         bookName: 'dummy',
         type: 'dummy'
-      }];
+      };
 
-      var result = contactAddressbookDisplayService.buildAddressbookDisplayShells(addressbooks);
+      var result = contactAddressbookDisplayService.convertShellToDisplayShell(addressbookShell);
 
-      expect(result).to.have.length(1);
-      expect(result[0]).to.be.an.instanceof(ContactAddressbookDisplayShell);
+      expect(result).to.be.an.instanceof(ContactAddressbookDisplayShell);
     });
+  });
 
-    it('should return an array of addressbook display shells in favor of lower priotiry display shells first', function() {
-      var DummyDisplayShell = function(shell) {
+  describe('The convertShellToDisplayShell function', function() {
+    it('should convert addressbook shells to a registered display shells', function() {
+      var DisplayShell1 = function(shell) {
         this.shell = shell;
       };
-      var ContactDisplayShell = function(shell) {
+      var DisplayShell2 = function(shell) {
         this.shell = shell;
       };
-
-      var addressbooks = [{
-        bookName: 'dummy',
-        name: 'should be prioritied 2nd',
-        type: 'dummy'
+      var addressbookShells = [{
+        bookName: 'addressbook1',
+        type: 'shell1'
       }, {
-        bookName: 'contacts',
-        name: 'should be prioritied 1st'
-      }, {
-        bookName: 'extra',
-        name: 'should be prioritied last'
-      }, {
-        bookName: 'dummy2',
-        name: 'should be prioritied 2nd',
-        type: 'dummy'
+        bookName: 'addressbook2',
+        type: 'shell2'
       }];
 
       displayShellRegistry = {
-        dummy: {
-          id: 'dummy module',
-          priority: 2,
-          matchingFunction: function(book) { return book.type === 'dummy'; },
-          displayShell: DummyDisplayShell
+        shell1: {
+          id: 'shell1',
+          matchingFunction: function(book) {
+            return book.type === 'shell1';
+          },
+          displayShell: DisplayShell1
         },
-        'linagora.esn.contact': {
-          id: 'linagora.esn.contact',
-          priority: 1,
-          matchingFunction: function(book) { return book.bookName === 'contacts'; },
-          displayShell: ContactDisplayShell
+        shell2: {
+          id: 'shell2',
+          matchingFunction: function(book) {
+            return book.type === 'shell2';
+          },
+          displayShell: DisplayShell2
         }
       };
 
-      var result = contactAddressbookDisplayService.buildAddressbookDisplayShells(addressbooks);
+      var result = contactAddressbookDisplayService.convertShellsToDisplayShells(addressbookShells);
 
-      expect(result).to.have.length(4);
-      expect(result[0]).to.be.an.instanceof(ContactDisplayShell);
-      expect(result[1]).to.be.an.instanceof(DummyDisplayShell);
-      expect(result[2]).to.be.an.instanceof(DummyDisplayShell);
-      expect(result[3]).to.be.an.instanceof(ContactAddressbookDisplayShell);
+      expect(result[0]).to.be.an.instanceof(DisplayShell1);
+      expect(result[1]).to.be.an.instanceof(DisplayShell2);
     });
   });
 
@@ -161,6 +151,43 @@ describe('The contactAddressbookDisplayService service', function() {
       var result = contactAddressbookDisplayService.buildDisplayName(addressbook);
 
       expect(result).to.equal(addressbook.bookName);
+    });
+  });
+
+  describe('The sortAddressbookDisplayShells function', function() {
+    it('should return sorted list of address book display shells', function() {
+      var addressbookShell1 = {
+        displayName: 'AB1',
+        priority: 1
+      };
+      var addressbookShell2_1 = {
+        displayName: 'AB2_1',
+        priority: 2
+      };
+      var addressbookShell2_2 = {
+        displayName: 'AB2_2',
+        priority: 2
+      };
+      var addressbookShell4 = {
+        displayName: 'AB4',
+        priority: 3
+      };
+
+      var addressbookDisplayShells = [
+        addressbookShell4,
+        addressbookShell2_2,
+        addressbookShell1,
+        addressbookShell2_1
+      ];
+      var expectResult = [
+        addressbookShell1,
+        addressbookShell2_1,
+        addressbookShell2_2,
+        addressbookShell4
+      ];
+      var sortedAddressbookDisplayShells = contactAddressbookDisplayService.sortAddressbookDisplayShells(addressbookDisplayShells);
+
+      expect(sortedAddressbookDisplayShells).to.deep.equal(expectResult);
     });
   });
 });

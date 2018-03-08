@@ -21,8 +21,18 @@ contact-sidebar {
       }
     }
 
-    .media > .pull-right {
-      padding-left: 2px;
+    .media {
+      width: 100%;
+
+      .pull-right i.mdi {
+        vertical-align: sub;
+        font-size: 25px;
+        color: lighten(@secondaryTextColor, 10%);
+
+        &:hover {
+          color: darken(@secondaryTextColor, 20%);
+        }
+      }
     }
   }
 
@@ -54,5 +64,13 @@ contact-sidebar {
   hr {
     margin: 6px 0;
     border-top: 1px solid @black-alpha-10;
+  }
+}
+
+@media(max-width: @screen-md-min) {
+  contact-sidebar {
+    .sidebar-title .media .pull-right {
+      margin-right: 10px;
+    }
   }
 }
