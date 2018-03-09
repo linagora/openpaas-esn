@@ -8,10 +8,14 @@ sub-header
         i.mdi.mdi-reply
         | #{__('Back')}
       ul.actions.flex-space-around
-        li
-          button.btn.btn-primary.btn-icon-before(ng-if='displayShell.isWritable()', ng-disabled='calling || !loaded', type='button', ng-click='edit()')
-            i.mdi.mdi-pencil
-            | #{__('Edit')}
+        li.contact-dropdown.dropdown
+          a(href='', data-toggle='dropdown')
+            i.mdi.mdi-dots-vertical
+          ul.dropdown-menu.dropdown-menu-right
+            li
+              a(href='', ng-if='displayShell.isWritable()', ng-click='edit()') #{__('Edit')}
+            li
+              contact-action-copy.contact-dropdown-action-item(contact='contact')
 
   .card.hidden-xs(ng-submit='accept()')
     .card-body.contact-body

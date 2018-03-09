@@ -72,5 +72,12 @@
   "Failed to update address book": "Impossible de mettre à jour le carnet d'adresses",
   "Delete address book?": "Supprimer le carnet d'adresses?",
   "Address book %s will be deleted along with its contacts.": "Le carnet d'adresses % s sera supprimé avec ses contacts.",
-  "Edit address book": "Modifier le carnet d'adresses"
+  "Edit address book": "Modifier le carnet d'adresses",
+  "Copy": "Copier",
+  "Copy to...": "Copier à...",
+  "Copy contact": "Copier le contact",
+  "Copying contact...": "Copier le contact...",
+  "Contact copied": "Contact copié",
+  "Failed to copy contact": "Impossible de copier le contact",
+  "Select destination address book:": "Sélectionner le carnet d'adresses de destination"
 }

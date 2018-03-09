@@ -4,6 +4,11 @@
       a.col-xs-6(href='', esn-back-button='contact')
         i.mdi.mdi-arrow-left.m-l-5.m-r-5
         | #{__('Back')}
-      .col-xs-6.right-action
-        a.p-l-5.p-r-10(ng-click="edit()" ng-if="displayShell.isWritable()")
-          i.mdi.mdi-pencil
+      .col-xs-6.contact-dropdown.dropdown.right-action
+        a.dropdown-toggle(href='', data-toggle="dropdown")
+          i.mdi.mdi-dots-vertical.m-r-5
+        ul.dropdown-menu.dropdown-menu-right
+          li
+            a(href='', ng-if='displayShell.isWritable()', ng-click='edit()') #{__('Edit')}
+          li
+            contact-action-copy.contact-dropdown-action-item(contact='contact')
