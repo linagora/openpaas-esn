@@ -15,7 +15,6 @@ sub-header
 
   .card.hidden-xs(ng-submit='accept()')
     .card-body.contact-body
-      .contact-error-container
       contact-display(ng-if='loaded && !error' contact='contact')
       div.bs-alert.bs-alert-warning.clearfix.text-center(ng-if= 'loaded && !error && !displayShell.isWritable()')
         strong #{__("This contact can not be edited")}
@@ -28,7 +27,13 @@ sub-header
       div.contact-fn
         | {{contact.displayName}}
       .contact-infos
-
+        .contact-items-group
+          .p-t-10
+            i.mdi(ng-class='addressbookDisplayShell.icon')
+            .contact-item-data
+              p
+                a(href='', title=__('Address book'), ng-click='openAddressbook()') {{::addressbookDisplayShell.displayName}}
+              p.type #{__('Address book')}
         .contact-items-group(ng-if='phones && phones.length')
           i.mdi.mdi-phone
           div(ng-repeat='tel in phones track by $index')

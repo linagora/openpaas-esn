@@ -293,19 +293,30 @@ describe('The contact Angular module directives', function() {
   });
 
   describe('The contactDisplay directive', function() {
-    var $compile, $rootScope, element, $scope, CONTACT_AVATAR_SIZE, ContactShellDisplayBuilder;
+    var $compile, $state, $rootScope, element, $scope, CONTACT_AVATAR_SIZE, ContactShellDisplayBuilder, esnI18nService;
 
     beforeEach(function() {
       ContactShellDisplayBuilder = {
         build: function() {}
       };
+
+      esnI18nService = {
+        translate: sinon.spy(function(input) {
+          return {
+            toString: function() {return input;}
+          };
+        })
+      };
+
       module(function($provide) {
         $provide.value('ContactShellDisplayBuilder', ContactShellDisplayBuilder);
+        $provide.value('esnI18nService', esnI18nService);
       });
     });
 
-    beforeEach(inject(function(_$compile_, _$rootScope_, _CONTACT_AVATAR_SIZE_) {
+    beforeEach(inject(function(_$q_, _$compile_, _$rootScope_, _CONTACT_AVATAR_SIZE_, _$state_) {
       $compile = _$compile_;
+      $state = _$state_;
       $rootScope = _$rootScope_;
       CONTACT_AVATAR_SIZE = _CONTACT_AVATAR_SIZE_;
       $scope = $rootScope.$new();
@@ -314,7 +325,8 @@ describe('The contact Angular module directives', function() {
         tel: [],
         addresses: [],
         social: [],
-        urls: []
+        urls: [],
+        addressbook: {}
       };
     }));
 
@@ -413,6 +425,23 @@ describe('The contact Angular module directives', function() {
 
         scope.contact = { orgName: 'Linagora', orgRole: 'Dev' };
         expect(scope.shouldDisplayWork()).to.be.ok;
+      });
+    });
+
+    describe('The openAddressbook fn', function() {
+
+      beforeEach(initDirective);
+
+      it('should open address book that the current contact belong to', function() {
+        var scope = element.isolateScope();
+
+        scope.contact.addressbook = {
+          bookName: 'contacts'
+        };
+
+        $state.go = sinon.spy();
+        scope.openAddressbook();
+        expect($state.go).to.have.been.calledWith('contact.addressbooks', { bookName: $scope.contact.addressbook.bookName });
       });
     });
   });

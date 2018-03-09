@@ -2,7 +2,7 @@ sub-header
   contact-list-subheader
 
 .contacts-list
-  fab.contact-fab(ng-click='openContactCreation()')
+  fab.contact-fab(ng-if='canCreateContact', ng-click='openContactCreation()')
 
   .contacts-body.p-t-15
     .row

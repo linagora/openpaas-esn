@@ -15,7 +15,6 @@
     return {
       createAddressbook: createAddressbook,
       getAddressbookByBookName: getAddressbookByBookName,
-      isEditableAddressbook: isEditableAddressbook,
       listAddressbooks: listAddressbooks,
       listEditableAddressbooks: listEditableAddressbooks,
       removeAddressbook: removeAddressbook,
@@ -34,14 +33,6 @@
       return listAddressbooks().then(function(addressbooks) {
         return addressbooks.filter(function(addressbook) {
           return addressbook.editable;
-        });
-      });
-    }
-
-    function isEditableAddressbook(bookName) {
-      return listEditableAddressbooks().then(function(addressbooks) {
-        return addressbooks.some(function(addressbook) {
-          return bookName === addressbook.bookName;
         });
       });
     }
