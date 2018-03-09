@@ -286,7 +286,7 @@ describe('The contactAddressbookService service', function() {
       $rootScope.$digest();
     });
 
-    it('should resolve and broadcase event when successfully updating addressbook', function(done) {
+    it('should resolve and broadcast event when successfully updating addressbook', function(done) {
       var addressbook = {
         name: 'toto'
       };
