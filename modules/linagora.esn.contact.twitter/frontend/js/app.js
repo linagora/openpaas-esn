@@ -14,6 +14,8 @@ angular.module('linagora.esn.contact.twitter', [
   })
 
   .run(function(
+    contactAddressbookActionEdit,
+    contactAddressbookActionDelete,
     contactAddressbookDisplayShellRegistry,
     contactTwitterAddressbookHelper,
     ContactTwitterAddressbookDisplayShell,
@@ -26,6 +28,10 @@ angular.module('linagora.esn.contact.twitter', [
       id: 'linagora.esn.contact.twitter',
       priority: 30,
       displayShell: ContactTwitterAddressbookDisplayShell,
-      matchingFunction: contactTwitterAddressbookHelper.isTwitterAddressbook
+      matchingFunction: contactTwitterAddressbookHelper.isTwitterAddressbook,
+      actions: [
+        contactAddressbookActionEdit,
+        contactAddressbookActionDelete
+      ]
     });
   });

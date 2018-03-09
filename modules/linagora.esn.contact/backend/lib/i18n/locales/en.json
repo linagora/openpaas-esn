@@ -63,5 +63,14 @@
   "New address book": "New address book",
   "Creating address book...": "Creating address book...",
   "Address book created": "Address book created",
-  "Failed to create address book": "Failed to create address book"
+  "Failed to create address book": "Failed to create address book",
+  "Deleting address book...": "Deleting address book...",
+  "Address book deleted": "Address book deleted",
+  "Failed to delete address book": "Failed to delete address book",
+  "Updating address book...": "Updating address book...",
+  "Address book updated": "Address book updated",
+  "Failed to update address book": "Failed to update address book",
+  "Delete address book?": "Delete address book?",
+  "Address book %s will be deleted along with its contacts.": "Address book %s will be deleted along with its contacts.",
+  "Edit address book information": "Edit address book information"
 }

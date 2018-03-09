@@ -14,6 +14,8 @@ angular.module('linagora.esn.contact.google', [
   })
 
   .run(function(
+    contactAddressbookActionEdit,
+    contactAddressbookActionDelete,
     contactAddressbookDisplayShellRegistry,
     contactGoogleAddressbookHelper,
     ContactGoogleAddressbookDisplayShell,
@@ -26,6 +28,10 @@ angular.module('linagora.esn.contact.google', [
       id: 'linagora.esn.contact.google',
       priority: 20,
       displayShell: ContactGoogleAddressbookDisplayShell,
-      matchingFunction: contactGoogleAddressbookHelper.isGoogleAddressbook
+      matchingFunction: contactGoogleAddressbookHelper.isGoogleAddressbook,
+      actions: [
+        contactAddressbookActionEdit,
+        contactAddressbookActionDelete
+      ]
     });
   });

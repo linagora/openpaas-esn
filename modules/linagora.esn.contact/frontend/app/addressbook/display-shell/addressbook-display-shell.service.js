@@ -15,10 +15,6 @@
         return this.shell.editable;
       };
 
-      ContactAddressbookDisplayShell.prototype.getDisplayName = function() {
-        return this.shell.displayName;
-      };
-
       return ContactAddressbookDisplayShell;
     });
 })(angular);

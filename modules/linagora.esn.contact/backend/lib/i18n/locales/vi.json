@@ -63,5 +63,14 @@
   "New address book": "Sổ địa chỉ mới",
   "Creating address book...": "Đang tạo sổ địa chỉ...",
   "Address book created": "Đã tạo sổ địa chỉ",
-  "Failed to create address book": "Tạo sổ địa chỉ thất bại"
+  "Failed to create address book": "Tạo sổ địa chỉ thất bại",
+  "Deleting address book...": "Sổ địa chỉ đang được xóa...",
+  "Address book deleted": "Sổ được chỉ đã được xóa",
+  "Failed to delete address book": "Không thể xóa sổ địa chỉ",
+  "Updating address book...": "Đang cập nhật sổ địa chỉ...",
+  "Address book updated": "Sổ địa chỉ đã được cập nhật",
+  "Failed to update address book": "Không thể cập nhật sổ địa chỉ",
+  "Delete address book?": "Xóa sổ địa chỉ?",
+  "Address book %s will be deleted along with its contacts.": "Sổ địa chỉ %s và các liên lạc bên trong sẽ bị xóa.",
+  "Edit address book information": "Sửa thông tin sổ địa chỉ"
 }

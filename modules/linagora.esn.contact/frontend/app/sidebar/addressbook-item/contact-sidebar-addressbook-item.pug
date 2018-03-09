@@ -1,10 +1,18 @@
 .lv-item.clickable.addressbook-item.waves-effect.waves-classic(
-  title='{{$ctrl.addressbook.displayName}}',
+  title='{{::$ctrl.addressbookDisplayShell.displayName}}',
   ui-sref-active="selected",
-  ui-sref='contact.addressbooks({ bookName: $ctrl.addressbook.shell.bookName })'
+  ui-sref='contact.addressbooks({ bookName: $ctrl.addressbookDisplayShell.shell.bookName })'
 )
   .badge-container
     .badge
-    i.addressbook-icon.mdi(ng-class='$ctrl.addressbook.icon')
+    i.addressbook-icon.mdi(ng-class='::$ctrl.addressbookDisplayShell.icon')
   .title.ellipsis
-    span {{$ctrl.addressbook.displayName}}
+    span {{$ctrl.addressbookDisplayShell.displayName}}
+  settings-overlay(ng-if='::$ctrl.actions.length > 0')
+    md-menu-item(
+      ng-repeat='action in ::$ctrl.actions',
+      ng-click='action.execute($ctrl.addressbookDisplayShell.shell)'
+    )
+      md-button
+        md-icon(md-menu-origin, md-svg-icon='{{action.icon}}')
+        | {{ action.name | esnI18n }}

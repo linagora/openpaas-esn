@@ -65,9 +65,70 @@ describe('The contactAddressbookDisplayService service', function() {
 
       expect(result).to.be.an.instanceof(ContactAddressbookDisplayShell);
     });
+
+    it('should include actions metadata from regsitry with includeActions option is true', function() {
+      var DummyDisplayShell = function(shell) {
+        this.shell = shell;
+      };
+
+      var addressbookShell = {
+        bookName: 'dummy',
+        type: 'dummy'
+      };
+
+      displayShellRegistry = {
+        dummy: {
+          id: 'dummy',
+          matchingFunction: function(book) {
+            return book.type === 'dummy';
+          },
+          actions: [
+            'action1',
+            'action2'
+          ],
+          displayShell: DummyDisplayShell
+        }
+      };
+
+      var result = contactAddressbookDisplayService.convertShellToDisplayShell(addressbookShell, {
+        includeActions: true
+      });
+
+      expect(result).to.be.an.instanceof(DummyDisplayShell);
+      expect(result.actions).to.deep.equal(displayShellRegistry.dummy.actions);
+    });
+
+    it('should include priority metadata from regsitry with includePriority option is true', function() {
+      var DummyDisplayShell = function(shell) {
+        this.shell = shell;
+      };
+
+      var addressbookShell = {
+        bookName: 'dummy',
+        type: 'dummy'
+      };
+
+      displayShellRegistry = {
+        dummy: {
+          id: 'dummy',
+          matchingFunction: function(book) {
+            return book.type === 'dummy';
+          },
+          priority: 1,
+          displayShell: DummyDisplayShell
+        }
+      };
+
+      var result = contactAddressbookDisplayService.convertShellToDisplayShell(addressbookShell, {
+        includePriority: true
+      });
+
+      expect(result).to.be.an.instanceof(DummyDisplayShell);
+      expect(result.priority).to.deep.equal(displayShellRegistry.dummy.priority);
+    });
   });
 
-  describe('The convertShellToDisplayShell function', function() {
+  describe('The convertShellsToDisplayShells function', function() {
     it('should convert addressbook shells to a registered display shells', function() {
       var DisplayShell1 = function(shell) {
         this.shell = shell;

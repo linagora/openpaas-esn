@@ -14,7 +14,7 @@
                 controller-as='$ctrl',
                 backdrop='static'
               )
-                | #{__('New address book')}
+                | #{__('Contacts')}
             li
               a(href='/#/controlcenter/accounts') #{__('Import contacts')}
     .media-body
@@ -36,4 +36,4 @@
 hr
 
 .listview
-  contact-sidebar-addressbook-item(ng-repeat='book in $ctrl.addressbooks', addressbook='book')
+  contact-sidebar-addressbook-item(ng-repeat='book in $ctrl.addressbooks', addressbook-display-shell='book')

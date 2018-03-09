@@ -8,6 +8,7 @@ var expect = chai.expect;
 describe('The contactAddressbookService service', function() {
   var $rootScope;
   var contactAddressbookService, ContactAPIClient, session;
+  var CONTACT_ADDRESSBOOK_EVENTS;
 
   beforeEach(function() {
     module('linagora.esn.contact');
@@ -27,10 +28,12 @@ describe('The contactAddressbookService service', function() {
     });
     inject(function(
       _$rootScope_,
-      _contactAddressbookService_
+      _contactAddressbookService_,
+      _CONTACT_ADDRESSBOOK_EVENTS_
     ) {
       $rootScope = _$rootScope_;
       contactAddressbookService = _contactAddressbookService_;
+      CONTACT_ADDRESSBOOK_EVENTS = _CONTACT_ADDRESSBOOK_EVENTS_;
     });
   });
 
@@ -185,6 +188,137 @@ describe('The contactAddressbookService service', function() {
         .catch(function(err) {
           done(err || 'should resolve');
         });
+
+      $rootScope.$digest();
+    });
+  });
+
+  describe('The removeAddressbook function', function() {
+    it('should reject if removing addressbook failed', function(done) {
+      var addressbookName = 'toto';
+      var removeSpy = sinon.stub().returns($q.reject());
+
+      ContactAPIClient.addressbookHome = function(bookId) {
+        expect(bookId).to.equal(session.user._id);
+
+        return {
+          addressbook: function(bookName) {
+            expect(bookName).to.equal(addressbookName);
+
+            return {
+              remove: removeSpy
+            };
+          }
+        };
+      };
+
+      contactAddressbookService
+        .removeAddressbook(addressbookName)
+        .catch(function() {
+          expect(removeSpy).to.have.been.called;
+          done();
+        });
+
+      $rootScope.$digest();
+    });
+
+    it('should resolve and broadcast event when successfully removing addressbook', function(done) {
+      var addressbookName = 'toto';
+      var removeSpy = sinon.stub().returns($q.when());
+
+      $rootScope.$broadcast = sinon.spy();
+      ContactAPIClient.addressbookHome = function(bookId) {
+        expect(bookId).to.equal(session.user._id);
+
+        return {
+          addressbook: function(bookName) {
+            expect(bookName).to.equal(addressbookName);
+
+            return {
+              remove: removeSpy
+            };
+          }
+        };
+      };
+
+      contactAddressbookService
+        .removeAddressbook(addressbookName)
+        .then(function() {
+          expect(removeSpy).to.have.been.calledOnce;
+          expect($rootScope.$broadcast).to.have.been.calledWith(CONTACT_ADDRESSBOOK_EVENTS.DELETED, addressbookName);
+          done();
+        })
+        .catch(done);
+
+      $rootScope.$digest();
+    });
+  });
+
+  describe('The updateAddressbook function', function() {
+    it('should reject if updating addressbook failed', function(done) {
+      var addressbook = {
+        name: 'toto'
+      };
+      var addressbookName = 'tata';
+      var updateSpy = sinon.stub().returns($q.reject());
+
+      ContactAPIClient.addressbookHome = function(bookId) {
+        expect(bookId).to.equal(session.user._id);
+
+        return {
+          addressbook: function(bookName) {
+            expect(bookName).to.equal(addressbookName);
+
+            return {
+              update: updateSpy
+            };
+          }
+        };
+      };
+
+      contactAddressbookService
+        .updateAddressbook(addressbookName, addressbook)
+        .catch(function() {
+          expect(updateSpy).to.have.been.calledWith(addressbook);
+          done();
+        });
+
+      $rootScope.$digest();
+    });
+
+    it('should resolve and broadcast event when successfully updating addressbook', function(done) {
+      var addressbook = {
+        name: 'toto'
+      };
+      var addressbookName = 'tata';
+      var updateSpy = sinon.stub().returns($q.when());
+
+      $rootScope.$broadcast = sinon.spy();
+      ContactAPIClient.addressbookHome = function(bookId) {
+        expect(bookId).to.equal(session.user._id);
+
+        return {
+          addressbook: function(bookName) {
+            expect(bookName).to.equal(addressbookName);
+
+            return {
+              update: updateSpy
+            };
+          }
+        };
+      };
+
+      contactAddressbookService
+        .updateAddressbook(addressbookName, addressbook)
+        .then(function() {
+          expect(updateSpy).to.have.been.calledWith(addressbook);
+          expect($rootScope.$broadcast).to.have.been.calledWith(CONTACT_ADDRESSBOOK_EVENTS.UPDATED, {
+            name: 'toto',
+            bookName: 'tata'
+          });
+          done();
+        })
+        .catch(done);
 
       $rootScope.$digest();
     });

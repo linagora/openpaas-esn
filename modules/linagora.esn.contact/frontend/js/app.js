@@ -111,21 +111,12 @@ angular.module('linagora.esn.contact', [
 
   .run(function(
     attendeeService,
-    contactAddressbookDisplayShellRegistry,
     ContactAttendeeProvider,
-    contactDefaultAddressbookHelper,
-    ContactDefaultAddressbookDisplayShell,
     esnModuleRegistry,
     searchContactProviderService,
     searchProviders,
     CONTACT_MODULE_METADATA
   ) {
-    contactAddressbookDisplayShellRegistry.add({
-      id: 'linagora.esn.contact',
-      priority: 1,
-      displayShell: ContactDefaultAddressbookDisplayShell,
-      matchingFunction: contactDefaultAddressbookHelper.isDefaultAddressbook
-    });
     attendeeService.addProvider(ContactAttendeeProvider);
     searchProviders.add(searchContactProviderService);
     esnModuleRegistry.add(CONTACT_MODULE_METADATA);

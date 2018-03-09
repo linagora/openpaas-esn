@@ -17,7 +17,9 @@
       getAddressbookByBookName: getAddressbookByBookName,
       isEditableAddressbook: isEditableAddressbook,
       listAddressbooks: listAddressbooks,
-      listEditableAddressbooks: listEditableAddressbooks
+      listEditableAddressbooks: listEditableAddressbooks,
+      removeAddressbook: removeAddressbook,
+      updateAddressbook: updateAddressbook
     };
 
     function getAddressbookByBookName(bookName) {
@@ -64,6 +66,27 @@
             CONTACT_ADDRESSBOOK_EVENTS.CREATED,
             createdAddressbook
           );
+        });
+    }
+
+    function removeAddressbook(bookName) {
+      return ContactAPIClient
+        .addressbookHome(session.user._id)
+        .addressbook(bookName)
+        .remove()
+        .then(function() {
+          $rootScope.$broadcast(CONTACT_ADDRESSBOOK_EVENTS.DELETED, bookName);
+        });
+    }
+
+    function updateAddressbook(bookName, addressbook) {
+      return ContactAPIClient
+        .addressbookHome(session.user._id)
+        .addressbook(bookName)
+        .update(addressbook)
+        .then(function() {
+          addressbook.bookName = bookName;
+          $rootScope.$broadcast(CONTACT_ADDRESSBOOK_EVENTS.UPDATED, addressbook);
         });
     }
   }

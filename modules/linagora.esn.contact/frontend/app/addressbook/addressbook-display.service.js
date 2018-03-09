@@ -16,13 +16,16 @@
       buildDisplayName: buildDisplayName
     };
 
-    function convertShellsToDisplayShells(addressbookShells) {
-      return _.map(addressbookShells, function(addressbookShell) {
-        return convertShellToDisplayShell(addressbookShell);
+    function convertShellsToDisplayShells(addressbookShells, options) {
+      options = options || {};
+
+      return addressbookShells.map(function(addressbookShell) {
+        return convertShellToDisplayShell(addressbookShell, options);
       });
     }
 
-    function convertShellToDisplayShell(addressbookShell) {
+    function convertShellToDisplayShell(addressbookShell, options) {
+      options = options || {};
       var match = _.find(_getRegisteredDisplayShells(), function(displayShell) {
         return displayShell.matchingFunction(addressbookShell);
       });
@@ -30,12 +33,19 @@
 
       if (match) {
         addressbookDisplayShell = new match.displayShell(addressbookShell);
-        addressbookDisplayShell.priority = match.priority;
-      } else {
-        addressbookDisplayShell = new ContactAddressbookDisplayShell(addressbookShell);
+
+        if (options.includeActions) {
+          addressbookDisplayShell.actions = match.actions || [];
+        }
+
+        if (options.includePriority) {
+          addressbookDisplayShell.priority = match.priority;
+        }
+
+        return addressbookDisplayShell;
       }
 
-      return addressbookDisplayShell;
+      return new ContactAddressbookDisplayShell(addressbookShell);
     }
 
     function sortAddressbookDisplayShells(addressbookDisplayShells) {

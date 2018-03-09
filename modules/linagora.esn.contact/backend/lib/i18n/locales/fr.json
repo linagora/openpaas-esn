@@ -63,5 +63,14 @@
   "New address book": "Nouveau carnet d'adresse",
   "Creating address book...": "Création de carnet d'adresse...",
   "Address book created": "Carnet d'adresse créée",
-  "Failed to create address book": "Impossible de créer un carnet d'adresse"
+  "Failed to create address book": "Impossible de créer un carnet d'adresse",
+  "Deleting address book...": "Suppression du carnet d'adresses ...",
+  "Address book deleted": "Carnet d'adresses supprimé",
+  "Failed to delete address book": "Impossible de supprimer le carnet d'adresses",
+  "Updating address book...": "Mise à jour du carnet d'adresses ...",
+  "Address book updated": "Carnet d'adresses mis à jour",
+  "Failed to update address book": "Impossible de mettre à jour le carnet d'adresses",
+  "Delete address book?": "Supprimer le carnet d'adresses?",
+  "Address book %s will be deleted along with its contacts.": "Le carnet d'adresses % s sera supprimé avec ses contacts.",
+  "Edit address book information": "Modifier les informations du carnet d'adresses"
 }
