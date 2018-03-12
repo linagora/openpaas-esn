@@ -261,9 +261,9 @@ describe('The contactAddressbookService service', function() {
   describe('The updateAddressbook function', function() {
     it('should reject if updating addressbook failed', function(done) {
       var addressbook = {
-        name: 'toto'
+        name: 'toto',
+        bookName: 'tata'
       };
-      var addressbookName = 'tata';
       var updateSpy = sinon.stub().returns($q.reject());
 
       ContactAPIClient.addressbookHome = function(bookId) {
@@ -271,7 +271,7 @@ describe('The contactAddressbookService service', function() {
 
         return {
           addressbook: function(bookName) {
-            expect(bookName).to.equal(addressbookName);
+            expect(bookName).to.equal(addressbook.bookName);
 
             return {
               update: updateSpy
@@ -281,7 +281,7 @@ describe('The contactAddressbookService service', function() {
       };
 
       contactAddressbookService
-        .updateAddressbook(addressbookName, addressbook)
+        .updateAddressbook(addressbook)
         .catch(function() {
           expect(updateSpy).to.have.been.calledWith(addressbook);
           done();
@@ -292,9 +292,9 @@ describe('The contactAddressbookService service', function() {
 
     it('should resolve and broadcast event when successfully updating addressbook', function(done) {
       var addressbook = {
-        name: 'toto'
+        name: 'toto',
+        bookName: 'tata'
       };
-      var addressbookName = 'tata';
       var updateSpy = sinon.stub().returns($q.when());
 
       $rootScope.$broadcast = sinon.spy();
@@ -303,7 +303,7 @@ describe('The contactAddressbookService service', function() {
 
         return {
           addressbook: function(bookName) {
-            expect(bookName).to.equal(addressbookName);
+            expect(bookName).to.equal(addressbook.bookName);
 
             return {
               update: updateSpy
@@ -313,13 +313,10 @@ describe('The contactAddressbookService service', function() {
       };
 
       contactAddressbookService
-        .updateAddressbook(addressbookName, addressbook)
+        .updateAddressbook(addressbook)
         .then(function() {
           expect(updateSpy).to.have.been.calledWith(addressbook);
-          expect($rootScope.$broadcast).to.have.been.calledWith(CONTACT_ADDRESSBOOK_EVENTS.UPDATED, {
-            name: 'toto',
-            bookName: 'tata'
-          });
+          expect($rootScope.$broadcast).to.have.been.calledWith(CONTACT_ADDRESSBOOK_EVENTS.UPDATED, addressbook);
           done();
         })
         .catch(done);

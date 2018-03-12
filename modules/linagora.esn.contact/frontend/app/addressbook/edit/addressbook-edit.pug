@@ -4,7 +4,7 @@
       .modal-header
         button.close(type="button", data-dismiss="modal", aria-label=__('Close'), ng-click="$hide()")
           span(aria-hidden="true") &times;
-        h4.modal-title #{__('Edit address book information')}
+        h4.modal-title #{__('Edit address book')}
       .modal-body.p-t-20
         esn-form-group(label=__('Name'))
           input.form-control(type="text", ng-model="$ctrl.addressbook.name", name="addressbookName", required)

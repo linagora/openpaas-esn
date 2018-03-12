@@ -70,13 +70,12 @@
         });
     }
 
-    function updateAddressbook(bookName, addressbook) {
+    function updateAddressbook(addressbook) {
       return ContactAPIClient
         .addressbookHome(session.user._id)
-        .addressbook(bookName)
+        .addressbook(addressbook.bookName)
         .update(addressbook)
         .then(function() {
-          addressbook.bookName = bookName;
           $rootScope.$broadcast(CONTACT_ADDRESSBOOK_EVENTS.UPDATED, addressbook);
         });
     }

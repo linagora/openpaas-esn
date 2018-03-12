@@ -24,7 +24,7 @@
     }
 
     function _updateAddressbook() {
-      return contactAddressbookService.updateAddressbook(addressbook.bookName, self.addressbook);
+      return contactAddressbookService.updateAddressbook(self.addressbook);
     }
   }
 })(angular);

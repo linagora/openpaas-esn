@@ -2601,6 +2601,43 @@ describe('The Contacts controller module', function() {
       });
     });
 
+    describe('When Updated Addressbook event is fired', function() {
+      it('should update addressbook title in subheader if the current viewing addressbook is updated', function() {
+        var currentAddressbooks = [{
+          bookName: 'twitter'
+        }];
+
+        $controller('contactsListController', {
+          $scope: scope,
+          user: { _id: '123' },
+          addressbooks: currentAddressbooks
+        });
+        $rootScope.$broadcast(CONTACT_ADDRESSBOOK_EVENTS.UPDATED, {
+          name: 'Twitter Contacts',
+          bookName: 'twitter'
+        });
+        expect(scope.bookTitle).to.equal('Twitter Contacts');
+      });
+
+      it('should not update addressbook title in subheader if the current viewing addressbook is not the one is updated', function() {
+        var currentAddressbooks = [{
+          bookName: 'twitter',
+          name: 'Twitter Contacts'
+        }];
+
+        $controller('contactsListController', {
+          $scope: scope,
+          user: { _id: '123' },
+          addressbooks: currentAddressbooks
+        });
+        $rootScope.$broadcast(CONTACT_ADDRESSBOOK_EVENTS.UPDATED, {
+          name: 'Google Contacts',
+          bookName: 'goole'
+        });
+        expect(scope.bookTitle).to.equal('Twitter Contacts');
+      });
+    });
+
   });
 
   describe('The contactItemController controller', function() {

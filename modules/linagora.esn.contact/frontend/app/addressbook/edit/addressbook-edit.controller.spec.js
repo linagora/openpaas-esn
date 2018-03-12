@@ -44,7 +44,10 @@ describe('The ContactAddressbookEditController controller', function() {
       controller.addressbook.name = 'new name of addressbook';
       controller.onSaveBtnClick();
 
-      expect(contactAddressbookService.updateAddressbook).to.have.been.calledWith(addressbook.bookName, controller.addressbook);
+      expect(contactAddressbookService.updateAddressbook).to.have.been.calledWith({
+        bookName: 'book',
+        name: 'new name of addressbook'
+      });
     });
   });
 });

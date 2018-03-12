@@ -337,6 +337,12 @@ angular.module('linagora.esn.contact')
       }
     });
 
+    $scope.$on(CONTACT_ADDRESSBOOK_EVENTS.UPDATED, function(evt, newAddressbook) {
+      if ($scope.addressbooks.length === 1 && $scope.addressbooks[0].bookName === newAddressbook.bookName) {
+        $scope.bookTitle = newAddressbook.name;
+      }
+    });
+
     function _buildAddressBookTitle() {
       if ($scope.addressbooks.length > 1) {
         return esnI18nService.translate('All contacts').toString();
