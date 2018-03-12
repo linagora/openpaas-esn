@@ -195,7 +195,9 @@ describe('The contactAddressbookService service', function() {
 
   describe('The removeAddressbook function', function() {
     it('should reject if removing addressbook failed', function(done) {
-      var addressbookName = 'toto';
+      var addressbook = {
+        bookName: 'toto'
+      };
       var removeSpy = sinon.stub().returns($q.reject());
 
       ContactAPIClient.addressbookHome = function(bookId) {
@@ -203,7 +205,7 @@ describe('The contactAddressbookService service', function() {
 
         return {
           addressbook: function(bookName) {
-            expect(bookName).to.equal(addressbookName);
+            expect(bookName).to.equal(addressbook.bookName);
 
             return {
               remove: removeSpy
@@ -213,7 +215,7 @@ describe('The contactAddressbookService service', function() {
       };
 
       contactAddressbookService
-        .removeAddressbook(addressbookName)
+        .removeAddressbook(addressbook)
         .catch(function() {
           expect(removeSpy).to.have.been.called;
           done();
@@ -223,7 +225,9 @@ describe('The contactAddressbookService service', function() {
     });
 
     it('should resolve and broadcast event when successfully removing addressbook', function(done) {
-      var addressbookName = 'toto';
+      var addressbook = {
+        bookName: 'toto'
+      };
       var removeSpy = sinon.stub().returns($q.when());
 
       $rootScope.$broadcast = sinon.spy();
@@ -232,7 +236,7 @@ describe('The contactAddressbookService service', function() {
 
         return {
           addressbook: function(bookName) {
-            expect(bookName).to.equal(addressbookName);
+            expect(bookName).to.equal(addressbook.bookName);
 
             return {
               remove: removeSpy
@@ -242,10 +246,10 @@ describe('The contactAddressbookService service', function() {
       };
 
       contactAddressbookService
-        .removeAddressbook(addressbookName)
+        .removeAddressbook(addressbook)
         .then(function() {
           expect(removeSpy).to.have.been.calledOnce;
-          expect($rootScope.$broadcast).to.have.been.calledWith(CONTACT_ADDRESSBOOK_EVENTS.DELETED, addressbookName);
+          expect($rootScope.$broadcast).to.have.been.calledWith(CONTACT_ADDRESSBOOK_EVENTS.DELETED, addressbook);
           done();
         })
         .catch(done);

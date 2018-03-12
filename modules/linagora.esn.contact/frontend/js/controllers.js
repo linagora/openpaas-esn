@@ -275,6 +275,7 @@ angular.module('linagora.esn.contact')
     $q,
     $log,
     $scope,
+    $state,
     $stateParams,
     $location,
     $window,
@@ -297,7 +298,8 @@ angular.module('linagora.esn.contact')
     CONTACT_EVENTS,
     CONTACT_LIST_DISPLAY,
     CONTACT_LIST_DISPLAY_MODES,
-    DEFAULT_ADDRESSBOOK_NAME
+    DEFAULT_ADDRESSBOOK_NAME,
+    CONTACT_ADDRESSBOOK_EVENTS
   ) {
     var requiredKey = 'displayName';
     var SPINNER = 'contactListSpinner';
@@ -326,6 +328,12 @@ angular.module('linagora.esn.contact')
         sharedContactDataService.searchQuery = $scope.contactSearch.searchInput;
       } else {
         sharedContactDataService.searchQuery = null;
+      }
+    });
+
+    $scope.$on(CONTACT_ADDRESSBOOK_EVENTS.DELETED, function(evt, removedAddressbook) {
+      if ($scope.addressbooks.length === 1 && $scope.addressbooks[0].bookName === removedAddressbook.bookName) {
+        $state.go('contact.addressbooks', { bookName: null });
       }
     });
 

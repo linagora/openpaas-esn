@@ -60,13 +60,13 @@
         });
     }
 
-    function removeAddressbook(bookName) {
+    function removeAddressbook(addressbook) {
       return ContactAPIClient
         .addressbookHome(session.user._id)
-        .addressbook(bookName)
+        .addressbook(addressbook.bookName)
         .remove()
         .then(function() {
-          $rootScope.$broadcast(CONTACT_ADDRESSBOOK_EVENTS.DELETED, bookName);
+          $rootScope.$broadcast(CONTACT_ADDRESSBOOK_EVENTS.DELETED, addressbook);
         });
     }
 

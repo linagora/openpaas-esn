@@ -9,7 +9,7 @@ describe('The Contacts controller module', function() {
 
   var $rootScope, $controller, $timeout, scope, ContactShell, AddressBookPaginationService, AddressBookPaginationRegistryMock,
     notificationFactory, usSpinnerService, $location, $state, $stateParams, selectionService, $alert, gracePeriodService, sharedContactDataService,
-    sortedContacts, ContactLiveUpdate, contactUpdateDataService, $window, CONTACT_EVENTS, CONTACT_LIST_DISPLAY_MODES,
+    sortedContacts, ContactLiveUpdate, contactUpdateDataService, $window, CONTACT_EVENTS, CONTACT_LIST_DISPLAY_MODES, CONTACT_ADDRESSBOOK_EVENTS,
     ContactAPIClient, VcardBuilder, ContactLocationHelper, closeContactForm, closeContactFormMock, openContactForm, openContactFormMock, addressbooks,
     ContactShellDisplayBuilder, esnI18nServiceMock;
 
@@ -180,7 +180,7 @@ describe('The Contacts controller module', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function(_$window_, _$rootScope_, _$controller_, _$timeout_, _$state_, _sharedContactDataService_, ALPHA_ITEMS, _CONTACT_EVENTS_, _CONTACT_LIST_DISPLAY_MODES_) {
+  beforeEach(angular.mock.inject(function(_$window_, _$rootScope_, _$controller_, _$timeout_, _$state_, _sharedContactDataService_, ALPHA_ITEMS, _CONTACT_EVENTS_, _CONTACT_LIST_DISPLAY_MODES_, _CONTACT_ADDRESSBOOK_EVENTS_) {
     $window = _$window_;
     $rootScope = _$rootScope_;
     $controller = _$controller_;
@@ -197,6 +197,7 @@ describe('The Contacts controller module', function() {
     scope.contact = {};
     CONTACT_EVENTS = _CONTACT_EVENTS_;
     CONTACT_LIST_DISPLAY_MODES = _CONTACT_LIST_DISPLAY_MODES_;
+    CONTACT_ADDRESSBOOK_EVENTS = _CONTACT_ADDRESSBOOK_EVENTS_;
   }));
 
   function createVcardMock(vcardFn, bookId, bookName) {
@@ -2565,6 +2566,39 @@ describe('The Contacts controller module', function() {
         expect(searchRequests).to.equal(1);
       });
 
+    });
+
+    describe('When Deleted Addressbook event is fired', function() {
+      it('should change to aggregated contacts view if the current viewing addressbook is deleted', function() {
+        var currentAddressbooks = [{
+          bookName: 'twitter'
+        }];
+
+        $state.go = sinon.spy();
+        $controller('contactsListController', {
+          $scope: scope,
+          user: { _id: '123' },
+          addressbooks: currentAddressbooks
+        });
+        $rootScope.$broadcast(CONTACT_ADDRESSBOOK_EVENTS.DELETED, { bookName: 'twitter' });
+        expect($state.go).to.have.been.calledWith('contact.addressbooks', { bookName: null });
+      });
+
+      it('should not change state if the current viewing addressbook is not the one is deleted', function() {
+        var currentAddressbooks = [{
+          bookName: 'twitter',
+          name: 'Twitter Contacts'
+        }];
+
+        $state.go = sinon.spy();
+        $controller('contactsListController', {
+          $scope: scope,
+          user: { _id: '123' },
+          addressbooks: currentAddressbooks
+        });
+        $rootScope.$broadcast(CONTACT_ADDRESSBOOK_EVENTS.DELETED, { bookName: 'google' });
+        expect($state.go).to.not.have.been.called;
+      });
     });
 
   });

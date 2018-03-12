@@ -25,7 +25,7 @@
     }
 
     function _removeAddressbook() {
-      return contactAddressbookService.removeAddressbook(addressbook.bookName);
+      return contactAddressbookService.removeAddressbook(addressbook);
     }
   }
 })(angular);
