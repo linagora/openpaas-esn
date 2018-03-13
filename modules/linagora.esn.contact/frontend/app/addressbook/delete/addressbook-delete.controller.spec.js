@@ -68,7 +68,7 @@ describe('the ContactAddressbookDeleteController controller', function() {
       contactAddressbookService.removeAddressbook = sinon.spy();
       controller.onDeleteBtnClick();
 
-      expect(contactAddressbookService.removeAddressbook).to.have.been.calledWith(addressbook.bookName);
+      expect(contactAddressbookService.removeAddressbook).to.have.been.calledWith(addressbook);
     });
   });
 });

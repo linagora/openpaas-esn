@@ -145,7 +145,9 @@ describe('the ContactSidebarController controller', function() {
         displayName: 'bookB'
       }
     ];
-    var removedAddressbook = 'bookA';
+    var removedAddressbook = {
+      bookName: 'bookA'
+    };
 
     contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when());
     contactAddressbookDisplayService.convertShellsToDisplayShells = angular.noop;

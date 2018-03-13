@@ -55,7 +55,7 @@
 
     function _onRemovedAddressbook(removedAddressbook) {
       _.remove(self.addressbooks, function(addressbook) {
-        return addressbook.shell.bookName === removedAddressbook;
+        return addressbook.shell.bookName === removedAddressbook.bookName;
       });
     }
   }
