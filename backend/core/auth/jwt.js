@@ -31,17 +31,24 @@ function getWebTokenConfig(callback) {
   });
 }
 
-function generateWebToken(payload, callback) {
+function generateWebToken(payload, options, callback) {
+  if (!callback) {
+    callback = options;
+    options = {};
+  }
+
   if (!payload) {
     return callback(new Error('Payload is required to generated a JWT.'));
   }
-  getWebTokenConfig(function(err, config) {
+
+  getWebTokenConfig((err, config) => {
     if (err) {
       return callback(err);
     }
-    jwt.sign(payload, config.privateKey, {algorithm: config.algorithm}, function(err, token) {
-      return callback(err, token);
-    });
+
+    const signOptions = Object.assign({ algorithm: config.algorithm }, options);
+
+    jwt.sign(payload, config.privateKey, signOptions, callback);
   });
 }
 
