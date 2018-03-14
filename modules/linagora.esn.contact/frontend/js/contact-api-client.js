@@ -277,6 +277,26 @@ angular.module('linagora.esn.contact')
     }
 
     /**
+     * Move a vcard
+     * @param  {String} bookId   The addressbook home ID
+     * @param  {String} bookName The addressbook name
+     * @param  {String} cardId   The card ID to move
+     * @param  {Object} options  Includes "destAddressbook" which is destination addressbook name to move contact to
+     * @return {Promise}         Resolve on success
+     */
+    function moveCard(bookId, bookName, cardId, options) {
+      var headers = {
+        Destination: options.destAddressbook
+      };
+
+      return davClient(
+        'MOVE',
+        getVCardUrl(bookId, bookName, cardId),
+        headers
+      );
+    }
+
+    /**
      * Update a card
      * @param  {String} bookId   the addressbook home ID
      * @param  {String} bookName the addressbook name
@@ -371,6 +391,7 @@ angular.module('linagora.esn.contact')
      * - Create a contact: addressbookHome(bookId).addressbook(bookName).vcard().create(contact)
      * - Update a contact: addressbookHome(bookId).addressbook(bookName).vcard(cardId).update(contact)
      * - Remove a contact: addressbookHome(bookId).addressbook(bookName).vcard(cardId).remove(options)
+     * - Move a contact: addressbookHome(bookId).addressbook(bookName).vcard(cardId).move(options)
      * @param  {String} bookId the addressbook home ID
      * @return {addressbook: function, search: function}
      */
@@ -425,9 +446,14 @@ angular.module('linagora.esn.contact')
             return removeCard(bookId, bookName, cardId, options);
           }
 
+          function move(options) {
+            return moveCard(bookId, bookName, cardId, options);
+          }
+
           return {
             get: get,
             list: list,
+            move: move,
             search: search,
             create: create,
             update: update,

@@ -4,6 +4,7 @@ module.exports = dependencies => {
   const { AVAILABLE_ADDRESSBOOK_TYPES } = dependencies('contact').lib.constants;
 
   return {
+    requireDestinationInHeaders,
     validateAddressbookCreation
   };
 
@@ -44,6 +45,20 @@ module.exports = dependencies => {
           code: 400,
           message: 'Bad Request',
           details: 'Addressbook type is not supported'
+        }
+      });
+    }
+
+    next();
+  }
+
+  function requireDestinationInHeaders(req, res, next) {
+    if (!req.headers.destination) {
+      return res.status(400).json({
+        error: {
+          code: 400,
+          message: 'Bad Request',
+          details: 'The destination header is required'
         }
       });
     }

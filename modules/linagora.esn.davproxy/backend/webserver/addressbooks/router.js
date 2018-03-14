@@ -175,6 +175,35 @@ module.exports = function(dependencies) {
 
   /**
    * @swagger
+   * /addressbooks/{bookHome}/{bookName}/{contactId}.vcf:
+   *   move:
+   *     tags:
+   *       - Davproxy
+   *     description: Moves a contact
+   *     parameters:
+   *       - $ref: "#/parameters/davproxy_addressbook_book_home"
+   *       - $ref: "#/parameters/davproxy_addressbook_book_name"
+   *       - $ref: "#/parameters/davproxy_addressbook_contact_id"
+   *       - $ref: "#/parameters/davproxy_addressbook_destination"
+   *     responses:
+   *       200:
+   *         $ref: "#/responses/cm_201"
+   *       401:
+   *         $ref: "#/responses/cm_401"
+   *       500:
+   *         $ref: "#/responses/cm_500"
+   */
+  router.move(
+    '/:bookHome/:bookName/:contactId.vcf',
+    authorizationMW.requiresAPILogin,
+    middleware.requireDestinationInHeaders,
+    proxyMW.generateNewToken,
+    davMiddleware.getDavEndpoint,
+    controller.moveContact
+  );
+
+  /**
+   * @swagger
    * /addressbooks/{bookHome}/{bookName}.json:
    *   get:
    *     tags:
