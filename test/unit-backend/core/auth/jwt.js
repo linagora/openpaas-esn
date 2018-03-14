@@ -161,6 +161,32 @@ describe('The JWT based authentication module', function() {
         done();
       });
     });
+
+    it('should support generating token with options', function(done) {
+      const payload = { user: 'me', email: 'me@me.me' };
+      const config = { publicKey: 'public key', privateKey: 'private key', algorithm: 'algo' };
+      const options = { expiresIn: '2 days' };
+      const jwtLibMock = {
+        sign(_payload, _privateKey, opts, callback) {
+          expect(_payload).to.deep.equal(payload);
+          expect(_privateKey).to.equal(config.privateKey);
+          expect(opts).to.deep.equal({ algorithm: config.algorithm, expiresIn: options.expiresIn });
+
+          return callback(null);
+        }
+      };
+
+      mockery.registerMock('jsonwebtoken', jwtLibMock);
+      mockery.registerMock('../esn-config', function() {
+        return {
+          get(callback) {
+            callback(null, config);
+          }
+        };
+      });
+
+      getModule().generateWebToken(payload, options, done);
+    });
   });
 
   describe('The generateKeyPair fn', function() {
