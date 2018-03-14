@@ -959,6 +959,31 @@ describe('The contact Angular module contactapis', function() {
 
           });
 
+          describe('The move function', function() {
+            it('should resolve if success', function(done) {
+              var bookId = '123';
+              var bookName = 'source';
+              var destAddressbook = 'dest';
+              var vcardUrl = this.getVCardUrl(bookId, bookName, contact.id);
+              var headers = {
+                Accept: 'application/json, text/plain, */*',
+                Destination: destAddressbook
+              };
+
+              this.$httpBackend.expect('MOVE', vcardUrl, null, headers).respond(201);
+
+              this.ContactAPIClient
+                .addressbookHome(bookId)
+                .addressbook(bookName)
+                .vcard(contact.id)
+                .move({ destAddressbook: destAddressbook })
+                .then(function() {
+                  done();
+                });
+              this.$rootScope.$apply();
+              this.$httpBackend.flush();
+            });
+          });
         });
 
         describe('The create addressbook function', function() {
