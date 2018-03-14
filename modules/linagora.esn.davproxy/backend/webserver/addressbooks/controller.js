@@ -22,6 +22,7 @@ module.exports = function(dependencies) {
     getContact,
     getContacts,
     getContactsFromDAV,
+    moveContact,
     searchContacts,
     removeAddressbook,
     updateAddressbook,
@@ -367,6 +368,49 @@ module.exports = function(dependencies) {
     }
 
     getContactsFromDAV(req, res);
+  }
+
+  function moveContact(req, res) {
+    const options = {
+      ESNToken: req.token && req.token.token ? req.token.token : '',
+      davserver: req.davserver
+    };
+    const destAddressbook = req.headers.destination;
+    const vcardClient = contactModule.lib.client(options)
+      .addressbookHome(req.params.bookHome)
+      .addressbook(req.params.bookName)
+      .vcard(req.params.contactId);
+
+    vcardClient.get()
+      .then(data => {
+        const vcard = data.body;
+
+        return vcardClient.move(destAddressbook)
+          .then(data => {
+            localpubsub.topic(CONSTANTS.NOTIFICATIONS.CONTACT_UPDATED).forward(globalpubsub, {
+              contactId: req.params.contactId,
+              bookId: req.params.bookHome,
+              bookName: destAddressbook,
+              vcard,
+              user: req.user
+            });
+
+            res.status(data.response.statusCode).json();
+          });
+      })
+      .catch(err => {
+        const msg = 'Error while moving contact on DAV server';
+
+        logger.error(msg, err);
+
+        res.status(500).json({
+          error: {
+            code: 500,
+            message: 'Server Error',
+            details: msg
+          }
+        });
+      });
   }
 
   function getAddressbooks(req, res) {

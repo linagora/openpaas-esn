@@ -1372,4 +1372,64 @@ describe('The addressbooks module', function() {
 
   });
 
+  describe('The moveContact function', function() {
+    let req;
+
+    beforeEach(function() {
+      req = {
+        token: {
+          token: 123
+        },
+        davserver: 'http://dav:8080',
+        url: '/foo/bar',
+        params: {
+          bookHome: 'bookHome',
+          bookName: 'book123',
+          cardId: 'card123'
+        },
+        query: {}
+      };
+    });
+
+    it('should forward a "contacts:contact:update" event if success to move contact', function(done) {
+      const statusCode = 201;
+      const contact = { foo: 'bar' };
+      const addressbookTarget = 'addressbook-target';
+
+      req.user = { _id: 1 };
+      req.headers = { destination: addressbookTarget };
+
+      dependencies.pubsub.local.topic = name => {
+        expect(name).to.equal(CONSTANTS.NOTIFICATIONS.CONTACT_UPDATED);
+
+        return {
+          forward: (pubsub, data) => {
+            expect(data).to.deep.equal({
+              contactId: req.params.contactId,
+              bookId: req.params.bookHome,
+              bookName: addressbookTarget,
+              vcard: contact,
+              user: req.user
+            });
+            done();
+          }
+        };
+      };
+
+      dependencies.contact.lib.client = () => ({
+        addressbookHome: () => ({
+          addressbook: () => ({
+            vcard: () => ({
+              get: () => q.resolve({ body: contact }),
+              move: () => q.resolve({
+                response: { statusCode }
+              })
+            })
+          })
+        })
+      });
+
+      getController().moveContact(req);
+    });
+  });
 });

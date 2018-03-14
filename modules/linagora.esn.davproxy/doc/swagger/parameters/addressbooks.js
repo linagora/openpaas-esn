@@ -60,4 +60,10 @@
   *          type: string
   *        description:
   *          type: string
+  *   davproxy_addressbook_destination:
+  *     name: addressbook destination
+  *     in: header
+  *     description: addressbook destination to move
+  *     required: true
+  *     type: string
   */

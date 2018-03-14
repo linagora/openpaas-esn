@@ -767,5 +767,76 @@ describe('The addressbooks dav proxy', function() {
         });
       });
     });
+
+    describe('MOVE /addressbook/:bookId/:bookName/:cardId.vcf', function() {
+      it('should respond 401 if user is not authenticated', function(done) {
+        this.helpers.api.requireLogin(this.app, 'move', `${PREFIX}/addressbooks/123/contacts/456.vcf`, done);
+      });
+
+      it('should respond 400 if there is no destination in request headers', function(done) {
+        const self = this;
+
+        self.createDavServer(err => {
+          if (err) {
+            return done(err);
+          }
+
+          self.helpers.api.loginAsUser(self.app, user.emails[0], password, (err, loggedInAsUser) => {
+            if (err) {
+              return done(err);
+            }
+
+            const req = loggedInAsUser(request(self.app).move(`${PREFIX}/addressbooks/123/contacts/456.vcf`));
+
+            req.expect(400)
+              .end((err, res) => {
+                expect(err).to.not.exist;
+                expect(res.body).to.deep.equal({
+                  error: {
+                    code: 400,
+                    message: 'Bad Request',
+                    details: 'The destination header is required'
+                  }
+                });
+                done();
+              });
+          });
+        });
+      });
+
+      it('should return 201 with the result', function(done) {
+        const self = this;
+        const path = '/addressbooks/123/contacts/456.vcf';
+        let called = false;
+
+        dav.get(path, (req, res) => res.status(200).json({}));
+        dav.move(path, (req, res) => {
+          called = true;
+
+          return res.status(201).json();
+        });
+
+        self.createDavServer(err => {
+          if (err) {
+            return done(err);
+          }
+
+          self.helpers.api.loginAsUser(self.app, user.emails[0], password, (err, loggedInAsUser) => {
+            if (err) {
+              return done(err);
+            }
+
+            const req = loggedInAsUser(request(self.app).move(`${PREFIX}${path}`));
+
+            req.header.destination = '789';
+            req.expect(201).end(err => {
+              expect(err).to.not.exist;
+              expect(called).to.be.true;
+              done();
+            });
+          });
+        });
+      });
+    });
   });
 });

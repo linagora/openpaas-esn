@@ -487,14 +487,40 @@ module.exports = function(dependencies, options) {
           return searchContacts(searchOptions);
         }
 
+        /**
+         * Move a vcard
+         * @param  {String} destAddressbook The address book to move contact to
+         *
+         * @return {Promise}
+         */
+        function move(destAddressbook) {
+          var deferred = q.defer();
+          var headers = {
+            ESNToken: ESNToken,
+            Destination: `addressbooks/${bookHome}/${destAddressbook}/${cardId}.vcf`
+          };
+
+          getVCardUrl(function(url) {
+            davClient({
+              method: 'MOVE',
+              headers: headers,
+              url: url,
+              json: true
+            }, checkResponse(deferred, 'MOVE', 'Error while moving contact on DAV'));
+          });
+
+          return deferred.promise;
+        }
+
         return {
-          get: get,
-          create: create,
-          remove: remove,
-          removeMultiple: removeMultiple,
-          update: update,
-          list: list,
-          search: search
+          create,
+          get,
+          list,
+          move,
+          remove,
+          removeMultiple,
+          search,
+          update
         };
       }
 
