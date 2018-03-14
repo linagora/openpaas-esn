@@ -23,6 +23,10 @@ module.exports = function(dependencies) {
           req.headers.ESNToken = req.token.token;
         }
 
+        if (req.headers && req.headers['x-http-method-override']) {
+          req.method = req.headers['x-http-method-override'];
+        }
+
         return proxy.http(req, res, options);
       };
     }

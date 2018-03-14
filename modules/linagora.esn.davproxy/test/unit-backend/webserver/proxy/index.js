@@ -112,6 +112,52 @@ describe('The proxy module', function() {
         middleware(req);
       });
 
+      it('should change request method if x-http-method header is set', function(done) {
+        const req = {query: {}, davserver: endpoint, method: 'post', headers: { 'x-http-method-override': 'ITIP'}};
+        const path = 'addressbooks';
+
+        dependencies['esn-config'] = function() {
+          return {
+            get: function(callback) {
+              return callback(null, {backend: {url: endpoint}});
+            }
+          };
+        };
+        mockery.registerMock('./proxy', function() {
+          return {
+            http: function(req) {
+              expect(req.method).to.deep.equal('ITIP');
+              done();
+            }
+          };
+        });
+        const middleware = require('../../../../backend/webserver/proxy')(deps)(path).handle();
+        middleware(req);
+      });
+
+      it('should not change request method if header is not defined', function(done) {
+        const req = {query: {}, davserver: endpoint, method: 'post', headers: {}};
+        const path = 'addressbooks';
+
+        dependencies['esn-config'] = function() {
+          return {
+            get: function(callback) {
+              return callback(null, {backend: {url: endpoint}});
+            }
+          };
+        };
+        mockery.registerMock('./proxy', function() {
+          return {
+            http: function(req) {
+              expect(req.method).to.deep.equal('post');
+              done();
+            }
+          };
+        });
+        const middleware = require('../../../../backend/webserver/proxy')(deps)(path).handle();
+        middleware(req);
+      });
+
     });
   });
 });
