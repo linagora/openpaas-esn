@@ -72,5 +72,12 @@
   "Failed to update address book": "Không thể cập nhật sổ địa chỉ",
   "Delete address book?": "Xóa sổ địa chỉ?",
   "Address book %s will be deleted along with its contacts.": "Sổ địa chỉ %s và các liên lạc bên trong sẽ bị xóa.",
-  "Edit address book": "Sửa sổ địa chỉ"
+  "Edit address book": "Sửa sổ địa chỉ",
+  "Copy": "Sao chép",
+  "Copy to...": "Sao chép tới...",
+  "Copy contact": "Sao chép liên lạc",
+  "Copying contact...": "Đang sao chép liên lạc...",
+  "Contact copied": "Liên lạc đã được sao chép",
+  "Failed to copy contact": "Không thể sao chép liên lạc",
+  "Select destination address book:": "Chọn sổ địa chỉ đích:"
 }

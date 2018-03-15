@@ -72,5 +72,12 @@
   "Failed to update address book": "Failed to update address book",
   "Delete address book?": "Delete address book?",
   "Address book %s will be deleted along with its contacts.": "Address book %s will be deleted along with its contacts.",
-  "Edit address book": "Edit address book"
+  "Edit address book": "Edit address book",
+  "Copy": "Copy",
+  "Copy to...": "Copy to...",
+  "Copy contact": "Copy contact",
+  "Copying contact...": "Copying contact...",
+  "Contact copied": "Contact copied",
+  "Failed to copy contact": "Failed to copy contact",
+  "Select destination address book:": "Select destination address book:"
 }
