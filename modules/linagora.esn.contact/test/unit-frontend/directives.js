@@ -771,7 +771,7 @@ describe('The contact Angular module directives', function() {
         $rootScope.$broadcast(event);
       });
       $timeout.flush();
-      expect(onScroll.callCount).to.be.equal(5);
+      expect(onScroll.callCount).to.be.equal(6);
     });
 
     it('should update headerDisplay.mobileLetterVisibility when categoryLetter exists', function() {

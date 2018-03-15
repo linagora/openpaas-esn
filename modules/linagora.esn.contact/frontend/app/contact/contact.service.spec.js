@@ -6,7 +6,8 @@ var expect = chai.expect;
 
 describe('The contactService service', function() {
   var $rootScope, $q;
-  var session, contactService, ContactAPIClient, createFn;
+  var session, contactService, ContactAPIClient, createFn, moveFn;
+  var CONTACT_EVENTS;
 
   beforeEach(function() {
     module('esn.session', function($provide) {
@@ -27,12 +28,14 @@ describe('The contactService service', function() {
       _$rootScope_,
       _$q_,
       _contactService_,
-      _ContactAPIClient_
+      _ContactAPIClient_,
+      _CONTACT_EVENTS_
     ) {
       $rootScope = _$rootScope_;
       $q = _$q_;
       ContactAPIClient = _ContactAPIClient_;
       contactService = _contactService_;
+      CONTACT_EVENTS = _CONTACT_EVENTS_;
     });
   });
 
@@ -81,6 +84,69 @@ describe('The contactService service', function() {
       $rootScope.$digest();
       expect(createFn).to.have.been.calledWith(contact);
       expect(contact.id).to.be.undefined;
+    });
+  });
+
+  describe('The moveContact function', function() {
+    var contact;
+
+    beforeEach(function() {
+      moveFn = sinon.stub().returns($q.when());
+      contact = {
+        id: 'toto',
+        addressbook: { bookName: 'contacts' }
+      };
+      ContactAPIClient.addressbookHome = function(bookId) {
+        expect(bookId).to.equal(session.user._id);
+
+        return {
+          addressbook: function(bookName) {
+            expect(bookName).to.equal(contact.addressbook.bookName);
+
+            return {
+              vcard: function(cardId) {
+                expect(cardId).to.equal(contact.id);
+
+                return {
+                  move: moveFn
+                };
+              }
+            };
+          }
+        };
+      };
+    });
+
+    it('should resolve after successfully moving a contact by calling ContactAPIClient', function(done) {
+      var destinationAddressbookName = 'collected';
+
+      contactService.moveContact(destinationAddressbookName, contact)
+        .then(function() {
+          done();
+        }).catch(done);
+      $rootScope.$digest();
+    });
+
+    it('should broadcast an event after successfully moving a contact', function(done) {
+      var destinationAddressbookName = 'collected';
+
+      $rootScope.$broadcast = sinon.spy();
+
+      contactService.moveContact(destinationAddressbookName, contact)
+        .then(function() {
+          expect(moveFn).to.have.been.calledWith({
+            destAddressbook: destinationAddressbookName
+          });
+          expect($rootScope.$broadcast).to.have.been.calledWith(CONTACT_EVENTS.MOVED, {
+            contact: contact,
+            destination: destinationAddressbookName
+          });
+
+          done();
+        })
+        .catch(done);
+      $rootScope.$digest();
+
     });
   });
 });

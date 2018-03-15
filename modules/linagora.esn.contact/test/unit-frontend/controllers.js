@@ -1203,6 +1203,68 @@ describe('The Contacts controller module', function() {
 
   describe('The contactsListController controller', function() {
 
+    it('should remove contact from list if a contact is moved to another addressbook', function() {
+      var currentAddressbooks = [{ bookName: 'contacts' }];
+      var contact = {
+        id: '123456',
+        addressbook: currentAddressbooks[0],
+        lastName: 'toto'
+      };
+
+      $controller('contactsListController', {
+        $scope: scope,
+        user: {
+          _id: '123'
+        },
+        addressbooks: currentAddressbooks,
+        AlphaCategoryService: function() {
+          return {
+            removeItemWithId: function(contactId) {
+              expect(contactId).to.equal(contact.id);
+            },
+            init: function() {}
+          };
+        }
+      });
+
+      $rootScope.$broadcast(CONTACT_EVENTS.MOVED, {
+        contact: contact,
+        destination: 'otheraddressbook'
+      });
+      $rootScope.$digest();
+    });
+
+    it('should not remove contact from list after a contact is moved to another addressbook if current view is all addressbooks', function() {
+      var currentAddressbooks = [{ bookName: 'contacts' }, { bookName: 'collected' }];
+      var contact = {
+        id: '123456',
+        addressbook: currentAddressbooks[0],
+        lastName: 'toto'
+      };
+      var removeItemSpy = sinon.spy();
+
+      $controller('contactsListController', {
+        $scope: scope,
+        user: {
+          _id: '123'
+        },
+        addressbooks: currentAddressbooks,
+        AlphaCategoryService: function() {
+          return {
+            removeItemWithId: removeItemSpy,
+            init: function() {}
+          };
+        }
+      });
+
+      $rootScope.$broadcast(CONTACT_EVENTS.MOVED, {
+        contact: contact,
+        destination: 'otheraddressbook'
+      });
+      $rootScope.$digest();
+      expect(removeItemSpy).to.not.have.been.called;
+    });
+
     it('should display contacts as list by default', inject(function(CONTACT_LIST_DISPLAY) {
       $controller('contactsListController', {
         $scope: scope,

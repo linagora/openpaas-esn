@@ -38,13 +38,6 @@ angular.module('linagora.esn.contact')
   .constant('CONTACT_LIST_DEFAULT_SORT', 'fn')
   .constant('CONTACT_LIST_PAGE_SIZE', 20)
   .constant('DAV_PATH', '/dav/api')
-  .constant('CONTACT_EVENTS', {
-    CREATED: 'contact:created',
-    UPDATED: 'contact:updated',
-    DELETED: 'contact:deleted',
-    CANCEL_UPDATE: 'contact:cancel:update',
-    CANCEL_DELETE: 'contact:cancel:delete'
-  })
   .constant('CONTACT_SCROLL_EVENTS', 'contact:scroll:update')
   .constant('CONTACT_WS', {
     room: '/contacts',

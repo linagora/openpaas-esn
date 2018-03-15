@@ -16,6 +16,8 @@ sub-header
               a(href='', ng-if='displayShell.isWritable()', ng-click='edit()') #{__('Edit')}
             li
               contact-action-copy.contact-dropdown-action-item(contact='contact')
+            li
+              contact-action-move.contact-dropdown-action-item(contact='contact')
 
   .card.hidden-xs(ng-submit='accept()')
     .card-body.contact-body
