@@ -7,10 +7,16 @@
 
 .modal {
   &.center {
+    .all-centered !important; // Use flex instead of transform to center align for blurry modal fixing
+
     .modal-dialog {
+      .transform(none);
+      width: 50vw;
       margin: 0;
       min-width: 300px;
-      top: 50%;
+      top: auto;
+      left: auto;
+      position: relative;
 
       &.modal-sm {
         width: 300px;
