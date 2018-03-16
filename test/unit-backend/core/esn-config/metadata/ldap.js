@@ -35,9 +35,8 @@ describe('The core/esn-config/metadata/ldap module', () => {
       }];
     });
 
-    it('should return error message when config is not a non-empty array', () => {
+    it('should return error message when config is an array', () => {
       expect(validator({})).to.equal('should be array');
-      expect(validator([])).to.equal('should NOT have less than 1 items');
     });
 
     describe('config item', () => {

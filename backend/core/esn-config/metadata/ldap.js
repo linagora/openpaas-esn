@@ -2,7 +2,6 @@ const { createValidator } = require('../validator/helper');
 
 const schema = {
   type: 'array',
-  minItems: 1,
   items: {
     type: 'object',
     required: [
