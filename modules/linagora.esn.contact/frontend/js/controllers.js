@@ -343,6 +343,13 @@ angular.module('linagora.esn.contact')
       }
     });
 
+    $scope.$on(CONTACT_EVENTS.MOVED, function(evt, data) {
+      // Do not remove contact from list if current view is All Addressbooks
+      if ($scope.addressbooks.length === 1 && data.contact.addressbook.bookName === $scope.addressbooks[0].bookName) {
+        $scope.categories.removeItemWithId(data.contact.id);
+      }
+    });
+
     function _buildAddressBookTitle() {
       if ($scope.addressbooks.length > 1) {
         return esnI18nService.translate('All contacts').toString();

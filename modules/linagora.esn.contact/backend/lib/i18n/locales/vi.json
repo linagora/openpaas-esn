@@ -74,10 +74,16 @@
   "Address book %s will be deleted along with its contacts.": "Sổ địa chỉ %s và các liên lạc bên trong sẽ bị xóa.",
   "Edit address book": "Sửa sổ địa chỉ",
   "Copy": "Sao chép",
-  "Copy to...": "Sao chép tới...",
+  "Copy to": "Sao chép tới",
   "Copy contact": "Sao chép liên lạc",
   "Copying contact...": "Đang sao chép liên lạc...",
   "Contact copied": "Liên lạc đã được sao chép",
-  "Failed to copy contact": "Không thể sao chép liên lạc",
-  "Select destination address book:": "Chọn sổ địa chỉ đích:"
+  "Failed to copy contact": "Sao chép liên lạc thất bại",
+  "Select destination address book:": "Chọn sổ địa chỉ đích:",
+  "Move": "Chuyển",
+  "Move contact": "Di chuyển liên lạc",
+  "Moving contact...": "Đang di chuyển liên lạc...",
+  "Contact moved": "Liên lạc đã được di chuyển",
+  "Failed to move contact": "Di chuyển liên lạc thất bại",
+  "Move to": "Chuyển đến"
 }
