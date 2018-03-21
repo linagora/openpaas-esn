@@ -14,6 +14,8 @@
 @contact-mobile-title-font-size: @contact-mobile-font-size + 1;
 @contact-search-form-bg-color: @body-bg;
 @avatar-shadow: 0px 1px 2px 1px rgba(0, 0, 0, 0.20);
+@contact-tag-border-radius: 16px;
+@contact-tag-padding: 5px 8px;
 
 @import './header';
 @import './search';
@@ -34,8 +36,10 @@
   .tag-item {
     background-color: @m-blue;
     color: @m-white;
-    padding: 3px 5px 0px 5px;
-    margin: 2px;
+    margin-top: 2px;
+    margin-right: 4px;
+    margin-bottom: 2px;
+    padding: @contact-tag-padding;
     float: left;
     list-style: none;
     .break-word;
@@ -161,6 +165,21 @@ ul.dropdown {
           .break-word;
         }
 
+        dl.addressbook-title {
+          height: 100%;
+          margin-bottom: 0;
+          margin-left: 60px;
+
+          dt {
+            display: inline-block;
+            font-weight: normal;
+            background-color: @m-blue;
+            color: @m-white;
+            padding: @contact-tag-padding;
+            border-radius: @contact-tag-border-radius;
+          }
+        }
+
         .type {
           color: @m-gray;
           font-size: 10pt;
@@ -171,13 +190,14 @@ ul.dropdown {
       .tag-item {
         background-color: @m-blue;
         color: @m-white;
-        padding: 1px 4px 0px 4px;
         margin: 2px;
+        padding: @contact-tag-padding;
         float: left;
         list-style: none;
         font-size: smaller;
         .break-word;
         max-width: 100%;
+        border-radius: @contact-tag-border-radius;
       }
       ul.tag-list {
         padding: 0;
@@ -310,8 +330,19 @@ contact-display {
     padding-left: 10px;
 
     i {
-      font-size: 15px;
+      font-size: 20px;
       padding-right: 10px;
+    }
+
+    .tag-list .tag-item {
+      border-radius: @contact-tag-border-radius;
+    }
+
+    a {
+      background-color: @m-blue;
+      color: @m-white;
+      padding: @contact-tag-padding;
+      border-radius: @contact-tag-border-radius;
     }
   }
 }

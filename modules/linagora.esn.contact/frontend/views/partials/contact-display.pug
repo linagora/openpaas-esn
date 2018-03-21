@@ -11,11 +11,11 @@
         |{{contact.job_title}}
       .contact-additional-info.ellipsis
         i.mdi(ng-class='addressbookDisplayShell.icon')
-        a(href='', title=__('Address book'), ng-click='openAddressbook()') {{::addressbookDisplayShell.displayName}}
+        a.ellipsis(href='', title=__('Address book'), ng-click='openAddressbook()') {{::addressbookDisplayShell.displayName}}
       .contact-additional-info(ng-if='contact.tags.length')
         i.mdi.mdi-tag-multiple(title=__('Tags'))
-        ul.tag-list
-          li.tag-item(ng-repeat='tag in contact.tags track by $index') {{tag.text}}
+        ul.tag-list.ellipsis
+          li.tag-item.ellipsis(ng-repeat='tag in ::contact.tags track by $index', title='{{::tag.text}}') {{::tag.text}}
   .pm-body.clearfix
     data(ui-view='')
       .pmb-block(ng-if='shouldDisplayWork()')
