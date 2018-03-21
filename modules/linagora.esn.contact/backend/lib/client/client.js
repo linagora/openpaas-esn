@@ -1,13 +1,14 @@
 'use strict';
 
-var q = require('q');
-var ICAL = require('@linagora/ical.js');
-var davClient = require('../dav-client').rawClient;
-var PATH = 'addressbooks';
-var DEFAULT_ADDRESSBOOK_NAME = 'contacts';
-var VCARD_JSON = 'application/vcard+json';
+const q = require('q');
+const URL = require('url');
+const ICAL = require('@linagora/ical.js');
+const davClient = require('../dav-client').rawClient;
 
-var VALID_HTTP_STATUS = {
+const PATH = 'addressbooks';
+const DEFAULT_ADDRESSBOOK_NAME = 'contacts';
+const VCARD_JSON = 'application/vcard+json';
+const VALID_HTTP_STATUS = {
   GET: [200],
   PUT: [200, 201, 204],
   POST: [200, 201],
@@ -494,17 +495,20 @@ module.exports = function(dependencies, options) {
          * @return {Promise}
          */
         function move(destAddressbook) {
-          var deferred = q.defer();
-          var headers = {
-            ESNToken: ESNToken,
-            Destination: `addressbooks/${bookHome}/${destAddressbook}/${cardId}.vcf`
-          };
+          const deferred = q.defer();
 
-          getVCardUrl(function(url) {
+          _getDavEndpoint(davEndpoint => {
+            const vcardUrl = [davEndpoint, PATH, bookHome, name, cardId + '.vcf'].join('/');
+            const davBaseUri = URL.parse(davEndpoint).pathname;
+            const headers = {
+              ESNToken: ESNToken,
+              Destination: `${davBaseUri}/addressbooks/${bookHome}/${destAddressbook}/${cardId}.vcf`
+            };
+
             davClient({
               method: 'MOVE',
               headers: headers,
-              url: url,
+              url: vcardUrl,
               json: true
             }, checkResponse(deferred, 'MOVE', 'Error while moving contact on DAV'));
           });
