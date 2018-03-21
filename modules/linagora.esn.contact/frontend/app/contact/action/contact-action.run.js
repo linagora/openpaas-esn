@@ -15,7 +15,7 @@
         { name: 'class', value: 'contact-dropdown-action-item' }
       ]
     });
-    inject(true, 'contact-action-move', {
+    inject(isContactWritable, 'contact-action-move', {
       attributes: [
         { name: 'contact', value: 'contact' },
         { name: 'class', value: 'contact-dropdown-action-item' }
