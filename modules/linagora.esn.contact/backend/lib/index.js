@@ -1,10 +1,11 @@
 'use strict';
 
 module.exports = function(dependencies) {
-
+  const pubsub = require('./pubsub')(dependencies);
   var search = require('./search')(dependencies);
 
   function start(callback) {
+    pubsub.listen();
     search.listen();
     callback();
   }

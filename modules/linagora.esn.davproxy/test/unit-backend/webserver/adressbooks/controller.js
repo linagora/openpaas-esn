@@ -3,8 +3,8 @@
 var chai = require('chai');
 var expect = chai.expect;
 var mockery = require('mockery');
+const sinon = require('sinon');
 var q = require('q');
-var CONSTANTS = require('../../../../../linagora.esn.contact/backend/lib/constants');
 
 describe('The addressbooks module', function() {
 
@@ -34,15 +34,6 @@ describe('The addressbooks module', function() {
         error: function() {},
         debug: function() {},
         warn: function() {}
-      },
-      pubsub: {
-        local: {
-          topic: function() {
-            return {
-              forward: function() {}
-            };
-          }
-        }
       },
       config: function() {
         return {};
@@ -84,10 +75,6 @@ describe('The addressbooks module', function() {
   var getController = function() {
     return require('../../../../backend/webserver/addressbooks/controller')(deps);
   };
-
-  function avatarHelper() {
-    return require('../../../../backend/webserver/addressbooks/avatarHelper')(deps);
-  }
 
   function getAvatarUrl(bookId, bookName, cardId) {
     return ['http://localhost:8080/contact/api/contacts', bookId, bookName, cardId, 'avatar'].join('/');
@@ -579,49 +566,6 @@ describe('The addressbooks module', function() {
       });
     });
 
-    it('should forward a "contacts:contact:update" event with new contact if request is an update', function(done) {
-      req.headers = {
-        'if-match': 123
-      };
-      req.user = { _id: '111' };
-      req.body = { fn: 'abc' };
-      req.params.contactId = req.params.cardId;
-
-      dependencies.pubsub.local.topic = function(name) {
-        expect(name).to.equal(CONSTANTS.NOTIFICATIONS.CONTACT_UPDATED);
-        return {
-          forward: function(pubsub, data) {
-            expect(data).to.eql({
-              contactId: req.params.cardId,
-              bookId: req.params.bookHome,
-              bookName: req.params.bookName,
-              vcard: req.body,
-              user: req.user
-            });
-            done();
-          }
-        };
-      };
-
-      mockery.registerMock('../proxy', function() {
-        return function() {
-          return {
-            handle: function(options) {
-              expect(options.onSuccess).to.be.a.function;
-              expect(options.onError).to.be.a.function;
-              expect(options.json).to.be.true;
-              options.onSuccess(null, null, req, null, function() {});
-              return function() {};
-            }
-          };
-        };
-      });
-
-      getController().updateContact(req, {
-        json: function() {}
-      });
-    });
-
     it('should not remove if-match header when updating contact', function(done) {
       req.headers = {
         'if-match': 123
@@ -630,20 +574,14 @@ describe('The addressbooks module', function() {
       req.body = { fn: 'abc' };
       req.params.contactId = req.params.cardId;
 
-      dependencies.pubsub.local.topic = function() {
-        return {
-          forward: function() {
-            expect(req.headers['if-match']).to.equal(123);
-            done();
-          }
-        };
-      };
-
       mockery.registerMock('../proxy', function() {
         return function() {
           return {
             handle: function(options) {
-              options.onSuccess(null, null, req, null, function() {});
+              options.onSuccess(null, null, req, null, function() {
+                expect(req.headers['if-match']).to.equal(123);
+                done();
+              });
               return function() {};
             }
           };
@@ -652,68 +590,6 @@ describe('The addressbooks module', function() {
 
       getController().updateContact(req, {
         json: function() {}
-      });
-    });
-
-    it('should forward a "contacts:contact:add" event if request is a creation', function(done) {
-      var statusCode = 200;
-      req.user = {_id: 1};
-      req.body = {foo: 'bar'};
-      req.headers = {
-      };
-      var called = false;
-
-      dependencies.pubsub.local.topic = function(name) {
-        expect(name).to.equal(CONSTANTS.NOTIFICATIONS.CONTACT_ADDED);
-        return {
-          forward: function(pubsub, data) {
-            called = true;
-            expect(data).to.deep.equal({
-              contactId: req.params.contactId,
-              bookId: req.params.bookName,
-              vcard: req.body,
-              user: req.user
-            });
-          }
-        };
-      };
-
-      contactVcardMock = {
-        create: function() {
-          return q.resolve({
-            response: {statusCode: statusCode},
-            body: req.body
-          });
-        }
-      };
-      dependencies.contact.lib.client = function() {
-        return {
-          addressbookHome: function() {
-            return {
-              addressbook: function() {
-                return {
-                  vcard: function() {
-                    return contactVcardMock;
-                  }
-                };
-              }
-            };
-          }
-        };
-      };
-
-      getController().updateContact(req, {
-        status: function() {
-          return {
-            json: function() {
-              avatarHelper().injectTextAvatar(req.user, 123, 456, req.body).then(function() {
-                expect(called).to.be.true;
-                done();
-              });
-            }
-          };
-        }
-
       });
     });
 
@@ -757,23 +633,6 @@ describe('The addressbooks module', function() {
   });
 
   describe('The deleteContact function', function() {
-
-    var req;
-    beforeEach(function() {
-      req = {
-        token: {
-          token: 123
-        },
-        davserver: 'http://dav:8080',
-        url: '/foo/bar',
-        params: {
-          bookName: 'bookName',
-          bookHome: 'bookHome',
-          cardId: 'card123'
-        }
-      };
-    });
-
     it('should call the proxy module', function(done) {
       mockery.registerMock('../proxy', function() {
         return function() {
@@ -789,38 +648,6 @@ describe('The addressbooks module', function() {
         };
       });
       getController().deleteContact();
-    });
-
-    it('should forward a "contacts:contact:delete" event if request is a delete and is successful', function(done) {
-      dependencies.pubsub.local.topic = function(name) {
-        expect(name).to.equal(CONSTANTS.NOTIFICATIONS.CONTACT_DELETED);
-        return {
-          forward: function(pubsub, data) {
-            expect(data).to.deep.equal({
-              contactId: req.params.contactId,
-              bookId: req.params.bookHome,
-              bookName: req.params.bookName
-            });
-            expect(data.vcard).to.not.exist;
-          }
-        };
-      };
-
-      mockery.registerMock('../proxy', function() {
-        return function() {
-          return {
-            handle: function(options) {
-              return function(req, res) {
-                options.onSuccess({}, {}, req, res, function() {
-                  done();
-                });
-              };
-            }
-          };
-        };
-      });
-      getController().deleteContact(req);
-
     });
   });
 
@@ -1393,43 +1220,36 @@ describe('The addressbooks module', function() {
 
     it('should forward a "contacts:contact:update" event if success to move contact', function(done) {
       const statusCode = 201;
-      const contact = { foo: 'bar' };
       const addressbookTarget = 'addressbook-target';
 
       req.user = { _id: 1 };
       req.headers = { destination: addressbookTarget };
 
-      dependencies.pubsub.local.topic = name => {
-        expect(name).to.equal(CONSTANTS.NOTIFICATIONS.CONTACT_UPDATED);
-
-        return {
-          forward: (pubsub, data) => {
-            expect(data).to.deep.equal({
-              contactId: req.params.contactId,
-              bookId: req.params.bookHome,
-              bookName: addressbookTarget,
-              vcard: contact,
-              user: req.user
-            });
-            done();
-          }
-        };
-      };
+      const moveFn = sinon.stub().returns(q({
+        response: { statusCode }
+      }));
 
       dependencies.contact.lib.client = () => ({
         addressbookHome: () => ({
           addressbook: () => ({
-            vcard: () => ({
-              get: () => q.resolve({ body: contact }),
-              move: () => q.resolve({
-                response: { statusCode }
-              })
-            })
+            vcard: () => ({ move: moveFn })
           })
         })
       });
 
-      getController().moveContact(req);
+      const res = {
+        status(code) {
+          return {
+            json() {
+              expect(moveFn).to.have.been.calledWith(addressbookTarget);
+              expect(code).to.equal(statusCode);
+              done();
+            }
+          };
+        }
+      };
+
+      getController().moveContact(req, res);
     });
   });
 });

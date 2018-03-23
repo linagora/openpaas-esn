@@ -5,11 +5,7 @@ const PATH = 'addressbooks';
 
 module.exports = function(dependencies) {
   const logger = dependencies('logger');
-  const pubsub = dependencies('pubsub');
-  const localpubsub = pubsub.local;
-  const globalpubsub = pubsub.global;
   const contactModule = dependencies('contact');
-  const CONSTANTS = contactModule.lib.constants;
   const proxy = require('../proxy')(dependencies)(PATH);
   const avatarHelper = require('./avatarHelper')(dependencies);
 
@@ -213,15 +209,6 @@ module.exports = function(dependencies) {
         .vcard(req.params.contactId)
         .create(req.body)
         .then(function(data) {
-          avatarHelper.injectTextAvatar(req.user, req.params.bookHome, req.params.bookName, req.body).then(function(newBody) {
-            localpubsub.topic(CONSTANTS.NOTIFICATIONS.CONTACT_ADDED).forward(globalpubsub, {
-              contactId: req.params.contactId,
-              bookId: req.params.bookHome,
-              bookName: req.params.bookName,
-              vcard: newBody,
-              user: req.user
-            });
-          });
           res.status(data.response.statusCode).json(data.body);
         }, function(err) {
           var msg = 'Error while creating contact on DAV server';
@@ -245,13 +232,6 @@ module.exports = function(dependencies) {
 
         onSuccess: function(response, data, req, res, callback) {
           logger.debug('Success while updating contact %s', req.params.contactId);
-          localpubsub.topic(CONSTANTS.NOTIFICATIONS.CONTACT_UPDATED).forward(globalpubsub, {
-            contactId: req.params.contactId,
-            bookId: req.params.bookHome,
-            bookName: req.params.bookName,
-            vcard: req.body,
-            user: req.user
-          });
 
           return callback(null, data);
         },
@@ -271,12 +251,6 @@ module.exports = function(dependencies) {
 
       onSuccess: function(response, data, req, res, callback) {
         logger.debug('Success while deleting contact %s', req.params.contactId);
-
-        localpubsub.topic(CONSTANTS.NOTIFICATIONS.CONTACT_DELETED).forward(globalpubsub, {
-          contactId: req.params.contactId,
-          bookId: req.params.bookHome,
-          bookName: req.params.bookName
-        });
 
         return callback(null, data);
       }
@@ -376,27 +350,14 @@ module.exports = function(dependencies) {
       davserver: req.davserver
     };
     const destAddressbook = req.headers.destination;
-    const vcardClient = contactModule.lib.client(options)
+
+    contactModule.lib.client(options)
       .addressbookHome(req.params.bookHome)
       .addressbook(req.params.bookName)
-      .vcard(req.params.contactId);
-
-    vcardClient.get()
+      .vcard(req.params.contactId)
+      .move(destAddressbook)
       .then(data => {
-        const vcard = data.body;
-
-        return vcardClient.move(destAddressbook)
-          .then(data => {
-            localpubsub.topic(CONSTANTS.NOTIFICATIONS.CONTACT_UPDATED).forward(globalpubsub, {
-              contactId: req.params.contactId,
-              bookId: req.params.bookHome,
-              bookName: destAddressbook,
-              vcard,
-              user: req.user
-            });
-
-            res.status(data.response.statusCode).json();
-          });
+        res.status(data.response.statusCode).json();
       })
       .catch(err => {
         const msg = 'Error while moving contact on DAV server';
