@@ -16,7 +16,8 @@ angular.module('esn.community', [
   'esn.widget.helper',
   'esn.collaboration',
   'op.dynamicDirective',
-  'esn.feature-registry'
+  'esn.feature-registry',
+  'esn.module-registry'
 ])
   .config(function(tagsInputConfigProvider, dynamicDirectiveServiceProvider) {
     tagsInputConfigProvider.setActiveInterpolation('tagsInput', {
@@ -29,7 +30,7 @@ angular.module('esn.community', [
     dynamicDirectiveServiceProvider.addInjection('esn-application-menu', community);
   })
   .run(function(objectTypeResolver, objectTypeAdapter, communityAPI, communityAdapterService,
-    esnRestangular, ASTrackerSubscriptionService, esnFeatureRegistry) {
+    esnRestangular, ASTrackerSubscriptionService, esnFeatureRegistry, esnModuleRegistry) {
     objectTypeResolver.register('community', communityAPI.get);
     objectTypeAdapter.register('community', communityAdapterService);
     esnRestangular.extendModel('communities', function(model) {
@@ -45,6 +46,12 @@ angular.module('esn.community', [
         }
       ],
       description: 'Provide a gathering place for groups of user where they can communicate, make polls, discussion'
+    });
+    esnModuleRegistry.add({
+      id: 'esn.community',
+      title: 'Communities',
+      icon: '/images/application-menu/communities-icon.svg',
+      homePage: 'communities'
     });
   })
   .factory('communityAdapterService', function() {
