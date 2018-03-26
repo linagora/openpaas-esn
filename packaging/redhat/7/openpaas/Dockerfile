@@ -56,14 +56,11 @@ RUN fpm \
   --depends nodejs \
   --depends GraphicsMagick \
   --depends cairo \
-  --depends cairo-devel \
-  --depends cairomm-devel \
-  --depends libjpeg-turbo-devel \
+  --depends cairomm \
+  --depends libjpeg-turbo \
   --depends pango \
-  --depends pango-devel \
   --depends pangomm \
-  --depends pangomm-devel \
-  --depends giflib-devel \
+  --depends giflib \
   --before-install /root/openpaas.preinst \
   --after-install /root/openpaas.postinst \
   --before-remove /root/openpaas.prerm \
