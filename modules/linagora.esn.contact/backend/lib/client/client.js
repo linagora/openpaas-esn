@@ -542,13 +542,15 @@ module.exports = function(dependencies, options) {
      * Search contacts in all the addressbooks of this addressbook home Id
      */
     function search(options) {
-      var searchOptions = {
+      const searchOptions = {
         bookId: bookHome,
         search: options.search,
         userId: options.userId,
         limit: options.limit,
-        page: options.page
+        page: options.page,
+        bookNames: options.bookNames
       };
+
       return searchContacts(searchOptions);
     }
 

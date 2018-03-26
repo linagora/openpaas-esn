@@ -40,35 +40,27 @@ module.exports = function(dependencies) {
   }
 
   function searchContacts(query, callback) {
-    var terms = query.search;
-    var page = query.page || 1;
-    var offset = query.offset;
-    var limit = query.limit || DEFAULT_LIMIT;
+    const terms = query.search;
+    const page = query.page || 1;
+    let offset = query.offset;
+    const limit = query.limit || DEFAULT_LIMIT;
+    const bookId = query.bookId;
+    const bookNames = query.bookNames;
 
-    var filters = [];
-    if (query.userId) {
-      filters.push({
-        term: {
-          userId: query.userId
+    const filters = [];
+    bookNames.forEach(bookName => {
+      filters.push(
+        {
+          bool: {
+            must: [
+              { match: { userId: query.userId } },
+              { match: { bookId } },
+              { match: { bookName } }
+            ]
+          }
         }
-      });
-    }
-
-    if (query.bookId) {
-      filters.push({
-        term: {
-          bookId: query.bookId
-        }
-      });
-    }
-
-    if (query.bookName) {
-      filters.push({
-        term: {
-          bookName: query.bookName
-        }
-      });
-    }
+      );
+    });
 
     var elasticsearchQuery = {
       query: {
@@ -97,24 +89,18 @@ module.exports = function(dependencies) {
         }
       }
     };
+
     if (filters.length) {
       elasticsearchQuery.query.bool.filter = {
-        and: filters
+        bool: {
+          should: filters
+        }
       };
     }
+
     if (!offset) {
       offset = (page - 1) * limit;
     }
-
-    logger.debug('Searching contacts with options', {
-      userId: query.userId,
-      bookId: query.bookId,
-      bookName: query.bookName,
-      search: terms,
-      page: page,
-      offset: offset,
-      limit: limit
-    });
 
     elasticsearch.searchDocuments({
       index: INDEX_NAME,

@@ -837,5 +837,268 @@ describe('The addressbooks dav proxy', function() {
         });
       });
     });
+
+    describe('GET /addressbook/:bookHome.json', function() {
+      it('should respond 401 if user is not authenticated', function(done) {
+        this.helpers.api.requireLogin(this.app, 'get', `${PREFIX}/addressbooks/123.json`, done);
+      });
+
+      it('should respond 403 if user try to use others\' bookHome', function(done) {
+        const path = '/addressbooks/123456.json';
+        const self = this;
+        self.helpers.api.loginAsUser(self.app, user.emails[0], password, (err, loggedInAsUser) => {
+          if (err) {
+            return done(err);
+          }
+
+          const req = loggedInAsUser(request(self.app).get(`${PREFIX}${path}`));
+          req.expect(403).end((err, res) => {
+
+            expect(err).to.not.exist;
+            expect(res.body).to.deep.equal({
+              error: {
+                code: 403,
+                message: 'Forbidden',
+                details: 'User do not have the required privileges for this bookHome'
+              }
+            });
+          });
+          done();
+        });
+      });
+
+      describe('With search query', function() {
+        let localpubsub;
+        let contact1, contact2;
+
+        beforeEach(function(done) {
+
+          localpubsub = this.helpers.requireBackend('core/pubsub').local;
+          contact1 = {
+            userId: user._id.toString(),
+            contactId: '4db41c7b-c747-41fe-ad8f-c3aa584bf0d9',
+            bookId: user._id.toString(),
+            bookName: 'contacts',
+            vcard: ['vcard', [
+              ['version', {}, 'text', '4.0'],
+              ['uid', {}, 'text', '3c6d4032-fce2-485b-b708-3d8d9ba280da'],
+              ['n', {}, 'text', ['Willis', 'Bruce']]
+            ]],
+            id: '4db41c7b-c747-41fe-ad8f-c3aa584bf0d9'
+          };
+
+          contact2 = {
+            userId: user._id.toString(),
+            contactId: '4dbasc7b-cd47-41fe-ac8f-c3aks2k3nf0d9',
+            bookId: user._id.toString(),
+            bookName: 'collected',
+            vcard: ['vcard', [
+              ['version', {}, 'text', '4.0'],
+              ['uid', {}, 'text', '3cdq4032-fcs2-4g5w-bc0c-wo2o0aa280da'],
+              ['n', {}, 'text', ['Justin', 'Bruce']]
+            ]],
+            id: '4db41c7b-c747-41fe-ad8f-c3aa584bf0d9'
+          };
+
+          this.helpers.elasticsearch.saveTestConfiguration(this.helpers.callbacks.noError(done));
+          localpubsub.topic('contacts:contact:add').publish(contact1);
+          localpubsub.topic('contacts:contact:add').publish(contact2);
+        });
+
+        it('should respond 200 with empty result if user try to search on unavailable bookNames', function(done) {
+          const self = this;
+          const path = `/addressbooks/${user.id}.json?search=456&bookName=unavailableBookName,unavailableBookName2`;
+
+          dav.get(`/addressbooks/${user.id}.json`, (req, res) => res.status(200).json({
+              _embedded: {
+                'dav:addressbook': [{
+                  _links: {
+                    self: {
+                      href: `addressbooks/${user.id}/availableBookName.json`
+                    }
+                  }
+                }]
+              }
+            })
+          );
+
+          self.createDavServer(err => {
+            if (err) {
+              return done(err);
+            }
+
+            self.helpers.api.loginAsUser(self.app, user.emails[0], password, (err, loggedInAsUser) => {
+              if (err) {
+                return done(err);
+              }
+
+              const req = loggedInAsUser(request(self.app).get(`${PREFIX}${path}`));
+
+              req.expect(200).end((err, res) => {
+                expect(err).to.not.exist;
+                expect(res.headers['x-esn-items-count']).to.equal('0');
+                expect(res.body).to.deep.equal({
+                  _links: {
+                    self: {
+                      href: `/dav/api${path}`
+                    }
+                  },
+                  _total_hits: 0,
+                  _current_page: '1',
+                  _embedded: {
+                    'dav:item': []
+                  }
+                });
+                done();
+              });
+            });
+          });
+        });
+
+        it('should respond 200 with result if user search contact on a specific available bookName', function(done) {
+          const self = this;
+          const path = `/addressbooks/${user.id}.json?search=bruce&bookName=contacts`;
+
+          dav.get(`/addressbooks/${user.id}.json`, (req, res) => res.status(200).json({
+              _embedded: {
+                'dav:addressbook': [{
+                  _links: {
+                    self: {
+                      href: `addressbooks/${user.id}/contacts.json`
+                    }
+                  }
+                }, {
+                  _links: {
+                    self: {
+                      href: `addressbooks/${user.id}/collected.json`
+                    }
+                  }
+                }]
+              }
+            })
+          );
+
+          dav.get(`/addressbooks/${user.id}/contacts/${contact1.contactId}.vcf`, (req, res) => res.status(200).json({ body: contact1 }));
+
+          self.createDavServer(err => {
+            if (err) {
+              return done(err);
+            }
+
+            self.helpers.api.loginAsUser(self.app, user.emails[0], password, (err, loggedInAsUser) => {
+              if (err) {
+                return done(err);
+              }
+
+              const req = loggedInAsUser(request(self.app).get(`${PREFIX}${path}`));
+
+              req.expect(200).end((err, res) => {
+                expect(err).to.not.exist;
+                expect(res.body._embedded['dav:item'][0].data.body.contactId).to.equal(contact1.contactId);
+                expect(res.headers['x-esn-items-count']).to.equal('1');
+                done();
+              });
+            });
+          });
+        });
+
+        it('should respond 200 with result if user search contact on available bookNames', function(done) {
+          const self = this;
+          const path = `/addressbooks/${user.id}.json?search=bruce&bookName=contacts,collected`;
+
+          dav.get(`/addressbooks/${user.id}.json`, (req, res) => res.status(200).json({
+              _embedded: {
+                'dav:addressbook': [{
+                  _links: {
+                    self: {
+                      href: `addressbooks/${user.id}/contacts.json`
+                    }
+                  }
+                }, {
+                  _links: {
+                    self: {
+                      href: `addressbooks/${user.id}/collected.json`
+                    }
+                  }
+                }]
+              }
+            })
+          );
+
+          dav.get(`/addressbooks/${user.id}/contacts/${contact1.contactId}.vcf`, (req, res) => res.status(200).json({ body: contact1 }));
+          dav.get(`/addressbooks/${user.id}/collected/${contact2.contactId}.vcf`, (req, res) => res.status(200).json({ body: contact2 }));
+
+          self.createDavServer(err => {
+            if (err) {
+              return done(err);
+            }
+
+            self.helpers.api.loginAsUser(self.app, user.emails[0], password, (err, loggedInAsUser) => {
+              if (err) {
+                return done(err);
+              }
+
+              const req = loggedInAsUser(request(self.app).get(`${PREFIX}${path}`));
+
+              req.expect(200).end((err, res) => {
+                expect(err).to.not.exist;
+                expect(res.body._embedded['dav:item'][0].data.body.contactId).to.equal(contact2.contactId);
+                expect(res.body._embedded['dav:item'][1].data.body.contactId).to.equal(contact1.contactId);
+                expect(res.headers['x-esn-items-count']).to.equal('2');
+                done();
+              });
+            });
+          });
+        });
+
+        it('should respond 200 with the result of searching on all available bookNames if there is no bookName specified', function(done) {
+          const self = this;
+          const path = `/addressbooks/${user.id}.json?search=bruce`;
+
+          dav.get(`/addressbooks/${user.id}.json`, (req, res) => res.status(200).json({
+              _embedded: {
+                'dav:addressbook': [{
+                  _links: {
+                    self: {
+                      href: `addressbooks/${user.id}/contacts.json`
+                    }
+                  }
+                }, {
+                  _links: {
+                    self: {
+                      href: `addressbooks/${user.id}/collected.json`
+                    }
+                  }
+                }]
+              }
+            })
+          );
+          dav.get(`/addressbooks/${user.id}/contacts/${contact1.contactId}.vcf`, (req, res) => res.status(200).json({ body: contact1 }));
+          dav.get(`/addressbooks/${user.id}/collected/${contact2.contactId}.vcf`, (req, res) => res.status(200).json({ body: contact2 }));
+
+          self.createDavServer(err => {
+            if (err) {
+              return done(err);
+            }
+
+            self.helpers.api.loginAsUser(self.app, user.emails[0], password, (err, loggedInAsUser) => {
+              if (err) {
+                return done(err);
+              }
+
+              const req = loggedInAsUser(request(self.app).get(`${PREFIX}${path}`));
+
+              req.expect(200).end((err, res) => {
+                expect(err).to.not.exist;
+                expect(res.body._embedded['dav:item'][0].data.body.contactId).to.equal(contact2.contactId);
+                expect(res.body._embedded['dav:item'][1].data.body.contactId).to.equal(contact1.contactId);
+                expect(res.headers['x-esn-items-count']).to.equal('2');
+                done();
+              });
+            });
+          });
+        });
+      });
+    });
   });
 });

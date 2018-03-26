@@ -674,7 +674,7 @@ describe('The addressbooks module', function() {
     var BOOK_NAME = 'bookName456';
     var BOOK_HOME = 'bookHome123';
 
-    function createSearchFnMock(searchBookFn, searchBookHomeFn) {
+    function createSearchFnMock(searchBookHomeFn, searchBookFn) {
       dependencies.contact = {
         lib: {
           client: function() {
@@ -704,27 +704,18 @@ describe('The addressbooks module', function() {
     describe('The search resource select', function() {
 
       var search = 'Bruce';
-      var user = {_id: 123};
+      var user = { id: BOOK_HOME };
       var page = 1;
       var limit = 20;
-
-      var notCalled = function(done) {
-        return function() {
-          return {
-            then: function() {
-              done(new Error('Should not be called'));
-            }
-          };
-        };
-      };
 
       var called = function(done) {
         return function(options) {
           expect(options).to.deep.equal({
             search: search,
-            userId: user._id,
+            userId: user.id,
             page: page,
-            limit: limit
+            limit: limit,
+            bookNames: [BOOK_NAME]
           });
           return {
             then: function() {
@@ -734,41 +725,47 @@ describe('The addressbooks module', function() {
         };
       };
 
-      var testSearch = function(params) {
+      var testSearch = function(params, query) {
         getController().searchContacts({
-          query: {
-            search: search,
-            page: page,
-            limit: limit
-          },
+          query: query,
           user: user,
           params: params
         });
       };
 
-      it('should search on addressbookHome when bookName is not defined', function(done) {
-        createSearchFnMock(notCalled(done), called(done));
-        testSearch({bookHome: BOOK_HOME});
+      it('should search on bookName if bookName is specified in request param', function(done) {
+        createSearchFnMock(called(done));
+        testSearch({ bookHome: BOOK_HOME, bookName: BOOK_NAME }, {
+          search: search,
+          page: page,
+          limit: limit
+        });
       });
 
-      it('should search on addressbook when bookName is defined', function(done) {
-        createSearchFnMock(called(done), notCalled(done));
-        testSearch({bookHome: BOOK_HOME, bookName: BOOK_NAME});
+      it('should search on available bookNames in bookHome if bookNames are specified in request query', function(done) {
+        createSearchFnMock(called(done));
+        testSearch({ bookHome: BOOK_HOME }, {
+          search: search,
+          page: page,
+          limit: limit,
+          bookNames: [BOOK_NAME]
+        });
       });
     });
 
     it('should call contact client with the right parameters', function(done) {
       var search = 'Bruce';
-      var user = {_id: 123};
+      var user = { id: BOOK_HOME };
       var page = 1;
       var limit = 20;
 
       createSearchFnMock(function(options) {
         expect(options).to.deep.equal({
           search: search,
-          userId: user._id,
+          userId: user.id,
           page: page,
-          limit: limit
+          limit: limit,
+          bookNames: [BOOK_NAME]
         });
         done();
         return q.reject();
@@ -788,7 +785,7 @@ describe('The addressbooks module', function() {
 
     it('should send back HTTP 500 when contact client search rejects', function(done) {
       var search = 'Bruce';
-      var user = {_id: 123};
+      var user = { id: BOOK_HOME };
 
       createSearchFnMock(function() {
         return q.reject();
@@ -809,7 +806,7 @@ describe('The addressbooks module', function() {
 
     it('should have header with total count on success', function(done) {
       var search = 'Bruce';
-      var user = {_id: 123};
+      var user = { id: BOOK_HOME };
 
       createSearchFnMock(function() {
         return q.resolve({
@@ -834,7 +831,7 @@ describe('The addressbooks module', function() {
 
     it('should send back HTTP 200 JSON response when contact client resolves', function(done) {
       var search = 'Bruce';
-      var user = {_id: 123};
+      var user = { id: BOOK_HOME };
 
       createSearchFnMock(function() {
         return q.resolve({
@@ -862,7 +859,7 @@ describe('The addressbooks module', function() {
 
     it('should send the total numbers of hits in the response', function(done) {
       var search = 'Bruce';
-      var user = {_id: '123'};
+      var user = { id: BOOK_HOME };
 
       createSearchFnMock(function() {
         return q.resolve({
@@ -891,7 +888,7 @@ describe('The addressbooks module', function() {
 
     it('should send the current page in the response', function(done) {
       var search = 'Bruce';
-      var user = {_id: '123'};
+      var user = { id: BOOK_HOME };
 
       createSearchFnMock(function() {
         return q.resolve({
@@ -920,7 +917,7 @@ describe('The addressbooks module', function() {
 
     it('should send the response page in the correct order', function(done) {
       var search = 'Bruce';
-      var user = {_id: '123'};
+      var user = { id: BOOK_HOME };
       var limit = 2;
       var page = 3;
       var bookId = BOOK_HOME;
@@ -1104,7 +1101,7 @@ describe('The addressbooks module', function() {
 
       var controller = getController();
       var req = {
-        user: {_id: '1'},
+        user: { id: BOOK_HOME },
         params: {bookHome: BOOK_HOME},
         query: {
           search: 'me'

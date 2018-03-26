@@ -262,23 +262,39 @@ module.exports = function(dependencies) {
   }
 
   function searchContacts(req, res) {
+    if (req.query.bookNames && !req.query.bookNames.length) {
+      const output = {
+        _links: {
+          self: {
+            href: req.originalUrl
+          }
+        },
+        _total_hits: 0,
+        _current_page: '1',
+        _embedded: {
+          'dav:item': []
+        }
+      };
+      res.header('X-ESN-Items-Count', '0');
+
+      return res.status(200).json(output);
+    }
+    const userId = req.user.id;
+
     var ESNToken = req.token && req.token.token ? req.token.token : '';
 
-    var options = {
-      userId: req.user._id,
+    const options = {
+      userId,
       search: req.query.search,
       limit: req.query.limit,
-      page: req.query.page
+      page: req.query.page,
+      bookNames: req.params.bookName ? [req.params.bookName] : req.query.bookNames
     };
 
     var client = contactModule.lib.client({
       ESNToken: ESNToken,
       davserver: req.davserver
-    }).addressbookHome(req.params.bookHome);
-
-    if (req.params.bookName) {
-      client = client.addressbook(req.params.bookName).vcard();
-    }
+    }).addressbookHome(userId);
 
     client.search(options).then(function(data) {
         var json = {
