@@ -5,6 +5,8 @@
     .controller('ESNCollaborationMembershipRequestsWidgetController', ESNCollaborationMembershipRequestsWidgetController);
 
   function ESNCollaborationMembershipRequestsWidgetController($rootScope, esnCollaborationClientService) {
+    var self = this;
+
     self.error = false;
     self.loading = false;
     self.updateRequests = updateRequests;
