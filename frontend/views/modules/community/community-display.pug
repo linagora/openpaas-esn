@@ -6,7 +6,7 @@
     .lv-title
       a(href='#/communities/{{community._id}}')
         | {{community.title}}
-    small.lv-small.hidden-xs.community-description(ng-show='community.description')
+    .description.hidden-xs(ng-show='community.description')
       | {{community.description | characters:256 :false }}
     ul.lv-attrs
       li(ng-show='community.members_count')
