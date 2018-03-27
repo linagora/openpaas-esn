@@ -12,7 +12,7 @@
       return {
         link: link,
         restrict: 'E',
-        require: '^esnCollaborationMembershipInvitationNotification',
+        require: '^esnCollaborationMembershipInvitationUserNotification',
         templateUrl: '/views/modules/collaboration/user-notifications/collaboration-invitation-decline-button.html'
       };
 

@@ -32,13 +32,13 @@ describe('The esnCollaborationInvitationAcceptButton directive', function() {
     module('jadeTemplates');
   });
 
-  beforeEach(angular.mock.inject(function($rootScope, $compile, esnCollaborationClientService, esnUserNotificationService, esnCollaborationMembershipInvitationNotificationDirective) {
+  beforeEach(angular.mock.inject(function($rootScope, $compile, esnCollaborationClientService, esnUserNotificationService, esnCollaborationMembershipInvitationUserNotificationDirective) {
     this.$rootScope = $rootScope;
     this.$compile = $compile;
     this.scope = $rootScope.$new();
     this.esnCollaborationClientService = esnCollaborationClientService;
     this.esnUserNotificationService = esnUserNotificationService;
-    esnCollaborationMembershipInvitationNotificationDirective[0].controller = function($scope) {
+    esnCollaborationMembershipInvitationUserNotificationDirective[0].controller = function($scope) {
       this.actionDone = function() {};
       $scope.invitedUser = {
         _id: '123'
@@ -51,7 +51,7 @@ describe('The esnCollaborationInvitationAcceptButton directive', function() {
       };
     };
 
-    this.html = '<esn-collaboration-membership-invitation-notification notification="notification"><esn-collaboration-invitation-accept-button/></esn-collaboration-membership-invitation-notification>';
+    this.html = '<esn-collaboration-membership-invitation-user-notification notification="notification"><esn-collaboration-invitation-accept-button/></esn-collaboration-membership-invitation-user-notification>';
   }));
 
   it('should call esnCollaborationClientService#join', function(done) {
