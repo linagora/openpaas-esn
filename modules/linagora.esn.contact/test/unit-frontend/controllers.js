@@ -1224,14 +1224,14 @@ describe('The Contacts controller module', function() {
       $rootScope.$digest();
     });
 
-    it('should not remove contact from list after a contact is moved to another addressbook if current view is all addressbooks', function() {
+    it('should update moved contact\'s addressbookName if the current view is All addressbooks', function() {
       var currentAddressbooks = [{ bookName: 'contacts' }, { bookName: 'collected' }];
       var contact = {
         id: '123456',
         addressbook: currentAddressbooks[0],
         lastName: 'toto'
       };
-      var removeItemSpy = sinon.spy();
+      var replaceItemSpy = sinon.spy();
 
       $controller('contactsListController', {
         $scope: scope,
@@ -1241,7 +1241,7 @@ describe('The Contacts controller module', function() {
         addressbooks: currentAddressbooks,
         AlphaCategoryService: function() {
           return {
-            removeItemWithId: removeItemSpy,
+            replaceItem: replaceItemSpy,
             init: function() {}
           };
         }
@@ -1252,7 +1252,11 @@ describe('The Contacts controller module', function() {
         destination: 'otheraddressbook'
       });
       $rootScope.$digest();
-      expect(removeItemSpy).to.not.have.been.called;
+      expect(replaceItemSpy).to.have.been.calledWith({
+        id: '123456',
+        addressbook: { bookName: 'otheraddressbook' },
+        lastName: 'toto'
+      });
     });
 
     it('should display contacts as list by default', inject(function(CONTACT_LIST_DISPLAY) {
