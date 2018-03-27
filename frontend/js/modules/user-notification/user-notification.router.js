@@ -17,7 +17,7 @@
         }
       })
       .state('user-notification.list', {
-        url: '/user-notification/list',
+        url: '/list',
         views: {
           'main@user-notification': {
             template: '<sub-header><esn-user-notification-subheader/></sub-header><esn-user-notification-list/>'
