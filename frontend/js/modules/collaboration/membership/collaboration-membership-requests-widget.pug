@@ -2,16 +2,19 @@
   .card-header.ch-alt
     h2.title.ellipsis #{__('Membership requests')}
 
-  .card-body.card-padding
-    .alert.alert-danger(ng-show="ctrl.error", ng-switch="ctrl.error", role="alert")
+  .card-body.card-padding(ng-if="ctrl.error")
+    .alert.alert-danger(ng-switch="ctrl.error", role="alert")
       span(ng-switch-when="403") #{__('Error, you do not have the permission to read memberships')}.
       span(ng-switch-default) #{__('Error while getting memberships')}.
 
-    span(ng-show="ctrl.loading") #{__("Loading membership requests")}
-    span(ng-show="!ctrl.requests && !ctrl.error") #{__("You have no notifications")}
+  .card-body.card-padding(ng-if="ctrl.loading")
+    span #{__("Loading membership requests")}
+
+  .card-body.card-padding(ng-if="!ctrl.loading && !ctrl.requests && !ctrl.error")
+    span #{__("You have no notifications")}
 
   .listview
     .lv-body(ng-show="ctrl.requests && !ctrl.error")
-      div(ng-repeat="request in ctrl.requests | filter: {workflow: 'request'}")
+      .collaboration-membership-requests-members(ng-repeat="request in ctrl.requests | filter: {workflow: 'request'}")
         esn-collaboration-member-avatar(member="request", collaboration="ctrl.collaboration")
-        collaboration-membership-requests-actions(user='request.user', collaboration='ctrl.collaboration', object-type="{{ctrl.objectType}}")
+        esn-collaboration-membership-requests-actions(user='request.user', collaboration='ctrl.collaboration', object-type="{{ctrl.objectType}}")

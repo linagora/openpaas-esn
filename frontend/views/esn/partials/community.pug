@@ -1,7 +1,7 @@
 sub-header
   community-view-subheader
 
-.col-md-7.col-xl-6.col-xs-12.no-padding-xs(sub-header-aware)
+.col-md-7.col-xs-12.no-padding-xs(sub-header-aware)
   .communities-list
     community-description(community="community")
     //community-actions-toolbar(ng-if='canRead()', community="community")
@@ -15,7 +15,7 @@ sub-header
   .col-xs-12(ng-if='!canRead()')
     p.text-center #{__('You are no allowed to see the content of this community.')}
 
-.col-md-3.col-xl-2.hidden-xs(sub-header-aware)
+.col-md-3.hidden-xs(sub-header-aware)
   .communities-list
     esn-collaboration-members-widget(object-type="community", collaboration="community", in-slices-of='4')
     .vertiz-space

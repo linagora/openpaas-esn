@@ -5,5 +5,5 @@ a.lv-item(ui-sref="profile({user_id: ctrl.member.user._id})", href="#", data-tog
       span.esn-members-badge(title='Creator', ng-if='ctrl.creator')
         i.mdi.mdi-trophy
     .media-body
-     .lv-title  {{::ctrl.member.user.firstname}}  {{::ctrl.member.user.lastname}}
+      .lv-title {{::ctrl.member.user.firstname}} {{::ctrl.member.user.lastname}}
       small.lv-small {{::ctrl.member.user.preferredEmail}}

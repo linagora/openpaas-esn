@@ -2,7 +2,7 @@
   'use strict';
 
   angular.module('esn.collaboration')
-    .directive('esnCollaborationMembershipRequestsWidget', esnCollaborationMembershipRequestsWidget);
+    .component('esnCollaborationMembershipRequestsWidget', esnCollaborationMembershipRequestsWidget());
 
   function esnCollaborationMembershipRequestsWidget() {
     return {
