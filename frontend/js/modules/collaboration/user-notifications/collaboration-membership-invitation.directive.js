@@ -2,7 +2,7 @@
   'use strict';
 
   angular.module('esn.collaboration')
-    .directive('esnCollaborationMembershipInvitationNotification', esnCollaborationMembershipInvitationNotification);
+    .directive('esnCollaborationMembershipInvitationUserNotification', esnCollaborationMembershipInvitationNotification);
 
   function esnCollaborationMembershipInvitationNotification(
     $q,
