@@ -2,7 +2,7 @@
 
 angular.module('linagora.esn.contact')
 
-  .controller('newContactController', function($rootScope, $scope, $stateParams, $location, $state, notificationFactory, sendContactToBackend, displayContactError, gracePeriodService, openContactForm, sharedContactDataService, $q, ContactAPIClient, ContactLocationHelper, esnI18nService, DEFAULT_ADDRESSBOOK_NAME) {
+  .controller('newContactController', function($rootScope, $scope, $stateParams, $location, $state, notificationFactory, sendContactToBackend, gracePeriodService, openContactForm, sharedContactDataService, $q, ContactAPIClient, ContactLocationHelper, esnI18nService, DEFAULT_ADDRESSBOOK_NAME) {
     $scope.bookId = $stateParams.bookId;
     $scope.bookName = $stateParams.bookName || DEFAULT_ADDRESSBOOK_NAME;
     $scope.contact = sharedContactDataService.contact;
@@ -28,10 +28,6 @@ angular.module('linagora.esn.contact')
           bookName: $scope.bookName,
           cardId: $scope.contact.id
         }, { location: 'replace' });
-      }, function(err) {
-        displayContactError(err);
-
-        return $q.reject(err);
       }).then(function() {
         return gracePeriodService.askUserForCancel(
           esnI18nService.translate('You have just created a new contact (%s).', $scope.contact.displayName),

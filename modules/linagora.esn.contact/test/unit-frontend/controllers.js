@@ -319,16 +319,6 @@ describe('The Contacts controller module', function() {
         done();
       });
 
-      it('should display an error when contact is not valid', function(done) {
-        ContactAPIClient.addressbookHome = function() {
-          return done(new Error('This test should not call ContactAPIClient'));
-        };
-        $alert.alert = function() { done(); };
-
-        scope.accept();
-        scope.$digest();
-      });
-
       it('should not grace the request when contact is not valid', function(done) {
         gracePeriodService.grace = done;
 
