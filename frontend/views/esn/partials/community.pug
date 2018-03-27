@@ -1,9 +1,10 @@
 sub-header
   community-view-subheader
 
-.col-md-9.col-xl-8.col-xs-12.no-padding-xs(sub-header-aware)
-  community-description(community="community")
-  //community-actions-toolbar(ng-if='canRead()', community="community")
+.col-md-7.col-xl-6.col-xs-12.no-padding-xs(sub-header-aware)
+  .communities-list
+    community-description(community="community")
+    //community-actions-toolbar(ng-if='canRead()', community="community")
 
   .row
     .col-xs-12
@@ -22,3 +23,14 @@ sub-header
 
   .col-xs-12(ng-if='!canRead()')
     p.text-center #{__('You are no allowed to see the content of this community.')}
+
+.col-md-3.col-xl-2.hidden-xs(sub-header-aware)
+  .communities-list
+    esn-collaboration-members-widget(object-type="community", collaboration="community", in-slices-of='4')
+    .vertiz-space
+    esn-collaboration-membership-requests-widget(ng-if="showMembershipRequestsWidget()" object-type="community", collaboration="community")
+    .vertiz-space
+    esn-collaboration-invite-users(object-type="community", collaboration="community")
+    .vertiz-space
+    injections-widget(injection-anchor-id="communityPageRightPanel", injection-subject="community")
+    .vertiz-space

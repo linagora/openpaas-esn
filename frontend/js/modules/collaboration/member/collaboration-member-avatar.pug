@@ -1,4 +1,9 @@
-a(ui-sref="profile({user_id: ctrl.member.user._id})", href="#", data-toggle="tooltip", data-original-title='{{::ctrl.tooltip.title}}')
-  img(ng-src="/api/users/{{::ctrl.member.user._id}}/profile/avatar", src="/images/user.png", alt=__("Member Avatar"))
-  span.esn-members-badge(title='Creator', ng-if='ctrl.creator')
-    i.mdi.mdi-trophy
+a.lv-item(ui-sref="profile({user_id: ctrl.member.user._id})", href="#", data-toggle="tooltip", data-original-title='{{::ctrl.tooltip.title}}')
+  .media
+    .pull-left
+      img.lv-img-sm(ng-src="/api/users/{{::ctrl.member.user._id}}/profile/avatar", src="/images/user.png", alt=__("Member Avatar"))
+      span.esn-members-badge(title='Creator', ng-if='ctrl.creator')
+        i.mdi.mdi-trophy
+    .media-body
+     .lv-title  {{::ctrl.member.user.firstname}}  {{::ctrl.member.user.lastname}}
+      small.lv-small {{::ctrl.member.user.preferredEmail}}

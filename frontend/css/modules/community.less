@@ -31,11 +31,22 @@
   position: absolute;
   color: @text-color;
   background-color: @accentColor;
-  padding: 2px 3px;
-  top: 0px;
+  padding: 1px 3px;
   right: 3px;
-  border-radius: 8px;
+  border-radius: 50%;
   font-size: 0.5em;
+}
+
+.listview {
+  .lv-img-xl {
+    width: 80px;
+    height: 80px;
+  }
+
+  .lv-img-md {
+    width: 48px;
+    height: 48px;
+  }
 }
 
 /* Small devices (tablets, 768px and up) */
@@ -45,6 +56,18 @@
 @media (min-width: @screen-md-min) {
   .esn-members-badge {
     font-size: 1em;
+  }
+
+  .listview {
+    .lv-img-xl {
+      width: 128px;
+      height: 128px;
+    }
+
+    .lv-img-md {
+      width: 80px;
+      height: 80px;
+    }
   }
 }
 
