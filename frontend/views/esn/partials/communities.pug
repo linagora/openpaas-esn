@@ -5,14 +5,17 @@ community-create-button
 .col-md-9.col-xl-8.col-xs-12.no-padding-xs(sub-header-aware)
   .communities-list.card
     .listview.lv-bordered.lv-lg
-      .lv-header-alt
-        .btn-group.btn-group-justified
-          .btn-group
-            .btn.btn-default(type='button', ng-class="{'btn-primary': selected === 'all', disabled: loading}", ng-click="getAll()") #{__('All')}
-          .btn-group
-            .btn.btn-default(type='button', ng-class="{'btn-primary': selected === 'membership', disabled: loading}", ng-click="getMembership()") #{__('Member of')}
-          .btn-group
-            .btn.btn-default(type='button', ng-class="{'btn-primary': selected === 'moderator', disabled: loading}", ng-click="getModerator()") #{__('Owned')}
+      .profile-tabs
+        ul.esn-tab
+          li.btn-wave(ng-class="{'active': selected === 'all', disabled: loading}")
+            a(href="", ng-click="getAll()")
+              | #{__('All')}
+          li.btn-wave(ng-class="{'active': selected === 'membership', disabled: loading}")
+            a(href="", ng-click="getMembership()")
+              | #{__('Member of')}
+          li.btn-wave(ng-class="{'active': selected === 'moderator', disabled: loading}")
+            a(href="", ng-click="getModerator()")
+              | #{__('Owned')}
       .lv-body(ng-hide="loading || error")
         community-display.lv-item.media(ng-repeat="community in communities | orderBy:'title'", community="community", actions='true')
         .lv-item(ng-if="communities.length === 0 && selected === 'all'")
