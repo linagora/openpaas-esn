@@ -4,7 +4,7 @@
 
 var expect = chai.expect;
 
-describe('The esnCollaborationMembershipInvitationNotification directive', function() {
+describe('The esnCollaborationMembershipInvitationUserNotification directive', function() {
   beforeEach(function() {
     angular.mock.module('esn.collaboration');
   });
@@ -54,7 +54,7 @@ describe('The esnCollaborationMembershipInvitationNotification directive', funct
         objectType: 'community'
       }
     };
-    this.html = '<esn-collaboration-membership-invitation-notification notification="notification"/>';
+    this.html = '<esn-collaboration-membership-invitation-user-notification notification="notification"/>';
   }));
 
   describe('The controller', function() {

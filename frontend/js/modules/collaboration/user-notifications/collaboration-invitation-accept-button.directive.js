@@ -10,7 +10,7 @@
     ) {
       return {
         link: link,
-        require: '^esnCollaborationMembershipInvitationNotification',
+        require: '^esnCollaborationMembershipInvitationUserNotification',
         restrict: 'E',
         templateUrl: '/views/modules/collaboration/user-notifications/collaboration-invitation-accept-button.html'
       };
