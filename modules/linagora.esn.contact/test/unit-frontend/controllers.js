@@ -586,17 +586,38 @@ describe('The Contacts controller module', function() {
   });
 
   describe('The showContactController', function() {
-    var CONTACT_AVATAR_SIZE;
+    var CONTACT_AVATAR_SIZE, CONTACT_EVENTS;
 
     beforeEach(function() {
-      this.initController = $controller.bind(null, 'showContactController', { $scope: scope});
-      angular.mock.inject(function(_CONTACT_AVATAR_SIZE_) {
+      inject(function(_CONTACT_AVATAR_SIZE_, _CONTACT_EVENTS_) {
         CONTACT_AVATAR_SIZE = _CONTACT_AVATAR_SIZE_;
+        CONTACT_EVENTS = _CONTACT_EVENTS_;
       });
     });
 
+    function initController() {
+      $controller('showContactController', { $scope: scope });
+      scope.$digest();
+    }
+
+    it('should change the state to the new contact destination after contact is moved', function() {
+      $state.go = sinon.spy();
+      initController();
+
+      $rootScope.$broadcast(CONTACT_EVENTS.MOVED, {
+        contact: { id: scope.cardId },
+        destination: 'new-addressbook'
+      });
+
+      expect($state.go).to.have.been.calledWith('/contact/show/:bookId/:bookName/:cardId', {
+        bookId: scope.bookId,
+        bookName: 'new-addressbook',
+        cardId: scope.cardId
+      }, { location: 'replace' });
+    });
+
     it('should have bigger size for contact avatar', function() {
-      this.initController();
+      initController();
       expect(scope.avatarSize).to.equal(CONTACT_AVATAR_SIZE.bigger);
     });
 
@@ -608,14 +629,13 @@ describe('The Contacts controller module', function() {
       });
       $alert.alert = function() { done(); };
 
-      this.initController();
-      scope.$digest();
+      initController();
     });
 
     describe('The fillContactData function', function() {
       it('should fill the scope with the contact', function() {
         contactUpdateDataService.contact = {};
-        this.initController();
+        initController();
         var contact = {emails: [{type: 'work', value: 'me@work.com'}, {type: 'home', value: 'me@home.com'}]};
         scope.fillContactData(contact);
         contactUpdateDataService.contact = contact;
@@ -624,7 +644,7 @@ describe('The Contacts controller module', function() {
 
       it('should fill the scope with the contact emails', function() {
         contactUpdateDataService.contact = {};
-        this.initController();
+        initController();
         var contact = {emails: [{type: 'work', value: 'me@work.com'}, {type: 'home', value: 'me@home.com'}]};
         scope.fillContactData(contact);
         expect(scope.emails.length).to.equal(2);
@@ -632,7 +652,7 @@ describe('The Contacts controller module', function() {
 
       it('should fill the scope with the contact phones', function() {
         contactUpdateDataService.contact = {};
-        this.initController();
+        initController();
         var contact = {tel: [{type: 'work', value: '+33333333'}, {type: 'home', value: '+33444444'}]};
         scope.fillContactData(contact);
         expect(scope.phones.length).to.equal(2);
@@ -640,7 +660,7 @@ describe('The Contacts controller module', function() {
 
       it('should fill the scope with the contact formattedBirthday', function() {
         contactUpdateDataService.contact = {};
-        this.initController();
+        initController();
         var contact = {birthday: '123', tel: [{type: 'work', value: '+33333333'}, {type: 'home', value: '+33444444'}]};
         scope.fillContactData(contact);
         expect(scope.formattedBirthday).to.be.defined;
@@ -652,7 +672,7 @@ describe('The Contacts controller module', function() {
           return display;
         };
         contactUpdateDataService.contact = {};
-        this.initController();
+        initController();
         var contact = {birthday: '123', tel: [{type: 'work', value: '+33333333'}, {type: 'home', value: '+33444444'}]};
         scope.fillContactData(contact);
         expect(scope.displayShell).to.deep.equal(display);
@@ -664,25 +684,25 @@ describe('The Contacts controller module', function() {
 
       it('should return false when nothing defined', function() {
         contactUpdateDataService.contact = {};
-        this.initController();
+        initController();
         expect(scope.shouldDisplayWork()).to.be.false;
       });
 
       it('should return true when orgName is defined', function() {
         contactUpdateDataService.contact = {orgName: 'linagora'};
-        this.initController();
+        initController();
         expect(scope.shouldDisplayWork()).to.be.true;
       });
 
       it('should return true when orgRole is defined', function() {
         contactUpdateDataService.contact = {orgRole: 'CTO'};
-        this.initController();
+        initController();
         expect(scope.shouldDisplayWork()).to.be.true;
       });
 
       it('should return true when work address is filled', function() {
         contactUpdateDataService.contact = {addresses: [{type: 'work', value: 'Paris'}]};
-        this.initController();
+        initController();
         expect(scope.shouldDisplayWork()).to.be.true;
       });
     });
@@ -691,25 +711,25 @@ describe('The Contacts controller module', function() {
 
       it('should return false when nothing defined', function() {
         contactUpdateDataService.contact = {};
-        this.initController();
+        initController();
         expect(scope.shouldDisplayHome()).to.be.false;
       });
 
       it('should return true when home address is filled', function() {
         contactUpdateDataService.contact = {addresses: [{type: 'home', value: 'Montpellier'}]};
-        this.initController();
+        initController();
         expect(scope.shouldDisplayHome()).to.be.true;
       });
 
       it('should return true when birthday is filled', function() {
         contactUpdateDataService.contact = {birthday: '15/12/1978'};
-        this.initController();
+        initController();
         expect(scope.shouldDisplayHome()).to.be.true;
       });
 
       it('should return true when nickname is filled', function() {
         contactUpdateDataService.contact = {nickname: 'yolo'};
-        this.initController();
+        initController();
         expect(scope.shouldDisplayHome()).to.be.true;
       });
     });
@@ -718,43 +738,43 @@ describe('The Contacts controller module', function() {
 
       it('should return false when nothing defined', function() {
         contactUpdateDataService.contact = {};
-        this.initController();
+        initController();
         expect(scope.shouldDisplayOthers()).to.be.false;
       });
 
       it('should return true when other address is defined', function() {
         contactUpdateDataService.contact = {addresses: [{type: 'other', value: 'Toulouse'}]};
-        this.initController();
+        initController();
         expect(scope.shouldDisplayOthers()).to.be.true;
       });
 
       it('should return false when other tags are defined but empty', function() {
         contactUpdateDataService.contact = {tags: []};
-        this.initController();
+        initController();
         expect(scope.shouldDisplayOthers()).to.be.false;
       });
 
       it('should return true when other tags are defined and not empty', function() {
         contactUpdateDataService.contact = {tags: ['js', 'node']};
-        this.initController();
+        initController();
         expect(scope.shouldDisplayOthers()).to.be.true;
       });
 
       it('should return true when notes are defined', function() {
         contactUpdateDataService.contact = {notes: 'This guy is so funky'};
-        this.initController();
+        initController();
         expect(scope.shouldDisplayOthers()).to.be.true;
       });
 
       it('should return false when other urls are defined but empty', function() {
         contactUpdateDataService.contact = {urls: []};
-        this.initController();
+        initController();
         expect(scope.shouldDisplayOthers()).to.be.false;
       });
 
       it('should return true when other tags are defined and not empty', function() {
         contactUpdateDataService.contact = {urls: ['foo', 'bar']};
-        this.initController();
+        initController();
         expect(scope.shouldDisplayOthers()).to.be.true;
       });
     });
@@ -763,13 +783,13 @@ describe('The Contacts controller module', function() {
 
       it('should show the contact taken from contactUpdateDataService', function() {
         contactUpdateDataService.contact = { id: 'myId' };
-        this.initController();
+        initController();
         expect(scope.contact).to.eql(contactUpdateDataService.contact);
       });
 
       it('should clear contactUpdateDataService.contact when switch to other path', function() {
         contactUpdateDataService.contact = { id: 'myId' };
-        this.initController();
+        initController();
 
         scope.$emit('$stateChangeStart', {
           name: '/some/path/other/than/contact/edit'
@@ -781,7 +801,7 @@ describe('The Contacts controller module', function() {
 
       it('should update contactUpdateDataService.contact when ther user edits contact again', function() {
         contactUpdateDataService.contact = { id: 'myId' };
-        this.initController();
+        initController();
 
         scope.contact = { id: 'myOtherId' };
         scope.bookId = bookId;
@@ -810,7 +830,7 @@ describe('The Contacts controller module', function() {
           done();
         };
 
-        this.initController();
+        initController();
 
         scope.$emit('$stateChangeStart', {
           name: '/some/path/other/than/contact/edit'
@@ -823,7 +843,7 @@ describe('The Contacts controller module', function() {
         contactUpdateDataService.contact = { id: 'myId', firstName: 'Bob' };
         contactUpdateDataService.taskId = 'a taskId';
 
-        this.initController();
+        initController();
         scope.cardId = 'myId';
         var newContact = { id: 'myId', firstName: 'Alice' };
         scope.$emit(CONTACT_EVENTS.CANCEL_UPDATE, newContact);
@@ -845,7 +865,7 @@ describe('The Contacts controller module', function() {
           done();
         };
 
-        this.initController();
+        initController();
 
       });
 
