@@ -11,7 +11,7 @@
             img.media-object(ng-src='/api/avatars?objectType={{::ctrl.collaboration.objectType}}&id={{::ctrl.collaboration._id}}', fallback-src='/images/collaboration.png', alt=__("Collaboration"))
           .media-body
             .ellipsis
-              span.pull-right.date.small.hidden-xs(am-time-ago="::ctrl.notification.timestamps.creation")
+              span.pull-right.date.hidden-xs(am-time-ago="::ctrl.notification.timestamps.creation")
               a(ng-href="/#/{{::ctrl.collaborationPath}}/{{::ctrl.collaboration._id}}") {{::ctrl.collaboration.title}}
             div(ng-switch='ctrl.collaboration.objectType')
               span(ng-switch-when='community') #{__('Your request has been accepted, welcome to the community')} !

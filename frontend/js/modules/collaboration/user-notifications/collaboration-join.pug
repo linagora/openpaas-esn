@@ -11,7 +11,7 @@
             img.media-object(ng-src='/api/avatars?objectType={{::collaborationJoined.objectType}}&id={{::collaborationJoined._id}}', fallback-src='/images/collaboration.png', alt=__("Collaboration joined"))
           .media-body
             .ellipsis
-              span.pull-right.date.small.hidden-xs(am-time-ago="::notification.timestamps.creation")
+              span.pull-right.date.hidden-xs(am-time-ago="::notification.timestamps.creation")
               a(ng-href="/#/{{::collaborationPath}}/{{::collaborationJoined._id}}") {{::collaborationJoined.title}}
             div
               span
