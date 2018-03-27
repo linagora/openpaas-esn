@@ -23,7 +23,7 @@
 
   .card-body
     .community-description.flex-start
-      a(href='#/communities/{{::community._id}}')
+      a.listview(href='#/communities/{{::community._id}}')
         img.thumbnail.lv-img-xl(src='/images/community.png', ng-src='/api/communities/{{community._id}}/avatar', alt=__("Community Avatar"))
       .media-body
         .hidden-xs.text(ng-show='community.description')
