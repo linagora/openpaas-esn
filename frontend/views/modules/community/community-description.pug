@@ -10,7 +10,7 @@
         a(href="" data-toggle="dropdown" aria-expanded="false")
           i.mdi.mdi-dots-vertical
         ul.dropdown-menu.dropdown-menu-right
-          li(ng-show='canManage')
+          li(ng-show='canManage', ng-if='false')
             a(href="", ng-click='manage()') #{__('Manage')}
           li(ng-show='canJoin')
             a(href="", ng-click='join()') #{__('Join')}

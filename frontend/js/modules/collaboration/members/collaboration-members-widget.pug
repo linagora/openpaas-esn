@@ -4,7 +4,7 @@
   .listview
     .lv-body
       esn-collaboration-member-avatar(member="member", collaboration="collaboration", ng-repeat="member in members")
-    .clearfix
-    a.lv-footer(ng-href='#/collaborations/{{objectType}}/{{collaboration._id}}/members')
+    .clearfix(ng-if='false')
+    a.lv-footer(ng-href='#/collaborations/{{objectType}}/{{collaboration._id}}/members', ng-if='false')
       span(ng-if="more > 0") #{__('And')} {{more}} #{__('more')}...
       span(ng-if="more === 0") #{__('Show all members')}...
