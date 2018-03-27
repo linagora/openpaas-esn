@@ -1,6 +1,6 @@
 .collaboration-membership-requests-actions
-  a.btn.btn-primary.btn-square(href="" ng-click="ctrl.accept()" ng-disabled="ctrl.sending || ctrl.done", bs-tooltip, data-title=__('Accept'), data-placement="bottom")
+  .btn.btn-icon.btn-link(href="" ng-click="ctrl.accept()" ng-disabled="ctrl.sending || ctrl.done", bs-tooltip, data-title=__('Accept'), data-placement="bottom")
     i.mdi.mdi-check
 
-  a.btn.btn-default.btn-square(href="" ng-click="ctrl.decline()" ng-disabled="ctrl.sending || ctrl.done", bs-tooltip, data-title=__('Decline'), data-placement="bottom")
+  .btn.btn-icon.btn-link(href="" ng-click="ctrl.decline()" ng-disabled="ctrl.sending || ctrl.done", bs-tooltip, data-title=__('Decline'), data-placement="bottom")
     i.mdi.mdi-close
