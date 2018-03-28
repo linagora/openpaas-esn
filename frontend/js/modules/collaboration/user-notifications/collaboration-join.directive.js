@@ -28,9 +28,10 @@
 
         $q.all({user: userResolver, collaboration: collaborationResolver}).then(function(result) {
           $scope.joiner = result.user.data;
-          $scope.collaborationJoined = result.collaboration.data;
+          $scope.collaborationJoined = result.collaboration.data || result.collaboration;
+          $scope.collaborationJoined.title = $scope.collaborationJoined.title || $scope.collaborationJoined.name;
           $scope.collaborationJoined.objectType = $scope.notification.complement.objectType;
-          $scope.collaborationPath = $scope.notification.complement.objectType === 'community' ? 'communities' : 'projects';
+          $scope.collaborationPath = getCollaborationPath($scope.notification.complement.objectType);
           esnUserNotificationService.setAcknowledged($scope.notification._id, true).then(
             function() {
               $scope.notification.acknowledged = true;
@@ -45,6 +46,15 @@
         }).finally(function() {
           $scope.loading = false;
         });
+      }
+
+      // This needs to be refactored to support objectTypeAdapters
+      // For now we hardcode it
+      function getCollaborationPath(objectType) {
+        return {
+          community: 'communities',
+          'chat.conversation': 'chat/channels/view'
+        }[objectType] || 'communities';
       }
     }
 })();
