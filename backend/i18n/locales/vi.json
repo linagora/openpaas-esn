@@ -194,6 +194,7 @@
   "Membership request pending": "Yêu cầu tham gia đang chờ duyệt",
   "Loading notifications": "Đang tải thông báo",
   "Error while getting notifications": "Lỗi khi tải danh sách thông báo",
+  "Error while getting notification": "Lỗi khi nhận thông báo",
   "Membership requests": "Danh sách yêu cầu tham gia",
   "Error while getting memberships": "Lỗi khi đang tải danh sách thành viên",
   "Error, you do not have the permission to read memberships": "Lỗi, bạn không có quyền xem danh sách thành viên",

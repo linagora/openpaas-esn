@@ -194,6 +194,7 @@
   "Membership request pending": "Demande d'inscription en attente",
   "Loading notifications": "Chargement des notifications",
   "Error while getting notifications": "Erreur lors de la récupération des notifications",
+  "Error while getting notification": "Erreur lors de la récupération de la notification",
   "Membership requests": "Demandes d'inscription",
   "Error while getting memberships": "Erreur lors de la récupération des inscriptions",
   "Error, you do not have the permission to read memberships": "Erreur, vous n'avez pas le droit de consulter les inscriptions",

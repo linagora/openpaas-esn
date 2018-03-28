@@ -194,6 +194,7 @@
   "Membership request pending": "Membership request pending",
   "Loading notifications": "Loading notifications",
   "Error while getting notifications": "Error while getting notifications",
+  "Error while getting notification": "Error while getting notification",
   "Membership requests": "Membership requests",
   "Error while getting memberships": "Error while getting memberships",
   "Error, you do not have the permission to read memberships": "Error, you do not have the permission to read memberships",
