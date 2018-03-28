@@ -55,13 +55,43 @@ angular.module('linagora.esn.contact')
 
     sharedContactDataService.contact = {};
   })
-  .controller('showContactController', function($log, $scope, $state, sharedContactDataService, $rootScope, ContactsHelper, CONTACT_AVATAR_SIZE, $timeout, $stateParams, deleteContact, notificationFactory, sendContactToBackend, displayContactError, $q, CONTACT_EVENTS, gracePeriodService, $window, contactUpdateDataService, ContactAPIClient, ContactLocationHelper, ContactShellDisplayBuilder) {
+  .controller('showContactController', function(
+    $q,
+    $log,
+    $scope,
+    $state,
+    $timeout,
+    $rootScope,
+    $stateParams,
+    $window,
+    ContactsHelper,
+    contactUpdateDataService,
+    ContactAPIClient,
+    ContactLocationHelper,
+    ContactShellDisplayBuilder,
+    deleteContact,
+    sharedContactDataService,
+    sendContactToBackend,
+    displayContactError,
+    notificationFactory,
+    gracePeriodService,
+    CONTACT_AVATAR_SIZE,
+    CONTACT_EVENTS
+  ) {
     $scope.avatarSize = CONTACT_AVATAR_SIZE.bigger;
     $scope.bookId = $stateParams.bookId;
     $scope.bookName = $stateParams.bookName;
     $scope.cardId = $stateParams.cardId;
     $scope.contact = {};
     $scope.loaded = false;
+
+    $scope.$on(CONTACT_EVENTS.MOVED, function(evt, data) {
+      $state.go('/contact/show/:bookId/:bookName/:cardId', {
+        bookId: $scope.bookId,
+        bookName: data.destination,
+        cardId: data.contact.id
+      }, { location: 'replace' });
+    });
 
     function isAddressFilled(type) {
       if (!$scope.contact.addresses || !$scope.contact.addresses.length) {
