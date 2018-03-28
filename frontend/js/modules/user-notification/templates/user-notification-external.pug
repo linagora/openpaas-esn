@@ -1,6 +1,6 @@
 .media
   div(ng-show='error')
-    p #{__('Error while getting notifications')}
+    p #{__('Error while getting notification')}
   div(ng-show='loading && !error')
     p #{__('Loading notifications')}
   div(ng-hide='loading || error')
@@ -17,9 +17,9 @@
       div
         span
           a(ng-href="{{::subject.url}}") {{::subject.displayName}}
-          
+
           span {{::verb}}
-          
+
           span {{::complement}}
       div(ng-show='notification.description')
         span {{::notification.description}}
@@ -27,5 +27,5 @@
         span(ng-repeat='action in notification.action')
           a(ng-href='{{::action.url}}', target='_blank')
             button.btn.btn-info(type="submit") {{::action.display.text}}
-        
+
       div(ng-show='notification.acknowledged') #{__('This notification is processed')}
