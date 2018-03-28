@@ -1,6 +1,6 @@
 'use strict';
 
-var Ical = require('@linagora/ical.js');
+const ICAL = require('@linagora/ical.js');
 
 function getId(contact) {
   return contact.contactId ? encodeURIComponent(contact.contactId) : null;
@@ -8,7 +8,6 @@ function getId(contact) {
 module.exports.getId = getId;
 
 function denormalize(contact) {
-
   var result = {};
 
   var id = getId(contact);
@@ -28,15 +27,15 @@ function denormalize(contact) {
     result.contactId = contact.contactId;
   }
 
-  if (contact.user && contact.user._id) {
-    result.userId = String(contact.user._id);
+  if (contact.userId) {
+    result.userId = contact.userId;
   }
 
-  if (!contact.vcard || !contact.vcard[1] || !contact.vcard[1].length) {
+  if (!contact.vcard) {
     return result;
   }
 
-  var vcard = new Ical.Component(contact.vcard);
+  const vcard = contact.vcard instanceof ICAL.Component ? contact.vcard : new ICAL.Component(contact.vcard);
 
   function getMultiValue(propName) {
     var props = vcard.getAllProperties(propName);

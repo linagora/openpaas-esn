@@ -5,11 +5,7 @@ var q = require('q');
 module.exports = function(dependencies) {
   var jobQueue = dependencies('jobqueue');
   var contactModule = dependencies('contact');
-  var CONSTANTS = contactModule.lib.constants;
   var logger = dependencies('logger');
-  var pubsub = dependencies('pubsub');
-  var localpubsub = pubsub.local;
-  var globalpubsub = pubsub.global;
   var importerRegistry = require('./registry')(dependencies);
   var helper = require('./helper')(dependencies);
   var CONTACT_IMPORT_ERROR = require('../constants').CONTACT_IMPORT_ERROR;
@@ -41,19 +37,7 @@ module.exports = function(dependencies) {
       .then(helper.initializeAddressBook)
       .then(function(options) {
         return importer.lib.importer.importContact(options)
-          .then(helper.cleanOutdatedContacts.bind(null, options, contactSyncTimeStamp))
-          .then(function(data) {
-            data.forEach(function(item) {
-              if (!item.error) {
-                localpubsub.topic(CONSTANTS.NOTIFICATIONS.CONTACT_DELETED).forward(globalpubsub, {
-                  mode: CONSTANTS.MODE.IMPORT,
-                  contactId: item.cardId,
-                  bookId: options.user._id,
-                  bookName: options.addressbook.id
-                });
-              }
-            });
-          });
+          .then(helper.cleanOutdatedContacts.bind(null, options, contactSyncTimeStamp));
       });
   }
 
@@ -95,17 +79,7 @@ module.exports = function(dependencies) {
       .addressbook(options.addressbook.id)
       .vcard(contactId)
       .create(jsonCard)
-      .then(function() {
-        localpubsub.topic(CONSTANTS.NOTIFICATIONS.CONTACT_ADDED).forward(globalpubsub, {
-          mode: CONSTANTS.MODE.IMPORT,
-          contactId: contactId,
-          bookHome: options.user.id,
-          bookName: options.addressbook.id,
-          bookId: options.user.id,
-          vcard: jsonCard,
-          user: { _id: options.user._id }
-        });
-      }, function(err) {
+      .catch(function(err) {
         logger.error('Error while inserting contact to DAV', err);
         return q.reject(buildErrorMessage(IMPORT_CONTACT_CLIENT_ERROR, err));
       });

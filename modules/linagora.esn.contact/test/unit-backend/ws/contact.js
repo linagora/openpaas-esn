@@ -32,7 +32,7 @@ describe('The contact WS events module', function() {
       this.moduleHelpers.backendPath = this.moduleHelpers.modulesPath + 'linagora.esn.contact/backend';
 
       this.pubsub = {
-        global: {
+        local: {
           topic: function(topic) {
             return {
               subscribe: function(callback) {
@@ -95,7 +95,7 @@ describe('The contact WS events module', function() {
           expect(message).to.match(/Not well-formed data on/);
           return done();
         };
-        this.pubsub.global.topic(topic).publish(data);
+        this.pubsub.local.topic(topic).publish(data);
       };
 
       this.checkMode = function(data, topic, done) {
@@ -106,7 +106,7 @@ describe('The contact WS events module', function() {
           expect(message).to.match(/notification is skipped/);
           return done();
         };
-        this.pubsub.global.topic(topic).publish(data);
+        this.pubsub.local.topic(topic).publish(data);
       };
 
       done();
@@ -137,9 +137,9 @@ describe('The contact WS events module', function() {
       this.logger.warn = function() {
         count++;
       };
-      this.pubsub.global.topic(CONTACT_ADDED).publish({});
-      this.pubsub.global.topic(CONTACT_DELETED).publish({});
-      this.pubsub.global.topic(CONTACT_UPDATED).publish({});
+      this.pubsub.local.topic(CONTACT_ADDED).publish({});
+      this.pubsub.local.topic(CONTACT_DELETED).publish({});
+      this.pubsub.local.topic(CONTACT_UPDATED).publish({});
       expect(count).to.equal(3);
     });
 
@@ -205,7 +205,7 @@ describe('The contact WS events module', function() {
         };
         mod.init(this.moduleHelpers.dependencies);
 
-        this.pubsub.global.topic(CONTACT_ADDED).publish(pubsubData);
+        this.pubsub.local.topic(CONTACT_ADDED).publish(pubsubData);
       });
     });
 
@@ -268,7 +268,7 @@ describe('The contact WS events module', function() {
         };
         mod.init(this.moduleHelpers.dependencies);
 
-        this.pubsub.global.topic(CONTACT_DELETED).publish(pubsubData);
+        this.pubsub.local.topic(CONTACT_DELETED).publish(pubsubData);
       });
     });
 
@@ -331,7 +331,7 @@ describe('The contact WS events module', function() {
         };
         mod.init(this.moduleHelpers.dependencies);
 
-        this.pubsub.global.topic(CONTACT_UPDATED).publish(pubsubData);
+        this.pubsub.local.topic(CONTACT_UPDATED).publish(pubsubData);
       });
     });
 

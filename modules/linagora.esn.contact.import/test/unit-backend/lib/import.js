@@ -1,7 +1,6 @@
 'use strict';
 
 var q = require('q');
-var sinon = require('sinon');
 var mockery = require('mockery');
 var chai = require('chai');
 var expect = chai.expect;
@@ -18,7 +17,7 @@ describe('The contact import module', function() {
     return require('../../../backend/lib/import')(dependencies);
   };
 
-  var jobQueueMock, pubsubMock, contactModuleMock, contactClientMock;
+  var jobQueueMock, contactModuleMock, contactClientMock;
   var type = 'twitter';
   var id = 123;
   var domainId = 456;
@@ -49,16 +48,6 @@ describe('The contact import module', function() {
         }
       }
     };
-    pubsubMock = {
-      local: {
-        topic: function() {
-          return {
-            forward: function() {}
-          };
-        }
-      },
-      global: {}
-    };
     jobQueueMock = {
       lib: {
         submitJob: function() {},
@@ -78,7 +67,6 @@ describe('The contact import module', function() {
         injectAngularModules: function() {},
         addApp: function() {}
       },
-      pubsub: pubsubMock,
       contact: contactModuleMock
     };
 
@@ -398,80 +386,6 @@ describe('The contact import module', function() {
       contactSyncTimeStamp = Date.now();
       getModule().synchronizeAccountContacts(user, account);
     });
-
-    it('should pubsub contacts:contact:delete event for removed contacts', function(done) {
-      var options = {
-        account: account,
-        user: user
-      };
-      var addressbook = {
-        id: '1',
-        name: 'MyAB'
-      };
-
-      mockery.registerMock('./helper', function() {
-        return {
-          getImporterOptions: function() {
-            return q(options);
-          },
-          initializeAddressBook: function(options) {
-            options.addressbook = addressbook;
-            return q(options);
-          },
-          cleanOutdatedContacts: function() {
-            return q.resolve([{
-              cardId: '1',
-              data: 'data'
-            }, {
-              cardId: '2',
-              error: new Error('Cannot delete this contact')
-            }, {
-              cardId: '3',
-              data: 'data'
-            }]);
-          }
-        };
-      });
-      registryMock = {
-        get: function() {
-          return {
-            lib: {
-              importer: {
-                importContact: function() {
-                  return q.resolve();
-                }
-              }
-            }
-          };
-        }
-      };
-      var forwardSpy = sinon.spy();
-      pubsubMock.local.topic = function(topic) {
-        expect(topic).to.equal('contacts:contact:delete');
-        return {
-          forward: forwardSpy
-        };
-      };
-      getModule().synchronizeAccountContacts(user, account).then(function() {
-
-        expect(forwardSpy.callCount).to.equal(2);
-        expect(forwardSpy).to.have.been.calledWith(pubsubMock.global, {
-          mode: 'import',
-          contactId: '1',
-          bookId: user._id,
-          bookName: addressbook.id
-        });
-        expect(forwardSpy).to.have.been.calledWith(pubsubMock.global, {
-          mode: 'import',
-          contactId: '3',
-          bookId: user._id,
-          bookName: addressbook.id
-        });
-        done();
-      });
-
-    });
-
   });
 
   describe('The importAccountContactsByJobQueue function', function() {
@@ -670,30 +584,6 @@ describe('The contact import module', function() {
         };
       };
 
-      getModule().createContact(vcardMock, optionsMock);
-    });
-
-    it('should forward correct object when contact client resolve', function(done) {
-      contactClientMock.create = function() {
-        return q.resolve({});
-      };
-      deps.pubsub.local.topic = function(topic) {
-        expect(topic).to.equal('contacts:contact:add');
-        return {
-          forward: function(pubsub, data) {
-            expect(data).to.deep.eql({
-              mode: 'import',
-              contactId: vcarJson.uid,
-              bookHome: optionsMock.user._id,
-              bookName: optionsMock.addressbook.id,
-              bookId: optionsMock.user._id,
-              vcard: vcarJson,
-              user: { _id: optionsMock.user._id }
-            });
-            done();
-          }
-        };
-      };
       getModule().createContact(vcardMock, optionsMock);
     });
   });

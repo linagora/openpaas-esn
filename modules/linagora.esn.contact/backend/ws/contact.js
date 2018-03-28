@@ -7,7 +7,7 @@ var contactNamespace;
 
 function init(dependencies) {
   var logger = dependencies('logger');
-  var pubsub = dependencies('pubsub').global;
+  var pubsub = dependencies('pubsub').local;
   var io = dependencies('wsserver').io;
 
   function shouldSkipNotification(data) {
