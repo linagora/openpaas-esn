@@ -53,7 +53,7 @@ describe('The Contact Live module', function() {
           ContactLiveUpdateMock.stopListen = sinon.spy();
 
           $rootScope.$broadcast('$stateChangeSuccess', {
-            name: 'contact'
+            name: 'contact.addressbooks'
           });
           expect(ContactLiveUpdateMock.startListen).to.have.been.calledWith(session.user._id);
           expect(ContactLiveUpdateMock.stopListen).to.not.have.been.called;

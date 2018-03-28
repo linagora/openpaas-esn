@@ -11,7 +11,7 @@ angular.module('linagora.esn.contact')
     function start() {
       $rootScope.$on('$stateChangeSuccess', function(evt, current) {
         if (current && current.name &&
-          (current.name === 'contact' || current.name.substring(0, 9) === '/contact/')) {
+          (current.name.substring(0, 8) === 'contact.' || current.name.substring(0, 9) === '/contact/')) {
           var bookId = session.user._id;
           ContactLiveUpdate.startListen(bookId);
         } else {
