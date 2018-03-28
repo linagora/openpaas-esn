@@ -1,3 +1,4 @@
+
 'use strict';
 
 angular.module('linagora.esn.contact')
@@ -340,9 +341,15 @@ angular.module('linagora.esn.contact')
     });
 
     $scope.$on(CONTACT_EVENTS.MOVED, function(evt, data) {
-      // Do not remove contact from list if current view is All Addressbooks
+      // Remove contact from current view if current view is in where contact is moved from
       if ($scope.addressbooks.length === 1 && data.contact.addressbook.bookName === $scope.addressbooks[0].bookName) {
-        $scope.categories.removeItemWithId(data.contact.id);
+        return $scope.categories.removeItemWithId(data.contact.id);
+      }
+
+      // Or update moved contact in All Addressbooks view
+      if ($scope.addressbooks.length > 1) {
+        data.contact.addressbook.bookName = data.destination;
+        $scope.categories.replaceItem(data.contact);
       }
     });
 
