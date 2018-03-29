@@ -7,8 +7,7 @@
   function contactService(
       $rootScope,
       session,
-      ContactAPIClient,
-      CONTACT_EVENTS
+      ContactAPIClient
     ) {
       return {
         copyContact: copyContact,
@@ -32,11 +31,6 @@
           .vcard(contact.id)
           .move({
             destAddressbook: destinationAddressbookName
-          }).then(function() {
-            $rootScope.$broadcast(CONTACT_EVENTS.MOVED, {
-              contact: contact,
-              destination: destinationAddressbookName
-            });
           });
       }
     }

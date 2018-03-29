@@ -85,12 +85,14 @@ angular.module('linagora.esn.contact')
     $scope.contact = {};
     $scope.loaded = false;
 
-    $scope.$on(CONTACT_EVENTS.MOVED, function(evt, data) {
-      $state.go('/contact/show/:bookId/:bookName/:cardId', {
-        bookId: $scope.bookId,
-        bookName: data.destination,
-        cardId: data.contact.id
-      }, { location: 'replace' });
+    $scope.$on(CONTACT_EVENTS.UPDATED, function(e, data) {
+      if (data.id === $scope.cardId && data.addressbook && data.addressbook.bookName !== $scope.bookName) {
+        $state.go('/contact/show/:bookId/:bookName/:cardId', {
+          bookId: $scope.bookId,
+          bookName: data.addressbook.bookName,
+          cardId: data.id
+        }, { location: 'replace' });
+      }
     });
 
     function isAddressFilled(type) {
@@ -370,19 +372,6 @@ angular.module('linagora.esn.contact')
       }
     });
 
-    $scope.$on(CONTACT_EVENTS.MOVED, function(evt, data) {
-      // Remove contact from current view if current view is in where contact is moved from
-      if ($scope.addressbooks.length === 1 && data.contact.addressbook.bookName === $scope.addressbooks[0].bookName) {
-        return $scope.categories.removeItemWithId(data.contact.id);
-      }
-
-      // Or update moved contact in All Addressbooks view
-      if ($scope.addressbooks.length > 1) {
-        data.contact.addressbook.bookName = data.destination;
-        $scope.categories.replaceItem(data.contact);
-      }
-    });
-
     function _buildAddressBookTitle() {
       if ($scope.addressbooks.length > 1) {
         return esnI18nService.translate('All contacts').toString();
@@ -447,9 +436,21 @@ angular.module('linagora.esn.contact')
       }
     };
 
+    function _inAllContacts() {
+      return $scope.addressbooks.length > 1;
+    }
+
+    function _contactBelongsCurrentAddressbook(contact) {
+      return contact.addressbook && $scope.addressbooks.length === 1 &&
+             contact.addressbook.bookName === $scope.addressbooks[0].bookName;
+    }
+
     $scope.$on(CONTACT_EVENTS.CREATED, function(e, data) {
       if ($scope.contactSearch.searchInput) { return; }
-      addItemsToCategories([data]);
+
+      if (_inAllContacts() || _contactBelongsCurrentAddressbook(data)) {
+        addItemsToCategories([data]);
+      }
     });
 
     $scope.$on(CONTACT_EVENTS.UPDATED, function(e, data) {
@@ -457,9 +458,14 @@ angular.module('linagora.esn.contact')
         contactUpdateDataService.contactUpdatedIds.push(data.id);
       }
       if ($scope.contactSearch.searchInput) { return; }
-      $scope.$applyAsync(function() {
-        $scope.categories.replaceItem(fillRequiredContactInformation(data));
-      });
+
+      if (_inAllContacts() || _contactBelongsCurrentAddressbook(data)) {
+        $scope.$applyAsync(function() {
+          $scope.categories.replaceItem(fillRequiredContactInformation(data));
+        });
+      } else if (!_contactBelongsCurrentAddressbook(data)) {
+        $scope.categories.removeItemWithId(data.id);
+      }
     });
 
     $scope.$on(CONTACT_EVENTS.DELETED, function(e, contact) {

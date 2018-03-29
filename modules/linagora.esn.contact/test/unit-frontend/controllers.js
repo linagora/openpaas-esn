@@ -590,20 +590,27 @@ describe('The Contacts controller module', function() {
       scope.$digest();
     }
 
-    it('should change the state to the new contact destination after contact is moved', function() {
+    it('should change the state to the new contact destination after contact is moved', function(done) {
       $state.go = sinon.spy();
+
       initController();
 
-      $rootScope.$broadcast(CONTACT_EVENTS.MOVED, {
-        contact: { id: scope.cardId },
-        destination: 'new-addressbook'
-      });
+      var contact = {
+        id: scope.cardId,
+        addressbook: {
+          bookName: 'new-addressbook'
+        }
+      };
+
+      $rootScope.$broadcast(CONTACT_EVENTS.UPDATED, contact);
 
       expect($state.go).to.have.been.calledWith('/contact/show/:bookId/:bookName/:cardId', {
         bookId: scope.bookId,
         bookName: 'new-addressbook',
         cardId: scope.cardId
       }, { location: 'replace' });
+
+      done();
     });
 
     it('should have bigger size for contact avatar', function() {
@@ -1217,7 +1224,9 @@ describe('The Contacts controller module', function() {
       var currentAddressbooks = [{ bookName: 'contacts' }];
       var contact = {
         id: '123456',
-        addressbook: currentAddressbooks[0],
+        addressbook: {
+          bookName: 'new-addressbook'
+        },
         lastName: 'toto'
       };
 
@@ -1237,46 +1246,8 @@ describe('The Contacts controller module', function() {
         }
       });
 
-      $rootScope.$broadcast(CONTACT_EVENTS.MOVED, {
-        contact: contact,
-        destination: 'otheraddressbook'
-      });
+      $rootScope.$broadcast(CONTACT_EVENTS.UPDATED, contact);
       $rootScope.$digest();
-    });
-
-    it('should update moved contact\'s addressbookName if the current view is All addressbooks', function() {
-      var currentAddressbooks = [{ bookName: 'contacts' }, { bookName: 'collected' }];
-      var contact = {
-        id: '123456',
-        addressbook: currentAddressbooks[0],
-        lastName: 'toto'
-      };
-      var replaceItemSpy = sinon.spy();
-
-      $controller('contactsListController', {
-        $scope: scope,
-        user: {
-          _id: '123'
-        },
-        addressbooks: currentAddressbooks,
-        AlphaCategoryService: function() {
-          return {
-            replaceItem: replaceItemSpy,
-            init: function() {}
-          };
-        }
-      });
-
-      $rootScope.$broadcast(CONTACT_EVENTS.MOVED, {
-        contact: contact,
-        destination: 'otheraddressbook'
-      });
-      $rootScope.$digest();
-      expect(replaceItemSpy).to.have.been.calledWith({
-        id: '123456',
-        addressbook: { bookName: 'otheraddressbook' },
-        lastName: 'toto'
-      });
     });
 
     it('should display contacts as list by default', inject(function(CONTACT_LIST_DISPLAY) {
@@ -1503,9 +1474,13 @@ describe('The Contacts controller module', function() {
       expect(contact.deleted).to.be.false;
     });
 
-    it('should add the contact to the full contact list on CONTACT_EVENTS.CREATED event', function(done) {
+    it('should add the contact to the contact list of addressbook on CONTACT_EVENTS.CREATED event', function(done) {
+      var userId = '123';
+      var bookName = 'contacts';
+      var currentAddressbooks = [{ bookId: userId, bookName: bookName }];
       var contact = {
-        lastName: 'Last'
+        lastName: 'Last',
+        addressbook: currentAddressbooks[0]
       };
       var query = null;
       var locationMock = {
@@ -1519,8 +1494,9 @@ describe('The Contacts controller module', function() {
         $scope: scope,
         $location: locationMock,
         user: {
-          _id: '123'
+          _id: userId
         },
+        addressbooks: currentAddressbooks,
         AlphaCategoryService: function() {
           return {
             addItems: function(data) {
@@ -1536,6 +1512,88 @@ describe('The Contacts controller module', function() {
       scope.contactSearch.searchInput = null;
       $rootScope.$broadcast(CONTACT_EVENTS.CREATED, contact);
       $rootScope.$digest();
+    });
+
+    it('should add the contact to the all contacts list on CONTACT_EVENTS.CREATED event', function(done) {
+      var userId = '123';
+      var currentAddressbooks = [{ bookId: userId, bookName: 'bookName1' }, { bookId: userId, bookName: 'bookName2' }];
+      var contact = {
+        lastName: 'Last',
+        addressbook: currentAddressbooks[0]
+      };
+      var query = null;
+      var locationMock = {
+        search: function() {
+          return {
+            q: query
+          };
+        }
+      };
+      $controller('contactsListController', {
+        $scope: scope,
+        $location: locationMock,
+        user: {
+          _id: userId
+        },
+        addressbooks: currentAddressbooks,
+        AlphaCategoryService: function() {
+          return {
+            addItems: function(data) {
+              expect(data).to.deep.equal([contact]);
+
+              done();
+            },
+            get: function() {}
+          };
+        }
+      });
+
+      scope.contactSearch.searchInput = null;
+      $rootScope.$broadcast(CONTACT_EVENTS.CREATED, contact);
+      $rootScope.$digest();
+    });
+
+    it('should not add the contact to the contact list of other addressbooks on CONTACT_EVENTS.CREATED event', function(done) {
+      var userId = '123';
+      var currentAddressbooks = [{ bookId: userId, bookName: 'bookName1' }];
+      var contact = {
+        lastName: 'Last',
+        addressbook: {
+          bookId: userId,
+          bookName: 'bookName2'
+        }
+      };
+      var query = null;
+      var locationMock = {
+        search: function() {
+          return {
+            q: query
+          };
+        }
+      };
+      var addItemsSpy = sinon.spy();
+
+      $controller('contactsListController', {
+        $scope: scope,
+        $location: locationMock,
+        user: {
+          _id: userId
+        },
+        addressbooks: currentAddressbooks,
+        AlphaCategoryService: function() {
+          return {
+            addItems: addItemsSpy,
+            get: function() {}
+          };
+        }
+      });
+
+      scope.contactSearch.searchInput = null;
+      $rootScope.$broadcast(CONTACT_EVENTS.CREATED, contact);
+      $rootScope.$digest();
+
+      expect(addItemsSpy).to.not.have.been.called;
+      done();
     });
 
     it('should not live refresh the search result list', function(done) {
@@ -1583,24 +1641,95 @@ describe('The Contacts controller module', function() {
       done();
     });
 
-    it('should update the contact on CONTACT_EVENTS.UPDATED event', function(done) {
+    it('should update the contact in all contacts list on CONTACT_EVENTS.UPDATED event', function(done) {
+      var userId = '123';
+      var currentAddressbooks = [{ bookId: userId, bookName: 'bookName1' }, { bookId: userId, bookName: 'bookName2' }];
       var contact = {
         id: '123456',
-        lastName: 'Last'
+        lastName: 'Last',
+        addressbook: currentAddressbooks[0]
       };
 
       $controller('contactsListController', {
         $scope: scope,
         user: {
-          _id: '123'
+          _id: userId
         },
+        addressbooks: currentAddressbooks,
         AlphaCategoryService: function() {
           return {
             replaceItem: function(contact) {
               expect(contact).to.deep.equal(contact);
+
               done();
             },
-            get: function() {},
+            init: function() {}
+          };
+        }
+      });
+
+      $rootScope.$broadcast(CONTACT_EVENTS.UPDATED, contact);
+      $rootScope.$digest();
+      $timeout.flush();
+    });
+
+    it('should update the contact in the contacts list of addressbook on CONTACT_EVENTS.UPDATED event', function(done) {
+      var userId = '123';
+      var currentAddressbooks = [{ bookId: userId, bookName: 'bookName1' }];
+      var contact = {
+        id: '123456',
+        lastName: 'Last',
+        addressbook: currentAddressbooks[0]
+      };
+
+      $controller('contactsListController', {
+        $scope: scope,
+        user: {
+          _id: userId
+        },
+        addressbooks: currentAddressbooks,
+        AlphaCategoryService: function() {
+          return {
+            replaceItem: function(contact) {
+              expect(contact).to.deep.equal(contact);
+
+              done();
+            },
+            init: function() {}
+          };
+        }
+      });
+
+      $rootScope.$broadcast(CONTACT_EVENTS.UPDATED, contact);
+      $rootScope.$digest();
+      $timeout.flush();
+    });
+
+    it('should remove the contact in the contacts list of old addressbook after moved to new addressbook', function(done) {
+      var userId = '123';
+      var currentAddressbooks = [{ bookId: userId, bookName: 'oldBookName' }];
+      var contact = {
+        id: '123456',
+        lastName: 'Last',
+        addressbook: {
+          bookId: userId,
+          bookName: 'newBookName'
+        }
+      };
+
+      $controller('contactsListController', {
+        $scope: scope,
+        user: {
+          _id: userId
+        },
+        addressbooks: currentAddressbooks,
+        AlphaCategoryService: function() {
+          return {
+            removeItemWithId: function(contactId) {
+              expect(contactId).to.equal(contact.id);
+
+              done();
+            },
             init: function() {}
           };
         }
