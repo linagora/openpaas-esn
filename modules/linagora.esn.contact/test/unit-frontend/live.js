@@ -190,11 +190,43 @@ describe('The Contact Live module', function() {
 
         describe('On CONTACT_WS.events.CREATED event', function() {
           it('should build a shell and broadcast it to the $rootScope', function(done) {
-            var data = {id: '1'};
-            var shell = {id: '2'};
+            var data = { id: '1' };
+            var shell = {
+              id: '2',
+              addressbook: {
+                bookId: 'bookId',
+                bookName: 'bookName'
+              }
+            };
 
             $rootScope.$on(CONTACT_EVENTS.CREATED, function(event, data) {
               expect(data).to.deep.equal(shell);
+              done();
+            });
+
+            ContactShellBuilderMock.fromWebSocket = function() {
+              return $q.when(shell);
+            };
+
+            ContactLiveUpdate.startListen(bookId);
+            createFn(data);
+
+            $rootScope.$apply();
+            done(new Error('Should not be called'));
+          });
+
+          it('should inject text avatar before broadcasting it', function(done) {
+            var data = { id: '1' };
+            var shell = {
+              id: '2',
+              addressbook: {
+                bookId: 'bookId',
+                bookName: 'bookName'
+              }
+            };
+
+            $rootScope.$on(CONTACT_EVENTS.CREATED, function(event, data) {
+              expect(data.photo).to.exist;
               done();
             });
 

@@ -26,12 +26,21 @@ angular.module('linagora.esn.contact')
 
   })
 
-  .factory('ContactLiveUpdate', function($rootScope, $log, livenotification, ContactAPIClient, ContactShellBuilder, CONTACT_EVENTS, CONTACT_WS) {
+  .factory('ContactLiveUpdate', function(
+    $rootScope,
+    $log,
+    livenotification,
+    ContactAPIClient,
+    ContactShellBuilder,
+    contactAvatarService,
+    CONTACT_EVENTS, CONTACT_WS
+  ) {
     var sio = null;
     var listening = false;
 
     function onCreate(data) {
       ContactShellBuilder.fromWebSocket(data).then(function(shell) {
+        contactAvatarService.injectTextAvatar(shell);
         $rootScope.$broadcast(CONTACT_EVENTS.CREATED, shell);
       }, function() {
         $log.debug('Can not build the contact from websocket data');
