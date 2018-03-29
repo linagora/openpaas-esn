@@ -15,6 +15,7 @@
       };
 
       function copyContact(destinationAddressbookName, contact) {
+        contact = angular.copy(contact);
         delete contact.id; // To generate new id for new contact, check out contactAPIClient
 
         return ContactAPIClient

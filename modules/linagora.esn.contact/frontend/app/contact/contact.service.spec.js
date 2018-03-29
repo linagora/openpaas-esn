@@ -59,17 +59,7 @@ describe('The contactService service', function() {
       };
     });
 
-    it('should call ContactAPIClient to copy contact', function() {
-      var contact = {
-        id: '456'
-      };
-
-      contactService.copyContact('contacts', contact);
-      $rootScope.$digest();
-      expect(createFn).to.have.been.calledWith(contact);
-    });
-
-    it('should delete id of the contact that is about to copied', function() {
+    it('should delete id of the contact before calling ContactAPIClient to copy contact', function() {
       var contact = {
         id: '456',
         addressbook: {
@@ -79,8 +69,9 @@ describe('The contactService service', function() {
 
       contactService.copyContact('contacts', contact);
       $rootScope.$digest();
+
+      delete contact.id;
       expect(createFn).to.have.been.calledWith(contact);
-      expect(contact.id).to.be.undefined;
     });
   });
 
