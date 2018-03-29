@@ -68,15 +68,15 @@ describe('ContactShell Builders', function() {
 
   describe('The ContactShellBuilder service', function() {
 
-    var ContactsHelper, ContactShellHelper, contactUpdateDataService;
+    var contactAvatarService, ContactShellHelper, contactUpdateDataService;
 
     beforeEach(function() {
-      ContactsHelper = {};
+      contactAvatarService = {};
       ContactShellHelper = {};
       contactUpdateDataService = {};
 
       module('linagora.esn.contact', function($provide) {
-        $provide.value('ContactsHelper', ContactsHelper);
+        $provide.value('contactAvatarService', contactAvatarService);
         $provide.value('ContactShellHelper', ContactShellHelper);
         $provide.value('contactUpdateDataService', contactUpdateDataService);
       });
@@ -204,7 +204,7 @@ describe('ContactShell Builders', function() {
       it('should force to reload the default avatar when contact is defined in update service', function() {
         var spy = sinon.spy();
         contactUpdateDataService.contactUpdatedIds = [CARD_ID];
-        ContactsHelper.forceReloadDefaultAvatar = spy;
+        contactAvatarService.forceReloadDefaultAvatar = spy;
         this.ContactShellBuilder.fromVcard(vcard);
         expect(spy).to.have.been.called.once;
       });
@@ -212,7 +212,7 @@ describe('ContactShell Builders', function() {
       it('should return a ContactShell', function() {
         var spy = sinon.spy();
         contactUpdateDataService.contactUpdatedIds = [];
-        ContactsHelper.forceReloadDefaultAvatar = spy;
+        contactAvatarService.forceReloadDefaultAvatar = spy;
         var contact = this.ContactShellBuilder.fromVcard(vcard);
         expect(spy).to.not.have.been.called;
         expect(contact).to.be.defined;

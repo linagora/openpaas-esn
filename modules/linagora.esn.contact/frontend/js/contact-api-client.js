@@ -12,6 +12,7 @@ angular.module('linagora.esn.contact')
                             AddressBookShell,
                             ContactsHelper,
                             ContactShellBuilder,
+                            contactAvatarService,
                             VcardBuilder,
                             ICAL,
                             CONTACT_ACCEPT_HEADER,
@@ -151,7 +152,7 @@ angular.module('linagora.esn.contact')
         .then(function(response) {
           var contact = new ContactShell(
             new ICAL.Component(response.data), response.headers('ETag'));
-          ContactsHelper.forceReloadDefaultAvatar(contact);
+          contactAvatarService.forceReloadDefaultAvatar(contact);
           return ContactShellBuilder.populateShell(contact, href);
         });
     }

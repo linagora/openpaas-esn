@@ -120,18 +120,18 @@ describe('ContactDisplayShell', function() {
   });
 
   describe('The getAvatar fn', function() {
-    var ContactsHelper = {};
+    var contactAvatarService = {};
     var urlUtils = {};
 
     beforeEach(function() {
       angular.mock.module(function($provide) {
-        $provide.value('ContactsHelper', ContactsHelper);
+        $provide.value('contactAvatarService', contactAvatarService);
         $provide.value('urlUtils', urlUtils);
       });
     });
 
     it('should return approximate text avatar based on input size', function(done) {
-      ContactsHelper.isTextAvatar = function() {
+      contactAvatarService.isTextAvatar = function() {
         return true;
       };
 
@@ -154,7 +154,7 @@ describe('ContactDisplayShell', function() {
     });
 
     it('should return original avatar if it is not text avatar', function(done) {
-      ContactsHelper.isTextAvatar = function() {
+      contactAvatarService.isTextAvatar = function() {
         return false;
       };
 
@@ -176,7 +176,7 @@ describe('ContactDisplayShell', function() {
 
     it('should return default avatar if contact has no avatar', function() {
       var CONTACT_DEFAULT_AVATAR = 'http://linagora.com/user/default_avatar.png';
-      ContactsHelper.isTextAvatar = function() {
+      contactAvatarService.isTextAvatar = function() {
         return false;
       };
       angular.mock.module(function($provide) {
@@ -196,12 +196,10 @@ describe('ContactDisplayShell', function() {
   });
 
   describe('The isWritable fn', function() {
-    var ContactsHelper = {};
     var urlUtils = {};
 
     beforeEach(function() {
       angular.mock.module(function($provide) {
-        $provide.value('ContactsHelper', ContactsHelper);
         $provide.value('urlUtils', urlUtils);
       });
     });

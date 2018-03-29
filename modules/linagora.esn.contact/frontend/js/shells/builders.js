@@ -19,7 +19,7 @@ angular.module('linagora.esn.contact')
     });
   })
 
-  .service('ContactShellBuilder', function($log, $q, ContactShell, ICAL, ContactsHelper, ContactShellHelper, contactUpdateDataService) {
+  .service('ContactShellBuilder', function($log, $q, ContactShell, ICAL, ContactShellHelper, contactUpdateDataService, contactAvatarService) {
 
     this.setAddressbookCache = function(cache) {
       this.addressbookCache = cache;
@@ -28,7 +28,7 @@ angular.module('linagora.esn.contact')
     this.fromVcard = function(vcard) {
       var contact = new ContactShell(new ICAL.Component(vcard));
       if (contactUpdateDataService.contactUpdatedIds.indexOf(contact.id) > -1) {
-        ContactsHelper.forceReloadDefaultAvatar(contact);
+        contactAvatarService.forceReloadDefaultAvatar(contact);
       }
       return contact;
     };

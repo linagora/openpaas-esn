@@ -160,10 +160,9 @@ describe('The Contacts service module', function() {
 
   describe('The ContactsHelper service', function() {
 
-    beforeEach(angular.mock.inject(function(ContactsHelper, $rootScope, _ICAL_) {
+    beforeEach(angular.mock.inject(function(ContactsHelper, $rootScope) {
       this.$rootScope = $rootScope;
       this.contactHelper = ContactsHelper;
-      this.ICAL = _ICAL_;
     }));
 
     describe('The fillScopeContactData function', function() {
@@ -469,63 +468,6 @@ describe('The Contacts service module', function() {
         this.shell.birthday = '';
         this.expectEqual('My street My city My zip My country');
       });
-    });
-
-    describe('The forceReloadDefaultAvatar fn', function() {
-
-      it('should append timestamp to default avatar url', function() {
-        var contact = { photo: 'http://abc.com/contact/api/contacts/123/456/avatar' };
-        this.contactHelper.forceReloadDefaultAvatar(contact);
-        expect(contact.photo).to.match(/123\/456\/avatar\?t=[0-10]+/);
-      });
-
-      it('should append timestamp parameter correctly', function() {
-        var contact = { photo: 'http://abc.com/contact/api/contacts/123/456/avatar?x=1&y=2' };
-        this.contactHelper.forceReloadDefaultAvatar(contact);
-        expect(contact.photo).to.match(/123\/456\/avatar\?x=1&y=2&t=[0-10]+/);
-      });
-
-      it('should update timestamp parameter if exist', function() {
-        var photoUrl = 'http://abc.com/contact/api/contacts/123/456/avatar?t=1';
-        var contact = { photo: photoUrl };
-        this.contactHelper.forceReloadDefaultAvatar(contact);
-        expect(contact.photo).to.match(/123\/456\/avatar\?t=[0-10]+/);
-        expect(contact.photo).to.not.equal(photoUrl);
-      });
-
-      it('should not append timestamp to custom avatar url', function() {
-        var avatarUrl = 'http://abc.com/this/is/my/cuties/avatar';
-        var contact = { photo: avatarUrl };
-        this.contactHelper.forceReloadDefaultAvatar(contact);
-        expect(contact.photo).to.equal(avatarUrl);
-      });
-
-      it('should upate the photo value in vcard', function() {
-        var vcard = new this.ICAL.Component(['vcard', [
-            ['version', {}, 'text', '4.0'],
-            ['uid', {}, 'text', 'myuid'],
-            ['photo', {}, 'uri', 'http://abc.com/contact/api/contacts/123/456/avatar']
-        ]]);
-        var contact = { photo: 'http://abc.com/contact/api/contacts/123/456/avatar', vcard: vcard };
-        this.contactHelper.forceReloadDefaultAvatar(contact);
-        expect(contact.photo).to.match(/123\/456\/avatar\?t=[0-10]+/);
-        expect(contact.vcard.getFirstPropertyValue('photo')).to.match(/123\/456\/avatar\?t=[0-10]+/);
-      });
-
-    });
-
-    describe('The isTextAvatar fn', function() {
-
-      it('should return true if URL is in form of text avatar', function() {
-        var url = 'http://abc.com/contact/api/contacts/123/456/avatar';
-        expect(this.contactHelper.isTextAvatar(url)).to.be.true;
-      });
-
-      it('should return false if URL is not in form of text avatar', function() {
-        var url = 'http://abc.com/contact/api/contacts/123/456/not_text_avatar';
-        expect(this.contactHelper.isTextAvatar(url)).to.be.false;
-      });
-
     });
 
     describe('The getOrderType fn', function() {
