@@ -7,8 +7,7 @@
   function contactService(
       $rootScope,
       session,
-      ContactAPIClient,
-      CONTACT_EVENTS
+      ContactAPIClient
     ) {
       return {
         copyContact: copyContact,
@@ -16,6 +15,7 @@
       };
 
       function copyContact(destinationAddressbookName, contact) {
+        contact = angular.copy(contact);
         delete contact.id; // To generate new id for new contact, check out contactAPIClient
 
         return ContactAPIClient
@@ -32,11 +32,6 @@
           .vcard(contact.id)
           .move({
             destAddressbook: destinationAddressbookName
-          }).then(function() {
-            $rootScope.$broadcast(CONTACT_EVENTS.MOVED, {
-              contact: contact,
-              destination: destinationAddressbookName
-            });
           });
       }
     }

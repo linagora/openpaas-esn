@@ -7,7 +7,6 @@ var expect = chai.expect;
 describe('The contactService service', function() {
   var $rootScope, $q;
   var session, contactService, ContactAPIClient, createFn, moveFn;
-  var CONTACT_EVENTS;
 
   beforeEach(function() {
     module('esn.session', function($provide) {
@@ -28,14 +27,12 @@ describe('The contactService service', function() {
       _$rootScope_,
       _$q_,
       _contactService_,
-      _ContactAPIClient_,
-      _CONTACT_EVENTS_
+      _ContactAPIClient_
     ) {
       $rootScope = _$rootScope_;
       $q = _$q_;
       ContactAPIClient = _ContactAPIClient_;
       contactService = _contactService_;
-      CONTACT_EVENTS = _CONTACT_EVENTS_;
     });
   });
 
@@ -62,17 +59,7 @@ describe('The contactService service', function() {
       };
     });
 
-    it('should call ContactAPIClient to copy contact', function() {
-      var contact = {
-        id: '456'
-      };
-
-      contactService.copyContact('contacts', contact);
-      $rootScope.$digest();
-      expect(createFn).to.have.been.calledWith(contact);
-    });
-
-    it('should delete id of the contact that is about to copied', function() {
+    it('should delete id of the contact before calling ContactAPIClient to copy contact', function() {
       var contact = {
         id: '456',
         addressbook: {
@@ -82,8 +69,9 @@ describe('The contactService service', function() {
 
       contactService.copyContact('contacts', contact);
       $rootScope.$digest();
+
+      delete contact.id;
       expect(createFn).to.have.been.calledWith(contact);
-      expect(contact.id).to.be.undefined;
     });
   });
 
@@ -125,28 +113,6 @@ describe('The contactService service', function() {
           done();
         }).catch(done);
       $rootScope.$digest();
-    });
-
-    it('should broadcast an event after successfully moving a contact', function(done) {
-      var destinationAddressbookName = 'collected';
-
-      $rootScope.$broadcast = sinon.spy();
-
-      contactService.moveContact(destinationAddressbookName, contact)
-        .then(function() {
-          expect(moveFn).to.have.been.calledWith({
-            destAddressbook: destinationAddressbookName
-          });
-          expect($rootScope.$broadcast).to.have.been.calledWith(CONTACT_EVENTS.MOVED, {
-            contact: contact,
-            destination: destinationAddressbookName
-          });
-
-          done();
-        })
-        .catch(done);
-      $rootScope.$digest();
-
     });
   });
 });
