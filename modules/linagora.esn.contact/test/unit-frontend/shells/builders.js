@@ -360,7 +360,7 @@ describe('ContactShell Builders', function() {
         Object.keys(ical).forEach(function(propName) {
           var prop = vcard.getFirstProperty(propName);
           expect(prop, 'Missing: ' + propName).to.be.ok;
-          var value = prop.toICAL();
+          var value = prop.toICALString();
           expect(value).to.equal(ical[propName].toString());
         });
       }
