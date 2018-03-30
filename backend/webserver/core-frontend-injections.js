@@ -335,7 +335,12 @@ const injections = [
     'form-helper/form-helper.directives.js',
     'form-helper/email-input/email-input.controller.js',
     'form-helper/email-input/email-input.component.js'
-  ], innerApps: ['esn', 'welcome']}
+  ], innerApps: ['esn', 'welcome']},
+  {angular: 'esn.attachments-selector', files: [
+    'attachments-selector/attachments-selector.module.js',
+    'attachments-selector/attachments-selector.component.js',
+    'attachments-selector/attachments-selector.controller.js'
+  ], innerApps: ['esn']}
 ];
 
 if (process.env.NODE_ENV === 'production') { // eslint-disable-line no-process-env
