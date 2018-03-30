@@ -1,0 +1,39 @@
+.esn-attachments-selector {
+  .badge-container {
+    padding-right: 0;
+
+    .composer-badge {
+      background: @primaryColor;
+      top: 8px;
+      right: 11px;
+      font-weight: bold;
+      line-height: 16px;
+      height: 16px;
+      min-width: 16px;
+
+      &.error {
+        background: @m-red;
+      }
+    }
+
+    .uploading {
+      animation: flashing-desktop 2.5s infinite linear;
+    }
+
+    .btn-icon {
+      padding-left: 5px;
+      padding-right: 5px;
+      color: @secondaryTextColor;
+      margin-right: 5px;
+
+      &.active, &:hover {
+        color: @text-color;
+      }
+
+      .mdi {
+        font-size: 1.6em;
+        vertical-align: middle;
+      }
+    }
+  }
+}
