@@ -112,7 +112,7 @@ module.exports = dependencies => {
   }
 
   function validateBookHome(req, res, next) {
-    if (req.params.bookHome !== req.user.id) {
+    if (req.query.search && req.params.bookHome !== req.user.id) {
       return res.status(403).json({
         error: {
           code: 403,

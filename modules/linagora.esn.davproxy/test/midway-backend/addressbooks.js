@@ -843,30 +843,6 @@ describe('The addressbooks dav proxy', function() {
         this.helpers.api.requireLogin(this.app, 'get', `${PREFIX}/addressbooks/123.json`, done);
       });
 
-      it('should respond 403 if user try to use others\' bookHome', function(done) {
-        const path = '/addressbooks/123456.json';
-        const self = this;
-        self.helpers.api.loginAsUser(self.app, user.emails[0], password, (err, loggedInAsUser) => {
-          if (err) {
-            return done(err);
-          }
-
-          const req = loggedInAsUser(request(self.app).get(`${PREFIX}${path}`));
-          req.expect(403).end((err, res) => {
-
-            expect(err).to.not.exist;
-            expect(res.body).to.deep.equal({
-              error: {
-                code: 403,
-                message: 'Forbidden',
-                details: 'User do not have the required privileges for this bookHome'
-              }
-            });
-          });
-          done();
-        });
-      });
-
       describe('With search query', function() {
         let localpubsub;
         let contact1, contact2;
@@ -903,6 +879,30 @@ describe('The addressbooks dav proxy', function() {
           this.helpers.elasticsearch.saveTestConfiguration(this.helpers.callbacks.noError(done));
           localpubsub.topic('contacts:contact:add').publish(contact1);
           localpubsub.topic('contacts:contact:add').publish(contact2);
+        });
+
+        it('should respond 403 if user try to use others\' bookHome', function(done) {
+          const path = '/addressbooks/123456.json?search=abc';
+          const self = this;
+          self.helpers.api.loginAsUser(self.app, user.emails[0], password, (err, loggedInAsUser) => {
+            if (err) {
+              return done(err);
+            }
+
+            const req = loggedInAsUser(request(self.app).get(`${PREFIX}${path}`));
+            req.expect(403).end((err, res) => {
+
+              expect(err).to.not.exist;
+              expect(res.body).to.deep.equal({
+                error: {
+                  code: 403,
+                  message: 'Forbidden',
+                  details: 'User do not have the required privileges for this bookHome'
+                }
+              });
+              done();
+            });
+          });
         });
 
         it('should respond 200 with empty result if user try to search on unavailable bookNames', function(done) {
