@@ -156,28 +156,6 @@ angular.module('linagora.esn.contact')
 
     }
 
-    function forceReloadDefaultAvatar(contact) {
-      if (contact && contact.photo && isTextAvatar(contact.photo)) {
-        var timestampParameter = 't=' + Date.now();
-
-        if (/t=[0-9]+/.test(contact.photo)) { // check existing timestampParameter
-          contact.photo = contact.photo.replace(/t=[0-9]+/, timestampParameter);
-        } else if (/\?(.*?=.*?)+$/.test(contact.photo)) { // check existing parameters
-          contact.photo += '&' + timestampParameter;
-        } else {
-          contact.photo += '?' + timestampParameter;
-        }
-        if (contact.vcard) {
-          contact.vcard.updatePropertyWithValue('photo', contact.photo);
-        }
-
-      }
-    }
-
-    function isTextAvatar(avatarUrl) {
-      return /\/contact\/api\/contacts\/.*?\/avatar/.test(avatarUrl);
-    }
-
     function orderData(contact) {
       if (!contact) {
         return;
@@ -211,11 +189,9 @@ angular.module('linagora.esn.contact')
     return {
       getFormattedName: getFormattedName,
       getFormattedAddress: getFormattedAddress,
-      forceReloadDefaultAvatar: forceReloadDefaultAvatar,
       getOrderedValues: getOrderedValues,
       orderData: orderData,
       fillScopeContactData: fillScopeContactData,
-      isTextAvatar: isTextAvatar,
       getOrderType: getOrderType
     };
   })
