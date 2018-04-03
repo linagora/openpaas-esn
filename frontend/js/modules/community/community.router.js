@@ -33,7 +33,7 @@
     })
     .state('/collaborations/community/:community_id/members', {
       url: '/collaborations/community/:community_id/members',
-      templateUrl: '/views/modules/community/community-members',
+      templateUrl: '/views/modules/community/members/community-members',
       controller: 'communityController',
       resolve: {
         community: routeResolver.api('communityAPI', 'get', 'community_id', '/communities'),

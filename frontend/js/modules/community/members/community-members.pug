@@ -1,13 +1,6 @@
-.row
+.community-members
   .row
     .col-xs-12
-      community-description(community="community")
-
-  .vertiz-space
-
-  .row
-    .col-xs-12
-
       .row(ng-show='isCommunityManager()')
         ul.nav.nav-pills.nav-justified
           li(ng-class="{active: selected === 'members' || selected === undefined}")
