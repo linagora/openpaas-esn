@@ -715,7 +715,7 @@ describe('The collaborations members API', function() {
       });
     });
 
-    it('should return 403 if current user is the community creator', function(done) {
+    it('should return 403 if current user is the community creator and tries to remove himself', function(done) {
       var self = this;
       this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
         if (err) { return done(err); }
@@ -736,7 +736,7 @@ describe('The collaborations members API', function() {
       });
     });
 
-    it('should remove the current user from members if already in', function(done) {
+    it('should remove the current user from members if in', function(done) {
       var self = this;
       this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
         if (err) { return done(err); }
@@ -786,6 +786,37 @@ describe('The collaborations members API', function() {
               }
               expect(document[0].members.length).to.equal(1);
               expect(document[0].members[0].member.id + '').to.equal(user0.id);
+              done();
+            });
+          });
+        });
+      });
+    });
+
+    it('should remove the user from members if in and current user collaboration manager', function(done) {
+      var self = this;
+
+      this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+        if (err) { return done(err); }
+        var manager = models.users[0];
+        var user1 = models.users[1];
+        var community = models.communities[1];
+
+        self.helpers.api.loginAsUser(webserver.application, manager.emails[0], 'secret', function(err, loggedInAsUser) {
+          if (err) {
+            return done(err);
+          }
+          var req = loggedInAsUser(request(webserver.application).delete('/api/collaborations/community/' + community._id + '/members/' + user1._id));
+
+          req.expect(204);
+          req.end(function(err) {
+            expect(err).to.not.exist;
+            Community.find({_id: community._id}, function(err, document) {
+              if (err) {
+                return done(err);
+              }
+              expect(document[0].members.length).to.equal(1);
+              expect(document[0].members[0].member.id + '').to.equal(manager.id);
               done();
             });
           });
