@@ -226,6 +226,7 @@ describe('The contact client APIs', function() {
           '{DAV:}displayname': 'dav:name',
           '{urn:ietf:params:xml:ns:carddav}addressbook-description': 'carddav:description',
           '{DAV:}acl': 'dav:acl',
+          '{http://open-paas.org/contacts}source': 'openpaas:source',
           '{http://open-paas.org/contacts}type': 'type'
         };
 
@@ -253,11 +254,13 @@ describe('The contact client APIs', function() {
           var description = 'addressbook description';
           var acl = ['dav:read'];
           var type = 'twitter';
+          var source = { _links: { href: '' }};
           var response = { statusCode: 200 };
           var body = {
             '{DAV:}displayname': name,
             '{urn:ietf:params:xml:ns:carddav}addressbook-description': description,
             '{DAV:}acl': acl,
+            '{http://open-paas.org/contacts}source': source,
             '{http://open-paas.org/contacts}type': type
           };
 
@@ -278,10 +281,11 @@ describe('The contact client APIs', function() {
               'dav:name': name,
               'carddav:description': description,
               'dav:acl': acl,
+              'openpaas:source': source,
               type: type
             });
             done();
-          });
+          }).catch(done);
         });
 
         it('should reject with error when client returns error', function(done) {

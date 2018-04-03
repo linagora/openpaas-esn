@@ -6,15 +6,19 @@ var expect = chai.expect;
 
 describe('The Contacts Angular pagination module', function() {
 
-  var options, user, addressbook, ContactAPIClient, listMock, searchMock;
+  var options, user, addressbook, ContactAPIClient, listMock, searchMock, isSubscription;
 
   beforeEach(function() {
     user = {
       _id: 123
     };
+    isSubscription = false;
     addressbook = {
       id: 'MyABookId',
-      name: 'MyABookName'
+      name: 'MyABookName',
+      isSubscription: function() {
+        return isSubscription;
+      }
     };
     options = {
       addressbooks: [addressbook],
@@ -76,6 +80,19 @@ describe('The Contacts Angular pagination module', function() {
         expect(e.message).to.match(/options.addressbooks array is required/);
         done();
       }
+    });
+
+    it('should set bookId and bookName to source addressbook if the addressbook is a subscription', function() {
+      isSubscription = true;
+      addressbook.source = {
+        bookId: 'sourceABid',
+        bookName: 'source AB name'
+      };
+
+      var provider = new this.AddressBookPaginationProvider(options);
+
+      expect(provider.bookId).to.equal('sourceABid');
+      expect(provider.bookName).to.equal('source AB name');
     });
 
     describe('The loadNextItems function', function() {
@@ -140,7 +157,13 @@ describe('The Contacts Angular pagination module', function() {
 
     it('should create all the required resources', function() {
       var options = {
-        addressbooks: [{id: 1}, {id: 2}, {id: 3}]
+        addressbooks: [{
+          id: 1, isSubscription: function() { return false; }
+        }, {
+          id: 2, isSubscription: function() { return false; }
+        }, {
+          id: 3, isSubscription: function() { return false; }
+        }]
       };
 
       var provider = new this.MultipleAddressBookPaginationProvider(options);
@@ -150,7 +173,13 @@ describe('The Contacts Angular pagination module', function() {
 
     it('should use the options comparator when defined', function() {
       var options = {
-        addressbooks: [{id: 1}, {id: 2}, {id: 3}],
+        addressbooks: [{
+          id: 1, isSubscription: function() { return false; }
+        }, {
+          id: 2, isSubscription: function() { return false; }
+        }, {
+          id: 3, isSubscription: function() { return false; }
+        }],
         compare: 'MyAwesomeComparator'
       };
 
@@ -161,7 +190,13 @@ describe('The Contacts Angular pagination module', function() {
     describe('The loadNextItems function', function() {
       it('should call the age aggregator service', function(done) {
         var options = {
-          addressbooks: [{id: 1}, {id: 2}, {id: 3}]
+          addressbooks: [{
+            id: 1, isSubscription: function() { return false; }
+          }, {
+            id: 2, isSubscription: function() { return false; }
+          }, {
+            id: 3, isSubscription: function() { return false; }
+          }]
         };
 
         PageAggregatorServiceMock.prototype.loadNextItems = done;

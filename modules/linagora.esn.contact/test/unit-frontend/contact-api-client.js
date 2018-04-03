@@ -44,12 +44,12 @@ describe('The contact Angular module contactapis', function() {
       });
     });
 
-    beforeEach(angular.mock.inject(function($rootScope, $httpBackend, ContactAPIClient, ContactShell, ContactsHelper, AddressBookShell, DAV_PATH, GRACE_DELAY, _ICAL_) {
+    beforeEach(angular.mock.inject(function($rootScope, $httpBackend, ContactAPIClient, ContactShell, ContactsHelper, AddressbookShell, DAV_PATH, GRACE_DELAY, _ICAL_) {
       this.$rootScope = $rootScope;
       this.$httpBackend = $httpBackend;
       this.ContactAPIClient = ContactAPIClient;
       this.ContactShell = ContactShell;
-      this.AddressBookShell = AddressBookShell;
+      this.AddressbookShell = AddressbookShell;
       this.DAV_PATH = DAV_PATH;
       this.GRACE_DELAY = GRACE_DELAY;
       this.ContactsHelper = ContactsHelper;
@@ -125,7 +125,7 @@ describe('The contact Angular module contactapis', function() {
 
         describe('The get addressbook fn', function() {
 
-          it('should return an AddressBookShell instance if success', function(done) {
+          it('should return an AddressbookShell instance if success', function(done) {
             var bookId = '123';
             var bookName = '1614422648';
             this.$httpBackend.when('PROPFIND', this.getBookUrl(bookId, bookName)).respond({
@@ -139,13 +139,13 @@ describe('The contact Angular module contactapis', function() {
               'dav:acl': ['dav:read']
             });
 
-            var AddressBookShell = this.AddressBookShell;
+            var AddressbookShell = this.AddressbookShell;
             this.ContactAPIClient
               .addressbookHome(bookId)
               .addressbook(bookName)
               .get()
               .then(function(addressbook) {
-                expect(addressbook).to.be.instanceof(AddressBookShell);
+                expect(addressbook).to.be.instanceof(AddressbookShell);
                 expect(addressbook).to.shallowDeepEqual({
                   bookName: bookName,
                   name: 'Twitter addressbook',
@@ -987,8 +987,8 @@ describe('The contact Angular module contactapis', function() {
         });
 
         describe('The create addressbook function', function() {
-          it('should return an AddressBookShell instance if success', function(done) {
-            var AddressBookShell = this.AddressBookShell;
+          it('should return an AddressbookShell instance if success', function(done) {
+            var AddressbookShell = this.AddressbookShell;
             var bookId = '123';
             var addressbook = {
               name: 'Custom addressbook',
@@ -1013,7 +1013,7 @@ describe('The contact Angular module contactapis', function() {
               .addressbook()
               .create(addressbook)
               .then(function(createdAddressbook) {
-                expect(createdAddressbook).to.be.instanceof(AddressBookShell);
+                expect(createdAddressbook).to.be.instanceof(AddressbookShell);
                 expect(createdAddressbook).to.shallowDeepEqual({
                   name: addressbook.name,
                   description: addressbook.description,
