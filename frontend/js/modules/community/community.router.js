@@ -6,7 +6,7 @@
   function routerConfiguration(routeResolver, $urlRouterProvider, $stateProvider) {
     $stateProvider.state('/communities', {
       url: '/communities',
-      templateUrl: '/views/esn/partials/communities',
+      templateUrl: '/views/modules/community/communities.html',
       controller: 'communitiesController',
       resolve: {
         domain: routeResolver.session('domain'),
@@ -15,7 +15,7 @@
     })
     .state('/communities/:community_id', {
       url: '/communities/:community_id',
-      templateUrl: '/views/esn/partials/community',
+      templateUrl: '/views/modules/community/community.html',
       controller: 'communityController',
       resolve: {
         community: routeResolver.api('communityAPI', 'get', 'community_id', '/communities'),
