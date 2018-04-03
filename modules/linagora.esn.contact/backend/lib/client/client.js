@@ -261,6 +261,7 @@ module.exports = function(dependencies, options) {
           '{DAV:}displayname': 'dav:name',
           '{urn:ietf:params:xml:ns:carddav}addressbook-description': 'carddav:description',
           '{DAV:}acl': 'dav:acl',
+          '{http://open-paas.org/contacts}source': 'openpaas:source',
           '{http://open-paas.org/contacts}type': 'type'
         };
 
