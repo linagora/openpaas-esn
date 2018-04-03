@@ -4,7 +4,6 @@
       //- HACK need to refactor member-display to be able to display collaborations too using aggregators for example
       member-display(ng-switch-when="user", member="item.user")
       community-display(ng-switch-when="community", community='item.community', actions='false')
-      project-display(ng-switch-when="project", project='item.project')
     .list-empty(ng-if="!ctrl.elements.length && ctrl.infiniteScrollCompleted")
       i.mdi.mdi-account-outline
       .message #{__("No members")}

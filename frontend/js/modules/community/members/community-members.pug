@@ -1,20 +1,19 @@
-.community-members
-  .row
-    .col-xs-12
-      .row(ng-show='isCommunityManager()')
-        ul.nav.nav-pills.nav-justified
-          li(ng-class="{active: selected === 'members' || selected === undefined}")
-            a(ng-click="selected = 'members'", href="") #{__('Members')}
-          li(ng-class="{active: selected === 'membership'}")
-            a(ng-click="selected = 'membership'", href="") #{__('Invitations sent')}
-          li(ng-show='hasNonUserMembers' ng-class="{active: selected === 'nonusermembers'}")
-            a(ng-click="selected = 'nonusermembers'", href="") #{__('Other Participants')}
+.col-md-9.col-xl-8.col-xs-12.no-padding-xs(sub-header-aware)
+  .community-members.card
+    .profile-tabs
+      ul.esn-tab
+        li.btn-wave(ng-class="{active: selected === 'members' || selected === undefined}")
+          a(ng-click="selected = 'members'", href="") #{__('Members')}
+        li.btn-wave(ng-show='isCommunityManager()', ng-class="{active: selected === 'membership'}")
+          a(ng-click="selected = 'membership'", href="") #{__('Invitations sent')}
+        li.btn-wave(ng-show='isCommunityManager() && hasNonUserMembers' ng-class="{active: selected === 'nonusermembers'}")
+          a(ng-click="selected = 'nonusermembers'", href="") #{__('Other Participants')}
 
-      .row(ng-if='selected === "members" || selected === undefined')
-        esn-collaboration-members(readable='canRead()', collaboration='community', object-type-filter='user')
+    .members(ng-if='selected === "members" || selected === undefined')
+      esn-collaboration-members(readable='canRead()', collaboration='community', object-type-filter='user')
 
-      .row(ng-if='selected === "membership"')
-        community-pending-invitation-list
+    .membership(ng-if='selected === "membership"')
+      community-pending-invitation-list
 
-      .row(ng-if='selected === "nonusermembers"')
-        esn-collaboration-members(readable='canRead()', collaboration='community', object-type-filter='!user')
+    .nonusermembers(ng-if='selected === "nonusermembers"')
+      esn-collaboration-members(readable='canRead()', collaboration='community', object-type-filter='!user')
