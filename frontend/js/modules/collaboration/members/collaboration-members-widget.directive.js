@@ -20,7 +20,7 @@
       scope.inSlicesOf = attrs.inSlicesOf && angular.isNumber(parseInt(attrs.inSlicesOf, 10)) ?
         parseInt(attrs.inSlicesOf, 10) : 3;
       scope.error = false;
-      var query = { limit: 16 };
+      var query = { limit: 8 };
 
       if (scope.objectTypeFilter) {
         query.objectTypeFilter = scope.objectTypeFilter;
