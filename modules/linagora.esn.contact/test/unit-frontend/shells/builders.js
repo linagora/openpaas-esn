@@ -430,7 +430,7 @@ describe('ContactShell Builders', function() {
           bday: 'BDAY;VALUE=DATE:20150101',
           nickname: 'NICKNAME:nick',
           note: 'NOTE:notes',
-          photo: 'PHOTO:data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAA'
+          photo: 'PHOTO:data:image/png;base64\\,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAA'
         };
 
         compareShell(shell, ical);
