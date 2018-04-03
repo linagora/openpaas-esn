@@ -79,7 +79,12 @@ const injections = [
   {angular: 'esn.authentication', files: ['authentication.js'], innerApps: ['esn']},
   {angular: 'esn.notification', files: ['notification.js'], innerApps: ['esn', 'welcome']},
   {angular: 'esn.api-notification', files: ['api-notification.js'], innerApps: ['esn']},
-  {angular: 'esn.community', files: ['community.js'], innerApps: ['esn']},
+  {angular: 'esn.community', files: [
+    'community/community.module.js',
+    'community/community.run.js',
+    'community/community.config.js',
+    'community/community.js'
+  ], innerApps: ['esn']},
   {angular: 'esn.rest.helper', files: ['rest-helper.js'], innerApps: ['esn']},
   {angular: 'esn.activitystream', files: [
     'activitystream.js',

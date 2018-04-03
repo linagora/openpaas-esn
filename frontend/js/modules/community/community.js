@@ -1,59 +1,6 @@
 'use strict';
 
-angular.module('esn.community', [
-  'esn.activitystreams-tracker',
-  'esn.session',
-  'esn.user',
-  'esn.avatar',
-  'esn.http',
-  'mgcrea.ngStrap.alert',
-  'mgcrea.ngStrap.tooltip',
-  'angularFileUpload',
-  'esn.infinite-list',
-  'openpaas-logo',
-  'esn.object-type',
-  'ngTagsInput',
-  'esn.widget.helper',
-  'esn.collaboration',
-  'op.dynamicDirective',
-  'esn.feature-registry',
-  'esn.module-registry'
-])
-  .config(function(tagsInputConfigProvider, dynamicDirectiveServiceProvider) {
-    tagsInputConfigProvider.setActiveInterpolation('tagsInput', {
-      placeholder: true,
-      displayProperty: true
-    });
-
-    var community = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-community', {priority: 30});
-
-    dynamicDirectiveServiceProvider.addInjection('esn-application-menu', community);
-  })
-  .run(function(objectTypeResolver, objectTypeAdapter, communityAPI, communityAdapterService,
-    esnRestangular, ASTrackerSubscriptionService, esnFeatureRegistry, esnModuleRegistry) {
-    objectTypeResolver.register('community', communityAPI.get);
-    objectTypeAdapter.register('community', communityAdapterService);
-    esnRestangular.extendModel('communities', function(model) {
-      return communityAdapterService(model);
-    });
-    ASTrackerSubscriptionService.register('community', {get: communityAPI.get});
-    esnFeatureRegistry.add({
-      name: 'Communities',
-      configurations: [
-        {
-          displayIn: 'Application Menu',
-          name: 'application-menu:communities'
-        }
-      ],
-      description: 'Provide a gathering place for groups of user where they can communicate, make polls, discussion'
-    });
-    esnModuleRegistry.add({
-      id: 'esn.community',
-      title: 'Communities',
-      icon: '/images/application-menu/communities-icon.svg',
-      homePage: '/communities'
-    });
-  })
+angular.module('esn.community')
   .factory('communityAdapterService', function() {
     return function(community) {
       community.htmlUrl = '/#/communities/' + community._id;
