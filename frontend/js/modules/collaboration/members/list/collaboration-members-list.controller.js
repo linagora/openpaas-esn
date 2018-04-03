@@ -4,7 +4,16 @@
   angular.module('esn.collaboration')
     .controller('ESNCollaborationMembersListController', ESNCollaborationMembersListController);
 
-  function ESNCollaborationMembersListController($q, esnCollaborationMemberPaginationProvider, infiniteScrollHelper, PageAggregatorService, _, ELEMENTS_PER_PAGE) {
+  function ESNCollaborationMembersListController(
+    _,
+    $scope,
+    $q,
+    esnCollaborationMemberPaginationProvider,
+    infiniteScrollHelper,
+    PageAggregatorService,
+    ESN_COLLABORATION_MEMBER_EVENTS,
+    ELEMENTS_PER_PAGE
+  ) {
     var self = this;
     var aggregator;
     var results_per_page = self.elementsPerPage || ELEMENTS_PER_PAGE;
@@ -14,8 +23,19 @@
       objectTypeFilter: self.objectTypeFilter
     };
 
-    self.loadMoreElements = infiniteScrollHelper(self, function() {
+    self.$onInit = $onInit;
 
+    function $onInit() {
+      $scope.$on(ESN_COLLABORATION_MEMBER_EVENTS.REMOVED, onMemberRemoved);
+    }
+
+    function onMemberRemoved(event, removed) {
+      self.elements = self.elements.filter(function(member) {
+        return member.id !== removed.id;
+      });
+    }
+
+    self.loadMoreElements = infiniteScrollHelper(self, function() {
       if (aggregator) {
         return load();
       }

@@ -15,7 +15,8 @@
       getWhereMember: getWhereMember,
       join: join,
       leave: leave,
-      requestMembership: requestMembership
+      requestMembership: requestMembership,
+      removeMember: removeMember
     };
 
     function cancelRequestMembership(objectType, id, member) {
@@ -56,6 +57,10 @@
 
     function requestMembership(objectType, id, member) {
       return esnRestangular.one('collaborations').one(objectType, id).one('membership', member).put();
+    }
+
+    function removeMember(objectType, id, member) {
+      return esnRestangular.one('collaborations').one(objectType, id).one('members', member).remove();
     }
   }
 

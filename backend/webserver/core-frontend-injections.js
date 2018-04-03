@@ -102,6 +102,8 @@ const injections = [
     'collaboration/invite/collaboration-invite-users.directive.js',
     'collaboration/member/collaboration-member-avatar.component.js',
     'collaboration/member/collaboration-member-avatar.controller.js',
+    'collaboration/member/collaboration-member.component.js',
+    'collaboration/member/collaboration-member.controller.js',
     'collaboration/members/list/collaboration-members-list.component.js',
     'collaboration/members/list/collaboration-members-list.controller.js',
     'collaboration/members/collaboration-members-widget.directive.js',
