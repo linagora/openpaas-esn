@@ -17,7 +17,6 @@ const angularModuleFiles = [
   'services.js',
   'ui.js',
   'shells/contactshell.js',
-  'shells/addressbookshell.js',
   'shells/contactdisplayshell.js',
   'shells/displayshellprovider.js',
   'shells/helpers.js',
