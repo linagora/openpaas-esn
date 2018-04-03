@@ -34,10 +34,12 @@ describe('The esn app', function() {
     });
 
     it('should load the page from continue parameter when routing to an unknown path and the continue page exists', function() {
+      var page = '/logout';
+
       location.path('unknown');
-      location.search({continue: '/communities'});
+      location.search({continue: page});
       rootScope.$digest();
-      expect(location.path()).to.equal('/communities');
+      expect(location.path()).to.equal(page);
       expect(stateParams).to.deep.equal({});
     });
 
@@ -50,10 +52,12 @@ describe('The esn app', function() {
     });
 
     it('should accept to have a trailing slash in the url, even when the state did not set it explicitly', function() {
-      location.path('/communities/');
+      var page = '/logout/';
+
+      location.path(page);
       rootScope.$digest();
 
-      expect(location.path()).to.equal('/communities/');
+      expect(location.path()).to.equal(page);
     });
 
     it('should go to home page when routing to /', function() {

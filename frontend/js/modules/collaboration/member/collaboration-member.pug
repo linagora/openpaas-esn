@@ -1,0 +1,11 @@
+.collaboration-member
+  .meta
+    member-display(member="ctrl.member")
+  .member-actions
+    ul.actions(ng-if="ctrl.isCollaborationManager")
+      li.dropdown
+        a(href="" data-toggle="dropdown" aria-expanded="false")
+          i.mdi.mdi-dots-vertical
+        ul.dropdown-menu.dropdown-menu-right
+          li
+            a(href="", ng-click='ctrl.removeMember()') #{__('Remove')}

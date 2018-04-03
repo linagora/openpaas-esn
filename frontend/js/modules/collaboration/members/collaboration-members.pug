@@ -1,8 +1,6 @@
-.div
-  .row
-    .col-xs-12(ng-if='!ctrl.readable')
-      p.text-center #{__('You are not allowed to see the members of this collaboration')}
+.collaboration-members
+  div.unreadable(ng-if='!ctrl.readable')
+    span #{__('You are not allowed to see the members of this collaboration')}
 
-  .row(ng-if="ctrl.readable")
-    .col-xs-12
-      esn-collaboration-members-list(collaboration="ctrl.collaboration", object-type-filter="{{::ctrl.objectTypeFilter}}")
+  div(ng-if="ctrl.readable")
+    esn-collaboration-members-list(collaboration="ctrl.collaboration", object-type-filter="{{::ctrl.objectTypeFilter}}")

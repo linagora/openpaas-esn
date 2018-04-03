@@ -448,5 +448,6 @@
   "An error occured while loading": "Une erreur est survenue lors du chargement",
   "Email is already in use. Try another one.": "Cet email est déjà utilisé. Essayez un autre.",
   "Form is invalid!": "Erreur dans le contenu du formulaire",
-  "User": "Utilisateur"
+  "User": "Utilisateur",
+  "Remove": "Supprimer"
 }

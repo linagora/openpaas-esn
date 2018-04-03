@@ -213,7 +213,8 @@ module.exports = function(router) {
     authorize.requiresAPILogin,
     collaborationMW.load,
     requestMW.castParamToObjectId('user_id'),
-    collaborationMW.checkUserIdParameterIsCurrentUser,
+    collaborationMW.flagCollaborationManager,
+    collaborationMW.ifNotCollaborationManagerCheckUserIdParameterIsCurrentUser,
     collaborationMW.requiresCollaborationMember,
     collaborationMW.canLeave,
     collaborations.leave);
