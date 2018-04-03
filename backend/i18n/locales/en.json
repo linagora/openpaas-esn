@@ -448,5 +448,6 @@
   "An error occured while loading": "An error occured while loading",
   "Email is already in use. Try another one.": "Email is already in use. Try another one.",
   "Form is invalid!": "Form is invalid!",
-  "User": "User"
+  "User": "User",
+  "Remove": "Remove"
 }
