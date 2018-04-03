@@ -48,10 +48,16 @@ angular.module('linagora.esn.contact')
       }
 
       this.addressbook = this.options.addressbooks[0];
-      this.bookId = this.addressbook.bookId;
-      this.bookName = this.addressbook.bookName;
       this.lastPage = false;
       this.nextPage = 0;
+
+      if (this.addressbook.isSubscription()) {
+        this.bookId = this.addressbook.source.bookId;
+        this.bookName = this.addressbook.source.bookName;
+      } else {
+        this.bookId = this.addressbook.bookId;
+        this.bookName = this.addressbook.bookName;
+      }
     }
 
     AddressBookPaginationProvider.prototype.loadNextItems = function() {
