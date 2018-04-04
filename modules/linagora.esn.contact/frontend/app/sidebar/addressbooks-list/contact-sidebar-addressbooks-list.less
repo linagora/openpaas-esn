@@ -1,0 +1,42 @@
+.listview contact-sidebar-addressbooks-list {
+  .lv-body{
+    &.toggled {
+      i.mdi-menu-down {
+        .rotateZ3d(-90deg);
+      }
+    }
+
+    .lv-item.addressbook-list-item {
+      .flex-row;
+      .flex-vertical-centered;
+
+      background-color: darken(@body-bg, 2%);
+      margin-top: 10px;
+      margin-bottom: 10px;
+      padding: 5px 5px 5px 0px;
+
+      .list-title {
+        .flex-row;
+        .flex-vertical-centered;
+
+        color: @secondaryTextColor;
+        font-weight: 500;
+
+        .addressbook-list-icon {
+          padding-right: 10px;
+          color: @primaryColor;
+          font-size: 24px;
+          vertical-align: bottom;
+        }
+      }
+    }
+
+    i.mdi.mdi-menu-down {
+      font-size: 1.4em;
+    }
+  }
+
+  ul {
+    padding: 0;
+  }
+}

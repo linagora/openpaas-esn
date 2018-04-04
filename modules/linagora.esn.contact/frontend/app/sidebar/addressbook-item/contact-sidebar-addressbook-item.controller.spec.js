@@ -17,6 +17,7 @@ describe('The ContactSidebarAddressbookItemController controller', function() {
       $controller = _$controller_;
       $rootScope = _$rootScope_;
     });
+
   });
 
   function initController(addressbookDisplayShell) {
@@ -31,7 +32,9 @@ describe('The ContactSidebarAddressbookItemController controller', function() {
   }
 
   it('should set validAction to be empty if there are no valid actions on addressbook display shell', function() {
-    var addressbookDisplayShell = {};
+    var addressbookDisplayShell = {
+      shell: { isSubscription: angular.noop }
+    };
     var controller = initController(addressbookDisplayShell);
 
     expect(controller.actions).to.be.empty;
@@ -42,7 +45,8 @@ describe('The ContactSidebarAddressbookItemController controller', function() {
       actions: [{
         name: 'Action1',
         when: function() { return true; }
-      }]
+      }],
+      shell: { isSubscription: angular.noop }
     };
     var controller = initController(addressbookDisplayShell);
 
@@ -60,7 +64,8 @@ describe('The ContactSidebarAddressbookItemController controller', function() {
       }, {
         name: 'Action3',
         when: function() { return false; }
-      }]
+      }],
+      shell: { isSubscription: angular.noop }
     };
     var controller = initController(addressbookDisplayShell);
 

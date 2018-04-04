@@ -63,6 +63,8 @@ describe('the ContactAddressbookDeleteController controller', function() {
         bookName: 'book',
         name: 'addressbook'
       };
+
+      contactAddressbookDisplayService.convertShellToDisplayShell = angular.noop;
       var controller = initController(addressbook);
 
       contactAddressbookService.removeAddressbook = sinon.spy();

@@ -26,7 +26,8 @@ angular.module('linagora.esn.contact', [
   'esn.provider',
   'esn.module-registry',
   'esn.datetime',
-  'esn.i18n'
+  'esn.i18n',
+  'esn.user'
 ])
   .config(function($stateProvider, $urlRouterProvider, routeResolver) {
     $urlRouterProvider.when('/contact', '/contact/addressbooks/');

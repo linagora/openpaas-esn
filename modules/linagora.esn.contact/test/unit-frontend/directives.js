@@ -6,15 +6,16 @@
 var expect = chai.expect;
 
 describe('The contact Angular module directives', function() {
+  var contactAddressbookDisplayService;
 
   beforeEach(function() {
-    angular.mock.module('esn.core');
-    angular.mock.module('esn.websocket');
-    angular.mock.module('esn.api-notification');
-    angular.mock.module('linagora.esn.contact');
-    angular.mock.module('esn.alphalist');
-    angular.mock.module('esn.form.helper');
-    angular.mock.module('esn.header');
+    module('esn.core');
+    module('esn.websocket');
+    module('esn.api-notification');
+    module('linagora.esn.contact');
+    module('esn.alphalist');
+    module('esn.form.helper');
+    module('esn.header');
     module('jadeTemplates');
   });
 
@@ -314,10 +315,11 @@ describe('The contact Angular module directives', function() {
       });
     });
 
-    beforeEach(inject(function(_$q_, _$compile_, _$rootScope_, _CONTACT_AVATAR_SIZE_, _$state_) {
+    beforeEach(inject(function(_$q_, _$compile_, _$rootScope_, _CONTACT_AVATAR_SIZE_, _$state_, _contactAddressbookDisplayService_) {
       $compile = _$compile_;
       $state = _$state_;
       $rootScope = _$rootScope_;
+      contactAddressbookDisplayService = _contactAddressbookDisplayService_;
       CONTACT_AVATAR_SIZE = _CONTACT_AVATAR_SIZE_;
       $scope = $rootScope.$new();
       $scope.contact = {
@@ -328,6 +330,7 @@ describe('The contact Angular module directives', function() {
         urls: [],
         addressbook: {}
       };
+      contactAddressbookDisplayService.convertShellToDisplayShell = angular.noop;
     }));
 
     var initDirective = function() {
@@ -476,7 +479,13 @@ describe('The contact Angular module directives', function() {
         urls: []
       };
       contactAddressbookService.listEditableAddressbooks = function() {
-        return $q.when([{ bookName: DEFAULT_ADDRESSBOOK_NAME }, { bookName: CONTACT_COLLECTED_ADDRESSBOOK_NAME }]);
+        return $q.when([{
+          bookName: DEFAULT_ADDRESSBOOK_NAME,
+          isSubscription: angular.noop
+        }, {
+          bookName: CONTACT_COLLECTED_ADDRESSBOOK_NAME,
+          isSubscription: angular.noop
+        }]);
       };
     }));
 
@@ -521,9 +530,10 @@ describe('The contact Angular module directives', function() {
   describe('The contactListCard directive', function() {
     var $compile, $rootScope, $scope, CONTACT_AVATAR_SIZE;
 
-    beforeEach(inject(function(_$compile_, _$rootScope_, _CONTACT_AVATAR_SIZE_) {
+    beforeEach(inject(function(_$compile_, _$rootScope_, _contactAddressbookDisplayService_, _CONTACT_AVATAR_SIZE_) {
       $compile = _$compile_;
       $rootScope = _$rootScope_;
+      contactAddressbookDisplayService = _contactAddressbookDisplayService_;
       CONTACT_AVATAR_SIZE = _CONTACT_AVATAR_SIZE_;
       $scope = $rootScope.$new();
       $scope.contact = {
@@ -533,6 +543,7 @@ describe('The contact Angular module directives', function() {
         social: [],
         urls: []
       };
+      contactAddressbookDisplayService.convertShellToDisplayShell = angular.noop;
     }));
 
     function initDirective() {
@@ -612,7 +623,7 @@ describe('The contact Angular module directives', function() {
   describe('The contactListItem directive', function() {
     var $compile, $rootScope, $scope, CONTACT_AVATAR_SIZE;
 
-    beforeEach(inject(function(_$compile_, _$rootScope_, _CONTACT_AVATAR_SIZE_) {
+    beforeEach(inject(function(_$compile_, _$rootScope_, _contactAddressbookDisplayService_, _CONTACT_AVATAR_SIZE_) {
       $compile = _$compile_;
       $rootScope = _$rootScope_;
       CONTACT_AVATAR_SIZE = _CONTACT_AVATAR_SIZE_;
@@ -624,6 +635,8 @@ describe('The contact Angular module directives', function() {
         social: [],
         urls: []
       };
+      contactAddressbookDisplayService = _contactAddressbookDisplayService_;
+      contactAddressbookDisplayService.convertShellToDisplayShell = angular.noop;
     }));
 
     function initDirective() {
