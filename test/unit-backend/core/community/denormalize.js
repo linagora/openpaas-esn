@@ -10,6 +10,7 @@ describe('The community denormalize module', function() {
       var community = {_id: 1};
       require('mongoose');
       this.helpers.requireBackend('core/db/mongo/models/community');
+      this.helpers.requireBackend('core/db/mongo/models/community-archive');
       var document = this.helpers.requireBackend('core/community/denormalize').denormalize(community);
       expect(document.id).to.equal(community.id);
       expect(document._id).to.not.exist;

@@ -825,12 +825,12 @@ describe('The communities API', function() {
           return done(err);
         }
 
-        loggedInAsUser(request(webserver.application).delete(`/api/communities/${id}`)
+        loggedInAsUser(request(webserver.application).delete(`/api/communities/${id}`))
           .expect(404)
           .end(err => {
             expect(err).to.not.exist;
             done();
-          }));
+          });
       });
     });
 
@@ -840,13 +840,13 @@ describe('The communities API', function() {
           return done(err);
         }
 
-        loggedInAsUser(request(webserver.application).delete(`/api/communities/${community._id}`)
+        loggedInAsUser(request(webserver.application).delete(`/api/communities/${community._id}`))
           .expect(403)
           .end(err => {
             expect(err).to.not.exist;
             done();
-          }));
-        });
+          });
+      });
     });
 
     it('should archive the community', function(done) {
@@ -855,22 +855,23 @@ describe('The communities API', function() {
           return done(err);
         }
 
-        loggedInAsUser(request(webserver.application).delete(`/api/communities/${community._id}`)
+        loggedInAsUser(request(webserver.application).delete(`/api/communities/${community._id}`))
           .expect(204)
           .end(err => {
             expect(err).to.not.exist;
 
             Community.find({_id: community._id})
               .then(document => {
-                expect(document).to.be.null;
+                expect(document).to.be.empty;
               })
               .then(() => CommunityArchive.find({ _id: community._id }))
               .then(archive => {
-                expect(archive._id).to.equals(community._id);
+                expect(archive).to.have.lengthOf(1);
+                expect('' + archive[0]._id).to.equals('' + community._id);
               })
               .then(() => done())
               .catch(done);
-          }));
+          });
         });
     });
   });
