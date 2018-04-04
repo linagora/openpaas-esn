@@ -451,5 +451,7 @@
   "User": "Utilisateur",
   "Remove": "Supprimer",
   "Confirmation": "Confirmation",
-  "Do you want to remove the %s community?": "Voulez vous supprimer la communauté %s?"
+  "Do you want to remove the %s community?": "Voulez vous supprimer la communauté %s?",
+  "The community has been removed": "La communauté a été supprimée",
+  "The community can not be removed": "La communauté ne peut pas être supprimée"
 }

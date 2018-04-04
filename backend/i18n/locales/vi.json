@@ -451,5 +451,7 @@
   "User": "Người dùng",
   "Remove": "Tẩy",
   "Confirmation": "Xác nhận",
-  "Do you want to remove the %s community?": "Bạn có muốn xóa cộng đồng %s không?"
+  "Do you want to remove the %s community?": "Bạn có muốn xóa cộng đồng %s không?",
+  "The community has been removed": "Cộng đồng đã bị xóa",
+  "The community can not be removed": "Không thể xóa cộng đồng"
 }

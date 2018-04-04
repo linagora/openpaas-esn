@@ -451,5 +451,7 @@
   "User": "User",
   "Remove": "Remove",
   "Confirmation": "Confirmation",
-  "Do you want to remove the %s community?": "Do you want to remove the %s community?"
+  "Do you want to remove the %s community?": "Do you want to remove the %s community?",
+  "The community has been removed": "The community has been removed",
+  "The community can not be removed": "The community can not be removed"
 }

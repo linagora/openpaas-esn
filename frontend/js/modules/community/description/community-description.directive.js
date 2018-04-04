@@ -53,11 +53,11 @@
 
         function onRemovalConfirmation() {
           communityService.remove($scope.community).then(function() {
-            notificationFactory.weakInfo('Collaboration updated', 'Member has been removed');
+            notificationFactory.weakInfo('Success', 'The community has been removed');
             $state.go('/communities');
           }, function(err) {
             $log.error('Error while removing community', err);
-            notificationFactory.weakError('Error', 'Community can not be removed');
+            notificationFactory.weakError('Error', 'The community can not be removed');
           });
         }
       }
