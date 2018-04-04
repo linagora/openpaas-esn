@@ -84,6 +84,8 @@ const injections = [
     'community/community.run.js',
     'community/community.config.js',
     'community/community.router.js',
+    'community/description/community-description.directive.js',
+    'community/remove/community-remove-modal.service.js',
     'community/community.js'
   ], innerApps: ['esn']},
   {angular: 'esn.rest.helper', files: ['rest-helper.js'], innerApps: ['esn']},

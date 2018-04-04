@@ -449,5 +449,7 @@
   "Email is already in use. Try another one.": "Cet email est déjà utilisé. Essayez un autre.",
   "Form is invalid!": "Erreur dans le contenu du formulaire",
   "User": "Utilisateur",
-  "Remove": "Supprimer"
+  "Remove": "Supprimer",
+  "Confirmation": "Confirmation",
+  "Do you want to remove the %s community?": "Voulez vous supprimer la communauté %s?"
 }

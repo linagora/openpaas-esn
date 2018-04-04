@@ -449,5 +449,7 @@
   "Email is already in use. Try another one.": "Địa chỉ thư đã được dùng. Hãy thử một địa chỉ khác.",
   "Form is invalid!": "Biểu mẫu không hợp lệ",
   "User": "Người dùng",
-  "Remove": "Tẩy"
+  "Remove": "Tẩy",
+  "Confirmation": "Xác nhận",
+  "Do you want to remove the %s community?": "Bạn có muốn xóa cộng đồng %s không?"
 }
