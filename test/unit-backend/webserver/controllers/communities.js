@@ -570,16 +570,15 @@ describe('The communities controller', function() {
       communities.delete(req, res);
     });
 
-    it('should return 500 if community#delete sends back error', function(done) {
+    it('should return 500 if community#delete rejects error', function(done) {
       var mock = {
-        delete: function(community, callback) {
-          return callback(new Error());
-        }
+        delete: sinon.stub().returns(Promise.reject(new Error()))
       };
       mockery.registerMock('../../core/community', mock);
 
       var req = {
-        community: {}
+        community: {},
+        user: {}
       };
       var res = this.helpers.express.jsonResponse(
         function(code) {
@@ -591,16 +590,15 @@ describe('The communities controller', function() {
       communities.delete(req, res);
     });
 
-    it('should return 204 if community#delete does not send back error', function(done) {
+    it('should return 204 if community#delete resolves', function(done) {
       var mock = {
-        delete: function(community, callback) {
-          return callback();
-        }
+        delete: sinon.stub().returns(Promise.resolve())
       };
       mockery.registerMock('../../core/community', mock);
 
       var req = {
-        community: {}
+        community: {},
+        user: {}
       };
       var res = this.helpers.express.response(
         function(code) {

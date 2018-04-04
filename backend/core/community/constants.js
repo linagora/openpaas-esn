@@ -7,7 +7,8 @@ module.exports = {
     communityCreated: 'communities:community:add',
     communityUpdated: 'communities:community:update',
     communityDeleted: 'communities:community:delete',
-    communityUpdate: 'communities:community:update'
+    communityUpdate: 'communities:community:update',
+    communityArchived: 'communities:community:archive'
   },
   ELASTICSEARCH: {
     type: 'communities',

@@ -8,7 +8,7 @@ var ObjectId = require('bson').ObjectId;
 describe('The communities API', function() {
 
   var email = 'user@open-paas.org', password = 'secret';
-  var user, Community, User, Domain, webserver, fixtures, helpers, userDomainModule;
+  var user, Community, CommunityArchive, User, Domain, webserver, fixtures, helpers, userDomainModule;
 
   function saveEntity(Model, entity, done) {
     new Model(entity).save(helpers.callbacks.noErrorAnd(function(saved) {
@@ -28,6 +28,7 @@ describe('The communities API', function() {
     this.testEnv.initCore(function() {
       helpers.elasticsearch.saveTestConfiguration(function() {
         Community = helpers.requireBackend('core/db/mongo/models/community');
+        CommunityArchive = helpers.requireBackend('core/db/mongo/models/community-archive');
         User = helpers.requireBackend('core/db/mongo/models/user');
         Domain = helpers.requireBackend('core/db/mongo/models/domain');
         fixtures = helpers.requireFixture('models/users.js')(User);
@@ -798,8 +799,80 @@ describe('The communities API', function() {
   });
 
   describe('DELETE /api/communities/:id', function() {
+    let community, creator, user;
+
+    beforeEach(function(done) {
+      helpers.api.applyDomainDeployment('linagora_IT', (err, models) => {
+        if (err) {
+          return done(err);
+        }
+        user = models.users[1];
+        creator = models.users[0];
+        community = models.communities[0];
+        done();
+      });
+    });
+
     it('should send back 401 when not logged in', function(done) {
       helpers.api.requireLogin(webserver.application, 'delete', '/api/communities/123', done);
+    });
+
+    it('should send back 404 when community can not be found', function(done) {
+      const id = new ObjectId();
+
+      helpers.api.loginAsUser(webserver.application, creator.emails[0], 'secret', (err, loggedInAsUser) => {
+        if (err) {
+          return done(err);
+        }
+
+        loggedInAsUser(request(webserver.application).delete(`/api/communities/${id}`))
+          .expect(404)
+          .end(err => {
+            expect(err).to.not.exist;
+            done();
+          });
+      });
+    });
+
+    it('should send back 403 when user is not community manager', function(done) {
+      helpers.api.loginAsUser(webserver.application, user.emails[0], 'secret', (err, loggedInAsUser) => {
+        if (err) {
+          return done(err);
+        }
+
+        loggedInAsUser(request(webserver.application).delete(`/api/communities/${community._id}`))
+          .expect(403)
+          .end(err => {
+            expect(err).to.not.exist;
+            done();
+          });
+      });
+    });
+
+    it('should archive the community', function(done) {
+      helpers.api.loginAsUser(webserver.application, creator.emails[0], 'secret', (err, loggedInAsUser) => {
+        if (err) {
+          return done(err);
+        }
+
+        loggedInAsUser(request(webserver.application).delete(`/api/communities/${community._id}`))
+          .expect(204)
+          .end(err => {
+            expect(err).to.not.exist;
+
+            Community.find({_id: community._id})
+              .then(document => {
+                expect(document).to.be.empty;
+              })
+              .then(() => CommunityArchive.find({ _id: community._id }))
+              .then(archive => {
+                expect(archive).to.have.lengthOf(1);
+                expect('' + archive[0]._id).to.equals('' + community._id);
+              })
+              .then(() => done())
+              .catch(done);
+          });
+        });
     });
   });
 

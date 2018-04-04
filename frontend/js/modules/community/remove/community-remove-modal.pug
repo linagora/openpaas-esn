@@ -1,0 +1,10 @@
+.modal.community-delete-confirmation
+  .modal-dialog
+    .modal-content
+      .modal-header
+        h4.modal-title #{__('Confirmation')}
+      .modal-body
+        span #{__('Do you want to remove the %s community?', "{{::ctrl.community.title}}")}
+      .modal-footer
+        button.btn.btn-default(type="button", ng-click="$hide()") #{__('Cancel')}
+        button.btn.btn-danger(type="button", ng-click="ctrl.delete(); $hide()") #{__('Remove')}

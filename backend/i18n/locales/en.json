@@ -449,5 +449,9 @@
   "Email is already in use. Try another one.": "Email is already in use. Try another one.",
   "Form is invalid!": "Form is invalid!",
   "User": "User",
-  "Remove": "Remove"
+  "Remove": "Remove",
+  "Confirmation": "Confirmation",
+  "Do you want to remove the %s community?": "Do you want to remove the %s community?",
+  "The community has been removed": "The community has been removed",
+  "The community can not be removed": "The community can not be removed"
 }

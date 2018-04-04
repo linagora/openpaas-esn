@@ -32,6 +32,7 @@ describe('The user domain module', function() {
           self.User = self.helpers.requireBackend('core/db/mongo/models/user');
           self.Domain = self.helpers.requireBackend('core/db/mongo/models/domain');
           self.helpers.requireBackend('core/db/mongo/models/community');
+          self.helpers.requireBackend('core/db/mongo/models/community-archive');
           done(err);
         });
       });
