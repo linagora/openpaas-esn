@@ -261,14 +261,58 @@ describe('The community module', function() {
   });
 
   describe('The delete fn', function() {
-    it('should send back error if community is undefined', function(done) {
+    it('should reject when community is undefined', function(done) {
       this.helpers.mock.models({});
 
-      var community = this.helpers.requireBackend('core/community/index');
-      community.delete(null, function(err) {
-        expect(err).to.exist;
+      const community = this.helpers.requireBackend('core/community/index');
+
+      community.delete(null, {}).then(() => done(new Error('Should not occur'))).catch(() => done());
+    });
+
+    it('should send back error if user is undefined', function(done) {
+      this.helpers.mock.models({});
+
+      const community = this.helpers.requireBackend('core/community/index');
+
+      community.delete({}).then(() => done(new Error('Should not occur'))).catch(() => done());
+    });
+
+    it('should reject when archive call rejects', function(done) {
+      this.helpers.mock.models({});
+
+      const error = new Error('I can not archive community');
+      const community = { _id: 1 };
+      const user = { _id: 2 };
+      const archive = {
+        process: sinon.stub().returns(Promise.reject(error))
+      };
+
+      mockery.registerMock('./archive', archive);
+      const communityModule = this.helpers.requireBackend('core/community/index');
+
+      communityModule.delete(community, user).then(() => done(new Error('Should not occur'))).catch(err => {
+        expect(archive.process).to.have.been.calledWith(community, user);
+        expect(err).to.equal(error);
         done();
       });
+    });
+
+    it('should resolve when archive call resolves', function(done) {
+      this.helpers.mock.models({});
+
+      const community = { _id: 1 };
+      const user = { _id: 2 };
+      const archive = {
+        process: sinon.stub().returns(Promise.resolve())
+      };
+
+      mockery.registerMock('./archive', archive);
+      const communityModule = this.helpers.requireBackend('core/community/index');
+
+      communityModule.delete(community, user).then(() => {
+        expect(archive.process).to.have.been.calledWith(community, user);
+        done();
+      }).catch(done);
     });
   });
 

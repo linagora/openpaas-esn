@@ -11,6 +11,7 @@ const localpubsub = require('../pubsub').local;
 const globalpubsub = require('../pubsub').global;
 const CONSTANTS = require('./constants');
 const search = require('./search');
+const archive = require('./archive');
 const communityObjectType = CONSTANTS.OBJECT_TYPE;
 const MEMBERSHIP_TYPE_REQUEST = 'request';
 const MEMBERSHIP_TYPE_INVITATION = 'invitation';
@@ -238,12 +239,16 @@ function refuseMembershipRequest(community, membership, manager, onResponse) {
   collaborationModule.member.refuseMembershipRequest(communityObjectType, community, membership, manager, onResponse);
 }
 
-function remove(community, callback) {
+function remove(community, user) {
   if (!community) {
-    return callback(new Error('Community is required'));
+    return Promise.reject(new Error('Community is required'));
   }
 
-  callback(new Error('Not implemented'));
+  if (!user) {
+    return Promise.reject(new Error('User is required'));
+  }
+
+  return archive.process(community, user);
 }
 
 function save(community, callback) {

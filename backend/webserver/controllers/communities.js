@@ -217,11 +217,11 @@ module.exports.delete = function(req, res) {
     return res.status(404).json({error: 404, message: 'Not found', details: 'Community not found'});
   }
 
-  communityModule.delete(req.community, function(err) {
+  communityModule.delete(req.community, req.user, err => {
     if (err) {
-      return res.status(500).json({ error: { status: 500, message: 'Community delete failed', details: err}});
+      return res.status(500).json({ error: { status: 500, message: 'Error while deleting community', details: err.message }});
     }
-    return res.status(204).end();
+    res.status(204).end();
   });
 };
 
