@@ -76,8 +76,7 @@ angular.module('linagora.esn.profile')
         url: '/timeline',
         views: {
           'details@profile.details': {
-            templateUrl: '/views/modules/timeline/index',
-            controller: 'esnTimelineEntriesController'
+            template: '<esn-timeline-entries></esn-timeline-entries>'
           }
         }
       });
