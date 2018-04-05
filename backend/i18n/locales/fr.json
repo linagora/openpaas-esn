@@ -455,5 +455,7 @@
   "The community has been removed": "La communauté a été supprimée",
   "The community can not be removed": "La communauté ne peut pas être supprimée",
   "Filter": "Filtrer",
-  "Filter is too restrictive": "Le filtre est trop restrictif"
+  "Filter is too restrictive": "Le filtre est trop restrictif",
+  "You replied to a poll": "Vous avez répondu à un sondage",
+  "replied to a poll": "a répondu à un sondage"
 }
