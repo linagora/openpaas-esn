@@ -3,8 +3,25 @@
     .flex-column;
 
     .filter {
-      //margin: 10px;
       .flex-shrink(1);
+    }
+  }
+
+  .list-empty {
+    .all-centered;
+    .flex-column;
+
+    padding: 20px;
+
+    i {
+      color: @accentColor;
+      font-size: 8em;
+      opacity: 0.7;
+    }
+
+    .message {
+      color: @secondaryTextColor;
+      font-size: 16px;
     }
   }
 }

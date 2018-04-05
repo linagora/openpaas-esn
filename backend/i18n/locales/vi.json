@@ -121,9 +121,9 @@
   "Create a community": "Tạo một cộng đồng",
   "Loading communities...": "Đang tải dánh sách cộng đồng",
   "Error while loading communities !": "Lỗi khi tải danh sách cộng đồng!",
-  "There is no communities yet. Create a new one with the following link:": "Danh sách cộng đồng trống. Tạo một cộng đồng mới với liên kết sau đây:",
-  "You are not member of any community. Please join one first.": "Bạn chưa thuộc cộng đồng nào. Hãy tham gia một cộng đồng trước.",
-  "You are not moderator of any community yet. Create a new one with the following link:": "Bạn không phải là người điều hành của bất kỳ cộng đồng nào. Tạo một cộng đồng mới với liên kết sau đây:",
+  "There is no communities yet": "Danh sách cộng đồng trống",
+  "You are not member of any community": "Bạn chưa thuộc cộng đồng nào",
+  "You are not moderator of any community yet": "Bạn không phải là người điều hành của bất kỳ cộng đồng nào",
   "All": "Tất cả",
   "Owned": "Sở hữu",
   "Member of": "Tham gia",
@@ -453,5 +453,7 @@
   "Confirmation": "Xác nhận",
   "Do you want to remove the %s community?": "Bạn có muốn xóa cộng đồng %s không?",
   "The community has been removed": "Cộng đồng đã bị xóa",
-  "The community can not be removed": "Không thể xóa cộng đồng"
+  "The community can not be removed": "Không thể xóa cộng đồng",
+  "Filter": "Bộ lọc",
+  "Filter is too restrictive": "Bộ lọc quá hạn chế"
 }
