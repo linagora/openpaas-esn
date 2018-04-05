@@ -1,0 +1,30 @@
+.community-list {
+  .community-list-tabs {
+    .flex-column;
+
+    .filter {
+      //margin: 10px;
+      .flex-shrink(1);
+    }
+  }
+}
+
+@media (min-width: @screen-md-min) {
+  .community-list {
+    .community-list-tabs {
+      .flex-row;
+      .flex-space-between;
+
+      .esn-tab {
+        .flex-grow;
+      }
+
+      .filter {
+        .flex-end;
+        .flex-grow;
+
+        margin: 0;
+      }
+    }
+  }
+}
