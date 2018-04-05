@@ -1,0 +1,31 @@
+.community-list-filter {
+  .flex-row;
+  .flex-vertical-centered;
+  .placeholder(@secondaryTextColor);
+  .animated('fadeIn', 300ms);
+
+  margin-left: 8px;
+  margin-right: 8px;
+  height: 36px;
+
+  .community-list-filter-field {
+    width: 100%;
+    color: @secondaryTextColor !important; /* override default form color from material */
+    padding-left: 28px;
+    padding-right: 28px;
+    background: transparent;
+  }
+
+  .community-list-filter-close {
+    margin-left: -20px;
+  }
+
+  .community-list-filter-icon {
+    margin-right: -20px;
+  }
+
+  i.mdi {
+    color: @secondaryTextColor;
+    font-size: 1.4em;
+  }
+}

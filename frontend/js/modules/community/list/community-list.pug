@@ -1,0 +1,50 @@
+sub-header
+  communities-view-subheader
+
+community-create-button
+.col-md-9.col-xl-8.col-xs-12.no-padding-xs(sub-header-aware)
+  .community-list.card
+    .listview.lv-bordered.lv-lg
+      .community-list-tabs
+        ul.esn-tab
+          li.btn-wave(ng-class="{'active': selected === 'all', disabled: loading}")
+            a(href="", ng-click="getAll()")
+              | #{__('All')}
+          li.btn-wave(ng-class="{'active': selected === 'membership', disabled: loading}")
+            a(href="", ng-click="getMembership()")
+              | #{__('Member of')}
+          li.btn-wave(ng-class="{'active': selected === 'moderator', disabled: loading}")
+            a(href="", ng-click="getModerator()")
+              | #{__('Owned')}
+          li.filter.hidden-xs
+            community-list-filter(filter="filter", on-change="setFilter($filter)")
+        community-list-filter.hidden-md(filter="filter", on-change="setFilter($filter)")
+
+      .lv-body(ng-if="error && !loading")
+        .list-empty(ng-if="error && !loading")
+          i.mdi.mdi-alert-circle-outline
+          .message #{__('Error while loading communities !')}
+
+      .lv-body(ng-if="!error && !loading")
+        community-display.lv-item.media(ng-repeat="community in communities | orderBy:'title' | filter:filter as filteredCommunities", community="community", actions='true')
+
+        .list-empty(ng-if="!communities.length && selected === 'all'")
+          i.mdi.mdi-information-outline
+          .message
+            span #{__('There is no communities yet')}
+
+        .list-empty(ng-if="!communities.length && selected === 'membership'")
+          i.mdi.mdi-information-outline
+          .message
+            span #{__('You are not member of any community')}
+
+        .list-empty(ng-if="!communities.length && selected === 'moderator'")
+          i.mdi.mdi-information-outline
+          .message
+            span #{__('You are not moderator of any community yet')}
+
+        .list-empty(ng-if="communities.length && filter && !filteredCommunities.length")
+          i.mdi.mdi-information-outline
+          .message
+            span #{__('Filter is too restrictive')}
+

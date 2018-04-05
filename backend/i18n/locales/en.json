@@ -121,9 +121,9 @@
   "Create a community": "Create a community",
   "Loading communities...": "Loading communities...",
   "Error while loading communities !": "Error while loading communities !",
-  "There is no communities yet. Create a new one with the following link:": "There is no communities yet. Create a new one with the following link:",
-  "You are not member of any community. Please join one first.": "You are not member of any community. Please join one first.",
-  "You are not moderator of any community yet. Create a new one with the following link:": "You are not moderator of any community yet. Create a new one with the following link:",
+  "There is no communities yet": "There is no communities yet",
+  "You are not member of any community": "You are not member of any community",
+  "You are not moderator of any community yet": "You are not moderator of any community yet",
   "All": "All",
   "Owned": "Owned",
   "Member of": "Member of",
@@ -453,5 +453,7 @@
   "Confirmation": "Confirmation",
   "Do you want to remove the %s community?": "Do you want to remove the %s community?",
   "The community has been removed": "The community has been removed",
-  "The community can not be removed": "The community can not be removed"
+  "The community can not be removed": "The community can not be removed",
+  "Filter": "Filter",
+  "Filter is too restrictive": "Filter is too restrictive"
 }

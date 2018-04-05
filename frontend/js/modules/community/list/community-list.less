@@ -1,0 +1,48 @@
+.community-list {
+  .community-list-tabs {
+    .flex-column;
+
+    .filter {
+      .flex-shrink(1);
+    }
+  }
+
+  .list-empty {
+    .all-centered;
+    .flex-column;
+
+    padding: 20px;
+
+    i {
+      color: @accentColor;
+      font-size: 8em;
+      opacity: 0.7;
+    }
+
+    .message {
+      color: @secondaryTextColor;
+      font-size: 16px;
+      text-align: center;
+    }
+  }
+}
+
+@media (min-width: @screen-md-min) {
+  .community-list {
+    .community-list-tabs {
+      .flex-row;
+      .flex-space-between;
+
+      .esn-tab {
+        .flex-grow;
+      }
+
+      .filter {
+        .flex-end;
+        .flex-grow;
+
+        margin: 0;
+      }
+    }
+  }
+}
