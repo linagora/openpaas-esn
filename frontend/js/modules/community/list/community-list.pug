@@ -30,17 +30,21 @@ community-create-button
 
         .list-empty(ng-if="!communities.length && selected === 'all'")
           i.mdi.mdi-information-outline
-          .message #{__('There is no communities yet')}
+          .message
+            span #{__('There is no communities yet')}
 
         .list-empty(ng-if="!communities.length && selected === 'membership'")
           i.mdi.mdi-information-outline
-          .message #{__('You are not member of any community')}
+          .message
+            span #{__('You are not member of any community')}
 
         .list-empty(ng-if="!communities.length && selected === 'moderator'")
           i.mdi.mdi-information-outline
-          .message #{__('You are not moderator of any community yet')}
+          .message
+            span #{__('You are not moderator of any community yet')}
 
-        .list-empty(ng-if="communities.length && filter && filteredCommunities.length === 0")
+        .list-empty(ng-if="communities.length && filter && !filteredCommunities.length")
           i.mdi.mdi-information-outline
-          .message #{__('Filter is too restrictive')}
+          .message
+            span #{__('Filter is too restrictive')}
 
