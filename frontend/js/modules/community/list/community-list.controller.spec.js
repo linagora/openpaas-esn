@@ -5,6 +5,10 @@
 var expect = chai.expect;
 
 describe('The communityListController controller', function() {
+  beforeEach(function() {
+    angular.mock.module('esn.community');
+  });
+
   beforeEach(inject(function($rootScope, $controller) {
     this.communityAPI = {
       list: function() {
@@ -37,10 +41,6 @@ describe('The communityListController controller', function() {
       }
     };
     this.location = {};
-
-    angular.mock.module('esn.community');
-    angular.mock.module('esn.user');
-    module('jadeTemplates');
 
     $controller('communityListController', {
       $scope: this.scope,
