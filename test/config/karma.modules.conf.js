@@ -49,7 +49,7 @@ module.exports = function(config) {
       'frontend/components/ngGeolocation/ngGeolocation.min.js',
       'frontend/components/angular-recursion/angular-recursion.min.js',
       'frontend/components/fullcalendar/dist/fullcalendar.min.js',
-      'frontend/components/ical.js/build/ical.min.js',
+      'frontend/components/ical.js/build/ical.js',
       'frontend/components/angular-uuid4/angular-uuid4.min.js',
       'frontend/components/localforage/dist/localforage.min.js',
       'frontend/components/angular-localforage/dist/angular-localForage.js',

@@ -12,7 +12,7 @@ describe('The google contact importer mapping function', function() {
 
       Object.keys(ical).forEach(function(propName) {
         var prop = vcard.getFirstProperty(propName);
-        var value = prop.toICALString();
+        var value = prop.toICAL();
         expect(value).to.equal(ical[propName].toString());
       });
     }
