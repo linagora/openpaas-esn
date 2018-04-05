@@ -43,7 +43,7 @@ function denormalize(contact) {
       var data = {
         value: prop.getFirstValue()
       };
-      var type = prop.getFirstParameter('type');
+      var type = prop.getParameter('type');
       if (type) {
         data.type = type;
       }
@@ -57,7 +57,7 @@ function denormalize(contact) {
       var propVal = prop.getFirstValue();
       return {
         full: propVal.join(' ').trim(),
-        type: prop.getFirstParameter('type'),
+        type: prop.getParameter('type'),
         street: propVal[2],
         city: propVal[3],
         zip: propVal[5],

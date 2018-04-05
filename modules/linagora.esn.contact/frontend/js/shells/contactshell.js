@@ -10,7 +10,7 @@ angular.module('linagora.esn.contact')
           var data = {
             value: prop.getFirstValue()
           };
-          var type = prop.getFirstParameter('type');
+          var type = prop.getParameter('type');
           if (type) {
             data.type = type;
           }
@@ -23,7 +23,7 @@ angular.module('linagora.esn.contact')
         return props.map(function(prop) {
           var propVal = prop.getFirstValue();
           return {
-            type: prop.getFirstParameter('type'),
+            type: prop.getParameter('type'),
             street: propVal[2],
             city: propVal[3],
             zip: propVal[5],
