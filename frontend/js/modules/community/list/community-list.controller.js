@@ -19,40 +19,34 @@
     $scope.getAll = function() {
       $scope.selected = 'all';
       $scope.loading = true;
-      communityAPI.list(domain._id).then(
-        function(response) {
+      communityAPI.list(domain._id)
+        .then(function(response) {
           $scope.communities = response.data;
-        },
-        function(err) {
+        }, function(err) {
           $log.error('Error while getting communities', err);
           $scope.error = true;
           $scope.communities = [];
-        }
-      ).finally(
-        function() {
+        })
+        .finally(function() {
           $scope.loading = false;
-        }
-      );
+        });
     };
 
     $scope.getMembership = function() {
       $scope.selected = 'membership';
       $scope.loading = true;
 
-      userAPI.getCommunities().then(
-        function(response) {
+      userAPI.getCommunities()
+        .then(function(response) {
           $scope.communities = response.data;
-        },
-        function(err) {
+        }, function(err) {
           $log.error('Error while getting communities', err);
           $scope.error = true;
           $scope.communities = [];
-        }
-      ).finally(
-        function() {
+        })
+        .finally(function() {
           $scope.loading = false;
-        }
-      );
+        });
     };
 
     $scope.getModerator = function() {
@@ -63,20 +57,18 @@
         creator: user._id
       };
 
-      communityAPI.list(domain._id, options).then(
-        function(response) {
+      communityAPI.list(domain._id, options)
+        .then(function(response) {
           $scope.communities = response.data;
         },
         function(err) {
           $log.error('Error while getting communities', err);
           $scope.error = true;
           $scope.communities = [];
-        }
-      ).finally(
-        function() {
+        })
+        .finally(function() {
           $scope.loading = false;
-        }
-      );
+        });
     };
 
     $scope.getAll();
