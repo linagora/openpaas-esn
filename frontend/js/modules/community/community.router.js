@@ -6,8 +6,8 @@
   function routerConfiguration(routeResolver, $urlRouterProvider, $stateProvider) {
     $stateProvider.state('/communities', {
       url: '/communities',
-      templateUrl: '/views/modules/community/communities.html',
-      controller: 'communitiesController',
+      templateUrl: '/views/modules/community/list/community-list.html',
+      controller: 'communityListController',
       resolve: {
         domain: routeResolver.session('domain'),
         user: routeResolver.session('user')

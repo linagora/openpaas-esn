@@ -1,11 +1,11 @@
 extends ../subheader/centered-subheader.pug
 
 block left
-  button.btn.btn-link.hidden-xs(href='', esn-back-button='unifiedinbox')
+  button.btn.btn-link.hidden-xs(href='', esn-back-button='/communities')
     .flex-vertical-centered
       i.mdi.mdi-arrow-left.mdi-margin-right
       span #{__('Back')}
-  button.btn.btn-link.btn-icon.visible-xs(href='', esn-back-button='unifiedinbox')
+  button.btn.btn-link.btn-icon.visible-xs(href='', esn-back-button='/communities')
     i.mdi.mdi-arrow-left
   span.title.extra-title.ellipsis {{ ::community.title }}
 
