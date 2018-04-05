@@ -1,0 +1,16 @@
+.card.m-b-0
+  .card-header
+    .media
+      a.pull-left(ui-sref="profile({user_id: entry.actor._id})")
+        img.lv-img(src='/images/user.png', ng-src='/api/users/{{::entry.actor._id}}/profile/avatar', alt=__("User Avatar"))
+      .media-body
+        h2(ng-if='entry.object._id === user._id')
+          a(ui-sref="profile({user_id: entry.actor._id})") {{::entry.actor.displayName}}
+          span &nbsp;#{__('replied')}
+          a(ng-href="#/messages/{{::entry.object._id}}/activitystreams/{{::entry.target[0]._id}}") &nbsp;#{__('to a poll')}
+        h2(ng-if='entry.actor._id === user._id')
+          span #{__('You replied')}
+          a(ng-href="#/messages/{{::entry.object._id}}/activitystreams/{{::entry.target[0]._id}}") &nbsp;#{__('to a poll')}
+
+        small
+          span(am-time-ago="::entry.published")
