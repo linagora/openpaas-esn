@@ -33,8 +33,8 @@
       url: '/view/:id',
       views: {
         'main@community': {
-          templateUrl: '/views/modules/community/community.html',
-          controller: 'communityController'
+          templateUrl: '/views/modules/community/view/community-view.html',
+          controller: 'communityViewController'
         }
       },
       resolve: {

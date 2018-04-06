@@ -182,7 +182,7 @@ describe('The Community Angular module', function() {
     });
   });
 
-  describe('communityController controller', function() {
+  describe('communityViewController controller', function() {
 
     beforeEach(inject(['$rootScope', '$controller', '$q', function($rootScope, $controller) {
       this.$rootScope = $rootScope;
@@ -195,7 +195,7 @@ describe('The Community Angular module', function() {
       this.session = {domain: {_id: 'domain1'}, user: {_id: 'user1'}};
       this.memberOf = [];
 
-      $controller('communityController', {
+      $controller('communityViewController', {
         $rootScope: this.$rootScope,
         $scope: this.scope,
         $location: this.location,
