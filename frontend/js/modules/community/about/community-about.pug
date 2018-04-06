@@ -1,7 +1,9 @@
 .community-about
   .card
     .card-header.ch-alt
-      h2 Description
+      h2 #{__("Description")}
     .card-body
-      .description
+      .description.text-center(ng-if="!$ctrl.community.description")
+        span #{__("No description")}
+      .description(ng-if="$ctrl.community.description")
         span {{ $ctrl.community.description }}
