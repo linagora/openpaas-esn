@@ -20,6 +20,14 @@ angular.module('esn.message', ['esn.attachment', 'esn.timeline', 'esn.maps', 'es
         return ESN_MESSAGE_TYPES.indexOf(entry.object.objectType) >= 0;
       }
     });
+
+    esnTimelineEntryProviders.register({
+      verb: 'update',
+      templateUrl: '/views/modules/message/timeline/poll-reply.html',
+      canHandle: function(entry) {
+        return entry.object.objectType === 'poll';
+      }
+    });
   })
   .controller('messageEditionController', function($scope, ESN_MESSAGE_TYPES) {
     var types = ESN_MESSAGE_TYPES;

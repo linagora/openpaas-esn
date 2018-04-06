@@ -86,8 +86,7 @@ angular.module('esnApp', [
   })
   .state('controlcenter.timeline', {
     url: '/timeline',
-    templateUrl: '/views/modules/timeline/index',
-    controller: 'esnTimelineEntriesController'
+    template: '<esn-timeline-entries></esn-timeline-entries>'
   })
   .state('logout', {
     url: '/logout',

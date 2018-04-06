@@ -47,6 +47,18 @@
       }
     }
 
+    &[data-tv-type="update"] {
+      &:before {
+        content: "\f45a";
+        background: @m-green;
+        box-shadow: 0 0 0 1px @m-green;
+      }
+
+      &:after {
+        background: @m-green;
+      }
+    }
+
     &[data-tv-type="follow"] {
       &:before {
         content: "\f014";
