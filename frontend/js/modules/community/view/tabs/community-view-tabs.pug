@@ -1,0 +1,8 @@
+.community-view-tabs.card
+  ul.esn-tab
+    li.btn-wave(ui-sref-active="active")
+      a(ui-sref="community.view.stream", ui-sref-opts="{location: 'replace'}") #{__('Discussion')}
+    li.btn-wave(ui-sref-active="active")
+      a(ui-sref="community.view.members", ui-sref-opts="{location: 'replace'}") #{__('Members')}
+    li.btn-wave(ui-sref-active="active")
+      a(ui-sref="community.view.about", ui-sref-opts="{location: 'replace'}") #{__('A propos')}

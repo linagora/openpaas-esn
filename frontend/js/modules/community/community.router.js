@@ -37,8 +37,16 @@
           controller: 'communityViewController'
         }
       },
+      deepStateRedirect: {
+        params: true,
+        default: 'community.view.stream',
+        fn: function() {
+          return true;
+        }
+      },
       resolve: {
         community: routeResolver.api('communityAPI', 'get', 'id', '/communities'),
+        domain: routeResolver.session('domain'),
         memberOf: function(esnCollaborationClientService, $q, $stateParams, $state) {
           return esnCollaborationClientService.getWhereMember({
             objectType: 'community',
@@ -52,10 +60,37 @@
       }
     })
 
+    .state('community.view.stream', {
+      url: '/stream',
+      views: {
+        'content@community.view': {
+          template: '<activity-stream activitystream="community" writable="community.writable" streams="streams" calendar-id="community._id"></activity-stream>'
+        }
+      }
+    })
+
+    .state('community.view.members', {
+      url: '/members',
+      views: {
+        'content@community.view': {
+          template: '<community-members community="community"></community-members>'
+        }
+      }
+    })
+
+    .state('community.view.about', {
+      url: '/about',
+      views: {
+        'content@community.view': {
+          template: '<community-about community="community"></community-about>'
+        }
+      }
+    })
+
     .state('/collaborations/community/:community_id/members', {
       url: '/collaborations/community/:community_id/members',
       templateUrl: '/views/modules/community/members/community-members',
-      controller: 'communityController',
+      controller: 'communityViewController',
       resolve: {
         community: routeResolver.api('communityAPI', 'get', 'community_id', '/communities'),
         memberOf: function() {
