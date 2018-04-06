@@ -2,7 +2,7 @@
   form(name='whatsupform')
     .form-group.message-textarea-edition(ng-class='{nopadding: rows !== 5}')
       .fg-line
-        textarea.form-control(ng-model='messageContent', ng-focus='expand()', ng-blur='shrink();', placeholder=__('Post a new whatsup message'), rows="{{rows}}", ng-file-drop="onFileSelect($files)")
+        textarea.form-control.textarea-whats-up-composer(ng-model='messageContent', ng-focus='expand()', ng-blur='shrink();', placeholder=__('Post a new whatsup message'), ng-file-drop="onFileSelect($files)", auto-resize)
     .row.form-group.display-current-position(ng-if='position.show')
       map-get-display-current-position
     .row.form-group(ng-if='attachments && attachments.length > 0')
@@ -15,5 +15,5 @@
     .message-edition-button-block
       .form-group(ng-class='{nopadding: rows !== 5}', ng-hide='rows !== 5')
         .text-right
-          a.m-r-15(type='reset', ng-click='resetMessage()') #{__('Cancel')}
+          button.btn.btn-link.color-default(type='reset', ng-click='resetMessage()') #{__('Cancel')}
           button.btn.btn-primary(type='submit', ng-click='sendMessage()') #{__('Post')}

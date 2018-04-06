@@ -1,5 +1,5 @@
 div.poll-message-thread(data-ng-switch='parentMessage')
-  .card.thread.esn-panel(data-ng-switch-when='true', data-tv-type="poll" ng-class="{'just-posted': message._id === lastPost.messageId}")
+  .card.card-thread.esn-panel(data-ng-switch-when='true', data-tv-type="poll" ng-class="{'just-posted': message._id === lastPost.messageId}")
     .card-header
       .media
         a.pull-left(ui-sref="profile({user_id: message.author._id})")
@@ -11,7 +11,7 @@ div.poll-message-thread(data-ng-switch='parentMessage')
           small
             message-date-link(message='message', activitystream='activitystream')
             .share
-              message-bottom-links
+              thread-bottom-links
           activity-stream-origin(ng-if='parentMessage && !message.isOrigin', streams='message.streamOrigins')
           message-shared(message='message')
     .card-body.card-padding
@@ -52,20 +52,27 @@ div.poll-message-thread(data-ng-switch='parentMessage')
             span(ng-show='showMeChart') #{__('Hide chart')}
           canvas(ng-if='showMeChart' class="chart chart-doughnut", data="pollContext.chart" labels="pollContext.labels")
 
-      .row
+      .row(ng-show="message.attachments && message.attachments.length > 0")
         message-attachments(message='message')
-      .row
+      .row(ng-show="message.content && message.length > 0")
         message-oembeds(message='message')
       ul.wall-attrs.clearfix.list-inline.list-unstyled
+        li.wa-buttons
+          span(ng-show='::writable')
+            like-button(target-object-type='"esn.message"', target-id='message._id', liked='message.likes.me.liked', on-liked='onMessageLiked()', on-unliked='onMessageUnliked()', title=__('Like'))
+          span(ng-show='::writable')
+            button.comment-button.no-effect(set-focus="{{'textarea-' + message._id}}", title=__('Add a comment'))
+              i.mdi.mdi-comment-outline
+      ul.wall-attrs.clearfix.list-inline.list-unstyled.wall-stats
         li.wa-stats
           span
-            i.mdi.mdi-comment-multiple-outline.m-r-5
-            | {{message.responses.length}}
-          span.active
-            i.mdi.mdi-heart.m-r-5
-            | {{message.likes.total_count}}
+            | {{message.likes.total_count}} #{__('Like')}
+          span(ng-if="message.responses.length > 1")
+            | {{message.responses.length }} #{__('Comments')}
+          span(ng-if="message.responses.length <= 1")
+            | {{message.responses.length }} #{__('Comment')}
         li.wa-users
-          a(ui-sref="profile({user_id: response.author._id})", ng-repeat='response in message.responses | limitTo : 5')
-            img(src="images/user.png", ng-src='/api/users/{{::response.author._id}}/profile/avatar', alt=__("Response Author"))
+          a.wa-users(ui-sref="profile({user_id: response.author._id})", ng-repeat='response in message.responses | limitTo : 5')
+            img.lv-img(src="images/user.png", ng-src='/api/users/{{::response.author._id}}/profile/avatar', alt=__("Response Author"))
     .message-comments-thread
       message-comments
