@@ -421,7 +421,7 @@ describe('ContactShell Builders', function() {
           n: 'N:last;first',
           email: 'EMAIL;TYPE=Home:mailto:email@example.com',
           adr: 'ADR;TYPE=Home:;;s;c;;z;co',
-          tel: 'TEL;TYPE=Home:tel:123123',
+          tel: 'TEL;TYPE=Home:123123',
           org: 'ORG:org',
           url: 'URL:http://mywebsite.com',
           role: 'ROLE:role',

@@ -124,7 +124,7 @@ angular.module('linagora.esn.contact')
       if (shell.tel) {
         shell.tel.forEach(function(data) {
           if (data.value) {
-            var prop = vcard.addPropertyWithValue('tel', 'tel:' + data.value);
+            var prop = vcard.addPropertyWithValue('tel', data.value);
             prop.setParameter('type', data.type);
           }
         });
