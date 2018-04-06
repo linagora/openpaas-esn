@@ -971,6 +971,6 @@ angular.module('esn.community')
     return {
       retrict: 'E',
       replace: true,
-      template: applicationMenuTemplateBuilder('/#/communities', { name: 'communities' }, 'Communities', 'core.features.application-menu:communities')
+      template: applicationMenuTemplateBuilder('/#/community', { name: 'communities' }, 'Communities', 'core.features.application-menu:communities')
     };
   });
