@@ -1,6 +1,12 @@
 .community-members.card
-  .membership
-    community-pending-invitation-list(community="$ctrl.community")
+  .membership(ng-if="$ctrl.isCommunityManager()")
+    .card-header
+      h2 #{__("Invitations sent")}
+    .card-body
+      community-pending-invitation-list(community="$ctrl.community")
 
   .members
-    esn-collaboration-members(readable='canRead()', collaboration='$ctrl.community', object-type-filter='user')
+    .card-header
+      h2 #{__("Members")}
+    .card-body
+      esn-collaboration-members(readable='$ctrl.canRead()', collaboration='$ctrl.community', object-type-filter='user')

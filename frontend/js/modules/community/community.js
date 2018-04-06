@@ -300,67 +300,6 @@ angular.module('esn.community')
       }
     };
   })
-  .directive('communityPendingInvitationList', function(esnCollaborationClientService) {
-    return {
-      restrict: 'E',
-      templateUrl: '/views/modules/community/community-pending-invitation-list.html',
-      link: function($scope, $element) {
-        var calling = false;
-
-        function getErrorElement() {
-          return angular.element($element.find('[error-container]')[0]);
-
-        }
-
-        function getLoadingElement() {
-          return angular.element($element.find('[loading-container]')[0]);
-        }
-
-        $scope.updatePendingRequestsList = function() {
-          if (calling) {
-            return;
-          }
-
-          getLoadingElement().removeClass('hidden');
-          getErrorElement().addClass('hidden');
-          calling = true;
-
-          esnCollaborationClientService.getRequestMemberships('community', $scope.community._id, {}).then(function(response) {
-            $scope.requests = response.data;
-          }, function() {
-            getErrorElement().removeClass('hidden');
-          }).finally(function() {
-            calling = false;
-            getLoadingElement().addClass('hidden');
-          });
-        };
-
-        $scope.updatePendingRequestsList();
-      }
-    };
-  })
-  .directive('communityPendingInvitationDisplay', function(esnCollaborationClientService) {
-    return {
-      restrict: 'E',
-      scope: {
-        request: '=',
-        community: '='
-      },
-      templateUrl: '/views/modules/community/community-pending-invitation-display.html',
-      link: function($scope, $element) {
-        var button = $element.find('.btn');
-
-        $scope.cancel = function() {
-          button.attr('disabled', 'disabled');
-          esnCollaborationClientService.cancelRequestMembership('community', $scope.community._id, $scope.request.user._id).then(function() {
-            button.hide();
-          }, function() {
-            button.removeAttr('disabled');
-          });
-        };
-      }
-    };
-  })
   .directive('communityButtonJoin', function(communityService) {
     return {
       restrict: 'E',
