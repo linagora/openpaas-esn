@@ -1,27 +1,34 @@
-'use strict';
+(function(angular) {
+  'use strict';
 
-angular.module('linagora.esn.contact')
+  angular.module('linagora.esn.contact')
+    .factory('ContactShell', ContactShellFactory);
 
-  .factory('ContactShell', function() {
+  function ContactShellFactory() {
     function ContactShell(vcard, etag) {
       function getMultiValue(propName) {
         var props = vcard.getAllProperties(propName);
+
         return props.map(function(prop) {
           var data = {
             value: prop.getFirstValue()
           };
           var type = prop.getFirstParameter('type');
+
           if (type) {
             data.type = type;
           }
+
           return data;
         });
       }
 
       function getMultiAddress(propName) {
         var props = vcard.getAllProperties(propName);
+
         return props.map(function(prop) {
           var propVal = prop.getFirstValue();
+
           return {
             type: prop.getFirstParameter('type'),
             street: propVal[2],
@@ -36,6 +43,7 @@ angular.module('linagora.esn.contact')
       this.displayName = vcard.getFirstPropertyValue('fn');
 
       var name = vcard.getFirstPropertyValue('n');
+
       this.firstName = name ? name[1] : '';
       this.lastName = name ? name[0] : '';
 
@@ -45,11 +53,13 @@ angular.module('linagora.esn.contact')
 
       this.emails = getMultiValue('email').map(function(mail) {
         mail.value = mail.value.replace(/^mailto:/i, '');
+
         return mail;
       });
 
       this.tel = getMultiValue('tel').map(function(tel) {
         tel.value = tel.value.replace(/^tel:/i, '');
+
         return tel;
       });
 
@@ -60,6 +70,7 @@ angular.module('linagora.esn.contact')
       var catprop = vcard.getFirstProperty('categories');
       var cats = catprop && catprop.getValues().concat([]);
       var starredIndex = cats ? cats.indexOf('starred') : -1;
+
       this.starred = starredIndex > -1;
       if (this.starred) {
         cats.splice(starredIndex, 1);
@@ -84,4 +95,5 @@ angular.module('linagora.esn.contact')
     }
 
     return ContactShell;
-  });
+  }
+})(angular);

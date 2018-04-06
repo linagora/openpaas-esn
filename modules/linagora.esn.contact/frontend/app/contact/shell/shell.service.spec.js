@@ -46,6 +46,7 @@ describe('ContactShell services', function() {
     categories.push('starred');
 
     var prop = new ICAL.Property('categories');
+
     prop.setValues(categories);
     vcard.addProperty(prop);
 
@@ -58,6 +59,7 @@ describe('ContactShell services', function() {
       prop = vcard.addPropertyWithValue('tel', 'tel:01.01.01.01.0' + i);
       prop.setParameter('type', types[i]);
       var val = ['', '', 'Super Street' + i, 'Super City' + i, '', 'Super Zip' + i, 'Super Country' + i];
+
       prop = vcard.addPropertyWithValue('adr', val);
       prop.setParameter('type', types[i]);
       prop = vcard.addPropertyWithValue('socialprofile', socials[i] + 'id');
@@ -135,6 +137,7 @@ describe('ContactShell services', function() {
     it('should return a constructor to instantiate a contact from a vcard', function() {
       var cardInput = buildFakeVcard();
       var shell = new this.ContactShell(cardInput);
+
       checkShellContactCreatedObject(shell);
     });
 
@@ -142,6 +145,7 @@ describe('ContactShell services', function() {
       var cardInput = buildFakeVcard();
       var etag = '12345678';
       var shell = new this.ContactShell(cardInput, etag);
+
       checkShellContactCreatedObject(shell, etag);
     });
   });
