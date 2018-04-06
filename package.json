@@ -7,7 +7,7 @@
     "@linagora/awesome-sessionstore": "0.1.0",
     "@linagora/char-api": "0.1.1",
     "@linagora/i18n-node": "0.9.1",
-    "@linagora/ical.js": "1.1.4",
+    "@linagora/ical.js": "1.2.4",
     "@linagora/passport-http": "0.4.0",
     "@linagora/passport-jwt": "1.2.3",
     "ajv": "5.3.0",

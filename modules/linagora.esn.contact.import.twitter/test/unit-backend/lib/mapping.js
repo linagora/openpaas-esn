@@ -12,7 +12,7 @@ describe('The twitter contact importer mapping function', function() {
 
       Object.keys(ical).forEach(function(propName) {
         var prop = vcard.getFirstProperty(propName);
-        var value = prop.toICAL();
+        var value = prop.toICALString();
         expect(value).to.equal(ical[propName].toString());
       });
     }
@@ -36,7 +36,7 @@ describe('The twitter contact importer mapping function', function() {
         socialprofile: 'SOCIALPROFILE;TYPE=Twitter:@AwesomePaaS',
         categories: 'CATEGORIES:Twitter',
         note: 'NOTE:description',
-        photo: 'PHOTO:data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAA'
+        photo: 'PHOTO:data:image/png;base64\\,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAA'
       };
 
       compareShell(following, ical);
@@ -62,7 +62,7 @@ describe('The twitter contact importer mapping function', function() {
         socialprofile: 'SOCIALPROFILE;TYPE=Twitter:@AwesomePaaS',
         categories: 'CATEGORIES:Twitter',
         note: 'NOTE:description',
-        photo: 'PHOTO:data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAA'
+        photo: 'PHOTO:data:image/png;base64\\,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAA'
       };
 
       compareShell(following, ical);
@@ -88,7 +88,7 @@ describe('The twitter contact importer mapping function', function() {
         socialprofile: 'SOCIALPROFILE;TYPE=Twitter:@AwesomePaaS',
         categories: 'CATEGORIES:Twitter',
         note: 'NOTE:description',
-        photo: 'PHOTO:data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAA'
+        photo: 'PHOTO:data:image/png;base64\\,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAA'
       };
 
       compareShell(following, ical);
@@ -112,7 +112,7 @@ describe('The twitter contact importer mapping function', function() {
         url: 'URL:http://mywebsite.com',
         socialprofile: 'SOCIALPROFILE;TYPE=Twitter:@AwesomePaaS',
         categories: 'CATEGORIES:Twitter',
-        photo: 'PHOTO:data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAA'
+        photo: 'PHOTO:data:image/png;base64\\,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAA'
       };
 
       compareShell(following, ical);
@@ -135,7 +135,7 @@ describe('The twitter contact importer mapping function', function() {
         url: 'URL:http://mywebsite.com',
         socialprofile: 'SOCIALPROFILE;TYPE=Twitter:@AwesomePaaS',
         categories: 'CATEGORIES:Twitter',
-        photo: 'PHOTO:data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAA'
+        photo: 'PHOTO:data:image/png;base64\\,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAA'
       };
 
       compareShell(followingWithLocation, icalWithLocation);
@@ -156,7 +156,7 @@ describe('The twitter contact importer mapping function', function() {
         url: 'URL:http://mywebsite.com',
         socialprofile: 'SOCIALPROFILE;TYPE=Twitter:@AwesomePaaS',
         categories: 'CATEGORIES:Twitter',
-        photo: 'PHOTO:data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAA'
+        photo: 'PHOTO:data:image/png;base64\\,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAA'
       };
 
       compareShell(followingWithCountry, icalWithCountry);
@@ -177,7 +177,7 @@ describe('The twitter contact importer mapping function', function() {
         url: 'URL:http://mywebsite.com',
         socialprofile: 'SOCIALPROFILE;TYPE=Twitter:@AwesomePaaS',
         categories: 'CATEGORIES:Twitter',
-        photo: 'PHOTO:data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAA'
+        photo: 'PHOTO:data:image/png;base64\\,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAA'
       };
 
       compareShell(following, ical);
@@ -199,7 +199,7 @@ describe('The twitter contact importer mapping function', function() {
         adr: 'ADR;TYPE=Other:;;Paris;;;;FR',
         socialprofile: 'SOCIALPROFILE;TYPE=Twitter:@AwesomePaaS',
         categories: 'CATEGORIES:Twitter',
-        photo: 'PHOTO:data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAA'
+        photo: 'PHOTO:data:image/png;base64\\,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAA'
       };
 
       compareShell(following, ical);
@@ -220,7 +220,7 @@ describe('The twitter contact importer mapping function', function() {
         n: 'N:Last;First',
         socialprofile: 'SOCIALPROFILE;TYPE=Twitter:@AwesomePaaS',
         categories: 'CATEGORIES:Twitter',
-        photo: 'PHOTO:data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAA'
+        photo: 'PHOTO:data:image/png;base64\\,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAA'
       };
 
       compareShell(following, ical);
