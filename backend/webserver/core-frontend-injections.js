@@ -85,6 +85,7 @@ const injections = [
     'community/community.config.js',
     'community/community.router.js',
     'community/about/community-about.component.js',
+    'community/about/community-about.controller.js',
     'community/description/community-description.directive.js',
     'community/members/community-members.component.js',
     'community/members/community-members.controller.js',

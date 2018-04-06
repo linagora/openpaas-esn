@@ -5,6 +5,7 @@
     bindings: {
       community: '='
     },
+    controller: 'communityAboutController',
     templateUrl: '/views/modules/community/about/community-about.html'
   });
 })(angular);
