@@ -1,3 +1,5 @@
+@messageBottomLinksitemColor: #adadad; // line 74 material-admin/less/inc/misc/less/misc.less
+
 .card-message-edition {
   padding: 23px 25px 15px 25px;
 }
@@ -23,24 +25,116 @@
     }
 
     &.message-textarea-edition {
-      margin-bottom: 15px;
+      textarea.form-control {
+        height: 20px;
+        max-height: 80px;
+      }
     }
   }
 }
 
 .comment-composer {
   .wcc-inner {
-    padding-bottom: 50px;
+    padding: 15px 10px;
+
+    .form-control:not(.fc-alt) {
+      border: none;
+    }
+
+    &.focus-on {
+      padding-bottom: 10px;
+
+      .fg-line:not([class*=has-]):after {
+        background: none;
+        transition:none;
+      }
+
+      textarea.form-control {
+        margin-bottom: 10px;
+      }
+    }
   }
 }
 
 .whats-up-message-thread, .poll-message-thread {
+  .card-header:not(.ch-alt), .card-body.card-padding, .message-comments-thread, .poll-message-thread {
+    padding: 8px 10px;
+  }
+
+  .card-header:not(.ch-alt) {
+    .lv-img {
+      width: 40px;
+      height: 40px;
+    }
+  }
+
+  .card-body:not(.ch-alt):not([class*="bgm-"]) + .card-padding {
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
   .wall-attrs {
-    margin-top: 10px;
+
+    .wa-buttons{
+      padding-top: 10px;
+       & > span {
+        padding: 0 6px;
+      }
+    }
+
+    .wa-stats > span {
+      padding: 4px 10px;
+      border: none;
+      border-radius: 0;
+    }
+
+    .wa-users a {
+        margin-right: 4px;
+      }
+      img {
+        height: 18px;
+        width: 18px;
+      }
+
+    .like-button, .comment-button {
+      font-size: 2em;
+      box-shadow: none;
+      border: 0;
+      cursor: pointer;
+      padding-right: 8px;
+      background: inherit;
+
+      i {
+        &.mdi-heart {
+          color:  @m-red;
+        }
+
+        &.mdi-heart-outline {
+          color: @text-color;
+
+          &:active {
+            color:  @m-red;
+          }
+        }
+
+        &.mdi-comment-outline {
+          &:active {
+            color:  @m-blue;
+          }
+        }
+      }
+    }
   }
 
   .wall-comment-list {
     background-color: @app-gray;
+    padding: 5px;
+
+    .media .actions {
+      display: block;
+      right: -10px;
+      top: -5px;
+    }
   }
 
   .progress {
@@ -59,18 +153,18 @@
 
   .message-comments-thread {
     background-color: @app-gray;
-    padding-left: 20px;
-    padding-right: 20px;
-    padding-top: 20px;
-    margin-bottom: 10px;
-    margin-top: 10px;
-
-    .wall-comment-list {
-      padding: 10px 20px;
-    }
 
     .media {
       margin-top: 0;
+
+      & > .pull-left {
+        padding-right: 10px;
+
+        .lv-img-sm {
+          width: 32px;
+          height: 32px;
+        }
+      }
     }
 
     .attachments {
@@ -80,45 +174,36 @@
     .comment-edition-button-block {
       margin-bottom: 0;
 
+      hr {
+        margin-top: 7px;
+        margin-bottom: 7px;
+      }
+
       .form-group {
-        .flex-space-between;
+        button {
+          margin-right: 5px;
 
-        width: 100%;
-        padding: 0 20px;
-
-        .text-left {
-          font-size: 20px;
-
-          button {
-            padding: 0;
-            padding-right: 5px;
-            font-size: 15px;
-          }
-
-          .mdi-paperclip {
-            color: @text-color;
+          i {
+            font-size: 1.6em;
           }
         }
 
-        .text-right {
-          position: absolute;
-          right: 25px;
-          bottom: 30px;
-          width: 100%;
+        .mdi-paperclip {
+          color: @text-color;
+        }
 
-          button {
-            margin-right: 5px;
-          }
+        .mdi-map-marker {
+          color: @m-blue;
         }
       }
     }
 
     .wc-comment {
-      padding: 20px 0;
+      padding: 10px 0;
     }
 
     .display-current-position {
-      padding-left: 20px;
+      margin-bottom: 0;
     }
 
     .attachment img {
@@ -193,18 +278,115 @@ message-bottom-links {
 
   .actions > li {
     font-size: 18px;
+    max-height: 28px;
 
     a {
       width: 28px;
       height: 28px;
       line-height: 28px;
+      cursor: pointer;
     }
   }
 
-  like-button {
-    .actions;
-    a.liked > i {
-      color: @brand-success;
+  li like-button {
+    .like-button {
+      box-shadow: none;
+      border: 0;
+      background-color: inherit;
+      max-height: 28px;
+
+      .transition(color);
+      .transition-duration(1300ms);
+
+      &:active {
+        color: @m-black;
+      }
+
+      i {
+        font-size: 20px;
+        padding-right: 2px;
+
+        &.mdi-heart {
+          color:  @m-red;
+        }
+
+        &.mdi-heart-outline {
+          color: @messageBottomLinksitemColor;
+        }
+      }
+
+      span.total-likes {
+        font-size: 13px;
+        vertical-align: top;
+        font-weight: 500;
+        color: @messageBottomLinksitemColor;
+      }
+    }
+  }
+}
+
+// iOS workaround to disable auto-zoom on input fields
+body:not(.is-desktop) {
+  input:not([type="button"]):not([type="submit"]):not([type="file"]), select, textarea, tags-input .tags .input {
+    font-size: 16px;
+  }
+}
+
+@media (min-width: @screen-md-min) {
+  .whats-up-message-thread, .poll-message-thread {
+    .card-header:not(.ch-alt), .card-body.card-padding {
+      padding: 16px;
+    }
+
+    .message-comments-thread, .poll-message-thread {
+      padding: 16px 0;
+
+      .wall-comment-list {
+        padding: 5px 12px;
+
+        .media:hover .actions {
+          display: block;
+        }
+
+        .actions {
+          display: none;
+          right: -5px;
+        }
+      }
+
+      .wc-comment {
+        padding: 10px;
+      }
+    }
+
+    .wall-attrs {
+      .like-button, .comment-button {
+        i {
+          &.mdi-heart-outline {
+            color: @text-color;
+
+            &:hover {
+              color: @m-red;
+            }
+          }
+
+          &.mdi-comment-outline {
+            &:hover {
+              color:  @m-blue;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  message-bottom-links {
+    like-button {
+      i {
+        &:hover {
+          color: @m-black;
+        }
+      }
     }
   }
 }

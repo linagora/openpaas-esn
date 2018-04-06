@@ -13,7 +13,8 @@ angular.module('esn.like', [
         targetId: '=',
         targetObjectType: '=',
         onLiked: '&',
-        onUnliked: '&'
+        onUnliked: '&',
+        totalLikes: '=?'
       },
       templateUrl: '/views/modules/like/like-button.html',
       link: function(scope) {

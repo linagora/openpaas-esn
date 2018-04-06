@@ -87,19 +87,22 @@ angular.module('esn.message', ['esn.attachment', 'esn.timeline', 'esn.maps', 'es
     $scope.sendMessage = function() {
       if (!$scope.messageContent || $scope.messageContent.trim().length === 0) {
         $scope.displayError('You can not say nothing!');
-        return;
+
+return;
       }
       $scope.validators.forEach(function(validator) {
         validator();
       });
       if ($scope.validationError && Object.keys($scope.validationError).length > 0) {
         $scope.displayValidationError();
-        return;
+
+return;
       }
 
       if (!$scope.activitystream || !$scope.activitystream.activity_stream || !$scope.activitystream.activity_stream.uuid) {
         $scope.displayError('You can not post to an unknown activitystream');
-        return;
+
+return;
       }
 
       var objectType = $scope.type;
@@ -131,7 +134,8 @@ angular.module('esn.message', ['esn.attachment', 'esn.timeline', 'esn.maps', 'es
           if (!type || type.length === 0) {
             type = DEFAULT_FILE_TYPE;
           }
-          return {_id: attachment.response.data._id, name: attachment.file.name, contentType: type, length: attachment.file.size};
+
+return {_id: attachment.response.data._id, name: attachment.file.name, contentType: type, length: attachment.file.size};
         });
 
         if ($scope.additionalData) {
@@ -143,13 +147,15 @@ angular.module('esn.message', ['esn.attachment', 'esn.timeline', 'esn.maps', 'es
               activitystreamUuid: $scope.activitystream.activity_stream.uuid,
               id: response.data._id
             });
-            return defer.resolve();
+
+return defer.resolve();
           },
           function(err) {
             return defer.reject(err);
           }
         );
-        return defer.promise;
+
+return defer.promise;
       }
 
       function clean() {
@@ -260,17 +266,20 @@ angular.module('esn.message', ['esn.attachment', 'esn.timeline', 'esn.maps', 'es
     $scope.addComment = function(objectType) {
       if ($scope.sending) {
         $scope.displayError('Client problem, unexpected action!');
-        return;
+
+return;
       }
 
       if (!$scope.message) {
         $scope.displayError('Client problem, message is missing!');
-        return;
+
+return;
       }
 
       if (!$scope.commentContent || $scope.commentContent.trim().length === 0) {
         $scope.displayError('You can not say nothing!');
-        return;
+
+return;
       }
 
       objectType = objectType || $scope.message.objectType;
@@ -307,7 +316,8 @@ angular.module('esn.message', ['esn.attachment', 'esn.timeline', 'esn.maps', 'es
           if (!type || type.length === 0) {
             type = DEFAULT_FILE_TYPE;
           }
-          return {_id: attachment.response.data._id, name: attachment.file.name, contentType: type, length: attachment.file.size};
+
+return {_id: attachment.response.data._id, name: attachment.file.name, contentType: type, length: attachment.file.size};
         });
 
         if ($scope.additionalData) {
@@ -319,13 +329,15 @@ angular.module('esn.message', ['esn.attachment', 'esn.timeline', 'esn.maps', 'es
               id: response.data._id,
               parent: $scope.message
             });
-            return defer.resolve();
+
+return defer.resolve();
           },
           function(err) {
             return defer.reject(err);
           }
         );
-        return defer.promise;
+
+return defer.promise;
       }
 
       function clean() {
@@ -754,12 +766,14 @@ angular.module('esn.message', ['esn.attachment', 'esn.timeline', 'esn.maps', 'es
 
       if (!$scope.activitystream) {
         $log.debug('activitystream is required');
-        return;
+
+return;
       }
 
       if ($scope.shares.length === 0) {
         $log.debug('At least one share is required');
-        return;
+
+return;
       }
 
       var targets = $scope.shares.map(function(share) {
@@ -882,7 +896,8 @@ angular.module('esn.message', ['esn.attachment', 'esn.timeline', 'esn.maps', 'es
           attachment.cancel();
         }
       });
-      return calls;
+
+return calls;
     }
 
     return {
@@ -895,7 +910,8 @@ angular.module('esn.message', ['esn.attachment', 'esn.timeline', 'esn.maps', 'es
       if (angular.isString(options)) {
         return esnRestangular.one('messages', options).get();
       }
-      return esnRestangular.all('messages').getList(options);
+
+return esnRestangular.all('messages').getList(options);
     }
 
     function post(objectType, data, targets, attachments) {
@@ -930,7 +946,8 @@ angular.module('esn.message', ['esn.attachment', 'esn.timeline', 'esn.maps', 'es
         resource: resource,
         target: targets
       };
-      return esnRestangular.one('messages', id).all('shares').post(payload);
+
+return esnRestangular.one('messages', id).all('shares').post(payload);
     }
 
     return {
@@ -993,7 +1010,8 @@ angular.module('esn.message', ['esn.attachment', 'esn.timeline', 'esn.maps', 'es
           $q.all(restCalls).then(function() {
             scope.shareTargets = collaborations.map(function(collaboration) {
               collaboration.object.objectType = collaboration.objectType;
-              return objectTypeAdapter.adapt(collaboration.object);
+
+return objectTypeAdapter.adapt(collaboration.object);
             });
           },
           function(error) {
@@ -1048,6 +1066,13 @@ angular.module('esn.message', ['esn.attachment', 'esn.timeline', 'esn.maps', 'es
       templateUrl: '/views/modules/message/templates/includes/messageDateLink.html'
     };
   })
+  .directive('threadBottomLinks', function() {
+    return {
+      restrict: 'E',
+      scope: true,
+      templateUrl: '/views/modules/message/templates/includes/threadBottomLinks.html'
+    };
+  })
   .directive('messageBottomLinks', function() {
     return {
       restrict: 'E',
@@ -1060,5 +1085,14 @@ angular.module('esn.message', ['esn.attachment', 'esn.timeline', 'esn.maps', 'es
       restrict: 'E',
       scope: true,
       templateUrl: '/views/modules/message/templates/includes/messageComments.html'
+    };
+  })
+  .directive('setFocus', function() {
+    return {
+      link: function(scope, element, attrs) {
+        element.bind('click', function() {
+          angular.element(document.querySelector('.' + attrs.setFocus)).focus();
+        });
+      }
     };
   });

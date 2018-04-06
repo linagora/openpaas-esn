@@ -1,9 +1,9 @@
 ul.actions
-  li(ng-show='::writable', ng-if='false')
+  li(ng-show='::writable', ng-if="false")
     share-message-button(share="share()")
   li(ng-show='::writable')
-    like-button(target-object-type='"esn.message"', target-id='message._id', liked='message.likes.me.liked', on-liked='onMessageLiked()', on-unliked='onMessageUnliked()')
-  li(ng-if='false')
+    like-button(target-object-type='"esn.message"', target-id='message._id', liked='message.likes.me.liked', on-liked='onMessageLiked()', on-unliked='onMessageUnliked()', total-likes="10")
+  li
     a(ng-href="")
       i.mdi.mdi-dots-vertical
   .clearfix

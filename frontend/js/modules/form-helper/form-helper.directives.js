@@ -228,4 +228,20 @@ angular.module('esn.form.helper')
       element.prepend(angular.element('<input style="display:none" type="password">'));
     }
   };
+})
+.directive('autoResize', function($timeout) {
+  return {
+    restrict: 'A',
+    link: function autoResizeLink(scope, element) {
+      scope.initialHeight = scope.initialHeight || element[0].style.height;
+
+      var resize = function() {
+        element[0].style.height = scope.initialHeight;
+        element[0].style.height = '' + element[0].scrollHeight + 'px';
+      };
+
+      element.on('input change', resize);
+      $timeout(resize, 100);
+    }
+  };
 });
