@@ -8,7 +8,7 @@
           a(ui-sref="profile({user_id: entry.actor._id})") {{::entry.actor.displayName}}
           a(ng-href="#/messages/{{::entry.object._id}}/activitystreams/{{::entry.target[0]._id}}") &nbsp;#{__('replied to a poll')}
         h2(ng-if='entry.actor._id === user._id')
-          a(ng-href="#/messages/{{::entry.object._id}}/activitystreams/{{::entry.target[0]._id}}") &nbsp;#{__('You replied to a poll')}
+          a(ng-href="#/messages/{{::entry.object._id}}/activitystreams/{{::entry.target[0]._id}}") #{__('You replied to a poll')}
 
         small
           span(am-time-ago="::entry.published")
