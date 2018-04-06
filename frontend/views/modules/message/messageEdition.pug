@@ -11,10 +11,10 @@
     li.wpba-attrs
       ul.list-unstyled.list-inline.m-l-0.m-t-5
         li
-          a(data-wpba="image", data-toggle="tab", href="", ng-click='show("whatsup")')
+          a(data-wpba="image", data-toggle="tab", href="", ng-click='show("whatsup")', set-focus="textarea-whats-up-composer")
             i.mdi.mdi-pencil
         li
-          a(data-wpba="video", data-toggle="tab", href="", ng-click='show("poll")')
+          a(data-wpba="video", data-toggle="tab", href="", ng-click='show("poll")', set-focus="textarea-poll-composer")
             i.mdi.mdi-chart-bar
         cal-event-message-edition-button(ng-if="false")
         injections-widget(injection-anchor-id="messageEditionMessageTypeButton", injection-subject="community")

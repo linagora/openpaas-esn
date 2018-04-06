@@ -1,3 +1,6 @@
+@modal-header-bg: #f7f7f7;
+@button-shadow: 0 2px 5px rgba(0, 0, 0, 0.16), 0 2px 10px rgba(0, 0, 0, 0.12);
+
 .btn-accent, .bgm-accent {
   .AccentColor();
   &:hover {
@@ -35,10 +38,28 @@ fab-scroll-top {
   }
 }
 
+.btn:not(.btn-link):not(.btn-float) {
+  box-shadow: none;
+}
+
 @media (min-width: @screen-md-min) {
   fab-scroll-top {
     .btn-float:hover {
       .DarkenReversedSecondaryColor;
     }
+  }
+}
+
+.is-desktop {
+  .btn:not(.btn-link):not(.btn-float):hover, .btn:not(.btn-link):not(.btn-float):focus {
+    box-shadow: @button-shadow;
+    transition: @transition-btn-link;
+  }
+}
+
+.is-mobile {
+  .btn:not(.btn-link):not(.btn-float):active {
+    box-shadow: @button-shadow;
+    transition: @transition-btn-link;
   }
 }

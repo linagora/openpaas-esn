@@ -12,8 +12,8 @@ sub-header
       // the method to inject inside all domains.
       activity-stream(activitystream='community', writable='community.writable', streams='streams', calendar-id='community._id')
 
-  .col-xs-12(ng-if='!canRead()')
-    p.text-center #{__('You are no allowed to see the content of this community.')}
+    .col-xs-12(ng-if='!canRead()')
+      p.text-center #{__('You are no allowed to see the content of this community.')}
 
 .col-md-3.hidden-xs(sub-header-aware)
   .communities-list

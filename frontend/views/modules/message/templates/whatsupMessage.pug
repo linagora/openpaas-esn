@@ -1,5 +1,5 @@
 div.whats-up-message-thread(data-ng-switch='parentMessage')
-  .card.thread.esn-panel(data-ng-switch-when='true', data-tv-type="text" ng-class="{ 'just-posted': message._id === lastPost.messageId}")
+  .card.card-thread.esn-panel(data-ng-switch-when='true', data-tv-type="text" ng-class="{ 'just-posted': message._id === lastPost.messageId}")
     .card-header
       .media
         a.pull-left(ui-sref="profile({user_id: message.author._id})")
@@ -10,10 +10,10 @@ div.whats-up-message-thread(data-ng-switch='parentMessage')
             h2 {{message.author.firstname}} {{message.author.lastname}}
           small
             message-date-link(message='message', activitystream='activitystream')
-            .share
-              message-bottom-links
+          .share
+            thread-bottom-links
     .card-body.card-padding
-      p.m-t-5.m-b-0.white-space-pre-line
+      p.m-b-0.white-space-pre-line
         text-parser(parsers='{{message.parsers}}', text='{{message.content}}')
       .row(ng-if="message.position")
         display-position(position='message.position')
@@ -22,16 +22,23 @@ div.whats-up-message-thread(data-ng-switch='parentMessage')
       .row
         message-oembeds(message='message')
       ul.wall-attrs.clearfix.list-inline.list-unstyled
+        li.wa-buttons
+          span(ng-show='::writable')
+            like-button(target-object-type='"esn.message"', target-id='message._id', liked='message.likes.me.liked', on-liked='onMessageLiked()', on-unliked='onMessageUnliked()', title=__('Like'))
+          span(ng-show='::writable')
+            button.comment-button.no-effect(set-focus="{{'textarea-' + message._id}}", title=__('Add a comment'))
+              i.mdi.mdi-comment-outline
+      ul.wall-attrs.clearfix.list-inline.list-unstyled.wall-stats
         li.wa-stats
-          span.messages
-            i.mdi.mdi-comment-multiple-outline.m-r-5
-            | {{message.responses.length}}
-          span.active.likes
-            i.mdi.mdi-heart.m-r-5
-            | {{message.likes.total_count}}
+          span
+            | {{message.likes.total_count}} #{__('Like')}
+          span(ng-if="message.responses.length > 1")
+            | {{message.responses.length }} #{__('Comments')}
+          span(ng-if="message.responses.length <= 1")
+            | {{message.responses.length }} #{__('Comment')}
         li.wa-users
           a(ui-sref="profile({user_id: response.author._id})", ng-repeat='response in message.responses | limitTo : 5')
-            img(src="images/user.png", ng-src='/api/users/{{::response.author._id}}/profile/avatar', alt=__("Response Author"))
+            img.lv-img(src="images/user.png", ng-src='/api/users/{{::response.author._id}}/profile/avatar', alt=__("Response Author"))
     .message-comments-thread
       message-comments
   .wall-comment-list(data-ng-switch-when='false', data-tv-type="text" ng-class="{ 'just-posted': message._id === lastPost.messageId}")
@@ -45,9 +52,9 @@ div.whats-up-message-thread(data-ng-switch='parentMessage')
             strong {{message.author.firstname}} {{message.author.lastname}}
           small.c-gray.m-l-10
             message-date-link(message='message', activitystream='activitystream')
-              .share
-                message-bottom-links
-          p.m-t-5.m-b-0.white-space-pre-line
+          .share
+            message-bottom-links
+          p.m-b-0.white-space-pre-line
             text-parser(parsers='{{message.parsers}}', text='{{message.content}}')
           display-position.row(ng-if="message.position", position='message.position')
           message-oembeds.attachment(message='message')

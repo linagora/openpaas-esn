@@ -17,8 +17,9 @@
                 p(ng-show='invalidUser') #{__('An invitation has not been sent')} : {{invalidUser}} #{__('is not a valid user')}.
                 p(ng-show='noUser') #{__('Please enter at least one user to send an invitation')}.
           .lv-item
-            .form-group
-              button.btn.btn-primary.pull-right(type='button', ng-click='inviteUsers()', ng-disabled='running')
-                i.mdi.mdi-exit-to-app(button-content) &nbsp;&nbsp;#{__('Send')}
+            .form-group.pull-right
+              button.btn.btn-primary(type='button', ng-click='inviteUsers()', ng-disabled='running')
+                i.mdi.mdi-exit-to-app(button-content)
+                span &nbsp;&nbsp;#{__('Send')}
                 span.hidden(running-container) #{__('Please wait...')}
       .clearfix
