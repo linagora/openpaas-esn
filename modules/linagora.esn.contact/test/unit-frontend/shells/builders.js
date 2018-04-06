@@ -360,7 +360,7 @@ describe('ContactShell Builders', function() {
         Object.keys(ical).forEach(function(propName) {
           var prop = vcard.getFirstProperty(propName);
           expect(prop, 'Missing: ' + propName).to.be.ok;
-          var value = prop.toICAL();
+          var value = prop.toICALString();
           expect(value).to.equal(ical[propName].toString());
         });
       }
@@ -430,7 +430,7 @@ describe('ContactShell Builders', function() {
           bday: 'BDAY;VALUE=DATE:20150101',
           nickname: 'NICKNAME:nick',
           note: 'NOTE:notes',
-          photo: 'PHOTO:data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAA'
+          photo: 'PHOTO:data:image/png;base64\\,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAA'
         };
 
         compareShell(shell, ical);
