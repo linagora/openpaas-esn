@@ -14,7 +14,7 @@
         form(name='form')
           .form-group
             .fg-line
-              textarea.form-control(ng-model='$ctrl.description', rows="10")
+              textarea.form-control(ng-model='$ctrl.description', auto-resize)
           .buttons
             button.btn(ng-click='$ctrl.cancelEdition()') #{__('Cancel')}
             button.btn.btn-primary(type='submit', ng-disabled='form.$pristine', ng-click='$ctrl.updateDescription()') #{__('Update')}
