@@ -1537,14 +1537,16 @@ describe('The Community Angular module', function() {
     });
 
     it('should set the esnCollaborationClientService.getRequestMemberships result in the scope', function(done) {
-      this.$compile(this.html)(this.scope);
-
       var result = [1, 2, 3];
+
       this.esnCollaborationClientService.getRequestMemberships = function() {
         return $q.when({ data: result });
       };
+
+      var element = this.$compile(this.html)(this.scope);
+
       this.scope.$digest();
-      expect(this.scope.requests).to.deep.equal(result);
+      expect(element.isolateScope().requests).to.deep.equal(result);
       done();
     });
 
