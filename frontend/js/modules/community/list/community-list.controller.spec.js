@@ -40,12 +40,10 @@ describe('The communityListController controller', function() {
       error: function() {
       }
     };
-    this.location = {};
 
     $controller('communityListController', {
       $scope: this.scope,
       $log: this.log,
-      $location: this.location,
       domain: this.domain,
       user: this.user,
       communityAPI: this.communityAPI,

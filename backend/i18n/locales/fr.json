@@ -128,13 +128,13 @@
   "Owned": "M'appartenant",
   "Member of": "Membre",
   "Open": "Ouvertes",
-  "open": "ouvertes",
+  "open": "ouverte",
   "Private": "Privées",
-  "private": "privées",
+  "private": "privée",
   "Confidential": "Confidentielles",
   "confidential": "confidentielles",
   "Restricted": "Restreintes",
-  "restricted": "restreintes",
+  "restricted": "restreinte",
   "Next": "Suivant",
   "Create": "Créer",
   "A human readable description which will help users know what this community is about": "Une description de votre communauté, qui aidera les utilisateurs à comprendre son sujet",
@@ -175,6 +175,7 @@
   "members": "membres",
   "member": "membre",
   "Description": "Description",
+  "No description": "Pas de description",
   "Error while searching members": "Erreur lors de la recherche de membres",
   "My communities": "Mes communautés",
   "Accept picture": "Accepter l'image",
@@ -459,5 +460,6 @@
   "You replied to a poll": "Vous avez répondu à un sondage",
   "replied to a poll": "a répondu à un sondage",
   "Like": "J'aime",
-  "Comments": "Commentaires"
+  "Comments": "Commentaires",
+  "Discussion": "Discussion"
 }

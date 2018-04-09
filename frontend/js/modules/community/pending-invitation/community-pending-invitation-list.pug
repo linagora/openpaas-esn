@@ -1,0 +1,12 @@
+.community-pending-invitation-list
+  .pending-invitation-error.text-center(ng-if="error")
+    span #{__('Error while loading sent invitations')}.
+
+  .invitations(ng-if="!error")
+    .row(ng-repeat="request in invitationRequests = (requests | filter: {workflow: 'invitation'})")
+      community-pending-invitation-display(request="request", community="community")
+      .vertiz-space
+
+    .row(ng-if="!invitationRequests.length")
+      .no-invitation.text-center
+        span #{__('No invitations sent')}

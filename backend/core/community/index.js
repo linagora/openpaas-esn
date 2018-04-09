@@ -291,6 +291,10 @@ function update(community, modifications, callback) {
     community.avatar = modifications.avatar;
   }
 
+  if (modifications.description) {
+    community.description = modifications.description;
+  }
+
   if (modifications.newMembers) {
     modifications.newMembers.forEach(member => {
       community.members.push({

@@ -175,6 +175,7 @@
   "members": "thành viên",
   "member": "thành viên",
   "Description": "Mô tả",
+  "No description": "Không có mô tả",
   "Error while searching members": "Lỗi khi đang tìm kiếm thành viên",
   "My communities": "Cộng đồng của tôi",
   "Accept picture": "Chấp nhận ảnh",
@@ -459,5 +460,6 @@
   "You replied to a poll": "Bạn đã trả lời cuộc thăm dò",
   "replied to a poll": "trả lời cuộc thăm dò",
   "Like": "Như",
-  "Comments": "Nhận xét"
+  "Comments": "Nhận xét",
+  "Discussion": "Thảo luận"
 }

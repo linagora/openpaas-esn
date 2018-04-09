@@ -1,0 +1,20 @@
+.community-about
+  .card
+    .card-header.ch-alt
+      h2 #{__("Description")}
+      .edit(ng-if="$ctrl.canEditDescription() && !$ctrl.edit")
+        a(href="" ng-click="$ctrl.editDescription()") #{__("Edit")}
+    .card-body(ng-if="!$ctrl.edit")
+      .description.text-center(ng-if="!$ctrl.community.description")
+        span #{__("No description")}
+      .description(ng-if="$ctrl.community.description")
+        span(ng-bind-html="$ctrl.community.description | linky")
+    .card-body(ng-if="$ctrl.edit")
+      .form-container
+        form(name='form')
+          .form-group
+            .fg-line
+              textarea.form-control(ng-model='$ctrl.description', auto-resize)
+          .buttons
+            button.btn(ng-click='$ctrl.cancelEdition()') #{__('Cancel')}
+            button.btn.btn-primary(type='submit', ng-disabled='form.$pristine', ng-click='$ctrl.updateDescription()') #{__('Update')}

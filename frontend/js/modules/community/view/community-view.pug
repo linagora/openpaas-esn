@@ -1,0 +1,24 @@
+sub-header
+  community-view-subheader
+
+.community-view(sub-header-aware)
+  .header
+    community-view-header(community="community")
+    .toolbar
+      community-view-tabs
+
+  .community-view-main
+    .col-xs-12.card(ng-if='!canRead()')
+      p.text-center #{__('You are no allowed to see the content of this community.')}
+
+    div(ng-if='canRead()')
+      .col-xs-12.col-md-8.community-view-content.ui-view(name="content")
+
+      .col-md-4.hidden-xs.community-view-sidebar.ui-view(name="sidebar")
+        esn-collaboration-members-widget(object-type="community", collaboration="community", in-slices-of='4')
+        .vertiz-space
+        esn-collaboration-membership-requests-widget(ng-if="showMembershipRequestsWidget()" object-type="community", collaboration="community")
+        .vertiz-space
+        esn-collaboration-invite-users(object-type="community", collaboration="community")
+        .vertiz-space
+        injections-widget(injection-anchor-id="communityPageRightPanel", injection-subject="community")
