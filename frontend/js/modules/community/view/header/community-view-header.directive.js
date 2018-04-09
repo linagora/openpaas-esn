@@ -1,9 +1,9 @@
 (function(angular) {
   'use strict';
 
-  angular.module('esn.community').directive('communityDescription', communityDescription);
+  angular.module('esn.community').directive('communityViewHeader', communityViewHeader);
 
-  function communityDescription(
+  function communityViewHeader(
     $log,
     $state,
     notificationFactory,
@@ -14,7 +14,7 @@
     return {
       restrict: 'E',
       replace: true,
-      templateUrl: '/views/modules/community/description/community-description.html',
+      templateUrl: '/views/modules/community/view/header/community-view-header.html',
       link: function($scope) {
         $scope.$watch('community', function() {
           $scope.canManage = communityService.isManager($scope.community, session.user);
@@ -54,7 +54,7 @@
         function onRemovalConfirmation() {
           communityService.remove($scope.community).then(function() {
             notificationFactory.weakInfo('Success', 'The community has been removed');
-            $state.go('/communities');
+            $state.go('community.list');
           }, function(err) {
             $log.error('Error while removing community', err);
             notificationFactory.weakError('Error', 'The community can not be removed');
