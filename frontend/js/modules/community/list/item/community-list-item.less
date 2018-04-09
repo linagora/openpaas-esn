@@ -1,0 +1,57 @@
+.community-list-item {
+  .flex;
+
+  margin-bottom: 0;
+  padding: 10px;
+
+  .avatar {
+    img {
+      width: 80px;
+
+      &.thumbnail {
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  .content {
+    .flex-column;
+    .flex-grow;
+
+    min-width: 0; // ellipsis on flex
+    margin-left: 20px;
+
+    .title {
+      .flex-vertical-centered;
+      .flex-start;
+
+      .text {
+        .flex-grow;
+
+        font-weight: 500;
+        font-size: 16px;
+      }
+
+      .actions {
+        .flex-end;
+      }
+    }
+
+    .meta {
+      .flex-vertical-centered;
+
+      >span {
+        margin-right: 12px;
+      }
+
+      .type {
+        font-size: 13px;
+        text-transform: capitalize;
+      }
+    }
+
+    .description {
+      margin-top: 6px;
+    }
+  }
+}

@@ -95,6 +95,7 @@ const injections = [
     'community/view/header/community-view-header.directive.js',
     'community/view/tabs/community-view-tabs.component.js',
     'community/list/community-list.controller.js',
+    'community/list/item/community-list-item.directive.js',
     'community/list/filter/community-list-filter.component.js',
     'community/list/filter/community-list-filter.controller.js',
     'community/community.js'
