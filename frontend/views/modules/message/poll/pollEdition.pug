@@ -3,7 +3,7 @@
     .form-group.message-textarea-edition
       .fg-line
         textarea.form-control.textarea-poll-composer(ng-model='messageContent', placeholder=__('Enter your poll description and question'), ng-file-drop="onFileSelect($files)", auto-resize)
-    p 
+    p
       strong #{__('Your poll options')}
     .form-horizontal
       .form-group(ng-repeat='choice in additionalData.pollChoices')
@@ -12,10 +12,11 @@
           .fg-line
             input.form-control(type='text' ng-model='choice.label' placeholder=__('Poll option description...'))
     .form-group
-      p
+      .p-5
         button.btn.btn-link(ng-click='appendChoice()')
-          i.mdi.mdi-plus
-          span #{__('Add another option')}
+          .flex-vertical-centered
+            i.mdi.mdi-plus
+            span #{__('Add another option')}
     .row.form-group.display-current-position
       map-get-display-current-position
     .row.form-group(ng-if='attachments && attachments.length > 0')
