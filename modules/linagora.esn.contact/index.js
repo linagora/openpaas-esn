@@ -16,7 +16,6 @@ const angularModuleFiles = [
   'live.js',
   'services.js',
   'ui.js',
-  'shells/contactshell.js',
   'shells/contactdisplayshell.js',
   'shells/displayshellprovider.js',
   'shells/helpers.js',

@@ -34,6 +34,7 @@ angular.module('linagora.esn.contact')
     phone: ['Work', 'Mobile', 'Home', 'Other'],
     social: ['Skype', 'Twitter', 'Other']
   })
+  .constant('CONTACT_FALLBACK_ATTRIBUTE_TYPE', 'Other')
   .constant('CONTACT_DEFAULT_AVATAR', '/contact/images/default_avatar.png')
   .constant('CONTACT_LIST_DEFAULT_SORT', 'fn')
   .constant('CONTACT_LIST_PAGE_SIZE', 20)

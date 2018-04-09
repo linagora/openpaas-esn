@@ -1,41 +1,19 @@
-'use strict';
+(function(angular) {
+  'use strict';
 
-angular.module('linagora.esn.contact')
+  angular.module('linagora.esn.contact')
+    .factory('ContactShell', ContactShellFactory);
 
-  .factory('ContactShell', function() {
+  function ContactShellFactory(
+    contactVcardHelper,
+    CONTACT_ATTRIBUTES_ORDER
+  ) {
     function ContactShell(vcard, etag) {
-      function getMultiValue(propName) {
-        var props = vcard.getAllProperties(propName);
-        return props.map(function(prop) {
-          var data = {
-            value: prop.getFirstValue()
-          };
-          var type = prop.getFirstParameter('type');
-          if (type) {
-            data.type = type;
-          }
-          return data;
-        });
-      }
-
-      function getMultiAddress(propName) {
-        var props = vcard.getAllProperties(propName);
-        return props.map(function(prop) {
-          var propVal = prop.getFirstValue();
-          return {
-            type: prop.getFirstParameter('type'),
-            street: propVal[2],
-            city: propVal[3],
-            zip: propVal[5],
-            country: propVal[6]
-          };
-        });
-      }
-
       this.id = vcard.getFirstPropertyValue('uid');
       this.displayName = vcard.getFirstPropertyValue('fn');
 
       var name = vcard.getFirstPropertyValue('n');
+
       this.firstName = name ? name[1] : '';
       this.lastName = name ? name[0] : '';
 
@@ -43,23 +21,26 @@ angular.module('linagora.esn.contact')
       this.orgName = this.org ? this.org[0] : '';
       this.orgRole = vcard.getFirstPropertyValue('role');
 
-      this.emails = getMultiValue('email').map(function(mail) {
+      this.emails = contactVcardHelper.getMultiValue(vcard, 'email', CONTACT_ATTRIBUTES_ORDER.email).map(function(mail) {
         mail.value = mail.value.replace(/^mailto:/i, '');
+
         return mail;
       });
 
-      this.tel = getMultiValue('tel').map(function(tel) {
+      this.tel = contactVcardHelper.getMultiValue(vcard, 'tel', CONTACT_ATTRIBUTES_ORDER.phone).map(function(tel) {
         tel.value = tel.value.replace(/^tel:/i, '');
+
         return tel;
       });
 
-      this.addresses = getMultiAddress('adr');
-      this.social = getMultiValue('socialprofile');
-      this.urls = getMultiValue('url');
+      this.addresses = contactVcardHelper.getMultiAddress(vcard, 'adr', CONTACT_ATTRIBUTES_ORDER.address);
+      this.social = contactVcardHelper.getMultiValue(vcard, 'socialprofile', CONTACT_ATTRIBUTES_ORDER.social);
+      this.urls = contactVcardHelper.getMultiValue(vcard, 'url');
 
       var catprop = vcard.getFirstProperty('categories');
       var cats = catprop && catprop.getValues().concat([]);
       var starredIndex = cats ? cats.indexOf('starred') : -1;
+
       this.starred = starredIndex > -1;
       if (this.starred) {
         cats.splice(starredIndex, 1);
@@ -84,4 +65,5 @@ angular.module('linagora.esn.contact')
     }
 
     return ContactShell;
-  });
+  }
+})(angular);
