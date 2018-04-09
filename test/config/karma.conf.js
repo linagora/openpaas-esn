@@ -116,6 +116,7 @@ module.exports = function(config) {
       'test/fixtures/code-generation/constants.js',
 
       { pattern: 'frontend/js/modules/user-notification/user-notification.router.js', watched: false, included: false, served: false },
+      { pattern: 'frontend/js/modules/user-notification/user-notification.run.js', watched: false, included: false, served: false },
       { pattern: 'frontend/js/modules/oauth-application/oauth-application.router.js', watched: false, included: false, served: false },
       { pattern: 'frontend/js/modules/datetime/datetime.run.js', watched: false, included: false, served: false },
       { pattern: 'frontend/images/*.png', watched: false, included: false, served: true },

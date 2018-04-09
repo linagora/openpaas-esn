@@ -11,11 +11,6 @@ describe('The esnCollaborationInvitationAcceptButton directive', function() {
       }
     };
 
-    var esnUserNotificationService = {
-      setAcknowledged: function() {
-      }
-    };
-
     var objectTypeResolver = {
       resolve: function() {},
       register: function() {}
@@ -26,7 +21,6 @@ describe('The esnCollaborationInvitationAcceptButton directive', function() {
     angular.mock.module('esn.object-type');
     angular.mock.module(function($provide) {
       $provide.value('esnCollaborationClientService', esnCollaborationClientService);
-      $provide.value('esnUserNotificationService', esnUserNotificationService);
       $provide.value('objectTypeResolver', objectTypeResolver);
     });
     module('jadeTemplates');

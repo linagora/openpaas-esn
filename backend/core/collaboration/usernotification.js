@@ -2,7 +2,6 @@
 
 const async = require('async');
 const localpubsub = require('../pubsub').local;
-const globalpubsub = require('../pubsub').global;
 const logger = require('../logger');
 const usernotification = require('../notification').usernotification;
 const extend = require('extend');
@@ -65,7 +64,7 @@ module.exports = collaborationModule => {
       async.waterfall([
           augmentToMembershipAccepted.bind(null, data),
           createUserNotification
-        ]);
+        ], callback);
     } else {
       collaborationModule.member.getManagers(data.collaboration.objectType, data.collaboration.id, (err, managers) => {
         if (err || !managers || managers.length === 0) {
@@ -83,7 +82,7 @@ module.exports = collaborationModule => {
           async.waterfall([
               augmentToCollaborationJoin.bind(null, notifData),
               createUserNotification
-            ]);
+            ], callback);
         });
       });
     }
@@ -110,14 +109,14 @@ module.exports = collaborationModule => {
     async.waterfall([
         augmentToMembershipInvite.bind(null, data),
         createUserNotification
-      ]);
+      ], callback);
   }
 
   function membershipAcceptedHandler(data, callback) {
     async.waterfall([
         augmentToMembershipAccepted.bind(null, data),
         createUserNotification
-      ]);
+      ], callback);
   }
 
   function augmentToMembershipRefused(data, callback) {
@@ -142,7 +141,7 @@ module.exports = collaborationModule => {
     async.waterfall([
         augmentToMembershipRefused.bind(null, data),
         createUserNotification
-      ]);
+      ], callback);
   }
 
   function membershipInvitationCancelHandler(data) {

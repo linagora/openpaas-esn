@@ -115,6 +115,7 @@ module.exports = function(config) {
       'test/fixtures/code-generation/constants.js',
 
       { pattern: 'frontend/js/modules/collaboration/collaboration.run.js', watched: false, included: false, served: false },
+      { pattern: 'frontend/js/modules/user-notification/user-notification.run.js', watched: false, included: false, served: false },
       { pattern: 'frontend/js/modules/oauth-application/oauth-application.router.js', watched: false, included: false, served: false },
       { pattern: 'frontend/js/modules/datetime/datetime.run.js', watched: false, included: false, served: false },
       { pattern: 'frontend/js/modules/i18n/i18n.config.js', watched: false, included: false, served: true },
