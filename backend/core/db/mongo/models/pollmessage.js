@@ -8,7 +8,8 @@ var pollSpecificSchema = {
   objectType: {type: String, required: true, default: 'pollmessage'},
   content: {type: String, required: true},
   pollChoices: {type: Array},
-  pollResults: {type: Array}
+  pollResults: {type: Array},
+  published: {type: Date, default: Date.now}
 };
 
 extend(true, pollSpecificSchema, baseMessage);
