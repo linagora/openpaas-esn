@@ -8,7 +8,7 @@
       .description.text-center(ng-if="!$ctrl.community.description")
         span #{__("No description")}
       .description(ng-if="$ctrl.community.description")
-        span {{ $ctrl.community.description }}
+        span(ng-bind-html="$ctrl.community.description | linky")
     .card-body(ng-if="$ctrl.edit")
       .form-container
         form(name='form')
