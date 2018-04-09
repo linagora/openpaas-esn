@@ -3,6 +3,8 @@
 const async = require('async');
 const mongoose = require('mongoose');
 const UserNotification = mongoose.model('Usernotification');
+const globalpubsub = require('../pubsub').global;
+const logger = require('../logger');
 
 const DEFAULT_LIMIT = 50;
 const DEFAULT_OFFSET = 0;
@@ -37,7 +39,24 @@ function create(usernotification, callback) {
     return callback(new Error('usernotification is required'));
   }
 
-  new UserNotification(usernotification).save(callback);
+  new UserNotification(usernotification).save(_onSuccessPublishIntoGlobal(callback));
+}
+
+function _onSuccessPublishIntoGlobal(callback) {
+  callback = callback || function() {};
+
+  return function(err, result) {
+    if (err) {
+      logger.warn('Error while adding a usernotification : ', err.message);
+      callback(err);
+    } else {
+      if (result) {
+        logger.debug('A new usernotification has been saved : ' + result._id);
+        globalpubsub.topic('usernotification:created').publish(result);
+      }
+      callback(null);
+    }
+  };
 }
 
 function get(id, callback) {

@@ -26,23 +26,6 @@ module.exports = collaborationModule => {
     usernotification.create(data, callback);
   }
 
-  function onSuccessPublishIntoGlobal(callback) {
-    callback = callback || function() {};
-
-    return function(err, result) {
-      if (err) {
-        logger.warn('Error while adding a usernotification : ', err.message);
-        callback(err);
-      } else {
-        if (result) {
-          logger.debug('A new usernotification has been saved : ' + result._id);
-          globalpubsub.topic('usernotification:created').publish(result);
-        }
-        callback(null);
-      }
-    };
-  }
-
   function augmentToMembershipAccepted(data, callback) {
     const id = data.community || data.collaboration.id;
     const notification = {
@@ -82,8 +65,7 @@ module.exports = collaborationModule => {
       async.waterfall([
           augmentToMembershipAccepted.bind(null, data),
           createUserNotification
-        ],
-        onSuccessPublishIntoGlobal(callback));
+        ]);
     } else {
       collaborationModule.member.getManagers(data.collaboration.objectType, data.collaboration.id, (err, managers) => {
         if (err || !managers || managers.length === 0) {
@@ -101,8 +83,7 @@ module.exports = collaborationModule => {
           async.waterfall([
               augmentToCollaborationJoin.bind(null, notifData),
               createUserNotification
-            ],
-            onSuccessPublishIntoGlobal(callback));
+            ]);
         });
       });
     }
@@ -129,16 +110,14 @@ module.exports = collaborationModule => {
     async.waterfall([
         augmentToMembershipInvite.bind(null, data),
         createUserNotification
-      ],
-      onSuccessPublishIntoGlobal(callback));
+      ]);
   }
 
   function membershipAcceptedHandler(data, callback) {
     async.waterfall([
         augmentToMembershipAccepted.bind(null, data),
         createUserNotification
-      ],
-      onSuccessPublishIntoGlobal(callback));
+      ]);
   }
 
   function augmentToMembershipRefused(data, callback) {
@@ -163,8 +142,7 @@ module.exports = collaborationModule => {
     async.waterfall([
         augmentToMembershipRefused.bind(null, data),
         createUserNotification
-      ],
-      onSuccessPublishIntoGlobal(callback));
+      ]);
   }
 
   function membershipInvitationCancelHandler(data) {
