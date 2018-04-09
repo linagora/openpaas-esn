@@ -3,7 +3,7 @@
 
   angular.module('esn.community').controller('communityListController', communityListController);
 
-  function communityListController($scope, $log, $location, communityAPI, userAPI, domain, user) {
+  function communityListController($scope, $log, communityAPI, userAPI, domain, user) {
     $scope.communities = [];
     $scope.error = false;
     $scope.loading = false;

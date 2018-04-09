@@ -167,7 +167,7 @@ angular.module('esn.community')
     };
   })
   .directive('communityCreate',
-  function(WidgetWizard, selectionService, communityCreationService, $timeout, $location, $alert, $rootScope) {
+  function(WidgetWizard, selectionService, communityCreationService, $timeout, $state, $alert, $rootScope) {
     function link($scope, element) {
       $scope.wizard = new WidgetWizard([
         '/views/modules/community/community-creation-wizard-1',
@@ -216,7 +216,7 @@ angular.module('esn.community')
           if ($scope.createModal) {
             $scope.createModal.hide();
           }
-          $location.path('/communities/' + id);
+          $state.go('community.view', { id: id });
         }, 1000);
       }
 
@@ -245,7 +245,7 @@ angular.module('esn.community')
     };
 
   })
-  .directive('communityDisplay', function(communityAPI, communityService, session, $log, $location) {
+  .directive('communityDisplay', function(communityAPI, communityService, session, $log, $state) {
     return {
       restrict: 'E',
       scope: {
@@ -279,7 +279,7 @@ angular.module('esn.community')
         $scope.join = function() {
           $scope.canJoin = false;
           communityService.join($scope.community, session.user).then(function() {
-            $location.path('/communities/' + $scope.community._id);
+            $state.go('community.view', { id: $scope.community._id });
           }, refreshCommunity);
         };
 

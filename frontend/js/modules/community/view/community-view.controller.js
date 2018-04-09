@@ -3,7 +3,7 @@
 
   angular.module('esn.community').controller('communityViewController', communityViewController);
 
-  function communityViewController($rootScope, $scope, $location, $log, session, communityAPI, communityService, objectTypeAdapter, community, memberOf) {
+  function communityViewController($rootScope, $scope, $state, $log, session, communityAPI, communityService, objectTypeAdapter, community, memberOf) {
     $scope.community = community;
     $scope.user = session.user;
     $scope.error = false;
@@ -41,7 +41,7 @@
     });
 
     $scope.onLeave = function() {
-      $location.path('/communities');
+      $state.go('community.list');
     };
 
     $scope.reload = function() {
