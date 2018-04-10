@@ -1,12 +1,12 @@
-'use strict';
+const Q = require('q');
+const messageModule = require('../../core/message');
+const likeMessageModule = messageModule.like;
 
-var q = require('q');
-
-var messageModule = require('../../core/message');
-var likeMessageModule = messageModule.like;
+module.exports = {
+  denormalize
+};
 
 function denormalize(message, options) {
-
   message.likes = {
     me: {
       liked: false
@@ -15,10 +15,11 @@ function denormalize(message, options) {
     total_count: 0
   };
 
-  return q.allSettled([
+  return Q.allSettled([
     likeMessageModule.getNbOfLikes(message),
     likeMessageModule.isMessageLikedByUser(message, options.user)
-  ]).spread(function(likes, liked) {
+  ])
+  .spread((likes, liked) => {
     if (likes.state === 'fulfilled') {
       message.likes.total_count = likes.value || 0;
     }
@@ -28,6 +29,11 @@ function denormalize(message, options) {
     }
 
     return message;
-  });
+  })
+  .then(message => denormalizeResponses(message, options))
+  .then(() => message);
 }
-module.exports.denormalize = denormalize;
+
+function denormalizeResponses(message, options) {
+  return Q.all((message.responses || []).map(response => denormalize(response, options)));
+}

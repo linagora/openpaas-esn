@@ -29,8 +29,8 @@ function toTimelineEntry(link, user, message) {
 }
 
 function handler(link) {
-  return q.all([q.denodeify(userModule.get)(link.source.id), q.denodeify(messageModule.get)(link.target.id)]).spread(function(user, message) {
-    return toTimelineEntry(link, user, message);
+  return q.all([q.denodeify(userModule.get)(link.source.id), q.denodeify(messageModule.findByIds)([link.target.id])]).spread(function(user, messages) {
+    return toTimelineEntry(link, user, messages[0]);
   });
 }
 module.exports.handler = handler;

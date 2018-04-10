@@ -1,22 +1,29 @@
-'use strict';
+const composableMiddleware = require('composable-middleware');
+const canCreateMiddlewares = {};
+const linkUtils = require('../../core/resource-link/utils');
+const logger = require('../../core/logger');
 
-var composableMiddleware = require('composable-middleware');
-var canCreateMiddlewares = {};
-var linkUtils = require('../../core/resource-link/utils');
-var logger = require('../../core/logger');
+module.exports = {
+  addCanCreateMiddleware,
+  canCreate,
+  canDelete,
+  isLinkable,
+  isResourceLink
+};
 
 function wrap(type, middleware) {
-
   return function wrapper(req, res, next) {
     logger.debug('Wrap middleware');
 
     if (req.linkable) {
       logger.debug('Link has already been processed');
+
       return next();
     }
 
     if (req.link && req.link.type !== type) {
       logger.debug('Link is not a valid type %s, skipping', req.link.type);
+
       return next();
     }
 
@@ -30,7 +37,6 @@ function addCanCreateMiddleware(type, middleware) {
     canCreateMiddlewares[type].use(wrap(type, middleware));
   }
 }
-module.exports.addCanCreateMiddleware = addCanCreateMiddleware;
 
 function isResourceLink(req, res, next) {
   var link = req.body;
@@ -42,24 +48,24 @@ function isResourceLink(req, res, next) {
   req.link = link;
   next();
 }
-module.exports.isResourceLink = isResourceLink;
 
 function canCreate(req, res, next) {
-  var middleware = canCreateMiddlewares[req.link.type];
+  const middleware = canCreateMiddlewares[req.link.type];
+
   if (!middleware) {
     return res.status(400).json({error: {code: 400, message: 'Bad request', details: 'Resource Link of type ' + req.link.type + ' can not be processed'}});
   }
+
   middleware(req, res, next);
 }
-module.exports.canCreate = canCreate;
 
 function isLinkable(req, res, next) {
   if (!req.linkable) {
     return res.status(400).json({error: {code: 400, message: 'Bad request', details: 'Resources are not linkable'}});
   }
+
   next();
 }
-module.exports.isLinkable = isLinkable;
 
 function canDelete(req, res, next) {
   if (!linkUtils.isOwnerLink(req.body.source.id, req.user._id)) {
@@ -68,5 +74,3 @@ function canDelete(req, res, next) {
 
   next();
 }
-
-module.exports.canDelete = canDelete;
