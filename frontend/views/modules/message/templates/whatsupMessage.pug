@@ -13,13 +13,13 @@ div.whats-up-message-thread(data-ng-switch='parentMessage')
           .share
             thread-bottom-links
     .card-body.card-padding
-      p.m-b-0.white-space-pre-line
+      p.m-b-5.white-space-pre-line
         text-parser(parsers='{{message.parsers}}', text='{{message.content}}')
-      .row(ng-if="message.position")
+      div(ng-if="message.position")
         display-position(position='message.position')
-      .row(ng-if="message.attachments && message.attachments.length > 0", ng-repeat='attachment in message.attachments')
+      div(ng-if="message.attachments && message.attachments.length > 0", ng-repeat='attachment in message.attachments')
         esn-attachment(attachment="attachment", gallery="message._id")
-      .row
+      div
         message-oembeds(message='message')
       ul.wall-attrs.clearfix.list-inline.list-unstyled
         li.wa-buttons
@@ -54,7 +54,7 @@ div.whats-up-message-thread(data-ng-switch='parentMessage')
             message-date-link(message='message', activitystream='activitystream')
           .share
             message-bottom-links
-          p.m-b-0.white-space-pre-line
+          p.m-b-5.white-space-pre-line
             text-parser(parsers='{{message.parsers}}', text='{{message.content}}')
           display-position.row(ng-if="message.position", position='message.position')
           message-oembeds.attachment(message='message')

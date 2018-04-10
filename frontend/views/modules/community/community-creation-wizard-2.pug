@@ -4,7 +4,7 @@
 .modal-body
   form(name='communityForm')
     .form-group
-      .row.alert.alert-warning(role="alert")
+      .alert.alert-warning(role="alert")
         p(ng-switch='community.type')
           | #{__('You are about to create')}
           strong &nbsp;{{community.title}}&nbsp;
