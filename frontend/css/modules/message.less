@@ -1,5 +1,6 @@
 @messageBottomLinksitemColor: #adadad; // line 74 material-admin/less/inc/misc/less/misc.less
 @likedColor: #ff796f;
+@likeOverColor: lighten(@m-black, 30%);
 
 .card-message-edition {
   padding: 23px 25px 15px 25px;
@@ -319,7 +320,7 @@
       padding: 1px 2px;
 
       &:active {
-        color: @m-black;
+        color: @likeOverColor;
       }
 
       i {
@@ -408,7 +409,7 @@ body:not(.is-desktop) {
 
         i {
           &:hover {
-            color: @m-black;
+            color: @likeOverColor;
           }
         }
       }
