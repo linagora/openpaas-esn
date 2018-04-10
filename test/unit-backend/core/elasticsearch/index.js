@@ -294,6 +294,105 @@ describe('The elasticsearch module', function() {
     });
   });
 
+  describe('The removeDocumentsByQuery function', function() {
+
+    it('should send back error when getClient sends back error', function(done) {
+      const error = new Error('You failed');
+      const module = this.helpers.rewireBackend('core/elasticsearch');
+
+      module.__set__('client', callback => callback(error));
+      module.removeDocumentsByQuery({}, err => {
+        expect(err).to.equal(error);
+        done();
+      });
+    });
+
+    it('should send back error when getClient does not return client', function(done) {
+      const module = this.helpers.rewireBackend('core/elasticsearch');
+
+      module.__set__('client', callback => callback());
+      module.removeDocumentsByQuery({}, err => {
+        expect(err.message).to.match(/Can not get ES client/);
+        done();
+      });
+    });
+
+    it('should search the documents with given query', function(done) {
+      const query = {
+        index: 'contacts.idx',
+        type: 'contact',
+        body: 'foobar',
+        scroll: '30s',
+        size: 100,
+        sort: '_doc'
+      };
+
+      const clientMock = {
+        search: query => {
+          expect(query).to.deep.equal(query);
+          done();
+        }
+      };
+      const module = this.helpers.rewireBackend('core/elasticsearch');
+
+      module.__set__('client', function(callback) {
+        return callback(null, clientMock);
+      });
+
+      module.removeDocumentsByQuery(query, done);
+    });
+
+    it('should remove the found documents', function(done) {
+      const query = {
+        index: 'contacts.idx',
+        type: 'contact',
+        body: 'foobar',
+        scroll: '30s',
+        size: 100,
+        sort: '_doc'
+      };
+      const contact1 = {
+        _index: query.index,
+        _type: query.type,
+        _id: 'contact1'
+      };
+      const contact2 = {
+        _index: query.index,
+        _type: query.type,
+        _id: 'contact2'
+      };
+      const bulkToDelete = [
+        { delete: contact1 },
+        { delete: contact2 }
+      ];
+
+      const clientMock = {
+        search: sinon.stub().returns(q.when({
+          hits: {
+            _scroll_id: 'scroll-id',
+            total: 2,
+            hits: [contact1, contact2]
+          }
+        })),
+        bulk: sinon.stub().returns(q.when())
+      };
+      const module = this.helpers.rewireBackend('core/elasticsearch');
+
+      module.__set__('client', function(callback) {
+        return callback(null, clientMock);
+      });
+
+      const removeCallback = (err, res) => {
+        expect(err).to.be.null;
+        expect(clientMock.bulk).to.have.been.calledWith({ body: bulkToDelete });
+        expect(res.deleted).to.deep.equal([contact1, contact2]);
+        done();
+      };
+
+      module.removeDocumentsByQuery(query, removeCallback);
+    });
+  });
+
   describe('the searchDocuments function', function() {
     it('should call search on ES client', function(done) {
 
