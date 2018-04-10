@@ -35,10 +35,11 @@
 
 .comment-composer {
   .wcc-inner {
-    padding: 15px 10px;
+    padding: 12px 5px;
 
     .form-control:not(.fc-alt) {
       border: none;
+      padding: 0 5px;
     }
 
     &.focus-on {
@@ -78,7 +79,7 @@
     .wa-buttons{
       padding-top: 10px;
        & > span {
-        padding: 0 6px;
+        padding: 0 3px;
       }
     }
 
@@ -296,9 +297,7 @@ message-bottom-links {
       border: 0;
       background-color: inherit;
       max-height: 28px;
-
-      .transition(color);
-      .transition-duration(1300ms);
+      padding: 1px 2px;
 
       &:active {
         color: @m-black;
@@ -379,16 +378,30 @@ body:not(.is-desktop) {
           }
         }
       }
+
+      .wa-buttons span {
+        padding: 0 6px;
+      }
     }
   }
 
   message-bottom-links {
     like-button {
-      i {
-        &:hover {
-          color: @m-black;
+      .like-button {
+        padding: 1px 6px;
+
+        i {
+          &:hover {
+            color: @m-black;
+          }
         }
       }
+    }
+  }
+
+  .comment-composer {
+    .wcc-inner {
+      padding: 15px 10px;
     }
   }
 }

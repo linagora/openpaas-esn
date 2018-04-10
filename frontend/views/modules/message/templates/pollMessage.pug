@@ -17,7 +17,7 @@ div.poll-message-thread(data-ng-switch='parentMessage')
     .card-body.card-padding
       p.m-t-5.m-b-0
         i {{message.pollResults.length}} #{__('people have already voted')}.
-      p.m-t-5.m-b-0
+      p.m-b-5
         text-parser(parsers='{{message.parsers}}', text='{{message.content}}')
       div
         display-position(position='message.position')

@@ -13,7 +13,7 @@ div.whats-up-message-thread(data-ng-switch='parentMessage')
           .share
             thread-bottom-links
     .card-body.card-padding
-      p.m-b-0.white-space-pre-line
+      p.m-b-5.white-space-pre-line
         text-parser(parsers='{{message.parsers}}', text='{{message.content}}')
       div(ng-if="message.position")
         display-position(position='message.position')
@@ -54,7 +54,7 @@ div.whats-up-message-thread(data-ng-switch='parentMessage')
             message-date-link(message='message', activitystream='activitystream')
           .share
             message-bottom-links
-          p.m-b-0.white-space-pre-line
+          p.m-b-5.white-space-pre-line
             text-parser(parsers='{{message.parsers}}', text='{{message.content}}')
           display-position.row(ng-if="message.position", position='message.position')
           message-oembeds.attachment(message='message')
