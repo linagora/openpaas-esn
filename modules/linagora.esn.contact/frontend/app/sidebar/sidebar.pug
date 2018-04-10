@@ -27,13 +27,14 @@
     ui-sref-active="selected",
     ui-sref="contact.addressbooks({ bookName: null })"
   )
-    .badge-container
-      .badge
-      i.addressbook-icon.mdi.mdi-folder-multiple
+    .addressbook-icon.all-contacts
+      i.mdi.mdi-folder-multiple
     .title.ellipsis
       span #{__('All contacts')}
 
 hr
 
 .listview
-  contact-sidebar-addressbook-item(ng-repeat='book in $ctrl.addressbooks', addressbook-display-shell='book')
+  contact-sidebar-addressbooks-list(title="'My address books'", addressbooks='$ctrl.userAddressbooks')
+
+  contact-sidebar-addressbooks-list(title="'Shared address books'", addressbooks='$ctrl.sharedAddressbooks')

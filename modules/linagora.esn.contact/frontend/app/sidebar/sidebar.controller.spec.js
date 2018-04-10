@@ -8,6 +8,7 @@ var expect = chai.expect;
 describe('the ContactSidebarController controller', function() {
   var $rootScope, $controller;
   var contactAddressbookService, contactAddressbookDisplayService;
+  var userAPI, userUtils;
   var CONTACT_ADDRESSBOOK_EVENTS;
 
   beforeEach(function() {
@@ -18,13 +19,24 @@ describe('the ContactSidebarController controller', function() {
       _$rootScope_,
       _contactAddressbookDisplayService_,
       _contactAddressbookService_,
+      _userAPI_,
+      _userUtils_,
       _CONTACT_ADDRESSBOOK_EVENTS_
     ) {
       $controller = _$controller_;
       $rootScope = _$rootScope_;
       contactAddressbookDisplayService = _contactAddressbookDisplayService_;
       contactAddressbookService = _contactAddressbookService_;
+      userAPI = _userAPI_;
+      userUtils = _userUtils_;
       CONTACT_ADDRESSBOOK_EVENTS = _CONTACT_ADDRESSBOOK_EVENTS_;
+
+      contactAddressbookDisplayService.categorizeDisplayShells = function() {
+        return {
+          userAddressbooks: [],
+          externalAddressbooks: []
+        };
+      };
     });
   });
 
@@ -43,23 +55,87 @@ describe('the ContactSidebarController controller', function() {
       var addressbooks = [
         {
           displayName: 'bookA',
-          priority: 1
+          priority: 1,
+          isSubscription: angular.noop
         },
         {
           displayName: 'bookB',
-          priority: 10
+          priority: 10,
+          isSubscription: angular.noop
         }
       ];
 
       contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when(addressbooks));
       contactAddressbookDisplayService.convertShellsToDisplayShells = sinon.spy();
-      contactAddressbookDisplayService.sortAddressbookDisplayShells = sinon.spy();
 
       initController();
 
       expect(contactAddressbookService.listAddressbooks).to.have.been.called;
       expect(contactAddressbookDisplayService.convertShellsToDisplayShells).to.have.been.calledOnce;
-      expect(contactAddressbookDisplayService.sortAddressbookDisplayShells).to.have.been.calledOnce;
+    });
+
+    it('should inject owner to addressbooks which are subscription', function() {
+      var addressbooks = [{
+        name: 'Subscription 1',
+        source: { bookId: 'user1' },
+        isSubscription: function() { return true; }
+      }, {
+        name: 'Subscription 2',
+        source: { bookId: 'user1' },
+        isSubscription: function() { return true; }
+      }, {
+        name: 'Subscription 3',
+        source: { bookId: 'user3' },
+        isSubscription: function() { return true; }
+      }, {
+        name: 'Normal Addressbook',
+        isSubscription: angular.noop
+      }];
+
+      contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when(addressbooks));
+      contactAddressbookDisplayService.sortAddressbookDisplayShells = function(shells) { return shells; };
+      contactAddressbookDisplayService.convertShellsToDisplayShells = function(shells) { return shells; };
+      userAPI.user = sinon.spy(function(userId) {
+        return $q.when({
+          data: userId
+        });
+      });
+      userUtils.displayNameOf = sinon.spy(function(user) { return user; });
+
+      var controller = initController();
+
+      expect(userAPI.user).to.have.been.calledTwice;
+      expect(userUtils.displayNameOf).to.have.been.calledTwice;
+      expect(controller.displayShells).to.shallowDeepEqual([{
+        name: 'Subscription 1',
+        source: {
+          bookId: 'user1'
+        },
+        owner: {
+          id: 'user1',
+          displayName: 'user1'
+        }
+      }, {
+        name: 'Subscription 2',
+        source: {
+          bookId: 'user1'
+        },
+        owner: {
+          id: 'user1',
+          displayName: 'user1'
+        }
+      }, {
+        name: 'Subscription 3',
+        source: {
+          bookId: 'user3'
+        },
+        owner: {
+          id: 'user3',
+          displayName: 'user3'
+        }
+      }, {
+        name: 'Normal Addressbook'
+      }]);
     });
 
     it('should add new address book when created address book event is fired', function() {
@@ -82,20 +158,16 @@ describe('the ContactSidebarController controller', function() {
       contactAddressbookDisplayService.convertShellToDisplayShell = sinon.spy(function(addressbook) {
         return addressbook;
       });
-      contactAddressbookDisplayService.sortAddressbookDisplayShells = sinon.spy(function(addressbooks) {
-        return addressbooks;
-      });
 
-      contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when());
+      contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when([]));
       var controller = initController();
 
-      controller.addressbooks = addressbooks;
+      controller.displayShells = addressbooks;
       $rootScope.$broadcast(CONTACT_ADDRESSBOOK_EVENTS.CREATED, createdAddressbook);
       $rootScope.$digest();
 
-      expect(controller.addressbooks.length).to.equal(3);
+      expect(controller.displayShells.length).to.equal(3);
       expect(contactAddressbookDisplayService.convertShellToDisplayShell).to.have.been.calledOnce;
-      expect(contactAddressbookDisplayService.sortAddressbookDisplayShells).to.have.been.calledTwice; // First time when init controller
     });
   });
 
@@ -115,17 +187,17 @@ describe('the ContactSidebarController controller', function() {
       name: 'new bookA'
     };
 
-    contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when());
+    contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when([]));
     contactAddressbookDisplayService.convertShellsToDisplayShells = angular.noop;
     contactAddressbookDisplayService.sortAddressbookDisplayShells = angular.noop;
 
     var controller = initController();
 
-    controller.addressbooks = addressbooks;
+    controller.displayShells = addressbooks;
     $rootScope.$broadcast(CONTACT_ADDRESSBOOK_EVENTS.UPDATED, updatedAddressbook);
     $rootScope.$digest();
 
-    expect(controller.addressbooks).to.deep.equal([{
+    expect(controller.displayShells).to.deep.equal([{
       shell: { bookName: 'bookA', name: 'new bookA' },
       displayName: 'new bookA'
     }, {
@@ -149,17 +221,17 @@ describe('the ContactSidebarController controller', function() {
       bookName: 'bookA'
     };
 
-    contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when());
+    contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when([]));
     contactAddressbookDisplayService.convertShellsToDisplayShells = angular.noop;
     contactAddressbookDisplayService.sortAddressbookDisplayShells = angular.noop;
 
     var controller = initController();
 
-    controller.addressbooks = addressbooks;
+    controller.displayShells = addressbooks;
     $rootScope.$broadcast(CONTACT_ADDRESSBOOK_EVENTS.DELETED, removedAddressbook);
     $rootScope.$digest();
 
-    expect(controller.addressbooks).to.deep.equal([{
+    expect(controller.displayShells).to.deep.equal([{
       shell: { bookName: 'bookB', name: 'bookB' },
       displayName: 'bookB'
     }]);

@@ -5,12 +5,14 @@
 var expect = chai.expect;
 
 describe('The ContactsHelper service', function() {
-  var ContactsHelper;
+  var ContactsHelper, contactAddressbookDisplayService;
 
   beforeEach(module('linagora.esn.contact'));
 
-  beforeEach(angular.mock.inject(function(_ContactsHelper_) {
+  beforeEach(angular.mock.inject(function(_ContactsHelper_, _contactAddressbookDisplayService_) {
     ContactsHelper = _ContactsHelper_;
+    contactAddressbookDisplayService = _contactAddressbookDisplayService_;
+    contactAddressbookDisplayService.convertShellToDisplayShell = angular.noop;
   }));
 
   describe('The fillScopeContactData function', function() {

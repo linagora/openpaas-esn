@@ -7,7 +7,7 @@
     function ContactUserAddressbookDisplayShell(ContactAddressbookDisplayShell) {
       var UserAddressbookDisplayShell = function(shell) {
         this.shell = shell;
-        this.icon = 'mdi-account-box';
+        this.icon = 'mdi-folder';
         this.displayName = shell.name || shell.bookName;
       };
 

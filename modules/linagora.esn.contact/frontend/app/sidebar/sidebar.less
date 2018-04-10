@@ -1,3 +1,6 @@
+@import './addressbooks-list/contact-sidebar-addressbooks-list';
+@import './addressbook-item/contact-sidebar-addressbook-item';
+
 contact-sidebar {
   .sidebar-title {
     .flex;
@@ -36,27 +39,30 @@ contact-sidebar {
     }
   }
 
-  .listview .addressbook-item {
+  .listview .lv-item.addressbook-item {
     .flex-row;
     .flex-start;
     .flex-vertical-centered;
 
     .addressbook-icon {
-      margin-left: -5px;
-      color: @primaryColor;
-      font-size: 1.8em;
+      color: lighten(@secondaryTextColor, 10%);
+      padding-right: 10px;
+      font-size: 24px;
       vertical-align: bottom;
+
+      &.all-contacts {
+        color: @primaryColor;
+      }
     }
 
     &.selected {
       color: @primaryColor;
       font-weight: 500;
-      background-color: @darkenBgColor;
       border-radius: 2px;
     }
 
     &:hover {
-      background-color: @darkenBgColor;
+      background-color: darken(@darkenBgColor, 2%);
       border-radius: 2px;
     }
   }

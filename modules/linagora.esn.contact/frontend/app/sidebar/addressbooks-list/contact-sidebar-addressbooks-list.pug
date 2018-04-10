@@ -1,0 +1,12 @@
+.lv-body
+  .lv-item.clickable.addressbook-list-item(esn-toggle)
+    .badge-container
+      .caret-submenu
+        i.mdi.mdi-menu-down
+    .list-title.ellipsis
+      .addressbook-list-icon
+        i.mdi.mdi-contacts
+      span {{::$ctrl.title | esnI18n}}
+
+  ul
+    contact-sidebar-addressbook-item(ng-repeat='book in $ctrl.addressbooks', addressbook-display-shell='book')

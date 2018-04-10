@@ -8,8 +8,9 @@
     ) {
       var ContactDefaultAddressbookDisplayShell = function(shell) {
         this.shell = shell;
-        this.icon = 'mdi-contacts';
-        this.displayName = esnI18nService.translate('My contacts').toString();
+        this.icon = 'mdi-folder-account';
+
+        this.displayName = shell.name || esnI18nService.translate('My contacts').toString();
       };
 
       ContactDefaultAddressbookDisplayShell.prototype = new ContactAddressbookDisplayShell();

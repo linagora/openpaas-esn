@@ -3,11 +3,13 @@
   ui-sref-active="selected",
   ui-sref='contact.addressbooks({ bookName: $ctrl.addressbookDisplayShell.shell.bookName })'
 )
-  .badge-container
-    .badge
-    i.addressbook-icon.mdi(ng-class='::$ctrl.addressbookDisplayShell.icon')
-  .title.ellipsis
-    span {{$ctrl.addressbookDisplayShell.displayName}}
+  .addressbook-icon
+    i.mdi(ng-class='::$ctrl.addressbookDisplayShell.icon')
+  .info-container
+    .title.ellipsis
+      span {{$ctrl.addressbookDisplayShell.displayName}}
+    .owner.ellipsis(ng-if='$ctrl.addressbookDisplayShell.shell.owner')
+      span {{::$ctrl.addressbookDisplayShell.shell.owner.displayName}}
   settings-overlay(ng-if='::$ctrl.actions.length > 0')
     md-menu-item(
       ng-repeat='action in ::$ctrl.actions',

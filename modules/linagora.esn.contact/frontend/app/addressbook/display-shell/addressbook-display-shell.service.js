@@ -6,7 +6,7 @@
       function ContactAddressbookDisplayShell(shell) {
         if (shell) {
           this.shell = shell;
-          this.icon = 'mdi-folder';
+          this.icon = 'mdi-folder-outline';
           this.displayName = shell.name || shell.bookName;
         }
       }

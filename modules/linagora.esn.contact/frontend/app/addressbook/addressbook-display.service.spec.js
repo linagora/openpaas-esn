@@ -37,7 +37,8 @@ describe('The contactAddressbookDisplayService service', function() {
 
       var addressbookShell = {
         bookName: 'dummy',
-        type: 'dummy'
+        type: 'dummy',
+        isSubscription: angular.noop
       };
 
       displayShellRegistry = {
@@ -58,7 +59,8 @@ describe('The contactAddressbookDisplayService service', function() {
     it('should convert addressbook to ContactAddressbookDisplayShell if it does not match any registered display shells', function() {
       var addressbookShell = {
         bookName: 'dummy',
-        type: 'dummy'
+        type: 'dummy',
+        isSubscription: angular.noop
       };
 
       var result = contactAddressbookDisplayService.convertShellToDisplayShell(addressbookShell);
@@ -73,7 +75,8 @@ describe('The contactAddressbookDisplayService service', function() {
 
       var addressbookShell = {
         bookName: 'dummy',
-        type: 'dummy'
+        type: 'dummy',
+        isSubscription: angular.noop
       };
 
       displayShellRegistry = {
@@ -105,7 +108,8 @@ describe('The contactAddressbookDisplayService service', function() {
 
       var addressbookShell = {
         bookName: 'dummy',
-        type: 'dummy'
+        type: 'dummy',
+        isSubscription: angular.noop
       };
 
       displayShellRegistry = {
@@ -138,10 +142,12 @@ describe('The contactAddressbookDisplayService service', function() {
       };
       var addressbookShells = [{
         bookName: 'addressbook1',
-        type: 'shell1'
+        type: 'shell1',
+        isSubscription: angular.noop
       }, {
         bookName: 'addressbook2',
-        type: 'shell2'
+        type: 'shell2',
+        isSubscription: angular.noop
       }];
 
       displayShellRegistry = {
@@ -175,7 +181,8 @@ describe('The contactAddressbookDisplayService service', function() {
         this.displayName = 'A dummy addressbook';
       };
       var addressbook = {
-        type: 'dummy'
+        type: 'dummy',
+        isSubscription: angular.noop
       };
 
       displayShellRegistry = {
@@ -196,7 +203,8 @@ describe('The contactAddressbookDisplayService service', function() {
     it('should return the addressbook name if there is no matched display shell', function() {
       var addressbook = {
         bookName: 'contacts',
-        name: 'My contacts'
+        name: 'My contacts',
+        isSubscription: angular.noop
       };
 
       var result = contactAddressbookDisplayService.buildDisplayName(addressbook);
@@ -206,7 +214,8 @@ describe('The contactAddressbookDisplayService service', function() {
 
     it('should return the addressbook bookName if there is no matched display shell or addressbook name', function() {
       var addressbook = {
-        bookName: 'contacts'
+        bookName: 'contacts',
+        isSubscription: angular.noop
       };
 
       var result = contactAddressbookDisplayService.buildDisplayName(addressbook);
@@ -249,6 +258,43 @@ describe('The contactAddressbookDisplayService service', function() {
       var sortedAddressbookDisplayShells = contactAddressbookDisplayService.sortAddressbookDisplayShells(addressbookDisplayShells);
 
       expect(sortedAddressbookDisplayShells).to.deep.equal(expectResult);
+    });
+  });
+
+  describe('The categorizeDisplayShells function', function() {
+    it('should categorize displayShells to user addressbooks and external addressbooks', function() {
+      var userAddressbookDisplayShell1 = {
+        displayName: '1',
+        shell: {
+          isSubscription: function() { return false; }
+        }
+      };
+      var userAddressbookDisplayShell2 = {
+        displayName: '2',
+        shell: {
+          isSubscription: function() { return false; }
+        }
+      };
+      var externalAddressbookDisplayShell1 = {
+        displayName: '3',
+        shell: {
+          isSubscription: function() { return true; }
+        }
+      };
+
+      var categorized = contactAddressbookDisplayService.categorizeDisplayShells([
+        userAddressbookDisplayShell1,
+        userAddressbookDisplayShell2,
+        externalAddressbookDisplayShell1
+      ]);
+
+      expect(categorized.userAddressbooks).to.deep.equal([
+        userAddressbookDisplayShell1,
+        userAddressbookDisplayShell2
+      ]);
+      expect(categorized.sharedAddressbooks).to.deep.equal([
+        externalAddressbookDisplayShell1
+      ]);
     });
   });
 });

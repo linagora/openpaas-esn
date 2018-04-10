@@ -11,7 +11,7 @@ describe('The Contacts controller module', function() {
     notificationFactory, usSpinnerService, $location, $state, $stateParams, selectionService, $alert, gracePeriodService, sharedContactDataService,
     sortedContacts, ContactLiveUpdate, contactUpdateDataService, $window, CONTACT_EVENTS, CONTACT_LIST_DISPLAY_MODES, CONTACT_ADDRESSBOOK_EVENTS,
     ContactAPIClient, VcardBuilder, ContactLocationHelper, closeContactForm, closeContactFormMock, openContactForm, openContactFormMock, addressbooks,
-    ContactShellDisplayBuilder, esnI18nServiceMock;
+    ContactShellDisplayBuilder, esnI18nServiceMock, contactAddressbookDisplayService;
 
   var bookId = '123456789', bookName = 'bookName', cardId = '987654321';
   addressbooks = [];
@@ -180,13 +180,14 @@ describe('The Contacts controller module', function() {
     });
   });
 
-  beforeEach(angular.mock.inject(function(_$window_, _$rootScope_, _$controller_, _$timeout_, _$state_, _sharedContactDataService_, ALPHA_ITEMS, _CONTACT_EVENTS_, _CONTACT_LIST_DISPLAY_MODES_, _CONTACT_ADDRESSBOOK_EVENTS_) {
+  beforeEach(angular.mock.inject(function(_$window_, _$rootScope_, _$controller_, _$timeout_, _$state_, _sharedContactDataService_, _contactAddressbookDisplayService_, ALPHA_ITEMS, _CONTACT_EVENTS_, _CONTACT_LIST_DISPLAY_MODES_, _CONTACT_ADDRESSBOOK_EVENTS_) {
     $window = _$window_;
     $rootScope = _$rootScope_;
     $controller = _$controller_;
     $timeout = _$timeout_;
     $state = _$state_;
     sharedContactDataService = _sharedContactDataService_;
+    contactAddressbookDisplayService = _contactAddressbookDisplayService_;
     sortedContacts = ALPHA_ITEMS.split('').reduce(function(a, b) {
       a[b] = [];
 
@@ -195,6 +196,7 @@ describe('The Contacts controller module', function() {
 
     scope = $rootScope.$new();
     scope.contact = {};
+    contactAddressbookDisplayService.convertShellToDisplayShell = angular.noop;
     CONTACT_EVENTS = _CONTACT_EVENTS_;
     CONTACT_LIST_DISPLAY_MODES = _CONTACT_LIST_DISPLAY_MODES_;
     CONTACT_ADDRESSBOOK_EVENTS = _CONTACT_ADDRESSBOOK_EVENTS_;
