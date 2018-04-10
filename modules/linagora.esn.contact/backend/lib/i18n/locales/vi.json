@@ -86,5 +86,11 @@
   "Failed to move contact": "Di chuyển liên lạc thất bại",
   "Move to": "Chuyển đến",
   "My address books": "Sổ địa chỉ cá nhân",
-  "Shared address books": "Sổ địa chỉ được chia sẻ"
+  "Shared address books": "Sổ địa chỉ được chia sẻ",
+  "Rights": "Quyền",
+  "Shared address book": "Sổ địa chỉ được chia sẻ",
+  "Search for users to subscribe to their address books": "Tìm kiếm người dùng để đăng ký sổ địa chỉ của họ",
+  "Adding shared address book...": "Đang thêm sổ địa chỉ được chia sẻ...",
+  "Successfully added shared address book": "Thêm sổ địa chỉ được chia sẻ thành công",
+  "Can not add shared address book": "Thêm sổ địa chỉ được chia sẻ thất bại"
 }

@@ -86,5 +86,11 @@
   "Failed to move contact": "Impossible de déplacer le contact",
   "Move to": "Déplacer vers",
   "My address books": "Mes carnets d'adresses",
-  "Shared address books": "Carnet d'adresses partagés"
+  "Shared address books": "Carnet d'adresses partagés",
+  "Rights": "Droits",
+  "Shared address book": "Le carnet d'adresses partagé",
+  "Search for users to subscribe to their address books": "Recherche d'utilisateurs afin de s'abonner à leur carnet d'adresses",
+  "Adding shared address book...": "Ajout d'un carnet d'adresses partagé...",
+  "Successfully added shared address book": "Le carnet d'adresses partagé a été ajouté",
+  "Can not add shared address book": "Impossible d'ajouter un carnet d'adresse partagé"
 }

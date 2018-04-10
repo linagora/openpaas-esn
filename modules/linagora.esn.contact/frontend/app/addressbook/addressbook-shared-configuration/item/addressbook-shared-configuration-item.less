@@ -1,0 +1,42 @@
+contact-addressbook-shared-configuration-item {
+  width: 100%;
+  margin-top: 20px;
+
+  esn-avatar {
+    margin-right: 8px;
+
+    & img {
+      .esn-avatar;
+    }
+  }
+
+  .subscription-item {
+    .flex-vertical-centered;
+    .flex-space-between;
+
+    .meta {
+      .flex-horizontal-centered;
+      .flex-shorthand(1, 0, 40%);
+      .flex-start;
+    }
+
+    .rights {
+      .all-centered;
+      .flex-shorthand(1, 0, 30%);
+    }
+    .actions {
+      .all-centered;
+      .flex-shorthand(1, 0, 30%);
+    }
+
+    .name {
+      .ellipsis;
+      font-weight: 600;
+    }
+
+    .owner {
+      .ellipsis;
+      color: @secondaryTextColor;
+    }
+  }
+}

@@ -1,0 +1,60 @@
+contact-addressbook-shared-configuration {
+  a {
+    &:extend(.dropdown-menu > li > a);
+    &:extend(.dropdown-menu.dropdown-menu-right > li > a);
+
+    &:hover {
+      &:extend(.dropdown-menu > li > a:hover);
+    }
+  }
+}
+
+.contact-addressbook-shared-configuration-content {
+  .flex-column;
+
+  min-height: 30vh;
+
+  users-autocomplete-input {
+    margin-bottom: 30px;
+  }
+
+  .subscribable-addressbook-list {
+    .flex-column;
+    .all-centered;
+
+    margin-left: 10px;
+    margin-top: 15px;
+  }
+
+  .empty {
+    font-size: 1.4rem;
+    margin: 30px;
+  }
+
+  .header {
+    .flex-row;
+
+    width: 100%;
+
+    span {
+      font-weight: 500;
+      font-size: 1.4rem;
+    }
+
+    .name {
+      .flex-horizontal-centered;
+      .flex-shorthand(1, 0, 40%);
+      .flex-start;
+    }
+
+    .rights {
+      .all-centered;
+      .flex-shorthand(1, 0, 30%);
+    }
+    .actions {
+      .all-centered;
+      .flex-shorthand(1, 0, 30%);
+    }
+  }
+}
+

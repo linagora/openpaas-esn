@@ -6,19 +6,23 @@
 
   function contactAddressbookService(
     $rootScope,
+    $q,
     session,
     ContactAPIClient,
-    CONTACT_ADDRESSBOOK_EVENTS
+    contactAddressbookDisplayService,
+    CONTACT_ADDRESSBOOK_EVENTS,
+    CONTACT_ADDRESSBOOK_TYPES
   ) {
-    var CONTACT_ADDRESSBOOK_DEFAULT_TYPE = 'user';
-
     return {
       createAddressbook: createAddressbook,
       getAddressbookByBookName: getAddressbookByBookName,
       listAddressbooks: listAddressbooks,
       listEditableAddressbooks: listEditableAddressbooks,
       removeAddressbook: removeAddressbook,
-      updateAddressbook: updateAddressbook
+      updateAddressbook: updateAddressbook,
+      listSubscribableAddressbooks: listSubscribableAddressbooks,
+      listSubscribedAddressbooks: listSubscribedAddressbooks,
+      subscribeAddressbooks: subscribeAddressbooks
     };
 
     function getAddressbookByBookName(bookName) {
@@ -46,7 +50,7 @@
         return $q.reject(new Error('Address book\'s name is required'));
       }
 
-      addressbook.type = CONTACT_ADDRESSBOOK_DEFAULT_TYPE;
+      addressbook.type = CONTACT_ADDRESSBOOK_TYPES.user;
 
       return ContactAPIClient
         .addressbookHome(session.user._id)
@@ -78,6 +82,42 @@
         .then(function() {
           $rootScope.$broadcast(CONTACT_ADDRESSBOOK_EVENTS.UPDATED, addressbook);
         });
+    }
+
+    function listSubscribableAddressbooks(userId) {
+      return ContactAPIClient.addressbookHome(userId).addressbook().list({ public: true });
+    }
+
+    function listSubscribedAddressbooks() {
+      return ContactAPIClient.addressbookHome(session.user._id).addressbook().list({ subscribed: true });
+    }
+
+    function subscribeAddressbooks(addressbookShells) {
+      return $q.all(addressbookShells.map(function(addressbookShell) {
+        var formattedSubscriptions = {
+          description: addressbookShell.description,
+          name: contactAddressbookDisplayService.buildDisplayName(addressbookShell),
+          type: CONTACT_ADDRESSBOOK_TYPES.subscription,
+          'openpaas:source': {
+            _links: {
+              self: {
+                href: addressbookShell.href
+              }
+            }
+          }
+        };
+
+        return ContactAPIClient
+          .addressbookHome(session.user._id)
+          .addressbook()
+          .create(formattedSubscriptions)
+          .then(function(createdAddressbook) {
+            $rootScope.$broadcast(
+              CONTACT_ADDRESSBOOK_EVENTS.CREATED,
+              createdAddressbook
+            );
+          });
+      }));
     }
   }
 })(angular);

@@ -7,5 +7,8 @@
       DELETED: 'contact:addressbook:deleted',
       UPDATED: 'contact:addressbook:updated'
     })
-    .constant('CONTACT_USER_ADDRESSBOOK_TYPE', 'user');
+    .constant('CONTACT_ADDRESSBOOK_TYPES', {
+      user: 'user',
+      subscription: 'subscription'
+    });
 })(angular);
