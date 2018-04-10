@@ -1,7 +1,12 @@
-ul.actions
-  li(ng-show='::writable', ng-if='false')
-    share-message-button(share="share()")
-  li(ng-if='false')
-    a(ng-href="")
+ul.actions(ng-show='::writable')
+  li.dropdown
+    a(href="" data-toggle="dropdown" aria-expanded="false")
       i.mdi.mdi-dots-vertical
+    ul.dropdown-menu.dropdown-menu-right
+      li.disabled(ng-show='::writable')
+        a(title=__('Soon available')) #{__('Remove')}
+      li.disabled(ng-show='::writable')
+        a(title=__('Soon available')) #{__('Update')}
+      li.disabled(ng-show='::writable')
+        a(title=__('Soon available')) #{__('Share')}
   .clearfix
