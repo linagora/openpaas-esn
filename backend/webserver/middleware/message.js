@@ -124,7 +124,8 @@ module.exports.canShareTo = function(req, res, next) {
 };
 
 function canLike(req, res, next) {
-  var link = req.link;
+  const link = req.link;
+
   logger.debug('Check the message like link', link);
 
   if (link.target.objectType !== 'esn.message') {
@@ -135,32 +136,34 @@ function canLike(req, res, next) {
     return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'You can not like a message for someone else'}});
   }
 
-  messageModule.get(link.target.id, function(err, message) {
+  messageModule.get(link.target.id, (err, message) => {
     if (err || !message) {
       logger.error('Can not find the message to like', err);
+
       return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'Can not find message to like'}});
     }
 
-    messageModule.like.isMessageLikedByUser(message, req.user).then(function(result) {
-
-      if (result) {
-        return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'Message is already liked by user'}});
-      }
-
-      messagePermission.canLike(message, link.source, function(err, result) {
-        if (err) {
-          logger.error('Error while checking like permission');
-          return res.status(500).json({error: {code: 500, message: 'Server Error', details: 'Can not check if user can like message'}});
+    messageModule.like.isMessageLikedByUser(message, req.user)
+      .then(result => {
+        if (result) {
+          return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'Message is already liked by user'}});
         }
 
-        req.linkable = result;
-        next();
-      });
+        messagePermission.canLike(message, link.source, (err, result) => {
+          if (err) {
+            logger.error('Error while checking like permission');
 
-    }, function(err) {
-      logger.error('Error while checking if message is already liked by user', err);
-      return res.status(500).json({error: {code: 500, message: 'Server Error', details: 'Can not check if user already liked the message'}});
-    });
+            return res.status(500).json({error: {code: 500, message: 'Server Error', details: 'Can not check if user can like message'}});
+          }
+
+          req.linkable = result;
+          next();
+        });
+
+      }, err => {
+        logger.error('Error while checking if message is already liked by user', err);
+        res.status(500).json({error: {code: 500, message: 'Server Error', details: 'Can not check if user already liked the message'}});
+      });
   });
 }
 module.exports.canLike = canLike;
