@@ -324,4 +324,129 @@ describe('The contactAddressbookService service', function() {
       $rootScope.$digest();
     });
   });
+
+  describe('The listSubscribableAddressbooks function', function() {
+    it('should call ContactAPIClient with public param to get subscribable address book list of given bookId', function() {
+      var listSpy = sinon.spy();
+      var bookId = '123';
+
+      ContactAPIClient.addressbookHome = function(bookId) {
+        expect(bookId).to.equal('123');
+
+        return {
+          addressbook: function() {
+            return {
+              list: listSpy
+            };
+          }
+        };
+      };
+      contactAddressbookService.listSubscribableAddressbooks(bookId);
+
+      expect(listSpy).to.have.been.calledWith({ public: true });
+    });
+  });
+
+  describe('The listSubscribedAddressbooks function', function() {
+    it('should call ContactAPIClient with subscribed param to get subscribed address books of current user', function() {
+      var listSpy = sinon.spy();
+
+      ContactAPIClient.addressbookHome = function(bookId) {
+        expect(bookId).to.equal(session.user._id);
+
+        return {
+          addressbook: function() {
+            return {
+              list: listSpy
+            };
+          }
+        };
+      };
+      contactAddressbookService.listSubscribedAddressbooks();
+
+      expect(listSpy).to.have.been.calledWith({ subscribed: true });
+    });
+  });
+
+  describe('The subscribeAddressbooks function', function() {
+    it('should call ContactAPIClient with formatted subscription to subscribe to address books', function(done) {
+      var addressbookShells = [
+        {
+          description: '',
+          name: 'public addressbook1',
+          _links: {
+            self: {
+              href: '/addressbooks/123/456.vcf'
+            }
+          }
+        }
+      ];
+
+      ContactAPIClient.addressbookHome = function(bookId) {
+        expect(bookId).to.equal(session.user._id);
+
+        return {
+          addressbook: function() {
+            return {
+              create: function(formattedSubscription) {
+                expect(formattedSubscription).to.deep.equal({
+                  description: addressbookShells[0].description,
+                  name: addressbookShells[0].name,
+                  type: 'subscription',
+                  'openpaas:source': {
+                    _links: {
+                      self: {
+                        href: addressbookShells[0].href
+                      }
+                    }
+                  }
+                });
+                done();
+
+                return $q.when();
+              }
+            };
+          }
+        };
+      };
+
+      contactAddressbookService.subscribeAddressbooks(addressbookShells);
+      $rootScope.$digest();
+    });
+
+    it('should broadcast event if success to subscribe to an addressbook', function(done) {
+      var addressbookShells = [
+        {
+          description: '',
+          name: 'public addressbook1',
+          _links: {
+            self: {
+              href: '/addressbooks/123/456.vcf'
+            }
+          }
+        }
+      ];
+
+      $rootScope.$broadcast = sinon.spy();
+      ContactAPIClient.addressbookHome = function(bookId) {
+        expect(bookId).to.equal(session.user._id);
+
+        return {
+          addressbook: function() {
+            return {
+              create: function() { return $q.when(); }
+            };
+          }
+        };
+      };
+
+      contactAddressbookService.subscribeAddressbooks(addressbookShells)
+        .then(function() {
+          expect($rootScope.$broadcast).to.have.been.calledOnce;
+          done();
+        });
+
+      $rootScope.$digest();
+    });
+  });
 });

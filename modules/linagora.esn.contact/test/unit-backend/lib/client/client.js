@@ -125,6 +125,30 @@ describe('The contact client APIs', function() {
           getAddressbookHome().addressbook().list();
         });
 
+        it('should call davClient with the right query if query present in options', function(done) {
+          var options = {
+            query: { public: true }
+          };
+
+          mockery.registerMock('../dav-client', {
+            rawClient: function(clientOptions) {
+              expect(clientOptions).to.shallowDeepEqual({
+                method: 'GET',
+                json: true,
+                headers: {
+                  ESNToken: CLIENT_OPTIONS.ESNToken,
+                  accept: VCARD_JSON
+                },
+                body: undefined,
+                query: options.query
+              });
+              expectBookHomeURL(clientOptions.url);
+              done();
+            }
+          });
+          getAddressbookHome().addressbook().list(options);
+        });
+
         it('should resolve with response on success', function(done) {
           var response = {
             statusCode: 200

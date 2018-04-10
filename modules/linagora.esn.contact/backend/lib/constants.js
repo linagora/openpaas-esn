@@ -22,5 +22,8 @@ module.exports = {
     TYPE_NAME: 'contacts',
     DEFAULT_LIMIT: 20
   },
-  AVAILABLE_ADDRESSBOOK_TYPES: ['user']
+  AVAILABLE_ADDRESSBOOK_TYPES: {
+    USER: 'user',
+    SUBSCRIPTION: 'subscription'
+  }
 };

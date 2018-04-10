@@ -60,12 +60,13 @@ angular.module('linagora.esn.contact')
     /**
      * List all addressbooks of a user
      * @param  {String} bookId The AddressbookHome ID
+     * @param  {Object} query Optional, the query for listing address books
      * @return {Promise}        Resolve an array of AddressbookShell if success
      */
-    function listAddressbook(bookId) {
+    function listAddressbook(bookId, query) {
       var headers = { Accept: CONTACT_ACCEPT_HEADER };
 
-      return davClient('GET', getBookHomeUrl(bookId), headers)
+      return davClient('GET', getBookHomeUrl(bookId), headers, null, query)
         .then(function(response) {
           if (response.data._embedded && response.data._embedded['dav:addressbook']) {
             return response.data._embedded['dav:addressbook'].map(function(item) {
@@ -404,8 +405,8 @@ angular.module('linagora.esn.contact')
           return createAddressbook(bookId, addressbook);
         }
 
-        function list() {
-          return listAddressbook(bookId);
+        function list(query) {
+          return listAddressbook(bookId, query);
         }
 
         function get() {

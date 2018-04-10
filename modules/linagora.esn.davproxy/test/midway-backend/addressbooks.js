@@ -838,6 +838,106 @@ describe('The addressbooks dav proxy', function() {
       });
     });
 
+    describe('POST /addressbook/:bookHome.json', function() {
+      it('should respond 201 if success to create subscription', function(done) {
+        const self = this;
+        const path = '/addressbooks/123.json';
+
+        const addressbook = {
+          id: '4e2a6aef-d443-4709-b925-d9585ebc9109',
+          name: 'addressbook name',
+          description: 'addressbook description',
+          type: 'subscription',
+          'openpaas:source': {
+            _links: {
+              self: {
+                href: '/addressbooks/abc/456.json'
+              }
+            }
+          }
+        };
+
+        dav.post(path, (req, res) => res.status(201).json({}));
+
+        self.createDavServer(err => {
+          if (err) {
+            return done(err);
+          }
+
+          self.helpers.api.loginAsUser(self.app, user.emails[0], password, (err, loggedInAsUser) => {
+            if (err) {
+              return done(err);
+            }
+
+            const req = loggedInAsUser(request(self.app).post(`${PREFIX}${path}`));
+
+            req.send(addressbook)
+              .expect(201)
+              .end((err, res) => {
+                expect(err).to.not.exist;
+                expect(res.body).to.deep.equal({
+                  _links: {
+                    self: {
+                      href: `${caldavConfiguration.backend.url}/addressbooks/123/4e2a6aef-d443-4709-b925-d9585ebc9109.json`
+                    }
+                  },
+                  'dav:name': addressbook.name,
+                  'carddav:description': addressbook.description,
+                  'dav:acl': ['dav:read', 'dav:write'],
+                  'openpaas:source': {
+                    _links: {
+                      self: {
+                        href: '/addressbooks/abc/456.json'
+                      }
+                    }
+                  }
+                });
+                done();
+              });
+          });
+        });
+      });
+
+      it('should return 400 if address book type is subscription but no openpaas:source present in request body', function(done) {
+        const self = this;
+        const path = '/addressbooks/123.json';
+        const addressbook = {
+          id: '4e2a6aef-d443-4709-b925-d9585ebc9109',
+          name: 'addressbook name',
+          description: 'addressbook description',
+          type: 'subscription'
+        };
+
+        self.createDavServer(err => {
+          if (err) {
+            return done(err);
+          }
+
+          self.helpers.api.loginAsUser(self.app, user.emails[0], password, (err, loggedInAsUser) => {
+            if (err) {
+              return done(err);
+            }
+
+            const req = loggedInAsUser(request(self.app).post(`${PREFIX}${path}`));
+
+            req.send(addressbook)
+              .expect(400)
+              .end((err, res) => {
+                expect(err).to.not.exist;
+                expect(res.body).to.deep.equal({
+                  error: {
+                    code: 400,
+                    message: 'Bad Request',
+                    details: 'openpaas:source is required for subscription'
+                  }
+                });
+                done();
+              });
+          });
+        });
+      });
+    });
+
     describe('GET /addressbook/:bookHome.json', function() {
       it('should respond 401 if user is not authenticated', function(done) {
         this.helpers.api.requireLogin(this.app, 'get', `${PREFIX}/addressbooks/123.json`, done);

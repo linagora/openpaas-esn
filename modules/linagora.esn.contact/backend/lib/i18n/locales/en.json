@@ -86,5 +86,11 @@
   "Failed to move contact": "Failed to move contact",
   "Move to": "Move to",
   "My address books": "My address books",
-  "Shared address books": "Shared address books"
+  "Shared address books": "Shared address books",
+  "Rights": "Rights",
+  "Shared address book": "Shared address book",
+  "Search for users to subscribe to their address books": "Search for users to subscribe to their address books",
+  "Adding shared address book...": "Adding shared address book...",
+  "Successfully added shared address book": "Successfully added shared address book",
+  "Can not add shared address book": "Can not add shared address book"
 }
