@@ -18,7 +18,8 @@ function denormalize(message, options) {
   return Q.allSettled([
     likeMessageModule.getNbOfLikes(message),
     likeMessageModule.isMessageLikedByUser(message, options.user)
-  ]).spread((likes, liked) => {
+  ])
+  .spread((likes, liked) => {
     if (likes.state === 'fulfilled') {
       message.likes.total_count = likes.value || 0;
     }
@@ -28,5 +29,11 @@ function denormalize(message, options) {
     }
 
     return message;
-  });
+  })
+  .then(message => denormalizeResponses(message, options))
+  .then(() => message);
+}
+
+function denormalizeResponses(message, options) {
+  return Q.all((message.responses || []).map(response => denormalize(response, options)));
 }

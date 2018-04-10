@@ -136,12 +136,14 @@ function canLike(req, res, next) {
     return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'You can not like a message for someone else'}});
   }
 
-  messageModule.get(link.target.id, (err, message) => {
-    if (err || !message) {
+  messageModule.findByIds([link.target.id], (err, messages) => {
+    if (err || !messages.length) {
       logger.error('Can not find the message to like', err);
 
       return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'Can not find message to like'}});
     }
+
+    const message = messages[0];
 
     messageModule.like.isMessageLikedByUser(message, req.user)
       .then(result => {
