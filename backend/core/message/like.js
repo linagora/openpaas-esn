@@ -1,16 +1,19 @@
-'use strict';
+const pubsub = require('../pubsub');
+const logger = require('../logger');
+const like = require('../like');
+const CONSTANTS = require('./constants');
 
-var pubsub = require('../pubsub');
-var logger = require('../logger');
-var like = require('../like');
-var CONSTANTS = require('./constants');
+module.exports = {
+  getNbOfLikes,
+  isMessageLikedByUser,
+  listen
+};
 
 function listen() {
-  pubsub.local.topic('resource:link:like:esn.message').subscribe(function(data) {
+  pubsub.local.topic('resource:link:like:esn.message').subscribe(data => {
     logger.info('Someone liked a message...', data);
   });
 }
-module.exports.listen = listen;
 
 function getNbOfLikes(message) {
   return like.getNbOfLikes({
@@ -18,7 +21,6 @@ function getNbOfLikes(message) {
     id: String(message._id)
   });
 }
-module.exports.getNbOfLikes = getNbOfLikes;
 
 function isMessageLikedByUser(message, user) {
   return like.isLikedBy({
@@ -30,4 +32,3 @@ function isMessageLikedByUser(message, user) {
     id: String(message._id)
   });
 }
-module.exports.isMessageLikedByUser = isMessageLikedByUser;
