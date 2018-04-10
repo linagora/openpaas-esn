@@ -128,14 +128,31 @@
     }
   }
 
-  .wall-comment-list {
+  .message-comment-list {
     background-color: @app-gray;
     padding: 5px;
 
-    .media .actions {
-      display: block;
-      right: -10px;
-      top: -5px;
+    .message-comment {
+      .flex;
+
+      .message-comment-avatar {
+        margin-right: 10px;
+      }
+
+      .message-comment-body {
+        .flex-column;
+        .flex-grow(1);
+
+        .message-comment-header {
+          .flex;
+
+          .message-comment-actions {
+            .flex-grow(1);
+            .flex-end;
+            .flex-vertical-centered;
+          }
+        }
+      }
     }
   }
 
@@ -278,7 +295,8 @@
   margin-top: 20px;
 }
 
-message-bottom-links {
+.message-bottom-links {
+  .flex;
 
   .actions > li {
     font-size: 18px;
@@ -292,7 +310,7 @@ message-bottom-links {
     }
   }
 
-  li like-button {
+  like-button {
     .like-button {
       box-shadow: none;
       border: 0;
@@ -343,16 +361,11 @@ body:not(.is-desktop) {
     .message-comments-thread, .poll-message-thread {
       padding: 16px 0;
 
-      .wall-comment-list {
+      .message-comment-list {
         padding: 5px 12px;
 
-        .media .actions {
-          display: block;
-        }
-
         .actions {
-          display: none;
-          right: -5px;
+          display: block;
         }
       }
 
@@ -386,10 +399,12 @@ body:not(.is-desktop) {
     }
   }
 
-  message-bottom-links {
+  .message-bottom-links {
+    .flex;
+
     like-button {
       .like-button {
-        padding: 1px 6px;
+        padding: 0px;
 
         i {
           &:hover {
