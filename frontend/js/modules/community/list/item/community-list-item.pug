@@ -1,0 +1,33 @@
+.community-list-item
+  .avatar
+    a(ui-sref='community.view({ id: community._id })')
+      img.thumbnail.lv-img-md(src='/images/community.png', ng-src='/api/communities/{{community._id}}/avatar', alt=__("Community Avatar"))
+
+  .content
+    .title
+      span.text.ellipsis
+        a(ui-sref='community.view({ id: community._id })') {{community.title}}
+
+      ul.actions(ng-show='actionVisible')
+        li.dropdown
+          a(href="" data-toggle="dropdown" aria-expanded="false")
+            i.mdi.mdi-dots-vertical
+          ul.dropdown-menu.dropdown-menu-right
+            li(ng-show='canJoin')
+              a(href="", ng-click='join()') #{__('Join')}
+            li(ng-show='canLeave')
+              a(href="", ng-click='leave()') #{__('Leave')}
+            li(ng-show='canRequestMembership')
+              a(href="", ng-click='requestMembership()') #{__('Request Membership')}
+            li(ng-show='canCancelMembership')
+              a(href="", ng-click='cancelMembership()') #{__('Cancel membership request')}
+
+    .meta
+      span.type.label.label-primary {{::community.type | esnI18n}}
+      span.membership.label.label-warning.ellipsis(ng-if="canCancelMembership") #{__('Membership request pending')}
+      span(ng-if='community.members_count !== 1') {{community.members_count || 0}} #{__('members')}
+      span(ng-if='community.members_count === 1') 1 #{__('member')}
+
+    .description.hidden-xs(ng-show='community.description')
+      | {{community.description | characters:256 :false }}
+
