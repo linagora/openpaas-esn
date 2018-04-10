@@ -13,8 +13,9 @@ var NotificationSchema = new mongoose.Schema({
   verb: {type: I18n.tree, required: true, validate: [i18n.validateI18n, 'Bad verb i18n']},
   complement: {type: Tuple.tree, required: true, validate: [tuple.validateTuple, 'Bad complement tuple']},
   context: {type: Tuple.tree, validate: [tuple.validateTuple, 'Bad context tuple']},
-  description: {Type: String},
+  description: {type: String},
   icon: {type: Tuple.tree, validate: [tuple.validateIconTuple, 'bad objectType']},
+  redirectPath: {type: String},
   timestamps: {
     creation: {type: Date, default: Date.now}
   },

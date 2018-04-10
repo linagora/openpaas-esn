@@ -283,6 +283,7 @@ const injections = [
     'user-notification/subheader/user-notification-subheader.component.js',
     'user-notification/templates/user-notification-external.directive.js',
     'user-notification/templates/user-notification-template-displayer.component.js',
+    'user-notification/templates/simple-user-notification/simple-user-notification.directive.js',
     'user-notification/toggler/user-notitication-toggler.controller.js',
     'user-notification/toggler/user-notification-toggler.directive.js',
     'user-notification/user-notification.constants.js',
