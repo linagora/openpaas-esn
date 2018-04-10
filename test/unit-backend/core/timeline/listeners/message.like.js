@@ -25,8 +25,8 @@ describe('The message.like timeline listener', function() {
       });
 
       mockery.registerMock('../../message', {
-        get: function(id, callback) {
-          return callback(null, {});
+        findByIds: function(id, callback) {
+          return callback(null, [{}]);
         }
       });
 
@@ -37,7 +37,7 @@ describe('The message.like timeline listener', function() {
       });
     });
 
-    it('should fail if messageModule.get fails', function(done) {
+    it('should fail if messageModule.findByIds fails', function(done) {
       var link = {
         source: {
         },
@@ -55,7 +55,7 @@ describe('The message.like timeline listener', function() {
       });
 
       mockery.registerMock('../../message', {
-        get: function(id, callback) {
+        findByIds: function(id, callback) {
           return callback(new Error('Fail to get message'));
         }
       });
@@ -102,9 +102,9 @@ describe('The message.like timeline listener', function() {
       });
 
       mockery.registerMock('../../message', {
-        get: function(id, callback) {
-          expect(id).to.equal(link.target.id);
-          return callback(null, message);
+        findByIds: function(ids, callback) {
+          expect(ids).to.deep.equal([link.target.id]);
+          return callback(null, [message]);
         }
       });
 

@@ -1203,6 +1203,26 @@ describe.skip('The messages API', function() {
         }));
       });
 
+      it('should be able to like a response when message belongs to a "likable" stream', function(done) {
+        var self = this;
+        var link = {
+          type: 'like',
+          source: {objectType: 'user', id: String(testuser._id)},
+          target: {objectType: 'esn.message', id: String(message4.responses[0]._id)}
+        };
+
+        self.helpers.api.loginAsUser(app, email, password, self.helpers.callbacks.noErrorAnd(function(loggedInAsUser) {
+          loggedInAsUser(request(app)
+            .post(ENDPOINT))
+            .send(link)
+            .expect(201)
+            .end(self.helpers.callbacks.noErrorAnd(function(res) {
+              expect(res.body).to.shallowDeepEqual(link);
+              done();
+            }));
+        }));
+      });
+
       it('should be able to like a message with a value', function(done) {
         var self = this;
         var link = {
@@ -1398,7 +1418,7 @@ describe.skip('The messages API', function() {
 
       describe('GET /api/messages', function() {
 
-        it('should return message.likes.me=false when current user liked the message', function(done) {
+        it('should return message.likes.me=false when current user did not liked the message', function(done) {
           var self = this;
           self.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
             if (err) { return done(err); }
@@ -1438,6 +1458,28 @@ describe.skip('The messages API', function() {
           self.likeMessage(testuser, message1).then(test, done);
         });
 
+        it('should return response.likes.me.liked=true when current user liked the response', function(done) {
+
+          var self = this;
+          function test() {
+            self.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+              if (err) { return done(err); }
+
+              loggedInAsUser(request(app).get('/api/messages?ids[]=' + message4._id))
+                .expect(200)
+                .end(function(err, res) {
+                  if (err) {
+                    return done(err);
+                  }
+                  expect(res.body[0].responses[0].likes.me.liked).to.be.true;
+                  done();
+                });
+            });
+          }
+
+          self.likeMessage(testuser, message4.responses[0]).then(test, done);
+        });
+
         it('should return message.total_count with the total number of likes', function(done) {
           var self = this;
           function test() {
@@ -1460,6 +1502,32 @@ describe.skip('The messages API', function() {
             self.likeMessage(testuser, message1),
             self.likeMessage(testuser, message2),
             self.likeMessage(restrictedUser, message1)
+          ]).then(test, done);
+
+        });
+
+        it('should return response.total_count with the total number of likes', function(done) {
+          var self = this;
+          function test() {
+            self.helpers.api.loginAsUser(app, email, password, function(err, loggedInAsUser) {
+              if (err) { return done(err); }
+
+              loggedInAsUser(request(app).get('/api/messages?ids[]=' + message1._id))
+                .expect(200)
+                .end(function(err, res) {
+                  if (err) {
+                    return done(err);
+                  }
+                  expect(res.body[0].responses[0].likes.total_count).to.equal(2);
+                  done();
+                });
+            });
+          }
+
+          q.all([
+            self.likeMessage(testuser, message4.responses[0]),
+            self.likeMessage(testuser, message4.responses[0]),
+            self.likeMessage(restrictedUser, message4)
           ]).then(test, done);
 
         });
