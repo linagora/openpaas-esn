@@ -8,6 +8,9 @@ describe('The contacts search Module', function() {
 
   var deps = {
     elasticsearch: {},
+    pubsub: {
+      local: {}
+    },
     logger: {
       error: function() {},
       debug: function() {},
@@ -22,13 +25,19 @@ describe('The contacts search Module', function() {
 
   describe('The listen function', function() {
 
-    it('should register a listener', function() {
+    it('should register a listener and subscribe addressbook deleted event', function() {
       var register = sinon.stub();
       mockery.registerMock('./listener', function() {
         return {
           register: register
         };
       });
+
+      deps.pubsub.local.topic = name => {
+        expect(name).to.equal('contacts:addressbook:deleted');
+
+        return { subscribe: () => {} };
+      };
 
       var module = require('../../../../backend/lib/search')(dependencies);
       module.listen();
@@ -120,6 +129,39 @@ describe('The contacts search Module', function() {
         module.listen();
         module.removeContactFromIndex(contact, this.helpers.callbacks.noError(done));
       });
+    });
+  });
+
+  describe('The removeContactsOfAddressbook function', function() {
+    it('should call elasticsearch.removeDocumentsByQuery with right parameters', function(done) {
+      const addressbook = {
+        userId: 'user-id',
+        bookId: 'book-id',
+        bookName: 'book-name'
+      };
+      const esQuery = {
+        query: {
+          bool: {
+            must: [
+              { match: { userId: addressbook.userId } },
+              { match: { bookId: addressbook.bookId } },
+              { match: { bookName: addressbook.bookName } }
+            ]
+          }
+        }
+      };
+
+      deps.elasticsearch.removeDocumentsByQuery = query => {
+        expect(query).to.deep.equal({
+          index: 'contacts.idx',
+          type: 'contacts',
+          body: esQuery
+        });
+        done();
+      };
+
+      const module = require('../../../../backend/lib/search')(dependencies);
+      module.removeContactsOfAddressbook(addressbook, done);
     });
   });
 

@@ -1,7 +1,22 @@
 module.exports = {
+  parseAddressbookPath,
   parseCardPath,
   parseOwner
 };
+
+function parseAddressbookPath(path) {
+  // a path is in form of addressbooks/<Book Home>/<Book Name>
+  const match = String(path).match(/addressbooks\/(.*?)\/(.*?)$/);
+
+  if (match) {
+    return {
+      bookHome: match[1],
+      bookName: match[2]
+    };
+  }
+
+  return {};
+}
 
 function parseCardPath(path) {
   // a path is in form of addressbooks/<Book Home>/<Book Name>/<Card ID>.vcf

@@ -20,6 +20,8 @@ module.exports = dependencies => {
     pubsub.global.topic(GLOBAL_PUBSUB_EVENTS.SABRE.CONTACT_MOVED).subscribe(onContactMoved);
     pubsub.global.topic(GLOBAL_PUBSUB_EVENTS.SABRE.CONTACT_DELETED).subscribe(onContactDeleted);
 
+    pubsub.global.topic(GLOBAL_PUBSUB_EVENTS.SABRE.ADDRESSBOOK_DELETED).subscribe(onAddressbookDeleted);
+
     function onContactAdded(msg) {
       logger.debug('New event from SabreDAV', GLOBAL_PUBSUB_EVENTS.SABRE.CONTACT_CREATED, msg.path);
 
@@ -72,6 +74,19 @@ module.exports = dependencies => {
 
       pubsub.local.topic(NOTIFICATIONS.CONTACT_DELETED).publish({
         contactId: parsedPath.cardId,
+        bookId: parsedPath.bookHome,
+        bookName: parsedPath.bookName
+      });
+    }
+
+    function onAddressbookDeleted(msg) {
+      logger.debug('New event from SabreDAV', GLOBAL_PUBSUB_EVENTS.SABRE.ADDRESSBOOK_DELETED, msg);
+
+      const userId = helper.parseOwner(msg.owner);
+      const parsedPath = helper.parseAddressbookPath(msg.path);
+
+      pubsub.local.topic(NOTIFICATIONS.ADDRESSBOOK_DELETED).publish({
+        userId,
         bookId: parsedPath.bookHome,
         bookName: parsedPath.bookName
       });
