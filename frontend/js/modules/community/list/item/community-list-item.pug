@@ -24,7 +24,7 @@
 
     .meta
       span.type.label.label-primary {{::community.type | esnI18n}}
-      span.membership(ng-if="canCancelMembership") #{__('Membership request pending')}
+      span.membership.label.label-warning.ellipsis(ng-if="canCancelMembership") #{__('Membership request pending')}
       span(ng-if='community.members_count !== 1') {{community.members_count || 0}} #{__('members')}
       span(ng-if='community.members_count === 1') 1 #{__('member')}
 

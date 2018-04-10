@@ -39,12 +39,13 @@
 
     .meta {
       .flex-vertical-centered;
+      .flex-shrink;
 
       >span {
         margin-right: 12px;
       }
 
-      .type {
+      .type, .membership {
         font-size: 13px;
         text-transform: capitalize;
       }
@@ -52,6 +53,7 @@
 
     .description {
       margin-top: 6px;
+      color: @secondaryTextColor;
     }
   }
 }
