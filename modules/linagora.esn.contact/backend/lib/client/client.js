@@ -225,9 +225,11 @@ module.exports = function(dependencies, options) {
 
       /**
        * Get all addressbooks of current user
+       * @param  {Object} options Options for listing address books
+       *
        * @return {Promise}
        */
-      function list() {
+      function list(options) {
         var deferred = q.defer();
         var headers = {
           ESNToken: ESNToken,
@@ -235,12 +237,16 @@ module.exports = function(dependencies, options) {
         };
 
         getAddressBookHomeUrl(function(url) {
-          davClient({
+          const clientOptions = {
             method: 'GET',
             headers: headers,
             url: url,
             json: true
-          }, checkResponse(deferred, 'GET', 'Error while getting addressbook list in DAV'));
+          };
+
+          if (options && options.query) { clientOptions.query = options.query; }
+
+          davClient(clientOptions, checkResponse(deferred, 'GET', 'Error while getting addressbook list in DAV'));
         });
 
         return deferred.promise;

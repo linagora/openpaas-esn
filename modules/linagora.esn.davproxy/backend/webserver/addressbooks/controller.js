@@ -36,7 +36,8 @@ module.exports = function(dependencies) {
       'dav:name': req.body.name,
       'carddav:description': req.body.description,
       'dav:acl': ['dav:read', 'dav:write'],
-      type: req.body.type
+      type: req.body.type,
+      'openpaas:source': req.body['openpaas:source']
     };
 
     contactModule.lib.client(options)
@@ -403,7 +404,7 @@ module.exports = function(dependencies) {
     contactModule.lib.client(options)
       .addressbookHome(req.params.bookHome)
       .addressbook()
-      .list()
+      .list({ query: req.query })
       .then(function(data) {
         res.status(200).json(data.body);
       }, function(err) {

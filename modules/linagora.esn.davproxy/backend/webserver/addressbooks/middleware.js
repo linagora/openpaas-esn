@@ -43,7 +43,7 @@ module.exports = dependencies => {
       });
     }
 
-    if (AVAILABLE_ADDRESSBOOK_TYPES.indexOf(req.body.type) === -1) {
+    if (Object.values(AVAILABLE_ADDRESSBOOK_TYPES).indexOf(req.body.type) === -1) {
       return res.status(400).json({
         error: {
           code: 400,
@@ -51,6 +51,20 @@ module.exports = dependencies => {
           details: 'Addressbook type is not supported'
         }
       });
+    }
+
+    if (req.body.type === AVAILABLE_ADDRESSBOOK_TYPES.SUBSCRIPTION) {
+      if (!req.body['openpaas:source']) {
+        return res.status(400).json({
+          error: {
+            code: 400,
+            message: 'Bad Request',
+            details: 'openpaas:source is required for subscription'
+          }
+        });
+      }
+
+      delete req.body.type;
     }
 
     next();
