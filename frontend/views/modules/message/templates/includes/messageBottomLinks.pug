@@ -1,9 +1,15 @@
-ul.actions
-  li(ng-show='::writable', ng-if="false")
-    share-message-button(share="share()")
+ul.actions(ng-show='::writable')
   li(ng-show='::writable')
     like-button(target-object-type='"esn.message"', target-id='message._id', liked='message.likes.me.liked', on-liked='onMessageLiked()', on-unliked='onMessageUnliked()', total-likes="10")
-  li
-    a(ng-href="")
-      i.mdi.mdi-dots-vertical
+  ul.actions
+    li.dropdown
+      a(href="" data-toggle="dropdown" aria-expanded="false")
+        i.mdi.mdi-dots-vertical
+      ul.dropdown-menu.dropdown-menu-right
+        li.disabled(ng-show='::writable')
+          a(title=__('Soon available')) #{__('Remove')}
+        li.disabled(ng-show='::writable')
+          a(title=__('Soon available')) #{__('Update')}
+        li.disabled(ng-show='::writable')
+          a(title=__('Soon available')) #{__('Share')}
   .clearfix
