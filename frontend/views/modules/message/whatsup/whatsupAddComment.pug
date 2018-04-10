@@ -1,6 +1,6 @@
 .comment-composer.wcl-form(ng-controller='messageCommentController')
   .wc-comment
-    div.col-xs-12(error-message-id='{{message._id}}')
+    div(error-message-id='{{message._id}}')
     form.wcc-inner(name='whatsupcommentform', ng-class="{'focus-on': rows === 4}")
       .form-group.message-textarea-edition(ng-class='{nopadding: rows !== 4}')
         .fg-line

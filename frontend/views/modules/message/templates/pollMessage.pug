@@ -19,7 +19,7 @@ div.poll-message-thread(data-ng-switch='parentMessage')
         i {{message.pollResults.length}} #{__('people have already voted')}.
       p.m-t-5.m-b-0
         text-parser(parsers='{{message.parsers}}', text='{{message.content}}')
-      .row
+      div
         display-position(position='message.position')
       div.container-fluid.poll-vote-form(ng-if='pollContext.hasVoted === false')
         form.horizontal-form
@@ -52,9 +52,9 @@ div.poll-message-thread(data-ng-switch='parentMessage')
             span(ng-show='showMeChart') #{__('Hide chart')}
           canvas(ng-if='showMeChart' class="chart chart-doughnut", data="pollContext.chart" labels="pollContext.labels")
 
-      .row(ng-show="message.attachments && message.attachments.length > 0")
+      div(ng-show="message.attachments && message.attachments.length > 0")
         message-attachments(message='message')
-      .row(ng-show="message.content && message.length > 0")
+      div(ng-show="message.content && message.length > 0")
         message-oembeds(message='message')
       ul.wall-attrs.clearfix.list-inline.list-unstyled
         li.wa-buttons
