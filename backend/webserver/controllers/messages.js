@@ -212,10 +212,17 @@ function getOne(req, res) {
     }
     var messagesFound = messagesObject.messages;
     var messagesNotFound = messagesObject.messagesNotFound;
+
     if (messagesFound && messagesFound.length > 0) {
-      return res.status(200).json(messagesFound[0]);
+      return denormalize(req.user, messagesFound[0])
+        .then(denormalized => res.status(200).json(denormalized))
+        .catch(err => {
+          logger.warn('Can not denormalize message', err);
+          res.status(200, messagesFound[0]);
+        });
     }
-    return res.status(404).json(messagesNotFound[0]);
+
+    res.status(404).json(messagesNotFound[0]);
   });
 }
 

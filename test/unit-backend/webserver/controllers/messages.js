@@ -634,6 +634,14 @@ describe('The messages controller', function() {
   });
 
   describe('The getMessage fn', function() {
+    beforeEach(function() {
+      mockery.registerMock('./messages.denormalize', {
+        denormalize: function(message) {
+          return q(message);
+        }
+      });
+    });
+
     it('should return send back HTTP 400 if req.param.uuid is undefined', function(done) {
       mockery.registerMock('../../core/message/email', {});
       mockery.registerMock('../../core/message', {});
