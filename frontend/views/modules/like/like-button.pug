@@ -1,6 +1,4 @@
 a
-  button.like-button.no-effect(ng-click='liked ? unlike(): like()', ng-class="{'animated bounceIn': liked}")
-    i.mdi.mdi-heart(ng-if="liked")
-    i.mdi.mdi-heart-outline(ng-if="!liked")
-    span.total-likes(ng-if="totalLikes")
-      | {{ totalLikes }}
+  button.like-button.no-effect(ng-click='liked ? unlike(): like()', ng-class="{'animated bounceIn': liked && bounce}")
+    i.mdi(ng-class="{'mdi-heart': liked, 'mdi-heart-outline': !liked}")
+    span.total-likes {{ totalLikes }}

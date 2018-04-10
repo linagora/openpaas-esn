@@ -1,4 +1,5 @@
 @messageBottomLinksitemColor: #adadad; // line 74 material-admin/less/inc/misc/less/misc.less
+@likedColor: #ff796f;
 
 .card-message-edition {
   padding: 23px 25px 15px 25px;
@@ -79,7 +80,7 @@
     .wa-buttons{
       padding-top: 10px;
        & > span {
-        padding: 0 3px;
+        padding: 0;
       }
     }
 
@@ -107,14 +108,14 @@
 
       i {
         &.mdi-heart {
-          color:  @m-red;
+          color: @likedColor;
         }
 
         &.mdi-heart-outline {
           color: @text-color;
 
           &:active {
-            color:  @m-red;
+            color: @likedColor;
           }
         }
 
@@ -308,7 +309,7 @@ message-bottom-links {
         padding-right: 2px;
 
         &.mdi-heart {
-          color:  @m-red;
+          color: @likedColor;
         }
 
         &.mdi-heart-outline {
@@ -345,7 +346,7 @@ body:not(.is-desktop) {
       .wall-comment-list {
         padding: 5px 12px;
 
-        .media:hover .actions {
+        .media .actions {
           display: block;
         }
 
@@ -367,7 +368,7 @@ body:not(.is-desktop) {
             color: @text-color;
 
             &:hover {
-              color: @m-red;
+              color: @likedColor;
             }
           }
 
@@ -405,7 +406,7 @@ body:not(.is-desktop) {
     }
   }
 }
-    
+
 .oembeds .youtube-oembed {
   display: flex;
   justify-content: center;

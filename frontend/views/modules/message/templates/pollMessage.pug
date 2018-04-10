@@ -59,7 +59,7 @@ div.poll-message-thread(data-ng-switch='parentMessage')
       ul.wall-attrs.clearfix.list-inline.list-unstyled
         li.wa-buttons
           span(ng-show='::writable')
-            like-button(target-object-type='"esn.message"', target-id='message._id', liked='message.likes.me.liked', on-liked='onMessageLiked()', on-unliked='onMessageUnliked()', title=__('Like'))
+            like-button(bounce='true', target-object-type='"esn.message"', target-id='message._id', liked='message.likes.me.liked', on-liked='onMessageLiked()', on-unliked='onMessageUnliked()', title=__('Like'))
           span(ng-show='::writable')
             button.comment-button.no-effect(set-focus="{{'textarea-' + message._id}}", title=__('Add a comment'))
               i.mdi.mdi-comment-outline

@@ -1,6 +1,6 @@
 ul.actions(ng-show='::writable')
   li(ng-show='::writable')
-    like-button(target-object-type='"esn.message"', target-id='message._id', liked='message.likes.me.liked', on-liked='onMessageLiked()', on-unliked='onMessageUnliked()', total-likes="10")
+    like-button(target-object-type='"esn.message"', target-id='message._id', liked='message.likes.me.liked', on-liked='onMessageLiked()', on-unliked='onMessageUnliked()', total-likes="message.likes.total_count")
   ul.actions
     li.dropdown
       a(href="" data-toggle="dropdown" aria-expanded="false")
