@@ -251,7 +251,8 @@ describe('The contact client APIs', function() {
           '{urn:ietf:params:xml:ns:carddav}addressbook-description': 'carddav:description',
           '{DAV:}acl': 'dav:acl',
           '{http://open-paas.org/contacts}source': 'openpaas:source',
-          '{http://open-paas.org/contacts}type': 'type'
+          '{http://open-paas.org/contacts}type': 'type',
+          acl: 'acl'
         };
 
         it('should call davClient with right parameters', function(done) {
@@ -274,18 +275,20 @@ describe('The contact client APIs', function() {
         });
 
         it('should resolve with response after extracting info', function(done) {
-          var name = 'addressbook display name';
-          var description = 'addressbook description';
-          var acl = ['dav:read'];
-          var type = 'twitter';
-          var source = { _links: { href: '' }};
-          var response = { statusCode: 200 };
-          var body = {
+          const name = 'addressbook display name';
+          const description = 'addressbook description';
+          const davAcl = ['dav:read'];
+          const type = 'twitter';
+          const acl = [];
+          const source = { _links: { href: '' }};
+          const response = { statusCode: 200 };
+          const body = {
             '{DAV:}displayname': name,
             '{urn:ietf:params:xml:ns:carddav}addressbook-description': description,
-            '{DAV:}acl': acl,
+            '{DAV:}acl': davAcl,
             '{http://open-paas.org/contacts}source': source,
-            '{http://open-paas.org/contacts}type': type
+            '{http://open-paas.org/contacts}type': type,
+            acl
           };
 
           mockery.registerMock('../dav-client', {
@@ -304,9 +307,10 @@ describe('The contact client APIs', function() {
               },
               'dav:name': name,
               'carddav:description': description,
-              'dav:acl': acl,
+              'dav:acl': davAcl,
               'openpaas:source': source,
-              type: type
+              type: type,
+              acl
             });
             done();
           }).catch(done);
