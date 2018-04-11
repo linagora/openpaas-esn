@@ -948,8 +948,8 @@ return esnRestangular.all('messages').getList(options);
 return esnRestangular.one('messages', id).all('shares').post(payload);
     }
 
-    function remove(id) {
-      return esnRestangular.one('messages', id).delete();
+    function remove(id, options) {
+      return esnRestangular.one('messages', id).remove(options);
     }
 
     return {
@@ -1067,13 +1067,6 @@ return objectTypeAdapter.adapt(collaboration.object);
         activitystream: '='
       },
       templateUrl: '/views/modules/message/templates/includes/messageDateLink.html'
-    };
-  })
-  .directive('threadBottomLinks', function() {
-    return {
-      restrict: 'E',
-      scope: true,
-      templateUrl: '/views/modules/message/templates/includes/threadBottomLinks.html'
     };
   })
   .directive('messageBottomLinks', function() {

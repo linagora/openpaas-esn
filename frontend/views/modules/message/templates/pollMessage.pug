@@ -11,7 +11,7 @@ div.poll-message-thread(data-ng-switch='parentMessage')
           small
             message-date-link(message='message', activitystream='activitystream')
             .share
-              thread-bottom-links
+              message-actions-dropdown(message='message', activitystream='activitystream')
           activity-stream-origin(ng-if='parentMessage && !message.isOrigin', streams='message.streamOrigins')
           message-shared(message='message')
     .card-body.card-padding
