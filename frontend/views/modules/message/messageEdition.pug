@@ -17,5 +17,7 @@
           button.btn.btn-link(data-wpba="video", data-toggle="tab", ng-click='show("poll")', set-focus="textarea-poll-composer", title=__('Survey'))
             i.mdi.mdi-chart-bar
         li.disabled
-          cal-event-message-edition-button
+          //cal-event-message-edition-button
+          button.btn.btn-link(type='button', ng-click='show("event")', title=__('Soon available'), ng-disabled="true")
+            i.mdi.mdi-calendar
         injections-widget(injection-anchor-id="messageEditionMessageTypeButton", injection-subject="community")
