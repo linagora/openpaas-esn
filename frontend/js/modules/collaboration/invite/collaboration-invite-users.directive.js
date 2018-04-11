@@ -4,7 +4,7 @@
   angular.module('esn.collaboration')
     .directive('esnCollaborationInviteUsers', esnCollaborationInviteUsers);
 
-  function esnCollaborationInviteUsers($q, notificationFactory, session, esnCollaborationService, esnCollaborationClientService, userUtils) {
+  function esnCollaborationInviteUsers($q, $rootScope, notificationFactory, session, esnCollaborationService, esnCollaborationClientService, userUtils) {
     return {
       restrict: 'E',
       replace: true,
@@ -17,20 +17,11 @@
     };
 
     function link($scope, $element) {
-      $scope.placeholder = 'User name';
       $scope.displayProperty = 'displayName';
       $scope.running = false;
 
       $scope.getErrorDiv = function() {
         return $element.find('[error-container]');
-      };
-
-      $scope.getRunningDiv = function() {
-        return $element.children('.form-container').children('form').find('[running-container]');
-      };
-
-      $scope.getButtonContent = function() {
-        return $element.children('.form-container').children('form').find('[button-content]');
       };
 
       $scope.showErrorMessage = function() {
@@ -39,16 +30,6 @@
 
       $scope.hideErrorMessage = function() {
         $scope.getErrorDiv().addClass('hidden');
-      };
-
-      $scope.showRunning = function() {
-        $scope.getRunningDiv().removeClass('hidden');
-        $scope.getButtonContent().addClass('hidden');
-      };
-
-      $scope.hideRunning = function() {
-        $scope.getRunningDiv().addClass('hidden');
-        $scope.getButtonContent().removeClass('hidden');
       };
 
       $scope.showSuccessMessage = function() {
@@ -112,7 +93,6 @@
 
         $scope.resetMessages();
         $scope.running = true;
-        $scope.showRunning();
 
         var promises = $scope.users.map(function(user) {
           return esnCollaborationClientService.requestMembership($scope.objectType, $scope.collaboration._id, user._id);
@@ -122,18 +102,17 @@
           function() {
             $scope.users = [];
             $scope.running = false;
-            $scope.hideRunning();
             $scope.showSuccessMessage();
             if ($scope.query && $scope.query !== '') {
               $scope.invalidUser = $scope.query;
               $scope.showErrorMessage();
             }
+            $rootScope.$emit('collaboration:invite:users');
           },
           function(error) {
             $scope.users = [];
             $scope.error = error.data;
             $scope.running = false;
-            $scope.hideRunning();
             $scope.showErrorMessage();
           }
         );
