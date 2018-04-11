@@ -1,4 +1,6 @@
 @messageBottomLinksitemColor: #adadad; // line 74 material-admin/less/inc/misc/less/misc.less
+@likedColor: #ff796f;
+@likeOverColor: lighten(@m-black, 30%);
 
 .card-message-edition {
   padding: 23px 25px 15px 25px;
@@ -79,7 +81,7 @@
     .wa-buttons{
       padding-top: 10px;
        & > span {
-        padding: 0 3px;
+        padding: 0;
       }
     }
 
@@ -107,14 +109,14 @@
 
       i {
         &.mdi-heart {
-          color:  @m-red;
+          color: @likedColor;
         }
 
         &.mdi-heart-outline {
           color: @text-color;
 
           &:active {
-            color:  @m-red;
+            color: @likedColor;
           }
         }
 
@@ -127,14 +129,39 @@
     }
   }
 
-  .wall-comment-list {
+  .message-comment-list {
     background-color: @app-gray;
     padding: 5px;
 
-    .media .actions {
-      display: block;
-      right: -10px;
-      top: -5px;
+    .message-comment {
+      .flex;
+
+      .message-comment-avatar {
+        margin-right: 10px;
+      }
+
+      .message-comment-body {
+        .flex-column;
+        .flex-grow(1);
+
+        .message-comment-header {
+          .flex;
+
+          .message-comment-actions {
+            .flex-grow(1);
+            .flex-end;
+            .flex-vertical-centered;
+          }
+        }
+
+        .message-comment-content {
+          .flex-column;
+
+          .display-position {
+            margin-bottom: 5px;
+          }
+        }
+      }
     }
   }
 
@@ -277,7 +304,8 @@
   margin-top: 20px;
 }
 
-message-bottom-links {
+.message-bottom-links {
+  .flex;
 
   .actions > li {
     font-size: 18px;
@@ -291,7 +319,7 @@ message-bottom-links {
     }
   }
 
-  li like-button {
+  like-button {
     .like-button {
       box-shadow: none;
       border: 0;
@@ -300,7 +328,7 @@ message-bottom-links {
       padding: 1px 2px;
 
       &:active {
-        color: @m-black;
+        color: @likeOverColor;
       }
 
       i {
@@ -308,7 +336,7 @@ message-bottom-links {
         padding-right: 2px;
 
         &.mdi-heart {
-          color:  @m-red;
+          color: @likedColor;
         }
 
         &.mdi-heart-outline {
@@ -342,16 +370,11 @@ body:not(.is-desktop) {
     .message-comments-thread, .poll-message-thread {
       padding: 16px 0;
 
-      .wall-comment-list {
+      .message-comment-list {
         padding: 5px 12px;
 
-        .media:hover .actions {
-          display: block;
-        }
-
         .actions {
-          display: none;
-          right: -5px;
+          display: block;
         }
       }
 
@@ -367,7 +390,7 @@ body:not(.is-desktop) {
             color: @text-color;
 
             &:hover {
-              color: @m-red;
+              color: @likedColor;
             }
           }
 
@@ -385,14 +408,16 @@ body:not(.is-desktop) {
     }
   }
 
-  message-bottom-links {
+  .message-bottom-links {
+    .flex;
+
     like-button {
       .like-button {
-        padding: 1px 6px;
+        padding: 0px;
 
         i {
           &:hover {
-            color: @m-black;
+            color: @likeOverColor;
           }
         }
       }
@@ -405,7 +430,7 @@ body:not(.is-desktop) {
     }
   }
 }
-    
+
 .oembeds .youtube-oembed {
   display: flex;
   justify-content: center;

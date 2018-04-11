@@ -24,7 +24,7 @@ div.whats-up-message-thread(data-ng-switch='parentMessage')
       ul.wall-attrs.clearfix.list-inline.list-unstyled
         li.wa-buttons
           span(ng-show='::writable')
-            like-button(target-object-type='"esn.message"', target-id='message._id', liked='message.likes.me.liked', on-liked='onMessageLiked()', on-unliked='onMessageUnliked()', title=__('Like'))
+            like-button(bounce='true', target-object-type='"esn.message"', target-id='message._id', liked='message.likes.me.liked', on-liked='onMessageLiked()', on-unliked='onMessageUnliked()', title=__('Like'))
           span(ng-show='::writable')
             button.comment-button.no-effect(set-focus="{{'textarea-' + message._id}}", title=__('Add a comment'))
               i.mdi.mdi-comment-outline
@@ -41,22 +41,37 @@ div.whats-up-message-thread(data-ng-switch='parentMessage')
             img.lv-img(src="images/user.png", ng-src='/api/users/{{::response.author._id}}/profile/avatar', alt=__("Response Author"))
     .message-comments-thread
       message-comments
-  .wall-comment-list(data-ng-switch-when='false', data-tv-type="text" ng-class="{ 'just-posted': message._id === lastPost.messageId}")
-    .wcl-list
-      .media
+  .message-comment-list(data-ng-switch-when='false', data-tv-type="text" ng-class="{ 'just-posted': message._id === lastPost.messageId}")
+    .message-comment
+      .message-comment-avatar
         a.pull-left(ui-sref="profile({user_id: message.author._id})")
           img.lv-img-sm(src='/images/user.png', ng-src='/api/users/{{::message.author._id}}/profile/avatar', alt=__("Message Author"))
-        .media-body
-          i.mdi.mdi-email(ng-show='message.source === "email"', title='sent via email reply')
-          a(ui-sref="profile({user_id: message.author._id})")
-            strong {{message.author.firstname}} {{message.author.lastname}}
-          small.c-gray.m-l-10
-            message-date-link(message='message', activitystream='activitystream')
-          .share
+      .message-comment-body
+        .message-comment-header
+          .message-comment-info
+            i.mdi.mdi-email(ng-show='message.source === "email"', title='sent via email reply')
+            a(ui-sref="profile({user_id: message.author._id})")
+              strong {{message.author.firstname}} {{message.author.lastname}}
+            small.c-gray.m-l-10
+              message-date-link(message='message', activitystream='activitystream')
+          .message-comment-actions
             message-bottom-links
+            ul.actions(ng-show='::writable')
+              li.dropdown
+                a(href="" data-toggle="dropdown" aria-expanded="false")
+                  i.mdi.mdi-dots-vertical
+                ul.dropdown-menu.dropdown-menu-right
+                  li.disabled(ng-show='::writable')
+                    a(title=__('Soon available')) #{__('Remove')}
+                  li.disabled(ng-show='::writable')
+                    a(title=__('Soon available')) #{__('Update')}
+                  li.disabled(ng-show='::writable')
+                    a(title=__('Soon available')) #{__('Share')}
+              .clearfix
+        .message-comment-content
           p.m-b-5.white-space-pre-line
             text-parser(parsers='{{message.parsers}}', text='{{message.content}}')
-          display-position.row(ng-if="message.position", position='message.position')
+          display-position(ng-if="message.position", position='message.position')
           message-oembeds.attachment(message='message')
           div(ng-if="message.attachments && message.attachments.length > 0", ng-repeat='attachment in message.attachments')
             esn-attachment(attachment="attachment", gallery="message._id")
