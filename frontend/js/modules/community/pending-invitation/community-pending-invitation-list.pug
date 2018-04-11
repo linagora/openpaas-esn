@@ -5,7 +5,6 @@
   .invitations(ng-if="!error")
     .listview(ng-repeat="request in invitationRequests = (requests | filter: {workflow: 'invitation'})")
       community-pending-invitation-display(request="request", community="community")
-      .vertiz-space
 
     .div(ng-if="!invitationRequests.length")
       .no-invitation.text-center

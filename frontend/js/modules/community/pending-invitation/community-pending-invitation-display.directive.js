@@ -17,7 +17,7 @@
         $scope.cancel = function() {
           button.attr('disabled', 'disabled');
           esnCollaborationClientService.cancelRequestMembership('community', $scope.community._id, $scope.request.user._id).then(function() {
-            button.hide();
+            $element.remove();
           }, function() {
             button.removeAttr('disabled');
           });
