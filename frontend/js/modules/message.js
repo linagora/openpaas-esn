@@ -1,8 +1,6 @@
 'use strict';
 
-angular.module('esn.message', ['esn.attachment', 'esn.timeline', 'esn.maps', 'esn.file', 'esn.background', 'esn.notification', 'esn.object-type', 'esn.http', 'mgcrea.ngStrap',
-'ngAnimate', 'ngSanitize', 'RecursionHelper', 'mgcrea.ngStrap.typeahead',
-'esn.poll'])
+angular.module('esn.message')
   .constant('ESN_MESSAGE_TYPES', ['whatsup', 'event', 'poll'])
   .run(function(esnTimelineEntryProviders, $q, ESN_MESSAGE_TYPES) {
     esnTimelineEntryProviders.register({
@@ -950,11 +948,16 @@ return esnRestangular.all('messages').getList(options);
 return esnRestangular.one('messages', id).all('shares').post(payload);
     }
 
+    function remove(id) {
+      return esnRestangular.one('messages', id).delete();
+    }
+
     return {
       get: get,
       post: post,
       addComment: addComment,
-      share: share
+      share: share,
+      remove: remove
     };
 
   })
