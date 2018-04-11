@@ -7,11 +7,20 @@
     $log,
     $scope,
     messageAPI,
-    notificationFactory
+    messageHelpers,
+    notificationFactory,
+    session
   ) {
     var self = this;
 
     self.remove = remove;
+    self.$onInit = $onInit;
+
+    function $onInit() {
+      self.canRemove = messageHelpers.isMessageCreator(session.user, self.message);
+      self.canUpdate = true;
+      self.canShare = true;
+    }
 
     function remove() {
       messageAPI.remove(self.message._id, {objectType: 'activity_stream', id: self.activitystream.activity_stream.uuid})

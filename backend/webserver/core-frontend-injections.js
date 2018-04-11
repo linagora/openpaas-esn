@@ -61,7 +61,8 @@ const injections = [
     'message/message.module.js',
     'message.js',
     'message/actions/message-actions-dropdown.component.js',
-    'message/actions/message-actions.controller.js'
+    'message/actions/message-actions.controller.js',
+    'message/message-helpers.service.js'
   ], innerApps: ['esn']},
   {angular: 'esn.session', files: ['session.js'], innerApps: ['esn']},
   {angular: 'esn.oauth-application', files: [
