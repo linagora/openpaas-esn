@@ -8,8 +8,7 @@
         i.mdi.mdi-close
     .media-body
       .lv-title {{::request.user.firstname}} {{::request.user.lastname}}
-        span.type.label.label-default
-          span
-            i.mdi.mdi-clock
-          span.date(am-time-ago="::request.timestamp.creation")
+        small.date
+          i.mdi.mdi-clock
+          span(am-time-ago="::request.timestamp.creation")
       small.lv-small {{ ::request.user.accounts[0].emails[0]}}
