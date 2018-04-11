@@ -1,6 +1,6 @@
 'use strict';
 
-/* global chai: false */
+/* global chai, sinon: false */
 
 var expect = chai.expect;
 
@@ -16,10 +16,15 @@ describe('The esnCollaborationMembersWidget directive', function() {
 
     angular.mock.module(function($provide) {
       $provide.value('esnCollaborationClientService', self.esnCollaborationClientService);
+      $provide.value('notificationFactory', {
+        weakSuccess: sinon.spy(),
+        weakError: sinon.spy()
+      });
     });
 
     module('jadeTemplates');
     module('esn.core');
+    module('esn.notification');
     module('esn.websocket');
   });
 
@@ -48,7 +53,7 @@ describe('The esnCollaborationMembersWidget directive', function() {
         headers: function() {
           return 3;
         },
-        data: [{ user: { firstname: 'john' } }]
+        data: [{ user: { firstname: 'john', preferredEmail: 'cha@open-paas.org' } }]
       });
     };
 
