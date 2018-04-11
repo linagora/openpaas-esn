@@ -46,7 +46,7 @@ describe('The contactActionMoveController controller', function() {
   }
 
   describe('The listPossbileDestinations function', function() {
-    it('should get all editable address books except input contact addressbook and convert the list to displayShells', function() {
+    it('should get all possible destination address books except input contact addressbook and convert the list to displayShells', function() {
       contactAddressbookDisplayService.convertShellsToDisplayShells = sinon.spy(function(shells) {
         return shells.map(function(shell) {
           return {
@@ -56,7 +56,7 @@ describe('The contactActionMoveController controller', function() {
         });
       });
 
-      contactAddressbookService.listEditableAddressbooks = sinon.stub().returns($q.when([defaultAddressbookShell, addressbookShell]));
+      contactAddressbookService.listAddressbooksUserCanCreateContact = sinon.stub().returns($q.when([defaultAddressbookShell, addressbookShell]));
       var controller = initController();
 
       controller.contact = {
@@ -68,7 +68,7 @@ describe('The contactActionMoveController controller', function() {
       controller.listPossbileDestinations();
       $rootScope.$digest();
 
-      expect(contactAddressbookService.listEditableAddressbooks).to.have.been.called;
+      expect(contactAddressbookService.listAddressbooksUserCanCreateContact).to.have.been.called;
       expect(contactAddressbookDisplayService.convertShellsToDisplayShells).to.have.been.called;
       expect(controller.availableAddressbookDisplayShells).to.shallowDeepEqual([{
         bookName: addressbookShell.bookName,

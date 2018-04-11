@@ -51,7 +51,7 @@ angular.module('linagora.esn.contact')
       this.lastPage = false;
       this.nextPage = 0;
 
-      if (this.addressbook.isSubscription()) {
+      if (this.addressbook.isSubscription) {
         this.bookId = this.addressbook.source.bookId;
         this.bookName = this.addressbook.source.bookName;
       } else {

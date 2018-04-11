@@ -45,7 +45,7 @@ describe('The contactActionCopyController controller', function() {
   };
 
   describe('The listPossibleDestinations function', function() {
-    it('should get all editable address books except current address book and convert the list to displayShells', function() {
+    it('should get all possible destination address books except current address book and convert the list to displayShells', function() {
       contactAddressbookDisplayService.convertShellsToDisplayShells = sinon.spy(function(shells) {
         return shells.map(function(shell) {
           return {
@@ -55,7 +55,7 @@ describe('The contactActionCopyController controller', function() {
         });
       });
 
-      contactAddressbookService.listEditableAddressbooks = sinon.stub().returns($q.when([defaultAddressbookShell, addressbookShell]));
+      contactAddressbookService.listAddressbooksUserCanCreateContact = sinon.stub().returns($q.when([defaultAddressbookShell, addressbookShell]));
       var controller = initController();
 
       controller.contact = {
@@ -67,7 +67,7 @@ describe('The contactActionCopyController controller', function() {
       controller.listPossibleDestinations();
       $rootScope.$digest();
 
-      expect(contactAddressbookService.listEditableAddressbooks).to.have.been.called;
+      expect(contactAddressbookService.listAddressbooksUserCanCreateContact).to.have.been.called;
       expect(contactAddressbookDisplayService.convertShellsToDisplayShells).to.have.been.called;
       expect(controller.availableAddressbookDisplayShells).to.shallowDeepEqual([{
         bookName: addressbookShell.bookName,
@@ -89,7 +89,7 @@ describe('The contactActionCopyController controller', function() {
         });
       };
 
-      contactAddressbookService.listEditableAddressbooks = function() {
+      contactAddressbookService.listAddressbooksUserCanCreateContact = function() {
         return $q.when([
           { bookName: 'contacts' },
           { bookName: 'collected' }

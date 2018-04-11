@@ -1264,10 +1264,10 @@ describe('The Contacts controller module', function() {
     it('should display create contact button if user is viewing all contacts', function() {
       var currentAddressbooks = [{
         bookName: 'contacts',
-        editable: true
+        canCreateContact: true
       }, {
         bookName: 'twitter',
-        editable: false
+        canCreateContact: false
       }];
 
       $controller('contactsListController', {
@@ -1282,7 +1282,7 @@ describe('The Contacts controller module', function() {
     it('should display create contact button if current address book can create contact', function() {
       var currentAddressbooks = [{
         bookName: 'contacts',
-        editable: true
+        canCreateContact: true
       }];
 
       $controller('contactsListController', {

@@ -64,11 +64,11 @@
 
     function categorizeDisplayShells(displayShells) {
       var userAddressbooks = displayShells.filter(function(displayShell) {
-        return !displayShell.shell.isSubscription();
+        return !displayShell.shell.isSubscription;
       }).sort(_sortByPriority);
 
       var sharedAddressbooks = displayShells.filter(function(displayShell) {
-        return displayShell.shell.isSubscription();
+        return displayShell.shell.isSubscription;
       }).sort(_sortByOwnerSubscription);
 
       return {
@@ -92,7 +92,7 @@
     }
 
     function _getMatchingDisplayShell(addressbook) {
-      var context = addressbook.isSubscription() ? addressbook.source : addressbook;
+      var context = addressbook.isSubscription ? addressbook.source : addressbook;
 
       return _.find(_getRegisteredDisplayShells(), function(displayShell) {
         return displayShell.matchingFunction(context);

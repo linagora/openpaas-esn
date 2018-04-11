@@ -149,32 +149,13 @@ module.exports = function(dependencies, options) {
         };
         const method = 'POST';
 
-        _getDavEndpoint(davEndpoint => {
-          const addressbookHomeUrl = [davEndpoint, PATH, `${bookHome}.json`].join('/');
-          const addressbookUrl = [davEndpoint, PATH, bookHome, `${addressbook.id}.json`].join('/');
-
-          davClient({
-            method,
-            headers: headers,
-            url: addressbookHomeUrl,
-            json: true,
-            body: addressbook
-          }, (err, response, body) => {
-            if (!err && VALID_HTTP_STATUS[method].indexOf(response.statusCode) > -1) {
-              delete addressbook.id;
-
-              body = Object.assign(
-                {},
-                addressbook,
-                {
-                  _links: { self: { href: addressbookUrl } }
-                }
-              );
-            }
-
-            checkResponse(deferred, method, 'Error while creating addressbook in DAV')(err, response, body);
-          });
-        });
+        getAddressBookHomeUrl(url => davClient({
+          method,
+          headers: headers,
+          url,
+          json: true,
+          body: addressbook
+        }, checkResponse(deferred, method, 'Error while creating addressbook in DAV')));
 
         return deferred.promise;
       }
@@ -268,7 +249,8 @@ module.exports = function(dependencies, options) {
           '{urn:ietf:params:xml:ns:carddav}addressbook-description': 'carddav:description',
           '{DAV:}acl': 'dav:acl',
           '{http://open-paas.org/contacts}source': 'openpaas:source',
-          '{http://open-paas.org/contacts}type': 'type'
+          '{http://open-paas.org/contacts}type': 'type',
+          acl: 'acl'
         };
 
         getBookUrl(function(url) {

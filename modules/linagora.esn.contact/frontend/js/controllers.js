@@ -224,7 +224,7 @@ angular.module('linagora.esn.contact')
         .vcard($scope.cardId)
         .get()
         .then(function(contact) {
-          if (!contact.addressbook.editable) {
+          if (!contact.addressbook.canEditContact) {
             $scope.close();
           }
           $scope.contact = contact;
@@ -628,7 +628,7 @@ angular.module('linagora.esn.contact')
     $scope.createPagination(CONTACT_LIST_DISPLAY_MODES.multiple);
 
     $scope.canCreateContact = $scope.addressbooks.some(function(addressbook) {
-      return addressbook.editable;
+      return addressbook.canCreateContact;
     });
 
     if ($location.search().q) {

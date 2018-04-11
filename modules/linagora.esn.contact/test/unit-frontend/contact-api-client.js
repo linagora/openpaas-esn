@@ -101,7 +101,8 @@ describe('The contact Angular module contactapis', function() {
                   },
                   'dav:name': 'Twitter addressbook',
                   'carddav:description': 'AddressBook for Twitter contacts',
-                  'dav:acl': ['dav:read']
+                  'dav:acl': ['dav:read'],
+                  acl: []
                 }]
               }
             });
@@ -149,9 +150,7 @@ describe('The contact Angular module contactapis', function() {
                 expect(addressbook).to.shallowDeepEqual({
                   bookName: bookName,
                   name: 'Twitter addressbook',
-                  description: 'AddressBook for Twitter contacts',
-                  readable: true,
-                  editable: false
+                  description: 'AddressBook for Twitter contacts'
                 });
                 done();
               }, done);
@@ -990,13 +989,16 @@ describe('The contact Angular module contactapis', function() {
           it('should return an AddressbookShell instance if success', function(done) {
             var AddressbookShell = this.AddressbookShell;
             var bookId = '123';
+            var bookName = '456';
             var addressbook = {
+              id: bookName,
               name: 'Custom addressbook',
               description: 'Addressbook for test',
               type: 'user'
             };
 
-            this.$httpBackend.when('POST', this.getBookHomeUrl(bookId)).respond({
+            this.$httpBackend.when('POST', this.getBookHomeUrl(bookId)).respond();
+            this.$httpBackend.when('PROPFIND', this.getBookUrl(bookId, bookName)).respond({
               _links: {
                 self: {
                   href: '/esn-sabre/esn.php/addressbooks/5666b4cff5d672f316d4439f.json'
@@ -1016,9 +1018,7 @@ describe('The contact Angular module contactapis', function() {
                 expect(createdAddressbook).to.be.instanceof(AddressbookShell);
                 expect(createdAddressbook).to.shallowDeepEqual({
                   name: addressbook.name,
-                  description: addressbook.description,
-                  readable: true,
-                  editable: true
+                  description: addressbook.description
                 });
                 done();
               }, done);

@@ -9,7 +9,7 @@
       name: 'Delete',
       icon: 'delete',
       when: function(context) {
-        return context.addressbook.isWritable();
+        return context.addressbook.shell.canDeleteAddressbook;
       },
       execute: _openDeleteModal
     };

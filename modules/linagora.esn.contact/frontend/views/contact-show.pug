@@ -13,16 +13,22 @@ sub-header
             i.mdi.mdi-dots-vertical
           ul.dropdown-menu.dropdown-menu-right
             li
-              a(href='', ng-if='displayShell.isWritable()', ng-click='edit()') #{__('Edit')}
+              a(href='', ng-if='displayShell.addressbook.canEditContact', ng-click='edit()') #{__('Edit')}
             li
-              contact-action-copy.contact-dropdown-action-item(contact='contact')
+              contact-action-copy.contact-dropdown-action-item(
+                ng-if='displayShell.addressbook.canCopyContact',
+                contact='contact'
+              )
             li
-              contact-action-move.contact-dropdown-action-item(contact='contact')
+              contact-action-move.contact-dropdown-action-item(
+                ng-if='displayShell.addressbook.canMoveContact',
+                contact='contact'
+              )
 
   .card.hidden-xs(ng-submit='accept()')
     .card-body.contact-body
       contact-display(ng-if='loaded && !error' contact='contact')
-      div.bs-alert.bs-alert-warning.clearfix.text-center(ng-if= 'loaded && !error && !displayShell.isWritable()')
+      div.bs-alert.bs-alert-warning.clearfix.text-center(ng-if= 'loaded && !error && !displayShell.addressbook.canEditContact')
         strong #{__("This contact can not be edited")}
 
   .contact-content.visible-xs.fadeIn200ms(ng-if='loaded && !error')

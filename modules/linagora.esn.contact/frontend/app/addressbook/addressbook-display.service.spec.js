@@ -37,8 +37,7 @@ describe('The contactAddressbookDisplayService service', function() {
 
       var addressbookShell = {
         bookName: 'dummy',
-        type: 'dummy',
-        isSubscription: angular.noop
+        type: 'dummy'
       };
 
       displayShellRegistry = {
@@ -59,8 +58,7 @@ describe('The contactAddressbookDisplayService service', function() {
     it('should convert addressbook to ContactAddressbookDisplayShell if it does not match any registered display shells', function() {
       var addressbookShell = {
         bookName: 'dummy',
-        type: 'dummy',
-        isSubscription: angular.noop
+        type: 'dummy'
       };
 
       var result = contactAddressbookDisplayService.convertShellToDisplayShell(addressbookShell);
@@ -75,8 +73,7 @@ describe('The contactAddressbookDisplayService service', function() {
 
       var addressbookShell = {
         bookName: 'dummy',
-        type: 'dummy',
-        isSubscription: angular.noop
+        type: 'dummy'
       };
 
       displayShellRegistry = {
@@ -108,8 +105,7 @@ describe('The contactAddressbookDisplayService service', function() {
 
       var addressbookShell = {
         bookName: 'dummy',
-        type: 'dummy',
-        isSubscription: angular.noop
+        type: 'dummy'
       };
 
       displayShellRegistry = {
@@ -142,12 +138,10 @@ describe('The contactAddressbookDisplayService service', function() {
       };
       var addressbookShells = [{
         bookName: 'addressbook1',
-        type: 'shell1',
-        isSubscription: angular.noop
+        type: 'shell1'
       }, {
         bookName: 'addressbook2',
-        type: 'shell2',
-        isSubscription: angular.noop
+        type: 'shell2'
       }];
 
       displayShellRegistry = {
@@ -181,8 +175,7 @@ describe('The contactAddressbookDisplayService service', function() {
         this.displayName = 'A dummy addressbook';
       };
       var addressbook = {
-        type: 'dummy',
-        isSubscription: angular.noop
+        type: 'dummy'
       };
 
       displayShellRegistry = {
@@ -203,8 +196,7 @@ describe('The contactAddressbookDisplayService service', function() {
     it('should return the addressbook name if there is no matched display shell', function() {
       var addressbook = {
         bookName: 'contacts',
-        name: 'My contacts',
-        isSubscription: angular.noop
+        name: 'My contacts'
       };
 
       var result = contactAddressbookDisplayService.buildDisplayName(addressbook);
@@ -214,8 +206,7 @@ describe('The contactAddressbookDisplayService service', function() {
 
     it('should return the addressbook bookName if there is no matched display shell or addressbook name', function() {
       var addressbook = {
-        bookName: 'contacts',
-        isSubscription: angular.noop
+        bookName: 'contacts'
       };
 
       var result = contactAddressbookDisplayService.buildDisplayName(addressbook);
@@ -265,20 +256,16 @@ describe('The contactAddressbookDisplayService service', function() {
     it('should categorize displayShells to user addressbooks and external addressbooks', function() {
       var userAddressbookDisplayShell1 = {
         displayName: '1',
-        shell: {
-          isSubscription: function() { return false; }
-        }
+        shell: {}
       };
       var userAddressbookDisplayShell2 = {
         displayName: '2',
-        shell: {
-          isSubscription: function() { return false; }
-        }
+        shell: {}
       };
       var externalAddressbookDisplayShell1 = {
         displayName: '3',
         shell: {
-          isSubscription: function() { return true; }
+          isSubscription: true
         }
       };
 

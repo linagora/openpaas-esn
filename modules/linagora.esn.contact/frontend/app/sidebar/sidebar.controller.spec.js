@@ -5,7 +5,7 @@
 
 var expect = chai.expect;
 
-describe('the ContactSidebarController controller', function() {
+describe('The ContactSidebarController controller', function() {
   var $rootScope, $controller;
   var contactAddressbookService, contactAddressbookDisplayService;
   var userAPI, userUtils;
@@ -55,13 +55,11 @@ describe('the ContactSidebarController controller', function() {
       var addressbooks = [
         {
           displayName: 'bookA',
-          priority: 1,
-          isSubscription: angular.noop
+          priority: 1
         },
         {
           displayName: 'bookB',
-          priority: 10,
-          isSubscription: angular.noop
+          priority: 10
         }
       ];
 
@@ -78,18 +76,17 @@ describe('the ContactSidebarController controller', function() {
       var addressbooks = [{
         name: 'Subscription 1',
         source: { bookId: 'user1' },
-        isSubscription: function() { return true; }
+        isSubscription: true
       }, {
         name: 'Subscription 2',
         source: { bookId: 'user1' },
-        isSubscription: function() { return true; }
+        isSubscription: true
       }, {
         name: 'Subscription 3',
         source: { bookId: 'user3' },
-        isSubscription: function() { return true; }
+        isSubscription: true
       }, {
-        name: 'Normal Addressbook',
-        isSubscription: angular.noop
+        name: 'Normal Addressbook'
       }];
 
       contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when(addressbooks));

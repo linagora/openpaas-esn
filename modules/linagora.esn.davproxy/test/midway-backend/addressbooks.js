@@ -665,18 +665,9 @@ describe('The addressbooks dav proxy', function() {
 
             req.send(addressbook)
               .expect(201)
-              .end((err, res) => {
+              .end(err => {
                 expect(err).to.not.exist;
                 expect(called).to.be.true;
-                expect(res.body).to.deep.equal({
-                  'dav:name': addressbook.name,
-                  'carddav:description': addressbook.description,
-                  'dav:acl': ['dav:read', 'dav:write'],
-                  type: addressbook.type,
-                  _links: {
-                    self: { href: `${caldavConfiguration.backend.url}/addressbooks/${bookId}/${addressbook.id}.json` }
-                  }
-                });
                 done();
               });
           });
@@ -873,25 +864,8 @@ describe('The addressbooks dav proxy', function() {
 
             req.send(addressbook)
               .expect(201)
-              .end((err, res) => {
+              .end(err => {
                 expect(err).to.not.exist;
-                expect(res.body).to.deep.equal({
-                  _links: {
-                    self: {
-                      href: `${caldavConfiguration.backend.url}/addressbooks/123/4e2a6aef-d443-4709-b925-d9585ebc9109.json`
-                    }
-                  },
-                  'dav:name': addressbook.name,
-                  'carddav:description': addressbook.description,
-                  'dav:acl': ['dav:read', 'dav:write'],
-                  'openpaas:source': {
-                    _links: {
-                      self: {
-                        href: '/addressbooks/abc/456.json'
-                      }
-                    }
-                  }
-                });
                 done();
               });
           });

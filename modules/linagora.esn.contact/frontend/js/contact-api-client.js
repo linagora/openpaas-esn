@@ -107,8 +107,11 @@ angular.module('linagora.esn.contact')
       }
 
       return davClient('POST', getBookHomeUrl(bookId), headers, addressbook)
-        .then(function(response) {
-          return new AddressbookShell(response.data);
+        .then(function() {
+          return davClient('PROPFIND', getBookUrl(bookId, addressbook.id), headers)
+            .then(function(response) {
+              return new AddressbookShell(response.data);
+            });
         });
     }
 
