@@ -71,7 +71,7 @@ div.whats-up-message-thread(data-ng-switch='parentMessage')
         .message-comment-content
           p.m-b-5.white-space-pre-line
             text-parser(parsers='{{message.parsers}}', text='{{message.content}}')
-          display-position.row(ng-if="message.position", position='message.position')
+          display-position(ng-if="message.position", position='message.position')
           message-oembeds.attachment(message='message')
           div(ng-if="message.attachments && message.attachments.length > 0", ng-repeat='attachment in message.attachments')
             esn-attachment(attachment="attachment", gallery="message._id")
