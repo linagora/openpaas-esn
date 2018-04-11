@@ -92,5 +92,14 @@
   "Search for users to subscribe to their address books": "Recherche d'utilisateurs afin de s'abonner à leur carnet d'adresses",
   "Adding shared address book...": "Ajout d'un carnet d'adresses partagé...",
   "Successfully added shared address book": "Le carnet d'adresses partagé a été ajouté",
-  "Can not add shared address book": "Impossible d'ajouter un carnet d'adresse partagé"
+  "Can not add shared address book": "Impossible d'ajouter un carnet d'adresse partagé",
+  "Settings": "Paramètres",
+  "Address book settings": "Paramètres du carnet d'adresses",
+  "Public right": "Accès public",
+  "Main": "Principal",
+  "Updating address book settings...": "Mise à jour des paramètres du carnet d'adresses...",
+  "Address book settings are updated": "Paramètres du carnet d'adresses mis à jour",
+  "Failed to update address book settings": "Impossible de mettre à jour les paramètres du carnet d'adresses",
+  "Hide address book": "Cacher le carnet d'adresses",
+  "See all contacts": "Voir tous les contacts"
 }

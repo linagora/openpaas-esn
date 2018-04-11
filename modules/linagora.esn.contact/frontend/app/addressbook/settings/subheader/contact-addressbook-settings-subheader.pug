@@ -1,0 +1,12 @@
+extends /modules/subheader/responsive-subheader.pug
+
+block left
+  .btn-container
+    button.btn.btn-link(ng-click='$ctrl.onCancel()')
+      .flex-vertical-centered.flex-space-between
+        i.mdi.mdi-close
+        .hidden-xs.vertical-centered #{__('Cancel')}
+  .title.ellipsis {{::$ctrl.name}}
+
+block right
+  esn-subheader-save-button(on-click="$ctrl.onSubmit()", form="$ctrl.form")

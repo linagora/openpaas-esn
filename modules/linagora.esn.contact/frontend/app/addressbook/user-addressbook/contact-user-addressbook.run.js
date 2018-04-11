@@ -5,6 +5,7 @@
     .run(function(
       contactAddressbookActionEdit,
       contactAddressbookActionDelete,
+      contactAddressbookActionSettings,
       contactAddressbookDisplayShellRegistry,
       contactUserAddressbookService,
       ContactUserAddressbookDisplayShell
@@ -14,7 +15,8 @@
         priority: 100,
         actions: [
           contactAddressbookActionEdit,
-          contactAddressbookActionDelete
+          contactAddressbookActionDelete,
+          contactAddressbookActionSettings
         ],
         displayShell: ContactUserAddressbookDisplayShell,
         matchingFunction: contactUserAddressbookService.isUserAddressbook
