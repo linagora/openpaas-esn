@@ -11,7 +11,8 @@
     ContactAPIClient,
     contactAddressbookDisplayService,
     CONTACT_ADDRESSBOOK_EVENTS,
-    CONTACT_ADDRESSBOOK_TYPES
+    CONTACT_ADDRESSBOOK_TYPES,
+    CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL
   ) {
     return {
       createAddressbook: createAddressbook,
@@ -22,7 +23,8 @@
       updateAddressbook: updateAddressbook,
       listSubscribableAddressbooks: listSubscribableAddressbooks,
       listSubscribedAddressbooks: listSubscribedAddressbooks,
-      subscribeAddressbooks: subscribeAddressbooks
+      subscribeAddressbooks: subscribeAddressbooks,
+      updateAddressbookPublicRight: updateAddressbookPublicRight
     };
 
     function getAddressbookByBookName(bookName) {
@@ -118,6 +120,20 @@
             );
           });
       }));
+    }
+
+    function updateAddressbookPublicRight(addressbook, publicRight) {
+      var formatedPublicRight = publicRight ? [
+        {
+          principal: CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL,
+          privilege: publicRight
+        }
+      ] : [];
+
+      return ContactAPIClient
+        .addressbookHome(session.user._id)
+        .addressbook(addressbook.bookName)
+        .updatePublicRight(formatedPublicRight);
     }
   }
 })(angular);

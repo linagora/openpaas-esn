@@ -9,15 +9,23 @@ describe('The Contact Angular module AddressbookShell', function() {
   var bookId = '5666b4cff5d672f316d4439f';
   var bookName = '1614422648';
   var AddressbookShell, contactAddressbookACLHelper;
+  var CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL, CONTACT_ADDRESSBOOK_PUBLIC_RIGHT;
 
   describe('AddressbookShell', function() {
 
     beforeEach(module('linagora.esn.contact'));
 
     beforeEach(function() {
-      inject(function(_AddressbookShell_, _contactAddressbookACLHelper_) {
+      inject(function(
+        _AddressbookShell_,
+        _contactAddressbookACLHelper_,
+        _CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL_,
+        _CONTACT_ADDRESSBOOK_PUBLIC_RIGHT_
+      ) {
         AddressbookShell = _AddressbookShell_;
         contactAddressbookACLHelper = _contactAddressbookACLHelper_;
+        CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL = _CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL_;
+        CONTACT_ADDRESSBOOK_PUBLIC_RIGHT = _CONTACT_ADDRESSBOOK_PUBLIC_RIGHT_;
       });
 
       contactAddressbookACLHelper.canEditAddressbook = angular.noop;
@@ -76,6 +84,23 @@ describe('The Contact Angular module AddressbookShell', function() {
         expect(shell.source.bookId).to.equal('2222');
         expect(shell.source.bookName).to.equal('3333');
         expect(shell.isSubscription).to.equal(true);
+      });
+
+      it('should set public right property to the highest priority right according to acl', function() {
+        jsonInput.acl = [
+          { privilege: '{DAV:}read', principal: CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL, protected: true },
+          { privilege: '{DAV:}write', principal: CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL, protected: true }
+        ];
+
+        var shell = new AddressbookShell(jsonInput);
+
+        expect(shell.rights.public).to.equal('{DAV:}write');
+      });
+
+      it('should set public right property to private if there is no acl present', function() {
+        var shell = new AddressbookShell(jsonInput);
+
+        expect(shell.rights.public).to.equal(CONTACT_ADDRESSBOOK_PUBLIC_RIGHT.PRIVATE.value);
       });
     });
   });
