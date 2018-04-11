@@ -28,6 +28,6 @@
       span(ng-if='community.members_count !== 1') {{community.members_count || 0}} #{__('members')}
       span(ng-if='community.members_count === 1') 1 #{__('member')}
 
-    .description.hidden-xs(ng-show='community.description')
-      | {{community.description | characters:256 :false }}
+    .description(ng-show='community.description')
+      | {{community.description | characters:256 :true }}
 
