@@ -10,15 +10,11 @@
     self.$onInit = $onInit;
 
     function $onInit() {
-      if (self.member.user.firstname || self.member.user.lastname) {
-        self.title = (self.member.user.firstname || '') + ' ' + (self.member.user.lastname || '');
+      if (self.member.user.preferredEmail) {
+        self.email = self.member.user.preferredEmail;
       } else {
-        self.title = self.member.user.emails[0];
+        self.email = self.member.user.accounts[0].emails[0];
       }
-
-      self.tooltip = {
-        title: self.title
-      };
 
       if (self.collaboration.creator === self.member.user._id) {
         self.creator = true;

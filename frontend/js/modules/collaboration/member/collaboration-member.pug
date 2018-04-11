@@ -1,11 +1,18 @@
-.collaboration-member
-  .meta
-    member-display(member="ctrl.member")
-  .member-actions
-    ul.actions(ng-if="ctrl.isCollaborationManager")
-      li.dropdown
-        a(href="" data-toggle="dropdown" aria-expanded="false")
-          i.mdi.mdi-dots-vertical
-        ul.dropdown-menu.dropdown-menu-right
-          li
-            a(href="", ng-click='ctrl.removeMember()') #{__('Remove')}
+.collaboration-member.lv-item
+  .media
+    .pull-left
+      a(ui-sref="profile({user_id: ctrl.member._id})")
+        img.lv-img-sm(ng-src="/api/users/{{::ctrl.member._id}}/profile/avatar", src="/images/user.png", alt=__("Profile Avatar"))
+    .pull-right
+      ul.actions(ng-if="ctrl.isCollaborationManager")
+        li.dropdown
+          a(href="" data-toggle="dropdown" aria-expanded="false")
+            i.mdi.mdi-dots-vertical
+          ul.dropdown-menu.dropdown-menu-right
+            li
+              a(href="", ng-click='ctrl.removeMember()') #{__('Remove')}
+    .media-body
+      .lv-title {{::ctrl.member.firstname}} {{::ctrl.member.lastname}}
+        span.type.label.label-primary(ng-if='ctrl.creator') #{__('Creator')}
+      small.lv-small {{ ::ctrl.member.preferredEmail}}
+
