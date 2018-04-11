@@ -17,7 +17,7 @@
       createAddressbook: createAddressbook,
       getAddressbookByBookName: getAddressbookByBookName,
       listAddressbooks: listAddressbooks,
-      listEditableAddressbooks: listEditableAddressbooks,
+      listAddressbooksUserCanCreateContact: listAddressbooksUserCanCreateContact,
       removeAddressbook: removeAddressbook,
       updateAddressbook: updateAddressbook,
       listSubscribableAddressbooks: listSubscribableAddressbooks,
@@ -33,10 +33,10 @@
       return ContactAPIClient.addressbookHome(session.user._id).addressbook().list();
     }
 
-    function listEditableAddressbooks() {
+    function listAddressbooksUserCanCreateContact() {
       return listAddressbooks().then(function(addressbooks) {
         return addressbooks.filter(function(addressbook) {
-          return addressbook.editable;
+          return addressbook.canCreateContact;
         });
       });
     }

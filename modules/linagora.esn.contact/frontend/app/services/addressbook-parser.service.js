@@ -6,7 +6,8 @@
 
   function contactAddressbookParser() {
     return {
-      parseAddressbookPath: parseAddressbookPath
+      parseAddressbookPath: parseAddressbookPath,
+      getUserIdFromPrincipalPath: getUserIdFromPrincipalPath
     };
 
     function parseAddressbookPath(path) {
@@ -16,6 +17,12 @@
         bookId: match[1],
         bookName: match[2]
       } : {};
+    }
+
+    function getUserIdFromPrincipalPath(path) {
+      var matches = path.match('principals/users/([^/]*)$');
+
+      return matches ? matches[1] : null;
     }
   }
 })(angular);

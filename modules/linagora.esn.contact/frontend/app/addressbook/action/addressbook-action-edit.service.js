@@ -9,7 +9,7 @@
       name: 'Edit',
       icon: 'pencil',
       when: function(context) {
-        return context.addressbook.isWritable();
+        return context.addressbook.shell.canEditAddressbook;
       },
       execute: _openEditModal
     };

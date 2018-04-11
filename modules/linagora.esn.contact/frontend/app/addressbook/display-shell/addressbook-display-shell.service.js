@@ -11,10 +11,6 @@
         }
       }
 
-      ContactAddressbookDisplayShell.prototype.isWritable = function() {
-        return this.shell.editable;
-      };
-
       return ContactAddressbookDisplayShell;
     });
 })(angular);

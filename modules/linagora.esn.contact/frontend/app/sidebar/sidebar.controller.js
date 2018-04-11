@@ -40,7 +40,7 @@
       var userIds = [];
 
       addressbooks.forEach(function(addressbook) {
-        if (addressbook.isSubscription()) {
+        if (addressbook.isSubscription) {
           userIds.push(addressbook.source.bookId);
         }
       });
@@ -56,7 +56,7 @@
 
       return $q.all(getOwnersPromises).then(function(owners) {
         addressbooks.forEach(function(addressbook) {
-          if (addressbook.isSubscription()) {
+          if (addressbook.isSubscription) {
             var target = _.find(owners, function(owner) {
               return addressbook.source.bookId === owner.id;
             });

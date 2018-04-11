@@ -4,11 +4,12 @@
   angular.module('linagora.esn.contact')
     .factory('AddressbookShell', addressbookShellFactory);
 
-  function addressbookShellFactory(contactAddressbookParser) {
+  function addressbookShellFactory(
+    contactAddressbookParser,
+    contactAddressbookACLHelper
+  ) {
 
     function AddressbookShell(json) {
-      var davAcl = json['dav:acl'];
-      var subscriptionSource = json['openpaas:source'];
       var metadata = contactAddressbookParser.parseAddressbookPath(json._links.self.href);
 
       this.name = json['dav:name'];
@@ -17,21 +18,20 @@
       this.href = json._links.self.href;
       this.bookName = metadata.bookName;
       this.bookId = metadata.bookId;
+      this.acl = json.acl;
 
-      if (davAcl && davAcl.length) {
-        this.readable = davAcl.indexOf('dav:read') > -1;
-        this.editable = davAcl.indexOf('dav:write') > -1;
+      if (json['openpaas:source']) {
+        this.source = new AddressbookShell(json['openpaas:source']);
+        this.isSubscription = true;
       }
 
-      if (subscriptionSource) {
-        this.source = new AddressbookShell(subscriptionSource);
-      }
-    }
-
-    AddressbookShell.prototype.isSubscription = isSubscription;
-
-    function isSubscription() {
-      return !!this.source;
+      this.canEditAddressbook = contactAddressbookACLHelper.canEditAddressbook(this);
+      this.canDeleteAddressbook = contactAddressbookACLHelper.canDeleteAddressbook(this);
+      this.canCreateContact = contactAddressbookACLHelper.canCreateContact(this);
+      this.canEditContact = contactAddressbookACLHelper.canEditContact(this);
+      this.canCopyContact = contactAddressbookACLHelper.canCopyContact(this);
+      this.canMoveContact = contactAddressbookACLHelper.canMoveContact(this);
+      this.canDeleteContact = contactAddressbookACLHelper.canDeleteContact(this);
     }
 
     return AddressbookShell;

@@ -478,13 +478,11 @@ describe('The contact Angular module directives', function() {
         social: [],
         urls: []
       };
-      contactAddressbookService.listEditableAddressbooks = function() {
+      contactAddressbookService.listAddressbooksUserCanCreateContact = function() {
         return $q.when([{
-          bookName: DEFAULT_ADDRESSBOOK_NAME,
-          isSubscription: angular.noop
+          bookName: DEFAULT_ADDRESSBOOK_NAME
         }, {
-          bookName: CONTACT_COLLECTED_ADDRESSBOOK_NAME,
-          isSubscription: angular.noop
+          bookName: CONTACT_COLLECTED_ADDRESSBOOK_NAME
         }]);
       };
     }));

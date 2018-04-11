@@ -78,7 +78,7 @@ angular.module('linagora.esn.contact')
         $scope.CONTACT_ATTRIBUTES_ORDER = CONTACT_ATTRIBUTES_ORDER;
         $scope.avatarSize = CONTACT_AVATAR_SIZE.bigger;
 
-        contactAddressbookService.listEditableAddressbooks().then(function(addressbooks) {
+        contactAddressbookService.listAddressbooksUserCanCreateContact().then(function(addressbooks) {
           var addressbookDisplayShells = contactAddressbookDisplayService.convertShellsToDisplayShells(addressbooks, { includePriority: true });
 
           $scope.availableAddressbookDisplayShells = contactAddressbookDisplayService.sortAddressbookDisplayShells(addressbookDisplayShells);

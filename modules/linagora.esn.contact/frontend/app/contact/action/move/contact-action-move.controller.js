@@ -22,7 +22,7 @@
     self.moveContact = moveContact;
 
     function listPossbileDestinations() {
-      contactAddressbookService.listEditableAddressbooks()
+      contactAddressbookService.listAddressbooksUserCanCreateContact()
         .then(_excludeCurrentAddressbook)
         .then(function(addressbooks) {
           self.availableAddressbookDisplayShells = contactAddressbookDisplayService.convertShellsToDisplayShells(addressbooks);
