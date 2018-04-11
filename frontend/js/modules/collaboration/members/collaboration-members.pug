@@ -2,5 +2,5 @@
   div.unreadable(ng-if='!ctrl.readable')
     span #{__('You are not allowed to see the members of this collaboration')}
 
-  div(ng-if="ctrl.readable")
+  .listview(ng-if="ctrl.readable")
     esn-collaboration-members-list(collaboration="ctrl.collaboration", object-type-filter="{{::ctrl.objectTypeFilter}}")

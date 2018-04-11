@@ -19,6 +19,9 @@
 
     function $onInit() {
       self.isCollaborationManager = esnCollaborationService.isManager(self.collaboration, session.user);
+      if (self.collaboration.creator === self.member._id) {
+        self.creator = true;
+      }
     }
 
     function removeMember() {

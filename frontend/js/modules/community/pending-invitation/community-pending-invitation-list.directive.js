@@ -3,7 +3,7 @@
 
   angular.module('esn.community').directive('communityPendingInvitationList', communityPendingInvitationList);
 
-  function communityPendingInvitationList(esnCollaborationClientService) {
+  function communityPendingInvitationList(esnCollaborationClientService, $rootScope) {
     return {
       scope: {
         community: '='
@@ -30,6 +30,8 @@
         };
 
         $scope.updatePendingRequestsList();
+
+        $rootScope.$on('collaboration:invite:users', $scope.updatePendingRequestsList);
       }
     };
   }

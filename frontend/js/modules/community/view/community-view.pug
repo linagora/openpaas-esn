@@ -16,9 +16,3 @@ sub-header
 
       .col-md-4.hidden-xs.community-view-sidebar.ui-view(name="sidebar")
         esn-collaboration-members-widget(object-type="community", collaboration="community", in-slices-of='4')
-        .vertiz-space
-        esn-collaboration-membership-requests-widget(ng-if="showMembershipRequestsWidget()" object-type="community", collaboration="community")
-        .vertiz-space
-        esn-collaboration-invite-users(object-type="community", collaboration="community")
-        .vertiz-space
-        injections-widget(injection-anchor-id="communityPageRightPanel", injection-subject="community")
