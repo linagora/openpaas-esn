@@ -1,7 +1,7 @@
 a.lv-item(ui-sref="profile({user_id: ctrl.member.user._id})", href="#", data-toggle="tooltip", data-original-title='{{::ctrl.tooltip.title}}')
   .media
     .pull-left
-      img.lv-img-xs(ng-src="/api/users/{{::ctrl.member.user._id}}/profile/avatar", src="/images/user.png", alt=__("Member Avatar"))
+      img.lv-img-sm(ng-src="/api/users/{{::ctrl.member.user._id}}/profile/avatar", src="/images/user.png", alt=__("Member Avatar"))
     .media-body
       .lv-title {{::ctrl.member.user.firstname}} {{::ctrl.member.user.lastname}}
         span.type.label.label-primary(ng-if='ctrl.creator') #{__('Creator')}
