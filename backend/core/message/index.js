@@ -348,7 +348,7 @@ function canReadMessageFromStatus(message, user, callback) {
   });
 }
 
-function remove(message, user) {
+function remove(message, user, activitystream) {
   if (!message) {
     return Promise.reject(new Error('Message is required'));
   }
@@ -358,7 +358,7 @@ function remove(message, user) {
   }
 
   return archive.process(message, user).then(() => {
-    pubsub.local(CONSTANTS.EVENTS.MESSAGE_DELETED).publish({ message, user });
+    pubsub.topic(CONSTANTS.EVENTS.MESSAGE_DELETED).publish({ message, user, activitystream });
   });
 }
 

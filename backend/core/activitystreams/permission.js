@@ -4,7 +4,7 @@ var collaborationModule = require('../collaboration');
 var async = require('async');
 
 /**
- * User can read a timeline entry if he has at least read access to one of the collaboration the timeline entry has been targeted to.
+ * User can read a timeline entry if he has at least read access to one of the collaboration the timeline entry has been targeted to and if it has not been deleted.
  */
 module.exports.canRead = function(timelineEntry, tuple, callback) {
   if (!timelineEntry || !tuple) {
@@ -12,6 +12,10 @@ module.exports.canRead = function(timelineEntry, tuple, callback) {
   }
 
   if (!Array.isArray(timelineEntry.target)) {
+    return callback(null, false);
+  }
+
+  if (timelineEntry.verb === 'delete') {
     return callback(null, false);
   }
 

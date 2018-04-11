@@ -50,8 +50,10 @@ module.exports.isValidStream = function(req, res, next) {
     });
 
     if (belongs) {
+      req.activitystream = { uuid: id, objectType };
+
       return next();
     }
-    return res.status(400).json({ error: { status: 400, message: 'Bad request', details: 'User does not have access to the ativitystream ' + id}});
+    res.status(400).json({ error: { status: 400, message: 'Bad request', details: 'User does not have access to the ativitystream ' + id}});
   });
 };

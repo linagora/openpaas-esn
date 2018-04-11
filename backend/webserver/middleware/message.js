@@ -194,8 +194,9 @@ function load(req, res, next) {
 
       return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'Can not find message to like'}});
     }
+    const message = messages[0];
 
-    req.message = messages[0];
+    req.message = messageModule.getInstance(message.objectType, message);
     next();
   });
 }

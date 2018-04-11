@@ -275,7 +275,7 @@ function createMessageFromEmail(req, res) {
 }
 
 function deleteMessage(req, res) {
-  messageModule.remove(req.message, req.user)
+  messageModule.remove(req.message, req.user, req.activitystream)
     .then(() => {
       res.status(204).send();
     })

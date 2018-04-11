@@ -2,8 +2,9 @@
 
 module.exports = {
   EVENTS: {
-    MESSAGE_DELETED: 'messages:message:deleted',
-    MESSAGE_ARCHIVED: 'messages:message:archived'
+    MESSAGE_ACTIVITY: 'message:activity',
+    MESSAGE_DELETED: 'message:deleted',
+    MESSAGE_ARCHIVED: 'message:archived'
   },
   TYPE: 'esn.message',
   LIKE_LINK_TYPE: 'like',

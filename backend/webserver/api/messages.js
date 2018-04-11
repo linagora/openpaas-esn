@@ -84,7 +84,7 @@ module.exports = function(router) {
    *   delete:
    *     tags:
    *      - Message
-   *     description: Delete a message from its ID.
+   *     description: Delete a message from its ID in a given activity stream.
    *     parameters:
    *       - $ref: "#/parameters/msg_id"
    *     responses:
@@ -100,7 +100,13 @@ module.exports = function(router) {
    *       500:
    *         $ref: "#/responses/cm_500"
    */
-  router.delete('/messages/:id', authorize.requiresAPILogin, messageMiddleware.load, messageMiddleware.canDelete, messages.deleteMessage);
+  router.delete('/messages/:id',
+    authorize.requiresAPILogin,
+    messageMiddleware.load,
+    messageMiddleware.canDelete,
+    asMiddleware.isValidStream,
+    messages.deleteMessage
+  );
 
   /**
    * @swagger

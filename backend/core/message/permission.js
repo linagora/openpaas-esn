@@ -70,9 +70,9 @@ module.exports.canReply = function(message, user, callback) {
 module.exports.canLike = canRead;
 
 /**
- * For now, only message creator can delete the message even if shared.
+ * Oonly message author can delete the message even if shared.
  */
 function canDelete(message, tuple, callback) {
-  callback(null, true);
+  callback(null, tuple.objectType === 'user' && String(message.author) === String(tuple.id));
 }
 module.exports.canDelete = canDelete;

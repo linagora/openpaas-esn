@@ -80,12 +80,21 @@ function updateTimelineEntriesTracker(data, callback) {
 
 module.exports.updateTimelineEntriesTracker = updateTimelineEntriesTracker;
 
+function onMessageDeleted(event) {
+  activitystream.updateTimelineEntryVerbFromStreamMessage(event.activitystream, event.message, 'delete', err => {
+    if (err) {
+      logger.error('Error while updating timeline entry', err);
+    }
+  });
+}
+
 function init() {
   if (initialized) {
     logger.warn('Activity Stream Pubsub is already initialized');
     return;
   }
   pubsub.topic('message:activity').subscribe(processActivity);
+  pubsub.topic('message:deleted').subscribe(onMessageDeleted);
   pubsub.topic('collaboration:join').subscribe(updateTimelineEntriesTracker);
   initialized = true;
 }
