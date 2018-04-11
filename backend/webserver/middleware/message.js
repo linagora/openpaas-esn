@@ -169,3 +169,34 @@ function canLike(req, res, next) {
   });
 }
 module.exports.canLike = canLike;
+
+function canDelete(req, res, next) {
+  messagePermission.canDelete(req.message, { objectType: 'user', id: String(req.user._id) }, (err, can) => {
+    if (err) {
+      logger.error('Error while checking delete permission');
+
+      return res.status(500).json({error: {code: 500, message: 'Server Error', details: 'Can not check if user can delete message'}});
+    }
+
+    if (!can) {
+      return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'Message can not be deleted by user'}});
+    }
+
+    next();
+  });
+}
+module.exports.canDelete = canDelete;
+
+function load(req, res, next) {
+  messageModule.findByIds([req.params.id], (err, messages) => {
+    if (err || !messages || !messages.length) {
+      logger.error('Can not load the message', err || messages);
+
+      return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'Can not find message to like'}});
+    }
+
+    req.message = messages[0];
+    next();
+  });
+}
+module.exports.load = load;

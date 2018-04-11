@@ -80,6 +80,30 @@ module.exports = function(router) {
 
   /**
    * @swagger
+   * /messages/{id}:
+   *   delete:
+   *     tags:
+   *      - Message
+   *     description: Delete a message from its ID.
+   *     parameters:
+   *       - $ref: "#/parameters/msg_id"
+   *     responses:
+   *       204:
+   *         description:
+   *           The message has been removed.
+   *       400:
+   *         $ref: "#/responses/cm_400"
+   *       401:
+   *         $ref: "#/responses/cm_401"
+   *       404:
+   *         $ref: "#/responses/cm_404"
+   *       500:
+   *         $ref: "#/responses/cm_500"
+   */
+  router.delete('/messages/:id', authorize.requiresAPILogin, messageMiddleware.load, messageMiddleware.canDelete, messages.deleteMessage);
+
+  /**
+   * @swagger
    * /messages/{id}/shares:
    *   post:
    *     tags:

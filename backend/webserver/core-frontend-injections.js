@@ -57,7 +57,12 @@ const injections = [
     'avatar/avatar-url.service.js'
   ], innerApps: ['esn']},
   {angular: 'esn.user', files: ['user.js'], innerApps: ['esn']},
-  {angular: 'esn.message', files: ['message.js'], innerApps: ['esn']},
+  {angular: 'esn.message', files: [
+    'message/message.module.js',
+    'message.js',
+    'message/actions/message-actions-dropdown.component.js',
+    'message/actions/message-actions.controller.js'
+  ], innerApps: ['esn']},
   {angular: 'esn.session', files: ['session.js'], innerApps: ['esn']},
   {angular: 'esn.oauth-application', files: [
     'oauth-application/oauth-application.module.js',

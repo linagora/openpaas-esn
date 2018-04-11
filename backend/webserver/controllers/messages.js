@@ -274,10 +274,22 @@ function createMessageFromEmail(req, res) {
   });
 }
 
+function deleteMessage(req, res) {
+  messageModule.remove(req.message, req.user)
+    .then(() => {
+      res.status(204).send();
+    })
+    .catch(err => {
+      logger.error('Can not delete message', err);
+      res.status(500).json({ error: { status: 500, message: 'Server error', details: 'Can not delete message'}});
+    });
+}
+
 module.exports = {
   createOrReplyToMessage: create,
   getMessages: get,
   getMessage: getOne,
+  deleteMessage: deleteMessage,
   copy: copy,
   createMessageFromEmail: createMessageFromEmail
 };
