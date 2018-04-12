@@ -5,8 +5,8 @@
 
   function messageActionsController(
     $log,
-    $scope,
-    messageAPI,
+    $rootScope,
+    activitystreamAPI,
     messageHelpers,
     notificationFactory,
     session
@@ -20,13 +20,19 @@
       self.canRemove = messageHelpers.isMessageCreator(session.user, self.message);
       self.canUpdate = true;
       self.canShare = true;
+      self.parentId = self.parent && self.parent._id;
     }
 
     function remove() {
-      messageAPI.remove(self.message._id, {objectType: 'activity_stream', id: self.activitystream.activity_stream.uuid})
+      activitystreamAPI.deleteMessage(self.activitystream.activity_stream.uuid, self.message._id)
         .then(function() {
           notificationFactory.weakInfo('Success', 'The mesage has been removed');
-          $scope.$emit('message:removed', { message: self.message, activitystream: self.activitystream });
+
+          $rootScope.$emit(self.parentId ? 'message:comment:deleted' : 'message:deleted', {
+            activitystreamUuid: self.activitystream.activity_stream.uuid,
+            id: self.message._id,
+            parentId: self.parentId
+          });
         })
         .catch(function(err) {
           $log.error(err);

@@ -594,6 +594,8 @@ return defer.promise;
         message: '=',
         activitystream: '=?',
         lastPost: '=',
+        parent: '=?',
+        // TODO: Rename to isParent
         parentMessage: '=?'
       },
       templateUrl: '/views/modules/message/messagesTemplateDisplayer.html',
@@ -948,16 +950,11 @@ return esnRestangular.all('messages').getList(options);
 return esnRestangular.one('messages', id).all('shares').post(payload);
     }
 
-    function remove(id, options) {
-      return esnRestangular.one('messages', id).remove(options);
-    }
-
     return {
       get: get,
       post: post,
       addComment: addComment,
-      share: share,
-      remove: remove
+      share: share
     };
 
   })

@@ -4,7 +4,8 @@
   angular.module('esn.message').component('messageActionsDropdown', {
     bindings: {
       message: '=',
-      activitystream: '='
+      activitystream: '=',
+      parent: '=?'
     },
     controller: 'messageActionsController',
     controllerAs: 'ctrl',

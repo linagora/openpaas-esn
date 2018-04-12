@@ -14,10 +14,15 @@ angular.module('esn.activitystream')
     return esnRestangular.one('activitystreams', id).one('unreadcount').get();
   }
 
+  function deleteMessage(id, messageId) {
+    return esnRestangular.one('activitystreams', id).one('messages', messageId).remove();
+  }
+
   return {
     get: get,
     getResource: getResource,
-    getUnreadCount: getUnreadCount
+    getUnreadCount: getUnreadCount,
+    deleteMessage: deleteMessage
   };
 })
 

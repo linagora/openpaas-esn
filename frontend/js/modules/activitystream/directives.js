@@ -42,7 +42,7 @@ angular.module('esn.activitystream')
     }
   };
 })
-.directive('activityStream', function(messageAPI, $rootScope, $timeout) {
+.directive('activityStream', function(_, messageAPI, $rootScope, $timeout) {
     return {
       restrict: 'E',
       scope: {
@@ -135,6 +135,35 @@ angular.module('esn.activitystream')
           }
         }
 
+        function onCommentDeleted(evt, data) {
+          if (!isInStreams(data.activitystreamUuid)) {
+            return;
+          }
+
+          var messageId = data.id;
+          var parentId = data.parentId;
+          var thread = getThreadById(parentId);
+
+          if (!thread) {
+            return;
+          }
+
+          _.remove(thread.responses, function(item) {
+            return item._id === messageId;
+          });
+        }
+
+        function onMessageDeleted(evt, data) {
+          var streamId = data.activitystreamUuid;
+          var messageId = data.id;
+
+          if (isInStreams(streamId)) {
+            _.remove(scope.threads, function(item) {
+              return item._id === messageId;
+            });
+          }
+        }
+
         // set as read once displayed
         $timeout(function() {
           scope.streams.forEach(function(stream) {
@@ -146,10 +175,14 @@ angular.module('esn.activitystream')
 
         var unregMsgPostedListener = $rootScope.$on('message:posted', onMessagePosted);
         var unregCmtPostedListener = $rootScope.$on('message:comment', onCommentPosted);
+        var unregCmtDeletedListener = $rootScope.$on('message:comment:deleted', onCommentDeleted);
+        var unregMsgDeletedListener = $rootScope.$on('message:deleted', onMessageDeleted);
 
         scope.$on('$destroy', function() {
           unregMsgPostedListener();
           unregCmtPostedListener();
+          unregCmtDeletedListener();
+          unregMsgDeletedListener();
         });
       }
     };

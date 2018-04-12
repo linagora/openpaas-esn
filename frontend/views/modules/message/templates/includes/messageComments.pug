@@ -1,5 +1,5 @@
 div.media-comments
   div.media(ng-repeat='response in message.responses')
-    message-template-displayer(message='response', activitystream='activitystream')
+    message-template-displayer(parent="message", message='response', activitystream='activitystream')
 div.media(data-ng-if='writable && parentMessage')
   whatsup-add-comment
