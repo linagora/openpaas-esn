@@ -5,42 +5,45 @@
     .controller('CollaborationRequestMembershipActionUserNotificationController', CollaborationRequestMembershipActionUserNotificationController);
 
     function CollaborationRequestMembershipActionUserNotificationController(
-      $scope,
       objectTypeResolver,
       esnUserNotificationService
     ) {
-      $scope.error = false;
-      $scope.loading = true;
-      objectTypeResolver.resolve($scope.notification.complement.objectType, $scope.notification.complement.id)
-        .then(function(result) {
-          $scope.collaboration = result.data;
-          $scope.collaboration.objectType = $scope.notification.complement.objectType;
-          $scope.collaborationPath = getCollaborationPath($scope.notification.complement.objectType);
+      var self = this;
 
-          esnUserNotificationService.setAcknowledged($scope.notification._id, true).then(
-            function() {
-              $scope.notification.acknowledged = true;
-            },
-            function(error) {
-              $scope.error = error;
+      self.$onInit = $onInit;
+
+      function $onInit() {
+        self.error = false;
+        self.loading = true;
+
+        objectTypeResolver.resolve(self.notification.complement.objectType, self.notification.complement.id)
+          .then(function(result) {
+            self.collaboration = result.data;
+            self.collaboration.objectType = self.notification.complement.objectType;
+            self.collaborationPath = getCollaborationPath(self.notification.complement.objectType);
+          }, function(err) {
+            if (err.status && err.status === 404) {
+              self.notFound = true;
+            } else {
+              self.error = true;
             }
-          ).finally(function() {
-            $scope.loading = false;
+          }).finally(function() {
+            self.loading = false;
+            ack();
           });
 
-        }, function() {
-          $scope.error = true;
-        }).finally(function() {
-          $scope.loading = false;
-        });
+          function ack() {
+            return esnUserNotificationService.setAcknowledged(self.notification._id, true).then(function() {
+              self.notification.acknowledged = true;
+            });
+          }
 
-      // This needs to be refactored to support objectTypeAdapters
-      // For now we hardcode it
-      function getCollaborationPath(objectType) {
-        return {
-          community: 'community/view',
-          'chat.conversation': 'chat/channels/view'
-        }[objectType] || 'community';
+          function getCollaborationPath(objectType) {
+            return {
+              community: 'community/view',
+              'chat.conversation': 'chat/channels/view'
+            }[objectType] || 'community';
+          }
+        }
       }
-    }
 })();

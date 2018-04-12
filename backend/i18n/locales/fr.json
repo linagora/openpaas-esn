@@ -469,5 +469,6 @@
   "Calendar": "Calendrier",
   "Documents": "Documents",
   "Message": "Message",
-  "Survey": "Sondage"
+  "Survey": "Sondage",
+  "This notification is about removed content and is skipped": "Cette notification concerne du contenu supprimé et est ignorée"
 }
