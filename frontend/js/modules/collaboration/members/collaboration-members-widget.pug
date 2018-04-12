@@ -6,6 +6,6 @@
       .lv-body
         esn-collaboration-invite-users(object-type="community", collaboration="collaboration")
         esn-collaboration-member-avatar(member="member", collaboration="collaboration", ng-repeat="member in members")
-      a.lv-footer.show-more(ng-href='#/collaborations/{{objectType}}/{{collaboration._id}}/members')
+      a.lv-footer.show-more(ng-href='#/{{objectType}}/view/{{collaboration._id}}/members')
         span(ng-if="more > 0") #{__('And')} {{more}} #{__('more')}...
         span(ng-if="more === 0") #{__('Show all members')}...
