@@ -8,14 +8,14 @@
     session,
     contactAddressbookParser,
     DEFAULT_ADDRESSBOOK_NAME,
-    CONTACT_COLLECTED_ADDRESSBOOK_NAME
+    CONTACT_COLLECTED_ADDRESSBOOK_NAME,
+    CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL
   ) {
     var AVAILABLE_PRIVILEGES = {
       all: '{DAV:}all',
       write: '{DAV:}write',
       read: '{DAV:}read'
     };
-    var AUTHENTICATED_USERS_PRINCIPAL = '{DAV:}authenticated';
 
     return {
       canEditAddressbook: canEditAddressbook,
@@ -125,7 +125,7 @@
       }
 
       return acl.map(function(ace) {
-        if (ace.principal === AUTHENTICATED_USERS_PRINCIPAL) {
+        if (ace.principal === CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL) {
           return ace.privilege;
         }
       }).filter(Boolean);
