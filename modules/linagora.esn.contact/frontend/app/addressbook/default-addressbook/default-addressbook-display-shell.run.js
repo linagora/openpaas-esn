@@ -9,14 +9,16 @@
     ContactDefaultAddressbookDisplayShell,
     contactDefaultAddressbookHelper,
     contactAddressbookActionEdit,
-    contactAddressbookActionDelete
+    contactAddressbookActionDelete,
+    contactAddressbookActionSettings
   ) {
     contactAddressbookDisplayShellRegistry.add({
       id: 'linagora.esn.contact',
       priority: 1,
       actions: [
         contactAddressbookActionEdit,
-        contactAddressbookActionDelete
+        contactAddressbookActionDelete,
+        contactAddressbookActionSettings
       ],
       displayShell: ContactDefaultAddressbookDisplayShell,
       matchingFunction: contactDefaultAddressbookHelper.isDefaultAddressbook
