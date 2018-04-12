@@ -8,7 +8,6 @@ var whatsupMessageModule = require('./whatsup');
 var pollMessageModule = require('./poll');
 var pubsub = require('../').pubsub.local;
 var role = require('./role');
-var archive = require('./archive');
 var CONSTANTS = require('./constants');
 
 var objectTypeToSchemaName = {
@@ -348,20 +347,6 @@ function canReadMessageFromStatus(message, user, callback) {
   });
 }
 
-function remove(message, user, activitystream) {
-  if (!message) {
-    return Promise.reject(new Error('Message is required'));
-  }
-
-  if (!user) {
-    return Promise.reject(new Error('User is required'));
-  }
-
-  return archive.process(message, user).then(() => {
-    pubsub.topic(CONSTANTS.EVENTS.MESSAGE_DELETED).publish({ message, user, activitystream });
-  });
-}
-
 module.exports = {
   type: type,
   permission: require('./permission'),
@@ -382,6 +367,5 @@ module.exports = {
   filterReadableResponses: filterReadableResponses,
   filterReadableResponsesFromObjectType: filterReadableResponsesFromObjectType,
   filterReadableResponsesFromStatus: filterReadableResponsesFromStatus,
-  canReadMessageFromStatus: canReadMessageFromStatus,
-  remove: remove
+  canReadMessageFromStatus: canReadMessageFromStatus
 };
