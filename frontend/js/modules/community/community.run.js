@@ -33,7 +33,7 @@
       id: 'esn.community',
       title: 'Communities',
       icon: '/images/application-menu/communities-icon.svg',
-      homePage: '/communities'
+      homePage: '/community'
     });
   }
 })(angular);
