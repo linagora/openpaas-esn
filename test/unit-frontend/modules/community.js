@@ -9,10 +9,13 @@ describe('The Community Angular module', function() {
 
   describe('communityAPI service', function() {
 
+    beforeEach(angular.mock.inject(function(communityAPI, $httpBackend) {
+      this.communityAPI = communityAPI;
+      this.$httpBackend = $httpBackend;
+    }));
+
     describe('list() function', function() {
-      beforeEach(angular.mock.inject(function(communityAPI, $httpBackend) {
-        this.communityAPI = communityAPI;
-        this.$httpBackend = $httpBackend;
+      beforeEach(angular.mock.inject(function() {
         this.domainId = '123456789';
         this.userId = '123';
       }));
@@ -38,9 +41,7 @@ describe('The Community Angular module', function() {
 
     describe('get() function', function() {
 
-      beforeEach(angular.mock.inject(function(communityAPI, $httpBackend) {
-        this.communityAPI = communityAPI;
-        this.$httpBackend = $httpBackend;
+      beforeEach(angular.mock.inject(function() {
         this.domainId = '123456789';
         this.communityId = '123';
         this.response = {_id: 123, title: 'Node.js'};
@@ -60,9 +61,7 @@ describe('The Community Angular module', function() {
 
     describe('del() function', function() {
 
-      beforeEach(angular.mock.inject(function(communityAPI, $httpBackend) {
-        this.communityAPI = communityAPI;
-        this.$httpBackend = $httpBackend;
+      beforeEach(angular.mock.inject(function() {
         this.domainId = '123456789';
         this.communityId = '123';
       }));
@@ -81,9 +80,7 @@ describe('The Community Angular module', function() {
 
     describe('create() function', function() {
 
-      beforeEach(angular.mock.inject(function(communityAPI, $httpBackend) {
-        this.communityAPI = communityAPI;
-        this.$httpBackend = $httpBackend;
+      beforeEach(angular.mock.inject(function() {
         this.domainId = '123456789';
         this.communityId = '123';
       }));
@@ -110,9 +107,7 @@ describe('The Community Angular module', function() {
 
     describe('update() function', function() {
 
-      beforeEach(angular.mock.inject(function(communityAPI, $httpBackend) {
-        this.communityAPI = communityAPI;
-        this.$httpBackend = $httpBackend;
+      beforeEach(angular.mock.inject(function() {
         this.communityId = '123';
         this.body = {
           title: 'toto',
@@ -142,9 +137,7 @@ describe('The Community Angular module', function() {
 
     describe('getMembers() function', function() {
 
-      beforeEach(angular.mock.inject(function(communityAPI, $httpBackend) {
-        this.communityAPI = communityAPI;
-        this.$httpBackend = $httpBackend;
+      beforeEach(angular.mock.inject(function() {
         this.communityId = '123';
       }));
 
@@ -162,9 +155,7 @@ describe('The Community Angular module', function() {
 
     describe('getMember() function', function() {
 
-      beforeEach(angular.mock.inject(function(communityAPI, $httpBackend) {
-        this.communityAPI = communityAPI;
-        this.$httpBackend = $httpBackend;
+      beforeEach(angular.mock.inject(function() {
         this.communityId = '123';
         this.userId = '456';
       }));
@@ -184,7 +175,7 @@ describe('The Community Angular module', function() {
 
   describe('communityViewController controller', function() {
 
-    beforeEach(inject(['$rootScope', '$controller', '$q', function($rootScope, $controller) {
+    beforeEach(inject(['$rootScope', '$controller', function($rootScope, $controller) {
       this.$rootScope = $rootScope;
       this.scope = $rootScope.$new();
       this.location = {};

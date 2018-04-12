@@ -212,16 +212,20 @@ describe('The core user notifications module', function() {
       });
     });
 
-    it('should update a usernotification by setting read to true', function(done) {
-      var usernotification = {
+    it('should update a usernotification by setting read to true then forward it into global usernotification:updated', function(done) {
+      const globalstub = {};
+      const usernotification = {
         save: function(callback) {
-          callback();
+          callback(null, 'saved');
         }
       };
+
+      this.helpers.mock.pubsub('../pubsub', {}, globalstub);
       this.helpers.mock.models({});
       var module = this.helpers.requireBackend('core/notification/usernotification');
       module.setRead(usernotification, true, function() {
         expect(usernotification.read).to.be.true;
+        expect(globalstub.topics['usernotification:updated'].data[0]).to.equal('saved');
         done();
       });
     });
@@ -237,22 +241,26 @@ describe('The core user notifications module', function() {
       });
     });
 
-    it('should update all usernotifications by setting read to true', function(done) {
-      var usernotification1 = {
+    it('should update all usernotifications by setting read to true then forward each into global usernotification:updated', function(done) {
+      const globalstub = {};
+      const usernotification1 = {
         save: function(callback) {
-          callback();
+          callback(null, 'saved');
         }
       };
-      var usernotification2 = {
+      const usernotification2 = {
         save: function(callback) {
-          callback();
+          callback(null, 'saved');
         }
       };
+
+      this.helpers.mock.pubsub('../pubsub', {}, globalstub);
       this.helpers.mock.models({});
       var module = this.helpers.requireBackend('core/notification/usernotification');
       module.setAllRead([usernotification1, usernotification2], true, function() {
         expect(usernotification1.read).to.be.true;
         expect(usernotification2.read).to.be.true;
+        expect(globalstub.topics.length).to.equal(2);
         done();
       });
     });
@@ -268,16 +276,22 @@ describe('The core user notifications module', function() {
       });
     });
 
-    it('should update a usernotification by setting read to true', function(done) {
-      var usernotification = {
+    it('should update a usernotification by setting acknowledged to true then forward it into global usernotification:updated', function(done) {
+      const globalstub = {};
+      const usernotification = {
         save: function(callback) {
-          callback();
+          callback(null, 'saved');
         }
       };
+
+      this.helpers.mock.pubsub('../pubsub', {}, globalstub);
       this.helpers.mock.models({});
-      var module = this.helpers.requireBackend('core/notification/usernotification');
+
+      const module = this.helpers.requireBackend('core/notification/usernotification');
+
       module.setAcknowledged(usernotification, true, function() {
         expect(usernotification.acknowledged).to.be.true;
+        expect(globalstub.topics['usernotification:updated'].data[0]).to.equal('saved');
         done();
       });
     });
@@ -293,11 +307,13 @@ describe('The core user notifications module', function() {
       });
     });
 
-    it('should create a usernotification', function(done) {
+    it('should create a usernotification then forward it into global usernotification:created', function(done) {
+      const globalstub = {};
       var usernotification = {
         subject: 'test'
       };
 
+      this.helpers.mock.pubsub('../pubsub', {}, globalstub);
       this.helpers.mock.models({
         Usernotification: function(object) {
           object.save = function(callback) {
@@ -313,6 +329,7 @@ describe('The core user notifications module', function() {
         expect(err).to.not.exist;
         expect(saved).to.exist;
         expect(saved.subject).to.equal('test');
+        expect(globalstub.topics['usernotification:created'].data[0].subject).to.equal('test');
         done();
       });
     });

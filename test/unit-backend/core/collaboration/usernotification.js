@@ -24,9 +24,8 @@ describe('The notification pubsub module', function() {
   });
 
   describe('The collaborationJoinHandler function', function() {
-    it('should save a augmented usernotification then forward it into global usernotification:created', function(done) {
+    it('should save a augmented usernotification', function(done) {
       let datastub = {};
-      const globalstub = {};
       const data = {
         author: '123',
         target: '456',
@@ -40,7 +39,6 @@ describe('The notification pubsub module', function() {
         }
       };
 
-      this.helpers.mock.pubsub('../pubsub', {}, globalstub);
       mockery.registerMock('../notification', {usernotification: usernotificationMocked});
 
       const module = this.helpers.requireBackend('core/collaboration/usernotification')();
@@ -62,7 +60,6 @@ describe('The notification pubsub module', function() {
           interactive: false,
           target: data.target
         });
-        expect(globalstub.topics['usernotification:created'].data[0]).to.equal('saved');
         done();
       });
     });
@@ -70,7 +67,7 @@ describe('The notification pubsub module', function() {
   });
 
   describe('The membershipInviteHandler function', function() {
-    it('should save a augmented usernotification then forward it into global usernotification:created', function(done) {
+    it('should save a augmented usernotification', function(done) {
       const globalstub = {};
       let datastub = {};
       const data = {
@@ -106,7 +103,6 @@ describe('The notification pubsub module', function() {
           interactive: true,
           target: data.target
         });
-        expect(globalstub.topics['usernotification:created'].data[0]).to.equal('saved');
         done();
       });
     });

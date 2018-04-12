@@ -2,9 +2,9 @@
 
 const async = require('async');
 const localpubsub = require('../pubsub').local;
-const globalpubsub = require('../pubsub').global;
 const logger = require('../logger');
 const usernotification = require('./usernotification');
+
 let initialized = false;
 
 module.exports = {
@@ -18,23 +18,6 @@ function createUserNotification(data, callback) {
     return;
   }
   usernotification.create(data, callback);
-}
-
-function onSuccessPublishIntoGlobal(callback) {
-  callback = callback || function() {};
-
-  return function(err, result) {
-    if (err) {
-      logger.warn('Error while adding a usernotification:', err.message);
-      callback(err);
-    } else {
-      if (result) {
-        logger.debug(`A new usernotification has been saved: ${result._id}`);
-        globalpubsub.topic('usernotification:created').publish(result);
-      }
-      callback(null);
-    }
-  };
 }
 
 function augmentToExternalNotification(data, callback) {
@@ -68,8 +51,7 @@ function externalNotificationHandler(data) {
   async.waterfall([
       augmentToExternalNotification.bind(null, data),
       createUserNotification
-    ],
-    onSuccessPublishIntoGlobal());
+    ]);
 }
 
 function init() {

@@ -3,9 +3,14 @@
 const async = require('async');
 const mongoose = require('mongoose');
 const UserNotification = mongoose.model('Usernotification');
+const globalpubsub = require('../pubsub').global;
+const logger = require('../logger');
 
 const DEFAULT_LIMIT = 50;
 const DEFAULT_OFFSET = 0;
+
+const NOTIFICATION_EVENT_CREATED = 'usernotification:created';
+const NOTIFICATION_EVENT_UPDATED = 'usernotification:updated';
 
 module.exports = {
   countForUser,
@@ -37,7 +42,24 @@ function create(usernotification, callback) {
     return callback(new Error('usernotification is required'));
   }
 
-  new UserNotification(usernotification).save(callback);
+  new UserNotification(usernotification)
+    .save(_onSuccessPublishIntoGlobal(NOTIFICATION_EVENT_CREATED, callback));
+}
+
+function _onSuccessPublishIntoGlobal(destinationTopic, callback) {
+  callback = callback || function() {};
+
+  return function(err, result) {
+    if (err) {
+      callback(err);
+    } else {
+      if (result) {
+        logger.debug('A new usernotification has been saved: ' + result._id);
+        globalpubsub.topic(destinationTopic).publish(result);
+      }
+      callback(null, result);
+    }
+  };
 }
 
 function get(id, callback) {
@@ -87,7 +109,7 @@ function setAcknowledged(usernotification, acknowledged, callback) {
   }
 
   usernotification.acknowledged = acknowledged;
-  usernotification.save(callback);
+  usernotification.save(_onSuccessPublishIntoGlobal(NOTIFICATION_EVENT_UPDATED, callback));
 }
 
 function setAllRead(usernotifications, read, callback) {
@@ -99,7 +121,7 @@ function setAllRead(usernotifications, read, callback) {
 
   function setRead(usernotification, cb) {
     usernotification.read = read;
-    usernotification.save(cb);
+    usernotification.save(_onSuccessPublishIntoGlobal(NOTIFICATION_EVENT_UPDATED, cb));
   }
 }
 
@@ -109,5 +131,5 @@ function setRead(usernotification, read, callback) {
   }
 
   usernotification.read = read;
-  usernotification.save(callback);
+  usernotification.save(_onSuccessPublishIntoGlobal(NOTIFICATION_EVENT_UPDATED, callback));
 }
