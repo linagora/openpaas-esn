@@ -52,9 +52,9 @@
       // For now we hardcode it
       function getCollaborationPath(objectType) {
         return {
-          community: 'communities',
+          community: 'community/view',
           'chat.conversation': 'chat/channels/view'
-        }[objectType] || 'communities';
+        }[objectType] || 'community';
       }
     }
 })();
