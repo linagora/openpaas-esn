@@ -8,6 +8,7 @@ var messageModule = require('../../core/message'),
     publishCommentActivityHelper = require('../../helpers/message').publishCommentActivity,
     messageSharesToTimelineTarget = require('../../helpers/message').messageSharesToTimelineTarget,
     publishMessageEvents = require('../../helpers/message').publishMessageEvents,
+    filter = require('./messages.filter'),
     denormalizer = require('./messages.denormalize'),
     logger = require('../../core/logger'),
     localpubsub = require('../../core/pubsub').local,
@@ -182,20 +183,24 @@ function get(req, res) {
     var messagesNotFound = messagesObject.messagesNotFound;
 
     if (messagesFound && messagesFound.length > 0) {
+      return filter.filterMessagesFromActivityStream(messagesFound).then(messages => {
+        var promises = messages.map(function(message) {
+          return denormalize(req.user, message);
+        });
 
-      var promises = messagesFound.map(function(message) {
-        return denormalize(req.user, message);
-      });
-
-      return q.all(promises).then(function(messages) {
-        res.status(200).json(messages.concat(messagesNotFound));
-      }, function(err) {
-        logger.error('Error while denormalizing messages', err);
-        res.status(200).json(messagesFound.concat(messagesNotFound));
+        return q.all(promises).then(function(denormalized) {
+          res.status(200).json(denormalized.concat(messagesNotFound));
+        }, function(err) {
+          logger.error('Error while denormalizing messages', err);
+          res.status(200).json(messagesFound.concat(messagesNotFound));
+        });
+      }).catch(err => {
+        logger.error('Error while filtering messages from activitystream', err);
+        res.status(500).json({ error: { code: 500, message: 'Server Error', details: 'Cannot get messages. ' + err.message}});
       });
     }
 
-    return res.status(404).json(messagesNotFound);
+    res.status(404).json(messagesNotFound);
   });
 }
 
@@ -214,12 +219,21 @@ function getOne(req, res) {
     var messagesNotFound = messagesObject.messagesNotFound;
 
     if (messagesFound && messagesFound.length > 0) {
-      return denormalize(req.user, messagesFound[0])
-        .then(denormalized => res.status(200).json(denormalized))
-        .catch(err => {
-          logger.warn('Can not denormalize message', err);
-          res.status(200, messagesFound[0]);
-        });
+      return filter.filterMessagesFromActivityStream([messagesFound[0]]).then(messages => {
+        if (!messages) {
+          res.status(404).send();
+        }
+
+        return denormalize(req.user, messages[0])
+          .then(denormalized => res.status(200).json(denormalized))
+          .catch(err => {
+            logger.warn('Can not denormalize message', err);
+            res.status(200, messagesFound[0]);
+          });
+      }).catch(err => {
+        logger.error('Error while filtering messages from activitystream', err);
+        res.status(500).json({ error: { code: 500, message: 'Server Error', details: 'Cannot get messages. ' + err.message}});
+      });
     }
 
     res.status(404).json(messagesNotFound[0]);
