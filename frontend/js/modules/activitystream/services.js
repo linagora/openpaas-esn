@@ -398,14 +398,21 @@ function(activitystreamFilter, filteredcursor, restcursor, activitystreamOriginD
 
     return activitystreamMessageDecorator(function(err, items) {
       if (items) {
+        // if the object (message/response) has been deleted, object is not available
+        items = items.filter(function(item) {
+          return !!item.object;
+        });
+
         items = items.map(function(item) {
           item.object.streamOrigins = getStreamOrigins(item);
           item.object.isOrigin = isOriginMessage(item);
           item.object.mainActivityStream = getMainActivityStream(item);
+
           return item;
         });
       }
-      return callback(err, items);
+
+      callback(err, items);
     });
   };
 })
