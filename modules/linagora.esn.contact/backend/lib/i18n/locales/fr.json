@@ -101,5 +101,6 @@
   "Address book settings are updated": "Paramètres du carnet d'adresses mis à jour",
   "Failed to update address book settings": "Impossible de mettre à jour les paramètres du carnet d'adresses",
   "Hide address book": "Cacher le carnet d'adresses",
-  "See all contacts": "Voir tous les contacts"
+  "See all contacts": "Voir tous les contacts",
+  "Read/Write": "Lecture/Ecriture"
 }
