@@ -7,7 +7,7 @@
         div(ng-show='error')
           p #{__('Error while getting notification')}
         div(ng-show='loading && !error && !notFound')
-          p #{__('Loading notifications')}
+          p #{__('Loading notification')}
         div(ng-hide='loading || error || notFound')
           a.pull-left(ng-href='/#/{{::collaborationPath}}/{{::collaborationJoined._id}}')
             img.media-object(ng-src='/api/avatars?objectType={{::collaborationJoined.objectType}}&id={{::collaborationJoined._id}}', fallback-src='/images/collaboration.png', alt=__("Collaboration joined"))
