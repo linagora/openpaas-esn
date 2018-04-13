@@ -6,7 +6,7 @@ var expect = chai.expect;
 
 describe('The contactAddressbookACLHelper service', function() {
   var session, contactAddressbookACLHelper;
-  var DEFAULT_ADDRESSBOOK_NAME;
+  var DEFAULT_ADDRESSBOOK_NAME, CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL;
   var userId;
 
   beforeEach(function() {
@@ -16,11 +16,13 @@ describe('The contactAddressbookACLHelper service', function() {
     inject(function(
       _session_,
       _contactAddressbookACLHelper_,
-      _DEFAULT_ADDRESSBOOK_NAME_
+      _DEFAULT_ADDRESSBOOK_NAME_,
+      _CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL_
     ) {
       session = _session_;
       contactAddressbookACLHelper = _contactAddressbookACLHelper_;
       DEFAULT_ADDRESSBOOK_NAME = _DEFAULT_ADDRESSBOOK_NAME_;
+      CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL = _CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL_;
     });
   });
 
@@ -229,7 +231,7 @@ describe('The contactAddressbookACLHelper service', function() {
           isSubscription: true,
           source: {
             acl: [{
-              principal: '{DAV:}authenticated',
+              principal: CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL,
               privilege: '{DAV:}read'
             }]
           }
@@ -243,7 +245,7 @@ describe('The contactAddressbookACLHelper service', function() {
           isSubscription: true,
           source: {
             acl: [{
-              principal: '{DAV:}authenticated',
+              principal: CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL,
               privilege: '{DAV:}write'
             }]
           }
@@ -257,7 +259,7 @@ describe('The contactAddressbookACLHelper service', function() {
           isSubscription: true,
           source: {
             acl: [{
-              principal: '{DAV:}authenticated',
+              principal: CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL,
               privilege: '{DAV:}all'
             }]
           }
@@ -347,7 +349,7 @@ describe('The contactAddressbookACLHelper service', function() {
           isSubscription: true,
           source: {
             acl: [{
-              principal: '{DAV:}authenticated',
+              principal: CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL,
               privilege: '{DAV:}read'
             }]
           }
@@ -361,7 +363,7 @@ describe('The contactAddressbookACLHelper service', function() {
           isSubscription: true,
           source: {
             acl: [{
-              principal: '{DAV:}authenticated',
+              principal: CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL,
               privilege: '{DAV:}write'
             }]
           }
@@ -375,7 +377,7 @@ describe('The contactAddressbookACLHelper service', function() {
           isSubscription: true,
           source: {
             acl: [{
-              principal: '{DAV:}authenticated',
+              principal: CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL,
               privilege: '{DAV:}all'
             }]
           }
@@ -471,7 +473,7 @@ describe('The contactAddressbookACLHelper service', function() {
           isSubscription: true,
           source: {
             acl: [{
-              principal: '{DAV:}authenticated',
+              principal: CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL,
               privilege: '{DAV:}read'
             }]
           }
@@ -485,7 +487,7 @@ describe('The contactAddressbookACLHelper service', function() {
           isSubscription: true,
           source: {
             acl: [{
-              principal: '{DAV:}authenticated',
+              principal: CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL,
               privilege: '{DAV:}write'
             }]
           }
@@ -499,7 +501,7 @@ describe('The contactAddressbookACLHelper service', function() {
           isSubscription: true,
           source: {
             acl: [{
-              principal: '{DAV:}authenticated',
+              principal: CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL,
               privilege: '{DAV:}all'
             }]
           }
@@ -589,7 +591,7 @@ describe('The contactAddressbookACLHelper service', function() {
           isSubscription: true,
           source: {
             acl: [{
-              principal: '{DAV:}authenticated',
+              principal: CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL,
               privilege: '{DAV:}read'
             }]
           }
@@ -603,7 +605,7 @@ describe('The contactAddressbookACLHelper service', function() {
           isSubscription: true,
           source: {
             acl: [{
-              principal: '{DAV:}authenticated',
+              principal: CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL,
               privilege: '{DAV:}write'
             }]
           }
@@ -617,7 +619,7 @@ describe('The contactAddressbookACLHelper service', function() {
           isSubscription: true,
           source: {
             acl: [{
-              principal: '{DAV:}authenticated',
+              principal: CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL,
               privilege: '{DAV:}all'
             }]
           }

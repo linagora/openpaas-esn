@@ -141,6 +141,19 @@ angular.module('linagora.esn.contact')
     }
 
     /**
+     * Update addressbook public right
+     * @param  {String} bookId       The addressbook home ID
+     * @param  {String} bookName     The addressbook name
+     * @param  {Object} publicRight  The new public right to update
+     * @return {Promise}             Resolve on success
+     */
+    function setPublicRight(bookId, bookName, publicRight) {
+      var headers = { 'Content-Type': CONTACT_CONTENT_TYPE_HEADER };
+
+      return davClient('ACL', getBookUrl(bookId, bookName), headers, publicRight);
+    }
+
+    /**
      * Get specified card
      * @param  {String} bookId   the addressbook home ID
      * @param  {String} bookName the addressbook name
@@ -424,6 +437,10 @@ angular.module('linagora.esn.contact')
           return updateAddressbook(bookId, bookName, addressbook);
         }
 
+        function updatePublicRight(publicRight) {
+          return setPublicRight(bookId, bookName, publicRight);
+        }
+
         function vcard(cardId) {
           function get() {
             return getCard(bookId, bookName, cardId);
@@ -472,6 +489,7 @@ angular.module('linagora.esn.contact')
           get: get,
           remove: remove,
           update: update,
+          updatePublicRight: updatePublicRight,
           vcard: vcard
         };
       }

@@ -1,0 +1,15 @@
+.col-md-4.col-xs-5.title-header.text-center
+  i.mdi.mdi-account-multiple
+  h4 #{__('Public right')}
+.col-md-8.col-xs-7.form-group
+  .select.fg-line
+    select.form-control(
+      ng-model='$ctrl.publicRight',
+      ng-disabled='!$ctrl.canUpdatePublicRight()'
+    )
+      option(
+        ng-repeat="right in $ctrl.publicRights"
+        value="{{right.value}}"
+        ng-selected="right.value === $ctrl.publicRight"
+      )
+        | {{ right.title | esnI18n }}

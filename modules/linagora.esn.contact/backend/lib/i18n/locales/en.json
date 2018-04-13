@@ -92,5 +92,14 @@
   "Search for users to subscribe to their address books": "Search for users to subscribe to their address books",
   "Adding shared address book...": "Adding shared address book...",
   "Successfully added shared address book": "Successfully added shared address book",
-  "Can not add shared address book": "Can not add shared address book"
+  "Can not add shared address book": "Can not add shared address book",
+  "Settings": "Settings",
+  "Address book settings": "Address book settings",
+  "Public right": "Public right",
+  "Main": "Main",
+  "Updating address book settings...": "Updating address book settings...",
+  "Address book settings are updated": "Address book settings are updated",
+  "Failed to update address book settings": "Failed to update address book settings",
+  "Hide address book": "Hide address book",
+  "See all contacts": "See all contacts"
 }

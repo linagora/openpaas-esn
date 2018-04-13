@@ -62,6 +62,14 @@ angular.module('linagora.esn.contact', [
           }
         }
       })
+      .state('contact.addressbooks.settings', {
+        url: '/settings',
+        views: {
+          'main@contact': {
+            template: '<contact-addressbook-settings />'
+          }
+        }
+      })
       .state('/contact/new/:bookId/:bookName', {
         url: '/contact/new/:bookId/:bookName',
         templateUrl: '/contact/views/contact-new',

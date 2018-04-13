@@ -6,7 +6,9 @@
 
   function addressbookShellFactory(
     contactAddressbookParser,
-    contactAddressbookACLHelper
+    contactAddressbookACLHelper,
+    CONTACT_ADDRESSBOOK_PUBLIC_RIGHT,
+    CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL
   ) {
 
     function AddressbookShell(json) {
@@ -19,6 +21,9 @@
       this.bookName = metadata.bookName;
       this.bookId = metadata.bookId;
       this.acl = json.acl;
+      this.rights = {
+        public: CONTACT_ADDRESSBOOK_PUBLIC_RIGHT.PRIVATE.value
+      };
 
       if (json['openpaas:source']) {
         this.source = new AddressbookShell(json['openpaas:source']);
@@ -32,6 +37,28 @@
       this.canCopyContact = contactAddressbookACLHelper.canCopyContact(this);
       this.canMoveContact = contactAddressbookACLHelper.canMoveContact(this);
       this.canDeleteContact = contactAddressbookACLHelper.canDeleteContact(this);
+
+      this.acl && this.acl.forEach(function(aclItem) {
+        if (aclItem.principal === CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL) {
+          if (aclItem.privilege === CONTACT_ADDRESSBOOK_PUBLIC_RIGHT.READ.value || aclItem.privilege === CONTACT_ADDRESSBOOK_PUBLIC_RIGHT.WRITE.value) {
+            this.rights.public = pickHighestPriorityRight(this.rights.public, aclItem.privilege);
+          }
+        }
+      }, this);
+
+      function pickHighestPriorityRight(oldPublicRight, newPublicRight) {
+        var addressbookRightValues = [
+          CONTACT_ADDRESSBOOK_PUBLIC_RIGHT.PRIVATE.value,
+          CONTACT_ADDRESSBOOK_PUBLIC_RIGHT.READ.value,
+          CONTACT_ADDRESSBOOK_PUBLIC_RIGHT.WRITE.value
+        ];
+
+        if (oldPublicRight && addressbookRightValues.indexOf(oldPublicRight) > addressbookRightValues.indexOf(newPublicRight)) {
+          return oldPublicRight;
+        }
+
+        return newPublicRight;
+      }
     }
 
     return AddressbookShell;
