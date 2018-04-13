@@ -32,10 +32,12 @@
       esnPaginationtionProviderBuilder(self, 'esnCollaborationMembersAdd', getInvitablePeople, options);
     }
 
-    function getInvitablePeople() {
-      return esnCollaborationClientService.getInvitablePeople(self.objectType, self.collaboration._id, {
-        search: self.query
-      }).then(function(response) {
+    function getInvitablePeople(options) {
+      options = options || {};
+
+      return esnCollaborationClientService.getInvitablePeople(self.objectType, self.collaboration._id,
+        Object.assign({}, options, {search: self.query})
+      ).then(function(response) {
         response.data = response.data.map(function(user) {
           if (!user.emails) {
             user.emails = [];
