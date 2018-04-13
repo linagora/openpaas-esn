@@ -7,6 +7,7 @@
   function esnCollaborationMembershipInvitationUserNotification(
     $q,
     objectTypeResolver,
+    esnUserNotificationService,
     session
   ) {
     return {
@@ -32,14 +33,24 @@
 
       $q.all({user: userResolver, collaboration: collaborationResolver}).then(function(result) {
         $scope.invitationSender = result.user.data;
+        $scope.invitationSenderDisplayName = $scope.invitationSender.displayName($scope.invitationSender);
         $scope.invitationCollaboration = result.collaboration.data;
         $scope.invitationCollaboration.objectType = $scope.notification.complement.objectType;
         $scope.collaborationPath = getCollaborationPath($scope.notification.complement.objectType);
-      }, function() {
+      }, function(err) {
+        if (err.status && err.status === 404) {
+          return notFound();
+        }
+
         $scope.error = true;
       }).finally(function() {
         $scope.loading = false;
       });
+
+      function notFound() {
+        $scope.notFound = true;
+        esnUserNotificationService.setAcknowledged($scope.notification._id, true);
+      }
 
       // This needs to be refactored to support objectTypeAdapters
       // For now we hardcode it

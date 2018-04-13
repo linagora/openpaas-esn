@@ -194,6 +194,7 @@
   "Your membership request is pending": "Your membership request is pending",
   "Membership request pending": "Membership request pending",
   "Loading notifications": "Loading notifications",
+  "Loading notification": "Loading notification",
   "Error while getting notifications": "Error while getting notifications",
   "Error while getting notification": "Error while getting notification",
   "Membership requests": "Membership requests",
@@ -469,6 +470,6 @@
   "Calendar": "Calendar",
   "Documents": "Documents",
   "Message": "Message",
-  "Survey": "Survey"
-
+  "Survey": "Survey",
+  "This notification is about removed content and is skipped": "This notification is about removed content and is skipped"
 }

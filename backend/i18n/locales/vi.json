@@ -194,6 +194,7 @@
   "Your membership request is pending": "Yêu cầu tham gia của bạn đang chờ duyệt",
   "Membership request pending": "Yêu cầu tham gia đang chờ duyệt",
   "Loading notifications": "Đang tải thông báo",
+  "Loading notification": "Đang tải thông báo",
   "Error while getting notifications": "Lỗi khi tải danh sách thông báo",
   "Error while getting notification": "Lỗi khi nhận thông báo",
   "Membership requests": "Danh sách yêu cầu tham gia",
@@ -469,5 +470,6 @@
   "Calendar": "Lịch",
   "Documents": "Các tài liệu",
   "Message": "Thông điệp",
-  "Survey": "Khảo sát"
+  "Survey": "Khảo sát",
+  "This notification is about removed content and is skipped": "Thông báo này là về nội dung bị xóa và bị bỏ qua"
 }

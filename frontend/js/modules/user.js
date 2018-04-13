@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('esn.user', ['esn.http', 'esn.object-type', 'esn.lodash-wrapper'])
-  .run(function(objectTypeResolver, userAPI, esnRestangular) {
+  .run(function(objectTypeResolver, userAPI, userUtils, esnRestangular) {
     objectTypeResolver.register('user', userAPI.user);
     esnRestangular.extendModel('users', function(model) {
       model.url = function(user) {
@@ -11,11 +11,7 @@ angular.module('esn.user', ['esn.http', 'esn.object-type', 'esn.lodash-wrapper']
         return '/api/avatars?objectType=user&email=' + user.emails[0] || user;
       };
       model.displayName = function(user) {
-        if (user.firstname && user.lastname) {
-          return user.firstname + ' ' + user.lastname;
-        }
-
-        return user;
+        return userUtils.displayNameOf(user);
       };
       model.__id = function(user) {
         return user._id || user;

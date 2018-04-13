@@ -194,6 +194,7 @@
   "Your membership request is pending": "Votre demande d'inscription est en attente",
   "Membership request pending": "Demande d'inscription en attente",
   "Loading notifications": "Chargement des notifications",
+  "Loading notification": "Chargement de la notification",
   "Error while getting notifications": "Erreur lors de la récupération des notifications",
   "Error while getting notification": "Erreur lors de la récupération de la notification",
   "Membership requests": "Demandes d'inscription",
@@ -469,5 +470,6 @@
   "Calendar": "Calendrier",
   "Documents": "Documents",
   "Message": "Message",
-  "Survey": "Sondage"
+  "Survey": "Sondage",
+  "This notification is about removed content and is skipped": "Cette notification concerne du contenu supprimé et est ignorée"
 }

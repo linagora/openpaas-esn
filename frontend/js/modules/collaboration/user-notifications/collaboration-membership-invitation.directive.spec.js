@@ -1,6 +1,6 @@
 'use strict';
 
-/* global chai: false */
+/* global chai, sinon: false */
 
 var expect = chai.expect;
 
@@ -59,11 +59,13 @@ describe('The esnCollaborationMembershipInvitationUserNotification directive', f
 
   describe('The controller', function() {
     it('should resolve notification data', function() {
+      var displayName = 'john doe';
       var scope = this.scope;
+      var user = { _id: scope.notification.subject.id, displayName: sinon.stub().returns(displayName) };
 
       this.objectTypeResolver.resolve = function(type) {
         if (type === 'user') {
-          return $q.when({ data: { _id: scope.notification.subject.id } });
+          return $q.when({ data: user });
         }
 
         if (type === 'community') {
@@ -80,6 +82,8 @@ describe('The esnCollaborationMembershipInvitationUserNotification directive', f
 
       expect(eltScope.invitationSender).to.exist;
       expect(eltScope.invitationSender._id).to.equal(scope.notification.subject.id);
+      expect(user.displayName).to.have.been.called;
+      expect(eltScope.invitationSenderDisplayName).to.equal(displayName);
       expect(eltScope.invitationCollaboration).to.exist;
       expect(eltScope.invitationCollaboration._id).to.equal(scope.notification.complement.id);
       expect(eltScope.error).to.be.false;
@@ -88,6 +92,7 @@ describe('The esnCollaborationMembershipInvitationUserNotification directive', f
 
     it('should set scope.error if community fetch fails', function() {
       var scope = this.scope;
+      var error = new Error('I failed to get community');
 
       this.objectTypeResolver.resolve = function(type) {
         if (type === 'user') {
@@ -95,7 +100,7 @@ describe('The esnCollaborationMembershipInvitationUserNotification directive', f
         }
 
         if (type === 'community') {
-          return $q.reject();
+          return $q.reject(error);
         }
       };
       this.$compile(this.html)(scope);
