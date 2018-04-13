@@ -41,7 +41,7 @@
         params: true,
         default: 'community.view.stream',
         fn: function() {
-          return true;
+          return { state: 'community.view.stream' };
         }
       },
       resolve: {
