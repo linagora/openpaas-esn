@@ -10,6 +10,7 @@ module.exports = function(dependencies) {
 
   var logger = dependencies('logger');
   var elasticsearch = dependencies('elasticsearch');
+  const pubsub = dependencies('pubsub');
   var listener = require('./listener')(dependencies);
   var searchHandler;
 
@@ -37,6 +38,28 @@ module.exports = function(dependencies) {
       return callback(new Error('Contact is required'));
     }
     searchHandler.removeFromIndex(contact, callback);
+  }
+
+  function removeContactsOfAddressbook(addressbook, callback) {
+    logger.info('Removing all contacts of addressbook from Elasticsearch', addressbook);
+
+    const elasticsearchQuery = {
+      query: {
+        bool: {
+          must: [
+            { match: { userId: addressbook.userId } },
+            { match: { bookId: addressbook.bookId } },
+            { match: { bookName: addressbook.bookName } }
+          ]
+        }
+      }
+    };
+
+    elasticsearch.removeDocumentsByQuery({
+      index: INDEX_NAME,
+      type: TYPE_NAME,
+      body: elasticsearchQuery
+    }, callback);
   }
 
   function searchContacts(query, callback) {
@@ -122,6 +145,15 @@ module.exports = function(dependencies) {
 
   function listen() {
     logger.info('Subscribing to contact updates for indexing');
+
+    pubsub.local.topic(CONSTANTS.NOTIFICATIONS.ADDRESSBOOK_DELETED).subscribe(data => {
+      removeContactsOfAddressbook(data, error => {
+        if (error) {
+          logger.error('Error while removing contacts from Elasticsearch', error);
+        }
+      });
+    });
+
     searchHandler = listener.register();
   }
 
@@ -129,7 +161,8 @@ module.exports = function(dependencies) {
     listen: listen,
     searchContacts: searchContacts,
     indexContact: indexContact,
-    removeContactFromIndex: removeContactFromIndex
+    removeContactFromIndex: removeContactFromIndex,
+    removeContactsOfAddressbook
   };
 
 };

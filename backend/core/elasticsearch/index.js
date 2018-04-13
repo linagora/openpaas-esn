@@ -10,6 +10,8 @@ const TIMEOUT = 1000;
 const DEFAULT_CONFIG = {
   host: `${(process.env.ES_HOST || 'localhost')}:${process.env.ES_PORT || 9200}` // eslint-disable-line no-process-env
 };
+const DEFAULT_SCROLL_TIME = '10s';
+const DEFAULT_LIMIT = 20;
 
 let currentClient;
 let currentClientHash;
@@ -21,6 +23,7 @@ module.exports = {
   reconfig,
   reindex,
   removeDocumentFromIndex,
+  removeDocumentsByQuery,
   searchDocuments,
   updateClient
 };
@@ -164,6 +167,69 @@ function removeDocumentFromIndex(options, callback) {
       type: options.type,
       id: options.id
     }, callback);
+  }, callback);
+}
+
+/**
+ * Delete documents by query using scroll and bulk.
+ * For more detail see https://www.elastic.co/guide/en/elasticsearch/plugins/2.3/plugins-delete-by-query.html
+ *
+ * @param  {Object}   query    query object
+ * @param  {Function} callback callback function
+ */
+function removeDocumentsByQuery(query, callback) {
+  getClient().then(esClient => {
+    let deleted = [];
+    const scrollIds = [];
+
+    query = Object.assign({
+      scroll: DEFAULT_SCROLL_TIME, // https://www.elastic.co/guide/en/elasticsearch/reference/2.3/search-request-scroll.html
+      size: DEFAULT_LIMIT,
+      sort: '_doc'
+    }, query);
+
+    const deleteFoundsAndContinueSearch = founds => {
+      scrollIds.push(founds._scroll_id);
+
+      if (founds.hits.total === 0) {
+        return q.when({ deleted });
+      }
+
+      const bulkToDelete = founds.hits.hits.map(doc => ({
+        delete: {
+          _index: doc._index,
+          _type: doc._type,
+          _id: doc._id
+        }
+      }));
+
+      return esClient
+        .bulk({
+          body: bulkToDelete
+        })
+        .then(() => {
+          deleted = deleted.concat(founds.hits.hits);
+
+          if (founds.hits.total > deleted.length) {
+            esClient.scroll({
+              scrollId: founds._scroll_id,
+              scroll: DEFAULT_SCROLL_TIME
+            }, deleteFoundsAndContinueSearch);
+          } else {
+            return { deleted };
+          }
+        });
+    };
+
+    esClient.search(query)
+      .then(deleteFoundsAndContinueSearch)
+      .then(res => { callback(null, res); })
+      .catch(callback)
+      .finally(() => {
+        esClient.clearScroll({
+          scrollId: scrollIds.join(',')
+        });
+      });
   }, callback);
 }
 
