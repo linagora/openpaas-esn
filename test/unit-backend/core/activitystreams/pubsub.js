@@ -63,7 +63,7 @@ describe('The activitystreams pubsub module', function() {
   });
 
   describe('the init fn', function() {
-    it('should call subscribe only 3 times', function(done) {
+    it('should call subscribe only 2 times', function(done) {
       var nbCalls = 0;
       var mock = function() {};
       mock.local = {
@@ -80,7 +80,7 @@ describe('The activitystreams pubsub module', function() {
       var pubsub = this.helpers.requireBackend('core/activitystreams/pubsub');
       pubsub.init();
       pubsub.init();
-      expect(nbCalls).to.equal(3);
+      expect(nbCalls).to.equal(2);
       done();
     });
   });
