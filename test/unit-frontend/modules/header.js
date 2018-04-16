@@ -13,6 +13,7 @@ describe('The esn.header Angular module', function() {
     module('esnApp');
     module('esn.sidebar');
     module('esn.header');
+    module('esn.search');
     module('esn.profile-menu');
   });
 

@@ -8,7 +8,7 @@ describe('The ESNSearchHeaderSettingsController', function() {
   var $stateParams, $controller, $scope, $rootScope, searchProviders;
 
   beforeEach(function() {
-    angular.mock.module('esn.header', function($provide) {
+    angular.mock.module('esn.search', function($provide) {
       $provide.value('$stateParams', $stateParams = {});
     });
   });

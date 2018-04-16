@@ -13,8 +13,8 @@
     button.btn.btn-icon.btn-link.button.search-header-button.clean-button(type="button", title=__('Delete'), ng-hide="!data.searchInput", ng-click="clearSearchInput()")
       i.mdi.mdi-close(ng-class="{ 'focus': focus }")
     .search-header-button.settings-button.hidden-xs
-      button.btn.btn-icon.btn-link.button(type="button", data-auto-close="1", data-template-url="/views/modules/header/search/settings/search-header-settings.html", data-animation="none", data-target=".search-input", data-placement="bottom", bs-popover, title=__('Search options'))
+      button.btn.btn-icon.btn-link.button(type="button", data-auto-close="1", data-template-url="/views/modules/search/header/settings/search-header-settings.html", data-animation="none", data-target=".search-input", data-placement="bottom", bs-popover, title=__('Search options'))
         i.mdi.mdi-menu-down(ng-class="{ 'focus': focus }")
 
-  button.btn.btn-icon.btn-link.button.settings-button.visible-xs(type="button", data-auto-close="1", data-template-url="/views/modules/header/search/settings/search-header-settings.html", data-target=".search-header", data-animation="none", data-placement="bottom", bs-popover, title=__('Search options'))
+  button.btn.btn-icon.btn-link.button.settings-button.visible-xs(type="button", data-auto-close="1", data-template-url="/views/modules/search/header/settings/search-header-settings.html", data-target=".search-header", data-animation="none", data-placement="bottom", bs-popover, title=__('Search options'))
     i.mdi.mdi-menu-down
