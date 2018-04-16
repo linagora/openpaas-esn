@@ -37,7 +37,16 @@ const injections = [
   {angular: 'esn.domain', files: ['domain.js'], innerApps: ['esn']},
   {angular: 'esn.member', files: ['member.js', 'member/member-resolver-registry.service.js'], innerApps: ['esn']},
   {angular: 'esn.module-registry', files: ['module-registry/module-registry.module.js', 'module-registry/module-registry.service.js'], innerApps: ['esn']},
-  {angular: 'esn.search', files: ['search.js'], innerApps: ['esn']},
+  {angular: 'esn.search', files: [
+    'search/search.module.js',
+    'search/search.constants.js',
+    'search/search.router.js',
+    'search/form/search-form.directive.js',
+    'search/result/search-result-size-formatter.service.js',
+    'search/result/search-result.controller.js',
+    'search/sub-header/sub-header.directive.js',
+    'search/application-menu.directive.js'
+  ], innerApps: ['esn']},
   {angular: 'esn.infinite-list', files: [
     'infinite-list/infinite-list.module.js',
     'infinite-list/infinite-list-scroll-helper-builder.service.js',
