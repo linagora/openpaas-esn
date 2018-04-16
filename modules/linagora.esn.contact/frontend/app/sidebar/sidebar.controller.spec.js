@@ -168,6 +168,50 @@ describe('The ContactSidebarController controller', function() {
     });
   });
 
+  it('should add new subscription address book when user successfully subscribes to an address book', function() {
+    var addressbooks = [
+      {
+        name: 'bookA'
+      }
+    ];
+    var subscribedAddressbook = {
+      name: 'subscription',
+      source: { bookId: 'user3' },
+      isSubscription: true
+    };
+
+    contactAddressbookDisplayService.convertShellToDisplayShell = sinon.spy(function(addressbook) {
+      return addressbook;
+    });
+    userAPI.user = sinon.spy(function(userId) {
+      return $q.when({
+        data: userId
+      });
+    });
+    userUtils.displayNameOf = sinon.spy(function(user) { return user; });
+
+    contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when([]));
+    var controller = initController();
+
+    controller.displayShells = addressbooks;
+    $rootScope.$broadcast(CONTACT_ADDRESSBOOK_EVENTS.CREATED, subscribedAddressbook);
+    $rootScope.$digest();
+
+    expect(controller.displayShells).to.shallowDeepEqual([
+      {
+        name: 'bookA'
+      },
+      {
+        name: 'subscription',
+        source: { bookId: 'user3' },
+        owner: {
+          id: 'user3',
+          displayName: 'user3'
+        }
+      }
+    ]);
+  });
+
   it('should update an address book when updated address book event is fired', function() {
     var addressbooks = [
       {
