@@ -2,9 +2,9 @@
   'use strict';
 
   angular
-    .module('esn.header')
+    .module('esn.search')
     .component('searchHeader', {
-      templateUrl: '/views/modules/header/search/search-header.html',
+      templateUrl: '/views/modules/search/header/search-header.html',
       controller: 'ESNSearchHeaderController'
     });
 })();

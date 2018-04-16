@@ -11,11 +11,7 @@ const injections = [
   {angular: 'esn.http', files: ['http.js'], innerApps: ['esn', 'welcome']},
   {angular: 'esn.header', files: [
     'header/header.js',
-    'header/sticky/header-sticky.directive.js',
-    'header/search/search-header.component.js',
-    'header/search/search-header.controller.js',
-    'header/search/settings/search-header-settings.controller.js',
-    'header/search/settings/search-header-settings.service.js'
+    'header/sticky/header-sticky.directive.js'
   ], innerApps: ['esn']},
   {angular: 'esn.profile-menu', files: [
     'header/profile-menu/profile-menu.module.js',
@@ -42,10 +38,15 @@ const injections = [
     'search/search.constants.js',
     'search/search.router.js',
     'search/form/search-form.directive.js',
+    'search/header/search-header.component.js',
+    'search/header/search-header.controller.js',
+    'search/header/settings/search-header-settings.controller.js',
+    'search/header/settings/search-header-settings.service.js',
     'search/result/search-result-size-formatter.service.js',
     'search/result/search-result.controller.js',
     'search/sub-header/sub-header.directive.js',
-    'search/application-menu.directive.js'
+    'search/application-menu.directive.js',
+    'search/search-providers.service.js'
   ], innerApps: ['esn']},
   {angular: 'esn.infinite-list', files: [
     'infinite-list/infinite-list.module.js',

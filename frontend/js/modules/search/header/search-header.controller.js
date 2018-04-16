@@ -1,7 +1,7 @@
 (function() {
   'use strict';
 
-  angular.module('esn.header')
+  angular.module('esn.search')
     .controller('ESNSearchHeaderController', ESNSearchHeaderController);
 
   function ESNSearchHeaderController($stateParams, $state, $scope) {
