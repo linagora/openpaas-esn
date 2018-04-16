@@ -41,7 +41,6 @@ const injections = [
     'search/header/search-header.component.js',
     'search/header/search-header.controller.js',
     'search/header/settings/search-header-settings.controller.js',
-    'search/header/settings/search-header-settings.service.js',
     'search/result/search-result-size-formatter.service.js',
     'search/result/search-result.controller.js',
     'search/sub-header/sub-header.directive.js',
