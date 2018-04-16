@@ -1,6 +1,7 @@
 'use strict';
 
 var activitystreams = require('../../core/activitystreams');
+const logger = require('../../core/logger');
 var tracker = require('../../core/activitystreams/tracker').getTracker('read');
 var mongoose = require('mongoose');
 var escapeStringRegexp = require('escape-string-regexp');
@@ -153,3 +154,20 @@ function getResource(req, res) {
   return res.status(200).json(activity_stream.target);
 }
 module.exports.getResource = getResource;
+
+function updateTimelineEntryVerb(verb) {
+  return (req, res) => {
+    const activitystream = { uuid: req.activity_stream._id, objectType: 'activitystream' };
+
+    activitystreams.updateTimelineEntryVerbFromStreamMessage(activitystream, req.message, verb, err => {
+      if (err) {
+        logger.error('Can not update the timeline entry', err);
+
+        return res.status(500).json({ error: {code: 500, message: 'Server error', details: `Can not update the timeline entry verb to ${verb}`}});
+      }
+
+      res.status(204).send();
+    });
+  };
+}
+module.exports.updateTimelineEntryVerb = updateTimelineEntryVerb;

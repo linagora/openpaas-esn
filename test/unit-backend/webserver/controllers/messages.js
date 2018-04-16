@@ -1,10 +1,20 @@
 'use strict';
 
-var expect = require('chai').expect;
-var q = require('q');
-var mockery = require('mockery');
+const expect = require('chai').expect;
+const q = require('q');
+const mockery = require('mockery');
 
 describe('The messages controller', function() {
+
+  beforeEach(function() {
+    const filterMessagesFromActivityStream = function(messages) {
+      return Promise.resolve(messages);
+    };
+
+    mockery.registerMock('./messages.filter', {
+      filterMessagesFromActivityStream
+    });
+  });
 
   describe('POST /api/messages', function() {
     var validReq;

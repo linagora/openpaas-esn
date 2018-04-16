@@ -14,10 +14,15 @@ angular.module('esn.activitystream')
     return esnRestangular.one('activitystreams', id).one('unreadcount').get();
   }
 
+  function deleteMessage(id, messageId) {
+    return esnRestangular.one('activitystreams', id).one('messages', messageId).remove();
+  }
+
   return {
     get: get,
     getResource: getResource,
-    getUnreadCount: getUnreadCount
+    getUnreadCount: getUnreadCount,
+    deleteMessage: deleteMessage
   };
 })
 
@@ -393,14 +398,21 @@ function(activitystreamFilter, filteredcursor, restcursor, activitystreamOriginD
 
     return activitystreamMessageDecorator(function(err, items) {
       if (items) {
+        // if the object (message/response) has been deleted, object is not available
+        items = items.filter(function(item) {
+          return !!item.object;
+        });
+
         items = items.map(function(item) {
           item.object.streamOrigins = getStreamOrigins(item);
           item.object.isOrigin = isOriginMessage(item);
           item.object.mainActivityStream = getMainActivityStream(item);
+
           return item;
         });
       }
-      return callback(err, items);
+
+      callback(err, items);
     });
   };
 })

@@ -188,6 +188,18 @@ function addTimelineEntry(entry, cb) {
 }
 module.exports.addTimelineEntry = addTimelineEntry;
 
+function updateTimelineEntryVerbFromStreamMessage(activitystream, message, verb, callback) {
+  getTimelineEntryFromStreamMessage(activitystream, message, (err, entry) => {
+    if (err || !entry) {
+      return callback(err || new Error('Can not find timeline entry'));
+    }
+
+    entry.verb = verb;
+    entry.save(callback);
+  });
+}
+module.exports.updateTimelineEntryVerbFromStreamMessage = updateTimelineEntryVerbFromStreamMessage;
+
 function getTimelineEntryFromStreamMessage(activitystream, message, callback) {
   if (!activitystream) {
     return callback(new Error('Activitystream is required'));

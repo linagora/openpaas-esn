@@ -11,7 +11,7 @@ div.whats-up-message-thread(data-ng-switch='parentMessage')
           small
             message-date-link(message='message', activitystream='activitystream')
           .share
-            thread-bottom-links
+            message-actions-dropdown(message='message', activitystream='activitystream')
     .card-body.card-padding
       p.m-b-5.white-space-pre-line
         text-parser(parsers='{{message.parsers}}', text='{{message.content}}')
@@ -56,18 +56,7 @@ div.whats-up-message-thread(data-ng-switch='parentMessage')
               message-date-link(message='message', activitystream='activitystream')
           .message-comment-actions
             message-bottom-links
-            ul.actions(ng-show='::writable')
-              li.dropdown
-                a(href="" data-toggle="dropdown" aria-expanded="false")
-                  i.mdi.mdi-dots-vertical
-                ul.dropdown-menu.dropdown-menu-right
-                  li.disabled(ng-show='::writable')
-                    a(title=__('Soon available')) #{__('Remove')}
-                  li.disabled(ng-show='::writable')
-                    a(title=__('Soon available')) #{__('Update')}
-                  li.disabled(ng-show='::writable')
-                    a(title=__('Soon available')) #{__('Share')}
-              .clearfix
+            message-actions-dropdown(ng-show='::writable', message='message', activitystream='activitystream', parent="parent")
         .message-comment-content
           p.m-b-5.white-space-pre-line
             text-parser(parsers='{{message.parsers}}', text='{{message.content}}')

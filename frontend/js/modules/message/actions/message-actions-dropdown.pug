@@ -1,0 +1,13 @@
+.message-actions-dropdown
+  ul.actions
+    li.dropdown
+      a(href="" data-toggle="dropdown" aria-expanded="false")
+        i.mdi.mdi-dots-vertical
+      ul.dropdown-menu.dropdown-menu-right
+        li(ng-if="ctrl.canRemove", ng-click='ctrl.remove()')
+          a(href="", title=__('Remove')) #{__('Remove')}
+        li.disabled(ng-if="ctrl.canUpdate")
+          a(title=__('Soon available')) #{__('Update')}
+        li.disabled(ng-if="ctrl.canShare")
+          a(title=__('Soon available')) #{__('Share')}
+    .clearfix

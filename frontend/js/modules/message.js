@@ -1,8 +1,6 @@
 'use strict';
 
-angular.module('esn.message', ['esn.attachment', 'esn.timeline', 'esn.maps', 'esn.file', 'esn.background', 'esn.notification', 'esn.object-type', 'esn.http', 'mgcrea.ngStrap',
-'ngAnimate', 'ngSanitize', 'RecursionHelper', 'mgcrea.ngStrap.typeahead',
-'esn.poll'])
+angular.module('esn.message')
   .constant('ESN_MESSAGE_TYPES', ['whatsup', 'event', 'poll'])
   .run(function(esnTimelineEntryProviders, $q, ESN_MESSAGE_TYPES) {
     esnTimelineEntryProviders.register({
@@ -596,6 +594,8 @@ return defer.promise;
         message: '=',
         activitystream: '=?',
         lastPost: '=',
+        parent: '=?',
+        // TODO: Rename to isParent
         parentMessage: '=?'
       },
       templateUrl: '/views/modules/message/messagesTemplateDisplayer.html',
@@ -1064,13 +1064,6 @@ return objectTypeAdapter.adapt(collaboration.object);
         activitystream: '='
       },
       templateUrl: '/views/modules/message/templates/includes/messageDateLink.html'
-    };
-  })
-  .directive('threadBottomLinks', function() {
-    return {
-      restrict: 'E',
-      scope: true,
-      templateUrl: '/views/modules/message/templates/includes/threadBottomLinks.html'
     };
   })
   .directive('messageBottomLinks', function() {

@@ -63,7 +63,7 @@ describe('The activitystreams pubsub module', function() {
   });
 
   describe('the init fn', function() {
-    it('should call subscribe only two time', function(done) {
+    it('should call subscribe only 2 times', function(done) {
       var nbCalls = 0;
       var mock = function() {};
       mock.local = {

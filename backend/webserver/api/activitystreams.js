@@ -4,6 +4,7 @@ var authorize = require('../middleware/authorization');
 var requestMW = require('../middleware/request');
 var activitystreams = require('../controllers/activitystreams');
 var asMiddleware = require('../middleware/activitystream');
+var messageMiddleware = require('../middleware/message');
 
 module.exports = function(router) {
   /**
@@ -78,6 +79,19 @@ module.exports = function(router) {
    *         $ref: "#/responses/cm_500"
    */
   router.get('/activitystreams/:uuid/unreadcount', authorize.requiresAPILogin, requestMW.requireRouteParams('uuid'), asMiddleware.findStreamResource, requestMW.assertRequestElementNotNull('activity_stream'), activitystreams.getUnreadCount);
+
+  /**
+   * Delete a message from an activitystream.
+   * Deleting a message sets its timeline entry verb to `delete`.
+   */
+  router.delete('/activitystreams/:uuid/messages/:id',
+    authorize.requiresAPILogin,
+    requestMW.requireRouteParams('uuid'),
+    asMiddleware.findStreamResource,
+    requestMW.assertRequestElementNotNull('activity_stream'),
+    messageMiddleware.load,
+    messageMiddleware.canDelete,
+    activitystreams.updateTimelineEntryVerb('delete'));
 
   /**
    * @swagger

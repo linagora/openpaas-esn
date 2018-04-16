@@ -68,3 +68,11 @@ module.exports.canReply = function(message, user, callback) {
  * User can like a message if he has at least read access to one of the communities the message has been shared to.
  */
 module.exports.canLike = canRead;
+
+/**
+ * Oonly message author can delete the message even if shared.
+ */
+function canDelete(message, tuple, callback) {
+  callback(null, tuple.objectType === 'user' && String(message.author) === String(tuple.id));
+}
+module.exports.canDelete = canDelete;
