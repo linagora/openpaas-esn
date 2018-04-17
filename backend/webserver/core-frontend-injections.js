@@ -37,6 +37,7 @@ const injections = [
     'search/search.module.js',
     'search/search.constants.js',
     'search/search.router.js',
+    'search/context/search-context.service.js',
     'search/form/search-form.directive.js',
     'search/header/search-header.component.js',
     'search/header/search-header.controller.js',
