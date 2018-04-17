@@ -319,6 +319,7 @@ const injections = [
   {angular: 'esn.invitation', files: ['invitation.js'], innerApps: ['welcome']},
   {angular: 'esn.i18n', files: [
     'i18n/i18n.module.js',
+    'i18n/i18n.run.js',
     'i18n/i18n.service.js',
     'i18n/i18n.constants.js',
     'i18n/i18n.config.js',
