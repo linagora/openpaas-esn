@@ -239,11 +239,13 @@ describe('The ldap-mongo passport strategy', function() {
     getModule()(USERNAME, PASSWORD, callback);
   });
 
-  it('should update the user if he already exists', function(done) {
+  it('should find existing user by email and update if the user is existing', function(done) {
     existingUser = { _id: 'existingUser' };
 
     const callback = (err, user) => {
-      expect(err).to.not.exist;
+      if (err) { return done(err); }
+
+      expect(coreUserMock.findByEmail).to.have.been.calledWith(USERNAME, sinon.match.func);
       expect(coreLdapMock.translate).to.have.been.calledWith(existingUser, sinon.match({
         user: ldapUser
       }));

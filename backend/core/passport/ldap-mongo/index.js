@@ -41,7 +41,7 @@ module.exports = (username, password, done) => {
         logger.warn(`LDAP directory ${ldapConfig.name} does not have domain information, user provision could fail`);
       }
 
-      q.nfcall(userModule.findByEmail, ldapUser.mail)
+      q.nfcall(userModule.findByEmail, username)
           .then(user => {
             if (user || helpers.isLdapUsedForAutoProvisioning(ldapConfig)) {
               return updateOrProvisionUser(user, ldapUser, ldapConfig, done);
