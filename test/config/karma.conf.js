@@ -121,6 +121,7 @@ module.exports = function(config) {
       { pattern: 'frontend/js/modules/datetime/datetime.run.js', watched: false, included: false, served: false },
       { pattern: 'frontend/images/*.png', watched: false, included: false, served: true },
       { pattern: 'frontend/js/modules/i18n/i18n.config.js', watched: false, included: false, served: true },
+      { pattern: 'frontend/js/modules/i18n/i18n.run.js', watched: false, included: false, served: true },
       { pattern: 'frontend/js/modules/shortcuts/shortcuts.run.js', watched: false, included: false, served: true },
 
       'frontend/js/modules/**/*.module.js',
