@@ -1,4 +1,4 @@
-.modal.fullscreen
+.modal.full-screen
   .modal-dialog
     .modal-content
       .modal-header
@@ -9,7 +9,7 @@
           users-autocomplete-input(mutable-users='$ctrl.selectedUsers', on-user-added='$ctrl.onUserAdded', on-user-removed='$ctrl.onUserRemoved')
 
           .subscribable-addressbook-list
-            .empty(ng-if='!$ctrl.addressbooksPerUser.length')
+            .empty.text-center(ng-if='!$ctrl.addressbooksPerUser.length')
               span #{__('Search for users to subscribe to their address books')}
 
             .header(ng-if='$ctrl.addressbooksPerUser.length')
