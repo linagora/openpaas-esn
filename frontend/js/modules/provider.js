@@ -175,7 +175,7 @@ angular.module('esn.provider', [
     };
   })
 
-  .factory('newProvider', function($q, PageAggregatorService, toAggregatorSource, _, uuid4) {
+  .factory('newProvider', function($q, _, uuid4) {
     return function(provider) {
       return {
         id: provider.id || uuid4.generate(),
@@ -186,7 +186,8 @@ angular.module('esn.provider', [
         fetch: provider.fetch,
         buildFetchContext: provider.buildFetchContext,
         itemMatches: provider.itemMatches || _.constant($q.when()),
-        templateUrl: provider.templateUrl
+        templateUrl: provider.templateUrl,
+        activeOn: provider.activeOn || []
       };
     };
   })
