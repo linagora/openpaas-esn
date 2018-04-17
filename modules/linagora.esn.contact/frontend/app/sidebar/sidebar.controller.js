@@ -72,8 +72,15 @@
     }
 
     function _onAddressbookCreatedEvent(event, createdAddressbook) {
-      self.displayShells.push(contactAddressbookDisplayService.convertShellToDisplayShell(createdAddressbook, DISPLAY_SHELL_CONVERT_OPTIONS));
+      if (createdAddressbook.isSubscription) {
+        return _injectOwnerToSubscription([createdAddressbook])
+          .then(function() {
+            self.displayShells.push(contactAddressbookDisplayService.convertShellToDisplayShell(createdAddressbook, DISPLAY_SHELL_CONVERT_OPTIONS));
+          })
+          .then(_refreshAddressbooksList);
+      }
 
+      self.displayShells.push(contactAddressbookDisplayService.convertShellToDisplayShell(createdAddressbook, DISPLAY_SHELL_CONVERT_OPTIONS));
       _refreshAddressbooksList();
     }
 
