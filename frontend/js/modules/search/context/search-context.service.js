@@ -16,7 +16,8 @@
             return {
               id: provider.id,
               name: provider.name,
-              active: isActive(provider)
+              active: isActive(provider),
+              icon: '/unifiedinbox/images/inbox-icon.svg'
             };
           });
         });

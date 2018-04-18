@@ -1,0 +1,5 @@
+md-select.md-no-underline(ng-model="filter.active", aria-label=__('Search type'), title=__('Search type'))
+  md-option.option-all(ng-value="all") #{__('All')}
+  md-option(ng-value="filter.name", ng-repeat="filter in filters", ng-selected="{{ filter.active }}")
+    img.option-icon.hidden(ng-src="{{ filter.icon }}")
+    | {{ filter.name | esnI18n }}
