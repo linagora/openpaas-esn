@@ -94,6 +94,7 @@ module.exports = function(config) {
       'frontend/components/angular-material/modules/js/icon/icon.min.js',
       'frontend/components/angular-material/modules/js/whiteframe/whiteframe.min.js',
       'frontend/components/angular-material/modules/js/panel/panel.min.js',
+      'frontend/components/angular-material/modules/js/select/select.min.js',
       'frontend/components/angular-material/modules/js/core/core.min.css',
       'frontend/components/angular-material/modules/js/virtualRepeat/virtualRepeat.min.css',
       'frontend/components/angular-material/modules/js/backdrop/backdrop.min.css',
