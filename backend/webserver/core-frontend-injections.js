@@ -53,7 +53,8 @@ const injections = [
     'search/application-menu.directive.js',
     'search/search-providers.service.js',
     'search/provider-select/search-provider-select.component.js',
-    'search/provider-select/search-provider-select.controller.js'
+    'search/provider-select/search-provider-select.controller.js',
+    'search/search-provider.service.js'
   ], innerApps: ['esn']},
   {angular: 'esn.infinite-list', files: [
     'infinite-list/infinite-list.module.js',
