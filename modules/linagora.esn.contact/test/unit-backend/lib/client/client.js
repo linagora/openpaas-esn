@@ -249,6 +249,7 @@ describe('The contact client APIs', function() {
         var PROPERTIES = {
           '{DAV:}displayname': 'dav:name',
           '{urn:ietf:params:xml:ns:carddav}addressbook-description': 'carddav:description',
+          '{DAV:}invite': 'dav:invite',
           '{DAV:}acl': 'dav:acl',
           '{http://open-paas.org/contacts}source': 'openpaas:source',
           '{http://open-paas.org/contacts}type': 'type',
@@ -281,11 +282,13 @@ describe('The contact client APIs', function() {
           const type = 'twitter';
           const acl = [];
           const source = { _links: { href: '' }};
+          const invite = [];
           const response = { statusCode: 200 };
           const body = {
             '{DAV:}displayname': name,
             '{urn:ietf:params:xml:ns:carddav}addressbook-description': description,
             '{DAV:}acl': davAcl,
+            '{DAV:}invite': invite,
             '{http://open-paas.org/contacts}source': source,
             '{http://open-paas.org/contacts}type': type,
             acl
@@ -306,6 +309,7 @@ describe('The contact client APIs', function() {
                 }
               },
               'dav:name': name,
+              'dav:invite': invite,
               'carddav:description': description,
               'dav:acl': davAcl,
               'openpaas:source': source,
