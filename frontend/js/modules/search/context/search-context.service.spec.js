@@ -98,7 +98,7 @@ describe('The searchContextService service', function() {
       searchProviders.getAll.returns($q.when(providers));
 
       searchContextService.getProvidersContext().then(function(result) {
-        expect(result).to.deep.equals([
+        expect(result).to.shallowDeepEqual([
           {id: 1, name: 'emailsearchprovider', active: false},
           {id: 2, name: 'contactsearchprovider', active: false}
         ]);
