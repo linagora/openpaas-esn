@@ -1,0 +1,72 @@
+version: '2'
+
+services:
+
+  esn:
+    extends:
+      file: ../docker-compose-commons.yml
+      service: esn
+    build: ../../../
+    command: ["sh", "start.sh"]
+    links:
+      - redis
+      - rabbitmq
+      - mongo
+      - sabre
+      - elasticsearch
+
+  redis:
+    extends:
+      file: ../docker-compose-commons.yml
+      service: redis
+
+  rabbitmq:
+    extends:
+      file: ../docker-compose-commons.yml
+      service: rabbitmq
+
+  mongo:
+    extends:
+      file: ../docker-compose-commons.yml
+      service: mongo
+
+  elasticsearch:
+    extends:
+      file: ../docker-compose-commons.yml
+      service: elasticsearch
+
+  sabre:
+    extends:
+      file: ../docker-compose-commons.yml
+      service: sabre
+    links:
+      - mongo
+
+  james:
+    extends:
+      file: ../docker-compose-commons.yml
+      service: james
+    links:
+      - cassandra:cassandra
+      - james_elastic:elasticsearch
+
+  james_elastic:
+    extends:
+      file: ../docker-compose-commons.yml
+      service: james_elastic
+
+  cassandra:
+    extends:
+      file: ../docker-compose-commons.yml
+      service: cassandra
+
+  petals-esb-container:
+    image: petals/petals-esb-container:5.2.0-SNAPSHOT
+    ports:
+     - "7700:7700"
+     - "7800:7800"
+
+  petals-cockpit:
+    image: petals/petals-cockpit:0.21.0
+    ports:
+     - "18080:8080"
