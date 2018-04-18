@@ -12,7 +12,7 @@ ARG TREEISH=master
 RUN curl -sL https://rpm.nodesource.com/setup_8.x | bash - && \
     yum groupinstall -y 'Development Tools' && \
     yum install -y epel-release && \
-    yum install -y git rpm-build nodejs GraphicsMagick cairo cairo-devel cairomm-devel libjpeg-turbo-devel pango pango-devel pangomm pangomm-devel giflib-devel
+    yum install -y git rpm-build nodejs ImageMagick cairo cairo-devel cairomm-devel libjpeg-turbo-devel pango pango-devel pangomm pangomm-devel giflib-devel
 
 RUN git clone --no-single-branch --depth=1 https://ci.linagora.com/linagora/lgs/openpaas/esn.git /package/usr/share/openpaas
 
@@ -54,7 +54,7 @@ RUN fpm \
   --depends rabbitmq-server \
   --depends java-1.8.0-openjdk \
   --depends nodejs \
-  --depends GraphicsMagick \
+  --depends ImageMagick \
   --depends cairo \
   --depends cairo-devel \
   --depends cairomm-devel \
