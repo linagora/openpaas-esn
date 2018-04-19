@@ -14,15 +14,18 @@
         url: '?q',
         params: {
           q: {
+            type: 'string',
             value: '',
             squash: true
           },
-          filters: null
+          // type: any, contains a complex query
+          query: null,
+          // type: any
+          providers: null
         },
         views: {
           'search-result': {
-            templateUrl: '/views/modules/search/result/search-result.html',
-            controller: 'searchResultController'
+            template: '<search-result></search-result>'
           }
         }
       });

@@ -13,12 +13,9 @@
       return searchProviders.getAll()
         .then(function(providers) {
           return providers.map(function(provider) {
-            return {
-              id: provider.id,
-              name: provider.name,
-              active: isActive(provider),
-              icon: '/unifiedinbox/images/inbox-icon.svg'
-            };
+            provider.active = isActive(provider);
+
+            return provider;
           });
         });
     }

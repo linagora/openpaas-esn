@@ -1,11 +1,11 @@
 .search-result
-  infinite-list(load-more-elements='loadMoreElements()')
+  infinite-list(load-more-elements='ctrl.loadMoreElements()')
     .card.listview.lv-bordered.lv-lg
       .lv-body
-        .lv-item.media(ng-repeat="item in elements | orderBy: '-date'" ng-if="elements.length > 0")
+        .lv-item.media(ng-repeat="item in ctrl.elements | orderBy: '-date'" ng-if="ctrl.elements.length > 0")
           ng-include(src="item.templateUrl")
-    .search-empty-result(ng-if="!infiniteScrollDisabled && !elements.length")
+    .search-empty-result(ng-if="!ctrl.infiniteScrollDisabled && !ctrl.elements.length")
       .search-empty-icon.mdi.mdi-magnify
       .message #{__("There is no result matching your query")}
-    ul.nav.nav-pills.nav-stacked(ng-if='infiniteScrollDisabled')
+    ul.nav.nav-pills.nav-stacked(ng-if='ctrl.infiniteScrollDisabled')
       li.text-center(openpaas-logo-spinner, spinner-start-active='1', spinner-size='0.5')

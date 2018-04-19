@@ -4,14 +4,14 @@
   angular.module('esn.search')
     .controller('ESNSearchProviderSelectController', ESNSearchProviderSelectController);
 
-  function ESNSearchProviderSelectController(searchContextService, $scope) {
+  function ESNSearchProviderSelectController() {
     var self = this;
 
     self.$onInit = $onInit;
 
     function $onInit() {
-      searchContextService.getProvidersContext().then(function(providers) {
-        $scope.filters = providers;
+      self.selectAll = !(self.providers || []).some(function(provider) {
+        return provider.active;
       });
     }
   }

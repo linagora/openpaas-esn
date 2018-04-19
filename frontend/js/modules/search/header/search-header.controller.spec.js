@@ -49,13 +49,13 @@ describe('The searchHeader component', function() {
     expect(element.find('input').val()).to.equal('');
   });
 
-  it('when form submitted in a different state, it should update q get parameter', function() {
+  it('when form submitted in a different state, it should update query parameter', function() {
     $state.go = sinon.spy($state.go);
 
     compileSearchHeaderDirective();
     submitWithText();
 
-    expect($state.go).to.have.been.calledWith('search.main', { q: 'cow', filters: undefined }, { reload: true });
+    expect($state.go).to.have.been.calledWith('search.main', { query: { text: 'cow' }, providers: [] }, { reload: true });
   });
 
   it('when form submitted in the same state, it should update q get parameter and replace location', function() {
@@ -65,6 +65,6 @@ describe('The searchHeader component', function() {
     compileSearchHeaderDirective();
     submitWithText();
 
-    expect($state.go).to.have.been.calledWith('search.main', { q: 'cow', filters: null }, { location: 'replace', reload: true });
+    expect($state.go).to.have.been.calledWith('search.main', { providers: [], query: { text: 'cow' }}, { location: 'replace', reload: true });
   });
 });

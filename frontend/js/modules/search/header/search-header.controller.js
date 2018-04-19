@@ -4,30 +4,25 @@
   angular.module('esn.search')
     .controller('ESNSearchHeaderController', ESNSearchHeaderController);
 
-  function ESNSearchHeaderController($stateParams, $state, $scope) {
+  function ESNSearchHeaderController($stateParams, $state) {
     var self = this;
 
     self.$onInit = $onInit;
+    self.search = search;
 
     function $onInit() {
-      $scope.data = {
-        searchInput: $stateParams.q
-      };
+      self.query = $stateParams.q;
     }
 
-    $scope.clearSearchInput = function() {
-      $scope.data.searchInput = '';
-    };
+    function search(query, providers) {
+      var context = { reload: true };
 
-    $scope.search = function() {
       if ($state.current.name === 'search.main') {
-        $state.go('search.main',
-          { q: $scope.data.searchInput, filters: $stateParams.filters },
-          { reload: true, location: 'replace' // So that moving next/previous does not mess with the "Back" button
-        });
-      } else {
-        $state.go('search.main', { q: $scope.data.searchInput, filters: $stateParams.filters }, { reload: true });
+        // So that moving next/previous does not mess with the "Back" button
+        context.location = 'replace';
       }
-    };
+
+      $state.go('search.main', { query: query, providers: providers }, context);
+    }
   }
 })();
