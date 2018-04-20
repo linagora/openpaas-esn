@@ -104,13 +104,17 @@ We highly recommend that you use [nvm](https://github.com/creationix/nvm) to ins
 
 8.Go into the project directory and install project dependencies (not as an administrator)
 
-        cd rse
+        cd esn
         npm install
 
- This may fail with EACCESS and you may need to remove ~/.npm and repeat step 9
+ This may fail with EACCESS and you may need to remove ~/.npm and repeat step 8
 
-If you have any problem relating to `node-canvas` during the dependencies installation,
-make sure your system has installed [Cairo](http://cairographics.org/). Documentation [can be found here](https://github.com/Automattic/node-canvas).
+If you have any problem related to `node-canvas` during the dependencies installation, you might have an issue with [Cairo](http://cairographics.org/).  
+On Ubuntu, install the following packages:
+```
+sudo apt-get install libcairo2-dev libjpeg-dev libpango1.0-dev libgif-dev build-essential g++
+```
+(Documentation [can be found here](https://github.com/Automattic/node-canvas)).
 
 If during further manipulations you encounter errors with node modules, try to reinstall them
 
