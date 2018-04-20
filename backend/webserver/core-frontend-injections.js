@@ -47,6 +47,8 @@ const injections = [
     'search/result/search-result-size-formatter.service.js',
     'search/result/search-result.controller.js',
     'search/result/search-result.component.js',
+    'search/result/search-result-item.component.js',
+    'search/result/search-result-item.controller.js',
     'search/sub-header/sub-header.directive.js',
     'search/application-menu.directive.js',
     'search/search-providers.service.js',
