@@ -38,7 +38,7 @@ angular.module('linagora.esn.contact')
     return MultipleAddressBookPaginationProvider;
   })
 
-  .factory('AddressBookPaginationProvider', function(ContactAPIClient, $log) {
+  .factory('AddressBookPaginationProvider', function(contactService, $log) {
 
     function AddressBookPaginationProvider(options) {
       this.options = options;
@@ -50,14 +50,6 @@ angular.module('linagora.esn.contact')
       this.addressbook = this.options.addressbooks[0];
       this.lastPage = false;
       this.nextPage = 0;
-
-      if (this.addressbook.isSubscription) {
-        this.bookId = this.addressbook.source.bookId;
-        this.bookName = this.addressbook.source.bookName;
-      } else {
-        this.bookId = this.addressbook.bookId;
-        this.bookName = this.addressbook.bookName;
-      }
     }
 
     AddressBookPaginationProvider.prototype.loadNextItems = function() {
@@ -66,11 +58,7 @@ angular.module('linagora.esn.contact')
       var page = this.nextPage || 1;
       $log.debug('Load contacts page %s on ab', page, this.addressbook);
 
-      return ContactAPIClient
-        .addressbookHome(this.bookId)
-        .addressbook(this.bookName)
-        .vcard()
-        .list({
+      return contactService.listContacts(this.addressbook, {
           userId: this.options.user._id,
           page: page,
           paginate: true

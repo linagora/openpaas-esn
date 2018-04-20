@@ -75,7 +75,7 @@ describe('The Contact Live module', function() {
   });
 
   describe('The ContactLiveUpdate service', function() {
-    var liveMock, getMock, liveNotificationMock, ContactAPIClientMock, ContactShellBuilderMock, onFn, removeListenerFn, namespace;
+    var liveMock, getMock, liveNotificationMock, ContactAPIClientMock, ContactShellBuilderMock, onFn, removeListenerFn, namespace, contactService;
     var $rootScope, ContactLiveUpdate, CONTACT_WS, CONTACT_EVENTS;
     var session;
 
@@ -131,12 +131,13 @@ describe('The Contact Live module', function() {
         $provide.value('session', session);
       });
 
-      inject(function(_$rootScope_, _ContactLiveUpdate_, _CONTACT_WS_, _CONTACT_EVENTS_) {
+      inject(function(_$rootScope_, _ContactLiveUpdate_, _contactService_, _CONTACT_WS_, _CONTACT_EVENTS_) {
         $rootScope = _$rootScope_;
         ContactLiveUpdate = _ContactLiveUpdate_;
         CONTACT_WS = _CONTACT_WS_;
         CONTACT_EVENTS = _CONTACT_EVENTS_;
         namespace = CONTACT_WS.room;
+        contactService = _contactService_;
       });
     });
 
@@ -282,9 +283,8 @@ describe('The Contact Live module', function() {
           it('should load the updated contact from API', function(done) {
             var data = {bookId: '1', bookName: '2', contactId: '3'};
             var contact = {id: '3'};
-            getMock = function() {
-              return $q.when(contact);
-            };
+
+            contactService.getContact = sinon.stub().returns($q.when(contact));
 
             $rootScope.$on(CONTACT_EVENTS.UPDATED, function(event, _data) {
               expect(_data).to.deep.equal(contact);
@@ -300,11 +300,8 @@ describe('The Contact Live module', function() {
 
           it('should not broadcast anything when updated contact can not be loaded from API', function(done) {
             var data = {bookId: '1', bookName: '2', contactId: '3'};
-            var spy = sinon.spy();
-            getMock = function() {
-              spy();
-              return $q.reject(new Error('Failed'));
-            };
+
+            contactService.getContact = sinon.stub().returns($q.reject(new Error('Failed')));
 
             $rootScope.$on(CONTACT_EVENTS.UPDATED, function() {
               done(new Error('Should not be called'));
@@ -314,7 +311,7 @@ describe('The Contact Live module', function() {
             updateFn(data);
 
             $rootScope.$apply();
-            expect(spy).to.have.been.called.once;
+            expect(contactService.getContact).to.have.been.called.once;
             done();
           });
         });

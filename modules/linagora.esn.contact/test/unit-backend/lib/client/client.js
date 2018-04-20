@@ -1057,14 +1057,14 @@ describe('The contact client APIs', function() {
 
         describe('The move function', function() {
           it('should send a request to dav server with right destination header to move contact', function(done) {
-            const destAddressbook = 'destination-addressook';
+            const destAddressbook = '/addressbooks/123/destination-addressook/456.vcf';
 
             mockery.registerMock('../dav-client', {
               rawClient: function(options) {
                 expect(options.method).to.equal('MOVE');
                 expect(options.headers).to.deep.equal({
                   ESNToken: CLIENT_OPTIONS.ESNToken,
-                  Destination: `${DAV_PREFIX}/addressbooks/${BOOK_ID}/${destAddressbook}/${CONTACT_ID}.vcf`
+                  Destination: `${DAV_PREFIX}${destAddressbook}`
                 });
                 expectVCardURL(options.url);
                 done();

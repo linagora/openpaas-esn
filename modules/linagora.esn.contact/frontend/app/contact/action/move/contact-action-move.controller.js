@@ -26,13 +26,13 @@
         .then(_excludeCurrentAddressbook)
         .then(function(addressbooks) {
           self.availableAddressbookDisplayShells = contactAddressbookDisplayService.convertShellsToDisplayShells(addressbooks);
-          self.selectedAddressbookName = self.availableAddressbookDisplayShells[0].shell.bookName;
+          self.selectedAddressbook = self.availableAddressbookDisplayShells[0].shell;
         });
     }
 
     function moveContact() {
       return asyncAction(NOTIFICATION_MESSAGES, function() {
-        return contactService.moveContact(self.selectedAddressbookName, self.contact);
+        return contactService.moveContact(self.contact.addressbook, self.selectedAddressbook, self.contact);
       });
     }
 

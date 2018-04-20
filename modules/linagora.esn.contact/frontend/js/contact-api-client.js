@@ -172,7 +172,7 @@ angular.module('linagora.esn.contact')
 
           contactAvatarService.forceReloadDefaultAvatar(contact);
 
-          return ContactShellBuilder.populateAddressbook(contact, bookId, bookName);
+          return contact;
         });
     }
 
@@ -306,7 +306,7 @@ angular.module('linagora.esn.contact')
      */
     function moveCard(bookId, bookName, cardId, options) {
       var headers = {
-        Destination: options.destAddressbook
+        Destination: getVCardUrl(options.toBookId, options.toBookName, cardId)
       };
 
       return davClient(

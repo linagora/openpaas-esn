@@ -81,19 +81,19 @@ describe('The contactActionMoveController controller', function() {
 
     it('should call contactService.moveContact to move contact', function() {
       var controller = initController();
+      var toAddressbook = { bookName: 'collected' };
+      var fromAddressbook = { bookName: 'contacts' };
 
       contactService.moveContact = sinon.stub().returns($q.when());
       controller.contact = {
         id: '123',
-        addressbook: {
-          bookName: 'contacts'
-        }
+        addressbook: fromAddressbook
       };
-      controller.selectedAddressbookName = 'collected';
+      controller.selectedAddressbook = toAddressbook;
 
       controller.moveContact();
 
-      expect(contactService.moveContact).to.have.been.calledWith(controller.selectedAddressbookName, controller.contact);
+      expect(contactService.moveContact).to.have.been.calledWith(fromAddressbook, toAddressbook, controller.contact);
     });
   });
 });
