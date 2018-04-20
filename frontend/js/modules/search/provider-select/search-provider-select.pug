@@ -1,0 +1,11 @@
+md-select.md-no-underline(
+  ng-model="ctrl.selectedProvider",
+  ng-model-options="{trackBy: '$value.id'}"
+  ng-change="ctrl.onProviderSelected({provider: ctrl.selectedProvider})",
+  aria-label=__('Search type'),
+  title=__('Search type')
+)
+  md-option.option-all(ng-value="undefined") #{__('All')}
+  md-option(ng-value="provider", ng-repeat="provider in ctrl.providers")
+    img.option-icon(ng-if="provider.icon", ng-src="{{ provider.icon }}")
+    | {{ provider.name | esnI18n }}

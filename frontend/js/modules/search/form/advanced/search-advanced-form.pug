@@ -1,0 +1,18 @@
+.search-advanced-form
+  form.search-header-form(name='form', ng-submit='ctrl.doSearch()')
+    search-provider-select(ng-class="{ 'focus': focus }", providers="ctrl.providers", on-provider-selected="ctrl.onProviderSelected(provider)")
+
+    button.btn.btn-icon.btn-link.button.search-header-button.search-button.hidden-xs(type="submit", title=__('Search'))
+      i.mdi.mdi-magnify(ng-class="{ 'focus': focus }")
+
+    i.mdi.mdi-magnify.search-header-button.search-button.hidden(ng-class="{ 'focus': focus }")
+    input.search-input(type="search", name="search", ng-model="ctrl.searchInput.text", ng-focus="focus=true", ng-blur="focus=false", placeholder=__('Search') + "\u2026")
+
+    button.btn.btn-icon.btn-link.button.search-header-button.clean-button(type="button", title=__('Delete'), ng-hide="!ctrl.searchInput.text", ng-click="ctrl.clearSearchInput()")
+      i.mdi.mdi-close(ng-class="{ 'focus': focus }")
+    .search-header-button.settings-button.hidden
+      button.btn.btn-icon.btn-link.button(type="button", data-auto-close="1", data-template-url="/views/modules/search/header/settings/search-header-settings.html", data-animation="none", data-target=".search-input", data-placement="bottom", bs-popover, title=__('Search options'))
+        i.mdi.mdi-menu-down(ng-class="{ 'focus': focus }")
+
+  button.btn.btn-icon.btn-link.button.settings-button.hidden(type="button", data-auto-close="1", data-template-url="/views/modules/search/header/settings/search-header-settings.html", data-target=".search-header", data-animation="none", data-placement="bottom", bs-popover, title=__('Search options'))
+    i.mdi.mdi-menu-down

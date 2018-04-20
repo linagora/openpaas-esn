@@ -14,38 +14,45 @@
     ELEMENTS_PER_PAGE
   ) {
 
-  var aggregator;
-  var options = {};
+    var self = this;
+    var aggregator;
 
-  $scope.query = $stateParams.q;
-  $scope.filters = $stateParams.filters;
+    self.$onInit = $onInit;
 
-  $scope.query && (options.query = $scope.query);
-  $scope.filters && (options.acceptedIds = _.filter($scope.filters, { checked: true }).map(_.property('id')));
+    function $onInit() {
+      var options = {};
 
-  function load() {
-    return aggregator.loadNextItems().then(_.property('data'));
-  }
+      self.query = $stateParams.query && $stateParams.query.text ? $stateParams.query.text : $stateParams.query;
+      self.providers = $stateParams.providers;
 
-  $scope.loadMoreElements = infiniteScrollHelper($scope, function() {
-    if (!$scope.query) {
-      return $q.when([]);
-    }
+      // TODO: replace query.text by query
+      // providers must be updated to accept query as string or query as object with text in it
+      self.query && (options.query = self.query);
+      self.providers && (options.acceptedIds = self.providers.map(_.property('id')));
 
-    if (aggregator) {
-      return load();
-    }
+      self.load = function() {
+        return aggregator.loadNextItems().then(_.property('data'));
+      };
 
-    return searchProviders.getAll(options)
-      .then(function(providers) {
-        aggregator = new PageAggregatorService('searchResultControllerAggregator', providers, {
-          compare: function(a, b) { return b.date - a.date; },
-          results_per_page: ELEMENTS_PER_PAGE
-        });
+      self.loadMoreElements = infiniteScrollHelper(self, function() {
+        if (!self.query) {
+          return $q.when([]);
+        }
 
-        return load();
+        if (aggregator) {
+          return self.load();
+        }
+
+        return searchProviders.getAll(options)
+          .then(function(providers) {
+            aggregator = new PageAggregatorService('searchResultControllerAggregator', providers, {
+              compare: function(a, b) { return b.date - a.date; },
+              results_per_page: ELEMENTS_PER_PAGE
+            });
+
+            return self.load();
+          });
       });
-    });
+    }
   }
-
 })(angular);

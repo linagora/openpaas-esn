@@ -471,5 +471,6 @@
   "Documents": "Documents",
   "Message": "Message",
   "Survey": "Sondage",
-  "This notification is about removed content and is skipped": "Cette notification concerne du contenu supprimé et est ignorée"
+  "This notification is about removed content and is skipped": "Cette notification concerne du contenu supprimé et est ignorée",
+  "Search type": "Type de recherche"
 }

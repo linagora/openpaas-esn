@@ -9,7 +9,8 @@
     'op.dynamicDirective',
     'angularMoment',
     'esn.i18n',
-    'ui.router'
+    'ui.router',
+    'material.components.select'
   ]);
 
 })(angular);

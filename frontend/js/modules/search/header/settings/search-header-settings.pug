@@ -4,16 +4,7 @@
       i.mdi.mdi-close.close-settings
     form(role="form", novalidate="true")
       .search-settings-body
-        .checkbox.checkbox-inline
-          label
-            input(type="checkbox", ng-model="all", ng-change="toggleAll()")
-            i.input-helper
-            span #{__('All')}
-        .checkbox.checkbox-inline(ng-repeat="filter in filters")
-          label
-            input(type="checkbox", ng-model="filter.checked", ng-change="updateFilters()")
-            i.input-helper
-            span {{ filter.name | esnI18n }}
+
       .search-settings-footer.flex
         .footer-left
           button.btn.btn-link.color-primary(type='button', title=__('Reset search options'), ng-click='resetSettings()', ng-disabled="all") #{__('Reset')}
