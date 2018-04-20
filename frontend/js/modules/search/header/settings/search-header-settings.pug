@@ -1,13 +1,14 @@
-.popover(tabindex="-1", ng-controller='ESNSearchHeaderSettingsController')
-  .popover-content
-    button.btn.btn-link.btn-icon.pull-right(ng-click='$hide()', title=__('Close'))
+.search-settings(role="dialog")
+  .search-settings-content
+    //button.btn.btn-link.btn-icon.pull-right(ng-click='$hide()', title=__('Close'))
       i.mdi.mdi-close.close-settings
     form(role="form", novalidate="true")
       .search-settings-body
+        .search-settings-form(ng-include="ctrl.provider.searchTemplateUrl")
 
-      .search-settings-footer.flex
-        .footer-left
-          button.btn.btn-link.color-primary(type='button', title=__('Reset search options'), ng-click='resetSettings()', ng-disabled="all") #{__('Reset')}
-        .footer-right
+      .search-settings-footer
+        .reset
+          button.btn.btn-link.color-primary(type='button', title=__('Reset search options'), ng-click='resetSearch()', ng-disabled="all") #{__('Reset')}
+        .actions
           button.btn.btn-link.color-default(type='button', title=__('Cancel'), ng-click='$hide()') #{__('Cancel')}
-          button.btn.btn-primary.save(type='button', title=__('Search'), ng-click="updateSettings(); $hide();") #{__('Search')}
+          button.btn.btn-primary(type='button', title=__('Search'), ng-click="updateSettings(); $hide();") #{__('Search')}

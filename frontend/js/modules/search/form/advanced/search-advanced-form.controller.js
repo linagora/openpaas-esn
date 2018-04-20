@@ -10,6 +10,7 @@
     self.clearSearchInput = clearSearchInput;
     self.onProviderSelected = onProviderSelected;
     self.doSearch = doSearch;
+    self.showSearchForm = showSearchForm;
 
     function $onInit() {
       self.searchInput = {
@@ -48,6 +49,10 @@
       var providers = self.provider ? [self.provider] : self.providers;
 
       self.search({ query: self.searchInput, providers: providers });
+    }
+
+    function showSearchForm() {
+      return self.provider && self.provider.hasAdvancedSearch;
     }
 
   }

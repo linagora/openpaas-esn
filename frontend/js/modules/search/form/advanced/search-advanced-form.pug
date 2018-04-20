@@ -10,9 +10,8 @@
 
     button.btn.btn-icon.btn-link.button.search-header-button.clean-button(type="button", title=__('Delete'), ng-hide="!ctrl.searchInput.text", ng-click="ctrl.clearSearchInput()")
       i.mdi.mdi-close(ng-class="{ 'focus': focus }")
-    .search-header-button.settings-button.hidden
-      button.btn.btn-icon.btn-link.button(type="button", data-auto-close="1", data-template-url="/views/modules/search/header/settings/search-header-settings.html", data-animation="none", data-target=".search-input", data-placement="bottom", bs-popover, title=__('Search options'))
-        i.mdi.mdi-menu-down(ng-class="{ 'focus': focus }")
+    .search-header-button.settings-button(ng-if='ctrl.showSearchForm()')
+      search-advanced-options(provider="ctrl.provider")
 
   button.btn.btn-icon.btn-link.button.settings-button.hidden(type="button", data-auto-close="1", data-template-url="/views/modules/search/header/settings/search-header-settings.html", data-target=".search-header", data-animation="none", data-placement="bottom", bs-popover, title=__('Search options'))
     i.mdi.mdi-menu-down

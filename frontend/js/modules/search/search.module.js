@@ -10,7 +10,8 @@
     'angularMoment',
     'esn.i18n',
     'ui.router',
-    'material.components.select'
+    'material.components.select',
+    'material.components.panel'
   ]);
 
 })(angular);

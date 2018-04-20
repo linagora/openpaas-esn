@@ -41,6 +41,8 @@ const injections = [
     'search/form/search-form.directive.js',
     'search/form/advanced/search-advanced-form.component.js',
     'search/form/advanced/search-advanced-form.controller.js',
+    'search/form/advanced/search-advanced-options.component.js',
+    'search/form/advanced/search-advanced-options.controller.js',
     'search/header/search-header.component.js',
     'search/header/search-header.controller.js',
     'search/header/settings/search-header-settings.controller.js',

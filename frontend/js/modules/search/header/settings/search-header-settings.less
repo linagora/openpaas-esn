@@ -1,99 +1,64 @@
-.search-header {
+.search-header-settings-panel {
+  background: @m-white;
+  border-radius: 2px;
+  box-shadow: 0 7px 8px -4px rgba(0, 0, 0, 0.2),
+      0 13px 19px 2px rgba(0, 0, 0, 0.14),
+      0 5px 24px 4px rgba(0, 0, 0, 0.12);
+  max-width: 100vw;
+}
 
-  .popover {
-    max-width: 100vw;
+.search-settings {
+  .search-settings-content {
+    padding: 5px 2px 0 2px;
 
-    &.bottom {
-      margin-top: 60px;
+    .search-settings-body {
+      margin-top: 10px;
 
-      & > .arrow {
-        display: none;
+      .search-settings-form {
+        padding: 10px;
       }
     }
 
-    .popover-content {
-      padding: 5px 2px 0 2px;
-    }
-
-    .search-settings-body {
-      margin-top: 12px;
-    }
-
     .search-settings-footer {
-      padding: 10px;
-      text-align: right;
-      border-top: 1px solid transparent;
+      .flex;
+      .flex-space-between;
 
-      .footer-left, .footer-right {
+      padding: 10px;
+
+      .reset .actions {
         .flex-vertical-centered;
         .flex-grow;
       }
 
-      .footer-left {
+      .reset {
         .flex-start;
       }
 
-      .footer-right {
+      .actions {
         .flex-end;
+
+        button:nth-child(2) {
+          margin-left: 5px;
+        }
       }
-    }
-
-    .mdi {
-      font-size: 1.8em;
-      vertical-align: middle;
-
-      &.close-settings {
-        color: @primaryColor;
-      }
-    }
-
-    .checkbox {
-      min-width: 180px;
-      margin-left: 15px;
-      margin-top: 3px;
-      margin-bottom: 3px;
-      padding-left: 0;
-
     }
   }
 }
 
 @media (max-width: @screen-md-min) {
-  .search-header {
-    .popover {
-      left: 0 !important; //search option popover always displayed on the left
-    }
+  .search-settings {
+    left: 0 !important; //search option popover always displayed on the left
   }
 }
 
 @media (min-width: @screen-md-min) {
-  .search-header {
-    .popover {
-      width: 500px;
-
-      &.bottom {
-        margin-top: 0;
-      }
-
-      .popover-content {
-        padding: 1px 0 0 0;
-      }
-    }
+  .search-settings {
+    width: 542px;
   }
 }
 
 @media (min-width: @screen-xl-min) {
-  .search-header {
-    .popover {
-      width: 750px;
-
-      &.bottom {
-        margin-top: 0;
-      }
-
-      .popover-content {
-        padding: 5px 4px 0 4px;
-      }
-    }
+  .search-settings {
+    width: 792px;
   }
 }
