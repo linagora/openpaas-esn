@@ -22,7 +22,7 @@
     function $onInit() {
       var options = {};
 
-      self.query = $stateParams.query.text || $stateParams.query;
+      self.query = $stateParams.query && $stateParams.query.text ? $stateParams.query.text : $stateParams.query;
       self.providers = $stateParams.providers;
 
       // TODO: replace query.text by query
