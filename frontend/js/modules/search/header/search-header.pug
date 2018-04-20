@@ -1,6 +1,6 @@
 .search-header.flex-vertical-centered
   .header-back-button(ng-show="'search' | includedByState")
-    button.btn.btn-link.btn-icon(href='', esn-back-button='^', title=__('Back'))
+    button.btn.btn-link.btn-icon(href='', esn-back-button='home', title=__('Back'))
       i.mdi.mdi-arrow-left.mdi-margin-right
 
   search-advanced-form(query='$ctrl.query', search='$ctrl.search(query, providers)')
