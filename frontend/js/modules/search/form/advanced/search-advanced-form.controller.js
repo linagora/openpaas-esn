@@ -41,7 +41,7 @@
     }
 
     function onProviderSelected(provider) {
-      self.provider = provider && provider.id !== 'all' ? provider : null;
+      self.provider = provider;
     }
 
     function doSearch() {

@@ -17,8 +17,6 @@
     }
 
     function $onInit() {
-      // this is needed because we track select options by id
-      self.allProviders = { id: 'all' };
       select();
     }
 
@@ -29,7 +27,10 @@
         return provider.active;
       });
 
-      self.selectedProvider = activeProviders.length ? activeProviders[0] : self.allProviders;
+      if (activeProviders.length) {
+        self.selectedProvider = activeProviders[0];
+      }
+
       self.onProviderSelected({ provider: self.selectedProvider });
     }
   }
