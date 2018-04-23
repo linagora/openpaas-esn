@@ -103,5 +103,8 @@
   "Hide address book": "Ẩn sổ địa chỉ",
   "See all contacts": "Xem tất cả các liên lạc",
   "Edit all contacts": "Sửa tất cả các liên lạc",
-  "Read/Write": "Đọc/Ghi"
+  "Read/Write": "Đọc/Ghi",
+  "Shared with": "Được chia sẻ với",
+  "This address book is not shared with anyone": "Bạn chưa chia sẻ sổ địa chỉ này với ai",
+  "Delegation": "Quản lý quyền"
 }

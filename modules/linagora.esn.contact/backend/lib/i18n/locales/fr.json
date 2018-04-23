@@ -103,5 +103,8 @@
   "Hide address book": "Cacher le carnet d'adresses",
   "See all contacts": "Voir tous les contacts",
   "Edit all contacts": "Modifier tous les contacts",
-  "Read/Write": "Lecture/Ecriture"
+  "Read/Write": "Lecture/Ecriture",
+  "Shared with": "Partagé avec",
+  "This address book is not shared with anyone": "Ce carnet d'adresses n'est pas partagé",
+  "Delegation": "Délégation"
 }
