@@ -67,18 +67,16 @@ module.exports = function(dependencies) {
     const page = query.page || 1;
     let offset = query.offset;
     const limit = query.limit || DEFAULT_LIMIT;
-    const bookId = query.bookId;
-    const bookNames = query.bookNames;
-
+    const addressbooks = query.addressbooks;
     const filters = [];
-    bookNames.forEach(bookName => {
+
+    addressbooks.forEach(addressbook => {
       filters.push(
         {
           bool: {
             must: [
-              { match: { userId: query.userId } },
-              { match: { bookId } },
-              { match: { bookName } }
+              { match: { bookId: addressbook.bookHome } },
+              { match: { bookName: addressbook.bookName } }
             ]
           }
         }

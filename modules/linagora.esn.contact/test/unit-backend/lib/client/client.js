@@ -1,9 +1,9 @@
 'use strict';
 
-var expect = require('chai').expect;
-var mockery = require('mockery');
-var sinon = require('sinon');
-var VCARD_JSON = 'application/vcard+json';
+const expect = require('chai').expect;
+const mockery = require('mockery');
+const sinon = require('sinon');
+const VCARD_JSON = 'application/vcard+json';
 
 describe('The contact client APIs', function() {
   var deps;
@@ -417,6 +417,29 @@ describe('The contact client APIs', function() {
         });
 
         describe('The search fn', function() {
+          beforeEach(function() {
+            mockery.registerMock('../dav-client', {
+              rawClient: (options, callback) => {
+                if (options.url === `${DAV_PREFIX}/addressbooks/${BOOK_ID}.json`) {
+                  callback(
+                    null,
+                    { statusCode: 200 },
+                    {
+                      _embedded: {
+                        'dav:addressbook': [{
+                          _links: {
+                            self: {
+                              href: `addressbooks/${BOOK_ID}/${BOOK_NAME}.json`
+                            }
+                          }
+                        }]
+                      }
+                    }
+                  );
+                }
+              }
+            });
+          });
 
           function createSearchClientMock(mock) {
             return function() {
@@ -433,12 +456,14 @@ describe('The contact client APIs', function() {
               limit: 10,
               page: 1
             };
+
             mockery.registerMock('../search', createSearchClientMock(function(options) {
               expect(options).to.eql({
-                bookId: '123',
-                bookName: BOOK_NAME,
+                addressbooks: [{
+                  bookHome: BOOK_ID,
+                  bookName: BOOK_NAME
+                }],
                 search: searchOptions.search,
-                userId: searchOptions.userId,
                 limit: searchOptions.limit,
                 page: searchOptions.page
               });
@@ -488,14 +513,32 @@ describe('The contact client APIs', function() {
               {_id: 2, _source: {bookId: BOOK_ID, bookName: BOOK_NAME, _id: 2}},
               {_id: 3, _source: {bookId: BOOK_ID, bookName: BOOK_NAME, _id: 3}}
             ];
+
             mockery.registerMock('../dav-client', {
-              rawClient: function(options, callback) {
-                expect(options.url).to.equal(DAV_PREFIX + '/addressbooks/' + BOOK_ID + '/' + BOOK_NAME + '/' + hitLists[counter]._id + '.vcf');
-                counter++;
-                if (counter === 3) {
-                  callback('some error');
-                } else {
-                  callback(null, {statusCode: 200}, {counter: counter});
+              rawClient: (options, callback) => {
+                if (options.url === `${DAV_PREFIX}/addressbooks/${BOOK_ID}.json`) {
+                  callback(
+                    null,
+                    { statusCode: 200 },
+                    {
+                      _embedded: {
+                        'dav:addressbook': [{
+                          _links: {
+                            self: {
+                              href: `addressbooks/${BOOK_ID}/${BOOK_NAME}.json`
+                            }
+                          }
+                        }]
+                      }
+                    }
+                  );
+                } else if (options.url === `${DAV_PREFIX}/addressbooks/${BOOK_ID}/${BOOK_NAME}/${hitLists[counter]._id}.vcf`) {
+                  counter++;
+                  if (counter === 3) {
+                    callback('some error');
+                  } else {
+                    callback(null, { statusCode: 200 }, { counter: counter });
+                  }
                 }
               }
             });
@@ -523,16 +566,34 @@ describe('The contact client APIs', function() {
               {_id: 2, _source: {bookId: BOOK_ID, bookName: BOOK_NAME}},
               {_id: 3, _source: {bookId: BOOK_ID, bookName: BOOK_NAME}}
             ];
+
             mockery.registerMock('../dav-client', {
-              rawClient: function(options, callback) {
-                expect(options.url).to.equal(DAV_PREFIX + '/addressbooks/' + BOOK_ID + '/' + BOOK_NAME + '/' + hitLists[counter]._id + '.vcf');
-                counter++;
-                if (counter === 1) {
-                  setTimeout(function() {
-                    callback(null, {statusCode: 200}, {delay: 1});
-                  }, 200);
-                } else {
-                  callback(null, {statusCode: 200}, {counter: counter});
+              rawClient: (options, callback) => {
+                if (options.url === `${DAV_PREFIX}/addressbooks/${BOOK_ID}.json`) {
+                  callback(
+                    null,
+                    { statusCode: 200 },
+                    {
+                      _embedded: {
+                        'dav:addressbook': [{
+                          _links: {
+                            self: {
+                              href: `addressbooks/${BOOK_ID}/${BOOK_NAME}.json`
+                            }
+                          }
+                        }]
+                      }
+                    }
+                  );
+                } else if (options.url === `${DAV_PREFIX}/addressbooks/${BOOK_ID}/${BOOK_NAME}/${hitLists[counter]._id}.vcf`) {
+                  counter++;
+                  if (counter === 1) {
+                    setTimeout(function() {
+                      callback(null, {statusCode: 200}, {delay: 1});
+                    }, 200);
+                  } else {
+                    callback(null, {statusCode: 200}, {counter: counter});
+                  }
                 }
               }
             });

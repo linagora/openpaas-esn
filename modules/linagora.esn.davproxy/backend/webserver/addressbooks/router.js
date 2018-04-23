@@ -269,7 +269,6 @@ module.exports = function(dependencies) {
     proxyMW.generateNewToken,
     davMiddleware.getDavEndpoint,
     middleware.validateBookHome,
-    middleware.validateBookNamesForSearch,
     controller.getAddressbooks
   );
 

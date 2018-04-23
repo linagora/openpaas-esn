@@ -4,6 +4,7 @@ const q = require('q');
 const URL = require('url');
 const ICAL = require('@linagora/ical.js');
 const davClient = require('../dav-client').rawClient;
+const helper = require('../helper');
 
 const PATH = 'addressbooks';
 const DEFAULT_ADDRESSBOOK_NAME = 'contacts';
@@ -55,54 +56,103 @@ module.exports = function(dependencies, options) {
     };
   }
 
-  function searchContacts(searchOptions) {
-    var deferred = q.defer();
+  function searchContacts(bookHome, options) {
+    const vcard = (bookHome, bookName, cardId) => addressbookHome(bookHome).addressbook(bookName).vcard(cardId);
 
-    function vcard(bookId, bookName, cardId) {
-      return addressbookHome(bookId).addressbook(bookName).vcard(cardId);
-    }
+    return addressbookHome(bookHome).addressbook().list()
+      .then(data => {
+        let addressbooks = data.body._embedded['dav:addressbook'];
 
-    searchClient.searchContacts(searchOptions, function(err, result) {
-      if (err) {
-        return deferred.reject(err);
-      }
-      var output = {
-        total_count: result.total_count,
-        current_page: result.current_page,
-        results: []
-      };
+        if (options.bookNames && options.bookNames.length) {
+          addressbooks = _filterAddressbooksForSearch(addressbooks, options.bookNames);
+        }
 
-      if (!result.list || result.list.length === 0) {
-        return deferred.resolve(output);
-      }
-      // this promise always resolve
-      q.all(result.list.map(function(contact, index) {
-        var bookId = contact._source.bookId;
-        var bookName = contact._source.bookName;
-        var contactId = contact._id;
+        const addressbooksToSearch = [];
+        const mapping = {}; // To mapping between subscription address books and their sources
 
-        return vcard(bookId, bookName, contactId).get().then(function(data) {
-          output.results[index] = {
-            contactId: contactId,
-            bookId: bookId,
-            bookName: bookName,
-            response: data.response,
-            body: data.body
-          };
-        }, function(err) {
-          output.results.push({
-            contactId: contactId,
-            bookId: bookId,
-            bookName: bookName,
-            err: err
-          });
+        addressbooks.forEach(addressbook => {
+          const { bookHome, bookName } = helper.parseAddressbookPath(addressbook._links.self.href);
+
+          if (addressbook['openpaas:source']) {
+            const parsedSourcePath = helper.parseAddressbookPath(addressbook['openpaas:source']._links.self.href);
+
+            mapping[`${parsedSourcePath.bookHome}/${parsedSourcePath.bookName}`] = mapping[`${parsedSourcePath.bookHome}/${parsedSourcePath.bookName}`] || {
+              bookHome,
+              bookName
+            };
+
+            addressbooksToSearch.push({
+              bookHome: parsedSourcePath.bookHome,
+              bookName: parsedSourcePath.bookName
+            });
+          } else {
+            addressbooksToSearch.push({
+              bookHome,
+              bookName
+            });
+          }
         });
-      })).then(function() {
-        deferred.resolve(output);
+
+        const searchOptions = {
+          search: options.search,
+          limit: options.limit,
+          page: options.page,
+          addressbooks: addressbooksToSearch
+        };
+
+        return q.ninvoke(searchClient, 'searchContacts', searchOptions)
+          .then(result => {
+            const output = {
+              total_count: result.total_count,
+              current_page: result.current_page,
+              results: []
+            };
+
+            if (!result.list || result.list.length === 0) {
+              return output;
+            }
+
+            // this promise always resolve
+            return q.all(result.list.map((contact, index) => {
+              const bookId = contact._source.bookId;
+              const bookName = contact._source.bookName;
+              const contactId = contact._id;
+
+              return vcard(bookId, bookName, contactId).get()
+                .then(data => {
+                  output.results[index] = {
+                    contactId,
+                    bookId,
+                    bookName,
+                    response: data.response,
+                    body: data.body
+                  };
+
+                  if (mapping[`${bookId}/${bookName}`]) {
+                    output.results[index]['openpaas:addressbook'] = mapping[`${bookId}/${bookName}`];
+                  }
+                }, err => {
+                  output.results.push({
+                    contactId,
+                    bookId,
+                    bookName,
+                    err
+                  });
+                });
+          }))
+          .then(() => output);
       });
     });
+  }
 
-    return deferred.promise;
+  function _filterAddressbooksForSearch(addressbooks, bookNames) {
+    return addressbooks.map(addressbook => {
+      const bookName = helper.parseAddressbookPath(addressbook._links.self.href).bookName;
+
+      if (bookNames.indexOf(bookName) !== -1) {
+        return addressbook;
+      }
+    }).filter(Boolean);
   }
 
   /**
@@ -465,16 +515,10 @@ module.exports = function(dependencies, options) {
          *                                       + body: vcard data if statusCode is 2xx
          *                                       + err: error object failed to fetch contact
          */
-        function search(options) {
-          var searchOptions = {
-            bookId: bookHome,
-            bookName: name,
-            search: options.search,
-            userId: options.userId,
-            limit: options.limit,
-            page: options.page
-          };
-          return searchContacts(searchOptions);
+        function search(options = {}) {
+          options.bookNames = [name];
+
+          return searchContacts(bookHome, options);
         }
 
         /**
@@ -531,16 +575,7 @@ module.exports = function(dependencies, options) {
      * Search contacts in all the addressbooks of this addressbook home Id
      */
     function search(options) {
-      const searchOptions = {
-        bookId: bookHome,
-        search: options.search,
-        userId: options.userId,
-        limit: options.limit,
-        page: options.page,
-        bookNames: options.bookNames
-      };
-
-      return searchContacts(searchOptions);
+      return searchContacts(bookHome, options);
     }
 
     return {

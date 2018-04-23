@@ -187,6 +187,20 @@ describe('The addressbooks dav proxy', function() {
         var localpubsub;
         var contact;
 
+        beforeEach(function() {
+          dav.get('/addressbooks/' + user._id + '.json', (req, res) =>
+            res.status(200).json({
+              _embedded: {
+                'dav:addressbook': [{
+                  _links: {
+                    self: { href: PREFIX + '/addressbooks/' + user._id + '/contacts.json' }
+                  }
+                }]
+              }
+            })
+          );
+        });
+
         var search = function(term, expectedSize, done) {
           if (typeof expectedSize === 'function') {
             done = expectedSize;
@@ -243,49 +257,66 @@ describe('The addressbooks dav proxy', function() {
         });
 
         it('should return contact with matching firstname', function(done) {
-          search.bind(this)('bruce', done);
+          const self = this;
+
+          self.createDavServer(self.helpers.callbacks.noErrorAnd(() => search.bind(self)('bruce', done)));
         });
 
         it('should return contact with matching lastname', function(done) {
-          search.bind(this)('willis', done);
+          const self = this;
+
+          self.createDavServer(self.helpers.callbacks.noErrorAnd(() => search.bind(this)('willis', done)));
         });
 
         it('should return contact with matching emails', function(done) {
-          search.bind(this)('me@home', done);
+          const self = this;
+
+          self.createDavServer(self.helpers.callbacks.noErrorAnd(() => search.bind(this)('me@home', done)));
         });
 
         it('should return contact with matching org', function(done) {
-          search.bind(this)('master of', done);
+          const self = this;
+
+          self.createDavServer(self.helpers.callbacks.noErrorAnd(() => search.bind(this)('master of', done)));
         });
 
         it('should return contact with matching urls', function(done) {
-          search.bind(this)('http://will.io', done);
+          const self = this;
+
+          self.createDavServer(self.helpers.callbacks.noErrorAnd(() => search.bind(this)('http://will.io', done)));
         });
 
         it('should return contact with matching twitter socialprofile', function(done) {
-          search.bind(this)('@twilli', done);
+          const self = this;
+
+          self.createDavServer(self.helpers.callbacks.noErrorAnd(() => search.bind(this)('@twilli', done)));
         });
 
         it('should return contact with matching facebook socialprofile', function(done) {
-          search.bind(this)('facebook.com/fbru', done);
+          const self = this;
+
+          self.createDavServer(self.helpers.callbacks.noErrorAnd(() => search.bind(this)('facebook.com/fbru', done)));
         });
 
         it('should return contact with matching nickname', function(done) {
-          search.bind(this)('bruno', done);
+          const self = this;
+
+          self.createDavServer(self.helpers.callbacks.noErrorAnd(() => search.bind(this)('bruno', done)));
         });
 
         it('should return contact with matching adr', function(done) {
-          search.bind(this)('123 Main', done);
-        });
+          const self = this;
 
-        it('should not return result when contact is not a user one', function(done) {
-          delete contact.userId;
-          search.bind(this)('123 Main', 0, done);
+          self.createDavServer(self.helpers.callbacks.noErrorAnd(() => search.bind(this)('123 Main', done)));
         });
 
         it('should not return result when contact is not in a user addressbook', function(done) {
-          delete contact.bookId;
-          search.bind(this)('123 Main', 0, done);
+          const self = this;
+
+          self.createDavServer(self.helpers.callbacks.noErrorAnd(() => {
+            delete contact.bookId;
+            search.bind(this)('123 Main', 0, done);
+          }));
         });
       });
     });
@@ -1171,6 +1202,83 @@ describe('The addressbooks dav proxy', function() {
               });
             });
           });
+        });
+
+        it('should respond 200 with the result of searching on all available bookNames includes subscription address books', function(done) {
+          const self = this;
+          const path = `/addressbooks/${user.id}.json?search=bruce`;
+          const sourceUserId = 'sourceUserId';
+          const subscribedBookName = 'subscription';
+          const contact3 = {
+            userId: sourceUserId,
+            contactId: '5acb4d8d458d4c3e008b4567',
+            bookId: sourceUserId,
+            bookName: 'collected',
+            vcard: ['vcard', [
+              ['version', {}, 'text', '4.0'],
+              ['uid', {}, 'text', '30f712b2-2a3d-4966-b6f2-5cd11d7f5652'],
+              ['n', {}, 'text', ['Le', 'Bruce']]
+            ]],
+            id: '5acb4d8d458d4c3e008b4567'
+          };
+
+          localpubsub.topic('contacts:contact:add').publish(contact3);
+
+          dav.get(`/addressbooks/${user.id}.json`, (req, res) => res.status(200).json({
+              _embedded: {
+                'dav:addressbook': [{
+                  _links: {
+                    self: {
+                      href: `addressbooks/${user.id}/contacts.json`
+                    }
+                  }
+                }, {
+                  _links: {
+                    self: {
+                      href: `addressbooks/${user.id}/collected.json`
+                    }
+                  }
+                }, {
+                  _links: {
+                    self: {
+                      href: `addressbooks/${user.id}/${subscribedBookName}.json`
+                    }
+                  },
+                  'openpaas:source': {
+                    _links: {
+                      self: {
+                        href: `addressbooks/${sourceUserId}/collected.json`
+                      }
+                    }
+                  }
+                }]
+              }
+            })
+          );
+          dav.get(`/addressbooks/${user.id}/contacts/${contact1.contactId}.vcf`, (req, res) => res.status(200).json({ body: contact1 }));
+          dav.get(`/addressbooks/${user.id}/collected/${contact2.contactId}.vcf`, (req, res) => res.status(200).json({ body: contact2 }));
+          dav.get(`/addressbooks/${sourceUserId}/collected/${contact3.contactId}.vcf`, (req, res) => res.status(200).json({ body: contact3 }));
+
+          self.createDavServer(self.helpers.callbacks.noErrorAnd(() => {
+            self.helpers.api.loginAsUser(self.app, user.emails[0], password, self.helpers.callbacks.noErrorAnd(loggedInAsUser => {
+              const req = loggedInAsUser(request(self.app).get(`${PREFIX}${path}`));
+
+              req.expect(200).end((err, res) => {
+                expect(err).to.not.exist;
+
+                const contactIds = res.body._embedded['dav:item'].map(item => item.data.body.contactId);
+                const subscribedContact = res.body._embedded['dav:item'].find(item => (item.data.body.contactId === contact3.contactId));
+
+                expect(res.headers['x-esn-items-count']).to.equal('3');
+                expect(contactIds).to.include.members([contact1.contactId, contact2.contactId, contact3.contactId]);
+                expect(subscribedContact['openpaas:addressbook']).to.deep.equal({
+                  bookHome: user._id.toString(),
+                  bookName: subscribedBookName
+                });
+                done();
+              });
+            }));
+          }));
         });
       });
     });

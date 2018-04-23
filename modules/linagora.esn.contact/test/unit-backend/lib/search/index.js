@@ -171,7 +171,11 @@ describe('The contacts search Module', function() {
         search: 'Bruce',
         offset: 10,
         limit: 100,
-        bookNames: ['collected', 'contacts']
+        addressbooks: [{
+          bookName: 'collected'
+        }, {
+          bookName: 'contacts'
+        }]
       };
 
       deps.elasticsearch.searchDocuments = function(options) {
@@ -193,7 +197,11 @@ describe('The contacts search Module', function() {
         search: 'Bruce',
         offset: 10,
         limit: 100,
-        bookNames: ['collected', 'contacts']
+        addressbooks: [{
+          bookName: 'collected'
+        }, {
+          bookName: 'contacts'
+        }]
       };
 
       deps.elasticsearch.searchDocuments = function(options, callback) {
@@ -209,7 +217,11 @@ describe('The contacts search Module', function() {
         search: 'Bruce',
         offset: 10,
         limit: 100,
-        bookNames: ['collected', 'contacts']
+        addressbooks: [{
+          bookName: 'collected'
+        }, {
+          bookName: 'contacts'
+        }]
       };
       var total = 10;
       var hits = [{_id: 1}, {_id: 2}];
