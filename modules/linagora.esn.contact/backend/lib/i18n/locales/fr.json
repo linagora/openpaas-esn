@@ -102,5 +102,9 @@
   "Failed to update address book settings": "Impossible de mettre à jour les paramètres du carnet d'adresses",
   "Hide address book": "Cacher le carnet d'adresses",
   "See all contacts": "Voir tous les contacts",
-  "Read/Write": "Lecture/Ecriture"
+  "Read/Write": "Lecture/Ecriture",
+  "Shared with": "Partagé avec",
+  "This address book is not shared with anyone": "Ce carnet d'adresses n'est pas partagé",
+  "Delegation": "Delegation",
+  "See and edit all contacts": "Voir et modifier tous les contacts"
 }

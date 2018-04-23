@@ -25,8 +25,6 @@
     self.onCancel = onCancel;
 
     function $onInit() {
-      self.selectedTab = 'main';
-
       contactAddressbookService.getAddressbookByBookName($stateParams.bookName)
         .then(function(addressbook) {
           self.addressbook = addressbook;
