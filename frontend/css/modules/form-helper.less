@@ -1,5 +1,6 @@
 @inputBorderColor: #e0e0e0;
 @errorColor: #f44336;
+@toggleDisabledColor: darken(@body-bg, 15%);
 
 esn-form-group {
   .form-control.ng-pristine.ng-invalid {
@@ -66,5 +67,21 @@ esn-form-group:not(.has-focus).has-invalid {
 form:not(.ng-submitted) {
   esn-form-validate-message.pristine {
     display: none;
+  }
+}
+
+.toggle-switch {
+  .ts-helper.ts-disabled {
+    cursor: not-allowed;
+    background: @toggleDisabledColor;
+  }
+
+  .ts-helper.ts-disabled:before {
+    background: @toggleDisabledColor;
+  }
+
+  .ts-label.ts-disabled {
+    color: lighten(@text-color, 40%);
+    background: transparent;
   }
 }
