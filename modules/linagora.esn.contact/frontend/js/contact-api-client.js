@@ -169,8 +169,10 @@ angular.module('linagora.esn.contact')
         .then(function(response) {
           var contact = new ContactShell(
             new ICAL.Component(response.data), response.headers('ETag'));
+
           contactAvatarService.forceReloadDefaultAvatar(contact);
-          return ContactShellBuilder.populateShell(contact, href);
+
+          return ContactShellBuilder.populateAddressbook(contact, bookId, bookName);
         });
     }
 
@@ -251,7 +253,7 @@ angular.module('linagora.esn.contact')
           null,
           params
         ).then(function(response) {
-          return ContactShellBuilder.fromCardListResponse(response).then(function(shells) {
+          return ContactShellBuilder.fromCardSearchResponse(response).then(function(shells) {
             var result = {
               current_page: response.data._current_page,
               total_hits: response.data._total_hits,

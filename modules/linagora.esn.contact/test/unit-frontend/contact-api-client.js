@@ -25,13 +25,16 @@ describe('The contact Angular module contactapis', function() {
         contactUpdatedIds: []
       };
       this.ContactShellBuilder = {
-        populateShell: function(contact) {
+        populateAddressbook: function(contact) {
           return $q.when(contact);
         },
         fromCardListResponse: function() {
           return $q.when([]);
         },
-        setAddressbookCache: function() {}
+        setAddressbookCache: function() {},
+        fromCardSearchResponse: function() {
+          return $q.when([]);
+        }
       };
 
       contact = { id: '00000000-0000-4000-a000-000000000000', lastName: 'Last'};
@@ -235,7 +238,7 @@ describe('The contact Angular module contactapis', function() {
               var cardId = '456';
               var addressbook = {id: 1};
 
-              this.ContactShellBuilder.populateShell = function(contact) {
+              this.ContactShellBuilder.populateAddressbook = function(contact) {
                 contact.addressbook = addressbook;
                 return $q.when(contact);
               };
@@ -522,7 +525,7 @@ describe('The contact Angular module contactapis', function() {
                 }
               };
               this.$httpBackend.expectGET(expectPath).respond(response);
-              this.ContactShellBuilder.fromCardListResponse = function() {
+              this.ContactShellBuilder.fromCardSearchResponse = function() {
                 return $q.when(shells);
               };
 
@@ -574,7 +577,7 @@ describe('The contact Angular module contactapis', function() {
                 }
               };
               this.$httpBackend.expectGET(expectPath).respond(response);
-              this.ContactShellBuilder.fromCardListResponse = function() {
+              this.ContactShellBuilder.fromCardSearchResponse = function() {
                 return $q.when(shells);
               };
 
@@ -623,7 +626,7 @@ describe('The contact Angular module contactapis', function() {
                 }
               };
               this.$httpBackend.expectGET(expectPath).respond(response);
-              this.ContactShellBuilder.fromCardListResponse = function() {
+              this.ContactShellBuilder.fromCardSearchResponse = function() {
                 return $q.when(shells);
               };
 
@@ -1118,7 +1121,7 @@ describe('The contact Angular module contactapis', function() {
             }
           };
           this.$httpBackend.expectGET(expectPath).respond(response);
-          this.ContactShellBuilder.fromCardListResponse = function() {
+          this.ContactShellBuilder.fromCardSearchResponse = function() {
             return $q.when(shells);
           };
 
