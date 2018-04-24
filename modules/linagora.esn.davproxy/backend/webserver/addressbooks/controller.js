@@ -19,7 +19,6 @@ module.exports = function(dependencies) {
     getContacts,
     getContactsFromDAV,
     moveContact,
-    searchContacts,
     removeAddressbook,
     updateAddressbook,
     updateContact
@@ -116,8 +115,8 @@ module.exports = function(dependencies) {
       });
   }
 
-  function getContactUrl(req, bookHome, bookName, contactId) {
-    return [req.davserver, '/', PATH, '/', bookHome, '/', bookName, '/', contactId, '.vcf'].join('');
+  function getContactUrl(davserver, bookHome, bookName, contactId) {
+    return [davserver, '/', PATH, '/', bookHome, '/', bookName, '/', contactId, '.vcf'].join('');
   }
 
   function getContactsFromDAV(req, res) {
@@ -262,100 +261,38 @@ module.exports = function(dependencies) {
     proxy.handle()(req, res);
   }
 
-  function searchContacts(req, res) {
-    if (req.query.bookNames && !req.query.bookNames.length) {
-      const output = {
-        _links: {
-          self: {
-            href: req.originalUrl
-          }
-        },
-        _total_hits: 0,
-        _current_page: '1',
-        _embedded: {
-          'dav:item': []
-        }
-      };
-      res.header('X-ESN-Items-Count', '0');
-
-      return res.status(200).json(output);
-    }
-    const userId = req.user.id;
-
-    var ESNToken = req.token && req.token.token ? req.token.token : '';
-
-    const options = {
-      userId,
-      search: req.query.search,
-      limit: req.query.limit,
-      page: req.query.page,
-      bookNames: req.params.bookName ? [req.params.bookName] : req.query.bookNames
-    };
-
-    var client = contactModule.lib.client({
-      ESNToken: ESNToken,
-      davserver: req.davserver
-    }).addressbookHome(userId);
-
-    client.search(options).then(function(data) {
-        var json = {
-          _links: {
-            self: {
-              href: req.originalUrl
-            }
-          },
-          _total_hits: data.total_count,
-          _current_page: data.current_page,
-          _embedded: {
-            'dav:item': []
-          }
-        };
-        res.header('X-ESN-Items-Count', data.total_count);
-
-        var dataCleanResult = [];
-        data.results.map(function(result) {
-          if (result.err) {
-            logger.error('The search cannot fetch contact', result.contactId, result.err);
-            return;
-          }
-          var statusCode = result.response.statusCode;
-          if (statusCode < 200 || statusCode > 299) {
-            logger.warn('The search cannot fetch contact', result.contactId, 'status code', statusCode);
-            return;
-          }
-          dataCleanResult.push(result);
-        });
-
-        q.all(dataCleanResult.map(function(result, index) {
-          return avatarHelper.injectTextAvatar(req.user, result.bookId, result.bookName, result.body)
-            .then(function(newVcard) {
-              json._embedded['dav:item'][index] = {
-                _links: {
-                  self: {
-                    href: getContactUrl(req, result.bookId, result.bookName, result.contactId)
-                  }
-                },
-                data: newVcard
-              };
-            });
-        })).then(function() {
-          return res.status(200).json(json);
-        });
-      }, function(err) {
-        logger.error('Error while searching contacts', err);
-        res.status(500).json({
-          error: {
-            code: 500,
-            message: 'Server Error',
-            details: 'Error while searching contacts'
-          }
-        });
-      });
-  }
-
   function getContacts(req, res) {
     if (req.query.search) {
-      return searchContacts(req, res);
+      const options = {
+        user: req.user,
+        search: req.query.search,
+        limit: req.query.limit,
+        page: req.query.page,
+        bookNames: [req.params.bookName],
+        ESNToken: req.token && req.token.token ? req.token.token : '',
+        davserver: req.davserver,
+        originalUrl: req.originalUrl
+      };
+
+      return _searchContacts(req.params.bookHome, options)
+        .then(result => {
+          res.header('X-ESN-Items-Count', result.total_count);
+
+          return res.status(200).json(result.data);
+        })
+        .catch(err => {
+          const details = 'Error while searching contacts';
+
+          logger.error(details, err);
+
+          res.status(500).json({
+            error: {
+              code: 500,
+              message: 'Server Error',
+              details
+            }
+          });
+        });
     }
 
     getContactsFromDAV(req, res);
@@ -393,7 +330,36 @@ module.exports = function(dependencies) {
 
   function getAddressbooks(req, res) {
     if (req.query.search) {
-      return searchContacts(req, res);
+      const options = {
+        user: req.user,
+        search: req.query.search,
+        limit: req.query.limit,
+        page: req.query.page,
+        bookNames: req.query.bookName ? req.query.bookName.split(',') : [],
+        ESNToken: req.token && req.token.token ? req.token.token : '',
+        davserver: req.davserver,
+        originalUrl: req.originalUrl
+      };
+
+      return _searchContacts(req.params.bookHome, options)
+        .then(result => {
+          res.header('X-ESN-Items-Count', result.total_count);
+
+          return res.status(200).json(result.data);
+        })
+        .catch(err => {
+          const details = 'Error while searching contacts';
+
+          logger.error(details, err);
+
+          res.status(500).json({
+            error: {
+              code: 500,
+              message: 'Server Error',
+              details
+            }
+          });
+        });
     }
 
     var options = {
@@ -440,6 +406,64 @@ module.exports = function(dependencies) {
             details: 'Error while getting an addressbook'
           }
         });
+      });
+  }
+
+  function _searchContacts(bookHome, options) {
+    const clientOptions = {
+      ESNToken: options.ESNToken,
+      davserver: options.davserver
+    };
+
+    return contactModule.lib.client(clientOptions)
+      .addressbookHome(bookHome)
+      .search(options)
+      .then(result => {
+        result.results.forEach(result => {
+          if (result.err) {
+            logger.error('The search cannot fetch contact', result.contactId, result.err);
+
+            return;
+          }
+          const statusCode = result.response.statusCode;
+
+          if (statusCode < 200 || statusCode > 299) {
+            logger.warn('The search cannot fetch contact', result.contactId, 'status code', statusCode);
+
+            return;
+          }
+        });
+
+        const data = {
+          _links: {
+            self: {
+              href: options.originalUrl
+            }
+          },
+          _total_hits: result.total_count,
+          _current_page: `${result.current_page}`,
+          _embedded: {
+            'dav:item': []
+          }
+        };
+
+        return q.all(result.results.map((result, index) =>
+          avatarHelper.injectTextAvatar(options.user, result.bookId, result.bookName, result.body)
+            .then(newVcard => {
+              data._embedded['dav:item'][index] = {
+                _links: {
+                  self: {
+                    href: getContactUrl(options.davserver, result.bookId, result.bookName, result.contactId)
+                  }
+                },
+                data: newVcard,
+                'openpaas:addressbook': result['openpaas:addressbook']
+              };
+            })
+        )).then(() => ({
+          total_count: result.total_count,
+          data
+        }));
       });
   }
 };
