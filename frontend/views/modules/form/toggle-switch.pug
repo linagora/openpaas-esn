@@ -1,4 +1,4 @@
 .toggle-switch(data-ts-color="{{color}}")
-  label.ts-label(ng-if="label") {{label}}
+  label.ts-label(ng-if="label", ng-class="{ 'ts-disabled': ngDisabled }") {{label}}
   input(type="checkbox", hidden, ng-checked="ngModel")
-  label.ts-helper(ng-click="toggle(); $event.stopPropagation();")
+  label.ts-helper(ng-click="toggle(); $event.stopPropagation();", ng-class="{ 'ts-disabled': ngDisabled }")

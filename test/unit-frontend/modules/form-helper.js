@@ -85,11 +85,12 @@ describe('The esn.form.helper Angular module', function() {
 
   describe('toggleSwitch directive', function() {
 
-    var $compile, $scope;
+    var $compile, $scope, $timeout;
 
-    beforeEach(inject(function(_$compile_, _$rootScope_) {
+    beforeEach(inject(function(_$compile_, _$rootScope_, _$timeout_) {
       $compile = _$compile_;
       $scope = _$rootScope_.$new();
+      $timeout = _$timeout_;
     }));
 
     function initDirective(html) {
@@ -116,6 +117,16 @@ describe('The esn.form.helper Angular module', function() {
       expect(element.isolateScope().ngModel).to.equal(true);
     });
 
+    it('should trigger onchange function when toggle is called', function() {
+      $scope.myOnChange = sinon.spy();
+      var element = initDirective('<toggle-switch onchange="myOnChange()"/>');
+
+      element.isolateScope().toggle();
+      $timeout.flush();
+
+      expect($scope.myOnChange).to.have.been.calledOnce;
+    });
+
     it('should have a default color', function() {
       var element = initDirective();
 
@@ -127,6 +138,25 @@ describe('The esn.form.helper Angular module', function() {
       var element = initDirective('<toggle-switch color="' + color + '"/>');
 
       expect(element.isolateScope().color).to.equal(color);
+    });
+
+    it('should add ts-disabled class if the attribute "ng-disabled" is true', function() {
+      var element = initDirective('<toggle-switch label="foobar" ng-disabled="true"/>');
+
+      var tsLabel = angular.element(element[0].querySelector('.ts-label'));
+      var tsHelper = angular.element(element[0].querySelector('.ts-helper'));
+
+      expect(tsLabel.hasClass('ts-disabled')).to.be.true;
+      expect(tsHelper.hasClass('ts-disabled')).to.be.true;
+    });
+
+    it('should not change ngModel if the attribute "ng-disabled" is true', function() {
+      $scope.myModel = false;
+      var element = initDirective('<toggle-switch ng-model="myModel" ng-disabled="true"/>');
+
+      element.isolateScope().toggle();
+
+      expect(element.isolateScope().ngModel).to.equal($scope.myModel);
     });
 
     it('should change form.$dirty to true when toggle is called', function() {
