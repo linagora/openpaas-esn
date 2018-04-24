@@ -24,6 +24,7 @@
       listSubscribableAddressbooks: listSubscribableAddressbooks,
       listSubscribedAddressbooks: listSubscribedAddressbooks,
       subscribeAddressbooks: subscribeAddressbooks,
+      shareAddressbook: shareAddressbook,
       updateAddressbookPublicRight: updateAddressbookPublicRight
     };
 
@@ -123,6 +124,13 @@
             );
           });
       }));
+    }
+
+    function shareAddressbook(addressbookShell) {
+      return ContactAPIClient
+        .addressbookHome(addressbookShell.bookId)
+        .addressbook(addressbookShell.bookName)
+        .share(addressbookShell.sharees);
     }
 
     function updateAddressbookPublicRight(addressbook, publicRight) {
