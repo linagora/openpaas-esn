@@ -535,7 +535,7 @@ module.exports = function(dependencies, options) {
             const davBaseUri = URL.parse(davEndpoint).pathname;
             const headers = {
               ESNToken: ESNToken,
-              Destination: `${davBaseUri}/addressbooks/${bookHome}/${destAddressbook}/${cardId}.vcf`
+              Destination: `${davBaseUri}${destAddressbook}`
             };
 
             davClient({

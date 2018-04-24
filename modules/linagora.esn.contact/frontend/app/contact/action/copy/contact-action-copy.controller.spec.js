@@ -99,6 +99,7 @@ describe('The contactActionCopyController controller', function() {
 
     it('should call contactService.copyContact to copy contact', function() {
       var controller = initController();
+      var destAddressbook = { bookName: 'collected' };
 
       contactService.copyContact = sinon.stub().returns($q.when());
       controller.contact = {
@@ -107,14 +108,14 @@ describe('The contactActionCopyController controller', function() {
           bookName: 'contacts'
         }
       };
-      controller.selectedAddressbookName = 'collected';
+      controller.selectedAddressbook = destAddressbook;
 
       controller.listPossibleDestinations();
       $rootScope.$digest();
 
       controller.copyContact();
 
-      expect(contactService.copyContact).to.have.been.calledWith(controller.selectedAddressbookName, controller.contact);
+      expect(contactService.copyContact).to.have.been.calledWith(controller.selectedAddressbook, controller.contact);
     });
   });
 });

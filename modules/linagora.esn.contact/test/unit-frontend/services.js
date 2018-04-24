@@ -18,14 +18,21 @@ describe('The Contacts service module', function() {
 
   describe('The deleteContact service', function() {
 
-    var CONTACT_EVENTS, contact;
+    var CONTACT_EVENTS, contact, contactService;
 
     beforeEach(function() {
       var self = this;
       this.notificationFactory = {};
       this.gracePeriodService = {};
 
-      contact = { id: '00000000-0000-4000-a000-000000000000', lastName: 'Last'};
+      contact = {
+        id: '00000000-0000-4000-a000-000000000000',
+        lastName: 'Last',
+        addressbook: {
+          bookId: '123',
+          bookName: 'contacts'
+        }
+      };
 
       angular.mock.module(function($provide) {
         $provide.value('notificationFactory', self.notificationFactory);
@@ -36,7 +43,7 @@ describe('The Contacts service module', function() {
       });
     });
 
-    beforeEach(angular.mock.inject(function($httpBackend, $rootScope, $q, _ICAL_, DAV_PATH, GRACE_DELAY, _CONTACT_EVENTS_, deleteContact) {
+    beforeEach(angular.mock.inject(function($httpBackend, $rootScope, $q, _ICAL_, DAV_PATH, GRACE_DELAY, _CONTACT_EVENTS_, deleteContact, _contactService_) {
       this.$httpBackend = $httpBackend;
       this.$rootScope = $rootScope;
       this.deleteContact = deleteContact;
@@ -54,6 +61,7 @@ describe('The Contacts service module', function() {
       };
 
       CONTACT_EVENTS = _CONTACT_EVENTS_;
+      contactService = _contactService_;
     }));
 
     beforeEach(function() {
@@ -64,16 +72,11 @@ describe('The Contacts service module', function() {
     it('should call gracePeriodService with correct data', function() {
       this.gracePeriodService.grace = sinon.spy($q.when.bind(null));
 
-      var expectPath = this.getVCardUrl(bookId, bookName, contact.id) + '?graceperiod=' + this.GRACE_DELAY;
-
-      this.$httpBackend.expectDELETE(expectPath).respond(function() {
-        return [204, '', {'X-ESN-TASK-ID': 'myTaskId'}];
-      });
       contact.displayName = 'Foo Bar';
+      contactService.removeContact = sinon.stub().returns($q.when('myTaskId'));
       this.deleteContact(bookId, bookName, contact);
 
-      this.$rootScope.$apply();
-      this.$httpBackend.flush();
+      this.$rootScope.$digest();
       expect(this.gracePeriodService.grace).to.have.been.calledWith({
         id: 'myTaskId',
         performedAction: 'You have just deleted a contact (%s)',
@@ -85,8 +88,16 @@ describe('The Contacts service module', function() {
     it('should display error when on remove failure', function() {
       this.notificationFactory.weakError = sinon.spy();
 
-      // make the remove failure by passing undefined contact ID
-      this.deleteContact(bookId, bookName, { firstName: 'I have no id' });
+      var contact = {
+        firstName: 'I have no id',
+        addressbook: {
+          bookId: bookId,
+          bookName: bookName
+        }
+      };
+
+      contactService.removeContact = sinon.stub().returns($q.reject());
+      this.deleteContact(bookId, bookName, contact);
       this.$rootScope.$apply();
       expect(this.notificationFactory.weakError).to.have.been.calledOnce;
     });
@@ -94,20 +105,23 @@ describe('The Contacts service module', function() {
     it('should not grace the request on failure', function() {
       this.gracePeriodService.grace = sinon.spy();
 
-      // make the remove failure by passing undefined contact ID
-      this.deleteContact(bookId, bookName, { firstName: 'I have no id' });
+      var contact = {
+        firstName: 'I have no id',
+        addressbook: {
+          bookId: bookId,
+          bookName: bookName
+        }
+      };
+
+      contactService.removeContact = sinon.stub().returns($q.reject());
+      this.deleteContact(bookId, bookName, contact);
       this.$rootScope.$apply();
 
       expect(this.gracePeriodService.grace).to.have.not.been.called;
     });
 
     it('should grace the request using the default delay on success', function(done) {
-      var expectPath = this.getVCardUrl(bookId, bookName, contact.id) + '?graceperiod=' + this.GRACE_DELAY;
-
-      this.$httpBackend.expectDELETE(expectPath).respond(function() {
-        return [204, '', {'X-ESN-TASK-ID': 'myTaskId'}];
-      });
-
+      contactService.removeContact = sinon.stub().returns($q.when('myTaskId'));
       this.gracePeriodService.grace = function(taskId, text, linkText, delay) {
         expect(delay).to.not.exist;
         done();
@@ -115,7 +129,6 @@ describe('The Contacts service module', function() {
 
       this.deleteContact(bookId, bookName, contact);
       this.$rootScope.$apply();
-      this.$httpBackend.flush();
     });
 
     it('should broadcast CONTACT_EVENTS.DELETED when contact is deleted successful', function() {
@@ -123,18 +136,13 @@ describe('The Contacts service module', function() {
         return $q.when();
       };
 
-      var expectPath = this.getVCardUrl(bookId, bookName, contact.id) + '?graceperiod=' + this.GRACE_DELAY;
-
-      this.$httpBackend.expectDELETE(expectPath).respond(function() {
-        return [204, '', {'X-ESN-TASK-ID': 'myTaskId'}];
-      });
+      contactService.removeContact = sinon.stub().returns($q.when());
 
       var spy = sinon.spy();
       this.$rootScope.$on(CONTACT_EVENTS.DELETED, spy);
 
       this.deleteContact(bookId, bookName, contact);
       this.$rootScope.$apply();
-      this.$httpBackend.flush();
       expect(spy).to.have.been.calledWith(sinon.match.any, sinon.match.same(contact));
     });
 
@@ -142,17 +150,13 @@ describe('The Contacts service module', function() {
       this.gracePeriodService.grace = function() {
         return $q.reject();
       };
-      var expectPath = this.getVCardUrl(bookId, bookName, contact.id) + '?graceperiod=' + this.GRACE_DELAY;
-      this.$httpBackend.expectDELETE(expectPath).respond(function() {
-        return [204, '', {'X-ESN-TASK-ID': 'myTaskId'}];
-      });
+      contactService.removeContact = sinon.stub().returns($q.when());
 
       var spy = sinon.spy();
       this.$rootScope.$on(CONTACT_EVENTS.CANCEL_DELETE, spy);
 
       this.deleteContact(bookId, bookName, contact);
       this.$rootScope.$apply();
-      this.$httpBackend.flush();
       expect(spy).to.have.been.calledWith(sinon.match.any, sinon.match.same(contact));
     });
 

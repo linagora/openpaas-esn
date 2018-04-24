@@ -3,18 +3,30 @@
 
 angular.module('linagora.esn.contact')
 
-  .controller('newContactController', function($rootScope, $scope, $stateParams, $location, $state, notificationFactory, sendContactToBackend, gracePeriodService, openContactForm, sharedContactDataService, $q, ContactAPIClient, ContactLocationHelper, esnI18nService, DEFAULT_ADDRESSBOOK_NAME) {
+  .controller('newContactController', function(
+    $rootScope,
+    $scope,
+    $stateParams,
+    $location,
+    $state,
+    $q,
+    notificationFactory,
+    sendContactToBackend,
+    gracePeriodService,
+    openContactForm,
+    sharedContactDataService,
+    contactService,
+    ContactLocationHelper,
+    esnI18nService,
+    DEFAULT_ADDRESSBOOK_NAME
+  ) {
     $scope.bookId = $stateParams.bookId;
     $scope.bookName = $stateParams.bookName || DEFAULT_ADDRESSBOOK_NAME;
     $scope.contact = sharedContactDataService.contact;
 
     $scope.accept = function() {
       return sendContactToBackend($scope, function() {
-        return ContactAPIClient
-          .addressbookHome($scope.bookId)
-          .addressbook($scope.bookName)
-          .vcard()
-          .create($scope.contact)
+        return contactService.createContact({ bookId: $scope.bookId, bookName: $scope.bookName }, $scope.contact)
           .then(null, function(err) {
             notificationFactory.weakError(
               'Contact creation',
@@ -35,11 +47,7 @@ angular.module('linagora.esn.contact')
           'Cancel it'
         ).promise.then(function(data) {
             if (data.cancelled) {
-              ContactAPIClient
-                .addressbookHome($scope.bookId)
-                .addressbook($scope.bookName)
-                .vcard($scope.contact.id)
-                .remove({ etag: $scope.contact.etag })
+              contactService.removeContact({ bookId: $scope.bookId, bookName: $scope.bookName }, $scope.contact, { etag: $scope.contact.etag })
                 .then(function() {
                   data.success();
                   openContactForm($scope.bookId, $scope.bookName, $scope.contact);
@@ -66,7 +74,6 @@ angular.module('linagora.esn.contact')
     $window,
     ContactsHelper,
     contactUpdateDataService,
-    ContactAPIClient,
     ContactLocationHelper,
     ContactShellDisplayBuilder,
     deleteContact,
@@ -75,6 +82,7 @@ angular.module('linagora.esn.contact')
     displayContactError,
     notificationFactory,
     gracePeriodService,
+    contactService,
     CONTACT_AVATAR_SIZE,
     CONTACT_EVENTS
   ) {
@@ -177,11 +185,7 @@ angular.module('linagora.esn.contact')
 
       $scope.loaded = true;
     } else {
-      ContactAPIClient
-        .addressbookHome($scope.bookId)
-        .addressbook($scope.bookName)
-        .vcard($scope.cardId)
-        .get()
+      contactService.getContact({ bookId: $scope.bookId, bookName: $scope.bookName }, $scope.cardId)
         .then($scope.fillContactData, function(err) {
           $log.debug('Error while loading contact', err);
           $scope.error = true;
@@ -194,10 +198,28 @@ angular.module('linagora.esn.contact')
 
     sharedContactDataService.contact = {};
   })
-  .controller('editContactController', function($scope, $q, displayContactError, $rootScope, $timeout,
-                                                $location, $state, notificationFactory, sendContactToBackend, $stateParams, gracePeriodService,
-                                                deleteContact, ContactShell, GRACE_DELAY, CONTACT_EVENTS,
-                                                contactUpdateDataService, ContactAPIClient, VcardBuilder, ContactLocationHelper, REDIRECT_PAGE_TIMEOUT) {
+  .controller('editContactController', function(
+    $scope,
+    $q,
+    displayContactError,
+    $rootScope,
+    $timeout,
+    $location,
+    $state,
+    notificationFactory,
+    sendContactToBackend,
+    $stateParams,
+    gracePeriodService,
+    contactService,
+    deleteContact,
+    ContactShell,
+    GRACE_DELAY,
+    CONTACT_EVENTS,
+    contactUpdateDataService,
+    VcardBuilder,
+    ContactLocationHelper,
+    REDIRECT_PAGE_TIMEOUT
+  ) {
     $scope.loaded = false;
     $scope.bookId = $stateParams.bookId;
     $scope.bookName = $stateParams.bookName;
@@ -218,11 +240,7 @@ angular.module('linagora.esn.contact')
       oldContact = JSON.stringify($scope.contact);
       $scope.loaded = true;
     } else {
-      ContactAPIClient
-        .addressbookHome($scope.bookId)
-        .addressbook($scope.bookName)
-        .vcard($scope.cardId)
-        .get()
+      contactService.getContact({ bookId: $scope.bookId, bookName: $scope.bookName }, $scope.cardId)
         .then(function(contact) {
           if (!contact.addressbook.canEditContact) {
             $scope.close();
@@ -261,11 +279,7 @@ angular.module('linagora.esn.contact')
       }
 
       return sendContactToBackend($scope, function() {
-        return ContactAPIClient
-          .addressbookHome($scope.bookId)
-          .addressbook($scope.bookName)
-          .vcard($scope.contact.id)
-          .update($scope.contact)
+        return contactService.updateContact({ bookId: $scope.bookId, bookName: $scope.bookName }, $scope.contact)
           .then(function(taskId) {
             contactUpdateDataService.contact = $scope.contact;
             contactUpdateDataService.contactUpdatedIds.push($scope.contact.id);

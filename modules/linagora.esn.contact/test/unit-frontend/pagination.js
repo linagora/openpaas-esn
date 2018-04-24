@@ -6,7 +6,7 @@ var expect = chai.expect;
 
 describe('The Contacts Angular pagination module', function() {
 
-  var options, user, addressbook, ContactAPIClient, listMock, searchMock;
+  var options, user, addressbook, ContactAPIClient, listMock, searchMock, contactService;
 
   beforeEach(function() {
     user = {
@@ -51,9 +51,10 @@ describe('The Contacts Angular pagination module', function() {
       });
     });
 
-    beforeEach(angular.mock.inject(function(AddressBookPaginationProvider, $rootScope) {
+    beforeEach(angular.mock.inject(function(AddressBookPaginationProvider, $rootScope, _contactService_) {
       this.$rootScope = $rootScope;
       this.AddressBookPaginationProvider = AddressBookPaginationProvider;
+      contactService = _contactService_;
     }));
 
     it('should throw error when options.addressbooks is undefined', function(done) {
@@ -78,29 +79,19 @@ describe('The Contacts Angular pagination module', function() {
       }
     });
 
-    it('should set bookId and bookName to source addressbook if the addressbook is a subscription', function() {
-      addressbook.isSubscription = true;
-      addressbook.source = {
-        bookId: 'sourceABid',
-        bookName: 'source AB name'
-      };
-
-      var provider = new this.AddressBookPaginationProvider(options);
-
-      expect(provider.bookId).to.equal('sourceABid');
-      expect(provider.bookName).to.equal('source AB name');
-    });
-
     describe('The loadNextItems function', function() {
-      it('should call ContactAPIClient api with right parameters and set state on result', function(done) {
+      it('should call contactService.listContacts with right parameters and set state on result', function(done) {
         var nextPage = 'nextPage';
         var lastPage = 'lastPage';
         var data = [1, 2, 3];
 
-        listMock = function(query) {
+        contactService.listContacts = function(addressbook, query) {
+          expect(addressbook.bookId).to.equal(options.bookId);
+          expect(addressbook.bookName).to.equal(options.bookName);
           expect(query).to.deep.equal({userId: user._id, page: 1, paginate: true});
           return $q.when({next_page: nextPage, last_page: lastPage, data: data});
         };
+
         var provider = new this.AddressBookPaginationProvider(options);
 
         provider.loadNextItems().then(function() {
