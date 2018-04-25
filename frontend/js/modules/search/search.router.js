@@ -14,7 +14,6 @@
         url: '?q',
         params: {
           q: {
-            type: 'string',
             value: '',
             squash: true
           },
