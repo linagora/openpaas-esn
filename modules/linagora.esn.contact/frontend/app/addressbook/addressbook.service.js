@@ -12,7 +12,8 @@
     contactAddressbookDisplayService,
     CONTACT_ADDRESSBOOK_EVENTS,
     CONTACT_ADDRESSBOOK_TYPES,
-    CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL
+    CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL,
+    CONTACT_SHARING_INVITE_STATUS
   ) {
     return {
       createAddressbook: createAddressbook,
@@ -35,7 +36,9 @@
     function listAddressbooks() {
       return ContactAPIClient.addressbookHome(session.user._id).addressbook().list({
         personal: true,
-        subscribed: true
+        subscribed: true,
+        shared: true,
+        inviteStatus: CONTACT_SHARING_INVITE_STATUS.ACCEPTED
       });
     }
 
