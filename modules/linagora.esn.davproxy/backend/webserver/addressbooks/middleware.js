@@ -2,14 +2,11 @@
 
 module.exports = dependencies => {
   const { AVAILABLE_ADDRESSBOOK_TYPES } = dependencies('contact').lib.constants;
-  const contactModule = dependencies('contact');
-  const logger = dependencies('logger');
 
   return {
     requireDestinationInHeaders,
     validateAddressbookCreation,
-    validateBookHome,
-    validateBookNamesForSearch
+    validateBookHome
   };
 
   function validateAddressbookCreation(req, res, next) {
@@ -82,47 +79,6 @@ module.exports = dependencies => {
     }
 
     next();
-  }
-
-  function validateBookNamesForSearch(req, res, next) {
-    if (!req.query.search) {
-      return next();
-    }
-
-    const ESNToken = req.token && req.token.token ? req.token.token : '';
-    const client = contactModule.lib.client({
-      ESNToken: ESNToken,
-      davserver: req.davserver
-    }).addressbookHome(req.user._id);
-    const bookNames = req.query.bookName ? req.query.bookName.split(',') : [];
-    const contactHelper = contactModule.lib.helper;
-
-    client.addressbook().list().then(validate, err => {
-      logger.error('Error while getting address book list', err);
-
-      return res.status(500).json({
-        error: {
-          code: 500,
-          message: 'Server Error',
-          details: 'Error while searching contact'
-        }
-      });
-    });
-
-    function validate(data) {
-      const allAddressbookNames = data.body._embedded['dav:addressbook']
-        .map(addressbook => addressbook._links.self.href)
-        .map(contactHelper.parseAddressbookPath)
-        .map(parsedHrefs => parsedHrefs.bookName);
-
-      if (!bookNames.length) {
-        req.query.bookNames = allAddressbookNames;
-      } else {
-        req.query.bookNames = bookNames.filter(bookName => allAddressbookNames.indexOf(bookName) > -1);
-      }
-
-      next();
-    }
   }
 
   function validateBookHome(req, res, next) {

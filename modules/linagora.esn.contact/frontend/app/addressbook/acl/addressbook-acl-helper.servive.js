@@ -5,6 +5,7 @@
     .factory('contactAddressbookACLHelper', contactAddressbookACLHelper);
 
   function contactAddressbookACLHelper(
+    _,
     session,
     contactAddressbookParser,
     DEFAULT_ADDRESSBOOK_NAME,
@@ -50,26 +51,14 @@
     }
 
     function canCreateContact(addressbookShell, userId) {
-      var userPrivileges;
-
-      if (addressbookShell.isSubscription) {
-        userPrivileges = _getAuthenticatedUserPrivileges(addressbookShell.source.acl);
-      } else {
-        userPrivileges = _getUserPrivileges(addressbookShell.acl, userId);
-      }
+      var userPrivileges = _getContactPrivileges(addressbookShell, userId);
 
       return userPrivileges.indexOf(AVAILABLE_PRIVILEGES.all) !== -1 ||
         userPrivileges.indexOf(AVAILABLE_PRIVILEGES.write) !== -1;
     }
 
     function canEditContact(addressbookShell, userId) {
-      var userPrivileges;
-
-      if (addressbookShell.isSubscription) {
-        userPrivileges = _getAuthenticatedUserPrivileges(addressbookShell.source.acl);
-      } else {
-        userPrivileges = _getUserPrivileges(addressbookShell.acl, userId);
-      }
+      var userPrivileges = _getContactPrivileges(addressbookShell, userId);
 
       return userPrivileges.indexOf(AVAILABLE_PRIVILEGES.all) !== -1 ||
         userPrivileges.indexOf(AVAILABLE_PRIVILEGES.write) !== -1;
@@ -80,29 +69,32 @@
     }
 
     function canMoveContact(addressbookShell, userId) {
-      var userPrivileges;
+      return canDeleteContact(addressbookShell, userId);
+    }
 
-      if (addressbookShell.isSubscription) {
-        userPrivileges = _getAuthenticatedUserPrivileges(addressbookShell.source.acl);
-      } else {
-        userPrivileges = _getUserPrivileges(addressbookShell.acl, userId);
-      }
+    function canDeleteContact(addressbookShell, userId) {
+      var userPrivileges = _getContactPrivileges(addressbookShell, userId);
 
       return userPrivileges.indexOf(AVAILABLE_PRIVILEGES.all) !== -1 ||
         userPrivileges.indexOf(AVAILABLE_PRIVILEGES.write) !== -1;
     }
 
-    function canDeleteContact(addressbookShell, userId) {
-      var userPrivileges;
+    function _getContactPrivileges(addressbookShell, userId) {
+      var userPrivileges = [];
 
       if (addressbookShell.isSubscription) {
-        userPrivileges = _getAuthenticatedUserPrivileges(addressbookShell.source.acl);
+        userPrivileges = userPrivileges.concat(
+          _getAuthenticatedUserPrivileges(addressbookShell.source.acl, userId),
+          _getUserPrivileges(addressbookShell.source.acl, userId)
+        );
       } else {
-        userPrivileges = _getUserPrivileges(addressbookShell.acl, userId);
+        userPrivileges = userPrivileges.concat(
+          _getAuthenticatedUserPrivileges(addressbookShell.acl, userId),
+          _getUserPrivileges(addressbookShell.acl, userId)
+        );
       }
 
-      return userPrivileges.indexOf(AVAILABLE_PRIVILEGES.all) !== -1 ||
-        userPrivileges.indexOf(AVAILABLE_PRIVILEGES.write) !== -1;
+      return _.uniq(userPrivileges);
     }
 
     function _getUserPrivileges(acl, userId) {

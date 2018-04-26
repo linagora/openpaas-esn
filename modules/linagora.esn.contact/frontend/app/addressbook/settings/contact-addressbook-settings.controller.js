@@ -25,8 +25,6 @@
     self.onCancel = onCancel;
 
     function $onInit() {
-      self.selectedTab = 'main';
-
       contactAddressbookService.getAddressbookByBookName($stateParams.bookName)
         .then(function(addressbook) {
           self.addressbook = addressbook;
@@ -39,9 +37,14 @@
     function onSave() {
       var updateActions = [];
       var publicRightChanged = self.publicRight !== oldAddressbook.rights.public;
+      var shareeChanged = !angular.equals(self.addressbook.sharees, oldAddressbook.sharees);
 
       if (publicRightChanged) {
         updateActions.push(contactAddressbookService.updateAddressbookPublicRight(self.addressbook, self.publicRight));
+      }
+
+      if (shareeChanged) {
+        updateActions.push(contactAddressbookService.shareAddressbook(self.addressbook));
       }
 
       return asyncAction(NOTIFICATION_MESSAGES, function() {

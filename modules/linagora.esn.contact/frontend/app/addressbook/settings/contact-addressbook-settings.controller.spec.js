@@ -105,6 +105,25 @@ describe('The contactAddressbookSettingsController', function() {
 
       expect(contactAddressbookService.updateAddressbookPublicRight).to.have.been.calledWith(addressbook, '{DAV:}write');
     });
+
+    it('should call contactAddressbookService.shareAddressbook to update sharees delegation if sharees information is changed', function() {
+      contactAddressbookService.shareAddressbook = sinon.stub().returns($q.when({}));
+      $state.go = angular.noop;
+
+      var controller = initController();
+      var changedAddressbook = {
+        sharees: ['user1', 'user2']
+      };
+
+      controller.$onInit();
+      $rootScope.$digest();
+      controller.addressbook = changedAddressbook;
+
+      controller.onSave();
+      $rootScope.$digest();
+
+      expect(contactAddressbookService.shareAddressbook).to.have.been.calledWith(changedAddressbook);
+    });
   });
 
   describe('The onCancel function', function() {

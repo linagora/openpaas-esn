@@ -25,13 +25,16 @@ describe('The contact Angular module contactapis', function() {
         contactUpdatedIds: []
       };
       this.ContactShellBuilder = {
-        populateShell: function(contact) {
+        populateAddressbook: function(contact) {
           return $q.when(contact);
         },
         fromCardListResponse: function() {
           return $q.when([]);
         },
-        setAddressbookCache: function() {}
+        setAddressbookCache: function() {},
+        fromCardSearchResponse: function() {
+          return $q.when([]);
+        }
       };
 
       contact = { id: '00000000-0000-4000-a000-000000000000', lastName: 'Last'};
@@ -223,47 +226,6 @@ describe('The contact Angular module contactapis', function() {
                   expect(contact.nickname).to.equal('nick');
                   expect(contact.notes).to.equal('notes');
                   expect(contact.photo).to.equal('data:image/png;base64,iVBOR=');
-                }).finally(done);
-
-              this.$rootScope.$apply();
-              this.$httpBackend.flush();
-            });
-
-            it('should return a contact and fill the addressbook', function(done) {
-              var bookId = '123';
-              var bookName = 'bookName';
-              var cardId = '456';
-              var addressbook = {id: 1};
-
-              this.ContactShellBuilder.populateShell = function(contact) {
-                contact.addressbook = addressbook;
-                return $q.when(contact);
-              };
-
-              var expectPath = this.getVCardUrl(bookId, bookName, cardId);
-              this.$httpBackend.expectGET(expectPath).respond(
-                defaultResponse,
-                {ETag: 'testing-tag'}
-              );
-
-              this.$httpBackend.expect('PROPFIND', this.getBookUrl(bookId, bookName)).respond({
-                _links: {
-                  self: {
-                    href: '/esn-sabre/esn.php/addressbooks/5666b4cff5d672f316d4439f/contacts.json'
-                  }
-                },
-                'dav:name': 'Default Addressbook',
-                'carddav:description': 'Default Addressbook',
-                'dav:acl': ['dav:read', 'dav:write']
-              });
-
-              this.ContactAPIClient
-                .addressbookHome(bookId)
-                .addressbook(bookName)
-                .vcard(cardId)
-                .get()
-                .then(function(contact) {
-                  expect(contact.addressbook).to.deep.equal(addressbook);
                 }).finally(done);
 
               this.$rootScope.$apply();
@@ -522,7 +484,7 @@ describe('The contact Angular module contactapis', function() {
                 }
               };
               this.$httpBackend.expectGET(expectPath).respond(response);
-              this.ContactShellBuilder.fromCardListResponse = function() {
+              this.ContactShellBuilder.fromCardSearchResponse = function() {
                 return $q.when(shells);
               };
 
@@ -574,7 +536,7 @@ describe('The contact Angular module contactapis', function() {
                 }
               };
               this.$httpBackend.expectGET(expectPath).respond(response);
-              this.ContactShellBuilder.fromCardListResponse = function() {
+              this.ContactShellBuilder.fromCardSearchResponse = function() {
                 return $q.when(shells);
               };
 
@@ -623,7 +585,7 @@ describe('The contact Angular module contactapis', function() {
                 }
               };
               this.$httpBackend.expectGET(expectPath).respond(response);
-              this.ContactShellBuilder.fromCardListResponse = function() {
+              this.ContactShellBuilder.fromCardSearchResponse = function() {
                 return $q.when(shells);
               };
 
@@ -962,11 +924,15 @@ describe('The contact Angular module contactapis', function() {
             it('should resolve if success', function(done) {
               var bookId = '123';
               var bookName = 'source';
-              var destAddressbook = 'dest';
+              var destAddressbook = {
+                bookId: '456',
+                bookName: 'dest'
+              };
+              var options = { toBookId: destAddressbook.bookId, toBookName: destAddressbook.bookName };
               var vcardUrl = this.getVCardUrl(bookId, bookName, contact.id);
               var headers = {
                 Accept: 'application/json, text/plain, */*',
-                Destination: destAddressbook
+                Destination: '/addressbooks/' + destAddressbook.bookId + '/' + destAddressbook.bookName + '/' + contact.id + '.vcf'
               };
 
               this.$httpBackend.expect('MOVE', vcardUrl, null, headers).respond(201);
@@ -975,7 +941,7 @@ describe('The contact Angular module contactapis', function() {
                 .addressbookHome(bookId)
                 .addressbook(bookName)
                 .vcard(contact.id)
-                .move({ destAddressbook: destAddressbook })
+                .move(options)
                 .then(function() {
                   done();
                 });
@@ -1118,7 +1084,7 @@ describe('The contact Angular module contactapis', function() {
             }
           };
           this.$httpBackend.expectGET(expectPath).respond(response);
-          this.ContactShellBuilder.fromCardListResponse = function() {
+          this.ContactShellBuilder.fromCardSearchResponse = function() {
             return $q.when(shells);
           };
 

@@ -11,8 +11,8 @@
             .select
               select.form-control.floating-label(
                 type='text',
-                ng-model='$ctrl.selectedAddressbookName',
-                ng-options='addressbookDisplayShell.shell.bookName as addressbookDisplayShell.displayName for addressbookDisplayShell in $ctrl.availableAddressbookDisplayShells'
+                ng-model='$ctrl.selectedAddressbook',
+                ng-options='addressbookDisplayShell.shell as addressbookDisplayShell.displayName for addressbookDisplayShell in $ctrl.availableAddressbookDisplayShells'
               )
         .modal-footer
           button.btn.btn-default(type='button', ng-click='$hide()') #{__('Cancel')}

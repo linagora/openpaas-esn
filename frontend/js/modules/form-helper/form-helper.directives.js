@@ -39,27 +39,35 @@ angular.module('esn.form.helper')
     }
   };
 })
-.directive('toggleSwitch', function() {
+.directive('toggleSwitch', function($timeout) {
   return {
     restrict: 'E',
     replace: true,
     templateUrl: '/views/modules/form/toggle-switch.html',
     scope: {
       ngModel: '=?',
+      ngDisabled: '=?',
       color: '@?',
       label: '@?',
-      form: '=?'
+      form: '=?',
+      onchangeFn: '&onchange'
     },
     link: function(scope) {
       if (scope.ngModel === undefined) {
         scope.ngModel = false;
       }
       scope.toggle = function() {
+        if (scope.ngDisabled) {
+          return;
+        }
+
         scope.ngModel = !scope.ngModel;
 
         if (scope.form && scope.form.$setDirty) {
           scope.form.$setDirty();
         }
+
+        $timeout(scope.onchangeFn, 0);
       };
       scope.color = scope.color || 'blue';
     }

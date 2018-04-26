@@ -449,4 +449,36 @@ describe('The contactAddressbookService service', function() {
       $rootScope.$digest();
     });
   });
+
+  describe('The shareAddressbook function', function() {
+    it('should call the ContactAPIClient with the addressbook shell containing sharees information', function(done) {
+      var addressbookShell = {
+        bookID: '123123',
+        bookName: 'addressbook1',
+        sharees: ['user1', 'user2']
+      };
+
+      ContactAPIClient.addressbookHome = function(bookId) {
+        expect(bookId).to.equal(addressbookShell.bookdId);
+
+        return {
+          addressbook: function(bookName) {
+            expect(bookName).to.equal(addressbookShell.bookName);
+
+            return {
+              share: function(sharees) {
+                expect(sharees).to.deep.equal(addressbookShell.sharees);
+                done();
+
+                return $q.when();
+              }
+            };
+          }
+        };
+      };
+
+      contactAddressbookService.shareAddressbook(addressbookShell);
+      $rootScope.$digest();
+    });
+  });
 });

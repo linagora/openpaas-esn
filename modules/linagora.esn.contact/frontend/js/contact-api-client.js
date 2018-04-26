@@ -141,6 +141,29 @@ angular.module('linagora.esn.contact')
     }
 
     /**
+     * Share an addressbook
+     * @param  {String} bookId     The addressbook home ID
+     * @param  {String} bookName   The addressbook name
+     * @param  {Object} addressbook The addressbook object to update. It may contain name, description.
+     * @return {Promise}           Resolve on success
+     */
+    function shareAddressbook(bookId, bookName, sharees) {
+      var headers = { Accept: CONTACT_ACCEPT_HEADER };
+      var data = {
+        'dav:share-resource': {
+        'dav:sharee': sharees.map(function(sharee) {
+            return {
+              'dav:href': sharee.href,
+              'dav:share-access': sharee.access
+            };
+          })
+        }
+      };
+
+      return davClient('POST', getBookUrl(bookId, bookName), headers, data);
+    }
+
+    /**
      * Update addressbook public right
      * @param  {String} bookId       The addressbook home ID
      * @param  {String} bookName     The addressbook name
@@ -169,8 +192,10 @@ angular.module('linagora.esn.contact')
         .then(function(response) {
           var contact = new ContactShell(
             new ICAL.Component(response.data), response.headers('ETag'));
+
           contactAvatarService.forceReloadDefaultAvatar(contact);
-          return ContactShellBuilder.populateShell(contact, href);
+
+          return contact;
         });
     }
 
@@ -251,7 +276,7 @@ angular.module('linagora.esn.contact')
           null,
           params
         ).then(function(response) {
-          return ContactShellBuilder.fromCardListResponse(response).then(function(shells) {
+          return ContactShellBuilder.fromCardSearchResponse(response).then(function(shells) {
             var result = {
               current_page: response.data._current_page,
               total_hits: response.data._total_hits,
@@ -304,7 +329,7 @@ angular.module('linagora.esn.contact')
      */
     function moveCard(bookId, bookName, cardId, options) {
       var headers = {
-        Destination: options.destAddressbook
+        Destination: getVCardUrl(options.toBookId, options.toBookName, cardId)
       };
 
       return davClient(
@@ -437,6 +462,10 @@ angular.module('linagora.esn.contact')
           return updateAddressbook(bookId, bookName, addressbook);
         }
 
+        function share(sharees) {
+          return shareAddressbook(bookId, bookName, sharees);
+        }
+
         function updatePublicRight(publicRight) {
           return setPublicRight(bookId, bookName, publicRight);
         }
@@ -488,6 +517,7 @@ angular.module('linagora.esn.contact')
           list: list,
           get: get,
           remove: remove,
+          share: share,
           update: update,
           updatePublicRight: updatePublicRight,
           vcard: vcard

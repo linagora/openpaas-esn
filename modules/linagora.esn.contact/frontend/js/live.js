@@ -30,7 +30,7 @@ angular.module('linagora.esn.contact')
     $rootScope,
     $log,
     livenotification,
-    ContactAPIClient,
+    contactService,
     ContactShellBuilder,
     contactAvatarService,
     CONTACT_EVENTS, CONTACT_WS
@@ -52,11 +52,7 @@ angular.module('linagora.esn.contact')
     }
 
     function onUpdate(data) {
-      ContactAPIClient
-        .addressbookHome(data.bookId)
-        .addressbook(data.bookName)
-        .vcard(data.contactId)
-        .get()
+      contactService.getContact({ bookId: data.bookId, bookName: data.bookName }, data.contactId)
         .then(function(updatedContact) {
           $rootScope.$broadcast(CONTACT_EVENTS.UPDATED, updatedContact);
         }, function(err) {

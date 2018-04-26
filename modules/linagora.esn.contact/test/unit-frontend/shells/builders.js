@@ -97,12 +97,6 @@ describe('ContactShell Builders', function() {
       });
     });
 
-    describe('The fromCardResponse function', function() {
-      it('should', function() {
-
-      });
-    });
-
     describe('The fromCardListResponse function', function() {
 
       function expectEmpty(done) {
@@ -138,20 +132,135 @@ describe('ContactShell Builders', function() {
       });
 
       it('should build the shell for all dav items', function(done) {
-        var items = [1, 2];
-        var spy = sinon.spy();
-        this.ContactShellBuilder.fromCardResponse = function(vcard) {
-          expect(items.indexOf(vcard) > -1).to.be.true;
-          spy();
-          return $q.when(vcard);
-        };
+        var self = this;
+        var contacts = [{
+          bookId: '123',
+          bookName: '456',
+          href: 'addressbooks/123/456/contact1.vcf'
+        }, {
+          bookId: '123',
+          bookName: '456',
+          href: 'addressbooks/123/456/contact2.vcf'
+        }];
+        var items = [{
+          _links: {
+            self: {
+              href: contacts[0].href
+            }
+          }
+        }, {
+          _links: {
+            self: {
+              href: contacts[1].href
+            }
+          }
+        }];
 
-        this.ContactShellBuilder.fromCardListResponse({data: {_embedded: {'dav:item': items}}}).then(function(result) {
+        self.ContactShellBuilder.fromVcard = sinon.spy(function(vcard) {
+          return vcard;
+        });
+        ContactShellHelper.getMetadata = sinon.spy(function(href) {
+          if (href === contacts[0].href) {
+            return contacts[0];
+          }
+
+          return contacts[1];
+        });
+        self.ContactShellBuilder.populateAddressbook = sinon.spy();
+
+        self.ContactShellBuilder.fromCardListResponse({data: {_embedded: {'dav:item': items}}}).then(function(result) {
           expect(result.length).to.equal(items.length);
-          expect(spy).to.have.been.called.twice;
+          expect(ContactShellHelper.getMetadata).to.have.been.calledTwice;
+          expect(self.ContactShellBuilder.populateAddressbook).to.have.been.calledTwice;
           done();
         });
+        self.$rootScope.$apply();
+      });
+    });
+
+    describe('The fromCardSearchResponse function', function() {
+
+      function expectEmpty(done) {
+        return function(data) {
+          expect(data).to.deep.equal([]);
+          done();
+        };
+      }
+
+      it('should resolve with empty array when input is undefined', function(done) {
+        this.ContactShellBuilder.fromCardSearchResponse().then(expectEmpty(done));
         this.$rootScope.$apply();
+      });
+
+      it('should resolve with empty array when input.data is undefined', function(done) {
+        this.ContactShellBuilder.fromCardSearchResponse({}).then(expectEmpty(done));
+        this.$rootScope.$apply();
+      });
+
+      it('should resolve with empty array when input.data._embedded is undefined', function(done) {
+        this.ContactShellBuilder.fromCardSearchResponse({data: {}}).then(expectEmpty(done));
+        this.$rootScope.$apply();
+      });
+
+      it('should resolve with empty array when input.data._embedded["dav:item"]', function(done) {
+        this.ContactShellBuilder.fromCardSearchResponse({data: {_embedded: {}}}).then(expectEmpty(done));
+        this.$rootScope.$apply();
+      });
+
+      it('should resolve with empty array when input.data._embedded["dav:item"] is empty', function(done) {
+        this.ContactShellBuilder.fromCardSearchResponse({data: {_embedded: {'dav:item': []}}}).then(expectEmpty(done));
+        this.$rootScope.$apply();
+      });
+
+      it('should build the shell for all dav items', function(done) {
+        var self = this;
+        var contacts = [{
+          bookId: '123',
+          bookName: '456',
+          href: 'addressbooks/123/456/contact1.vcf'
+        }, {
+          bookId: '123',
+          bookName: '456',
+          href: 'addressbooks/123/456/contact2.vcf'
+        }, {
+          bookId: 'sourceId',
+          bookName: 'sourceName'
+        }];
+        var items = [{
+          _links: {
+            self: {
+              href: contacts[0].href
+            }
+          },
+          'openpaas:addressbook': {
+            bookHome: contacts[1].bookId,
+            bookName: contacts[1].bookName
+          }
+        }, {
+          _links: {
+            self: {
+              href: contacts[1].href
+            }
+          }
+        }];
+
+        self.ContactShellBuilder.fromVcard = sinon.spy(function(vcard) {
+          return vcard;
+        });
+        ContactShellHelper.getMetadata = sinon.spy(function(href) {
+          if (href === contacts[1].href) {
+            return contacts[1];
+          }
+        });
+        self.ContactShellBuilder.populateAddressbook = sinon.spy();
+
+        self.ContactShellBuilder.fromCardSearchResponse({data: {_embedded: {'dav:item': items}}}).then(function(result) {
+          expect(result.length).to.equal(items.length);
+          expect(ContactShellHelper.getMetadata).to.have.been.calledOnce;
+          expect(self.ContactShellBuilder.populateAddressbook).to.have.been.calledTwice;
+          done();
+        });
+        self.$rootScope.$apply();
       });
     });
 
@@ -216,93 +325,6 @@ describe('ContactShell Builders', function() {
         var contact = this.ContactShellBuilder.fromVcard(vcard);
         expect(spy).to.not.have.been.called;
         expect(contact).to.be.defined;
-      });
-    });
-
-    describe('The populateShell function', function() {
-      var shell, href;
-
-      beforeEach(function() {
-        shell = {id: 1};
-        href = '/foo/bar';
-      });
-
-      function notModified(done) {
-        return function(result) {
-          expect(result).to.deep.equal(shell);
-          done();
-        };
-      }
-
-      it('should return the input shell when ContactShellHelper.getMetadata does not return metadata', function(done) {
-        ContactShellHelper.getMetadata = function() {};
-        this.ContactShellBuilder.populateShell(shell, href).then(notModified(done), done);
-        this.$rootScope.$apply();
-      });
-
-      it('should return the input shell when ContactShellHelper.getMetadata does not return bookId', function(done) {
-        ContactShellHelper.getMetadata = function() {
-          return {
-            bookName: BOOK_NAME
-          };
-        };
-        this.ContactShellBuilder.populateShell(shell, href).then(notModified(done), done);
-        this.$rootScope.$apply();
-      });
-
-      it('should return the input shell when ContactShellHelper.getMetadata does not return bookName', function(done) {
-        ContactShellHelper.getMetadata = function() {
-          return {
-            bookId: BOOK_ID
-          };
-        };
-        this.ContactShellBuilder.populateShell(shell, href).then(notModified(done), done);
-        this.$rootScope.$apply();
-      });
-
-      it('should populate the shell', function(done) {
-        var shell = {id: 1};
-        ContactShellHelper.getMetadata = function() {
-          return {
-            bookId: BOOK_ID,
-            bookName: BOOK_NAME
-          };
-        };
-        var spy = sinon.spy();
-        this.ContactShellBuilder.populateAddressbook = function(_shell, id, name) {
-          expect(_shell).to.deep.equal(shell);
-          expect(id).to.deep.equal(BOOK_ID);
-          expect(name).to.deep.equal(BOOK_NAME);
-          spy();
-          return $q.when(shell);
-        };
-        this.ContactShellBuilder.populateShell(shell, href).then(function() {
-          expect(spy).to.have.been.called;
-          done();
-        }, done);
-        this.$rootScope.$apply();
-      });
-    });
-
-    describe('The fromCardResponse function', function() {
-
-      it('should build the shell', function() {
-        var href = '/foo/bar';
-        var card = {id: 1, _links: {self: {href: href}}, data: vcard};
-        var result = {foo: 'bar'};
-        var buildSpy = sinon.spy();
-        var populateSpy = sinon.spy();
-
-        this.ContactShellBuilder.fromVcard = function(data) {
-          expect(data).to.deep.equal(vcard);
-          buildSpy();
-          return result;
-        };
-        this.ContactShellBuilder.populateShell = populateSpy;
-
-        this.ContactShellBuilder.fromCardResponse(card);
-        expect(buildSpy).to.have.been.called;
-        expect(populateSpy).to.have.been.calledWith(result, href);
       });
     });
 

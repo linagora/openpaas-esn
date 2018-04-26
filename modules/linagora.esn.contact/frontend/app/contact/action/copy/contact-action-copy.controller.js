@@ -26,13 +26,13 @@
         .then(_excludeCurrentAddressbook)
         .then(function(addressbooks) {
           self.availableAddressbookDisplayShells = contactAddressbookDisplayService.convertShellsToDisplayShells(addressbooks);
-          self.selectedAddressbookName = self.availableAddressbookDisplayShells[0].shell.bookName;
+          self.selectedAddressbook = self.availableAddressbookDisplayShells[0].shell;
         });
     }
 
     function copyContact() {
       return asyncAction(NOTIFICATION_MESSAGES, function() {
-        return contactService.copyContact(self.selectedAddressbookName, self.contact);
+        return contactService.copyContact(self.selectedAddressbook, self.contact);
       });
     }
 

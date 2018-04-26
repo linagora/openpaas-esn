@@ -4,7 +4,7 @@ angular.module('linagora.esn.contact')
   .factory('deleteContact', function(
                               $rootScope,
                               $q,
-                              ContactAPIClient,
+                              contactService,
                               gracePeriodService,
                               notificationFactory,
                               esnI18nService,
@@ -17,11 +17,7 @@ angular.module('linagora.esn.contact')
         options.etag = contact.etag;
       }
 
-      return ContactAPIClient
-        .addressbookHome(bookId)
-        .addressbook(bookName)
-        .vcard(contact.id)
-        .remove(options)
+      return contactService.removeContact({ bookId: bookId, bookName: bookName }, contact, options)
         .then(function(taskId) {
           $rootScope.$broadcast(CONTACT_EVENTS.DELETED, contact);
 
