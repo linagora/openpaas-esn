@@ -7,6 +7,6 @@
       .owner
         span {{::$ctrl.addressbook.user.displayName}}
   .rights
-    contact-addressbook-shared-right-display(public='$ctrl.addressbook.rights.public')
+    contact-addressbook-shared-right-display(addressbook='$ctrl.addressbook')
   .actions
     toggle-switch(ng-model='$ctrl.addressbook.isSelected')

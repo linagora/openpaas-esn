@@ -94,7 +94,12 @@
     }
 
     function listSubscribableAddressbooks(userId) {
-      return ContactAPIClient.addressbookHome(userId).addressbook().list({ public: true });
+      return $q.all([
+        ContactAPIClient.addressbookHome(userId).addressbook().list({ public: true }),
+        ContactAPIClient.addressbookHome(session.user._id).addressbook().list({ inviteStatus: CONTACT_SHARING_INVITE_STATUS.NORESPONSE, shared: true, shareOwner: userId })
+      ]).then(function(data) {
+        return data[0].concat(data[1]);
+      });
     }
 
     function listSubscribedAddressbooks() {

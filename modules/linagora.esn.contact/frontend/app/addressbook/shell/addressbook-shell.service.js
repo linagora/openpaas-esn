@@ -37,6 +37,11 @@
         });
       }
 
+      if (json['dav:share-access']) {
+        this.shareAccess = json['dav:share-access'];
+        this.isShared = true;
+      }
+
       this.canEditAddressbook = contactAddressbookACLHelper.canEditAddressbook(this);
       this.canDeleteAddressbook = contactAddressbookACLHelper.canDeleteAddressbook(this);
       this.canCreateContact = contactAddressbookACLHelper.canCreateContact(this);
