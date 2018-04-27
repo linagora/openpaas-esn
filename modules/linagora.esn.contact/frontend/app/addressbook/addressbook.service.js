@@ -108,6 +108,13 @@
 
     function subscribeAddressbooks(addressbookShells) {
       return $q.all(addressbookShells.map(function(addressbookShell) {
+        if (addressbookShell.isShared) {
+          return ContactAPIClient
+            .addressbookHome(addressbookShell.bookId)
+            .addressbook(addressbookShell.bookName)
+            .acceptShare();
+        }
+
         var formattedSubscriptions = {
           description: addressbookShell.description,
           name: contactAddressbookDisplayService.buildDisplayName(addressbookShell),

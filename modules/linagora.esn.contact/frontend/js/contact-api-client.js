@@ -163,6 +163,17 @@ angular.module('linagora.esn.contact')
       return davClient('POST', getBookUrl(bookId, bookName), headers, data);
     }
 
+    function replyInvitation(bookId, bookName, accepted) {
+      var headers = { Accept: CONTACT_ACCEPT_HEADER };
+      var data = {
+        'dav:invite-reply': {
+          'dav:invite-accepted': accepted
+        }
+      };
+
+      return davClient('POST', getBookUrl(bookId, bookName), headers, data);
+    }
+
     /**
      * Update addressbook public right
      * @param  {String} bookId       The addressbook home ID
@@ -466,6 +477,14 @@ angular.module('linagora.esn.contact')
           return shareAddressbook(bookId, bookName, sharees);
         }
 
+        function acceptShare() {
+          return replyInvitation(bookId, bookName, true);
+        }
+
+        function declineShare() {
+          return replyInvitation(bookId, bookName, false);
+        }
+
         function updatePublicRight(publicRight) {
           return setPublicRight(bookId, bookName, publicRight);
         }
@@ -513,7 +532,9 @@ angular.module('linagora.esn.contact')
         }
 
         return {
+          acceptShare: acceptShare,
           create: create,
+          declineShare: declineShare,
           list: list,
           get: get,
           remove: remove,
