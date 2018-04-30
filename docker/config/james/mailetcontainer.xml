@@ -72,6 +72,10 @@
 
 
         <processor state="transport" enableJmx="true">
+            <matcher name="mdn-matcher" match="org.apache.james.mailetcontainer.impl.matchers.And">
+                <matcher match="HasMimeType=multipart/report"/>
+                <matcher match="HasMimeTypeParameter=report-type=disposition-notification"/>
+            </matcher>
             <mailet match="SMTPAuthSuccessful" class="SetMimeHeader">
                 <name>X-UserIsAuth</name>
                 <value>true</value>
@@ -98,6 +102,7 @@
             </mailet>
             <mailet match="All" class="RecipientRewriteTable" />
             <mailet match="RecipientIsLocal" class="org.apache.james.jmap.mailet.VacationMailet"/>
+            <mailet match="mdn-matcher" class="org.apache.james.jmap.mailet.ExtractMDNOriginalJMAPMessageId"/>
             <mailet match="RecipientIsLocal" class="ToProcessor">
                 <processor>local-recipient</processor>
             </mailet>
