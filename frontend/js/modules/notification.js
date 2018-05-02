@@ -64,45 +64,46 @@ angular.module('esn.notification', ['angularMoment', 'esn.escape-html', 'esn.i18
     };
   })
 
-  .factory('notificationFactory', function(notifyService) {
-    function notify(type, title, text, delay) {
+  .factory('notificationFactory', function(_, notifyService) {
+    function notify(type, title, text, delay, options) {
       var animationDelay = 300;
+      options = options || {};
+
+      options.delay = options.delay ? options.delay - animationDelay : delay - animationDelay;
+      var notificationOptions = _.assign({type: type}, options);
 
       return notifyService({
         title: title,
         message: text
-      }, {
-        type: type,
-        delay: delay - animationDelay
-      });
+      }, notificationOptions);
     }
 
-    function weakNotification(type, title, text) {
-      return notify(type, title, text, 3000);
+    function weakNotification(type, title, text, options) {
+      return notify(type, title, text, 3000, options);
     }
 
-    function strongNotification(type, title, text) {
-      return notify(type, title, text, 0);
+    function strongNotification(type, title, text, options) {
+      return notify(type, title, text, 0, options);
     }
 
-    function weakSuccess(title, text) {
-      return weakNotification('success', title, text);
+    function weakSuccess(title, text, options) {
+      return weakNotification('success', title, text, options);
     }
 
-    function weakInfo(title, text) {
-      return weakNotification('info', title, text);
+    function weakInfo(title, text, options) {
+      return weakNotification('info', title, text, options);
     }
 
-    function weakError(title, text) {
-      return weakNotification('danger', title, text);
+    function weakError(title, text, options) {
+      return weakNotification('danger', title, text, options);
     }
 
-    function strongInfo(title, text) {
-      return strongNotification('info', title, text);
+    function strongInfo(title, text, options) {
+      return strongNotification('info', title, text, options);
     }
 
-    function strongError(title, text) {
-      return strongNotification('danger', title, text);
+    function strongError(title, text, options) {
+      return strongNotification('danger', title, text, options);
     }
 
     return {
