@@ -7,13 +7,13 @@
     var self = this;
 
     self.$onInit = $onInit;
-    self.clearSearchInput = clearSearchInput;
+    self.clearSearchQuery = clearSearchQuery;
     self.onProviderSelected = onProviderSelected;
     self.doSearch = doSearch;
     self.showSearchForm = showSearchForm;
 
     function $onInit() {
-      self.searchInput = {
+      self.searchQuery = {
         text: self.query || ''
       };
 
@@ -23,7 +23,7 @@
         // update the providers from the state
         // avoid to change when we go to search state
         if (toState.name !== 'search.main') {
-          clearSearchInput();
+          clearSearchQuery();
           loadProviders();
         }
       });
@@ -35,8 +35,8 @@
       });
     }
 
-    function clearSearchInput() {
-      self.searchInput = {
+    function clearSearchQuery() {
+      self.searchQuery = {
         text: ''
       };
     }
@@ -48,7 +48,7 @@
     function doSearch() {
       var providers = self.provider ? [self.provider] : self.providers;
 
-      self.search({ query: self.searchInput, providers: providers });
+      self.search({ query: self.searchQuery, providers: providers });
     }
 
     function showSearchForm() {

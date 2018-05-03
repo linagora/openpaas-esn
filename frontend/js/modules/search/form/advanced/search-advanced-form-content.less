@@ -7,58 +7,40 @@
   max-width: 100vw;
 }
 
-.search-settings {
-  .search-settings-content {
+.search-advanced-form-content {
+  .search-advanced-form-content-content {
     padding: 5px 2px 0 2px;
 
-    .search-settings-body {
+    .search-advanced-form-content-body {
       margin-top: 10px;
 
-      .search-settings-form {
+      .search-advanced-form-content-form {
         padding: 10px;
       }
     }
 
-    .search-settings-footer {
-      .flex;
-      .flex-space-between;
+    .search-advanced-form-content-footer {
+      .flex-end;
 
       padding: 10px;
-
-      .reset .actions {
-        .flex-vertical-centered;
-        .flex-grow;
-      }
-
-      .reset {
-        .flex-start;
-      }
-
-      .actions {
-        .flex-end;
-
-        button:nth-child(2) {
-          margin-left: 5px;
-        }
-      }
     }
   }
 }
 
 @media (max-width: @screen-md-min) {
-  .search-settings {
+  .search-advanced-form-content {
     left: 0 !important; //search option popover always displayed on the left
   }
 }
 
 @media (min-width: @screen-md-min) {
-  .search-settings {
+  .search-advanced-form-content {
     width: 542px;
   }
 }
 
 @media (min-width: @screen-xl-min) {
-  .search-settings {
+  .search-advanced-form-content {
     width: 792px;
   }
 }
