@@ -28,6 +28,11 @@
 }
 
 @media (max-width: @screen-md-min) {
+  .search-header-settings-panel {
+    left: 0px !important; // overrides md-panel on mobile
+    width: 100vw !important; // overrides md-panel on mobile so it takes all the available width
+  }
+
   .search-advanced-form-content {
     left: 0 !important; //search option popover always displayed on the left
   }
