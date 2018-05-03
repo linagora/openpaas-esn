@@ -44,6 +44,7 @@
 
       this.canEditAddressbook = contactAddressbookACLHelper.canEditAddressbook(this);
       this.canDeleteAddressbook = contactAddressbookACLHelper.canDeleteAddressbook(this);
+      this.canShareAddressbook = contactAddressbookACLHelper.canShareAddressbook(this);
       this.canCreateContact = contactAddressbookACLHelper.canCreateContact(this);
       this.canEditContact = contactAddressbookACLHelper.canEditContact(this);
       this.canCopyContact = contactAddressbookACLHelper.canCopyContact(this);

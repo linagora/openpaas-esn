@@ -51,6 +51,13 @@
       return canEditAddressbook(addressbookShell, userId);
     }
 
+    function canShareAddressbook(addressbookShell, userId) {
+      var userPrivileges = _getContactPrivileges(addressbookShell, userId);
+
+      return userPrivileges.indexOf(AVAILABLE_PRIVILEGES.all) > -1 ||
+             userPrivileges.indexOf(AVAILABLE_PRIVILEGES.share) > -1;
+    }
+
     function canCreateContact(addressbookShell, userId) {
       var userPrivileges = _getContactPrivileges(addressbookShell, userId);
 
