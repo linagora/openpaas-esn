@@ -12,7 +12,11 @@
     self.$onInit = $onInit;
 
     function $onInit() {
-      self.addressbookDisplayName = contactAddressbookDisplayService.buildDisplayName(self.addressbook);
+      if (self.addressbook.isShared) {
+        self.addressbookDisplayName = contactAddressbookDisplayService.buildDisplayName(self.addressbook.source);
+      } else {
+        self.addressbookDisplayName = contactAddressbookDisplayService.buildDisplayName(self.addressbook);
+      }
     }
   }
 })(angular);
