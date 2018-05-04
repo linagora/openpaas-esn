@@ -10,5 +10,5 @@
 
     button.btn.btn-icon.btn-link.button.search-header-button.clean-button(type="button", title=__('Delete'), ng-hide="!ctrl.searchQuery.text", ng-click="ctrl.clearSearchQuery()")
       i.mdi.mdi-close(ng-class="{ 'focus': focus }")
-    .search-header-button.settings-button(ng-if='ctrl.showSearchForm()')
+    .search-header-button.settings-button
       search-advanced-toggle-button(ng-class="{ 'focus': focus }", provider="ctrl.provider", query="ctrl.searchQuery", search="ctrl.doSearch()")

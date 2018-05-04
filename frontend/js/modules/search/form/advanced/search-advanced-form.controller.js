@@ -10,7 +10,6 @@
     self.clearSearchQuery = clearSearchQuery;
     self.onProviderSelected = onProviderSelected;
     self.doSearch = doSearch;
-    self.showSearchForm = showSearchForm;
 
     function $onInit() {
       self.searchQuery = {
@@ -50,10 +49,5 @@
 
       self.search({ query: self.searchQuery, providers: providers });
     }
-
-    function showSearchForm() {
-      return self.provider && self.provider.hasAdvancedSearch;
-    }
-
   }
 })(angular);

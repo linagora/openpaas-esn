@@ -1,3 +1,8 @@
 .search-advanced-options
-  button.btn.btn-icon.btn-link.button(type="button", title=__('Search options'), ng-click="ctrl.showAdvancedForm()")
+  button.btn.btn-icon.btn-link.button(
+    type="button",
+    title=__('Search options'),
+    ng-click="ctrl.showAdvancedForm()",
+    ng-disabled="!ctrl.canShowAdvancedForm()"
+  )
     i.mdi.mdi-menu-down

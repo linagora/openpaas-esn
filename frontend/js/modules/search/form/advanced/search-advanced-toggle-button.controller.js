@@ -7,6 +7,11 @@
     var self = this;
 
     self.showAdvancedForm = showAdvancedForm;
+    self.canShowAdvancedForm = canShowAdvancedForm;
+
+    function canShowAdvancedForm() {
+      return self.provider && self.provider.hasAdvancedSearch;
+    }
 
     function showAdvancedForm() {
       if (!self.panelRef) {
