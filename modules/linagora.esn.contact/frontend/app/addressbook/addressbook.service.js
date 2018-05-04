@@ -112,7 +112,13 @@
           return ContactAPIClient
             .addressbookHome(addressbookShell.bookId)
             .addressbook(addressbookShell.bookName)
-            .acceptShare();
+            .acceptShare()
+            .then(function() {
+              $rootScope.$broadcast(
+                CONTACT_ADDRESSBOOK_EVENTS.CREATED,
+                addressbookShell
+              );
+            });
         }
 
         var formattedSubscriptions = {
