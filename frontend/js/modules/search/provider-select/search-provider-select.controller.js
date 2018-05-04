@@ -4,7 +4,7 @@
   angular.module('esn.search')
     .controller('ESNSearchProviderSelectController', ESNSearchProviderSelectController);
 
-  function ESNSearchProviderSelectController() {
+  function ESNSearchProviderSelectController(esnI18nService) {
     var self = this;
 
     self.$onChanges = $onChanges;
@@ -17,6 +17,10 @@
     }
 
     function $onInit() {
+      (self.providers || []).forEach(function(provider) {
+        provider.displayName = esnI18nService.translate(provider.name).toString();
+      });
+
       select();
     }
 
