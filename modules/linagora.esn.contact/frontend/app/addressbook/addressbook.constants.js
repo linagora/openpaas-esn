@@ -26,7 +26,7 @@
       WRITE: {
         value: '{DAV:}write',
         label: 'Read/Write',
-        longLabel: 'Edit address book'
+        longLabel: 'Edit all contacts'
       }
     });
 })(angular);
