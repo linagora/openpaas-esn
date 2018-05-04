@@ -70,6 +70,7 @@ angular.module('esn.notification', ['angularMoment', 'esn.escape-html', 'esn.i18
       options = options || {};
 
       options.delay = options.delay ? options.delay - animationDelay : delay - animationDelay;
+      options.z_index = 1061;
       var notificationOptions = _.assign({type: type}, options);
 
       return notifyService({
