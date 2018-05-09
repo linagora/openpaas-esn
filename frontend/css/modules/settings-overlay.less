@@ -4,9 +4,6 @@
   &.selected {
     settings-overlay {
       .md-menu, .md-menu.md-open {
-        background-color: darken(@darkenBgColor, 2%);
-        .BoxShadow(-16px 0 5px -8px darken(@darkenBgColor, 2%));
-
         .mdi {
           opacity: 1;
         }
@@ -16,9 +13,6 @@
 
   .md-menu {
     &.md-open {
-      background-color: @body-bg;
-      .BoxShadow(-16px 0 5px -8px @body-bg);
-
       .mdi {
         opacity: 1;
       }
@@ -45,9 +39,6 @@
 .is-desktop .clickable:not(.text-danger):not(a):not(.menu-root):hover {
   settings-overlay {
     .md-menu {
-      background-color: @darkenBgColor;
-      .BoxShadow(-16px 0 5px -8px @darkenBgColor);
-
       .mdi {
         opacity: 0.5;
       }
@@ -63,9 +54,6 @@
   &.selected {
     settings-overlay {
       .md-menu, .md-menu.md-open {
-        background-color: @darkenBgColor;
-        .BoxShadow(-16px 0 5px -8px @darkenBgColor);
-
         .mdi {
           opacity: 1;
         }
@@ -76,8 +64,6 @@
   &:active {
     settings-overlay {
       .md-menu, .md-menu.md-open {
-        background-color: @m-white;
-        .BoxShadow(-16px 0 5px -8px @m-white);
         .transition(0.25s ease-out);
 
         .mdi {
@@ -89,9 +75,6 @@
 
   settings-overlay .md-menu {
     &.md-open {
-      background-color: @m-white;
-      .BoxShadow(-16px 0 5px -8px @m-white);
-
       .mdi {
         opacity: 1;
       }
