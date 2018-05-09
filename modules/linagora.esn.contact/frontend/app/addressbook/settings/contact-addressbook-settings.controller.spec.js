@@ -122,7 +122,7 @@ describe('The contactAddressbookSettingsController', function() {
       controller.onSave();
       $rootScope.$digest();
 
-      expect(contactAddressbookService.shareAddressbook).to.have.been.calledWith(changedAddressbook);
+      expect(contactAddressbookService.shareAddressbook).to.have.been.calledWith(changedAddressbook, changedAddressbook.sharees);
     });
   });
 

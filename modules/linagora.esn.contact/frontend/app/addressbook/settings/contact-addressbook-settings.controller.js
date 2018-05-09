@@ -44,7 +44,7 @@
       }
 
       if (shareeChanged) {
-        updateActions.push(contactAddressbookService.shareAddressbook(self.addressbook));
+        updateActions.push(contactAddressbookService.shareAddressbook(self.addressbook, self.addressbook.sharees));
       }
 
       return asyncAction(NOTIFICATION_MESSAGES, function() {

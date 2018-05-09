@@ -480,7 +480,7 @@ describe('The contactAddressbookService service', function() {
         };
       };
 
-      contactAddressbookService.shareAddressbook(addressbookShell);
+      contactAddressbookService.shareAddressbook(addressbookShell, addressbookShell.sharees);
       $rootScope.$digest();
     });
   });
