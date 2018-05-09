@@ -15,5 +15,18 @@
       READ: 2,
       READWRITE: 3,
       NOACCESS: 4
+    })
+
+    .constant('CONTACT_SHARING_SHARE_ACCESS_CHOICES', {
+      READ: {
+        value: 2,
+        label: 'Read',
+        longLabel: 'See all contacts'
+      },
+      READWRITE: {
+        value: 3,
+        label: 'Read/Write',
+        longLabel: 'Edit all contacts'
+      }
     });
 })(angular);

@@ -9,7 +9,8 @@
     _,
     esnI18nService,
     ContactSharee,
-    CONTACT_SHARING_SHARE_ACCESS
+    CONTACT_SHARING_SHARE_ACCESS,
+    CONTACT_SHARING_SHARE_ACCESS_CHOICES
   ) {
     var self = this;
 
@@ -22,14 +23,7 @@
 
     function $onInit() {
       self.newUsers = [];
-      self.SHARE_ACCESS = [{
-        value: CONTACT_SHARING_SHARE_ACCESS.READ,
-        title: esnI18nService.translate('See all contacts').toString()
-      }, {
-        value: CONTACT_SHARING_SHARE_ACCESS.READWRITE,
-        title: esnI18nService.translate('See and edit all contacts').toString()
-      }];
-      self.CONTACT_SHARING_SHARE_ACCESS = CONTACT_SHARING_SHARE_ACCESS;
+      self.CONTACT_SHARING_SHARE_ACCESS_CHOICES = CONTACT_SHARING_SHARE_ACCESS_CHOICES;
       self.selectedAccess = CONTACT_SHARING_SHARE_ACCESS.READ;
 
       _processSharees(self.sharees);
