@@ -24,7 +24,7 @@
         .text #{__('Contacts')}
 
 .listview
-  .lv-item.clickable.addressbook-item.waves-effect.waves-classic(
+  .addressbook-item.clickable.waves-effect.waves-classic(
     title=__('All contacts'),
     ui-sref-active="selected",
     ui-sref="contact.addressbooks({ bookName: null })"
@@ -39,4 +39,4 @@ hr
 .listview
   contact-sidebar-addressbooks-list(title="'My address books'", addressbooks='$ctrl.userAddressbooks')
 
-  contact-sidebar-addressbooks-list(title="'Shared address books'", addressbooks='$ctrl.sharedAddressbooks')
+  contact-sidebar-addressbooks-list.shared-addressbooks(title="'Shared address books'", addressbooks='$ctrl.sharedAddressbooks')
