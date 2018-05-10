@@ -8,6 +8,7 @@
     'esn.object-type',
     'esn.router',
     'esn.session',
-    'esn.websocket'
+    'esn.websocket',
+    'esn.registry'
   ]);
 })();

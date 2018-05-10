@@ -1,9 +1,0 @@
-div(ng-switch='ctrl.notification.category')
-  // TODO: This must be replaced with providers
-  esn-collaboration-membership-invitation-user-notification(ng-switch-when='collaboration:membership:invite', notification='ctrl.notification')
-  esn-collaboration-membership-request-accepted-user-notification(ng-switch-when='collaboration:membership:accepted', notification='ctrl.notification')
-  esn-collaboration-membership-request-declined-user-notification(ng-switch-when='collaboration:membership:refused', notification='ctrl.notification')
-  esn-collaboration-join-user-notification(ng-switch-when="collaboration:join", notification='ctrl.notification')
-  esn-user-notification-external(ng-switch-when='external', notification='ctrl.notification')
-  esn-simple-user-notification(ng-switch-when='simple', notification='ctrl.notification')
-  esn-user-notification-external(ng-switch-default, notification='ctrl.notification')
