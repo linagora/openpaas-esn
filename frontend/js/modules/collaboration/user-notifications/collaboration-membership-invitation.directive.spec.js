@@ -90,6 +90,48 @@ describe('The esnCollaborationMembershipInvitationUserNotification directive', f
       expect(eltScope.loading).to.be.false;
     });
 
+    it('should resolve notification data from (restangular) striped collaboration data', function() {
+      var displayName = 'john doe';
+      var scope = this.$rootScope.$new();
+
+      scope.notification = {
+        _id: '123',
+        subject: {
+          id: '1',
+          objectType: 'user'
+        },
+        complement: {
+          id: '2',
+          objectType: 'chat.notification'
+        }
+      };
+      var user = { _id: scope.notification.subject.id, displayName: sinon.stub().returns(displayName) };
+
+      this.objectTypeResolver.resolve = function(type) {
+        if (type === 'user') {
+          return $q.when({ data: user });
+        }
+
+        if (type === 'chat.notification') {
+          return $q.when({ _id: scope.notification.complement.id });
+        }
+      };
+      var element = this.$compile(this.html)(scope);
+
+      scope.$digest();
+      var eltScope = element.isolateScope();
+
+      expect(eltScope.invitationSender).to.exist;
+      expect(eltScope.invitationSender._id).to.equal(scope.notification.subject.id);
+      expect(user.displayName).to.have.been.called;
+      expect(eltScope.invitationSenderDisplayName).to.equal(displayName);
+      expect(eltScope.invitationCollaboration).to.exist;
+      expect(eltScope.invitationCollaboration._id).to.equal(scope.notification.complement.id);
+      expect(eltScope.invitationCollaboration.objectType).to.equal(scope.notification.complement.objectType);
+      expect(eltScope.error).to.be.false;
+      expect(eltScope.loading).to.be.false;
+    });
+
     it('should set scope.error if community fetch fails', function() {
       var scope = this.scope;
       var error = new Error('I failed to get community');

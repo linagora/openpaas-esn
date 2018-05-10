@@ -34,7 +34,7 @@
       $q.all({user: userResolver, collaboration: collaborationResolver}).then(function(result) {
         $scope.invitationSender = result.user.data;
         $scope.invitationSenderDisplayName = $scope.invitationSender.displayName($scope.invitationSender);
-        $scope.invitationCollaboration = result.collaboration.data;
+        $scope.invitationCollaboration = result.collaboration.data || result.collaboration;
         $scope.invitationCollaboration.objectType = $scope.notification.complement.objectType;
         $scope.collaborationPath = getCollaborationPath($scope.notification.complement.objectType);
       }, function(err) {
