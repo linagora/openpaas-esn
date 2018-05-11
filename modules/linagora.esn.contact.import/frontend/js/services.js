@@ -58,8 +58,9 @@ angular.module('linagora.esn.contact.import')
               'info',
               '',
               'Importing ' + account.provider + ' contacts for @' + account.data.username,
-              {from: 'bottom', align: 'center'},
-              3000);
+              3000,
+              {from: 'bottom', align: 'center'}
+              );
           } else {
             $log.debug('Unknown status code (%s) while importing contacts', response.status);
           }
@@ -68,8 +69,9 @@ angular.module('linagora.esn.contact.import')
             'danger',
             '',
             'Error while importing' + account.provider + ' contacts for @ ' + account.data.username + ':' + err,
-            {from: 'bottom', align: 'center'},
-            3000);
+            3000,
+            {from: 'bottom', align: 'center'}
+            );
         });
     }
 
@@ -112,8 +114,9 @@ angular.module('linagora.esn.contact.import')
         'danger',
         '',
         msg,
-        { from: 'bottom', align: 'center' },
-        3000);
+        3000,
+        { from: 'bottom', align: 'center' }
+        );
     }
 
     function accountErrorHandler(data) {
