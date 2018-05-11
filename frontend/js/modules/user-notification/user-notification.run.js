@@ -6,10 +6,19 @@
 
     function ESNUserNotificationRun(
       esnUserNotificationCounter,
-      esnUserNotificationWebsocketListenerService
+      esnUserNotificationWebsocketListenerService,
+      esnUserNotificationTemplateProviderRegistry
     ) {
 
       esnUserNotificationCounter.init();
       esnUserNotificationWebsocketListenerService.listenEvents();
+      esnUserNotificationTemplateProviderRegistry.add({
+        template: 'esn-user-notification-external',
+        category: 'external'
+      });
+      esnUserNotificationTemplateProviderRegistry.add({
+        template: 'esn-simple-user-notification',
+        category: 'simple'
+      });
     }
   })();

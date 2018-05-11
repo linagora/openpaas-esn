@@ -298,7 +298,7 @@ const injections = [
   ], innerApps: ['esn']},
   {angular: 'esn.user-notification', files: [
     'user-notification/user-notification.module.js',
-    'user-notification/list/item/user-notification-list-item.component.js',
+    'user-notification/list/item/user-notification-list-item.directive.js',
     'user-notification/list/user-notification-list.component.js',
     'user-notification/list/user-notification-list.controller.js',
     'user-notification/services/user-notification-counter.service.js',
@@ -306,7 +306,7 @@ const injections = [
     'user-notification/services/websocket/listener.service.js',
     'user-notification/subheader/user-notification-subheader.component.js',
     'user-notification/templates/user-notification-external.directive.js',
-    'user-notification/templates/user-notification-template-displayer.component.js',
+    'user-notification/templates/user-notification-template-provider-registry.service.js',
     'user-notification/templates/simple-user-notification/simple-user-notification.directive.js',
     'user-notification/toggler/user-notification-toggler.controller.js',
     'user-notification/toggler/user-notification-toggler.directive.js',
