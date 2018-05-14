@@ -23,6 +23,8 @@ module.exports = function(domains, host) {
   var downloadUrl = process.env.JMAP_DOWNLOAD_URL || jmapHostPort + '/download/{blobId}/{name}';
   var view = process.env.JMAP_VIEW || 'messages';
   var swipeRightAction = process.env.JMAP_SWIPE_RIGHT_ACTION || 'markAsRead';
+  var isForwardingEnabled = process.env.FORWARDING !== 'false';
+  var isLocalCopyEnabled = process.env.LOCAL_COPY_ENABLED !== 'false';
 
   function createInboxFeature() {
     var promises = domains.map(function(domain) {
@@ -82,6 +84,14 @@ module.exports = function(domains, host) {
             {
               name: 'swipeRightAction',
               value: swipeRightAction
+            },
+            {
+              name: 'forwarding',
+              value: isForwardingEnabled
+            },
+            {
+              name: 'isLocalCopyEnabled',
+              value: isLocalCopyEnabled
             }
           ]
         }]
