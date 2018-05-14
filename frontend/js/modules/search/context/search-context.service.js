@@ -3,7 +3,7 @@
 
   angular.module('esn.search').factory('esnSearchContextService', esnSearchContextService);
 
-  function esnSearchContextService(searchProviders, $state) {
+  function esnSearchContextService(esnI18nService, searchProviders, $state) {
     return {
       getProvidersContext: getProvidersContext,
       isActive: isActive
@@ -14,6 +14,7 @@
         .then(function(providers) {
           return providers.map(function(provider) {
             provider.active = isActive(provider);
+            provider.displayName = esnI18nService.translate(provider.name).toString();
 
             return provider;
           });
