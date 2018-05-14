@@ -1,9 +1,9 @@
 (function(angular) {
   'use strict';
 
-  angular.module('esn.search').controller('searchResultItemController', searchResultItemController);
+  angular.module('esn.search').controller('ESNSearchResultItemController', ESNSearchResultItemController);
 
-  function searchResultItemController($scope) {
+  function ESNSearchResultItemController($scope) {
     var self = this;
 
     self.$onInit = $onInit;

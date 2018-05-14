@@ -1,9 +1,9 @@
 (function(angular) {
   'use strict';
 
-  angular.module('esn.search').controller('SearchAdvancedFormController', SearchAdvancedFormController);
+  angular.module('esn.search').controller('ESNSearchAdvancedFormController', ESNSearchAdvancedFormController);
 
-  function SearchAdvancedFormController($rootScope, searchContextService) {
+  function ESNSearchAdvancedFormController($rootScope, esnSearchContextService) {
     var self = this;
 
     self.$onInit = $onInit;
@@ -29,7 +29,7 @@
     }
 
     function loadProviders() {
-      searchContextService.getProvidersContext().then(function(providers) {
+      esnSearchContextService.getProvidersContext().then(function(providers) {
         self.providers = providers;
       });
     }

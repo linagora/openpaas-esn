@@ -4,7 +4,7 @@
   angular.module('esn.search')
     .controller('ESNSearchHeaderController', ESNSearchHeaderController);
 
-  function ESNSearchHeaderController($stateParams, ESNSearchService) {
+  function ESNSearchHeaderController($stateParams, esnSearchService) {
     var self = this;
 
     self.$onInit = $onInit;
@@ -15,7 +15,7 @@
     }
 
     function search(query, providers) {
-      ESNSearchService.search(query, providers);
+      esnSearchService.search(query, providers);
     }
   }
 })();

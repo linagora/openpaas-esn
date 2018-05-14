@@ -4,7 +4,7 @@
 
 var expect = chai.expect;
 
-describe('The searchResultController controller', function() {
+describe('The ESNSearchResultController controller', function() {
   var $controller, $scope, controller, $stateParams, $q, query, searchProviders, $rootScope, ELEMENTS_PER_PAGE;
 
   beforeEach(function() {
@@ -12,7 +12,7 @@ describe('The searchResultController controller', function() {
   });
 
   function initController() {
-    controller = $controller('searchResultController', { $scope: $scope }, {});
+    controller = $controller('ESNSearchResultController', { $scope: $scope }, {});
     $scope.$digest();
     controller.$onInit();
   }

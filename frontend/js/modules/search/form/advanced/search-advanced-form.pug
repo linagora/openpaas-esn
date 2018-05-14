@@ -1,6 +1,6 @@
 .search-advanced-form
   form.search-header-form(name='form', ng-submit='ctrl.doSearch()')
-    search-provider-select(ng-class="{ 'focus': focus }", providers="ctrl.providers", on-provider-selected="ctrl.onProviderSelected(provider)")
+    esn-search-provider-select(ng-class="{ 'focus': focus }", providers="ctrl.providers", on-provider-selected="ctrl.onProviderSelected(provider)")
 
     button.btn.btn-icon.btn-link.button.search-header-button.search-button.hidden-xs(type="submit", title=__('Search'))
       i.mdi.mdi-magnify(ng-class="{ 'focus': focus }")
@@ -11,4 +11,4 @@
     button.btn.btn-icon.btn-link.button.search-header-button.clean-button(type="button", title=__('Delete'), ng-hide="!ctrl.searchQuery.text", ng-click="ctrl.clearSearchQuery()")
       i.mdi.mdi-close(ng-class="{ 'focus': focus }")
     .search-header-button.settings-button
-      search-advanced-toggle-button(ng-class="{ 'focus': focus }", provider="ctrl.provider", query="ctrl.searchQuery", search="ctrl.doSearch()")
+      esn-search-advanced-toggle-button(ng-class="{ 'focus': focus }", provider="ctrl.provider", query="ctrl.searchQuery", search="ctrl.doSearch()")

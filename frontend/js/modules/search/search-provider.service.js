@@ -1,9 +1,9 @@
 (function(angular) {
   'use strict';
 
-  angular.module('esn.search').factory('SearchProvider', SearchProvider);
+  angular.module('esn.search').factory('esnSearchProvider', esnSearchProvider);
 
-  function SearchProvider(uuid4) {
+  function esnSearchProvider(uuid4) {
     function SearchProvider(options) {
       this.options = options || {};
       this.name = options.name;

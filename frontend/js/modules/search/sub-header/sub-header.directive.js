@@ -1,9 +1,9 @@
 (function(angular) {
   'use strict';
 
-  angular.module('esn.search').directive('searchSubHeader', searchSubHeader);
+  angular.module('esn.search').directive('esnSearchSubHeader', esnSearchSubHeader);
 
-  function searchSubHeader() {
+  function esnSearchSubHeader() {
     return {
       restrict: 'E',
       templateUrl: '/views/modules/search/sub-header/sub-header.html'

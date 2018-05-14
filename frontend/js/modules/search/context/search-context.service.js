@@ -1,9 +1,9 @@
 (function(angular) {
   'use strict';
 
-  angular.module('esn.search').factory('searchContextService', searchContextService);
+  angular.module('esn.search').factory('esnSearchContextService', esnSearchContextService);
 
-  function searchContextService(searchProviders, $state) {
+  function esnSearchContextService(searchProviders, $state) {
     return {
       getProvidersContext: getProvidersContext,
       isActive: isActive

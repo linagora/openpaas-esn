@@ -4,15 +4,15 @@
 
 var expect = chai.expect;
 
-describe('The SearchProvider service', function() {
+describe('The esnSearchProvider service', function() {
   var SearchProvider;
 
   beforeEach(function() {
     angular.mock.module('esn.search', 'jadeTemplates');
   });
 
-  beforeEach(inject(function(_SearchProvider_) {
-    SearchProvider = _SearchProvider_;
+  beforeEach(inject(function(_esnSearchProvider_) {
+    SearchProvider = _esnSearchProvider_;
   }));
 
   describe('The constructor', function() {

@@ -1,9 +1,9 @@
 (function(angular) {
   'use strict';
 
-  angular.module('esn.search').controller('SearchAdvancedToggleButtonController', SearchAdvancedToggleButtonController);
+  angular.module('esn.search').controller('ESNSearchAdvancedToggleButtonController', ESNSearchAdvancedToggleButtonController);
 
-  function SearchAdvancedToggleButtonController($mdPanel) {
+  function ESNSearchAdvancedToggleButtonController($mdPanel) {
     var self = this;
 
     self.showAdvancedForm = showAdvancedForm;

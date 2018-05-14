@@ -1,9 +1,9 @@
 (function(angular) {
   'use strict';
 
-  angular.module('esn.search').component('searchResult', {
+  angular.module('esn.search').component('esnSearchResult', {
     templateUrl: '/views/modules/search/result/search-result.html',
-    controller: 'searchResultController',
+    controller: 'ESNSearchResultController',
     controllerAs: 'ctrl'
   });
 })(angular);

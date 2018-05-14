@@ -1,9 +1,9 @@
 (function(angular) {
   'use strict';
 
-  angular.module('esn.search').factory('searchResultSizeFormatter', searchResultSizeFormatter);
+  angular.module('esn.search').factory('esnSearchResultSizeFormatter', esnSearchResultSizeFormatter);
 
-  function searchResultSizeFormatter(SIGNIFICANT_DIGITS) {
+  function esnSearchResultSizeFormatter(SIGNIFICANT_DIGITS) {
     return function(count) {
 
       if (!count) {

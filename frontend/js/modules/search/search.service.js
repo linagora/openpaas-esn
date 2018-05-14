@@ -1,9 +1,9 @@
 (function(angular) {
   'use strict';
 
-  angular.module('esn.search').factory('ESNSearchService', ESNSearchService);
+  angular.module('esn.search').factory('esnSearchService', esnSearchService);
 
-  function ESNSearchService($state) {
+  function esnSearchService($state) {
     return {
       search: search
     };
