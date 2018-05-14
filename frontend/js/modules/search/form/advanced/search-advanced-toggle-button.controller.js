@@ -5,6 +5,7 @@
 
   function ESNSearchAdvancedToggleButtonController($mdPanel) {
     var self = this;
+    var panelRef;
 
     self.showAdvancedForm = showAdvancedForm;
     self.canShowAdvancedForm = canShowAdvancedForm;
@@ -14,11 +15,11 @@
     }
 
     function showAdvancedForm() {
-      if (!self.panelRef) {
+      if (!panelRef) {
         createPanel();
       }
 
-      self.panelRef.open();
+      panelRef.open();
     }
 
     function createPanel() {
@@ -36,8 +37,8 @@
           $scope.search = search;
 
           function hide() {
-            if (self.panelRef) {
-              self.panelRef.hide();
+            if (panelRef) {
+              panelRef.hide();
             }
           }
 
@@ -57,7 +58,7 @@
         focusOnOpen: true
       };
 
-      self.panelRef = $mdPanel.create(config);
+      panelRef = $mdPanel.create(config);
     }
   }
 })(angular);
