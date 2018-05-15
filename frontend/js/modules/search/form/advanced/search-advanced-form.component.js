@@ -1,9 +1,9 @@
 (function(angular) {
   'use strict';
 
-  angular.module('esn.search').component('searchAdvancedForm', {
+  angular.module('esn.search').component('esnSearchAdvancedForm', {
     templateUrl: '/views/modules/search/form/advanced/search-advanced-form.html',
-    controller: 'SearchAdvancedFormController',
+    controller: 'ESNSearchAdvancedFormController',
     controllerAs: 'ctrl',
     bindings: {
       query: '=',

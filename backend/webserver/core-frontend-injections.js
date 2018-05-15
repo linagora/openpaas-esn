@@ -37,13 +37,15 @@ const injections = [
     'search/search.module.js',
     'search/search.constants.js',
     'search/search.router.js',
+    'search/search.service.js',
     'search/context/search-context.service.js',
     'search/form/search-form.directive.js',
     'search/form/advanced/search-advanced-form.component.js',
     'search/form/advanced/search-advanced-form.controller.js',
+    'search/form/advanced/search-advanced-toggle-button.component.js',
+    'search/form/advanced/search-advanced-toggle-button.controller.js',
     'search/header/search-header.component.js',
     'search/header/search-header.controller.js',
-    'search/header/settings/search-header-settings.controller.js',
     'search/result/search-result-size-formatter.service.js',
     'search/result/search-result.controller.js',
     'search/result/search-result.component.js',
@@ -53,7 +55,8 @@ const injections = [
     'search/application-menu.directive.js',
     'search/search-providers.service.js',
     'search/provider-select/search-provider-select.component.js',
-    'search/provider-select/search-provider-select.controller.js'
+    'search/provider-select/search-provider-select.controller.js',
+    'search/search-provider.service.js'
   ], innerApps: ['esn']},
   {angular: 'esn.infinite-list', files: [
     'infinite-list/infinite-list.module.js',

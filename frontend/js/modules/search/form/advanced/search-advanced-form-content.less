@@ -1,0 +1,51 @@
+.search-header-settings-panel {
+  background: @m-white;
+  border-radius: 2px;
+  box-shadow: 0 7px 8px -4px rgba(0, 0, 0, 0.2),
+      0 13px 19px 2px rgba(0, 0, 0, 0.14),
+      0 5px 24px 4px rgba(0, 0, 0, 0.12);
+  max-width: 100vw;
+}
+
+.search-advanced-form-content {
+  .search-advanced-form-content-content {
+    padding: 5px 2px 0 2px;
+
+    .search-advanced-form-content-body {
+      margin-top: 10px;
+
+      .search-advanced-form-content-form {
+        padding: 10px;
+      }
+    }
+
+    .search-advanced-form-content-footer {
+      .flex-end;
+
+      padding: 10px;
+    }
+  }
+}
+
+@media (max-width: @screen-md-min) {
+  .search-header-settings-panel {
+    left: 0px !important; // overrides md-panel on mobile
+    width: 100vw !important; // overrides md-panel on mobile so it takes all the available width
+  }
+
+  .search-advanced-form-content {
+    left: 0 !important; //search option popover always displayed on the left
+  }
+}
+
+@media (min-width: @screen-md-min) {
+  .search-advanced-form-content {
+    width: 542px;
+  }
+}
+
+@media (min-width: @screen-xl-min) {
+  .search-advanced-form-content {
+    width: 792px;
+  }
+}

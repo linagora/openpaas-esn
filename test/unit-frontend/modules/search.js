@@ -50,13 +50,13 @@ describe('The Search Form Angular module', function() {
     });
   });
 
-  describe('The searchResultSizeFormatter service', function() {
+  describe('The esnSearchResultSizeFormatter service', function() {
 
     var service;
 
     beforeEach(function() {
       inject(function($injector) {
-        service = $injector.get('searchResultSizeFormatter');
+        service = $injector.get('esnSearchResultSizeFormatter');
       });
     });
 

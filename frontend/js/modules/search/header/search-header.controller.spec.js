@@ -4,7 +4,7 @@
 
 var expect = chai.expect;
 
-describe('The searchHeader component', function() {
+describe('The esnSearchHeader component', function() {
   var $state, $stateParams, element, $compile, $rootScope, scope;
 
   beforeEach(function() {
@@ -21,7 +21,7 @@ describe('The searchHeader component', function() {
   }));
 
   function compileSearchHeaderDirective() {
-    var html = '<search-header></search-header>';
+    var html = '<esn-search-header></esn-search-header>';
 
     element = $compile(html)(scope);
     scope.$digest();

@@ -1,9 +1,9 @@
 (function(angular) {
   'use strict';
 
-  angular.module('esn.search').factory('searchContextService', searchContextService);
+  angular.module('esn.search').factory('esnSearchContextService', esnSearchContextService);
 
-  function searchContextService(searchProviders, $state) {
+  function esnSearchContextService(esnI18nService, searchProviders, $state) {
     return {
       getProvidersContext: getProvidersContext,
       isActive: isActive
@@ -14,6 +14,7 @@
         .then(function(providers) {
           return providers.map(function(provider) {
             provider.active = isActive(provider);
+            provider.displayName = esnI18nService.translate(provider.name).toString();
 
             return provider;
           });

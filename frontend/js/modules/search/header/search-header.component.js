@@ -3,7 +3,7 @@
 
   angular
     .module('esn.search')
-    .component('searchHeader', {
+    .component('esnSearchHeader', {
       templateUrl: '/views/modules/search/header/search-header.html',
       controller: 'ESNSearchHeaderController'
     });

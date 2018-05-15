@@ -1,15 +1,15 @@
 (function(angular) {
   'use strict';
 
-  angular.module('esn.search').controller('searchResultController', searchResultController);
+  angular.module('esn.search').controller('ESNSearchResultController', ESNSearchResultController);
 
-  function searchResultController(
+  function ESNSearchResultController(
+    _,
     $scope,
     $stateParams,
     $q,
     searchProviders,
     infiniteScrollHelper,
-    _,
     PageAggregatorService,
     ELEMENTS_PER_PAGE
   ) {

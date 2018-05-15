@@ -4,8 +4,8 @@
 
 var expect = chai.expect;
 
-describe('The searchContextService service', function() {
-  var $rootScope, $state, $q, searchProviders, searchContextService;
+describe('The esnSearchContextService service', function() {
+  var $rootScope, $state, $q, searchProviders, esnSearchContextService;
 
   beforeEach(function() {
     $state = {
@@ -21,8 +21,8 @@ describe('The searchContextService service', function() {
     });
   });
 
-  beforeEach(inject(function(_searchContextService_, _$q_, _$rootScope_) {
-    searchContextService = _searchContextService_;
+  beforeEach(inject(function(_esnSearchContextService_, _$q_, _$rootScope_) {
+    esnSearchContextService = _esnSearchContextService_;
     $q = _$q_;
     $rootScope = _$rootScope_;
   }));
@@ -31,14 +31,14 @@ describe('The searchContextService service', function() {
     it('should return false when provider does not have activeOn property', function() {
       var provider = {};
 
-      expect(searchContextService.isActive(provider)).to.be.false;
+      expect(esnSearchContextService.isActive(provider)).to.be.false;
       expect($state.includes).to.not.have.been.called;
     });
 
     it('should return false when activeOn array is empty', function() {
       var provider = {activeOn: []};
 
-      expect(searchContextService.isActive(provider)).to.be.false;
+      expect(esnSearchContextService.isActive(provider)).to.be.false;
       expect($state.includes).to.not.have.been.called;
     });
 
@@ -47,7 +47,7 @@ describe('The searchContextService service', function() {
 
       $state.includes.returns(false);
 
-      expect(searchContextService.isActive(provider)).to.be.false;
+      expect(esnSearchContextService.isActive(provider)).to.be.false;
       expect($state.includes).to.have.been.calledThrice;
     });
 
@@ -57,7 +57,7 @@ describe('The searchContextService service', function() {
       $state.includes.onFirstCall().returns(true);
       $state.includes.returns(false);
 
-      expect(searchContextService.isActive(provider)).to.be.true;
+      expect(esnSearchContextService.isActive(provider)).to.be.true;
       expect($state.includes).to.have.been.calledOnce;
     });
 
@@ -67,7 +67,7 @@ describe('The searchContextService service', function() {
       $state.includes.onSecondCall().returns(true);
       $state.includes.returns(false);
 
-      expect(searchContextService.isActive(provider)).to.be.true;
+      expect(esnSearchContextService.isActive(provider)).to.be.true;
       expect($state.includes).to.have.been.calledTwice;
     });
   });
@@ -80,7 +80,7 @@ describe('The searchContextService service', function() {
     it('should reject when searchProviders.getAll rejects', function(done) {
       searchProviders.getAll.returns($q.reject(new Error()));
 
-      searchContextService.getProvidersContext().then(function() {
+      esnSearchContextService.getProvidersContext().then(function() {
         done(new Error('Should not occur'));
       }, function() {
         done();
@@ -97,7 +97,7 @@ describe('The searchContextService service', function() {
 
       searchProviders.getAll.returns($q.when(providers));
 
-      searchContextService.getProvidersContext().then(function(result) {
+      esnSearchContextService.getProvidersContext().then(function(result) {
         expect(result).to.shallowDeepEqual([
           {id: 1, name: 'emailsearchprovider', active: false},
           {id: 2, name: 'contactsearchprovider', active: false}

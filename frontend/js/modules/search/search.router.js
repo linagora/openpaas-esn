@@ -24,7 +24,7 @@
         },
         views: {
           'search-result': {
-            template: '<search-result></search-result>'
+            template: '<esn-search-result></esn-search-result>'
           }
         }
       });
