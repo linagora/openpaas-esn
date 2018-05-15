@@ -44,7 +44,7 @@
 
     function onUserRemoved(user) {
       _.remove(self.addressbooksPerUser, function(addressbook) {
-        return addressbook.bookId === user._id;
+        return addressbook.user._id === user._id;
       });
     }
 
