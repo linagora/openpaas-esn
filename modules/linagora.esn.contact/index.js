@@ -22,8 +22,7 @@ const angularModuleFiles = [
   'shells/builders.js',
   'pagination.js',
   'contact-api-client.js',
-  'providers/attendee.js',
-  'providers/contact.js'
+  'providers/attendee.js'
 ];
 const angularModuleAppFiles = glob.sync([
   `${FRONTEND_PATH}/app/**/!(*spec).js`

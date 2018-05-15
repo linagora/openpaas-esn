@@ -1,12 +1,11 @@
 'use strict';
 
-/* global chai: false */
-/* global sinon: false */
+/* global chai, sinon: false */
 
 var expect = chai.expect;
 
-describe('The searchContactProviderService service', function() {
-  var user, session, ContactAPIClient, searchContactProviderService, $rootScope, searchMock, contacts;
+describe('The contactSearchProviderService service', function() {
+  var user, session, ContactAPIClient, contactSearchProviderService, $rootScope, searchMock, contacts, esnSearchProvider;
 
   beforeEach(function() {
     user = {
@@ -33,21 +32,26 @@ describe('The searchContactProviderService service', function() {
       {_id: 2, firstname: 'Bruce', lastname: 'Willis'}
     ];
 
+    esnSearchProvider = function(options) {
+      this.options = options;
+    };
+
   });
 
   beforeEach(function() {
     module('linagora.esn.contact', function($provide) {
       $provide.value('ContactAPIClient', ContactAPIClient);
+      $provide.value('esnSearchProvider', esnSearchProvider);
       $provide.value('session', session);
     });
   });
 
-  beforeEach(angular.mock.inject(function(_searchContactProviderService_, _$rootScope_) {
-    searchContactProviderService = _searchContactProviderService_;
+  beforeEach(angular.mock.inject(function(_contactSearchProviderService_, _$rootScope_) {
+    contactSearchProviderService = _contactSearchProviderService_;
     $rootScope = _$rootScope_;
   }));
 
-  describe('The searchContactProviderService factory', function() {
+  describe('The contactSearchProviderService factory', function() {
 
     function setMockResult(data) {
       searchMock = function() {
@@ -71,7 +75,7 @@ describe('The searchContactProviderService service', function() {
         done();
       }
 
-      var fetcher = searchContactProviderService.fetch('abcd');
+      var fetcher = contactSearchProviderService.options.fetch('abcd');
 
       fetcher().then(check, done);
 
@@ -104,7 +108,7 @@ describe('The searchContactProviderService service', function() {
           done();
         }
 
-        var fetcher = searchContactProviderService.fetch('abcd');
+        var fetcher = contactSearchProviderService.options.fetch('abcd');
 
         fetcher().then(check, done);
 
@@ -131,7 +135,7 @@ describe('The searchContactProviderService service', function() {
           done();
         }
 
-        var fetcher = searchContactProviderService.fetch('abcd');
+        var fetcher = contactSearchProviderService.options.fetch('abcd');
 
         fetcher().then(check, done);
 

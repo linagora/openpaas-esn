@@ -103,11 +103,9 @@ angular.module('linagora.esn.contact', [
     attendeeService,
     ContactAttendeeProvider,
     esnModuleRegistry,
-    searchContactProviderService,
     searchProviders,
     CONTACT_MODULE_METADATA
   ) {
     attendeeService.addProvider(ContactAttendeeProvider);
-    searchProviders.add(searchContactProviderService);
     esnModuleRegistry.add(CONTACT_MODULE_METADATA);
   });
