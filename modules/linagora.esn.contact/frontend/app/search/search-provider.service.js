@@ -1,12 +1,16 @@
-(function() {
+(function(angular) {
   'use strict';
 
-  angular.module('linagora.esn.contact')
-    .factory('searchContactProviderService', searchContactProviderService);
+  angular.module('linagora.esn.contact').factory('contactSearchProviderService', contactSearchProviderService);
 
-  function searchContactProviderService($q, newProvider, ContactAPIClient, session, CONTACT_GLOBAL_SEARCH) {
-
-    return newProvider({
+  function contactSearchProviderService(
+    $q,
+    esnSearchProvider,
+    session,
+    ContactAPIClient,
+    CONTACT_GLOBAL_SEARCH
+  ) {
+    return new esnSearchProvider({
       name: CONTACT_GLOBAL_SEARCH.NAME,
       fetch: function(query) {
         var searchOptions = {
@@ -31,7 +35,8 @@
       buildFetchContext: function(options) {
         return $q.when(options.query);
       },
-      templateUrl: '/contact/views/providers/contact-search.html'
+      templateUrl: '/contact/views/providers/contact-search.html',
+      activeOn: ['contact']
     });
   }
-})();
+})(angular);
