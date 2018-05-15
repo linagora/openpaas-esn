@@ -63,6 +63,17 @@ describe('The contactAddressbookACLHelper service', function() {
       expect(contactAddressbookACLHelper.canEditAddressbook(addressbookShell, userId)).to.equal(true);
     });
 
+    it('should return true if user has "{DAV:}write-properties" privilege', function() {
+      var addressbookShell = {
+        acl: [{
+          principal: 'principals/users/' + userId,
+          privilege: '{DAV:}write-properties'
+        }]
+      };
+
+      expect(contactAddressbookACLHelper.canEditAddressbook(addressbookShell, userId)).to.equal(true);
+    });
+
     it('should return true if user has "{DAV:}all" privilege', function() {
       var addressbookShell = {
         acl: [{
@@ -152,6 +163,50 @@ describe('The contactAddressbookACLHelper service', function() {
     });
   });
 
+  describe('The canShareAddressbook function', function() {
+    it('should return false if user has no privilege', function() {
+      var addressbookShell = {};
+
+      expect(contactAddressbookACLHelper.canShareAddressbook(addressbookShell, userId)).to.equal(false);
+    });
+
+    it('should return true if user has "{DAV:}share" privilege', function() {
+      var addressbookShell = {
+        acl: [{
+          principal: 'principals/users/' + userId,
+          privilege: '{DAV:}share'
+        }]
+      };
+
+      expect(contactAddressbookACLHelper.canShareAddressbook(addressbookShell, userId)).to.equal(true);
+    });
+
+    it('should return true if user has "{DAV:}all" privilege', function() {
+      var addressbookShell = {
+        acl: [{
+          principal: 'principals/users/' + userId,
+          privilege: '{DAV:}all'
+        }]
+      };
+
+      expect(contactAddressbookACLHelper.canShareAddressbook(addressbookShell, userId)).to.equal(true);
+    });
+
+    it('should check the logged in user if there is no userId is given', function() {
+      session.user = {
+        _id: userId
+      };
+      var addressbookShell = {
+        acl: [{
+          principal: 'principals/users/' + userId,
+          privilege: '{DAV:}all'
+        }]
+      };
+
+      expect(contactAddressbookACLHelper.canShareAddressbook(addressbookShell)).to.equal(true);
+    });
+  });
+
   describe('The canCreateContact function', function() {
     describe('Personal address book', function() {
       it('should return false if user has no privilege', function() {
@@ -176,6 +231,17 @@ describe('The contactAddressbookACLHelper service', function() {
           acl: [{
             principal: 'principals/users/' + userId,
             privilege: '{DAV:}write'
+          }]
+        };
+
+        expect(contactAddressbookACLHelper.canCreateContact(addressbookShell, userId)).to.equal(true);
+      });
+
+      it('should return true if user has "{DAV:}bind" privilege', function() {
+        var addressbookShell = {
+          acl: [{
+            principal: 'principals/users/' + userId,
+            privilege: '{DAV:}bind'
           }]
         };
 
@@ -254,6 +320,20 @@ describe('The contactAddressbookACLHelper service', function() {
         expect(contactAddressbookACLHelper.canCreateContact(addressbookShell, userId)).to.equal(true);
       });
 
+      it('should return true if authenticated user has has only "{DAV:}bind" privilege on source address book', function() {
+        var addressbookShell = {
+          isSubscription: true,
+          source: {
+            acl: [{
+              principal: CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL,
+              privilege: '{DAV:}bind'
+            }]
+          }
+        };
+
+        expect(contactAddressbookACLHelper.canCreateContact(addressbookShell, userId)).to.equal(true);
+      });
+
       it('should return true if authenticated user has has only "{DAV:}all" privilege on source address book', function() {
         var addressbookShell = {
           isSubscription: true,
@@ -294,6 +374,17 @@ describe('The contactAddressbookACLHelper service', function() {
           acl: [{
             principal: 'principals/users/' + userId,
             privilege: '{DAV:}write'
+          }]
+        };
+
+        expect(contactAddressbookACLHelper.canEditContact(addressbookShell, userId)).to.equal(true);
+      });
+
+      it('should return true if user has "{DAV:}write-content" privilege', function() {
+        var addressbookShell = {
+          acl: [{
+            principal: 'principals/users/' + userId,
+            privilege: '{DAV:}write-content'
           }]
         };
 
@@ -372,6 +463,20 @@ describe('The contactAddressbookACLHelper service', function() {
         expect(contactAddressbookACLHelper.canEditContact(addressbookShell, userId)).to.equal(true);
       });
 
+      it('should return true if authenticated user has has only "{DAV:}write-content" privilege on source address book', function() {
+        var addressbookShell = {
+          isSubscription: true,
+          source: {
+            acl: [{
+              principal: CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL,
+              privilege: '{DAV:}write-content'
+            }]
+          }
+        };
+
+        expect(contactAddressbookACLHelper.canEditContact(addressbookShell, userId)).to.equal(true);
+      });
+
       it('should return true if authenticated user has has only "{DAV:}all" privilege on source address book', function() {
         var addressbookShell = {
           isSubscription: true,
@@ -418,6 +523,17 @@ describe('The contactAddressbookACLHelper service', function() {
           acl: [{
             principal: 'principals/users/' + userId,
             privilege: '{DAV:}write'
+          }]
+        };
+
+        expect(contactAddressbookACLHelper.canMoveContact(addressbookShell, userId)).to.equal(true);
+      });
+
+      it('should return true if user has "{DAV:}unbind" privilege', function() {
+        var addressbookShell = {
+          acl: [{
+            principal: 'principals/users/' + userId,
+            privilege: '{DAV:}unbind'
           }]
         };
 
@@ -496,6 +612,20 @@ describe('The contactAddressbookACLHelper service', function() {
         expect(contactAddressbookACLHelper.canMoveContact(addressbookShell, userId)).to.equal(true);
       });
 
+      it('should return true if authenticated user has has only "{DAV:}unbind" privilege on source address book', function() {
+        var addressbookShell = {
+          isSubscription: true,
+          source: {
+            acl: [{
+              principal: CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL,
+              privilege: '{DAV:}unbind'
+            }]
+          }
+        };
+
+        expect(contactAddressbookACLHelper.canMoveContact(addressbookShell, userId)).to.equal(true);
+      });
+
       it('should return true if authenticated user has has only "{DAV:}all" privilege on source address book', function() {
         var addressbookShell = {
           isSubscription: true,
@@ -536,6 +666,17 @@ describe('The contactAddressbookACLHelper service', function() {
           acl: [{
             principal: 'principals/users/' + userId,
             privilege: '{DAV:}write'
+          }]
+        };
+
+        expect(contactAddressbookACLHelper.canDeleteContact(addressbookShell, userId)).to.equal(true);
+      });
+
+      it('should return true if user has "{DAV:}unbind" privilege', function() {
+        var addressbookShell = {
+          acl: [{
+            principal: 'principals/users/' + userId,
+            privilege: '{DAV:}unbind'
           }]
         };
 
@@ -607,6 +748,20 @@ describe('The contactAddressbookACLHelper service', function() {
             acl: [{
               principal: CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL,
               privilege: '{DAV:}write'
+            }]
+          }
+        };
+
+        expect(contactAddressbookACLHelper.canDeleteContact(addressbookShell, userId)).to.equal(true);
+      });
+
+      it('should return true if authenticated user has has only "{DAV:}unbind" privilege on source address book', function() {
+        var addressbookShell = {
+          isSubscription: true,
+          source: {
+            acl: [{
+              principal: CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL,
+              privilege: '{DAV:}unbind'
             }]
           }
         };
