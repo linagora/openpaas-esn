@@ -8,7 +8,8 @@ const helper = require('../helper');
 
 const PATH = 'addressbooks';
 const DEFAULT_ADDRESSBOOK_NAME = 'contacts';
-const VCARD_JSON = 'application/vcard+json';
+const HEADER_JSON = 'application/json';
+const HEADER_VCARD_JSON = 'application/vcard+json';
 const VALID_HTTP_STATUS = {
   GET: [200],
   PUT: [200, 201, 204],
@@ -195,7 +196,7 @@ module.exports = function(dependencies, options) {
         const deferred = q.defer();
         const headers = {
           ESNToken: ESNToken,
-          accept: VCARD_JSON
+          accept: HEADER_VCARD_JSON
         };
         const method = 'POST';
 
@@ -219,7 +220,7 @@ module.exports = function(dependencies, options) {
         var deferred = q.defer();
         var headers = {
           ESNToken: ESNToken,
-          accept: VCARD_JSON
+          accept: HEADER_VCARD_JSON
         };
 
         getBookUrl(url => davClient({
@@ -240,7 +241,7 @@ module.exports = function(dependencies, options) {
         const deferred = q.defer();
         const headers = {
           ESNToken: ESNToken,
-          accept: VCARD_JSON
+          accept: HEADER_VCARD_JSON
         };
 
         getBookUrl(url => davClient({
@@ -264,7 +265,7 @@ module.exports = function(dependencies, options) {
         var deferred = q.defer();
         var headers = {
           ESNToken: ESNToken,
-          accept: VCARD_JSON
+          accept: HEADER_VCARD_JSON
         };
 
         getAddressBookHomeUrl(function(url) {
@@ -291,7 +292,7 @@ module.exports = function(dependencies, options) {
         var deferred = q.defer();
         var headers = {
           ESNToken: ESNToken,
-          accept: VCARD_JSON
+          accept: HEADER_JSON
         };
 
         var properties = {
@@ -353,7 +354,7 @@ module.exports = function(dependencies, options) {
           var deferred = q.defer();
           var headers = {
             ESNToken: ESNToken,
-            accept: VCARD_JSON
+            accept: HEADER_VCARD_JSON
           };
 
           getVCardUrl(function(url) {
@@ -377,7 +378,7 @@ module.exports = function(dependencies, options) {
           var deferred = q.defer();
           var headers = {
             ESNToken: ESNToken,
-            accept: VCARD_JSON
+            accept: HEADER_VCARD_JSON
           };
 
           getVCardUrl(function(url) {
@@ -403,7 +404,7 @@ module.exports = function(dependencies, options) {
           var deferred = q.defer();
           var headers = {
             ESNToken: ESNToken,
-            accept: VCARD_JSON
+            accept: HEADER_VCARD_JSON
           };
 
           getVCardUrl(function(url) {
@@ -487,7 +488,7 @@ module.exports = function(dependencies, options) {
           var deferred = q.defer();
           var headers = {
             ESNToken: ESNToken,
-            accept: VCARD_JSON
+            accept: HEADER_VCARD_JSON
           };
 
           getBookUrl(function(url) {

@@ -3,7 +3,8 @@
 const expect = require('chai').expect;
 const mockery = require('mockery');
 const sinon = require('sinon');
-const VCARD_JSON = 'application/vcard+json';
+const HEADER_JSON = 'application/json';
+const HEADER_VCARD_JSON = 'application/vcard+json';
 
 describe('The contact client APIs', function() {
   var deps;
@@ -114,7 +115,7 @@ describe('The contact client APIs', function() {
                 json: true,
                 headers: {
                   ESNToken: CLIENT_OPTIONS.ESNToken,
-                  accept: VCARD_JSON
+                  accept: HEADER_VCARD_JSON
                 },
                 body: undefined
               });
@@ -137,7 +138,7 @@ describe('The contact client APIs', function() {
                 json: true,
                 headers: {
                   ESNToken: CLIENT_OPTIONS.ESNToken,
-                  accept: VCARD_JSON
+                  accept: HEADER_VCARD_JSON
                 },
                 body: undefined,
                 query: options.query
@@ -191,7 +192,7 @@ describe('The contact client APIs', function() {
               expect(options.json).to.be.true;
               expect(options.headers).to.eql({
                 ESNToken: CLIENT_OPTIONS.ESNToken,
-                accept: VCARD_JSON
+                accept: HEADER_VCARD_JSON
               });
               expectBookHomeURL(options.url);
               expect(options.body).to.equal(addressbook);
@@ -263,7 +264,7 @@ describe('The contact client APIs', function() {
                 json: true,
                 headers: {
                   ESNToken: CLIENT_OPTIONS.ESNToken,
-                  accept: VCARD_JSON
+                  accept: HEADER_JSON
                 },
                 body: { properties: Object.keys(PROPERTIES) }
               });
@@ -361,7 +362,7 @@ describe('The contact client APIs', function() {
                 expect(options.json).to.be.true;
                 expect(options.headers).to.eql({
                   ESNToken: CLIENT_OPTIONS.ESNToken,
-                  accept: VCARD_JSON
+                  accept: HEADER_VCARD_JSON
                 });
                 expectBookNameURL(options.url);
                 expect(options.query).to.equal(query);
@@ -624,7 +625,7 @@ describe('The contact client APIs', function() {
                 expect(options.json).to.be.true;
                 expect(options.headers).to.eql({
                   ESNToken: CLIENT_OPTIONS.ESNToken,
-                  accept: VCARD_JSON
+                  accept: HEADER_VCARD_JSON
                 });
                 expectVCardURL(options.url);
                 done();
@@ -677,7 +678,7 @@ describe('The contact client APIs', function() {
                 expect(options.json).to.be.true;
                 expect(options.headers).to.eql({
                   ESNToken: CLIENT_OPTIONS.ESNToken,
-                  accept: VCARD_JSON
+                  accept: HEADER_VCARD_JSON
                 });
                 expectVCardURL(options.url);
                 expect(options.body).to.deep.equal(contact);
@@ -744,7 +745,7 @@ describe('The contact client APIs', function() {
                 expect(options.json).to.be.true;
                 expect(options.headers).to.eql({
                   ESNToken: CLIENT_OPTIONS.ESNToken,
-                  accept: VCARD_JSON
+                  accept: HEADER_VCARD_JSON
                 });
                 expectVCardURL(options.url);
                 expect(options.body).to.deep.equal(contact);
