@@ -14,13 +14,19 @@
   ) {
     var AVAILABLE_PRIVILEGES = {
       all: '{DAV:}all',
+      read: '{DAV:}read',
       write: '{DAV:}write',
-      read: '{DAV:}read'
+      writeProperties: '{DAV:}write-properties',
+      writeContent: '{DAV:}write-content',
+      bind: '{DAV:}bind',
+      unbind: '{DAV:}unbind',
+      share: '{DAV:}share'
     };
 
     return {
       canEditAddressbook: canEditAddressbook,
       canDeleteAddressbook: canDeleteAddressbook,
+      canShareAddressbook: canShareAddressbook,
       canCreateContact: canCreateContact,
       canEditContact: canEditContact,
       canCopyContact: canCopyContact,
@@ -35,33 +41,37 @@
 
       var userPrivileges = _getUserPrivileges(addressbookShell.acl, userId);
 
-      return userPrivileges.indexOf(AVAILABLE_PRIVILEGES.all) !== -1 ||
-        userPrivileges.indexOf(AVAILABLE_PRIVILEGES.write) !== -1;
+      return userPrivileges.indexOf(AVAILABLE_PRIVILEGES.all) > -1 ||
+             userPrivileges.indexOf(AVAILABLE_PRIVILEGES.write) > -1 ||
+             userPrivileges.indexOf(AVAILABLE_PRIVILEGES.writeProperties) > -1;
     }
 
     function canDeleteAddressbook(addressbookShell, userId) {
-      if (_isDefaultAddressbook(addressbookShell)) {
-        return false;
-      }
+      // if you can edit AB, you can delete it too
+      return canEditAddressbook(addressbookShell, userId);
+    }
 
-      var userPrivileges = _getUserPrivileges(addressbookShell.acl, userId);
+    function canShareAddressbook(addressbookShell, userId) {
+      var userPrivileges = _getContactPrivileges(addressbookShell, userId);
 
-      return userPrivileges.indexOf(AVAILABLE_PRIVILEGES.all) !== -1 ||
-        userPrivileges.indexOf(AVAILABLE_PRIVILEGES.write) !== -1;
+      return userPrivileges.indexOf(AVAILABLE_PRIVILEGES.all) > -1 ||
+             userPrivileges.indexOf(AVAILABLE_PRIVILEGES.share) > -1;
     }
 
     function canCreateContact(addressbookShell, userId) {
       var userPrivileges = _getContactPrivileges(addressbookShell, userId);
 
-      return userPrivileges.indexOf(AVAILABLE_PRIVILEGES.all) !== -1 ||
-        userPrivileges.indexOf(AVAILABLE_PRIVILEGES.write) !== -1;
+      return userPrivileges.indexOf(AVAILABLE_PRIVILEGES.all) > -1 ||
+             userPrivileges.indexOf(AVAILABLE_PRIVILEGES.write) > -1 ||
+             userPrivileges.indexOf(AVAILABLE_PRIVILEGES.bind) > -1;
     }
 
     function canEditContact(addressbookShell, userId) {
       var userPrivileges = _getContactPrivileges(addressbookShell, userId);
 
-      return userPrivileges.indexOf(AVAILABLE_PRIVILEGES.all) !== -1 ||
-        userPrivileges.indexOf(AVAILABLE_PRIVILEGES.write) !== -1;
+      return userPrivileges.indexOf(AVAILABLE_PRIVILEGES.all) > -1 ||
+             userPrivileges.indexOf(AVAILABLE_PRIVILEGES.write) > -1 ||
+             userPrivileges.indexOf(AVAILABLE_PRIVILEGES.writeContent) > -1;
     }
 
     function canCopyContact() {
@@ -75,8 +85,9 @@
     function canDeleteContact(addressbookShell, userId) {
       var userPrivileges = _getContactPrivileges(addressbookShell, userId);
 
-      return userPrivileges.indexOf(AVAILABLE_PRIVILEGES.all) !== -1 ||
-        userPrivileges.indexOf(AVAILABLE_PRIVILEGES.write) !== -1;
+      return userPrivileges.indexOf(AVAILABLE_PRIVILEGES.all) > -1 ||
+             userPrivileges.indexOf(AVAILABLE_PRIVILEGES.write) > -1 ||
+             userPrivileges.indexOf(AVAILABLE_PRIVILEGES.unbind) > -1;
     }
 
     function _getContactPrivileges(addressbookShell, userId) {
