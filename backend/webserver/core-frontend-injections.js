@@ -407,6 +407,12 @@ const injections = [
     'attachments-selector/attachments-selector.module.js',
     'attachments-selector/attachments-selector.component.js',
     'attachments-selector/attachments-selector.controller.js'
+  ], innerApps: ['esn']},
+  {angular: 'esn.app-state', files: [
+    'app-state/app-state.module.js',
+    'app-state/app-state.run.js',
+    'app-state/app-state.constant.js',
+    'app-state/services/app-state.service.js'
   ], innerApps: ['esn']}
 ];
 
