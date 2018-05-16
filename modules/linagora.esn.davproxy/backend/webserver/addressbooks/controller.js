@@ -395,17 +395,35 @@ module.exports = function(dependencies) {
       .addressbookHome(req.params.bookHome)
       .addressbook(req.params.bookName)
       .get()
-      .then(function(data) {
-        res.status(200).json(data.body);
-      }, function(err) {
-        logger.error('Error while getting an addressbook', err);
-        res.status(500).json({
-          error: {
-            code: 500,
-            message: 'Server Error',
-            details: 'Error while getting an addressbook'
-          }
-        });
+      .then(data => data.body)
+      .then(body => {
+        if (body['openpaas:source']) {
+          const parsedSourcePath = contactModule.lib.helper.parseAddressbookPath(body['openpaas:source']);
+
+          return contactModule.lib.client(options)
+              .addressbookHome(parsedSourcePath.bookHome)
+              .addressbook(parsedSourcePath.bookName)
+              .get()
+              .then(data => {
+                body['openpaas:source'] = data.body;
+
+                return body;
+              });
+        }
+
+        return body;
+      })
+      .then(
+        body => res.status(200).json(body),
+        err => {
+          logger.error('Error while getting an addressbook', err);
+          res.status(500).json({
+            error: {
+              code: 500,
+              message: 'Server Error',
+              details: 'Error while getting an addressbook'
+            }
+          });
       });
   }
 
