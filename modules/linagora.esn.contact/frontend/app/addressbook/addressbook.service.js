@@ -32,7 +32,10 @@
     }
 
     function listAddressbooks() {
-      return ContactAPIClient.addressbookHome(session.user._id).addressbook().list();
+      return ContactAPIClient.addressbookHome(session.user._id).addressbook().list({
+        personal: true,
+        subscribed: true
+      });
     }
 
     function listAddressbooksUserCanCreateContact() {

@@ -55,7 +55,10 @@ describe('The contactAddressbookService service', function() {
 
       contactAddressbookService.listAddressbooks();
 
-      expect(listSpy).to.have.been.called;
+      expect(listSpy).to.have.been.calledWith({
+        personal: true,
+        subscribed: true
+      });
     });
   });
 
