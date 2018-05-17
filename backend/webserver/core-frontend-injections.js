@@ -4,6 +4,10 @@ const CORE_JS_BASEPATH = join(__dirname, '../../frontend', CORE_JS_URIPATH);
 
 const injections = [
   {angular: 'esn.core', files: ['core.js'], innerApps: ['esn']},
+  {angular: 'esn.chips', files: [
+    'chips/chips.module.js',
+    'chips/chips.run.js'
+  ], innerApps: ['esn']},
   {angular: 'esn.datepickerUtils', files: ['datepicker-utils.js'], innerApps: ['esn']},
   {angular: 'esn.cache', files: ['cache.js'], innerApps: ['esn']},
   {angular: 'esn.scroll', files: ['scroll.js'], innerApps: ['esn']},
