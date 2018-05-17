@@ -777,51 +777,114 @@ describe('The addressbooks module', function() {
 
   describe('The getAddressbook fn', function() {
 
-    var BOOK_HOME = 'book12345';
-    var BOOK_NAME = 'bookName';
+    const BOOK_HOME = 'book12345';
+    const BOOK_NAME = 'bookName';
+    let addressbookHomeStub, addressbookStub;
+
+    beforeEach(function() {
+      addressbookHomeStub = sinon.stub();
+      addressbookStub = sinon.stub();
+    });
 
     function createGetFnMock(getFn) {
       dependencies.contact = {
         lib: {
-          client: function() {
+          client() {
             return {
-              addressbookHome: function(bookHome) {
-                expect(bookHome).to.equal(BOOK_HOME);
-                return {
-                  addressbook: function(bookName) {
-                    expect(bookName).to.equal(BOOK_NAME);
-                    return {
-                      get: getFn
-                    };
-                  }
-                };
-              }
+              addressbookHome: addressbookHomeStub
             };
           }
         }
       };
+
+      addressbookHomeStub.returns({
+        addressbook: addressbookStub
+      });
+
+      addressbookStub.returns({
+        get: getFn
+      });
     }
 
     it('should return 200 response on success', function(done) {
-      var data = {
+      const data = {
         response: 'response',
         body: 'body'
       };
-      createGetFnMock(function() {
-        return q.resolve(data);
-      });
-      var controller = getController();
-      var req = {
+      createGetFnMock(() => q.resolve(data));
+
+      const controller = getController();
+      const req = {
         params: { bookHome: BOOK_HOME, bookName: BOOK_NAME },
         originalUrl: 'http://abc.com',
         davserver: 'http://davserver.com'
       };
+
       controller.getAddressbook(req, {
-        status: function(code) {
+        status(code) {
+          expect(code).to.equal(200);
+
+          return {
+            json(body) {
+              expect(addressbookHomeStub).to.have.been.calledWith(BOOK_HOME);
+              expect(addressbookStub).to.have.been.calledWith(BOOK_NAME);
+              expect(body).to.deep.equal(data.body);
+              done();
+            }
+          };
+        }
+      });
+    });
+
+    it('should return 200 with openpaas:source the AB is subscription', function(done) {
+      const data = {
+        response: 'response',
+        body: {
+          name: 'subscription',
+          'openpaas:source': '/addressbooks/123/456.json'
+        }
+      };
+      const source = {
+        body: {
+          name: 'source'
+        }
+      };
+      const parsedSourcePathsource = {
+        bookHome: '123',
+        bookName: '456'
+      };
+      const getStub = sinon.stub();
+
+      getStub.onCall(0).returns(q(data));
+      getStub.onCall(1).returns(q(source));
+
+      createGetFnMock(getStub);
+      dependencies.contact.lib.helper = {
+        parseAddressbookPath: sinon.stub().returns(parsedSourcePathsource)
+      };
+
+      const controller = getController();
+      const req = {
+        params: { bookHome: BOOK_HOME, bookName: BOOK_NAME },
+        originalUrl: 'http://abc.com',
+        davserver: 'http://davserver.com'
+      };
+
+      controller.getAddressbook(req, {
+        status(code) {
           expect(code).to.equal(200);
           return {
-            json: function(body) {
-              expect(body).to.eql(data.body);
+            json(body) {
+              expect(addressbookHomeStub.firstCall).to.have.been.calledWith(BOOK_HOME);
+              expect(addressbookStub.firstCall).to.have.been.calledWith(BOOK_NAME);
+
+              expect(addressbookHomeStub.secondCall).to.have.been.calledWith(parsedSourcePathsource.bookHome);
+              expect(addressbookStub.secondCall).to.have.been.calledWith(parsedSourcePathsource.bookName);
+
+              expect(addressbookHomeStub).to.have.been.calledTwice;
+              expect(addressbookStub).to.have.been.calledTwice;
+
+              expect(body).to.deep.equal({ name: 'subscription', 'openpaas:source': { name: 'source' }});
               done();
             }
           };
