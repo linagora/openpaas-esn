@@ -366,11 +366,19 @@ module.exports = function(dependencies) {
       ESNToken: req.token && req.token.token ? req.token.token : '',
       davserver: req.davserver
     };
+    const client = contactModule.lib.client(options);
 
-    contactModule.lib.client(options)
+    client
       .addressbookHome(req.params.bookHome)
       .addressbook()
       .list({ query: req.query })
+      .then(data =>
+        q.all(
+          data.body._embedded['dav:addressbook']
+            .map(addressbook => _populateSubscriptionSource(client, addressbook))
+        )
+        .then(() => data)
+      )
       .then(function(data) {
         res.status(200).json(data.body);
       }, function(err) {
@@ -390,29 +398,13 @@ module.exports = function(dependencies) {
       ESNToken: req.token && req.token.token ? req.token.token : '',
       davserver: req.davserver
     };
+    const client = contactModule.lib.client(options);
 
-    contactModule.lib.client(options)
+    client
       .addressbookHome(req.params.bookHome)
       .addressbook(req.params.bookName)
       .get()
-      .then(data => data.body)
-      .then(body => {
-        if (body['openpaas:source']) {
-          const parsedSourcePath = contactModule.lib.helper.parseAddressbookPath(body['openpaas:source']);
-
-          return contactModule.lib.client(options)
-              .addressbookHome(parsedSourcePath.bookHome)
-              .addressbook(parsedSourcePath.bookName)
-              .get()
-              .then(data => {
-                body['openpaas:source'] = data.body;
-
-                return body;
-              });
-        }
-
-        return body;
-      })
+      .then(data => _populateSubscriptionSource(client, data.body))
       .then(
         body => res.status(200).json(body),
         err => {
@@ -483,5 +475,23 @@ module.exports = function(dependencies) {
           data
         }));
       });
+  }
+
+  function _populateSubscriptionSource(client, addressbook) {
+    if (addressbook['openpaas:source']) {
+      const parsedSourcePath = contactModule.lib.helper.parseAddressbookPath(addressbook['openpaas:source']);
+
+      return client
+        .addressbookHome(parsedSourcePath.bookHome)
+        .addressbook(parsedSourcePath.bookName)
+        .get()
+        .then(data => {
+          addressbook['openpaas:source'] = data.body;
+
+          return addressbook;
+        });
+    }
+
+    return q(addressbook);
   }
 };

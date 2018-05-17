@@ -281,7 +281,7 @@ describe('The contact client APIs', function() {
           const davAcl = ['dav:read'];
           const type = 'twitter';
           const acl = [];
-          const source = { _links: { href: '' }};
+          const source = '/adddressbooks/sourceBookId/sourceBookName.json';
           const response = { statusCode: 200 };
           const body = {
             '{DAV:}displayname': name,

@@ -75,7 +75,7 @@ module.exports = function(dependencies, options) {
           const { bookHome, bookName } = helper.parseAddressbookPath(addressbook._links.self.href);
 
           if (addressbook['openpaas:source']) {
-            const parsedSourcePath = helper.parseAddressbookPath(addressbook['openpaas:source']._links.self.href);
+            const parsedSourcePath = helper.parseAddressbookPath(addressbook['openpaas:source']);
 
             mapping[`${parsedSourcePath.bookHome}/${parsedSourcePath.bookName}`] = mapping[`${parsedSourcePath.bookHome}/${parsedSourcePath.bookName}`] || {
               bookHome,
