@@ -18,6 +18,10 @@ const defaultConfig = config('default');
 
 const ATTEMPTS_LIMIT = defaultConfig.db && defaultConfig.db.attemptsLimit ? defaultConfig.db.attemptsLimit : 100;
 
+const MONGO_DEFAULT_HOST = 'localhost';
+const MONGO_DEFAULT_PORT = 27017;
+const MONGO_DEFAULT_DBNAME = 'esn';
+
 let initialized = false;
 let connected = false;
 let dbConfigWatcher = null;
@@ -30,7 +34,7 @@ let connectionLost = false;
 module.exports = {
   storeConfiguration,
   validateConnection,
-  getConnectionString,
+  buildConnectionString,
   getDefaultOptions,
   init,
   isInitalized,
@@ -120,15 +124,15 @@ function getTimeout() {
 }
 
 function getHost() {
-  return process.env.MONGO_HOST || 'localhost';
+  return process.env.MONGO_HOST || MONGO_DEFAULT_HOST;
 }
 
 function getPort() {
-  return process.env.MONGO_PORT || '27017';
+  return process.env.MONGO_PORT || MONGO_DEFAULT_PORT;
 }
 
 function getDbName() {
-  return process.env.MONGO_DBNAME || 'esn';
+  return process.env.MONGO_DBNAME || MONGO_DEFAULT_DBNAME;
 }
 
 function getUsername() {
@@ -172,7 +176,7 @@ function dropCollection(db, collectionName, callback) {
   });
 }
 
-function getConnectionString(hostname, port, dbname, username, password, connectionOptions) {
+function buildConnectionString(hostname, port, dbname, username, password, connectionOptions) {
   const timeout = getTimeout();
 
   connectionOptions = connectionOptions || {
@@ -196,8 +200,8 @@ function getConnectionString(hostname, port, dbname, username, password, connect
   return url.format(connectionHash);
 }
 
-function getDefaultConnectionString() {
-  return getConnectionString(getHost(), getPort(), getDbName(), getUsername(), getPassword());
+function getConnectionStringFromEnvOrDefaults() {
+  return buildConnectionString(getHost(), getPort(), getDbName(), getUsername(), getPassword());
 }
 
 function getDbConfigurationFile() {
@@ -218,7 +222,7 @@ function storeConfiguration(configuration, callback) {
   const finalConfiguration = {};
 
   finalConfiguration.connectionOptions = configuration.connectionOptions;
-  finalConfiguration.connectionString = getConnectionString(configuration.hostname,
+  finalConfiguration.connectionString = buildConnectionString(configuration.hostname,
                                                             configuration.port,
                                                             configuration.dbname,
                                                             configuration.username,
@@ -249,7 +253,7 @@ function storeConfiguration(configuration, callback) {
  */
 function validateConnection(hostname, port, dbname, username, password, callback) {
 
-  const connectionString = getConnectionString(hostname, port, dbname, username, password);
+  const connectionString = buildConnectionString(hostname, port, dbname, username, password);
 
   const collectionName = 'connectionTest';
   const document = {test: true};
@@ -295,17 +299,20 @@ function getConnectionStringAndOptions() {
   } catch (e) {
     return false;
   }
+
   if (!dbConfig) {
     return false;
   }
 
-  if (!dbConfig.connectionString) {
-    dbConfig.connectionString = getDefaultConnectionString();
-  }
+  // Note: erasing dbConfig.connectionString here is a dirty hack to avoid presenting the setup wizard to the user.
+  // See https://ci.linagora.com/linagora/lgs/openpaas/esn/issues/2412
+  dbConfig.connectionString = dbConfig.connectionString || getConnectionStringFromEnvOrDefaults();
+  const connectionOptions = dbConfig.connectionOptions || getDefaultOptions();
 
-  const options = dbConfig.connectionOptions ? dbConfig.connectionOptions : getDefaultOptions();
-
-  return {url: dbConfig.connectionString, options: options};
+  return {
+    url: dbConfig.connectionString,
+    options: connectionOptions
+  };
 }
 
 function mongooseConnect(reinit) {

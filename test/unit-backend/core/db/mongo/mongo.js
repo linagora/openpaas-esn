@@ -6,19 +6,19 @@ var expect = require('chai').expect;
 
 describe('The Core DB Mongo module', function() {
 
-  describe('getConnectionString method', function() {
-    var getConnectionString = null;
+  describe('buildConnectionString method', function() {
+    var buildConnectionString = null;
 
     beforeEach(function() {
-      getConnectionString = this.helpers.requireBackend('core/db/mongo').getConnectionString;
+      buildConnectionString = this.helpers.requireBackend('core/db/mongo').buildConnectionString;
     });
 
     it('should return a string mongodb://hostname:port/dbname', function() {
-      expect(getConnectionString('localhost', 'port', 'base', null, null, {})).to.equal('mongodb://localhost:port/base');
+      expect(buildConnectionString('localhost', 'port', 'base', null, null, {})).to.equal('mongodb://localhost:port/base');
     });
 
     it('should return a string mongodb://username:password@hostname:port/dbname', function() {
-      expect(getConnectionString('localhost', 'port', 'base', 'user', 'pass', {})).to.equal('mongodb://user:pass@localhost:port/base');
+      expect(buildConnectionString('localhost', 'port', 'base', 'user', 'pass', {})).to.equal('mongodb://user:pass@localhost:port/base');
     });
   });
 
