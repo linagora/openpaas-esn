@@ -31,7 +31,7 @@ describe('The addressbooks module', function() {
         };
       },
       logger: {
-        error: function() {},
+        error: console.log, // eslint-disable-line no-console
         debug: function() {},
         warn: function() {}
       },
@@ -671,52 +671,121 @@ describe('The addressbooks module', function() {
 
   describe('The getAddressbooks fn', function() {
 
-    var BOOK_HOME = 'book12345';
+    const BOOK_HOME = 'book12345';
+    let addressbookHomeStub, addressbookStub;
 
-    function createContactClientMock(listFn, searchFn) {
+    beforeEach(function() {
+      addressbookHomeStub = sinon.stub();
+      addressbookStub = sinon.stub();
+    });
+
+    function createContactClientMock({ get, list, search }) {
       dependencies.contact = {
         lib: {
-          client: function() {
+          client() {
             return {
-              addressbookHome: function(bookHome) {
-                expect(bookHome).to.equal(BOOK_HOME);
-
-                return {
-                  addressbook: function() {
-                    return {
-                      list: listFn
-                    };
-                  },
-                  search: searchFn
-                };
-              }
+              addressbookHome: addressbookHomeStub
             };
           }
         }
       };
+
+      addressbookHomeStub.returns({
+        search,
+        addressbook: addressbookStub
+      });
+
+      addressbookStub.returns({ get, list });
     }
 
     it('should return 200 response on success', function(done) {
-      var data = {
+      const data = {
         response: 'response',
-        body: 'body'
+        body: {
+          _embedded: {
+            'dav:addressbook': []
+          }
+        }
       };
-      createContactClientMock(function() {
-        return q.resolve(data);
+
+      createContactClientMock({
+        list() { return q.resolve(data); }
       });
-      var controller = getController();
-      var req = {
+
+      const controller = getController();
+      const req = {
         params: { bookHome: BOOK_HOME },
         originalUrl: 'http://abc.com',
         davserver: 'http://davserver.com',
         query: {}
       };
+
       controller.getAddressbooks(req, {
-        status: function(code) {
+        status(code) {
           expect(code).to.equal(200);
+
           return {
-            json: function(body) {
-              expect(body).to.eql(data.body);
+            json(body) {
+              expect(body).to.deep.equal(data.body);
+              done();
+            }
+          };
+        }
+      });
+    });
+
+    it('should populate source AB for all subscription', function(done) {
+      const data = {
+        response: 'response',
+        body: {
+          _embedded: {
+            'dav:addressbook': [{
+              'openpaas:source': '/addressbooks/bookHome1/bookName1.json'
+            }, {
+              'openpaas:source': '/addressbooks/bookHome2/bookName2.json'
+            }]
+          }
+        }
+      };
+      const getStub = sinon.stub();
+      const parseAddressbookPathStub = sinon.stub();
+
+      getStub.onCall(0).returns(q({ body: { name: 'bookName1' } }))
+             .onCall(1).returns(q({ body: { name: 'bookName2' } }));
+      parseAddressbookPathStub.onCall(0).returns({ bookHome: 'bookHome1', bookName: 'bookName1' })
+                              .onCall(1).returns({ bookHome: 'bookHome2', bookName: 'bookName2' });
+
+      createContactClientMock({
+        list() { return q.resolve(data); },
+        get: getStub
+      });
+      dependencies.contact.lib.helper = {
+        parseAddressbookPath: parseAddressbookPathStub
+      };
+
+      const controller = getController();
+      const req = {
+        params: { bookHome: BOOK_HOME },
+        originalUrl: 'http://abc.com',
+        davserver: 'http://davserver.com',
+        query: {}
+      };
+
+      controller.getAddressbooks(req, {
+        status(code) {
+          expect(code).to.equal(200);
+
+          return {
+            json(body) {
+              expect(body).to.deep.equal({
+                _embedded: {
+                  'dav:addressbook': [{
+                    'openpaas:source': { name: 'bookName1' }
+                  }, {
+                    'openpaas:source': { name: 'bookName2' }
+                  }]
+                }
+              });
               done();
             }
           };
@@ -725,19 +794,21 @@ describe('The addressbooks module', function() {
     });
 
     it('should return 500 response on error', function(done) {
-      createContactClientMock(function() {
-        return q.reject();
+      createContactClientMock({
+        list() { return q.reject(); }
       });
-      var controller = getController();
-      var req = {
+      const controller = getController();
+      const req = {
         params: { bookHome: BOOK_HOME },
         originalUrl: 'http://abc.com',
         davserver: 'http://davserver.com',
         query: {}
       };
+
       controller.getAddressbooks(req, {
         status: function(code) {
           expect(code).to.equal(500);
+
           return {
             json: function(json) {
               expect(json).to.eql({
@@ -755,22 +826,23 @@ describe('The addressbooks module', function() {
     });
 
     it('should search in addressbooks when req.query.search is defined', function(done) {
-      createContactClientMock(null, function() {
-        return {
-          then: function() {
-            done();
-          }
-        };
+      createContactClientMock({
+        search() {
+          return {
+            then() { done(); }
+          };
+        }
       });
 
-      var controller = getController();
-      var req = {
+      const controller = getController();
+      const req = {
         user: { id: BOOK_HOME },
         params: {bookHome: BOOK_HOME},
         query: {
           search: 'me'
         }
       };
+
       controller.getAddressbooks(req);
     });
   });

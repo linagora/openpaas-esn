@@ -1244,13 +1244,7 @@ describe('The addressbooks dav proxy', function() {
                       href: `addressbooks/${user.id}/${subscribedBookName}.json`
                     }
                   },
-                  'openpaas:source': {
-                    _links: {
-                      self: {
-                        href: `addressbooks/${sourceUserId}/collected.json`
-                      }
-                    }
-                  }
+                  'openpaas:source': `addressbooks/${sourceUserId}/collected.json`
                 }]
               }
             })
