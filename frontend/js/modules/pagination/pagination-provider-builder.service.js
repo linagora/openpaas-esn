@@ -5,16 +5,22 @@
     .factory('esnPaginationtionProviderBuilder', esnPaginationtionProviderBuilder);
 
   function esnPaginationtionProviderBuilder(esnPaginationProvider, infiniteScrollHelper, PageAggregatorService, _) {
-    return function(scope, name, paginable, options) {
+    return function(scope, name, sources, options) {
       var aggregator;
-      var provider = new esnPaginationProvider(paginable, options);
+      var providers = [];
+
+      sources = Array.isArray(sources) ? sources : [sources];
+
+      sources.forEach(function(source) {
+        providers.push(new esnPaginationProvider(source, options));
+      });
 
       scope.loadMoreElements = infiniteScrollHelper(scope, function() {
         if (aggregator) {
           return load();
         }
 
-        aggregator = new PageAggregatorService(name, [provider], {
+        aggregator = new PageAggregatorService(name, providers, {
           compare: options.compare || defaultCompare,
           results_per_page: options.limit
         });
