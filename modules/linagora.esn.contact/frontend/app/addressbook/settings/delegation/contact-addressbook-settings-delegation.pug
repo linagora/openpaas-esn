@@ -1,0 +1,46 @@
+ng-form(name="form")
+  .row.add-sharee
+    .col-md-7
+      users-autocomplete-input(mutable-users='$ctrl.newUsers', on-adding-user='$ctrl.onAddingUser')
+    .col-md-4
+      .select
+        select.form-control.floating-label(
+          type='text',
+          ng-model='$ctrl.selectedAccess',
+          ng-options='access.value as access.longLabel for (key, access) in $ctrl.CONTACT_SHARING_SHARE_ACCESS_CHOICES'
+        )
+    .col-md-1.add-btn
+      .btn.btn-primary.btn-sm(ng-click="$ctrl.onAddBtnClick()") #{__('Add')}
+
+  h5.title #{__('Shared with')}
+
+  .text-center(
+    openpaas-logo-spinner,
+    spinner-start-active="1",
+    spinner-size="0.5",
+    ng-if='$ctrl.status === "loading"'
+  )
+
+  .error-message(ng-if='$ctrl.status === "error"')
+    i.mdi.mdi-alert-circle-outline
+    .message #{__('Something went wrong, please try again later')}
+
+  .no-sharee(ng-if='$ctrl.status === "loaded" && !$ctrl.hasVisibleSharee()')
+    .text-center.text-muted #{__('This address book is not shared with anyone')}
+
+  .row.sharee-list-item(ng-if='$ctrl.status === "loaded" && $ctrl.hasVisibleSharee()', ng-repeat='sharee in $ctrl.sharees track by sharee.userId', ng-show="$ctrl.isVisibbleSharee(sharee)")
+    .col-md-7.sharee-info
+      esn-avatar(user-id='sharee.userId')
+      .user-info
+        span.ellipsis(title="{{::sharee.user.displayName}}") {{::sharee.user.displayName}}
+        a.ellipsis(ng-href="mailto:{{::sharee.user.email}}" op-inbox-compose op-inbox-compose-display-name="{{::sharee.user.displayName}}") {{::sharee.user.email}}
+    .col-md-4
+      .select
+        select.form-control.floating-label(
+          type='text',
+          ng-model='sharee.access',
+          ng-options='access.value as access.longLabel for (key, access) in $ctrl.CONTACT_SHARING_SHARE_ACCESS_CHOICES'
+        )
+    .col-md-1.share-actions
+      a(href='', ng-click='form.$setDirty(); $ctrl.onRemoveShareeClick(sharee)')
+        i.mdi.mdi-delete

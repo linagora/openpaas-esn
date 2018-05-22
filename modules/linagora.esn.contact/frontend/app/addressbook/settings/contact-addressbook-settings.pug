@@ -13,13 +13,22 @@ form(name="form")
 
     .text-center(ng-if='!$ctrl.addressbook', openpaas-logo-spinner, spinner-start-active='1', spinner-size='0.5')
 
-    div(ng-if='$ctrl.addressbook')
-      contact-addressbook-settings-tabs(
-        selected-tab = "$ctrl.selectedTab"
-      )
+    div(ng-if='$ctrl.addressbook', ng-init="$ctrl.selectedTab = 'main'")
+      ul.esn-tab
+        li.btn-wave(ng-class="{'active': $ctrl.selectedTab === 'main'}")
+          a(href='', ng-click="$ctrl.selectedTab = 'main'")
+            | #{__('Main')}
+        li.btn-wave(ng-class="{'active': $ctrl.selectedTab === 'delegation'}", ng-if="$ctrl.addressbook.canShareAddressbook")
+          a(href='', ng-click="$ctrl.selectedTab = 'delegation'")
+            | #{__('Delegation')}
       .card-body.settings-page-body
         contact-addressbook-settings-main(
           ng-show='$ctrl.selectedTab === "main"',
           addressbook='$ctrl.addressbook'
           public-right='$ctrl.publicRight'
+        )
+        contact-addressbook-settings-delegation(
+          ng-show='$ctrl.selectedTab === "delegation"',
+          ng-if="$ctrl.addressbook.canShareAddressbook",
+          sharees='$ctrl.addressbook.sharees'
         )

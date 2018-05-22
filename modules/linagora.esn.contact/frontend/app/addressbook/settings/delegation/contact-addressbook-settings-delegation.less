@@ -1,0 +1,68 @@
+contact-addressbook-settings-delegation {
+  .flex-column;
+
+  .add-sharee {
+    users-autocomplete-input .col-xs-12 {
+      padding-left: 0;
+    }
+
+    .add-btn {
+      text-align: center;
+    }
+  }
+
+  .sharee-list-item {
+    .flex-vertical-centered;
+
+    margin-bottom: 10px;
+
+    .sharee-info {
+      .flex-row;
+
+      flex-grow: 1;
+
+      esn-avatar img {
+        height: 48px;
+        width: 48px;
+      }
+
+      .user-info {
+        .flex-column;
+
+        margin-left: 10px;
+      }
+    }
+
+    .share-actions {
+      text-align: center;
+
+      i.mdi {
+        font-size: 2em;
+        color: @m-red;
+      }
+    }
+  }
+
+  .title {
+    color: @text-color;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    font-size: 1.2em;
+  }
+
+  .error-message {
+    text-align: center;
+
+    .mdi {
+      color: @accentColor;
+      font-size: 4em;
+      opacity: 0.7;
+      margin-bottom: 10px;
+    }
+
+    .message {
+      color: @secondaryTextColor;
+      font-size: 1.2em;
+    }
+  }
+}

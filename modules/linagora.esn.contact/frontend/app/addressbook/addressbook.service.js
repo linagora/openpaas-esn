@@ -12,7 +12,9 @@
     contactAddressbookDisplayService,
     CONTACT_ADDRESSBOOK_EVENTS,
     CONTACT_ADDRESSBOOK_TYPES,
-    CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL
+    CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL,
+    CONTACT_SHARING_INVITE_STATUS,
+    CONTACT_SHARING_SUBSCRIPTION_TYPE
   ) {
     return {
       createAddressbook: createAddressbook,
@@ -24,6 +26,7 @@
       listSubscribableAddressbooks: listSubscribableAddressbooks,
       listSubscribedAddressbooks: listSubscribedAddressbooks,
       subscribeAddressbooks: subscribeAddressbooks,
+      shareAddressbook: shareAddressbook,
       updateAddressbookPublicRight: updateAddressbookPublicRight
     };
 
@@ -34,7 +37,9 @@
     function listAddressbooks() {
       return ContactAPIClient.addressbookHome(session.user._id).addressbook().list({
         personal: true,
-        subscribed: true
+        subscribed: true,
+        shared: true,
+        inviteStatus: CONTACT_SHARING_INVITE_STATUS.ACCEPTED
       });
     }
 
@@ -90,7 +95,16 @@
     }
 
     function listSubscribableAddressbooks(userId) {
-      return ContactAPIClient.addressbookHome(userId).addressbook().list({ public: true });
+      return $q.all([
+        ContactAPIClient.addressbookHome(userId).addressbook().list({ public: true }),
+        ContactAPIClient.addressbookHome(session.user._id).addressbook().list({
+          inviteStatus: CONTACT_SHARING_INVITE_STATUS.NORESPONSE,
+          shared: true, shareOwner: userId
+        })
+      ])
+      .then(function(data) {
+        return data[0].concat(data[1]);
+      });
     }
 
     function listSubscribedAddressbooks() {
@@ -99,6 +113,19 @@
 
     function subscribeAddressbooks(addressbookShells) {
       return $q.all(addressbookShells.map(function(addressbookShell) {
+        if (addressbookShell.subscriptionType === CONTACT_SHARING_SUBSCRIPTION_TYPE.delegation) {
+          return ContactAPIClient
+            .addressbookHome(addressbookShell.bookId)
+            .addressbook(addressbookShell.bookName)
+            .acceptShare()
+            .then(function() {
+              $rootScope.$broadcast(
+                CONTACT_ADDRESSBOOK_EVENTS.CREATED,
+                addressbookShell
+              );
+            });
+        }
+
         var formattedSubscriptions = {
           description: addressbookShell.description,
           name: contactAddressbookDisplayService.buildDisplayName(addressbookShell),
@@ -123,6 +150,13 @@
             );
           });
       }));
+    }
+
+    function shareAddressbook(addressbookShell, sharees) {
+      return ContactAPIClient
+        .addressbookHome(addressbookShell.bookId)
+        .addressbook(addressbookShell.bookName)
+        .share(sharees);
     }
 
     function updateAddressbookPublicRight(addressbook, publicRight) {

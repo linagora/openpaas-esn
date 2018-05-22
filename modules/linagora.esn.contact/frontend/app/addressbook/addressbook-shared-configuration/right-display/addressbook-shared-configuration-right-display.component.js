@@ -4,7 +4,7 @@
   angular.module('linagora.esn.contact')
     .component('contactAddressbookSharedRightDisplay', {
       bindings: {
-        public: '<'
+        addressbook: '<'
       },
       controller: 'contactAddressbookSharedRightDisplayController',
       template: '<span>{{::$ctrl.displayRight | esnI18n}}</span>'

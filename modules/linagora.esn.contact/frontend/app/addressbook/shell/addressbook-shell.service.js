@@ -7,6 +7,7 @@
   function addressbookShellFactory(
     contactAddressbookParser,
     contactAddressbookACLHelper,
+    ContactSharee,
     CONTACT_ADDRESSBOOK_PUBLIC_RIGHT,
     CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL
   ) {
@@ -28,10 +29,19 @@
       if (json['openpaas:source']) {
         this.source = new AddressbookShell(json['openpaas:source']);
         this.isSubscription = true;
+        this.subscriptionType = json['openpaas:subscription-type'];
+        this.shareAccess = json['dav:share-access'];
+      }
+
+      if (json['dav:invite']) {
+        this.sharees = json['dav:invite'].map(function(shareeInfo) {
+          return ContactSharee.fromSharee(shareeInfo);
+        });
       }
 
       this.canEditAddressbook = contactAddressbookACLHelper.canEditAddressbook(this);
       this.canDeleteAddressbook = contactAddressbookACLHelper.canDeleteAddressbook(this);
+      this.canShareAddressbook = contactAddressbookACLHelper.canShareAddressbook(this);
       this.canCreateContact = contactAddressbookACLHelper.canCreateContact(this);
       this.canEditContact = contactAddressbookACLHelper.canEditContact(this);
       this.canCopyContact = contactAddressbookACLHelper.canCopyContact(this);

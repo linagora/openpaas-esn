@@ -141,6 +141,40 @@ angular.module('linagora.esn.contact')
     }
 
     /**
+     * Share an addressbook
+     * @param  {String} bookId     The addressbook home ID
+     * @param  {String} bookName   The addressbook name
+     * @param  {Object} addressbook The addressbook object to update. It may contain name, description.
+     * @return {Promise}           Resolve on success
+     */
+    function shareAddressbook(bookId, bookName, sharees) {
+      var headers = { Accept: CONTACT_ACCEPT_HEADER };
+      var data = {
+        'dav:share-resource': {
+        'dav:sharee': sharees.map(function(sharee) {
+            return {
+              'dav:href': sharee.href,
+              'dav:share-access': sharee.access
+            };
+          })
+        }
+      };
+
+      return davClient('POST', getBookUrl(bookId, bookName), headers, data);
+    }
+
+    function replyInvitation(bookId, bookName, accepted) {
+      var headers = { Accept: CONTACT_ACCEPT_HEADER };
+      var data = {
+        'dav:invite-reply': {
+          'dav:invite-accepted': accepted
+        }
+      };
+
+      return davClient('POST', getBookUrl(bookId, bookName), headers, data);
+    }
+
+    /**
      * Update addressbook public right
      * @param  {String} bookId       The addressbook home ID
      * @param  {String} bookName     The addressbook name
@@ -439,6 +473,18 @@ angular.module('linagora.esn.contact')
           return updateAddressbook(bookId, bookName, addressbook);
         }
 
+        function share(sharees) {
+          return shareAddressbook(bookId, bookName, sharees);
+        }
+
+        function acceptShare() {
+          return replyInvitation(bookId, bookName, true);
+        }
+
+        function declineShare() {
+          return replyInvitation(bookId, bookName, false);
+        }
+
         function updatePublicRight(publicRight) {
           return setPublicRight(bookId, bookName, publicRight);
         }
@@ -486,10 +532,13 @@ angular.module('linagora.esn.contact')
         }
 
         return {
+          acceptShare: acceptShare,
           create: create,
+          declineShare: declineShare,
           list: list,
           get: get,
           remove: remove,
+          share: share,
           update: update,
           updatePublicRight: updatePublicRight,
           vcard: vcard

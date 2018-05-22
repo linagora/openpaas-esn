@@ -5,14 +5,19 @@
     .controller('contactAddressbookSharedConfigurationItemController', contactAddressbookSharedConfigurationItemController);
 
   function contactAddressbookSharedConfigurationItemController(
-    contactAddressbookDisplayService
+    contactAddressbookDisplayService,
+    CONTACT_SHARING_SUBSCRIPTION_TYPE
   ) {
     var self = this;
 
     self.$onInit = $onInit;
 
     function $onInit() {
-      self.addressbookDisplayName = contactAddressbookDisplayService.buildDisplayName(self.addressbook);
+      if (self.addressbook.subscriptionType === CONTACT_SHARING_SUBSCRIPTION_TYPE.delegation) {
+        self.addressbookDisplayName = contactAddressbookDisplayService.buildDisplayName(self.addressbook.source);
+      } else {
+        self.addressbookDisplayName = contactAddressbookDisplayService.buildDisplayName(self.addressbook);
+      }
     }
   }
 })(angular);

@@ -8,7 +8,7 @@ var expect = chai.expect;
 describe('The contactAddressbookService service', function() {
   var $rootScope;
   var contactAddressbookService, ContactAPIClient, session;
-  var CONTACT_ADDRESSBOOK_EVENTS;
+  var CONTACT_ADDRESSBOOK_EVENTS, CONTACT_SHARING_INVITE_STATUS;
 
   beforeEach(function() {
     module('linagora.esn.contact');
@@ -29,11 +29,13 @@ describe('The contactAddressbookService service', function() {
     inject(function(
       _$rootScope_,
       _contactAddressbookService_,
-      _CONTACT_ADDRESSBOOK_EVENTS_
+      _CONTACT_ADDRESSBOOK_EVENTS_,
+      _CONTACT_SHARING_INVITE_STATUS_
     ) {
       $rootScope = _$rootScope_;
       contactAddressbookService = _contactAddressbookService_;
       CONTACT_ADDRESSBOOK_EVENTS = _CONTACT_ADDRESSBOOK_EVENTS_;
+      CONTACT_SHARING_INVITE_STATUS = _CONTACT_SHARING_INVITE_STATUS_;
     });
   });
 
@@ -57,7 +59,9 @@ describe('The contactAddressbookService service', function() {
 
       expect(listSpy).to.have.been.calledWith({
         personal: true,
-        subscribed: true
+        subscribed: true,
+        shared: true,
+        inviteStatus: CONTACT_SHARING_INVITE_STATUS.ACCEPTED
       });
     });
   });
@@ -449,6 +453,38 @@ describe('The contactAddressbookService service', function() {
           done();
         });
 
+      $rootScope.$digest();
+    });
+  });
+
+  describe('The shareAddressbook function', function() {
+    it('should call the ContactAPIClient with the addressbook shell containing sharees information', function(done) {
+      var addressbookShell = {
+        bookID: '123123',
+        bookName: 'addressbook1',
+        sharees: ['user1', 'user2']
+      };
+
+      ContactAPIClient.addressbookHome = function(bookId) {
+        expect(bookId).to.equal(addressbookShell.bookdId);
+
+        return {
+          addressbook: function(bookName) {
+            expect(bookName).to.equal(addressbookShell.bookName);
+
+            return {
+              share: function(sharees) {
+                expect(sharees).to.deep.equal(addressbookShell.sharees);
+                done();
+
+                return $q.when();
+              }
+            };
+          }
+        };
+      };
+
+      contactAddressbookService.shareAddressbook(addressbookShell, addressbookShell.sharees);
       $rootScope.$digest();
     });
   });
