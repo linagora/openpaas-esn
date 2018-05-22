@@ -28,7 +28,21 @@ describe('The esn.file-saver Angular module', function() {
 
     describe('The saveText fn', function() {
 
-      it('should save the content as plain text', function() {
+      it('should call FileSaver.saveAs with right params to save the text content', function() {
+        var textContent = 'textContent';
+        var filename = 'filename';
+        var type = 'text/plain';
+
+        FileSaverMock.saveAs = sinon.spy();
+
+        esnFileSaver.saveText(textContent, filename, type);
+
+        expect(BlobMock).to.have.been.calledWith([textContent], { type: type });
+        expect(FileSaverMock.saveAs).to.have.been.calledOnce;
+        expect(FileSaverMock.saveAs).to.have.been.calledWith(sinon.match.instanceOf(BlobMock), filename);
+      });
+
+      it('should save the content as plain text by default', function() {
         var textContent = 'textContent';
         var filename = 'filename';
 
