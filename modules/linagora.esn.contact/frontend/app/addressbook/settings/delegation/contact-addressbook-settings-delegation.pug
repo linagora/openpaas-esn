@@ -21,6 +21,10 @@ ng-form(name="form")
     ng-if='$ctrl.status === "loading"'
   )
 
+  .error-message(ng-if='$ctrl.status === "error"')
+    i.mdi.mdi-alert-circle-outline
+    .message #{__('Something went wrong, please try again later')}
+
   .no-sharee(ng-if='$ctrl.status === "loaded" && !$ctrl.hasVisibleSharee()')
     .text-center.text-muted #{__('This address book is not shared with anyone')}
 

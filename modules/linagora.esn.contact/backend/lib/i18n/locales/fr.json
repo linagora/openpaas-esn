@@ -106,5 +106,6 @@
   "Read/Write": "Lecture/Ecriture",
   "Shared with": "Partagé avec",
   "This address book is not shared with anyone": "Ce carnet d'adresses n'est pas partagé",
-  "Delegation": "Délégation"
+  "Delegation": "Délégation",
+  "Something went wrong, please try again later": "Quelque chose c'est mal passé. Merci d'essayer plus tard"
 }

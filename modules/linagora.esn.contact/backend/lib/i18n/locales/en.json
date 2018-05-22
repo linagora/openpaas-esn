@@ -106,5 +106,6 @@
   "Read/Write": "Read/Write",
   "Shared with": "Shared with",
   "This address book is not shared with anyone": "This address book is not shared with anyone",
-  "Delegation": "Delegation"
+  "Delegation": "Delegation",
+  "Something went wrong, please try again later": "Something went wrong, please try again later"
 }
