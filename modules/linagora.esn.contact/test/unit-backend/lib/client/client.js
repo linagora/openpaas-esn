@@ -250,8 +250,10 @@ describe('The contact client APIs', function() {
         var PROPERTIES = {
           '{DAV:}displayname': 'dav:name',
           '{urn:ietf:params:xml:ns:carddav}addressbook-description': 'carddav:description',
-          '{DAV:}invite': 'dav:invite',
           '{DAV:}acl': 'dav:acl',
+          '{DAV:}invite': 'dav:invite',
+          '{DAV:}share-access': 'dav:share-access',
+          '{http://open-paas.org/contacts}subscription-type': 'openpaas:subscription-type',
           '{http://open-paas.org/contacts}source': 'openpaas:source',
           '{http://open-paas.org/contacts}type': 'type',
           acl: 'acl'
@@ -282,6 +284,8 @@ describe('The contact client APIs', function() {
           const davAcl = ['dav:read'];
           const type = 'twitter';
           const acl = [];
+          const shareAccess = 'read';
+          const subscriptionType = 'delegation';
           const source = '/adddressbooks/sourceBookId/sourceBookName.json';
           const invite = [];
           const response = { statusCode: 200 };
@@ -290,6 +294,8 @@ describe('The contact client APIs', function() {
             '{urn:ietf:params:xml:ns:carddav}addressbook-description': description,
             '{DAV:}acl': davAcl,
             '{DAV:}invite': invite,
+            '{DAV:}share-access': shareAccess,
+            '{http://open-paas.org/contacts}subscription-type': subscriptionType,
             '{http://open-paas.org/contacts}source': source,
             '{http://open-paas.org/contacts}type': type,
             acl
@@ -310,9 +316,11 @@ describe('The contact client APIs', function() {
                 }
               },
               'dav:name': name,
-              'dav:invite': invite,
               'carddav:description': description,
               'dav:acl': davAcl,
+              'dav:invite': invite,
+              'dav:share-access': shareAccess,
+              'openpaas:subscription-type': subscriptionType,
               'openpaas:source': source,
               type: type,
               acl

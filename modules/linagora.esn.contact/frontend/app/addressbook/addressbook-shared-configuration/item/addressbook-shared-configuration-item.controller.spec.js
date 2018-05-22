@@ -8,6 +8,7 @@ var expect = chai.expect;
 describe('The contactAddressbookSharedConfigurationItemController', function() {
   var $rootScope, $controller;
   var contactAddressbookDisplayService;
+  var CONTACT_SHARING_SUBSCRIPTION_TYPE;
 
   beforeEach(function() {
     module('linagora.esn.contact');
@@ -16,11 +17,13 @@ describe('The contactAddressbookSharedConfigurationItemController', function() {
   beforeEach(inject(function(
     _$rootScope_,
     _$controller_,
-    _contactAddressbookDisplayService_
+    _contactAddressbookDisplayService_,
+    _CONTACT_SHARING_SUBSCRIPTION_TYPE_
   ) {
     $rootScope = _$rootScope_;
     $controller = _$controller_;
     contactAddressbookDisplayService = _contactAddressbookDisplayService_;
+    CONTACT_SHARING_SUBSCRIPTION_TYPE = _CONTACT_SHARING_SUBSCRIPTION_TYPE_;
 
     contactAddressbookDisplayService.buildDisplayName = sinon.stub();
   }));
@@ -37,7 +40,7 @@ describe('The contactAddressbookSharedConfigurationItemController', function() {
   describe('The $onInit function', function() {
     it('should build display name of shared address book from its source', function() {
       var addressbook = {
-        isShared: true,
+        subscriptionType: CONTACT_SHARING_SUBSCRIPTION_TYPE.delegation,
         source: { name: 'source AB' }
       };
       var controller = initController();
@@ -50,9 +53,9 @@ describe('The contactAddressbookSharedConfigurationItemController', function() {
       expect(controller.addressbookDisplayName).to.equal(controller.addressbook.source.name);
     });
 
-    it('should build display name of non-shared address book from itself', function() {
+    it('should build display name of public address book from itself', function() {
       var addressbook = {
-        isShared: false,
+        subscriptionType: CONTACT_SHARING_SUBSCRIPTION_TYPE.public,
         name: 'My name'
       };
       var controller = initController();

@@ -28,5 +28,10 @@
         label: 'Read/Write',
         longLabel: 'Edit all contacts'
       }
+    })
+
+    .constant('CONTACT_SHARING_SUBSCRIPTION_TYPE', {
+      delegation: 'delegation',
+      public: 'public'
     });
 })(angular);

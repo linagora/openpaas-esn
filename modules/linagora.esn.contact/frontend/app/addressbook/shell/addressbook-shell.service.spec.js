@@ -102,6 +102,56 @@ describe('The Contact Angular module AddressbookShell', function() {
 
         expect(shell.rights.public).to.equal(CONTACT_ADDRESSBOOK_PUBLIC_RIGHT.PRIVATE.value);
       });
+
+      it('should build sharees from dav:invite', function() {
+        jsonInput['dav:invite'] = [{
+          access: 3,
+          href: 'mailto:example1@example.com',
+          inviteStatus: 1,
+          principal: 'principals/users/123'
+        }, {
+          access: 3,
+          href: 'mailto:example2@example.com',
+          inviteStatus: 1,
+          principal: 'principals/users/456'
+        }];
+
+        var shell = new AddressbookShell(jsonInput);
+
+        expect(shell.sharees).to.shallowDeepEqual([{
+          userId: '123'
+        }, {
+          userId: '456'
+        }]);
+      });
+
+      describe('The subscription AB', function() {
+        it('should mark as subscription if there is openpaas:source field', function() {
+          jsonInput['openpaas:source'] = angular.copy(jsonInput);
+
+          var shell = new AddressbookShell(jsonInput);
+
+          expect(shell.isSubscription).to.equal(true);
+        });
+
+        it('should assign the subscription type', function() {
+          jsonInput['openpaas:source'] = angular.copy(jsonInput);
+          jsonInput['openpaas:subscription-type'] = 'my_type';
+
+          var shell = new AddressbookShell(jsonInput);
+
+          expect(shell.subscriptionType).to.equal('my_type');
+        });
+
+        it('should assign the share access', function() {
+          jsonInput['openpaas:source'] = angular.copy(jsonInput);
+          jsonInput['dav:share-access'] = 'read';
+
+          var shell = new AddressbookShell(jsonInput);
+
+          expect(shell.shareAccess).to.equal('read');
+        });
+      });
     });
   });
 });

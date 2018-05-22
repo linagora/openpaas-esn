@@ -13,7 +13,8 @@
     CONTACT_ADDRESSBOOK_EVENTS,
     CONTACT_ADDRESSBOOK_TYPES,
     CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL,
-    CONTACT_SHARING_INVITE_STATUS
+    CONTACT_SHARING_INVITE_STATUS,
+    CONTACT_SHARING_SUBSCRIPTION_TYPE
   ) {
     return {
       createAddressbook: createAddressbook,
@@ -112,7 +113,7 @@
 
     function subscribeAddressbooks(addressbookShells) {
       return $q.all(addressbookShells.map(function(addressbookShell) {
-        if (addressbookShell.isShared) {
+        if (addressbookShell.subscriptionType === CONTACT_SHARING_SUBSCRIPTION_TYPE.delegation) {
           return ContactAPIClient
             .addressbookHome(addressbookShell.bookId)
             .addressbook(addressbookShell.bookName)

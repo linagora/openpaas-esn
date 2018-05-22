@@ -29,17 +29,14 @@
       if (json['openpaas:source']) {
         this.source = new AddressbookShell(json['openpaas:source']);
         this.isSubscription = true;
+        this.subscriptionType = json['openpaas:subscription-type'];
+        this.shareAccess = json['dav:share-access'];
       }
 
       if (json['dav:invite']) {
         this.sharees = json['dav:invite'].map(function(shareeInfo) {
           return ContactSharee.fromSharee(shareeInfo);
         });
-      }
-
-      if (json['dav:share-access']) {
-        this.shareAccess = json['dav:share-access'];
-        this.isShared = true;
       }
 
       this.canEditAddressbook = contactAddressbookACLHelper.canEditAddressbook(this);

@@ -298,8 +298,10 @@ module.exports = function(dependencies, options) {
         var properties = {
           '{DAV:}displayname': 'dav:name',
           '{urn:ietf:params:xml:ns:carddav}addressbook-description': 'carddav:description',
-          '{DAV:}invite': 'dav:invite',
           '{DAV:}acl': 'dav:acl',
+          '{DAV:}invite': 'dav:invite',
+          '{DAV:}share-access': 'dav:share-access',
+          '{http://open-paas.org/contacts}subscription-type': 'openpaas:subscription-type',
           '{http://open-paas.org/contacts}source': 'openpaas:source',
           '{http://open-paas.org/contacts}type': 'type',
           acl: 'acl'
