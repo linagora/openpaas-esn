@@ -27,5 +27,11 @@ module.exports = {
   AVAILABLE_ADDRESSBOOK_TYPES: {
     USER: 'user',
     SUBSCRIPTION: 'subscription'
+  },
+  SHARING_INVITE_STATUS: {
+    NORESPONSE: 1,
+    ACCEPTED: 2,
+    DECLINED: 3,
+    INVALID: 4
   }
 };

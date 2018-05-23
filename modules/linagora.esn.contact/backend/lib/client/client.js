@@ -5,6 +5,7 @@ const URL = require('url');
 const ICAL = require('@linagora/ical.js');
 const davClient = require('../dav-client').rawClient;
 const helper = require('../helper');
+const { SHARING_INVITE_STATUS } = require('../constants');
 
 const PATH = 'addressbooks';
 const DEFAULT_ADDRESSBOOK_NAME = 'contacts';
@@ -60,8 +61,16 @@ module.exports = function(dependencies, options) {
   function searchContacts(bookHome, options) {
     const vcard = (bookHome, bookName, cardId) => addressbookHome(bookHome).addressbook(bookName).vcard(cardId);
 
-    return addressbookHome(bookHome).addressbook().list()
-      .then(data => {
+    return addressbookHome(bookHome)
+      .addressbook()
+      .list({
+        query: {
+          personal: true,
+          subscribed: true,
+          shared: true,
+          inviteStatus: SHARING_INVITE_STATUS.ACCEPTED
+        }
+      }).then(data => {
         let addressbooks = data.body._embedded['dav:addressbook'];
 
         if (options.bookNames && options.bookNames.length) {
