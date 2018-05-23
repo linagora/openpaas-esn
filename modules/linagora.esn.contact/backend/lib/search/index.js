@@ -70,6 +70,14 @@ module.exports = function(dependencies) {
     const addressbooks = query.addressbooks;
     const filters = [];
 
+    if (!addressbooks || addressbooks.length === 0) {
+      return callback(null, {
+        current_page: 1,
+        total_count: 0,
+        list: []
+      });
+    }
+
     addressbooks.forEach(addressbook => {
       filters.push(
         {

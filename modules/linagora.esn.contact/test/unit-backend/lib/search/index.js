@@ -166,6 +166,49 @@ describe('The contacts search Module', function() {
   });
 
   describe('The searchContacts function', function() {
+    it('should not call search.searchDocuments if there is no addressbooks is provided', function(done) {
+      const query = {
+        search: 'Bruce',
+        offset: 10,
+        limit: 100
+      };
+
+      deps.elasticsearch.searchDocuments = sinon.spy();
+      const module = require('../../../../backend/lib/search')(dependencies);
+
+      module.searchContacts(query, (err, result) => {
+        expect(result).to.deep.equal({
+          current_page: 1,
+          total_count: 0,
+          list: []
+        });
+        expect(deps.elasticsearch.searchDocuments).to.not.have.been.called;
+        done();
+      });
+    });
+
+    it('should not call search.searchDocuments if there is an empty list of addressbooks', function(done) {
+      const query = {
+        search: 'Bruce',
+        offset: 10,
+        limit: 100,
+        addressooks: []
+      };
+
+      deps.elasticsearch.searchDocuments = sinon.spy();
+      const module = require('../../../../backend/lib/search')(dependencies);
+
+      module.searchContacts(query, (err, result) => {
+        expect(result).to.deep.equal({
+          current_page: 1,
+          total_count: 0,
+          list: []
+        });
+        expect(deps.elasticsearch.searchDocuments).to.not.have.been.called;
+        done();
+      });
+    });
+
     it('should call search.searchDocuments with right parameters', function(done) {
       var query = {
         search: 'Bruce',
