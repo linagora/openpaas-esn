@@ -1036,6 +1036,82 @@ describe('The contact Angular module contactapis', function() {
             this.$httpBackend.flush();
           });
         });
+
+        describe('The acceptShare addressbook function', function() {
+          it('should call to right endpoint to accept share invite', function(done) {
+            var bookId = '123';
+            var bookName = 'test';
+            var options = {};
+
+            this.$httpBackend.when('POST', this.getBookUrl(bookId, bookName), {
+              'dav:invite-reply': {
+                'dav:invite-accepted': true
+              }
+            }).respond({});
+
+            this.ContactAPIClient
+              .addressbookHome(bookId)
+              .addressbook(bookName)
+              .acceptShare(options)
+              .then(function() {
+                done();
+              }, done);
+
+            this.$rootScope.$apply();
+            this.$httpBackend.flush();
+          });
+
+          it('should support options.displayname to set new resource name', function(done) {
+            var bookId = '123';
+            var bookName = 'test';
+            var options = {
+              displayname: 'new resource name'
+            };
+
+            this.$httpBackend.when('POST', this.getBookUrl(bookId, bookName), {
+              'dav:invite-reply': {
+                'dav:invite-accepted': true,
+                'dav:slug': options.displayname
+              }
+            }).respond({});
+
+            this.ContactAPIClient
+              .addressbookHome(bookId)
+              .addressbook(bookName)
+              .acceptShare(options)
+              .then(function() {
+                done();
+              }, done);
+
+            this.$rootScope.$apply();
+            this.$httpBackend.flush();
+          });
+        });
+
+        describe('The declineShare addressbook function', function() {
+          it('should call to right endpoint to decline share invite', function(done) {
+            var bookId = '123';
+            var bookName = 'test';
+            var options = {};
+
+            this.$httpBackend.when('POST', this.getBookUrl(bookId, bookName), {
+              'dav:invite-reply': {
+                'dav:invite-accepted': false
+              }
+            }).respond({});
+
+            this.ContactAPIClient
+              .addressbookHome(bookId)
+              .addressbook(bookName)
+              .declineShare(options)
+              .then(function() {
+                done();
+              }, done);
+
+            this.$rootScope.$apply();
+            this.$httpBackend.flush();
+          });
+        });
       });
 
       describe('The search function', function() {

@@ -376,84 +376,160 @@ describe('The contactAddressbookService service', function() {
   });
 
   describe('The subscribeAddressbooks function', function() {
-    it('should call ContactAPIClient with formatted subscription to subscribe to address books', function(done) {
-      var addressbookShells = [
-        {
-          description: '',
-          name: 'public addressbook1',
-          _links: {
-            self: {
-              href: '/addressbooks/123/456.vcf'
-            }
-          }
-        }
-      ];
+    var addressbookSpy;
 
-      ContactAPIClient.addressbookHome = function(bookId) {
-        expect(bookId).to.equal(session.user._id);
-
-        return {
-          addressbook: function() {
-            return {
-              create: function(formattedSubscription) {
-                expect(formattedSubscription).to.deep.equal({
-                  description: addressbookShells[0].description,
-                  name: addressbookShells[0].name,
-                  type: 'subscription',
-                  'openpaas:source': {
-                    _links: {
-                      self: {
-                        href: addressbookShells[0].href
-                      }
-                    }
-                  }
-                });
-                done();
-
-                return $q.when();
-              }
-            };
-          }
-        };
-      };
-
-      contactAddressbookService.subscribeAddressbooks(addressbookShells);
-      $rootScope.$digest();
+    beforeEach(function() {
+      addressbookSpy = sinon.stub();
+      ContactAPIClient.addressbookHome = sinon.stub().returns({
+        addressbook: addressbookSpy
+      });
     });
 
-    it('should broadcast event if success to subscribe to an addressbook', function(done) {
-      var addressbookShells = [
-        {
-          description: '',
-          name: 'public addressbook1',
-          _links: {
-            self: {
-              href: '/addressbooks/123/456.vcf'
+    describe('subscribe to public address book', function() {
+      it('should call ContactAPIClient with formatted subscription to subscribe to public address books', function() {
+        var addressbookShells = [
+          {
+            description: '',
+            name: 'public addressbook1',
+            _links: {
+              self: {
+                href: '/addressbooks/123/456.vcf'
+              }
             }
           }
-        }
-      ];
+        ];
+        var createSpy = sinon.stub().returns($q.when());
 
-      $rootScope.$broadcast = sinon.spy();
-      ContactAPIClient.addressbookHome = function(bookId) {
-        expect(bookId).to.equal(session.user._id);
-
-        return {
-          addressbook: function() {
-            return {
-              create: function() { return $q.when(); }
-            };
-          }
-        };
-      };
-
-      contactAddressbookService.subscribeAddressbooks(addressbookShells)
-        .then(function() {
-          expect($rootScope.$broadcast).to.have.been.calledOnce;
-          done();
+        addressbookSpy.returns({
+          create: createSpy
         });
 
-      $rootScope.$digest();
+        contactAddressbookService.subscribeAddressbooks(addressbookShells);
+        $rootScope.$digest();
+
+        expect(ContactAPIClient.addressbookHome).to.have.been.calledWith(session.user._id);
+        expect(addressbookSpy).to.have.been.calledWith();
+        expect(createSpy).to.have.been.calledWith({
+          description: addressbookShells[0].description,
+          name: addressbookShells[0].name,
+          type: 'subscription',
+          'openpaas:source': {
+            _links: {
+              self: {
+                href: addressbookShells[0].href
+              }
+            }
+          }
+        });
+      });
+
+      it('should broadcast event if success to subscribe to a public address book', function() {
+        var addressbookShells = [
+          {
+            description: '',
+            name: 'public addressbook1',
+            _links: {
+              self: {
+                href: '/addressbooks/123/456.vcf'
+              }
+            }
+          }
+        ];
+        var createdAddressbook = {
+          name: 'you created me'
+        };
+        var createSpy = sinon.stub().returns($q.when(createdAddressbook));
+
+        addressbookSpy.returns({
+          create: createSpy
+        });
+
+        // somehow, $rootScope.$broadcast is called when digest is triggered. So I trigger
+        // digest to 'flush' the pending call before mocking $rootScope.$broadcast
+        $rootScope.$digest();
+        $rootScope.$broadcast = sinon.spy();
+
+        contactAddressbookService.subscribeAddressbooks(addressbookShells);
+
+        $rootScope.$digest();
+        expect($rootScope.$broadcast).to.have.been.calledWith(
+          CONTACT_ADDRESSBOOK_EVENTS.CREATED,
+          createdAddressbook
+        );
+      });
+    });
+
+    describe('subscribe to delegated (shared) address book', function() {
+      var CONTACT_SHARING_SUBSCRIPTION_TYPE;
+
+      beforeEach(inject(function(_CONTACT_SHARING_SUBSCRIPTION_TYPE_) {
+        CONTACT_SHARING_SUBSCRIPTION_TYPE = _CONTACT_SHARING_SUBSCRIPTION_TYPE_;
+      }));
+
+      it('should call ContactAPIClient to accept shared address books', function() {
+        var addressbookShells = [
+          {
+            description: '',
+            name: 'public addressbook1',
+            bookName: 'bookName',
+            bookId: 'bookId',
+            subscriptionType: CONTACT_SHARING_SUBSCRIPTION_TYPE.delegation,
+            source: {
+              name: 'source name'
+            }
+          }
+        ];
+        var acceptSpy = sinon.stub().returns($q.when());
+
+        addressbookSpy.returns({
+          acceptShare: acceptSpy
+        });
+
+        contactAddressbookService.subscribeAddressbooks(addressbookShells);
+        $rootScope.$digest();
+
+        expect(ContactAPIClient.addressbookHome).to.have.been.calledWith(addressbookShells[0].bookId);
+        expect(addressbookSpy).to.have.been.calledWith(addressbookShells[0].bookName);
+        expect(acceptSpy).to.have.been.calledWith({
+          displayname: addressbookShells[0].source.name
+        });
+      });
+
+      it('should broadcast event if success to accept shared address book', function() {
+        var addressbookShells = [
+          {
+            description: '',
+            name: 'public addressbook1',
+            bookName: 'bookName',
+            bookId: 'bookId',
+            subscriptionType: CONTACT_SHARING_SUBSCRIPTION_TYPE.delegation,
+            source: {
+              name: 'source name'
+            }
+          }
+        ];
+        var acceptSpy = sinon.stub().returns($q.when());
+        var createdAddressbook = {
+          name: addressbookShells[0].source.name
+        };
+
+        addressbookSpy.returns({
+          acceptShare: acceptSpy
+        });
+
+        // somehow, $rootScope.$broadcast is called when digest is triggered. So I trigger
+        // digest to 'flush' the pending call before mocking $rootScope.$broadcast
+        $rootScope.$digest();
+        $rootScope.$broadcast = sinon.spy();
+
+        contactAddressbookService.subscribeAddressbooks(addressbookShells);
+
+        $rootScope.$digest();
+        expect($rootScope.$broadcast).to.have.been.calledWith(
+          CONTACT_ADDRESSBOOK_EVENTS.CREATED,
+          sinon.match(createdAddressbook)
+        );
+      });
     });
   });
 

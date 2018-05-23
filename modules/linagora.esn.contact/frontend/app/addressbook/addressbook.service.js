@@ -114,11 +114,14 @@
     function subscribeAddressbooks(addressbookShells) {
       return $q.all(addressbookShells.map(function(addressbookShell) {
         if (addressbookShell.subscriptionType === CONTACT_SHARING_SUBSCRIPTION_TYPE.delegation) {
+          var displayname = contactAddressbookDisplayService.buildDisplayName(addressbookShell.source);
+
           return ContactAPIClient
             .addressbookHome(addressbookShell.bookId)
             .addressbook(addressbookShell.bookName)
-            .acceptShare()
+            .acceptShare({ displayname: displayname })
             .then(function() {
+              addressbookShell.name = displayname;
               $rootScope.$broadcast(
                 CONTACT_ADDRESSBOOK_EVENTS.CREATED,
                 addressbookShell
