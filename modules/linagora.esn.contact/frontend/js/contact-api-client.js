@@ -163,13 +163,17 @@ angular.module('linagora.esn.contact')
       return davClient('POST', getBookUrl(bookId, bookName), headers, data);
     }
 
-    function replyInvitation(bookId, bookName, accepted) {
+    function replyInvitation(bookId, bookName, accepted, options) {
       var headers = { Accept: CONTACT_ACCEPT_HEADER };
       var data = {
         'dav:invite-reply': {
           'dav:invite-accepted': accepted
         }
       };
+
+      if (options.displayname) {
+        data['dav:invite-reply']['dav:slug'] = options.displayname;
+      }
 
       return davClient('POST', getBookUrl(bookId, bookName), headers, data);
     }
@@ -477,12 +481,12 @@ angular.module('linagora.esn.contact')
           return shareAddressbook(bookId, bookName, sharees);
         }
 
-        function acceptShare() {
-          return replyInvitation(bookId, bookName, true);
+        function acceptShare(options) {
+          return replyInvitation(bookId, bookName, true, options);
         }
 
-        function declineShare() {
-          return replyInvitation(bookId, bookName, false);
+        function declineShare(options) {
+          return replyInvitation(bookId, bookName, false, options);
         }
 
         function updatePublicRight(publicRight) {
