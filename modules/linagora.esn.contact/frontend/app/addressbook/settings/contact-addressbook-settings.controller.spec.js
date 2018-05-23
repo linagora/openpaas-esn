@@ -87,6 +87,34 @@ describe('The contactAddressbookSettingsController', function() {
 
       expect(controller.publicRight).to.equal('{DAV:}write');
     });
+
+    it('should assign sharees to controller', function() {
+      addressbook.sharees = ['share1', 'share2'];
+
+      var controller = initController();
+
+      controller.$onInit();
+      $rootScope.$digest();
+
+      expect(controller.sharees).to.deep.equal(addressbook.sharees);
+    });
+
+    it('should assign sharees of source to controller in case AB is a subscription', function() {
+      addressbook.isSubscription = true;
+      addressbook.source = {
+        rights: {
+          public: '{DAV:}write'
+        },
+        sharees: ['share1', 'share2']
+      };
+
+      var controller = initController();
+
+      controller.$onInit();
+      $rootScope.$digest();
+
+      expect(controller.sharees).to.deep.equal(addressbook.source.sharees);
+    });
   });
 
   describe('The onSave function', function() {
@@ -111,18 +139,15 @@ describe('The contactAddressbookSettingsController', function() {
       $state.go = angular.noop;
 
       var controller = initController();
-      var changedAddressbook = {
-        sharees: ['user1', 'user2']
-      };
 
       controller.$onInit();
       $rootScope.$digest();
-      controller.addressbook = changedAddressbook;
+      controller.sharees = ['user1', 'user2'];
 
       controller.onSave();
       $rootScope.$digest();
 
-      expect(contactAddressbookService.shareAddressbook).to.have.been.calledWith(changedAddressbook, changedAddressbook.sharees);
+      expect(contactAddressbookService.shareAddressbook).to.have.been.calledWith(addressbook, controller.sharees);
     });
   });
 

@@ -107,5 +107,7 @@
   "Shared with": "Shared with",
   "This address book is not shared with anyone": "This address book is not shared with anyone",
   "Delegation": "Delegation",
-  "Something went wrong, please try again later": "Something went wrong, please try again later"
+  "Something went wrong, please try again later": "Something went wrong, please try again later",
+  "Administration": "Administration",
+  "Edit contacts and manage sharing": "Edit contacts and manage sharing"
 }
