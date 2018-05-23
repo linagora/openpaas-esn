@@ -9,8 +9,8 @@ angular.module('esn.file-saver', ['ngFileSaver'])
     getFile: getFile
   };
 
-  function saveText(textContent, filename) {
-    var blob = new Blob([textContent], {type: 'text/plain;charset=utf-8'});
+  function saveText(textContent, filename, type) {
+    var blob = new Blob([textContent], {type: type || 'text/plain;charset=utf-8'});
 
     FileSaver.saveAs(blob, filename);
   }
