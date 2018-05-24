@@ -18,7 +18,7 @@
     }
 
     function getUserNotificationProvider() {
-      esnPaginationtionProviderBuilder(self, 'UserNotificationList', esnUserNotificationService.list, options);
+      esnPaginationtionProviderBuilder(self, 'UserNotificationList', esnUserNotificationService.getListFunctions(), options);
     }
   }
 })();

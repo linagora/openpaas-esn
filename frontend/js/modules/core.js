@@ -16,9 +16,9 @@ angular.module('esn.core', ['esn.lodash-wrapper', 'esn.email-addresses-wrapper']
     Counter.prototype.init = function init() {
       var self = this;
       self.refreshFn()
-        .then(function(response) {
-          self.count = response.data.unread_count;
-          $log.debug('Initial count is ' + response.data.unread_count);
+        .then(function(count) {
+          self.count = count;
+          $log.debug('Initial count is ' + count);
         }, function(err) {
           $log.error('Error getting unread count of user notification: ' + err);
         });
@@ -29,9 +29,9 @@ angular.module('esn.core', ['esn.lodash-wrapper', 'esn.email-addresses-wrapper']
       if (self.timer === null) {
         self.timer = $timeout(function() {
           self.refreshFn()
-            .then(function(response) {
-              self.count = response.data.unread_count;
-              $log.debug('count is ' + response.data.unread_count);
+            .then(function(count) {
+              self.count = count;
+              $log.debug('count is ' + count);
             }, function(err) {
               $log.error('Error getting unread count of user notification: ' + err);
             });

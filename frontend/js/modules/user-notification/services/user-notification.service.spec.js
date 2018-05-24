@@ -1,76 +1,60 @@
 'use strict';
 
-/* global chai: false */
+/* global chai, sinon: false */
 
 var expect = chai.expect;
 
 describe('The esnUserNotificationService factory', function() {
+  var esnUserNotificationService, esnUserNotificationCounter, esnUserNotificationProviders;
+
   beforeEach(function() {
-    angular.mock.module('esn.user-notification');
+    angular.module('esn.user-notification.test', ['esn.user-notification'])
+      .run(function(esnUserNotificationProviders) {
+        esnUserNotificationProviders.add({
+          name: 'testNotificationProvider',
+          list: function() {
+            return 'foobar';
+          }
+        });
+      });
+
+    module('esn.user-notification', 'esn.user-notification.test');
   });
 
-  beforeEach(inject(function(esnUserNotificationService, $httpBackend) {
-    this.api = esnUserNotificationService;
-    this.$httpBackend = $httpBackend;
+  beforeEach(inject(function(
+    _esnUserNotificationService_,
+    _esnUserNotificationCounter_,
+    _esnUserNotificationProviders_
+  ) {
+    esnUserNotificationProviders = _esnUserNotificationProviders_;
+    esnUserNotificationService = _esnUserNotificationService_;
+    esnUserNotificationCounter = _esnUserNotificationCounter_;
   }));
 
-  describe('The list function', function() {
-    it('should send a request to /api/user/notifications', function() {
-      this.$httpBackend.expectGET('/api/user/notifications').respond([]);
-      this.api.list();
-      this.$httpBackend.flush();
-    });
-
-    it('should send a request to /api/user/notifications?limit=10&offset=2&read=false', function() {
-      this.$httpBackend.expectGET('/api/user/notifications?limit=10&offset=2&read=false').respond([]);
-      var options = {
-        limit: 10,
-        offset: 2,
-        read: false
+  describe('The addProvider function', function() {
+    it('should call esnUserNotificationProviders.add and init notification counter service', function() {
+      var provider = {
+        name: 'testNotificationProvider',
+        list: angular.noop,
+        getUnreadCount: angular.noop
       };
 
-      this.api.list(options);
-      this.$httpBackend.flush();
-    });
+      esnUserNotificationProviders.add = sinon.spy();
+      esnUserNotificationCounter.init = sinon.spy();
 
-    it('should return a promise', function() {
-      expect(this.api.list()).to.be.a.function;
-    });
-  });
+      esnUserNotificationService.addProvider(provider);
 
-  describe('The setRead function', function() {
-    it('should exist', function() {
-      expect(this.api).to.respondTo('setRead');
-    });
-
-    it('should send a request PUT /api/user/notifications/123456789/read', function() {
-      this.$httpBackend.expectPUT('/api/user/notifications/123456789/read').respond([]);
-      this.api.setRead(123456789, true);
-      this.$httpBackend.flush();
+      expect(esnUserNotificationProviders.add).to.have.been.calledWith(provider);
+      expect(esnUserNotificationCounter.init).to.have.been.called;
     });
   });
 
-  describe('The setAcknowledged function', function() {
-    it('should exist', function() {
-      expect(this.api).to.respondTo('setAcknowledged');
-    });
+  describe('The getListFunctions function', function() {
+    it('should return an arrays of list functions from registered providers', function() {
+      var listFunctions = esnUserNotificationService.getListFunctions();
 
-    it('should send a request PUT /api/user/notifications/123456789/acknowledged', function() {
-      this.$httpBackend.expectPUT('/api/user/notifications/123456789/acknowledged').respond([]);
-      this.api.setAcknowledged(123456789, true);
-      this.$httpBackend.flush();
-    });
-  });
-
-  describe('The getUnreadCount function', function() {
-    it('should exist', function() {
-      expect(this.api).to.respondTo('getUnreadCount');
-    });
-
-    it('should send a request GET /api/user/notifications/unread', function() {
-      this.$httpBackend.expectGET('/api/user/notifications/unread').respond([]);
-      this.api.getUnreadCount();
-      this.$httpBackend.flush();
+      expect(listFunctions).to.have.length(1);
+      expect(listFunctions[0]()).to.equal('foobar');
     });
   });
 });

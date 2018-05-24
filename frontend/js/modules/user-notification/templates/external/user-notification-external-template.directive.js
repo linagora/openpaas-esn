@@ -6,8 +6,7 @@
 
   function esnUserNotificationExternal(
     $q,
-    objectTypeResolver,
-    esnUserNotificationService
+    objectTypeResolver
   ) {
     return {
       controller: controller,
@@ -27,15 +26,9 @@
           return;
         }
         acknowledging = true;
-        esnUserNotificationService.setAcknowledged($scope.notification._id, true).then(
-          function() {
-            $scope.notification.acknowledged = true;
-          },
-          function(error) {
-            $scope.error = error;
-          }
-        );
-
+        $scope.notification.setAcknowledged(true).catch(function(error) {
+          $scope.error = error;
+        });
       };
 
       var resolvers = {};

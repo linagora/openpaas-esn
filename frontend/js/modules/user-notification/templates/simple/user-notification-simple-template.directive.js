@@ -4,7 +4,7 @@
   angular.module('esn.user-notification')
     .directive('esnUserNotificationSimpleTemplate', esnUserNotificationSimpleTemplate);
 
-  function esnUserNotificationSimpleTemplate(esnUserNotificationService) {
+  function esnUserNotificationSimpleTemplate() {
     return {
       controller: controller,
       restrict: 'E',
@@ -23,15 +23,9 @@
           return;
         }
         acknowledging = true;
-        esnUserNotificationService.setAcknowledged($scope.notification._id, true).then(
-          function() {
-            $scope.notification.acknowledged = true;
-          },
-          function(error) {
-            $scope.error = error;
-          }
-        );
-
+        $scope.notification.setAcknowledged(true).catch(function(error) {
+          $scope.error = error;
+        });
       };
     }
   }

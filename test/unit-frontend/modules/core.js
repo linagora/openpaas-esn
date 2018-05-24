@@ -64,11 +64,7 @@ describe('The Angular core module', function() {
       counter.refresh();
 
       setTimeout(function() {
-        unreadDefer.resolve({
-          data: {
-            unread_count: 420
-          }
-        });
+        unreadDefer.resolve(420);
         $rootScope.$digest();
 
         expect(counter.count).to.equals(420);
@@ -76,14 +72,10 @@ describe('The Angular core module', function() {
       }, 200);
     });
 
-    it('should allow set initial count by calling getUnreadCount directly', function() {
+    it('should allow set initial count by calling getUnreadCount function directly', function() {
       counter.init();
 
-      unreadDefer.resolve({
-        data: {
-          unread_count: 420
-        }
-      });
+      unreadDefer.resolve(420);
       $rootScope.$digest();
 
       expect(counter.count).to.equals(420);
@@ -96,11 +88,7 @@ describe('The Angular core module', function() {
       counter.refresh();
 
       setTimeout(function() {
-        unreadDefer.resolve({
-          data: {
-            unread_count: 420
-          }
-        });
+        unreadDefer.resolve(420);
         $rootScope.$digest();
 
         expect(counter.count).to.equals(420);

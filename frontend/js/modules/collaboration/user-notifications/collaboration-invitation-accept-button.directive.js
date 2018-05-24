@@ -5,8 +5,7 @@
     .directive('esnCollaborationInvitationAcceptButton', esnCollaborationInvitationAcceptButton);
 
     function esnCollaborationInvitationAcceptButton(
-      esnCollaborationClientService,
-      esnUserNotificationService
+      esnCollaborationClientService
     ) {
       return {
         link: link,
@@ -21,9 +20,8 @@
           scope.restActive = true;
           esnCollaborationClientService.join(scope.invitationCollaboration.objectType, scope.invitationCollaboration._id, scope.invitedUser._id).then(
             function() {
-              esnUserNotificationService.setAcknowledged(scope.notification._id, true).then(
+              scope.notification.setAcknowledged(true).then(
                 function() {
-                  scope.notification.acknowledged = true;
                   invitationController.actionDone('accept');
                 },
                 function(error) {
