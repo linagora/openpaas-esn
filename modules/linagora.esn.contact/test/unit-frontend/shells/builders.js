@@ -212,6 +212,45 @@ describe('ContactShell Builders', function() {
         this.$rootScope.$apply();
       });
 
+      it('should build the shell for all dav items which have vcard data', function(done) {
+        var self = this;
+        var contacts = [{
+          bookId: '123',
+          bookName: '456',
+          href: 'addressbooks/123/456/contact1.vcf'
+        }, {
+          bookId: '123',
+          bookName: '456',
+          href: 'addressbooks/123/456/contact2.vcf'
+        }];
+        var items = [{
+          _links: {
+            self: {
+              href: contacts[0].href
+            }
+          },
+          data: {}
+        }, {
+          _links: {
+            self: {
+              href: contacts[1].href
+            }
+          }
+        }];
+
+        self.ContactShellBuilder.fromVcard = sinon.spy(function(vcard) {
+          return vcard;
+        });
+        ContactShellHelper.getMetadata = sinon.spy();
+
+        self.ContactShellBuilder.fromCardSearchResponse({data: {_embedded: {'dav:item': items}}}).then(function(result) {
+          expect(result.length).to.equal(1);
+          expect(ContactShellHelper.getMetadata).to.have.been.calledOnce;
+          done();
+        });
+        self.$rootScope.$apply();
+      });
+
       it('should build the shell for all dav items', function(done) {
         var self = this;
         var contacts = [{
@@ -235,13 +274,15 @@ describe('ContactShell Builders', function() {
           'openpaas:addressbook': {
             bookHome: contacts[1].bookId,
             bookName: contacts[1].bookName
-          }
+          },
+          data: {}
         }, {
           _links: {
             self: {
               href: contacts[1].href
             }
-          }
+          },
+          data: {}
         }];
 
         self.ContactShellBuilder.fromVcard = sinon.spy(function(vcard) {
@@ -252,7 +293,9 @@ describe('ContactShell Builders', function() {
             return contacts[1];
           }
         });
-        self.ContactShellBuilder.populateAddressbook = sinon.spy();
+        self.ContactShellBuilder.populateAddressbook = sinon.spy(function(contactShell) {
+          return contactShell;
+        });
 
         self.ContactShellBuilder.fromCardSearchResponse({data: {_embedded: {'dav:item': items}}}).then(function(result) {
           expect(result.length).to.equal(items.length);
