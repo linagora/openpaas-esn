@@ -14,7 +14,8 @@
       SHAREDOWNER: 1,
       READ: 2,
       READWRITE: 3,
-      NOACCESS: 4
+      NOACCESS: 4,
+      READWRITEADMIN: 5
     })
 
     .constant('CONTACT_SHARING_SHARE_ACCESS_CHOICES', {
@@ -27,6 +28,11 @@
         value: 3,
         label: 'Read/Write',
         longLabel: 'Edit all contacts'
+      },
+      READWRITEADMIN: {
+        value: 5,
+        label: 'Administration',
+        longLabel: 'Edit contacts and manage sharing'
       }
     })
 

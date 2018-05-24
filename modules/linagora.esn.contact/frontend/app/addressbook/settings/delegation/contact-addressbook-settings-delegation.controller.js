@@ -13,6 +13,7 @@
     CONTACT_SHARING_SHARE_ACCESS_CHOICES
   ) {
     var self = this;
+    var visibleAccesses = _.map(CONTACT_SHARING_SHARE_ACCESS_CHOICES, _.property('value'));
 
     self.$onInit = $onInit;
     self.onAddingUser = onAddingUser;
@@ -53,7 +54,7 @@
     }
 
     function isVisibbleSharee(sharee) {
-      return [CONTACT_SHARING_SHARE_ACCESS.READ, CONTACT_SHARING_SHARE_ACCESS.READWRITE].indexOf(sharee.access) > -1;
+      return visibleAccesses.indexOf(sharee.access) > -1;
     }
 
     function _processSharees(sharees) {

@@ -29,7 +29,14 @@
         .then(function(addressbook) {
           self.addressbook = addressbook;
           self.addressbookDisplayName = contactAddressbookDisplayService.buildDisplayName(addressbook);
-          self.publicRight = addressbook.isSubscription ? addressbook.source.rights.public : addressbook.rights.public;
+
+          if (addressbook.isSubscription) {
+            self.publicRight = addressbook.source.rights.public;
+            self.sharees = addressbook.source.sharees;
+          } else {
+            self.publicRight = addressbook.rights.public;
+            self.sharees = addressbook.sharees;
+          }
           angular.copy(self.addressbook, oldAddressbook);
         });
     }
@@ -37,14 +44,14 @@
     function onSave() {
       var updateActions = [];
       var publicRightChanged = self.publicRight !== oldAddressbook.rights.public;
-      var shareeChanged = !angular.equals(self.addressbook.sharees, oldAddressbook.sharees);
+      var shareeChanged = !angular.equals(self.sharees, oldAddressbook.sharees);
 
       if (publicRightChanged) {
         updateActions.push(contactAddressbookService.updateAddressbookPublicRight(self.addressbook, self.publicRight));
       }
 
       if (shareeChanged) {
-        updateActions.push(contactAddressbookService.shareAddressbook(self.addressbook, self.addressbook.sharees));
+        updateActions.push(contactAddressbookService.shareAddressbook(self.addressbook, self.sharees));
       }
 
       return asyncAction(NOTIFICATION_MESSAGES, function() {

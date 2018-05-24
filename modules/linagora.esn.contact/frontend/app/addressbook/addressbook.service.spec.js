@@ -563,5 +563,38 @@ describe('The contactAddressbookService service', function() {
       contactAddressbookService.shareAddressbook(addressbookShell, addressbookShell.sharees);
       $rootScope.$digest();
     });
+
+    it('should adapt when address book is a subscription', function(done) {
+      var addressbookShell = {
+        bookId: '123123',
+        bookName: 'addressbook1',
+        isSubscription: true,
+        source: {
+          bookId: 'sourceBookId',
+          bookName: 'sourceBookName'
+        }
+      };
+      var sharees = ['user1', 'user2'];
+
+      ContactAPIClient.addressbookHome = function(bookId) {
+        expect(bookId).to.equal(addressbookShell.source.bookId);
+
+        return {
+          addressbook: function(bookName) {
+            expect(bookName).to.equal(addressbookShell.source.bookName);
+
+            return {
+              share: function(_sharees_) {
+                expect(_sharees_).to.deep.equal(sharees);
+                done();
+              }
+            };
+          }
+        };
+      };
+
+      contactAddressbookService.shareAddressbook(addressbookShell, sharees);
+      $rootScope.$digest();
+    });
   });
 });
