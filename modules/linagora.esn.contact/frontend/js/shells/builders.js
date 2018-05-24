@@ -79,6 +79,10 @@ angular.module('linagora.esn.contact')
       if (response && response.data && response.data._embedded &&
         response.data._embedded['dav:item'] && response.data._embedded['dav:item'].length) {
         return $q.all(response.data._embedded['dav:item'].map(function(vcard) {
+          if (!vcard.data) {
+            return;
+          }
+
           var contactShell = self.fromVcard(vcard.data);
           var openpaasAddressbook = vcard['openpaas:addressbook']; // This field only available on search contacts in subscribed address books
           var bookHome, bookName;
@@ -100,7 +104,7 @@ angular.module('linagora.esn.contact')
           }
 
           return contactShell;
-        }));
+        }).filter(Boolean));
       }
 
       return $q.when([]);
