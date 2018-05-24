@@ -6,7 +6,6 @@
 
     function esnCollaborationInvitationDeclineButton(
       esnCollaborationClientService,
-      esnUserNotificationService,
       session
     ) {
       return {
@@ -22,9 +21,8 @@
           scope.restActive = true;
           esnCollaborationClientService.cancelRequestMembership(scope.invitationCollaboration.objectType, scope.invitationCollaboration._id, session.user._id).then(
             function() {
-              esnUserNotificationService.setAcknowledged(scope.notification._id, true).then(
+              scope.notification.setAcknowledged(true).then(
                 function() {
-                  scope.notification.acknowledged = true;
                   invitationController.actionDone('decline');
                 },
                 function(error) {

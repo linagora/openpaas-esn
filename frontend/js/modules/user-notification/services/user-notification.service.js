@@ -4,37 +4,26 @@
   angular.module('esn.user-notification')
     .factory('esnUserNotificationService', esnUserNotificationService);
 
-    function esnUserNotificationService(esnRestangular) {
+    function esnUserNotificationService(
+      _,
+      esnUserNotificationProviders,
+      esnUserNotificationCounter
+    ) {
       return {
-        getUnreadCount: getUnreadCount,
-        list: list,
-        setAcknowledged: setAcknowledged,
-        setAllRead: setAllRead,
-        setRead: setRead
+        addProvider: addProvider,
+        getListFunctions: getListFunctions
       };
 
-      function getUnreadCount() {
-        return esnRestangular.one('user').one('notifications').one('unread').get();
+      function addProvider(provider) {
+        esnUserNotificationProviders.add(provider);
+        esnUserNotificationCounter.init();
       }
 
-      function list(options) {
-        return esnRestangular.one('user').all('notifications').getList(options);
-      }
-
-      function setAcknowledged(id, acknowledged) {
-        return esnRestangular.one('user').one('notifications', id).one('acknowledged').customPUT({value: acknowledged});
-      }
-
-      function setAllRead(ids, read) {
-        var request = esnRestangular.one('user').one('notifications').one('read');
-
-        request.value = read;
-
-        return request.put({ ids: ids });
-      }
-
-      function setRead(id, read) {
-        return esnRestangular.one('user').one('notifications', id).one('read').customPUT({value: read});
+      function getListFunctions() {
+        return _.values(esnUserNotificationProviders.getAll())
+          .map(function(provider) {
+            return provider.list;
+          });
       }
     }
 })();

@@ -7,7 +7,6 @@
   function esnCollaborationMembershipInvitationUserNotification(
     $q,
     objectTypeResolver,
-    esnUserNotificationService,
     session
   ) {
     return {
@@ -49,7 +48,7 @@
 
       function notFound() {
         $scope.notFound = true;
-        esnUserNotificationService.setAcknowledged($scope.notification._id, true);
+        $scope.notification.setAcknowledged(true);
       }
 
       // This needs to be refactored to support objectTypeAdapters

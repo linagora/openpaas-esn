@@ -5,8 +5,7 @@
     .controller('CollaborationRequestMembershipActionUserNotificationController', CollaborationRequestMembershipActionUserNotificationController);
 
     function CollaborationRequestMembershipActionUserNotificationController(
-      objectTypeResolver,
-      esnUserNotificationService
+      objectTypeResolver
     ) {
       var self = this;
 
@@ -33,9 +32,7 @@
           });
 
           function ack() {
-            return esnUserNotificationService.setAcknowledged(self.notification._id, true).then(function() {
-              self.notification.acknowledged = true;
-            });
+            return self.notification.setAcknowledged(true);
           }
 
           function getCollaborationPath(objectType) {

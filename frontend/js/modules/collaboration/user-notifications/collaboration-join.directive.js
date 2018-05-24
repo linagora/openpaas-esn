@@ -7,7 +7,6 @@
     function esnCollaborationJoinUserNotification(
       $log,
       $q,
-      esnUserNotificationService,
       objectTypeResolver
     ) {
       return {
@@ -45,14 +44,9 @@
         });
 
         function ack() {
-          return esnUserNotificationService.setAcknowledged($scope.notification._id, true).then(
-            function() {
-              $scope.notification.acknowledged = true;
-            },
-            function() {
-              $scope.error = true;
-            }
-          );
+          return $scope.notification.setAcknowledged(true).catch(function() {
+            $scope.error = true;
+          });
         }
       }
 
