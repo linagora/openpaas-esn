@@ -2,9 +2,9 @@
   'use strict';
 
   angular.module('esn.user-notification')
-    .run(ESNUserNotificationRun);
+    .run(run);
 
-    function ESNUserNotificationRun(
+    function run(
       esnUserNotificationCounter,
       esnUserNotificationWebsocketListenerService,
       esnUserNotificationTemplateProviderRegistry
@@ -13,11 +13,11 @@
       esnUserNotificationCounter.init();
       esnUserNotificationWebsocketListenerService.listenEvents();
       esnUserNotificationTemplateProviderRegistry.add({
-        template: 'esn-user-notification-external',
+        template: 'esn-user-notification-external-template',
         category: 'external'
       });
       esnUserNotificationTemplateProviderRegistry.add({
-        template: 'esn-simple-user-notification',
+        template: 'esn-user-notification-simple-template',
         category: 'simple'
       });
     }

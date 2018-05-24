@@ -16,7 +16,7 @@
       scope: {
         notification: '='
       },
-      templateUrl: '/views/modules/user-notification/templates/user-notification-external.html'
+      templateUrl: '/views/modules/user-notification/templates/external/user-notification-external-template.html'
     };
 
     function controller($scope) {
@@ -35,6 +35,7 @@
             $scope.error = error;
           }
         );
+
       };
 
       var resolvers = {};

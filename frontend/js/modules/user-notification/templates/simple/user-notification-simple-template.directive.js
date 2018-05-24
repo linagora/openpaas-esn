@@ -2,11 +2,9 @@
   'use strict';
 
   angular.module('esn.user-notification')
-    .directive('esnSimpleUserNotification', esnSimpleUserNotification);
+    .directive('esnUserNotificationSimpleTemplate', esnUserNotificationSimpleTemplate);
 
-  function esnSimpleUserNotification(
-    esnUserNotificationService
-  ) {
+  function esnUserNotificationSimpleTemplate(esnUserNotificationService) {
     return {
       controller: controller,
       restrict: 'E',
@@ -14,7 +12,7 @@
       scope: {
         notification: '='
       },
-      templateUrl: '/views/modules/user-notification/templates/simple-user-notification/simple-user-notification.html'
+      templateUrl: '/views/modules/user-notification/templates/simple/user-notification-simple-template.html'
     };
 
     function controller($scope) {
@@ -33,6 +31,7 @@
             $scope.error = error;
           }
         );
+
       };
     }
   }
