@@ -8,7 +8,10 @@
     $log,
     _,
     asyncAction,
-    contactAddressbookService
+    session,
+    contactAddressbookService,
+    CONTACT_ADDRESSBOOK_PUBLIC_RIGHT,
+    CONTACT_SHARING_SHARE_ACCESS_CHOICES
   ) {
     var self = this;
     var NOTIFICATION_MESSAGES = {
@@ -34,6 +37,7 @@
           });
         })
         .then(_filterSubscribedAddressbooks)
+        .then(_filterDuplicates)
         .then(function(filteredAddressbooks) {
           self.addressbooksPerUser = self.addressbooksPerUser.concat(filteredAddressbooks);
         })
@@ -58,6 +62,66 @@
           });
         });
       }
+    }
+
+    function _filterDuplicates(addressbooks) {
+      return addressbooks.reduce(function(uniqueAddressbooksList, currentAddressbook) {
+          var duplicateIndex = _.findIndex(uniqueAddressbooksList, function(addresssBookListItem) {
+            return _isSharedFromSameAddressBook(addresssBookListItem, currentAddressbook);
+          });
+
+          if (duplicateIndex >= 0) {
+            if (_comparePermission(currentAddressbook, uniqueAddressbooksList[duplicateIndex])) {
+              uniqueAddressbooksList.splice(duplicateIndex, 1, currentAddressbook);
+            }
+          } else {
+            uniqueAddressbooksList.push(currentAddressbook);
+          }
+
+          return uniqueAddressbooksList;
+        },
+        []
+      );
+    }
+
+    function _comparePermission(addressbook1, addressbook2) {
+      var score1 = _getPermissionScore(addressbook1);
+      var score2 = _getPermissionScore(addressbook2);
+
+      if (score1 === score2) {
+        // we prefer to subscribe to delegated address book
+        return addressbook1.isSubscription ? 1 : -1;
+      }
+
+      return score1 > score2;
+    }
+
+    function _getPermissionScore(addressbook) {
+      var access;
+
+      if (addressbook.isSubscription) {
+        access = _.find(CONTACT_SHARING_SHARE_ACCESS_CHOICES, { value: addressbook.shareAccess });
+      } else {
+        access = _.find(CONTACT_ADDRESSBOOK_PUBLIC_RIGHT, { value: addressbook.rights.public });
+      }
+
+      return access ? access.score : 0;
+    }
+
+    function _isSharedFromSameAddressBook(addressbook1, addressbook2) {
+      if (addressbook1.isSubscription) {
+        addressbook1 = addressbook1.source;
+      }
+
+      if (addressbook2.isSubscription) {
+        addressbook2 = addressbook2.source;
+      }
+
+      return _isAddressbookEqual(addressbook1, addressbook2);
+    }
+
+    function _isAddressbookEqual(addressbook1, addressbook2) {
+      return addressbook1.bookId === addressbook2.bookId && addressbook1.bookName === addressbook2.bookName;
     }
 
     function getSelectedAddressbooks() {
