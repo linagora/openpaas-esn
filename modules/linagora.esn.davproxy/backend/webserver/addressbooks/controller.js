@@ -457,8 +457,12 @@ module.exports = function(dependencies) {
           }
         };
 
-        return q.all(result.results.map((result, index) =>
-          avatarHelper.injectTextAvatar(options.user, result.bookId, result.bookName, result.body)
+        return q.all(result.results.map((result, index) => {
+          if (!result.body) {
+            return;
+          }
+
+          return avatarHelper.injectTextAvatar(options.user, result.bookId, result.bookName, result.body)
             .then(newVcard => {
               data._embedded['dav:item'][index] = {
                 _links: {
@@ -469,8 +473,8 @@ module.exports = function(dependencies) {
                 data: newVcard,
                 'openpaas:addressbook': result['openpaas:addressbook']
               };
-            })
-        )).then(() => ({
+            });
+        })).then(() => ({
           total_count: result.total_count,
           data
         }));

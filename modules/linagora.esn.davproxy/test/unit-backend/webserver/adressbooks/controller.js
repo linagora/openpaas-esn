@@ -244,6 +244,66 @@ describe('The addressbooks module', function() {
 
   });
 
+  describe('The getContacts function', function() {
+    describe('Search contacts', function() {
+      it('should not inject text avatar if there is no body in card data', function(done) {
+        const injectTextAvatarSpy = sinon.stub().returns(q.resolve());
+
+        mockery.registerMock('./avatarHelper', function() {
+          return {
+            injectTextAvatar: injectTextAvatarSpy
+          };
+        });
+        dependencies.contact.lib.client = function() {
+          return {
+            addressbookHome: function() {
+              return {
+                search: () =>
+                  q.resolve({
+                    results: [{
+                      response: {
+                        statusCode: 200
+                      },
+                      current_page: 1,
+                      body: {}
+                    }, {
+                      response: {
+                        statusCode: 200
+                      },
+                      current_page: 1
+                    }]
+                  })
+              };
+            }
+          };
+        };
+
+        const controller = getController();
+        const req = {
+          user: { id: 'bookHome' },
+          params: { bookHome: 'bookHome' },
+          query: {
+            search: 'me'
+          }
+        };
+
+        controller.getContacts(req, {
+          header: () => {},
+          status(code) {
+            expect(code).to.equal(200);
+
+            return {
+              json() {
+                expect(injectTextAvatarSpy).to.have.been.calledOnce;
+                done();
+              }
+            };
+          }
+        });
+      });
+    });
+  });
+
   describe('The getContact function', function() {
 
     var req;
@@ -825,25 +885,78 @@ describe('The addressbooks module', function() {
       });
     });
 
-    it('should search in addressbooks when req.query.search is defined', function(done) {
-      createContactClientMock({
-        search() {
-          return {
-            then() { done(); }
-          };
-        }
+    describe('When req.query.search is defined', function() {
+      it('should search in addressbooks', function(done) {
+        createContactClientMock({
+          search() {
+            return {
+              then() { done(); }
+            };
+          }
+        });
+
+        const controller = getController();
+        const req = {
+          user: { id: BOOK_HOME },
+          params: {bookHome: BOOK_HOME},
+          query: {
+            search: 'me'
+          }
+        };
+
+        controller.getAddressbooks(req);
       });
 
-      const controller = getController();
-      const req = {
-        user: { id: BOOK_HOME },
-        params: {bookHome: BOOK_HOME},
-        query: {
-          search: 'me'
-        }
-      };
+      it('should not inject text avatar if there is no body in card data', function(done) {
+        const injectTextAvatarSpy = sinon.stub().returns(q.resolve());
 
-      controller.getAddressbooks(req);
+        mockery.registerMock('./avatarHelper', function() {
+          return {
+            injectTextAvatar: injectTextAvatarSpy
+          };
+        });
+        createContactClientMock({
+          search() {
+            return q.resolve({
+              results: [{
+                response: {
+                  statusCode: 200
+                },
+                current_page: 1,
+                body: {}
+              }, {
+                response: {
+                  statusCode: 200
+                },
+                current_page: 1
+              }]
+            });
+          }
+        });
+
+        const controller = getController();
+        const req = {
+          user: { id: BOOK_HOME },
+          params: { bookHome: BOOK_HOME },
+          query: {
+            search: 'me'
+          }
+        };
+
+        controller.getAddressbooks(req, {
+          header: () => {},
+          status(code) {
+            expect(code).to.equal(200);
+
+            return {
+              json() {
+                expect(injectTextAvatarSpy).to.have.been.calledOnce;
+                done();
+              }
+            };
+          }
+        });
+      });
     });
   });
 
