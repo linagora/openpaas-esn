@@ -70,6 +70,17 @@ describe('The contactAddressbookSettingsDelegationController', function() {
       expect(controller.onAddingUser({ _id: 'user1' })).to.be.false;
     });
 
+    it('should return false if the adding user is share owner', function() {
+      var controller = initController();
+
+      controller.sharees = [{
+        userId: 'user1',
+        access: CONTACT_SHARING_SHARE_ACCESS.SHAREDOWNER
+      }];
+
+      expect(controller.onAddingUser({ _id: 'user1' })).to.be.false;
+    });
+
     it('should return true if there is no existing delegation with the userId', function() {
       var controller = initController();
 
