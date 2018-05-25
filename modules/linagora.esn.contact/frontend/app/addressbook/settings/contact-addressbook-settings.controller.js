@@ -13,7 +13,7 @@
     contactAddressbookDisplayService
   ) {
     var self = this;
-    var oldAddressbook = {};
+    var originalAddressbook;
     var NOTIFICATION_MESSAGES = {
       progressing: 'Updating address book settings...',
       success: 'Address book settings are updated',
@@ -30,28 +30,25 @@
           self.addressbook = addressbook;
           self.addressbookDisplayName = contactAddressbookDisplayService.buildDisplayName(addressbook);
 
-          if (addressbook.isSubscription) {
-            self.publicRight = addressbook.source.rights.public;
-            self.sharees = addressbook.source.sharees;
-          } else {
-            self.publicRight = addressbook.rights.public;
-            self.sharees = addressbook.sharees;
-          }
-          angular.copy(self.addressbook, oldAddressbook);
+          originalAddressbook = angular.copy(self.addressbook);
+
+          self.publicRight = _getShareConcernedAddressbook(self.addressbook).rights.public;
+          self.sharees = _getShareConcernedAddressbook(self.addressbook).sharees;
         });
     }
 
     function onSave() {
+      var shareConcernedAddressbook = _getShareConcernedAddressbook(originalAddressbook);
       var updateActions = [];
-      var publicRightChanged = self.publicRight !== oldAddressbook.rights.public;
-      var shareeChanged = !angular.equals(self.sharees, oldAddressbook.sharees);
+      var publicRightChanged = self.publicRight !== shareConcernedAddressbook.rights.public;
+      var shareeChanged = !angular.equals(self.sharees, shareConcernedAddressbook.sharees);
 
       if (publicRightChanged) {
-        updateActions.push(contactAddressbookService.updateAddressbookPublicRight(self.addressbook, self.publicRight));
+        updateActions.push(contactAddressbookService.updateAddressbookPublicRight(shareConcernedAddressbook, self.publicRight));
       }
 
       if (shareeChanged) {
-        updateActions.push(contactAddressbookService.shareAddressbook(self.addressbook, self.sharees));
+        updateActions.push(contactAddressbookService.shareAddressbook(shareConcernedAddressbook, self.sharees));
       }
 
       return asyncAction(NOTIFICATION_MESSAGES, function() {
@@ -67,6 +64,10 @@
       $state.go('contact.addressbooks', {
         bookName: self.addressbook.bookName
       }, { location: 'replace' });
+    }
+
+    function _getShareConcernedAddressbook(addressbook) {
+      return addressbook.isSubscription ? addressbook.source : addressbook;
     }
   }
 })(angular);

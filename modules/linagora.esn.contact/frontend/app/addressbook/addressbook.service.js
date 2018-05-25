@@ -156,10 +156,6 @@
     }
 
     function shareAddressbook(addressbookShell, sharees) {
-      if (addressbookShell.isSubscription) {
-        addressbookShell = addressbookShell.source;
-      }
-
       return ContactAPIClient
         .addressbookHome(addressbookShell.bookId)
         .addressbook(addressbookShell.bookName)
@@ -175,7 +171,7 @@
       ] : [];
 
       return ContactAPIClient
-        .addressbookHome(session.user._id)
+        .addressbookHome(addressbook.bookId)
         .addressbook(addressbook.bookName)
         .updatePublicRight(formatedPublicRight);
     }
