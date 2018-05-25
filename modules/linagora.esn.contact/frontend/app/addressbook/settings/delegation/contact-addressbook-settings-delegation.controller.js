@@ -32,7 +32,7 @@
 
     function onAddingUser($tags) {
       return !self.sharees.some(function(sharee) {
-          return isVisibbleSharee(sharee) && $tags._id === sharee.userId;
+          return (isVisibbleSharee(sharee) || _isShareOwner(sharee)) && $tags._id === sharee.userId;
         });
     }
 
@@ -70,6 +70,9 @@
       .catch(function() {
         self.status = 'error';
       });
+    }
+    function _isShareOwner(sharee) {
+      return sharee.access === CONTACT_SHARING_SHARE_ACCESS.SHAREDOWNER;
     }
 
     function _resetForm() {
