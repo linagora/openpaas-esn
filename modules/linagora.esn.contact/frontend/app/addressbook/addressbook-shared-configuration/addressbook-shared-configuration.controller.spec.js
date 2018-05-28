@@ -9,6 +9,7 @@ describe('The contactAddressbookSharedConfigurationController', function() {
   var $rootScope, $controller;
   var contactAddressbookService;
   var user, subscribableAddressbooks, subscribedAddressbooks;
+  var CONTACT_SHARING_SHARE_ACCESS_CHOICES;
 
   beforeEach(function() {
     module('esn.async-action', function($provide) {
@@ -23,11 +24,13 @@ describe('The contactAddressbookSharedConfigurationController', function() {
     _$rootScope_,
     _$controller_,
     _asyncAction_,
-    _contactAddressbookService_
+    _contactAddressbookService_,
+    _CONTACT_SHARING_SHARE_ACCESS_CHOICES_
   ) {
     $rootScope = _$rootScope_;
     $controller = _$controller_;
     contactAddressbookService = _contactAddressbookService_;
+    CONTACT_SHARING_SHARE_ACCESS_CHOICES = _CONTACT_SHARING_SHARE_ACCESS_CHOICES_;
 
     user = { _id: '123' };
     subscribableAddressbooks = [
@@ -84,6 +87,136 @@ describe('The contactAddressbookSharedConfigurationController', function() {
           user: user
         }
       ]);
+    });
+
+    it('should filter out duplicated address books and prefer the one with higher access (both public)', function() {
+      var controller = initController();
+      var subscribableAddressbooks = [{
+        bookId: '123',
+        bookName: 'contact',
+        rights: { public: '{DAV:}read' }
+      }, {
+        bookId: '123',
+        bookName: 'contact',
+        rights: { public: '{DAV:}write' }
+      }];
+
+      contactAddressbookService.listSubscribableAddressbooks = sinon.stub().returns($q.when(subscribableAddressbooks));
+      contactAddressbookService.listSubscribedAddressbooks = sinon.stub().returns($q.when([]));
+
+      controller.onUserAdded(user);
+      $rootScope.$digest();
+
+      expect(controller.addressbooksPerUser).to.shallowDeepEqual([subscribableAddressbooks[1]]);
+    });
+
+    it('should filter out duplicated address books and prefer the one with higher access (both delegation)', function() {
+      var controller = initController();
+      var subscribableAddressbooks = [{
+        bookId: '123',
+        bookName: 'blahblah',
+        isSubscription: true,
+        shareAccess: CONTACT_SHARING_SHARE_ACCESS_CHOICES.READ.value,
+        source: {
+          bookId: '456',
+          bookName: 'contact'
+        }
+      }, {
+        bookId: '123',
+        bookName: 'blohbloh',
+        isSubscription: true,
+        shareAccess: CONTACT_SHARING_SHARE_ACCESS_CHOICES.READWRITE.value,
+        source: {
+          bookId: '456',
+          bookName: 'contact'
+        }
+      }];
+
+      contactAddressbookService.listSubscribableAddressbooks = sinon.stub().returns($q.when(subscribableAddressbooks));
+      contactAddressbookService.listSubscribedAddressbooks = sinon.stub().returns($q.when([]));
+
+      controller.onUserAdded(user);
+      $rootScope.$digest();
+
+      expect(controller.addressbooksPerUser).to.shallowDeepEqual([subscribableAddressbooks[1]]);
+    });
+
+    it('should filter out duplicated address books and prefer the one with higher access (public over delegation)', function() {
+      var controller = initController();
+      var subscribableAddressbooks = [{
+        bookId: '456',
+        bookName: 'contact',
+        rights: { public: '{DAV:}write' }
+      }, {
+        bookId: '123',
+        bookName: 'blohbloh',
+        isSubscription: true,
+        shareAccess: CONTACT_SHARING_SHARE_ACCESS_CHOICES.READ.value,
+        source: {
+          bookId: '456',
+          bookName: 'contact'
+        }
+      }];
+
+      contactAddressbookService.listSubscribableAddressbooks = sinon.stub().returns($q.when(subscribableAddressbooks));
+      contactAddressbookService.listSubscribedAddressbooks = sinon.stub().returns($q.when([]));
+
+      controller.onUserAdded(user);
+      $rootScope.$digest();
+
+      expect(controller.addressbooksPerUser).to.shallowDeepEqual([subscribableAddressbooks[0]]);
+    });
+
+    it('should filter out duplicated address books and prefer the one with higher access (delegation over public)', function() {
+      var controller = initController();
+      var subscribableAddressbooks = [{
+        bookId: '456',
+        bookName: 'contact',
+        rights: { public: '{DAV:}write' }
+      }, {
+        bookId: '123',
+        bookName: 'blohbloh',
+        isSubscription: true,
+        shareAccess: CONTACT_SHARING_SHARE_ACCESS_CHOICES.READWRITEADMIN.value,
+        source: {
+          bookId: '456',
+          bookName: 'contact'
+        }
+      }];
+
+      contactAddressbookService.listSubscribableAddressbooks = sinon.stub().returns($q.when(subscribableAddressbooks));
+      contactAddressbookService.listSubscribedAddressbooks = sinon.stub().returns($q.when([]));
+
+      controller.onUserAdded(user);
+      $rootScope.$digest();
+
+      expect(controller.addressbooksPerUser).to.shallowDeepEqual([subscribableAddressbooks[1]]);
+    });
+
+    it('should filter out duplicated address books and prefer delegation over public when the access are equal', function() {
+      var controller = initController();
+      var subscribableAddressbooks = [{
+        bookId: '456',
+        bookName: 'contact',
+        rights: { public: '{DAV:}write' }
+      }, {
+        bookId: '123',
+        bookName: 'blohbloh',
+        isSubscription: true,
+        shareAccess: CONTACT_SHARING_SHARE_ACCESS_CHOICES.READWRITE.value,
+        source: {
+          bookId: '456',
+          bookName: 'contact'
+        }
+      }];
+
+      contactAddressbookService.listSubscribableAddressbooks = sinon.stub().returns($q.when(subscribableAddressbooks));
+      contactAddressbookService.listSubscribedAddressbooks = sinon.stub().returns($q.when([]));
+
+      controller.onUserAdded(user);
+      $rootScope.$digest();
+
+      expect(controller.addressbooksPerUser).to.shallowDeepEqual([subscribableAddressbooks[1]]);
     });
   });
 

@@ -22,17 +22,20 @@
       READ: {
         value: 2,
         label: 'Read',
-        longLabel: 'See all contacts'
+        longLabel: 'See all contacts',
+        score: 1
       },
       READWRITE: {
         value: 3,
         label: 'Read/Write',
-        longLabel: 'Edit all contacts'
+        longLabel: 'Edit all contacts',
+        score: 2
       },
       READWRITEADMIN: {
         value: 5,
         label: 'Administration',
-        longLabel: 'Edit contacts and manage sharing'
+        longLabel: 'Edit contacts and manage sharing',
+        score: 3
       }
     })
 
