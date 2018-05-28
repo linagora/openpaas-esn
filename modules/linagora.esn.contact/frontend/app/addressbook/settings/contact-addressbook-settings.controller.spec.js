@@ -42,7 +42,8 @@ describe('The contactAddressbookSettingsController', function() {
       isSubscription: false,
       rights: {
         public: '{DAV:}read'
-      }
+      },
+      sharees: ['sharee1', 'sharee2']
     };
     contactAddressbookDisplayService.buildDisplayName = sinon.stub().returns('My contacts');
     contactAddressbookService.getAddressbookByBookName = sinon.stub().returns($q.when(addressbook));
@@ -118,9 +119,21 @@ describe('The contactAddressbookSettingsController', function() {
   });
 
   describe('The onSave function', function() {
-    it('should call contactAddressbookService.updateAddressbookPublicRight to update public right if public right changed', function() {
+    it('should not update public right if it is not changed', function() {
       contactAddressbookService.updateAddressbookPublicRight = sinon.stub().returns($q.when({}));
-      $state.go = sinon.stub().returns();
+
+      var controller = initController();
+
+      controller.$onInit();
+      $rootScope.$digest();
+
+      controller.onSave();
+
+      expect(contactAddressbookService.updateAddressbookPublicRight).to.not.have.been.called;
+    });
+
+    it('should update public right when it is changed', function() {
+      contactAddressbookService.updateAddressbookPublicRight = sinon.stub().returns($q.when({}));
 
       var controller = initController();
 
@@ -129,25 +142,111 @@ describe('The contactAddressbookSettingsController', function() {
       controller.publicRight = '{DAV:}write';
 
       controller.onSave();
-      $rootScope.$digest();
 
       expect(contactAddressbookService.updateAddressbookPublicRight).to.have.been.calledWith(addressbook, '{DAV:}write');
     });
 
-    it('should call contactAddressbookService.shareAddressbook to update sharees delegation if sharees information is changed', function() {
+    it('should not update sharees if sharees is not changed', function() {
+      addressbook.sharees = ['share1', 'share2'];
+
       contactAddressbookService.shareAddressbook = sinon.stub().returns($q.when({}));
-      $state.go = angular.noop;
 
       var controller = initController();
 
       controller.$onInit();
       $rootScope.$digest();
-      controller.sharees = ['user1', 'user2'];
 
       controller.onSave();
-      $rootScope.$digest();
 
-      expect(contactAddressbookService.shareAddressbook).to.have.been.calledWith(addressbook, controller.sharees);
+      expect(contactAddressbookService.shareAddressbook).to.not.have.been.called;
+    });
+
+    it('should call contactAddressbookService.shareAddressbook to update sharees delegation if sharees information is changed', function() {
+      contactAddressbookService.shareAddressbook = sinon.stub().returns($q.when({}));
+
+      var controller = initController();
+
+      controller.$onInit();
+      $rootScope.$digest();
+      controller.sharees.push('another sharee');
+
+      controller.onSave();
+
+      expect(contactAddressbookService.shareAddressbook).to.have.been.calledWith(sinon.match({
+        bookId: addressbook.bookId,
+        bookName: addressbook.bookName
+      }), controller.sharees);
+    });
+
+    describe('when address book is subscription', function() {
+      beforeEach(function() {
+        addressbook.isSubscription = true;
+        addressbook.source = {
+          bookId: 'sourceBookId',
+          bookName: 'sourceBookName',
+          rights: {
+            public: '{DAV:}write'
+          },
+          sharees: ['share1', 'share2']
+        };
+      });
+
+      it('should not update public right if it is not changed', function() {
+        contactAddressbookService.updateAddressbookPublicRight = sinon.stub().returns($q.when({}));
+
+        var controller = initController();
+
+        controller.$onInit();
+        $rootScope.$digest();
+
+        controller.onSave();
+
+        expect(contactAddressbookService.updateAddressbookPublicRight).to.not.have.been.called;
+      });
+
+      it('should update public right of the source address book when it is changed', function() {
+        contactAddressbookService.updateAddressbookPublicRight = sinon.stub().returns($q.when({}));
+
+        var controller = initController();
+
+        controller.$onInit();
+        $rootScope.$digest();
+
+        controller.publicRight = '{DAV:}read';
+        controller.onSave();
+
+        expect(contactAddressbookService.updateAddressbookPublicRight).to.have.been.calledWith(addressbook.source, controller.publicRight);
+      });
+
+      it('should not update sharees if sharees is not changed', function() {
+        contactAddressbookService.shareAddressbook = sinon.stub().returns($q.when({}));
+
+        var controller = initController();
+
+        controller.$onInit();
+        $rootScope.$digest();
+
+        controller.onSave();
+
+        expect(contactAddressbookService.shareAddressbook).to.not.have.been.called;
+      });
+
+      it('should update sharees of the source when the sharees is changed', function() {
+        contactAddressbookService.shareAddressbook = sinon.stub().returns($q.when({}));
+
+        var controller = initController();
+
+        controller.$onInit();
+        $rootScope.$digest();
+
+        controller.sharees.push('another sharee');
+        controller.onSave();
+
+        expect(contactAddressbookService.shareAddressbook).to.have.been.calledWith(sinon.match({
+          bookId: addressbook.source.bookId,
+          bookName: addressbook.source.bookName
+        }), controller.sharees);
+      });
     });
   });
 
