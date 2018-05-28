@@ -22,10 +22,15 @@
 
     self.addressbooksPerUser = [];
     self.selectedUsers = [];
+    self.onAddingUser = onAddingUser;
     self.onUserAdded = onUserAdded;
     self.onUserRemoved = onUserRemoved;
     self.subscribe = subscribe;
     self.getSelectedAddressbooks = getSelectedAddressbooks;
+
+    function onAddingUser($tags) {
+      return !!$tags._id;
+    }
 
     function onUserAdded(user) {
       contactAddressbookService.listSubscribableAddressbooks(user._id)

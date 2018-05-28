@@ -6,7 +6,13 @@
         h4.modal-title #{__('Shared address book')}
       .modal-body
         .contact-addressbook-shared-configuration-content
-          users-autocomplete-input(mutable-users='$ctrl.selectedUsers', on-user-added='$ctrl.onUserAdded', on-user-removed='$ctrl.onUserRemoved')
+          users-autocomplete-input(
+            auto-focus-ngtagsinput,
+            mutable-users='$ctrl.selectedUsers',
+            on-adding-user="$ctrl.onAddingUser",
+            on-user-added='$ctrl.onUserAdded',
+            on-user-removed='$ctrl.onUserRemoved'
+          )
 
           .subscribable-addressbook-list
             .empty.text-center(ng-if='!$ctrl.addressbooksPerUser.length')
