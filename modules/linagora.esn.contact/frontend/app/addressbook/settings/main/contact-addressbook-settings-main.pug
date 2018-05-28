@@ -1,5 +1,5 @@
 .row
-  .col-md-4.col-xs-5.title-header.text-center
+  .col-md-4.col-xs-5.title-header
     i.mdi.mdi-account-multiple
     h4 #{__('Public right')}
   .col-md-8.col-xs-7.form-group
@@ -15,12 +15,21 @@
         )
           | {{ right.title | esnI18n }}
 
-.row(ng-if="::$ctrl.shareOwner")
-  .col-md-4.col-xs-5.title-header.text-center
+.row.share-owner(ng-if="::$ctrl.shareOwner")
+  .col-md-4.col-xs-5.title-header
     i.mdi.mdi-account-switch
     h4 #{__('Shared by')}
   .col-md-8.col-xs-7
-    div.share-owner
+    .share-owner-meta
       a(href="", ui-sref="profile({user_id: $ctrl.shareOwner.id})", title="{{::$ctrl.shareOwner.displayName}}")
         esn-avatar(user-id="::$ctrl.shareOwner.id")
       span.share-owner-name {{ ::$ctrl.shareOwner.displayName }}
+
+.row.share-access(ng-if="::$ctrl.shareAccess")
+  .col-md-4.col-xs-5.title-header
+    i.mdi.mdi-account-key
+    h4 #{__('Your permission')}
+  .col-md-8.col-xs-7
+    .share-access-meta
+      .share-access-meta-label {{ ::$ctrl.shareAccess.label | esnI18n }}
+      span.text-muted {{ ::$ctrl.shareAccess.longLabel | esnI18n }}

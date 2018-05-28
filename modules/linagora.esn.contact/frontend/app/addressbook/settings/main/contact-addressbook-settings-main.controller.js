@@ -8,7 +8,8 @@
     _,
     CONTACT_ADDRESSBOOK_PUBLIC_RIGHT,
     CONTACT_SHARING_SHARE_ACCESS,
-    CONTACT_SHARING_SUBSCRIPTION_TYPE
+    CONTACT_SHARING_SUBSCRIPTION_TYPE,
+    CONTACT_SHARING_SHARE_ACCESS_CHOICES
   ) {
     var self = this;
 
@@ -23,7 +24,10 @@
         };
       });
 
-      _initShareOwner();
+      if (self.addressbook.subscriptionType === CONTACT_SHARING_SUBSCRIPTION_TYPE.delegation) {
+        _initShareOwner();
+        _initShareAccess();
+      }
     }
 
     function canUpdatePublicRight() {
@@ -31,14 +35,17 @@
     }
 
     function _initShareOwner() {
-      if (self.addressbook.subscriptionType !== CONTACT_SHARING_SUBSCRIPTION_TYPE.delegation) {
-        return;
-      }
-
       _getShareOwner(self.addressbook.source.sharees)
         .getUser()
         .then(function(user) {
           self.shareOwner = user;
+        });
+    }
+
+    function _initShareAccess() {
+      self.shareAccess = _.find(
+        CONTACT_SHARING_SHARE_ACCESS_CHOICES, {
+          value: self.addressbook.shareAccess
         });
     }
 
