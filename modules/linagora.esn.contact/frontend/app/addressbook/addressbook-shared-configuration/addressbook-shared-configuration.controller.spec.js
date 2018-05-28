@@ -68,6 +68,20 @@ describe('The contactAddressbookSharedConfigurationController', function() {
     return controller;
   }
 
+  describe('The onAddingUser fn', function() {
+    it('should return true when _id property is present', function() {
+      var controller = initController();
+
+      expect(controller.onAddingUser({ _id: 123 })).to.equal(true);
+    });
+
+    it('should return false when _id property is not present', function() {
+      var controller = initController();
+
+      expect(controller.onAddingUser({})).to.equal(false);
+    });
+  });
+
   describe('The onUserAdded function', function() {
     it('should filter out subscribed address books and append the subscribable address books of input user to the subscribable address book list', function() {
       var controller = initController();
