@@ -7,6 +7,7 @@
       .modal-body
         .contact-addressbook-shared-configuration-content
           users-autocomplete-input(
+            auto-focus-ngtagsinput,
             mutable-users='$ctrl.selectedUsers',
             on-adding-user="$ctrl.onAddingUser",
             on-user-added='$ctrl.onUserAdded',
