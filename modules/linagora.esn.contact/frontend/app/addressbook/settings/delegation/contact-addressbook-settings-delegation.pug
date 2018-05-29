@@ -1,15 +1,15 @@
 ng-form(name="form")
   .row.add-sharee
-    .col-md-7
+    .col-xs-12.col-md-7
       users-autocomplete-input(mutable-users='$ctrl.newUsers', on-adding-user='$ctrl.onAddingUser')
-    .col-md-4
+    .col-xs-12.col-md-4
       .select
         select.form-control.floating-label(
           type='text',
           ng-model='$ctrl.selectedAccess',
           ng-options='access.value as access.longLabel | esnI18n for (key, access) in $ctrl.CONTACT_SHARING_SHARE_ACCESS_CHOICES'
         )
-    .col-md-1.add-btn
+    .col-md-1.add-btn.pull-right
       .btn.btn-primary.btn-sm(ng-click="$ctrl.onAddBtnClick()") #{__('Add')}
 
   h5.title #{__('Shared with')}
