@@ -19,4 +19,38 @@ contact-addressbook-settings-main {
       color: @secondaryTextColor;
     }
   }
+
+  .share-owner {
+    .share-owner-meta {
+      .flex-row;
+      .flex-start;
+      .flex-vertical-centered;
+
+      esn-avatar img {
+        width: 48px;
+        height: 48px;
+      }
+
+      .share-owner-name {
+        color: @secondaryTextColor;
+        font-size: 15px;
+        margin-left: 10px;
+      }
+    }
+  }
+
+  .share-access {
+    .flex-vertical-centered;
+
+    margin-top: 10px;
+
+    .share-access-meta {
+      .flex-column;
+
+      .share-access-meta-label {
+        color: @secondaryTextColor;
+        font-size: 15px;
+      }
+    }
+  }
 }
