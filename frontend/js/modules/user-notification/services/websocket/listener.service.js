@@ -6,7 +6,7 @@
 
     function esnUserNotificationWebsocketListenerService(
       livenotification,
-      esnUserNotificationCounter,
+      esnUserNotificationState,
       ESN_USER_NOTIFICATION_WEBSOCKET
     ) {
       return {
@@ -25,16 +25,16 @@
       }
 
       function _onUserNotificationCreated() {
-        esnUserNotificationCounter.increaseBy(1);
-        esnUserNotificationCounter.refresh();
+        esnUserNotificationState.increaseCountBy(1);
+        esnUserNotificationState.refresh();
       }
 
       function _onUserNotificationUpdated(notificationData) {
         if (notificationData && notificationData.acknowledged) {
-          esnUserNotificationCounter.decreaseBy(1);
+          esnUserNotificationState.decreaseCountBy(1);
         }
 
-        esnUserNotificationCounter.refresh();
+        esnUserNotificationState.refresh();
       }
     }
 })();

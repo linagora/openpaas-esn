@@ -7,7 +7,7 @@
     function esnUserNotificationService(
       _,
       esnUserNotificationProviders,
-      esnUserNotificationCounter
+      esnUserNotificationState
     ) {
       return {
         addProvider: addProvider,
@@ -16,7 +16,7 @@
 
       function addProvider(provider) {
         esnUserNotificationProviders.add(provider);
-        esnUserNotificationCounter.init();
+        esnUserNotificationState.init();
       }
 
       function getListFunctions() {

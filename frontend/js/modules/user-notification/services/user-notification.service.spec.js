@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('The esnUserNotificationService factory', function() {
-  var esnUserNotificationService, esnUserNotificationCounter, esnUserNotificationProviders;
+  var esnUserNotificationService, esnUserNotificationState, esnUserNotificationProviders;
 
   beforeEach(function() {
     angular.module('esn.user-notification.test', ['esn.user-notification'])
@@ -23,12 +23,12 @@ describe('The esnUserNotificationService factory', function() {
 
   beforeEach(inject(function(
     _esnUserNotificationService_,
-    _esnUserNotificationCounter_,
+    _esnUserNotificationState_,
     _esnUserNotificationProviders_
   ) {
     esnUserNotificationProviders = _esnUserNotificationProviders_;
     esnUserNotificationService = _esnUserNotificationService_;
-    esnUserNotificationCounter = _esnUserNotificationCounter_;
+    esnUserNotificationState = _esnUserNotificationState_;
   }));
 
   describe('The addProvider function', function() {
@@ -40,12 +40,12 @@ describe('The esnUserNotificationService factory', function() {
       };
 
       esnUserNotificationProviders.add = sinon.spy();
-      esnUserNotificationCounter.init = sinon.spy();
+      esnUserNotificationState.init = sinon.spy();
 
       esnUserNotificationService.addProvider(provider);
 
       expect(esnUserNotificationProviders.add).to.have.been.calledWith(provider);
-      expect(esnUserNotificationCounter.init).to.have.been.called;
+      expect(esnUserNotificationState.init).to.have.been.called;
     });
   });
 
