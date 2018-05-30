@@ -60,7 +60,7 @@ const contactModule = new AwesomeModule(moduleData.fullName, {
       app.use('/api/contacts', this.api.contacts);
 
       const appFilesUri = angularModuleAppFiles.map(function(filepath) {
-        return filepath.replace(`${FRONTEND_PATH}/app/`, '');
+        return filepath.replace(FRONTEND_PATH, '');
       });
 
       webserverWrapper.injectAngularAppModules(moduleData.shortName, appFilesUri, moduleData.fullName, innerApps, {
