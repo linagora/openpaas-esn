@@ -35,7 +35,7 @@
       buildFetchContext: function(options) {
         return $q.when(options.query);
       },
-      templateUrl: '/contact/views/providers/contact-search.html',
+      templateUrl: '/contact/app/search/contact-search.html',
       activeOn: ['contact']
     });
   }

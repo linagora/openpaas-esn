@@ -5,41 +5,19 @@ const Dependency = AwesomeModule.AwesomeModuleDependency;
 const path = require('path');
 const glob = require('glob-all');
 
-const FRONTEND_PATH = path.join(__dirname, 'frontend');
+const FRONTEND_PATH = path.join(__dirname, 'frontend/app/');
 const innerApps = ['esn'];
-const angularModuleFiles = [
-  'app.js',
-  'constants.js',
-  'controllers.js',
-  'directives.js',
-  'forms.js',
-  'live.js',
-  'services.js',
-  'ui.js',
-  'shells/contactdisplayshell.js',
-  'shells/displayshellprovider.js',
-  'shells/helpers.js',
-  'shells/builders.js',
-  'pagination.js',
-  'contact-api-client.js',
-  'providers/attendee.js'
-];
 const angularModuleAppFiles = glob.sync([
-  `${FRONTEND_PATH}/app/**/!(*spec).js`
+  `${FRONTEND_PATH}**/*.module.js`,
+  `${FRONTEND_PATH}**/!(*spec).js`
 ]);
-const modulesOptions = {
-  localJsFiles: angularModuleFiles.map(file => path.resolve(FRONTEND_PATH, 'js', file))
-};
-
 const moduleData = {
   shortName: 'contact',
   fullName: 'linagora.esn.contact',
-  lessFiles: [],
-  angularModules: []
+  lessFiles: []
 };
 
-moduleData.lessFiles.push([moduleData.shortName, [path.resolve(FRONTEND_PATH, 'app/app.less')], innerApps]);
-moduleData.angularModules.push([moduleData.shortName, angularModuleFiles, moduleData.fullName, innerApps, modulesOptions]);
+moduleData.lessFiles.push([moduleData.shortName, [path.resolve(FRONTEND_PATH, 'app.less')], innerApps]);
 
 const contactModule = new AwesomeModule(moduleData.fullName, {
   dependencies: [
@@ -80,9 +58,6 @@ const contactModule = new AwesomeModule(moduleData.fullName, {
       const webserverWrapper = dependencies('webserver-wrapper');
 
       app.use('/api/contacts', this.api.contacts);
-      moduleData.angularModules.forEach(mod => webserverWrapper.injectAngularModules.apply(webserverWrapper, mod));
-      moduleData.lessFiles.forEach(lessSet => webserverWrapper.injectLess.apply(webserverWrapper, lessSet));
-      webserverWrapper.addApp(moduleData.shortName, app);
 
       const appFilesUri = angularModuleAppFiles.map(function(filepath) {
         return filepath.replace(`${FRONTEND_PATH}/app/`, '');
@@ -91,6 +66,9 @@ const contactModule = new AwesomeModule(moduleData.fullName, {
       webserverWrapper.injectAngularAppModules(moduleData.shortName, appFilesUri, moduleData.fullName, innerApps, {
         localJsFiles: angularModuleAppFiles
       });
+
+      moduleData.lessFiles.forEach(lessSet => webserverWrapper.injectLess.apply(webserverWrapper, lessSet));
+      webserverWrapper.addApp(moduleData.shortName, app);
 
       require('./backend/webserver/api/contacts/avatarProvider').init(dependencies);
 

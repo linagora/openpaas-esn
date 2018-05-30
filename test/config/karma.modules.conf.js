@@ -126,6 +126,7 @@ module.exports = function(config) {
 
       'frontend/js/modules/**/*.module.js',
       'frontend/js/**/*.js',
+      'modules/**/frontend/app/**/*.module.js',
       'modules/**/frontend/js/**/*.js',
       'modules/**/frontend/app/**/*.js',
       'modules/**/test/unit-frontend/**/*.js',
