@@ -84,6 +84,9 @@
                 <name>X-WasSigned</name>
                 <value>true</value>
             </mailet>
+            <mailet match="IsOverQuota" class="ToProcessor">
+                <processor>over-quota</processor>
+            </mailet>
             <!-- Beginning of contact pipeline -->
             <mailet match="SenderIsLocal" class="ContactExtractor">
                 <attribute>extractedContacts</attribute>
@@ -186,6 +189,19 @@
         <processor state="bounces" enableJmx="true">
             <mailet match="All" class="DSNBounce">
                 <passThrough>false</passThrough>
+            </mailet>
+        </processor>
+
+        <processor state="over-quota" enableJmx="true">
+            <mailet match="All" class="MetricsMailet">
+                <metricName>mailet-over-quota-error</metricName>
+            </mailet>
+            <mailet match="All" class="Bounce">
+                <message>The following recipients do not have enough space for storing the email you sent them.</message>
+                <attachment>none</attachment>
+            </mailet>
+            <mailet match="All" class="ToRepository">
+                <repositoryPath>file://var/mail/over-quota-error/</repositoryPath>
             </mailet>
         </processor>
 
