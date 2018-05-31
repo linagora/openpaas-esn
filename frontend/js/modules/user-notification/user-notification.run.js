@@ -5,7 +5,6 @@
     .run(run);
 
   function run(
-    esnUserNotificationCounter,
     esnUserNotificationWebsocketListenerService,
     esnUserNotificationTemplateProviderRegistry,
     esnUserNotificationService,

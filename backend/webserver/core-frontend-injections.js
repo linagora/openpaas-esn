@@ -309,6 +309,8 @@ const injections = [
     'user-notification/list/user-notification-list.component.js',
     'user-notification/list/user-notification-list.controller.js',
     'user-notification/services/user-notification-counter.service.js',
+    'user-notification/services/user-notification-severity.service.js',
+    'user-notification/services/user-notification-state.service.js',
     'user-notification/services/user-notification.service.js',
     'user-notification/services/websocket/listener.service.js',
     'user-notification/subheader/user-notification-subheader.component.js',

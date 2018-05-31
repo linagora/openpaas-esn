@@ -1,3 +1,5 @@
+@userNotificationImportant: darken(@m-red, 20%);
+
 .user-notification-toggler {
   .unread-count {
     position: absolute;
@@ -10,5 +12,10 @@
     bottom: 22px;
     font-size: 10px;
     line-height: 15px;
+    font-weight: bold;
+  }
+
+  .unread-count.important {
+    background: @userNotificationImportant;
   }
 }
