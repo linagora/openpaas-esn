@@ -698,8 +698,6 @@ angular.module('linagora.esn.contact')
   .controller('contactItemController', function($scope, $location, $rootScope, $window, deleteContact, ContactsHelper, ContactLocationHelper, ContactHighLightHelper) {
     ContactsHelper.fillScopeContactData($scope, $scope.contact);
     ContactsHelper.getOrderType($scope);
-
-    $scope.keySearch = $location.search().q;
     $scope.datas = [];
 
     $scope.hasContactInformationMatchQuery = function() {
