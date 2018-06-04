@@ -1036,6 +1036,26 @@ describe('The domain API', function() {
       });
     });
 
+    it('should send back 409 if email is already in use', function(done) {
+      newUser.accounts[0].emails[0] = user1Domain1Manager.emails[0];
+
+      helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
+        expect(err).to.not.exist;
+        var req = requestAsMember(request(app).post('/api/domains/' + domain1._id + '/members'));
+        req.send(newUser);
+        req.expect(409).end(function(err, res) {
+          expect(err).to.not.exist;
+          expect(res.body).to.exists;
+          expect(res.body.error).to.deep.equal({
+            code: 409,
+            message: 'Conflict',
+            details: `Emails already in use: ${newUser.accounts[0].emails[0]}`
+          });
+          done();
+        });
+      });
+    });
+
     it('should send back 404 when domain is not found', function(done) {
       helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
         expect(err).to.not.exist;

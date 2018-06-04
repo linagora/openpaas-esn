@@ -523,7 +523,7 @@ describe('The domains controller', function() {
       getController().createMember(req, res);
     });
 
-    it('should respond 400 if it fails to record user because of email unavailability', function(done) {
+    it('should respond 409 if it fails to record user because of email unavailability', function(done) {
       const errorMessage = 'Emails already in use: e@mail';
 
       userIndexMock.recordUser = sinon.spy((user, callback) => {
@@ -535,7 +535,7 @@ describe('The domains controller', function() {
       };
       const res = {
         status(code) {
-          expect(code).to.equal(400);
+          expect(code).to.equal(409);
 
           return {
             json(json) {

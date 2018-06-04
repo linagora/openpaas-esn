@@ -177,6 +177,8 @@ module.exports = function(router) {
    *         $ref: "#/responses/cm_403"
    *       404:
    *         $ref: "#/responses/cm_404"
+   *       409:
+   *         $ref: "#/responses/cm_409"
    *       500:
    *         $ref: "#/responses/cm_500"
    */
