@@ -13,7 +13,8 @@
       templateUrl: '/contact/app/contact/list/contact-list-item.html',
       scope: {
         contact: '=',
-        avatarSize: '@'
+        avatarSize: '@',
+        keySearch: '='
       },
       controller: 'contactItemController',
       link: {
