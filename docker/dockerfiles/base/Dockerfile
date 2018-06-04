@@ -13,9 +13,9 @@ RUN apt-get update && \
     apt-get install -y git \
             libjpeg-dev \
             graphicsmagick \
-		    graphicsmagick-imagemagick-compat \
-		    libpango1.0-dev \
-		    libcairo2-dev && \
+            graphicsmagick-imagemagick-compat \
+            libpango1.0-dev \
+            libcairo2-dev && \
     apt-get clean && \
     wget https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh -O /usr/bin/wait-for-it.sh && \
     chmod +x /usr/bin/wait-for-it.sh && \
@@ -30,6 +30,6 @@ RUN npm install -g bower
 
 # Cache bower
 COPY bower.json /var/www/bower.json
-RUN cd /var/www && bower install --allow-root
+RUN cd /var/www && bower install --allow-root --production
 
 WORKDIR /var/www
