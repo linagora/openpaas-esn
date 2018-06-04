@@ -308,7 +308,7 @@ function createMember(req, res) {
   userIndex.recordUser(req.body, (err, user) => {
     if (err) {
       if (/^Emails already in use/.test(err.message)) {
-        return res.status(400).json({ error: { code: 400, message: 'Bad request', details: err.message } });
+        return res.status(409).json({ error: { code: 409, message: 'Conflict', details: err.message } });
       }
 
       logger.error('Error while creating member', err);
