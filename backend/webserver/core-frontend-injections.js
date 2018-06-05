@@ -336,6 +336,10 @@ const injections = [
   {angular: 'esn.mutation-observer', files: ['esn.mutation-observer.js'], innerApps: ['esn']},
   {angular: 'esn.textarea-autosize', files: ['textarea-autosize.js'], innerApps: ['esn', 'welcome']},
   {angular: 'esn.login', files: ['login.js', 'login/login-success.service.js'], innerApps: ['esn', 'welcome', 'password-reset']},
+  {angular: 'esn.material', files: [
+    'material/material.module.js',
+    'material/material-colors.config.js'
+  ], innerApps: ['esn']},
   {angular: 'esn.company', files: ['company.js'], innerApps: ['welcome']},
   {angular: 'esn.invitation', files: ['invitation.js'], innerApps: ['welcome']},
   {angular: 'esn.i18n', files: [
