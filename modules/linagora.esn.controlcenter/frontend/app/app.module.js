@@ -2,6 +2,7 @@
 
 angular.module('linagora.esn.controlcenter', [
   'op.dynamicDirective',
+  'esn.constants',
   'esn.router',
   'esn.user',
   'esn.subheader',
