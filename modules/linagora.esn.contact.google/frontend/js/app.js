@@ -16,6 +16,7 @@ angular.module('linagora.esn.contact.google', [
   .run(function(
     contactAddressbookActionEdit,
     contactAddressbookActionDelete,
+    contactAddressbookActionExport,
     contactAddressbookDisplayShellRegistry,
     contactGoogleAddressbookHelper,
     ContactGoogleAddressbookDisplayShell,
@@ -30,6 +31,7 @@ angular.module('linagora.esn.contact.google', [
       displayShell: ContactGoogleAddressbookDisplayShell,
       matchingFunction: contactGoogleAddressbookHelper.isGoogleAddressbook,
       actions: [
+        contactAddressbookActionExport,
         contactAddressbookActionEdit,
         contactAddressbookActionDelete
       ]

@@ -5,6 +5,7 @@
     .run(function(
       contactAddressbookActionEdit,
       contactAddressbookActionDelete,
+      contactAddressbookActionExport,
       contactAddressbookActionSettings,
       contactAddressbookDisplayShellRegistry,
       contactUserAddressbookService,
@@ -14,9 +15,10 @@
         id: 'linagora.esn.contact.user-addressbook',
         priority: 100,
         actions: [
+          contactAddressbookActionExport,
+          contactAddressbookActionSettings,
           contactAddressbookActionEdit,
-          contactAddressbookActionDelete,
-          contactAddressbookActionSettings
+          contactAddressbookActionDelete
         ],
         displayShell: ContactUserAddressbookDisplayShell,
         matchingFunction: contactUserAddressbookService.isUserAddressbook

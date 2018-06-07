@@ -10,15 +10,17 @@
     contactDefaultAddressbookHelper,
     contactAddressbookActionEdit,
     contactAddressbookActionDelete,
-    contactAddressbookActionSettings
+    contactAddressbookActionSettings,
+    contactAddressbookActionExport
   ) {
     contactAddressbookDisplayShellRegistry.add({
       id: 'linagora.esn.contact',
       priority: 1,
       actions: [
+        contactAddressbookActionExport,
+        contactAddressbookActionSettings,
         contactAddressbookActionEdit,
-        contactAddressbookActionDelete,
-        contactAddressbookActionSettings
+        contactAddressbookActionDelete
       ],
       displayShell: ContactDefaultAddressbookDisplayShell,
       matchingFunction: contactDefaultAddressbookHelper.isDefaultAddressbook
