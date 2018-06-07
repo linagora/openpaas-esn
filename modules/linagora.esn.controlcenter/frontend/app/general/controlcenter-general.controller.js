@@ -10,10 +10,12 @@
     rejectWithErrorNotification,
     controlcenterGeneralService,
     _,
+    ESN_ROUTER_DEFAULT_HOME_PAGE,
     CONTROLCENTER_GENERAL_CONFIGS
   ) {
     var self = this,
         saveHandlers = [];
+    var HOMEPAGE_KEY = 'homePage';
 
     self.$onInit = $onInit;
     self.save = save;
@@ -28,7 +30,7 @@
 
       esnUserConfigurationService.get(CONTROLCENTER_GENERAL_CONFIGS)
         .then(function(configurations) {
-          self.configurations = _spreadConfigs(configurations);
+          self.configurations = _buildConfigs(configurations);
         });
     }
 
@@ -53,12 +55,16 @@
       return esnUserConfigurationService.set(configurations);
     }
 
-    function _spreadConfigs(configurations) {
+    function _buildConfigs(configurations) {
       var output = {};
 
       configurations.forEach(function(configuration) {
         output[configuration.name] = configuration.value;
       });
+
+      if (!output[HOMEPAGE_KEY]) {
+        output[HOMEPAGE_KEY] = ESN_ROUTER_DEFAULT_HOME_PAGE;
+      }
 
       return output;
     }

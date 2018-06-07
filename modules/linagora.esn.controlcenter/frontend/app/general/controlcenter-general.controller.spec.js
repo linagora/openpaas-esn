@@ -42,9 +42,24 @@ describe('The controlcenterGeneralController', function() {
     return controller;
   }
 
-  it('should get a list configurations from server on init', function() {
-    var configs = [{ name: 'key1', value: 'value1' }, { name: 'key2', value: 'value2' }];
-    var expectResult = { key1: 'value1', key2: 'value2' };
+  it('should build list configurations with not blank "homePage" value from server on init', function() {
+    var configs = [{ name: 'homePage', value: 'home-page' }, { name: 'key1', value: 'value1' }, { name: 'key2', value: 'value2' }];
+    var expectResult = { homePage: 'home-page', key1: 'value1', key2: 'value2' };
+
+    esnUserConfigurationService.get = sinon.stub().returns($q.when(configs));
+
+    var controller = initController();
+
+    controller.$onInit();
+    $rootScope.$digest();
+
+    expect(controller.configurations).to.deep.equal(expectResult);
+    expect(esnUserConfigurationService.get).to.have.been.calledWith(CONTROLCENTER_GENERAL_CONFIGS);
+  });
+
+  it('should build list configurations with default "homePage" value "unifiedinbox" if get blank value from server on init', function() {
+    var configs = [{ name: 'homePage' }, { name: 'key1', value: 'value1' }, { name: 'key2', value: 'value2' }];
+    var expectResult = { homePage: 'unifiedinbox', key1: 'value1', key2: 'value2' };
 
     esnUserConfigurationService.get = sinon.stub().returns($q.when(configs));
 
@@ -78,7 +93,7 @@ describe('The controlcenterGeneralController', function() {
     var configMock, formMock;
 
     beforeEach(function() {
-      configMock = [{ name: 'key1', value: 'value1' }, { name: 'key2', value: 'value2' }];
+      configMock = [{ name: 'homePage', value: 'home-page' }, { name: 'key1', value: 'value1' }, { name: 'key2', value: 'value2' }];
       formMock = {
         $valid: true,
         $setPristine: angular.noop,
