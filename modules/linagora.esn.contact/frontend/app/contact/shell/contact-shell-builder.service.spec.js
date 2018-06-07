@@ -172,6 +172,49 @@ describe('The ContactShellBuilder service', function() {
       this.$rootScope.$apply();
     });
 
+    it('should not build the shell for dav items which have vcard is null', function(done) {
+      var self = this;
+      var contact = {
+        bookId: '123',
+        bookName: '456',
+        href: 'addressbooks/123/456/contact1.vcf'
+      };
+      var items = [
+        {
+          _links: {
+            self: {
+              href: contact.href
+            }
+          },
+          data: {
+            foo: 'bar'
+          }
+        },
+        null
+      ];
+      var response = {
+        data: {
+          _embedded: {
+            'dav:item': items
+          }
+        }
+      };
+
+      self.ContactShellBuilder.fromVcard = sinon.spy(function(vcard) {
+        return vcard;
+      });
+      ContactShellHelper.getMetadata = sinon.spy();
+
+      self.ContactShellBuilder.fromCardSearchResponse(response).then(function(result) {
+        expect(ContactShellHelper.getMetadata).to.have.been.calledOnce;
+        expect(ContactShellHelper.getMetadata).to.have.been.calledWith(contact.href);
+        expect(result.length).to.equal(1);
+        expect(result[0]).to.deep.equal(items[0].data);
+        done();
+      });
+      self.$rootScope.$apply();
+    });
+
     it('should build the shell for all dav items which have vcard data', function(done) {
       var self = this;
       var contacts = [{
