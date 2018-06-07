@@ -8,8 +8,8 @@
       controller: 'esnAttachmentsSelectorController',
       bindings: {
         attachments: '<',
-        attachmentType: '<?',
-        attachmentFilter: '<?',
+        attachmentType: '<',
+        attachmentFilter: '<',
         onAttachmentsUpdate: '&',
         uploadAttachments: '&'
       }
