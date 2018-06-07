@@ -75,7 +75,7 @@
       if (response && response.data && response.data._embedded &&
         response.data._embedded['dav:item'] && response.data._embedded['dav:item'].length) {
         return $q.all(response.data._embedded['dav:item'].map(function(vcard) {
-          if (!vcard.data) {
+          if (!vcard || !vcard.data) {
             return;
           }
 
