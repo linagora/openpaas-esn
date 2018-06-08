@@ -784,4 +784,10 @@ describe('The contactAddressbookACLHelper service', function() {
       });
     });
   });
+
+  describe('The canExportContact function', function() {
+    it('should always return true', function() {
+      expect(contactAddressbookACLHelper.canExportContact()).to.equal(true);
+    });
+  });
 });

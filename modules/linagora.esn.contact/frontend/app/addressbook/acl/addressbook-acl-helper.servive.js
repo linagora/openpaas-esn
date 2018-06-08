@@ -31,7 +31,8 @@
       canEditContact: canEditContact,
       canCopyContact: canCopyContact,
       canMoveContact: canMoveContact,
-      canDeleteContact: canDeleteContact
+      canDeleteContact: canDeleteContact,
+      canExportContact: canExportContact
     };
 
     function canEditAddressbook(addressbookShell, userId) {
@@ -88,6 +89,10 @@
       return userPrivileges.indexOf(AVAILABLE_PRIVILEGES.all) > -1 ||
              userPrivileges.indexOf(AVAILABLE_PRIVILEGES.write) > -1 ||
              userPrivileges.indexOf(AVAILABLE_PRIVILEGES.unbind) > -1;
+    }
+
+    function canExportContact() {
+      return true; // Now allows export contact as default
     }
 
     function _getContactPrivileges(addressbookShell, userId) {

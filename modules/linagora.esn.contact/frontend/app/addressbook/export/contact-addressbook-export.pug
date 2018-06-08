@@ -1,0 +1,12 @@
+.modal(tabindex="-1", role="dialog", ng-init="$ctrl.$onInit()")
+  .modal-dialog
+    .modal-content
+      .modal-header
+        h4.modal-title #{__('Export contacts')}
+      .modal-body
+        p #{__('Export your contacts in "%s" to vCard format file (.vcf) that you can import to other applications.', '{{::$ctrl.addressbookDisplayShell.displayName}}')}
+      .modal-footer
+        button.btn.btn-link(ng-click="$hide()")
+          | #{__('Cancel')}
+        a.btn.btn-primary(ng-click="$hide()", ng-href="{{::$ctrl.exportUrl}}")
+          | #{__('Export')}

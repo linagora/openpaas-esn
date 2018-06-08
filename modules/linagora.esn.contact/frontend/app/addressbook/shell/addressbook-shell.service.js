@@ -47,6 +47,7 @@
       this.canCopyContact = contactAddressbookACLHelper.canCopyContact(this);
       this.canMoveContact = contactAddressbookACLHelper.canMoveContact(this);
       this.canDeleteContact = contactAddressbookACLHelper.canDeleteContact(this);
+      this.canExportContact = contactAddressbookACLHelper.canExportContact(this);
 
       this.acl && this.acl.forEach(function(aclItem) {
         if (aclItem.principal === CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL) {
