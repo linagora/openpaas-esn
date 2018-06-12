@@ -15,7 +15,7 @@
           views: {
             'main@contact': {
               templateUrl: '/contact/app/contact/list/contact-list.html',
-              controller: 'contactsListController',
+              controller: 'ContactListController',
               resolve: {
                 domain: routeResolver.session('domain'),
                 user: routeResolver.session('user'),
