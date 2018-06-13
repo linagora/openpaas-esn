@@ -1,10 +1,15 @@
 'use strict';
 
-module.exports = function() {
-  var host = process.env.AMQP_HOST || 'amqp';
-  var port = process.env.AMQP_PORT || '5672';
+const amqpUtils = require('../../../../backend/core/amqp/utils');
 
+function _getConnectionUrl() {
+  process.env.AMQP_HOST = process.env.AMQP_HOST || 'amqp';
+
+  return amqpUtils.buildUrlFromEnvOrDefaults();
+}
+
+module.exports = function() {
   return {
-    url: 'amqp://' + host + ':' + port
+    url: _getConnectionUrl()
   };
 };
