@@ -564,4 +564,32 @@ describe('The contactAddressbookService service', function() {
       $rootScope.$digest();
     });
   });
+
+  describe('The updateAddressbookPublicRight function', function() {
+    it('should call ContactAPIClient to update public right', function() {
+      var updateSpy = sinon.spy();
+      var addressbook = {
+        bookId: '123',
+        bookName: 'foobar'
+      };
+
+      ContactAPIClient.addressbookHome = function(bookId) {
+        expect(bookId).to.equal(addressbook.bookId);
+
+        return {
+          addressbook: function(bookName) {
+            expect(bookName).to.equal(addressbook.bookName);
+
+            return {
+              updatePublicRight: updateSpy
+            };
+          }
+        };
+      };
+
+      contactAddressbookService.updateAddressbookPublicRight(addressbook, 'dav:read');
+
+      expect(updateSpy).to.have.been.calledWith('dav:read');
+    });
+  });
 });

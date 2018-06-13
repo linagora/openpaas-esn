@@ -31,7 +31,7 @@
     }
 
     function canUpdatePublicRight() {
-      return !self.addressbook.isSubscription;
+      return self.addressbook.canShareAddressbook;
     }
 
     function _initShareOwner() {
