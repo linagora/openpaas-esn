@@ -12,7 +12,6 @@
     $stateParams,
     $location,
     $window,
-    addressbooks,
     AddressBookPagination,
     AlphaCategoryService,
     ContactsHelper,
@@ -34,8 +33,13 @@
     DEFAULT_ADDRESSBOOK_NAME,
     CONTACT_ADDRESSBOOK_EVENTS
   ) {
+    var self = this;
+    var LOADING_STATUS = {
+      loading: 'loading',
+      loaded: 'loaded',
+      error: 'error'
+    };
     var requiredKey = 'displayName';
-    var SPINNER = 'contactListSpinner';
 
     $scope.user = user;
     $scope.bookId = $scope.user._id;
@@ -50,8 +54,51 @@
     $scope.searchFailure = false;
     $scope.totalHits = 0;
     $scope.displayAs = CONTACT_LIST_DISPLAY.list;
-    $scope.addressbooks = addressbooks || [];
-    $scope.bookTitle = _buildAddressBookTitle();
+    $scope.addressbooks = [];
+
+    $onInit();
+
+    function $onInit() {
+      var listAddressbooks;
+
+      if ($scope.bookName) {
+        listAddressbooks = contactAddressbookService.getAddressbookByBookName($scope.bookName);
+      } else {
+        listAddressbooks = contactAddressbookService.listAddressbooks();
+      }
+
+      self.status = LOADING_STATUS.loading;
+      listAddressbooks
+        .then(function(addressbooks) {
+          $scope.addressbooks = Array.isArray(addressbooks) ? addressbooks : [addressbooks];
+          $scope.bookTitle = _buildAddressBookTitle();
+          $scope.createPagination(CONTACT_LIST_DISPLAY_MODES.multiple);
+          $scope.canCreateContact = $scope.addressbooks.some(function(addressbook) {
+            return addressbook.canCreateContact;
+          });
+
+          $scope.scrollHandler = function() {
+            $log.debug('Infinite Scroll down handler');
+            if ($scope.contactSearch.searchInput) {
+              return scrollSearchHandler();
+            }
+            $scope.loadContacts();
+          };
+
+          if ($location.search().q) {
+            $scope.contactSearch.searchInput = $location.search().q.replace(/\+/g, ' ');
+            $scope.search();
+          } else if (sharedContactDataService.searchQuery) {
+            $location.search('q', sharedContactDataService.searchQuery.replace(/ /g, '+'));
+          } else {
+            $scope.contactSearch.searchInput = null;
+            $scope.loadContacts();
+          }
+        })
+        .catch(function() {
+          self.status = LOADING_STATUS.error;
+        });
+    }
 
     $scope.$on('$stateChangeStart', function(evt, next) {
       // store the search query so the search list can be restored when the user
@@ -131,12 +178,12 @@
     }
 
     $scope.openContactCreation = function() {
-      if (addressbooks.length > 1) {
+      if ($scope.addressbooks.length > 1) {
         return openContactForm($scope.bookId, DEFAULT_ADDRESSBOOK_NAME);
       }
 
-      if (addressbooks.length === 1) {
-        return openContactForm($scope.bookId, addressbooks[0].bookName);
+      if ($scope.addressbooks.length === 1) {
+        return openContactForm($scope.bookId, $scope.addressbooks[0].bookName);
       }
     };
 
@@ -226,7 +273,7 @@
 
     function loadPageComplete() {
       $scope.loadingNextContacts = false;
-      usSpinnerService.stop(SPINNER);
+      self.status = LOADING_STATUS.loaded;
     }
 
     function switchToList() {
@@ -265,7 +312,7 @@
 
     function getSearchResults() {
       $log.debug('Searching contacts');
-      usSpinnerService.spin(SPINNER);
+      self.status = LOADING_STATUS.loading;
 
       return $scope.pagination.service.loadNextItems({searchInput: $scope.contactSearch.searchInput})
         .then(setSearchResults, searchFailure)
@@ -273,7 +320,7 @@
     }
 
     function getNextContacts() {
-      usSpinnerService.spin(SPINNER);
+      self.status = LOADING_STATUS.loading;
       $scope.pagination.service.loadNextItems().then(function(result) {
         return addItemsToCategories(result.data);
       }, function(err) {
@@ -304,14 +351,6 @@
       updateScrollState().then(getNextContacts, ongoingScroll);
     };
 
-    $scope.scrollHandler = function() {
-      $log.debug('Infinite Scroll down handler');
-      if ($scope.contactSearch.searchInput) {
-        return scrollSearchHandler();
-      }
-      $scope.loadContacts();
-    };
-
     $scope.clearSearchInput = function() {
       $scope.contactSearch.searchInput = null;
       $scope.appendQueryToURL();
@@ -329,20 +368,5 @@
         addressbooks: $scope.addressbooks
       });
     };
-    $scope.createPagination(CONTACT_LIST_DISPLAY_MODES.multiple);
-
-    $scope.canCreateContact = $scope.addressbooks.some(function(addressbook) {
-      return addressbook.canCreateContact;
-    });
-
-    if ($location.search().q) {
-      $scope.contactSearch.searchInput = $location.search().q.replace(/\+/g, ' ');
-      $scope.search();
-    } else if (sharedContactDataService.searchQuery) {
-      $location.search('q', sharedContactDataService.searchQuery.replace(/ /g, '+'));
-    } else {
-      $scope.contactSearch.searchInput = null;
-      $scope.loadContacts();
-    }
   }
 })(angular);

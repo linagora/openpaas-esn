@@ -6,18 +6,14 @@
 var expect = chai.expect;
 
 describe('The ContactListController controller', function() {
-  var $rootScope, $controller, $timeout, $state, $alert;
-  var AddressBookPaginationService, AddressBookPaginationRegistryMock, contactAddressbookDisplayService,
-    contactUpdateDataService, gracePeriodService, sharedContactDataService, usSpinnerService;
-  var CONTACT_ADDRESSBOOK_EVENTS, CONTACT_EVENTS, CONTACT_LIST_DISPLAY_MODES;
-  var addressbooks, scope, sortedContacts, openContactForm, openContactFormMock;
+  var $rootScope, $controller, $timeout, $state, $stateParams, $alert;
+  var AddressBookPaginationService, AddressBookPaginationRegistryMock, contactAddressbookService, contactAddressbookDisplayService,
+    contactUpdateDataService, gracePeriodService, sharedContactDataService;
+  var CONTACT_ADDRESSBOOK_EVENTS, CONTACT_EVENTS, CONTACT_LIST_DISPLAY_MODES, DEFAULT_ADDRESSBOOK_NAME;
+  var addressbooks, scope, sortedContacts, openContactFormMock;
 
   beforeEach(function() {
     addressbooks = [];
-    usSpinnerService = {
-      spin: function() {},
-      stop: function() {}
-    };
     $alert = {
       alert: function() {}
     };
@@ -56,27 +52,16 @@ describe('The ContactListController controller', function() {
       put: function() {}
     };
 
-    openContactFormMock = function() {};
-    openContactForm = function(id, name) {
-      return openContactFormMock(id, name);
-    };
-
+    openContactFormMock = sinon.spy();
     angular.mock.module('esn.core');
 
     module('linagora.esn.contact', function($provide) {
       $provide.value('$alert', function(options) { $alert.alert(options); });
       $provide.value('gracePeriodService', gracePeriodService);
       $provide.value('contactUpdateDataService', contactUpdateDataService);
-      $provide.value('usSpinnerService', usSpinnerService);
-      $provide.decorator('$window', function($delegate) {
-        $delegate.addEventListener = angular.noop;
-
-        return $delegate;
-      });
       $provide.value('AddressBookPaginationService', AddressBookPaginationService);
       $provide.value('AddressBookPaginationRegistry', AddressBookPaginationRegistryMock);
-      $provide.value('openContactForm', openContactForm);
-      $provide.value('addressbooks', addressbooks);
+      $provide.value('openContactForm', openContactFormMock);
     });
   });
 
@@ -85,18 +70,25 @@ describe('The ContactListController controller', function() {
     _$controller_,
     _$timeout_,
     _$state_,
+    _$stateParams_,
     _sharedContactDataService_,
+    _contactAddressbookService_,
     _contactAddressbookDisplayService_,
+    _openContactForm_,
     ALPHA_ITEMS,
     _CONTACT_EVENTS_,
     _CONTACT_LIST_DISPLAY_MODES_,
-    _CONTACT_ADDRESSBOOK_EVENTS_
+    _CONTACT_ADDRESSBOOK_EVENTS_,
+    _DEFAULT_ADDRESSBOOK_NAME_
   ) {
     $rootScope = _$rootScope_;
     $controller = _$controller_;
     $timeout = _$timeout_;
     $state = _$state_;
+    $stateParams = _$stateParams_;
     sharedContactDataService = _sharedContactDataService_;
+    contactAddressbookService = _contactAddressbookService_;
+    contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when(addressbooks));
     contactAddressbookDisplayService = _contactAddressbookDisplayService_;
     sortedContacts = ALPHA_ITEMS.split('').reduce(function(a, b) {
       a[b] = [];
@@ -110,6 +102,7 @@ describe('The ContactListController controller', function() {
     CONTACT_EVENTS = _CONTACT_EVENTS_;
     CONTACT_LIST_DISPLAY_MODES = _CONTACT_LIST_DISPLAY_MODES_;
     CONTACT_ADDRESSBOOK_EVENTS = _CONTACT_ADDRESSBOOK_EVENTS_;
+    DEFAULT_ADDRESSBOOK_NAME = _DEFAULT_ADDRESSBOOK_NAME_;
   }));
 
   function createPaginationMocks(singleFn, searchFn) {
@@ -140,6 +133,58 @@ describe('The ContactListController controller', function() {
     };
   }
 
+  function initController(AlphaCategoryService) {
+    var AlphaCategoryServiceMock = function() {
+      return {
+        init: angular.noop,
+        addItems: angular.noop,
+        get: angular.noop
+      };
+    };
+    var controller = $controller('ContactListController', {
+      $scope: scope,
+      user: {
+        _id: '123'
+      },
+      AlphaCategoryService: AlphaCategoryService || AlphaCategoryServiceMock
+    });
+
+    $rootScope.$digest();
+
+    return controller;
+  }
+
+  describe('The $onInit function', function() {
+    it('should set status to "loading"', function() {
+      var controller = initController();
+
+      expect(controller.status).to.equal('loading');
+    });
+
+    it('should call contactAddressbookService.listAddressbooks to get all address books if bookName is blank', function() {
+      $stateParams.bookName = '';
+      contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when([]));
+      initController();
+
+      expect(contactAddressbookService.listAddressbooks).to.have.been.called;
+    });
+
+    it('should call contactAddressbookService.getAddressbookByBookName to get specific address books if bookName is provided', function() {
+      $stateParams.bookName = 'bookName';
+      contactAddressbookService.getAddressbookByBookName = sinon.stub().returns($q.when([]));
+      initController();
+
+      expect(contactAddressbookService.getAddressbookByBookName).to.have.been.calledWith('bookName');
+    });
+
+    it('should set status to "error" if failed to load address books', function() {
+      contactAddressbookService.listAddressbooks = sinon.stub().returns($q.reject('an error'));
+      var controller = initController();
+
+      expect(controller.status).to.equal('error');
+    });
+  });
+
   it('should remove contact from list if a contact is moved to another addressbook', function() {
     var currentAddressbooks = [{ bookName: 'contacts' }];
     var contact = {
@@ -150,21 +195,19 @@ describe('The ContactListController controller', function() {
       lastName: 'toto'
     };
 
-    $controller('ContactListController', {
-      $scope: scope,
-      user: {
-        _id: '123'
-      },
-      addressbooks: currentAddressbooks,
-      AlphaCategoryService: function() {
-        return {
-          removeItemWithId: function(contactId) {
-            expect(contactId).to.equal(contact.id);
-          },
-          init: function() {}
-        };
-      }
-    });
+    contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when(currentAddressbooks));
+    var AlphaCategoryService = function() {
+      return {
+        removeItemWithId: function(contactId) {
+          expect(contactId).to.equal(contact.id);
+        },
+        init: function() {},
+        addItems: function() {},
+        get: function() {}
+      };
+    };
+
+    initController(AlphaCategoryService);
 
     $rootScope.$broadcast(CONTACT_EVENTS.UPDATED, contact);
     $rootScope.$digest();
@@ -188,65 +231,39 @@ describe('The ContactListController controller', function() {
       canCreateContact: false
     }];
 
-    $controller('ContactListController', {
-      $scope: scope,
-      user: { _id: '123' },
-      addressbooks: currentAddressbooks
-    });
+    contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when(currentAddressbooks));
+
+    initController();
 
     expect(scope.canCreateContact).to.equal(true);
   });
 
   it('should display create contact button if current address book can create contact', function() {
+    $stateParams.bookName = 'contacts';
     var currentAddressbooks = [{
       bookName: 'contacts',
       canCreateContact: true
     }];
 
-    $controller('ContactListController', {
-      $scope: scope,
-      user: { _id: '123' },
-      addressbooks: currentAddressbooks
-    });
+    contactAddressbookService.getAddressbookByBookName = sinon.stub().returns($q.when(currentAddressbooks));
+
+    initController();
 
     expect(scope.canCreateContact).to.equal(true);
   });
 
   it('should not display create contact button if current address book cannot create contact', function() {
+    $stateParams.bookName = 'twitter';
     var currentAddressbooks = [{
       bookName: 'twitter',
       editable: false
     }];
 
-    $controller('ContactListController', {
-      $scope: scope,
-      user: { _id: '123' },
-      addressbooks: currentAddressbooks
-    });
+    contactAddressbookService.getAddressbookByBookName = sinon.stub().returns($q.when(currentAddressbooks));
+
+    initController();
 
     expect(scope.canCreateContact).to.equal(false);
-  });
-
-  it('should open create form for default address book if user clicks on create contact button while viewing all contacts', function() {
-    var currentAddressbooks = [{
-      bookName: 'twitter',
-      editable: false
-    }, {
-      bookName: 'collected',
-      editable: true
-    }];
-    openContactForm = sinon.spy();
-
-    $controller('ContactListController', {
-      $scope: scope,
-      user: { _id: '123' },
-      addressbooks: currentAddressbooks,
-      DEFAULT_ADDRESSBOOK_NAME: 'contacts',
-      openContactForm: openContactForm
-    });
-
-    scope.openContactCreation();
-    expect(openContactForm).to.have.been.calledWith(scope.bookId, 'contacts');
   });
 
   it('should store the search query when user switches to contact view', function() {
@@ -298,12 +315,10 @@ describe('The ContactListController controller', function() {
     });
 
     gracePeriodService.flushAllTasks = sinon.spy();
-    $controller('ContactListController', {
-      $scope: scope,
-      user: {
-        _id: '123'
-      }
-    });
+    contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when([]));
+
+    initController();
+
     scope.$destroy();
     $rootScope.$digest();
     expect(gracePeriodService.flushAllTasks).to.have.been.called;
@@ -394,86 +409,56 @@ describe('The ContactListController controller', function() {
     expect(contact.deleted).to.be.false;
   });
 
-  it('should add the contact to the contact list of addressbook on CONTACT_EVENTS.CREATED event', function(done) {
-    var userId = '123';
-    var bookName = 'contacts';
-    var currentAddressbooks = [{ bookId: userId, bookName: bookName }];
+  it('should add the contact to the contact list of addressbook on CONTACT_EVENTS.CREATED event', function() {
+    var bookName = 'foobar';
+    var currentAddressbooks = [{ bookId: 'foo', bookName: bookName }];
     var contact = {
       lastName: 'Last',
       addressbook: currentAddressbooks[0]
     };
-    var query = null;
-    var locationMock = {
-      search: function() {
-        return {
-          q: query
-        };
-      }
+    var addItemsMock = sinon.spy();
+    var AlphaCategoryService = function() {
+      return {
+        addItems: addItemsMock,
+        get: function() {}
+      };
     };
-    $controller('ContactListController', {
-      $scope: scope,
-      $location: locationMock,
-      user: {
-        _id: userId
-      },
-      addressbooks: currentAddressbooks,
-      AlphaCategoryService: function() {
-        return {
-          addItems: function(data) {
-            expect(data).to.deep.equal([contact]);
 
-            done();
-          },
-          get: function() {}
-        };
-      }
-    });
+    $stateParams.bookName = bookName;
+    contactAddressbookService.getAddressbookByBookName = sinon.stub().returns($q.when(currentAddressbooks));
 
-    scope.contactSearch.searchInput = null;
+    initController(AlphaCategoryService);
+
     $rootScope.$broadcast(CONTACT_EVENTS.CREATED, contact);
     $rootScope.$digest();
+    expect(addItemsMock).to.have.been.calledWith([contact]);
   });
 
-  it('should add the contact to the all contacts list on CONTACT_EVENTS.CREATED event', function(done) {
-    var userId = '123';
-    var currentAddressbooks = [{ bookId: userId, bookName: 'bookName1' }, { bookId: userId, bookName: 'bookName2' }];
+  it('should add the contact to the all contacts list on CONTACT_EVENTS.CREATED event', function() {
+    var currentAddressbooks = [{ bookId: 'foobar', bookName: 'bookName1' }, { bookId: 'foobar', bookName: 'bookName2' }];
     var contact = {
       lastName: 'Last',
       addressbook: currentAddressbooks[0]
     };
-    var query = null;
-    var locationMock = {
-      search: function() {
-        return {
-          q: query
-        };
-      }
+    var addItemsMock = sinon.spy();
+    var AlphaCategoryService = function() {
+      return {
+        addItems: addItemsMock,
+        get: function() {}
+      };
     };
-    $controller('ContactListController', {
-      $scope: scope,
-      $location: locationMock,
-      user: {
-        _id: userId
-      },
-      addressbooks: currentAddressbooks,
-      AlphaCategoryService: function() {
-        return {
-          addItems: function(data) {
-            expect(data).to.deep.equal([contact]);
 
-            done();
-          },
-          get: function() {}
-        };
-      }
-    });
+    contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when(currentAddressbooks));
+
+    initController(AlphaCategoryService);
 
     scope.contactSearch.searchInput = null;
     $rootScope.$broadcast(CONTACT_EVENTS.CREATED, contact);
     $rootScope.$digest();
+    expect(addItemsMock).to.have.been.calledWith([contact]);
   });
 
-  it('should not add the contact to the contact list of other addressbooks on CONTACT_EVENTS.CREATED event', function(done) {
+  it('should not add the contact to the contact list of other addressbooks on CONTACT_EVENTS.CREATED event', function() {
     var userId = '123';
     var currentAddressbooks = [{ bookId: userId, bookName: 'bookName1' }];
     var contact = {
@@ -483,85 +468,58 @@ describe('The ContactListController controller', function() {
         bookName: 'bookName2'
       }
     };
-    var query = null;
-    var locationMock = {
-      search: function() {
-        return {
-          q: query
-        };
-      }
+    var addItemsMock = sinon.spy();
+    var AlphaCategoryService = function() {
+      return {
+        addItems: addItemsMock,
+        get: function() {}
+      };
     };
-    var addItemsSpy = sinon.spy();
 
-    $controller('ContactListController', {
-      $scope: scope,
-      $location: locationMock,
-      user: {
-        _id: userId
-      },
-      addressbooks: currentAddressbooks,
-      AlphaCategoryService: function() {
-        return {
-          addItems: addItemsSpy,
-          get: function() {}
-        };
-      }
-    });
+    $stateParams.bookName = 'bookName1';
+    contactAddressbookService.getAddressbookByBookName = sinon.stub().returns($q.when(currentAddressbooks));
+
+    initController(AlphaCategoryService);
 
     scope.contactSearch.searchInput = null;
     $rootScope.$broadcast(CONTACT_EVENTS.CREATED, contact);
     $rootScope.$digest();
 
-    expect(addItemsSpy).to.not.have.been.called;
-    done();
+    expect(addItemsMock).to.not.have.been.calledWith([contact]);
   });
 
-  it('should not live refresh the search result list', function(done) {
+  it('should not live refresh the search result list', function() {
+    var currentAddressbooks = [{ bookId: 'foo', bookName: 'bar' }];
     var contact = {
-      lastName: 'Last'
+      lastName: 'Last',
+      addressbook: currentAddressbooks[0]
     };
 
-    createPaginationMocks(null, function() {
-      return $q.reject('Fail');
-    });
-
     var mySpy = sinon.spy();
+    var addItemsSpy = sinon.spy();
+    var AlphaCategoryService = function() {
+      return {
+        addItems: addItemsSpy,
+        removeItemWithId: mySpy,
+        replaceItem: mySpy,
+        get: function() {}
+      };
+    };
 
-    $controller('ContactListController', {
-      $scope: scope,
-      user: {
-        _id: '123'
-      },
-      AlphaCategoryService: function() {
-        return {
-          init: function() {},
-          addItems: function() {
-            mySpy();
-            return done(new Error('This test should not call addItems'));
-          },
-          removeItemWithId: function() {
-            mySpy();
-            return done(new Error('This test should not call removeItem'));
-          },
-          replaceItem: function() {
-            mySpy();
-            return done(new Error('This test should not call replaceItem'));
-          },
-          get: function() {}
-        };
-      }
-    });
+    contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when(currentAddressbooks));
+
+    initController(AlphaCategoryService);
 
     scope.contactSearch.searchInput = 'someQuery';
     $rootScope.$broadcast(CONTACT_EVENTS.CREATED, contact);
     $rootScope.$broadcast(CONTACT_EVENTS.UPDATED, contact);
     $rootScope.$broadcast(CONTACT_EVENTS.DELETED, contact);
     $rootScope.$digest();
+    expect(addItemsSpy).to.not.have.been.calledWith([contact]);
     expect(mySpy).to.have.been.callCount(0);
-    done();
   });
 
-  it('should update the contact in all contacts list on CONTACT_EVENTS.UPDATED event', function(done) {
+  it('should update the contact in all contacts list on CONTACT_EVENTS.UPDATED event', function() {
     var userId = '123';
     var currentAddressbooks = [{ bookId: userId, bookName: 'bookName1' }, { bookId: userId, bookName: 'bookName2' }];
     var contact = {
@@ -569,31 +527,26 @@ describe('The ContactListController controller', function() {
       lastName: 'Last',
       addressbook: currentAddressbooks[0]
     };
+    var replaceItemMock = sinon.spy();
+    var AlphaCategoryService = function() {
+      return {
+        addItems: function() {},
+        get: function() {},
+        replaceItem: replaceItemMock
+      };
+    };
 
-    $controller('ContactListController', {
-      $scope: scope,
-      user: {
-        _id: userId
-      },
-      addressbooks: currentAddressbooks,
-      AlphaCategoryService: function() {
-        return {
-          replaceItem: function(contact) {
-            expect(contact).to.deep.equal(contact);
+    contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when(currentAddressbooks));
 
-            done();
-          },
-          init: function() {}
-        };
-      }
-    });
+    initController(AlphaCategoryService);
 
     $rootScope.$broadcast(CONTACT_EVENTS.UPDATED, contact);
     $rootScope.$digest();
     $timeout.flush();
+    expect(replaceItemMock).to.have.been.calledWith(contact);
   });
 
-  it('should update the contact in the contacts list of addressbook on CONTACT_EVENTS.UPDATED event', function(done) {
+  it('should update the contact in the contacts list of addressbook on CONTACT_EVENTS.UPDATED event', function() {
     var userId = '123';
     var currentAddressbooks = [{ bookId: userId, bookName: 'bookName1' }];
     var contact = {
@@ -601,28 +554,24 @@ describe('The ContactListController controller', function() {
       lastName: 'Last',
       addressbook: currentAddressbooks[0]
     };
+    var replaceItemMock = sinon.spy();
+    var AlphaCategoryService = function() {
+      return {
+        addItems: function() {},
+        get: function() {},
+        replaceItem: replaceItemMock
+      };
+    };
 
-    $controller('ContactListController', {
-      $scope: scope,
-      user: {
-        _id: userId
-      },
-      addressbooks: currentAddressbooks,
-      AlphaCategoryService: function() {
-        return {
-          replaceItem: function(contact) {
-            expect(contact).to.deep.equal(contact);
+    $stateParams.bookName = 'bookName1';
+    contactAddressbookService.getAddressbookByBookName = sinon.stub().returns($q.when(currentAddressbooks));
 
-            done();
-          },
-          init: function() {}
-        };
-      }
-    });
+    initController(AlphaCategoryService);
 
     $rootScope.$broadcast(CONTACT_EVENTS.UPDATED, contact);
     $rootScope.$digest();
     $timeout.flush();
+    expect(replaceItemMock).to.have.been.calledWith(contact);
   });
 
   it('should remove the contact in the contacts list of old addressbook after moved to new addressbook', function(done) {
@@ -765,6 +714,7 @@ describe('The ContactListController controller', function() {
         _id: '123'
       }
     });
+    $rootScope.$digest();
   });
 
   it('should update the search when a query is stored in sharedContactDataService', function(done) {
@@ -795,6 +745,7 @@ describe('The ContactListController controller', function() {
         _id: '123'
       }
     });
+    $rootScope.$digest();
   });
 
   it('should refresh list on route update when the queries in the URL and in the search input are different', function(done) {
@@ -826,6 +777,7 @@ describe('The ContactListController controller', function() {
         _id: '123'
       }
     });
+    scope.$digest();
     scope.contactSearch.searchInput = 'QueryB';
     scope.$digest();
     $rootScope.$broadcast('$stateChangeSuccess', {name: '/some/other/place'});
@@ -860,6 +812,7 @@ describe('The ContactListController controller', function() {
         _id: '123'
       }
     });
+    scope.$digest();
     scope.contactSearch.searchInput = 'QueryA';
     $rootScope.$broadcast('$stateChangeSuccess', {});
     expect(scope.contactSearch.searchInput).to.equal(query);
@@ -1026,16 +979,10 @@ describe('The ContactListController controller', function() {
     it('should call pagination#init', function(done) {
       addressbooks.push({id: 1, name: 'foo'});
       addressbooks.push({id: 2, name: 'bar'});
-      createPaginationMocks(function() {
-        return $q.when([]);
-      });
       var mode = CONTACT_LIST_DISPLAY_MODES.list;
 
-      $controller('ContactListController', {
-        $scope: scope,
-        user: user,
-        addressbooks: addressbooks
-      });
+      initController();
+
       scope.pagination.init = function(_mode, _options) {
         expect(_mode).to.equal(mode);
         expect(_options.user).to.exist;
@@ -1119,55 +1066,31 @@ describe('The ContactListController controller', function() {
       $rootScope.$digest();
     });
 
-    it('should spin the throbber when loading contacts', function(done) {
-      var user = {_id: 123};
-      var usSpinnerService = {
-        spin: sinon.spy()
-      };
+    it('should set status to "loading"', function() {
+      contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when([]));
+      var controller = initController();
 
-      createPaginationMocks(function() {
-        return $q.when({});
-      }, function() {
-        done(new Error('Should not be called'));
-      });
+      $timeout.flush();
+      expect(controller.status).to.equal('loaded');
 
-      $controller('ContactListController', {
-        $scope: scope,
-        usSpinnerService: usSpinnerService,
-        user: user
-      });
       scope.loadContacts();
       $rootScope.$digest();
-      expect(usSpinnerService.spin).to.have.been.called;
-      done();
+      expect(controller.status).to.equal('loading');
     });
 
-    it('should stop the throbber after contacts are loaded', function(done) {
-      var user = {_id: 123};
-      var usSpinnerService = {
-        spin: function() {
-        },
-        stop: sinon.spy()
-      };
+    it('should set status to "loaded" after contacts are loaded', function() {
+      contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when([]));
+      var controller = initController();
 
-      createPaginationMocks(function() {
-        return $q.when({ data: [] });
-      }, function() {
-        done(new Error('Should not be called'));
-      });
+      $timeout.flush();
+      expect(controller.status).to.equal('loaded');
 
-      $controller('ContactListController', {
-        $scope: scope,
-        usSpinnerService: usSpinnerService,
-        user: user
-      });
       scope.loadContacts();
       $rootScope.$digest();
-      expect(usSpinnerService.stop).to.not.have.been.called;
+      expect(controller.status).to.equal('loading');
+
       $timeout.flush();
-      expect(scope.sorted_contacts).to.deep.equal(sortedContacts);
-      expect(usSpinnerService.stop).to.have.been.called;
-      done();
+      expect(controller.status).to.equal('loaded');
     });
 
     it('should display error when pagination fails', function(done) {
@@ -1195,88 +1118,61 @@ describe('The ContactListController controller', function() {
   });
 
   describe('The openContactCreation function', function() {
-    it('should open the contact creation window', function() {
+    it('should open create form for default address book if user clicks on create contact button while viewing all contacts', function() {
+      var currentAddressbooks = [{
+        bookName: 'twitter',
+        editable: false
+      }, {
+        bookName: 'collected',
+        editable: true
+      }];
 
-      var user = {
-        _id: 123
-      };
-      openContactFormMock = sinon.spy();
-      addressbooks = [{ bookName: 'contacts' }];
+      contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when(currentAddressbooks));
 
-      $controller('ContactListController', {
-        $scope: scope,
-        user: user,
-        addressbooks: addressbooks
-      });
+      initController();
 
       scope.openContactCreation();
-      scope.$digest();
-      expect(openContactFormMock).to.have.been.calledWith(user._id, 'contacts');
+      expect(openContactFormMock).to.have.been.calledWith(scope.bookId, DEFAULT_ADDRESSBOOK_NAME);
+    });
+
+    it('should open the contact creation form for specific address book if user is viewing that address book', function() {
+      var bookName = 'foobar';
+
+      $stateParams.bookName = bookName;
+      addressbooks = [{ bookName: bookName }];
+      contactAddressbookService.getAddressbookByBookName = sinon.stub().returns($q.when(addressbooks));
+
+      initController();
+
+      scope.openContactCreation();
+      expect(openContactFormMock).to.have.been.calledWith(scope.bookId, bookName);
     });
   });
 
   describe('The search function', function() {
 
-    it('should spin the throbber when searching contacts', function(done) {
-      var user = {_id: 123};
-      var usSpinnerService = {
-        spin: sinon.spy()
-      };
-      var locationService = {
-        search: function() {
-          return {
-            q: 'a'
-          };
-        }
-      };
+    it('should set status to "loading" when searching contacts', function() {
+      var controller = initController();
 
-      createPaginationMocks(function() {
-        done(new Error('Should not be called'));
-      }, function() {
-        return $q.when({data: []});
-      });
+      $timeout.flush();
+      expect(controller.status).to.equal('loaded');
 
-      $controller('ContactListController', {
-        $scope: scope,
-        usSpinnerService: usSpinnerService,
-        $location: locationService,
-        user: user
-      });
       scope.search();
       $rootScope.$digest();
-      expect(usSpinnerService.spin).to.have.been.called;
-      done();
+      expect(controller.status).to.equal('loading');
     });
 
-    it('should stop the throbber when finished searching contacts', function(done) {
-      var user = {_id: 123};
-      var usSpinnerService = {
-        spin: function() {},
-        stop: sinon.spy()
-      };
-      var locationService = {
-        search: function() {
-          return {
-            q: 'a'
-          };
-        }
-      };
-      createPaginationMocks(function() {
-        done(new Error('Should not be called'));
-      }, function() {
-        return $q.when({data: []});
-      });
+    it('should stop the throbber when finished searching contacts', function() {
+      var controller = initController();
 
-      $controller('ContactListController', {
-        $scope: scope,
-        usSpinnerService: usSpinnerService,
-        $location: locationService,
-        user: user
-      });
+      $timeout.flush();
+      expect(controller.status).to.equal('loaded');
+
       scope.search();
       $rootScope.$digest();
-      expect(usSpinnerService.stop).to.have.been.called;
-      done();
+      expect(controller.status).to.equal('loading');
+      $timeout.flush();
+      expect(controller.status).to.equal('loaded');
     });
 
     it('should clean previous search results', function(done) {
@@ -1544,6 +1440,7 @@ describe('The ContactListController controller', function() {
           }
         }
       });
+      $rootScope.$digest();
       scope.appendQueryToURL = function() {};
 
       scope.contactSearch.searchInput = search;
@@ -1564,6 +1461,7 @@ describe('The ContactListController controller', function() {
           _id: '123'
         }
       });
+      $rootScope.$digest();
 
       scope.appendQueryToURL = scope.createPagination = angular.noop;
 
@@ -1598,6 +1496,7 @@ describe('The ContactListController controller', function() {
           _id: '123'
         }
       });
+      $rootScope.$digest();
 
       scope.appendQueryToURL = scope.createPagination = angular.noop;
 
@@ -1634,6 +1533,7 @@ describe('The ContactListController controller', function() {
           _id: '123'
         }
       });
+      $rootScope.$digest();
 
       scope.appendQueryToURL = scope.createPagination = angular.noop;
 
@@ -1671,6 +1571,7 @@ describe('The ContactListController controller', function() {
           _id: '123'
         }
       });
+      $rootScope.$digest();
 
       scope.appendQueryToURL = scope.createPagination = angular.noop;
 
@@ -1695,17 +1596,19 @@ describe('The ContactListController controller', function() {
 
   describe('When Deleted Addressbook event is fired', function() {
     it('should change to aggregated contacts view if the current viewing addressbook is deleted', function() {
+      var bookName = 'twitter';
       var currentAddressbooks = [{
-        bookName: 'twitter'
+        bookName: bookName
       }];
 
       $state.go = sinon.spy();
-      $controller('ContactListController', {
-        $scope: scope,
-        user: { _id: '123' },
-        addressbooks: currentAddressbooks
-      });
-      $rootScope.$broadcast(CONTACT_ADDRESSBOOK_EVENTS.DELETED, { bookName: 'twitter' });
+
+      $stateParams.bookName = bookName;
+      contactAddressbookService.getAddressbookByBookName = sinon.stub().returns($q.when(currentAddressbooks));
+
+      initController();
+
+      $rootScope.$broadcast(CONTACT_ADDRESSBOOK_EVENTS.DELETED, { bookName: bookName });
       expect($state.go).to.have.been.calledWith('contact.addressbooks', { bookName: null });
     });
 
@@ -1732,11 +1635,11 @@ describe('The ContactListController controller', function() {
         bookName: 'twitter'
       }];
 
-      $controller('ContactListController', {
-        $scope: scope,
-        user: { _id: '123' },
-        addressbooks: currentAddressbooks
-      });
+      $stateParams.bookName = 'twitter';
+      contactAddressbookService.getAddressbookByBookName = sinon.stub().returns($q.when(currentAddressbooks));
+
+      initController();
+
       $rootScope.$broadcast(CONTACT_ADDRESSBOOK_EVENTS.UPDATED, {
         name: 'Twitter Contacts',
         bookName: 'twitter'
@@ -1750,11 +1653,11 @@ describe('The ContactListController controller', function() {
         name: 'Twitter Contacts'
       }];
 
-      $controller('ContactListController', {
-        $scope: scope,
-        user: { _id: '123' },
-        addressbooks: currentAddressbooks
-      });
+      $stateParams.bookName = 'twitter';
+      contactAddressbookService.getAddressbookByBookName = sinon.stub().returns($q.when(currentAddressbooks));
+
+      initController();
+
       $rootScope.$broadcast(CONTACT_ADDRESSBOOK_EVENTS.UPDATED, {
         name: 'Google Contacts',
         bookName: 'goole'

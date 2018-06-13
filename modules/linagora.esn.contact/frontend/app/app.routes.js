@@ -16,21 +16,10 @@
             'main@contact': {
               templateUrl: '/contact/app/contact/list/contact-list.html',
               controller: 'ContactListController',
+              controllerAs: '$ctrl',
               resolve: {
                 domain: routeResolver.session('domain'),
-                user: routeResolver.session('user'),
-                addressbooks: function($stateParams, session, contactAddressbookService) {
-                  return session.ready.then(function() {
-                    if ($stateParams.bookName) {
-                      return contactAddressbookService.getAddressbookByBookName($stateParams.bookName)
-                        .then(function(addressbook) {
-                          return [addressbook];
-                        });
-                    }
-
-                    return contactAddressbookService.listAddressbooks();
-                  });
-                }
+                user: routeResolver.session('user')
               }
             }
           }

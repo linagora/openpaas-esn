@@ -1,5 +1,5 @@
 sub-header
-  contact-list-subheader
+  contact-list-subheader(ng-hide='$ctrl.status === "error"')
 
 .contacts-list
   fab.contact-fab(ng-if='canCreateContact', ng-click='openContactCreation()')
@@ -9,11 +9,19 @@ sub-header
       .col-xs-12.col-md-8
         .contact-error-container
     .row
-      .col-xs-12(infinite-scroll='scrollHandler()' infinite-scroll-distance='1' infinite-scroll-disabled='loadingNextContacts || searchFailure || lastPage')
+      .col-xs-12(infinite-scroll='scrollHandler()' infinite-scroll-distance='1' infinite-scroll-disabled='$ctrl.status === "loading" || loadingNextContacts || searchFailure || lastPage')
         contact-list-displayer(ng-if='categories.getNumberOfItems() > 0')
-        .text-center
-          div.throbber(openpaas-logo-spinner, spinner-key='contactListSpinner')
-    .empty-message(ng-if='categories.getNumberOfItems() === 0 && !loadingNextContacts')
+        .text-center(
+          openpaas-logo-spinner,
+          spinner-start-active="1",
+          spinner-size="0.5",
+          ng-if='$ctrl.status === "loading"'
+        )
+    .empty-message(ng-if='categories.getNumberOfItems() === 0 && !loadingNextContacts && $ctrl.status === "loaded"')
       img(src="/contact/images/contacts-icon.svg")
       .message
         | #{__('No contact')}
+    .error-message(ng-if='$ctrl.status === "error"')
+      i.mdi.mdi-alert-outline
+      .message
+        | #{__('Something went wrong, please try again later')}
