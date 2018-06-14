@@ -308,17 +308,28 @@
       return davClient('POST', getBookUrl(bookId, bookName), headers, data);
     }
 
-    /**
-     * Update addressbook public right
-     * @param  {String} bookId       The addressbook home ID
-     * @param  {String} bookName     The addressbook name
-     * @param  {Object} publicRight  The new public right to update
-     * @return {Promise}             Resolve on success
-     */
+   /**
+    * Update addressbook public right
+    * @param {String} bookId      The addressbook home ID
+    * @param {String} bookName    The addressbook name
+    * @param {String} publicRight The new public right to update, null for
+    * unpublish address book
+    */
     function setPublicRight(bookId, bookName, publicRight) {
       var headers = { 'Content-Type': CONTACT_CONTENT_TYPE_HEADER };
+      var data;
 
-      return davClient('ACL', getBookUrl(bookId, bookName), headers, publicRight);
+      if (!publicRight) {
+        data = { 'dav:unpublish-addressbook': true };
+      } else {
+        data = {
+          'dav:publish-addressbook': {
+            privilege: publicRight
+          }
+        };
+      }
+
+      return davClient('POST', getBookUrl(bookId, bookName), headers, data);
     }
 
     /**

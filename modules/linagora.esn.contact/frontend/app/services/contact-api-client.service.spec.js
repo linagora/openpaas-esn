@@ -1112,6 +1112,50 @@ describe('The contact Angular module contactapis', function() {
             this.$httpBackend.flush();
           });
         });
+
+        describe('The updatePublicRight addressbook function', function() {
+          it('should call to right endpoint to publish addressbook when public right is provided', function(done) {
+            var bookId = '123';
+            var bookName = 'test';
+
+            this.$httpBackend.when('POST', this.getBookUrl(bookId, bookName), {
+              'dav:publish-addressbook': {
+                privilege: '{DAV:}read'
+              }
+            }).respond({});
+
+            this.ContactAPIClient
+              .addressbookHome(bookId)
+              .addressbook(bookName)
+              .updatePublicRight('{DAV:}read')
+              .then(function() {
+                done();
+              }, done);
+
+            this.$rootScope.$apply();
+            this.$httpBackend.flush();
+          });
+
+          it('should call to right endpoint to unpublish addressbook when public right is not provided', function(done) {
+            var bookId = '123';
+            var bookName = 'test';
+
+            this.$httpBackend.when('POST', this.getBookUrl(bookId, bookName), {
+              'dav:unpublish-addressbook': true
+            }).respond({});
+
+            this.ContactAPIClient
+              .addressbookHome(bookId)
+              .addressbook(bookName)
+              .updatePublicRight()
+              .then(function() {
+                done();
+              }, done);
+
+            this.$rootScope.$apply();
+            this.$httpBackend.flush();
+          });
+        });
       });
 
       describe('The search function', function() {

@@ -163,17 +163,10 @@
     }
 
     function updateAddressbookPublicRight(addressbook, publicRight) {
-      var formatedPublicRight = publicRight ? [
-        {
-          principal: CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL,
-          privilege: publicRight
-        }
-      ] : [];
-
       return ContactAPIClient
         .addressbookHome(addressbook.bookId)
         .addressbook(addressbook.bookName)
-        .updatePublicRight(formatedPublicRight);
+        .updatePublicRight(publicRight);
     }
   }
 })(angular);
