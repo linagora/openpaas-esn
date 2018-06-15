@@ -24,6 +24,9 @@ The global configuration is generated from the data in [../fixtures/esn-config/d
 - JMAP_SERVER_HOST: default is `localhost`
 - AMQP_HOST: default is `amqp`
 - AMQP_PORT: default is `5672`
+- AMQP_PROTOCOL: default is `amqp`
+- AMQP_USERNAME: default is `guest`
+- AMQP_PASSWORD: default is `guest`
 
 ```bash
 $ DAV_SERVER_HOST=dav.open-paas.org node ./bin/cli configure

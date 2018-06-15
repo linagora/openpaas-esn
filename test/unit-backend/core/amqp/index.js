@@ -44,46 +44,6 @@ describe('The amqp module', function() {
 
   describe('The getClient method', function() {
 
-    it('should ask for "amqp" key from esnconfig', function(done) {
-      mockEsnConfig(key => {
-        expect(key).to.equal('amqp');
-        done();
-
-        return { get: () => q.reject(new Error()) };
-      });
-
-      getClient();
-    });
-
-    it('should use default url when esnconfig does not return amqp configuration', function(done) {
-      mockEsnConfig(() => ({
-        get: () => q()
-      }));
-
-      mockAmqplib({
-        connect: url => {
-          expect(url).to.deep.equal(['amqp://localhost:5672']);
-          done();
-          return amqpConnection;
-        }
-      });
-
-      getClient().catch(err => done(err || 'should succeed before'));
-    });
-
-    it('should connect to the server using the expected esnconfig options', function(done) {
-      mockEsnConfig();
-      mockAmqplib({
-        connect: url => {
-          expect(url).to.deep.equal(['amqp://testing-url']);
-          done();
-          return amqpConnection;
-        }
-      });
-
-      getClient().catch(err => done(err || 'should succeed before'));
-    });
-
     it('should create a channel through the connection', function(done) {
       mockEsnConfig();
 

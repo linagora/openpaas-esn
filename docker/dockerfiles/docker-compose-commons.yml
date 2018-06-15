@@ -23,6 +23,9 @@ services:
       - REDIS_PORT=6379
       - AMQP_HOST=rabbitmq
       - AMQP_PORT=5672
+      - AMQP_PROTOCOL=amqp
+      - AMQP_USERNAME=guest
+      - AMQP_PASSWORD=guest
       - WEB_HOST=${DOCKER_IP}
       - WEB_PORT=8080
       - DAV_SERVER_HOST=sabre

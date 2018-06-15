@@ -1,10 +1,10 @@
-'use strict';
-
-const url = require('url');
 const Q = require('q');
 const logger = require('../../core/logger');
+const amqpUtils = require('./utils');
 const AmqpClient = require('./client');
 const localPubsub = require('../../core/pubsub/local');
+const amqpConnectionManager = require('amqp-connection-manager');
+
 const amqpConnectedTopic = localPubsub.topic('amqp:connected');
 const amqpDisconnectedTopic = localPubsub.topic('amqp:disconnected');
 const amqpClientTopic = localPubsub.topic('amqp:client:available');
@@ -15,7 +15,7 @@ let clientInstancePromiseResolve;
 let clientInstancePromise;
 
 function createClient() {
-  return require('../../core/esn-config')('amqp').get()
+  return amqpUtils.getUrl()
     .then(connect)
     .then(bindEvents)
     .then(onConnection)
@@ -38,12 +38,10 @@ function getClient() {
   return clientInstancePromise;
 }
 
-function connect(options = {}) {
-  const url = getURL(options);
+function connect(connectionUrl) {
+  logger.info('Creating a connection to the amqp server with the url: ', connectionUrl);
 
-  logger.info('Creating a connection to the amqp server with the url: ', url);
-
-  return require('amqp-connection-manager').connect([url]);
+  return amqpConnectionManager.connect([connectionUrl]);
 }
 
 function bindEvents(connection) {
@@ -91,30 +89,6 @@ function logDisconnectError(e) {
 
   logger.warn('RabbitMQ connection lost', errorCode);
   logger.debug(error);
-}
-
-function getHost() {
-  return process.env.AMQP_HOST || 'localhost';
-}
-
-function getPort() {
-  return process.env.AMQP_PORT || '5672';
-}
-
-function getURL(options) {
-  if (options && options.url) {
-    return options.url;
-  }
-
-  const connectionUrl = {
-    protocol: 'amqp',
-    slashes: true,
-    hostname: getHost(),
-    port: getPort(),
-    heartbeat: 3
-  };
-
-  return url.format(connectionUrl);
 }
 
 module.exports = {
