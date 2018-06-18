@@ -114,5 +114,6 @@
   "Shared by": "Shared by",
   "Export": "Export",
   "Export contacts": "Export contacts",
-  "Export your contacts in \"%s\" to vCard format file (.vcf) that you can import to other applications.": "Export your contacts in \"%s\" to vCard format file (.vcf) that you can import to other applications."
+  "Export your contacts in \"%s\" to vCard format file (.vcf) that you can import to other applications.": "Export your contacts in \"%s\" to vCard format file (.vcf) that you can import to other applications.",
+  "Retry": "Retry"
 }

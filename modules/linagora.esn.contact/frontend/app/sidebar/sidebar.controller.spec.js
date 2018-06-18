@@ -51,6 +51,30 @@ describe('The ContactSidebarController controller', function() {
   }
 
   describe('$onInit fn', function() {
+    it('should set status to "loading"', function() {
+      var controller = $controller('ContactSidebarController', { $scope: $rootScope.$new() });
+
+      controller.$onInit();
+
+      expect(controller.status).to.equal('loading');
+    });
+
+    it('should set status to "loaded" after success to load address books', function() {
+      contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when([]));
+
+      var controller = initController();
+
+      expect(controller.status).to.equal('loaded');
+    });
+
+    it('should set status to "error" after failed to load address books', function() {
+      contactAddressbookService.listAddressbooks = sinon.stub().returns($q.reject('an error'));
+
+      var controller = initController();
+
+      expect(controller.status).to.equal('error');
+    });
+
     it('should get the list of addressbooks then build and arranger the addressbook display shells', function() {
       var addressbooks = [
         {

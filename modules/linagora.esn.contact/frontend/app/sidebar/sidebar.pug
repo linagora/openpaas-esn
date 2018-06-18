@@ -1,6 +1,6 @@
 .lv-item.sidebar-title
   .media
-    .pull-right
+    .pull-right(ng-if='$ctrl.status === "loaded"')
       .lv-actions.actions
         li.dropdown
           a(href='', data-toggle='dropdown', aria-expanded='true', title=__('New address book'))
@@ -23,20 +23,35 @@
       .title
         .text #{__('Contacts')}
 
-.listview
-  .addressbook-item.clickable.waves-effect.waves-classic(
-    title=__('All contacts'),
-    ui-sref-active="selected",
-    ui-sref="contact.addressbooks({ bookName: null })"
-  )
-    .addressbook-icon.all-contacts
-      i.mdi.mdi-folder-multiple
-    .title.ellipsis
-      span #{__('All contacts')}
+.text-center(
+  openpaas-logo-spinner,
+  spinner-start-active="1",
+  spinner-size="0.4",
+  ng-if='$ctrl.status === "loading"'
+)
 
-hr
+.error-message(ng-if='$ctrl.status === "error"')
+  i.mdi.mdi-alert-circle
+  span.message
+    | #{__('Something went wrong, please try again later')}
+  br
+  button.btn.btn-primary.btn-retry(ng-click="$ctrl.reload()") #{__('Retry')}
 
-.listview
-  contact-sidebar-addressbooks-list(title="'My address books'", addressbooks='$ctrl.userAddressbooks')
+div(ng-if='$ctrl.status === "loaded"')
+  .listview
+    .addressbook-item.clickable.waves-effect.waves-classic(
+      title=__('All contacts'),
+      ui-sref-active="selected",
+      ui-sref="contact.addressbooks({ bookName: null })"
+    )
+      .addressbook-icon.all-contacts
+        i.mdi.mdi-folder-multiple
+      .title.ellipsis
+        span #{__('All contacts')}
 
-  contact-sidebar-addressbooks-list.shared-addressbooks(title="'Shared address books'", addressbooks='$ctrl.sharedAddressbooks')
+  hr
+
+  .listview
+    contact-sidebar-addressbooks-list(title="'My address books'", addressbooks='$ctrl.userAddressbooks')
+
+    contact-sidebar-addressbooks-list.shared-addressbooks(title="'Shared address books'", addressbooks='$ctrl.sharedAddressbooks')
