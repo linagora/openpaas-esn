@@ -1,7 +1,7 @@
 'use strict';
 
 var properties = {
-  subject: 'You are invited to join OpenPaas',
+  subject: 'You are invited to join OpenPaaS',
   template: 'core.add-member'
 };
 

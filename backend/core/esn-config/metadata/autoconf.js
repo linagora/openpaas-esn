@@ -141,7 +141,7 @@ const schema = {
             properties: {
               prettyName: {
                 type: 'string',
-                enum: ['OpenPaas (<%= user.preferredEmail %>)']
+                enum: ['OpenPaaS (<%= user.preferredEmail %>)']
               },
               hostName: {
                 type: 'string',
@@ -173,7 +173,7 @@ const schema = {
             properties: {
               description: {
                 type: 'string',
-                enum: ['OpenPaas SMTP (<%= user.preferredEmail %>)']
+                enum: ['OpenPaaS SMTP (<%= user.preferredEmail %>)']
               },
               hostname: {
                 type: 'string',

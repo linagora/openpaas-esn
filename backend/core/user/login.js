@@ -99,7 +99,7 @@ module.exports.sendPasswordReset = function(user, callback) {
     var message = {
       from: noreply,
       to: to,
-      subject: i18n.__('You have requested a password reset on OpenPaas')
+      subject: i18n.__('You have requested a password reset on OpenPaaS')
     };
     var templateName = 'core.password-reset';
     var context = {

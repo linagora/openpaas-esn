@@ -45,7 +45,7 @@ function sendEmail(feedbackObject, user, callback) {
     var message = {
       from: user.preferredEmail,
       to: email,
-      subject: i18n.__('You received a feedback on OpenPaas')
+      subject: i18n.__('You received a feedback on OpenPaaS')
     };
 
     mail.getMailer(user).sendHTML(message, 'core.feedback', context, callback);
