@@ -15,22 +15,44 @@
     CONTACT_ADDRESSBOOK_EVENTS
   ) {
     var self = this;
+    var LOADING_STATUS = {
+      loading: 'loading',
+      loaded: 'loaded',
+      error: 'error'
+    };
     var DISPLAY_SHELL_CONVERT_OPTIONS = {
       includeActions: true,
       includePriority: true
     };
 
     self.$onInit = $onInit;
+    self.reload = reload;
 
     function $onInit() {
+      self.status = LOADING_STATUS.loading;
+
       contactAddressbookService.listAddressbooks()
-        .then(_injectOwnerToSubscription)
+        .then(function(addressbooks) {
+          self.status = LOADING_STATUS.loaded;
+
+          return _injectOwnerToSubscription(addressbooks);
+        })
         .then(function(addressbooks) {
           self.displayShells = contactAddressbookDisplayService.convertShellsToDisplayShells(addressbooks, DISPLAY_SHELL_CONVERT_OPTIONS);
 
           _refreshAddressbooksList();
+          _listenAddressbookEvents();
+        })
+        .catch(function() {
+          self.status = LOADING_STATUS.error;
         });
+    }
 
+    function reload() {
+      $onInit();
+    }
+
+    function _listenAddressbookEvents() {
       $scope.$on(CONTACT_ADDRESSBOOK_EVENTS.CREATED, _onAddressbookCreatedEvent);
       $scope.$on(CONTACT_ADDRESSBOOK_EVENTS.UPDATED, _onUpdatedAddressbookEvent);
       $scope.$on(CONTACT_ADDRESSBOOK_EVENTS.DELETED, _onRemovedAddressbookEvent);

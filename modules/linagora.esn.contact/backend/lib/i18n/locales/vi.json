@@ -114,5 +114,6 @@
   "Shared by": "Chia sẻ bởi",
   "Export": "Xuất",
   "Export contacts": "Xuất liên lạc",
-  "Export your contacts in \"%s\" to vCard format file (.vcf) that you can import to other applications.": "Xuất liên lạc trong \"%s\" sang tệp vCard (.vcf) để nhập vào các ứng dụng khác."
+  "Export your contacts in \"%s\" to vCard format file (.vcf) that you can import to other applications.": "Xuất liên lạc trong \"%s\" sang tệp vCard (.vcf) để nhập vào các ứng dụng khác.",
+  "Retry": "Thử lại"
 }
