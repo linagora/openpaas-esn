@@ -22,6 +22,7 @@ sub-header
       .message
         | #{__('No contact')}
     .error-message(ng-if='$ctrl.status === "error"')
-      i.mdi.mdi-alert-outline
-      .message
-        | #{__('Something went wrong, please try again later')}
+      div
+        i.mdi.mdi-alert-circle
+        span.message
+          | #{__('Something went wrong, please try again later')}
