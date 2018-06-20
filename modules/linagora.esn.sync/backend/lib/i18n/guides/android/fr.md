@@ -19,7 +19,7 @@ Pour consulter vos courriels, vous pouvez soit utiliser l'interface web d'OpenPa
 
 ![ajouter un compte](/sync/images/fr/android_add_account.png)
 
-4. Une page affichant les types de comptes disponbiles va apparaître.
+4. Une page affichant les types de comptes disponibles va apparaître.
 Choisissez `Personnel (IMAP)`.
 
 ![Personnel IMAP](/sync/images/fr/android_add_imap_account.png)
