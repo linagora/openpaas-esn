@@ -30,7 +30,7 @@ angular.module('esn.constants', [])
 
   .constant('ESN_ROUTER_DEFAULT_HOME_PAGE', 'unifiedinbox')
 
-  .constant('ESN_FEEDBACK_DEFAULT_SUBJECT', '[OpenPaas] New feedback')
+  .constant('ESN_FEEDBACK_DEFAULT_SUBJECT', '[OpenPaaS] New feedback')
 
   .constant('FOLLOW_PAGE_SIZE', 10)
 

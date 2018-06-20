@@ -69,7 +69,7 @@ describe('The feedback core module', function() {
       };
       i18nMock = {
         __: function() {
-          return 'You received a feedback on OpenPaas';
+          return 'You received a feedback on OpenPaaS';
         }
       };
       mailMock = {
@@ -82,7 +82,7 @@ describe('The feedback core module', function() {
               expect(messageMock).to.deep.equal({
                 from: 'user@email.org',
                 to: 'feedback@open-paas.org',
-                subject: 'You received a feedback on OpenPaas'
+                subject: 'You received a feedback on OpenPaaS'
               });
               expect(contextMock).to.deep.equal({
                 firstname: 'a firstname',

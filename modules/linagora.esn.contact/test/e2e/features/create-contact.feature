@@ -3,7 +3,7 @@ Feature: As a user of Open-Paas, on the linagora.esn.contact module,
   I want to be able to see my homepage
 
   Background:
-    Given I logged in to OpenPaas
+    Given I logged in to OpenPaaS
     And I use a desktop screen
 
   Scenario: User creates a new contact

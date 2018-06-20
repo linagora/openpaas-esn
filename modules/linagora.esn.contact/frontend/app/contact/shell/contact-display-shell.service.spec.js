@@ -56,7 +56,7 @@ describe('ContactDisplayShell', function() {
 
     it('should provide contact default contact informations for the template to display', function() {
       var shell = {
-        displayName: 'Contact OpenPaas',
+        displayName: 'Contact OpenPaaS',
         emails: [
           {
             type: 'work',
@@ -78,7 +78,7 @@ describe('ContactDisplayShell', function() {
 
     it('should provide email and telephone number from work', function() {
       var shell = {
-        displayName: 'Contact OpenPaas',
+        displayName: 'Contact OpenPaaS',
         emails: [
           {
             type: 'home',
@@ -136,7 +136,7 @@ describe('ContactDisplayShell', function() {
       };
 
       var shell = {
-        displayName: 'Contact OpenPaas',
+        displayName: 'Contact OpenPaaS',
         photo: 'http://linagora.com/user/text_avatar.png'
       };
 
@@ -159,7 +159,7 @@ describe('ContactDisplayShell', function() {
       };
 
       var shell = {
-        displayName: 'Contact OpenPaas',
+        displayName: 'Contact OpenPaaS',
         photo: 'http://linagora.com/user/avatar.png'
       };
 
@@ -184,7 +184,7 @@ describe('ContactDisplayShell', function() {
       });
 
       var shell = {
-        displayName: 'Contact OpenPaas'
+        displayName: 'Contact OpenPaaS'
       };
 
       injectServices();

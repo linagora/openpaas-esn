@@ -1,11 +1,11 @@
 .cc-sync(ui-view="sync")
   .block-header
-    h2 #{__('Sync an external application with OpenPaas')}
+    h2 #{__('Sync an external application with OpenPaaS')}
 
   .cc-sync-apps
     .card.cc-sync-app
       img.cc-sync-app-icon(src="/sync/images/thunderbird_logo.png", title=__('Thunderbird'), alt=__('Thunderbird'))
-      .cc-sync-app-description !{__('Download and install the OpenPaas %s to automatically configure your email, calendars and contacts accounts in Thunderbird', '<a href="/sync/downloads/thunderbird/op-tb-autoconf.xpi" download>extension</a>')}
+      .cc-sync-app-description !{__('Download and install the OpenPaaS %s to automatically configure your email, calendars and contacts accounts in Thunderbird', '<a href="/sync/downloads/thunderbird/op-tb-autoconf.xpi" download>extension</a>')}
 
     .clickable.card.cc-sync-app(ui-sref="controlcenter.sync.android")
       img.cc-sync-app-icon(src="/sync/images/android_logo.png", title=__('Android'), alt=__('Android'))

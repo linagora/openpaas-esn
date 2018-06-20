@@ -10,15 +10,15 @@
     <em:localized>
       <Description>
         <em:locale>en-US</em:locale>
-        <em:name>OpenPaas Autoconfiguration</em:name>
-        <em:description>Thunderbird autoconfiguration and automatic update for OpenPaas</em:description>
+        <em:name>OpenPaaS Autoconfiguration</em:name>
+        <em:description>Thunderbird autoconfiguration and automatic update for OpenPaaS</em:description>
       </Description>
     </em:localized>
     <em:localized>
       <Description>
         <em:locale>fr-FR</em:locale>
-        <em:name>Autoconfiguration OpenPaas</em:name>
-        <em:description>Autoconfiguration et mise à jour automatique de Thunderbird pour OpenPaas
+        <em:name>Autoconfiguration OpenPaaS</em:name>
+        <em:description>Autoconfiguration et mise à jour automatique de Thunderbird pour OpenPaaS
         </em:description>
       </Description>
     </em:localized>

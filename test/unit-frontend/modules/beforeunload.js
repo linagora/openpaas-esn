@@ -28,8 +28,8 @@ describe('The esn.beforeunload Angular module', function() {
 
         var event = {};
 
-        expect(handler(event)).to.match(/Are you sure want to leave OpenPaas\?/);
-        expect(event.returnValue).to.match(/Are you sure want to leave OpenPaas\?/);
+        expect(handler(event)).to.match(/Are you sure want to leave OpenPaaS\?/);
+        expect(event.returnValue).to.match(/Are you sure want to leave OpenPaaS\?/);
 
         done();
       };

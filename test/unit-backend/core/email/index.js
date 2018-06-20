@@ -208,7 +208,7 @@ describe('The email module', function() {
           emailModule = this.helpers.requireBackend('core/email');
           emailModule.getMailer(user).sendHTML(message, template, locals).then(function(result) {
             expect(sendMailSpy).to.have.been.calledOnce;
-            expect(sendMailSpy.firstCall.args[0].html).to.match(/John Doe invited you to join OpenPaas/);
+            expect(sendMailSpy.firstCall.args[0].html).to.match(/John Doe invited you to join OpenPaaS/);
             expect(result).to.equal(sendMailResult);
             done();
           }).catch(done);

@@ -2,11 +2,11 @@
 
 module.exports = function() {
 
-  this.When('I log in to OpenPaas with "$account" account', function(account) {
+  this.When('I log in to OpenPaaS with "$account" account', function(account) {
     return this.logIn(this.USERS[account].email);
   });
 
-  this.When('I log out from OpenPaas', function() {
+  this.When('I log out from OpenPaaS', function() {
     return this.logoutAndGoToLoginPage();
   });
 

@@ -1,5 +1,5 @@
 [Unit]
-Description=OpenPaas ESN
+Description=OpenPaaS ESN
 
 [Service]
 ExecStart=/usr/bin/node /usr/share/openpaas/server.js

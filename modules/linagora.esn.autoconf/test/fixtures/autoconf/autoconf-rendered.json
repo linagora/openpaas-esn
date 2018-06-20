@@ -2,14 +2,14 @@
   "accounts": [
     {
       "imap": {
-        "prettyName": "OpenPaas (user1@lng.net)",
+        "prettyName": "OpenPaaS (user1@lng.net)",
         "hostName": "openpaas.linagora.com",
         "username": "user1@lng.net",
         "port": "143",
         "socketType": "2"
       },
       "smtp": {
-        "description": "OpenPaas SMTP (user1@lng.net)",
+        "description": "OpenPaaS SMTP (user1@lng.net)",
         "hostname": "smtp.linagora.com",
         "username": "user1@lng.net",
         "port": "587",
@@ -89,7 +89,7 @@
   ],
   "calendars": [
     {
-      "name": "OpenPaas (Events)",
+      "name": "OpenPaaS (Events)",
       "username": "user1@lng.net",
       "uri": "url"
     }
@@ -97,7 +97,7 @@
   "addressbooks": [
     {
       "id": "contacts",
-      "name": "OpenPaas (Contacts)",
+      "name": "OpenPaaS (Contacts)",
       "uri": "url",
       "username": "user1@lng.net",
       "color": "#CCCCCC",
@@ -106,7 +106,7 @@
   ],
   "directories": [
     {
-      "dirName": "OpenPaas",
+      "dirName": "OpenPaaS",
       "uri": "url",
       "maxHits": 50
     }

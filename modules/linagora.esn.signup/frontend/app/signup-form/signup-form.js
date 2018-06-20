@@ -8,8 +8,8 @@ angular.module('linagora.esn.signup')
       controller: function($scope, $location, invitationAPI) {
         $scope.settings = {firstname: '', lastname: '', email: ''};
         $scope.signupButton = {
-          label: 'Sign up in OpenPaas',
-          notRunning: 'Sign up in OpenPaas',
+          label: 'Sign up in OpenPaaS',
+          notRunning: 'Sign up in OpenPaaS',
           running: 'Please wait...'
         };
         $scope.signupTask = {

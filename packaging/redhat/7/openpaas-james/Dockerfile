@@ -27,7 +27,7 @@ RUN fpm \
   --license AGPLv3 \
   --vendor Linagora \
   --maintainer "Linagora Folks <lgs-openpaas-dev@linagora.com>" \
-  --description "OpenPaas Enterprise Social Network - *DAV Server" \
+  --description "OpenPaaS Enterprise Social Network - *DAV Server" \
   --url "http://open-paas.org" \
   --architecture x86_64 \
   --directories /var/log/openpaas/james \

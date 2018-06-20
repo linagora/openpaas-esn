@@ -1,7 +1,7 @@
 {
-  "Sync an external application with OpenPaas": "Đồng bộ một ứng dụng bên ngoài với OpenPaaS",
+  "Sync an external application with OpenPaaS": "Đồng bộ một ứng dụng bên ngoài với OpenPaaS",
   "Thunderbird": "Thunderbird",
-  "Download and install the OpenPaas %s to automatically configure your email, calendars and contacts accounts in Thunderbird": "Tải về và cài đặt OpenPaaS %s để tự động cấu hình thư, lịch và tài khoản liên lạc của bạn trên Thunderbird",
+  "Download and install the OpenPaaS %s to automatically configure your email, calendars and contacts accounts in Thunderbird": "Tải về và cài đặt OpenPaaS %s để tự động cấu hình thư, lịch và tài khoản liên lạc của bạn trên Thunderbird",
   "Click here to read instructions for synchronizing your Android mobile device": "Hãy nhấn vào đây để đọc hướng dẫn để tích hợp với thiết bị di động Android của bạn",
   "Android": "Android",
   "Sync an Android device with OpenPaaS": "Tích hợp thiết bị Android với OpenPaaS"

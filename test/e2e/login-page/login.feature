@@ -3,7 +3,7 @@ Feature: As a user of Open-Paas,
   I want to be able to interact with the login page
 
   Background:
-    Given I am not logged in to OpenPaas
+    Given I am not logged in to OpenPaaS
 
   Scenario: OpenPaaS login page should not change url when login fails
     When I go on "/"

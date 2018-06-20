@@ -9,14 +9,14 @@
   *           accounts: [
   *             {
   *               imap: {
-  *                 prettyName: 'OpenPaas (user@linagora.com)',
+  *                 prettyName: 'OpenPaaS (user@linagora.com)',
   *                 hostName: 'openpaas.linagora.com',
   *                 username: 'user@linagora.com',
   *                 port: '143',
   *                 socketType: '2'
   *               },
   *               smtp: {
-  *                 description: 'OpenPaas SMTP',
+  *                 description: 'OpenPaaS SMTP',
   *                 hostname: 'smtp.linagora.com',
   *                 username: 'user@linagora.com',
   *                 port: '587',
@@ -96,7 +96,7 @@
   *           ],
   *           calendars: [
   *             {
-  *               name: 'OpenPaas (User)',
+  *               name: 'OpenPaaS (User)',
   *               username: 'user@linagora.com',
   *               uri: 'calendarUri'
   *             }
@@ -113,7 +113,7 @@
   *           ],
   *           directories: [
   *             {
-  *               dirName: 'OpenPaas',
+  *               dirName: 'OpenPaaS',
   *               uri: 'ldapUri',
   *               maxHits: 50
   *             }

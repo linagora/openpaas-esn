@@ -11,7 +11,7 @@ module.exports = dependencies => {
    *   get:
    *     tags:
    *       - Sync
-   *     description: Gets the guide for synchronization an Android device with OpenPaas
+   *     description: Gets the guide for synchronization an Android device with OpenPaaS
    *     responses:
    *       200:
    *         $ref: "#/responses/cm_200"

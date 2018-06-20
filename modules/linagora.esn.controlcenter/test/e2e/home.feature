@@ -2,7 +2,7 @@ Feature: As a user of Open-Paas,
   I want to be able to interact with the control center page
 
   Background:
-    Given I logged in to OpenPaas
+    Given I logged in to OpenPaaS
 
   Scenario: Go to general page by default
     When I go on "/#/controlcenter"

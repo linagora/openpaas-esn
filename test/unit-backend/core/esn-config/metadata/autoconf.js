@@ -19,7 +19,7 @@ describe('The core/esn-config/metadata/autoconf module', () => {
         directories: [{
           maxHits: 50,
           uri: 'ldapUrl',
-          dirName: 'OpenPaas'
+          dirName: 'OpenPaaS'
         }],
         preferences: [{
           overwrite: true,
@@ -60,14 +60,14 @@ describe('The core/esn-config/metadata/autoconf module', () => {
         }],
         accounts: [{
           imap: {
-            prettyName: 'OpenPaas (<%= user.preferredEmail %>)',
+            prettyName: 'OpenPaaS (<%= user.preferredEmail %>)',
             hostName: 'openpaas.linagora.com',
             username: '<%= user.preferredEmail %>',
             port: 143,
             socketType: '2'
           },
           smtp: {
-            description: 'OpenPaas SMTP (<%= user.preferredEmail %>)',
+            description: 'OpenPaaS SMTP (<%= user.preferredEmail %>)',
             hostname: 'smtp.linagora.com',
             username: '<%= user.preferredEmail %>',
             port: 587,

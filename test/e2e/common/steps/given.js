@@ -2,15 +2,15 @@
 
 module.exports = function() {
 
-  this.Given('I am not logged in to OpenPaas', function() {
+  this.Given('I am not logged in to OpenPaaS', function() {
     return this.logoutAndGoToLoginPage();
   });
 
-  this.Given('I logged in to OpenPaas', function() {
+  this.Given('I logged in to OpenPaaS', function() {
     return this.logIn(this.USERS.admin.email);
   });
 
-  this.Given('I logged in to OpenPaas with "$account" account', function(account) {
+  this.Given('I logged in to OpenPaaS with "$account" account', function(account) {
     return this.logIn(this.USERS[account].email);
   });
 
