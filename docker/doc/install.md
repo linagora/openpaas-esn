@@ -1,10 +1,10 @@
-# Install OpenPaas with Docker
+# Install OpenPaaS with Docker
 
 A Docker environment is provided to ease all the setup for various environments (development, demonstration, ...). It allows to start Docker containers for all the dependencies without having to install anything else than Docker and without having to configure all by hand.
 
 Please take note that the commands for installing packages in this documentation are written for Ubuntu. If you use another distribution, use your regular package manager.
 
-## Install and setup OpenPaas
+## Install and setup OpenPaaS
 
 ### 1. Clone the repository
 

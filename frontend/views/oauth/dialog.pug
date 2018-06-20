@@ -2,7 +2,7 @@
   form.oauth-form(name='applicationsForm', action='/oauth/authorize/decision', method='post')
     legend
       .text-center
-        img(src="/images/logo.png", alt=__("OpenPaas Logo"))
+        img(src="/images/logo.png", alt=__("OpenPaaS Logo"))
         .oauth-authorize-message !{__('Authorize <em>%s</em> to use your account?', client.name)}
         .oauth-redirect-message #{__('You will be redirected to %s', client.redirectUri)}
     input(name="transaction_id", type="hidden", value=transactionId)

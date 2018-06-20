@@ -90,7 +90,7 @@ angular.module('esn.header', [
   .directive('mainHeaderContent', function() {
     return {
       restrict: 'E',
-      template: '<span>OpenPaas</span>',
+      template: '<span>OpenPaaS</span>',
       replace: true
     };
   })

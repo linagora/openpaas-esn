@@ -1,6 +1,6 @@
 # Feature flipping
 
-OpenPaas supports features flipping. The list of features is per-domain and resides in the `configurations` MongoDB collection.
+OpenPaaS supports features flipping. The list of features is per-domain and resides in the `configurations` MongoDB collection.
 
 ## Document structure
 

@@ -1,4 +1,4 @@
-# OpenPaas installation on Ubuntu
+# OpenPaaS installation on Ubuntu
 
 This manual will guide you through the system-wide installation process of elasticsearch, mongodb and nodeJS on Linux/ubuntu
 

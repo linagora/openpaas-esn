@@ -1,5 +1,5 @@
 #
-# Docker base container for ESN OpenPaas
+# Docker base container for ESN OpenPaaS
 #
 # Build (from the repository root):
 #

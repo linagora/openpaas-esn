@@ -94,7 +94,7 @@ Once populated, you should be able to log into the OpenPaaS instance using user 
 
 **init**
 
-Performs the initial setup of an OpenPaas instance, by configuring a domain and an administrator
+Performs the initial setup of an OpenPaaS instance, by configuring a domain and an administrator
 along with the associated default configurations. Also configures the various storage servers.
 This reads environment variables to know what to configure, as per the *populate*, *elasticsearch* and *configure* commands.
 
@@ -102,7 +102,7 @@ This reads environment variables to know what to configure, as per the *populate
 $ node ./bin/cli init --email admin@domain.org --password secret
 ```
 
-- email: required, the email address of the domain administrator. The OpenPaas domain name is taken from the email address
+- email: required, the email address of the domain administrator. The OpenPaaS domain name is taken from the email address
 - password: optional, the password of the domain administrator. When omitted,
 the username of the email address will be used as password;
 
@@ -118,7 +118,7 @@ $ node ./bin/cli domain create --email admin@domain.org --password secret
 The new domain will be created and the administrator login is `admin@domain.org`
 with password `secret`.
 
-- email: required, the email address of the domain administrator. The OpenPaas domain name is taken from the email address
+- email: required, the email address of the domain administrator. The OpenPaaS domain name is taken from the email address
 - password: optional, the password of the domain administrator. When omitted,
 the username of the email address will be used as password;
 

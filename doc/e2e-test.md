@@ -1,24 +1,24 @@
 # End to end tests
 
-Running OpenPaas end to end tests.
+Running OpenPaaS end to end tests.
 
 ## E2E test using Docker (recommended)
 
-With the help of Docker, you will have full running instance of OpenPaas for
+With the help of Docker, you will have full running instance of OpenPaaS for
 testing purpose. Check documentation [here](https://ci.linagora.com/linagora/lgs/openpaas/esn/blob/master/docker/doc/tests.md).
 
 ## E2E test without Docker (experimental)
 
 Sometimes, you do not want to use Docker to run E2E tests. Maybe you do not have enough RAM or
-starting a full instance of OpenPaas costing you too much time. Maybe you do not
-need to test all features of OpenPaas, consequentially you do not have to set
-up a _full_ instance of OpenPaas.
+starting a full instance of OpenPaaS costing you too much time. Maybe you do not
+need to test all features of OpenPaaS, consequentially you do not have to set
+up a _full_ instance of OpenPaaS.
 
-### Prepare an OpenPaas instance
+### Prepare an OpenPaaS instance
 
-Firstly, you must have an OpenPaas instance running on your machine. Required
+Firstly, you must have an OpenPaaS instance running on your machine. Required
 services are just MongoDB and Redis, make sure they are running then start your
-OpenPaas instance by bellow command:
+OpenPaaS instance by bellow command:
 
 `npm start`
 
@@ -27,13 +27,13 @@ or
 `grunt dev`
 
 Other services might be needed depending on your testing purpose such as
-ElasticSearch, ESN Sabre, James. Make sure that it works fine by opening OpenPaas
+ElasticSearch, ESN Sabre, James. Make sure that it works fine by opening OpenPaaS
 manually with your favourite browser. If it doesn't work on your browser, obviously
 it's impossible to run E2E test.
 
 ### Run E2E tests
 
-When OpenPaas instance is ready, you can start running E2E tests.
+When OpenPaaS instance is ready, you can start running E2E tests.
 
 Start Selenium server:
 

@@ -9,7 +9,7 @@ angular.module('esn.beforeunload', ['esn.background'])
       if (numberBackgroundTasks) {
         var msg = numberBackgroundTasks +
               (numberBackgroundTasks > 1 ? ' background tasks are running' : ' background task is running') +
-              '. Are you sure want to leave OpenPaas?';
+              '. Are you sure want to leave OpenPaaS?';
         event.returnValue = msg; // Gecko, Trident, Chrome 34+
         return msg; // Gecko, WebKit, Chrome <34
       }

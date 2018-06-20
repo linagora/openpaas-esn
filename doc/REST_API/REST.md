@@ -1,6 +1,6 @@
 # REST API Overview
 
-This describes the implemented REST API of the official OpenPaas API v0.1. The OpenPaas REST API is implemented using the HTTP protocol, and the JSON data format.
+This describes the implemented REST API of the official OpenPaaS API v0.1. The OpenPaaS REST API is implemented using the HTTP protocol, and the JSON data format.
 
 OpenPaaS API starts from version 0.1 that is not a release version.
 It means that from now on, all routes are also defined with the base path /api/v0.1
@@ -26,7 +26,7 @@ In this present document, the following conventions are applied:
 
 ## Prefix
 
-The OpenPaas REST API is always prefixed by **/api**.
+The OpenPaaS REST API is always prefixed by **/api**.
 
 ## Verbs
 
