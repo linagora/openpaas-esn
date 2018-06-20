@@ -98,7 +98,7 @@ module.exports = function(grunt) {
             'VIDEO_FILE_NAME=' + (process.env.VIDEO_FILE_NAME || 'open-paas.e2e')
           ]
         }, {
-          regex: new RegExp('OpenPaas ESN is now started on node'),
+          regex: new RegExp('OpenPaaS ESN is now started on node'),
           regexForFailed: new RegExp('bind: address already in use'),
           info: 'All ESN docker containers are deployed',
           timeout: 300000

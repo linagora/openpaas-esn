@@ -10,7 +10,7 @@ const db = require('../../fixtures/db');
 
 const command = {
   command: 'init',
-  desc: 'Performs the initial setup of an OpenPaas instance',
+  desc: 'Performs the initial setup of an OpenPaaS instance',
   builder: {
     email: CONSTANTS.administrator.email,
     password: CONSTANTS.administrator.password

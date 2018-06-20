@@ -1,5 +1,5 @@
 #
-# Docker container for ESN OpenPaas
+# Docker container for ESN OpenPaaS
 #
 # Build:
 # docker build -t linagora/esn .

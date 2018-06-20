@@ -38,5 +38,5 @@ async.series([core.templates.inject, fireESNState('lib'), initCore, fireESNState
     }
     process.exit(1);
   }
-  logger.info('OpenPaas ESN is now started on node %s', process.version);
+  logger.info('OpenPaaS ESN is now started on node %s', process.version);
 });
