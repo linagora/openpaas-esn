@@ -2,11 +2,13 @@
 
 module.exports = function(dependencies) {
   const pubsub = require('./pubsub')(dependencies);
-  var search = require('./search')(dependencies);
+  const search = require('./search')(dependencies);
+  const davImport = require('./dav-import')(dependencies);
 
   function start(callback) {
     pubsub.listen();
     search.listen();
+    davImport.init();
     callback();
   }
 
