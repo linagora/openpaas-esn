@@ -1,0 +1,34 @@
+.modal.full-screen(ng-init="$ctrl.$onInit()", tabindex="-1", role="dialog")
+  .modal-dialog
+    .modal-content
+      .modal-header
+        button.close(type="button", ng-click="$hide()") &times;
+        h4.modal-title #{__('Import contacts from file')}
+      .modal-body
+        .text-center(
+          openpaas-logo-spinner,
+          spinner-start-active="1",
+          spinner-size="0.4",
+          ng-if='$ctrl.status === "loading"'
+        )
+        div(ng-if="$ctrl.status === 'loaded'")
+          p #{__('Import contacts from a vCard file (.vcf) to one of your address books.')}
+            .import-file-button
+              .btn-group.btn-group-justified
+                span.btn.btn-primary.btn-file.waves-effect
+                  i.mdi.mdi-upload
+                  span.import-filename {{ $ctrl.file.name || 'Select a file' | esnI18n }}
+                  input.import-input(type="file", accept=".vcf", ng-file-select='$ctrl.onFileSelect($files)', data-ng-required="true", data-multiple='false')
+          p #{__('Import to:')}
+          md-input-container
+            md-select(ng-model="$ctrl.selectedAddressbookShell", md-container-class="addressbook-import-select-dropdown")
+              md-option(ng-value="addressbookDisplayShell.shell" ng-repeat="addressbookDisplayShell in $ctrl.addressbookDisplayShells")
+                | {{::addressbookDisplayShell.displayName}}
+        .contact-import-error-message(ng-if="$ctrl.status === 'error'")
+          div
+            i.mdi.mdi-alert-circle
+            span.message
+              | #{__('Something went wrong, please try again later')}
+      .modal-footer
+        button.btn.btn-default(type="button", ng-click="$hide()") #{__('Cancel')}
+        button.btn.btn-primary(type='button', ng-disabled='!$ctrl.isValid', ng-click='$ctrl.doImport(); $hide()') #{__('Import')}

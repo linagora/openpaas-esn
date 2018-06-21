@@ -115,5 +115,11 @@
   "Export": "Exporter",
   "Export contacts": "Exporter vos contacts",
   "Export your contacts in \"%s\" to vCard format file (.vcf) that you can import to other applications.": "Exportez vos contacts dans \"%s\" au format vCard (.vcf) afin de pouvoir les importer dans d'autres applications.",
-  "Retry": "Réessayer"
+  "Retry": "Réessayer",
+  "Import contacts from file": "Importer des contacts depuis un fichier",
+  "Import to:": "Importer dans :",
+  "Import contacts from a vCard file (.vcf) to one of your address books.": "Importer des contacts depuis un fichier vCard (.vcf) dans un de vos carnets d'adresses.",
+  "Submitting importing contacts request...": "Soumettre la requête pour importer les contacts...",
+  "Request submitted": "La requête est soumise",
+  "Failed to submit request": "Impossible de soumettre la requête"
 }

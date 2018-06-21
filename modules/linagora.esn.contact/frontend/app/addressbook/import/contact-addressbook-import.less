@@ -1,0 +1,51 @@
+.import-file-button {
+  .btn-file {
+    input[type=file] {
+        position: absolute;
+        top: 0;
+        right: 0;
+        min-width: 100%;
+        min-height: 100%;
+        text-align: right;
+        filter: alpha(opacity=0);
+        opacity: 0;
+        outline: none;
+        background: white;
+        cursor: inherit;
+        display: block;
+    }
+  }
+}
+
+.addressbook-import-select-dropdown {
+  z-index: 2000;
+
+  md-option {
+    min-height: 36px;
+    height: 36px;
+    line-height: inherit;
+    font-size: 13px;
+  }
+}
+
+.contact-import-error-message {
+  .text-danger;
+  .flex-row;
+  .all-centered;
+
+  text-align: center;
+
+  i.mdi {
+    font-size: 24px;
+    margin-right: 5px;
+    vertical-align: middle;
+  }
+
+  .message {
+    vertical-align: middle;
+  }
+
+  @media (max-width: @screen-md-min) {
+    height: 70vh;
+  }
+}
