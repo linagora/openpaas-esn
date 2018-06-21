@@ -85,6 +85,7 @@
     "linagora.esn.cron",
     "linagora.esn.davproxy",
     "linagora.esn.davserver",
+    "linagora.esn.dav.import",
     "linagora.esn.digest.daily",
     "linagora.esn.jobqueue",
     "linagora.esn.graceperiod",

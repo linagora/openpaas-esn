@@ -8,7 +8,6 @@ const START_LINE = /^BEGIN:VCARD\r?$/;
 const END_LINE = /^END:VCARD\r?$/;
 
 module.exports = function(dependencies) {
-  const logger = dependencies('logger');
   const client = require('../client')(dependencies);
 
   return {
@@ -62,14 +61,7 @@ module.exports = function(dependencies) {
       .addressbookHome(bookHome)
       .addressbook(bookName)
       .vcard(contactId)
-      .create(vcard.toJSON())
-      .then(() => {
-        logger.debug(`Imported contact ${contactId} to ${target}`);
-      })
-      .catch(err => {
-        logger.error('Error while importing contact', err);
-        throw err;
-      });
+      .create(vcard.toJSON());
   }
 
   function targetValidator(user, target) {
