@@ -115,5 +115,11 @@
   "Export": "Xuất",
   "Export contacts": "Xuất liên lạc",
   "Export your contacts in \"%s\" to vCard format file (.vcf) that you can import to other applications.": "Xuất liên lạc trong \"%s\" sang tệp vCard (.vcf) để nhập vào các ứng dụng khác.",
-  "Retry": "Thử lại"
+  "Retry": "Thử lại",
+  "Import contacts from file": "Nhập liên lạc từ tệp",
+  "Import to:": "Nhập vào:",
+  "Import contacts from a vCard file (.vcf) to one of your address books.": "Nhập liên lạc từ tệp vCard (.vcf) vào sổ địa chỉ của bạn.",
+  "Submitting importing contacts request...": "Đang gửi yêu cầu nhập liên lạc...",
+  "Request submitted": "Yêu cầu đã được gửi",
+  "Failed to submit request": "Không thể gửi yêu cầu"
 }

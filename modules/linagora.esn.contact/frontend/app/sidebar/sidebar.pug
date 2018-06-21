@@ -16,9 +16,18 @@
               )
                 | #{__('New address book')}
             li
+              contact-addressbook-shared-configuration
+            li
               a(href='/#/controlcenter/accounts') #{__('Import contacts')}
             li
-              contact-addressbook-shared-configuration
+              a(
+                href='',
+                esn-modal-launcher="/contact/app/addressbook/import/contact-addressbook-import",
+                controller='ContactAddressbookImportController',
+                controller-as='$ctrl',
+                backdrop='static'
+              )
+                | #{__('Import contacts from file')}
     .media-body
       .title
         .text #{__('Contacts')}
