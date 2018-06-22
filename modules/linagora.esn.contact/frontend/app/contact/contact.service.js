@@ -6,6 +6,7 @@
 
   function contactService(
       $q,
+      davImportService,
       ContactAPIClient,
       AddressbookShell
     ) {
@@ -16,7 +17,8 @@
         copyContact: copyContact,
         moveContact: moveContact,
         removeContact: removeContact,
-        updateContact: updateContact
+        updateContact: updateContact,
+        importContactsFromFile: importContactsFromFile
       };
 
       function listContacts(addressbook, options) {
@@ -124,6 +126,15 @@
               toBookId: toMetadata.bookId,
               toBookName: toMetadata.bookName
             });
+        });
+      }
+
+      function importContactsFromFile(addressbook, file) {
+        return _getAddressbookShell(addressbook).then(function(addressbookShell) {
+          var sourceMetadata = _getSouceMetadata(addressbookShell);
+          var target = '/addressbooks/' + sourceMetadata.bookId + '/' + sourceMetadata.bookName + '.json';
+
+          return davImportService.importFromFile(file, target);
         });
       }
 
