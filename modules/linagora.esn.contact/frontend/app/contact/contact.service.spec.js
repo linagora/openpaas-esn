@@ -6,7 +6,7 @@ var expect = chai.expect;
 
 describe('The contactService service', function() {
   var $rootScope, $q;
-  var session, contactService, ContactAPIClient, moveFn;
+  var session, contactService, ContactAPIClient, moveFn, davImportServiceMock;
 
   beforeEach(function() {
     module('esn.session', function($provide) {
@@ -21,7 +21,12 @@ describe('The contactService service', function() {
 
       $provide.value('session', session);
     });
-    module('linagora.esn.contact');
+
+    davImportServiceMock = {};
+
+    module('linagora.esn.contact', function($provide) {
+      $provide.value('davImportService', davImportServiceMock);
+    });
 
     inject(function(
       _$rootScope_,
@@ -710,6 +715,69 @@ describe('The contactService service', function() {
 
       contactService.moveContact(fromAddressbook, toAddressbook, contact);
       $rootScope.$digest();
+    });
+  });
+
+  describe('The importContactsFromFile function', function() {
+    it('should call davImportService.importFromFile with right parameters to import contacts', function() {
+      var bookId = '1213';
+      var bookName = 'contacts';
+      var file = [{ type: 'text/vcard', length: 100 }];
+
+      ContactAPIClient.addressbookHome = function() {
+        return {
+          addressbook: function() {
+            return {
+              get: function() {
+                return $q.when({
+                  bookId: bookId,
+                  bookName: bookName
+                });
+              }
+            };
+          }
+        };
+      };
+      davImportServiceMock.importFromFile = sinon.spy();
+
+      contactService.importContactsFromFile({ bookId: bookId, bookName: bookName }, file[0]);
+      $rootScope.$digest();
+
+      expect(davImportServiceMock.importFromFile).to.have.been.calledWith(file[0], '/addressbooks/' + bookId + '/' + bookName + '.json');
+    });
+
+    it('should import contacts to source address book if the current one is subscription', function() {
+      var subsBookId = '123';
+      var subsBookName = 'contacts';
+      var sourceBookId = '456';
+      var sourceBookName = 'collected';
+      var file = [{ type: 'text/vcard', length: 100 }];
+
+      ContactAPIClient.addressbookHome = function() {
+        return {
+          addressbook: function() {
+            return {
+              get: function() {
+                return $q.when({
+                  bookId: subsBookId,
+                  bookName: subsBookName,
+                  source: {
+                    bookId: sourceBookId,
+                    bookName: sourceBookName
+                  },
+                  isSubscription: true
+                });
+              }
+            };
+          }
+        };
+      };
+      davImportServiceMock.importFromFile = sinon.spy();
+
+      contactService.importContactsFromFile({ bookId: subsBookId, bookName: subsBookName }, file[0]);
+      $rootScope.$digest();
+
+      expect(davImportServiceMock.importFromFile).to.have.been.calledWith(file[0], '/addressbooks/' + sourceBookId + '/' + sourceBookName + '.json');
     });
   });
 });

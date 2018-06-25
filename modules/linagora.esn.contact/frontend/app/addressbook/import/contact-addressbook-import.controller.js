@@ -6,9 +6,9 @@
 
   function ContactAddressbookImportController(
     asyncAction,
-    davImportService,
     contactAddressbookService,
-    contactAddressbookDisplayService
+    contactAddressbookDisplayService,
+    contactService
   ) {
     var self = this;
     var VCARD_FILE_TYPE = 'text/vcard';
@@ -57,9 +57,7 @@
       };
 
       asyncAction(notificationMessages, function() {
-        var target = '/addressbooks/' + self.selectedAddressbookShell.bookId + '/' + self.selectedAddressbookShell.bookName + '.json';
-
-        return davImportService.importFromFile(self.file, target);
+        return contactService.importContactsFromFile(self.selectedAddressbookShell, self.file);
       });
     }
   }

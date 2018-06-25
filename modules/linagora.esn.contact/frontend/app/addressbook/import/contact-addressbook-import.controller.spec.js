@@ -7,25 +7,21 @@ var expect = chai.expect;
 
 describe('The ContactAddressbookImportController controller', function() {
   var $rootScope, $controller;
-  var contactAddressbookService, davImportServiceMock;
+  var contactAddressbookService, contactService;
 
   beforeEach(function() {
-    davImportServiceMock = {};
+    module('linagora.esn.contact');
 
-    module('linagora.esn.contact', function($provide) {
-      $provide.value('davImportService', davImportServiceMock);
-    });
-  });
-
-  beforeEach(function() {
     inject(function(
       _$controller_,
       _$rootScope_,
-      _contactAddressbookService_
+      _contactAddressbookService_,
+      _contactService_
     ) {
       $controller = _$controller_;
       $rootScope = _$rootScope_;
       contactAddressbookService = _contactAddressbookService_;
+      contactService = _contactService_;
     });
   });
 
@@ -97,27 +93,19 @@ describe('The ContactAddressbookImportController controller', function() {
   });
 
   describe('The doImport function', function() {
-    it('should call davImportService.importFromFile with selected file and selected address book', function() {
-      var addressbook = {
-        bookId: '123',
-        bookName: '456',
-        name: 'adb-name'
-      };
-
-      contactAddressbookService.listAddressbooksUserCanCreateContact = sinon.stub().returns($q.when([addressbook]));
+    it('should call contactService.importContactsFromFile with selected file and selected address book', function() {
+      contactAddressbookService.listAddressbooksUserCanCreateContact = sinon.stub().returns($q.when([{}]));
 
       var controller = initController();
       var file = [{ type: 'text/vcard', length: 100 }];
 
-      controller.selectedAddressbookShell = addressbook;
-
-      davImportServiceMock.importFromFile = sinon.stub().returns($q.when());
+      contactService.importContactsFromFile = sinon.stub().returns($q.when());
 
       controller.onFileSelect(file);
       controller.doImport();
       $rootScope.$digest();
 
-      expect(davImportServiceMock.importFromFile).to.have.been.calledWith(file[0], '/addressbooks/123/456.json');
+      expect(contactService.importContactsFromFile).to.have.been.calledWith(controller.selectedAddressbookShell, file[0]);
     });
   });
 });
