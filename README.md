@@ -160,3 +160,9 @@ For more details, check the documentation on [./docker/doc/README.md](./docker/d
 ## Licence
 
 [Affero GPL v3](http://www.gnu.org/licenses/agpl-3.0.html)
+
+## Special thanks
+
+![BrowserStack](https://cloud.githubusercontent.com/assets/7864462/12837037/452a17c6-cb73-11e5-9f39-fc96893bc9bf.png)
+
+[BrowserStack](https://www.browserstack.com/) for supporting open source projects.
