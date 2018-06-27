@@ -8,6 +8,10 @@ var config = core.config('default');
 
 var modules = config.modules;
 
+if (config.hasOwnProperty("modules_append")){
+  modules = modules.concat(config.modules_append);
+}
+
 moduleManager.setupServerEnvironment();
 
 function fireESNState(state) {
