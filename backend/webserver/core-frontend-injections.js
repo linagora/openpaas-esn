@@ -11,6 +11,10 @@ const injections = [
   {angular: 'esn.datepickerUtils', files: ['datepicker-utils.js'], innerApps: ['esn']},
   {angular: 'esn.cache', files: ['cache.js'], innerApps: ['esn']},
   {angular: 'esn.scroll', files: ['scroll.js'], innerApps: ['esn']},
+  {angular: 'esn.onscroll', files: [
+    'onscroll/onscroll.module.js',
+    'onscroll/onscroll.directive.js'
+  ], innerApps: ['esn']},
   {angular: 'esn.multi-input', files: ['multi-input.js'], innerApps: ['esn']},
   {angular: 'esn.http', files: ['http.js'], innerApps: ['esn', 'welcome']},
   {angular: 'esn.header', files: [
