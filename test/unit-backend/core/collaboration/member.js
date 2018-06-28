@@ -34,7 +34,10 @@ describe('The collaboration member module', function() {
       };
       const collaborationModule = getModule();
 
-      collaborationModule.addMembers(collabMock, [], err => {
+      collaborationModule.addMembers(collabMock, [{
+        id: new ObjectId(),
+        objectType: 'user'
+      }], err => {
         expect(err).to.exist;
         expect(err.message).to.equal('failed to update collaboration');
         done();
@@ -539,7 +542,7 @@ describe('The collaboration member module', function() {
         _id: 'collaboration1',
         save: function(callback) {
           this.updated = true;
-          callback(null, this);
+          callback(null, this, 1);
         }
       };
       const user = new ObjectId();
@@ -568,6 +571,40 @@ describe('The collaboration member module', function() {
           collaboration: {objectType: 'community', id: 'collaboration1'}
         });
 
+        done();
+      });
+    });
+
+    it('should not forward message into collaboration:join if no member is added', function(done) {
+      const pubsubMock = {
+        local: {
+          topic: sinon.spy()
+        }
+      };
+
+      mockery.registerMock('../../pubsub', pubsubMock);
+
+      const member = new ObjectId();
+      const user = new ObjectId();
+      const collaboration = {
+        members: [{
+          member: {
+            objectType: 'user',
+            id: member
+          }
+        }],
+        _id: 'collaboration',
+        save: callback => {
+          this.updated = true;
+          callback(null, this, 0);
+        }
+      };
+
+      const collaborationModule = getModule();
+
+      collaborationModule.join('collaboration', collaboration, user, member, 'user', err => {
+        expect(err).to.not.exist;
+        expect(pubsubMock.local.topic).to.not.have.been.called;
         done();
       });
     });
