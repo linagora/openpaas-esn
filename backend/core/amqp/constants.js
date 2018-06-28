@@ -24,6 +24,11 @@ module.exports = {
       durable: false,
       autoDelete: true
     },
+    durableQueueOptions: {
+      exclusive: false,
+      durable: true,
+      autoDelete: false
+    },
     consumeOptions: { noAck: false }
   }
 };

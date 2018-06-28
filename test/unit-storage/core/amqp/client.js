@@ -1,8 +1,9 @@
 'use strict';
 
-var expect = require('chai').expect;
-var mockery = require('mockery');
-var q = require('q');
+const expect = require('chai').expect;
+const mockery = require('mockery');
+const q = require('q');
+const uuidV4 = require('uuid/v4');
 
 describe('The amqp client', function() {
 
@@ -17,20 +18,23 @@ describe('The amqp client', function() {
     topic = 'a topic';
     publishingMessage = { one: 'field', and: [{ an: 'array', as: 'message value'}] };
 
-    this.helpers.requireBackend('core/amqp')
-      .getClient().then(clientInstance => {
+    this.helpers.requireBackend('core/amqp').getPubsubClient()
+      .then(clientInstance => {
         client = clientInstance;
         done();
       })
-      .catch(err => done(err || 'Cannot create the amqp client')).done();
+      .catch(err => done(err || new Error('Cannot create the amqp client')));
   });
 
   afterEach(function(done) {
+    if (!client) {
+      return done();
+    }
+
     client.dispose(() => done());
   });
 
   describe('when the amqp client is used for the pubsub pattern', function() {
-
     it('should make a subscriber getting a published message', function(done) {
       const subscriber = message => {
         expect(message).to.deep.equal(publishingMessage);
@@ -102,6 +106,37 @@ describe('The amqp client', function() {
         .then(() => done());
     });
 
+  });
+
+  describe('When subscribing to durable queue', function() {
+    it('should be able to get the published message', function(done) {
+      const queueName = uuidV4();
+      const exchangeName = uuidV4();
+      const subscriber = message => {
+        expect(message).to.deep.equal(publishingMessage);
+
+        done();
+      };
+
+      client.subscribeToDurableQueue(exchangeName, queueName, subscriber)
+        .then(() => client.publish(exchangeName, publishingMessage));
+    });
+
+    it('should be able to get the published message even if subscribing after', function(done) {
+      const queueName = uuidV4();
+      const exchangeName = uuidV4();
+      const subscriber = message => {
+        expect(message).to.deep.equal(publishingMessage);
+
+        done();
+      };
+
+      // first call is to create queue since we do not expose the API for
+      client.subscribeToDurableQueue(exchangeName, queueName, subscriber)
+        .then(() => client.unsubscribe(queueName, subscriber))
+        .then(() => client.publish(exchangeName, publishingMessage))
+        .then(() => client.subscribeToDurableQueue(exchangeName, queueName, subscriber));
+    });
   });
 
   describe('when the amqp client is used for the topic pattern', function() {

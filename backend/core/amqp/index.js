@@ -1,9 +1,9 @@
-const Q = require('q');
+const amqpConnectionManager = require('amqp-connection-manager');
+
 const logger = require('../../core/logger');
 const amqpUtils = require('./utils');
-const AmqpClient = require('./client');
+const AmqpPubsubClient = require('./pubsubclient');
 const localPubsub = require('../../core/pubsub/local');
-const amqpConnectionManager = require('amqp-connection-manager');
 
 const amqpConnectedTopic = localPubsub.topic('amqp:connected');
 const amqpDisconnectedTopic = localPubsub.topic('amqp:disconnected');
@@ -13,6 +13,12 @@ let connected = false;
 let connManPromise;
 let clientInstancePromiseResolve;
 let clientInstancePromise;
+
+module.exports = {
+  // deprecated, replaced by getPubsubClient
+  getClient,
+  getPubsubClient
+};
 
 function createClient() {
   return amqpUtils.getUrl()
@@ -24,18 +30,24 @@ function createClient() {
     });
 }
 
-function getClient() {
+function getPubsubClient() {
   if (!connManPromise) {
     connManPromise = createClient();
   }
 
   if (!clientInstancePromise) {
-    clientInstancePromise = Q.Promise(resolve => {
+    clientInstancePromise = new Promise(resolve => {
       clientInstancePromiseResolve = resolve;
     });
   }
 
   return clientInstancePromise;
+}
+
+function getClient() {
+  logger.info('core.amqp#getClient() is deprecated, use core.amqp#getPubsubClient() instead');
+
+  return getPubsubClient();
 }
 
 function connect(connectionUrl) {
@@ -57,7 +69,7 @@ function bindEvents(connection) {
     logDisconnectError(err);
 
     if (connected) {
-      clientInstancePromise = Q.Promise(resolve => {
+      clientInstancePromise = new Promise(resolve => {
         clientInstancePromiseResolve = resolve;
       });
     }
@@ -74,7 +86,7 @@ function onConnection(connection) {
   connection.createChannel({
     name: 'AMQP default ESN channel',
     setup: channel => {
-      const client = new AmqpClient(channel);
+      const client = new AmqpPubsubClient(channel);
 
       clientInstancePromiseResolve(client);
       logger.info('AMQP: broadcasting client:available event');
@@ -90,7 +102,3 @@ function logDisconnectError(e) {
   logger.warn('RabbitMQ connection lost', errorCode);
   logger.debug(error);
 }
-
-module.exports = {
-  getClient
-};
