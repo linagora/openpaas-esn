@@ -12,8 +12,8 @@ const injections = [
   {angular: 'esn.cache', files: ['cache.js'], innerApps: ['esn']},
   {angular: 'esn.scroll', files: ['scroll.js'], innerApps: ['esn']},
   {angular: 'esn.onscroll', files: [
-    'onscroll/onscroll.module.js',
-    'onscroll/onscroll.directive.js'
+    'onscroll/on-scroll.module.js',
+    'onscroll/on-scroll.directive.js'
   ], innerApps: ['esn']},
   {angular: 'esn.multi-input', files: ['multi-input.js'], innerApps: ['esn']},
   {angular: 'esn.http', files: ['http.js'], innerApps: ['esn', 'welcome']},
