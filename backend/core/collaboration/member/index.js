@@ -56,6 +56,12 @@ module.exports = function(collaborationModule) {
     const verifiedMembers = _.uniqWith(members, _.isEqual)
       .filter(member => !isMember(member))
       .map(verifyMember);
+
+    if (!verifiedMembers.length) {
+      // return the collaboration with 0 as collaboration document remains not updated
+      return callback(null, collaboration, 0);
+    }
+
     const verificationError = verifiedMembers.find(member => member instanceof Error);
 
     if (verificationError) {
@@ -69,13 +75,7 @@ module.exports = function(collaborationModule) {
       });
     });
 
-    collaboration.save((err, updated) => {
-      if (err) {
-        return callback(err);
-      }
-
-      callback(null, updated);
-    });
+    collaboration.save(callback);
 
     function verifyMember(member) {
       if (!member.id || !member.objectType) {
@@ -434,17 +434,19 @@ module.exports = function(collaborationModule) {
       id: userTarget_id
     };
 
-    addMember(collaboration, member, (err, updated) => {
+    addMember(collaboration, member, (err, updated, numAffected) => {
       if (err) {
         return callback(err);
       }
 
-      localpubsub.topic('collaboration:join').forward(globalpubsub, {
-        author: userAuthor_id,
-        target: userTarget_id,
-        actor: actor || 'user',
-        collaboration: {objectType: objectType, id: id}
-      });
+      if (numAffected) {
+        localpubsub.topic('collaboration:join').forward(globalpubsub, {
+          author: userAuthor_id,
+          target: userTarget_id,
+          actor: actor || 'user',
+          collaboration: {objectType: objectType, id: id}
+        });
+      }
 
       callback(null, updated);
     });
