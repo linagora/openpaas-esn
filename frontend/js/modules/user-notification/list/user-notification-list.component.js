@@ -8,7 +8,8 @@
     return {
       bindings: {
         elementsPerPage: '=?',
-        scrollInsideContainer: '@?'
+        scrollInsideContainer: '@?',
+        hidePopover: '&'
       },
       controller: 'EsnUserNotificationListController',
       controllerAs: 'ctrl',

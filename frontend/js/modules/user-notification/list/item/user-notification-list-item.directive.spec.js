@@ -10,14 +10,19 @@ describe('The esnUserNotificationListItem directive', function() {
     category: 'test:notification',
     template: 'test-notification'
   };
+  var registryForceCloseOnClick = {
+    category: 'test:notification:forceCloseOnClick',
+    template: 'test-notification-force-close-on-click',
+    forceClosePopoverOnClick: true
+  };
 
   beforeEach(function() {
-    angular.module('test.module', ['esn.user-notification'])
+    angular.module('test.moduleA', ['esn.user-notification'])
       .run(function(
         $templateCache,
         esnUserNotificationTemplateProviderRegistry
       ) {
-        $templateCache.put('test-notification.html', '<di></div>');
+        $templateCache.put('test-notification.html', '<div></div>');
         esnUserNotificationTemplateProviderRegistry.add(registry);
       })
       .component('testNotification', {
@@ -26,7 +31,22 @@ describe('The esnUserNotificationListItem directive', function() {
           notification: '='
         }
       });
-    module('jadeTemplates', 'esn.user-notification', 'test.module');
+
+    angular.module('test.moduleB', ['esn.user-notification'])
+      .run(function(
+        $templateCache,
+        esnUserNotificationTemplateProviderRegistry
+      ) {
+        $templateCache.put('test-notification-force-close-on-click.html', '<div></div>');
+        esnUserNotificationTemplateProviderRegistry.add(registryForceCloseOnClick);
+      })
+      .component('testNotificationForceCloseOnClick', {
+        templateUrl: 'test-notification-force-close-on-click.html',
+        bindings: {
+          notification: '='
+        }
+      });
+    module('jadeTemplates', 'esn.user-notification', 'test.moduleA', 'test.moduleB');
   });
 
   beforeEach(inject(function(
@@ -52,6 +72,14 @@ describe('The esnUserNotificationListItem directive', function() {
     var element = initDirective($scope);
 
     expect(element.find(registry.template)).to.have.length(1);
+  });
+
+  it('should compile the notification template that force close popover on click when provider set forceClosePopoverOnClick is true', function() {
+    $scope.notification = { category: registryForceCloseOnClick.category };
+    var element = initDirective($scope);
+
+    expect(element.find(registryForceCloseOnClick.template)).to.have.length(1);
+    expect(element.find('.user-notification-list-item').attr('ng-click')).to.equal('hidePopover()');
   });
 
   it('should use default extra notification template in case of no matching template from providers', function() {
