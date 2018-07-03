@@ -8,10 +8,20 @@
     function link(scope, element) {
       var provider = esnUserNotificationTemplateProviderRegistry.get(scope.notification.category);
       var notificationTemplate = provider && provider.template || 'esn-user-notification-external';
-      var template =
-        '<div class="user-notification-list-item">' +
-          '<' + notificationTemplate + ' notification="notification">' +
-        '</div>';
+      var forceClosePopoverOnClick = provider && provider.forceClosePopoverOnClick || false;
+      var template;
+
+      if (forceClosePopoverOnClick) {
+        template =
+          '<div class="user-notification-list-item" ng-click="hidePopover()">' +
+            '<' + notificationTemplate + ' notification="notification">' +
+          '</div>';
+      } else {
+        template =
+          '<div class="user-notification-list-item">' +
+            '<' + notificationTemplate + ' notification="notification">' +
+          '</div>';
+      }
 
       element.append($compile(template)(scope));
     }
@@ -20,7 +30,8 @@
       restrict: 'E',
       template: '',
       scope: {
-        notification: '='
+        notification: '=',
+        hidePopover: '&'
       },
       link: link
     };
