@@ -26,6 +26,6 @@ WORKDIR /var/www
 # cf http://www.clock.co.uk/blog/a-guide-on-how-to-cache-npm-install-with-docker
 RUN npm install -g bower
 COPY .bowerrc bower.json package.json /var/www/
-RUN sed -i -e '/"bower": "1.*"/ d' package.json
-RUN npm install --production --ignore-scripts
+RUN sed -i -e '/"bower": "1.*"/ d' -e '/"postinstall.*"/ d' package.json
+RUN npm install --production
 RUN bower install --allow-root --production

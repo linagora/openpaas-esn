@@ -9,8 +9,8 @@ FROM linagora/esn-base:latest
 MAINTAINER Linagora Folks
 
 COPY . /var/www
-RUN sed -i -e '/"bower": "1.*"/ d' package.json
-RUN npm install --production --ignore-scripts
+RUN sed -i -e '/"bower": "1.*"/ d' -e '/"postinstall.*"/ d' package.json
+RUN npm install --production
 RUN bower install --allow-root --production
 RUN cp -f /var/www/docker/config/jwt/public /var/www/docker/config/james/jwt_publickey
 
