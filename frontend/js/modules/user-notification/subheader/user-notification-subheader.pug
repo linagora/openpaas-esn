@@ -1,12 +1,16 @@
 extends ../../../../views/modules/subheader/responsive-subheader.pug
 
 block left
-  .user-notification-subheader
-    .title
-      span #{__('Notifications')}
+  button.btn.btn-link.hidden-xs(href='', esn-back-button='home')
+    .flex-vertical-centered
+      i.mdi.mdi-arrow-left.mdi-margin-right
+      span #{__('Back')}
+  button.btn.btn-link.btn-icon.visible-xs(href='', esn-back-button='home')
+    i.mdi.mdi-arrow-left
+  span.title.ellipsis #{__('Notifications')}
 
 block right
-  .dropdown
+  .dropdown.flex-vertical-centered
     a(href='', data-toggle='dropdown', aria-expanded='true')
       i.mdi.mdi-dots-vertical
 
