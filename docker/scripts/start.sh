@@ -19,7 +19,7 @@ if [ "$PROVISION" = true ] ; then
 
   timeout=60;
   [ -z "$MONGO_INIT_TIMEOUT" ] || timeout="$MONGO_INIT_TIMEOUT"
-  wait-for-it.sh $MONGO_HOST:$MONGO_PORT -s -t ${timeout} -- sh ./provision.sh
+  wait-for-it.sh $MONGO_HOST:$MONGO_PORT -s -t ${timeout} -- sh /var/www/docker/scripts/provision.sh
 
 fi
 

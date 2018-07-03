@@ -21,15 +21,11 @@ RUN apt-get update && \
     chmod +x /usr/bin/wait-for-it.sh && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-WORKDIR /opt/openpaas
+WORKDIR /var/www
 # Cache NPM install of package.json has not been changed
 # cf http://www.clock.co.uk/blog/a-guide-on-how-to-cache-npm-install-with-docker
-COPY package.json /var/www/package.json
-RUN cd /var/www && npm install --production
 RUN npm install -g bower
-
-# Cache bower
-COPY bower.json /var/www/bower.json
-RUN cd /var/www && bower install --allow-root --production
-
-WORKDIR /var/www
+COPY .bowerrc bower.json package.json /var/www/
+RUN sed -i -e '/"bower": "1.*"/ d' -e '/"postinstall.*"/ d' package.json
+RUN npm install --production
+RUN bower install --allow-root --production
