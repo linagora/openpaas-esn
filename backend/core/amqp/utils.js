@@ -3,8 +3,9 @@ const logger = require('../../core/logger');
 const CONSTANTS = require('./constants');
 
 module.exports = {
-  getUrl,
-  buildUrlFromEnvOrDefaults
+  buildUrlFromEnvOrDefaults,
+  dataAsBuffer,
+  getUrl
 };
 
 function buildUrlFromEnvOrDefaults() {
@@ -22,6 +23,10 @@ function buildUrlFromEnvOrDefaults() {
     auth: username + ':' + password,
     port: process.env.AMQP_PORT || CONSTANTS.DEFAULT_AMQP_PORT
   });
+}
+
+function dataAsBuffer(data) {
+  return Buffer.from(JSON.stringify(data), CONSTANTS.PUBSUB_EXCHANGE.encoding);
 }
 
 function getUrl() {
