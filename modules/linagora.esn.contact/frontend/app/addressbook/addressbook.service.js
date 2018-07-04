@@ -78,10 +78,7 @@
       return ContactAPIClient
         .addressbookHome(session.user._id)
         .addressbook(addressbook.bookName)
-        .remove()
-        .then(function() {
-          $rootScope.$broadcast(CONTACT_ADDRESSBOOK_EVENTS.DELETED, addressbook);
-        });
+        .remove();
     }
 
     function updateAddressbook(addressbook) {

@@ -50,7 +50,8 @@
       events: {
         CREATED: 'contact:created',
         DELETED: 'contact:deleted',
-        UPDATED: 'contact:updated'
+        UPDATED: 'contact:updated',
+        ADDRESSBOOK_DELETED: 'contact:addressbook:deleted'
       }
     })
     .constant('CONTACT_GLOBAL_SEARCH', {

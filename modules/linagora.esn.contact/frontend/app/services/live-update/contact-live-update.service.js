@@ -12,7 +12,8 @@
     ContactShellBuilder,
     contactAvatarService,
     CONTACT_EVENTS,
-    CONTACT_WS
+    CONTACT_WS,
+    CONTACT_ADDRESSBOOK_EVENTS
   ) {
     var sio = null;
     var listening = false;
@@ -31,6 +32,7 @@
       sio.on(CONTACT_WS.events.CREATED, onCreate);
       sio.on(CONTACT_WS.events.DELETED, onDelete);
       sio.on(CONTACT_WS.events.UPDATED, onUpdate);
+      sio.on(CONTACT_WS.events.ADDRESSBOOK_DELETED, onAddressbookDelete);
 
       listening = true;
       $log.debug('Start listening contact live update');
@@ -43,6 +45,7 @@
         sio.removeListener(CONTACT_WS.events.CREATED, onCreate);
         sio.removeListener(CONTACT_WS.events.DELETED, onDelete);
         sio.removeListener(CONTACT_WS.events.UPDATED, onUpdate);
+        sio.removeListener(CONTACT_WS.events.ADDRESSBOOK_DELETED, onAddressbookDelete);
       }
 
       listening = false;
@@ -69,6 +72,10 @@
         }, function(err) {
           $log.error('Can not get contact', err);
         });
+    }
+
+    function onAddressbookDelete(data) {
+      $rootScope.$broadcast(CONTACT_ADDRESSBOOK_EVENTS.DELETED, data);
     }
   }
 })(angular);

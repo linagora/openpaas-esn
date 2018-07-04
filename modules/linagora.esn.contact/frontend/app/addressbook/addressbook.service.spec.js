@@ -231,13 +231,12 @@ describe('The contactAddressbookService service', function() {
       $rootScope.$digest();
     });
 
-    it('should resolve and broadcast event when successfully removing addressbook', function(done) {
+    it('should resolve when successfully removing addressbook', function(done) {
       var addressbook = {
         bookName: 'toto'
       };
       var removeSpy = sinon.stub().returns($q.when());
 
-      $rootScope.$broadcast = sinon.spy();
       ContactAPIClient.addressbookHome = function(bookId) {
         expect(bookId).to.equal(session.user._id);
 
@@ -256,7 +255,6 @@ describe('The contactAddressbookService service', function() {
         .removeAddressbook(addressbook)
         .then(function() {
           expect(removeSpy).to.have.been.calledOnce;
-          expect($rootScope.$broadcast).to.have.been.calledWith(CONTACT_ADDRESSBOOK_EVENTS.DELETED, addressbook);
           done();
         })
         .catch(done);
