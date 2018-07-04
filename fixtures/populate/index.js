@@ -115,8 +115,8 @@ function _populateMembers(community, domain) {
   return q.allSettled(createUsers);
 }
 
-function _populateConfiguration(host, admin, domain) {
-  console.log('[INFO] POPULATE Configuration');
+function populateDomainConfigurationAndTechnicalUsers(host, admin, domain) {
+  console.log('[INFO] POPULATE Domain configuration and technical user');
 
   var technicalUsers = require('./data/technical-users');
   var configuration = require('./data/configuration');
@@ -132,7 +132,7 @@ function populateAll(host) {
 
   return _populateAdmin()
     .then(_populateDomain.bind(null, null))
-    .spread(_populateConfiguration.bind(null, host))
+    .spread(populateDomainConfigurationAndTechnicalUsers.bind(null, host))
     .spread(_joinDomain)
     .spread(_populateCommunity)
     .spread(_populateMembers);
@@ -159,11 +159,11 @@ function provisionDomainAndAdministrator(email, password) {
 
   return _populateAdmin(admin)
     .then(_populateDomain.bind(null, domain))
-    .spread(_populateConfiguration.bind(null, null))
     .spread(_joinDomain);
 }
 
 module.exports = {
   populateAll,
-  provisionDomainAndAdministrator
+  provisionDomainAndAdministrator,
+  populateDomainConfigurationAndTechnicalUsers
 };

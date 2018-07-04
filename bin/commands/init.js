@@ -28,6 +28,9 @@ function exec(email, password) {
     .then(configure)
     .then(() => generateJWT.exec(CONSTANTS.jwt.path.default))
     .then(() => populate.provisionDomainAndAdministrator(email, password))
+    .then(([admin, domain]) => {
+      return populate.populateDomainConfigurationAndTechnicalUsers(null, admin, domain);
+    })
     .then(db.disconnect);
 }
 
