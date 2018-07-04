@@ -1,9 +1,10 @@
 'use strict';
 
-var expect = require('chai').expect;
-var CONTACT_ADDED = 'contacts:contact:add';
-var CONTACT_DELETED = 'contacts:contact:delete';
-var CONTACT_UPDATED = 'contacts:contact:update';
+const expect = require('chai').expect;
+const CONTACT_ADDED = 'contacts:contact:add';
+const CONTACT_DELETED = 'contacts:contact:delete';
+const CONTACT_UPDATED = 'contacts:contact:update';
+const ADDRESSBOOK_DELETED = 'contacts:addressbook:deleted';
 
 describe('The contact WS events module', function() {
 
@@ -43,6 +44,8 @@ describe('The contact WS events module', function() {
                   self.pubsub_callback_deleted = callback;
                 } else if (topic === CONTACT_UPDATED) {
                   self.pubsub_callback_updated = callback;
+                } else if (topic === ADDRESSBOOK_DELETED) {
+                  self.pubsub_callback_addressbook_deleted = callback;
                 } else {
                   done(new Error('Should not have'));
                 }
@@ -54,6 +57,8 @@ describe('The contact WS events module', function() {
                   self.pubsub_callback_deleted(data);
                 } else if (topic === CONTACT_UPDATED) {
                   self.pubsub_callback_updated(data);
+                } else if (topic === ADDRESSBOOK_DELETED) {
+                  self.pubsub_callback_addressbook_deleted(data);
                 }
               }
             };
@@ -128,6 +133,13 @@ describe('The contact WS events module', function() {
       var mod = require(this.moduleHelpers.backendPath + '/ws/contact');
       mod.init(this.moduleHelpers.dependencies);
       expect(this.pubsub_callback_updated).to.be.a('function');
+    });
+
+    it('should register pubsub subscriber for contacts:addressbook:deleted', function() {
+      const module = require(`${this.moduleHelpers.backendPath}/ws/contact`);
+
+      module.init(this.moduleHelpers.dependencies);
+      expect(this.pubsub_callback_addressbook_deleted).to.be.a('function');
     });
 
     it('should warning if the pubsub event data is empty', function() {
@@ -335,5 +347,48 @@ describe('The contact WS events module', function() {
       });
     });
 
+    describe('contacts:addressbook:deleted subscriber', function() {
+      it('should not publish event when data is undefined', function(done) {
+        this.checkData(null, ADDRESSBOOK_DELETED, done);
+      });
+
+      it('should not publish event when data is empty', function(done) {
+        this.checkData({}, ADDRESSBOOK_DELETED, done);
+      });
+
+      it('should not publish event when bookName is missing', function(done) {
+        this.checkData({ bookId: '123' }, ADDRESSBOOK_DELETED, done);
+      });
+
+      it('should not publish event when bookId is missing', function(done) {
+        this.checkData({ bookName: '123' }, ADDRESSBOOK_DELETED, done);
+      });
+
+      it('should send delete event with address book info in websockets when receiving contacts:addressbook.deleted event from the pubsub', function(done) {
+        const pubsubData = {
+          bookId: '123',
+          bookName: 'name'
+        };
+        const module = require(`${this.moduleHelpers.backendPath}/ws/contact`);
+
+        contactNamespace = {
+          on: () => {},
+          to: roomId => ({
+            emit: (event, data) => {
+              expect(event).to.equal('contact:addressbook:deleted');
+              expect(roomId).to.equal(pubsubData.bookId);
+              expect(data).to.deep.equals({
+                room: pubsubData.bookId,
+                data: { bookId: pubsubData.bookId, bookName: pubsubData.bookName }
+              });
+              done();
+            }
+          })
+        };
+        module.init(this.moduleHelpers.dependencies);
+
+        this.pubsub.local.topic(ADDRESSBOOK_DELETED).publish(pubsubData);
+      });
+    });
   });
 });

@@ -82,6 +82,19 @@ function init(dependencies) {
 
   });
 
+  pubsub.topic(CONSTANTS.NOTIFICATIONS.ADDRESSBOOK_DELETED).subscribe(data => {
+    if (data && data.bookId && data.bookName) {
+      logger.info('Notifying address book deleted');
+
+      synchronizeContactLists('contact:addressbook:deleted', {
+        bookId: data.bookId,
+        bookName: data.bookName
+      });
+    } else {
+      logger.warn('Not well-formed data on', CONSTANTS.NOTIFICATIONS.ADDRESSBOOK_DELETED, 'pubsub event');
+    }
+  });
+
   contactNamespace = io.of(NAMESPACE);
   contactNamespace.on('connection', function(socket) {
     logger.info('New connection on ' + NAMESPACE);
