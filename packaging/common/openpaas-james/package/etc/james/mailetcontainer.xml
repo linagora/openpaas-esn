@@ -72,6 +72,10 @@
 
 
         <processor state="transport" enableJmx="true">
+            <matcher name="mdn-matcher" match="org.apache.james.mailetcontainer.impl.matchers.And">
+                <matcher match="HasMimeType=multipart/report"/>
+                <matcher match="HasMimeTypeParameter=report-type=disposition-notification"/>
+            </matcher>
             <mailet match="SMTPAuthSuccessful" class="SetMimeHeader">
                 <name>X-UserIsAuth</name>
                 <value>true</value>
@@ -97,6 +101,17 @@
                 <name>X-MEETING-UID,X-MEETING-METHOD,X-MEETING-RECURRENCE-ID,X-MEETING-SEQUENCE,X-MEETING-DTSTAMP</name>
             </mailet>
             <mailet match="All" class="RecipientRewriteTable" />
+            <mailet match="mdn-matcher" class="org.apache.james.jmap.mailet.ExtractMDNOriginalJMAPMessageId"/>
+
+	    <mailet match="org.apache.james.jmap.mailet.SentByJmap" class="ToProcessor">
+	      <processor>relay</processor>
+	    </mailet>
+            <mailet match="SentByMailet" class="ToProcessor">
+	      <processor>relay</processor>
+	    </mailet>
+            <mailet match="SMTPAuthSuccessful" class="ToProcessor">
+	      <processor>relay</processor>
+	    </mailet>
             <mailet match="RecipientIsLocal" class="org.apache.james.jmap.mailet.VacationMailet"/>
             <mailet match="RecipientIsLocal" class="ToProcessor">
                 <processor>local-recipient</processor>
@@ -107,15 +122,7 @@
                 <notice>550 - Requested action not taken: no such user here</notice>
             </mailet>
             -->
-            <mailet match="SMTPAuthSuccessful" class="RemoteDelivery">
-                <outgoingQueue>outgoing</outgoingQueue>
-                <delayTime>5000, 100000, 500000</delayTime>
-                <maxRetries>25</maxRetries>
-                <maxDnsProblemRetries>0</maxDnsProblemRetries>
-                <deliveryThreads>10</deliveryThreads>
-                <sendpartial>true</sendpartial>
-                <bounceProcessor>bounces</bounceProcessor>
-            </mailet>
+
             <mailet match="All" class="ToProcessor">
                 <processor>relay-denied</processor>
             </mailet>
@@ -123,6 +130,7 @@
 
         <processor state="local-recipient" enableJmx="true">
             <!-- ICAL pipeline -->
+            <mailet match="All" class="org.apache.james.jmap.mailet.TextCalendarBodyToAttachment"/>
             <mailet match="All" class="StripAttachment">
                 <mimeType>text/calendar</mimeType>
                 <attribute>rawIcalendar</attribute>
@@ -153,6 +161,18 @@
             <mailet match="All" class="LocalDelivery"/>
         </processor>
 
+	<processor state="relay" enableJmx="true">
+            <mailet match="All" class="RemoteDelivery">
+                <outgoingQueue>outgoing</outgoingQueue>
+                <delayTime>5000, 100000, 500000</delayTime>
+                <maxRetries>25</maxRetries>
+                <maxDnsProblemRetries>0</maxDnsProblemRetries>
+                <deliveryThreads>10</deliveryThreads>
+                <sendpartial>true</sendpartial>
+                <bounceProcessor>bounces</bounceProcessor>
+            </mailet>
+	</processor>
+	
         <processor state="spam" enableJmx="true">
             <mailet match="All" class="ToRepository">
                 <repositoryPath>file://var/mail/spam/</repositoryPath>
