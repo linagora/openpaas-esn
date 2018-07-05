@@ -7,7 +7,6 @@ services:
       file: ../docker-compose-commons.yml
       service: esn
     build: ../../../
-    command: ["sh", "start.sh"]
     links:
       - redis
       - rabbitmq
