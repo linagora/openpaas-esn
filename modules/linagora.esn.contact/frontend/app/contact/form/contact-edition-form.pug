@@ -29,7 +29,7 @@
       multi-input-group-address( multi-input-model='contact.addresses', multi-input-types='CONTACT_ATTRIBUTES_ORDER.address')
     .col-xs-12.col-lg-5
       .row
-        div(modal-launcher, template="contact/views/partials/contact-avatar-modal", ng-click="showModal()")
+        div(modal-launcher, template="contact/app/contact/form/contact-avatar-modal.html", ng-click="showModal()")
           contact-photo.visible-lg(contact='contact', editable='true', avatar-size='{{avatarSize}}', contact-state='{{contactState}}')
       .row
         label.control-label.sr-only #{__("Tags")}
