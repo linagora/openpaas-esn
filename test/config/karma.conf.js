@@ -44,7 +44,6 @@ module.exports = function(config) {
       'frontend/components/angular-leaflet-directive/dist/angular-leaflet-directive.js',
       'frontend/components/ngGeolocation/ngGeolocation.min.js',
       'frontend/components/angular-recursion/angular-recursion.min.js',
-      'frontend/components/fullcalendar/dist/fullcalendar.min.js',
       'frontend/components/ical.js/build/ical.min.js',
       'frontend/components/angular-uuid4/angular-uuid4.min.js',
       'frontend/components/localforage/dist/localforage.min.js',
