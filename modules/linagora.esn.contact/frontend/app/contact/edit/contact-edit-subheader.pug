@@ -1,14 +1,25 @@
-.contact-subheader
-  .contact-controls-wrapper
-    .contact-controls.row
-      a.col-xs-6(href='', ng-click='save()')
-        i.mdi.mdi-check.m-l-5.m-r-5
-        | #{__('Save')}
-      .col-xs-6.contact-dropdown.dropdown.right-action
-        a.moreactions.dropdown-toggle(href='', data-toggle="dropdown" aria-expanded="false" aria-haspopup="true")
-          i.mdi.mdi-dots-vertical.m-r-5
-        ul.dropdown-menu.dropdown-menu-right(role="menu")
-          li
-            a(ng-click="deleteContact()", esn-back-button="contact") #{__('Delete')}
-          li
-            a(ng-click="close()") #{__('Cancel')}
+extends /modules/subheader/centered-subheader.pug
+
+block left
+  button.btn.btn-link.hidden-xs(ng-click="close()")
+    .flex-vertical-centered
+      i.mdi.mdi-close.mdi-margin-right
+      span #{__('Cancel')}
+  button.btn.btn-link.btn-icon.visible-xs(ng-click="close()")
+    i.mdi.mdi-close
+
+block right
+  .dropdown.flex-vertical-centered
+    a(href='', data-toggle='dropdown', aria-expanded='true')
+      i.mdi.mdi-dots-vertical
+    ul.dropdown-menu.dropdown-menu-right.clickable
+      li
+        a(ng-click="deleteContact()", esn-back-button="contact") #{__('Delete')}
+
+  button.btn.btn-link.save.hidden-xs(ng-disabled='calling || !loaded', type='button', ng-click='save()')
+    .flex-vertical-centered
+      span #{__('Save')}
+      i.mdi.mdi-check.mdi-margin-left
+
+  button.btn.btn-link.btn-icon.visible-xs(ng-disabled='calling || !loaded', type='button', ng-click='save()')
+    i.mdi.mdi-check

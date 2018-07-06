@@ -1,19 +1,7 @@
 sub-header
-  contact-create-subheader.hidden-md
+  contact-create-subheader
 
-.col-xs-12.col-md-10.no-padding-xs(sub-header-aware)
-  .card-contact
-    .contact-header.m-b-10.flex-space-between.hidden-xs
-      button.btn.btn-default.btn-icon-before(esn-back-button='contact')
-        i.mdi.mdi-reply
-        | #{__('Cancel')}
-      .header-label #{__('Create a new contact')}
-      ul.actions.flex-space-around
-        li
-          button.btn.btn-primary(ng-disabled='calling', type='button', ng-click='accept()')
-            i.mdi.mdi-pencil
-            | #{__('Create')}
-
+.col-xs-12.col-md-8.no-padding-xs(sub-header-aware)
   .card(ng-submit='accept()')
     .card-body.card-padding
       contact-edition-form(contact='contact', book-name='bookName', contact-state='new')
