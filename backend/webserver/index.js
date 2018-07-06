@@ -168,6 +168,14 @@ function addJSInjection(moduleName, files, innerApps) {
 
 webserver.addJSInjection = addJSInjection;
 
+function addCSSInjection(moduleName, files, innerApps) {
+  innerApps.forEach(function(innerApp) {
+    assetRegistry.app(innerApp).type('css').add(files, moduleName);
+  });
+}
+
+webserver.addCSSInjection = addCSSInjection;
+
 function addAngularModulesInjection(moduleName, files, angularModulesNames, innerApps, opts) {
   innerApps.forEach(function(innerApp) {
     assetRegistry.app(innerApp).type('angular').add(angularModulesNames, moduleName);

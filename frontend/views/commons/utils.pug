@@ -2,6 +2,10 @@ mixin injectJSFromModules(module, assets)
   each asset in assets.type('js').all()
     script(src='/' + asset.namespace + '/js/' + asset.name)
 
+mixin injectCSSFromModules(module, assets)
+  each asset in assets.type('css').all()
+    link(rel='stylesheet', href='/' + asset.namespace + '/css/' + asset.name)
+
 mixin injectJSAppFromModules(module, assets)
   each asset in assets.type('jsApp').all()
     script(src='/' + asset.namespace + '/app/' + asset.name)
