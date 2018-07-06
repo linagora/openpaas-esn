@@ -95,6 +95,19 @@ function init(dependencies) {
     }
   });
 
+  pubsub.topic(CONSTANTS.NOTIFICATIONS.ADDRESSBOOK_SUBSCRIPTION_DELETED).subscribe(data => {
+    if (data && data.bookId && data.bookName) {
+      logger.info('Notifying address book subscription deleted');
+
+      synchronizeContactLists('contact:addressbook:subscription:deleted', {
+        bookId: data.bookId,
+        bookName: data.bookName
+      });
+    } else {
+      logger.warn('Not well-formed data on', CONSTANTS.NOTIFICATIONS.ADDRESSBOOK_SUBSCRIPTION_DELETED, 'pubsub event');
+    }
+  });
+
   contactNamespace = io.of(NAMESPACE);
   contactNamespace.on('connection', function(socket) {
     logger.info('New connection on ' + NAMESPACE);

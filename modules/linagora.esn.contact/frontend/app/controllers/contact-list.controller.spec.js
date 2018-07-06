@@ -1666,4 +1666,38 @@ describe('The ContactListController controller', function() {
     });
   });
 
+  describe('When deleted addressbook subscription event is fired', function() {
+    it('should change to aggregated contacts view if the current viewing addressbook is deleted', function() {
+      var bookName = 'twitter';
+      var currentAddressbooks = [{
+        bookName: bookName
+      }];
+
+      $state.go = sinon.spy();
+
+      $stateParams.bookName = bookName;
+      contactAddressbookService.getAddressbookByBookName = sinon.stub().returns($q.when(currentAddressbooks));
+
+      initController();
+
+      $rootScope.$broadcast(CONTACT_ADDRESSBOOK_EVENTS.SUBSCRIPTION_DELETED, { bookName: bookName });
+      expect($state.go).to.have.been.calledWith('contact.addressbooks', { bookName: null });
+    });
+
+    it('should not change state if the current viewing addressbook is not the one is deleted', function() {
+      var currentAddressbooks = [{
+        bookName: 'twitter',
+        name: 'Twitter Contacts'
+      }];
+
+      $state.go = sinon.spy();
+      $controller('ContactListController', {
+        $scope: scope,
+        user: { _id: '123' },
+        addressbooks: currentAddressbooks
+      });
+      $rootScope.$broadcast(CONTACT_ADDRESSBOOK_EVENTS.SUBSCRIPTION_DELETED, { bookName: 'google' });
+      expect($state.go).to.not.have.been.called;
+    });
+  });
 });

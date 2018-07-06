@@ -8,7 +8,8 @@ module.exports = {
     CONTACT_ADDED: 'contacts:contact:add',
     CONTACT_UPDATED: 'contacts:contact:update',
     CONTACT_DELETED: 'contacts:contact:delete',
-    ADDRESSBOOK_DELETED: 'contacts:addressbook:deleted'
+    ADDRESSBOOK_DELETED: 'contacts:addressbook:deleted',
+    ADDRESSBOOK_SUBSCRIPTION_DELETED: 'contacts:addressbook:subscription:deleted'
   },
   GLOBAL_PUBSUB_EVENTS: {
     SABRE: {
@@ -16,7 +17,8 @@ module.exports = {
       CONTACT_UPDATED: 'sabre:contact:updated',
       CONTACT_MOVED: 'sabre:contact:moved',
       CONTACT_DELETED: 'sabre:contact:deleted',
-      ADDRESSBOOK_DELETED: 'sabre:addressbook:deleted'
+      ADDRESSBOOK_DELETED: 'sabre:addressbook:deleted',
+      ADDRESSBOOK_SUBSCRIPTION_DELETED: 'sabre:addressbook:subscription:deleted'
     }
   },
   SEARCH: {

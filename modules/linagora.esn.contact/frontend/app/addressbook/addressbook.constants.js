@@ -5,7 +5,8 @@
     .constant('CONTACT_ADDRESSBOOK_EVENTS', {
       CREATED: 'contact:addressbook:created',
       DELETED: 'contact:addressbook:deleted',
-      UPDATED: 'contact:addressbook:updated'
+      UPDATED: 'contact:addressbook:updated',
+      SUBSCRIPTION_DELETED: 'contact:addressbook:subscription:deleted'
     })
     .constant('CONTACT_ADDRESSBOOK_TYPES', {
       user: 'user',
