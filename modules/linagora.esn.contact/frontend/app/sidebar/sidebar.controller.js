@@ -56,6 +56,7 @@
       $scope.$on(CONTACT_ADDRESSBOOK_EVENTS.CREATED, _onAddressbookCreatedEvent);
       $scope.$on(CONTACT_ADDRESSBOOK_EVENTS.UPDATED, _onUpdatedAddressbookEvent);
       $scope.$on(CONTACT_ADDRESSBOOK_EVENTS.DELETED, _onRemovedAddressbookEvent);
+      $scope.$on(CONTACT_ADDRESSBOOK_EVENTS.SUBSCRIPTION_DELETED, _onRemovedAddressbookEvent);
     }
 
     function _injectOwnerToSubscription(addressbooks) {

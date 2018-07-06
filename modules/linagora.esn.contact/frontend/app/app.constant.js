@@ -51,7 +51,8 @@
         CREATED: 'contact:created',
         DELETED: 'contact:deleted',
         UPDATED: 'contact:updated',
-        ADDRESSBOOK_DELETED: 'contact:addressbook:deleted'
+        ADDRESSBOOK_DELETED: 'contact:addressbook:deleted',
+        ADDRESSBOOK_SUBSCRIPTION_DELETED: 'contact:addressbook:subscription:deleted'
       }
     })
     .constant('CONTACT_GLOBAL_SEARCH', {

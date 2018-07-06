@@ -301,4 +301,35 @@ describe('The ContactSidebarController controller', function() {
       displayName: 'bookB'
     }]);
   });
+
+  it('should remove an shared address book when removed address book subscription event is fired', function() {
+    var addressbooks = [
+      {
+        shell: { bookName: 'bookA', name: 'bookA' },
+        displayName: 'bookA'
+      },
+      {
+        shell: { bookName: 'bookB', name: 'bookB' },
+        displayName: 'bookB'
+      }
+    ];
+    var removedAddressbook = {
+      bookName: 'bookA'
+    };
+
+    contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when([]));
+    contactAddressbookDisplayService.convertShellsToDisplayShells = angular.noop;
+    contactAddressbookDisplayService.sortAddressbookDisplayShells = angular.noop;
+
+    var controller = initController();
+
+    controller.displayShells = addressbooks;
+    $rootScope.$broadcast(CONTACT_ADDRESSBOOK_EVENTS.SUBSCRIPTION_DELETED, removedAddressbook);
+    $rootScope.$digest();
+
+    expect(controller.displayShells).to.deep.equal([{
+      shell: { bookName: 'bookB', name: 'bookB' },
+      displayName: 'bookB'
+    }]);
+  });
 });

@@ -111,17 +111,20 @@
       }
     });
 
-    $scope.$on(CONTACT_ADDRESSBOOK_EVENTS.DELETED, function(evt, removedAddressbook) {
-      if ($scope.addressbooks.length === 1 && $scope.addressbooks[0].bookName === removedAddressbook.bookName) {
-        $state.go('contact.addressbooks', { bookName: null });
-      }
-    });
+    $scope.$on(CONTACT_ADDRESSBOOK_EVENTS.DELETED, _onAddressbookDeleted);
+    $scope.$on(CONTACT_ADDRESSBOOK_EVENTS.SUBSCRIPTION_DELETED, _onAddressbookDeleted);
 
     $scope.$on(CONTACT_ADDRESSBOOK_EVENTS.UPDATED, function(evt, newAddressbook) {
       if ($scope.addressbooks.length === 1 && $scope.addressbooks[0].bookName === newAddressbook.bookName) {
         $scope.bookTitle = newAddressbook.name;
       }
     });
+
+    function _onAddressbookDeleted(event, deletedAddressbook) {
+      if ($scope.addressbooks.length === 1 && $scope.addressbooks[0].bookName === deletedAddressbook.bookName) {
+        $state.go('contact.addressbooks', { bookName: null });
+      }
+    }
 
     function _buildAddressBookTitle() {
       if ($scope.addressbooks.length > 1) {

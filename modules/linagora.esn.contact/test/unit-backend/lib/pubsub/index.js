@@ -132,4 +132,56 @@ describe('The contacts backend/lib/pubsub module', function() {
       getModule().listen();
     });
   });
+
+  describe('On ADDRESSBOOK_DELETED event', function() {
+    it('should publish event ADDRESSBOOK_DELETED through local pubsub', function(done) {
+      messageMock = {
+        path: `addressbooks/${bookId}/${bookName}`,
+        owner: `principals/users/${userId}`
+      };
+      pubsubMock.global.topic.withArgs(CONSTANTS.GLOBAL_PUBSUB_EVENTS.SABRE.ADDRESSBOOK_DELETED).returns({
+        subscribe(listener) {
+          listener(messageMock);
+        }
+      });
+      pubsubMock.local.topic.withArgs(CONSTANTS.NOTIFICATIONS.ADDRESSBOOK_DELETED).returns({
+        publish(data) {
+          expect(data).to.shallowDeepEqual({
+            userId,
+            bookId,
+            bookName
+          });
+          done();
+        }
+      });
+
+      getModule().listen();
+    });
+  });
+
+  describe('On ADDRESSBOOK_SUBSCRIPTION_DELETED event', function() {
+    it('should publish event ADDRESSBOOK_SUBSCRIPTION_DELETED through local pubsub', function(done) {
+      messageMock = {
+        path: `addressbooks/${bookId}/${bookName}`,
+        owner: `principals/users/${userId}`
+      };
+      pubsubMock.global.topic.withArgs(CONSTANTS.GLOBAL_PUBSUB_EVENTS.SABRE.ADDRESSBOOK_SUBSCRIPTION_DELETED).returns({
+        subscribe(listener) {
+          listener(messageMock);
+        }
+      });
+      pubsubMock.local.topic.withArgs(CONSTANTS.NOTIFICATIONS.ADDRESSBOOK_SUBSCRIPTION_DELETED).returns({
+        publish(data) {
+          expect(data).to.shallowDeepEqual({
+            userId,
+            bookId,
+            bookName
+          });
+          done();
+        }
+      });
+
+      getModule().listen();
+    });
+  });
 });

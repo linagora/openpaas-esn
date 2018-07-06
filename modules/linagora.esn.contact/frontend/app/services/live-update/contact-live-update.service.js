@@ -33,6 +33,7 @@
       sio.on(CONTACT_WS.events.DELETED, onDelete);
       sio.on(CONTACT_WS.events.UPDATED, onUpdate);
       sio.on(CONTACT_WS.events.ADDRESSBOOK_DELETED, onAddressbookDelete);
+      sio.on(CONTACT_WS.events.ADDRESSBOOK_SUBSCRIPTION_DELETED, onAddressbookSubscriptionDelete);
 
       listening = true;
       $log.debug('Start listening contact live update');
@@ -46,6 +47,7 @@
         sio.removeListener(CONTACT_WS.events.DELETED, onDelete);
         sio.removeListener(CONTACT_WS.events.UPDATED, onUpdate);
         sio.removeListener(CONTACT_WS.events.ADDRESSBOOK_DELETED, onAddressbookDelete);
+        sio.removeListener(CONTACT_WS.events.ADDRESSBOOK_SUBSCRIPTION_DELETED, onAddressbookSubscriptionDelete);
       }
 
       listening = false;
@@ -76,6 +78,10 @@
 
     function onAddressbookDelete(data) {
       $rootScope.$broadcast(CONTACT_ADDRESSBOOK_EVENTS.DELETED, data);
+    }
+
+    function onAddressbookSubscriptionDelete(data) {
+      $rootScope.$broadcast(CONTACT_ADDRESSBOOK_EVENTS.SUBSCRIPTION_DELETED, data);
     }
   }
 })(angular);

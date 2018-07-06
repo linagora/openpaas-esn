@@ -118,12 +118,17 @@ describe('The ContactLiveUpdate service', function() {
 
     it('should make sio to listen on CONTACT_WS.events.ADDRESSBOOK_DELETED event', function() {
       ContactLiveUpdate.startListen(bookId);
-      expect(onFn.lastCall.calledWith(CONTACT_WS.events.ADDRESSBOOK_DELETED)).to.be.true;
+      expect(onFn.calledWith(CONTACT_WS.events.ADDRESSBOOK_DELETED)).to.be.true;
+    });
+
+    it('should make sio to listen on CONTACT_WS.events.ADDRESSBOOK_SUBSCRIPTION_DELETED event', function() {
+      ContactLiveUpdate.startListen(bookId);
+      expect(onFn.calledWith(CONTACT_WS.events.ADDRESSBOOK_SUBSCRIPTION_DELETED)).to.be.true;
     });
 
     describe('When listening to events', function() {
 
-      var createFn, updateFn, deleteFn, onAddressbookDeleteFn;
+      var createFn, updateFn, deleteFn, onAddressbookDeleteFn, onAddressbookSubscriptionDeleteFn;
 
       beforeEach(function() {
         onFn = function(event, handler) {
@@ -139,6 +144,9 @@ describe('The ContactLiveUpdate service', function() {
               break;
             case CONTACT_WS.events.ADDRESSBOOK_DELETED:
               onAddressbookDeleteFn = handler;
+              break;
+            case CONTACT_WS.events.ADDRESSBOOK_SUBSCRIPTION_DELETED:
+              onAddressbookSubscriptionDeleteFn = handler;
               break;
           }
         };
@@ -287,6 +295,23 @@ describe('The ContactLiveUpdate service', function() {
           done(new Error('Should not be called'));
         });
       });
+
+      describe('On CONTACT_WS.events.ADDRESSBOOK_SUBSCRIPTION_DELETED event', function() {
+        it('should broadcast address book subscription info to the $rootScope', function(done) {
+          var data = { bookId: '1', bookName: '2' };
+
+          $rootScope.$on(CONTACT_ADDRESSBOOK_EVENTS.SUBSCRIPTION_DELETED, function(event, _data) {
+            expect(_data).to.deep.equal(data);
+            done();
+          });
+
+          ContactLiveUpdate.startListen(bookId);
+          onAddressbookSubscriptionDeleteFn(data);
+
+          $rootScope.$digest();
+          done(new Error('Should not be called'));
+        });
+      });
     });
   });
 
@@ -320,7 +345,14 @@ describe('The ContactLiveUpdate service', function() {
       ContactLiveUpdate.startListen('bookId');
 
       ContactLiveUpdate.stopListen();
-      expect(removeListenerFn.lastCall.calledWith(CONTACT_WS.events.ADDRESSBOOK_DELETED)).to.be.true;
+      expect(removeListenerFn.calledWith(CONTACT_WS.events.ADDRESSBOOK_DELETED)).to.be.true;
+    });
+
+    it('should make sio to remove CONTACT_WS.events.ADDRESSBOOK_SUBSCRIPTION_DELETED event listener', function() {
+      ContactLiveUpdate.startListen('bookId');
+
+      ContactLiveUpdate.stopListen();
+      expect(removeListenerFn.calledWith(CONTACT_WS.events.ADDRESSBOOK_SUBSCRIPTION_DELETED)).to.be.true;
     });
   });
 });
