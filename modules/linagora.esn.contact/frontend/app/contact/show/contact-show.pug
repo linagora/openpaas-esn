@@ -1,30 +1,7 @@
 sub-header
-  contact-show-subheader.hidden-md
+  contact-show-subheader
 
-.col-xs-12.col-md-10.no-padding-xs(sub-header-aware)
-  .card-contact
-    .contact-header.m-b-10.flex-space-between.hidden-xs
-      button.btn.btn-default.btn-icon-before(esn-back-button='contact')
-        i.mdi.mdi-reply
-        | #{__('Back')}
-      ul.actions.flex-space-around
-        li.contact-dropdown.dropdown
-          a(href='', data-toggle='dropdown')
-            i.mdi.mdi-dots-vertical
-          ul.dropdown-menu.dropdown-menu-right
-            li
-              a(href='', ng-if='displayShell.addressbook.canEditContact', ng-click='edit()') #{__('Edit')}
-            li
-              contact-action-copy.contact-dropdown-action-item(
-                ng-if='displayShell.addressbook.canCopyContact',
-                contact='contact'
-              )
-            li
-              contact-action-move.contact-dropdown-action-item(
-                ng-if='displayShell.addressbook.canMoveContact',
-                contact='contact'
-              )
-
+.col-xs-12.col-md-8.no-padding-xs(sub-header-aware)
   .card.hidden-xs(ng-submit='accept()')
     .card-body.contact-body
       contact-display(ng-if='loaded && !error' contact='contact')

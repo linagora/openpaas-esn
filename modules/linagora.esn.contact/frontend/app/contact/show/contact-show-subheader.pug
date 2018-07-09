@@ -1,16 +1,27 @@
-.contact-subheader
-  .contact-controls-wrapper
-    .contact-controls.row
-      a.col-xs-6(href='', esn-back-button='contact')
-        i.mdi.mdi-arrow-left.m-l-5.m-r-5
-        | #{__('Back')}
-      .col-xs-6.contact-dropdown.dropdown.right-action
-        a.dropdown-toggle(href='', data-toggle="dropdown")
-          i.mdi.mdi-dots-vertical.m-r-5
-        ul.dropdown-menu.dropdown-menu-right
-          li
-            a(href='', ng-if='displayShell.isWritable()', ng-click='edit()') #{__('Edit')}
-          li
-            contact-action-copy.contact-dropdown-action-item(contact='contact')
-          li
-            contact-action-move.contact-dropdown-action-item(contact='contact')
+extends /modules/subheader/centered-subheader.pug
+
+block left
+  button.btn.btn-link.hidden-xs(esn-back-button='contact')
+    .flex-vertical-centered
+      i.mdi.mdi-arrow-left.mdi-margin-right
+      span #{__('Back')}
+  button.btn.btn-link.btn-icon.visible-xs(esn-back-button='contact')
+    i.mdi.mdi-arrow-left
+
+block right
+  .dropdown.flex-vertical-centered
+    a(href='', data-toggle='dropdown', aria-expanded='true')
+      i.mdi.mdi-dots-vertical
+    ul.dropdown-menu.dropdown-menu-right.clickable
+      li
+        a(href='', ng-if='displayShell.addressbook.canEditContact', ng-click='edit()') #{__('Edit')}
+      li
+        contact-action-copy.contact-dropdown-action-item(
+          ng-if='displayShell.addressbook.canCopyContact',
+          contact='contact'
+        )
+      li
+        contact-action-move.contact-dropdown-action-item(
+          ng-if='displayShell.addressbook.canMoveContact',
+          contact='contact'
+        )

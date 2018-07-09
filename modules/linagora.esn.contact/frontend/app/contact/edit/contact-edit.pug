@@ -1,25 +1,7 @@
 sub-header
-  contact-edit-subheader.hidden-md
+  contact-edit-subheader
 
-.col-xs-12.col-md-10.no-padding-xs(sub-header-aware)
-  .card-contact
-    .contact-header.m-b-10.flex-space-between.hidden-xs
-      button.btn.btn-default.btn-icon-before(ng-click="close()")
-        i.mdi.mdi-reply
-        | #{__('Cancel')}
-      .header-label #{__('Edit contact')}
-      ul.actions.flex-space-around
-        li.contact-dropdown.dropdown
-          a(href='', data-toggle="dropdown" aria-expanded="false" aria-haspopup="true")
-            i.mdi.mdi-dots-vertical
-          ul.dropdown-menu.dropdown-menu-right
-            li
-              a(href="", ng-click="deleteContact()", esn-back-button="contact") #{__('Delete')}
-        li
-          button.btn.btn-primary.btn-icon-before(ng-disabled='calling || !loaded', type='button', ng-click='save()')
-            i.mdi.mdi-pencil
-            | #{__('Save')}
-
+.col-xs-12.col-md-8.no-padding-xs(sub-header-aware)
   .card(ng-submit='accept()')
     .card-body.card-padding.contact-body
       .contact-error-container

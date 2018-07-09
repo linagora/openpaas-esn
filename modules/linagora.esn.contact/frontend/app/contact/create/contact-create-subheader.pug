@@ -1,9 +1,18 @@
-.contact-subheader
-  .contact-controls-wrapper
-    .contact-controls.row
-      a.col-xs-6(href='', ng-click='accept()')
-        i.mdi.mdi-check.m-l-5.m-r-5
-        | #{__('Create')}
-      .col-xs-6.right-action
-        a.p-l-5.p-r-10(esn-back-button='contact')
-          i.mdi.mdi-close
+extends /modules/subheader/centered-subheader.pug
+
+block left
+  button.btn.btn-link.hidden-xs.clickable(esn-back-button='contact')
+    .flex-vertical-centered
+      i.mdi.mdi-arrow-left.mdi-margin-right
+      span #{__('Back')}
+  button.btn.btn-link.btn-icon.visible-xs.clickable(esn-back-button='contact')
+    i.mdi.mdi-arrow-left
+
+block right
+  button.btn.btn-link.hidden-xs(ng-click='accept()')
+    .flex-vertical-centered
+      span #{__('Create')}
+      i.mdi.mdi-check.mdi-margin-left
+
+  button.btn.btn-link.btn-icon.visible-xs(ng-click='accept()')
+    i.mdi.mdi-check
