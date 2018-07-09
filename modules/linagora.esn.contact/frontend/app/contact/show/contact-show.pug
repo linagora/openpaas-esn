@@ -100,5 +100,5 @@ sub-header
           .contact-item-data(ng-if='contact.notes')
             p {{contact.notes}}
             p.type #{__('Comments')}
-    div.bs-alert.bs-alert-warning.clearfix.text-center(ng-if= '!displayShell.isWritable()')
+    div.bs-alert.bs-alert-warning.clearfix.text-center(ng-if= '!displayShell.addressbook.canEditContact')
       strong #{__("This contact can not be edited")}
