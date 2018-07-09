@@ -10,15 +10,16 @@ html.login-content
     link(rel='stylesheet', href='/components/mdi/css/materialdesignicons.min.css', media='all')
     link(rel='stylesheet', href='/components/roboto-fontface/css/roboto-fontface.css')
     link(rel='stylesheet', href='/components/animate.css/animate.css')
+    +injectCSSFromModules('welcome', assets)
     link(rel='stylesheet', href='/generated/css/welcome/styles.css')
-      
+
     <!-- Electron Hack -->
     script.
       if (typeof module === 'object') {
         window.module = module;
         module = undefined;
       }
-      
+
     script(src='/components/jquery/dist/jquery.min.js')
     script(src='/components/lodash/dist/lodash.min.js')
     script(src='/components/bootstrap/dist/js/bootstrap.min.js')

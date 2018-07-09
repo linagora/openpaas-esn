@@ -15,6 +15,10 @@ function WebServerWrapper(server) {
     webserver.addJSInjection(namespace, asArray(js), asArray(innerApps));
   };
 
+  this.injectCSS = function injectCSS(namespace, css, innerApps) {
+    webserver.addCSSInjection(namespace, asArray(css), asArray(innerApps));
+  };
+
   /**
   * inject less files.
   * This allows your less files to use the OpenPaaS @variables and mixins.

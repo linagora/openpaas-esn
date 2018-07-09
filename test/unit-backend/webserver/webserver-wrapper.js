@@ -22,6 +22,8 @@ describe('the webserver-wrapper', function() {
       expect(err).to.be.null;
       expect(api.injectJS).to.exist;
       expect(api.injectJS).to.be.a('function');
+      expect(api.injectCSS).to.exist;
+      expect(api.injectCSS).to.be.a('function');
       expect(api.injectAngularModules).to.exist;
       expect(api.injectAngularModules).to.be.a('function');
       expect(api.addApp).to.exist;
@@ -45,10 +47,32 @@ describe('the webserver-wrapper', function() {
         }
       }
     };
+
     mockery.registerMock('./', webserverMock);
     module = this.helpers.requireBackend('webserver/webserver-wrapper');
     getApi(module, function(err, api) {
       api.injectJS('myModule', 'mymodule.js', 'esn');
+    });
+  });
+
+  it('should call webserver.addCSSInjection with arrays', function(done) {
+    var webserverMock = {
+      webserver: {
+        on: function() {},
+        addAngularModulesInjection: function() {},
+        addCSSInjection: function(namespace, css, apps) {
+          expect(namespace).to.equal('myModule');
+          expect(css).to.deep.equal(['mymodule.css']);
+          expect(apps).to.deep.equal(['esn']);
+          done();
+        }
+      }
+    };
+
+    mockery.registerMock('./', webserverMock);
+    module = this.helpers.requireBackend('webserver/webserver-wrapper');
+    getApi(module, function(err, api) {
+      api.injectCSS('myModule', 'mymodule.css', 'esn');
     });
   });
 
@@ -59,6 +83,7 @@ describe('the webserver-wrapper', function() {
         addAngularModulesInjection: function() {}
       }
     };
+
     mockery.registerMock('./', webserverMock);
     module = this.helpers.requireBackend('webserver/webserver-wrapper');
     getApi(module, function(err, api) {
@@ -73,13 +98,14 @@ describe('the webserver-wrapper', function() {
     });
   });
 
-    it('should call webserver.addAngularModulesInjection with opts object', function(done) {
+  it('should call webserver.addAngularModulesInjection with opts object', function(done) {
     var webserverMock = {
       webserver: {
         on: function() {},
         addAngularModulesInjection: function() {}
       }
     };
+
     mockery.registerMock('./', webserverMock);
     module = this.helpers.requireBackend('webserver/webserver-wrapper');
     getApi(module, function(err, api) {

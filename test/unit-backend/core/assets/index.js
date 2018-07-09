@@ -35,9 +35,10 @@ describe('The assets module', function() {
     });
   });
 
-  it('should bundle less, js, jsApp, and angular asset types', function() {
+  it('should bundle less, css, js, jsApp, and angular asset types', function() {
     const allTypes = getModule().getAllTypes();
 
+    expect(allTypes).to.have.property('css');
     expect(allTypes).to.have.property('js');
     expect(allTypes).to.have.property('jsApp');
     expect(allTypes).to.have.property('less');

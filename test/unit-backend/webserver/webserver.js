@@ -179,6 +179,7 @@ describe('The Webserver module', function() {
   describe('The injections methods', function() {
     it('should populate injections with a formatted data', function() {
       var serverMock = mockServer(this.testEnv.basePath);
+      serverMock.webserver.addCSSInjection('myModule', ['myCSSModule.css'], ['esn']);
       serverMock.webserver.addJSInjection('myModule', ['myModule.js'], ['esn']);
       serverMock.webserver.addAngularModulesInjection('myModule2', ['myModule2.js'], ['esn.plugin.myModule2'], ['esn', 'welcome']);
 
@@ -188,6 +189,10 @@ describe('The Webserver module', function() {
       expect(assets.app('esn').type('js').all()).to.deep.equal([
         new Asset('myModule.js', 'myModule', 0),
         new Asset('myModule2.js', 'myModule2', 0)
+      ]);
+
+      expect(assets.app('esn').type('css').all()).to.deep.equal([
+        new Asset('myCSSModule.css', 'myModule', 0)
       ]);
 
       expect(assets.app('esn').type('angular').all()).to.deep.equal([
