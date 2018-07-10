@@ -66,7 +66,7 @@
         <processor state="error" enableJmx="true">
             <mailet match="All" class="Bounce"/>
             <mailet match="All" class="ToRepository">
-                <repositoryPath>file://var/mail/error/</repositoryPath>
+                <repositoryPath>cassandra://var/mail/error/</repositoryPath>
             </mailet>
         </processor>
 
@@ -103,6 +103,11 @@
             <mailet match="All" class="RecipientRewriteTable" />
             <mailet match="mdn-matcher" class="org.apache.james.jmap.mailet.ExtractMDNOriginalJMAPMessageId"/>
 
+            <mailet match="RecipientIsLocal" class="org.apache.james.jmap.mailet.VacationMailet"/>
+            <mailet match="RecipientIsLocal" class="ToProcessor">
+                <processor>local-recipient</processor>
+            </mailet>
+
 	    <mailet match="org.apache.james.jmap.mailet.SentByJmap" class="ToProcessor">
 	      <processor>relay</processor>
 	    </mailet>
@@ -112,10 +117,6 @@
             <mailet match="SMTPAuthSuccessful" class="ToProcessor">
 	      <processor>relay</processor>
 	    </mailet>
-            <mailet match="RecipientIsLocal" class="org.apache.james.jmap.mailet.VacationMailet"/>
-            <mailet match="RecipientIsLocal" class="ToProcessor">
-                <processor>local-recipient</processor>
-            </mailet>
             <!--
             <mailet match="HostIsLocal" class="ToProcessor">
                 <processor>local-address-error</processor>
@@ -175,7 +176,7 @@
 	
         <processor state="spam" enableJmx="true">
             <mailet match="All" class="ToRepository">
-                <repositoryPath>file://var/mail/spam/</repositoryPath>
+                <repositoryPath>cassandra://var/mail/spam/</repositoryPath>
             </mailet>
         </processor>
 
@@ -184,7 +185,7 @@
                 <attachment>none</attachment>
             </mailet>
             <mailet match="All" class="ToRepository">
-                <repositoryPath>file://var/mail/address-error/</repositoryPath>
+                <repositoryPath>cassandra://var/mail/address-error/</repositoryPath>
             </mailet>
         </processor>
 
@@ -193,7 +194,7 @@
                 <attachment>none</attachment>
             </mailet>
             <mailet match="All" class="ToRepository">
-                <repositoryPath>file://var/mail/relay-denied/</repositoryPath>
+                <repositoryPath>cassandra://var/mail/relay-denied/</repositoryPath>
                 <notice>Warning: You are sending an e-mail to a remote server. You must be authentified to perform such an operation</notice>
             </mailet>
         </processor>
