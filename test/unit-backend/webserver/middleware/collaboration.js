@@ -1,7 +1,8 @@
 'use strict';
 
-var expect = require('chai').expect;
-var mockery = require('mockery');
+const expect = require('chai').expect;
+const mockery = require('mockery');
+const ObjectId = require('bson').ObjectId;
 
 describe('The collaboration middleware', function() {
   describe('load() method', function() {
@@ -671,9 +672,7 @@ describe('The collaboration middleware', function() {
     });
 
     it('should send back 403 when user is the collaboration creator', function(done) {
-      var ObjectId = require('bson').ObjectId;
       var id = new ObjectId();
-      mockery.registerMock('../../core/collaboration', {});
       var middleware = this.helpers.requireBackend('webserver/middleware/collaboration').canLeave;
       var req = {
         collaboration: {creator: id},
@@ -686,7 +685,7 @@ describe('The collaboration middleware', function() {
         status: checkResponse(403, {
           error: 403,
           message: 'Forbidden',
-          details: 'Creator can not leave collaboration'
+          details: 'User can not leave the collaboration'
         }, done)
       };
       middleware(req, res);
@@ -714,8 +713,6 @@ describe('The collaboration middleware', function() {
     });
 
     it('should call next if user can leave collaboration', function(done) {
-      var ObjectId = require('bson').ObjectId;
-      mockery.registerMock('../../core/collaboration', {});
       var middleware = this.helpers.requireBackend('webserver/middleware/collaboration').canLeave;
       var userId = new ObjectId();
       var req = {
@@ -734,8 +731,6 @@ describe('The collaboration middleware', function() {
     });
 
     it('should call next if user is creator and removes a user from a collaboration', function(done) {
-      var ObjectId = require('bson').ObjectId;
-      mockery.registerMock('../../core/collaboration', {});
       var middleware = this.helpers.requireBackend('webserver/middleware/collaboration').canLeave;
       var creatorId = new ObjectId();
       var req = {
@@ -751,6 +746,75 @@ describe('The collaboration middleware', function() {
         }
       };
       middleware(req, res, done);
+    });
+
+    it('should send back 500 if core collaboration.permission.canLeave returns error', function(done) {
+      mockery.registerMock('../../core/collaboration', {
+        permission: {
+          canLeave: (collaboration, tuple, callback) => callback('error')
+        }
+      });
+      const middleware = this.helpers.requireBackend('webserver/middleware/collaboration').canLeave;
+      const creatorId = new ObjectId();
+      const req = {
+        collaboration: {creator: creatorId},
+        user: {_id: creatorId},
+        params: {
+          user_id: new ObjectId()
+        }
+      };
+      const res = this.helpers.express.jsonResponse(
+        code => {
+          expect(code).to.equal(500);
+          done();
+        }
+      );
+
+      middleware(req, res, () => done('should not be called'));
+    });
+
+    it('should send back 403 if core collaboration.permission.canLeave returns false', function(done) {
+      mockery.registerMock('../../core/collaboration', {
+        permission: {
+          canLeave: (collaboration, tuple, callback) => callback(null, false)
+        }
+      });
+      const middleware = this.helpers.requireBackend('webserver/middleware/collaboration').canLeave;
+      const creatorId = new ObjectId();
+      const req = {
+        collaboration: { creator: creatorId },
+        user: { _id: creatorId },
+        params: {
+          user_id: new ObjectId()
+        }
+      };
+      const res = this.helpers.express.jsonResponse(
+        code => {
+          expect(code).to.equal(403);
+          done();
+        }
+      );
+
+      middleware(req, res, () => done('should not be called'));
+    });
+
+    it('should call next if core collaboration.permission.canLeave returns true', function(done) {
+      mockery.registerMock('../../core/collaboration', {
+        permission: {
+          canLeave: (collaboration, tuple, callback) => callback(null, true)
+        }
+      });
+      const middleware = this.helpers.requireBackend('webserver/middleware/collaboration').canLeave;
+      const creatorId = new ObjectId();
+      const req = {
+        collaboration: { creator: creatorId },
+        user: { _id: creatorId },
+        params: {
+          user_id: new ObjectId()
+        }
+      };
+
+      middleware(req, {}, done);
     });
   });
 });

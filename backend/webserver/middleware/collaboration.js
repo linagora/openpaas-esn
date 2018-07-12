@@ -1,5 +1,6 @@
 'use strict';
 
+const logger = require('../../core/logger');
 var collaborationModule = require('../../core/collaboration');
 
 function load(req, res, next) {
@@ -39,15 +40,23 @@ function canLeave(req, res, next) {
     return res.status(400).json({error: 400, message: 'Bad Request', details: 'User_id is missing'});
   }
 
-  if (req.params.user_id.equals(req.collaboration.creator)) {
-    return res.status(403).json({error: 403, message: 'Forbidden', details: 'Creator can not leave collaboration'});
-  }
-
   if (!req.user._id.equals(req.collaboration.creator) && !req.user._id.equals(req.params.user_id)) {
     return res.status(403).json({error: 403, message: 'Forbidden', details: 'No permissions to remove another user'});
   }
 
-  return next();
+  collaborationModule.permission.canLeave(req.collaboration, { objectType: 'user', id: req.params.user_id }, (err, canLeave) => {
+    if (err) {
+      logger.error('Error while checking user can leave collaboration', err);
+
+      return res.status(500).json({ error: 500, message: 'Server Error', details: 'Can not check user can leave or not' });
+    }
+
+    if (!canLeave) {
+      return res.status(403).json({ error: 403, message: 'Forbidden', details: 'User can not leave the collaboration' });
+    }
+
+    next();
+  });
 }
 module.exports.canLeave = canLeave;
 
