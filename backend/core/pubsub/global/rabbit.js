@@ -67,7 +67,7 @@ class RabbitPubsub extends Pubsub {
   }
 
   _subscribeToClient(topic, handler, options = {}) {
-    logger.debug(`${this.name} /SUBSCRIBE to ${topic} with options ${options}`);
+    logger.debug(`${this.name} /SUBSCRIBE to ${topic} with options ${JSON.stringify(options)}`);
 
     if (options.durable) {
       return this.client.subscribeToDurableQueue(topic, topic, handler);
