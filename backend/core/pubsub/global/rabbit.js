@@ -21,7 +21,7 @@ class RabbitPubsub extends Pubsub {
 
     this.client = client;
 
-    Q.all(this._subscriptionsCache.map(elem => this._subscribeToClient(elem.topic, elem.data, elem.options)))
+    Q.all(this._subscriptionsCache.map(elem => this._subscribeToClient(elem.topic, elem.data)))
     .then(() => {
       this._publicationsBuffer.forEach(elem => {
         this.topic(elem.topic)[elem.action](elem.data)
@@ -54,11 +54,11 @@ class RabbitPubsub extends Pubsub {
 
   }
 
-  _addCache(topic, action, data, options) {
+  _addCache(topic, action, data) {
     if (action === ACTION_PUBLISH) {
       this._publicationsBuffer.push({ topic, action, data });
     } else if (action === ACTION_SUBSCRIBE) {
-      this._subscriptionsCache.push({ topic, action, data, options });
+      this._subscriptionsCache.push({ topic, action, data });
     }
   }
 
@@ -66,20 +66,16 @@ class RabbitPubsub extends Pubsub {
     this._subscriptionsCache = this._subscriptionsCache.filter(subscription => (subscription.action !== ACTION_SUBSCRIBE || subscription.data !== handler));
   }
 
-  _subscribeToClient(topic, handler, options = {}) {
-    logger.debug(`${this.name} /SUBSCRIBE to ${topic} with options ${JSON.stringify(options)}`);
-
-    if (options.durable) {
-      return this.client.subscribeToDurableQueue(topic, topic, handler);
-    }
+  _subscribeToClient(topic, handler) {
+    logger.debug(this.name + '/SUBSCRIBE to', topic);
 
     return this.client.subscribe(topic, handler);
   }
 
   _createInterface(topic) {
     return {
-      subscribe: (handler, options = {}) => {
-        this._addCache(topic, ACTION_SUBSCRIBE, handler, options);
+      subscribe: handler => {
+        this._addCache(topic, ACTION_SUBSCRIBE, handler);
 
         if (!this.client) {
           return Q(resolve => {
@@ -87,7 +83,7 @@ class RabbitPubsub extends Pubsub {
           });
         }
 
-        return this._subscribeToClient(topic, handler, options);
+        return this._subscribeToClient(topic, handler);
       },
       unsubscribe: handler => {
         this._removeSubscriptionFromCache(topic, handler);
