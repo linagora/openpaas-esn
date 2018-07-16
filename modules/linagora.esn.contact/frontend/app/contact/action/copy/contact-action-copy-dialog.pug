@@ -7,7 +7,10 @@
         .modal-body
           .text-center(ng-if='!$ctrl.availableAddressbookDisplayShells', openpaas-logo-spinner, spinner-start-active='1', spinner-size='0.3')
           div(ng-if='$ctrl.availableAddressbookDisplayShells')
-            span #{__('Select destination address book:')}
+            span #{__("Create a new contact with the same information as the selected contact.")}
+            br
+            br
+            h5 #{__('Select destination address book:')}
             .select
               select.form-control.floating-label(
                 type='text',

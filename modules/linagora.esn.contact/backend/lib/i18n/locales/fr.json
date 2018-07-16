@@ -121,5 +121,6 @@
   "Import contacts from a vCard file (.vcf) to one of your address books.": "Importer des contacts depuis un fichier vCard (.vcf) dans un de vos carnets d'adresses.",
   "Submitting importing contacts request...": "Soumettre la requête pour importer les contacts...",
   "Request submitted": "La requête est soumise",
-  "Failed to submit request": "Impossible de soumettre la requête"
+  "Failed to submit request": "Impossible de soumettre la requête",
+  "Create a new contact with the same information as the selected contact.": "Créez un contact avec les mêmes informations que le contact sélectionné."
 }
