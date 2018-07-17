@@ -121,5 +121,6 @@
   "Import contacts from a vCard file (.vcf) to one of your address books.": "Nhập liên lạc từ tệp vCard (.vcf) vào sổ địa chỉ của bạn.",
   "Submitting importing contacts request...": "Đang gửi yêu cầu nhập liên lạc...",
   "Request submitted": "Yêu cầu đã được gửi",
-  "Failed to submit request": "Không thể gửi yêu cầu"
+  "Failed to submit request": "Không thể gửi yêu cầu",
+  "Create a new contact with the same information as the selected contact.": "Tạo liên lạc mới với cùng thông tin như liên lạc đã chọn."
 }
