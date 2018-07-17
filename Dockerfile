@@ -5,7 +5,7 @@
 # docker build -t linagora/esn .
 #
 
-FROM linagora/esn-base:latest
+FROM linagora/esn-base:1.1
 MAINTAINER Linagora Folks
 
 COPY . /var/www
