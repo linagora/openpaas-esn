@@ -185,34 +185,6 @@ describe('The ContactListController controller', function() {
     });
   });
 
-  it('should remove contact from list if a contact is moved to another addressbook', function() {
-    var currentAddressbooks = [{ bookName: 'contacts' }];
-    var contact = {
-      id: '123456',
-      addressbook: {
-        bookName: 'new-addressbook'
-      },
-      lastName: 'toto'
-    };
-
-    contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when(currentAddressbooks));
-    var AlphaCategoryService = function() {
-      return {
-        removeItemWithId: function(contactId) {
-          expect(contactId).to.equal(contact.id);
-        },
-        init: function() {},
-        addItems: function() {},
-        get: function() {}
-      };
-    };
-
-    initController(AlphaCategoryService);
-
-    $rootScope.$broadcast(CONTACT_EVENTS.UPDATED, contact);
-    $rootScope.$digest();
-  });
-
   it('should display contacts as list by default', inject(function(CONTACT_LIST_DISPLAY) {
     $controller('ContactListController', {
       $scope: scope,
@@ -572,41 +544,6 @@ describe('The ContactListController controller', function() {
     $rootScope.$digest();
     $timeout.flush();
     expect(replaceItemMock).to.have.been.calledWith(contact);
-  });
-
-  it('should remove the contact in the contacts list of old addressbook after moved to new addressbook', function(done) {
-    var userId = '123';
-    var currentAddressbooks = [{ bookId: userId, bookName: 'oldBookName' }];
-    var contact = {
-      id: '123456',
-      lastName: 'Last',
-      addressbook: {
-        bookId: userId,
-        bookName: 'newBookName'
-      }
-    };
-
-    $controller('ContactListController', {
-      $scope: scope,
-      user: {
-        _id: userId
-      },
-      addressbooks: currentAddressbooks,
-      AlphaCategoryService: function() {
-        return {
-          removeItemWithId: function(contactId) {
-            expect(contactId).to.equal(contact.id);
-
-            done();
-          },
-          init: function() {}
-        };
-      }
-    });
-
-    $rootScope.$broadcast(CONTACT_EVENTS.UPDATED, contact);
-    $rootScope.$digest();
-    $timeout.flush();
   });
 
   it('should store contact id in contactUpdatedIds on CONTACT_EVENTS.UPDATED event', function(done) {

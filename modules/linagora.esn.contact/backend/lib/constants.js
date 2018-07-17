@@ -11,11 +11,15 @@ module.exports = {
     ADDRESSBOOK_DELETED: 'contacts:addressbook:deleted',
     ADDRESSBOOK_SUBSCRIPTION_DELETED: 'contacts:addressbook:subscription:deleted'
   },
+  ELASTICSEARCH_EVENTS: {
+    CONTACT_ADDED: 'elasticsearch:contact:added',
+    CONTACT_UPDATED: 'elasticsearch:contact:updated',
+    CONTACT_DELETED: 'elasticsearch:contact:deleted'
+  },
   GLOBAL_PUBSUB_EVENTS: {
     SABRE: {
       CONTACT_CREATED: 'sabre:contact:created',
       CONTACT_UPDATED: 'sabre:contact:updated',
-      CONTACT_MOVED: 'sabre:contact:moved',
       CONTACT_DELETED: 'sabre:contact:deleted',
       ADDRESSBOOK_DELETED: 'sabre:addressbook:deleted',
       ADDRESSBOOK_SUBSCRIPTION_DELETED: 'sabre:addressbook:subscription:deleted'

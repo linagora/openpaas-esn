@@ -1,23 +1,20 @@
-'use strict';
+const { ELASTICSEARCH_EVENTS, SEARCH } = require('../constants');
+const denormalize = require('./denormalize');
 
-var CONSTANTS = require('../constants');
-var denormalize = require('./denormalize');
-
-module.exports = function(dependencies) {
-
-  var listeners = dependencies('elasticsearch').listeners;
+module.exports = dependencies => {
+  const listeners = dependencies('elasticsearch').listeners;
 
   function getOptions() {
     return {
       events: {
-        add: CONSTANTS.NOTIFICATIONS.CONTACT_ADDED,
-        update: CONSTANTS.NOTIFICATIONS.CONTACT_UPDATED,
-        remove: CONSTANTS.NOTIFICATIONS.CONTACT_DELETED
+        add: ELASTICSEARCH_EVENTS.CONTACT_ADDED,
+        update: ELASTICSEARCH_EVENTS.CONTACT_UPDATED,
+        remove: ELASTICSEARCH_EVENTS.CONTACT_DELETED
       },
       denormalize: denormalize.denormalize,
       getId: denormalize.getId,
-      type: CONSTANTS.SEARCH.TYPE_NAME,
-      index: CONSTANTS.SEARCH.INDEX_NAME
+      type: SEARCH.TYPE_NAME,
+      index: SEARCH.INDEX_NAME
     };
   }
 

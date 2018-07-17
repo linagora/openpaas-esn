@@ -206,7 +206,7 @@ describe('The addressbooks dav proxy', function() {
             done = expectedSize;
             expectedSize = 1;
           }
-          localpubsub.topic('contacts:contact:add').publish(contact);
+          localpubsub.topic('elasticsearch:contact:added').publish(contact);
           var self = this;
           this.helpers.api.loginAsUser(this.app, user.emails[0], password, function(err, requestAsMember) {
             if (err) {
@@ -982,8 +982,8 @@ describe('The addressbooks dav proxy', function() {
           };
 
           this.helpers.elasticsearch.saveTestConfiguration(this.helpers.callbacks.noError(done));
-          localpubsub.topic('contacts:contact:add').publish(contact1);
-          localpubsub.topic('contacts:contact:add').publish(contact2);
+          localpubsub.topic('elasticsearch:contact:added').publish(contact1);
+          localpubsub.topic('elasticsearch:contact:added').publish(contact2);
         });
 
         it('should respond 403 if user try to use others\' bookHome', function(done) {
@@ -1222,7 +1222,7 @@ describe('The addressbooks dav proxy', function() {
             id: '5acb4d8d458d4c3e008b4567'
           };
 
-          localpubsub.topic('contacts:contact:add').publish(contact3);
+          localpubsub.topic('elasticsearch:contact:added').publish(contact3);
 
           dav.get(`/addressbooks/${user.id}.json`, (req, res) => res.status(200).json({
               _embedded: {
