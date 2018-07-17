@@ -120,5 +120,16 @@ describe('The contactAvatarService service', function() {
       contactAvatarService.injectTextAvatar(contact);
       expect(contact.photo).to.equal(photo);
     });
+
+    it('should update photo with avatar url of the source addressbook if addressbook is a subscription', function() {
+      contact.addressbook.isSubscription = true;
+      contact.addressbook.source = {
+        bookId: 'sourceABId',
+        bookName: 'sourceABName'
+      };
+
+      contactAvatarService.injectTextAvatar(contact);
+      expect(contact.photo).to.equal('/contact/api/contacts/sourceABId/sourceABName/contactId/avatar');
+    });
   });
 });
