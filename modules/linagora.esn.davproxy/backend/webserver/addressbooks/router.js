@@ -174,7 +174,6 @@ module.exports = function(dependencies) {
   );
 
   /**
-   * @swagger
    * /addressbooks/{bookHome}/{bookName}/{contactId}.vcf:
    *   move:
    *     tags:
