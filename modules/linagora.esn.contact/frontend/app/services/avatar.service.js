@@ -36,7 +36,11 @@
 
     function injectTextAvatar(contact) {
       if (!contact.photo) {
-        contact.photo = buildTextAvatarUrl(contact.addressbook.bookId, contact.addressbook.bookName, contact.id);
+        if (contact.addressbook.isSubscription) {
+          contact.photo = buildTextAvatarUrl(contact.addressbook.source.bookId, contact.addressbook.source.bookName, contact.id);
+        } else {
+          contact.photo = buildTextAvatarUrl(contact.addressbook.bookId, contact.addressbook.bookName, contact.id);
+        }
 
         if (contact.vcard) {
           contact.vcard.updatePropertyWithValue('photo', contact.photo);

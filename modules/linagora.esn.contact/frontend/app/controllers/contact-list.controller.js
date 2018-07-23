@@ -213,13 +213,9 @@
       }
       if ($scope.contactSearch.searchInput) { return; }
 
-      if (_inAllContacts() || _contactBelongsCurrentAddressbook(data)) {
-        $scope.$applyAsync(function() {
-          $scope.categories.replaceItem(fillRequiredContactInformation(data));
-        });
-      } else if (!_contactBelongsCurrentAddressbook(data)) {
-        $scope.categories.removeItemWithId(data.id);
-      }
+      $scope.$applyAsync(function() {
+        $scope.categories.replaceItem(fillRequiredContactInformation(data));
+      });
     });
 
     $scope.$on(CONTACT_EVENTS.DELETED, function(e, contact) {

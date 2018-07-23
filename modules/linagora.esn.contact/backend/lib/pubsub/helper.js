@@ -1,16 +1,16 @@
 module.exports = {
   parseAddressbookPath,
-  parseCardPath,
+  parseContactPath,
   parseOwner
 };
 
 function parseAddressbookPath(path) {
-  // a path is in form of addressbooks/<Book Home>/<Book Name>
+  // a path is in form of addressbooks/<Book Id>/<Book Name>
   const match = String(path).match(/addressbooks\/(.*?)\/(.*?)$/);
 
   if (match) {
     return {
-      bookHome: match[1],
+      bookId: match[1],
       bookName: match[2]
     };
   }
@@ -18,15 +18,15 @@ function parseAddressbookPath(path) {
   return {};
 }
 
-function parseCardPath(path) {
-  // a path is in form of addressbooks/<Book Home>/<Book Name>/<Card ID>.vcf
+function parseContactPath(path) {
+  // a path is in form of addressbooks/<Book Id>/<Book Name>/<Contact ID>.vcf
   const match = String(path).match(/addressbooks\/(.*?)\/(.*?)\/(.*?)\.vcf/);
 
   if (match) {
     return {
-      bookHome: match[1],
+      bookId: match[1],
       bookName: match[2],
-      cardId: match[3]
+      contactId: match[3]
     };
   }
 
