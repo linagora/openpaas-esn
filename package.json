@@ -167,7 +167,7 @@
     "karma-script-launcher": "1.0.0",
     "karma-spec-reporter": "0.0.26",
     "ldapjs": "1.0.0",
-    "mocha": "3.1.2",
+    "mocha": "5.2.0",
     "mockery": "1.7.0",
     "nodemailer-browser": "0.1.0",
     "nodemailer-pickup-transport": "0.1.1",
