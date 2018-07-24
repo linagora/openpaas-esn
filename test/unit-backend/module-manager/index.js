@@ -80,6 +80,7 @@ describe('The module manager', function() {
         'linagora.esn.core.like',
         'linagora.esn.core.logger',
         'linagora.esn.core.message',
+        'linagora.esn.core.messaging',
         'linagora.esn.core.models',
         'linagora.esn.core.monitoring',
         'linagora.esn.core.notification',
