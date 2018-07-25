@@ -35,10 +35,9 @@ services:
     environment:
       - ESN_MONGO_DBNAME=esn
       - ESN_HOST=${ESN_HOST}
-      - XDEBUG_CONFIG="remote_host=${ESN_HOST}"
     volumes:
       - ${ESN_SABRE_PATH}:/var/www/
-      - ${ESN_SABRE_PATH}/config/20-xdebug.ini:/etc/php5/fpm/conf.d/20-xdebug.ini
+      - ${ESN_SABRE_PATH}/config/20-xdebug.ini:/etc/php/7.0/fpm/conf.d/20-xdebug.ini
 
   james:
     extends:

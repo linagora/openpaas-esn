@@ -130,8 +130,7 @@ The image `dev_sabre_1` has xdebug installed on it. Here is a small tutorial on 
     "type": "php",
     "request": "launch",
     "port": 9000,
-    "localSourceRoot": "${workspaceRoot}",
-    "serverSourceRoot": "/var/www"
+    "pathMappings": {"/var/www": "${workspaceRoot}"}
  }
 ```
 
