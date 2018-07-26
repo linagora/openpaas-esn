@@ -284,5 +284,6 @@ module.exports = {
   domain: require('./domain'),
   follow: require('./follow'),
   login: require('./login'),
-  denormalize: require('./denormalize')
+  denormalize: require('./denormalize'),
+  states: require('./states')
 };
