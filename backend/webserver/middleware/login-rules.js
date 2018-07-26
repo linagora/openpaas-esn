@@ -1,8 +1,9 @@
 'use strict';
 
 var userlogin = require('../../core/user/login');
-var user = require('../../core/user');
+var userModule = require('../../core/user');
 var logger = require('../../core/logger');
+const { USER_ACTIONS } = require('../../core/user/constants');
 
 function userError(req, res, err) {
   logger.error('Error while searching user ' + req.body.username, err.message);
@@ -16,7 +17,7 @@ module.exports.checkLoginCount = function(req, res, next) {
     return next();
   }
 
-  user.findByEmail(username, function(err, user) {
+  userModule.findByEmail(username, function(err, user) {
     if (err) {
       return userError(req, res, err);
     }
@@ -46,7 +47,7 @@ function checkDisabled(req, res, next) {
     return next();
   }
 
-  user.findByEmail(username, function(err, user) {
+  userModule.findByEmail(username, function(err, user) {
     if (err) {
       return userError(req, res, err);
     }
@@ -55,7 +56,7 @@ function checkDisabled(req, res, next) {
       return next();
     }
 
-    if (user.login.disabled) {
+    if (!userModule.states.isEnabled(user, USER_ACTIONS.login)) {
       return res.status(403).json({error: {code: 403, message: 'Forbidden', details: 'The specified account is disabled'}});
     }
 

@@ -276,7 +276,12 @@ describe('The login-rules middleware', function() {
     mockery.registerMock('../../core/user/login', {});
     mockery.registerMock('../../core/user', {
       findByEmail: function(email, callback) {
-        return callback(null, {login: {disabled: true}});
+        return callback(null, { states: [{ name: 'login', value: 'disabled' }] });
+      },
+      states: {
+        isEnabled: function() {
+          return false;
+        }
       }
     });
 
@@ -295,7 +300,12 @@ describe('The login-rules middleware', function() {
     mockery.registerMock('../../core/user/login', {});
     mockery.registerMock('../../core/user', {
       findByEmail: function(email, callback) {
-        return callback(null, {login: {disabled: false}});
+        return callback(null, { states: [{ name: 'login', value: 'enabled' }] });
+      },
+      states: {
+        isEnabled: function() {
+          return true;
+        }
       }
     });
 

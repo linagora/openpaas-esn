@@ -1,7 +1,6 @@
 'use strict';
 
-var chai = require('chai');
-var expect = chai.expect;
+const expect = require('chai').expect;
 
 describe('The user states module', function() {
 
@@ -13,15 +12,15 @@ describe('The user states module', function() {
       };
       const module = this.helpers.requireBackend('core/user/states');
 
-      expect(module.isEnabled(user, 'login')).to.equal(false);
-      expect(module.isEnabled(user, 'search')).to.equal(true);
+      expect(module.isEnabled(user, 'login')).to.be.false;
+      expect(module.isEnabled(user, 'search')).to.be.true;
     });
 
     it('should return true if the user states does not exist', function() {
       const user = { _id: 2 };
       const module = this.helpers.requireBackend('core/user/states');
 
-      expect(module.isEnabled(user, 'login')).to.equal(true);
+      expect(module.isEnabled(user, 'login')).to.be.true;
     });
   });
 
