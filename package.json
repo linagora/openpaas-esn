@@ -95,7 +95,7 @@
     "passport-twitter": "1.0.4",
     "path-is-absolute": "1.0.0",
     "pug": "2.0.0-rc.3",
-    "q": "1.4.1",
+    "q": "1.5.1",
     "randomstring": "1.1.5",
     "recaptcha": "1.2.1",
     "redis": "2.6.2",
