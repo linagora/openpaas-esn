@@ -7,7 +7,7 @@ const memberResolver = require('./member/resolver');
 const memberDenormalize = require('./member/denormalize');
 
 const member = require('./member')({isCollaboration, getModel, getLib, queryOne});
-const permission = require('./permission')(member);
+const permission = require('./permission')(member, { getLib });
 const usernotification = require('./usernotification')({member});
 
 const collaborationModels = {};

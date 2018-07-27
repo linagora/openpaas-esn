@@ -3,11 +3,12 @@
 const async = require('async');
 const CONSTANTS = require('./constants');
 
-module.exports = function(memberModule) {
+module.exports = (memberModule, collaborationModule) => {
   return {
     canFind,
     canRead,
     canWrite,
+    canLeave,
     filterWritable
   };
 
@@ -60,6 +61,24 @@ module.exports = function(memberModule) {
     }
 
     return memberModule.isIndirectMember(collaboration, tuple, callback);
+  }
+
+  function canLeave(collaboration, tuple, callback) {
+    // check canLeave of registered permission firstly
+    const lib = collaborationModule.getLib(collaboration.objectType);
+
+    if (lib && lib.permission && lib.permission.canLeave) {
+      return lib.permission.canLeave(tuple.id, collaboration)
+        .then(canLeave => callback(null, canLeave))
+        .catch(callback);
+    }
+
+    // Default rule if not registered: Creator can not leave collaboration
+    if (String(tuple.id) === String(collaboration.creator)) {
+      return callback(null, false);
+    }
+
+    return callback(null, true);
   }
 
   function filterWritable(collaborations, tuple, callback) {

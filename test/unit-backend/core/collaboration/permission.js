@@ -5,14 +5,15 @@ const sinon = require('sinon');
 
 describe('The Collaboration permission module', function() {
 
-  let lib;
+  let lib, collaborationModuleMock;
 
   beforeEach(function() {
     lib = {
     };
+    collaborationModuleMock = {};
 
     this.getModule = function() {
-      return this.helpers.requireBackend('core/collaboration/permission')(lib);
+      return this.helpers.requireBackend('core/collaboration/permission')(lib, collaborationModuleMock);
     };
   });
 
@@ -155,6 +156,50 @@ describe('The Collaboration permission module', function() {
       module.canWrite({type: 'confidential'}, {}, function(err, result) {
         expect(err).to.not.exist;
         expect(lib.isIndirectMember).to.have.been.called;
+        expect(result).to.be.true;
+        done();
+      });
+    });
+  });
+
+  describe('The canLeave function', function() {
+    it('should fail if creator want to leave collaboration', function(done) {
+      const module = this.getModule();
+
+      collaborationModuleMock.getLib = () => {};
+
+      module.canLeave({ creator: 'creatorId' }, { id: 'creatorId' }, (err, result) => {
+        expect(err).to.not.exist;
+        expect(result).to.be.false;
+        done();
+      });
+    });
+
+    it('should return the result of registered canLeave permission of collaboration', function(done) {
+      const module = this.getModule();
+      const objectType = 'foobar';
+
+      collaborationModuleMock.getLib = sinon.spy(() => ({
+        permission: {
+          canLeave: sinon.stub().returns(Promise.resolve(false))
+        }
+      }));
+
+      module.canLeave({ creator: 'creatorId', objectType }, { id: 'userId' }, function(err, result) {
+        expect(err).to.not.exist;
+        expect(collaborationModuleMock.getLib).to.have.been.calledWith(objectType);
+        expect(result).to.be.false;
+        done();
+      });
+    });
+
+    it('should true if member want to leave collaboration', function(done) {
+      const module = this.getModule();
+
+      collaborationModuleMock.getLib = () => {};
+
+      module.canLeave({ creator: 'creatorId' }, { id: 'userId' }, (err, result) => {
+        expect(err).to.not.exist;
         expect(result).to.be.true;
         done();
       });
