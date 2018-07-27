@@ -190,7 +190,7 @@ angular.module('esn.ui', [
   .directive('esnModalLauncher', function($modal) {
     function link(scope, element, attrs) {
       var templateUrl = attrs.esnModalLauncher;
-      var options = ['animation', 'backdropAnimation', 'placement', 'backdrop', 'container', 'controller', 'controllerAs'];
+      var options = ['animation', 'backdropAnimation', 'placement', 'backdrop', 'container', 'controller', 'controllerAs', 'locals'];
       var modalOptions = {
         templateUrl: templateUrl,
         placement: 'center',
@@ -199,7 +199,11 @@ angular.module('esn.ui', [
 
       options.forEach(function(option) {
         if (attrs.hasOwnProperty(option)) {
-          modalOptions[option] = attrs[option];
+          if (option === 'locals') {
+            modalOptions[option] = JSON.parse(attrs[option]);
+          } else {
+            modalOptions[option] = attrs[option];
+          }
         }
       });
 

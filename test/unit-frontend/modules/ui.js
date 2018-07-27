@@ -461,6 +461,28 @@ describe('The UI module', function() {
       });
     });
 
+    it('should open modal with locals option when click on the element', function() {
+      initDirective([
+        '<div esn-modal-launcher="/path/to/template"',
+        'locals=\'{"injectedObject":{"attribute":123}}\'',
+        '></div>'
+      ].join(' '));
+
+      element.click();
+
+      expect(modalMock).to.have.been.calledOnce;
+      expect(modalMock).to.have.been.calledWith({
+        templateUrl: '/path/to/template',
+        placement: 'center',
+        scope: sinon.match.object,
+        locals: {
+          injectedObject: {
+            attribute: 123
+          }
+        }
+      });
+    });
+
     it('should not call event.stopPropagation on click by default', function() {
       $scope.spy = sinon.spy();
 
