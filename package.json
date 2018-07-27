@@ -102,7 +102,7 @@
     "request": "2.87.0",
     "showdown": "1.6.4",
     "socket.io": "1.2.1",
-    "superagent": "2.2.0",
+    "superagent": "3.8.3",
     "tar": "2.2.1",
     "toobusy-js": "0.5.1",
     "trim": "0.0.1",
