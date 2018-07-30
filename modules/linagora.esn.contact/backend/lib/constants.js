@@ -8,6 +8,7 @@ module.exports = {
     CONTACT_ADDED: 'contacts:contact:add',
     CONTACT_UPDATED: 'contacts:contact:update',
     CONTACT_DELETED: 'contacts:contact:delete',
+    ADDRESSBOOK_CREATED: 'contacts:addressbook:created',
     ADDRESSBOOK_DELETED: 'contacts:addressbook:deleted',
     ADDRESSBOOK_SUBSCRIPTION_DELETED: 'contacts:addressbook:subscription:deleted'
   },
@@ -21,6 +22,7 @@ module.exports = {
       CONTACT_CREATED: 'sabre:contact:created',
       CONTACT_UPDATED: 'sabre:contact:updated',
       CONTACT_DELETED: 'sabre:contact:deleted',
+      ADDRESSBOOK_CREATED: 'sabre:addressbook:created',
       ADDRESSBOOK_DELETED: 'sabre:addressbook:deleted',
       ADDRESSBOOK_SUBSCRIPTION_DELETED: 'sabre:addressbook:subscription:deleted'
     }
