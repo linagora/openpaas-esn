@@ -12,7 +12,6 @@ const DEFAULT_OPTIONS = {
   includeIsFollowing: false,
   includeFollow: false,
   includeIsPlatformAdmin: false,
-  includeState: false,
   includeConfigurations: false,
   includePrivateData: false
 };
@@ -28,7 +27,6 @@ function denormalize(user, options = DEFAULT_OPTIONS) {
     .then(sanitized => (finalOptions.includeIsFollowing ? setIsFollowing(sanitized, finalOptions.user) : sanitized))
     .then(sanitized => (finalOptions.includeFollow ? follow(sanitized) : sanitized))
     .then(sanitized => (finalOptions.includeIsPlatformAdmin ? setIsPlatformAdmin(user, sanitized) : sanitized))
-    .then(sanitized => (finalOptions.includeState ? setState(user, sanitized) : sanitized))
     .then(sanitized => (finalOptions.includeConfigurations ? loadConfigurations(user, sanitized) : sanitized));
 }
 
@@ -75,12 +73,6 @@ function setIsFollowing(user, loggedUser) {
   }, function() {
     return user;
   });
-}
-
-function setState(user, sanitized) {
-  sanitized.disabled = !!user.login.disabled;
-
-  return q(sanitized);
 }
 
 function loadConfigurations(user, sanitized) {

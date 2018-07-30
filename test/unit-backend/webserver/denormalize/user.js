@@ -76,31 +76,6 @@ describe('The webserver user denormalizer', function() {
       });
     });
 
-    it('should set the login status', function() {
-
-      mockery.registerMock('../../core/user/follow', {
-        isFollowedBy: function() {
-          return q(true);
-        },
-        getUserStats: function() {
-          return q({});
-        }
-      });
-
-      mockery.registerMock('../../core/platformadmin', {
-        isPlatformAdmin: function() {
-          return q(false);
-        }
-      });
-
-      const user = {login: {disabled: true}};
-      const module = this.helpers.requireBackend('webserver/denormalize/user');
-
-      module.denormalize(user, {}).then(function(result) {
-        expect(result.disabled).to.be.true;
-      });
-    });
-
     it('should set isPlatformAdmin to check if user is platform admin', function(done) {
       const isPlatformAdmin = true;
       const user = { login: {} };

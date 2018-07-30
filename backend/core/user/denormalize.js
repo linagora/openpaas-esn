@@ -9,6 +9,7 @@ const publicKeys = [
   'preferredEmail',
   'emails',
   'domains',
+  'states',
   'avatars',
   'job_title',
   'service',

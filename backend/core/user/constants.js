@@ -10,6 +10,13 @@ module.exports = {
     userDeleted: 'users:user:delete',
     userDisabled: 'users:user:disable'
   },
+  USER_ACTIONS: {
+    login: 'login'
+  },
+  USER_ACTION_STATES: {
+    disabled: 'disabled',
+    enabled: 'enabled'
+  },
   ELASTICSEARCH: {
     type: 'users',
     index: 'users.idx'

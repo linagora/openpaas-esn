@@ -187,7 +187,7 @@ describe('The login API', function() {
     });
   });
 
-  it('should not be able to login when user is disabled', function(done) {
+  it('should not be able to login when user login action is disabled', function(done) {
 
     var User = this.mongoose.model('User');
     User.loadFromEmail(email, function(err, currentUser) {
@@ -195,7 +195,7 @@ describe('The login API', function() {
         return done(err);
       }
 
-      currentUser.login = { disabled: true };
+      currentUser.states = [{ name: 'login', value: 'disabled' }];
       currentUser.save(function(err) {
         if (err) {
           return done(err);
