@@ -1,112 +1,28 @@
-'use strict';
+const CONSTANTS = require('../lib/constants');
+const NAMESPACE = '/contacts';
+let initialized = false;
+let contactNamespace;
 
-var CONSTANTS = require('../lib/constants');
-var initialized = false;
-var NAMESPACE = '/contacts';
-var contactNamespace;
+module.exports = {
+  init
+};
 
 function init(dependencies) {
-  var logger = dependencies('logger');
-  var pubsub = dependencies('pubsub').local;
-  var io = dependencies('wsserver').io;
-
-  function shouldSkipNotification(data) {
-    return data && data.mode && data.mode && data.mode === CONSTANTS.MODE.IMPORT;
-  }
-
-  function synchronizeContactLists(event, data) {
-    if (contactNamespace) {
-      contactNamespace.to(data.bookId).emit(event, {
-        room: data.bookId,
-        data: data
-      });
-    }
-  }
+  const logger = dependencies('logger');
+  const pubsub = dependencies('pubsub').local;
+  const io = dependencies('wsserver').io;
 
   if (initialized) {
     logger.warn('The contact notification service is already initialized');
+
     return;
   }
 
-  pubsub.topic(CONSTANTS.NOTIFICATIONS.CONTACT_DELETED).subscribe(function(data) {
-    if (shouldSkipNotification(data)) {
-      return logger.info('Contact delete notification is skipped');
-    }
-
-    if (data && data.bookId && data.bookName && data.contactId) {
-      logger.info('Notifying contact delete');
-      synchronizeContactLists('contact:deleted', {
-        bookId: data.bookId,
-        bookName: data.bookName,
-        contactId: data.contactId
-      });
-    } else {
-      logger.warn('Not well-formed data on', CONSTANTS.NOTIFICATIONS.CONTACT_DELETED, 'pubsub event');
-    }
-
-  });
-
-  pubsub.topic(CONSTANTS.NOTIFICATIONS.CONTACT_UPDATED).subscribe(function(data) {
-
-    if (shouldSkipNotification(data)) {
-      return logger.info('Contact update notification is skipped');
-    }
-
-    if (data && data.bookId && data.bookName && data.contactId) {
-      logger.info('Notifying contact update');
-      synchronizeContactLists('contact:updated', {
-        bookId: data.bookId,
-        bookName: data.bookName,
-        contactId: data.contactId
-      });
-    } else {
-      logger.warn('Not well-formed data on', CONSTANTS.NOTIFICATIONS.CONTACT_UPDATED, 'pubsub event');
-    }
-  });
-
-  pubsub.topic(CONSTANTS.NOTIFICATIONS.CONTACT_ADDED).subscribe(function(data) {
-    if (shouldSkipNotification(data)) {
-      return logger.info('Contact add notification is skipped');
-    }
-
-    if (data && data.bookId && data.bookName && data.vcard) {
-      logger.info('Notifying contact creation');
-      synchronizeContactLists('contact:created', {
-        bookId: data.bookId,
-        bookName: data.bookName,
-        vcard: data.vcard
-      });
-    } else {
-      logger.warn('Not well-formed data on', CONSTANTS.NOTIFICATIONS.CONTACT_ADDED, 'pubsub event');
-    }
-
-  });
-
-  pubsub.topic(CONSTANTS.NOTIFICATIONS.ADDRESSBOOK_DELETED).subscribe(data => {
-    if (data && data.bookId && data.bookName) {
-      logger.info('Notifying address book deleted');
-
-      synchronizeContactLists('contact:addressbook:deleted', {
-        bookId: data.bookId,
-        bookName: data.bookName
-      });
-    } else {
-      logger.warn('Not well-formed data on', CONSTANTS.NOTIFICATIONS.ADDRESSBOOK_DELETED, 'pubsub event');
-    }
-  });
-
-  pubsub.topic(CONSTANTS.NOTIFICATIONS.ADDRESSBOOK_SUBSCRIPTION_DELETED).subscribe(data => {
-    if (data && data.bookId && data.bookName) {
-      logger.info('Notifying address book subscription deleted');
-
-      synchronizeContactLists('contact:addressbook:subscription:deleted', {
-        bookId: data.bookId,
-        bookName: data.bookName
-      });
-    } else {
-      logger.warn('Not well-formed data on', CONSTANTS.NOTIFICATIONS.ADDRESSBOOK_SUBSCRIPTION_DELETED, 'pubsub event');
-    }
-  });
+  pubsub.topic(CONSTANTS.NOTIFICATIONS.CONTACT_DELETED).subscribe(_onContactDeleted);
+  pubsub.topic(CONSTANTS.NOTIFICATIONS.CONTACT_UPDATED).subscribe(_onContactUpdated);
+  pubsub.topic(CONSTANTS.NOTIFICATIONS.CONTACT_ADDED).subscribe(_onContactAdded);
+  pubsub.topic(CONSTANTS.NOTIFICATIONS.ADDRESSBOOK_DELETED).subscribe(_onAddressbookDeleted);
+  pubsub.topic(CONSTANTS.NOTIFICATIONS.ADDRESSBOOK_SUBSCRIPTION_DELETED).subscribe(_onAddressbookSubscriptionDeleted);
 
   contactNamespace = io.of(NAMESPACE);
   contactNamespace.on('connection', function(socket) {
@@ -124,6 +40,96 @@ function init(dependencies) {
   });
 
   initialized = true;
-}
 
-module.exports.init = init;
+  ///////////////////////////////
+
+  function _synchronizeContactLists(event, data) {
+    if (contactNamespace) {
+      contactNamespace.to(data.bookId).emit(event, {
+        room: data.bookId,
+        data: data
+      });
+    }
+  }
+
+  function _shouldSkipNotification(data) {
+    return data && data.mode === CONSTANTS.MODE.IMPORT;
+  }
+
+  function _onContactDeleted(data) {
+    if (_shouldSkipNotification(data)) {
+      return logger.info('Contact delete notification is skipped');
+    }
+
+    if (data && data.bookId && data.bookName && data.contactId) {
+      logger.info('Notifying contact delete');
+      _synchronizeContactLists('contact:deleted', {
+        bookId: data.bookId,
+        bookName: data.bookName,
+        contactId: data.contactId
+      });
+    } else {
+      logger.warn('Not well-formed data on', CONSTANTS.NOTIFICATIONS.CONTACT_DELETED, 'pubsub event');
+    }
+  }
+
+  function _onContactUpdated(data) {
+    if (_shouldSkipNotification(data)) {
+      return logger.info('Contact update notification is skipped');
+    }
+
+    if (data && data.bookId && data.bookName && data.contactId) {
+      logger.info('Notifying contact update');
+      _synchronizeContactLists('contact:updated', {
+        bookId: data.bookId,
+        bookName: data.bookName,
+        contactId: data.contactId
+      });
+    } else {
+      logger.warn('Not well-formed data on', CONSTANTS.NOTIFICATIONS.CONTACT_UPDATED, 'pubsub event');
+    }
+  }
+
+  function _onContactAdded(data) {
+    if (_shouldSkipNotification(data)) {
+      return logger.info('Contact add notification is skipped');
+    }
+
+    if (data && data.bookId && data.bookName && data.vcard) {
+      logger.info('Notifying contact creation');
+      _synchronizeContactLists('contact:created', {
+        bookId: data.bookId,
+        bookName: data.bookName,
+        vcard: data.vcard
+      });
+    } else {
+      logger.warn('Not well-formed data on', CONSTANTS.NOTIFICATIONS.CONTACT_ADDED, 'pubsub event');
+    }
+  }
+
+  function _onAddressbookDeleted(data) {
+    if (data && data.bookId && data.bookName) {
+      logger.info('Notifying address book deleted');
+
+      _synchronizeContactLists('contact:addressbook:deleted', {
+        bookId: data.bookId,
+        bookName: data.bookName
+      });
+    } else {
+      logger.warn('Not well-formed data on', CONSTANTS.NOTIFICATIONS.ADDRESSBOOK_DELETED, 'pubsub event');
+    }
+  }
+
+  function _onAddressbookSubscriptionDeleted(data) {
+    if (data && data.bookId && data.bookName) {
+      logger.info('Notifying address book subscription deleted');
+
+      _synchronizeContactLists('contact:addressbook:subscription:deleted', {
+        bookId: data.bookId,
+        bookName: data.bookName
+      });
+    } else {
+      logger.warn('Not well-formed data on', CONSTANTS.NOTIFICATIONS.ADDRESSBOOK_SUBSCRIPTION_DELETED, 'pubsub event');
+    }
+  }
+}
