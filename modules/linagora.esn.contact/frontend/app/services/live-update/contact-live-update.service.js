@@ -11,6 +11,7 @@
     contactService,
     ContactShellBuilder,
     contactAvatarService,
+    contactAddressbookService,
     CONTACT_EVENTS,
     CONTACT_WS,
     CONTACT_ADDRESSBOOK_EVENTS
@@ -32,6 +33,7 @@
       sio.on(CONTACT_WS.events.CREATED, onCreate);
       sio.on(CONTACT_WS.events.DELETED, onDelete);
       sio.on(CONTACT_WS.events.UPDATED, onUpdate);
+      sio.on(CONTACT_WS.events.ADDRESSBOOK_CREATED, onAddressbookCreate);
       sio.on(CONTACT_WS.events.ADDRESSBOOK_DELETED, onAddressbookDelete);
       sio.on(CONTACT_WS.events.ADDRESSBOOK_SUBSCRIPTION_DELETED, onAddressbookSubscriptionDelete);
 
@@ -46,6 +48,7 @@
         sio.removeListener(CONTACT_WS.events.CREATED, onCreate);
         sio.removeListener(CONTACT_WS.events.DELETED, onDelete);
         sio.removeListener(CONTACT_WS.events.UPDATED, onUpdate);
+        sio.removeListener(CONTACT_WS.events.ADDRESSBOOK_CREATED, onAddressbookCreate);
         sio.removeListener(CONTACT_WS.events.ADDRESSBOOK_DELETED, onAddressbookDelete);
         sio.removeListener(CONTACT_WS.events.ADDRESSBOOK_SUBSCRIPTION_DELETED, onAddressbookSubscriptionDelete);
       }
@@ -74,6 +77,12 @@
         }, function(err) {
           $log.error('Can not get contact', err);
         });
+    }
+
+    function onAddressbookCreate(data) {
+      contactAddressbookService.getAddressbookByBookName(data.bookName).then(function(createdAddressbook) {
+        $rootScope.$broadcast(CONTACT_ADDRESSBOOK_EVENTS.CREATED, createdAddressbook);
+      });
     }
 
     function onAddressbookDelete(data) {

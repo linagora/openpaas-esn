@@ -6,7 +6,7 @@
 var expect = chai.expect;
 
 describe('The ContactLiveUpdate service', function() {
-  var liveMock, getMock, liveNotificationMock, ContactAPIClientMock, ContactShellBuilderMock, onFn, removeListenerFn, namespace, contactService;
+  var liveMock, getMock, liveNotificationMock, ContactAPIClientMock, ContactShellBuilderMock, onFn, removeListenerFn, namespace, contactService, contactAddressbookService;
   var $rootScope, ContactLiveUpdate, CONTACT_WS, CONTACT_EVENTS, CONTACT_ADDRESSBOOK_EVENTS;
   var session;
   var bookId = 'A bookId';
@@ -74,6 +74,7 @@ describe('The ContactLiveUpdate service', function() {
       _$rootScope_,
       _ContactLiveUpdate_,
       _contactService_,
+      _contactAddressbookService_,
       _CONTACT_WS_,
       _CONTACT_EVENTS_,
       _CONTACT_ADDRESSBOOK_EVENTS_
@@ -85,6 +86,7 @@ describe('The ContactLiveUpdate service', function() {
       namespace = CONTACT_WS.room;
       contactService = _contactService_;
       CONTACT_ADDRESSBOOK_EVENTS = _CONTACT_ADDRESSBOOK_EVENTS_;
+      contactAddressbookService = _contactAddressbookService_;
     });
   });
 
@@ -116,6 +118,11 @@ describe('The ContactLiveUpdate service', function() {
       expect(onFn.thirdCall.calledWith(CONTACT_WS.events.UPDATED)).to.be.true;
     });
 
+    it('should make sio to listen on CONTACT_WS.events.ADDRESSBOOK_CREATED event', function() {
+      ContactLiveUpdate.startListen(bookId);
+      expect(onFn.calledWith(CONTACT_WS.events.ADDRESSBOOK_CREATED)).to.be.true;
+    });
+
     it('should make sio to listen on CONTACT_WS.events.ADDRESSBOOK_DELETED event', function() {
       ContactLiveUpdate.startListen(bookId);
       expect(onFn.calledWith(CONTACT_WS.events.ADDRESSBOOK_DELETED)).to.be.true;
@@ -128,7 +135,7 @@ describe('The ContactLiveUpdate service', function() {
 
     describe('When listening to events', function() {
 
-      var createFn, updateFn, deleteFn, onAddressbookDeleteFn, onAddressbookSubscriptionDeleteFn;
+      var createFn, updateFn, deleteFn, onAddressbookCreateFn, onAddressbookDeleteFn, onAddressbookSubscriptionDeleteFn;
 
       beforeEach(function() {
         onFn = function(event, handler) {
@@ -141,6 +148,9 @@ describe('The ContactLiveUpdate service', function() {
               break;
             case CONTACT_WS.events.DELETED:
               deleteFn = handler;
+              break;
+            case CONTACT_WS.events.ADDRESSBOOK_CREATED:
+              onAddressbookCreateFn = handler;
               break;
             case CONTACT_WS.events.ADDRESSBOOK_DELETED:
               onAddressbookDeleteFn = handler;
@@ -279,6 +289,42 @@ describe('The ContactLiveUpdate service', function() {
         });
       });
 
+      describe('On CONTACT_WS.events.ADDRESSBOOK_CREATED event', function() {
+        it('should not broadcast anything when created address book cannot be loaded', function(done) {
+          var data = { bookId: '1', bookName: '2' };
+
+          contactAddressbookService.getAddressbookByBookName = sinon.stub().returns($q.reject(new Error('Failed')));
+
+          $rootScope.$on(CONTACT_ADDRESSBOOK_EVENTS.CREATED, function() {
+            done(new Error('Should not be called'));
+          });
+
+          ContactLiveUpdate.startListen(bookId);
+          onAddressbookCreateFn(data);
+
+          $rootScope.$digest();
+          expect(contactAddressbookService.getAddressbookByBookName).to.have.been.called.once;
+          done();
+        });
+
+        it('should broadcast address book info to the $rootScope', function(done) {
+          var data = { bookId: '1', bookName: '2' };
+
+          contactAddressbookService.getAddressbookByBookName = sinon.stub().returns($q.when(data));
+
+          $rootScope.$on(CONTACT_ADDRESSBOOK_EVENTS.CREATED, function(event, _data) {
+            expect(_data).to.deep.equal(data);
+            done();
+          });
+
+          ContactLiveUpdate.startListen(bookId);
+          onAddressbookCreateFn(data);
+
+          $rootScope.$digest();
+          done(new Error('Should not be called'));
+        });
+      });
+
       describe('On CONTACT_WS.events.ADDRESSBOOK_DELETED event', function() {
         it('should broadcast address book info to the $rootScope', function(done) {
           var data = { bookId: '1', bookName: '2' };
@@ -339,6 +385,13 @@ describe('The ContactLiveUpdate service', function() {
 
       ContactLiveUpdate.stopListen();
       expect(removeListenerFn.thirdCall.calledWith(CONTACT_WS.events.UPDATED)).to.be.true;
+    });
+
+    it('should make sio to remove CONTACT_WS.events.ADDRESSBOOK_CREATED event listener', function() {
+      ContactLiveUpdate.startListen('bookId');
+
+      ContactLiveUpdate.stopListen();
+      expect(removeListenerFn.calledWith(CONTACT_WS.events.ADDRESSBOOK_CREATED)).to.be.true;
     });
 
     it('should make sio to remove CONTACT_WS.events.ADDRESSBOOK_DELETED event listener', function() {

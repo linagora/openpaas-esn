@@ -12,7 +12,6 @@
     contactAddressbookDisplayService,
     CONTACT_ADDRESSBOOK_EVENTS,
     CONTACT_ADDRESSBOOK_TYPES,
-    CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL,
     CONTACT_SHARING_INVITE_STATUS,
     CONTACT_SHARING_SUBSCRIPTION_TYPE
   ) {
@@ -65,13 +64,7 @@
       return ContactAPIClient
         .addressbookHome(session.user._id)
         .addressbook()
-        .create(addressbook)
-        .then(function(createdAddressbook) {
-          $rootScope.$broadcast(
-            CONTACT_ADDRESSBOOK_EVENTS.CREATED,
-            createdAddressbook
-          );
-        });
+        .create(addressbook);
     }
 
     function removeAddressbook(addressbook) {
