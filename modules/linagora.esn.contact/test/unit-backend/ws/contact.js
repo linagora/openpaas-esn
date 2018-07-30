@@ -4,6 +4,7 @@ const expect = require('chai').expect;
 const CONTACT_ADDED = 'contacts:contact:add';
 const CONTACT_DELETED = 'contacts:contact:delete';
 const CONTACT_UPDATED = 'contacts:contact:update';
+const ADDRESSBOOK_CREATED = 'contacts:addressbook:created';
 const ADDRESSBOOK_DELETED = 'contacts:addressbook:deleted';
 const ADDRESSBOOK_SUBSCRIPTION_DELETED = 'contacts:addressbook:subscription:deleted';
 
@@ -45,6 +46,8 @@ describe('The contact WS events module', function() {
                   self.pubsub_callback_deleted = callback;
                 } else if (topic === CONTACT_UPDATED) {
                   self.pubsub_callback_updated = callback;
+                } else if (topic === ADDRESSBOOK_CREATED) {
+                  self.pubsub_callback_addressbook_created = callback;
                 } else if (topic === ADDRESSBOOK_DELETED) {
                   self.pubsub_callback_addressbook_deleted = callback;
                 } else if (topic === ADDRESSBOOK_SUBSCRIPTION_DELETED) {
@@ -60,6 +63,8 @@ describe('The contact WS events module', function() {
                   self.pubsub_callback_deleted(data);
                 } else if (topic === CONTACT_UPDATED) {
                   self.pubsub_callback_updated(data);
+                } else if (topic === ADDRESSBOOK_CREATED) {
+                  self.pubsub_callback_addressbook_created(data);
                 } else if (topic === ADDRESSBOOK_DELETED) {
                   self.pubsub_callback_addressbook_deleted(data);
                 } else if (topic === ADDRESSBOOK_SUBSCRIPTION_DELETED) {
@@ -138,6 +143,13 @@ describe('The contact WS events module', function() {
       var mod = require(this.moduleHelpers.backendPath + '/ws/contact');
       mod.init(this.moduleHelpers.dependencies);
       expect(this.pubsub_callback_updated).to.be.a('function');
+    });
+
+    it('should register pubsub subscriber for contacts:addressbook:created', function() {
+      const module = require(`${this.moduleHelpers.backendPath}/ws/contact`);
+
+      module.init(this.moduleHelpers.dependencies);
+      expect(this.pubsub_callback_addressbook_created).to.be.a('function');
     });
 
     it('should register pubsub subscriber for contacts:addressbook:deleted', function() {
@@ -356,6 +368,50 @@ describe('The contact WS events module', function() {
         mod.init(this.moduleHelpers.dependencies);
 
         this.pubsub.local.topic(CONTACT_UPDATED).publish(pubsubData);
+      });
+    });
+
+    describe('contacts:addressbook:created subscriber', function() {
+      it('should not publish event when data is undefined', function(done) {
+        this.checkData(null, ADDRESSBOOK_CREATED, done);
+      });
+
+      it('should not publish event when data is empty', function(done) {
+        this.checkData({}, ADDRESSBOOK_CREATED, done);
+      });
+
+      it('should not publish event when bookName is missing', function(done) {
+        this.checkData({ bookId: '123' }, ADDRESSBOOK_CREATED, done);
+      });
+
+      it('should not publish event when bookId is missing', function(done) {
+        this.checkData({ bookName: '123' }, ADDRESSBOOK_CREATED, done);
+      });
+
+      it('should send create event with address book info in websockets when receiving contacts:addressbook.created event from the pubsub', function(done) {
+        const pubsubData = {
+          bookId: '123',
+          bookName: 'name'
+        };
+        const module = require(`${this.moduleHelpers.backendPath}/ws/contact`);
+
+        contactNamespace = {
+          on: () => {},
+          to: roomId => ({
+            emit: (event, data) => {
+              expect(event).to.equal('contact:addressbook:created');
+              expect(roomId).to.equal(pubsubData.bookId);
+              expect(data).to.deep.equals({
+                room: pubsubData.bookId,
+                data: { bookId: pubsubData.bookId, bookName: pubsubData.bookName }
+              });
+              done();
+            }
+          })
+        };
+        module.init(this.moduleHelpers.dependencies);
+
+        this.pubsub.local.topic(ADDRESSBOOK_CREATED).publish(pubsubData);
       });
     });
 

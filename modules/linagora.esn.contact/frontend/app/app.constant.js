@@ -51,6 +51,7 @@
         CREATED: 'contact:created',
         DELETED: 'contact:deleted',
         UPDATED: 'contact:updated',
+        ADDRESSBOOK_CREATED: 'contact:addressbook:created',
         ADDRESSBOOK_DELETED: 'contact:addressbook:deleted',
         ADDRESSBOOK_SUBSCRIPTION_DELETED: 'contact:addressbook:subscription:deleted'
       }

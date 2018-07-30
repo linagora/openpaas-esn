@@ -167,37 +167,6 @@ describe('The contactAddressbookService service', function() {
 
       $rootScope.$digest();
     });
-
-    it('should broadcast event if success to create addressbook', function(done) {
-      var addressbook = { name: 'test' };
-
-      $rootScope.$broadcast = sinon.spy();
-      ContactAPIClient.addressbookHome = function(bookId) {
-        expect(bookId).to.equal(session.user._id);
-
-        return {
-          addressbook: function() {
-            return {
-              create: function() {
-                return $q.when({});
-              }
-            };
-          }
-        };
-      };
-
-      contactAddressbookService
-        .createAddressbook(addressbook)
-        .then(function() {
-          expect($rootScope.$broadcast).to.have.been.calledOnce;
-          done();
-        })
-        .catch(function(err) {
-          done(err || 'should resolve');
-        });
-
-      $rootScope.$digest();
-    });
   });
 
   describe('The removeAddressbook function', function() {
