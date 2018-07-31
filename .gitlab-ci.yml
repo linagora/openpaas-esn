@@ -1,8 +1,6 @@
-before_script:
-  - export TZ=America/New_York
-  - . ~/.nvm/nvm.sh && nvm use 8
-
 stages:
+  - prepare
+  - linters
   - test
   - test-e2e
   - build_pkg_deb_openpaas_jessie
@@ -15,8 +13,120 @@ stages:
   - deploy-swagger
   - deploy_dev
 
-test:
+.cache-tpl: &cache-tpl
+  key: "$CI_COMMIT_REF_SLUG"
+  paths:
+    - node_modules
+    - frontend/components
+  policy: pull
+
+prepare:
+  image: node:8
+  stage: prepare
+  tags:
+    - docker
+  cache:
+    <<: *cache-tpl
+    policy: pull-push
+  script:
+    - npm install
+    # Weird behaviour: at the time, npm postinstall was not called.
+    - ./node_modules/.bin/bower install --allow-root
+    - 'echo "INFO: NB node packages : $(ls node_modules | wc -l)"'
+    - 'echo "INFO: NB bower packages : $(ls frontend/components | wc -l)"'
+
+.test-template: &test-template
+  image: node:8
   stage: test
+  tags:
+    - docker
+  cache:
+    <<: *cache-tpl
+  variables:
+      TZ: "America/New_York"
+  before_script:
+    - npm install -g grunt-cli
+    - 'echo "INFO: NB node packages : $(ls node_modules | wc -l)"'
+    - 'echo "INFO: NB bower packages : $(ls frontend/components | wc -l)"'
+
+.test-template-svc: &test-template-svc
+  <<: *test-template
+  services:
+    - name: elasticsearch:2.3.2
+      alias: elasticsearch
+    - name: mongo:3.2.0
+      alias: mongo
+    - name: redis:latest
+      alias: redis
+    - name: rabbitmq:3.6.5-management
+      alias: rabbitmq
+  variables:
+    HOST_MONGODB: mongo
+    PORT_MONGODB: 27017
+    HOST_RABBITMQ: rabbitmq
+    PORT_RABBITMQ: 5672
+    HOST_ELASTICSEARCH : elasticsearch
+    PORT_ELASTICSEARCH: 9200
+    ES_HOST: elasticsearch
+    ES_PORT: 9200
+    HOST_REDIS: redis
+    PORT_REDIS: 6379
+
+
+linters:
+  <<: *test-template
+  stage: linters
+  script:
+    - grunt -v linters
+
+####### tests without services requirements
+frontend-test:
+  <<: *test-template
+  script:
+    - grunt -v test-frontend
+
+modules-frontend-test:
+  <<: *test-template
+  script:
+    - grunt -v test-modules-frontend
+    - TZ="Pacific/Kiritimati" grunt -v test-modules-frontend
+    - TZ="Pacific/Midway" grunt -v test-modules-frontend
+    - TZ="Pacific/Chatham" grunt -v test-modules-frontend
+
+unit-backend-test:
+  <<: *test-template
+  script:
+    - grunt -v --chunk=1 test-unit-backend
+
+modules-unit-backend-test:
+  <<: *test-template
+  script:
+    - grunt -v --chunk=1 test-modules-unit-backend
+
+####### tests with services requirements
+
+unit-storage-test:
+  <<: *test-template-svc
+  script:
+    - grunt -v --chunk=1 gitlab-test-unit-storage
+    - grunt -v --chunk=1 gitlab-test-modules-unit-storage
+
+modules-midway-test:
+  <<: *test-template-svc
+  script:
+    - grunt -v --chunk=1 gitlab-test-modules-midway
+
+midway-backend-test:
+  <<: *test-template-svc
+  script:
+    - grunt --chunk=1 -v gitlab-test-midway-backend
+  when: manual
+  # I can't make it works !
+
+midway-backend-test-deprecated:
+  stage: test
+  cache:
+    <<: *cache-tpl
   tags:
     - shell
     - online.net
@@ -24,24 +134,29 @@ test:
     - elasticsearch
     - redis
   script:
-   - npm i
-   - npm update
-   - npm prune
-   - TZ="Pacific/Kiritimati" grunt test-modules-frontend
-   - TZ="Pacific/Midway" grunt test-modules-frontend
-   - TZ="Pacific/Chatham" grunt test-modules-frontend
-   - grunt --chunk=1
+    - export TZ=America/New_York
+    - . ~/.nvm/nvm.sh && nvm use 8
+    - npm i
+    - npm update
+    - npm prune
+    - grunt --chunk=1 -v test-midway-backend
 
+# Why is it deactivated ?
+# This job try to build and test everything !!!
 .test-e2e:
   stage: test-e2e
+  before_script:
+    - export TZ=America/New_York
+    - . ~/.nvm/nvm.sh && nvm use 8
+    - npm install -g grunt-cli
+  cache:
+    <<: *cache-tpl
   script:
     - export VIDEO=true
     - export VIDEO_FIREFOX_NAME=firefox-$CI_JOB_ID
     - export VIDEO_CHROME_NAME=chrome-$CI_JOB_ID
     - export VIDEO_DIR="$PWD/e2e-videos"
-    - rm node_modules frontend/components -rf
     - npm install
-    - npm prune
     - grunt test-e2e-clean
     - grunt test-e2e-prepare $DOCKER_OPTIONS
     - BROWSER="firefox" VIDEO_FILE_NAME=$VIDEO_FIREFOX_NAME grunt test-e2e $DOCKER_OPTIONS
@@ -157,13 +272,9 @@ build_pkg_rpm_openpaas-james:
       https://ci.linagora.com/api/v4/projects/338/trigger/pipeline | jq .
 
 swagger:
+  <<: *test-template
   stage: swagger
-  tags:
-    - master 
-    - shell
   script:
-   - npm i
-   - npm prune
    - grunt swagger-generate
   artifacts:
     paths:

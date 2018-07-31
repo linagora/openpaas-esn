@@ -325,7 +325,7 @@ GruntfileUtils.prototype.setupElasticsearchIndexes = function() {
 
   return function() {
     const done = this.async();
-    const esnConf = new EsnConfig({host: servers.host, port: servers.elasticsearch.port});
+    const esnConf = new EsnConfig({host: servers.elasticsearch.host, port: servers.elasticsearch.port});
 
     Promise.all([
       esnConf.setup('users.idx', 'users'),
