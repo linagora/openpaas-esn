@@ -89,17 +89,28 @@ describe('The User Angular module', function() {
     }));
 
     describe('displayNameOf() method', function() {
-      it('should return firstname lastname if both exist', function() {
-        var user = {firstname: 'f', lastname: 'l', preferredEmail: 'email' };
-        expect(this.userUtils.displayNameOf(user)).to.equal('f l');
+      it('should return prerferredEmail if both firstname and lastname do not exist', function() {
+        var user = { preferredEmail: 'email' };
+
+        expect(this.userUtils.displayNameOf(user)).to.equal(user.preferredEmail);
       });
 
-      it('should return prerferredEmail if either firstname or lastname does not exist', function() {
-        var user = {firstname: 'f', preferredEmail: 'email' };
-        expect(this.userUtils.displayNameOf(user)).to.equal(user.preferredEmail);
+      it('should return firstname if lastname does not exist', function() {
+        var user = { firstname: 'f', preferredEmail: 'email' };
 
-        user = {lastname: 'l', preferredEmail: 'email' };
-        expect(this.userUtils.displayNameOf(user)).to.equal(user.preferredEmail);
+        expect(this.userUtils.displayNameOf(user)).to.equal('f');
+      });
+
+      it('should return lastname if firstname does not exist', function() {
+        var user = { lastname: 'l', preferredEmail: 'email' };
+
+        expect(this.userUtils.displayNameOf(user)).to.equal('l');
+      });
+
+      it('should return firstname lastname if both exist', function() {
+        var user = { firstname: 'f', lastname: 'l', preferredEmail: 'email' };
+
+        expect(this.userUtils.displayNameOf(user)).to.equal('f l');
       });
     });
   });
