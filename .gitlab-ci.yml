@@ -3,12 +3,7 @@ stages:
   - linters
   - test
   - test-e2e
-  - build_pkg_deb_openpaas_jessie
-  - build_pkg_deb_openpaas_stretch
-  - build_pkg_rpm_openpaas
-  - build_pkg_deb_openpaas-james_jessie
-  - build_pkg_deb_openpaas-james_stretch
-  - build_pkg_rpm_openpaas-james
+  - build_pkg
   - swagger
   - deploy-swagger
   - deploy_dev
@@ -28,8 +23,15 @@ stages:
   tags:
     - curl
   before_script:
-      - apk add --no-cache curl
-      - echo -e "-i\n--fail\n--location" > /root/.curlrc
+      - apk add --no-cache curl jq
+
+.build-pkg-tpl: &build-pkg-tpl
+  <<: *curl-tpl
+  only:
+    - master@linagora/lgs/openpaas/esn
+  except:
+    variables:
+      - $SKIP_BUILD_PKG
 
 .test-template: &test-template
   image: node:8
@@ -188,13 +190,8 @@ midway-backend-test-deprecated:
   allow_failure: true
 
 build_pkg_deb_openpaas_jessie:
-  stage: build_pkg_deb_openpaas_jessie
-  variables:
-    GIT_STRATEGY: none
-  tags:
-    - master
-  only:
-    - master@linagora/lgs/openpaas/esn
+  <<: *build-pkg-tpl
+  stage: build_pkg
   script:
     - curl -s -X POST
       -F "token=${BUILD_PACKAGE_CI_TOKEN}"
@@ -206,13 +203,8 @@ build_pkg_deb_openpaas_jessie:
       https://ci.linagora.com/api/v4/projects/338/trigger/pipeline | jq .
 
 build_pkg_deb_openpaas_stretch:
-  stage: build_pkg_deb_openpaas_stretch
-  variables:
-    GIT_STRATEGY: none
-  tags:
-    - master
-  only:
-    - master@linagora/lgs/openpaas/esn
+  <<: *build-pkg-tpl
+  stage: build_pkg
   script:
     - curl -s -X POST
       -F "token=${BUILD_PACKAGE_CI_TOKEN}"
@@ -224,13 +216,8 @@ build_pkg_deb_openpaas_stretch:
       https://ci.linagora.com/api/v4/projects/338/trigger/pipeline | jq .
 
 build_pkg_rpm_openpaas:
-  stage: build_pkg_rpm_openpaas
-  variables:
-    GIT_STRATEGY: none
-  tags:
-    - master
-  only:
-    - master@linagora/lgs/openpaas/esn
+  <<: *build-pkg-tpl
+  stage: build_pkg
   script:
     - curl -s -X POST
       -F "token=${BUILD_PACKAGE_CI_TOKEN}"
@@ -242,13 +229,8 @@ build_pkg_rpm_openpaas:
       https://ci.linagora.com/api/v4/projects/338/trigger/pipeline | jq .
 
 build_pkg_deb_openpaas-james_jessie:
-  stage: build_pkg_deb_openpaas-james_jessie
-  variables:
-    GIT_STRATEGY: none
-  tags:
-    - master
-  only:
-    - master@linagora/lgs/openpaas/esn
+  <<: *build-pkg-tpl
+  stage: build_pkg
   script:
     - curl -s -X POST
       -F "token=${BUILD_PACKAGE_CI_TOKEN}"
@@ -260,13 +242,8 @@ build_pkg_deb_openpaas-james_jessie:
       https://ci.linagora.com/api/v4/projects/338/trigger/pipeline | jq .
 
 build_pkg_deb_openpaas-james_stretch:
-  stage: build_pkg_deb_openpaas-james_stretch
-  variables:
-    GIT_STRATEGY: none
-  tags:
-    - master
-  only:
-    - master@linagora/lgs/openpaas/esn
+  <<: *build-pkg-tpl
+  stage: build_pkg
   script:
     - curl -s -X POST
       -F "token=${BUILD_PACKAGE_CI_TOKEN}"
@@ -278,13 +255,8 @@ build_pkg_deb_openpaas-james_stretch:
       https://ci.linagora.com/api/v4/projects/338/trigger/pipeline | jq .
 
 build_pkg_rpm_openpaas-james:
-  stage: build_pkg_rpm_openpaas-james
-  variables:
-    GIT_STRATEGY: none
-  tags:
-    - master
-  only:
-    - master@linagora/lgs/openpaas/esn
+  <<: *build-pkg-tpl
+  stage: build_pkg
   script:
     - curl -s -X POST
       -F "token=${BUILD_PACKAGE_CI_TOKEN}"
