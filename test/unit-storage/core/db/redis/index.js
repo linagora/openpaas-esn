@@ -41,7 +41,7 @@ describe('The redis module', function() {
       return {
         get: function(callback) {
           return callback(null, {
-            host: 'localhost',
+            host: self.testEnv.serversConfig.redis.host,
             port: self.testEnv.serversConfig.redis.port
           });
         }

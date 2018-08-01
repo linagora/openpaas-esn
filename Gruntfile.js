@@ -307,20 +307,32 @@ module.exports = function(grunt) {
   grunt.registerTask('test-e2e-remove-esn_base', gruntfileUtils.removeEsnBaseImage());
   grunt.registerTask('test-e2e-remove-esn', gruntfileUtils.removeEsnImage());
 
-  grunt.registerTask('test-midway-backend', ['setup-environment', 'setup-mongo-es', 'run_grunt:midway_backend', 'kill-servers', 'clean-environment']);
   grunt.registerTask('test-unit-backend', ['setup-environment', 'run_grunt:unit_backend', 'clean-environment']);
+
   grunt.registerTask('test-modules-unit-backend', ['setup-environment', 'run_grunt:modules_unit_backend', 'clean-environment']);
+
   grunt.registerTask('test-unit-storage', ['setup-environment', 'setup-mongo-es', 'run_grunt:unit_storage', 'kill-servers', 'clean-environment']);
+  grunt.registerTask('docker-test-unit-storage', ['setup-environment', 'setup-mongo-es-docker', 'run_grunt:unit_storage', 'kill-containers', 'clean-environment']);
+  grunt.registerTask('gitlab-test-unit-storage', ['setup-environment', 'setupElasticsearchIndexes', 'run_grunt:unit_storage', 'clean-environment']);
+
   grunt.registerTask('test-modules-unit-storage', ['setup-environment', 'setup-mongo-es', 'run_grunt:modules_unit_storage', 'kill-servers', 'clean-environment']);
+  grunt.registerTask('docker-test-modules-unit-storage', ['setup-environment', 'setup-mongo-es-docker', 'run_grunt:modules_unit_storage', 'kill-containers', 'clean-environment']);
+  grunt.registerTask('gitlab-test-modules-unit-storage', ['setup-environment', 'setupElasticsearchIndexes', 'run_grunt:modules_unit_storage', 'clean-environment']);
+
   grunt.registerTask('test-frontend', ['run_grunt:frontend']);
   grunt.registerTask('test-modules-frontend', ['run_grunt:modules_frontend']);
+
   grunt.registerTask('test-modules-midway', ['setup-environment', 'setup-mongo-es', 'run_grunt:modules_midway_backend', 'kill-servers', 'clean-environment']);
+  grunt.registerTask('gitlab-test-modules-midway', ['setup-environment', 'setupElasticsearchIndexes', 'run_grunt:modules_midway_backend', 'clean-environment']);
+  grunt.registerTask('docker-test-modules-midway', ['setup-environment', 'setup-mongo-es-docker', 'run_grunt:modules_midway_backend', 'kill-containers', 'clean-environment']);
+
   grunt.registerTask('test', ['linters', 'setup-environment', 'run_grunt:frontend', 'run_grunt:modules_frontend', 'run_grunt:unit_backend', 'run_grunt:modules_unit_backend', 'setup-mongo-es', 'run_grunt:all_with_storage', 'kill-servers', 'clean-environment']);
   grunt.registerTask('docker-test', ['linters', 'setup-environment', 'run_grunt:frontend', 'run_grunt:modules_frontend', 'run_grunt:unit_backend', 'run_grunt:modules_unit_backend', 'setup-mongo-es-docker', 'run_grunt:all_with_storage', 'kill-containers', 'clean-environment']);
-  grunt.registerTask('docker-test-unit-storage', ['setup-environment', 'setup-mongo-es-docker', 'run_grunt:unit_storage', 'kill-containers', 'clean-environment']);
-  grunt.registerTask('docker-test-modules-unit-storage', ['setup-environment', 'setup-mongo-es-docker', 'run_grunt:modules_unit_storage', 'kill-containers', 'clean-environment']);
+
+  grunt.registerTask('test-midway-backend', ['setup-environment', 'setup-mongo-es', 'run_grunt:midway_backend', 'kill-servers', 'clean-environment']);
   grunt.registerTask('docker-test-midway-backend', ['setup-environment', 'setup-mongo-es-docker', 'run_grunt:midway_backend', 'kill-containers', 'clean-environment']);
-  grunt.registerTask('docker-test-modules-midway', ['setup-environment', 'setup-mongo-es-docker', 'run_grunt:modules_midway_backend', 'kill-containers', 'clean-environment']);
+  grunt.registerTask('gitlab-test-midway-backend', ['setup-environment', 'setupElasticsearchIndexes', 'run_grunt:midway_backend', 'clean-environment']);
+
   grunt.registerTask('i18n', 'Check the translation files', ['i18n_checker']);
   grunt.registerTask('swagger-generate', 'Grunt plugin for swagger generate', ['swagger_generate']);
   grunt.registerTask('pug-linter', 'Check the pug/jade files', ['puglint:all']);
