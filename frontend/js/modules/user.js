@@ -54,7 +54,11 @@ angular.module('esn.user', ['esn.http', 'esn.object-type', 'esn.lodash-wrapper']
   })
   .factory('userUtils', function() {
     function displayNameOf(user) {
-      return (user.firstname && user.lastname) ? user.firstname + ' ' + user.lastname : user.preferredEmail;
+      if (!user.firstname && !user.lastname) {
+        return user.preferredEmail;
+      }
+
+      return (user.firstname && user.lastname) ? user.firstname + ' ' + user.lastname : (user.firstname || user.lastname);
     }
 
     return {
