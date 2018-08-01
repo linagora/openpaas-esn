@@ -3,11 +3,9 @@ stages:
   - linters
   - test
   - test-e2e
-  - build_pkg
+  - build
   - swagger
-  - deploy-swagger
-  - deploy_dev
-  - build-docker
+  - deploy
   - release
 
 .cache-tpl: &cache-tpl
@@ -191,7 +189,7 @@ midway-backend-test-deprecated:
 
 build_pkg_deb_openpaas_jessie:
   <<: *build-pkg-tpl
-  stage: build_pkg
+  stage: build
   script:
     - curl -s -X POST
       -F "token=${BUILD_PACKAGE_CI_TOKEN}"
@@ -204,7 +202,7 @@ build_pkg_deb_openpaas_jessie:
 
 build_pkg_deb_openpaas_stretch:
   <<: *build-pkg-tpl
-  stage: build_pkg
+  stage: build
   script:
     - curl -s -X POST
       -F "token=${BUILD_PACKAGE_CI_TOKEN}"
@@ -217,7 +215,7 @@ build_pkg_deb_openpaas_stretch:
 
 build_pkg_rpm_openpaas:
   <<: *build-pkg-tpl
-  stage: build_pkg
+  stage: build
   script:
     - curl -s -X POST
       -F "token=${BUILD_PACKAGE_CI_TOKEN}"
@@ -230,7 +228,7 @@ build_pkg_rpm_openpaas:
 
 build_pkg_deb_openpaas-james_jessie:
   <<: *build-pkg-tpl
-  stage: build_pkg
+  stage: build
   script:
     - curl -s -X POST
       -F "token=${BUILD_PACKAGE_CI_TOKEN}"
@@ -243,7 +241,7 @@ build_pkg_deb_openpaas-james_jessie:
 
 build_pkg_deb_openpaas-james_stretch:
   <<: *build-pkg-tpl
-  stage: build_pkg
+  stage: build
   script:
     - curl -s -X POST
       -F "token=${BUILD_PACKAGE_CI_TOKEN}"
@@ -256,7 +254,7 @@ build_pkg_deb_openpaas-james_stretch:
 
 build_pkg_rpm_openpaas-james:
   <<: *build-pkg-tpl
-  stage: build_pkg
+  stage: build
   script:
     - curl -s -X POST
       -F "token=${BUILD_PACKAGE_CI_TOKEN}"
@@ -277,7 +275,7 @@ swagger:
      - ./doc/REST_API/swagger/swagger.json
 
 deploy-swagger:
-  stage: deploy-swagger
+  stage: deploy
   tags:
     - deployment
     - api.open-paas.org
@@ -291,8 +289,8 @@ deploy-swagger:
     - perl -i -pe's/"host":"localhost:8080"/"schemes":["https"],"host":"demo.open-paas.org"/' ./doc/REST_API/swagger/swagger.json
     - cp ./doc/REST_API/swagger/swagger.json /var/www/html
 
-deploy_dev:
-  stage: deploy_dev
+deploy-dev:
+  stage: deploy
   tags:
     - dev.open-paas.org
     - deployment
@@ -315,7 +313,7 @@ deploy_dev:
 
 build-docker:
   image: docker:git
-  stage: build-docker
+  stage: build
   tags:
     - docker
   services:
