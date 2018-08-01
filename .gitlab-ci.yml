@@ -312,7 +312,7 @@ deploy-dev:
     - sudo /etc/init.d/rse.dev restart
 
 build-docker:
-  image: docker:git
+  image: docker-registry.linagora.com:5000/linshare-snapshots/linshare-dind:latest
   stage: build
   tags:
     - docker
@@ -321,12 +321,16 @@ build-docker:
         alias: docker-dind
   variables:
       DOCKER_HOST: "tcp://docker-dind"
-      DOCKER_IMAGE_BASE_NAME: "docker-registry.linagora.com:5000/openpaas-snapshots"
+      DOCKER_IMAGE_PRIVATE: "docker-registry.linagora.com:5000/openpaas-snapshots/openpaas-esn"
+      DOCKER_IMAGE_PUBLIC: "linagora/esn"
   script:
+    - guess-version.sh guest
+    - source version.env
+    - docker-tag-computing.sh ${VERSION} docker-tag-and-push.env
     - docker login -u ${REGISTRY_USER} -p ${REGISTRY_TOKEN} docker-registry.linagora.com:5000
-    - docker build . -t "${DOCKER_IMAGE_BASE_NAME}/openpaas-esn:latest"
-    - docker push "${DOCKER_IMAGE_BASE_NAME}/openpaas-esn:latest"
-    - echo "Image pushed ${DOCKER_IMAGE_BASE_NAME}/openpaas-esn:latest"
+    - docker build . -t build:latest
+    - docker-tag-and-push.sh build:latest ${DOCKER_IMAGE_PRIVATE}
+      # - docker-tag-and-push.sh build:latest ${DOCKER_IMAGE_PRIVATE} ${DOCKER_IMAGE_PUBLIC}
     - docker logout
   only:
     - master@linagora/lgs/openpaas/esn
