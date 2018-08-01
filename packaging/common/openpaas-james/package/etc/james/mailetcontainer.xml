@@ -33,8 +33,23 @@
         <processor state="root" enableJmx="true">
             <mailet match="All" class="PostmasterAlias"/>
             <mailet match="RelayLimit=30" class="Null"/>
+            <mailet match="dlp.Dlp" class="ToProcessor">
+                 <processor>dlpQuarantine</processor>
+            </mailet>
             <mailet match="All" class="ToProcessor">
                 <processor>transport</processor>
+            </mailet>
+        </processor>
+
+        <processor state="dlpQuarantine" enableJmx="true">
+            <mailet match="All" class="ToSenderDomainRepository">
+                 <urlPrefix>cassandra://var/mail/dlp/quarantine/</urlPrefix>
+            </mailet>
+        </processor>
+
+        <processor state="dlpReject" enableJmx="true">
+            <mailet match="All" class="ToSenderDomainRepository">
+                 <urlPrefix>cassandra://var/mail/dlp/rejected/</urlPrefix>
             </mailet>
         </processor>
 
@@ -44,7 +59,6 @@
                 <repositoryPath>cassandra://var/mail/error/</repositoryPath>
             </mailet>
         </processor>
-
 
         <processor state="transport" enableJmx="true">
             <matcher name="mdn-matcher" match="org.apache.james.mailetcontainer.impl.matchers.And">
