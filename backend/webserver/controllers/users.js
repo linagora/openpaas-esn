@@ -11,6 +11,7 @@ const userSearch = require('../../core/user/search');
 
 module.exports = {
   getProfileAvatar,
+  getTargetUserAvatar,
   getProfilesByQuery,
   logmein,
   logout,
@@ -280,46 +281,79 @@ function postProfileAvatar(req, res) {
 }
 
 function getProfileAvatar(req, res) {
-  function redirectToGeneratedAvatar(req, res) {
-    return res.redirect(`/api/avatars?objectType=email&email=${req.user.preferredEmail}`);
-  }
-
   if (!req.user) {
     return res.status(404).json({error: 404, message: 'Not found', details: 'User not found'});
   }
 
   if (!req.user.currentAvatar) {
-    return redirectToGeneratedAvatar(req, res);
+    return _redirectToGeneratedAvatar(req.user, res);
   }
 
-  imageModule.getAvatar(req.user.currentAvatar, req.query.format, function(err, fileStoreMeta, readable) {
-    if (err) {
-      logger.warn('Can not get user avatar : %s', err.message);
+  Q.ninvoke(imageModule, 'getAvatar', req.user.currentAvatar, req.query.format)
+    .spread((fileStoreMeta, readable) => {
+      if (!readable) {
+        logger.warn('Can not retrieve avatar stream for user %s', req.user._id);
 
-      return redirectToGeneratedAvatar(req, res);
-    }
+        return _redirectToGeneratedAvatar(req.user, res);
+      }
 
-    if (!readable) {
-      logger.warn('Can not retrieve avatar stream for user %s', req.user._id);
+      if (!fileStoreMeta) {
+        return readable.pipe(res.status(200));
+      }
 
-      return redirectToGeneratedAvatar(req, res);
-    }
+      if (req.headers['if-modified-since'] && Number(new Date(req.headers['if-modified-since']).setMilliseconds(0)) === Number(fileStoreMeta.uploadDate.setMilliseconds(0))) {
+        return res.status(304).end();
+      }
 
-    if (!fileStoreMeta) {
-      res.status(200);
+      res.header('Last-Modified', fileStoreMeta.uploadDate);
+      readable.pipe(res.status(200));
+    })
+    .catch(err => {
+      logger.warn('Can not get user avatar: %s', err.message);
 
-      return readable.pipe(res);
-    }
+      _redirectToGeneratedAvatar(req.user, res);
+    });
+}
 
-    if (req.headers['if-modified-since'] && Number(new Date(req.headers['if-modified-since']).setMilliseconds(0)) === Number(fileStoreMeta.uploadDate.setMilliseconds(0))) {
-      return res.status(304).end();
-    }
+/**
+ * Get avatar of a specific user {req.targetUser}.
+ *
+ * @param {Request} req   - Request object contains targetUser
+ * @param {Response} res  - Response object
+ */
+function getTargetUserAvatar(req, res) {
+  if (!req.targetUser.currentAvatar) {
+    return _redirectToGeneratedAvatar(req.targetUser, res);
+  }
 
-    res.header('Last-Modified', fileStoreMeta.uploadDate);
-    res.status(200);
+  Q.ninvoke(imageModule, 'getAvatar', req.targetUser.currentAvatar, req.query.format)
+    .spread((fileStoreMeta, readable) => {
+      if (!readable) {
+        logger.warn('Can not retrieve avatar stream for user %s', req.targetUser._id);
 
-    return readable.pipe(res);
-  });
+        return _redirectToGeneratedAvatar(req.targetUser, res);
+      }
+
+      if (!fileStoreMeta) {
+        return readable.pipe(res.status(200));
+      }
+
+      if (req.headers['if-modified-since'] && Number(new Date(req.headers['if-modified-since']).setMilliseconds(0)) === Number(fileStoreMeta.uploadDate.setMilliseconds(0))) {
+        return res.status(304).end();
+      }
+
+      res.header('Last-Modified', fileStoreMeta.uploadDate);
+      readable.pipe(res.status(200));
+    })
+    .catch(err => {
+      logger.warn('Can not get user avatar: %s', err.message);
+
+      _redirectToGeneratedAvatar(req.targetUser, res);
+    });
+}
+
+function _redirectToGeneratedAvatar(user, res) {
+  res.redirect(`/api/avatars?objectType=email&email=${user.preferredEmail}`);
 }
 
 /**

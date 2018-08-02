@@ -6,7 +6,7 @@ const platformadminsMW = require('../middleware/platformadmins');
 
 module.exports = {
   checkProfilesQueryPermission,
-  load,
+  loadTargetUser,
   requireProfilesQueryParams
 };
 
@@ -19,11 +19,11 @@ function onFind(req, res, next, err, user) {
     return res.status(404).json({error: {code: 404, message: 'Not found', details: 'User not found'}});
   }
 
-  req.user = user;
+  req.targetUser = user;
   next();
 }
 
-function load(req, res, next) {
+function loadTargetUser(req, res, next) {
   if (req.params.uuid) {
     return userModule.get(req.params.uuid, onFind.bind(null, req, res, next));
   } else if (req.body.email) {

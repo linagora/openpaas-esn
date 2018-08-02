@@ -112,5 +112,5 @@ module.exports = function(router) {
    *       404:
    *         $ref: "#/responses/cm_404"
    */
-  router.get('/users/:uuid/profile/avatar', usersMW.load, users.getProfileAvatar);
+  router.get('/users/:uuid/profile/avatar', usersMW.loadTargetUser, users.getTargetUserAvatar);
 };
