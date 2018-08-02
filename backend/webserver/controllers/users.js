@@ -19,6 +19,7 @@ module.exports = {
   profile,
   updatePassword,
   updateProfile,
+  updateTargetUserProfile,
   user
 };
 
@@ -148,18 +149,7 @@ function updateProfile(req, res) {
     return res.status(400).json({error: 400, message: 'Bad Request', details: 'No value defined'});
   }
 
-  var newProfile = {
-    firstname: req.body.firstname || '',
-    lastname: req.body.lastname || '',
-    job_title: req.body.job_title || '',
-    service: req.body.service || '',
-    building_location: req.body.building_location || '',
-    office_location: req.body.office_location || '',
-    main_phone: req.body.main_phone || '',
-    description: req.body.description || ''
-  };
-
-  Q.denodeify(userModule.updateProfile)(req.user, newProfile)
+  Q.denodeify(userModule.updateProfile)(req.user, _buildNewProfile(req.body))
     .then(updatedUser => denormalizeUser(updatedUser))
     .then(denormalizedUser => res.status(200).json(denormalizedUser))
     .catch(err => {
@@ -175,6 +165,54 @@ function updateProfile(req, res) {
         }
       });
     });
+}
+
+/**
+ * Update profile of a specific user {req.targetUser}.
+ *
+ * @param {Request} req   - Request object contains targetUser
+ * @param {Response} res  - Response object
+ */
+function updateTargetUserProfile(req, res) {
+  if (!req.body) {
+    return res.status(400).json({
+      error: {
+        code: 400,
+        message: 'Bad Request',
+        details: 'No value defined'
+      }
+    });
+  }
+
+  Q.denodeify(userModule.updateProfile)(req.targetUser, _buildNewProfile(req.body))
+    .then(updatedUser => denormalizeUser(updatedUser))
+    .then(denormalizedUser => res.status(200).json(denormalizedUser))
+    .catch(err => {
+      const details = `Error while updating profile of user ${req.targetUser.id}`;
+
+      logger.error(details, err);
+
+      res.status(500).json({
+        error: {
+          code: 500,
+          message: 'Server Error',
+          details
+        }
+      });
+    });
+}
+
+function _buildNewProfile(data) {
+  return {
+    firstname: data.firstname || '',
+    lastname: data.lastname || '',
+    job_title: data.job_title || '',
+    service: data.service || '',
+    building_location: data.building_location || '',
+    office_location: data.office_location || '',
+    main_phone: data.main_phone || '',
+    description: data.description || ''
+  };
 }
 
 /**

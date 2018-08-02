@@ -52,6 +52,12 @@
  *     required: true
  *     type: string
  *     format: uuid
+ *   dm_id_in_query:
+ *     name: domain_id
+ *     in: query
+ *     description: The domain ID.
+ *     required: true
+ *     type: string
  *   dm_administrator_id:
  *    name: administrator_id
  *    in: path
