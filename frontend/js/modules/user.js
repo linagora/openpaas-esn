@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.user', ['esn.http', 'esn.object-type', 'esn.lodash-wrapper'])
+angular.module('esn.user', ['esn.http', 'esn.object-type', 'esn.lodash-wrapper', 'esn.session'])
   .run(function(objectTypeResolver, userAPI, userUtils, esnRestangular) {
     objectTypeResolver.register('user', userAPI.user);
     esnRestangular.extendModel('users', function(model) {
@@ -20,7 +20,7 @@ angular.module('esn.user', ['esn.http', 'esn.object-type', 'esn.lodash-wrapper']
       return model;
     });
   })
-  .factory('userAPI', function(esnRestangular) {
+  .factory('userAPI', function(esnRestangular, session) {
 
     function currentUser() {
       return esnRestangular.one('user').get({_: Date.now()});
@@ -44,12 +44,17 @@ angular.module('esn.user', ['esn.http', 'esn.object-type', 'esn.lodash-wrapper']
       return esnRestangular.one('user').all('activitystreams').getList(options);
     }
 
+    function setUserStates(userId, states, domainId) {
+      return esnRestangular.one('users', userId).customPUT(states, 'states', { domain_id: domainId || session.domain._id });
+    }
+
     return {
       currentUser: currentUser,
       user: user,
       getCommunities: getCommunities,
       getActivityStreams: getActivityStreams,
-      getUsersByEmail: getUsersByEmail
+      getUsersByEmail: getUsersByEmail,
+      setUserStates: setUserStates
     };
   })
   .factory('userUtils', function() {
