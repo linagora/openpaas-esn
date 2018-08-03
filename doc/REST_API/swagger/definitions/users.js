@@ -145,4 +145,16 @@
   *             $ref: "#/definitions/us_email"
   *         hosted:
   *           type: boolean
+  *   us_states:
+  *     type: array
+  *     items:
+  *       type: object
+  *       properties:
+  *         name:
+  *           type: string
+  *         value:
+  *           type: string
+  *           enum:
+  *              - enabled
+  *              - disabled
   */

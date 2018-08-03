@@ -46,6 +46,19 @@ describe('The User Angular module', function() {
       });
     });
 
+    describe('The setUserStates method', function() {
+
+      it('should send a request to /api/users', function() {
+        var domainId = 456;
+        var userId = 123;
+        var states = [{ name: 'login', value: 'disabled' }];
+
+        this.$httpBackend.expectPUT('/api/users/' + userId + '/states?domain_id=' + domainId, states).respond(this.response);
+        this.userAPI.setUserStates(userId, states, domainId);
+        this.$httpBackend.flush();
+      });
+    });
+
     describe('getCommunities() method', function() {
 
       beforeEach(angular.mock.inject(function(userAPI, $httpBackend, Restangular) {
@@ -129,7 +142,8 @@ describe('The User Angular module', function() {
         domain: {
           company_name: 'test',
           _id: 'domainId'
-        }
+        },
+        ready: $q.when()
       };
 
       var user1 = {_id: 'user1', firstname: 'first1', lastname: 'last1', preferredEmail: 'user1@open-paas.org'},

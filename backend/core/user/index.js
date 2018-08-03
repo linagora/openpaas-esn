@@ -261,6 +261,20 @@ function checkEmailsAvailability(emails) {
   );
 }
 
+function updateStates(userId, states, callback) {
+  if (!userId || !states) {
+    return callback(new Error('User id and states are required'));
+  }
+
+  User.findOneAndUpdate({ _id: userId }, { $set: { states } }, { new: true }, (err, user) => {
+    if (!err) {
+      pubsub.topic(CONSTANTS.EVENTS.userUpdated).publish(user);
+    }
+
+    callback(err);
+  });
+}
+
 module.exports = {
   getDisplayName: utils.getDisplayName,
   TYPE: TYPE,
@@ -274,6 +288,7 @@ module.exports = {
   listByCursor,
   update: update,
   updateProfile: updateProfile,
+  updateStates,
   removeAccountById: removeAccountById,
   belongsToCompany: belongsToCompany,
   getCompanies: getCompanies,

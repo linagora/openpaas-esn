@@ -319,4 +319,25 @@ describe('The User model', function() {
       }));
     }));
   });
+
+  it('should validate that the states is well-formed', function(done) {
+    var user = userFixtures.newDummyUser();
+
+    user.states = [{ name: 'login', value: 'disabled' }];
+    user.save(helpers.callbacks.noError(done));
+  });
+
+  it('should fail to save the user if the states name is not valid', function(done) {
+    var user = userFixtures.newDummyUser();
+
+    user.states = [{ name: 'rtyui', value: 'disabled' }];
+    user.save(helpers.callbacks.error(done));
+  });
+
+  it('should fail to save the user if the states value is not valid', function(done) {
+    var user = userFixtures.newDummyUser();
+
+    user.states = [{ name: 'login', value: 'ccvdxjch' }];
+    user.save(helpers.callbacks.error(done));
+  });
 });

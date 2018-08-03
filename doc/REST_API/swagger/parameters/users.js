@@ -14,4 +14,11 @@
  *     description: The user email
  *     required: true
  *     type: string
+ *   uss_states:
+ *    name: states
+ *    in: body
+ *    description: The user states
+ *    required: true
+ *    schema:
+ *      $ref: "#/definitions/us_states"
  */

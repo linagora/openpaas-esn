@@ -7,7 +7,8 @@ const platformadminsMW = require('../middleware/platformadmins');
 module.exports = {
   checkProfilesQueryPermission,
   loadTargetUser,
-  requireProfilesQueryParams
+  requireProfilesQueryParams,
+  validateUserStates
 };
 
 function onFind(req, res, next, err, user) {
@@ -58,3 +59,21 @@ function requireProfilesQueryParams(req, res, next) {
 
   next();
 }
+
+function validateUserStates(req, res, next) {
+  const states = req.body;
+  const validStates = !states.some(state => !(userModule.states.validateUserAction(state.name) && userModule.states.validateActionState(state.value)));
+
+  if (!validStates) {
+    return res.status(400).json({
+      error: {
+        code: 400,
+        message: 'Bad Request',
+        details: 'States is not valid'
+      }
+    });
+  }
+
+  next();
+}
+
