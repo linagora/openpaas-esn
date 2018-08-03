@@ -32,4 +32,13 @@ describe('The user states module', function() {
       expect(module.validateActionState('disabled')).to.be.true;
     });
   });
+
+  describe('The validateUserAction function', function() {
+    it('should return true only if the input is one of defined action', function() {
+      const module = this.helpers.requireBackend('core/user/states');
+
+      expect(module.validateUserAction('abc')).to.be.false;
+      expect(module.validateUserAction('login')).to.be.true;
+    });
+  });
 });

@@ -6,7 +6,7 @@ var bcrypt = require('bcrypt-nodejs');
 var trim = require('trim');
 var ObjectId = mongoose.Schema.Types.ObjectId;
 var Mixed = mongoose.Schema.Types.Mixed;
-const { validateActionState } = require('../../../../core/user/states');
+const { validateActionState, validateUserAction } = require('../../../../core/user/states');
 
 function validateEmail(email) {
   return emailAddresses.parseOneAddress(email) !== null;
@@ -70,6 +70,11 @@ var MemberOfDomainSchema = new mongoose.Schema({
   status: { type: String, lowercase: true, trim: true }
 }, { _id: false });
 
+const UserStateSchema = new mongoose.Schema({
+  name: { type: String, validate: validateUserAction },
+  value: { type: String, validate: validateActionState }
+}, { _id: false });
+
 var UserSchema = new mongoose.Schema({
   firstname: { type: String, trim: true },
   lastname: { type: String, trim: true },
@@ -90,12 +95,7 @@ var UserSchema = new mongoose.Schema({
     },
     success: { type: Date }
   },
-  states: [
-    {
-      name: String,
-      value: { type: String, validate: validateActionState }
-    }
-  ],
+  states: [UserStateSchema],
   schemaVersion: { type: Number, default: 2 },
   avatars: [ObjectId],
   currentAvatar: ObjectId,

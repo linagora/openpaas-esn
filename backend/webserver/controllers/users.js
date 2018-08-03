@@ -20,6 +20,7 @@ module.exports = {
   updatePassword,
   updateProfile,
   updateTargetUserProfile,
+  updateStates,
   user
 };
 
@@ -409,4 +410,24 @@ function _findUsersByEmail(email) {
 
       return result;
     });
+}
+
+function updateStates(req, res) {
+  userModule.updateStates(req.params.uuid, req.body, err => {
+    if (err) {
+      const details = 'Error while updating user states';
+
+      logger.error(details, err);
+
+      return res.status(500).json({
+        error: {
+          code: 500,
+          message: 'Server Error',
+          details
+        }
+      });
+    }
+
+    res.status(204).end();
+  });
 }
