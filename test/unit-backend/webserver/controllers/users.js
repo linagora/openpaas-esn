@@ -733,6 +733,8 @@ describe('The User controller', function() {
       var res = {
         status: function(code) {
           this.code = code;
+
+          return res;
         },
         header: function(header, value) {
           this.header[header] = value;
@@ -778,6 +780,8 @@ describe('The User controller', function() {
       var res = {
         status: function(code) {
           this.code = code;
+
+          return res;
         },
         header: function(header, value) {
           this.header[header] = value;

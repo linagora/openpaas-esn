@@ -11,6 +11,7 @@ const userSearch = require('../../core/user/search');
 
 module.exports = {
   getProfileAvatar,
+  getTargetUserAvatar,
   getProfilesByQuery,
   logmein,
   logout,
@@ -18,6 +19,7 @@ module.exports = {
   profile,
   updatePassword,
   updateProfile,
+  updateTargetUserProfile,
   user
 };
 
@@ -147,18 +149,7 @@ function updateProfile(req, res) {
     return res.status(400).json({error: 400, message: 'Bad Request', details: 'No value defined'});
   }
 
-  var newProfile = {
-    firstname: req.body.firstname || '',
-    lastname: req.body.lastname || '',
-    job_title: req.body.job_title || '',
-    service: req.body.service || '',
-    building_location: req.body.building_location || '',
-    office_location: req.body.office_location || '',
-    main_phone: req.body.main_phone || '',
-    description: req.body.description || ''
-  };
-
-  Q.denodeify(userModule.updateProfile)(req.user, newProfile)
+  Q.denodeify(userModule.updateProfile)(req.user, _buildNewProfile(req.body))
     .then(updatedUser => denormalizeUser(updatedUser))
     .then(denormalizedUser => res.status(200).json(denormalizedUser))
     .catch(err => {
@@ -174,6 +165,54 @@ function updateProfile(req, res) {
         }
       });
     });
+}
+
+/**
+ * Update profile of a specific user {req.targetUser}.
+ *
+ * @param {Request} req   - Request object contains targetUser
+ * @param {Response} res  - Response object
+ */
+function updateTargetUserProfile(req, res) {
+  if (!req.body) {
+    return res.status(400).json({
+      error: {
+        code: 400,
+        message: 'Bad Request',
+        details: 'No value defined'
+      }
+    });
+  }
+
+  Q.denodeify(userModule.updateProfile)(req.targetUser, _buildNewProfile(req.body))
+    .then(updatedUser => denormalizeUser(updatedUser))
+    .then(denormalizedUser => res.status(200).json(denormalizedUser))
+    .catch(err => {
+      const details = `Error while updating profile of user ${req.targetUser.id}`;
+
+      logger.error(details, err);
+
+      res.status(500).json({
+        error: {
+          code: 500,
+          message: 'Server Error',
+          details
+        }
+      });
+    });
+}
+
+function _buildNewProfile(data) {
+  return {
+    firstname: data.firstname || '',
+    lastname: data.lastname || '',
+    job_title: data.job_title || '',
+    service: data.service || '',
+    building_location: data.building_location || '',
+    office_location: data.office_location || '',
+    main_phone: data.main_phone || '',
+    description: data.description || ''
+  };
 }
 
 /**
@@ -280,46 +319,79 @@ function postProfileAvatar(req, res) {
 }
 
 function getProfileAvatar(req, res) {
-  function redirectToGeneratedAvatar(req, res) {
-    return res.redirect(`/api/avatars?objectType=email&email=${req.user.preferredEmail}`);
-  }
-
   if (!req.user) {
     return res.status(404).json({error: 404, message: 'Not found', details: 'User not found'});
   }
 
   if (!req.user.currentAvatar) {
-    return redirectToGeneratedAvatar(req, res);
+    return _redirectToGeneratedAvatar(req.user, res);
   }
 
-  imageModule.getAvatar(req.user.currentAvatar, req.query.format, function(err, fileStoreMeta, readable) {
-    if (err) {
-      logger.warn('Can not get user avatar : %s', err.message);
+  Q.ninvoke(imageModule, 'getAvatar', req.user.currentAvatar, req.query.format)
+    .spread((fileStoreMeta, readable) => {
+      if (!readable) {
+        logger.warn('Can not retrieve avatar stream for user %s', req.user._id);
 
-      return redirectToGeneratedAvatar(req, res);
-    }
+        return _redirectToGeneratedAvatar(req.user, res);
+      }
 
-    if (!readable) {
-      logger.warn('Can not retrieve avatar stream for user %s', req.user._id);
+      if (!fileStoreMeta) {
+        return readable.pipe(res.status(200));
+      }
 
-      return redirectToGeneratedAvatar(req, res);
-    }
+      if (req.headers['if-modified-since'] && Number(new Date(req.headers['if-modified-since']).setMilliseconds(0)) === Number(fileStoreMeta.uploadDate.setMilliseconds(0))) {
+        return res.status(304).end();
+      }
 
-    if (!fileStoreMeta) {
-      res.status(200);
+      res.header('Last-Modified', fileStoreMeta.uploadDate);
+      readable.pipe(res.status(200));
+    })
+    .catch(err => {
+      logger.warn('Can not get user avatar: %s', err.message);
 
-      return readable.pipe(res);
-    }
+      _redirectToGeneratedAvatar(req.user, res);
+    });
+}
 
-    if (req.headers['if-modified-since'] && Number(new Date(req.headers['if-modified-since']).setMilliseconds(0)) === Number(fileStoreMeta.uploadDate.setMilliseconds(0))) {
-      return res.status(304).end();
-    }
+/**
+ * Get avatar of a specific user {req.targetUser}.
+ *
+ * @param {Request} req   - Request object contains targetUser
+ * @param {Response} res  - Response object
+ */
+function getTargetUserAvatar(req, res) {
+  if (!req.targetUser.currentAvatar) {
+    return _redirectToGeneratedAvatar(req.targetUser, res);
+  }
 
-    res.header('Last-Modified', fileStoreMeta.uploadDate);
-    res.status(200);
+  Q.ninvoke(imageModule, 'getAvatar', req.targetUser.currentAvatar, req.query.format)
+    .spread((fileStoreMeta, readable) => {
+      if (!readable) {
+        logger.warn('Can not retrieve avatar stream for user %s', req.targetUser._id);
 
-    return readable.pipe(res);
-  });
+        return _redirectToGeneratedAvatar(req.targetUser, res);
+      }
+
+      if (!fileStoreMeta) {
+        return readable.pipe(res.status(200));
+      }
+
+      if (req.headers['if-modified-since'] && Number(new Date(req.headers['if-modified-since']).setMilliseconds(0)) === Number(fileStoreMeta.uploadDate.setMilliseconds(0))) {
+        return res.status(304).end();
+      }
+
+      res.header('Last-Modified', fileStoreMeta.uploadDate);
+      readable.pipe(res.status(200));
+    })
+    .catch(err => {
+      logger.warn('Can not get user avatar: %s', err.message);
+
+      _redirectToGeneratedAvatar(req.targetUser, res);
+    });
+}
+
+function _redirectToGeneratedAvatar(user, res) {
+  res.redirect(`/api/avatars?objectType=email&email=${user.preferredEmail}`);
 }
 
 /**

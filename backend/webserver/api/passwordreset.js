@@ -27,7 +27,7 @@ module.exports = function(router) {
    *       500:
    *         $ref: "#/responses/cm_500"
    */
-  router.post('/passwordreset', passwordResetMW.isEnabled, usersMW.load, passwordResetController.sendPasswordReset);
+  router.post('/passwordreset', passwordResetMW.isEnabled, usersMW.loadTargetUser, passwordResetController.sendPasswordReset);
 
   /**
    * @swagger

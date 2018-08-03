@@ -3,6 +3,7 @@
 const authorize = require('../middleware/authorization');
 const users = require('../controllers/users');
 const usersMW = require('../middleware/users');
+const { loadFromDomainIdParameter } = require('../middleware/domain');
 const link = require('../middleware/profile-link');
 
 module.exports = function(router) {
@@ -34,6 +35,45 @@ module.exports = function(router) {
    *         $ref: "#/responses/cm_500"
    */
   router.get('/users/:uuid', authorize.requiresAPILogin, users.profile);
+
+  /**
+   * @swagger
+   * /users/{uuid}:
+   *   put:
+   *     tags:
+   *      - Users
+   *      - Profile
+   *     description: |
+   *       Update profile of a specific user with given uuid.
+   *     parameters:
+   *       - $ref: "#/parameters/uss_uuid"
+   *       - $ref: "#/parameters/dm_id_in_query"
+   *       - name: profile
+   *         in: body
+   *         schema:
+   *           $ref: "#/definitions/Profile"
+   *         description: The new profile value attributes
+   *         required: true
+   *     responses:
+   *       200:
+   *         $ref: "#/responses/us_update_profile"
+   *       400:
+   *         $ref: "#/responses/cm_400"
+   *       401:
+   *         $ref: "#/responses/cm_401"
+   *       404:
+   *         $ref: "#/responses/cm_404"
+   *       500:
+   *         $ref: "#/responses/cm_500"
+   */
+  router.put('/users/:uuid',
+    authorize.requiresAPILogin,
+    loadFromDomainIdParameter,
+    authorize.requiresDomainManager,
+    usersMW.loadTargetUser,
+    authorize.requiresTargetUserIsDomainMember,
+    users.updateTargetUserProfile
+  );
 
   /**
    * @swagger
@@ -112,5 +152,5 @@ module.exports = function(router) {
    *       404:
    *         $ref: "#/responses/cm_404"
    */
-  router.get('/users/:uuid/profile/avatar', usersMW.load, users.getProfileAvatar);
+  router.get('/users/:uuid/profile/avatar', usersMW.loadTargetUser, users.getTargetUserAvatar);
 };

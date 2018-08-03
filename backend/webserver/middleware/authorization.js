@@ -12,6 +12,7 @@ module.exports = {
   requiresAPILoginAndFailWithError: _requiresAPILoginAndFailWithError(true),
   requiresDomainManager,
   requiresDomainMember,
+  requiresTargetUserIsDomainMember,
   requiresCommunityCreator,
   requiresJWT,
   decodeJWTandLoadUser
@@ -110,6 +111,10 @@ function requiresDomainMember(req, res, next) {
 
     res.status(403).json({error: 403, message: 'Forbidden', details: 'User does not belongs to the domain'});
   });
+}
+
+function requiresTargetUserIsDomainMember(req, res, next) {
+  return requiresDomainMember(Object.assign({}, req, { user: req.targetUser }), res, next);
 }
 
 function requiresCommunityCreator(req, res, next) {

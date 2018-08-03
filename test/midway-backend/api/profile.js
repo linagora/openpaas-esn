@@ -64,6 +64,13 @@ describe('The profile API', function() {
     helpers.mongo.dropDatabase(done);
   });
 
+  function sendRequestAsUser(user, next) {
+    helpers.api.loginAsUser(
+      app, user.emails[0], password,
+      helpers.callbacks.noErrorAnd(loggedInAsUser => next(loggedInAsUser))
+    );
+  }
+
   describe('GET /api/users/:userId/profile route', function() {
 
     it('should return 401 if not authenticated', function(done) {
@@ -393,6 +400,147 @@ describe('The profile API', function() {
         }
 
         helpers.requireBackend('core/user/follow').follow(foouser, baruser).then(test, done);
+      });
+    });
+  });
+
+  describe('PUT /api/users/:userId ', function() {
+    const USERS_API_PATH = '/api/users';
+    let userDomainMember, userDomainAdmin, userDomain2Member;
+
+    beforeEach(function(done) {
+      userDomainAdmin = foouser;
+      userDomainMember = baruser;
+
+      helpers.api.applyDomainDeployment('linagora_test_domain2', function(err, models2) {
+        expect(err).to.not.exist;
+        userDomain2Member = models2.users[1];
+
+        helpers.elasticsearch.saveTestConfiguration(helpers.callbacks.noError(done));
+      });
+    });
+
+    it('should return 401 if not authenticated', function(done) {
+      helpers.api.requireLogin(app, 'put', `${USERS_API_PATH}/${userDomainMember._id}`, done);
+    });
+
+    it('should send back 403 if current user is not the domain admin', function(done) {
+      sendRequestAsUser(userDomainMember, loggedInAsUser => {
+        loggedInAsUser(
+          request(app)
+            .put(`${USERS_API_PATH}/${userDomainMember._id}`)
+            .query(`domain_id=${domain_id}`)
+            .send()
+        )
+          .expect(403)
+          .end(helpers.callbacks.noErrorAnd(res => {
+            expect(res.body).to.shallowDeepEqual({
+              error: {
+                code: 403,
+                message: 'Forbidden',
+                details: 'User is not the domain manager'
+              }
+            });
+            done();
+          }));
+      });
+    });
+
+    it('should send back 403 if target user is not member of the domain', function(done) {
+      sendRequestAsUser(userDomainAdmin, loggedInAsUser => {
+        loggedInAsUser(
+          request(app)
+            .put(`${USERS_API_PATH}/${userDomain2Member._id}`)
+            .query(`domain_id=${domain_id}`)
+            .send()
+        )
+          .expect(403)
+          .end(helpers.callbacks.noErrorAnd(res => {
+            expect(res.body).to.shallowDeepEqual({
+              error: 403,
+              message: 'Forbidden',
+              details: 'User does not belongs to the domain'
+            });
+            done();
+          }));
+      });
+    });
+
+    it('should send back 404 if target user is not found', function(done) {
+      sendRequestAsUser(userDomainAdmin, loggedInAsUser => {
+        loggedInAsUser(
+          request(app)
+            .put(`${USERS_API_PATH}/${new mongoose.Types.ObjectId()}`)
+            .query(`domain_id=${domain_id}`)
+            .send()
+        )
+          .expect(404)
+          .end(helpers.callbacks.noErrorAnd(res => {
+            expect(res.body).to.shallowDeepEqual({
+              error: {
+                code: 404,
+                message: 'Not found',
+                details: 'User not found'
+              }
+            });
+            done();
+          }));
+      });
+    });
+
+    it('should update profile and respond 200 with denormalized user', function(done) {
+      const User = mongoose.model('User');
+      const profile = {
+        firstname: 'James',
+        lastname: 'Amaly',
+        job_title: 'Engineer',
+        service: 'IT',
+        building_location: 'Tunis',
+        office_location: 'France',
+        main_phone: '123456789',
+        description: 'This is my description'
+      };
+
+      sendRequestAsUser(userDomainAdmin, loggedInAsUser => {
+        loggedInAsUser(
+          request(app)
+            .put(`${USERS_API_PATH}/${userDomainMember._id}`)
+            .query(`domain_id=${domain_id}`)
+            .send(profile)
+        )
+          .expect(200)
+          .end(helpers.callbacks.noErrorAnd(res => {
+            expect(res.body).to.shallowDeepEqual({
+              firstname: profile.firstname,
+              lastname: profile.lastname,
+              job_title: profile.job_title,
+              service: profile.service,
+              building_location: profile.building_location,
+              office_location: profile.office_location,
+              main_phone: profile.main_phone,
+              description: profile.description
+            });
+            expect(res.body.password).to.not.exist;
+            expect(res.body.accounts).to.not.exist;
+
+            User.findOne({ _id: userDomainMember._id })
+              .then(user => {
+                expect({
+                  firstname: user.firstname,
+                  lastname: user.lastname,
+                  job_title: user.job_title,
+                  service: user.service,
+                  building_location: user.building_location,
+                  office_location: user.office_location,
+                  main_phone: user.main_phone,
+                  description: user.description
+                })
+                .to.deep.equal(profile);
+
+                done();
+              })
+              .catch(done);
+          }));
       });
     });
   });

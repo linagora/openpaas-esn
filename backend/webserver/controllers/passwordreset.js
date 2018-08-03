@@ -13,7 +13,7 @@ module.exports = {
 };
 
 function sendPasswordReset(req, res) {
-  userLogin.sendPasswordReset(req.user, function(err) {
+  userLogin.sendPasswordReset(req.targetUser, function(err) {
     if (err) {
       logger.error('Error while sending password reset', err);
 
