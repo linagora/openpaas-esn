@@ -21,21 +21,36 @@
 
     function updateProfile() {
       var promiseChain;
+      var shouldReloadAfterUpdate = false;
 
-       if (angular.equals(self.user, self.mutableUser)) {
+      if (angular.equals(self.user, self.mutableUser)) {
         promiseChain = $q.when();
       } else {
         promiseChain = asyncAction(notificationMessages, function() {
-          return profileAPI.updateProfile(self.mutableUser).then(function() {
-            session.setUser(self.mutableUser);
-          });
+          if (_isCurrentUser(self.mutableUser)) {
+            return profileAPI.updateProfile(self.mutableUser).then(function() {
+              session.setUser(self.mutableUser);
+            });
+          }
+
+          shouldReloadAfterUpdate = true;
+
+          return profileAPI.updateUserProfile(self.mutableUser, self.mutableUser._id, session.domain._id);
         });
       }
 
       return promiseChain
         .then(function() {
-          $state.go('profile', {user_id: ''}, {location: 'replace'});
+          $state.go(
+            'profile',
+            { user_id: _isCurrentUser(self.mutableUser) ? '' : self.mutableUser._id },
+            { location: 'replace', reload: shouldReloadAfterUpdate }
+          );
         });
+    }
+
+    function _isCurrentUser(user) {
+      return user._id === session.user._id;
     }
   }
 

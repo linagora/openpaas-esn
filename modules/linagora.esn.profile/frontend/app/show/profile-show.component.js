@@ -6,7 +6,8 @@
       templateUrl: '/profile/app/show/profile-show.html',
       bindings: {
         user: '<',
-        me: '<'
+        me: '<',
+        canEdit: '<'
       }
     });
 })(angular);

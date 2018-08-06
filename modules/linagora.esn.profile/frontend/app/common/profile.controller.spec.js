@@ -26,7 +26,7 @@ describe('The profileController', function() {
       address: 'foo@bar.com',
       _id: '123'
     };
-    sessionMock = { user: userMock };
+    sessionMock = { user: userMock, userIsDomainAdministrator: angular.noop };
     $scope = $rootScope.$new();
   });
 
@@ -40,19 +40,38 @@ describe('The profileController', function() {
     });
   }
 
-  it('should set a me flag when the user is the same as the logged-in user', function() {
+  it('should set "me" and "canEdit" true for current user', function() {
     initProfileController();
 
     expect($scope.me).to.be.true;
+    expect($scope.canEdit).to.be.true;
   });
 
-  it('should not set a me flag when the user is not the logged-in user', function() {
-    sessionMock.user = {
-      _id: '456'
+  it('should set "me" and "canEdit" false for another user who is not domain admin', function() {
+    sessionMock = {
+      user: {
+        _id: '456'
+      },
+      userIsDomainAdministrator: function() { return false; }
     };
 
     initProfileController();
 
     expect($scope.me).to.be.false;
+    expect($scope.canEdit).to.be.false;
+  });
+
+  it('should set "canEdit" true for domain admin user', function() {
+    sessionMock = {
+      user: {
+        _id: '456'
+      },
+      userIsDomainAdministrator: function() { return true; }
+    };
+
+    initProfileController();
+
+    expect($scope.me).to.be.false;
+    expect($scope.canEdit).to.be.true;
   });
 });

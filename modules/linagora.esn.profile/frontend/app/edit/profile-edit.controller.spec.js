@@ -50,28 +50,31 @@ describe('The profileEditController', function() {
       profileAPI.updateProfile = sinon.stub().returns($q.when());
     }));
 
-    it('should do nothing but just go back to profile state if the mutableUser object is the same as the user object', function(done) {
+    it('should do nothing but just go back to profile state without reload if the mutableUser object is the same as the user object', function(done) {
       var user = { _id: 123, name: 'Alice' };
       var controller = initController();
 
       controller.user = user;
       controller.mutableUser = user;
+      session.user = user;
 
       controller.updateProfile().then(function() {
         expect(profileAPI.updateProfile).to.not.have.been.called;
         expect($state.go).to.have.been.calledOnce;
-        expect($state.go).to.have.been.calledWith('profile', { user_id: '' });
+        expect($state.go).to.have.been.calledWith('profile', { user_id: '' }, { location: 'replace', reload: false });
         done();
       });
 
       $rootScope.$digest();
     });
 
-    it('should call profileAPI to update user profile', function(done) {
+    it('should call profileAPI to update profile of current user', function(done) {
+      var user = { _id: 123, name: 'Alice' };
       var controller = initController();
 
-      controller.user = { _id: 123, name: 'Alice' };
+      controller.user = user;
       controller.mutableUser = { _id: 123, name: 'Alice Rose' };
+      session.user = user;
 
       controller.updateProfile().then(function() {
         expect(profileAPI.updateProfile).to.have.been.calledOnce;
@@ -82,11 +85,31 @@ describe('The profileEditController', function() {
       $rootScope.$digest();
     });
 
-    it('should update the session user on success', function(done) {
+    it('should call profileAPI.updateUserProfile to update profile of specific user', function(done) {
       var controller = initController();
 
       controller.user = { _id: 123, name: 'Alice' };
       controller.mutableUser = { _id: 123, name: 'Alice Rose' };
+      session.user = { _id: 456, name: 'Bob' };
+
+      profileAPI.updateUserProfile = sinon.stub().returns($q.when());
+
+      controller.updateProfile().then(function() {
+        expect(profileAPI.updateUserProfile).to.have.been.calledOnce;
+        expect(profileAPI.updateUserProfile).to.have.been.calledWith(controller.mutableUser, controller.mutableUser._id, session.domain._id);
+        done();
+      });
+
+      $rootScope.$digest();
+    });
+
+    it('should update the session user on success', function(done) {
+      var user = { _id: 123, name: 'Alice' };
+      var controller = initController();
+
+      controller.user = user;
+      controller.mutableUser = { _id: 123, name: 'Alice Rose' };
+      session.user = user;
 
       controller.updateProfile().then(function() {
         expect(session.setUser).to.have.been.calledOnce;
@@ -97,15 +120,35 @@ describe('The profileEditController', function() {
       $rootScope.$digest();
     });
 
-    it('should go back to profile state on success', function(done) {
+    it('should go back to profile state without reload on success update profile of current user', function(done) {
+      var user = { _id: 123, name: 'Alice' };
+      var controller = initController();
+
+      controller.user = user;
+      controller.mutableUser = { _id: 123, name: 'Alice Rose' };
+      session.user = user;
+
+      controller.updateProfile().then(function() {
+        expect($state.go).to.have.been.calledOnce;
+        expect($state.go).to.have.been.calledWith('profile', { user_id: '' }, { location: 'replace', reload: false });
+        done();
+      });
+
+      $rootScope.$digest();
+    });
+
+    it('should go back and reload profile state on success update profile of specific user', function(done) {
       var controller = initController();
 
       controller.user = { _id: 123, name: 'Alice' };
       controller.mutableUser = { _id: 123, name: 'Alice Rose' };
+      session.user = { _id: 456, name: 'Bob' };
+
+      profileAPI.updateUserProfile = sinon.stub().returns($q.when());
 
       controller.updateProfile().then(function() {
         expect($state.go).to.have.been.calledOnce;
-        expect($state.go).to.have.been.calledWith('profile', { user_id: '' });
+        expect($state.go).to.have.been.calledWith('profile', { user_id: controller.mutableUser._id }, { location: 'replace', reload: true });
         done();
       });
 
