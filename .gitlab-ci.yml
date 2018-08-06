@@ -310,14 +310,17 @@ deploy-dev:
     - git checkout -- .
     - sudo /etc/init.d/rse.dev restart
 
-docker-snapshot:
+.build-docker-tpl: &build-docker-tpl
   image: docker-registry.linagora.com:5000/linshare-snapshots/linshare-dind:latest
-  stage: build
   tags:
     - docker
   services:
       - name: docker-registry.linagora.com:5000/linshare-snapshots/linshare-dind:latest
         alias: docker-dind
+
+docker-snapshot:
+  <<: *build-docker-tpl
+  stage: build
   variables:
       DOCKER_HOST: "tcp://docker-dind"
       DOCKER_IMAGE_PRIVATE: "docker-registry.linagora.com:5000/openpaas-snapshots/openpaas-esn"
@@ -331,16 +334,14 @@ docker-snapshot:
     - docker logout
   only:
     - master@linagora/lgs/openpaas/esn
-    - release-*@linagora/lgs/openpaas/esn
+    - /^release-.*/@linagora/lgs/openpaas/esn
+  except:
+    variables:
+      - $SKIP_BUILD_DOCKER
 
 docker-release:
-  image: docker-registry.linagora.com:5000/linshare-snapshots/linshare-dind:latest
+  <<: *build-docker-tpl
   stage: build
-  tags:
-    - docker
-  services:
-      - name: docker-registry.linagora.com:5000/linshare-snapshots/linshare-dind:latest
-        alias: docker-dind
   variables:
       DOCKER_HOST: "tcp://docker-dind"
       DOCKER_IMAGE_PRIVATE: "docker-registry.linagora.com:5000/openpaas-releases/openpaas-esn"
@@ -354,30 +355,28 @@ docker-release:
     - docker logout
   only:
     - tags@linagora/lgs/openpaas/esn
+  except:
+    variables:
+      - $SKIP_BUILD_DOCKER
 
 docker-mark-as-latest:
-  image: docker-registry.linagora.com:5000/linshare-snapshots/linshare-dind:latest
+  <<: *build-docker-tpl
   stage: deploy
-  tags:
-    - docker
   variables:
     GIT_STRATEGY: none
-  services:
-      - name: docker-registry.linagora.com:5000/linshare-snapshots/linshare-dind:latest
-        alias: docker-dind
   variables:
       DOCKER_HOST: "tcp://docker-dind"
       DOCKER_IMAGE_PRIVATE: "docker-registry.linagora.com:5000/openpaas-releases/openpaas-esn"
       DOCKER_IMAGE_PUBLIC: "linagora/esn"
   script:
-    - if [ "${TAG}" == "" ] ; then exit 1; fi
+    - if [ "${LATEST_TAG_SRC}" == "" ] ; then exit 1; fi
     - docker login -u ${REGISTRY_USER_RELEASE} -p ${REGISTRY_TOKEN_RELEASE} docker-registry.linagora.com:5000
     - docker login -u ${HUB_DOCKER_USER} -p ${HUB_DOCKER_TOKEN}
-    - docker pull ${DOCKER_IMAGE_PRIVATE}:${TAG}
+    - docker pull ${DOCKER_IMAGE_PRIVATE}:${LATEST_TAG_SRC}
     - export DOCKER_TAGS=latest
-    - docker-tag-and-push.sh ${DOCKER_IMAGE_PRIVATE}:${TAG} ${DOCKER_IMAGE_PRIVATE} ${DOCKER_IMAGE_PUBLIC}
+    - docker-tag-and-push.sh ${DOCKER_IMAGE_PRIVATE}:${LATEST_TAG_SRC} ${DOCKER_IMAGE_PRIVATE} ${DOCKER_IMAGE_PUBLIC}
     - docker logout
   when: manual
   only:
     - master@linagora/lgs/openpaas/esn
-    - release-*@linagora/lgs/openpaas/esn
+    - /^release-.*/@linagora/lgs/openpaas/esn
