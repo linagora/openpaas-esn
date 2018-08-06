@@ -98,6 +98,8 @@ linters:
   except:
     variables:
       - $SKIP_LINTERS
+    refs:
+      - tags@linagora/lgs/openpaas/esn
 
 ####### tests without services requirements
 frontend-test:
@@ -164,6 +166,8 @@ midway-backend-test-deprecated:
     variables:
       - $SKIP_DEPRECATED_TESTS
       - $SKIP_TESTS
+    refs:
+      - tags@linagora/lgs/openpaas/esn
 
 
 # Why is it deactivated ?
@@ -266,6 +270,8 @@ build_pkg_rpm_openpaas-james:
       -F "variables[DOCKERFILE]=redhat/7/openpaas-james/Dockerfile"
       https://ci.linagora.com/api/v4/projects/338/trigger/pipeline | jq .
 
+# Maybe this stage should not use test-template,
+# the job will not created for tag pipeline.
 swagger:
   <<: *test-template
   stage: swagger
