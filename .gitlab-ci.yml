@@ -46,6 +46,8 @@ stages:
   except:
     variables:
       - $SKIP_TESTS
+    refs:
+      - tags@linagora/lgs/openpaas/esn
 
 .test-template-svc: &test-template-svc
   <<: *test-template
