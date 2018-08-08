@@ -121,6 +121,7 @@ describe('The module manager', function() {
         'linagora.esn.core.webserver.middleware.templates',
         'linagora.esn.core.webserver.middleware.token',
         'linagora.esn.core.webserver.middleware.usernotifications',
+        'linagora.esn.core.webserver.middleware.users',
         'linagora.esn.core.webserver.middleware.verify-recaptcha'
       ];
       var mm = this.helpers.requireBackend('module-manager');

@@ -109,6 +109,7 @@ function mockMiddlewares() {
     'templates',
     'token',
     'usernotifications',
+    'users',
     'verify-recaptcha'
   ];
 
