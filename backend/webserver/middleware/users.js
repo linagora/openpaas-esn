@@ -27,8 +27,8 @@ function onFind(req, res, next, err, user) {
 function loadTargetUser(req, res, next) {
   if (req.params.uuid) {
     return userModule.get(req.params.uuid, onFind.bind(null, req, res, next));
-  } else if (req.body.email) {
-    return userModule.findByEmail(req.body.email, onFind.bind(null, req, res, next));
+  } else if (req.query.email || req.body.email) {
+    return userModule.findByEmail(req.query.email || req.body.email, onFind.bind(null, req, res, next));
   } else {
     return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'uuid or email missing'}});
   }
