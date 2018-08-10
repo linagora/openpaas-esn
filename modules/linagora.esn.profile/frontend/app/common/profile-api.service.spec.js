@@ -5,48 +5,47 @@
 var expect = chai.expect;
 
 describe('The profileAPI service', function() {
+  var $httpBackend, profileApi;
 
   beforeEach(function() {
     module('linagora.esn.profile');
+
+    inject(function(_$httpBackend_, _profileAPI_) {
+      $httpBackend = _$httpBackend_;
+      profileApi = _profileAPI_;
+    });
   });
 
   describe('The updateProfileField fn', function() {
-    beforeEach(angular.mock.inject(function(profileAPI, $httpBackend) {
-      this.$httpBackend = $httpBackend;
-      this.profileAPI = profileAPI;
-
+    beforeEach(function() {
       this.fieldName = 'name';
       this.fieldValue = 'fieldValue';
-    }));
+    });
 
     it('should send a request to /api/user/profile/fieldName', function() {
-      this.$httpBackend.expectPUT('/api/user/profile/' + this.fieldName).respond();
-      this.profileAPI.updateProfileField(this.fieldName, this.fieldValue);
-      this.$httpBackend.flush();
+      $httpBackend.expectPUT('/api/user/profile/' + this.fieldName).respond();
+
+      profileApi.updateProfileField(this.fieldName, this.fieldValue);
+      $httpBackend.flush();
     });
 
     it('should return a promise', function() {
-      var promise = this.profileAPI.updateProfileField(this.request);
+      var promise = profileApi.updateProfileField(this.request);
 
       expect(promise.then).to.be.a.function;
     });
   });
 
   describe('The updateProfile fn', function() {
-    beforeEach(angular.mock.inject(function(profileAPI, $httpBackend, Restangular) {
-      this.$httpBackend = $httpBackend;
-      this.profileAPI = profileAPI;
-      Restangular.setFullResponse(true);
-    }));
-
     it('should send a PUT request to /user/profile', function() {
-      this.$httpBackend.expectPUT('/api/user/profile').respond(200, []);
-      this.profileAPI.updateProfile(this.profile);
-      this.$httpBackend.flush();
+      $httpBackend.expectPUT('/api/user/profile').respond(200, []);
+
+      profileApi.updateProfile(this.profile);
+      $httpBackend.flush();
     });
 
     it('should return a promise', function() {
-      var promise = this.profileAPI.updateProfile();
+      var promise = profileApi.updateProfile();
 
       expect(promise.then).to.be.a.function;
     });
@@ -63,9 +62,32 @@ describe('The profileAPI service', function() {
         description: 'This is my description'
       };
 
-      this.$httpBackend.expectPUT('/api/user/profile', object).respond(200, []);
-      this.profileAPI.updateProfile(object);
-      this.$httpBackend.flush();
+      $httpBackend.expectPUT('/api/user/profile', object).respond(200, []);
+
+      profileApi.updateProfile(object);
+      $httpBackend.flush();
+    });
+  });
+
+  describe('The updateUserProfile function', function() {
+    it('should send a PUT request to /users/userId?domain_id=domainId', function() {
+      var userId = '123';
+      var domainId = '456';
+      var newProfile = {
+        firstname: 'john',
+        lastname: 'Amaly',
+        job_title: 'Engineer',
+        service: 'IT',
+        building_location: 'Tunis',
+        office_location: 'France',
+        main_phone: 'Engineer',
+        description: 'This is my description'
+      };
+
+      $httpBackend.expectPUT('/api/users/' + userId + '?domain_id=' + domainId, newProfile).respond(200, {});
+
+      profileApi.updateUserProfile(newProfile, userId, domainId);
+      $httpBackend.flush();
     });
   });
 });

@@ -7,7 +7,8 @@
   function profileAPI(esnRestangular) {
     return {
       updateProfileField: updateProfileField,
-      updateProfile: updateProfile
+      updateProfile: updateProfile,
+      updateUserProfile: updateUserProfile
     };
 
     function updateProfileField(fieldName, fieldValue) {
@@ -20,6 +21,10 @@
 
     function updateProfile(profile) {
       return esnRestangular.one('user/profile').customPUT(profile);
+    }
+
+    function updateUserProfile(profile, userId, domainId) {
+      return esnRestangular.one('users', userId).customPUT(profile, null, { domain_id: domainId });
     }
   }
 })(angular);

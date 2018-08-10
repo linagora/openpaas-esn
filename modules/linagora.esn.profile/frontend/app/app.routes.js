@@ -13,15 +13,17 @@ angular.module('linagora.esn.profile')
         params: {user_id: {value: null, squash: true}},
         resolve: {
           user: function($stateParams, $location, userAPI, session) {
-            if ($stateParams.user_id) {
-              return userAPI.user($stateParams.user_id).then(function(response) {
-                return response.data;
-              }, function() {
-                $location.path('/');
-              });
-            }
-
             return session.ready.then(function(session) {
+              if ($stateParams.user_id && $stateParams.user_id !== session.user._id) {
+                return userAPI.user($stateParams.user_id).then(function(response) {
+                  return response.data;
+                }, function() {
+                  $location.path('/');
+                });
+              }
+
+              $stateParams.user_id = null;
+
               return session.user;
             });
           }
@@ -32,7 +34,7 @@ angular.module('linagora.esn.profile')
         url: '/details',
         views: {
           'root@profile': {
-            template: '<profile-show user="user" me="me" />'
+            template: '<profile-show user="user", me="me", can-edit="canEdit" />'
           }
         }
       })
