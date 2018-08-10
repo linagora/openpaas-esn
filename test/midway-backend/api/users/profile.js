@@ -693,47 +693,108 @@ describe('The profile API', function() {
       helpers.api.requireLogin(app, 'post', '/api/user/profile/avatar', done);
     });
 
-    it('should return 400 if the "mimetype" query string is missing', function(done) {
+    it('should return 400 if the "mimetype" is missing in query', function(done) {
       helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
         const req = loggedInAsUser(request(app).post('/api/user/profile/avatar?size=123'));
 
-        req.send().expect(400).end(helpers.callbacks.noError(done));
+        req.send().expect(400).end(helpers.callbacks.noErrorAnd(res => {
+          expect(res.body).to.shallowDeepEqual({
+            error: {
+              code: 400,
+              message: 'Bad Request',
+              details: 'missing mimetype in query'
+            }
+          });
+
+          done();
+        }));
       });
     });
 
-    it('should return 400 if the "size" query string is missing', function(done) {
+    it('should return 400 if the "size" is missing in query', function(done) {
       helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
         const req = loggedInAsUser(request(app).post('/api/user/profile/avatar?mimetype=image%2Fpng'));
 
-        req.send().expect(400).end(helpers.callbacks.noError(done));
+        req.send().expect(400).end(helpers.callbacks.noErrorAnd(res => {
+          expect(res.body).to.shallowDeepEqual({
+            error: {
+              code: 400,
+              message: 'Bad Request',
+              details: 'missing size in query'
+            }
+          });
+
+          done();
+        }));
       });
     });
 
-    it('should return 400 if the "mimetype" query string is not an accepted mime type', function(done) {
+    it('should return 415 if the "mimetype" query param is not an accepted mime type', function(done) {
       helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
         const req = loggedInAsUser(request(app).post('/api/user/profile/avatar?mimetype=notAGoodType&size=123'));
 
-        req.send().expect(400).end(helpers.callbacks.noError(done));
+        req.send().expect(415).end(helpers.callbacks.noErrorAnd(res => {
+          expect(res.body).to.shallowDeepEqual({
+            error: {
+              code: 415,
+              message: 'Unsupported Media Type',
+              details: `Mimetype notAGoodType is not accepted: should be one in ${helpers.requireBackend('core/image').CONSTANTS.ACCEPTED_MIME_TYPES.join(', ')}`
+            }
+          });
+
+          done();
+        }));
       });
     });
 
-    it('should return 400 if the "size" query string is not a number', function(done) {
+    it('should return 400 if the "size" query param is not a number', function(done) {
       helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
           return done(err);
         }
         const req = loggedInAsUser(request(app).post('/api/user/profile/avatar?mimetype=image%2Fpng&size=notanumber'));
 
-        req.send().expect(400).end(helpers.callbacks.noError(done));
+        req.send().expect(400).end(helpers.callbacks.noErrorAnd(res => {
+          expect(res.body).to.shallowDeepEqual({
+            error: {
+              code: 400,
+              message: 'Bad Request',
+              details: 'size should be positive integer'
+            }
+          });
+
+          done();
+        }));
+      });
+    });
+
+    it('should return 400 if the "size" query param is not a positive number', function(done) {
+      helpers.api.loginAsUser(app, foouser.emails[0], password, (err, loggedInAsUser) => {
+        if (err) {
+          return done(err);
+        }
+        const req = loggedInAsUser(request(app).post('/api/user/profile/avatar?mimetype=image%2Fpng&size=-69'));
+
+        req.send().expect(400).end(helpers.callbacks.noErrorAnd(res => {
+          expect(res.body).to.shallowDeepEqual({
+            error: {
+              code: 400,
+              message: 'Bad Request',
+              details: 'size should be positive integer'
+            }
+          });
+
+          done();
+        }));
       });
     });
 

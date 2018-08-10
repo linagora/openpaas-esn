@@ -2,10 +2,11 @@ const _ = require('lodash');
 const dbHelper = require('../../helpers').db;
 
 module.exports = {
-  requireBodyAsArray,
+  checkIdInParams,
   requireBody,
+  requireBodyAsArray,
   requireInQuery,
-  checkIdInParams
+  requirePositiveIntegersInQuery
 };
 
 function requireBodyAsArray(req, res, next) {
@@ -48,6 +49,30 @@ function requireInQuery(queries, customMessage) {
           code: 400,
           message: 'Bad Request',
           details: customMessage || `missing ${missingQueries.join(', ')} in query`
+        }
+      });
+    }
+
+    next();
+  };
+}
+
+function requirePositiveIntegersInQuery(queryParams, customMessage) {
+  queryParams = Array.isArray(queryParams) ? queryParams : [queryParams];
+
+  return (req, res, next) => {
+    const invalidQueryParams = queryParams.filter(param => {
+      const intValue = parseInt(req.query[param], 10);
+
+      return isNaN(intValue) || intValue < 1;
+    });
+
+    if (invalidQueryParams.length > 0) {
+      return res.status(400).json({
+        error: {
+          code: 400,
+          message: 'Bad Request',
+          details: customMessage || `${invalidQueryParams.join(', ')} should be positive integer`
         }
       });
     }

@@ -335,81 +335,6 @@ describe('The User controller', function() {
   });
 
   describe('postProfileAvatar() function', function() {
-    it('should return 404 if the user is not actually logged in', function(done) {
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-      var req = {};
-      var res = this.helpers.express.jsonResponse(
-        function(code, data) {
-          expect(code).to.equal(404);
-          expect(data.error).to.equal(404);
-          expect(data.message).to.equal('Not found');
-          expect(data.details).to.equal('User not found');
-          done();
-        }
-      );
-      users.postProfileAvatar(req, res);
-    });
-
-    it('should return 400 if the mimetype argument is not set', function(done) {
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-      var req = {user: {}, query: {}};
-      var res = this.helpers.express.jsonResponse(
-        function(code, data) {
-          expect(code).to.equal(400);
-          expect(data.error).to.equal(400);
-          expect(data.message).to.equal('Parameter missing');
-          expect(data.details).to.equal('mimetype parameter is required');
-          done();
-        }
-      );
-      users.postProfileAvatar(req, res);
-    });
-
-    it('should return 400 if the mimetype argument is not an image mimetype', function(done) {
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-      var req = {user: {}, query: {mimetype: 'application/yolo'}};
-      var res = this.helpers.express.jsonResponse(
-        function(code, data) {
-          expect(code).to.equal(400);
-          expect(data.error).to.equal(400);
-          expect(data.message).to.equal('Bad parameter');
-          expect(data.details).to.equal('mimetype application/yolo is not acceptable');
-          done();
-        }
-      );
-      users.postProfileAvatar(req, res);
-    });
-
-    it('should return 400 if the size argument is not set', function(done) {
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-      var req = {user: {}, query: {mimetype: 'image/png'}};
-      var res = this.helpers.express.jsonResponse(
-        function(code, data) {
-          expect(code).to.equal(400);
-          expect(data.error).to.equal(400);
-          expect(data.message).to.equal('Parameter missing');
-          expect(data.details).to.equal('size parameter is required');
-          done();
-        }
-      );
-      users.postProfileAvatar(req, res);
-    });
-
-    it('should return 400 if the size argument is not an integer', function(done) {
-      var users = this.helpers.requireBackend('webserver/controllers/users');
-      var req = {user: {}, query: {mimetype: 'image/png', size: 'yolo'}};
-      var res = this.helpers.express.jsonResponse(
-        function(code, data) {
-          expect(code).to.equal(400);
-          expect(data.error).to.equal(400);
-          expect(data.message).to.equal('Bad parameter');
-          expect(data.details).to.equal('size parameter should be an integer');
-          done();
-        }
-      );
-      users.postProfileAvatar(req, res);
-    });
-
     it('should call the image.recordAvatar method', function(done) {
       var imageMock = {
         recordAvatar: function(avatarId, mimetype, opts, req, avatarRecordResponse) {
@@ -461,11 +386,14 @@ describe('The User controller', function() {
       var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {user: {}, query: {mimetype: 'image/png', size: 42}};
       var res = this.helpers.express.jsonResponse(
-        function(code, data) {
+        (code, data) => {
           expect(code).to.equal(500);
-          expect(data.error).to.equal(500);
-          expect(data.message).to.equal('Datastore failure');
-          expect(data.details).to.equal('yolo');
+          expect(data.error).to.shallowDeepEqual({
+            code: 500,
+            message: 'Server Error',
+            details: 'Error while updating user avatar: failed to store avatar'
+          });
+
           done();
         }
       );
@@ -484,11 +412,14 @@ describe('The User controller', function() {
       var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {user: {}, query: {mimetype: 'image/png', size: 42}};
       var res = this.helpers.express.jsonResponse(
-        function(code, data) {
+        (code, data) => {
           expect(code).to.equal(500);
-          expect(data.error).to.equal(500);
-          expect(data.message).to.equal('Image processing failure');
-          expect(data.details).to.equal('yolo');
+          expect(data.error).to.shallowDeepEqual({
+            code: 500,
+            message: 'Server Error',
+            details: 'Error while updating user avatar: failed to process avatar'
+          });
+
           done();
         }
       );
@@ -506,14 +437,18 @@ describe('The User controller', function() {
       var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {user: {}, query: {mimetype: 'image/png', size: 42}};
       var res = this.helpers.express.jsonResponse(
-        function(code, data) {
+        (code, data) => {
           expect(code).to.equal(500);
-          expect(data.error).to.equal(500);
-          expect(data.message).to.equal('Internal server error');
-          expect(data.details).to.equal('yolo');
+          expect(data.error).to.shallowDeepEqual({
+            code: 500,
+            message: 'Server Error',
+            details: 'Error while updating user avatar'
+          });
+
           done();
         }
       );
+
       users.postProfileAvatar(req, res);
     });
 
@@ -527,10 +462,14 @@ describe('The User controller', function() {
       var users = this.helpers.requireBackend('webserver/controllers/users');
       var req = {user: {}, query: {mimetype: 'image/png', size: 42}};
       var res = this.helpers.express.jsonResponse(
-        function(code, data) {
+        (code, data) => {
           expect(code).to.equal(412);
-          expect(data.error).to.equal(412);
-          expect(data.message).to.equal('Image size does not match');
+          expect(data.error).to.shallowDeepEqual({
+            code: 412,
+            message: 'Precondition Failed',
+            details: 'Avatar size given by user agent is 42 and avatar size returned by storage system is 666'
+          });
+
           done();
         }
       );
@@ -579,6 +518,9 @@ describe('The User controller', function() {
           recordAvatar: function(avatarId, mimetype, opts, req, avatarRecordResponse) {
             avatarRecordResponse(null, 42);
           }
+        },
+        logger: {
+          error: () => {}
         }
       };
       mockery.registerMock('../../core', moduleMock);
@@ -591,11 +533,14 @@ describe('The User controller', function() {
       };
       var req = {user: usermock, query: {mimetype: 'image/png', size: 42}};
       var res = this.helpers.express.jsonResponse(
-        function(code, data) {
+        (code, data) => {
           expect(code).to.equal(500);
-          expect(data.error).to.equal(500);
-          expect(data.message).to.equal('Datastore failure');
-          expect(data.details).to.equal('yolo');
+          expect(data.error).to.shallowDeepEqual({
+            code: 500,
+            message: 'Server Error',
+            details: 'Error while updating user avatar'
+          });
+
           done();
         }
       );
