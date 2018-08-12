@@ -798,8 +798,8 @@ describe('The profile API', function() {
       });
     });
 
-    it('should return 412 if the "size" query string is not equal to the actual image size', function(done) {
-      const fileContent = require('fs').readFileSync(imagePath).toString();
+    it('should return 412 if the "size" query param is not equal to the actual image size', function(done) {
+      const fileContent = require('fs').readFileSync(imagePath);
 
       helpers.api.loginAsUser(app, foouser.emails[0], password, function(err, loggedInAsUser) {
         if (err) {
@@ -809,7 +809,17 @@ describe('The profile API', function() {
 
         req.query({size: 123, mimetype: 'image/png'})
           .set('Content-Type', 'image/png')
-          .send(fileContent).expect(412).end(helpers.callbacks.error(done));
+          .send(fileContent).expect(412).end(helpers.callbacks.noErrorAnd(res => {
+            expect(res.body).to.shallowDeepEqual({
+              error: {
+                code: 412,
+                message: 'Precondition Failed',
+                details: 'Avatar size given by user agent is 123 and avatar size returned by storage system is 41096'
+              }
+            });
+
+            done();
+          }));
       });
     });
 
