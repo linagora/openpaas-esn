@@ -138,31 +138,6 @@ midway-backend-test:
   <<: *test-template-svc
   script:
     - grunt --chunk=1 -v gitlab-test-midway-backend
-  when: manual
-  # I can't make it works !
-
-midway-backend-test-deprecated:
-  stage: test
-  cache:
-    <<: *cache-tpl
-  tags:
-    - shell
-    - online.net
-    - mongo
-    - elasticsearch
-    - redis
-  script:
-    - export TZ=America/New_York
-    - . ~/.nvm/nvm.sh && nvm use 8
-    - npm i
-    - npm update
-    - npm prune
-    - grunt --chunk=1 -v test-midway-backend
-  except:
-    variables:
-      - $SKIP_DEPRECATED_TESTS
-      - $SKIP_TESTS
-
 
 # Why is it deactivated ?
 # This job try to build and test everything !!!
