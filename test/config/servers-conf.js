@@ -16,13 +16,15 @@ var DEFAULT_PORTS = {
 
 var images = require('../../docker/images.json');
 var host = process.env.HOSTNAME || process.env.DOCKER_HOST || 'localhost';
-var host_mongo = process.env.HOST_MONGODB || process.env.HOSTNAME || process.env.DOCKER_HOST || 'localhost';
-var host_rabbitmq = process.env.HOST_RABBITMQ || process.env.HOSTNAME || process.env.DOCKER_HOST || 'localhost';
-var host_elasticsearch = process.env.HOST_ELASTICSEARCH || process.env.HOSTNAME || process.env.DOCKER_HOST || 'localhost';
-var host_redis = process.env.HOST_REDIS || process.env.HOSTNAME || process.env.DOCKER_HOST || 'localhost';
+var mongoHost = process.env.MONGO_HOST || process.env.HOSTNAME || process.env.DOCKER_HOST || 'localhost';
+var mongoPort = process.env.MONGO_PORT || DEFAULT_PORTS.mongo;
+var amqpHost = process.env.AMQP_HOST || process.env.HOSTNAME || process.env.DOCKER_HOST || 'localhost';
+var amqpPort = process.env.AMQP_PORT || DEFAULT_PORTS.rabbitmq;
+var elasticsearchHost = process.env.ELASTICSEARCH_HOST || process.env.HOSTNAME || process.env.DOCKER_HOST || 'localhost';
+var elasticsearchPort = process.env.ELASTICSEARCH_PORT || DEFAULT_PORTS.elasticsearch;
+var redisHost = process.env.REDIS_HOST || process.env.HOSTNAME || process.env.DOCKER_HOST || 'localhost';
+var redisPort = process.env.REDIS_PORT || DEFAULT_PORTS.redis;
 var dbName = 'tests';
-var mongoPort = process.env.PORT_MONGODB || DEFAULT_PORTS.mongo;
-var rabbitmqPort = process.env.PORT_RABBITMQ || DEFAULT_PORTS.rabbitmq;
 
 module.exports = {
   tmp: tmp,
@@ -40,8 +42,8 @@ module.exports = {
     port: mongoPort,
     interval_replica_set: process.env.MONGODB_INTERVAL_REPLICA_SET || 1000,
     tries_replica_set: process.env.MONGODB_TRIES_REPLICA_SET || 20,
-    host: host_mongo,
-    connectionString: 'mongodb://' + host_mongo + ':' + mongoPort + '/' + dbName,
+    host: mongoHost,
+    connectionString: 'mongodb://' + mongoHost + ':' + mongoPort + '/' + dbName,
     replicat_set_name: 'rs',
     dbname: dbName,
     dbpath: tmp + '/mongo/',
@@ -55,8 +57,8 @@ module.exports = {
 
   redis: {
     cmd: process.env.CMD_REDIS || 'redis-server',
-    port: process.env.PORT_REDIS || DEFAULT_PORTS.redis,
-    host: host_redis,
+    port: redisPort,
+    host: redisHost,
     conf_file: '',
     log_path: '',
     pwd: '',
@@ -69,12 +71,12 @@ module.exports = {
   rabbitmq: {
     cmd: process.env.CMD_RABBITMQ ||
       'RABBITMQ_NODENAME=esn_test ' +
-      `RABBITMQ_NODE_PORT=${rabbitmqPort} ` +
+      `RABBITMQ_NODE_PORT=${amqpPort} ` +
       `RABBITMQ_MNESIA_BASE=${tmpAbsolutePath}/rabbitmq-mnesia ` +
       `RABBITMQ_LOG_BASE=${tmpAbsolutePath}/rabbitmq-logs ` +
       'rabbitmq-server',
-    port: rabbitmqPort,
-    url: 'amqp://' + host_rabbitmq + ':' + rabbitmqPort,
+    port: amqpPort,
+    url: 'amqp://' + amqpHost + ':' + amqpPort,
     container: {
       image: images.rabbitmq,
       name: 'rabbitmq_for_esn_test'
@@ -91,8 +93,8 @@ module.exports = {
 
   elasticsearch: {
     cmd: process.env.CMD_ELASTICSEARCH || 'elasticsearch',
-    port: process.env.PORT_ELASTICSEARCH || DEFAULT_PORTS.elasticsearch,
-    host: host_elasticsearch,
+    port: elasticsearchPort,
+    host: elasticsearchHost,
     communication_port: process.env.COMMUNICATION_PORT_ELASTICSEARCH || DEFAULT_PORTS.elasticsearch_comm,
     interval_index: process.env.ELASTICSEARCH_INTERVAL_INDEX || 1000,
     tries_index: process.env.ELASTICSEARCH_TRIES_INDEX || 20,
