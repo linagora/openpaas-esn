@@ -18,6 +18,7 @@ module.exports = {
   profile,
   updatePassword,
   updateProfile,
+  updateTargetUserAvatar,
   updateTargetUserProfile,
   updateStates,
   user
@@ -162,6 +163,71 @@ function updateProfile(req, res) {
           code: 500,
           message: 'Server Error',
           details
+        }
+      });
+    });
+}
+
+function updateTargetUserAvatar(req, res) {
+  // assign our domain object to "domain" property of request object (by load domain middleware)
+  // causes error "domain.enter is not a function" when process data stream (imageModule.recordAvatar function) on nodejs 8.
+  // The reason is request object is an instance of EventEmitter that uses domain module to handle IO errors.
+  // However, the domain module is deprecated (https://nodejs.org/api/domain.html)
+  // Note: it does not cause error on nodejs 9.11.2
+  delete req.domain;
+
+  const avatarId = new ObjectId();
+
+  Q.denodeify(imageModule.recordAvatar)(
+    avatarId,
+    req.query.mimetype.toLowerCase(),
+    {
+      creator: {
+        objectType: 'user',
+        id: req.targetUser._id
+      }
+    },
+    req
+  )
+    .then(storedBytes => {
+      const size = parseInt(req.query.size, 10);
+
+      if (storedBytes !== size) {
+        return res.status(412).json({
+          error: {
+            code: 412,
+            message: 'Precondition Failed',
+            details: `Avatar size given by user agent is ${size} and avatar size returned by storage system is ${storedBytes}`
+          }
+        });
+      }
+
+      const targetUser = req.targetUser;
+
+      targetUser.avatars.push(avatarId);
+      targetUser.currentAvatar = avatarId;
+
+      return Q.denodeify(userModule.update)(targetUser);
+    })
+    .then(() => res.status(200).json({ _id: avatarId }))
+    .catch(err => {
+      let details = 'Error while updating user avatar';
+
+      switch (err.code) {
+        case 1:
+          details = `${details}: failed to store avatar`;
+          break;
+        case 2:
+          details = `${details}: failed to process avatar`;
+      }
+
+      logger.error(details, err);
+
+      res.status(500).json({
+        error: {
+          code: 500,
+          message: 'Server Error',
+          details: details
         }
       });
     });
