@@ -262,7 +262,8 @@ describe('The document store routes resource', function() {
     it('should be successful with test database parameters', function(done) {
       this.testEnv.initCore(function() {
         var webserver = this.helpers.requireBackend('webserver').webserver;
-        var uri = '/api/document-store/connection/localhost/' +
+        var uri = '/api/document-store/connection/' +
+            this.testEnv.serversConfig.mongodb.host + '/' +
             this.testEnv.serversConfig.mongodb.port + '/' +
             this.testEnv.serversConfig.mongodb.dbname;
         request(webserver.application).put(uri).expect(200).end(function(err) {
