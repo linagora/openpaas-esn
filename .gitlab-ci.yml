@@ -46,6 +46,8 @@ stages:
   except:
     variables:
       - $SKIP_TESTS
+    refs:
+      - tags@linagora/lgs/openpaas/esn
 
 .test-template-svc: &test-template-svc
   <<: *test-template
@@ -94,6 +96,8 @@ linters:
   except:
     variables:
       - $SKIP_LINTERS
+    refs:
+      - tags@linagora/lgs/openpaas/esn
 
 ####### tests without services requirements
 frontend-test:
@@ -237,6 +241,8 @@ build_pkg_rpm_openpaas-james:
       -F "variables[DOCKERFILE]=redhat/7/openpaas-james/Dockerfile"
       https://ci.linagora.com/api/v4/projects/338/trigger/pipeline | jq .
 
+# Maybe this stage should not use test-template,
+# the job will not created for tag pipeline.
 swagger:
   <<: *test-template
   stage: swagger
@@ -332,7 +338,7 @@ docker-release:
     variables:
       - $SKIP_BUILD_DOCKER
 
-docker-mark-as-latest:
+docker-mark-as-latest-from-tag:
   <<: *build-docker-tpl
   stage: deploy
   variables:
@@ -341,14 +347,14 @@ docker-mark-as-latest:
       DOCKER_IMAGE_PRIVATE: "docker-registry.linagora.com:5000/openpaas-releases/openpaas-esn"
       DOCKER_IMAGE_PUBLIC: "linagora/esn"
   script:
-    - if [ "${LATEST_TAG_SRC}" == "" ] ; then exit 1; fi
     - docker login -u ${REGISTRY_USER_RELEASE} -p ${REGISTRY_TOKEN_RELEASE} docker-registry.linagora.com:5000
     - docker login -u ${HUB_DOCKER_USER} -p ${HUB_DOCKER_TOKEN}
-    - docker pull ${DOCKER_IMAGE_PRIVATE}:${LATEST_TAG_SRC}
+    - docker-tag-computing.sh ${CI_COMMIT_TAG} docker-tags.env
+    - source docker-tags.env
+    - docker pull ${DOCKER_IMAGE_PRIVATE}:${DOCKER_TAG}
     - export DOCKER_TAGS=latest
-    - docker-tag-and-push.sh ${DOCKER_IMAGE_PRIVATE}:${LATEST_TAG_SRC} ${DOCKER_IMAGE_PRIVATE} ${DOCKER_IMAGE_PUBLIC}
+    - docker-tag-and-push.sh ${DOCKER_IMAGE_PRIVATE}:${DOCKER_TAG} ${DOCKER_IMAGE_PRIVATE} ${DOCKER_IMAGE_PUBLIC}
     - docker logout
   when: manual
   only:
-    - master@linagora/lgs/openpaas/esn
-    - /^release-.*/@linagora/lgs/openpaas/esn
+    - tags@linagora/lgs/openpaas/esn
