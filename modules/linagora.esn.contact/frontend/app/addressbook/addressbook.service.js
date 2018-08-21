@@ -78,10 +78,7 @@
       return ContactAPIClient
         .addressbookHome(session.user._id)
         .addressbook(addressbook.bookName)
-        .update(addressbook)
-        .then(function() {
-          $rootScope.$broadcast(CONTACT_ADDRESSBOOK_EVENTS.UPDATED, addressbook);
-        });
+        .update(addressbook);
     }
 
     function listSubscribableAddressbooks(userId) {

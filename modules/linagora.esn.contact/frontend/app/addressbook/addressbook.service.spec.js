@@ -264,14 +264,13 @@ describe('The contactAddressbookService service', function() {
       $rootScope.$digest();
     });
 
-    it('should resolve and broadcast event when successfully updating addressbook', function(done) {
+    it('should resolve when successfully updating addressbook', function(done) {
       var addressbook = {
         name: 'toto',
         bookName: 'tata'
       };
       var updateSpy = sinon.stub().returns($q.when());
 
-      $rootScope.$broadcast = sinon.spy();
       ContactAPIClient.addressbookHome = function(bookId) {
         expect(bookId).to.equal(session.user._id);
 
@@ -290,7 +289,6 @@ describe('The contactAddressbookService service', function() {
         .updateAddressbook(addressbook)
         .then(function() {
           expect(updateSpy).to.have.been.calledWith(addressbook);
-          expect($rootScope.$broadcast).to.have.been.calledWith(CONTACT_ADDRESSBOOK_EVENTS.UPDATED, addressbook);
           done();
         })
         .catch(done);

@@ -6,7 +6,8 @@
       CREATED: 'contact:addressbook:created',
       DELETED: 'contact:addressbook:deleted',
       UPDATED: 'contact:addressbook:updated',
-      SUBSCRIPTION_DELETED: 'contact:addressbook:subscription:deleted'
+      SUBSCRIPTION_DELETED: 'contact:addressbook:subscription:deleted',
+      SUBSCRIPTION_UPDATED: 'contact:addressbook:subscription:updated'
     })
     .constant('CONTACT_ADDRESSBOOK_TYPES', {
       user: 'user',

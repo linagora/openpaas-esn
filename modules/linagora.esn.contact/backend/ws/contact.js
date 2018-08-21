@@ -23,7 +23,9 @@ function init(dependencies) {
   pubsub.topic(CONSTANTS.NOTIFICATIONS.CONTACT_ADDED).subscribe(_onContactAdded);
   pubsub.topic(CONSTANTS.NOTIFICATIONS.ADDRESSBOOK_CREATED).subscribe(_onAddressbookCreated);
   pubsub.topic(CONSTANTS.NOTIFICATIONS.ADDRESSBOOK_DELETED).subscribe(_onAddressbookDeleted);
+  pubsub.topic(CONSTANTS.NOTIFICATIONS.ADDRESSBOOK_UPDATED).subscribe(_onAddressbookUpdated);
   pubsub.topic(CONSTANTS.NOTIFICATIONS.ADDRESSBOOK_SUBSCRIPTION_DELETED).subscribe(_onAddressbookSubscriptionDeleted);
+  pubsub.topic(CONSTANTS.NOTIFICATIONS.ADDRESSBOOK_SUBSCRIPTION_UPDATED).subscribe(_onAddressbookSubscriptionUpdated);
 
   contactNamespace = io.of(NAMESPACE);
   contactNamespace.on('connection', function(socket) {
@@ -134,6 +136,16 @@ function init(dependencies) {
     }
   }
 
+  function _onAddressbookUpdated(data) {
+    if (data && data.bookId && data.bookName) {
+      logger.info('Notifying address book updated');
+
+      _synchronizeContactLists('contact:addressbook:updated', data);
+    } else {
+      logger.warn('Not well-formed data on', CONSTANTS.NOTIFICATIONS.ADDRESSBOOK_UPDATED, 'pubsub event');
+    }
+  }
+
   function _onAddressbookSubscriptionDeleted(data) {
     if (data && data.bookId && data.bookName) {
       logger.info('Notifying address book subscription deleted');
@@ -144,6 +156,16 @@ function init(dependencies) {
       });
     } else {
       logger.warn('Not well-formed data on', CONSTANTS.NOTIFICATIONS.ADDRESSBOOK_SUBSCRIPTION_DELETED, 'pubsub event');
+    }
+  }
+
+  function _onAddressbookSubscriptionUpdated(data) {
+    if (data && data.bookId && data.bookName) {
+      logger.info('Notifying address book subscription updated');
+
+      _synchronizeContactLists('contact:addressbook:subscription:updated', data);
+    } else {
+      logger.warn('Not well-formed data on', CONSTANTS.NOTIFICATIONS.ADDRESSBOOK_SUBSCRIPTION_UPDATED, 'pubsub event');
     }
   }
 }
