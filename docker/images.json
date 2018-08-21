@@ -1,8 +1,8 @@
 {
-  "cassandra" : "cassandra:2.2.3",
+  "cassandra" : "cassandra:3.11.3",
   "elasticsearch": "elasticsearch:2.3.2",
   "james": "linagora/james-project",
-  "mongodb": "mongo:3.2.0",
+  "mongodb": "mongo:3.2",
   "redis": "redis:latest",
   "rabbitmq": "rabbitmq:3.6.5-management",
   "sabre": "linagora/esn-sabre",

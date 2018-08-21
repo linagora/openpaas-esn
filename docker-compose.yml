@@ -125,6 +125,6 @@ services:
 
   cassandra:
     container_name: esn_cassandra
-    image: cassandra:2.2.3
+    image: cassandra:3.11.3
     ports:
       - "9042:9042"
