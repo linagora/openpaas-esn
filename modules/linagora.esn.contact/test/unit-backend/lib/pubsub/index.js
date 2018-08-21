@@ -351,6 +351,30 @@ describe('The contacts backend/lib/pubsub module', function() {
     });
   });
 
+  describe('On ADDRESSBOOK_UPDATED event', function() {
+    it('should publish event ADDRESSBOOK_UPDATED through local pubsub', function(done) {
+      messageMock = {
+        path: `addressbooks/${bookId}/${bookName}`
+      };
+      pubsubMock.global.topic.withArgs(CONSTANTS.GLOBAL_PUBSUB_EVENTS.SABRE.ADDRESSBOOK_UPDATED).returns({
+        subscribe(listener) {
+          listener(messageMock);
+        }
+      });
+      pubsubMock.local.topic.withArgs(CONSTANTS.NOTIFICATIONS.ADDRESSBOOK_UPDATED).returns({
+        publish(data) {
+          expect(data).to.shallowDeepEqual({
+            bookId,
+            bookName
+          });
+          done();
+        }
+      });
+
+      getModule().listen();
+    });
+  });
+
   describe('On ADDRESSBOOK_SUBSCRIPTION_DELETED event', function() {
     it('should publish event ADDRESSBOOK_SUBSCRIPTION_DELETED through local pubsub', function(done) {
       messageMock = {
@@ -366,6 +390,30 @@ describe('The contacts backend/lib/pubsub module', function() {
         publish(data) {
           expect(data).to.shallowDeepEqual({
             userId,
+            bookId,
+            bookName
+          });
+          done();
+        }
+      });
+
+      getModule().listen();
+    });
+  });
+
+  describe('On ADDRESSBOOK_SUBSCRIPTION_UPDATED event', function() {
+    it('should publish event ADDRESSBOOK_SUBSCRIPTION_UPDATED through local pubsub', function(done) {
+      messageMock = {
+        path: `addressbooks/${bookId}/${bookName}`
+      };
+      pubsubMock.global.topic.withArgs(CONSTANTS.GLOBAL_PUBSUB_EVENTS.SABRE.ADDRESSBOOK_SUBSCRIPTION_UPDATED).returns({
+        subscribe(listener) {
+          listener(messageMock);
+        }
+      });
+      pubsubMock.local.topic.withArgs(CONSTANTS.NOTIFICATIONS.ADDRESSBOOK_SUBSCRIPTION_UPDATED).returns({
+        publish(data) {
+          expect(data).to.shallowDeepEqual({
             bookId,
             bookName
           });
