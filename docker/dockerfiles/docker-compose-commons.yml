@@ -106,6 +106,6 @@ services:
     image: elasticsearch:2.3.2
 
   cassandra:
-    image: cassandra:2.2.3
+    image: cassandra:3.11.3
     ports:
       - "9042:9042"
