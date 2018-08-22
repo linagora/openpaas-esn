@@ -11,6 +11,7 @@
     CONTACT_GLOBAL_SEARCH
   ) {
     return new esnSearchProvider({
+      uid: 'op.contacts',
       name: CONTACT_GLOBAL_SEARCH.NAME,
       fetch: function(query) {
         var searchOptions = {
