@@ -5,18 +5,20 @@
 var expect = chai.expect;
 
 describe('The esnSearchContextService service', function() {
-  var $rootScope, $state, $q, searchProviders, esnSearchContextService;
+  var $rootScope, $state, $stateParams, $q, searchProviders, esnSearchContextService;
 
   beforeEach(function() {
     $state = {
       includes: sinon.stub()
     };
+    $stateParams = {};
     searchProviders = {
       getAll: sinon.stub()
     };
 
     angular.mock.module('esn.search', function($provide) {
       $provide.value('$state', $state);
+      $provide.value('$stateParams', $stateParams);
       $provide.value('searchProviders', searchProviders);
     });
   });
@@ -36,14 +38,14 @@ describe('The esnSearchContextService service', function() {
     });
 
     it('should return false when activeOn array is empty', function() {
-      var provider = {activeOn: []};
+      var provider = {activeOn: [], id: 'op.members'};
 
       expect(esnSearchContextService.isActive(provider)).to.be.false;
       expect($state.includes).to.not.have.been.called;
     });
 
     it('should return false if current state is not included in activeOn array', function() {
-      var provider = {activeOn: ['foo', 'bar', 'baz']};
+      var provider = {activeOn: ['foo', 'bar', 'baz'], id: 'op.members'};
 
       $state.includes.returns(false);
 
@@ -52,7 +54,7 @@ describe('The esnSearchContextService service', function() {
     });
 
     it('should return true when current state is defined in one activeOn element', function() {
-      var provider = {activeOn: ['foo', 'bar', 'baz']};
+      var provider = {activeOn: ['foo', 'bar', 'baz'], id: 'op.members'};
 
       $state.includes.onFirstCall().returns(true);
       $state.includes.returns(false);
@@ -62,13 +64,22 @@ describe('The esnSearchContextService service', function() {
     });
 
     it('should return true when current state is defined in more than one activeOn element', function() {
-      var provider = {activeOn: ['foo', 'bar', 'baz']};
+      var provider = {activeOn: ['foo', 'bar', 'baz'], id: 'op.members'};
 
       $state.includes.onSecondCall().returns(true);
       $state.includes.returns(false);
 
       expect(esnSearchContextService.isActive(provider)).to.be.true;
       expect($state.includes).to.have.been.calledTwice;
+    });
+
+    it('should return true when the $stateParams.p is the identifier of the provider', function() {
+      var provider = {activeOn: [], id: 'op.members'};
+
+      $stateParams.p = 'op.members';
+
+      expect(esnSearchContextService.isActive(provider)).to.be.true;
+      expect($state.includes).to.not.have.been.called;
     });
   });
 
