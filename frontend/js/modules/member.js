@@ -132,6 +132,7 @@ angular.module('esn.member', ['esn.router', 'esn.domain', 'esn.search', 'esn.inf
     var name = 'Members';
 
     return newProvider({
+      uid: 'op.members',
       name: name,
       fetch: function(query) {
         var offset = 0;
