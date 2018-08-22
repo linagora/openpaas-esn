@@ -55,7 +55,7 @@ describe('The esnSearchHeader component', function() {
     compileSearchHeaderDirective();
     submitWithText();
 
-    expect($state.go).to.have.been.calledWith('search.main', { query: { text: 'cow' }, providers: [] }, { reload: true });
+    expect($state.go).to.have.been.calledWith('search.main', { q: 'cow', query: { text: 'cow' }, p: null }, { reload: true });
   });
 
   it('when form submitted in the same state, it should update q get parameter and replace location', function() {
@@ -65,6 +65,6 @@ describe('The esnSearchHeader component', function() {
     compileSearchHeaderDirective();
     submitWithText();
 
-    expect($state.go).to.have.been.calledWith('search.main', { providers: [], query: { text: 'cow' }}, { location: 'replace', reload: true });
+    expect($state.go).to.have.been.calledWith('search.main', { p: null, q: 'cow', query: { text: 'cow' }}, { location: 'replace', reload: true });
   });
 });

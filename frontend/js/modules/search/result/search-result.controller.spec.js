@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('The ESNSearchResultController controller', function() {
-  var $controller, $scope, controller, $stateParams, $q, query, searchProviders, $rootScope, ELEMENTS_PER_PAGE;
+  var $controller, $scope, controller, $stateParams, $q, query, searchProviders, providers, $rootScope, ELEMENTS_PER_PAGE;
 
   beforeEach(function() {
     angular.mock.module('esn.search');
@@ -34,7 +34,9 @@ describe('The ESNSearchResultController controller', function() {
 
   beforeEach(function() {
     query = { text: 'query' };
+    providers = [{ id: '123' }, { id: '456' }, { id: '789' }];
     searchProviders = {
+      getAllProviderDefinitions: sinon.stub(),
       getAll: sinon.spy(function() {
         return $q.when([{
           name: 'cat',
@@ -67,6 +69,10 @@ describe('The ESNSearchResultController controller', function() {
     initController();
   }));
 
+  beforeEach(function() {
+    searchProviders.getAllProviderDefinitions.returns($q.when(providers));
+  });
+
   it('should init query for highlight', function() {
     expect(controller.query).to.deep.equal(query.text);
   });
@@ -74,21 +80,34 @@ describe('The ESNSearchResultController controller', function() {
   it('should not call loadMoreElements when query is falsy', function() {
     controller.query = null;
     controller.loadMoreElements();
+    $rootScope.$digest();
 
     expect(searchProviders.getAll).to.not.have.been.called;
   });
 
   it('should call searchProviders with the correct arguments when loadMoreElements is called', function() {
     controller.loadMoreElements();
+    $rootScope.$digest();
 
-    expect(searchProviders.getAll).to.have.been.calledWith({ query: query.text });
+    expect(searchProviders.getAll).to.have.been.calledWith({ query: query.text, acceptedIds: ['123', '456', '789']});
   });
 
-  it('should map filters and call searchProviders with acceptedIds when providers are present in stateParams', function() {
-    $stateParams.providers = [{ id: '123' }, { id: '456' }, { id: '789' }];
+  it('should map filters and call searchProviders with acceptedIds when provider is defined in stateParams', function() {
+    $stateParams.p = '456';
     initController();
 
     controller.loadMoreElements();
+    $rootScope.$digest();
+
+    expect(searchProviders.getAll).to.have.been.calledWith({ query: query.text, acceptedIds: ['456'] });
+  });
+
+  it('should call searchProviders with all providers when provider defined in stateParams is not found', function() {
+    $stateParams.p = 'I am not defined';
+    initController();
+
+    controller.loadMoreElements();
+    $rootScope.$digest();
 
     expect(searchProviders.getAll).to.have.been.calledWith({ query: query.text, acceptedIds: ['123', '456', '789'] });
   });

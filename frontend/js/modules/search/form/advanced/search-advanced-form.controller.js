@@ -45,9 +45,7 @@
     }
 
     function doSearch() {
-      var providers = self.provider ? [self.provider] : self.providers;
-
-      self.search({ query: self.searchQuery, providers: providers });
+      self.search({ query: self.searchQuery, provider: self.provider || null });
     }
   }
 })(angular);

@@ -8,7 +8,7 @@
       search: search
     };
 
-    function search(query, providers) {
+    function search(query, provider) {
       var context = { reload: true };
 
       if ($state.current.name === 'search.main') {
@@ -16,7 +16,15 @@
         context.location = 'replace';
       }
 
-      $state.go('search.main', { query: query, providers: providers }, context);
+      $state.go('search.main', {
+        q: query.text,
+        query: query,
+        // TODO: `a` is for 'advanced'
+        // a: query,
+        // TODO: Have a readable fixed UID per provider ie op.contacts, op.events, op.members
+        // cf https://ci.linagora.com/linagora/lgs/openpaas/esn/issues/2464
+        p: provider && provider.id
+      }, context);
     }
   }
 })(angular);

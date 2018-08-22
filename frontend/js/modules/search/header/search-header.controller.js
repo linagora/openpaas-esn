@@ -14,8 +14,8 @@
       self.query = $stateParams.q;
     }
 
-    function search(query, providers) {
-      esnSearchService.search(query, providers);
+    function search(query, provider) {
+      esnSearchService.search(query, provider);
     }
   }
 })();
