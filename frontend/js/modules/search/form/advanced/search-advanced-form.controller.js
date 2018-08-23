@@ -3,29 +3,34 @@
 
   angular.module('esn.search').controller('ESNSearchAdvancedFormController', ESNSearchAdvancedFormController);
 
-  function ESNSearchAdvancedFormController($rootScope, esnSearchContextService) {
+  function ESNSearchAdvancedFormController($stateParams, $rootScope, esnSearchContextService) {
     var self = this;
 
     self.$onInit = $onInit;
+    self.$onDestroy = $onDestroy;
     self.clearSearchQuery = clearSearchQuery;
     self.onProviderSelected = onProviderSelected;
     self.doSearch = doSearch;
 
+    var removeStateListener = $rootScope.$on('$stateChangeSuccess', function(event, toState) {
+      // update the providers from the state
+      // avoid to change when we go to search state
+      if (toState.name !== 'search.main') {
+        clearSearchQuery();
+        loadProviders();
+      } else {
+        // For some reason it will not work if not set when coming back from a search result...
+        self.searchQuery.text = $stateParams.q;
+      }
+    });
+
     function $onInit() {
-      self.searchQuery = {
-        text: self.query || ''
-      };
-
+      self.searchQuery = { text: $stateParams.q };
       loadProviders();
+    }
 
-      $rootScope.$on('$stateChangeSuccess', function(event, toState) {
-        // update the providers from the state
-        // avoid to change when we go to search state
-        if (toState.name !== 'search.main') {
-          clearSearchQuery();
-          loadProviders();
-        }
-      });
+    function $onDestroy() {
+      removeStateListener();
     }
 
     function loadProviders() {
@@ -35,9 +40,7 @@
     }
 
     function clearSearchQuery() {
-      self.searchQuery = {
-        text: ''
-      };
+      self.searchQuery.text = '';
     }
 
     function onProviderSelected(provider) {

@@ -8,6 +8,7 @@
       this.options = options || {};
       this.name = options.name;
       this.templateUrl = options.templateUrl;
+      this.uid = options.uid;
 
       if (!this.name) {
         throw new Error('name is required for search provider');
@@ -15,6 +16,10 @@
 
       if (!this.templateUrl) {
         throw new Error('templateUrl is required to render search result');
+      }
+
+      if (!this.uid) {
+        throw new Error('uid is required for search provider');
       }
 
       this.id = options.id || uuid4.generate();

@@ -19,8 +19,10 @@
     self.$onInit = $onInit;
 
     function $onInit() {
-      self.q = $stateParams.q;
-      self.query = $stateParams.query && $stateParams.query.text ? $stateParams.query.text : $stateParams.q;
+      self.text = $stateParams.q;
+      //self.query = $stateParams.query && $stateParams.query.text ? $stateParams.query.text : $stateParams.q;
+      // TODO: Should be able to query from complex objects
+      self.query = self.text;
 
       self.load = function() {
         return aggregator.loadNextItems().then(_.property('data'));
@@ -52,13 +54,12 @@
       function buildSearchOptions() {
         return searchProviders.getAllProviderDefinitions().then(function(providers) {
           var options = {};
-          var provider = _.find(providers, { id: $stateParams.p });
+          var provider = _.find(providers, { uid: $stateParams.p });
 
           // TODO: replace query.text by query
           // providers must be updated to accept query as string or query as object with text in it
           self.query && (options.query = self.query);
 
-          // TODO: Get all the ids if the provider is not defined, which means that we search all
           options.acceptedIds = provider ? [provider.id] : providers.map(_.property('id'));
 
           return options;

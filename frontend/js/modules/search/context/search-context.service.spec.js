@@ -74,7 +74,7 @@ describe('The esnSearchContextService service', function() {
     });
 
     it('should return true when the $stateParams.p is the identifier of the provider', function() {
-      var provider = {activeOn: [], id: 'op.members'};
+      var provider = {activeOn: [], uid: 'op.members'};
 
       $stateParams.p = 'op.members';
 

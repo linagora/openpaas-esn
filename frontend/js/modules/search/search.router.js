@@ -25,7 +25,7 @@
           // a: null,
           // type: any, contains a complex query and is hidden from the URL for now
           // TODO: To be replaced by `a` above
-          query: null
+          //query: null
         },
         views: {
           'search-result': {

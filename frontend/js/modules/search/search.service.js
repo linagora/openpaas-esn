@@ -18,12 +18,10 @@
 
       $state.go('search.main', {
         q: query.text,
-        query: query,
+        //query: query,
         // TODO: `a` is for 'advanced'
         // a: query,
-        // TODO: Have a readable fixed UID per provider ie op.contacts, op.events, op.members
-        // cf https://ci.linagora.com/linagora/lgs/openpaas/esn/issues/2464
-        p: provider && provider.id
+        p: provider && provider.uid
       }, context);
     }
   }

@@ -22,7 +22,7 @@
     }
 
     function isActive(provider) {
-      return ($stateParams.p && $stateParams.p === provider.id) ||
+      return ($stateParams.p && $stateParams.p === provider.uid) ||
         (provider.activeOn || []).some(function(active) {
           return $state.includes(active);
         });

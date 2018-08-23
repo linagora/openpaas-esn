@@ -97,7 +97,8 @@ angular.module('esn.provider', [
           return _.map(_.flatten(providers), function(provider) {
             return {
               id: provider.id,
-              name: provider.name
+              name: provider.name,
+              uid: provider.uid
             };
           });
         });

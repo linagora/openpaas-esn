@@ -6,7 +6,6 @@
     controller: 'ESNSearchAdvancedFormController',
     controllerAs: 'ctrl',
     bindings: {
-      query: '=',
       search: '&'
     }
   });
