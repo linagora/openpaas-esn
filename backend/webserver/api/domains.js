@@ -138,6 +138,7 @@ module.exports = function(router) {
    *       - $ref: "#/parameters/cl_limit"
    *       - $ref: "#/parameters/cl_offset"
    *       - $ref: "#/parameters/cl_search"
+   *       - $ref: "#/parameters/dm_search_includes_disabled_searchable"
    *     responses:
    *       200:
    *         $ref: "#/responses/dm_members"
@@ -152,7 +153,7 @@ module.exports = function(router) {
    *       500:
    *         $ref: "#/responses/cm_500"
    */
-  router.get('/domains/:uuid/members', authorize.requiresAPILogin, domainMiddleware.load, authorize.requiresDomainMember, domains.getMembers);
+  router.get('/domains/:uuid/members', authorize.requiresAPILogin, domainMiddleware.load, domainMiddleware.canGetMembers, domains.getMembers);
 
   /**
    * @swagger

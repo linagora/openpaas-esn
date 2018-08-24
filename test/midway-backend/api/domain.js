@@ -745,6 +745,24 @@ describe('The domain API', function() {
       });
     });
 
+    it('should send back 403 when domain members search disabled searchable members', function(done) {
+      helpers.api.loginAsUser(app, user2Domain1Member.emails[0], password, helpers.callbacks.noErrorAnd(requestAsMember => {
+        requestAsMember(request(app).get(`/api/domains/${domain1._id}/members`))
+          .query({ search: 'lng', includesDisabledSearchable: true })
+          .expect(403).end(helpers.callbacks.noErrorAnd(res => {
+            expect(res.body).to.deep.equal({
+              error: {
+                code: 403,
+                message: 'Forbidden',
+                details: 'User is not the domain manager'
+              }
+            });
+
+            done();
+          }));
+      }));
+    });
+
     it('should send back 200 with all the members of the domain and contain the list size in the header', function(done) {
       helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
         expect(err).to.not.exist;
@@ -864,6 +882,58 @@ describe('The domain API', function() {
           done();
         });
       });
+    });
+
+    it('should send back 200 with all the members matching the search terms which includes disabled searchable members if requester is domain administrator and includesDisabledSearchable query is true', function(done) {
+      core.user.updateStates(
+        user2Domain1Member._id,
+        [{ name: 'searchable', value: 'disabled' }],
+        helpers.callbacks.noErrorAnd(() => {
+          helpers.elasticsearch.checkUsersDocumentsIndexed([user2Domain1Member._id], helpers.callbacks.noErrorAnd(function() {
+            helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, helpers.callbacks.noErrorAnd(requestAsMember => {
+              requestAsMember(request(app).get(`/api/domains/${domain1._id}/members`))
+                .query({ search: 'lng', includesDisabledSearchable: true })
+                .expect(200).end(helpers.callbacks.noErrorAnd(res => {
+                  expect(res.headers['x-esn-items-count']).to.equal('3');
+                  expect(res.body).shallowDeepEqual([{
+                    _id: domain1Users[0]._id
+                  }, {
+                    _id: String(user2Domain1Member._id)
+                  }, {
+                    _id: domain1Users[2]._id
+                  }]);
+
+                  done();
+                }));
+            }));
+          }));
+        })
+      );
+    });
+
+    it('should send back 200 with all the members matching the search terms which searchable feature is not disabled', function(done) {
+      core.user.updateStates(
+        user2Domain1Member._id,
+        [{ name: 'searchable', value: 'disabled' }],
+        helpers.callbacks.noErrorAnd(() => {
+          helpers.elasticsearch.checkUsersDocumentsIndexed([user2Domain1Member._id], helpers.callbacks.noErrorAnd(function() {
+            helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, helpers.callbacks.noErrorAnd(requestAsMember => {
+              requestAsMember(request(app).get(`/api/domains/${domain1._id}/members`))
+                .query({ search: 'lng' })
+                .expect(200).end(helpers.callbacks.noErrorAnd(res => {
+                  expect(res.headers['x-esn-items-count']).to.equal('2');
+                  expect(res.body).shallowDeepEqual([{
+                    _id: domain1Users[0]._id
+                  }, {
+                    _id: domain1Users[2]._id
+                  }]);
+
+                  done();
+                }));
+            }));
+          }));
+        })
+      );
     });
 
     it('should send back 400 when domain ID is not a valid ObjectId', function(done) {

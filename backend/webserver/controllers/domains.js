@@ -190,6 +190,7 @@ function getMembers(req, res) {
   const query = {
     limit: req.query.limit || DEFAULT_LIMIT,
     offset: req.query.offset || DEFAULT_OFFSET,
+    includesDisabledSearchable: req.query.includesDisabledSearchable === 'true',
     search: req.query.search || null
   };
   const getUsers = query.search ? userDomain.getUsersSearch : userDomain.getUsersList;
