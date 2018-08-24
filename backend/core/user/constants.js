@@ -11,7 +11,8 @@ module.exports = {
     userDisabled: 'users:user:disable'
   },
   USER_ACTIONS: {
-    login: 'login'
+    login: 'login',
+    searchable: 'searchable'
   },
   USER_ACTION_STATES: {
     disabled: 'disabled',

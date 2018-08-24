@@ -97,6 +97,7 @@ function _search(options, callback) {
           filter: {
             or: _getElasticsearchOrFilters(options.domains)
           },
+          must_not: _getElasticsearchMustNotQuery(options),
           must: {
             multi_match: {
               query: terms,
@@ -149,6 +150,31 @@ function _getElasticsearchOrFilters(domains) {
 
     return filter;
   });
+}
+
+function _getElasticsearchMustNotQuery(options) {
+  if (options.includesDisabledSearchable) {
+    return;
+  }
+
+  return {
+    nested: {
+      path: 'states',
+      query: {
+        bool: {
+          must: [{
+            term: {
+              'states.name': CONSTANTS.USER_ACTIONS.searchable
+            }
+          }, {
+            term: {
+              'states.value': CONSTANTS.USER_ACTION_STATES.disabled
+            }
+          }]
+        }
+      }
+    }
+  };
 }
 
 function _filterUsersByCollaboration(users, collaboration, limit, callback) {
