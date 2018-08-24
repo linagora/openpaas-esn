@@ -3,26 +3,34 @@
 
   angular.module('esn.search').factory('esnSearchService', esnSearchService);
 
-  function esnSearchService($state) {
+  function esnSearchService(_, $state) {
     return {
       search: search
     };
 
     function search(query, provider) {
       var context = { reload: true };
+      var stateParams = {
+        // 'a' = 'A'dvanced query
+        a: query.advanced
+      };
+
+      // if the search is advanced one, do not set anything in the simple search text
+      // this field will be populated when we will have a parser
+      stateParams.q = _.isEmpty(query.advanced) ? query.text : '';
+      stateParams.p = provider && provider.uid;
+
+      if (!provider || !provider.uid) {
+        // For global search remove the advanced search which is not available globally for now
+        stateParams.a = null;
+      }
 
       if ($state.current.name === 'search.main') {
         // So that moving next/previous does not mess with the "Back" button
         context.location = 'replace';
       }
 
-      $state.go('search.main', {
-        q: query.text,
-        //query: query,
-        // TODO: `a` is for 'advanced'
-        // a: query,
-        p: provider && provider.uid
-      }, context);
+      $state.go('search.main', stateParams, context);
     }
   }
 })(angular);

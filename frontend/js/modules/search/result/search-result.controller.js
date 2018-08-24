@@ -8,6 +8,7 @@
     $stateParams,
     $q,
     searchProviders,
+    esnSearchQueryService,
     infiniteScrollHelper,
     PageAggregatorService,
     ELEMENTS_PER_PAGE
@@ -19,17 +20,15 @@
     self.$onInit = $onInit;
 
     function $onInit() {
-      self.text = $stateParams.q;
-      //self.query = $stateParams.query && $stateParams.query.text ? $stateParams.query.text : $stateParams.q;
-      // TODO: Should be able to query from complex objects
-      self.query = self.text;
+      self.query = esnSearchQueryService.buildFromState($stateParams);
+      self.providerUid = $stateParams.p;
 
       self.load = function() {
         return aggregator.loadNextItems().then(_.property('data'));
       };
 
       self.loadMoreElements = infiniteScrollHelper(self, function() {
-        if (!self.query) {
+        if (esnSearchQueryService.isEmpty(self.query)) {
           return $q.when([]);
         }
 
@@ -37,7 +36,7 @@
           return self.load();
         }
 
-        return buildSearchOptions()
+        return buildSearchOptions(self.query, self.providerUid)
           .then(function(options) {
             return searchProviders.getAll(options);
           })
@@ -51,15 +50,12 @@
           });
       });
 
-      function buildSearchOptions() {
+      function buildSearchOptions(query, providerUid) {
         return searchProviders.getAllProviderDefinitions().then(function(providers) {
           var options = {};
-          var provider = _.find(providers, { uid: $stateParams.p });
+          var provider = _.find(providers, { uid: providerUid });
 
-          // TODO: replace query.text by query
-          // providers must be updated to accept query as string or query as object with text in it
-          self.query && (options.query = self.query);
-
+          options.query = query;
           options.acceptedIds = provider ? [provider.id] : providers.map(_.property('id'));
 
           return options;

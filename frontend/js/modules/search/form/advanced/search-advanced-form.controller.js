@@ -3,12 +3,18 @@
 
   angular.module('esn.search').controller('ESNSearchAdvancedFormController', ESNSearchAdvancedFormController);
 
-  function ESNSearchAdvancedFormController($stateParams, $rootScope, esnSearchContextService) {
+  function ESNSearchAdvancedFormController(
+    $stateParams,
+    $rootScope,
+    esnSearchContextService,
+    esnSearchQueryService
+  ) {
     var self = this;
 
     self.$onInit = $onInit;
     self.$onDestroy = $onDestroy;
     self.clearSearchQuery = clearSearchQuery;
+    self.clearAdvancedQuery = clearAdvancedQuery;
     self.onProviderSelected = onProviderSelected;
     self.doSearch = doSearch;
 
@@ -20,12 +26,12 @@
         loadProviders();
       } else {
         // For some reason it will not work if not set when coming back from a search result...
-        self.searchQuery.text = $stateParams.q;
+        self.searchQuery = esnSearchQueryService.buildFromState($stateParams);
       }
     });
 
     function $onInit() {
-      self.searchQuery = { text: $stateParams.q };
+      self.searchQuery = esnSearchQueryService.buildFromState($stateParams);
       loadProviders();
     }
 
@@ -40,15 +46,19 @@
     }
 
     function clearSearchQuery() {
-      self.searchQuery.text = '';
+      esnSearchQueryService.clear(self.searchQuery);
+    }
+
+    function clearAdvancedQuery() {
+      esnSearchQueryService.clearAdvancedQuery(self.searchQuery);
     }
 
     function onProviderSelected(provider) {
       self.provider = provider;
     }
 
-    function doSearch() {
-      self.search({ query: self.searchQuery, provider: self.provider || null });
+    function doSearch(query) {
+      self.search({ query: query, provider: self.provider || null });
     }
   }
 })(angular);

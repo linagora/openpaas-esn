@@ -64,6 +64,7 @@ const injections = [
     'search/search-providers.service.js',
     'search/provider-select/search-provider-select.component.js',
     'search/provider-select/search-provider-select.controller.js',
+    'search/query/search-query.service.js',
     'search/search-provider.service.js'
   ], innerApps: ['esn']},
   {angular: 'esn.infinite-list', files: [

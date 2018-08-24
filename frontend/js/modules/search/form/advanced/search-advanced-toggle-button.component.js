@@ -7,7 +7,7 @@
     controllerAs: 'ctrl',
     bindings: {
       provider: '=',
-      query: '=',
+      query: '<',
       search: '&'
     }
   });

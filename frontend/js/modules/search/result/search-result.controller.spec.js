@@ -73,7 +73,7 @@ describe('The ESNSearchResultController controller', function() {
   it('should init query for highlight', function() {
     initController();
 
-    expect(controller.query).to.deep.equal($stateParams.q);
+    expect(controller.query).to.deep.equal({text: '', advanced: {}});
   });
 
   it('should not call loadMoreElements when query is falsy', function() {
@@ -92,7 +92,7 @@ describe('The ESNSearchResultController controller', function() {
     controller.loadMoreElements();
     $rootScope.$digest();
 
-    expect(searchProviders.getAll).to.have.been.calledWith({ query: $stateParams.q, acceptedIds: ['123', '456', '789']});
+    expect(searchProviders.getAll).to.have.been.calledWith({query: {text: $stateParams.q, advanced: {}}, acceptedIds: ['123', '456', '789']});
   });
 
   it('should map filters and call searchProviders with acceptedIds when provider is defined in stateParams', function() {
@@ -103,7 +103,7 @@ describe('The ESNSearchResultController controller', function() {
     controller.loadMoreElements();
     $rootScope.$digest();
 
-    expect(searchProviders.getAll).to.have.been.calledWith({ query: $stateParams.q, acceptedIds: ['456'] });
+    expect(searchProviders.getAll).to.have.been.calledWith({ query: {text: $stateParams.q, advanced: {}}, acceptedIds: ['456'] });
   });
 
   it('should call searchProviders with all providers when provider defined in stateParams is not found', function() {
@@ -114,7 +114,7 @@ describe('The ESNSearchResultController controller', function() {
     controller.loadMoreElements();
     $rootScope.$digest();
 
-    expect(searchProviders.getAll).to.have.been.calledWith({ query: $stateParams.q, acceptedIds: ['123', '456', '789'] });
+    expect(searchProviders.getAll).to.have.been.calledWith({ query: {text: $stateParams.q, advanced: {}}, acceptedIds: ['123', '456', '789'] });
   });
 
   describe('controller elements', function() {
