@@ -127,11 +127,10 @@ angular.module('esn.member', ['esn.router', 'esn.domain', 'esn.search', 'esn.inf
       }
     };
   })
-  .factory('memberSearchProvider', function($q, newProvider, domainAPI, session, ELEMENTS_PER_REQUEST) {
-
+  .factory('memberSearchProvider', function($q, esnSearchProvider, domainAPI, session, ELEMENTS_PER_REQUEST) {
     var name = 'Members';
 
-    return newProvider({
+    return new esnSearchProvider({
       uid: 'op.members',
       name: name,
       fetch: function(query) {
@@ -144,6 +143,7 @@ angular.module('esn.member', ['esn.router', 'esn.domain', 'esn.search', 'esn.inf
             limit: ELEMENTS_PER_REQUEST
           }).then(function(members) {
             offset += members.data.length;
+
             return members.data.map(function(member) {
               member.type = name;
               member.date = new Date();
@@ -154,7 +154,7 @@ angular.module('esn.member', ['esn.router', 'esn.domain', 'esn.search', 'esn.inf
         };
       },
       buildFetchContext: function(options) {
-        return $q.when(options.query);
+        return $q.when(options.query && options.query.text);
       },
       templateUrl: '/views/modules/member/member-search-item.html'
     });
