@@ -27,6 +27,7 @@
       } else {
         // For some reason it will not work if not set when coming back from a search result...
         self.searchQuery = esnSearchQueryService.buildFromState($stateParams);
+        loadProviders();
       }
     });
 
