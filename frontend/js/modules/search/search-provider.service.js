@@ -28,6 +28,7 @@
       this.fetch = options.fetch;
       this.searchTemplateUrl = options.searchTemplateUrl;
       this.buildFetchContext = options.buildFetchContext;
+      this.cleanQuery = options.cleanQuery;
       this.activeOn = options.activeOn || [];
       this.icon = options.icon;
     }

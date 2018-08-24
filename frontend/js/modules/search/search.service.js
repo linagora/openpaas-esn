@@ -9,6 +9,8 @@
     };
 
     function search(query, provider) {
+      query = cleanupSearchQuery(query, provider);
+
       var context = { reload: true };
       var stateParams = {
         // 'a' = 'A'dvanced query
@@ -31,6 +33,10 @@
       }
 
       $state.go('search.main', stateParams, context);
+    }
+
+    function cleanupSearchQuery(query, provider) {
+      return provider && _.isFunction(provider.cleanQuery) ? provider.cleanQuery(query) : query;
     }
   }
 })(angular);
