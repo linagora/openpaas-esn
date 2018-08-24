@@ -115,4 +115,9 @@
  *          type: string
  *        main_phone:
  *          $ref: "#/definitions/us_phone"
+ *   dm_search_includes_disabled_searchable:
+ *     name: includesDisabledSearchable
+ *     in: query
+ *     description: Includes desabled searchable members when searching members
+ *     type: string
  */

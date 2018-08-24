@@ -7,8 +7,10 @@ const dbHelper = require('../../helpers').db;
 const userIndex = require('../../core/user/index');
 const coreDomain = require('../../core/domain');
 const logger = require('../../core/logger');
+const authorize = require('../middleware/authorization');
 
 module.exports = {
+  canGetMembers,
   load,
   loadFromDomainIdParameter,
   loadDomainByHostname,
@@ -300,6 +302,14 @@ function ensureNoConflictHostname(req, res, next) {
         }
       });
     });
+}
+
+function canGetMembers(req, res, next) {
+  if (req.query.includesDisabledSearchable === 'true') {
+    return authorize.requiresDomainManager(req, res, next);
+  }
+
+  return authorize.requiresDomainMember(req, res, next);
 }
 
 function _isValidEmail(email) {
