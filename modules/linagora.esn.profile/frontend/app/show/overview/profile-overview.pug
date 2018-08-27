@@ -4,7 +4,7 @@
       .p-relative.po-card-image(ng-controller='avatarController')
         a
           esn-avatar(avatar-url="avatarURL", hide-user-status="true")
-        a.edit-h(ng-controller='avatarEdit' href='' ng-click="showAvatarEditModal()", ng-if="$ctrl.me" )
+        a.edit-h(ng-controller='avatarEdit', href='', ng-click="showAvatarEditModal()", ng-if="::$ctrl.canEdit" )
           i.mdi.mdi-camera
           span
             | #{__('Update Profile Picture')}

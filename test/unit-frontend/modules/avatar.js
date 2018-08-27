@@ -219,29 +219,73 @@ describe('The Avatar Angular module', function() {
     });
   });
 
-  describe('avatarEdit controller', function() {
-    beforeEach(angular.mock.inject(function(selectionService, avatarAPI, $rootScope, $controller) {
-      this.selectionService = selectionService;
-      this.$rootScope = $rootScope;
-      this.avatarAPI = avatarAPI;
-      this.scope = $rootScope.$new();
+  describe('The avatarEdit controller', function() {
+    var userId = '123';
+    var domainId = '456';
 
-      $controller('avatarEdit', {
-        $rootScope: this.$rootScope,
-        $scope: this.scope,
-        selectionService: this.selectionService,
-        avatarAPI: this.avatarAPI
+    beforeEach(function() {
+      module('esn.avatar');
+
+      inject(function(
+        session,
+        selectionService,
+        avatarAPI,
+        $rootScope,
+        $controller
+      ) {
+        this.session = session;
+        this.selectionService = selectionService;
+        this.$rootScope = $rootScope;
+        this.avatarAPI = avatarAPI;
+        this.scope = $rootScope.$new();
+
+        $controller('avatarEdit', {
+          $rootScope: this.$rootScope,
+          $scope: this.scope,
+          session: this.session,
+          selectionService: this.selectionService,
+          avatarAPI: this.avatarAPI
+        });
       });
-    }));
-
-    it('should call the avatarAPI when calling send function', function(done) {
-      this.avatarAPI.uploadAvatar = function() {
-        done();
-      };
-      this.scope.send('foo', 'bar');
-      done();
     });
 
+    describe('The send function', function() {
+      it('should call the avatarAPI.uploadAvatar to upload avatar for current user', function(done) {
+        this.session.user = { _id: userId };
+        this.scope.user = { _id: userId };
+        var blob = 'foo';
+        var mime = 'bar';
+
+        this.avatarAPI.uploadAvatar = function(_blob, _mime) {
+          expect(_blob).to.equal(blob);
+          expect(_mime).to.equal(mime);
+          done();
+        };
+
+        this.scope.send(blob, mime);
+        done(new Error('Should not be called'));
+      });
+
+      it('should call the avatarAPI.uploadUserAvatar to upload avatar for a specific user', function(done) {
+        var specificUserId = '456';
+        var blob = 'foo';
+        var mime = 'bar';
+
+        this.session.user = { _id: userId };
+        this.session.domain = { _id: domainId };
+        this.scope.user = { _id: specificUserId };
+        this.avatarAPI.uploadUserAvatar = function(_blob, _mime, _userId, _domainId) {
+          expect(_blob).to.equal(blob);
+          expect(_mime).to.equal(mime);
+          expect(_userId).to.equal(specificUserId);
+          expect(_domainId).to.equal(domainId);
+          done();
+        };
+
+        this.scope.send(blob, mime);
+        done(new Error('Should not be called'));
+      });
+    });
   });
 
   describe('avatarAPI service', function() {
@@ -252,18 +296,39 @@ describe('The Avatar Angular module', function() {
       this.$httpBackend = $httpBackend;
     }));
 
-    it('should send POST to /api/user/profile/avatar with valid mime, parameters and blob', function() {
-      var blob = '123';
-      var mime = 'image/png';
+    describe('The uploadAvatar function', function() {
+      it('should send POST to /api/user/profile/avatar with valid mime, parameters and blob', function() {
+        var blob = '123';
+        var mime = 'image/png';
 
-      this.$httpBackend.expectPOST('/api/user/profile/avatar?mimetype=image%2Fpng', blob).respond(200);
-      this.avatarAPI.uploadAvatar(blob, mime);
-      this.$httpBackend.flush();
+        this.$httpBackend.expectPOST('/api/user/profile/avatar?mimetype=image%2Fpng', blob).respond(200);
+        this.avatarAPI.uploadAvatar(blob, mime);
+        this.$httpBackend.flush();
+      });
+
+      it('should return a promise', function() {
+        var promise = this.avatarAPI.uploadAvatar('foo', 'bar');
+        expect(promise.then).to.be.a.function;
+      });
     });
 
-    it('should return a promise', function() {
-      var promise = this.avatarAPI.uploadAvatar('foo', 'bar');
-      expect(promise.then).to.be.a.function;
+    describe('The uploadUserAvatar function', function() {
+      it('should PUT to right endpoint to upload avatar for a specific user', function() {
+        var blob = 'foobar';
+        var mime = 'image/png';
+        var userId = '123';
+        var domainId = '456';
+
+        this.$httpBackend.expectPUT('/api/users/' + userId + '/profile/avatar?domain_id=' + domainId + '&mimetype=image%2Fpng', blob).respond(200);
+        this.avatarAPI.uploadUserAvatar(blob, mime, userId, domainId);
+        this.$httpBackend.flush();
+      });
+
+      it('should return a promise', function() {
+        var promise = this.avatarAPI.uploadUserAvatar('foo', 'bar', '123', '456');
+
+        expect(promise.then).to.be.a.function;
+      });
     });
   });
 
@@ -304,6 +369,7 @@ describe('The Avatar Angular module', function() {
       };
 
       userAPIMock = {
+        user: angular.noop,
         getUsersByEmail: sinon.spy(function() {
           return $q.when(result);
         })

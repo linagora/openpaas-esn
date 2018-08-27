@@ -9,7 +9,8 @@ angular.module('esn.avatar', [
   'mgcrea.ngStrap.alert',
   'ng.deviceDetector',
   'esn.http',
-  'esn.url'
+  'esn.url',
+  'esn.session'
 ])
   .constant('AVATAR_OFFSET', 10)
   .provider('avatarDefaultUrl', function() {
@@ -44,7 +45,7 @@ angular.module('esn.avatar', [
       }
     };
   })
-  .controller('avatarEdit', function($rootScope, $scope, selectionService, avatarAPI, $alert, $modal) {
+  .controller('avatarEdit', function($rootScope, $scope, session, selectionService, avatarAPI, $alert, $modal) {
 
     selectionService.clear();
     var createModal = $modal({scope: $scope, templateUrl: '/views/modules/avatar/avatar-edit-modal.html', show: false, backdrop: 'static', keyboard: false});
@@ -85,22 +86,25 @@ angular.module('esn.avatar', [
       $scope.uploading = true;
       $scope.step = 'uploading';
 
-      avatarAPI.uploadAvatar(blob, mime)
+      var uploadAvatar = $scope.user._id === session.user._id ?
+        avatarAPI.uploadAvatar(blob, mime) :
+        avatarAPI.uploadUserAvatar(blob, mime, $scope.user._id, session.domain._id);
+
+      uploadAvatar
         .progress(function(evt) {
-          var value = parseInt(100.0 * evt.loaded / evt.total, 10);
-          $scope.progress = value;
+          $scope.progress = parseInt(100.0 * evt.loaded / evt.total, 10);
         })
         .success(function() {
           $scope.progress = 100;
           $scope.step = 'redirect';
-          $rootScope.$broadcast('avatar:updated');
-          return done();
+          $rootScope.$broadcast('avatar:updated', $scope.user);
+          done();
         })
         .error(function(error) {
           $scope.progress = 100;
           $scope.step = 'uploadfailed';
           $scope.error = error;
-          return done();
+          done();
         });
     };
 
@@ -146,6 +150,11 @@ angular.module('esn.avatar', [
 
   })
   .factory('avatarAPI', function($upload, httpConfigurer) {
+    return {
+      uploadAvatar: uploadAvatar,
+      uploadUserAvatar: uploadUserAvatar
+    };
+
     function uploadAvatar(blob, mime) {
       return $upload.http({
         method: 'POST',
@@ -157,9 +166,16 @@ angular.module('esn.avatar', [
       });
     }
 
-    return {
-      uploadAvatar: uploadAvatar
-    };
+    function uploadUserAvatar(blob, mime, userId, domainId) {
+      return $upload.http({
+        method: 'PUT',
+        url: httpConfigurer.getUrl('/api/users/' + userId + '/profile/avatar?domain_id=' + domainId),
+        headers: { 'Content-Type': mime },
+        data: blob,
+        params: { mimetype: mime, size: blob.size },
+        withCredentials: true
+      });
+    }
   })
   .factory('selectionService', function($rootScope, AVATAR_MIN_SIZE_PX) {
 

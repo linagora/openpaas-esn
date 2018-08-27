@@ -4,7 +4,7 @@
   angular.module('esn.profile-menu')
     .controller('ESNProfileMenuController', ESNProfileMenuController);
 
-  function ESNProfileMenuController($scope, esnAvatarUrlService) {
+  function ESNProfileMenuController($scope, session, esnAvatarUrlService) {
     var self = this;
 
     self.$onInit = $onInit;
@@ -20,8 +20,10 @@
       $mdMenu.open(event);
     }
 
-    function onAvatarUpdated() {
-      self.avatarURL = esnAvatarUrlService.generateForCurrentUser(true);
+    function onAvatarUpdated(event, user) {
+      if (user && user._id === session.user._id) {
+        self.avatarURL = esnAvatarUrlService.generateForCurrentUser(true);
+      }
     }
   }
 })();
