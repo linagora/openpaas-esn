@@ -5,10 +5,7 @@ md-menu.blue(md-position-mode='right bottom')
       md-button(ui-sref="profile({ user_id: '' })")
         md-icon(md-svg-icon="account",aria-label="Account Icon")
         | #{__('Profile')}
-    md-menu-item
-      md-button(ui-sref="controlcenter")
-        md-icon(md-svg-icon="account-settings-variant",aria-label="account-settings-variant Icon")
-        | #{__('Control Center')}					
+    div(dynamic-directive="profile-menu-link")
     md-menu-item
       md-button(ui-sref="logout")
         md-icon(md-svg-icon="power",aria-label="power Icon")
