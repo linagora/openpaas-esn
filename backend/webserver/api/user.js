@@ -5,6 +5,9 @@ const users = require('../controllers/users');
 const usernotifications = require('../controllers/usernotifications');
 const usernotificationsAsMiddleware = require('../middleware/usernotifications');
 const oauthclients = require('../controllers/oauthclients');
+const { validateMIMEType } = require('../middleware/file');
+const { ACCEPTED_MIME_TYPES } = require('../../core/image').CONSTANTS;
+const { requireInQuery, requirePositiveIntegersInQuery } = require('../middleware/helper');
 
 module.exports = function(router) {
 
@@ -97,14 +100,21 @@ module.exports = function(router) {
    *         $ref: "#/responses/cm_400"
    *       401:
    *         $ref: "#/responses/cm_401"
-   *       404:
-   *         $ref: "#/responses/cm_404"
    *       412:
    *         $ref: "#/responses/cm_412"
+   *       415:
+   *         $ref: "#/responses/cm_415"
    *       500:
    *         $ref: "#/responses/cm_500"
    */
-  router.post('/user/profile/avatar', authorize.requiresAPILogin, users.postProfileAvatar);
+  router.post(
+    '/user/profile/avatar',
+    authorize.requiresAPILogin,
+    requireInQuery(['mimetype', 'size']),
+    validateMIMEType(ACCEPTED_MIME_TYPES),
+    requirePositiveIntegersInQuery('size'),
+    users.postProfileAvatar
+  );
 
   /**
    * @swagger

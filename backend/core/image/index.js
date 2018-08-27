@@ -175,3 +175,4 @@ module.exports.checkImageSquare = checkImageSquare;
 module.exports.recordAvatar = recordAvatar;
 module.exports.setDefaultAvatarSize = setDefaultAvatarSize;
 module.exports.avatarGenerationModule = avatarGenerationModule;
+module.exports.CONSTANTS = require('./constants');

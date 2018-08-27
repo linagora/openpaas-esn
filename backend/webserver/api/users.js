@@ -4,6 +4,8 @@ const authorize = require('../middleware/authorization');
 const users = require('../controllers/users');
 const usersMW = require('../middleware/users');
 const { loadFromDomainIdParameter } = require('../middleware/domain');
+const { validateMIMEType } = require('../middleware/file');
+const { ACCEPTED_MIME_TYPES } = require('../../core/image').CONSTANTS;
 const helperMW = require('../middleware/helper');
 const link = require('../middleware/profile-link');
 
@@ -154,6 +156,50 @@ module.exports = function(router) {
    *         $ref: "#/responses/cm_404"
    */
   router.get('/users/:uuid/profile/avatar', usersMW.loadTargetUser, users.getTargetUserAvatar);
+
+  /**
+   * @swagger
+   * /users/{uuid}/profile/avatar:
+   *   put:
+   *     tags:
+   *       - Avatar
+   *       - User
+   *     description: |
+   *       Update avatar for a specific user. The updated avatar is set as the default avatar for that user.
+   *
+   *       The image should be square, and at least be 128x128 px.
+   *     parameters:
+   *       - $ref: "#/parameters/av_mimetype"
+   *       - $ref: "#/parameters/av_size"
+   *       - $ref: "#/parameters/ct_raw_data"
+   *     responses:
+   *       200:
+   *         $ref: "#/responses/ct_avatar"
+   *       400:
+   *         $ref: "#/responses/cm_400"
+   *       401:
+   *         $ref: "#/responses/cm_401"
+   *       403:
+   *         $ref: "#/responses/cm_403"
+   *       412:
+   *         $ref: "#/responses/cm_412"
+   *       415:
+   *         $ref: "#/responses/cm_415"
+   *       500:
+   *         $ref: "#/responses/cm_500"
+   */
+  router.put(
+    '/users/:uuid/profile/avatar',
+    authorize.requiresAPILogin,
+    loadFromDomainIdParameter,
+    authorize.requiresDomainManager,
+    usersMW.loadTargetUser,
+    authorize.requiresTargetUserIsDomainMember,
+    helperMW.requireInQuery(['mimetype', 'size']),
+    validateMIMEType(ACCEPTED_MIME_TYPES),
+    helperMW.requirePositiveIntegersInQuery('size'),
+    users.updateTargetUserAvatar
+  );
 
   /**
    * @swagger
