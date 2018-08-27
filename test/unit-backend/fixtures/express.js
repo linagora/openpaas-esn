@@ -16,6 +16,7 @@ exports.express = function() {
   expressMock.session = function() {};
   expressMock.Router = function() {
     return {
+      all: function() {},
       get: function() {},
       put: function() {},
       delete: function() {},

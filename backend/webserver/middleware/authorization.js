@@ -1,9 +1,8 @@
-'use strict';
-
 const passport = require('passport');
 const config = require('../../core').config('default');
 const userModule = require('../../core/user');
 const domainModule = require('../../core/domain');
+const esnConfig = require('../../core/esn-config');
 
 module.exports = {
   loginAndContinue,
@@ -12,6 +11,8 @@ module.exports = {
   requiresAPILoginAndFailWithError: _requiresAPILoginAndFailWithError(true),
   requiresDomainManager,
   requiresDomainMember,
+  requiresModuleIsEnabled,
+  requiresModuleIsEnabledInCurrentDomain,
   requiresTargetUserIsDomainMember,
   requiresCommunityCreator,
   requiresJWT,
@@ -155,4 +156,41 @@ function decodeJWTandLoadUser(req, res, next) {
     req.user = user;
     next();
   });
+}
+
+function requiresModuleIsEnabled(moduleName) {
+  return (req, res, next) => {
+    esnConfig('modules')
+      .inModule('core')
+      .get()
+      .then(config => {
+        if (config && config[moduleName] !== undefined && config[moduleName] === false) {
+          return res.status(403).json({error: {code: 403, message: 'Forbidden', details: 'Module is not available'}});
+        }
+
+        next();
+      })
+      .catch(() => {
+        res.status(500).json({error: {code: 500, message: 'Internal Server Error', details: 'Error while resolving user configuration'}});
+      });
+  };
+}
+
+function requiresModuleIsEnabledInCurrentDomain(moduleName) {
+  return (req, res, next) => {
+    esnConfig('modules')
+      .inModule('core')
+      .forUser(req.user)
+      .get()
+      .then(config => {
+        if (config && config[moduleName] !== undefined && config[moduleName] === false) {
+          return res.status(403).json({error: {code: 403, message: 'Forbidden', details: 'Module is not available'}});
+        }
+
+        next();
+      })
+      .catch(() => {
+        res.status(500).json({error: {code: 500, message: 'Internal Server Error', details: 'Error while resolving user configuration'}});
+      });
+  };
 }
