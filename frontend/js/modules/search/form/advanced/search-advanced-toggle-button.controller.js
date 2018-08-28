@@ -44,7 +44,7 @@
 
           function search() {
             hide();
-            self.search();
+            self.search({ query: $scope.query });
           }
         },
         disableParentScroll: true,

@@ -3,29 +3,41 @@
 
   angular.module('esn.search').controller('ESNSearchAdvancedFormController', ESNSearchAdvancedFormController);
 
-  function ESNSearchAdvancedFormController($rootScope, esnSearchContextService) {
+  function ESNSearchAdvancedFormController(
+    $stateParams,
+    $rootScope,
+    esnSearchContextService,
+    esnSearchQueryService
+  ) {
     var self = this;
 
     self.$onInit = $onInit;
+    self.$onDestroy = $onDestroy;
     self.clearSearchQuery = clearSearchQuery;
+    self.clearAdvancedQuery = clearAdvancedQuery;
     self.onProviderSelected = onProviderSelected;
     self.doSearch = doSearch;
 
+    var removeStateListener = $rootScope.$on('$stateChangeSuccess', function(event, toState) {
+      // update the providers from the state
+      // avoid to change when we go to search state
+      if (toState.name !== 'search.main') {
+        clearSearchQuery();
+        loadProviders();
+      } else {
+        // For some reason it will not work if not set when coming back from a search result...
+        self.searchQuery = esnSearchQueryService.buildFromState($stateParams);
+        loadProviders();
+      }
+    });
+
     function $onInit() {
-      self.searchQuery = {
-        text: self.query || ''
-      };
-
+      self.searchQuery = esnSearchQueryService.buildFromState($stateParams);
       loadProviders();
+    }
 
-      $rootScope.$on('$stateChangeSuccess', function(event, toState) {
-        // update the providers from the state
-        // avoid to change when we go to search state
-        if (toState.name !== 'search.main') {
-          clearSearchQuery();
-          loadProviders();
-        }
-      });
+    function $onDestroy() {
+      removeStateListener();
     }
 
     function loadProviders() {
@@ -35,19 +47,19 @@
     }
 
     function clearSearchQuery() {
-      self.searchQuery = {
-        text: ''
-      };
+      esnSearchQueryService.clear(self.searchQuery);
+    }
+
+    function clearAdvancedQuery() {
+      esnSearchQueryService.clearAdvancedQuery(self.searchQuery);
     }
 
     function onProviderSelected(provider) {
       self.provider = provider;
     }
 
-    function doSearch() {
-      var providers = self.provider ? [self.provider] : self.providers;
-
-      self.search({ query: self.searchQuery, providers: providers });
+    function doSearch(query) {
+      self.search({ query: query, provider: self.provider || null });
     }
   }
 })(angular);

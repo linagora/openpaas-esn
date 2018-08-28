@@ -87,18 +87,18 @@ describe('The esn.provider module', function() {
 
     describe('The getAllProviderDefinitions function', function() {
 
-      it('should return an array containing names and ids of added providers', function() {
+      it('should return an array containing names, ids and uids of added providers', function() {
         var spy = sinon.spy();
 
-        providers.add($q.when({ id: 1, name: 'provider1', property: 'value' }));
-        providers.add({ id: 2, name: 'provider2', another: 'value2' });
+        providers.add($q.when({ id: 1, name: 'provider1', uid: 'uid1', property: 'value' }));
+        providers.add({ id: 2, name: 'provider2', uid: 'uid2', another: 'value2' });
 
         providers.getAllProviderDefinitions().then(spy);
         $rootScope.$digest();
 
         expect(spy).to.have.been.calledWith([
-          { id: 1, name: 'provider1' },
-          { id: 2, name: 'provider2' }
+          { id: 1, name: 'provider1', uid: 'uid1' },
+          { id: 2, name: 'provider2', uid: 'uid2' }
         ]);
       });
 
@@ -255,11 +255,11 @@ describe('The esn.provider module', function() {
       var provider1, provider2, provider3, provider4, provider5;
 
       beforeEach(function() {
-        provider1 = {id: 1, name: '1'};
-        provider2 = {id: 2, name: '2'};
-        provider3 = {id: 3, name: '3'};
-        provider4 = {id: 4, name: '4'};
-        provider5 = {id: 5, name: '5'};
+        provider1 = {id: 1, name: '1', uid: '1'};
+        provider2 = {id: 2, name: '2', uid: '2'};
+        provider3 = {id: 3, name: '3', uid: '3'};
+        provider4 = {id: 4, name: '4', uid: '4'};
+        provider5 = {id: 5, name: '5', uid: '5'};
 
         [provider1, provider2, [provider3, provider4], provider5].forEach(function(provider) {
           providers.add(provider);

@@ -5,10 +5,10 @@
 
   function ESNSearchResultController(
     _,
-    $scope,
     $stateParams,
     $q,
     searchProviders,
+    esnSearchQueryService,
     infiniteScrollHelper,
     PageAggregatorService,
     ELEMENTS_PER_PAGE
@@ -20,22 +20,15 @@
     self.$onInit = $onInit;
 
     function $onInit() {
-      var options = {};
-
-      self.query = $stateParams.query && $stateParams.query.text ? $stateParams.query.text : $stateParams.query;
-      self.providers = $stateParams.providers;
-
-      // TODO: replace query.text by query
-      // providers must be updated to accept query as string or query as object with text in it
-      self.query && (options.query = self.query);
-      self.providers && (options.acceptedIds = self.providers.map(_.property('id')));
+      self.query = esnSearchQueryService.buildFromState($stateParams);
+      self.providerUid = $stateParams.p;
 
       self.load = function() {
         return aggregator.loadNextItems().then(_.property('data'));
       };
 
       self.loadMoreElements = infiniteScrollHelper(self, function() {
-        if (!self.query) {
+        if (esnSearchQueryService.isEmpty(self.query)) {
           return $q.when([]);
         }
 
@@ -43,7 +36,10 @@
           return self.load();
         }
 
-        return searchProviders.getAll(options)
+        return buildSearchOptions(self.query, self.providerUid)
+          .then(function(options) {
+            return searchProviders.getAll(options);
+          })
           .then(function(providers) {
             aggregator = new PageAggregatorService('searchResultControllerAggregator', providers, {
               compare: function(a, b) { return b.date - a.date; },
@@ -53,6 +49,18 @@
             return self.load();
           });
       });
+
+      function buildSearchOptions(query, providerUid) {
+        return searchProviders.getAllProviderDefinitions().then(function(providers) {
+          var options = {};
+          var provider = _.find(providers, { uid: providerUid });
+
+          options.query = query;
+          options.acceptedIds = provider ? [provider.id] : providers.map(_.property('id'));
+
+          return options;
+        });
+      }
     }
   }
 })(angular);

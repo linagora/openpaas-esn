@@ -11,16 +11,22 @@
         templateUrl: '/views/modules/search/index.html'
       })
       .state('search.main', {
-        url: '?q',
+        url: '/?q&p&{a:json}',
         params: {
           q: {
             value: '',
             squash: true
           },
-          // type: any, contains a complex query
-          query: null,
-          // type: any
-          providers: null
+          // provider
+          p: {
+            value: '',
+            squash: true
+          },
+          // 'a' stands for 'A'dvanced search, MUST be an object
+          a: {
+            value: {},
+            squash: true
+          }
         },
         views: {
           'search-result': {
