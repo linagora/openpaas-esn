@@ -17,12 +17,6 @@ angular.module('esn.application-menu', [
   })
   .constant('APP_MENU_OPEN_EVENT', 'application-menu.open')
 
-  .config(function(dynamicDirectiveServiceProvider) {
-    var DD = dynamicDirectiveServiceProvider.DynamicDirective;
-
-    dynamicDirectiveServiceProvider.addInjection('esn-application-menu', new DD(true, 'application-menu-home', { priority: 50 }));
-  })
-
   .factory('applicationMenuTemplateBuilder', function(featureFlags, _) {
     var template =
         '<div>' +
@@ -105,13 +99,5 @@ angular.module('esn.application-menu', [
           element.offset({top: offset.top, left: offset.left - attrs.forceMarginLeft});
         }, 0, false);
       }
-    };
-  })
-
-  .directive('applicationMenuHome', function(applicationMenuTemplateBuilder) {
-    return {
-      retrict: 'E',
-      replace: true,
-      template: applicationMenuTemplateBuilder('/#/', { name: 'home' }, 'Home')
     };
   });
