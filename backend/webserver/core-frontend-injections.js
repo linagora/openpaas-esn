@@ -116,6 +116,7 @@ const injections = [
   {angular: 'esn.community', files: [
     'community/community.module.js',
     'community/community.run.js',
+    'community/community-registry.run.js',
     'community/community.config.js',
     'community/community.router.js',
     'community/about/community-about.component.js',
