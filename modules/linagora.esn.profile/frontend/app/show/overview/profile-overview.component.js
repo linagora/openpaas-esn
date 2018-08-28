@@ -7,7 +7,8 @@
       controller: 'profileOverviewController',
       bindings: {
         user: '<',
-        me: '<'
+        me: '<',
+        canEdit: '<'
       }
     });
 })(angular);

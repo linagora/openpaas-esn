@@ -5,6 +5,7 @@
     'material.components.button',
     'material.components.menu',
     'material.components.icon',
+    'esn.session',
     'esn.avatar'
   ]);
 })();
