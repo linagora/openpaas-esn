@@ -11,13 +11,11 @@ module.exports = function(router) {
 
   router.all('/communities*',
     authorize.requiresAPILogin,
-    authorize.requiresModuleIsEnabled(moduleName),
     authorize.requiresModuleIsEnabledInCurrentDomain(moduleName)
   );
 
   router.all('/user/communities*',
     authorize.requiresAPILogin,
-    authorize.requiresModuleIsEnabled(moduleName),
     authorize.requiresModuleIsEnabledInCurrentDomain(moduleName)
   );
 

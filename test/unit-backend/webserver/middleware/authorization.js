@@ -535,7 +535,7 @@ describe('The authorization middleware', function() {
     });
 
     it('should 403 when module is disabled', function(done) {
-      const configuration = {};
+      const configuration = [{id: moduleName, enabled: false}];
       const req = { user: {_id: 1}, domain: {_id: 2} };
       const res = this.helpers.express.jsonResponse(code => {
         expect(esnConfigMock).to.have.been.calledWith('modules');
@@ -547,18 +547,48 @@ describe('The authorization middleware', function() {
       });
       const middleware = this.helpers.requireBackend('webserver/middleware/authorization').requiresModuleIsEnabledInCurrentDomain;
 
-      configuration[moduleName] = false;
       get.returns(Promise.resolve(configuration));
       middleware(moduleName)(req, res, () => done(new Error('Should not be called')));
     });
 
     it('should call next when module is enabled', function(done) {
-      const configuration = {};
+      const configuration = [{id: moduleName, enabled: true}];
       const req = { user: {_id: 1}, domain: {_id: 2} };
       const res = this.helpers.express.jsonResponse(() => done(new Error('Should not be called')));
       const middleware = this.helpers.requireBackend('webserver/middleware/authorization').requiresModuleIsEnabledInCurrentDomain;
 
       get.returns(Promise.resolve(configuration));
+      middleware(moduleName)(req, res, () => {
+        expect(esnConfigMock).to.have.been.calledWith('modules');
+        expect(inModule).to.have.been.calledWith('core');
+        expect(forUser).to.have.been.calledWith(req.user);
+        expect(get).to.have.been.calledOnce;
+        done();
+      });
+    });
+
+    it('should call next when module is not configured', function(done) {
+      const configuration = [];
+      const req = { user: {_id: 1}, domain: {_id: 2} };
+      const res = this.helpers.express.jsonResponse(() => done(new Error('Should not be called')));
+      const middleware = this.helpers.requireBackend('webserver/middleware/authorization').requiresModuleIsEnabledInCurrentDomain;
+
+      get.returns(Promise.resolve(configuration));
+      middleware(moduleName)(req, res, () => {
+        expect(esnConfigMock).to.have.been.calledWith('modules');
+        expect(inModule).to.have.been.calledWith('core');
+        expect(forUser).to.have.been.calledWith(req.user);
+        expect(get).to.have.been.calledOnce;
+        done();
+      });
+    });
+
+    it('should call next when modules are not configured', function(done) {
+      const req = { user: {_id: 1}, domain: {_id: 2} };
+      const res = this.helpers.express.jsonResponse(() => done(new Error('Should not be called')));
+      const middleware = this.helpers.requireBackend('webserver/middleware/authorization').requiresModuleIsEnabledInCurrentDomain;
+
+      get.returns(Promise.resolve());
       middleware(moduleName)(req, res, () => {
         expect(esnConfigMock).to.have.been.calledWith('modules');
         expect(inModule).to.have.been.calledWith('core');
@@ -595,7 +625,7 @@ describe('The authorization middleware', function() {
     });
 
     it('should 403 when module is disabled', function(done) {
-      const configuration = {};
+      const configuration = [{id: moduleName, enabled: false}];
       const req = { user: {_id: 1}, domain: {_id: 2} };
       const res = this.helpers.express.jsonResponse(code => {
         expect(esnConfigMock).to.have.been.calledWith('modules');
@@ -606,18 +636,46 @@ describe('The authorization middleware', function() {
       });
       const middleware = this.helpers.requireBackend('webserver/middleware/authorization').requiresModuleIsEnabled;
 
-      configuration[moduleName] = false;
       get.returns(Promise.resolve(configuration));
       middleware(moduleName)(req, res, () => done(new Error('Should not be called')));
     });
 
     it('should call next when module is enabled', function(done) {
-      const configuration = {};
+      const configuration = [{id: moduleName, enabled: true}];
       const req = { user: {_id: 1}, domain: {_id: 2} };
       const res = this.helpers.express.jsonResponse(() => done(new Error('Should not be called')));
       const middleware = this.helpers.requireBackend('webserver/middleware/authorization').requiresModuleIsEnabled;
 
       get.returns(Promise.resolve(configuration));
+      middleware(moduleName)(req, res, () => {
+        expect(esnConfigMock).to.have.been.calledWith('modules');
+        expect(inModule).to.have.been.calledWith('core');
+        expect(get).to.have.been.calledOnce;
+        done();
+      });
+    });
+
+    it('should call next when module is not configured', function(done) {
+      const configuration = [];
+      const req = { user: {_id: 1}, domain: {_id: 2} };
+      const res = this.helpers.express.jsonResponse(() => done(new Error('Should not be called')));
+      const middleware = this.helpers.requireBackend('webserver/middleware/authorization').requiresModuleIsEnabled;
+
+      get.returns(Promise.resolve(configuration));
+      middleware(moduleName)(req, res, () => {
+        expect(esnConfigMock).to.have.been.calledWith('modules');
+        expect(inModule).to.have.been.calledWith('core');
+        expect(get).to.have.been.calledOnce;
+        done();
+      });
+    });
+
+    it('should call next when modules are not configured', function(done) {
+      const req = { user: {_id: 1}, domain: {_id: 2} };
+      const res = this.helpers.express.jsonResponse(() => done(new Error('Should not be called')));
+      const middleware = this.helpers.requireBackend('webserver/middleware/authorization').requiresModuleIsEnabled;
+
+      get.returns(Promise.resolve());
       middleware(moduleName)(req, res, () => {
         expect(esnConfigMock).to.have.been.calledWith('modules');
         expect(inModule).to.have.been.calledWith('core');
