@@ -9,6 +9,7 @@ const ADDRESSBOOK_DELETED = 'contacts:addressbook:deleted';
 const ADDRESSBOOK_UPDATED = 'contacts:addressbook:updated';
 const ADDRESSBOOK_SUBSCRIPTION_DELETED = 'contacts:addressbook:subscription:deleted';
 const ADDRESSBOOK_SUBSCRIPTION_UPDATED = 'contacts:addressbook:subscription:updated';
+const ADDRESSBOOK_SUBSCRIPTION_CREATED = 'contacts:addressbook:subscription:created';
 
 describe('The contact WS events module', function() {
 
@@ -58,6 +59,8 @@ describe('The contact WS events module', function() {
                   self.pubsub_callback_addressbook_subscription_deleted = callback;
                 } else if (topic === ADDRESSBOOK_SUBSCRIPTION_UPDATED) {
                   self.pubsub_callback_addressbook_subscription_updated = callback;
+                } else if (topic === ADDRESSBOOK_SUBSCRIPTION_CREATED) {
+                  self.pubsub_callback_addressbook_subscription_created = callback;
                 } else {
                   done(new Error('Should not have'));
                 }
@@ -79,6 +82,8 @@ describe('The contact WS events module', function() {
                   self.pubsub_callback_addressbook_subscription_deleted(data);
                 } else if (topic === ADDRESSBOOK_SUBSCRIPTION_UPDATED) {
                   self.pubsub_callback_addressbook_subscription_updated(data);
+                } else if (topic === ADDRESSBOOK_SUBSCRIPTION_CREATED) {
+                  self.pubsub_callback_addressbook_subscription_created(data);
                 }
               }
             };
@@ -188,6 +193,13 @@ describe('The contact WS events module', function() {
 
       module.init(this.moduleHelpers.dependencies);
       expect(this.pubsub_callback_addressbook_subscription_updated).to.be.a('function');
+    });
+
+    it('should register pubsub subscriber for contacts:addressbook:subscription:created', function() {
+      const module = require(`${this.moduleHelpers.backendPath}/ws/contact`);
+
+      module.init(this.moduleHelpers.dependencies);
+      expect(this.pubsub_callback_addressbook_subscription_created).to.be.a('function');
     });
 
     it('should warning if the pubsub event data is empty', function() {
@@ -612,6 +624,50 @@ describe('The contact WS events module', function() {
         module.init(this.moduleHelpers.dependencies);
 
         this.pubsub.local.topic(ADDRESSBOOK_SUBSCRIPTION_UPDATED).publish(pubsubData);
+      });
+    });
+
+    describe('contacts:addressbook:subscription:created subscriber', function() {
+      it('should not publish event when data is undefined', function(done) {
+        this.checkData(null, ADDRESSBOOK_SUBSCRIPTION_CREATED, done);
+      });
+
+      it('should not publish event when data is empty', function(done) {
+        this.checkData({}, ADDRESSBOOK_SUBSCRIPTION_CREATED, done);
+      });
+
+      it('should not publish event when bookName is missing', function(done) {
+        this.checkData({ bookId: '123' }, ADDRESSBOOK_SUBSCRIPTION_CREATED, done);
+      });
+
+      it('should not publish event when bookId is missing', function(done) {
+        this.checkData({ bookName: '123' }, ADDRESSBOOK_SUBSCRIPTION_CREATED, done);
+      });
+
+      it('should send update event with address book subscription info in websockets when receiving contacts:addressbook.subscription.created event from the pubsub', function(done) {
+        const pubsubData = {
+          bookId: '123',
+          bookName: 'name'
+        };
+        const module = require(`${this.moduleHelpers.backendPath}/ws/contact`);
+
+        contactNamespace = {
+          on: () => {},
+          to: roomId => ({
+            emit: (event, data) => {
+              expect(event).to.equal('contact:addressbook:subscription:created');
+              expect(roomId).to.equal(pubsubData.bookId);
+              expect(data).to.deep.equals({
+                room: pubsubData.bookId,
+                data: { bookId: pubsubData.bookId, bookName: pubsubData.bookName }
+              });
+              done();
+            }
+          })
+        };
+        module.init(this.moduleHelpers.dependencies);
+
+        this.pubsub.local.topic(ADDRESSBOOK_SUBSCRIPTION_CREATED).publish(pubsubData);
       });
     });
   });

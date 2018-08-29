@@ -21,6 +21,7 @@ module.exports = dependencies => {
     pubsub.global.topic(GLOBAL_PUBSUB_EVENTS.SABRE.ADDRESSBOOK_UPDATED).subscribe(onAddressbookUpdated);
     pubsub.global.topic(GLOBAL_PUBSUB_EVENTS.SABRE.ADDRESSBOOK_SUBSCRIPTION_DELETED).subscribe(onAddressbookSubscriptionDeleted);
     pubsub.global.topic(GLOBAL_PUBSUB_EVENTS.SABRE.ADDRESSBOOK_SUBSCRIPTION_UPDATED).subscribe(onAddressbookSubscriptionUpdated);
+    pubsub.global.topic(GLOBAL_PUBSUB_EVENTS.SABRE.ADDRESSBOOK_SUBSCRIPTION_CREATED).subscribe(onAddressbookSubscriptionCreated);
 
     function parseContact(msg) {
       const data = helper.parseContactPath(msg.path);
@@ -101,6 +102,12 @@ module.exports = dependencies => {
       logger.debug('New event from SabreDAV', GLOBAL_PUBSUB_EVENTS.SABRE.ADDRESSBOOK_SUBSCRIPTION_UPDATED, msg);
 
       pubsub.local.topic(NOTIFICATIONS.ADDRESSBOOK_SUBSCRIPTION_UPDATED).publish(parseAddressbook(msg));
+    }
+
+    function onAddressbookSubscriptionCreated(msg) {
+      logger.debug('New event from SabreDAV', GLOBAL_PUBSUB_EVENTS.SABRE.ADDRESSBOOK_SUBSCRIPTION_CREATED, msg);
+
+      pubsub.local.topic(NOTIFICATIONS.ADDRESSBOOK_SUBSCRIPTION_CREATED).publish(parseAddressbook(msg));
     }
 
     function shouldPublishElasticsearchMessage(message) {

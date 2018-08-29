@@ -5,12 +5,10 @@
     .factory('contactAddressbookService', contactAddressbookService);
 
   function contactAddressbookService(
-    $rootScope,
     $q,
     session,
     ContactAPIClient,
     contactAddressbookDisplayService,
-    CONTACT_ADDRESSBOOK_EVENTS,
     CONTACT_ADDRESSBOOK_TYPES,
     CONTACT_SHARING_INVITE_STATUS,
     CONTACT_SHARING_SUBSCRIPTION_TYPE
@@ -106,14 +104,7 @@
           return ContactAPIClient
             .addressbookHome(addressbookShell.bookId)
             .addressbook(addressbookShell.bookName)
-            .acceptShare({ displayname: displayname })
-            .then(function() {
-              addressbookShell.name = displayname;
-              $rootScope.$broadcast(
-                CONTACT_ADDRESSBOOK_EVENTS.CREATED,
-                addressbookShell
-              );
-            });
+            .acceptShare({ displayname: displayname });
         }
 
         var formattedSubscriptions = {
@@ -132,13 +123,7 @@
         return ContactAPIClient
           .addressbookHome(session.user._id)
           .addressbook()
-          .create(formattedSubscriptions)
-          .then(function(createdAddressbook) {
-            $rootScope.$broadcast(
-              CONTACT_ADDRESSBOOK_EVENTS.CREATED,
-              createdAddressbook
-            );
-          });
+          .create(formattedSubscriptions);
       }));
     }
 

@@ -146,9 +146,14 @@ describe('The ContactLiveUpdate service', function() {
       expect(onFn.calledWith(CONTACT_WS.events.ADDRESSBOOK_SUBSCRIPTION_UPDATED)).to.be.true;
     });
 
+    it('should make sio to listen on CONTACT_WS.events.ADDRESSBOOK_SUBSCRIPTION_CREATED event', function() {
+      ContactLiveUpdate.startListen(bookId);
+      expect(onFn.calledWith(CONTACT_WS.events.ADDRESSBOOK_SUBSCRIPTION_CREATED)).to.be.true;
+    });
+
     describe('When listening to events', function() {
 
-      var createFn, updateFn, deleteFn, onAddressbookCreateFn, onAddressbookDeleteFn, onAddressbookSubscriptionDeleteFn, onAddressbookUpdateFn, onAddressbookSubscriptionUpdateFn;
+      var createFn, updateFn, deleteFn, onAddressbookCreateFn, onAddressbookDeleteFn, onAddressbookSubscriptionDeleteFn, onAddressbookUpdateFn, onAddressbookSubscriptionUpdateFn, onAddressbookSubscriptionCreateFn;
 
       beforeEach(function() {
         onFn = function(event, handler) {
@@ -176,6 +181,9 @@ describe('The ContactLiveUpdate service', function() {
               break;
             case CONTACT_WS.events.ADDRESSBOOK_SUBSCRIPTION_UPDATED:
               onAddressbookSubscriptionUpdateFn = handler;
+              break;
+            case CONTACT_WS.events.ADDRESSBOOK_SUBSCRIPTION_CREATED:
+              onAddressbookSubscriptionCreateFn = handler;
               break;
           }
         };
@@ -416,6 +424,24 @@ describe('The ContactLiveUpdate service', function() {
         });
       });
 
+      describe('On CONTACT_WS.events.ADDRESSBOOK_SUBSCRIPTION_CREATED event', function() {
+        it('should broadcast address book subscription info to the $rootScope', function(done) {
+          var data = { bookId: '1', bookName: '2' };
+
+          contactAddressbookService.getAddressbookByBookName = sinon.stub().returns($q.when(data));
+
+          $rootScope.$on(CONTACT_ADDRESSBOOK_EVENTS.CREATED, function(event, _data) {
+            expect(_data).to.deep.equal(data);
+            done();
+          });
+
+          ContactLiveUpdate.startListen(bookId);
+          onAddressbookSubscriptionCreateFn(data);
+
+          $rootScope.$digest();
+          done(new Error('Should broadcast the address book subscription'));
+        });
+      });
     });
   });
 
@@ -478,6 +504,13 @@ describe('The ContactLiveUpdate service', function() {
 
       ContactLiveUpdate.stopListen();
       expect(removeListenerFn.calledWith(CONTACT_WS.events.ADDRESSBOOK_SUBSCRIPTION_UPDATED)).to.be.true;
+    });
+
+    it('should make sio to remove CONTACT_WS.events.ADDRESSBOOK_SUBSCRIPTION_CREATED event listener', function() {
+      ContactLiveUpdate.startListen('bookId');
+
+      ContactLiveUpdate.stopListen();
+      expect(removeListenerFn.calledWith(CONTACT_WS.events.ADDRESSBOOK_SUBSCRIPTION_CREATED)).to.be.true;
     });
   });
 });

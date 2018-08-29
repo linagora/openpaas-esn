@@ -424,4 +424,28 @@ describe('The contacts backend/lib/pubsub module', function() {
       getModule().listen();
     });
   });
+
+  describe('On ADDRESSBOOK_SUBSCRIPTION_CREATED event', function() {
+    it('should publish event ADDRESSBOOK_SUBSCRIPTION_CREATED through local pubsub', function(done) {
+      messageMock = {
+        path: `addressbooks/${bookId}/${bookName}`
+      };
+      pubsubMock.global.topic.withArgs(CONSTANTS.GLOBAL_PUBSUB_EVENTS.SABRE.ADDRESSBOOK_SUBSCRIPTION_CREATED).returns({
+        subscribe(listener) {
+          listener(messageMock);
+        }
+      });
+      pubsubMock.local.topic.withArgs(CONSTANTS.NOTIFICATIONS.ADDRESSBOOK_SUBSCRIPTION_CREATED).returns({
+        publish(data) {
+          expect(data).to.shallowDeepEqual({
+            bookId,
+            bookName
+          });
+          done();
+        }
+      });
+
+      getModule().listen();
+    });
+  });
 });

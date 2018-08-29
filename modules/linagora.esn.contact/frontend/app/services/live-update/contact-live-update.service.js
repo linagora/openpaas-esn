@@ -38,6 +38,7 @@
       sio.on(CONTACT_WS.events.ADDRESSBOOK_UPDATED, onAddressbookUpdate);
       sio.on(CONTACT_WS.events.ADDRESSBOOK_SUBSCRIPTION_DELETED, onAddressbookSubscriptionDelete);
       sio.on(CONTACT_WS.events.ADDRESSBOOK_SUBSCRIPTION_UPDATED, onAddressbookSubscriptionUpdate);
+      sio.on(CONTACT_WS.events.ADDRESSBOOK_SUBSCRIPTION_CREATED, onAddressbookSubscriptionCreate);
 
       listening = true;
       $log.debug('Start listening contact live update');
@@ -55,6 +56,7 @@
         sio.removeListener(CONTACT_WS.events.ADDRESSBOOK_UPDATED, onAddressbookUpdate);
         sio.removeListener(CONTACT_WS.events.ADDRESSBOOK_SUBSCRIPTION_DELETED, onAddressbookSubscriptionDelete);
         sio.removeListener(CONTACT_WS.events.ADDRESSBOOK_SUBSCRIPTION_UPDATED, onAddressbookSubscriptionUpdate);
+        sio.removeListener(CONTACT_WS.events.ADDRESSBOOK_SUBSCRIPTION_CREATED, onAddressbookSubscriptionCreate);
       }
 
       listening = false;
@@ -106,6 +108,12 @@
     function onAddressbookSubscriptionUpdate(data) {
       contactAddressbookService.getAddressbookByBookName(data.bookName).then(function(updatedAddressbook) {
         $rootScope.$broadcast(CONTACT_ADDRESSBOOK_EVENTS.UPDATED, updatedAddressbook);
+      });
+    }
+
+    function onAddressbookSubscriptionCreate(data) {
+      contactAddressbookService.getAddressbookByBookName(data.bookName).then(function(createdAddressbook) {
+        $rootScope.$broadcast(CONTACT_ADDRESSBOOK_EVENTS.CREATED, createdAddressbook);
       });
     }
   }
