@@ -6,7 +6,7 @@
           img(ng-src="{{displayShell.getAvatar(avatarSize)}}" fallback-src="{{displayShell.getDefaultAvatar()}}", alt=__("Avatar"))
         i.mdi.i-contact-show(ng-class="displayShell.getOverlayIcon()")
       .pmo-stat
-        h2.m-0.c-white.break-word.e2e-contact-display-name
+        h2.m-0.c-white.break-word.e2e-contact-display-name.ellipsis(title="{{contact.displayName}}")
           |{{contact.displayName}}
         |{{contact.job_title}}
       .contact-additional-info.ellipsis

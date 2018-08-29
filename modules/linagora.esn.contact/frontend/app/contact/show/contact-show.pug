@@ -13,7 +13,7 @@ sub-header
       img(ng-src='{{displayShell.getAvatar(avatarSize)}}', alt=__("Avatar"))
       i.mdi.i-contact-mobile(ng-class="displayShell.getOverlayIcon()")
     .contact-error-container
-      div.contact-fn
+      .ellipsis.contact-fn
         | {{contact.displayName}}
       .contact-infos
         .contact-items-group
