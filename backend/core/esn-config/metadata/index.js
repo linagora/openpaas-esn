@@ -22,6 +22,7 @@ module.exports = {
     web: require('./web'),
     login: require('./login'),
     features: require('./features'),
+    modules: require('./modules'),
     user: RESTRICTED,
     amqp: RESTRICTED,
     redis: RESTRICTED,
