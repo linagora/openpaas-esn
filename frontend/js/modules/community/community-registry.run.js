@@ -18,10 +18,11 @@
       description: 'Provide a gathering place for groups of user where they can communicate, make polls, discussion'
     });
     esnModuleRegistry.add({
-      id: 'esn.community',
+      id: 'linagora.esn.community',
       title: 'Communities',
       icon: '/images/application-menu/communities-icon.svg',
-      homePage: 'community'
+      homePage: 'community',
+      disableable: true
     });
   }
 })(angular);
