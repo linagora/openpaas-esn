@@ -1,5 +1,3 @@
-'use strict';
-
 const passport = require('passport');
 const config = require('../../core').config('default');
 const userModule = require('../../core/user');

@@ -1,5 +1,3 @@
-'use strict';
-
 const expect = require('chai').expect;
 const mockery = require('mockery');
 const ObjectId = require('bson').ObjectId;
@@ -504,5 +502,4 @@ describe('The authorization middleware', function() {
       middleware(req, {}, done);
     });
   });
-
 });

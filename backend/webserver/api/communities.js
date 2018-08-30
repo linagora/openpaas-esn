@@ -1,12 +1,22 @@
-'use strict';
+const authorize = require('../middleware/authorization');
+const requestMW = require('../middleware/request');
+const communities = require('../controllers/communities');
+const communityMiddleware = require('../middleware/community');
+const domainMiddleware = require('../middleware/domain');
+const moduleMiddleware = require('../middleware/module');
+const moduleName = 'linagora.esn.community';
 
-var authorize = require('../middleware/authorization');
-var requestMW = require('../middleware/request');
-var communities = require('../controllers/communities');
-var communityMiddleware = require('../middleware/community');
-var domainMiddleware = require('../middleware/domain');
+module.exports = router => {
 
-module.exports = function(router) {
+  router.all('/communities*',
+    authorize.requiresAPILogin,
+    moduleMiddleware.requiresModuleIsEnabledInCurrentDomain(moduleName)
+  );
+
+  router.all('/user/communities*',
+    authorize.requiresAPILogin,
+    moduleMiddleware.requiresModuleIsEnabledInCurrentDomain(moduleName)
+  );
 
   /**
    * @swagger
@@ -34,7 +44,7 @@ module.exports = function(router) {
    *       500:
    *         $ref: "#/responses/cm_500"
    */
-  router.get('/communities', authorize.requiresAPILogin, domainMiddleware.loadFromDomainIdParameter, authorize.requiresDomainMember, communities.list);
+  router.get('/communities', domainMiddleware.loadFromDomainIdParameter, authorize.requiresDomainMember, communities.list);
 
   /**
    * @swagger
@@ -65,7 +75,7 @@ module.exports = function(router) {
    *       500:
    *         $ref: "#/responses/cm_500"
    */
-  router.post('/communities', authorize.requiresAPILogin, communities.loadDomainForCreate, authorize.requiresDomainMember, communities.create);
+  router.post('/communities', communities.loadDomainForCreate, authorize.requiresDomainMember, communities.create);
 
   /**
    * @swagger
@@ -88,7 +98,7 @@ module.exports = function(router) {
    *       500:
    *         $ref: "#/responses/cm_500"
    */
-  router.get('/communities/:id', authorize.requiresAPILogin, communities.load, communities.get);
+  router.get('/communities/:id', communities.load, communities.get);
 
   /**
    * @swagger
@@ -113,7 +123,7 @@ module.exports = function(router) {
    *       500:
    *         $ref: "#/responses/cm_500"
    */
-  router.delete('/communities/:id', authorize.requiresAPILogin, communities.load, authorize.requiresCommunityCreator, communities.delete);
+  router.delete('/communities/:id', communities.load, authorize.requiresCommunityCreator, communities.delete);
 
   /**
    * @swagger
@@ -139,7 +149,7 @@ module.exports = function(router) {
    *       500:
    *         $ref: "#/responses/cm_500"
    */
-  router.get('/communities/:id/avatar', authorize.requiresAPILogin, communities.load, communities.getAvatar);
+  router.get('/communities/:id/avatar', communities.load, communities.getAvatar);
 
   /**
    * @swagger
@@ -170,7 +180,7 @@ module.exports = function(router) {
    *       500:
    *         $ref: "#/responses/cm_500"
    */
-  router.post('/communities/:id/avatar', authorize.requiresAPILogin, communities.load, authorize.requiresCommunityCreator, communities.uploadAvatar);
+  router.post('/communities/:id/avatar', communities.load, authorize.requiresCommunityCreator, communities.uploadAvatar);
 
   /**
    * @swagger
@@ -196,7 +206,7 @@ module.exports = function(router) {
    *       500:
    *         $ref: "#/responses/cm_500"
    */
-  router.put('/communities/:id', authorize.requiresAPILogin, communities.load, authorize.requiresCommunityCreator, communities.update);
+  router.put('/communities/:id', communities.load, authorize.requiresCommunityCreator, communities.update);
 
   /**
    * @swagger
@@ -223,7 +233,6 @@ module.exports = function(router) {
    *         $ref: "#/responses/cm_500"
    */
   router.get('/communities/:id/members/:user_id',
-    authorize.requiresAPILogin,
     communities.load,
     communityMiddleware.canRead,
     requestMW.castParamToObjectId('user_id'),
@@ -250,5 +259,5 @@ module.exports = function(router) {
    *       500:
    *         $ref: "#/responses/cm_500"
    */
-  router.get('/user/communities', authorize.requiresAPILogin, communities.getMine);
+  router.get('/user/communities', communities.getMine);
 };

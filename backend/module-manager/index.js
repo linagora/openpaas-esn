@@ -99,6 +99,7 @@ function mockMiddlewares() {
     'link',
     'login-rules',
     'message',
+    'module',
     'notification',
     'platformadmins',
     'request',
