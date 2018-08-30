@@ -3,19 +3,33 @@
 
   angular.module('esn.community').config(routerConfiguration);
 
-  function routerConfiguration(routeResolver, $urlRouterProvider, $stateProvider) {
+  function routerConfiguration(routeResolver, $stateProvider) {
     $stateProvider.state('community', {
+      abstract: true,
       url: '/community',
       templateUrl: '/views/modules/community/index.html',
+      deepStateRedirect: {
+        default: 'community.home',
+        fn: function() {
+          return { state: 'community.home' };
+        }
+      },
+      resolve: {
+        isModuleActive: isModuleActive,
+        domain: routeResolver.session('domain'),
+        user: routeResolver.session('user')
+      }
+    })
+
+    // so we can transition to `community.home` while we can't on `community`
+    // this allows to chack that the module is active for all children
+    .state('community.home', {
+      url: '',
       deepStateRedirect: {
         default: 'community.list',
         fn: function() {
           return { state: 'community.list' };
         }
-      },
-      resolve: {
-        domain: routeResolver.session('domain'),
-        user: routeResolver.session('user')
       }
     })
 
@@ -92,11 +106,22 @@
       templateUrl: '/views/modules/community/members/community-members',
       controller: 'communityViewController',
       resolve: {
+        isModuleActive: isModuleActive,
         community: routeResolver.api('communityAPI', 'get', 'community_id', '/communities'),
         memberOf: function() {
           return [];
         }
       }
+    });
+  }
+
+  function isModuleActive($location, communityConfiguration) {
+    return communityConfiguration.get('enabled', true).then(function(isEnabled) {
+      if (!isEnabled) {
+        $location.path('/');
+      }
+    }).catch(function() {
+      $location.path('/');
     });
   }
 })(angular);

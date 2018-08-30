@@ -120,6 +120,7 @@ const injections = [
     'community/community-registry.run.js',
     'community/community.config.js',
     'community/community.router.js',
+    'community/community-configuration.service.js',
     'community/about/community-about.component.js',
     'community/about/community-about.controller.js',
     'community/members/community-members.component.js',
