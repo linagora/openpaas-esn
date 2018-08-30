@@ -34,10 +34,10 @@ angular.module('esn.application-menu', [
           '</a>' +
         '</div>';
 
-    return function(href, icon, label, flag, isDispleayedByDefault) {
+    return function(href, icon, label, flag, isDisplayedByDefault) {
       var iconURL;
       var iconUrlTemplate = '/images/application-menu/<%- icon %>-icon.svg';
-      var defaultValue = angular.isDefined(isDispleayedByDefault) ? isDispleayedByDefault : true;
+      var defaultValue = angular.isDefined(isDisplayedByDefault) ? isDisplayedByDefault : true;
       var isActive = defaultValue;
 
       if (angular.isDefined(flag)) {
