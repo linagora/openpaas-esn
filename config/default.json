@@ -101,7 +101,8 @@
     "linagora.esn.calendar.collect.email",
     "linagora.esn.resource",
     "linagora.esn.james",
-    "linagora.esn.group"
+    "linagora.esn.group",
+    "linagora.esn.chat"
   ],
   "email": {
     "templatesDir": "./templates/email"
