@@ -8,7 +8,7 @@ var expect = chai.expect;
 describe('The contactAddressbookService service', function() {
   var $rootScope;
   var contactAddressbookService, ContactAPIClient, session;
-  var CONTACT_ADDRESSBOOK_EVENTS, CONTACT_SHARING_INVITE_STATUS;
+  var CONTACT_SHARING_INVITE_STATUS;
 
   beforeEach(function() {
     module('linagora.esn.contact');
@@ -34,7 +34,6 @@ describe('The contactAddressbookService service', function() {
     ) {
       $rootScope = _$rootScope_;
       contactAddressbookService = _contactAddressbookService_;
-      CONTACT_ADDRESSBOOK_EVENTS = _CONTACT_ADDRESSBOOK_EVENTS_;
       CONTACT_SHARING_INVITE_STATUS = _CONTACT_SHARING_INVITE_STATUS_;
     });
   });
@@ -387,41 +386,6 @@ describe('The contactAddressbookService service', function() {
           }
         });
       });
-
-      it('should broadcast event if success to subscribe to a public address book', function() {
-        var addressbookShells = [
-          {
-            description: '',
-            name: 'public addressbook1',
-            _links: {
-              self: {
-                href: '/addressbooks/123/456.vcf'
-              }
-            }
-          }
-        ];
-        var createdAddressbook = {
-          name: 'you created me'
-        };
-        var createSpy = sinon.stub().returns($q.when(createdAddressbook));
-
-        addressbookSpy.returns({
-          create: createSpy
-        });
-
-        // somehow, $rootScope.$broadcast is called when digest is triggered. So I trigger
-        // digest to 'flush' the pending call before mocking $rootScope.$broadcast
-        $rootScope.$digest();
-        $rootScope.$broadcast = sinon.spy();
-
-        contactAddressbookService.subscribeAddressbooks(addressbookShells);
-
-        $rootScope.$digest();
-        expect($rootScope.$broadcast).to.have.been.calledWith(
-          CONTACT_ADDRESSBOOK_EVENTS.CREATED,
-          createdAddressbook
-        );
-      });
     });
 
     describe('subscribe to delegated (shared) address book', function() {
@@ -458,42 +422,6 @@ describe('The contactAddressbookService service', function() {
         expect(acceptSpy).to.have.been.calledWith({
           displayname: addressbookShells[0].source.name
         });
-      });
-
-      it('should broadcast event if success to accept shared address book', function() {
-        var addressbookShells = [
-          {
-            description: '',
-            name: 'public addressbook1',
-            bookName: 'bookName',
-            bookId: 'bookId',
-            subscriptionType: CONTACT_SHARING_SUBSCRIPTION_TYPE.delegation,
-            source: {
-              name: 'source name'
-            }
-          }
-        ];
-        var acceptSpy = sinon.stub().returns($q.when());
-        var createdAddressbook = {
-          name: addressbookShells[0].source.name
-        };
-
-        addressbookSpy.returns({
-          acceptShare: acceptSpy
-        });
-
-        // somehow, $rootScope.$broadcast is called when digest is triggered. So I trigger
-        // digest to 'flush' the pending call before mocking $rootScope.$broadcast
-        $rootScope.$digest();
-        $rootScope.$broadcast = sinon.spy();
-
-        contactAddressbookService.subscribeAddressbooks(addressbookShells);
-
-        $rootScope.$digest();
-        expect($rootScope.$broadcast).to.have.been.calledWith(
-          CONTACT_ADDRESSBOOK_EVENTS.CREATED,
-          sinon.match(createdAddressbook)
-        );
       });
     });
   });

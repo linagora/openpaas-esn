@@ -12,7 +12,8 @@ module.exports = {
     ADDRESSBOOK_DELETED: 'contacts:addressbook:deleted',
     ADDRESSBOOK_UPDATED: 'contacts:addressbook:updated',
     ADDRESSBOOK_SUBSCRIPTION_DELETED: 'contacts:addressbook:subscription:deleted',
-    ADDRESSBOOK_SUBSCRIPTION_UPDATED: 'contacts:addressbook:subscription:updated'
+    ADDRESSBOOK_SUBSCRIPTION_UPDATED: 'contacts:addressbook:subscription:updated',
+    ADDRESSBOOK_SUBSCRIPTION_CREATED: 'contacts:addressbook:subscription:created'
   },
   ELASTICSEARCH_EVENTS: {
     CONTACT_ADDED: 'elasticsearch:contact:added',
@@ -28,7 +29,8 @@ module.exports = {
       ADDRESSBOOK_DELETED: 'sabre:addressbook:deleted',
       ADDRESSBOOK_UPDATED: 'sabre:addressbook:updated',
       ADDRESSBOOK_SUBSCRIPTION_DELETED: 'sabre:addressbook:subscription:deleted',
-      ADDRESSBOOK_SUBSCRIPTION_UPDATED: 'sabre:addressbook:subscription:updated'
+      ADDRESSBOOK_SUBSCRIPTION_UPDATED: 'sabre:addressbook:subscription:updated',
+      ADDRESSBOOK_SUBSCRIPTION_CREATED: 'sabre:addressbook:subscription:created'
     }
   },
   SEARCH: {
