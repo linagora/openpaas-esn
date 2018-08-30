@@ -1,6 +1,6 @@
 'use strict';
 
-/* global chai: false */
+/* global chai, sinon: false */
 
 var expect = chai.expect;
 
@@ -14,8 +14,9 @@ describe('The application-menu component', function() {
   });
 
   describe('applicationMenuTemplateBuilder service', function() {
-    beforeEach(angular.mock.inject(function(applicationMenuTemplateBuilder) {
+    beforeEach(angular.mock.inject(function(applicationMenuTemplateBuilder, featureFlags) {
       this.applicationMenuTemplateBuilder = applicationMenuTemplateBuilder;
+      this.featureFlags = featureFlags;
     }));
 
     it('should return the correct template when icon name is given', function() {
@@ -26,6 +27,40 @@ describe('The application-menu component', function() {
     it('should return the correct template when icon url is given', function() {
       expect(this.applicationMenuTemplateBuilder('/#/awesomestuffthere', { url: '/module/images/awesomeness' }, 'ClickMe'))
         .to.equal('<div><a href="/#/awesomestuffthere"><img class="esn-application-menu-icon" src="/module/images/awesomeness" /><span class="label" translate>ClickMe</span></a></div>');
+    });
+
+    it('should return empty template if feature flag is not set and isDispleayedByDefault is false', function() {
+      var spy = sinon.stub(this.featureFlags, 'isOn');
+
+      expect(this.applicationMenuTemplateBuilder('/#/awesomestuffthere', { url: '/module/images/awesomeness' }, 'ClickMe', undefined, false))
+        .to.equal('');
+      expect(spy).to.not.have.been.called;
+    });
+
+    it('should return empty template if feature is disabled from the feature flag', function() {
+      var flag = 'foo:bar:baz';
+      var stub = sinon.stub(this.featureFlags, 'isOn');
+
+      stub.withArgs(flag).returns(false);
+      stub.returns(undefined);
+
+      expect(this.applicationMenuTemplateBuilder('/#/awesomestuffthere', { url: '/module/images/awesomeness' }, 'ClickMe', flag))
+        .to.equal('');
+      expect(stub).to.have.been.calledTwice;
+      expect(stub).to.have.been.calledWith(flag);
+    });
+
+    it('should return empty template if feature is disabled from the feature flag even is isDispleayedByDefault is true', function() {
+      var flag = 'foo:bar:baz';
+      var stub = sinon.stub(this.featureFlags, 'isOn');
+
+      stub.withArgs(flag).returns(false);
+      stub.returns(undefined);
+
+      expect(this.applicationMenuTemplateBuilder('/#/awesomestuffthere', { url: '/module/images/awesomeness' }, 'ClickMe', flag, true))
+        .to.equal('');
+      expect(stub).to.have.been.calledTwice;
+      expect(stub).to.have.been.calledWith(flag);
     });
   });
 
