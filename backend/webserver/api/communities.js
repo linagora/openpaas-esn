@@ -1,22 +1,21 @@
-'use strict';
-
-var authorize = require('../middleware/authorization');
-var requestMW = require('../middleware/request');
-var communities = require('../controllers/communities');
-var communityMiddleware = require('../middleware/community');
-var domainMiddleware = require('../middleware/domain');
+const authorize = require('../middleware/authorization');
+const requestMW = require('../middleware/request');
+const communities = require('../controllers/communities');
+const communityMiddleware = require('../middleware/community');
+const domainMiddleware = require('../middleware/domain');
+const moduleMiddleware = require('../middleware/module');
 const moduleName = 'linagora.esn.community';
 
-module.exports = function(router) {
+module.exports = router => {
 
   router.all('/communities*',
     authorize.requiresAPILogin,
-    authorize.requiresModuleIsEnabledInCurrentDomain(moduleName)
+    moduleMiddleware.requiresModuleIsEnabledInCurrentDomain(moduleName)
   );
 
   router.all('/user/communities*',
     authorize.requiresAPILogin,
-    authorize.requiresModuleIsEnabledInCurrentDomain(moduleName)
+    moduleMiddleware.requiresModuleIsEnabledInCurrentDomain(moduleName)
   );
 
   /**
