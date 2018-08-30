@@ -326,6 +326,7 @@ const injections = [
     'user-notification/templates/user-notification-template-provider-registry.service.js',
     'user-notification/toggler/user-notification-toggler.controller.js',
     'user-notification/toggler/user-notification-toggler.directive.js',
+    'user-notification/user-notification-featureflip.run.js',
     'user-notification/user-notification.constants.js',
     'user-notification/user-notification.run.js',
     'user-notification/user-notification.router.js',

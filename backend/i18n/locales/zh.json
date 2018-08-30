@@ -471,5 +471,8 @@
   "Message": "消息",
   "Survey": "调研",
   "This notification is about removed content and is skipped": "该消息通知关于被移除的内容，并被跳过",
-  "Search type": "搜索类型"
+  "Search type": "搜索类型",
+  "User Notification": "用户通知",
+  "Display notification bell": "显示通知铃",
+  "Header": "Header"
 }
