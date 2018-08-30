@@ -50,12 +50,6 @@ describe('The core/esn-config/metadata/features module', () => {
       expect(validator(config)).to.equal('[\'control-center:password\']: should be boolean');
     });
 
-    it('should return error message when application-menu:communities property is not boolean', () => {
-      config['application-menu:communities'] = {};
-
-      expect(validator(config)).to.equal('[\'application-menu:communities\']: should be boolean');
-    });
-
     it('should return error message when control-center:members property is not boolean', () => {
       config['control-center:members'] = {};
 

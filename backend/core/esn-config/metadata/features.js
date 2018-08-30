@@ -13,9 +13,6 @@ const schema = {
     'control-center:password': {
       type: 'boolean'
     },
-    'application-menu:communities': {
-      type: 'boolean'
-    },
     'control-center:members': {
       type: 'boolean'
     },
@@ -33,7 +30,6 @@ const schema = {
     'control-center:appstore',
     'application-menu:jobqueue',
     'control-center:password',
-    'application-menu:communities',
     'control-center:members',
     'application-menu:members',
     'control-center:invitation',
