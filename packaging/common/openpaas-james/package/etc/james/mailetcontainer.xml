@@ -93,6 +93,7 @@
             <mailet match="mdn-matcher" class="org.apache.james.jmap.mailet.ExtractMDNOriginalJMAPMessageId"/>
 
             <mailet match="RecipientIsLocal" class="org.apache.james.jmap.mailet.VacationMailet"/>
+            <mailet match="RecipientIsLocal" class="org.apache.james.jmap.mailet.filter.JMAPFiltering"/>
             <mailet match="RecipientIsLocal" class="ToProcessor">
                 <processor>local-recipient</processor>
             </mailet>
