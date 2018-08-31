@@ -20,6 +20,7 @@ describe('The core/esn-config/metadata/features module', () => {
         'application-menu:members': false,
         'control-center:members': false,
         'header:user-notification': false,
+        'header:fullscreen': false,
         'control-center:password': false,
         'application-menu:jobqueue': false,
         'control-center:appstore': true
@@ -78,6 +79,12 @@ describe('The core/esn-config/metadata/features module', () => {
       config['header:user-notification'] = {};
 
       expect(validator(config)).to.equal('[\'header:user-notification\']: should be boolean');
+    });
+
+    it('should return error message when header:fullscreen property is not boolean', () => {
+      config['header:fullscreen'] = {};
+
+      expect(validator(config)).to.equal('[\'header:fullscreen\']: should be boolean');
     });
   });
 });

@@ -19,6 +19,7 @@ const injections = [
   {angular: 'esn.http', files: ['http.js'], innerApps: ['esn', 'welcome']},
   {angular: 'esn.header', files: [
     'header/header.js',
+    'header/header-featureflip.run.js',
     'header/sticky/header-sticky.directive.js'
   ], innerApps: ['esn']},
   {angular: 'esn.profile-menu', files: [

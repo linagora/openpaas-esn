@@ -11,7 +11,7 @@ div
       esn-search-header
 
       ul.list-inline.all-centered.header-actions
-        li.hover-scale-animation.toggle-fullscreen
+        li.hover-scale-animation.toggle-fullscreen(feature-flag="core.features.header:fullscreen")
           a(href='', ng-click='toggleFullScreen()')
             i.md.mdi.mdi-fullscreen
         li.hover-scale-animation(feature-flag="core.features.header:user-notification")
