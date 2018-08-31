@@ -19,7 +19,7 @@ describe('The core/esn-config/metadata/features module', () => {
         'control-center:invitation': false,
         'application-menu:members': false,
         'control-center:members': false,
-        'application-menu:communities': false,
+        'header:user-notification': false,
         'control-center:password': false,
         'application-menu:jobqueue': false,
         'control-center:appstore': true
@@ -72,6 +72,12 @@ describe('The core/esn-config/metadata/features module', () => {
       config['control-center:invitation'] = {};
 
       expect(validator(config)).to.equal('[\'control-center:invitation\']: should be boolean');
+    });
+
+    it('should return error message when header:user-notification property is not boolean', () => {
+      config['header:user-notification'] = {};
+
+      expect(validator(config)).to.equal('[\'header:user-notification\']: should be boolean');
     });
   });
 });

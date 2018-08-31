@@ -24,6 +24,9 @@ const schema = {
     },
     'application-menu:invitation': {
       type: 'boolean'
+    },
+    'header:user-notification': {
+      type: 'boolean'
     }
   },
   required: [
@@ -33,7 +36,8 @@ const schema = {
     'control-center:members',
     'application-menu:members',
     'control-center:invitation',
-    'application-menu:invitation'
+    'application-menu:invitation',
+    'header:user-notification'
   ]
 };
 

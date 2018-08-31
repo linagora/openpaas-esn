@@ -14,7 +14,7 @@ div
         li.hover-scale-animation.toggle-fullscreen
           a(href='', ng-click='toggleFullScreen()')
             i.md.mdi.mdi-fullscreen
-        li.hover-scale-animation
+        li.hover-scale-animation(feature-flag="core.features.header:user-notification")
           esn-user-notification-toggler
         li.hover-scale-animation
           application-menu-toggler

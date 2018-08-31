@@ -471,5 +471,8 @@
   "Message": "Message",
   "Survey": "Survey",
   "This notification is about removed content and is skipped": "This notification is about removed content and is skipped",
-  "Search type": "Search type"
+  "Search type": "Search type",
+  "User Notification": "User Notification",
+  "Display notification bell": "Display notification bell",
+  "Header": "Header"
 }
