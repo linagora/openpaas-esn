@@ -16,6 +16,7 @@ describe('The core/esn-config/metadata/features module', () => {
       validator = getModule().validator;
       config = {
         'application-menu:invitation': false,
+        'application-menu:appstore': false,
         'control-center:invitation': false,
         'application-menu:members': false,
         'control-center:members': false,
@@ -37,6 +38,12 @@ describe('The core/esn-config/metadata/features module', () => {
       config['application-menu:invitation'] = {};
 
       expect(validator(config)).to.equal('[\'application-menu:invitation\']: should be boolean');
+    });
+
+    it('should return error message when application-menu:appstore property is not boolean', () => {
+      config['application-menu:appstore'] = {};
+
+      expect(validator(config)).to.equal('[\'application-menu:appstore\']: should be boolean');
     });
 
     it('should return error message when application-menu:jobqueue property is not boolean', () => {

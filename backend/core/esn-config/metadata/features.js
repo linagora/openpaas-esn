@@ -7,6 +7,9 @@ const schema = {
     'control-center:appstore': {
       type: 'boolean'
     },
+    'application-menu:appstore': {
+      type: 'boolean'
+    },
     'application-menu:jobqueue': {
       type: 'boolean'
     },
@@ -34,6 +37,7 @@ const schema = {
   },
   required: [
     'control-center:appstore',
+    'application-menu:appstore',
     'application-menu:jobqueue',
     'control-center:password',
     'control-center:members',
