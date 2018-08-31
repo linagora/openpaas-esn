@@ -430,7 +430,7 @@
   "Invalid value": "Valeur invalide",
   "Allows you to invite people to your OpenPaaS domain": "Autoriser les invitations à rejoindre votre domaine OpenPaaS",
   "Show a list of existing members in current domain": "Montrer la liste des utilisateurs de votre domaine OpenPaaS",
-  "Allows user to submit new external application for current domain": "Autoriser un utilisateur à ajouter une application à leurs domaines",
+  "Allows user to submit new external application for current domain": "Autoriser un utilisateur à ajouter une application à son domaine",
   "Application Menu": "Menu de l'application",
   "No application, click %s to add a new one": "Aucune application, cliquez %s pour en ajouter une nouvelle",
   "Cannot get user applications, try again later!": "Impossible d'obtenir les applications, essayer plus tard!",

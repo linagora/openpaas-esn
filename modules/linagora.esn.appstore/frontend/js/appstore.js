@@ -83,6 +83,10 @@ angular.module('esn.appstore', [
       {
         displayIn: 'Control Center',
         name: 'control-center:appstore'
+      },
+      {
+        displayIn: 'Application Menu',
+        name: 'application-menu:appstore'
       }
     ],
     description: 'Allows user to submit new external application for current domain'
