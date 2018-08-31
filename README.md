@@ -1,6 +1,8 @@
 # OpenPaas
 
 [![Code Climate](https://codeclimate.com/github/linagora/openpaas-esn/badges/gpa.svg)](https://codeclimate.com/github/linagora/openpaas-esn)
+[![Code Quality: Javascript](https://img.shields.io/lgtm/grade/javascript/g/linagora/openpaas-esn.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/linagora/openpaas-esn/context:javascript)
+[![Total Alerts](https://img.shields.io/lgtm/alerts/g/linagora/openpaas-esn.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/linagora/openpaas-esn/alerts)
 
 OpenPaaS is a collaboration platform for enterprises & organizations.
 
