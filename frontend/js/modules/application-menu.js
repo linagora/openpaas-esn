@@ -28,6 +28,16 @@ angular.module('esn.application-menu', [
           '</a>' +
         '</div>';
 
+    var svgTemplate =
+      '<div>' +
+        '<a href="<%- href %>">' +
+          '<div class="esn-application-menu-icon" ng-include="\'<%- iconURL %>\'"></div>' +
+          '<span class="label" translate>' +
+            '<%- label %>' +
+          '</span>' +
+        '</a>' +
+      '</div>';
+
     return function(href, icon, label, flag, isDisplayedByDefault) {
       var iconURL;
       var iconUrlTemplate = '/images/application-menu/<%- icon %>-icon.svg';
@@ -48,7 +58,9 @@ angular.module('esn.application-menu', [
         iconURL = _.template(iconUrlTemplate)({icon: icon.name});
       }
 
-      return _.template(template)({ href: href, iconURL: iconURL, label: label });
+      return iconURL && iconURL.match(/.\S+\.svg/) ?
+        _.template(svgTemplate)({ href: href, iconURL: iconURL, label: label }) :
+        _.template(template)({ href: href, iconURL: iconURL, label: label });
     };
   })
 
