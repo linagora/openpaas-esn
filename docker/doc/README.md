@@ -4,7 +4,7 @@ Here is the documentation about running OpenPaaS with the help of Docker.
 
 ## TOC
 
-- [dev.md](./dev.md): How to develop with the help of Docker
+- [develop](../../doc/develop#2-get-required-services.md): How to develop with the help of Docker
 - [images.md](./images.md): Information about ESN Docker images
 - [install.md](./install.md): How to install OpenPaas with Docker
 - [known_issues.md](./known_issues.md): List of docker related issues, and how to fix them
