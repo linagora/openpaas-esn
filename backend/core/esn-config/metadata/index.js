@@ -20,6 +20,7 @@ module.exports = {
     oauth: require('./oauth'),
     jwt: require('./jwt'),
     web: require('./web'),
+    webserver: require('./webserver'),
     login: require('./login'),
     features: require('./features'),
     user: RESTRICTED,
@@ -27,7 +28,6 @@ module.exports = {
     redis: RESTRICTED,
     session: RESTRICTED,
     constants: RESTRICTED,
-    webserver: RESTRICTED,
     platformadmin: RESTRICTED
   }
 };
