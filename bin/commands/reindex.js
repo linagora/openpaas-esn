@@ -1,8 +1,7 @@
-'use strict';
-
 const HANDLERS = {
   users: reindexUsers,
-  contacts: reindexContacts
+  contacts: reindexContacts,
+  'core.events': reindexCoreEvents
 };
 const q = require('q');
 const commons = require('../commons');
@@ -68,6 +67,15 @@ function reindexUsers() {
 
   return db.connect(commons.getDBOptions())
     .then(() => coreElasticsearch.reindex(options))
+    .finally(db.disconnect);
+}
+
+function reindexCoreEvents() {
+  commons.logInfo('Starting reindexing of core events');
+
+  return db.connect(commons.getDBOptions())
+    .then(() => coreElasticsearch.reconfig('core.events.idx', 'core.events')
+    .then(() => { commons.logInfo('Reindexing of core events done'); }))
     .finally(db.disconnect);
 }
 
