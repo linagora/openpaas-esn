@@ -22,5 +22,6 @@ module.exports = {
   rights: {
     padmin: 'rw'
   },
+  pubsub: true,
   validator: createValidator(schema)
 };
