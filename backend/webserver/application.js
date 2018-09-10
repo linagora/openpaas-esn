@@ -67,3 +67,8 @@ application.locals.appName = config.app && config.app.name ? config.app.name : '
 
 require('./pubsub')(application);
 require('./routes')(application);
+
+application.use((err, req, res, next) => {
+  logger.error('Unhandled error on Core Express Server', err.stack);
+  next(err);
+});
