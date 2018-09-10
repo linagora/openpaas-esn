@@ -62,7 +62,6 @@
     "linagora.esn.chat": "linagora/linagora.esn.chat",
     "linagora.esn.contact.collect": "linagora/linagora.esn.contact.collect",
     "linagora.esn.dav.import": "github:linagora/linagora.esn.dav.import",
-    "linagora.esn.emoticon": "linagora/linagora.esn.emoticon",
     "linagora.esn.group": "linagora/linagora.esn.group",
     "linagora.esn.james": "linagora/linagora.esn.james",
     "linagora.esn.lemonldap": "linagora/linagora.esn.lemonldap",
