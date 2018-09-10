@@ -518,11 +518,11 @@ describe('The UI module', function() {
       $.fn.slideToggle = sinon.spy($.fn.slideToggle);
     }));
 
-    it('When add "toggled" class to the parent element if toggled attribute is true', function() {
+    it('should add "toggled" class to the parent element when toggled attribute is true', function() {
       initDirective('<div><ul></ul><button esn-toggle toggled="true"></button></div>');
 
       expect(element.hasClass('toggled')).to.be.true;
-      expect($.fn.slideToggle).to.have.been.calledWith(TOGGLE_TRANSITION);
+      expect($.fn.slideToggle).to.have.been.calledWith(0);
     });
 
     it('should add "toggled" class to the parent element on click', function() {

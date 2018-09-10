@@ -225,16 +225,16 @@ angular.module('esn.ui', [
       restrict: 'A',
       link: function(scope, element, attrs) {
         if (attrs.toggled === 'true') {
-          _toggle();
+          _toggle(0);
         }
 
         element.click(function() {
-          _toggle();
+          _toggle(TOGGLE_TRANSITION);
         });
 
-        function _toggle() {
+        function _toggle(toggleTransistion) {
           element.parent().toggleClass('toggled');
-          element.parent().find('ul:not(".not-toggled")').stop(true, false).slideToggle(TOGGLE_TRANSITION);
+          element.parent().find('ul:not(".not-toggled")').stop(true, false).slideToggle(toggleTransistion);
         }
       }
     };
