@@ -46,9 +46,14 @@ var oauthModule = new AwesomeModule(moduleData.fullName, {
     },
 
     deploy: function(dependencies, callback) {
+      const logger = dependencies('logger');
       var app = require('./backend/webserver/application')(dependencies);
 
       app.use('/', this.api.oauth);
+      app.use((err, req, res, next) => {
+        logger.error('Unhandled error on OAuth Express Server', err.stack);
+        next(err);
+      });
 
       var webserverWrapper = dependencies('webserver-wrapper');
 
