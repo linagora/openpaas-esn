@@ -1,8 +1,6 @@
-'use strict';
-
-var AwesomeModule = require('awesome-module');
-var Dependency = AwesomeModule.AwesomeModuleDependency;
-var path = require('path');
+const AwesomeModule = require('awesome-module');
+const Dependency = AwesomeModule.AwesomeModuleDependency;
+const path = require('path');
 
 const FRONTEND_PATH = path.join(__dirname, 'frontend');
 const innerApps = ['esn'];
@@ -32,10 +30,9 @@ var oauthModule = new AwesomeModule(moduleData.fullName, {
   data: moduleData,
   states: {
     lib: function(dependencies, callback) {
-      var libModule = require('./backend/lib')(dependencies);
-      var oauth = require('./backend/webserver/api/oauth')(dependencies);
-
-      var lib = {
+      const libModule = require('./backend/lib')(dependencies);
+      const oauth = require('./backend/webserver/api/oauth')(dependencies);
+      const lib = {
         api: {
           oauth: oauth
         },
@@ -46,11 +43,15 @@ var oauthModule = new AwesomeModule(moduleData.fullName, {
     },
 
     deploy: function(dependencies, callback) {
-      var app = require('./backend/webserver/application')(dependencies);
+      const logger = dependencies('logger');
+      const webserverWrapper = dependencies('webserver-wrapper');
+      const app = require('./backend/webserver/application')(dependencies);
 
       app.use('/', this.api.oauth);
-
-      var webserverWrapper = dependencies('webserver-wrapper');
+      app.use((err, req, res, next) => {
+        logger.error('Unhandled error on OAuth Express Server', err.stack);
+        next(err);
+      });
 
       moduleData.angularModules.forEach(mod => webserverWrapper.injectAngularModules.apply(webserverWrapper, mod));
       webserverWrapper.addApp(moduleData.shortName, app);
