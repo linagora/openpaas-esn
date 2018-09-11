@@ -30,8 +30,10 @@
       contactAddressbookService.listAddressbooksUserCanCreateContact()
         .then(function(addressbooks) {
           self.status = LOADING_STATUS.loaded;
-          var addressbookDisplayShells = contactAddressbookDisplayService.convertShellsToDisplayShells(addressbooks, { includePriority: true });
 
+          return contactAddressbookDisplayService.convertShellsToDisplayShells(addressbooks, { includePriority: true });
+        })
+        .then(function(addressbookDisplayShells) {
           self.addressbookDisplayShells = contactAddressbookDisplayService.sortAddressbookDisplayShells(addressbookDisplayShells);
           self.selectedAddressbookShell = self.addressbookDisplayShells[0].shell;
         })

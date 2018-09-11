@@ -7,10 +7,17 @@ var expect = chai.expect;
 
 describe('The ContactAddressbookImportController controller', function() {
   var $rootScope, $controller;
-  var contactAddressbookService, contactService;
+  var contactAddressbookService, contactService, esnConfigMock;
 
   beforeEach(function() {
     module('linagora.esn.contact');
+    module(function($provide) {
+      esnConfigMock = function() {
+        return $q.when(true);
+      };
+
+      $provide.value('esnConfig', esnConfigMock);
+    });
 
     inject(function(
       _$controller_,

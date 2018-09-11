@@ -15,7 +15,7 @@
                 backdrop='static'
               )
                 | #{__('New address book')}
-            li
+            li(feature-flag="linagora.esn.contact.features.isSharingAddressbookEnabled")
               contact-addressbook-shared-configuration
             li
               a(href='/#/controlcenter/accounts') #{__('Import contacts')}
@@ -63,4 +63,4 @@ div(ng-if='$ctrl.status === "loaded"')
   .listview
     contact-sidebar-addressbooks-list(title="'My address books'", addressbooks='$ctrl.userAddressbooks')
 
-    contact-sidebar-addressbooks-list.shared-addressbooks(title="'Shared address books'", addressbooks='$ctrl.sharedAddressbooks')
+    contact-sidebar-addressbooks-list.shared-addressbooks(feature-flag="linagora.esn.contact.features.isSharingAddressbookEnabled", title="'Shared address books'", addressbooks='$ctrl.sharedAddressbooks')

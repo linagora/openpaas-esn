@@ -38,10 +38,11 @@
           return _injectOwnerToSubscription(addressbooks);
         })
         .then(function(addressbooks) {
-          self.displayShells = contactAddressbookDisplayService.convertShellsToDisplayShells(addressbooks, DISPLAY_SHELL_CONVERT_OPTIONS);
-
-          _refreshAddressbooksList();
-          _listenAddressbookEvents();
+          contactAddressbookDisplayService.convertShellsToDisplayShells(addressbooks, DISPLAY_SHELL_CONVERT_OPTIONS).then(function(displayShells) {
+            self.displayShells = displayShells;
+            _refreshAddressbooksList();
+            _listenAddressbookEvents();
+          });
         })
         .catch(function() {
           self.status = LOADING_STATUS.error;

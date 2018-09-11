@@ -67,6 +67,14 @@
       id: 'linagora.esn.contact',
       title: 'Contact',
       icon: '/contact/images/contacts-icon.svg',
-      homePage: 'contact'
+      homePage: 'contact',
+      config: {
+        template: 'contact-config-form',
+        displayIn: {
+          user: false,
+          domain: true,
+          platform: true
+        }
+      }
     });
 })(angular);
