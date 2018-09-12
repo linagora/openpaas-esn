@@ -6,6 +6,5 @@ module.exports = {
 };
 
 function init() {
-  // disabled, see https://ci.linagora.com/linagora/lgs/openpaas/esn/issues/2309
-  // pubsub.init();
+  pubsub.init();
 }
