@@ -30,7 +30,7 @@ angular.module('esn.sidebar', [
     return contextualSidebarService;
   })
 
-  .directive('contextualSidebar', function($timeout, contextualSidebarService) {
+  .directive('contextualSidebar', function($timeout, $window, $mdUtil, contextualSidebarService) {
     function link(scope, element, attr) {
       var options = {scope: scope},
         placementToAnimationMap = {
@@ -54,12 +54,22 @@ angular.module('esn.sidebar', [
       }
 
       var sidebar = contextualSidebarService(options);
+      var jWindow = angular.element($window);
+
+      var debouncedOnResize = $mdUtil.debounce(function() {
+        if (sidebar && jWindow.width() > 991) {
+          sidebar.hide();
+        }
+      }, 100);
+
+      jWindow.on('resize', debouncedOnResize);
 
       element.on('click', function() {
         sidebar.toggle();
       });
 
       scope.$on('$destroy', function() {
+        jWindow.off('resize', debouncedOnResize);
         if (sidebar) { sidebar.hide(); }
         options = null;
         sidebar = null;
@@ -71,4 +81,5 @@ angular.module('esn.sidebar', [
       scope: true,
       link: link
     };
+
   });
