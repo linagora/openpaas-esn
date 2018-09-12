@@ -21,7 +21,24 @@ angular.module('linagora.esn.sync', [
             template: '<sync-android />'
           }
         }
-      });
+      })
+      .state('controlcenter.sync.ios', {
+        url: '/ios',
+        views: {
+          sync: {
+            template: '<sync-ios />'
+          }
+        }
+      })
+      .state('controlcenter.sync.outlook', {
+        url: '/outlook',
+        views: {
+          sync: {
+            template: '<sync-outlook />'
+          }
+        }
+      })
+    
 
     var controlCenterMenuEntry = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'sync-controlcenter-menu-entry', { priority: -3 });
 

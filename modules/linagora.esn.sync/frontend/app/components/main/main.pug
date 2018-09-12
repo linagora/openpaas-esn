@@ -7,6 +7,14 @@
       img.cc-sync-app-icon(src="/sync/images/thunderbird_logo.png", title=__('Thunderbird'), alt=__('Thunderbird'))
       .cc-sync-app-description !{__('Download and install the OpenPaas %s to automatically configure your email, calendars and contacts accounts in Thunderbird', '<a href="/sync/downloads/thunderbird/op-tb-autoconf.xpi" download>extension</a>')}
 
+    .clickable.card.cc-sync-app(ui-sref="controlcenter.sync.outlook")
+      img.cc-sync-app-icon(src="/sync/images/outlook_logo.png", title=__('Outlook'), alt=__('Outlook'))
+      .cc-sync-app-description #{__('Click here to read instructions for synchronizing your Outlook mail client')}
+    
     .clickable.card.cc-sync-app(ui-sref="controlcenter.sync.android")
-      img.cc-sync-app-icon(src="/sync/images/android_logo.png", title=__('Android'), alt=__('Android'))
+      img.cc-sync-app-icon(src="/sync/images/android_logo.png", title=__('Android'), alt=__('Android'))    
       .cc-sync-app-description #{__('Click here to read instructions for synchronizing your Android mobile device')}
+
+    .clickable.card.cc-sync-app(ui-sref="controlcenter.sync.ios")
+      img.cc-sync-app-icon(src="/sync/images/ios_logo.png", title=__('iOS'), alt=__('iOS'))
+      .cc-sync-app-description #{__('Click here to read instructions for synchronizing your iOS mobile device')}

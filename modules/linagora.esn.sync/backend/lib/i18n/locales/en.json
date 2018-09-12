@@ -2,7 +2,13 @@
   "Sync an external application with OpenPaas": "Sync an external application with OpenPaas",
   "Thunderbird": "Thunderbird",
   "Download and install the OpenPaas %s to automatically configure your email, calendars and contacts accounts in Thunderbird": "Download and install the OpenPaas %s to automatically configure your email, calendars and contacts accounts in Thunderbird",
-  "Click here to read instructions for synchronizing your Android mobile device": "Click here to read instructions for synchronizing your Android mobile device",
+  "Click here to learn how to synchronize Outlook 2016 with OpenPaaS": "Click here to learn how to synchronize Outlook 2016 with OpenPaaS",
+  "Outlook": "Outlook",
+  "Sync an Outlook with OpenPaaS": "Synchronize Outlook with OpenPaaS",
+  "Click here to learn how to synchronize your Android device with OpenPaaS": "Click here to learn how to synchronize your Android device with OpenPaaS",
   "Android": "Android",
-  "Sync an Android device with OpenPaaS": "Sync an Android device with OpenPaaS"
+  "Sync an Android device with OpenPaaS": "Synchronize an Android device with OpenPaaS",
+  "Click here to learn how to synchronize your iOS device with OpenPaaS": "Click here to learn how to synchronize your iOS device with OpenPaaS",
+  "iOS": "iOS",
+  "Sync an iOS device with OpenPaaS": "Syncronize an iOS device with OpenPaaS"
 }
