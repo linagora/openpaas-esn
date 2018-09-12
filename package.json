@@ -146,7 +146,7 @@
     "grunt-karma": "2.0.0",
     "grunt-mocha-cli": "3.0.0",
     "grunt-nodemon": "0.4.2",
-    "grunt-protractor-runner": "4.0.0",
+    "grunt-protractor-runner": "5.0.0",
     "grunt-puglint": "1.0.0",
     "grunt-run": "0.8.1",
     "grunt-shell": "2.1.0",
