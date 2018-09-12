@@ -99,8 +99,8 @@ services:
       - "1993:993"
       - "8000:8000"
     volumes:
-      - ${ESN_PATH}/docker/config/james:/root/conf
-      - ${ESN_PATH}/docker/config/jwt/public:/root/conf/jwt_publickey
+      - ${ESN_PATH}/docker/config/james:/root/conf:Z
+      - ${ESN_PATH}/docker/config/jwt/public:/root/conf/jwt_publickey:Z
 
   james_elastic:
     image: elasticsearch:2.3.2
