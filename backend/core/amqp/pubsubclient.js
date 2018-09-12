@@ -4,15 +4,13 @@ const AmqpClient = require('./client');
 
 class AmqpPubsubClient extends AmqpClient {
   publish(topic, data) {
-    logger.debug(`AMQP: publishing message to topic='${topic}'`);
+    logger.debug('AMQP: publishing message to:', topic);
 
     return this.assertExchange(topic, PUBSUB_EXCHANGE.type)
       .then(() => this.send(topic, data, PUBSUB_EXCHANGE.routingKey));
   }
 
   subscribe(topic, callback) {
-    logger.debug(`AMQP: subscribe to topic='${topic}'`);
-
     return this.assertExchange(topic, PUBSUB_EXCHANGE.type)
       .then(() => this.assertQueue(SUBSCRIBER.queueName, SUBSCRIBER.queueOptions))
       .then(res => this.assertBinding(res.queue, topic).then(() => res))
@@ -30,8 +28,6 @@ class AmqpPubsubClient extends AmqpClient {
    * @param {Function} callback - The callback to call once there is a message in the queue
    */
   subscribeToDurableQueue(exchangeName, queueName, callback) {
-    logger.debug(`AMQP: durable subscribe to exchange='${exchangeName}', queue='${queueName}'`);
-
     return this.assertExchange(exchangeName, PUBSUB_EXCHANGE.type)
       .then(() => this.assertQueue(queueName, SUBSCRIBER.durableQueueOptions))
       .then(() => this.assertBinding(queueName, exchangeName))
@@ -39,17 +35,15 @@ class AmqpPubsubClient extends AmqpClient {
   }
 
   unsubscribe(topic, callback) {
-    logger.debug(`AMQP: Unsubscribe from topic='${topic}'`);
-
     const consumerTags = this._subscribeCallbackToConsumerTags.get(callback);
 
     if (Array.isArray(consumerTags)) {
-      logger.info(`AMQP: About to remove the consumer(s): ${consumerTags}`);
+      logger.info('AMQP: About removing the consumer(s): ' + consumerTags);
 
       return Promise.all(consumerTags.map(c => this.channel.cancel(c)));
     }
 
-    logger.warn(`AMQP: No consumerTag found to unsubscribe a consumer from topic='${topic}'`);
+    logger.warn('AMQP: No consumerTag found to unsubscribe a consumer from: ' + topic);
 
     return Promise.resolve();
   }
