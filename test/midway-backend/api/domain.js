@@ -733,6 +733,18 @@ describe('The domain API', function() {
   });
 
   describe('GET /api/domains/:uuid/members', function() {
+    beforeEach(function() {
+      core['esn-config'].registry.register('admin', {
+        configurations: {
+          membersCanBeSearched: {
+            rights: {
+              admin: 'rw'
+            }
+          }
+        }
+      });
+    });
+
     it('should send back 401 when not logged in', function(done) {
       helpers.api.requireLogin(app, 'get', '/api/domains/' + domain1._id + '/members', done);
     });
@@ -761,6 +773,163 @@ describe('The domain API', function() {
             done();
           }));
       }));
+    });
+
+    it('should send back 403 if domain members trying to ignore the membersCanBeSearched configuration', function(done) {
+      helpers.api.loginAsUser(app, user2Domain1Member.emails[0], password, helpers.callbacks.noErrorAnd(requestAsMember => {
+        requestAsMember(request(app).get(`/api/domains/${domain1._id}/members`))
+          .query({ search: 'lng', ignoreMembersCanBeSearchedConfiguration: true })
+          .expect(403).end(helpers.callbacks.noErrorAnd(res => {
+          expect(res.body).to.deep.equal({
+            error: {
+              code: 403,
+              message: 'Forbidden',
+              details: 'User is not the domain manager'
+            }
+          });
+
+          done();
+        }));
+      }));
+    });
+
+    it('should send back 200 with empty array if membersCanBeSearched configuration is disabled', function(done) {
+      const config = new core['esn-config'].EsnConfig('core', domain1._id);
+
+      config.set({ name: 'membersCanBeSearched', value: false }).then(function() {
+        helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
+          expect(err).to.not.exist;
+          const req = requestAsMember(request(app).get(`/api/domains/${domain1._id}/members`));
+
+          req.expect(200).end(function(err, res) {
+            expect(err).to.not.exist;
+            expect(res.headers['x-esn-items-count']).to.exist;
+            expect(res.headers['x-esn-items-count']).to.equal(0 + '');
+            expect(res.body).to.shallowDeepEqual([]);
+
+            done();
+          });
+        });
+      });
+    });
+
+    it('should send back 200 empty search result if membersCanBeSearched configuration is disabled', function(done) {
+      const config = new core['esn-config'].EsnConfig('core', domain1._id);
+
+      config.set({ name: 'membersCanBeSearched', value: false }).then(function() {
+        helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
+          expect(err).to.not.exist;
+          const req = requestAsMember(request(app).get(`/api/domains/${domain1._id}/members`));
+
+          req.query({ search: 'lng' });
+          req.expect(200).end(helpers.callbacks.noErrorAnd(res => {
+            expect(err).to.not.exist;
+            expect(res.headers['x-esn-items-count']).to.exist;
+            expect(res.headers['x-esn-items-count']).to.equal(0 + '');
+            expect(res.body).to.shallowDeepEqual([]);
+
+            done();
+          }));
+        });
+      });
+    });
+
+    it('should send back 200 with domain members if membersCanBeSearched configuration is disabled but the domain manager is ignoring it ', function(done) {
+      const config = new core['esn-config'].EsnConfig('core', domain1._id);
+
+      config.set({ name: 'membersCanBeSearched', value: false }).then(function() {
+        helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
+          expect(err).to.not.exist;
+          const req = requestAsMember(request(app).get(`/api/domains/${domain1._id}/members`));
+
+          req.query({ ignoreMembersCanBeSearchedConfiguration: true });
+          req.expect(200).end(function(err, res) {
+            expect(err).to.not.exist;
+            expect(res.headers['x-esn-items-count']).to.exist;
+            expect(res.headers['x-esn-items-count']).to.equal(domain1Users.length + '');
+            expect(res.body).to.shallowDeepEqual(domain1Users.map(user => ({ id: user.id })));
+
+            done();
+          });
+        });
+      });
+    });
+
+    it('should send back 200 with search matching members if membersCanBeSearched configuration is disabled but the domain manager is ignoring it ', function(done) {
+      const config = new core['esn-config'].EsnConfig('core', domain1._id);
+      const ids = domain1Users.map(user => user._id);
+
+      helpers.elasticsearch.checkUsersDocumentsIndexed(ids, function(err) {
+        expect(err).to.not.exist;
+
+        config.set({ name: 'membersCanBeSearched', value: false }).then(function() {
+          helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
+            expect(err).to.not.exist;
+            const req = requestAsMember(request(app).get(`/api/domains/${domain1._id}/members`));
+
+            req.query({ search: 'lng', ignoreMembersCanBeSearchedConfiguration: true });
+            req.expect(200).end(function(err, res) {
+              expect(err).to.not.exist;
+              expect(res.body).to.exist;
+              const expectedUsers = domain1Users.slice(0, 3).map(user => ({ _id: user.id }));
+
+              expect(res.headers['x-esn-items-count']).to.exist;
+              expect(res.headers['x-esn-items-count']).to.equal(expectedUsers.length + '');
+              expect(res.body).to.shallowDeepEqual(expectedUsers);
+
+              done();
+            });
+          });
+        });
+      });
+    });
+
+    it('should send back 200 with domain members if membersCanBeSearched configuration is enabled', function(done) {
+      const config = new core['esn-config'].EsnConfig('core', domain1._id);
+
+      config.set({ name: 'membersCanBeSearched', value: true }).then(function() {
+        helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, function(err, requestAsMember) {
+          expect(err).to.not.exist;
+          const req = requestAsMember(request(app).get(`/api/domains/${domain1._id}/members`));
+
+          req.expect(200).end(function(err, res) {
+            expect(err).to.not.exist;
+            expect(res.headers['x-esn-items-count']).to.exist;
+            expect(res.headers['x-esn-items-count']).to.equal(domain1Users.length + '');
+            expect(res.body).to.shallowDeepEqual(domain1Users.map(user => ({ id: user.id })));
+
+            done();
+          });
+        });
+      });
+    });
+
+    it('should send back 200 with search matching members if membersCanBeSearched configuration is enabled', function(done) {
+      const config = new core['esn-config'].EsnConfig('core', domain1._id);
+      const ids = domain1Users.map(user => user._id);
+
+      helpers.elasticsearch.checkUsersDocumentsIndexed(ids, function(err) {
+        expect(err).to.not.exist;
+
+        config.set({ name: 'membersCanBeSearched', value: true }).then(function() {
+          helpers.api.loginAsUser(app, user2Domain1Member.emails[0], password, function(err, requestAsMember) {
+            expect(err).to.not.exist;
+            const req = requestAsMember(request(app).get(`/api/domains/${domain1._id}/members`));
+
+            req.query({search: 'lng'}).expect(200).end(function(err, res) {
+              expect(err).to.not.exist;
+              expect(res.body).to.exist;
+              const expectedUsers = domain1Users.slice(0, 3).map(user => ({ _id: user.id }));
+
+              expect(res.headers['x-esn-items-count']).to.exist;
+              expect(res.headers['x-esn-items-count']).to.equal(expectedUsers.length + '');
+              expect(res.body).to.shallowDeepEqual(expectedUsers);
+
+              done();
+            });
+          });
+        });
+      });
     });
 
     it('should send back 200 with all the members of the domain and contain the list size in the header', function(done) {
