@@ -80,7 +80,7 @@
     "ical.js": "linagora/ical.js#v1.2.4",
     "iframe-resizer": "3.5.5",
     "jcrop": "~0.9.12",
-    "jmap-client": "0.0.27",
+    "jmap-client": "0.0.29",
     "jquery": "2.1.1",
     "jquery.focus": "0.1.4",
     "leaflet": "~0.7.3",
