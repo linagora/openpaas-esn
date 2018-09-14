@@ -733,18 +733,6 @@ describe('The domain API', function() {
   });
 
   describe('GET /api/domains/:uuid/members', function() {
-    beforeEach(function() {
-      core['esn-config'].registry.register('admin', {
-        configurations: {
-          membersCanBeSearched: {
-            rights: {
-              admin: 'rw'
-            }
-          }
-        }
-      });
-    });
-
     it('should send back 401 when not logged in', function(done) {
       helpers.api.requireLogin(app, 'get', '/api/domains/' + domain1._id + '/members', done);
     });

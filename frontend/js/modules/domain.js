@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.domain', ['esn.http', 'ngTagsInput', 'op.dynamicDirective', 'esn.attendee', 'esn.session', 'esn.user', 'esn.i18n', 'esn.feature-registry'])
+angular.module('esn.domain', ['esn.http', 'ngTagsInput', 'op.dynamicDirective', 'esn.attendee', 'esn.session', 'esn.user', 'esn.i18n', 'esn.feature-registry', 'esn.configuration'])
   .config(function(dynamicDirectiveServiceProvider) {
     var invitationAppMenu = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-invitation', {priority: 10});
     dynamicDirectiveServiceProvider.addInjection('esn-application-menu', invitationAppMenu);
@@ -270,10 +270,15 @@ angular.module('esn.domain', ['esn.http', 'ngTagsInput', 'op.dynamicDirective', 
   .controller('inviteMembers', function($scope, domain) {
     $scope.domain = domain;
   })
-  .run(function(domainSearchMembersProvider, attendeeService, session, esnFeatureRegistry) {
+  .run(function(domainSearchMembersProvider, attendeeService, session, esnFeatureRegistry, esnConfig) {
     session.ready.then(function() {
-      var attendeeProvider = domainSearchMembersProvider.get(session.domain._id);
-      attendeeService.addProvider(attendeeProvider);
+      esnConfig('core.membersCanBeSearched', true).then(function(membersCanBeSearched) {
+        if (membersCanBeSearched) {
+          var attendeeProvider = domainSearchMembersProvider.get(session.domain._id);
+
+          attendeeService.addProvider(attendeeProvider);
+        }
+      });
     });
     esnFeatureRegistry.add({
       name: 'Invitation',
