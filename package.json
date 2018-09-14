@@ -68,6 +68,7 @@
     "linagora.esn.resource": "linagora/linagora.esn.resource",
     "linagora.esn.unifiedinbox": "linagora/linagora.esn.unifiedinbox",
     "linagora.esn.unifiedinbox.github": "linagora/linagora.esn.unifiedinbox.github",
+    "linagora.esn.unifiedinbox.james": "linagora/linagora.esn.unifiedinbox.james",
     "linagora.esn.unifiedinbox.twitter": "linagora/linagora.esn.unifiedinbox.twitter",
     "lodash": "4.17.10",
     "logrotate-stream": "0.2.5",
