@@ -11,6 +11,5 @@ module.exports = dependencies => {
   application.use(require('./ios')(dependencies));
   application.use(require('./outlook')(dependencies));
 
-
   return application;
 };

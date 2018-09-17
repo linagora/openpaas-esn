@@ -37,8 +37,7 @@ angular.module('linagora.esn.sync', [
             template: '<sync-outlook />'
           }
         }
-      })
-    
+      });
 
     var controlCenterMenuEntry = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'sync-controlcenter-menu-entry', { priority: -3 });
 
