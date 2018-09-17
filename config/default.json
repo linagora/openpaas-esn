@@ -95,6 +95,7 @@
     "linagora.esn.user.status",
     "linagora.esn.controlcenter",
     "linagora.esn.unifiedinbox",
+    "linagora.esn.unifiedinbox.james",
     "linagora.esn.admin",
     "linagora.esn.sync",
     "linagora.esn.contact.collect",
