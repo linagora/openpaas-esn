@@ -29,6 +29,7 @@
     'esn.datetime',
     'esn.i18n',
     'esn.user',
-    'linagora.esn.dav.import'
+    'linagora.esn.dav.import',
+    'esn.user-configuration'
   ]);
 })(angular);

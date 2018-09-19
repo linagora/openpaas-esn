@@ -33,3 +33,10 @@
     .share-access-meta
       .share-access-meta-label {{ ::$ctrl.shareAccess.label | esnI18n }}
       span.text-muted {{ ::$ctrl.shareAccess.longLabel | esnI18n }}
+.addressbook-link(ng-if="::$ctrl.cardDAVUrl")
+  hr
+  .settings-label
+    i.mdi.mdi-link
+    span #{__('CardDAV URL')}
+  .settings-value
+    esn-clipboard-url(url="::$ctrl.cardDAVUrl")

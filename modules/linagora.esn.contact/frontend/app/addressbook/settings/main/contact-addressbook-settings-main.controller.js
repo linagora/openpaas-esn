@@ -6,6 +6,7 @@
 
   function contactAddressbookSettingsMainController(
     _,
+    contactAddressbookService,
     CONTACT_ADDRESSBOOK_PUBLIC_RIGHT,
     CONTACT_SHARING_SHARE_ACCESS,
     CONTACT_SHARING_SUBSCRIPTION_TYPE,
@@ -17,6 +18,9 @@
     self.canUpdatePublicRight = canUpdatePublicRight;
 
     function $onInit() {
+      contactAddressbookService.getAddressbookUrl(self.addressbook).then(function(url) {
+        self.cardDAVUrl = url;
+      });
       self.publicRights = Object.keys(CONTACT_ADDRESSBOOK_PUBLIC_RIGHT).map(function(right) {
         return {
           value: CONTACT_ADDRESSBOOK_PUBLIC_RIGHT[right].value,
