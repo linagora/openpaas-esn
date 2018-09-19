@@ -122,5 +122,6 @@
   "Submitting importing contacts request...": "Soumettre la requête pour importer les contacts...",
   "Request submitted": "La requête est soumise",
   "Failed to submit request": "Impossible de soumettre la requête",
-  "Create a new contact with the same information as the selected contact.": "Créez un contact avec les mêmes informations que le contact sélectionné."
+  "Create a new contact with the same information as the selected contact.": "Créez un contact avec les mêmes informations que le contact sélectionné.",
+  "CardDAV URL": "CardDAV URL"
 }

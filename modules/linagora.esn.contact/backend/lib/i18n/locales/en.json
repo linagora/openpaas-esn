@@ -122,5 +122,6 @@
   "Submitting importing contacts request...": "Submitting importing contacts request...",
   "Request submitted": "Request submitted",
   "Failed to submit request": "Failed to submit request",
-  "Create a new contact with the same information as the selected contact.": "Create a new contact with the same information as the selected contact."
+  "Create a new contact with the same information as the selected contact.": "Create a new contact with the same information as the selected contact.",
+  "CardDAV URL": "CardDAV URL"
 }

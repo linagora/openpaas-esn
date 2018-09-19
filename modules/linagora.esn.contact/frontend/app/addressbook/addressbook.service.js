@@ -6,16 +6,24 @@
 
   function contactAddressbookService(
     $q,
+    $window,
+    $log,
+    _,
     session,
+    esnUserConfigurationService,
+    contactAddressbookParser,
     ContactAPIClient,
     contactAddressbookDisplayService,
     CONTACT_ADDRESSBOOK_TYPES,
     CONTACT_SHARING_INVITE_STATUS,
     CONTACT_SHARING_SUBSCRIPTION_TYPE
   ) {
+    var DAVSERVER_CONFIGURATION = 'davserver';
+
     return {
       createAddressbook: createAddressbook,
       getAddressbookByBookName: getAddressbookByBookName,
+      getAddressbookUrl: getAddressbookUrl,
       listAddressbooks: listAddressbooks,
       listAddressbooksUserCanCreateContact: listAddressbooksUserCanCreateContact,
       removeAddressbook: removeAddressbook,
@@ -139,6 +147,51 @@
         .addressbookHome(addressbook.bookId)
         .addressbook(addressbook.bookName)
         .updatePublicRight(publicRight);
+    }
+
+    function getAddressbookUrl(addressbook) {
+      return _getFrontendURL().then(function(url) {
+        return [url, _sanitizeAddressbookHref(addressbook)]
+          .map(function(fragment) {
+            return fragment.replace(/^\/|\/$/g, '');
+          })
+          .join('/');
+      });
+    }
+
+    function _sanitizeAddressbookHref(addressbook) {
+      var parsedPath = contactAddressbookParser.parseAddressbookPath(addressbook.href);
+
+      return ['addressbooks', parsedPath.bookId, parsedPath.bookName].join('/');
+    }
+
+    function _getFrontendURL() {
+      return esnUserConfigurationService.get([DAVSERVER_CONFIGURATION], 'core')
+        .then(function(configurations) {
+          if (!configurations || !configurations.length) {
+            $log.debug('No valid configurations found for davserver');
+
+            return _getDefaultURL();
+          }
+
+          var davserver = _.find(configurations, { name: DAVSERVER_CONFIGURATION });
+
+          if (!davserver) {
+            $log.debug('davserver configuration is not set');
+
+            return _getDefaultURL();
+          }
+
+          return davserver.value && davserver.value.frontend && davserver.value.frontend.url ? davserver.value.frontend.url : _getDefaultURL();
+        }, function(err) {
+          $log.debug('Can not get davserver from configuration', err);
+
+          return _getDefaultURL();
+        });
+    }
+
+    function _getDefaultURL() {
+      return $window.location.origin;
     }
   }
 })(angular);
