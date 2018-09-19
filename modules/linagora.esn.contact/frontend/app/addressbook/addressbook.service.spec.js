@@ -6,12 +6,13 @@
 var expect = chai.expect;
 
 describe('The contactAddressbookService service', function() {
-  var $rootScope;
-  var contactAddressbookService, ContactAPIClient, session;
+  var $rootScope, $window;
+  var contactAddressbookService, ContactAPIClient, session, contactAddressbookParser, esnUserConfigurationService;
   var CONTACT_SHARING_INVITE_STATUS;
 
   beforeEach(function() {
     module('linagora.esn.contact');
+
     module(function($provide) {
       ContactAPIClient = {};
       session = {
@@ -28,12 +29,17 @@ describe('The contactAddressbookService service', function() {
     });
     inject(function(
       _$rootScope_,
+      _$window_,
       _contactAddressbookService_,
-      _CONTACT_ADDRESSBOOK_EVENTS_,
+      _contactAddressbookParser_,
+      _esnUserConfigurationService_,
       _CONTACT_SHARING_INVITE_STATUS_
     ) {
       $rootScope = _$rootScope_;
+      $window = _$window_;
       contactAddressbookService = _contactAddressbookService_;
+      contactAddressbookParser = _contactAddressbookParser_;
+      esnUserConfigurationService = _esnUserConfigurationService_;
       CONTACT_SHARING_INVITE_STATUS = _CONTACT_SHARING_INVITE_STATUS_;
     });
   });
@@ -483,6 +489,65 @@ describe('The contactAddressbookService service', function() {
       contactAddressbookService.updateAddressbookPublicRight(addressbook, 'dav:read');
 
       expect(updateSpy).to.have.been.calledWith('dav:read');
+    });
+  });
+
+  describe('The getAddressbookUrl function', function() {
+    var bookId, bookName, addressbook;
+
+    beforeEach(function() {
+      addressbook = {};
+      bookId = 'bookId';
+      bookName = 'bookName';
+      contactAddressbookParser.parseAddressbookPath = function() {
+        return {
+          bookId: bookId,
+          bookName: bookName
+        };
+      };
+    });
+
+    it('should return URL with base URL is $window.location.origin when failed to get davserver configuration', function(done) {
+      esnUserConfigurationService.get = function() { return $q.reject(); };
+      contactAddressbookService.getAddressbookUrl(addressbook).then(function(_url) {
+        expect(_url).to.equal($window.location.origin + '/addressbooks/' + bookId + '/' + bookName);
+        done();
+      }, done);
+
+      $rootScope.$digest();
+    });
+
+    it('should return URL with base URL is $window.location.origin when davserver configuration is not configured', function(done) {
+      esnUserConfigurationService.get = function() { return $q.when({}); };
+      contactAddressbookService.getAddressbookUrl(addressbook).then(function(_url) {
+        expect(_url).to.equal($window.location.origin + '/addressbooks/' + bookId + '/' + bookName);
+        done();
+      }, done);
+
+      $rootScope.$digest();
+    });
+
+    it('should return right URL when success to get davserver configuration', function(done) {
+      var url = 'http://davserverurl';
+
+      esnUserConfigurationService.get = function() {
+        return $q.when([
+          {
+            name: 'davserver',
+            value: {
+              frontend: {
+                url: url
+              }
+            }
+          }
+        ]);
+      };
+      contactAddressbookService.getAddressbookUrl(addressbook).then(function(_url) {
+        expect(_url).to.equal(url + '/addressbooks/' + bookId + '/' + bookName);
+        done();
+      }, done);
+
+      $rootScope.$digest();
     });
   });
 });
