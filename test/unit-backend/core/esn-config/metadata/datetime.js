@@ -7,10 +7,9 @@ describe('The core/esn-config/metadata/datetime module', () => {
 
   beforeEach(function() {
     getModule = () => this.helpers.requireBackend('core/esn-config/metadata/datetime');
-
   });
 
-  describe('The validator fn', () => {
+  describe('The validator function', () => {
     let validator;
 
     beforeEach(function() {
@@ -31,9 +30,28 @@ describe('The core/esn-config/metadata/datetime module', () => {
       expect(validator(config)).to.equal('.use24hourFormat: should be boolean');
     });
 
+    it('should return error message when timeZone is not a string', () => {
+      const config = {
+        timeZone: 88,
+        use24hourFormat: false
+      };
+
+      expect(validator(config)).to.equal('.timeZone: should be string');
+    });
+
+    it('should return error message when timeZone is not supported', () => {
+      const config = {
+        timeZone: 'foobar',
+        use24hourFormat: false
+      };
+
+      expect(validator(config)).to.equal('time zone "foobar" is not supported');
+    });
+
     it('should return nothing when everything is alright', () => {
       const config = {
-        use24hourFormat: false
+        use24hourFormat: false,
+        timeZone: 'Asia/Saigon'
       };
 
       expect(validator(config)).to.not.exist;
@@ -42,6 +60,7 @@ describe('The core/esn-config/metadata/datetime module', () => {
     it('should remove additional attributes and return nothing when everything is alright', () => {
       const config = {
         use24hourFormat: false,
+        timeZone: 'Asia/Saigon',
         other: 'value'
       };
 
