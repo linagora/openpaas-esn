@@ -35,7 +35,7 @@ describe('The core/esn-config/fallback module', function() {
 
   });
 
-  describe('The findByDomainId fn', function() {
+  describe('The getConfiguration fn', function() {
 
     it('should get data from deprecated collections once then cache it', function(done) {
       var execSpyFn = sinon.stub().returns(q({}));
@@ -135,6 +135,85 @@ describe('The core/esn-config/fallback module', function() {
         .catch(done.bind(null, 'should resolve'));
     });
 
+    it('should merge with registered default configuration', function(done) {
+      const metadatas = {
+        module1: {
+          configurations: {
+            config1: {
+              default: {
+                key1: 'key1Default',
+                key2: {
+                  subKey1: 'subKey1Default',
+                  subKey2: 'subKey2Default'
+                }
+              }
+            }
+          }
+        },
+        module2: {
+          configurations: {
+            config21: {
+              default: {
+                key1: 'key1Default'
+              }
+            }
+          }
+        }
+      };
+      const registryMock = {
+        getAll: () => metadatas
+      };
+
+      const cachedConfigurations = {
+        modules: [{
+          name: 'module1',
+          configurations: [{
+            name: 'config1',
+            value: {
+              key1: 'setKey1',
+              key2: {
+                subKey1: 'setSubkey1'
+              }
+            }
+          }]
+        }]
+      };
+
+      mockery.registerMock('../registry', registryMock);
+      mongoConfigMock.findByDomainId = () => q(cachedConfigurations);
+      FeaturesMock.findOne = () => ({ lean: () => ({ exec: () => q.reject() }) });
+
+      getModule()
+        .getConfiguration()
+        .then(configuration => {
+          expect(configuration).to.deep.equal({
+            modules: [{
+              name: 'module1',
+              configurations: [{
+                name: 'config1',
+                value: {
+                  key1: 'setKey1',
+                  key2: {
+                    subKey1: 'setSubkey1',
+                    subKey2: 'subKey2Default'
+                  }
+                }
+              }]
+            }, {
+              name: 'module2',
+              configurations: [{
+                name: 'config21',
+                value: {
+                  key1: 'key1Default'
+                }
+              }]
+            }]
+          });
+
+          done();
+        })
+        .catch(done.bind(null, 'should resolve'));
+    });
   });
 
 });
