@@ -1,0 +1,11 @@
+ng-form(name="form")
+  .card
+    .card-header
+      h2 #{__('Language')}
+    .card-body.card-padding.flex-row
+      button.btn.btn-link(
+        ng-repeat='language in $ctrl.languages',
+        ng-click='$ctrl.setLanguage(language, form)',
+        ng-class='{ "selected": $ctrl.isLanguageSelected(language) }'
+      )
+        | {{::language.label}}

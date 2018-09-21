@@ -3,8 +3,12 @@
 
   angular.module('esn.i18n')
     .constant('ESN_I18N_DEFAULT_LOCALE', 'en')
-    .constant('ESN_I18N_AVAILABLE_LANGUAGE', ['en', 'fr', 'vi'])
-    .constant('ESN_I18N_AVAILABLE_LANGUAGE_KEYS', {
+    .constant('ESN_I18N_AVAILABLE_LANGUAGES', [
+      { key: 'en', label: 'English' },
+      { key: 'fr', label: 'Français' },
+      { key: 'vi', label: 'Tiếng Việt' }
+    ])
+    .constant('ESN_I18N_AVAILABLE_LANGUAGE_ALIASES', {
       'en_*': 'en',
       'fr_*': 'fr',
       'vi_*': 'vi'
