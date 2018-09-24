@@ -14,6 +14,7 @@ module.exports = {
     datetime: require('./datetime'),
     homePage: require('./homepage'),
     autoconf: require('./autoconf'),
+    language: require('./language'),
     ldap: require('./ldap'),
     mail: require('./mail'),
     davserver: require('./davserver'),
