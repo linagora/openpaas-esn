@@ -30,4 +30,7 @@ angular.module('linagora.esn.account', [
 
     var accountControlCenterMenu = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'controlcenter-menu-account', {priority: -2});
     dynamicDirectiveServiceProvider.addInjection('controlcenter-sidebar-menu', accountControlCenterMenu);
+
+    var inboxSidebarSocialNetworks = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'inbox-sidebar-social-networks', {});
+    dynamicDirectiveServiceProvider.addInjection('inbox-sidebar-social-networks', inboxSidebarSocialNetworks);
   });
