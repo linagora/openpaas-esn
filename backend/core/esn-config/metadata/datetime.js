@@ -22,7 +22,10 @@ module.exports = {
     admin: 'rw',
     user: 'rw'
   },
-  validator
+  validator,
+  default: {
+    timeZone: 'GMT'
+  }
 };
 
 function validator(datetime) {
