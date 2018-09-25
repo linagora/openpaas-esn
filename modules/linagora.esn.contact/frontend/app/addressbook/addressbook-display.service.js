@@ -6,6 +6,7 @@
 
   function contactAddressbookDisplayService(
     _,
+    esnConfig,
     contactAddressbookDisplayShellRegistry,
     ContactAddressbookDisplayShell
   ) {
@@ -20,8 +21,12 @@
     function convertShellsToDisplayShells(addressbookShells, options) {
       options = options || {};
 
-      return addressbookShells.map(function(addressbookShell) {
-        return convertShellToDisplayShell(addressbookShell, options);
+      return esnConfig('linagora.esn.contact.features.isSharingAddressbookEnabled', true).then(function(isSharingAddressbookEnabled) {
+        options.isSharingAddressbookEnabled = isSharingAddressbookEnabled;
+
+        return addressbookShells.map(function(addressbookShell) {
+          return convertShellToDisplayShell(addressbookShell, options);
+        });
       });
     }
 
@@ -33,7 +38,10 @@
         var addressbookDisplayShell = new match.displayShell(addressbookShell);
 
         if (options.includeActions) {
-          addressbookDisplayShell.actions = match.actions || [];
+          var actions = _.filter(match.actions, function(action) {
+            return action.name === 'Settings' ? options.isSharingAddressbookEnabled : true;
+          });
+          addressbookDisplayShell.actions = actions || [];
         }
 
         if (options.includePriority) {

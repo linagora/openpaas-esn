@@ -7,12 +7,19 @@ var expect = chai.expect;
 describe('The contactEditionForm directive', function() {
   var $q, $compile, $rootScope, $scope;
   var CONTACT_AVATAR_SIZE, DEFAULT_ADDRESSBOOK_NAME, CONTACT_COLLECTED_ADDRESSBOOK_NAME;
-  var contactAddressbookService;
+  var contactAddressbookService, esnConfigMock;
 
   beforeEach(function() {
     module('esn.core');
     module('linagora.esn.contact');
     module('jadeTemplates');
+    module(function($provide) {
+      esnConfigMock = function() {
+        return $q.when(true);
+      };
+
+      $provide.value('esnConfig', esnConfigMock);
+    });
   });
 
   beforeEach(inject(function(
@@ -80,6 +87,8 @@ describe('The contactEditionForm directive', function() {
     $scope.bookName = CONTACT_COLLECTED_ADDRESSBOOK_NAME;
 
     var element = initDirective($scope);
+
+    $scope.$digest();
 
     expect(element.find('[ng-model="bookName"]').val()).to.equal(CONTACT_COLLECTED_ADDRESSBOOK_NAME);
   });

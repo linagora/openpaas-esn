@@ -1,0 +1,6 @@
+ng-form.p-t-25(name='form')
+  .left-block
+    .form-group.option-field
+      .col-xs-4.field-name #{__('Sharing Addressbook')}
+      .col-xs-4.flex-end
+        toggle-switch(ng-model="$ctrl.configurations.features.value.isSharingAddressbookEnabled", form="form")

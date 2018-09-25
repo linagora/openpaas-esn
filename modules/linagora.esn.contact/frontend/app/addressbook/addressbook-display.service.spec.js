@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('The contactAddressbookDisplayService service', function() {
-  var contactAddressbookDisplayService, ContactAddressbookDisplayShell, contactAddressbookDisplayShellRegistry, displayShellRegistry;
+  var $rootScope, contactAddressbookDisplayService, ContactAddressbookDisplayShell, contactAddressbookDisplayShellRegistry, displayShellRegistry, esnConfigMock;
 
   beforeEach(function() {
     module('linagora.esn.contact');
@@ -18,12 +18,19 @@ describe('The contactAddressbookDisplayService service', function() {
         add: angular.noop
       };
 
+      esnConfigMock = function() {
+        return $q.when(true);
+      };
+
+      $provide.value('esnConfig', esnConfigMock);
       $provide.value('contactAddressbookDisplayShellRegistry', contactAddressbookDisplayShellRegistry);
     });
     inject(function(
+      _$rootScope_,
       _contactAddressbookDisplayService_,
       _ContactAddressbookDisplayShell_
     ) {
+      $rootScope = _$rootScope_;
       contactAddressbookDisplayService = _contactAddressbookDisplayService_;
       ContactAddressbookDisplayShell = _ContactAddressbookDisplayShell_;
     });
@@ -129,7 +136,7 @@ describe('The contactAddressbookDisplayService service', function() {
   });
 
   describe('The convertShellsToDisplayShells function', function() {
-    it('should convert addressbook shells to a registered display shells', function() {
+    it('should convert addressbook shells to a registered display shells', function(done) {
       var DisplayShell1 = function(shell) {
         this.shell = shell;
       };
@@ -161,10 +168,14 @@ describe('The contactAddressbookDisplayService service', function() {
         }
       };
 
-      var result = contactAddressbookDisplayService.convertShellsToDisplayShells(addressbookShells);
+      contactAddressbookDisplayService.convertShellsToDisplayShells(addressbookShells).then(function(result) {
+        expect(result[0]).to.be.an.instanceof(DisplayShell1);
+        expect(result[1]).to.be.an.instanceof(DisplayShell2);
 
-      expect(result[0]).to.be.an.instanceof(DisplayShell1);
-      expect(result[1]).to.be.an.instanceof(DisplayShell2);
+        done();
+      }).catch(done());
+
+      $rootScope.$digest();
     });
   });
 

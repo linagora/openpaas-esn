@@ -36,7 +36,8 @@ const contactModule = new AwesomeModule(moduleData.fullName, {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.wsserver', 'wsserver'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.i18n', 'i18n'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.autoconf', 'autoconf', true),
-    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.dav.import', 'dav.import', true)
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.dav.import', 'dav.import', true),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.esn-config', 'esn-config')
   ],
   data: moduleData,
   states: {
@@ -78,6 +79,7 @@ const contactModule = new AwesomeModule(moduleData.fullName, {
 
     start: function(dependencies, callback) {
       require('./backend/ws/contact').init(dependencies);
+      require('./backend/lib/config')(dependencies).register();
 
       dependencies('autoconf') && dependencies('autoconf').addTransformer(require('./backend/lib/autoconf')(dependencies));
 

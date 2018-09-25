@@ -24,8 +24,9 @@
     function listPossbileDestinations() {
       contactAddressbookService.listAddressbooksUserCanCreateContact()
         .then(_excludeCurrentAddressbook)
-        .then(function(addressbooks) {
-          self.availableAddressbookDisplayShells = contactAddressbookDisplayService.convertShellsToDisplayShells(addressbooks);
+        .then(contactAddressbookDisplayService.convertShellsToDisplayShells)
+        .then(function(availableAddressbookDisplayShells) {
+          self.availableAddressbookDisplayShells = availableAddressbookDisplayShells;
           self.selectedAddressbook = self.availableAddressbookDisplayShells[0].shell;
         });
     }

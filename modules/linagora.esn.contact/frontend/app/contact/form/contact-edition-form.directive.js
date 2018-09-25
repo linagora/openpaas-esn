@@ -23,8 +23,9 @@
         $scope.avatarSize = CONTACT_AVATAR_SIZE.bigger;
 
         contactAddressbookService.listAddressbooksUserCanCreateContact().then(function(addressbooks) {
-          var addressbookDisplayShells = contactAddressbookDisplayService.convertShellsToDisplayShells(addressbooks, { includePriority: true });
-
+          return contactAddressbookDisplayService.convertShellsToDisplayShells(addressbooks, { includePriority: true });
+        })
+        .then(function(addressbookDisplayShells) {
           $scope.availableAddressbookDisplayShells = contactAddressbookDisplayService.sortAddressbookDisplayShells(addressbookDisplayShells);
         });
       }

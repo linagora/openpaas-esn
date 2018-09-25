@@ -7,12 +7,19 @@ var expect = chai.expect;
 
 describe('The ContactSidebarController controller', function() {
   var $rootScope, $controller;
-  var contactAddressbookService, contactAddressbookDisplayService;
+  var contactAddressbookService, contactAddressbookDisplayService, esnConfigMock;
   var userAPI, userUtils;
   var CONTACT_ADDRESSBOOK_EVENTS;
 
   beforeEach(function() {
     module('linagora.esn.contact');
+    module(function($provide) {
+      esnConfigMock = function() {
+        return $q.when(true);
+      };
+
+      $provide.value('esnConfig', esnConfigMock);
+    });
 
     inject(function(
       _$controller_,
@@ -88,7 +95,7 @@ describe('The ContactSidebarController controller', function() {
       ];
 
       contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when(addressbooks));
-      contactAddressbookDisplayService.convertShellsToDisplayShells = sinon.spy();
+      contactAddressbookDisplayService.convertShellsToDisplayShells = sinon.spy(function() { return $q.when(addressbooks); });
 
       initController();
 
@@ -115,7 +122,7 @@ describe('The ContactSidebarController controller', function() {
 
       contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when(addressbooks));
       contactAddressbookDisplayService.sortAddressbookDisplayShells = function(shells) { return shells; };
-      contactAddressbookDisplayService.convertShellsToDisplayShells = function(shells) { return shells; };
+      contactAddressbookDisplayService.convertShellsToDisplayShells = function(shells) { return $q.when(shells); };
       userAPI.user = sinon.spy(function(userId) {
         return $q.when({
           data: userId
@@ -175,7 +182,7 @@ describe('The ContactSidebarController controller', function() {
         priority: 5
       };
 
-      contactAddressbookDisplayService.convertShellsToDisplayShells = angular.noop;
+      contactAddressbookDisplayService.convertShellsToDisplayShells = function() { return $q.when(addressbooks); };
       contactAddressbookDisplayService.convertShellToDisplayShell = sinon.spy(function(addressbook) {
         return addressbook;
       });
@@ -253,7 +260,7 @@ describe('The ContactSidebarController controller', function() {
     };
 
     contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when([]));
-    contactAddressbookDisplayService.convertShellsToDisplayShells = angular.noop;
+    contactAddressbookDisplayService.convertShellsToDisplayShells = function() {return $q.when(addressbooks);};
     contactAddressbookDisplayService.sortAddressbookDisplayShells = angular.noop;
 
     var controller = initController();
@@ -287,7 +294,7 @@ describe('The ContactSidebarController controller', function() {
     };
 
     contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when([]));
-    contactAddressbookDisplayService.convertShellsToDisplayShells = angular.noop;
+    contactAddressbookDisplayService.convertShellsToDisplayShells = function() {return $q.when(addressbooks);};
     contactAddressbookDisplayService.sortAddressbookDisplayShells = angular.noop;
 
     var controller = initController();
@@ -318,7 +325,7 @@ describe('The ContactSidebarController controller', function() {
     };
 
     contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when([]));
-    contactAddressbookDisplayService.convertShellsToDisplayShells = angular.noop;
+    contactAddressbookDisplayService.convertShellsToDisplayShells = function() {return $q.when(addressbooks);};
     contactAddressbookDisplayService.sortAddressbookDisplayShells = angular.noop;
 
     var controller = initController();
