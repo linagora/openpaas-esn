@@ -479,5 +479,6 @@
   "Display the full screen button": "Hiển thị nút toàn màn hình",
   "Search for a time zone": "Tìm múi giờ",
   "Time zone": "Múi giờ",
-  "Time zone will be used for users whose time zone is not set": "Múi giờ sử dụng cho những người có múi giờ chưa được thiết lập"
+  "Time zone will be used for users whose time zone is not set": "Múi giờ sử dụng cho những người có múi giờ chưa được thiết lập",
+  "This language will be used for all domain users if we can not detect their preferred language": "Ngôn ngữ sau sẽ được dùng cho tất cả người dùng trong miền hiện tại trong trường hợp không phát hiện được ngôn ngữ ưu tiên của họ"
 }

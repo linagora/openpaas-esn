@@ -2,10 +2,11 @@ ng-form(name="form")
   .card
     .card-header
       h2 #{__('Language')}
-    .card-body.card-padding.flex-row
-      button.btn.btn-link(
-        ng-repeat='language in $ctrl.languages',
-        ng-click='$ctrl.setLanguage(language, form)',
-        ng-class='{ "selected": $ctrl.isLanguageSelected(language) }'
-      )
-        | {{::language.label}}
+        small(ng-if='$ctrl.mode === "domain"') #{__('This language will be used for all domain users if we can not detect their preferred language')}
+    .card-body.card-padding
+      .row
+        .col-md-6
+          md-input-container
+            md-select(ng-model="$ctrl.language")
+              md-option(ng-value="language.key" ng-repeat="language in $ctrl.languages")
+                | {{::language.label}}
