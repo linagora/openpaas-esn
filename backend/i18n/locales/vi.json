@@ -477,5 +477,7 @@
   "Header": "Tiêu đề",
   "Full screen mode": "Chế độ toàn màn hình",
   "Display the full screen button": "Hiển thị nút toàn màn hình",
-  "Search for a time zone": "Tìm múi giờ"
+  "Search for a time zone": "Tìm múi giờ",
+  "Time zone": "Múi giờ",
+  "Time zone will be used for users whose time zone is not set": "Múi giờ sử dụng cho những người có múi giờ chưa được thiết lập"
 }

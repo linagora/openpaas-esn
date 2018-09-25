@@ -477,5 +477,7 @@
   "Header": "Header",
   "Full screen mode": "Full screen mode",
   "Display the full screen button": "Display the full screen button",
-  "Search for a time zone": "Search for a time zone"
+  "Search for a time zone": "Search for a time zone",
+  "Time zone": "Time zone",
+  "Time zone will be used for users whose time zone is not set": "Time zone will be used for users whose time zone is not set"
 }

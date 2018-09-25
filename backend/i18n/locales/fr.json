@@ -477,5 +477,7 @@
   "Header": "En-tête",
   "Full screen mode": "Mode plein écran",
   "Display the full screen button": "Afficher le bouton plein écran",
-  "Search for a time zone": "Rechercher un fuseau horaire"
+  "Search for a time zone": "Rechercher un fuseau horaire",
+  "Time zone": "Fuseau horaire",
+  "Time zone will be used for users whose time zone is not set": "Le fuseau horaire sera utilisé pour les utilisateurs dont le fuseau horaire n'est pas configuré"
 }
