@@ -34,5 +34,8 @@
           accountMessageRegistry.register(provider, socialHelper.getAccountMessages(provider));
         });
       });
+
+    var accountControlCenterMenu = new dynamicDirectiveService.DynamicDirective(true, 'controlcenter-menu-account', {priority: -2});
+    dynamicDirectiveService.addInjection('controlcenter-sidebar-menu', accountControlCenterMenu);
   }
 })(angular);
