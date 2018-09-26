@@ -1,0 +1,15 @@
+md-input-container
+  md-select(
+    ng-model="$ctrl.timeZone",
+    md-on-close="$ctrl.searchTerm = ''",
+    data-md-container-class="time-zone-selector"
+  )
+    md-select-header.time-zone-header
+      input.time-zone-searchbox(
+        ng-model="$ctrl.searchTerm",
+        ng-keydown="$event.stopPropagation()",
+        type="search",
+        placeholder=__("Search for a time zone") + "\u2026"
+      )
+    md-option(ng-value="timeZone", ng-repeat="timeZone in $ctrl.timeZones | filter: $ctrl.searchTerm")
+      | {{ timeZone }}

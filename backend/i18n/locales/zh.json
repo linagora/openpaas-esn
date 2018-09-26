@@ -476,5 +476,8 @@
   "Display notification bell": "显示通知铃",
   "Header": "头",
   "Full screen mode": "全屏模式",
-  "Display the full screen button": "显示全屏按钮"
+  "Display the full screen button": "显示全屏按钮",
+  "Search for a time zone": "搜索时区",
+  "Time zone": "时区",
+  "Time zone will be used for users whose time zone is not set": "时区将用于未设置时区的用户"
 }

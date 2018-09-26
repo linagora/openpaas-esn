@@ -1,0 +1,13 @@
+ng-form(name="form")
+  .card
+    .card-body.card-padding
+      .row
+        .col-md-6
+          .card-header.p-l-0.p-r-0.p-t-0
+            h2 #{__('Time format')}
+          esn-datetime-time-format-selector(use-24hour-format="$ctrl.datetime.use24hourFormat")
+        .col-md-6(ng-if="$ctrl.mode !== 'platform'")
+          .card-header.p-l-0.p-r-0.p-t-0
+            h2 #{__('Time zone')}
+              small(ng-if="$ctrl.mode === 'domain'") #{__('Time zone will be used for users whose time zone is not set')}
+          esn-datetime-time-zone-selector(time-zone="$ctrl.datetime.timeZone")
