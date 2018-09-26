@@ -52,6 +52,7 @@
     "console": {
       "enabled": true,
       "level": "debug",
+      "debugStdout": true,
       "handleExceptions": true,
       "json": false,
       "prettyPrint": true,
