@@ -5,7 +5,8 @@
     .component('esnI18nLanguageSelector', {
       templateUrl: '/views/modules/i18n/language-selector/i18n-language-selector.html',
       bindings: {
-        language: '='
+        language: '=',
+        mode: '@'
       },
       controller: 'esnI18nLanguageSelectorController'
     });
