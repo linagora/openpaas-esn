@@ -39,7 +39,7 @@ function validator(datetime) {
 }
 
 function _validateDatetime(datetime) {
-  if (!momentTimeZone.tz.zone(datetime.timeZone)) {
+  if (datetime.timeZone && !momentTimeZone.tz.zone(datetime.timeZone)) {
     return `time zone "${datetime.timeZone}" is not supported`;
   }
 
