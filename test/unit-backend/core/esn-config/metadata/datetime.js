@@ -39,6 +39,14 @@ describe('The core/esn-config/metadata/datetime module', () => {
       expect(validator(config)).to.equal('.timeZone: should be string');
     });
 
+    it('should not validate timeZone if it is not given', () => {
+      const config = {
+        use24hourFormat: false
+      };
+
+      expect(validator(config)).to.not.exist;
+    });
+
     it('should return error message when timeZone is not supported', () => {
       const config = {
         timeZone: 'foobar',
