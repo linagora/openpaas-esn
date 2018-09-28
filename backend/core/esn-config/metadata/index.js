@@ -25,6 +25,7 @@ module.exports = {
     login: require('./login'),
     features: require('./features'),
     modules: require('./modules'),
+    membersCanBeSearched: require('./membersCanBeSearched'),
     user: RESTRICTED,
     amqp: RESTRICTED,
     redis: RESTRICTED,

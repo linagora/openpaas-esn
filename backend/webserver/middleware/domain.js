@@ -305,7 +305,7 @@ function ensureNoConflictHostname(req, res, next) {
 }
 
 function canGetMembers(req, res, next) {
-  if (req.query.includesDisabledSearchable === 'true') {
+  if (req.query.includesDisabledSearchable === 'true' || req.query.ignoreMembersCanBeSearchedConfiguration === 'true') {
     return authorize.requiresDomainManager(req, res, next);
   }
 

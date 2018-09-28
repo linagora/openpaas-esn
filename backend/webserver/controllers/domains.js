@@ -12,6 +12,7 @@ const logger = require('../../core').logger;
 const pubsub = require('../../core/pubsub').local;
 const denormalizeUser = require('../denormalize/user').denormalize;
 const denormalizeDomain = require('../denormalize/domain');
+const { filterDomainsByMembersCanBeSearched } = require('../../core/domain/helpers');
 
 const DEFAULT_OFFSET = 0;
 const DEFAULT_LIMIT = 50;
@@ -196,14 +197,23 @@ function getMembers(req, res) {
   const getUsers = query.search ? userDomain.getUsersSearch : userDomain.getUsersList;
   const errorMessage = query.search ? 'Error while searching domain members' : 'Error while getting domain members';
 
-  q.denodeify(getUsers)([domain], query)
-    .then(result => (
-      q.all(result.list.map(user => denormalizeUser(user)))
-        .then(denormalized => {
-          res.header('X-ESN-Items-Count', result.total_count);
-          res.status(200).json(denormalized);
-        })
-    ))
+  (req.query.ignoreMembersCanBeSearchedConfiguration === 'true' ? Promise.resolve([domain]) : filterDomainsByMembersCanBeSearched([domain]))
+    .then(domains => {
+      if (!domains.length) {
+        res.header('X-ESN-Items-Count', 0);
+
+        return res.status(200).json([]);
+      }
+
+      return q.denodeify(getUsers)(domains, query)
+        .then(result => (
+          q.all(result.list.map(user => denormalizeUser(user)))
+            .then(denormalized => {
+              res.header('X-ESN-Items-Count', result.total_count);
+              res.status(200).json(denormalized);
+            })
+        ));
+    })
     .catch(err => {
       logger.error(errorMessage, err);
 

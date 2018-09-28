@@ -1,8 +1,13 @@
 'use strict';
 
-angular.module('esn.member', ['esn.router', 'esn.domain', 'esn.search', 'esn.infinite-list', 'openpaas-logo', 'esn.provider', 'esn.header', 'esn.feature-registry'])
-  .run(function(searchProviders, memberSearchProvider, esnFeatureRegistry) {
-    searchProviders.add(memberSearchProvider);
+angular.module('esn.member', ['esn.session', 'esn.router', 'esn.domain', 'esn.search', 'esn.infinite-list', 'openpaas-logo', 'esn.provider', 'esn.header', 'esn.feature-registry', 'esn.configuration'])
+  .run(function(searchProviders, memberSearchProvider, esnFeatureRegistry, esnConfig) {
+    esnConfig('core.membersCanBeSearched', true).then(function(membersCanBeSearched) {
+      if (membersCanBeSearched) {
+        searchProviders.add(memberSearchProvider);
+      }
+    });
+
     esnFeatureRegistry.add({
       name: 'Members',
       configurations: [
