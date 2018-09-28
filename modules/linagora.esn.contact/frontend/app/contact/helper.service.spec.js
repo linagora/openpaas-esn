@@ -5,23 +5,14 @@
 var expect = chai.expect;
 
 describe('The ContactsHelper service', function() {
-  var ContactsHelper, contactAddressbookDisplayService, esnDatetimeService;
+  var ContactsHelper, contactAddressbookDisplayService;
 
   beforeEach(module('linagora.esn.contact'));
 
-  beforeEach(angular.mock.inject(function(
-    _esnDatetimeService_,
-    _ContactsHelper_,
-    _contactAddressbookDisplayService_
-  ) {
-    esnDatetimeService = _esnDatetimeService_;
+  beforeEach(angular.mock.inject(function(_ContactsHelper_, _contactAddressbookDisplayService_) {
     ContactsHelper = _ContactsHelper_;
     contactAddressbookDisplayService = _contactAddressbookDisplayService_;
     contactAddressbookDisplayService.convertShellToDisplayShell = angular.noop;
-
-    esnDatetimeService.formatMediumDate = function(date) {
-      return date;
-    };
   }));
 
   describe('The fillScopeContactData function', function() {
@@ -257,8 +248,6 @@ describe('The ContactsHelper service', function() {
     });
 
     it('should return with the correct order', function() {
-      var birthday = new Date(1942, 0, 1);
-
       this.shell = {
         firstName: 'Foo',
         lastName: 'Bar',
@@ -271,7 +260,7 @@ describe('The ContactsHelper service', function() {
         tel: [this.workTel, this.mobileTel, this.homeTel, this.otherTel],
         notes: 'This is a note',
         tags: [{text: 'A'}, {text: 'B'}],
-        birthday: birthday,
+        birthday: new Date(1942, 0, 1),
         addresses: [{street: 'My street', zip: 'My zip', city: 'My city', country: 'My country'}],
         starred: true,
         photo: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAA'
@@ -340,7 +329,7 @@ describe('The ContactsHelper service', function() {
       this.expectEqual('B');
 
       this.shell.tags.shift();
-      this.expectEqual(birthday);
+      this.expectEqual('Jan 1, 1942');
 
       this.shell.birthday = '';
       this.expectEqual('My street My city My zip My country');
