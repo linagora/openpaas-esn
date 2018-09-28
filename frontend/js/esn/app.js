@@ -22,7 +22,8 @@ angular.module('esnApp', [
   'awesome-angular-swipe',
   'uuid4',
   'luegg.directives',
-  'naturalSort'
+  'naturalSort',
+  'esn.configuration'
 ].concat(angularInjections))
 
 .config(function(routeResolver, $urlRouterProvider, $stateProvider) {
@@ -93,11 +94,4 @@ angular.module('esnApp', [
     controller: 'logoutController'
   });
 
-})
-// don't remove $state from here or ui-router won't route...
-.run(function(session, ioConnectionManager, editableOptions, $state) { // eslint-disable-line
-  editableOptions.theme = 'bs3';
-  session.ready.then(function() {
-    ioConnectionManager.connect();
-  });
 });

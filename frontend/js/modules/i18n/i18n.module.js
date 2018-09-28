@@ -4,6 +4,7 @@
   angular.module('esn.i18n', [
     'pascalprecht.translate',
     'angularMoment',
-    'esn.lodash-wrapper'
+    'esn.lodash-wrapper',
+    'ngCookies'
   ]);
 })();

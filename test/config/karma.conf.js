@@ -113,6 +113,7 @@ module.exports = function(config) {
       'frontend/components/angular-sticky/dist/angular-sticky.min.js',
       'frontend/components/clipboard/dist/clipboard.min.js',
       'frontend/components/ngclipboard/dist/ngclipboard.min.js',
+      'frontend/components/angular-cookies/angular-cookies.min.js',
       'test/fixtures/code-generation/constants.js',
 
       { pattern: 'frontend/js/modules/user-notification/user-notification.router.js', watched: false, included: false, served: false },
