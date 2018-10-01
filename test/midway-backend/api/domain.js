@@ -1093,6 +1093,52 @@ describe('The domain API', function() {
       );
     });
 
+    it('should send back 200 with all domain members excluding members that have searchable feature disabled when listing domain members', function(done) {
+      core.user.updateStates(
+        user2Domain1Member._id,
+        [{ name: 'searchable', value: 'disabled' }],
+        helpers.callbacks.noErrorAnd(() => {
+          helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, helpers.callbacks.noErrorAnd(requestAsMember => {
+            requestAsMember(request(app).get(`/api/domains/${domain1._id}/members`))
+              .expect(200).end(helpers.callbacks.noErrorAnd(res => {
+              expect(res.headers['x-esn-items-count']).to.equal('3');
+              expect(res.body).shallowDeepEqual([
+                { _id: domain1Users[0]._id },
+                { _id: domain1Users[2]._id },
+                { _id: domain1Users[3]._id }
+              ]);
+
+              done();
+            }));
+          }));
+        })
+      );
+    });
+
+    it('should send back 200 with all domain members including members that have searchable feature disabled when listing domain members with includesDisabledSearchable query is true', function(done) {
+      core.user.updateStates(
+        user2Domain1Member._id,
+        [{ name: 'searchable', value: 'disabled' }],
+        helpers.callbacks.noErrorAnd(() => {
+          helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, helpers.callbacks.noErrorAnd(requestAsMember => {
+            requestAsMember(request(app).get(`/api/domains/${domain1._id}/members`))
+              .query({ includesDisabledSearchable: true })
+              .expect(200).end(helpers.callbacks.noErrorAnd(res => {
+              expect(res.headers['x-esn-items-count']).to.equal('4');
+              expect(res.body).shallowDeepEqual([
+                { _id: domain1Users[0]._id },
+                { _id: String(user2Domain1Member._id) },
+                { _id: domain1Users[2]._id },
+                { _id: domain1Users[3]._id }
+              ]);
+
+              done();
+            }));
+          }));
+        })
+      );
+    });
+
     it('should send back 400 when domain ID is not a valid ObjectId', function(done) {
       helpers.api.loginAsUser(app, user2Domain1Member.emails[0], password, function(err, loggedInAsUser) {
         expect(err).to.not.exist;
