@@ -7,6 +7,7 @@ const esnConfig = require('../../core/esn-config');
 const logger = require('../../core/logger');
 const alterTemplatePath = require('../middleware/templates').alterTemplatePath;
 const assetRegistry = require('../../core').assets;
+const i18n = require('../../core/i18n');
 
 module.exports = {
   index,
@@ -83,20 +84,46 @@ function login(req, res, next) {
           return next(err);
         }
 
-        userlogin.success(username, (err, user) => {
+        function parseAcceptLanguage(acceptLanguageHeader = '') {
+          const supportedLanguages = i18n.getLocales();
+          const acceptLanguages = acceptLanguageHeader.split(',').map(element => element.split(';')[0]);
+          let language;
+
+          acceptLanguages.some(acceptLanguage => {
+            if (supportedLanguages.indexOf(acceptLanguage) > 0) {
+              language = acceptLanguage;
+
+              return true;
+            }
+          });
+
+          return language;
+        }
+
+        function callback(err, user) {
           if (err) {
             logger.error('Problem while setting login success for user ' + username, err);
           }
 
           let result = {};
 
-          if (user) {
-            result = user.toObject();
-            delete result.password;
-          }
+            if (user) {
+              result = user.toObject();
+              delete result.password;
+            }
 
-          res.status(200).json(result);
-        });
+            res.status(200).json(result);
+        }
+
+        if (!user.login.success) {
+          return userlogin.firstSuccess(
+            username,
+            { language: parseAcceptLanguage(req.headers['accept-language']) || 'en' },
+            callback
+          );
+        }
+
+        return userlogin.success(username, callback);
       });
     }
   })(req, res, next);

@@ -1,24 +1,50 @@
-'use strict';
+const async = require('async');
+const urljoin = require('url-join');
+const mongoose = require('mongoose');
 
-var async = require('async');
-var urljoin = require('url-join');
-var mongoose = require('mongoose');
+const logger = require('../../core/logger');
+const esnConfig = require('../esn-config');
+const pubsub = require('../pubsub').local;
+const globalpubsub = require('../pubsub').global;
+const jwt = require('../auth').jwt;
+const email = require('../email');
+const i18n = require('../../i18n');
+const helpers = require('../../helpers');
+const CONSTANTS = require('./constants');
 
-var config = require('../esn-config')('login');
-var pubsub = require('../pubsub').local;
-var globalpubsub = require('../pubsub').global;
-var jwt = require('../auth').jwt;
-var email = require('../email');
-var i18n = require('../../i18n');
-var helpers = require('../../helpers');
-var CONSTANTS = require('./constants');
+const User = mongoose.model('User');
+const PasswordReset = mongoose.model('PasswordReset');
 
-var User = mongoose.model('User');
-var PasswordReset = mongoose.model('PasswordReset');
+const DEFAULT_LOGIN_FAILURE = 5;
 
-var DEFAULT_LOGIN_FAILURE = 5;
+module.exports = {
+  canLogin,
+  failure,
+  firstSuccess,
+  sendPasswordReset,
+  setDisabled,
+  success
+};
 
-module.exports.success = function(email, callback) {
+function firstSuccess(email, data = {}, callback) {
+  User.loadFromEmail(email, (err, user) => {
+    if (err) {
+      return callback(err);
+    }
+    if (!user) {
+      return callback(new Error(`No such user ${email}`));
+    }
+
+    return _onFirstSuccess(user, data)
+      .catch(err => logger.error(`Error while setting for user ${email} at the first success login`, err))
+      .finally(() => {
+        pubsub.topic('login:success').publish(user);
+        user.loginSuccess(callback);
+      });
+  });
+}
+
+function success(email, callback) {
   User.loadFromEmail(email, function(err, user) {
     if (err) {
       return callback(err);
@@ -29,9 +55,9 @@ module.exports.success = function(email, callback) {
     pubsub.topic('login:success').publish(user);
     user.loginSuccess(callback);
   });
-};
+}
 
-module.exports.failure = function(email, callback) {
+function failure(email, callback) {
   User.loadFromEmail(email, function(err, user) {
     if (err) {
       return callback(err);
@@ -42,11 +68,11 @@ module.exports.failure = function(email, callback) {
     pubsub.topic('login:failure').publish(user);
     user.loginFailure(callback);
   });
-};
+}
 
-module.exports.canLogin = function(email, callback) {
+function canLogin(email, callback) {
   var size = DEFAULT_LOGIN_FAILURE;
-  config.get(function(err, data) {
+  esnConfig('login').get(function(err, data) {
     if (data && data.failure && data.failure.size) {
       size = data.failure.size;
     }
@@ -64,9 +90,9 @@ module.exports.canLogin = function(email, callback) {
       return callback(err, true);
     });
   });
-};
+}
 
-module.exports.sendPasswordReset = function(user, callback) {
+function sendPasswordReset(user, callback) {
   var to = user.preferredEmail;
 
   function getConfiguration(callback) {
@@ -143,9 +169,9 @@ module.exports.sendPasswordReset = function(user, callback) {
       }
     });
   });
-};
+}
 
-module.exports.setDisabled = function(user, disabled, callback) {
+function setDisabled(user, disabled, callback) {
   user.login.disabled = disabled;
   user.save(function(err, result) {
     if (err) {
@@ -154,4 +180,11 @@ module.exports.setDisabled = function(user, disabled, callback) {
     pubsub.topic(CONSTANTS.EVENTS.userDisabled).forward(globalpubsub, {user: result, disabled: disabled});
     callback(null, result);
   });
-};
+}
+
+function _onFirstSuccess(user, data) {
+  return esnConfig('language')
+    .inModule('core')
+    .forUser(user, true)
+    .store(data.language);
+}
