@@ -1,19 +1,20 @@
 'use strict';
 
-/* global chai: false */
+/* global chai, sinon: false */
 
 var expect = chai.expect;
 
 describe('The esnDatetime filter', function() {
-  var $rootScope, $compile;
+  var $rootScope, $compile, esnDatetimeService;
 
   beforeEach(function() {
     module('esn.datetime');
   });
 
-  beforeEach(inject(function(_$rootScope_, _$compile_) {
+  beforeEach(inject(function(_$rootScope_, _$compile_, _esnDatetimeService_) {
     $rootScope = _$rootScope_;
     $compile = _$compile_;
+    esnDatetimeService = _esnDatetimeService_;
   }));
 
   function initDirective(html) {
@@ -26,8 +27,10 @@ describe('The esnDatetime filter', function() {
   }
 
   it('should return formatted date in template', function() {
-    var element = initDirective('<p>{{ "6/5/17" | esnDatetime:"mediumDate" }}</p>');
+    esnDatetimeService.format = sinon.spy();
 
-    expect(element.text()).to.equal('Jun 5, 2017');
+    initDirective('<p>{{ "6/5/17" | esnDatetime:"mediumDate" }}</p>');
+
+    expect(esnDatetimeService.format).to.have.been.calledWith('6/5/17', 'mediumDate');
   });
 });
