@@ -220,4 +220,21 @@ describe('The login API', function() {
     });
   });
 
+  it('should be able to store user language at the first time login', function(done) {
+    request(app)
+      .post('/api/login')
+      .set('Accept-Language', 'fr,en;q=0.9,vi;q=0.7')
+      .send({ username: email, password: password })
+      .expect(200)
+      .end(this.helpers.callbacks.noError(() => {
+        require('../../../backend/core')['esn-config']('language')
+          .inModule('core')
+          .forUser(user, true)
+          .get()
+          .then(language => {
+            expect(language).equal('fr');
+            done();
+          });
+      }));
+  });
 });
