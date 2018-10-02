@@ -6,6 +6,7 @@ var utils = require('./utils');
 var CONSTANTS = require('./constants');
 var pubsub = require('../../core/pubsub').local;
 var domainModule = require('../domain');
+const USER_CONSTANT = require('../user/constants');
 var _ = require('lodash');
 
 var defaultLimit = 50;
@@ -106,13 +107,30 @@ function getUsersList(domains, query, cb) {
   var domainIds = domains.map(function(domain) {
     return domain._id || domain;
   });
+  let findQuery = {};
 
-  return User.find().where('domains.domain_id').in(domainIds).count().exec(function(err, count) {
+  if (!query.includesDisabledSearchable) {
+    findQuery = {
+      ...findQuery,
+      ...{
+        states: {
+          $not: {
+            $elemMatch: {
+              name: USER_CONSTANT.USER_ACTIONS.searchable,
+              value: USER_CONSTANT.USER_ACTION_STATES.disabled
+            }
+          }
+        }
+      }
+    };
+  }
+
+  return User.find(findQuery).where('domains.domain_id').in(domainIds).count().exec(function(err, count) {
     if (err) {
       return cb(new Error('Cannot count users of domain'));
     }
 
-    User.find().where('domains.domain_id').in(domainIds).skip(+query.offset).limit(+query.limit).sort({firstname: 'asc'}).exec(function(err, list) {
+    User.find(findQuery).where('domains.domain_id').in(domainIds).skip(+query.offset).limit(+query.limit).sort({firstname: 'asc'}).exec(function(err, list) {
       if (err) {
         return cb(new Error('Cannot execute find request correctly on domains collection'));
       }
