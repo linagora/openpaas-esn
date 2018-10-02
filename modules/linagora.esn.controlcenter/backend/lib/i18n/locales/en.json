@@ -1,5 +1,7 @@
 {
   "General": "General",
   "Home page": "Home page",
-  "Set the default page to load after login": "Set the default page to load after login"
+  "Set the default page to load after login": "Set the default page to load after login",
+  "Reload": "Reload",
+  "Configuration saved. Click on 'Reload' to apply changes": "Configuration saved. Click on 'Reload' to apply changes"
 }

@@ -13,7 +13,7 @@ describe('The esn.async-action Angular module', function() {
 
   describe('The asyncAction factory', function() {
 
-    var notificationFactory, notification, mockedFailureHandler, EsnI18nString;
+    var notificationFactory, notification, mockedFailureHandler, mockedSuccessHandler, EsnI18nString;
     var $rootScope, $timeout, asyncAction;
     var ASYNC_ACTION_LONG_TASK_DURATION;
 
@@ -30,11 +30,14 @@ describe('The esn.async-action Angular module', function() {
         close: sinon.spy()
       };
       mockedFailureHandler = sinon.spy();
+      mockedSuccessHandler = sinon.spy();
       notificationFactory = {
         strongInfo: sinon.spy(function() {
           return notification;
         }),
-        weakSuccess: sinon.spy(),
+        weakSuccess: sinon.stub().returns({
+          setCancelAction: mockedSuccessHandler
+        }),
         weakError: sinon.stub().returns({
           setCancelAction: mockedFailureHandler
         })
@@ -108,7 +111,7 @@ describe('The esn.async-action Angular module', function() {
       asyncAction('Test', qNoop);
       $rootScope.$digest();
 
-      expect(notificationFactory.weakSuccess).to.have.been.calledWith('', 'Test succeeded');
+      expect(notificationFactory.weakSuccess).to.have.been.calledWith('Success', 'Test succeeded');
     });
 
     it('should notify weakError when action rejects', function() {
@@ -204,7 +207,7 @@ describe('The esn.async-action Angular module', function() {
         })
         .then(function() {
           expect(notificationFactory.strongInfo).to.have.been.calledWith('', 'Hey there, I am a custom progressing message !');
-          expect(notificationFactory.weakSuccess).to.have.been.calledWith('', 'Yeepee');
+          expect(notificationFactory.weakSuccess).to.have.been.calledWith('Success', 'Yeepee');
 
           done();
         });
@@ -237,7 +240,7 @@ describe('The esn.async-action Angular module', function() {
       }, qNoop);
       $rootScope.$digest();
 
-      expect(notificationFactory.weakSuccess).to.have.been.calledWith('', 'From a function !');
+      expect(notificationFactory.weakSuccess).to.have.been.calledWith('Success', 'From a function !');
     });
 
     it('should support a function as the progressing message, to dynamically compute the message', function(done) {
@@ -293,7 +296,7 @@ describe('The esn.async-action Angular module', function() {
       });
       $rootScope.$digest();
 
-      expect(notificationFactory.weakSuccess).to.have.been.calledWith('', 'Success 10');
+      expect(notificationFactory.weakSuccess).to.have.been.calledWith('Success', 'Success 10');
     });
 
     it('should support EsnI18nString as a success message', function() {
@@ -306,7 +309,7 @@ describe('The esn.async-action Angular module', function() {
       });
       $rootScope.$digest();
 
-      expect(notificationFactory.weakSuccess).to.have.been.calledWith('', i18nMessage);
+      expect(notificationFactory.weakSuccess).to.have.been.calledWith('Success', i18nMessage);
     });
 
     it('should support EsnI18nString as Error messages', function() {
@@ -323,6 +326,29 @@ describe('The esn.async-action Angular module', function() {
 
       expect(notificationFactory.strongInfo).to.have.been.calledWith('', messages.progressing);
       expect(notificationFactory.weakError).to.have.been.calledWith('Error', messages.failure);
+    });
+
+    it('should provide a link when success options is provided', function() {
+      var successConfig = {
+        linkText: 'Test',
+        action: function() {}
+      };
+
+      asyncAction('Test', qNoop, {
+        onSuccess: successConfig
+      });
+      $rootScope.$digest();
+
+      expect(notificationFactory.weakSuccess).to.have.been.calledWith('Success', 'Test succeeded');
+      expect(mockedSuccessHandler).to.have.been.calledWith(successConfig);
+    });
+
+    it('should NOT provide any link when no success option is provided', function() {
+      asyncAction('Test', qNoop);
+      $rootScope.$digest();
+
+      expect(notificationFactory.weakSuccess).to.have.been.calledWith('Success', 'Test succeeded');
+      expect(mockedSuccessHandler).to.have.not.been.called;
     });
   });
 
@@ -387,4 +413,50 @@ describe('The esn.async-action Angular module', function() {
     });
   });
 
+  describe('The notifySuccessWithFollowingAction factory', function() {
+    var notifySuccessWithFollowingAction;
+    var notificationFactoryMock;
+
+    beforeEach(function() {
+      notificationFactoryMock = {
+        weakSuccess: angular.noop
+      };
+
+      module(function($provide) {
+        $provide.value('notificationFactory', notificationFactoryMock);
+      });
+
+      inject(function(_notifySuccessWithFollowingAction_) {
+        notifySuccessWithFollowingAction = _notifySuccessWithFollowingAction_;
+      });
+    });
+
+    it('should show notification with success message', function() {
+      var msg = 'success message';
+
+      notificationFactoryMock.weakSuccess = sinon.spy();
+
+      notifySuccessWithFollowingAction(msg);
+
+      expect(notificationFactoryMock.weakSuccess).to.have.been.calledWithExactly('Success', msg);
+    });
+
+    it('should define a followingAction, if provided', function() {
+      var notification = {
+        setCancelAction: sinon.spy()
+      };
+
+      notificationFactoryMock.weakSuccess = sinon.spy(function() {
+        return notification;
+      });
+
+      notifySuccessWithFollowingAction('success message', {
+        a: 'b'
+      });
+
+      expect(notification.setCancelAction).to.have.been.calledWith({
+        a: 'b'
+      });
+    });
+  });
 });

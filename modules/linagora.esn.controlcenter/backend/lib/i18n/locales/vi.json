@@ -1,5 +1,7 @@
 {
   "General": "Chung",
   "Home page": "Trang chủ",
-  "Set the default page to load after login": "Chọn trang mặc định tải sau khi đăng nhập"
+  "Set the default page to load after login": "Chọn trang mặc định tải sau khi đăng nhập",
+  "Reload": "Tải lại",
+  "Configuration saved. Click on 'Reload' to apply changes": "Đã lưu cấu hình. Nhấp vào 'Tải lại' để áp dụng thay đổi"
 }

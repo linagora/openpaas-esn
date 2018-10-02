@@ -5,6 +5,8 @@
     .controller('controlcenterGeneralController', controlcenterGeneralController);
 
   function controlcenterGeneralController(
+    $q,
+    $window,
     esnUserConfigurationService,
     asyncAction,
     rejectWithErrorNotification,
@@ -14,7 +16,8 @@
     CONTROLCENTER_GENERAL_CONFIGS
   ) {
     var self = this,
-        saveHandlers = [];
+        saveHandlers = [_saveConfiguration],
+        initialConfigs;
     var HOMEPAGE_KEY = 'homePage';
 
     self.$onInit = $onInit;
@@ -31,16 +34,16 @@
       esnUserConfigurationService.get(CONTROLCENTER_GENERAL_CONFIGS)
         .then(function(configurations) {
           self.configurations = _buildConfigs(configurations);
+          initialConfigs = angular.copy(self.configurations);
         });
     }
 
     function save() {
-      return asyncAction({
-        progressing: 'Saving configuration...',
-        success: 'Configuration saved',
-        failure: 'Failed to save configuration'
-      }, _saveConfiguration)
-        .finally(_notifySaveHandlers);
+      return asyncAction(
+        _buildNotificationMessage(),
+        _executeSaveHandlers,
+        _includeReloadButtonAfterSave()
+      );
     }
 
     function registerSaveHandler(handler) {
@@ -53,6 +56,12 @@
       });
 
       return esnUserConfigurationService.set(configurations);
+    }
+
+    function _executeSaveHandlers() {
+      return $q.all(saveHandlers.map(function(handler) {
+        return handler();
+      }));
     }
 
     function _buildConfigs(configurations) {
@@ -80,9 +89,34 @@
       return result;
     }
 
-    function _notifySaveHandlers() {
-      saveHandlers.forEach(function(handler) {
-        handler();
+    function _includeReloadButtonAfterSave() {
+      if (_shouldReloadAfterSave()) {
+        return {
+          onSuccess: {
+            linkText: 'Reload',
+            action: function() { $window.location.reload(); }
+          }
+        };
+      }
+    }
+
+    function _buildNotificationMessage() {
+      var messages = {
+        progressing: 'Saving configuration...',
+        success: 'Configuration saved.',
+        failure: 'Failed to save configuration'
+      };
+
+      if (_shouldReloadAfterSave()) {
+        messages.success = 'Configuration saved. Click on \'Reload\' to apply changes';
+      }
+
+      return messages;
+    }
+
+    function _shouldReloadAfterSave() {
+      return _.some(CONTROLCENTER_GENERAL_CONFIGS, function(configName) {
+        return !_.isEqual(self.configurations[configName], initialConfigs[configName]);
       });
     }
   }
