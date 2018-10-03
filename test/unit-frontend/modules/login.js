@@ -8,6 +8,17 @@ describe('The Login Angular module', function() {
   beforeEach(angular.mock.module('esn.login'));
 
   describe('loginAPI service', function() {
+    var momentMock = {
+      tz: {
+        guess: function() { return 'foobar'; }
+      }
+    };
+
+    beforeEach(function() {
+      module(function($provide) {
+        $provide.constant('moment', momentMock);
+      });
+    });
 
     describe('login() method', function() {
 
@@ -27,8 +38,10 @@ describe('The Login Angular module', function() {
         };
       }));
 
-      it('should send a request to /api/login', function() {
-        this.$httpBackend.expectPOST('/api/login').respond(this.response);
+      it('should send a request with header contains detected time zone in X-ESN-Time-Zone field to /api/login', function() {
+        this.$httpBackend.expectPOST('/api/login', this.request, function(headers) {
+          return headers['X-ESN-Time-Zone'] === momentMock.tz.guess();
+        }).respond(this.response);
         this.loginAPI.login(this.request);
         this.$httpBackend.flush();
       });
