@@ -17,7 +17,17 @@ angular.module('esn.async-action', [
   };
 })
 
-.factory('asyncAction', function($q, $log, $timeout, notificationFactory, rejectWithErrorNotification, ASYNC_ACTION_LONG_TASK_DURATION, esnI18nService) {
+.factory('notifySuccessWithFollowingAction', function(notificationFactory) {
+  return function(message, followingAction) {
+    var notification = notificationFactory.weakSuccess('Success', message);
+
+    if (followingAction) {
+      notification.setCancelAction(followingAction);
+    }
+  };
+})
+
+.factory('asyncAction', function($q, $log, $timeout, notificationFactory, notifySuccessWithFollowingAction, rejectWithErrorNotification, ASYNC_ACTION_LONG_TASK_DURATION, esnI18nService) {
   function _computeMessages(message) {
     if (angular.isString(message)) {
       return {
@@ -50,7 +60,10 @@ angular.module('esn.async-action', [
 
     return action()
       .then(function(value) {
-        !isSilent && notificationFactory.weakSuccess('', _getMessage(messages, 'success', value));
+        !isSilent && notifySuccessWithFollowingAction(
+          _getMessage(messages, 'success', value),
+          options && options.onSuccess
+        );
 
         return value;
       }, function(err) {

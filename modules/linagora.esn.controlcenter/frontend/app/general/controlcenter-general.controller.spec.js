@@ -8,22 +8,25 @@ var expect = chai.expect;
 describe('The controlcenterGeneralController', function() {
 
   var $controller, $rootScope, $scope;
-  var esnUserConfigurationService, controlcenterGeneralService, CONTROLCENTER_GENERAL_CONFIGS;
-
-  beforeEach(module(function($provide) {
-    $provide.value('asyncAction', sinon.spy(function(message, action) {
-      return action();
-    }));
-
-    $provide.value('rejectWithErrorNotification', sinon.spy(function() {
-      return $q.reject();
-    }));
-  }));
+  var asyncAction, esnUserConfigurationService, controlcenterGeneralService, CONTROLCENTER_GENERAL_CONFIGS;
 
   beforeEach(function() {
     module('linagora.esn.controlcenter');
+    module(function($provide) {
+      asyncAction = sinon.spy(function(message, action) {
+        return action();
+      });
 
-    inject(function(_$controller_, _$rootScope_, _esnUserConfigurationService_, _controlcenterGeneralService_, _CONTROLCENTER_GENERAL_CONFIGS_) {
+      $provide.value('asyncAction', asyncAction);
+
+      $provide.value('rejectWithErrorNotification', sinon.spy(function() {
+        return $q.reject();
+      }));
+    });
+  });
+
+  beforeEach(function() {
+    inject(function(_$window_, _$controller_, _$rootScope_, _esnUserConfigurationService_, _controlcenterGeneralService_, _CONTROLCENTER_GENERAL_CONFIGS_) {
       $controller = _$controller_;
       $rootScope = _$rootScope_;
       esnUserConfigurationService = _esnUserConfigurationService_;
@@ -89,16 +92,10 @@ describe('The controlcenterGeneralController', function() {
   });
 
   describe('The save fn', function() {
-
-    var configMock, formMock;
+    var configMock;
 
     beforeEach(function() {
-      configMock = [{ name: 'homePage', value: 'home-page' }, { name: 'key1', value: 'value1' }, { name: 'key2', value: 'value2' }];
-      formMock = {
-        $valid: true,
-        $setPristine: angular.noop,
-        $setUntouched: angular.noop
-      };
+      configMock = [{ name: 'homePage', value: 'home-page' }, { name: 'language', value: 'en' }, { name: 'key2', value: 'value2' }];
 
       esnUserConfigurationService.get = function() {
         return $q.when(configMock);
@@ -115,7 +112,7 @@ describe('The controlcenterGeneralController', function() {
 
       esnUserConfigurationService.set = sinon.stub().returns($q.when());
 
-      controller.save(formMock).then(function() {
+      controller.save().then(function() {
         expect(esnUserConfigurationService.set).to.have.been.calledWith(configMock);
         done();
       });
@@ -125,18 +122,58 @@ describe('The controlcenterGeneralController', function() {
 
     it('should call any registered save handler', function(done) {
       esnUserConfigurationService.set = sinon.stub().returns($q.when());
+      esnUserConfigurationService.get = function() { return $q.when([]); };
 
       var controller = initController();
 
+      controller.$onInit();
+      $scope.$digest();
+
       controller.registerSaveHandler(function() {
         expect(esnUserConfigurationService.set).to.have.been.calledWith();
+
+        return $q.when();
       });
-      controller.registerSaveHandler(done);
-      controller.save(formMock);
+      controller.registerSaveHandler(function() {
+        return $q.when().then(done);
+      });
+      controller.save();
 
       $scope.$digest();
     });
 
-  });
+    it('should call async action with a custom messages and options in case of needing a reload after save configuration', function(done) {
+      esnUserConfigurationService.get = function() { return $q.when(configMock); };
+      esnUserConfigurationService.set = sinon.stub().returns($q.when());
 
+      var controller = initController();
+
+      controller.$onInit();
+      $rootScope.$digest();
+
+      controller.configurations.language = 'fr';
+
+      controller.save().then(function() {
+        expect(asyncAction).to.have.been.calledWith(
+          {
+            progressing: 'Saving configuration...',
+            success: 'Configuration saved. Click on \'Reload\' to apply changes',
+            failure: 'Failed to save configuration'
+          },
+          sinon.match.func,
+          {
+            onSuccess: {
+              linkText: 'Reload',
+              action: sinon.match.func
+            }
+          }
+        );
+        expect(esnUserConfigurationService.set).to.have.been.called;
+
+        done();
+      }).catch(done);
+
+      $rootScope.$digest();
+    });
+  });
 });
