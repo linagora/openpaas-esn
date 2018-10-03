@@ -102,7 +102,10 @@ function login(req, res, next) {
         if (!user.login.success) {
           return userlogin.firstSuccess(
             username,
-            { language: i18n.getLocale(req) },
+            {
+              language: i18n.getLocale(req),
+              timeZone: req.headers['x-esn-time-zone']
+            },
             callback
           );
         }

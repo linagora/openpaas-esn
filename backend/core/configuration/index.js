@@ -37,6 +37,11 @@ function update(configuration, callback) {
 
   var configurationAsModel = configuration instanceof Configuration ? configuration : new Configuration(configuration);
 
+  // have to mark "modules" field as having pending changes to write to the db
+  // because it contains Mixed type
+  // https://mongoosejs.com/docs/api.html#document_Document-markModified
+  configurationAsModel.markModified('modules');
+
   configurationAsModel.save(callback);
 }
 

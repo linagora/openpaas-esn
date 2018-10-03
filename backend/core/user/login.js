@@ -1,4 +1,5 @@
 const async = require('async');
+const q = require('q');
 const urljoin = require('url-join');
 const mongoose = require('mongoose');
 
@@ -10,6 +11,7 @@ const jwt = require('../auth').jwt;
 const email = require('../email');
 const i18n = require('../../i18n');
 const helpers = require('../../helpers');
+const { isSupportedTimeZone } = require('../../helpers/datetime');
 const CONSTANTS = require('./constants');
 
 const User = mongoose.model('User');
@@ -183,8 +185,15 @@ function setDisabled(user, disabled, callback) {
 }
 
 function _onFirstSuccess(user, data) {
-  return esnConfig('language')
-    .inModule('core')
-    .forUser(user, true)
-    .store(data.language);
+  function _setLanguageForUser() {
+    return esnConfig('language').inModule('core').forUser(user, true).store(data.language);
+  }
+
+  function _setTimeZoneForUser() {
+    if (isSupportedTimeZone(data.timeZone)) {
+      return esnConfig('datetime').inModule('core').forUser(user, true).set('timeZone', data.timeZone);
+    }
+  }
+
+  return [_setLanguageForUser, _setTimeZoneForUser].reduce(q.when, q());
 }

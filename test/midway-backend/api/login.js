@@ -237,4 +237,42 @@ describe('The login API', function() {
           });
       }));
   });
+
+  it('should not store unsupported time zone for user on her first success login', function(done) {
+    request(app)
+      .post('/api/login')
+      .set('X-ESN-Time-Zone', 'not-supported-time-zone')
+      .send({ username: email, password: password })
+      .expect(200)
+      .end(this.helpers.callbacks.noError(() => {
+        require('../../../backend/core')['esn-config']('datetime')
+          .inModule('core')
+          .forUser(user, true)
+          .get()
+          .then(datetime => {
+            expect(datetime.timeZone).equal('GMT'); // default time zone
+            done();
+          })
+          .catch(done);
+      }));
+  });
+
+  it('should store user time zone on her first success login', function(done) {
+    request(app)
+      .post('/api/login')
+      .set('X-ESN-Time-Zone', 'Asia/Saigon')
+      .send({ username: email, password: password })
+      .expect(200)
+      .end(this.helpers.callbacks.noError(() => {
+        require('../../../backend/core')['esn-config']('datetime')
+          .inModule('core')
+          .forUser(user, true)
+          .get()
+          .then(datetime => {
+            expect(datetime.timeZone).equal('Asia/Saigon');
+            done();
+          })
+          .catch(done);
+      }));
+  });
 });
