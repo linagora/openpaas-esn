@@ -1,12 +1,11 @@
-'use strict';
-
-var ObjectID = require('bson').ObjectId;
-var emailAddresses = require('email-addresses');
-var validUrl = require('valid-url');
+const ObjectID = require('bson').ObjectId;
+const emailAddresses = require('email-addresses');
+const validUrl = require('valid-url');
 
 module.exports = {
   user,
   community,
+  group,
   email,
   string,
   icon,
@@ -78,6 +77,10 @@ function user(value) {
   return objectIdTuple('user', vasUser(value));
 }
 
+function group(value) {
+  return objectIdTuple('group', vasobjectID(value));
+}
+
 function community(value) {
   return objectIdTuple('community', vasCommunity(value));
 }
@@ -105,6 +108,8 @@ function get(type, value) {
       return user(value);
     case 'community':
       return community(value);
+    case 'group':
+      return group(value);
     case 'email':
       return email(value);
     case 'string':
