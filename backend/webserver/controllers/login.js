@@ -84,22 +84,6 @@ function login(req, res, next) {
           return next(err);
         }
 
-        function parseAcceptLanguage(acceptLanguageHeader = '') {
-          const supportedLanguages = i18n.getLocales();
-          const acceptLanguages = acceptLanguageHeader.split(',').map(element => element.split(';')[0]);
-          let language;
-
-          acceptLanguages.some(acceptLanguage => {
-            if (supportedLanguages.indexOf(acceptLanguage) > 0) {
-              language = acceptLanguage;
-
-              return true;
-            }
-          });
-
-          return language;
-        }
-
         function callback(err, user) {
           if (err) {
             logger.error('Problem while setting login success for user ' + username, err);
@@ -118,7 +102,7 @@ function login(req, res, next) {
         if (!user.login.success) {
           return userlogin.firstSuccess(
             username,
-            { language: parseAcceptLanguage(req.headers['accept-language']) || 'en' },
+            { language: i18n.getLocale(req) },
             callback
           );
         }
