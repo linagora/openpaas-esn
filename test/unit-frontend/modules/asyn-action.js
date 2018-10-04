@@ -382,6 +382,16 @@ describe('The esn.async-action Angular module', function() {
       expect(notificationFactoryMock.weakError).to.have.been.calledWithExactly('Error', msg);
     });
 
+    it('should show notification until user intentionnaly closes', function() {
+      var msg = 'error message';
+
+      notificationFactoryMock.strongError = sinon.spy();
+
+      rejectWithErrorNotification(msg, {persist: true});
+
+      expect(notificationFactoryMock.strongError).to.have.been.calledWithExactly('Error', msg);
+    });
+
     it('should define a cancelAction, if provided', function() {
       var notification = {
         setCancelAction: sinon.spy()
@@ -391,9 +401,7 @@ describe('The esn.async-action Angular module', function() {
         return notification;
       });
 
-      rejectWithErrorNotification('error message', {
-        a: 'b'
-      });
+      rejectWithErrorNotification('error message', {onFailure: {a: 'b'}});
 
       expect(notification.setCancelAction).to.have.been.calledWith({
         a: 'b'

@@ -6,12 +6,13 @@ angular.module('esn.async-action', [
 ])
 
 .factory('rejectWithErrorNotification', function($q, notificationFactory) {
-  return function(message, cancelAction) {
-    var notification = notificationFactory.weakError('Error', message);
+  return function(message, options) {
+    options = options || {};
+    var notification = options.persist === true ?
+      notificationFactory.strongError('Error', message) :
+      notificationFactory.weakError('Error', message);
 
-    if (cancelAction) {
-      notification.setCancelAction(cancelAction);
-    }
+    options.onFailure && notification.setCancelAction(options.onFailure);
 
     return $q.reject(new Error(message));
   };
@@ -68,7 +69,7 @@ angular.module('esn.async-action', [
         return value;
       }, function(err) {
         $log.error(err);
-        rejectWithErrorNotification(_getMessage(messages, 'failure', err), options && options.onFailure);
+        rejectWithErrorNotification(_getMessage(messages, 'failure', err), options);
 
         return $q.reject(err);
       })
