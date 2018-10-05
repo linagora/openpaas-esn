@@ -1,5 +1,5 @@
-const momentTimeZone = require('moment-timezone');
 const { buildErrorMessage, createValidateFunction } = require('../validator/helper');
+const { isSupportedTimeZone } = require('../../../helpers/datetime');
 
 const schema = {
   type: 'object',
@@ -39,7 +39,7 @@ function validator(datetime) {
 }
 
 function _validateDatetime(datetime) {
-  if (datetime.timeZone && !momentTimeZone.tz.zone(datetime.timeZone)) {
+  if (datetime.timeZone && !isSupportedTimeZone(datetime.timeZone)) {
     return `time zone "${datetime.timeZone}" is not supported`;
   }
 

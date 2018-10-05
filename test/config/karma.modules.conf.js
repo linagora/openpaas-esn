@@ -36,7 +36,7 @@ module.exports = function(config) {
       'frontend/components/ng-tags-input/ng-tags-input.js',
       'frontend/components/angular-xeditable/dist/js/xeditable.js',
       'frontend/components/moment/moment.js',
-      'frontend/components/moment-timezone/builds/moment-timezone-with-data-2010-2020.min.js',
+      'frontend/components/moment-timezone/builds/moment-timezone-with-data.min.js',
       'frontend/components/angular-moment/angular-moment.js',
       'frontend/components/jstzdetect/jstz.min.js',
       'frontend/components/angular-jstz/angular-jstz.js',

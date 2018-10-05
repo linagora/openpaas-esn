@@ -172,10 +172,10 @@ angular.module('esn.login', ['esn.notification', 'esn.http', 'op.dynamicDirectiv
     session.setLogout();
     window.location.href = '/logout';
   })
-  .factory('loginAPI', function(esnRestangular) {
+  .factory('loginAPI', function(esnRestangular, moment) {
 
     function login(credentials) {
-      return esnRestangular.all('login').post(credentials);
+      return esnRestangular.all('login').post(credentials, null, { 'X-ESN-Time-Zone': moment.tz.guess() });
     }
 
     function askForPasswordReset(email) {
