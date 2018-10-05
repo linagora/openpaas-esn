@@ -252,8 +252,9 @@ describe('The addressbooks dav proxy', function() {
             ]],
             id: '4db41c7b-c747-41fe-ad8f-c3aa584bf0d9'
           };
-          this.helpers.redis.publishConfiguration();
-          this.helpers.elasticsearch.saveTestConfiguration(this.helpers.callbacks.noError(done));
+          this.helpers.redis.publishConfiguration(this.helpers.callbacks.noErrorAnd(() => {
+            this.helpers.elasticsearch.saveTestConfiguration(this.helpers.callbacks.noError(done));
+          }));
         });
 
         it('should return contact with matching firstname', function(done) {

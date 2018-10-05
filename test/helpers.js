@@ -483,17 +483,21 @@ module.exports = function(mixin, testEnv) {
         port: testEnv.serversConfig.redis.port
       }, callback);
     },
-    publishConfiguration: function() {
+    publishConfiguration: callback => {
       mixin.requireBackend('core/esn-config')('redis').store({
         url: testEnv.redisUrl
-      });
+      })
+        .then(() => {
+          const pubsub = mixin.requireBackend('core/pubsub');
 
-      var pubsub = mixin.requireBackend('core/pubsub');
+          pubsub.local.topic('redis:configurationAvailable').publish({
+            host: testEnv.serversConfig.redis.host || testEnv.serversConfig.host,
+            port: testEnv.serversConfig.redis.port
+          });
 
-      pubsub.local.topic('redis:configurationAvailable').publish({
-        host: testEnv.serversConfig.redis.host || testEnv.serversConfig.host,
-        port: testEnv.serversConfig.redis.port
-      });
+          callback();
+        })
+        .catch(callback);
     }
   };
 };
