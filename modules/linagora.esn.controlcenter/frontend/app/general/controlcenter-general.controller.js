@@ -9,7 +9,6 @@
     $window,
     esnUserConfigurationService,
     asyncAction,
-    rejectWithErrorNotification,
     controlcenterGeneralService,
     _,
     ESN_ROUTER_DEFAULT_HOME_PAGE,
@@ -59,9 +58,7 @@
     }
 
     function _executeSaveHandlers() {
-      return $q.all(saveHandlers.map(function(handler) {
-        return handler();
-      }));
+      return saveHandlers.reduce($q.when, $q.resolve());
     }
 
     function _buildConfigs(configurations) {

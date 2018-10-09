@@ -11,17 +11,15 @@ describe('The controlcenterGeneralController', function() {
   var asyncAction, esnUserConfigurationService, controlcenterGeneralService, CONTROLCENTER_GENERAL_CONFIGS;
 
   beforeEach(function() {
+    asyncAction = sinon.spy(function(message, action) {
+      return action();
+    });
+
     module('linagora.esn.controlcenter');
+    module('esn.async-action');
+
     module(function($provide) {
-      asyncAction = sinon.spy(function(message, action) {
-        return action();
-      });
-
       $provide.value('asyncAction', asyncAction);
-
-      $provide.value('rejectWithErrorNotification', sinon.spy(function() {
-        return $q.reject();
-      }));
     });
   });
 
@@ -120,24 +118,25 @@ describe('The controlcenterGeneralController', function() {
       $scope.$digest();
     });
 
-    it('should call any registered save handler', function(done) {
+    it('should call registered saving handlers in sequence', function(done) {
       esnUserConfigurationService.set = sinon.stub().returns($q.when());
       esnUserConfigurationService.get = function() { return $q.when([]); };
+      var handler1 = sinon.stub().returns($q.when());
+      var handler2 = sinon.stub().returns($q.when());
 
       var controller = initController();
 
       controller.$onInit();
       $scope.$digest();
 
-      controller.registerSaveHandler(function() {
-        expect(esnUserConfigurationService.set).to.have.been.calledWith();
-
-        return $q.when();
+      controller.registerSaveHandler(handler1);
+      controller.registerSaveHandler(handler2);
+      controller.save().then(function() {
+        expect(esnUserConfigurationService.set).to.have.been.called;
+        expect(handler1).to.have.been.calledAfter(esnUserConfigurationService.set);
+        expect(handler2).to.have.been.calledAfter(handler1);
+        done();
       });
-      controller.registerSaveHandler(function() {
-        return $q.when().then(done);
-      });
-      controller.save();
 
       $scope.$digest();
     });
