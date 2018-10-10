@@ -2,9 +2,9 @@ ng-form(name="form")
   .form-group.timeformat-selector
     .timeformat-toggle-switch
       span.clickable(ng-class='{"enabled": !$ctrl.use24hourFormat, "disabled": $ctrl.use24hourFormat}')
-        | {{::$ctrl.currentDate | date: $ctrl.ESN_DATETIME_TIME_FORMATS.format12}}
-        
+        | {{::$ctrl.currentDate | amDateFormat: $ctrl.ESN_DATETIME_TIME_FORMATS.format12}}
+
       toggle-switch(ng-model='$ctrl.use24hourFormat', color='blue', form="form")
-      
+
       span.clickable(ng-class='{"enabled": $ctrl.use24hourFormat, "disabled": !$ctrl.use24hourFormat}')
-        | {{::$ctrl.currentDate | date: $ctrl.ESN_DATETIME_TIME_FORMATS.format24}}
+        | {{::$ctrl.currentDate | amDateFormat: $ctrl.ESN_DATETIME_TIME_FORMATS.format24}}
