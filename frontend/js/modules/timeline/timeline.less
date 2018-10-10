@@ -1,3 +1,10 @@
+@timelineLikeColor: #ff796f;
+@timelineRocketColor: @m-red;
+@timelinePostColor: @m-indigo;
+@timelineUpdateColor: @m-green;
+@timelineFollowColor: @m-deeporange;
+@timelineUnfollowColor: @m-orange;
+
 .timeline {
 
   .card-header h2 {
@@ -27,72 +34,72 @@
     &[data-tv-type="rocket"] {
       &:before {
         content: "\f463";
-        background: red;
-        box-shadow: 0 0 0 1px red;
+        background: @timelineRocketColor;
+        box-shadow: 0 0 0 1px @timelineRocketColor;
       }
 
       &:after {
-        background: @m-cyan;
+        background: @timelineRocketColor;
       }
     }
 
     &[data-tv-type="like"] {
       &:before {
-        content: "\f513";
-        background: @m-cyan;
-        box-shadow: 0 0 0 1px @m-cyan;
+        content: "\F2D1";
+        background: @timelineLikeColor;
+        box-shadow: 0 0 0 1px @timelineLikeColor;
       }
 
       &:after {
-        background: @m-cyan;
+        background: @timelineLikeColor;
       }
     }
 
     &[data-tv-type="post"] {
       &:before {
         content: "\f181";
-        background: @m-indigo;
-        box-shadow: 0 0 0 1px @m-indigo;
+        background: @timelinePostColor;
+        box-shadow: 0 0 0 1px @timelinePostColor;
       }
 
       &:after {
-        background: @m-indigo;
+        background: @timelinePostColor;
       }
     }
 
     &[data-tv-type="update"] {
       &:before {
         content: "\f45a";
-        background: @m-green;
-        box-shadow: 0 0 0 1px @m-green;
+        background: @timelineUpdateColor;
+        box-shadow: 0 0 0 1px @timelineUpdateColor;
       }
 
       &:after {
-        background: @m-green;
+        background: @timelineUpdateColor;
       }
     }
 
     &[data-tv-type="follow"] {
       &:before {
         content: "\f014";
-        background: @m-deeporange;
-        box-shadow: 0 0 0 1px @m-deeporange;
+        background: @timelineFollowColor;
+        box-shadow: 0 0 0 1px @timelineFollowColor;
       }
 
       &:after {
-        background: @m-deeporange;
+        background: @timelineFollowColor;
       }
     }
 
     &[data-tv-type="unfollow"] {
       &:before {
         content: "\f00D";
-        background: @m-orange;
-        box-shadow: 0 0 0 1px @m-orange;
+        background: @timelineUnfollowColor;
+        box-shadow: 0 0 0 1px @timelineUnfollowColor;
       }
 
       &:after {
-        background: @m-orange;
+        background: @timelineUnfollowColor;
       }
     }
   }
