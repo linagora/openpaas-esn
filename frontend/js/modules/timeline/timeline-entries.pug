@@ -1,9 +1,10 @@
 .timeline.col-xs-12
   infinite-list(load-more-elements='loadNext()')
-    ul.media-list
+    ul.media-list(ng-if="timelineEntries.length")
       li.media(ng-repeat="entry in timelineEntries")
         .t-view.m-b-0(data-tv-type="{{::entry.verb}}")
           ng-include(src="entry.templateUrl")
-
+      li.media
+        .t-view.m-b-0(data-tv-type="rocket")
   ul.nav.nav-pills.nav-stacked(ng-if='!infiniteScrollCompleted')
     li.text-center(openpaas-logo-spinner, spinner-start-active='1', spinner-size='0.5')
