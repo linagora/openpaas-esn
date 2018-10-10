@@ -3,7 +3,7 @@
 
   angular.module('esn.timeline').factory('esnTimelineEntriesHelper', esnTimelineEntriesHelper);
 
-  function esnTimelineEntriesHelper($q, esnTimelineEntryProviders, DEFAULT_TIMELINE_ELEMENT) {
+  function esnTimelineEntriesHelper($q, esnTimelineEntryProviders) {
     return {
       getProvidersForTimelineEntry: getProvidersForTimelineEntry,
       denormalizeAPIResponse: denormalizeAPIResponse
@@ -20,13 +20,19 @@
     }
 
     function denormalizeAPIResponse(entries) {
-      return $q.when(entries.map(function(entry) {
+      return $q.when(entries.map(denormalize).filter(Boolean));
+
+      function denormalize(entry) {
         var providers = getProvidersForTimelineEntry(entry);
 
-        entry.templateUrl = providers.length ? providers[0].templateUrl : DEFAULT_TIMELINE_ELEMENT;
+        if (!providers || !providers.length) {
+          return;
+        }
+
+        entry.templateUrl = providers[0].templateUrl;
 
         return entry;
-      }));
+      }
     }
   }
 
