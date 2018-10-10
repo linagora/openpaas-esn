@@ -12,8 +12,8 @@ describe('The esn.http Angular module', function() {
   });
 
   describe('The httpErrorHandler service', function() {
-
     var windowMock, locationMock;
+
     beforeEach(module(function($provide) {
       windowMock = {
         addEventListener: angular.noop
@@ -33,21 +33,22 @@ describe('The esn.http Angular module', function() {
 
       it('should change current window.location.path', function() {
         var path = '/foo/bar/baz';
-        locationMock.path = function() {
-          return path;
-        };
 
+        locationMock.path = sinon.stub().returns(path);
+        locationMock.hash = sinon.stub().returns('');
         windowMock.location = {};
 
         this.httpErrorHandler.redirectToLogin();
-        expect(windowMock.location.href).to.equal('/login?continue=' + path);
+
+        expect(windowMock.location.href).to.equal('/login?continue=#' + path);
+        expect(locationMock.path).to.have.been.calledOnce;
       });
     });
   });
 
   describe('The redirectWhenNotAuthInterceptor service', function() {
-
     var httpErrorHandler;
+
     beforeEach(module(function($provide) {
       httpErrorHandler = {};
       $provide.value('httpErrorHandler', httpErrorHandler);
@@ -61,12 +62,12 @@ describe('The esn.http Angular module', function() {
     describe('The responseError function', function() {
 
       it('should call redirectToLogin when HTTP 401 and reject', function(done) {
-        var spy = sinon.spy();
-        httpErrorHandler.redirectToLogin = spy;
+        httpErrorHandler.redirectToLogin = sinon.spy();
+
         this.redirectWhenNotAuthInterceptor.responseError({status: 401}).then(function() {
           done(new Error());
         }, function() {
-          expect(spy).to.have.been.called;
+          expect(httpErrorHandler.redirectToLogin).to.have.been.called;
           done();
         });
         this.$rootScope.$digest();
