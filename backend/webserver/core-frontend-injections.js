@@ -259,15 +259,15 @@ const injections = [
   {angular: 'esn.timeline', files: [
     'timeline/timeline.module.js',
     'timeline/timeline.constants.js',
-    'timeline/timeline.config.js',
     'timeline/timeline-api.service.js',
-    'timeline/timeline-controlcenter-menu.directive.js',
     'timeline/timeline-entries-helper.service.js',
     'timeline/timeline-entries.component.js',
     'timeline/timeline-entries.controller.js',
     'timeline/timeline-entry-displayer.component.js',
     'timeline/timeline-entry-providers.service.js',
-    'timeline/timeline-pagination-provider.service.js'
+    'timeline/timeline-pagination-provider.service.js',
+    'timeline/controlcenter/timeline-controlcenter-menu.directive.js',
+    'timeline/controlcenter/timeline-controlcenter.config.js'
   ], innerApps: ['esn']},
   {angular: 'esn.follow', files: ['follow.js'], innerApps: ['esn']},
   {angular: 'esn.escape-html', files: ['escape-html.js'], innerApps: ['esn', 'welcome']},
