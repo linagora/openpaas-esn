@@ -116,7 +116,7 @@ angular.module('esn.box-overlay', [
   })
 
   .provider('$boxOverlay', function() {
-    this.$get = function($window, $rootScope, $compile, $templateCache, $http, $timeout, boxOverlayService, StateManager, deviceDetector, DEVICES, ESN_BOX_OVERLAY_EVENTS) {
+    this.$get = function($window, $rootScope, $compile, $templateCache, $http, $timeout, $q, boxOverlayService, StateManager, deviceDetector, DEVICES, ESN_BOX_OVERLAY_EVENTS) {
       var boxTemplateUrl = '/views/modules/box-overlay/template.html';
 
       function container() {
@@ -158,7 +158,7 @@ angular.module('esn.box-overlay', [
       function BoxOverlayFactory(config) {
         var boxElement,
             scope = angular.extend($rootScope.$new(), config),
-            $boxOverlay = { $scope: scope},
+            $boxOverlay = { $scope: scope },
             stateManager = new StateManager();
 
         function initialize() {
@@ -211,7 +211,20 @@ angular.module('esn.box-overlay', [
 
         scope.$show = nextTick('show');
         scope.$hide = nextTick('hide');
-        scope.$close = nextTick('destroy');
+
+        $boxOverlay.onTryClose = $q.when;
+
+        scope.$onTryClose = function(callback) {
+          $boxOverlay.onTryClose = angular.isFunction(callback) ? callback : $boxOverlay.onTryClose;
+        };
+
+        scope.$close = function() {
+          $boxOverlay.hide();
+
+          return $boxOverlay.onTryClose().then(scope.$forceClose);
+        };
+
+        scope.$forceClose = nextTick('destroy');
 
         function nextTick(action) {
           return function() {

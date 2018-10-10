@@ -218,5 +218,14 @@ describe('The esn.notification Angular modules', function() {
       expect(notification.close).to.have.been.calledWith();
     });
 
+    it('should call the provided callback on close', function() {
+      var notification = notifyService({ title: 'title', message: 'message', type: 'danger' }, {});
+
+      var closeCallback = sinon.spy();
+      notification.setCloseAction(closeCallback);
+      notification.$ele.find('a.close').click();
+
+      expect(closeCallback).to.have.been.calledWith();
+    });
   });
 });

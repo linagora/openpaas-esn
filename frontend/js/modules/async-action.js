@@ -13,6 +13,7 @@ angular.module('esn.async-action', [
       notificationFactory.weakError('Error', message);
 
     options.onFailure && notification.setCancelAction(options.onFailure);
+    options.onClose && notification.setCloseAction(options.onClose);
 
     return $q.reject(new Error(message));
   };
