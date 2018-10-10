@@ -264,8 +264,8 @@ const injections = [
     'timeline/timeline-entries.component.js',
     'timeline/timeline-entries.controller.js',
     'timeline/timeline-entry-displayer.component.js',
-    'timeline/timeline-entry-providers.service.js',
-    'timeline/timeline-pagination-provider.service.js',
+    'timeline/providers/timeline-entry-providers.service.js',
+    'timeline/providers/timeline-pagination-provider.service.js',
     'timeline/controlcenter/timeline-controlcenter-menu.directive.js',
     'timeline/controlcenter/timeline-controlcenter.config.js'
   ], innerApps: ['esn']},
