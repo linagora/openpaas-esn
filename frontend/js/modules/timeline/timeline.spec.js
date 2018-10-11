@@ -1,6 +1,6 @@
 'use strict';
 
-/* global chai: false */
+/* global chai, sinon: false */
 var expect = chai.expect;
 
 describe('The esn.timeline module', function() {
@@ -83,11 +83,10 @@ describe('The esn.timeline module', function() {
 
   describe('The esnTimelineEntriesHelper factory', function() {
 
-    var service, $rootScope, esnTimelineEntryProviders, DEFAULT_TIMELINE_ELEMENT;
+    var service, $rootScope, esnTimelineEntryProviders;
 
-    beforeEach(inject(function(_$rootScope_, _esnTimelineEntriesHelper_, _esnTimelineEntryProviders_, _DEFAULT_TIMELINE_ELEMENT_) {
+    beforeEach(inject(function(_$rootScope_, _esnTimelineEntriesHelper_, _esnTimelineEntryProviders_) {
       esnTimelineEntryProviders = _esnTimelineEntryProviders_;
-      DEFAULT_TIMELINE_ELEMENT = _DEFAULT_TIMELINE_ELEMENT_;
       service = _esnTimelineEntriesHelper_;
       $rootScope = _$rootScope_;
     }));
@@ -150,19 +149,14 @@ describe('The esn.timeline module', function() {
         $rootScope.$digest();
       });
 
-      it('should add the default templateUrl when no matching provider', function() {
-        it('should add the templateUrl from the provider to the entry', function(done) {
-          function check(data) {
-            expect(data).to.shallowDeepEqual([
-              {
-                templateUrl: DEFAULT_TIMELINE_ELEMENT
-              }
-            ]);
-            done();
-          }
-          service.denormalizeAPIResponse([{verb: 'like'}]).then(check, done);
-          $rootScope.$digest();
-        });
+      it('should filter the entry if no provider is available', function(done) {
+        service.denormalizeAPIResponse([{verb: 'like'}]).then(check, done);
+        $rootScope.$digest();
+
+        function check(data) {
+          expect(data).to.shallowDeepEqual([]);
+          done();
+        }
       });
     });
   });
@@ -233,7 +227,7 @@ describe('The esn.timeline module', function() {
   });
 
   describe('The esnTimelineEntriesController controller', function() {
-    var $controller, $scope, $q, $rootScope, PageAggregatorService, sessionMock;
+    var $controller, $scope, $q, $rootScope, PageAggregatorService, sessionMock, esnTimelineEntriesHelper;
     var timelineEntries = [
       {verb: 'post', actor: {objectType: 'user', _id: 1}, object: {objectType: 'whatsup', _id: 2}},
       {verb: 'like', actor: {objectType: 'user', _id: 1}, object: {objectType: 'whatsup', _id: 3}},
@@ -247,6 +241,8 @@ describe('The esn.timeline module', function() {
     }
 
     beforeEach(function() {
+      esnTimelineEntriesHelper = {};
+
       sessionMock = {
         user: {
           _id: 1
@@ -256,6 +252,7 @@ describe('The esn.timeline module', function() {
       PageAggregatorService = function() {};
       angular.mock.module('esn.timeline', function($provide) {
         $provide.value('session', sessionMock);
+        $provide.value('esnTimelineEntriesHelper', esnTimelineEntriesHelper);
         $provide.value('PageAggregatorService', PageAggregatorService);
       });
     });
@@ -269,9 +266,8 @@ describe('The esn.timeline module', function() {
     describe('The loadNext function', function() {
 
       it('should load data and update the timelineentries', function() {
-        PageAggregatorService.prototype.loadNextItems = function() {
-          return $q.when({data: timelineEntries});
-        };
+        esnTimelineEntriesHelper.denormalizeAPIResponse = sinon.stub().returns($q.when(timelineEntries));
+        PageAggregatorService.prototype.loadNextItems = sinon.stub().returns($q.when({data: timelineEntries}));
 
         initController();
 
