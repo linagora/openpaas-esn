@@ -1,0 +1,43 @@
+(function(angular) {
+  'use strict';
+
+  angular.module('linagora.esn.contact')
+    .factory('VirtualAddressBookPaginationProvider', VirtualAddressBookPaginationProvider);
+
+  function VirtualAddressBookPaginationProvider($log) {
+
+    function VirtualAddressBookPaginationProvider(options) {
+      this.options = options;
+
+      if (!this.options.addressbooks || this.options.addressbooks.length === 0) {
+        throw new Error('options.addressbooks array is required');
+      }
+
+      this.addressbook = this.options.addressbooks[0];
+      this.lastPage = false;
+      this.nextPage = 0;
+    }
+
+    VirtualAddressBookPaginationProvider.prototype.loadNextItems = function() {
+      var self = this;
+      var page = this.nextPage || 1;
+
+      $log.debug('Load contacts page %s on virtual ab', page, this.addressbook);
+
+      return this.addressbook.loadNextItems({
+        userId: this.options.user._id,
+        page: page,
+        paginate: true
+      }).then(function(result) {
+        self.lastPage = result.lastPage;
+        if (!self.lastPage) {
+          self.nextPage++;
+        }
+
+        return result;
+      });
+    };
+
+    return VirtualAddressBookPaginationProvider;
+  }
+})(angular);
