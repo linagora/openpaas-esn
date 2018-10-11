@@ -36,6 +36,11 @@ angular.module('esn.http', [
 
     function redirectToLogin() {
       var current = $location.path();
+
+      if (!$location.$$html5) { // so far, we already hardcoded the # everywhere...
+        current = '#' + $location.hash() + current;
+      }
+
       $log.debug('User is not logged, redirecting to login page from', current);
       $window.location.href = '/login?continue=' + current;
     }
