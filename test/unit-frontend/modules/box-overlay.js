@@ -6,7 +6,7 @@ var expect = chai.expect;
 
 describe('The box-overlay Angular module', function() {
 
-  var $window, $compile, $rootScope, $scope, $timeout, element, deviceDetector, notificationFactory, esnI18nService, DEVICES;
+  var $window, $compile, $rootScope, $scope, $timeout, $q, element, deviceDetector, notificationFactory, esnI18nService, DEVICES;
 
   function compile(html) {
     element = $compile(html)($scope);
@@ -209,6 +209,7 @@ describe('The box-overlay Angular module', function() {
 
       var button = compileAndClickTheButton('<button box-overlay />');
       clickTheButton(button);
+      $timeout.flush();
       closeFirstBox();
       clickTheButton(button);
 
@@ -444,10 +445,11 @@ describe('The box-overlay Angular module', function() {
   describe('The boxOverlay service', function() {
     var $boxOverlay, $httpBackend;
 
-    beforeEach(inject(function(_$timeout_, _$httpBackend_, _$boxOverlay_) {
+    beforeEach(inject(function(_$timeout_, _$httpBackend_, _$boxOverlay_, _$q_) {
       $timeout = _$timeout_;
       $httpBackend = _$httpBackend_;
       $boxOverlay = _$boxOverlay_;
+      $q = _$q_;
     }));
 
     beforeEach(function() {
@@ -500,6 +502,93 @@ describe('The box-overlay Angular module', function() {
       }
     });
 
+    it('should call $q.when when trying to close if no callback has been set', function(done) {
+      sinon.spy($q, 'when');
+
+      var target = $boxOverlay({
+        id: 0,
+        title: 'Default title',
+        templateUrl: '/path/to/template'
+      });
+
+      target.$scope.$close().then(function() {
+        expect($q.when).to.have.been.called;
+        done();
+      });
+
+      target.$scope.$digest();
+    });
+
+    it('should call provided callback when trying to close', function(done) {
+      var callback = sinon.stub().returns($q.when());
+      var target = $boxOverlay({
+        id: 0,
+        title: 'Default title',
+        templateUrl: '/path/to/template'
+      });
+
+      target.$scope.$onTryClose(callback);
+
+      target.$scope.$close().then(function() {
+        expect(callback).to.have.been.called;
+        done();
+      });
+
+      target.$scope.$digest();
+    });
+
+    it('should hide the the box overlay when trying to close', function() {
+      var target = $boxOverlay({
+        id: 0,
+        title: 'Default title',
+        templateUrl: '/path/to/template'
+      });
+
+      sinon.spy(target, 'hide');
+
+      target.$scope.$close();
+      expect(target.hide).to.have.been.called;
+    });
+
+    it('should destroy overlay when callback resolves', function() {
+      var target = $boxOverlay({
+        id: 0,
+        title: 'Default title',
+        templateUrl: '/path/to/template'
+      });
+
+      sinon.spy(target, 'destroy');
+
+      target.$scope.$onTryClose(function() {
+        return $q.when();
+      });
+
+      target.$scope.$close();
+
+      target.$scope.$digest();
+      $timeout.flush();
+
+      expect(target.destroy).to.have.been.called;
+    });
+
+    it('should not destroy overlay when callback rejects', function() {
+      var target = $boxOverlay({
+        id: 0,
+        title: 'Default title',
+        templateUrl: '/path/to/template'
+      });
+
+      sinon.spy(target, 'destroy');
+
+      target.$scope.$onTryClose(function() {
+        return $q.reject();
+      });
+
+      target.$scope.$digest();
+
+      expect($timeout.flush).to.throw();
+      expect(target.destroy).not.to.have.been.called;
+    });
   });
 
   describe('The StateManager factory', function() {
