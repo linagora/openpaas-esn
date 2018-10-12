@@ -15,7 +15,7 @@
 
       this.addressbook = this.options.addressbooks[0];
       this.lastPage = false;
-      this.nextPage = 0;
+      this.nextPage = 1;
     }
 
     VirtualAddressBookPaginationProvider.prototype.loadNextItems = function() {
