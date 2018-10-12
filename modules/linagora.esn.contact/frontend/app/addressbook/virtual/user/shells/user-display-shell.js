@@ -3,7 +3,7 @@
 
   angular.module('linagora.esn.contact').factory('ContactUserDisplayShell', ContactUserDisplayShell);
 
-  function ContactUserDisplayShell(ContactDisplayShell) {
+  function ContactUserDisplayShell(ContactDisplayShell, $state) {
     var UserDisplayShell = function(shell) {
       var self = this;
 
@@ -41,6 +41,10 @@
 
     UserDisplayShell.prototype.getAvatar = function() {
       return '/api/users/' + this.shell.id + '/profile/avatar';
+    };
+
+    UserDisplayShell.prototype.displayContact = function() {
+      $state.go('profile', { user_id: this.shell.id });
     };
 
     return UserDisplayShell;
