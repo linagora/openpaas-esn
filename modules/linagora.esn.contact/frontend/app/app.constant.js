@@ -59,11 +59,6 @@
         ADDRESSBOOK_SUBSCRIPTION_CREATED: 'contact:addressbook:subscription:created'
       }
     })
-    .constant('CONTACT_ADDRESSBOOK_TYPES', {
-      SINGLE: 'single',
-      MULTIPLE: 'multiple',
-      VIRTUAL: 'virtual'
-    })
     .constant('CONTACT_GLOBAL_SEARCH', {
       TYPE: 'contact',
       NAME: 'Contacts'
