@@ -3,14 +3,19 @@
 
   angular.module('linagora.esn.contact').factory('ContactUserShellHelper', ContactUserShellHelper);
 
-  function ContactUserShellHelper() {
+  function ContactUserShellHelper(CONTACT_ADDRESSBOOK_TYPES) {
     return {
-      isUser: isUser
+      isUser: isUser,
+      isAddressbook: isAddressbook
     };
 
     function isUser(shell) {
       // TODO: The test is not good, it must be virtual + have the good id
-      return shell && shell.addressbook && shell.addressbook.type === 'virtual';
+      return shell && shell.addressbook && shell.addressbook.type === CONTACT_ADDRESSBOOK_TYPES.virtual;
+    }
+
+    function isAddressbook(shell) {
+      return Boolean(shell && shell.type === CONTACT_ADDRESSBOOK_TYPES.virtual);
     }
   }
 })(angular);
