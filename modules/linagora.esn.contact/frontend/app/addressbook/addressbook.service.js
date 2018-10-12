@@ -37,6 +37,10 @@
     };
 
     function getAddressbookByBookName(bookName) {
+      if (VirtualAddressBookRegistry.get(bookName)) {
+        return $q.when(VirtualAddressBookRegistry.get(bookName));
+      }
+
       return ContactAPIClient.addressbookHome(session.user._id).addressbook(bookName).get();
     }
 

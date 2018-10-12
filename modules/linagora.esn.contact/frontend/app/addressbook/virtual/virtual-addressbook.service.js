@@ -8,8 +8,9 @@
     function ContactVirtualAddressBook(id, name, loadNextItems) {
       this.id = id;
       this.name = name;
+      this.bookName = id;
       this.type = CONTACT_ADDRESSBOOK_TYPES.virtual;
-      this.description = 'OpenPaaS Platform users';
+      this.description = 'Virtual addressbook';
       this.loadNextItems = loadNextItems;
     }
 
