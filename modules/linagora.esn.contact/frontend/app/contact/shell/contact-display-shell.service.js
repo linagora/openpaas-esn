@@ -8,6 +8,7 @@
     ContactsHelper,
     urlUtils,
     contactAvatarService,
+    ContactLocationHelper,
     CONTACT_ATTRIBUTES_ORDER,
     CONTACT_DEFAULT_AVATAR
   ) {
@@ -76,6 +77,11 @@
 
     ContactDisplayShell.prototype.getDropDownMenu = function() {
       return this.dropDownMenuDirective;
+    };
+
+    ContactDisplayShell.prototype.displayContact = function() {
+      // use url instead of path to remove search and hash from URL
+      ContactLocationHelper.contact.show(this.addressbook.bookId, this.addressbook.bookName, this.shell.id);
     };
 
     return ContactDisplayShell;
