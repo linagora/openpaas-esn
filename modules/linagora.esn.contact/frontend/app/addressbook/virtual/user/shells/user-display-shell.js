@@ -10,6 +10,7 @@
       if (shell) {
         this.shell = shell;
         this.overlayIcon = { iconClasses: 'mdi-account' };
+        this.dropDownMenuDirective = 'virtual-user-menu-items';
         this.informationsToDisplay = [];
 
         if (this.shell.emails && this.shell.emails.length) {
