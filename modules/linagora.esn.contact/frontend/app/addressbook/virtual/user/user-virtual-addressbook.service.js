@@ -5,7 +5,7 @@
 
   function ContactUserVirtualAddressBook(ContactVirtualAddressBook, ContactUserShell, MemberPaginationProvider) {
     var provider;
-    var addressbook = new ContactVirtualAddressBook('openpaas-users', 'Users', loadNextItems);
+    var addressbook = new ContactVirtualAddressBook('inagora.esn.contact.virtual.users', 'Users', loadNextItems);
 
     function loadNextItems(options) {
       if (!provider) {

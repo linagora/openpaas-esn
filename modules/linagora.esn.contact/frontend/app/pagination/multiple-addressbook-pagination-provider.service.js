@@ -27,7 +27,7 @@
 
       this.id = options.id || DEFAULT_ADDRESSBOOK_AGGREGATOR_NAME;
       this.providers = this.addressbooks.map(function(addressbook) {
-        var PaginationProvider = addressbook.type && addressbook.type === CONTACT_ADDRESSBOOK_TYPES.VIRTUAL ? VirtualAddressBookPaginationProvider : AddressBookPaginationProvider;
+        var PaginationProvider = addressbook.type && addressbook.type === CONTACT_ADDRESSBOOK_TYPES.virtual ? VirtualAddressBookPaginationProvider : AddressBookPaginationProvider;
 
         return new PaginationProvider({addressbooks: [addressbook], user: self.options.user});
       });
