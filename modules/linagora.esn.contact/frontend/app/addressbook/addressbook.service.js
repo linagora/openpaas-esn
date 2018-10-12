@@ -14,6 +14,7 @@
     contactAddressbookParser,
     ContactAPIClient,
     contactAddressbookDisplayService,
+    VirtualAddressBookRegistry,
     CONTACT_ADDRESSBOOK_TYPES,
     CONTACT_SHARING_INVITE_STATUS,
     CONTACT_SHARING_SUBSCRIPTION_TYPE
@@ -40,6 +41,16 @@
     }
 
     function listAddressbooks() {
+      return $q.all([_listAddressbooks(), getVirtualAddressbooks()]).then(function(addressbooks) {
+        return Array.prototype.concat(addressbooks[0], addressbooks[1]);
+      });
+
+      function getVirtualAddressbooks() {
+        return VirtualAddressBookRegistry.list() || $q.when([]);
+      }
+    }
+
+    function _listAddressbooks() {
       return ContactAPIClient.addressbookHome(session.user._id).addressbook().list({
         personal: true,
         subscribed: true,
