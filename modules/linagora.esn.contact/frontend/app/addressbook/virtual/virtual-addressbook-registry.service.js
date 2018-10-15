@@ -18,7 +18,7 @@
     }
 
     function get(id) {
-      return addressbooks[id];
+      return $q.when(addressbooks[id]);
     }
 
     function list() {
