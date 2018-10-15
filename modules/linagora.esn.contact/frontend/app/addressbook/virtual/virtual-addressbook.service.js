@@ -38,12 +38,12 @@
     function get(id) {
       return VirtualAddressBookRegistry.get(id).then(function(addressbook) {
         if (!addressbook) {
-          throw new Error('No such virtual addressbook', id);
+          return $q.reject(new Error('No such virtual addressbook', id));
         }
 
         return VirtualAddressBookConfiguration.isEnabled(id).then(function(enabled) {
           if (!enabled) {
-            throw new Error(id + ' has been disabled');
+            return $q.reject(new Error(id + ' has been disabled'));
           }
 
           return addressbook;
