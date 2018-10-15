@@ -2,9 +2,9 @@
   'use strict';
 
   angular.module('linagora.esn.contact')
-    .factory('VirtualAddressBookRegistry', VirtualAddressBookRegistry);
+    .factory('ContactVirtualAddressBookRegistry', ContactVirtualAddressBookRegistry);
 
-  function VirtualAddressBookRegistry(_, $q) {
+  function ContactVirtualAddressBookRegistry(_, $q) {
     var addressbooks = {};
 
     return {
