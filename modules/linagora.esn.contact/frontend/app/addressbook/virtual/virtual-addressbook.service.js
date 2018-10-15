@@ -1,19 +1,54 @@
 (function(angular) {
   'use strict';
 
-  angular.module('linagora.esn.contact')
-    .factory('ContactVirtualAddressBook', ContactVirtualAddressBook);
+  angular.module('linagora.esn.contact').factory('VirtualAddressBookService', VirtualAddressBookService);
 
-  function ContactVirtualAddressBook(CONTACT_ADDRESSBOOK_TYPES) {
-    function ContactVirtualAddressBook(id, name, loadNextItems) {
-      this.id = id;
-      this.name = name;
-      this.bookName = id;
-      this.type = CONTACT_ADDRESSBOOK_TYPES.virtual;
-      this.description = 'Virtual addressbook';
-      this.loadNextItems = loadNextItems;
+  function VirtualAddressBookService($q, _, VirtualAddressBookRegistry, VirtualAddressBookConfiguration) {
+    return {
+      get: get,
+      list: list
+    };
+
+    /**
+     * Return enabled virtual addressbooks
+     */
+    function list() {
+      return VirtualAddressBookRegistry.list().then(function(addressbooks) {
+        return $q.all(addressbooks.map(function(addressbook) {
+          return VirtualAddressBookConfiguration.isEnabled(addressbook.id).then(function(enabled) {
+            addressbook.enabled = enabled;
+
+            return addressbook;
+          }).catch(function() {
+            addressbook.enabled = false;
+
+            return addressbook;
+          });
+        })).then(function(addressbooks) {
+          return _.filter(addressbooks, 'enabled');
+        });
+      });
     }
 
-    return ContactVirtualAddressBook;
+    /**
+     * Return addressbook if found enabled
+     *
+     * @param {String} id
+     */
+    function get(id) {
+      return VirtualAddressBookRegistry.get(id).then(function(addressbook) {
+        if (!addressbook) {
+          throw new Error('No such virtual addressbook', id);
+        }
+
+        return VirtualAddressBookConfiguration.isEnabled(id).then(function(enabled) {
+          if (!enabled) {
+            throw new Error(id + ' has been disabled');
+          }
+
+          return addressbook;
+        });
+      });
+    }
   }
 })(angular);
