@@ -14,7 +14,7 @@
     contactAddressbookParser,
     ContactAPIClient,
     contactAddressbookDisplayService,
-    VirtualAddressBookService,
+    ContactVirtualAddressBookService,
     CONTACT_ADDRESSBOOK_TYPES,
     CONTACT_SHARING_INVITE_STATUS,
     CONTACT_SHARING_SUBSCRIPTION_TYPE
@@ -37,7 +37,7 @@
     };
 
     function getAddressbookByBookName(bookName) {
-      return VirtualAddressBookService.get(bookName).then(function(addressbook) {
+      return ContactVirtualAddressBookService.get(bookName).then(function(addressbook) {
         if (addressbook) {
           return addressbook;
         }
@@ -47,7 +47,7 @@
     }
 
     function listAddressbooks() {
-      return $q.all([_listAddressbooks(), VirtualAddressBookService.list()]).then(function(addressbooks) {
+      return $q.all([_listAddressbooks(), ContactVirtualAddressBookService.list()]).then(function(addressbooks) {
         return Array.prototype.concat(addressbooks[0], addressbooks[1]);
       });
     }

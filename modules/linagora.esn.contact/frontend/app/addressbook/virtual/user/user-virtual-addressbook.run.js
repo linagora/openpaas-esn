@@ -2,8 +2,8 @@
   'use strict';
 
   angular.module('linagora.esn.contact')
-    .run(function(VirtualAddressBookRegistry, ContactUserVirtualAddressBook, DisplayShellProvider, ContactUserDisplayShell, ContactUserShellHelper, contactAddressbookDisplayShellRegistry, ContactUserVirtualAddressBookDisplayShell) {
-      VirtualAddressBookRegistry.put(ContactUserVirtualAddressBook);
+    .run(function(ContactVirtualAddressBookRegistry, ContactUserVirtualAddressBook, DisplayShellProvider, ContactUserDisplayShell, ContactUserShellHelper, contactAddressbookDisplayShellRegistry, ContactUserVirtualAddressBookDisplayShell) {
+      ContactVirtualAddressBookRegistry.put(ContactUserVirtualAddressBook);
       DisplayShellProvider.addDisplayShell(ContactUserDisplayShell, ContactUserShellHelper.isUser);
       contactAddressbookDisplayShellRegistry.add({
         id: 'linagora.esn.contact.virtual.users',

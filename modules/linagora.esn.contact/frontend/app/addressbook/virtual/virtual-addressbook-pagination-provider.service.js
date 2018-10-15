@@ -2,11 +2,11 @@
   'use strict';
 
   angular.module('linagora.esn.contact')
-    .factory('VirtualAddressBookPaginationProvider', VirtualAddressBookPaginationProvider);
+    .factory('ContactVirtualAddressBookPaginationProvider', ContactVirtualAddressBookPaginationProvider);
 
-  function VirtualAddressBookPaginationProvider($log) {
+  function ContactVirtualAddressBookPaginationProvider($log) {
 
-    function VirtualAddressBookPaginationProvider(options) {
+    function ContactVirtualAddressBookPaginationProvider(options) {
       this.options = options;
 
       if (!this.options.addressbooks || this.options.addressbooks.length === 0) {
@@ -18,7 +18,7 @@
       this.nextPage = 1;
     }
 
-    VirtualAddressBookPaginationProvider.prototype.loadNextItems = function() {
+    ContactVirtualAddressBookPaginationProvider.prototype.loadNextItems = function() {
       var self = this;
       var page = this.nextPage || 1;
 
@@ -38,6 +38,6 @@
       });
     };
 
-    return VirtualAddressBookPaginationProvider;
+    return ContactVirtualAddressBookPaginationProvider;
   }
 })(angular);
