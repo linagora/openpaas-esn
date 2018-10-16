@@ -1290,11 +1290,14 @@ describe('The Contacts controller module', function() {
       it('should show the contact page', function() {
         var addressbook = {bookId: '2', bookName: '3'};
         var contact = {id: '1', addressbook: addressbook};
+
         this.initController();
         this.scope.contact = contact;
-        ContactLocationHelper.contact.show = sinon.spy();
+        this.scope.displayShell = {
+          displayContact: sinon.spy()
+        };
         this.scope.displayContact();
-        expect(ContactLocationHelper.contact.show).to.have.been.calledWith(addressbook.bookId, addressbook.bookName, contact.id);
+        expect(this.scope.displayShell.displayContact).to.have.been.called;
       });
     });
 
