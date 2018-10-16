@@ -11,6 +11,7 @@
 
     function $onInit() {
       self.currentDate = new Date();
+      self.currentDate.setHours(18, 0, 0, 0);
 
       self.ESN_DATETIME_TIME_FORMATS = ESN_DATETIME_TIME_FORMATS;
     }
