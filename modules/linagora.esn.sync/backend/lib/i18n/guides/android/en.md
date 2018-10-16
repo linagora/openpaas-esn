@@ -110,4 +110,4 @@ By default, Android devices do not natively support the CalDAV and CardDAV proto
 
 7. You may tap on the *gear icon* to adjust synchronization settings.
 
-[DAVdroid apk]: https://f-droid.org/repo/at.bitfire.davdroid_231.apk
+[DAVdroid apk]: https://f-droid.org/repo/at.bitfire.davdroid_245.apk

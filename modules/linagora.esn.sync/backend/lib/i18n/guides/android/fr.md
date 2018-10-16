@@ -119,4 +119,4 @@ Les appareils Android ne gèrent pas nativement les protocoles CalDAV et CardDAV
 
 7. Il est possible d'ajuster les paramètres de synchronisation en naviguant dans le menu propriété symbolisé par l'icône engrenage.
 
-[DAVdroid apk]: https://f-droid.org/FDroid.apk
+[DAVdroid apk]: https://f-droid.org/repo/at.bitfire.davdroid_245.apk
