@@ -38,7 +38,7 @@
     function get(id) {
       return ContactVirtualAddressBookRegistry.get(id).then(function(addressbook) {
         if (!addressbook) {
-          return $q.reject(new Error('No such virtual addressbook', id));
+          return;
         }
 
         return ContactVirtualAddressBookConfiguration.isEnabled(id).then(function(enabled) {

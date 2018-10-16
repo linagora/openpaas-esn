@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('The ContactVirtualAddressBookService service', function() {
-  var $rootScope, $q, ContactVirtualAddressBookService, VirtualAddressBookConfiguration, ContactVirtualAddressBookRegistry, esnConfig;
+  var $rootScope, $q, ContactVirtualAddressBookService, ContactVirtualAddressBookConfiguration, ContactVirtualAddressBookRegistry, esnConfig;
 
   beforeEach(function() {
     esnConfig = sinon.stub();
@@ -13,21 +13,21 @@ describe('The ContactVirtualAddressBookService service', function() {
       get: sinon.stub(),
       list: sinon.stub()
     };
-    VirtualAddressBookConfiguration = {
+    ContactVirtualAddressBookConfiguration = {
       isEnabled: sinon.stub()
     };
 
     module('linagora.esn.contact', function($provide) {
       $provide.value('esnConfig', esnConfig);
       $provide.value('ContactVirtualAddressBookRegistry', ContactVirtualAddressBookRegistry);
-      $provide.value('VirtualAddressBookConfiguration', VirtualAddressBookConfiguration);
+      $provide.value('ContactVirtualAddressBookConfiguration', ContactVirtualAddressBookConfiguration);
     });
   });
 
-  beforeEach(inject(function(_$rootScope_, _$q_, _VirtualAddressBookService_) {
+  beforeEach(inject(function(_$rootScope_, _$q_, _ContactVirtualAddressBookService_) {
     $rootScope = _$rootScope_;
     $q = _$q_;
-    ContactVirtualAddressBookService = _VirtualAddressBookService_;
+    ContactVirtualAddressBookService = _ContactVirtualAddressBookService_;
   }));
 
   describe('The list function', function() {
@@ -45,9 +45,9 @@ describe('The ContactVirtualAddressBookService service', function() {
       ];
 
       ContactVirtualAddressBookRegistry.list.returns($q.when(addressbooks));
-      VirtualAddressBookConfiguration.isEnabled.withArgs(1).returns($q.when(true));
-      VirtualAddressBookConfiguration.isEnabled.withArgs(2).returns($q.when(false));
-      VirtualAddressBookConfiguration.isEnabled.withArgs(3).returns($q.when(true));
+      ContactVirtualAddressBookConfiguration.isEnabled.withArgs(1).returns($q.when(true));
+      ContactVirtualAddressBookConfiguration.isEnabled.withArgs(2).returns($q.when(false));
+      ContactVirtualAddressBookConfiguration.isEnabled.withArgs(3).returns($q.when(true));
 
       ContactVirtualAddressBookService.list().then(function(result) {
         expect(result.length).to.eq(2);
@@ -72,9 +72,9 @@ describe('The ContactVirtualAddressBookService service', function() {
       ];
 
       ContactVirtualAddressBookRegistry.list.returns($q.when(addressbooks));
-      VirtualAddressBookConfiguration.isEnabled.withArgs(1).returns($q.reject(new Error()));
-      VirtualAddressBookConfiguration.isEnabled.withArgs(2).returns($q.when(false));
-      VirtualAddressBookConfiguration.isEnabled.withArgs(3).returns($q.when(true));
+      ContactVirtualAddressBookConfiguration.isEnabled.withArgs(1).returns($q.reject(new Error()));
+      ContactVirtualAddressBookConfiguration.isEnabled.withArgs(2).returns($q.when(false));
+      ContactVirtualAddressBookConfiguration.isEnabled.withArgs(3).returns($q.when(true));
 
       ContactVirtualAddressBookService.list().then(function(result) {
         expect(result.length).to.eq(1);
@@ -106,11 +106,11 @@ describe('The ContactVirtualAddressBookService service', function() {
       var addressbook = { id: 1 };
 
       ContactVirtualAddressBookRegistry.get.returns($q.when(addressbook));
-      VirtualAddressBookConfiguration.isEnabled.returns($q.when(false));
+      ContactVirtualAddressBookConfiguration.isEnabled.returns($q.when(false));
 
       ContactVirtualAddressBookService.get(addressbook.id).then(done).catch(function(error) {
         expect(ContactVirtualAddressBookRegistry.get).to.have.been.calledWith(addressbook.id);
-        expect(VirtualAddressBookConfiguration.isEnabled).to.have.been.calledWith(addressbook.id);
+        expect(ContactVirtualAddressBookConfiguration.isEnabled).to.have.been.calledWith(addressbook.id);
         expect(error.message).to.match(/has been disabled/);
 
         done();
@@ -123,11 +123,11 @@ describe('The ContactVirtualAddressBookService service', function() {
       var addressbook = { id: 1 };
 
       ContactVirtualAddressBookRegistry.get.returns($q.when(addressbook));
-      VirtualAddressBookConfiguration.isEnabled.returns($q.when(true));
+      ContactVirtualAddressBookConfiguration.isEnabled.returns($q.when(true));
 
       ContactVirtualAddressBookService.get(addressbook.id).then(function(result) {
         expect(ContactVirtualAddressBookRegistry.get).to.have.been.calledWith(addressbook.id);
-        expect(VirtualAddressBookConfiguration.isEnabled).to.have.been.calledWith(addressbook.id);
+        expect(ContactVirtualAddressBookConfiguration.isEnabled).to.have.been.calledWith(addressbook.id);
         expect(result).to.equal(addressbook);
 
         done();
