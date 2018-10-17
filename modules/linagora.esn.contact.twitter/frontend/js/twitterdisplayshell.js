@@ -19,6 +19,7 @@ angular.module('linagora.esn.contact.twitter')
             action: 'https://twitter.com/' + this.shell.social[0].value
           });
         }
+        this.addressbook = this.shell.addressbook;
       }
     };
 

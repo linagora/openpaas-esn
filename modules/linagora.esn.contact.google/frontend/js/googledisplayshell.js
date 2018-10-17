@@ -28,6 +28,7 @@ angular.module('linagora.esn.contact.google')
             action: 'tel:' + tel
           });
         }
+        this.addressbook = this.shell.addressbook;
       }
     };
 
