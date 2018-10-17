@@ -47,6 +47,10 @@
       $state.go('profile', { user_id: this.shell.id });
     };
 
+    UserDisplayShell.prototype.getDisplayName = function() {
+      return this.shell.displayName;
+    };
+
     return UserDisplayShell;
   }
 })(angular);
