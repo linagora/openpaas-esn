@@ -7,7 +7,6 @@ module.exports = function() {
     'application-menu:invitation': false,
     'control-center:appstore': false,
     'control-center:password': true,
-    'control-center:members': false,
     'control-center:invitation': false,
     'header:user-notification': true
   };

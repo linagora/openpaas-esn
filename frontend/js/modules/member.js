@@ -14,9 +14,6 @@ angular.module('esn.member', ['esn.session', 'esn.router', 'esn.domain', 'esn.se
         {
           displayIn: 'Application Menu',
           name: 'application-menu:members'
-        }, {
-          displayIn: 'Control Center',
-          name: 'control-center:members'
         }
       ],
       description: 'Show a list of existing members in current domain'
@@ -24,10 +21,8 @@ angular.module('esn.member', ['esn.session', 'esn.router', 'esn.domain', 'esn.se
   })
   .config(function(dynamicDirectiveServiceProvider) {
     var memberAppMenu = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-member', {priority: 15});
-    dynamicDirectiveServiceProvider.addInjection('esn-application-menu', memberAppMenu);
 
-    var memberControlCenterMenu = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'controlcenter-menu-member', {priority: -6});
-    dynamicDirectiveServiceProvider.addInjection('controlcenter-sidebar-menu', memberControlCenterMenu);
+    dynamicDirectiveServiceProvider.addInjection('esn-application-menu', memberAppMenu);
   })
   .constant('memberSearchConfiguration', {
     searchLimit: 20
@@ -118,15 +113,6 @@ angular.module('esn.member', ['esn.session', 'esn.router', 'esn.domain', 'esn.se
       retrict: 'E',
       replace: true,
       template: applicationMenuTemplateBuilder('/#/controlcenter/domains/{{::domain._id}}/members', 'members', 'Members', 'core.features.application-menu:members'),
-      link: function(scope) {
-        scope.domain = session.domain;
-      }
-    };
-  })
-  .directive('controlcenterMenuMember', function(session, controlCenterMenuTemplateBuilder) {
-    return {
-      restrict: 'E',
-      template: controlCenterMenuTemplateBuilder('controlcenter.domainMembers({ domain_id: domain._id })', 'mdi-account-multiple-outline', 'Members', 'core.features.control-center:members'),
       link: function(scope) {
         scope.domain = session.domain;
       }
