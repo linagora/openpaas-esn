@@ -9,7 +9,7 @@
         enabled: 'linagora.esn.contact.features.isVirtualUserAddressbookEnabled'
       }
     };
-    var addressbook = new ContactVirtualAddressBook('linagora.esn.contact.virtual.users', 'Users', loadNextItems, options);
+    var addressbook = new ContactVirtualAddressBook('linagora.esn.contact.virtual.users', 'All members', loadNextItems, options);
 
     function loadNextItems(options) {
       return ContactVirtualUsersLoaderService.list(options).then(function(result) {
