@@ -10,7 +10,6 @@
     };
 
     function isUser(shell) {
-      // TODO: The test is not good, it must be virtual + have the good id
       return shell && shell.addressbook && shell.addressbook.type === CONTACT_ADDRESSBOOK_TYPES.virtual;
     }
 

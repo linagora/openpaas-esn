@@ -125,5 +125,6 @@
   "Create a new contact with the same information as the selected contact.": "Tạo liên lạc mới với cùng thông tin như liên lạc đã chọn.",
   "CardDAV URL": "CardDAV URL",
   "Sharing Addressbook": "Chia sẻ danh bạ",
-  "Show domain members as an addressbook": "Hiển thị thành viên miền dưới dạng sổ địa chỉ"
+  "Show domain members as an addressbook": "Hiển thị thành viên miền dưới dạng sổ địa chỉ",
+  "Directory": "Danh mục"
 }
