@@ -18,7 +18,6 @@ describe('The core/esn-config/metadata/features module', () => {
         'application-menu:invitation': false,
         'application-menu:appstore': false,
         'control-center:invitation': false,
-        'application-menu:members': false,
         'header:user-notification': false,
         'header:fullscreen': false,
         'control-center:password': false,
@@ -55,12 +54,6 @@ describe('The core/esn-config/metadata/features module', () => {
       config['control-center:password'] = {};
 
       expect(validator(config)).to.equal('[\'control-center:password\']: should be boolean');
-    });
-
-    it('should return error message when application-menu:members property is not boolean', () => {
-      config['application-menu:members'] = {};
-
-      expect(validator(config)).to.equal('[\'application-menu:members\']: should be boolean');
     });
 
     it('should return error message when application-menu:invitation property is not boolean', () => {
