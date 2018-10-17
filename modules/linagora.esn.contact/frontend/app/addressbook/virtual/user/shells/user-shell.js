@@ -3,12 +3,13 @@
 
   angular.module('linagora.esn.contact').factory('ContactUserShell', ContactUserShell);
 
-  function ContactUserShell() {
+  function ContactUserShell(userUtils) {
 
     function Shell(user, addressbook) {
       this.id = user.id;
       this.firstName = user.firstname || '';
       this.lastName = user.lastname || '';
+      this.displayName = userUtils.displayNameOf(user);
       this.addressbook = addressbook;
       this.org = '';
       this.orgName = '';
