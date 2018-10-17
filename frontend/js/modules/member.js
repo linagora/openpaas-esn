@@ -1,28 +1,12 @@
 'use strict';
 
 angular.module('esn.member', ['esn.session', 'esn.router', 'esn.domain', 'esn.search', 'esn.infinite-list', 'openpaas-logo', 'esn.provider', 'esn.header', 'esn.feature-registry', 'esn.configuration'])
-  .run(function(searchProviders, memberSearchProvider, esnFeatureRegistry, esnConfig) {
+  .run(function(searchProviders, memberSearchProvider, esnConfig) {
     esnConfig('core.membersCanBeSearched', true).then(function(membersCanBeSearched) {
       if (membersCanBeSearched) {
         searchProviders.add(memberSearchProvider);
       }
     });
-
-    esnFeatureRegistry.add({
-      name: 'Members',
-      configurations: [
-        {
-          displayIn: 'Application Menu',
-          name: 'application-menu:members'
-        }
-      ],
-      description: 'Show a list of existing members in current domain'
-    });
-  })
-  .config(function(dynamicDirectiveServiceProvider) {
-    var memberAppMenu = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-member', {priority: 15});
-
-    dynamicDirectiveServiceProvider.addInjection('esn-application-menu', memberAppMenu);
   })
   .constant('memberSearchConfiguration', {
     searchLimit: 20
@@ -105,16 +89,6 @@ angular.module('esn.member', ['esn.session', 'esn.router', 'esn.domain', 'esn.se
       if ($scope.members.length === 0 || $scope.members.length < $scope.search.count) {
         opts.offset = $scope.members.length;
         updateMembersList();
-      }
-    };
-  })
-  .directive('applicationMenuMember', function(session, applicationMenuTemplateBuilder) {
-    return {
-      retrict: 'E',
-      replace: true,
-      template: applicationMenuTemplateBuilder('/#/controlcenter/domains/{{::domain._id}}/members', 'members', 'Members', 'core.features.application-menu:members'),
-      link: function(scope) {
-        scope.domain = session.domain;
       }
     };
   })
