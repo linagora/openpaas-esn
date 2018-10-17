@@ -14,10 +14,7 @@
       this.org = '';
       this.orgName = '';
       this.orgRole = '';
-
-      this.emails = user.emails.map(function(email) {
-        return { type: 'Work', value: email };
-      });
+      this.emails = [{ type: 'Work', value: user.preferredEmail }];
 
       if (user.main_phone) {
         this.tel = [{ type: 'Work', value: user.main_phone }];
