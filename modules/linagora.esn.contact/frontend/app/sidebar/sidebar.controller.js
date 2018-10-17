@@ -132,6 +132,7 @@
 
       self.userAddressbooks = categories.userAddressbooks;
       self.sharedAddressbooks = categories.sharedAddressbooks;
+      self.virtualAddressbooks = categories.virtualAddressbooks;
     }
   }
 })(angular);
