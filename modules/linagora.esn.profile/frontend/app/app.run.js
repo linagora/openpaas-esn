@@ -6,7 +6,7 @@
     .run(function(dynamicDirectiveService, DynamicDirective) {
       var directive = new DynamicDirective(true, 'profile-menu-profile');
 
-      dynamicDirectiveService.addInjection('profile-menu-link', directive);
+      dynamicDirectiveService.addInjection('profile-menu-profile', directive);
     });
 
 })(angular);
