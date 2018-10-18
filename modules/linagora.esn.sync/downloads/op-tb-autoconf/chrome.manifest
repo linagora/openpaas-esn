@@ -1,7 +1,0 @@
-content   op-tb-autoconf                 chrome/content/
-locale    op-tb-autoconf   en-US         chrome/locale/en-US/
-locale    op-tb-autoconf   fr-FR         chrome/locale/fr-FR/
-
-overlay	chrome://messenger/content/messenger.xul	chrome://op-tb-autoconf/content/overlays/thunderbird/thunderbird-overlay.xul
-
-resource op-tb-autoconf .
