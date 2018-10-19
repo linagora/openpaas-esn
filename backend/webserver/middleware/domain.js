@@ -68,7 +68,7 @@ function loadDomainByHostname(req, res, next) {
  */
 function load(req, res, next) {
   if (!dbHelper.isValidObjectId(req.params.uuid)) {
-    return res.status(400).json({ error: { code: 400, message: 'Bad request', details: 'domainID is not a valid ObjectId' }});
+    return res.status(400).json({ error: { code: 400, message: 'Bad request', details: 'Invalid domain id' }});
   }
 
   Domain.loadFromID(req.params.uuid, function(err, domain) {
@@ -92,7 +92,7 @@ function loadFromDomainIdParameter(req, res, next) {
   }
 
   if (!dbHelper.isValidObjectId(id)) {
-    return res.status(400).json({ error: { code: 400, message: 'Bad Request', details: 'domainID is not a valid ObjectId' }});
+    return res.status(400).json({ error: { code: 400, message: 'Bad Request', details: 'Invalid domain_id parameter' }});
   }
 
   loadDomain(id)(req, res, next);
