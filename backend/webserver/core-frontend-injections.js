@@ -269,7 +269,20 @@ const injections = [
     'timeline/controlcenter/timeline-controlcenter-menu.directive.js',
     'timeline/controlcenter/timeline-controlcenter.config.js'
   ], innerApps: ['esn']},
-  {angular: 'esn.follow', files: ['follow.js'], innerApps: ['esn']},
+  {angular: 'esn.follow', files: [
+    'follow/follow.module.js',
+    'follow/follow.run.js',
+    'follow/follow.constants.js',
+    'follow/follow-api-client.service.js',
+    'follow/button/follow-button.directive.js',
+    'follow/card/follow-card.directive.js',
+    'follow/list/follow-list.directive.js',
+    'follow/list/follower-list.controller.js',
+    'follow/list/following-list.controller.js',
+    'follow/pagination/follow-pagination-helper.service.js',
+    'follow/pagination/follow-pagination-provider.service.js',
+    'follow/pagination/follow-scroll-builder.service.js'
+  ], innerApps: ['esn']},
   {angular: 'esn.escape-html', files: ['escape-html.js'], innerApps: ['esn', 'welcome']},
   {angular: 'esn.dropdownList', files: ['dropdown-list.js'], innerApps: ['esn']},
   {angular: 'esn.async-action', files: ['async-action.js'], innerApps: ['esn']},
