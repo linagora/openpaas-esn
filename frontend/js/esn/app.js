@@ -45,12 +45,6 @@ angular.module('esnApp', [
   .state('home', {
     url: '/'
   })
-  .state('controlcenter.domainInviteMembers', {
-    url: '/domains/:id/members/invite',
-    templateUrl: '/views/esn/partials/domains/invite',
-    controller: 'inviteMembers',
-    resolve: { domain: routeResolver.api('domainAPI') }
-  })
   .state('/messages/:id/activitystreams/:asuuid', {
     url: '/messages/:id/activitystreams/:asuuid',
     templateUrl: '/views/esn/partials/message',

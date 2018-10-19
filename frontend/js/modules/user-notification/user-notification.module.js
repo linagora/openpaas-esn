@@ -3,6 +3,7 @@
 
   angular.module('esn.user-notification', [
     'esn.core',
+    'esn.feature-registry',
     'esn.http',
     'esn.media.query',
     'esn.object-type',
