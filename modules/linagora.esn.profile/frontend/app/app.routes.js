@@ -61,8 +61,7 @@
           url: '/followers',
           views: {
             'details@profile.details': {
-              template: '<follow-list></follow-list>',
-              controller: 'followerListController'
+              template: '<follower-list></follower-list>'
             }
           }
         })
@@ -70,8 +69,7 @@
           url: '/followings',
           views: {
             'details@profile.details': {
-              template: '<follow-list></follow-list>',
-              controller: 'followingListController'
+              template: '<following-list></following-list>'
             }
           }
         })
