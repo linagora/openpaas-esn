@@ -4,74 +4,69 @@
 
 var expect = chai.expect;
 
-describe('The attachmentsSelectorController controller', function() {
+describe('The esnAttachmentsSelectorService\'s AttachmentServiceHolder', function() {
 
-  var $rootScope, $componentController, ctrl;
+  var $rootScope, esnAttachmentsSelectorService, target;
 
   beforeEach(function() {
     module('esn.attachments-selector');
 
-    inject(function(_$rootScope_, _$componentController_) {
-    $rootScope = _$rootScope_;
-    $componentController = _$componentController_;
+    inject(function(_$rootScope_, _esnAttachmentsSelectorService_) {
+      $rootScope = _$rootScope_;
+      esnAttachmentsSelectorService = _esnAttachmentsSelectorService_;
     });
   });
 
   beforeEach(function() {
-    ctrl = $componentController('esnAttachmentsSelector', {}, {
+    target = esnAttachmentsSelectorService.newAttachmentServiceHolder({
       attachments: [],
       onAttachmentsUpdate: sinon.spy(),
-      uploadAttachments: sinon.spy(function(attachments) {
-        return $q.when(attachments.$files);
-      })
+      uploadAttachments: sinon.spy($q.when)
     });
   });
 
   describe('The onAttachmentsSelect function', function() {
 
     it('should do nothing if no files are given', function() {
-      ctrl.onAttachmentsSelect();
+      target.onAttachmentsSelect();
       $rootScope.$digest();
 
-      expect(ctrl.attachments).to.deep.equal([]);
+      expect(target.attachments).to.deep.equal([]);
     });
 
     it('should do nothing if files is zerolength', function() {
-      ctrl.onAttachmentsSelect([]);
+      target.onAttachmentsSelect([]);
       $rootScope.$digest();
 
-      expect(ctrl.attachments).to.deep.equal([]);
+      expect(target.attachments).to.deep.equal([]);
     });
 
     it('should add the attachment', function() {
-      ctrl.onAttachmentsSelect([{
+      target.onAttachmentsSelect([{
         name: 'name'
       }]);
       $rootScope.$digest();
 
-      expect(ctrl.attachments).to.deep.equal([{
+      expect(target.attachments).to.deep.equal([{
         name: 'name'
       }]);
     });
 
     it('should update attachment', function() {
-      ctrl.onAttachmentsSelect([{
+      target.onAttachmentsSelect([{
         name: 'name'
       }]);
       $rootScope.$digest();
 
-      expect(ctrl.onAttachmentsUpdate).to.have.been.calledWith(sinon.match({
-        $attachments: [
-          sinon.match({ name: 'name' })
-        ]
-      }));
+      expect(target.onAttachmentsUpdate).to.have.been
+        .calledWith(sinon.match([sinon.match({ name: 'name' })]));
     });
   });
 
   describe('the getAttachmentsStatus function', function() {
 
     it('should return a value with number=0 when there is no attachments', function() {
-      expect(ctrl.getAttachmentsStatus()).to.deep.equal({
+      expect(target.getAttachmentsStatus()).to.deep.equal({
         number: 0,
         uploading: false,
         error: false
@@ -79,11 +74,11 @@ describe('The attachmentsSelectorController controller', function() {
     });
 
     it('should consider currently uploading attachments for uploading=true flag', function() {
-      ctrl.attachments.push({
+      target.attachments.push({
         status: 'uploading'
       });
 
-      expect(ctrl.getAttachmentsStatus()).to.deep.equal({
+      expect(target.getAttachmentsStatus()).to.deep.equal({
         number: 1,
         uploading: true,
         error: false
@@ -91,11 +86,11 @@ describe('The attachmentsSelectorController controller', function() {
     });
 
     it('should consider failed uploads for error=true flag', function() {
-      ctrl.attachments.push({
+      target.attachments.push({
         status: 'error'
       });
 
-      expect(ctrl.getAttachmentsStatus()).to.deep.equal({
+      expect(target.getAttachmentsStatus()).to.deep.equal({
         number: 1,
         uploading: false,
         error: true
@@ -105,14 +100,14 @@ describe('The attachmentsSelectorController controller', function() {
     describe('with a filter defined', function() {
 
       beforeEach(function() {
-        ctrl.attachmentFilter = { isInline: true };
+        target.attachmentFilter = { isInline: true };
       });
 
       it('should consider only attachments related to given filter', function() {
-        ctrl.attachments.push({ isInline: true });
-        ctrl.attachments.push({ iLovePotato: false });
+        target.attachments.push({ isInline: true });
+        target.attachments.push({ iLovePotato: false });
 
-        expect(ctrl.getAttachmentsStatus()).to.deep.equal({
+        expect(target.getAttachmentsStatus()).to.deep.equal({
           number: 1,
           uploading: false,
           error: false
@@ -123,14 +118,14 @@ describe('The attachmentsSelectorController controller', function() {
     describe('with a type defined', function() {
 
       beforeEach(function() {
-        ctrl.attachmentType = 'jmap';
+        target.attachmentType = 'jmap';
       });
 
       it('should consider only given type attachments', function() {
-        ctrl.attachments.push({ attachmentType: 'jmap' });
-        ctrl.attachments.push({ attachmentType: 'linshare' });
+        target.attachments.push({ attachmentType: 'jmap' });
+        target.attachments.push({ attachmentType: 'linshare' });
 
-        expect(ctrl.getAttachmentsStatus()).to.deep.equal({
+        expect(target.getAttachmentsStatus()).to.deep.equal({
           number: 1,
           uploading: false,
           error: false

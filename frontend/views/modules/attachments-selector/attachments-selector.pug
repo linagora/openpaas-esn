@@ -1,13 +1,13 @@
 .esn-attachments-selector
   button.btn.btn-link.btn-icon(
     type="button",
-    ng-file-select="$ctrl.onAttachmentsSelect($files)",
+    ng-file-select="$ctrl.attachmentHolder.onAttachmentsSelect($files)",
     data-multiple="true",
-    ng-class="{ 'btn-with-badge': $ctrl.getAttachmentsStatus().number > 0 }"
+    ng-class="{ 'btn-with-badge': $ctrl.attachmentHolder.getAttachmentsStatus().number > 0 }"
   )
     .badge-container
       .badge.composer-badge(
-        ng-hide='$ctrl.getAttachmentsStatus().number === 0',
-        ng-class="{ error: $ctrl.getAttachmentsStatus().error }"
-      ) {{ $ctrl.getAttachmentsStatus().number | maxPlus:99 }}
-      i.mdi.mdi-paperclip(ng-class="{ uploading: $ctrl.getAttachmentsStatus().uploading }")
+        ng-hide='$ctrl.attachmentHolder.getAttachmentsStatus().number === 0',
+        ng-class="{ error: $ctrl.attachmentHolder.getAttachmentsStatus().error }"
+      ) {{ $ctrl.attachmentHolder.getAttachmentsStatus().number | maxPlus:99 }}
+      i.mdi.mdi-paperclip(ng-class="{ uploading: $ctrl.attachmentHolder.getAttachmentsStatus().uploading }")
