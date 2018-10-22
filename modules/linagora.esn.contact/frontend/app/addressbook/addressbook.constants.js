@@ -12,7 +12,8 @@
     .constant('CONTACT_ADDRESSBOOK_TYPES', {
       user: 'user',
       subscription: 'subscription',
-      virtual: 'virtual'
+      virtual: 'virtual',
+      group: 'group'
     })
     .constant('CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL', '{DAV:}authenticated')
     .constant('CONTACT_ADDRESSBOOK_PUBLIC_RIGHT', {
