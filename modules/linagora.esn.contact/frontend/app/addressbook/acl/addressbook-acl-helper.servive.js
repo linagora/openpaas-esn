@@ -121,7 +121,7 @@
       userId = userId || session.user._id;
 
       return acl.map(function(ace) {
-        if (contactAddressbookParser.getUserIdFromPrincipalPath(ace.principal) === userId) {
+        if (contactAddressbookParser.parsePrincipalPath(ace.principal).id === userId) {
           return ace.privilege;
         }
       }).filter(Boolean);

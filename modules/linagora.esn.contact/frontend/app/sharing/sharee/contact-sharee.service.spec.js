@@ -124,7 +124,7 @@ describe('The ContactSharee service', function() {
 
   describe('The fromSharee function', function() {
     it('should create a ContactSharree object from sharee information', function() {
-      contactAddressbookParser.getUserIdFromPrincipalPath = sinon.stub().returns('58e66c5bd69a39451f57c819');
+      contactAddressbookParser.parsePrincipalPath = sinon.stub().returns({ id: '58e66c5bd69a39451f57c819' });
       var shareeInfo = {
         href: 'mailto:user1@example.com',
         access: 3,
@@ -137,7 +137,7 @@ describe('The ContactSharee service', function() {
       expect(sharee.access).to.equal(shareeInfo.access);
       expect(sharee.inviteStatus).to.equal(shareeInfo.inviteStatus);
       expect(sharee.userId).to.equal('58e66c5bd69a39451f57c819');
-      expect(contactAddressbookParser.getUserIdFromPrincipalPath).to.have.been.calledWith(shareeInfo.principal);
+      expect(contactAddressbookParser.parsePrincipalPath).to.have.been.calledWith(shareeInfo.principal);
     });
   });
 

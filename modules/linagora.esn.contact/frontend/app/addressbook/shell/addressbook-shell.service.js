@@ -39,6 +39,10 @@
         });
       }
 
+      if (json['dav:group']) {
+        this.group = contactAddressbookParser.parsePrincipalPath(json['dav:group']);
+      }
+
       this.canEditAddressbook = contactAddressbookACLHelper.canEditAddressbook(this);
       this.canDeleteAddressbook = contactAddressbookACLHelper.canDeleteAddressbook(this);
       this.canShareAddressbook = contactAddressbookACLHelper.canShareAddressbook(this);

@@ -125,6 +125,17 @@ describe('The Contact Angular module AddressbookShell', function() {
         }]);
       });
 
+      it('should build group from dav:group', function() {
+        jsonInput['dav:group'] = 'principals/domains/domainId';
+
+        var shell = new AddressbookShell(jsonInput);
+
+        expect(shell.group).to.deep.equal({
+          type: 'domains',
+          id: 'domainId'
+        });
+      });
+
       describe('The subscription AB', function() {
         it('should mark as subscription if there is openpaas:source field', function() {
           jsonInput['openpaas:source'] = angular.copy(jsonInput);

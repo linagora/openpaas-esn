@@ -61,7 +61,7 @@
         href: shareeInfo.href,
         access: shareeInfo.access,
         inviteStatus: shareeInfo.inviteStatus,
-        userId: contactAddressbookParser.getUserIdFromPrincipalPath(shareeInfo.principal)
+        userId: contactAddressbookParser.parsePrincipalPath(shareeInfo.principal).id
       });
     };
 

@@ -37,13 +37,15 @@
       updateAddressbookPublicRight: updateAddressbookPublicRight
     };
 
-    function getAddressbookByBookName(bookName) {
+    function getAddressbookByBookName(bookName, group) {
       return ContactVirtualAddressBookService.get(bookName).then(function(addressbook) {
         if (addressbook) {
           return addressbook;
         }
 
-        return ContactAPIClient.addressbookHome(session.user._id).addressbook(bookName).get();
+        var bookId = group && group.id ? group.id : session.user._id;
+
+        return ContactAPIClient.addressbookHome(bookId).addressbook(bookName).get();
       });
     }
 

@@ -144,6 +144,33 @@ describe('The contactAddressbookService service', function() {
       $rootScope.$digest();
     });
 
+    it('should call contactAPIClient to get group addressbook with given bookName', function(done) {
+      var bookName = 'bookName';
+      var group = { id: 'groupId' };
+      var getSpy = sinon.spy();
+
+      ContactAPIClient.addressbookHome = function(bookId) {
+        expect(bookId).to.equal(group.id);
+
+        return {
+          addressbook: function(name) {
+            expect(name).to.equal(bookName);
+
+            return {
+              get: getSpy
+            };
+          }
+        };
+      };
+
+      contactAddressbookService.getAddressbookByBookName(bookName, group).then(function() {
+        expect(getSpy).to.have.been.called;
+        done();
+      }).catch(done);
+
+      $rootScope.$digest();
+    });
+
     it('should call contactAPIClient to get an addressbook with given bookName', function(done) {
       var getSpy = sinon.spy();
 
