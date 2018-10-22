@@ -1,0 +1,9 @@
+.follow.col-xs-12.col-md-10.nopadding
+  .listview.lv-bordered
+    infinite-list.lv-body(load-more-elements='loadNext()')
+      .lv-item.media(ng-repeat="user in users")
+        member-display(member="user")
+      .list-empty(ng-if="!users.length && infiniteScrollCompleted")
+        i.mdi.mdi-account-multiple
+        .message(ng-if="isCurrentUser") #{__("You do not follow anyone")}
+        .message(ng-if="!isCurrentUser") #{__("%s does not follow anyone", "{{::userDisplayName}}")}

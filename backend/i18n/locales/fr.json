@@ -372,6 +372,10 @@
   "You started to follow": "Vous avez commencé à suivre",
   "unfollowed you": "ne vous suit plus",
   "You unfollowed": "Vous avez arrêté de suivre",
+  "No one is following you": "Personne ne vous suit",
+  "%s does not have any followers": "%s n'a pas d'abonnés",
+  "You do not follow anyone": "Vous ne suivez personne",
+  "%s does not follow anyone": "%s ne suit personne",
   "The two passwords do not match": "Les deux mots de passe ne correspondent pas",
   "Confirm": "Confirmer",
   "Post": "Envoyer",
@@ -481,5 +485,7 @@
   "Time zone": "Fuseau horaire",
   "Time zone will be used for users whose time zone is not set": "Le fuseau horaire sera utilisé pour les utilisateurs dont le fuseau horaire n'est pas configuré",
   "This language will be used for all domain users if we can not detect their preferred language": "Ce langage sera utilisé pour tous les utilisateurs du domaine si nous ne pouvons pas détecter leur langage préféré",
-  "No activity": "Pas d'activité"
+  "No activity": "Pas d'activité",
+  "List view": "Mode liste",
+  "Grid view": "Mode grille"
 }

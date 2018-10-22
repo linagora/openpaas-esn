@@ -43,25 +43,31 @@ describe('The contactListToggle directive', function() {
   it('should highlight list text list at start', function() {
     element = initDirective();
     $scope.$digest();
-    expect(element.find('.list-item')).to.have.class('toggle-active');
-    expect(element.find('.card-item')).to.not.have.class('toggle-active');
+    expect(element.find('.list-item')).to.have.length(1);
+    expect(element.find('.card-item')).to.have.length(0);
   });
 
   it('should highlight card text when clicking on toggle button', function() {
     element = initDirective();
     $scope.$digest();
-    element.find('.ts-helper').click();
-    expect(element.find('.list-item')).to.not.have.class('toggle-active');
-    expect(element.find('.card-item')).to.have.class('toggle-active');
+    element.find('.list-item').click();
+    ContactListToggleEventService.broadcast(CONTACT_LIST_DISPLAY.cards);
+    $scope.$digest();
+
+    expect(element.find('.list-item')).to.have.length(0);
+    expect(element.find('.card-item')).to.have.length(1);
   });
 
   it('should switch back to initial state when clicking on toggle 2 times', function() {
     element = initDirective();
     $scope.$digest();
-    element.find('.ts-helper').click();
-    element.find('.ts-helper').click();
-    expect(element.find('.list-item')).to.have.class('toggle-active');
-    expect(element.find('.card-item')).to.not.have.class('toggle-active');
+    element.find('.list-item').click();
+    element.find('.card-item').click();
+    ContactListToggleEventService.broadcast(CONTACT_LIST_DISPLAY.list);
+    $scope.$digest();
+
+    expect(element.find('.list-item')).to.have.length(1);
+    expect(element.find('.card-item')).to.have.length(0);
   });
 
   it('should have toggleContactDisplay to false when current display is CONTACT_LIST_DISPLAY.list', function() {

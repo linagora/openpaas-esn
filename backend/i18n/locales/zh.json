@@ -372,6 +372,10 @@
   "You started to follow": "您开始关注",
   "unfollowed you": "取消关注您",
   "You unfollowed": "您取消关注",
+  "No one is following you": "没有人关注你",
+  "%s does not have any followers": "％s没有任何关注者",
+  "You do not follow anyone": "你不跟随任何人",
+  "%s does not follow anyone": "％s不跟随任何人",
   "The two passwords do not match": "密码不匹配",
   "Confirm": "确认",
   "Post": "发布",
@@ -481,5 +485,7 @@
   "Time zone": "时区",
   "Time zone will be used for users whose time zone is not set": "时区将用于未设置时区的用户",
   "This language will be used for all domain users if we can not detect their preferred language": "如果无法检测到首选语言，则此语言将用于所有域用户",
-  "No activity": "没有活动"
+  "No activity": "没有活动",
+  "List view": "列表顯示",
+  "Grid view": "網格視圖"
 }

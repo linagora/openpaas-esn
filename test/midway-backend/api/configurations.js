@@ -237,7 +237,7 @@ describe('The configurations API', function() {
                 error: {
                   code: 400,
                   message: 'Bad Request',
-                  details: 'domainID is not a valid ObjectId'
+                  details: 'Invalid domain_id parameter'
                 }
               });
               done();
@@ -799,7 +799,7 @@ describe('The configurations API', function() {
                 error: {
                   code: 400,
                   message: 'Bad Request',
-                  details: 'domainID is not a valid ObjectId'
+                  details: 'Invalid domain_id parameter'
                 }
               });
               done();

@@ -372,6 +372,10 @@
   "You started to follow": "You started to follow",
   "unfollowed you": "unfollowed you",
   "You unfollowed": "You unfollowed",
+  "No one is following you": "No one is following you",
+  "%s does not have any followers": "%s does not have any followers",
+  "You do not follow anyone": "You do not follow anyone",
+  "%s does not follow anyone": "%s does not follow anyone",
   "The two passwords do not match": "The two passwords do not match",
   "Confirm": "Confirm",
   "Post": "Post",
@@ -481,5 +485,7 @@
   "Time zone": "Time zone",
   "Time zone will be used for users whose time zone is not set": "Time zone will be used for users whose time zone is not set",
   "This language will be used for all domain users if we can not detect their preferred language": "This language will be used for all domain users if we can not detect their preferred language",
-  "No activity": "No activity"
+  "No activity": "No activity",
+  "List view": "List view",
+  "Grid view": "Grid view"
 }

@@ -64,3 +64,5 @@ div(ng-if='$ctrl.status === "loaded"')
     contact-sidebar-addressbooks-list(title="'My address books'", addressbooks='$ctrl.userAddressbooks')
 
     contact-sidebar-addressbooks-list.shared-addressbooks(feature-flag="linagora.esn.contact.features.isSharingAddressbookEnabled", title="'Shared address books'", addressbooks='$ctrl.sharedAddressbooks')
+
+    contact-sidebar-addressbooks-list.virtual-addressbooks(title="'Directory'", addressbooks='$ctrl.virtualAddressbooks')

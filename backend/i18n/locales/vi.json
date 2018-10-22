@@ -372,6 +372,10 @@
   "You started to follow": "Bạn bắt đầu theo dõi",
   "unfollowed you": "đã bỏ theo dõi bạn",
   "You unfollowed": "Bạn đã bỏ theo dõi",
+  "No one is following you": "Không ai theo dõi bạn",
+  "%s does not have any followers": "%s không có bất kỳ người theo dõi nào",
+  "You do not follow anyone": "Bạn không theo ai",
+  "%s does not follow anyone": "%s không theo dõi bất kỳ ai",
   "The two passwords do not match": "Mật khẩu không khớp",
   "Confirm": "Xác nhận",
   "Post": "Đăng",
@@ -481,5 +485,7 @@
   "Time zone": "Múi giờ",
   "Time zone will be used for users whose time zone is not set": "Múi giờ sử dụng cho những người có múi giờ chưa được thiết lập",
   "This language will be used for all domain users if we can not detect their preferred language": "Ngôn ngữ sau sẽ được dùng cho tất cả người dùng trong miền hiện tại trong trường hợp không phát hiện được ngôn ngữ ưu tiên của họ",
-  "No activity": "Không hoạt động"
+  "No activity": "Không hoạt động",
+  "List view": "Chế độ xem danh sách",
+  "Grid view": "Chế độ hiển thị theo ô"
 }
