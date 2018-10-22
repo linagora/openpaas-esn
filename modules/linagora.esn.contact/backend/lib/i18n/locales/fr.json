@@ -124,5 +124,8 @@
   "Failed to submit request": "Impossible de soumettre la requête",
   "Create a new contact with the same information as the selected contact.": "Créez un contact avec les mêmes informations que le contact sélectionné.",
   "CardDAV URL": "CardDAV URL",
-  "Sharing Addressbook": "Partage de carnet d'adresses"
+  "Sharing Addressbook": "Partage de carnet d'adresses",
+  "Show domain members as an addressbook": "Afficher les membres du domaine en tant que carnet d'adresses",
+  "Directory": "Annuaire",
+  "All members": "Tous les membres"
 }

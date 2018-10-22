@@ -124,5 +124,8 @@
   "Failed to submit request": "Failed to submit request",
   "Create a new contact with the same information as the selected contact.": "Create a new contact with the same information as the selected contact.",
   "CardDAV URL": "CardDAV URL",
-  "Sharing Addressbook": "Sharing Addressbook"
+  "Sharing Addressbook": "Sharing Addressbook",
+  "Show domain members as an addressbook": "Show domain members as an addressbook",
+  "Directory": "Directory",
+  "All members": "All members"
 }

@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('The contactAddressbookDisplayService service', function() {
-  var $rootScope, contactAddressbookDisplayService, ContactAddressbookDisplayShell, contactAddressbookDisplayShellRegistry, displayShellRegistry, esnConfigMock;
+  var $rootScope, contactAddressbookDisplayService, ContactAddressbookDisplayShell, contactAddressbookDisplayShellRegistry, displayShellRegistry, esnConfigMock, CONTACT_ADDRESSBOOK_TYPES;
 
   beforeEach(function() {
     module('linagora.esn.contact');
@@ -28,11 +28,13 @@ describe('The contactAddressbookDisplayService service', function() {
     inject(function(
       _$rootScope_,
       _contactAddressbookDisplayService_,
-      _ContactAddressbookDisplayShell_
+      _ContactAddressbookDisplayShell_,
+      _CONTACT_ADDRESSBOOK_TYPES_
     ) {
       $rootScope = _$rootScope_;
       contactAddressbookDisplayService = _contactAddressbookDisplayService_;
       ContactAddressbookDisplayShell = _ContactAddressbookDisplayShell_;
+      CONTACT_ADDRESSBOOK_TYPES = _CONTACT_ADDRESSBOOK_TYPES_;
     });
   });
 
@@ -264,7 +266,7 @@ describe('The contactAddressbookDisplayService service', function() {
   });
 
   describe('The categorizeDisplayShells function', function() {
-    it('should categorize displayShells to user addressbooks and external addressbooks', function() {
+    it('should categorize displayShells', function() {
       var userAddressbookDisplayShell1 = {
         displayName: '1',
         shell: {}
@@ -279,11 +281,18 @@ describe('The contactAddressbookDisplayService service', function() {
           isSubscription: true
         }
       };
+      var virtualAddressbookDisplay1 = {
+        displayName: '4',
+        shell: {
+          type: CONTACT_ADDRESSBOOK_TYPES.virtual
+        }
+      };
 
       var categorized = contactAddressbookDisplayService.categorizeDisplayShells([
         userAddressbookDisplayShell1,
         userAddressbookDisplayShell2,
-        externalAddressbookDisplayShell1
+        externalAddressbookDisplayShell1,
+        virtualAddressbookDisplay1
       ]);
 
       expect(categorized.userAddressbooks).to.deep.equal([
@@ -292,6 +301,9 @@ describe('The contactAddressbookDisplayService service', function() {
       ]);
       expect(categorized.sharedAddressbooks).to.deep.equal([
         externalAddressbookDisplayShell1
+      ]);
+      expect(categorized.virtualAddressbooks).to.deep.equal([
+        virtualAddressbookDisplay1
       ]);
     });
   });

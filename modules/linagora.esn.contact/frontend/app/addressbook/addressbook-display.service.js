@@ -8,7 +8,8 @@
     _,
     esnConfig,
     contactAddressbookDisplayShellRegistry,
-    ContactAddressbookDisplayShell
+    ContactAddressbookDisplayShell,
+    CONTACT_ADDRESSBOOK_TYPES
   ) {
     return {
       convertShellToDisplayShell: convertShellToDisplayShell,
@@ -71,18 +72,25 @@
     }
 
     function categorizeDisplayShells(displayShells) {
+      var virtualAddressbooks = displayShells.filter(_isVirtualAddressbook).sort(_sortByPriority);
+
       var userAddressbooks = displayShells.filter(function(displayShell) {
-        return !displayShell.shell.isSubscription;
+        return !displayShell.shell.isSubscription && !_isVirtualAddressbook(displayShell);
       }).sort(_sortByPriority);
 
       var sharedAddressbooks = displayShells.filter(function(displayShell) {
-        return displayShell.shell.isSubscription;
+        return displayShell.shell.isSubscription && !_isVirtualAddressbook(displayShell);
       }).sort(_sortByOwnerSubscription);
 
       return {
         userAddressbooks: userAddressbooks,
-        sharedAddressbooks: sharedAddressbooks
+        sharedAddressbooks: sharedAddressbooks,
+        virtualAddressbooks: virtualAddressbooks
       };
+    }
+
+    function _isVirtualAddressbook(displayShell) {
+      return displayShell.shell.type && displayShell.shell.type === CONTACT_ADDRESSBOOK_TYPES.virtual;
     }
 
     function _sortByPriority(displayShell1, displayShell2) {

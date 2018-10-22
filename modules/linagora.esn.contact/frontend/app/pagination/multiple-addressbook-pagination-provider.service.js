@@ -8,9 +8,11 @@
     $log,
     PageAggregatorService,
     AddressBookPaginationProvider,
+    ContactVirtualAddressBookPaginationProvider,
     ContactShellComparator,
     DEFAULT_ADDRESSBOOK_AGGREGATOR_NAME,
-    CONTACT_LIST_PAGE_SIZE
+    CONTACT_LIST_PAGE_SIZE,
+    CONTACT_ADDRESSBOOK_TYPES
   ) {
 
     function MultipleAddressBookPaginationProvider(options) {
@@ -25,7 +27,9 @@
 
       this.id = options.id || DEFAULT_ADDRESSBOOK_AGGREGATOR_NAME;
       this.providers = this.addressbooks.map(function(addressbook) {
-        return new AddressBookPaginationProvider({addressbooks: [addressbook], user: self.options.user});
+        var PaginationProvider = addressbook.type && addressbook.type === CONTACT_ADDRESSBOOK_TYPES.virtual ? ContactVirtualAddressBookPaginationProvider : AddressBookPaginationProvider;
+
+        return new PaginationProvider({addressbooks: [addressbook], user: self.options.user});
       });
       this.aggregator = new PageAggregatorService(this.id, this.providers, {
         compare: this.compare,

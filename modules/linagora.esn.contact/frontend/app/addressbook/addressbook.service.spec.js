@@ -7,7 +7,7 @@ var expect = chai.expect;
 
 describe('The contactAddressbookService service', function() {
   var $rootScope, $window;
-  var contactAddressbookService, ContactAPIClient, session, contactAddressbookParser, esnUserConfigurationService;
+  var contactAddressbookService, ContactAPIClient, session, contactAddressbookParser, esnUserConfigurationService, ContactVirtualAddressBookService;
   var CONTACT_SHARING_INVITE_STATUS;
 
   beforeEach(function() {
@@ -33,6 +33,7 @@ describe('The contactAddressbookService service', function() {
       _contactAddressbookService_,
       _contactAddressbookParser_,
       _esnUserConfigurationService_,
+      _ContactVirtualAddressBookService_,
       _CONTACT_SHARING_INVITE_STATUS_
     ) {
       $rootScope = _$rootScope_;
@@ -40,11 +41,38 @@ describe('The contactAddressbookService service', function() {
       contactAddressbookService = _contactAddressbookService_;
       contactAddressbookParser = _contactAddressbookParser_;
       esnUserConfigurationService = _esnUserConfigurationService_;
+      ContactVirtualAddressBookService = _ContactVirtualAddressBookService_;
       CONTACT_SHARING_INVITE_STATUS = _CONTACT_SHARING_INVITE_STATUS_;
     });
   });
 
   describe('The listAddressbooks function', function() {
+    it('should returns virtual addressbook along with dav addressbooks', function(done) {
+      var davABs = [{id: 'dav1'}, {id: 'dav2'}];
+      var virtualABs = [{id: 'virtual1'}, {id: 'virtual2'}];
+      var list = sinon.stub().returns($q.when(davABs));
+      var virtualListStub = sinon.stub(ContactVirtualAddressBookService, 'list').returns($q.when(virtualABs));
+
+      ContactAPIClient.addressbookHome = function() {
+        return {
+          addressbook: function() {
+            return {
+              list: list
+            };
+          }
+        };
+      };
+      contactAddressbookService.listAddressbooks().then(function(addressbooks) {
+        expect(list).to.have.been.calledOnce;
+        expect(virtualListStub).to.have.been.calledOnce;
+        expect(addressbooks).to.deep.equal(Array.prototype.concat(davABs, virtualABs));
+
+        done();
+      }).catch(done);
+
+      $rootScope.$digest();
+    });
+
     it('should call contactAPIClient to list addressbooks', function() {
       var listSpy = sinon.spy();
 
@@ -72,7 +100,23 @@ describe('The contactAddressbookService service', function() {
   });
 
   describe('The getAddressbookByBookName function', function() {
-    it('should call contactAPIClient to get an addressbook with given bookName', function() {
+    it('should return the virtual addressbook if it exists', function(done) {
+      var addressbook = {id: 'contacts'};
+
+      ContactAPIClient.addressbookHome = sinon.spy();
+      sinon.stub(ContactVirtualAddressBookService, 'get').returns($q.when(addressbook));
+
+      contactAddressbookService.getAddressbookByBookName(addressbook.id).then(function() {
+        expect(ContactAPIClient.addressbookHome).to.not.have.been.called;
+        expect(ContactVirtualAddressBookService.get).to.have.been.calledWith(addressbook.id);
+
+        done();
+      }).catch(done);
+
+      $rootScope.$digest();
+    });
+
+    it('should call contactAPIClient to get an addressbook with given bookName', function(done) {
       var getSpy = sinon.spy();
 
       ContactAPIClient.addressbookHome = function(bookId) {
@@ -89,9 +133,13 @@ describe('The contactAddressbookService service', function() {
         };
       };
 
-      contactAddressbookService.getAddressbookByBookName('contacts');
+      contactAddressbookService.getAddressbookByBookName('contacts').then(function() {
+        expect(getSpy).to.have.been.called;
 
-      expect(getSpy).to.have.been.called;
+        done();
+      }).catch(done);
+
+      $rootScope.$digest();
     });
   });
 

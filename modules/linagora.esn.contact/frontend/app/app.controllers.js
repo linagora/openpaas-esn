@@ -398,8 +398,7 @@ angular.module('linagora.esn.contact')
     $scope.hasMatch = $scope.hasContactInformationMatchQuery();
 
     $scope.displayContact = function() {
-      // use url instead of path to remove search and hash from URL
-      ContactLocationHelper.contact.show($scope.contact.addressbook.bookId, $scope.contact.addressbook.bookName, $scope.contact.id);
+      $scope.displayShell.displayContact();
     };
 
     $scope.editContact = function() {
