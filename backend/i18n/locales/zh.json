@@ -485,5 +485,7 @@
   "Time zone": "时区",
   "Time zone will be used for users whose time zone is not set": "时区将用于未设置时区的用户",
   "This language will be used for all domain users if we can not detect their preferred language": "如果无法检测到首选语言，则此语言将用于所有域用户",
-  "No activity": "没有活动"
+  "No activity": "没有活动",
+  "List view": "列表顯示",
+  "Grid view": "網格視圖"
 }

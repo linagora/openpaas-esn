@@ -5,11 +5,7 @@ contact-sidebar {
   .sidebar-title {
     .flex;
 
-    border-left: 5px solid @primaryColor;
     padding: 8px 0 8px 10px;
-    margin-top: 20px;
-    max-height: 35px;
-    margin-bottom: 5px;
 
     .title {
       .flex;
@@ -44,7 +40,7 @@ contact-sidebar {
     .flex-start;
     .flex-vertical-centered;
 
-    padding: 3px 3px 3px 22px;
+    padding: 1px 3px 1px 22px;
 
     .addressbook-icon {
       color: lighten(@secondaryTextColor, 10%);
@@ -100,6 +96,17 @@ contact-sidebar {
   contact-sidebar {
     .sidebar-title .media .pull-right {
       margin-right: 10px;
+    }
+  }
+}
+
+@media(min-width: @screen-md-min) {
+  contact-sidebar {
+    .sidebar-title {
+      border-left: 5px solid @primaryColor;
+      margin-top: 20px;
+      max-height: 35px;
+      margin-bottom: 5px;
     }
   }
 }
