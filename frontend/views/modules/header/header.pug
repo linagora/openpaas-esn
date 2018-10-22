@@ -12,7 +12,7 @@ div
 
       ul.list-inline.all-centered.header-actions
         li.hover-scale-animation.toggle-fullscreen(feature-flag="core.features.header:fullscreen")
-          a(href='', ng-click='toggleFullScreen()')
+          button.btn.btn-link.btn-icon(ng-click='toggleFullScreen()')
             i.md.mdi.mdi-fullscreen
         li.hover-scale-animation(feature-flag="core.features.header:user-notification")
           esn-user-notification-toggler
