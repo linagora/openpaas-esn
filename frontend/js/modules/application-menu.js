@@ -76,18 +76,14 @@ angular.module('esn.application-menu', [
             body = $document.find('body').eq(0),
             popover = $popover(element, POPOVER_APPLICATION_MENU_OPTIONS);
 
-        scope.isShown = false;
-
         popover.$scope.$on('application-menu.show.before', function() {
           body.append(backdrop);
-          scope.isShown = true;
           $rootScope.$broadcast(APP_MENU_OPEN_EVENT);
           scope.$applyAsync();
         });
 
         popover.$scope.$on('application-menu.hide.before', function() {
           backdrop.remove();
-          scope.isShown = false;
           scope.$applyAsync();
         });
 

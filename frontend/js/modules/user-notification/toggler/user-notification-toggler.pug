@@ -1,3 +1,3 @@
-a.user-notification-toggler(href="", ng-click="open()")
+button.btn.btn-link.btn-icon.user-notification-toggler(ng-click="open()")
   i.mdi.mdi-bell
   i.unread-count(ng-if="getNumberOfNotifications() > 0", ng-class="{'important': hasImportantNotifications()}") {{ getNumberOfNotifications() }}

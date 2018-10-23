@@ -45,21 +45,7 @@
 
     li.hover-scale-animation {
       position: relative;
-      width: 40px;
-      height: 40px;
       padding: 0;
-
-      > a {
-        .all-centered;
-        position: absolute;
-        width: 100%;
-        height: 100%;
-
-        > i.mdi {
-          font-size: 2em;
-          color: @textPrimaryColor;
-        }
-      }
     }
 
     .dropdown-open-animation {
@@ -112,11 +98,6 @@
   background-color: @primaryColor;
   position: relative;
 
-  .mdi {
-    font-size: 1.8em;
-    vertical-align: middle;
-  }
-
   .row {
     margin: 0;
 
@@ -148,6 +129,13 @@
 
 }
 
+#header .header-actions, #sub-header {
+  .mdi {
+    font-size: 1.8em;
+    vertical-align: middle;
+  }
+}
+
 .subheader-aware {
   margin-top: 0;
 
@@ -171,13 +159,6 @@
 @media (min-width: @screen-sm-min) {
 
   #header {
-    li.hover-scale-animation > a {
-      &:hover {
-        i.mdi {
-          color: @accentColor;
-        }
-      }
-    }
     #sub-header {
       background-color: @subHeaderBackground;
       box-shadow: 0 1px 4px @subHeaderShadow;

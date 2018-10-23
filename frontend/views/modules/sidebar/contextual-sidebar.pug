@@ -9,8 +9,8 @@
                 img.openpaas-logo(src="/images/logo-tiny.png", alt=__("OpenPaas Logo"))
           ul.list-inline.all-centered.header-actions
             li.hover-scale-animation
-              a(href='')
-                i.mdi.mdi-magnify(ui-sref='search.main')
+              button.btn.btn-link.btn-icon(ui-sref='search.main')
+                i.mdi.mdi-magnify
             li.hover-scale-animation(feature-flag="core.features.header:user-notification")
               esn-user-notification-toggler
             li.hover-scale-animation
