@@ -1,13 +1,6 @@
 'use strict';
 
-angular.module('esn.domain', ['esn.http', 'ngTagsInput', 'op.dynamicDirective', 'esn.attendee', 'esn.session', 'esn.user', 'esn.i18n', 'esn.feature-registry', 'esn.configuration'])
-  .config(function(dynamicDirectiveServiceProvider) {
-    var invitationAppMenu = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'application-menu-invitation', {priority: 10});
-    dynamicDirectiveServiceProvider.addInjection('esn-application-menu', invitationAppMenu);
-
-    var invitationControlCenterMenu = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'controlcenter-menu-invitation', {priority: -8});
-    dynamicDirectiveServiceProvider.addInjection('controlcenter-sidebar-menu', invitationControlCenterMenu);
-  })
+angular.module('esn.domain', ['esn.http', 'esn.attendee', 'esn.session', 'esn.user', 'esn.i18n', 'esn.configuration'])
   .factory('domainAPI', function(esnRestangular) {
 
     return {
@@ -185,92 +178,7 @@ angular.module('esn.domain', ['esn.http', 'ngTagsInput', 'op.dynamicDirective', 
       get: get
     };
   })
-
-  .directive('applicationMenuInvitation', function(session, applicationMenuTemplateBuilder) {
-    return {
-      retrict: 'E',
-      replace: true,
-      template: applicationMenuTemplateBuilder('/#/controlcenter/domains/{{::domain._id}}/members/invite', 'invitation', 'Invitation', 'core.features.application-menu:invitation'),
-      link: function(scope) {
-        scope.domain = session.domain;
-      }
-    };
-  })
-
-  .directive('controlcenterMenuInvitation', function(session, controlCenterMenuTemplateBuilder) {
-    return {
-      retrict: 'E',
-      template: controlCenterMenuTemplateBuilder('controlcenter.domainInviteMembers({ id: domain._id })', 'mdi-account-plus', 'Invitation', 'core.features.control-center:invitation'),
-      link: function(scope) {
-        scope.domain = session.domain;
-      }
-    };
-  })
-
-  .directive('inviteMembersInput', function(domainAPI) {
-    return {
-      restrict: 'E',
-      replace: true,
-      scope: {
-        domain: '=',
-        validateEmail: '='
-      },
-      templateUrl: '/views/modules/domain/inviteMembersInput.html',
-      link: function($scope) {
-        $scope.error = undefined;
-        $scope.placeholder = 'Add an email';
-        $scope.displayProperty = 'email';
-        // Regular expression to check that the input text is a valid email
-        // regexp as string, single \ are \\ escaped, doubles \ are \\\ escaped
-        // original regexp is
-        // var regex = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-        $scope.pattern = '^(([^<>()[\\\]\\\\\.,;:\\\s@\\\"]+(\\\.[^<>()[\\\]\\\\\.,;:\\\s@\\\"]+)*)|(\\\".+\\\"))@((\\\[[0-9]{1,3}\\\.[0-9]{1,3}\\\.[0-9]{1,3}\\\.[0-9]{1,3}\\\])|(([a-zA-Z\-0-9]+\\\.)+[a-zA-Z]{2,}))$'; // eslint-disable-line no-useless-escape
-        $scope.step = 0;
-        $scope.running = 0;
-        $scope.emails = [];
-
-        $scope.validateTags = function() {
-          $scope.error = undefined;
-          if (!$scope.validateEmail) {
-            return;
-          }
-          $scope.emails.forEach(function(tag) {
-            var validationError = $scope.validateEmail(tag.email);
-            if (validationError) {
-              $scope.error = $scope.error ? $scope.error + validationError : validationError;
-            }
-          });
-        };
-
-        $scope.invite = function() {
-          if ($scope.emails.length === 0) {
-            return;
-          }
-
-          var emails = $scope.emails.map(function(element) {
-            return element.email;
-          });
-
-          $scope.running = 1;
-          domainAPI.inviteUsers($scope.domain._id, emails).then(
-              function() {
-                $scope.error = undefined;
-                $scope.running = 0;
-                $scope.step = 1;
-              },
-              function(err) {
-                $scope.running = 0;
-                $scope.error = err;
-              }
-          );
-        };
-      }
-    };
-  })
-  .controller('inviteMembers', function($scope, domain) {
-    $scope.domain = domain;
-  })
-  .run(function(domainSearchMembersProvider, attendeeService, session, esnFeatureRegistry, esnConfig) {
+  .run(function(domainSearchMembersProvider, attendeeService, session, esnConfig) {
     session.ready.then(function() {
       esnConfig('core.membersCanBeSearched', true).then(function(membersCanBeSearched) {
         if (membersCanBeSearched) {
@@ -279,18 +187,5 @@ angular.module('esn.domain', ['esn.http', 'ngTagsInput', 'op.dynamicDirective', 
           attendeeService.addProvider(attendeeProvider);
         }
       });
-    });
-    esnFeatureRegistry.add({
-      name: 'Invitation',
-      configurations: [
-        {
-          displayIn: 'Application Menu',
-          name: 'application-menu:invitation'
-        }, {
-          displayIn: 'Control Center',
-          name: 'control-center:invitation'
-        }
-      ],
-      description: 'Allows you to invite people to your OpenPaaS domain'
     });
   });

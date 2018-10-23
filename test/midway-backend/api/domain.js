@@ -2,7 +2,6 @@
 
 var request = require('supertest'),
     expect = require('chai').expect,
-    sinon = require('sinon'),
     ObjectId = require('bson').ObjectId;
 
 describe('The domain API', function() {
@@ -14,8 +13,6 @@ describe('The domain API', function() {
   let domain1Users;
   const password = 'secret';
   let Domain;
-  let Invitation;
-  let pubsubLocal;
   let userDenormalize;
   let helpers;
   let core;
@@ -29,8 +26,6 @@ describe('The domain API', function() {
     core = self.testEnv.initCore(function() {
       app = helpers.requireBackend('webserver/application');
       Domain = helpers.requireBackend('core/db/mongo/models/domain');
-      Invitation = helpers.requireBackend('core/db/mongo/models/invitation');
-      pubsubLocal = helpers.requireBackend('core/pubsub').local;
       userDenormalize = helpers.requireBackend('core/user/denormalize').denormalize;
       helpers.requireBackend('core/elasticsearch/pubsub').init();
 
@@ -1137,78 +1132,6 @@ describe('The domain API', function() {
           }));
         })
       );
-    });
-
-    it('should send back 400 when domain ID is not a valid ObjectId', function(done) {
-      helpers.api.loginAsUser(app, user2Domain1Member.emails[0], password, function(err, loggedInAsUser) {
-        expect(err).to.not.exist;
-        loggedInAsUser(request(app).get('/api/domains/invalid')).expect(400).end(helpers.callbacks.noError(done));
-      });
-    });
-  });
-
-  describe('POST /api/domains/:uuid/invitations', function() {
-    beforeEach(function(done) {
-      helpers.mail.saveTestConfiguration(done);
-    });
-
-    it('should send back 401 when not logged in', function(done) {
-      helpers.api.requireLogin(app, 'post', '/api/domains/' + domain1._id + '/invitations', done);
-    });
-
-    it('should send back 202 when current user is a domain member', function(done) {
-      var checkpoint = sinon.spy();
-
-      pubsubLocal.topic('domain:invitations:sent').subscribe(function(message) {
-        expect(checkpoint).to.have.been.called;
-        var expectedMessage = {
-          user: user2Domain1Member.id,
-          domain: domain1.id,
-          emails: ['foo@bar.com']
-        };
-        expect(message).to.shallowDeepEqual(expectedMessage);
-        done();
-      });
-
-      helpers.api.loginAsUser(app, user2Domain1Member.emails[0], password, function(err, requestAsMember) {
-        expect(err).to.not.exist;
-        var req = requestAsMember(request(app).post('/api/domains/' + domain1._id + '/invitations'));
-
-        req.send(['foo@bar.com']).expect(202).end(function(err, res) {
-          expect(err).to.not.exist;
-          expect(res.body).to.exists;
-          expect(res.body).to.be.empty;
-          Invitation.find({}, function(err, docs) {
-            expect(err).to.not.exist;
-            expect(docs).to.exist;
-            expect(docs).to.have.length(1);
-
-            var expectedObject = {
-              type: 'addmember',
-              data: {
-                user: helpers.toComparableObject(user2Domain1Member),
-                domain: helpers.toComparableObject(domain1)
-              }
-            };
-
-            expect(helpers.toComparableObject(docs[0])).to.shallowDeepEqual(expectedObject);
-            checkpoint();
-          });
-        });
-      });
-    });
-
-    it('should send back 403 when current user is not a domain member', function(done) {
-      helpers.api.loginAsUser(app, user1Domain2Manager.emails[0], password, function(err, requestAsMember) {
-        expect(err).to.not.exist;
-        var req = requestAsMember(request(app).post('/api/domains/' + domain1._id + '/invitations'));
-        req.send(['inviteme@open-paas.org']).expect(403).end(function(err, res) {
-          expect(err).to.not.exist;
-          expect(res.body).to.exists;
-          expect(res.body.error).to.equal(403);
-          done();
-        });
-      });
     });
 
     it('should send back 400 when domain ID is not a valid ObjectId', function(done) {

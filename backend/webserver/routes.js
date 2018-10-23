@@ -20,10 +20,6 @@ exports = module.exports = function(application) {
   application.get('/logout', authenticationMw.logoutHandler, users.logout);
   application.get('/passwordreset', authorize.requiresJWT, loginController.passwordResetIndex);
 
-  var invitation = require('./controllers/invitation');
-  application.get('/invitation/signup', invitation.signup);
-  application.get('/invitation/:uuid', invitation.load, invitation.confirm);
-
   var views = require('./controllers/views');
   var templates = require('./middleware/templates');
   application.get('/views/*', templates.alterViewsFolder, views.views);
