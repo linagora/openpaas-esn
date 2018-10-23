@@ -2,14 +2,11 @@
 
 const _ = require('lodash');
 const q = require('q');
-const async = require('async');
-const mongoose = require('mongoose');
 
 const userDomain = require('../../core/user/domain');
 const userIndex = require('../../core/user/index');
 const coreDomain = require('../../core/domain');
 const logger = require('../../core').logger;
-const pubsub = require('../../core/pubsub').local;
 const denormalizeUser = require('../denormalize/user').denormalize;
 const denormalizeDomain = require('../denormalize/domain');
 const { filterDomainsByMembersCanBeSearched } = require('../../core/domain/helpers');
@@ -22,7 +19,6 @@ module.exports = {
   create,
   update,
   getMembers,
-  sendInvitations,
   getDomain,
   createMember,
   getDomainAdministrators,
@@ -233,75 +229,6 @@ function getMembers(req, res) {
  * @param {Request} req - The request with user and domain as attribute. The body MUST contains an array of emails.
  * @param {Response} res
  */
-function sendInvitations(req, res) {
-  if (!req.body || !(req.body instanceof Array)) {
-    return res.status(400).json({ error: { status: 400, message: 'Bad request', details: 'Missing input emails'}});
-  }
-
-  const emails = req.body;
-  const user = req.user;
-  const domain = req.domain;
-  const handler = require('../../core/invitation');
-  const Invitation = mongoose.model('Invitation');
-  const getInvitationURL = require('./invitation').getInvitationURL;
-  const sent = [];
-
-  res.status(202).end();
-
-  const sendInvitation = (email, callback) => {
-    const payload = {
-      type: 'addmember',
-      data: {
-        user: user,
-        domain: domain,
-        email: email
-      }
-    };
-
-    handler.validate(payload, (err, result) => {
-      if (err || !result) {
-        logger.warn('Invitation data is not valid %s : %s', payload, err ? err.message : result);
-
-        return callback();
-      }
-
-      const invitation = new Invitation(payload);
-
-      invitation.save((err, saved) => {
-        if (err) {
-          logger.error('Can not save invitation %s : %s', payload, err.message);
-
-          return callback();
-        }
-
-        getInvitationURL(req, saved).then(url => {
-          saved.data.url = url;
-          handler.init(saved, (err, result) => {
-            if (err || !result) {
-              logger.error('Invitation can not be initialized %s : %s', saved, err ? err.message : result);
-            } else {
-              sent.push(email);
-            }
-
-            return callback();
-          });
-        }, err => {
-          logger.error('Cannot get invitation url with error : %s', err);
-
-          return callback(err);
-        });
-      });
-    });
-  };
-
-  async.eachLimit(emails, 10, sendInvitation, err => {
-    if (err) {
-      logger.error('Unexpected error occured : %s', err);
-    }
-    logger.info('Invitations have been sent to emails %s', '' + sent);
-    pubsub.topic('domain:invitations:sent').publish({user: user._id, domain: domain._id, emails: sent});
-  });
-}
 
 function getDomain(req, res) {
   if (req.domain) {
