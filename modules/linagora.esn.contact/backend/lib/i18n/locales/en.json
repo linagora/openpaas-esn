@@ -130,5 +130,7 @@
   "All members": "All members",
   "Followed members": "Followed members",
   "Show followed members as an addressbook": "Show followed members as an addressbook",
-  "Members right": "Members right"
+  "Members right": "Members right",
+  "Domain address book": "Domain address book",
+  "Failed to load domain address book": "Failed to load domain address book"
 }

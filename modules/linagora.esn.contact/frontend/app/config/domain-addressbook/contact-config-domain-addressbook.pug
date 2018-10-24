@@ -1,0 +1,20 @@
+ng-form(name='form')
+  .form-group.option-field
+    .col-xs-4.field-name(ng-if='$ctrl.state !== "error"') #{__('Domain address book')}
+    .col-xs-4.field-name(ng-if='$ctrl.state === "error"')
+      .error-message(title=__('Failed to load domain address book'))
+        i.mdi.mdi-alert-circle
+        span.message #{__('Domain address book')}
+    .col-xs-4.flex-end
+      .text-center(
+        openpaas-logo-spinner,
+        spinner-start-active="1",
+        spinner-size="0.4",
+        ng-if='$ctrl.state === "loading"'
+      )
+
+      toggle-switch(ng-if="$ctrl.state === 'success'", ng-model="$ctrl.isDomainAddressbookEnabled", form="form")
+
+      .error-message(ng-if='$ctrl.state === "error"')
+        button.btn.btn-primary.btn-icon.btn-retry(title=__('Retry'), ng-click="$ctrl.reloadDomainAddressbook()")
+          i.mdi.mdi-reload.btn-reload

@@ -2,6 +2,7 @@
   'use strict';
 
   angular.module('linagora.esn.contact')
+    .constant('DEFAULT_DOMAIN_ADDRESSBOOK_NAME', 'dab')
     .constant('CONTACT_ADDRESSBOOK_EVENTS', {
       CREATED: 'contact:addressbook:created',
       DELETED: 'contact:addressbook:deleted',
@@ -14,6 +15,10 @@
       subscription: 'subscription',
       virtual: 'virtual',
       group: 'group'
+    })
+    .constant('CONTACT_ADDRESSBOOK_STATES', {
+      enabled: 'enabled',
+      disabled: 'disabled'
     })
     .constant('CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL', '{DAV:}authenticated')
     .constant('CONTACT_ADDRESSBOOK_PUBLIC_RIGHT', {

@@ -277,6 +277,101 @@ describe('The contactAddressbookService service', function() {
     });
   });
 
+  describe('The createGroupAddressbook function', function() {
+    it('should reject if there is no addressbook', function(done) {
+      contactAddressbookService
+        .createGroupAddressbook()
+        .catch(function(err) {
+          expect(err.message).to.equal('Address book is required');
+          done();
+        });
+
+      $rootScope.$digest();
+    });
+
+    it('should reject if there is no addressbook\'s name', function(done) {
+      contactAddressbookService
+        .createGroupAddressbook({})
+        .catch(function(err) {
+          expect(err.message).to.equal('Address book\'s name is required');
+          done();
+        });
+
+      $rootScope.$digest();
+    });
+
+    it('should reject if there is no groudId', function(done) {
+      contactAddressbookService
+        .createGroupAddressbook({ name: 'test' })
+        .catch(function(err) {
+          expect(err.message).to.equal('groupId is required');
+          done();
+        });
+
+      $rootScope.$digest();
+    });
+
+    it('should reject if failed to create group addressbook', function(done) {
+      var addressbook = { name: 'test' };
+      var groupId = '123';
+      var createSpy = sinon.stub().returns($q.reject());
+
+      ContactAPIClient.addressbookHome = function(bookId) {
+        expect(bookId).to.equal(groupId);
+
+        return {
+          addressbook: function() {
+            return {
+              create: createSpy
+            };
+          }
+        };
+      };
+
+      contactAddressbookService
+        .createGroupAddressbook(addressbook, groupId)
+        .catch(function() {
+          expect(createSpy).to.have.been.calledWith(addressbook);
+          done();
+        });
+
+      $rootScope.$digest();
+    });
+
+    it('should resolve if success to create group addressbook', function(done) {
+      var addressbook = { name: 'test' };
+      var groupId = '123';
+      var createSpy = sinon.stub().returns($q.when({}));
+
+      ContactAPIClient.addressbookHome = function(bookId) {
+        expect(bookId).to.equal(groupId);
+
+        return {
+          addressbook: function() {
+            return {
+              create: createSpy
+            };
+          }
+        };
+      };
+
+      contactAddressbookService
+        .createGroupAddressbook(addressbook, groupId)
+        .then(function() {
+          expect(addressbook.type).to.equal('group');
+          expect(addressbook.state).to.equal('enabled');
+          expect(addressbook.acl).to.deep.equal(['{DAV:}read']);
+          expect(createSpy).to.have.been.calledWith(addressbook);
+          done();
+        })
+        .catch(function(err) {
+          done(err || 'should resolve');
+        });
+
+      $rootScope.$digest();
+    });
+  });
+
   describe('The removeAddressbook function', function() {
     it('should reject if removing addressbook failed', function(done) {
       var addressbook = {
@@ -343,13 +438,15 @@ describe('The contactAddressbookService service', function() {
   describe('The updateAddressbook function', function() {
     it('should reject if updating addressbook failed', function(done) {
       var addressbook = {
+        bookId: '123',
         name: 'toto',
-        bookName: 'tata'
+        bookName: 'tata',
+        state: 'enabled'
       };
       var updateSpy = sinon.stub().returns($q.reject());
 
       ContactAPIClient.addressbookHome = function(bookId) {
-        expect(bookId).to.equal(session.user._id);
+        expect(bookId).to.equal(addressbook.bookId);
 
         return {
           addressbook: function(bookName) {
@@ -374,13 +471,15 @@ describe('The contactAddressbookService service', function() {
 
     it('should resolve when successfully updating addressbook', function(done) {
       var addressbook = {
+        bookId: '123',
         name: 'toto',
-        bookName: 'tata'
+        bookName: 'tata',
+        state: 'enabled'
       };
       var updateSpy = sinon.stub().returns($q.when());
 
       ContactAPIClient.addressbookHome = function(bookId) {
-        expect(bookId).to.equal(session.user._id);
+        expect(bookId).to.equal(addressbook.bookId);
 
         return {
           addressbook: function(bookName) {
