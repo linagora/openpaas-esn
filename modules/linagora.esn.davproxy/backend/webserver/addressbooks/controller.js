@@ -92,7 +92,8 @@ module.exports = function(dependencies) {
     };
     const modified = {
       'dav:name': req.body.name,
-      'carddav:description': req.body.description
+      'carddav:description': req.body.description,
+      state: req.body.state
     };
 
     contactModule.lib.client(options)

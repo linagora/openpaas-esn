@@ -267,7 +267,7 @@
      * Update an addressbook in the specified addressbook home
      * @param  {String} bookId     The addressbook home ID
      * @param  {String} bookName   The addressbook name
-     * @param  {Object} addressbook The addressbook object to update. It may contain name, description.
+     * @param  {Object} addressbook The addressbook object to update. It may contain name, description, state.
      * @return {Promise}           Resolve on success
      */
     function updateAddressbook(bookId, bookName, addressbook) {

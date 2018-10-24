@@ -798,7 +798,8 @@ describe('The addressbooks dav proxy', function() {
         const path = '/addressbooks/123/test.json';
         const addressBookToUpdate = {
           name: 'modified addressbook name',
-          description: 'modified addressbook description'
+          description: 'modified addressbook description',
+          state: 'modified addressbook state'
         };
 
         dav.proppatch(path, (req, res) => {
