@@ -4,7 +4,6 @@
   angular.module('linagora.esn.contact')
     .run(function(
       contactAddressbookActionEdit,
-      contactAddressbookActionDelete,
       contactAddressbookActionExport,
       contactAddressbookActionSettings,
       contactAddressbookDisplayShellRegistry,
@@ -17,8 +16,7 @@
         actions: [
           contactAddressbookActionExport,
           contactAddressbookActionSettings,
-          contactAddressbookActionEdit,
-          contactAddressbookActionDelete
+          contactAddressbookActionEdit
         ],
         displayShell: ContactGroupAddressbookDisplayShell,
         matchingFunction: contactGroupAddressbookService.isGroupAddressbook
