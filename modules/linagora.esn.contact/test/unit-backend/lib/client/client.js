@@ -254,6 +254,7 @@ describe('The contact client APIs', function() {
           '{DAV:}acl': 'dav:acl',
           '{DAV:}invite': 'dav:invite',
           '{DAV:}share-access': 'dav:share-access',
+          '{DAV:}group': 'dav:group',
           '{http://open-paas.org/contacts}subscription-type': 'openpaas:subscription-type',
           '{http://open-paas.org/contacts}source': 'openpaas:source',
           '{http://open-paas.org/contacts}type': 'type',
@@ -288,6 +289,7 @@ describe('The contact client APIs', function() {
           const shareAccess = 'read';
           const subscriptionType = 'delegation';
           const source = '/adddressbooks/sourceBookId/sourceBookName.json';
+          const group = 'principals/domains/domainId';
           const invite = [];
           const response = { statusCode: 200 };
           const body = {
@@ -296,6 +298,7 @@ describe('The contact client APIs', function() {
             '{DAV:}acl': davAcl,
             '{DAV:}invite': invite,
             '{DAV:}share-access': shareAccess,
+            '{DAV:}group': group,
             '{http://open-paas.org/contacts}subscription-type': subscriptionType,
             '{http://open-paas.org/contacts}source': source,
             '{http://open-paas.org/contacts}type': type,
@@ -321,6 +324,7 @@ describe('The contact client APIs', function() {
               'dav:acl': davAcl,
               'dav:invite': invite,
               'dav:share-access': shareAccess,
+              'dav:group': group,
               'openpaas:subscription-type': subscriptionType,
               'openpaas:source': source,
               type: type,

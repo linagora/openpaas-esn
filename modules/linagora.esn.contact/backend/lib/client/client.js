@@ -310,6 +310,7 @@ module.exports = function(dependencies, options) {
           '{DAV:}acl': 'dav:acl',
           '{DAV:}invite': 'dav:invite',
           '{DAV:}share-access': 'dav:share-access',
+          '{DAV:}group': 'dav:group',
           '{http://open-paas.org/contacts}subscription-type': 'openpaas:subscription-type',
           '{http://open-paas.org/contacts}source': 'openpaas:source',
           '{http://open-paas.org/contacts}type': 'type',
