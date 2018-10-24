@@ -288,11 +288,19 @@ describe('The contactAddressbookDisplayService service', function() {
         }
       };
 
+      var groupAddressbookDisplay1 = {
+        displayName: '4',
+        shell: {
+          type: CONTACT_ADDRESSBOOK_TYPES.group
+        }
+      };
+
       var categorized = contactAddressbookDisplayService.categorizeDisplayShells([
         userAddressbookDisplayShell1,
         userAddressbookDisplayShell2,
         externalAddressbookDisplayShell1,
-        virtualAddressbookDisplay1
+        virtualAddressbookDisplay1,
+        groupAddressbookDisplay1
       ]);
 
       expect(categorized.userAddressbooks).to.deep.equal([
@@ -303,7 +311,7 @@ describe('The contactAddressbookDisplayService service', function() {
         externalAddressbookDisplayShell1
       ]);
       expect(categorized.virtualAddressbooks).to.deep.equal([
-        virtualAddressbookDisplay1
+        virtualAddressbookDisplay1, groupAddressbookDisplay1
       ]);
     });
   });
