@@ -73,15 +73,15 @@ describe('The collaboration member module', function() {
           callback(null, this);
         }
       };
-      const user = new ObjectId();
+      const userId = String(new ObjectId());
       const addingMembers = [
-        { id: user, objectType: 'user' },
-        { id: user, objectType: 'user' },
+        { id: userId, objectType: 'user' },
+        { id: userId, objectType: 'user' },
         existingMember
       ];
       const expectedMembers = [
         { member: existingMember, status: 'joined' },
-        { member: {id: user, objectType: 'user'}, status: 'joined' }
+        { member: {id: userId, objectType: 'user'}, status: 'joined' }
       ];
       const collaborationModule = getModule();
 
@@ -102,15 +102,15 @@ describe('The collaboration member module', function() {
           callback(null, this);
         }
       };
-      const user = new ObjectId();
+      const userId = String(new ObjectId());
       const members = [
-        { id: user, objectType: 'user' },
-        { id: user, objectType: 'user' },
+        { id: userId, objectType: 'user' },
+        { id: userId, objectType: 'user' },
         { id: 'email@lngr.com', objectType: 'email' },
         { id: 'email@lngr.com', objectType: 'email' }
       ];
       const expectedMembers = [
-        { member: { id: user, objectType: 'user' }, status: 'joined' },
+        { member: { id: userId, objectType: 'user' }, status: 'joined' },
         { member: { id: 'email@lngr.com', objectType: 'email' }, status: 'joined' }
       ];
       const collaborationModule = getModule();
