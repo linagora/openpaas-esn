@@ -51,7 +51,8 @@ module.exports = function(dependencies, options) {
 
       if (status && status.indexOf(response.statusCode) < 0) {
         logger.error('Bad HTTP status', response.statusCode, body);
-        return deferred.reject(new Error('Bad response from DAV API'));
+
+        return deferred.reject({ response, body });
       }
 
       deferred.resolve({ response: response, body: body });

@@ -1079,7 +1079,7 @@ describe('The addressbooks module', function() {
 
     it('should return 500 response on errror', function(done) {
       createGetFnMock(function() {
-        return q.reject();
+        return q.reject({ response: { statusCode: 'not-404' } });
       });
       var controller = getController();
       var req = {

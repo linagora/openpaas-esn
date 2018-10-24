@@ -408,7 +408,18 @@ module.exports = function(dependencies) {
       .then(
         body => res.status(200).json(body),
         err => {
-          logger.error('Error while getting an addressbook', err);
+          logger.error('Error while getting an addressbook', err.body || err);
+
+          if (err.response.statusCode === 404) {
+            return res.status(404).json({
+              error: {
+                code: 404,
+                message: 'Not Found',
+                details: `Addressbook ${req.params.bookName} is not found`
+              }
+            });
+          }
+
           res.status(500).json({
             error: {
               code: 500,
@@ -416,7 +427,7 @@ module.exports = function(dependencies) {
               details: 'Error while getting an addressbook'
             }
           });
-      });
+        });
   }
 
   function _searchContacts(bookHome, options) {

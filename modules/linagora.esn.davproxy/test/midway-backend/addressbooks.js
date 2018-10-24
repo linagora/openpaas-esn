@@ -181,6 +181,47 @@ describe('The addressbooks dav proxy', function() {
       });
     });
 
+    describe('PROPFIND /addressbooks/:bookHome/:bookName.json', function() {
+      it('should return 404 if address book not found', function(done) {
+        const path = '/addressbooks/123/contacts.json';
+        let called = false;
+
+        dav.propfind(path, (req, res) => {
+          called = true;
+
+          return res.status(404).json([]);
+        });
+
+        this.createDavServer(err => {
+          if (err) {
+            return done(err);
+          }
+
+          this.helpers.api.loginAsUser(this.app, user.emails[0], password, (err, loggedInAsUser) => {
+            if (err) {
+              return done(err);
+            }
+
+            const req = loggedInAsUser(request(this.app).propfind(PREFIX + path));
+
+            req.expect(404).end((err, res) => {
+              expect(err).to.not.exist;
+              expect(called).to.be.true;
+              expect(res.body).to.deep.equal({
+                error: {
+                  code: 404,
+                  message: 'Not Found',
+                  details: 'Addressbook contacts is not found'
+                }
+              });
+
+              done();
+            });
+          });
+        });
+      });
+    });
+
     describe('The search contacts module', function() {
 
       describe('Single Properties search', function() {

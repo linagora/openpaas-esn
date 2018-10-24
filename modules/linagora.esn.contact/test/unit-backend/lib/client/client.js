@@ -338,6 +338,24 @@ describe('The contact client APIs', function() {
           }).catch(done);
         });
 
+        it('should reject with response and body from DAV server if address book not found', function(done) {
+          const response = { statusCode: 404 };
+          const body = {};
+
+          mockery.registerMock('../dav-client', {
+            rawClient: function(options, callback) {
+              callback(null, response, body);
+            }
+          });
+
+          getAddressbookHome().addressbook(BOOK_NAME).get().catch(err => {
+            expect(err.response).to.deep.equal(response);
+            expect(err.body).to.deep.equal(body);
+
+            done();
+          });
+        });
+
         it('should reject with error when client returns error', function(done) {
           mockery.registerMock('../dav-client', {
             rawClient: function(options, callback) {
