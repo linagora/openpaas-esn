@@ -715,7 +715,8 @@ describe('The addressbooks dav proxy', function() {
           id: '4e2a6aef-d443-4709-b925-d9585ebc9109',
           name: 'addressbook test',
           description: 'addressbook description',
-          type: 'user'
+          type: 'user',
+          state: 'enabled'
         };
 
         dav.post(path, (req, res) => {

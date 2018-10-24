@@ -729,6 +729,86 @@ describe('The addressbooks module', function() {
     });
   });
 
+  describe('The createAddressbook fn', function() {
+    const BOOK_HOME = 'book12345';
+    let createAddressbookMock;
+
+    beforeEach(function() {
+      createAddressbookMock = sinon.stub().returns(q.when());
+
+      dependencies.contact = {
+        lib: {
+          client() {
+            return {
+              addressbookHome: function() {
+                return {
+                  addressbook: function() {
+                    return {
+                      create: createAddressbookMock
+                    };
+                  }
+                };
+              }
+            };
+          }
+        }
+      };
+    });
+
+    it('should call function to create address book with correct params', function() {
+      const controller = getController();
+      const req = {
+        params: { bookHome: BOOK_HOME },
+        body: {
+          id: '123',
+          name: 'name',
+          description: 'description',
+          acl: ['dav:read'],
+          type: 'type',
+          state: 'enabled'
+        }
+      };
+
+      controller.createAddressbook(req, {});
+
+      expect(createAddressbookMock).to.have.been.calledWith({
+        id: req.body.id,
+        'dav:name': req.body.name,
+        'carddav:description': req.body.description,
+        'dav:acl': req.body.acl,
+        type: req.body.type,
+        state: req.body.state,
+        'openpaas:source': req.body['openpaas:source']
+      });
+    });
+
+    it('should grant read and write permissions if acl is not given in request body', function() {
+      const controller = getController();
+      const req = {
+        params: { bookHome: BOOK_HOME },
+        body: {
+          id: '123',
+          name: 'name',
+          description: 'description',
+          type: 'type',
+          state: 'enabled'
+        }
+      };
+
+      controller.createAddressbook(req, {});
+
+      expect(createAddressbookMock).to.have.been.calledWith({
+        id: req.body.id,
+        'dav:name': req.body.name,
+        'carddav:description': req.body.description,
+        'dav:acl': ['dav:read', 'dav:write'],
+        type: req.body.type,
+        state: req.body.state,
+        'openpaas:source': req.body['openpaas:source']
+      });
+    });
+  });
+
   describe('The getAddressbooks fn', function() {
 
     const BOOK_HOME = 'book12345';

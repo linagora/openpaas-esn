@@ -34,8 +34,9 @@ module.exports = function(dependencies) {
       id: req.body.id,
       'dav:name': req.body.name,
       'carddav:description': req.body.description,
-      'dav:acl': ['dav:read', 'dav:write'],
+      'dav:acl': req.body.acl || ['dav:read', 'dav:write'],
       type: req.body.type,
+      state: req.body.state,
       'openpaas:source': req.body['openpaas:source']
     };
 
