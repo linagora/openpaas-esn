@@ -314,6 +314,7 @@ module.exports = function(dependencies, options) {
           '{http://open-paas.org/contacts}subscription-type': 'openpaas:subscription-type',
           '{http://open-paas.org/contacts}source': 'openpaas:source',
           '{http://open-paas.org/contacts}type': 'type',
+          '{http://open-paas.org/contacts}state': 'state',
           acl: 'acl'
         };
 

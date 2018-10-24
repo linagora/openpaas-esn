@@ -258,6 +258,7 @@ describe('The contact client APIs', function() {
           '{http://open-paas.org/contacts}subscription-type': 'openpaas:subscription-type',
           '{http://open-paas.org/contacts}source': 'openpaas:source',
           '{http://open-paas.org/contacts}type': 'type',
+          '{http://open-paas.org/contacts}state': 'state',
           acl: 'acl'
         };
 
@@ -285,6 +286,7 @@ describe('The contact client APIs', function() {
           const description = 'addressbook description';
           const davAcl = ['dav:read'];
           const type = 'twitter';
+          const state = 'enabled';
           const acl = [];
           const shareAccess = 'read';
           const subscriptionType = 'delegation';
@@ -302,6 +304,7 @@ describe('The contact client APIs', function() {
             '{http://open-paas.org/contacts}subscription-type': subscriptionType,
             '{http://open-paas.org/contacts}source': source,
             '{http://open-paas.org/contacts}type': type,
+            '{http://open-paas.org/contacts}state': state,
             acl
           };
 
@@ -328,6 +331,7 @@ describe('The contact client APIs', function() {
               'openpaas:subscription-type': subscriptionType,
               'openpaas:source': source,
               type: type,
+              state,
               acl
             });
             done();

@@ -18,6 +18,7 @@
       this.name = json['dav:name'];
       this.description = json['carddav:description'];
       this.type = json.type;
+      this.state = json.state;
       this.href = json._links.self.href;
       this.bookName = metadata.bookName;
       this.bookId = metadata.bookId;
