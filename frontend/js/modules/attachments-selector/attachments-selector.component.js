@@ -5,8 +5,14 @@
     .module('esn.attachments-selector')
     .component('esnAttachmentsSelector', {
       templateUrl: '/views/modules/attachments-selector/attachments-selector.html',
+      controller: 'esnAttachmentsSelectorController',
       bindings: {
-        attachmentHolder: '='
+        attachments: '<?',
+        attachmentType: '<?',
+        attachmentFilter: '<?',
+        onAttachmentsUpdate: '&?',
+        uploadAttachments: '&?',
+        attachmentHolder: '=?'
       }
     });
 })(angular);
