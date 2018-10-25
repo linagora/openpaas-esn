@@ -4,7 +4,7 @@ module.exports = dependencies => {
   const schema = {
     type: 'object',
     properties: {
-      isSharingContactEnabled: {
+      isSharingAddressbookEnabled: {
         type: 'boolean'
       }
     }
