@@ -97,6 +97,19 @@ describe('The Contact Angular module AddressbookShell', function() {
         expect(shell.rights.public).to.equal('{DAV:}write');
       });
 
+      it('should get members right according to acl for group address book', function() {
+        var groupPrincipal = 'principals/domains/domainId';
+
+        jsonInput['dav:group'] = groupPrincipal;
+        jsonInput.acl = [
+          { privilege: '{DAV:}read', principal: groupPrincipal, protected: true }
+        ];
+
+        var shell = new AddressbookShell(jsonInput);
+
+        expect(shell.rights.members).to.deep.equal(['{DAV:}read']);
+      });
+
       it('should set public right property to private if there is no acl present', function() {
         var shell = new AddressbookShell(jsonInput);
 

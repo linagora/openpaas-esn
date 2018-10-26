@@ -22,8 +22,10 @@
       this.bookName = metadata.bookName;
       this.bookId = metadata.bookId;
       this.acl = json.acl;
+
       this.rights = {
-        public: CONTACT_ADDRESSBOOK_PUBLIC_RIGHT.PRIVATE.value
+        public: CONTACT_ADDRESSBOOK_PUBLIC_RIGHT.PRIVATE.value,
+        members: []
       };
 
       if (json['openpaas:source']) {
@@ -41,6 +43,12 @@
 
       if (json['dav:group']) {
         this.group = contactAddressbookParser.parsePrincipalPath(json['dav:group']);
+
+        this.acl && this.acl.forEach(function(aclItem) {
+          if (aclItem.principal === json['dav:group']) {
+            this.rights.members.push(aclItem.privilege);
+          }
+        }, this);
       }
 
       this.canEditAddressbook = contactAddressbookACLHelper.canEditAddressbook(this);
