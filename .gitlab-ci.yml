@@ -99,6 +99,21 @@ linters:
     refs:
       - tags@linagora/lgs/openpaas/esn
 
+check_author:
+  image: docker-registry.linagora.com:5000/lgs-releases/gitlab-integrity-checks:latest
+  stage: linters
+  variables:
+    GIT_DEPTH: "1"
+  tags:
+    - ultralight
+  script:
+    - check_author.py check "$GITLAB_USER_EMAIL" "$GITLAB_USER_NAME" --no-accents
+  except:
+    refs:
+      - master@linagora/lgs/openpaas/esn
+      - tags@linagora/lgs/openpaas/esn
+      - /^release-.*/@linagora/lgs/openpaas/esn
+
 ####### tests without services requirements
 frontend-test:
   <<: *test-template
