@@ -15,3 +15,7 @@ frontend/**/*.css
 frontend/**/*.css.map
 modules/**/*.css
 modules/**/*.css.map
+.git
+.gitlab
+.gitlab-ci.yml
+docker-compose.yml
