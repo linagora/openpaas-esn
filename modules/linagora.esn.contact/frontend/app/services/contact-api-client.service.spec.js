@@ -1156,6 +1156,30 @@ describe('The contact Angular module contactapis', function() {
             this.$httpBackend.flush();
           });
         });
+
+        describe('The updateMembersRight function', function() {
+          it('should call to right endpoint to update members right', function(done) {
+            var bookId = '123';
+            var bookName = 'test';
+
+            this.$httpBackend.when('POST', this.getBookUrl(bookId, bookName), {
+              'dav:group-addressbook': {
+                privileges: ['{DAV:}read']
+              }
+            }).respond({});
+
+            this.ContactAPIClient
+              .addressbookHome(bookId)
+              .addressbook(bookName)
+              .updateMembersRight(['{DAV:}read'])
+              .then(function() {
+                done();
+              }, done);
+
+            this.$rootScope.$apply();
+            this.$httpBackend.flush();
+          });
+        });
       });
 
       describe('The search function', function() {
