@@ -59,6 +59,32 @@ describe('The contactAddressbookSettingsMainController', function() {
     expect(controller.cardDAVUrl).to.equal(url);
   });
 
+  describe('The canUpdateMembersRight function', function() {
+    it('should return false if user does not have share access', function() {
+      var addressbook = {
+        canShareAddressbook: false
+      };
+
+      var controller = initController();
+
+      controller.addressbook = addressbook;
+
+      expect(controller.canUpdateMembersRight()).to.be.false;
+    });
+
+    it('should return true if user has share access', function() {
+      var addressbook = {
+        canShareAddressbook: true
+      };
+
+      var controller = initController();
+
+      controller.addressbook = addressbook;
+
+      expect(controller.canUpdateMembersRight()).to.be.true;
+    });
+  });
+
   describe('The _initShareOwner fn', function() {
     it('should assign the share owner to controller', function() {
       var shareOwner = { id: 123 };

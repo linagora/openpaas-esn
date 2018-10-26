@@ -595,6 +595,34 @@ describe('The contactAddressbookService service', function() {
     });
   });
 
+  describe('The updateGroupAddressbookMembersRight function', function() {
+    it('should call ContactAPIClient to update members right', function() {
+      var updateSpy = sinon.spy();
+      var addressbook = {
+        bookId: '123',
+        bookName: 'foobar'
+      };
+
+      ContactAPIClient.addressbookHome = function(bookId) {
+        expect(bookId).to.equal(addressbook.bookId);
+
+        return {
+          addressbook: function(bookName) {
+            expect(bookName).to.equal(addressbook.bookName);
+
+            return {
+              updateMembersRight: updateSpy
+            };
+          }
+        };
+      };
+
+      contactAddressbookService.updateGroupAddressbookMembersRight(addressbook, ['{DAV:}read']);
+
+      expect(updateSpy).to.have.been.calledWith(['{DAV:}read']);
+    });
+  });
+
   describe('The getAddressbookUrl function', function() {
     var bookId, bookName, addressbook;
 

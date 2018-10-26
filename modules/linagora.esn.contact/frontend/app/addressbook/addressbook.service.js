@@ -34,7 +34,8 @@
       listSubscribedAddressbooks: listSubscribedAddressbooks,
       subscribeAddressbooks: subscribeAddressbooks,
       shareAddressbook: shareAddressbook,
-      updateAddressbookPublicRight: updateAddressbookPublicRight
+      updateAddressbookPublicRight: updateAddressbookPublicRight,
+      updateGroupAddressbookMembersRight: updateGroupAddressbookMembersRight
     };
 
     function getAddressbookByBookName(bookName, group) {
@@ -171,6 +172,13 @@
         .addressbookHome(addressbook.bookId)
         .addressbook(addressbook.bookName)
         .updatePublicRight(publicRight);
+    }
+
+    function updateGroupAddressbookMembersRight(addressbook, membersRight) {
+      return ContactAPIClient
+        .addressbookHome(addressbook.bookId)
+        .addressbook(addressbook.bookName)
+        .updateMembersRight(membersRight);
     }
 
     function getAddressbookUrl(addressbook) {

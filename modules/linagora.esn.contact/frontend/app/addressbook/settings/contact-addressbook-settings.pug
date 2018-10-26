@@ -25,7 +25,8 @@ form(name="form")
         contact-addressbook-settings-main(
           ng-show='$ctrl.selectedTab === "main"',
           addressbook='$ctrl.addressbook'
-          public-right='$ctrl.publicRight'
+          public-right='$ctrl.publicRight',
+          members-right='$ctrl.membersRight'
         )
         contact-addressbook-settings-delegation(
           ng-show='$ctrl.selectedTab === "delegation"',

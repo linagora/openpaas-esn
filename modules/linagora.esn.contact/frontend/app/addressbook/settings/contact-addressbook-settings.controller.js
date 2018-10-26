@@ -6,11 +6,13 @@
 
   function contactAddressbookSettingsController(
     $q,
+    _,
     $state,
     $stateParams,
     asyncAction,
     contactAddressbookService,
-    contactAddressbookDisplayService
+    contactAddressbookDisplayService,
+    CONTACT_ADDRESSBOOK_MEMBERS_RIGHTS
   ) {
     var self = this;
     var originalAddressbook;
@@ -34,6 +36,7 @@
 
           self.publicRight = _getShareConcernedAddressbook(self.addressbook).rights.public;
           self.sharees = _getShareConcernedAddressbook(self.addressbook).sharees;
+          self.membersRight = _getMembersRight(_getShareConcernedAddressbook(self.addressbook));
         });
     }
 
@@ -49,6 +52,14 @@
 
       if (shareeChanged) {
         updateActions.push(contactAddressbookService.shareAddressbook(shareConcernedAddressbook, self.sharees));
+      }
+
+      if (self.membersRight !== _getMembersRight(self.addressbook)) {
+        var membersRightToUpdate = _.find(CONTACT_ADDRESSBOOK_MEMBERS_RIGHTS, function(membersRight) {
+          return membersRight.label === self.membersRight;
+        });
+
+        updateActions.push(contactAddressbookService.updateGroupAddressbookMembersRight(shareConcernedAddressbook, membersRightToUpdate.value));
       }
 
       return asyncAction(NOTIFICATION_MESSAGES, function() {
@@ -68,6 +79,14 @@
 
     function _getShareConcernedAddressbook(addressbook) {
       return addressbook.isSubscription ? addressbook.source : addressbook;
+    }
+
+    function _getMembersRight(addressbook) {
+      var membersRight = addressbook.rights.members && _.find(CONTACT_ADDRESSBOOK_MEMBERS_RIGHTS, function(membersRight) {
+        return _.isEqual(membersRight.value.sort(), addressbook.rights.members.sort());
+      });
+
+      return membersRight && membersRight.label;
     }
   }
 })(angular);
