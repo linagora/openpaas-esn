@@ -39,7 +39,7 @@ const injections = [
     'subheader/save-button/save-button.component.js'
   ], innerApps: ['esn']},
   {angular: 'esn.socketio', files: ['socketio.js'], innerApps: ['esn']},
-  {angular: 'esn.domain', files: ['domain.js'], innerApps: ['esn']},
+  {angular: 'esn.domain', files: ['domain.js'], innerApps: ['esn', 'welcome']},
   {angular: 'esn.member', files: ['member.js', 'member/member-resolver-registry.service.js'], innerApps: ['esn']},
   {angular: 'esn.module-registry', files: ['module-registry/module-registry.module.js', 'module-registry/module-registry.service.js'], innerApps: ['esn']},
   {angular: 'esn.search', files: [
@@ -86,7 +86,7 @@ const injections = [
     'avatar/list/avatar-list.controller.js',
     'avatar/avatar-url.service.js'
   ], innerApps: ['esn']},
-  {angular: 'esn.user', files: ['user.js'], innerApps: ['esn']},
+  {angular: 'esn.user', files: ['user.js'], innerApps: ['esn', 'welcome']},
   {angular: 'esn.message', files: [
     'message/message.module.js',
     'message.js',
@@ -94,7 +94,7 @@ const injections = [
     'message/actions/message-actions.controller.js',
     'message/message-helpers.service.js'
   ], innerApps: ['esn']},
-  {angular: 'esn.session', files: ['session.js'], innerApps: ['esn']},
+  {angular: 'esn.session', files: ['session.js'], innerApps: ['esn', 'welcome']},
   {angular: 'esn.oauth-application', files: [
     'oauth-application/oauth-application.module.js',
     'oauth-application/oauth-application.config.js',
@@ -190,7 +190,7 @@ const injections = [
     'pagination/pagination-provider-builder.service.js',
     'pagination/pagination-provider.service.js'
   ], innerApps: ['esn']},
-  {angular: 'esn.object-type', files: ['object-type.js'], innerApps: ['esn']},
+  {angular: 'esn.object-type', files: ['object-type.js'], innerApps: ['esn', 'welcome']},
   {angular: 'esn.file', files: ['file.js'], innerApps: ['esn']},
   {angular: 'esn.background', files: ['background.js'], innerApps: ['esn']},
   {angular: 'esn.parser', files: ['parser.js'], innerApps: ['esn']},
@@ -222,7 +222,7 @@ const injections = [
     'attendee/attendee.run.js',
     'attendee/attendee.constants.js',
     'attendee/attendee.service.js'
-  ], innerApps: ['esn']},
+  ], innerApps: ['esn', 'welcome']},
   {angular: 'esn.availability', files: [
     'availability/availability.module.js',
     'availability/availability.constants.js',
@@ -250,7 +250,7 @@ const injections = [
     'config/config.constants.js',
     'config/config.service.js',
     'config/config-api.service.js'
-  ], innerApps: ['esn']},
+  ], innerApps: ['esn', 'welcome']},
   {angular: 'esn.highlight', files: ['highlight.js'], innerApps: ['esn']},
   {angular: 'esn.dragndrop', files: ['dragndrop.js'], innerApps: ['esn']},
   {angular: 'esn.autolinker-wrapper', files: ['esn.autolinker-wrapper.js'], innerApps: ['esn', 'welcome']},
@@ -429,7 +429,7 @@ const injections = [
   {angular: 'esn.template', files: [
     'template/template.module.js',
     'template/template.provider.js'
-  ], innerApps: ['esn']},
+  ], innerApps: ['esn', 'welcome']},
   {angular: 'esn.file-browser', files: [
     'file-browser/file-browser.module.js',
     'file-browser/file-browser.component.js',

@@ -9,6 +9,7 @@ describe('The esn.async-action Angular module', function() {
 
   beforeEach(function() {
     angular.mock.module('esn.async-action');
+    angular.mock.module('esn.configuration');
   });
 
   describe('The asyncAction factory', function() {

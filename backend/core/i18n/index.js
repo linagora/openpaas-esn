@@ -5,6 +5,11 @@ const i18n = require('@linagora/i18n-node');
 const i18nConfigTemplate = {
   defaultLocale: 'en',
   locales: ['en', 'fr', 'vi'],
+  fullLocales: {
+    en: 'en-US',
+    fr: 'fr-FR',
+    vi: 'vi-VN'
+  },
   fallbacks: {
     'en-*': 'en',
     'fr-*': 'fr',
@@ -28,4 +33,5 @@ function setDefaultConfiguration(options) {
 }
 
 module.exports = i18n;
+module.exports.i18nConfigTemplate = i18nConfigTemplate;
 module.exports.setDefaultConfiguration = setDefaultConfiguration;
