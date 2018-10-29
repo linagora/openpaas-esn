@@ -436,6 +436,7 @@
   "Show a list of existing members in current domain": "显示该区域内的现有成员名单",
   "Allows user to submit new external application for current domain": "允许用户向当前域名提交新的外部应用",
   "Application Menu": "申请菜单",
+  "No accounts, click %s to add a new one": "没有账号, 请点击 %s 添加新帐户",
   "No application, click %s to add a new one": "无应用，请点击 %s 添加",
   "Cannot get user applications, try again later!": "无法获取用户申请，请稍后重试！",
   "Allows users to change their password": "允许用户更改密码",
