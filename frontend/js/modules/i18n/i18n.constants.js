@@ -3,6 +3,7 @@
 
   angular.module('esn.i18n')
     .constant('ESN_I18N_DEFAULT_LOCALE', 'en')
+    .constant('ESN_I18N_DEFAULT_FULL_LOCALE', 'en-US')
     .constant('ESN_I18N_AVAILABLE_LANGUAGES', [
       { key: 'en', label: 'English' },
       { key: 'fr', label: 'Français' },
@@ -12,6 +13,11 @@
       'en_*': 'en',
       'fr_*': 'fr',
       'vi_*': 'vi'
+    })
+    .constant('ESN_I18N_FULL_LOCALE', {
+      en: 'en-US',
+      fr: 'fr-FR',
+      vi: 'vi-VN'
     })
     .constant('ESN_I18N_DATE_FORMAT', {
       en: 'yyyy/MM/dd',

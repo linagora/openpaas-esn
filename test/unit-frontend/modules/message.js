@@ -8,9 +8,6 @@ describe('The esn.message Angular module', function() {
   var esnAttachmentRegistryService;
 
   beforeEach(function() {
-    var session = this.session = {
-      user: { emails: ['jdoe@lng.net'] }
-    };
 
     esnAttachmentRegistryService = {
       addViewer: sinon.spy(),
@@ -25,8 +22,10 @@ describe('The esn.message Angular module', function() {
 
     angular.mock.module('esn.message');
     angular.mock.module(function($provide) {
-      $provide.value('session', session);
-       $provide.value('esnAttachmentRegistryService', esnAttachmentRegistryService);
+      $provide.value('notificationFactory', {
+        weakInfo: sinon.spy()
+      });
+      $provide.value('esnAttachmentRegistryService', esnAttachmentRegistryService);
     });
   });
 

@@ -9,6 +9,7 @@ describe('The esnSearchHeader component', function() {
 
   beforeEach(function() {
     angular.mock.module('esn.search', 'jadeTemplates');
+    angular.mock.module('esn.configuration');
   });
 
   beforeEach(inject(function(_$compile_, _$rootScope_, _$stateParams_, _$state_) {

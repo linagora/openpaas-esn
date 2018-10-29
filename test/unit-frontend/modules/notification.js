@@ -193,6 +193,10 @@ describe('The esn.notification Angular modules', function() {
   describe('The notification service with jQuery.notify plugin', function() {
     var notifyService;
 
+    beforeEach(function() {
+      angular.mock.module('esn.configuration');
+    });
+
     beforeEach(inject(function(_notifyService_) {
       notifyService = _notifyService_;
     }));

@@ -1,19 +1,35 @@
 'use strict';
 
-/* global chai: false */
+/* global chai, sinon: false */
 
 var expect = chai.expect;
 
 describe('The esnI18nService service', function() {
-  var esnI18nService, EsnI18nString;
+  var $rootScope, $q, esnI18nService, EsnI18nString, preferredLanguage, ESN_I18N_DEFAULT_LOCALE, ESN_I18N_DEFAULT_FULL_LOCALE, ESN_I18N_FULL_LOCALE;
 
   beforeEach(function() {
     angular.mock.module('esn.i18n');
+    angular.mock.module('esn.configuration');
+    angular.mock.module(function($provide) {
+      $provide.value('$translate', {
+        preferredLanguage: sinon.spy(function() {
+          return preferredLanguage;
+        })
+      });
+      $provide.value('esnConfig', function(config, defaultValue) {
+        return preferredLanguage ? $q.when(preferredLanguage) : $q.when(defaultValue);
+      });
+    });
   });
 
-  beforeEach(inject(function(_esnI18nService_, _EsnI18nString_) {
+  beforeEach(inject(function(_$q_, _$rootScope_, _esnI18nService_, _EsnI18nString_, _ESN_I18N_DEFAULT_LOCALE_, _ESN_I18N_DEFAULT_FULL_LOCALE_, _ESN_I18N_FULL_LOCALE_) {
+    $q = _$q_;
+    $rootScope = _$rootScope_;
     esnI18nService = _esnI18nService_;
     EsnI18nString = _EsnI18nString_;
+    ESN_I18N_DEFAULT_LOCALE = _ESN_I18N_DEFAULT_LOCALE_;
+    ESN_I18N_DEFAULT_FULL_LOCALE = _ESN_I18N_DEFAULT_FULL_LOCALE_;
+    ESN_I18N_FULL_LOCALE = _ESN_I18N_FULL_LOCALE_;
   }));
 
   describe('The translate function', function() {
@@ -57,6 +73,42 @@ describe('The esnI18nService service', function() {
       var string = 'normal string';
 
       expect(esnI18nService.isI18nString(string)).to.be.false;
+    });
+  });
+
+  describe('The getLocale function', function() {
+    it('should return the default locale if the user don\'t have a prefered language', function() {
+      preferredLanguage = null;
+
+      expect(esnI18nService.getLocale()).to.be.equal(ESN_I18N_DEFAULT_LOCALE);
+    });
+    it('should return the user browser locale', function() {
+      preferredLanguage = 'fr';
+
+      expect(esnI18nService.getLocale()).to.be.equal(preferredLanguage);
+    });
+  });
+
+  describe('The getFullLocale function', function() {
+    it('should return the default Full locale if the user don\'t have a prefered language', function(done) {
+      preferredLanguage = null;
+
+      esnI18nService.getFullLocale().then(function(locale) {
+        expect(locale).to.be.equal(ESN_I18N_DEFAULT_FULL_LOCALE);
+        done();
+      });
+
+      $rootScope.$digest();
+    });
+    it('should return the user Full locale', function(done) {
+      preferredLanguage = 'fr';
+
+      esnI18nService.getFullLocale().then(function(locale) {
+        expect(locale).to.be.equal(ESN_I18N_FULL_LOCALE[preferredLanguage]);
+        done();
+      });
+
+      $rootScope.$digest();
     });
   });
 });

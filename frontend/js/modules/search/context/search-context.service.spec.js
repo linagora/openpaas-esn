@@ -5,7 +5,7 @@
 var expect = chai.expect;
 
 describe('The esnSearchContextService service', function() {
-  var $rootScope, $state, $stateParams, $q, searchProviders, esnSearchContextService;
+  var $rootScope, $state, $stateParams, $q, searchProviders, esnSearchContextService, esnI18nService;
 
   beforeEach(function() {
     $state = {
@@ -15,11 +15,21 @@ describe('The esnSearchContextService service', function() {
     searchProviders = {
       getAll: sinon.stub()
     };
+    esnI18nService = {
+      translate: sinon.spy(function(name) {
+        return {
+          toString: function() {
+            return name;
+          }
+        };
+      })
+    };
 
     angular.mock.module('esn.search', function($provide) {
       $provide.value('$state', $state);
       $provide.value('$stateParams', $stateParams);
       $provide.value('searchProviders', searchProviders);
+      $provide.value('esnI18nService', esnI18nService);
     });
   });
 
