@@ -178,6 +178,36 @@ describe('The Contact Angular module AddressbookShell', function() {
 
           expect(shell.shareAccess).to.equal('read');
         });
+
+        it('should assign the group to group of source if subscription is not a group', function() {
+          jsonInput['dav:group'] = 'principals/domains/sourceDomainId';
+          jsonInput['openpaas:source'] = angular.copy(jsonInput);
+          delete jsonInput['dav:group'];
+
+          var shell = new AddressbookShell(jsonInput);
+
+          expect(shell.group).to.deep.equal({
+            type: 'domains',
+            id: 'sourceDomainId'
+          });
+        });
+
+        it('should keep group of subscription even source is a group', function() {
+          jsonInput['dav:group'] = 'principals/domains/sourceDomainId';
+          jsonInput['openpaas:source'] = angular.copy(jsonInput);
+          jsonInput['dav:group'] = 'principals/domains/domainId';
+
+          var shell = new AddressbookShell(jsonInput);
+
+          expect(shell.group).to.deep.equal({
+            type: 'domains',
+            id: 'domainId'
+          });
+          expect(shell.source.group).to.deep.equal({
+            type: 'domains',
+            id: 'sourceDomainId'
+          });
+        });
       });
     });
   });

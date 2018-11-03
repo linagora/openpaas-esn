@@ -52,6 +52,8 @@
         }, this);
       }
 
+      this.group = this.group || (this.source && this.source.group);
+
       this.canEditAddressbook = contactAddressbookACLHelper.canEditAddressbook(this);
       this.canDeleteAddressbook = contactAddressbookACLHelper.canDeleteAddressbook(this);
       this.canShareAddressbook = contactAddressbookACLHelper.canShareAddressbook(this);
