@@ -51,8 +51,9 @@
     }
 
     function _initShareOwner() {
-      _getShareOwner(self.addressbook.source.sharees)
-        .getUser()
+      var shareOwner = _getShareOwner(self.addressbook.source.sharees);
+
+      shareOwner && shareOwner.getUser()
         .then(function(user) {
           self.shareOwner = user;
         });

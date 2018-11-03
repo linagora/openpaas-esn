@@ -129,5 +129,26 @@ describe('The contactAddressbookSettingsMainController', function() {
       expect(getUserSpy).to.not.have.been.called;
       expect(controller.shareOwner).to.not.be.defined;
     });
+
+    it('should do nothing if the address book is a delegation subscription of domain address book', function() {
+      var getUserSpy = sinon.spy();
+      var controller = initController();
+
+      controller.addressbook = {
+        subscriptionType: CONTACT_SHARING_SUBSCRIPTION_TYPE.delegation,
+        source: {
+          sharees: [{
+            access: CONTACT_SHARING_SHARE_ACCESS.READ,
+            getUser: getUserSpy
+          }]
+        }
+      };
+
+      controller.$onInit();
+      $rootScope.$digest();
+
+      expect(getUserSpy).to.not.have.been.called;
+      expect(controller.shareOwner).to.be.undefined;
+    });
   });
 });
