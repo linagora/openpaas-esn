@@ -135,4 +135,23 @@ angular.module('esn.user', ['esn.http', 'esn.object-type', 'esn.lodash-wrapper',
         propagateEnterEvent: '=?'
       }
     };
+  })
+  .factory('usernameService', function(Cache, userAPI, userUtils) {
+    var cache = new Cache({
+      loader: _userNameLoader
+    });
+
+    return {
+      getFromId: getFromId
+    };
+
+    function _userNameLoader(userId) {
+      return userAPI.user(userId).then(function(response) {
+        return userUtils.displayNameOf(response.data);
+      });
+    }
+
+    function getFromId(userId) {
+      return cache.get(userId);
+    }
   });
