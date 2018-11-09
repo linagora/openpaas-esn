@@ -100,17 +100,26 @@ describe('The Contact Angular module AddressbookShell', function() {
         expect(shell.rights.public).to.equal('{DAV:}write');
       });
 
-      it('should get members right according to acl for group address book', function() {
+      it('should get members right according to dav:acl for group address book', function() {
         var groupPrincipal = 'principals/domains/domainId';
+        var davAcl = ['{DAV:}read', '{DAV:}write'];
 
         jsonInput['dav:group'] = groupPrincipal;
-        jsonInput.acl = [
-          { privilege: '{DAV:}read', principal: groupPrincipal, protected: true }
-        ];
+        jsonInput['dav:acl'] = davAcl;
 
         var shell = new AddressbookShell(jsonInput);
 
-        expect(shell.rights.members).to.deep.equal(['{DAV:}read']);
+        expect(shell.rights.members).to.deep.equal(davAcl);
+      });
+
+      it('should set members right to empty array for group address book if there is no dav:acl', function() {
+        var groupPrincipal = 'principals/domains/domainId';
+
+        jsonInput['dav:group'] = groupPrincipal;
+
+        var shell = new AddressbookShell(jsonInput);
+
+        expect(shell.rights.members).to.be.an('array').that.is.empty;
       });
 
       it('should set public right property to private if there is no acl present', function() {

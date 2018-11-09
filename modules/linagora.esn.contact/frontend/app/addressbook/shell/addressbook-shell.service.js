@@ -44,12 +44,7 @@
 
       if (json['dav:group']) {
         this.group = contactAddressbookParser.parsePrincipalPath(json['dav:group']);
-
-        this.acl && this.acl.forEach(function(aclItem) {
-          if (aclItem.principal === json['dav:group']) {
-            this.rights.members.push(aclItem.privilege);
-          }
-        }, this);
+        this.rights.members = json['dav:acl'] || [];
       }
 
       this.group = this.group || (this.source && this.source.group);
