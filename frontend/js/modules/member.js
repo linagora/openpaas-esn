@@ -16,6 +16,7 @@ angular.module('esn.member', ['esn.session', 'esn.router', 'esn.domain', 'esn.se
       restrict: 'E',
       scope: {
         member: '=member',
+        query: '=?',
         disableProfileLink: '=?'
       },
       templateUrl: '/views/modules/member/member.html'
