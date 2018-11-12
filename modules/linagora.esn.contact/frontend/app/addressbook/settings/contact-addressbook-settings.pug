@@ -31,5 +31,6 @@ form(name="form")
         contact-addressbook-settings-delegation(
           ng-show='$ctrl.selectedTab === "delegation"',
           ng-if="$ctrl.addressbook.canShareAddressbook",
-          sharees='$ctrl.sharees'
+          sharees='$ctrl.sharees',
+          share-managers='$ctrl.addressbook.shareManagers'
         )

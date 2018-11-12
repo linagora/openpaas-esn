@@ -1,7 +1,11 @@
 ng-form(name="form")
   .row.add-sharee
     .col-xs-12.col-md-7
-      users-autocomplete-input(mutable-users='$ctrl.newUsers', on-adding-user='$ctrl.onAddingUser')
+      users-autocomplete-input(
+        mutable-users='$ctrl.newUsers',
+        on-adding-user='$ctrl.onAddingUser',
+        ignored-users='$ctrl.ignoredUsers'
+      )
     .col-xs-12.col-md-4
       .select
         select.form-control.floating-label(

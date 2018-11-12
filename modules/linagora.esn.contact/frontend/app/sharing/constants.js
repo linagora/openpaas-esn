@@ -42,5 +42,7 @@
     .constant('CONTACT_SHARING_SUBSCRIPTION_TYPE', {
       delegation: 'delegation',
       public: 'public'
-    });
+    })
+
+    .constant('CONTACT_SHARING_SHARE_PRIVILEGE', '{DAV:}share');
 })(angular);

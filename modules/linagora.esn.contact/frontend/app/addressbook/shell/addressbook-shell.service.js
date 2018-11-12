@@ -9,7 +9,8 @@
     contactAddressbookACLHelper,
     ContactSharee,
     CONTACT_ADDRESSBOOK_PUBLIC_RIGHT,
-    CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL
+    CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL,
+    CONTACT_SHARING_SHARE_PRIVILEGE
   ) {
 
     function AddressbookShell(json) {
@@ -29,8 +30,17 @@
         members: []
       };
 
+      this.shareManagers = [];
+
       if (json['openpaas:source']) {
         this.source = new AddressbookShell(json['openpaas:source']);
+
+        this.source.acl && this.source.acl.forEach(function(aclItem) {
+          if (aclItem.privilege === CONTACT_SHARING_SHARE_PRIVILEGE) {
+            this.shareManagers.push({ _id: contactAddressbookParser.parsePrincipalPath(aclItem.principal).id });
+          }
+        }, this);
+
         this.isSubscription = true;
         this.subscriptionType = json['openpaas:subscription-type'];
         this.shareAccess = json['dav:share-access'];
@@ -60,6 +70,10 @@
       this.canExportContact = contactAddressbookACLHelper.canExportContact(this);
 
       this.acl && this.acl.forEach(function(aclItem) {
+        if (aclItem.privilege === CONTACT_SHARING_SHARE_PRIVILEGE) {
+          this.shareManagers.push({ _id: contactAddressbookParser.parsePrincipalPath(aclItem.principal).id });
+        }
+
         if (aclItem.principal === CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL) {
           if (aclItem.privilege === CONTACT_ADDRESSBOOK_PUBLIC_RIGHT.READ.value || aclItem.privilege === CONTACT_ADDRESSBOOK_PUBLIC_RIGHT.WRITE.value) {
             this.rights.public = pickHighestPriorityRight(this.rights.public, aclItem.privilege);
