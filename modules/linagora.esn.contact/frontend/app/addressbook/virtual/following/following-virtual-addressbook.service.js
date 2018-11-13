@@ -10,7 +10,7 @@
       },
       excludeFromAggregate: true
     };
-    var addressbook = new ContactVirtualAddressBook(CONTACT_FOLLOWING_VIRTUAL_ADDRESSBOOK_ID, 'Followed Members', loadNextItems, options);
+    var addressbook = new ContactVirtualAddressBook(CONTACT_FOLLOWING_VIRTUAL_ADDRESSBOOK_ID, 'Followed members', loadNextItems, options);
 
     function loadNextItems(options) {
       return ContactVirtualFollowingsLoaderService.list(options).then(function(result) {
