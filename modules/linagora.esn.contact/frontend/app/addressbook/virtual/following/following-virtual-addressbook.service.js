@@ -7,7 +7,8 @@
     var options = {
       configuration: {
         enabled: 'linagora.esn.contact.features.isVirtualFollowingAddressbookEnabled'
-      }
+      },
+      excludeFromAggregate: true
     };
     var addressbook = new ContactVirtualAddressBook(CONTACT_FOLLOWING_VIRTUAL_ADDRESSBOOK_ID, 'Followed Members', loadNextItems, options);
 

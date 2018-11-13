@@ -88,7 +88,7 @@ describe('The ContactListController controller', function() {
     $stateParams = _$stateParams_;
     sharedContactDataService = _sharedContactDataService_;
     contactAddressbookService = _contactAddressbookService_;
-    contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when(addressbooks));
+    contactAddressbookService.listAggregatedAddressbooks = sinon.stub().returns($q.when(addressbooks));
     contactAddressbookDisplayService = _contactAddressbookDisplayService_;
     sortedContacts = ALPHA_ITEMS.split('').reduce(function(a, b) {
       a[b] = [];
@@ -161,12 +161,12 @@ describe('The ContactListController controller', function() {
       expect(controller.status).to.equal('loading');
     });
 
-    it('should call contactAddressbookService.listAddressbooks to get all address books if bookName is blank', function() {
+    it('should call contactAddressbookService.listAggregatedAddressbooks to get all address books if bookName is blank', function() {
       $stateParams.bookName = '';
-      contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when([]));
+      contactAddressbookService.listAggregatedAddressbooks = sinon.stub().returns($q.when([]));
       initController();
 
-      expect(contactAddressbookService.listAddressbooks).to.have.been.called;
+      expect(contactAddressbookService.listAggregatedAddressbooks).to.have.been.called;
     });
 
     it('should call contactAddressbookService.getAddressbookByBookName to get specific address books if bookName is provided', function() {
@@ -178,7 +178,7 @@ describe('The ContactListController controller', function() {
     });
 
     it('should set status to "error" if failed to load address books', function() {
-      contactAddressbookService.listAddressbooks = sinon.stub().returns($q.reject('an error'));
+      contactAddressbookService.listAggregatedAddressbooks = sinon.stub().returns($q.reject('an error'));
       var controller = initController();
 
       expect(controller.status).to.equal('error');
@@ -203,7 +203,7 @@ describe('The ContactListController controller', function() {
       canCreateContact: false
     }];
 
-    contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when(currentAddressbooks));
+    contactAddressbookService.listAggregatedAddressbooks = sinon.stub().returns($q.when(currentAddressbooks));
 
     initController();
 
@@ -287,7 +287,7 @@ describe('The ContactListController controller', function() {
     });
 
     gracePeriodService.flushAllTasks = sinon.spy();
-    contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when([]));
+    contactAddressbookService.listAggregatedAddressbooks = sinon.stub().returns($q.when([]));
 
     initController();
 
@@ -420,7 +420,7 @@ describe('The ContactListController controller', function() {
       };
     };
 
-    contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when(currentAddressbooks));
+    contactAddressbookService.listAggregatedAddressbooks = sinon.stub().returns($q.when(currentAddressbooks));
 
     initController(AlphaCategoryService);
 
@@ -478,7 +478,7 @@ describe('The ContactListController controller', function() {
       };
     };
 
-    contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when(currentAddressbooks));
+    contactAddressbookService.listAggregatedAddressbooks = sinon.stub().returns($q.when(currentAddressbooks));
 
     initController(AlphaCategoryService);
 
@@ -508,7 +508,7 @@ describe('The ContactListController controller', function() {
       };
     };
 
-    contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when(currentAddressbooks));
+    contactAddressbookService.listAggregatedAddressbooks = sinon.stub().returns($q.when(currentAddressbooks));
 
     initController(AlphaCategoryService);
 
@@ -1004,7 +1004,7 @@ describe('The ContactListController controller', function() {
     });
 
     it('should set status to "loading"', function() {
-      contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when([]));
+      contactAddressbookService.listAggregatedAddressbooks = sinon.stub().returns($q.when([]));
       var controller = initController();
 
       $timeout.flush();
@@ -1016,7 +1016,7 @@ describe('The ContactListController controller', function() {
     });
 
     it('should set status to "loaded" after contacts are loaded', function() {
-      contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when([]));
+      contactAddressbookService.listAggregatedAddressbooks = sinon.stub().returns($q.when([]));
       var controller = initController();
 
       $timeout.flush();
@@ -1064,7 +1064,7 @@ describe('The ContactListController controller', function() {
         editable: true
       }];
 
-      contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when(currentAddressbooks));
+      contactAddressbookService.listAggregatedAddressbooks = sinon.stub().returns($q.when(currentAddressbooks));
 
       initController();
 

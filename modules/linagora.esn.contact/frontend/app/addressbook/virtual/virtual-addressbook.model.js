@@ -13,6 +13,7 @@
       this.description = 'Virtual addressbook';
       this.loadNextItems = loadNextItems;
       this.options = options;
+      this.excludeFromAggregate = options && options.excludeFromAggregate;
     }
 
     return ContactVirtualAddressBook;
