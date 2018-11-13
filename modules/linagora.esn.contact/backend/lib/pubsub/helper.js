@@ -1,7 +1,7 @@
 module.exports = {
   parseAddressbookPath,
   parseContactPath,
-  parseOwner
+  parsePrincipal
 };
 
 function parseAddressbookPath(path) {
@@ -33,9 +33,12 @@ function parseContactPath(path) {
   return {};
 }
 
-function parseOwner(principalUri) {
-  // a principalUri is in form of principals/users/<user ID>
-  const match = String(principalUri).match(/^principals\/users\/(.*?)$/);
+function parsePrincipal(principal) {
+  // a principal is in form of principals/<type>/<ID>
+  const match = String(principal).match(/^principals\/(.*?)\/(.*?)$/);
 
-  return match ? match[1] : null;
+  return match && {
+    type: match[1],
+    id: match[2]
+  };
 }
