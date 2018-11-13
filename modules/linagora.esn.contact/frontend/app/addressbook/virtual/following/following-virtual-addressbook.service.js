@@ -15,8 +15,8 @@
     function loadNextItems(options) {
       return ContactVirtualFollowingsLoaderService.list(options).then(function(result) {
         if (result && result.data && result.data.length) {
-          result.data = result.data.map(function(user) {
-            return new ContactUserShell(user, addressbook);
+          result.data = result.data.map(function(following) {
+            return new ContactUserShell(following.user, addressbook);
           });
         }
 

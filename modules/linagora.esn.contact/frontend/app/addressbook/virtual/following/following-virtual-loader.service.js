@@ -21,9 +21,7 @@
 
       return followAPI.getFollowings(session.user, query).then(function(response) {
         var result = {
-          data: (response.data || []).map(function(following) {
-            return following.user;
-          }),
+          data: response.data,
           lastPage: (response.data.length < query.limit)
         };
 
