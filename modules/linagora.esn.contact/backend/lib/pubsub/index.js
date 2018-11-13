@@ -111,7 +111,7 @@ module.exports = dependencies => {
     }
 
     function shouldPublishElasticsearchMessage(message) {
-      return !message.sourcePath && message.path && message.path !== '/';
+      return !message.sourcePath && !message.groupAddressBook && message.path && message.path !== '/';
     }
   }
 };
