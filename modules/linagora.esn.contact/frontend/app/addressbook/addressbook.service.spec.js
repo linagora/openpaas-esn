@@ -99,6 +99,34 @@ describe('The contactAddressbookService service', function() {
     });
   });
 
+  describe('The listAggregatedAddressbooks function', function() {
+    it('should return addressbooks which are not excluded from aggregation', function(done) {
+      var davABs = [{id: 'dav1', excludeFromAggregate: true}, {id: 'dav2'}];
+      var virtualABs = [{id: 'virtual1'}, {id: 'virtual2', excludeFromAggregate: true}];
+      var list = sinon.stub().returns($q.when(davABs));
+      var virtualListStub = sinon.stub(ContactVirtualAddressBookService, 'list').returns($q.when(virtualABs));
+
+      ContactAPIClient.addressbookHome = function() {
+        return {
+          addressbook: function() {
+            return {
+              list: list
+            };
+          }
+        };
+      };
+      contactAddressbookService.listAggregatedAddressbooks().then(function(addressbooks) {
+        expect(list).to.have.been.calledOnce;
+        expect(virtualListStub).to.have.been.calledOnce;
+        expect(addressbooks).to.deep.equal([davABs[1], virtualABs[0]]);
+
+        done();
+      }).catch(done);
+
+      $rootScope.$digest();
+    });
+  });
+
   describe('The getAddressbookByBookName function', function() {
     it('should return the virtual addressbook if it exists', function(done) {
       var addressbook = {id: 'contacts'};

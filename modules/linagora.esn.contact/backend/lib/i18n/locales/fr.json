@@ -127,5 +127,7 @@
   "Sharing Addressbook": "Partage de carnet d'adresses",
   "Show domain members as an addressbook": "Afficher les membres du domaine en tant que carnet d'adresses",
   "Directory": "Annuaire",
-  "All members": "Tous les membres"
+  "All members": "Tous les membres",
+  "Followed members": "Members suivis",
+  "Show followed members as an addressbook": "Afficher les members suivis en tant que carnet d'adresses"
 }

@@ -26,6 +26,7 @@
       getAddressbookByBookName: getAddressbookByBookName,
       getAddressbookUrl: getAddressbookUrl,
       listAddressbooks: listAddressbooks,
+      listAggregatedAddressbooks: listAggregatedAddressbooks,
       listAddressbooksUserCanCreateContact: listAddressbooksUserCanCreateContact,
       removeAddressbook: removeAddressbook,
       updateAddressbook: updateAddressbook,
@@ -43,6 +44,14 @@
         }
 
         return ContactAPIClient.addressbookHome(session.user._id).addressbook(bookName).get();
+      });
+    }
+
+    function listAggregatedAddressbooks() {
+      return listAddressbooks().then(function(addressbooks) {
+        return addressbooks.filter(function(addressbook) {
+          return !addressbook.excludeFromAggregate;
+        });
       });
     }
 

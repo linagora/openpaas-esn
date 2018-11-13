@@ -64,7 +64,7 @@
       if ($scope.bookName) {
         listAddressbooks = contactAddressbookService.getAddressbookByBookName($scope.bookName);
       } else {
-        listAddressbooks = contactAddressbookService.listAddressbooks();
+        listAddressbooks = contactAddressbookService.listAggregatedAddressbooks();
       }
 
       self.status = LOADING_STATUS.loading;
