@@ -50,6 +50,25 @@ ESN_HOST="172.17.0.1" ESN_PATH="$PWD" docker-compose -f ./docker/dockerfiles/dev
 
 Once this is done, you should have all the services running and can continue to the ESN installation itself. Add the `-d` option to the above command to have services running in background.
 
+#### Troubleshoot on Fedora and other RHEL-based distributions
+
+##### No route to host
+
+On Fedora, SabreDAV may have troubles contacting ESN from its container. If you see the following error in SabreDAV containter's logs:
+
+```
+<d:error xmlns:d="DAV:" xmlns:s="http://sabredav.org/ns">
+  <s:sabredav-version>3.2.0</s:sabredav-version>
+  <s:exception>Sabre\HTTP\ClientException</s:exception>
+  <s:message>Failed to connect to 172.17.0.1 port 8080: No route to host</s:message>
+  <s:file>/var/www/vendor/sabre/http/lib/Client.php</s:file>
+  <s:line>356</s:line>
+  <s:code>7</s:code>
+  <s:stacktrace>#0 /var/www/vendor/sabre/http/lib/Client.php(103): Sabre\HTTP\Client-&gt;doRequest(Object(Sabre\HTTP\Request))
+```
+
+This may be a problem with `firewalld`. Follow the instructions [here](https://support.onegini.com/hc/en-us/articles/115000769311-Firewalld-error-with-Docker-No-route-to-host-) to authorize intercontainer communication.
+
 #### 3. Install node.js
 
 You can use [nvm](https://github.com/creationix/nvm) to install Node.js. Once `nvm` is installed, type the following commands in the directory of your project :
