@@ -54,6 +54,10 @@
   }
 }
 
+#profile-main .pmo-pic {
+  margin: 0 !important; // override material admin (20)
+}
+
 .profile-overview {
   .edit-h {
     position: absolute;
@@ -191,5 +195,9 @@ dl {
 @media (max-width: @screen-xs-max) {
   .modal-profile-avatar {
     width: 100vw;
+  }
+
+  .profile-overview .po-card .avatar-with-bubble {
+    padding: 20px;
   }
 }
