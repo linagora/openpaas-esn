@@ -2,15 +2,19 @@
   .pull-left.p-r-15
     esn-avatar(user-id="member._id")
   .media-body
-    .lv-title
-      h4.media-heading {{::member.firstname}} {{::member.lastname}}
+    .lv-titles
+      span.media-heading-search
+        h4(ng-bind-html="::member.firstname | esnHighlight: query") 
+        h4(ng-bind-html="::member.lastname | esnHighlight: query") 
       span
-        a(ng-href='mailto:{{::member.emails[0]}}', op-inbox-compose, op-inbox-compose-display-name="{{member.firstname}} {{member.lastname}}") {{::member.emails[0]}}
+        a(ng-bind-html="::member.emails[0] | esnHighlight: query", ng-href='mailto:{{::member.emails[0]}}', op-inbox-compose, op-inbox-compose-display-name="{{member.firstname}} {{member.lastname}}") 
 .member-container(ng-if="disableProfileLink")
   .pull-left.p-r-15
     esn-avatar(user-id="member._id")
   .media-body
     .lv-title
-      h4.media-heading {{::member.firstname}} {{::member.lastname}}
+      span.media-heading-search
+        h4(ng-bind-html="::member.firstname | esnHighlight: query") 
+        h4(ng-bind-html="::member.lastname | esnHighlight: query") 
       span
-        a(ng-href='mailto:{{::member.emails[0]}}', op-inbox-compose, op-inbox-compose-display-name="{{member.firstname}} {{member.lastname}}") {{::member.emails[0]}}
+        a(ng-bind-html="::member.emails[0] | esnHighlight: query", ng-href='mailto:{{::member.emails[0]}}', op-inbox-compose, op-inbox-compose-display-name="{{member.firstname}} {{member.lastname}}") 
