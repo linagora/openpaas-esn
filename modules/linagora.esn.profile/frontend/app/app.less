@@ -1,4 +1,18 @@
 #profile-main {
+
+  .profile-overview .po-information button {
+    background-color: @m-white;
+    color: @text-color;
+
+    i {
+      display: none;
+    }
+
+    span {
+      font-weight: 600;
+    }
+  }
+
   min-height: 600px;
   margin-top: 0;
 
@@ -52,6 +66,10 @@
     margin: 0;
     padding: 0;
   }
+}
+
+#profile-main .pmo-pic {
+  margin: 0 !important; // override material admin (20)
 }
 
 .profile-overview {
@@ -110,6 +128,7 @@
   }
   .po-information {
     text-align: center;
+    margin-bottom: 15px;
 
     .follow-card,
     .follow-button,
@@ -191,5 +210,9 @@ dl {
 @media (max-width: @screen-xs-max) {
   .modal-profile-avatar {
     width: 100vw;
+  }
+
+  .profile-overview .po-card .avatar-with-bubble {
+    padding: 20px;
   }
 }
