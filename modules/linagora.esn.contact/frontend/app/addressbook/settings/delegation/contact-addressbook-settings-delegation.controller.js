@@ -7,7 +7,6 @@
   function contactAddressbookSettingsDelegationController(
     $q,
     _,
-    esnI18nService,
     ContactSharee,
     CONTACT_SHARING_SHARE_ACCESS,
     CONTACT_SHARING_SHARE_ACCESS_CHOICES
@@ -26,14 +25,15 @@
       self.newUsers = [];
       self.CONTACT_SHARING_SHARE_ACCESS_CHOICES = CONTACT_SHARING_SHARE_ACCESS_CHOICES;
       self.selectedAccess = CONTACT_SHARING_SHARE_ACCESS.READ;
+      self.ignoredUsers = self.shareManagers;
 
       _processSharees(self.sharees);
     }
 
     function onAddingUser($tags) {
       return !self.sharees.some(function(sharee) {
-          return (isVisibbleSharee(sharee) || _isShareOwner(sharee)) && $tags._id === sharee.userId;
-        });
+        return (isVisibbleSharee(sharee) || _isShareOwner(sharee)) && $tags._id === sharee.userId;
+      });
     }
 
     function onAddBtnClick() {
@@ -46,6 +46,10 @@
     }
 
     function onRemoveShareeClick(sharee) {
+      _.remove(self.shareManagers, function(shareManager) {
+        return shareManager._id === sharee.userId;
+      });
+
       sharee.access = CONTACT_SHARING_SHARE_ACCESS.NOACCESS;
     }
 
@@ -71,6 +75,7 @@
         self.status = 'error';
       });
     }
+
     function _isShareOwner(sharee) {
       return sharee.access === CONTACT_SHARING_SHARE_ACCESS.SHAREDOWNER;
     }

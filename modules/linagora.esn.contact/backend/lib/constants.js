@@ -40,7 +40,8 @@ module.exports = {
   },
   AVAILABLE_ADDRESSBOOK_TYPES: {
     USER: 'user',
-    SUBSCRIPTION: 'subscription'
+    SUBSCRIPTION: 'subscription',
+    GROUP: 'group'
   },
   SHARING_INVITE_STATUS: {
     NORESPONSE: 1,

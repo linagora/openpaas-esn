@@ -40,7 +40,7 @@
         return false;
       }
 
-      var userPrivileges = _getUserPrivileges(addressbookShell.acl, userId);
+      var userPrivileges = _getUserPrivileges(addressbookShell.acl, userId, addressbookShell.group && addressbookShell.group.id);
 
       return userPrivileges.indexOf(AVAILABLE_PRIVILEGES.all) > -1 ||
              userPrivileges.indexOf(AVAILABLE_PRIVILEGES.write) > -1 ||
@@ -101,19 +101,19 @@
       if (addressbookShell.isSubscription) {
         userPrivileges = userPrivileges.concat(
           _getAuthenticatedUserPrivileges(addressbookShell.source.acl, userId),
-          _getUserPrivileges(addressbookShell.source.acl, userId)
+          _getUserPrivileges(addressbookShell.source.acl, userId, addressbookShell.group && addressbookShell.group.id)
         );
       } else {
         userPrivileges = userPrivileges.concat(
           _getAuthenticatedUserPrivileges(addressbookShell.acl, userId),
-          _getUserPrivileges(addressbookShell.acl, userId)
+          _getUserPrivileges(addressbookShell.acl, userId, addressbookShell.group && addressbookShell.group.id)
         );
       }
 
       return _.uniq(userPrivileges);
     }
 
-    function _getUserPrivileges(acl, userId) {
+    function _getUserPrivileges(acl, userId, groupId) {
       if (!acl) {
         return [];
       }
@@ -121,7 +121,7 @@
       userId = userId || session.user._id;
 
       return acl.map(function(ace) {
-        if (contactAddressbookParser.getUserIdFromPrincipalPath(ace.principal) === userId) {
+        if ([groupId, userId].indexOf(contactAddressbookParser.parsePrincipalPath(ace.principal).id) !== -1) {
           return ace.privilege;
         }
       }).filter(Boolean);

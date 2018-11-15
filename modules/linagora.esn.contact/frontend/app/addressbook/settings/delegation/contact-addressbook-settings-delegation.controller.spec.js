@@ -133,6 +133,25 @@ describe('The contactAddressbookSettingsDelegationController', function() {
 
       expect(sharee.access).to.equal(CONTACT_SHARING_SHARE_ACCESS.NOACCESS);
     });
+
+    it('should remove sharee if he is in share managers list', function() {
+      var controller = initController();
+      var userId1 = '1234';
+      var userId2 = '6789';
+
+      controller.shareManagers = [
+        { _id: userId1 },
+        { _id: userId2 }
+      ];
+
+      var sharee = { userId: userId1 };
+
+      controller.onRemoveShareeClick(sharee);
+
+      expect(controller.shareManagers).to.deep.equal([{
+        _id: userId2
+      }]);
+    });
   });
 
   describe('The hasVisibleSharee function', function() {

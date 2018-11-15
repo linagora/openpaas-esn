@@ -96,6 +96,20 @@ describe('The contacts backend/lib/pubsub module', function() {
       expect(pubsubMock.local.topic).to.not.have.been.calledWith(CONSTANTS.ELASTICSEARCH_EVENTS.CONTACT_ADDED);
     });
 
+    it('should not publish event ELASTICSEARCH_EVENTS.CONTACT_ADDED if message contains groupAddressBook', function() {
+      pubsubMock.global.topic.withArgs(CONSTANTS.GLOBAL_PUBSUB_EVENTS.SABRE.CONTACT_CREATED).returns({
+        subscribe(listener) {
+          listener(messageMock);
+        }
+      });
+
+      messageMock.groupAddressBook = true;
+
+      getModule().listen();
+
+      expect(pubsubMock.local.topic).to.not.have.been.calledWith(CONSTANTS.ELASTICSEARCH_EVENTS.CONTACT_ADDED);
+    });
+
     it('should not publish event ELASTICSEARCH_EVENTS.CONTACT_ADDED if message does not contain contact path', function() {
       pubsubMock.global.topic.withArgs(CONSTANTS.GLOBAL_PUBSUB_EVENTS.SABRE.CONTACT_ADDED).returns({
         subscribe(listener) {
@@ -184,6 +198,20 @@ describe('The contacts backend/lib/pubsub module', function() {
       expect(pubsubMock.local.topic).to.not.have.been.calledWith(CONSTANTS.ELASTICSEARCH_EVENTS.CONTACT_UPDATED);
     });
 
+    it('should not publish event ELASTICSEARCH_EVENTS.CONTACT_UPDATED if message contains sourcePath', function() {
+      pubsubMock.global.topic.withArgs(CONSTANTS.GLOBAL_PUBSUB_EVENTS.SABRE.CONTACT_UPDATED).returns({
+        subscribe(listener) {
+          listener(messageMock);
+        }
+      });
+
+      messageMock.groupAddressBook = true;
+
+      getModule().listen();
+
+      expect(pubsubMock.local.topic).to.not.have.been.calledWith(CONSTANTS.ELASTICSEARCH_EVENTS.CONTACT_UPDATED);
+    });
+
     it('should not publish event ELASTICSEARCH_EVENTS.CONTACT_UPDATED if message does not contain contact path', function() {
       pubsubMock.global.topic.withArgs(CONSTANTS.GLOBAL_PUBSUB_EVENTS.SABRE.CONTACT_UPDATED).returns({
         subscribe(listener) {
@@ -264,6 +292,19 @@ describe('The contacts backend/lib/pubsub module', function() {
       });
 
       messageMock.sourcePath = 'addressbooks/sourceABH/sourceABN/contcat.vcf';
+
+      getModule().listen();
+
+      expect(pubsubMock.local.topic).to.not.have.been.calledWith(CONSTANTS.ELASTICSEARCH_EVENTS.CONTACT_DELETED);
+    });
+    it('should not publish event ELASTICSEARCH_EVENTS.CONTACT_DELETED if message contains sourcePath', function() {
+      pubsubMock.global.topic.withArgs(CONSTANTS.GLOBAL_PUBSUB_EVENTS.SABRE.CONTACT_DELETED).returns({
+        subscribe(listener) {
+          listener(messageMock);
+        }
+      });
+
+      messageMock.groupAddressBook = true;
 
       getModule().listen();
 

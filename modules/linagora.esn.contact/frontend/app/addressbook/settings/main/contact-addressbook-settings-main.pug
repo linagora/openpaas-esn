@@ -1,4 +1,4 @@
-.row
+.row(ng-if="!$ctrl.addressbook.group")
   .col-md-4.col-xs-5.title-header
     i.mdi.mdi-account-multiple
     h4 #{__('Public right')}
@@ -12,6 +12,23 @@
           ng-repeat="right in $ctrl.publicRights"
           value="{{right.value}}"
           ng-selected="right.value === $ctrl.publicRight"
+        )
+          | {{ right.title | esnI18n }}
+
+.row(ng-if="$ctrl.addressbook.group")
+  .col-md-4.col-xs-5.title-header
+    i.mdi.mdi-account-multiple
+    h4 #{__('Members right')}
+  .col-md-8.col-xs-7.form-group
+    .select.fg-line
+      select.form-control(
+        ng-model='$ctrl.membersRight',
+        ng-disabled='!$ctrl.canUpdateMembersRight()'
+      )
+        option(
+          ng-repeat="right in $ctrl.membersRights"
+          value="{{right.value}}"
+          ng-selected="right.value === $ctrl.membersRight"
         )
           | {{ right.title | esnI18n }}
 

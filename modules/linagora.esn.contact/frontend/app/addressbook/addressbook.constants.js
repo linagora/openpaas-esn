@@ -2,6 +2,7 @@
   'use strict';
 
   angular.module('linagora.esn.contact')
+    .constant('DEFAULT_DOMAIN_ADDRESSBOOK_NAME', 'dab')
     .constant('CONTACT_ADDRESSBOOK_EVENTS', {
       CREATED: 'contact:addressbook:created',
       DELETED: 'contact:addressbook:deleted',
@@ -12,7 +13,12 @@
     .constant('CONTACT_ADDRESSBOOK_TYPES', {
       user: 'user',
       subscription: 'subscription',
-      virtual: 'virtual'
+      virtual: 'virtual',
+      group: 'group'
+    })
+    .constant('CONTACT_ADDRESSBOOK_STATES', {
+      enabled: 'enabled',
+      disabled: 'disabled'
     })
     .constant('CONTACT_ADDRESSBOOK_AUTHENTICATED_PRINCIPAL', '{DAV:}authenticated')
     .constant('CONTACT_ADDRESSBOOK_PUBLIC_RIGHT', {
@@ -33,6 +39,18 @@
         label: 'Read/Write',
         longLabel: 'Edit all contacts',
         score: 2
+      }
+    })
+    .constant('CONTACT_ADDRESSBOOK_MEMBERS_RIGHTS', {
+      READ: {
+        value: ['{DAV:}read'],
+        label: 'Read',
+        longLabel: 'See all contacts'
+      },
+      WRITE: {
+        value: ['{DAV:}read', '{DAV:}write-content', '{DAV:}bind', '{DAV:}unbind'],
+        label: 'Read/Write',
+        longLabel: 'Edit all contacts'
       }
     });
 })(angular);

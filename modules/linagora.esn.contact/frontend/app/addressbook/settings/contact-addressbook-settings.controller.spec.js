@@ -8,6 +8,7 @@ var expect = chai.expect;
 describe('The contactAddressbookSettingsController', function() {
   var $q, $rootScope, $controller, $state, $stateParams;
   var contactAddressbookDisplayService, contactAddressbookService, addressbook;
+  var CONTACT_ADDRESSBOOK_MEMBERS_RIGHTS;
 
   beforeEach(function() {
     module('esn.async-action', function($provide) {
@@ -26,7 +27,8 @@ describe('The contactAddressbookSettingsController', function() {
     _$stateParams_,
     _asyncAction_,
     _contactAddressbookService_,
-    _contactAddressbookDisplayService_
+    _contactAddressbookDisplayService_,
+    _CONTACT_ADDRESSBOOK_MEMBERS_RIGHTS_
   ) {
     $q = _$q_;
     $rootScope = _$rootScope_;
@@ -35,6 +37,7 @@ describe('The contactAddressbookSettingsController', function() {
     $stateParams = _$stateParams_;
     contactAddressbookService = _contactAddressbookService_;
     contactAddressbookDisplayService = _contactAddressbookDisplayService_;
+    CONTACT_ADDRESSBOOK_MEMBERS_RIGHTS = _CONTACT_ADDRESSBOOK_MEMBERS_RIGHTS_;
 
     $stateParams.bookName = 'collected';
     addressbook = {
@@ -87,6 +90,19 @@ describe('The contactAddressbookSettingsController', function() {
       $rootScope.$digest();
 
       expect(controller.publicRight).to.equal('{DAV:}write');
+    });
+
+    it('should get the members right if there is a group address book', function() {
+      addressbook.rights = {
+        members: CONTACT_ADDRESSBOOK_MEMBERS_RIGHTS.READ.value
+      };
+
+      var controller = initController();
+
+      controller.$onInit();
+      $rootScope.$digest();
+
+      expect(controller.membersRight).to.deep.equal(CONTACT_ADDRESSBOOK_MEMBERS_RIGHTS.READ.label);
     });
 
     it('should assign sharees to controller', function() {

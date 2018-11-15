@@ -12,3 +12,4 @@ ng-form.p-t-25(name='form')
       .col-xs-4.field-name #{__('Show followed members as an addressbook')}
       .col-xs-4.flex-end
         toggle-switch(ng-model="$ctrl.configurations.features.value.isVirtualFollowingAddressbookEnabled", form="form")
+    contact-config-domain-addressbook(ng-if="$ctrl.mode === $ctrl.availableModes.domain")

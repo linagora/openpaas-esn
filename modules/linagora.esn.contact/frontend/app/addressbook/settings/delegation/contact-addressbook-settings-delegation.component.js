@@ -6,7 +6,8 @@
       templateUrl: '/contact/app/addressbook/settings/delegation/contact-addressbook-settings-delegation.html',
       controller: 'contactAddressbookSettingsDelegationController',
       bindings: {
-        sharees: '='
+        sharees: '=',
+        shareManagers: '<'
       }
     });
 })(angular);

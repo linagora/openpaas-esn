@@ -38,6 +38,7 @@
      * - Create an addressbook: addressbookHome(bookId).addressbook().create(addressbook)
      * - Remove an addressbook: addressbookHome(bookId).addressbook(bookName).remove()
      * - Update an addressbook: addressbookHome(bookId).addressbook(bookName).update(addressbook)
+     * - Update members rights for a group address book: addressbookHome(bookId).addressbook(bookName).updateMembersRight(membersRight)
      * - List contacts: addressbookHome(bookId).addressbook(bookName).vcard().list(options)
      * - Search contacts: addressbookHome(bookId).addressbook(bookName).vcard().search(options)
      * - Get a contact: addressbookHome(bookId).addressbook(bookName).vcard(cardId).get()
@@ -51,6 +52,20 @@
     function addressbookHome(bookId) {
       function addressbook(bookName) {
         bookName = bookName || DEFAULT_ADDRESSBOOK_NAME;
+
+        return {
+          acceptShare: acceptShare,
+          create: create,
+          declineShare: declineShare,
+          list: list,
+          get: get,
+          remove: remove,
+          share: share,
+          update: update,
+          updateMembersRight: updateMembersRight,
+          updatePublicRight: updatePublicRight,
+          vcard: vcard
+        };
 
         function create(addressbook) {
           return createAddressbook(bookId, addressbook);
@@ -86,6 +101,10 @@
 
         function updatePublicRight(publicRight) {
           return setPublicRight(bookId, bookName, publicRight);
+        }
+
+        function updateMembersRight(membersRight) {
+          return setMembersRight(bookId, bookName, membersRight);
         }
 
         function vcard(cardId) {
@@ -130,19 +149,6 @@
             remove: remove
           };
         }
-
-        return {
-          acceptShare: acceptShare,
-          create: create,
-          declineShare: declineShare,
-          list: list,
-          get: get,
-          remove: remove,
-          share: share,
-          update: update,
-          updatePublicRight: updatePublicRight,
-          vcard: vcard
-        };
       }
 
       function search(options) {
@@ -261,7 +267,7 @@
      * Update an addressbook in the specified addressbook home
      * @param  {String} bookId     The addressbook home ID
      * @param  {String} bookName   The addressbook name
-     * @param  {Object} addressbook The addressbook object to update. It may contain name, description.
+     * @param  {Object} addressbook The addressbook object to update. It may contain name, description, state.
      * @return {Promise}           Resolve on success
      */
     function updateAddressbook(bookId, bookName, addressbook) {
@@ -331,6 +337,23 @@
 
       return davClient('POST', getBookUrl(bookId, bookName), headers, data);
     }
+
+    /**
+    * Update members right for a group address book
+    * @param {String} bookId      The address book home ID
+    * @param {String} bookName    The address book name
+    * @param {Array}  membersRight The new members right to update
+    */
+   function setMembersRight(bookId, bookName, membersRight) {
+    var headers = { 'Content-Type': CONTACT_CONTENT_TYPE_HEADER };
+    var data = {
+      'dav:group-addressbook': {
+        privileges: membersRight
+      }
+    };
+
+    return davClient('POST', getBookUrl(bookId, bookName), headers, data);
+  }
 
     /**
      * Get specified card

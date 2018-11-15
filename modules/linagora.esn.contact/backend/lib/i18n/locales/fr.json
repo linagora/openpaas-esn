@@ -129,5 +129,8 @@
   "Directory": "Annuaire",
   "All members": "Tous les membres",
   "Followed members": "Membres suivis",
-  "Show followed members as an addressbook": "Afficher les members suivis en tant que carnet d'adresses"
+  "Show followed members as an addressbook": "Afficher les members suivis en tant que carnet d'adresses",
+  "Members right": "Droit des membres",
+  "Domain address book": "Carnet d'adresses du domaine",
+  "Failed to load domain address book": "Impossible de charger le carnet d'adresses du domaine"
 }

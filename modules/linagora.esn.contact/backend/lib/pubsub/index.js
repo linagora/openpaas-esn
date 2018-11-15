@@ -27,7 +27,7 @@ module.exports = dependencies => {
       const data = helper.parseContactPath(msg.path);
 
       if (msg.owner) {
-        data.userId = helper.parseOwner(msg.owner);
+        data.userId = helper.parsePrincipal(msg.owner).id;
       }
 
       if (msg.carddata) {
@@ -41,7 +41,7 @@ module.exports = dependencies => {
       const data = helper.parseAddressbookPath(msg.path);
 
       if (msg.owner) {
-        data.userId = helper.parseOwner(msg.owner);
+        data.userId = helper.parsePrincipal(msg.owner).id;
       }
 
       return data;
@@ -111,7 +111,7 @@ module.exports = dependencies => {
     }
 
     function shouldPublishElasticsearchMessage(message) {
-      return !message.sourcePath && message.path && message.path !== '/';
+      return !message.sourcePath && !message.groupAddressBook && message.path && message.path !== '/';
     }
   }
 };

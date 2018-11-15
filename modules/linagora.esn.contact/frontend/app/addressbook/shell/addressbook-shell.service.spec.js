@@ -54,10 +54,12 @@ describe('The Contact Angular module AddressbookShell', function() {
         var name = 'Twitter contacts';
         var description = 'AddressBook for Twitter contacts';
         var type = 'twitter';
+        var state = 'enabled';
 
         jsonInput['dav:name'] = name;
         jsonInput['carddav:description'] = description;
         jsonInput.type = type;
+        jsonInput.state = state;
         var shell = new AddressbookShell(jsonInput);
 
         expect(shell).to.shallowDeepEqual({
@@ -66,7 +68,8 @@ describe('The Contact Angular module AddressbookShell', function() {
           href: jsonInput._links.self.href,
           name: name,
           description: description,
-          type: type
+          type: type,
+          state: state
         });
       });
 
@@ -97,6 +100,28 @@ describe('The Contact Angular module AddressbookShell', function() {
         expect(shell.rights.public).to.equal('{DAV:}write');
       });
 
+      it('should get members right according to dav:acl for group address book', function() {
+        var groupPrincipal = 'principals/domains/domainId';
+        var davAcl = ['{DAV:}read', '{DAV:}write'];
+
+        jsonInput['dav:group'] = groupPrincipal;
+        jsonInput['dav:acl'] = davAcl;
+
+        var shell = new AddressbookShell(jsonInput);
+
+        expect(shell.rights.members).to.deep.equal(davAcl);
+      });
+
+      it('should set members right to empty array for group address book if there is no dav:acl', function() {
+        var groupPrincipal = 'principals/domains/domainId';
+
+        jsonInput['dav:group'] = groupPrincipal;
+
+        var shell = new AddressbookShell(jsonInput);
+
+        expect(shell.rights.members).to.be.an('array').that.is.empty;
+      });
+
       it('should set public right property to private if there is no acl present', function() {
         var shell = new AddressbookShell(jsonInput);
 
@@ -125,6 +150,37 @@ describe('The Contact Angular module AddressbookShell', function() {
         }]);
       });
 
+      it('should build group from dav:group', function() {
+        jsonInput['dav:group'] = 'principals/domains/domainId';
+
+        var shell = new AddressbookShell(jsonInput);
+
+        expect(shell.group).to.deep.equal({
+          type: 'domains',
+          id: 'domainId'
+        });
+      });
+
+      it('should build shareManagers from acl', function() {
+        jsonInput.acl = [{
+          principal: 'principals/users/user1Id',
+          privilege: '{DAV:}share'
+        }, {
+          principal: 'principals/users/user2Id',
+          privilege: '{DAV:}read'
+        }, {
+          principal: 'principals/users/user3Id',
+          privilege: '{DAV:}share'
+        }];
+
+        var shell = new AddressbookShell(jsonInput);
+
+        expect(shell.shareManagers).to.deep.equal([
+          { _id: 'user1Id' },
+          { _id: 'user3Id' }
+        ]);
+      });
+
       describe('The subscription AB', function() {
         it('should mark as subscription if there is openpaas:source field', function() {
           jsonInput['openpaas:source'] = angular.copy(jsonInput);
@@ -150,6 +206,63 @@ describe('The Contact Angular module AddressbookShell', function() {
           var shell = new AddressbookShell(jsonInput);
 
           expect(shell.shareAccess).to.equal('read');
+        });
+
+        it('should assign the group to group of source if subscription is not a group', function() {
+          jsonInput['dav:group'] = 'principals/domains/sourceDomainId';
+          jsonInput['openpaas:source'] = angular.copy(jsonInput);
+          delete jsonInput['dav:group'];
+
+          var shell = new AddressbookShell(jsonInput);
+
+          expect(shell.group).to.deep.equal({
+            type: 'domains',
+            id: 'sourceDomainId'
+          });
+        });
+
+        it('should build shareManagers from acl of the source address book', function() {
+          jsonInput['openpaas:source'] = {
+            _links: {
+              self: {
+                href: '/esn-sabre/esn.php/addressbooks/33333/444444.json'
+              }
+            },
+            acl: [{
+              principal: 'principals/users/user1Id',
+              privilege: '{DAV:}share'
+            }, {
+              principal: 'principals/users/user2Id',
+              privilege: '{DAV:}read'
+            }, {
+              principal: 'principals/users/user3Id',
+              privilege: '{DAV:}share'
+            }]
+          };
+
+          var shell = new AddressbookShell(jsonInput);
+
+          expect(shell.shareManagers).to.deep.equal([
+            { _id: 'user1Id' },
+            { _id: 'user3Id' }
+          ]);
+        });
+
+        it('should keep group of subscription even source is a group', function() {
+          jsonInput['dav:group'] = 'principals/domains/sourceDomainId';
+          jsonInput['openpaas:source'] = angular.copy(jsonInput);
+          jsonInput['dav:group'] = 'principals/domains/domainId';
+
+          var shell = new AddressbookShell(jsonInput);
+
+          expect(shell.group).to.deep.equal({
+            type: 'domains',
+            id: 'domainId'
+          });
+          expect(shell.source.group).to.deep.equal({
+            type: 'domains',
+            id: 'sourceDomainId'
+          });
         });
       });
     });

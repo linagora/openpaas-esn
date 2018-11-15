@@ -98,6 +98,22 @@ describe('The contactAddressbookACLHelper service', function() {
 
       expect(contactAddressbookACLHelper.canEditAddressbook(addressbookShell)).to.equal(true);
     });
+
+    it('should return true if user belongs to a group which has "{DAV:}write" privilege', function() {
+      var domainId = 'domainId';
+      var addressbookShell = {
+        acl: [{
+          principal: 'principals/domains/' + domainId,
+          privilege: '{DAV:}write'
+        }],
+        group: {
+          type: 'domains',
+          id: domainId
+        }
+      };
+
+      expect(contactAddressbookACLHelper.canEditAddressbook(addressbookShell, userId)).to.be.true;
+    });
   });
 
   describe('The canDeleteAddressbook function', function() {
@@ -161,6 +177,22 @@ describe('The contactAddressbookACLHelper service', function() {
 
       expect(contactAddressbookACLHelper.canDeleteAddressbook(addressbookShell)).to.equal(true);
     });
+
+    it('should return true if user belongs to a group which has "{DAV:}write" privilege', function() {
+      var domainId = 'domainId';
+      var addressbookShell = {
+        acl: [{
+          principal: 'principals/domains/' + domainId,
+          privilege: '{DAV:}write'
+        }],
+        group: {
+          type: 'domains',
+          id: domainId
+        }
+      };
+
+      expect(contactAddressbookACLHelper.canDeleteAddressbook(addressbookShell, userId)).to.be.true;
+    });
   });
 
   describe('The canShareAddressbook function', function() {
@@ -204,6 +236,22 @@ describe('The contactAddressbookACLHelper service', function() {
       };
 
       expect(contactAddressbookACLHelper.canShareAddressbook(addressbookShell)).to.equal(true);
+    });
+
+    it('should return true if user belongs to a group which has "{DAV:}share" privilege', function() {
+      var domainId = 'domainId';
+      var addressbookShell = {
+        acl: [{
+          principal: 'principals/domains/' + domainId,
+          privilege: '{DAV:}share'
+        }],
+        group: {
+          type: 'domains',
+          id: domainId
+        }
+      };
+
+      expect(contactAddressbookACLHelper.canShareAddressbook(addressbookShell, userId)).to.be.true;
     });
   });
 
@@ -271,6 +319,22 @@ describe('The contactAddressbookACLHelper service', function() {
         };
 
         expect(contactAddressbookACLHelper.canCreateContact(addressbookShell)).to.equal(true);
+      });
+
+      it('should return true if user belongs to a group which has "{DAV:}bind" privilege', function() {
+        var domainId = 'domainId';
+        var addressbookShell = {
+          acl: [{
+            principal: 'principals/domains/' + domainId,
+            privilege: '{DAV:}bind'
+          }],
+          group: {
+            type: 'domains',
+            id: domainId
+          }
+        };
+
+        expect(contactAddressbookACLHelper.canCreateContact(addressbookShell, userId)).to.be.true;
       });
     });
 
@@ -414,6 +478,22 @@ describe('The contactAddressbookACLHelper service', function() {
         };
 
         expect(contactAddressbookACLHelper.canEditContact(addressbookShell)).to.equal(true);
+      });
+
+      it('should return true if user belongs to a group which has "{DAV:}write-content" privilege', function() {
+        var domainId = 'domainId';
+        var addressbookShell = {
+          acl: [{
+            principal: 'principals/domains/' + domainId,
+            privilege: '{DAV:}write-content'
+          }],
+          group: {
+            type: 'domains',
+            id: domainId
+          }
+        };
+
+        expect(contactAddressbookACLHelper.canEditContact(addressbookShell, userId)).to.be.true;
       });
     });
 
@@ -564,6 +644,22 @@ describe('The contactAddressbookACLHelper service', function() {
 
         expect(contactAddressbookACLHelper.canMoveContact(addressbookShell)).to.equal(true);
       });
+
+      it('should return true if user belongs to a group which has "{DAV:}unbind" privilege', function() {
+        var domainId = 'domainId';
+        var addressbookShell = {
+          acl: [{
+            principal: 'principals/domains/' + domainId,
+            privilege: '{DAV:}unbind'
+          }],
+          group: {
+            type: 'domains',
+            id: domainId
+          }
+        };
+
+        expect(contactAddressbookACLHelper.canMoveContact(addressbookShell, userId)).to.be.true;
+      });
     });
 
     describe('Subscription address book', function() {
@@ -706,6 +802,22 @@ describe('The contactAddressbookACLHelper service', function() {
         };
 
         expect(contactAddressbookACLHelper.canDeleteContact(addressbookShell)).to.equal(true);
+      });
+
+      it('should return true if user belongs to a group which has "{DAV:}unbind" privilege', function() {
+        var domainId = 'domainId';
+        var addressbookShell = {
+          acl: [{
+            principal: 'principals/domains/' + domainId,
+            privilege: '{DAV:}unbind'
+          }],
+          group: {
+            type: 'domains',
+            id: domainId
+          }
+        };
+
+        expect(contactAddressbookACLHelper.canDeleteContact(addressbookShell, userId)).to.be.true;
       });
     });
 

@@ -16,6 +16,8 @@
     contactAddressbookDisplayService,
     ContactVirtualAddressBookService,
     CONTACT_ADDRESSBOOK_TYPES,
+    CONTACT_ADDRESSBOOK_STATES,
+    CONTACT_ADDRESSBOOK_MEMBERS_RIGHTS,
     CONTACT_SHARING_INVITE_STATUS,
     CONTACT_SHARING_SUBSCRIPTION_TYPE
   ) {
@@ -23,6 +25,7 @@
 
     return {
       createAddressbook: createAddressbook,
+      createGroupAddressbook: createGroupAddressbook,
       getAddressbookByBookName: getAddressbookByBookName,
       getAddressbookUrl: getAddressbookUrl,
       listAddressbooks: listAddressbooks,
@@ -34,16 +37,19 @@
       listSubscribedAddressbooks: listSubscribedAddressbooks,
       subscribeAddressbooks: subscribeAddressbooks,
       shareAddressbook: shareAddressbook,
-      updateAddressbookPublicRight: updateAddressbookPublicRight
+      updateAddressbookPublicRight: updateAddressbookPublicRight,
+      updateGroupAddressbookMembersRight: updateGroupAddressbookMembersRight
     };
 
-    function getAddressbookByBookName(bookName) {
+    function getAddressbookByBookName(bookName, group) {
       return ContactVirtualAddressBookService.get(bookName).then(function(addressbook) {
         if (addressbook) {
           return addressbook;
         }
 
-        return ContactAPIClient.addressbookHome(session.user._id).addressbook(bookName).get();
+        var bookId = group && group.id ? group.id : session.user._id;
+
+        return ContactAPIClient.addressbookHome(bookId).addressbook(bookName).get();
       });
     }
 
@@ -95,6 +101,29 @@
         .create(addressbook);
     }
 
+    function createGroupAddressbook(addressbook, groupId) {
+      if (!addressbook) {
+        return $q.reject(new Error('Address book is required'));
+      }
+
+      if (!addressbook.name) {
+        return $q.reject(new Error('Address book\'s name is required'));
+      }
+
+      if (!groupId) {
+        return $q.reject(new Error('groupId is required'));
+      }
+
+      addressbook.type = CONTACT_ADDRESSBOOK_TYPES.group;
+      addressbook.state = addressbook.state || CONTACT_ADDRESSBOOK_STATES.enabled;
+      addressbook.acl = addressbook.acl || CONTACT_ADDRESSBOOK_MEMBERS_RIGHTS.READ.value; // by default, members of group just have only read permission
+
+      return ContactAPIClient
+        .addressbookHome(groupId)
+        .addressbook()
+        .create(addressbook);
+    }
+
     function removeAddressbook(addressbook) {
       return ContactAPIClient
         .addressbookHome(session.user._id)
@@ -104,7 +133,7 @@
 
     function updateAddressbook(addressbook) {
       return ContactAPIClient
-        .addressbookHome(session.user._id)
+        .addressbookHome(addressbook.bookId)
         .addressbook(addressbook.bookName)
         .update(addressbook);
     }
@@ -169,6 +198,13 @@
         .addressbookHome(addressbook.bookId)
         .addressbook(addressbook.bookName)
         .updatePublicRight(publicRight);
+    }
+
+    function updateGroupAddressbookMembersRight(addressbook, membersRight) {
+      return ContactAPIClient
+        .addressbookHome(addressbook.bookId)
+        .addressbook(addressbook.bookName)
+        .updateMembersRight(membersRight);
     }
 
     function getAddressbookUrl(addressbook) {

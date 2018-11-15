@@ -31,4 +31,18 @@ describe('The contactAddressbookParser service', function() {
       expect(metadata).to.be.empty;
     });
   });
+
+  describe('The parsePrincipalPath function', function() {
+    it('should extract data from addressbook path', function() {
+      var path = 'principals/users/userId';
+      var parsedPath = contactAddressbookParser.parsePrincipalPath(path);
+
+      expect(parsedPath.type).to.equal('users');
+      expect(parsedPath.id).to.equal('userId');
+    });
+
+    it('should return empty if there is no matched metada in addressbook path', function() {
+      expect(contactAddressbookParser.parsePrincipalPath('invalid/path')).to.be.empty;
+    });
+  });
 });

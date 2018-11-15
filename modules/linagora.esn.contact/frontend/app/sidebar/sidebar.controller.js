@@ -64,7 +64,7 @@
       var userIds = [];
 
       addressbooks.forEach(function(addressbook) {
-        if (addressbook.isSubscription) {
+        if (addressbook.isSubscription && !addressbook.group) {
           userIds.push(addressbook.source.bookId);
         }
       });

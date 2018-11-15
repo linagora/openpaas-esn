@@ -7,7 +7,8 @@
       controller: 'contactAddressbookSettingsMainController',
       bindings: {
         addressbook: '<',
-        publicRight: '='
+        publicRight: '=',
+        membersRight: '='
       }
     });
 })(angular);

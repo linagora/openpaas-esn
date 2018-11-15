@@ -103,7 +103,13 @@ describe('The ContactSidebarController controller', function() {
       expect(contactAddressbookDisplayService.convertShellsToDisplayShells).to.have.been.calledOnce;
     });
 
-    it('should inject owner to addressbooks which are subscription', function() {
+    it('should inject owner to addressbooks which are subscription but not group', function() {
+      var groupSubscription = {
+        name: 'Subscription 4',
+        source: { bookId: 'group1' },
+        isSubscription: true,
+        group: { type: 'domain', id: 'group1' }
+      };
       var addressbooks = [{
         name: 'Subscription 1',
         source: { bookId: 'user1' },
@@ -118,7 +124,8 @@ describe('The ContactSidebarController controller', function() {
         isSubscription: true
       }, {
         name: 'Normal Addressbook'
-      }];
+      },
+      groupSubscription];
 
       contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when(addressbooks));
       contactAddressbookDisplayService.sortAddressbookDisplayShells = function(shells) { return shells; };
@@ -163,7 +170,8 @@ describe('The ContactSidebarController controller', function() {
         }
       }, {
         name: 'Normal Addressbook'
-      }]);
+      },
+      groupSubscription]);
     });
 
     it('should add new address book when created address book event is fired', function() {

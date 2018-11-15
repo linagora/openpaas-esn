@@ -254,9 +254,11 @@ describe('The contact client APIs', function() {
           '{DAV:}acl': 'dav:acl',
           '{DAV:}invite': 'dav:invite',
           '{DAV:}share-access': 'dav:share-access',
+          '{DAV:}group': 'dav:group',
           '{http://open-paas.org/contacts}subscription-type': 'openpaas:subscription-type',
           '{http://open-paas.org/contacts}source': 'openpaas:source',
           '{http://open-paas.org/contacts}type': 'type',
+          '{http://open-paas.org/contacts}state': 'state',
           acl: 'acl'
         };
 
@@ -284,10 +286,12 @@ describe('The contact client APIs', function() {
           const description = 'addressbook description';
           const davAcl = ['dav:read'];
           const type = 'twitter';
+          const state = 'enabled';
           const acl = [];
           const shareAccess = 'read';
           const subscriptionType = 'delegation';
           const source = '/adddressbooks/sourceBookId/sourceBookName.json';
+          const group = 'principals/domains/domainId';
           const invite = [];
           const response = { statusCode: 200 };
           const body = {
@@ -296,9 +300,11 @@ describe('The contact client APIs', function() {
             '{DAV:}acl': davAcl,
             '{DAV:}invite': invite,
             '{DAV:}share-access': shareAccess,
+            '{DAV:}group': group,
             '{http://open-paas.org/contacts}subscription-type': subscriptionType,
             '{http://open-paas.org/contacts}source': source,
             '{http://open-paas.org/contacts}type': type,
+            '{http://open-paas.org/contacts}state': state,
             acl
           };
 
@@ -321,13 +327,33 @@ describe('The contact client APIs', function() {
               'dav:acl': davAcl,
               'dav:invite': invite,
               'dav:share-access': shareAccess,
+              'dav:group': group,
               'openpaas:subscription-type': subscriptionType,
               'openpaas:source': source,
               type: type,
+              state,
               acl
             });
             done();
           }).catch(done);
+        });
+
+        it('should reject with response and body from DAV server if address book not found', function(done) {
+          const response = { statusCode: 404 };
+          const body = {};
+
+          mockery.registerMock('../dav-client', {
+            rawClient: function(options, callback) {
+              callback(null, response, body);
+            }
+          });
+
+          getAddressbookHome().addressbook(BOOK_NAME).get().catch(err => {
+            expect(err.response).to.deep.equal(response);
+            expect(err.body).to.deep.equal(body);
+
+            done();
+          });
         });
 
         it('should reject with error when client returns error', function(done) {
