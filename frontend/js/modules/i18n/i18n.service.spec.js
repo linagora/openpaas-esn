@@ -5,29 +5,27 @@
 var expect = chai.expect;
 
 describe('The esnI18nService service', function() {
-  var $rootScope, $q, esnI18nService, EsnI18nString, preferredLanguage, ESN_I18N_DEFAULT_LOCALE, ESN_I18N_DEFAULT_FULL_LOCALE, ESN_I18N_FULL_LOCALE;
+  var $rootScope, $q, esnI18nService, EsnI18nString, preferredLanguage, ESN_I18N_DEFAULT_FULL_LOCALE, ESN_I18N_FULL_LOCALE;
+  var $translateMock;
 
   beforeEach(function() {
+    $translateMock = {};
+
     angular.mock.module('esn.i18n');
     angular.mock.module('esn.configuration');
     angular.mock.module(function($provide) {
-      $provide.value('$translate', {
-        preferredLanguage: sinon.spy(function() {
-          return preferredLanguage;
-        })
-      });
+      $provide.value('$translate', $translateMock);
       $provide.value('esnConfig', function(config, defaultValue) {
         return preferredLanguage ? $q.when(preferredLanguage) : $q.when(defaultValue);
       });
     });
   });
 
-  beforeEach(inject(function(_$q_, _$rootScope_, _esnI18nService_, _EsnI18nString_, _ESN_I18N_DEFAULT_LOCALE_, _ESN_I18N_DEFAULT_FULL_LOCALE_, _ESN_I18N_FULL_LOCALE_) {
+  beforeEach(inject(function(_$q_, _$rootScope_, _esnI18nService_, _EsnI18nString_, _ESN_I18N_DEFAULT_FULL_LOCALE_, _ESN_I18N_FULL_LOCALE_) {
     $q = _$q_;
     $rootScope = _$rootScope_;
     esnI18nService = _esnI18nService_;
     EsnI18nString = _EsnI18nString_;
-    ESN_I18N_DEFAULT_LOCALE = _ESN_I18N_DEFAULT_LOCALE_;
     ESN_I18N_DEFAULT_FULL_LOCALE = _ESN_I18N_DEFAULT_FULL_LOCALE_;
     ESN_I18N_FULL_LOCALE = _ESN_I18N_FULL_LOCALE_;
   }));
@@ -77,15 +75,27 @@ describe('The esnI18nService service', function() {
   });
 
   describe('The getLocale function', function() {
-    it('should return the default locale if the user don\'t have a prefered language', function() {
-      preferredLanguage = null;
+    it('should return the user browser locale if there is no used language key', function() {
+      var preferredLanguage = 'fr';
 
-      expect(esnI18nService.getLocale()).to.be.equal(ESN_I18N_DEFAULT_LOCALE);
-    });
-    it('should return the user browser locale', function() {
-      preferredLanguage = 'fr';
+      $translateMock.preferredLanguage = sinon.stub().returns(preferredLanguage);
+      $translateMock.use = sinon.stub().returns();
 
       expect(esnI18nService.getLocale()).to.be.equal(preferredLanguage);
+      expect($translateMock.use).to.have.been.calledOnce;
+      expect($translateMock.preferredLanguage).to.have.been.calledOnce;
+    });
+
+    it('should return the currently used language key if it is set', function() {
+      var preferredLanguage = 'fr';
+      var usedLanguage = 'vi';
+
+      $translateMock.preferredLanguage = sinon.stub().returns(preferredLanguage);
+      $translateMock.use = sinon.stub().returns(usedLanguage);
+
+      expect(esnI18nService.getLocale()).to.be.equal(usedLanguage);
+      expect($translateMock.use).to.have.been.calledOnce;
+      expect($translateMock.preferredLanguage).to.not.have.been.called;
     });
   });
 
