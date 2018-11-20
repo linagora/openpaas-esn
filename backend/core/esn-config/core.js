@@ -79,6 +79,22 @@ function store(esnConfig, configName, value, callback) {
   });
 }
 
+function storeMultiple(esnConfig, config, callback) {
+  callback = callback || function() {};
+
+  return esnConfig.setMultiple(config)
+  .then(function(data) {
+    callback(null, data);
+
+    return data;
+  })
+  .catch(function(err) {
+    callback(err);
+
+    return q.reject(err);
+  });
+}
+
 function getFromAllDomains(esnConfig, configName, callback) {
   callback = callback || function() {};
 
@@ -116,5 +132,6 @@ module.exports = {
   get,
   set,
   store,
+  storeMultiple,
   getFromAllDomains
 };

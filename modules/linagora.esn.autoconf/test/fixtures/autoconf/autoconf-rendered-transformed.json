@@ -115,5 +115,13 @@
       "uri": "url",
       "maxHits": 50
     }
-  ]
+  ],
+  "davConfig": {
+    "frontend": {
+      "url": "http://localhost/"
+    },
+    "backend": {
+      "url": "http://localhost/"
+    }
+  }
 }

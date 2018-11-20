@@ -47,6 +47,10 @@ class Adapter {
     return core.store(this.esnConfig, this.configName, value, callback);
   }
 
+  storeMultiple(configs, callback) {
+    return core.storeMultiple(this.esnConfig, configs, callback);
+  }
+
   getFromAllDomains(callback) {
     return core.getFromAllDomains(this.esnConfig, this.configName, callback);
   }
