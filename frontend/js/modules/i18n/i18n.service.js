@@ -11,7 +11,7 @@
       };
 
       function getLocale() {
-        return $translate.preferredLanguage() || ESN_I18N_DEFAULT_LOCALE;
+        return $translate.use() || $translate.preferredLanguage();
       }
 
       function getFullLocale(callback) {
