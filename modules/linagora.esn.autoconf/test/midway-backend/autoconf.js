@@ -52,19 +52,37 @@ describe('The Autoconf module API', function() {
     });
 
     it('should return 200 with a configuration file for the user', function(done) {
-      this.helpers.requireBackend('core/esn-config')('autoconf')
-        .inModule('core')
-        .store(loadJSONFixture(this.testEnv.basePath, 'autoconf.json'), this.helpers.callbacks.noErrorAnd(() => {
-          request(app)
-            .get('/api/user/autoconf')
-            .auth('user1@lng.net', 'secret')
-            .expect(200, loadJSONFixture(this.testEnv.basePath, 'autoconf-rendered.json'))
-            .end(done);
-        }));
+
+      const conf = [
+        {
+          name: 'autoconf',
+          value: loadJSONFixture(this.testEnv.basePath, 'autoconf.json')},
+        {
+          name: 'davserver',
+          value: loadJSONFixture(this.testEnv.basePath, 'davserver.json')}
+      ];
+
+      this.helpers.requireBackend('core/esn-config')('*').inModule('core')
+      .storeMultiple(conf, this.helpers.callbacks.noErrorAnd(() => {
+        request(app)
+          .get('/api/user/autoconf')
+          .auth('user1@lng.net', 'secret')
+          .expect(200, loadJSONFixture(this.testEnv.basePath, 'autoconf-rendered.json'))
+          .end(done);
+      }));
     });
 
     it('should transform the config with registered transformers', function(done) {
       const autoconf = helpers.modules.current.lib;
+
+      const conf = [
+        {
+          name: 'autoconf',
+          value: loadJSONFixture(this.testEnv.basePath, 'autoconf.json')},
+        {
+          name: 'davserver',
+          value: loadJSONFixture(this.testEnv.basePath, 'davserver.json')}
+      ];
 
       autoconf.addTransformer({
         transform: config => {
@@ -80,15 +98,14 @@ describe('The Autoconf module API', function() {
         }
       });
 
-      this.helpers.requireBackend('core/esn-config')('autoconf')
-        .inModule('core')
-        .store(loadJSONFixture(this.testEnv.basePath, 'autoconf.json'), this.helpers.callbacks.noErrorAnd(() => {
+      this.helpers.requireBackend('core/esn-config')('*').inModule('core')
+        .storeMultiple(conf, this.helpers.callbacks.noErrorAnd(() => {
           request(app)
             .get('/api/user/autoconf')
             .auth('user1@lng.net', 'secret')
             .expect(200, loadJSONFixture(this.testEnv.basePath, 'autoconf-rendered-transformed.json'))
             .end(done);
-        }));
+      }));
     });
 
   });

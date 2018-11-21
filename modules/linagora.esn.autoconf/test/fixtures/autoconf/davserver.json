@@ -1,0 +1,8 @@
+{
+  "frontend": {
+    "url": "http://localhost/"
+  },
+  "backend": {
+    "url": "http://localhost/"
+  }
+}

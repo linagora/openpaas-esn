@@ -15,15 +15,26 @@ module.exports = dependencies => {
 
   function generate(req, res) {
     const user = req.user;
-
-    esnConfig('autoconf').inModule('core').forUser(user).get()
-      .then(config => {
-        if (!config) {
+    const accountConfig = esnConfig('autoconf').inModule('core').forUser(user).get()
+      .then(account => {
+        if (!account) {
           return q.reject(new Error('No autoconfiguration file configured in DB'));
         }
 
-        return config;
-      })
+        return account;
+      });
+
+    const davConfig = esnConfig('davserver').inModule('core').forUser(user).get()
+      .then(dav => {
+        if (!dav) {
+          return q.reject(new Error('No autoconfiguration file configured in DB'));
+        }
+
+        return dav;
+      });
+
+    q.all([accountConfig, davConfig])
+      .then(conf => ({...conf[0], davConfig: conf[1] }))
       .then(autoconf.transform(user))
       .then(config => ejs.render(JSON.stringify(config), { user }))
       .then(
