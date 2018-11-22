@@ -13,7 +13,16 @@ module.exports = dependencies => {
   return {
     transform: (config, user) => q.ninvoke(token, 'getNewToken', { user: user.id })
       .then(token => client({ user, ESNToken: token.token }))
-      .then(client => client.addressbookHome(user.id).addressbook().list())
+      .then(client => client.addressbookHome(user.id).addressbook()
+      .list(
+        {
+          query: {
+            personal: true,
+            subscribed: true,
+            shared: true
+          }
+        }
+      ))
       .then(res => {
         let addressbooks = [];
 
