@@ -3,7 +3,7 @@ const q = require('q');
 const uuidV4 = require('uuid/v4');
 const helper = require('../helper');
 
-const CONTENT_TYPE = 'text/vcard';
+const CONTENT_TYPES = ['text/vcard', 'text/x-vcard'];
 const START_LINE = /^BEGIN:VCARD\r?$/;
 const END_LINE = /^END:VCARD\r?$/;
 
@@ -11,7 +11,7 @@ module.exports = function(dependencies) {
   const client = require('../client')(dependencies);
 
   return {
-    contentType: CONTENT_TYPE,
+    contentTypes: CONTENT_TYPES,
     readLines,
     importItem,
     targetValidator

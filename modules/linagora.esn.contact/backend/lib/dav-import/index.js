@@ -11,7 +11,7 @@ module.exports = function(dependencies) {
 
   function init() {
     if (davImport) {
-      davImport.lib.importer.addFileHandler(vcardHandler.contentType, vcardHandler);
+      davImport.lib.importer.addFileHandler(vcardHandler.contentTypes, vcardHandler);
     } else {
       logger.warn('linagora.esn.dav.import module is not enabled, importing contact from .vcf files will not work');
     }
