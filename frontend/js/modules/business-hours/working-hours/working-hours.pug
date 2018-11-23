@@ -3,7 +3,7 @@ ng-form(name="form")
   .row
     .col-xs-6
       esn-form-group(label=__('Starts at'))
-        input.form-control(type="text", readonly, aria-expanded="false", ng-model="$ctrl.display.start", ng-change="$ctrl.onStartChange()", lng-clockpicker, lng-clockpicker-options="{twelvehour: false}")
+        input.form-control(type="text", aria-expanded="false", ng-model="$ctrl.display.start", ng-change="$ctrl.onStartChange()", lng-clockpicker, lng-clockpicker-options="{twelvehour: false}")
     .col-xs-6
       esn-form-group(label=__('Ends at'))
-        input.form-control(type="text", readonly, aria-expanded="false", ng-model="$ctrl.display.end", ng-change="$ctrl.onEndChange()", lng-clockpicker, lng-clockpicker-options="{twelvehour: false}")
+        input.form-control(type="text", aria-expanded="false", ng-model="$ctrl.display.end", ng-change="$ctrl.onEndChange()", lng-clockpicker, lng-clockpicker-options="{twelvehour: false}")
