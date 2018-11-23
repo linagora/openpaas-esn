@@ -6,12 +6,13 @@
 
   function ContactAddressbookImportController(
     asyncAction,
+    contentTypeService,
     contactAddressbookService,
     contactAddressbookDisplayService,
     contactService
   ) {
     var self = this;
-    var VCARD_FILE_TYPE = 'text/vcard';
+    var VCARD_FILE_TYPES = ['text/vcard', 'text/x-vcard'];
     var LOADING_STATUS = {
       loading: 'loading',
       loaded: 'loaded',
@@ -47,8 +48,11 @@
         return;
       }
 
-      self.file = file[0];
-      self.isValid = self.file.type === VCARD_FILE_TYPE;
+      self.isValid = VCARD_FILE_TYPES.indexOf(file[0].type) !== -1;
+
+      if (self.isValid) {
+        self.file = file[0];
+      }
     }
 
     function doImport() {
