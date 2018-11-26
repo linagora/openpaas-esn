@@ -27,7 +27,7 @@ function init(session) {
 
     getSessionSecret().then(secret => {
       session.setMiddleware(expressSession({
-        resave: false,
+        resave: true, // our session store does not support 'touch', so we must tell express to resave session if modified during the request
         saveUninitialized: false,
         cookie: { maxAge: 6000000 },
         secret,
