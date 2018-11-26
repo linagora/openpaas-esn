@@ -1,0 +1,16 @@
+[
+  {
+    "configuration": {
+      "mapping": {},
+      "url": "ldap://test:20",
+      "searchBase": "ou=gh",
+      "searchFilter": "(user={{username}})"
+    },
+    "usage": {
+      "auth": true,
+      "search": true,
+      "autoProvisioning": true
+    },
+    "name": "ldap"
+  }
+]

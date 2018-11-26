@@ -59,7 +59,10 @@ describe('The Autoconf module API', function() {
           value: loadJSONFixture(this.testEnv.basePath, 'autoconf.json')},
         {
           name: 'davserver',
-          value: loadJSONFixture(this.testEnv.basePath, 'davserver.json')}
+          value: loadJSONFixture(this.testEnv.basePath, 'davserver.json')},
+        {
+          name: 'ldap',
+          value: loadJSONFixture(this.testEnv.basePath, 'directories.json')}
       ];
 
       this.helpers.requireBackend('core/esn-config')('*').inModule('core')
@@ -81,7 +84,10 @@ describe('The Autoconf module API', function() {
           value: loadJSONFixture(this.testEnv.basePath, 'autoconf.json')},
         {
           name: 'davserver',
-          value: loadJSONFixture(this.testEnv.basePath, 'davserver.json')}
+          value: loadJSONFixture(this.testEnv.basePath, 'davserver.json')},
+        {
+          name: 'ldap',
+          value: loadJSONFixture(this.testEnv.basePath, 'directories.json')}
       ];
 
       autoconf.addTransformer({
