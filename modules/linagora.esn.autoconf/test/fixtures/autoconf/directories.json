@@ -1,0 +1,17 @@
+{"directories": [
+    {
+      "configuration": {
+        "mapping": {},
+        "url": "ldap://localhost:20",
+        "searchBase": "ou=localhost",
+        "searchFilter": "(user={{username}})"
+      },
+      "usage": {
+        "auth": true,
+        "search": true,
+        "autoProvisioning": true
+      },
+      "name": "ldap"
+    }
+  ]
+}
