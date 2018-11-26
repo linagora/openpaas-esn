@@ -27,14 +27,23 @@ module.exports = dependencies => {
     const davConfig = esnConfig('davserver').inModule('core').forUser(user).get()
       .then(dav => {
         if (!dav) {
-          return q.reject(new Error('No autoconfiguration file configured in DB'));
+          return {};
         }
 
         return dav;
       });
 
-    q.all([accountConfig, davConfig])
-      .then(conf => ({...conf[0], davConfig: conf[1] }))
+    const ldapConfig = esnConfig('ldap').inModule('core').forUser(user).get()
+    .then(ldap => {
+      if (!ldap) {
+        return {};
+      }
+
+      return ldap;
+    });
+
+    q.all([accountConfig, davConfig, ldapConfig])
+      .then(conf => ({...conf[0], davConfig: conf[1], directories: conf[2]}))
       .then(autoconf.transform(user))
       .then(config => ejs.render(JSON.stringify(config), { user }))
       .then(
