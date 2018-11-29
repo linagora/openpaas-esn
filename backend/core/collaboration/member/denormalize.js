@@ -1,6 +1,7 @@
 'use strict';
 
 const coreUser = require('../../user');
+const q = require('q');
 
 const denormalizers = {
   user: userDenormalizer,
@@ -24,7 +25,7 @@ function denormalize(objectType, member) {
   const denormalizer = getDenormalizer(objectType);
 
   if (denormalizer) {
-    return denormalizer(member);
+    return denormalizer(member, objectType).then(user => user);
   }
 
   return null;
@@ -51,10 +52,18 @@ function getDenormalizer(objectType) {
   return denormalizers[objectType];
 }
 
-function userDenormalizer(user) {
-  return coreUser.denormalize.denormalize(user);
+function userDenormalizer(user, objectType) {
+  user.objectType = objectType;
+  return q.when(coreUser.denormalize.denormalize(user));
 }
 
-function emailDenormalizer(email) {
-  return email;
+function emailDenormalizer(ObjectId) {
+  const id = ObjectId.toString();
+
+  return q.nfcall(coreUser.get, id).then(user => {
+    if (user) {
+      user.objectType = 'user';
+      return coreUser.denormalize.denormalize(user);
+    }
+  });
 }

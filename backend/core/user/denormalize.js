@@ -16,7 +16,8 @@ const publicKeys = [
   'building_location',
   'office_location',
   'main_phone',
-  'description'
+  'description',
+  'objectType'
 ];
 const privateKeys = ['accounts', 'login'];
 
