@@ -111,20 +111,6 @@
   *               readOnly: false
   *             }
   *           ],
-  *           directories: [
-  *             {
-  *               dirName: 'OpenPaas',
-  *               uri: 'ldapUri',
-  *               maxHits: 50
-  *             }
-  *           ],
-  *          davConfig: {
-  *             backend: {
-  *               url: "http://localhost/"
-  *             },
-  *             frontend: {
-  *               url: "http://localhost/"
-  *             }
-  *           }
+  *          davUrl: 'http://localhost/'
   * }
   */
