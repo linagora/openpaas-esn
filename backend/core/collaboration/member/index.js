@@ -329,6 +329,9 @@ module.exports = function(collaborationModule) {
       members = members.slice(offset, offset + limit);
 
       async.map(members, function(member, callback) {
+        if (query.changeObjectType) {
+          member.member.objectType = 'user';
+        }
         return fetchMember(member.member, function(err, loaded) {
           member = member.toObject();
           member.objectType = member.member.objectType;
