@@ -4,31 +4,6 @@ const schema = {
   type: 'object',
   additionalProperties: false,
   properties: {
-    directories: {
-      type: 'array',
-      minItems: 1,
-      items: {
-        required: [
-          'maxHits',
-          'uri',
-          'dirName'
-        ],
-        additionalProperties: false,
-        properties: {
-          maxHits: {
-            type: 'integer'
-          },
-          uri: {
-            type: 'string',
-            minLength: 1
-          },
-          dirName: {
-            type: 'string',
-            minLength: 1
-          }
-        }
-      }
-    },
     preferences: {
       type: 'array',
       minItems: 1,
@@ -71,7 +46,7 @@ const schema = {
           versions: {
             type: 'array',
             minItems: 1,
-            maxItems: 1,
+            maxItems: 2,
             items: {
               required: [
                 'version'
@@ -103,6 +78,10 @@ const schema = {
                   }
                 },
                 minAppVersion: {
+                  type: 'string',
+                  minLength: 1
+                },
+                maxAppVersion: {
                   type: 'string',
                   minLength: 1
                 },
@@ -277,7 +256,6 @@ const schema = {
     }
   },
   required: [
-    'directories',
     'preferences',
     'addons',
     'accounts'

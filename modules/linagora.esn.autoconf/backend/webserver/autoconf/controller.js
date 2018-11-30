@@ -33,17 +33,8 @@ module.exports = dependencies => {
         return dav;
       });
 
-    const ldapConfig = esnConfig('ldap').inModule('core').forUser(user).get()
-    .then(ldap => {
-      if (!ldap) {
-        return {};
-      }
-
-      return ldap;
-    });
-
-    q.all([accountConfig, davConfig, ldapConfig])
-      .then(conf => ({...conf[0], davConfig: conf[1], directories: conf[2]}))
+    q.all([accountConfig, davConfig])
+      .then(conf => ({...conf[0], davUrl: conf[1].frontend.url}))
       .then(autoconf.transform(user))
       .then(config => ejs.render(JSON.stringify(config), { user }))
       .then(
