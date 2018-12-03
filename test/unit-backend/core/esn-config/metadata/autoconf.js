@@ -16,11 +16,6 @@ describe('The core/esn-config/metadata/autoconf module', () => {
     beforeEach(function() {
       validator = getModule().validator;
       config = {
-        directories: [{
-          maxHits: 50,
-          uri: 'ldapUrl',
-          dirName: 'OpenPaas'
-        }],
         preferences: [{
           overwrite: true,
           value: false,
@@ -99,12 +94,6 @@ describe('The core/esn-config/metadata/autoconf module', () => {
       expect(validator(config)).to.equal('should be object');
     });
 
-    it('should return error message if there is no directories properties', () => {
-      delete config.directories;
-
-      expect(validator(config)).to.equal('should have required property \'directories\'');
-    });
-
     it('should return error message if there is no preferences properties', () => {
       delete config.preferences;
 
@@ -121,68 +110,6 @@ describe('The core/esn-config/metadata/autoconf module', () => {
       delete config.accounts;
 
       expect(validator(config)).to.equal('should have required property \'accounts\'');
-    });
-
-    describe('directories property', () => {
-      it('return error if directories is not a non-empty array', () => {
-        config.directories = {};
-
-        expect(validator(config)).to.equal('.directories: should be array');
-
-        config.directories = [];
-
-        expect(validator(config)).to.equal('.directories: should NOT have less than 1 items');
-      });
-
-      describe('directories items', () => {
-        it('should return error message if there is no maxHits property', () => {
-          delete config.directories[0].maxHits;
-
-          expect(validator(config)).to.equal('.directories[0]: should have required property \'maxHits\'');
-        });
-
-        it('should return error message if there is no uri property', () => {
-          delete config.directories[0].uri;
-
-          expect(validator(config)).to.equal('.directories[0]: should have required property \'uri\'');
-        });
-
-        it('should return error message if there is no dirName property', () => {
-          delete config.directories[0].dirName;
-
-          expect(validator(config)).to.equal('.directories[0]: should have required property \'dirName\'');
-        });
-
-        it('should return error message if directories.maxHits is not a number', () => {
-          config.directories[0].maxHits = '123';
-
-          expect(validator(config)).to.equal('.directories[0].maxHits: should be integer');
-        });
-
-        it('should return error message if directories.uri is not a string', () => {
-          config.directories[0].uri = {};
-
-          expect(validator(config)).to.equal('.directories[0].uri: should be string');
-        });
-
-        it('should return error message if directories.uri length is less than 1', () => {
-          config.directories[0].uri = '';
-
-          expect(validator(config)).to.equal('.directories[0].uri: should NOT be shorter than 1 characters');
-        });
-
-        it('should return error message if directories.dirName is not a string', () => {
-          config.directories[0].dirName = {};
-
-          expect(validator(config)).to.equal('.directories[0].dirName: should be string');
-        });
-
-        it('should return error message if directories.dirName length is less than 1', () => {
-          config.directories[0].dirName = '';
-
-          expect(validator(config)).to.equal('.directories[0].dirName: should NOT be shorter than 1 characters');
-        });
-      });
     });
 
     describe('preferences property', () => {
