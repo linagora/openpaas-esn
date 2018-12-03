@@ -35,6 +35,7 @@ services:
     environment:
       - ESN_MONGO_DBNAME=esn
       - ESN_HOST=${ESN_HOST}
+      - SABRE_ENV=dev
     volumes:
       - ${ESN_SABRE_PATH}:/var/www/
       - ${ESN_SABRE_PATH}/config/20-xdebug.ini:/etc/php/7.0/fpm/conf.d/20-xdebug.ini
