@@ -39,15 +39,18 @@
       "colorize": false
     },
     "rotate": {
-      "enabled": false,
-      "file": "./log/application.log",
-      "level": "info",
+      "enabled": true,
+      "dirname": "log",
+      "filename": "application-%DATE%.log",
+      "zippedArchive": true,
+      "datePattern": "YYYY-MM-DD",
+      "maxSize": "10m",
+      "maxFiles": null,
+      "level": "debug",
       "handleExceptions": true,
-      "json": false,
+      "json": true,
       "prettyPrint": true,
-      "colorize": false,
-      "size": "10m",
-      "skip": 5
+      "colorize": false
     },
     "console": {
       "enabled": true,
@@ -60,10 +63,42 @@
     },
     "elasticsearch": {
       "enabled": false,
-      "level": "debug",
+      "level": "error",
+      "ensureMappingTemplate": true,
+      "extraFields": {},
       "clientOpts": {
         "hosts": ["http://localhost:5200"],
         "httpAuth": "elastic:changeme"
+      },
+      "indexPrefix": "logs",
+      "mappingTemplate": {
+        "index_patterns": "logs-*",
+        "settings": {
+          "number_of_shards": 1,
+          "number_of_replicas": 0,
+          "index": {
+            "refresh_interval": "5s"
+          }
+        },
+        "mappings": {
+          "_doc": {
+            "_source": { "enabled": true },
+            "properties": {
+              "@timestamp": { "type": "date" },
+              "@version": { "type": "keyword" },
+              "message": { "type": "text", "index": true },
+              "severity": { "type": "keyword", "index": true },
+              "fields": {
+                "dynamic": true,
+                "properties": {}
+              },
+              "stacktrace": {
+                "dynamic": true,
+                "properties": {}
+              }
+            }
+          }
+        }
       }
     }
   },
