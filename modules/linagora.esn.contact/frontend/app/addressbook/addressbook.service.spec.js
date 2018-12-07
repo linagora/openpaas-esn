@@ -94,6 +94,7 @@ describe('The contactAddressbookService service', function() {
         personal: true,
         subscribed: true,
         shared: true,
+        contactsCount: true,
         inviteStatus: CONTACT_SHARING_INVITE_STATUS.ACCEPTED
       });
     });
