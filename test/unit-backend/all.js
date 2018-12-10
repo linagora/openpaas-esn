@@ -58,7 +58,22 @@ before(function() {
 
 beforeEach(function() {
   mockery.enable({warnOnReplace: false, warnOnUnregistered: false, useCleanCache: true});
-  mockery.registerMock('./logger', this.helpers.requireFixture('logger-noop')());
+  mockery.registerMock('winston', {
+    createLogger: () => ({
+      stream: {},
+      ...this.helpers.requireFixture('logger-noop')()
+    }),
+    transports: {},
+    format: {
+      printf: () => {},
+      splat: () => {},
+      combine: () => {},
+      colorize: () => {},
+      timestamp: () => {}
+    },
+    Transport: require('winston-transport'),
+    version: '3.0.0'
+  });
 });
 
 afterEach(function() {
