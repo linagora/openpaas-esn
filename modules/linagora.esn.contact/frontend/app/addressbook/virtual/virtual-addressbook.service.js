@@ -24,8 +24,16 @@
 
             return addressbook;
           });
-        })).then(function(addressbooks) {
+        }))
+        .then(function(addressbooks) {
           return _.filter(addressbooks, 'enabled');
+        })
+        .then(function(addressbooks) {
+          return $q.all(addressbooks.map(function(addressbook) {
+            return addressbook.loadContactsCount();
+          })).then(function() {
+            return addressbooks;
+          });
         });
       });
     }
@@ -47,6 +55,10 @@
           }
 
           return addressbook;
+        }).then(function(addressbook) {
+          return addressbook.loadContactsCount().then(function() {
+            return addressbook;
+          });
         });
       });
     }
