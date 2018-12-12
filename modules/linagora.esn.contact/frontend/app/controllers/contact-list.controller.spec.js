@@ -183,6 +183,18 @@ describe('The ContactListController controller', function() {
 
       expect(controller.status).to.equal('error');
     });
+
+    it('should get total contacts count of current viewing addressbooks', function() {
+      var addressbooksList = [
+        { numberOfContacts: 10 },
+        { numberOfContacts: 1023 }
+      ];
+
+      contactAddressbookService.listAggregatedAddressbooks = sinon.stub().returns($q.when(addressbooksList));
+      initController();
+
+      expect(scope.contactsCount).to.equal(1023 + 10);
+    });
   });
 
   it('should display contacts as list by default', inject(function(CONTACT_LIST_DISPLAY) {
