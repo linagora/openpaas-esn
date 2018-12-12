@@ -10,7 +10,6 @@
       span {{$ctrl.addressbookDisplayShell.displayName}}
     .owner.ellipsis(ng-if='$ctrl.addressbookDisplayShell.shell.owner')
       span {{::$ctrl.addressbookDisplayShell.shell.owner.displayName}}
-
   settings-overlay(ng-if='::$ctrl.actions.length > 0')
     md-menu-item(
       ng-repeat='action in ::$ctrl.actions',
