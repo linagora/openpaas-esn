@@ -72,6 +72,7 @@
         .then(function(addressbooks) {
           $scope.addressbooks = Array.isArray(addressbooks) ? addressbooks : [addressbooks];
           $scope.bookTitle = _buildAddressBookTitle();
+          $scope.contactsCount = _getContactsCount();
           $scope.createPagination(CONTACT_LIST_DISPLAY_MODES.multiple);
           $scope.canCreateContact = $scope.addressbooks.some(function(addressbook) {
             return addressbook.canCreateContact;
@@ -136,6 +137,16 @@
       }
 
       return '';
+    }
+
+    function _getContactsCount() {
+      if ($scope.addressbooks.length > 0) {
+        return $scope.addressbooks.reduce(function(count, addressbook) {
+          return addressbook.numberOfContacts ? count + addressbook.numberOfContacts : count;
+        }, 0);
+      }
+
+      return 0;
     }
 
     function fillRequiredContactInformation(contact) {

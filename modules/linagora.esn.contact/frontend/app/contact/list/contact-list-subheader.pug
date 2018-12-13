@@ -4,6 +4,7 @@ block left
   button.btn.btn-link.btn-icon.hidden-md(contextual-sidebar, data-content-template="/contact/app/contact/list/contact-right-sidebar.html")
     i.mdi.mdi-menu
   span.title.ellipsis {{bookTitle}}
+  span.title.visible-md(ng-if='contactsCount > 0') ({{::contactsCount}})
   h2.visible-md
     span(ng-show="contactSearch.searchInput") #{__('Search in contacts')}
     small(ng-switch="searchResult.count" ng-if="!!contactSearch.searchInput")
