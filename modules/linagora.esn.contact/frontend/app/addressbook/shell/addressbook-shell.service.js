@@ -24,6 +24,7 @@
       this.bookName = metadata.bookName;
       this.bookId = metadata.bookId;
       this.acl = json.acl;
+      this.numberOfContacts = json.numberOfContacts;
 
       this.rights = {
         public: CONTACT_ADDRESSBOOK_PUBLIC_RIGHT.PRIVATE.value,
@@ -44,6 +45,7 @@
         this.isSubscription = true;
         this.subscriptionType = json['openpaas:subscription-type'];
         this.shareAccess = json['dav:share-access'];
+        this.numberOfContacts = this.source.numberOfContacts;
       }
 
       if (json['dav:invite']) {
