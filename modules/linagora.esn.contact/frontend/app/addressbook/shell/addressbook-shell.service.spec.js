@@ -55,11 +55,13 @@ describe('The Contact Angular module AddressbookShell', function() {
         var description = 'AddressBook for Twitter contacts';
         var type = 'twitter';
         var state = 'enabled';
+        var numberOfContacts = 2018;
 
         jsonInput['dav:name'] = name;
         jsonInput['carddav:description'] = description;
         jsonInput.type = type;
         jsonInput.state = state;
+        jsonInput.numberOfContacts = numberOfContacts;
         var shell = new AddressbookShell(jsonInput);
 
         expect(shell).to.shallowDeepEqual({
@@ -69,7 +71,8 @@ describe('The Contact Angular module AddressbookShell', function() {
           name: name,
           description: description,
           type: type,
-          state: state
+          state: state,
+          numberOfContacts: numberOfContacts
         });
       });
 
@@ -263,6 +266,16 @@ describe('The Contact Angular module AddressbookShell', function() {
             type: 'domains',
             id: 'sourceDomainId'
           });
+        });
+
+        it('should assign numberOfContacts to numberOfContacts of the source address book', function() {
+          jsonInput.numberOfContacts = 2019;
+          jsonInput['openpaas:source'] = angular.copy(jsonInput);
+
+          jsonInput.numberOfContacts = null;
+          var shell = new AddressbookShell(jsonInput);
+
+          expect(shell.numberOfContacts).to.equal(2019);
         });
       });
     });
