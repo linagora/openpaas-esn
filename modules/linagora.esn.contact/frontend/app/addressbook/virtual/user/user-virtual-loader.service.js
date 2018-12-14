@@ -5,6 +5,7 @@
 
   function ContactVirtualUsersLoaderService(domainAPI, session, CONTACT_LIST_PAGE_SIZE) {
     return {
+      getDomainUsersCount: getDomainUsersCount,
       list: list
     };
 
@@ -26,6 +27,12 @@
         };
 
         return result;
+      });
+    }
+
+    function getDomainUsersCount() {
+      return domainAPI.getMembers(session.domain._id, { offset: 0, limit: 0 }).then(function(response) {
+        return parseInt(response.headers('X-ESN-Items-Count'), 10);
       });
     }
   }

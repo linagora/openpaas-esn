@@ -5,6 +5,7 @@
 
   function ContactVirtualFollowingsLoaderService(followAPI, session, CONTACT_LIST_PAGE_SIZE) {
     return {
+      getFollowingsCount: getFollowingsCount,
       list: list
     };
 
@@ -26,6 +27,12 @@
         };
 
         return result;
+      });
+    }
+
+    function getFollowingsCount() {
+      return followAPI.getFollowings(session.user, { offset: 0, limit: 0 }).then(function(response) {
+        return parseInt(response.headers('X-ESN-Items-Count'), 10);
       });
     }
   }

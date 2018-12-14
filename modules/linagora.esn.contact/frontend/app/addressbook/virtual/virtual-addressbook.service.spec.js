@@ -31,16 +31,50 @@ describe('The ContactVirtualAddressBookService service', function() {
   }));
 
   describe('The list function', function() {
+    it('should load all enabled addressbooks number of contacts then resolve', function(done) {
+      var addressbooks = [
+        {
+          id: 1,
+          loadContactsCount: sinon.stub().returns($q.when())
+        },
+        {
+          id: 2,
+          loadContactsCount: sinon.stub().returns($q.when())
+        },
+        {
+          id: 3,
+          loadContactsCount: sinon.stub().returns($q.reject(new Error('should not be called')))
+        }
+      ];
+
+      ContactVirtualAddressBookRegistry.list.returns($q.when(addressbooks));
+      ContactVirtualAddressBookConfiguration.isEnabled.withArgs(1).returns($q.when(true));
+      ContactVirtualAddressBookConfiguration.isEnabled.withArgs(2).returns($q.when(true));
+      ContactVirtualAddressBookConfiguration.isEnabled.withArgs(3).returns($q.when(false));
+      ContactVirtualAddressBookService.list().then(function(result) {
+        expect(result.length).to.eq(2);
+        expect(addressbooks[0].loadContactsCount).to.have.been.called;
+        expect(addressbooks[1].loadContactsCount).to.have.been.called;
+        expect(addressbooks[2].loadContactsCount).to.not.have.been.called;
+        done();
+      }).catch(done);
+
+      $rootScope.$digest();
+    });
+
     it('should return all the addressbooks which are enabled from configuration', function(done) {
       var addressbooks = [
         {
-          id: 1
+          id: 1,
+          loadContactsCount: angular.noop
         },
         {
-          id: 2
+          id: 2,
+          loadContactsCount: angular.noop
         },
         {
-          id: 3
+          id: 3,
+          loadContactsCount: angular.noop
         }
       ];
 
@@ -58,16 +92,19 @@ describe('The ContactVirtualAddressBookService service', function() {
       $rootScope.$digest();
     });
 
-    it('should does not include an addressbook which rejects from configuration', function(done) {
+    it('should not include an addressbook which rejects from configuration', function(done) {
       var addressbooks = [
         {
-          id: 1
+          id: 1,
+          loadContactsCount: angular.noop
         },
         {
-          id: 2
+          id: 2,
+          loadContactsCount: angular.noop
         },
         {
-          id: 3
+          id: 3,
+          loadContactsCount: angular.noop
         }
       ];
 
@@ -119,13 +156,17 @@ describe('The ContactVirtualAddressBookService service', function() {
       $rootScope.$digest();
     });
 
-    it('should resolve with addressbook', function(done) {
-      var addressbook = { id: 1 };
+    it('should load addressbook number of contact then resolve', function(done) {
+      var addressbook = {
+        id: 1,
+        loadContactsCount: sinon.stub().returns($q.when())
+      };
 
       ContactVirtualAddressBookRegistry.get.returns($q.when(addressbook));
       ContactVirtualAddressBookConfiguration.isEnabled.returns($q.when(true));
 
       ContactVirtualAddressBookService.get(addressbook.id).then(function(result) {
+        expect(addressbook.loadContactsCount).to.have.been.called;
         expect(ContactVirtualAddressBookRegistry.get).to.have.been.calledWith(addressbook.id);
         expect(ContactVirtualAddressBookConfiguration.isEnabled).to.have.been.calledWith(addressbook.id);
         expect(result).to.equal(addressbook);

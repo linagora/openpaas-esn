@@ -9,7 +9,7 @@
         enabled: 'linagora.esn.contact.features.isVirtualUserAddressbookEnabled'
       }
     };
-    var addressbook = new ContactVirtualAddressBook(CONTACT_USER_VIRTUAL_ADDRESSBOOK_ID, 'All members', loadNextItems, options);
+    var addressbook = new ContactVirtualAddressBook(CONTACT_USER_VIRTUAL_ADDRESSBOOK_ID, 'All members', loadNextItems, loadContactsCount, options);
 
     function loadNextItems(options) {
       return ContactVirtualUsersLoaderService.list(options).then(function(result) {
@@ -21,6 +21,10 @@
 
         return result;
       });
+    }
+
+    function loadContactsCount() {
+      return ContactVirtualUsersLoaderService.getDomainUsersCount();
     }
 
     return addressbook;
