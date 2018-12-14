@@ -95,7 +95,7 @@ addDebianRepositories() {
     wget -qO - https://packages.sury.org/php/apt.gpg | apt-key add -
 
     addDebianRepository elasticsearch "deb http://packages.elastic.co/elasticsearch/2.x/debian stable main"
-    addDebianRepository cassandra "deb http://www.apache.org/dist/cassandra/debian 22x main"
+    addDebianRepository cassandra "deb http://www.apache.org/dist/cassandra/debian 311x main"
     addDebianRepository nodesource "deb https://deb.nodesource.com/node_8.x ${DEBIAN_RELEASE} main"
     addDebianRepository openpaas "deb https://packages.linagora.com/deb/openpaas/oncommit ${DEBIAN_RELEASE} main"
     addDebianRepository sury.org "deb https://packages.sury.org/php/ ${DEBIAN_RELEASE} main" # To support PHP7.0 on Debian Jessie (see https://deb.sury.org/)
