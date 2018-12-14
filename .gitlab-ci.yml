@@ -80,8 +80,6 @@ prepare:
     policy: pull-push
   script:
     - npm install
-    - ldd node_modules/canvas/build/Release/canvas.node
-    - readelf -d node_modules/canvas/build/Release/canvas.node | grep NEEDED
     # Weird behaviour: at the time, npm postinstall was not called.
     - ./node_modules/.bin/bower install --allow-root
     - 'echo "INFO: NB node packages : $(ls node_modules | wc -l)"'
@@ -141,8 +139,6 @@ unit-backend-test:
 modules-unit-backend-test:
   <<: *test-template
   script:
-    - ldd node_modules/canvas/build/Release/canvas.node
-    - readelf -d node_modules/canvas/build/Release/canvas.node | grep NEEDED
     - grunt -v --chunk=1 test-modules-unit-backend
 
 ####### tests with services requirements
