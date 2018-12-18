@@ -1,0 +1,21 @@
+.profile-popover-content.flex-horizontal-centered
+  .profile-card.flex-horizontal-centered
+    .profile-card-left
+      esn-avatar(user-id='$ctrl.user.id', ui-sref='profile({user_id: $ctrl.user.id})')
+    .profile-card-right.profile-card-informations
+      div
+        .displayname {{::$ctrl.user.displayName}}
+      div
+        a(ng-href='mailto:{{$ctrl.user.preferredEmail}}', op-inbox-compose, op-inbox-compose-display-name='{{::$ctrl.user.displayName}}') {{$ctrl.user.preferredEmail}}
+      div(ng-if='$ctrl.user.officeLocation')
+        i.mdi.mdi-map-marker
+        | {{$ctrl.user.officeLocation}}
+    .profile-card-right(ng-if='$ctrl.isMobileDevice')
+      button.btn.btn-default.popover-close-button(type="button" role="button" aria-label="Close" ng-click="$ctrl._hideComponent($event)")
+        span(aria-hidden="true")
+          i.mdi.mdi-close
+  .popover-profile-user-actions.flex-horizontal-centered
+    div(ng-if='!$ctrl.isCurrentUser' dynamic-directive='profile-user-actions')
+    a.btn.btn-default(ng-if='$ctrl.isMobileDevice' ng-click='$ctrl.onProfileButtonClick()')
+      i.mdi.mdi-account-box
+      span #{__('View profile page')}
