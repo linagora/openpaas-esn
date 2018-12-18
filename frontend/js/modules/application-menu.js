@@ -20,7 +20,7 @@ angular.module('esn.application-menu', [
   .factory('applicationMenuTemplateBuilder', function(featureFlags, _) {
     var template =
         '<div>' +
-          '<a href="<%- href %>">' +
+          '<a href="<%- href %>" target="<%- target %>" rel="<%- rel %>">' +
             '<img class="esn-application-menu-icon" src="<%- iconURL %>" fallback-src="/images/application.png"/>' +
             '<span class="label" translate>' +
               '<%- label %>' +
@@ -30,7 +30,7 @@ angular.module('esn.application-menu', [
 
     var svgTemplate =
       '<div>' +
-        '<a href="<%- href %>">' +
+        '<a href="<%- href %>" target="<%- target %>" rel="<%- rel %>">' +
           '<div class="esn-application-menu-icon" ng-include="\'<%- iconURL %>\'"></div>' +
           '<span class="label" translate>' +
             '<%- label %>' +
@@ -39,7 +39,8 @@ angular.module('esn.application-menu', [
       '</div>';
 
     return function(href, icon, label, flag, isDisplayedByDefault) {
-      var iconURL;
+      var iconURL, aHref, aTarget;
+      var aRel = '';
       var iconUrlTemplate = '/images/application-menu/<%- icon %>-icon.svg';
       var defaultValue = angular.isDefined(isDisplayedByDefault) ? isDisplayedByDefault : true;
       var isActive = defaultValue;
@@ -58,9 +59,18 @@ angular.module('esn.application-menu', [
         iconURL = _.template(iconUrlTemplate)({icon: icon.name});
       }
 
+      if (angular.isObject(href)) {
+        aHref = href.url;
+        aTarget = href.target || '';
+        aRel = href.rel || aRel;
+      } else {
+        aHref = href;
+        aTarget = '';
+      }
+
       return iconURL && iconURL.match(/.\S+\.svg/) ?
-        _.template(svgTemplate)({ href: href, iconURL: iconURL, label: label }) :
-        _.template(template)({ href: href, iconURL: iconURL, label: label });
+        _.template(svgTemplate)({ href: aHref, target: aTarget, rel: aRel, iconURL: iconURL, label: label }) :
+        _.template(template)({ href: aHref, target: aTarget, rel: aRel, iconURL: iconURL, label: label });
     };
   })
 
