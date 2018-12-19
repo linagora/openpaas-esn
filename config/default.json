@@ -39,7 +39,7 @@
       "colorize": false
     },
     "rotate": {
-      "enabled": true,
+      "enabled": false,
       "dirname": "log",
       "filename": "application-%DATE%.log",
       "zippedArchive": true,
@@ -58,7 +58,7 @@
       "debugStdout": true,
       "handleExceptions": true,
       "json": false,
-      "prettyPrint": true,
+      "prettyPrint": false,
       "colorize": true
     },
     "elasticsearch": {
