@@ -39,7 +39,7 @@
       "colorize": false
     },
     "rotate": {
-      "enabled": true,
+      "enabled": false,
       "dirname": "log",
       "filename": "application-%DATE%.log",
       "zippedArchive": true,
