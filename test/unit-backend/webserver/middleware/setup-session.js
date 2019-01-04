@@ -174,12 +174,16 @@ describe('The setup-session middleware', function() {
     expect(MongoStoreSpy).to.have.been.calledOnce;
   });
 
-  it('should use session secret configuration to configure session', function(done) {
+  it('should use session configuration to configure session', function(done) {
     const mongooseMock = this.helpers.requireFixture('mongoose').mongoose();
 
     mongooseMock.connections = [true];
 
-    const sessionConfigMock = { secret: 'cats are cute' };
+    const sessionConfigMock = {
+      secret: 'cats are cute',
+      saveUninitialized: true,
+      cookie: { maxAge: 1000 }
+    };
     const awesomeSessionstoreMock = () => sinon.spy();
     const expressSessionMock = sinon.spy();
     const coreMock = {
@@ -201,9 +205,7 @@ describe('The setup-session middleware', function() {
 
     const session = {
       setMiddleware() {
-        expect(expressSessionMock).to.have.been.calledWith(sinon.match({
-          secret: sessionConfigMock.secret
-        }));
+        expect(expressSessionMock).to.have.been.calledWith(sinon.match(sessionConfigMock));
         done();
       }
     };

@@ -25,23 +25,18 @@ function init(session) {
   function setSession() {
     logger.debug('mongo is connected, setting up mongo session store');
 
-    getSessionSecret().then(secret => {
+    core['esn-config']('session').get().then(sessionConfig => {
       session.setMiddleware(expressSession({
         resave: true, // our session store does not support 'touch', so we must tell express to resave session if modified during the request
         saveUninitialized: false,
         cookie: { maxAge: 6000000 },
-        secret,
-        store
+        secret: DEFAULT_SESSION_SECRET,
+        store,
+        ...sessionConfig
       }));
       mongosessiontopic.publish({});
     }, err => {
       logger.error('Failed to get session secret configuration', err);
     });
   }
-}
-
-function getSessionSecret() {
-  return core['esn-config']('session').get().then(data =>
-    (data && data.secret ? data.secret : DEFAULT_SESSION_SECRET)
-  );
 }
