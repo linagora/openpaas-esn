@@ -1,0 +1,13 @@
+{
+  "Domain name": "域名",
+  "Domain Name": "域名",
+  "Domain name is required": "域名是必需的",
+  "Email address is required": "电子邮件地址是必填项",
+  "First name is required": "名字是必需的",
+  "Last name is required": "姓氏是必需的",
+  "Organization is required": "组织是必需的",
+  "There was an error while signin up to the platform. Please try again.": "登录平台时出错。请再试一次。",
+  "This company is already registered. Please choose another one.": "该公司已经注册。请选择另一个。",
+  "This email address is invalid": "此电子邮件地址无效",
+  "We are not able to find the invitation you requested, please try again.": "我们无法找到您要求的邀请，请重试。"
+}

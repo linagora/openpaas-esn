@@ -1,0 +1,10 @@
+{
+  "A problem occurred while getting data, try refreshing this page": "获取数据出现问题，请尝试刷新页面",
+  "Accounts Management": "账户管理",
+  "Delete account": "Delete 帐户",
+  "Facebook Account": "Facebook 帐户",
+  "Github Account": "Github 帐户",
+  "Google Account": "Google  帐户",
+  "No social account provider is installed, contact administrator for more information": "还没有安装社交账号，请联系管理员获取更多信息",
+  "Twitter Account": "Twitter 帐户"
+}
