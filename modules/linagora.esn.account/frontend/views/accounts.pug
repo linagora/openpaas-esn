@@ -2,12 +2,16 @@
   .row
     .block-header.flex-space-between.flex-vertical-centered.flex-wrap
       h2 #{__('Accounts Management')}
-      dynamic-fab-dropup(anchor='accounts-item-anchorpoint')
-  .empty-container(ng-if='accounts && !accounts.length')
-    .message
-      .empty-icon.mdi.mdi-database-plus
-      div
-        p.empty-text !{__('No accounts, click %s to add a new one', '<span class="mdi mdi-plus"></span>')}
-  .vertiz-space
-  .col-xs-12.card(ng-if='accounts && accounts.length')
-    account-displayer(account='account', ng-repeat='account in accounts')
+      dynamic-fab-dropup(anchor='accounts-item-anchorpoint', ng-if="!error && hasAccountProvider")
+
+    .col-xs-12.card(ng-if='!error && accounts.length')
+      account-displayer(account='account', ng-repeat='account in accounts')
+
+    .alert-container
+      .message(ng-if="!error && !accounts.length")
+        .alert-icon.mdi.mdi-database-plus
+        .alert-text(ng-if="hasAccountProvider") !{__('No accounts, click %s to add a new one', '<span class="mdi mdi-plus"></span>')}
+        .alert-text(ng-if="!hasAccountProvider") !{__('No social account provider is installed, contact administrator for more information')}
+      .message(ng-if="error")
+        .alert-icon.mdi.mdi-alert-circle
+        .alert-text !{__('A problem occurred while getting data, try refreshing this page')}

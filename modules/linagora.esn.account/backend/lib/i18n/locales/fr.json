@@ -4,5 +4,7 @@
   "Twitter Account": "Compte Twitter",
   "Google Account": "Compte Google",
   "Github Account": "Compte Github",
-  "Delete account": "Effacer le compte"
+  "Delete account": "Effacer le compte",
+  "No social account provider is installed, contact administrator for more information": "Aucun fournisseur de réseaux sociaux n'est installé, veuillez contacter votre administrateur pour plus d'information",
+  "A problem occurred while getting data, try refreshing this page": "Un problème s'est produit lors du chargement de certaines données, essayez de recharger la page"
 }

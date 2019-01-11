@@ -17,12 +17,20 @@ angular.module('linagora.esn.account', [
       resolve: {
         domain: routeResolver.session('domain'),
         user: routeResolver.session('user'),
-        accounts: function($log, $location, accountService) {
+        accounts: function($log, accountService) {
           return accountService.getAccounts().then(function(response) {
             return response.data;
           }, function(err) {
             $log.error('Error while getting accounts', err);
-            $location.path('/');
+          });
+        },
+        providers: function(_, $log, accountService, SUPPORTED_ACCOUNT_TYPES) {
+          return accountService.getAccountProviders()
+          .then(function(resp) {
+            return _.intersection(resp.data, _.values(SUPPORTED_ACCOUNT_TYPES));
+          })
+          .catch(function(err) {
+            $log.error('Error while getting account providers', err);
           });
         }
       }

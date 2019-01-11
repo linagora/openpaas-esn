@@ -2,9 +2,25 @@
 
 angular.module('linagora.esn.account')
 
-  .controller('accountListController', function($scope, $location, displayAccountMessage, accounts, SUPPORTED_ACCOUNTS, ACCOUNT_EVENTS) {
+  .controller('accountListController', function(
+    $scope,
+    $location,
+    dynamicDirectiveService,
+    displayAccountMessage,
+    accounts,
+    providers,
+    SUPPORTED_ACCOUNTS,
+    ACCOUNT_EVENTS
+    ) {
+    if (!accounts || !providers) {
+      $scope.error = true;
+    }
 
-    $scope.accounts = accounts.map(function(account) {
+    if (providers && providers.length > 0 && dynamicDirectiveService.getInjections('accounts-item-anchorpoint', {}).length > 0) {
+      $scope.hasAccountProvider = true;
+    }
+
+    $scope.accounts = accounts && accounts.map(function(account) {
       if (SUPPORTED_ACCOUNTS.indexOf(account.type.toLowerCase()) > -1) {
         account.provider = account.data.provider;
         account.id = account.data.id;
