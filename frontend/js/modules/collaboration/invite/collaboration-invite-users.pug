@@ -5,7 +5,7 @@
         tags-input.form-control(ng-disabled='running', ng-model='users', display-property='{{::displayProperty}}',
         placeholder=__('Invite users...'), min-tags='0', add-from-autocomplete-only='true',
         on-tag-added='resetView()', replace-spaces-with-dashes='false')
-          auto-complete(source='getInvitablePeople($query)', min-length='0', debounce-delay='200' , template="/views/modules/auto-complete/user-auto-complete")
+          auto-complete(source='getInvitablePeople($query)', min-length='0', debounce-delay='200', max-results-to-show="20", template="/views/modules/auto-complete/user-auto-complete")
       .hidden.bg-danger(error-container)
         span(ng-show='running') #{__('Please wait...')}
         span(ng-show='error') {{error.error.details || error}}.

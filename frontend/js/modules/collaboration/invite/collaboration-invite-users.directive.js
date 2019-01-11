@@ -4,7 +4,16 @@
   angular.module('esn.collaboration')
     .directive('esnCollaborationInviteUsers', esnCollaborationInviteUsers);
 
-  function esnCollaborationInviteUsers($q, $rootScope, notificationFactory, session, esnCollaborationService, esnCollaborationClientService, userUtils) {
+  function esnCollaborationInviteUsers(
+    $q,
+    $rootScope,
+    notificationFactory,
+    session,
+    esnCollaborationService,
+    esnCollaborationClientService,
+    userUtils,
+    ESN_COLLABORATION_MEMBER_SEARCH_LENGTH
+  ) {
     return {
       restrict: 'E',
       replace: true,
@@ -42,10 +51,9 @@
 
       $scope.getInvitablePeople = function(query) {
         $scope.query = query;
-        var deferred = $q.defer();
 
-        esnCollaborationClientService.getInvitablePeople($scope.objectType, $scope.collaboration._id, {search: query, limit: 5}).then(
-          function(response) {
+        return esnCollaborationClientService.getInvitablePeople($scope.objectType, $scope.collaboration._id, { search: query, limit: ESN_COLLABORATION_MEMBER_SEARCH_LENGTH })
+          .then(function(response) {
             var cache = Object.create(null);
 
             response.data.forEach(function(user) {
@@ -58,14 +66,9 @@
 
               $scope.query = '';
             });
-            deferred.resolve(response);
-          },
-          function(error) {
-            deferred.resolve(error);
-          }
-        );
 
-        return deferred.promise;
+            return response;
+          });
       };
 
       $scope.inviteUsers = function() {
