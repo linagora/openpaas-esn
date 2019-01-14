@@ -4,7 +4,7 @@
   angular.module('esn.collaboration')
     .controller('ESNCollaborationMembershipRequestsWidgetController', ESNCollaborationMembershipRequestsWidgetController);
 
-  function ESNCollaborationMembershipRequestsWidgetController($rootScope, esnCollaborationClientService) {
+  function ESNCollaborationMembershipRequestsWidgetController($rootScope, esnCollaborationClientService, ESN_COLLABORATION_MEMBER_EVENTS) {
     var self = this;
 
     self.error = false;
@@ -14,8 +14,8 @@
     self.$onInit = $onInit;
 
     function $onInit() {
-      self.unregisterDeclined = $rootScope.$on('collaboration:request:declined', removeRequestEntry);
-      self.unregisterAccepted = $rootScope.$on('collaboration:request:accepted', removeRequestEntry);
+      self.unregisterDeclined = $rootScope.$on(ESN_COLLABORATION_MEMBER_EVENTS.DECLINED, removeRequestEntry);
+      self.unregisterAccepted = $rootScope.$on(ESN_COLLABORATION_MEMBER_EVENTS.ACCEPTED, removeRequestEntry);
 
       self.updateRequests();
     }

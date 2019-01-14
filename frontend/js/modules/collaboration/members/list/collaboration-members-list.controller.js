@@ -8,10 +8,13 @@
     _,
     $scope,
     $q,
+    $rootScope,
+    esnCollaborationClientService,
     esnCollaborationMemberPaginationProvider,
     infiniteScrollHelper,
     PageAggregatorService,
     ESN_COLLABORATION_MEMBER_EVENTS,
+    ESN_COLLABORATION_MEMBERSHIP_EVENTS,
     ELEMENTS_PER_PAGE
   ) {
     var self = this;
@@ -24,9 +27,21 @@
     };
 
     self.$onInit = $onInit;
+    self.$onDestroy = $onDestroy;
+    self.updateMembers = updateMembers;
 
     function $onInit() {
-      $scope.$on(ESN_COLLABORATION_MEMBER_EVENTS.REMOVED, onMemberRemoved);
+      self.collaborationJoinRemover = $rootScope.$on(ESN_COLLABORATION_MEMBERSHIP_EVENTS.JOIN, updateMembers);
+      self.collaborationLeaveRemover = $rootScope.$on(ESN_COLLABORATION_MEMBERSHIP_EVENTS.LEAVE, updateMembers);
+      self.requestAccepted = $rootScope.$on(ESN_COLLABORATION_MEMBER_EVENTS.ACCEPTED, updateMembers);
+      self.memberRemoved = $scope.$on(ESN_COLLABORATION_MEMBER_EVENTS.REMOVED, onMemberRemoved);
+    }
+
+    function $onDestroy() {
+      self.collaborationJoinRemover();
+      self.collaborationLeaveRemover();
+      self.memberRemoved();
+      self.requestAccepted();
     }
 
     function onMemberRemoved(event, removed) {
@@ -55,6 +70,14 @@
 
     function load() {
       return aggregator.loadNextItems().then(_.property('data'), _.constant([]));
+    }
+
+    function updateMembers() {
+      esnCollaborationClientService.getMembers(self.collaboration.objectType, self.collaboration._id).then(function(result) {
+        self.elements = result.data;
+      }, function() {
+        self.error = true;
+      });
     }
   }
 
