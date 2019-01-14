@@ -1,12 +1,13 @@
 'use strict';
 
 /* global chai: false */
+/* global sinon: false */
 
 var expect = chai.expect;
 
 describe('The Account Angular Controllers', function() {
 
-  var $rootScope, $controller, $scope, SUPPORTED_ACCOUNTS, ACCOUNT_EVENTS, ACCOUNT_MESSAGES, displayAccountMessage;
+  var $rootScope, $controller, $scope, SUPPORTED_ACCOUNTS, ACCOUNT_EVENTS, ACCOUNT_MESSAGES, displayAccountMessage, dynamicDirectiveService;
 
   beforeEach(function() {
     angular.mock.module('esn.notification');
@@ -27,13 +28,18 @@ describe('The Account Angular Controllers', function() {
     var $location = {};
     beforeEach(function() {
       $location.search = function() {return {};};
+      dynamicDirectiveService = {
+        getInjections: function() { return ['foo']; }
+      };
     });
 
-    function createController(accounts) {
+    function createController(accounts, providers) {
       $controller('accountListController', {
         $scope: $scope,
         $location: $location,
         accounts: accounts,
+        providers: providers,
+        dynamicDirectiveService: dynamicDirectiveService,
         displayAccountMessage: displayAccountMessage,
         SUPPORTED_ACCOUNTS: SUPPORTED_ACCOUNTS,
         ACCOUNT_EVENTS: ACCOUNT_EVENTS
@@ -46,20 +52,49 @@ describe('The Account Angular Controllers', function() {
         { type: 'email'},
         { type: 'foo', data: {provider: 'bar'} }
       ];
-      createController(accounts);
+      var providers = ['twitter', 'bar'];
+
+      createController(accounts, providers);
       $rootScope.$digest();
 
       expect($scope.accounts.length).to.equal(1);
       expect($scope.accounts[0].id).to.equal('keep');
     });
 
+    it('should not set hasAccountProvider to true if no provider available', function() {
+      var providers = [];
+      var accounts = [{ type: 'oauth', data: { provider: 'foo', id: 'bar' } }];
+
+      createController(accounts, providers);
+      $rootScope.$digest();
+
+      expect($scope.hasAccountProvider).to.be.undefined;
+    });
+
+    it('should not set hasAccountProvider to true if no provider dynamic directive injection available', function() {
+      var providers = ['twitter'];
+      var accounts = [{ type: 'oauth', data: { provider: 'foo', id: 'bar' } }];
+
+      dynamicDirectiveService = {
+        getInjections: sinon.stub().returns([])
+      };
+
+      createController(accounts, providers);
+      $rootScope.$digest();
+
+      expect($scope.hasAccountProvider).to.be.undefined;
+      expect(dynamicDirectiveService.getInjections).to.have.been.called;
+    });
+
     it('should only keep the accounts with provider', function() {
+      var providers = ['bar'];
       var accounts = [
         { type: 'oauth', data: {noprovider: 'nop', id: 'notkeep' } },
         { type: 'email' },
         { type: 'oauth', data: { provider: 'bar', id: 'keep' } }
       ];
-      createController(accounts);
+
+      createController(accounts, providers);
       $rootScope.$digest();
 
       expect($scope.accounts.length).to.equal(1);
@@ -82,7 +117,9 @@ describe('The Account Angular Controllers', function() {
         done();
       };
       var accounts = [];
-      createController(accounts);
+      var providers = ['twitter'];
+
+      createController(accounts, providers);
       $rootScope.$digest();
     });
 
@@ -91,7 +128,9 @@ describe('The Account Angular Controllers', function() {
       var account2 = {type: 'oauth', data: {id: 2, provider: 'social'}};
       var account3 = {type: 'oauth', data: {id: 3, provider: 'social'}};
       var accounts = [account1, account2, account3];
-      createController(accounts);
+      var providers = ['social'];
+
+      createController(accounts, providers);
       $rootScope.$digest();
       expect($scope.accounts.length).to.equal(3);
       $scope.$broadcast(ACCOUNT_EVENTS.DELETED, 2);
