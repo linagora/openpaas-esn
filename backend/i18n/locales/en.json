@@ -489,5 +489,10 @@
   "No activity": "No activity",
   "List view": "List view",
   "Grid view": "Grid view",
-  "No pending request": "No pending request"
+  "No pending request": "No pending request",
+  "Cannot upload %s files": "Cannot upload %s files",
+  "Cannot upload a file": "Cannot upload a file",
+  "Your file cannot be uploaded because its size exceeds the %s limit": "Your file cannot be uploaded because its size exceeds the %s limit",
+  "Your files cannot be uploaded because their sizes exceed the %s limit": "Your files cannot be uploaded because their sizes exceed the %s limit",
+  "OK": "OK"
 }

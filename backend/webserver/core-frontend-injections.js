@@ -89,6 +89,8 @@ const injections = [
   {angular: 'esn.user', files: ['user.js'], innerApps: ['esn', 'welcome']},
   {angular: 'esn.message', files: [
     'message/message.module.js',
+    'attachment-alternative-uploader-modal-no-uploader/attachment-alternative-uploader-modal-no-uploader.constants.js',
+    'attachment-alternative-uploader-modal-no-uploader/attachment-alternative-uploader-modal-no-uploader.controller.js',
     'message.js',
     'message/actions/message-actions-dropdown.component.js',
     'message/actions/message-actions.controller.js',
