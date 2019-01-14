@@ -52,7 +52,12 @@
       $scope.getInvitablePeople = function(query) {
         $scope.query = query;
 
-        return esnCollaborationClientService.getInvitablePeople($scope.objectType, $scope.collaboration._id, { search: query, limit: ESN_COLLABORATION_MEMBER_SEARCH_LENGTH })
+        return esnCollaborationClientService.getInvitablePeople(
+          $scope.objectType,
+          $scope.collaboration._id,
+          { search: query, limit: ESN_COLLABORATION_MEMBER_SEARCH_LENGTH },
+          ($scope.users || []).map(function(user) { return user._id; })
+        )
           .then(function(response) {
             var cache = Object.create(null);
 
