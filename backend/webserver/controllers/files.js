@@ -1,11 +1,16 @@
-'use strict';
+const filestore = require('../../core/filestore');
+const Busboy = require('busboy');
+const ObjectId = require('mongoose').Types.ObjectId;
 
-var filestore = require('../../core/filestore');
-var Busboy = require('busboy');
-var ObjectId = require('mongoose').Types.ObjectId;
+module.exports = {
+  create,
+  get,
+  remove
+};
 
 function create(req, res) {
-  var size = parseInt(req.query.size, 10);
+  const size = parseInt(req.query.size, 10);
+
   if (isNaN(size) || size < 1) {
     return res.status(400).json({
       error: 400,
@@ -14,24 +19,53 @@ function create(req, res) {
     });
   }
 
-  var fileId = new ObjectId();
-  var options = {};
-  var metadata = {};
+  const fileId = new ObjectId();
+  const options = {};
+  const metadata = {};
+
   if (req.query.name) {
     options.filename = req.query.name;
   }
 
   if (req.user) {
-    metadata.creator = {objectType: 'user', id: req.user._id};
+    metadata.creator = { objectType: 'user', id: req.user._id };
   }
 
-  var saveStream = function(stream) {
-    var interrupted = false;
+  if (req.headers['content-type'] && req.headers['content-type'].indexOf('multipart/form-data') === 0) {
+    let nb = 0;
+    const busboy = new Busboy({ headers: req.headers });
+
+    busboy.once('file', (fieldname, file) => {
+      nb++;
+      saveStream(file);
+    });
+
+    busboy.on('finish', () => {
+      if (nb === 0) {
+        res.status(400).json({
+          error: {
+            code: 400,
+            message: 'Bad request',
+            details: 'The form data must contain an attachment'
+          }
+        });
+      }
+    });
+
+    req.pipe(busboy);
+
+  } else {
+    saveStream(req);
+  }
+
+  function saveStream(stream) {
+    let interrupted = false;
+
     req.on('close', function() {
       interrupted = true;
     });
 
-    return filestore.store(fileId, req.query.mimetype, metadata, stream, options, function(err, saved) {
+    return filestore.store(fileId, req.query.mimetype, metadata, stream, options, (err, saved) => {
       if (err) {
         return res.status(500).json({
           error: {
@@ -43,7 +77,7 @@ function create(req, res) {
       }
 
       if (saved.length !== size || interrupted) {
-        return filestore.delete(fileId, function() {
+        return filestore.delete(fileId, () => {
           res.status(412).json({
             error: {
               code: 412,
@@ -55,33 +89,9 @@ function create(req, res) {
           });
         });
       }
-      return res.status(201).json({_id: fileId});
-    });
-  };
 
-  if (req.headers['content-type'] && req.headers['content-type'].indexOf('multipart/form-data') === 0) {
-    var nb = 0;
-    var busboy = new Busboy({ headers: req.headers });
-    busboy.once('file', function(fieldname, file) {
-      nb++;
-      return saveStream(file);
+      res.status(201).json({ _id: fileId });
     });
-
-    busboy.on('finish', function() {
-      if (nb === 0) {
-        res.status(400).json({
-          error: {
-            code: 400,
-            message: 'Bad request',
-            details: 'The form data must contain an attachment'
-          }
-        });
-      }
-    });
-    req.pipe(busboy);
-
-  } else {
-    return saveStream(req);
   }
 }
 
@@ -94,7 +104,7 @@ function get(req, res) {
     });
   }
 
-  filestore.get(req.params.id, function(err, fileMeta, readStream) {
+  filestore.get(req.params.id, (err, fileMeta, readStream) => {
     if (err) {
       return res.status(503).json({
         error: 503,
@@ -106,9 +116,9 @@ function get(req, res) {
     if (!readStream) {
       if (req.accepts('html')) {
         res.status(404).end();
-        return res.render('commons/404', { url: req.url });
+        res.render('commons/404', { url: req.url });
       } else {
-        return res.status(404).json({
+        res.status(404).json({
           error: 404,
           message: 'Not Found',
           details: 'Could not find file'
@@ -117,19 +127,19 @@ function get(req, res) {
     }
 
     if (fileMeta) {
-      var modSince = req.get('If-Modified-Since');
-      var clientMod = new Date(modSince);
-      var serverMod = fileMeta.uploadDate;
+      const modSince = req.get('If-Modified-Since');
+      const clientMod = new Date(modSince);
+      const serverMod = fileMeta.uploadDate;
+
       clientMod.setMilliseconds(0);
       serverMod.setMilliseconds(0);
 
       try {
         if (modSince && clientMod.getTime() === serverMod.getTime()) {
           return res.status(304).end();
-        } else {
-          res.set('Last-Modified', fileMeta.uploadDate);
         }
 
+        res.set('Last-Modified', fileMeta.uploadDate);
         res.type(fileMeta.contentType);
 
         if (fileMeta.filename) {
@@ -150,7 +160,7 @@ function get(req, res) {
     }
 
     res.status(200);
-    return readStream.pipe(res);
+    readStream.pipe(res);
   });
 }
 
@@ -158,22 +168,17 @@ function remove(req, res) {
   if (!req.params.id) {
     return res.status(400).json({error: {code: 400, message: 'Bad request', details: 'Missing id parameter'}});
   }
-  var meta = req.fileMeta;
+  const meta = req.fileMeta;
 
   if (meta.metadata.referenced) {
     return res.status(409).json({error: {code: 409, message: 'Conflict', details: 'File is used and can not be deleted'}});
   }
 
-  filestore.delete(req.params.id, function(err) {
+  filestore.delete(req.params.id, err => {
     if (err) {
       return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.message || err}});
     }
-    return res.status(204).end();
+
+    res.status(204).end();
   });
 }
-
-module.exports = {
-  create: create,
-  get: get,
-  remove: remove
-};
