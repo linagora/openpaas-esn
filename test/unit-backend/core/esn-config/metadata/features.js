@@ -15,9 +15,7 @@ describe('The core/esn-config/metadata/features module', () => {
     beforeEach(function() {
       validator = getModule().validator;
       config = {
-        'application-menu:invitation': false,
         'application-menu:appstore': false,
-        'control-center:invitation': false,
         'header:user-notification': false,
         'header:fullscreen': false,
         'control-center:password': false,
@@ -30,12 +28,6 @@ describe('The core/esn-config/metadata/features module', () => {
       config = [];
 
       expect(validator(config)).to.equal('should be object');
-    });
-
-    it('should return error message when application-menu:invitation property is not boolean', () => {
-      config['application-menu:invitation'] = {};
-
-      expect(validator(config)).to.equal('[\'application-menu:invitation\']: should be boolean');
     });
 
     it('should return error message when application-menu:appstore property is not boolean', () => {
@@ -54,18 +46,6 @@ describe('The core/esn-config/metadata/features module', () => {
       config['control-center:password'] = {};
 
       expect(validator(config)).to.equal('[\'control-center:password\']: should be boolean');
-    });
-
-    it('should return error message when application-menu:invitation property is not boolean', () => {
-      config['application-menu:invitation'] = {};
-
-      expect(validator(config)).to.equal('[\'application-menu:invitation\']: should be boolean');
-    });
-
-    it('should return error message when control-center:invitation property is not boolean', () => {
-      config['control-center:invitation'] = {};
-
-      expect(validator(config)).to.equal('[\'control-center:invitation\']: should be boolean');
     });
 
     it('should return error message when header:user-notification property is not boolean', () => {
