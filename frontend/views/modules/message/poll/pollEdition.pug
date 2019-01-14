@@ -2,7 +2,7 @@
   form(name='messageform')
     .form-group.message-textarea-edition
       .fg-line
-        textarea.form-control.textarea-poll-composer(ng-model='messageContent', placeholder=__('Enter your poll description and question'), ng-file-drop="onFileSelect($files)", auto-resize)
+        textarea.form-control.textarea-poll-composer(ng-model='messageContent', placeholder=__('Enter your poll description and question'), ng-file-drop="$ctrl.onFileSelect($files)", auto-resize)
     p
       strong #{__('Your poll options')}
     .form-horizontal
@@ -22,7 +22,7 @@
     .row.form-group(ng-if='attachments && attachments.length > 0')
       message-edition-attachments
     .form-group.text-right.post-attachments
-      button.btn.btn-link(type='file', ng-file-select='onFileSelect($files)', data-multiple='true')
+      button.btn.btn-link(type='file', ng-file-select='$ctrl.onFileSelect($files)', data-multiple='true')
         i.mdi.mdi-paperclip
       a(href='', fill-position)
         i.mdi.mdi-map-marker
