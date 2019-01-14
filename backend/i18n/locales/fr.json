@@ -488,5 +488,6 @@
   "This language will be used for all domain users if we can not detect their preferred language": "Ce langage sera utilisé pour tous les utilisateurs du domaine si nous ne pouvons pas détecter leur langage préféré",
   "No activity": "Pas d'activité",
   "List view": "Mode liste",
-  "Grid view": "Mode grille"
+  "Grid view": "Mode grille",
+  "No pending request": "Aucune requête en attente"
 }

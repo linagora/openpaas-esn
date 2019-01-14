@@ -1,18 +1,21 @@
 .community-members.card
   .membership(ng-if="$ctrl.isCommunityManager()")
     .card-header
-      h2 #{__("Invitations sent")}
+      h2 #{__("Invitations sent")}                  
+        span.type.label.label-primary {{$ctrl.invitations}}
     .card-body
       community-pending-invitation-list(community="$ctrl.community")
 
     .membership(ng-if="$ctrl.isCommunityManager()")
       .card-header
         h2 #{__("Membership requests")}
+          span.type.label.label-primary {{$ctrl.requests}}
       esn-collaboration-membership-requests-widget(object-type="community", collaboration="$ctrl.community")
 
   .members
     .card-header
       h2 #{__("Members")}
+        span.type.label.label-primary {{$ctrl.members}}
     .card-body
       esn-collaboration-invite-users(object-type="community", collaboration="$ctrl.community")
       esn-collaboration-members(readable='$ctrl.canRead()', collaboration='$ctrl.community', object-type-filter='user')
