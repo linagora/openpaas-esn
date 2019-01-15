@@ -1,4 +1,4 @@
-div.whats-up-message-thread(data-ng-switch='parentMessage')
+.whats-up-message-thread(data-ng-switch='parentMessage')
   .card.card-thread.esn-panel(data-ng-switch-when='true', data-tv-type="text" ng-class="{ 'just-posted': message._id === lastPost.messageId}")
     .card-header
       .media
@@ -17,8 +17,9 @@ div.whats-up-message-thread(data-ng-switch='parentMessage')
         text-parser(parsers='{{message.parsers}}', text='{{message.content}}')
       div(ng-if="message.position")
         display-position(position='message.position')
-      div(ng-if="message.attachments && message.attachments.length > 0", ng-repeat='attachment in message.attachments')
-        esn-attachment(attachment="attachment", gallery="message._id")
+      .attachments(ng-if="message.attachments && message.attachments.length > 0")
+        .attachment(ng-repeat='attachment in message.attachments')
+          esn-attachment(attachment="attachment", gallery="message._id")
       div
         message-oembeds(message='message')
       ul.wall-attrs.clearfix.list-inline.list-unstyled
@@ -62,5 +63,6 @@ div.whats-up-message-thread(data-ng-switch='parentMessage')
             text-parser(parsers='{{message.parsers}}', text='{{message.content}}')
           display-position(ng-if="message.position", position='message.position')
           message-oembeds.attachment(message='message')
-          div(ng-if="message.attachments && message.attachments.length > 0", ng-repeat='attachment in message.attachments')
-            esn-attachment(attachment="attachment", gallery="message._id")
+          .attachments(ng-if="message.attachments && message.attachments.length > 0")
+            .attachment(ng-repeat='attachment in message.attachments')
+              esn-attachment(attachment="attachment", gallery="message._id")

@@ -1,4 +1,4 @@
-div.poll-message-thread(data-ng-switch='parentMessage')
+.poll-message-thread(data-ng-switch='parentMessage')
   .card.card-thread.esn-panel(data-ng-switch-when='true', data-tv-type="poll" ng-class="{'just-posted': message._id === lastPost.messageId}")
     .card-header
       .media
@@ -52,7 +52,7 @@ div.poll-message-thread(data-ng-switch='parentMessage')
             span(ng-show='showMeChart') #{__('Hide chart')}
           canvas(ng-if='showMeChart' class="chart chart-doughnut", data="pollContext.chart" labels="pollContext.labels")
 
-      div(ng-show="message.attachments && message.attachments.length > 0")
+      .attachments(ng-if="message.attachments && message.attachments.length > 0")
         message-attachments(message='message')
       div(ng-show="message.content && message.length > 0")
         message-oembeds(message='message')
