@@ -1,135 +1,144 @@
-'use strict';
+const Busboy = require('busboy');
+const ObjectId = require('mongoose').Types.ObjectId;
 
-var filestore = require('../../core/filestore');
-var Busboy = require('busboy');
-var ObjectId = require('mongoose').Types.ObjectId;
+const filestore = require('../../core/filestore');
+const logger = require('../../core/logger');
+const esnConfig = require('../../core/esn-config');
+
+module.exports = {
+  create,
+  get,
+  remove
+};
 
 function create(req, res) {
-  var size = parseInt(req.query.size, 10);
+  const size = parseInt(req.query.size, 10);
+
   if (isNaN(size) || size < 1) {
-    return res.status(400).json({
-      error: 400,
-      message: 'Bad Parameter',
-      details: 'size parameter should be a positive integer'
-    });
+    return res.status(400).json({ error: { code: 400, message: 'Bad Parameter', details: 'size parameter should be a positive integer' }});
   }
 
-  var fileId = new ObjectId();
-  var options = {};
-  var metadata = {};
+  const fileId = new ObjectId();
+  const options = {};
+  const metadata = {};
+
   if (req.query.name) {
     options.filename = req.query.name;
   }
 
   if (req.user) {
-    metadata.creator = {objectType: 'user', id: req.user._id};
+    metadata.creator = { objectType: 'user', id: req.user._id };
   }
 
-  var saveStream = function(stream) {
-    var interrupted = false;
-    req.on('close', function() {
+  if (req.headers['content-type'] && req.headers['content-type'].indexOf('multipart/form-data') === 0) {
+    return getUploadLimit().then(limit => onMultipartFormRequest({ limit }));
+  }
+
+  saveStream(req);
+
+  function onMultipartFormRequest({ limit }) {
+    const busboy = new Busboy({ headers: req.headers, limits: { fileSize: limit } });
+    let nb = 0;
+
+    busboy.once('file', (fieldname, file) => {
+      logger.debug(`${fileId} - Storing file from '${fieldname}'`);
+      nb++;
+      saveStream(file);
+
+      file.on('limit', () => {
+        logger.warn(`${fileId} - File limit (${limit} bytes) has been reached`);
+      });
+    });
+
+    busboy.on('finish', () => {
+      logger.debug(`${fileId} - ${nb} file(s) have been saved`);
+      if (nb === 0) {
+        res.status(400).json({ error: { code: 400, message: 'Bad request', details: 'The form data must contain an attachment' } });
+      }
+    });
+
+    busboy.on('filesLimit', err => {
+      logger.warn(`${fileId} - File limit (${limit} bytes) has been reached`, err);
+    });
+
+    req.pipe(busboy);
+  }
+
+  function saveStream(stream) {
+    let interrupted = false;
+
+    req.on('close', () => {
       interrupted = true;
     });
 
-    return filestore.store(fileId, req.query.mimetype, metadata, stream, options, function(err, saved) {
+    logger.debug(`${fileId} - Storing file fileId=${fileId}, mime=${req.query.mimetype}, metadata=${JSON.stringify(metadata)}`);
+    filestore.store(fileId, req.query.mimetype, metadata, stream, options, (err, saved) => {
       if (err) {
-        return res.status(500).json({
-          error: {
-            code: 500,
-            message: 'Server error',
-            details: err.message || err
-          }
-        });
+        logger.error(`${fileId} - Can not store file`, err);
+
+        return res.status(500).json({ error: { code: 500, message: 'Server error', details: err.message || err } });
       }
 
       if (saved.length !== size || interrupted) {
-        return filestore.delete(fileId, function() {
-          res.status(412).json({
-            error: {
-              code: 412,
-              message: 'File size mismatch',
-              details: 'File size given by user agent is ' + size +
-              ' and file size returned by storage system is ' +
-              saved.length
-            }
-          });
-        });
-      }
-      return res.status(201).json({_id: fileId});
-    });
-  };
+        logger.error(`${fileId} - Error while storing file: saved.length=${saved.length}, size=${size}, interrupted=${interrupted}`);
 
-  if (req.headers['content-type'] && req.headers['content-type'].indexOf('multipart/form-data') === 0) {
-    var nb = 0;
-    var busboy = new Busboy({ headers: req.headers });
-    busboy.once('file', function(fieldname, file) {
-      nb++;
-      return saveStream(file);
-    });
-
-    busboy.on('finish', function() {
-      if (nb === 0) {
-        res.status(400).json({
-          error: {
-            code: 400,
-            message: 'Bad request',
-            details: 'The form data must contain an attachment'
+        return filestore.delete(fileId, err => {
+          if (err) {
+            logger.error(`${fileId} - File can not be deleted`, err);
           }
+
+          res.status(412).json({ error: { code: 412, message: 'File size mismatch', details: `File size given by user agent is ${size} and file size returned by storage system is ${saved.length}` }});
         });
       }
-    });
-    req.pipe(busboy);
 
-  } else {
-    return saveStream(req);
+      res.status(201).json({ _id: fileId });
+    });
   }
+}
+
+function getUploadLimit() {
+  return esnConfig('maxSizeUpload').get()
+    .then(maxSizeUpload => (maxSizeUpload || Infinity))
+    .catch(err => {
+      logger.warn('Can not get maxSizeUpload from configuration, default to Infinity', err);
+
+      return Infinity;
+    });
 }
 
 function get(req, res) {
   if (!req.params.id) {
-    return res.status(400).json({
-      error: 400,
-      message: 'Bad Request',
-      details: 'Missing id parameter'
-    });
+    return res.status(400).json({ error: { code: 400, message: 'Bad Request', details: 'Missing id parameter' }});
   }
 
-  filestore.get(req.params.id, function(err, fileMeta, readStream) {
+  filestore.get(req.params.id, (err, fileMeta, readStream) => {
     if (err) {
-      return res.status(503).json({
-        error: 503,
-        message: 'Server error',
-        details: err.message || err
-      });
+      return res.status(503).json({ error: { code: 503, message: 'Server error', details: err.message || err }});
     }
 
     if (!readStream) {
       if (req.accepts('html')) {
         res.status(404).end();
-        return res.render('commons/404', { url: req.url });
+        res.render('commons/404', { url: req.url });
       } else {
-        return res.status(404).json({
-          error: 404,
-          message: 'Not Found',
-          details: 'Could not find file'
-        });
+        res.status(404).json({ error: { code: 404, message: 'Not Found', details: 'Could not find file' }});
       }
     }
 
     if (fileMeta) {
-      var modSince = req.get('If-Modified-Since');
-      var clientMod = new Date(modSince);
-      var serverMod = fileMeta.uploadDate;
+      const modSince = req.get('If-Modified-Since');
+      const clientMod = new Date(modSince);
+      const serverMod = fileMeta.uploadDate;
+
       clientMod.setMilliseconds(0);
       serverMod.setMilliseconds(0);
 
       try {
         if (modSince && clientMod.getTime() === serverMod.getTime()) {
           return res.status(304).end();
-        } else {
-          res.set('Last-Modified', fileMeta.uploadDate);
         }
 
+        res.set('Last-Modified', fileMeta.uploadDate);
         res.type(fileMeta.contentType);
 
         if (fileMeta.filename) {
@@ -141,39 +150,32 @@ function get(req, res) {
           res.set('Content-Length', fileMeta.length);
         }
       } catch (error) {
-        return res.status(500).json({
-          error: 500,
-          message: 'Server error',
-          details: error.message || error
-        });
+        return res.status(500).json({ error: { code: 500, message: 'Server error', details: error.message || error }});
       }
     }
 
     res.status(200);
-    return readStream.pipe(res);
+    readStream.pipe(res);
   });
 }
 
 function remove(req, res) {
   if (!req.params.id) {
-    return res.status(400).json({error: {code: 400, message: 'Bad request', details: 'Missing id parameter'}});
+    return res.status(400).json({error: { code: 400, message: 'Bad request', details: 'Missing id parameter' }});
   }
-  var meta = req.fileMeta;
+  const meta = req.fileMeta;
 
   if (meta.metadata.referenced) {
-    return res.status(409).json({error: {code: 409, message: 'Conflict', details: 'File is used and can not be deleted'}});
+    return res.status(409).json({error: { code: 409, message: 'Conflict', details: 'File is used and can not be deleted' }});
   }
 
-  filestore.delete(req.params.id, function(err) {
+  filestore.delete(req.params.id, err => {
     if (err) {
-      return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.message || err}});
+      logger.error('Can not delete file from store', err);
+
+      return res.status(500).json({error: { code: 500, message: 'Server Error', details: err.message || err }});
     }
-    return res.status(204).end();
+
+    res.status(204).end();
   });
 }
-
-module.exports = {
-  create: create,
-  get: get,
-  remove: remove
-};
