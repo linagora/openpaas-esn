@@ -378,10 +378,10 @@ angular.module('esn.community')
       }
     };
   })
-  .factory('communityService', function(esnCollaborationClientService, communityAPI, $q) {
+  .factory('communityService', function(esnCollaborationClientService, communityAPI, session, $q) {
 
     function isManager(community, user) {
-      return community.creator === user._id;
+      return community.creator === user._id || session.userIsDomainAdministrator();
     }
 
     function isMember(community) {

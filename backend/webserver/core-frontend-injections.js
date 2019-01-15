@@ -170,6 +170,7 @@ const injections = [
     'collaboration/membership/collaboration-membership-requests-actions.component.js',
     'collaboration/membership/collaboration-membership-requests-widget.controller.js',
     'collaboration/membership/collaboration-membership-requests-widget.component.js',
+    'collaboration/services/collaboration-registry.service.js',
     'collaboration/services/collaboration-client.service.js',
     'collaboration/services/collaboration-listener.service.js',
     'collaboration/services/collaboration.service.js',
