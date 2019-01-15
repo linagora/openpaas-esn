@@ -488,5 +488,6 @@
   "This language will be used for all domain users if we can not detect their preferred language": "This language will be used for all domain users if we can not detect their preferred language",
   "No activity": "No activity",
   "List view": "List view",
-  "Grid view": "Grid view"
+  "Grid view": "Grid view",
+  "No pending request": "No pending request"
 }

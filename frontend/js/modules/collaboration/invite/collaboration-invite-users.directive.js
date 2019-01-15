@@ -12,7 +12,8 @@
     esnCollaborationService,
     esnCollaborationClientService,
     userUtils,
-    ESN_COLLABORATION_MEMBER_SEARCH_LENGTH
+    ESN_COLLABORATION_MEMBER_SEARCH_LENGTH,
+    ESN_COLLABORATION_MEMBER_EVENTS
   ) {
     return {
       restrict: 'E',
@@ -115,7 +116,7 @@
               $scope.invalidUser = $scope.query;
               $scope.showErrorMessage();
             }
-            $rootScope.$emit('collaboration:invite:users');
+            $rootScope.$emit(ESN_COLLABORATION_MEMBER_EVENTS.USERS);
           },
           function(error) {
             $scope.users = [];

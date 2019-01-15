@@ -4,7 +4,7 @@
   angular.module('esn.collaboration')
     .directive('esnCollaborationMembersWidget', esnCollaborationMembersWidget);
 
-  function esnCollaborationMembersWidget($rootScope, esnCollaborationClientService) {
+  function esnCollaborationMembersWidget($rootScope, esnCollaborationClientService, ESN_COLLABORATION_MEMBER_EVENTS, ESN_COLLABORATION_MEMBERSHIP_EVENTS) {
     return {
       scope: {
         collaboration: '=',
@@ -26,12 +26,16 @@
         query.objectTypeFilter = scope.objectTypeFilter;
       }
 
-      var collaborationJoinRemover = $rootScope.$on('collaboration:join', scope.updateMembers);
-      var collaborationLeaveRemover = $rootScope.$on('collaboration:leave', scope.updateMembers);
+      var collaborationJoinRemover = $rootScope.$on(ESN_COLLABORATION_MEMBERSHIP_EVENTS.JOIN, scope.updateMembers);
+      var collaborationLeaveRemover = $rootScope.$on(ESN_COLLABORATION_MEMBERSHIP_EVENTS.LEAVE, scope.updateMembers);
+      var requestAccepted = $rootScope.$on(ESN_COLLABORATION_MEMBER_EVENTS.ACCEPTED, scope.updateMembers);
+      var memberRemoved = $rootScope.$on(ESN_COLLABORATION_MEMBER_EVENTS.REMOVED, scope.updateMembers);
 
       element.on('$destroy', function() {
         collaborationJoinRemover();
         collaborationLeaveRemover();
+        requestAccepted();
+        memberRemoved();
       });
 
       scope.updateMembers();
