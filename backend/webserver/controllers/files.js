@@ -3,6 +3,7 @@ const ObjectId = require('mongoose').Types.ObjectId;
 
 const filestore = require('../../core/filestore');
 const logger = require('../../core/logger');
+const esnConfig = require('../../core/esn-config');
 
 module.exports = {
   create,
@@ -96,7 +97,13 @@ function create(req, res) {
 }
 
 function getUploadLimit() {
-  return Promise.resolve(Infinity);
+  return esnConfig('maxSizeUpload').get()
+    .then(maxSizeUpload => (maxSizeUpload || Infinity))
+    .catch(err => {
+      logger.warn('Can not get maxSizeUpload from configuration, default to Infinity', err);
+
+      return Infinity;
+    });
 }
 
 function get(req, res) {
