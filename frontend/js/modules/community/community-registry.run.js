@@ -4,7 +4,9 @@
   angular.module('esn.community').run(runBlock);
 
   function runBlock(
-    esnModuleRegistry
+    esnModuleRegistry,
+    esnCollaborationRegistry,
+    communityService
   ) {
     esnModuleRegistry.add({
       id: 'linagora.esn.community',
@@ -12,6 +14,13 @@
       icon: '/images/application-menu/communities-icon.svg',
       homePage: 'community',
       disableable: true
+    });
+
+    esnCollaborationRegistry.add({
+      objectType: 'community',
+      member: {
+        isManager: communityService.isManager
+      }
     });
   }
 })(angular);
