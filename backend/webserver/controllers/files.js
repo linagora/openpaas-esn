@@ -30,30 +30,34 @@ function create(req, res) {
   }
 
   if (req.headers['content-type'] && req.headers['content-type'].indexOf('multipart/form-data') === 0) {
-    return onMultipartFormRequest();
+    return getUploadLimit().then(limit => onMultipartFormRequest({ limit }));
   }
 
   saveStream(req);
 
-  function onMultipartFormRequest() {
-    const busboy = new Busboy({ headers: req.headers });
+  function onMultipartFormRequest({ limit }) {
+    const busboy = new Busboy({ headers: req.headers, limits: { fileSize: limit } });
     let nb = 0;
 
     busboy.once('file', (fieldname, file) => {
-      logger.debug(`Saving file from '${fieldname}'`);
+      logger.debug(`${fileId} - Storing file from '${fieldname}'`);
       nb++;
       saveStream(file);
+
+      file.on('limit', () => {
+        logger.warn(`${fileId} - File limit (${limit} bytes) has been reached`);
+      });
     });
 
     busboy.on('finish', () => {
-      logger.debug(`${nb} file(s) have been saved`);
+      logger.debug(`${fileId} - ${nb} file(s) have been saved`);
       if (nb === 0) {
         res.status(400).json({ error: { code: 400, message: 'Bad request', details: 'The form data must contain an attachment' } });
       }
     });
 
     busboy.on('filesLimit', err => {
-      logger.warning('File limit has been reached', err);
+      logger.warn(`${fileId} - File limit (${limit} bytes) has been reached`, err);
     });
 
     req.pipe(busboy);
@@ -62,22 +66,26 @@ function create(req, res) {
   function saveStream(stream) {
     let interrupted = false;
 
-    req.on('close', function() {
+    req.on('close', () => {
       interrupted = true;
     });
 
-    logger.debug(`Storing file fileId=${fileId}, mime=${req.query.mimetype}, metadata=${metadata}`);
+    logger.debug(`${fileId} - Storing file fileId=${fileId}, mime=${req.query.mimetype}, metadata=${JSON.stringify(metadata)}`);
     filestore.store(fileId, req.query.mimetype, metadata, stream, options, (err, saved) => {
       if (err) {
-        logger.error('Can not store file', err);
+        logger.error(`${fileId} - Can not store file`, err);
 
         return res.status(500).json({ error: { code: 500, message: 'Server error', details: err.message || err } });
       }
 
       if (saved.length !== size || interrupted) {
-        logger.error(`Error while storing file: saved.length=${saved.length}, size=${size}, interrupted=${interrupted}`);
+        logger.error(`${fileId} - Error while storing file: saved.length=${saved.length}, size=${size}, interrupted=${interrupted}`);
 
-        return filestore.delete(fileId, () => {
+        return filestore.delete(fileId, err => {
+          if (err) {
+            logger.error(`${fileId} - File can not be deleted`, err);
+          }
+
           res.status(412).json({ error: { code: 412, message: 'File size mismatch', details: `File size given by user agent is ${size} and file size returned by storage system is ${saved.length}` }});
         });
       }
@@ -85,6 +93,10 @@ function create(req, res) {
       res.status(201).json({ _id: fileId });
     });
   }
+}
+
+function getUploadLimit() {
+  return Promise.resolve(Infinity);
 }
 
 function get(req, res) {
