@@ -26,6 +26,7 @@ module.exports = {
     features: require('./features'),
     modules: require('./modules'),
     membersCanBeSearched: require('./membersCanBeSearched'),
+    maxSizeUpload: require('./maxSizeUpload'),
     user: RESTRICTED,
     amqp: RESTRICTED,
     redis: RESTRICTED,
