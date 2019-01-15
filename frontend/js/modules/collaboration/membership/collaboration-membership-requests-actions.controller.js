@@ -4,7 +4,7 @@
   angular.module('esn.collaboration')
     .controller('ESNCollaborationMembershipRequestsActionsController', ESNCollaborationMembershipRequestsActionsController);
 
-  function ESNCollaborationMembershipRequestsActionsController($rootScope, esnCollaborationClientService) {
+  function ESNCollaborationMembershipRequestsActionsController($rootScope, esnCollaborationClientService, ESN_COLLABORATION_MEMBER_EVENTS) {
     var self = this;
 
     self.accept = accept;
@@ -18,7 +18,7 @@
       self.error = false;
       esnCollaborationClientService.join(self.objectType, self.collaboration._id, self.user._id).then(function() {
         self.done = true;
-        $rootScope.$emit('collaboration:request:accepted', {
+        $rootScope.$emit(ESN_COLLABORATION_MEMBER_EVENTS.ACCEPTED, {
           collaboration: {objectType: self.objectType, id: self.collaboration._id},
           user: self.user._id
         });
@@ -34,7 +34,7 @@
       self.error = false;
       esnCollaborationClientService.cancelRequestMembership(self.objectType, self.collaboration._id, self.user._id).then(function() {
         self.done = true;
-        $rootScope.$emit('collaboration:request:declined', {
+        $rootScope.$emit(ESN_COLLABORATION_MEMBER_EVENTS.DECLINED, {
           collaboration: {objectType: self.objectType, id: self.collaboration._id},
           user: self.user._id
         });

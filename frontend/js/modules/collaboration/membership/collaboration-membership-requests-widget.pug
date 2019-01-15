@@ -14,3 +14,7 @@
     .collaboration-membership-requests-members(ng-repeat="request in ctrl.requests | filter: {workflow: 'request'}")
       esn-collaboration-member-avatar(member="request", collaboration="ctrl.collaboration")
       esn-collaboration-membership-requests-actions(user='request.user', collaboration='ctrl.collaboration', object-type="{{ctrl.objectType}}")
+
+.div(ng-if="!ctrl.requests.length")
+  .no-request.text-center
+    span #{__('No pending request')}

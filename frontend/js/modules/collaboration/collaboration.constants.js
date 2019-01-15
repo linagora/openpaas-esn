@@ -8,6 +8,11 @@
     })
     .constant('ESN_COLLABORATION_MEMBER_SEARCH_LENGTH', 20)
     .constant('ESN_COLLABORATION_MEMBER_EVENTS', {
-      REMOVED: 'collaboration:member:removed'
+      ADDED: 'collaboration:member:added',
+      REMOVED: 'collaboration:member:removed',
+      USERS: 'collaboration:invite:users',
+      CANCEL: 'collaboration:invite:users:cancel',
+      ACCEPTED: 'collaboration:request:accepted',
+      DECLINED: 'collaboration:request:declined'
     });
 })();

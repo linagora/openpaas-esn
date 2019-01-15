@@ -3,7 +3,7 @@
 
   angular.module('esn.community').directive('communityPendingInvitationDisplay', communityPendingInvitationDisplay);
 
-  function communityPendingInvitationDisplay(esnCollaborationClientService) {
+  function communityPendingInvitationDisplay(esnCollaborationClientService, $rootScope, ESN_COLLABORATION_MEMBER_EVENTS) {
     return {
       restrict: 'E',
       scope: {
@@ -18,6 +18,7 @@
           button.attr('disabled', 'disabled');
           esnCollaborationClientService.cancelRequestMembership('community', $scope.community._id, $scope.request.user._id).then(function() {
             $element.remove();
+            $rootScope.$emit(ESN_COLLABORATION_MEMBER_EVENTS.CANCEL);
           }, function() {
             button.removeAttr('disabled');
           });
