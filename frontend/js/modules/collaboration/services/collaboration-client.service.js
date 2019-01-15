@@ -23,10 +23,10 @@
       return esnRestangular.one('collaborations').one(objectType, id).one('membership', member).remove();
     }
 
-    function getInvitablePeople(objectType, id, options) {
+    function getInvitablePeople(objectType, id, options, excludeUserIds) {
       var query = options || {};
 
-      return esnRestangular.one('collaborations').one(objectType, id).all('invitablepeople').getList(query);
+      return esnRestangular.one('collaborations').one(objectType, id).customPOST({ exclude: { users: excludeUserIds || [] }}, 'invitablepeople', query);
     }
 
     function getMember(objectType, id, member) {

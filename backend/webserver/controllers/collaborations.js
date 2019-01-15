@@ -159,10 +159,12 @@ function getMembers(req, res) {
 
 function getInvitablePeople(req, res) {
   const collaboration = req.collaboration;
+  const excludeUserIds = (req.body.exclude && req.body.exclude.users) || [];
   const query = {
     limit: req.query.limit || 5,
     search: req.query.search || null,
-    not_in_collaboration: collaboration
+    not_in_collaboration: collaboration,
+    excludeUserIds
   };
   const domainIds = collaboration.domain_ids.slice(0);
   const search = query.search ? userDomain.getUsersSearch : userDomain.getUsersList;

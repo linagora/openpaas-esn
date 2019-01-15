@@ -1,8 +1,7 @@
-'use strict';
-
 const _ = require('lodash');
 const utils = require('./utils');
 const CONSTANTS = require('./constants');
+const logger = require('../logger');
 
 module.exports = {
   getIndexName,
@@ -74,11 +73,6 @@ function _search(options, callback) {
 
   const collaboration = options.not_in_collaboration;
   const limit = options.limit;
-
-  if (collaboration) {
-    options.limit = null;
-  }
-
   const elasticsearch = require('../elasticsearch');
 
   return elasticsearch.client((err, elascticsearchClient) => {
@@ -110,13 +104,17 @@ function _search(options, callback) {
       }
     };
 
-    return elascticsearchClient.search({
+    const searchQuery = {
       index: getIndexName(),
       type: getTypeName(),
       from: options.offset,
       size: options.limit,
       body: elasticsearchQuery
-    }, (err, response) => {
+    };
+
+    logger.debug(`Searching users ${JSON.stringify(searchQuery)}`);
+
+    return elascticsearchClient.search(searchQuery, (err, response) => {
       if (err) {
         return callback(err);
       }
@@ -153,28 +151,40 @@ function _getElasticsearchOrFilters(domains) {
 }
 
 function _getElasticsearchMustNotQuery(options) {
-  if (options.includesDisabledSearchable) {
-    return;
-  }
-
-  return {
-    nested: {
-      path: 'states',
-      query: {
-        bool: {
-          must: [{
-            term: {
-              'states.name': CONSTANTS.USER_ACTIONS.searchable
-            }
-          }, {
-            term: {
-              'states.value': CONSTANTS.USER_ACTION_STATES.disabled
-            }
-          }]
-        }
+  const result = {
+    query: {
+      bool: {
+        should: [{
+          terms: {
+            id: options.excludeUserIds || []
+          }
+        }]
       }
     }
   };
+
+  if (!options.includesDisabledSearchable) {
+    result.query.bool.should.push({
+      nested: {
+        path: 'states',
+        query: {
+          bool: {
+            must: [{
+              term: {
+                'states.name': CONSTANTS.USER_ACTIONS.searchable
+              }
+            }, {
+              term: {
+                'states.value': CONSTANTS.USER_ACTION_STATES.disabled
+              }
+            }]
+          }
+        }
+      }
+    });
+  }
+
+  return result;
 }
 
 function _filterUsersByCollaboration(users, collaboration, limit, callback) {

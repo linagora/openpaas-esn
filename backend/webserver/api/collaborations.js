@@ -57,7 +57,7 @@ module.exports = function(router) {
   /**
    * @swagger
    * /collaborations/{object_type}/{community_id}/invitablepeople :
-   *   get:
+   *   post:
    *     tags:
    *       - Collaboration
    *     description: Get the list of peoples (for now only users of the ESN) who can be invited in the {type}.
@@ -78,11 +78,10 @@ module.exports = function(router) {
    *       500:
    *         $ref: "#/responses/cm_500"
    */
-  router.get('/collaborations/:objectType/:id/invitablepeople',
+  router.post('/collaborations/:objectType/:id/invitablepeople',
     authorize.requiresAPILogin,
     collaborationMW.load,
     collaborations.getInvitablePeople);
-
   /**
    * @swagger
    * /collaborations/{object_type}/{id}/members :
