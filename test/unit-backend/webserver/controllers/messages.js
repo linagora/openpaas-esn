@@ -1,5 +1,3 @@
-'use strict';
-
 const expect = require('chai').expect;
 const q = require('q');
 const mockery = require('mockery');
@@ -13,6 +11,10 @@ describe('The messages controller', function() {
 
     mockery.registerMock('./messages.filter', {
       filterMessagesFromActivityStream
+    });
+
+    mockery.registerMock('../denormalize/user', {
+      denormalize: () => Promise.resolve({})
     });
   });
 

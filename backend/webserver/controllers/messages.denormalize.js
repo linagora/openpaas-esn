@@ -1,5 +1,6 @@
 const Q = require('q');
 const messageModule = require('../../core/message');
+const denormalizeUser = require('../denormalize/user').denormalize;
 const likeMessageModule = messageModule.like;
 
 module.exports = {
@@ -30,8 +31,18 @@ function denormalize(message, options) {
 
     return message;
   })
+  .then(denormalizeAuthor)
   .then(message => denormalizeResponses(message, options))
   .then(() => message);
+}
+
+function denormalizeAuthor(message) {
+  return denormalizeUser(message.author)
+    .then(denormalized => {
+      message.author = denormalized;
+
+      return message;
+    });
 }
 
 function denormalizeResponses(message, options) {
