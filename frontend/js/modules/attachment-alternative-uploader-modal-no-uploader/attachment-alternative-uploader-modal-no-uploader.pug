@@ -1,0 +1,18 @@
+.modal.inbox-attachment-alternative-uploader-modal(ng-init="$ctrl.$onInit()")
+  .modal-dialog
+    .modal-content
+      .modal-header
+        button.close(type="button", data-dismiss="modal", aria-label=__('Close'), ng-click="$hide()")
+          span(aria-hidden="true") &times;
+        h4.modal-title(ng-if="::$ctrl.files.length === 1") #{__('Cannot upload a file')}
+        h4.modal-title(ng-if="::$ctrl.files.length > 1") #{__('Cannot upload %s files', '{{ ::$ctrl.files.length }}')}
+      .modal-body
+        p(ng-if="::$ctrl.files.length === 1") #{__('Your file cannot be uploaded because its size exceeds the %s limit', '{{ ::$ctrl.humanReadableMaxSizeUpload }}')}:
+        p(ng-if="::$ctrl.files.length > 1") #{__('Your files cannot be uploaded because their sizes exceed the %s limit', '{{ ::$ctrl.humanReadableMaxSizeUpload }}')}:
+
+        .file-list
+          .file-list-item(ng-repeat="file in ::$ctrl.files track by $index")
+            span.file-name {{ ::file.name }}
+            span.file-size {{ ::file.size | bytes }}
+      .modal-footer
+        button.btn.btn-link(type="button", ng-click="$ctrl.cancel(); $hide()") #{__('OK')}

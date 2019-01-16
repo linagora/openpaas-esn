@@ -422,7 +422,9 @@ return defer.promise;
     return {
       restrict: 'E',
       replace: true,
-      templateUrl: '/views/modules/message/templates/whatsupMessage.html'
+      templateUrl: '/views/modules/message/templates/whatsupMessage.html',
+      controller: 'attachmentAlternativeUploaderModalNoUploaderController',
+      controllerAs: '$ctrl'
     };
   })
   .directive('pollMessage', function($log, session, pollAPI) {
@@ -522,14 +524,18 @@ return defer.promise;
     return {
       restrict: 'E',
       replace: true,
-      templateUrl: '/views/modules/message/whatsup/whatsupEdition.html'
+      templateUrl: '/views/modules/message/whatsup/whatsupEdition.html',
+      controller: 'attachmentAlternativeUploaderModalNoUploaderController',
+      controllerAs: '$ctrl'
     };
   })
   .directive('whatsupAddComment', function() {
     return {
       restrict: 'E',
       replace: true,
-      templateUrl: '/views/modules/message/whatsup/whatsupAddComment.html'
+      templateUrl: '/views/modules/message/whatsup/whatsupAddComment.html',
+      controller: 'attachmentAlternativeUploaderModalNoUploaderController',
+      controllerAs: '$ctrl'
     };
   })
   .directive('pollEdition', function() {
@@ -573,7 +579,9 @@ return defer.promise;
       restrict: 'E',
       replace: true,
       templateUrl: '/views/modules/message/poll/pollEdition.html',
-      link: link
+      link: link,
+      controller: 'attachmentAlternativeUploaderModalNoUploaderController',
+      controllerAs: '$ctrl'
     };
   })
   .directive('messagesDisplay', function() {

@@ -11,7 +11,8 @@ const maxSizeUpload = 104857600; // is equal to 100 MO
 
 module.exports = {
   rights: {
-    padmin: 'rw'
+    padmin: 'rw',
+    user: 'r'
   },
   pubsub: true,
   default: maxSizeUpload,
