@@ -214,7 +214,6 @@ module.exports = function(router) {
     requestMW.castParamToObjectId('user_id'),
     collaborationMW.flagCollaborationManager,
     collaborationMW.ifNotCollaborationManagerCheckUserIdParameterIsCurrentUser,
-    collaborationMW.requiresCollaborationMember,
     collaborationMW.canLeave,
     collaborations.leave);
 
