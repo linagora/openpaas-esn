@@ -1,6 +1,7 @@
 .esn-attachment-default-preview
-  .icon
-    esn-attachment-icon(type='attachment.file.type')
+  .icon-preview
+    a(target='_blank', title='{{::attachment.name}}')
+      esn-attachment-icon(type='attachment.file.type')
   .metadata
     h2.ellipsis
       a.download(ng-if='attachment.uploaded', target='_blank', ng-href='/api/files/{{::attachment.response._id}}' title='Download {{::attachment.file.name}}') {{::attachment.file.name}}
