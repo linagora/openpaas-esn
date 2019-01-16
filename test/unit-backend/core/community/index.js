@@ -395,7 +395,7 @@ describe('The community module', function() {
       });
     });
 
-    it('should send back false when Community.findOne does not find user', function(done) {
+    it('should send back false when user is neither creator or domain admin', function(done) {
       this.helpers.mock.models({
         Community: {
           findOne: function(a, callback) {
@@ -404,11 +404,24 @@ describe('The community module', function() {
         }
       });
 
-      var community = this.helpers.requireBackend('core/community/index');
-      community.isManager(123, 456, function(err, result) {
+      mockery.registerMock('../domain', {
+        userIsDomainAdministrator: (a, b, callback) => callback(null, false)
+      });
+
+      const communityModule = this.helpers.requireBackend('core/community/index');
+      const communityMock = {
+        populate: (path, callback) => {
+          callback(null, {
+            domain_ids: []
+          });
+        }
+      };
+
+      communityModule.isManager(communityMock, 456, (err, result) => {
         expect(err).to.not.exist;
         expect(result).to.be.false;
-        return done();
+
+        done();
       });
     });
   });
