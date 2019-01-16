@@ -1,10 +1,16 @@
-'use strict';
-
-var mockery = require('mockery');
-var expect = require('chai').expect;
-var sinon = require('sinon');
+const mockery = require('mockery');
+const expect = require('chai').expect;
+const sinon = require('sinon');
 
 describe('The files controller', function() {
+  let esnConfigMock, getConfigStub;
+
+  beforeEach(function() {
+    getConfigStub = sinon.stub().returns(Promise.resolve());
+    esnConfigMock = sinon.stub().returns({ get: getConfigStub });
+    mockery.registerMock('../../core/esn-config', esnConfigMock);
+  });
+
   describe('The create function', function() {
     function mockNoStore(done) {
       return {
@@ -18,9 +24,9 @@ describe('The files controller', function() {
       mockery.registerMock('../../core/filestore', mockNoStore(done));
       var req = { query: { name: 'filename', mimetype: 'text/plain', size: -1 }, body: 'yeah' };
       var res = this.helpers.express.jsonResponse(
-        function(code, detail) {
+        function(code, json) {
           expect(code).to.equal(400);
-          expect(detail.message).to.equal('Bad Parameter');
+          expect(json.error.message).to.equal('Bad Parameter');
           done();
         }
       );
@@ -32,9 +38,9 @@ describe('The files controller', function() {
       mockery.registerMock('../../core/filestore', mockNoStore(done));
       var req = { query: { name: 'filename', mimetype: 'text/plain', size: 'large' }, body: 'yeah' };
       var res = this.helpers.express.jsonResponse(
-        function(code, detail) {
+        function(code, json) {
           expect(code).to.equal(400);
-          expect(detail.message).to.equal('Bad Parameter');
+          expect(json.error.message).to.equal('Bad Parameter');
           done();
         }
       );
@@ -53,10 +59,10 @@ describe('The files controller', function() {
         on: function() { }
       };
       var res = this.helpers.express.jsonResponse(
-        function(code, detail) {
+        function(code, json) {
           expect(code).to.equal(201);
-          expect(detail).to.be.an('object');
-          expect(detail._id).to.equal(storeId);
+          expect(json).to.be.an('object');
+          expect(json._id).to.equal(storeId);
           done();
         }
       );
@@ -217,16 +223,131 @@ describe('The files controller', function() {
       var files = this.helpers.requireBackend('webserver/controllers/files');
       files.create(req, res);
     });
+
+    describe('On multipart/form-data content-type', function() {
+      beforeEach(function() {
+
+      });
+
+      it('should use the specified limit if limit is specified in configuration', function(done) {
+        class Busboy {
+          /*eslint class-methods-use-this: ["error", { "exceptMethods": ["once", "on"] }] */
+          constructor(options) {
+            this.options = options;
+          }
+          once() {}
+          on() {}
+        }
+
+        const BusboyStub = sinon.spy(() => sinon.createStubInstance(Busboy));
+        const limit = 1000;
+        const headers = { 'content-type': 'multipart/form-data' };
+        const req = {
+          query: { name: 'filename', mimetype: 'text/plain', size: 2 },
+          body: 'yeah',
+          user: { _id: 123 },
+          headers,
+          on: function() { },
+          pipe: busboy => {
+            expect(BusboyStub).to.have.been.calledWith({ headers, limits: { fileSize: limit } });
+            expect(busboy.on).to.have.been.calledWith('finish', sinon.match.func);
+            expect(busboy.on).to.have.been.calledWith('filesLimit', sinon.match.func);
+            expect(busboy.once).to.have.been.calledWith('file', sinon.match.func);
+            done();
+          }
+        };
+
+        mockery.registerMock('busboy', BusboyStub);
+        getConfigStub.returns(Promise.resolve(limit));
+        mockery.registerMock('../../core/filestore', {});
+
+        const files = this.helpers.requireBackend('webserver/controllers/files');
+
+        files.create(req, {});
+      });
+
+      it('should use Infinity limit if limit is not specified in configuration', function(done) {
+        class Busboy {
+          /*eslint class-methods-use-this: ["error", { "exceptMethods": ["once", "on"] }] */
+          constructor(options) {
+            this.options = options;
+          }
+          once() {}
+          on() {}
+        }
+
+        const BusboyStub = sinon.spy(() => sinon.createStubInstance(Busboy));
+        const headers = { 'content-type': 'multipart/form-data' };
+        const req = {
+          query: { name: 'filename', mimetype: 'text/plain', size: 2 },
+          body: 'yeah',
+          user: { _id: 123 },
+          headers,
+          on: function() { },
+          pipe: busboy => {
+            expect(BusboyStub).to.have.been.calledWith({ headers, limits: { fileSize: Infinity } });
+            expect(busboy.on).to.have.been.calledWith('finish', sinon.match.func);
+            expect(busboy.on).to.have.been.calledWith('filesLimit', sinon.match.func);
+            expect(busboy.once).to.have.been.calledWith('file', sinon.match.func);
+            done();
+          }
+        };
+
+        mockery.registerMock('busboy', BusboyStub);
+        getConfigStub.returns(Promise.resolve());
+        mockery.registerMock('../../core/filestore', {});
+
+        const files = this.helpers.requireBackend('webserver/controllers/files');
+
+        files.create(req, {});
+      });
+
+      it('should use Infinity limit if configuration rejects', function(done) {
+        class Busboy {
+          /*eslint class-methods-use-this: ["error", { "exceptMethods": ["once", "on"] }] */
+          constructor(options) {
+            this.options = options;
+          }
+          once() {}
+          on() {}
+        }
+
+        const BusboyStub = sinon.spy(() => sinon.createStubInstance(Busboy));
+        const headers = { 'content-type': 'multipart/form-data' };
+        const req = {
+          query: { name: 'filename', mimetype: 'text/plain', size: 2 },
+          body: 'yeah',
+          user: { _id: 123 },
+          headers,
+          on: function() { },
+          pipe: busboy => {
+            expect(BusboyStub).to.have.been.calledWith({ headers, limits: { fileSize: Infinity } });
+            expect(busboy.on).to.have.been.calledWith('finish', sinon.match.func);
+            expect(busboy.on).to.have.been.calledWith('filesLimit', sinon.match.func);
+            expect(busboy.once).to.have.been.calledWith('file', sinon.match.func);
+            done();
+          }
+        };
+
+        mockery.registerMock('busboy', BusboyStub);
+        getConfigStub.returns(Promise.reject(new Error('I failed')));
+        mockery.registerMock('../../core/filestore', {});
+
+        const files = this.helpers.requireBackend('webserver/controllers/files');
+
+        files.create(req, {});
+      });
+    });
   });
 
   describe('The get function', function() {
     it('should return 503 if the filestore fails', function(done) {
       var req = { params: { id: '123' } };
       var res = this.helpers.express.jsonResponse(
-        function(code, detail) {
+        function(code, json) {
           expect(code).to.equal(503);
-          expect(detail).to.be.an('object');
-          expect(detail.error).to.equal(503);
+          expect(json).to.be.an('object');
+          expect(json.error.code).to.equal(503);
           done();
         }
       );
@@ -245,10 +366,10 @@ describe('The files controller', function() {
     it('should return 400 if the id parameter is missing', function(done) {
       var req = { params: {} };
       var res = this.helpers.express.jsonResponse(
-        function(code, detail) {
+        function(code, json) {
           expect(code).to.equal(400);
-          expect(detail).to.be.an('object');
-          expect(detail.error).to.equal(400);
+          expect(json).to.be.an('object');
+          expect(json.error.code).to.equal(400);
           done();
         }
       );
@@ -259,11 +380,11 @@ describe('The files controller', function() {
     it('should return 404 if the file is not found', function(done) {
       var req = { params: { id: '123' }, accepts: function() { return false; } };
       var res = this.helpers.express.jsonResponse(
-        function(code, detail) {
+        function(code, json) {
           expect(code).to.equal(404);
-          expect(detail).to.be.an('object');
-          expect(detail.error).to.equal(404);
-          expect(detail.message).to.equal('Not Found');
+          expect(json).to.be.an('object');
+          expect(json.error.code).to.equal(404);
+          expect(json.error.message).to.equal('Not Found');
           done();
         }
       );
@@ -425,9 +546,11 @@ describe('The files controller', function() {
 
       var jsonMock = sinon.spy(function() {
         expect(jsonMock).to.have.been.calledWith({
-          error: 500,
-          message: 'Server error',
-          details: error.message
+          error: {
+            code: 500,
+            message: 'Server error',
+            details: error.message
+          }
         });
 
         done();
