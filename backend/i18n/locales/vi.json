@@ -489,5 +489,10 @@
   "No activity": "Không hoạt động",
   "List view": "Chế độ xem danh sách",
   "Grid view": "Chế độ hiển thị theo ô",
-  "No pending request": "Không có yêu cầu chờ xử lý"
+  "No pending request": "Không có yêu cầu chờ xử lý",
+  "Cannot upload %s files": "Không thể tải lên %s tệp",
+  "Cannot upload a file": "Không thể tải lên một tệp",
+  "Your file cannot be uploaded because its size exceeds the %s limit": "Tệp của bạn không thể tải lên vì có kích thước vượt quá giới hạn %s",
+  "Your files cannot be uploaded because their sizes exceed the %s limit": "Các tệp của bạn không thể tải lên vì có kích thước vượt quá giới hạn %s",
+  "OK": "OK"
 }
