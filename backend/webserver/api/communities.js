@@ -123,7 +123,7 @@ module.exports = router => {
    *       500:
    *         $ref: "#/responses/cm_500"
    */
-  router.delete('/communities/:id', communities.load, authorize.requiresCommunityCreator, communities.delete);
+  router.delete('/communities/:id', communities.load, communityMiddleware.requiresCommunityManager, communities.delete);
 
   /**
    * @swagger
@@ -180,7 +180,7 @@ module.exports = router => {
    *       500:
    *         $ref: "#/responses/cm_500"
    */
-  router.post('/communities/:id/avatar', communities.load, authorize.requiresCommunityCreator, communities.uploadAvatar);
+  router.post('/communities/:id/avatar', communities.load, communityMiddleware.requiresCommunityManager, communities.uploadAvatar);
 
   /**
    * @swagger
@@ -206,7 +206,7 @@ module.exports = router => {
    *       500:
    *         $ref: "#/responses/cm_500"
    */
-  router.put('/communities/:id', communities.load, authorize.requiresCommunityCreator, communities.update);
+  router.put('/communities/:id', communities.load, communityMiddleware.requiresCommunityManager, communities.update);
 
   /**
    * @swagger

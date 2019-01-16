@@ -11,7 +11,6 @@ module.exports = {
   requiresDomainManager,
   requiresDomainMember,
   requiresTargetUserIsDomainMember,
-  requiresCommunityCreator,
   requiresJWT,
   decodeJWTandLoadUser
 };
@@ -113,22 +112,6 @@ function requiresDomainMember(req, res, next) {
 
 function requiresTargetUserIsDomainMember(req, res, next) {
   return requiresDomainMember(Object.assign({}, req, { user: req.targetUser }), res, next);
-}
-
-function requiresCommunityCreator(req, res, next) {
-  if (!req.community) {
-    return res.status(400).json({error: 400, message: 'Bad request', details: 'Missing community'});
-  }
-
-  if (!req.user) {
-    return res.status(400).json({error: 400, message: 'Bad request', details: 'Missing user'});
-  }
-
-  if (!req.community.creator.equals(req.user._id)) {
-    return res.status(403).json({error: 403, message: 'Forbidden', details: 'User is not the community creator'});
-  }
-
-  next();
 }
 
 function requiresJWT(req, res, next) {

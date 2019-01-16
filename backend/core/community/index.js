@@ -1,6 +1,8 @@
 'use strict';
 
 const mongoose = require('mongoose');
+const _ = require('lodash');
+const { some } = require('async');
 const Community = mongoose.model('Community');
 const User = mongoose.model('User');
 const logger = require('../logger');
@@ -9,6 +11,7 @@ const permission = collaborationModule.permission;
 const tuple = require('../tuple');
 const localpubsub = require('../pubsub').local;
 const globalpubsub = require('../pubsub').global;
+const { userIsDomainAdministrator } = require('../domain');
 const CONSTANTS = require('./constants');
 const search = require('./search');
 const archive = require('./archive');
@@ -197,7 +200,27 @@ function hasDomain(community, domainId) {
 }
 
 function isManager(community, user, callback) {
-  collaborationModule.member.isManager(communityObjectType, community, user, callback);
+  // Community manager can be either community creator
+  // or domain administrator where the community belongs to.
+  collaborationModule.member.isManager(communityObjectType, community, user, (error, isCreator) => {
+    if (error) {
+      return callback(error);
+    }
+
+    if (isCreator) {
+      return callback(null, true);
+    }
+
+    _.cloneDeep(community).populate('domain_ids', (err, domainsPopulatedCommunity) => {
+      if (err) {
+        return callback(err);
+      }
+
+      some(domainsPopulatedCommunity.domain_ids, (domain, cb) => {
+        userIsDomainAdministrator(user, domain, cb);
+      }, callback);
+    });
+  });
 }
 
 function isMember(community, tuple, callback) {

@@ -882,6 +882,7 @@ describe('The communities API', function() {
       var self = this;
       saveUser(self.userInCommunity = fixtures.newDummyUser(['user2@open-paas.org'], password), function() {
         var domain = {
+          _id: new ObjectId(),
           name: 'MyDomain',
           company_name: 'open-paas.org',
           administrators: [{ user_id: user._id }]

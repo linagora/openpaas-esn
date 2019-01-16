@@ -5,6 +5,7 @@ var communityPermission = communityModule.permission;
 var collaborationConstants = require('../../core/collaboration/constants');
 var mongoose = require('mongoose');
 var Community = mongoose.model('Community');
+const logger = require('../../core/logger');
 
 module.exports.findStreamResource = function(req, res, next) {
   var uuid = req.params.uuid;
@@ -212,6 +213,39 @@ module.exports.flagCommunityManager = function(req, res, next) {
       return res.status(500).json({error: {code: 500, message: 'Error when checking if the user is a manager', details: err.message}});
     }
     req.isCommunityManager = manager;
+    next();
+  });
+};
+
+module.exports.requiresCommunityManager = function(req, res, next) {
+  if (!req.community) {
+    return res.status(400).json({error: 400, message: 'Bad request', details: 'Missing community'});
+  }
+
+  if (!req.user) {
+    return res.status(400).json({error: 400, message: 'Bad request', details: 'Missing user'});
+  }
+
+  communityModule.isManager(req.community, req.user, function(err, manager) {
+    if (err) {
+      logger.error('Error when checking if the user is a manager', err);
+
+      return res.status(500).json({
+        error: {
+          code: 500,
+          message: 'Error when checking if the user is a manager'
+        }
+      });
+    }
+
+    if (!manager) {
+      return res.status(403).json({
+        error: 403,
+        message: 'Forbidden',
+        details: 'User is not community manager'
+      });
+    }
+
     next();
   });
 };
