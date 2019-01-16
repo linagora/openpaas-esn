@@ -1,7 +1,7 @@
 .profile-popover-content.flex-horizontal-centered
   .profile-card.flex-horizontal-centered
     .profile-card-left
-      esn-avatar(user-id='$ctrl.user.id', ui-sref='profile({user_id: $ctrl.user.id})')
+      esn-avatar(user-id='$ctrl.user._id', ng-click='$ctrl.onProfileButtonClick()')
     .profile-card-right.profile-card-informations
       div
         .displayname {{::$ctrl.user.displayName}}

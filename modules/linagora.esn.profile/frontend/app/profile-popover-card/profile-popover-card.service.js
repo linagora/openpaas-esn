@@ -6,12 +6,8 @@
   function profilePopoverCardService(
     $rootScope,
     $compile,
-    $sce,
-    $log,
-    $q,
     $modal,
     _,
-    userAPI,
     session,
     touchscreenDetectorService
   ) {
@@ -55,7 +51,7 @@
     function createModal(user) {
       var scope = angular.extend($rootScope.$new(true), {
         user: user,
-        isCurrentUser: user.id === session.user._id
+        isCurrentUser: user._id === session.user._id
       });
 
       var modal = $modal({
@@ -74,7 +70,7 @@
       placement = placement || 'top';
 
       var popoverTemplate = [
-        '<div class="profile-popover-card popover" data-profile-popover-card="' + user.id + '" role="tooltip">',
+        '<div class="profile-popover-card popover" data-profile-popover-card="' + user._id + '" role="tooltip">',
         '  <div class="arrow"></div>',
         '  <div class="popover-content"></div>',
         '</div>'
@@ -82,7 +78,7 @@
 
       var scope = angular.extend($rootScope.$new(true), {
         user: user,
-        isCurrentUser: user.id === session.user._id,
+        isCurrentUser: user._id === session.user._id,
         hideComponent: hide
       });
 
@@ -100,7 +96,7 @@
       });
 
       var $popover = function() {
-        return $('.profile-popover-card[data-profile-popover-card="' + user.id + '"]');
+        return $('.profile-popover-card[data-profile-popover-card="' + user._id + '"]');
       };
 
       if (touchscreenDetectorService.hasTouchscreen()) {

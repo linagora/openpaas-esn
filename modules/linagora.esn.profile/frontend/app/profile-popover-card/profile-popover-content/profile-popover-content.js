@@ -8,12 +8,12 @@
 
       self.onProfileButtonClick = function(evt) {
         self._hideComponent(evt);
-        $state.go('profile', {user_id: self.user.id});
+        $state.go('profile', {user_id: self.user._id});
       };
 
       self._hideComponent = function(evt) {
-        evt.preventDefault();
-        evt.stopPropagation();
+        evt && evt.preventDefault();
+        evt && evt.stopPropagation();
         self.hideComponent();
       };
     },
