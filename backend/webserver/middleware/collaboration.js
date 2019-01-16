@@ -1,7 +1,17 @@
-'use strict';
-
 const logger = require('../../core/logger');
-var collaborationModule = require('../../core/collaboration');
+const collaborationModule = require('../../core/collaboration');
+const composableMW = require('composable-middleware');
+
+module.exports = {
+  load,
+  canLeave,
+  canRead,
+  checkUserParamIsNotMember,
+  checkUserIdParameterIsCurrentUser,
+  flagCollaborationManager,
+  ifNotCollaborationManagerCheckUserIdParameterIsCurrentUser,
+  requiresCollaborationMember
+};
 
 function load(req, res, next) {
   if (!req.params.id) {
@@ -25,7 +35,6 @@ function load(req, res, next) {
     next();
   });
 }
-module.exports.load = load;
 
 function canLeave(req, res, next) {
   if (!req.collaboration) {
@@ -40,10 +49,21 @@ function canLeave(req, res, next) {
     return res.status(400).json({error: 400, message: 'Bad Request', details: 'User_id is missing'});
   }
 
-  if (!req.user._id.equals(req.collaboration.creator) && !req.user._id.equals(req.params.user_id)) {
+  if (!req.isCollaborationManager && !req.user._id.equals(req.params.user_id)) {
     return res.status(403).json({error: 403, message: 'Forbidden', details: 'No permissions to remove another user'});
   }
 
+  if (req.isCollaborationManager) {
+    return targetUserCanBeRemoved(req, res, next);
+  }
+
+  return composableMW([
+    requiresCollaborationMember,
+    targetUserCanBeRemoved
+  ])(req, res, next);
+}
+
+function targetUserCanBeRemoved(req, res, next) {
   collaborationModule.permission.canLeave(req.collaboration, { objectType: 'user', id: req.params.user_id }, (err, canLeave) => {
     if (err) {
       logger.error('Error while checking user can leave collaboration', err);
@@ -58,7 +78,6 @@ function canLeave(req, res, next) {
     next();
   });
 }
-module.exports.canLeave = canLeave;
 
 function requiresCollaborationMember(req, res, next) {
   collaborationModule.member.isMember(req.collaboration, {objectType: 'user', id: req.user._id}, function(err, isMember) {
@@ -69,21 +88,21 @@ function requiresCollaborationMember(req, res, next) {
     if (!isMember) {
       return res.status(403).json({error: 403, message: 'Forbidden', details: 'User is not collaboration member'});
     }
+
     return next();
   });
 }
-module.exports.requiresCollaborationMember = requiresCollaborationMember;
 
 function canRead(req, res, next) {
   if (req.collaboration.type === collaborationModule.CONSTANTS.COLLABORATION_TYPES.OPEN ||
     req.collaboration.type === collaborationModule.CONSTANTS.COLLABORATION_TYPES.RESTRICTED) {
     return next();
   }
+
   return requiresCollaborationMember(req, res, next);
 }
-module.exports.canRead = canRead;
 
-module.exports.checkUserParamIsNotMember = function(req, res, next) {
+function checkUserParamIsNotMember(req, res, next) {
   if (!req.collaboration) {
     return res.status(400).json({error: 400, message: 'Bad request', details: 'Missing community'});
   }
@@ -100,11 +119,12 @@ module.exports.checkUserParamIsNotMember = function(req, res, next) {
     if (isMember) {
       return res.status(400).json({error: 400, message: 'Bad request', details: 'User is already member of the community.'});
     }
+
     return next();
   });
-};
+}
 
-module.exports.flagCollaborationManager = function(req, res, next) {
+function flagCollaborationManager(req, res, next) {
   if (!req.collaboration) {
     return res.status(400).json({error: 400, message: 'Bad request', details: 'Missing collaboration'});
   }
@@ -113,14 +133,23 @@ module.exports.flagCollaborationManager = function(req, res, next) {
     return res.status(400).json({error: 400, message: 'Bad request', details: 'Missing user'});
   }
 
-  collaborationModule.member.isManager(req.params.objectType, req.collaboration, req.user, function(err, manager) {
+  const lib = collaborationModule.getLib(req.params.objectType);
+
+  if (lib && lib.member && lib.member.isManager) {
+    return lib.member.isManager(req.collaboration, req.user, callback);
+  }
+
+  collaborationModule.member.isManager(req.params.objectType, req.collaboration, req.user, callback);
+
+  function callback(err, isManager) {
     if (err) {
       return res.status(500).json({error: {code: 500, message: 'Error when checking if the user is a manager', details: err.message}});
     }
-    req.isCollaborationManager = manager;
+
+    req.isCollaborationManager = isManager;
     next();
-  });
-};
+  }
+}
 
 function checkUserIdParameterIsCurrentUser(req, res, next) {
   if (!req.user) {
@@ -137,7 +166,6 @@ function checkUserIdParameterIsCurrentUser(req, res, next) {
 
   return next();
 }
-module.exports.checkUserIdParameterIsCurrentUser = checkUserIdParameterIsCurrentUser;
 
 function ifNotCollaborationManagerCheckUserIdParameterIsCurrentUser(req, res, next) {
   if (req.isCollaborationManager) {
@@ -146,4 +174,3 @@ function ifNotCollaborationManagerCheckUserIdParameterIsCurrentUser(req, res, ne
 
   checkUserIdParameterIsCurrentUser(req, res, next);
 }
-module.exports.ifNotCollaborationManagerCheckUserIdParameterIsCurrentUser = ifNotCollaborationManagerCheckUserIdParameterIsCurrentUser;
