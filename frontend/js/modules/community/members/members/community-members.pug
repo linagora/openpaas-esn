@@ -1,0 +1,5 @@
+.community-members.card
+  esn-community-members-tabs(community="$ctrl.community")
+  .card-body
+    esn-collaboration-invite-users(object-type="community", collaboration="$ctrl.community")
+    esn-collaboration-members(readable='$ctrl.canRead()', collaboration='$ctrl.community', object-type-filter='user')

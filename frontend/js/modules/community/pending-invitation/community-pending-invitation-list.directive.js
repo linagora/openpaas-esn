@@ -22,8 +22,8 @@
 
           esnCollaborationClientService.getRequestMemberships('community', $scope.community._id, {}).then(function(response) {
             $scope.requests = response.data;
-          }, function() {
-            $scope.error = true;
+          }, function(err) {
+            $scope.error = err.status;
           }).finally(function() {
             calling = false;
           });
