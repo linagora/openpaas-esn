@@ -1,12 +1,11 @@
-.card-body.card-padding(ng-if="ctrl.error")
-  .alert.alert-danger(ng-switch="ctrl.error", role="alert")
-    span(ng-switch-when="403") #{__('Error, you do not have the permission to read memberships')}.
-    span(ng-switch-default) #{__('Error while getting memberships')}.
+.card-body.card-padding.text-center(ng-if="ctrl.error", ng-switch="ctrl.error", role="alert")
+  span(ng-switch-when="403") #{__('Error, you do not have the permission to read memberships')}.
+  span(ng-switch-default) #{__('Error while getting memberships')}.
 
-.card-body.card-padding(ng-if="ctrl.loading")
+.card-body.card-padding.text-center(ng-if="ctrl.loading")
   span #{__("Loading membership requests")}
 
-.card-body.card-padding(ng-if="!ctrl.loading && !ctrl.requests && !ctrl.error")
+.card-body.card-padding.text-center(ng-if="!ctrl.loading && !ctrl.requests && !ctrl.error")
   span #{__("You have no notifications")}
 
 .listview
@@ -15,6 +14,6 @@
       esn-collaboration-member-avatar(member="request", collaboration="ctrl.collaboration")
       esn-collaboration-membership-requests-actions(user='request.user', collaboration='ctrl.collaboration', object-type="{{ctrl.objectType}}")
 
-.div(ng-if="!ctrl.requests.length")
+.div(ng-if="!ctrl.requests.length && !ctrl.error")
   .no-request.text-center
     span #{__('No pending request')}

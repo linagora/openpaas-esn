@@ -4,7 +4,7 @@
       a(ui-sref="community.view.about", ui-sref-opts="{location: 'replace'}") #{__('About')}
     li.btn-wave(ui-sref-active="active")
       a(ui-sref="community.view.stream", ui-sref-opts="{location: 'replace'}") #{__('Discussion')}
-    li.btn-wave(ui-sref-active="active")
+    li.btn-wave( ng-class="{active: ('community.view.invitations' | includedByState) || ('community.view.requests' | includedByState) || ('community.view.members' | includedByState) }")
       a(ui-sref="community.view.members", ui-sref-opts="{location: 'replace'}") #{__('Members')}
     li.btn-wave.disabled
       a(title=__('Soon available')) #{__('Chat')}

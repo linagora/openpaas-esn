@@ -1,11 +1,11 @@
 .community-pending-invitation-list
-  .pending-invitation-error.text-center(ng-if="error")
-    span #{__('Error while loading sent invitations')}.
+  .pending-invitation-error.card-body.card-padding.text-center(ng-if="error", ng-switch="error")
+    span(ng-switch-when="403") #{__('Error, you do not have the permission to read memberships')}.
+    span(ng-switch-default) #{__('Error while loading sent invitations')}.
 
   .invitations(ng-if="!error")
     .listview(ng-repeat="request in invitationRequests = (requests | filter: {workflow: 'invitation'})")
       community-pending-invitation-display(request="request", community="community")
 
-    .div(ng-if="!invitationRequests.length")
-      .no-invitation.text-center
-        span #{__('No invitations sent')}
+    .card-body.card-padding.text-center(ng-if="!invitationRequests.length")
+      span #{__('No invitations sent')}
