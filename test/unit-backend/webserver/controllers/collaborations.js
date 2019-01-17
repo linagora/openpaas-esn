@@ -4,6 +4,11 @@ var expect = require('chai').expect;
 var mockery = require('mockery');
 
 describe('The collaborations controller', function() {
+  beforeEach(function() {
+    mockery.registerMock('../denormalize/user', {
+      denormalize: () => Promise.resolve({})
+    });
+  });
 
   describe('getMembers fn', function() {
 
