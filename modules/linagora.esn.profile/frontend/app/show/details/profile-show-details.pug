@@ -19,6 +19,18 @@
           | {{$ctrl.user.main_phone}}
       dl.dl-horizontal
         dt
+          i.mdi.mdi-store.m-r-5
+          | #{__('Service')}
+          dd
+            | {{$ctrl.user.service}}
+      dl.dl-horizontal
+        dt
+          i.mdi.mdi-briefcase.m-r-5
+          | #{__('Job Title')}
+          dd
+            | {{$ctrl.user.job_title}}
+      dl.dl-horizontal
+        dt
           i.mdi.mdi-city.m-r-5
           | #{__('Building Location')}
           dd
