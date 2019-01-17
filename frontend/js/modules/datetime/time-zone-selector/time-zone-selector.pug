@@ -11,5 +11,6 @@ md-input-container
         type="search",
         placeholder=__("Search for a time zone") + "\u2026"
       )
-    md-option(ng-value="timeZone", ng-repeat="timeZone in $ctrl.timeZones | filter: $ctrl.searchTerm")
-      | {{ timeZone }}
+    md-content
+      md-option(ng-value="timeZone", ng-repeat="timeZone in $ctrl.timeZones | filter: $ctrl.searchTerm")
+        | {{ timeZone }}
