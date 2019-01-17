@@ -23,7 +23,7 @@
       esnConfig('core.maxSizeUpload', MAX_SIZE_UPLOAD_DEFAULT).then(function(maxSizeUpload) {
         var largeFiles = [];
         var regularFiles = [];
-        for (var i = 0, file = $files[i]; i < $files.length; i++) {
+        for (var i = 0, file = $files[i]; i < $files.length; file = $files[++i]) {
           if (file.size > maxSizeUpload) {
             largeFiles.push(file);
           } else {
