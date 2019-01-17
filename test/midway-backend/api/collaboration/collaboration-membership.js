@@ -239,49 +239,46 @@ describe('The collaborations membership API', function() {
     describe('When not community manager', function() {
 
       it('should return HTTP 403', function(done) {
-        var self = this;
-        var community = {
+        const self = this;
+        const community = {
           title: 'Node.js',
           description: 'This is the community description',
           members: [],
           membershipRequests: []
         };
-        var domain = {
+        const domain = {
           name: 'MyDomain',
           company_name: 'MyAwesomeCompany'
         };
-        var foouser = fixtures.newDummyUser(['foo@bar.com'], 'secret');
+        const dummyUser = fixtures.newDummyUser(['dummy@foobar.com'], 'secret');
+        const domainAdmmin = fixtures.newDummyUser(['admin@foobar.com'], 'secret');
 
         async.series([
-          function(callback) {
-            saveUser(foouser, callback);
-          },
-          function(callback) {
-            domain.administrators = [{ user_id: user._id }];
+          callback => saveUser(dummyUser, callback),
+          callback => saveUser(domainAdmmin, callback),
+          callback => {
+            domain.administrators = [{ user_id: domainAdmmin._id }];
             saveDomain(domain, callback);
           },
-          function(callback) {
-            community.creator = foouser._id;
+          callback => {
+            community.creator = dummyUser._id;
             community.domain_ids = [domain._id];
             community.type = 'restricted';
             community.membershipRequests.push({user: user._id, workflow: 'request'});
             saveCommunity(community, callback);
           },
-          function() {
-            self.helpers.api.loginAsUser(webserver.application, email, password, function(err, loggedInAsUser) {
+          () => {
+            self.helpers.api.loginAsUser(webserver.application, email, password, (err, loggedInAsUser) => {
               if (err) {
                 return done(err);
               }
-              var req = loggedInAsUser(request(webserver.application).get('/api/collaborations/community/' + community._id + '/membership'));
+              const req = loggedInAsUser(request(webserver.application).get('/api/collaborations/community/' + community._id + '/membership'));
+
               req.expect(403);
               req.end(done);
             });
           }
-        ], function(err) {
-          if (err) {
-            return done(err);
-          }
-        });
+        ], err => err && done(err));
       });
     });
 

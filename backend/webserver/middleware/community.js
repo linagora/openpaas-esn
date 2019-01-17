@@ -118,7 +118,7 @@ function requiresCommunityMember(req, res, next) {
     return res.status(400).json({error: 400, message: 'Bad request', details: 'Missing user'});
   }
 
-  communityModule.isMember(req.community, {objectType: 'user', id: req.user._id}, function(err, isMember) {
+  communityModule.member.isMember(req.community, {objectType: 'user', id: req.user._id}, function(err, isMember) {
     if (err) {
       return res.status(400).json({error: 400, message: 'Bad request', details: 'Can not define the community membership : ' + err.message});
     }
@@ -140,7 +140,7 @@ module.exports.checkUserParamIsNotMember = function(req, res, next) {
     return res.status(400).json({error: 400, message: 'Bad request', details: 'Missing user id'});
   }
 
-  communityModule.isMember(req.community, req.params.user_id, function(err, isMember) {
+  communityModule.member.isMember(req.community, req.params.user_id, function(err, isMember) {
     if (err) {
       return res.status(400).json({error: 400, message: 'Bad request', details: 'Can not define the community membership : ' + err.message});
     }
@@ -208,7 +208,7 @@ module.exports.flagCommunityManager = function(req, res, next) {
     return res.status(400).json({error: 400, message: 'Bad request', details: 'Missing user'});
   }
 
-  communityModule.isManager(req.community, req.user, function(err, manager) {
+  communityModule.member.isManager(req.community, req.user, function(err, manager) {
     if (err) {
       return res.status(500).json({error: {code: 500, message: 'Error when checking if the user is a manager', details: err.message}});
     }
@@ -226,7 +226,7 @@ module.exports.requiresCommunityManager = function(req, res, next) {
     return res.status(400).json({error: 400, message: 'Bad request', details: 'Missing user'});
   }
 
-  communityModule.isManager(req.community, req.user, function(err, manager) {
+  communityModule.member.isManager(req.community, req.user, function(err, manager) {
     if (err) {
       logger.error('Error when checking if the user is a manager', err);
 

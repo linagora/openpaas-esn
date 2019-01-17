@@ -18,7 +18,7 @@ function transform(community, user, callback) {
     return {};
   }
 
-  var membershipRequest = communityModule.getMembershipRequest(community, user);
+  var membershipRequest = communityModule.member.getMembershipRequest(community, user);
 
   if (typeof community.toObject === 'function') {
     community = community.toObject();
@@ -29,7 +29,7 @@ function transform(community, user, callback) {
     community.membershipRequest = membershipRequest.timestamp.creation.getTime();
   }
 
-  communityModule.isMember(community, {objectType: 'user', id: user.id}, function(err, membership) {
+  communityModule.member.isMember(community, {objectType: 'user', id: user.id}, function(err, membership) {
     if (membership) {
       community.member_status = 'member';
     } else {
@@ -374,7 +374,7 @@ module.exports.getMembers = function(req, res) {
     }
   }
 
-  communityModule.getMembers(community, query, function(err, members) {
+  communityModule.member.getMembers(community, query, function(err, members) {
     if (err) {
       return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
     }
@@ -393,7 +393,7 @@ module.exports.getMember = function(req, res) {
     return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'Community is missing'}});
   }
 
-  communityModule.isMember(community, {objectType: 'user', id: req.params.user_id}, function(err, result) {
+  communityModule.member.isMember(community, {objectType: 'user', id: req.params.user_id}, function(err, result) {
     if (err) {
       return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
     }
@@ -419,7 +419,7 @@ module.exports.join = function(req, res) {
       return res.status(400).json({error: {code: 400, message: 'Bad request', details: 'Community Manager can not add himself to a community'}});
     }
 
-    if (!communityModule.getMembershipRequest(community, {_id: targetUserId})) {
+    if (!communityModule.member.getMembershipRequest(community, {_id: targetUserId})) {
       return res.status(400).json({error: {code: 400, message: 'Bad request', details: 'User did not request to join community'}});
     }
 
@@ -428,7 +428,7 @@ module.exports.join = function(req, res) {
         return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
       }
 
-      communityModule.cleanMembershipRequest(community, targetUserId, function(err) {
+      communityModule.member.cleanMembershipRequest(community, targetUserId, function(err) {
         if (err) {
           return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
         }
@@ -443,7 +443,7 @@ module.exports.join = function(req, res) {
     }
 
     if (req.community.type !== collaborationConstants.COLLABORATION_TYPES.OPEN) {
-      var membershipRequest = communityModule.getMembershipRequest(community, user);
+      var membershipRequest = communityModule.member.getMembershipRequest(community, user);
       if (!membershipRequest) {
         return res.status(400).json({error: {code: 400, message: 'Bad request', details: 'User was not invited to join community'}});
       }
@@ -453,7 +453,7 @@ module.exports.join = function(req, res) {
           return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
         }
 
-        communityModule.cleanMembershipRequest(community, user, function(err) {
+        communityModule.member.cleanMembershipRequest(community, user, function(err) {
           if (err) {
             return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
           }
@@ -466,7 +466,7 @@ module.exports.join = function(req, res) {
           return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
         }
 
-        communityModule.cleanMembershipRequest(community, user, function(err) {
+        communityModule.member.cleanMembershipRequest(community, user, function(err) {
           if (err) {
             return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
           }
@@ -519,7 +519,7 @@ module.exports.getMembershipRequests = function(req, res) {
     }
   }
 
-  communityModule.getMembershipRequests(community, query, function(err, membershipRequests) {
+  communityModule.member.getMembershipRequests(community, query, function(err, membershipRequests) {
     if (err) {
       return res.status(500).json({error: {code: 500, message: 'Server Error', details: err.details}});
     }
@@ -573,13 +573,13 @@ module.exports.removeMembershipRequest = function(req, res) {
 
   if (req.isCommunityManager) {
     if (membership.workflow === communityModule.MEMBERSHIP_TYPE_INVITATION) {
-      communityModule.cancelMembershipInvitation(req.community, membership, req.user, onResponse);
+      communityModule.member.cancelMembershipInvitation(req.community, membership, req.user, onResponse);
     } else {
-      communityModule.refuseMembershipRequest(req.community, membership, req.user, onResponse);
+      communityModule.member.refuseMembershipRequest(req.community, membership, req.user, onResponse);
     }
-  } else if (membership.workflow === communityModule.MEMBERSHIP_TYPE_INVITATION) {
-    communityModule.declineMembershipInvitation(req.community, membership, req.user, onResponse);
+  } else if (membership.workflow === communityModule.member.MEMBERSHIP_TYPE_INVITATION) {
+    communityModule.member.declineMembershipInvitation(req.community, membership, req.user, onResponse);
   } else {
-    communityModule.cancelMembershipRequest(req.community, membership, req.user, onResponse);
+    communityModule.member.cancelMembershipRequest(req.community, membership, req.user, onResponse);
   }
 };
