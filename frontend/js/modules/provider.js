@@ -137,7 +137,8 @@ angular.module('esn.provider', [
           if (!(result.date instanceof Date)) {
             result.date = new Date(result.date);
           }
-          result.templateUrl = provider.templateUrl;
+          // when the result comes from an aggregated provider, the templateUrl is already set
+          result.templateUrl = result.templateUrl || provider.templateUrl;
           result.provider = provider;
 
           return result;
