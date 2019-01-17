@@ -361,66 +361,121 @@ describe('The community module', function() {
   });
 
   describe('The isManager fn', function() {
+    it('should send back error when Community.findById fails', function(done) {
+      const communityPopulateMock = sinon.spy();
 
-    it('should send back error when Community.findOne fails', function(done) {
       this.helpers.mock.models({
         Community: {
-          findOne: function(a, callback) {
-            return callback(new Error());
-          }
+          findById: () => ({
+            populate: communityPopulateMock,
+            exec: callback => callback(new Error())
+          })
         }
       });
 
-      var community = this.helpers.requireBackend('core/community/index');
-      community.member.isManager(123, 456, function(err) {
+      const community = this.helpers.requireBackend('core/community/index');
+
+      community.member.isManager(123, 456, err => {
         expect(err).to.exist;
-        return done();
+        expect(communityPopulateMock).to.have.been.calledWith('domain_ids');
+        done();
       });
     });
 
-    it('should send back true when Community.findOne finds user', function(done) {
-      this.helpers.mock.models({
-        Community: {
-          findOne: function(a, callback) {
-            return callback(null, {});
-          }
-        }
-      });
+    it('should send back true when user is creator', function(done) {
+      const creator = { _id: 'creator' };
 
-      var community = this.helpers.requireBackend('core/community/index');
-      community.member.isManager(123, 456, function(err, result) {
-        expect(err).to.not.exist;
-        expect(result).to.be.true;
-        return done();
-      });
-    });
+      const communityPopulateMock = sinon.spy();
 
-    it('should send back false when user is neither creator or domain admin', function(done) {
-      this.helpers.mock.models({
-        Community: {
-          findOne: function(a, callback) {
-            return callback();
-          }
-        }
-      });
-
-      mockery.registerMock('../domain', {
-        userIsDomainAdministrator: (a, b, callback) => callback(null, false)
-      });
-
-      const communityModule = this.helpers.requireBackend('core/community/index');
-      const communityMock = {
-        populate: (path, callback) => {
-          callback(null, {
-            domain_ids: []
-          });
-        }
+      const populatedCommunity = {
+        creator: creator._id,
+        domain_ids: []
       };
 
-      communityModule.member.isManager(communityMock, 456, (err, result) => {
+      this.helpers.mock.models({
+        Community: {
+          findById: () => ({
+            populate: communityPopulateMock,
+            exec: callback => callback(null, populatedCommunity)
+          })
+        }
+      });
+
+      const community = this.helpers.requireBackend('core/community/index');
+
+      community.member.isManager(123, { _id: creator._id }, function(err, result) {
+        expect(err).to.not.exist;
+        expect(result).to.be.true;
+        expect(communityPopulateMock).to.have.been.calledWith('domain_ids');
+        done();
+      });
+    });
+
+    it('should send back true when user is domain administrator', function(done) {
+      const creator = { _id: 'creator' };
+      const admin = { _id: 'admin' };
+
+      const communityPopulateMock = sinon.spy();
+
+      const populatedCommunity = {
+        creator: creator._id,
+        domain_ids: [{
+          administrators: [{
+            user_id: admin._id
+          }]
+        }]
+      };
+
+      this.helpers.mock.models({
+        Community: {
+          findById: () => ({
+            populate: communityPopulateMock,
+            exec: callback => callback(null, populatedCommunity)
+          })
+        }
+      });
+
+      const community = this.helpers.requireBackend('core/community/index');
+
+      community.member.isManager(123, { _id: admin._id }, function(err, result) {
+        expect(err).to.not.exist;
+        expect(result).to.be.true;
+        expect(communityPopulateMock).to.have.been.calledWith('domain_ids');
+        done();
+      });
+    });
+
+    it('should send back true when user is domain administrator', function(done) {
+      const creator = { _id: 'creator' };
+      const admin = { _id: 'admin' };
+      const user = { _id: 'user' };
+
+      const communityPopulateMock = sinon.spy();
+
+      const populatedCommunity = {
+        creator: creator._id,
+        domain_ids: [{
+          administrators: [{
+            user_id: admin._id
+          }]
+        }]
+      };
+
+      this.helpers.mock.models({
+        Community: {
+          findById: () => ({
+            populate: communityPopulateMock,
+            exec: callback => callback(null, populatedCommunity)
+          })
+        }
+      });
+
+      const community = this.helpers.requireBackend('core/community/index');
+
+      community.member.isManager(123, { _id: user._id }, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.be.false;
-
+        expect(communityPopulateMock).to.have.been.calledWith('domain_ids');
         done();
       });
     });
@@ -711,55 +766,80 @@ describe('The community module', function() {
       });
     });
 
-    it('should send back [] when Community.exec does not find members', function(done) {
+    it('should send back [] if there is no community is found', function(done) {
+      const communityPopulateMock = sinon.spy();
+
       this.helpers.mock.models({
         Community: {
-          findById: function() {
-            return {
-              slice: function() {},
-              populate: function() {},
-              exec: function(callback) {
-                return callback();
-              }
-            };
-          }
+          findById: () => ({
+            populate: communityPopulateMock,
+            exec: callback => callback()
+          })
         }
       });
 
-      var community = this.helpers.requireBackend('core/community/index');
-      community.member.getManagers({_id: 123}, null, function(err, result) {
+      const community = this.helpers.requireBackend('core/community/index');
+
+      community.member.getManagers({ _id: 123 }, {}, (err, result) => {
         expect(err).to.not.exist;
         expect(result).to.be.an.array;
         expect(result.length).to.equal(0);
-        return done();
+        expect(communityPopulateMock).to.have.been.calledWith('domain_ids');
+        done();
       });
     });
 
-    it('should send back result members', function(done) {
-      var result = { user: 1 };
+    it('should send back the list of managers', function(done) {
+      const user1 = { _id: 'user1' };
+      const user2 = { _id: 'user2' };
+      const user3 = { _id: 'user3' };
+      const creator = { _id: 'creator' };
+
+      const communityPopulateMock = sinon.spy();
+      const userFindMock = sinon.spy((query, callback) => {
+        expect(query).to.deep.equal({ _id: { $in: [creator._id, user1._id, user2._id, user3._id] }});
+        callback(null, [creator, user1, user2, user3]);
+      });
+      const domains = [{
+        administrators: [
+          { user_id: user1._id },
+          { user_id: user2._id }
+        ]
+      }, {
+        administrators: [
+          { user_id: user2._id },
+          { user_id: user3._id }
+        ]
+      }];
+
+      const populatedCommunity = {
+        creator: creator._id,
+        domain_ids: domains
+      };
+
       this.helpers.mock.models({
         Community: {
-          findById: function() {
-            return {
-              slice: function() {},
-              populate: function() {},
-              exec: function(callback) {
-                return callback(null, {creator: result});
-              }
-            };
-          }
+          findById: () => ({
+            populate: communityPopulateMock,
+            exec: callback => callback(null, populatedCommunity)
+          })
+        },
+        User: {
+          find: userFindMock
         }
       });
 
-      var community = this.helpers.requireBackend('core/community/index');
-      community.member.getManagers({_id: 123}, null, function(err, managers) {
+      const community = this.helpers.requireBackend('core/community/index');
+
+      community.member.getManagers({ _id: 123 }, {}, function(err, result) {
         expect(err).to.not.exist;
-        expect(managers).to.be.an.array;
-        expect(managers).to.deep.equal([result]);
-        return done();
+        expect(result).to.be.an.array;
+        expect(result).to.deep.equal([creator, user1, user2, user3]);
+        expect(communityPopulateMock).to.have.been.calledWith('domain_ids');
+        expect(userFindMock).to.have.been.calledOnce;
+        done();
       });
     });
-
   });
 
   describe('The getUserCommunities fn', function() {

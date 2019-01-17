@@ -1,23 +1,18 @@
 'use strict';
 
 const mongoose = require('mongoose');
-const _ = require('lodash');
-const { some } = require('async');
 const Community = mongoose.model('Community');
-const User = mongoose.model('User');
 const logger = require('../logger');
 const collaborationModule = require('../collaboration');
 const permission = collaborationModule.permission;
+const member = require('./member');
 const tuple = require('../tuple');
 const localpubsub = require('../pubsub').local;
 const globalpubsub = require('../pubsub').global;
-const { userIsDomainAdministrator } = require('../domain');
 const CONSTANTS = require('./constants');
 const search = require('./search');
 const archive = require('./archive');
 const communityObjectType = CONSTANTS.OBJECT_TYPE;
-const MEMBERSHIP_TYPE_REQUEST = 'request';
-const MEMBERSHIP_TYPE_INVITATION = 'invitation';
 
 module.exports = {
   delete: remove,
@@ -34,48 +29,11 @@ module.exports = {
   update,
   updateAvatar,
   userToMember,
-  member: {
-    addMembershipRequest,
-    cancelMembershipInvitation,
-    cancelMembershipRequest,
-    cleanMembershipRequest,
-    declineMembershipInvitation,
-    getManagers,
-    getMembers,
-    getMembershipRequest,
-    getMembershipRequests,
-    isManager,
-    isMember,
-    join,
-    leave,
-    refuseMembershipRequest,
-    MEMBERSHIP_TYPE_REQUEST,
-    MEMBERSHIP_TYPE_INVITATION
-  }
+  member
 };
 collaborationModule.registerCollaborationModel(communityObjectType, CONSTANTS.MODEL_NAME);
 collaborationModule.registerCollaborationLib(communityObjectType, Object.assign({}, module.exports, { permission: null }));
 collaborationModule.memberResolver.registerResolver(communityObjectType, CONSTANTS.MODEL_NAME);
-
-function addMembershipRequest(community, userAuthor, userTarget, workflow, actor, callback) {
-  collaborationModule.member.addMembershipRequest(communityObjectType, community, userAuthor, userTarget, workflow, actor, callback);
-}
-
-function cancelMembershipInvitation(community, membership, manager, onResponse) {
-  collaborationModule.member.cancelMembershipInvitation(communityObjectType, community, membership, manager, onResponse);
-}
-
-function cancelMembershipRequest(community, membership, user, onResponse) {
-  collaborationModule.member.cancelMembershipRequest(communityObjectType, community, membership, user, onResponse);
-}
-
-function cleanMembershipRequest(community, user, callback) {
-  collaborationModule.member.cleanMembershipRequest(community, user, callback);
-}
-
-function declineMembershipInvitation(community, membership, user, onResponse) {
-  collaborationModule.member.declineMembershipInvitation(communityObjectType, community, membership, user, onResponse);
-}
 
 function communityToStream(community) {
   return {
@@ -88,57 +46,6 @@ function communityToStream(community) {
       image: community.avatar || ''
     }
   };
-}
-
-function getManagers(community, query, callback) {
-  const id = community._id || community;
-  const q = Community.findById(id);
-
-  // TODO Right now creator is the only manager. It will change in the future.
-  // query = query ||  {};
-  // q.slice('managers', [query.offset || DEFAULT_OFFSET, query.limit || DEFAULT_LIMIT]);
-  q.populate('creator');
-  q.exec((err, community) => {
-    if (err) {
-      return callback(err);
-    }
-
-    callback(null, community ? [community.creator] : []);
-  });
-}
-
-function getMembers(community, query = {}, callback) {
-  const id = community._id || community;
-
-  Community.findById(id, (err, community) => {
-    if (err) { return callback(err); }
-
-    const members = community.members.slice().splice(query.offset || CONSTANTS.DEFAULT_OFFSET, query.limit || CONSTANTS.DEFAULT_LIMIT);
-    const memberIds = members.map(member => member.member.id);
-
-    User.find({_id: {$in: memberIds}}, (err, users) => {
-      if (err) {
-        return callback(err);
-      }
-
-      const hash = {};
-
-      users.forEach(u => { hash[u._id] = u; });
-      members.forEach(m => {
-        m.member = hash[m.member.id];
-      });
-
-      callback(null, members);
-    });
-  });
-}
-
-function getMembershipRequest(community, user) {
-  return collaborationModule.member.getMembershipRequest(community, user);
-}
-
-function getMembershipRequests(community, query, callback) {
-  return collaborationModule.member.getMembershipRequests(communityObjectType, community._id || community, query, callback);
 }
 
 function getStreamsForUser(userId, options, callback) {
@@ -200,42 +107,6 @@ function hasDomain(community, domainId) {
   collaborationModule.hasDomain(community, domainId);
 }
 
-function isManager(community, user, callback) {
-  // Community manager can be either community creator
-  // or domain administrator where the community belongs to.
-  collaborationModule.member.isManager(communityObjectType, community, user, (error, isCreator) => {
-    if (error) {
-      return callback(error);
-    }
-
-    if (isCreator) {
-      return callback(null, true);
-    }
-
-    _.cloneDeep(community).populate('domain_ids', (err, domainsPopulatedCommunity) => {
-      if (err) {
-        return callback(err);
-      }
-
-      some(domainsPopulatedCommunity.domain_ids, (domain, cb) => {
-        userIsDomainAdministrator(user, domain, cb);
-      }, callback);
-    });
-  });
-}
-
-function isMember(community, tuple, callback) {
-  collaborationModule.member.isMember(community, tuple, callback);
-}
-
-function join(community, userAuthor, userTarget, actor, callback) {
-  collaborationModule.member.join(communityObjectType, community, userAuthor, userTarget, actor, callback);
-}
-
-function leave(community, userAuthor, userTarget, callback) {
-  collaborationModule.member.leave(communityObjectType, community, userAuthor, userTarget, callback);
-}
-
 function load(community, callback) {
   if (!community) {
     return callback(new Error('Community is required'));
@@ -257,10 +128,6 @@ function loadWithDomains(community, callback) {
 
 function query(q, callback) {
   collaborationModule.query(communityObjectType, q, callback);
-}
-
-function refuseMembershipRequest(community, membership, manager, onResponse) {
-  collaborationModule.member.refuseMembershipRequest(communityObjectType, community, membership, manager, onResponse);
 }
 
 function remove(community, user) {
