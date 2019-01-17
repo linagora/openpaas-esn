@@ -37,7 +37,7 @@
         return $q.when(options.query && options.query.text);
       },
       templateUrl: '/contact/app/search/contact-search.html',
-      activeOn: ['contact']
+      activeOn: []
     });
   }
 })(angular);
