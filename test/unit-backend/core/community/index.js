@@ -4,31 +4,8 @@ var mockery = require('mockery');
 var expect = require('chai').expect;
 var sinon = require('sinon');
 var CONSTANTS = require('../../../../backend/core/community/constants');
-const noop = () => {};
 
 describe('The community module', function() {
-  it('should not register to core collaboration the permission of community lib', function(done) {
-    const collaborationMock = {
-      permission: {
-        canLeave: noop
-      },
-      registerCollaborationModel: noop,
-      registerCollaborationLib: (communityObjectType, lib) => {
-        expect(communityObjectType).to.equal('community');
-        expect(lib.permission).to.be.null;
-        done();
-      },
-      memberResolver: {
-        registerResolver() {}
-      }
-    };
-
-    mockery.registerMock('../collaboration', collaborationMock);
-    this.helpers.mock.models({});
-
-    this.helpers.requireBackend('core/community/index');
-  });
-
   describe('The update fn', function() {
     it('should update the document correctly and save it', function() {
       this.helpers.mock.models({});

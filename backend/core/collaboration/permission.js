@@ -9,6 +9,7 @@ module.exports = (memberModule, collaborationModule) => {
     canRead,
     canWrite,
     canLeave,
+    canRemoveContent,
     filterWritable
   };
 
@@ -43,6 +44,13 @@ module.exports = (memberModule, collaborationModule) => {
       return callback(null, true);
     }
 
+    // check canRead of registered permission
+    const lib = collaborationModule.getLib(collaboration.objectType);
+
+    if (lib && lib.permission && lib.permission.canRead) {
+      return lib.permission.canRead(collaboration, tuple, callback);
+    }
+
     return memberModule.isIndirectMember(collaboration, tuple, callback);
   }
 
@@ -61,6 +69,22 @@ module.exports = (memberModule, collaborationModule) => {
     }
 
     return memberModule.isIndirectMember(collaboration, tuple, callback);
+  }
+
+  /**
+   * Can remove content of a collaboration
+   * @param {Object} collaboration
+   * @param {Object} tuple
+   * @param {Function} callback
+   */
+  function canRemoveContent(collaboration, tuple, callback) {
+    const lib = collaborationModule.getLib(collaboration.objectType);
+
+    if (lib && lib.permission && lib.permission.canRemoveContent) {
+      return lib.permission.canRemoveContent(collaboration, tuple, callback);
+    }
+
+    return callback(null, false);
   }
 
   function canLeave(collaboration, tuple, callback) {
