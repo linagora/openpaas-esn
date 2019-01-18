@@ -128,6 +128,26 @@ describe('The collaboration middleware', function() {
   describe('canRead() method', function() {
     var collaborationMW;
 
+    it('should call next if request user is collaboration manager', function(done) {
+      const req = {
+        isCollaborationManager: true,
+        collaboration: { type: 'open' },
+        user: {_id: 'user1'}
+      };
+      const res = {};
+
+      mockery.registerMock('../../core/collaboration', {
+        member: {
+          isMember: function() {
+            done(new Error('I should not be called'));
+          }
+        },
+        CONSTANTS: this.helpers.requireBackend('core/collaboration/constants')
+      });
+      collaborationMW = this.helpers.requireBackend('webserver/middleware/collaboration').canRead;
+      collaborationMW(req, res, done);
+    });
+
     it('should call next if the collaboration type is "open"', function(done) {
       var req = {
         collaboration: { type: 'open' },
