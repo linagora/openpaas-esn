@@ -4,6 +4,7 @@ const async = require('async');
 const collaborationModule = require('../../core/collaboration');
 const userDomain = require('../../core/user/domain');
 const imageModule = require('../../core/image');
+const { denormalize } = require('../denormalize/user');
 const logger = require('../../core/logger');
 
 const permission = collaborationModule.permission;
@@ -169,14 +170,33 @@ function getInvitablePeople(req, res) {
   const domainIds = collaboration.domain_ids.slice(0);
   const search = query.search ? userDomain.getUsersSearch : userDomain.getUsersList;
 
-  search(domainIds, query, (err, result) => {
-    if (err) {
-      return res.status(500).json({ error: { status: 500, message: 'Server error', details: 'Error while searching invitable people: ' + err.message}});
-    }
+  return new Promise((resolve, reject) => {
+    search(domainIds, query, (err, result) => {
+      if (err) {
+        return reject(err);
+      }
 
-    res.header('X-ESN-Items-Count', result.total_count);
+      resolve(result);
+    });
+  })
+  .then(result =>
+    Promise.all(result.list.map(user => denormalize(user)))
+      .then(denormalizedUsers => {
+        res.header('X-ESN-Items-Count', result.total_count);
 
-    return res.status(200).json(result.list);
+        return res.status(200).json(denormalizedUsers);
+      })
+  )
+  .catch(err => {
+    logger.error('Error while searching invitable people', err);
+
+    res.status(500).json({
+      error: {
+        status: 500,
+        message: 'Server error',
+        details: 'Error while searching invitable people'
+      }
+    });
   });
 }
 
