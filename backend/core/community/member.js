@@ -95,11 +95,17 @@ function getMembershipRequests(community, query, callback) {
   return collaborationModule.member.getMembershipRequests(OBJECT_TYPE, community._id || community, query, callback);
 }
 
-function isManager(community, tuple, callback) {
+/**
+ * Check a user is a manager of a community
+ * @param {Object}   community
+ * @param {Object}   user
+ * @param {Function} callback
+ */
+function isManager(community, user, callback) {
   _getManagerIds(community, (err, managerIds) => {
     if (err) return callback(err);
 
-    return callback(null, managerIds.indexOf(String(tuple._id)) !== -1);
+    return callback(null, managerIds.indexOf(String(user._id)) !== -1);
   });
 }
 
