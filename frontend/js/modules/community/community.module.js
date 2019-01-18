@@ -16,6 +16,7 @@
     'ngTagsInput',
     'esn.widget.helper',
     'esn.collaboration',
+    'esn.message',
     'op.dynamicDirective',
     'esn.feature-registry',
     'esn.module-registry'

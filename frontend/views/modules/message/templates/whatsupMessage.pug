@@ -57,7 +57,7 @@
               message-date-link(message='message', activitystream='activitystream')
           .message-comment-actions
             message-bottom-links
-            message-actions-dropdown(ng-show='::writable', message='message', activitystream='activitystream', parent="parent")
+            message-actions-dropdown(message='message', activitystream='activitystream', parent="parent")
         .message-comment-content
           p.m-b-5.white-space-pre-line
             text-parser(parsers='{{message.parsers}}', text='{{message.content}}')

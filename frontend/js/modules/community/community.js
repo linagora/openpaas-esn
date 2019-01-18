@@ -378,7 +378,13 @@ angular.module('esn.community')
       }
     };
   })
-  .factory('communityService', function(esnCollaborationClientService, communityAPI, session, $q) {
+  .factory('communityService', function(
+    $q,
+    session,
+    esnCollaborationClientService,
+    esnMessageHelpers,
+    communityAPI
+  ) {
 
     function isManager(community, user) {
       return community.creator === user._id || session.userIsDomainAdministrator();
@@ -427,10 +433,11 @@ angular.module('esn.community')
         !isMember(community);
     }
 
-    function canRead(community) {
+    function canRead(community, user) {
       return community.type === 'open' ||
         community.type === 'restricted' ||
-        isMember(community);
+        isMember(community) ||
+        user && isManager(community, user);
     }
 
     function canRequestMembership(community, user) {
@@ -475,6 +482,10 @@ angular.module('esn.community')
       return communityAPI.del(community._id);
     }
 
+    function canRemoveMessage(message, user) {
+      return esnMessageHelpers.isMessageCreator(user, message) || session.userIsDomainAdministrator();
+    }
+
     return {
       isMember: isMember,
       isManager: isManager,
@@ -484,6 +495,7 @@ angular.module('esn.community')
       canJoin: canJoin,
       canLeave: canLeave,
       canRead: canRead,
+      canRemoveMessage: canRemoveMessage,
       canRequestMembership: canRequestMembership,
       canCancelRequestMembership: canCancelRequestMembership,
       requestMembership: requestMembership,
