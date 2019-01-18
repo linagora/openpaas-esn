@@ -214,6 +214,36 @@ describe('The collaborations members API', function() {
         });
       });
 
+      it('should send back 204 when domain admin trying to add himself to the community', function(done) {
+        const self = this;
+
+        self.helpers.api.applyDomainDeployment('linagora_IT', (err, models) => {
+          if (err) return done(err);
+
+          const community = models.communities[1];
+          const domainAdmin = models.users[0];
+          const communityCreator = models.users[1];
+
+          community.creator = communityCreator._id;
+          community.membershipRequests.push({user: domainAdmin._id, workflow: 'request'});
+
+          community.save((err, community) => {
+            if (err) return done(err);
+
+            self.helpers.api.loginAsUser(webserver.application, domainAdmin.emails[0], 'secret', (err, loggedInAsUser) => {
+              if (err) return done(err);
+
+              const req = loggedInAsUser(request(webserver.application).put('/api/collaborations/community/' + community._id + '/members/' + domainAdmin._id));
+
+              req.expect(204).end(err => {
+                expect(err).to.not.exist;
+                done();
+              });
+            });
+          });
+        });
+      });
+
       it('should send back 204 when user is added to members', function(done) {
         var self = this;
         this.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
