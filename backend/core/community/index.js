@@ -20,38 +20,39 @@ const MEMBERSHIP_TYPE_REQUEST = 'request';
 const MEMBERSHIP_TYPE_INVITATION = 'invitation';
 
 module.exports = {
-  addMembershipRequest,
-  cancelMembershipInvitation,
-  cancelMembershipRequest,
-  cleanMembershipRequest,
-  declineMembershipInvitation,
   delete: remove,
   getCollaborationsForUser: getUserCommunities,
-  getManagers,
-  getMembers,
-  getMembershipRequest,
-  getMembershipRequests,
   getUserCommunities,
   getStreamsForUser,
   hasDomain,
-  isManager,
-  isMember,
-  join,
-  leave,
   load,
   loadWithDomains,
   permission,
   query,
-  refuseMembershipRequest,
   save,
   search,
   update,
   updateAvatar,
   userToMember,
-  MEMBERSHIP_TYPE_REQUEST,
-  MEMBERSHIP_TYPE_INVITATION
+  member: {
+    addMembershipRequest,
+    cancelMembershipInvitation,
+    cancelMembershipRequest,
+    cleanMembershipRequest,
+    declineMembershipInvitation,
+    getManagers,
+    getMembers,
+    getMembershipRequest,
+    getMembershipRequests,
+    isManager,
+    isMember,
+    join,
+    leave,
+    refuseMembershipRequest,
+    MEMBERSHIP_TYPE_REQUEST,
+    MEMBERSHIP_TYPE_INVITATION
+  }
 };
-
 collaborationModule.registerCollaborationModel(communityObjectType, CONSTANTS.MODEL_NAME);
 collaborationModule.registerCollaborationLib(communityObjectType, Object.assign({}, module.exports, { permission: null }));
 collaborationModule.memberResolver.registerResolver(communityObjectType, CONSTANTS.MODEL_NAME);

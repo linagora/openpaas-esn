@@ -372,7 +372,7 @@ describe('The community module', function() {
       });
 
       var community = this.helpers.requireBackend('core/community/index');
-      community.isManager(123, 456, function(err) {
+      community.member.isManager(123, 456, function(err) {
         expect(err).to.exist;
         return done();
       });
@@ -388,7 +388,7 @@ describe('The community module', function() {
       });
 
       var community = this.helpers.requireBackend('core/community/index');
-      community.isManager(123, 456, function(err, result) {
+      community.member.isManager(123, 456, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.be.true;
         return done();
@@ -417,7 +417,7 @@ describe('The community module', function() {
         }
       };
 
-      communityModule.isManager(communityMock, 456, (err, result) => {
+      communityModule.member.isManager(communityMock, 456, (err, result) => {
         expect(err).to.not.exist;
         expect(result).to.be.false;
 
@@ -436,7 +436,7 @@ describe('The community module', function() {
       });
 
       var community = this.helpers.requireBackend('core/community/index');
-      community.isMember(123, {objectType: 'user', id: 456}, function(err) {
+      community.member.isMember(123, {objectType: 'user', id: 456}, function(err) {
         expect(err).to.exist;
         return done();
       });
@@ -464,7 +464,7 @@ describe('The community module', function() {
           }
         ]
       };
-      community.isMember(comMock, {objectType: 'user', id: id}, function(err, result) {
+      community.member.isMember(comMock, {objectType: 'user', id: id}, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.be.true;
         return done();
@@ -491,7 +491,7 @@ describe('The community module', function() {
         }
         ]
       };
-      community.isMember(comMock, {objectType: 'user', id: 456}, function(err, result) {
+      community.member.isMember(comMock, {objectType: 'user', id: 456}, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.be.false;
         return done();
@@ -511,7 +511,7 @@ describe('The community module', function() {
         }
         ]
       };
-      community.isMember(comMock, {objectType: 'user', id: 456}, function(err, result) {
+      community.member.isMember(comMock, {objectType: 'user', id: 456}, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.be.false;
         return done();
@@ -532,7 +532,7 @@ describe('The community module', function() {
         }
         ]
       };
-      community.isMember(comMock, {objectType: 'user', id: 456}, function(err, result) {
+      community.member.isMember(comMock, {objectType: 'user', id: 456}, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.be.false;
         return done();
@@ -553,7 +553,7 @@ describe('The community module', function() {
       });
 
       var community = this.helpers.requireBackend('core/community/index');
-      community.getMembers({_id: 123}, null, function(err) {
+      community.member.getMembers({_id: 123}, null, function(err) {
         expect(err).to.exist;
         return done();
       });
@@ -574,7 +574,7 @@ describe('The community module', function() {
       });
 
       var community = this.helpers.requireBackend('core/community/index');
-      community.getMembers({_id: 123}, {}, function(err, result) {
+      community.member.getMembers({_id: 123}, {}, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.be.an.array;
         expect(result.length).to.equal(0);
@@ -608,7 +608,7 @@ describe('The community module', function() {
       });
 
       var community = this.helpers.requireBackend('core/community/index');
-      community.getMembers({_id: 123}, {}, function(err, members) {
+      community.member.getMembers({_id: 123}, {}, function(err, members) {
         expect(err).to.not.exist;
         expect(members).to.be.an.array;
         expect(members).to.deep.equal(result);
@@ -648,7 +648,7 @@ describe('The community module', function() {
 
       var community = this.helpers.requireBackend('core/community/index');
 
-      community.getMembers({_id: 123}, query, function() {
+      community.member.getMembers({_id: 123}, query, function() {
       });
     });
 
@@ -681,7 +681,7 @@ describe('The community module', function() {
       });
 
       var community = this.helpers.requireBackend('core/community/index');
-      community.getMembers({_id: 123}, {}, function() {
+      community.member.getMembers({_id: 123}, {}, function() {
         done();
       });
     });
@@ -705,7 +705,7 @@ describe('The community module', function() {
       });
 
       var community = this.helpers.requireBackend('core/community/index');
-      community.getManagers({_id: 123}, null, function(err) {
+      community.member.getManagers({_id: 123}, null, function(err) {
         expect(err).to.exist;
         return done();
       });
@@ -727,7 +727,7 @@ describe('The community module', function() {
       });
 
       var community = this.helpers.requireBackend('core/community/index');
-      community.getManagers({_id: 123}, null, function(err, result) {
+      community.member.getManagers({_id: 123}, null, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.be.an.array;
         expect(result.length).to.equal(0);
@@ -752,7 +752,7 @@ describe('The community module', function() {
       });
 
       var community = this.helpers.requireBackend('core/community/index');
-      community.getManagers({_id: 123}, null, function(err, managers) {
+      community.member.getManagers({_id: 123}, null, function(err, managers) {
         expect(err).to.not.exist;
         expect(managers).to.be.an.array;
         expect(managers).to.deep.equal([result]);
@@ -825,7 +825,7 @@ describe('The community module', function() {
       var user = {_id: 'user1'};
       var community = {_id: 'community1'};
       var communityModule = this.helpers.requireBackend('core/community/index');
-      var mr = communityModule.getMembershipRequest(community, user);
+      var mr = communityModule.member.getMembershipRequest(community, user);
       expect(mr).to.be.false;
     });
     it('should return nothing if user does not have a membership request', function() {
@@ -837,7 +837,7 @@ describe('The community module', function() {
         timestamp: {creation: new Date()}
       }]};
       var communityModule = this.helpers.requireBackend('core/community/index');
-      var mr = communityModule.getMembershipRequest(community, user);
+      var mr = communityModule.member.getMembershipRequest(community, user);
       expect(mr).to.be.not.ok;
     });
     it('should return the membership object if user have a membership request', function() {
@@ -849,7 +849,7 @@ describe('The community module', function() {
         timestamp: {creation: new Date(1419509532000)}
       }]};
       var communityModule = this.helpers.requireBackend('core/community/index');
-      var mr = communityModule.getMembershipRequest(community, user);
+      var mr = communityModule.member.getMembershipRequest(community, user);
       expect(mr).to.be.ok;
       expect(mr.timestamp).to.have.property('creation');
       expect(mr.timestamp.creation).to.be.a('Date');
@@ -875,7 +875,7 @@ describe('The community module', function() {
       });
 
       var community = this.helpers.requireBackend('core/community/index');
-      community.getMembershipRequests({_id: 123}, {}, function(err) {
+      community.member.getMembershipRequests({_id: 123}, {}, function(err) {
         expect(err).to.exist;
         return done();
       });
@@ -897,7 +897,7 @@ describe('The community module', function() {
       });
 
       var community = this.helpers.requireBackend('core/community/index');
-      community.getMembershipRequests({_id: 123}, {}, function(err, result) {
+      community.member.getMembershipRequests({_id: 123}, {}, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.be.an.array;
         expect(result.length).to.equal(0);
@@ -922,7 +922,7 @@ describe('The community module', function() {
       });
 
       var community = this.helpers.requireBackend('core/community/index');
-      community.getMembershipRequests({_id: 123}, {}, function(err, requests) {
+      community.member.getMembershipRequests({_id: 123}, {}, function(err, requests) {
         expect(err).to.not.exist;
         expect(requests).to.be.an.array;
         expect(requests).to.deep.equal(result);
@@ -955,7 +955,7 @@ describe('The community module', function() {
       });
 
       var community = this.helpers.requireBackend('core/community/index');
-      community.getMembershipRequests({_id: 123}, query, function() {
+      community.member.getMembershipRequests({_id: 123}, query, function() {
         done();
       });
     });
@@ -981,7 +981,7 @@ describe('The community module', function() {
       });
 
       var community = this.helpers.requireBackend('core/community/index');
-      community.getMembershipRequests({_id: 123}, {}, function() {
+      community.member.getMembershipRequests({_id: 123}, {}, function() {
         done();
       });
     });
@@ -995,7 +995,7 @@ describe('The community module', function() {
 
     it('should send back error when user is not defined', function() {
       var communityModule = this.helpers.requireBackend('core/community/index');
-      communityModule.cleanMembershipRequest({}, null, function(err, c) {
+      communityModule.member.cleanMembershipRequest({}, null, function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
       });
@@ -1003,7 +1003,7 @@ describe('The community module', function() {
 
     it('should send back error when community is not defined', function() {
       var communityModule = this.helpers.requireBackend('core/community/index');
-      communityModule.cleanMembershipRequest(null, {}, function(err, c) {
+      communityModule.member.cleanMembershipRequest(null, {}, function(err, c) {
         expect(err).to.exist;
         expect(c).to.not.exist;
       });

@@ -223,8 +223,10 @@ describe('The community middleware', function() {
 
     it('should send back 400 when service check fails', function(done) {
       mockery.registerMock('../../core/community', {
-        isMember: function(com, user, callback) {
-          return callback(new Error());
+        member: {
+          isMember: function(com, user, callback) {
+            return callback(new Error());
+          }
         }
       });
       var middleware = this.helpers.requireBackend('webserver/middleware/community').requiresCommunityMember;
@@ -243,8 +245,10 @@ describe('The community middleware', function() {
 
     it('should send back 403 when user is not a community member', function(done) {
       mockery.registerMock('../../core/community', {
-        isMember: function(com, user, callback) {
-          return callback(null, false);
+        member: {
+          isMember: function(com, user, callback) {
+            return callback(null, false);
+          }
         }
       });
       var middleware = this.helpers.requireBackend('webserver/middleware/community').requiresCommunityMember;
@@ -263,8 +267,10 @@ describe('The community middleware', function() {
 
     it('should call next if user is a community member', function(done) {
       mockery.registerMock('../../core/community', {
-        isMember: function(com, user, callback) {
-          return callback(null, true);
+        member: {
+          isMember: function(com, user, callback) {
+            return callback(null, true);
+          }
         }
       });
       var middleware = this.helpers.requireBackend('webserver/middleware/community').requiresCommunityMember;
@@ -479,8 +485,10 @@ describe('The community middleware', function() {
 
     it('should send back 400 when service check fails', function(done) {
       mockery.registerMock('../../core/community', {
-        isMember: function(com, user, callback) {
-          return callback(new Error());
+        member: {
+          isMember: function(com, user, callback) {
+            return callback(new Error());
+          }
         }
       });
       var middleware = this.helpers.requireBackend('webserver/middleware/community').checkUserParamIsNotMember;
@@ -501,8 +509,10 @@ describe('The community middleware', function() {
 
     it('should send back 400 when user is already a community member', function(done) {
       mockery.registerMock('../../core/community', {
-        isMember: function(com, user, callback) {
-          return callback(null, true);
+        member: {
+          isMember: function(com, user, callback) {
+            return callback(null, true);
+          }
         }
       });
       var middleware = this.helpers.requireBackend('webserver/middleware/community').checkUserParamIsNotMember;
@@ -523,8 +533,10 @@ describe('The community middleware', function() {
 
     it('should call next if user is not a community member', function(done) {
       mockery.registerMock('../../core/community', {
-        isMember: function(com, user, callback) {
-          return callback(null, false);
+        member: {
+          isMember: function(com, user, callback) {
+            return callback(null, false);
+          }
         }
       });
       var middleware = this.helpers.requireBackend('webserver/middleware/community').checkUserParamIsNotMember;
@@ -554,8 +566,10 @@ describe('The community middleware', function() {
 
     it('should call next if the community type is "open"', function(done) {
       mockery.registerMock('../../core/community', {
-        isMember: function() {
-          done(new Error('I should not be called'));
+        member: {
+          isMember: function() {
+            done(new Error('I should not be called'));
+          }
         }
       });
       var middleware = this.helpers.requireBackend('webserver/middleware/community').canRead;
@@ -568,8 +582,10 @@ describe('The community middleware', function() {
     });
     it('should call next if the community type is "restricted"', function(done) {
       mockery.registerMock('../../core/community', {
-        isMember: function() {
-          done(new Error('I should not be called'));
+        member: {
+          isMember: function() {
+            done(new Error('I should not be called'));
+          }
         }
       });
       var middleware = this.helpers.requireBackend('webserver/middleware/community').canRead;
@@ -582,8 +598,10 @@ describe('The community middleware', function() {
     });
     it('should delegate to isMember middleware if the community type is "private"', function(done) {
       mockery.registerMock('../../core/community', {
-        isMember: function() {
-          done();
+        member: {
+          isMember: function() {
+            done();
+          }
         }
       });
       var middleware = this.helpers.requireBackend('webserver/middleware/community').canRead;
@@ -597,8 +615,10 @@ describe('The community middleware', function() {
     });
     it('should delegate to isMember middleware if the community type is "confidential"', function(done) {
       mockery.registerMock('../../core/community', {
-        isMember: function() {
-          done();
+        member: {
+          isMember: function() {
+            done();
+          }
         }
       });
       var middleware = this.helpers.requireBackend('webserver/middleware/community').canRead;
@@ -652,8 +672,10 @@ describe('The community middleware', function() {
 
     it('should send back 500 when community.isManager() failed', function(done) {
       mockery.registerMock('../../core/community', {
-        isManager: function(community, user, callback) {
-          return callback(new Error('Fail'));
+        member: {
+          isManager: function(community, user, callback) {
+            return callback(new Error('Fail'));
+          }
         }
       });
       var middleware = this.helpers.requireBackend('webserver/middleware/community').flagCommunityManager;
@@ -672,8 +694,10 @@ describe('The community middleware', function() {
 
     it('should call next with req.isCommunityManager initialized', function(done) {
       mockery.registerMock('../../core/community', {
-        isManager: function(community, user, callback) {
-          return callback(null, true);
+        member: {
+          isManager: function(community, user, callback) {
+            return callback(null, true);
+          }
         }
       });
       var middleware = this.helpers.requireBackend('webserver/middleware/community').flagCommunityManager;

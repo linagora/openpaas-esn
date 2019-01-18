@@ -368,7 +368,7 @@ describe('The activitystreams API', function() {
             expect(err).to.not.exist;
 
             // Add the second user to the community
-            communityCore.join(community, user2, user2, 'user', function(err) {
+            communityCore.member.join(community, user2, user2, 'user', function(err) {
               expect(err).to.not.exist;
 
               self.helpers.api.loginAsUser(app, user2.emails[0], password, function(err, loggedInAsUser2) {

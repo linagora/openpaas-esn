@@ -421,54 +421,52 @@ describe('The collaboration middleware', function() {
 
     it('should send back 500 when collaboration.isManager() failed', function(done) {
       mockery.registerMock('../../core/collaboration', {
+        getLib: () => {},
         member: {
-          isManager: function(objectType, collaboration, user, callback) {
-            return callback(new Error('Fail'));
-          }
+          isManager: (objectType, collaboration, user, callback) => callback(new Error('Fail'))
         }
       });
-      var middleware = this.helpers.requireBackend('webserver/middleware/collaboration').flagCollaborationManager;
-      var req = {
+      const middleware = this.helpers.requireBackend('webserver/middleware/collaboration').flagCollaborationManager;
+      const req = {
         collaboration: {},
         user: {},
         params: {
           objectType: 'collaboration'
         }
       };
-      var res = this.helpers.express.jsonResponse(
-        function(code) {
-          expect(code).to.equal(500);
-          done();
-        }
-      );
+      const res = this.helpers.express.jsonResponse(code => {
+        expect(code).to.equal(500);
+        done();
+      });
+
       middleware(req, res);
     });
 
     it('should call next with req.isCollaborationManager initialized', function(done) {
       mockery.registerMock('../../core/collaboration', {
+        getLib: () => {},
         member: {
-          isManager: function(objectType, collaboration, user, callback) {
-            return callback(null, true);
-          }
+          isManager: (objectType, collaboration, user, callback) => callback(null, true)
         }
       });
-      var middleware = this.helpers.requireBackend('webserver/middleware/collaboration').flagCollaborationManager;
-      var req = {
+      const middleware = this.helpers.requireBackend('webserver/middleware/collaboration').flagCollaborationManager;
+      const req = {
         collaboration: {},
         user: {},
         params: {
           objectType: 'collaboration'
         }
       };
-      var res = {
+      const res = {
         json: function() {
           done(new Error());
         }
       };
-      var next = function() {
+      const next = () => {
         expect(req.isCollaborationManager).to.be.true;
         done();
       };
+
       middleware(req, res, next);
     });
   });
@@ -672,22 +670,24 @@ describe('The collaboration middleware', function() {
     });
 
     it('should send back 403 when user is the collaboration creator', function(done) {
-      var id = new ObjectId();
-      var middleware = this.helpers.requireBackend('webserver/middleware/collaboration').canLeave;
-      var req = {
+      const id = new ObjectId();
+      const middleware = this.helpers.requireBackend('webserver/middleware/collaboration').canLeave;
+      const req = {
+        isCollaborationManager: true,
         collaboration: {creator: id},
         user: {_id: id},
         params: {
           user_id: id
         }
       };
-      var res = {
+      const res = {
         status: checkResponse(403, {
           error: 403,
           message: 'Forbidden',
           details: 'User can not leave the collaboration'
         }, done)
       };
+
       middleware(req, res);
     });
 
@@ -713,38 +713,38 @@ describe('The collaboration middleware', function() {
     });
 
     it('should call next if user can leave collaboration', function(done) {
-      var middleware = this.helpers.requireBackend('webserver/middleware/collaboration').canLeave;
-      var userId = new ObjectId();
-      var req = {
+      const middleware = this.helpers.requireBackend('webserver/middleware/collaboration').canLeave;
+      const userId = new ObjectId();
+      const req = {
+        isCollaborationManager: true,
         collaboration: {creator: new ObjectId()},
         user: {_id: userId},
         params: {
           user_id: userId
         }
       };
-      var res = {
-        json: function() {
-          done(new Error());
-        }
+      const res = {
+        status: () => done(new Error('should call next instead'))
       };
+
       middleware(req, res, done);
     });
 
     it('should call next if user is creator and removes a user from a collaboration', function(done) {
-      var middleware = this.helpers.requireBackend('webserver/middleware/collaboration').canLeave;
-      var creatorId = new ObjectId();
-      var req = {
+      const middleware = this.helpers.requireBackend('webserver/middleware/collaboration').canLeave;
+      const creatorId = new ObjectId();
+      const req = {
+        isCollaborationManager: true,
         collaboration: {creator: creatorId},
         user: {_id: creatorId},
         params: {
           user_id: new ObjectId()
         }
       };
-      var res = {
-        json: function() {
-          done(new Error());
-        }
+      const res = {
+        status: () => done(new Error('should call next instead'))
       };
+
       middleware(req, res, done);
     });
 
@@ -757,6 +757,7 @@ describe('The collaboration middleware', function() {
       const middleware = this.helpers.requireBackend('webserver/middleware/collaboration').canLeave;
       const creatorId = new ObjectId();
       const req = {
+        isCollaborationManager: true,
         collaboration: {creator: creatorId},
         user: {_id: creatorId},
         params: {
@@ -807,14 +808,18 @@ describe('The collaboration middleware', function() {
       const middleware = this.helpers.requireBackend('webserver/middleware/collaboration').canLeave;
       const creatorId = new ObjectId();
       const req = {
+        isCollaborationManager: true,
         collaboration: { creator: creatorId },
         user: { _id: creatorId },
         params: {
           user_id: new ObjectId()
         }
       };
+      const res = {
+        status: () => done(new Error('should call next instead'))
+      };
 
-      middleware(req, {}, done);
+      middleware(req, res, done);
     });
   });
 });
