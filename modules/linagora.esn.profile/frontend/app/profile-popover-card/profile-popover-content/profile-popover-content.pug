@@ -4,11 +4,10 @@
       esn-avatar(user-id='$ctrl.user._id', ng-click='$ctrl.onProfileButtonClick()')
     .profile-card-right.profile-card-informations
       div
-        .displayname {{::$ctrl.user.displayName}}
+        span.displayname {{::$ctrl.user.displayName}}
       div
         a(ng-href='mailto:{{$ctrl.user.preferredEmail}}', op-inbox-compose, op-inbox-compose-display-name='{{::$ctrl.user.displayName}}') {{$ctrl.user.preferredEmail}}
       div(ng-if='$ctrl.user.officeLocation')
-        i.mdi.mdi-map-marker
         | {{$ctrl.user.officeLocation}}
     .profile-card-right(ng-if='$ctrl.isMobileDevice')
       button.btn.btn-default.popover-close-button(type="button" role="button" aria-label="Close" ng-click="$ctrl._hideComponent($event)")
