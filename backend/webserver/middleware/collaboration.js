@@ -94,6 +94,10 @@ function requiresCollaborationMember(req, res, next) {
 }
 
 function canRead(req, res, next) {
+  if (req.isCollaborationManager) {
+    return next();
+  }
+
   if (req.collaboration.type === collaborationModule.CONSTANTS.COLLABORATION_TYPES.OPEN ||
     req.collaboration.type === collaborationModule.CONSTANTS.COLLABORATION_TYPES.RESTRICTED) {
     return next();
