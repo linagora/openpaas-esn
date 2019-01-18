@@ -3,7 +3,7 @@
 
   angular.module('linagora.esn.contact').factory('contactSearchProviders', contactSearchProviders);
 
-  function contactSearchProviders(_, $q, Providers, esnSearchProvider, session, PageAggregatorService, ELEMENTS_PER_PAGE, CONTACT_GLOBAL_SEARCH) {
+  function contactSearchProviders(_, $q, Providers, esnSearchProvider, session, PageAggregatorService, ELEMENTS_PER_REQUEST, CONTACT_GLOBAL_SEARCH) {
     var providers = new Providers();
 
     return {
@@ -31,20 +31,22 @@
               return load();
             }
 
-            function load() {
-              return aggregator.loadNextItems().then(_.property('data'));
-            }
-
             return buildSearchOptions(searchOptions)
               .then(function(options) { return providers.getAll(options); })
               .then(function(providers) {
                   aggregator = new PageAggregatorService('searchContactsResultControllerAggregator', providers, {
                     compare: function(a, b) { return b.date - a.date; },
-                    results_per_page: ELEMENTS_PER_PAGE
+                    // will not work if not the same...
+                    results_per_page: ELEMENTS_PER_REQUEST,
+                    first_page_size: ELEMENTS_PER_REQUEST
                   });
 
                   return load();
               });
+
+            function load() {
+              return aggregator.loadNextItems().then(_.property('data'));
+            }
           };
         },
         buildFetchContext: function(options) {
