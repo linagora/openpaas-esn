@@ -1,9 +1,9 @@
 (function(angular) {
   'use strict';
 
-  angular.module('esn.message').factory('messageHelpers', messageHelpers);
+  angular.module('esn.message').factory('esnMessageHelpers', esnMessageHelpers);
 
-  function messageHelpers() {
+  function esnMessageHelpers() {
     return {
       isMessageCreator: isMessageCreator
     };

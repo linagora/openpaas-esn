@@ -1,6 +1,6 @@
 'use strict';
 
-/* global chai: false */
+/* global sinon, chai: false */
 
 var expect = chai.expect;
 
@@ -412,11 +412,41 @@ describe('The Community Angular module', function() {
   });
 
   describe('communityService service', function() {
-    beforeEach(angular.mock.inject(function(communityService, esnCollaborationClientService, $rootScope) {
+    beforeEach(angular.mock.inject(function($rootScope, session, communityService, esnCollaborationClientService) {
       this.esnCollaborationClientService = esnCollaborationClientService;
       this.communityService = communityService;
       this.$rootScope = $rootScope;
+      this.session = session;
     }));
+
+    describe('isManager method', function() {
+      it('should return true if use is community creator', function() {
+        var user = { _id: 'aff2018' };
+        var community = { creator: user._id };
+
+        expect(this.communityService.isManager(community, user)).to.be.true;
+      });
+
+      it('should return true if use is domain administrator', function() {
+        var user = { _id: 'aff2018' };
+        var community = { creator: 'asian2019' };
+
+        this.session.userIsDomainAdministrator = sinon.stub().returns(true);
+
+        expect(this.communityService.isManager(community, user)).to.be.true;
+        expect(this.session.userIsDomainAdministrator).to.have.been.calledOnce;
+      });
+
+      it('should return false if use is not domain administrator nor community creator', function() {
+        var user = { _id: 'aff2018' };
+        var community = { creator: 'asian2019' };
+
+        this.session.userIsDomainAdministrator = sinon.stub().returns(false);
+
+        expect(this.communityService.isManager(community, user)).to.be.false;
+        expect(this.session.userIsDomainAdministrator).to.have.been.calledOnce;
+      });
+    });
 
     describe('isMember() method', function() {
       beforeEach(function() {
@@ -619,7 +649,8 @@ describe('The Community Angular module', function() {
           _id: 'community1',
           members_count: 4,
           type: 'open',
-          member_status: 'none'
+          member_status: 'none',
+          creator: 'create'
         };
       });
       describe('when the community is open or restricted', function() {
@@ -646,12 +677,29 @@ describe('The Community Angular module', function() {
           this.community.type = 'confidential';
           expect(this.communityService.canRead(this.community)).to.be.true;
         });
-        it('should return false for non-members', function() {
+
+        it('should return true if user is not a member but a domain administrator', function() {
+          this.session.userIsDomainAdministrator = function() {
+            return true;
+          };
+
           this.community.member_status = 'none';
           this.community.type = 'private';
-          expect(this.communityService.canRead(this.community)).to.be.false;
+          expect(this.communityService.canRead(this.community, {})).to.be.true;
           this.community.type = 'confidential';
-          expect(this.communityService.canRead(this.community)).to.be.false;
+          expect(this.communityService.canRead(this.community, {})).to.be.true;
+        });
+
+        it('should return false for non-members nor domain administrator', function() {
+
+          this.session.userIsDomainAdministrator = function() {
+            return false;
+          };
+          this.community.member_status = 'none';
+          this.community.type = 'private';
+          expect(this.communityService.canRead(this.community, {})).to.be.false;
+          this.community.type = 'confidential';
+          expect(this.communityService.canRead(this.community, {})).to.be.false;
         });
       });
     });

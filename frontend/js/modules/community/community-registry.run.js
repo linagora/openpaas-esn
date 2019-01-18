@@ -6,6 +6,7 @@
   function runBlock(
     esnModuleRegistry,
     esnCollaborationRegistry,
+    esnMessageRegistry,
     communityService
   ) {
     esnModuleRegistry.add({
@@ -20,6 +21,12 @@
       objectType: 'community',
       member: {
         isManager: communityService.isManager
+      }
+    });
+    esnMessageRegistry.add({
+      objectType: 'community',
+      message: {
+        canRemove: communityService.canRemoveMessage
       }
     });
   }
