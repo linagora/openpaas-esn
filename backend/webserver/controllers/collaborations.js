@@ -225,7 +225,11 @@ function addMembershipRequest(req, res) {
   }
 
   if (req.isCollaborationManager) {
-    addMembership(objectType, collaboration, userAuthor, userTargetId, collaborationModule.member.MEMBERSHIP_TYPE_INVITATION, 'manager');
+    const membershipType = req.user._id.equals(req.params.user_id) ?
+      collaborationModule.member.MEMBERSHIP_TYPE_REQUEST :
+      collaborationModule.member.MEMBERSHIP_TYPE_INVITATION;
+
+    addMembership(objectType, collaboration, userAuthor, userTargetId, membershipType, 'manager');
   } else {
     addMembership(objectType, collaboration, userAuthor, userTargetId, collaborationModule.member.MEMBERSHIP_TYPE_REQUEST, 'user');
   }
@@ -281,8 +285,8 @@ function join(req, res) {
 
   if (req.isCollaborationManager) {
 
-    if (user._id.equals(targetUserId)) {
-      return res.status(400).json({error: {code: 400, message: 'Bad request', details: 'Collaboration manager can not add himself to a collaboration'}});
+    if (user._id.equals(targetUserId) && user._id.equals(req.collaboration.creator)) {
+      return res.status(400).json({error: {code: 400, message: 'Bad request', details: 'Collaboration creator can not add himself to a collaboration'}});
     }
 
     if (!req.query.withoutInvite && !collaborationModule.member.getMembershipRequest(collaboration, {_id: targetUserId})) {
