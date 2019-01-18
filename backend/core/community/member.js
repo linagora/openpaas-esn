@@ -19,6 +19,7 @@ module.exports = {
   getMembershipRequests,
   isManager,
   isMember,
+  isIndirectMember,
   join,
   leave,
   refuseMembershipRequest,
@@ -151,4 +152,8 @@ function _getManagerIds(community, callback) {
 
     return callback(null, [...new Set(managers)]);
   });
+}
+
+function isIndirectMember(collaboration, tuple, callback) {
+  collaborationModule.member.isIndirectMember(collaboration, tuple, callback);
 }

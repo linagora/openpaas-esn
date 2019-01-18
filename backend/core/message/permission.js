@@ -70,9 +70,34 @@ module.exports.canReply = function(message, user, callback) {
 module.exports.canLike = canRead;
 
 /**
- * Oonly message author can delete the message even if shared.
+ * Check if a tuple can delete a message
  */
 function canDelete(message, tuple, callback) {
-  callback(null, tuple.objectType === 'user' && String(message.author) === String(tuple.id));
+  if (!message || !tuple) {
+    return callback(new Error('Message and user are required'));
+  }
+
+  if (tuple.objectType === 'user' && String(message.author) === String(tuple.id)) {
+    return callback(null, true); // message author can delete the message even if shared.
+  }
+
+  if (!Array.isArray(message.shares)) {
+    return callback(null, false);
+  }
+
+  async.some(message.shares, function(share, callback) {
+    if (share.objectType !== 'activitystream') {
+      return callback(null, false);
+    }
+
+    collaborationModule.findCollaborationFromActivityStreamID(share.id, (err, collaborations) => {
+      if (err || !collaborations || collaborations.length === 0 || !collaborations[0]) {
+        return callback(null, false);
+      }
+
+      collaborationModule.permission.canRemoveContent(collaborations[0], tuple, callback);
+    });
+
+  }, callback);
 }
 module.exports.canDelete = canDelete;
