@@ -3,10 +3,23 @@
   margin-right: auto;
   max-width: 400px;
   width: 100%;
+
+  .modal-body {
+    margin: 0;
+    padding: 0;
+  }
+}
+
+.popover-content {
+  margin: 0;
+  padding: 0;
 }
 
 .profile-popover-card {
+  border: none;
+  margin: 0;
   min-width: 25em;
+  padding: 0;
   z-index: 100;
   .hidden-xs
 }
@@ -14,20 +27,27 @@
 .profile-popover-content {
   .flex-column();
   width: 100%;
-  padding: 0.5em 0 0 0;
+  padding: 0;
 }
 
 .popover-profile-user-actions {
-  padding-top: 0.5em;
+  border-top: 1px solid @black-alpha-10;
+  padding: 0;
+
+  &:empty, button *:not(.mdi), a *:not(.mdi) {
+    display: none;
+  }
 
   i {
     margin-right: 2px;
+    font-size: 2rem;
   }
 }
 
 .profile-card {
   .flex-direction(row);
   .flex-start();
+  padding: 1rem;
 
   .profile-card-left{
     .avatar-with-bubble {
@@ -35,7 +55,7 @@
       cursor: pointer;
 
       img {
-        .avatar(100px, 6px);
+        .avatar(50px, 50px);
       }
     }
   }
@@ -50,6 +70,11 @@
 
     &.profile-card-informations {
       .flex-grow();
+      align-self: center;
+
+      i.mdi {
+        margin-right: 1rem;
+      }
     }
   }
 }
