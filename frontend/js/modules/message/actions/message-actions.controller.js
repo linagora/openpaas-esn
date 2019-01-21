@@ -7,7 +7,7 @@
     $log,
     $rootScope,
     activitystreamAPI,
-    messageHelpers,
+    esnMessageService,
     notificationFactory,
     session
   ) {
@@ -17,9 +17,9 @@
     self.$onInit = $onInit;
 
     function $onInit() {
-      self.canRemove = messageHelpers.isMessageCreator(session.user, self.message);
-      self.canUpdate = true;
-      self.canShare = true;
+      self.canRemove = esnMessageService.canRemove(self.message, self.activitystream, session.user);
+      self.canUpdate = esnMessageService.canUpdate(self.message, self.activitystream, session.user);
+      self.canShare = esnMessageService.canShare(self.message, self.activitystream, session.user);
       self.parentId = self.parent && self.parent._id;
     }
 

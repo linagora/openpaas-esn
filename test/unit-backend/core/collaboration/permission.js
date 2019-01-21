@@ -5,41 +5,32 @@ const sinon = require('sinon');
 
 describe('The Collaboration permission module', function() {
 
-  let lib, collaborationModuleMock;
+  let lib, getModule, collaborationModuleMock;
 
   beforeEach(function() {
-    lib = {
+    lib = {};
+    collaborationModuleMock = {
+      getLib: () => {}
     };
-    collaborationModuleMock = {};
 
-    this.getModule = function() {
-      return this.helpers.requireBackend('core/collaboration/permission')(lib, collaborationModuleMock);
-    };
+    getModule = () => this.helpers.requireBackend('core/collaboration/permission')(lib, collaborationModuleMock);
   });
 
   describe('The canFind function', function() {
     it('should fail when collaboration is undefined', function(done) {
-      const module = this.getModule();
-
-      module.canFind(null, {}, this.helpers.callbacks.errorWithMessage(done, 'Collaboration object is required'));
+      getModule().canFind(null, {}, this.helpers.callbacks.errorWithMessage(done, 'Collaboration object is required'));
     });
 
     it('should fail when collaboration.type is undefined', function(done) {
-      const module = this.getModule();
-
-      module.canFind({}, {}, this.helpers.callbacks.errorWithMessage(done, 'Collaboration object is required'));
+      getModule().canFind({}, {}, this.helpers.callbacks.errorWithMessage(done, 'Collaboration object is required'));
     });
 
     it('should fail when tuple is undefined', function(done) {
-      const module = this.getModule();
-
-      module.canFind({type: 'open'}, null, this.helpers.callbacks.errorWithMessage(done, 'Tuple is required'));
+      getModule().canFind({type: 'open'}, null, this.helpers.callbacks.errorWithMessage(done, 'Tuple is required'));
     });
 
     it('should return true when collaboration is not confidential', function(done) {
-      const module = this.getModule();
-
-      module.canFind({type: 'open'}, {}, function(err, result) {
+      getModule().canFind({type: 'open'}, {}, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.be.true;
         done();
@@ -51,9 +42,7 @@ describe('The Collaboration permission module', function() {
         callback(null, true);
       });
 
-      const module = this.getModule();
-
-      module.canFind({type: 'confidential'}, {}, function(err, result) {
+      getModule().canFind({type: 'confidential'}, {}, function(err, result) {
         expect(err).to.not.exist;
         expect(lib.isIndirectMember).to.have.been.called;
         expect(result).to.be.true;
@@ -64,27 +53,19 @@ describe('The Collaboration permission module', function() {
 
   describe('The canRead function', function() {
     it('should fail when collaboration is undefined', function(done) {
-      const module = this.getModule();
-
-      module.canRead(null, {}, this.helpers.callbacks.errorWithMessage(done, 'collaboration object is required'));
+      getModule().canRead(null, {}, this.helpers.callbacks.errorWithMessage(done, 'collaboration object is required'));
     });
 
     it('should fail when collaboration.type is undefined', function(done) {
-      const module = this.getModule();
-
-      module.canRead({}, {}, this.helpers.callbacks.errorWithMessage(done, 'collaboration object is required'));
+      getModule().canRead({}, {}, this.helpers.callbacks.errorWithMessage(done, 'collaboration object is required'));
     });
 
     it('should fail when tuple is undefined', function(done) {
-      const module = this.getModule();
-
-      module.canRead({type: 'open'}, null, this.helpers.callbacks.errorWithMessage(done, 'Tuple is required'));
+      getModule().canRead({type: 'open'}, null, this.helpers.callbacks.errorWithMessage(done, 'Tuple is required'));
     });
 
     it('should return true when collaboration is open', function(done) {
-      const module = this.getModule();
-
-      module.canRead({type: 'open'}, {}, function(err, result) {
+      getModule().canRead({type: 'open'}, {}, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.be.true;
         done();
@@ -92,9 +73,7 @@ describe('The Collaboration permission module', function() {
     });
 
     it('should return true when collaboration is restricted', function(done) {
-      const module = this.getModule();
-
-      module.canRead({type: 'restricted'}, {}, function(err, result) {
+      getModule().canRead({type: 'restricted'}, {}, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.be.true;
         done();
@@ -106,12 +85,31 @@ describe('The Collaboration permission module', function() {
         callback(null, true);
       });
 
-      const module = this.getModule();
-
-      module.canRead({type: 'confidential'}, {}, function(err, result) {
+      getModule().canRead({type: 'confidential'}, {}, function(err, result) {
         expect(err).to.not.exist;
         expect(lib.isIndirectMember).to.have.been.called;
         expect(result).to.be.true;
+        done();
+      });
+    });
+
+    it('should use #canRead function of the registered module when there is a private collaboration', function(done) {
+      const collaboration = { type: 'private' };
+      const tuple = { id: 'AFF2018' };
+      const canReadMock = sinon.spy((_collaboration, _tuple, callback) => {
+        expect(_collaboration).to.deep.equal(collaboration);
+        expect(_tuple).to.deep.equal(tuple);
+        callback(null, true);
+      });
+
+      collaborationModuleMock.getLib = () => ({
+        permission: { canRead: canReadMock }
+      });
+
+      getModule().canRead(collaboration, tuple, (err, result) => {
+        expect(err).to.not.exist;
+        expect(result).to.be.true;
+        expect(canReadMock).to.have.been.calledOnce;
         done();
       });
     });
@@ -119,27 +117,19 @@ describe('The Collaboration permission module', function() {
 
   describe('The canWrite function', function() {
     it('should fail when collaboration is undefined', function(done) {
-      const module = this.getModule();
-
-      module.canWrite(null, {}, this.helpers.callbacks.errorWithMessage(done, 'collaboration object is required'));
+      getModule().canWrite(null, {}, this.helpers.callbacks.errorWithMessage(done, 'collaboration object is required'));
     });
 
     it('should fail when collaboration.type is undefined', function(done) {
-      const module = this.getModule();
-
-      module.canWrite({}, {}, this.helpers.callbacks.errorWithMessage(done, 'collaboration object is required'));
+      getModule().canWrite({}, {}, this.helpers.callbacks.errorWithMessage(done, 'collaboration object is required'));
     });
 
     it('should fail when tuple is undefined', function(done) {
-      const module = this.getModule();
-
-      module.canWrite({type: 'open'}, null, this.helpers.callbacks.errorWithMessage(done, 'Tuple is required'));
+      getModule().canWrite({type: 'open'}, null, this.helpers.callbacks.errorWithMessage(done, 'Tuple is required'));
     });
 
     it('should return true when collaboration is open', function(done) {
-      const module = this.getModule();
-
-      module.canWrite({type: 'open'}, {}, function(err, result) {
+      getModule().canWrite({type: 'open'}, {}, function(err, result) {
         expect(err).to.not.exist;
         expect(result).to.be.true;
         done();
@@ -151,9 +141,7 @@ describe('The Collaboration permission module', function() {
         callback(null, true);
       });
 
-      const module = this.getModule();
-
-      module.canWrite({type: 'confidential'}, {}, function(err, result) {
+      getModule().canWrite({type: 'confidential'}, {}, function(err, result) {
         expect(err).to.not.exist;
         expect(lib.isIndirectMember).to.have.been.called;
         expect(result).to.be.true;
@@ -164,11 +152,7 @@ describe('The Collaboration permission module', function() {
 
   describe('The canLeave function', function() {
     it('should fail if creator want to leave collaboration', function(done) {
-      const module = this.getModule();
-
-      collaborationModuleMock.getLib = () => {};
-
-      module.canLeave({ creator: 'creatorId' }, { id: 'creatorId' }, (err, result) => {
+      getModule().canLeave({ creator: 'creatorId' }, { id: 'creatorId' }, (err, result) => {
         expect(err).to.not.exist;
         expect(result).to.be.false;
         done();
@@ -176,7 +160,6 @@ describe('The Collaboration permission module', function() {
     });
 
     it('should return the result of registered canLeave permission of collaboration', function(done) {
-      const module = this.getModule();
       const objectType = 'foobar';
 
       collaborationModuleMock.getLib = sinon.spy(() => ({
@@ -185,7 +168,7 @@ describe('The Collaboration permission module', function() {
         }
       }));
 
-      module.canLeave({ creator: 'creatorId', objectType }, { id: 'userId' }, function(err, result) {
+      getModule().canLeave({ creator: 'creatorId', objectType }, { id: 'userId' }, function(err, result) {
         expect(err).to.not.exist;
         expect(collaborationModuleMock.getLib).to.have.been.calledWith(objectType);
         expect(result).to.be.false;
@@ -194,11 +177,9 @@ describe('The Collaboration permission module', function() {
     });
 
     it('should true if member want to leave collaboration', function(done) {
-      const module = this.getModule();
-
       collaborationModuleMock.getLib = () => {};
 
-      module.canLeave({ creator: 'creatorId' }, { id: 'userId' }, (err, result) => {
+      getModule().canLeave({ creator: 'creatorId' }, { id: 'userId' }, (err, result) => {
         expect(err).to.not.exist;
         expect(result).to.be.true;
         done();
@@ -208,15 +189,11 @@ describe('The Collaboration permission module', function() {
 
   describe('The filterWritable function', function() {
     it('should fail when collaborations is undefined', function(done) {
-      const module = this.getModule();
-
-      module.filterWritable(null, {}, this.helpers.callbacks.errorWithMessage(done, 'collaborations is required'));
+      getModule().filterWritable(null, {}, this.helpers.callbacks.errorWithMessage(done, 'collaborations is required'));
     });
 
     it('should fail when tuple is undefined', function(done) {
-      const module = this.getModule();
-
-      module.filterWritable([], null, this.helpers.callbacks.errorWithMessage(done, 'tuple is required'));
+      getModule().filterWritable([], null, this.helpers.callbacks.errorWithMessage(done, 'tuple is required'));
     });
 
     it('should return only writable collaborations', function(done) {
@@ -231,13 +208,42 @@ describe('The Collaboration permission module', function() {
         callback(null, true);
       };
 
-      const module = this.getModule();
-
-      module.filterWritable(collaborations, user, function(err, result) {
+      getModule().filterWritable(collaborations, user, function(err, result) {
         expect(result.length).to.exist;
         expect(result).to.not.include(collaborations[0]);
         expect(result).to.include(collaborations[1]);
         expect(result).to.include(collaborations[2]);
+        done();
+      });
+    });
+  });
+
+  describe('The canRemoveContent function', function() {
+    it('should return false if there is no registered module', function(done) {
+      getModule().canRemoveContent({}, {}, (err, result) => {
+        expect(err).to.not.exist;
+        expect(result).to.be.false;
+        done();
+      });
+    });
+
+    it('should use #canRemoveContent function of the registered module', function(done) {
+      const collaboration = { type: 'open' };
+      const tuple = { id: 'AFF2018' };
+      const canRemoveContentMock = sinon.spy((_collaboration, _tuple, callback) => {
+        expect(_collaboration).to.deep.equal(collaboration);
+        expect(_tuple).to.deep.equal(tuple);
+        callback(null, true);
+      });
+
+      collaborationModuleMock.getLib = () => ({
+        permission: { canRemoveContent: canRemoveContentMock }
+      });
+
+      getModule().canRemoveContent(collaboration, tuple, (err, result) => {
+        expect(err).to.not.exist;
+        expect(result).to.be.true;
+        expect(canRemoveContentMock).to.have.been.calledOnce;
         done();
       });
     });

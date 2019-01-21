@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const Community = mongoose.model('Community');
 const logger = require('../logger');
 const collaborationModule = require('../collaboration');
-const permission = collaborationModule.permission;
+const permission = require('./permission')(collaborationModule);
 const member = require('./member');
 const tuple = require('../tuple');
 const localpubsub = require('../pubsub').local;
@@ -32,7 +32,7 @@ module.exports = {
   member
 };
 collaborationModule.registerCollaborationModel(communityObjectType, CONSTANTS.MODEL_NAME);
-collaborationModule.registerCollaborationLib(communityObjectType, Object.assign({}, module.exports, { permission: null }));
+collaborationModule.registerCollaborationLib(communityObjectType, module.exports);
 collaborationModule.memberResolver.registerResolver(communityObjectType, CONSTANTS.MODEL_NAME);
 
 function communityToStream(community) {

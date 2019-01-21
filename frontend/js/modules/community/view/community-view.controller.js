@@ -72,7 +72,7 @@
     };
 
     $scope.canRead = function() {
-      return communityService.canRead($scope.community);
+      return communityService.canRead($scope.community, session.user);
     };
     $scope.isCommunityMember = function() {
       return communityService.isMember($scope.community);
