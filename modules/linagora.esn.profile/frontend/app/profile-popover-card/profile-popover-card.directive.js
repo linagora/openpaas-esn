@@ -30,7 +30,8 @@
         return;
       }
 
-      return profilePopoverCardService.bindPopover(element, user, eventType, getPopoverPosition(attrs));
+      var popover = profilePopoverCardService.bindPopover(element, user, eventType, getPopoverPosition(attrs));
+      scope.$on('$destroy', popover.hide);
 
       function getPopoverPosition(attrs) {
         if (attrs.bottom) return 'bottom';
