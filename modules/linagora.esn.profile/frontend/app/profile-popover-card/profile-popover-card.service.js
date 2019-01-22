@@ -32,6 +32,8 @@
 
         popover.show();
       });
+
+      return popover;
     }
 
     /**
@@ -46,6 +48,8 @@
 
         modal.show();
       });
+
+      return modal;
     }
 
     function createModal(user) {
