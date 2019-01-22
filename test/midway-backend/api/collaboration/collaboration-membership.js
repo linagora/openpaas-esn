@@ -210,6 +210,46 @@ describe('The collaborations membership API', function() {
           });
         });
       });
+
+      describe('when the current user is not in the community and adding himself', function() {
+        it('should return 200 with the user membership request in the community', function(done) {
+          const self = this;
+
+          self.helpers.api.applyDomainDeployment('linagora_IT', (err, models) => {
+            if (err) return done(err);
+
+            const community = models.communities[1];
+            const domainAdmin = models.users[0];
+            const communityCreator = models.users[1];
+
+            community.creator = communityCreator._id;
+            community.members = community.members.filter(member => member.member.id === domainAdmin.id);
+
+            community.save((err, community) => {
+              if (err) return done(err);
+
+              self.helpers.api.loginAsUser(webserver.application, domainAdmin.emails[0], 'secret', (err, loggedInAsUser) => {
+                if (err) return done(err);
+
+                const req = loggedInAsUser(request(webserver.application).put('/api/collaborations/community/' + community._id + '/membership/' + domainAdmin._id));
+
+                req.expect(200).end(err => {
+                  if (err) return done(err);
+
+                  Community.findOne({_id: community._id}, (err, document) => {
+                    expect(document.membershipRequests).to.exist;
+                    expect(document.membershipRequests).to.be.an('array');
+                    expect(document.membershipRequests).to.have.length(1);
+                    expect(document.membershipRequests[0].user + '').to.equal(domainAdmin.id);
+                    expect(document.membershipRequests[0].workflow).to.equal('request');
+                    done();
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
     });
   });
 
