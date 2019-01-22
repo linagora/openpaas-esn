@@ -445,7 +445,8 @@
       var params = {
         search: options.data,
         userId: options.userId,
-        page: options.page
+        page: options.page,
+        limit: options.limit || CONTACT_LIST_PAGE_SIZE
       };
 
       return davClient(
@@ -459,11 +460,14 @@
             var result = {
               current_page: response.data._current_page,
               total_hits: response.data._total_hits,
-              data: shells
+              data: shells,
+              last_page: !response.data._links.next
             };
-            if (!response.last_page) {
+
+            if (!result.last_page) {
               result.next_page = parseInt(result.current_page, 10) + 1;
             }
+
             return result;
           });
         });

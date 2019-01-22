@@ -1,13 +1,6 @@
 'use strict';
 
 angular.module('esn.member', ['esn.session', 'esn.router', 'esn.domain', 'esn.search', 'esn.infinite-list', 'openpaas-logo', 'esn.provider', 'esn.header', 'esn.configuration'])
-  .run(function(searchProviders, memberSearchProvider, esnConfig) {
-    esnConfig('core.membersCanBeSearched', true).then(function(membersCanBeSearched) {
-      if (membersCanBeSearched) {
-        searchProviders.add(memberSearchProvider);
-      }
-    });
-  })
   .constant('memberSearchConfiguration', {
     searchLimit: 20
   })

@@ -440,8 +440,8 @@ describe('The contact Angular module contactapis', function() {
             var bookName = 'bookName';
 
             it('should call sent HTTP request to backend with the right parameters', function() {
-              var expectPath = this.getBookUrl(bookId, bookName) + '?page=5&search=linagora&userId=userId';
-              this.$httpBackend.expectGET(expectPath).respond(200, '');
+              var expectPath = this.getBookUrl(bookId, bookName) + '?limit=20&page=5&search=linagora&userId=userId';
+              this.$httpBackend.expectGET(expectPath).respond(200, { _links: { self: { href: '' }}});
 
               var searchOptions = {
                 data: 'linagora',
@@ -460,8 +460,13 @@ describe('The contact Angular module contactapis', function() {
 
             it('should return search result', function(done) {
               var shells = [1, 2, 3];
-              var expectPath = this.getBookUrl(bookId, bookName) + '?page=5&search=linagora&userId=userId';
+              var expectPath = this.getBookUrl(bookId, bookName) + '?limit=20&page=5&search=linagora&userId=userId';
               var response = {
+                _links: {
+                  self: {
+                    href: ''
+                  }
+                },
                 _current_page: 1,
                 _total_hits: 200,
                 _embedded: {
@@ -511,11 +516,18 @@ describe('The contact Angular module contactapis', function() {
 
             it('should return next_page when not reached last_page', function(done) {
               var shells = [1, 2, 3];
-              var expectPath = this.getBookUrl(bookId, bookName) + '?page=1&search=linagora&userId=userId';
+              var expectPath = this.getBookUrl(bookId, bookName) + '?limit=20&page=1&search=linagora&userId=userId';
               var response = {
+                _links: {
+                  self: {
+                    href: ''
+                  },
+                  next: {
+                    href: 'foo/bar'
+                  }
+                },
                 _current_page: 1,
                 _total_hits: 200,
-                last_page: false,
                 _embedded: {
                   'dav:item': [
                     {
@@ -560,11 +572,15 @@ describe('The contact Angular module contactapis', function() {
 
             it('should not return next_page when reached last_page', function(done) {
               var shells = [1, 2, 3];
-              var expectPath = this.getBookUrl(bookId, bookName) + '?page=1&search=linagora&userId=userId';
+              var expectPath = this.getBookUrl(bookId, bookName) + '?limit=20&page=1&search=linagora&userId=userId';
               var response = {
+                _links: {
+                  self: {
+                    href: ''
+                  }
+                },
                 _current_page: 1,
                 _total_hits: 10,
-                last_page: true,
                 _embedded: {
                   'dav:item': [
                     {
@@ -1186,8 +1202,8 @@ describe('The contact Angular module contactapis', function() {
         var bookId = '123';
 
         it('should call sent HTTP request to backend with the right parameters', function() {
-          var expectPath = this.getBookHomeUrl(bookId) + '?page=5&search=linagora&userId=userId';
-          this.$httpBackend.expectGET(expectPath).respond(200, '');
+          var expectPath = this.getBookHomeUrl(bookId) + '?limit=20&page=5&search=linagora&userId=userId';
+          this.$httpBackend.expectGET(expectPath).respond(200, { _links: { self: { href: '' }}});
 
           var searchOptions = {
             data: 'linagora',
@@ -1204,8 +1220,9 @@ describe('The contact Angular module contactapis', function() {
 
         it('should return search result', function(done) {
           var shells = [1, 2, 3];
-          var expectPath = this.getBookHomeUrl(bookId) + '?page=5&search=linagora&userId=userId';
+          var expectPath = this.getBookHomeUrl(bookId) + '?limit=20&page=5&search=linagora&userId=userId';
           var response = {
+            _links: { self: { href: '' }},
             _current_page: 1,
             _total_hits: 200,
             _embedded: {

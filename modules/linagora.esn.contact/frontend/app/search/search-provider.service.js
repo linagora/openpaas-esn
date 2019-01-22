@@ -8,7 +8,8 @@
     esnSearchProvider,
     session,
     ContactAPIClient,
-    CONTACT_GLOBAL_SEARCH
+    CONTACT_GLOBAL_SEARCH,
+    ELEMENTS_PER_REQUEST
   ) {
     return new esnSearchProvider({
       uid: 'op.contacts',
@@ -16,7 +17,9 @@
       fetch: function(query) {
         var searchOptions = {
           data: query,
-          userId: session.user._id
+          userId: session.user._id,
+          page: 1,
+          limit: ELEMENTS_PER_REQUEST
         };
 
         return function() {
@@ -24,6 +27,8 @@
             .addressbookHome(session.user._id)
             .search(searchOptions)
             .then(function(response) {
+              searchOptions.page++;
+
               return response.data.map(function(contact) {
                 contact.type = CONTACT_GLOBAL_SEARCH.TYPE;
                 contact.date = new Date();
@@ -37,7 +42,7 @@
         return $q.when(options.query && options.query.text);
       },
       templateUrl: '/contact/app/search/contact-search.html',
-      activeOn: ['contact']
+      activeOn: []
     });
   }
 })(angular);
