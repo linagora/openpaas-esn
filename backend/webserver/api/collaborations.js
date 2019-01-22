@@ -112,6 +112,7 @@ module.exports = function(router) {
   router.get('/collaborations/:objectType/:id/members',
     authorize.requiresAPILogin,
     collaborationMW.load,
+    collaborationMW.flagCollaborationManager,
     collaborationMW.canRead,
     collaborations.getMembers);
 
