@@ -200,7 +200,6 @@
   "Membership requests": "Membership requests",
   "Error while getting memberships": "Error while getting memberships",
   "Error, you do not have the permission to read memberships": "Error, you do not have the permission to read memberships",
-  "Loading membership requests": "Loading membership requests",
   "Accept": "Accept",
   "Decline": "Decline",
   "Your request has been accepted, welcome to the community": "Your request has been accepted, welcome to the community",
@@ -494,5 +493,7 @@
   "Cannot upload a file": "Cannot upload a file",
   "Your file cannot be uploaded because its size exceeds the %s limit": "Your file cannot be uploaded because its size exceeds the %s limit",
   "Your files cannot be uploaded because their sizes exceed the %s limit": "Your files cannot be uploaded because their sizes exceed the %s limit",
-  "OK": "OK"
+  "OK": "OK",
+  "Invitations": "Invitations",
+  "Requests": "Requests"
 }

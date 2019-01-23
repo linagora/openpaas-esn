@@ -4,46 +4,81 @@
   angular.module('esn.collaboration')
     .controller('ESNCollaborationMembershipRequestsWidgetController', ESNCollaborationMembershipRequestsWidgetController);
 
-  function ESNCollaborationMembershipRequestsWidgetController($rootScope, esnCollaborationClientService, ESN_COLLABORATION_MEMBER_EVENTS) {
+  function ESNCollaborationMembershipRequestsWidgetController(
+    $rootScope,
+    esnCollaborationClientService,
+    esnCollaborationMembershipRequestsPaginationProvider,
+    infiniteScrollHelper,
+    PageAggregatorService,
+    ESN_COLLABORATION_MEMBER_EVENTS,
+    ELEMENTS_PER_PAGE,
+    _
+    ) {
     var self = this;
+    var aggregator;
+    var results_per_page = self.elementsPerPage || ELEMENTS_PER_PAGE;
+    var options = {
+      offset: 0,
+      limit: results_per_page,
+      workflow: 'request'
+    };
 
     self.error = false;
-    self.loading = false;
-    self.updateRequests = updateRequests;
-    self.$onDestroy = $onDestroy;
     self.$onInit = $onInit;
+    self.$onDestroy = $onDestroy;
 
     function $onInit() {
-      self.unregisterDeclined = $rootScope.$on(ESN_COLLABORATION_MEMBER_EVENTS.DECLINED, removeRequestEntry);
-      self.unregisterAccepted = $rootScope.$on(ESN_COLLABORATION_MEMBER_EVENTS.ACCEPTED, removeRequestEntry);
-
-      self.updateRequests();
+      self.collaborationInviteUser = $rootScope.$on(ESN_COLLABORATION_MEMBER_EVENTS.USERS, updateRequests);
+      self.collaborationInviteUserCancel = $rootScope.$on(ESN_COLLABORATION_MEMBER_EVENTS.CANCEL, updateRequests);
+      self.collaborationRequestAccepted = $rootScope.$on(ESN_COLLABORATION_MEMBER_EVENTS.ACCEPTED, removeRequestEntry);
+      self.collaborationRequestDeclined = $rootScope.$on(ESN_COLLABORATION_MEMBER_EVENTS.DECLINED, removeRequestEntry);
     }
 
     function $onDestroy() {
-      self.unregisterDeclined();
-      self.unregisterAccepted();
+      self.collaborationInviteUser();
+      self.collaborationInviteUserCancel();
+      self.collaborationRequestAccepted();
+      self.collaborationRequestDeclined();
+    }
+
+    self.loadMoreElements = infiniteScrollHelper(self, function() {
+      if (aggregator) {
+        return load();
+      }
+
+      var provider = new esnCollaborationMembershipRequestsPaginationProvider({
+        id: self.collaboration.id || self.collaboration._id,
+        objectType: self.collaboration.objectType
+      }, options);
+
+      aggregator = new PageAggregatorService('CollaborationPendingInvitationsAggregator', [provider], {
+        compare: function(a, b) { return b.metadata.timestamps.creation - a.metadata.timestamps.creation; },
+        results_per_page: results_per_page
+      });
+
+      return load();
+    });
+
+    function load() {
+      return aggregator.loadNextItems().then(_.property('data'), _.constant([]));
     }
 
     function removeRequestEntry(event, data) {
       if (!data.collaboration || data.collaboration.id !== self.collaboration._id) {
         return;
       }
-      self.requests = self.requests.filter(function(request) {
+      self.elements = self.elements.filter(function(request) {
         return request.user._id !== data.user;
       });
     }
 
     function updateRequests() {
-      self.loading = true;
-      self.error = false;
       esnCollaborationClientService.getRequestMemberships(self.objectType, self.collaboration._id).then(function(response) {
-        self.requests = response.data || [];
+        self.elements = response.data || [];
       }, function(err) {
         self.error = err.status;
-      }).finally(function() {
-        self.loading = false;
       });
     }
+
   }
 })();

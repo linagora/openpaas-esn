@@ -33,15 +33,15 @@
     function $onInit() {
       self.collaborationJoinRemover = $rootScope.$on(ESN_COLLABORATION_MEMBERSHIP_EVENTS.JOIN, updateMembers);
       self.collaborationLeaveRemover = $rootScope.$on(ESN_COLLABORATION_MEMBERSHIP_EVENTS.LEAVE, updateMembers);
-      self.requestAccepted = $rootScope.$on(ESN_COLLABORATION_MEMBER_EVENTS.ACCEPTED, updateMembers);
-      self.memberRemoved = $scope.$on(ESN_COLLABORATION_MEMBER_EVENTS.REMOVED, onMemberRemoved);
+      self.collaborationRequestAccepted = $rootScope.$on(ESN_COLLABORATION_MEMBER_EVENTS.ACCEPTED, updateMembers);
+      self.collaborationMemberRemoved = $scope.$on(ESN_COLLABORATION_MEMBER_EVENTS.REMOVED, onMemberRemoved);
     }
 
     function $onDestroy() {
       self.collaborationJoinRemover();
       self.collaborationLeaveRemover();
-      self.memberRemoved();
-      self.requestAccepted();
+      self.collaborationMemberRemoved();
+      self.collaborationRequestAccepted();
     }
 
     function onMemberRemoved(event, removed) {
