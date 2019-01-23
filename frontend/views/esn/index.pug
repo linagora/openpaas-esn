@@ -74,7 +74,7 @@ html
     script(src='/components/angular-file-upload/dist/angular-file-upload.min.js')
     script(src='/components/openpaas-logo/openpaas-logo.js')
     script(src='/components/moment/min/moment.min.js')
-    
+
     if locale !== 'en'
       script(src=`/components/moment/locale/${locale}.js`)
       script(src=`/components/summernote/dist/lang/summernote-${fullLocale}.min.js`)
@@ -160,6 +160,7 @@ html
     script(src='/components/angular-sticky/dist/angular-sticky.min.js')
     script(src='/components/clipboard/dist/clipboard.min.js')
     script(src='/components/ngclipboard/dist/ngclipboard.min.js')
+    script(src='/components/DOMPurify/dist/purify.js')
     +injectAngularFromModules('esn', assets)
     +injectJSFromModules('esn', assets)
     +injectJSAppFromModules('esn', assets)

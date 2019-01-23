@@ -206,4 +206,10 @@ angular.module('esn.core', ['esn.lodash-wrapper', 'esn.email-addresses-wrapper']
     return function(url) {
       $window.location = url;
     };
+  })
+  /* global DOMPurify: false */
+  .filter('esnDomPurify', function($sce) {
+    return function(dirty) {
+      return $sce.trustAsHtml(DOMPurify.sanitize(dirty));
+    };
   });
