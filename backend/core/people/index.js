@@ -8,3 +8,5 @@ module.exports = {
   PeopleResolver,
   Person
 };
+
+service.addResolver(require('../user/people-resolver'));
