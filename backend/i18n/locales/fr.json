@@ -200,7 +200,6 @@
   "Membership requests": "Demandes d'inscription",
   "Error while getting memberships": "Erreur lors de la récupération des inscriptions",
   "Error, you do not have the permission to read memberships": "Erreur, vous n'avez pas le droit de consulter les inscriptions",
-  "Loading membership requests": "Récupération des demandes d'inscription",
   "Accept": "Accepter",
   "Decline": "Décliner",
   "Your request has been accepted, welcome to the community": "Votre demande a été acceptée, bienvenue dans la communauté",
@@ -494,5 +493,7 @@
   "Cannot upload a file": "Impossible de téléverser un fichier",
   "Your file cannot be uploaded because its size exceeds the %s limit": "Votre fichier ne peut pas être téléversé car sa taille dépasse la limite de %s",
   "Your files cannot be uploaded because their sizes exceed the %s limit": "Vos fichiers ne peuvent pas être téléversés car leur taille dépasse la limite de %s",
-  "OK": "OK"
+  "OK": "OK",
+  "Invitations": "Invitations",
+  "Requests": "Demandes"
 }

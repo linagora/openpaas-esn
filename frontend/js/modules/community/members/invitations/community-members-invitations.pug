@@ -2,4 +2,4 @@
   esn-community-members-tabs(community="$ctrl.community")
   .membership(ng-if="$ctrl.isCommunityManager()")
     .card-body
-      community-pending-invitation-list(community="$ctrl.community")
+      esn-community-pending-invitation-list(community="$ctrl.community", object-type-filter='user')

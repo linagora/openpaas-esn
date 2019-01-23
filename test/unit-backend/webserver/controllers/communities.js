@@ -277,6 +277,54 @@ describe('The communities controller', function() {
       communities.list(req, res);
     });
 
+        it('should send back 200 with communities and members types counter', function(done) {
+      var result = [
+        {_id: 1, members: [1, 2]},
+        {_id: 2, members: [1, 2, 3]}
+      ];
+      var mock = {
+        query: function(q, callback) {
+          return callback(null, result);
+        },
+        member: {
+          isMember: function(community, user, callback) {
+            return callback(null, true);
+          },
+          getMembershipRequest: function() {
+            return false;
+          }
+        },
+        permission: {
+          canFind: function(community, tuple, callback) {
+            return callback(null, true);
+          }
+        }
+      };
+      mockery.registerMock('../../core/community', mock);
+
+      var req = {
+        query: {},
+        user: {_id: 1}
+      };
+
+      var res = this.helpers.express.jsonResponse(
+        function(code, result) {
+          expect(code).to.equal(200);
+          expect(result).to.be.an.array;
+          result.forEach(function(community) {
+            expect(community.members).to.not.exist;
+            expect(community.members_count).to.be.an.integer;
+            expect(community.members_requests_count).to.be.an.integer;
+            expect(community.members_invitations_count).to.be.an.integer;
+          });
+          done();
+        }
+      );
+
+      var communities = this.helpers.requireBackend('webserver/controllers/communities');
+      communities.list(req, res);
+    });
+
     it('should call the community module with domain in query when defined in the request', function(done) {
       var req = {
         domain: {_id: 123},
@@ -509,7 +557,7 @@ describe('The communities controller', function() {
           return this;
         },
         json: function(result) {
-          expect(result).to.deep.equal({ _id: 123, members_count: 1, member_status: 'member', writable: true });
+          expect(result).to.deep.equal({ _id: 123, members_count: 1, members_invitations_count: 0, members_requests_count: 0, member_status: 'member', writable: true });
           done();
         }
       };
@@ -1130,8 +1178,8 @@ describe('The communities controller', function() {
         function(code, json) {
           expect(code).to.equal(200, json);
           expect(json).to.deep.equal([
-            {_id: 1, members_count: 0, member_status: 'member'},
-            {_id: 2, members_count: 0, member_status: 'member'}
+            {_id: 1, members_count: 0, members_invitations_count: 0, members_requests_count: 0, member_status: 'member'},
+            {_id: 2, members_count: 0, members_invitations_count: 0, members_requests_count: 0, member_status: 'member'}
           ]);
 
           done();

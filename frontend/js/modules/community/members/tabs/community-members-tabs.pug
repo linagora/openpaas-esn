@@ -3,12 +3,12 @@
     .btn-group
       a.btn.btn-default(href="", ui-sref-active="active", ui-sref="community.view.members", ui-sref-opts="{ location: 'replace' }")
         | #{__("Members")} 
-        span.label.label-default {{$ctrl.members}}
+        span.label.label-default {{$ctrl.members_count}}
     .btn-group
       a.btn.btn-default(href="", ui-sref-active="active", ui-sref="community.view.invitations", ui-sref-opts="{ location: 'replace' }")
         | #{__("Invitations")} 
-        span.label.label-default {{$ctrl.invitations}}
+        span.label.label-default {{$ctrl.members_invitations_count}}
     .btn-group
       a.btn.btn-default(href="", ui-sref-active="active", ui-sref="community.view.requests", ui-sref-opts="{ location: 'replace' }")
         | #{__("Requests")} 
-        span.label.label-default {{$ctrl.requests}}
+        span.label.label-default {{$ctrl.members_requests_count}}

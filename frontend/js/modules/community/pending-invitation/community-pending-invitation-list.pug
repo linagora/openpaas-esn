@@ -1,11 +1,13 @@
 .community-pending-invitation-list
-  .pending-invitation-error.card-body.card-padding.text-center(ng-if="error", ng-switch="error")
+  .pending-invitation-error.card-body.card-padding.text-center(ng-if="$ctrl.error", ng-switch="$ctrl.error")
     span(ng-switch-when="403") #{__('Error, you do not have the permission to read memberships')}.
     span(ng-switch-default) #{__('Error while loading sent invitations')}.
 
-  .invitations(ng-if="!error")
-    .listview(ng-repeat="request in invitationRequests = (requests | filter: {workflow: 'invitation'})")
-      community-pending-invitation-display(request="request", community="community")
+  infinite-list(load-more-elements='$ctrl.loadMoreElements()', scroll-inside-container="$ctrl.scrollInsideContainer")
+    .listview(ng-repeat="request in $ctrl.elements | orderBy: '-date'" ng-if="$ctrl.elements.length > 0 && !$ctrl.error")
+      esn-community-pending-invitation-display(request="request", community="$ctrl.community")
 
-    .card-body.card-padding.text-center(ng-if="!invitationRequests.length")
+    .card-body.card-padding.text-center(ng-show="!$ctrl.elements.length && $ctrl.infiniteScrollCompleted")
       span #{__('No invitations sent')}
+    ul.nav.nav-pills.nav-stacked(ng-if='$ctrl.infiniteScrollDisabled')
+      li.text-center(openpaas-logo-spinner, spinner-start-active='1', spinner-size='0.5')

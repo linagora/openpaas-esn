@@ -266,6 +266,10 @@ function getMembershipRequests(req, res) {
     }
     res.header('X-ESN-Items-Count', req.collaboration.membershipRequests ? req.collaboration.membershipRequests.length : 0);
     const result = membershipRequests.map(request => {
+      if (req.query.workflow && req.query.workflow !== request.workflow) {
+        return false;
+      }
+
       const result = collaborationModule.userToMember({member: request.user, timestamp: request.timestamp});
 
       result.workflow = request.workflow;
