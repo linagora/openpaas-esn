@@ -12,7 +12,7 @@ class PeopleService {
    * It is up to each resolver to deal with the term matching.
    * Note: If no objectTypes is defined or if empty, search in ALL resolvers.
    */
-  search(query = { objectTypes: [], term: '', context: {}, limit: LIMIT }) {
+  search(query = { objectTypes: [], term: '', context: {}, pagination: { limit: LIMIT, offset: 0 }}) {
     let localResolvers;
 
     if (!query.objectTypes || !query.objectTypes.length) {
@@ -26,8 +26,8 @@ class PeopleService {
       .then(fulFilled => fulFilled.filter(Boolean))
       .then(promises => [].concat(...promises));
 
-    function resolve(resolver, { term, context }) {
-      return resolver.resolve({term, context}).then(results => denormalizeAll(results, resolver));
+    function resolve(resolver, { term, context, pagination }) {
+      return resolver.resolve({ term, context, pagination }).then(results => denormalizeAll(results, resolver));
     }
 
     function denormalizeAll(data, resolver) {
