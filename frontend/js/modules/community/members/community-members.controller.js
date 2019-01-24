@@ -66,7 +66,7 @@
     }
 
     function canRead() {
-      return communityService.canRead(self.community);
+      return communityService.canRead(self.community, session.user);
     }
 
     function isCommunityManager() {
