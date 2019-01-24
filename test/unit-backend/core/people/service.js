@@ -113,7 +113,7 @@ describe('The people service module', function() {
     });
 
     describe('When a resolver function rejects', function() {
-      it('should reject when a resolve function rejects', function(done) {
+      it('should resolve with only resolved resolvers', function(done) {
         const service = new Service();
         const resolveUser = sinon.stub().returns(Promise.reject(new Error()));
         const denormalizeUser = sinon.stub().returns((user => Promise.resolve(user)));
@@ -127,15 +127,18 @@ describe('The people service module', function() {
         service.addResolver(contactResolver);
 
         service.search({ term, context })
-          .then(() => done(new Error('Should not occur')))
-          .catch(() => {
+          .then(result => {
+            expect(result).to.has.lengthOf(1);
             expect(resolveUser).to.have.been.calledWith({ term, context });
+            expect(resolveContact).to.have.been.calledWith({ term, context });
             expect(denormalizeUser).to.not.have.been.called;
+            expect(denormalizeContact).to.have.been.called;
             done();
-          });
+          })
+          .catch(done);
       });
 
-      it('should reject when a denormalize function rejects', function(done) {
+      it('should resolve with resolve people when a denormalize function rejects', function(done) {
         const service = new Service();
         const resolveUser = sinon.stub().returns(Promise.resolve([user1, user2]));
         const denormalizeUser = sinon.stub().returns((user => Promise.resolve(user)));
@@ -149,14 +152,15 @@ describe('The people service module', function() {
         service.addResolver(contactResolver);
 
         service.search({ term, context })
-          .then(() => done(new Error('Should not occur')))
-          .catch(() => {
+          .then(result => {
+            expect(result).to.have.lengthOf(2);
             expect(resolveUser).to.have.been.calledWith({ term, context });
             expect(resolveContact).to.have.been.calledWith({ term, context });
             expect(denormalizeUser).to.have.been.calledWith(user1);
             expect(denormalizeContact).to.have.been.calledWith(contact1);
             done();
-          });
+          })
+          .catch(done);
         });
     });
   });

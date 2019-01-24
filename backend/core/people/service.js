@@ -1,5 +1,6 @@
+const Q = require('q');
+const { LIMIT } = require('./constants');
 const PeopleResolver = require('./resolver');
-const logger = require('../logger');
 
 class PeopleService {
   constructor() {
@@ -11,7 +12,7 @@ class PeopleService {
    * It is up to each resolver to deal with the term matching.
    * Note: If no objectTypes is defined or if empty, search in ALL resolvers.
    */
-  search(query = { objectTypes: [], term: '', context: {}}) {
+  search(query = { objectTypes: [], term: '', context: {}, limit: LIMIT }) {
     let localResolvers;
 
     if (!query.objectTypes || !query.objectTypes.length) {
@@ -20,13 +21,10 @@ class PeopleService {
       localResolvers = query.objectTypes.map(objectType => this.resolvers.get(objectType)).filter(Boolean);
     }
 
-    return Promise.all(localResolvers.map(resolver => resolve(resolver, query)))
-      .then(people => [].concat(...people))
-      .catch(err => {
-        logger.error('Error while resolving people', err);
-
-        throw err;
-      });
+    return Q.allSettled(localResolvers.map(resolver => resolve(resolver, query)))
+      .then(allPromises => allPromises.filter(_ => _.state === 'fulfilled').map(_ => _.value))
+      .then(fulFilled => fulFilled.filter(Boolean))
+      .then(promises => [].concat(...promises));
 
     function resolve(resolver, { term, context }) {
       return resolver.resolve({term, context}).then(results => denormalizeAll(results, resolver));
