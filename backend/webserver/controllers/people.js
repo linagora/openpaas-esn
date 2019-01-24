@@ -10,15 +10,17 @@ function advancedSearch(req, res) {
   const context = { user: req.user, domain: req.domain };
   const term = req.body.q || '';
   const objectTypes = req.body.objectTypes || [];
+  const pagination = { limit: req.body.limit || req.query.limit, offset: 0 };
 
-  _search({ objectTypes, term, context }, res);
+  _search({ objectTypes, term, context, pagination }, res);
 }
 
 function search(req, res) {
   const context = { user: req.user, domain: req.domain };
   const term = req.query.q || '';
+  const pagination = { limit: req.query.limit, offset: 0 };
 
-  _search({ term, context }, res);
+  _search({ term, context, pagination }, res);
 }
 
 function _search(options, res) {
