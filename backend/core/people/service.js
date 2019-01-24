@@ -13,18 +13,15 @@ class PeopleService {
    * Note: If no objectTypes is defined or if empty, search in ALL resolvers.
    */
   search(query = { objectTypes: [], term: '', context: {}, pagination: { limit: LIMIT, offset: 0 }}) {
-    let localResolvers;
-
-    if (!query.objectTypes || !query.objectTypes.length) {
-      localResolvers = [...this.resolvers.values()];
-    } else {
-      localResolvers = query.objectTypes.map(objectType => this.resolvers.get(objectType)).filter(Boolean);
-    }
+    const localResolvers = ((!query.objectTypes || !query.objectTypes.length) ?
+      [...this.resolvers.values()] :
+      query.objectTypes.map(objectType => this.resolvers.get(objectType)).filter(Boolean))
+      .sort((a, b) => (b.priority || 0) - (a.priority || 0));
 
     return Q.allSettled(localResolvers.map(resolver => resolve(resolver, query)))
       .then(allPromises => allPromises.filter(_ => _.state === 'fulfilled').map(_ => _.value))
       .then(fulFilled => fulFilled.filter(Boolean))
-      .then(promises => [].concat(...promises));
+      .then(people => [].concat(...people));
 
     function resolve(resolver, { term, context, pagination }) {
       return resolver.resolve({ term, context, pagination }).then(results => denormalizeAll(results, resolver));

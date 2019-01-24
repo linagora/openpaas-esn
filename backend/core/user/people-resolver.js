@@ -1,10 +1,11 @@
+const PRIORITY = 100;
 const { PeopleResolver, Person } = require('../people');
 const { OBJECT_TYPE } = require('./constants');
 const { denormalize } = require('./denormalize');
 const { search } = require('./search');
 const { getDisplayName } = require('./utils');
 
-module.exports = new PeopleResolver(OBJECT_TYPE, resolver, denormalizer);
+module.exports = new PeopleResolver(OBJECT_TYPE, resolver, denormalizer, PRIORITY);
 
 function resolver({ term, context, pagination }) {
   const options = { search: term, domains: [context.domain], limit: pagination.limit };
