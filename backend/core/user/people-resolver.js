@@ -6,8 +6,8 @@ const { getDisplayName } = require('./utils');
 
 module.exports = new PeopleResolver(OBJECT_TYPE, resolver, denormalizer);
 
-function resolver({ term, context }) {
-  const options = { search: term, domains: [] };
+function resolver({ term, context, pagination }) {
+  const options = { search: term, domains: [context.domain], limit: pagination.limit };
 
   return new Promise((resolve, reject) => {
     search(options, (err, result) => {
