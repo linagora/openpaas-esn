@@ -10,3 +10,4 @@ module.exports = {
 };
 
 service.addResolver(require('../user/people-resolver'));
+service.addResolver(require('../ldap/people-resolver'));
