@@ -43,12 +43,24 @@ function exec(type) {
 
 function reindexContacts() {
   commons.logInfo('Starting reindexing of contacts');
+  const deps = {
+    'technical-user': require('../../backend/core/technical-user'),
+    domain: require('../../backend/core/domain'),
+    'esn-config': require('../../backend/core/esn-config'),
+    elasticsearch: coreElasticsearch
+  };
+  const dependencies = name => deps[name];
+
+  deps.davserver = {
+    utils: require('../../modules/linagora.esn.davserver/backend/lib/utils')(dependencies)
+  };
+
+  const { buildReindexOptions } = require('../../modules/linagora.esn.contact/backend/lib/search/reindex')(dependencies);
 
   return db.connect(commons.getDBOptions())
-    .then(() => coreElasticsearch.reconfig('contacts.idx', 'contacts')
-      .then(function() {
-        commons.logInfo('Reindexing of contacts done');
-      }))
+    .then(() => buildReindexOptions())
+    .then(options => coreElasticsearch.reindex(options))
+    .then(() => commons.logInfo('Reindexing of contacts done'))
     .finally(db.disconnect);
 }
 
