@@ -1,9 +1,10 @@
 const PRIORITY = 100;
-const { PeopleResolver, Person } = require('../people');
+const { PeopleResolver, Model } = require('../people');
 const { OBJECT_TYPE } = require('./constants');
 const { denormalize } = require('./denormalize');
 const { search } = require('./search');
 const { getDisplayName } = require('./utils');
+const { getPath } = require('./avatar');
 
 module.exports = new PeopleResolver(OBJECT_TYPE, resolver, denormalizer, PRIORITY);
 
@@ -21,8 +22,20 @@ function resolver({ term, context, pagination }) {
   });
 }
 
-function denormalizer(source) {
+function denormalizer({ source }) {
   const denormalized = denormalize(source);
 
-  return Promise.resolve(new Person(denormalized._id, OBJECT_TYPE, denormalized.preferredEmail, getDisplayName(source)));
+  const email = new Model.EmailAddress({ value: denormalized.preferredEmail, type: 'default' });
+  const name = new Model.Name({ displayName: getDisplayName(source) });
+  const photo = new Model.Photo({ url: getPath(source) });
+
+  return Promise.resolve(
+    new Model.Person({
+      id: denormalized._id,
+      objectType: OBJECT_TYPE,
+      emailAddresses: [email],
+      names: [name],
+      photos: [photo]
+    })
+  );
 }

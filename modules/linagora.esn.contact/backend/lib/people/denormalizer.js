@@ -1,19 +1,32 @@
 const ICAL = require('@linagora/ical.js');
 
 module.exports = dependencies => {
-  const { Person } = dependencies('people');
+  const { Model } = dependencies('people');
 
-  return contact => {
-    const vcard = new ICAL.Component(contact);
+  return ({ source }) => {
+    const vcard = new ICAL.Component(source);
     const id = vcard.getFirstPropertyValue('uid');
     const fullName = vcard.getFirstPropertyValue('fn');
     const name = vcard.getFirstPropertyValue('n');
     const firstName = name ? name[1] : '';
     const lastName = name ? name[0] : '';
-    const emails = getMultiValue(vcard, 'email').map(email => email.value.replace(/^mailto:/i, ''));
-    const displayName = (fullName || `${firstName} ${lastName}`).trim();
+    const emails = getMultiValue(vcard, 'email').map(email => {
+      email.value = email.value.replace(/^mailto:/i, '');
 
-    return Promise.resolve(new Person(id, 'contact', (emails && emails.length) ? emails[0] : '', displayName));
+      return email;
+    });
+    const displayName = (fullName || `${firstName} ${lastName}`).trim();
+    const emailAddresses = emails.map(email => new Model.EmailAddress({ value: email.value, type: email.type }));
+    const names = [new Model.Name({ displayName })];
+
+    return Promise.resolve(
+      new Model.Person({
+        id,
+        objectType: 'contact',
+        emailAddresses,
+        names
+      })
+    );
   };
 
   function getMultiValue(vcard, propName) {

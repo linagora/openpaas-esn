@@ -24,11 +24,12 @@ class PeopleService {
       .then(people => [].concat(...people));
 
     function resolve(resolver, { term, context, pagination }) {
-      return resolver.resolve({ term, context, pagination }).then(results => denormalizeAll(results, resolver));
+      return resolver.resolve({ term, context, pagination })
+        .then(results => denormalizeAll(results, resolver, context));
     }
 
-    function denormalizeAll(data, resolver) {
-      return Promise.all(data.map(e => resolver.denormalize(e)));
+    function denormalizeAll(data, resolver, context) {
+      return Promise.all(data.map(source => resolver.denormalize({ source, context })));
     }
   }
 
