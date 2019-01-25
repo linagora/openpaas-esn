@@ -4,7 +4,7 @@
   angular.module('esn.attendee')
     .factory('attendeeService', attendeeService);
 
-  function attendeeService($q, _, ESN_ATTENDEE_DEFAULT_TEMPLATE_URL, ESN_ATTENDEE_DEFAULT_OBJECT_TYPE) {
+  function attendeeService(_, esnPeopleAPI, ESN_ATTENDEE_DEFAULT_TEMPLATE_URL, ESN_ATTENDEE_DEFAULT_OBJECT_TYPE) {
     var providers = [];
 
     return {
@@ -48,23 +48,33 @@
     function getAttendeeCandidates(query, limit, objectTypes) {
       objectTypes = objectTypes || [ESN_ATTENDEE_DEFAULT_OBJECT_TYPE];
 
-      var matchingProviders = _.filter(providers, function(provider) {
-        return _.contains(objectTypes, provider.objectType);
-      });
+      return esnPeopleAPI.search(query, objectTypes, limit)
+        .then(function(people) {
+          return people.map(function(person) {
+            // Temp hack because templateUrl is not defined on the backend side
+            var provider = _.find(providers, { objectType: person.objectType });
 
-      return $q.all(matchingProviders.map(function(provider) {
-        return provider.search(query, limit);
-      }))
-      .then(function(arrays) {
-        return arrays.reduce(function(resultArray, currentArray) {
-          return resultArray.concat(currentArray);
-        }, []);
-      })
-      .then(function(attendees) {
-        return _.uniq(attendees, false, function(attendee) {
-          return attendee.email || attendee.displayName;
+            person.templateUrl = provider ? provider.templateUrl : ESN_ATTENDEE_DEFAULT_TEMPLATE_URL;
+            if (person.emailAddresses && person.emailAddresses[0]) {
+              person.email = person.emailAddresses[0].value;
+            }
+
+            if (person.names && person.names[0]) {
+              person.displayName = person.names[0].displayName;
+            }
+
+            if (person.photos && person.photos[0]) {
+              person.avatarUrl = person.photos[0].url;
+            }
+
+            return person;
+          });
+        })
+        .then(function(people) {
+          return _.uniq(people, false, function(person) {
+            return person.email || person.displayName;
+          });
         });
-      });
     }
 
     function getProviders() {
