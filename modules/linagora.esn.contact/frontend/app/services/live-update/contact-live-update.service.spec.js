@@ -25,7 +25,12 @@ describe('The ContactLiveUpdate service', function() {
         then: function() {}
       },
       user: {
-        _id: '1'
+        _id: '1',
+        domains: [
+          {
+            domain_id: '1234'
+          }
+        ]
       }
     };
     onFn = function() {};
