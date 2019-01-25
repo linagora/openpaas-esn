@@ -14,7 +14,7 @@ module.exports = dependencies => {
 
     return getClientOptions(context)
       .then(clientOptions => client(clientOptions).addressbookHome(userId).search(options))
-      .then(result => result.results.map(result => (result.err || (result.response.statusCode < 200 || result.response.statusCode > 299) || !result.body ? undefined : result.body)))
+      .then(result => result.results.map(result => (result.err || (result.response.statusCode < 200 || result.response.statusCode > 299) || !result.body ? undefined : result)))
       .then(results => results.filter(Boolean));
   };
 
