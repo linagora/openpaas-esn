@@ -18,7 +18,14 @@ describe('The ContactLiveUpdateInitializer service', function() {
 
   beforeEach(function() {
     session = {
-      user: {_id: 1},
+      user: {
+        _id: 1,
+        domains: [
+          {
+            domain_id: '1234'
+          }
+        ]
+      },
       ready: {
         then: function() {}
       }
@@ -26,7 +33,8 @@ describe('The ContactLiveUpdateInitializer service', function() {
 
     ContactLiveUpdateMock = {
       startListen: function() {},
-      stopListen: function() {}
+      stopListen: function() {},
+      startListenDomain: function() {}
     };
 
     module(function($provide) {
@@ -43,9 +51,9 @@ describe('The ContactLiveUpdateInitializer service', function() {
     describe('The live update listener', function() {
 
       it('should be started when the user switch into the contact module', function() {
-        session.user = {_id: 1};
         ContactLiveUpdateMock.startListen = sinon.spy();
         ContactLiveUpdateMock.stopListen = sinon.spy();
+        ContactLiveUpdateMock.startListenDomain = sinon.spy();
 
         $rootScope.$broadcast('$stateChangeSuccess', {
           name: 'contact.addressbooks'
@@ -57,6 +65,7 @@ describe('The ContactLiveUpdateInitializer service', function() {
       it('should be stopped when user switches outside of the contact module', function() {
         ContactLiveUpdateMock.startListen = sinon.spy();
         ContactLiveUpdateMock.stopListen = sinon.spy();
+        ContactLiveUpdateMock.startListenDomain = sinon.spy();
 
         $rootScope.$broadcast('$stateChangeSuccess', {
           name: '/other/module/path'

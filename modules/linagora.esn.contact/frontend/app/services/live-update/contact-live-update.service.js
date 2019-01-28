@@ -17,11 +17,14 @@
     CONTACT_ADDRESSBOOK_EVENTS
   ) {
     var sio = null;
+    var sioDomain = null;
     var listening = false;
+    var listeningDomain = false;
 
     return {
       startListen: startListen,
-      stopListen: stopListen
+      stopListen: stopListen,
+      startListenDomain: startListenDomain
     };
 
     function startListen(bookId) {
@@ -44,6 +47,26 @@
       $log.debug('Start listening contact live update');
     }
 
+    function startListenDomain(domainId) {
+      if (listeningDomain) { return; }
+
+      if (sioDomain === null) {
+        sioDomain = livenotification(CONTACT_WS.room, domainId);
+      }
+      sioDomain.on(CONTACT_WS.events.CREATED, onCreate);
+      sioDomain.on(CONTACT_WS.events.DELETED, onDelete);
+      sioDomain.on(CONTACT_WS.events.UPDATED, onUpdate);
+      sioDomain.on(CONTACT_WS.events.ADDRESSBOOK_CREATED, onAddressbookCreate);
+      sioDomain.on(CONTACT_WS.events.ADDRESSBOOK_DELETED, onAddressbookDelete);
+      sioDomain.on(CONTACT_WS.events.ADDRESSBOOK_UPDATED, onAddressbookUpdate);
+      sioDomain.on(CONTACT_WS.events.ADDRESSBOOK_SUBSCRIPTION_DELETED, onAddressbookSubscriptionDelete);
+      sioDomain.on(CONTACT_WS.events.ADDRESSBOOK_SUBSCRIPTION_UPDATED, onAddressbookSubscriptionUpdate);
+      sioDomain.on(CONTACT_WS.events.ADDRESSBOOK_SUBSCRIPTION_CREATED, onAddressbookSubscriptionCreate);
+
+      listeningDomain = true;
+      $log.debug('Start listening domain contact live update');
+    }
+
     function stopListen() {
       if (!listening) { return; }
 
@@ -59,7 +82,20 @@
         sio.removeListener(CONTACT_WS.events.ADDRESSBOOK_SUBSCRIPTION_CREATED, onAddressbookSubscriptionCreate);
       }
 
+      if (sioDomain) {
+        sioDomain.removeListener(CONTACT_WS.events.CREATED, onCreate);
+        sioDomain.removeListener(CONTACT_WS.events.DELETED, onDelete);
+        sioDomain.removeListener(CONTACT_WS.events.UPDATED, onUpdate);
+        sioDomain.removeListener(CONTACT_WS.events.ADDRESSBOOK_CREATED, onAddressbookCreate);
+        sioDomain.removeListener(CONTACT_WS.events.ADDRESSBOOK_DELETED, onAddressbookDelete);
+        sioDomain.removeListener(CONTACT_WS.events.ADDRESSBOOK_UPDATED, onAddressbookUpdate);
+        sioDomain.removeListener(CONTACT_WS.events.ADDRESSBOOK_SUBSCRIPTION_DELETED, onAddressbookSubscriptionDelete);
+        sioDomain.removeListener(CONTACT_WS.events.ADDRESSBOOK_SUBSCRIPTION_UPDATED, onAddressbookSubscriptionUpdate);
+        sioDomain.removeListener(CONTACT_WS.events.ADDRESSBOOK_SUBSCRIPTION_CREATED, onAddressbookSubscriptionCreate);
+      }
+
       listening = false;
+      listeningDomain = false;
       $log.debug('Stop listening contact live update');
     }
 
