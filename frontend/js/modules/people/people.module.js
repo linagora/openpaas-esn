@@ -1,6 +1,8 @@
 (function(angular) {
   'use strict';
 
-  angular.module('esn.people', []);
+  angular.module('esn.people', [
+    'esn.http'
+  ]);
 
 })(angular);
