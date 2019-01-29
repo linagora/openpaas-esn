@@ -69,12 +69,15 @@ describe('The people service module', function() {
       it('should call all the resolvers and send back denormalized data as array', function(done) {
         const service = new Service();
         const resolveUser = sinon.stub().returns(Promise.resolve([user1, user2]));
-        const denormalizeUser = sinon.stub().returns((user => Promise.resolve(user)));
         const resolveContact = sinon.stub().returns(Promise.resolve([contact1]));
-        const denormalizeContact = sinon.stub().returns(contact => Promise.resolve(contact));
-
+        const denormalizeUser = sinon.stub();
+        const denormalizeContact = sinon.stub();
         const userResolver = new PeopleResolver('user', resolveUser, denormalizeUser);
         const contactResolver = new PeopleResolver('contact', resolveContact, denormalizeContact);
+
+        denormalizeUser.withArgs({ context, source: user1 }).returns(Promise.resolve(user1));
+        denormalizeUser.withArgs({ context, source: user2 }).returns(Promise.resolve(user2));
+        denormalizeContact.withArgs({ context, source: contact1 }).returns(Promise.resolve(contact1));
 
         service.addResolver(userResolver);
         service.addResolver(contactResolver);
@@ -82,10 +85,10 @@ describe('The people service module', function() {
         service.search({ term, context, pagination }).then(result => {
           expect(result).to.have.lengthOf(3);
           expect(resolveUser).to.have.been.calledWith({ term, context, pagination });
-          expect(denormalizeUser).to.have.been.calledWith(user1);
-          expect(denormalizeUser).to.have.been.calledWith(user2);
+          expect(denormalizeUser).to.have.been.calledWith({ context, source: user1 });
+          expect(denormalizeUser).to.have.been.calledWith({ context, source: user2 });
           expect(resolveContact).to.have.been.calledWith({ term, context, pagination });
-          expect(denormalizeContact).to.have.been.calledWith(contact1);
+          expect(denormalizeContact).to.have.been.calledWith({ context, source: contact1 });
           done();
         }).catch(done);
       });
@@ -93,12 +96,15 @@ describe('The people service module', function() {
       it('should call the defined resolvers and send back denormalized data', function(done) {
         const service = new Service();
         const resolveUser = sinon.stub().returns(Promise.resolve([user1, user2]));
-        const denormalizeUser = sinon.stub().returns((user => Promise.resolve(user)));
-        const resolveContact = sinon.stub().returns(Promise.resolve([contact1]));
-        const denormalizeContact = sinon.stub().returns(contact => Promise.resolve(contact));
-
+        const denormalizeUser = sinon.stub();
+        const resolveContact = sinon.stub();
+        const denormalizeContact = sinon.stub();
         const userResolver = new PeopleResolver('user', resolveUser, denormalizeUser);
         const contactResolver = new PeopleResolver('contact', resolveContact, denormalizeContact);
+
+        denormalizeUser.withArgs({ context, source: user1 }).returns(Promise.resolve(user1));
+        denormalizeUser.withArgs({ context, source: user2 }).returns(Promise.resolve(user2));
+        denormalizeContact.withArgs({ context, source: contact1 }).returns(Promise.resolve(contact1));
 
         service.addResolver(userResolver);
         service.addResolver(contactResolver);
@@ -106,8 +112,8 @@ describe('The people service module', function() {
         service.search({ objectTypes: ['user'], term, context, pagination }).then(result => {
           expect(result).to.have.lengthOf(2);
           expect(resolveUser).to.have.been.calledWith({ term, context, pagination });
-          expect(denormalizeUser).to.have.been.calledWith(user1);
-          expect(denormalizeUser).to.have.been.calledWith(user2);
+          expect(denormalizeUser).to.have.been.calledWith({ context, source: user1 });
+          expect(denormalizeUser).to.have.been.calledWith({ context, source: user2 });
           expect(resolveContact).to.not.have.been.called;
           expect(denormalizeContact).to.not.have.been.called;
           done();
@@ -126,11 +132,11 @@ describe('The people service module', function() {
         const contactResolver = new PeopleResolver('contact', resolveContact, denormalizeContact, 100);
         const ldapResolver = new PeopleResolver('ldap', resolveLdap, denormalizeLdap, 50);
 
-        denormalizeUser.withArgs(user1).returns(Promise.resolve(user1));
-        denormalizeUser.withArgs(user2).returns(Promise.resolve(user2));
-        denormalizeContact.withArgs(contact1).returns(Promise.resolve(contact1));
-        denormalizeLdap.withArgs(ldap1).returns(Promise.resolve(ldap1));
-        denormalizeLdap.withArgs(ldap2).returns(Promise.resolve(ldap2));
+        denormalizeUser.withArgs({ context, source: user1 }).returns(Promise.resolve(user1));
+        denormalizeUser.withArgs({ context, source: user2 }).returns(Promise.resolve(user2));
+        denormalizeContact.withArgs({ context, source: contact1 }).returns(Promise.resolve(contact1));
+        denormalizeLdap.withArgs({ context, source: ldap1 }).returns(Promise.resolve(ldap1));
+        denormalizeLdap.withArgs({ context, source: ldap2 }).returns(Promise.resolve(ldap2));
         service.addResolver(ldapResolver);
         service.addResolver(userResolver);
         service.addResolver(contactResolver);
@@ -139,10 +145,10 @@ describe('The people service module', function() {
           expect(result).to.have.lengthOf(5);
           expect(result).to.deep.equals([contact1, ldap1, ldap2, user1, user2]);
           expect(resolveUser).to.have.been.calledWith({ term, context, pagination });
-          expect(denormalizeUser).to.have.been.calledWith(user1);
-          expect(denormalizeUser).to.have.been.calledWith(user2);
+          expect(denormalizeUser).to.have.been.calledWith({ context, source: user1 });
+          expect(denormalizeUser).to.have.been.calledWith({ context, source: user2 });
           expect(resolveContact).to.have.been.calledWith({ term, context, pagination });
-          expect(denormalizeContact).to.have.been.calledWith(contact1);
+          expect(denormalizeContact).to.have.been.calledWith({ context, source: contact1 });
           done();
         }).catch(done);
       });
@@ -192,8 +198,8 @@ describe('The people service module', function() {
             expect(result).to.have.lengthOf(2);
             expect(resolveUser).to.have.been.calledWith({ term, context, pagination });
             expect(resolveContact).to.have.been.calledWith({ term, context, pagination });
-            expect(denormalizeUser).to.have.been.calledWith(user1);
-            expect(denormalizeContact).to.have.been.calledWith(contact1);
+            expect(denormalizeUser).to.have.been.calledWith({ context, source: user1 });
+            expect(denormalizeContact).to.have.been.calledWith({ context, source: contact1 });
             done();
           })
           .catch(done);
