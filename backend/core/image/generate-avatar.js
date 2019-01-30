@@ -1,6 +1,6 @@
 const Canvas = require('canvas');
 const DEFAULT_AVATAR_SIZE = 256;
-const FONT_RATIO = 88;
+const FONT_RATIO = 66;
 
 // color spec from:
 // https://www.google.com/design/spec/style/color.html#color-color-palette
@@ -11,18 +11,16 @@ const COLORS = [
   { bgColor: '#673AB7', fgColor: 'white' }, // Deep Purple
   { bgColor: '#3F51B5', fgColor: 'white' }, // Indigo
   { bgColor: '#2196F3', fgColor: 'white' }, // Blue
-  { bgColor: '#03A9F4', fgColor: 'black' }, // Light Blue
-  { bgColor: '#00BCD4', fgColor: 'black' }, // Cyan
+  { bgColor: '#0097A7', fgColor: 'white' }, // Cyan
   { bgColor: '#009688', fgColor: 'white' }, // Teal
-  { bgColor: '#4CAF50', fgColor: 'black' }, // Green
-  { bgColor: '#8BC34A', fgColor: 'black' }, // Light Green
-  { bgColor: '#CDDC39', fgColor: 'black' }, // Lime
-  { bgColor: '#FFEB3B', fgColor: 'black' }, // Yellow
-  { bgColor: '#FF9800', fgColor: 'black' }, // Orange
+  { bgColor: '#43A047', fgColor: 'white' }, // Green
+  { bgColor: '#558B2F', fgColor: 'white' }, // Light Green
+  { bgColor: '#827717', fgColor: 'white' }, // Lime
+  { bgColor: '#FFEB3B', fgColor: 'white' }, // Yellow
   { bgColor: '#FF5722', fgColor: 'white' }, // Deep Orange
   { bgColor: '#795548', fgColor: 'white' }, // Brown
-  { bgColor: '#9E9E9E', fgColor: 'black' }, // Grey
-  { bgColor: '#607D8B', fgColor: 'white' } // Blue Grey
+  { bgColor: '#757575', fgColor: 'white' }, // Grey
+  { bgColor: '#607D8B', fgColor: 'white' }  // Blue Grey
 ];
 const COLORS_SIZE = COLORS.length;
 const DEFAULT_COLOR = COLORS[0];
