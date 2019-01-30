@@ -1,12 +1,10 @@
-'use strict';
-
-var Canvas = require('canvas');
-
-var DEFAULT_AVATAR_SIZE = 256;
+const Canvas = require('canvas');
+const DEFAULT_AVATAR_SIZE = 256;
+const FONT_RATIO = 88;
 
 // color spec from:
 // https://www.google.com/design/spec/style/color.html#color-color-palette
-var COLORS = [
+const COLORS = [
   { bgColor: '#F44336', fgColor: 'white' }, // Red
   { bgColor: '#E91E63', fgColor: 'white' }, // Pink
   { bgColor: '#9C27B0', fgColor: 'white' }, // Purple
@@ -26,12 +24,15 @@ var COLORS = [
   { bgColor: '#9E9E9E', fgColor: 'black' }, // Grey
   { bgColor: '#607D8B', fgColor: 'white' } // Blue Grey
 ];
-var COLORS_SIZE = COLORS.length;
-var DEFAULT_COLOR = COLORS[0];
+const COLORS_SIZE = COLORS.length;
+const DEFAULT_COLOR = COLORS[0];
 
-function fontName(size) {
-  return size + 'px Arial';
-}
+module.exports = {
+  // export as a private method for testing purpose (still need more discussion)
+  _calculateFitFontSize: calculateFitFontSize,
+  generateFromText,
+  getColorsFromUuid
+};
 
 /**
  * Calculate approximate font size to draw text to fit the canvas.
@@ -49,9 +50,10 @@ function fontName(size) {
  * @param  {String} text          text to be drawn
  * @return {Number}               calculated font size
  */
-var calculateFitFontSize = function(canvasContext, canvasSize, text) {
-  var fontSize = 0;
-  var textMetric, textWidth, textHeight;
+function calculateFitFontSize(canvasContext, canvasSize, text) {
+  let fontSize = 0;
+  let textMetric, textWidth, textHeight;
+
   do {
     fontSize++;
     canvasContext.font = fontName(fontSize);
@@ -61,9 +63,7 @@ var calculateFitFontSize = function(canvasContext, canvasSize, text) {
   } while (textWidth < canvasSize && textHeight < canvasSize);
 
   return fontSize;
-};
-// export as a private method for testing purpose (still need more discussion)
-module.exports._calculateFitFontSize = calculateFitFontSize;
+}
 
 /**
  * Generate avatar from text
@@ -79,28 +79,26 @@ module.exports._calculateFitFontSize = calculateFitFontSize;
  * @return {Buffer} Buffer instance of image or null if data is not well-formed
  * @return {String} Base64 image data of avatar if options.toBase64 is set to true
  */
-var generateFromText = function(options) {
+function generateFromText(options) {
   if (!options || !options.text) {
     return null;
   }
 
-  var text = String(options.text).substring(0, 2).toUpperCase();
-  var avatarSize = parseInt(options.size, 10) || DEFAULT_AVATAR_SIZE;
-  var bgColor = options.bgColor || DEFAULT_COLOR.bgColor;
-  var fgColor = options.fgColor || DEFAULT_COLOR.fgColor;
-
-  var canvas = new Canvas(avatarSize, avatarSize);
-  var ctx = canvas.getContext('2d');
+  const text = String(options.text).substring(0, 2).toUpperCase();
+  const avatarSize = parseInt(options.size, 10) || DEFAULT_AVATAR_SIZE;
+  const bgColor = options.bgColor || DEFAULT_COLOR.bgColor;
+  const fgColor = options.fgColor || DEFAULT_COLOR.fgColor;
+  const canvas = new Canvas(avatarSize, avatarSize);
+  const ctx = canvas.getContext('2d');
+  let fontSize = 1;
 
   // draw background
   ctx.fillStyle = bgColor;
   ctx.fillRect(0, 0, avatarSize, avatarSize);
 
-  var fontSize = 1;
-
   if (text.length === 1) {
     // use precalculated font ratio to improve perfomance
-    fontSize = avatarSize * 88 / 100;
+    fontSize = avatarSize * FONT_RATIO / 100;
   } else if (text.length > 1) {
     fontSize = calculateFitFontSize(ctx, avatarSize, text);
   }
@@ -116,36 +114,37 @@ var generateFromText = function(options) {
 
   if (options.toBase64 === true) {
     return canvas.toDataURL();
-  } else {
-    return canvas.toBuffer();
   }
-};
 
-module.exports.generateFromText = generateFromText;
+  return canvas.toBuffer();
+}
 
 /**
  * Get colors based on 3 last characters of uuid
  * @param  {String} uuid
  * @return {Object}
  */
-var getColorsFromUuid = function(uuid) {
+function getColorsFromUuid(uuid) {
   if (!uuid || typeof uuid !== 'string') {
     return DEFAULT_COLOR;
   }
 
-  var length = uuid.length;
+  const length = uuid.length;
 
   if (length < 3) {
     return DEFAULT_COLOR;
   }
 
-  var sum = uuid.charCodeAt(length - 1) +
+  const sum = uuid.charCodeAt(length - 1) +
             uuid.charCodeAt(length - 2) +
             uuid.charCodeAt(length - 3);
-  return COLORS[sum % COLORS_SIZE];
-};
 
-module.exports.getColorsFromUuid = getColorsFromUuid;
+  return COLORS[sum % COLORS_SIZE];
+}
+
+function fontName(size) {
+  return size + 'px Arial';
+}
 
 // Work around to node-canvas issue in version 1.2.3:
 // https://github.com/Automattic/node-canvas/issues/487
