@@ -11,7 +11,7 @@ function advancedSearch(req, res) {
   const context = { user: req.user, domain: req.domain };
   const term = req.body.q || '';
   const objectTypes = req.body.objectTypes || [];
-  const pagination = { limit: req.body.limit || req.query.limit, offset: 0 };
+  const pagination = { limit: req.body.limit || req.query.limit, offset: req.body.offset || req.query.offset };
 
   _search({ objectTypes, term, context, pagination }, req, res);
 }
@@ -19,7 +19,7 @@ function advancedSearch(req, res) {
 function search(req, res) {
   const context = { user: req.user, domain: req.domain };
   const term = req.query.q || '';
-  const pagination = { limit: req.query.limit, offset: 0 };
+  const pagination = { limit: req.query.limit, offset: req.body.offset || req.query.offset };
 
   _search({ term, context, pagination }, req, res);
 }

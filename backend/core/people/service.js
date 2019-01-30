@@ -1,5 +1,5 @@
 const Q = require('q');
-const { LIMIT } = require('./constants');
+const { LIMIT, OFFSET } = require('./constants');
 const PeopleResolver = require('./resolver');
 
 class PeopleService {
@@ -12,14 +12,15 @@ class PeopleService {
    * It is up to each resolver to deal with the term matching.
    * Note: If no objectTypes is defined or if empty, search in ALL resolvers.
    */
-  search(query = { objectTypes: [], term: '', context: {}, pagination: { limit: LIMIT, offset: 0 }}) {
+  search(query = { objectTypes: [], term: '', context: {}, pagination: { limit: LIMIT, offset: OFFSET }}) {
+    query.pagination = { ...{ limit: LIMIT, offset: OFFSET }, ...query.pagination };
     const localResolvers = ((!query.objectTypes || !query.objectTypes.length) ?
       [...this.resolvers.values()] :
       query.objectTypes.map(objectType => this.resolvers.get(objectType)).filter(Boolean))
       .sort((a, b) => (b.priority || 0) - (a.priority || 0));
 
     return Q.allSettled(localResolvers.map(resolver => resolve(resolver, query)))
-      .then(allPromises => allPromises.filter(_ => _.state === 'fulfilled').map(_ => _.value))
+      .then(allPromises => allPromises.filter(promise => promise.state === 'fulfilled').map(promise => promise.value))
       .then(fulFilled => fulFilled.filter(Boolean))
       .then(people => [].concat(...people));
 

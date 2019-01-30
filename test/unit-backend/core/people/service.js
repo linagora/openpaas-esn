@@ -51,7 +51,7 @@ describe('The people service module', function() {
       ldap2 = { ldap: 2 };
       term = 'searchme';
       context = { user: 1, domain: 2 };
-      pagination = { limit: 10 };
+      pagination = { limit: 10, offset: 0 };
     });
 
     describe('When no resolvers', function() {
