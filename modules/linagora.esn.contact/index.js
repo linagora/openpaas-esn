@@ -30,6 +30,8 @@ const contactModule = new AwesomeModule(moduleData.fullName, {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.authorization', 'authorizationMW'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.image', 'image'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.user', 'user'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.domain', 'domain'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.technical-user', 'technical-user'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.avatar', 'avatar'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.davserver', 'davserver'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.token', 'tokenMW'),
