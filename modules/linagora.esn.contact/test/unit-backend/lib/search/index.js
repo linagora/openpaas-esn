@@ -327,5 +327,46 @@ describe('The contacts search Module', function() {
         done();
       });
     });
+
+    it('should search with must_not query when there are contact ids to be excluded', function(done) {
+      const module = require('../../../../backend/lib/search')(dependencies);
+      const query = {
+        search: 'Bruce',
+        offset: 10,
+        limit: 100,
+        addressbooks: [{
+          bookName: 'collected'
+        }, {
+          bookName: 'contacts'
+        }],
+        excludeIds: ['contact1']
+      };
+
+      deps.elasticsearch.searchDocuments = sinon.spy((options, callback) => {
+        expect(options.body.query.bool.must_not).to.shallowDeepEqual({
+          terms: {
+            _id: ['contact1']
+          }
+        });
+
+        return callback(null, {
+          hits: {
+            total: 0,
+            hits: 0
+          }
+        });
+      });
+
+      module.searchContacts(query, (err, result) => {
+        expect(err).to.not.exist;
+        expect(deps.elasticsearch.searchDocuments).to.have.been.calledOnce;
+        expect(result).to.shallowDeepEqual({
+          total_count: 0,
+          list: 0
+        });
+
+        done();
+      });
+    });
   });
 });
