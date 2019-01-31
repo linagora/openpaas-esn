@@ -68,6 +68,7 @@ function getGeneratedAvatar(req, res) {
   }
 
   const email = req.query.email,
+        size = Number.parseInt(req.query.size, 10),
         displayName = req.query.displayName || email,
         emailMD5Digest = crypto.createHash('md5').update(email).digest('hex'),
         colors = imageModule.avatarGenerationModule.getColorsFromUuid(emailMD5Digest);
@@ -75,7 +76,8 @@ function getGeneratedAvatar(req, res) {
   return res.send(imageModule.avatarGenerationModule.generateFromText({
     text: displayName.charAt(0),
     bgColor: colors.bgColor,
-    fgColor: colors.fgColor
+    fgColor: colors.fgColor,
+    size
   }));
 }
 
