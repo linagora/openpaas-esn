@@ -5,8 +5,9 @@ div
   .row.alert.alert-danger(ng-show="error", role="alert")
     p #{__('Error while getting memberships')}.
 
-  .row(ng-show="loading")
-    | #{__("Loading membership requests")}
+  .row
+    ul.nav.nav-pills.nav-stacked(ng-show="loading")
+      li.text-center(openpaas-logo-spinner, spinner-start-active='1', spinner-size='0.5')
 
   .row(ng-show="requests && !error")
     .row(ng-repeat="request in requests | filter: {workflow: 'request'}")

@@ -1,0 +1,29 @@
+.community-members-tabs .btn-group:not(.bootstrap-select) {
+  box-shadow: none;
+  border: 1px solid @body-bg;
+}
+
+.community-members-tabs {
+
+  .btn {
+    border-bottom: 1px solid @darkenBgColor;
+
+    &:not(.active) {
+      background-color: @body-bg;
+    }
+
+    &.active:hover, &:active{
+      border-color: transparent;
+    }
+  }
+  
+  .btn-group {
+    box-shadow: none;
+  }
+
+  .label.label-default {
+    font-weight: 600;
+    border-radius: 10rem;
+    padding: .2em .6em .2em;
+  }
+}

@@ -1,0 +1,14 @@
+.community-members-tabs(ng-if="$ctrl.isCommunityManager()")
+  .btn-group.btn-group-justified
+    .btn-group
+      a.btn.btn-default(href="", ui-sref-active="active", ui-sref="community.view.members", ui-sref-opts="{ location: 'replace' }")
+        | #{__("Members")} 
+        span.label.label-default {{$ctrl.members_count}}
+    .btn-group
+      a.btn.btn-default(href="", ui-sref-active="active", ui-sref="community.view.invitations", ui-sref-opts="{ location: 'replace' }")
+        | #{__("Invitations")} 
+        span.label.label-default {{$ctrl.members_invitations_count}}
+    .btn-group
+      a.btn.btn-default(href="", ui-sref-active="active", ui-sref="community.view.requests", ui-sref-opts="{ location: 'replace' }")
+        | #{__("Requests")} 
+        span.label.label-default {{$ctrl.members_requests_count}}

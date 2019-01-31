@@ -200,7 +200,6 @@
   "Membership requests": "加入请求",
   "Error while getting memberships": "成员信息加载出现错误",
   "Error, you do not have the permission to read memberships": "错误，您未被许可查看成员信息",
-  "Loading membership requests": "加入请求加载中",
   "Accept": "接受",
   "Decline": "拒绝",
   "Your request has been accepted, welcome to the community": "您的请求已通过，欢迎加入社区",
@@ -489,5 +488,7 @@
   "No activity": "没有活动",
   "List view": "列表顯示",
   "Grid view": "網格視圖",
-  "No pending request": "没有待处理的请求"
+  "No pending request": "没有待处理的请求",
+  "Invitations": "邀请",
+  "Requests": "要求"
 }

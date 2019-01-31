@@ -200,7 +200,6 @@
   "Membership requests": "Danh sách yêu cầu tham gia",
   "Error while getting memberships": "Lỗi khi đang tải danh sách thành viên",
   "Error, you do not have the permission to read memberships": "Lỗi, bạn không có quyền xem danh sách thành viên",
-  "Loading membership requests": "Đang tải danh sách yêu cầu thành viên",
   "Accept": "Chấp nhận",
   "Decline": "Từ chối",
   "Your request has been accepted, welcome to the community": "Yêu cầu của bạn đã được chấp nhận, chào mừng bạn đến với cộng đồng",
@@ -494,5 +493,7 @@
   "Cannot upload a file": "Không thể tải lên một tệp",
   "Your file cannot be uploaded because its size exceeds the %s limit": "Tệp của bạn không thể tải lên vì có kích thước vượt quá giới hạn %s",
   "Your files cannot be uploaded because their sizes exceed the %s limit": "Các tệp của bạn không thể tải lên vì có kích thước vượt quá giới hạn %s",
-  "OK": "OK"
+  "OK": "OK",
+  "Invitations": "Lời mời",
+  "Requests": "Yêu cầu"
 }

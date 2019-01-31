@@ -9,7 +9,10 @@
     notificationFactory,
     session,
     communityService,
-    communityDeleteConfirmationModalService
+    communityDeleteConfirmationModalService,
+    $rootScope,
+    ESN_COLLABORATION_MEMBER_EVENTS,
+    communityAPI
   ) {
     return {
       restrict: 'E',
@@ -23,6 +26,8 @@
           $scope.canRequestMembership = communityService.canRequestMembership($scope.community, session.user);
           $scope.canCancelMembership = communityService.canCancelRequestMembership($scope.community, session.user);
           $scope.actionVisible = $scope.actions && ($scope.canManage || $scope.canJoin || $scope.canLeave || $scope.canRequestMembership || $scope.canCancelMembership);
+          $rootScope.$on(ESN_COLLABORATION_MEMBER_EVENTS.ACCEPTED, updateCount);
+          $rootScope.$on(ESN_COLLABORATION_MEMBER_EVENTS.REMOVED, updateCount);
         });
 
         $scope.remove = function() {
@@ -58,6 +63,12 @@
           }, function(err) {
             $log.error('Error while removing community', err);
             notificationFactory.weakError('Error', 'The community can not be removed');
+          });
+        }
+
+        function updateCount() {
+          communityAPI.get(self.community._id).then(function(response) {
+            $scope.community.members_count = response.data.members_count;
           });
         }
       }

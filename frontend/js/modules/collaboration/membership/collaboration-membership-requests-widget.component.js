@@ -8,7 +8,10 @@
     return {
       bindings: {
         objectType: '@',
-        collaboration: '='
+        collaboration: '=',
+        elementsPerPage: '=?',
+        objectTypeFilter: '@?',
+        scrollInsideContainer: '@?'
       },
       controller: 'ESNCollaborationMembershipRequestsWidgetController',
       controllerAs: 'ctrl',

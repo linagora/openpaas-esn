@@ -1,0 +1,5 @@
+.community-members.card
+  esn-community-members-tabs(community="$ctrl.community")
+  .membership(ng-if="$ctrl.isCommunityManager()")
+    .card-body
+      esn-collaboration-membership-requests-widget(object-type="community", collaboration="$ctrl.community")

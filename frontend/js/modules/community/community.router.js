@@ -87,7 +87,25 @@
       url: '/members',
       views: {
         'content@community.view': {
-          template: '<community-members community="community"></community-members>'
+          template: '<esn-community-members community="community"></esn-community-members>'
+        }
+      }
+    })
+
+    .state('community.view.invitations', {
+      url: '/invitations',
+      views: {
+        'content@community.view': {
+          template: '<esn-community-members-invitations community="community"></esn-community-members-invitations>'
+        }
+      }
+    })
+
+    .state('community.view.requests', {
+      url: '/requests',
+      views: {
+        'content@community.view': {
+          template: '<esn-community-members-requests community="community"></esn-community-members-requests>'
         }
       }
     })
