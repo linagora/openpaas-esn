@@ -1,8 +1,6 @@
-'use strict';
+const avatars = require('../controllers/avatars');
 
-var avatars = require('../controllers/avatars');
-
-module.exports = function(router) {
+module.exports = router => {
 
   /**
    * @swagger
