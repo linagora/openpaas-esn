@@ -1,4 +1,5 @@
 const listeners = require('./listeners');
+const reindexRegistry = require('./reindex-registry');
 
 const {
   addDocumentToIndex,
@@ -12,9 +13,6 @@ const {
   updateClient
 } = require('./elasticsearch');
 
-console.log(4444444444, require('./elasticsearch'));
-
-
 module.exports = {
   addDocumentToIndex,
   client,
@@ -22,6 +20,7 @@ module.exports = {
   listeners,
   reconfig,
   reindex,
+  reindexRegistry,
   removeDocumentFromIndex,
   removeDocumentsByQuery,
   searchDocuments,
