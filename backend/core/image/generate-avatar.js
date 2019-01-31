@@ -1,37 +1,20 @@
-'use strict';
+const Canvas = require('canvas');
 
-var Canvas = require('canvas');
+const DEFAULT_AVATAR_SIZE = 256;
+const FONT_RATIO = 66;
+const fgColor = 'white';
+// material colors 700
+const BG_COLORS = ['#d32f2f', '#C2185B', '#7B1FA2', '#512DA8', '#303F9F', '#1976D2', '#0288D1', '#0097A7', '#00796B', '#388E3C', '#689F38', '#AFB42B', '#FBC02D', '#FFA000', '#F57C00', '#E64A19', '#5D4037', '#616161', '#455A64'];
+const COLORS = BG_COLORS.map(bgColor => ({ bgColor, fgColor }));
+const COLORS_SIZE = COLORS.length;
+const DEFAULT_COLOR = COLORS[0];
 
-var DEFAULT_AVATAR_SIZE = 256;
-
-// color spec from:
-// https://www.google.com/design/spec/style/color.html#color-color-palette
-var COLORS = [
-  { bgColor: '#F44336', fgColor: 'white' }, // Red
-  { bgColor: '#E91E63', fgColor: 'white' }, // Pink
-  { bgColor: '#9C27B0', fgColor: 'white' }, // Purple
-  { bgColor: '#673AB7', fgColor: 'white' }, // Deep Purple
-  { bgColor: '#3F51B5', fgColor: 'white' }, // Indigo
-  { bgColor: '#2196F3', fgColor: 'white' }, // Blue
-  { bgColor: '#03A9F4', fgColor: 'black' }, // Light Blue
-  { bgColor: '#00BCD4', fgColor: 'black' }, // Cyan
-  { bgColor: '#009688', fgColor: 'white' }, // Teal
-  { bgColor: '#4CAF50', fgColor: 'black' }, // Green
-  { bgColor: '#8BC34A', fgColor: 'black' }, // Light Green
-  { bgColor: '#CDDC39', fgColor: 'black' }, // Lime
-  { bgColor: '#FFEB3B', fgColor: 'black' }, // Yellow
-  { bgColor: '#FF9800', fgColor: 'black' }, // Orange
-  { bgColor: '#FF5722', fgColor: 'white' }, // Deep Orange
-  { bgColor: '#795548', fgColor: 'white' }, // Brown
-  { bgColor: '#9E9E9E', fgColor: 'black' }, // Grey
-  { bgColor: '#607D8B', fgColor: 'white' } // Blue Grey
-];
-var COLORS_SIZE = COLORS.length;
-var DEFAULT_COLOR = COLORS[0];
-
-function fontName(size) {
-  return size + 'px Arial';
-}
+module.exports = {
+  // export as a private method for testing purpose (still need more discussion)
+  _calculateFitFontSize: calculateFitFontSize,
+  generateFromText,
+  getColorsFromUuid
+};
 
 /**
  * Calculate approximate font size to draw text to fit the canvas.
@@ -49,9 +32,10 @@ function fontName(size) {
  * @param  {String} text          text to be drawn
  * @return {Number}               calculated font size
  */
-var calculateFitFontSize = function(canvasContext, canvasSize, text) {
-  var fontSize = 0;
-  var textMetric, textWidth, textHeight;
+function calculateFitFontSize(canvasContext, canvasSize, text) {
+  let fontSize = 0;
+  let textMetric, textWidth, textHeight;
+
   do {
     fontSize++;
     canvasContext.font = fontName(fontSize);
@@ -61,9 +45,7 @@ var calculateFitFontSize = function(canvasContext, canvasSize, text) {
   } while (textWidth < canvasSize && textHeight < canvasSize);
 
   return fontSize;
-};
-// export as a private method for testing purpose (still need more discussion)
-module.exports._calculateFitFontSize = calculateFitFontSize;
+}
 
 /**
  * Generate avatar from text
@@ -79,73 +61,72 @@ module.exports._calculateFitFontSize = calculateFitFontSize;
  * @return {Buffer} Buffer instance of image or null if data is not well-formed
  * @return {String} Base64 image data of avatar if options.toBase64 is set to true
  */
-var generateFromText = function(options) {
+function generateFromText(options) {
   if (!options || !options.text) {
     return null;
   }
 
-  var text = String(options.text).substring(0, 2).toUpperCase();
-  var avatarSize = parseInt(options.size, 10) || DEFAULT_AVATAR_SIZE;
-  var bgColor = options.bgColor || DEFAULT_COLOR.bgColor;
-  var fgColor = options.fgColor || DEFAULT_COLOR.fgColor;
-
-  var canvas = new Canvas(avatarSize, avatarSize);
-  var ctx = canvas.getContext('2d');
+  const text = String(options.text).substring(0, 2).toUpperCase();
+  const avatarSize = parseInt(options.size, 10) || DEFAULT_AVATAR_SIZE;
+  const bgColor = options.bgColor || DEFAULT_COLOR.bgColor;
+  const fgColor = options.fgColor || DEFAULT_COLOR.fgColor;
+  const canvas = new Canvas(avatarSize, avatarSize);
+  const ctx = canvas.getContext('2d');
+  let fontSize = 1;
 
   // draw background
   ctx.fillStyle = bgColor;
   ctx.fillRect(0, 0, avatarSize, avatarSize);
 
-  var fontSize = 1;
-
   if (text.length === 1) {
     // use precalculated font ratio to improve perfomance
-    fontSize = avatarSize * 88 / 100;
+    fontSize = avatarSize * FONT_RATIO / 100;
   } else if (text.length > 1) {
     fontSize = calculateFitFontSize(ctx, avatarSize, text);
   }
 
   ctx.font = fontName(fontSize);
 
-  // draw text in the center
+  // draw text in the center, measure it to be sure it is well aligned
   ctx.fillStyle = fgColor;
   ctx.textBaseline = 'middle';
-  ctx.textAlign = 'center';
+  const textWidth = ctx.measureText(text).width;
 
-  ctx.fillText(text, avatarSize / 2, avatarSize / 2);
+  ctx.fillText(text, (avatarSize / 2) - (textWidth / 2), avatarSize / 2);
 
   if (options.toBase64 === true) {
     return canvas.toDataURL();
-  } else {
-    return canvas.toBuffer();
   }
-};
 
-module.exports.generateFromText = generateFromText;
+  return canvas.toBuffer();
+}
 
 /**
  * Get colors based on 3 last characters of uuid
  * @param  {String} uuid
  * @return {Object}
  */
-var getColorsFromUuid = function(uuid) {
+function getColorsFromUuid(uuid) {
   if (!uuid || typeof uuid !== 'string') {
     return DEFAULT_COLOR;
   }
 
-  var length = uuid.length;
+  const length = uuid.length;
 
   if (length < 3) {
     return DEFAULT_COLOR;
   }
 
-  var sum = uuid.charCodeAt(length - 1) +
+  const sum = uuid.charCodeAt(length - 1) +
             uuid.charCodeAt(length - 2) +
             uuid.charCodeAt(length - 3);
-  return COLORS[sum % COLORS_SIZE];
-};
 
-module.exports.getColorsFromUuid = getColorsFromUuid;
+  return COLORS[sum % COLORS_SIZE];
+}
+
+function fontName(size) {
+  return `${size}px Arial`;
+}
 
 // Work around to node-canvas issue in version 1.2.3:
 // https://github.com/Automattic/node-canvas/issues/487

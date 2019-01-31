@@ -109,7 +109,7 @@ describe('The image avatar module', function() {
 
   describe('The getColorsFromUuid fn', function() {
 
-    var DEFAULT_COLOR = { bgColor: '#F44336', fgColor: 'white' };
+    var DEFAULT_COLOR = { bgColor: '#d32f2f', fgColor: 'white' };
 
     it('should return an object of colors when there is uuid', function() {
       var colors = avatarModule

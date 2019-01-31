@@ -392,7 +392,7 @@ describe('The avatars controller', function() {
         mockery.registerMock('../../core/image', {
           avatarGenerationModule: {
             generateFromText: function(options) {
-              expect(options).to.deep.equal({
+              expect(options).to.shallowDeepEqual({
                 text: 't',
                 bgColor: 'red',
                 fgColor: 'blue'
