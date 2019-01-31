@@ -108,7 +108,8 @@ module.exports = function(dependencies, options) {
           search: options.search,
           limit: options.limit,
           page: options.page,
-          addressbooks: addressbooksToSearch
+          addressbooks: addressbooksToSearch,
+          excludeIds: options.excludeIds
         };
 
         return q.ninvoke(searchClient, 'searchContacts', searchOptions)
