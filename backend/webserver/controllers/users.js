@@ -1,5 +1,3 @@
-'use strict';
-
 const Q = require('q');
 const userModule = require('../../core').user;
 const imageModule = require('../../core').image;
@@ -388,7 +386,7 @@ function getProfileAvatar(req, res) {
   }
 
   if (!req.user.currentAvatar) {
-    return _redirectToGeneratedAvatar(req.user, res);
+    return _redirectToGeneratedAvatar(req, res, req.user);
   }
 
   Q.ninvoke(imageModule, 'getAvatar', req.user.currentAvatar, req.query.format)
@@ -396,7 +394,7 @@ function getProfileAvatar(req, res) {
       if (!readable) {
         logger.warn('Can not retrieve avatar stream for user %s', req.user._id);
 
-        return _redirectToGeneratedAvatar(req.user, res);
+        return _redirectToGeneratedAvatar(req, res, req.user);
       }
 
       if (!fileStoreMeta) {
@@ -413,7 +411,7 @@ function getProfileAvatar(req, res) {
     .catch(err => {
       logger.warn('Can not get user avatar: %s', err.message);
 
-      _redirectToGeneratedAvatar(req.user, res);
+      _redirectToGeneratedAvatar(req, res, req.user);
     });
 }
 
@@ -425,7 +423,7 @@ function getProfileAvatar(req, res) {
  */
 function getTargetUserAvatar(req, res) {
   if (!req.targetUser.currentAvatar) {
-    return _redirectToGeneratedAvatar(req.targetUser, res);
+    return _redirectToGeneratedAvatar(req, res, req.targetUser);
   }
 
   Q.ninvoke(imageModule, 'getAvatar', req.targetUser.currentAvatar, req.query.format)
@@ -433,7 +431,7 @@ function getTargetUserAvatar(req, res) {
       if (!readable) {
         logger.warn('Can not retrieve avatar stream for user %s', req.targetUser._id);
 
-        return _redirectToGeneratedAvatar(req.targetUser, res);
+        return _redirectToGeneratedAvatar(req, res, req.targetUser);
       }
 
       if (!fileStoreMeta) {
@@ -450,12 +448,16 @@ function getTargetUserAvatar(req, res) {
     .catch(err => {
       logger.warn('Can not get user avatar: %s', err.message);
 
-      _redirectToGeneratedAvatar(req.targetUser, res);
+      _redirectToGeneratedAvatar(req, res, req.targetUser);
     });
 }
 
-function _redirectToGeneratedAvatar(user, res) {
-  res.redirect(`/api/avatars?objectType=email&email=${user.preferredEmail}`);
+function _redirectToGeneratedAvatar(req, res, user) {
+  // keep req.query.size parameter when defined
+  const size = req.query.size;
+  const url = `/api/avatars?objectType=email&email=${user.preferredEmail}`;
+
+  res.redirect(size ? `${url}&size=${size}` : url);
 }
 
 /**
