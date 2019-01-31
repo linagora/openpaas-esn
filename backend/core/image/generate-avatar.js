@@ -103,12 +103,12 @@ function generateFromText(options) {
 
   ctx.font = fontName(fontSize);
 
-  // draw text in the center
+  // draw text in the center, measure it to be sure it is well aligned
   ctx.fillStyle = fgColor;
   ctx.textBaseline = 'middle';
-  ctx.textAlign = 'center';
+  const textWidth = ctx.measureText(text).width;
 
-  ctx.fillText(text, avatarSize / 2, avatarSize / 2);
+  ctx.fillText(text, (avatarSize / 2) - (textWidth / 2), avatarSize / 2);
 
   if (options.toBase64 === true) {
     return canvas.toDataURL();
