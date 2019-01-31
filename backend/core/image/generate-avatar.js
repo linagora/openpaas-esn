@@ -1,27 +1,11 @@
 const Canvas = require('canvas');
+
 const DEFAULT_AVATAR_SIZE = 256;
 const FONT_RATIO = 66;
-
-// color spec from:
-// https://www.google.com/design/spec/style/color.html#color-color-palette
-const COLORS = [
-  { bgColor: '#F44336', fgColor: 'white' }, // Red
-  { bgColor: '#E91E63', fgColor: 'white' }, // Pink
-  { bgColor: '#9C27B0', fgColor: 'white' }, // Purple
-  { bgColor: '#673AB7', fgColor: 'white' }, // Deep Purple
-  { bgColor: '#3F51B5', fgColor: 'white' }, // Indigo
-  { bgColor: '#2196F3', fgColor: 'white' }, // Blue
-  { bgColor: '#0097A7', fgColor: 'white' }, // Cyan
-  { bgColor: '#009688', fgColor: 'white' }, // Teal
-  { bgColor: '#43A047', fgColor: 'white' }, // Green
-  { bgColor: '#558B2F', fgColor: 'white' }, // Light Green
-  { bgColor: '#827717', fgColor: 'white' }, // Lime
-  { bgColor: '#FFEB3B', fgColor: 'white' }, // Yellow
-  { bgColor: '#FF5722', fgColor: 'white' }, // Deep Orange
-  { bgColor: '#795548', fgColor: 'white' }, // Brown
-  { bgColor: '#757575', fgColor: 'white' }, // Grey
-  { bgColor: '#607D8B', fgColor: 'white' }  // Blue Grey
-];
+const fgColor = 'white';
+// material colors 700
+const BG_COLORS = ['#d32f2f', '#C2185B', '#7B1FA2', '#512DA8', '#303F9F', '#1976D2', '#0288D1', '#0097A7', '#00796B', '#388E3C', '#689F38', '#AFB42B', '#FBC02D', '#FFA000', '#F57C00', '#E64A19', '#5D4037', '#616161', '#455A64'];
+const COLORS = BG_COLORS.map(bgColor => ({ bgColor, fgColor }));
 const COLORS_SIZE = COLORS.length;
 const DEFAULT_COLOR = COLORS[0];
 
@@ -141,7 +125,7 @@ function getColorsFromUuid(uuid) {
 }
 
 function fontName(size) {
-  return size + 'px Arial';
+  return `${size}px Arial`;
 }
 
 // Work around to node-canvas issue in version 1.2.3:
