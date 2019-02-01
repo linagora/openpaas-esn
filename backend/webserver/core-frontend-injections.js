@@ -462,6 +462,10 @@ const injections = [
       'attachments-selector/attachments-selector.controller.js',
       'attachments-selector/attachments-selector.service.js'
   ], innerApps: ['esn']},
+  {angular: 'esn.people', files: [
+    'people/people.module.js',
+    'people/people-api-client.service.js'
+  ], innerApps: ['esn', 'welcome']},
   {angular: 'esn.app-state', files: [
     'app-state/app-state.module.js',
     'app-state/app-state.run.js',

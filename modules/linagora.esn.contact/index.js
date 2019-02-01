@@ -37,6 +37,7 @@ const contactModule = new AwesomeModule(moduleData.fullName, {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.token', 'tokenMW'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.wsserver', 'wsserver'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.i18n', 'i18n'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.people', 'people'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.autoconf', 'autoconf', true),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.dav.import', 'dav.import', true),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.esn-config', 'esn-config')
