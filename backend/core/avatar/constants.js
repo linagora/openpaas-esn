@@ -1,0 +1,5 @@
+module.exports = {
+  AVATAR_MIN_SIZE: 48,
+  AVATAR_DEFAULT_SIZE: 256,
+  AVATAR_MAX_SIZE: 1024
+};
