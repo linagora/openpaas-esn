@@ -149,43 +149,4 @@ angular.module('esn.domain', ['esn.http', 'esn.attendee', 'esn.session', 'esn.us
           return response.data ? response.data[0] : null;
         });
     }
-  })
-
-  .service('domainSearchMembersProvider', function($q, $log, domainAPI, userUtils) {
-    function get(domainId) {
-      return {
-        objectType: 'user',
-        priority: 100,
-        searchAttendee: function(query, limit) {
-          var memberQuery = {search: query, limit: limit};
-          return domainAPI.getMembers(domainId, memberQuery).then(function(response) {
-            response.data.forEach(function(user) {
-              user.id = user._id;
-              user.email = user.preferredEmail;
-              user.displayName = userUtils.displayNameOf(user);
-              user.photo = '/api/users/' + user.id + '/profile/avatar';
-            });
-            return response.data;
-          }, function(error) {
-            $log.error('Error while searching users:', error);
-            return $q.when([]);
-          });
-        }
-      };
-    }
-
-    return {
-      get: get
-    };
-  })
-  .run(function(domainSearchMembersProvider, attendeeService, session, esnConfig) {
-    session.ready.then(function() {
-      esnConfig('core.membersCanBeSearched', true).then(function(membersCanBeSearched) {
-        if (membersCanBeSearched) {
-          var attendeeProvider = domainSearchMembersProvider.get(session.domain._id);
-
-          attendeeService.addProvider(attendeeProvider);
-        }
-      });
-    });
-  });
+});
