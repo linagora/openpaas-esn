@@ -5,20 +5,26 @@ const { denormalize } = require('./denormalize');
 const { search } = require('./search');
 const { getDisplayName } = require('./utils');
 const { getPath } = require('./avatar');
+const { filterDomainsByMembersCanBeSearched } = require('../domain/helpers');
 
 module.exports = new PeopleResolver(OBJECT_TYPE, resolver, denormalizer, PRIORITY);
 
 function resolver({ term, context, pagination }) {
-  const options = { search: term, domains: [context.domain], limit: pagination.limit };
-
   return new Promise((resolve, reject) => {
-    search(options, (err, result) => {
-      if (err) {
-        return reject(err);
-      }
+    filterDomainsByMembersCanBeSearched([context.domain])
+      .then(domains => {
+        if (!domains.length) {
+          return resolve([]);
+        }
 
-      result && result.list ? resolve(result.list) : resolve([]);
-    });
+        search({ search: term, domains, limit: pagination.limit }, (err, result) => {
+          if (err) {
+            return reject(err);
+          }
+
+          result && result.list ? resolve(result.list) : resolve([]);
+        });
+      });
   });
 }
 
