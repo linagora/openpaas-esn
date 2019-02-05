@@ -1,7 +1,6 @@
-'use strict';
-
-var mockery = require('mockery');
-var expect = require('chai').expect;
+const mockery = require('mockery');
+const { expect } = require('chai');
+const sinon = require('sinon');
 
 describe('The avatars controller', function() {
 
@@ -421,4 +420,128 @@ describe('The avatars controller', function() {
       });
     });
   });
+
+  describe('The getGeneratedAvatar function', function() {
+    let email, imageModule, bgColor, fgColor;
+
+    beforeEach(function() {
+      bgColor = 'blue';
+      fgColor = 'white';
+      email = 'admin@open-paas.org';
+      imageModule = {
+        avatarGenerationModule: {
+          getColorsFromUuid: sinon.stub().returns({ bgColor, fgColor }),
+          generateFromText: sinon.spy()
+        }
+      };
+
+      mockery.registerMock('../middleware/collaboration', {});
+      mockery.registerMock('./collaborations', {});
+      mockery.registerMock('./users', {});
+      mockery.registerMock('../../core/user', {});
+      mockery.registerMock('../../core/image', imageModule);
+    });
+
+    it('should HTTP 400 when req.query.email is undefined', function(done) {
+      const req = { query: {} };
+      const res = this.helpers.express.jsonResponse(
+        function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      );
+      const module = this.helpers.requireBackend('webserver/controllers/avatars');
+
+      module.getGeneratedAvatar(req, res);
+    });
+
+    it('should HTTP 400 when req.query.email is not a string', function(done) {
+      const req = { query: { email: 1 } };
+      const res = this.helpers.express.jsonResponse(
+        function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+        );
+        const module = this.helpers.requireBackend('webserver/controllers/avatars');
+
+        module.getGeneratedAvatar(req, res);
+      });
+
+      it('should HTTP 400 when req.query.email is empty string', function(done) {
+        const req = { query: { email: ''} };
+        const res = this.helpers.express.jsonResponse(
+          function(code) {
+          expect(code).to.equal(400);
+          done();
+        }
+      );
+      const module = this.helpers.requireBackend('webserver/controllers/avatars');
+
+      module.getGeneratedAvatar(req, res);
+    });
+
+    it('should use the min avatar size when size is not defined', function() {
+      const { AVATAR_MIN_SIZE } = this.helpers.requireBackend('core/avatar/constants');
+      const req = { query: { email } };
+      const res = {
+        send: sinon.spy()
+      };
+
+      const module = this.helpers.requireBackend('webserver/controllers/avatars');
+
+      module.getGeneratedAvatar(req, res);
+      expect(res.send).to.have.been.called;
+      expect(imageModule.avatarGenerationModule.getColorsFromUuid).to.have.been.called;
+      expect(imageModule.avatarGenerationModule.generateFromText).to.have.been.calledWith(sinon.match.has('size', AVATAR_MIN_SIZE));
+    });
+
+    it('should use the min avatar size when size is lower than min size', function() {
+      const { AVATAR_MIN_SIZE } = this.helpers.requireBackend('core/avatar/constants');
+      const req = { query: { email, size: AVATAR_MIN_SIZE - 1 } };
+      const res = {
+        send: sinon.spy()
+      };
+
+      const module = this.helpers.requireBackend('webserver/controllers/avatars');
+
+      module.getGeneratedAvatar(req, res);
+      expect(res.send).to.have.been.called;
+      expect(imageModule.avatarGenerationModule.getColorsFromUuid).to.have.been.called;
+      expect(imageModule.avatarGenerationModule.generateFromText).to.have.been.calledWith(sinon.match.has('size', AVATAR_MIN_SIZE));
+    });
+
+    it('should use the given avatar size when size is between min and max sizes', function() {
+      const { AVATAR_MIN_SIZE } = this.helpers.requireBackend('core/avatar/constants');
+      const size = AVATAR_MIN_SIZE + 1;
+      const req = { query: { email, size } };
+      const res = {
+        send: sinon.spy()
+      };
+
+      const module = this.helpers.requireBackend('webserver/controllers/avatars');
+
+      module.getGeneratedAvatar(req, res);
+      expect(res.send).to.have.been.called;
+      expect(imageModule.avatarGenerationModule.getColorsFromUuid).to.have.been.called;
+      expect(imageModule.avatarGenerationModule.generateFromText).to.have.been.calledWith(sinon.match.has('size', size));
+    });
+
+    it('should use the max avatar size when size is higher than and max size', function() {
+      const { AVATAR_MAX_SIZE } = this.helpers.requireBackend('core/avatar/constants');
+      const size = AVATAR_MAX_SIZE + 1;
+      const req = { query: { email, size } };
+      const res = {
+        send: sinon.spy()
+      };
+
+      const module = this.helpers.requireBackend('webserver/controllers/avatars');
+
+      module.getGeneratedAvatar(req, res);
+      expect(res.send).to.have.been.called;
+      expect(imageModule.avatarGenerationModule.getColorsFromUuid).to.have.been.called;
+      expect(imageModule.avatarGenerationModule.generateFromText).to.have.been.calledWith(sinon.match.has('size', AVATAR_MAX_SIZE));
+    });
+  });
+
 });

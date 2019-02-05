@@ -1,13 +1,15 @@
+const crypto = require('crypto');
 const userModule = require('../../core/user');
 const userController = require('./users');
 const imageModule = require('../../core/image');
 const collaborationController = require('./collaborations');
 const collaborationMiddleware = require('../middleware/collaboration');
 const avatarModule = require('../../core/avatar');
-const crypto = require('crypto');
+const { AVATAR_MIN_SIZE, AVATAR_MAX_SIZE } = require('../../core/avatar/constants');
 
 module.exports = {
-  get
+  get,
+  getGeneratedAvatar
 };
 
 function get(req, res) {
@@ -107,7 +109,7 @@ function getGeneratedAvatar(req, res) {
   }
 
   const email = req.query.email;
-  const size = Number.parseInt(req.query.size, 10);
+  const size = Math.min(Math.max(Number.parseInt(req.query.size, 10) || 0, AVATAR_MIN_SIZE), AVATAR_MAX_SIZE);
   const displayName = req.query.displayName || email;
   const emailMD5Digest = crypto.createHash('md5').update(email).digest('hex');
   const colors = imageModule.avatarGenerationModule.getColorsFromUuid(emailMD5Digest);
