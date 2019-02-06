@@ -1,5 +1,0 @@
-.row.auto-complete-match
-  img.col-xs-1.col-sm-1(src='/images/user.png', fallback-src='/images/user.png', ng-src='/api/avatars?email={{data.email}}', alt=__("From"))
-  .row
-    .col-xs-10.col-sm-11(ng-if="data.displayName" ng-bind-html="$highlight(data.displayName)")
-    .col-xs-10.col-sm-11(ng-if="data.email" ng-bind-html="$highlight(data.email)")

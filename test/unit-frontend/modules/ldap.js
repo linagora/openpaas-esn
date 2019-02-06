@@ -1,7 +1,6 @@
 'use strict';
 
 /* global chai: false */
-/* global sinon: false */
 
 var expect = chai.expect;
 
@@ -53,36 +52,6 @@ describe('The LDAP Angular module', function() {
         var promise = ldapAPI.searchUsers({});
 
         expect(promise.then).to.be.a.function;
-      });
-    });
-  });
-
-  describe('The ldapSearchProvider service', function() {
-    var ldapSearchProvider;
-    var $rootScope, ldapAPI;
-
-    beforeEach(inject(function(_$rootScope_, _ldapSearchProvider_, _ldapAPI_) {
-      $rootScope = _$rootScope_;
-      ldapSearchProvider = _ldapSearchProvider_;
-      ldapAPI = _ldapAPI_;
-    }));
-
-    describe('The searchAttendee fn', function() {
-      it('should call ldapAPI.searchUsers to get ldap\'s user', function(done) {
-        var search = 'abc';
-        var limit = 20;
-
-        var userQuery = {search: search, limit: limit};
-
-        ldapAPI.searchUsers = sinon.stub().returns($q.when({data: []}));
-
-        ldapSearchProvider.searchAttendee(search, limit).then(function(users) {
-          expect(users).to.deep.equal([]);
-          expect(ldapAPI.searchUsers).to.have.been.calledWith(userQuery);
-          done();
-        });
-
-        $rootScope.$digest();
       });
     });
   });

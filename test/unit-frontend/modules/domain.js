@@ -1,7 +1,6 @@
 'use strict';
 
 /* global chai: false */
-/* global sinon: false */
 
 var expect = chai.expect;
 
@@ -298,37 +297,6 @@ describe('The Domain Angular module', function() {
           done();
         });
         $httpBackend.flush();
-      });
-    });
-  });
-
-  describe('The domainSearchMembersProvider service', function() {
-    var domainSearchMembersProvider;
-    var $rootScope, domainAPI;
-
-    beforeEach(inject(function(_$rootScope_, _domainSearchMembersProvider_, _domainAPI_) {
-      $rootScope = _$rootScope_;
-      domainSearchMembersProvider = _domainSearchMembersProvider_;
-      domainAPI = _domainAPI_;
-    }));
-
-    describe('The get fn', function() {
-      it('should return searchMembersProvider', function(done) {
-        var domainId = '123456';
-        var query = 'abc';
-        var limit = 20;
-
-        var memberQuery = {search: query, limit: limit};
-        var searchMembersProvider = domainSearchMembersProvider.get(domainId);
-
-        domainAPI.getMembers = sinon.stub().returns($q.when({data: []}));
-
-        searchMembersProvider.searchAttendee(query, limit).then(function() {
-          expect(domainAPI.getMembers).to.have.been.calledWith(domainId, memberQuery);
-          done();
-        });
-
-        $rootScope.$digest();
       });
     });
   });
