@@ -397,6 +397,7 @@ const injections = [
     'datetime/datetime.module.js',
     'datetime/datetime.component.js',
     'datetime/datetime-date-formater.filter.js',
+    'datetime/datetime.constants.js',
     'datetime/datetime.service.js',
     'datetime/datetime.run.js',
     'datetime/timeformat-selector/timeformat-selector.component.js',
