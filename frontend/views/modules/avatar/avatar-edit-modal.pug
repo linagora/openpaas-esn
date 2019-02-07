@@ -1,11 +1,11 @@
-.modal.fade.in.modal-profile-avatar(tabindex="-1", role="dialog", id="edit-avatar-dialog")
+.modal.center.fade.in.modal-profile-avatar(tabindex="-1", role="dialog", id="edit-avatar-dialog")
   .modal-dialog
     .modal-content
       .modal-header
         button.close(type="button", ng-click="$hide()") &times;
         h4.modal-title(ng-hide="uploading") #{__('Edit your avatar')}
         h4.modal-title(ng-show="uploading") #{__('Updating your avatar')}...
-      .modal-body
+      .modal-body.overflow-none
         avatar-picker(avatar-placeholder="{{avatarURL}}")
       .modal-footer(ng-hide='uploading')
         button.btn.btn-link.color-default(type="button", ng-disabled="uploading", ng-click="$hide()") #{__('Cancel')}

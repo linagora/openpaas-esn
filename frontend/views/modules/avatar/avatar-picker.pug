@@ -6,7 +6,7 @@
       input(type="file", accept="image/*", load-button)
 .avatar-picker-error
 .row.avatar-picker-preview
-  .col-xs-12.col-md-3.flex-horizontal-centered
+  .col-xs-12.flex-horizontal-centered
     div(ng-show='!image.selected')
       img(width="128", height="128", ng-src='{{avatarPlaceholder}}', alt=__("Avatar"))
     div(ng-show='image.selected')
