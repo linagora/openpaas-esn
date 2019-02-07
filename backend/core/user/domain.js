@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const User = mongoose.model('User');
 const utils = require('./utils');
 const pubsub = require('../../core/pubsub').local;
+const logger = require('../logger');
 const domainModule = require('../domain');
 const CONSTANTS = require('./constants');
 const USER_CONSTANT = require('../user/constants');
@@ -84,6 +85,8 @@ function getUserDomains(user, callback) {
  * @param {function} cb - as fn(err, result) with result: { total_count: number, list: [User1, User2, ...] }
  */
 function getUsersList(domains, query = { limit: defaultLimit, offset: defaultOffset }, callback) {
+  logger.debug('getUsersList in domains', domains, query);
+
   if (!domains) {
     return callback(new Error('Domains is mandatory'));
   }
@@ -119,19 +122,19 @@ function getUsersList(domains, query = { limit: defaultLimit, offset: defaultOff
     };
   }
 
-  return User.find(findQuery).where('domains.domain_id').in(domainIds).count().exec((err, count) => {
-    if (err) {
-      return callback(new Error('Cannot count users of domain'));
-    }
-
+  countDomainsMembers(domainIds, findQuery).then(total_count => {
     User.find(findQuery).where('domains.domain_id').in(domainIds).skip(+query.offset).limit(+query.limit).sort({firstname: 'asc'}).exec((err, list) => {
       if (err) {
+        logger.error('Error while querying domain members', err);
+
         return callback(new Error('Cannot execute find request correctly on domains collection'));
       }
 
       if (collaboration) {
         return utils.filterByNotInCollaborationAndNoMembershipRequest(list, collaboration, (err, results) => {
           if (err) {
+            logger.error('Error while filtering collaboration domain members', err);
+
             return callback(err);
           }
 
@@ -149,11 +152,22 @@ function getUsersList(domains, query = { limit: defaultLimit, offset: defaultOff
       }
 
       callback(null, {
-        total_count: count,
-        list: list
+        total_count,
+        list
       });
     });
+  }).catch(err => {
+    logger.error(err);
+    callback(new Error('Cannot count users of domain'));
   });
+}
+
+function countDomainsMembers(domainIds = [], query = {}) {
+  if (!domainIds) {
+    return Promise.reject(new Error('domains to count members for can not be null or empty'));
+  }
+
+  return User.find(query).where('domains.domain_id').in(domainIds).count().exec();
 }
 
 /**
@@ -266,6 +280,7 @@ module.exports = {
   isMemberOfDomain: isMemberOfDomain,
   getUserDomains: getUserDomains,
   getUsersList: getUsersList,
+  countDomainsMembers,
   getUsersSearch: require('./search').searchByDomain,
   getAdministrators: getAdministrators,
   addDomainAdministrator: addDomainAdministrator,

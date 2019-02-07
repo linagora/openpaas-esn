@@ -53,7 +53,7 @@ describe('The user domain module', function() {
         userWithoutDomain.save(function(err) {
           if (err) { done(err); }
 
-          userDomain.getUsersList([models.domain], null, function(err, users) {
+          userDomain.getUsersList([models.domain], undefined, function(err, users) {
             expect(err).to.not.exist;
             expect(users).to.exist;
             expect(users.list.length).to.equal(4);
@@ -123,10 +123,10 @@ describe('The user domain module', function() {
       });
     });
 
-    it('should return an error when calling getUsersList with a null domain', function(done) {
+    it('should return an error when calling getUsersList with a undefined domain', function(done) {
       var userDomain = this.helpers.requireBackend('core/user/domain');
 
-      userDomain.getUsersList(null, null, function(err) {
+      userDomain.getUsersList(undefined, undefined, function(err) {
         expect(err).to.exist;
         done();
       });
@@ -354,7 +354,7 @@ describe('The user domain module', function() {
 
     it('should return Delphine and Philippe with empty request', function(done) {
 
-      userDomain.getUsersList([domain], null, function(err, users) {
+      userDomain.getUsersList([domain], undefined, function(err, users) {
         expect(err).to.not.exist;
         expect(users).to.exist;
         expect(users.list.length).to.equal(2);
