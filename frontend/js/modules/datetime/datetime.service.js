@@ -12,8 +12,8 @@
   ) {
     var groups = [
       {name: 'Today', dateFormat: 'shortTime', accepts: _isToday},
-      {name: 'Yesterday', dateFormat: 'EEE', accepts: _isYesterday},
-      {name: 'This week', dateFormat: 'EEE', accepts: _isThisWeek},
+      {name: 'Yesterday', dateFormat: 'ddd', accepts: _isYesterday},
+      {name: 'This week', dateFormat: 'ddd', accepts: _isThisWeek},
       {name: 'Last week', dateFormat: 'MMM d', accepts: _isLastWeek},
       {name: 'This month', dateFormat: 'MMM d', accepts: _isThisMonth},
       {name: 'Last month', dateFormat: 'MMM d', accepts: _isLastMonth},
@@ -50,7 +50,8 @@
           shortDate: formatShortDate,
           mediumDate: formatMediumDate,
           longDate: formatLongDate,
-          time: formatTime
+          time: formatTime,
+          shortTime: formatTime
         }[format];
         return formatFunction ? formatFunction(date) : _getMoment(date).format(format);
       }).join(' ');
