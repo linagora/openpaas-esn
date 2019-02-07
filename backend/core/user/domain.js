@@ -1,16 +1,14 @@
-'use strict';
-
-var mongoose = require('mongoose');
-var User = mongoose.model('User');
-var utils = require('./utils');
-var CONSTANTS = require('./constants');
-var pubsub = require('../../core/pubsub').local;
-var domainModule = require('../domain');
+const _ = require('lodash');
+const mongoose = require('mongoose');
+const User = mongoose.model('User');
+const utils = require('./utils');
+const pubsub = require('../../core/pubsub').local;
+const domainModule = require('../domain');
+const CONSTANTS = require('./constants');
 const USER_CONSTANT = require('../user/constants');
-var _ = require('lodash');
 
-var defaultLimit = 50;
-var defaultOffset = 0;
+const defaultLimit = 50;
+const defaultOffset = 0;
 
 function joinDomain(user, domain, callback) {
   if (!user) {
