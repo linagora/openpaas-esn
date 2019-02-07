@@ -85,29 +85,25 @@ function getUserDomains(user, callback) {
  *  'not_in_community' to return only members who are not in this community and no pending request with it.
  * @param {function} cb - as fn(err, result) with result: { total_count: number, list: [User1, User2, ...] }
  */
-function getUsersList(domains, query, cb) {
+function getUsersList(domains, query = { limit: defaultLimit, offset: defaultOffset }, callback) {
   if (!domains) {
-    return cb(new Error('Domains is mandatory'));
+    return callback(new Error('Domains is mandatory'));
   }
   if (!(domains instanceof Array)) {
-    return cb(new Error('Domains must be an array'));
+    return callback(new Error('Domains must be an array'));
   }
   if (domains.length === 0) {
-    return cb(new Error('At least one domain is mandatory'));
+    return callback(new Error('At least one domain is mandatory'));
   }
 
-  query = query || { limit: defaultLimit, offset: defaultOffset };
+  const collaboration = query.not_in_collaboration;
+  const domainIds = domains.map(domain => (domain._id || domain));
+  const limit = query.limit;
+  let findQuery = {};
 
-  var collaboration = query.not_in_collaboration;
-  var limit = query.limit;
   if (collaboration) {
     query.limit = null;
   }
-
-  var domainIds = domains.map(function(domain) {
-    return domain._id || domain;
-  });
-  let findQuery = {};
 
   if (!query.includesDisabledSearchable) {
     findQuery = {
@@ -125,36 +121,39 @@ function getUsersList(domains, query, cb) {
     };
   }
 
-  return User.find(findQuery).where('domains.domain_id').in(domainIds).count().exec(function(err, count) {
+  return User.find(findQuery).where('domains.domain_id').in(domainIds).count().exec((err, count) => {
     if (err) {
-      return cb(new Error('Cannot count users of domain'));
+      return callback(new Error('Cannot count users of domain'));
     }
 
-    User.find(findQuery).where('domains.domain_id').in(domainIds).skip(+query.offset).limit(+query.limit).sort({firstname: 'asc'}).exec(function(err, list) {
+    User.find(findQuery).where('domains.domain_id').in(domainIds).skip(+query.offset).limit(+query.limit).sort({firstname: 'asc'}).exec((err, list) => {
       if (err) {
-        return cb(new Error('Cannot execute find request correctly on domains collection'));
+        return callback(new Error('Cannot execute find request correctly on domains collection'));
       }
 
       if (collaboration) {
-        utils.filterByNotInCollaborationAndNoMembershipRequest(list, collaboration, function(err, results) {
+        return utils.filterByNotInCollaborationAndNoMembershipRequest(list, collaboration, (err, results) => {
           if (err) {
-            return cb(err);
+            return callback(err);
           }
-          var filterCount = results.length;
+
+          const filterCount = results.length;
+
           if (filterCount > limit) {
             results = results.slice(0, limit);
           }
-          return cb(null, {
+
+          callback(null, {
             total_count: filterCount,
             list: results
           });
         });
-      } else {
-        return cb(null, {
-          total_count: count,
-          list: list
-        });
       }
+
+      callback(null, {
+        total_count: count,
+        list: list
+      });
     });
   });
 }
