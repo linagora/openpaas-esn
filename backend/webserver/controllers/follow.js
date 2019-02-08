@@ -68,6 +68,19 @@ function getFollowers(req, res) {
 }
 module.exports.getFollowers = getFollowers;
 
+function getFollowersHeaders(req, res) {
+  followModule.countFollowers({_id: req.params.id})
+    .then(count => {
+      res.header('X-ESN-Items-Count', count || 0);
+      res.status(200).send();
+    })
+    .catch(err => {
+      logger.error('Error while counting followers', err);
+      res.status(500).json({error: {code: 500, message: 'Server Error', details: err.message}});
+    });
+}
+module.exports.getFollowersHeaders = getFollowersHeaders;
+
 function getFollowings(req, res) {
   const pagination = getPaginationOptions(req);
 
@@ -85,6 +98,19 @@ function getFollowings(req, res) {
     });
 }
 module.exports.getFollowings = getFollowings;
+
+function getFollowingsHeaders(req, res) {
+  followModule.countFollowings({_id: req.params.id})
+    .then(count => {
+      res.header('X-ESN-Items-Count', count || 0);
+      res.status(200).send();
+    })
+    .catch(err => {
+      logger.error('Error while counting followings', err);
+      res.status(500).json({error: {code: 500, message: 'Server Error', details: err.message}});
+    });
+}
+module.exports.getFollowingsHeaders = getFollowingsHeaders;
 
 function isFollowing(req, res) {
   followModule.follows({_id: req.params.id}, {_id: req.params.tid}).then(function(result) {

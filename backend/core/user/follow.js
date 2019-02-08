@@ -80,8 +80,17 @@ function listUsers(options, type) {
   });
 }
 
-function getFollowers(user, options) {
-  options = options || {};
+function countFollowers(user) {
+  const options = {
+    target: userAsTuple(user),
+    type: CONSTANTS.FOLLOW_LINK_TYPE
+  };
+
+  return resourceLink.count(options);
+}
+module.exports.countFollowers = countFollowers;
+
+function getFollowers(user, options = {}) {
   options.target = userAsTuple(user);
   options.type = CONSTANTS.FOLLOW_LINK_TYPE;
 
@@ -89,14 +98,23 @@ function getFollowers(user, options) {
 }
 module.exports.getFollowers = getFollowers;
 
-function getFollowings(user, options) {
-  options = options || {};
+function getFollowings(user, options = {}) {
   options.source = userAsTuple(user);
   options.type = CONSTANTS.FOLLOW_LINK_TYPE;
 
   return listUsers(options, 'target');
 }
 module.exports.getFollowings = getFollowings;
+
+function countFollowings(user) {
+  const options = {
+    source: userAsTuple(user),
+    type: CONSTANTS.FOLLOW_LINK_TYPE
+  };
+
+  return resourceLink.count(options);
+}
+module.exports.countFollowings = countFollowings;
 
 function canFollow() {
   return Q(true);
