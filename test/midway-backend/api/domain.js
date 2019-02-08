@@ -1142,6 +1142,34 @@ describe('The domain API', function() {
     });
   });
 
+  describe('HEAD /api/domains/:uuid/members', function() {
+    it('should send back 401 when not logged in', function(done) {
+      helpers.api.requireLogin(app, 'head', `/api/domains/${domain1._id}/members`, done);
+    });
+
+    it('should send back 403 when current user is not domain member', function(done) {
+      helpers.api.loginAsUser(app, user1Domain2Manager.emails[0], password, (err, loggedInAsUser) => {
+        expect(err).to.not.exist;
+        loggedInAsUser(request(app).head(`/api/domains/${domain1._id}/members`)).expect(403).end(done);
+      });
+    });
+
+    it('should send back valid HTTP headers', function(done) {
+      helpers.api.loginAsUser(app, user1Domain1Manager.emails[0], password, (err, requestAsMember) => {
+        expect(err).to.not.exist;
+
+        requestAsMember(request(app).head(`/api/domains/${domain1._id}/members`))
+          .expect(200).end((err, res) => {
+            expect(err).to.not.exist;
+            expect(res.headers['x-esn-items-count']).to.exist;
+            expect(res.headers['x-esn-items-count']).to.equal(String(domain1Users.length));
+
+            done();
+          });
+      });
+    });
+  });
+
   describe('GET /api/domains/:uuid/manager', function() {
     it('should send back 401 when not logged in', function(done) {
       helpers.api.requireLogin(app, 'get', '/api/domains/' + domain1._id + '/manager', done);

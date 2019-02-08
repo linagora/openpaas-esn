@@ -19,6 +19,7 @@ module.exports = {
   create,
   update,
   getMembers,
+  getMembersHeaders,
   getDomain,
   createMember,
   getDomainAdministrators,
@@ -225,6 +226,27 @@ function getMembers(req, res) {
     function getDomains(query, domain) {
       return (query.ignoreMembersCanBeSearchedConfiguration === 'true' ? Promise.resolve([domain]) : filterDomainsByMembersCanBeSearched([domain]));
     }
+}
+
+function getMembersHeaders(req, res) {
+  userDomain.countDomainsMembers([req.domain])
+    .then(count => {
+      res.header('X-ESN-Items-Count', count || 0);
+      res.status(200).send();
+    })
+    .catch(err => {
+      const errorMessage = 'Error while counting domain members';
+
+      logger.error(errorMessage, err);
+
+      res.status(500).json({
+        error: {
+          status: 500,
+          message: 'Server Error',
+          details: errorMessage
+        }
+      });
+    });
 }
 
 /**
