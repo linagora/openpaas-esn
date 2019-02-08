@@ -47,32 +47,42 @@ function unfollow(req, res) {
 module.exports.unfollow = unfollow;
 
 function getPaginationOptions(req) {
-  return {offset: req.query.offset || DEFAULT_OFFSET, limit: req.query.limit || DEFAULT_LIMIT};
+  return { offset: +req.query.offset || DEFAULT_OFFSET, limit: +req.query.limit || DEFAULT_LIMIT };
 }
 
 function getFollowers(req, res) {
-  followModule.getFollowers({_id: req.params.id}, getPaginationOptions(req)).then(function(result) {
-    res.header('X-ESN-Items-Count', result.total_count);
-    denormalize(result.list).then(function(denormalized) {
-      res.status(200).json(denormalized || []);
+  const pagination = getPaginationOptions(req);
+
+  followModule.getFollowers({_id: req.params.id}, pagination)
+    .then(result => {
+      res.header('X-ESN-Items-Count', result.total_count);
+
+      return result.list || [];
+    })
+    .then(denormalize)
+    .then(denormalized => res.status(200).json(denormalized || []))
+    .catch(err => {
+      logger.error('Error while getting followers', err);
+      res.status(500).json({error: {code: 500, message: 'Server Error', details: err.message}});
     });
-  }, function(err) {
-    logger.error('Error while getting followers', err);
-    res.status(500).json({error: {code: 500, message: 'Server Error', details: err.message}});
-  });
 }
 module.exports.getFollowers = getFollowers;
 
 function getFollowings(req, res) {
-  followModule.getFollowings({_id: req.params.id}, getPaginationOptions(req)).then(function(result) {
-    res.header('X-ESN-Items-Count', result.total_count);
-    denormalize(result.list).then(function(denormalized) {
-      res.status(200).json(denormalized || []);
+  const pagination = getPaginationOptions(req);
+
+  followModule.getFollowings({_id: req.params.id}, pagination)
+    .then(result => {
+      res.header('X-ESN-Items-Count', result.total_count);
+
+      return result.list || [];
+    })
+    .then(denormalize)
+    .then(denormalized => res.status(200).json(denormalized || []))
+    .catch(err => {
+      logger.error('Error while getting followings', err);
+      res.status(500).json({error: {code: 500, message: 'Server Error', details: err.message}});
     });
-  }, function(err) {
-    logger.error('Error while getting followings', err);
-    res.status(500).json({error: {code: 500, message: 'Server Error', details: err.message}});
-  });
 }
 module.exports.getFollowings = getFollowings;
 
