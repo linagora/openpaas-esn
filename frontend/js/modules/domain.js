@@ -11,6 +11,7 @@ angular.module('esn.domain', ['esn.http', 'esn.attendee', 'esn.session', 'esn.us
       getAdministrators: getAdministrators,
       getByName: getByName,
       getMembers: getMembers,
+      getMembersHeaders: getMembersHeaders,
       inviteUsers: inviteUsers,
       isManager: isManager,
       list: list,
@@ -66,6 +67,15 @@ angular.module('esn.domain', ['esn.http', 'esn.attendee', 'esn.session', 'esn.us
      */
     function getMembers(id, options) {
       return esnRestangular.one('domains', id).getList('members', options);
+    }
+
+    /**
+     * Do a HTTP HEAD request to /domains/:id/members
+     *
+     * @param {*} id - Domain id
+     */
+    function getMembersHeaders(id) {
+      return esnRestangular.one('domains', id).one('members').head();
     }
 
     /**

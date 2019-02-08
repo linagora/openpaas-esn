@@ -31,7 +31,7 @@
     }
 
     function getFollowingsCount() {
-      return followAPI.getFollowings(session.user, { offset: 0, limit: 0 }).then(function(response) {
+      return followAPI.getFollowingsHeaders(session.user).then(function(response) {
         return parseInt(response.headers('X-ESN-Items-Count'), 10);
       });
     }

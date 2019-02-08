@@ -163,6 +163,28 @@ describe('The Domain Angular module', function() {
       });
     });
 
+    describe('The getMembersHeaders function', function() {
+      var headers;
+
+      beforeEach(function() {
+        headers = {'x-esn-items-count': '1013'};
+      });
+
+      it('should do a HTTP HEAD request to the right endpoint', function(done) {
+        $httpBackend.expectHEAD('/api/domains/' + DOMAIN_ID + '/members').respond(200, undefined, headers);
+
+        domainAPI.getMembersHeaders(DOMAIN_ID)
+          .then(function(data) {
+            expect(data.headers).to.be.a.function;
+            expect(data.headers('x-esn-items-count')).to.equal(headers['x-esn-items-count']);
+            done();
+          })
+          .catch(done);
+
+        $httpBackend.flush();
+      });
+    });
+
     describe('The isManager fn', function() {
 
       var response;
