@@ -6,16 +6,14 @@
   function ESNCommunityMembersTabsController($rootScope, communityAPI, communityService, session, ESN_COLLABORATION_MEMBER_EVENTS) {
     var self = this;
 
-    self.members = self.community.members_count;
-    self.members_count = self.community.members_count;
-    self.members_invitations_count = self.community.members_invitations_count;
-    self.members_requests_count = self.community.members_requests_count;
     self.error = false;
     self.$onInit = $onInit;
     self.$onDestroy = $onDestroy;
     self.isCommunityManager = isCommunityManager;
+    self.updateCount = updateCount;
 
     function $onInit() {
+      updateCount();
       self.collaborationInviteUser = $rootScope.$on(ESN_COLLABORATION_MEMBER_EVENTS.USERS, updateCount);
       self.collaborationInviteUserCancel = $rootScope.$on(ESN_COLLABORATION_MEMBER_EVENTS.CANCEL, updateCount);
       self.collaborationRequestAccepted = $rootScope.$on(ESN_COLLABORATION_MEMBER_EVENTS.ACCEPTED, updateCount);
