@@ -70,6 +70,14 @@ form:not(.ng-submitted) {
   }
 }
 
+.fg-line {
+  &:not([class*=has-]) {
+    &:after {
+      background: @primaryColor;
+    }
+  }
+}
+
 .toggle-switch {
   .ts-helper.ts-disabled {
     cursor: not-allowed;
@@ -84,4 +92,19 @@ form:not(.ng-submitted) {
     color: lighten(@text-color, 40%);
     background: transparent;
   }
+
 }
+
+.toggle-switch[data-ts-color="blue"] {
+  input {
+    &:not(:disabled) {
+      &:checked + .ts-helper {
+        background: fade(@primaryColor, 50%);
+
+        &:before {
+          background: @primaryColor;
+        }
+      }
+    }
+  }
+} 
