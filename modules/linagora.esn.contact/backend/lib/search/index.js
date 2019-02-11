@@ -1,18 +1,23 @@
-'use strict';
+const {
+  NOTIFICATIONS,
+  SEARCH
+} = require('../constants');
 
-var CONSTANTS = require('../constants');
-
-var INDEX_NAME = CONSTANTS.SEARCH.INDEX_NAME;
-var TYPE_NAME = CONSTANTS.SEARCH.TYPE_NAME;
-var DEFAULT_LIMIT = CONSTANTS.SEARCH.DEFAULT_LIMIT;
-
-module.exports = function(dependencies) {
-
-  var logger = dependencies('logger');
-  var elasticsearch = dependencies('elasticsearch');
+module.exports = dependencies => {
+  const logger = dependencies('logger');
+  const elasticsearch = dependencies('elasticsearch');
   const pubsub = dependencies('pubsub');
-  var listener = require('./listener')(dependencies);
-  var searchHandler;
+  const listener = require('./listener')(dependencies);
+  const { buildReindexOptions } = require('./reindex')(dependencies);
+  let searchHandler;
+
+  return {
+    init,
+    searchContacts,
+    indexContact,
+    removeContactFromIndex,
+    removeContactsOfAddressbook
+  };
 
   function indexContact(contact, callback) {
     logger.debug('Indexing contact into elasticseach', contact);
@@ -56,8 +61,8 @@ module.exports = function(dependencies) {
     };
 
     elasticsearch.removeDocumentsByQuery({
-      index: INDEX_NAME,
-      type: TYPE_NAME,
+      index: SEARCH.INDEX_NAME,
+      type: SEARCH.TYPE_NAME,
       body: elasticsearchQuery
     }, callback);
   }
@@ -66,7 +71,7 @@ module.exports = function(dependencies) {
     const terms = query.search;
     const page = query.page || 1;
     let offset = query.offset;
-    const limit = query.limit || DEFAULT_LIMIT;
+    const limit = query.limit || SEARCH.DEFAULT_LIMIT;
     const addressbooks = query.addressbooks;
     const filters = [];
 
@@ -132,8 +137,8 @@ module.exports = function(dependencies) {
     }
 
     elasticsearch.searchDocuments({
-      index: INDEX_NAME,
-      type: TYPE_NAME,
+      index: SEARCH.INDEX_NAME,
+      type: SEARCH.TYPE_NAME,
       from: offset,
       size: limit,
       body: elasticsearchQuery
@@ -149,10 +154,20 @@ module.exports = function(dependencies) {
     });
   }
 
+  function init() {
+    listen();
+
+    // Register elasticsearch reindex options for contacts
+    elasticsearch.reindexRegistry.register(SEARCH.TYPE_NAME, {
+      name: SEARCH.INDEX_NAME,
+      buildReindexOptionsFunction: buildReindexOptions
+    });
+  }
+
   function listen() {
     logger.info('Subscribing to contact updates for indexing');
 
-    pubsub.local.topic(CONSTANTS.NOTIFICATIONS.ADDRESSBOOK_DELETED).subscribe(data => {
+    pubsub.local.topic(NOTIFICATIONS.ADDRESSBOOK_DELETED).subscribe(data => {
       removeContactsOfAddressbook(data, error => {
         if (error) {
           logger.error('Error while removing contacts from Elasticsearch', error);
@@ -162,13 +177,4 @@ module.exports = function(dependencies) {
 
     searchHandler = listener.register();
   }
-
-  return {
-    listen: listen,
-    searchContacts: searchContacts,
-    indexContact: indexContact,
-    removeContactFromIndex: removeContactFromIndex,
-    removeContactsOfAddressbook
-  };
-
 };
