@@ -6,8 +6,12 @@ var sinon = require('sinon');
 
 describe('The contacts search Module', function() {
 
-  var deps = {
-    elasticsearch: {},
+  const deps = {
+    elasticsearch: {
+      reindexRegistry: {
+        register: () => {}
+      }
+    },
     pubsub: {
       local: {}
     },
@@ -23,15 +27,16 @@ describe('The contacts search Module', function() {
     return deps[name];
   };
 
-  describe('The listen function', function() {
-
+  describe('The init function', function() {
     it('should register a listener and subscribe addressbook deleted event', function() {
-      var register = sinon.stub();
+      const register = sinon.stub();
+
       mockery.registerMock('./listener', function() {
         return {
-          register: register
+          register
         };
       });
+      mockery.registerMock('./reindex', () => ({}));
 
       deps.pubsub.local.topic = name => {
         expect(name).to.equal('contacts:addressbook:deleted');
@@ -39,13 +44,38 @@ describe('The contacts search Module', function() {
         return { subscribe: () => {} };
       };
 
-      var module = require('../../../../backend/lib/search')(dependencies);
-      module.listen();
+      const module = require('../../../../backend/lib/search')(dependencies);
+
+      module.init();
       expect(register).to.have.been.calledOnce;
+    });
+
+    it('should register elasticsearch reindex options for contacts', function() {
+      const buildReindexOptions = () => {};
+
+      mockery.registerMock('./listener', () => ({ register: () => {} }));
+      mockery.registerMock('./reindex', () => ({ buildReindexOptions }));
+
+      deps.elasticsearch.reindexRegistry.register = sinon.spy();
+
+      const module = require('../../../../backend/lib/search')(dependencies);
+
+      module.init();
+      expect(deps.elasticsearch.reindexRegistry.register).to.have.been.calledOnce;
+      expect(deps.elasticsearch.reindexRegistry.register).to.have.been.calledWith(
+        'contacts',
+        {
+          name: 'contacts.idx',
+          buildReindexOptionsFunction: buildReindexOptions
+        }
+      );
     });
   });
 
   describe('The indexContact function', function() {
+    beforeEach(function() {
+      mockery.registerMock('./reindex', () => ({}));
+    });
 
     it('should send back error when listener is not started', function(done) {
       var module = require('../../../../backend/lib/search')(dependencies);
@@ -63,7 +93,7 @@ describe('The contacts search Module', function() {
           };
         });
         var module = require('../../../../backend/lib/search')(dependencies);
-        module.listen();
+        module.init();
         module.indexContact(null, this.helpers.callbacks.errorWithMessage(done, 'Contact is required'));
       });
 
@@ -83,13 +113,16 @@ describe('The contacts search Module', function() {
         });
 
         var module = require('../../../../backend/lib/search')(dependencies);
-        module.listen();
+        module.init();
         module.indexContact(contact, this.helpers.callbacks.noError(done));
       });
     });
   });
 
   describe('The removeContactFromIndex function', function() {
+    beforeEach(function() {
+      mockery.registerMock('./reindex', () => ({}));
+    });
 
     it('should send back error when listener is not started', function(done) {
       var module = require('../../../../backend/lib/search')(dependencies);
@@ -107,7 +140,7 @@ describe('The contacts search Module', function() {
           };
         });
         var module = require('../../../../backend/lib/search')(dependencies);
-        module.listen();
+        module.init();
         module.removeContactFromIndex(null, this.helpers.callbacks.errorWithMessage(done, 'Contact is required'));
       });
 
@@ -126,13 +159,17 @@ describe('The contacts search Module', function() {
           };
         });
         var module = require('../../../../backend/lib/search')(dependencies);
-        module.listen();
+        module.init();
         module.removeContactFromIndex(contact, this.helpers.callbacks.noError(done));
       });
     });
   });
 
   describe('The removeContactsOfAddressbook function', function() {
+    beforeEach(function() {
+      mockery.registerMock('./reindex', () => ({}));
+    });
+
     it('should call elasticsearch.removeDocumentsByQuery with right parameters', function(done) {
       const addressbook = {
         userId: 'user-id',
@@ -166,6 +203,10 @@ describe('The contacts search Module', function() {
   });
 
   describe('The searchContacts function', function() {
+    beforeEach(function() {
+      mockery.registerMock('./reindex', () => ({}));
+    });
+
     it('should not call search.searchDocuments if there is no addressbooks is provided', function(done) {
       const query = {
         search: 'Bruce',
