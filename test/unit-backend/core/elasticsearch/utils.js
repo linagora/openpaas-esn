@@ -9,7 +9,7 @@ describe('The ES utils module', function() {
   describe('The indexData function', function() {
 
     it('should call options.denormalize when defined', function(done) {
-      mockery.registerMock('./index', {
+      mockery.registerMock('./elasticsearch', {
         addDocumentToIndex: function() {}
       });
       var data = {_id: 1};
@@ -40,7 +40,7 @@ describe('The ES utils module', function() {
         index: 'type.idx'
       };
 
-      mockery.registerMock('./index', {
+      mockery.registerMock('./elasticsearch', {
         addDocumentToIndex: function(doc, opts) {
           expect(doc).to.deep.equal(denormalized);
           expect(opts).to.deep.equal({
@@ -66,7 +66,7 @@ describe('The ES utils module', function() {
         index: 'type.idx'
       };
 
-      mockery.registerMock('./index', {
+      mockery.registerMock('./elasticsearch', {
         removeDocumentFromIndex: function(opts) {
           expect(opts).to.deep.equal({
             index: options.index,

@@ -16,8 +16,10 @@ const CONSTANTS = require('./constants');
 const moderation = require('./moderation');
 const coreAvailability = require('../availability');
 const utils = require('./utils');
+const { getOptions } = require('./listener');
+const { reindexRegistry } = require('../elasticsearch');
 
-const TYPE = CONSTANTS.TYPE;
+const { TYPE, ELASTICSEARCH } = CONSTANTS;
 
 function getUserTemplate(callback) {
   esnConfig('user').get(callback);
@@ -184,6 +186,12 @@ function init() {
       return q.denodeify(findByEmail)(email).then(user => !user);
     }
   });
+
+  // Register elasticsearch reindex options for users
+  reindexRegistry.register(ELASTICSEARCH.type, {
+    name: ELASTICSEARCH.index,
+    buildReindexOptionsFunction: _buildElasticsearchReindexOptions
+  });
 }
 
 /**
@@ -273,6 +281,16 @@ function updateStates(userId, states, callback) {
 
     callback(err);
   });
+}
+
+function _buildElasticsearchReindexOptions() {
+  const options = getOptions();
+  const cursor = listByCursor();
+
+  options.name = ELASTICSEARCH.index;
+  options.next = () => cursor.next();
+
+  return Promise.resolve(options);
 }
 
 module.exports = {

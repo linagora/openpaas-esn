@@ -14,7 +14,7 @@ describe('The elasticsearch module', function() {
     mockery.registerMock('./listeners', {});
   });
 
-  const getModule = () => helpers.rewireBackend('core/elasticsearch');
+  const getModule = () => helpers.rewireBackend('core/elasticsearch/elasticsearch');
 
   describe('with config error', function() {
 
@@ -31,7 +31,7 @@ describe('The elasticsearch module', function() {
     });
 
     it('should call the callback with the error "not found"', function(done) {
-      var elasticsearch = require('../../../../backend/core/elasticsearch');
+      var elasticsearch = require('../../../../backend/core/elasticsearch/elasticsearch');
       elasticsearch.updateClient(function(err, elasticsearchClient) {
         expect(err).to.exist;
         expect(elasticsearchClient).not.to.exist;
@@ -69,7 +69,7 @@ describe('The elasticsearch module', function() {
         }
       });
 
-      this.helpers.requireBackend('core/elasticsearch').updateClient(() => done());
+      this.helpers.requireBackend('core/elasticsearch/elasticsearch').updateClient(() => done());
     });
 
     it('should support environment variables', function(done) {
@@ -84,7 +84,7 @@ describe('The elasticsearch module', function() {
         }
       });
 
-      this.helpers.requireBackend('core/elasticsearch').updateClient(() => done());
+      this.helpers.requireBackend('core/elasticsearch/elasticsearch').updateClient(() => done());
     });
 
   });
@@ -115,7 +115,7 @@ describe('The elasticsearch module', function() {
     });
 
     it('should call the callback with the error "cannot connect"', function(done) {
-      var elasticsearch = require('../../../../backend/core/elasticsearch');
+      var elasticsearch = require('../../../../backend/core/elasticsearch/elasticsearch');
       elasticsearch.updateClient(function(err, elasticsearchClient) {
         expect(err).to.exist;
         expect(elasticsearchClient).not.to.exist;
@@ -151,7 +151,7 @@ describe('The elasticsearch module', function() {
     });
 
     it('should call the callback with an elasticsearch client', function(done) {
-      var elasticsearch = require('../../../../backend/core/elasticsearch');
+      var elasticsearch = require('../../../../backend/core/elasticsearch/elasticsearch');
       elasticsearch.updateClient(function(err, elasticsearchClient) {
         expect(err).not.to.exist;
         expect(elasticsearchClient).to.exist;
@@ -163,7 +163,7 @@ describe('The elasticsearch module', function() {
   describe('The getClient function', function() {
     it('should reject when client sends back error', function(done) {
       var error = 'You failed';
-      var module = this.helpers.rewireBackend('core/elasticsearch');
+      var module = this.helpers.rewireBackend('core/elasticsearch/elasticsearch');
       module.__set__('client', function(callback) {
         return callback(new Error(error));
       });
@@ -171,7 +171,7 @@ describe('The elasticsearch module', function() {
     });
 
     it('should reject when client can not be found', function(done) {
-      var module = this.helpers.rewireBackend('core/elasticsearch');
+      var module = this.helpers.rewireBackend('core/elasticsearch/elasticsearch');
       module.__set__('client', function(callback) {
         return callback();
       });
@@ -180,7 +180,7 @@ describe('The elasticsearch module', function() {
 
     it('should resolve with the client whn it exists', function(done) {
       var client = {id: 1};
-      var module = this.helpers.rewireBackend('core/elasticsearch');
+      var module = this.helpers.rewireBackend('core/elasticsearch/elasticsearch');
       module.__set__('client', function(callback) {
         return callback(null, client);
       });
@@ -195,7 +195,7 @@ describe('The elasticsearch module', function() {
 
     it('should send back error when getClient sends back error', function(done) {
       var error = new Error('You failed');
-      var module = this.helpers.rewireBackend('core/elasticsearch');
+      var module = this.helpers.rewireBackend('core/elasticsearch/elasticsearch');
       module.__set__('client', function(callback) {
         return callback(error);
       });
@@ -206,7 +206,7 @@ describe('The elasticsearch module', function() {
     });
 
     it('should send back error when getClient does not return client', function(done) {
-      var module = this.helpers.rewireBackend('core/elasticsearch');
+      var module = this.helpers.rewireBackend('core/elasticsearch/elasticsearch');
       module.__set__('client', function(callback) {
         return callback();
       });
@@ -237,7 +237,7 @@ describe('The elasticsearch module', function() {
           callback();
         }
       };
-      var module = this.helpers.rewireBackend('core/elasticsearch');
+      var module = this.helpers.rewireBackend('core/elasticsearch/elasticsearch');
       module.__set__('client', function(callback) {
         return callback(null, client);
       });
@@ -249,7 +249,7 @@ describe('The elasticsearch module', function() {
 
     it('should send back error when getClient sends back error', function(done) {
       var error = new Error('You failed');
-      var module = this.helpers.rewireBackend('core/elasticsearch');
+      var module = this.helpers.rewireBackend('core/elasticsearch/elasticsearch');
       module.__set__('client', function(callback) {
         return callback(error);
       });
@@ -260,7 +260,7 @@ describe('The elasticsearch module', function() {
     });
 
     it('should send back error when getClient does not return client', function(done) {
-      var module = this.helpers.rewireBackend('core/elasticsearch');
+      var module = this.helpers.rewireBackend('core/elasticsearch/elasticsearch');
       module.__set__('client', function(callback) {
         return callback();
       });
@@ -286,7 +286,7 @@ describe('The elasticsearch module', function() {
           callback();
         }
       };
-      var module = this.helpers.rewireBackend('core/elasticsearch');
+      var module = this.helpers.rewireBackend('core/elasticsearch/elasticsearch');
       module.__set__('client', function(callback) {
         return callback(null, client);
       });
@@ -298,7 +298,7 @@ describe('The elasticsearch module', function() {
 
     it('should send back error when getClient sends back error', function(done) {
       const error = new Error('You failed');
-      const module = this.helpers.rewireBackend('core/elasticsearch');
+      const module = this.helpers.rewireBackend('core/elasticsearch/elasticsearch');
 
       module.__set__('client', callback => callback(error));
       module.removeDocumentsByQuery({}, err => {
@@ -308,7 +308,7 @@ describe('The elasticsearch module', function() {
     });
 
     it('should send back error when getClient does not return client', function(done) {
-      const module = this.helpers.rewireBackend('core/elasticsearch');
+      const module = this.helpers.rewireBackend('core/elasticsearch/elasticsearch');
 
       module.__set__('client', callback => callback());
       module.removeDocumentsByQuery({}, err => {
@@ -333,7 +333,7 @@ describe('The elasticsearch module', function() {
           done();
         }
       };
-      const module = this.helpers.rewireBackend('core/elasticsearch');
+      const module = this.helpers.rewireBackend('core/elasticsearch/elasticsearch');
 
       module.__set__('client', function(callback) {
         return callback(null, clientMock);
@@ -376,7 +376,7 @@ describe('The elasticsearch module', function() {
         })),
         bulk: sinon.stub().returns(q.when())
       };
-      const module = this.helpers.rewireBackend('core/elasticsearch');
+      const module = this.helpers.rewireBackend('core/elasticsearch/elasticsearch');
 
       module.__set__('client', function(callback) {
         return callback(null, clientMock);
@@ -408,7 +408,7 @@ describe('The elasticsearch module', function() {
           callback();
         }
       };
-      var module = this.helpers.rewireBackend('core/elasticsearch');
+      var module = this.helpers.rewireBackend('core/elasticsearch/elasticsearch');
       module.__set__('client', function(callback) {
         return callback(null, client);
       });

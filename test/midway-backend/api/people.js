@@ -9,6 +9,7 @@ describe('The people API', function() {
   let domain1;
   let helpers;
   let core;
+  let domain1Users;
 
   beforeEach(function(done) {
     helpers = this.helpers;
@@ -20,10 +21,13 @@ describe('The people API', function() {
       app = helpers.requireBackend('webserver/application');
       helpers.requireBackend('core/elasticsearch/pubsub').init();
 
+      const userDenormalize = helpers.requireBackend('core/user/denormalize').denormalize;
+
       helpers.api.applyDomainDeployment('linagora_test_domain', function(err, models) {
         expect(err).to.not.exist;
         user2Domain1Member = models.users[1];
         domain1 = models.domain;
+        domain1Users = models.users.map(userDenormalize).map(helpers.toComparableObject);
 
         done();
       });
@@ -41,28 +45,12 @@ describe('The people API', function() {
       });
 
       it('should send back users matching search', function(done) {
+        const ids = domain1Users.map(user => user._id);
         const search = 'lng';
 
-        helpers.api.loginAsUser(app, user2Domain1Member.emails[0], password, (err, requestAsMember) => {
-          if (err) {
-            return done(err);
-          }
+        helpers.elasticsearch.checkUsersDocumentsIndexed(ids, err => {
+          expect(err).to.not.exist;
 
-          requestAsMember(request(app).get(`${API_PATH}/search`)).query({ q: search }).expect(200).end((err, res) => {
-            if (err) {
-              return done(err);
-            }
-            expect(res.body).to.not.be.empty;
-            done();
-          });
-        });
-      });
-
-      it('should does not send back users when user search is disabled', function(done) {
-        const search = 'lng';
-        const config = new core['esn-config'].EsnConfig('core', domain1._id);
-
-        config.set({ name: 'membersCanBeSearched', value: false }).then(function() {
           helpers.api.loginAsUser(app, user2Domain1Member.emails[0], password, (err, requestAsMember) => {
             if (err) {
               return done(err);
@@ -72,8 +60,34 @@ describe('The people API', function() {
               if (err) {
                 return done(err);
               }
-              expect(res.body).to.be.empty;
+              expect(res.body).to.not.be.empty;
               done();
+            });
+          });
+        });
+      });
+
+      it('should does not send back users when user search is disabled', function(done) {
+        const search = 'lng';
+        const config = new core['esn-config'].EsnConfig('core', domain1._id);
+        const ids = domain1Users.map(user => user._id);
+
+        helpers.elasticsearch.checkUsersDocumentsIndexed(ids, err => {
+          expect(err).to.not.exist;
+
+          config.set({ name: 'membersCanBeSearched', value: false }).then(function() {
+            helpers.api.loginAsUser(app, user2Domain1Member.emails[0], password, (err, requestAsMember) => {
+              if (err) {
+                return done(err);
+              }
+
+              requestAsMember(request(app).get(`${API_PATH}/search`)).query({ q: search }).expect(200).end((err, res) => {
+                if (err) {
+                  return done(err);
+                }
+                expect(res.body).to.be.empty;
+                done();
+              });
             });
           });
         });
