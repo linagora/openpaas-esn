@@ -72,7 +72,7 @@ angular.module('esn.domain', ['esn.http', 'esn.attendee', 'esn.session', 'esn.us
     /**
      * Do a HTTP HEAD request to /domains/:id/members
      *
-     * @param {*} id - Domain id
+     * @param {String} id - Domain id
      */
     function getMembersHeaders(id) {
       return esnRestangular.one('domains', id).one('members').head();
