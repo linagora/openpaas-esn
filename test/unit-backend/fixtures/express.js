@@ -18,6 +18,7 @@ exports.express = function() {
     return {
       all: function() {},
       get: function() {},
+      head: function() {},
       put: function() {},
       delete: function() {},
       post: function() {}
@@ -29,6 +30,7 @@ exports.express = function() {
     listen: function() {},
     use: function() {},
     set: function() {},
+    head: function() {},
     get: function() {},
     post: function() {},
     put: function() {},

@@ -8,7 +8,9 @@
       follow: follow,
       unfollow: unfollow,
       getFollowers: getFollowers,
-      getFollowings: getFollowings
+      getFollowersHeaders: getFollowersHeaders,
+      getFollowings: getFollowings,
+      getFollowingsHeaders: getFollowingsHeaders
     };
 
     function follow(user) {
@@ -23,8 +25,16 @@
       return esnRestangular.one('users', user._id).getList('followers', options);
     }
 
+    function getFollowersHeaders(user) {
+      return esnRestangular.one('users', user._id).one('followers').head();
+    }
+
     function getFollowings(user, options) {
       return esnRestangular.one('users', user._id).getList('followings', options);
+    }
+
+    function getFollowingsHeaders(user) {
+      return esnRestangular.one('users', user._id).one('followings').head();
     }
   }
 

@@ -126,6 +126,8 @@ module.exports = function(router) {
    */
   router.get('/domains/:uuid', authorize.requiresAPILogin, domainMiddleware.load, authorize.requiresDomainMember, domains.getDomain);
 
+  router.head('/domains/:uuid/members', authorize.requiresAPILogin, domainMiddleware.load, domainMiddleware.canGetMembers, domains.getMembersHeaders);
+
   /**
    * @swagger
    * /domains/{domain_id}/members:

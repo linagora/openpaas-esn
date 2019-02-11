@@ -70,6 +70,27 @@ describe('The follow API', function() {
       this.helpers.api.requireLogin(app, 'get', '/api/users/' + user1._id + '/followers', done);
     });
 
+    describe('HEAD request', function() {
+      it('should return valid headers', function(done) {
+        const self = this;
+        const size = 20;
+
+        this.createFollowers(size)
+          .then(() => {
+            self.helpers.api.loginAsUser(app, email1, password, self.helpers.callbacks.noErrorAnd(loggedInAsUser => {
+              loggedInAsUser(request(app)
+                .head(`/api/users/${user1._id}/followers`))
+                .expect(200)
+                .end(self.helpers.callbacks.noErrorAnd(res => {
+                  expect(res.headers['x-esn-items-count']).to.equal(String(size));
+                  done();
+                }));
+            }));
+          })
+          .catch(done);
+      });
+    });
+
     describe('With pagination', function() {
 
       it('should return a full page and the total number of followers', function(done) {
@@ -145,6 +166,27 @@ describe('The follow API', function() {
 
     it('should send back 401 when not authenticated', function(done) {
       this.helpers.api.requireLogin(app, 'get', '/api/users/' + user1._id + '/followings', done);
+    });
+
+    describe('HEAD request', function() {
+      it('should return valid headers', function(done) {
+        const self = this;
+        const size = 20;
+
+        this.createFollowings(size)
+          .then(() => {
+            self.helpers.api.loginAsUser(app, email1, password, self.helpers.callbacks.noErrorAnd(loggedInAsUser => {
+              loggedInAsUser(request(app)
+                .head(`/api/users/${user1._id}/followings`))
+                .expect(200)
+                .end(self.helpers.callbacks.noErrorAnd(res => {
+                  expect(res.headers['x-esn-items-count']).to.equal(String(size));
+                  done();
+                }));
+            }));
+          })
+          .catch(done);
+      });
     });
 
     it('should return a full page and the total number of followings', function(done) {

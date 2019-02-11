@@ -6,6 +6,8 @@ var userMiddleware = require('../middleware/user');
 
 module.exports = function(router) {
 
+  router.head('/users/:id/followers', authorize.requiresAPILogin, followController.getFollowersHeaders);
+
   /**
    * @swagger
    * /users/{id}/followers:
@@ -32,6 +34,8 @@ module.exports = function(router) {
    *         $ref: "#/responses/cm_500"
    */
   router.get('/users/:id/followers', authorize.requiresAPILogin, followController.getFollowers);
+
+  router.head('/users/:id/followings', authorize.requiresAPILogin, followController.getFollowingsHeaders);
 
   /**
    * @swagger

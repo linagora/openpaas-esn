@@ -31,7 +31,7 @@
     }
 
     function getDomainUsersCount() {
-      return domainAPI.getMembers(session.domain._id, { offset: 0, limit: 0 }).then(function(response) {
+      return domainAPI.getMembersHeaders(session.domain._id).then(function(response) {
         return parseInt(response.headers('X-ESN-Items-Count'), 10);
       });
     }
