@@ -38,7 +38,7 @@
 
     function init() {
       return $q.all([
-        esnConfig('core.datetime').then(function(config) { timeZone = config.timeZone || 'UTC'; }),
+        esnConfig('core.datetime').then(function(config) { timeZone = config && config.timeZone || 'UTC'; }),
         esnConfig('core.language').then(function(config) { locale = config || 'en'; })
       ]);
     }
