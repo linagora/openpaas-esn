@@ -157,14 +157,14 @@ function getUsersList(domains, query = { limit: defaultLimit, offset: defaultOff
       });
     });
   }).catch(err => {
-    logger.error(err);
-    callback(new Error('Cannot count users of domain'));
+    logger.error('Cannot count users of domain', err);
+    callback(err);
   });
 }
 
 function countDomainsMembers(domainIds = [], query = {}) {
-  if (!domainIds) {
-    return Promise.reject(new Error('domains to count members for can not be null or empty'));
+  if (!domainIds.length) {
+    return Promise.reject(new Error('domains to count members for can not be empty'));
   }
 
   return User.find(query).where('domains.domain_id').in(domainIds).count().exec();
