@@ -30,8 +30,10 @@ function follow(req, res) {
   followModule.follow(req.user, req.following).then(function(result) {
     res.status(201).json(result);
   }, function(err) {
-    logger.error('Error while following user', err);
-    res.status(500).json({error: {code: 500, message: 'Server Error', details: err.message}});
+    const details = 'Error while following user';
+
+    logger.error(details, err);
+    res.status(500).json({error: {code: 500, message: 'Server Error', details}});
   });
 }
 module.exports.follow = follow;
@@ -40,8 +42,10 @@ function unfollow(req, res) {
   followModule.unfollow(req.user, req.following).then(function() {
     res.status(204).end();
   }, function(err) {
-    logger.error('Error while unfollowing user', err);
-    res.status(500).json({error: {code: 500, message: 'Server Error', details: err.message}});
+    const details = 'Error while unfollowing user';
+
+    logger.error(details, err);
+    res.status(500).json({error: {code: 500, message: 'Server Error', details}});
   });
 }
 module.exports.unfollow = unfollow;
@@ -62,8 +66,10 @@ function getFollowers(req, res) {
     .then(denormalize)
     .then(denormalized => res.status(200).json(denormalized || []))
     .catch(err => {
-      logger.error('Error while getting followers', err);
-      res.status(500).json({error: {code: 500, message: 'Server Error', details: err.message}});
+      const details = 'Error while getting followers';
+
+      logger.error(details, err);
+      res.status(500).json({error: {code: 500, message: 'Server Error', details}});
     });
 }
 module.exports.getFollowers = getFollowers;
@@ -75,8 +81,10 @@ function getFollowersHeaders(req, res) {
       res.status(200).send();
     })
     .catch(err => {
-      logger.error('Error while counting followers', err);
-      res.status(500).json({error: {code: 500, message: 'Server Error', details: err.message}});
+      const details = 'Error while counting followers';
+
+      logger.error(details, err);
+      res.status(500).json({error: {code: 500, message: 'Server Error', details}});
     });
 }
 module.exports.getFollowersHeaders = getFollowersHeaders;
@@ -93,8 +101,10 @@ function getFollowings(req, res) {
     .then(denormalize)
     .then(denormalized => res.status(200).json(denormalized || []))
     .catch(err => {
-      logger.error('Error while getting followings', err);
-      res.status(500).json({error: {code: 500, message: 'Server Error', details: err.message}});
+      const details = 'Error while getting followings';
+
+      logger.error(details, err);
+      res.status(500).json({error: {code: 500, message: 'Server Error', details}});
     });
 }
 module.exports.getFollowings = getFollowings;
@@ -106,8 +116,10 @@ function getFollowingsHeaders(req, res) {
       res.status(200).send();
     })
     .catch(err => {
-      logger.error('Error while counting followings', err);
-      res.status(500).json({error: {code: 500, message: 'Server Error', details: err.message}});
+      const details = 'Error while counting followings';
+
+      logger.error(details, err);
+      res.status(500).json({error: {code: 500, message: 'Server Error', details}});
     });
 }
 module.exports.getFollowingsHeaders = getFollowingsHeaders;
@@ -119,8 +131,10 @@ function isFollowing(req, res) {
     }
     res.status(404).end();
   }, function(err) {
-    logger.error('Error while getting following status', err);
-    res.status(500).json({error: {code: 500, message: 'Server Error', details: err.message}});
+    const details = 'Error while getting following status';
+
+    logger.error(details, err);
+    res.status(500).json({error: {code: 500, message: 'Server Error', details}});
   });
 }
 module.exports.isFollowing = isFollowing;
