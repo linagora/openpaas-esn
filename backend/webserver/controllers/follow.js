@@ -1,52 +1,54 @@
-'use strict';
+const logger = require('../../core/logger');
+const followModule = require('../../core/user/follow');
+const denormalizeUser = require('../denormalize/user').denormalize;
+const q = require('q');
 
-var logger = require('../../core/logger');
-var followModule = require('../../core/user/follow');
-var denormalizeUser = require('../denormalize/user').denormalize;
-var q = require('q');
-
-var DEFAULT_LIMIT = 10;
-var DEFAULT_OFFSET = 0;
+const DEFAULT_LIMIT = 10;
+const DEFAULT_OFFSET = 0;
 
 function denormalize(data) {
   const denormalizeOptions = {
     includeIsFollowing: true,
     includeFollow: true
   };
-  var promises = data.map(function(item) {
-    return denormalizeUser(item.user, denormalizeOptions).then(function(result) {
+  const promises = data.map(item => denormalizeUser(item.user, denormalizeOptions)
+    .then(result => {
       item.user = result;
+
       return item;
-    }, function(err) {
+    })
+    .catch(err => {
       logger.error('Error on denormalize', err);
       delete item.user;
+
       return item;
-    });
-  });
+    })
+  );
+
   return q.all(promises);
 }
 
 function follow(req, res) {
-  followModule.follow(req.user, req.following).then(function(result) {
-    res.status(201).json(result);
-  }, function(err) {
-    const details = 'Error while following user';
+  followModule.follow(req.user, req.following)
+    .then(result => res.status(201).json(result))
+    .catch(err => {
+      const details = 'Error while following user';
 
-    logger.error(details, err);
-    res.status(500).json({error: {code: 500, message: 'Server Error', details}});
-  });
+      logger.error(details, err);
+      res.status(500).json({error: {code: 500, message: 'Server Error', details}});
+    });
 }
 module.exports.follow = follow;
 
 function unfollow(req, res) {
-  followModule.unfollow(req.user, req.following).then(function() {
-    res.status(204).end();
-  }, function(err) {
-    const details = 'Error while unfollowing user';
+  followModule.unfollow(req.user, req.following)
+    .then(() => res.status(204).end())
+    .catch(err => {
+      const details = 'Error while unfollowing user';
 
-    logger.error(details, err);
-    res.status(500).json({error: {code: 500, message: 'Server Error', details}});
-  });
+      logger.error(details, err);
+      res.status(500).json({error: {code: 500, message: 'Server Error', details}});
+    });
 }
 module.exports.unfollow = unfollow;
 
@@ -125,16 +127,18 @@ function getFollowingsHeaders(req, res) {
 module.exports.getFollowingsHeaders = getFollowingsHeaders;
 
 function isFollowing(req, res) {
-  followModule.follows({_id: req.params.id}, {_id: req.params.tid}).then(function(result) {
-    if (result) {
-      return res.status(204).end();
-    }
-    res.status(404).end();
-  }, function(err) {
-    const details = 'Error while getting following status';
+  followModule.follows({_id: req.params.id}, {_id: req.params.tid})
+    .then(result => {
+      if (result) {
+        return res.status(204).end();
+      }
+      res.status(404).end();
+    })
+    .catch(err => {
+      const details = 'Error while getting following status';
 
-    logger.error(details, err);
-    res.status(500).json({error: {code: 500, message: 'Server Error', details}});
-  });
+      logger.error(details, err);
+      res.status(500).json({error: {code: 500, message: 'Server Error', details}});
+    });
 }
 module.exports.isFollowing = isFollowing;
