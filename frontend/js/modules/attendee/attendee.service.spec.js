@@ -131,70 +131,98 @@ describe('The attendeeService service', function() {
       $rootScope.$apply();
     });
 
-    it('should remove duplicated attendees (check by email)', function(done) {
-      attendee1.emailAddresses[0].value = 'duplicate@open-paas.org';
-      attendee2.emailAddresses[0].value = 'notduplicate@open-paas.org';
-      attendee3.emailAddresses[0].value = 'duplicate@open-paas.org';
+    describe('When no attendeesFilter is defined', function() {
+      it('should remove duplicated attendees (check by email)', function(done) {
+        attendee1.emailAddresses[0].value = 'duplicate@open-paas.org';
+        attendee2.emailAddresses[0].value = 'notduplicate@open-paas.org';
+        attendee3.emailAddresses[0].value = 'duplicate@open-paas.org';
 
-      var people = [attendee1, attendee2, attendee3];
-      var stub = sinon.stub(esnPeopleAPI, 'search');
-      var objectTypes = ['user', 'contact', 'ldap'];
+        var people = [attendee1, attendee2, attendee3];
+        var stub = sinon.stub(esnPeopleAPI, 'search');
+        var objectTypes = ['user', 'contact', 'ldap'];
 
-      stub.returns($q.when(people));
+        stub.returns($q.when(people));
 
-      attendeeService.getAttendeeCandidates(query, limit, objectTypes).then(function(attendeeCandidates) {
-        expect(stub).to.has.been.calledWith(query, objectTypes, limit);
-        expect(attendeeCandidates).to.shallowDeepEqual([
-          {_id: 'attendee1', displayName: 'Bruce Lee' },
-          {_id: 'attendee2', displayName: 'Bruce Willis'}
-        ]);
-        done();
-      }, done);
+        attendeeService.getAttendeeCandidates(query, limit, objectTypes).then(function(attendeeCandidates) {
+          expect(stub).to.has.been.calledWith(query, objectTypes, limit);
+          expect(attendeeCandidates).to.shallowDeepEqual([
+            {_id: 'attendee1', displayName: 'Bruce Lee' },
+            {_id: 'attendee2', displayName: 'Bruce Willis'}
+          ]);
+          done();
+        }, done);
 
-      $rootScope.$apply();
+        $rootScope.$apply();
+      });
+
+      it('should remove duplicated attendees who have no email but duplicate displayName', function(done) {
+        attendee1.names[0].displayName = 'Me';
+        attendee2.names[0].displayName = 'You';
+        attendee3.names[0].displayName = 'Me';
+
+        var people = [attendee1, attendee2, attendee3];
+        var stub = sinon.stub(esnPeopleAPI, 'search');
+        var objectTypes = ['user', 'contact', 'ldap'];
+
+        stub.returns($q.when(people));
+
+        attendeeService.getAttendeeCandidates(query, limit, objectTypes).then(function(attendeeCandidates) {
+          expect(stub).to.has.been.calledWith(query, objectTypes, limit);
+          expect(attendeeCandidates).to.shallowDeepEqual([
+            {_id: 'attendee1', displayName: 'Me' },
+            {_id: 'attendee2', displayName: 'You'}
+          ]);
+          done();
+        }, done);
+
+        $rootScope.$apply();
+      });
+
+      it('should keep only one attendee having no email nor displayName', function(done) {
+        var attendee1 = { _id: 1 };
+        var attendee2 = { _id: 2 };
+        var attendee3 = { _id: 3 };
+
+        var people = [attendee1, attendee2, attendee3];
+        var stub = sinon.stub(esnPeopleAPI, 'search');
+
+        stub.returns($q.when(people));
+
+        attendeeService.getAttendeeCandidates(query, limit)
+        .then(function(attendeeCandidates) {
+          expect(attendeeCandidates).to.deep.equal([attendee1]);
+          done();
+        })
+        .catch(done);
+
+        $rootScope.$digest();
+      });
     });
 
-    it('should remove duplicated attendees who have no email but duplicate displayName', function(done) {
-      attendee1.names[0].displayName = 'Me';
-      attendee2.names[0].displayName = 'You';
-      attendee3.names[0].displayName = 'Me';
+    describe('When attendeesFilter is defined', function() {
+      it('should call and return results from it', function(done) {
+        var attendee1 = { _id: 1 };
+        var attendee2 = { _id: 2 };
+        var attendee3 = { _id: 3 };
+        var filterResult = [{ _id: 4 }, { _id: 5 }];
 
-      var people = [attendee1, attendee2, attendee3];
-      var stub = sinon.stub(esnPeopleAPI, 'search');
-      var objectTypes = ['user', 'contact', 'ldap'];
+        var people = [attendee1, attendee2, attendee3];
+        var searchStub = sinon.stub(esnPeopleAPI, 'search');
+        var filterAttendees = sinon.stub().returns(filterResult);
 
-      stub.returns($q.when(people));
+        searchStub.returns($q.when(people));
 
-      attendeeService.getAttendeeCandidates(query, limit, objectTypes).then(function(attendeeCandidates) {
-        expect(stub).to.has.been.calledWith(query, objectTypes, limit);
-        expect(attendeeCandidates).to.shallowDeepEqual([
-          {_id: 'attendee1', displayName: 'Me' },
-          {_id: 'attendee2', displayName: 'You'}
-        ]);
-        done();
-      }, done);
+        attendeeService.getAttendeeCandidates(query, limit, null, filterAttendees)
+          .then(function(attendeeCandidates) {
+            expect(searchStub).to.have.been.calledOnce;
+            expect(filterAttendees).to.have.been.calledOnce;
+            expect(attendeeCandidates).to.deep.equal(filterResult);
+            done();
+          })
+          .catch(done);
 
-      $rootScope.$apply();
-    });
-
-    it('should keep only one attendee having no email nor displayName', function(done) {
-      var attendee1 = { _id: 1 };
-      var attendee2 = { _id: 2 };
-      var attendee3 = { _id: 3 };
-
-      var people = [attendee1, attendee2, attendee3];
-      var stub = sinon.stub(esnPeopleAPI, 'search');
-
-      stub.returns($q.when(people));
-
-      attendeeService.getAttendeeCandidates(query, limit)
-      .then(function(attendeeCandidates) {
-        expect(attendeeCandidates).to.deep.equal([attendee1]);
-        done();
-      })
-      .catch(done);
-
-      $rootScope.$digest();
+        $rootScope.$digest();
+      });
     });
   });
 });
