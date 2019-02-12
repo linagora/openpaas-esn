@@ -250,7 +250,7 @@ describe('The login API', function() {
           .forUser(user, true)
           .get()
           .then(datetime => {
-            expect(datetime.timeZone).equal('GMT'); // default time zone
+            expect(datetime.timeZone).equal('UTC'); // default time zone
             done();
           })
           .catch(done);
