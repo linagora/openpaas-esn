@@ -103,6 +103,9 @@
         return $('.profile-popover-card[data-profile-popover-card="' + user._id + '"]');
       };
 
+      var timeoutedHide = _.debounce(_timeoutedHide, 300);
+      var show = _.debounce(_show, 500);
+
       if (touchscreenDetectorService.hasTouchscreen()) {
         $('body').on('click', function(evt) {
           var $evt = $(evt.target);
@@ -113,26 +116,28 @@
             hide();
           }
         });
-      } else {
-        $popoverOrigin.on('mouseleave', function() {
-          $popover().on('mouseleave', hide);
-          setTimeout(function() {
-            if (!$('.profile-popover-card:hover').length) hide();
-          }, 300);
-        });
       }
 
-      function show() {
+      function _show() {
         // Verifies that the popover the user is trying to open is not the same one as already opened
-        if ($popover().is(':visible')) {
-          return;
-        }
+        if ($popover().is(':visible')) return;
+
         $('.profile-popover-card').popover('hide');
         $popoverOrigin.popover('show');
+        $('body').on('mousemove', timeoutedHide);
       }
 
       function hide() {
-        $popoverOrigin.popover('hide');
+        $('.profile-popover-card').popover('hide');
+      }
+
+      function _timeoutedHide() {
+        setTimeout(function() {
+          if (!$('.profile-popover-card:hover').length && !$popoverOrigin.is(':hover')) {
+            hide();
+            $('body').off('mousemove', timeoutedHide);
+          }
+        }, 100);
       }
 
       return {
