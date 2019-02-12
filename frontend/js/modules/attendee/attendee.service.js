@@ -24,7 +24,15 @@
       return providers.push(provider);
     }
 
-    function getAttendeeCandidates(query, limit, objectTypes) {
+    /**
+     * Search for attendees
+     *
+     * @param {String} query - The term to seach in attendees
+     * @param {Number} limit - The number of attendees per objectType
+     * @param {Array} objectTypes - Array of objectType as String
+     * @param {Function} attendeesFilter - Optional function which takes the array of attendees candidates and must return another array of attendees, potentially filtered based on consumer rules
+     */
+    function getAttendeeCandidates(query, limit, objectTypes, attendeesFilter) {
       objectTypes = objectTypes || [ESN_ATTENDEE_DEFAULT_OBJECT_TYPE];
 
       return esnPeopleAPI.search(query, objectTypes, limit)
@@ -49,11 +57,15 @@
             return person;
           });
         })
-        .then(function(people) {
-          return _.uniq(people, false, function(person) {
-            return person.email || person.displayName;
-          });
+        .then(function(attendees) {
+          return attendeesFilter ? attendeesFilter(attendees) : defaultAttendeesFilter(attendees);
         });
+    }
+
+    function defaultAttendeesFilter(attendees) {
+      return _.uniq(attendees, false, function(attendee) {
+        return attendee.email || attendee.displayName;
+      });
     }
 
     function getProviders() {
