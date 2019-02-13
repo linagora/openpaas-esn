@@ -9,7 +9,7 @@ const { filterDomainsByMembersCanBeSearched } = require('../domain/helpers');
 
 module.exports = new PeopleResolver(OBJECT_TYPE, resolver, denormalizer, PRIORITY);
 
-function resolver({ term, context, pagination }) {
+function resolver({ term, context, pagination, excludes }) {
   return new Promise((resolve, reject) => {
     filterDomainsByMembersCanBeSearched([context.domain])
       .then(domains => {
@@ -17,7 +17,7 @@ function resolver({ term, context, pagination }) {
           return resolve([]);
         }
 
-        search({ search: term, domains, limit: pagination.limit }, (err, result) => {
+        search({ search: term, domains, limit: pagination.limit, excludeUserIds: excludes.map(tuple => tuple.id).filter(Boolean) }, (err, result) => {
           if (err) {
             return reject(err);
           }
