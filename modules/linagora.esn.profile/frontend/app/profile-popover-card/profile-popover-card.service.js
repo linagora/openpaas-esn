@@ -70,7 +70,13 @@
       };
     }
 
-    function createPopover(element, user, placement) {
+    function createPopover(element, userObject, placement) {
+      var user = _.assign({}, userObject);
+
+      if (!user.id && !user._id || !user.email && !user.preferredEmail) return;
+      if (user.id) user._id = user.id;
+      if (user.email) user.preferredEmail = user.email;
+
       placement = placement || 'top';
 
       var popoverTemplate = [
