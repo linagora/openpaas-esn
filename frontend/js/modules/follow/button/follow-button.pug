@@ -1,5 +1,5 @@
 .follow-button
-  button.btn.btn-default.unfollow(type="submit", ng-click="following ? unfollow() : follow()")
+  button.btn.btn-link.unfollow(type="submit", ng-click="following ? unfollow() : follow()")
     .follow-button-content(ng-if="following")
       i.mdi.mdi-account-minus
       span #{__('Unfollow')}
