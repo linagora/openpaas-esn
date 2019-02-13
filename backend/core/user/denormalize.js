@@ -1,7 +1,6 @@
-'use strict';
-
 const mongoose = require('mongoose');
 const User = mongoose.model('User');
+const { getDisplayName } = require('./utils');
 const publicKeys = [
   '_id',
   'firstname',
@@ -47,6 +46,7 @@ function denormalize(user, includePrivateData = false) {
   });
 
   denormalizedUser.id = getId(user);
+  denormalizedUser.displayName = getDisplayName(user);
 
   return denormalizedUser;
 }
@@ -56,6 +56,7 @@ function denormalizeForSearchIndexing(user) {
 
   // _id is a metadata field and cannot be added inside a document
   delete denormalizedUser._id;
+  delete denormalizedUser.displayName;
 
   return denormalizedUser;
 }
