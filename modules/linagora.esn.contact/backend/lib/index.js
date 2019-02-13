@@ -8,7 +8,7 @@ module.exports = function(dependencies) {
 
   function start(callback) {
     pubsub.listen();
-    search.listen();
+    search.init();
     davImport.init();
     people.init();
     callback();
