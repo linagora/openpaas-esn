@@ -24,7 +24,7 @@ module.exports = {
   },
   validator,
   default: {
-    timeZone: 'GMT'
+    timeZone: 'UTC'
   }
 };
 
