@@ -7,6 +7,7 @@
     $rootScope,
     $compile,
     $modal,
+    $log,
     _,
     session,
     touchscreenDetectorService
@@ -25,6 +26,8 @@
      */
     function bindPopover(element, user, eventType, placement) {
       var popover = createPopover(element, user, placement);
+
+      if (!popover) return {show: angular.noop, hide: angular.noop};
 
       element.on(eventType, function(evt) {
         evt.preventDefault();
@@ -73,7 +76,15 @@
     function createPopover(element, userObject, placement) {
       var user = _.assign({}, userObject);
 
-      if (!user.id && !user._id || !user.email && !user.preferredEmail) return;
+      if (!user.id && !user._id) {
+        $log.error('profilePopoverCardService: Attribute id or attribute _id must be present');
+        return;
+      }
+      if (!user.email && !user.preferredEmail) {
+        $log.error('profilePopoverCardService: Attribute email or attribute preferredEmail must be present');
+        return;
+      }
+
       if (user.id) user._id = user.id;
       if (user.email) user.preferredEmail = user.email;
 
