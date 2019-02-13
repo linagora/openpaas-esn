@@ -1,10 +1,17 @@
 @import './profile-popover-card/profile-popover-content/profile-popover-content.less';
 
+@profileButtonColor: rgba(0, 0, 0, 0.04);
+@profileButtonHoverColor: rgba(0, 0, 0, 0.102);
+
 #profile-main {
 
   .profile-overview .po-information button {
-    background-color: @m-white;
+    background-color: @profileButtonColor;
     color: @text-color;
+
+    &.btn-link:hover {
+      background-color: @profileButtonHoverColor;
+    }
 
     i {
       display: none;

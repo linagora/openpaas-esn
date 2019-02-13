@@ -34,13 +34,30 @@
   border-top: 1px solid @black-alpha-10;
   padding: 0;
 
-  &:empty, button *:not(.mdi), a *:not(.mdi) {
-    display: none;
-  }
+  .actions {
+    margin-top: 5px;
+    margin-bottom: 5px;
 
-  i {
-    margin-right: 2px;
-    font-size: 2rem;
+    i {
+      font-size: 2.3rem;
+      color: @primaryColor;
+    }
+
+    button.btn-link {
+      padding: 6px;
+
+      &:hover {
+        background-color: transparent;
+
+        i {
+          color: @darkPrimaryColor;
+        }
+      }
+    }
+
+    &:empty, button *:not(.mdi), a *:not(.mdi) {
+      display: none;
+    }
   }
 }
 
@@ -64,7 +81,8 @@
     overflow: hidden;
 
     .displayname {
-      font-weight: 600;
+      font-weight: 500;
+      font-size: 1.8rem;
       text-transform: capitalize;
     }
 
