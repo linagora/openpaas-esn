@@ -12,8 +12,9 @@ class PeopleService {
    * It is up to each resolver to deal with the term matching.
    * Note: If no objectTypes is defined or if empty, search in ALL resolvers.
    */
-  search(query = { objectTypes: [], term: '', context: {}, pagination: { limit: LIMIT, offset: OFFSET }}) {
+  search(query = { objectTypes: [], term: '', context: {}, pagination: { limit: LIMIT, offset: OFFSET }, excludes: [] }) {
     query.pagination = { ...{ limit: LIMIT, offset: OFFSET }, ...query.pagination };
+    query.excludes = query.excludes || [];
     const localResolvers = ((!query.objectTypes || !query.objectTypes.length) ?
       [...this.resolvers.values()] :
       query.objectTypes.map(objectType => this.resolvers.get(objectType)).filter(Boolean))
@@ -24,8 +25,8 @@ class PeopleService {
       .then(fulFilled => fulFilled.filter(Boolean))
       .then(people => [].concat(...people));
 
-    function resolve(resolver, { term, context, pagination }) {
-      return resolver.resolve({ term, context, pagination })
+    function resolve(resolver, { term, context, pagination, excludes }) {
+      return resolver.resolve({ term, context, pagination, excludes: excludes.filter(tuple => tuple.objectType === resolver.objectType) })
         .then(results => denormalizeAll(results, resolver, context));
     }
 
