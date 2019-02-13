@@ -94,4 +94,61 @@ describe('The people API', function() {
       });
     });
   });
+
+  describe('POST /api/people', function() {
+    it('should send back users matching search with objectTypes including user', function(done) {
+      const search = 'lng';
+      const ids = domain1Users.map(user => user._id);
+
+      helpers.elasticsearch.checkUsersDocumentsIndexed(ids, function(err) {
+        if (err) return done(err);
+
+        helpers.api.loginAsUser(app, user2Domain1Member.emails[0], password, (err, requestAsMember) => {
+          if (err) return done(err);
+
+          requestAsMember(request(app).post(`${API_PATH}/search`))
+            .send({ q: search, objectTypes: ['user']})
+            .expect(200)
+            .end((err, res) => {
+              if (err) return done(err);
+
+              expect(res.body).to.have.lengthOf(3);
+              expect(res.body[0]).to.shallowDeepEqual({ id: ids[0], objectType: 'user' });
+              expect(res.body[1]).to.shallowDeepEqual({ id: ids[1], objectType: 'user' });
+              expect(res.body[2]).to.shallowDeepEqual({ id: ids[2], objectType: 'user' });
+
+              done();
+          });
+        });
+      });
+    });
+
+    it('should send back users matching search and not in excluded id list', function(done) {
+      const search = 'lng';
+      const excludes = [{
+        id: user2Domain1Member.id,
+        objectType: 'user'
+      }];
+      const ids = domain1Users.map(user => user._id);
+
+      helpers.elasticsearch.checkUsersDocumentsIndexed(ids, function(err) {
+        if (err) return done(err);
+
+        helpers.api.loginAsUser(app, user2Domain1Member.emails[0], password, (err, requestAsMember) => {
+          if (err) return done(err);
+
+          requestAsMember(request(app).post(`${API_PATH}/search`))
+            .send({ q: search, objectTypes: ['user'], excludes })
+            .expect(200)
+            .end((err, res) => {
+              if (err) return done(err);
+
+              expect(res.body).to.not.be.empty;
+              expect(res.body.map(result => result.id)).to.not.include(user2Domain1Member.id);
+              done();
+          });
+        });
+      });
+    });
+  });
 });

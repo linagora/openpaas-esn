@@ -42,6 +42,7 @@ module.exports = router => {
    *       - $ref: "#/parameters/ppl_search_q"
    *       - $ref: "#/parameters/ppl_search_object_types"
    *       - $ref: "#/parameters/ppl_search_pagination"
+   *       - $ref: "#/parameters/ppl_search_excludes"
    *     produces:
    *       - application/json
    *     responses:

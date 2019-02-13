@@ -38,4 +38,12 @@
  *     in: query
  *     schema:
  *       type: integer
+ *   ppl_search_excludes:
+ *     name: excludes
+ *     description: A list of tuple objects that are meant to be excluded from search
+ *     in: body
+ *     schema:
+ *       type: array
+ *       items:
+ *         $ref: "#/definitions/tuples"
  */

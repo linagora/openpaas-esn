@@ -41,7 +41,7 @@ describe('The people service module', function() {
   });
 
   describe('The search function', function() {
-    let user1, user2, contact1, ldap1, ldap2, term, context, pagination;
+    let user1, user2, contact1, ldap1, ldap2, term, context, pagination, excludes;
 
     beforeEach(function() {
       user1 = { _id: 1 };
@@ -52,6 +52,7 @@ describe('The people service module', function() {
       term = 'searchme';
       context = { user: 1, domain: 2 };
       pagination = { limit: 10, offset: 0 };
+      excludes = [];
     });
 
     describe('When no resolvers', function() {
@@ -82,12 +83,12 @@ describe('The people service module', function() {
         service.addResolver(userResolver);
         service.addResolver(contactResolver);
 
-        service.search({ term, context, pagination }).then(result => {
+        service.search({ term, context, pagination, excludes }).then(result => {
           expect(result).to.have.lengthOf(3);
-          expect(resolveUser).to.have.been.calledWith({ term, context, pagination });
+          expect(resolveUser).to.have.been.calledWith({ term, context, pagination, excludes });
           expect(denormalizeUser).to.have.been.calledWith({ context, source: user1 });
           expect(denormalizeUser).to.have.been.calledWith({ context, source: user2 });
-          expect(resolveContact).to.have.been.calledWith({ term, context, pagination });
+          expect(resolveContact).to.have.been.calledWith({ term, context, pagination, excludes });
           expect(denormalizeContact).to.have.been.calledWith({ context, source: contact1 });
           done();
         }).catch(done);
@@ -109,13 +110,45 @@ describe('The people service module', function() {
         service.addResolver(userResolver);
         service.addResolver(contactResolver);
 
-        service.search({ objectTypes: ['user'], term, context, pagination }).then(result => {
+        service.search({ objectTypes: ['user'], term, context, pagination, excludes }).then(result => {
           expect(result).to.have.lengthOf(2);
-          expect(resolveUser).to.have.been.calledWith({ term, context, pagination });
+          expect(resolveUser).to.have.been.calledWith({ term, context, pagination, excludes });
           expect(denormalizeUser).to.have.been.calledWith({ context, source: user1 });
           expect(denormalizeUser).to.have.been.calledWith({ context, source: user2 });
           expect(resolveContact).to.not.have.been.called;
           expect(denormalizeContact).to.not.have.been.called;
+          done();
+        }).catch(done);
+      });
+
+      it('should call the resolvers with the excludes list of each resolver objectType', function(done) {
+        const excludes = [
+          { id: 'user1', objectType: 'user'},
+          { id: 'user2', objectType: 'user'},
+          { id: 'contact1', objectType: 'contact'}
+        ];
+        const service = new Service();
+        const resolveUser = sinon.stub().returns(Promise.resolve([user1, user2]));
+        const resolveContact = sinon.stub().returns(Promise.resolve([contact1]));
+        const denormalizeUser = sinon.stub();
+        const denormalizeContact = sinon.stub();
+        const userResolver = new PeopleResolver('user', resolveUser, denormalizeUser);
+        const contactResolver = new PeopleResolver('contact', resolveContact, denormalizeContact);
+
+        denormalizeUser.withArgs({ context, source: user1 }).returns(Promise.resolve(user1));
+        denormalizeUser.withArgs({ context, source: user2 }).returns(Promise.resolve(user2));
+        denormalizeContact.withArgs({ context, source: contact1 }).returns(Promise.resolve(contact1));
+
+        service.addResolver(userResolver);
+        service.addResolver(contactResolver);
+
+        service.search({ term, context, pagination, excludes }).then(result => {
+          expect(result).to.have.lengthOf(3);
+          expect(resolveUser).to.have.been.calledWith({ term, context, pagination, excludes: excludes.filter(e => e.objectType === 'user') });
+          expect(denormalizeUser).to.have.been.calledWith({ context, source: user1 });
+          expect(denormalizeUser).to.have.been.calledWith({ context, source: user2 });
+          expect(resolveContact).to.have.been.calledWith({ term, context, pagination, excludes: excludes.filter(e => e.objectType === 'contact') });
+          expect(denormalizeContact).to.have.been.calledWith({ context, source: contact1 });
           done();
         }).catch(done);
       });
@@ -141,13 +174,13 @@ describe('The people service module', function() {
         service.addResolver(userResolver);
         service.addResolver(contactResolver);
 
-        service.search({ objectTypes: ['user', 'contact', 'ldap'], term, context, pagination }).then(result => {
+        service.search({ objectTypes: ['user', 'contact', 'ldap'], term, context, pagination, excludes }).then(result => {
           expect(result).to.have.lengthOf(5);
           expect(result).to.deep.equals([contact1, ldap1, ldap2, user1, user2]);
-          expect(resolveUser).to.have.been.calledWith({ term, context, pagination });
+          expect(resolveUser).to.have.been.calledWith({ term, context, pagination, excludes });
           expect(denormalizeUser).to.have.been.calledWith({ context, source: user1 });
           expect(denormalizeUser).to.have.been.calledWith({ context, source: user2 });
-          expect(resolveContact).to.have.been.calledWith({ term, context, pagination });
+          expect(resolveContact).to.have.been.calledWith({ term, context, pagination, excludes });
           expect(denormalizeContact).to.have.been.calledWith({ context, source: contact1 });
           done();
         }).catch(done);
@@ -168,11 +201,11 @@ describe('The people service module', function() {
         service.addResolver(userResolver);
         service.addResolver(contactResolver);
 
-        service.search({ term, context, pagination })
+        service.search({ term, context, pagination, excludes })
           .then(result => {
             expect(result).to.has.lengthOf(1);
-            expect(resolveUser).to.have.been.calledWith({ term, context, pagination });
-            expect(resolveContact).to.have.been.calledWith({ term, context, pagination });
+            expect(resolveUser).to.have.been.calledWith({ term, context, pagination, excludes });
+            expect(resolveContact).to.have.been.calledWith({ term, context, pagination, excludes });
             expect(denormalizeUser).to.not.have.been.called;
             expect(denormalizeContact).to.have.been.called;
             done();
@@ -193,11 +226,11 @@ describe('The people service module', function() {
         service.addResolver(userResolver);
         service.addResolver(contactResolver);
 
-        service.search({ term, context, pagination })
+        service.search({ term, context, pagination, excludes })
           .then(result => {
             expect(result).to.have.lengthOf(2);
-            expect(resolveUser).to.have.been.calledWith({ term, context, pagination });
-            expect(resolveContact).to.have.been.calledWith({ term, context, pagination });
+            expect(resolveUser).to.have.been.calledWith({ term, context, pagination, excludes });
+            expect(resolveContact).to.have.been.calledWith({ term, context, pagination, excludes });
             expect(denormalizeUser).to.have.been.calledWith({ context, source: user1 });
             expect(denormalizeContact).to.have.been.calledWith({ context, source: contact1 });
             done();
