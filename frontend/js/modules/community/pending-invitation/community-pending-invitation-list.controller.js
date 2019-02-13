@@ -25,15 +25,18 @@
 
     self.error = false;
     self.updatePendingRequestsList = updatePendingRequestsList;
+    self.onInvitationCanceled = onInvitationCanceled;
     self.$onInit = $onInit;
     self.$onDestroy = $onDestroy;
 
     function $onInit() {
       self.unregisterDeclined = $rootScope.$on(ESN_COLLABORATION_MEMBER_EVENTS.USERS, self.updatePendingRequestsList);
+      self.unregisterCanceled = $rootScope.$on(ESN_COLLABORATION_MEMBER_EVENTS.CANCEL, self.onInvitationCanceled);
     }
 
     function $onDestroy() {
       self.unregisterDeclined();
+      self.unregisterCanceled();
     }
 
     self.loadMoreElements = infiniteScrollHelper(self, function() {
@@ -64,6 +67,10 @@
       }, function(err) {
         self.error = err.status;
       });
+    }
+
+    function onInvitationCanceled() {
+      self.updatePendingRequestsList();
     }
   }
 
