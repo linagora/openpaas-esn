@@ -17,6 +17,24 @@
       opacity: 0.65;
     }
   }
+
+  &:not(.tn-vertical) {
+    &:not([data-tab-color]) {
+      & > li > a:after {
+          background: @primaryColor;
+      }
+    }
+  }
+}
+
+select {
+  &:not([disabled]){
+    &:focus {
+      .md-select-value {
+        border-bottom-color: @primaryColor;
+      }
+    } 
+  }
 }
 
 @media(min-width: @screen-md-min) {
