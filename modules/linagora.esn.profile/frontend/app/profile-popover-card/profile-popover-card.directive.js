@@ -20,6 +20,7 @@
     function link(scope, element, attrs) {
       var user = JSON.parse(attrs.profilePopoverCard);
       var showMobile = attrs.profilePopoverCardShowMobile !== undefined;
+      var alternativeTitle = attrs.profilePopoverCardAlternativeTitle;
       var eventType = touchscreenDetectorService.hasTouchscreen() ? 'click' : 'mouseenter';
 
       if (showMobile && matchmedia.is(ESN_MEDIA_QUERY_SM_XS)) {
@@ -31,7 +32,11 @@
       }
 
       var popover = profilePopoverCardService.bindPopover(element, user, eventType, getPopoverPosition(attrs));
-      scope.$on('$destroy', popover.hide);
+      if (popover) {
+        scope.$on('$destroy', popover.hide);
+      } else if (alternativeTitle) {
+        $(element).attr('title', alternativeTitle);
+      }
 
       function getPopoverPosition(attrs) {
         if (attrs.bottom) return 'bottom';
