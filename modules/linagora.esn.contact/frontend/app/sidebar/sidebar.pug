@@ -18,8 +18,6 @@
             li(feature-flag="linagora.esn.contact.features.isSharingAddressbookEnabled")
               contact-addressbook-shared-configuration
             li
-              a(href='/#/controlcenter/accounts') #{__('Import contacts')}
-            li
               a(
                 href='',
                 esn-modal-launcher="/contact/app/addressbook/import/contact-addressbook-import",
@@ -28,6 +26,8 @@
                 backdrop='static'
               )
                 | #{__('Import contacts from file')}
+            li
+              a(href='/#/controlcenter/accounts') #{__('Import contacts from social accounts')}
     .media-body
       .title
         .text #{__('Contacts')}
