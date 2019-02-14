@@ -6,11 +6,12 @@
   function runBlock($templateCache) {
     $templateCache.put('ngTagsInput/tag-item.html',
       [
-        '<div class="esn-chip" ng-if="data._id" profile-popover-card="{{ data }}" profile-popover-card-show-mobile>',
-        '  <span ng-bind="$getDisplayText()"></span>',
-        '  <i class="mdi mdi-close-circle" ng-click="$removeTag()"></i>',
-        '</div>',
-        '<div class="esn-chip" ng-if="!data._id" title="{{ data.email }}">',
+        '<div',
+        '    class="esn-chip"',
+        '    profile-popover-card="{{ data }}"',
+        '    profile-popover-card-alternative-title="{{ data.email }}"',
+        '    profile-popover-card-show-mobile',
+        '>',
         '  <span ng-bind="$getDisplayText()"></span>',
         '  <i class="mdi mdi-close-circle" ng-click="$removeTag()"></i>',
         '</div>'
