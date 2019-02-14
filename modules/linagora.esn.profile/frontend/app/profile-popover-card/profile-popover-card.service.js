@@ -120,7 +120,7 @@
         return $('.profile-popover-card[data-profile-popover-card="' + user._id + '"]');
       };
 
-      var timeoutedHide = _.debounce(_timeoutedHide, 300);
+      var timeoutedHide = _.debounce(_timeoutedHide, 500);
       var show = _.debounce(_show, 500);
 
       if (touchscreenDetectorService.hasTouchscreen()) {
@@ -149,12 +149,10 @@
       }
 
       function _timeoutedHide() {
-        setTimeout(function() {
-          if (!$('.profile-popover-card:hover').length && !$popoverOrigin.is(':hover')) {
-            hide();
-            $('body').off('mousemove', timeoutedHide);
-          }
-        }, 100);
+        if (!$('.profile-popover-card:hover').length && !$popoverOrigin.is(':hover')) {
+          hide();
+          $('body').off('mousemove', timeoutedHide);
+        }
       }
 
       return {
