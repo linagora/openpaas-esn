@@ -5,7 +5,7 @@
 
   function boxOverlayProvider() {
     this.$get = function($window, $rootScope, $compile, $templateCache, $http, $timeout, $q, boxOverlayService, BoxOverlayStateManager, deviceDetector, DEVICES, ESN_BOX_OVERLAY_EVENTS) {
-      var boxTemplateUrl = '/views/modules/box-overlay/template.html';
+      var boxTemplateUrl = '/views/modules/box-overlay/box-overlay.html';
 
       function container() {
         return angular.element('body .box-overlay-container');
