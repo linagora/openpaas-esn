@@ -3,7 +3,7 @@
     .card-header
       .media
         a.pull-left(ui-sref="profile({user_id: message.author._id})")
-          img.lv-img(src='/images/user.png', ng-src='/api/users/{{::message.author._id}}/profile/avatar', alt=__("Message Author"))
+          img.lv-img(src='/images/user.png', ng-src='/api/users/{{::message.author._id}}/profile/avatar', alt=__("Message Author")  profile-popover-card="{{ message.author }}")
         .media-body
           i.mdi.mdi-email(ng-show='message.source === "email"', title='sent via email reply')
           a(ui-sref="profile({user_id: message.author._id})")
@@ -38,20 +38,20 @@
           span(ng-if="message.responses.length <= 1")
             | {{message.responses.length }} #{__('Comment')}
         li.wa-users
-          a(ui-sref="profile({user_id: response.author._id})", ng-repeat='response in message.responses | limitTo : 5')
+          a(ui-sref="profile({user_id: response.author._id})", ng-repeat='response in message.responses | limitTo : 5' profile-popover-card="{{ response.author }}")
             img.lv-img(src="images/user.png", ng-src='/api/users/{{::response.author._id}}/profile/avatar', alt=__("Response Author"))
     .message-comments-thread
       message-comments
   .message-comment-list(data-ng-switch-when='false', data-tv-type="text" ng-class="{ 'just-posted': message._id === lastPost.messageId}")
     .message-comment
       .message-comment-avatar
-        a.pull-left(ui-sref="profile({user_id: message.author._id})")
+        a.pull-left(ui-sref="profile({user_id: message.author._id})" profile-popover-card="{{ message.author }}")
           img.lv-img-sm(src='/images/user.png', ng-src='/api/users/{{::message.author._id}}/profile/avatar', alt=__("Message Author"))
       .message-comment-body
         .message-comment-header
           .message-comment-info
             i.mdi.mdi-email(ng-show='message.source === "email"', title='sent via email reply')
-            a(ui-sref="profile({user_id: message.author._id})")
+            a(ui-sref="profile({user_id: message.author._id})" profile-popover-card="{{ ::message.author }}")
               strong {{message.author.firstname}} {{message.author.lastname}}
             small.c-gray.m-l-10
               message-date-link(message='message', activitystream='activitystream')
