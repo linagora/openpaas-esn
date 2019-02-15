@@ -16,8 +16,9 @@ function advancedSearch(req, res) {
   const term = req.body.q || '';
   const objectTypes = req.body.objectTypes || [];
   const pagination = { limit: req.body.limit || req.query.limit, offset: req.body.offset || req.query.offset };
+  const excludes = req.body.excludes || [];
 
-  return _search({ objectTypes, term, context, pagination }, req, res);
+  return _search({ objectTypes, term, context, pagination, excludes }, req, res);
 }
 
 function search(req, res) {
