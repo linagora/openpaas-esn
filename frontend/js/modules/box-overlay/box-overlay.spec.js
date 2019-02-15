@@ -591,19 +591,19 @@ describe('The box-overlay Angular module', function() {
     });
   });
 
-  describe('The StateManager factory', function() {
-    var stateManager, StateManager;
+  describe('The BoxOverlayStateManager factory', function() {
+    var BoxOverlayStateManager, stateManager;
 
-    beforeEach(inject(function(_StateManager_) {
-      StateManager = _StateManager_;
-      stateManager = new StateManager();
+    beforeEach(inject(function(_BoxOverlayStateManager_) {
+      BoxOverlayStateManager = _BoxOverlayStateManager_;
+      stateManager = new BoxOverlayStateManager();
     }));
 
     it('should call registered functions when toggled', function() {
       var callback = sinon.spy();
 
       stateManager.registerHandler(callback);
-      stateManager.toggle(StateManager.STATES.NORMAL);
+      stateManager.toggle(BoxOverlayStateManager.STATES.NORMAL);
 
       expect(callback).to.have.been.calledOnce;
     });
@@ -613,11 +613,11 @@ describe('The box-overlay Angular module', function() {
 
       stateManager.registerHandler(callback);
 
-      expect(function() {stateManager.toggle(StateManager.STATES.NORMAL);}).to.not.throw();
+      expect(function() {stateManager.toggle(BoxOverlayStateManager.STATES.NORMAL);}).to.not.throw();
     });
 
     it('should have no registered callback by default', function() {
-      stateManager = new StateManager();
+      stateManager = new BoxOverlayStateManager();
 
       expect(stateManager.callbacks).to.be.an('array').that.is.empty;
     });

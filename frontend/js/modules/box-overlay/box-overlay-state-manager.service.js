@@ -1,30 +1,30 @@
 (function(angular) {
   'use strict';
 
-  angular.module('esn.box-overlay').factory('StateManager', StateManager);
+  angular.module('esn.box-overlay').factory('BoxOverlayStateManager', BoxOverlayStateManager);
 
-  function StateManager() {
-    function StateManager() {
-      this.state = StateManager.STATES.NORMAL;
+  function BoxOverlayStateManager() {
+    function BoxOverlayStateManager() {
+      this.state = BoxOverlayStateManager.STATES.NORMAL;
       this.callbacks = [];
     }
 
-    StateManager.STATES = {
+    BoxOverlayStateManager.STATES = {
       NORMAL: 'NORMAL',
       MINIMIZED: 'MINIMIZED',
       MAXIMIZED: 'MAXIMIZED',
       FULL_SCREEN: 'FULL_SCREEN'
     };
 
-    StateManager.prototype.toggle = function(newState) {
-      this.state = this.state === newState ? StateManager.STATES.NORMAL : newState;
+    BoxOverlayStateManager.prototype.toggle = function(newState) {
+      this.state = this.state === newState ? BoxOverlayStateManager.STATES.NORMAL : newState;
       this.callbacks.forEach(function(callback) {callback();});
     };
 
-    StateManager.prototype.registerHandler = function(callback) {
+    BoxOverlayStateManager.prototype.registerHandler = function(callback) {
       callback && typeof callback === 'function' && this.callbacks.push(callback);
     };
 
-    return StateManager;
+    return BoxOverlayStateManager;
   }
 })(angular);
