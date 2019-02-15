@@ -4,8 +4,157 @@
   angular.module('esn.box-overlay').provider('$boxOverlay', boxOverlayProvider);
 
   function boxOverlayProvider() {
+    var boxTemplateUrl = '/views/modules/box-overlay/box-overlay.html';
+
     this.$get = function($window, $rootScope, $compile, $templateCache, $http, $timeout, $q, boxOverlayService, BoxOverlayStateManager, deviceDetector, DEVICES, ESN_BOX_OVERLAY_EVENTS) {
-      var boxTemplateUrl = '/views/modules/box-overlay/box-overlay.html';
+      return BoxOverlayFactory;
+
+      function BoxOverlayFactory(config) {
+        var boxElement;
+        var scope = angular.extend($rootScope.$new(), config);
+        var $boxOverlay = { $scope: scope };
+        var stateManager = new BoxOverlayStateManager();
+
+        $boxOverlay.$isShown = scope.$isShown = false;
+
+        scope.allowMinimize = _allow.bind(null, BoxOverlayStateManager.STATES.MINIMIZED);
+        scope.allowMaximize = _allow.bind(null, BoxOverlayStateManager.STATES.MAXIMIZED);
+        scope.allowFullScreen = _allow.bind(null, BoxOverlayStateManager.STATES.FULL_SCREEN);
+        scope.isMinimized = _is.bind(null, BoxOverlayStateManager.STATES.MINIMIZED);
+        scope.isMaximized = _is.bind(null, BoxOverlayStateManager.STATES.MAXIMIZED);
+        scope.isFullScreen = _is.bind(null, BoxOverlayStateManager.STATES.FULL_SCREEN);
+        scope.$toggleMinimized = _toggle.bind(null, BoxOverlayStateManager.STATES.MINIMIZED);
+        scope.$toggleMaximized = _toggle.bind(null, BoxOverlayStateManager.STATES.MAXIMIZED);
+        scope.$toggleFullScreen = _toggle.bind(null, BoxOverlayStateManager.STATES.FULL_SCREEN);
+        scope.$forceClose = nextTick('destroy');
+        scope.$show = nextTick('show');
+        scope.$hide = nextTick('hide');
+        scope.$updateTitle = updateTitle;
+        scope.$minimize = minimize;
+        scope.$onTryClose = onTryClose;
+        scope.$close = close;
+
+        $boxOverlay.onTryClose = $q.when;
+        $boxOverlay.show = show;
+        $boxOverlay.hide = hide;
+        $boxOverlay.destroy = destroy;
+        $boxOverlay.updateTitle = updateBoxTitle;
+
+        function minimize() {
+          stateManager.state = BoxOverlayStateManager.STATES.MINIMIZED;
+        }
+
+        function onTryClose(callback) {
+          $boxOverlay.onTryClose = angular.isFunction(callback) ? callback : $boxOverlay.onTryClose;
+        }
+
+        function close() {
+          $boxOverlay.hide();
+
+          return $boxOverlay.onTryClose().then(scope.$forceClose);
+        }
+
+        function _allow(state) {
+          return !config.allowedStates || config.allowedStates.indexOf(state) > -1;
+        }
+
+        scope.closeable = function() {
+          return !angular.isDefined(config.closeable) || config.closeable;
+        };
+
+        function _is(state) {
+          return stateManager.state === state;
+        }
+
+        function _toggle(state) {
+          stateManager.toggle(state);
+
+          if (scope.isMaximized() || scope.isFullScreen()) {
+            boxOverlayService.minimizeOthers(scope);
+          }
+        }
+
+        function nextTick(action) {
+          return function() {
+            $timeout(function() {
+              $boxOverlay[action]();
+            }, 0);
+          };
+        }
+
+        function updateTitle(title) {
+          $boxOverlay.updateTitle(title);
+        }
+
+        function show() {
+          if ($boxOverlay.$isShown || !boxOverlayService.addBox(scope)) {
+            return;
+          }
+
+          $boxOverlay.$isShown = scope.$isShown = true;
+
+          ensureContainerElementExists();
+          fetchTemplate(boxTemplateUrl).then(function(template) {
+            boxElement = $boxOverlay.$element = $compile(template)(scope);
+
+            boxElement.addClass('box-overlay-open');
+            container().append(boxElement);
+            setAutoMaximizeForIPAD(boxElement, scope);
+
+            if (config.initialState) {
+              _toggle(config.initialState);
+            }
+
+            $timeout(function() {
+              var toFocus = boxElement.find('[autofocus]')[0];
+
+              if (toFocus) {
+                toFocus.focus();
+              }
+            });
+
+          });
+        }
+
+        function hide() {
+          if (!$boxOverlay.$isShown) {
+            return;
+          }
+
+          $boxOverlay.$isShown = scope.$isShown = false;
+          boxOverlayService.removeBox(scope);
+
+          if (boxElement) {
+            boxElement.remove();
+            boxElement = null;
+          }
+
+          removeContainerElementIfPossible();
+        }
+
+        function destroy() {
+          $boxOverlay.hide();
+          scope.$destroy();
+        }
+
+        function updateBoxTitle(title) {
+          scope.title = title || config.title;
+        }
+
+        function initialize() {
+          stateManager.registerHandler(notifyComponentsAboutResizeRequest);
+        }
+
+        function notifyComponentsAboutResizeRequest() {
+          if (!scope.isMinimized()) {
+            $rootScope.$broadcast(ESN_BOX_OVERLAY_EVENTS.RESIZED);
+          }
+        }
+
+        initialize();
+
+        return $boxOverlay;
+      }
 
       function container() {
         return angular.element('body .box-overlay-container');
@@ -43,156 +192,11 @@
         }
       }
 
-      function BoxOverlayFactory(config) {
-        var boxElement,
-            scope = angular.extend($rootScope.$new(), config),
-            $boxOverlay = { $scope: scope },
-            stateManager = new BoxOverlayStateManager();
-
-        function initialize() {
-          stateManager.registerHandler(notifyComponentsAboutResizeRequest);
-        }
-
-        function notifyComponentsAboutResizeRequest() {
-          if (!scope.isMinimized()) {
-            $rootScope.$broadcast(ESN_BOX_OVERLAY_EVENTS.RESIZED);
-          }
-        }
-
-        $boxOverlay.$isShown = scope.$isShown = false;
-
-        scope.allowMinimize = _allow.bind(null, BoxOverlayStateManager.STATES.MINIMIZED);
-        scope.allowMaximize = _allow.bind(null, BoxOverlayStateManager.STATES.MAXIMIZED);
-        scope.allowFullScreen = _allow.bind(null, BoxOverlayStateManager.STATES.FULL_SCREEN);
-
-        function _allow(state) {
-          return !config.allowedStates || config.allowedStates.indexOf(state) > -1;
-        }
-
-        scope.closeable = function() {
-          return !angular.isDefined(config.closeable) || config.closeable;
-        };
-
-        scope.isMinimized = _is.bind(null, BoxOverlayStateManager.STATES.MINIMIZED);
-        scope.isMaximized = _is.bind(null, BoxOverlayStateManager.STATES.MAXIMIZED);
-        scope.isFullScreen = _is.bind(null, BoxOverlayStateManager.STATES.FULL_SCREEN);
-
-        function _is(state) {
-          return stateManager.state === state;
-        }
-
-        scope.$minimize = function() {
-          stateManager.state = BoxOverlayStateManager.STATES.MINIMIZED;
-        };
-
-        scope.$toggleMinimized = _toggle.bind(null, BoxOverlayStateManager.STATES.MINIMIZED);
-        scope.$toggleMaximized = _toggle.bind(null, BoxOverlayStateManager.STATES.MAXIMIZED);
-        scope.$toggleFullScreen = _toggle.bind(null, BoxOverlayStateManager.STATES.FULL_SCREEN);
-
-        function _toggle(state) {
-          stateManager.toggle(state);
-
-          if (scope.isMaximized() || scope.isFullScreen()) {
-            boxOverlayService.minimizeOthers(scope);
-          }
-        }
-
-        scope.$show = nextTick('show');
-        scope.$hide = nextTick('hide');
-
-        $boxOverlay.onTryClose = $q.when;
-
-        scope.$onTryClose = function(callback) {
-          $boxOverlay.onTryClose = angular.isFunction(callback) ? callback : $boxOverlay.onTryClose;
-        };
-
-        scope.$close = function() {
-          $boxOverlay.hide();
-
-          return $boxOverlay.onTryClose().then(scope.$forceClose);
-        };
-
-        scope.$forceClose = nextTick('destroy');
-
-        function nextTick(action) {
-          return function() {
-            $timeout(function() {
-              $boxOverlay[action]();
-            }, 0);
-          };
-        }
-
-        scope.$updateTitle = function(title) {
-          $boxOverlay.updateTitle(title);
-        };
-
-        $boxOverlay.show = function() {
-          if ($boxOverlay.$isShown || !boxOverlayService.addBox(scope)) {
-            return;
-          }
-
-          $boxOverlay.$isShown = scope.$isShown = true;
-
-          ensureContainerElementExists();
-          fetchTemplate(boxTemplateUrl).then(function(template) {
-            boxElement = $boxOverlay.$element = $compile(template)(scope);
-
-            boxElement.addClass('box-overlay-open');
-            container().append(boxElement);
-            setAutoMaximizeForIPAD(boxElement, scope);
-
-            if (config.initialState) {
-              _toggle(config.initialState);
-            }
-
-            $timeout(function() {
-              var toFocus = boxElement.find('[autofocus]')[0];
-
-              if (toFocus) {
-                toFocus.focus();
-              }
-            });
-
-          });
-        };
-
-        $boxOverlay.hide = function() {
-          if (!$boxOverlay.$isShown) {
-            return;
-          }
-
-          $boxOverlay.$isShown = scope.$isShown = false;
-          boxOverlayService.removeBox(scope);
-
-          if (boxElement) {
-            boxElement.remove();
-            boxElement = null;
-          }
-
-          removeContainerElementIfPossible();
-        };
-
-        $boxOverlay.destroy = function() {
-          $boxOverlay.hide();
-          scope.$destroy();
-        };
-
-        $boxOverlay.updateTitle = function(title) {
-          scope.title = title || config.title;
-        };
-
-        initialize();
-
-        return $boxOverlay;
-      }
-
       function fetchTemplate(template) {
         return $http.get(template, {cache: $templateCache}).then(function(res) {
           return res.data;
         });
       }
-
-      return BoxOverlayFactory;
     };
   }
 })(angular);
