@@ -498,7 +498,8 @@ describe('The contact client APIs', function() {
               search: 'alex',
               userId: 'userId',
               limit: 10,
-              page: 1
+              page: 1,
+              excludeIds: []
             };
 
             mockery.registerMock('../search', createSearchClientMock(function(options) {
@@ -509,7 +510,8 @@ describe('The contact client APIs', function() {
                 }],
                 search: searchOptions.search,
                 limit: searchOptions.limit,
-                page: searchOptions.page
+                page: searchOptions.page,
+                excludeIds: []
               });
               done();
             }));

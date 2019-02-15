@@ -73,6 +73,7 @@ module.exports = dependencies => {
     let offset = query.offset;
     const limit = query.limit || SEARCH.DEFAULT_LIMIT;
     const addressbooks = query.addressbooks;
+    const excludeIds = query.excludeIds;
     const filters = [];
 
     if (!addressbooks || addressbooks.length === 0) {
@@ -123,6 +124,14 @@ module.exports = dependencies => {
         }
       }
     };
+
+    if (Array.isArray(excludeIds) && excludeIds.length) {
+      elasticsearchQuery.query.bool.must_not = {
+        terms: {
+          _id: query.excludeIds
+        }
+      };
+    }
 
     if (filters.length) {
       elasticsearchQuery.query.bool.filter = {
