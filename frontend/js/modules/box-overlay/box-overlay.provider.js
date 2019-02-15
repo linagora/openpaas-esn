@@ -4,7 +4,7 @@
   angular.module('esn.box-overlay').provider('$boxOverlay', boxOverlayProvider);
 
   function boxOverlayProvider() {
-    this.$get = function($window, $rootScope, $compile, $templateCache, $http, $timeout, $q, boxOverlayService, StateManager, deviceDetector, DEVICES, ESN_BOX_OVERLAY_EVENTS) {
+    this.$get = function($window, $rootScope, $compile, $templateCache, $http, $timeout, $q, boxOverlayService, BoxOverlayStateManager, deviceDetector, DEVICES, ESN_BOX_OVERLAY_EVENTS) {
       var boxTemplateUrl = '/views/modules/box-overlay/template.html';
 
       function container() {
@@ -47,7 +47,7 @@
         var boxElement,
             scope = angular.extend($rootScope.$new(), config),
             $boxOverlay = { $scope: scope },
-            stateManager = new StateManager();
+            stateManager = new BoxOverlayStateManager();
 
         function initialize() {
           stateManager.registerHandler(notifyComponentsAboutResizeRequest);
@@ -61,9 +61,9 @@
 
         $boxOverlay.$isShown = scope.$isShown = false;
 
-        scope.allowMinimize = _allow.bind(null, StateManager.STATES.MINIMIZED);
-        scope.allowMaximize = _allow.bind(null, StateManager.STATES.MAXIMIZED);
-        scope.allowFullScreen = _allow.bind(null, StateManager.STATES.FULL_SCREEN);
+        scope.allowMinimize = _allow.bind(null, BoxOverlayStateManager.STATES.MINIMIZED);
+        scope.allowMaximize = _allow.bind(null, BoxOverlayStateManager.STATES.MAXIMIZED);
+        scope.allowFullScreen = _allow.bind(null, BoxOverlayStateManager.STATES.FULL_SCREEN);
 
         function _allow(state) {
           return !config.allowedStates || config.allowedStates.indexOf(state) > -1;
@@ -73,21 +73,21 @@
           return !angular.isDefined(config.closeable) || config.closeable;
         };
 
-        scope.isMinimized = _is.bind(null, StateManager.STATES.MINIMIZED);
-        scope.isMaximized = _is.bind(null, StateManager.STATES.MAXIMIZED);
-        scope.isFullScreen = _is.bind(null, StateManager.STATES.FULL_SCREEN);
+        scope.isMinimized = _is.bind(null, BoxOverlayStateManager.STATES.MINIMIZED);
+        scope.isMaximized = _is.bind(null, BoxOverlayStateManager.STATES.MAXIMIZED);
+        scope.isFullScreen = _is.bind(null, BoxOverlayStateManager.STATES.FULL_SCREEN);
 
         function _is(state) {
           return stateManager.state === state;
         }
 
         scope.$minimize = function() {
-          stateManager.state = StateManager.STATES.MINIMIZED;
+          stateManager.state = BoxOverlayStateManager.STATES.MINIMIZED;
         };
 
-        scope.$toggleMinimized = _toggle.bind(null, StateManager.STATES.MINIMIZED);
-        scope.$toggleMaximized = _toggle.bind(null, StateManager.STATES.MAXIMIZED);
-        scope.$toggleFullScreen = _toggle.bind(null, StateManager.STATES.FULL_SCREEN);
+        scope.$toggleMinimized = _toggle.bind(null, BoxOverlayStateManager.STATES.MINIMIZED);
+        scope.$toggleMaximized = _toggle.bind(null, BoxOverlayStateManager.STATES.MAXIMIZED);
+        scope.$toggleFullScreen = _toggle.bind(null, BoxOverlayStateManager.STATES.FULL_SCREEN);
 
         function _toggle(state) {
           stateManager.toggle(state);
