@@ -8,7 +8,7 @@ infinite-list.listview(load-more-elements='ctrl.loadMoreElements()', scroll-insi
       esn-collaboration-member-avatar(member="request", collaboration="ctrl.collaboration")
       esn-collaboration-membership-requests-actions(user='request.user', collaboration='ctrl.collaboration', object-type="{{ctrl.objectType}}")
 
-.card-body.no-request.text-center(ng-if="!ctrl.elements.length && ctrl.infiniteScrollCompleted")
+.card-body.card-padding.no-request.text-center(ng-if="!ctrl.elements.length && ctrl.infiniteScrollCompleted")
   span #{__('No pending request')}
 ul.nav.nav-pills.nav-stacked(ng-if='ctrl.infiniteScrollDisabled')
   li.text-center(openpaas-logo-spinner, spinner-start-active='1', spinner-size='0.5')
