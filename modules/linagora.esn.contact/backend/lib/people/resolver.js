@@ -3,13 +3,14 @@ module.exports = dependencies => {
   const client = require('../client')(dependencies);
   const { token } = dependencies('auth');
 
-  return ({ term, context, pagination }) => {
+  return ({ term, context, pagination, excludes }) => {
     const userId = String(context.user._id);
     const options = {
       user: context.user,
       search: term,
       limit: pagination.limit,
-      bookNames: []
+      bookNames: [],
+      excludeIds: excludes.map(tuple => tuple.id).filter(Boolean)
     };
 
     return getClientOptions(context)
