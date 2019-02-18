@@ -448,16 +448,14 @@ contact-photo {
     &[list-view=true] {
       padding: 0;
     }
-    padding-right: 20px;
-    max-height: 512px;
-    max-width: 512px;
+    max-height: @avatarMaxSize;
+    max-width: @avatarMaxSize;
+    margin: auto;
+
     img {
       width: 100%;
       height: 100%;
       border-radius: 3px;
-    }
-    .edit-hint {
-      margin-right: 20px;
     }
   }
 }
