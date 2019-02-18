@@ -18,25 +18,25 @@
     };
 
     function link(scope, element, attrs) {
-      var user = JSON.parse(attrs.profilePopoverCard);
       var showMobile = attrs.profilePopoverCardShowMobile !== undefined;
-      var alternativeTitle = attrs.profilePopoverCardAlternativeTitle;
-      var eventType = touchscreenDetectorService.hasTouchscreen() ? 'click' : 'mouseenter';
-
-      if (showMobile && matchmedia.is(ESN_MEDIA_QUERY_SM_XS)) {
-        return profilePopoverCardService.bindModal(element, user, eventType);
-      }
 
       if (!showMobile && matchmedia.is(ESN_MEDIA_QUERY_SM_XS)) {
         return;
       }
 
-      var popover = profilePopoverCardService.bindPopover(element, user, eventType, getPopoverPosition(attrs));
-      if (popover) {
-        scope.$on('$destroy', popover.hide);
-      } else if (alternativeTitle) {
-        $(element).attr('title', alternativeTitle);
-      }
+      var user = JSON.parse(attrs.profilePopoverCard);
+      var alternativeTitle = attrs.profilePopoverCardAlternativeTitle;
+      var hideOnElementScroll = attrs.profilePopoverCardHideOnElementScroll;
+
+      var options = {
+        placement: getPopoverPosition(attrs),
+        alternativeTitle: alternativeTitle,
+        scope: scope,
+        showMobile: showMobile,
+        hideOnElementScroll: hideOnElementScroll
+      };
+
+      profilePopoverCardService.bind(element, user, options);
 
       function getPopoverPosition(attrs) {
         if (attrs.bottom) return 'bottom';

@@ -15,6 +15,6 @@
           i.mdi.mdi-close
   .popover-profile-user-actions.flex-horizontal-centered
     .actions(ng-if='!$ctrl.isCurrentUser' dynamic-directive='profile-user-actions')
-    a.btn.btn-default(ng-if='$ctrl.isMobileDevice' ng-click='$ctrl.onProfileButtonClick()')
-      i.mdi.mdi-account-box
-      span #{__('View profile page')}
+    .actions
+      button.btn.btn-link(ng-if='$ctrl.isMobileDevice' ng-click='$ctrl.onProfileButtonClick()')
+        i.mdi.mdi-account-box
