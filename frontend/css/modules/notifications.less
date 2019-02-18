@@ -1,4 +1,5 @@
 @alertBackground: #323232;
+@toastContainerZIndex: @overlayContainerZIndex + 1;;
 
 .alert {
   display: flex !important; //override notify bootstrap lib setting display CSS inline
@@ -9,6 +10,7 @@
   font-size: 14px;
   border-radius: 0;
   word-break: break-all;
+  z-index: @toastContainerZIndex !important; //override notify bootstrap lib setting display CSS inline
 
   .flex-space-between;
 
