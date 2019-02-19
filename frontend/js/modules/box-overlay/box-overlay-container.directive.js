@@ -7,7 +7,7 @@
     return {
       restrict: 'AE',
       replace: true,
-      template: '<div class="box-overlay-container" ng-class="{ \'maximized\': isMaximized() }"></div>',
+      template: '<div class="box-overlay-container" ng-class="{ \'maximized\': isMaximized() }"><div class="box-overlay-hack"></div></div>',
       link: function($scope) {
         $scope.isMaximized = boxOverlayService.maximizedBoxExists;
       }

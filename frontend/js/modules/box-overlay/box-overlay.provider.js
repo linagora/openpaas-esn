@@ -21,6 +21,7 @@
         scope.allowMaximize = _allow.bind(null, BoxOverlayStateManager.STATES.MAXIMIZED);
         scope.allowFullScreen = _allow.bind(null, BoxOverlayStateManager.STATES.FULL_SCREEN);
         scope.isMinimized = _is.bind(null, BoxOverlayStateManager.STATES.MINIMIZED);
+        scope.isNormal = _is.bind(null, BoxOverlayStateManager.STATES.NORMAL);
         scope.isMaximized = _is.bind(null, BoxOverlayStateManager.STATES.MAXIMIZED);
         scope.isFullScreen = _is.bind(null, BoxOverlayStateManager.STATES.FULL_SCREEN);
         scope.$toggleMinimized = _toggle.bind(null, BoxOverlayStateManager.STATES.MINIMIZED);
@@ -67,10 +68,24 @@
         }
 
         function _toggle(state) {
+          boxOverlayService.showAll();
+          // TODO: minimize the overflowed ones
           stateManager.toggle(state);
 
           if (scope.isMaximized() || scope.isFullScreen()) {
             boxOverlayService.minimizeOthers(scope);
+          }
+
+          if (scope.isNormal()) {
+            // TODO: We can not rely on waiting for the digest, need to change class by hand instead
+            $timeout(function() {
+              if (scope.isNormal() && boxOverlayService.overflows()) {
+                boxOverlayService.hideAround(scope);
+              }
+              // if still not enough, hide elements around...
+              // TODO
+              // TODO: If implemented, be sure to show elements on toggle or on any other situations
+            });
           }
         }
 
@@ -87,18 +102,20 @@
         }
 
         function show() {
-          if ($boxOverlay.$isShown || !boxOverlayService.addBox(scope)) {
+          if ($boxOverlay.$isShown || !boxOverlayService.addBox(scope, $boxOverlay)) {
             return;
           }
 
           $boxOverlay.$isShown = scope.$isShown = true;
+          boxOverlayService.ensureContainerExists();
 
-          ensureContainerElementExists();
           fetchTemplate(boxTemplateUrl).then(function(template) {
             boxElement = $boxOverlay.$element = $compile(template)(scope);
-
             boxElement.addClass('box-overlay-open');
-            container().append(boxElement);
+            getContainer().prepend(boxElement);
+
+            boxOverlayService.onShow(scope);
+
             setAutoMaximizeForIPAD(boxElement, scope);
 
             if (config.initialState) {
@@ -129,7 +146,7 @@
             boxElement = null;
           }
 
-          removeContainerElementIfPossible();
+          boxOverlayService.onHide();
         }
 
         function destroy() {
@@ -156,14 +173,8 @@
         return $boxOverlay;
       }
 
-      function container() {
-        return angular.element('body .box-overlay-container');
-      }
-
-      function ensureContainerElementExists() {
-        if (container().length === 0) {
-          angular.element($window.document.body).append($compile('<box-overlay-container></box-overlay-container>')($rootScope.$new()));
-        }
+      function getContainer() {
+        return boxOverlayService.getContainer();
       }
 
       function setAutoMaximizeForIPAD(box, scope) {
@@ -182,14 +193,6 @@
               scope.$apply(scope.$toggleMaximized);
             }
           });
-      }
-
-      function removeContainerElementIfPossible() {
-        var element = container();
-
-        if (element.children().length === 0) {
-          element.remove();
-        }
       }
 
       function fetchTemplate(template) {
