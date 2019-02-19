@@ -292,12 +292,26 @@ input[type='radio'][disabled] {
   background-color: lighten(@body-bg, 1%);
 }
 
-.avatar(@size, @border-radius: 3px) {
+.avatar(@size, @border-radius: 50%) {
   .RoundedShape(@border-radius);
 
   width: @size !important; /* Override material-admin  */
   min-width: @size !important; // Both attributes are mandatory for Firefox or the img is distorted (width is set to 1px)
   height: @size;
+}
+
+.avatar(@size, @border-radius: 50%) when(@size < 35px) {
+  .user-status-bubble {
+    left: 2px;
+    top: 2px;
+  }
+}
+
+.avatar(@size, @border-radius: 50%) when(@size >= 35px) {
+  .user-status-bubble {
+    left: 1px;
+    top: 1px;
+  }
 }
 
 .esn-avatar {
