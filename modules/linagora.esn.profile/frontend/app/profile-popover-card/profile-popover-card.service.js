@@ -18,6 +18,29 @@
     return {bind: bind};
 
     /**
+     *
+     * @param element see _bind
+     * @param userObject If of the form {source: ..., property: ...}, will scope.$watch `$source.$property` and bind
+     *   when source is a correct user
+     * @param options See _bind
+     */
+    function bind(element, userObject, options) {
+      if (userObject.source && userObject.property) {
+        var watchExp = userObject.source + '.' + userObject.property;
+        var unwatch = options.scope.$watch(watchExp, function() {
+          var user = _get(options.scope, userObject.source);
+
+          if (_isUser(user)) {
+            _bind(element, user, options);
+            unwatch();
+          }
+        });
+      } else {
+        _bind(element, userObject, options);
+      }
+    }
+
+    /**
      * Will bind a popover or a modale based on whether the device is a mobile and `showMobile` option is activated
      *
      * @param {Element|jQuery}element HTML element on which to append the popover card
@@ -38,7 +61,7 @@
      * @param {string|Element|jQuery=} options.hideOnElementScroll Element of which scroll event will be listened;
      *   popover will be hidden on this element's scroll screens and 'mouseenter' on desktop
      */
-    function bind(element, userObject, options) {
+    function _bind(element, userObject, options) {
       var user = _.assign({}, userObject);
 
       // Normalises between people and user objects
@@ -204,7 +227,25 @@
     }
 
     function _isUser(user) {
-      return user._id && user.preferredEmail && user.displayName;
+      return (user._id || user.id) &&
+        (user.preferredEmail || user.email) &&
+        (user.displayName || user.name);
+    }
+
+    /**
+     * >>> _get({prop1: {prop2: {prop3: {prop4: 'val'}}}}, 'prop1.prop2.prop3.prop4')
+     *     'val'
+     * >>> _get({prop1: 'val'}, 'prop1.prop2.prop3.prop4')
+     *     undefined
+     */
+    function _get(object, properties) {
+      var propertyList = properties;
+      if (!_.isArray(propertyList)) propertyList = properties.toString().split('.');
+
+      if (propertyList.length === 0) {
+        return object;
+      } else if (object && object[propertyList[0]]) return _get(object[propertyList[0]], propertyList.slice(1));
+      return undefined;
     }
   }
 })(angular);

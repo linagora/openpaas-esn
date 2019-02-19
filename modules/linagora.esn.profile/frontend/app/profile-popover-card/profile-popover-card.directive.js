@@ -7,6 +7,7 @@
   angular.module('linagora.esn.profile').directive('profilePopoverCard', profilePopoverCard);
 
   function profilePopoverCard(
+    $parse,
     profilePopoverCardService,
     touchscreenDetectorService,
     matchmedia,
@@ -24,12 +25,13 @@
         return;
       }
 
-      var user = JSON.parse(attrs.profilePopoverCard);
+      var user = $parse(attrs.profilePopoverCard)(scope);
       var alternativeTitle = attrs.profilePopoverCardAlternativeTitle;
       var hideOnElementScroll = attrs.profilePopoverCardHideOnElementScroll;
+      var placement = attrs.profilePopoverCardPlacement || 'top';
 
       var options = {
-        placement: getPopoverPosition(attrs),
+        placement: placement,
         alternativeTitle: alternativeTitle,
         scope: scope,
         showMobile: showMobile,
@@ -37,14 +39,6 @@
       };
 
       profilePopoverCardService.bind(element, user, options);
-
-      function getPopoverPosition(attrs) {
-        if (attrs.bottom) return 'bottom';
-        if (attrs.left) return 'left';
-        if (attrs.right) return 'right';
-
-        return 'top';
-      }
     }
   }
 })(angular);
