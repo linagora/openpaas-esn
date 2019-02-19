@@ -18,6 +18,21 @@
   right: 100px;
   z-index: @overlayContainerZIndex + 1;
   pointer-events: none;
+  width: 90vw;
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  overflow: hidden;
+  align-items: flex-end;
+
+  .box-overlay-hack {
+    width: 1px;
+    max-height: @overlayHeight;
+    height: @overlayHeight;
+    min-height: @overlayHeight;
+    order: -1;
+  }
 
   .panel {
     border: none;
@@ -51,6 +66,7 @@
 .box-overlay-open {
   .flex-column;
 
+  flex-shrink: 0;
   left: auto;
   top: auto;
   bottom: 0;
@@ -93,9 +109,12 @@
 
   &.minimized {
     max-height: 39px;
+    min-height: 39px;
     width: @overlayWidth * 0.5;
     min-width: @overlayMinWidth * 0.5;
-    top: ~"calc(100% - 39px)";
+    //top: ~"calc(100% - 39px)";
+    top: unset;
+    align-self: flex-end;
 
     .toggle-minimize {
       .rotateZ3d(180deg);

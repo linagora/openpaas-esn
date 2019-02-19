@@ -3,6 +3,6 @@
     div.panel-title
       i.close.mdi.mdi-close(ng-if="closeable()", ng-click="$close()")
       span.close.toggle-maximize.mdi(ng-if="allowMaximize()", ng-click="$toggleMaximized()", ng-class="{ 'mdi-arrow-expand': !isMaximized(), 'mdi-arrow-collapse': isMaximized() }")
-      span.close.toggle-minimize.mdi.mdi-chevron-down(ng-if="allowMinimize()", ng-click="$toggleMinimized()")
+      span.close.toggle-minimize.mdi.mdi-chevron-down(ng-click="$toggleMinimized()")
       .panel-title-text {{ title }}
   .panel-body(ng-include="templateUrl")
