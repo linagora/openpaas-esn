@@ -119,8 +119,6 @@
       if (overflows()) {
         hideOthers(box);
       }
-
-      // TODO: Show all on window destroy (not here)
     }
 
     function hideMinimizedRightUntilFits(from) {
