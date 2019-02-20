@@ -8,7 +8,7 @@
     var boxScopes = [];
 
     return {
-      buildElement: buildElement,
+      createElement: createElement,
       spaceLeftOnScreen: spaceLeftOnScreen,
       addBox: addBox,
       removeBox: removeBox,
@@ -236,6 +236,17 @@
       if (element.children().length === 0) {
         element.remove();
       }
+    }
+
+    function createElement(scope) {
+      ensureContainerExists();
+
+      return buildElement(scope).then(function(element) {
+        element.addClass('box-overlay-open');
+        getContainer().prepend(element);
+
+        return element;
+      });
     }
 
     function buildElement(scope) {
