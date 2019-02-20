@@ -44,8 +44,8 @@
       return count() === (ESN_BOX_OVERLAY_MAX_WINDOWS - 1);
     }
 
-    function isBoxAlreadyOpened(scope) {
-      return scope.id && boxes.some(function(element) { return element.scope.id === scope.id; });
+    function isBoxAlreadyOpened(box) {
+      return box.$scope.id && boxes.some(function(b) { return b.$scope.id === box.$scope.id; });
     }
 
     function addBox(box) {

@@ -4,7 +4,7 @@
 
 var expect = chai.expect;
 
-describe.only('The box-overlay Angular module', function() {
+describe('The box-overlay Angular module', function() {
 
   var $window, $compile, $rootScope, $scope, $timeout, $q, element, deviceDetector, notificationFactory, esnI18nService, DEVICES;
 
@@ -87,10 +87,10 @@ describe.only('The box-overlay Angular module', function() {
 
   describe('boxOverlay directive', function() {
 
-    var $httpBackend, ESN_BOX_OVERLAY_EVENTS;
+    var $httpBackend, ESN_BOX_OVERLAY_EVENTS, ESN_BOX_OVERLAY_MAX_WINDOWS;
 
     beforeEach(inject(function(_$window_, _$compile_, _$rootScope_, _$httpBackend_, _$timeout_,
-        _deviceDetector_, _DEVICES_, _ESN_BOX_OVERLAY_EVENTS_) {
+        _deviceDetector_, _DEVICES_, _ESN_BOX_OVERLAY_EVENTS_, _ESN_BOX_OVERLAY_MAX_WINDOWS_) {
       $window = _$window_;
       $compile = _$compile_;
       $rootScope = _$rootScope_;
@@ -100,6 +100,7 @@ describe.only('The box-overlay Angular module', function() {
       deviceDetector = _deviceDetector_;
       DEVICES = _DEVICES_;
       ESN_BOX_OVERLAY_EVENTS = _ESN_BOX_OVERLAY_EVENTS_;
+      ESN_BOX_OVERLAY_MAX_WINDOWS = _ESN_BOX_OVERLAY_MAX_WINDOWS_;
 
       deviceDetector.device = DEVICES.ANDROID;
     }));
@@ -163,35 +164,41 @@ describe.only('The box-overlay Angular module', function() {
       expect(overlays().find('.i-am-another-template')[0]).to.equal(document.activeElement);
     });
 
-    it('should accept to open two boxes', function() {
-
+    it('should accept to open ESN_BOX_OVERLAY_MAX_WINDOWS boxes', function() {
       var notificationCount = 0;
+
       $rootScope.$on('box-overlay:no-space-left-on-screen', function() {
         notificationCount++;
       });
 
       var button = compileAndClickTheButton('<button box-overlay />');
-      clickTheButton(button);
 
-      expect(overlays()).to.have.length(2);
+      for (var i = 0; i < ESN_BOX_OVERLAY_MAX_WINDOWS; i++) {
+        clickTheButton(button);
+      }
+
+      expect(overlays()).to.have.length(ESN_BOX_OVERLAY_MAX_WINDOWS);
       expect(notificationCount).to.equal(1);
     });
 
-    it('should not accept to have three boxes', function() {
+    it('should not accept to have more than ESN_BOX_OVERLAY_MAX_WINDOWS boxes', function() {
       var button = compileAndClickTheButton('<button box-overlay />');
-      clickTheButton(button);
-      clickTheButton(button);
 
-      expect(overlays()).to.have.length(2);
+      for (var i = 0; i < ESN_BOX_OVERLAY_MAX_WINDOWS * 2; i++) {
+        clickTheButton(button);
+      }
+
+      expect(overlays()).to.have.length(ESN_BOX_OVERLAY_MAX_WINDOWS);
     });
 
     it('should notify when it cannot open more boxes', function() {
       var button = compileAndClickTheButton('<button box-overlay />');
 
-      clickTheButton(button);
-      clickTheButton(button);
+      for (var i = 0; i < ESN_BOX_OVERLAY_MAX_WINDOWS + 1; i++) {
+        clickTheButton(button);
+      }
 
-      expect(notificationFactory.weakError).to.have.been.calledWith('', 'Cannot open more than 2 windows. Please close one and try again');
+      expect(notificationFactory.weakError).to.have.been.calledWith('', 'Cannot open more than ' + ESN_BOX_OVERLAY_MAX_WINDOWS + ' windows. Please close one and try again');
     });
 
     it('should not accept to open two boxes with the same identifier', function() {
@@ -202,19 +209,18 @@ describe.only('The box-overlay Angular module', function() {
     });
 
     it('should accept to reopen a box when one has been closed', function() {
-      var notificationCount = 0;
-      $rootScope.$on('box-overlay:space-left-on-screen', function() {
-        notificationCount++;
-      });
-
       var button = compileAndClickTheButton('<button box-overlay />');
+
       clickTheButton(button);
       $timeout.flush();
-      closeFirstBox();
-      clickTheButton(button);
-
       expect(overlays()).to.have.length(2);
-      expect(notificationCount).to.equal(1);
+
+      closeFirstBox();
+      expect(overlays()).to.have.length(1);
+
+      clickTheButton(button);
+      $timeout.flush();
+      expect(overlays()).to.have.length(2);
     });
 
     it('should set the "maximized" CSS class when the box is maximized', function() {
