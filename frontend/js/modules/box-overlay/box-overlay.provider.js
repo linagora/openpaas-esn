@@ -37,14 +37,11 @@
         $boxOverlay.hide = hide;
         $boxOverlay.destroy = destroy;
         $boxOverlay.updateTitle = updateBoxTitle;
-        $boxOverlay.addClass = addClass;
-        $boxOverlay.removeClass = removeClass;
-        $boxOverlay.toggleClass = toggleClass;
 
         function minimize() {
           stateManager.state = BoxOverlayStateManager.STATES.MINIMIZED;
-          $boxOverlay.addClass('minimized');
-          $boxOverlay.removeClass('maximized');
+          addClass('minimized');
+          removeClass('maximized');
         }
 
         function onTryClose(callback) {
@@ -77,7 +74,7 @@
             if (previous === BoxOverlayStateManager.STATES.MAXIMIZED) {
               boxOverlayManager.minimizeOthers($boxOverlay);
             } else {
-              $boxOverlay.toggleClass('minimized');
+              toggleClass('minimized');
               boxOverlayManager.reorganize($boxOverlay);
             }
           }
@@ -88,9 +85,9 @@
 
           if (state === BoxOverlayStateManager.STATES.MAXIMIZED) {
             if (previous === BoxOverlayStateManager.STATES.MAXIMIZED) {
-              $boxOverlay.addClass('minimized');
+              addClass('minimized');
             } else {
-              $boxOverlay.removeClass('minimized');
+              removeClass('minimized');
               boxOverlayManager.minimizeOthers($boxOverlay);
             }
           }
