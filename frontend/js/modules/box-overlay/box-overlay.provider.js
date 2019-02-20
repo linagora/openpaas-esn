@@ -4,7 +4,7 @@
   angular.module('esn.box-overlay').provider('$boxOverlay', boxOverlayProvider);
 
   function boxOverlayProvider() {
-    this.$get = function($window, $rootScope, $compile, $templateCache, $http, $timeout, $q, boxOverlayManager, BoxOverlayStateManager, deviceDetector, DEVICES, ESN_BOX_OVERLAY_EVENTS) {
+    this.$get = function($window, $rootScope, $timeout, $q, boxOverlayManager, BoxOverlayStateManager, deviceDetector, DEVICES, ESN_BOX_OVERLAY_EVENTS) {
       return BoxOverlayFactory;
 
       function BoxOverlayFactory(config) {
@@ -37,11 +37,14 @@
         $boxOverlay.hide = hide;
         $boxOverlay.destroy = destroy;
         $boxOverlay.updateTitle = updateBoxTitle;
+        $boxOverlay.addClass = addClass;
+        $boxOverlay.removeClass = removeClass;
+        $boxOverlay.toggleClass = toggleClass;
 
         function minimize() {
           stateManager.state = BoxOverlayStateManager.STATES.MINIMIZED;
-          $boxOverlay.$element[0].classList.add('minimized');
-          $boxOverlay.$element[0].classList.remove('maximized');
+          $boxOverlay.addClass('minimized');
+          $boxOverlay.removeClass('maximized');
         }
 
         function onTryClose(callback) {
@@ -74,7 +77,7 @@
             if (previous === BoxOverlayStateManager.STATES.MAXIMIZED) {
               boxOverlayManager.minimizeOthers(scope);
             } else {
-              $boxOverlay.$element[0].classList.toggle('minimized');
+              $boxOverlay.toggleClass('minimized');
               boxOverlayManager.reorganize(scope);
             }
           }
@@ -85,9 +88,9 @@
 
           if (state === BoxOverlayStateManager.STATES.MAXIMIZED) {
             if (previous === BoxOverlayStateManager.STATES.MAXIMIZED) {
-              $boxOverlay.$element[0].classList.add('minimized');
+              $boxOverlay.addClass('minimized');
             } else {
-              $boxOverlay.$element[0].classList.remove('minimized');
+              $boxOverlay.removeClass('minimized');
               boxOverlayManager.minimizeOthers(scope);
             }
           }
@@ -111,13 +114,8 @@
           }
 
           $boxOverlay.$isShown = scope.$isShown = true;
-          boxOverlayManager.ensureContainerExists();
-
-          boxOverlayManager.buildElement(scope).then(function(element) {
+          boxOverlayManager.createElement(scope).then(function(element) {
             $boxOverlay.$element = element;
-            $boxOverlay.$element.addClass('box-overlay-open');
-            getContainer().prepend($boxOverlay.$element);
-
             boxOverlayManager.onShow(scope);
 
             setAutoMaximizeForIPAD($boxOverlay.$element, scope);
@@ -172,13 +170,21 @@
           }
         }
 
+        function addClass(name) {
+          $boxOverlay.$element && $boxOverlay.$element[0] && $boxOverlay.$element[0].classList.add(name);
+        }
+
+        function removeClass(name) {
+          $boxOverlay.$element && $boxOverlay.$element[0] && $boxOverlay.$element[0].classList.remove(name);
+        }
+
+        function toggleClass(name) {
+          $boxOverlay.$element && $boxOverlay.$element[0] && $boxOverlay.$element[0].classList.toggle(name);
+        }
+
         initialize();
 
         return $boxOverlay;
-      }
-
-      function getContainer() {
-        return boxOverlayManager.getContainer();
       }
 
       function setAutoMaximizeForIPAD(box, scope) {
