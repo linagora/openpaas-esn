@@ -14,11 +14,12 @@ describe('The esnDatetimeService', function() {
 
     module(function($provide) {
       $provide.constant('esnConfig', function(argument) {
-        if (argument === 'core.language') {
-          return $q.when('en');
+        switch (argument) {
+          case 'core.language': return $q.when('en');
+          case 'core.datetime': return $q.when({timeZone: 'Europe/Berlin', use24hourFormat: true});
+          default:
+            break;
         }
-
-        return $q.when({timeZone: 'Europe/Berlin'});
       });
     });
   });
@@ -69,6 +70,16 @@ describe('The esnDatetimeService', function() {
         var date = new Date(Date.UTC(2017, 6, 5));
         var formatted = esnDatetimeService.format(date, 'longDate');
         expect(formatted).to.eq('July 5, 2017 2:00 AM');
+        done();
+      });
+      $rootScope.$digest();
+    });
+
+    it('should set the timeFormat', function(done) {
+      esnDatetimeService.init().then(function() {
+        var timeFormatExpected = 'H:mm';
+        var timeFormat = esnDatetimeService.getTimeFormat();
+        expect(timeFormat).to.eq(timeFormatExpected);
         done();
       });
       $rootScope.$digest();
