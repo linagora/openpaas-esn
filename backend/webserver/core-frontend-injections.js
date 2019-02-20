@@ -253,7 +253,7 @@ const injections = [
     'box-overlay/box-overlay-state-manager.service.js',
     'box-overlay/box-overlay.directive.js',
     'box-overlay/box-overlay.provider.js',
-    'box-overlay/box-overlay.service.js'
+    'box-overlay/box-overlay-manager.service.js'
   ], innerApps: ['esn']},
   {angular: 'esn.back-detector', files: ['back-detector.js'], innerApps: ['esn']},
   {angular: 'esn.fullscreen-edit-form', files: ['fullscreen-edit-form.js'], innerApps: ['esn']},

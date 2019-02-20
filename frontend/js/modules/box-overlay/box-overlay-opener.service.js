@@ -14,6 +14,8 @@
       if (angular.isDefined(overlay)) {
         overlay.show();
       }
+
+      return overlay;
     }
   }
 })(angular);

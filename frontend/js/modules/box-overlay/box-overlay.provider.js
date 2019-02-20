@@ -6,7 +6,7 @@
   function boxOverlayProvider() {
     var boxTemplateUrl = '/views/modules/box-overlay/box-overlay.html';
 
-    this.$get = function($window, $rootScope, $compile, $templateCache, $http, $timeout, $q, boxOverlayService, BoxOverlayStateManager, deviceDetector, DEVICES, ESN_BOX_OVERLAY_EVENTS) {
+    this.$get = function($window, $rootScope, $compile, $templateCache, $http, $timeout, $q, boxOverlayManager, BoxOverlayStateManager, deviceDetector, DEVICES, ESN_BOX_OVERLAY_EVENTS) {
       return BoxOverlayFactory;
 
       function BoxOverlayFactory(config) {
@@ -70,20 +70,20 @@
         }
 
         function _toggle(state) {
-          boxOverlayService.showAll();
+          boxOverlayManager.showAll();
           var previous = stateManager.toggle(state);
 
           if (state === BoxOverlayStateManager.STATES.MINIMIZED) {
             if (previous === BoxOverlayStateManager.STATES.MAXIMIZED) {
-              boxOverlayService.minimizeOthers(scope);
+              boxOverlayManager.minimizeOthers(scope);
             } else {
               $boxOverlay.$element[0].classList.toggle('minimized');
-              boxOverlayService.reorganize(scope);
+              boxOverlayManager.reorganize(scope);
             }
           }
 
           //if (scope.isMaximized() || scope.isFullScreen()) {
-          //  boxOverlayService.minimizeOthers(scope);
+          //  boxOverlayManager.minimizeOthers(scope);
           //}
 
           if (state === BoxOverlayStateManager.STATES.MAXIMIZED) {
@@ -91,7 +91,7 @@
               $boxOverlay.$element[0].classList.add('minimized');
             } else {
               $boxOverlay.$element[0].classList.remove('minimized');
-              boxOverlayService.minimizeOthers(scope);
+              boxOverlayManager.minimizeOthers(scope);
             }
           }
         }
@@ -109,19 +109,19 @@
         }
 
         function show() {
-          if ($boxOverlay.$isShown || !boxOverlayService.addBox(scope, $boxOverlay)) {
+          if ($boxOverlay.$isShown || !boxOverlayManager.addBox(scope, $boxOverlay)) {
             return;
           }
 
           $boxOverlay.$isShown = scope.$isShown = true;
-          boxOverlayService.ensureContainerExists();
+          boxOverlayManager.ensureContainerExists();
 
           fetchTemplate(boxTemplateUrl).then(function(template) {
             boxElement = $boxOverlay.$element = $compile(template)(scope);
             boxElement.addClass('box-overlay-open');
             getContainer().prepend(boxElement);
 
-            boxOverlayService.onShow(scope);
+            boxOverlayManager.onShow(scope);
 
             setAutoMaximizeForIPAD(boxElement, scope);
 
@@ -146,14 +146,14 @@
           }
 
           $boxOverlay.$isShown = scope.$isShown = false;
-          boxOverlayService.removeBox(scope);
+          boxOverlayManager.removeBox(scope);
 
           if (boxElement) {
             boxElement.remove();
             boxElement = null;
           }
 
-          boxOverlayService.onHide();
+          boxOverlayManager.onHide();
         }
 
         function destroy() {
@@ -181,7 +181,7 @@
       }
 
       function getContainer() {
-        return boxOverlayService.getContainer();
+        return boxOverlayManager.getContainer();
       }
 
       function setAutoMaximizeForIPAD(box, scope) {
