@@ -8,7 +8,8 @@
     $q,
     _,
     moment,
-    esnConfig
+    esnConfig,
+    ESN_DATETIME_TIME_FORMATS
   ) {
     var groups = [
       {name: 'Today', dateFormat: 'shortTime', accepts: _isToday},
@@ -22,11 +23,16 @@
     ];
 
     var timeZone;
+    var timeFormat;
+    var use24hourFormat;
     var locale;
 
     return {
       init: init,
       getGroup: getGroup,
+      is24hourFormat: is24hourFormat,
+      getTimeFormat: getTimeFormat,
+      getTimeZone: getTimeZone,
       format: format,
       formatMediumDate: formatMediumDate,
       formatFullDate: formatFullDate,
@@ -38,7 +44,11 @@
 
     function init() {
       return $q.all([
-        esnConfig('core.datetime').then(function(config) { timeZone = config && config.timeZone || 'UTC'; }),
+        esnConfig('core.datetime').then(function(config) {
+          timeZone = config && config.timeZone || 'UTC';
+          use24hourFormat = config && config.use24hourFormat;
+          timeFormat = use24hourFormat ? ESN_DATETIME_TIME_FORMATS.format24 : ESN_DATETIME_TIME_FORMATS.format12;
+        }),
         esnConfig('core.language').then(function(config) { locale = config || 'en'; })
       ]);
     }
@@ -83,6 +93,18 @@
 
     function getGroup(date) {
       return _.find(groups, function(group) { return group.accepts(moment(), moment(date)); });
+    }
+
+    function is24hourFormat() {
+      return use24hourFormat;
+    }
+
+    function getTimeFormat() {
+      return timeFormat;
+    }
+
+    function getTimeZone() {
+      return timeZone;
     }
 
     function _getMoment(date) {
