@@ -1,9 +1,9 @@
 (function(angular) {
   'use strict';
 
-  angular.module('esn.box-overlay').service('boxOverlayService', boxOverlayService);
+  angular.module('esn.box-overlay').service('boxOverlayManager', boxOverlayManager);
 
-  function boxOverlayService(_, $rootScope, $window, $compile, notificationFactory, ESN_BOX_OVERLAY_MAX_WINDOWS) {
+  function boxOverlayManager(_, $rootScope, $window, $compile, notificationFactory, ESN_BOX_OVERLAY_MAX_WINDOWS) {
     var boxScopes = [];
 
     return {

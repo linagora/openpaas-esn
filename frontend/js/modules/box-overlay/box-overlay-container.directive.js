@@ -3,13 +3,13 @@
 
   angular.module('esn.box-overlay').directive('boxOverlayContainer', boxOverlayContainer);
 
-  function boxOverlayContainer(boxOverlayService) {
+  function boxOverlayContainer(boxOverlayManager) {
     return {
       restrict: 'AE',
       replace: true,
       template: '<div class="box-overlay-container" ng-class="{ \'maximized\': isMaximized() }"><div class="box-overlay-hack"></div></div>',
       link: function($scope) {
-        $scope.isMaximized = boxOverlayService.maximizedBoxExists;
+        $scope.isMaximized = boxOverlayManager.maximizedBoxExists;
       }
     };
   }

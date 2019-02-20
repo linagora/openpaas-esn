@@ -4,7 +4,7 @@
 
 var expect = chai.expect;
 
-describe('The box-overlay Angular module', function() {
+describe.only('The box-overlay Angular module', function() {
 
   var $window, $compile, $rootScope, $scope, $timeout, $q, element, deviceDetector, notificationFactory, esnI18nService, DEVICES;
 
