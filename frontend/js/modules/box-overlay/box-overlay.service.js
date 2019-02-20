@@ -12,8 +12,7 @@
       removeBox: removeBox,
       maximizedBoxExists: maximizedBoxExists,
       minimizeOthers: minimizeOthers,
-      minimizeAround: minimizeAround,
-      hideAround: hideAround,
+      reorganize: reorganize,
       overflows: overflows,
       showAll: showAll,
       onShow: onShow,
@@ -82,41 +81,101 @@
     }
 
     function minimizeOthers(me) {
+      showAll();
+
       return boxScopes
         .filter(function(element) { return element.scope !== me; })
         .forEach(function(element) { element.scope.$minimize(); });
     }
 
-    function hideAround(scope) {
+    function hideOthers(me) {
+    }
+
+    function reorganize(scope) {
       if (count() === 1) {
         return;
       }
 
+      if (!overflows()) {
+        return;
+      }
+
       var index = _findBoxIndex(scope);
-      console.log('BOXINDEX', index);
-      console.log('BOX', boxScopes[index]);
 
       if (index < 0) {
         return;
       }
 
-      // TODO: First, try to hide the ones which are minimized...
-      // Then if it does not fit, hide maximized ones...
-      if (index === 0) {
-        // FIXME: hide only if current elemetn does not fit
-        setDisplay(1, 'none');
-      } else {
-        setDisplay(index - 1, 'none');
+      hideMinimizedRightUntilFits(index + 1);
+      hideMinimizedLeftUntilFits(index);
+      minimizeUntilFits(index);
+
+      if (overflows()) {
+        hideOthers(scope);
+      }
+
+      // TODO: Show all on window destroy (not here)
+    }
+
+    function hideMinimizedRightUntilFits(from) {
+      if (from !== count()) {
+        while (overflows()) {
+          hideIfMinimized(from);
+
+          if (++from >= boxScopes.length) {
+            break;
+          }
+        }
       }
     }
 
+    function hideMinimizedLeftUntilFits(to) {
+      var i = 0;
+
+      while (overflows()) {
+        if (i !== to) {
+          hideIfMinimized(i);
+        }
+
+        if (++i >= to) {
+          break;
+        }
+      }
+    }
+
+    function minimizeUntilFits(exclude) {
+      var i = 0;
+
+      while (overflows()) {
+        if (i !== exclude) {
+          minimize(i);
+        }
+
+        if (++i >= boxScopes.length) {
+          break;
+        }
+      }
+    }
+
+    function hideIfMinimized(index) {
+      if (boxScopes[index] && boxScopes[index].scope.isMinimized()) {
+        setDisplay(index, 'none');
+      }
+    }
+
+    function minimize(index) {
+      boxScopes[index].scope.$minimize();
+    }
+
     function setDisplay(index, display) {
-      boxScopes[index].box.$element[0].style.display = display;
+      if (boxScopes[index]) {
+        boxScopes[index].box.$element[0].style.display = display;
+      }
     }
 
     function showAll() {
       boxScopes.forEach(function(element) {
-        element.box.$element[0].style.display = '';
+        element.box.$element[0].style.display = 'flex';
       });
     }
 
@@ -124,29 +183,28 @@
       return boxScopes.map(function(bs) {
         return bs.box.$element[0].offsetWidth;
       }).reduce(function(accumulator, width) {
-        return accumulator + width;
+        return accumulator + width + 6; // 6 is the margin, not available in offsetWidth and not standard with others methods...
       });
     }
 
-    function minimizeAround(scope) {
-      if (!boxScopes.length || boxScopes.length === 1) {
-        return;
-      }
-
-      if (scope === boxScopes[0].scope) {
-        boxScopes[1].scope.$minimize();
-      }
-
-      if (scope === boxScopes[boxScopes.length - 1].scope) {
-        boxScopes[boxScopes.length - 1].scope.$minimize();
-      }
-    }
-
     function onShow(scope) {
-      // if it does not fit in, be radical and minimize all others
-      if (getWidth() > getContainer()[0].offsetWidth) {
-        // TODO: Minimize from last until there is enough place
-        minimizeOthers(scope);
+      if (overflows()) {
+        var index = _findBoxIndex(scope);
+        var i = 0;
+
+        if (index < 0) {
+          return;
+        }
+
+        while (overflows()) {
+          if (i < index) {
+            minimize(i);
+          }
+
+          if (++i === index) {
+            break;
+          }
+        }
       }
     }
 

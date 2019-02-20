@@ -17,8 +17,12 @@
     };
 
     BoxOverlayStateManager.prototype.toggle = function(newState) {
+      var oldState = this.state;
+
       this.state = this.state === newState ? BoxOverlayStateManager.STATES.NORMAL : newState;
       this.callbacks.forEach(function(callback) {callback();});
+
+      return oldState;
     };
 
     BoxOverlayStateManager.prototype.registerHandler = function(callback) {
