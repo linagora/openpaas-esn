@@ -4,13 +4,10 @@
   angular.module('esn.box-overlay').provider('$boxOverlay', boxOverlayProvider);
 
   function boxOverlayProvider() {
-    var boxTemplateUrl = '/views/modules/box-overlay/box-overlay.html';
-
     this.$get = function($window, $rootScope, $compile, $templateCache, $http, $timeout, $q, boxOverlayManager, BoxOverlayStateManager, deviceDetector, DEVICES, ESN_BOX_OVERLAY_EVENTS) {
       return BoxOverlayFactory;
 
       function BoxOverlayFactory(config) {
-        var boxElement;
         var scope = angular.extend($rootScope.$new(), config);
         var $boxOverlay = { $scope: scope };
         var stateManager = new BoxOverlayStateManager();
@@ -116,21 +113,21 @@
           $boxOverlay.$isShown = scope.$isShown = true;
           boxOverlayManager.ensureContainerExists();
 
-          fetchTemplate(boxTemplateUrl).then(function(template) {
-            boxElement = $boxOverlay.$element = $compile(template)(scope);
-            boxElement.addClass('box-overlay-open');
-            getContainer().prepend(boxElement);
+          boxOverlayManager.buildElement(scope).then(function(element) {
+            $boxOverlay.$element = element;
+            $boxOverlay.$element.addClass('box-overlay-open');
+            getContainer().prepend($boxOverlay.$element);
 
             boxOverlayManager.onShow(scope);
 
-            setAutoMaximizeForIPAD(boxElement, scope);
+            setAutoMaximizeForIPAD($boxOverlay.$element, scope);
 
             if (config.initialState) {
               _toggle(config.initialState);
             }
 
             $timeout(function() {
-              var toFocus = boxElement.find('[autofocus]')[0];
+              var toFocus = $boxOverlay.$element.find('[autofocus]')[0];
 
               if (toFocus) {
                 toFocus.focus();
@@ -148,9 +145,9 @@
           $boxOverlay.$isShown = scope.$isShown = false;
           boxOverlayManager.removeBox(scope);
 
-          if (boxElement) {
-            boxElement.remove();
-            boxElement = null;
+          if ($boxOverlay.$element) {
+            $boxOverlay.$element.remove();
+            $boxOverlay.$element = null;
           }
 
           boxOverlayManager.onHide();
@@ -200,12 +197,6 @@
               scope.$apply(scope.$toggleMaximized);
             }
           });
-      }
-
-      function fetchTemplate(template) {
-        return $http.get(template, {cache: $templateCache}).then(function(res) {
-          return res.data;
-        });
       }
     };
   }

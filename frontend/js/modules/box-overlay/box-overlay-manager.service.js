@@ -3,10 +3,12 @@
 
   angular.module('esn.box-overlay').service('boxOverlayManager', boxOverlayManager);
 
-  function boxOverlayManager(_, $rootScope, $window, $compile, notificationFactory, ESN_BOX_OVERLAY_MAX_WINDOWS) {
+  function boxOverlayManager(_, $rootScope, $window, $compile, $http, $templateCache, notificationFactory, ESN_BOX_OVERLAY_MAX_WINDOWS) {
+    var boxTemplateUrl = '/views/modules/box-overlay/box-overlay.html';
     var boxScopes = [];
 
     return {
+      buildElement: buildElement,
       spaceLeftOnScreen: spaceLeftOnScreen,
       addBox: addBox,
       removeBox: removeBox,
@@ -23,7 +25,11 @@
     };
 
     function overflows() {
-      return getWidth() > getContainer()[0].offsetWidth;
+      return getWidth() > getContainerWidth();
+    }
+
+    function getContainerWidth() {
+      return getContainer()[0].offsetWidth;
     }
 
     function count() {
@@ -230,6 +236,18 @@
       if (element.children().length === 0) {
         element.remove();
       }
+    }
+
+    function buildElement(scope) {
+      return _fetchTemplate().then(function(template) {
+        return $compile(template)(scope);
+      });
+    }
+
+    function _fetchTemplate() {
+      return $http.get(boxTemplateUrl, {cache: $templateCache}).then(function(res) {
+        return res.data;
+      });
     }
 
     function _findBoxIndex(scope) {
