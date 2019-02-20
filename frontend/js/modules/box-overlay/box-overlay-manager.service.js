@@ -94,9 +94,6 @@
         .forEach(function(b) { b.$scope.$minimize(); });
     }
 
-    function hideOthers(box) {
-    }
-
     function reorganize(box) {
       if (count() === 1) {
         return;
@@ -115,10 +112,6 @@
       hideMinimizedRightUntilFits(index + 1);
       hideMinimizedLeftUntilFits(index);
       minimizeUntilFits(index);
-
-      if (overflows()) {
-        hideOthers(box);
-      }
     }
 
     function hideMinimizedRightUntilFits(from) {
