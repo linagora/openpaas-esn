@@ -75,10 +75,10 @@
 
           if (state === BoxOverlayStateManager.STATES.MINIMIZED) {
             if (previous === BoxOverlayStateManager.STATES.MAXIMIZED) {
-              boxOverlayManager.minimizeOthers(scope);
+              boxOverlayManager.minimizeOthers($boxOverlay);
             } else {
               $boxOverlay.toggleClass('minimized');
-              boxOverlayManager.reorganize(scope);
+              boxOverlayManager.reorganize($boxOverlay);
             }
           }
 
@@ -91,7 +91,7 @@
               $boxOverlay.addClass('minimized');
             } else {
               $boxOverlay.removeClass('minimized');
-              boxOverlayManager.minimizeOthers(scope);
+              boxOverlayManager.minimizeOthers($boxOverlay);
             }
           }
         }
@@ -109,14 +109,14 @@
         }
 
         function show() {
-          if ($boxOverlay.$isShown || !boxOverlayManager.addBox(scope, $boxOverlay)) {
+          if ($boxOverlay.$isShown || !boxOverlayManager.addBox($boxOverlay)) {
             return;
           }
 
           $boxOverlay.$isShown = scope.$isShown = true;
           boxOverlayManager.createElement(scope).then(function(element) {
             $boxOverlay.$element = element;
-            boxOverlayManager.onShow(scope);
+            boxOverlayManager.onShow($boxOverlay);
 
             setAutoMaximizeForIPAD($boxOverlay.$element, scope);
 
@@ -141,7 +141,7 @@
           }
 
           $boxOverlay.$isShown = scope.$isShown = false;
-          boxOverlayManager.removeBox(scope);
+          boxOverlayManager.removeBox($boxOverlay);
 
           if ($boxOverlay.$element) {
             $boxOverlay.$element.remove();
