@@ -43,6 +43,8 @@
 
         function minimize() {
           stateManager.state = BoxOverlayStateManager.STATES.MINIMIZED;
+          $boxOverlay.$element[0].classList.add('minimized');
+          $boxOverlay.$element[0].classList.remove('maximized');
         }
 
         function onTryClose(callback) {
@@ -69,23 +71,28 @@
 
         function _toggle(state) {
           boxOverlayService.showAll();
-          // TODO: minimize the overflowed ones
-          stateManager.toggle(state);
+          var previous = stateManager.toggle(state);
 
-          if (scope.isMaximized() || scope.isFullScreen()) {
-            boxOverlayService.minimizeOthers(scope);
+          if (state === BoxOverlayStateManager.STATES.MINIMIZED) {
+            if (previous === BoxOverlayStateManager.STATES.MAXIMIZED) {
+              boxOverlayService.minimizeOthers(scope);
+            } else {
+              $boxOverlay.$element[0].classList.toggle('minimized');
+              boxOverlayService.reorganize(scope);
+            }
           }
 
-          if (scope.isNormal()) {
-            // TODO: We can not rely on waiting for the digest, need to change class by hand instead
-            $timeout(function() {
-              if (scope.isNormal() && boxOverlayService.overflows()) {
-                boxOverlayService.hideAround(scope);
-              }
-              // if still not enough, hide elements around...
-              // TODO
-              // TODO: If implemented, be sure to show elements on toggle or on any other situations
-            });
+          //if (scope.isMaximized() || scope.isFullScreen()) {
+          //  boxOverlayService.minimizeOthers(scope);
+          //}
+
+          if (state === BoxOverlayStateManager.STATES.MAXIMIZED) {
+            if (previous === BoxOverlayStateManager.STATES.MAXIMIZED) {
+              $boxOverlay.$element[0].classList.add('minimized');
+            } else {
+              $boxOverlay.$element[0].classList.remove('minimized');
+              boxOverlayService.minimizeOthers(scope);
+            }
           }
         }
 

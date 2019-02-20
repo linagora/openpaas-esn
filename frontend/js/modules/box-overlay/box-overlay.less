@@ -3,8 +3,8 @@
 @overlayBoxZIndex: 5;
 @overlayHeight: 60vh;
 @overlayMinHeight: 400px;
-@overlayWidth: 33vw;
-@overlayMinWidth: 400px;
+@overlayWidth: 30vw;
+@overlayMinWidth: 500px;
 
 /* Extra small devices (phones, less than 768px) */
 /* No media query since this is the default in Bootstrap */
@@ -18,7 +18,8 @@
   right: 100px;
   z-index: @overlayContainerZIndex + 1;
   pointer-events: none;
-  width: 90vw;
+  width: ~"calc(100vw - 110px)";
+
   display: flex;
   flex-direction: row-reverse;
   justify-content: flex-start;
@@ -75,7 +76,7 @@
   min-height: @overlayMinHeight;
   height: @overlayHeight;
   float: right;
-  margin: 0 10px 0 0;
+  margin: 0 6px 0 0;
   overflow: hidden;
   position: relative;
   border-top-left-radius: 5px;
@@ -110,8 +111,8 @@
   &.minimized {
     max-height: 39px;
     min-height: 39px;
-    width: @overlayWidth * 0.5;
-    min-width: @overlayMinWidth * 0.5;
+    width: @overlayWidth * 0.4;
+    min-width: @overlayMinWidth * 0.4;
     //top: ~"calc(100% - 39px)";
     top: unset;
     align-self: flex-end;
