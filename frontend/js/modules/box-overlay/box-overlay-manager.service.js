@@ -5,7 +5,7 @@
 
   function boxOverlayManager(_, $rootScope, $window, $compile, $http, $templateCache, notificationFactory, ESN_BOX_OVERLAY_MAX_WINDOWS) {
     var boxTemplateUrl = '/views/modules/box-overlay/box-overlay.html';
-    var boxScopes = [];
+    var boxes = [];
 
     return {
       createElement: createElement,
@@ -33,7 +33,7 @@
     }
 
     function count() {
-      return boxScopes.length;
+      return boxes.length;
     }
 
     function spaceLeftOnScreen() {
@@ -45,11 +45,11 @@
     }
 
     function isBoxAlreadyOpened(scope) {
-      return scope.id && boxScopes.some(function(element) { return element.scope.id === scope.id; });
+      return scope.id && boxes.some(function(element) { return element.scope.id === scope.id; });
     }
 
-    function addBox(scope, box) {
-      if (isBoxAlreadyOpened(scope)) {
+    function addBox(box) {
+      if (isBoxAlreadyOpened(box)) {
         return false;
       }
 
@@ -59,7 +59,7 @@
         return false;
       }
 
-      boxScopes.push({scope: scope, box: box});
+      boxes.push(box);
 
       if (!spaceLeftOnScreen()) {
         $rootScope.$broadcast('box-overlay:no-space-left-on-screen');
@@ -68,12 +68,12 @@
       return true;
     }
 
-    function removeBox(scope) {
+    function removeBox(box) {
       if (count() > 0) {
-        var index = _findBoxIndex(scope);
+        var index = _findBoxIndex(box);
 
         if (index > -1) {
-          boxScopes.splice(index, 1);
+          boxes.splice(index, 1);
 
           if (onlyOneSpaceLeftOnScreen()) {
             $rootScope.$broadcast('box-overlay:space-left-on-screen');
@@ -83,21 +83,21 @@
     }
 
     function maximizedBoxExists() {
-      return boxScopes.some(function(element) { return element.scope.isMaximized() || element.scope.isFullScreen(); });
+      return boxes.some(function(box) { return box.$scope.isMaximized() || box.$scope.isFullScreen(); });
     }
 
-    function minimizeOthers(me) {
+    function minimizeOthers(box) {
       showAll();
 
-      return boxScopes
-        .filter(function(element) { return element.scope !== me; })
-        .forEach(function(element) { element.scope.$minimize(); });
+      return boxes
+        .filter(function(b) { return b.$scope !== box.$scope; })
+        .forEach(function(b) { b.$scope.$minimize(); });
     }
 
-    function hideOthers(me) {
+    function hideOthers(box) {
     }
 
-    function reorganize(scope) {
+    function reorganize(box) {
       if (count() === 1) {
         return;
       }
@@ -106,7 +106,7 @@
         return;
       }
 
-      var index = _findBoxIndex(scope);
+      var index = _findBoxIndex(box);
 
       if (index < 0) {
         return;
@@ -117,7 +117,7 @@
       minimizeUntilFits(index);
 
       if (overflows()) {
-        hideOthers(scope);
+        hideOthers(box);
       }
 
       // TODO: Show all on window destroy (not here)
@@ -128,7 +128,7 @@
         while (overflows()) {
           hideIfMinimized(from);
 
-          if (++from >= boxScopes.length) {
+          if (++from >= boxes.length) {
             break;
           }
         }
@@ -157,45 +157,45 @@
           minimize(i);
         }
 
-        if (++i >= boxScopes.length) {
+        if (++i >= boxes.length) {
           break;
         }
       }
     }
 
     function hideIfMinimized(index) {
-      if (boxScopes[index] && boxScopes[index].scope.isMinimized()) {
+      if (boxes[index] && boxes[index].$scope.isMinimized()) {
         setDisplay(index, 'none');
       }
     }
 
     function minimize(index) {
-      boxScopes[index].scope.$minimize();
+      boxes[index].$scope.$minimize();
     }
 
     function setDisplay(index, display) {
-      if (boxScopes[index]) {
-        boxScopes[index].box.$element[0].style.display = display;
+      if (boxes[index]) {
+        boxes[index].$element[0].style.display = display;
       }
     }
 
     function showAll() {
-      boxScopes.forEach(function(element) {
-        element.box.$element[0].style.display = 'flex';
+      boxes.forEach(function(box) {
+        box.$element[0].style.display = 'flex';
       });
     }
 
     function getWidth() {
-      return boxScopes.map(function(bs) {
-        return bs.box.$element[0].offsetWidth;
+      return boxes.map(function(box) {
+        return box.$element[0].offsetWidth;
       }).reduce(function(accumulator, width) {
         return accumulator + width + 6; // 6 is the margin, not available in offsetWidth and not standard with others methods...
       });
     }
 
-    function onShow(scope) {
+    function onShow(box) {
       if (overflows()) {
-        var index = _findBoxIndex(scope);
+        var index = _findBoxIndex(box);
         var i = 0;
 
         if (index < 0) {
@@ -231,10 +231,10 @@
     }
 
     function removeContainerIfPossible() {
-      var element = getContainer();
+      var container = getContainer();
 
-      if (element.children().length === 0) {
-        element.remove();
+      if (container.children().length === 0) {
+        container.remove();
       }
     }
 
@@ -261,8 +261,8 @@
       });
     }
 
-    function _findBoxIndex(scope) {
-      return _.findIndex(boxScopes, {scope: scope});
+    function _findBoxIndex(box) {
+      return _.findIndex(boxes, { $scope: box.$scope });
     }
   }
 
