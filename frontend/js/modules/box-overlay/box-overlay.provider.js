@@ -79,10 +79,6 @@
             }
           }
 
-          //if (scope.isMaximized() || scope.isFullScreen()) {
-          //  boxOverlayManager.minimizeOthers(scope);
-          //}
-
           if (state === BoxOverlayStateManager.STATES.MAXIMIZED) {
             if (previous === BoxOverlayStateManager.STATES.MAXIMIZED) {
               addClass('minimized');
