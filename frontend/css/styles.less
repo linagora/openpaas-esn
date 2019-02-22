@@ -300,26 +300,42 @@ input[type='radio'][disabled] {
   height: @size;
 }
 
-.avatar(@size, @border-radius: 50%) when(@size < 35px) {
+.avatar(@size) when(@size >= 35px) {
   .user-status-bubble {
-    left: 2px;
-    top: 2px;
+    right: 1px;
+    bottom: 1px;
   }
 }
 
-.avatar(@size, @border-radius: 50%) when(@size >= 35px) {
+.esn-avatar-xs {
+  .avatar(28px);
+}
+
+.avatar(@size) when(@size = 28px) {
   .user-status-bubble {
-    left: 1px;
-    top: 1px;
+    height: 11px;
+    width: 11px;
   }
+}
+
+.esn-avatar-sm {
+  .avatar(30px);
 }
 
 .esn-avatar {
  .avatar(35px);
 }
 
+.esn-avatar-md {
+  .avatar(40px);
+}
+
 .esn-avatar-lg {
   .avatar(45px);
+}
+
+.esn-avatar-xl {
+  .avatar(50px);
 }
 
 .label {
