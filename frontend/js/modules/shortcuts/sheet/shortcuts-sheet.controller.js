@@ -4,7 +4,7 @@
   angular.module('esn.shortcuts')
     .controller('EsnShortcutsSheetController', EsnShortcutsSheetController);
 
-  function EsnShortcutsSheetController($state, _, esnShortcutsRegistry) {
+  function EsnShortcutsSheetController($state, _, esnShortcutsRegistry, hotkeys) {
     var self = this;
     var allCategories = [];
 
@@ -64,6 +64,7 @@
           return {
             id: shortcut.id,
             combo: shortcut.combo,
+            comboAsText: hotkeys.get && hotkeys.get(shortcut.combo) && hotkeys.get(shortcut.combo).format ? hotkeys.get(shortcut.combo).format()[0] : shortcut.combo,
             description: shortcut.description
           };
         });
