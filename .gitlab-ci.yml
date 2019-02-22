@@ -105,7 +105,8 @@ check_author:
   variables:
     GIT_DEPTH: "1"
   tags:
-    - ultralight
+    - docker-medium
+    - check-author
   script:
     - check_author.py check "$GITLAB_USER_EMAIL" "$GITLAB_USER_NAME" --no-accents
   except:
