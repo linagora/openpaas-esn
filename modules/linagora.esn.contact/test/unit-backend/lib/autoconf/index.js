@@ -44,6 +44,24 @@ describe('The Calendar autoconf transformer', function() {
     transform().then(() => done('Test should have failed'), () => done());
   });
 
+  it('should call client.list with correct argument', function(done) {
+    let argument;
+
+    mockClient(arg => {
+      argument = arg;
+    });
+
+    transform().then(() => {
+      expect(argument).to.deep.equal({ query: {
+        personal: true,
+        subscribed: true,
+        shared: true
+      } });
+
+      done();
+    }, () => done('This test should have passed'));
+  });
+
   it('should call client.list and assign an empty list to config.addressbooks, if there is no books', function(done) {
     mockClient(() => q({}));
 
