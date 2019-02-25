@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.user', ['esn.http', 'esn.object-type', 'esn.lodash-wrapper', 'esn.session'])
+angular.module('esn.user', ['esn.http', 'esn.object-type', 'esn.lodash-wrapper', 'esn.session', 'esn.attendee'])
   .run(function(objectTypeResolver, userAPI, userUtils, esnRestangular) {
     objectTypeResolver.register('user', userAPI.user);
     esnRestangular.extendModel('users', function(model) {
@@ -70,53 +70,47 @@ angular.module('esn.user', ['esn.http', 'esn.object-type', 'esn.lodash-wrapper',
       displayNameOf: displayNameOf
     };
   })
-  .constant('USER_AUTO_COMPLETE_TEMPLATE_URL', '/views/modules/auto-complete/user-auto-complete')
-  .directive('usersAutocompleteInput', function($q, _, session, $log, domainAPI, userUtils, naturalService, AUTOCOMPLETE_MAX_RESULTS, USER_AUTO_COMPLETE_TEMPLATE_URL) {
+  .constant('USER_AUTO_COMPLETE_TEMPLATE_URL', '/views/modules/auto-complete/user-auto-complete.html')
+  .directive('usersAutocompleteInput', function($q, _, session, $log, attendeeService, userUtils, AUTOCOMPLETE_MAX_RESULTS, USER_AUTO_COMPLETE_TEMPLATE_URL) {
     function link(scope) {
-      function filterUsers(users) {
-        var userIds = _.map(users, '_id');
 
-        return function(user) {
-          return !_.contains(userIds, user._id);
-        };
-      }
+      function getUserTuples(users) {
+        var tuples = [];
 
-      function filterConnectedUser(user) {
-        return !(user.preferredEmail in session.user.emailMap);
+        users.forEach(function(user) {
+          if (user.id || user._id) {
+            tuples.push({
+              id: user.id || user._id,
+              objectType: 'user'
+            });
+          }
+        });
+
+        return _.uniq(tuples, 'id');
       }
 
       scope.getUsers = function(query) {
-        var memberQuery = {search: query, limit: AUTOCOMPLETE_MAX_RESULTS * 2};
+        var excludedUsers = []
+          .concat([session.user])
+          .concat(scope.mutableUsers)
+          .concat(scope.originalUsers || [])
+          .concat(scope.ignoredUsers || []);
 
-        return domainAPI.getMembers(session.domain._id, memberQuery).then(function(response) {
-          response.data.forEach(function(user) {
-            user.displayName = userUtils.displayNameOf(user);
+        return attendeeService.getAttendeeCandidates(query, AUTOCOMPLETE_MAX_RESULTS, ['user'], getUserTuples(excludedUsers))
+          .then(function(users) {
+            return users.map(function(user) {
+              return _.assign(
+                user,
+                { _id: user.id }, //to be compatible with post processes using domain API reponse
+                { templateUrl: USER_AUTO_COMPLETE_TEMPLATE_URL }
+              );
+            });
+          })
+          .catch(function(error) {
+            $log.error('Error while searching users:', error);
+
+            return [];
           });
-
-          return response.data;
-        }, function(error) {
-          $log.error('Error while searching users:', error);
-
-          return $q.when([]);
-        }).then(function(users) {
-          var duplicateUsers = scope.mutableUsers.concat(scope.originalUsers || []);
-          var ignoredUsers = scope.ignoredUsers || [];
-
-          users = users.map(function(user) {
-            return angular.extend(user, { templateUrl: USER_AUTO_COMPLETE_TEMPLATE_URL });
-          });
-
-          users = users
-            .filter(filterConnectedUser)
-            .filter(filterUsers(duplicateUsers))
-            .filter(filterUsers(ignoredUsers));
-
-          users.sort(function(a, b) {
-            return naturalService.naturalSort(a.displayName, b.displayName);
-          });
-
-          return users.slice(0, AUTOCOMPLETE_MAX_RESULTS);
-        });
       };
     }
 

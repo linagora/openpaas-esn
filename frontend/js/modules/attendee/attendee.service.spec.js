@@ -212,7 +212,7 @@ describe('The attendeeService service', function() {
 
         searchStub.returns($q.when(people));
 
-        attendeeService.getAttendeeCandidates(query, limit, null, filterAttendees)
+        attendeeService.getAttendeeCandidates(query, limit, null, [], filterAttendees)
           .then(function(attendeeCandidates) {
             expect(searchStub).to.have.been.calledOnce;
             expect(filterAttendees).to.have.been.calledOnce;
