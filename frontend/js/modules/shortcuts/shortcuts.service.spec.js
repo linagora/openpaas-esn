@@ -29,16 +29,6 @@ describe('The esnShortcuts service', function() {
       }).to.throw(Error, 'no such shortcut: my_shortcut');
     });
 
-    it('should disallow using shortcut without action', function() {
-      esnShortcutsRegistry.getById = function() {
-        return {};
-      };
-
-      expect(function() {
-        esnShortcuts.use('my_shortcut');
-      }).to.throw(Error, 'this shortcut is registered without action, you must provie action to use it: my_shortcut');
-    });
-
     it('should allow using shortcut using predefined action', function() {
       esnShortcutsRegistry.getById = function() {
         return {
@@ -166,6 +156,9 @@ describe('The esnShortcuts service', function() {
 
       esnShortcutsRegistry.addCategory = sinon.spy();
       esnShortcutsRegistry.register = sinon.spy();
+      esnShortcutsRegistry.getById = sinon.stub();
+      esnShortcutsRegistry.getById.onFirstCall().returns(shortcuts.shortcut1);
+      esnShortcutsRegistry.getById.onSecondCall().returns(shortcuts.shortcut2);
 
       esnShortcuts.register(category, shortcuts);
 
@@ -192,6 +185,9 @@ describe('The esnShortcuts service', function() {
 
       esnShortcutsRegistry.addCategory = sinon.spy();
       esnShortcutsRegistry.register = sinon.spy();
+      esnShortcutsRegistry.getById = sinon.stub();
+      esnShortcutsRegistry.getById.onFirstCall().returns(category.shortcuts.shortcut1);
+      esnShortcutsRegistry.getById.onSecondCall().returns(category.shortcuts.shortcut2);
 
       esnShortcuts.register(category);
 
@@ -220,7 +216,7 @@ describe('The esnShortcuts service', function() {
       expect(shortcuts.SHORTCUT2.category).to.equal(category.id);
     });
 
-    it('should use shortcut when it is registered with action', function() {
+    it('should register shortcuts', function() {
       var category = { id: 'my_category', name: 'My Category', moduleDetector: true };
       var shortcuts = {
         shortcut1: {
@@ -238,7 +234,7 @@ describe('The esnShortcuts service', function() {
 
       esnShortcuts.register(category, shortcuts);
 
-      expect(hotkeys.add).to.have.been.calledOnce;
+      expect(hotkeys.add).to.have.been.calledTwice;
     });
 
     it('should do nothing on mobile', function() {

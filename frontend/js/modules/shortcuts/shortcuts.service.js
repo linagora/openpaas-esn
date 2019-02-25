@@ -22,11 +22,7 @@
         throw new Error('no such shortcut: ' + shortcutId);
       }
 
-      var shortcutAction = action || shortcut.action;
-
-      if (!shortcutAction) {
-        throw new Error('this shortcut is registered without action, you must provie action to use it: ' + shortcutId);
-      }
+      var shortcutAction = action || shortcut.action || function() {};
 
       hotkeys.add({
         combo: shortcut.combo,
@@ -71,14 +67,13 @@
         moduleDetector: category.moduleDetector,
         parentId: category.parentId
       });
+
       angular.forEach(shortcuts, function(shortcut, key) {
         shortcut.category = category.id;
         shortcut.id = category.id + '.' + key.toLowerCase();
         esnShortcutsRegistry.register(shortcut);
 
-        if (shortcut.action) {
-          use(shortcut);
-        }
+        use(shortcut);
       });
     }
   }

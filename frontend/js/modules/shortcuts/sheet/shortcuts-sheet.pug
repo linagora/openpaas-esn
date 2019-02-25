@@ -4,7 +4,7 @@
       .modal-header
         button.close(type="button", data-dismiss="modal", aria-label=__('Close'), ng-click="$hide()")
           span(aria-hidden='true') ×
-        h4.modal-title #{__('Keyboard shortcuts')} 
+        h4.modal-title #{__('Keyboard shortcuts')}
           small(ng-if="$ctrl.isFiltered")
             a(ng-click="$ctrl.showAll()") (#{__('Show all')})
       .modal-body
@@ -16,7 +16,7 @@
           div(ng-repeat="shortcut in category.shortcuts")
             dl.dl-horizontal
               dt
-                kbd {{::shortcut.combo}}
+                kbd {{::shortcut.comboAsText}}
               dd {{ ::shortcut.description | esnI18n }}
           div(ng-repeat="subCategory in category.subCategories | orderBy: 'id'")
             dl.dl-horizontal
@@ -26,5 +26,5 @@
             div(ng-repeat="shortcut in subCategory.shortcuts")
               dl.dl-horizontal
                 dt
-                  kbd {{::shortcut.combo}}
+                  kbd {{::shortcut.comboAsText}}
                 dd {{ ::shortcut.description | esnI18n }}
