@@ -3,8 +3,8 @@
 @overlayBoxZIndex: 5;
 @overlayHeight: 60vh;
 @overlayMinHeight: 400px;
-@overlayWidth: 33vw;
-@overlayMinWidth: 400px;
+@overlayWidth: 600px;
+@overlayMinWidth: 600px;
 
 /* Extra small devices (phones, less than 768px) */
 /* No media query since this is the default in Bootstrap */
@@ -18,6 +18,22 @@
   right: 100px;
   z-index: @overlayContainerZIndex + 1;
   pointer-events: none;
+  width: ~"calc(100vw - 110px)";
+
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  overflow: hidden;
+  align-items: flex-end;
+
+  .box-overlay-hack {
+    width: 1px;
+    max-height: @overlayHeight;
+    height: @overlayHeight;
+    min-height: @overlayHeight;
+    order: -1;
+  }
 
   .panel {
     border: none;
@@ -38,6 +54,11 @@
       }
     }
 
+    .box-overlay-hack {
+      max-height: 100vh;
+      height: 100vh;
+      min-height: 100vh;
+    }
   }
 
   .panel-title .panel-title-text {
@@ -51,6 +72,7 @@
 .box-overlay-open {
   .flex-column;
 
+  flex-shrink: 0;
   left: auto;
   top: auto;
   bottom: 0;
@@ -59,7 +81,7 @@
   min-height: @overlayMinHeight;
   height: @overlayHeight;
   float: right;
-  margin: 0 10px 0 0;
+  margin: 0 6px 0 0;
   overflow: hidden;
   position: relative;
   border-top-left-radius: 5px;
@@ -93,9 +115,11 @@
 
   &.minimized {
     max-height: 39px;
-    width: @overlayWidth * 0.5;
-    min-width: @overlayMinWidth * 0.5;
-    top: ~"calc(100% - 39px)";
+    min-height: 39px;
+    width: @overlayWidth * 0.4;
+    min-width: @overlayMinWidth * 0.4;
+    top: unset;
+    align-self: flex-end;
 
     .toggle-minimize {
       .rotateZ3d(180deg);
