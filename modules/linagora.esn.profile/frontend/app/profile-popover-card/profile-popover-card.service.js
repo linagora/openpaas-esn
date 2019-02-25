@@ -15,12 +15,52 @@
     matchmedia,
     ESN_MEDIA_QUERY_SM_XS
   ) {
-    return {bind: bind};
+    var functions = {
+      bind: bind,
+      _bind: _bind,
+      bindPopover: bindPopover,
+      createPopover: createPopover,
+      bindModal: bindModal,
+      createModal: createModal,
+      _isUser: _isUser,
+      _normalizeUser: _normalizeUser,
+      _get: _get
+    };
+
+    return {
+      bind: functions.bind,
+      functions: functions
+    };
+
+    /**
+     *
+     * @param element see _bind
+     * @param userObject If of the form {source: ..., property: ...}, will scope.$watch `$source.$property` and bind
+     *   when source is a correct user
+     * @param options See _bind
+     *
+     * see https://ci.linagora.com/linagora/lgs/openpaas/esn/merge_requests/777
+     */
+    function bind(element, userObject, options) {
+      if (userObject.source && userObject.property) {
+        var watchExp = userObject.source + '.' + userObject.property;
+        var unwatch = options.scope.$watch(watchExp, function() {
+          var user = functions._get(options.scope, userObject.source);
+
+          if (functions._isUser(user)) {
+            functions._bind(element, user, options);
+            unwatch();
+          }
+        });
+      } else {
+        functions._bind(element, userObject, options);
+      }
+    }
 
     /**
      * Will bind a popover or a modale based on whether the device is a mobile and `showMobile` option is activated
      *
-     * @param {Element|jQuery}element HTML element on which to append the popover card
+     * @param {Element|jQuery|String}element HTML element on which to append the popover card
      * @param {object} userObject The user of which to display the card.
      * @param {string=} userObject.id
      * @param {string=} userObject._id
@@ -38,13 +78,8 @@
      * @param {string|Element|jQuery=} options.hideOnElementScroll Element of which scroll event will be listened;
      *   popover will be hidden on this element's scroll screens and 'mouseenter' on desktop
      */
-    function bind(element, userObject, options) {
-      var user = _.assign({}, userObject);
-
-      // Normalises between people and user objects
-      if (user.id) user._id = user.id;
-      if (user.email) user.preferredEmail = user.email;
-      if (user.name) user.displayName = user.name;
+    function _bind(element, userObject, options) {
+      var user = functions._normalizeUser(userObject);
 
       var defaultOpts = {
         alternativeTitle: undefined,
@@ -59,9 +94,9 @@
       var popover;
 
       if (opts.showMobile && matchmedia.is(ESN_MEDIA_QUERY_SM_XS)) {
-        popover = bindModal(element, user);
+        popover = functions.bindModal(element, user);
       } else if (!matchmedia.is(ESN_MEDIA_QUERY_SM_XS)) {
-        popover = bindPopover(element, user, opts);
+        popover = functions.bindPopover(element, user, opts);
       }
 
       if (popover) $rootScope.$on('$stateChangeStart', popover.hide);
@@ -70,12 +105,12 @@
     }
 
     function bindPopover(element, user, options) {
-      if (!_isUser(user)) {
+      if (!functions._isUser(user)) {
         if (options.alternativeTitle) $(element).attr('title', options.alternativeTitle);
         return;
       }
 
-      var popover = createPopover(element, user, options.placement);
+      var popover = functions.createPopover(element, user, options.placement);
 
       if (options.scope) options.scope.$on('$destroy', popover.hide);
       if (options.hideOnElementScroll) $(options.hideOnElementScroll).scroll(popover.hide);
@@ -170,9 +205,9 @@
      * Same as bindPopover but displays a modal
      */
     function bindModal(element, user) {
-      if (!_isUser(user)) return;
+      if (!functions._isUser(user)) return;
 
-      var modal = createModal(user);
+      var modal = functions.createModal(user);
       var eventType = touchscreenDetectorService.hasTouchscreen() ? 'click' : 'mouseover';
 
       element.on(eventType, function(evt) {
@@ -204,7 +239,41 @@
     }
 
     function _isUser(user) {
-      return user._id && user.preferredEmail && user.displayName;
+      if (!user) return undefined;
+
+      return (user._id || user.id) &&
+        (user.preferredEmail || user.email) &&
+        (user.displayName || user.name);
+    }
+
+    function _normalizeUser(userObject) {
+      var user = _.assign({}, userObject);
+      // Normalises between people and user objects
+      if (user.id) user._id = user.id;
+      if (user.email) user.preferredEmail = user.email;
+      if (user.name) user.displayName = user.name;
+
+      return user;
+    }
+
+    /**
+     * >>> _get({prop1: {prop2: {prop3: {prop4: 'val'}}}}, 'prop1.prop2.prop3.prop4')
+     *     'val'
+     * >>> _get({prop1: 'val'}, 'prop1.prop2.prop3.prop4')
+     *     undefined
+     */
+    function _get(object, properties) {
+      if (properties === undefined) return properties;
+
+      var propertyList = properties;
+      if (!_.isArray(propertyList)) propertyList = properties.toString().split('.');
+
+      if (propertyList.length === 0) {
+        return object;
+      } else if (object && object[propertyList[0]]) {
+        return functions._get(object[propertyList[0]], propertyList.slice(1));
+      }
+      return undefined;
     }
   }
 })(angular);
