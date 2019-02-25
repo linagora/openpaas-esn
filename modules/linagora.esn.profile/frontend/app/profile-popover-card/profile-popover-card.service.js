@@ -8,6 +8,7 @@
     $compile,
     $modal,
     $log,
+    $timeout,
     _,
     uuid4,
     session,
@@ -15,11 +16,13 @@
     matchmedia,
     ESN_MEDIA_QUERY_SM_XS
   ) {
+    var delayedFnIds = [];
     var functions = {
       bind: bind,
       _bind: _bind,
       bindPopover: bindPopover,
       createPopover: createPopover,
+      showPopover: _.debounce(_showPopover, 100, {leading: true, trailing: false}),
       bindModal: bindModal,
       createModal: createModal,
       _isUser: _isUser,
@@ -160,8 +163,7 @@
         return $('.profile-popover-card[data-profile-popover-card="' + uuid + '"]');
       };
 
-      var timeoutedHide = _.debounce(_timeoutedHide, 150);
-      var show = _.debounce(_show, 150);
+      var timeoutedHide = _.debounce(_timeoutedHide, 100);
 
       if (touchscreenDetectorService.hasTouchscreen()) {
         $('body').on('click', function(evt) {
@@ -175,15 +177,6 @@
         });
       }
 
-      function _show() {
-        // Verifies that the popover the user is trying to open is not the same one as already opened
-        if ($popover().is(':visible')) return;
-
-        $('.profile-popover-card').popover('hide');
-        $popoverOrigin.popover('show');
-        $('body').on('mousemove', timeoutedHide);
-      }
-
       function hide() {
         $('.profile-popover-card[data-profile-popover-card="' + uuid + '"]').popover('hide');
       }
@@ -195,10 +188,29 @@
         }
       }
 
+      function show() {
+        functions.showPopover($popover, $popoverOrigin, timeoutedHide);
+      }
+
       return {
         show: show,
         hide: hide
       };
+    }
+
+    function _showPopover($popover, $popoverOrigin, timeoutedHide) {
+      // Verifies that the popover the user is trying to open is not the same one as already opened
+      if ($popover().is(':visible')) return;
+
+      var promise = $timeout(function() {
+        var promises = angular.copy(delayedFnIds);
+        delayedFnIds.length = 0;
+        promises.forEach(function(promise) { $timeout.cancel(promise); });
+        $('.profile-popover-card').popover('hide');
+        $popoverOrigin.popover('show');
+        $('body').on('mousemove', timeoutedHide);
+      }, 300);
+      delayedFnIds.push(promise);
     }
 
     /**
