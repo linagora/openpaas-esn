@@ -30,12 +30,13 @@
      * @param {String} query - The term to seach in attendees
      * @param {Number} limit - The number of attendees per objectType
      * @param {Array} objectTypes - Array of objectType as String
+     * @param {Array} excludes - Array of tuple objects to be excluded from search
      * @param {Function} attendeesFilter - Optional function which takes the array of attendees candidates and must return another array of attendees, potentially filtered based on consumer rules
      */
-    function getAttendeeCandidates(query, limit, objectTypes, attendeesFilter) {
+    function getAttendeeCandidates(query, limit, objectTypes, excludes, attendeesFilter) {
       objectTypes = objectTypes || [ESN_ATTENDEE_DEFAULT_OBJECT_TYPE];
 
-      return esnPeopleAPI.search(query, objectTypes, limit)
+      return esnPeopleAPI.search(query, objectTypes, limit, excludes)
         .then(function(people) {
           return people.map(function(person) {
             var provider = _.find(providers, { objectType: person.objectType });
