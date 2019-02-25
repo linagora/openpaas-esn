@@ -8,11 +8,12 @@
       search: search
     };
 
-    function search(query, objectTypes, limit) {
+    function search(query, objectTypes, limit, excludes) {
       return esnRestangular.all('people/search').customPOST({
         q: query,
         objectTypes: objectTypes || [],
-        limit: limit
+        limit: limit,
+        excludes: excludes
       }).then(function(result) {
         return result.data;
       });
