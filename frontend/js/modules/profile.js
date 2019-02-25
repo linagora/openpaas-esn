@@ -1,15 +1,18 @@
 'use strict';
 
 angular.module('esn.profile', [])
+  .constant('ESN_DEFAULT_PROFILE_AVATAR_SIZE', 256)
 
-  .controller('avatarController', function($rootScope, $scope, $timeout) {
+  .controller('avatarController', function($scope, $timeout, ESN_DEFAULT_PROFILE_AVATAR_SIZE) {
 
     $scope.getURL = function() {
+      var queryParams = '?size=' + ESN_DEFAULT_PROFILE_AVATAR_SIZE + '&cb=' + Date.now();
+
       if ($scope.user) {
-        return '/api/users/' + $scope.user._id + '/profile/avatar?cb=' + Date.now();
+        return '/api/users/' + $scope.user._id + '/profile/avatar' + queryParams;
       }
 
-      return '/api/user/profile/avatar?cb=' + Date.now();
+      return '/api/user/profile/avatar' + queryParams;
     };
 
     $scope.avatarURL = $scope.getURL();
