@@ -24,10 +24,6 @@
 
       var shortcutAction = action || shortcut.action || function() {};
 
-      if (!shortcutAction) {
-        throw new Error('this shortcut is registered without action, you must provide action to use it: ' + shortcutId);
-      }
-
       hotkeys.add({
         combo: shortcut.combo,
         description: shortcut.description,
