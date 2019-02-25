@@ -61,10 +61,12 @@
       return esnShortcutsRegistry
         .getShortcutsByCategoryId(id)
         .map(function(shortcut) {
+          var hotkey = hotkeys.get(shortcut.combo);
+
           return {
             id: shortcut.id,
             combo: shortcut.combo,
-            comboAsText: hotkeys.get && hotkeys.get(shortcut.combo) && hotkeys.get(shortcut.combo).format ? hotkeys.get(shortcut.combo).format()[0] : shortcut.combo,
+            comboAsText: hotkey && hotkey.format ? hotkey.format()[0] : shortcut.combo,
             description: shortcut.description
           };
         });
