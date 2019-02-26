@@ -1,7 +1,6 @@
 'use strict';
 
-/* global chai: false */
-/* global sinon: false */
+/* global chai, sinon, _: false */
 
 var expect = chai.expect;
 
@@ -129,16 +128,15 @@ describe('The User Angular module', function() {
   });
 
   describe('directive usersAutocompleteInput', function() {
-    var asSession, domainAPIMock, autoCompleteMax;
+    var session, attendeeService;
+    var $compile, $scope, $rootScope;
+    var USER_AUTO_COMPLETE_TEMPLATE_URL, AUTOCOMPLETE_MAX_RESULTS;
+    var user1, user2, user3;
     var query = 'aQuery';
 
     beforeEach(function() {
-      asSession = {
-        user: {
-          _id: '123456',
-          emails: ['user1@test.com'],
-          emailMap: { 'user1@test.com': true }
-        },
+      session = {
+        user: {},
         domain: {
           company_name: 'test',
           _id: 'domainId'
@@ -146,119 +144,142 @@ describe('The User Angular module', function() {
         ready: $q.when()
       };
 
-      var user1 = {_id: 'user1', firstname: 'first1', lastname: 'last1', preferredEmail: 'user1@open-paas.org'},
-          user3 = {_id: 'user3', firstname: 'first3', lastname: 'last3', preferredEmail: 'user3@open-paas.org'},
-          user2 = {_id: 'user2', firstname: 'first2', lastname: 'last2', preferredEmail: 'user2@open-paas.org'};
-
-      domainAPIMock = {
-        getMembers: function() {
-          return $q.when({data: [user1, user2, user3]});
-        }
-      };
-
-      autoCompleteMax = 6;
+      user1 = {_id: 'user1', displayName: 'user1'};
+      user3 = {_id: 'user3', displayName: 'user3'};
+      user2 = {_id: 'user2', displayName: 'user2'};
 
       module('jadeTemplates');
-      angular.mock.module(function($provide) {
-        $provide.value('session', asSession);
-        $provide.value('domainAPI', domainAPIMock);
-        $provide.constant('AUTOCOMPLETE_MAX_RESULTS', autoCompleteMax);
+      module(function($provide) {
+        $provide.value('session', session);
       });
     });
-    beforeEach(angular.mock.module('naturalSort'));
-    beforeEach(angular.mock.inject(function($rootScope, $compile, USER_AUTO_COMPLETE_TEMPLATE_URL, naturalService) {
-      this.$rootScope = $rootScope;
-      this.$scope = this.$rootScope.$new();
-      this.$compile = $compile;
-      this.naturalService = naturalService;
-      this.USER_AUTO_COMPLETE_TEMPLATE_URL = USER_AUTO_COMPLETE_TEMPLATE_URL;
-
-      this.initDirective = function(scope) {
-        var html = '<users-autocomplete-input original-users="users" mutable-users="newUsers"/>';
-        scope.newUsers = [];
-        var element = this.$compile(html)(scope);
-        scope.$digest();
-        this.eleScope = element.isolateScope();
-        return element;
-      };
+    beforeEach(module('naturalSort'));
+    beforeEach(inject(function(_$rootScope_, _$compile_, _attendeeService_, _USER_AUTO_COMPLETE_TEMPLATE_URL_, _AUTOCOMPLETE_MAX_RESULTS_) {
+      $rootScope = _$rootScope_;
+      $scope = $rootScope.$new();
+      $compile = _$compile_;
+      attendeeService = _attendeeService_;
+      USER_AUTO_COMPLETE_TEMPLATE_URL = _USER_AUTO_COMPLETE_TEMPLATE_URL_;
+      AUTOCOMPLETE_MAX_RESULTS = _AUTOCOMPLETE_MAX_RESULTS_;
     }));
 
-    describe('getUsers function', function() {
-      it('should call domainAPI.getMembers function and return a array is sorted.', function() {
-        this.initDirective(this.$scope);
-        var expectResult = [{_id: 'user1', firstname: 'first1', lastname: 'last1', preferredEmail: 'user1@open-paas.org', displayName: 'first1 last1', templateUrl: this.USER_AUTO_COMPLETE_TEMPLATE_URL},
-                            {_id: 'user2', firstname: 'first2', lastname: 'last2', preferredEmail: 'user2@open-paas.org', displayName: 'first2 last2', templateUrl: this.USER_AUTO_COMPLETE_TEMPLATE_URL},
-                            {_id: 'user3', firstname: 'first3', lastname: 'last3', preferredEmail: 'user3@open-paas.org', displayName: 'first3 last3', templateUrl: this.USER_AUTO_COMPLETE_TEMPLATE_URL}];
-        var thenSpy = sinon.spy();
-        this.eleScope.getUsers(query).then(thenSpy);
-        this.$scope.$digest();
+    function initDirective(scope) {
+      scope.newUsers = [];
+      var html = '<users-autocomplete-input original-users="users" mutable-users="newUsers"/>';
+      var element = $compile(html)(scope);
 
-        expect(thenSpy).to.have.been.calledWith(expectResult);
+      scope.$digest();
+
+      return element;
+    }
+
+    describe('The getUsers function', function() {
+      it('should call attendeeService function and return an array of users with templateUrl', function(done) {
+        var element = initDirective($scope);
+        var expectedResult = [user1, user2, user3].map(function(user) {
+          return _.assign(user, {_id: user.id}, {templateUrl: USER_AUTO_COMPLETE_TEMPLATE_URL});
+        });
+
+        attendeeService.getAttendeeCandidates = sinon.stub().returns($q.when([user1, user2, user3]));
+
+        element.isolateScope().getUsers(query).then(function(result) {
+          expect(attendeeService.getAttendeeCandidates).to.have.been.called;
+          expect(result).to.shallowDeepEqual(expectedResult);
+          done();
+        }).catch(done);
+
+        $scope.$digest();
       });
 
-      it('should remove connected user from result based on email comparing to added users', function() {
-        this.initDirective(this.$scope);
-        asSession.user = {
-            emails: ['user1@test.com'],
-            emailMap: { 'user1@open-paas.org': true }
-          };
+      it('should collect connected user and pass to #getAttendeeCandidates as excluded object', function(done) {
+        session.user = {
+          id: 'user1'
+        };
+        var element = initDirective($scope);
 
-        var expectResult = [{_id: 'user2', firstname: 'first2', lastname: 'last2', preferredEmail: 'user2@open-paas.org', displayName: 'first2 last2', templateUrl: this.USER_AUTO_COMPLETE_TEMPLATE_URL},
-          {_id: 'user3', firstname: 'first3', lastname: 'last3', preferredEmail: 'user3@open-paas.org', displayName: 'first3 last3', templateUrl: this.USER_AUTO_COMPLETE_TEMPLATE_URL}];
-        var thenSpy = sinon.spy();
-        this.eleScope.getUsers(query).then(thenSpy);
-        this.$scope.$digest();
+        attendeeService.getAttendeeCandidates = sinon.stub().returns($q.when([]));
 
-        expect(thenSpy).to.have.been.calledWith(expectResult);
+        element.isolateScope().getUsers(query).then(function() {
+          expect(attendeeService.getAttendeeCandidates).to.have.been.calledWith(
+            query,
+            AUTOCOMPLETE_MAX_RESULTS,
+            ['user'],
+            [{id: session.user.id, objectType: 'user'}]
+          );
+          done();
+        }).catch(done);
+
+        $scope.$digest();
       });
 
-      it('should remove duplicate users based on ID comparing to added users', function() {
-        this.initDirective(this.$scope);
-        this.eleScope.originalUsers = [{
-          _id: 'user1',
+      it('should collect duplicate users based on ID comparing to added users and pass to #getAttendeeCandidates as excluded objects', function(done) {
+        var element = initDirective($scope);
+        var eleScope = element.isolateScope();
+
+        eleScope.originalUsers = [{
+          id: 'user1'
+        }];
+        eleScope.mutableUsers = [{
+          id: 'user2'
+        }];
+
+        attendeeService.getAttendeeCandidates = sinon.stub().returns($q.when([]));
+
+        eleScope.getUsers(query).then(function() {
+          expect(attendeeService.getAttendeeCandidates).to.have.been.calledWith(
+            query,
+            AUTOCOMPLETE_MAX_RESULTS,
+            ['user'],
+            [
+              {id: 'user2', objectType: 'user'},
+              {id: 'user1', objectType: 'user'}
+            ]
+          );
+          done();
+        }).catch(done);
+
+        $scope.$digest();
+      });
+
+      it('should collect ignored users and pass to #getAttendeeCandidates as excluded objects', function(done) {
+        var element = initDirective($scope);
+        var eleScope = element.isolateScope();
+
+        eleScope.ignoredUsers = [{
+          id: 'user1',
           preferredEmail: 'user1@open-paas.org'
         }];
-        this.eleScope.mutableUsers = [{
-          _id: 'user2',
-          preferredEmail: 'user2@open-paas.org'
-        }];
 
-        var expectResult = [{_id: 'user3', firstname: 'first3', lastname: 'last3', preferredEmail: 'user3@open-paas.org', displayName: 'first3 last3', templateUrl: this.USER_AUTO_COMPLETE_TEMPLATE_URL}];
-        var thenSpy = sinon.spy();
-        this.eleScope.getUsers(query).then(thenSpy);
-        this.$scope.$digest();
+        attendeeService.getAttendeeCandidates = sinon.stub().returns($q.when([]));
 
-        expect(thenSpy).to.have.been.calledWith(expectResult);
+        eleScope.getUsers(query).then(function() {
+          expect(attendeeService.getAttendeeCandidates).to.have.been.calledWith(
+            query,
+            AUTOCOMPLETE_MAX_RESULTS,
+            ['user'],
+            [
+              {id: 'user1', objectType: 'user'}
+            ]
+          );
+          done();
+        }).catch(done);
+
+        $scope.$digest();
       });
 
-      it('should remove ignored users based on ID', function() {
-        this.initDirective(this.$scope);
-        this.eleScope.ignoredUsers = [{
-          _id: 'user1',
-          preferredEmail: 'user1@open-paas.org'
-        }];
+      it('should return an empty array if #getAttendeeCandidates return an error', function(done) {
+        var element = initDirective($scope);
 
-        var expectResult = [{_id: 'user2', firstname: 'first2', lastname: 'last2', preferredEmail: 'user2@open-paas.org', displayName: 'first2 last2', templateUrl: this.USER_AUTO_COMPLETE_TEMPLATE_URL},
-                            {_id: 'user3', firstname: 'first3', lastname: 'last3', preferredEmail: 'user3@open-paas.org', displayName: 'first3 last3', templateUrl: this.USER_AUTO_COMPLETE_TEMPLATE_URL}];
-        var thenSpy = sinon.spy();
-        this.eleScope.getUsers(query).then(thenSpy);
-        this.$scope.$digest();
-
-        expect(thenSpy).to.have.been.calledWith(expectResult);
-      });
-
-      it('should return an empty array if domainAPI.getMembers return an error', function() {
-        domainAPIMock.getMembers = function() {
-          return $q.reject(new Error('function domainAPIMock.getMembers return error'));
+        attendeeService.getAttendeeCandidates = function() {
+          return $q.reject(new Error());
         };
 
-        this.initDirective(this.$scope);
+        element.isolateScope().getUsers(query).then(function(result) {
+          expect(result).to.have.lengthOf(0);
+          done();
+        }).catch(done);
 
-        var thenSpy = sinon.spy();
-        this.eleScope.getUsers(query).then(thenSpy);
-        this.$scope.$digest();
-
-        expect(thenSpy).to.have.been.calledWith([]);
+        $scope.$digest();
       });
     });
   });
