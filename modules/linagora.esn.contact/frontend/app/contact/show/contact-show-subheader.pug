@@ -1,11 +1,7 @@
 extends /modules/subheader/centered-subheader.pug
 
 block left
-  button.btn.btn-link.hidden-xs(esn-back-button='contact')
-    .flex-vertical-centered
-      i.mdi.mdi-arrow-left.mdi-margin-right
-      span #{__('Back')}
-  button.btn.btn-link.btn-icon.visible-xs(esn-back-button='contact')
+  button.btn.btn-link.btn-icon(esn-back-button='contact', title=__('Back'))
     i.mdi.mdi-arrow-left
 
 block right
