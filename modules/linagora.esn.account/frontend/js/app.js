@@ -9,7 +9,7 @@ angular.module('linagora.esn.account', [
   'esn.ui',
   'esn.http',
   'linagora.esn.oauth.consumer'])
-  .config(function($stateProvider, routeResolver, dynamicDirectiveServiceProvider) {
+  .config(function($stateProvider, routeResolver) {
     $stateProvider.state('controlcenter.accounts', {
       url: '/accounts',
       templateUrl: '/account/views/accounts',
@@ -36,9 +36,4 @@ angular.module('linagora.esn.account', [
       }
     });
 
-    var accountControlCenterMenu = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'controlcenter-menu-account', {priority: -2});
-    dynamicDirectiveServiceProvider.addInjection('controlcenter-sidebar-menu', accountControlCenterMenu);
-
-    var inboxSidebarSocialNetworks = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'inbox-sidebar-social-networks', {});
-    dynamicDirectiveServiceProvider.addInjection('inbox-sidebar-social-networks', inboxSidebarSocialNetworks);
   });
