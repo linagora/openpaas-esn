@@ -293,7 +293,7 @@ input[type='radio'][disabled] {
   background-color: lighten(@body-bg, 1%);
 }
 
-.avatar(@size, @border-radius: 3px) {
+.avatar(@size, @border-radius: 50%) {
   .RoundedShape(@border-radius);
 
   width: @size !important; /* Override material-admin  */
@@ -301,12 +301,42 @@ input[type='radio'][disabled] {
   height: @size;
 }
 
+.avatar(@size) when(@size >= 35px) {
+  .user-status-bubble {
+    right: 1px;
+    bottom: 1px;
+  }
+}
+
+.esn-avatar-xs {
+  .avatar(28px);
+}
+
+.avatar(@size) when(@size = 28px) {
+  .user-status-bubble {
+    height: 11px;
+    width: 11px;
+  }
+}
+
+.esn-avatar-sm {
+  .avatar(30px);
+}
+
 .esn-avatar {
  .avatar(35px);
 }
 
+.esn-avatar-md {
+  .avatar(40px);
+}
+
 .esn-avatar-lg {
   .avatar(45px);
+}
+
+.esn-avatar-xl {
+  .avatar(50px);
 }
 
 .label {
