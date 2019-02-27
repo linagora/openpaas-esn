@@ -21,6 +21,7 @@
       bind: bind,
       _bind: _bind,
       bindPopover: bindPopover,
+      _createScope: _createScope,
       createPopover: createPopover,
       showPopover: _.debounce(_showPopover, 100, {leading: true, trailing: false}),
       bindModal: bindModal,
@@ -36,31 +37,6 @@
     };
 
     /**
-     *
-     * @param element see _bind
-     * @param userObject If of the form {source: ..., property: ...}, will scope.$watch `$source.$property` and bind
-     *   when source is a correct user
-     * @param options See _bind
-     *
-     * see https://ci.linagora.com/linagora/lgs/openpaas/esn/merge_requests/777
-     */
-    function bind(element, userObject, options) {
-      if (userObject.source && userObject.property) {
-        var watchExp = userObject.source + '.' + userObject.property;
-        var unwatch = options.scope.$watch(watchExp, function() {
-          var user = functions._get(options.scope, userObject.source);
-
-          if (functions._isUser(user)) {
-            functions._bind(element, user, options);
-            unwatch();
-          }
-        });
-      } else {
-        functions._bind(element, userObject, options);
-      }
-    }
-
-    /**
      * Will bind a popover or a modale based on whether the device is a mobile and `showMobile` option is activated
      *
      * @param {Element|jQuery|String}element HTML element on which to append the popover card
@@ -71,25 +47,61 @@
      * @param {string=} userObject.preferredEmail
      * @param {string=} userObject.name
      * @param {string=} userObject.displayName
+     *
+     * In case your user object is asynchronously population, you may want a dynamic binding, in which case,
+     * you can pass the scope property defining the user to watch and a property of the user object that
+     * will be observed to indicate that the user is complete.
+     *
+     * For instance, profile-popover-card='{ source: "ctrl.attendee", property: "id" }' will asynchronously
+     * bind the popover when scope.ctrl.attendee is a correct user by using scope.$watch('ctrl.attendee.id').
+     *
+     * @param {string=} userObject.source
+     * @param {string=} userObject.property
+     *
      * @param {object=} options
      * @param {string=} options.alternativeTitle Alternative `title` attribute to assign to element if user object is
      *   not correct
      * @param {string=} options.placement Placement of popover. Either one of 'top', 'left', 'bottom' or 'right'.
      *   Defaults to 'top'
-     * @param {object=} options.scope Current scope. Used to hide popover on scope destroy
+     * @param {object=} options.parentScope Current scope. Used to hide popover on scope destroy
      * @param {string=} options.eventType Event on which to bind the popover display. Defaults to 'click' on mobile
      * @param {string|Element|jQuery=} options.hideOnElementScroll Element of which scroll event will be listened;
      *   popover will be hidden on this element's scroll screens and 'mouseenter' on desktop
+     *
+     * see https://ci.linagora.com/linagora/lgs/openpaas/esn/merge_requests/777
      */
-    function _bind(element, userObject, options) {
-      var user = functions._normalizeUser(userObject);
+    function bind(element, userObject, options) {
+      if (!userObject.source && !userObject.property) {
+        return functions._bind(element, functions._createScope(userObject), options);
+      }
 
+      var whenReady = function(unwatch) {
+        var user = functions._get(options.parentScope, userObject.source);
+
+        if (functions._isUser(user)) {
+          var scope = functions._createScope(user);
+
+          functions._bind(element, scope, options);
+          unwatch();
+
+          options.parentScope.$watch(userObject.source, _.partial($timeout, function() {
+            var newValue = functions._get(options.parentScope, userObject.source);
+            scope.user = functions._normalizeUser(newValue);
+          }));
+        }
+      };
+
+      var watchExp = userObject.source + '.' + userObject.property;
+      var unwatch = options.parentScope.$watch(watchExp, function() { whenReady(unwatch); });
+    }
+
+    function _bind(element, scope, options) {
       var defaultOpts = {
         alternativeTitle: undefined,
         eventType: touchscreenDetectorService.hasTouchscreen() ? 'click' : 'mouseover',
         placement: 'top',
         showMobile: false,
-        scope: undefined,
+        parentScope: undefined,
         hideOnElementScroll: undefined
       };
       var opts = _.assign({}, defaultOpts, options || {});
@@ -97,9 +109,9 @@
       var popover;
 
       if (opts.showMobile && matchmedia.is(ESN_MEDIA_QUERY_SM_XS)) {
-        popover = functions.bindModal(element, user);
+        popover = functions.bindModal(element, scope);
       } else if (!matchmedia.is(ESN_MEDIA_QUERY_SM_XS)) {
-        popover = functions.bindPopover(element, user, opts);
+        popover = functions.bindPopover(element, scope, opts);
       }
 
       if (popover) $rootScope.$on('$stateChangeStart', popover.hide);
@@ -107,15 +119,15 @@
       return popover;
     }
 
-    function bindPopover(element, user, options) {
-      if (!functions._isUser(user)) {
+    function bindPopover(element, scope, options) {
+      if (!functions._isUser(scope.user)) {
         if (options.alternativeTitle) $(element).attr('title', options.alternativeTitle);
         return;
       }
 
-      var popover = functions.createPopover(element, user, options.placement);
+      var popover = functions.createPopover(element, scope, options.placement);
 
-      if (options.scope) options.scope.$on('$destroy', popover.hide);
+      if (options.parentScope) options.parentScope.$on('$destroy', popover.hide);
       if (options.hideOnElementScroll) $(options.hideOnElementScroll).scroll(popover.hide);
       $(element).attr('title', undefined);
       $(element).css({cursor: 'pointer'});
@@ -130,7 +142,7 @@
       return popover;
     }
 
-    function createPopover(element, user, placement) {
+    function createPopover(element, scope, placement) {
       var uuid = uuid4.generate();
 
       var popoverTemplate = [
@@ -140,11 +152,7 @@
         '</div>'
       ].join('');
 
-      var scope = angular.extend($rootScope.$new(true), {
-        user: user,
-        isCurrentUser: user._id === session.user._id,
-        hideComponent: hide
-      });
+      scope.hideComponent = hide;
 
       var template = $compile(
         '<profile-popover-content user="user" is-current-user="isCurrentUser" hide-component="hideComponent()"/>')(
@@ -216,10 +224,10 @@
     /**
      * Same as bindPopover but displays a modal
      */
-    function bindModal(element, user) {
-      if (!functions._isUser(user)) return;
+    function bindModal(element, scope) {
+      if (!functions._isUser(scope.user)) return;
 
-      var modal = functions.createModal(user);
+      var modal = functions.createModal(scope);
       var eventType = touchscreenDetectorService.hasTouchscreen() ? 'click' : 'mouseover';
 
       element.on(eventType, function(evt) {
@@ -232,12 +240,7 @@
       return modal;
     }
 
-    function createModal(user) {
-      var scope = angular.extend($rootScope.$new(true), {
-        user: user,
-        isCurrentUser: user._id === session.user._id
-      });
-
+    function createModal(scope) {
       var modal = $modal({
         templateUrl: '/profile/app/profile-popover-card/profile-popover-content/profile-popover-modal.html',
         scope: scope,
@@ -286,6 +289,13 @@
         return functions._get(object[propertyList[0]], propertyList.slice(1));
       }
       return undefined;
+    }
+
+    function _createScope(user) {
+      return angular.extend($rootScope.$new(true), {
+        user: functions._normalizeUser(user),
+        isCurrentUser: user._id === session.user._id
+      });
     }
   }
 })(angular);
