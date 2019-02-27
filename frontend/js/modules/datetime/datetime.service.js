@@ -11,7 +11,7 @@
     esnConfig,
     ESN_DATETIME_TIME_FORMATS
   ) {
-    var groups = [
+    var humanTimeGroupings = [
       {name: 'Today', dateFormat: 'shortTime', accepts: _isToday},
       {name: 'Yesterday', dateFormat: 'ddd', accepts: _isYesterday},
       {name: 'This week', dateFormat: 'ddd', accepts: _isThisWeek},
@@ -29,7 +29,7 @@
 
     return {
       init: init,
-      getGroup: getGroup,
+      getHumanTimeGrouping: getHumanTimeGrouping,
       is24hourFormat: is24hourFormat,
       getTimeFormat: getTimeFormat,
       getTimeZone: getTimeZone,
@@ -91,8 +91,8 @@
       return _getMoment(date).fromNow();
     }
 
-    function getGroup(date) {
-      return _.find(groups, function(group) { return group.accepts(moment(), moment(date)); });
+    function getHumanTimeGrouping(date) {
+      return _.find(humanTimeGroupings, function(group) { return group.accepts(moment(), moment(date)); });
     }
 
     function is24hourFormat() {
@@ -110,13 +110,13 @@
     function _getMoment(date) {
       var m;
       if (_.isDate(date)) {
-        m = moment(date.toUTCString());
+        m = moment(date.toISOString());
       } else if (_.isString(date) && !_.isNaN(Date.parse(date))) {
-        m = moment(new Date(date).toUTCString());
+        m = moment(new Date(date).toISOString());
       } else if (_.isNumber(date)) {
         var d = new Date();
         d.setTime(date);
-        m = moment(d.toUTCString());
+        m = moment(d.toISOString());
       }
 
       try {
