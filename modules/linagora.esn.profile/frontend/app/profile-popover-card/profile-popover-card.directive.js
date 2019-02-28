@@ -33,7 +33,7 @@
       var options = {
         placement: placement,
         alternativeTitle: alternativeTitle,
-        scope: scope,
+        parentScope: scope,
         showMobile: showMobile,
         hideOnElementScroll: hideOnElementScroll
       };

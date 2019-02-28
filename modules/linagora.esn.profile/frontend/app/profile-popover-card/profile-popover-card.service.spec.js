@@ -11,10 +11,10 @@ describe('The profilePopoverCardService service', function() {
   var stubbedModalRes = {show: sinon.spy(), hide: sinon.spy()};
   var $modal = sinon.stub().returns(stubbedModalRes);
   var matchmedia;
-  var scope;
+  var scope, parentScope;
 
   beforeEach(function() {
-    scope = {$watch: angular.noop, $on: angular.noop};
+    parentScope = {$watch: angular.noop, $on: angular.noop};
     matchmedia = {is: angular.noop};
     element = {on: sinon.spy()};
 
@@ -35,6 +35,11 @@ describe('The profilePopoverCardService service', function() {
       email: 'karl-marx@proletarian.people',
       id: '0764a32c-686c-45d7-8034-2b53f080226c'
     };
+
+    scope = {
+      user: profilePopoverCardService.functions._normalizeUser(userObject),
+      isCurrentUser: false
+    };
   });
 
   describe('bind', function() {
@@ -46,26 +51,31 @@ describe('The profilePopoverCardService service', function() {
 
     it('should call `_bind` when passed a user object', function() {
       sinon.spy(profilePopoverCardService.functions, '_bind');
-      profilePopoverCardService.bind(element, userObject, {scope: scope});
-      expect(profilePopoverCardService.functions._bind).to.have.been.calledWith(element, userObject, {scope: scope});
+      profilePopoverCardService.bind(element, userObject, {parentScope: parentScope});
+      expect(profilePopoverCardService.functions._bind).to.have.been
+        .calledWith(
+          element,
+          sinon.match.has('user').and(sinon.match.has('isCurrentUser')),
+          {parentScope: parentScope}
+        );
     });
 
-    it('should start watching the scope when passed a dynamic reference object', function() {
+    it('should start watching the parentScope when passed a dynamic reference object', function() {
       sinon.spy(profilePopoverCardService.functions, '_bind');
-      sinon.spy(scope, '$watch');
-      profilePopoverCardService.bind(element, {source: 'user', property: 'id'}, {scope: scope});
-      expect(scope.$watch).to.to.have.been.calledWith('user.id', sinon.match.func);
+      sinon.spy(parentScope, '$watch');
+      profilePopoverCardService.bind(element, {source: 'user', property: 'id'}, {parentScope: parentScope});
+      expect(parentScope.$watch).to.to.have.been.calledWith('user.id', sinon.match.func);
     });
 
     it('should not call _bind if the watched object is not a user object', function() {
       sinon.spy(profilePopoverCardService.functions, '_bind');
-      sinon.spy(scope, '$watch');
+      sinon.spy(parentScope, '$watch');
       sinon.stub(profilePopoverCardService.functions, '_isUser').returns(false);
-      scope.user = {};
+      parentScope.user = {};
 
-      profilePopoverCardService.bind(element, {source: 'user', property: 'id'}, {scope: scope});
+      profilePopoverCardService.bind(element, {source: 'user', property: 'id'}, {parentScope: parentScope});
 
-      var callback = scope.$watch.getCall(0).args[1];
+      var callback = parentScope.$watch.getCall(0).args[1];
 
       callback();
 
@@ -73,17 +83,19 @@ describe('The profilePopoverCardService service', function() {
     });
 
     it('should call _bind if the watched object is not a user object', function() {
+      parentScope.user = userObject;
       sinon.spy(profilePopoverCardService.functions, '_bind');
       sinon.stub(profilePopoverCardService.functions, '_isUser').returns(true);
-      sinon.stub(scope, '$watch').returns(angular.noop);
+      sinon.stub(parentScope, '$watch').returns(angular.noop);
 
-      profilePopoverCardService.bind(element, {source: 'user', property: 'id'}, {scope: scope});
+      profilePopoverCardService.bind(element, {source: 'user', property: 'id'}, {parentScope: parentScope});
 
-      var callback = scope.$watch.getCall(0).args[1];
+      var callback = parentScope.$watch.getCall(0).args[1];
 
       callback();
 
-      expect(profilePopoverCardService.functions._bind).to.have.been.calledWith(element, scope.user, {scope: scope});
+      expect(profilePopoverCardService.functions._bind).to.have.been
+        .calledWith(element, sinon.match.has('user').and(sinon.match.has('isCurrentUser')), {parentScope: parentScope});
     });
   });
 
@@ -93,9 +105,8 @@ describe('The profilePopoverCardService service', function() {
       sinon.spy(profilePopoverCardService.functions, 'bindModal');
       sinon.spy(profilePopoverCardService.functions, 'bindPopover');
 
-      profilePopoverCardService.functions._bind(element, userObject, {scope: scope});
-      expect(profilePopoverCardService.functions.bindPopover).to.have.been
-        .calledWith(element, profilePopoverCardService.functions._normalizeUser(userObject));
+      profilePopoverCardService.functions._bind(element, scope, {parentScope: parentScope});
+      expect(profilePopoverCardService.functions.bindPopover).to.have.been.calledWith(element, scope);
       expect(profilePopoverCardService.functions.bindModal).not.to.have.been.called;
     });
 
@@ -104,10 +115,10 @@ describe('The profilePopoverCardService service', function() {
       sinon.spy(profilePopoverCardService.functions, 'bindModal');
       sinon.spy(profilePopoverCardService.functions, 'bindPopover');
 
-      profilePopoverCardService.functions._bind(element, userObject, {scope: scope, showMobile: true});
+      profilePopoverCardService.functions._bind(element, scope, {parentScope: parentScope, showMobile: true});
       expect(profilePopoverCardService.functions.bindPopover).not.to.have.been.called;
       expect(profilePopoverCardService.functions.bindModal).to.have.been
-        .calledWith(element, profilePopoverCardService.functions._normalizeUser(userObject));
+        .calledWith(element, scope);
     });
 
     it('should not bind when displaying on mobile and showMobile option is false', function() {
@@ -116,7 +127,7 @@ describe('The profilePopoverCardService service', function() {
       sinon.spy(profilePopoverCardService.functions, 'bindPopover');
 
       var popover = profilePopoverCardService.functions
-        ._bind(element, userObject, {scope: scope, showMobile: false});
+        ._bind(element, scope, {parentScope: parentScope, showMobile: false});
       expect(profilePopoverCardService.functions.bindPopover).not.to.have.been.called;
       expect(profilePopoverCardService.functions.bindModal).not.to.have.been.called;
       expect(popover).to.be.undefined;
@@ -125,7 +136,7 @@ describe('The profilePopoverCardService service', function() {
     it('should listen for route changes', function() {
       sinon.spy($rootScope, '$on');
       var popover = profilePopoverCardService.functions
-        ._bind(element, userObject, {scope: scope, showMobile: false});
+        ._bind(element, scope, {parentScope: parentScope, showMobile: false});
 
       expect($rootScope.$on).to.have.been.calledWith('$stateChangeStart', popover.hide);
     });
@@ -133,30 +144,30 @@ describe('The profilePopoverCardService service', function() {
 
   describe('bindPopover', function() {
     it('should not bind popover if no correct user was provided', function() {
-      var popover = profilePopoverCardService.functions.bindPopover(element, undefined, {});
+      var popover = profilePopoverCardService.functions.bindPopover(element, {user: undefined}, {});
       expect(popover).to.be.undefined;
     });
 
     it('should set the title attribute to an element if alternativeTitle option is provided', function() {
-      profilePopoverCardService.functions.bindPopover('body', undefined, {alternativeTitle: 'Karl Marx'});
+      profilePopoverCardService.functions.bindPopover('body', {user: undefined}, {alternativeTitle: 'Karl Marx'});
       expect($('body').attr('title')).to.eql('Karl Marx');
     });
 
     it('should create a popover', function() {
       sinon.spy(profilePopoverCardService.functions, 'createPopover');
-      profilePopoverCardService.functions.bindPopover(element, userObject, {scope: scope, placement: 'top'});
-      expect(profilePopoverCardService.functions.createPopover).to.have.been.calledWith(element, userObject, 'top');
+      profilePopoverCardService.functions.bindPopover(element, scope, {parentScope: parentScope, placement: 'top'});
+      expect(profilePopoverCardService.functions.createPopover).to.have.been.calledWith(element, scope, 'top');
 
       profilePopoverCardService.functions.createPopover.reset();
     });
 
-    it('should start listening for scope\'s $destroy event', function() {
+    it('should start listening for parentScope\'s $destroy event', function() {
       sinon.stub(profilePopoverCardService.functions, 'createPopover')
         .returns({show: angular.noop, hide: angular.noop});
-      sinon.spy(scope, '$on');
+      sinon.spy(parentScope, '$on');
 
-      profilePopoverCardService.functions.bindPopover(element, userObject, {scope: scope});
-      expect(scope.$on).to.have.been.calledWith('$destroy', angular.noop);
+      profilePopoverCardService.functions.bindPopover(element, scope, {parentScope: parentScope});
+      expect(parentScope.$on).to.have.been.calledWith('$destroy', angular.noop);
     });
   });
 
@@ -168,30 +179,30 @@ describe('The profilePopoverCardService service', function() {
 
     it('should return undefined with bad user object', function() {
       sinon.stub(profilePopoverCardService.functions, 'createModal').returns();
-      var targetModal = profilePopoverCardService.functions.bindModal(element, undefined, {scope: scope});
+      var targetModal = profilePopoverCardService.functions.bindModal(element, {user: undefined}, {parentScope: parentScope});
       expect(targetModal).to.be.undefined;
     });
 
     it('should create a modal', function() {
       sinon.spy(profilePopoverCardService.functions, 'createModal');
-      profilePopoverCardService.functions.bindModal(element, userObject, {scope: scope});
-      expect(profilePopoverCardService.functions.createModal).to.have.been.calledWith(userObject);
+      profilePopoverCardService.functions.bindModal(element, scope, {parentScope: parentScope});
+      expect(profilePopoverCardService.functions.createModal).to.have.been.calledWith(scope);
     });
 
     it('should bind the correct event', function() {
       sinon.stub(profilePopoverCardService.functions, 'createModal').returns();
       touchscreenDetectorService.hasTouchscreen.returns(true);
-      profilePopoverCardService.functions.bindModal(element, userObject, {scope: scope});
+      profilePopoverCardService.functions.bindModal(element, scope, {parentScope: parentScope});
       expect(element.on).to.have.been.calledWith('click', sinon.match.func);
 
       touchscreenDetectorService.hasTouchscreen.returns(false);
-      profilePopoverCardService.functions.bindModal(element, userObject, {scope: scope});
+      profilePopoverCardService.functions.bindModal(element, scope, {parentScope: parentScope});
       expect(element.on).to.have.been.calledWith('mouseover', sinon.match.func);
     });
 
     it('should show the modal when the event is fired', function() {
       sinon.stub(profilePopoverCardService.functions, 'createModal').returns(stubbedModalRes);
-      profilePopoverCardService.functions.bindModal(element, userObject, {scope: scope});
+      profilePopoverCardService.functions.bindModal(element, scope, {parentScope: parentScope});
       element.on.lastCall.args[1](event);
 
       expect(event.stopPropagation).to.have.been.called;
@@ -202,7 +213,7 @@ describe('The profilePopoverCardService service', function() {
 
   describe('createModal', function() {
     it('should create a modal', function() {
-      var targetModal = profilePopoverCardService.functions.createModal(userObject);
+      var targetModal = profilePopoverCardService.functions.createModal(scope);
 
       expect($modal).to.have.been.calledWith(sinon.match.has('show', false));
       expect(targetModal).to.eql({
