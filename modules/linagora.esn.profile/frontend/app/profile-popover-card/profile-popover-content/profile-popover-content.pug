@@ -6,7 +6,7 @@
       .ellipsis
         span.displayname {{::$ctrl.user.displayName}}
       div
-        a(ng-href='mailto:{{$ctrl.user.preferredEmail}}', op-inbox-compose, op-inbox-compose-display-name='{{::$ctrl.user.displayName}}') {{$ctrl.user.preferredEmail}}
+        a(ng-href='mailto:{{$ctrl.user.preferredEmail}}', op-inbox-compose, op-inbox-compose-users='[$ctrl.user]') {{$ctrl.user.preferredEmail}}
       div(ng-if='$ctrl.user.officeLocation')
         | {{$ctrl.user.officeLocation}}
     .profile-card-right(ng-if='$ctrl.isMobileDevice')
