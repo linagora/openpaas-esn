@@ -7,7 +7,8 @@
     $stateParams,
     $rootScope,
     esnSearchContextService,
-    esnSearchQueryService
+    esnSearchQueryService,
+    ESN_SEARCH_QUERY_LOAD_EVENT
   ) {
     var self = this;
 
@@ -31,6 +32,10 @@
       }
     });
 
+    var updateQueryListener = $rootScope.$on(ESN_SEARCH_QUERY_LOAD_EVENT, function() {
+      self.searchQuery = esnSearchQueryService.buildFromState($stateParams);
+    });
+
     function $onInit() {
       self.searchQuery = esnSearchQueryService.buildFromState($stateParams);
       loadProviders();
@@ -38,6 +43,7 @@
 
     function $onDestroy() {
       removeStateListener();
+      updateQueryListener();
     }
 
     function loadProviders() {
