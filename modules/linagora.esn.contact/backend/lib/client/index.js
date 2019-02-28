@@ -1,7 +1,5 @@
-'use strict';
-
-module.exports = function(dependencies) {
-  var client = require('./client');
+module.exports = dependencies => {
+  const client = require('./client');
 
   return function(options) {
     return client(dependencies, options);
