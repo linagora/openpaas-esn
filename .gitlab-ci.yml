@@ -31,7 +31,7 @@ stages:
       - $SKIP_BUILD_PKG
 
 .test-template: &test-template
-  image: node:8
+  image: node:8.15.0
   stage: test
   tags:
     - docker
@@ -71,7 +71,7 @@ stages:
     REDIS_PORT: 6379
 
 prepare:
-  image: node:8
+  image: node:8.15.0
   stage: prepare
   tags:
     - docker
