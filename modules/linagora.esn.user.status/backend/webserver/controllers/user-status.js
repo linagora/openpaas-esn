@@ -82,7 +82,9 @@ module.exports = function(dependencies, lib) {
   }
 
   function getUsersStatus(req, res) {
-    lib.userStatus.getStatuses(req.body)
+    const ids = req.body.map(id => (db.isValidObjectId(id) ? id : undefined)).filter(Boolean);
+
+    lib.userStatus.getStatuses(ids)
     .then(result => Q.all(result.map(userStatus => denormalize(userStatus._id, userStatus))))
     .then(status => {
       res.status(200).json(status);
