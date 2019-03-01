@@ -1,8 +1,8 @@
-'use strict';
-
 const expect = require('chai').expect;
 const mockery = require('mockery');
 const sinon = require('sinon');
+const { parseString } = require('xml2js');
+
 const HEADER_JSON = 'application/json';
 const HEADER_VCARD_JSON = 'application/vcard+json';
 const { SHARING_INVITE_STATUS } = require('../../../../backend/lib/constants');
@@ -916,6 +916,132 @@ describe('The contact client APIs', function() {
 
             getVcard(CONTACT_ID).move(destAddressbook);
           });
+        });
+      });
+
+      describe('Then getMultipleContactsFromPaths function', function() {
+        beforeEach(function() {
+          mockery.registerMock('@linagora/ical.js', {
+            Component: {
+              fromString: str => ({ jCal: str })
+            }
+          });
+        });
+
+        const buildRequestBody = paths => {
+          let hrefs = '';
+
+          paths.forEach(path => {
+            hrefs += `<D:href>${path}</D:href>`;
+          });
+
+          return `<?xml version="1.0" encoding="utf-8" ?>
+                  <C:addressbook-multiget xmlns:D="DAV:" xmlns:C="urn:ietf:params:xml:ns:carddav">
+                    <D:prop>
+                      <D:getetag/>
+                      <C:address-data/>
+                    </D:prop>
+                    ${hrefs}
+                  </C:addressbook-multiget>`;
+        };
+
+        it('should resolve with an empty array if there is no path is provided', function(done) {
+          getAddressbook().getMultipleContactsFromPaths([])
+            .then(contacts => {
+              expect(contacts).to.deep.equal([]);
+              done();
+            })
+            .catch(err => done(err || 'should resolve'));
+        });
+
+        it('should return a list of contacts which have status is "HTTP/1.1 200 OK"', function(done) {
+          const paths = [
+            'contactPath1',
+            'contactPath2',
+            'contactPath3'
+          ];
+
+          const responseBody = `<?xml version="1.0" encoding="utf-8" ?>
+                                <d:multistatus xmlns:D="DAV:" xmlns:C="urn:ietf:params:xml:ns:carddav">
+                                  <d:response>
+                                    <d:href>contactPath1</d:href>
+                                    <d:propstat>
+                                      <d:prop>
+                                        <d:getetag>"fffff-abcd1"</d:getetag>
+                                        <card:address-data>address-data1</card:address-data>
+                                      </d:prop>
+                                      <d:status>HTTP/1.1 200 OK</d:status>
+                                    </d:propstat>
+                                  </d:response>
+                                  <d:response>
+                                    <d:href>contactPath2</d:href>
+                                    <d:propstat>
+                                      <d:prop></d:prop>
+                                      <d:status>HTTP/1.1 404 Not Found</d:status>
+                                    </d:propstat>
+                                  </d:response>
+                                  <d:response>
+                                    <d:href>contactPath3</d:href>
+                                    <d:propstat>
+                                      <d:prop>
+                                        <d:getetag>"fffff-abcd3"</d:getetag>
+                                        <card:address-data>address-data3</card:address-data>
+                                      </d:prop>
+                                      <d:status>HTTP/1.1 200 OK</d:status>
+                                    </d:propstat>
+                                  </d:response>
+                                </d:multistatus>`;
+
+          const request = {
+            method: 'REPORT',
+            url: `${DAV_PREFIX}/addressbooks`,
+            headers: {
+              ESNToken: CLIENT_OPTIONS.ESNToken,
+              'Content-Type': 'application/xml',
+              Accept: 'application/xml'
+            },
+            body: buildRequestBody(paths)
+          };
+
+          const xmlToJsonObject = xmlString => new Promise((resolve, reject) => {
+            parseString(xmlString, (err, result) => {
+              if (err) reject(err);
+
+              resolve(result['C:addressbook-multiget']);
+            });
+          });
+
+          const requestMock = (opts, callback) => {
+            Promise.all([
+              xmlToJsonObject(request.body),
+              xmlToJsonObject(opts.body)
+            ]).then(result => {
+              request.body = result[0];
+              opts.body = result[1];
+
+              expect(opts).to.shallowDeepEqual(request);
+
+              callback(null, { body: responseBody, statusCode: 207 }, responseBody);
+            }).catch(err => callback(err));
+          };
+
+          mockery.registerMock('request', requestMock);
+
+          getAddressbook()
+            .getMultipleContactsFromPaths(paths)
+            .then(contacts => {
+              expect(contacts).to.deep.equal([{
+                etag: '"fffff-abcd1"',
+                vcard: 'address-data1',
+                path: 'contactPath1'
+              }, {
+                etag: '"fffff-abcd3"',
+                vcard: 'address-data3',
+                path: 'contactPath3'
+              }]);
+              done();
+            })
+            .catch(err => done(err || 'should resolve'));
         });
       });
     });

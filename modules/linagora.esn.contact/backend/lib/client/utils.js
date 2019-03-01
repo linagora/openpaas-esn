@@ -4,7 +4,8 @@ const VALID_HTTP_STATUS = {
   POST: [200, 201],
   DELETE: [204],
   PROPFIND: [200],
-  PROPPATCH: [204]
+  PROPPATCH: [204],
+  REPORT: [207]
 };
 
 let davServerUrl;

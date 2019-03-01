@@ -1,4 +1,5 @@
 const Q = require('q');
+const { parseString } = require('xml2js');
 const ICAL = require('@linagora/ical.js');
 const davClient = require('../dav-client').rawClient;
 const {
@@ -32,6 +33,7 @@ module.exports = (dependencies, options = {}) => {
       create,
       list,
       get,
+      getMultipleContactsFromPaths,
       remove,
       update,
       vcard
@@ -263,6 +265,67 @@ module.exports = (dependencies, options = {}) => {
                 );
               }));
         });
+    }
+
+    /**
+     * Get multiple contacts from DAV
+     * @param  {Array}  paths An array of contact paths
+     * @return {Promise}
+     */
+    function getMultipleContactsFromPaths(paths) {
+      if (!paths.length) {
+        return Promise.resolve([]);
+      }
+
+      let hrefs = '';
+
+      paths.forEach(path => {
+        hrefs += `<D:href>${path}</D:href>`;
+      });
+
+      const method = 'REPORT';
+      const headers = {
+        ESNToken,
+        'Content-Type': 'application/xml',
+        Accept: 'application/xml'
+      };
+
+      return getDavEndpoint()
+        .then(davEndpoint => {
+          const deferred = Q.defer();
+
+          davClient({
+            method,
+            headers,
+            url: `${davEndpoint}/${ADDRESSBOOK_ROOT_PATH}`,
+            body: `<?xml version="1.0" encoding="utf-8" ?>
+                    <C:addressbook-multiget xmlns:D="DAV:" xmlns:C="urn:ietf:params:xml:ns:carddav">
+                      <D:prop>
+                        <D:getetag/>
+                        <C:address-data/>
+                      </D:prop>
+                      ${hrefs}
+                    </C:addressbook-multiget>`
+          }, checkResponse(deferred, method, 'Error while getting multiple contacts from DAV'));
+
+          return deferred.promise;
+        })
+        .then(({ body }) => Q.nfcall(parseString, body))
+        .then(parsedData => parsedData['d:multistatus']['d:response'].map(item => {
+
+          const propstat = item['d:propstat'][0];
+          const path = item['d:href'][0];
+
+          if (propstat['d:status'][0] !== 'HTTP/1.1 200 OK') {
+            return logger.error('Cannot fetch the contact', path, propstat['d:status'][0]);
+          }
+
+          return {
+            etag: propstat['d:prop'][0]['d:getetag'][0],
+            vcard: ICAL.Component.fromString(propstat['d:prop'][0]['card:address-data'][0]).jCal,
+            path
+          };
+        }).filter(Boolean));
     }
 
     function _getUrl() {

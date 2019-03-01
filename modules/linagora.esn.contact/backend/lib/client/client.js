@@ -1,6 +1,7 @@
 const Q = require('q');
 const { SHARING_INVITE_STATUS } = require('../constants');
-const { parseAddressbookPath } = require('../helper');
+const { parseAddressbookPath, parseContactPath } = require('../helper');
+const { ADDRESSBOOK_ROOT_PATH } = require('./constants');
 
 module.exports = function(dependencies, options = {}) {
   const searchClient = require('../search')(dependencies);
@@ -31,8 +32,6 @@ module.exports = function(dependencies, options = {}) {
    * Search contacts in all the addressbooks of the address book home
    */
   function _searchContacts(bookHome, options) {
-    const getVCardObject = (bookHome, bookName, cardId) => addressbookHomeModule(bookHome).addressbook(bookName).vcard(cardId);
-
       return addressbookHomeModule(bookHome)
         .addressbook()
         .list({
@@ -94,36 +93,24 @@ module.exports = function(dependencies, options = {}) {
               return output;
             }
 
-            // this promise always resolve
-            return Promise.all(result.list.map((contact, index) => {
-              const bookId = contact._source.bookId;
-              const bookName = contact._source.bookName;
-              const contactId = contact._id;
+            const paths = result.list.map(contact => `/${ADDRESSBOOK_ROOT_PATH}/${contact._source.bookId}/${contact._source.bookName}/${contact._id}.vcf`);
 
-              return getVCardObject(bookId, bookName, contactId)
-                .get()
-                .then(data => {
-                  output.results[index] = {
-                    contactId,
-                    bookId,
-                    bookName,
-                    response: data.response,
-                    body: data.body
-                  };
+            return addressbookHomeModule().addressbook().getMultipleContactsFromPaths(paths)
+              .then(contacts => contacts.map(({ vcard, path }, index) => {
+                const { bookHome, bookName, contactId } = parseContactPath(path);
 
-                  if (mapping[`${bookId}/${bookName}`]) {
-                    output.results[index]['openpaas:addressbook'] = mapping[`${bookId}/${bookName}`];
-                  }
-                }, err => {
-                  output.results.push({
-                    contactId,
-                    bookId,
-                    bookName,
-                    err
-                  });
-                });
-          }))
-          .then(() => output);
+                output.results[index] = {
+                  bookId: bookHome,
+                  bookName,
+                  contactId,
+                  body: vcard
+                };
+
+                if (mapping[`${bookHome}/${bookName}`]) {
+                  output.results[index]['openpaas:addressbook'] = mapping[`${bookHome}/${bookName}`];
+                }
+              }))
+              .then(() => output);
         });
       });
   }
