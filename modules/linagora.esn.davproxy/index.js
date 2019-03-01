@@ -1,6 +1,7 @@
 'use strict';
 
 const resolve = require('path').resolve;
+const cors = require('cors');
 
 var AwesomeModule = require('awesome-module');
 var Dependency = AwesomeModule.AwesomeModuleDependency;
@@ -55,6 +56,11 @@ var davProxy = new AwesomeModule(moduleData.fullName, {
       var webserverWrapper = dependencies('webserver-wrapper');
       var app = require('./backend/webserver/application')(dependencies);
 
+      app.all('/api/*', cors({
+        origin: true,
+        credentials: true,
+        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,REPORT,PROPFIND,PROPPATCH,MOVE'
+      }));
       app.use('/api/addressbooks', this.api.addressbooks);
       app.use('/api/calendars', this.api.calendars);
       app.use('/api/json', this.api.json);
