@@ -1,6 +1,6 @@
 'use strict';
 
-/* global chai */
+/* global chai, sinon */
 
 var expect = chai.expect;
 
@@ -15,8 +15,10 @@ describe('The esnDatetimeService', function() {
     module(function($provide) {
       $provide.constant('esnConfig', function(argument) {
         switch (argument) {
-          case 'core.language': return $q.when('en');
-          case 'core.datetime': return $q.when({timeZone: 'Europe/Berlin', use24hourFormat: true});
+          case 'core.language':
+            return $q.when('en');
+          case 'core.datetime':
+            return $q.when({timeZone: 'Europe/Berlin', use24hourFormat: true});
           default:
             break;
         }
@@ -113,6 +115,42 @@ describe('The esnDatetimeService', function() {
         done();
       });
       $rootScope.$digest();
+    });
+  });
+
+  describe('The getHumanTimeGrouping function', function() {
+    var clock;
+
+    before(function() {
+      clock = sinon.useFakeTimers(new Date(2018, 5, 28, 12, 24).getTime());
+    });
+
+    after(function() {
+      clock.restore();
+    });
+
+    var targetDate = {
+      now: function() { return targetDate.minusDays(0); },
+      minusDays: function(days) { return new Date(Date.now() - (days * 24 * 60 * 60 * 1000)); },
+      minusWeeks: function(weeks) { return targetDate.minusDays(7 * weeks); },
+      minusMonths: function(months) {
+        var d = targetDate.now();
+        d.setMonth(d.getMonth() - months);
+        return d;
+      },
+      minusYears: function(years) { return targetDate.minusMonths(12 * years); }
+    };
+
+    it('should return the correct period', function() {
+
+      expect(esnDatetimeService.getHumanTimeGrouping(targetDate.now()).name).to.eq('Today');
+      expect(esnDatetimeService.getHumanTimeGrouping(targetDate.minusDays(1)).name).to.eq('Yesterday');
+      expect(esnDatetimeService.getHumanTimeGrouping(targetDate.minusDays(2)).name).to.eq('This week');
+      expect(esnDatetimeService.getHumanTimeGrouping(targetDate.minusWeeks(1)).name).to.eq('Last week');
+      expect(esnDatetimeService.getHumanTimeGrouping(targetDate.minusWeeks(2)).name).to.eq('This month');
+      expect(esnDatetimeService.getHumanTimeGrouping(targetDate.minusMonths(1)).name).to.eq('Last month');
+      expect(esnDatetimeService.getHumanTimeGrouping(targetDate.minusMonths(3)).name).to.eq('This year');
+      expect(esnDatetimeService.getHumanTimeGrouping(targetDate.minusYears(3)).name).to.eq('Old messages');
     });
   });
 });
