@@ -442,21 +442,6 @@ module.exports = function(dependencies) {
       .addressbookHome(bookHome)
       .search(options)
       .then(result => {
-        result.results.forEach(result => {
-          if (result.err) {
-            logger.error('The search cannot fetch contact', result.contactId, result.err);
-
-            return;
-          }
-          const statusCode = result.response.statusCode;
-
-          if (statusCode < 200 || statusCode > 299) {
-            logger.warn('The search cannot fetch contact', result.contactId, 'status code', statusCode);
-
-            return;
-          }
-        });
-
         const data = {
           _links: {
             self: {

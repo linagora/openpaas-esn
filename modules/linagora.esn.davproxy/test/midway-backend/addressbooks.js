@@ -229,6 +229,23 @@ describe('The addressbooks dav proxy', function() {
         var contact;
 
         beforeEach(function() {
+          dav.report('/addressbooks', (req, res) =>
+            res.status(207).send(`<?xml version="1.0" encoding="utf-8" ?>
+                      <d:multistatus xmlns:D="DAV:" xmlns:C="urn:ietf:params:xml:ns:carddav">
+                        <d:response>
+                          <d:href></d:href>
+                          <d:propstat>
+                            <d:prop>
+                              <d:getetag></d:getetag>
+                              <card:address-data></card:address-data>
+                            </d:prop>
+                            <d:status>HTTP/1.1 200 OK</d:status>
+                          </d:propstat>
+                        </d:response>
+                      </d:multistatus>`
+            )
+          );
+
           dav.get('/addressbooks/' + user._id + '.json', (req, res) =>
             res.status(200).json({
               _embedded: {
@@ -1108,6 +1125,23 @@ describe('The addressbooks dav proxy', function() {
           const self = this;
           const path = `/addressbooks/${user.id}.json?search=bruce&bookName=contacts`;
 
+          dav.report('/addressbooks', (req, res) =>
+            res.status(207).send(`<?xml version="1.0" encoding="utf-8" ?>
+                      <d:multistatus xmlns:D="DAV:" xmlns:C="urn:ietf:params:xml:ns:carddav">
+                        <d:response>
+                          <d:href>/addressbooks/${contact1.bookId}/${contact1.bookName}/${contact1.contactId}.vcf</d:href>
+                          <d:propstat>
+                            <d:prop>
+                              <d:getetag></d:getetag>
+                              <card:address-data></card:address-data>
+                            </d:prop>
+                            <d:status>HTTP/1.1 200 OK</d:status>
+                          </d:propstat>
+                        </d:response>
+                      </d:multistatus>`
+            )
+          );
+
           dav.get(`/addressbooks/${user.id}.json`, (req, res) => res.status(200).json({
               _embedded: {
                 'dav:addressbook': [{
@@ -1127,8 +1161,6 @@ describe('The addressbooks dav proxy', function() {
             })
           );
 
-          dav.get(`/addressbooks/${user.id}/contacts/${contact1.contactId}.vcf`, (req, res) => res.status(200).json({ body: contact1 }));
-
           self.createDavServer(err => {
             if (err) {
               return done(err);
@@ -1143,7 +1175,7 @@ describe('The addressbooks dav proxy', function() {
 
               req.expect(200).end((err, res) => {
                 expect(err).to.not.exist;
-                expect(res.body._embedded['dav:item'][0].data.body.contactId).to.equal(contact1.contactId);
+                expect(res.body._embedded['dav:item'][0]._links.self.href).to.include(`/addressbooks/${contact1.bookId}/${contact1.bookName}/${contact1.contactId}.vcf`);
                 expect(res.headers['x-esn-items-count']).to.equal('1');
                 done();
               });
@@ -1155,6 +1187,33 @@ describe('The addressbooks dav proxy', function() {
           const self = this;
           const path = `/addressbooks/${user.id}.json?search=bruce&bookName=contacts,collected`;
 
+          dav.report('/addressbooks', (req, res) =>
+            res.status(207).send(`<?xml version="1.0" encoding="utf-8" ?>
+                      <d:multistatus xmlns:D="DAV:" xmlns:C="urn:ietf:params:xml:ns:carddav">
+                        <d:response>
+                          <d:href>/addressbooks/${contact1.bookId}/${contact1.bookName}/${contact1.contactId}.vcf</d:href>
+                          <d:propstat>
+                            <d:prop>
+                              <d:getetag></d:getetag>
+                              <card:address-data></card:address-data>
+                            </d:prop>
+                            <d:status>HTTP/1.1 200 OK</d:status>
+                          </d:propstat>
+                        </d:response>
+                        <d:response>
+                          <d:href>/addressbooks/${contact2.bookId}/${contact2.bookName}/${contact2.contactId}.vcf</d:href>
+                          <d:propstat>
+                            <d:prop>
+                              <d:getetag></d:getetag>
+                              <card:address-data></card:address-data>
+                            </d:prop>
+                            <d:status>HTTP/1.1 200 OK</d:status>
+                          </d:propstat>
+                        </d:response>
+                      </d:multistatus>`
+            )
+          );
+
           dav.get(`/addressbooks/${user.id}.json`, (req, res) => res.status(200).json({
               _embedded: {
                 'dav:addressbook': [{
@@ -1174,9 +1233,6 @@ describe('The addressbooks dav proxy', function() {
             })
           );
 
-          dav.get(`/addressbooks/${user.id}/contacts/${contact1.contactId}.vcf`, (req, res) => res.status(200).json({ body: contact1 }));
-          dav.get(`/addressbooks/${user.id}/collected/${contact2.contactId}.vcf`, (req, res) => res.status(200).json({ body: contact2 }));
-
           self.createDavServer(err => {
             if (err) {
               return done(err);
@@ -1191,8 +1247,8 @@ describe('The addressbooks dav proxy', function() {
 
               req.expect(200).end((err, res) => {
                 expect(err).to.not.exist;
-                expect(res.body._embedded['dav:item'][0].data.body.contactId).to.equal(contact2.contactId);
-                expect(res.body._embedded['dav:item'][1].data.body.contactId).to.equal(contact1.contactId);
+                expect(res.body._embedded['dav:item'][0]._links.self.href).to.include(`/addressbooks/${contact1.bookId}/${contact1.bookName}/${contact1.contactId}.vcf`);
+                expect(res.body._embedded['dav:item'][1]._links.self.href).to.include(`/addressbooks/${contact2.bookId}/${contact2.bookName}/${contact2.contactId}.vcf`);
                 expect(res.headers['x-esn-items-count']).to.equal('2');
                 done();
               });
@@ -1204,6 +1260,33 @@ describe('The addressbooks dav proxy', function() {
           const self = this;
           const path = `/addressbooks/${user.id}.json?search=bruce`;
 
+          dav.report('/addressbooks', (req, res) =>
+            res.status(207).send(`<?xml version="1.0" encoding="utf-8" ?>
+                      <d:multistatus xmlns:D="DAV:" xmlns:C="urn:ietf:params:xml:ns:carddav">
+                        <d:response>
+                          <d:href>/addressbooks/${contact1.bookId}/${contact1.bookName}/${contact1.contactId}.vcf</d:href>
+                          <d:propstat>
+                            <d:prop>
+                              <d:getetag></d:getetag>
+                              <card:address-data></card:address-data>
+                            </d:prop>
+                            <d:status>HTTP/1.1 200 OK</d:status>
+                          </d:propstat>
+                        </d:response>
+                        <d:response>
+                          <d:href>/addressbooks/${contact2.bookId}/${contact2.bookName}/${contact2.contactId}.vcf</d:href>
+                          <d:propstat>
+                            <d:prop>
+                              <d:getetag></d:getetag>
+                              <card:address-data></card:address-data>
+                            </d:prop>
+                            <d:status>HTTP/1.1 200 OK</d:status>
+                          </d:propstat>
+                        </d:response>
+                      </d:multistatus>`
+            )
+          );
+
           dav.get(`/addressbooks/${user.id}.json`, (req, res) => res.status(200).json({
               _embedded: {
                 'dav:addressbook': [{
@@ -1222,8 +1305,6 @@ describe('The addressbooks dav proxy', function() {
               }
             })
           );
-          dav.get(`/addressbooks/${user.id}/contacts/${contact1.contactId}.vcf`, (req, res) => res.status(200).json({ body: contact1 }));
-          dav.get(`/addressbooks/${user.id}/collected/${contact2.contactId}.vcf`, (req, res) => res.status(200).json({ body: contact2 }));
 
           self.createDavServer(err => {
             if (err) {
@@ -1239,8 +1320,8 @@ describe('The addressbooks dav proxy', function() {
 
               req.expect(200).end((err, res) => {
                 expect(err).to.not.exist;
-                expect(res.body._embedded['dav:item'][0].data.body.contactId).to.equal(contact2.contactId);
-                expect(res.body._embedded['dav:item'][1].data.body.contactId).to.equal(contact1.contactId);
+                expect(res.body._embedded['dav:item'][0]._links.self.href).to.include(`/addressbooks/${contact1.bookId}/${contact1.bookName}/${contact1.contactId}.vcf`);
+                expect(res.body._embedded['dav:item'][1]._links.self.href).to.include(`/addressbooks/${contact2.bookId}/${contact2.bookName}/${contact2.contactId}.vcf`);
                 expect(res.headers['x-esn-items-count']).to.equal('2');
                 done();
               });
@@ -1265,6 +1346,43 @@ describe('The addressbooks dav proxy', function() {
             ]],
             id: '5acb4d8d458d4c3e008b4567'
           };
+
+          dav.report('/addressbooks', (req, res) =>
+            res.status(207).send(`<?xml version="1.0" encoding="utf-8" ?>
+                      <d:multistatus xmlns:D="DAV:" xmlns:C="urn:ietf:params:xml:ns:carddav">
+                        <d:response>
+                          <d:href>/addressbooks/${contact1.bookId}/${contact1.bookName}/${contact1.contactId}.vcf</d:href>
+                          <d:propstat>
+                            <d:prop>
+                              <d:getetag></d:getetag>
+                              <card:address-data></card:address-data>
+                            </d:prop>
+                            <d:status>HTTP/1.1 200 OK</d:status>
+                          </d:propstat>
+                        </d:response>
+                        <d:response>
+                          <d:href>/addressbooks/${contact2.bookId}/${contact2.bookName}/${contact2.contactId}.vcf</d:href>
+                          <d:propstat>
+                            <d:prop>
+                              <d:getetag></d:getetag>
+                              <card:address-data></card:address-data>
+                            </d:prop>
+                            <d:status>HTTP/1.1 200 OK</d:status>
+                          </d:propstat>
+                        </d:response>
+                        <d:response>
+                          <d:href>/addressbooks/${contact3.bookId}/${contact3.bookName}/${contact3.contactId}.vcf</d:href>
+                          <d:propstat>
+                            <d:prop>
+                              <d:getetag></d:getetag>
+                              <card:address-data></card:address-data>
+                            </d:prop>
+                            <d:status>HTTP/1.1 200 OK</d:status>
+                          </d:propstat>
+                        </d:response>
+                      </d:multistatus>`
+            )
+          );
 
           localpubsub.topic('elasticsearch:contact:added').publish(contact3);
 
@@ -1293,9 +1411,6 @@ describe('The addressbooks dav proxy', function() {
               }
             })
           );
-          dav.get(`/addressbooks/${user.id}/contacts/${contact1.contactId}.vcf`, (req, res) => res.status(200).json({ body: contact1 }));
-          dav.get(`/addressbooks/${user.id}/collected/${contact2.contactId}.vcf`, (req, res) => res.status(200).json({ body: contact2 }));
-          dav.get(`/addressbooks/${sourceUserId}/collected/${contact3.contactId}.vcf`, (req, res) => res.status(200).json({ body: contact3 }));
 
           self.createDavServer(self.helpers.callbacks.noErrorAnd(() => {
             self.helpers.api.loginAsUser(self.app, user.emails[0], password, self.helpers.callbacks.noErrorAnd(loggedInAsUser => {
@@ -1303,13 +1418,9 @@ describe('The addressbooks dav proxy', function() {
 
               req.expect(200).end((err, res) => {
                 expect(err).to.not.exist;
-
-                const contactIds = res.body._embedded['dav:item'].map(item => item.data.body.contactId);
-                const subscribedContact = res.body._embedded['dav:item'].find(item => (item.data.body.contactId === contact3.contactId));
-
                 expect(res.headers['x-esn-items-count']).to.equal('3');
-                expect(contactIds).to.include.members([contact1.contactId, contact2.contactId, contact3.contactId]);
-                expect(subscribedContact['openpaas:addressbook']).to.deep.equal({
+                expect(res.body._embedded['dav:item'][2]._links.self.href).to.include(`/addressbooks/${contact3.bookId}/${contact3.bookName}/${contact3.contactId}.vcf`);
+                expect(res.body._embedded['dav:item'][2]['openpaas:addressbook']).to.deep.equal({
                   bookHome: user._id.toString(),
                   bookName: subscribedBookName
                 });
