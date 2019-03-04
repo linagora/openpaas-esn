@@ -4,12 +4,26 @@
   angular.module('esn.search').factory('esnSearchQueryService', esnSearchQueryService);
 
   function esnSearchQueryService(_) {
+    var searchKeepers = [];
+
     return {
       buildFromState: buildFromState,
       clear: clear,
       clearAdvancedQuery: clearAdvancedQuery,
-      isEmpty: isEmpty
+      isEmpty: isEmpty,
+      shouldKeepSearch: shouldKeepSearch,
+      addSearchKeeper: addSearchKeeper
     };
+
+    function addSearchKeeper(searchKeeper) {
+      searchKeeper && searchKeepers.push(searchKeeper);
+    }
+
+    function shouldKeepSearch(toState, toParams, fromState, fromParams) {
+      return searchKeepers.some(function(searchKeeper) {
+        return searchKeeper(toState, toParams, fromState, fromParams);
+      });
+    }
 
     function buildFromState(stateParams) {
       var query = {};

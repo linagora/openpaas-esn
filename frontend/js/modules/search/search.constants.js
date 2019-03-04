@@ -2,7 +2,6 @@
   'use strict';
 
   angular.module('esn.search')
-    .constant('ESN_SEARCH_QUERY_LOAD_EVENT', 'esn:search:query:load')
     .constant('SIGNIFICANT_DIGITS', 3)
     .constant('defaultSpinnerConfiguration', {
       spinnerKey: 'spinnerDefault',

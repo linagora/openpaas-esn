@@ -7,8 +7,7 @@
     $stateParams,
     $rootScope,
     esnSearchContextService,
-    esnSearchQueryService,
-    ESN_SEARCH_QUERY_LOAD_EVENT
+    esnSearchQueryService
   ) {
     var self = this;
 
@@ -19,9 +18,15 @@
     self.onProviderSelected = onProviderSelected;
     self.doSearch = doSearch;
 
-    var removeStateListener = $rootScope.$on('$stateChangeSuccess', function(event, toState) {
+    var removeStateListener = $rootScope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams) {
       // update the providers from the state
       // avoid to change when we go to search state
+      if (esnSearchQueryService.shouldKeepSearch(toState, toParams, fromState, fromParams)) {
+        loadProviders();
+
+        return;
+      }
+
       if (toState.name !== 'search.main') {
         clearSearchQuery();
         loadProviders();
@@ -32,10 +37,6 @@
       }
     });
 
-    var updateQueryListener = $rootScope.$on(ESN_SEARCH_QUERY_LOAD_EVENT, function() {
-      self.searchQuery = esnSearchQueryService.buildFromState($stateParams);
-    });
-
     function $onInit() {
       self.searchQuery = esnSearchQueryService.buildFromState($stateParams);
       loadProviders();
@@ -43,7 +44,6 @@
 
     function $onDestroy() {
       removeStateListener();
-      updateQueryListener();
     }
 
     function loadProviders() {
