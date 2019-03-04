@@ -168,5 +168,33 @@ describe('The /user-status API', function() {
         });
       }
     });
+
+    it('should filter status with valid ids only', function(done) {
+      self = this;
+
+      initMidway(function() {
+        const UserStatus = self.helpers.modules.current.lib.lib.models.userStatus;
+        const userStatus = new UserStatus({_id: user._id, last_update: Date.now()});
+        const userStatus1 = new UserStatus({_id: user1._id, last_update: Date.now()});
+
+        Promise.all([userStatus.save(), userStatus1.save()]).then(test, done);
+      });
+
+      function test() {
+        self.helpers.api.loginAsUser(self.app, user.emails[0], password, function(err, requestAsMember) {
+          const req = requestAsMember(request(self.app).post('/users'));
+
+          req.send([user._id, user1._id, 'wrong id', 'invalid-id']);
+
+          req.expect(200).end(function(err, res) {
+            if (err) {
+              return done(err);
+            }
+            expect(res.body).to.shallowDeepEqual([{_id: String(user._id), status: 'connected'}, {_id: String(user1._id), status: 'connected'}]);
+            done();
+          });
+        });
+      }
+    });
   });
 });
