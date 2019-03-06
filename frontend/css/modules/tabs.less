@@ -1,3 +1,160 @@
+@tabColorNotActive: #7a7a7a;
+@tabBorderColor: #eee;
+
+
+
+// Overwrite Material Admin style to allow dynamic directive tab between 'li' and 'a'
+
+.tab-nav {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  & > li {
+    & a {
+      display: block;
+      color: @tabColorNotActive;
+      text-transform: uppercase;
+      position: relative;
+      font-weight: 500;
+
+      @media (min-width: @screen-sm-min) {
+        padding: 15px;
+      }
+
+      @media (max-width: @screen-sm-min) {
+        padding: 15px 8px;
+      }
+    }
+  }
+
+  &:not(.tn-vertical) {
+    white-space: nowrap;
+    overflow: auto;
+    box-shadow: inset 0 -2px 0 0 @tabBorderColor;
+
+    & > li {
+      display: inline-block;
+      vertical-align: top;
+
+      & a {
+        &:after {
+          content: "";
+          height: 2px;
+          position: absolute;
+          width: 100%;
+          left: 0;
+          bottom: 0;
+          background: transparent;
+          .scale(1);
+        }
+      }
+
+      &.active {
+        & a {
+          color: #000;
+        }
+      }
+    }
+
+    &.tab-nav-right {
+      text-align: right;
+    }
+
+    &.tn-justified {
+      & > li {
+        display: table-cell;
+        width: 1%;
+        text-align: center;
+      }
+    }
+
+    &[data-tab-color="bleu"] {
+      & > li a:after {
+        background: @m-blue;
+      }
+    }
+
+    &[data-tab-color="green"] {
+      & > li a:after {
+        background: @m-green;
+      }
+    }
+
+    &[data-tab-color="red"] {
+      & > li a:after {
+        background: @m-red;
+      }
+    }
+
+    &[data-tab-color="teal"] {
+      & > li a:after {
+        background: @m-teal;
+      }
+    }
+
+    &[data-tab-color="amber"] {
+      & > li a:after {
+        background: @m-amber;
+      }
+    }
+
+    &[data-tab-color="black"] {
+      & > li a:after {
+        background: @m-black;
+      }
+    }
+
+    &[data-tab-color="cyan"] {
+      & > li a:after {
+        background: @m-cyan;
+      }
+    }
+  }
+}
+
+.tn-vertical {
+  float: left;
+
+  & > li {
+
+    & a > {
+      border-right: 2px solid @tabBorderColor;
+    }
+
+    &.active a {
+      border-top: 2px solid @tabBorderColor;
+      border-bottom: 2px solid @tabBorderColor;
+      border-left: 2px solid @tabBorderColor;
+      border-radius: 5px 0 0 5px;
+      position: relative;
+      border-right-color: #fff;
+
+      &:after {
+        content: "";
+        height: 100%;
+        width: 2px;
+        right: 0;
+        top: -2px;
+        background: #fff;
+        z-index: 1;
+      }
+    }
+  }
+
+  & + .tab-content {
+    overflow: hidden;
+    vertical-align: top;
+    padding: 0 30px;
+  }
+}
+
+.tab-content {
+  padding: 20px 0;
+}
+
+// END Overwrite Material Admin style
+
 .esn-tab {
   .tab-nav;
   .flex;
@@ -8,7 +165,7 @@
     flex-grow: 1;
     text-align: center;
 
-    & > a {
+    & a {
       padding: 14px 8px;
     }
 
@@ -20,8 +177,11 @@
 
   &:not(.tn-vertical) {
     &:not([data-tab-color]) {
-      & > li > a:after {
-          background: @primaryColor;
+      & > li.active a:after {
+        background: @primaryColor;
+      }
+      & > li:not(.active) a:hover:after,& > li:not(.active) a:focus:after {
+        background: @tabColorNotActive;
       }
     }
   }
@@ -41,7 +201,7 @@ select {
   .esn-tab > li {
     flex-grow: 0;
 
-    & > a {
+    & a {
       padding: 14px;
     }
   }
