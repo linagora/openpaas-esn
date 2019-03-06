@@ -15,10 +15,10 @@
       {name: 'Today', dateFormat: 'shortTime', accepts: _isToday},
       {name: 'Yesterday', dateFormat: 'ddd', accepts: _isYesterday},
       {name: 'This week', dateFormat: 'ddd', accepts: _isThisWeek},
-      {name: 'Last week', dateFormat: 'MMM d', accepts: _isLastWeek},
-      {name: 'This month', dateFormat: 'MMM d', accepts: _isThisMonth},
-      {name: 'Last month', dateFormat: 'MMM d', accepts: _isLastMonth},
-      {name: 'This year', dateFormat: 'MMM d', accepts: _isThisYear},
+      {name: 'Last week', dateFormat: 'MMM D', accepts: _isLastWeek},
+      {name: 'This month', dateFormat: 'MMM D', accepts: _isThisMonth},
+      {name: 'Last month', dateFormat: 'MMM D', accepts: _isLastMonth},
+      {name: 'This year', dateFormat: 'MMM D', accepts: _isThisYear},
       {name: 'Old messages', dateFormat: 'shortDate', accepts: _.constant(true)}
     ];
 
@@ -131,7 +131,7 @@
     }
 
     function _isYesterday(now, targetMoment) {
-      return now.subtract(1, 'day').startOf('day').isBefore(targetMoment);
+      return now.startOf('day').subtract(1, 'day').isBefore(targetMoment);
     }
 
     function _isThisWeek(now, targetMoment) {
