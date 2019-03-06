@@ -1,7 +1,7 @@
 (function(angular) {
   'use strict';
 
-  angular.module('linagora.esn.profile').controller('profilePopoverContentController', profilePopoverContentController);
+  angular.module('esn.profile-popover-card').controller('profilePopoverContentController', profilePopoverContentController);
   function profilePopoverContentController($state, touchscreenDetectorService) {
     var self = this;
 

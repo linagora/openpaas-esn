@@ -4,7 +4,7 @@
  * See https://ci.linagora.com/linagora/lgs/openpaas/esn/merge_requests/654
  */
 (function(angular) {
-  angular.module('linagora.esn.profile').directive('profilePopoverCard', profilePopoverCard);
+  angular.module('esn.profile-popover-card').directive('profilePopoverCard', profilePopoverCard);
 
   function profilePopoverCard(
     $parse,

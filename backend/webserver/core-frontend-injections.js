@@ -226,6 +226,13 @@ const injections = [
   {angular: 'esn.injection', files: ['injection.js'], innerApps: ['esn']},
   {angular: 'esn.localstorage', files: ['localstorage.js'], innerApps: ['esn']},
   {angular: 'esn.profile', files: ['profile.js'], innerApps: ['esn']},
+  {angular: 'esn.profile-popover-card', files: [
+      'profile-popover-card/profile-popover-card.module.js',
+      'profile-popover-card/profile-popover-card.service.js',
+      'profile-popover-card/profile-popover-card.directive.js',
+      'profile-popover-card/profile-popover-content/profile-popover-content.component.js',
+      'profile-popover-card/profile-popover-content/profile-popover-content.controller.js'
+  ], innerApps: ['esn']},
   {angular: 'esn.summernote-wrapper', files: ['esn.summernote.js'], innerApps: ['esn']},
   {angular: 'esn.poll', files: ['poll.js'], innerApps: ['esn']},
   {angular: 'esn.array-helper', files: ['array-helper.js'], innerApps: ['esn']},
