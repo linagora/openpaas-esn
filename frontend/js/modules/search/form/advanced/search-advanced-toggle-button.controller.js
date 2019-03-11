@@ -44,6 +44,8 @@
 
           function search() {
             hide();
+            panelRef.destroy();
+            panelRef = undefined;
             self.search({ query: $scope.query });
           }
         },

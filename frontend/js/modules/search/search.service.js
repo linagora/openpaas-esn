@@ -32,7 +32,11 @@
         context.location = 'replace';
       }
 
-      $state.go('search.main', stateParams, context);
+      if (provider && _.isFunction(provider.onSubmit)) {
+        provider.onSubmit(query, stateParams, context);
+      } else {
+        $state.go('search.main', stateParams, context);
+      }
     }
 
     function cleanupSearchQuery(query, provider) {
