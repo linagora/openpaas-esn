@@ -66,15 +66,17 @@
     };
 
     ContactSharee.fromUser = function(user, access) {
+      var userEmail = user.preferredEmail || user.email;
+
       return new ContactSharee({
-        href: 'mailto:' + user.preferredEmail,
+        href: 'mailto:' + userEmail,
         access: access,
         inviteStatus: CONTACT_SHARING_INVITE_STATUS.NORESPONSE,
         userId: user._id,
         user: {
           id: user._id,
           displayName: userUtils.displayNameOf(user),
-          email: user.preferredEmail
+          email: userEmail
         }
       });
     };
