@@ -45,6 +45,7 @@
 
             if (person.emailAddresses && person.emailAddresses[0]) {
               person.email = person.emailAddresses[0].value;
+              person.preferredEmail = person.email;
             }
 
             if (person.names && person.names[0]) {
