@@ -18,7 +18,7 @@ describe('The profilePopoverCardService service', function() {
     matchmedia = {is: angular.noop};
     element = {on: sinon.spy()};
 
-    module('linagora.esn.profile', function($provide) {
+    module('esn.profile-popover-card', function($provide) {
       $provide.value('$modal', $modal);
       $provide.value('touchscreenDetectorService', touchscreenDetectorService);
       $provide.value('matchmedia', matchmedia);

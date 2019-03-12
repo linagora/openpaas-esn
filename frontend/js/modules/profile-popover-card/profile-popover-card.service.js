@@ -1,7 +1,7 @@
 (function(angular) {
   'use strict';
 
-  angular.module('linagora.esn.profile').factory('profilePopoverCardService', profilePopoverCardService);
+  angular.module('esn.profile-popover-card').factory('profilePopoverCardService', profilePopoverCardService);
 
   function profilePopoverCardService(
     $rootScope,
@@ -146,7 +146,7 @@
       var uuid = uuid4.generate();
 
       var popoverTemplate = [
-        '<div class="profile-popover-card popover" data-profile-popover-card="' + uuid + '" role="tooltip">',
+        '<div class="profile-card-container profile-popover-card popover" data-profile-popover-card="' + uuid + '" role="tooltip">',
         '  <div class="arrow"></div>',
         '  <div class="popover-content"></div>',
         '</div>'
@@ -154,9 +154,7 @@
 
       scope.hideComponent = hide;
 
-      var template = $compile(
-        '<profile-popover-content user="user" is-current-user="isCurrentUser" hide-component="hideComponent()"/>')(
-        scope);
+      var template = $compile('<profile-popover-content user="user" hide-component="hideComponent()" />')(scope);
 
       var $popoverOrigin = $(element).popover({
         content: template,
@@ -242,7 +240,7 @@
 
     function createModal(scope) {
       var modal = $modal({
-        templateUrl: '/profile/app/profile-popover-card/profile-popover-content/profile-popover-modal.html',
+        templateUrl: '/views/modules/profile-popover-card/profile-popover-content/profile-popover-modal.html',
         scope: scope,
         show: false
       });
@@ -292,9 +290,10 @@
     }
 
     function _createScope(user) {
+      var normalizedUser = functions._normalizeUser(user);
       return angular.extend($rootScope.$new(true), {
-        user: functions._normalizeUser(user),
-        isCurrentUser: user._id === session.user._id
+        user: normalizedUser,
+        isCurrentUser: normalizedUser._id === session.user._id
       });
     }
   }
