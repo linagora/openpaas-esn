@@ -161,5 +161,25 @@ describe('The ContactSharee service', function() {
       });
       expect(userUtils.displayNameOf).to.have.been.calledWith(user);
     });
+
+    it('should create a ContactSharree object from user which has email but not preferredEmail', function() {
+      userUtils.displayNameOf = sinon.stub().returns('toto');
+      var user = {
+        _id: '58e66c5bd69a39451f57c819',
+        email: 'toto@example.com'
+      };
+      var sharee = ContactSharee.fromUser(user, 3);
+
+      expect(sharee.href).to.equal('mailto:' + user.email);
+      expect(sharee.access).to.equal(3);
+      expect(sharee.inviteStatus).to.equal(CONTACT_SHARING_INVITE_STATUS.NORESPONSE);
+      expect(sharee.userId).to.equal(user._id);
+      expect(sharee.user).to.deep.equal({
+        id: user._id,
+        displayName: 'toto',
+        email: user.email
+      });
+      expect(userUtils.displayNameOf).to.have.been.calledWith(user);
+    });
   });
 });
