@@ -53,7 +53,8 @@
           return $q.when(options.query);
         },
         templateUrl: '/contact/app/search/contact-search.html',
-        activeOn: ['contact']
+        activeOn: ['contact'],
+        placeHolder: 'Search in contacts'
       });
     }
 

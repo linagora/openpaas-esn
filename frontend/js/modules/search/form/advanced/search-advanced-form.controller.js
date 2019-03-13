@@ -7,7 +7,8 @@
     $stateParams,
     $rootScope,
     esnSearchContextService,
-    esnSearchQueryService
+    esnSearchQueryService,
+    esnI18nService
   ) {
     var self = this;
 
@@ -62,6 +63,7 @@
 
     function onProviderSelected(provider) {
       self.provider = provider;
+      self.placeHolder = esnI18nService.translate((provider && provider.placeHolder) || 'Search').toString();
     }
 
     function doSearch(query) {
