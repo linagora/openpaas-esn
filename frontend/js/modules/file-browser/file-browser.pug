@@ -6,32 +6,38 @@
           i.mdi.mdi-chevron-left
     h2.lvh-label(ng-if='$ctrl.currentNode.name') {{$ctrl.currentNode.name}}
     h2.lvh-label(ng-if='!$ctrl.currentNode') {{$ctrl.options.rootName}}
-    
+
   .error-message(ng-if='$ctrl.status === "error"')
     i.mdi.mdi-cloud-off-outline
     .message #{__('An error occured while loading')}
-    
+
   .text-center(
     ng-if='$ctrl.status === "loading"',
     openpaas-logo-spinner,
     spinner-start-active='1',
     spinner-size='0.5'
   )
-    
+
   .lv-body(ng-if='$ctrl.status === "loaded"')
     .node.lv-bordered(
-      ng-repeat='node in $ctrl.childNodes'
+      ng-repeat='node in $ctrl.childNodes',
+      ng-click='$ctrl.toggleSelection(node)'
     )
-      .node-icon
-        .node-checkbox
-          label.checkbox(ng-if='node.isSelectable')
+      .node-icon(desktop-hover="hovering = hover")
+        .node-checkbox(
+          ng-show='node.isSelectable && hovering || node.selected'
+        )
+          label.checkbox
             input.clickable(
               type='checkbox',
-              ng-model='node.selected', ng-change='$ctrl.onSelectionChangeOf(node)'
+              ng-checked='node.selected',
             )
             i.input-helper
 
-        i.mdi(ng-class='node.icon ? node.icon : "mdi-menu-right"')
+        i.mdi(
+          ng-hide='node.isSelectable && hovering || node.selected',
+          ng-class='node.icon ? node.icon : "mdi-menu-right"'
+        )
 
       .node-details
         .node-name.ellipsis {{node.name}}
