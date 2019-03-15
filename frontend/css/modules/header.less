@@ -1,9 +1,7 @@
-@subHeaderBackground: darken(@primaryColor, 4%);
 @subHeaderShadow: rgba(0, 0, 0, 0.3);
-@btnLinkColor: rgba(255, 255, 255, 0.9);
 
 #header, #aside-header {
-  background-color: @primaryColor;
+  background-color: @headerBackground;
   padding-right: 0;
   z-index: @header-z-index;
   box-shadow: none;
@@ -58,7 +56,7 @@
   
   &:not(.popover) {
     .btn-link {
-      color: @btnLinkColor;
+      color: @headerTextColor;
     }
 
     .btn-link:not([disabled], .popover):hover {
@@ -94,7 +92,8 @@
   }
 
   width: 100%;
-  background-color: @primaryColor;
+  background-color: @headerBackground;
+  color:  @headerTextColor;
   position: relative;
 
   .row {
@@ -107,7 +106,7 @@
     }
 
     a {
-      color: @textPrimaryColor;
+      color: @headerTextColor;
     }
   }
 
@@ -123,6 +122,16 @@
       color: @secondaryTextColor;
       cursor: pointer;
       text-transform: capitalize;
+    }
+  }
+
+  &:not(.popover) {
+    .btn-link {
+      color: @headerTextColor;
+    }
+
+    .btn-link:not([disabled], .popover):hover {
+      color: @textPrimaryColor;
     }
   }
 
@@ -161,6 +170,21 @@
     #sub-header {
       background-color: @subHeaderBackground;
       box-shadow: 0 1px 4px @subHeaderShadow;
+      color: @subHeaderTextColor;
+
+      &:not(.popover) {
+        .btn-link {
+          color: @subHeaderTextColor;
+        }
+
+        .btn-link:not([disabled], .popover):hover {
+          color: @textPrimaryColor;
+        }
+      }
+
+      .row a {
+        color: @subHeaderTextColor;
+      }
     }
   }
 }
