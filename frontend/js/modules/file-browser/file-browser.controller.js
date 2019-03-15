@@ -14,6 +14,9 @@
     self.$onInit = $onInit;
     self.open = open;
     self.back = back;
+    self.criterias = ['isFolder', 'name'];
+    self.sortingProperty = 'name';
+    self.sortBy = sortBy;
     self.toggleSelection = toggleSelection;
 
     function $onInit() {
@@ -53,6 +56,16 @@
       }
 
       self.selectedNodes = _.filter(self.childNodes, _.property('selected'));
+    }
+
+    function sortBy(sortingProperty) {
+      self.criterias = ['isFolder']; //always displays FOLDER type first
+      self.reverse = self.sortingProperty === sortingProperty && !self.reverse;
+      self.sortingProperty = sortingProperty;
+
+      var secondCriteria = self.reverse ? ['-', sortingProperty].join('') : sortingProperty;
+
+      self.criterias.push(secondCriteria);
     }
 
     function _loadRoot() {
