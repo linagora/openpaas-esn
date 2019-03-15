@@ -18,14 +18,27 @@
     spinner-size='0.5'
   )
 
+  .browser-header
+    .name.clickable(ng-click='$ctrl.sortBy("name")')
+      span #{__('Name')}
+      i.mdi(
+        ng-show='$ctrl.sortingProperty === "name"',
+        ng-class='{"mdi-menu-down": $ctrl.reverse, "mdi-menu-up": !$ctrl.reverse}')
+    .modification-date.clickable(ng-click='$ctrl.sortBy("modificationDate")')
+      span #{__('Modified')}
+      i.mdi(
+        ng-show="$ctrl.sortingProperty === 'modificationDate'",
+        ng-class='{"mdi-menu-down": $ctrl.reverse, "mdi-menu-up": !$ctrl.reverse}')
+
   .lv-body(ng-if='$ctrl.status === "loaded"')
     .node.lv-bordered(
-      ng-repeat='node in $ctrl.childNodes',
-      ng-click='$ctrl.toggleSelection(node)'
+      ng-repeat='node in $ctrl.childNodes | orderBy: $ctrl.criterias',
+      desktop-hover="hovering = hover"
     )
-      .node-icon(desktop-hover="hovering = hover")
+      .node-icon
         .node-checkbox(
-          ng-show='node.isSelectable && hovering || node.selected'
+          ng-show='node.isSelectable && hovering || node.selected',
+          ng-click='$ctrl.toggleSelection(node)'
         )
           label.checkbox
             input.clickable(
@@ -36,11 +49,12 @@
 
         i.mdi(
           ng-hide='node.isSelectable && hovering || node.selected',
-          ng-class='node.icon ? node.icon : "mdi-menu-right"'
+          ng-class='node.icon || "mdi-menu-right"'
         )
 
       .node-details
         .node-name.ellipsis {{node.name}}
+        .node-modification-date {{node.modificationDate | esnDatetime: 'mediumDate'}}
         .lv-actions.actions
-          a.clickable(ng-if='node.isExpandable', ng-click='$ctrl.open(node)')
+          a.clickable(ng-if='node.isFolder', ng-click='$ctrl.open(node)')
             i.mdi.mdi-chevron-right

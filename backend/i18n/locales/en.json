@@ -495,5 +495,6 @@
   "Your files cannot be uploaded because their sizes exceed the %s limit": "Your files cannot be uploaded because their sizes exceed the %s limit",
   "OK": "OK",
   "Invitations": "Invitations",
-  "Requests": "Requests"
+  "Requests": "Requests",
+  "Modified": "Modified"
 }

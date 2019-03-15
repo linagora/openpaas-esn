@@ -495,5 +495,6 @@
   "Your files cannot be uploaded because their sizes exceed the %s limit": "Các tệp của bạn không thể tải lên vì có kích thước vượt quá giới hạn %s",
   "OK": "OK",
   "Invitations": "Lời mời",
-  "Requests": "Yêu cầu"
+  "Requests": "Yêu cầu",
+  "Modified": "Ngày sửa"
 }

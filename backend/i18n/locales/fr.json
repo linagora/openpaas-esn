@@ -495,5 +495,6 @@
   "Your files cannot be uploaded because their sizes exceed the %s limit": "Vos fichiers ne peuvent pas être téléversés car leur taille dépasse la limite de %s",
   "OK": "OK",
   "Invitations": "Invitations",
-  "Requests": "Demandes"
+  "Requests": "Demandes",
+  "Modified": "Modifié"
 }

@@ -180,4 +180,36 @@ describe('The esnFileBrowserController', function() {
       expect(filesBrowser.selectedNodes).to.have.lengthOf(1);
     });
   });
+
+  describe('The sortBy function', function() {
+    it('should change the sorting criterias and first criteria should always be isFolder', function() {
+      var bindings = {
+        loadNode: function() { return $q.when(folderData); },
+        options: { multipleSelect: false }
+      };
+      var filesBrowser = initController(bindings);
+
+      filesBrowser.propertyName = null;
+
+      filesBrowser.sortBy('modificationDate');
+
+      expect(filesBrowser.criterias).to.deep.equal(['isFolder', 'modificationDate']);
+    });
+
+    it('should reverse the second criteria when it is called multiple time with the same property name', function() {
+      var bindings = {
+        loadNode: function() { return $q.when(folderData); },
+        options: { multipleSelect: false }
+      };
+      var filesBrowser = initController(bindings);
+
+      filesBrowser.sortBy('modificationDate');
+
+      expect(filesBrowser.criterias).to.deep.equal(['isFolder', 'modificationDate']);
+
+      filesBrowser.sortBy('modificationDate');
+
+      expect(filesBrowser.criterias).to.deep.equal(['isFolder', '-modificationDate']);
+    });
+  });
 });
