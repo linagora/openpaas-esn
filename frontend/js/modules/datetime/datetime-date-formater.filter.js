@@ -5,8 +5,12 @@
     .filter('esnDatetime', esnDatetime);
 
   function esnDatetime(esnDatetimeService) {
-    return function(date, formats) {
-      return esnDatetimeService.format(date, formats);
+    return function(date, format) {
+      if (format === 'HumanTimeGrouping') {
+        format = esnDatetimeService.getHumanTimeGrouping(date).dateFormat;
+      }
+
+      return esnDatetimeService.format(date, format);
     };
   }
 })();
