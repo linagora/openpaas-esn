@@ -32,6 +32,7 @@
       this.cleanQuery = options.cleanQuery;
       this.activeOn = options.activeOn || [];
       this.icon = options.icon;
+      this.placeHolder = options.placeHolder;
     }
 
     SearchProvider.prototype = {
