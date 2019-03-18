@@ -33,4 +33,14 @@ describe('The esnDatetime filter', function() {
 
     expect(esnDatetimeService.format).to.have.been.calledWith('6/5/17', 'mediumDate');
   });
+
+  it('should use date format from human time groupings in case of formats is HumanTimeGrouping', function() {
+    esnDatetimeService.format = sinon.spy();
+    esnDatetimeService.getHumanTimeGrouping = sinon.stub().returns({ dateFormat: 'LL' });
+
+    initDirective('<p>{{ "6/5/17" | esnDatetime:"HumanTimeGrouping" }}</p>');
+
+    expect(esnDatetimeService.getHumanTimeGrouping).to.have.been.calledWith('6/5/17');
+    expect(esnDatetimeService.format).to.have.been.calledWith('6/5/17', 'LL');
+  });
 });

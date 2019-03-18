@@ -54,7 +54,7 @@
 
       .node-details
         .node-name.ellipsis {{node.name}}
-        .node-modification-date {{node.modificationDate | esnDatetime: 'mediumDate'}}
+        .node-modification-date {{node.modificationDate | esnDatetime: 'HumanTimeGrouping'}}
         .lv-actions.actions
           a.clickable(ng-if='node.isFolder', ng-click='$ctrl.open(node)')
             i.mdi.mdi-chevron-right
