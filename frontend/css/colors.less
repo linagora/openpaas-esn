@@ -1,0 +1,33 @@
+// colors defined in this file are the ones to override to create a new "color palette"
+// @m-blue: #2196f3
+// @m-amber: #FFC107
+// @m-white: #FFFFFF
+// @m-black: #000000
+
+// main colors
+@primaryColor: @m-blue;
+@accentColor: @m-amber;
+@bodyBgColor: darken(@m-white, 3%);
+
+// text colors
+@textPrimaryColor: @m-white;
+@textAccentColor: @m-white;
+@textColor: lighten(@m-black, 20%);
+@secondaryTextColor: lighten(@textColor, 20%);
+
+// header colors
+@headerBackground: @primaryColor;
+@headerTextColor: fade(@textPrimaryColor, 90%);
+@subHeaderBackground: darken(@primaryColor, 4%);
+@subHeaderTextColor: fade(@textAccentColor, 90%);
+
+// alternatives
+@darkPrimaryColor: darken(@primaryColor, 10%);
+@lightPrimaryColor: lighten(@primaryColor, 10%);
+@lighterSecondaryTextColor: lighten(@secondaryTextColor, 20%);
+@lightenBgColor: lighten(@bodyBgColor, 5%);
+@darkenBgColor: darken(@bodyBgColor, 3%);
+
+// application menu
+@appMenuIconPrimaryColor: @primaryColor;
+@appMenuIconaccentColor: @accentColor;

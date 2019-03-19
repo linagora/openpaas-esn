@@ -1,33 +1,4 @@
 @import '../components/material-admin/less/inc/variables';
-@primaryColor: @m-blue;
-@accentColor: @m-amber;
-@body-bg: darken(@m-white, 3%);
-
-@fontName: "RobotoDraft","Roboto","Helvetica Neue",Helvetica,Arial,sans-serif;
-@defaultFont: 14px @fontName;
-@textPrimaryColor: @m-white;  // Text color for @primaryColor background
-@textAccentColor: @m-white;  // Text color for @accentColor background
-@text-color: lighten(@m-black, 20%);
-@secondaryTextColor: lighten(@text-color, 20%);
-
-@headerBackground: @primaryColor;
-@headerTextColor: fade(@textPrimaryColor, 90%);
-@subHeaderBackground: darken(@primaryColor, 4%);
-@subHeaderTextColor: fade(@textAccentColor, 90%);
-
-@appMenuIconPrimaryColor: @primaryColor;
-@appMenuIconaccentColor: @accentColor;
-
-@brand-primary: @primaryColor; // Override default bootstrap primary
-@darkPrimaryColor: darken(@primaryColor, 10%);
-@lightPrimaryColor: lighten(@primaryColor, 10%);
-@lighterSecondaryTextColor: lighten(@secondaryTextColor, 20%);
-@lightenBgColor: lighten(@body-bg, 5%);
-@darkenBgColor: darken(@body-bg, 3%);
-
-@black-alpha-10: rgba(0, 0, 0, 0.1);
-@black-alpha-15: rgba(0, 0, 0, 0.15);
-@white-alpha-10: rgba(255, 255, 255, 0.1);
 
 @aside-z-index: 1050;
 @modal-z-index: 1050;
@@ -45,5 +16,12 @@
 @screen-xl-min: 1366px;
 
 @searchAvatarSize: 40px;
-
 @avatarMaxSize: 256px;
+
+// default bootstrap overrides
+@text-color: @textColor;
+@body-bg: @bodyBgColor;
+@brand-primary: @primaryColor;
+@black-alpha-10: rgba(0, 0, 0, 0.1);
+@black-alpha-15: rgba(0, 0, 0, 0.15);
+@white-alpha-10: rgba(255, 255, 255, 0.1);
