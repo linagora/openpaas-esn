@@ -108,7 +108,6 @@
   },
   "modules": [
     "linagora.esn.account",
-    "linagora.esn.appstore",
     "linagora.esn.calendar",
     "linagora.esn.contact",
     "linagora.esn.contact.google",

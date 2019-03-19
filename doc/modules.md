@@ -35,9 +35,9 @@ follow the template example pattern.
 
 #### Template example
 
-        a.btn.btn-info(ng-href='/#/appstore/communities/{{community._id}}/apps')
-          | #{__('App store')} &nbsp;
-          i.mdi.mdi-apps
+        a.btn.btn-info(ng-href='/#/calendar/communities/{{community._id}}')
+          | #{__('Calendar')} &nbsp;
+          i.mdi.mdi-calendar
 
 ### messageEditionMessageTypeButton
 

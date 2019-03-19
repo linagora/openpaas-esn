@@ -15,12 +15,10 @@ describe('The core/esn-config/metadata/features module', () => {
     beforeEach(function() {
       validator = getModule().validator;
       config = {
-        'application-menu:appstore': false,
         'header:user-notification': false,
         'header:fullscreen': false,
         'control-center:password': false,
-        'application-menu:jobqueue': false,
-        'control-center:appstore': true
+        'application-menu:jobqueue': false
       };
     });
 
@@ -28,12 +26,6 @@ describe('The core/esn-config/metadata/features module', () => {
       config = [];
 
       expect(validator(config)).to.equal('should be object');
-    });
-
-    it('should return error message when application-menu:appstore property is not boolean', () => {
-      config['application-menu:appstore'] = {};
-
-      expect(validator(config)).to.equal('[\'application-menu:appstore\']: should be boolean');
     });
 
     it('should return error message when application-menu:jobqueue property is not boolean', () => {

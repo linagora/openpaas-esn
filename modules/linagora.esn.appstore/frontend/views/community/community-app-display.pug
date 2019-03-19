@@ -1,8 +1,0 @@
-.people
-  img(ng-src="/appstore/api/apps/{{::application._id}}/avatar", src="/appstore/images/application.png", alt=__("Application"))
-  a(href='#/appstore/apps/{{::application._id}}').title.text-center
-    span {{::application.title}}
-    small(data-ng-if="application.version") {{::application.version}}
-  div {{::application.description | characters:128 :false }}
-  .row
-    appstore-switch-install(community="community", application='application')
