@@ -1648,5 +1648,37 @@ describe('The ContactListController controller', function() {
       $rootScope.$broadcast(CONTACT_ADDRESSBOOK_EVENTS.SUBSCRIPTION_DELETED, { bookName: 'google' });
       expect($state.go).to.not.have.been.called;
     });
+
+    it('should live update contacts in All contacts when a address book is deleted', function() {
+      // addressbooks length need to have more than one element when staying All contacts
+      addressbooks.push({});
+      addressbooks.push({});
+
+      var categories = {
+        A: [
+          {id: 'contactId1', addressbook: { bookId: 'bookId1', bookName: 'bookName1'}},
+          {id: 'contactId2', addressbook: {bookId: 'bookId2', bookName: 'bookName2'}}
+        ],
+        B: [{id: 'contactId3', addressbook: {bookId: 'bookId2', bookName: 'bookName2'}}]
+      };
+
+      var getMock = sinon.stub().returns(categories);
+      var removeItemWithIdMock = sinon.spy();
+
+      var AlphaCategoryService = function() {
+        return {
+          get: getMock,
+          removeItemWithId: removeItemWithIdMock
+        };
+      };
+
+      initController(AlphaCategoryService);
+
+      $rootScope.$broadcast(CONTACT_ADDRESSBOOK_EVENTS.SUBSCRIPTION_DELETED, { bookName: 'bookName2', bookId: 'bookId2' });
+      expect(getMock).to.have.been.calledOnce;
+      expect(removeItemWithIdMock).to.have.been.calledTwice;
+      expect(removeItemWithIdMock.firstCall.calledWith('contactId2')).to.be.true;
+      expect(removeItemWithIdMock.secondCall.calledWith('contactId3')).to.be.true;
+    });
   });
 });
