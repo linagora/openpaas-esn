@@ -2,6 +2,7 @@
 
 angular.module('esn.message')
   .constant('ESN_MESSAGE_TYPES', ['whatsup', 'event', 'poll'])
+  .constant('ESN_MESSAGE_DEFAULT_POLL_CHOICES', [{ label: '' }, { label: '' }])
   .run(function(esnTimelineEntryProviders, $q, ESN_MESSAGE_TYPES) {
     esnTimelineEntryProviders.register({
       verb: 'post',
@@ -46,7 +47,8 @@ angular.module('esn.message')
     };
   })
   .controller('messageController', function($scope, $q, messageAPI, $alert, $rootScope, geoAPI, messageAttachmentHelper,
-                                            backgroundProcessorService, notificationFactory, fileUploadService, DEFAULT_FILE_TYPE) {
+                                            backgroundProcessorService, notificationFactory, fileUploadService,
+                                            DEFAULT_FILE_TYPE, ESN_MESSAGE_DEFAULT_POLL_CHOICES) {
 
     $scope.rows = 1;
     $scope.position = {};
@@ -199,7 +201,9 @@ return defer.promise;
       $scope.messageContent = '';
       $scope.removePosition();
       $scope.uploadService = null;
-      $scope.additionalData = {};
+      $scope.additionalData = {
+        pollChoices: angular.copy(ESN_MESSAGE_DEFAULT_POLL_CHOICES)
+      };
       $q.all(messageAttachmentHelper.deleteAttachments($scope.attachments)).then(function() {
         $scope.attachments = [];
         $scope.uploads = [];
@@ -538,13 +542,10 @@ return defer.promise;
       controllerAs: '$ctrl'
     };
   })
-  .directive('pollEdition', function() {
+  .directive('pollEdition', function(ESN_MESSAGE_DEFAULT_POLL_CHOICES) {
     function link(scope) {
       scope.additionalData = {
-        pollChoices: [
-          {label: ''},
-          {label: ''}
-        ]
+        pollChoices: angular.copy(ESN_MESSAGE_DEFAULT_POLL_CHOICES)
       };
 
       scope.validators.push(function() {
