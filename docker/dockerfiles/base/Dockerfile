@@ -6,7 +6,7 @@
 # docker build -f ./docker/dockerfiles/base/Dockerfile -t linagora/esn-base .
 #
 
-FROM node:8-slim
+FROM node:8.15.0-slim
 MAINTAINER Linagora Folks
 
 RUN apt-get update && \
