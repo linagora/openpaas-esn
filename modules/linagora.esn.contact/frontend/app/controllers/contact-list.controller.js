@@ -125,6 +125,28 @@
       if ($scope.addressbooks.length === 1 && $scope.addressbooks[0].bookName === deletedAddressbook.bookName) {
         $state.go('contact.addressbooks', { bookName: null });
       }
+      // Live update contact list in all contacts page on an address book deleting event
+      if (_inAllContacts()) {
+        _getContactIdsFromCategories(deletedAddressbook.bookId, deletedAddressbook.bookName)
+          .forEach(function(contactId) {
+            $scope.categories.removeItemWithId(contactId);
+          });
+      }
+    }
+
+    function _getContactIdsFromCategories(bookId, bookName) {
+      var ids = [];
+      var categories = $scope.categories.get();
+
+      Object.keys(categories).forEach(function(key) {
+        categories[key].forEach(function(contact) {
+          if (contact.addressbook.bookId === bookId && contact.addressbook.bookName === bookName) {
+            ids.push(contact.id);
+          }
+        });
+      });
+
+      return ids;
     }
 
     function _buildAddressBookTitle() {
