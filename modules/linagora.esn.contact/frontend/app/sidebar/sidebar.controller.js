@@ -108,15 +108,28 @@
       _refreshAddressbooksList();
     }
 
-    function _onUpdatedAddressbookEvent(event, newAddressbook) {
+    function _onUpdatedAddressbookEvent(event, updatedAddressbook) {
+      if (updatedAddressbook.isSubscription) {
+        return _injectOwnerToSubscription([updatedAddressbook])
+          .then(function(injectedOwnerAddressbooks) {
+            _updateAddressbookInList(injectedOwnerAddressbooks[0]);
+            _refreshAddressbooksList();
+          });
+      }
+
+      _updateAddressbookInList(updatedAddressbook);
+      _refreshAddressbooksList();
+    }
+
+    function _updateAddressbookInList(addressbookToUpdate) {
       var index = _.findIndex(self.displayShells, function(addressbook) {
-        return addressbook.shell.bookName === newAddressbook.bookName;
+        return addressbook.shell.bookName === addressbookToUpdate.bookName;
       });
 
-      self.displayShells[index].shell = newAddressbook;
-      self.displayShells[index].displayName = newAddressbook.name;
-
-      _refreshAddressbooksList();
+      if (index !== -1) {
+        self.displayShells[index].shell = addressbookToUpdate;
+        self.displayShells[index].displayName = addressbookToUpdate.name;
+      }
     }
 
     function _onRemovedAddressbookEvent(event, removedAddressbook) {
