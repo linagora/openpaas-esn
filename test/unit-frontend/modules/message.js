@@ -437,8 +437,7 @@ describe('The esn.message Angular module', function() {
   });
 
   describe('messageController', function() {
-
-    beforeEach(inject(function($rootScope, $controller) {
+    beforeEach(inject(function($rootScope, $controller, ESN_MESSAGE_DEFAULT_POLL_CHOICES) {
       this.messageAPI = {};
       this.rootScope = $rootScope;
       this.scope = $rootScope.$new();
@@ -447,6 +446,7 @@ describe('The esn.message Angular module', function() {
       this.geoAPI = {};
       this.geoAPI.getCurrentPosition = function() {};
       this.geoAPI.reverse = function() {};
+      this.ESN_MESSAGE_DEFAULT_POLL_CHOICES = ESN_MESSAGE_DEFAULT_POLL_CHOICES;
 
       $controller('messageController', {
         $scope: this.scope,
@@ -549,6 +549,15 @@ describe('The esn.message Angular module', function() {
         this.scope.messageContent = 'Hey Oh, let\'s go';
         this.scope.sendMessage();
         this.scope.$digest();
+      });
+
+      describe('resetMessage method', function() {
+        it('should create additionalData from a copy of ESN_MESSAGE_DEFAULT_POLL_CHOICES', function() {
+          this.scope.removePosition = function() {};
+          this.scope.resetMessage();
+
+          expect(this.scope.additionalData.pollChoices).to.be.deep.equal(this.ESN_MESSAGE_DEFAULT_POLL_CHOICES);
+        });
       });
 
       describe('POST response', function() {
