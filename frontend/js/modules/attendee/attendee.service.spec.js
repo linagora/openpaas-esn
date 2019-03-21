@@ -88,7 +88,7 @@ describe('The attendeeService service', function() {
       $rootScope.$apply();
     });
 
-    it('should set email, displayName and avatarUrl from people API response', function(done) {
+    it('should set email, preferredEmail, displayName and avatarUrl from people API response', function(done) {
       var people = [attendee1, attendee2];
       var stub = sinon.stub(esnPeopleAPI, 'search');
       var objectTypes = ['user', 'contact', 'ldap'];
@@ -101,8 +101,8 @@ describe('The attendeeService service', function() {
       attendeeService.getAttendeeCandidates(query, limit, objectTypes).then(function(attendeeCandidates) {
         expect(stub).to.has.been.calledWith(query, objectTypes, limit);
         expect(attendeeCandidates).to.shallowDeepEqual([
-          {displayName: attendee1.names[0].displayName, avatarUrl: attendee1.photos[0].url, email: attendee1.emailAddresses[0].value },
-          {displayName: attendee2.names[0].displayName, avatarUrl: attendee2.photos[0].url, email: attendee2.emailAddresses[0].value }
+          {displayName: attendee1.names[0].displayName, avatarUrl: attendee1.photos[0].url, email: attendee1.emailAddresses[0].value, preferredEmail: attendee1.emailAddresses[0].value },
+          {displayName: attendee2.names[0].displayName, avatarUrl: attendee2.photos[0].url, email: attendee2.emailAddresses[0].value, preferredEmail: attendee2.emailAddresses[0].value }
         ]);
         done();
       }, done);
