@@ -251,39 +251,106 @@ describe('The ContactSidebarController controller', function() {
     ]);
   });
 
-  it('should update an address book when updated address book event is fired', function() {
-    var addressbooks = [
-      {
-        shell: { bookName: 'bookA', name: 'bookA' },
-        displayName: 'bookA'
-      },
-      {
+  describe('On updated address book event', function() {
+    it('should update an address book when updated address book event is fired', function() {
+      var addressbooks = [
+        {
+          shell: { bookName: 'bookA', name: 'bookA' },
+          displayName: 'bookA'
+        },
+        {
+          shell: { bookName: 'bookB', name: 'bookB' },
+          displayName: 'bookB'
+        }
+      ];
+      var updatedAddressbook = {
+        bookName: 'bookA',
+        name: 'new bookA'
+      };
+
+      contactAddressbookService.listAddressbooks = function() {
+        return $q.when([]);
+      };
+      contactAddressbookDisplayService.convertShellsToDisplayShells = function() {
+        return $q.when(addressbooks);
+      };
+      contactAddressbookDisplayService.sortAddressbookDisplayShells = angular.noop;
+
+      var controller = initController();
+
+      controller.displayShells = addressbooks;
+      $rootScope.$broadcast(CONTACT_ADDRESSBOOK_EVENTS.UPDATED, updatedAddressbook);
+      $rootScope.$digest();
+
+      expect(controller.displayShells).to.deep.equal([{
+        shell: { bookName: 'bookA', name: 'new bookA' },
+        displayName: 'new bookA'
+      }, {
         shell: { bookName: 'bookB', name: 'bookB' },
         displayName: 'bookB'
-      }
-    ];
-    var updatedAddressbook = {
-      bookName: 'bookA',
-      name: 'new bookA'
-    };
+      }]);
+    });
 
-    contactAddressbookService.listAddressbooks = sinon.stub().returns($q.when([]));
-    contactAddressbookDisplayService.convertShellsToDisplayShells = function() {return $q.when(addressbooks);};
-    contactAddressbookDisplayService.sortAddressbookDisplayShells = angular.noop;
+    it('should update an subscription address book when updated address book event is fired', function() {
+      var user = {
+        id: '123',
+        name: 'foo'
+      };
+      var addressbooks = [
+        {
+          shell: { bookName: 'bookA', name: 'bookA' },
+          displayName: 'bookA'
+        },
+        {
+          shell: { bookName: 'bookB', name: 'bookB' },
+          displayName: 'bookB'
+        }
+      ];
+      var updatedAddressbook = {
+        bookName: 'bookB',
+        name: 'new bookB',
+        source: { bookId: user.id },
+        isSubscription: true
+      };
 
-    var controller = initController();
+      userAPI.user = sinon.stub().returns($q.when({ data: user }));
+      userUtils.displayNameOf = sinon.spy(function(user) { return user.name; });
 
-    controller.displayShells = addressbooks;
-    $rootScope.$broadcast(CONTACT_ADDRESSBOOK_EVENTS.UPDATED, updatedAddressbook);
-    $rootScope.$digest();
+      contactAddressbookService.listAddressbooks = function() {
+        return $q.when([]);
+      };
+      contactAddressbookDisplayService.convertShellsToDisplayShells = function() {
+        return $q.when(addressbooks);
+      };
+      contactAddressbookDisplayService.sortAddressbookDisplayShells = angular.noop;
 
-    expect(controller.displayShells).to.deep.equal([{
-      shell: { bookName: 'bookA', name: 'new bookA' },
-      displayName: 'new bookA'
-    }, {
-      shell: { bookName: 'bookB', name: 'bookB' },
-      displayName: 'bookB'
-    }]);
+      var controller = initController();
+
+      controller.displayShells = addressbooks;
+      $rootScope.$broadcast(CONTACT_ADDRESSBOOK_EVENTS.UPDATED, updatedAddressbook);
+      $rootScope.$digest();
+
+      expect(userAPI.user).to.have.calledOnce;
+      expect(userAPI.user).to.have.calledWith(user.id);
+      expect(userUtils.displayNameOf).to.have.calledOnce;
+      expect(userUtils.displayNameOf).to.have.calledWith(user);
+      expect(controller.displayShells).to.deep.equal([{
+        shell: { bookName: 'bookA', name: 'bookA' },
+        displayName: 'bookA'
+      }, {
+        shell: {
+          bookName: 'bookB',
+          name: 'new bookB',
+          isSubscription: true,
+          owner: {
+            id: user.id,
+            displayName: user.name
+          },
+          source: { bookId: user.id }
+        },
+        displayName: 'new bookB'
+      }]);
+    });
   });
 
   it('should remove an address book when removed address book event is fired', function() {
