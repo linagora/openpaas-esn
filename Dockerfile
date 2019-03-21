@@ -5,7 +5,7 @@
 # docker build -t linagora/esn .
 #
 
-FROM node:8-jessie-slim
+FROM node:8.15.0-jessie-slim
 MAINTAINER Linagora Folks
 
 RUN apt-get update && \
