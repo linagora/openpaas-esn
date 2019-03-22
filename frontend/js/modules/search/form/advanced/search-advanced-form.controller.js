@@ -62,6 +62,8 @@
     }
 
     function onProviderSelected(provider) {
+      clearAdvancedQuery();
+
       self.provider = provider;
       self.placeHolder = esnI18nService.translate((provider && provider.placeHolder) || 'Search').toString();
     }
