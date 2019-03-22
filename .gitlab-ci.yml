@@ -1,3 +1,5 @@
+# vim: syntax=sshconfig textwidth=120 expandtab tabstop=2 softtabstop=2 shiftwidth=2 autoindent
+
 stages:
   - prepare
   - linters
@@ -181,7 +183,7 @@ midway-backend-test:
     - BROWSER="chrome" VIDEO_FILE_NAME=$VIDEO_CHROME_NAME grunt test-e2e $DOCKER_OPTIONS
   allow_failure: true
 
-build_pkg_deb_openpaas_jessie:
+.build_pkg_deb_openpaas_jessie:
   <<: *build-pkg-tpl
   stage: build
   script:
@@ -194,7 +196,7 @@ build_pkg_deb_openpaas_jessie:
       -F "variables[DOCKERFILE]=debian/jessie/openpaas/Dockerfile"
       https://ci.linagora.com/api/v4/projects/338/trigger/pipeline | jq .
 
-build_pkg_deb_openpaas_stretch:
+.build_pkg_deb_openpaas_stretch:
   <<: *build-pkg-tpl
   stage: build
   script:
@@ -207,7 +209,7 @@ build_pkg_deb_openpaas_stretch:
       -F "variables[DOCKERFILE]=debian/stretch/openpaas/Dockerfile"
       https://ci.linagora.com/api/v4/projects/338/trigger/pipeline | jq .
 
-build_pkg_rpm_openpaas:
+.build_pkg_rpm_openpaas:
   <<: *build-pkg-tpl
   stage: build
   script:
@@ -220,7 +222,7 @@ build_pkg_rpm_openpaas:
       -F "variables[DOCKERFILE]=redhat/7/openpaas/Dockerfile"
       https://ci.linagora.com/api/v4/projects/338/trigger/pipeline | jq .
 
-build_pkg_deb_openpaas-james_jessie:
+.build_pkg_deb_openpaas-james_jessie:
   <<: *build-pkg-tpl
   stage: build
   script:
@@ -233,7 +235,7 @@ build_pkg_deb_openpaas-james_jessie:
       -F "variables[DOCKERFILE]=debian/jessie/openpaas-james/Dockerfile"
       https://ci.linagora.com/api/v4/projects/338/trigger/pipeline | jq .
 
-build_pkg_deb_openpaas-james_stretch:
+.build_pkg_deb_openpaas-james_stretch:
   <<: *build-pkg-tpl
   stage: build
   script:
@@ -246,7 +248,7 @@ build_pkg_deb_openpaas-james_stretch:
       -F "variables[DOCKERFILE]=debian/stretch/openpaas-james/Dockerfile"
       https://ci.linagora.com/api/v4/projects/338/trigger/pipeline | jq .
 
-build_pkg_rpm_openpaas-james:
+.build_pkg_rpm_openpaas-james:
   <<: *build-pkg-tpl
   stage: build
   script:
