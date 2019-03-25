@@ -94,6 +94,7 @@ describe('The module manager', function() {
         'linagora.esn.core.resource-link',
         'linagora.esn.core.technical-user',
         'linagora.esn.core.templates',
+        'linagora.esn.core.themes',
         'linagora.esn.core.timeline',
         'linagora.esn.core.tuple',
         'linagora.esn.core.user',
