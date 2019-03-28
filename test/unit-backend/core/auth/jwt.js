@@ -1,6 +1,5 @@
 'use strict';
 
-var sinon = require('sinon');
 var chai = require('chai');
 var mockery = require('mockery');
 var expect = chai.expect;
@@ -190,48 +189,18 @@ describe('The JWT based authentication module', function() {
   });
 
   describe('The generateKeyPair fn', function() {
-
-    var ursaMock;
-
-    beforeEach(function() {
-      ursaMock = {};
-      mockery.registerMock('ursa', ursaMock);
-    });
-
     it('should call callback with private and public keys on success', function(done) {
-      ursaMock.generatePrivateKey = sinon.stub().returns({
-        toPrivatePem: function() {
-          return 'privateKey';
-        },
-        toPublicPem: function() {
-          return 'publicKey';
-        }
-      });
-
       getModule().generateKeyPair(function(err, keys) {
-        expect(ursaMock.generatePrivateKey).to.have.been.calledOnce;
         expect(err).to.not.exist;
-        expect(keys).to.deep.equal({
-          privateKey: 'privateKey',
-          publicKey: 'publicKey'
-        });
-
+        expect(keys).to.have.property('privateKey');
+        expect(keys.privateKey).to.be.a('string');
+        expect(keys.privateKey).to.match(/^-----BEGIN RSA PRIVATE KEY-----/);
+        expect(keys).to.have.property('publicKey');
+        expect(keys.publicKey).to.be.a('string');
+        expect(keys.publicKey).to.match(/^-----BEGIN RSA PUBLIC KEY-----/);
         done();
       });
 
     });
-
-    it('should call callback with error on failure', function(done) {
-      ursaMock.generatePrivateKey = sinon.stub().throws(new Error('some_error'));
-
-      getModule().generateKeyPair(function(err, keys) {
-        expect(ursaMock.generatePrivateKey).to.have.been.calledOnce;
-        expect(err.message).to.equal('some_error');
-        expect(keys).to.not.exist;
-
-        done();
-      });
-    });
-
   });
 });
