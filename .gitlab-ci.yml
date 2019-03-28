@@ -33,7 +33,7 @@ stages:
       - $SKIP_BUILD_PKG
 
 .test-template: &test-template
-  image: node:8.15.0-stretch
+  image: node:10-stretch
   stage: test
   tags:
     - docker
@@ -43,6 +43,7 @@ stages:
       TZ: "America/New_York"
   before_script:
     - npm install -g grunt-cli
+    - npm install
     - 'echo "INFO: NB node packages : $(ls node_modules | wc -l)"'
     - 'echo "INFO: NB bower packages : $(ls frontend/components | wc -l)"'
   except:
@@ -73,7 +74,7 @@ stages:
     REDIS_PORT: 6379
 
 prepare:
-  image: node:8.15.0-stretch
+  image: node:10-stretch
   stage: prepare
   tags:
     - docker

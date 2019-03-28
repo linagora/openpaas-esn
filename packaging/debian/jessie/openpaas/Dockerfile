@@ -12,7 +12,7 @@ ARG TREEISH=master
 
 RUN apt-get update && apt-get install -y wget && \
     wget -q -O - http://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -; \
-    echo "deb http://deb.nodesource.com/node_8.x jessie main" > /etc/apt/sources.list.d/node.list && \
+    echo "deb http://deb.nodesource.com/node_10.x jessie main" > /etc/apt/sources.list.d/node.list && \
     apt-get update && \
     apt-get -y install git build-essential python-setuptools graphicsmagick g++ nodejs \
     graphicsmagick-imagemagick-compat libjpeg-dev libcairo2-dev libjpeg62-turbo-dev libpango1.0-dev libgif-dev
