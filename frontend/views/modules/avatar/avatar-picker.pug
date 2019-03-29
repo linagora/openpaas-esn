@@ -14,8 +14,8 @@
         a(data-ng-click='removeSelectedImage()', href='')
           i.mdi.mdi-close
         canvas(width="128", height="128", id="preview", img-preview)
-  .col-xs-12.col-md-9.flex-horizontal-centered(ng-show='image.selected')
+  .col-xs-12.flex-horizontal-centered(ng-show='image.selected')
     .hidden-md.hidden-sm.hidden-lg
-      img-loaded(width="190")
+      img-loaded(optimal-size="190")
     .hidden-xs
-      img-loaded(width="380")
+      img-loaded(optimal-size="380")
