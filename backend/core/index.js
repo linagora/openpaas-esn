@@ -16,9 +16,5 @@ fs.readdirSync(__dirname).forEach(filename => {
 exports.init = init;
 
 function init(callback) {
-  exports.db.mongo.init();
-  exports.pubsub.init();
-  if (callback) {
-    callback();
-  }
+  require('./init')(callback);
 }
