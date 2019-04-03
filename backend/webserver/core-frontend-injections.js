@@ -487,6 +487,10 @@ const injections = [
     'app-state/app-state.run.js',
     'app-state/app-state.constant.js',
     'app-state/services/app-state.service.js'
+  ], innerApps: ['esn']},
+  {angular: 'esn.themes', files: [
+    'themes/themes.module.js',
+    'themes/themes.service.js'
   ], innerApps: ['esn']}
 ];
 
