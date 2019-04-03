@@ -16,12 +16,13 @@ describe('The ESNSearchAdvancedFormController', function() {
       _$rootScope_,
       _$controller_,
       _esnSearchQueryService_
-      ) {
+    ) {
       $rootScope = _$rootScope_;
       $controller = _$controller_;
       esnSearchQueryService = _esnSearchQueryService_;
     });
 
+    esnSearchQueryService.clearAdvancedQuery = sinon.stub();
   });
 
   function initController() {
@@ -35,14 +36,13 @@ describe('The ESNSearchAdvancedFormController', function() {
     return controller;
   }
 
-  describe('The onProviderSelected function', function() {
+  describe('The clearAdvancedQuery function', function() {
     it('should #esnSearchQueryService.clearAdvancedQuery to clear avanced query', function() {
       var query = { foo: 'bar' };
 
       esnSearchQueryService.buildFromState = function() {
         return query;
       };
-      esnSearchQueryService.clearAdvancedQuery = sinon.stub();
 
       var controller = initController();
 
@@ -50,6 +50,46 @@ describe('The ESNSearchAdvancedFormController', function() {
 
       expect(esnSearchQueryService.clearAdvancedQuery).to.have.been.calledOnce;
       expect(esnSearchQueryService.clearAdvancedQuery).to.have.been.calledWith(query);
+    });
+  });
+
+  describe('The onProviderSelected function', function() {
+    var controller;
+    var mockProviders = [
+      { id: '123' },
+      { id: '234' }
+    ];
+
+    beforeEach(function() {
+      controller = initController();
+    });
+
+    it('should not call #esnSearchQueryService.clearAdvancedQuery when the old provider is undefined and/or no new provider is provided', function() {
+      controller.onProviderSelected(mockProviders[0]);
+
+      controller.onProviderSelected();
+
+      controller.provider = mockProviders[0];
+      controller.onProviderSelected();
+
+      expect(esnSearchQueryService.clearAdvancedQuery).to.not.have.been.called;
+    });
+
+    it('should not call #esnSearchQueryService.clearAdvancedQuery when the new provider is the same as the old provider', function() {
+      controller.provider = mockProviders[0];
+
+      controller.onProviderSelected(mockProviders[0]);
+
+      expect(esnSearchQueryService.clearAdvancedQuery).to.not.have.been.called;
+    });
+
+    it('should call #esnSearchQueryService.clearAdvancedQuery and change the provider when the new provider is different from the old provider', function() {
+      controller.provider = mockProviders[0];
+
+      controller.onProviderSelected(mockProviders[1]);
+
+      expect(controller.provider).to.deep.equal(mockProviders[1]);
+      expect(esnSearchQueryService.clearAdvancedQuery).to.have.been.called;
     });
   });
 });
