@@ -287,7 +287,7 @@ angular.module('esn.avatar', [
     return {
       restrict: 'E',
       scope: {
-        width: '='
+        optimalSize: '='
       },
       link: function(scope, element) {
         var myImg, myJcropAPI;
@@ -309,12 +309,21 @@ angular.module('esn.avatar', [
           var image = selectionService.getImage();
           var canvas = document.createElement('canvas');
 
-          var width = scope.width || 380;
-          var height = image.height * (width / image.width);
-          var ratio = image.width / width;
+          var width, height, ratio;
+          if (image.width >= image.height) {
+            width = scope.optimalSize;
+            ratio = image.width / width;
+            height = image.height / ratio;
+          } else {
+            height = scope.optimalSize;
+            ratio = image.height / height;
+            width = image.width / ratio;
+          }
+
           var minsize = AVATAR_MIN_SIZE_PX / ratio;
           var minSetSelectSizeX = width - AVATAR_OFFSET;
           var minSetSelectSizeY = height - AVATAR_OFFSET;
+
           canvas.width = width;
           canvas.height = height;
 
