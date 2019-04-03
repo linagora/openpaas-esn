@@ -11,7 +11,8 @@ describe('The Avatar Angular module', function() {
   beforeEach(angular.mock.module('esn.avatar'));
 
   describe('imgLoaded directive', function() {
-    var html = '<img-loaded width="512"/>';
+    var html = '<img-loaded optimal-size="512"/>';
+
     beforeEach(inject(['$compile', '$rootScope', 'selectionService', function($c, $r, selectionService) {
       this.$compile = $c;
       this.$rootScope = $r;
@@ -40,6 +41,60 @@ describe('The Avatar Angular module', function() {
           }
         };
       };
+      this.$rootScope.$broadcast('crop:loaded');
+    });
+
+    it('should set image width to optimal size when width greater than height of original image', function(done) {
+      var img = {width: 2, height: 1};
+      this.selectionService.image = img;
+      var element = this.$compile(html)(this.$rootScope);
+      var document = element[0].ownerDocument;
+      var create = document.createElement;
+
+      var drawImage = function(img, a, b, width, height) {
+        document.createElement = create;
+        expect(width).to.equal(512);
+        expect(height).to.equal(256);
+        done();
+      };
+
+      document.createElement = function() {
+        return {
+          getContext: function() {
+            return {
+              drawImage: drawImage
+            };
+          }
+        };
+      };
+
+      this.$rootScope.$broadcast('crop:loaded');
+    });
+
+    it('should set image height to optimal size when height greater than width of original image', function(done) {
+      var img = {width: 1, height: 2};
+      this.selectionService.image = img;
+      var element = this.$compile(html)(this.$rootScope);
+      var document = element[0].ownerDocument;
+      var create = document.createElement;
+
+      var drawImage = function(img, a, b, width, height) {
+        document.createElement = create;
+        expect(width).to.equal(256);
+        expect(height).to.equal(512);
+        done();
+      };
+
+      document.createElement = function() {
+        return {
+          getContext: function() {
+            return {
+              drawImage: drawImage
+            };
+          }
+        };
+      };
+
       this.$rootScope.$broadcast('crop:loaded');
     });
   });
