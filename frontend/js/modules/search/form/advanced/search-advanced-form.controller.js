@@ -62,7 +62,9 @@
     }
 
     function onProviderSelected(provider) {
-      clearAdvancedQuery();
+      if (self.provider && provider && self.provider.id !== provider.id) {
+        clearAdvancedQuery();
+      }
 
       self.provider = provider;
       self.placeHolder = esnI18nService.translate((provider && provider.placeHolder) || 'Search').toString();
