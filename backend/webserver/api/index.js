@@ -109,6 +109,7 @@ function setupAPI(application) {
   require('./people')(router);
   require('./ldap')(router);
   require('./i18n')(router);
+  require('./themes')(router);
 
   application.use('/api', router);
   application.use('/api/v0.1', router);

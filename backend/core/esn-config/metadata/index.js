@@ -25,6 +25,7 @@ module.exports = {
     login: require('./login'),
     features: require('./features'),
     modules: require('./modules'),
+    themes: require('./themes'),
     membersCanBeSearched: require('./membersCanBeSearched'),
     maxSizeUpload: require('./maxSizeUpload'),
     user: RESTRICTED,
