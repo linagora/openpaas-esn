@@ -191,7 +191,7 @@ describe('The User Angular module', function() {
         $scope.$digest();
       });
 
-      it('should collect connected user and pass to #getAttendeeCandidates as excluded object', function(done) {
+      it('should collect connected user and pass to #getAttendeeCandidates as excluded object by default', function(done) {
         session.user = {
           id: 'user1'
         };
@@ -205,6 +205,30 @@ describe('The User Angular module', function() {
             AUTOCOMPLETE_MAX_RESULTS,
             ['user'],
             [{id: session.user.id, objectType: 'user'}]
+          );
+          done();
+        }).catch(done);
+
+        $scope.$digest();
+      });
+
+      it('should not pass connected user to #getAttendeeCandidates as excluded object when shouldIncludeSelf option is provided and its value is true', function(done) {
+        session.user = {
+          id: 'user1'
+        };
+        var element = initDirective($scope);
+        var eleScope = element.isolateScope();
+
+        eleScope.shouldIncludeSelf = true;
+
+        attendeeService.getAttendeeCandidates = sinon.stub().returns($q.when([]));
+
+        element.isolateScope().getUsers(query).then(function() {
+          expect(attendeeService.getAttendeeCandidates).to.have.been.calledWith(
+            query,
+            AUTOCOMPLETE_MAX_RESULTS,
+            ['user'],
+            []
           );
           done();
         }).catch(done);
