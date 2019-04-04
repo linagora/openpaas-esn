@@ -4,31 +4,6 @@ const schema = {
   type: 'object',
   additionalProperties: false,
   properties: {
-    directories: {
-      type: 'array',
-      minItems: 1,
-      items: {
-        required: [
-          'maxHits',
-          'uri',
-          'dirName'
-        ],
-        additionalProperties: false,
-        properties: {
-          maxHits: {
-            type: 'integer'
-          },
-          uri: {
-            type: 'string',
-            minLength: 1
-          },
-          dirName: {
-            type: 'string',
-            minLength: 1
-          }
-        }
-      }
-    },
     preferences: {
       type: 'array',
       minItems: 1,
@@ -71,7 +46,6 @@ const schema = {
           versions: {
             type: 'array',
             minItems: 1,
-            maxItems: 1,
             items: {
               required: [
                 'version'
@@ -141,7 +115,7 @@ const schema = {
             properties: {
               prettyName: {
                 type: 'string',
-                enum: ['OpenPaas (<%= user.preferredEmail %>)']
+                default: 'OpenPaas (<%= user.preferredEmail %>)'
               },
               hostName: {
                 type: 'string',
@@ -149,7 +123,7 @@ const schema = {
               },
               username: {
                 type: 'string',
-                enum: ['<%= user.preferredEmail %>']
+                default: '<%= user.preferredEmail %>'
               },
               port: {
                 type: 'integer'
@@ -160,9 +134,7 @@ const schema = {
               }
             },
             required: [
-              'prettyName',
               'hostName',
-              'username',
               'port',
               'socketType'
             ]
@@ -173,7 +145,7 @@ const schema = {
             properties: {
               description: {
                 type: 'string',
-                enum: ['OpenPaas SMTP (<%= user.preferredEmail %>)']
+                default: 'OpenPaas SMTP (<%= user.preferredEmail %>)'
               },
               hostname: {
                 type: 'string',
@@ -181,7 +153,7 @@ const schema = {
               },
               username: {
                 type: 'string',
-                enum: ['<%= user.preferredEmail %>']
+                default: '<%= user.preferredEmail %>'
               },
               port: {
                 type: 'integer'
@@ -192,9 +164,7 @@ const schema = {
               }
             },
             required: [
-              'description',
               'hostname',
-              'username',
               'port',
               'socketType'
             ]
@@ -204,9 +174,6 @@ const schema = {
             minItems: 1,
             items: {
               required: [
-                'identityName',
-                'email',
-                'fullName',
                 'organization',
                 'autoQuote',
                 'replyOnTop',
@@ -223,15 +190,15 @@ const schema = {
               properties: {
                 identityName: {
                   type: 'string',
-                  enum: ['Default (<%= user.preferredEmail %>)']
+                  default: 'Default (<%= user.preferredEmail %>)'
                 },
                 email: {
                   type: 'string',
-                  enum: ['<%= user.preferredEmail %>']
+                  default: '<%= user.preferredEmail %>'
                 },
                 fullName: {
                   type: 'string',
-                  enum: ['<%= user.firstname %> <%= user.lastname %>']
+                  default: '<%= user.firstname %> <%= user.lastname %>'
                 },
                 organization: {
                   type: 'string'
@@ -277,7 +244,6 @@ const schema = {
     }
   },
   required: [
-    'directories',
     'preferences',
     'addons',
     'accounts'
