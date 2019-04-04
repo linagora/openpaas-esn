@@ -128,7 +128,7 @@ describe('The User Angular module', function() {
   });
 
   describe('directive usersAutocompleteInput', function() {
-    var session, attendeeService;
+    var session, attendeeService, esnI18nService;
     var $compile, $scope, $rootScope;
     var USER_AUTO_COMPLETE_TEMPLATE_URL, AUTOCOMPLETE_MAX_RESULTS;
     var user1, user2, user3;
@@ -154,18 +154,25 @@ describe('The User Angular module', function() {
       });
     });
     beforeEach(module('naturalSort'));
-    beforeEach(inject(function(_$rootScope_, _$compile_, _attendeeService_, _USER_AUTO_COMPLETE_TEMPLATE_URL_, _AUTOCOMPLETE_MAX_RESULTS_) {
-      $rootScope = _$rootScope_;
-      $scope = $rootScope.$new();
-      $compile = _$compile_;
-      attendeeService = _attendeeService_;
-      USER_AUTO_COMPLETE_TEMPLATE_URL = _USER_AUTO_COMPLETE_TEMPLATE_URL_;
-      AUTOCOMPLETE_MAX_RESULTS = _AUTOCOMPLETE_MAX_RESULTS_;
-    }));
+    beforeEach(function() {
+      inject(function(_$rootScope_, _$compile_, _esnI18nService_, _attendeeService_, _USER_AUTO_COMPLETE_TEMPLATE_URL_, _AUTOCOMPLETE_MAX_RESULTS_) {
+        $rootScope = _$rootScope_;
+        $scope = $rootScope.$new();
+        $compile = _$compile_;
+        esnI18nService = _esnI18nService_;
+        attendeeService = _attendeeService_;
+        USER_AUTO_COMPLETE_TEMPLATE_URL = _USER_AUTO_COMPLETE_TEMPLATE_URL_;
+        AUTOCOMPLETE_MAX_RESULTS = _AUTOCOMPLETE_MAX_RESULTS_;
+      });
+
+      esnI18nService.translate = function(input) {
+        return input;
+      };
+    });
 
     function initDirective(scope) {
       scope.newUsers = [];
-      var html = '<users-autocomplete-input original-users="users" mutable-users="newUsers"/>';
+      var html = '<users-autocomplete-input original-users="users" mutable-users="newUsers" />';
       var element = $compile(html)(scope);
 
       scope.$digest();
@@ -176,6 +183,7 @@ describe('The User Angular module', function() {
     describe('The getUsers function', function() {
       it('should call attendeeService function and return an array of users with templateUrl', function(done) {
         var element = initDirective($scope);
+
         var expectedResult = [user1, user2, user3].map(function(user) {
           return _.assign(user, {_id: user.id}, {templateUrl: USER_AUTO_COMPLETE_TEMPLATE_URL});
         });
@@ -220,7 +228,6 @@ describe('The User Angular module', function() {
         var eleScope = element.isolateScope();
 
         eleScope.shouldIncludeSelf = true;
-
         attendeeService.getAttendeeCandidates = sinon.stub().returns($q.when([]));
 
         element.isolateScope().getUsers(query).then(function() {
