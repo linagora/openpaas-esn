@@ -91,7 +91,7 @@ angular.module('esn.user', ['esn.http', 'esn.object-type', 'esn.lodash-wrapper',
 
       scope.getUsers = function(query) {
         var excludedUsers = []
-          .concat([session.user])
+          .concat(scope.shouldIncludeSelf ? [] : session.user)
           .concat(scope.mutableUsers)
           .concat(scope.originalUsers || [])
           .concat(scope.ignoredUsers || []);
@@ -126,7 +126,8 @@ angular.module('esn.user', ['esn.http', 'esn.object-type', 'esn.lodash-wrapper',
         onUserAdded: '=?',
         onUserRemoved: '=?',
         addFromAutocompleteOnly: '=?',
-        propagateEnterEvent: '=?'
+        propagateEnterEvent: '=?',
+        shouldIncludeSelf: '@?'
       }
     };
   })
