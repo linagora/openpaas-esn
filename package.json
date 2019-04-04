@@ -71,6 +71,8 @@
     "linagora.esn.unifiedinbox.github": "1.4.6",
     "linagora.esn.unifiedinbox.james": "1.4.6",
     "linagora.esn.unifiedinbox.twitter": "1.4.6",
+    "linagora.esn.linshare": "0.4.0",
+    "linagora.esn.unifiedinbox.linshare": "0.1.1",
     "lodash": "4.17.10",
     "logrotate-stream": "0.2.5",
     "mailparser": "0.6.1",

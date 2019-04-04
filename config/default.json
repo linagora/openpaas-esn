@@ -132,6 +132,7 @@
     "linagora.esn.controlcenter",
     "linagora.esn.unifiedinbox",
     "linagora.esn.unifiedinbox.james",
+    "linagora.esn.unifiedinbox.linshare",
     "linagora.esn.admin",
     "linagora.esn.sync",
     "linagora.esn.contact.collect",
@@ -139,7 +140,8 @@
     "linagora.esn.resource",
     "linagora.esn.james",
     "linagora.esn.group",
-    "linagora.esn.chat"
+    "linagora.esn.chat",
+    "linagora.esn.linshare"
   ],
   "email": {
     "templatesDir": "./templates/email"
