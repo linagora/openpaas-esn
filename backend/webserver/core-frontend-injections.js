@@ -490,7 +490,8 @@ const injections = [
   ], innerApps: ['esn']},
   {angular: 'esn.themes', files: [
     'themes/themes.module.js',
-    'themes/themes.service.js'
+    'themes/themes.service.js',
+    'themes/color-contrast.service.js'
   ], innerApps: ['esn']}
 ];
 
