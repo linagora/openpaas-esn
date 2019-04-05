@@ -786,6 +786,6 @@ angular.module('esn.community')
     return {
       retrict: 'E',
       replace: true,
-      template: applicationMenuTemplateBuilder('/#/community', { name: 'communities' }, 'Communities', 'core.modules.linagora.esn.community.enabled', true)
+      template: applicationMenuTemplateBuilder('/#/community', { name: 'communities' }, 'Communities', 'core.modules.linagora.esn.community.enabled', false)
     };
   });
