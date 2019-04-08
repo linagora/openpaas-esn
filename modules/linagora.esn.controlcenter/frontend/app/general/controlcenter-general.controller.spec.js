@@ -8,7 +8,7 @@ var expect = chai.expect;
 describe('The controlcenterGeneralController', function() {
 
   var $controller, $rootScope, $scope;
-  var asyncAction, esnUserConfigurationService, controlcenterGeneralService, CONTROLCENTER_GENERAL_CONFIGS;
+  var asyncAction, esnUserConfigurationService, homePageService, CONTROLCENTER_GENERAL_CONFIGS;
 
   beforeEach(function() {
     asyncAction = sinon.spy(function(message, action) {
@@ -16,6 +16,7 @@ describe('The controlcenterGeneralController', function() {
     });
 
     module('linagora.esn.controlcenter');
+    module('esn.home-page');
     module('esn.async-action');
 
     module(function($provide) {
@@ -24,11 +25,11 @@ describe('The controlcenterGeneralController', function() {
   });
 
   beforeEach(function() {
-    inject(function(_$window_, _$controller_, _$rootScope_, _esnUserConfigurationService_, _controlcenterGeneralService_, _CONTROLCENTER_GENERAL_CONFIGS_) {
+    inject(function(_$window_, _$controller_, _$rootScope_, _esnUserConfigurationService_, _homePageService_, _CONTROLCENTER_GENERAL_CONFIGS_) {
       $controller = _$controller_;
       $rootScope = _$rootScope_;
       esnUserConfigurationService = _esnUserConfigurationService_;
-      controlcenterGeneralService = _controlcenterGeneralService_;
+      homePageService = _homePageService_;
       CONTROLCENTER_GENERAL_CONFIGS = _CONTROLCENTER_GENERAL_CONFIGS_;
     });
   });
@@ -78,7 +79,7 @@ describe('The controlcenterGeneralController', function() {
     var expectResult = { a: 'a', b: 'b', f: 'f' };
 
     esnUserConfigurationService.get = function() { return $q.when([]); };
-    controlcenterGeneralService.getHomePageCandidates = sinon.stub().returns(homePages);
+    homePageService.getHomePageCandidates = sinon.stub().returns(homePages);
 
     var controller = initController();
 
@@ -86,7 +87,7 @@ describe('The controlcenterGeneralController', function() {
     $rootScope.$digest();
 
     expect(controller.homePages).to.deep.equal(expectResult);
-    expect(controlcenterGeneralService.getHomePageCandidates).to.have.been.calledOnce;
+    expect(homePageService.getHomePageCandidates).to.have.been.calledOnce;
   });
 
   describe('The save fn', function() {

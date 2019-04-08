@@ -1,10 +1,10 @@
 (function() {
   'use strict';
 
-  angular.module('linagora.esn.controlcenter')
-    .factory('controlcenterGeneralService', controlcenterGeneralService);
+  angular.module('esn.home-page')
+    .factory('homePageService', homePageService);
 
-  function controlcenterGeneralService(_, esnI18nService, esnModuleRegistry) {
+  function homePageService(_, esnI18nService, esnModuleRegistry) {
     return {
       getHomePageCandidates: getHomePageCandidates
     };

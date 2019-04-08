@@ -491,5 +491,7 @@
   "Grid view": "網格視圖",
   "No pending request": "没有待处理的请求",
   "Invitations": "邀请",
-  "Requests": "要求"
+  "Requests": "要求",
+  "Home page": "主页",
+  "Set the default page to load after login": "设置登录后加载的默认页面"
 }

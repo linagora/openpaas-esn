@@ -497,5 +497,7 @@
   "OK": "OK",
   "Invitations": "Lời mời",
   "Requests": "Yêu cầu",
-  "Modified": "Ngày sửa"
+  "Modified": "Ngày sửa",
+  "Home page": "Trang chủ",
+  "Set the default page to load after login": "Chọn trang mặc định tải sau khi đăng nhập"
 }
