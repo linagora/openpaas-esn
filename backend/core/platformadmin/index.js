@@ -8,6 +8,7 @@ const getUserByEmail = q.denodeify(coreUser.findByEmail);
 
 module.exports = {
   isPlatformAdmin,
+  isPlatformAdminDefined,
   setPlatformAdmins,
   getAllPlatformAdmins,
   getAllPlatformAdminUsers,
@@ -31,6 +32,12 @@ function setPlatformAdmins(platformadmins) {
 function getAllPlatformAdmins() {
   return esnConfig(CONFIG_KEY).get()
     .then(platformadmins => (Array.isArray(platformadmins) ? platformadmins : []));
+}
+
+function isPlatformAdminDefined() {
+  return getAllPlatformAdmins()
+    .then(platformadmins => platformadmins && platformadmins.length)
+    .catch(() => false);
 }
 
 function getAllPlatformAdminUsers() {

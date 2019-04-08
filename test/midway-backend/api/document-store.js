@@ -2,8 +2,7 @@
 
 var expect = require('chai').expect,
     request = require('supertest'),
-    fs = require('fs-extra'),
-    mockery = require('mockery');
+    fs = require('fs-extra');
 
 describe('The document store Settings module', function() {
   it('should exist', function() {
@@ -293,55 +292,5 @@ describe('The document store routes resource', function() {
         });
       }.bind(this));
     });
-
-    it('should call the mongodb.validateConnection method with credentials when they are set', function(done) {
-      this.mongoDbMock = {
-        init: function() {},
-        validateConnection: function(hostname, port, dbname, username, password) {
-          expect(hostname).to.equal('localhost');
-          expect(port).to.equal('42');
-          expect(dbname).to.equal('rsetest');
-          expect(username).to.equal('john');
-          expect(password).to.equal('doe');
-          done();
-        }
-      };
-
-      this.pubsubMock = {
-        init: function() {},
-        local: {
-          topic: function() {
-            return {
-              subscribe: function() {},
-              publish: function() {}
-            };
-          }
-        }
-      };
-
-      mockery.registerMock('./mongo', this.mongoDbMock);
-      mockery.registerMock('./pubsub', this.pubsubMock);
-      this.testEnv.initCore(function() {
-        var middleware = this.helpers.requireBackend('webserver/controllers/document-store');
-        var requestMock = {
-          params: {
-            hostname: 'localhost',
-            port: '42',
-            dbname: 'rsetest'
-          },
-          body: {
-            username: 'john',
-            password: 'doe'
-          }
-        };
-
-        var responseMock = {
-          json: function() {}
-        };
-
-        middleware.test(requestMock, responseMock);
-      }.bind(this));
-    });
-
   });
 });
