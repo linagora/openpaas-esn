@@ -13,7 +13,8 @@
     'esn.business-hours',
     'esn.configuration',
     'esn.user-configuration',
-    'esn.i18n'
+    'esn.i18n',
+    'esn.home-page'
   ]);
 
 })(angular);

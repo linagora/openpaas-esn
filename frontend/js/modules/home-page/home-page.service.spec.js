@@ -4,12 +4,12 @@
 
 var expect = chai.expect;
 
-describe('The controlcenterGeneralService factory', function() {
-  var esnModuleRegistry, controlcenterGeneralService;
+describe('The homePageService factory', function() {
+  var esnModuleRegistry, homePageService;
   var modulesMock;
 
   beforeEach(function() {
-    module('linagora.esn.controlcenter', function($provide) {
+    module('esn.home-page', function($provide) {
       $provide.value('esnI18nService', {
         translate: function(input) { return input; }
       });
@@ -20,9 +20,9 @@ describe('The controlcenterGeneralService factory', function() {
       { homePage: 'b', title: 'B' }
     ];
 
-    inject(function(_esnModuleRegistry_, _controlcenterGeneralService_) {
+    inject(function(_esnModuleRegistry_, _homePageService_) {
       esnModuleRegistry = _esnModuleRegistry_;
-      controlcenterGeneralService = _controlcenterGeneralService_;
+      homePageService = _homePageService_;
     });
 
     esnModuleRegistry.getAll = function() {
@@ -34,7 +34,7 @@ describe('The controlcenterGeneralService factory', function() {
     it('should return a list homePage', function() {
       var expectResult = {a: 'A', b: 'B'};
 
-      expect(controlcenterGeneralService.getHomePageCandidates()).to.deep.equal(expectResult);
+      expect(homePageService.getHomePageCandidates()).to.deep.equal(expectResult);
     });
   });
 });

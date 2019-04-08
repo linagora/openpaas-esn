@@ -431,6 +431,11 @@ const injections = [
     'business-hours/business-hours.component.js',
     'business-hours/business-hours.controller.js'
   ], innerApps: ['esn']},
+  {angular: 'esn.home-page', files: [
+    'home-page/home-page.module.js',
+    'home-page/home-page.component.js',
+    'home-page/home-page.service.js'
+  ], innerApps: ['esn']},
   {angular: 'esn.feature-registry', files: [
     'feature-registry/feature-registry.module.js',
     'feature-registry/feature-registry.service.js'

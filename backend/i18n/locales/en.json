@@ -497,5 +497,7 @@
   "OK": "OK",
   "Invitations": "Invitations",
   "Requests": "Requests",
-  "Modified": "Modified"
+  "Modified": "Modified",
+  "Home page": "Home page",
+  "Set the default page to load after login": "Set the default page to load after login"
 }

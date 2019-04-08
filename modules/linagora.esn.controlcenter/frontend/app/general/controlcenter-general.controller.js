@@ -9,7 +9,7 @@
     $window,
     esnUserConfigurationService,
     asyncAction,
-    controlcenterGeneralService,
+    homePageService,
     _,
     ESN_ROUTER_DEFAULT_HOME_PAGE,
     CONTROLCENTER_GENERAL_CONFIGS
@@ -26,9 +26,7 @@
     /////
 
     function $onInit() {
-      var homePageCandidates = controlcenterGeneralService.getHomePageCandidates();
-
-      self.homePages = _objectWithKeysSorted(homePageCandidates);
+      self.homePages = homePageService.getHomePageCandidates();
 
       esnUserConfigurationService.get(CONTROLCENTER_GENERAL_CONFIGS)
         .then(function(configurations) {
@@ -73,17 +71,6 @@
       }
 
       return output;
-    }
-
-    function _objectWithKeysSorted(object) {
-      var result = {};
-      var keysSorted = Object.keys(object).sort();
-
-      _.forEach(keysSorted, function(key) {
-        result[key] = object[key];
-      });
-
-      return result;
     }
 
     function _includeReloadButtonAfterSave() {
