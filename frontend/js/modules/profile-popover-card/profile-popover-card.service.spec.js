@@ -20,6 +20,7 @@ describe('The profilePopoverCardService service', function() {
 
     module('esn.profile-popover-card', function($provide) {
       $provide.value('$modal', $modal);
+      $provide.value('$state', {go: sinon.stub()});
       $provide.value('touchscreenDetectorService', touchscreenDetectorService);
       $provide.value('matchmedia', matchmedia);
       $provide.value('ESN_MEDIA_QUERY_SM_XS', '(max-width: 767px), (min-width: 768px) and (max-width: 991px)');
@@ -179,7 +180,8 @@ describe('The profilePopoverCardService service', function() {
 
     it('should return undefined with bad user object', function() {
       sinon.stub(profilePopoverCardService.functions, 'createModal').returns();
-      var targetModal = profilePopoverCardService.functions.bindModal(element, {user: undefined}, {parentScope: parentScope});
+      var targetModal = profilePopoverCardService.functions.bindModal(
+        element, {user: undefined}, {parentScope: parentScope});
       expect(targetModal).to.be.undefined;
     });
 
@@ -232,6 +234,14 @@ describe('The profilePopoverCardService service', function() {
         preferredEmail: 'karl-marx@proletarian.people',
         id: '0764a32c-686c-45d7-8034-2b53f080226c',
         _id: '0764a32c-686c-45d7-8034-2b53f080226c'
+      });
+    });
+
+    it('should complete displayName with preferredEmail when absent', function() {
+      expect(profilePopoverCardService.functions._normalizeUser({email: userObject.email})).to.eql({
+        displayName: 'karl-marx@proletarian.people',
+        email: 'karl-marx@proletarian.people',
+        preferredEmail: 'karl-marx@proletarian.people'
       });
     });
   });
