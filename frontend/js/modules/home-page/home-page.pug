@@ -1,0 +1,12 @@
+ng-form(name="form")
+  .card
+    .card-header
+      h2 #{__('Home page')}
+        small #{__('Set the default page to load after login')}
+    .card-body.card-padding
+      .row
+        .col-md-6
+          md-input-container
+            md-select(ng-model="$ctrl.homePage")
+              md-option(ng-value="key" ng-repeat="(key, value) in $ctrl.availablePages | orderBy :'-value.text'")
+                | {{::value.text | esnI18n}}

@@ -3,7 +3,7 @@ sub-header
 
 form(name="form")
   .flex-column(ng-if="$ctrl.configurations", dynamic-directive="esn-preferences-general")
-    controlcenter-general-home-page(home-page="$ctrl.configurations.homePage", available-pages="$ctrl.homePages")
+    esn-home-page(home-page="$ctrl.configurations.homePage", available-pages="$ctrl.homePages")
     esn-i18n-language-selector(language="$ctrl.configurations.language")
     esn-business-hours(business-hours="$ctrl.configurations.businessHours")
     esn-datetime(datetime="$ctrl.configurations.datetime")
