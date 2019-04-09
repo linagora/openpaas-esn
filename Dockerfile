@@ -5,15 +5,16 @@
 # docker build -t linagora/esn .
 #
 
-FROM node:8.15.0-jessie-slim
+FROM node:8.15.0-stretch-slim
 MAINTAINER Linagora Folks
 
 RUN apt-get update && \
     apt-get install -y git \
-            libjpeg-dev=1:1.3.* \
+            python=2.7.* \
+            libjpeg-dev=1:1.5.* \
             graphicsmagick=1.3.* \
             graphicsmagick-imagemagick-compat=1.3.* \
-            libpango1.0-dev=1.36.* \
+            libpango1.0-dev=1.40.* \
             libcairo2-dev=1.14.* && \
     apt-get clean && \
     wget https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh -O /usr/bin/wait-for-it.sh && \
