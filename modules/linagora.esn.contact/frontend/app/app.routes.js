@@ -8,7 +8,10 @@
       $stateProvider
         .state('contact', {
           url: '/contact',
-          templateUrl: '/contact/app/app.html'
+          templateUrl: '/contact/app/app.html',
+          resolve: {
+            isModuleActive: isModuleActive
+          }
         })
         .state('contact.addressbooks', {
           url: '/addressbooks/:bookName',
@@ -59,5 +62,15 @@
             user: routeResolver.session('user')
           }
         });
+
+        function isModuleActive($location, contactConfiguration) {
+          return contactConfiguration.get('enabled', true).then(function(isEnabled) {
+            if (!isEnabled) {
+              $location.path('/');
+            }
+          }).catch(function() {
+            $location.path('/');
+          });
+        }
     });
 })(angular);
