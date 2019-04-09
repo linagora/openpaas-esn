@@ -1008,4 +1008,18 @@ describe('The collaboration member module', function() {
       });
     });
   });
+
+  describe('The getMemberAndMembershipRequestIds function', function() {
+    it('should filter all ids of members and membershipRequests', function() {
+      const collaborationMock = {
+        members: [{member: {id: '1'}}, {member: {id: '2'}}],
+        membershipRequests: [{user: '3'}, {user: '4'}, {user: '5'}]
+      };
+      const collaborationModule = getModule();
+      const results = collaborationModule.getMemberAndMembershipRequestIds(collaborationMock);
+
+      expect(results).to.deep.equal(['1', '2', '3', '4', '5']);
+    });
+
+  });
 });
