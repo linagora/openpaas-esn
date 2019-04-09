@@ -71,7 +71,7 @@ angular.module('esn.user', ['esn.http', 'esn.object-type', 'esn.lodash-wrapper',
     };
   })
   .constant('USER_AUTO_COMPLETE_TEMPLATE_URL', '/views/modules/auto-complete/user-auto-complete.html')
-  .directive('usersAutocompleteInput', function($q, _, session, $log, attendeeService, userUtils, AUTOCOMPLETE_MAX_RESULTS, USER_AUTO_COMPLETE_TEMPLATE_URL) {
+  .directive('usersAutocompleteInput', function($q, _, session, $log, attendeeService, esnI18nService, userUtils, AUTOCOMPLETE_MAX_RESULTS, USER_AUTO_COMPLETE_TEMPLATE_URL) {
     function link(scope) {
 
       function getUserTuples(users) {
@@ -88,6 +88,8 @@ angular.module('esn.user', ['esn.http', 'esn.object-type', 'esn.lodash-wrapper',
 
         return _.uniq(tuples, 'id');
       }
+
+      scope.placeholder = esnI18nService.translate(scope.placeholder || 'Users').toString();
 
       scope.getUsers = function(query) {
         var excludedUsers = []
@@ -127,6 +129,7 @@ angular.module('esn.user', ['esn.http', 'esn.object-type', 'esn.lodash-wrapper',
         onUserRemoved: '=?',
         addFromAutocompleteOnly: '=?',
         propagateEnterEvent: '=?',
+        placeholder: '=?',
         shouldIncludeSelf: '@?'
       }
     };
