@@ -1,181 +1,68 @@
-'use strict';
-
-var expect = require('chai').expect;
+const { expect } = require('chai');
 const mockery = require('mockery');
-const q = require('q');
+const sinon = require('sinon');
 
-describe('the css webserver controller', function() {
+describe('The css controller', function() {
+  let cssModule, user, domainId;
+
   it('should expose a getCss method', function() {
-    var controller = this.helpers.requireBackend('webserver/controllers/css');
+    const controller = this.helpers.requireBackend('webserver/controllers/css');
+
     expect(controller).to.have.property('getCss');
     expect(controller.getCss).to.be.a('function');
   });
-  describe('getCss() method', function() {
+
+  describe('The getCss function', function() {
     beforeEach(function() {
+      domainId = '123';
+      user = {
+        domains: [{ domain_id: domainId }]
+      };
+      cssModule = {
+        generate: sinon.stub().returns(Promise.resolve())
+      };
+      mockery.registerMock('../../core/themes/css', cssModule);
+
       this.controller = this.helpers.requireBackend('webserver/controllers/css');
     });
+
     it('should return a 404 error if the params.app is not defined', function(done) {
-      var res = this.helpers.express.jsonResponse(
-        function(code) {
-          expect(code).to.equal(404);
-          done();
-        }
-      );
-      this.controller.getCss({params: {}}, res);
-    });
-    it('should return the base CSS file', function(done) {
-      var res = {
-        send: function(css) {
-          expect(css).to.be.a('string');
-          expect(css).to.match(/@media screen and/);
-          done();
-        },
-        set: function(name, value) {
-          expect(name).to.equal('Content-Type');
-          expect(value).to.equal('text/css');
-        }
-      };
-      this.controller.getCss({params: {app: 'foo'}}, res);
-    });
-    it('should concatenate the injected less files', function(done) {
-      var res = {
-        send: function(css) {
-          expect(css).to.be.a('string');
-          expect(css).to.match(/thisIsAClassForTheTest/);
-          done();
-        },
-        set: function(name, value) {
-          expect(name).to.equal('Content-Type');
-          expect(value).to.equal('text/css');
-        }
-      };
-      var assets = this.helpers.requireBackend('core').assets;
-      assets.app('foo').type('less').add(this.testEnv.fixtures + '/css/file.less', 'modX');
-      this.controller.getCss({params: {app: 'foo'}}, res);
-    });
-    it('should use injected global variable', function(done) {
-      var res = {
-        send: function(css) {
-          expect(css).to.be.a('string');
-          expect(css).to.match(/thisIsAClassForTheTest/);
-          expect(css).to.match(/components\/cssinjecttest/);
-          done();
-        },
-        set: function(name, value) {
-          expect(name).to.equal('Content-Type');
-          expect(value).to.equal('text/css');
-        }
-      };
-      var assets = this.helpers.requireBackend('core').assets;
-      assets.app('foo').type('less').add(this.testEnv.fixtures + '/css/file3.less', 'modX');
-      this.controller.getCss({params: {app: 'foo'}}, res);
-    });
-    it('should send a 500 error when the less compilation fails', function(done) {
-      var res = this.helpers.express.jsonResponse(
-        function(code) {
-          expect(code).to.equal(500);
-          done();
-        }
-      );
-      var assets = this.helpers.requireBackend('core').assets;
-      assets.app('foo').type('less').add(this.testEnv.fixtures + '/css/file2.less', 'modX');
-      this.controller.getCss({params: {app: 'foo'}}, res);
-    });
-  });
-  describe('cache', function() {
-    let constructorCalled = 0;
-    let getCalled = 0;
-    let initialNodeEnv;
+      const res = this.helpers.express.jsonResponse(code => {
+        expect(code).to.equal(404);
+        expect(cssModule.generate).to.not.have.been.called;
+        done();
+      });
 
-    class MemoryStoreMock {
-      constructor() {
-        constructorCalled++;
-        this.response = q(true);
-      }
-
-      get() {
-        getCalled++;
-        return this.response;
-      }
-    }
-
-    beforeEach(function() {
-      constructorCalled = 0;
-      getCalled = 0;
-      initialNodeEnv = process.env.NODE_ENV;
+      this.controller.getCss({ params: {} }, res);
     });
 
-    afterEach(function() {
-      process.env.NODE_ENV = initialNodeEnv;
-    });
-
-    it('should use the cache the second time it\'s called in production mode', function(done) {
-      mockery.registerMock('../../helpers/memory-store', MemoryStoreMock);
-      process.env.NODE_ENV = 'production';
-      const controller = this.helpers.requireBackend('webserver/controllers/css');
+    it('should send back the generated css', function(done) {
+      const generatedCss = 'foobar';
+      const req = { user, params: { app: 'foo' }};
       const res = {
-        send: function() {
-          controller.getCss({params: {app: 'foo'}}, {
-            set: function() {
-            },
-            send: function() {
-              expect(constructorCalled).to.equal(1);
-              expect(getCalled).to.equal(2);
-              done();
-            }
-          });
-        },
-        set: function() {
+        set: sinon.spy(),
+        send: css => {
+          expect(css).to.deep.equals(generatedCss);
+          expect(cssModule.generate).to.have.been.calledWith(req.params.app, domainId);
+          expect(res.set).to.have.been.calledWith('Content-Type', 'text/css');
+          done();
         }
       };
 
-      controller.getCss({params: {app: 'foo'}}, res);
+      cssModule.generate.returns(Promise.resolve({ css: generatedCss }));
+
+      this.controller.getCss(req, res);
     });
 
-    it('should not use the cache in dev mode', function(done) {
-      mockery.registerMock('../../helpers/memory-store', MemoryStoreMock);
-      process.env.NODE_ENV = 'dev';
-      const controller = this.helpers.requireBackend('webserver/controllers/css');
-      const res = {
-        send: function() {
-          controller.getCss({params: {app: 'foo'}}, {
-            set: function() {
-            },
-            send: function() {
-              expect(constructorCalled).to.equal(0);
-              expect(getCalled).to.equal(0);
-              done();
-            }
-          });
-        },
-        set: function() {
-        }
-      };
+    it('should send a 500 error when CSS generation fails', function(done) {
+      const req = { user, params: { app: 'foo' }};
+      const res = this.helpers.express.jsonResponse(code => {
+        expect(code).to.equal(500);
+        expect(cssModule.generate).to.have.been.calledWith(req.params.app, domainId);
+        done();
+      });
 
-      controller.getCss({params: {app: 'foo'}}, res);
-    });
-
-    it('should not use the cache in test mode', function(done) {
-      mockery.registerMock('../../helpers/memory-store', MemoryStoreMock);
-      process.env.NODE_ENV = 'test';
-      const controller = this.helpers.requireBackend('webserver/controllers/css');
-      const res = {
-        send: function() {
-          controller.getCss({params: {app: 'foo'}}, {
-            set: function() {
-            },
-            send: function() {
-              expect(constructorCalled).to.equal(0);
-              expect(getCalled).to.equal(0);
-              done();
-            }
-          });
-        },
-        set: function() {
-        }
-      };
-
-      controller.getCss({params: {app: 'foo'}}, res);
+      this.controller.getCss(req, res);
     });
   });
 });
