@@ -15,12 +15,14 @@ describe('The pubsub module', function() {
     const tSpy = {init: sinon.spy()};
     const uSpy = {init: sinon.spy()};
     const evsSpy = {init: sinon.spy()};
+    const themeSpy = {init: sinon.spy()};
 
     mockery.registerMock('../activitystreams/pubsub', asSpy);
     mockery.registerMock('../collaboration', {usernotification: cSpy});
     mockery.registerMock('../notification/pubsub', nSpy);
     mockery.registerMock('../elasticsearch/pubsub', esSpy);
     mockery.registerMock('../resource-link/pubsub', rSpy);
+    mockery.registerMock('../themes/pubsub', themeSpy);
     mockery.registerMock('../timeline', tSpy);
     mockery.registerMock('../user', uSpy);
     mockery.registerMock('../eventsourcing', evsSpy);
@@ -37,5 +39,6 @@ describe('The pubsub module', function() {
     expect(tSpy.init).to.have.been.called;
     expect(uSpy.init).to.have.been.called;
     expect(evsSpy.init).to.have.been.called;
+    expect(themeSpy.init).to.have.been.called;
   });
 });

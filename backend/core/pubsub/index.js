@@ -12,4 +12,5 @@ module.exports.init = function() {
   require('../timeline').init();
   require('../user').init();
   require('../eventsourcing').init();
+  require('../themes/pubsub').init();
 };

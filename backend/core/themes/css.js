@@ -14,8 +14,18 @@ const appCache = {};
 const DEFAULT_KEY = 'default';
 
 module.exports = {
+  clearCache,
   generate
 };
+
+function clearCache(domainId) {
+  logger.info(`core.themes.css#clearCache (domainId ${domainId})`);
+  if (!domainId) {
+    return;
+  }
+
+  delete appCache[String(domainId)];
+}
 
 function generate(appName, domainId) {
   logger.info(`core.themes.css#generate (app ${appName}) - Generate`);
@@ -24,7 +34,7 @@ function generate(appName, domainId) {
     return renderLess(appName, domainId);
   }
 
-  const key = domainId || DEFAULT_KEY;
+  const key = String(domainId) || DEFAULT_KEY;
 
   if (!appCache[key] || !appCache[key][appName]) {
     if (!appCache[key]) {

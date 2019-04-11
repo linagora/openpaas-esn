@@ -1,4 +1,6 @@
 const EsnConfig = require('../esn-config').EsnConfig;
+const pubsub = require('../pubsub').global;
+const { UPDATED_TOPIC_NAME } = require('./constants');
 
 module.exports = {
   saveTheme,
@@ -11,7 +13,14 @@ function saveTheme(domainId, newThemesConfig) {
     value: newThemesConfig
   };
 
-return new EsnConfig('core', domainId).set(themesConfig).then(config => config || {});
+  return new EsnConfig('core', domainId).set(themesConfig)
+    .then(config => {
+      const theme = config || {};
+
+      pubsub.topic(UPDATED_TOPIC_NAME).publish({ domainId, theme });
+
+      return theme;
+    });
 }
 
 function getTheme(domainId) {

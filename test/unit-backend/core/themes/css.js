@@ -135,6 +135,36 @@ describe('The css module', function() {
           })
           .catch(done);
       });
+
+      describe('When cache is cleared', function() {
+        it('should generate CSS again', function(done) {
+          process.env.ESN_CSS_CACHE_ON = 'true';
+
+          const module = this.helpers.requireBackend('core/themes/css');
+
+          module.generate(appName, domainId)
+            .then(() => {
+              expect(memoryInstanceSpy).to.have.been.calledOnce;
+              expect(less.render).to.have.been.calledOnce;
+              expect(getStoreStub).to.have.been.calledOnce;
+            })
+            .then(() => module.generate(appName, domainId))
+            .then(() => {
+              expect(memoryInstanceSpy).to.have.been.calledOnce;
+              expect(less.render).to.have.been.calledOnce;
+              expect(getStoreStub).to.have.been.calledTwice;
+            })
+            .then(() => module.clearCache(domainId))
+            .then(() => module.generate(appName, domainId))
+            .then(() => {
+              expect(memoryInstanceSpy).to.have.been.calledTwice;
+              expect(less.render).to.have.been.calledTwice;
+              expect(getStoreStub).to.have.been.calledThrice;
+            })
+            .then(done)
+            .catch(done);
+        });
+      });
     });
 
     it('should concatenate injected less files', function(done) {
