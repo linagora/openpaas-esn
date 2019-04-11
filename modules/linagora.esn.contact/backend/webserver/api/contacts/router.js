@@ -2,12 +2,19 @@
 
 const express = require('express');
 
-module.exports = dependencies => {
+module.exports = (dependencies, moduleName) => {
   const authorizationMW = dependencies('authorizationMW'),
+        moduleMW = dependencies('moduleMW'),
         tokenMiddleware = dependencies('tokenMW'),
         davMiddleware = dependencies('davserver').davMiddleware,
         controller = require('./controller')(dependencies),
         router = express.Router();
+
+  router.all('/*',
+    authorizationMW.requiresAPILogin,
+    moduleMW.requiresModuleIsEnabledInCurrentDomain(moduleName)
+  );
+
   /**
    * @swagger
    * /contacts/{addressBookId}/{addressbookName}/{contactId}/avatar:
@@ -31,7 +38,6 @@ module.exports = dependencies => {
    *         $ref: "#/responses/cm_500"
    */
   router.get('/:addressBookId/:addressbookName/:contactId/avatar',
-    authorizationMW.requiresAPILogin,
     davMiddleware.getDavEndpoint,
     tokenMiddleware.generateNewToken(),
     controller.getAvatar);
@@ -57,7 +63,7 @@ module.exports = dependencies => {
    *       500:
    *         $ref: "#/responses/cm_500"
    */
-  router.get('/search', authorizationMW.requiresAPILogin, controller.searchContacts);
+  router.get('/search', controller.searchContacts);
 
   return router;
 };

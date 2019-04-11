@@ -11,7 +11,7 @@
     return {
       retrict: 'E',
       replace: true,
-      template: applicationMenuTemplateBuilder('/#/contact', { url: CONTACT_MODULE_METADATA.icon }, 'Contacts')
+      template: applicationMenuTemplateBuilder('/#/contact', { url: CONTACT_MODULE_METADATA.icon }, 'Contacts', 'core.modules.linagora.esn.contact.enabled', true)
     };
   }
 })(angular);

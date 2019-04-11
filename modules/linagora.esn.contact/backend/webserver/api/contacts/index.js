@@ -1,5 +1,7 @@
 'use strict';
 
 module.exports = function(dependencies) {
-  return require('./router')(dependencies);
+  const moduleName = 'linagora.esn.calendar';
+
+  return require('./router')(dependencies, moduleName);
 };

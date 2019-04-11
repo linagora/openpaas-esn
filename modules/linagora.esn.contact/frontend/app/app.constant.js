@@ -75,6 +75,7 @@
           domain: true,
           platform: true
         }
-      }
+      },
+      disableable: true
     });
 })(angular);
