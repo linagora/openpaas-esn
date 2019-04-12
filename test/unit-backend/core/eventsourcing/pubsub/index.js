@@ -26,7 +26,8 @@ describe('The eventsourcing pubsub module', function() {
     };
 
     elasticsearch = {
-      handle: sinon.spy()
+      handle: sinon.spy(),
+      registerReindexTask: () => {}
     };
 
     mongodb = {

@@ -3,9 +3,14 @@
 const Event = require('mongoose').model('Event');
 
 module.exports = {
-  create
+  create,
+  listByCursor
 };
 
 function create(event) {
   return Event.create(event);
+}
+
+function listByCursor() {
+  return Event.find().cursor();
 }
