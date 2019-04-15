@@ -75,10 +75,13 @@
         return functions._bind(element, functions._createScope(userObject), options);
       }
 
+      var watchExp = userObject.source + '.' + userObject.property;
+
       var whenReady = function(unwatch) {
         var user = functions._get(options.parentScope, userObject.source);
+        var watchedProperty = functions._get(options.parentScope, watchExp);
 
-        if (functions._isUser(user)) {
+        if (functions._isUser(user) && watchedProperty) {
           var scope = functions._createScope(user);
 
           functions._bind(element, scope, options);
@@ -91,7 +94,6 @@
         }
       };
 
-      var watchExp = userObject.source + '.' + userObject.property;
       var unwatch = options.parentScope.$watch(watchExp, function() { whenReady(unwatch); });
     }
 
