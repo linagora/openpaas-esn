@@ -1,13 +1,16 @@
 (function(angular) {
   'use strict';
 
-  angular.module('esn.profile-popover-card').controller('profilePopoverContentController', profilePopoverContentController);
+  angular.module('esn.profile-popover-card')
+    .controller('profilePopoverContentController', profilePopoverContentController);
+
   function profilePopoverContentController($state, touchscreenDetectorService) {
     var self = this;
 
     self.isMobileDevice = touchscreenDetectorService.hasTouchscreen();
 
     self.onProfileButtonClick = function(evt) {
+      if (!self.user._id) return;
       self._hideComponent(evt);
       $state.go('profile', {user_id: self.user._id});
     };

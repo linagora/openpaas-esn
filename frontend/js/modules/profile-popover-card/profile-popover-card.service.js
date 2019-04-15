@@ -254,9 +254,7 @@
     function _isUser(user) {
       if (!user) return undefined;
 
-      return (user._id || user.id) &&
-        (user.preferredEmail || user.email) &&
-        (user.displayName || user.name);
+      return (user.preferredEmail || user.email);
     }
 
     function _normalizeUser(userObject) {
@@ -264,6 +262,7 @@
       // Normalises between people and user objects
       if (user.id) user._id = user.id;
       if (user.email) user.preferredEmail = user.email;
+      if (!user.displayName) user.displayName = user.preferredEmail;
       if (user.name) user.displayName = user.name;
 
       return user;
