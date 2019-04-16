@@ -11,6 +11,7 @@ module.exports = {
 function init() {
   logger.info('Initializing the eventsourcing pubsub');
   pubsub.local.client.onAny(listener);
+  elasticsearchHandler.registerReindexTask();
 }
 
 function listener(name, data = {}) {
