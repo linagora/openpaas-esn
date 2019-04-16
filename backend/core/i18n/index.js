@@ -4,16 +4,18 @@ const i18n = require('@linagora/i18n-node');
 
 const i18nConfigTemplate = {
   defaultLocale: 'en',
-  locales: ['en', 'fr', 'vi'],
+  locales: ['en', 'fr', 'vi', 'zh'],
   fullLocales: {
     en: 'en-US',
     fr: 'fr-FR',
-    vi: 'vi-VN'
+    vi: 'vi-VN',
+    zh: 'zh-TW'
   },
   fallbacks: {
     'en-*': 'en',
     'fr-*': 'fr',
-    'vi-*': 'vi'
+    'vi-*': 'vi',
+    'zh-*': 'zh'
   },
   updateFiles: false,
   indent: '  ',
