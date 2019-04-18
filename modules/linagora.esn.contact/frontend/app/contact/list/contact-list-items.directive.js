@@ -7,6 +7,7 @@
   function contactListItems(
     $timeout,
     ContactListScrollingService,
+    contactService,
     sharedContactDataService,
     CONTACT_EVENTS,
     LETTER_DISPLAY_DURATION
@@ -16,6 +17,8 @@
       templateUrl: '/contact/app/contact/list/contact-list-items.html',
       link: function(scope, element) {
         var timeoutPromise;
+
+        contactService.setContactMainEmail(scope.contact);
 
         scope.headerDisplay = {
           letterExists: false
