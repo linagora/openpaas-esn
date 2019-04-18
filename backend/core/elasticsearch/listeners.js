@@ -25,8 +25,10 @@ function index(data, options, callback) {
     utils.indexData(indexOptions, (err, result) => {
       if (err) {
         logger.error('Error while adding data in index', err);
+      } else if (result && (result.result === 'created' || result.created)) { // different response among ES versions
+        logger.debug('Document indexed');
       } else {
-        result && result.created ? logger.debug('Document indexed') : logger.debug('Document is not indexed');
+        logger.debug('Document is not indexed');
       }
 
       callback && callback(err, result);

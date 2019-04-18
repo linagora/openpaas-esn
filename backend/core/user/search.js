@@ -80,26 +80,13 @@ function _search(options, callback) {
       return callback(err);
     }
 
-    const terms = (options.search instanceof Array) ? options.search.join(' ') : options.search;
-
     const elasticsearchQuery = {
       sort: [
         {'firstname.sort': 'asc'}
       ],
       query: {
         bool: {
-          filter: {
-            or: _getElasticsearchOrFilters(options.domains)
-          },
-          must_not: _getElasticsearchMustNotQuery(options),
-          must: {
-            multi_match: {
-              query: terms,
-              type: 'cross_fields',
-              fields: ['firstname', 'lastname', 'accounts.emails'],
-              operator: 'and'
-            }
-          }
+          must: _getElasticsearchMustQuery(options)
         }
       }
     };
@@ -134,37 +121,19 @@ function _search(options, callback) {
   });
 }
 
-function _getElasticsearchOrFilters(domains) {
-  if (!domains || domains.length === 0) {
-    return;
-  }
-
-  return domains.map(domain => {
-    const filter = {
-      term: {
-        'domains.domain_id': domain._id || domain
-      }
-    };
-
-    return filter;
-  });
-}
-
 function _getElasticsearchMustNotQuery(options) {
   const result = {
-    query: {
-      bool: {
-        should: [{
-          terms: {
-            id: options.excludeUserIds || []
-          }
-        }]
-      }
+    bool: {
+      should: [{
+        terms: {
+          id: options.excludeUserIds || []
+        }
+      }]
     }
   };
 
   if (!options.includesDisabledSearchable) {
-    result.query.bool.should.push({
+    result.bool.should.push({
       nested: {
         path: 'states',
         query: {
@@ -185,6 +154,35 @@ function _getElasticsearchMustNotQuery(options) {
   }
 
   return result;
+}
+
+function _getElasticsearchMustQuery(options) {
+  const terms = (options.search instanceof Array) ? options.search.join(' ') : options.search;
+  const must = [
+    {
+      bool: {
+        must_not: _getElasticsearchMustNotQuery(options),
+        must: {
+          multi_match: {
+            query: terms,
+            type: 'cross_fields',
+            fields: ['firstname', 'lastname', 'accounts.emails'],
+            operator: 'and'
+          }
+        }
+      }
+    }
+  ];
+
+  if (options.domains && options.domains.length) {
+    must.push({
+      terms: {
+        'domains.domain_id': options.domains.map(domain => domain._id || domain)
+      }
+    });
+  }
+
+  return must;
 }
 
 function _filterUsersByCollaboration(users, collaboration, limit, callback) {
