@@ -12,6 +12,7 @@ module.exports = {
   configurations: {
     businessHours: require('./businessHours'),
     datetime: require('./datetime'),
+    elasticsearch: require('./elasticsearch'),
     homePage: require('./homepage'),
     autoconf: require('./autoconf'),
     language: require('./language'),
