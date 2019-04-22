@@ -25,6 +25,7 @@ module.exports = function(collaborationModule) {
     fetchMember,
     getManagers,
     getMembers,
+    getMemberAndMembershipRequestIds,
     getMembershipRequest,
     getMembershipRequests,
     isIndirectMember,
@@ -533,5 +534,25 @@ module.exports = function(collaborationModule) {
     }
 
     return collaboration.type === CONSTANTS.COLLABORATION_TYPES.RESTRICTED || collaboration.type === CONSTANTS.COLLABORATION_TYPES.PRIVATE;
+  }
+
+/**
+ * Get IDs of members and membership requests from a collaboration
+ *
+ * @param {object} collaboration detailed information of collaboration
+ */
+
+  function getMemberAndMembershipRequestIds(collaboration) {
+    const results = [];
+
+    collaboration.members.forEach(item => {
+      results.push(item.member.id);
+    });
+
+    collaboration.membershipRequests.forEach(member => {
+      results.push(member.user);
+    });
+
+    return results;
   }
 };

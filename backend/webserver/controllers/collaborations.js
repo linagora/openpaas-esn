@@ -6,7 +6,7 @@ const userDomain = require('../../core/user/domain');
 const imageModule = require('../../core/image');
 const { denormalize } = require('../denormalize/user');
 const logger = require('../../core/logger');
-
+const { DEFAULT_LIMIT, DEFAULT_OFFSET } = require('../../core/collaboration/constants');
 const permission = collaborationModule.permission;
 
 module.exports = {
@@ -162,7 +162,8 @@ function getInvitablePeople(req, res) {
   const collaboration = req.collaboration;
   const excludeUserIds = (req.body.exclude && req.body.exclude.users) || [];
   const query = {
-    limit: req.query.limit || 5,
+    offset: +req.query.offset || DEFAULT_OFFSET,
+    limit: +req.query.limit || DEFAULT_LIMIT,
     search: req.query.search || null,
     not_in_collaboration: collaboration,
     excludeUserIds
