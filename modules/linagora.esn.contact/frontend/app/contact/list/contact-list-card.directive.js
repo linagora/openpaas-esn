@@ -5,6 +5,7 @@
     .directive('contactListCard', contactListCard);
 
   function contactListCard(
+    contactService,
     ContactShellDisplayBuilder,
     CONTACT_AVATAR_SIZE
   ) {
@@ -16,6 +17,7 @@
       },
       controller: 'contactItemController',
       link: function(scope) {
+        contactService.setContactMainEmail(scope.contact);
         scope.displayShell = ContactShellDisplayBuilder.build(scope.contact);
         scope.avatarSize = CONTACT_AVATAR_SIZE.cards;
       }

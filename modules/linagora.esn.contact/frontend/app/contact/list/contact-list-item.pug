@@ -10,7 +10,12 @@
     contact-photo.media-object(contact='contact', list-view='true', avatar-size='{{::avatarSize}}')
   .media-body.touch-zone
     .lv-title.col-xs-11(bs-tooltip, title="{{::displayShell.getDisplayName()}}")
-      h4.media-heading.m-b-0(ng-bind-html="::displayShell.getDisplayName() | esnHighlight: keySearch") {{::displayShell.getDisplayName()}}
+      h4.media-heading.m-b-0(
+        ng-bind-html="::displayShell.getDisplayName() | esnHighlight: keySearch"
+        profile-popover-card='{ source: "contact", property: "id" }'
+        profile-popover-card-show-mobile
+      )
+        | {{::displayShell.getDisplayName()}}
     ul.lv-attrs.col-xs-11.contact-list-item-attrs.m-l-10
       li(ng-repeat="attrs in displayShell.getInformationsToDisplay()")
         a(ng-click="actionClick($event, attrs.action)" ng-href="{{::attrs.action}}" ng-bind-html="::attrs.id | esnHighlight: keySearch" op-inbox-compose op-inbox-compose-display-name='{{::displayShell.getDisplayName()}}')
