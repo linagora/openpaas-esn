@@ -2,7 +2,6 @@ const { expect } = require('chai');
 const request = require('supertest');
 
 describe('The collaborations members API', function() {
-
   let webserver, helpers;
 
   beforeEach(function() {
@@ -20,34 +19,48 @@ describe('The collaborations members API', function() {
   });
 
   describe('POST /collaborations/:objectType/:id/invitablepeople', function() {
-    it('should send back 200 with denormalized invitable user', function(done) {
-      helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
-        if (err) {
-          return done(err);
-        }
+    it('should send back 200 with user except who are current members and on pending request membership', function(done) {
+      helpers.api.applyDomainDeployment('linagora_IT', (err, models) => {
+        if (err) return done(err);
 
-        helpers.api.loginAsUser(webserver.application, models.users[0].emails[0], 'secret', function(err, loggedInAsUser) {
-          if (err) {
-            return done(err);
-          }
+        const manager = models.users[0].accounts[0];
+        const community = models.communities[0];
 
-          const req = loggedInAsUser(request(webserver.application).post('/api/collaborations/community/' + models.communities[0]._id + '/invitablepeople'));
+        // Add manually membershipRequests for 3rd, 4th place in user model to community. 1st, 2nd place are members in default
+        const membershipRequestsIds = [models.users[2]._id, models.users[3]._id];
 
-          req.expect(200);
-          req.end(function(err, res) {
-            expect(err).to.not.exist;
-            expect(res.body).to.be.an.array;
-            expect(res.body.length).to.equal(5);
-            expect(res.body[0]).to.exist;
-            expect(res.body[0]._id).to.exist;
-            expect(res.body[0].password).to.be.undefined;
-            expect(res.body[0].accounts).to.be.undefined;
+        membershipRequestsIds.forEach(member => {
+          const membershipObject = { user: member, workflow: 'invitation' };
 
-            const bodyString = JSON.stringify(res.body);
+          community.membershipRequests.push(membershipObject);
+        });
 
-            expect(bodyString).to.not.contains('itadmin@lng.net'); // Creator
-            expect(bodyString).to.not.contains('jdoe@lng.net'); // Member
-            done();
+        community.save((err, community) => {
+          if (err) return done(err);
+
+          helpers.api.loginAsUser(webserver.application, manager.emails[0], 'secret', (err, loggedInAsUser) => {
+            if (err) return done(err);
+
+            const req = loggedInAsUser(request(webserver.application).post(`/api/collaborations/community/${community._id}/invitablepeople`));
+
+            req.expect(200);
+            req.end((err, res) => {
+              expect(err).to.not.exist;
+              expect(res.body).to.be.an.array;
+              expect(res.body.length).to.equal(3);
+              expect(res.body[0]).to.exist;
+              expect(res.body[0]._id).to.exist;
+              expect(res.body[0].password).to.be.undefined;
+              expect(res.body[0].accounts).to.be.undefined;
+
+              const bodyString = JSON.stringify(res.body);
+
+              expect(bodyString).to.not.contains('itadmin@lng.net'); // Creator
+              expect(bodyString).to.not.contains('jdoe@lng.net'); // Member
+              expect(bodyString).to.not.contains('jdee@lng.net'); // MembershipRequest
+              expect(bodyString).to.not.contains('kcobain@linagora.com'); // MembershipRequest
+              done();
+            });
           });
         });
       });

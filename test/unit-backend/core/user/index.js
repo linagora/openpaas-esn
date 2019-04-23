@@ -161,16 +161,17 @@ describe('The user core module', function() {
       mockModels({
         User: User
       });
-      mockery.registerMock('../pubsub', {
-        local: {
-          topic: function() {
-            return {
-              publish: function() {},
-              subscribe: function() {}
-            };
-          }
-        }
+
+      // Mock Pubsub class to use "new" keyword when access ../pubsub
+      const Pubsub = function() {};
+
+      Pubsub.prototype.topic = () => ({
+        publish: () => {},
+        subscribe: () => {}
       });
+
+      mockery.registerMock('../pubsub', Pubsub);
+
       userModule = this.helpers.requireBackend('core').user;
       userModule.provisionUser({emails: ['test@linagora.com']}, function(err, user) {
         expect(err).to.be.null;

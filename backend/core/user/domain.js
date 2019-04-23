@@ -1,10 +1,10 @@
 const _ = require('lodash');
 const mongoose = require('mongoose');
 const User = mongoose.model('User');
-const utils = require('./utils');
 const pubsub = require('../../core/pubsub').local;
 const logger = require('../logger');
 const domainModule = require('../domain');
+const collaborationMemberModule = require('../collaboration/member')();
 const CONSTANTS = require('./constants');
 const USER_CONSTANT = require('../user/constants');
 
@@ -81,7 +81,7 @@ function getUserDomains(user, callback) {
  *
  * @param {Domain[], ObjectId[]} domains array of domain where search users
  * @param {object} query - Hash with 'limit' and 'offset' for pagination.
- *  'not_in_community' to return only members who are not in this community and no pending request with it.
+ *  'not_in_collaboration' to return only members who are not in this collaboration and no pending request with it.
  * @param {function} cb - as fn(err, result) with result: { total_count: number, list: [User1, User2, ...] }
  */
 function getUsersList(domains, query = { limit: defaultLimit, offset: defaultOffset }, callback) {
@@ -99,12 +99,7 @@ function getUsersList(domains, query = { limit: defaultLimit, offset: defaultOff
 
   const collaboration = query.not_in_collaboration;
   const domainIds = domains.map(domain => (domain._id || domain));
-  const limit = query.limit;
   let findQuery = {};
-
-  if (collaboration) {
-    query.limit = null;
-  }
 
   if (!query.includesDisabledSearchable) {
     findQuery = {
@@ -123,40 +118,31 @@ function getUsersList(domains, query = { limit: defaultLimit, offset: defaultOff
   }
 
   countDomainsMembers(domainIds, findQuery).then(total_count => {
-    User.find(findQuery).where('domains.domain_id').in(domainIds).skip(+query.offset).limit(+query.limit).sort({firstname: 'asc'}).exec((err, list) => {
-      if (err) {
-        logger.error('Error while querying domain members', err);
+    if (collaboration) {
+      const memberAndMembershipRequestIds = collaborationMemberModule.getMemberAndMembershipRequestIds(collaboration);
 
-        return callback(new Error('Cannot execute find request correctly on domains collection'));
-      }
+      // Recalculate total_count after having members and membership requests
+      total_count -= memberAndMembershipRequestIds.length;
 
-      if (collaboration) {
-        return utils.filterByNotInCollaborationAndNoMembershipRequest(list, collaboration, (err, results) => {
-          if (err) {
-            logger.error('Error while filtering collaboration domain members', err);
+      findQuery = { ...findQuery, _id: { $nin: memberAndMembershipRequestIds } };
+    }
 
-            return callback(err);
-          }
+    User.find(findQuery)
+      .where('domains.domain_id')
+      .in(domainIds)
+      .skip(+query.offset)
+      .limit(+query.limit)
+      .sort({firstname: 'asc'})
+      .exec((err, list) => {
+        if (err) return callback(err);
 
-          const filterCount = results.length;
-
-          if (filterCount > limit) {
-            results = results.slice(0, limit);
-          }
-
-          callback(null, {
-            total_count: filterCount,
-            list: results
-          });
+        callback(null, {
+          total_count,
+          list
         });
-      }
-
-      callback(null, {
-        total_count,
-        list
       });
-    });
-  }).catch(err => {
+  })
+  .catch(err => {
     logger.error('Cannot count users of domain', err);
     callback(err);
   });
