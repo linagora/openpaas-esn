@@ -1,6 +1,7 @@
 module.exports = {
   OBJECT_TYPE: 'domain',
   EVENTS: {
-    CREATED: 'domain:created'
+    CREATED: 'domain:created',
+    UPDATED: 'domain:updated'
   }
 };

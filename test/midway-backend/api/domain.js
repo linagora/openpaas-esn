@@ -1,6 +1,4 @@
-'use strict';
-
-var request = require('supertest'),
+const request = require('supertest'),
     expect = require('chai').expect,
     ObjectId = require('bson').ObjectId;
 
@@ -629,14 +627,14 @@ describe('The domain API', function() {
       }));
     });
 
-    it('should send back 200 on successful update company name', function(done) {
+    it('should send back 204 on successful update company name', function(done) {
       const modifiedDomain = {
         company_name: 'new_company_name'
       };
 
       helpers.api.loginAsUser(app, platformAdmin.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
         loggedInAsUser(request(app).put(`${API_PATH}/${domain1._id}`).send(modifiedDomain))
-        .expect(200)
+        .expect(204)
         .end(helpers.callbacks.noError(() => {
           Domain.findById(domain1._id, helpers.callbacks.noErrorAnd(doc => {
             expect(doc.company_name).to.equal('new_company_name');
@@ -646,14 +644,14 @@ describe('The domain API', function() {
       }));
     });
 
-    it('should send back 200 on successful update hostnames', function(done) {
+    it('should send back 204 on successful update hostnames', function(done) {
       const modifiedDomain = {
         hostnames: ['new_hostname']
       };
 
       helpers.api.loginAsUser(app, platformAdmin.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
         loggedInAsUser(request(app).put(`${API_PATH}/${domain1._id}`).send(modifiedDomain))
-          .expect(200)
+          .expect(204)
           .end(helpers.callbacks.noError(() => {
             Domain.findById(domain1._id, helpers.callbacks.noErrorAnd(doc => {
               expect(doc.hostnames[0]).to.equal('new_hostname');
@@ -663,7 +661,7 @@ describe('The domain API', function() {
       }));
     });
 
-    it('should send back 200 on successful update company name and hostnames', function(done) {
+    it('should send back 204 on successful update company name and hostnames', function(done) {
       const modifiedDomain = {
         company_name: 'new_company_name',
         hostnames: ['new_hostname']
@@ -671,7 +669,7 @@ describe('The domain API', function() {
 
       helpers.api.loginAsUser(app, platformAdmin.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
         loggedInAsUser(request(app).put(`${API_PATH}/${domain1._id}`).send(modifiedDomain))
-          .expect(200)
+          .expect(204)
           .end(helpers.callbacks.noError(() => {
             Domain.findById(domain1._id, helpers.callbacks.noErrorAnd(doc => {
               expect(doc.hostnames[0]).to.equal('new_hostname');
@@ -679,6 +677,30 @@ describe('The domain API', function() {
               done();
             }));
           }));
+      }));
+    });
+
+    it('should publish a domain:updated event on successully updated a domain', function(done) {
+      const pubsub = this.helpers.requireBackend('core').pubsub.local;
+      const { EVENTS } = this.helpers.requireBackend('core/domain/constants');
+      const modifiedDomain = {
+        company_name: 'new_company_name',
+        hostnames: ['new_hostname']
+      };
+
+      pubsub.topic(EVENTS.UPDATED).subscribe(data => {
+        expect(data.payload.company_name).to.equal(modifiedDomain.company_name);
+        expect(data.payload.hostnames).to.deep.equal(modifiedDomain.hostnames);
+
+        done();
+      });
+
+      helpers.api.loginAsUser(app, platformAdmin.emails[0], password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
+        loggedInAsUser(request(app).put(`${API_PATH}/${domain1._id}`).send(modifiedDomain))
+          .expect(204)
+          .end(err => {
+            if (err) return done(err);
+          });
       }));
     });
   });
