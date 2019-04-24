@@ -89,7 +89,7 @@ angular.module('esn.user', ['esn.http', 'esn.object-type', 'esn.lodash-wrapper',
         return _.uniq(tuples, 'id');
       }
 
-      scope.placeholder = esnI18nService.translate(scope.placeholder || 'Users').toString();
+      scope.translatedPlaceholder = esnI18nService.translate(scope.placeholder || 'Users').toString();
 
       scope.getUsers = function(query) {
         var excludedUsers = []
@@ -129,7 +129,7 @@ angular.module('esn.user', ['esn.http', 'esn.object-type', 'esn.lodash-wrapper',
         onUserRemoved: '=?',
         addFromAutocompleteOnly: '=?',
         propagateEnterEvent: '=?',
-        placeholder: '=?',
+        placeholder: '@?',
         shouldIncludeSelf: '@?'
       }
     };
