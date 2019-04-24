@@ -1,35 +1,27 @@
 'use strict';
 
-var request = require('supertest'),
+const request = require('supertest'),
     expect = require('chai').expect;
 
 describe('The sessions middleware', function() {
-
-  var user = {
-    username: 'Foo Bar Baz',
-    password: 'secret',
-    accounts: [{
-      type: 'email',
-      hosted: true,
-      emails: ['foo@bar.com']
-    }],
-    login: {
-      failures: [new Date(), new Date(), new Date()]
-    }
-  };
+  let core, app, helpers;
+  let user1, email1;
+  const password = 'secret';
 
   beforeEach(function(done) {
-    var self = this;
+    helpers = this.helpers;
+    const self = this;
 
-    this.testEnv.initCore(function() {
+    core = this.testEnv.initCore(function() {
       self.mongoose = require('mongoose');
-      self.app = self.helpers.requireBackend('webserver/application');
-      var User = self.helpers.requireBackend('core/db/mongo/models/user');
-      var u = new User(user);
-      u.save(function(err) {
+      app = helpers.requireBackend('webserver/application');
+      helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
         if (err) {
           return done(err);
         }
+        user1 = models.users[0];
+        email1 = user1.emails[0];
+
         done();
       });
     });
@@ -40,7 +32,8 @@ describe('The sessions middleware', function() {
   });
 
   it('should be a MongoDB Session Storage on "connected" event', function(done) {
-    var self = this;
+    const self = this;
+
     function checkSession(err) {
       if (err) {
         return done(err);
@@ -49,20 +42,50 @@ describe('The sessions middleware', function() {
         expect(results[0]._id).to.exist;
         var session = results[0].session;
         expect(session).to.exist;
-        expect(JSON.parse(session).passport.user).to.equal(user.accounts[0].emails[0]);
+        expect(JSON.parse(session).passport.user).to.equal(email1);
         done();
       });
     }
 
-    request(this.app)
+    request(app)
       .get('/')
       .expect(200);
     setTimeout(function() {
-      request(self.app)
-        .post('/api/login')
-        .send({username: user.accounts[0].emails[0], password: user.password, rememberme: false})
-        .expect(200)
-        .end(checkSession);
+      helpers.api.loginAsUser(app, email1, password, helpers.callbacks.noErrorAnd(() => {
+        checkSession();
+      }));
     }, 50);
+  });
+
+  it('should use new config to generate and validate session if session config changed', function(done) {
+    const config = new core['esn-config'].EsnConfig('core');
+
+    helpers.api.loginAsUser(app, email1, password, helpers.callbacks.noErrorAnd(loggedInAsUser => {
+      const pubsub = this.helpers.requireBackend('core').pubsub.local;
+      const topic = pubsub.topic('webserver:mongosessionstoreEnabled');
+
+      topic.subscribe(function() {
+        const req = loggedInAsUser(request(app).get('/api/user'));
+
+        // After updating secret, new secret key should be applied
+        // immediately, all existing cookies should becomes invalid,
+        // therefore requests with old session ID cookie should be
+        // unauthorized.
+        req.expect(401).end(err => {
+          expect(err).to.not.exist;
+          done();
+        });
+      });
+
+      config.set({
+        name: 'session',
+        value: {
+          secret: 'new secret',
+          cookie: {
+            maxAge: 20000
+          }
+        }
+      });
+    }));
   });
 });
