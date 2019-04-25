@@ -237,4 +237,42 @@ module.exports = function(router) {
     usersMW.validateUserStates,
     users.updateStates
   );
+
+  /**
+   * @swagger
+   * /users/{uuid}/emails:
+   *   put:
+   *     tags:
+   *      - Users
+   *      - Emails
+   *     description: Update emails of the user for the given id
+   *     parameters:
+   *       - $ref: "#/parameters/uss_emails"
+   *       - $ref: "#/parameters/uss_uuid"
+   *       - $ref: "#/parameters/dm_id_in_query"
+   *     responses:
+   *       204:
+   *         $ref: "#/responses/cm_204"
+   *       400:
+   *         $ref: "#/responses/cm_400"
+   *       401:
+   *         $ref: "#/responses/cm_401"
+   *       403:
+   *         $ref: "#/responses/cm_403"
+   *       404:
+   *         $ref: "#/responses/cm_404"
+   *       500:
+   *         $ref: "#/responses/cm_500"
+   */
+  router.put('/users/:uuid/emails',
+    authorize.requiresAPILogin,
+    loadFromDomainIdParameter,
+    authorize.requiresDomainManager,
+    usersMW.loadTargetUser,
+    authorize.requiresTargetUserIsDomainMember,
+    helperMW.requireBodyAsArray,
+    usersMW.requirePreferredEmail,
+    usersMW.checkEmailsAvailability,
+    users.updateTargetUserEmails
+  );
 };

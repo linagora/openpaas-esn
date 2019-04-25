@@ -19,6 +19,7 @@ const { reindexRegistry } = require('../elasticsearch');
 const { TYPE, ELASTICSEARCH } = CONSTANTS;
 
 module.exports = {
+  checkEmailsAvailability,
   getDisplayName,
   TYPE,
   recordUser,
