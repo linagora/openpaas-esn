@@ -146,12 +146,9 @@ function update(req, res) {
   };
 
   return q.ninvoke(coreDomain, 'update', domain)
-    .then(updatedResult => {
-      // updatedResult: { "ok" : 1, "nModified" : 1, "n" : 1 }
-      // updatedResult.n: The number of documents selected for update
-      // http://mongoosejs.com/docs/api.html#model_Model.update
-      if (updatedResult.n) {
-        return res.status(200).end();
+    .then(updated => {
+      if (updated) {
+        return res.status(204).end();
       }
 
       return res.status(404).json({

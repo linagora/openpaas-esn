@@ -33,7 +33,13 @@ function create(domain, callback) {
 }
 
 function update(modifiedDomain, callback) {
-  Domain.update({_id: modifiedDomain.id}, modifiedDomain, callback);
+  Domain.findOneAndUpdate({_id: modifiedDomain.id}, modifiedDomain, { new: true }, (err, updatedDomain) => {
+    if (!err && updatedDomain) {
+      pubsub.topic(EVENTS.UPDATED).publish(new Event(null, EVENTS.CREATED, OBJECT_TYPE, String(updatedDomain._id), updatedDomain));
+    }
+
+    callback(err, updatedDomain);
+  });
 }
 
 /**
