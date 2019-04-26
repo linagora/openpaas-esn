@@ -6,6 +6,7 @@
 
   function contactPhoto(
     ContactShellDisplayBuilder,
+    contactService,
     CONTACT_DEFAULT_AVATAR
   ) {
     return {
@@ -19,6 +20,7 @@
         contactState: '@'
       },
       link: function(scope) {
+        contactService.setContactMainEmail(scope.contact);
         scope.defaultAvatar = CONTACT_DEFAULT_AVATAR;
         scope.displayShell = ContactShellDisplayBuilder.build(scope.contact);
       }

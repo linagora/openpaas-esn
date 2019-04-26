@@ -283,6 +283,14 @@ input[type='radio'][disabled] {
     z-index: 1050;
 }
 
+.form-control {
+  padding: 2px 2px 1px;
+
+  &:not(.fc-alt) {
+    padding: 2px 2px 1px;
+  }
+}
+
 .form-control:not(.fc-alt).ng-invalid {
     border-bottom-color: #f44336;
 }
@@ -351,4 +359,20 @@ input[type='radio'][disabled] {
 
 .app-menu-icon-accent-color {
   fill: @appMenuIconaccentColor !important; /* override svg default color */
+}
+
+tags-input .tags {
+  padding: 0;
+
+  .input {
+    font: inherit;
+    min-height: 30px;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+
+    &::placeholder {
+      color: @m-gray;
+    }
+  }
 }

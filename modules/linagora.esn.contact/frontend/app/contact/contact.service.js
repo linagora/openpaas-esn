@@ -13,6 +13,7 @@
       return {
         listContacts: listContacts,
         getContact: getContact,
+        setContactMainEmail: setContactMainEmail,
         createContact: createContact,
         copyContact: copyContact,
         moveContact: moveContact,
@@ -55,6 +56,13 @@
               return contact;
             });
         });
+      }
+
+      function setContactMainEmail(contact) {
+        contact && contact.emails &&
+        contact.emails.length &&
+        contact.emails[0].value &&
+        (contact.email = contact.emails[0].value);
       }
 
       function createContact(addressbook, contact) {

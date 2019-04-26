@@ -2,17 +2,17 @@
   .card-body
     .flex-start
       .p-10.esn-flex-noshrink
-        .card-image
+        .card-image(profile-popover-card='{ source: "contact", property: "id" }' profile-popover-card-show-mobile)
           img(ng-src='{{::displayShell.getAvatar(avatarSize)}}', alt=__("Avatar"), fallback-src="{{::displayShell.getDefaultAvatar()}}")
           i.mdi.i-contact-card(ng-class="displayShell.getOverlayIcon()")
       .p-t-10.p-r-10.contact-info
-        div
+        div(profile-popover-card='{ source: "contact", property: "id" }' profile-popover-card-show-mobile)
           strong(bs-tooltip title="{{::contact.displayName}}" ng-bind-html="::contact.displayName | esnHighlight: keySearch") {{::contact.displayName}}
         .p-t-5(ng-repeat="attrs in displayShell.getInformationsToDisplay()")
           a(bs-tooltip title="{{::attrs.action}}" ng-click="actionClick($event, attrs.action)" ng-bind-html="::attrs.id | esnHighlight: keySearch" ng-href="{{::attrs.action}}" op-inbox-compose op-inbox-compose-display-name='{{::displayShell.getDisplayName()}}')
             i.mdi.contact-attr-icon(ng-class="attrs.icon")
             |  {{::attrs.id}}
         .p-t-5
-          span(ng-bind-html="::contact.orgRole | esnHighlight: keySearch") 
+          span(ng-bind-html="::contact.orgRole | esnHighlight: keySearch")
           span(ng-if='contact.orgRole && contact.orgName') &nbsp;#{__('at')}&nbsp;
-          span(ng-bind-html="::contact.orgName | esnHighlight: keySearch") 
+          span(ng-bind-html="::contact.orgName | esnHighlight: keySearch")

@@ -210,6 +210,14 @@ angular.module('esn.core', ['esn.lodash-wrapper', 'esn.email-addresses-wrapper']
   /* global DOMPurify: false */
   .filter('esnDomPurify', function($sce) {
     return function(dirty) {
+      DOMPurify.addHook('afterSanitizeAttributes', function(node) {
+        // set all elements owning target to target=_blank
+        if ('href' in node) {
+          node.setAttribute('target', '_blank');
+          node.setAttribute('rel', 'nofollow noopener');
+        }
+      });
+
       return $sce.trustAsHtml(DOMPurify.sanitize(dirty, {ADD_ATTR: ['target'], FORBID_TAGS: ['style', 'input', 'form']}));
     };
   });
