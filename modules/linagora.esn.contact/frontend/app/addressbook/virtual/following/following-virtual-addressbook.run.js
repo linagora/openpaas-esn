@@ -11,15 +11,21 @@
     ContactUserShellHelper,
     contactAddressbookDisplayShellRegistry,
     ContactUserVirtualAddressBookDisplayShell,
-    CONTACT_FOLLOWING_VIRTUAL_ADDRESSBOOK_ID
+    CONTACT_FOLLOWING_VIRTUAL_ADDRESSBOOK_ID,
+    contactConfiguration
   ) {
-    ContactVirtualAddressBookRegistry.put(ContactFollowingVirtualAddressBook);
-    DisplayShellProvider.addDisplayShell(ContactUserDisplayShell, ContactUserShellHelper.isUser);
-    contactAddressbookDisplayShellRegistry.add({
-      id: CONTACT_FOLLOWING_VIRTUAL_ADDRESSBOOK_ID,
-      priority: 30,
-      displayShell: ContactUserVirtualAddressBookDisplayShell,
-      matchingFunction: ContactUserShellHelper.isAddressbook
+    contactConfiguration.get('enabled', true).then(function(isEnabled) {
+      if (!isEnabled) {
+        return;
+      }
+      ContactVirtualAddressBookRegistry.put(ContactFollowingVirtualAddressBook);
+      DisplayShellProvider.addDisplayShell(ContactUserDisplayShell, ContactUserShellHelper.isUser);
+      contactAddressbookDisplayShellRegistry.add({
+        id: CONTACT_FOLLOWING_VIRTUAL_ADDRESSBOOK_ID,
+        priority: 30,
+        displayShell: ContactUserVirtualAddressBookDisplayShell,
+        matchingFunction: ContactUserShellHelper.isAddressbook
+      });
     });
   }
 })(angular);

@@ -9,19 +9,25 @@
       contactAddressbookActionSettings,
       contactAddressbookDisplayShellRegistry,
       contactUserAddressbookService,
-      ContactUserAddressbookDisplayShell
+      ContactUserAddressbookDisplayShell,
+      contactConfiguration
     ) {
-      contactAddressbookDisplayShellRegistry.add({
-        id: 'linagora.esn.contact.user-addressbook',
-        priority: 100,
-        actions: [
-          contactAddressbookActionExport,
-          contactAddressbookActionSettings,
-          contactAddressbookActionEdit,
-          contactAddressbookActionDelete
-        ],
-        displayShell: ContactUserAddressbookDisplayShell,
-        matchingFunction: contactUserAddressbookService.isUserAddressbook
+      contactConfiguration.get('enabled', true).then(function(isEnabled) {
+        if (!isEnabled) {
+          return;
+        }
+        contactAddressbookDisplayShellRegistry.add({
+          id: 'linagora.esn.contact.user-addressbook',
+          priority: 100,
+          actions: [
+            contactAddressbookActionExport,
+            contactAddressbookActionSettings,
+            contactAddressbookActionEdit,
+            contactAddressbookActionDelete
+          ],
+          displayShell: ContactUserAddressbookDisplayShell,
+          matchingFunction: contactUserAddressbookService.isUserAddressbook
+        });
       });
     });
 })(angular);
