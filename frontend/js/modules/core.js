@@ -210,6 +210,6 @@ angular.module('esn.core', ['esn.lodash-wrapper', 'esn.email-addresses-wrapper']
   /* global DOMPurify: false */
   .filter('esnDomPurify', function($sce) {
     return function(dirty) {
-      return $sce.trustAsHtml(DOMPurify.sanitize(dirty, {ADD_ATTR: ['target']}));
+      return $sce.trustAsHtml(DOMPurify.sanitize(dirty, {ADD_ATTR: ['target'], FORBID_TAGS: ['style', 'input', 'form']}));
     };
   });
