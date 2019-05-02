@@ -1,6 +1,3 @@
-'use strict';
-
-const q = require('q');
 const util = require('util');
 const _ = require('lodash');
 const esnConfig = require('../../core')['esn-config'];
@@ -15,11 +12,40 @@ const emailAddresses = require('email-addresses');
 const CONSTANTS = require('./constants');
 const moderation = require('./moderation');
 const coreAvailability = require('../availability');
-const utils = require('./utils');
+const { getDisplayName } = require('./utils');
 const { getOptions } = require('./listener');
 const { reindexRegistry } = require('../elasticsearch');
 
 const { TYPE, ELASTICSEARCH } = CONSTANTS;
+
+module.exports = {
+  checkEmailsAvailability,
+  getDisplayName,
+  TYPE,
+  recordUser,
+  provisionUser,
+  translate,
+  findByEmail,
+  findUsersByEmail,
+  get,
+  list,
+  listByCursor,
+  update,
+  updateProfile,
+  updateStates,
+  removeAccountById,
+  belongsToCompany,
+  getCompanies,
+  getNewToken,
+  find,
+  init,
+  moderation,
+  domain: require('./domain'),
+  follow: require('./follow'),
+  login: require('./login'),
+  denormalize: require('./denormalize'),
+  states: require('./states')
+};
 
 function getUserTemplate(callback) {
   esnConfig('user').get(callback);
@@ -37,7 +63,7 @@ function recordUser(userData, callback) {
       return callback(new Error(`Emails already in use: ${unavailableEmails.join(', ')}`));
     }
 
-    userAsModel.save(function(err, resp) {
+    userAsModel.save((err, resp) => {
       if (!err) {
         pubsub.topic(CONSTANTS.EVENTS.userCreated).publish(resp);
         logger.info('User provisioned in datastore:', userAsModel.emails.join(','));
@@ -50,7 +76,7 @@ function recordUser(userData, callback) {
 }
 
 function provisionUser(data, callback) {
-  getUserTemplate(function(err, user) {
+  getUserTemplate((err, user) => {
     if (err) {
       return callback(err);
     }
@@ -70,15 +96,13 @@ function findUsersByEmail(email, callback) {
 function buildFindByEmailQuery(email) {
   if (util.isArray(email)) {
     return {
-      $or: email.map(function(e) {
-        return {
-          accounts: {
-            $elemMatch: {
-              emails: trim(e).toLowerCase()
-            }
+      $or: email.map(item => ({
+        accounts: {
+          $elemMatch: {
+            emails: trim(item).toLowerCase()
           }
-        };
-      })
+        }
+      }))
     };
   }
 
@@ -120,7 +144,7 @@ function updateProfile(user, profile, callback) {
 
   var id = user._id || user;
 
-  User.findOneAndUpdate({ _id: id }, { $set: profile || {} }, { new: true }, function(err, user) {
+  User.findOneAndUpdate({ _id: id }, { $set: profile || {} }, { new: true }, (err, user) => {
     if (!err) {
       pubsub.topic(CONSTANTS.EVENTS.userUpdated).publish(user);
     }
@@ -129,8 +153,9 @@ function updateProfile(user, profile, callback) {
 }
 
 function removeAccountById(user, accountId, callback) {
-  var accountIndex = -1;
-  user.accounts.forEach(function(account, index) {
+  let accountIndex = -1;
+
+  user.accounts.forEach((account, index) => {
     if (account.data && account.data.id === accountId) {
       accountIndex = index;
     }
@@ -141,6 +166,7 @@ function removeAccountById(user, accountId, callback) {
       } else {
         user.accounts.splice(accountIndex, 1);
         user.markModified('accounts');
+
         return user.save(callback);
       }
     }
@@ -151,11 +177,13 @@ function belongsToCompany(user, company, callback) {
   if (!user || !company) {
     return callback(new Error('User and company are required.'));
   }
-  var hasCompany = user.emails.some(function(email) {
-    var domain = emailAddresses.parseOneAddress(email).domain.toLowerCase();
-    var domainWithoutSuffix = domain.split('.')[0].toLowerCase();
+  const hasCompany = user.emails.some(email => {
+    const domain = emailAddresses.parseOneAddress(email).domain.toLowerCase();
+    const domainWithoutSuffix = domain.split('.')[0].toLowerCase();
+
     return domain === company.toLowerCase() || domainWithoutSuffix === company.toLowerCase();
   });
+
   return callback(null, hasCompany);
 }
 
@@ -163,10 +191,12 @@ function getCompanies(user, callback) {
   if (!user) {
     return callback(new Error('User is required.'));
   }
-  var companies = user.emails.map(function(email) {
-    var parsedEmail = emailAddresses.parseOneAddress(email);
+  const companies = user.emails.map(email => {
+    const parsedEmail = emailAddresses.parseOneAddress(email);
+
     return parsedEmail.domain.split('.')[0];
   });
+
   return callback(null, companies);
 }
 
@@ -183,7 +213,13 @@ function init() {
   coreAvailability.email.addChecker({
     name: 'user',
     check(email) {
-      return q.denodeify(findByEmail)(email).then(user => !user);
+      return new Promise((resolve, reject) => {
+        findByEmail(email, (err, user) => {
+          if (err) return reject(err);
+
+          return resolve(!user);
+        });
+      });
     }
   });
 
@@ -259,7 +295,7 @@ function translate(baseUser, payload) {
 }
 
 function checkEmailsAvailability(emails) {
-  return q.all(
+  return Promise.all(
     emails.map(email =>
       coreAvailability.email.isAvailable(email)
         .then(result => ({ email, available: result.available }))
@@ -292,31 +328,3 @@ function _buildElasticsearchReindexOptions() {
 
   return Promise.resolve(options);
 }
-
-module.exports = {
-  getDisplayName: utils.getDisplayName,
-  TYPE: TYPE,
-  recordUser: recordUser,
-  provisionUser: provisionUser,
-  translate,
-  findByEmail: findByEmail,
-  findUsersByEmail: findUsersByEmail,
-  get: get,
-  list: list,
-  listByCursor,
-  update: update,
-  updateProfile: updateProfile,
-  updateStates,
-  removeAccountById: removeAccountById,
-  belongsToCompany: belongsToCompany,
-  getCompanies: getCompanies,
-  getNewToken: getNewToken,
-  find: find,
-  init: init,
-  moderation: moderation,
-  domain: require('./domain'),
-  follow: require('./follow'),
-  login: require('./login'),
-  denormalize: require('./denormalize'),
-  states: require('./states')
-};

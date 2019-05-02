@@ -15,10 +15,19 @@
  *     required: true
  *     type: string
  *   uss_states:
- *    name: states
- *    in: body
- *    description: The user states
- *    required: true
- *    schema:
- *      $ref: "#/definitions/us_states"
+ *     name: states
+ *     in: body
+ *     description: The user states
+ *     required: true
+ *     schema:
+ *       $ref: "#/definitions/us_states"
+ *   uss_emails:
+ *     name: emails
+ *     in: body
+ *     description: The user emails
+ *     required: true
+ *     schema:
+ *       type: array
+ *       items:
+ *         $ref: "#/definitions/us_email"
  */

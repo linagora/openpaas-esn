@@ -17,6 +17,7 @@ module.exports = {
   updatePassword,
   updateProfile,
   updateTargetUserAvatar,
+  updateTargetUserEmails,
   updateTargetUserProfile,
   updateStates,
   user
@@ -481,6 +482,33 @@ function updateStates(req, res) {
   userModule.updateStates(req.params.uuid, req.body, err => {
     if (err) {
       const details = 'Error while updating user states';
+
+      logger.error(details, err);
+
+      return res.status(500).json({
+        error: {
+          code: 500,
+          message: 'Server Error',
+          details
+        }
+      });
+    }
+
+    res.status(204).end();
+  });
+}
+
+function updateTargetUserEmails(req, res) {
+  const targetUser = req.targetUser;
+  const emailsToUpdate = req.body;
+  const emailAccount = targetUser.accounts.find(account => account.type === 'email');
+
+  emailAccount.preferredEmailIndex = emailsToUpdate.indexOf(targetUser.preferredEmail);
+  emailAccount.emails = emailsToUpdate;
+
+  userModule.update(targetUser, err => {
+    if (err) {
+      const details = 'Error while updating user emails';
 
       logger.error(details, err);
 
