@@ -29,10 +29,10 @@ module.exports = {
     themes: require('./themes'),
     membersCanBeSearched: require('./membersCanBeSearched'),
     maxSizeUpload: require('./maxSizeUpload'),
+    session: require('./session'),
     user: RESTRICTED,
     amqp: RESTRICTED,
     redis: RESTRICTED,
-    session: RESTRICTED,
     constants: RESTRICTED,
     platformadmin: RESTRICTED
   }

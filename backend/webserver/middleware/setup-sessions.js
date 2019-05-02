@@ -4,6 +4,7 @@ const expressSession = require('express-session');
 const MongoStore = require('@linagora/awesome-sessionstore')(expressSession);
 const mongoose = require('mongoose');
 const core = require('../../core');
+const esnConfig = require('../../core/esn-config');
 
 const mongo = core.db.mongo;
 const mongotopic = core.pubsub.local.topic('mongodb:connectionAvailable');
@@ -11,14 +12,22 @@ const mongosessiontopic = core.pubsub.local.topic('webserver:mongosessionstoreEn
 const logger = core.logger;
 const DEFAULT_SESSION_SECRET = 'this is the secret!';
 
+let initialized = false;
+let store;
+
 module.exports = init;
 
 function init(session) {
-  const store = new MongoStore({ mongoose });
+  if (!initialized) {
+    store = new MongoStore({ mongoose });
+    initialized = true;
+  }
 
   if (mongo.isConnected()) {
     setSession();
   }
+
+  esnConfig('session').onChange(setSession);
 
   mongotopic.subscribe(setSession);
 
