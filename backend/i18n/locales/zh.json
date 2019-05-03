@@ -151,6 +151,7 @@
   "Files": "文件",
   "Fill the username and password fields only if your MongoDB connection requires it": "仅在连接Mongo DB必要时填写用户名和密码",
   "Filter": "筛选条件",
+  "Filter...": "筛选条件...",
   "Filter is too restrictive": "筛选条件过于苛刻",
   "Finalize Sign Up": "完成注册",
   "First Name": "名",
