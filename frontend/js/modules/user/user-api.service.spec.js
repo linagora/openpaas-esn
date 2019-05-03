@@ -5,10 +5,16 @@
 var expect = chai.expect;
 
 describe('userAPI service', function() {
-  var $httpBackend, userAPI;
+  var $httpBackend, userAPI, sessionMock;
 
   beforeEach(function() {
     module('esn.user');
+
+    sessionMock = {};
+
+    module(function($provide) {
+      $provide.value('session', sessionMock);
+    });
 
     inject(function(_$httpBackend_, _userAPI_) {
       $httpBackend = _$httpBackend_;
@@ -89,6 +95,32 @@ describe('userAPI service', function() {
       var promise = userAPI.getUsersByEmail();
 
       expect(promise.then).to.be.a.function;
+    });
+  });
+
+  describe('The setUserEmails method', function() {
+    it('should send a request to /api/users/:uuid/emails', function() {
+      var domainId = 456;
+      var userId = 123;
+      var emails = ['foo@bar.lng'];
+
+      $httpBackend.expectPUT('/api/users/' + userId + '/states?domain_id=' + domainId, emails).respond(this.response);
+      userAPI.setUserStates(userId, emails, domainId);
+      $httpBackend.flush();
+    });
+
+    it('should send a request to /api/users/:uuid/emails with the current domain of the modifier if domainId is not provided', function() {
+      var domainId = 456;
+      var userId = 123;
+      var emails = ['foo@bar.lng'];
+
+      sessionMock.domain = {
+        _id: domainId
+      };
+
+      $httpBackend.expectPUT('/api/users/' + userId + '/states?domain_id=' + domainId, emails).respond(this.response);
+      userAPI.setUserStates(userId, emails);
+      $httpBackend.flush();
     });
   });
 });

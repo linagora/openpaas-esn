@@ -11,6 +11,7 @@
       getCommunities: getCommunities,
       getActivityStreams: getActivityStreams,
       getUsersByEmail: getUsersByEmail,
+      setUserEmails: setUserEmails,
       setUserStates: setUserStates
     };
 
@@ -38,6 +39,16 @@
 
     function setUserStates(userId, states, domainId) {
       return esnRestangular.one('users', userId).customPUT(states, 'states', { domain_id: domainId || session.domain._id });
+    }
+
+    /**
+     * Set emails of a particular user
+     * @param {String} userId   user ID to set emails
+     * @param {Array}  emails   an array of emails to set
+     * @param {String} domainId domain ID which the user belongs to. If it is not provided, the current domain of modifier will be used.
+     */
+    function setUserEmails(userId, emails, domainId) {
+      return esnRestangular.one('users', userId).customPUT(emails, 'emails', { domain_id: domainId || session.domain._id });
     }
   }
 })(angular);
