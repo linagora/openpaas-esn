@@ -65,11 +65,15 @@ md-select-menu {
         margin-right: 5px;
       }
 
-      &[selected] {
+      &[selected], &[selected]:focus  {
         color: @primaryColor;
       }
     }
   }
+}
+
+md-select:not([disabled]):focus .md-select-value {
+  border-bottom-color: @primaryColor;
 }
 
 .md-select-value .md-select-icon {
@@ -84,7 +88,6 @@ md-select-menu {
         min-height: 32px;
         height: 32px;
         line-height: 32px;
-        font-family: roboto;
         font-size: 13px;
 
         &.option-all {
