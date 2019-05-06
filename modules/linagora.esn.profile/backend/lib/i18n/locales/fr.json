@@ -10,5 +10,9 @@
   "Profile updated": "Profil mis à jour",
   "Error while updating your profile, please retry later": "Erreur lors de la mise à jour de votre profil, réessayez plus tard",
   "You did not modify anything": "Vous n'avez rien modifié",
-  "View profile page": "Voir la page de profil"
+  "View profile page": "Voir la page de profil",
+  "Add email address": "Ajouter une adresse e-mail",
+  "Emails": "Emails",
+  "Basic information": "Informations de base",
+  "Email is already in use. Try another.": "Cet email est déjà utilisé. Essayez un autre."
 }

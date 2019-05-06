@@ -5,7 +5,8 @@
     .component('profileEditForm', {
       templateUrl: '/profile/app/edit/form/profile-edit-form.html',
       bindings: {
-        user: '='
+        user: '=',
+        canEditEmails: '<'
       }
     });
 })(angular);

@@ -10,5 +10,9 @@
   "Update Profile Picture": "更新个人资料图片",
   "Updating profile...": "更新个人资料...",
   "View profile page": "查看档案页",
-  "You did not modify anything": "你没有修改任何东西"
+  "You did not modify anything": "你没有修改任何东西",
+  "Add email address": "添加邮箱地址",
+  "Emails": "电子邮件",
+  "Basic information": "基本信息",
+  "Email is already in use. Try another.": "电子邮件已在使用中。 尝试另一个"
 }
