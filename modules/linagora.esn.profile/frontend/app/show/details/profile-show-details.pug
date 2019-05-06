@@ -9,8 +9,12 @@
         dt
           i.mdi.mdi-email.m-r-5
           | #{__('Email')}
-        dd
-          a(ng-href="mailto:{{$ctrl.user.emails[0]}}", op-inbox-compose, op-inbox-compose-display-name="{{$ctrl.user.firstname}} {{$ctrl.user.lastname}}") {{$ctrl.user.emails[0]}}
+          dd(ng-repeat="email in $ctrl.user.emails")
+            a(
+              ng-href="mailto:{{email}}",
+              op-inbox-compose,
+              op-inbox-compose-display-name="{{$ctrl.user.firstname}} {{$ctrl.user.lastname}}"
+            ) {{email}}
       dl.dl-horizontal
         dt
           i.mdi.mdi-phone.m-r-5
