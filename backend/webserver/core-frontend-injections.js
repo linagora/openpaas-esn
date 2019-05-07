@@ -86,7 +86,15 @@ const injections = [
     'avatar/list/avatar-list.controller.js',
     'avatar/avatar-url.service.js'
   ], innerApps: ['esn']},
-  {angular: 'esn.user', files: ['user.js'], innerApps: ['esn', 'welcome']},
+  {angular: 'esn.user', files: [
+    'user/user.module.js',
+    'user/user.constants.js',
+    'user/user-api.service.js',
+    'user/user-utils.service.js',
+    'user/username.service.js',
+    'user/users-autocomplete-input/users-autocomplete-input.directive.js',
+    'user/user.run.js'
+  ], innerApps: ['esn', 'welcome']},
   {angular: 'esn.message', files: [
     'message/message.module.js',
     'attachment-alternative-uploader-modal-no-uploader/attachment-alternative-uploader-modal-no-uploader.constants.js',

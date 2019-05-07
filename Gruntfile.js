@@ -204,7 +204,6 @@ module.exports = function(grunt) {
               'all-locales-present',
               'default-locale-translate',
               'key-trimmed',
-              'no-duplicate-among-modules',
               'no-duplicate-with-core',
               'no-untranslated-key',
               'valid-json-file'

@@ -1,0 +1,28 @@
+ng-form(name="form")
+  .row(ng-repeat="email in $ctrl.user.emails")
+    .col-xs-8
+      p {{email}}
+    .col-xs-4
+      span.badge(ng-if="email===$ctrl.user.preferredEmail")
+        | Primary
+      i.mdi.mdi-delete.clickable(ng-if="email!==$ctrl.user.preferredEmail", ng-click="$ctrl.onDeleteBtnClick(email, form)")
+  .row.m-t-20
+    .col-xs-8
+      esn-form-group(
+        label=__('Add email address'),
+        form="form",
+        async-validator-error-message=__('Email is already in use. Try another.'),
+        async-validator="$ctrl.checkEmailAvailability"
+      )
+        input.form-control.fg-input(
+          type="email",
+          ng-model="$ctrl.newEmail",
+          name="newEmail",
+          autocomplete="off",
+          ng-model-options="{ debounce: {'default': 300} }"
+        )
+    .col-xs-4
+      button.btn.btn-primary.btn-sm.waves-effect(
+        ng-disabled="!$ctrl.newEmail || form.$invalid",
+        ng-click="$ctrl.onAddBtnClick()"
+      ) #{__('Add')}

@@ -1,9 +1,11 @@
 sub-header
-  profile-edit-subheader(on-save-btn-click="$ctrl.updateProfile()", form="form")
+  profile-edit-subheader(on-save-btn-click="$ctrl.onSaveBtnClick()", form="form")
 
 form(name="form")
   .all-centered
     .col-md-9.col-xl-8.col-xs-12.no-padding-xs
-      .card.m-t-30
-        .card-body.card-padding
-          profile-edit-form(user="$ctrl.mutableUser", ng-if="$ctrl.mutableUser")
+      profile-edit-form.m-t-30(
+        ng-if="$ctrl.mutableUser",
+        user="$ctrl.mutableUser",
+        can-edit-emails="$ctrl.canEditEmails"
+      )
