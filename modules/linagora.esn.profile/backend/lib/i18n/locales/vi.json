@@ -14,5 +14,6 @@
   "Add email address": "Thêm địa chỉ thư",
   "Emails": "Thư điện tử",
   "Basic information": "Thông tin cơ bản",
-  "Email is already in use. Try another.": "Địa chỉ thư đã được dùng. Hãy thử một địa chỉ khác."
+  "Email is already in use. Try another.": "Địa chỉ thư đã được dùng. Hãy thử một địa chỉ khác.",
+  "Email is invalid": "Thư không hợp lệ"
 }

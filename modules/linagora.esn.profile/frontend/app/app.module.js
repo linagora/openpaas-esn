@@ -2,6 +2,7 @@
   'use strict';
 
   angular.module('linagora.esn.profile', [
+    'esn.core',
     'ui.router',
     'op.dynamicDirective',
     'esn.http',

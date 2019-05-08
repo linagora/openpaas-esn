@@ -7,14 +7,18 @@ var expect = chai.expect;
 
 describe('The ProfileEditEmailController', function() {
   var $rootScope, $controller;
-  var userUtils, esnAvailabilityService;
+  var session, userUtils, esnAvailabilityService;
+  var domain;
 
   beforeEach(function() {
     angular.mock.module('linagora.esn.profile');
 
+    domain = { name: 'bar' };
+
     inject(function(
       _$rootScope_,
       _$controller_,
+      _session_,
       _userUtils_,
       _esnAvailabilityService_
     ) {
@@ -22,8 +26,10 @@ describe('The ProfileEditEmailController', function() {
       $controller = _$controller_;
       userUtils = _userUtils_;
       esnAvailabilityService = _esnAvailabilityService_;
+      session = _session_;
     });
 
+    session.domain = domain;
     userUtils.displayNameOf = angular.noop;
   });
 
@@ -50,13 +56,25 @@ describe('The ProfileEditEmailController', function() {
       expect(userUtils.displayNameOf).to.have.been.calledWith(user);
       expect(controller.user.displayName).to.equal(displayName);
     });
+
+    it('should set domain name from session', function() {
+      var controller = initController();
+
+      expect(controller.domainName).to.equal(domain.name);
+    });
+
+    it('should set initialize removed emails as an empty array', function() {
+      var controller = initController();
+
+      expect(controller.removedEmails).to.deep.equal([]);
+    });
   });
 
   describe('The onAddBtnClick method', function() {
     it('should do nothing if there is no new email', function() {
       var controller = initController();
 
-      controller.newEmail = '';
+      controller.newEmailLocalPart = '';
       controller.onAddBtnClick();
 
       expect(controller.user.emails).to.deep.equal([]);
@@ -65,11 +83,11 @@ describe('The ProfileEditEmailController', function() {
     it('should add new email to the list of user emails', function() {
       var controller = initController();
 
-      controller.newEmail = 'foo@bar';
+      controller.newEmailLocalPart = 'foo';
       controller.onAddBtnClick();
 
       expect(controller.user.emails).to.deep.equal(['foo@bar']);
-      expect(controller.newEmail).to.deep.equal('');
+      expect(controller.newEmailLocalPart).to.deep.equal('');
     });
   });
 
@@ -103,6 +121,7 @@ describe('The ProfileEditEmailController', function() {
       controller.onDeleteBtnClick('foo@lng', form);
 
       expect(controller.user.emails).to.deep.equal(['bar@lng']);
+      expect(controller.removedEmails).to.deep.equal(['foo@lng']);
       expect(form.$setDirty).to.have.been.calledOnce;
     });
   });
@@ -126,7 +145,7 @@ describe('The ProfileEditEmailController', function() {
 
       var controller = initController(null, user);
 
-      controller.checkEmailAvailability(email)
+      controller.checkEmailAvailability('foo')
         .then(function() {
           done('Should not resolve');
         })
@@ -138,19 +157,32 @@ describe('The ProfileEditEmailController', function() {
       $rootScope.$digest();
     });
 
+    it('should resolve if the email is in removed emails list', function(done) {
+      var controller = initController();
+
+      controller.removedEmails = ['foo@bar'];
+
+      controller.checkEmailAvailability('foo')
+        .then(function() {
+          done();
+        })
+        .catch(done);
+
+      $rootScope.$digest();
+    });
+
     it('should reject if failed to check email availability', function(done) {
-      var email = 'foo@bar';
       var controller = initController();
 
       esnAvailabilityService.checkEmailAvailability = sinon.stub().returns($q.reject(new Error('something wrong')));
 
-      controller.checkEmailAvailability(email)
+      controller.checkEmailAvailability('foo')
         .then(function() {
           done('Should not resolve');
         })
         .catch(function(err) {
           expect(err.message).to.equal('something wrong');
-          expect(esnAvailabilityService.checkEmailAvailability).to.have.been.calledWith(email);
+          expect(esnAvailabilityService.checkEmailAvailability).to.have.been.calledWith('foo@bar');
           done();
         });
 
@@ -158,18 +190,17 @@ describe('The ProfileEditEmailController', function() {
     });
 
     it('should reject if the email is already in use by another user', function(done) {
-      var email = 'foo@bar';
       var controller = initController();
 
       esnAvailabilityService.checkEmailAvailability = sinon.stub().returns($q.when({ available: false }));
 
-      controller.checkEmailAvailability(email)
+      controller.checkEmailAvailability('foo')
         .then(function() {
           done('Should not resolve');
         })
         .catch(function(err) {
           expect(err.message).to.equal('Email is already in use by another user');
-          expect(esnAvailabilityService.checkEmailAvailability).to.have.been.calledWith(email);
+          expect(esnAvailabilityService.checkEmailAvailability).to.have.been.calledWith('foo@bar');
           done();
         });
 
@@ -177,19 +208,53 @@ describe('The ProfileEditEmailController', function() {
     });
 
     it('should resolve if the email is available', function(done) {
-      var email = 'foo@bar';
       var controller = initController();
 
       esnAvailabilityService.checkEmailAvailability = sinon.stub().returns($q.when({ available: true }));
 
-      controller.checkEmailAvailability(email)
+      controller.checkEmailAvailability('foo')
         .then(function() {
-          expect(esnAvailabilityService.checkEmailAvailability).to.have.been.calledWith(email);
+          expect(esnAvailabilityService.checkEmailAvailability).to.have.been.calledWith('foo@bar');
           done();
         })
         .catch(done);
 
       $rootScope.$digest();
+    });
+  });
+
+  describe('The emailValidator method', function() {
+    var emailService;
+
+    beforeEach(inject(function(_emailService_) {
+      emailService = _emailService_;
+    }));
+
+    it('should return true if there is no emailName', function() {
+      var controller = initController();
+
+      emailService.isValidEmail = sinon.spy();
+
+      expect(controller.emailValidator()).to.be.true;
+      expect(emailService.isValidEmail).to.not.have.been.called;
+    });
+
+    it('should return false if the email is invalid', function() {
+      var controller = initController();
+
+      emailService.isValidEmail = sinon.stub().returns(false);
+
+      expect(controller.emailValidator('foo')).to.be.false;
+      expect(emailService.isValidEmail).to.have.been.calledWith('foo@bar');
+    });
+
+    it('should return true if the email is valid', function() {
+      var controller = initController();
+
+      emailService.isValidEmail = sinon.stub().returns(true);
+
+      expect(controller.emailValidator('foo')).to.be.true;
+      expect(emailService.isValidEmail).to.have.been.calledWith('foo@bar');
     });
   });
 });

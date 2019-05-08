@@ -14,5 +14,6 @@
   "Add email address": "Add email address",
   "Emails": "Emails",
   "Basic information": "Basic information",
-  "Email is already in use. Try another.": "Email is already in use. Try another."
+  "Email is already in use. Try another.": "Email is already in use. Try another.",
+  "Email is invalid": "Email is invalid"
 }
