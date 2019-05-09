@@ -7,22 +7,26 @@ ng-form(name="form")
         | Primary
       i.mdi.mdi-delete.clickable(ng-if="email!==$ctrl.user.preferredEmail", ng-click="$ctrl.onDeleteBtnClick(email, form)")
   .row.m-t-20
-    .col-xs-8
+    .col-xs-5
       esn-form-group(
         label=__('Add email address'),
         form="form",
+        validator-error-message=__('Email is invalid'),
+        validator="$ctrl.emailValidator"
         async-validator-error-message=__('Email is already in use. Try another.'),
         async-validator="$ctrl.checkEmailAvailability"
       )
         input.form-control.fg-input(
-          type="email",
-          ng-model="$ctrl.newEmail",
-          name="newEmail",
+          ng-model="$ctrl.newEmailLocalPart",
+          name="newEmailLocalPart",
           autocomplete="off",
           ng-model-options="{ debounce: {'default': 300} }"
         )
-    .col-xs-4
+    .col-xs-3.m-t-15.p-l-0
+      span.ellipsis(title="{{::$ctrl.domainName}}")
+        | @{{::$ctrl.domainName}}
+    .col-xs-4.m-t-10
       button.btn.btn-primary.btn-sm.waves-effect(
-        ng-disabled="!$ctrl.newEmail || form.$invalid",
+        ng-disabled="!$ctrl.newEmailLocalPart || form.$invalid",
         ng-click="$ctrl.onAddBtnClick()"
       ) #{__('Add')}

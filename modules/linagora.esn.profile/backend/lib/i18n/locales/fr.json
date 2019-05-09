@@ -14,5 +14,6 @@
   "Add email address": "Ajouter une adresse e-mail",
   "Emails": "Emails",
   "Basic information": "Informations de base",
-  "Email is already in use. Try another.": "Cet email est déjà utilisé. Essayez un autre."
+  "Email is already in use. Try another.": "Cet email est déjà utilisé. Essayez un autre.",
+  "Email is invalid": "Le courriel est invalide"
 }
