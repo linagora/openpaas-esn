@@ -477,7 +477,9 @@ const injections = [
   {angular: 'esn.file-browser', files: [
     'file-browser/file-browser.module.js',
     'file-browser/file-browser.component.js',
-    'file-browser/file-browser.controller.js'
+    'file-browser/file-browser.controller.js',
+    'file-browser/filter-input/file-browser-filter-input.component.js',
+    'file-browser/filter-input/file-browser-filter-input.controller.js'
   ], innerApps: ['esn']},
   {angular: 'esn.form.helper', files: [
     'form-helper/form-helper.module.js',
