@@ -117,7 +117,7 @@ addRedhatRepositories() {
     addRedhatRepository remi-php70 'http://rpms.remirepo.net/enterprise/7/php70/$basearch/'
     addRedhatRepository elasticsearch 'https://packages.elastic.co/elasticsearch/2.x/centos'
     addRedhatRepository mongodb-org 'https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/3.0/x86_64/'
-    addRedhatRepository datastax 'http://rpm.datastax.com/community'
+    addRedhatRepository datastax 'https://www.apache.org/dist/cassandra/redhat/311x/'
     addRedhatRepository nodesource 'https://rpm.nodesource.com/pub_8.x/el/7/$basearch'
     addRedhatRepository openpaas 'https://packages.linagora.com/rpm/oncommit/7/'
 }
