@@ -21,6 +21,8 @@
 
     function $onInit() {
       self.query = esnSearchQueryService.buildFromState($stateParams);
+      self.queryText = self.query.advanced.contains || self.query.text;
+
       self.providerUid = $stateParams.p;
 
       self.load = function() {
