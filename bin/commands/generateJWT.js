@@ -1,8 +1,7 @@
 'use strict';
 
 const path = require('path');
-const ursa = require('ursa');
-const Q = require('q');
+const crypto = require('crypto');
 const { promisify } = require('util');
 const fsCreateFileFromString = promisify(require('fs-extra').outputFile);
 const fsChmod = promisify(require('fs').chmod);
@@ -38,14 +37,32 @@ const command = {
 };
 
 function _generateJWT() {
-  const key = ursa.generatePrivateKey();
-  const privateKey = key.toPrivatePem().toString('ascii');
-  const publicKey = key.toPublicPem().toString('ascii');
-
-  return Q.when({
-    algorithm: JWT_ALGORITHM,
-    publicKey: publicKey,
-    privateKey: privateKey
+  return new Promise((resolve, reject) => {
+    crypto.generateKeyPair(
+      'rsa',
+      {
+        modulusLength: 2048,
+        publicKeyEncoding: {
+          format: 'pem',
+          type: 'pkcs1'
+        },
+        privateKeyEncoding: {
+          format: 'pem',
+          type: 'pkcs1'
+        }
+      },
+      (err, publicKey, privateKey) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve({
+            algorithm: JWT_ALGORITHM,
+            publicKey,
+            privateKey
+          });
+        }
+      }
+    );
   });
 }
 

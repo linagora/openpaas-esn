@@ -111,7 +111,6 @@
     "trim": "0.0.1",
     "twit": "2.2.11",
     "url-join": "1.1.0",
-    "ursa": "0.9.4",
     "uuid": "3.1.0",
     "valid-url": "1.0.9",
     "winston": "3.1.0",
@@ -204,5 +203,8 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/linagora/openpaas-esn.git"
+  },
+  "engines": {
+    "node": ">= 10.12.0"
   }
 }

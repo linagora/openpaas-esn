@@ -5,7 +5,7 @@
 # docker build -t linagora/esn .
 #
 
-FROM node:8.15.0-stretch-slim
+FROM node:10-stretch
 MAINTAINER Linagora Folks
 
 RUN apt-get update && \

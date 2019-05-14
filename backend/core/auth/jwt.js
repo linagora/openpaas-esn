@@ -1,6 +1,7 @@
 'use strict';
 
-var ursa = require('ursa');
+const crypto = require('crypto');
+
 var jwt = require('jsonwebtoken');
 var esnConfig = require('../esn-config');
 
@@ -53,19 +54,27 @@ function generateWebToken(payload, options, callback) {
 }
 
 function generateKeyPair(callback) {
-  try {
-    var key = ursa.generatePrivateKey();
-    var privateKey = key.toPrivatePem().toString('ascii');
-    var publicKey = key.toPublicPem().toString('ascii');
-
-    return callback(null, {
-      privateKey,
-      publicKey
-    });
-  } catch (err) {
-    return callback(err);
-  }
-
+  crypto.generateKeyPair(
+    'rsa',
+    {
+      modulusLength: 2048,
+      publicKeyEncoding: {
+        format: 'pem',
+        type: 'pkcs1'
+      },
+      privateKeyEncoding: {
+        format: 'pem',
+        type: 'pkcs1'
+      }
+    },
+    (err, publicKey, privateKey) => {
+      if (err) {
+        callback(err);
+      } else {
+        callback(null, {privateKey, publicKey});
+      }
+    }
+  );
 }
 
 module.exports = {
