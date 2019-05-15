@@ -3,7 +3,7 @@
     .card.listview.lv-bordered.lv-lg
       .lv-body
         .lv-item.media(ng-repeat="item in ctrl.elements | orderBy: '-date'" ng-if="ctrl.elements.length > 0")
-          esn-search-result-item(item="item", query="ctrl.query.text")
+          esn-search-result-item(item="item", query="ctrl.queryText")
     .search-empty-result(ng-if="!ctrl.infiniteScrollDisabled && !ctrl.elements.length")
       .search-empty-icon.mdi.mdi-magnify
       .message #{__("There is no result matching your query")}
