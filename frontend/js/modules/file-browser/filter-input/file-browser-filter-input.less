@@ -1,14 +1,25 @@
 .filter-input {
-  i {
-    color: @secondaryTextColor;
+  padding: 0 1.1em;
+
+  &:before {
+    font-family: 'MaterialDesignIcons';
+    content: "\f349"; // mdi-magnify
+    position: absolute;
     font-size: 1.8em;
-    margin: 0.4em;
+    color: @secondaryTextColor
   }
 
-  input {
-    width: 85%;
-    padding: 2px;
+  .filter-input-field.form-control {
+    width: 100%;
     background: transparent;
-    color: @secondaryTextColor !important; /* override default form color from material */
+    padding-left: 2em;
+  }
+
+  .filter-input-clear {
+    position: absolute;
+    right: 1em;
+    top: 3.6em;
+    font-size: 1.5em;
+    color: @secondaryTextColor;
   }
 }
