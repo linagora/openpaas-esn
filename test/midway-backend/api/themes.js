@@ -4,12 +4,14 @@ const ObjectId = require('bson').ObjectId;
 
 describe('The Themes API', function() {
   const API_PATH = '/api/themes';
+  const BASE_URL = 'http://localhost:8081/api/files/';
+
   const TEST_CONFIG = {
     name: 'themes',
     value: {
       logos: {
-        mobile: '123',
-        desktop: '456'
+        favicon: '123',
+        logo: '456'
       },
       colors: [
         {
@@ -25,8 +27,8 @@ describe('The Themes API', function() {
   };
   const REQUEST_BODY = {
     logos: {
-      mobile: '123',
-      desktop: '456'
+      favicon: '123',
+      logo: '456'
     },
     colors: [
       {
@@ -41,8 +43,8 @@ describe('The Themes API', function() {
   };
   const TEST_CONFIG_RETURN = {
     logos: {
-      mobile: '123',
-      desktop: '456'
+      favicon: BASE_URL + '123',
+      logo: BASE_URL + '456'
     },
     colors: {
       primaryColor: '#2196f3',
