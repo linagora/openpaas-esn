@@ -18,7 +18,7 @@ sub-header
           ng-if='$ctrl.status === "loading"'
         )
     .empty-message(ng-if='categories.getNumberOfItems() === 0 && !loadingNextContacts && $ctrl.status === "loaded"')
-      img(src="/contact/images/contacts-icon.svg")
+      .icon-svg(ng-include="'/contact/images/contacts-icon.svg'")
       .message
         | #{__('No contact')}
     .error-message(ng-if='$ctrl.status === "error"')
