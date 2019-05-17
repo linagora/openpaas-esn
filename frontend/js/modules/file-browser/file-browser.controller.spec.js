@@ -9,10 +9,16 @@ describe('The esnFileBrowserController', function() {
   var folderData = [
     {
       name: 'folder1',
-      icon: 'mdi-folder'
+      icon: 'mdi-folder',
+      isSelectable: false
     }, {
       name: 'file1',
-      icon: 'mdi-file'
+      icon: 'mdi-file',
+      isSelectable: true
+    }, {
+      name: 'file2',
+      icon: 'mdi-file',
+      isSelectable: true
     }
   ];
 
@@ -115,8 +121,8 @@ describe('The esnFileBrowserController', function() {
     });
   });
 
-  describe('The onSelectionChangeOf fn', function() {
-    it('should update selected nodes in case of multiple selection is enabled', function() {
+  describe('The toggleSelection fn', function() {
+    it('should do nothing if node is not selectable', function() {
       var bindings = {
         loadNode: function() { return $q.when(folderData); },
         options: { multipleSelect: true }
@@ -126,17 +132,35 @@ describe('The esnFileBrowserController', function() {
       filesBrowser.$onInit();
       $scope.$digest();
 
-      filesBrowser.childNodes[0].selected = true;
-      filesBrowser.childNodes[1].selected = true;
+      filesBrowser.toggleSelection(filesBrowser.childNodes[0]);
 
-      filesBrowser.onSelectionChangeOf(filesBrowser.childNodes[1]);
-
-      expect(filesBrowser.selectedNodes).to.have.lengthOf(2);
-      expect(filesBrowser.selectedNodes).to.include(folderData[0]);
-      expect(filesBrowser.selectedNodes).to.include(folderData[1]);
+      expect(filesBrowser.selectedNodes).to.be.empty;
+      expect(filesBrowser.childNodes[0].selected).to.be.undefined;
     });
 
-    it('should unselect previous selected nodes and update selcted nodes list in case of multiple select is disabled', function() {
+    it('should add node to the selected nodes in case of multiple selection is enabled', function() {
+      var bindings = {
+        loadNode: function() { return $q.when(folderData); },
+        options: { multipleSelect: true }
+      };
+      var filesBrowser = initController(bindings);
+
+      filesBrowser.$onInit();
+      $scope.$digest();
+
+      filesBrowser.childNodes[0].selected = false;
+      filesBrowser.childNodes[1].selected = false;
+      filesBrowser.childNodes[2].selected = true;
+
+      filesBrowser.toggleSelection(filesBrowser.childNodes[1]);
+
+      expect(filesBrowser.selectedNodes).to.have.lengthOf(2);
+      expect(filesBrowser.childNodes[1].selected).to.be.true;
+      expect(filesBrowser.selectedNodes).to.include(folderData[1]);
+      expect(filesBrowser.selectedNodes).to.include(folderData[2]);
+    });
+
+    it('should unselect previous selected nodes and update selected nodes list in case of multiple select is disabled', function() {
       var bindings = {
         loadNode: function() { return $q.when(folderData); },
         options: { multipleSelect: false }
@@ -146,14 +170,46 @@ describe('The esnFileBrowserController', function() {
       filesBrowser.$onInit();
       $scope.$digest();
 
-      filesBrowser.childNodes[0].selected = true;
-      filesBrowser.childNodes[1].selected = true;
+      filesBrowser.childNodes[1].selected = false;
+      filesBrowser.childNodes[2].selected = true;
 
-      filesBrowser.onSelectionChangeOf(filesBrowser.childNodes[1]);
+      filesBrowser.toggleSelection(filesBrowser.childNodes[1]);
 
-      expect(filesBrowser.childNodes[0].selected).to.equal(false);
+      expect(filesBrowser.childNodes[1].selected).to.be.true;
+      expect(filesBrowser.childNodes[2].selected).to.be.false;
       expect(filesBrowser.selectedNodes).to.have.lengthOf(1);
-      expect(filesBrowser.selectedNodes).to.include(folderData[1]);
+    });
+  });
+
+  describe('The sortBy function', function() {
+    it('should change the sorting criterias and first criteria should always be isFolder', function() {
+      var bindings = {
+        loadNode: function() { return $q.when(folderData); },
+        options: { multipleSelect: false }
+      };
+      var filesBrowser = initController(bindings);
+
+      filesBrowser.propertyName = null;
+
+      filesBrowser.sortBy('modificationDate');
+
+      expect(filesBrowser.criterias).to.deep.equal(['isFolder', 'modificationDate']);
+    });
+
+    it('should reverse the second criteria when it is called multiple time with the same property name', function() {
+      var bindings = {
+        loadNode: function() { return $q.when(folderData); },
+        options: { multipleSelect: false }
+      };
+      var filesBrowser = initController(bindings);
+
+      filesBrowser.sortBy('modificationDate');
+
+      expect(filesBrowser.criterias).to.deep.equal(['isFolder', 'modificationDate']);
+
+      filesBrowser.sortBy('modificationDate');
+
+      expect(filesBrowser.criterias).to.deep.equal(['isFolder', '-modificationDate']);
     });
   });
 });

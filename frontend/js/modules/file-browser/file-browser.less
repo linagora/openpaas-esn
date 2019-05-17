@@ -38,20 +38,41 @@ esn-file-browser {
     }
   }
 
+  .browser-header {
+    .flex-row;
+
+    width: 100%;
+    padding: 8px 0px;
+    font-weight: 500;
+    color: @secondaryTextColor;
+    border-bottom: 1px solid lighten(@m-gray, 30%);
+
+    .name {
+      padding-left: 50px;
+      width: 70%;
+    }
+
+    .modification-date {
+      .flex;
+
+      flex-wrap: nowrap;
+      padding-left: 11px;
+      width: 20%;
+    }
+  }
+
   .node {
     .flex-start;
 
-    width: 100%;
-    border-bottom: 1px solid lighten(@m-gray, 30%);;
+    border-bottom: 1px solid lighten(@m-gray, 30%);
 
     .node-icon {
-      .flex-row;
       .all-centered;
 
-      padding: 4px 15px;
+      padding: 3px 15px;
+      width: 50px;
 
       .node-checkbox {
-        padding-right: 25px;
         height: 20px;
         width: 20px;
 
@@ -65,8 +86,8 @@ esn-file-browser {
       }
 
       i {
-        color: lighten(@m-black, 30%);
-        font-size: 25px;
+        color: @primaryColor;
+        font-size: 20px;
       }
     }
 
@@ -74,9 +95,27 @@ esn-file-browser {
       .flex-space-between;
       .flex-vertical-centered;
 
-      width: 80%;
-      height: 50px;
-      padding: 10px 25px 10px 0px;
+      width: ~"calc(100% - 50px)";
+      height: 45px;
+      padding: 5px 5px 5px 0px;
+
+      .node-name {
+        .flex-shorthand(0, 0, 70%);
+      }
+
+      .node-modification-date {
+        .flex-shorthand(1, 0, 20%);
+      }
+
+      .actions {
+        width: 10%;
+      }
+    }
+  }
+
+  @media (min-width: @screen-md-min) {
+    .browser-header .modification-date {
+      padding-left: 0;
     }
   }
 }
