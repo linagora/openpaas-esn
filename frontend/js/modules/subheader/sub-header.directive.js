@@ -26,7 +26,6 @@
           subHeaderService.inject(transcludedContent);
 
           scope.$on('$destroy', function() {
-            transcludedContent.remove();
             transcludedScope.$destroy();
             subHeaderService.destroy();
           });

@@ -32,16 +32,14 @@ describe('The esn.subheader Angular module', function() {
 
   describe('The directive injection', function() {
 
-    it('should move sub headers to sub header container', function() {
+    it('should move sub header to sub header container', function() {
       var container = compileDirective('<sub-header-container />');
 
-      compileDirective('<sub-header><div>subHeader1</div></sub-header>');
-      compileDirective('<sub-header><div>subHeader2</div></sub-header>');
+      compileDirective('<sub-header><div>subHeader</div></sub-header>');
 
       var containerHtmlContent = container.html();
 
-      expect(containerHtmlContent).to.contain('subHeader1');
-      expect(containerHtmlContent).to.contain('subHeader2');
+      expect(containerHtmlContent).to.contain('subHeader');
     });
 
     it('should respect sub header scope', function() {
@@ -59,19 +57,16 @@ describe('The esn.subheader Angular module', function() {
       expect(container.html()).to.contain('Hello Bob');
     });
 
-    it('should remove the sub header from container on $destroy event', function() {
+    it('should remove old sub header from container right before appending a new sub header', function() {
       var container = compileDirective('<sub-header-container />');
-      var scope1 = $rootScope.$new();
-      var scope2 = $rootScope.$new();
 
-      compileDirective('<sub-header><div>subHeader1</div></sub-header>', scope1);
-      compileDirective('<sub-header><div>subHeader2</div></sub-header>', scope2);
+      compileDirective('<sub-header><div>oldSubHeader</div></sub-header>');
+      compileDirective('<sub-header><div>newSubHeader</div></sub-header>');
 
-      scope2.$destroy();
       var containerHtmlContent = container.html();
 
-      expect(containerHtmlContent).to.contain('subHeader1');
-      expect(containerHtmlContent).to.not.contain('subHeader2');
+      expect(containerHtmlContent).to.contain('newSubHeader');
+      expect(containerHtmlContent).to.not.contain('oldSubHeader');
     });
 
     it('should still work properly when container is initialized after sub header', function() {
@@ -118,13 +113,13 @@ describe('The esn.subheader Angular module', function() {
       }
     });
 
-    function mockVisibleChildren(visibleChildren) {
+    function mockVisibleChildren(numOfVisibleChildren) {
       if (!oldChildrenFn) {
         oldChildrenFn = jQuery.fn.children;
       }
 
       jQuery.fn.children = function() {
-        return { length: visibleChildren };
+        return { length: numOfVisibleChildren, remove: function() {} };
       };
     }
 
