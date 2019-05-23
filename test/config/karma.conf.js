@@ -24,7 +24,6 @@ module.exports = function(config) {
       'frontend/components/angular-clockpicker/dist/angular-clockpicker.min.js',
       'frontend/components/restangular/dist/restangular.js',
       'frontend/components/openpaas-logo/openpaas-logo.js',
-      'frontend/components/angular-recaptcha/release/angular-recaptcha.js',
       'frontend/components/chai/chai.js',
       'node_modules/chai-shallow-deep-equal/chai-shallow-deep-equal.js',
       'frontend/components/chai-datetime/chai-datetime.js',
