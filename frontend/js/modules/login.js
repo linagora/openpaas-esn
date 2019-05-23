@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('esn.login', ['esn.notification', 'esn.http', 'op.dynamicDirective', 'vcRecaptcha', 'esn.feature-registry'])
+angular.module('esn.login', ['esn.notification', 'esn.http', 'op.dynamicDirective', 'esn.feature-registry'])
   .config(function(dynamicDirectiveServiceProvider) {
     var passwordControlCenterMenu = new dynamicDirectiveServiceProvider.DynamicDirective(true, 'controlcenter-menu-password', {priority: -14});
 
@@ -45,7 +45,6 @@ angular.module('esn.login', ['esn.notification', 'esn.http', 'op.dynamicDirectiv
     loginAPI,
     esnLoginSuccessService,
     loginErrorService,
-    vcRecaptchaService,
     notificationFactory,
     dynamicDirectiveService,
     RESET_PASSWORD_ENABLED) {
@@ -87,12 +86,6 @@ angular.module('esn.login', ['esn.notification', 'esn.http', 'op.dynamicDirectiv
           notificationFactory.weakError('Login disabled', 'This account has been disabled');
         } else {
           notificationFactory.weakError('Login error', 'Please check your credentials');
-          $scope.recaptcha.needed = err.data.recaptcha || false;
-          try {
-            vcRecaptchaService.reload();
-          } catch (e) {
-            $log.error(e);
-          }
         }
       });
     };
