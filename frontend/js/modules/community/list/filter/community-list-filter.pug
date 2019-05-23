@@ -1,4 +1,0 @@
-.community-list-filter
-  i.community-list-filter-icon.mdi.mdi-magnify
-  input.community-list-filter-field.form-control(ng-model="$ctrl.filter", ng-model-options="{ debounce: 200 }", ng-change="$ctrl.onChange({ $filter: $ctrl.filter })" placeholder=__('Filter') + "\u2026")
-  i.community-list-filter-close.clickable.mdi.mdi-close-circle(ng-click="$ctrl.clearFilter($event); $ctrl.onBlur()", ng-show="$ctrl.filter")

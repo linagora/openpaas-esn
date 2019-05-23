@@ -154,8 +154,6 @@ const injections = [
     'community/view/tabs/community-view-tabs.component.js',
     'community/list/community-list.controller.js',
     'community/list/item/community-list-item.directive.js',
-    'community/list/filter/community-list-filter.component.js',
-    'community/list/filter/community-list-filter.controller.js',
     'community/community.js'
   ], innerApps: ['esn']},
   {angular: 'esn.rest.helper', files: ['rest-helper.js'], innerApps: ['esn']},
@@ -477,15 +475,15 @@ const injections = [
   {angular: 'esn.file-browser', files: [
     'file-browser/file-browser.module.js',
     'file-browser/file-browser.component.js',
-    'file-browser/file-browser.controller.js',
-    'file-browser/filter-input/file-browser-filter-input.component.js',
-    'file-browser/filter-input/file-browser-filter-input.controller.js'
+    'file-browser/file-browser.controller.js'
   ], innerApps: ['esn']},
   {angular: 'esn.form.helper', files: [
     'form-helper/form-helper.module.js',
     'form-helper/form-helper.directives.js',
     'form-helper/email-input/email-input.controller.js',
-    'form-helper/email-input/email-input.component.js'
+    'form-helper/email-input/email-input.component.js',
+    'form-helper/filter-input/filter-input.component.js',
+    'form-helper/filter-input/filter-input.controller.js'
   ], innerApps: ['esn', 'welcome']},
   {angular: 'esn.attachments-selector', files: [
     'attachments-selector/attachments-selector.module.js',
