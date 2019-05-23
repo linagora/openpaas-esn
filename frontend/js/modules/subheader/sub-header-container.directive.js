@@ -38,6 +38,7 @@
           }
 
           function injectHandler(content) {
+            container.children().remove();
             container.append(content);
             ensureVisible();
           }
