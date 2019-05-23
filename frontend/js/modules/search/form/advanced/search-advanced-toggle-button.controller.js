@@ -24,8 +24,8 @@
 
     function createPanel() {
       var position = $mdPanel.newPanelPosition()
-        .relativeTo('.search-advanced-options')
-        .addPanelPosition($mdPanel.xPosition.ALIGN_END, $mdPanel.yPosition.BELOW);
+        .relativeTo('.search-header-form')
+        .addPanelPosition($mdPanel.xPosition.ALIGN_START, $mdPanel.yPosition.BELOW);
 
       var config = {
         attachTo: angular.element(document.body),
