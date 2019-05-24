@@ -10,7 +10,13 @@ describe('The ldap core module', function() {
   let getModule, coreUserMock;
 
   beforeEach(function() {
-    coreUserMock = {};
+    coreUserMock = {
+      provision: {
+        service: {
+          addProvider: () => {}
+        }
+      }
+    };
 
     mockery.registerMock('../user', coreUserMock);
 
