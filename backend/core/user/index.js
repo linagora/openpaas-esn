@@ -40,6 +40,7 @@ module.exports = {
   find,
   init,
   moderation,
+  provision: require('./provision'),
   domain: require('./domain'),
   follow: require('./follow'),
   login: require('./login'),

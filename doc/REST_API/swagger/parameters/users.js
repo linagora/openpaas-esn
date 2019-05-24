@@ -30,4 +30,16 @@
  *       type: array
  *       items:
  *         $ref: "#/definitions/us_email"
+ *   uss_provision_source:
+ *     name: source
+ *     in: query
+ *     description: The source for users provisioning
+ *     required: true
+ *     type: string
+ *   uss_provision_data:
+ *     name: provision data
+ *     in: query
+ *     description: The source for users provisioning
+ *     required: true
+ *     type: any
  */
