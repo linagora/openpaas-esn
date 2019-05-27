@@ -4,7 +4,6 @@ const esnConfig = require('../../core')['esn-config'];
 const pubsub = require('../../core/pubsub').local;
 const logger = require('../logger');
 const authToken = require('../auth/token');
-const extend = require('extend');
 const mongoose = require('mongoose');
 const trim = require('trim');
 const User = mongoose.model('User');
@@ -52,10 +51,6 @@ function getUserTemplate(callback) {
   esnConfig('user').get(callback);
 }
 
-function extendUserTemplate(template, data) {
-  extend(template, data);
-}
-
 function recordUser(userData, callback) {
   const userAsModel = userData instanceof User ? userData : new User(userData);
 
@@ -77,12 +72,12 @@ function recordUser(userData, callback) {
 }
 
 function provisionUser(data, callback) {
-  getUserTemplate((err, user) => {
+  getUserTemplate((err, template) => {
     if (err) {
       return callback(err);
     }
-    extendUserTemplate(user, data);
-    recordUser(user, callback);
+
+    recordUser({...template, ...data}, callback);
   });
 }
 
