@@ -26,7 +26,7 @@ var db = {
 var password = 'secret';
 
 var adminDN = {
-  dn: 'uid=admin,ou=passport-ldapauth',
+  dn: 'uid=admin, ou=passport-ldapauth',
   password: 'secret'
 };
 
