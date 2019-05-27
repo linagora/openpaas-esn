@@ -11,6 +11,9 @@ const schema = {
           type: 'boolean'
         }
       }
+    },
+    maxAge: {
+      type: 'string'
     }
   },
   required: [

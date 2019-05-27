@@ -11,6 +11,7 @@ var config = require('../core').config('default');
 var logger = require('../core').logger;
 const startupBuffer = require('./middleware/startup-buffer')(config.webserver.startupBufferTimeout);
 const cookieParser = require('cookie-parser');
+const staticAssets = require('./middleware/static-assets');
 
 var application = express();
 exports = module.exports = application;
@@ -26,8 +27,8 @@ if (process.env.NODE_ENV === 'dev') {
 }
 application.use(morgan(format, { stream: logger.stream }));
 
-application.use('/components', express.static(FRONTEND_PATH + '/components'));
-application.use('/images', express.static(FRONTEND_PATH + '/images'));
+staticAssets(application, '/images', FRONTEND_PATH + '/images');
+staticAssets(application, '/components', FRONTEND_PATH + '/components');
 application.use('/js', express.static(FRONTEND_PATH + '/js', { extensions: ['js']}));
 application.use('/core/js', express.static(FRONTEND_PATH + '/js/modules', { extensions: ['js']}));
 
