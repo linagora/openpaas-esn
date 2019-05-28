@@ -12,7 +12,8 @@
       getActivityStreams: getActivityStreams,
       getUsersByEmail: getUsersByEmail,
       setUserEmails: setUserEmails,
-      setUserStates: setUserStates
+      setUserStates: setUserStates,
+      provisionUsers: provisionUsers
     };
 
     function currentUser() {
@@ -49,6 +50,10 @@
      */
     function setUserEmails(userId, emails, domainId) {
       return esnRestangular.one('users', userId).customPUT(emails, 'emails', { domain_id: domainId || session.domain._id });
+    }
+
+    function provisionUsers(source, data) {
+      return esnRestangular.all('users').customPOST(data, 'provision', { source: source });
     }
   }
 })(angular);
