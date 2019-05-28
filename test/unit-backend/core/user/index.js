@@ -125,29 +125,10 @@ describe('The user core module', function() {
     });
   });
 
-  describe('provisionUser method', function() {
-    var User = null;
-    var userModule = null;
+  describe('provisionUser method', () => {
+    let User, Pubsub, userModule, template;
 
     beforeEach(function() {
-      var template = this.helpers.requireFixture('user-template').simple();
-
-      var get = function(callback) {
-        callback(null, template);
-      };
-      mockEsnConfig(get);
-      mockery.registerMock('../../core/pubsub', {
-        local: {
-          topic: function() {
-            return {
-              publish: function() {}
-            };
-          }
-        }
-      });
-    });
-
-    it('should record a user with the template informations', function(done) {
       User = function User(user) {
         this.emails = user.emails;
         this._id = user._id;
@@ -158,31 +139,67 @@ describe('The user core module', function() {
         this._id = 12345;
         callback(null, this);
       };
-      mockModels({
-        User: User
-      });
-
-      // Mock Pubsub class to use "new" keyword when access ../pubsub
-      const Pubsub = function() {};
-
+      Pubsub = function() {};
       Pubsub.prototype.topic = () => ({
         publish: () => {},
         subscribe: () => {}
       });
 
+      mockEsnConfig(callback => callback(null, template));
+      mockModels({ User: User });
       mockery.registerMock('../pubsub', Pubsub);
+      mockery.registerMock('../../core/pubsub', {
+        local: {
+          topic: () => ({
+            publish: () => {}
+          })
+        }
+      });
 
-      userModule = this.helpers.requireBackend('core').user;
-      userModule.provisionUser({emails: ['test@linagora.com']}, function(err, user) {
-        expect(err).to.be.null;
-        expect(user).to.exist;
-        expect(user._id).to.exist;
-        expect(user.emails).to.exist;
-        expect(user.emails).to.be.an.array;
-        expect(user.emails).to.have.length(1);
-        expect(user.emails[0]).to.equal('test@linagora.com');
-        expect(user.firstname).to.equal('John');
-        expect(user.lastname).to.equal('Doe');
+      userModule = this.helpers.requireBackend('core/user');
+      template = this.helpers.requireFixture('user-template').simple();
+    });
+
+    it('should record user without user template defined', function(done) {
+      template = null;
+
+      userModule.provisionUser({emails: ['test@linagora.com']}, (err, user) => {
+        if (err) return done(err);
+
+        try {
+          expect(user).to.exist;
+          expect(user._id).to.exist;
+          expect(user.emails).to.exist;
+          expect(user.emails).to.be.an.array;
+          expect(user.emails).to.have.length(1);
+          expect(user.emails[0]).to.equal('test@linagora.com');
+          expect(user.firstname).to.be.undefined;
+          expect(user.lastname).to.be.undefined;
+        } catch (error) {
+          return done(error);
+        }
+
+        done();
+      });
+    });
+
+    it('should record a user with the template informations', function(done) {
+      userModule.provisionUser({emails: ['test@linagora.com']}, (err, user) => {
+        if (err) return done(err);
+
+        try {
+          expect(user).to.exist;
+          expect(user._id).to.exist;
+          expect(user.emails).to.exist;
+          expect(user.emails).to.be.an.array;
+          expect(user.emails).to.have.length(1);
+          expect(user.emails[0]).to.equal('test@linagora.com');
+          expect(user.firstname).to.equal('John');
+          expect(user.lastname).to.equal('Doe');
+        } catch (error) {
+          return done(error);
+        }
+
         done();
       });
     });

@@ -123,4 +123,15 @@ describe('userAPI service', function() {
       $httpBackend.flush();
     });
   });
+
+  describe('The provisionUsers method', function() {
+    it('should send a request to /api/users/provision', function() {
+      var data = ['foo', 'bar'];
+      var source = 'oauth';
+
+      $httpBackend.expectPOST('/api/users/provision?source=oauth', data).respond(this.response);
+      userAPI.provisionUsers(source, data);
+      $httpBackend.flush();
+    });
+  });
 });

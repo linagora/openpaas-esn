@@ -1,5 +1,4 @@
-const logger = require('../../core/logger');
-const userModule = require('../../core').user;
+const { logger, user } = require('../../core');
 const composableMw = require('composable-middleware');
 const platformadminsMW = require('../middleware/platformadmins');
 
@@ -9,7 +8,8 @@ module.exports = {
   loadTargetUser,
   requireProfilesQueryParams,
   requirePreferredEmail,
-  validateUserStates
+  validateUserStates,
+  validateUsersProvision
 };
 
 function onFind(req, res, next, err, user) {
@@ -27,9 +27,9 @@ function onFind(req, res, next, err, user) {
 
 function loadTargetUser(req, res, next) {
   if (req.params.uuid) {
-    return userModule.get(req.params.uuid, onFind.bind(null, req, res, next));
+    return user.get(req.params.uuid, onFind.bind(null, req, res, next));
   } else if (req.body.email) {
-    return userModule.findByEmail(req.body.email, onFind.bind(null, req, res, next));
+    return user.findByEmail(req.body.email, onFind.bind(null, req, res, next));
   } else {
     return res.status(400).json({error: {code: 400, message: 'Bad Request', details: 'uuid or email missing'}});
   }
@@ -63,7 +63,7 @@ function requireProfilesQueryParams(req, res, next) {
 
 function validateUserStates(req, res, next) {
   const states = req.body;
-  const validStates = !states.some(state => !(userModule.states.validateUserAction(state.name) && userModule.states.validateActionState(state.value)));
+  const validStates = !states.some(state => !(user.states.validateUserAction(state.name) && user.states.validateActionState(state.value)));
 
   if (!validStates) {
     return res.status(400).json({
@@ -86,7 +86,7 @@ function checkEmailsAvailability(req, res, next) {
     return next();
   }
 
-  userModule.checkEmailsAvailability(emailsToAdd)
+  user.checkEmailsAvailability(emailsToAdd)
     .then(unavailableEmails => {
       if (unavailableEmails.length > 0) {
         return res.status(400).json({
@@ -127,4 +127,44 @@ function requirePreferredEmail(req, res, next) {
   }
 
   next();
+}
+
+function validateUsersProvision(req, res, next) {
+  const { source } = req.query;
+  const provider = user.provision.service.providers.get(source);
+
+  if (!provider) {
+    return res.status(400).json({
+      error: {
+        code: 400,
+        message: 'Bad Request',
+        details: `${source} is not a valid provision source`
+      }
+    });
+  }
+
+  provider.verify({ data: req.body, domainId: req.domain._id })
+    .then(() => next())
+    .catch(error => {
+      if (!error.valid && error.details) {
+        return res.status(400).json({
+          error: {
+            code: 400,
+            message: 'Bad Request',
+            details: error.details
+          }
+        });
+      }
+
+      const details = 'Unable to verify data for provisioning';
+
+      logger.error(details, error);
+      res.status(500).json({
+        error: {
+          code: 500,
+          message: 'Server Error',
+          details
+        }
+      });
+    });
 }

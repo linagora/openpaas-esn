@@ -1,5 +1,3 @@
-'use strict';
-
 const LdapAuth = require('ldapauth-fork');
 const async = require('async');
 const _ = require('lodash');
@@ -13,6 +11,20 @@ const coreUser = require('../user');
 const LDAP_DEFAULT_LIMIT = 50;
 const NOOP = () => {};
 
+module.exports = {
+  findLDAPForUser,
+  emailExists,
+  authenticate,
+  translate,
+  search
+};
+
+init();
+
+function init() {
+  logger.info('Add ldap provision provider');
+  coreUser.provision.service.addProvider(require('./provision-provider'));
+}
 /**
  * Check if the email exists in the given ldap
  *
@@ -276,11 +288,3 @@ function search(user, query) {
     });
   });
 }
-
-module.exports = {
-  findLDAPForUser,
-  emailExists,
-  authenticate,
-  translate,
-  search
-};

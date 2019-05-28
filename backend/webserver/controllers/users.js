@@ -14,6 +14,7 @@ module.exports = {
   logout,
   postProfileAvatar,
   profile,
+  provision,
   updatePassword,
   updateProfile,
   updateTargetUserAvatar,
@@ -523,4 +524,25 @@ function updateTargetUserEmails(req, res) {
 
     res.status(204).end();
   });
+}
+
+function provision(req, res) {
+  const { source } = req.query;
+  const provider = userModule.provision.service.providers.get(source);
+
+  return provider.provision({ data: req.body, domainId: req.domain._id })
+    .then(provisionedUsers => res.status(201).json(provisionedUsers))
+    .catch(error => {
+      const details = `Error while provisioning users from ${source}`;
+
+      logger.error(details, error);
+
+      return res.status(500).json({
+        error: {
+          code: 500,
+          message: 'Server Error',
+          details
+        }
+      });
+    });
 }

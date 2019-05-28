@@ -3,11 +3,12 @@
 const authorize = require('../middleware/authorization');
 const users = require('../controllers/users');
 const usersMW = require('../middleware/users');
-const { loadFromDomainIdParameter } = require('../middleware/domain');
+const { loadFromDomainIdParameter, loadSessionDomain } = require('../middleware/domain');
 const { validateMIMEType } = require('../middleware/file');
 const { ACCEPTED_MIME_TYPES } = require('../../core/image').CONSTANTS;
 const helperMW = require('../middleware/helper');
 const link = require('../middleware/profile-link');
+const { requireInQuery } = require('../middleware/helper');
 
 module.exports = function(router) {
 
@@ -274,5 +275,35 @@ module.exports = function(router) {
     usersMW.requirePreferredEmail,
     usersMW.checkEmailsAvailability,
     users.updateTargetUserEmails
+  );
+
+  /**
+   * @swagger
+   * /users/provision:
+   *   post:
+   *     tags:
+   *      - Users
+   *     description: Create or Update user from a provision source
+   *     parameters:
+   *       - $ref: "#/parameters/uss_provision_source"
+   *       - $ref: "#/parameters/uss_provision_data"
+   *     responses:
+   *       204:
+   *         $ref: "#/responses/cm_201"
+   *       400:
+   *         $ref: "#/responses/cm_400"
+   *       404:
+   *         $ref: "#/responses/cm_404"
+   *       401:
+   *         $ref: "#/responses/cm_401"
+   *       500:
+   *         $ref: "#/responses/cm_500"
+   */
+  router.post('/users/provision',
+    authorize.requiresAPILogin,
+    loadSessionDomain,
+    requireInQuery('source'),
+    usersMW.validateUsersProvision,
+    users.provision
   );
 };
