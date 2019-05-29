@@ -19,7 +19,7 @@
   )
 
   .lv-body(ng-if='$ctrl.status === "loaded"')
-    file-browser-filter-input(query="$ctrl.query")
+    esn-filter-input(filter="$ctrl.filter")
     .browser-header
       .name.clickable(ng-click='$ctrl.sortBy("name")')
         span #{__('Name')}
@@ -34,7 +34,7 @@
 
     .browser-body
       .node.lv-bordered(
-        ng-repeat='node in $ctrl.childNodes | orderBy: $ctrl.criterias | filter: { name: $ctrl.query }',
+        ng-repeat='node in $ctrl.childNodes | orderBy: $ctrl.criterias | filter: { name: $ctrl.filter }',
         desktop-hover="hovering = hover"
       )
         .node-icon

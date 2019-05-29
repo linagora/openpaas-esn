@@ -1,0 +1,5 @@
+.fg-line
+  i.esn-filter-input-filter-icon.mdi.mdi-magnify
+  input.esn-filter-input-field.form-control(auto-focus="$ctrl.autoFocusInput || false", ng-model="$ctrl.filter", ng-model-options="{ debounce: 200 }", ng-change="$ctrl.onChange({ $filter: $ctrl.filter })", placeholder="{{ $ctrl.translatedPlaceholder }}")
+  button.esn-filter-input-clear-btn.btn.btn-link.btn-icon-inside-input(ng-click="$ctrl.clearFilter($event); $ctrl.onBlur()", ng-show="$ctrl.autoFocusInput || $ctrl.filter")
+    i.mdi.mdi-close-circle

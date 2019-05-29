@@ -18,8 +18,8 @@ community-create-button
             a(href="", ng-click="getModerator()")
               | #{__('Owned')}
           li.filter.hidden-xs
-            community-list-filter(filter="filter", on-change="setFilter($filter)")
-        community-list-filter.hidden-md(filter="filter", on-change="setFilter($filter)")
+            esn-filter-input(filter="filter", on-change="setFilter($filter)")
+        esn-filter-input.hidden-md(filter="filter", on-change="setFilter($filter)")
 
     .community-list-content
       .community-list-error(ng-if="error && !loading")
