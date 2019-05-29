@@ -62,16 +62,16 @@ module.exports = router => {
 
   /**
    * @swagger
-   * /themes/:uuid/logo
+   * /themes/:uuid/logo:
    *   get:
    *     tags:
    *      - themes
-   *     description: Get the logo url for a given domain.
+   *     description: Get the logo resource for a given domain.
    *     parameters:
    *       - $ref: "#/parameters/dm_id"
    *     responses:
    *       200:
-   *         $ref: "#/responses/tm_themes"
+   *         $ref: "#/responses/tm_logo"
    *       401:
    *         $ref: "#/responses/cm_401"
    *       404:
@@ -88,16 +88,16 @@ module.exports = router => {
 
   /**
    * @swagger
-   * /themes/:uuid/favicon
+   * /themes/:uuid/favicon:
    *   get:
    *     tags:
    *      - themes
-   *     description: Get the favicon url for a given domain.
+   *     description: Get the favicon resource for a given domain.
    *     parameters:
    *       - $ref: "#/parameters/dm_id"
    *     responses:
    *       200:
-   *         $ref: "#/responses/tm_themes"
+   *         $ref: "#/responses/tm_favicon"
    *       401:
    *         $ref: "#/responses/cm_401"
    *       404:

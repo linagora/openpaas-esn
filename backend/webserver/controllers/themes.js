@@ -16,26 +16,17 @@ module.exports = {
 
 function saveTheme(req, res) {
   const theme = req.body;
+  const msg = 'Error while saving themes';
 
   themes
     .saveTheme(req.domain._id, theme)
     .then(() => res.status(200).send())
-    .catch(err => {
-      const msg = 'Error while saving themes';
-
-      logger.error(msg, err);
-
-      res.status(500).json({
-        error: {
-          code: 500,
-          message: 'Server Error',
-          details: msg
-        }
-      });
-    });
+    .catch(catchError(res, msg));
 }
 
 function getTheme(req, res) {
+  const msg = 'Error while getting themes';
+
   themes
     .getTheme(req.domain._id)
     .then(theme => {
@@ -47,53 +38,43 @@ function getTheme(req, res) {
           colors[color.key] = color.value;
         });
 
-        configHelper.getBaseUrl(req.user, (err, url) => {
-          if (err) {
-            const msg = 'Error while getting themes';
+      configHelper.getBaseUrl(req.user, (err, url) => {
+        if (err) {
+          logger.error(msg, err);
 
-            logger.error(msg, err);
-
-            return res.status(500).json({
-              error: {
-                code: 500,
-                message: 'Server Error',
-                details: msg
-              }
-            });
-          }
-
-          theme.logos && Array.from(theme.logos).forEach(type => {
-            logos[type] = `${url}/api/files/${theme.logos[type]}`;
+          return res.status(500).json({
+            error: {
+              code: 500,
+              message: 'Server Error',
+              details: msg
+            }
           });
-
-          res.status(200).send({ logos, colors });
-        });
-    })
-    .catch(err => {
-      const msg = 'Error while getting themes';
-
-      logger.error(msg, err);
-
-      res.status(500).json({
-        error: {
-          code: 500,
-          message: 'Server Error',
-          details: msg
         }
+
+        Object.keys(theme.logos).forEach(function(key) {
+          logos[key] = `${url}/api/files/${theme.logos[key]}`;
+        });
+
+        res.status(200).send({ logos, colors });
       });
-    });
+    })
+    .catch(catchError(res, msg));
 }
 
-function getBaseUrlFiles(req, type) {
-  return themes
-    .getTheme(req.domain._id)
-    .then(theme => getUrl(req.user)
-      .then(url => {
-        if (!theme.logos[type]) {
-          return `${url}${defaultThemesFiles.type}`;
-        }
-        return `${url}/api/files/${theme.logos[type]}`;
-    }));
+function getLogo(req, res) {
+  const msg = 'Error while the logo resource';
+
+  getLogosPathname(req, 'logo')
+    .then(url => res.redirect(url))
+    .catch(catchError(res, msg));
+}
+
+function getFavicon(req, res) {
+  const msg = 'Error while favicon resource';
+
+  getLogosPathname(req, 'favicon')
+    .then(url => res.redirect(url))
+    .catch(catchError(res, msg));
 }
 
 function getUrl(user) {
@@ -107,38 +88,31 @@ function getUrl(user) {
   });
 }
 
-function getLogo(req, res) {
-  getBaseUrlFiles(req, 'logo')
-    .then(url => res.redirect(url))
-    .catch(err => {
-      const msg = 'Error while getting themes';
+function getLogosPathname(req, type) {
+  const promises = [themes.getTheme(req.domain._id), getUrl(req.user)];
 
-      logger.error(msg, err);
+  return Promise.all(promises).then(result => {
+    const theme = result[0];
+    const url = result[1];
 
-      res.status(500).json({
-        error: {
-          code: 500,
-          message: 'Server Error',
-          details: msg
-        }
-      });
-    });
+    if (!theme.logos[type]) {
+      return `${url}${defaultThemesFiles.type}`;
+    }
+
+    return `${url}/api/files/${theme.logos[type]}`;
+  });
 }
 
-function getFavicon(req, res) {
-  getBaseUrlFiles(req, 'favicon')
-    .then(url => res.redirect(url))
-    .catch(err => {
-      const msg = 'Error while getting themes';
+function catchError(res, message) {
+  return err => {
+    logger.error(message, err);
 
-      logger.error(msg, err);
-
-      res.status(500).json({
-        error: {
-          code: 500,
-          message: 'Server Error',
-          details: msg
-        }
-      });
+    res.status(500).json({
+      error: {
+        code: 500,
+        message: 'Server Error',
+        details: message
+      }
     });
+  };
 }

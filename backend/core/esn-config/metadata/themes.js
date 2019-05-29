@@ -26,14 +26,15 @@ const schema = {
     logos: {
       type: 'object',
       properties: {
-        desktop: {
+        logo: {
           type: 'string'
         },
-        mobile: {
+        favicon: {
           type: 'string'
         }
       },
-      required: ['desktop', 'mobile']
+      required: ['logo', 'favicon'],
+      additionalProperties: false
     }
   },
   required: ['colors', 'logos']
