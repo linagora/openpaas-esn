@@ -103,7 +103,11 @@ services:
       - ${ESN_PATH}/docker/config/jwt/public:/root/conf/jwt_publickey:Z
 
   james_elastic:
-    image: elasticsearch:2.3.2
+    image: elasticsearch:6.7.2
+    ports:
+      - "9200"
+    environment:
+      - discovery.type=single-node
 
   cassandra:
     image: cassandra:3.11.3
