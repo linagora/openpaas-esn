@@ -1,6 +1,8 @@
 const OBJECT_TYPE = 'ldap';
-const { PeopleResolver, Model } = require('../people');
+const PeopleResolver = require('../people/resolver');
+const Model = require('../people/model');
 const { search } = require('./index');
+const { getDisplayName } = require('../user');
 
 module.exports = new PeopleResolver(OBJECT_TYPE, resolver, denormalizer);
 
@@ -10,7 +12,7 @@ function resolver({ term, context, pagination }) {
 
 function denormalizer({ source }) {
   const email = new Model.EmailAddress({ value: source.preferredEmail, type: 'default' });
-  const name = new Model.Name({ displayName: source.username });
+  const name = new Model.Name({ displayName: getDisplayName(source) });
 
   return Promise.resolve(
     new Model.Person({
