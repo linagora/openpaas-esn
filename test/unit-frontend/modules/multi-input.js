@@ -180,6 +180,33 @@ describe('The multi-input Angular module', function() {
         expect($scope.isMultiTypeField()).is.false;
       });
     });
+
+    describe('The onTypeChange method', function() {
+      beforeEach(function() {
+        $scope.content = [{ type: '' }];
+        $scope.inputValue = [{ type: '' }];
+      });
+
+      it('should affect true value to showAddButton', function() {
+        $scope.showAddButton = false;
+        $scope.onTypeChange(0);
+        expect($scope.showAddButton).is.true;
+      });
+
+      it('should affect true value to showDeleteButtonArray', function() {
+        $scope.showDeleteButtonArray[0] = false;
+        $scope.onTypeChange(0);
+        expect($scope.showDeleteButtonArray[0]).to.be.true;
+      });
+
+      it('should update inputValue', function() {
+        var type = 'foo';
+
+        $scope.content = [{ type: type }];
+        $scope.onTypeChange(0);
+        expect($scope.inputValue).to.deep.equal([{ type: type }]);
+      });
+    });
   });
 
   describe('The multiInputService factory', function() {
