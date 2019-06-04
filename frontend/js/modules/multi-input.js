@@ -37,7 +37,6 @@ angular.module('esn.multi-input', [])
     }
 
     $scope.verifyNew = function(id) {
-      $scope.showAddButton = true;
       $scope.onFocusFn(id);
 
       if (hasValueInput($scope.content[id])) {
@@ -70,6 +69,14 @@ angular.module('esn.multi-input', [])
 
     $scope.isMultiTypeField = function() {
       return !!($scope.types && $scope.types.length > 0);
+    };
+
+    $scope.onTypeChange = function(id) {
+      $scope.onFocusFn(id);
+
+      if ($scope.inputValue[id]) {
+        $scope.inputValue[id].type = $scope.content[id].type;
+      }
     };
   })
 

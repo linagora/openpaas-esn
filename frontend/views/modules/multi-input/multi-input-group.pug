@@ -3,7 +3,12 @@
     .col-xs-4.col-sm-3(ng-if="isMultiTypeField()")
       .fg-line
         .select
-          select.form-control.multi-input-type(ng-init="item.type = item.type || types[0]" ng-model='item.type', ng-options='type as (type | esnI18n) for type in types')
+          select.form-control.multi-input-type(
+            ng-init="item.type = item.type || types[0]",
+            ng-model='item.type',
+            ng-options='type as (type | esnI18n) for type in types',
+            ng-change="onTypeChange($index)"
+          )
     div(ng-class="isMultiTypeField() ? 'col-xs-8 col-sm-9' : 'col-xs-12'")
       .fg-line
         input.form-control.multi-input-text(type='{{inputType}}', placeholder='{{placeholder}}', ng-model='item.value', ng-change='verifyNew($index)', ng-model-options="{allowInvalid: true}", autocapitalize='{{autocapitalize || "on"}}', ng-focus="onFocusFn($index)", ng-blur="hideDeleteButton($index)")
@@ -12,4 +17,4 @@
   .form-group
     .flex-vertical-centered.m-t-10(ng-class="isMultiTypeField() ? 'col-xs-8 col-xs-offset-4 col-sm-9 col-sm-offset-3' : 'col-xs-12'")
       i.mdi.mdi-plus-circle.button-add.m-r-5
-      | #{__("Add a new")} {{placeholder.toLowerCase()}}
+      | #{__("Add a new")} {{::placeholder.toLowerCase()}}
