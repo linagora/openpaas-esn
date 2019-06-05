@@ -15,6 +15,7 @@
       sharedContactDataService,
       contactService,
       esnI18nService,
+      ContactsHelper,
       DEFAULT_ADDRESSBOOK_NAME
     ) {
       $scope.bookId = $stateParams.bookId;
@@ -22,6 +23,14 @@
       $scope.contact = sharedContactDataService.contact;
 
       $scope.accept = function() {
+        $scope.contact.displayName = ContactsHelper.getFormattedName($scope.contact);
+
+        if (!$scope.contact.displayName) {
+          notificationFactory.weakError('Contact creation', 'Please fill at least a field');
+
+          return;
+        }
+
         return sendContactToBackend($scope, function() {
           return contactService.createContact({ bookId: $scope.bookId, bookName: $scope.bookName }, $scope.contact)
             .then(null, function(err) {
@@ -200,9 +209,11 @@
       sendContactToBackend,
       $stateParams,
       gracePeriodService,
+      notificationFactory,
       contactService,
       deleteContact,
       ContactShell,
+      ContactsHelper,
       CONTACT_EVENTS,
       contactUpdateDataService,
       VcardBuilder,
@@ -264,6 +275,14 @@
       $scope.save = function() {
         if (!isContactModified()) {
           return $scope.close();
+        }
+
+        $scope.contact.displayName = ContactsHelper.getFormattedName($scope.contact);
+
+        if (!$scope.contact.displayName) {
+          notificationFactory.weakError('Contact update', 'Please fill at least a field');
+
+          return;
         }
 
         return sendContactToBackend($scope, function() {
