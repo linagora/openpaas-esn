@@ -4,10 +4,8 @@
 angular.module('linagora.esn.contact')
 
   .controller('newContactController', function(
-    $rootScope,
     $scope,
     $stateParams,
-    $location,
     $state,
     $q,
     notificationFactory,
@@ -16,7 +14,6 @@ angular.module('linagora.esn.contact')
     openContactForm,
     sharedContactDataService,
     contactService,
-    ContactLocationHelper,
     esnI18nService,
     DEFAULT_ADDRESSBOOK_NAME
   ) {
@@ -64,23 +61,18 @@ angular.module('linagora.esn.contact')
     sharedContactDataService.contact = {};
   })
   .controller('showContactController', function(
-    $q,
     $log,
     $scope,
     $state,
     $timeout,
-    $rootScope,
     $stateParams,
     $window,
     ContactsHelper,
     contactUpdateDataService,
-    ContactLocationHelper,
     ContactShellDisplayBuilder,
     deleteContact,
     sharedContactDataService,
-    sendContactToBackend,
     contactDisplayError,
-    notificationFactory,
     gracePeriodService,
     contactService,
     CONTACT_AVATAR_SIZE,
@@ -204,20 +196,16 @@ angular.module('linagora.esn.contact')
     contactDisplayError,
     $rootScope,
     $timeout,
-    $location,
     $state,
-    notificationFactory,
     sendContactToBackend,
     $stateParams,
     gracePeriodService,
     contactService,
     deleteContact,
     ContactShell,
-    GRACE_DELAY,
     CONTACT_EVENTS,
     contactUpdateDataService,
     VcardBuilder,
-    ContactLocationHelper,
     REDIRECT_PAGE_TIMEOUT
   ) {
     $scope.loaded = false;
@@ -354,7 +342,14 @@ angular.module('linagora.esn.contact')
     };
   })
 
-  .controller('contactItemController', function($scope, $location, $rootScope, $window, deleteContact, ContactsHelper, ContactLocationHelper, ContactHighLightHelper) {
+  .controller('contactItemController', function(
+    $scope,
+    $window,
+    deleteContact,
+    ContactsHelper,
+    ContactLocationHelper,
+    ContactHighLightHelper
+  ) {
     ContactsHelper.fillScopeContactData($scope, $scope.contact);
     ContactsHelper.getOrderType($scope);
     $scope.datas = [];
