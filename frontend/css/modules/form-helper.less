@@ -1,6 +1,6 @@
 @inputBorderColor: #e0e0e0;
 @errorColor: #f44336;
-@toggleDisabledColor: darken(@body-bg, 15%);
+@toggleDisabledColor: @lighterSecondaryTextColor;
 
 esn-form-group {
   .form-control.ng-pristine.ng-invalid {
@@ -81,7 +81,7 @@ form:not(.ng-submitted) {
 .toggle-switch {
   .ts-helper.ts-disabled {
     cursor: not-allowed;
-    background: @toggleDisabledColor;
+    background: lighten(@lighterSecondaryTextColor, 20%);
   }
 
   .ts-helper.ts-disabled:before {
@@ -91,6 +91,10 @@ form:not(.ng-submitted) {
   .ts-label.ts-disabled {
     color: lighten(@text-color, 40%);
     background: transparent;
+  }
+
+  .ts-helper {
+    background: @secondaryTextColor;
   }
 
 }
@@ -103,6 +107,12 @@ form:not(.ng-submitted) {
 
         &:before {
           background: @primaryColor;
+        }
+
+        &:active {
+          &:before {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.28), 0 0 0 20px fade(@primaryColor, 20%);
+          }
         }
       }
     }
