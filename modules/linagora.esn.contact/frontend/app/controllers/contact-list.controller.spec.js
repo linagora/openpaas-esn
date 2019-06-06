@@ -8,7 +8,7 @@ var expect = chai.expect;
 describe('The ContactListController controller', function() {
   var $rootScope, $controller, $timeout, $state, $stateParams, $alert;
   var AddressBookPaginationService, AddressBookPaginationRegistryMock, contactAddressbookService, contactAddressbookDisplayService,
-    contactUpdateDataService, gracePeriodService, sharedContactDataService;
+    contactUpdateDataService, gracePeriodService;
   var CONTACT_ADDRESSBOOK_EVENTS, CONTACT_EVENTS, CONTACT_LIST_DISPLAY_MODES, DEFAULT_ADDRESSBOOK_NAME;
   var addressbooks, scope, sortedContacts, openContactFormMock;
 
@@ -71,7 +71,6 @@ describe('The ContactListController controller', function() {
     _$timeout_,
     _$state_,
     _$stateParams_,
-    _sharedContactDataService_,
     _contactAddressbookService_,
     _contactAddressbookDisplayService_,
     _openContactForm_,
@@ -86,7 +85,6 @@ describe('The ContactListController controller', function() {
     $timeout = _$timeout_;
     $state = _$state_;
     $stateParams = _$stateParams_;
-    sharedContactDataService = _sharedContactDataService_;
     contactAddressbookService = _contactAddressbookService_;
     contactAddressbookService.listAggregatedAddressbooks = sinon.stub().returns($q.when(addressbooks));
     contactAddressbookDisplayService = _contactAddressbookDisplayService_;
@@ -105,7 +103,7 @@ describe('The ContactListController controller', function() {
     DEFAULT_ADDRESSBOOK_NAME = _DEFAULT_ADDRESSBOOK_NAME_;
   }));
 
-  function createPaginationMocks(singleFn, searchFn) {
+  function createPaginationMocks(singleFn) {
 
     function SingleMock(options) {
       this.options = options;
@@ -117,14 +115,8 @@ describe('The ContactListController controller', function() {
     }
     AggregateMock.prototype.loadNextItems = singleFn;
 
-    function SearchMock(options) {
-      this.options = options;
-    }
-    SearchMock.prototype.loadNextItems = searchFn;
-
     var mocks = {
       single: SingleMock,
-      search: SearchMock,
       multiple: AggregateMock
     };
 
@@ -250,48 +242,6 @@ describe('The ContactListController controller', function() {
     expect(scope.canCreateContact).to.equal(false);
   });
 
-  it('should store the search query when user switches to contact view', function() {
-    scope.contactSearch = {
-      searchInput: 'some query'
-    };
-    sharedContactDataService.searchQuery = null;
-    $controller('ContactListController', {
-      $scope: scope,
-      user: { _id: '123' }
-    });
-    scope.$emit('$stateChangeStart', {
-      name: '/contact/show/:bookId/:bookName/:cardId'
-    });
-    expect(sharedContactDataService.searchQuery).to.equal(scope.contactSearch.searchInput);
-  });
-
-  it('should store the search query when user switches to contact edition view', function() {
-    scope.contactSearch = {
-      searchInput: 'some query'
-    };
-    sharedContactDataService.searchQuery = null;
-    $controller('ContactListController', {
-      $scope: scope,
-      user: { _id: '123' }
-    });
-    scope.$emit('$stateChangeStart', {
-      name: '/contact/edit/:bookId/:bookName/:cardId'
-    });
-    expect(sharedContactDataService.searchQuery).to.equal(scope.contactSearch.searchInput);
-  });
-
-  it('should clear the search query when user switches to a view that is not contact view nor contact edition view', function() {
-    sharedContactDataService.searchQuery = '';
-    $controller('ContactListController', {
-      $scope: scope,
-      user: { _id: '123' }
-    });
-    scope.$emit('$stateChangeStart', {
-      name: '/this/is/not/contact/show/or/edit/:bookId/:cardId'
-    });
-    expect(sharedContactDataService.searchQuery).to.be.null;
-  });
-
   it('should gracePeriodService.flushAllTasks $on(\'$destroy\')', function() {
 
     createPaginationMocks(function() {
@@ -339,17 +289,9 @@ describe('The ContactListController controller', function() {
     var contact = {
       lastName: 'Last'
     };
-    var query = null;
-    var locationMock = {
-      search: function() {
-        return {
-          q: query
-        };
-      }
-    };
+
     $controller('ContactListController', {
       $scope: scope,
-      $location: locationMock,
       user: {
         _id: '123'
       },
@@ -367,30 +309,6 @@ describe('The ContactListController controller', function() {
 
     $rootScope.$broadcast(CONTACT_EVENTS.CANCEL_DELETE, contact);
     $rootScope.$digest();
-  });
-
-  it('should hide contact on CONTACT_EVENTS.DELETED while in search mode', function() {
-    var contact = { lastName: 'Last' };
-    $controller('ContactListController', {
-      $scope: scope,
-      user: { _id: '123' }
-    });
-
-    scope.contactSearch.searchInput = 'someQuery';
-    $rootScope.$broadcast(CONTACT_EVENTS.DELETED, contact);
-    expect(contact.deleted).to.be.true;
-  });
-
-  it('should show contact on CONTACT_EVENTS.CANCEL_DELETE while in search mode', function() {
-    var contact = { lastName: 'Last' };
-    $controller('ContactListController', {
-      $scope: scope,
-      user: { _id: '123' }
-    });
-
-    scope.contactSearch.searchInput = 'someQuery';
-    $rootScope.$broadcast(CONTACT_EVENTS.CANCEL_DELETE, contact);
-    expect(contact.deleted).to.be.false;
   });
 
   it('should add the contact to the contact list of addressbook on CONTACT_EVENTS.CREATED event', function() {
@@ -436,7 +354,6 @@ describe('The ContactListController controller', function() {
 
     initController(AlphaCategoryService);
 
-    scope.contactSearch.searchInput = null;
     $rootScope.$broadcast(CONTACT_EVENTS.CREATED, contact);
     $rootScope.$digest();
     expect(addItemsMock).to.have.been.calledWith([contact]);
@@ -465,42 +382,10 @@ describe('The ContactListController controller', function() {
 
     initController(AlphaCategoryService);
 
-    scope.contactSearch.searchInput = null;
     $rootScope.$broadcast(CONTACT_EVENTS.CREATED, contact);
     $rootScope.$digest();
 
     expect(addItemsMock).to.not.have.been.calledWith([contact]);
-  });
-
-  it('should not live refresh the search result list', function() {
-    var currentAddressbooks = [{ bookId: 'foo', bookName: 'bar' }];
-    var contact = {
-      lastName: 'Last',
-      addressbook: currentAddressbooks[0]
-    };
-
-    var mySpy = sinon.spy();
-    var addItemsSpy = sinon.spy();
-    var AlphaCategoryService = function() {
-      return {
-        addItems: addItemsSpy,
-        removeItemWithId: mySpy,
-        replaceItem: mySpy,
-        get: function() {}
-      };
-    };
-
-    contactAddressbookService.listAggregatedAddressbooks = sinon.stub().returns($q.when(currentAddressbooks));
-
-    initController(AlphaCategoryService);
-
-    scope.contactSearch.searchInput = 'someQuery';
-    $rootScope.$broadcast(CONTACT_EVENTS.CREATED, contact);
-    $rootScope.$broadcast(CONTACT_EVENTS.UPDATED, contact);
-    $rootScope.$broadcast(CONTACT_EVENTS.DELETED, contact);
-    $rootScope.$digest();
-    expect(addItemsSpy).to.not.have.been.calledWith([contact]);
-    expect(mySpy).to.have.been.callCount(0);
   });
 
   it('should update the contact in all contacts list on CONTACT_EVENTS.UPDATED event', function() {
@@ -583,190 +468,6 @@ describe('The ContactListController controller', function() {
 
     $rootScope.$broadcast(CONTACT_EVENTS.UPDATED, contact);
     $rootScope.$digest();
-  });
-
-  it('should load contact list when no query is specified in the URL', function(done) {
-    var query = null;
-    var locationMock = {
-      search: function() {
-        return {
-          q: query
-        };
-      }
-    };
-
-    createPaginationMocks(function() {
-      done();
-    }, function() {
-      done(new Error('This test should not call search function'));
-    });
-
-    $controller('ContactListController', {
-      $location: locationMock,
-      $scope: scope,
-      user: {
-        _id: '123'
-      }
-    });
-    $rootScope.$digest();
-  });
-
-  it('should not load contact list when no query is specified in the URL and a request is ongoing', function(done) {
-    var query = null;
-    var locationMock = {
-      search: function() {
-        return {
-          q: query
-        };
-      }
-    };
-    scope.loadingNextContacts = true;
-
-    createPaginationMocks(function() {
-      done(new Error('This test should not call list function'));
-    }, function() {
-      done(new Error('This test should not call search function'));
-    });
-
-    $controller('ContactListController', {
-      $location: locationMock,
-      $scope: scope,
-      user: {
-        _id: '123'
-      }
-    });
-    $rootScope.$digest();
-    done();
-  });
-
-  it('should load search result list when a query is specified in the URL', function(done) {
-    var query = 'Chuck Norris';
-    var locationMock = {
-      search: function() {
-        return {
-          q: query
-        };
-      }
-    };
-
-    createPaginationMocks(function() {
-      done(new Error('Should not be called'));
-    }, function() {
-      expect(scope.contactSearch.searchInput).to.equal(query);
-      done();
-    });
-
-    $controller('ContactListController', {
-      $location: locationMock,
-      $scope: scope,
-      user: {
-        _id: '123'
-      }
-    });
-    $rootScope.$digest();
-  });
-
-  it('should update the search when a query is stored in sharedContactDataService', function(done) {
-    var query = 'Chuck Norris';
-    var locationMock = {
-      search: function(s, value) {
-        if (s) {
-          expect(s).to.equal('q');
-          expect(value).to.equal('Chuck+Norris');
-          done();
-        } else {
-          return { q: null };
-        }
-      }
-    };
-
-    createPaginationMocks(function() {
-      return done(new Error('This test should not call list function'));
-    }, function() {
-      done();
-    });
-
-    $controller('ContactListController', {
-      $location: locationMock,
-      sharedContactDataService: { searchQuery: query },
-      $scope: scope,
-      user: {
-        _id: '123'
-      }
-    });
-    $rootScope.$digest();
-  });
-
-  it('should refresh list on route update when the queries in the URL and in the search input are different', function(done) {
-    var query = 'QueryA';
-    var mySpy = sinon.spy();
-    var locationMock = {
-      search: function() {
-        return {
-          q: query
-        };
-      }
-    };
-
-    createPaginationMocks(function() {
-      return done(new Error('This test should not call list function'));
-    }, function(options) {
-      expect(scope.contactSearch.searchInput).to.equal(options.searchInput);
-      mySpy();
-      return $q.when({
-        data: [],
-        total_hits: 0
-      });
-    });
-
-    $controller('ContactListController', {
-      $scope: scope,
-      $location: locationMock,
-      user: {
-        _id: '123'
-      }
-    });
-    scope.$digest();
-    scope.contactSearch.searchInput = 'QueryB';
-    scope.$digest();
-    $rootScope.$broadcast('$stateChangeSuccess', {name: '/some/other/place'});
-    expect(scope.contactSearch.searchInput).to.equal(query);
-    expect(mySpy).to.have.been.calledTwice;
-    done();
-  });
-
-  it('should not refresh list on route update when the queries in the URL and in the search input are the same', function(done) {
-    var query = 'QueryA';
-    var mySpy = sinon.spy();
-    var locationMock = {
-      search: function() {
-        return {
-          q: query
-        };
-      }
-    };
-
-    createPaginationMocks(function() {
-      return done(new Error('This test should not call list function'));
-    }, function() {
-      expect(scope.contactSearch.searchInput).to.equal(query);
-      mySpy();
-      return $q.when([]);
-    });
-
-    $controller('ContactListController', {
-      $scope: scope,
-      $location: locationMock,
-      user: {
-        _id: '123'
-      }
-    });
-    scope.$digest();
-    scope.contactSearch.searchInput = 'QueryA';
-    $rootScope.$broadcast('$stateChangeSuccess', {});
-    expect(scope.contactSearch.searchInput).to.equal(query);
-    expect(mySpy).to.have.been.calledOnce;
-    done();
   });
 
   it('should add no item to the categories when pagination returns an empty list', function(done) {
@@ -943,59 +644,6 @@ describe('The ContactListController controller', function() {
     });
   });
 
-  describe('The clearSearchInput function', function() {
-
-    it('should clear search input and all search results', function() {
-      var user = {_id: 123};
-      scope.contactSearch = {
-        searchInput: 'name'
-      };
-      scope.searchResult = {
-        data: ['name1', 'name2', 'name3']
-      };
-      scope.totalHits = 3;
-      scope.loadContacts = function() {};
-      $controller('ContactListController', {
-        $scope: scope,
-        user: user
-      });
-      scope.clearSearchInput();
-      expect(scope.contactSearch.searchInput).to.be.null;
-      expect(scope.searchResult).to.deep.equal({});
-      expect(scope.totalHits).to.equal(0);
-    });
-
-    it('should load contacts after clear input', function(done) {
-      var user = {_id: 123};
-
-      createPaginationMocks(function() {
-        done();
-      }, function() {
-        done(new Error('Should not be called'));
-      });
-
-      scope.loadContacts = sinon.spy();
-      $controller('ContactListController', {
-        $scope: scope,
-        user: user
-      });
-      scope.clearSearchInput();
-      $rootScope.$digest();
-    });
-
-    it('should update location after clear input', function(done) {
-      $controller('ContactListController', {
-        $scope: scope,
-        user: {
-          _id: '123'
-        }
-      });
-      scope.appendQueryToURL = done;
-      scope.clearSearchInput();
-      $rootScope.$digest();
-    });
-  });
-
   describe('The loadContacts function', function() {
 
     it('should call the addressBookPaginationService vcard list fn', function(done) {
@@ -1096,451 +744,6 @@ describe('The ContactListController controller', function() {
       scope.openContactCreation();
       expect(openContactFormMock).to.have.been.calledWith(scope.bookId, bookName);
     });
-  });
-
-  describe('The search function', function() {
-
-    it('should set status to "loading" when searching contacts', function() {
-      var controller = initController();
-
-      $timeout.flush();
-      expect(controller.status).to.equal('loaded');
-
-      scope.search();
-      $rootScope.$digest();
-      expect(controller.status).to.equal('loading');
-    });
-
-    it('should stop the throbber when finished searching contacts', function() {
-      var controller = initController();
-
-      $timeout.flush();
-      expect(controller.status).to.equal('loaded');
-
-      scope.search();
-      $rootScope.$digest();
-      expect(controller.status).to.equal('loading');
-      $timeout.flush();
-      expect(controller.status).to.equal('loaded');
-    });
-
-    it('should clean previous search results', function(done) {
-      createPaginationMocks(function() {
-        return $q.when([]);
-      }, function() {
-        done(new Error('Should not be called'));
-      });
-
-      $controller('ContactListController', {
-        $scope: scope,
-        user: {
-          _id: '123'
-        }
-      });
-
-      scope.searchResult = 1;
-      scope.loadContacts = function() {};
-      scope.search();
-      scope.$digest();
-      expect(scope.searchResult).to.deep.equal({});
-      done();
-    });
-
-    it('should update location on each search', function(done) {
-      $controller('ContactListController', {
-        $scope: scope,
-        user: {
-          _id: '123'
-        }
-      });
-      scope.appendQueryToURL = done;
-      scope.search();
-    });
-
-    it('should clean search result data', function(done) {
-      createPaginationMocks(function() {
-        return $q.when({ contacts: [] });
-      }, function() {
-        done(new Error('Should not be called'));
-      });
-
-      $controller('ContactListController', {
-        $scope: scope,
-        user: {
-          _id: '123'
-        },
-        AlphaCategoryService: function() {
-          return {
-            init: function() {
-            }
-          };
-        }
-      });
-
-      scope.searchResult = {
-        data: 1
-      };
-      scope.loadContacts = function() {};
-      scope.search();
-      scope.$digest();
-      expect(scope.searchMode).isTrue;
-      expect(scope.searchResult.data).to.not.exist;
-      done();
-    });
-
-    it('should quit search mode and get all the user contacts when searchInput is undefined', function(done) {
-      $controller('ContactListController', {
-        $scope: scope,
-        user: {
-          _id: '123'
-        }
-      });
-
-      scope.loadContacts = function() {
-        expect(scope.searchMode).isFalse;
-        done();
-      };
-      scope.search();
-      scope.$digest();
-    });
-
-    it('should update the contacts list on search success', function() {
-      var search = 'Bruce Willis';
-
-      var contactWithA = { displayName: 'A B'};
-      var contactWithB = { displayName: 'B C'};
-      var contactWithC = { displayName: 'C D'};
-
-      var result = {
-        total_hits: 2,
-        current_page: 1,
-        data: [contactWithA, contactWithC]
-      };
-
-      createPaginationMocks(function() {
-        return $q.when([contactWithA, contactWithB, contactWithC]);
-      }, function() {
-        return $q.when(result);
-      });
-
-      $controller('ContactListController', {
-        $scope: scope,
-        user: {
-          _id: '123'
-        },
-        bookId: '456'
-      });
-
-      scope.contactSearch.searchInput = search;
-      scope.totalHits = 0;
-      scope.search();
-      scope.$digest();
-
-      expect(scope.searchResult.data).to.deep.equal(result.data);
-      expect(scope.searchResult.count).to.equal(2);
-      expect(scope.searchResult.formattedResultsCount).to.exist;
-      expect(scope.searchFailure).to.be.false;
-    });
-
-    it('should contactDisplayError on search failure', function(done) {
-      var search = 'Bruce Willis';
-
-      createPaginationMocks(function() {
-        return $q.when([]);
-      }, function() {
-        return $q.reject(new Error('Search failure'));
-      });
-
-      $controller('ContactListController', {
-        $scope: scope,
-        contactDisplayError: function(error) {
-          expect(error).to.match(/Can not search contacts/);
-          done();
-        },
-        user: {
-          _id: '123'
-        },
-        bookId: '456'
-      });
-
-      scope.contactSearch.searchInput = search;
-      scope.search();
-      scope.$digest();
-    });
-
-    it('should prevent fetching next results page while loading current result page', function() {
-      var search = 'Bruce Willis';
-
-      var contactWithA = { displayName: 'A B'};
-      var contactWithB = { displayName: 'B C'};
-      var contactWithC = { displayName: 'C D'};
-      var contactWithD = { displayName: 'D E'};
-      var contactWithE = { displayName: 'E F'};
-
-      var result = {
-        total_hits: 4,
-        data: [contactWithA, contactWithB]
-      };
-
-      createPaginationMocks(function() {
-        return $q.when([contactWithA, contactWithB, contactWithC, contactWithD, contactWithE]);
-      }, function() {
-        return $q.when(result);
-      });
-
-      $controller('ContactListController', {
-        $scope: scope,
-        user: {
-          _id: '123'
-        },
-        bookId: '456'
-      });
-
-      scope.contactSearch.searchInput = search;
-      scope.search();
-      expect(scope.loadingNextContacts).to.be.true;
-      scope.$digest();
-      expect(scope.searchFailure).to.be.false;
-      expect(scope.loadingNextContacts).to.be.false;
-    });
-
-    it('should allow fetching next result page when there are undisplayed results', function() {
-      var search = 'Bruce Willis';
-
-      var contactWithA = { displayName: 'A B'};
-      var contactWithB = { displayName: 'B C'};
-      var contactWithC = { displayName: 'C D'};
-      var contactWithD = { displayName: 'D E'};
-      var contactWithE = { displayName: 'E F'};
-
-      var result = {
-        total_hits: 4,
-        data: [contactWithA, contactWithB]
-      };
-
-      createPaginationMocks(function() {
-        return $q.when([contactWithA, contactWithB, contactWithC, contactWithD, contactWithE]);
-      }, function() {
-        return $q.when(result);
-      });
-
-      $controller('ContactListController', {
-        $scope: scope,
-        user: {
-          _id: '123'
-        },
-        bookId: '456'
-      });
-      scope.$digest();
-
-      scope.contactSearch.searchInput = search;
-      scope.totalHits = 0;
-      scope.search();
-      scope.$digest();
-      expect(scope.searchFailure).to.be.false;
-      expect(scope.lastPage).to.be.false;
-    });
-
-    it('should prevent fetching next result page when the previous search fails', function() {
-      var search = 'Bruce Willis';
-
-      createPaginationMocks(function() {
-        return $q.when([]);
-      }, function() {
-        return $q.reject(new Error('Fail'));
-      });
-
-      $controller('ContactListController', {
-        $scope: scope,
-        user: {
-          _id: '123'
-        },
-        bookId: '456'
-      });
-
-      scope.contactSearch.searchInput = search;
-      scope.search();
-      scope.$digest();
-      expect(scope.searchFailure).to.be.true;
-    });
-
-    it('should prevent search when previous search is not complete', function() {
-      var search = 'Bruce Willis';
-      var called = 0;
-      var promise = $q.defer().promise;
-
-      createPaginationMocks(function() {
-        return $q.when([]);
-      }, function() {
-        called++;
-        // the search will be never resolved
-        return promise;
-      });
-
-      $controller('ContactListController', {
-        $scope: scope,
-        user: {
-          _id: '123'
-        },
-        bookId: '456',
-        $location: {
-          search: function() {
-            return {};
-          }
-        }
-      });
-      $rootScope.$digest();
-      scope.appendQueryToURL = function() {};
-
-      scope.contactSearch.searchInput = search;
-      scope.$digest();
-      scope.search();
-      scope.$digest();
-      scope.search();
-      scope.$digest();
-      expect(called).to.equal(1);
-    });
-
-    it('should store the search input value if the previous search request is still pending', function() {
-      var endOfSearch = $q.defer();
-
-      $controller('ContactListController', {
-        $scope: scope,
-        user: {
-          _id: '123'
-        }
-      });
-      $rootScope.$digest();
-
-      scope.appendQueryToURL = scope.createPagination = angular.noop;
-
-      scope.pagination.service.loadNextItems = function(searchQuery) {
-        if (searchQuery) {
-          return endOfSearch.promise;
-        }
-        return $q.reject(new Error('Fail'));
-      };
-
-      scope.contactSearch.searchInput = 'openpaas';
-      scope.search();
-      scope.$digest();
-
-      scope.contactSearch.searchInput = 'openpaasng';
-      scope.search();
-      scope.$digest();
-
-      expect(scope.updatedDuringSearch).to.equal('openpaasng');
-    });
-
-    it('should reset the stored value if a new search request occurs and no changes occured between', function() {
-      var endOfSearch;
-      var fakeResult = {
-        total_hits: 0,
-        data: []
-      };
-
-      $controller('ContactListController', {
-        $scope: scope,
-        user: {
-          _id: '123'
-        }
-      });
-      $rootScope.$digest();
-
-      scope.appendQueryToURL = scope.createPagination = angular.noop;
-
-      scope.pagination.service.loadNextItems = function(searchQuery) {
-        if (searchQuery) {
-          endOfSearch = $q.defer();
-          return endOfSearch.promise;
-        }
-        return $q.reject(new Error('Fail'));
-      };
-
-      scope.contactSearch.searchInput = 'openpaas';
-      scope.search();
-      scope.$digest();
-
-      endOfSearch.resolve(fakeResult);
-      scope.search();
-      scope.$digest();
-
-      expect(scope.updatedDuringSearch).to.be.null;
-    });
-
-    it('should send a new query search if a stored value exists', function() {
-      var endOfSearch;
-      var fakeResult = {
-        total_hits: 0,
-        data: []
-      };
-      var searchRequests = 0;
-
-      $controller('ContactListController', {
-        $scope: scope,
-        user: {
-          _id: '123'
-        }
-      });
-      $rootScope.$digest();
-
-      scope.appendQueryToURL = scope.createPagination = angular.noop;
-
-      scope.pagination.service.loadNextItems = function(searchQuery) {
-        if (searchQuery) {
-          searchRequests++;
-          endOfSearch = $q.defer();
-          return endOfSearch.promise;
-        }
-        return $q.reject(new Error('Fail'));
-      };
-
-      scope.contactSearch.searchInput = 'openpaas';
-      scope.search();
-      scope.$digest();
-      scope.contactSearch.searchInput = 'openpaasng';
-      endOfSearch.resolve(fakeResult);
-      scope.search();
-      scope.$digest();
-
-      expect(searchRequests).to.equal(2);
-    });
-
-    it('should not send a new query search if no changes occured during a search query', function() {
-      var endOfSearch;
-      var fakeResult = {
-        total_hits: 0,
-        data: []
-      };
-      var searchRequests = 0;
-
-      $controller('ContactListController', {
-        $scope: scope,
-        user: {
-          _id: '123'
-        }
-      });
-      $rootScope.$digest();
-
-      scope.appendQueryToURL = scope.createPagination = angular.noop;
-
-      scope.pagination.service.loadNextItems = function(searchQuery) {
-        if (searchQuery) {
-          searchRequests++;
-          endOfSearch = $q.defer();
-          return endOfSearch.promise;
-        }
-        return $q.reject(new Error('Fail'));
-      };
-
-      scope.contactSearch.searchInput = 'openpaas';
-      scope.search();
-      scope.$digest();
-      endOfSearch.resolve(fakeResult);
-
-      expect(searchRequests).to.equal(1);
-    });
-
   });
 
   describe('When Deleted Addressbook event is fired', function() {
