@@ -412,7 +412,7 @@ module.exports = function(dependencies) {
         err => {
           logger.error('Error while getting an addressbook', err.body || err);
 
-          if (err.response.statusCode === 404) {
+          if (err.statusCode === 404) {
             return res.status(404).json({
               error: {
                 code: 404,

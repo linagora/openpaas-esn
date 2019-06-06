@@ -353,7 +353,7 @@ describe('The contact client APIs', function() {
           });
 
           getAddressbookHome().addressbook(BOOK_NAME).get().catch(err => {
-            expect(err.response).to.deep.equal(response);
+            expect(err.statusCode).to.deep.equal(response.statusCode);
             expect(err.body).to.deep.equal(body);
 
             done();
