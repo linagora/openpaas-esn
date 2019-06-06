@@ -5,19 +5,8 @@ block left
     i.mdi.mdi-menu
   span.title.ellipsis {{bookTitle}}
   span.title.visible-md(ng-if='contactsCount > 0') ({{::contactsCount}})
-  h2.visible-md
-    span(ng-show="contactSearch.searchInput") #{__('Search in contacts')}
-    small(ng-switch="searchResult.count" ng-if="!!contactSearch.searchInput")
-      span(ng-switch-when='0') #{__('No contacts found')}
-      span(ng-switch-when='1') #{__('1 contact found')}
-      span(ng-switch-default)
-        span(ng-if='searchResult.formattedResultsCount.isFormatted') #{__('About')}&nbsp;
-        span(ng-if='searchResult.formattedResultsCount.hits') {{searchResult.formattedResultsCount.hits}} #{__('contacts found')}
-
 
 block right
   .contacts-list-toolbar
-    .contacts-search.hidden
-      contact-search-form
     .contacts-toggle.flex-vertical-centered
       contact-list-toggle
