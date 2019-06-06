@@ -2,7 +2,6 @@
   position: absolute;
   color: @secondaryTextColor;
   top: 50%;
-  font-size: 20px;
   transform: translateY(-50%);
 
   & when (@pos = 'left') {
@@ -19,6 +18,8 @@ esn-filter-input {
 
   .esn-filter-input-filter-icon {
     .input-inline-item('left');
+
+    font-size: 20px;
   }
 
   input.esn-filter-input-field.form-control {
@@ -30,5 +31,9 @@ esn-filter-input {
 
   .esn-filter-input-clear-btn {
     .input-inline-item('right');
+
+    i {
+      font-size: 20px;
+    }
   }
 }
