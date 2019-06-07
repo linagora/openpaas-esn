@@ -48,7 +48,7 @@ module.exports = (dependencies, options = {}) => {
       if (status && status.indexOf(response.statusCode) < 0) {
         logger.error('Bad HTTP status', response.statusCode, body);
 
-        return deferred.reject({ response, body });
+        return deferred.reject({ statusCode: response.statusCode, body });
       }
 
       return deferred.resolve({ response, body });
