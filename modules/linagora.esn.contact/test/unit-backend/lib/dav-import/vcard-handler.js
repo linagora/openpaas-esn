@@ -244,6 +244,47 @@ describe('The contacts backend/lib/dav-import/vcard-handler module', function() 
 
       getModule().importItem(item, { target });
     });
+
+    it('should qualify vCard before creating contact', function(done) {
+      // With VCard version 3.0, the type of "VALUE" of the "TEL" type is "PHONE-NUMBER"
+      // For more detail: https://tools.ietf.org/html/rfc2426#section-2.4.3
+      const item = [
+        'BEGIN:VCARD',
+        'VERSION:3.0',
+        'FN:Louis Vidal',
+        'TEL;TYPE=Work:+84 0385180581',
+        'END:VCARD'
+      ].join('\n');
+      const target = '/addressbooks/bookHome/bookName.json';
+
+      clientMock.returns({
+        addressbookHome(bookHome) {
+          expect(bookHome).to.equal('bookHome');
+
+          return {
+            addressbook(bookName) {
+              expect(bookName).to.equal('bookName');
+
+              return {
+                vcard() {
+                  return {
+                    create(data) {
+                      expect(data[1][2]).to.includes('tel');
+                      expect(data[1][2]).to.includes('text'); // expect the type of is mofified from "PHONE-NUMBER" to "TEXT"
+
+                      expect(JSON.stringify(data)).to.contain('Louis Vidal');
+                      done();
+                    }
+                  };
+                }
+              };
+            }
+          };
+        }
+      });
+
+      getModule().importItem(item, { target });
+    });
   });
 
   describe('The targetValidator fn', function() {

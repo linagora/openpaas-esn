@@ -60,7 +60,7 @@ module.exports = dependencies => {
       .addressbookHome(bookHome)
       .addressbook(bookName)
       .vcard(contactId)
-      .create(vcard.toJSON());
+      .create(_qualifyVCard(vcard).toJSON());
   }
 
   function targetValidator(user, target) {
@@ -68,5 +68,32 @@ module.exports = dependencies => {
     const { bookHome, bookName } = parseAddressbookPath(target);
 
     return Boolean(bookHome || bookName);
+  }
+
+  /**
+   * Qualify vCard since vCard format specification does not support "PHONE-NUMBER" as a type of "VALUE" of "TEL" property
+   * Current specification: https://tools.ietf.org/html/rfc6350
+   * Obsoleted specification: https://tools.ietf.org/html/rfc2426
+   *
+   * @param {Object} vCard
+   * @return {Object} qualified vCard
+   */
+  function _qualifyVCard(vCard) {
+    const telProperties = vCard.getAllProperties('tel');
+
+    if (telProperties.length === 0) {
+      return vCard;
+    }
+
+    telProperties.forEach(telProperty => {
+      const parsedTelProperty = telProperty.toJSON();
+      const phoneNumberIndex = parsedTelProperty.indexOf('phone-number');
+
+      if (phoneNumberIndex > -1) {
+        parsedTelProperty[phoneNumberIndex] = 'text';
+      }
+    });
+
+    return vCard;
   }
 };
