@@ -7,6 +7,7 @@ var expect = chai.expect;
 describe('The ContactLocationHelper service', function() {
   var bookId = 'bookId';
   var bookName = 'bookName';
+  var $location, ContactLocationHelper;
 
   beforeEach(function() {
     module('esn.core');
@@ -16,29 +17,58 @@ describe('The ContactLocationHelper service', function() {
   });
 
   beforeEach(function() {
-    var self = this;
+    $location = { url: angular.noop };
 
-    self.$location = { url: angular.noop };
-    angular.mock.module(function($provide) {
-      $provide.value('$location', self.$location);
+    module(function($provide) {
+      $provide.value('$location', $location);
     });
   });
 
-  beforeEach(angular.mock.inject(function(ContactLocationHelper) {
-    this.ContactLocationHelper = ContactLocationHelper;
+  beforeEach(inject(function(_ContactLocationHelper_) {
+    ContactLocationHelper = _ContactLocationHelper_;
   }));
 
   describe('The contact object', function() {
 
-    describe('The new fn', function() {
-
-      it('should call location.url with correct params', function() {
-        this.$location.url = function(url) {
+    describe('The new method', function() {
+      it('should call $location.url with correct params', function() {
+        $location.url = function(url) {
           expect(url).to.equal(['/contact', 'new', bookId, bookName].join('/'));
         };
-        this.ContactLocationHelper.contact.new(bookId, bookName);
+        ContactLocationHelper.contact.new(bookId, bookName);
+      });
+
+      it('should not call $location.replace if param shouldReplaceState is false', function() {
+        var replaceMethodMock = false;
+
+        $location.url = function() {
+          return {
+            replace: function() {
+              replaceMethodMock = true;
+            }
+          };
+        };
+
+        ContactLocationHelper.contact.new(bookId, bookName, false);
+
+        expect(replaceMethodMock).to.be.false;
+      });
+
+      it('should call $location.replace if param shouldReplaceState is true', function() {
+        var replaceMethodMock = false;
+
+        $location.url = function() {
+          return {
+            replace: function() {
+              replaceMethodMock = true;
+            }
+          };
+        };
+
+        ContactLocationHelper.contact.new(bookId, bookName, true);
+
+        expect(replaceMethodMock).to.be.true;
       });
     });
   });
-
 });

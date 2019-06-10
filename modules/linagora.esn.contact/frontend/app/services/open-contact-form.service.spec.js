@@ -46,13 +46,24 @@ describe('The openContactForm service', function() {
     expect(this.sharedContactDataService.contact).to.deep.equal(contact);
   });
 
-  it('should call the ContactLocationHelper.contact.new with right parameter', function() {
+  it('should call the ContactLocationHelper.contact.new with right parameter if there is no shouldReplaceState param is given', function() {
     this.ContactLocationHelper.contact.new = sinon.spy();
     this.openContactForm({
       bookId: bookId,
       bookName: bookName,
       contact: contact
     });
-    expect(this.ContactLocationHelper.contact.new).to.have.been.calledWithExactly(bookId, bookName);
+    expect(this.ContactLocationHelper.contact.new).to.have.been.calledWithExactly(bookId, bookName, undefined);
+  });
+
+  it('should call the ContactLocationHelper.contact.new with right parameter', function() {
+    this.ContactLocationHelper.contact.new = sinon.spy();
+    this.openContactForm({
+      bookId: bookId,
+      bookName: bookName,
+      contact: contact,
+      shouldReplaceState: true
+    });
+    expect(this.ContactLocationHelper.contact.new).to.have.been.calledWithExactly(bookId, bookName, true);
   });
 });

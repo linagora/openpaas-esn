@@ -9,7 +9,7 @@
       if (options.contact) {
         sharedContactDataService.contact = options.contact;
       }
-      ContactLocationHelper.contact.new(options.bookId, options.bookName);
+      ContactLocationHelper.contact.new(options.bookId, options.bookName, options.shouldReplaceState);
     };
   }
 })(angular);

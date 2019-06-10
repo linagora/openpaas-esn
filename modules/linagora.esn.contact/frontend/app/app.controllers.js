@@ -59,7 +59,8 @@
                     openContactForm({
                       bookId: $scope.bookId,
                       bookName: $scope.bookName,
-                      contact: $scope.contact
+                      contact: $scope.contact,
+                      shouldReplaceState: true
                     });
                   }, function(err) {
                     data.error('Cannot cancel contact creation, the contact is created');
