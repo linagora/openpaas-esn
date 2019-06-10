@@ -1,13 +1,12 @@
 const ICAL = require('@linagora/ical.js');
-const q = require('q');
 const uuidV4 = require('uuid/v4');
-const helper = require('../helper');
+const { parseAddressbookPath } = require('../helper');
 
 const CONTENT_TYPES = ['text/vcard', 'text/x-vcard'];
 const START_LINE = /^BEGIN:VCARD\r?$/;
 const END_LINE = /^END:VCARD\r?$/;
 
-module.exports = function(dependencies) {
+module.exports = dependencies => {
   const client = require('../client')(dependencies);
 
   return {
@@ -42,10 +41,10 @@ module.exports = function(dependencies) {
   }
 
   function importItem(item, { target, token }) {
-    const { bookHome, bookName } = helper.parseAddressbookPath(target);
+    const { bookHome, bookName } = parseAddressbookPath(target);
 
     if (!bookHome || !bookName) {
-      return q.reject(new Error(`${target} is not a valid address book path`));
+      return Promise.reject(new Error(`${target} is not a valid address book path`));
     }
 
     const vcard = ICAL.Component.fromString(item);
@@ -66,7 +65,7 @@ module.exports = function(dependencies) {
 
   function targetValidator(user, target) {
     // user can be later used to check if user has write access to the target address book path
-    const { bookHome, bookName } = helper.parseAddressbookPath(target);
+    const { bookHome, bookName } = parseAddressbookPath(target);
 
     return Boolean(bookHome || bookName);
   }
