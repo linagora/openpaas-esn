@@ -56,7 +56,11 @@
                 contactService.removeContact({ bookId: $scope.bookId, bookName: $scope.bookName }, $scope.contact, { etag: $scope.contact.etag })
                   .then(function() {
                     data.success();
-                    openContactForm($scope.bookId, $scope.bookName, $scope.contact);
+                    openContactForm({
+                      bookId: $scope.bookId,
+                      bookName: $scope.bookName,
+                      contact: $scope.contact
+                    });
                   }, function(err) {
                     data.error('Cannot cancel contact creation, the contact is created');
 

@@ -729,7 +729,10 @@ describe('The ContactListController controller', function() {
       initController();
 
       scope.openContactCreation();
-      expect(openContactFormMock).to.have.been.calledWith(scope.bookId, DEFAULT_ADDRESSBOOK_NAME);
+      expect(openContactFormMock).to.have.been.calledWith({
+        bookId: scope.bookId,
+        bookName: DEFAULT_ADDRESSBOOK_NAME
+      });
     });
 
     it('should open the contact creation form for specific address book if user is viewing that address book', function() {
@@ -742,7 +745,10 @@ describe('The ContactListController controller', function() {
       initController();
 
       scope.openContactCreation();
-      expect(openContactFormMock).to.have.been.calledWith(scope.bookId, bookName);
+      expect(openContactFormMock).to.have.been.calledWith({
+        bookId: scope.bookId,
+        bookName: bookName
+      });
     });
   });
 

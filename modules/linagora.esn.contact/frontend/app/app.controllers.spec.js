@@ -123,8 +123,8 @@ describe('The Contacts controller module', function() {
     };
 
     openContactFormMock = function() {};
-    openContactForm = function(id, name) {
-      return openContactFormMock(id, name);
+    openContactForm = function(options) {
+      return openContactFormMock(options.bookId, options.bookName);
     };
 
     angular.mock.module('esn.core');

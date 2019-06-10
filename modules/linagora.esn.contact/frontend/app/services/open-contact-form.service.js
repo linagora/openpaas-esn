@@ -5,11 +5,11 @@
     .factory('openContactForm', openContactForm);
 
   function openContactForm(sharedContactDataService, ContactLocationHelper) {
-    return function(bookId, bookName, contact) {
-      if (contact) {
-        sharedContactDataService.contact = contact;
+    return function(options) {
+      if (options.contact) {
+        sharedContactDataService.contact = options.contact;
       }
-      ContactLocationHelper.contact.new(bookId, bookName);
+      ContactLocationHelper.contact.new(options.bookId, options.bookName);
     };
   }
 })(angular);

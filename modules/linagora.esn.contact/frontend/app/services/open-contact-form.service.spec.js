@@ -38,13 +38,21 @@ describe('The openContactForm service', function() {
   }));
 
   it('should save the contact in the sharedContactDataService when defined', function() {
-    this.openContactForm(bookId, bookName, contact);
+    this.openContactForm({
+      bookId: bookId,
+      bookName: bookName,
+      contact: contact
+    });
     expect(this.sharedContactDataService.contact).to.deep.equal(contact);
   });
 
   it('should call the ContactLocationHelper.contact.new with right parameter', function() {
     this.ContactLocationHelper.contact.new = sinon.spy();
-    this.openContactForm(bookId, bookName, contact);
+    this.openContactForm({
+      bookId: bookId,
+      bookName: bookName,
+      contact: contact
+    });
     expect(this.ContactLocationHelper.contact.new).to.have.been.calledWithExactly(bookId, bookName);
   });
 });
