@@ -276,7 +276,7 @@ describe('The core/esn-config/metadata/autoconf module', () => {
 
             validator(config);
 
-            expect(config.accounts[0].imap.prettyName).to.equal('OpenPaas (<%= user.preferredEmail %>)');
+            expect(config.accounts[0].imap.prettyName).to.equal('<%= user.preferredEmail %>');
           });
 
           it('should return error message if username is not correct string format', () => {
@@ -311,14 +311,6 @@ describe('The core/esn-config/metadata/autoconf module', () => {
         });
 
         describe('smtp property', () => {
-          it('should return error message if description is not an allowed value', () => {
-            delete config.accounts[0].smtp.description;
-
-            validator(config);
-
-            expect(config.accounts[0].smtp.description).to.equal('OpenPaas SMTP (<%= user.preferredEmail %>)');
-          });
-
           it('should return error message if username is not correct string format', () => {
             delete config.accounts[0].smtp.username;
 
