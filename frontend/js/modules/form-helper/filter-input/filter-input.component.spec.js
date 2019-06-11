@@ -56,4 +56,16 @@ describe('The esnFilterInput component', function() {
     expect($scope.filter.text).to.equal('');
     expect(input.val()).to.equal('');
   });
+
+  it('should translate placeholder', function() {
+    compileComponent('<esn-filter-input placeholder="Some placeholder" />');
+
+    expect(esnI18nService.translate).to.have.been.calledWith('Some placeholder');
+  });
+
+  it('should fall back to "standard" view when an unsupported variant is provided', function() {
+    var element = compileComponent('<esn-filter-input variant="some-unsupported-variant" />');
+
+    expect(element.find('.fg-line').length).to.equal(1);
+  });
 });
