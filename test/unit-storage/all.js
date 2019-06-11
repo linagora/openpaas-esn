@@ -1,42 +1,52 @@
-'use strict';
+/* eslint-disable no-process-env, no-console */
 
-var mongoose = require('mongoose'),
-    mockery = require('mockery'),
-    chai = require('chai'),
-    path = require('path'),
-    fs = require('fs-extra'),
-    helpers = require('../helpers'),
-    apiHelpers = require('../api-helpers'),
-    moduleHelpers = require('../module-helpers');
+const mongoose = require('mongoose');
+const mockery = require('mockery');
+const chai = require('chai');
+const path = require('path');
+const fs = require('fs-extra');
+const helpers = require('../helpers');
+const apiHelpers = require('../api-helpers');
+const moduleHelpers = require('../module-helpers');
 
-var testConfig = require('../config/servers-conf.js');
+const testConfig = require('../config/servers-conf.js');
 
 before(function() {
-  var self = this;
+  const self = this;
 
   chai.use(require('chai-shallow-deep-equal'));
   chai.use(require('sinon-chai'));
   chai.use(require('chai-as-promised'));
-  var basePath = path.resolve(__dirname + '/../..');
-  var tmpPath = path.resolve(basePath, testConfig.tmp);
+
+  const basePath = path.resolve(`${__dirname}/../..`);
+  const tmpPath = path.resolve(basePath, testConfig.tmp);
+
   this.testEnv = {
     serversConfig: testConfig,
     basePath: basePath,
     tmp: tmpPath,
-    fixtures: path.resolve(__dirname + '/fixtures'),
-    mongoUrl: 'mongodb://' + testConfig.mongodb.host + ':' + testConfig.mongodb.port + '/' + testConfig.mongodb.dbname,
+    fixtures: path.resolve(`${__dirname}/fixtures`),
+    mongoUrl: `mongodb://${testConfig.mongodb.host}:${testConfig.mongodb.port}/${testConfig.mongodb.dbname}`,
+
     writeDBConfigFile: function() {
-      fs.writeFileSync(tmpPath + '/db.json', JSON.stringify({connectionString: 'mongodb://' + testConfig.mongodb.host + ':' + testConfig.mongodb.port + '/' + testConfig.mongodb.dbname}));
+      fs.writeFileSync(`${tmpPath}/db.json`, JSON.stringify({
+        connectionString: `mongodb://${testConfig.mongodb.host}:${testConfig.mongodb.port}/${testConfig.mongodb.dbname}`
+      }));
     },
+
     removeDBConfigFile: function() {
-      fs.unlinkSync(tmpPath + '/db.json');
+      fs.unlinkSync(`${tmpPath}/db.json`);
     },
+
     initCore: function(callback) {
-      var core = require(basePath + '/backend/core');
+      const core = require(`${basePath}/backend/core`);
+
       core.init();
+
       if (callback) {
         callback();
       }
+
       return core;
     }
   };
@@ -47,7 +57,7 @@ before(function() {
 
   process.env.NODE_CONFIG = this.testEnv.tmp;
   process.env.NODE_ENV = 'test';
-  fs.copySync(__dirname + '/default.test.json', this.testEnv.tmp + '/default.json');
+  fs.copySync(`${__dirname}/default.test.json`, `${this.testEnv.tmp}/default.json`);
 
   this.connectMongoose = function(mongoose, done) {
     mongoose.Promise = require('q').Promise; // http://mongoosejs.com/docs/promises.html
@@ -62,12 +72,13 @@ before(function() {
 
 after(function(done) {
   delete process.env.NODE_CONFIG;
-  fs.unlinkSync(this.testEnv.tmp + '/default.json');
+  fs.unlinkSync(`${this.testEnv.tmp}/default.json`);
   this.helpers.mongo.dropDatabase(done);
 });
 
 beforeEach(function() {
-  mockery.enable({warnOnReplace: false, warnOnUnregistered: false, useCleanCache: true});
+  mockery.enable({ warnOnReplace: false, warnOnUnregistered: false, useCleanCache: true });
+  this.helpers.mock.winston();
 });
 
 afterEach(function() {
