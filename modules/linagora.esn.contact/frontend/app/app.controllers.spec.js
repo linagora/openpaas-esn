@@ -123,8 +123,8 @@ describe('The Contacts controller module', function() {
     };
 
     openContactFormMock = function() {};
-    openContactForm = function(id, name) {
-      return openContactFormMock(id, name);
+    openContactForm = function(options) {
+      return openContactFormMock(options);
     };
 
     angular.mock.module('esn.core');
@@ -505,8 +505,13 @@ describe('The Contacts controller module', function() {
         scope.accept();
         scope.$digest();
         expect(openContactFormMock).to.have.been.calledOnce;
+        expect(openContactFormMock).to.have.been.calledWith({
+          bookId: bookId,
+          bookName: bookName,
+          contact: scope.contact,
+          shouldReplaceState: true
+        });
       });
-
     });
   });
 

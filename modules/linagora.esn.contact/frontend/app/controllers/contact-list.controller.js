@@ -167,11 +167,17 @@
 
     $scope.openContactCreation = function() {
       if ($scope.addressbooks.length > 1) {
-        return openContactForm($scope.bookId, DEFAULT_ADDRESSBOOK_NAME);
+        return openContactForm({
+          bookId: $scope.bookId,
+          bookName: DEFAULT_ADDRESSBOOK_NAME
+        });
       }
 
       if ($scope.addressbooks.length === 1) {
-        return openContactForm($scope.bookId, $scope.addressbooks[0].bookName);
+        return openContactForm({
+          bookId: $scope.bookId,
+          bookName: $scope.addressbooks[0].bookName
+        });
       }
     };
 
