@@ -781,11 +781,4 @@ angular.module('esn.community')
         }
       });
     });
-  })
-  .directive('applicationMenuCommunity', function(applicationMenuTemplateBuilder) {
-    return {
-      retrict: 'E',
-      replace: true,
-      template: applicationMenuTemplateBuilder('/#/community', { name: 'communities' }, 'Communities', 'core.modules.linagora.esn.community.enabled', false)
-    };
   });

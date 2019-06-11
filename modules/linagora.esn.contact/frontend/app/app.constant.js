@@ -76,6 +76,7 @@
           platform: true
         }
       },
-      disableable: true
+      disableable: true,
+      isDisplayedByDefault: true
     });
 })(angular);
