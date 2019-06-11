@@ -129,6 +129,7 @@ const injections = [
   {angular: 'esn.api-notification', files: ['api-notification.js'], innerApps: ['esn']},
   {angular: 'esn.community', files: [
     'community/community.module.js',
+    'community/community.constants.js',
     'community/community.run.js',
     'community/community-registry.run.js',
     'community/community.config.js',
@@ -154,6 +155,7 @@ const injections = [
     'community/view/tabs/community-view-tabs.component.js',
     'community/list/community-list.controller.js',
     'community/list/item/community-list-item.directive.js',
+    'community/application-menu/application-menu.directive.js',
     'community/community.js'
   ], innerApps: ['esn']},
   {angular: 'esn.rest.helper', files: ['rest-helper.js'], innerApps: ['esn']},
