@@ -1,65 +1,59 @@
 'use strict';
 
-/* global chai: false */
+/* global chai, sinon: false */
 
 var expect = chai.expect;
 
 describe('The esnFilterInput component', function() {
 
-  var $compile, $rootScope, $timeout, element;
+  var $compile, $scope, $rootScope, $timeout, esnI18nService;
 
-  function compileDirective(html) {
-    element = angular.element(html);
-    element.appendTo(document.body);
+  esnI18nService = {
+    translate: sinon.stub().returnsArg(0)
+  };
 
-    $compile(element)($rootScope.$new());
+  function compileComponent(html) {
+    var element = $compile(html)($scope);
+
+    $scope.$digest();
+
     $timeout.flush();
 
     return element;
   }
 
-  afterEach(function() {
-    if (element) {
-      element.remove();
-    }
-  });
-
   beforeEach(function() {
     module('jadeTemplates', 'esn.form.helper');
 
     module(function($provide) {
-      $provide.value('esnI18nService', {
-        translate: function(input) {
-          return input;
-        }
-      });
+      $provide.value('esnI18nService', esnI18nService);
     });
   });
 
   beforeEach(inject(function(_$compile_, _$rootScope_, _$timeout_) {
     $compile = _$compile_;
     $rootScope = _$rootScope_;
+    $scope = $rootScope.$new();
     $timeout = _$timeout_;
   }));
 
   it('should clear the input and notify when the "clear" icon is clicked', function() {
-    $rootScope.filter = {
+    $scope.filter = {
       text: ''
     };
 
-    compileDirective('<esn-filter-input on-change="filter.text = $filter" />');
+    var element = compileComponent('<esn-filter-input on-change="filter.text = $filter" />');
 
     var input = element.find('input');
 
     input.val('text').trigger('input');
     $timeout.flush(); // for the 'debounce' option
 
-    expect($rootScope.filter.text).to.equal('text');
+    expect($scope.filter.text).to.equal('text');
 
     element.find('.esn-filter-input-clear-btn').click();
 
-    expect($rootScope.filter.text).to.equal('');
+    expect($scope.filter.text).to.equal('');
     expect(input.val()).to.equal('');
   });
-
 });
