@@ -8,7 +8,6 @@ var q = require('q');
 describe('The timeline module', function() {
 
   beforeEach(function() {
-    mockery.registerMock('../logger', require('../../fixtures/logger-noop'));
     mockery.registerMock('./denormalizer', {
       init: function() {}
     });

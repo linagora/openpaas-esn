@@ -1,133 +1,12 @@
-'use strict';
+/* eslint-disable no-console */
 
-var async = require('async'),
-  expect = require('chai').expect,
-  rewire = require('rewire'),
-  MongoClient = require('mongodb').MongoClient,
-  mockery = require('mockery'),
-  pathLib = require('path'),
-  fs = require('fs-extra');
-
-/*
- * Mocks esnConf(<key>) object.
- * get: callback of the esnConf(<key>).get(get) method.
- */
-function mockEsnConfig(get) {
-  var mockedEsnConfig = {
-    'esn-config': function() {
-      return {
-        get: get
-      };
-    }
-  };
-  var mockedEsnConfigFunction = function() {
-    return {
-      get: get
-    };
-  };
-  mockery.registerMock('../../core', mockedEsnConfig);
-  mockery.registerMock('../esn-config', mockedEsnConfigFunction);
-}
-
-/*
- * mockedModels = {
- *   'User': function User() {
- *     ...
- *   },
- *   'Domain': function Domain() {
- *     ...
- *   }
- * }
- *
- */
-function mockModels(mockedModels) {
-  var types = {
-    ObjectId: function(id) {
-      return {id: id};
-    },
-    Mixed: ''
-  };
-
-  var schema = function() {};
-  schema.Types = types;
-
-  var mongooseMock = {
-    Types: types,
-    Schema: schema,
-    model: function(model) {
-      return mockedModels[model];
-    },
-    __replaceObjectId: function(newObjectId) {
-      types.ObjectId = newObjectId;
-    }
-  };
-  mockery.registerMock('mongoose', mongooseMock);
-  return mongooseMock;
-}
-
-/*
- * stub.topics is an Array which contains every topic.
- * stub.topics[topic].data is an Array named topic and contains every published data for the 'topic' topic.
- * stub.topics[topic].handler is the handler for the 'topic' topic.
- */
-function mockPubSub(path, localStub, globalStub) {
-  localStub.topics = [];
-  localStub.subscribe = {};
-  if (!globalStub) {
-    globalStub = {};
-  }
-  globalStub.topics = [];
-  globalStub.subscribe = {};
-
-  var mockedPubSub = {
-    local: {
-      topic: function(topic) {
-        localStub.topics.push(topic);
-        localStub.topics[topic] = {
-          data: [],
-          handler: {}
-        };
-        return {
-          publish: function(data) {
-            localStub.topics[topic].data.push(data);
-          },
-          subscribe: function(handler) {
-            localStub.topics[topic].handler = handler;
-          },
-          forward: function(pubsub, data) {
-            localStub.topics[topic].data.push(data);
-            globalStub.topics.push(topic);
-            globalStub.topics[topic] = {
-              data: [],
-              handler: {}
-            };
-            globalStub.topics[topic].data.push(data);
-          }
-        };
-      }
-    },
-    global: {
-      topic: function(topic) {
-        globalStub.topics.push(topic);
-        globalStub.topics[topic] = {
-          data: [],
-          handler: {}
-        };
-        return {
-          publish: function(data) {
-            globalStub.topics[topic].data.push(data);
-          },
-          subscribe: function(handler) {
-            globalStub.topics[topic].handler = handler;
-          }
-        };
-      }
-    }
-  };
-
-  mockery.registerMock(path, mockedPubSub);
-  return mockedPubSub;
-}
+const async = require('async');
+const { expect } = require('chai');
+const rewire = require('rewire');
+const { MongoClient } = require('mongodb');
+const mockery = require('mockery');
+const pathLib = require('path');
+const fs = require('fs-extra');
 
 module.exports = function(mixin, testEnv) {
   mixin.mongo = {
@@ -146,6 +25,7 @@ module.exports = function(mixin, testEnv) {
           db.dropDatabase(function(err) {
             if (err) {
               console.log('Error while droping the database, retrying...', err);
+
               return _dropDatabase();
             }
             db.close(callback);
@@ -209,7 +89,8 @@ module.exports = function(mixin, testEnv) {
           expect(doc).to.exist;
 
           if (typeof check === 'function') {
-            var checkErr = check(doc);
+            const checkErr = check(doc);
+
             if (checkErr) {
               return close(checkErr);
             }
@@ -235,20 +116,21 @@ module.exports = function(mixin, testEnv) {
      * @param {function} callback fn like callback(err)
      */
     checkDocumentsIndexed: function(options, callback) {
-      var request = require('superagent');
-      var elasticsearchURL = (testEnv.serversConfig.elasticsearch.host || testEnv.serversConfig.host) + ':' + testEnv.serversConfig.elasticsearch.port;
+      const request = require('superagent');
+      const elasticsearchURL = (testEnv.serversConfig.elasticsearch.host || testEnv.serversConfig.host) + ':' + testEnv.serversConfig.elasticsearch.port;
 
-      var index = options.index;
-      var type = options.type;
-      var ids = options.ids;
-      var check = options.check || function(res) {
+      const index = options.index;
+      const type = options.type;
+      const ids = options.ids;
+      const check = options.check || function(res) {
         return res.status === 200 && res.body.hits.total === 1;
       };
 
       async.each(ids, function(id, callback) {
 
-        var nbExecuted = 0;
-        var finish = false;
+        let nbExecuted = 0;
+        let finish = false;
+
         async.doWhilst(function(callback) {
           setTimeout(function() {
             request
@@ -260,6 +142,7 @@ module.exports = function(mixin, testEnv) {
 
                 if (check(res)) {
                   finish = true;
+
                   return callback();
                 }
                 nbExecuted++;
@@ -267,6 +150,7 @@ module.exports = function(mixin, testEnv) {
                   return callback(new Error(
                     'Number of tries of check document indexed in Elasticsearch reached the maximum allowed. Increase the number of tries!'));
                 }
+
                 return callback();
               });
           }, testEnv.serversConfig.elasticsearch.interval_index);
@@ -342,7 +226,8 @@ module.exports = function(mixin, testEnv) {
   mixin.mock = {
     models: mockModels,
     pubsub: mockPubSub,
-    esnConfig: mockEsnConfig
+    esnConfig: mockEsnConfig,
+    winston: mockWinston
   };
 
   mixin.requireBackend = function(path) {
@@ -466,8 +351,9 @@ module.exports = function(mixin, testEnv) {
 
   mixin.jwt = {
     saveTestConfiguration: function(callback) {
-      var publicKey = fs.readFileSync(testEnv.fixtures + '/crypto/public-key', 'utf8'),
-          privateKey = fs.readFileSync(testEnv.fixtures + '/crypto/private-key', 'utf8');
+      const publicKey = fs.readFileSync(`${testEnv.fixtures}/crypto/public-key`, 'utf8');
+      const privateKey = fs.readFileSync(`${testEnv.fixtures}/crypto/private-key`, 'utf8');
+
       mixin.requireBackend('core/esn-config')('jwt').store({
         publicKey: publicKey,
         privateKey: privateKey,
@@ -501,3 +387,166 @@ module.exports = function(mixin, testEnv) {
     }
   };
 };
+
+/*
+ * Mocks esnConf(<key>) object.
+ * get: callback of the esnConf(<key>).get(get) method.
+ */
+function mockEsnConfig(get) {
+  const mockedEsnConfig = {
+    'esn-config': function() {
+      return {
+        get: get
+      };
+    }
+  };
+  const mockedEsnConfigFunction = function() {
+    return {
+      get: get
+    };
+  };
+
+  mockery.registerMock('../../core', mockedEsnConfig);
+  mockery.registerMock('../esn-config', mockedEsnConfigFunction);
+}
+
+/*
+ * mockedModels = {
+ *   'User': function User() {
+ *     ...
+ *   },
+ *   'Domain': function Domain() {
+ *     ...
+ *   }
+ * }
+ *
+ */
+function mockModels(mockedModels) {
+  const types = {
+    ObjectId: function(id) {
+      return {id: id};
+    },
+    Mixed: ''
+  };
+
+  const schema = function() {};
+
+  schema.Types = types;
+
+  const mongooseMock = {
+    Types: types,
+    Schema: schema,
+    model: function(model) {
+      return mockedModels[model];
+    },
+    __replaceObjectId: function(newObjectId) {
+      types.ObjectId = newObjectId;
+    }
+  };
+
+  mockery.registerMock('mongoose', mongooseMock);
+
+  return mongooseMock;
+}
+
+/*
+ * stub.topics is an Array which contains every topic.
+ * stub.topics[topic].data is an Array named topic and contains every published data for the 'topic' topic.
+ * stub.topics[topic].handler is the handler for the 'topic' topic.
+ */
+function mockPubSub(path, localStub, globalStub) {
+  localStub.topics = [];
+  localStub.subscribe = {};
+  if (!globalStub) {
+    globalStub = {};
+  }
+  globalStub.topics = [];
+  globalStub.subscribe = {};
+
+  const mockedPubSub = {
+    local: {
+      topic: function(topic) {
+        localStub.topics.push(topic);
+        localStub.topics[topic] = {
+          data: [],
+          handler: {}
+        };
+
+        return {
+          publish: function(data) {
+            localStub.topics[topic].data.push(data);
+          },
+          subscribe: function(handler) {
+            localStub.topics[topic].handler = handler;
+          },
+          forward: function(pubsub, data) {
+            localStub.topics[topic].data.push(data);
+            globalStub.topics.push(topic);
+            globalStub.topics[topic] = {
+              data: [],
+              handler: {}
+            };
+            globalStub.topics[topic].data.push(data);
+          }
+        };
+      }
+    },
+    global: {
+      topic: function(topic) {
+        globalStub.topics.push(topic);
+        globalStub.topics[topic] = {
+          data: [],
+          handler: {}
+        };
+
+        return {
+          publish: function(data) {
+            globalStub.topics[topic].data.push(data);
+          },
+          subscribe: function(handler) {
+            globalStub.topics[topic].handler = handler;
+          }
+        };
+      }
+    }
+  };
+
+  mockery.registerMock(path, mockedPubSub);
+
+  return mockedPubSub;
+}
+
+/**
+ * Mock winston library
+ */
+function mockWinston() {
+  const noop = () => {};
+
+  mockery.registerMock('winston', {
+    createLogger: () => ({
+      stream: {},
+      log: noop,
+      warn: noop,
+      error: noop,
+      debug: noop,
+      info: noop,
+      add: noop
+    }),
+    transports: {
+      // Do not use arrow function for below construction methods
+      File: function() {},
+      Console: function() {},
+      DailyRotateFile: function() {}
+    },
+    format: {
+      printf: noop,
+      splat: noop,
+      combine: noop,
+      colorize: noop,
+      timestamp: noop,
+      uncolorize: noop
+    },
+    Transport: require('winston-transport'),
+    version: '3.0.0'
+  });
+}

@@ -1,55 +1,68 @@
-'use strict';
+/* eslint-disable no-process-env, no-console */
 
-var mockery = require('mockery'),
-    chai = require('chai'),
-    path = require('path'),
-    fs = require('fs-extra'),
-    helpers = require('../helpers'),
-    apiHelpers = require('../api-helpers'),
-    moduleHelpers = require('../module-helpers');
-var testConfig = require('../config/servers-conf.js');
+const mockery = require('mockery');
+const chai = require('chai');
+const path = require('path');
+const fs = require('fs-extra');
+const helpers = require('../helpers');
+const apiHelpers = require('../api-helpers');
+const moduleHelpers = require('../module-helpers');
+const testConfig = require('../config/servers-conf.js');
 
 before(function() {
   chai.use(require('chai-shallow-deep-equal'));
   chai.use(require('sinon-chai'));
   chai.use(require('chai-as-promised'));
-  var basePath = path.resolve(__dirname + '/../..');
-  var tmpPath = path.resolve(basePath, testConfig.tmp);
+
+  const basePath = path.resolve(`${__dirname}/../..`);
+  const tmpPath = path.resolve(basePath, testConfig.tmp);
+
   this.testEnv = {
     serversConfig: testConfig,
     basePath: basePath,
     tmp: tmpPath,
-    fixtures: path.resolve(__dirname + '/fixtures'),
-    mongoUrl: 'mongodb://' + testConfig.mongodb.host + ':' + testConfig.mongodb.port + '/' + testConfig.mongodb.dbname,
-    redisUrl: 'redis://' + testConfig.redis.host + ':' + testConfig.redis.port,
+    fixtures: path.resolve(`${__dirname}/fixtures`),
+    mongoUrl: `mongodb://${testConfig.mongodb.host}:${testConfig.mongodb.port}/${testConfig.mongodb.dbname}`,
+    redisUrl: `redis://${testConfig.redis.host}:${testConfig.redis.port}`,
+
     writeDBConfigFile: function() {
-      fs.writeFileSync(tmpPath + '/db.json', JSON.stringify({connectionString: 'mongodb://' + testConfig.mongodb.host + ':' + testConfig.mongodb.port + '/' + testConfig.mongodb.dbname, connectionOptions: {auto_reconnect: false}}));
+      fs.writeFileSync(`${tmpPath}/db.json`, JSON.stringify({
+        connectionString: `mongodb://${testConfig.mongodb.host}:${testConfig.mongodb.port}/${testConfig.mongodb.dbname}`,
+        connectionOptions: { auto_reconnect: false }
+      }));
     },
+
     removeDBConfigFile: function() {
-      if (fs.existsSync(tmpPath + '/db.json')) {
-        fs.unlinkSync(tmpPath + '/db.json');
+      if (fs.existsSync(`${tmpPath}/db.json`)) {
+        fs.unlinkSync(`${tmpPath}/db.json`);
       }
     },
+
     initCore: function(callback) {
-      var core = require(basePath + '/backend/core');
-      core.init(function() {
+      const core = require(`${basePath}/backend/core`);
+
+      core.init(() => {
         if (callback) {
           process.nextTick(callback);
         }
       });
+
       return core;
     },
+
     initRedisConfiguration: function(mongoose, callback) {
-      var configuration = require('../../backend/core/esn-config');
+      const configuration = require('../../backend/core/esn-config');
 
       mongoose.Promise = require('q').Promise; // http://mongoosejs.com/docs/promises.html
       mongoose.connect(this.mongoUrl);
-      var self = this;
+
+      const self = this;
 
       mongoose.connection.on('open', function() {
-        configuration('redis').store({url: self.redisUrl}, function(err) {
+        configuration('redis').store({ url: self.redisUrl }, err => {
           if (err) {
             console.log('Error while saving redis configuration', err);
+
             return callback(err);
           }
 
@@ -67,15 +80,16 @@ before(function() {
   process.env.NODE_CONFIG = this.testEnv.tmp;
   process.env.NODE_ENV = 'test';
 
-  fs.copySync(this.testEnv.fixtures + '/default.mongoAuth.json', this.testEnv.tmp + '/default.json');
+  fs.copySync(`${this.testEnv.fixtures}/default.mongoAuth.json`, `${this.testEnv.tmp}/default.json`);
 });
 
 after(function() {
   try {
-    fs.unlinkSync(this.testEnv.tmp + '/default.json');
+    fs.unlinkSync(`${this.testEnv.tmp}/default.json`);
   } catch (e) {
     console.error(e);
   }
+
   delete process.env.NODE_CONFIG;
   delete process.env.NODE_ENV;
 });
@@ -86,8 +100,9 @@ before(function() {
 });
 
 beforeEach(function() {
-  mockery.enable({warnOnReplace: false, warnOnUnregistered: false, useCleanCache: true});
+  mockery.enable({ warnOnReplace: false, warnOnUnregistered: false, useCleanCache: true });
   this.testEnv.writeDBConfigFile();
+  this.helpers.mock.winston();
 });
 
 afterEach(function(done) {
