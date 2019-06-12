@@ -115,7 +115,7 @@ const schema = {
             properties: {
               prettyName: {
                 type: 'string',
-                default: 'OpenPaas (<%= user.preferredEmail %>)'
+                default: '<%= user.preferredEmail %>'
               },
               hostName: {
                 type: 'string',
@@ -144,8 +144,7 @@ const schema = {
             additionalProperties: false,
             properties: {
               description: {
-                type: 'string',
-                default: 'OpenPaas SMTP (<%= user.preferredEmail %>)'
+                type: 'string'
               },
               hostname: {
                 type: 'string',
