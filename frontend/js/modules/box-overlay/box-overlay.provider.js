@@ -28,6 +28,7 @@
         scope.$show = nextTick('show');
         scope.$hide = nextTick('hide');
         scope.$updateTitle = updateTitle;
+        scope.$setId = setId;
         scope.$minimize = minimize;
         scope.$onTryClose = onTryClose;
         scope.$close = close;
@@ -99,6 +100,10 @@
 
         function updateTitle(title) {
           $boxOverlay.updateTitle(title);
+        }
+
+        function setId(id) {
+          scope.id = id;
         }
 
         function show() {
