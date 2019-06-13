@@ -121,7 +121,9 @@ services:
 
   james_elastic:
     container_name: esn_james_elasticsearch
-    image: elasticsearch:2.3.2
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
+    environment:
+      - discovery.type=single-node
 
   cassandra:
     container_name: esn_cassandra
