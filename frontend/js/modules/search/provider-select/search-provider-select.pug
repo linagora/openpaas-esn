@@ -5,7 +5,8 @@ md-select.md-no-underline(
   aria-label=__('Search type'),
   title=__('Search type')
 )
-  md-option.option-all(ng-value="undefined") #{__('All')}
+  md-option.option-all(ng-value="undefined") 
+    | &nbsp;#{__('All')}
   md-option(ng-value="provider", ng-repeat="provider in ctrl.providers | orderBy:'displayName'")
     img.option-icon(ng-if="provider.icon", ng-src="{{ provider.icon }}")
     | {{ provider.displayName }}

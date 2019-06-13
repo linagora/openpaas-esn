@@ -31,6 +31,10 @@ esn-search-provider-select {
       transition: @transition-btn-link;
     }
 
+    span:not(.md-select-icon) .md-text {
+      margin-left: 2px;
+    }
+
     .md-select-icon {
       color: @textPrimaryColor;
     }
@@ -79,28 +83,7 @@ md-select:not([disabled]):focus .md-select-value {
 .md-select-value .md-select-icon {
   width: 11px;
   margin: 0 2px;
-}
-
-@media (min-width: @screen-md-min) {
-  md-select-menu {
-    md-content {
-      md-option {
-        min-height: 32px;
-        height: 32px;
-        line-height: 32px;
-        font-size: 13px;
-
-        &.option-all {
-          font-weight: 500;
-          padding-left: 20px;
-        }
-
-        &:hover  {
-          color: @primaryColor;
-        }
-      }
-    }
-  }
+  margin-right: 4px;
 }
 
 @media (min-width: @screen-md-min) and (max-width: @screen-xl-min) {
