@@ -86,6 +86,20 @@ md-select:not([disabled]):focus .md-select-value {
   margin-right: 4px;
 }
 
+@media (min-width: @screen-md-min) {
+  .search-provider-select-container {
+    md-option {
+      &.option-all {
+        font-weight: 500;
+      }
+
+      &:hover  {
+        color: @primaryColor;
+      }
+    }
+  }
+}
+
 @media (min-width: @screen-md-min) and (max-width: @screen-xl-min) {
   esn-search-provider-select {
     md-select {
