@@ -14,7 +14,8 @@ function buildErrorMessage(errors) {
 
 function createValidateFunction(schema) {
   const ajv = new Ajv({
-    removeAdditional: true
+    removeAdditional: true,
+    useDefaults: true
   });
 
   return ajv.compile(schema);
