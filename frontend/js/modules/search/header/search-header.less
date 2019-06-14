@@ -132,6 +132,7 @@
 
     .search-header-form {
       .flex;
+      position: relative;
 
       i.mdi:not(.close-settings) {
         color: @textPrimaryColor;
@@ -141,6 +142,11 @@
           color: @search-input-color-focus;
           transition: color 100ms ease-in;
         }
+      }
+
+      .search-header-button.clean-button {
+        position: absolute;
+        right: 40px;
       }
 
       esn-search-advanced-toggle-button {
