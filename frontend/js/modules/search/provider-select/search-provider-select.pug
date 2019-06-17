@@ -3,7 +3,8 @@ md-select.md-no-underline(
   ng-model-options="{trackBy: '$value.id'}"
   ng-change="ctrl.onProviderSelected({provider: ctrl.selectedProvider})",
   aria-label=__('Search type'),
-  title=__('Search type')
+  title=__('Search type'),
+  md-container-class="search-provider-select-container"
 )
   md-option.option-all(ng-value="undefined") 
     | &nbsp;#{__('All')}
