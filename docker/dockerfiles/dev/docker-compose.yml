@@ -38,7 +38,7 @@ services:
       service: james
     links:
       - cassandra:cassandra
-      - james_elastic:elasticsearch
+      - james_elastic:james_elastic
 
   james_elastic:
     extends:
