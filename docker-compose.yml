@@ -4,7 +4,7 @@ services:
 
   esn:
     container_name: esn
-    image: linagora/esn:latest
+    image: linagora/esn:1.5.0-rc1 # to switch back to :latest just for the 1.5.0 release
     ports:
      - "8080:8080"
     volumes:
@@ -67,15 +67,16 @@ services:
 
   elasticsearch:
     container_name: esn_elasticsearch
-    image: elasticsearch:2.3.2
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
     ports:
       - "9200:9200"
     environment:
       - ELASTICSEARCH_INIT_TIMEOUT=${ELASTICSEARCH_INIT_TIMEOUT}
+      - discovery.type=single-node
 
   sabre:
     container_name: esn_sabre
-    image: linagora/esn-sabre:latest
+    image: linagora/esn-sabre:1.5.0-rc1 # to switch back to :latest just for the 1.5.0 release
     ports:
       - "8001:80"
     environment:
@@ -97,7 +98,7 @@ services:
   james:
     container_name: esn_james
     entrypoint: bash -c "java -Dlogback.configurationFile=/root/conf/logback.xml -Dworking.directory=/root/ -jar james-server.jar"
-    image: linagora/james-project:latest
+    image: linagora/james-project:openpaas-1.5.0-rc1 # to switch back to :latest just for the 1.5.0 release
     hostname: open-paas.org
     depends_on:
       - esn # to have configuration ready in shared volume
@@ -115,13 +116,7 @@ services:
       - ./docker/config/jwt/public:/root/conf/jwt_publickey
     links:
       - cassandra:cassandra
-      - james_elastic:elasticsearch
-
-  james_elastic:
-    container_name: esn_james_elasticsearch
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
-    environment:
-      - discovery.type=single-node
+      - elasticsearch:elasticsearch
 
   cassandra:
     container_name: esn_cassandra
