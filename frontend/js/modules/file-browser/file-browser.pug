@@ -19,7 +19,8 @@
   )
 
   .lv-body(ng-if='$ctrl.status === "loaded"')
-    esn-filter-input(filter="$ctrl.filter")
+    .browser-input-filter
+      esn-filter-input(on-change="$ctrl.filter = $filter")
     .browser-header
       .name.clickable(ng-click='$ctrl.sortBy("name")')
         span #{__('Name')}
