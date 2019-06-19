@@ -5,27 +5,15 @@
                 <resetJUL>true</resetJUL>
         </contextListener>
 
-        <appender name="LOG_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-                <file>/var/log/james/james.log</file>
-
-                <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-                        <!-- daily rollover -->
-                        <fileNamePattern>logFile.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-                        <maxFileSize>100MB</maxFileSize>
-                        <maxHistory>29</maxHistory>
-                        <totalSizeCap>2GB</totalSizeCap>
-                </rollingPolicy>
-
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
                 <encoder>
                         <pattern>%d{HH:mm:ss.SSS} [%-5level] %logger{15} - %msg%n%rEx</pattern>
                         <immediateFlush>false</immediateFlush>
                 </encoder>
         </appender>
 
-        <logger name="http.jmap" level="DEBUG" />
-
         <root level="INFO">
-                <appender-ref ref="LOG_FILE" />
+                <appender-ref ref="CONSOLE" />
         </root>
 
 </configuration>
