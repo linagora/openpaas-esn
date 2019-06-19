@@ -369,7 +369,9 @@
     .controller('contactItemController', function(
       $scope,
       $window,
+      $timeout,
       deleteContact,
+      dynamicDirectiveService,
       ContactsHelper,
       ContactLocationHelper,
       ContactHighLightHelper
@@ -377,6 +379,10 @@
       ContactsHelper.fillScopeContactData($scope, $scope.contact);
       ContactsHelper.getOrderType($scope);
       $scope.datas = [];
+
+      $timeout(function() {
+        $scope.hasInjectedActions = dynamicDirectiveService.getInjections('contact-list-menu-items', $scope).length > 0;
+      }, 0);
 
       $scope.hasContactInformationMatchQuery = function() {
         if ($scope.keySearch === null || angular.isUndefined($scope.keySearch)) {
