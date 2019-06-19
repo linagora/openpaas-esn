@@ -38,12 +38,7 @@ services:
       service: james
     links:
       - cassandra:cassandra
-      - james_elastic:james_elastic
-
-  james_elastic:
-    extends:
-      file: ../docker-compose-commons.yml
-      service: james_elastic
+      - elasticsearch:elasticsearch
 
   cassandra:
     extends:

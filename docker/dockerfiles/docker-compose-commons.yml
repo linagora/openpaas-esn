@@ -60,11 +60,12 @@ services:
       - "27017:27017"
 
   elasticsearch:
-    image: elasticsearch:2.3.2
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
     ports:
       - "9200:9200"
     environment:
       - ELASTICSEARCH_INIT_TIMEOUT=${ELASTICSEARCH_INIT_TIMEOUT}
+      - discovery.type=single-node
 
   sabre:
     image: linagora/esn-sabre:latest
@@ -101,13 +102,6 @@ services:
     volumes:
       - ${ESN_PATH}/docker/config/james:/root/conf:Z
       - ${ESN_PATH}/docker/config/jwt/public:/root/conf/jwt_publickey:Z
-
-  james_elastic:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
-    ports:
-      - "9200"
-    environment:
-      - discovery.type=single-node
 
   cassandra:
     image: cassandra:3.11.3
