@@ -34,17 +34,17 @@
           ng-class='{"mdi-menu-down": $ctrl.reverse, "mdi-menu-up": !$ctrl.reverse}')
 
     .browser-body
-      .node.lv-bordered(
+      .node.lv-bordered.clickable(
         ng-repeat='node in $ctrl.childNodes | orderBy: $ctrl.criterias | filter: { name: $ctrl.filter }',
-        desktop-hover="hovering = hover"
+        desktop-hover="hovering = hover",
+        ng-click='$ctrl.toggleSelection(node)'
       )
         .node-icon
           .node-checkbox(
             ng-show='node.isSelectable && hovering || node.selected',
-            ng-click='$ctrl.toggleSelection(node)'
           )
             label.checkbox
-              input.clickable(
+              input(
                 type='checkbox',
                 ng-checked='node.selected',
               )
