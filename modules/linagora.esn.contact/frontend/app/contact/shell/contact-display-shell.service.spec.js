@@ -117,6 +117,25 @@ describe('ContactDisplayShell', function() {
           action: 'tel:01.02.03.04.05'
         }]);
     });
+
+    it('should add default type of tel is \'other\' when there is no type', function() {
+      var shell = {
+        displayName: 'Contact OpenPaas',
+        tel: [
+          {
+            value: '01.02.03.04.05'
+          }
+        ]
+      };
+
+      var displayShell = new ContactDisplayShell(shell);
+
+      expect(displayShell.shell.tel).to.deep.equal([
+        {
+          type: 'other',
+          value: '01.02.03.04.05'
+        }]);
+    });
   });
 
   describe('The getAvatar fn', function() {
