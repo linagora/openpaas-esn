@@ -30,6 +30,10 @@
           });
         }
         if (this.shell.tel && this.shell.tel.length) {
+          this.shell.tel.forEach(function(tel) {
+            tel.type = tel.type || 'other';
+          });
+
           var tel = ContactsHelper.getOrderedValues(this.shell.tel, CONTACT_ATTRIBUTES_ORDER.phone)[0].value;
 
           this.informationsToDisplay.push({
