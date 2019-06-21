@@ -29,6 +29,7 @@ describe('The esnPaginationtionProviderBuilder factory', function() {
     module('esn.pagination', function($provide) {
       $provide.value('esnPaginationProvider', esnPaginationProviderMock);
       $provide.value('PageAggregatorService', PageAggregatorServiceMock);
+      $provide.constant('ELEMENTS_PER_PAGE', 1);
     });
   });
 
