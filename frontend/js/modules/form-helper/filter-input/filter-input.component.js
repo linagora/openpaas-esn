@@ -10,7 +10,8 @@
         onBlur: '&',
         autoFocusInput: '@',
         filter: '<',
-        placeholder: '@'
+        placeholder: '@',
+        variant: '@?'
       },
       controller: 'esnFilterInputController'
     });
