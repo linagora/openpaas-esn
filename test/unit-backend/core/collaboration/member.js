@@ -929,6 +929,22 @@ describe('The collaboration member module', function() {
       });
     });
 
+    it('should not query to MongoDB if there is no members in data request', function(done) {
+      const collaboration = { objectType: 'objectType', id: 'id' };
+      const members = [];
+      const tupleMock = { get: tuple => tuple };
+      const updatedData = { key: 'value' };
+
+      mockery.registerMock('../../tuple', tupleMock);
+      modelMock.update = sinon.spy((query, option, callback) => callback(null, updatedData));
+
+      getModule().removeMembers(collaboration, members, err => {
+        expect(err).to.not.exist;
+        expect(modelMock.update).to.not.have.been.called;
+        done();
+      });
+    });
+
     it('should call Model.update to remove members', function(done) {
       const collaboration = { objectType: 'objectType', id: 'id' };
       const members = [{ objectType: 'user', id: 1 }, { objectType: 'user', id: 2 }];

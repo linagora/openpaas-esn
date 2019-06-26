@@ -500,6 +500,10 @@ module.exports = function(collaborationModule) {
       return callback(new Error('Collaboration and members are required'));
     }
 
+    if (members.length === 0) {
+      return callback();
+    }
+
     members = members.map(member => {
       try {
         return tupleModule.get(member.objectType, member.id);
