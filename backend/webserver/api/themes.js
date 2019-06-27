@@ -59,4 +59,56 @@ module.exports = router => {
     themesMW.validateWriteBody,
     controller.saveTheme
   );
+
+  /**
+   * @swagger
+   * /themes/:uuid/logo:
+   *   get:
+   *     tags:
+   *      - themes
+   *     description: Get the logo resource for a given domain.
+   *     parameters:
+   *       - $ref: "#/parameters/dm_id"
+   *     responses:
+   *       200:
+   *         $ref: "#/responses/tm_logo"
+   *       401:
+   *         $ref: "#/responses/cm_401"
+   *       404:
+   *         $ref: "#/responses/cm_404"
+   *       500:
+   *         $ref: "#/responses/cm_500"
+   */
+  router.get(
+    '/themes/:uuid/logo',
+    authorize.requiresAPILogin,
+    domainMiddleware.load,
+    controller.getLogo
+  );
+
+  /**
+   * @swagger
+   * /themes/:uuid/favicon:
+   *   get:
+   *     tags:
+   *      - themes
+   *     description: Get the favicon resource for a given domain.
+   *     parameters:
+   *       - $ref: "#/parameters/dm_id"
+   *     responses:
+   *       200:
+   *         $ref: "#/responses/tm_favicon"
+   *       401:
+   *         $ref: "#/responses/cm_401"
+   *       404:
+   *         $ref: "#/responses/cm_404"
+   *       500:
+   *         $ref: "#/responses/cm_500"
+   */
+  router.get(
+    '/themes/:uuid/favicon',
+    authorize.requiresAPILogin,
+    domainMiddleware.load,
+    controller.getFavicon
+  );
 };

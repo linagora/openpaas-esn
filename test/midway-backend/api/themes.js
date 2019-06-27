@@ -4,12 +4,14 @@ const ObjectId = require('bson').ObjectId;
 
 describe('The Themes API', function() {
   const API_PATH = '/api/themes';
+  const BASE_URL = 'http://localhost:8081/api/files/';
+
   const TEST_CONFIG = {
     name: 'themes',
     value: {
       logos: {
-        mobile: '123',
-        desktop: '456'
+        logo: '123',
+        favicon: '456'
       },
       colors: [
         {
@@ -25,8 +27,8 @@ describe('The Themes API', function() {
   };
   const REQUEST_BODY = {
     logos: {
-      mobile: '123',
-      desktop: '456'
+      logo: '123',
+      favicon: '456'
     },
     colors: [
       {
@@ -41,14 +43,17 @@ describe('The Themes API', function() {
   };
   const TEST_CONFIG_RETURN = {
     logos: {
-      mobile: '123',
-      desktop: '456'
+      logo: BASE_URL + '123',
+      favicon: BASE_URL + '456'
     },
     colors: {
       primaryColor: '#2196f3',
       secondaryColor: '#FFC107'
     }
   };
+  const TEST_CONFIG_RETURN_LOGO = BASE_URL + '123';
+
+  const TEST_CONFIG_RETURN_FAVICON = BASE_URL + '456';
 
   let app;
   let core;
@@ -177,6 +182,82 @@ describe('The Themes API', function() {
                 return done(err);
               }
               expect(res.body).to.be.empty;
+              done();
+            });
+        });
+      });
+    });
+  });
+
+  describe('GET /api/themes/:uuid/logo', function() {
+    it('should HTTP 401 when not logged in', function(done) {
+      helpers.api.requireLogin(app, 'get', `${API_PATH}/${domain._id}/logo`, done);
+    });
+
+    it('should send back 404 when domain is not found', function(done) {
+      sendRequestAsUser(userDomainMember, requestAsMember => {
+        requestAsMember(request(app).get(`${API_PATH}/` + new ObjectId() + '/logo'))
+          .expect(404)
+          .end(err => {
+            if (err) {
+              return done(err);
+            }
+            done();
+          });
+      });
+    });
+
+    it('should send back 200 with requested configs in body', function(done) {
+      const config = new core['esn-config'].EsnConfig('core', domain._id);
+
+      config.set(TEST_CONFIG).then(function() {
+        sendRequestAsUser(userDomainMember, requestAsMember => {
+          requestAsMember(request(app).get(`${API_PATH}/${domain._id}/logo`))
+            .expect(302)
+            .end((err, res) => {
+              if (err) {
+                return done(err);
+              }
+              expect(res).to.redirect;
+              expect(res.headers.location).to.equal(TEST_CONFIG_RETURN_LOGO);
+              done();
+            });
+        });
+      });
+    });
+  });
+
+  describe('GET /api/themes/:uuid/favicon', function() {
+    it('should HTTP 401 when not logged in', function(done) {
+      helpers.api.requireLogin(app, 'get', `${API_PATH}/${domain._id}/favicon`, done);
+    });
+
+    it('should send back 404 when domain is not found', function(done) {
+      sendRequestAsUser(userDomainMember, requestAsMember => {
+        requestAsMember(request(app).get(`${API_PATH}/` + new ObjectId() + '/favicon'))
+          .expect(404)
+          .end(err => {
+            if (err) {
+              return done(err);
+            }
+            done();
+          });
+      });
+    });
+
+    it('should send back 200 with requested configs in body', function(done) {
+      const config = new core['esn-config'].EsnConfig('core', domain._id);
+
+      config.set(TEST_CONFIG).then(function() {
+        sendRequestAsUser(userDomainMember, requestAsMember => {
+          requestAsMember(request(app).get(`${API_PATH}/${domain._id}/favicon`))
+            .expect(302)
+            .end((err, res) => {
+              if (err) {
+                return done(err);
+              }
+              expect(res).to.redirect;
+              expect(res.headers.location).to.equal(TEST_CONFIG_RETURN_FAVICON);
               done();
             });
         });
