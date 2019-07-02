@@ -1,24 +1,18 @@
-'use strict';
-
-var chai = require('chai');
-var expect = chai.expect;
-var mockery = require('mockery');
-var q = require('q');
-var sinon = require('sinon');
+const { expect } = require('chai');
+const mockery = require('mockery');
+const sinon = require('sinon');
 
 describe('The queue lib module', function() {
-
-  var deps, dependencies, jobMock, workersMock, kueMock, pubsubMock;
-  var workerName = 'workerName';
-  var jobName = 'jobName';
-  var redisConfig = {
+  let getModule, jobMock, workersMock, kueMock, pubsubMock;
+  const workerName = 'workerName';
+  const jobName = 'jobName';
+  const redisConfig = {
     port: '12345',
     host: 'my-host'
   };
-  var error = new Error('error');
+  const error = new Error('error');
 
   beforeEach(function() {
-
     pubsubMock = {
       local: {
         topic: function() {
@@ -49,7 +43,7 @@ describe('The queue lib module', function() {
     kueMock = {
       Job: {
         get: function() {
-          return q([]);
+          return Promise.resolve([]);
         }
       },
       createQueue: function() {
@@ -57,48 +51,33 @@ describe('The queue lib module', function() {
       }
     };
 
-    dependencies = {
-      logger: {
-        info: function() {},
-        error: function() {},
-        debug: function() {},
-        warn: function() {}
-      },
-      pubsub: pubsubMock
-    };
-
-    deps = function(name) {
-      return dependencies[name];
-    };
-
     mockery.registerMock('kue', kueMock);
     mockery.registerMock('./workers', function() {
       return workersMock;
     });
+
+    this.moduleHelpers.addDep('pubsub', pubsubMock);
+
+    getModule = () => require('../../../backend/lib/queue')(this.moduleHelpers.dependencies);
   });
 
-  var getModule = function() {
-    return require('../../../backend/lib/queue')(deps);
-  };
-
-  describe('The initJobQueue function', function() {
-
+  describe('The init function', function() {
     it('should creatQueue with correct params when receive redis config', function(done) {
-      kueMock.createQueue = function(options) {
+      kueMock.createQueue = options => {
         expect(options).to.deep.equal({ redis: redisConfig });
         done();
       };
 
-      getModule().initJobQueue();
+      getModule().init();
     });
 
     it('should resolve jobs immediately if queue is created', function(done) {
-      var queueModule = getModule();
-      queueModule.initJobQueue().then(function() {
-        kueMock.createQueue = function() {
-          done(error);
-        };
-        queueModule.initJobQueue().then(function(jobs) {
+      const queueModule = getModule();
+
+      queueModule.init().then(() => {
+        kueMock.createQueue = () => done(error);
+
+        queueModule.init().then(jobs => {
           expect(jobs).to.deep.equal(jobMock);
           done();
         });
@@ -107,27 +86,16 @@ describe('The queue lib module', function() {
   });
 
   describe('The submitJob function', function() {
-    it('should create job with correct parameters ', function(done) {
-      var option = {
-        account: 'Name'
-      };
-      workersMock.get = function() {
-        return 1;
-      };
-      jobMock.create = function(name) {
-        expect(name).to.equal(jobName);
-        return {
-          save: function() {
-            done();
-          }
-        };
-      };
-      getModule().submitJob(workerName, jobName, option);
+    it('should reject if there is no worker name is provided', function(done) {
+      getModule().submitJob().then(null, function(err) {
+        expect(err.message).to.equal('Cannot submit a job without workerName');
+        done();
+      });
     });
 
-    it('should reject if jobName not found', function(done) {
+    it('should reject if there is no worker for provided worker name', function(done) {
       getModule().submitJob(workerName).then(null, function(err) {
-        expect(err.message).to.equal('Cannot submit a job without jobName');
+        expect(err.message).to.equal(`Can not find worker for this job ${workerName}`);
         done();
       });
     });
@@ -163,231 +131,36 @@ describe('The queue lib module', function() {
       getModule().submitJob(workerName, 'jobName');
     });
 
-    it('should run job process if worker exist', function(done) {
-      jobMock = {
-        create: function() {
-          return {
-            save: function(callback) {
-              return callback(null);
-            }
-          };
-        },
-        process: function() { done();}
+    it('should create job with correct parameters ', function(done) {
+      const title = 'foo';
+
+      const data = {
+        bar: 'baz'
       };
-      workersMock.get = function() {
-        return 1;
+
+      workersMock.get = _workerName => {
+        expect(_workerName).to.equal(workerName);
+
+        return {
+          handler: {
+            getTitle: () => title
+          }
+        };
       };
-      getModule().submitJob(workerName, jobName);
+
+      jobMock.create = name => {
+        expect(name).to.equal(workerName);
+
+        return {
+          save: () => done()
+        };
+      };
+
+      getModule().submitJob(workerName, { title, ...data });
     });
-
-    it('should run job with worker function if worker exist', function(done) {
-      jobMock = {
-        create: function() {
-          return {
-            save: function(callback) {
-              return callback(null);
-            }
-          };
-        },
-        process: function(name, callback) {
-          return callback();
-        }
-      };
-      workersMock.get = function() {
-        return {
-          getWorkerFunction: function() {
-            done();
-          }
-        };
-      };
-      getModule().submitJob(workerName, jobName);
-    });
-
-    it('should log process and call progress fn if worker function send notification', function(done) {
-      var textMessage = 'text message';
-      var job = {
-        log: function(message) {
-          expect(message).to.equal(textMessage);
-        },
-        progress: function(value) {
-          expect(value).to.equal(20);
-          done();
-        },
-        data: {
-          data: 'job data'
-        }
-      };
-      var workerFunctionMock = function() {
-        return {
-          then: function(successCallback, errorCallback, processCallback) {
-            processCallback({message: textMessage, value: 20});
-          }
-        };
-      };
-
-      jobMock = {
-        create: function() {
-          return {
-            save: function(callback) {
-              return callback();
-            }
-          };
-        },
-        process: function(name, callback) {
-          return callback(job);
-        }
-      };
-      workersMock.get = function() {
-        return {
-          getWorkerFunction: function() {
-            return workerFunctionMock;
-          }
-        };
-      };
-      getModule().submitJob(workerName, jobName);
-    });
-
-    it('should resolve with the job when worker function resolves', function(done) {
-      var job = {foo: 'bar'};
-      var jobDone = sinon.spy();
-      var workerFunctionMock = function() {
-        return {
-          then: function(successCallback) {
-            successCallback();
-          }
-        };
-      };
-
-      jobMock = {
-        create: function() {
-          return {
-            save: function(callback) {
-              return callback();
-            }
-          };
-        },
-        process: function(name, callback) {
-          return callback(job, jobDone);
-        }
-      };
-      workersMock.get = function() {
-        return {
-          getWorkerFunction: function() {
-            return workerFunctionMock;
-          }
-        };
-      };
-      getModule().submitJob(workerName, jobName).then(function(result) {
-        expect(result).to.deep.equal(job);
-        expect(jobDone).to.have.been.called;
-        done();
-      }, done);
-    });
-
-    it('should reject when worker function rejects', function(done) {
-      var job = {foo: 'bar'};
-      var jobDone = sinon.spy();
-
-      var error = new Error('Your job failed');
-      var workerFunctionMock = function() {
-        return {
-          then: function(successCallback, errorCallback) {
-            errorCallback(error);
-          }
-        };
-      };
-
-      jobMock = {
-        create: function() {
-          return {
-            save: function(callback) {
-              return callback();
-            }
-          };
-        },
-        process: function(name, callback) {
-          return callback(job, jobDone);
-        }
-      };
-      workersMock.get = function() {
-        return {
-          getWorkerFunction: function() {
-            return workerFunctionMock;
-          }
-        };
-      };
-      getModule().submitJob(workerName, jobName).then(done, function(e) {
-        expect(e.message).to.match(/Error while running job: Your job failed/);
-        done();
-      });
-    });
-
-    it('should not log process nor call progress fn if worker function send undefined notification', function(done) {
-      var job = {
-        log: function() {
-          done(error);
-        },
-        progress: function() {
-          done(error);
-        },
-        data: {
-          data: 'job data'
-        }
-      };
-      var workerFunctionMock = function() {
-        return {
-          then: function(successCallback, errorCallback, processCallback) {
-            processCallback();
-          }
-        };
-      };
-
-      jobMock = {
-        create: function() {
-          return {
-            save: function(callback) {
-              return callback();
-            }
-          };
-        },
-        process: function(name, callback) {
-          return callback(job);
-        }
-      };
-      workersMock.get = function() {
-        return {
-          getWorkerFunction: function() {
-            return workerFunctionMock;
-          }
-        };
-      };
-      getModule().submitJob(workerName, jobName);
-      done();
-    });
-
-    it('should reject if worker does not exist', function(done) {
-      jobMock = {
-        create: function() {
-          return {
-            save: function(callback) {
-              return callback(null);
-            }
-          };
-        },
-        process: function(name, callback) {
-          return callback();
-        }
-      };
-      workersMock.get = function() {};
-      getModule().submitJob(workerName, jobName).then(null, function() {
-        done();
-      });
-    });
-
   });
 
   describe('The getJobById function', function() {
-
     it('should getJobById with correct parameters ', function(done) {
       kueMock.Job.get = function(value) {
         expect(value).to.equal(1234);
@@ -416,5 +189,33 @@ describe('The queue lib module', function() {
       });
     });
 
+  });
+
+  describe('The addWorker method', function() {
+    it('should add worker to the list workers', function(done) {
+      const worker = { name: 'bar' };
+
+      workersMock.add = sinon.spy();
+
+      getModule().addWorker(worker)
+        .then(() => {
+          expect(workersMock.add).to.have.been.calledWith(worker);
+          done();
+        })
+        .catch(done);
+    });
+
+    it('should process the job', function(done) {
+      const worker = { name: 'bar' };
+
+      jobMock.process = sinon.spy();
+
+      getModule().addWorker(worker)
+        .then(() => {
+          expect(jobMock.process).to.have.been.calledWith(worker.name);
+          done();
+        })
+        .catch(done);
+    });
   });
 });
