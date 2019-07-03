@@ -64,7 +64,7 @@ var importContactModule = new AwesomeModule(moduleData.fullName, {
     },
 
     start: function(dependencies, callback) {
-      this.lib.cron.init();
+      this.lib.init();
       require('./backend/ws/import').init(dependencies);
       callback();
     }

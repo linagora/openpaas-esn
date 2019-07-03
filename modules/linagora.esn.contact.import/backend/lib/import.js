@@ -1,9 +1,9 @@
+const { IMPORT, SYNCHRONIZE } = require('./constants').JOBQUEUE_WORKER_NAMES;
+
 module.exports = dependencies => {
   const jobQueue = dependencies('jobqueue');
   const contactModule = dependencies('contact');
   const logger = dependencies('logger');
-  const importerRegistry = require('./registry')(dependencies);
-  const helper = require('./helper')(dependencies);
   const {
     ACCOUNT_ERROR,
     API_CLIENT_ERROR,
@@ -13,51 +13,16 @@ module.exports = dependencies => {
   return {
     buildErrorMessage,
     createContact,
-    importAccountContacts,
     importAccountContactsByJobQueue,
-    synchronizeAccountContacts,
     synchronizeAccountContactsByJobQueue
   };
 
-  function importAccountContacts(user, account) {
-    const importer = importerRegistry.get(account.data.provider);
-
-    if (!importer || !importer.lib || !importer.lib.importer) {
-      return Promise.reject(new Error(`Can not find importer ${account.data.provider}`));
-    }
-
-    return helper.getImporterOptions(user, account)
-      .then(helper.initializeAddressBook)
-      .then(importer.lib.importer.importContact);
-  }
-
-  function synchronizeAccountContacts(user, account) {
-    const contactSyncTimeStamp = Date.now();
-    const importer = importerRegistry.get(account.data.provider);
-
-    if (!importer || !importer.lib || !importer.lib.importer) {
-      return Promise.reject(new Error(`Can not find importer ${account.data.provider}`));
-    }
-
-    return helper.getImporterOptions(user, account)
-      .then(helper.initializeAddressBook)
-      .then(options => importer.lib.importer.importContact(options)
-        .then(helper.cleanOutdatedContacts.bind(null, options, contactSyncTimeStamp))
-      );
-  }
-
   function importAccountContactsByJobQueue(user, account) {
-    const workerName = ['contact', account.data.provider, 'import'].join('-');
-    const jobName = [workerName, user.id, account.data.id, Date.now()].join('-');
-
-    return jobQueue.lib.submitJob(workerName, jobName, { user, account });
+    return jobQueue.lib.submitJob(IMPORT, { user, account });
   }
 
   function synchronizeAccountContactsByJobQueue(user, account) {
-    const workerName = ['contact', account.data.provider, 'sync'].join('-');
-    const jobName = [workerName, user.id, account.data.id, Date.now()].join('-');
-
-    return jobQueue.lib.submitJob(workerName, jobName, { user, account });
+    return jobQueue.lib.submitJob(SYNCHRONIZE, { user, account });
   }
 
   function buildErrorMessage(type, errorObject) {
