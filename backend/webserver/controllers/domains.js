@@ -200,13 +200,13 @@ function getMembers(req, res) {
       }
 
       return q.denodeify(getUsers)(domains, query)
-        .then(result => (
-          q.all(result.list.map(user => denormalizeUser(user)))
+        .then(result =>
+          Promise.all(result.list.map(user => denormalizeUser(user)))
             .then(denormalized => {
               res.header('X-ESN-Items-Count', result.total_count);
               res.status(200).json(denormalized);
             })
-        ));
+        );
     })
     .catch(err => {
       logger.error(errorMessage, err);
