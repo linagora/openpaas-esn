@@ -1,0 +1,10 @@
+{
+  "Accounts Management": "Управление учетными записями",
+  "Facebook Account": "Аккаунт в Facebook",
+  "Twitter Account": "Aккаунт Twitter",
+  "Google Account": "Аккаунт Google",
+  "Github Account": "Аккаунт Github",
+  "Delete account": "Удалить профиль",
+  "No social account provider is installed, contact administrator for more information": "Поставщик аккаунта не установлен, свяжитесь с администратором для получения большей информации",
+  "A problem occurred while getting data, try refreshing this page": "Возникла проблема при получении данных, попробуйте обновить эту страницу"
+}
