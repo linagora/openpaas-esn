@@ -149,11 +149,6 @@ describe('The profilePopoverCardService service', function() {
       expect(popover).to.be.undefined;
     });
 
-    it('should set the title attribute to an element if alternativeTitle option is provided', function() {
-      profilePopoverCardService.functions.bindPopover('body', {user: undefined}, {alternativeTitle: 'Karl Marx'});
-      expect($('body').attr('title')).to.eql('Karl Marx');
-    });
-
     it('should create a popover', function() {
       sinon.spy(profilePopoverCardService.functions, 'createPopover');
       profilePopoverCardService.functions.bindPopover(element, scope, {parentScope: parentScope, placement: 'top'});

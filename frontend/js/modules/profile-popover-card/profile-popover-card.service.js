@@ -60,8 +60,6 @@
      * @param {string=} userObject.property
      *
      * @param {object=} options
-     * @param {string=} options.alternativeTitle Alternative `title` attribute to assign to element if user object is
-     *   not correct
      * @param {string=} options.placement Placement of popover. Either one of 'top', 'left', 'bottom' or 'right'.
      *   Defaults to 'top'
      * @param {object=} options.parentScope Current scope. Used to hide popover on scope destroy
@@ -103,7 +101,6 @@
 
     function _bind(element, scope, options) {
       var defaultOpts = {
-        alternativeTitle: undefined,
         eventType: touchscreenDetectorService.hasTouchscreen() ? 'click' : 'mouseover',
         placement: 'top',
         showMobile: false,

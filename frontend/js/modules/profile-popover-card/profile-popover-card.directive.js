@@ -26,13 +26,11 @@
       }
 
       var user = $parse(attrs.profilePopoverCard)(scope);
-      var alternativeTitle = attrs.profilePopoverCardAlternativeTitle;
       var hideOnElementScroll = attrs.profilePopoverCardHideOnElementScroll;
       var placement = attrs.profilePopoverCardPlacement || 'top';
 
       var options = {
         placement: placement,
-        alternativeTitle: alternativeTitle,
         parentScope: scope,
         showMobile: showMobile,
         hideOnElementScroll: hideOnElementScroll
