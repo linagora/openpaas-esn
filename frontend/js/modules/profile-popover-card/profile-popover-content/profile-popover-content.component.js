@@ -7,6 +7,7 @@
     bindings: {
       user: '<',
       isCurrentUser: '<',
+      objectType: '<',
       hideComponent: '&'
     }
   });
