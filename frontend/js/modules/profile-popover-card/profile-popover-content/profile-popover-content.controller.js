@@ -7,18 +7,14 @@
   function profilePopoverContentController($state, touchscreenDetectorService) {
     var self = this;
 
+    self._hideComponent = _hideComponent;
+
     self.isMobileDevice = touchscreenDetectorService.hasTouchscreen();
 
-    self.onProfileButtonClick = function(evt) {
-      if (!self.user._id) return;
-      self._hideComponent(evt);
-      $state.go('profile', {user_id: self.user._id});
-    };
-
-    self._hideComponent = function(evt) {
+    function _hideComponent(evt) {
       evt && evt.preventDefault();
       evt && evt.stopPropagation();
       self.hideComponent();
-    };
+    }
   }
 })(angular);

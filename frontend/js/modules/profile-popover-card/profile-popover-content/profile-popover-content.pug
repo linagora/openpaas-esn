@@ -1,7 +1,8 @@
 .profile-popover-content.flex-horizontal-centered
   .profile-card.flex-horizontal-centered
     .profile-card-left
-      esn-avatar(user-id='$ctrl.user._id', user-email='$ctrl.user.email' ng-click='$ctrl.onProfileButtonClick()')
+      esn-avatar(avatar-url='$ctrl.user.avatarUrl', user-id='$ctrl.user._id', user-email='$ctrl.user.email')
+
     .profile-card-right.profile-card-informations
       .ellipsis
         span.displayname(ng-class="{capitalize: $ctrl.user.displayName !== $ctrl.user.email}") {{::$ctrl.user.displayName}}
@@ -15,6 +16,3 @@
           i.mdi.mdi-close
   .popover-profile-user-actions.flex-horizontal-centered
     .actions(dynamic-directive='profile-user-actions')
-    .actions
-      button.btn.btn-link(ng-if='$ctrl.isMobileDevice' ng-click='$ctrl.onProfileButtonClick()')
-        i.mdi.mdi-account-box
