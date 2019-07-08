@@ -1,7 +1,8 @@
 (function(angular) {
   'use strict';
 
-  angular.module('esn.profile-popover-card').factory('profilePopoverCardService', profilePopoverCardService);
+  angular.module('esn.profile-popover-card')
+    .factory('profilePopoverCardService', profilePopoverCardService);
 
   function profilePopoverCardService(
     $rootScope,
@@ -23,7 +24,7 @@
       bindPopover: bindPopover,
       _createScope: _createScope,
       createPopover: createPopover,
-      showPopover: _.debounce(_showPopover, 100, {leading: true, trailing: false}),
+      showPopover: _.debounce(_showPopover, 100, { leading: true, trailing: false }),
       bindModal: bindModal,
       createModal: createModal,
       _isUser: _isUser,
@@ -59,8 +60,6 @@
      * @param {string=} userObject.property
      *
      * @param {object=} options
-     * @param {string=} options.alternativeTitle Alternative `title` attribute to assign to element if user object is
-     *   not correct
      * @param {string=} options.placement Placement of popover. Either one of 'top', 'left', 'bottom' or 'right'.
      *   Defaults to 'top'
      * @param {object=} options.parentScope Current scope. Used to hide popover on scope destroy
@@ -81,7 +80,7 @@
         var user = functions._get(options.parentScope, userObject.source);
         var watchedProperty = functions._get(options.parentScope, watchExp);
 
-        if (functions._isUser(user) && watchedProperty) {
+        if (watchedProperty !== undefined) {
           var scope = functions._createScope(user);
 
           functions._bind(element, scope, options);
@@ -89,17 +88,19 @@
 
           options.parentScope.$watch(userObject.source, _.partial($timeout, function() {
             var newValue = functions._get(options.parentScope, userObject.source);
+
             scope.user = functions._normalizeUser(newValue);
           }));
         }
       };
 
-      var unwatch = options.parentScope.$watch(watchExp, function() { whenReady(unwatch); });
+      var unwatch = options.parentScope.$watch(watchExp, function() {
+        whenReady(unwatch);
+      });
     }
 
     function _bind(element, scope, options) {
       var defaultOpts = {
-        alternativeTitle: undefined,
         eventType: touchscreenDetectorService.hasTouchscreen() ? 'click' : 'mouseover',
         placement: 'top',
         showMobile: false,
@@ -123,7 +124,6 @@
 
     function bindPopover(element, scope, options) {
       if (!functions._isUser(scope.user)) {
-        if (options.alternativeTitle) $(element).attr('title', options.alternativeTitle);
         return;
       }
 
@@ -132,7 +132,7 @@
       if (options.parentScope) options.parentScope.$on('$destroy', popover.hide);
       if (options.hideOnElementScroll) $(options.hideOnElementScroll).scroll(popover.hide);
       $(element).attr('title', undefined);
-      $(element).css({cursor: 'pointer'});
+      $(element).css({ cursor: 'pointer' });
 
       element.on(options.eventType, function(evt) {
         evt.preventDefault();
@@ -156,7 +156,7 @@
 
       scope.hideComponent = hide;
 
-      var template = $compile('<profile-popover-content user="user" hide-component="hideComponent()" />')(scope);
+      var template = $compile('<profile-popover-content user="user" is-current-user="isCurrentUser" object-type="objectType" hide-component="hideComponent()" />')(scope);
 
       var $popoverOrigin = $(element).popover({
         content: template,
@@ -212,12 +212,16 @@
 
       var promise = $timeout(function() {
         var promises = angular.copy(delayedFnIds);
+
         delayedFnIds.length = 0;
-        promises.forEach(function(promise) { $timeout.cancel(promise); });
+        promises.forEach(function(promise) {
+          $timeout.cancel(promise);
+        });
         $('.profile-popover-card').popover('hide');
         $popoverOrigin.popover('show');
         $('body').on('mousemove', timeoutedHide);
       }, 300);
+
       delayedFnIds.push(promise);
     }
 
@@ -256,16 +260,18 @@
     function _isUser(user) {
       if (!user) return undefined;
 
-      return (user.preferredEmail || user.email);
+      return user.preferredEmail || user.email;
     }
 
     function _normalizeUser(userObject) {
       var user = _.assign({}, userObject);
+
       // Normalises between people and user objects
       if (user.id) user._id = user.id;
       if (user.email) user.preferredEmail = user.email;
       if (!user.displayName) user.displayName = user.preferredEmail;
       if (user.name) user.displayName = user.name;
+      if (!user.objectType) user.objectType = 'email';
 
       return user;
     }
@@ -280,20 +286,26 @@
       if (properties === undefined) return properties;
 
       var propertyList = properties;
+
       if (!_.isArray(propertyList)) propertyList = properties.toString().split('.');
 
       if (propertyList.length === 0) {
         return object;
-      } else if (object && object[propertyList[0]]) {
+      }
+
+      if (object && object[propertyList[0]] !== undefined) {
         return functions._get(object[propertyList[0]], propertyList.slice(1));
       }
+
       return undefined;
     }
 
     function _createScope(user) {
       var normalizedUser = functions._normalizeUser(user);
+
       return angular.extend($rootScope.$new(true), {
         user: normalizedUser,
+        objectType: normalizedUser.objectType,
         isCurrentUser: normalizedUser._id === session.user._id
       });
     }

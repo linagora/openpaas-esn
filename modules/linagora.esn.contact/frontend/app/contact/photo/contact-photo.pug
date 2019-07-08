@@ -1,4 +1,4 @@
-div(profile-popover-card='{ source: "contact", property: "id" }' profile-popover-card-show-mobile)
+div(profile-popover-card='{ source: "contact", property: "id" }' profile-popover-card-placement="right" profile-popover-card-show-mobile)
   a
     img(ng-class="{'esn-avatar': listView, 'clickable': editable}" ng-src='{{displayShell.getAvatar(avatarSize)}}' fallback-src="{{displayShell.getDefaultAvatar()}}", alt=__("Profile Picture"))
     i.mdi.i-contact-list(ng-class="displayShell.getOverlayIcon()")

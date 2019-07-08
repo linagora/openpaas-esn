@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const User = mongoose.model('User');
+const { OBJECT_TYPE } = require('./constants');
 const { getDisplayName } = require('./utils');
 const publicKeys = [
   '_id',
@@ -47,6 +48,7 @@ function denormalize(user, includePrivateData = false) {
 
   denormalizedUser.id = getId(user);
   denormalizedUser.displayName = getDisplayName(user);
+  denormalizedUser.objectType = OBJECT_TYPE;
 
   return denormalizedUser;
 }

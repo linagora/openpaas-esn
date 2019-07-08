@@ -412,14 +412,21 @@
       return davClient('GET', getBookUrl(bookId, bookName), null, null, query)
         .then(function(response) {
           return ContactShellBuilder.fromCardListResponse(response).then(function(shells) {
+
+            shells.forEach(function(contact) {
+              contact.objectType = 'contact';
+            });
+
             var result = {
               data: shells,
               current_page: currentPage,
               last_page: !response.data._links.next
             };
+
             if (!response.last_page) {
               result.next_page = currentPage + 1;
             }
+
             return result;
           });
         });

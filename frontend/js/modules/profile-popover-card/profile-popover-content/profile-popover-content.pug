@@ -4,7 +4,7 @@
       esn-avatar(user-id='$ctrl.user._id', user-email='$ctrl.user.email' ng-click='$ctrl.onProfileButtonClick()')
     .profile-card-right.profile-card-informations
       .ellipsis
-        span.displayname(ng-class="{capitalize: $ctrl.user.displayName !== $ctrl.user.email}") {{::$ctrl.user.displayName}}
+        span.displayname(ng-class="{capitalize: $ctrl.user.displayName !== $ctrl.user.email}") {{$ctrl.user.displayName}}
       div
         a(ng-href='mailto:{{$ctrl.user.preferredEmail}}', op-inbox-compose, op-inbox-compose-users='[$ctrl.user]') {{$ctrl.user.preferredEmail}}
       div(ng-if='$ctrl.user.officeLocation')

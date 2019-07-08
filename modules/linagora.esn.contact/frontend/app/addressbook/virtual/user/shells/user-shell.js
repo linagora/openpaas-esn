@@ -15,6 +15,7 @@
       this.orgName = '';
       this.orgRole = '';
       this.emails = [{ type: 'Work', value: user.preferredEmail }];
+      this.objectType = user.objectType;
 
       if (user.main_phone) {
         this.tel = [{ type: 'Work', value: user.main_phone }];
