@@ -4,7 +4,7 @@ services:
 
   esn:
     container_name: esn
-    image: linagora/esn:1.5.0-rc1 # to switch back to :latest just for the 1.5.0 release
+    image: linagora/esn:latest
     ports:
      - "8080:8080"
     volumes:
@@ -76,7 +76,7 @@ services:
 
   sabre:
     container_name: esn_sabre
-    image: linagora/esn-sabre:1.5.0-rc1 # to switch back to :latest just for the 1.5.0 release
+    image: linagora/esn-sabre:latest
     ports:
       - "8001:80"
     environment:
@@ -98,7 +98,7 @@ services:
   james:
     container_name: esn_james
     entrypoint: bash -c "java -Dlogback.configurationFile=/root/conf/logback.xml -Dworking.directory=/root/ -jar james-server.jar"
-    image: linagora/james-project:openpaas-1.5.0-rc1 # to switch back to :latest just for the 1.5.0 release
+    image: linagora/james-project:latest
     hostname: open-paas.org
     depends_on:
       - esn # to have configuration ready in shared volume
