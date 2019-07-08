@@ -350,7 +350,8 @@ describe('The contact Angular module contactapis', function() {
             });
 
             it('should list cards', function(done) {
-              var shells = [1, 2];
+              var shells = [{shell: 1}, {shell: 2}];
+
               this.$httpBackend.expectGET(contactsURL + '?sort=fn').respond(result);
 
               this.ContactShellBuilder.fromCardListResponse = function() {

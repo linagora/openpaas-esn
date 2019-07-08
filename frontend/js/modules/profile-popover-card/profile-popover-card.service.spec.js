@@ -6,7 +6,7 @@
 var expect = chai.expect;
 
 describe('The profilePopoverCardService service', function() {
-  var $rootScope, userObject, profilePopoverCardService, element;
+  var $rootScope, userObject, contactUserObject, externalUserObject, profilePopoverCardService, element;
   var touchscreenDetectorService = {hasTouchscreen: sinon.stub()};
   var stubbedModalRes = {show: sinon.spy(), hide: sinon.spy()};
   var $modal = sinon.stub().returns(stubbedModalRes);
@@ -34,7 +34,20 @@ describe('The profilePopoverCardService service', function() {
     userObject = {
       name: 'Karl Marx',
       email: 'karl-marx@proletarian.people',
-      id: '0764a32c-686c-45d7-8034-2b53f080226c'
+      id: '5d0ba10c291d3c6435e90c5e',
+      objectType: 'user'
+    };
+
+    contactUserObject = {
+      name: 'Peter Parker',
+      email: 'Peter-Parker@avengers.ny',
+      id: '0764a32c-686c-45d7-8034-2b53f080226c',
+      objectType: 'contact'
+    };
+
+    externalUserObject = {
+      name: 'Bruce Wayne',
+      email: 'Bruce-Wayne@becauseImBatman.com'
     };
 
     scope = {
@@ -227,16 +240,40 @@ describe('The profilePopoverCardService service', function() {
         displayName: 'Karl Marx',
         email: 'karl-marx@proletarian.people',
         preferredEmail: 'karl-marx@proletarian.people',
-        id: '0764a32c-686c-45d7-8034-2b53f080226c',
-        _id: '0764a32c-686c-45d7-8034-2b53f080226c'
+        id: '5d0ba10c291d3c6435e90c5e',
+        _id: '5d0ba10c291d3c6435e90c5e',
+        objectType: 'user'
       });
     });
 
     it('should complete displayName with preferredEmail when absent', function() {
-      expect(profilePopoverCardService.functions._normalizeUser({email: userObject.email})).to.eql({
+      expect(profilePopoverCardService.functions._normalizeUser({email: userObject.email, objectType: 'user'})).to.eql({
         displayName: 'karl-marx@proletarian.people',
         email: 'karl-marx@proletarian.people',
-        preferredEmail: 'karl-marx@proletarian.people'
+        preferredEmail: 'karl-marx@proletarian.people',
+        objectType: 'user'
+      });
+    });
+
+    it('should normalize user with objectType "contact"', function() {
+      expect(profilePopoverCardService.functions._normalizeUser(contactUserObject)).to.eql({
+        name: 'Peter Parker',
+        displayName: 'Peter Parker',
+        email: 'Peter-Parker@avengers.ny',
+        preferredEmail: 'Peter-Parker@avengers.ny',
+        id: '0764a32c-686c-45d7-8034-2b53f080226c',
+        _id: '0764a32c-686c-45d7-8034-2b53f080226c',
+        objectType: 'contact'
+      });
+    });
+
+    it('should normalize external user', function() {
+      expect(profilePopoverCardService.functions._normalizeUser(externalUserObject)).to.eql({
+        name: 'Bruce Wayne',
+        displayName: 'Bruce Wayne',
+        email: 'Bruce-Wayne@becauseImBatman.com',
+        preferredEmail: 'Bruce-Wayne@becauseImBatman.com',
+        objectType: 'email'
       });
     });
   });
