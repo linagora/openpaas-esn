@@ -1,0 +1,13 @@
+{
+  "This company is already registered. Please choose another one.": "Эта компания уже зарегистрирована. Пожалуйста, выберите другой.",
+  "Email address is required": "Требуется адрес электронной почты",
+  "This email address is invalid": "Этот адрес электронной почты недействителен",
+  "First name is required": "Имя обязательно",
+  "Last name is required": "Фамилия обязательна",
+  "Domain name": "Доменное имя",
+  "Organization is required": "Требуется организация",
+  "Domain name is required": "Требуется доменное имя",
+  "Domain Name": "Доменное имя",
+  "We are not able to find the invitation you requested, please try again.": "Мы не можем найти запрошенное вами приглашение, пожалуйста, попробуйте еще раз.",
+  "There was an error while signin up to the platform. Please try again.": "При входе на платформу произошла ошибка. Пожалуйста, попробуйте еще раз."
+}
