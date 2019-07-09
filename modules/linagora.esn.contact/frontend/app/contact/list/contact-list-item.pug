@@ -1,10 +1,4 @@
-.lv-actions.actions(ng-class="{ invisible: !hasInjectedActions }")
-  li.dropdown
-    a(href='', data-toggle='dropdown', aria-expanded='true')
-      i.mdi.mdi-dots-vertical
-    ul.dropdown-menu.dropdown-menu-right
-      li.contact-dropdown-font(dynamic-directive='contact-list-menu-items')
-
+ng-include(src="'/contact/app/contact/list/contact-list-action-drop-menu.html'")
 .contact-list-item(ng-click='displayContact()')
   .pull-left.touch-zone
     contact-photo.media-object(contact='contact', list-view='true', avatar-size='{{::avatarSize}}')
@@ -34,4 +28,3 @@
           .contact-item-highlight(ng-if="['mdi-web'].indexOf(atr.icon) === -1 && socialTypeOrder.indexOf(atr.type) === -1")
             i.mdi.contact-attr-icon(ng-class="atr.icon")
             p(ng-bind-html="::atr.data | esnHighlight: keySearch")
-

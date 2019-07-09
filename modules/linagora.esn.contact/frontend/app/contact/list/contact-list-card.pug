@@ -1,5 +1,7 @@
-.card.contact-list-card.clickable(ng-click='displayContact()')
-  .card-body
+.card.contact-list-card
+  ng-include(src="'/contact/app/contact/list/contact-list-action-drop-menu.html'")
+
+  .card-body.clickable(ng-click='displayContact()')
     .flex-start
       .p-10.esn-flex-noshrink
         .card-image(profile-popover-card='{ source: "contact", property: "id" }' profile-popover-card-show-mobile)
@@ -16,3 +18,4 @@
           span(ng-bind-html="::contact.orgRole | esnHighlight: keySearch")
           span(ng-if='contact.orgRole && contact.orgName') &nbsp;#{__('at')}&nbsp;
           span(ng-bind-html="::contact.orgName | esnHighlight: keySearch")
+          
