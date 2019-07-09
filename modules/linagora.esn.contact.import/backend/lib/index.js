@@ -1,49 +1,39 @@
-'use strict';
+module.exports = dependencies => {
+  const logger = dependencies('logger');
+  const webserverWrapper = dependencies('webserver-wrapper');
+  const jobQueue = dependencies('jobqueue');
 
-module.exports = function(dependencies) {
+  const webserver = require('../webserver')(dependencies);
+  const importerRegistry = require('./registry')(dependencies);
+  const importModule = require('./import')(dependencies);
+  const cron = require('./cron')(dependencies);
 
-  var logger = dependencies('logger');
-  var webserverWrapper = dependencies('webserver-wrapper');
-  var jobQueue = dependencies('jobqueue');
+  const importContactsWorker = require('./workers/import')(dependencies);
+  const synchronizeContactsWorker = require('./workers/synchronize')(dependencies);
 
-  var webserver = require('../webserver')(dependencies);
-  var importerRegistry = require('./registry')(dependencies);
-  var importModule = require('./import')(dependencies);
-  var cron = require('./cron')(dependencies);
+  return {
+    addImporter,
+    import: importModule,
+    init
+  };
+
+  function init() {
+    cron.init();
+    jobQueue.lib.addWorker(importContactsWorker);
+    jobQueue.lib.addWorker(synchronizeContactsWorker);
+  }
 
   function addImporter(importer) {
     if (!importer) {
       logger.error('Can not add empty importer');
+
       return;
     }
+
     importerRegistry.add(importer);
     logger.debug('Adding the %s importer', importer.name);
-
-    jobQueue.lib.workers.add({
-      name: 'contact-' + importer.name + '-sync',
-      getWorkerFunction: function() {
-        return function(data) {
-          return importModule.synchronizeAccountContacts(data.user, data.account);
-        };
-      }
-    });
-
-    jobQueue.lib.workers.add({
-      name: 'contact-' + importer.name + '-import',
-      getWorkerFunction: function() {
-        return function(data) {
-          return importModule.importAccountContacts(data.user, data.account);
-        };
-      }
-    });
 
     webserverWrapper.injectAngularModules('contact.import.' + importer.name, importer.frontend.modules, importer.frontend.moduleName, ['esn']);
     webserverWrapper.addApp('contact.import.' + importer.name, webserver.getStaticApp(importer.frontend.staticPath));
   }
-
-  return {
-    addImporter: addImporter,
-    import: importModule,
-    cron: cron
-  };
 };

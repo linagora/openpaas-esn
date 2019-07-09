@@ -11,12 +11,24 @@ The worker object to register is defined as:
 
 ```javascript
 
-dependencies('jobqueue').lib.workers.add({
-  name: 'contact-twitter-import',
-  getWorkerFunction: function() {
-    return self.lib.importer.importContact;
+const jobName = 'contact-import';
+
+dependencies('jobqueue').lib.addWorker({
+  name: jobName,
+  getWorkerFunction() {
+    return worker;
+  },
+  titleBuilder(jobData) {
+    return `Import ${jobData.type} contacts for user ${jobData.userId}`;
   }
 })
+
+function worker(job) {
+  const { user, account } = job.data;
+
+  // must return a promise
+  return importContact(user, account);
+}
 
 ```
 
@@ -26,9 +38,13 @@ Once registered, you can call worker job by his name and data:
 
 ```javascript
 
-dependencies('jobqueue').lib.startJob(jobName, jobData);
+const jobData = { user, account };
+
+dependencies('jobqueue').lib.submitJob(jobName, jobData);
 
 ```
+
+_Note that the `jobData` must be as lightweight as possible since it is stored in Redis_
 
 ## Job object
 

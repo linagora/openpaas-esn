@@ -1,31 +1,16 @@
-'use strict';
-
-var q = require('q');
-var mockery = require('mockery');
-var chai = require('chai');
-var expect = chai.expect;
+const { expect } = require('chai');
+const sinon = require('sinon');
 
 describe('The contact import module', function() {
-
-  var deps, user, account;
-
-  var dependencies = function(name) {
-    return deps[name];
-  };
-
-  var getModule = function() {
-    return require('../../../backend/lib/import')(dependencies);
-  };
-
-  var jobQueueMock, contactModuleMock, contactClientMock;
-  var type = 'twitter';
-  var id = 123;
-  var domainId = 456;
+  let getModule;
+  let jobQueueMock, contactModuleMock, contactClientMock;
+  const domainId = '123';
+  const { IMPORT, SYNCHRONIZE } = require('../../../backend/lib/constants').JOBQUEUE_WORKER_NAMES;
 
   beforeEach(function() {
     contactClientMock = {
       create: function() {
-        return q([]);
+        return Promise.resolve([]);
       }
     };
     contactModuleMock = {
@@ -48,6 +33,7 @@ describe('The contact import module', function() {
         }
       }
     };
+
     jobQueueMock = {
       lib: {
         submitJob: function() {},
@@ -56,459 +42,44 @@ describe('The contact import module', function() {
         }
       }
     };
-    deps = {
-      logger: {
-        debug: function() {},
-        info: function() {},
-        error: function() {}
-      },
-      jobqueue: jobQueueMock,
-      'webserver-wrapper': {
-        injectAngularModules: function() {},
-        addApp: function() {}
-      },
-      contact: contactModuleMock
-    };
 
-    account = {
-      data: {
-        provider: type,
-        id: id
-      }
-    };
-    user = {
-      _id: '123456789',
-      domains: [
-        {domain_id: domainId}
-      ],
-      preferredDomainId: domainId,
-      accounts: [
-        account,
-        {
-          data: {
-            provider: 'test',
-            id: id
-          }
-        }
-      ]
-    };
-  });
+    this.moduleHelpers.addDep('jobqueue', jobQueueMock);
+    this.moduleHelpers.addDep('contact', contactModuleMock);
 
-  describe('The importAccountContacts function', function() {
-
-    var registryMock;
-
-    beforeEach(function() {
-      registryMock = {};
-      mockery.registerMock('./registry', function() {
-        return registryMock;
-      });
-    });
-
-    it('should reject if importer is not found', function(done) {
-      registryMock = {
-        get: function(type) {
-          expect(type).to.equals(account.data.provider);
-          return null;
-        }
-      };
-      getModule().importAccountContacts(user, account).then(done, function(err) {
-        expect(err.message).to.equal('Can not find importer ' + account.data.provider);
-        done();
-      });
-    });
-
-    it('should reject if importer.lib is undefined', function(done) {
-      registryMock = {
-        get: function(type) {
-          expect(type).to.equals(account.data.provider);
-          return {};
-        }
-      };
-      getModule().importAccountContacts(user, account).then(done, function(err) {
-        expect(err.message).to.equal('Can not find importer ' + account.data.provider);
-        done();
-      });
-    });
-
-    it('should call importer with the right parameters', function(done) {
-
-      var options = {
-        account: account,
-        user: user
-      };
-      var addressbook = {
-        id: '1',
-        name: 'MyAB'
-      };
-
-      mockery.registerMock('./helper', function() {
-        return {
-          getImporterOptions: function() {
-            return q(options);
-          },
-          initializeAddressBook: function(options) {
-            options.addressbook = addressbook;
-            return q(options);
-          }
-        };
-      });
-      registryMock = {
-        get: function(type) {
-          expect(type).to.equals(account.data.provider);
-          return {
-            lib: {
-              importer: {
-                importContact: function(options) {
-                  expect(options.account).to.deep.equals(account);
-                  expect(options.user).to.deep.equals(user);
-                  expect(options.addressbook).to.deep.equals(addressbook);
-                  done();
-                }
-              }
-            }
-          };
-        }
-      };
-      getModule().importAccountContacts(user, account);
-    });
-
-    it('should reject if it fails to get importer options', function(done) {
-      var e = new Error('Options error');
-      registryMock = {
-        get: function() {
-          return { lib: { importer: function() {} }};
-        }
-      };
-      mockery.registerMock('./helper', function() {
-        return {
-          getImporterOptions: function() {
-            return q.reject(e);
-          }
-        };
-      });
-      getModule().importAccountContacts(user, account).then(done, function(err) {
-        expect(err).to.equal(e);
-        done();
-      });
-    });
-
-    it('should reject if it fails to initialize address book', function(done) {
-      var e = new Error('initialoze error');
-      registryMock = {
-        get: function() {
-          return { lib: { importer: function() {} }};
-        }
-      };
-      mockery.registerMock('./helper', function() {
-        return {
-          getImporterOptions: function() {
-            return q({});
-          },
-          initializeAddressBook: function() {
-            return q.reject(e);
-          }
-        };
-      });
-      getModule().importAccountContacts(user, account).then(done, function(err) {
-        expect(err).to.equal(e);
-        done();
-      });
-    });
-
-  });
-
-  describe('The synchronizeAccountContacts function', function() {
-    var registryMock;
-
-    beforeEach(function() {
-      registryMock = {};
-      mockery.registerMock('./registry', function() {
-        return registryMock;
-      });
-    });
-
-    it('should reject if importer is not found', function(done) {
-      registryMock = {
-        get: function(type) {
-          expect(type).to.equals(account.data.provider);
-          return null;
-        }
-      };
-      getModule().synchronizeAccountContacts(user, account).then(done, function(err) {
-        expect(err.message).to.equal('Can not find importer ' + account.data.provider);
-        done();
-      });
-    });
-
-    it('should reject if importer.lib is undefined', function(done) {
-      registryMock = {
-        get: function(type) {
-          expect(type).to.equals(account.data.provider);
-          return {};
-        }
-      };
-      getModule().synchronizeAccountContacts(user, account).then(done, function(err) {
-        expect(err.message).to.equal('Can not find importer ' + account.data.provider);
-        done();
-      });
-    });
-
-    it('should call importer with the right parameters', function(done) {
-      var options = {
-        account: account,
-        user: user
-      };
-      var addressbook = {
-        id: '1',
-        name: 'MyAB'
-      };
-
-      mockery.registerMock('./helper', function() {
-        return {
-          getImporterOptions: function() {
-            return q(options);
-          },
-          initializeAddressBook: function(options) {
-            options.addressbook = addressbook;
-            return q(options);
-          }
-        };
-      });
-      registryMock = {
-        get: function(type) {
-          expect(type).to.equals(account.data.provider);
-          return {
-            lib: {
-              importer: {
-                importContact: function(options) {
-                  expect(options.account).to.deep.equals(account);
-                  expect(options.user).to.deep.equals(user);
-                  expect(options.addressbook).to.deep.equals(addressbook);
-                  done();
-                }
-              }
-            }
-          };
-        }
-      };
-      getModule().synchronizeAccountContacts(user, account);
-    });
-
-    it('should reject if it fails to get importer options', function(done) {
-      var e = new Error('Options error');
-      registryMock = {
-        get: function() {
-          return { lib: { importer: function() {} }};
-        }
-      };
-      mockery.registerMock('./helper', function() {
-        return {
-          getImporterOptions: function() {
-            return q.reject(e);
-          }
-        };
-      });
-      getModule().synchronizeAccountContacts(user, account).then(done, function(err) {
-        expect(err).to.equal(e);
-        done();
-      });
-    });
-
-    it('should reject if it fails to initialize address book', function(done) {
-      var e = new Error('initialoze error');
-      registryMock = {
-        get: function() {
-          return { lib: { importer: function() {} }};
-        }
-      };
-      mockery.registerMock('./helper', function() {
-        return {
-          getImporterOptions: function() {
-            return q({});
-          },
-          initializeAddressBook: function() {
-            return q.reject(e);
-          }
-        };
-      });
-      getModule().synchronizeAccountContacts(user, account).then(done, function(err) {
-        expect(err).to.equal(e);
-        done();
-      });
-    });
-
-    it('should clean outdated contacts', function(done) {
-      var contactSyncTimeStamp;
-      var options = {
-        account: account,
-        user: user
-      };
-      var addressbook = {
-        id: '1',
-        name: 'MyAB'
-      };
-
-      mockery.registerMock('./helper', function() {
-        return {
-          getImporterOptions: function() {
-            return q(options);
-          },
-          initializeAddressBook: function(options) {
-            options.addressbook = addressbook;
-            return q(options);
-          },
-          cleanOutdatedContacts: function(options, timestamp) {
-            expect(options).to.eql({
-              account: account,
-              user: user,
-              addressbook: addressbook
-            });
-            expect(timestamp).to.be.a('number');
-            expect(contactSyncTimeStamp < timestamp).is.true;
-            done();
-          }
-        };
-      });
-      registryMock = {
-        get: function() {
-          return {
-            lib: {
-              importer: {
-                importContact: function() {
-                  return q.resolve();
-                }
-              }
-            }
-          };
-        }
-      };
-      contactSyncTimeStamp = Date.now();
-      getModule().synchronizeAccountContacts(user, account);
-    });
+    getModule = () => require('../../../backend/lib/import')(this.moduleHelpers.dependencies);
   });
 
   describe('The importAccountContactsByJobQueue function', function() {
+    it('should submit import account contacts job with the correct params', function() {
+      const user = { _id: '123' };
+      const account = { foo: 'bar' };
 
-    it('should call jobqueue submitJob fn with valid options', function(done) {
-
-      var options = {
-        account: account,
-        user: user
-      };
-      var addressbook = {
-        id: '1',
-        name: 'MyAB'
-      };
-
-      mockery.registerMock('./helper', function() {
-        return {
-          getImporterOptions: function() {
-            return q(options);
-          },
-          initializeAddressBook: function(options) {
-            options.addressbook = addressbook;
-            return q(options);
-          }
-        };
-      });
-
-      jobQueueMock.lib.submitJob = function(workerName, jobName, options) {
-        expect(workerName).to.equal('contact-' + account.data.provider + '-import');
-        expect(options).to.eql({
-          user: user,
-          account: account
-        });
-        done();
+      jobQueueMock.lib = {
+        submitJob: sinon.spy()
       };
 
       getModule().importAccountContactsByJobQueue(user, account);
-    });
 
-    it('should resolve if jobqueue submitJob resolves', function(done) {
-      var options = {
-        account: account,
-        user: user
-      };
-      mockery.registerMock('./helper', function() {
-        return {
-          getImporterOptions: function() {
-            return q({});
-          },
-          initializeAddressBook: function() {
-            return q(options);
-          }
-        };
-      });
-
-      jobQueueMock.lib.submitJob = function() {return q({});};
-      getModule().importAccountContactsByJobQueue(user, account).then(function() {
-        done();
-      });
+      expect(jobQueueMock.lib.submitJob).to.have.been.calledWith(IMPORT, { user, account });
     });
   });
 
   describe('The synchronizeAccountContactsByJobQueue function', function() {
+    it('should submit synchronize account contacts job with the correct params', function() {
+      const user = { _id: '123' };
+      const account = { foo: 'bar' };
 
-    it('should call jobqueue submitJob fn with valid options', function(done) {
-
-      var options = {
-        account: account,
-        user: user
-      };
-      var addressbook = {
-        id: '1',
-        name: 'MyAB'
-      };
-
-      mockery.registerMock('./helper', function() {
-        return {
-          getImporterOptions: function() {
-            return q(options);
-          },
-          initializeAddressBook: function(options) {
-            options.addressbook = addressbook;
-            return q(options);
-          }
-        };
-      });
-
-      jobQueueMock.lib.submitJob = function(workerName, jobName, options) {
-        expect(workerName).to.equal('contact-' + account.data.provider + '-sync');
-        expect(options).to.eql({
-          user: user,
-          account: account
-        });
-        done();
+      jobQueueMock.lib = {
+        submitJob: sinon.spy()
       };
 
       getModule().synchronizeAccountContactsByJobQueue(user, account);
-    });
 
-    it('should resolve if jobqueue submitJob resolves', function(done) {
-      var options = {
-        account: account,
-        user: user
-      };
-      mockery.registerMock('./helper', function() {
-        return {
-          getImporterOptions: function() {
-            return q({});
-          },
-          initializeAddressBook: function() {
-            return q(options);
-          }
-        };
-      });
-
-      jobQueueMock.lib.submitJob = function() {return q({});};
-      getModule().synchronizeAccountContactsByJobQueue(user, account).then(function() {
-        done();
-      });
+      expect(jobQueueMock.lib.submitJob).to.have.been.calledWith(SYNCHRONIZE, { user, account });
     });
   });
 
-  describe('The createContact fn', function() {
+  describe('The createContact method', function() {
     var vcardMock, optionsMock, vcarJson;
     var error = new Error('an error');
     beforeEach(function() {
@@ -552,7 +123,7 @@ describe('The contact import module', function() {
     it('should reject IMPORT_CONTACT_CLIENT_ERROR error when contact client reject', function(done) {
 
       contactClientMock.create = function() {
-        return q.reject(error);
+        return Promise.reject(error);
       };
       getModule().createContact(vcardMock, optionsMock).then(null, function(err) {
         expect(err).to.deep.equal({
@@ -588,7 +159,7 @@ describe('The contact import module', function() {
     });
   });
 
-  describe('The buildErrorMessage fn', function() {
+  describe('The buildErrorMessage method', function() {
     var error, type;
     var CONTACT_IMPORT_ERROR = require('../../../backend/constants').CONTACT_IMPORT_ERROR;
 

@@ -1,5 +1,3 @@
-'use strict';
-
 module.exports = dependencies => {
   const workers = {};
   const logger = dependencies('logger');
@@ -10,14 +8,24 @@ module.exports = dependencies => {
     list
   };
 
-  function add(worker) {
-    if (!worker || !worker.name) {
-      return logger.error(new Error('Can not add importer. You need to define it and its name'));
-    } else if (typeof worker.getWorkerFunction !== 'function' || typeof worker.getWorkerFunction() !== 'function') {
-      return logger.error(new Error('Can not add importer without worker function'));
+  function add(worker = {}) {
+    if (!worker.name) {
+      throw new Error('worker.name is required');
     }
 
-    logger.debug(`Adding the ${worker.name}`);
+    if (!worker.handler) {
+      throw new Error('worker.handler is required');
+    }
+
+    if (typeof worker.handler.handle !== 'function') {
+      throw new Error('worker.handler.handle must be a function');
+    }
+
+    if (typeof worker.handler.getTitle !== 'function') {
+      throw new Error('worker.handler.getTitle function is required');
+    }
+
+    logger.debug(`Jobqueue: adding worker ${worker.name}`);
     workers[worker.name] = worker;
   }
 

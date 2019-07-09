@@ -1,76 +1,87 @@
-'use strict';
-
-var mockery = require('mockery');
-var sinon = require('sinon');
-var chai = require('chai');
-var expect = chai.expect;
+const mockery = require('mockery');
+const sinon = require('sinon');
+const { expect } = require('chai');
 
 describe('The contact import backend module', function() {
-
-  var deps;
-
-  var dependencies = function(name) {
-    return deps[name];
-  };
-
-  var getModule = function() {
-    return require('../../../backend/lib/index')(dependencies);
-  };
-
-  var jobQueueMock, pubsubMock;
+  let getModule;
+  let jobQueueMock, webserverWrapperMock, cronMock, importerRegistryMock;
 
   beforeEach(function() {
-    pubsubMock = {
-      local: {
-        topic: function() {
-          return {
-            forward: function() {}
-          };
-        }
-      },
-      global: {}
-    };
     jobQueueMock = {
       lib: {
-        submitJob: function() {},
+        addWorker: () => {},
         workers: {
-          add: function() {}
+          add: () => {}
         }
       }
     };
-    deps = {
-      logger: {
-        debug: function() {},
-        info: function() {},
-        error: function() {}
-      },
-      jobqueue: jobQueueMock,
-      'webserver-wrapper': {
-        injectAngularModules: function() {},
-        addApp: function() {}
-      },
-      pubsub: pubsubMock
+
+    cronMock = {
+      init: () => {}
     };
+
+    webserverWrapperMock = {
+      injectAngularModules: () => {},
+      addApp: () => {}
+    };
+
+    importerRegistryMock = {
+      add: () => {}
+    };
+
+    this.moduleHelpers.addDep('jobqueue', jobQueueMock);
+    this.moduleHelpers.addDep('webserver-wrapper', webserverWrapperMock);
+
+    getModule = () => require('../../../backend/lib/index')(this.moduleHelpers.dependencies);
+    mockery.registerMock('./cron', () => cronMock);
+    mockery.registerMock('./import', () => {});
+    mockery.registerMock('./registry', () => importerRegistryMock);
+    mockery.registerMock('./workers/import', () => {});
+    mockery.registerMock('./workers/synchronize', () => {});
+  });
+
+  describe('The init method', function() {
+    it('should init cron', function() {
+      cronMock.init = sinon.spy();
+
+      getModule().init();
+
+      expect(cronMock.init).to.have.been.calledOnce;
+    });
+
+    it('should add import contacts worker', function() {
+      const importWorker = { foo: 'bar' };
+
+      mockery.registerMock('./workers/import', () => importWorker);
+      jobQueueMock.lib.addWorker = sinon.spy();
+
+      getModule().init();
+
+      expect(jobQueueMock.lib.addWorker).to.have.been.calledWith(importWorker);
+    });
+
+    it('should add synchronize contacts worker', function() {
+      const synchronizeWorker = { foo: 'bar' };
+
+      mockery.registerMock('./workers/synchronize', () => synchronizeWorker);
+      jobQueueMock.lib.addWorker = sinon.spy();
+
+      getModule().init();
+
+      expect(jobQueueMock.lib.addWorker).to.have.been.calledWith(synchronizeWorker);
+    });
   });
 
   describe('The addImporter function', function() {
-    var cronMock;
+    it('should not add importer when there is no importer', function() {
+      importerRegistryMock.add = sinon.spy();
 
-    beforeEach(function() {
-      cronMock = {
-        init: function() {}
-      };
-      mockery.registerMock('./cron', function() {
-        return cronMock;
-      });
-      mockery.registerMock('./import', function() {
-      });
+      getModule().addImporter();
+      expect(importerRegistryMock.add).to.not.have.been.called;
     });
 
-    it('should not add importer when undefined', function() {
-      var angularSpy = sinon.spy();
-      var addAppSpy = sinon.spy();
-      var getStaticAppSpy = sinon.spy();
+    it('should not create a webapp when there is no importer', function() {
+      const getStaticAppSpy = sinon.spy();
 
       mockery.registerMock('../webserver', function() {
         return {
@@ -78,24 +89,34 @@ describe('The contact import backend module', function() {
         };
       });
 
-      deps['webserver-wrapper'] = {
-        injectAngularModules: angularSpy,
-        addApp: addAppSpy
-      };
+      webserverWrapperMock.injectAngularModules = sinon.spy();
+      webserverWrapperMock.addApp = sinon.spy();
 
       getModule().addImporter();
       expect(getStaticAppSpy).to.not.have.been.called;
-      expect(angularSpy).to.not.have.been.called;
-      expect(addAppSpy).to.not.have.been.called;
+      expect(webserverWrapperMock.injectAngularModules).to.not.have.been.called;
+      expect(webserverWrapperMock.addApp).to.not.have.been.called;
+    });
+
+    it('should add importer when importer is defined', function() {
+      const importer = {
+        name: 'twitter',
+        frontend: {
+          modules: ['app.js', 'services.js'],
+          moduleName: 'linagora.esn.contact.import.twitter',
+          staticPath: '/foo/bar/baz/twitter'
+        }
+      };
+
+      importerRegistryMock.add = sinon.spy();
+
+      getModule().addImporter(importer);
+      expect(importerRegistryMock.add).to.have.been.calledWith(importer);
     });
 
     it('should create a webapp when importer is defined', function() {
-
-      var angularSpy = sinon.spy();
-      var addAppSpy = sinon.spy();
-      var getStaticAppSpy = sinon.spy();
-
-      var importer = {
+      const getStaticAppSpy = sinon.spy();
+      const importer = {
         name: 'twitter',
         frontend: {
           modules: ['app.js', 'services.js'],
@@ -110,45 +131,13 @@ describe('The contact import backend module', function() {
         };
       });
 
-      deps['webserver-wrapper'] = {
-        injectAngularModules: angularSpy,
-        addApp: addAppSpy
-      };
+      webserverWrapperMock.injectAngularModules = sinon.spy();
+      webserverWrapperMock.addApp = sinon.spy();
 
       getModule().addImporter(importer);
       expect(getStaticAppSpy).to.have.been.calledOnce;
-      expect(angularSpy).to.have.been.calledOnce;
-      expect(addAppSpy).to.have.been.calledOnce;
+      expect(webserverWrapperMock.injectAngularModules).to.have.been.calledOnce;
+      expect(webserverWrapperMock.addApp).to.have.been.calledOnce;
     });
-
-    it('should add contact sync worker and contact import worker to job queue', function(done) {
-
-      var importer = {
-        name: 'twitter',
-        frontend: {
-          modules: ['app.js', 'services.js'],
-          moduleName: 'linagora.esn.contact.import.twitter',
-          staticPath: '/foo/bar/baz/twitter'
-        }
-      };
-      var workers = [];
-      jobQueueMock.lib.workers.add = function(worker) {
-        workers.push(worker);
-      };
-
-      getModule().addImporter(importer);
-
-      expect(workers).to.shallowDeepEqual([{
-        name: 'contact-' + importer.name + '-sync',
-        getWorkerFunction: function() {}
-      }, {
-        name: 'contact-' + importer.name + '-import',
-        getWorkerFunction: function() {}
-      }
-      ]);
-      done();
-
-    });
-
   });
 });
