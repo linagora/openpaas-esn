@@ -35,6 +35,7 @@ var importContactModule = new AwesomeModule(moduleData.fullName, {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.i18n', 'i18n'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.authorization', 'authorizationMW'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.wsserver', 'wsserver'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.db', 'db'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.cron', 'cron')
   ],
   data: moduleData,

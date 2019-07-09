@@ -6,6 +6,7 @@ module.exports = dependencies => {
   const userModule = dependencies('user');
   const contactModule = dependencies('contact');
   const logger = dependencies('logger');
+  const UserModel = dependencies('db').mongo.mongoose.model('User');
 
   return {
     cleanOutdatedContacts,
@@ -65,6 +66,10 @@ module.exports = dependencies => {
 
   function getImporterOptions(user, account) {
     return new Promise((resolve, reject) => {
+      // In case of User virtual fields are missing, for example "preferredDomainId"
+      // We need to initialize it again to get technical user from preferred domain ID
+      user = user instanceof UserModel ? user : new UserModel(user).toObject({ virtuals: true });
+
       const options = { account, user };
 
       technicalUser.findByTypeAndDomain(TECHNICAL_USER_TYPE, user.preferredDomainId, (err, users) => {
