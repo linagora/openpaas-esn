@@ -30,7 +30,7 @@ angular.module('esn.sidebar', [
     return contextualSidebarService;
   })
 
-  .directive('contextualSidebar', function($timeout, $window, $mdUtil, contextualSidebarService) {
+  .directive('contextualSidebar', function($timeout, $window, $mdUtil, contextualSidebarService, session) {
     function link(scope, element, attr) {
       var options = {scope: scope},
         placementToAnimationMap = {
@@ -52,6 +52,8 @@ angular.module('esn.sidebar', [
       if (options.placement === 'right') {
         scope.hideHeader = true;
       }
+
+      scope.domainId = session.domain._id;
 
       var sidebar = contextualSidebarService(options);
       var jWindow = angular.element($window);

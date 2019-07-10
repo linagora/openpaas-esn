@@ -6,7 +6,7 @@ div
       ul.list-inline.all-centered
         li.logo
           a(href='', ui-sref='home')
-            img.openpaas-logo(src="/images/white-logo.svg", alt=__("OpenPaas Logo"))
+            img.openpaas-logo(ng-src="{{'/api/themes/' + domainId + '/logo'}}", fallback-src='/images/white-logo.svg', src="/images/white-logo.svg", alt=__("OpenPaas Logo"))
 
       esn-search-header
 
