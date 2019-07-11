@@ -79,6 +79,8 @@ quick-test:
   tags:
     - docker
   script:
+    - echo "$REGISTRY_USER"
+    - echo '$REGISTRY_USER'
     - echo $REGISTRY_USER
 
 prepare:
