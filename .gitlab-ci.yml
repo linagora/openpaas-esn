@@ -73,6 +73,14 @@ stages:
     REDIS_HOST: redis
     REDIS_PORT: 6379
 
+quick-test:
+  image: debian
+  stage: prepare
+  tags:
+    - docker
+  script:
+    - echo $REGISTRY_USER
+
 prepare:
   image: node:10-stretch
   stage: prepare
