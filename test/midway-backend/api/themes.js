@@ -43,8 +43,8 @@ describe('The Themes API', function() {
   };
   const TEST_CONFIG_RETURN = {
     logos: {
-      logo: BASE_URL + '123',
-      favicon: BASE_URL + '456'
+      logo: '123',
+      favicon: '456'
     },
     colors: {
       primaryColor: '#2196f3',
