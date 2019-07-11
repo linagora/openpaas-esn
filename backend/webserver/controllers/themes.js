@@ -38,25 +38,11 @@ function getTheme(req, res) {
           colors[color.key] = color.value;
         });
 
-      configHelper.getBaseUrl(req.user, (err, url) => {
-        if (err) {
-          logger.error(msg, err);
-
-          return res.status(500).json({
-            error: {
-              code: 500,
-              message: 'Server Error',
-              details: msg
-            }
-          });
-        }
-
-        Object.keys(theme.logos).forEach(function(key) {
-          logos[key] = `${url}/api/files/${theme.logos[key]}`;
-        });
-
-        res.status(200).send({ logos, colors });
+      theme.logos && Object.keys(theme.logos).forEach(function(key) {
+        logos[key] = theme.logos[key];
       });
+
+      res.status(200).send({ logos, colors });
     })
     .catch(catchError(res, msg));
 }
