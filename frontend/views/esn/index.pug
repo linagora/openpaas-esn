@@ -7,7 +7,9 @@ html
     title #{title} - OpenPaas
     meta(name="viewport", content="width=device-width, initial-scale=1")
     meta(name="theme-color", content="#0C7CD5")
-    link(rel='icon', type='image/png', href='images/logo-tiny.png')
+    if domainId
+      link(rel='icon', type='image/png', href=`/api/themes/${domainId}/favicon`)
+
     link(rel='stylesheet', href='/components/bootstrap-additions/dist/bootstrap-additions.min.css')
     link(rel='stylesheet', href='/components/mdi/css/materialdesignicons.min.css', media='all')
     link(rel='stylesheet', href='/components/ng-tags-input/ng-tags-input.min.css')

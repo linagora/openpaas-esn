@@ -47,6 +47,17 @@ describe('The home controller', function() {
       mockery.registerMock('../../core/esn-config', esnConfigMock);
 
       const index = this.helpers.requireBackend('webserver/controllers/home').index;
+
+      const req = {
+        getLocale() {
+          return 'vi';
+        },
+        user: {
+          _id: '123',
+          preferredDomainId: 'domain123'
+        }
+      };
+
       const res = {
         locals: {},
         render: function(templatePath, options) {
@@ -57,14 +68,10 @@ describe('The home controller', function() {
           expect(options).to.deep.equal({
             title: 'Home',
             locale: 'vi',
-            fullLocale: 'vi-VN'
+            fullLocale: 'vi-VN',
+            domainId: req.user.preferredDomainId
           });
           done();
-        }
-      };
-      const req = {
-        getLocale() {
-          return 'vi';
         }
       };
 
