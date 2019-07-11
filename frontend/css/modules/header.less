@@ -30,8 +30,18 @@
       a {
         padding: 0 0 0 5px;
         .openpaas-logo {
-          height: 35px;
+          height: 100%;
           width: 150px;
+
+          @media (min-width: @screen-md-min) {
+            max-height: 40px;
+          }
+
+          @media (min-width: @screen-xl-min) {
+            max-height: 56px;
+          }
+
+          max-height: 56px;
         }
       }
     }
