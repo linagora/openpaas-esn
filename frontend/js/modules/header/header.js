@@ -95,7 +95,7 @@ angular.module('esn.header', [
     };
   })
 
-  .directive('mainHeader', function($rootScope, matchmedia, headerService, Fullscreen,
+  .directive('mainHeader', function(matchmedia, headerService, Fullscreen, session,
                                     SUB_HEADER_HAS_INJECTION_EVENT, ESN_MEDIA_QUERY_SM_XS) {
     return {
       restrict: 'E',
@@ -109,6 +109,8 @@ angular.module('esn.header', [
         scope.toggleFullScreen = function() {
           Fullscreen.toggleAll();
         };
+
+        scope.domainId = session.domain._id;
 
         var unregister = matchmedia.on(ESN_MEDIA_QUERY_SM_XS, function(mediaQueryList) {
           scope.enableScrollListener = mediaQueryList.matches;

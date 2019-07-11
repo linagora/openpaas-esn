@@ -6,7 +6,7 @@
           ul.list-inline.all-centered
             li.logo
               a(href='', ui-sref='home')
-                img.openpaas-logo(src="/images/logo-tiny.png", alt=__("OpenPaas Logo"))
+                img.openpaas-logo(ng-src="{{'/api/themes/' + domainId + '/favicon'}}", fallback-src='/images/logo-tiny.png', src="/images/logo-tiny.png", alt=__("OpenPaas Logo"))
           ul.list-inline.all-centered.header-actions
             li.hover-scale-animation
               button.btn.btn-link.btn-icon(ui-sref='search.main')
