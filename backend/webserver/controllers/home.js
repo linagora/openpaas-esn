@@ -18,6 +18,8 @@ module.exports = {
 function index(req, res) {
   res.locals.assets = assetRegistry.envAwareApp('esn');
 
+  const domainId = req.user.preferredDomainId.toString();
+
   getLocale().then(config => {
     const locale = config || i18nConfigTemplate.defaultLocale;
     const fullLocale = i18nConfigTemplate.fullLocales.hasOwnProperty(config) ? i18nConfigTemplate.fullLocales[config] : config || i18nConfigTemplate.defaultLocale;
@@ -25,7 +27,8 @@ function index(req, res) {
     alterTemplatePath('esn/index', tplPath => res.render(tplPath, {
       title: 'Home',
       locale,
-      fullLocale
+      fullLocale,
+      domainId
     }));
   });
 
