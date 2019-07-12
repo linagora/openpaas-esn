@@ -157,10 +157,6 @@ describe('The profilePopoverCardService service', function() {
   });
 
   describe('bindPopover', function() {
-    it('should not bind popover if no correct user was provided', function() {
-      var popover = profilePopoverCardService.functions.bindPopover(element, {user: undefined}, {});
-      expect(popover).to.be.undefined;
-    });
 
     it('should create a popover', function() {
       sinon.spy(profilePopoverCardService.functions, 'createPopover');
