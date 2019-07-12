@@ -1,7 +1,7 @@
 .profile-popover-content.flex-horizontal-centered
   .profile-card.flex-horizontal-centered
     .profile-card-left
-      esn-avatar(avatar-url='$ctrl.user.avatarUrl', user-id='$ctrl.user._id', user-email='$ctrl.user.email')
+      esn-avatar(avatar-url='$ctrl.user.avatarUrl || $ctrl.user.photo', user-id='$ctrl.user._id', user-email='$ctrl.user.email')
 
     .profile-card-right.profile-card-informations
       .ellipsis
