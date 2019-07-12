@@ -123,10 +123,6 @@
     }
 
     function bindPopover(element, scope, options) {
-      if (!functions._isUser(scope.user)) {
-        return;
-      }
-
       var popover = functions.createPopover(element, scope, options.placement);
 
       if (options.parentScope) options.parentScope.$on('$destroy', popover.hide);
