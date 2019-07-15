@@ -58,7 +58,7 @@ $ node ./bin/cli docker-dev --host localhost --port 27017 --database esn
 
 **elasticsearch**
 
-It will create the indexes on the elasticsearch instance defined from CLI options.
+It will configure the elasticsearch instance from CLI options. This command will create the required indices for OpenPaaS.
 
 ```bash
 $ node ./bin/cli elasticsearch --host localhost --port 9200 --type users --index users.idx
@@ -67,7 +67,7 @@ $ node ./bin/cli elasticsearch --host localhost --port 9200 --type users --index
 - host: default is localhost
 - port: default is 9200
 - type: the data type to create. When not set, it will create all the required index types.
-Possible values: users, contacts, events, resources, core.events, groups.
+Possible values: users, contacts, events, resources, core.events, groups, chat.messages, chat.conversations
 - index: Defines the index to create. When not set, it will be generated automatically from type
 
 **reindex**
