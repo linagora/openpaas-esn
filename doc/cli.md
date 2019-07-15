@@ -70,18 +70,6 @@ $ node ./bin/cli elasticsearch --host localhost --port 9200 --type users --index
 Possible values: users, contacts, events, resources, core.events, groups, chat.messages, chat.conversations
 - index: Defines the index to create. When not set, it will be generated automatically from type
 
-**reindex**
-
-It will index or reindex data from the DB to ES.
-
-```bash
-$ node ./bin/cli reindex --es-host localhost --es-port 9200 --type users
-```
-
-- es-host: default is localhost
-- es-port: default is 9200
-- type: the data type to reindex. Possible values: users, contacts, events, resources, core.events, groups.
-
 **populate**
 
 It will populate the MongoDB database with initial required data to use OpenPaaS.
