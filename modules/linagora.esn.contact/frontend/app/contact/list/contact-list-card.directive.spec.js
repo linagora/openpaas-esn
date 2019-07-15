@@ -75,7 +75,7 @@ describe('The contactListCard directive', function() {
     var isoScope = element.isolateScope();
     isoScope.displayContact = sinon.spy();
 
-    element.find('.contact-list-card').first().click();
+    element.find('.card-body').first().click();
     expect(isoScope.displayContact.callCount).to.equal(1);
 
     element.find('.card-image').first().click();
