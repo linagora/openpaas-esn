@@ -281,7 +281,7 @@ describe('The Contacts controller module', function() {
       it('should change page on contact create success', function(done) {
         scope.contact = {id: 1, firstName: 'Foo', lastName: 'Bar'};
         $state.go = function(to, params, options) {
-          expect(to).to.equal('/contact/show/:bookId/:bookName/:cardId');
+          expect(to).to.equal('contact.addressbooks.show');
           expect(params.bookId).to.equal(bookId);
           expect(params.bookName).to.equal(scope.bookName);
           expect(params.cardId).to.equal(scope.contact.id);
@@ -549,7 +549,7 @@ describe('The Contacts controller module', function() {
 
       $rootScope.$broadcast(CONTACT_EVENTS.UPDATED, contact);
 
-      expect($state.go).to.have.been.calledWith('/contact/show/:bookId/:bookName/:cardId', {
+      expect($state.go).to.have.been.calledWith('contact.addressbooks.show', {
         bookId: scope.bookId,
         bookName: 'new-addressbook',
         cardId: scope.cardId
@@ -1170,7 +1170,7 @@ describe('The Contacts controller module', function() {
 
       it('should show the contact without calling ContactAPIClient update fn when the contact is not modified', function() {
         var updateSpy = sinon.spy();
-        var state = '/contact/show/:bookId/:bookName/:cardId';
+        var state = 'contact.addressbooks.show';
         var stateOption = { location: 'replace' };
 
         $stateParams = {

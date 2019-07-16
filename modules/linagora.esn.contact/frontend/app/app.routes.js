@@ -44,13 +44,17 @@
             user: routeResolver.session('user')
           }
         })
-        .state('/contact/show/:bookId/:bookName/:cardId', {
-          url: '/contact/show/:bookId/:bookName/:cardId',
-          templateUrl: '/contact/app/contact/show/contact-show.html',
-          controller: 'showContactController',
-          resolve: {
-            domain: routeResolver.session('domain'),
-            user: routeResolver.session('user')
+        .state('contact.addressbooks.show', {
+          url: '^/contact/show/:bookId/:bookName/:cardId',
+          views: {
+            'main@contact': {
+              templateUrl: '/contact/app/contact/show/contact-show.html',
+              controller: 'showContactController',
+              resolve: {
+                domain: routeResolver.session('domain'),
+                user: routeResolver.session('user')
+              }
+            }
           }
         })
         .state('/contact/edit/:bookId/:bookName/:cardId', {

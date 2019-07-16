@@ -42,7 +42,7 @@
               return $q.reject(err);
             });
         }).then(function() {
-          $state.go('/contact/show/:bookId/:bookName/:cardId', {
+          $state.go('contact.addressbooks.show', {
             bookId: $scope.bookId,
             bookName: $scope.bookName,
             cardId: $scope.contact.id
@@ -101,7 +101,7 @@
 
       $scope.$on(CONTACT_EVENTS.UPDATED, function(e, data) {
         if (data.id === $scope.cardId && data.addressbook && data.addressbook.bookName !== $scope.bookName) {
-          $state.go('/contact/show/:bookId/:bookName/:cardId', {
+          $state.go('contact.addressbooks.show', {
             bookId: $scope.bookId,
             bookName: data.addressbook.bookName,
             cardId: data.id
@@ -270,7 +270,7 @@
       }
 
       $scope.close = function() {
-        $state.go('/contact/show/:bookId/:bookName/:cardId', {
+        $state.go('contact.addressbooks.show', {
           bookId: $scope.bookId,
           bookName: $scope.bookName,
           cardId: $scope.cardId
