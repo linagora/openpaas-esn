@@ -1,0 +1,6 @@
+.lv-actions.actions(ng-class="{ invisible: !hasInjectedActions }")
+  li.dropdown
+    a(href='', data-toggle='dropdown', aria-expanded='true')
+      i.mdi.mdi-dots-vertical
+    ul.dropdown-menu.dropdown-menu-right
+      li.clickable.contact-dropdown-font(dynamic-directive='contact-list-menu-items')

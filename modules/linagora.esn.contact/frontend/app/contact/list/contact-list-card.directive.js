@@ -16,10 +16,12 @@
         contact: '='
       },
       controller: 'contactItemController',
-      link: function(scope) {
-        contactService.setContactMainEmail(scope.contact);
-        scope.displayShell = ContactShellDisplayBuilder.build(scope.contact);
-        scope.avatarSize = CONTACT_AVATAR_SIZE.cards;
+      link: {
+        pre: function(scope) {
+          contactService.setContactMainEmail(scope.contact);
+          scope.displayShell = ContactShellDisplayBuilder.build(scope.contact);
+          scope.avatarSize = CONTACT_AVATAR_SIZE.cards;
+        }
       }
     };
   }
