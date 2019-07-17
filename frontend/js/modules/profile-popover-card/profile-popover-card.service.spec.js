@@ -246,6 +246,7 @@ describe('The profilePopoverCardService service', function() {
       expect(profilePopoverCardService.functions._normalizeUser({email: userObject.email, objectType: 'user'})).to.eql({
         displayName: 'karl-marx@proletarian.people',
         email: 'karl-marx@proletarian.people',
+        name: 'karl-marx@proletarian.people',
         preferredEmail: 'karl-marx@proletarian.people',
         objectType: 'user'
       });

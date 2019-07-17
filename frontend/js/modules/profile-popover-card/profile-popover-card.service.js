@@ -265,8 +265,14 @@
       // Normalises between people and user objects
       if (user.id) user._id = user.id;
       if (user.email) user.preferredEmail = user.email;
-      if (!user.displayName) user.displayName = user.preferredEmail;
-      if (user.name) user.displayName = user.name;
+      if (!user.name && !user.displayName) {
+        user.displayName = user.preferredEmail;
+        user.name = user.preferredEmail;
+      }
+      if (!user.displayName) user.displayName = user.name || user.preferredEmail;
+
+      if (!user.name) user.name = user.displayName;
+
       if (!user.objectType) user.objectType = 'email';
 
       return user;
