@@ -35,13 +35,17 @@
             }
           }
         })
-        .state('/contact/new/:bookId/:bookName', {
-          url: '/contact/new/:bookId/:bookName',
-          templateUrl: '/contact/app/contact/create/contact-create.html',
-          controller: 'newContactController',
-          resolve: {
-            domain: routeResolver.session('domain'),
-            user: routeResolver.session('user')
+        .state('contact.addressbooks.new', {
+          url: '^/contact/new/:bookId/:bookName',
+          views: {
+            'main@contact': {
+              templateUrl: '/contact/app/contact/create/contact-create.html',
+              controller: 'newContactController',
+              resolve: {
+                domain: routeResolver.session('domain'),
+                user: routeResolver.session('user')
+              }
+            }
           }
         })
         .state('contact.addressbooks.show', {
@@ -57,13 +61,17 @@
             }
           }
         })
-        .state('/contact/edit/:bookId/:bookName/:cardId', {
-          url: '/contact/edit/:bookId/:bookName/:cardId',
-          templateUrl: '/contact/app/contact/edit/contact-edit.html',
-          controller: 'editContactController',
-          resolve: {
-            domain: routeResolver.session('domain'),
-            user: routeResolver.session('user')
+        .state('contact.addressbooks.edit', {
+          url: '^/contact/edit/:bookId/:bookName/:cardId',
+          views: {
+            'main@contact': {
+              templateUrl: '/contact/app/contact/edit/contact-edit.html',
+              controller: 'editContactController',
+              resolve: {
+                domain: routeResolver.session('domain'),
+                user: routeResolver.session('user')
+              }
+            }
           }
         });
 

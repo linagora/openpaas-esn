@@ -751,7 +751,7 @@ describe('The Contacts controller module', function() {
         scope.cardId = cardId;
 
         scope.$emit('$stateChangeStart', {
-          name: '/contact/edit/:bookId/:bookName/:cardId'
+          name: 'contact.addressbooks.edit'
         },
         {
           bookId: bookId,

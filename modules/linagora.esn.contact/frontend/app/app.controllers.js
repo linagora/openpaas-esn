@@ -131,7 +131,7 @@
       };
 
       $scope.edit = function() {
-        $state.go('/contact/edit/:bookId/:bookName/:cardId', {
+        $state.go('contact.addressbooks.edit', {
           bookId: $scope.bookId,
           bookName: $scope.bookName,
           cardId: $scope.cardId
@@ -168,7 +168,7 @@
           gracePeriodService.flush(contactUpdateDataService.taskId);
           // check if the user edit the contact again
           if (next && next.name && nextParams &&
-              next.name === '/contact/edit/:bookId/:bookName/:cardId' &&
+              next.name === 'contact.addressbooks.edit' &&
               nextParams.bookId === $scope.bookId &&
               nextParams.bookName === $scope.bookName &&
               nextParams.cardId === $scope.cardId) {
