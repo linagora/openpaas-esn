@@ -90,7 +90,6 @@ describe('The profilePopoverCardService service', function() {
     it('should not call _bind if the watched object is not a user object', function() {
       sinon.spy(profilePopoverCardService.functions, '_bind');
       sinon.spy(parentScope, '$watch');
-      sinon.stub(profilePopoverCardService.functions, '_isUser').returns(false);
       parentScope.user = {};
 
       profilePopoverCardService.bind(element, {source: 'user', property: 'id'}, {parentScope: parentScope});
@@ -105,7 +104,6 @@ describe('The profilePopoverCardService service', function() {
     it('should call _bind if the watched object is not a user object', function() {
       parentScope.user = userObject;
       sinon.spy(profilePopoverCardService.functions, '_bind');
-      sinon.stub(profilePopoverCardService.functions, '_isUser').returns(true);
       sinon.stub(parentScope, '$watch').returns(angular.noop);
 
       profilePopoverCardService.bind(element, {source: 'user', property: 'id'}, {parentScope: parentScope});
