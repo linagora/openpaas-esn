@@ -9,7 +9,7 @@
         dt
           i.mdi.mdi-email.m-r-5
           | #{__('Email')}
-          dd(ng-repeat="email in $ctrl.user.emails")
+          dd(ng-repeat="email in $ctrl.user.emails track by $index")
             a(
               ng-href="mailto:{{email}}",
               op-inbox-compose,
