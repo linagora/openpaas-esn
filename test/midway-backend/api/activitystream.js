@@ -10,6 +10,8 @@ describe('The activitystreams API', function() {
   var password = 'secret';
 
   before(function() {
+    console.log('Here is the conf', this.helpers.testEnv);
+    console.log('a: ', this.helpers.elasticsearchHost)
     this.helpers.requireBackend('core/db/mongo/models/domain');
     this.helpers.requireBackend('core/db/mongo/models/user');
     this.helpers.requireBackend('core/db/mongo/models/timelineentry');

@@ -137,6 +137,7 @@ module.exports = function(mixin, testEnv) {
               .get(elasticsearchURL + '/' + index + '/' + type + '/_search?q=_id:' + id)
               .end(function(err, res) {
                 if (err) {
+                  console.log('Here is the conf', { testEnv });
                   return callback(err);
                 }
 

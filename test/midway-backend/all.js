@@ -74,6 +74,7 @@ before(function() {
 
   this.helpers = {};
   helpers(this.helpers, this.testEnv);
+  console.log('conf: ' , this.testEnv.serversConfig);
   moduleHelpers(this.helpers, this.testEnv);
   apiHelpers(this.helpers, this.testEnv);
 
