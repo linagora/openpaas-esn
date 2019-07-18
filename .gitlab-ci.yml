@@ -2,7 +2,6 @@
 
 stages:
   - prepare
-  - linters
   - test
   - test-e2e
   - build
@@ -52,28 +51,6 @@ stages:
     refs:
       - tags@linagora/lgs/openpaas/esn
 
-.test-template-svc: &test-template-svc
-  <<: *test-template
-  services:
-    - name: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
-      alias: elasticsearch
-      command: [ "bin/elasticsearch", "-Ediscovery.type=single-node" ]
-    - name: mongo:3.2.0
-      alias: mongo
-    - name: redis:latest
-      alias: redis
-    - name: rabbitmq:3.6.5-management
-      alias: rabbitmq
-  variables:
-    MONGO_HOST: mongo
-    MONGO_PORT: 27017
-    AMQP_HOST: rabbitmq
-    AMQP_PORT: 5672
-    ELASTICSEARCH_HOST: elasticsearch
-    ELASTICSEARCH_PORT: 9200
-    REDIS_HOST: redis
-    REDIS_PORT: 6379
-
 prepare:
   image: node:10-stretch
   stage: prepare
@@ -91,33 +68,6 @@ prepare:
   except:
     variables:
       - $SKIP_PREPARE
-
-linters:
-  <<: *test-template
-  stage: linters
-  script:
-    - grunt -v linters
-  except:
-    variables:
-      - $SKIP_LINTERS
-    refs:
-      - tags@linagora/lgs/openpaas/esn
-
-check_author:
-  image: docker-registry.linagora.com:5000/lgs-releases/gitlab-integrity-checks:latest
-  stage: linters
-  variables:
-    GIT_DEPTH: "1"
-  tags:
-    - docker-medium
-    - check-author
-  script:
-    - check_author.py check "$GITLAB_USER_EMAIL" "$GITLAB_USER_NAME" --no-accents
-  except:
-    refs:
-      - master@linagora/lgs/openpaas/esn
-      - tags@linagora/lgs/openpaas/esn
-      - /^release-.*/@linagora/lgs/openpaas/esn
 
 ####### tests without services requirements
 frontend-test:
@@ -149,18 +99,75 @@ modules-unit-backend-test:
 ####### tests with services requirements
 
 unit-storage-test:
-  <<: *test-template-svc
+  <<: *test-template
+  services:
+    - name: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
+      alias: elasticsearch
+      command: [ "bin/elasticsearch", "-Ediscovery.type=single-node" ]
+    - name: mongo:3.2.0
+      alias: mongo1
+    - name: redis:latest
+      alias: redis1
+    - name: rabbitmq:3.6.5-management
+      alias: rabbitmq1
+  variables:
+    MONGO_HOST: mongo
+    MONGO_PORT: 27017
+    AMQP_HOST: rabbitmq
+    AMQP_PORT: 5672
+    ELASTICSEARCH_HOST: elasticsearch
+    ELASTICSEARCH_PORT: 9200
+    REDIS_HOST: redis
+    REDIS_PORT: 6379
   script:
     - grunt -v --chunk=1 gitlab-test-unit-storage
     - grunt -v --chunk=1 gitlab-test-modules-unit-storage
 
 modules-midway-test:
-  <<: *test-template-svc
+  <<: *test-template
+  services:
+    - name: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
+      alias: elasticsearch
+      command: [ "bin/elasticsearch", "-Ediscovery.type=single-node" ]
+    - name: mongo:3.2.0
+      alias: mongo2
+    - name: redis:latest
+      alias: redis2
+    - name: rabbitmq:3.6.5-management
+      alias: rabbitmq2
+  variables:
+    MONGO_HOST: mongo
+    MONGO_PORT: 27017
+    AMQP_HOST: rabbitmq
+    AMQP_PORT: 5672
+    ELASTICSEARCH_HOST: elasticsearch
+    ELASTICSEARCH_PORT: 9200
+    REDIS_HOST: redis
+    REDIS_PORT: 6379
   script:
     - grunt -v --chunk=1 gitlab-test-modules-midway
 
 midway-backend-test:
-  <<: *test-template-svc
+  <<: *test-template
+  services:
+    - name: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
+      alias: elasticsearch
+      command: [ "bin/elasticsearch", "-Ediscovery.type=single-node" ]
+    - name: mongo:3.2.0
+      alias: mongo3
+    - name: redis:latest
+      alias: redis3
+    - name: rabbitmq:3.6.5-management
+      alias: rabbitmq3
+  variables:
+    MONGO_HOST: mongo
+    MONGO_PORT: 27017
+    AMQP_HOST: rabbitmq
+    AMQP_PORT: 5672
+    ELASTICSEARCH_HOST: elasticsearch
+    ELASTICSEARCH_PORT: 9200
+    REDIS_HOST: redis
+    REDIS_PORT: 6379
   script:
     - grunt --chunk=1 -v gitlab-test-midway-backend
 

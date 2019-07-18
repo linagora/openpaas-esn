@@ -73,8 +73,9 @@ before(function() {
   };
 
   this.helpers = {};
+  process.nextTick(this.testEnv.initCore);
   helpers(this.helpers, this.testEnv);
-  console.log('conf: ' , this.testEnv.serversConfig);
+  console.log('conf: ', this.testEnv.serversConfig);
   moduleHelpers(this.helpers, this.testEnv);
   apiHelpers(this.helpers, this.testEnv);
 

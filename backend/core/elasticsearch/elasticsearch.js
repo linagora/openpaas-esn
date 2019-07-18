@@ -60,7 +60,10 @@ function getDefaultConfig() {
  */
 function getConfig() {
   return new EsnConfig().get('elasticsearch')
-    .then(config => config || getDefaultConfig());
+    .then(config => {
+      console.log('in core: ', config);
+      return config || getDefaultConfig();
+    });
 }
 
 /**
