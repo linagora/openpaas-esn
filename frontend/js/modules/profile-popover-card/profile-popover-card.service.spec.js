@@ -6,7 +6,7 @@
 var expect = chai.expect;
 
 describe('The profilePopoverCardService service', function() {
-  var $rootScope, userObject, contactUserObject, externalUserObject, profilePopoverCardService, element;
+  var $rootScope, userObject, contactUserObject, externalUserObject, userObjectWithoutName, profilePopoverCardService, element;
   var touchscreenDetectorService = {hasTouchscreen: sinon.stub()};
   var stubbedModalRes = {show: sinon.spy(), hide: sinon.spy()};
   var $modal = sinon.stub().returns(stubbedModalRes);
@@ -35,6 +35,12 @@ describe('The profilePopoverCardService service', function() {
       name: 'Karl Marx',
       email: 'karl-marx@proletarian.people',
       id: '5d0ba10c291d3c6435e90c5e',
+      objectType: 'user'
+    };
+
+    userObjectWithoutName = {
+      email: 'test@test.com',
+      id: '5d0ba10c291d3c6435e75b7d',
       objectType: 'user'
     };
 
@@ -84,7 +90,6 @@ describe('The profilePopoverCardService service', function() {
     it('should not call _bind if the watched object is not a user object', function() {
       sinon.spy(profilePopoverCardService.functions, '_bind');
       sinon.spy(parentScope, '$watch');
-      sinon.stub(profilePopoverCardService.functions, '_isUser').returns(false);
       parentScope.user = {};
 
       profilePopoverCardService.bind(element, {source: 'user', property: 'id'}, {parentScope: parentScope});
@@ -99,7 +104,6 @@ describe('The profilePopoverCardService service', function() {
     it('should call _bind if the watched object is not a user object', function() {
       parentScope.user = userObject;
       sinon.spy(profilePopoverCardService.functions, '_bind');
-      sinon.stub(profilePopoverCardService.functions, '_isUser').returns(true);
       sinon.stub(parentScope, '$watch').returns(angular.noop);
 
       profilePopoverCardService.bind(element, {source: 'user', property: 'id'}, {parentScope: parentScope});
@@ -242,10 +246,23 @@ describe('The profilePopoverCardService service', function() {
       });
     });
 
+    it('should normalize between user and people objects', function() {
+      expect(profilePopoverCardService.functions._normalizeUser(userObjectWithoutName)).to.eql({
+        email: 'test@test.com',
+        preferredEmail: 'test@test.com',
+        id: '5d0ba10c291d3c6435e75b7d',
+        _id: '5d0ba10c291d3c6435e75b7d',
+        displayName: 'test@test.com',
+        name: 'test@test.com',
+        objectType: 'user'
+      });
+    });
+
     it('should complete displayName with preferredEmail when absent', function() {
       expect(profilePopoverCardService.functions._normalizeUser({email: userObject.email, objectType: 'user'})).to.eql({
         displayName: 'karl-marx@proletarian.people',
         email: 'karl-marx@proletarian.people',
+        name: 'karl-marx@proletarian.people',
         preferredEmail: 'karl-marx@proletarian.people',
         objectType: 'user'
       });

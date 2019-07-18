@@ -9,7 +9,6 @@
         '<div',
         '    class="esn-chip"',
         '    profile-popover-card="{{ data }}"',
-        '    profile-popover-card-alternative-title="{{ data.email }}"',
         '    profile-popover-card-show-mobile',
         '>',
         '  <span ng-bind="$getDisplayText()"></span>',

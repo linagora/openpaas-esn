@@ -27,7 +27,6 @@
       showPopover: _.debounce(_showPopover, 100, { leading: true, trailing: false }),
       bindModal: bindModal,
       createModal: createModal,
-      _isUser: _isUser,
       _normalizeUser: _normalizeUser,
       _get: _get
     };
@@ -225,7 +224,6 @@
      * Same as bindPopover but displays a modal
      */
     function bindModal(element, scope) {
-      if (!functions._isUser(scope.user)) return;
 
       var modal = functions.createModal(scope);
       var eventType = touchscreenDetectorService.hasTouchscreen() ? 'click' : 'mouseover';
@@ -253,21 +251,16 @@
       };
     }
 
-    function _isUser(user) {
-      if (!user) return undefined;
-
-      return user.preferredEmail || user.email;
-    }
-
     function _normalizeUser(userObject) {
       var user = _.assign({}, userObject);
 
       // Normalises between people and user objects
       if (user.id) user._id = user.id;
       if (user.email) user.preferredEmail = user.email;
-      if (!user.displayName) user.displayName = user.preferredEmail;
-      if (user.name) user.displayName = user.name;
       if (!user.objectType) user.objectType = 'email';
+
+      user.displayName = user.displayName || user.name || user.preferredEmail;
+      user.name = user.name || user.displayName;
 
       return user;
     }
