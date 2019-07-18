@@ -6,7 +6,7 @@
 var expect = chai.expect;
 
 describe('The profilePopoverCardService service', function() {
-  var $rootScope, userObject, contactUserObject, externalUserObject, profilePopoverCardService, element;
+  var $rootScope, userObject, contactUserObject, externalUserObject, userObjectWithoutName, profilePopoverCardService, element;
   var touchscreenDetectorService = {hasTouchscreen: sinon.stub()};
   var stubbedModalRes = {show: sinon.spy(), hide: sinon.spy()};
   var $modal = sinon.stub().returns(stubbedModalRes);
@@ -35,6 +35,12 @@ describe('The profilePopoverCardService service', function() {
       name: 'Karl Marx',
       email: 'karl-marx@proletarian.people',
       id: '5d0ba10c291d3c6435e90c5e',
+      objectType: 'user'
+    };
+
+    userObjectWithoutName = {
+      email: 'test@test.com',
+      id: '5d0ba10c291d3c6435e75b7d',
       objectType: 'user'
     };
 
@@ -238,6 +244,18 @@ describe('The profilePopoverCardService service', function() {
         preferredEmail: 'karl-marx@proletarian.people',
         id: '5d0ba10c291d3c6435e90c5e',
         _id: '5d0ba10c291d3c6435e90c5e',
+        objectType: 'user'
+      });
+    });
+
+    it('should normalize between user and people objects', function() {
+      expect(profilePopoverCardService.functions._normalizeUser(userObjectWithoutName)).to.eql({
+        email: 'test@test.com',
+        preferredEmail: 'test@test.com',
+        id: '5d0ba10c291d3c6435e75b7d',
+        _id: '5d0ba10c291d3c6435e75b7d',
+        displayName: 'test@test.com',
+        name: 'test@test.com',
         objectType: 'user'
       });
     });
