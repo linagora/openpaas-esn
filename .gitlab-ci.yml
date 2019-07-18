@@ -52,6 +52,16 @@ stages:
     refs:
       - tags@linagora/lgs/openpaas/esn
 
+variables:
+  MONGO_HOST: mongo
+  MONGO_PORT: 27017
+  AMQP_HOST: rabbitmq
+  AMQP_PORT: 5672
+  ELASTICSEARCH_HOST: elasticsearch
+  ELASTICSEARCH_PORT: 9200
+  REDIS_HOST: redis
+  REDIS_PORT: 6379
+
 .test-template-svc: &test-template-svc
   <<: *test-template
   services:
@@ -64,15 +74,6 @@ stages:
       alias: redis
     - name: rabbitmq:3.6.5-management
       alias: rabbitmq
-  variables:
-    MONGO_HOST: mongo
-    MONGO_PORT: 27017
-    AMQP_HOST: rabbitmq
-    AMQP_PORT: 5672
-    ELASTICSEARCH_HOST: elasticsearch
-    ELASTICSEARCH_PORT: 9200
-    REDIS_HOST: redis
-    REDIS_PORT: 6379
 
 prepare:
   image: node:10-stretch
