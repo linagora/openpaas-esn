@@ -55,8 +55,9 @@ stages:
 .test-template-svc: &test-template-svc
   <<: *test-template
   services:
-    - name: elasticsearch:2.3.2
+    - name: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
       alias: elasticsearch
+      command: [ "bin/elasticsearch", "-Ediscovery.type=single-node" ]
     - name: mongo:3.2.0
       alias: mongo
     - name: redis:latest
@@ -68,7 +69,7 @@ stages:
     MONGO_PORT: 27017
     AMQP_HOST: rabbitmq
     AMQP_PORT: 5672
-    ELASTICSEARCH_HOST : elasticsearch
+    ELASTICSEARCH_HOST: elasticsearch
     ELASTICSEARCH_PORT: 9200
     REDIS_HOST: redis
     REDIS_PORT: 6379
