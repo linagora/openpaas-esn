@@ -1,4 +1,6 @@
 {
   "Job Queue": "Hàng đợi",
-  "Manage job queue": "Quản lý hàng đợi"
+  "Manage job queue": "Quản lý hàng đợi",
+  "User interface": "Giao diện người dùng",
+  "Interface to manage job queue. Once enabled, you will see the \"Job Queue\" item in the application menu.": "Giao diện để quản lí hàng đợi công việc. Khi được bật, bạn sẽ thấy mục \"Hàng đợi\" ở danh mục ứng dụng."
 }

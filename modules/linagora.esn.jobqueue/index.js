@@ -1,4 +1,5 @@
 const glob = require('glob-all');
+const path = require('path');
 
 const AwesomeModule = require('awesome-module');
 const Dependency = AwesomeModule.AwesomeModuleDependency;
@@ -42,6 +43,10 @@ const jobQueueModule = new AwesomeModule(AWESOME_MODULE_NAME, {
       webserverWrapper.injectAngularAppModules(MODULE_NAME, frontendJsFilesUri, [AWESOME_MODULE_NAME], ['esn'], {
         localJsFiles: frontendJsFilesFullPath
       });
+
+      const lessFile = path.join(FRONTEND_JS_PATH, 'app.less');
+
+      webserverWrapper.injectLess(MODULE_NAME, [lessFile], 'esn');
 
       webserverWrapper.addApp(MODULE_NAME, app);
 

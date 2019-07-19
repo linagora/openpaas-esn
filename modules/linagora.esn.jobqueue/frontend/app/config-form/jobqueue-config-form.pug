@@ -1,0 +1,7 @@
+ng-form(name='form')
+  .form-group.flex.flex-vertical-centered
+    div
+      h5 #{__('User interface')}
+      small.text-muted #{__('Interface to manage job queue. Once enabled, you will see the "Job Queue" item in the application menu.')}
+    .flex-end
+      toggle-switch(ng-model="$ctrl.configurations.features.value.isUserInterfaceEnabled", form="form")

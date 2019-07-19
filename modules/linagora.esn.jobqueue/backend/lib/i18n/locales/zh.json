@@ -1,4 +1,6 @@
 {
   "Job Queue": "工作队列",
-  "Manage job queue": "管理作业队列" 
+  "Manage job queue": "管理作业队列",
+  "User interface": "用户界面",
+  "Interface to manage job queue. Once enabled, you will see the \"Job Queue\" item in the application menu.": "用于管理作业队列的接口。. 一旦启用, 你会看到\"工作队列\"项 在应用程序菜单中."
 }
