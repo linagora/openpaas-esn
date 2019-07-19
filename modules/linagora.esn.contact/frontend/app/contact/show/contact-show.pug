@@ -1,7 +1,7 @@
 sub-header
   contact-show-subheader
 
-.col-xs-12.no-padding-xs
+.col-xs-12.no-padding-xs(sub-header-aware)
   .card.hidden-xs(ng-submit='accept()')
     .card-body.contact-body
       contact-display(ng-if='loaded && !error' contact='contact')
