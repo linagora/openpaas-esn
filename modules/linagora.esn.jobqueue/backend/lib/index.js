@@ -1,3 +1,7 @@
-'use strict';
+module.exports = dependencies => {
+  const moduleConfig = require('./config')(dependencies);
 
-module.exports = dependencies => require('./queue')(dependencies);
+  moduleConfig.register();
+
+  return require('./queue')(dependencies);
+};
