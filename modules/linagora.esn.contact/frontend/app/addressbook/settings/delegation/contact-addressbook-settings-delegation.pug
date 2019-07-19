@@ -37,7 +37,7 @@ ng-form(name="form")
       esn-avatar(user-id='sharee.userId')
       .user-info
         span.ellipsis(title="{{::sharee.user.displayName}}") {{::sharee.user.displayName}}
-        a.ellipsis(ng-href="mailto:{{::sharee.user.email}}" op-inbox-compose op-inbox-compose-display-name="{{::sharee.user.displayName}}") {{::sharee.user.email}}
+        a.ellipsis(ng-href="mailto:{{::sharee.user.email}}" op-inbox-compose, op-inbox-compose-users="[sharee]") {{::sharee.user.email}}
     .col-md-4
       .select
         select.form-control.floating-label(
