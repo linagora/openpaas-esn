@@ -4,6 +4,7 @@
   angular.module('linagora.esn.jobqueue', [
     'esn.application-menu',
     'op.dynamicDirective',
-    'esn.feature-registry'
+    'esn.module-registry',
+    'esn.session'
   ]);
 })(angular);
