@@ -17,8 +17,7 @@ describe('The core/esn-config/metadata/features module', () => {
       config = {
         'header:user-notification': false,
         'header:fullscreen': false,
-        'control-center:password': false,
-        'application-menu:jobqueue': false
+        'control-center:password': false
       };
     });
 
@@ -26,12 +25,6 @@ describe('The core/esn-config/metadata/features module', () => {
       config = [];
 
       expect(validator(config)).to.equal('should be object');
-    });
-
-    it('should return error message when application-menu:jobqueue property is not boolean', () => {
-      config['application-menu:jobqueue'] = {};
-
-      expect(validator(config)).to.equal('[\'application-menu:jobqueue\']: should be boolean');
     });
 
     it('should return error message when control-center:password property is not boolean', () => {

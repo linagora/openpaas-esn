@@ -4,9 +4,6 @@ const schema = {
   type: 'object',
   additionalProperties: false,
   properties: {
-    'application-menu:jobqueue': {
-      type: 'boolean'
-    },
     'control-center:password': {
       type: 'boolean'
     },
@@ -18,7 +15,6 @@ const schema = {
     }
   },
   required: [
-    'application-menu:jobqueue',
     'control-center:password',
     'header:user-notification',
     'header:fullscreen'

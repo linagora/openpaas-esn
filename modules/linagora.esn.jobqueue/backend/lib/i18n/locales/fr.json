@@ -1,4 +1,6 @@
 {
   "Job Queue": "File de travaux planifiés",
-  "Manage job queue": "Gérer la file de travaux planifier"
+  "Manage job queue": "Gérer la file d'attente des tâches",
+  "User interface": "Interface utilisateur",
+  "Interface to manage job queue. Once enabled, you will see the \"Job Queue\" item in the application menu.": "Interface pour gérer la file d'attente des tâches. Une fois activé, vous verrez l’élément \"File d’attente\" dans le menu de l’application."
 }

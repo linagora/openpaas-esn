@@ -1,4 +1,6 @@
 {
   "Job Queue": "Job Queue",
-  "Manage job queue": "Manage job queue" 
+  "Manage job queue": "Manage job queue",
+  "User interface": "User interface",
+  "Interface to manage job queue. Once enabled, you will see the \"Job Queue\" item in the application menu.": "Interface to manage job queue. Once enabled, you will see the \"Job Queue\" item in the application menu."
 }
