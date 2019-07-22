@@ -141,6 +141,7 @@
     "linagora.esn.james",
     "linagora.esn.group",
     "linagora.esn.chat",
+    "linagora.esn.lemonldap",
     "linagora.esn.linshare"
   ],
   "email": {
