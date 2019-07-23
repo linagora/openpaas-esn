@@ -13,7 +13,7 @@
             a(
               ng-href="mailto:{{email}}",
               op-inbox-compose,
-              op-inbox-compose-display-name="{{$ctrl.user.firstname}} {{$ctrl.user.lastname}}"
+              op-inbox-compose-users="[$ctrl.user]"
             ) {{email}}
       dl.dl-horizontal
         dt

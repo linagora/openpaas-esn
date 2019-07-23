@@ -4,4 +4,4 @@ div
     span.label(ng-class="labelclass") {{label}}
   div.ellipsis {{user.name}}
   span.ellipsis
-    a(ng-href='mailto:{{user.address}}', op-inbox-compose, op-inbox-compose-display-name="{{user.firstname}} {{user.lastname}}") {{user.address}}
+    a(ng-href='mailto:{{user.address}}', op-inbox-compose, op-inbox-compose-users='[user]') {{user.address}}
