@@ -52,28 +52,6 @@ stages:
     refs:
       - tags@linagora/lgs/openpaas/esn
 
-.test-template-svc: &test-template-svc
-  <<: *test-template
-  services:
-    - name: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
-      alias: elasticsearch
-      command: [ "bin/elasticsearch", "-Ediscovery.type=single-node" ]
-    - name: mongo:3.2.0
-      alias: mongo
-    - name: redis:latest
-      alias: redis
-    - name: rabbitmq:3.6.5-management
-      alias: rabbitmq
-  variables:
-    MONGO_HOST: mongo
-    MONGO_PORT: 27017
-    AMQP_HOST: rabbitmq
-    AMQP_PORT: 5672
-    ELASTICSEARCH_HOST: elasticsearch
-    ELASTICSEARCH_PORT: 9200
-    REDIS_HOST: redis
-    REDIS_PORT: 6379
-
 prepare:
   image: node:10-stretch
   stage: prepare
@@ -149,18 +127,75 @@ modules-unit-backend-test:
 ####### tests with services requirements
 
 unit-storage-test:
-  <<: *test-template-svc
+  <<: *test-template
+  services:
+    - name: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
+      alias: elasticsearch-unit
+      command: [ "bin/elasticsearch", "-Ediscovery.type=single-node" ]
+    - name: mongo:3.2.0
+      alias: mongo-unit
+    - name: redis:latest
+      alias: redis-unit
+    - name: rabbitmq:3.6.5-management
+      alias: rabbitmq-unit
+  variables:
+    MONGO_HOST: mongo-unit
+    MONGO_PORT: 27017
+    AMQP_HOST: rabbitmq-unit
+    AMQP_PORT: 5672
+    ELASTICSEARCH_HOST: elasticsearch-unit
+    ELASTICSEARCH_PORT: 9200
+    REDIS_HOST: redis-unit
+    REDIS_PORT: 6379
   script:
     - grunt -v --chunk=1 gitlab-test-unit-storage
     - grunt -v --chunk=1 gitlab-test-modules-unit-storage
 
 modules-midway-test:
-  <<: *test-template-svc
+  <<: *test-template
+  services:
+    - name: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
+      alias: elasticsearch-midway
+      command: [ "bin/elasticsearch", "-Ediscovery.type=single-node" ]
+    - name: mongo:3.2.0
+      alias: mongo-midway
+    - name: redis:latest
+      alias: redis-midway
+    - name: rabbitmq:3.6.5-management
+      alias: rabbitmq-midway
+  variables:
+    MONGO_HOST: mongo-midway
+    MONGO_PORT: 27017
+    AMQP_HOST: rabbitmq-midway
+    AMQP_PORT: 5672
+    ELASTICSEARCH_HOST: elasticsearch-midway
+    ELASTICSEARCH_PORT: 9200
+    REDIS_HOST: redis-midway
+    REDIS_PORT: 6379
   script:
     - grunt -v --chunk=1 gitlab-test-modules-midway
 
 midway-backend-test:
-  <<: *test-template-svc
+  <<: *test-template
+  services:
+    - name: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
+      alias: elasticsearch-backend
+      command: [ "bin/elasticsearch", "-Ediscovery.type=single-node" ]
+    - name: mongo:3.2.0
+      alias: mongo-backend
+    - name: redis:latest
+      alias: redis-backend
+    - name: rabbitmq:3.6.5-management
+      alias: rabbitmq-backend
+  variables:
+    MONGO_HOST: mongo-backend
+    MONGO_PORT: 27017
+    AMQP_HOST: rabbitmq-backend
+    AMQP_PORT: 5672
+    ELASTICSEARCH_HOST: elasticsearch-backend
+    ELASTICSEARCH_PORT: 9200
+    REDIS_HOST: redis-backend
+    REDIS_PORT: 6379
   script:
     - grunt --chunk=1 -v gitlab-test-midway-backend
 
