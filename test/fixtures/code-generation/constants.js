@@ -7,8 +7,8 @@ angular.module('esn.constants', [])
 
   .constant('AUTOCOMPLETE_MAX_RESULTS', 5)
 
-  .constant('ELEMENTS_PER_REQUEST', 200)
-  .constant('ELEMENTS_PER_PAGE', 1)
+  .constant('ELEMENTS_PER_REQUEST', 30)
+  .constant('ELEMENTS_PER_PAGE', 30)
 
   .constant('INFINITE_LIST_DISTANCE', 0.5)
   .constant('INFINITE_LIST_DISABLED', false)
