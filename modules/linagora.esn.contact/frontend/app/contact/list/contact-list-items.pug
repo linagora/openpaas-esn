@@ -1,8 +1,8 @@
-.row.all-centered(ng-switch='mode')
+.row.all-centered
   .contact-alpha-letter(ng-show='headerDisplay.mobileLetterVisibility')
     contact-category-letter
   .col-xs-12
-    div(ng-switch-when='multiple' data-contact-index="{{letter}}" ng-repeat="(letter, contacts) in sorted_contacts" on-finish-render)
+    div(data-contact-index="{{letter}}" ng-repeat="(letter, contacts) in sorted_contacts" on-finish-render)
       .letter-list(ng-if='contacts && contacts.length')
         .block-header
           h2 {{letter}}
@@ -10,8 +10,3 @@
           .listview.lv-bordered.lv-lg
             .lv-body
               contact-list-item.lv-item.p-0(contact='contact', ng-repeat="contact in contacts")
-    div(ng-switch-when='search' ng-if='searchResult.data && searchResult.data.length' on-finish-render)
-      .card.contacts-card.fadeIn200ms
-        .listview.lv-bordered.lv-lg
-          .lv-body
-            contact-list-item.lv-item.p-0(contact='contact', ng-repeat="contact in searchResult.data" ng-hide="contact.deleted")
