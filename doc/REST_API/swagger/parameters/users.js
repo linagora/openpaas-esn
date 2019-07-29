@@ -38,8 +38,7 @@
  *     type: string
  *   uss_provision_data:
  *     name: provision data
- *     in: query
- *     description: The source for users provisioning
- *     required: true
+ *     in: body
+ *     description: The provisioning data
  *     type: any
  */
