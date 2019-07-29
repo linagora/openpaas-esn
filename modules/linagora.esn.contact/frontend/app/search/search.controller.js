@@ -9,17 +9,17 @@
     esnSearchQueryService
   ) {
     var self = this;
+    var query = esnSearchQueryService.buildFromState($stateParams);
 
-    self.query = esnSearchQueryService.buildFromState($stateParams);
-    self.queryText = self.query.text;
-    self.fetchData = contactSearchProviders.get().fetch(self.query);
+    self.queryText = query.text;
 
     self.loadMoreElements = infiniteScrollHelper(self, function() {
-      if (esnSearchQueryService.isEmpty(self.query)) {
+      if (esnSearchQueryService.isEmpty(query)) {
+
         return $q.when([]);
       }
 
-      return self.fetchData();
+      return contactSearchProviders.get().fetch(query)();
     });
   });
 })(angular);

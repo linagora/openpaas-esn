@@ -8,7 +8,7 @@
     $q,
     Providers,
     esnSearchProvider,
-    SearchResultsProvider,
+    searchResultsProvider,
     session,
     PageAggregatorService,
     ELEMENTS_PER_REQUEST,
@@ -17,7 +17,7 @@
     var providers = new Providers();
     var searchProvider;
 
-return {
+    return {
       register: register,
       get: get
     };
@@ -48,14 +48,14 @@ return {
             return buildSearchOptions(searchOptions)
               .then(function(options) { return providers.getAll(options); })
               .then(function(providers) {
-                  aggregator = new PageAggregatorService('searchContactsResultControllerAggregator', providers, {
-                    compare: function(a, b) { return b.date - a.date; },
-                    // will not work if not the same...
-                    results_per_page: ELEMENTS_PER_REQUEST,
-                    first_page_size: ELEMENTS_PER_REQUEST
-                  });
+                aggregator = new PageAggregatorService('searchContactsResultControllerAggregator', providers, {
+                  compare: function(a, b) { return b.date - a.date; },
+                  // will not work if not the same...
+                  results_per_page: ELEMENTS_PER_REQUEST,
+                  first_page_size: ELEMENTS_PER_REQUEST
+                });
 
-                  return load();
+                return load();
               });
 
             function load() {
@@ -66,13 +66,13 @@ return {
         buildFetchContext: function(options) {
           return $q.when(options.query);
         },
-        onSubmit: SearchResultsProvider,
+        onSubmit: searchResultsProvider,
         templateUrl: '/contact/app/search/contact-search.html',
         activeOn: ['contact'],
         placeHolder: 'Search in contacts'
       });
 
-return searchProvider;
+      return searchProvider;
     }
 
     function buildSearchOptions(query) {

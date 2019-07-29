@@ -1,0 +1,8 @@
+extends /modules/subheader/responsive-subheader.pug
+
+block left
+  button.btn.btn-link.btn-icon.hidden-md(contextual-sidebar, data-content-template="/contact/app/contact/list/contact-right-sidebar.html")
+    i.mdi.mdi-menu
+  span.title.extra-title.ellipsis #{__('Search results')}
+
+block right

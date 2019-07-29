@@ -130,5 +130,6 @@
   "You have just created a new contact (%s).": "您刚刚创建了一个新联系人（％s）。",
   "You have just deleted a contact (%s)": "您刚刚删除了一个联系人（％s）",
   "Your permission": "你的许可",
-  "Please fill at least a field": "请填写至少一个字段"
+  "Please fill at least a field": "请填写至少一个字段",
+  "Search results": "Search results"
 }
