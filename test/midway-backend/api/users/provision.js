@@ -143,10 +143,10 @@ describe('The Provision API: POST /api/users/provision', function() {
             const provisionedUsers = res.body;
 
             expect(provisionedUsers).to.have.lengthOf(1);
-            expect(provisionedUsers[0].accounts).to.have.lengthOf(1);
-            expect(provisionedUsers[0].accounts[0]).to.shallowDeepEqual({
-              type: 'email',
-              emails: ['ldapuser@linagora.com']
+            expect(provisionedUsers[0]).to.shallowDeepEqual({
+              preferredEmail: emails[0],
+              emails,
+              objectType: 'user'
             });
 
             done();
