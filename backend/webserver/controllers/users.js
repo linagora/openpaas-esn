@@ -531,7 +531,8 @@ function provision(req, res) {
   const provider = userModule.provision.service.providers.get(source);
 
   return provider.provision({ data: req.body, domainId: req.domain._id })
-    .then(provisionedUsers => res.status(201).json(provisionedUsers))
+    .then(provisionedUsers => Promise.all(provisionedUsers.map(user => denormalizeUser(user))))
+    .then(denormalizedUsers => res.status(201).json(denormalizedUsers))
     .catch(error => {
       const details = `Error while provisioning users from ${source}`;
 
