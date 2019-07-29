@@ -3,10 +3,21 @@
 
   angular.module('linagora.esn.contact').factory('contactSearchProviders', contactSearchProviders);
 
-  function contactSearchProviders(_, $q, Providers, esnSearchProvider, session, PageAggregatorService, ELEMENTS_PER_REQUEST, CONTACT_GLOBAL_SEARCH) {
+  function contactSearchProviders(
+    _,
+    $q,
+    Providers,
+    esnSearchProvider,
+    SearchResultsProvider,
+    session,
+    PageAggregatorService,
+    ELEMENTS_PER_REQUEST,
+    CONTACT_GLOBAL_SEARCH
+  ) {
     var providers = new Providers();
+    var searchProvider;
 
-    return {
+return {
       register: register,
       get: get
     };
@@ -16,7 +27,10 @@
     }
 
     function get() {
-      return new esnSearchProvider({
+      if (searchProvider) {
+        return searchProvider;
+      }
+      searchProvider = new esnSearchProvider({
         uid: 'op.contacts.all',
         name: CONTACT_GLOBAL_SEARCH.NAME,
         fetch: function(query) {
@@ -52,10 +66,13 @@
         buildFetchContext: function(options) {
           return $q.when(options.query);
         },
+        onSubmit: SearchResultsProvider,
         templateUrl: '/contact/app/search/contact-search.html',
         activeOn: ['contact'],
         placeHolder: 'Search in contacts'
       });
+
+return searchProvider;
     }
 
     function buildSearchOptions(query) {

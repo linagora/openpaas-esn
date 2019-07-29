@@ -13,6 +13,26 @@
             isModuleActive: isModuleActive
           }
         })
+        .state('contact.search', {
+          url: '/search?q',
+          params: {
+            q: {
+              value: '',
+              squash: true
+            }
+          },
+          views: {
+            'main@contact': {
+              templateUrl: '/contact/app/search/contact-search-result.html',
+              controller: 'ContactSearchController',
+              controllerAs: 'ctrl',
+              resolve: {
+                domain: routeResolver.session('domain'),
+                user: routeResolver.session('user')
+              }
+            }
+          }
+        })
         .state('contact.addressbooks', {
           url: '/addressbooks/:bookName',
           views: {
