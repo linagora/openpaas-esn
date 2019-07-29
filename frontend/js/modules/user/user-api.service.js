@@ -4,7 +4,7 @@
   angular.module('esn.user')
     .factory('userAPI', userAPI);
 
-  function userAPI(esnRestangular, session) {
+  function userAPI(Restangular, esnRestangular, session) {
     return {
       currentUser: currentUser,
       user: user,
@@ -52,8 +52,17 @@
       return esnRestangular.one('users', userId).customPUT(emails, 'emails', { domain_id: domainId || session.domain._id });
     }
 
+    /**
+     * Create or update user from a provision source
+     * @param  {String} source The source for users provisioning
+     * @param  {Object} data The provisioning data
+     * @return {Promise} resolve with the list of provisioned successfully users
+     */
     function provisionUsers(source, data) {
-      return esnRestangular.all('users').customPOST(data, 'provision', { source: source });
+      return esnRestangular.all('users').customPOST(data, 'provision', { source: source })
+        .then(function(response) {
+          return Restangular.stripRestangular(response.data);
+        });
     }
   }
 })(angular);
