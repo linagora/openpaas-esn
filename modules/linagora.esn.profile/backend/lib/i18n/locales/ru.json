@@ -9,11 +9,11 @@
   "Updating profile...": "Обновление профиля ...",
   "Profile updated": "Профиль обновлен",
   "Error while updating your profile, please retry later": "Ошибка при обновлении вашего профиля, повторите попытку позже",
-  "You did not modify anything": "Вы не изменили ничего",
+  "You did not modify anything": "Вы ничего не изменили",
   "View profile page": "Просмотр страницы профиля",
   "Add email address": "Добавить адрес электронной почты",
   "Emails": "Сообщения электронной почты",
   "Basic information": "Основная информация",
-  "Email is already in use. Try another.": "Email уже используется. Попробуйте другой.",
-  "Email is invalid": "Email недействителен"
+  "Email is already in use. Try another.": "Этот адрес электронной почты уже используется. Попробуйте другой.",
+  "Email is invalid": "Адрес электронной почты недействителен"
 }
