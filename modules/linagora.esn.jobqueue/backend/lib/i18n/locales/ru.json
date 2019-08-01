@@ -1,6 +1,6 @@
 {
-  "Job Queue": "Очередь вакансий",
-  "Manage job queue": "Управление очередью заданий",
+  "Job Queue": "Порядок вакансий",
+  "Manage job queue": "Управление порядком вакансий",
   "User interface": "Интерфейс пользователя",
   "Interface to manage job queue. Once enabled, you will see the \"Job Queue\" item in the application menu.": "Интерфейс для управления порядком вакансий. После активации в меню приложения отобразится \"Порядок вакансий\"."
 }

@@ -5,6 +5,6 @@
   "Google Account": "Аккаунт Google",
   "Github Account": "Аккаунт Github",
   "Delete account": "Удалить профиль",
-  "No social account provider is installed, contact administrator for more information": "Поставщик аккаунта не установлен, свяжитесь с администратором для получения большей информации",
+  "No social account provider is installed, contact administrator for more information": "Вы не можете добавить аккаунты социальных сетей, свяжитесь с администратором платформы для получения информации",
   "A problem occurred while getting data, try refreshing this page": "Возникла проблема при получении данных, попробуйте обновить эту страницу"
 }
