@@ -131,5 +131,6 @@
   "Domain address book": "Carnet d'adresses du domaine",
   "Failed to load domain address book": "Impossible de charger le carnet d'adresses du domaine",
   "Please fill at least a field": "Veuillez remplir au moins un champ",
-  "Search results": "Résultats de recherche"
+  "Search results": "Résultats de recherche",
+  "No contacts are matching your search": "Aucun contact ne correspond à votre recherche"
 }

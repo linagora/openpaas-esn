@@ -8,7 +8,7 @@
     $q,
     Providers,
     esnSearchProvider,
-    searchResultsProvider,
+    contactSearchResultsProviderSubmit,
     session,
     PageAggregatorService,
     ELEMENTS_PER_REQUEST,
@@ -66,7 +66,7 @@
         buildFetchContext: function(options) {
           return $q.when(options.query);
         },
-        onSubmit: searchResultsProvider,
+        onSubmit: contactSearchResultsProviderSubmit,
         templateUrl: '/contact/app/search/contact-search.html',
         activeOn: ['contact'],
         placeHolder: 'Search in contacts'

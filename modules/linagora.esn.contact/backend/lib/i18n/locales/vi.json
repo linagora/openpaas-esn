@@ -131,5 +131,6 @@
   "Domain address book": "Sổ địa chỉ của miền",
   "Failed to load domain address book": "Lỗi khi tải sổ địa chỉ của miền",
   "Please fill at least a field": "Vui lòng điền ít nhất một trường",
-  "Search results": "Kết quả tìm kiếm"
+  "Search results": "Kết quả tìm kiếm",
+  "No contacts are matching your search":"Không có liên lạc phù hợp với tìm kiếm của bạn"
 }

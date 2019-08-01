@@ -1,9 +1,9 @@
 (function(angular) {
   'use strict';
 
-  angular.module('linagora.esn.contact').factory('searchResultsProvider', searchResultsProvider);
+  angular.module('linagora.esn.contact').factory('contactSearchResultsProviderSubmit', contactSearchResultsProviderSubmit);
 
-  function searchResultsProvider($state) {
+  function contactSearchResultsProviderSubmit($state) {
     return function(query, stateParams, context) {
       context = context || {};
       context.reload = true;

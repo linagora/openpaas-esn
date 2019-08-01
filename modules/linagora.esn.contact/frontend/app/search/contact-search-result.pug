@@ -10,6 +10,6 @@ sub-header
             esn-search-result-item(item="item", query="ctrl.queryText")
       .search-empty-result(ng-if="!ctrl.infiniteScrollDisabled && !ctrl.elements.length")
         .search-empty-icon.mdi.mdi-magnify
-        .message #{__("There is no result matching your query")}
+        .message #{__("No contacts are matching your search")}
       ul.nav.nav-pills.nav-stacked(ng-if='ctrl.infiniteScrollDisabled')
         li.text-center(openpaas-logo-spinner, spinner-start-active='1', spinner-size='0.5')
