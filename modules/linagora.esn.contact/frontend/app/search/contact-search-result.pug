@@ -1,0 +1,15 @@
+sub-header
+  contact-search-subheader
+
+.contact-search-result
+  .search-result
+    infinite-list(load-more-elements='ctrl.loadMoreElements()')
+      .card.listview.lv-bordered.lv-lg
+        .lv-body
+          .lv-item.media(ng-repeat="item in ctrl.elements | orderBy: '-date'" ng-if="ctrl.elements.length > 0")
+            esn-search-result-item(item="item", query="ctrl.queryText")
+      .search-empty-result(ng-if="!ctrl.infiniteScrollDisabled && !ctrl.elements.length")
+        .search-empty-icon.mdi.mdi-magnify
+        .message #{__("No contacts are matching your search")}
+      ul.nav.nav-pills.nav-stacked(ng-if='ctrl.infiniteScrollDisabled')
+        li.text-center(openpaas-logo-spinner, spinner-start-active='1', spinner-size='0.5')

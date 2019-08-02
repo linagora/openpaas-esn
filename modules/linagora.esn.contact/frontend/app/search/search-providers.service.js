@@ -3,8 +3,19 @@
 
   angular.module('linagora.esn.contact').factory('contactSearchProviders', contactSearchProviders);
 
-  function contactSearchProviders(_, $q, Providers, esnSearchProvider, session, PageAggregatorService, ELEMENTS_PER_REQUEST, CONTACT_GLOBAL_SEARCH) {
+  function contactSearchProviders(
+    _,
+    $q,
+    Providers,
+    esnSearchProvider,
+    contactSearchResultsProviderSubmit,
+    session,
+    PageAggregatorService,
+    ELEMENTS_PER_REQUEST,
+    CONTACT_GLOBAL_SEARCH
+  ) {
     var providers = new Providers();
+    var searchProvider;
 
     return {
       register: register,
@@ -16,7 +27,10 @@
     }
 
     function get() {
-      return new esnSearchProvider({
+      if (searchProvider) {
+        return searchProvider;
+      }
+      searchProvider = new esnSearchProvider({
         uid: 'op.contacts.all',
         name: CONTACT_GLOBAL_SEARCH.NAME,
         fetch: function(query) {
@@ -34,14 +48,14 @@
             return buildSearchOptions(searchOptions)
               .then(function(options) { return providers.getAll(options); })
               .then(function(providers) {
-                  aggregator = new PageAggregatorService('searchContactsResultControllerAggregator', providers, {
-                    compare: function(a, b) { return b.date - a.date; },
-                    // will not work if not the same...
-                    results_per_page: ELEMENTS_PER_REQUEST,
-                    first_page_size: ELEMENTS_PER_REQUEST
-                  });
+                aggregator = new PageAggregatorService('searchContactsResultControllerAggregator', providers, {
+                  compare: function(a, b) { return b.date - a.date; },
+                  // will not work if not the same...
+                  results_per_page: ELEMENTS_PER_REQUEST,
+                  first_page_size: ELEMENTS_PER_REQUEST
+                });
 
-                  return load();
+                return load();
               });
 
             function load() {
@@ -52,10 +66,13 @@
         buildFetchContext: function(options) {
           return $q.when(options.query);
         },
+        onSubmit: contactSearchResultsProviderSubmit,
         templateUrl: '/contact/app/search/contact-search.html',
         activeOn: ['contact'],
         placeHolder: 'Search in contacts'
       });
+
+      return searchProvider;
     }
 
     function buildSearchOptions(query) {
