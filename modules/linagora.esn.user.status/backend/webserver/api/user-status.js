@@ -7,7 +7,7 @@ module.exports = function(dependencies, lib, router) {
 
   /**
    * @swagger
-   * /users/{id}:
+   * /user-status/users/{id}:
    *   get:
    *     tags:
    *       - Users-status
@@ -28,7 +28,7 @@ module.exports = function(dependencies, lib, router) {
 
   /**
    * @swagger
-   * /users:
+   * /user-status/users:
    *   post:
    *     tags:
    *       - Users-status

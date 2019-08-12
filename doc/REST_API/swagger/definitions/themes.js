@@ -23,22 +23,4 @@
  *           mobile:
  *             type: string
  *             description: The path of the mobile logo
- *     examples:
- *       application/json:
- *         {
- *           "colors": [
- *             {
- *               "key": "primaryColor",
- *               "value": "#2196f3"
- *             },
- *             {
- *               "key": "sceondaryColor",
- *               "value": "#FFC107"
- *             }
- *           ],
- *           "logos": {
- *             "logo": "123",
- *             "favicon": "456"
- *            }
- *         }
  */

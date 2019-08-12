@@ -19,7 +19,7 @@ module.exports = function(router) {
    *      - User
    *     description: Get the authenticated user informations.
    *     security:
-   *       - openpaas_auth : []
+   *       - auth : []
    *     responses:
    *       200:
    *         $ref: "#/responses/us_informations"
@@ -32,7 +32,7 @@ module.exports = function(router) {
 
   /**
    * @swagger
-   * /user/profile :
+   * /user/profile:
    *   get:
    *     tags:
    *      - User
@@ -50,8 +50,7 @@ module.exports = function(router) {
 
   /**
    * @swagger
-   * /user/profile/{attribute_name} :
-   * /api/user/profile/ :
+   * /user/profile:
    *   put:
    *     tags:
    *      - User

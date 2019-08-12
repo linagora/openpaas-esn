@@ -24,20 +24,17 @@
  *     name: q
  *     description: Text to search in the people resources
  *     in: query
- *     schema:
- *       type: string
+ *     type: string
  *   ppl_search_query_limit:
  *     name: limit
  *     description: The maximum number of resources to send back
  *     in: query
- *     schema:
- *       type: integer
+ *     type: integer
  *   ppl_search_query_offset:
  *     name: offset
  *     description: The offset to start to sarch resources from
  *     in: query
- *     schema:
- *       type: integer
+ *     type: integer
  *   ppl_search_excludes:
  *     name: excludes
  *     description: A list of tuple objects that are meant to be excluded from search
@@ -45,5 +42,5 @@
  *     schema:
  *       type: array
  *       items:
- *         $ref: "#/definitions/tuples"
+ *         $ref: "#/definitions/Tuple"
  */
