@@ -170,6 +170,7 @@ module.exports = function(router) {
    *
    *       The image should be square, and at least be 128x128 px.
    *     parameters:
+   *       - $ref: "#/parameters/uss_uuid"
    *       - $ref: "#/parameters/av_mimetype"
    *       - $ref: "#/parameters/av_size"
    *       - $ref: "#/parameters/ct_raw_data"

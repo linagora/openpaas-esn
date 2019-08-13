@@ -40,5 +40,6 @@
  *     name: provision data
  *     in: body
  *     description: The provisioning data
- *     type: any
+ *     schema:
+ *       type: object
  */

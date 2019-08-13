@@ -13,7 +13,7 @@ module.exports = dependencies => {
    *      - User
    *     description: Get the autoconfiguration file for the authenticated user
    *     security:
-   *       - openpaas_auth : []
+   *       - auth : []
    *     responses:
    *       200:
    *         $ref: "#/responses/autoconf"
