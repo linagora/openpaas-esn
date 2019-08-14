@@ -4,6 +4,7 @@ module.exports = function(grunt) {
   var CI = grunt.option('ci');
 
   var KARMA_REPORTERS = (grunt.option('reporter') || '').split(',').filter(Boolean);
+
   if (!KARMA_REPORTERS.length) {
     KARMA_REPORTERS = CI ? ['spec', 'coverage'] : ['dots'];
   }
@@ -74,7 +75,8 @@ module.exports = function(grunt) {
         timeout: process.env.TEST_TIMEOUT || 20000,
         env: {
           ESN_CUSTOM_TEMPLATES_FOLDER: 'testscustom'
-        }
+        },
+        exit: true
       },
       backend: {
         options: {
