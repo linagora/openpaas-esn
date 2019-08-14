@@ -7,7 +7,11 @@ module.exports = (lib, dependencies) => {
   const platformAdminsMW = dependencies('platformAdminsMW');
   const router = express.Router();
 
-  router.get('/', authorizationMW.requiresAPILogin, platformAdminsMW.requirePlatformAdmin, (req, res) => res.redirect('/jobqueue/ui'));
+  router.all('/*',
+    authorizationMW.requiresAPILogin,
+    platformAdminsMW.requirePlatformAdmin
+  );
+  router.get('/', (req, res) => res.redirect('/jobqueue/ui'));
 
   return router;
 };
