@@ -9,8 +9,8 @@
  *       application/json:
  *         {
  *           "logos": {
- *              "logo": "123",
- *              "favicon": "456"
+ *              "logo": "5d37246f17e6055f91c3f57f",
+ *              "favicon": "5d37246f17e6055f91c3f57f"
  *            },
  *            "colors": {
  *              "primaryColor": "#2196f3",
@@ -18,21 +18,11 @@
  *            }
  *         }
  *   tm_logo:
- *    description: Ok. With an object containing the configured 0penpaaS logo
- *    schema:
- *      type: object
+ *    description: Redirect to te url of the Logo
  *    examples:
- *      application/json:
- *        {
- *             "logo": "123",
- *        }
+ *      redirect to: "DomainUrl/api/files/5d37246f17e6055f91c3f57f"
  *   tm_favicon:
- *    description: Ok. With an object containing the configured 0penpaaS favicon
- *    schema:
- *      type: object
+ *    description: Redirect to te url of the Favicon
  *    examples:
- *      application/json:
- *        {
- *             "favicon": "456",
- *        }
+ *      redirect to: "DomainUrl/api/files/5d37246f17e6055f91c3f57f"
  */

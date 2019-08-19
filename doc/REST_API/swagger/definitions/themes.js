@@ -17,10 +17,28 @@
  *       logos:
  *         type: object
  *         properties:
- *           desktop:
+ *           logo:
  *             type: string
- *             description: The path of the desktop logo
- *           mobile:
+ *             description: The id of the logo file
+ *           favicon:
  *             type: string
- *             description: The path of the mobile logo
+ *             description: The id of the favicon file
+ *     examples:
+ *       application/json:
+ *         {
+ *           "colors": [
+ *             {
+ *               "key": "primaryColor",
+ *               "value": "#2196f3"
+ *             },
+ *             {
+ *               "key": "secondaryColor",
+ *               "value": "#FFC107"
+ *             }
+ *           ],
+ *           "logos": {
+ *             "logo": "5d37246f17e6055f91c3f57f",
+ *             "favicon": "5d37246f17e6055f91c3f57f"
+ *            }
+ *         }
  */
