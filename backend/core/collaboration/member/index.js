@@ -76,7 +76,13 @@ module.exports = function(collaborationModule) {
       });
     });
 
-    collaboration.save(callback);
+    collaboration.save((err, updated) => {
+      if (err) return callback(err);
+
+      // Pass 1 as number of updated collaboration.
+      // Mongoose 5 no longer supports numAffected argument.
+      callback(null, updated, 1);
+    });
 
     function verifyMember(member) {
       if (!member.id || !member.objectType) {

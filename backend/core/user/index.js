@@ -124,8 +124,8 @@ function listByCursor() {
 }
 
 function update(user, callback) {
-  user.save((err, savedUser, rowAffected) => {
-    if (!err && rowAffected > 0) {
+  user.save((err, savedUser) => {
+    if (!err) {
       pubsub.topic(CONSTANTS.EVENTS.userUpdated).publish(savedUser);
     }
 
