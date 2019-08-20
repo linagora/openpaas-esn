@@ -5,19 +5,12 @@ module.exports = function(dbHost = 'localhost', dbPort = 27017, dbName = 'esn', 
 
   return {
     connectionOptions: {
-      db: {
-        w: 1,
-        fsync: true,
-        native_parser: true
-      },
-      server: {
-        socketOptions: {
-          keepAlive: 10000,
-          connectTimeoutMS: 10000
-        },
-        auto_reconnect: true,
-        poolSize: 10
-      }
+      w: 1,
+      fsync: true,
+      keepAlive: 10000,
+      connectTimeoutMS: 10000,
+      auto_reconnect: true,
+      poolSize: 10
     },
     connectionString
   };
