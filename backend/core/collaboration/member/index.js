@@ -233,16 +233,17 @@ module.exports = function(collaborationModule) {
       return callback(new Error(`Collaboration model ${objectType} is unknown`));
     }
 
-    return Model.aggregate(
+    return Model.aggregate([
       {$match: {_id: id}},
       {$unwind: '$members'},
-      {$group: {_id: null, number: {$sum: 1 }}}).exec((err, result) => {
-        if (err) {
-          return callback(err);
-        }
+      {$group: {_id: null, number: {$sum: 1 }}}
+    ]).exec((err, result) => {
+      if (err) {
+        return callback(err);
+      }
 
-        callback(null, result && result.length ? result[0].number : 0);
-      });
+      callback(null, result && result.length ? result[0].number : 0);
+    });
    }
 
   function declineMembershipInvitation(objectType, collaboration, membership, user, callback) {
