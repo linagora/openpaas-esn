@@ -7,7 +7,7 @@
         h4.modal-title #{__('Edit address book')}
       .modal-body.p-t-20
         esn-form-group(label=__('Name'))
-          input.form-control(type="text", ng-model="$ctrl.addressbook.name", name="addressbookName", required)
+          input.form-control(type="text", ng-model="$ctrl.addressbook.name", name="addressbookName", autofocus, required)
       .modal-footer.flex
         .flex-vertical-centered.flex-end
           button.btn.btn-link(type="button", ng-click="$hide()")
