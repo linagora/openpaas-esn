@@ -12,6 +12,8 @@ block right
       li
         a(href='', ng-if='displayShell.addressbook.canEditContact', ng-click='edit()') #{__('Edit')}
       li
+        a(href='', ng-if='displayShell.addressbook.canDeleteContact', ng-click='deleteContact()') #{__('Delete')}
+      li
         contact-action-copy.contact-dropdown-action-item(
           ng-if='displayShell.addressbook.canCopyContact',
           contact='contact'
