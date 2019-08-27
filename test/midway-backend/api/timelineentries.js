@@ -14,60 +14,58 @@ describe('The timelineentries API', function() {
 
     helpers = this.helpers;
     this.mongoose = require('mongoose');
-    this.testEnv.initRedisConfiguration(this.mongoose, this.helpers.callbacks.noErrorAnd(function() {
-      self.testEnv.initCore(function() {
-        webserver = helpers.requireBackend('webserver').webserver;
-        var Whatsup = self.helpers.requireBackend('core/db/mongo/models/whatsup');
+    self.testEnv.initCore(function() {
+      webserver = helpers.requireBackend('webserver').webserver;
+      var Whatsup = self.helpers.requireBackend('core/db/mongo/models/whatsup');
 
-        function saveMessage(message) {
-          var defer = q.defer();
-          message.save(function(err, saved) {
-            if (err) {
-              return defer.reject(err);
-            }
-            if (saved) {
-              message._id = saved._id;
-            }
-            defer.resolve(saved);
-          });
-          return defer.promise;
-        }
-
-        self.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+      function saveMessage(message) {
+        var defer = q.defer();
+        message.save(function(err, saved) {
           if (err) {
-            return done(err);
+            return defer.reject(err);
           }
-          user = models.users[0];
-          user2 = models.users[1];
-          community = models.communities[0];
-          email = user.emails[0];
-
-          message = new Whatsup({
-            author: user._id,
-            content: 'This is my message',
-            objectType: 'whatsup',
-            shares: [{
-              objectType: 'activitystream',
-              id: community.activity_stream.uuid
-            }]
-          });
-
-          message2 = new Whatsup({
-            author: user2._id,
-            content: 'This is another message',
-            objectType: 'whatsup',
-            shares: [{
-              objectType: 'activitystream',
-              id: community.activity_stream.uuid
-            }]
-          });
-
-          q.all([saveMessage(message), saveMessage(message2)]).then(function() {
-            done();
-          }, done);
+          if (saved) {
+            message._id = saved._id;
+          }
+          defer.resolve(saved);
         });
+        return defer.promise;
+      }
+
+      self.helpers.api.applyDomainDeployment('linagora_IT', function(err, models) {
+        if (err) {
+          return done(err);
+        }
+        user = models.users[0];
+        user2 = models.users[1];
+        community = models.communities[0];
+        email = user.emails[0];
+
+        message = new Whatsup({
+          author: user._id,
+          content: 'This is my message',
+          objectType: 'whatsup',
+          shares: [{
+            objectType: 'activitystream',
+            id: community.activity_stream.uuid
+          }]
+        });
+
+        message2 = new Whatsup({
+          author: user2._id,
+          content: 'This is another message',
+          objectType: 'whatsup',
+          shares: [{
+            objectType: 'activitystream',
+            id: community.activity_stream.uuid
+          }]
+        });
+
+        q.all([saveMessage(message), saveMessage(message2)]).then(function() {
+          done();
+        }, done);
       });
-    }));
+    });
   });
 
   afterEach(function(done) {

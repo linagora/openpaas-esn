@@ -12,38 +12,31 @@ describe('The oauth client API', function() {
 
   beforeEach(function(done) {
     var self = this;
-    this.mongoose = require('mongoose');
 
-    this.testEnv.initRedisConfiguration(this.mongoose, function(err) {
-      if (err) {
-        return done(err);
-      }
+    self.testEnv.initCore(function() {
+      User = self.helpers.requireBackend('core/db/mongo/models/user');
+      OAuthClient = self.helpers.requireBackend('core/db/mongo/models/oauthclient');
+      app = self.helpers.requireBackend('webserver/application');
+      fixtures = self.helpers.requireFixture('models/users.js')(User);
 
-      self.testEnv.initCore(function() {
-        User = self.helpers.requireBackend('core/db/mongo/models/user');
-        OAuthClient = self.helpers.requireBackend('core/db/mongo/models/oauthclient');
-        app = self.helpers.requireBackend('webserver/application');
-        fixtures = self.helpers.requireFixture('models/users.js')(User);
-
-        (user = fixtures.newDummyUser([email], password)).save(function(err, saved) {
+      (user = fixtures.newDummyUser([email], password)).save(function(err, saved) {
+        if (err) {
+          return done(err);
+        }
+        user._id = saved._id;
+        oauthclient = new OAuthClient({
+          name: 'oauthClient',
+          creator: {
+            _id: user._id
+          }});
+        oauthclient.save(function(err, saved) {
           if (err) {
             return done(err);
           }
-          user._id = saved._id;
-          oauthclient = new OAuthClient({
-            name: 'oauthClient',
-            creator: {
-              _id: user._id
-            }});
-          oauthclient.save(function(err, saved) {
-            if (err) {
-              return done(err);
-            }
-            oauthclient.clientId = saved.clientId;
-            oauthclient.clientSecret = saved.clientSecret;
-            oauthclient._id = saved._id;
-            return done();
-          });
+          oauthclient.clientId = saved.clientId;
+          oauthclient.clientSecret = saved.clientSecret;
+          oauthclient._id = saved._id;
+          return done();
         });
       });
     });

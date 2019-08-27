@@ -12,16 +12,14 @@ describe('The jwt API', function() {
 
     helpers = this.helpers;
     this.mongoose = require('mongoose');
-    this.testEnv.initRedisConfiguration(this.mongoose, this.helpers.callbacks.noErrorAnd(function() {
-      self.testEnv.initCore(function() {
-        webserver = helpers.requireBackend('webserver').webserver;
-        fixtures = helpers.requireFixture('models/users.js')(helpers.requireBackend('core/db/mongo/models/user'));
+    self.testEnv.initCore(function() {
+      webserver = helpers.requireBackend('webserver').webserver;
+      fixtures = helpers.requireFixture('models/users.js')(helpers.requireBackend('core/db/mongo/models/user'));
 
-        fixtures.newDummyUser().save(helpers.callbacks.noErrorAnd(function() {
-          helpers.jwt.saveTestConfiguration(done);
-        }));
+      fixtures.newDummyUser().save(helpers.callbacks.noErrorAnd(function() {
+        helpers.jwt.saveTestConfiguration(done);
+      }));
       });
-    }));
   });
 
   afterEach(function(done) {
