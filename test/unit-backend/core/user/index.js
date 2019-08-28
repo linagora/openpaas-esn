@@ -110,6 +110,7 @@ describe('The user core module', function() {
         local: {
           topic: function(name) {
             expect(name).to.equal(CONSTANTS.EVENTS.userCreated);
+
             return {
               publish: spy
             };
@@ -381,29 +382,6 @@ describe('The user core module', function() {
       const err = new Error('some_error');
       const updatedUser = { _id: 1 };
       const rowAffected = 1;
-      const user = {
-        save(callback) {
-          callback(err, updatedUser, rowAffected);
-        }
-      };
-      const callback = () => {};
-      const publishSpy = sinon.spy();
-      const topicStub = sinon.stub().returns({
-        publish: publishSpy
-      });
-
-      localPubsubMock.topic = topicStub;
-
-      getModule().update(user, callback);
-
-      expect(topicStub).to.not.have.been.called;
-      expect(publishSpy).to.not.have.been.called;
-    });
-
-    it('should not publish event when user was updated successfully but rowAffected equals 0', function() {
-      const err = null;
-      const updatedUser = { _id: 1 };
-      const rowAffected = 0;
       const user = {
         save(callback) {
           callback(err, updatedUser, rowAffected);

@@ -37,15 +37,27 @@ describe('The User model', function() {
   });
 
   it('should fail when user has empty accounts', function(done) {
-    var user = userFixtures.newDummyUser();
+    const user = userFixtures.newDummyUser();
+
     user.accounts = [];
-    user.save(helpers.callbacks.errorWithMessage(done, 'User validation failed'));
+    user.save(err => {
+      if (!err) return done(new Error('user save should fail instead'));
+
+      expect(err.message).to.match(/User validation failed/);
+      done();
+    });
   });
 
   it('should fail when user has undefined accounts', function(done) {
-    var user = userFixtures.newDummyUser();
+    const user = userFixtures.newDummyUser();
+
     user.accounts = null;
-    user.save(helpers.callbacks.errorWithMessage(done, 'User validation failed'));
+    user.save(err => {
+      if (!err) return done(new Error('user save should fail instead'));
+
+      expect(err.message).to.match(/User validation failed/);
+      done();
+    });
   });
 
   it('should load the user from email', function(done) {
