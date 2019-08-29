@@ -396,7 +396,6 @@ describe('The Avatar Angular module', function() {
 
       $('body').append(element);
       controller = element.controller('esnAvatar');
-
       return element;
     }
 
@@ -450,6 +449,8 @@ describe('The Avatar Angular module', function() {
       $rootScope.userId = '58be757006a35238647028d8';
       $rootScope.userEmail = 'dali@open-paas.org';
       $rootScope.avatarURL = '/api/user/profile/avatar?cb=1490951414696';
+      $rootScope.objectType = 'user';
+      $rootScope.objectTypeNotUser = 'contact';
       $rootScope.resolveAvatar = function() {
         return $q.when({
           id: 'myId',
@@ -515,28 +516,35 @@ describe('The Avatar Angular module', function() {
     describe('displayUserStatus function', function() {
 
       it('should return true if avatar.id is defined and hideUserStatus = false', function() {
-        compileEsnAvatar('<esn-avatar resolve-avatar="resolveAvatar()" />');
+        compileEsnAvatar('<esn-avatar resolve-avatar="resolveAvatar()" object-type="objectType" />');
 
         expect(controller.displayUserStatus()).to.equal(true);
       });
 
       it('should return false if avatar.id is defined and hideUserStatus = true', function() {
-        compileEsnAvatar('<esn-avatar resolve-avatar="resolveAvatar()" hide-user-status="true" />');
+        compileEsnAvatar('<esn-avatar resolve-avatar="resolveAvatar()" hide-user-status="true" object-type="objectType" />');
 
         expect(controller.displayUserStatus()).to.equal(false);
       });
 
       it('should return false if avatar.id is undefined and hideUserStatus = true', function() {
-        compileEsnAvatar('<esn-avatar hide-user-status="true" />');
+        compileEsnAvatar('<esn-avatar hide-user-status="true" object-type="objectType" />');
 
         expect(controller.displayUserStatus()).to.equal(false);
       });
 
       it('should return false if avatar.id is undefined and hideUserStatus = false', function() {
-        compileEsnAvatar('<esn-avatar />');
+        compileEsnAvatar('<esn-avatar object-type="objectType"/>');
 
         expect(controller.displayUserStatus()).to.equal(false);
       });
+
+      it('should return false if the objectType is not an user', function() {
+        compileEsnAvatar('<esn-avatar object-type="objectTypeNotUser"/>');
+
+        expect(controller.displayUserStatus()).to.equal(false);
+      });
+
     });
   });
 
