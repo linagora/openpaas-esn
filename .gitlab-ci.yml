@@ -371,7 +371,7 @@ docker-master:
     - docker-tag-and-push.sh build:latest ${DOCKER_IMAGE_PRIVATE}
     - docker logout docker-registry.linagora.com:5000
     - docker login -u ${HUB_DOCKER_USER} -p ${HUB_DOCKER_TOKEN}
-    - export DOCKER_TAGS=branch-master
+    - echo "export DOCKER_TAGS=branch-master" > docker-tag-and-push.env
     - docker-tag-and-push.sh build:latest ${DOCKER_IMAGE_PUBLIC}
     - docker logout
   only:
