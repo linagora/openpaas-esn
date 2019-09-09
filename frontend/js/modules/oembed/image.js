@@ -5,7 +5,7 @@
 
   var provider = {
     name: 'image',
-    regexps: [new RegExp(/(?:([^:\/?#]+):)?(?:\/\/([^\/?#]*))?([^?#]*\.(?:jpe?g|gif|png))(?:\?([^#]*))?(?:(.*))?/i)],
+    regexps: [new RegExp(/(?:([^:/?#]+):)?(?:\/\/([^/?#]*))?([^?#]*\.(?:jpe?g|gif|png))(?:\?([^#]*))?(?:(.*))?/i)],
     resolver: 'local'
   };
 
@@ -55,6 +55,7 @@
 
       return prepareText;
     }
+
     return oembedImageFilter;
   }
 

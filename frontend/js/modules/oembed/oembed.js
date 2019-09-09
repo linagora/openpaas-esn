@@ -16,6 +16,7 @@ angular.module('esn.oembed', [
 
         if (!$scope.message || $scope.message.length === 0) {
           $log.debug('Can not process oembed for empty text');
+
           return;
         }
 
@@ -39,7 +40,7 @@ angular.module('esn.oembed', [
     function getLinks(text) {
       var source = (text || '').toString();
       var urlArray = [];
-      var regexToken = /(((https?):\/\/)[\-\w@:%_\+.~#?,&\/\/=]+)/g;
+      var regexToken = /(((https?):\/\/)[-\w@:%_+.~#?,&//=]+)/g;
       var matchArray = regexToken.exec(source);
 
       while (matchArray !== null) {
@@ -56,6 +57,7 @@ angular.module('esn.oembed', [
         if (url.match(regexp) !== null) {
           return true;
         }
+
         return false;
       });
     }
@@ -80,6 +82,7 @@ angular.module('esn.oembed', [
         return;
       }
       var re = new RegExp('https?:\\/\\/', 'g');
+
       return fragment.replace(re, '//');
     }
 
