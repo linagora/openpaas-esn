@@ -11,9 +11,10 @@ function getUserSocketsFromNamespace(userId, nsSockets) {
   const userSockets = store.getSocketsForUser(userId);
   const namespaceSocketIds = {};
 
-  nsSockets.forEach(function(socket) {
-    namespaceSocketIds[socket.id] = socket;
+  Object.values(nsSockets).forEach(function(socket) {
+    namespaceSocketIds[socket.conn.id] = socket;
   });
+
   const nsUserSockets = userSockets.filter(function(socket) {
     return (socket.id in namespaceSocketIds);
   })
