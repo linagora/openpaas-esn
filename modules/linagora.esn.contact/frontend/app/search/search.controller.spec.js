@@ -22,19 +22,20 @@ describe('The ContactSearchController controller', function() {
     module('linagora.esn.contact');
 
     inject(function(
-    _$controller_,
-    _$q_,
-    _$rootScope_,
-    _esnSearchQueryService_,
-    _contactSearchProviders_
-  ) {
-    $controller = _$controller_;
-    $q = _$q_;
-    esnSearchQueryService = _esnSearchQueryService_;
-    contactSearchProviders = _contactSearchProviders_;
-    $rootScope = _$rootScope_;
-    $scope = $rootScope.$new();
-  });});
+      _$controller_,
+      _$q_,
+      _$rootScope_,
+      _esnSearchQueryService_,
+      _contactSearchProviders_
+    ) {
+      $controller = _$controller_;
+      $q = _$q_;
+      esnSearchQueryService = _esnSearchQueryService_;
+      contactSearchProviders = _contactSearchProviders_;
+      $rootScope = _$rootScope_;
+      $scope = $rootScope.$new();
+    });
+  });
 
   describe('The loadMoreElements function', function() {
     it('should resolve when query is empty', function(done) {
