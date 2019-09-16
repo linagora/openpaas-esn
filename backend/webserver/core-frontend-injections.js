@@ -257,7 +257,6 @@ const injections = [
     'availability/availability.constants.js',
     'availability/availability.service.js'
   ], innerApps: ['esn']},
-  {angular: 'esn.jmap-client-wrapper', files: ['jmap-client-wrapper.js'], innerApps: ['esn']},
   {angular: 'esn.iframe-resizer-wrapper', files: ['iframe-resizer-wrapper.js'], innerApps: ['esn']},
   {angular: 'esn.email-addresses-wrapper', files: ['email-addresses-wrapper.js'], innerApps: ['esn']},
   {angular: 'esn.box-overlay', files: [
