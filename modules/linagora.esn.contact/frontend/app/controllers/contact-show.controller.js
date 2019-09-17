@@ -2,9 +2,9 @@
   'use strict';
 
   angular.module('linagora.esn.contact')
-    .controller('showContactController', showContactController);
+    .controller('ContactShowController', ContactShowController);
 
-  function showContactController(
+  function ContactShowController(
     $log,
     $scope,
     $state,

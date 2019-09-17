@@ -4,7 +4,7 @@
 
 var expect = chai.expect;
 
-describe('The showContactController', function() {
+describe('The ContactShowController', function() {
   var $window, $controller, $state, $rootScope, $alert, $timeout, $stateParams, $location;
   var scope, contactUpdateDataService, ContactShellDisplayBuilder, gracePeriodService, ContactAPIClient, contactAddressbookDisplayService;
   var ContactShell, notificationFactory, selectionService, VcardBuilder, ContactLocationHelper;
@@ -173,7 +173,7 @@ describe('The showContactController', function() {
   }
 
   function initController() {
-    $controller('showContactController', { $scope: scope });
+    $controller('ContactShowController', { $scope: scope });
     scope.$digest();
   }
 
@@ -469,7 +469,7 @@ describe('The showContactController', function() {
       scope.contact = { id: 1, firstName: 'Foo', lastName: 'Bar', addressbook: {} };
       var spy = sinon.spy();
 
-      $controller.bind(null, 'showContactController', {
+      $controller.bind(null, 'ContactShowController', {
         $scope: scope,
         deleteContact: spy
       })();
