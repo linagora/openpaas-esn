@@ -39,6 +39,15 @@
       }
     });
 
+    $scope.$on(CONTACT_EVENTS.DELETED, function(event, data) {
+      if (data.id === $scope.cardId) {
+        $state.go('contact.addressbooks', {
+          bookId: $scope.bookId,
+          bookName: data.addressbook.bookName
+        }, { location: 'replace' });
+      }
+    });
+
     function isAddressFilled(type) {
       if (!$scope.contact.addresses || !$scope.contact.addresses.length) {
         return false;

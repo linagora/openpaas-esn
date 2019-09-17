@@ -200,6 +200,28 @@ describe('The ContactShowController', function() {
     done();
   });
 
+  it('should go to the contact list state when the contact is deleted', function(done) {
+    $state.go = sinon.spy();
+
+    initController();
+
+    var contact = {
+      id: scope.cardId,
+      addressbook: {
+        bookName: 'new-addressbook'
+      }
+    };
+
+    $rootScope.$broadcast(CONTACT_EVENTS.DELETED, contact);
+
+    expect($state.go).to.have.been.calledWith('contact.addressbooks', {
+      bookId: scope.bookId,
+      bookName: 'new-addressbook'
+    }, { location: 'replace' });
+
+    done();
+  });
+
   it('should have bigger size for contact avatar', function() {
     initController();
     expect(scope.avatarSize).to.equal(CONTACT_AVATAR_SIZE.bigger);
