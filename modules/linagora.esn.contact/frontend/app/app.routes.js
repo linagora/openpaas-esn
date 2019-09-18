@@ -73,7 +73,7 @@
           views: {
             'main@contact': {
               templateUrl: '/contact/app/contact/show/contact-show.html',
-              controller: 'showContactController',
+              controller: 'ContactShowController',
               resolve: {
                 domain: routeResolver.session('domain'),
                 user: routeResolver.session('user')
