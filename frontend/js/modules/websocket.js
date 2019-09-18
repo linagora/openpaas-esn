@@ -224,6 +224,7 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
     var disconnectCallbacks = [];
     var connectCallbacks = [];
     var reconnectCallbacks = [];
+    var connectedNamespaces = {};
 
     function fireCallbacks(callbacks) {
       callbacks.forEach(function(callback) {
@@ -283,10 +284,16 @@ angular.module('esn.websocket', ['esn.authentication', 'esn.session', 'esn.socke
         if (!namespace) {
           return sio;
         }
+
         if (!sio) {
           return null;
         }
-        return io()(httpConfigurer.getUrl(namespace));
+
+        if (!connectedNamespaces[namespace]) {
+          connectedNamespaces[namespace] = io()(httpConfigurer.getUrl(namespace));
+        }
+
+        return connectedNamespaces[namespace];
       }
     };
   })

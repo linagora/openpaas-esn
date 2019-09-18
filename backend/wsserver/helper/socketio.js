@@ -1,19 +1,27 @@
-'use strict';
+const store = require('../socketstore');
 
-var store = require('../socketstore');
+module.exports = {
+  getUserSocketsFromNamespace,
+  getInfos,
+  setUserId,
+  getUserId
+};
 
 function getUserSocketsFromNamespace(userId, nsSockets) {
-  var userSockets = store.getSocketsForUser(userId);
-  var namespaceSocketIds = {};
-  nsSockets.forEach(function(socket) {
-    namespaceSocketIds[socket.id] = socket;
+  const userSockets = store.getSocketsForUser(userId);
+  const namespaceSocketIds = {};
+
+  Object.values(nsSockets).forEach(function(socket) {
+    namespaceSocketIds[socket.conn.id] = socket;
   });
-  var nsUserSockets = userSockets.filter(function(socket) {
+
+  const nsUserSockets = userSockets.filter(function(socket) {
     return (socket.id in namespaceSocketIds);
   })
   .map(function(socket) {
     return namespaceSocketIds[socket.id];
   });
+
   return nsUserSockets;
 }
 
@@ -21,18 +29,21 @@ function getInfos(socket) {
   if (!socket || !socket.request) {
     return null;
   }
-  var request = socket.request,
-      remoteAddress, remotePort;
+
+  const request = socket.request;
+  let remoteAddress, remotePort;
+
   if (request.client && request.client._peername) {
     remoteAddress = request.client._peername.address;
     remotePort = request.client._peername.port;
   }
+
   return {
     userId: request.userId,
     query: request._query,
     headers: request.headers,
-    remoteAddress: remoteAddress,
-    remotePort: remotePort
+    remoteAddress,
+    remotePort
   };
 }
 
@@ -44,10 +55,6 @@ function getUserId(socket) {
   if (!socket.request) {
     return null;
   }
+
   return socket.request.userId;
 }
-
-module.exports.getUserSocketsFromNamespace = getUserSocketsFromNamespace;
-module.exports.getInfos = getInfos;
-module.exports.setUserId = setUserId;
-module.exports.getUserId = getUserId;

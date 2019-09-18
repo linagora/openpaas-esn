@@ -104,7 +104,7 @@
     "recaptcha": "1.2.1",
     "redis": "2.6.2",
     "request": "2.88.0",
-    "socket.io": "1.2.1",
+    "socket.io": "2.2.0",
     "superagent": "5.1.0",
     "toobusy-js": "0.5.1",
     "trim": "0.0.1",
