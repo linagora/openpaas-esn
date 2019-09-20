@@ -16,12 +16,12 @@ module.exports = dependencies => {
 
     const nValue = [];
 
-    if (user.lastName) {
-      nValue.push(user.lastName);
+    if (user.lastname) {
+      nValue.push(user.lastname);
     }
 
-    if (user.firstName) {
-      nValue.push(user.firstName);
+    if (user.firstname) {
+      nValue.push(user.firstname);
     }
 
     if (nValue.length) {
@@ -51,15 +51,19 @@ module.exports = dependencies => {
     }
 
     if (user.building_location) {
-      const prop = vcard.addPropertyWithValue('adr', user.building_location);
+      const prop = vcard.addPropertyWithValue('adr', ['', '', user.building_location]);
 
       prop.setParameter('type', 'work');
     }
 
     if (user.office_location) {
-      const prop = vcard.addPropertyWithValue('adr', user.office_location);
+      const prop = vcard.addPropertyWithValue('adr', ['', '', user.office_location]);
 
       prop.setParameter('type', 'work');
+    }
+
+    if (user.description) {
+      vcard.addPropertyWithValue('note', user.description);
     }
 
     if (esnBaseUrl) {

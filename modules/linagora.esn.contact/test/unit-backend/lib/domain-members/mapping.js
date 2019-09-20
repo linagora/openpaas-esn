@@ -40,21 +40,21 @@ describe('The domain member address book mapping module', function() {
   });
 
   it('should set "n" property of vCard if user has first name', function() {
-    const user = { firstName: 'foo' };
+    const user = { firstname: 'foo' };
     const convertedVCard = getModule().toVCard(user);
 
     expect(convertedVCard.getFirstPropertyValue('n')).to.deep.equal(['foo']);
   });
 
   it('should set "n" property of vCard if user has last name', function() {
-    const user = { lastName: 'bar' };
+    const user = { lastname: 'bar' };
     const convertedVCard = getModule().toVCard(user);
 
     expect(convertedVCard.getFirstPropertyValue('n')).to.deep.equal(['bar']);
   });
 
   it('should set "n" property of vCard if user has first name and last name', function() {
-    const user = { firstName: 'foo', lastName: 'bar' };
+    const user = { firstname: 'foo', lastname: 'bar' };
     const convertedVCard = getModule().toVCard(user);
 
     expect(convertedVCard.getFirstPropertyValue('n')).to.deep.equal(['bar', 'foo']);
@@ -89,10 +89,10 @@ describe('The domain member address book mapping module', function() {
   });
 
   it('should set "role" property of vCard if user has job_title', function() {
-    const user = { job_title: 'Sofware Engineer' };
+    const user = { job_title: 'Software Engineer' };
     const convertedVCard = getModule().toVCard(user);
 
-    expect(convertedVCard.getFirstPropertyValue('role')).to.equal('Sofware Engineer');
+    expect(convertedVCard.getFirstPropertyValue('role')).to.equal('Software Engineer');
   });
 
   it('should set "adr" property of vCard if user has building_location', function() {
@@ -101,7 +101,7 @@ describe('The domain member address book mapping module', function() {
     const convertedVCard = getModule().toVCard(user);
     const adrProperty = convertedVCard.getFirstProperty('adr');
 
-    expect(adrProperty.getFirstValue()).to.equal(location);
+    expect(adrProperty.getFirstValue()).to.deep.equal(['', '', location]);
     expect(adrProperty.getParameter('type')).to.deep.equal(['work']);
   });
 
@@ -111,7 +111,7 @@ describe('The domain member address book mapping module', function() {
     const convertedVCard = getModule().toVCard(user);
     const adrProperty = convertedVCard.getFirstProperty('adr');
 
-    expect(adrProperty.getFirstValue()).to.equal(location);
+    expect(adrProperty.getFirstValue()).to.deep.equal(['', '', location]);
     expect(adrProperty.getParameter('type')).to.deep.equal(['work']);
   });
 
@@ -127,5 +127,12 @@ describe('The domain member address book mapping module', function() {
     const convertedVCard = getModule().toVCard({});
 
     expect(convertedVCard.getFirstPropertyValue('categories')).to.equal('Organization members');
+  });
+
+  it('should set "note" property of vCard if user has description', function() {
+    const user = { description: 'Software Engineer' };
+    const convertedVCard = getModule().toVCard(user);
+
+    expect(convertedVCard.getFirstPropertyValue('note')).to.equal('Software Engineer');
   });
 });
