@@ -106,10 +106,12 @@ describe('The user core module', function() {
     it('should publish an event in the userCreated topic', function(done) {
       var CONSTANTS = require('../../../../backend/core/user/constants');
       var spy = sinon.spy();
+
       mockery.registerMock('../../core/pubsub', {
         local: {
           topic: function(name) {
             expect(name).to.equal(CONSTANTS.EVENTS.userCreated);
+
             return {
               publish: spy
             };
@@ -214,6 +216,7 @@ describe('The user core module', function() {
           callback(null, query);
         }
       };
+
       mockModels({
         User: User
       });
@@ -269,6 +272,7 @@ describe('The user core module', function() {
           callback(null, query);
         }
       };
+
       mockModels({
         User
       });
@@ -435,6 +439,7 @@ describe('The user core module', function() {
           callback(query, profile);
         }
       };
+
       mockModels({
         User: User
       });
@@ -577,10 +582,12 @@ describe('The user core module', function() {
           callback();
         }
       };
+
       mockModels({
         User: User
       });
       var userModule = this.helpers.requireBackend('core').user;
+
       userModule.list(done);
     });
   });
@@ -590,7 +597,9 @@ describe('The user core module', function() {
       const cursorMock = { next: function() {} };
 
       const User = {
-        find: function() {
+        find: function(query) {
+          expect(query).to.be.empty;
+
           return { cursor: function() { return cursorMock; } };
         }
       };
@@ -601,6 +610,142 @@ describe('The user core module', function() {
 
       const userModule = this.helpers.requireBackend('core').user;
       const cursor = userModule.listByCursor();
+
+      expect(cursor).to.equal(cursorMock);
+    });
+
+    it('should call find with a query of users from certain domain ids, if there is options.domainIds', function() {
+      const cursorMock = { next: function() {} };
+      const domainIds = ['foo.lng', 'bar.lng'];
+
+      const User = {
+        find: query => {
+          expect(query.$and).to.include({
+            'domains.domain_id': {
+              $in: domainIds
+            }
+          });
+
+          return { cursor: () => cursorMock };
+        }
+      };
+
+      mockModels({ User });
+
+      const userModule = this.helpers.requireBackend('core').user;
+      const cursor = userModule.listByCursor({ domainIds });
+
+      expect(cursor).to.equal(cursorMock);
+    });
+
+    it('should call find with a query of users that are searchable, if there is options.isSearchable is true', function() {
+      const cursorMock = { next: function() {} };
+      const { USER_ACTIONS, USER_ACTION_STATES } = this.helpers.requireBackend('core/user/constants');
+
+      const User = {
+        find: query => {
+          expect(query.$and).to.include({
+            states: {
+              $not: {
+                $elemMatch: {
+                  name: USER_ACTIONS.searchable,
+                  value: USER_ACTION_STATES.disabled
+                }
+              }
+            }
+          });
+
+          return { cursor: () => cursorMock };
+        }
+      };
+
+      mockModels({ User });
+
+      const userModule = this.helpers.requireBackend('core').user;
+      const cursor = userModule.listByCursor({ isSearchable: true });
+
+      expect(cursor).to.equal(cursorMock);
+    });
+
+    it('should call find with a query of users that are not searchable, if there is options.isSearchable is false', function() {
+      const cursorMock = { next: function() {} };
+      const { USER_ACTIONS, USER_ACTION_STATES } = this.helpers.requireBackend('core/user/constants');
+
+      const User = {
+        find: query => {
+          expect(query.$and).to.include({
+            states: {
+              $elemMatch: {
+                name: USER_ACTIONS.searchable,
+                value: USER_ACTION_STATES.disabled
+              }
+            }
+          });
+
+          return { cursor: () => cursorMock };
+        }
+      };
+
+      mockModels({ User });
+
+      const userModule = this.helpers.requireBackend('core').user;
+      const cursor = userModule.listByCursor({ isSearchable: false });
+
+      expect(cursor).to.equal(cursorMock);
+    });
+
+    it('should call find with a query of users that can login, if there is options.canLogin is true', function() {
+      const cursorMock = { next: function() {} };
+      const { USER_ACTIONS, USER_ACTION_STATES } = this.helpers.requireBackend('core/user/constants');
+
+      const User = {
+        find: query => {
+          expect(query.$and).to.include({
+            states: {
+              $not: {
+                $elemMatch: {
+                  name: USER_ACTIONS.login,
+                  value: USER_ACTION_STATES.disabled
+                }
+              }
+            }
+          });
+
+          return { cursor: () => cursorMock };
+        }
+      };
+
+      mockModels({ User });
+
+      const userModule = this.helpers.requireBackend('core').user;
+      const cursor = userModule.listByCursor({ canLogin: true });
+
+      expect(cursor).to.equal(cursorMock);
+    });
+
+    it('should call find with a query of users that can not login, if there is options.canLogin is false', function() {
+      const cursorMock = { next: function() {} };
+      const { USER_ACTIONS, USER_ACTION_STATES } = this.helpers.requireBackend('core/user/constants');
+
+      const User = {
+        find: query => {
+          expect(query.$and).to.include({
+            states: {
+              $elemMatch: {
+                name: USER_ACTIONS.login,
+                value: USER_ACTION_STATES.disabled
+              }
+            }
+          });
+
+          return { cursor: () => cursorMock };
+        }
+      };
+
+      mockModels({ User });
+
+      const userModule = this.helpers.requireBackend('core').user;
+      const cursor = userModule.listByCursor({ canLogin: false });
 
       expect(cursor).to.equal(cursorMock);
     });
