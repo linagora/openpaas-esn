@@ -132,5 +132,8 @@
   "Failed to load domain address book": "Не удалось загрузить адресную книгу домена",
   "Please fill at least a field": "Пожалуйста, заполните хотя бы одно поле",
   "Search results": "Результаты поиска",
-  "No contacts are matching your search":"Нет контактов, соответствующих вашему запросу"
+  "No contacts are matching your search":"Нет контактов, соответствующих вашему запросу",
+  "Synchronize domain members address book": "Синхронизировать адресную книгу членов домена",
+  "Run": "казнить",
+  "Submitting request...": "Отправка запроса..."
 }

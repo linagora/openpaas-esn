@@ -1,0 +1,9 @@
+.card
+  .card-body
+    .listview.lv-bordered
+      .lv-body
+        .lv-item
+          .flex-space-between.flex-vertical-centered
+            div #{__('Synchronize domain members address book')}
+            div
+              button.btn.btn-primary(ng-click="$ctrl.onSyncBtnClick()") #{__('Run')}
