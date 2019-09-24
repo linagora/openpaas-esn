@@ -30,6 +30,7 @@ module.exports = {
     membersCanBeSearched: require('./membersCanBeSearched'),
     maxSizeUpload: require('./maxSizeUpload'),
     session: require('./session'),
+    oidc: require('./oidc'),
     user: RESTRICTED,
     amqp: RESTRICTED,
     redis: RESTRICTED,
