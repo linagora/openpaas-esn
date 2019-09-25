@@ -100,7 +100,7 @@ module.exports = dependencies => {
     .addressbook(DOMAIN_MEMBERS_ADDRESS_BOOK_NAME)
     .vcard()
     .removeMultiple({
-      modifiedBefore: Math.round(syncTime / 1000)
+      modifiedBefore: syncTime / 1000
     })
     .then(ids => {
       logger.info(`Cleaned %d outdated contacts in domain members address book for domain ${domainId}`, ids.length);
