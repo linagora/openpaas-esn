@@ -19,7 +19,7 @@ module.exports = dependencies => {
               id: DOMAIN_MEMBERS_ADDRESS_BOOK_NAME,
               'dav:name': 'Domain members',
               'carddav:description': 'Address book of all domain members',
-              'dav:acl': ['dav:read'],
+              'dav:acl': ['{DAV:}read'],
               type: 'group'
             };
 
