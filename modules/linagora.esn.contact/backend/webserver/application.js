@@ -11,5 +11,8 @@ module.exports = function(dependencies) {
   application.use(express.static(FRONTEND_PATH));
   require('./config/views')(dependencies, application);
 
+  application.use('/api/contacts', require('./api/contacts')(dependencies));
+  application.use('/api/addressbooks', require('./api/addressbooks/domain-members')(dependencies));
+
   return application;
 };

@@ -1,7 +1,8 @@
+const { DOMAIN_MEMBERS_SYNCHRONIZE_WORKER_NAME } = require('../contants');
+
 module.exports = dependencies => {
-  const esnConfig = dependencies('esn-config');
+  const { isFeatureEnabled } = require('../utils')(dependencies);
   const synchronize = require('../synchronize')(dependencies);
-  const { DOMAIN_MEMBERS_SYNCHRONIZE_WORKER_NAME } = require('../contants');
 
   return {
     name: DOMAIN_MEMBERS_SYNCHRONIZE_WORKER_NAME,
@@ -13,13 +14,10 @@ module.exports = dependencies => {
 
   function handle(job) {
     const { domainId } = job.data;
-    const config = esnConfig('features').inModule('linagora.esn.contact');
 
-    config.esnConfig.setDomainId(domainId);
-
-    return config.get()
-      .then(features => {
-        if (!features || !features.isDomainMembersAddressbookEnabled) {
+    return isFeatureEnabled(domainId)
+      .then(isEnabled => {
+        if (!isEnabled) {
           return Promise.reject(new Error(`Can not synchronize domain member address book for domain ${domainId} due to the feature is disabled`));
         }
 

@@ -1,12 +1,18 @@
+const { DOMAIN_MEMBERS_SYNCHRONIZE_WORKER_NAME } = require('./contants');
+
 module.exports = dependencies => {
   const coreTechnicalUser = dependencies('technical-user');
+  const { submitJob } = dependencies('jobqueue').lib;
+  const { EsnConfig } = dependencies('esn-config');
 
   const TECHNICAL_USER_TYPE = 'dav';
   const TOKEN_TTL = 20000;
 
   return {
+    isFeatureEnabled,
     getTechnicalUser,
-    getTechnicalToken
+    getTechnicalToken,
+    submitSynchronizationJob
   };
 
   function getTechnicalUser(domainId) {
@@ -31,5 +37,14 @@ module.exports = dependencies => {
         return resolve(data.token);
       });
     });
+  }
+
+  function isFeatureEnabled(domainId) {
+    return new EsnConfig('linagora.esn.contact', domainId).get('features')
+      .then(config => config && config.isDomainMembersAddressbookEnabled);
+  }
+
+  function submitSynchronizationJob(domainId) {
+    return submitJob(DOMAIN_MEMBERS_SYNCHRONIZE_WORKER_NAME, { domainId });
   }
 };

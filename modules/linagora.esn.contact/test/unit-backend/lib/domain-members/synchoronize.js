@@ -28,6 +28,12 @@ describe('The domain member address book synchronize module', function() {
       }
     };
 
+    const jobQueueModuleMock = {
+      lib: {
+        submitJob: () => Promise.resolve()
+      }
+    };
+
     vcardMock = {
       removeMultiple: () => Promise.resolve([])
     };
@@ -84,6 +90,7 @@ describe('The domain member address book synchronize module', function() {
     this.moduleHelpers.addDep('user', coreUserMock);
     this.moduleHelpers.addDep('technical-user', coreTechnicalUserMock);
     this.moduleHelpers.addDep('esn-config', () => esnConfigMock);
+    this.moduleHelpers.addDep('jobqueue', jobQueueModuleMock);
 
     getModule = () => require('../../../../backend/lib/domain-members/synchronize')(this.moduleHelpers.dependencies);
   });

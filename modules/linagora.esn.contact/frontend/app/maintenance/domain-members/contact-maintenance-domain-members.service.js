@@ -13,7 +13,7 @@
     function synchronize() {
       return contactRestangularService
         .all('addressbooks')
-        .one('domainMembers')
+        .one('domainmembers')
         .one('synchronize')
         .post();
     }
@@ -21,7 +21,7 @@
     function synchronizeForDomain(domainId) {
       return contactRestangularService
         .all('addressbooks')
-        .one('domainMembers')
+        .one('domainmembers')
         .one('synchronize')
         .customPOST('', '', { domain_id: domainId });
     }

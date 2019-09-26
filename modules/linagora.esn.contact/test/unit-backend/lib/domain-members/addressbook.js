@@ -27,6 +27,12 @@ describe('The domain members address book, address book module', () => {
       create: () => Promise.resolve()
     };
 
+    const jobQueueModuleMock = {
+      lib: {
+        submitJob: () => Promise.resolve()
+      }
+    };
+
     utilsMock = {
       getTechnicalUser: () => Promise.resolve(technicalUser),
       getTechnicalToken: () => Promise.resolve(token)
@@ -42,6 +48,8 @@ describe('The domain members address book, address book module', () => {
     );
 
     mockery.registerMock('./utils', () => utilsMock);
+
+    this.moduleHelpers.addDep('jobqueue', jobQueueModuleMock);
 
     getModule = () => require('../../../../backend/lib/domain-members/addressbook')(this.moduleHelpers.dependencies);
   });

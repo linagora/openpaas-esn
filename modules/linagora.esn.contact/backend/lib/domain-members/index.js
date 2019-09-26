@@ -9,6 +9,7 @@ module.exports = dependencies => {
   const { constants } = dependencies('esn-config');
   const pubsub = dependencies('pubsub').global;
   const logger = dependencies('logger');
+  const { submitSynchronizationJob } = require('./utils')(dependencies);
   const jobQueue = dependencies('jobqueue').lib;
   const synchronizeDomainMemberContactsWorker = require('./workers/synchronize')(dependencies);
 
@@ -24,19 +25,20 @@ module.exports = dependencies => {
   }
 
   function _onESNConfigUpdate(data) {
-    const updatedConfig = _.find(data.configsUpdated, { name: 'features' });
+    const { configsUpdated, moduleName, domainId } = data;
+    const updatedConfig = _.find(configsUpdated, { name: 'features' });
 
     if (
       updatedConfig &&
-      data.moduleName === 'linagora.esn.contact' &&
-      data.domainId
+      moduleName === 'linagora.esn.contact' &&
+      domainId
     ) {
       if (updatedConfig.value && updatedConfig.value.isDomainMembersAddressbookEnabled) {
-        return createDomainMembersAddressbook(data.domainId)
-          .then(() => jobQueue.submitJob(synchronizeDomainMemberContactsWorker.name, { domainId: data.domainId }));
+        return createDomainMembersAddressbook(domainId)
+          .then(() => submitSynchronizationJob(domainId));
       }
 
-      removeDomainMembersAddressbook(data.domainId);
+      removeDomainMembersAddressbook(domainId);
     }
   }
 };
