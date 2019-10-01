@@ -1,14 +1,25 @@
-const resolve = require('path').resolve;
 const cors = require('cors');
+const glob = require('glob-all');
 
 const AwesomeModule = require('awesome-module');
 const Dependency = AwesomeModule.AwesomeModuleDependency;
-const FRONTEND_PATH = resolve(__dirname, 'frontend');
+const FRONTEND_JS_PATH = `${__dirname}/frontend/js/`;
 const innerApps = ['esn'];
-const angularModuleFiles = ['app.js', 'constants.js', 'services.js'];
 const modulesOptions = {
-  localJsFiles: angularModuleFiles.map(file => resolve(FRONTEND_PATH, 'js', file))
+  localJsFiles: glob.sync([
+    FRONTEND_JS_PATH + '**/*.module.js',
+    FRONTEND_JS_PATH + '**/!(*spec).js'
+  ])
 };
+
+const frontendJsFilesFullPath = glob.sync([
+  FRONTEND_JS_PATH + '**/*.module.js',
+  FRONTEND_JS_PATH + '**/!(*spec).js'
+]);
+
+const frontendJsFilesUri = frontendJsFilesFullPath.map(function(filepath) {
+  return filepath.replace(FRONTEND_JS_PATH, '');
+});
 
 const moduleData = {
   shortName: 'dav',
@@ -16,7 +27,7 @@ const moduleData = {
   angularModules: []
 };
 
-moduleData.angularModules.push([moduleData.shortName, angularModuleFiles, moduleData.fullName, innerApps, modulesOptions]);
+moduleData.angularModules.push([moduleData.shortName, frontendJsFilesUri, moduleData.fullName, innerApps, modulesOptions]);
 
 const davProxy = new AwesomeModule(moduleData.fullName, {
   dependencies: [
