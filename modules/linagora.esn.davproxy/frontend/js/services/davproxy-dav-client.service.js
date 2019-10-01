@@ -1,7 +1,10 @@
-'use strict';
+(function(angular) {
+  angular.module('linagora.esn.davproxy')
+    .factory('davClient', davClient);
 
-angular.module('linagora.esn.davproxy')
-  .factory('davClient', function($http, $q, httpConfigurer, DAV_PATH) {
+  function davClient($http, httpConfigurer, DAV_PATH) {
+    return davClient;
+
     function davClient(method, path, headers, body, params) {
       var config = {
         url: httpConfigurer.getUrl(DAV_PATH.replace(/\/$/, '') + path),
@@ -16,6 +19,5 @@ angular.module('linagora.esn.davproxy')
 
       return $http(config);
     }
-
-    return davClient;
-  });
+  }
+})(angular);
