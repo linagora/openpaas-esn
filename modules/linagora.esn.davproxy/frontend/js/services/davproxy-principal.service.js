@@ -1,13 +1,13 @@
 (function(angular) {
   angular.module('linagora.esn.davproxy')
-    .factory('davproxyPrincipalService', davproxyPrincipalService);
+    .factory('davProxyPrincipalService', davProxyPrincipalService);
 
-  function davproxyPrincipalService(davClient) {
+  function davProxyPrincipalService(davClient) {
     return {
-      getGroupMemberShip: getGroupMemberShip
+      getGroupMembership: getGroupMembership
     };
 
-    function getGroupMemberShip(principal) {
+    function getGroupMembership(principal) {
       return davClient('PROPFIND', principal, { Accept: 'application/json' })
         .then(function(response) {
           return response.data && response.data['group-membership'];

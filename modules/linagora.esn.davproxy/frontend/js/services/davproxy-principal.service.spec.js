@@ -5,8 +5,8 @@
 
 var expect = chai.expect;
 
-describe('The davproxyPrincipalService service', function() {
-  var $rootScope, davClient, davproxyPrincipalService;
+describe('The davProxyPrincipalService service', function() {
+  var $rootScope, davClient, davProxyPrincipalService;
   var davClientResultMock;
 
   beforeEach(function() {
@@ -22,19 +22,19 @@ describe('The davproxyPrincipalService service', function() {
 
     inject(function(
       _$rootScope_,
-      _davproxyPrincipalService_
+      _davProxyPrincipalService_
     ) {
       $rootScope = _$rootScope_;
-      davproxyPrincipalService = _davproxyPrincipalService_;
+      davProxyPrincipalService = _davProxyPrincipalService_;
     });
   });
 
-  describe('The getGroupMemberShip method', function() {
+  describe('The getGroupMembership method', function() {
     it('should reject if failed to get group member ship', function(done) {
       davClientResultMock = $q.reject();
       var principal = '/users/principal';
 
-      davproxyPrincipalService.getGroupMemberShip(principal)
+      davProxyPrincipalService.getGroupMembership(principal)
         .then(function() {
           done('should not resolve');
         })
@@ -56,7 +56,7 @@ describe('The davproxyPrincipalService service', function() {
         }
       });
 
-      davproxyPrincipalService.getGroupMemberShip(principal)
+      davProxyPrincipalService.getGroupMembership(principal)
         .then(function(_groupMemberShip) {
           expect(_groupMemberShip).to.deep.equal(groupMemberShip);
           expect(davClient).to.have.been.calledWith('PROPFIND', principal, { Accept: 'application/json' });
