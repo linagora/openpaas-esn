@@ -178,7 +178,7 @@
     "nodemailer-pickup-transport": "0.1.1",
     "nodemailer-stub-transport": "1.1.0",
     "nodemon": "1.10.2",
-    "open": "0.0.5",
+    "open": "6.4.0",
     "phantomjs-prebuilt": "2.1.16",
     "protractor-cucumber-framework": "0.6.0",
     "pug-lint": "2.5.0",
