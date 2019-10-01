@@ -37,12 +37,14 @@ const davProxy = new AwesomeModule(moduleData.fullName, {
     lib: function(dependencies, callback) {
       const addressbooks = require('./backend/webserver/addressbooks')(dependencies);
       const calendars = require('./backend/webserver/calendars')(dependencies);
+      const principals = require('./backend/webserver/principals')(dependencies);
       const json = require('./backend/webserver/json')(dependencies);
 
       const lib = {
         api: {
           addressbooks,
           calendars,
+          principals,
           json
         }
       };
@@ -61,6 +63,7 @@ const davProxy = new AwesomeModule(moduleData.fullName, {
       }));
       app.use('/api/addressbooks', this.api.addressbooks);
       app.use('/api/calendars', this.api.calendars);
+      app.use('/api/principals', this.api.principals);
       app.use('/api/json', this.api.json);
 
       moduleData.angularModules.forEach(mod => webserverWrapper.injectAngularModules.apply(webserverWrapper, mod));
