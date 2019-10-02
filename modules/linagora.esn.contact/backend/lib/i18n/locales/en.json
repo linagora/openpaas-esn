@@ -135,5 +135,6 @@
   "No contacts are matching your search": "No contacts are matching your search",
   "Synchronize domain members address book": "Synchronize domain members address book",
   "Run": "Run",
-  "Submitting request...": "Submitting request..."
+  "Submitting request...": "Submitting request...",
+  "Synchronize domain members address books for entire platform": "Synchronize domain members address books for entire platform"
 }
