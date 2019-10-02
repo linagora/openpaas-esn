@@ -127,6 +127,7 @@
             contactDisplayError('Cannot get contact details. Redirecting to contact list display');
             $timeout(function() {
               $state.go('contact.addressbooks', {
+                bookId: $scope.bookId,
                 bookName: $scope.bookName
               }, { location: 'replace' });
             }, REDIRECT_PAGE_TIMEOUT);

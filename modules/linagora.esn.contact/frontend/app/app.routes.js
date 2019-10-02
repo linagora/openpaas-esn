@@ -2,13 +2,23 @@
   'use strict';
 
   angular.module('linagora.esn.contact')
-    .config(function($stateProvider, $urlRouterProvider, routeResolver) {
-      $urlRouterProvider.when('/contact', '/contact/addressbooks/');
-
+    .config(function($stateProvider, routeResolver) {
       $stateProvider
         .state('contact', {
           url: '/contact',
           templateUrl: '/contact/app/app.html',
+          deepStateRedirect: {
+            default: {
+              state: 'contact.addressbooks',
+              params: {
+                bookId: 'all'
+              }
+            },
+            params: true,
+            fn: function() {
+              return true;
+            }
+          },
           resolve: {
             isModuleActive: isModuleActive
           }
@@ -34,7 +44,7 @@
           }
         })
         .state('contact.addressbooks', {
-          url: '/addressbooks/:bookName',
+          url: '/addressbooks/:bookId/:bookName',
           views: {
             'main@contact': {
               templateUrl: '/contact/app/contact/list/contact-list.html',

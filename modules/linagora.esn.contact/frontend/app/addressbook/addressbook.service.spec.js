@@ -197,11 +197,11 @@ describe('The contactAddressbookService service', function() {
 
     it('should call contactAPIClient to get group addressbook with given bookName', function(done) {
       var bookName = 'bookName';
-      var group = { id: 'groupId' };
+      var groupId = 'groupId';
       var getSpy = sinon.spy();
 
       ContactAPIClient.addressbookHome = function(bookId) {
-        expect(bookId).to.equal(group.id);
+        expect(bookId).to.equal(groupId);
 
         return {
           addressbook: function(name) {
@@ -214,7 +214,7 @@ describe('The contactAddressbookService service', function() {
         };
       };
 
-      contactAddressbookService.getAddressbookByBookName(bookName, group).then(function() {
+      contactAddressbookService.getAddressbookByBookName(bookName, groupId).then(function() {
         expect(getSpy).to.have.been.called;
         done();
       }).catch(done);

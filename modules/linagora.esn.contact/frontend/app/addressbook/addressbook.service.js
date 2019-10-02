@@ -42,13 +42,13 @@
       updateGroupAddressbookMembersRight: updateGroupAddressbookMembersRight
     };
 
-    function getAddressbookByBookName(bookName, group) {
+    function getAddressbookByBookName(bookName, bookId) {
       return ContactVirtualAddressBookService.get(bookName).then(function(addressbook) {
         if (addressbook) {
           return addressbook;
         }
 
-        var bookId = group && group.id ? group.id : session.user._id;
+        bookId = bookId || session.user._id;
 
         return ContactAPIClient.addressbookHome(bookId).addressbook(bookName).get();
       });

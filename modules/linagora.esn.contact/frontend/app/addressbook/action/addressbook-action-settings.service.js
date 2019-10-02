@@ -17,7 +17,10 @@
     return action;
 
     function _goToSettingsPage(addressbook) {
-      $state.go('contact.addressbooks.settings', { bookName: addressbook.bookName });
+      $state.go('contact.addressbooks.settings', {
+        bookId: addressbook.bookId,
+        bookName: addressbook.bookName
+      });
     }
   }
 })(angular);

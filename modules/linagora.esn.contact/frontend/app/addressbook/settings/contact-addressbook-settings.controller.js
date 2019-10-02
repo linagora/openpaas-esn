@@ -27,7 +27,7 @@
     self.onCancel = onCancel;
 
     function $onInit() {
-      contactAddressbookService.getAddressbookByBookName($stateParams.bookName)
+      contactAddressbookService.getAddressbookByBookName($stateParams.bookName, $stateParams.bookId)
         .then(function(addressbook) {
           self.addressbook = addressbook;
           self.addressbookDisplayName = contactAddressbookDisplayService.buildDisplayName(addressbook);
@@ -65,6 +65,7 @@
       return asyncAction(NOTIFICATION_MESSAGES, function() {
         return $q.all(updateActions).then(function() {
           $state.go('contact.addressbooks', {
+            bookId: self.addressbook.bookId,
             bookName: self.addressbook.bookName
           }, { location: 'replace' });
         });
@@ -73,6 +74,7 @@
 
     function onCancel() {
       $state.go('contact.addressbooks', {
+        bookId: self.addressbook.bookId,
         bookName: self.addressbook.bookName
       }, { location: 'replace' });
     }

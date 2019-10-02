@@ -34,7 +34,7 @@
     function _loadDomainAddressbook() {
       self.state = LOADING_STATE.loading;
 
-      contactAddressbookService.getAddressbookByBookName(DEFAULT_DOMAIN_ADDRESSBOOK_NAME, { id: $stateParams.domainId })
+      contactAddressbookService.getAddressbookByBookName(DEFAULT_DOMAIN_ADDRESSBOOK_NAME, $stateParams.domainId)
         .then(function(domainAB) {
           domainAddressbook = domainAB;
           self.state = LOADING_STATE.success;

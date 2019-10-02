@@ -96,7 +96,10 @@
     };
 
     $scope.openAddressbook = function() {
-      $state.go('contact.addressbooks', { bookName: $scope.contact.addressbook.bookName });
+      $state.go('contact.addressbooks', {
+        bookId: $scope.contact.addressbook.bookId,
+        bookName: $scope.contact.addressbook.bookName
+      });
     };
 
     if (contactUpdateDataService.contact) {
