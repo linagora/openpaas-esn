@@ -3,7 +3,7 @@ version: '2'
 services:
 
   esn:
-    image: linagora/esn:latest
+    image: linagora/esn:branch-master
     container_name: esn
     ports:
      - "8080:8080"
@@ -68,7 +68,7 @@ services:
       - discovery.type=single-node
 
   sabre:
-    image: linagora/esn-sabre:latest
+    image: linagora/esn-sabre:branch-master
     ports:
       - "8001:80"
     environment:
@@ -87,7 +87,7 @@ services:
 
   james:
     entrypoint: bash -c "java -Dlogback.configurationFile=/root/conf/logback.xml -Dworking.directory=/root/ -jar james-server.jar"
-    image: linagora/james-project:latest
+    image: linagora/james-project:branch-master
     container_name: esn_james
     hostname: open-paas.org
     ports:
