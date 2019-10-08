@@ -1,10 +1,9 @@
 module.exports = dependencies => {
   const coreUserModule = dependencies('user');
   const esnConfig = dependencies('esn-config');
-
   const logger = dependencies('logger');
-  const { toVCard } = require('./mapping')(dependencies);
   const client = require('../client')(dependencies);
+  const { toVCard } = require('./mapping')(dependencies);
   const {
     getTechnicalUser,
     getTechnicalToken
@@ -18,60 +17,47 @@ module.exports = dependencies => {
     const syncTime = Date.now();
 
     return Promise.all([
-      getTechnicalUser(domainId),
+      _getTechnicalUserAndToken(domainId),
       _getESNBaseURL(domainId)
     ]).then(results => {
-      const technicalUser = results[0];
+      const { technicalUser, technicalToken } = results[0];
       const esnBaseUrl = results[1];
+      const cursor = coreUserModule.listByCursor({
+        domainIds: [domainId],
+        canLogin: true,
+        isSearchable: true
+      });
 
+      logger.debug(`Synchronizing domain members address book for domain ${domainId}`);
+
+      return _createContacts({
+        cursor,
+        counter: 0,
+        domainId,
+        esnBaseUrl,
+        technicalUser,
+        technicalToken
+      })
+      .then(counter => logger.info(`Created ${counter} contacts in domain members address book for domain ${domainId}`))
+      .then(() => _cleanOutdatedContacts({
+        domainId,
+        technicalUser,
+        technicalToken,
+        syncTime
+      }))
+      .then(counter => logger.info(`Cleaned ${counter} outdated contacts in domain members address book for domain ${domainId}`));
+    });
+  }
+
+  function _getTechnicalUserAndToken(domainId) {
+    return getTechnicalUser(domainId).then(technicalUser => {
       if (!technicalUser) {
-        return Promise.reject(new Error(`Cannot synchronize domain members address book for domain ${domainId} since there is no technical user`));
+        return Promise.reject(new Error(`Unable to find a technical user for domain ${domainId}`));
       }
 
-      return getTechnicalToken(technicalUser)
-        .then(technicalToken => {
-          const cursor = coreUserModule.listByCursor({
-            domainIds: [domainId],
-            canLogin: true,
-            isSearchable: true
-          });
-          let counter = 0;
-
-          logger.debug(`Synchronizing domain members address book for domain ${domainId}`);
-
-          function exec(domainId) {
-            return cursor.next()
-              .then(user => {
-                if (!user) {
-                  return;
-                }
-
-                counter++;
-
-                const vCard = toVCard(user, esnBaseUrl);
-                const contactId = vCard.getFirstPropertyValue('uid');
-
-                return client({
-                  ESNToken: technicalToken,
-                  user: technicalUser
-                })
-                  .addressbookHome(domainId)
-                  .addressbook(DOMAIN_MEMBERS_ADDRESS_BOOK_NAME)
-                  .vcard(contactId)
-                  .create(vCard.toJSON())
-                  .then(() => exec(domainId, esnBaseUrl));
-                });
-          }
-
-          return exec(domainId)
-            .then(() => _cleanOutdatedContacts({
-              technicalUser,
-              technicalToken,
-              domainId,
-              syncTime
-            }))
-            .then(() => logger.debug(`Synchronized ${counter} members for domain ${domainId} to domain address book`));
-        });
+      return getTechnicalToken(technicalUser).then(technicalToken => (
+        { technicalUser, technicalToken }
+      ));
     });
   }
 
@@ -84,14 +70,36 @@ module.exports = dependencies => {
       .then(webConfig => webConfig && webConfig.base_url);
   }
 
-  function _cleanOutdatedContacts(options) {
-    const {
-      technicalUser,
-      technicalToken,
-      syncTime,
-      domainId
-    } = options;
+  function _createContacts({ cursor, counter, domainId, esnBaseUrl, technicalUser, technicalToken }) {
+    return cursor.next()
+      .then(user => {
+        if (!user) return counter;
 
+        const vCard = toVCard(user, esnBaseUrl);
+        const contactId = vCard.getFirstPropertyValue('uid');
+
+        counter++;
+
+        return client({
+          ESNToken: technicalToken,
+          user: technicalUser
+        })
+          .addressbookHome(domainId)
+          .addressbook(DOMAIN_MEMBERS_ADDRESS_BOOK_NAME)
+          .vcard(contactId)
+          .create(vCard.toJSON())
+          .then(() => _createContacts({
+            cursor,
+            counter,
+            domainId,
+            esnBaseUrl,
+            technicalUser,
+            technicalToken
+          }));
+        });
+  }
+
+  function _cleanOutdatedContacts({ domainId, technicalUser, technicalToken, syncTime }) {
     return client({
       ESNToken: technicalToken,
       user: technicalUser
@@ -102,14 +110,6 @@ module.exports = dependencies => {
     .removeMultiple({
       modifiedBefore: syncTime / 1000
     })
-    .then(ids => {
-      logger.info(`Cleaned %d outdated contacts in domain members address book for domain ${domainId}`, ids.length);
-
-      return;
-    }, err => {
-      logger.error(`Cannot clean outdated contacts in domain address book for domain ${domainId} due to error:`, err);
-
-      return Promise.reject(err);
-    });
+    .then(ids => ids.length);
   }
 };

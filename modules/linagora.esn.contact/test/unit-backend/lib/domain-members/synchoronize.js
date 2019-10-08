@@ -5,15 +5,15 @@ const { DOMAIN_MEMBERS_ADDRESS_BOOK_NAME } = require('../../../../backend/lib/do
 
 describe('The domain member address book synchronize module', function() {
   let getModule, technicalUser;
-  let coreUserMock, coreTechnicalUserMock, esnConfigMock, clientMock, vcardMock;
+  let coreUserMock, esnConfigMock, clientMock, vcardMock, getTechnicalUser, getTechnicalToken;
 
   const domainId = '123';
-  const TECHNICAL_USER_TYPE = 'dav';
   const token = 'token';
 
   beforeEach(function() {
     technicalUser = { _id: 'technical123' };
-
+    getTechnicalUser = () => Promise.resolve(technicalUser);
+    getTechnicalToken = () => Promise.resolve(token);
     coreUserMock = {
       getDisplayName: () => {},
       listByCursor: () => ({ next: () => Promise.resolve() }),
@@ -27,13 +27,6 @@ describe('The domain member address book synchronize module', function() {
         }
       }
     };
-
-    const jobQueueModuleMock = {
-      lib: {
-        submitJob: () => Promise.resolve()
-      }
-    };
-
     vcardMock = {
       removeMultiple: () => Promise.resolve([])
     };
@@ -50,31 +43,6 @@ describe('The domain member address book synchronize module', function() {
       },
       vcard: () => vcardMock
     };
-
-    mockery.registerMock('../client', () =>
-      function({ ESNToken, user }) {
-        expect(ESNToken).to.equal(token);
-        expect(user).to.deep.equal(technicalUser);
-
-        return clientMock;
-      }
-    );
-
-    coreTechnicalUserMock = {
-      findByTypeAndDomain: function(technicalUserType, _domainId, callback) {
-        expect(technicalUserType).to.equal(TECHNICAL_USER_TYPE);
-        expect(_domainId).to.equal(domainId);
-
-        return callback(null, [technicalUser]);
-      },
-      getNewToken: function(_technicalUser, TTL, callback) {
-        expect(_technicalUser).to.deep.equal(technicalUser);
-        expect(TTL).to.equal(20000);
-
-        return callback(null, { token });
-      }
-    };
-
     esnConfigMock = {
       inModule: function() {
         return this;
@@ -87,44 +55,33 @@ describe('The domain member address book synchronize module', function() {
       get: () => Promise.resolve()
     };
 
+    mockery.registerMock('../client', () =>
+      function({ ESNToken, user }) {
+        expect(ESNToken).to.equal(token);
+        expect(user).to.deep.equal(technicalUser);
+
+        return clientMock;
+      }
+    );
+    mockery.registerMock('./utils', () => ({
+      getTechnicalUser,
+      getTechnicalToken
+    }));
+
     this.moduleHelpers.addDep('user', coreUserMock);
-    this.moduleHelpers.addDep('technical-user', coreTechnicalUserMock);
     this.moduleHelpers.addDep('esn-config', () => esnConfigMock);
-    this.moduleHelpers.addDep('jobqueue', jobQueueModuleMock);
 
     getModule = () => require('../../../../backend/lib/domain-members/synchronize')(this.moduleHelpers.dependencies);
   });
 
   it('should reject if failed to get technical user', function(done) {
-    coreTechnicalUserMock.findByTypeAndDomain = sinon.spy(function(technicalUserType, _domainId, callback) {
-      expect(technicalUserType).to.equal(TECHNICAL_USER_TYPE);
-      expect(_domainId).to.equal(domainId);
-
-      return callback(new Error('something wrong'));
-    });
+    getTechnicalUser = sinon.stub().returns(Promise.reject(new Error('something wrong')));
 
     getModule()(domainId)
-      .then(() => done('should not resolve'))
+      .then(() => done(new Error('should not resolve')))
       .catch(err => {
-        expect(coreTechnicalUserMock.findByTypeAndDomain).to.have.been.calledOnce;
+        expect(getTechnicalUser).to.have.been.calledOnce;
         expect(err.message).to.equal('something wrong');
-        done();
-      });
-  });
-
-  it('should reject if the domain has no technical user', function(done) {
-    coreTechnicalUserMock.findByTypeAndDomain = sinon.spy(function(technicalUserType, _domainId, callback) {
-      expect(technicalUserType).to.equal(TECHNICAL_USER_TYPE);
-      expect(_domainId).to.equal(domainId);
-
-      return callback(null, []);
-    });
-
-    getModule()(domainId)
-      .then(() => done('should not resolve'))
-      .catch(err => {
-        expect(coreTechnicalUserMock.findByTypeAndDomain).to.have.been.calledOnce;
-        expect(err.message).to.equal(`Cannot synchronize domain members address book for domain ${domainId} since there is no technical user`);
         done();
       });
   });
@@ -133,7 +90,7 @@ describe('The domain member address book synchronize module', function() {
     esnConfigMock.get = sinon.stub().returns(Promise.reject(new Error('something wrong')));
 
     getModule()(domainId)
-      .then(() => done('should not resolve'))
+      .then(() => done(new Error('should not resolve')))
       .catch(err => {
         expect(esnConfigMock.get).to.have.been.calledOnce;
         expect(err.message).to.equal('something wrong');
@@ -142,35 +99,13 @@ describe('The domain member address book synchronize module', function() {
   });
 
   it('should reject if failed to get technical user token', function(done) {
-    coreTechnicalUserMock.getNewToken = sinon.spy(function(_technicalUser, TTL, callback) {
-      expect(_technicalUser).to.deep.equal(technicalUser);
-      expect(TTL).to.equal(20000);
-
-      return callback(new Error('something wrong'));
-    });
+    getTechnicalToken = sinon.stub().returns(Promise.reject(new Error('something wrong')));
 
     getModule()(domainId)
       .then(() => done('should not resolve'))
       .catch(err => {
-        expect(coreTechnicalUserMock.getNewToken).to.have.been.calledOnce;
+        expect(getTechnicalToken).to.have.been.calledOnce;
         expect(err.message).to.equal('something wrong');
-        done();
-      });
-  });
-
-  it('should reject if there is no technical user token', function(done) {
-    coreTechnicalUserMock.getNewToken = sinon.spy(function(_technicalUser, TTL, callback) {
-      expect(_technicalUser).to.deep.equal(technicalUser);
-      expect(TTL).to.equal(20000);
-
-      return callback(null);
-    });
-
-    getModule()(domainId)
-      .then(() => done('should not resolve'))
-      .catch(err => {
-        expect(coreTechnicalUserMock.getNewToken).to.have.been.calledOnce;
-        expect(err.message).to.equal('Can not generate technical token');
         done();
       });
   });
@@ -187,7 +122,7 @@ describe('The domain member address book synchronize module', function() {
         });
         done();
       })
-      .catch(err => done(err || 'should resolve'));
+      .catch(done);
   });
 
   it('should send requests to create contacts if there is multiple ESN users', function(done) {
