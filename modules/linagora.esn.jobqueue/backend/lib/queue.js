@@ -64,8 +64,17 @@ module.exports = dependencies => {
     }, data);
 
     return _initJobQueue()
-      .then(queue => queue.create(workerName, jobData).save())
-      .then(() => logger.debug(`Job queue submitted: ${workerName} - ${jobData.title}`));
+      .then(queue => new Promise((resolve, reject) => {
+        const job = queue.create(workerName, jobData);
+
+        job.save(err => {
+          if (err) return reject(err);
+
+          logger.debug(`Job queue submitted: ${workerName} - ${jobData.title}`);
+
+          resolve(job.id);
+        });
+      }));
   }
 
   function _initJobQueue() {

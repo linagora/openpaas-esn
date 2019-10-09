@@ -114,21 +114,53 @@ describe('The queue lib module', function() {
       });
     });
 
-    it('should get worker if succeed creating job', function(done) {
+    it('should reject if failed to save the job', function(done) {
       jobMock = {
         create: function() {
           return {
+            save: function(callback) {
+              return callback(new Error('something wrong'));
+            }
+          };
+        }
+      };
+      workersMock.get = () => ({
+        handler: {
+          getTitle: () => 'job-title'
+        }
+      });
+      getModule().submitJob(workerName, 'jobName')
+        .then(() => done(new Error('should not resolve')))
+        .catch(err => {
+          expect(err.message).to.equal('something wrong');
+
+          done();
+        });
+    });
+
+    it('should resolve with the job id', function(done) {
+      jobMock = {
+        create: function() {
+          return {
+            id: '123',
             save: function(callback) {
               return callback(null);
             }
           };
         }
       };
-      workersMock.get = function(name) {
-        expect(name).to.equal(workerName);
-        done();
-      };
-      getModule().submitJob(workerName, 'jobName');
+      workersMock.get = () => ({
+        handler: {
+          getTitle: () => 'job-title'
+        }
+      });
+
+      getModule().submitJob(workerName, 'jobName')
+        .then(id => {
+          expect(id).to.equal('123');
+          done();
+        })
+        .catch(done);
     });
 
     it('should create job with correct parameters ', function(done) {
