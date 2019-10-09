@@ -154,9 +154,8 @@ describe('POST contact/api/addressbook/domainMembers/synchronize', function() {
               .end((err, res) => {
                 if (err) return done(err);
 
-                expect(res.body).to.deep.equal({
-                  numberOfSubmitedJobs: 1
-                });
+                expect(res.body.length).to.equal(1);
+                expect(res.body[0].domainId).to.equal(domain._id.toString());
                 done();
               });
           });
@@ -215,9 +214,8 @@ describe('POST contact/api/addressbook/domainMembers/synchronize', function() {
               .end((err, res) => {
                 if (err) return done(err);
 
-                expect(res.body).to.deep.equal({
-                  numberOfSubmitedJobs: 1
-                });
+                expect(res.body.length).to.equal(1);
+                expect(res.body[0].domainId).to.equal(domain2._id.toString());
                 done();
               });
           });
