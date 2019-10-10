@@ -15,8 +15,14 @@ module.exports = dependencies => {
 
       return email;
     });
+    const phones = (getMultiValue(vcard, 'tel') || []).map(phone => {
+      phone.value = phone.value.replace(/^tel:/i, '');
+
+      return phone;
+    });
     const displayName = (fullName || `${firstName} ${lastName}`).trim();
     const emailAddresses = emails.map(email => new Model.EmailAddress({ value: email.value, type: email.type }));
+    const phoneNumbers = phones.map(phone => new Model.PhoneNumber({ value: phone.value, type: phone.type }));
     const names = [new Model.Name({ displayName })];
     const photos = [new Model.Photo({ url: getAvatarPath(source) })];
 
@@ -25,6 +31,7 @@ module.exports = dependencies => {
         id,
         objectType: 'contact',
         emailAddresses,
+        phoneNumbers,
         names,
         photos
       })

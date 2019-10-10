@@ -13,12 +13,14 @@ function resolver({ term, context, pagination }) {
 function denormalizer({ source }) {
   const email = new Model.EmailAddress({ value: source.preferredEmail, type: 'default' });
   const name = new Model.Name({ displayName: getDisplayName(source) });
+  const phone = source.main_phone ? new Model.PhoneNumber({ value: source.main_phone }) : undefined;
 
   return Promise.resolve(
     new Model.Person({
       id: source._id,
       objectType: OBJECT_TYPE,
       emailAddresses: [email],
+      phoneNumbers: phone ? [phone] : [],
       names: [name]
     })
   );
