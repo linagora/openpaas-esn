@@ -8,6 +8,7 @@ var expect = chai.expect;
 describe('The contactAddressbookService service', function() {
   var $rootScope, $window;
   var contactAddressbookService, ContactAPIClient, session, contactAddressbookParser, esnUserConfigurationService, ContactVirtualAddressBookService;
+  var davProxyPrincipalService;
   var CONTACT_SHARING_INVITE_STATUS;
 
   beforeEach(function() {
@@ -23,9 +24,15 @@ describe('The contactAddressbookService service', function() {
           then: angular.noop
         }
       };
+      davProxyPrincipalService = {
+        getGroupMembership: function() {
+          return $q.when([]);
+        }
+      };
 
       $provide.value('ContactAPIClient', ContactAPIClient);
       $provide.value('session', session);
+      $provide.value('davProxyPrincipalService', davProxyPrincipalService);
     });
     inject(function(
       _$rootScope_,
@@ -98,6 +105,49 @@ describe('The contactAddressbookService service', function() {
         inviteStatus: CONTACT_SHARING_INVITE_STATUS.ACCEPTED
       });
     });
+
+    it('should return address books of groups which the user belongs to', function(done) {
+      var listSpy = sinon.spy();
+      var groupMemberShip = [
+        'group/principal/1',
+        'group/principal/2'
+      ];
+
+      ContactAPIClient.addressbookHome = sinon.spy(function() {
+        return {
+          addressbook: function() {
+            return {
+              list: listSpy
+            };
+          }
+        };
+      });
+
+      davProxyPrincipalService.getGroupMembership = sinon.stub().returns($q.when(groupMemberShip));
+
+      contactAddressbookParser.parsePrincipalPath = sinon.spy(function(principal) {
+        return { id: principal };
+      });
+
+      contactAddressbookService.listAddressbooks()
+        .then(function() {
+          expect(davProxyPrincipalService.getGroupMembership).to.have.been.calledWith('/principals/users/' + session.user._id);
+
+          expect(contactAddressbookParser.parsePrincipalPath).to.have.been.calledTwice;
+          expect(contactAddressbookParser.parsePrincipalPath).to.have.been.calledWith(groupMemberShip[0]);
+          expect(contactAddressbookParser.parsePrincipalPath).to.have.been.calledWith(groupMemberShip[1]);
+
+          expect(ContactAPIClient.addressbookHome).to.have.been.calledThrice; // 1 time for list user address books
+          expect(ContactAPIClient.addressbookHome).to.have.been.calledWith(session.user._id);
+          expect(ContactAPIClient.addressbookHome).to.have.been.calledWith(groupMemberShip[0]);
+          expect(ContactAPIClient.addressbookHome).to.have.been.calledWith(groupMemberShip[1]);
+
+          expect(listSpy).to.have.been.calledThrice;
+          done();
+        });
+
+      $rootScope.$digest();
+    });
   });
 
   describe('The listAggregatedAddressbooks function', function() {
@@ -147,11 +197,11 @@ describe('The contactAddressbookService service', function() {
 
     it('should call contactAPIClient to get group addressbook with given bookName', function(done) {
       var bookName = 'bookName';
-      var group = { id: 'groupId' };
+      var groupId = 'groupId';
       var getSpy = sinon.spy();
 
       ContactAPIClient.addressbookHome = function(bookId) {
-        expect(bookId).to.equal(group.id);
+        expect(bookId).to.equal(groupId);
 
         return {
           addressbook: function(name) {
@@ -164,7 +214,7 @@ describe('The contactAddressbookService service', function() {
         };
       };
 
-      contactAddressbookService.getAddressbookByBookName(bookName, group).then(function() {
+      contactAddressbookService.getAddressbookByBookName(bookName, groupId).then(function() {
         expect(getSpy).to.have.been.called;
         done();
       }).catch(done);

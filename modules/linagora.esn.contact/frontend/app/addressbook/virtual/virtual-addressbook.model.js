@@ -8,6 +8,7 @@
     function ContactVirtualAddressBook(id, name, loadNextItems, getContactsCount, options) {
       this.id = id;
       this.name = name;
+      this.bookId = 'virtual';
       this.bookName = id;
       this.type = CONTACT_ADDRESSBOOK_TYPES.virtual;
       this.description = 'Virtual addressbook';

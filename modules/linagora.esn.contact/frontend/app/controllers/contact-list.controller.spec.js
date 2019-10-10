@@ -161,7 +161,8 @@ describe('The ContactListController controller', function() {
       expect(contactAddressbookService.listAggregatedAddressbooks).to.have.been.called;
     });
 
-    it('should call contactAddressbookService.getAddressbookByBookName to get specific address books if bookName is provided', function() {
+    it('should call contactAddressbookService.getAddressbookByBookName to get specific address books if bookId and bookName is provided', function() {
+      $stateParams.bookId = 'bookId';
       $stateParams.bookName = 'bookName';
       contactAddressbookService.getAddressbookByBookName = sinon.stub().returns($q.when([]));
       initController();
@@ -215,6 +216,7 @@ describe('The ContactListController controller', function() {
   });
 
   it('should display create contact button if current address book can create contact', function() {
+    $stateParams.bookId = 'bookId';
     $stateParams.bookName = 'contacts';
     var currentAddressbooks = [{
       bookName: 'contacts',
@@ -312,8 +314,9 @@ describe('The ContactListController controller', function() {
   });
 
   it('should add the contact to the contact list of addressbook on CONTACT_EVENTS.CREATED event', function() {
+    var bookId = 'foo';
     var bookName = 'foobar';
-    var currentAddressbooks = [{ bookId: 'foo', bookName: bookName }];
+    var currentAddressbooks = [{ bookId: bookId, bookName: bookName }];
     var contact = {
       lastName: 'Last',
       addressbook: currentAddressbooks[0]
@@ -326,6 +329,7 @@ describe('The ContactListController controller', function() {
       };
     };
 
+    $stateParams.bookId = bookId;
     $stateParams.bookName = bookName;
     contactAddressbookService.getAddressbookByBookName = sinon.stub().returns($q.when(currentAddressbooks));
 
@@ -736,10 +740,12 @@ describe('The ContactListController controller', function() {
     });
 
     it('should open the contact creation form for specific address book if user is viewing that address book', function() {
+      var bookId = 'foo';
       var bookName = 'foobar';
 
+      $stateParams.bookId = bookId;
       $stateParams.bookName = bookName;
-      addressbooks = [{ bookName: bookName }];
+      addressbooks = [{ bookId: bookId, bookName: bookName }];
       contactAddressbookService.getAddressbookByBookName = sinon.stub().returns($q.when(addressbooks));
 
       initController();
@@ -754,20 +760,23 @@ describe('The ContactListController controller', function() {
 
   describe('When Deleted Addressbook event is fired', function() {
     it('should change to aggregated contacts view if the current viewing addressbook is deleted', function() {
+      var bookId = 'bookId';
       var bookName = 'twitter';
       var currentAddressbooks = [{
+        bookId: bookId,
         bookName: bookName
       }];
 
       $state.go = sinon.spy();
 
+      $stateParams.bookId = bookId;
       $stateParams.bookName = bookName;
       contactAddressbookService.getAddressbookByBookName = sinon.stub().returns($q.when(currentAddressbooks));
 
       initController();
 
-      $rootScope.$broadcast(CONTACT_ADDRESSBOOK_EVENTS.DELETED, { bookName: bookName });
-      expect($state.go).to.have.been.calledWith('contact.addressbooks', { bookName: null });
+      $rootScope.$broadcast(CONTACT_ADDRESSBOOK_EVENTS.DELETED, { bookId: bookId, bookName: bookName });
+      expect($state.go).to.have.been.calledWith('contact.addressbooks', { bookId: 'all', bookName: null });
     });
 
     it('should not change state if the current viewing addressbook is not the one is deleted', function() {
@@ -789,35 +798,45 @@ describe('The ContactListController controller', function() {
 
   describe('When Updated Addressbook event is fired', function() {
     it('should update addressbook title in subheader if the current viewing addressbook is updated', function() {
+      var bookId = 'bookId';
+      var bookName = 'bookName';
       var currentAddressbooks = [{
-        bookName: 'twitter'
+        bookId: bookId,
+        bookName: bookName
       }];
 
-      $stateParams.bookName = 'twitter';
+      $stateParams.bookId = bookId;
+      $stateParams.bookName = bookName;
       contactAddressbookService.getAddressbookByBookName = sinon.stub().returns($q.when(currentAddressbooks));
 
       initController();
 
       $rootScope.$broadcast(CONTACT_ADDRESSBOOK_EVENTS.UPDATED, {
         name: 'Twitter Contacts',
-        bookName: 'twitter'
+        bookId: bookId,
+        bookName: bookName
       });
       expect(scope.bookTitle).to.equal('Twitter Contacts');
     });
 
     it('should not update addressbook title in subheader if the current viewing addressbook is not the one is updated', function() {
+      var bookId = 'bookId';
+      var bookName = 'bookName';
       var currentAddressbooks = [{
-        bookName: 'twitter',
+        bookId: bookId,
+        bookName: bookName,
         name: 'Twitter Contacts'
       }];
 
-      $stateParams.bookName = 'twitter';
+      $stateParams.bookId = bookId;
+      $stateParams.bookName = bookName;
       contactAddressbookService.getAddressbookByBookName = sinon.stub().returns($q.when(currentAddressbooks));
 
       initController();
 
       $rootScope.$broadcast(CONTACT_ADDRESSBOOK_EVENTS.UPDATED, {
         name: 'Google Contacts',
+        bookId: bookId,
         bookName: 'goole'
       });
       expect(scope.bookTitle).to.equal('Twitter Contacts');
@@ -826,20 +845,26 @@ describe('The ContactListController controller', function() {
 
   describe('When deleted addressbook subscription event is fired', function() {
     it('should change to aggregated contacts view if the current viewing addressbook is deleted', function() {
+      var bookId = 'bookId';
       var bookName = 'twitter';
       var currentAddressbooks = [{
+        bookId: bookId,
         bookName: bookName
       }];
 
       $state.go = sinon.spy();
 
+      $stateParams.bookId = bookId;
       $stateParams.bookName = bookName;
       contactAddressbookService.getAddressbookByBookName = sinon.stub().returns($q.when(currentAddressbooks));
 
       initController();
 
-      $rootScope.$broadcast(CONTACT_ADDRESSBOOK_EVENTS.SUBSCRIPTION_DELETED, { bookName: bookName });
-      expect($state.go).to.have.been.calledWith('contact.addressbooks', { bookName: null });
+      $rootScope.$broadcast(CONTACT_ADDRESSBOOK_EVENTS.SUBSCRIPTION_DELETED, {
+        bookId: bookId,
+        bookName: bookName
+      });
+      expect($state.go).to.have.been.calledWith('contact.addressbooks', { bookId: 'all', bookName: null });
     });
 
     it('should not change state if the current viewing addressbook is not the one is deleted', function() {

@@ -51,7 +51,7 @@ div(ng-if='$ctrl.status === "loaded"')
     .addressbook-item.clickable.waves-effect.waves-classic(
       title=__('All contacts'),
       ui-sref-active="selected",
-      ui-sref="contact.addressbooks({ bookName: null })"
+      ui-sref="contact.addressbooks({ bookId: 'all', bookName: null })"
     )
       .addressbook-icon.all-contacts
         i.mdi.mdi-folder-multiple

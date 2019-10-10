@@ -41,6 +41,7 @@ describe('The contactAddressbookSettingsController', function() {
 
     $stateParams.bookName = 'collected';
     addressbook = {
+      bookId: 'bookId',
       bookName: 'contacts',
       isSubscription: false,
       rights: {
@@ -276,7 +277,12 @@ describe('The contactAddressbookSettingsController', function() {
       $rootScope.$digest();
 
       controller.onCancel();
-      expect($state.go).to.have.been.calledWith('contact.addressbooks', { bookName: addressbook.bookName }, { location: 'replace' });
+      expect($state.go).to.have.been.calledWith('contact.addressbooks', {
+        bookId: addressbook.bookId,
+        bookName: addressbook.bookName
+      }, {
+        location: 'replace'
+      });
     });
   });
 });

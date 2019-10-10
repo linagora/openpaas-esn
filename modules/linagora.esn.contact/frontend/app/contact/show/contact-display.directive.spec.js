@@ -157,12 +157,16 @@ describe('The contactDisplay directive', function() {
       var scope = element.isolateScope();
 
       scope.contact.addressbook = {
+        bookId: 'bookId',
         bookName: 'contacts'
       };
 
       $state.go = sinon.spy();
       scope.openAddressbook();
-      expect($state.go).to.have.been.calledWith('contact.addressbooks', { bookName: $scope.contact.addressbook.bookName });
+      expect($state.go).to.have.been.calledWith('contact.addressbooks', {
+        bookId: $scope.contact.addressbook.bookId,
+        bookName: $scope.contact.addressbook.bookName
+      });
     });
   });
 });

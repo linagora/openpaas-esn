@@ -1,16 +1,25 @@
-'use strict';
-
-const resolve = require('path').resolve;
 const cors = require('cors');
+const glob = require('glob-all');
 
-var AwesomeModule = require('awesome-module');
-var Dependency = AwesomeModule.AwesomeModuleDependency;
-const FRONTEND_PATH = resolve(__dirname, 'frontend');
+const AwesomeModule = require('awesome-module');
+const Dependency = AwesomeModule.AwesomeModuleDependency;
+const FRONTEND_JS_PATH = `${__dirname}/frontend/js/`;
 const innerApps = ['esn'];
-const angularModuleFiles = ['app.js', 'constants.js', 'services.js'];
 const modulesOptions = {
-  localJsFiles: angularModuleFiles.map(file => resolve(FRONTEND_PATH, 'js', file))
+  localJsFiles: glob.sync([
+    FRONTEND_JS_PATH + '**/*.module.js',
+    FRONTEND_JS_PATH + '**/!(*spec).js'
+  ])
 };
+
+const frontendJsFilesFullPath = glob.sync([
+  FRONTEND_JS_PATH + '**/*.module.js',
+  FRONTEND_JS_PATH + '**/!(*spec).js'
+]);
+
+const frontendJsFilesUri = frontendJsFilesFullPath.map(function(filepath) {
+  return filepath.replace(FRONTEND_JS_PATH, '');
+});
 
 const moduleData = {
   shortName: 'dav',
@@ -18,9 +27,9 @@ const moduleData = {
   angularModules: []
 };
 
-moduleData.angularModules.push([moduleData.shortName, angularModuleFiles, moduleData.fullName, innerApps, modulesOptions]);
+moduleData.angularModules.push([moduleData.shortName, frontendJsFilesUri, moduleData.fullName, innerApps, modulesOptions]);
 
-var davProxy = new AwesomeModule(moduleData.fullName, {
+const davProxy = new AwesomeModule(moduleData.fullName, {
   dependencies: [
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.logger', 'logger'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.auth', 'auth'),
@@ -37,15 +46,17 @@ var davProxy = new AwesomeModule(moduleData.fullName, {
   data: moduleData,
   states: {
     lib: function(dependencies, callback) {
-      var addressbooks = require('./backend/webserver/addressbooks')(dependencies);
-      var calendars = require('./backend/webserver/calendars')(dependencies);
-      var json = require('./backend/webserver/json')(dependencies);
+      const addressbooks = require('./backend/webserver/addressbooks')(dependencies);
+      const calendars = require('./backend/webserver/calendars')(dependencies);
+      const principals = require('./backend/webserver/principals')(dependencies);
+      const json = require('./backend/webserver/json')(dependencies);
 
-      var lib = {
+      const lib = {
         api: {
-          addressbooks: addressbooks,
-          calendars: calendars,
-          json: json
+          addressbooks,
+          calendars,
+          principals,
+          json
         }
       };
 
@@ -63,6 +74,7 @@ var davProxy = new AwesomeModule(moduleData.fullName, {
       }));
       app.use('/api/addressbooks', this.api.addressbooks);
       app.use('/api/calendars', this.api.calendars);
+      app.use('/api/principals', this.api.principals);
       app.use('/api/json', this.api.json);
 
       moduleData.angularModules.forEach(mod => webserverWrapper.injectAngularModules.apply(webserverWrapper, mod));

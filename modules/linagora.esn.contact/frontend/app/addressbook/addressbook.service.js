@@ -15,6 +15,7 @@
     ContactAPIClient,
     contactAddressbookDisplayService,
     ContactVirtualAddressBookService,
+    davProxyPrincipalService,
     CONTACT_ADDRESSBOOK_TYPES,
     CONTACT_ADDRESSBOOK_STATES,
     CONTACT_ADDRESSBOOK_MEMBERS_RIGHTS,
@@ -41,13 +42,13 @@
       updateGroupAddressbookMembersRight: updateGroupAddressbookMembersRight
     };
 
-    function getAddressbookByBookName(bookName, group) {
+    function getAddressbookByBookName(bookName, bookId) {
       return ContactVirtualAddressBookService.get(bookName).then(function(addressbook) {
         if (addressbook) {
           return addressbook;
         }
 
-        var bookId = group && group.id ? group.id : session.user._id;
+        bookId = bookId || session.user._id;
 
         return ContactAPIClient.addressbookHome(bookId).addressbook(bookName).get();
       });
@@ -62,19 +63,43 @@
     }
 
     function listAddressbooks() {
-      return $q.all([_listAddressbooks(), ContactVirtualAddressBookService.list()]).then(function(addressbooks) {
-        return Array.prototype.concat(addressbooks[0], addressbooks[1]);
+      return $q.all([
+        _listAddressbooksForOwner(session.user._id),
+        _listGroupAddressbooks(),
+        _listVirtualAddressbooks()
+      ]).then(function(results) {
+        return [].concat.apply([], results);
       });
     }
 
-    function _listAddressbooks() {
-      return ContactAPIClient.addressbookHome(session.user._id).addressbook().list({
+    function _listAddressbooksForOwner(ownerId) {
+      return ContactAPIClient.addressbookHome(ownerId).addressbook().list({
         personal: true,
         subscribed: true,
         shared: true,
         contactsCount: true,
         inviteStatus: CONTACT_SHARING_INVITE_STATUS.ACCEPTED
       });
+    }
+
+    function _listVirtualAddressbooks() {
+      return ContactVirtualAddressBookService.list();
+    }
+
+    function _listGroupAddressbooks() {
+      return davProxyPrincipalService.getGroupMembership('/principals/users/' + session.user._id)
+        .then(function(groupPrincipals) {
+          var promises = groupPrincipals.map(function(principal) {
+            var parsedPrincipal = contactAddressbookParser.parsePrincipalPath(principal);
+
+            return _listAddressbooksForOwner(parsedPrincipal.id);
+          });
+
+          return $q.all(promises)
+            .then(function(results) {
+              return [].concat.apply([], results);
+            });
+        });
     }
 
     function listAddressbooksUserCanCreateContact() {

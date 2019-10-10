@@ -38,7 +38,7 @@
     var requiredKey = 'displayName';
 
     $scope.user = user;
-    $scope.bookId = $scope.user._id;
+    $scope.bookId = $stateParams.bookId;
     $scope.bookName = $stateParams.bookName;
     $scope.keys = ALPHA_ITEMS;
     $scope.sortBy = requiredKey;
@@ -52,8 +52,8 @@
     function $onInit() {
       var listAddressbooks;
 
-      if ($scope.bookName) {
-        listAddressbooks = contactAddressbookService.getAddressbookByBookName($scope.bookName);
+      if ($scope.bookName && $scope.bookId) {
+        listAddressbooks = contactAddressbookService.getAddressbookByBookName($scope.bookName, $scope.bookId);
       } else {
         listAddressbooks = contactAddressbookService.listAggregatedAddressbooks();
       }
@@ -92,7 +92,10 @@
 
     function _onAddressbookDeleted(event, deletedAddressbook) {
       if ($scope.addressbooks.length === 1 && $scope.addressbooks[0].bookName === deletedAddressbook.bookName) {
-        $state.go('contact.addressbooks', { bookName: null });
+        $state.go('contact.addressbooks', {
+          bookId: 'all',
+          bookName: null
+        });
       }
       // Live update contact list in all contacts page on an address book deleting event
       if (_inAllContacts()) {
@@ -187,6 +190,7 @@
 
     function _contactBelongsCurrentAddressbook(contact) {
       return contact.addressbook && $scope.addressbooks.length === 1 &&
+             contact.addressbook.bookId === $scope.addressbooks[0].bookId &&
              contact.addressbook.bookName === $scope.addressbooks[0].bookName;
     }
 

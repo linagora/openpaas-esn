@@ -6,10 +6,8 @@
 
   function contactDisplay(
     $state,
-    $stateParams,
     ContactsHelper,
     ContactShellDisplayBuilder,
-    contactAddressbookDisplayService,
     CONTACT_AVATAR_SIZE
   ) {
     return {
@@ -44,7 +42,10 @@
         };
 
         $scope.openAddressbook = function() {
-          $state.go('contact.addressbooks', { bookName: $scope.contact.addressbook.bookName });
+          $state.go('contact.addressbooks', {
+            bookId: $scope.contact.addressbook.bookId,
+            bookName: $scope.contact.addressbook.bookName
+          });
         };
       }
     };
