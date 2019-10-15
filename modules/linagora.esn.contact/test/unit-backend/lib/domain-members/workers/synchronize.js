@@ -3,7 +3,7 @@ const mockery = require('mockery');
 const sinon = require('sinon');
 
 describe('The synchronize worker', function() {
-  let getModule, utilsMock, synchronizeMock;
+  let getModule, utilsMock, synchronizeMock, addressbookMock;
 
   const { DOMAIN_MEMBERS_SYNCHRONIZE_WORKER_NAME } = require('../../../../../backend/lib/domain-members/contants');
 
@@ -13,6 +13,7 @@ describe('The synchronize worker', function() {
     mockery.registerMock('../helper', () => ({}));
     mockery.registerMock('../utils', () => utilsMock);
     mockery.registerMock('../synchronize', () => synchronizeMock);
+    mockery.registerMock('../addressbook', () => addressbookMock);
 
     const jobQueueModuleMock = {
       lib: {
@@ -22,6 +23,10 @@ describe('The synchronize worker', function() {
 
     utilsMock = {
       isFeatureEnabled: () => Promise.resolve(isEnabled)
+    };
+
+    addressbookMock = {
+      createDomainMembersAddressbook: () => Promise.resolve()
     };
 
     this.moduleHelpers.addDep('jobqueue', jobQueueModuleMock);
@@ -43,6 +48,18 @@ describe('The synchronize worker', function() {
 
     beforeEach(function() {
       getHandleMethod = () => getModule().handler.handle;
+    });
+
+    it('should reject if failed to create domain members address book', function(done) {
+      addressbookMock.createDomainMembersAddressbook = sinon.stub().returns(Promise.reject(new Error('something wrong')));
+
+      getHandleMethod()(job)
+        .then(() => done(new Error('should not resolve')))
+        .catch(err => {
+          expect(addressbookMock.createDomainMembersAddressbook).to.have.been.calledWith(domainId);
+          expect(err.message).to.equal('something wrong');
+          done();
+        });
     });
 
     it('should reject if failed to get feature status', function(done) {
