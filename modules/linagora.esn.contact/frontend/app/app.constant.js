@@ -76,6 +76,14 @@
           platform: true
         }
       },
+      maintenance: {
+        template: 'contact-maintenance',
+        displayIn: {
+          user: false,
+          domain: true,
+          platform: true
+        }
+      },
       disableable: true,
       isDisplayedByDefault: true
     });

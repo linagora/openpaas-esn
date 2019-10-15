@@ -132,5 +132,9 @@
   "Failed to load domain address book": "Failed to load domain address book",
   "Please fill at least a field": "Please fill at least a field",
   "Search results": "Search results",
-  "No contacts are matching your search": "No contacts are matching your search"
+  "No contacts are matching your search": "No contacts are matching your search",
+  "Synchronize domain members address book": "Synchronize domain members address book",
+  "Run": "Run",
+  "Submitting request...": "Submitting request...",
+  "Synchronize domain members address books for entire platform": "Synchronize domain members address books for entire platform"
 }

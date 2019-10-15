@@ -132,5 +132,9 @@
   "Failed to load domain address book": "Impossible de charger le carnet d'adresses du domaine",
   "Please fill at least a field": "Veuillez remplir au moins un champ",
   "Search results": "Résultats de recherche",
-  "No contacts are matching your search": "Aucun contact ne correspond à votre recherche"
+  "No contacts are matching your search": "Aucun contact ne correspond à votre recherche",
+  "Synchronize domain members address book": "Synchroniser le carnet d'adresses des membres du domaine",
+  "Run": "Exécuter",
+  "Submitting request...": "Soumettre la requête...",
+  "Synchronize domain members address books for entire platform": "Synchronisez les carnets d'adresses des membres du domaine pour l'ensemble de la plate-forme"
 }

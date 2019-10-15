@@ -14,6 +14,7 @@ module.exports = {
   getDomainAdministrators,
   load,
   list,
+  listByCursor,
   removeById,
   updateById,
   userIsDomainAdministrator,
@@ -112,6 +113,10 @@ function list(options, callback) {
     domainQuery = domainQuery.limit(+options.limit);
   }
   domainQuery.sort('-timestamps.creation').exec(callback);
+}
+
+function listByCursor(options = {}) {
+  return Domain.find(options).cursor();
 }
 
 function load(id, callback) {

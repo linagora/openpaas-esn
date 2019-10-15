@@ -28,6 +28,8 @@ const contactModule = new AwesomeModule(moduleData.fullName, {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.wrapper', 'webserver-wrapper'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.esn-config', 'esn-config'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.authorization', 'authorizationMW'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.platformadmins', 'platformAdminsMW'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.domain', 'domainMW'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.webserver.middleware.module', 'moduleMW'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.image', 'image'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.user', 'user'),
@@ -39,19 +41,21 @@ const contactModule = new AwesomeModule(moduleData.fullName, {
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.wsserver', 'wsserver'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.i18n', 'i18n'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.people', 'people'),
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.jobqueue', 'jobqueue'),
     new Dependency(Dependency.TYPE_NAME, 'linagora.esn.autoconf', 'autoconf', true),
-    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.dav.import', 'dav.import', true),
-    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.core.esn-config', 'esn-config')
+    new Dependency(Dependency.TYPE_NAME, 'linagora.esn.dav.import', 'dav.import', true)
   ],
   data: moduleData,
   states: {
     lib: function(dependencies, callback) {
       const libModule = require('./backend/lib')(dependencies);
       const contacts = require('./backend/webserver/api/contacts')(dependencies);
+      const addressbooks = require('./backend/webserver/api/addressbooks/domain-members')(dependencies);
 
       const lib = {
         api: {
-          contacts: contacts
+          contacts,
+          addressbooks
         },
         lib: libModule
       };
@@ -62,9 +66,6 @@ const contactModule = new AwesomeModule(moduleData.fullName, {
     deploy: function(dependencies, callback) {
       const app = require('./backend/webserver/application')(dependencies);
       const webserverWrapper = dependencies('webserver-wrapper');
-
-      app.use('/api/contacts', this.api.contacts);
-
       const appFilesUri = angularModuleAppFiles.map(function(filepath) {
         return filepath.replace(FRONTEND_PATH, '');
       });

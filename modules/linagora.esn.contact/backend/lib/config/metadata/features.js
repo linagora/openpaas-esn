@@ -6,16 +6,19 @@ module.exports = dependencies => {
     properties: {
       isSharingAddressbookEnabled: {
         type: 'boolean'
+      },
+      isDomainMembersAddressbookEnabled: {
+        type: 'boolean'
       }
     }
   };
 
   return {
     rights: {
-      padmin: 'rw',
       admin: 'rw',
       user: 'r'
     },
+    pubsub: true,
     validator: createValidator(schema)
   };
 };

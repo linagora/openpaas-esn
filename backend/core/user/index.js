@@ -15,7 +15,7 @@ const { getDisplayName } = require('./utils');
 const { getOptions } = require('./listener');
 const { reindexRegistry } = require('../elasticsearch');
 
-const { TYPE, ELASTICSEARCH } = CONSTANTS;
+const { TYPE, ELASTICSEARCH, USER_ACTIONS, USER_ACTION_STATES } = CONSTANTS;
 
 module.exports = {
   checkEmailsAvailability,
@@ -119,8 +119,40 @@ function list(callback) {
   User.find(callback);
 }
 
-function listByCursor() {
-  return User.find().cursor();
+function listByCursor(options = {}) {
+  const query = _.isEmpty(options) ? {} : { $and: [] };
+
+  if (options.domainIds && options.domainIds.length) {
+    query.$and.push({
+      'domains.domain_id': {
+        $in: options.domainIds
+      }
+    });
+  }
+
+  if (options.hasOwnProperty('isSearchable')) {
+    const searchDisabled = {
+      $elemMatch: {
+        name: USER_ACTIONS.searchable,
+        value: USER_ACTION_STATES.disabled
+      }
+    };
+
+    query.$and.push({ states: options.isSearchable ? { $not: searchDisabled } : searchDisabled });
+  }
+
+  if (options.hasOwnProperty('canLogin')) {
+    const loginDisabled = {
+      $elemMatch: {
+        name: USER_ACTIONS.login,
+        value: USER_ACTION_STATES.disabled
+      }
+    };
+
+    query.$and.push({ states: options.canLogin ? { $not: loginDisabled } : loginDisabled });
+  }
+
+  return User.find(query).cursor();
 }
 
 function update(user, callback) {
