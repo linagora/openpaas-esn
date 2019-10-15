@@ -8,6 +8,7 @@
       $stateParams,
       $state,
       $q,
+      session,
       notificationFactory,
       sendContactToBackend,
       gracePeriodService,
@@ -16,13 +17,17 @@
       contactService,
       esnI18nService,
       ContactsHelper,
+      contactAddressbookParser,
       DEFAULT_ADDRESSBOOK_NAME
     ) {
-      $scope.bookId = $stateParams.bookId;
+      $scope.bookId = $stateParams.bookId !== 'all' ? $stateParams.bookId : session.user._id;
       $scope.bookName = $stateParams.bookName || DEFAULT_ADDRESSBOOK_NAME;
       $scope.contact = sharedContactDataService.contact;
+      $scope.addressbookPath = '/addressbooks/' + $scope.bookId + '/' + $scope.bookName + '.json';
 
       $scope.accept = function() {
+        var parsedAddressbookPath = contactAddressbookParser.parseAddressbookPath($scope.addressbookPath);
+
         $scope.contact.displayName = ContactsHelper.getFormattedName($scope.contact);
 
         if (!$scope.contact.displayName) {
@@ -32,7 +37,7 @@
         }
 
         return sendContactToBackend($scope, function() {
-          return contactService.createContact({ bookId: $scope.bookId, bookName: $scope.bookName }, $scope.contact)
+          return contactService.createContact({ bookId: parsedAddressbookPath.bookId, bookName: parsedAddressbookPath.bookName }, $scope.contact)
             .then(null, function(err) {
               notificationFactory.weakError(
                 'Contact creation',
@@ -43,8 +48,8 @@
             });
         }).then(function() {
           $state.go('contact.addressbooks.show', {
-            bookId: $scope.bookId,
-            bookName: $scope.bookName,
+            bookId: parsedAddressbookPath.bookId,
+            bookName: parsedAddressbookPath.bookName,
             cardId: $scope.contact.id
           }, { location: 'replace' });
         }).then(function() {
@@ -53,12 +58,12 @@
             'Cancel it'
           ).promise.then(function(data) {
               if (data.cancelled) {
-                contactService.removeContact({ bookId: $scope.bookId, bookName: $scope.bookName }, $scope.contact, { etag: $scope.contact.etag })
+                contactService.removeContact({ bookId: parsedAddressbookPath.bookId, bookName: parsedAddressbookPath.bookName }, $scope.contact, { etag: $scope.contact.etag })
                   .then(function() {
                     data.success();
                     openContactForm({
-                      bookId: $scope.bookId,
-                      bookName: $scope.bookName,
+                      bookId: parsedAddressbookPath.bookId,
+                      bookName: parsedAddressbookPath.bookName,
                       contact: $scope.contact,
                       shouldReplaceState: true
                     });

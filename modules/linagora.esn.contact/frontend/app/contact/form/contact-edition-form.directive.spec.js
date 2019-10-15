@@ -48,15 +48,17 @@ describe('The contactEditionForm directive', function() {
     };
     contactAddressbookService.listAddressbooksUserCanCreateContact = function() {
       return $q.when([{
-        bookName: DEFAULT_ADDRESSBOOK_NAME
+        bookName: DEFAULT_ADDRESSBOOK_NAME,
+        href: '/addressbooks/userId/' + DEFAULT_ADDRESSBOOK_NAME + '.json'
       }, {
-        bookName: CONTACT_COLLECTED_ADDRESSBOOK_NAME
+        bookName: CONTACT_COLLECTED_ADDRESSBOOK_NAME,
+        href: '/addressbooks/userId/' + CONTACT_COLLECTED_ADDRESSBOOK_NAME + '.json'
       }]);
     };
   }));
 
   function initDirective(scope) {
-    var element = $compile('<contact-edition-form contact="contact" book-name="bookName" contact-state="new"></contact-edition-form>')(scope);
+    var element = $compile('<contact-edition-form contact="contact" addressbook-path="addressbookPath" contact-state="new"></contact-edition-form>')(scope);
 
     scope.$digest();
 
@@ -70,13 +72,13 @@ describe('The contactEditionForm directive', function() {
   });
 
   it('should only show address book select box when create new contact', function() {
-    var createElement = $compile('<contact-edition-form contact="contact" book-name="bookName" contact-state="new"></contact-edition-form>')($scope);
+    var createElement = $compile('<contact-edition-form contact="contact" addressbook-path" contact-state="new"></contact-edition-form>')($scope);
 
     $scope.$digest();
 
     expect(createElement.find('.contact-addressbook-selector').hasClass('ng-hide')).to.be.false;
 
-    var editElement = $compile('<contact-edition-form contact="contact" book-name="bookName"></contact-edition-form>')($scope);
+    var editElement = $compile('<contact-edition-form contact="contact" addressbook-path"></contact-edition-form>')($scope);
 
     $scope.$digest();
 
@@ -84,12 +86,12 @@ describe('The contactEditionForm directive', function() {
   });
 
   it('should preselect Address Book according to current address book', function() {
-    $scope.bookName = CONTACT_COLLECTED_ADDRESSBOOK_NAME;
+    $scope.addressbookPath = '/addressbooks/userId/' + CONTACT_COLLECTED_ADDRESSBOOK_NAME + '.json';
 
     var element = initDirective($scope);
 
     $scope.$digest();
 
-    expect(element.find('[ng-model="bookName"]').val()).to.equal(CONTACT_COLLECTED_ADDRESSBOOK_NAME);
+    expect(element.find('[ng-model="addressbookPath"]').val()).to.equal('/addressbooks/userId/' + CONTACT_COLLECTED_ADDRESSBOOK_NAME + '.json');
   });
 });

@@ -14,7 +14,7 @@
       restrict: 'E',
       scope: {
         contact: '=',
-        bookName: '=',
+        addressbookPath: '=',
         contactState: '@'
       },
       templateUrl: '/contact/app/contact/form/contact-edition-form.html',
@@ -26,7 +26,13 @@
           return contactAddressbookDisplayService.convertShellsToDisplayShells(addressbooks, { includePriority: true });
         })
         .then(function(addressbookDisplayShells) {
-          $scope.availableAddressbookDisplayShells = contactAddressbookDisplayService.sortAddressbookDisplayShells(addressbookDisplayShells);
+          $scope.availableAddressbooks = contactAddressbookDisplayService.sortAddressbookDisplayShells(addressbookDisplayShells)
+            .map(function(addressbookDisplayShell) {
+              return {
+                path: addressbookDisplayShell.shell.href,
+                displayName: addressbookDisplayShell.displayName
+              };
+            });
         });
       }
     };
