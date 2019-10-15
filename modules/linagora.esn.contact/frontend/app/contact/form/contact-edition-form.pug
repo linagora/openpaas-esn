@@ -12,10 +12,12 @@
             .col-xs-9
               .fg-line
                 .select
-                  select.form-control.floating-label(type='text', ng-model='bookName')
-                    option(ng-repeat='addressbookDisplayShell in availableAddressbookDisplayShells',
-                           ng-selected='addressbookDisplayShell.shell.bookName === bookName',
-                           value='{{addressbookDisplayShell.shell.bookName}}') {{::addressbookDisplayShell.displayName}}
+                  select.form-control.floating-label(ng-model='addressbookPath')
+                    option(
+                      ng-repeat='item in availableAddressbooks',
+                      ng-selected='item.path === addressbookPath',
+                      value='{{::item.path}}'
+                    ) {{::item.displayName}}
           .fg-line
             input.form-control.floating-label(type='text', placeholder=__("First Name"), ng-model='contact.firstName')
           .fg-line

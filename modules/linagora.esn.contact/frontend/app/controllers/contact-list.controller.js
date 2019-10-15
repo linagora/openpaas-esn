@@ -11,6 +11,7 @@
     $state,
     $stateParams,
     $window,
+    session,
     AddressBookPagination,
     AlphaCategoryService,
     ContactsHelper,
@@ -171,14 +172,14 @@
     $scope.openContactCreation = function() {
       if ($scope.addressbooks.length > 1) {
         return openContactForm({
-          bookId: $scope.bookId,
+          bookId: session.user._id,
           bookName: DEFAULT_ADDRESSBOOK_NAME
         });
       }
 
       if ($scope.addressbooks.length === 1) {
         return openContactForm({
-          bookId: $scope.bookId,
+          bookId: $scope.addressbooks[0].bookId,
           bookName: $scope.addressbooks[0].bookName
         });
       }
