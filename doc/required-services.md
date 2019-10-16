@@ -2,18 +2,18 @@
 
 This guide aims to help you install the following dependencies, required for OpenPaaS to run on your machine:
 
-- ElasticSearch v2.3.2
+- ElasticSearch v6.3.2
 - MongoDB v2.6.5
 - Redis 3.x
 - RabbitMQ 3.6.x
 
 > To avoid these steps, you can get those dependencies running in containers, using docker & docker-compose. Have a look at [Step 2 of the recommended installation process](./develop.md#2-get-required-services)!
 
-### 1.Install ElasticSearch 2.3.2
- Download and install ElasticSearch 2.3.2 [deb package](https://www.elastic.co/downloads/past-releases/elasticsearch-2-3-2) from elastic website
+### 1.Install ElasticSearch 6.3.2
+ Download and install ElasticSearch 6.3.2 [deb package](https://www.elastic.co/downloads/past-releases/elasticsearch-6-3-2) from elastic website
 
-        wget https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/2.3.2/elasticsearch-2.3.2.deb
-        sudo dpkg -i elasticsearch-2.3.2.deb
+        wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.3.2.deb
+        sudo dpkg -i elasticsearch-6.3.2.deb
 
  Pin the version to avoid unwanted updates
 
