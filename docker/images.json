@@ -1,6 +1,6 @@
 {
   "cassandra" : "cassandra:3.11.3",
-  "elasticsearch": "elasticsearch:2.3.2",
+  "elasticsearch": "docker.elastic.co/elasticsearch/elasticsearch:6.3.2",
   "james": "linagora/james-project",
   "mongodb": "mongo:3.2",
   "redis": "redis:latest",
