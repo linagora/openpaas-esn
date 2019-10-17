@@ -20,7 +20,11 @@ module.exports = dependencies => {
       coreTechnicalUser.findByTypeAndDomain(TECHNICAL_USER_TYPE, domainId, (err, technicalUsers) => {
         if (err) return reject(err);
 
-        return resolve(technicalUsers && technicalUsers[0]);
+        if (!technicalUsers || !technicalUsers.length) {
+          return reject(new Error(`No technical user found for domain ${domainId}`));
+        }
+
+        resolve(technicalUsers[0]);
       });
     });
   }
