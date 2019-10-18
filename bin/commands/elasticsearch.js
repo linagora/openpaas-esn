@@ -1,7 +1,9 @@
 const commons = require('../commons');
 const EsConfig = require('esn-elasticsearch-configuration');
 
+const DEFAULT_INDEX_TYPE = 'all';
 const AVAILABLE_INDEX_TYPES = [
+  DEFAULT_INDEX_TYPE,
   'core.events',
   'chat.conversations',
   'chat.messages',
@@ -33,7 +35,8 @@ module.exports = {
       type: {
         alias: 't',
         describe: 'index type',
-        choices: AVAILABLE_INDEX_TYPES
+        choices: AVAILABLE_INDEX_TYPES,
+        default: DEFAULT_INDEX_TYPE
       },
       index: {
         alias: 'i',
@@ -57,7 +60,7 @@ function exec({ host, port, type, index } = {}) {
 
   const esConfig = new EsConfig({host: host, port: port});
 
-  if (type) {
+  if (type !== DEFAULT_INDEX_TYPE) {
     index = index || _getDefaultIndex(type);
 
     return esConfig.setup(index, type);
