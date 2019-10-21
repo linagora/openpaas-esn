@@ -3,7 +3,6 @@ const EsConfig = require('esn-elasticsearch-configuration');
 
 const DEFAULT_INDEX_TYPE = 'all';
 const AVAILABLE_INDEX_TYPES = [
-  DEFAULT_INDEX_TYPE,
   'core.events',
   'chat.conversations',
   'chat.messages',
@@ -35,7 +34,7 @@ module.exports = {
       type: {
         alias: 't',
         describe: 'index type',
-        choices: AVAILABLE_INDEX_TYPES,
+        choices: [...AVAILABLE_INDEX_TYPES, DEFAULT_INDEX_TYPE],
         default: DEFAULT_INDEX_TYPE
       },
       index: {
