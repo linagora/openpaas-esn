@@ -1,13 +1,13 @@
 const { expect } = require('chai');
 
-describe('The ldap people-resolver', () => {
+describe('The ldap people-searcher', () => {
   let resolver;
 
   beforeEach(function() {
     this.helpers.mock.models({
       User: function() {}
     });
-    resolver = this.helpers.requireBackend('core/ldap/people-resolver');
+    resolver = this.helpers.requireBackend('core/ldap/people-searcher');
   });
 
   describe('The denormalizer function', () => {

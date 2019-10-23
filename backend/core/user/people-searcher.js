@@ -1,5 +1,5 @@
 const PRIORITY = 100;
-const { PeopleResolver, Model } = require('../people');
+const { PeopleSearcher, Model } = require('../people');
 const { OBJECT_TYPE } = require('./constants');
 const { denormalize } = require('./denormalize');
 const { search } = require('./search');
@@ -7,9 +7,9 @@ const { getDisplayName } = require('./utils');
 const { getPath } = require('./avatar');
 const { filterDomainsByMembersCanBeSearched } = require('../domain/helpers');
 
-module.exports = new PeopleResolver(OBJECT_TYPE, resolver, denormalizer, PRIORITY);
+module.exports = new PeopleSearcher(OBJECT_TYPE, searcher, denormalizer, PRIORITY);
 
-function resolver({ term, context, pagination, excludes }) {
+function searcher({ term, context, pagination, excludes }) {
   return new Promise((resolve, reject) => {
     filterDomainsByMembersCanBeSearched([context.domain])
       .then(domains => {

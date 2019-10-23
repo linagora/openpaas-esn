@@ -58,5 +58,4 @@ module.exports = router => {
    *         $ref: "#/responses/cm_500"
    */
   router.post('/people/search', authorize.requiresAPILogin, domain.loadSessionDomain, peopleController.advancedSearch);
-
 };

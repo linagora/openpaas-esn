@@ -1,13 +1,15 @@
 const PeopleService = require('./service');
-const PeopleResolver = require('./resolver');
+const PeopleSearcher = require('./searcher');
 const Model = require('./model');
+const constants = require('./constants');
 const service = new PeopleService();
 
 module.exports = {
+  constants,
   service,
-  PeopleResolver,
+  PeopleSearcher,
   Model
 };
 
-service.addResolver(require('../user/people-resolver'));
-service.addResolver(require('../ldap/people-resolver'));
+service.addSearcher(require('../user/people-searcher'));
+service.addSearcher(require('../ldap/people-searcher'));

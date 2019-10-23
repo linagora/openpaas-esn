@@ -3,7 +3,7 @@ const mockery = require('mockery');
 const sinon = require('sinon');
 
 describe('The people service module', function() {
-  let logger, Service, PeopleResolver;
+  let logger, Service, PeopleSearcher;
 
   beforeEach(function() {
     logger = {
@@ -13,30 +13,30 @@ describe('The people service module', function() {
     };
     mockery.registerMock('../logger', logger);
     Service = this.helpers.requireBackend('core/people/service');
-    PeopleResolver = this.helpers.requireBackend('core/people/resolver');
+    PeopleSearcher = this.helpers.requireBackend('core/people/searcher');
   });
 
-  describe('The addResolver function', function() {
-    it('should throw Error when resolver is undefined', function() {
+  describe('The addSearcher function', function() {
+    it('should throw Error when searcher is undefined', function() {
       const service = new Service();
 
-      expect(service.addResolver).to.throw(/Wrong resolver definition/);
+      expect(service.addSearcher).to.throw(/Wrong searcher definition/);
     });
 
-    it('should throw Error when resolver is undefined', function() {
+    it('should throw Error when searcher is undefined', function() {
       const service = new Service();
 
-      expect(() => service.addResolver({})).to.throw(/Wrong resolver definition/);
+      expect(() => service.addSearcher({})).to.throw(/Wrong searcher definition/);
     });
 
-    it('should add the resolver to the resolvers', function() {
+    it('should add the searcher to the searchers', function() {
       const objectType = 'user';
       const service = new Service();
-      const resolver = new PeopleResolver(objectType, () => {}, () => {});
+      const searcher = new PeopleSearcher(objectType, () => {}, () => {});
 
-      service.addResolver(resolver);
+      service.addSearcher(searcher);
 
-      expect(service.resolvers.get(objectType)).to.deep.equal(resolver);
+      expect(service.searchers.get(objectType)).to.deep.equal(searcher);
     });
   });
 
@@ -55,7 +55,7 @@ describe('The people service module', function() {
       excludes = [];
     });
 
-    describe('When no resolvers', function() {
+    describe('When no searchers', function() {
       it('should return empty array', function(done) {
         const service = new Service();
 
@@ -66,22 +66,22 @@ describe('The people service module', function() {
       });
     });
 
-    describe('When some resolvers are registered', function() {
-      it('should call all the resolvers and send back denormalized data as array', function(done) {
+    describe('When some searchers are registered', function() {
+      it('should call all the searchers and send back denormalized data as array', function(done) {
         const service = new Service();
         const resolveUser = sinon.stub().returns(Promise.resolve([user1, user2]));
         const resolveContact = sinon.stub().returns(Promise.resolve([contact1]));
         const denormalizeUser = sinon.stub();
         const denormalizeContact = sinon.stub();
-        const userResolver = new PeopleResolver('user', resolveUser, denormalizeUser);
-        const contactResolver = new PeopleResolver('contact', resolveContact, denormalizeContact);
+        const usersearcher = new PeopleSearcher('user', resolveUser, denormalizeUser);
+        const contactsearcher = new PeopleSearcher('contact', resolveContact, denormalizeContact);
 
         denormalizeUser.withArgs({ context, source: user1 }).returns(Promise.resolve(user1));
         denormalizeUser.withArgs({ context, source: user2 }).returns(Promise.resolve(user2));
         denormalizeContact.withArgs({ context, source: contact1 }).returns(Promise.resolve(contact1));
 
-        service.addResolver(userResolver);
-        service.addResolver(contactResolver);
+        service.addSearcher(usersearcher);
+        service.addSearcher(contactsearcher);
 
         service.search({ term, context, pagination, excludes }).then(result => {
           expect(result).to.have.lengthOf(3);
@@ -94,21 +94,21 @@ describe('The people service module', function() {
         }).catch(done);
       });
 
-      it('should call the defined resolvers and send back denormalized data', function(done) {
+      it('should call the defined searchers and send back denormalized data', function(done) {
         const service = new Service();
         const resolveUser = sinon.stub().returns(Promise.resolve([user1, user2]));
         const denormalizeUser = sinon.stub();
         const resolveContact = sinon.stub();
         const denormalizeContact = sinon.stub();
-        const userResolver = new PeopleResolver('user', resolveUser, denormalizeUser);
-        const contactResolver = new PeopleResolver('contact', resolveContact, denormalizeContact);
+        const usersearcher = new PeopleSearcher('user', resolveUser, denormalizeUser);
+        const contactsearcher = new PeopleSearcher('contact', resolveContact, denormalizeContact);
 
         denormalizeUser.withArgs({ context, source: user1 }).returns(Promise.resolve(user1));
         denormalizeUser.withArgs({ context, source: user2 }).returns(Promise.resolve(user2));
         denormalizeContact.withArgs({ context, source: contact1 }).returns(Promise.resolve(contact1));
 
-        service.addResolver(userResolver);
-        service.addResolver(contactResolver);
+        service.addSearcher(usersearcher);
+        service.addSearcher(contactsearcher);
 
         service.search({ objectTypes: ['user'], term, context, pagination, excludes }).then(result => {
           expect(result).to.have.lengthOf(2);
@@ -121,7 +121,7 @@ describe('The people service module', function() {
         }).catch(done);
       });
 
-      it('should call the resolvers with the excludes list of each resolver objectType', function(done) {
+      it('should call the searchers with the excludes list of each searcher objectType', function(done) {
         const excludes = [
           { id: 'user1', objectType: 'user'},
           { id: 'user2', objectType: 'user'},
@@ -132,15 +132,15 @@ describe('The people service module', function() {
         const resolveContact = sinon.stub().returns(Promise.resolve([contact1]));
         const denormalizeUser = sinon.stub();
         const denormalizeContact = sinon.stub();
-        const userResolver = new PeopleResolver('user', resolveUser, denormalizeUser);
-        const contactResolver = new PeopleResolver('contact', resolveContact, denormalizeContact);
+        const usersearcher = new PeopleSearcher('user', resolveUser, denormalizeUser);
+        const contactsearcher = new PeopleSearcher('contact', resolveContact, denormalizeContact);
 
         denormalizeUser.withArgs({ context, source: user1 }).returns(Promise.resolve(user1));
         denormalizeUser.withArgs({ context, source: user2 }).returns(Promise.resolve(user2));
         denormalizeContact.withArgs({ context, source: contact1 }).returns(Promise.resolve(contact1));
 
-        service.addResolver(userResolver);
-        service.addResolver(contactResolver);
+        service.addSearcher(usersearcher);
+        service.addSearcher(contactsearcher);
 
         service.search({ term, context, pagination, excludes }).then(result => {
           expect(result).to.have.lengthOf(3);
@@ -153,7 +153,7 @@ describe('The people service module', function() {
         }).catch(done);
       });
 
-      it('should order the results from the resolvers order', function(done) {
+      it('should order the results from the searchers order', function(done) {
         const service = new Service();
         const resolveUser = sinon.stub().returns(Promise.resolve([user1, user2]));
         const resolveContact = sinon.stub().returns(Promise.resolve([contact1]));
@@ -161,18 +161,18 @@ describe('The people service module', function() {
         const denormalizeUser = sinon.stub();
         const denormalizeLdap = sinon.stub();
         const denormalizeContact = sinon.stub();
-        const userResolver = new PeopleResolver('user', resolveUser, denormalizeUser);
-        const contactResolver = new PeopleResolver('contact', resolveContact, denormalizeContact, 100);
-        const ldapResolver = new PeopleResolver('ldap', resolveLdap, denormalizeLdap, 50);
+        const usersearcher = new PeopleSearcher('user', resolveUser, denormalizeUser);
+        const contactsearcher = new PeopleSearcher('contact', resolveContact, denormalizeContact, 100);
+        const ldapsearcher = new PeopleSearcher('ldap', resolveLdap, denormalizeLdap, 50);
 
         denormalizeUser.withArgs({ context, source: user1 }).returns(Promise.resolve(user1));
         denormalizeUser.withArgs({ context, source: user2 }).returns(Promise.resolve(user2));
         denormalizeContact.withArgs({ context, source: contact1 }).returns(Promise.resolve(contact1));
         denormalizeLdap.withArgs({ context, source: ldap1 }).returns(Promise.resolve(ldap1));
         denormalizeLdap.withArgs({ context, source: ldap2 }).returns(Promise.resolve(ldap2));
-        service.addResolver(ldapResolver);
-        service.addResolver(userResolver);
-        service.addResolver(contactResolver);
+        service.addSearcher(ldapsearcher);
+        service.addSearcher(usersearcher);
+        service.addSearcher(contactsearcher);
 
         service.search({ objectTypes: ['user', 'contact', 'ldap'], term, context, pagination, excludes }).then(result => {
           expect(result).to.have.lengthOf(5);
@@ -187,19 +187,19 @@ describe('The people service module', function() {
       });
     });
 
-    describe('When a resolver function rejects', function() {
-      it('should resolve with only resolved resolvers', function(done) {
+    describe('When a searcher function rejects', function() {
+      it('should resolve with only resolved searchers', function(done) {
         const service = new Service();
         const resolveUser = sinon.stub().returns(Promise.reject(new Error()));
         const denormalizeUser = sinon.stub().returns((user => Promise.resolve(user)));
         const resolveContact = sinon.stub().returns(Promise.resolve([contact1]));
         const denormalizeContact = sinon.stub().returns(contact => Promise.resolve(contact));
 
-        const userResolver = new PeopleResolver('user', resolveUser, denormalizeUser);
-        const contactResolver = new PeopleResolver('contact', resolveContact, denormalizeContact);
+        const usersearcher = new PeopleSearcher('user', resolveUser, denormalizeUser);
+        const contactsearcher = new PeopleSearcher('contact', resolveContact, denormalizeContact);
 
-        service.addResolver(userResolver);
-        service.addResolver(contactResolver);
+        service.addSearcher(usersearcher);
+        service.addSearcher(contactsearcher);
 
         service.search({ term, context, pagination, excludes })
           .then(result => {
@@ -220,11 +220,11 @@ describe('The people service module', function() {
         const resolveContact = sinon.stub().returns(Promise.resolve([contact1]));
         const denormalizeContact = sinon.stub().returns(Promise.reject(new Error()));
 
-        const userResolver = new PeopleResolver('user', resolveUser, denormalizeUser);
-        const contactResolver = new PeopleResolver('contact', resolveContact, denormalizeContact);
+        const usersearcher = new PeopleSearcher('user', resolveUser, denormalizeUser);
+        const contactsearcher = new PeopleSearcher('contact', resolveContact, denormalizeContact);
 
-        service.addResolver(userResolver);
-        service.addResolver(contactResolver);
+        service.addSearcher(usersearcher);
+        service.addSearcher(contactsearcher);
 
         service.search({ term, context, pagination, excludes })
           .then(result => {
