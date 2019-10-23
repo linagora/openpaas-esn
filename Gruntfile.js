@@ -137,7 +137,7 @@ module.exports = function(grunt) {
       elasticsearch: container.newContainer({
           Image: servers.elasticsearch.container.image,
           name: servers.elasticsearch.container.name,
-          Cmd: ['elasticsearch', '-Des.discovery.zen.ping.multicast.enabled=false'],
+          Cmd: ['elasticsearch', '-Ediscovery.type=single-node'],
           PortBindings: { '9200/tcp': [{ HostPort: servers.elasticsearch.port + '' }] },
           Links: [servers.mongodb.container.name + ':mongo']
         }, {}, {}, {
