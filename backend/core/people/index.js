@@ -15,3 +15,4 @@ module.exports = {
 
 service.addSearcher(require('../user/people/searcher'));
 service.addSearcher(require('../ldap/people-searcher'));
+service.addResolver(require('../user/people/resolver'));
