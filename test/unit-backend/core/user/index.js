@@ -1,5 +1,3 @@
-'use strict';
-
 const q = require('q');
 const expect = require('chai').expect;
 const mockery = require('mockery');
@@ -208,40 +206,31 @@ describe('The user core module', function() {
   });
 
   describe('findByEmail method', function() {
-    var userModule = null;
+    let userModule;
 
     beforeEach(function() {
       var User = {
-        findOne: function(query, callback) {
-          callback(null, query);
-        }
+        findOne: (query, callback) => callback(null, query)
       };
 
-      mockModels({
-        User: User
-      });
+      mockModels({ User });
       userModule = this.helpers.requireBackend('core').user;
     });
 
-    it('should lowercase the email array and flatten it into an $or array', function(done) {
-      userModule.findByEmail(['Test@linagora.com', 'tESt2@linagora.com'], function(err, query) {
+    it('should lowercase the email array and pass them to $in', function(done) {
+      userModule.findByEmail(['Test@linagora.com', 'tESt2@linagora.com'], (err, query) => {
+        if (err) return done(err);
+
         expect(query).to.deep.equal({
-          $or: [
-            {
-              accounts: {
-                $elemMatch: {
-                  emails: 'test@linagora.com'
-                }
-              }
-            },
-            {
-              accounts: {
-                $elemMatch: {
-                  emails: 'test2@linagora.com'
+          $and: [{
+            accounts: {
+              $elemMatch: {
+                emails: {
+                  $in: ['test@linagora.com', 'test2@linagora.com']
                 }
               }
             }
-          ]
+          }]
         });
 
         done();
@@ -249,14 +238,49 @@ describe('The user core module', function() {
     });
 
     it('should lowercase a single email', function(done) {
-      userModule.findByEmail('Test@linagora.com', function(err, query) {
+      userModule.findByEmail('Test@linagora.com', (err, query) => {
+        if (err) return done(err);
+
         expect(query).to.deep.equal({
-          accounts: {
-            $elemMatch: {
-              emails: 'test@linagora.com'
+          $and: [{
+            accounts: {
+              $elemMatch: {
+                emails: {
+                  $in: ['test@linagora.com']
+                }
+              }
             }
-          }
+          }]
         });
+
+        done();
+      });
+    });
+
+    it('should add a condition of matching domain id if options.domainId is provided', function(done) {
+      userModule.findByEmail('Test@linagora.com', { domainId: '123' }, (err, query) => {
+        expect(query).to.deep.equal(({
+          $and: [
+            {
+              accounts: {
+                $elemMatch: {
+                  emails: {
+                    $in: [
+                      'test@linagora.com'
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              domains: {
+                $elemMatch: {
+                  domain_id: '123'
+                }
+              }
+            }
+          ]
+        }));
 
         done();
       });
@@ -281,38 +305,45 @@ describe('The user core module', function() {
 
     it('should lowercase the email array and flatten it into an $or array', function(done) {
       userModule.findUsersByEmail(['Test@linagora.com', 'tESt2@linagora.com'], (err, query) => {
+        if (err) return done(err);
+
         expect(query).to.deep.equal({
-          $or: [
+          $and: [
             {
               accounts: {
                 $elemMatch: {
-                  emails: 'test@linagora.com'
-                }
-              }
-            },
-            {
-              accounts: {
-                $elemMatch: {
-                  emails: 'test2@linagora.com'
+                  emails: {
+                    $in: [
+                      'test@linagora.com',
+                      'test2@linagora.com'
+                    ]
+                  }
                 }
               }
             }
           ]
         });
-
         done();
       });
     });
 
     it('should lowercase a single email', function(done) {
       userModule.findUsersByEmail('Test@linagora.com', (err, query) => {
-        expect(query).to.deep.equal({
-          accounts: {
-            $elemMatch: {
-              emails: 'test@linagora.com'
+        expect(query).to.deep.equal(({
+          $and: [
+            {
+              accounts: {
+                $elemMatch: {
+                  emails: {
+                    $in: [
+                      'test@linagora.com'
+                    ]
+                  }
+                }
+              }
             }
-          }
-        });
+          ]
+        }));
 
         done();
       });
