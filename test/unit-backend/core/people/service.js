@@ -3,7 +3,7 @@ const mockery = require('mockery');
 const sinon = require('sinon');
 
 describe('The people service module', function() {
-  let logger, Service, PeopleSearcher;
+  let logger, Service, PeopleSearcher, PeopleResolver;
 
   beforeEach(function() {
     logger = {
@@ -14,6 +14,7 @@ describe('The people service module', function() {
     mockery.registerMock('../logger', logger);
     Service = this.helpers.requireBackend('core/people/service');
     PeopleSearcher = this.helpers.requireBackend('core/people/searcher');
+    PeopleResolver = this.helpers.requireBackend('core/people/resolver');
   });
 
   describe('The addSearcher function', function() {
@@ -21,12 +22,6 @@ describe('The people service module', function() {
       const service = new Service();
 
       expect(service.addSearcher).to.throw(/Wrong searcher definition/);
-    });
-
-    it('should throw Error when searcher is undefined', function() {
-      const service = new Service();
-
-      expect(() => service.addSearcher({})).to.throw(/Wrong searcher definition/);
     });
 
     it('should add the searcher to the searchers', function() {
@@ -237,6 +232,163 @@ describe('The people service module', function() {
           })
           .catch(done);
         });
+    });
+  });
+
+  describe('The addResolver function', function() {
+    it('should throw Error when resolver is undefined', function() {
+      const service = new Service();
+
+      expect(service.addResolver).to.throw(/Wrong resolver definition/);
+    });
+
+    it('should throw Error when resolver is undefined', function() {
+      const service = new Service();
+
+      expect(() => service.addResolver({})).to.throw(/Wrong resolver definition/);
+    });
+
+    it('should add the resolver to the resolvers', function() {
+      const objectType = 'user';
+      const service = new Service();
+      const resolver = new PeopleResolver(objectType, () => {}, () => {});
+
+      service.addResolver(resolver);
+
+      expect(service.resolvers.get(objectType)).to.deep.equal(resolver);
+    });
+  });
+
+  describe('The resolve function', function() {
+    let user, contact, fieldType, value, context;
+
+    beforeEach(function() {
+      user = { _id: 1 };
+      contact = { uid: 1 };
+      value = 'resolveme';
+      fieldType = 'field';
+      context = { user: 1, domain: 2 };
+    });
+
+    describe('When no resolvers', function() {
+      it('should return empty', function(done) {
+        const service = new Service();
+
+        service.resolve().then(result => {
+          expect(result).to.be.empty;
+          done();
+        }).catch(done);
+      });
+    });
+
+    describe('When some resolvers are registered', function() {
+      it('should return the result of the resolver that has succesfully found resolved object', function(done) {
+        const service = new Service();
+        const resolveUser = sinon.stub().returns(Promise.resolve(user));
+        const denormalizeUser = sinon.stub();
+        const userResolver = new PeopleResolver('user', resolveUser, denormalizeUser);
+
+        denormalizeUser.withArgs({ context, source: user }).returns(Promise.resolve(user));
+
+        service.addResolver(userResolver);
+
+        service.resolve({ fieldType, value, objectTypes: ['user'], context }).then(result => {
+          expect(result).to.equal(user);
+          expect(resolveUser).to.have.been.calledWith({ fieldType, value, context });
+          expect(denormalizeUser).to.have.been.calledWith({ context, source: user });
+          done();
+        }).catch(done);
+      });
+
+      it('should ignore later resolvers if one resolver has returned a result', function(done) {
+        const service = new Service();
+        const resolveUser = sinon.stub().returns(Promise.resolve(user));
+        const resolveContact = sinon.stub().returns(Promise.resolve());
+        const denormalizeUser = sinon.stub();
+        const denormalizeContact = sinon.stub();
+        const userResolver = new PeopleResolver('user', resolveUser, denormalizeUser);
+        const contactResolver = new PeopleResolver('contact', resolveContact, denormalizeContact);
+
+        denormalizeUser.withArgs({ context, source: user }).returns(Promise.resolve(user));
+        denormalizeContact.withArgs({ context, source: contact }).returns(Promise.resolve(contact));
+
+        service.addResolver(userResolver);
+        service.addResolver(contactResolver);
+
+        service.resolve({ fieldType, value, objectTypes: ['user', 'contact'], context }).then(result => {
+          expect(result).to.equal(user);
+          expect(resolveUser).to.have.been.calledWith({ fieldType, value, context });
+          expect(denormalizeUser).to.have.been.calledWith({ context, source: user });
+          expect(resolveContact).to.have.not.been.called;
+          expect(denormalizeContact).to.have.not.been.called;
+          done();
+        }).catch(done);
+      });
+
+      it('should run the resolvers subsequently in order of object types', function(done) {
+        const service = new Service();
+        const resolveUser = sinon.stub().returns(Promise.resolve());
+        const resolveContact = sinon.stub().returns(Promise.resolve());
+        const denormalizeUser = () => Promise.resolve();
+        const denormalizeContact = () => Promise.resolve();
+        const userResolver = new PeopleResolver('user', resolveUser, denormalizeUser);
+        const contactResolver = new PeopleResolver('contact', resolveContact, denormalizeContact);
+
+        service.addResolver(userResolver);
+        service.addResolver(contactResolver);
+
+        service.resolve({ fieldType, value, objectTypes: ['user', 'contact'], context }).then(result => {
+          expect(result).to.be.empty;
+          expect(resolveUser).to.have.been.calledWith({ fieldType, value, context });
+          expect(resolveContact).to.have.been.calledWith({ fieldType, value, context });
+          expect(resolveUser).to.have.been.calledBefore(resolveContact);
+          done();
+        }).catch(done);
+      });
+
+      it('should call the resolvers in default priority order if no object types is defined', function(done) {
+        const service = new Service();
+        const resolveUser = sinon.stub().returns(Promise.resolve());
+        const resolveContact = sinon.stub().returns(Promise.resolve());
+        const denormalizeUser = () => Promise.resolve();
+        const denormalizeContact = () => Promise.resolve();
+        const userResolver = new PeopleResolver('user', resolveUser, denormalizeUser, 10);
+        const contactResolver = new PeopleResolver('contact', resolveContact, denormalizeContact, 20);
+
+        service.addResolver(userResolver);
+        service.addResolver(contactResolver);
+
+        service.resolve({ fieldType, value, objectTypes: [], context }).then(result => {
+          expect(result).to.be.empty;
+          expect(resolveUser).to.have.been.calledWith({ fieldType, value, context });
+          expect(resolveContact).to.have.been.calledWith({ fieldType, value, context });
+          expect(resolveContact).to.have.been.calledBefore(resolveUser);
+          done();
+        }).catch(done);
+      });
+    });
+
+    describe('When a resolver function rejects', function() {
+      it('should continue calling the next resolver', function(done) {
+        const service = new Service();
+        const resolveUser = sinon.stub().returns(Promise.reject());
+        const resolveContact = sinon.stub().returns(Promise.resolve());
+        const denormalizeUser = () => Promise.resolve();
+        const denormalizeContact = () => Promise.resolve();
+        const userResolver = new PeopleResolver('user', resolveUser, denormalizeUser);
+        const contactResolver = new PeopleResolver('contact', resolveContact, denormalizeContact);
+
+        service.addResolver(userResolver);
+        service.addResolver(contactResolver);
+
+        service.resolve({ fieldType, value, objectTypes: ['user', 'contact'], context }).then(result => {
+          expect(result).to.be.empty;
+          expect(resolveUser).to.have.been.calledWith({ fieldType, value, context });
+          expect(resolveContact).to.have.been.calledWith({ fieldType, value, context });
+          expect(resolveUser).to.have.been.calledBefore(resolveContact);
+          done();
+        }).catch(done);
+      });
     });
   });
 });

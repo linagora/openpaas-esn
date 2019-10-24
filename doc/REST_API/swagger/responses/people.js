@@ -55,4 +55,34 @@
  *             ]
  *           }
  *         ]
+ *   ppl_resolve_response:
+ *     description: Ok. With a person object
+ *     schema:
+ *       type: array
+ *       items:
+ *         $ref: "#/definitions/People"
+ *     examples:
+ *       application/json:
+ *         {
+ *           "id":"540da7521dadc2c713b377ac",
+ *           "objectType":"user",
+ *           "emailAddresses":[
+ *             {
+ *               "value":"bruce.willis@open-paas.org",
+ *               "type":"default"
+ *             }
+ *           ],
+ *           "names":[
+ *             {
+ *               "displayName":"Bruce WILLIS",
+ *               "type":"default"
+ *             }
+ *           ],
+ *            "photos":[
+ *             {
+ *               "url":"https://open-paas.org/api/avatars?objectType=user&email=bruce.willis@open-paas.org",
+ *               "type":"default"
+ *             }
+ *           ]
+ *         }
  */

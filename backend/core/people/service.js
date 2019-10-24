@@ -1,10 +1,13 @@
 const Q = require('q');
 const { LIMIT, OFFSET } = require('./constants');
+const logger = require('../logger');
 const PeopleSearcher = require('./searcher');
+const PeopleResolver = require('./resolver');
 
 class PeopleService {
   constructor() {
     this.searchers = new Map();
+    this.resolvers = new Map();
   }
 
   /**
@@ -35,11 +38,57 @@ class PeopleService {
     }
   }
 
+  /**
+   * Resolve a certain value of a field type (e.g email address)
+   * Return a resolved object that is having exact match with the given value of the resolving field
+   * Resolver priority is decided by the objectTypes list. Resolving process will run sequentialy,
+   * only the first resolved result is used
+   *
+   * Note: If no objectTypes is defined or if empty, registered resolvers are used and ran in default
+   * priority order.
+   */
+  resolve(query = {objectTypes: [], fieldType: '', value: '', context: {}}) {
+    let localResolvers;
+
+    if (query.objectTypes && query.objectTypes.length) {
+      localResolvers = query.objectTypes
+        .map(objectType => this.resolvers.get(objectType))
+        .filter(Boolean);
+    } else {
+      localResolvers = [...this.resolvers.values()]
+        .sort((a, b) => (b.defaultPriority || 0) - (a.defaultPriority || 0));
+    }
+
+    return localResolvers.reduce((promise, resolver, index, resolvers) => promise
+      .then(result => result || resolve(resolver, query))
+      .catch(error => {
+        logger.error(`Failed to resolve ${resolvers[index - 1].objectType}`, error);
+
+        return resolve(resolver, query);
+      }), Promise.resolve());
+
+    function resolve(resolver, { fieldType, value, context }) {
+      return resolver.resolve({ fieldType, value, context })
+        .then(result => (result && denormalize(result, resolver, context)));
+    }
+
+    function denormalize(source, resolver, context) {
+      return resolver.denormalize({ source, context });
+    }
+  }
+
   addSearcher(searcher) {
     if (!searcher || !(searcher instanceof PeopleSearcher)) {
       throw new Error('Wrong searcher definition', searcher);
     }
     this.searchers.set(searcher.objectType, searcher);
+  }
+
+  addResolver(resolver) {
+    if (!resolver || !(resolver instanceof PeopleResolver)) {
+      throw new Error('Wrong resolver definition', resolver);
+    }
+    this.resolvers.set(resolver.objectType, resolver);
   }
 }
 
