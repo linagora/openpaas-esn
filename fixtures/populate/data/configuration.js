@@ -10,7 +10,6 @@ module.exports = function(domains, host) {
   var port = process.env.JMAP_SERVER_PORT || 1080;
   var path = process.env.JMAP_SERVER_PATH || 'jmap';
   var isJmapSendingEnabled = process.env.JMAP_SENDING_ENABLED !== 'false';
-  var isSaveDraftBeforeSendingEnabled = process.env.SAVE_DRAFT_BEFORE_SENDING_ENABLED === 'true';
   var isAttachmentsEnabled = process.env.ATTACHMENTS_ENABLED !== 'false';
   var drafts = process.env.DRAFTS !== 'false';
   var maxSizeUpload = parseInt(process.env.JMAP_MAX_SIZE_UPLOAD, 10) || 20971520;
@@ -48,10 +47,6 @@ module.exports = function(domains, host) {
             {
               name: 'isJmapSendingEnabled',
               value: isJmapSendingEnabled
-            },
-            {
-              name: 'isSaveDraftBeforeSendingEnabled',
-              value: isSaveDraftBeforeSendingEnabled
             },
             {
               name: 'composer.attachments',

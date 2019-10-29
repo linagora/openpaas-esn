@@ -105,12 +105,6 @@ The following features are supported for the `linagora.esn.unifiedinbox` module:
 ```
 ```
 {
-    "name" : "isSaveDraftBeforeSendingEnabled",
-    "value" : false
-}
-```
-```
-{
     "name" : "composer.attachments",
     "value" : false
 }
