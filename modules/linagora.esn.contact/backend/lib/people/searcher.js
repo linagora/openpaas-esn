@@ -1,4 +1,3 @@
-
 module.exports = dependencies => {
   const client = require('../client')(dependencies);
   const { token } = dependencies('auth');
