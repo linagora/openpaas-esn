@@ -5,6 +5,7 @@
 
   function esnPeopleAPI(esnRestangular) {
     return {
+      resolve: resolve,
       search: search
     };
 
@@ -17,6 +18,18 @@
       }).then(function(result) {
         return result.data;
       });
+    }
+
+    function resolve(fieldType, value, options) {
+      options = options || {};
+      var objectTypes = (options.objectTypes && options.objectTypes.length) ?
+        options.objectTypes.join(',') :
+        null;
+
+      return esnRestangular.all('people/resolve').one(fieldType).one(value).get({ objectTypes: objectTypes })
+        .then(function(result) {
+          return result.data;
+        });
     }
   }
 

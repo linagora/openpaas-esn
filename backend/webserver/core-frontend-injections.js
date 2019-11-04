@@ -495,6 +495,7 @@ const injections = [
   ], innerApps: ['esn']},
   {angular: 'esn.people', files: [
     'people/people.module.js',
+    'people/people.constant.js',
     'people/people-api-client.service.js'
   ], innerApps: ['esn', 'welcome']},
   {angular: 'esn.app-state', files: [
