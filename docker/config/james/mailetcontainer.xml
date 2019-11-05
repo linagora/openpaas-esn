@@ -36,6 +36,7 @@
             <mailet match="RelayLimit=30" class="Null"/>
             <mailet match="dlp.Dlp" class="ToProcessor">
                  <processor>dlpQuarantine</processor>
+                 <onMatcherException>dlpQuarantine</onMatcherException>
             </mailet>
             <mailet match="All" class="ToProcessor">
                 <processor>transport</processor>
